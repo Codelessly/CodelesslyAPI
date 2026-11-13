@@ -125,8 +125,10 @@ void main() {
     });
     expect(b.states.patchFor('t', {WidgetState.pressed}), isNull);
     expect(b.hero, const HeroTag('card', flight: HeroFlightShuttle.morphCorners));
-    expect(b.drag!.directions, [DragDirection.left, DragDirection.right]);
-    expect(b.drag!.track!.shape, DragTrackShape.arc);
+    // A legacy drag with a track is the track (its swipe fields did nothing).
+    expect(b.track!.shape, TrackShape.arc);
+    expect(b.track!.variable, 'volume');
+    expect(b.dismissible, isNull);
     expect(b.strokePath!.points.last, const Offset(1, 10));
     expect(b.particles!.colors, [const Color(0xFFFF0000)]);
     expect(b.textDirection, TextDirection.rtl);
@@ -139,7 +141,9 @@ void main() {
       ..remove('loops')
       ..remove('effectAnimations')
       ..remove('motion')
-      ..remove('transitions');
+      ..remove('transitions')
+      ..remove('drag')
+      ..remove('zoomable');
     final written = jsonDecode(jsonEncode(n.toJson())) as Map;
     expect(written['animations'], [
       {'id': 'loop0', 'preset': 'pulse', 'params': {'scaleFrom': 0.65, 'opacityFrom': 0.35, 'opacityTo': 0}, 'duration': 1400},
@@ -175,7 +179,12 @@ void main() {
         'interpolation': 'monotoneCubic',
       },
     ]);
-    expect({...written}..removeWhere((k, _) => const {'animations', 'motion', 'transitions'}.contains(k)), jsonDecode(jsonEncode(legacy)));
+    expect(written['track'], {'variable': 'volume', 'shape': 'arc', 'max': 10});
+    // zoomable: true is the transform gesture's zoomable form.
+    expect(written['transformGesture'], {'target': 'content', 'pan': 'whenZoomed'});
+    expect(b.transformGesture, TransformGesture.zoomable);
+    expect({...written}..removeWhere((k, _) => const {'animations', 'motion', 'transitions', 'track', 'transformGesture'}.contains(k)),
+        jsonDecode(jsonEncode(legacy)));
     expect(Node.fromJson(n.toJson()), n);
   });
 

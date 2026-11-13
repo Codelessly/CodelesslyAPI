@@ -155,7 +155,9 @@
             "copyToClipboard",
             "editText",
             "focus",
-            "controlDrag",
+            "controlTrack",
+            "controlDismissible",
+            "controlTransform",
             "scrollTo",
             "animate",
             "haptic",
@@ -757,7 +759,7 @@
           "if": {
             "properties": {
               "type": {
-                "const": "controlDrag"
+                "const": "controlTrack"
               }
             }
           },
@@ -767,13 +769,54 @@
                 "type": "string"
               },
               "command": {
-                "$ref": "#/$defs/enum.DragCommand"
-              },
-              "direction": {
-                "$ref": "#/$defs/enum.DragDirection"
+                "$ref": "#/$defs/enum.TrackCommand"
               },
               "steps": {
                 "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "controlDismissible"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "command": {
+                "$ref": "#/$defs/enum.DismissCommand"
+              },
+              "direction": {
+                "$ref": "#/$defs/enum.DragDirection"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "controlTransform"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "command": {
+                "$ref": "#/$defs/enum.TransformCommand"
               },
               "value": {
                 "type": "string"
@@ -2005,22 +2048,25 @@
         "circle"
       ]
     },
+    "enum.DismissCommand": {
+      "enum": [
+        "dismiss",
+        "returnFrom",
+        "reset",
+        "shake"
+      ]
+    },
+    "enum.DragAnchor": {
+      "enum": [
+        "child",
+        "center"
+      ]
+    },
     "enum.DragAxis": {
       "enum": [
         "free",
         "horizontal",
         "vertical"
-      ]
-    },
-    "enum.DragCommand": {
-      "enum": [
-        "fling",
-        "returnFrom",
-        "reset",
-        "shake",
-        "step",
-        "zoom",
-        "pose"
       ]
     },
     "enum.DragDirection": {
@@ -2029,13 +2075,6 @@
         "right",
         "up",
         "down"
-      ]
-    },
-    "enum.DragRelease": {
-      "enum": [
-        "snapBack",
-        "stay",
-        "dismiss"
       ]
     },
     "enum.DragSourceStyle": {
@@ -2050,33 +2089,6 @@
         "press",
         "longPress",
         "auto"
-      ]
-    },
-    "enum.DragTrackHitArea": {
-      "enum": [
-        "self",
-        "parent"
-      ]
-    },
-    "enum.DragTrackInput": {
-      "enum": [
-        "follow",
-        "vertical",
-        "horizontal",
-        "both"
-      ]
-    },
-    "enum.DragTrackShape": {
-      "enum": [
-        "line",
-        "arc",
-        "path"
-      ]
-    },
-    "enum.DragTrackUnits": {
-      "enum": [
-        "pixels",
-        "parent"
       ]
     },
     "enum.DropSlot": {
@@ -2116,12 +2128,6 @@
       "enum": [
         "youtube",
         "vimeo"
-      ]
-    },
-    "enum.FeedbackAnchor": {
-      "enum": [
-        "grab",
-        "center"
       ]
     },
     "enum.FlipAxis": {
@@ -2249,12 +2255,6 @@
         "onDrag"
       ]
     },
-    "enum.KeyframeInterpolation": {
-      "enum": [
-        "linear",
-        "monotoneCubic"
-      ]
-    },
     "enum.LineChartXLabelAnchor": {
       "enum": [
         "edgeClamped",
@@ -2335,6 +2335,20 @@
         "banner"
       ]
     },
+    "enum.MotionLoop": {
+      "enum": [
+        "none",
+        "restart",
+        "reverse",
+        "swing"
+      ]
+    },
+    "enum.MotionPathPacing": {
+      "enum": [
+        "length",
+        "area"
+      ]
+    },
     "enum.NavigationDestinationLabelBehavior": {
       "enum": [
         "alwaysShow",
@@ -2411,6 +2425,12 @@
         "image"
       ]
     },
+    "enum.PanRelease": {
+      "enum": [
+        "snapBack",
+        "stay"
+      ]
+    },
     "enum.ParticleShape": {
       "enum": [
         "square",
@@ -2435,14 +2455,7 @@
       "enum": [
         "none",
         "tangent",
-        "upright",
-        "uprightFlip"
-      ]
-    },
-    "enum.PathPacing": {
-      "enum": [
-        "length",
-        "area"
+        "upright"
       ]
     },
     "enum.PathUnit": {
@@ -2866,6 +2879,52 @@
         "multiply"
       ]
     },
+    "enum.TrackCommand": {
+      "enum": [
+        "step",
+        "animateTo"
+      ]
+    },
+    "enum.TrackHitArea": {
+      "enum": [
+        "self",
+        "parent"
+      ]
+    },
+    "enum.TrackInput": {
+      "enum": [
+        "follow",
+        "vertical",
+        "horizontal",
+        "both"
+      ]
+    },
+    "enum.TrackInteraction": {
+      "enum": [
+        "slideThumb",
+        "tapAndSlide"
+      ]
+    },
+    "enum.TrackShape": {
+      "enum": [
+        "line",
+        "arc",
+        "path"
+      ]
+    },
+    "enum.TrackUnits": {
+      "enum": [
+        "pixels",
+        "parent"
+      ]
+    },
+    "enum.TransformCommand": {
+      "enum": [
+        "reset",
+        "scaleBy",
+        "animateTo"
+      ]
+    },
     "enum.TransformPan": {
       "enum": [
         "always",
@@ -3129,9 +3188,6 @@
         },
         "blend": {
           "$ref": "#/$defs/enum.TrackBlend"
-        },
-        "interpolation": {
-          "$ref": "#/$defs/enum.KeyframeInterpolation"
         }
       },
       "additionalProperties": false
@@ -3458,14 +3514,11 @@
       },
       "additionalProperties": false
     },
-    "model.DragMotion": {
+    "model.DismissibleBehavior": {
       "type": "object",
       "properties": {
-        "axis": {
-          "$ref": "#/$defs/enum.DragAxis"
-        },
-        "release": {
-          "$ref": "#/$defs/enum.DragRelease"
+        "enabled": {
+          "type": "boolean"
         },
         "directions": {
           "type": "array",
@@ -3473,20 +3526,69 @@
             "$ref": "#/$defs/enum.DragDirection"
           }
         },
-        "distanceThreshold": {
-          "type": "number"
+        "axis": {
+          "$ref": "#/$defs/enum.DragAxis"
         },
-        "verticalThreshold": {
+        "dismissThresholds": {},
+        "flingVelocity": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "resistance": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "movementDuration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "curve": {
+          "$ref": "#/$defs/enum.AnimationCurve"
+        },
+        "returnDuration": {
           "anyOf": [
             {
-              "type": "number"
+              "type": "integer"
             },
             {
               "type": "null"
             }
           ]
         },
-        "velocityThreshold": {
+        "returnCurve": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/enum.AnimationCurve"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "returnSpring": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Spring"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "restX": {
+          "type": "number"
+        },
+        "restY": {
+          "type": "number"
+        },
+        "xVariable": {
+          "type": "string"
+        },
+        "yVariable": {
+          "type": "string"
+        },
+        "flyOutRotate": {
           "type": "number"
         },
         "rotateFactor": {
@@ -3498,39 +3600,6 @@
         "originY": {
           "type": "number"
         },
-        "resistance": {
-          "type": "number"
-        },
-        "snapBack": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "snapCurve": {
-          "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "flyOut": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "flyOutCurve": {
-          "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "flyOutDistance": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "flyOutRotate": {
-          "type": "number"
-        },
-        "enabled": {
-          "type": "boolean"
-        },
         "shakeWhenDisabled": {
           "type": "boolean"
         },
@@ -3540,86 +3609,8 @@
         "shareAs": {
           "type": "string"
         },
-        "restX": {
-          "type": "number"
-        },
-        "restY": {
-          "type": "number"
-        },
-        "track": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.DragTrack"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "reorder": {
-          "type": "boolean"
-        },
         "follow": {
           "type": "boolean"
-        },
-        "xVariable": {
-          "type": "string"
-        },
-        "yVariable": {
-          "type": "string"
-        },
-        "physics": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.GesturePhysics"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "bounds": {
-          "$ref": "#/$defs/enum.GestureBounds"
-        },
-        "minX": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "maxX": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "minY": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "maxY": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
         }
       },
       "additionalProperties": false
@@ -3639,11 +3630,17 @@
         "axis": {
           "$ref": "#/$defs/enum.DragAxis"
         },
-        "whileDragging": {
+        "childWhenDragging": {
           "$ref": "#/$defs/enum.DragSourceStyle"
         },
         "ghostOpacity": {
           "type": "number"
+        },
+        "feedback": {
+          "type": "string"
+        },
+        "dragAnchor": {
+          "$ref": "#/$defs/enum.DragAnchor"
         },
         "feedbackRotation": {
           "type": "number"
@@ -3657,242 +3654,22 @@
         "feedbackElevation": {
           "type": "number"
         },
-        "feedbackNodeId": {
-          "type": "string"
-        },
-        "feedbackAnchor": {
-          "$ref": "#/$defs/enum.FeedbackAnchor"
-        },
         "returnSpring": {
-          "type": "boolean"
-        },
-        "spring": {
-          "$ref": "#/$defs/model.Spring"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Spring"
+            },
+            {
+              "type": [
+                "string",
+                "boolean",
+                "number"
+              ]
+            }
+          ]
         },
         "enabled": {
           "type": "boolean"
-        },
-        "physics": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.GesturePhysics"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "model.DragTrack": {
-      "type": "object",
-      "properties": {
-        "variable": {
-          "type": "string"
-        },
-        "shape": {
-          "$ref": "#/$defs/enum.DragTrackShape"
-        },
-        "min": {
-          "type": "number"
-        },
-        "max": {
-          "type": "number"
-        },
-        "step": {
-          "type": "number"
-        },
-        "defaultValue": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "input": {
-          "$ref": "#/$defs/enum.DragTrackInput"
-        },
-        "pixelsPerRange": {
-          "type": "number"
-        },
-        "x1": {
-          "type": "number"
-        },
-        "y1": {
-          "type": "number"
-        },
-        "x2": {
-          "type": "number"
-        },
-        "y2": {
-          "type": "number"
-        },
-        "startAngle": {
-          "type": "number"
-        },
-        "endAngle": {
-          "type": "number"
-        },
-        "pivotX": {
-          "type": "number"
-        },
-        "pivotY": {
-          "type": "number"
-        },
-        "rotate": {
-          "type": "boolean"
-        },
-        "path": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "orientToPath": {
-          "type": "boolean"
-        },
-        "jumpOnTap": {
-          "type": "boolean"
-        },
-        "wheel": {
-          "type": "boolean"
-        },
-        "value": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "orientUpright": {
-          "type": "boolean"
-        },
-        "detent": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "overscroll": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "settle": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "settleCurve": {
-          "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "settleSpring": {
-          "$ref": "#/$defs/model.Spring"
-        },
-        "parkedProgress": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "keyboard": {
-          "type": "boolean"
-        },
-        "viewBoxWidth": {
-          "type": "number",
-          "minimum": 0.0
-        },
-        "viewBoxHeight": {
-          "type": "number",
-          "minimum": 0.0
-        },
-        "relative": {
-          "type": "boolean"
-        },
-        "wheelStep": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "doubleTapValues": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
-        },
-        "keyStep": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "hitArea": {
-          "$ref": "#/$defs/enum.DragTrackHitArea"
-        },
-        "units": {
-          "$ref": "#/$defs/enum.DragTrackUnits"
-        },
-        "fineStep": {
-          "type": "number",
-          "minimum": 0.0
-        },
-        "finePixelsPerRange": {
-          "type": "number",
-          "minimum": 0.0
-        },
-        "fineHold": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "fineVariable": {
-          "type": "string"
-        },
-        "snap": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "snapCurve": {
-          "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "write": {
-          "type": "boolean"
-        },
-        "endless": {
-          "type": "boolean"
-        },
-        "momentum": {
-          "type": "boolean"
-        },
-        "friction": {
-          "type": "number"
-        },
-        "smooth": {
-          "type": "boolean"
-        },
-        "gain": {
-          "type": "number"
         }
       },
       "additionalProperties": false
@@ -4974,12 +4751,6 @@
         "translateY": {
           "type": "number"
         },
-        "shiftX": {
-          "type": "number"
-        },
-        "shiftY": {
-          "type": "number"
-        },
         "scale": {
           "type": "number"
         },
@@ -4988,6 +4759,17 @@
         },
         "scaleY": {
           "type": "number"
+        },
+        "shiftX": {
+          "type": "number"
+        },
+        "shiftY": {
+          "type": "number"
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
         },
         "rotate": {
           "type": "number"
@@ -4998,11 +4780,87 @@
         "rotateY": {
           "type": "number"
         },
+        "spin": {
+          "type": "number"
+        },
+        "pathProgress": {
+          "type": "number"
+        },
+        "blur": {
+          "type": "number",
+          "minimum": 0.0
+        },
         "perspective": {
           "type": "number"
         },
-        "alignment": {
-          "$ref": "#/$defs/value.Alignment"
+        "originX": {
+          "type": "number"
+        },
+        "originY": {
+          "type": "number"
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "delay": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "curve": {
+          "$ref": "#/$defs/enum.AnimationCurve"
+        },
+        "rotateCurve": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/enum.AnimationCurve"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fadeShare": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "spring": {
+          "$ref": "#/$defs/model.Spring"
+        },
+        "spinRamp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "loop": {
+          "$ref": "#/$defs/enum.MotionLoop"
+        },
+        "repeat": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "enter": {
+          "type": "boolean"
+        },
+        "enterFrom": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Motion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replayKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "backfaceHidden": {
           "type": "boolean"
@@ -5010,21 +4868,208 @@
         "path": {
           "anyOf": [
             {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/model.PathFollow"
-                },
-                {
-                  "type": [
-                    "string"
-                  ]
-                }
-              ]
+              "type": "string"
             },
             {
               "type": "null"
             }
           ]
+        },
+        "orientToPath": {
+          "type": "boolean"
+        },
+        "keyframes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model.MotionKeyframe"
+          }
+        },
+        "revealOnScroll": {
+          "type": "boolean"
+        },
+        "enterHeld": {
+          "type": "boolean"
+        },
+        "revealFraction": {
+          "type": "number"
+        },
+        "orientUpright": {
+          "type": "boolean"
+        },
+        "uprightMirror": {
+          "type": "boolean"
+        },
+        "arc": {
+          "type": "number"
+        },
+        "paused": {
+          "type": "boolean"
+        },
+        "phase": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "pathPacing": {
+          "$ref": "#/$defs/enum.MotionPathPacing"
+        },
+        "pathFocusX": {
+          "type": "number"
+        },
+        "pathFocusY": {
+          "type": "number"
+        },
+        "pathWrap": {
+          "type": "boolean"
+        },
+        "pathViewBox": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "shimmer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.MotionShimmer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.MotionKeyframe": {
+      "type": "object",
+      "properties": {
+        "t": {
+          "type": "number"
+        },
+        "translateX": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "translateY": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scale": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scaleX": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scaleY": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "opacity": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rotate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rotateX": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rotateY": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pathProgress": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.MotionShimmer": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "$ref": "#/$defs/value.Color"
+        },
+        "strength": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "width": {
+          "type": "number"
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "angle": {
+          "type": "number"
         }
       },
       "additionalProperties": false
@@ -5244,20 +5289,6 @@
               "type": "null"
             }
           ]
-        },
-        "ramp": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "visibleFraction": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
         }
       },
       "additionalProperties": false
@@ -5453,6 +5484,114 @@
       },
       "additionalProperties": false
     },
+    "model.Pan": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "axis": {
+          "$ref": "#/$defs/enum.DragAxis"
+        },
+        "release": {
+          "$ref": "#/$defs/enum.PanRelease"
+        },
+        "returnDuration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "returnCurve": {
+          "$ref": "#/$defs/enum.AnimationCurve"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "xVariable": {
+          "type": "string"
+        },
+        "yVariable": {
+          "type": "string"
+        },
+        "physics": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.GesturePhysics"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bounds": {
+          "$ref": "#/$defs/enum.GestureBounds"
+        },
+        "minX": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxX": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "minY": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxY": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rotateFactor": {
+          "type": "number"
+        },
+        "originX": {
+          "type": "number"
+        },
+        "originY": {
+          "type": "number"
+        },
+        "shakeWhenDisabled": {
+          "type": "boolean"
+        },
+        "disabledFollow": {
+          "type": "number"
+        },
+        "shareAs": {
+          "type": "string"
+        },
+        "follow": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.ParticleEmitter": {
       "type": "object",
       "properties": {
@@ -5562,15 +5701,6 @@
         },
         "orient": {
           "$ref": "#/$defs/enum.PathOrient"
-        },
-        "pacing": {
-          "$ref": "#/$defs/enum.PathPacing"
-        },
-        "focus": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
         }
       },
       "additionalProperties": false
@@ -5739,79 +5869,6 @@
         },
         "axisLabel": {
           "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "model.Pose": {
-      "type": "object",
-      "properties": {
-        "translateX": {
-          "type": "number"
-        },
-        "translateY": {
-          "type": "number"
-        },
-        "shiftX": {
-          "type": "number"
-        },
-        "shiftY": {
-          "type": "number"
-        },
-        "scale": {
-          "type": "number"
-        },
-        "scaleX": {
-          "type": "number"
-        },
-        "scaleY": {
-          "type": "number"
-        },
-        "rotate": {
-          "type": "number"
-        },
-        "rotateX": {
-          "type": "number"
-        },
-        "rotateY": {
-          "type": "number"
-        },
-        "perspective": {
-          "type": "number"
-        },
-        "alignment": {
-          "$ref": "#/$defs/value.Alignment"
-        },
-        "backfaceHidden": {
-          "type": "boolean"
-        },
-        "path": {
-          "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/model.PathFollow"
-                },
-                {
-                  "type": [
-                    "string"
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "opacity": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "blur": {
-          "type": "number",
-          "minimum": 0.0
         }
       },
       "additionalProperties": false
@@ -6003,29 +6060,6 @@
               "type": "null"
             }
           ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "model.Shimmer": {
-      "type": "object",
-      "properties": {
-        "color": {
-          "$ref": "#/$defs/value.Color"
-        },
-        "strength": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "width": {
-          "type": "number"
-        },
-        "angle": {
-          "type": "number"
-        },
-        "position": {
-          "type": "number"
         }
       },
       "additionalProperties": false
@@ -6527,6 +6561,212 @@
       },
       "additionalProperties": false
     },
+    "model.Track": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "step": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "clamp": {
+          "type": "boolean"
+        },
+        "input": {
+          "$ref": "#/$defs/enum.TrackInput"
+        },
+        "allowedInteraction": {
+          "$ref": "#/$defs/enum.TrackInteraction"
+        },
+        "hitArea": {
+          "$ref": "#/$defs/enum.TrackHitArea"
+        },
+        "pixelsPerRange": {
+          "type": "number"
+        },
+        "wheelStep": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "keyStep": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "shape": {
+          "$ref": "#/$defs/enum.TrackShape"
+        },
+        "x1": {
+          "type": "number"
+        },
+        "y1": {
+          "type": "number"
+        },
+        "x2": {
+          "type": "number"
+        },
+        "y2": {
+          "type": "number"
+        },
+        "relative": {
+          "type": "boolean"
+        },
+        "units": {
+          "$ref": "#/$defs/enum.TrackUnits"
+        },
+        "startAngle": {
+          "type": "number"
+        },
+        "sweepAngle": {
+          "type": "number"
+        },
+        "pivotX": {
+          "type": "number"
+        },
+        "pivotY": {
+          "type": "number"
+        },
+        "rotate": {
+          "type": "boolean"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.PathFollow"
+                },
+                {
+                  "type": [
+                    "string"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "detent": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "overscroll": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "physics": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.GesturePhysics"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "settle": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "settleCurve": {
+          "$ref": "#/$defs/enum.AnimationCurve"
+        },
+        "settleSpring": {
+          "$ref": "#/$defs/model.Spring"
+        },
+        "snap": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "snapCurve": {
+          "$ref": "#/$defs/enum.AnimationCurve"
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "doubleTapValues": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "parkedProgress": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fineStep": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "finePixelsPerRange": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "fineHold": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fineVariable": {
+          "type": "string"
+        },
+        "smooth": {
+          "type": "boolean"
+        },
+        "gain": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.TransformGesture": {
       "type": "object",
       "properties": {
@@ -6715,41 +6955,12 @@
     "model.Transition": {
       "type": "object",
       "properties": {
-        "property": {
-          "type": "string"
-        },
         "duration": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "delay": {
           "type": "integer",
           "minimum": 0
         },
         "curve": {
           "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "spring": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.Spring"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "keyframes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/model.Keyframe"
-          }
-        },
-        "interpolation": {
-          "$ref": "#/$defs/enum.KeyframeInterpolation"
-        },
-        "arc": {
-          "type": "number"
         }
       },
       "additionalProperties": false
@@ -6779,7 +6990,7 @@
       "type": "object",
       "properties": {
         "motion": {
-          "$ref": "#/$defs/model.Pose"
+          "$ref": "#/$defs/model.Motion"
         },
         "reveal": {
           "anyOf": [
@@ -6802,6 +7013,42 @@
           "anyOf": [
             {
               "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.Transitions": {
+      "type": "object",
+      "properties": {
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Transition"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "opacity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Transition"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "size": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Transition"
             },
             {
               "type": "null"
@@ -7097,18 +7344,16 @@
           }
         },
         "transitions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/model.Transition"
-          }
-        },
-        "shimmer": {
           "anyOf": [
             {
-              "$ref": "#/$defs/model.Shimmer"
+              "$ref": "#/$defs/model.Transitions"
             },
             {
-              "type": "null"
+              "type": [
+                "string",
+                "boolean",
+                "number"
+              ]
             }
           ]
         },
@@ -7140,9 +7385,6 @@
           "type": "string"
         },
         "ignorePointer": {
-          "type": "boolean"
-        },
-        "zoomable": {
           "type": "boolean"
         },
         "floating": {
@@ -7200,15 +7442,38 @@
             }
           ]
         },
-        "drag": {
+        "track": {
           "anyOf": [
             {
-              "$ref": "#/$defs/model.DragMotion"
+              "$ref": "#/$defs/model.Track"
             },
             {
               "type": "null"
             }
           ]
+        },
+        "dismissible": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.DismissibleBehavior"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Pan"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reorderHandle": {
+          "type": "boolean"
         },
         "reveal": {
           "anyOf": [
@@ -8235,7 +8500,7 @@
                   "pageMotion": {
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/model.Pose"
+                        "$ref": "#/$defs/model.Motion"
                       },
                       {
                         "type": "null"
@@ -8245,7 +8510,7 @@
                   "pageMotionBefore": {
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/model.Pose"
+                        "$ref": "#/$defs/model.Motion"
                       },
                       {
                         "type": "null"

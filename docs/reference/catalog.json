@@ -1586,21 +1586,21 @@
         },
         {
           "key": "pageMotion",
-          "type": "Pose",
+          "type": "Motion",
           "kind": "object",
           "default": null,
           "nullable": true,
-          "object": "Pose",
-          "doc": "A 3D look for the pages as they scroll (coverflow, cube, carousel): the motion a page has one page after the current one. The current page is at rest, pages between are interpolated by their distance (clamped to two pages) and pages before are mirrored (`translateX`, `shiftX`, `rotate`, `rotateY` and the alignment's x change sign). A `Pose`: a transform with an opacity and a blur. Null: flat pages."
+          "object": "Motion",
+          "doc": "A 3D look for the pages as they scroll (coverflow, cube, carousel): the motion a page has one page after the current one. The current page is at rest, pages between are interpolated by their distance (clamped to two pages) and pages before are mirrored (`translateX`, `shiftX`, `rotate`, `rotateY`, `originX` change sign). Null: flat pages."
         },
         {
           "key": "pageMotionBefore",
-          "type": "Pose",
+          "type": "Motion",
           "kind": "object",
           "default": null,
           "nullable": true,
-          "object": "Pose",
-          "doc": "The motion a page has one page *before* the current one, when the two sides differ (a book: the page leaving turns over about the spine, `{shiftX: 1, rotateY: -100, alignment: [-1, 0]}`, while the next one lies still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance like `pageMotion` and not mirrored. Null: `pageMotion` mirrored."
+          "object": "Motion",
+          "doc": "The motion a page has one page *before* the current one, when the two sides differ (a book: the page leaving turns over about the spine, `{shiftX: 1, rotateY: -100, originX: -1}`, while the next one lies still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance like `pageMotion` and not mirrored. Null: `pageMotion` mirrored."
         },
         {
           "key": "paintOrder",
@@ -11432,7 +11432,7 @@
         "default": null,
         "nullable": true,
         "object": "Motion",
-        "doc": "The transform over the layout (Flutter's `Transform`)."
+        "doc": "The transform over the layout, its transitions, entrance and spin."
       },
       {
         "key": "scale",
@@ -11456,23 +11456,12 @@
       },
       {
         "key": "transitions",
-        "type": "List<Transition>",
-        "kind": "list",
-        "default": [],
-        "nullable": false,
-        "item": "Transition",
-        "itemKind": "object",
-        "item_object": "Transition",
-        "doc": "How changes animate, one per property path (the legacy `{style, opacity, size}` reads as these)."
-      },
-      {
-        "key": "shimmer",
-        "type": "Shimmer",
+        "type": "Transitions",
         "kind": "object",
-        "default": null,
-        "nullable": true,
-        "object": "Shimmer",
-        "doc": "A band of light over what it paints."
+        "default": {},
+        "nullable": false,
+        "object": "Transitions",
+        "doc": ""
       },
       {
         "key": "inkWell",
@@ -11507,14 +11496,6 @@
         "default": false,
         "nullable": false,
         "doc": "Lets pointer events through to what's under the node (Flutter's `IgnorePointer`)."
-      },
-      {
-        "key": "zoomable",
-        "type": "bool",
-        "kind": "boolean",
-        "default": false,
-        "nullable": false,
-        "doc": "Pinch, scroll and double-tap zoom and pan (Flutter's `InteractiveViewer`)."
       },
       {
         "key": "floating",
@@ -11569,13 +11550,39 @@
         "doc": ""
       },
       {
-        "key": "drag",
-        "type": "DragMotion",
+        "key": "track",
+        "type": "Track",
         "kind": "object",
         "default": null,
         "nullable": true,
-        "object": "DragMotion",
-        "doc": ""
+        "object": "Track",
+        "doc": "A value set by dragging (Flutter's `Slider`, along any path)."
+      },
+      {
+        "key": "dismissible",
+        "type": "DismissibleBehavior",
+        "kind": "object",
+        "default": null,
+        "nullable": true,
+        "object": "DismissibleBehavior",
+        "doc": "Swiped away (Flutter's `Dismissible`)."
+      },
+      {
+        "key": "pan",
+        "type": "Pan",
+        "kind": "object",
+        "default": null,
+        "nullable": true,
+        "object": "Pan",
+        "doc": "Follows the pointer."
+      },
+      {
+        "key": "reorderHandle",
+        "type": "bool",
+        "kind": "boolean",
+        "default": false,
+        "nullable": false,
+        "doc": "A reorderable list row's drag handle (`ReorderableDragStartListener`)."
       },
       {
         "key": "reveal",
@@ -11651,7 +11658,7 @@
         "default": null,
         "nullable": true,
         "object": "TransformGesture",
-        "doc": "Pinch, pan and rotate, with fling physics and optional handles (over `zoomable`: see `effectiveTransformGesture`)."
+        "doc": "Pinch, pan and rotate, with fling physics and optional handles (the legacy `zoomable: true` reads as `TransformGesture.zoomable`)."
       },
       {
         "key": "sticky",
@@ -13033,10 +13040,10 @@
           }
         ]
       },
-      "controlDrag": {
-        "label": "Control drag",
-        "class": "ControlDragAction",
-        "doc": "Flings, returns, resets or shakes draggable node `node` (a swipe card), or steps a drag track.",
+      "controlTrack": {
+        "label": "Control track",
+        "class": "ControlTrackAction",
+        "doc": "Turns the `Track` of node `node` (several ids: comma-separated, the first on screen takes it). The legacy `controlDrag` `step` reads as it.",
         "fields": [
           {
             "key": "node",
@@ -13044,38 +13051,18 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "A draggable node."
+            "doc": "A node with a track."
           },
           {
             "key": "command",
-            "type": "DragCommand",
+            "type": "TrackCommand",
             "kind": "enumeration",
-            "default": "fling",
+            "default": "step",
             "nullable": false,
-            "enum": "DragCommand",
+            "enum": "TrackCommand",
             "values": [
-              "fling",
-              "returnFrom",
-              "reset",
-              "shake",
               "step",
-              "zoom",
-              "pose"
-            ],
-            "doc": ""
-          },
-          {
-            "key": "direction",
-            "type": "DragDirection",
-            "kind": "enumeration",
-            "default": "right",
-            "nullable": false,
-            "enum": "DragDirection",
-            "values": [
-              "left",
-              "right",
-              "up",
-              "down"
+              "animateTo"
             ],
             "doc": ""
           },
@@ -13093,7 +13080,89 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression)."
+            "doc": "animateTo: the value (an expression)."
+          }
+        ]
+      },
+      "controlDismissible": {
+        "label": "Control dismissible",
+        "class": "ControlDismissibleAction",
+        "doc": "Dismisses, brings back or resets node `node` (several ids: comma-separated). The legacy `controlDrag` `fling`, `returnFrom` and `shake` read as it.",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A dismissible (or pan) node."
+          },
+          {
+            "key": "command",
+            "type": "DismissCommand",
+            "kind": "enumeration",
+            "default": "dismiss",
+            "nullable": false,
+            "enum": "DismissCommand",
+            "values": [
+              "dismiss",
+              "returnFrom",
+              "reset",
+              "shake"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "direction",
+            "type": "DragDirection",
+            "kind": "enumeration",
+            "default": "right",
+            "nullable": false,
+            "enum": "DragDirection",
+            "values": [
+              "left",
+              "right",
+              "up",
+              "down"
+            ],
+            "doc": ""
+          }
+        ]
+      },
+      "controlTransform": {
+        "label": "Control transform",
+        "class": "ControlTransformAction",
+        "doc": "Resets, zooms or poses the transform gesture of node `node`. The legacy `controlDrag` `reset`, `zoom` and `pose` read as it.",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A node with a transform gesture."
+          },
+          {
+            "key": "command",
+            "type": "TransformCommand",
+            "kind": "enumeration",
+            "default": "reset",
+            "nullable": false,
+            "enum": "TransformCommand",
+            "values": [
+              "reset",
+              "scaleBy",
+              "animateTo"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "value",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "scaleBy: the factor (1.5 in, 0.67 out). animateTo: {x, y, scale, rotation} (an expression)."
           }
         ]
       },
@@ -14672,6 +14741,8 @@
     "drag",
     "perf",
     "track",
+    "dismiss",
+    "pan",
     "transform",
     "flip",
     "tilt",
@@ -15056,7 +15127,7 @@
       ]
     },
     "AnimationTrack": {
-      "doc": "One tween a `NodeAnimation` drives: a property at a binding `path` of a node, or a `variable`.\n\nThe value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers interpolate and, as `Tween<double>` does, carry on past the ends on a curve that overshoots (`elasticOut`); colors interpolate; any other value switches at the end.\n\nOn a replacing track a wave's amplitude is a share of the way from `from` to `to` (the property's own value when `to` is omitted): `{\"from\": 0, \"wave\": [{}]}` swings a property between its own value and as far the other way, once a run (a pendulum). On an adding or multiplying track it is in the property's own units.",
+      "doc": "One tween a `NodeAnimation` drives: a property at a binding `path` of a node, or a `variable`.\n\nThe value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers and colors interpolate; any other value switches at the end.",
       "fields": [
         {
           "key": "id",
@@ -15163,19 +15234,6 @@
             "multiply"
           ],
           "doc": ""
-        },
-        {
-          "key": "interpolation",
-          "type": "KeyframeInterpolation",
-          "kind": "enumeration",
-          "default": "linear",
-          "nullable": false,
-          "enum": "KeyframeInterpolation",
-          "values": [
-            "linear",
-            "monotoneCubic"
-          ],
-          "doc": "How `keyframes` are joined."
         }
       ]
     },
@@ -15633,9 +15691,37 @@
         }
       ]
     },
-    "DragMotion": {
-      "doc": "Makes the node follow the pointer: it tilts, and on release springs back, stays, or flies off past a threshold (a swiped card); with a `track` it's a value control.",
+    "DismissibleBehavior": {
+      "doc": "Swiped away past a threshold (node key `dismissible`): Flutter's `Dismissible`. The node follows the pointer toward its `directions` (held back by `resistance` the other ways); let go past its `dismissThresholds` share of its size, or faster than `flingVelocity`, it flies off over `movementDuration` and fires the swipe of that direction (`swipeLeft`...; `Dismissible.onDismissed`), then shows its next content back at rest. Otherwise it returns: on `returnSpring`, else over `returnDuration` along `returnCurve`. A swipe card.\n\nInside it `${dismiss.dx}`, `${dismiss.dy}`, `${dismiss.progress}` (0–1 toward the threshold, `Dismissible.onUpdate`), `${dismiss.direction}`, `${dismiss.dragging}` can be read (and the same as the legacy `${drag.*}`). It fires `drag` and `dragEnd`. The legacy `drag` with `release: dismiss` reads as this, with its old defaults written out.",
       "fields": [
+        {
+          "key": "enabled",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Bindable as `dismissible.enabled`: off, a drag doesn't move it."
+        },
+        {
+          "key": "directions",
+          "type": "List<DragDirection>",
+          "kind": "list",
+          "default": [
+            "left",
+            "right"
+          ],
+          "nullable": false,
+          "item": "DragDirection",
+          "itemKind": "enumeration",
+          "item_enum": "DragDirection",
+          "item_values": [
+            "left",
+            "right",
+            "up",
+            "down"
+          ],
+          "doc": "The directions it can be dismissed in."
+        },
         {
           "key": "axis",
           "type": "DragAxis",
@@ -15648,67 +15734,118 @@
             "horizontal",
             "vertical"
           ],
-          "doc": ""
+          "doc": "The axis it moves on (`Draggable.axis`); free moves it both ways, the ones it can't be dismissed in held back by `resistance`."
         },
         {
-          "key": "release",
-          "type": "DragRelease",
+          "key": "dismissThresholds",
+          "type": "DismissThresholds",
+          "kind": "json",
+          "default": {},
+          "nullable": false,
+          "doc": "Per direction, the share of the node's size to travel (0.4 when not named)."
+        },
+        {
+          "key": "flingVelocity",
+          "type": "double",
+          "kind": "number",
+          "default": 700,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Pixels per second."
+        },
+        {
+          "key": "resistance",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "0–1: how much of the pointer's travel toward a direction it can't be dismissed in is ignored (1 none follows; below 1 a rubber band)."
+        },
+        {
+          "key": "movementDuration",
+          "type": "int",
+          "kind": "integer",
+          "default": 200,
+          "nullable": false,
+          "min": 0,
+          "doc": "The fly-off (ms, `Dismissible.movementDuration`) and its curve."
+        },
+        {
+          "key": "curve",
+          "type": "AnimationCurve",
           "kind": "enumeration",
-          "default": "snapBack",
+          "default": "linear",
           "nullable": false,
-          "enum": "DragRelease",
-          "values": [
-            "snapBack",
-            "stay",
-            "dismiss"
-          ],
+          "enum": "AnimationCurve",
           "doc": ""
         },
         {
-          "key": "directions",
-          "type": "List<DragDirection>",
-          "kind": "list",
-          "default": [
-            "left",
-            "right",
-            "up",
-            "down"
-          ],
-          "nullable": false,
-          "item": "DragDirection",
-          "itemKind": "enumeration",
-          "item_enum": "DragDirection",
-          "item_values": [
-            "left",
-            "right",
-            "up",
-            "down"
-          ],
-          "doc": "The directions it flies off in."
-        },
-        {
-          "key": "distanceThreshold",
-          "type": "double",
-          "kind": "number",
-          "default": 0.35,
-          "nullable": false,
-          "doc": "A fraction of its size."
-        },
-        {
-          "key": "verticalThreshold",
-          "type": "double",
-          "kind": "number",
+          "key": "returnDuration",
+          "type": "int",
+          "kind": "integer",
           "default": null,
           "nullable": true,
+          "doc": "Null: `movementDuration` and `curve`."
+        },
+        {
+          "key": "returnCurve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": null,
+          "nullable": true,
+          "enum": "AnimationCurve",
           "doc": ""
         },
         {
-          "key": "velocityThreshold",
+          "key": "returnSpring",
+          "type": "Spring",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "Spring",
+          "doc": "The spring it returns on, carrying the release's speed; null returns over `returnDuration`."
+        },
+        {
+          "key": "restX",
           "type": "double",
           "kind": "number",
-          "default": 800,
+          "default": 0,
           "nullable": false,
-          "doc": "Pixels per second."
+          "doc": "Deprecated: where it rests, from its layout's place."
+        },
+        {
+          "key": "restY",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Where it rests, from where its layout puts it (pixels); a new value moves it there. Deprecated (one app): a `motion.translateX` binding."
+        },
+        {
+          "key": "xVariable",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Number variables its offset is written to (rounded to hundredths) as it moves. Deprecated: a `drag` reaction writing `${result.dx}`."
+        },
+        {
+          "key": "yVariable",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Number variables its offset is written to (rounded to hundredths) as it moves. Deprecated: a `drag` reaction writing `${result.dx}`."
+        },
+        {
+          "key": "flyOutRotate",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Deprecated: degrees it turns while flying off."
         },
         {
           "key": "rotateFactor",
@@ -15716,7 +15853,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "Deprecated: degrees of tilt per the node's width of travel."
         },
         {
           "key": "originX",
@@ -15735,80 +15872,12 @@
           "doc": ""
         },
         {
-          "key": "resistance",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "snapBack",
-          "type": "int",
-          "kind": "integer",
-          "default": 450,
-          "nullable": false,
-          "min": 0,
-          "doc": "Spring-back and fly-off times (ms) and curves."
-        },
-        {
-          "key": "snapCurve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": "spring",
-          "nullable": false,
-          "enum": "AnimationCurve",
-          "doc": ""
-        },
-        {
-          "key": "flyOut",
-          "type": "int",
-          "kind": "integer",
-          "default": 320,
-          "nullable": false,
-          "min": 0,
-          "doc": ""
-        },
-        {
-          "key": "flyOutCurve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": "easeIn",
-          "nullable": false,
-          "enum": "AnimationCurve",
-          "doc": ""
-        },
-        {
-          "key": "flyOutDistance",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "flyOutRotate",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "enabled",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": ""
-        },
-        {
           "key": "shakeWhenDisabled",
           "type": "bool",
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": ""
+          "doc": "Deprecated: wiggles when a disabled drag is tried."
         },
         {
           "key": "disabledFollow",
@@ -15816,7 +15885,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "Deprecated: the share of the travel a disabled drag follows."
         },
         {
           "key": "shareAs",
@@ -15824,40 +15893,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "A variable the live drag values are written to."
-        },
-        {
-          "key": "restX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "restY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "track",
-          "type": "DragTrack",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "DragTrack",
-          "doc": ""
-        },
-        {
-          "key": "reorder",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": ""
+          "doc": "Deprecated: a variable the live drag values are written to."
         },
         {
           "key": "follow",
@@ -15865,83 +15901,12 @@
           "kind": "boolean",
           "default": true,
           "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "xVariable",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "yVariable",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "physics",
-          "type": "GesturePhysics",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "GesturePhysics",
-          "doc": "The release's fling, spring and snap points."
-        },
-        {
-          "key": "bounds",
-          "type": "GestureBounds",
-          "kind": "enumeration",
-          "default": "none",
-          "nullable": false,
-          "enum": "GestureBounds",
-          "values": [
-            "none",
-            "contain",
-            "cover"
-          ],
-          "doc": "What it's kept inside of while dragged and flung, narrowed by the offsets from rest `minX`...`maxY` (null: no limit). A bottom sheet opening 560px: `minY: -560, maxY: 0`."
-        },
-        {
-          "key": "minX",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "Offsets from rest it stays within (pixels; null no limit)."
-        },
-        {
-          "key": "maxX",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "minY",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "maxY",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
+          "doc": "Deprecated: off, the node only reports its drag."
         }
       ]
     },
     "DragSource": {
-      "doc": "Lets the user pick the node up and drop it on a `DropTarget` that takes its `group` (Flutter's `Draggable`).",
+      "doc": "Lets the user pick the node up and drop it on a `DropTarget` that takes its `group` (Flutter's `Draggable`; `LongPressDraggable` with `start` `longPress`).",
       "fields": [
         {
           "key": "group",
@@ -15949,7 +15914,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`)."
         },
         {
           "key": "data",
@@ -15957,7 +15922,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`)."
         },
         {
           "key": "start",
@@ -15971,7 +15936,7 @@
             "longPress",
             "auto"
           ],
-          "doc": ""
+          "doc": "How a drag starts: press, long press (`LongPressDraggable`), or long press on touch and press with a mouse."
         },
         {
           "key": "axis",
@@ -15985,10 +15950,10 @@
             "horizontal",
             "vertical"
           ],
-          "doc": ""
+          "doc": "`Draggable.axis`: the feedback moves only along it."
         },
         {
-          "key": "whileDragging",
+          "key": "childWhenDragging",
           "type": "DragSourceStyle",
           "kind": "enumeration",
           "default": "ghost",
@@ -15999,7 +15964,7 @@
             "hidden",
             "keep"
           ],
-          "doc": ""
+          "doc": "What stays where it was picked up."
         },
         {
           "key": "ghostOpacity",
@@ -16007,42 +15972,10 @@
           "kind": "number",
           "default": 0.35,
           "nullable": false,
-          "doc": ""
+          "doc": "The opacity of a `DragSourceStyle.ghost`."
         },
         {
-          "key": "feedbackRotation",
-          "type": "double",
-          "kind": "number",
-          "default": -2,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "feedbackScale",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "feedbackOpacity",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "feedbackElevation",
-          "type": "double",
-          "kind": "number",
-          "default": 24,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "feedbackNodeId",
+          "key": "feedback",
           "type": "String",
           "kind": "string",
           "default": "",
@@ -16050,34 +15983,58 @@
           "doc": "The node drawn under the pointer instead of this one."
         },
         {
-          "key": "feedbackAnchor",
-          "type": "FeedbackAnchor",
+          "key": "dragAnchor",
+          "type": "DragAnchor",
           "kind": "enumeration",
-          "default": "grab",
+          "default": "child",
           "nullable": false,
-          "enum": "FeedbackAnchor",
+          "enum": "DragAnchor",
           "values": [
-            "grab",
+            "child",
             "center"
           ],
-          "doc": ""
+          "doc": "The legacy `feedbackAnchor` reads as it."
+        },
+        {
+          "key": "feedbackRotation",
+          "type": "double",
+          "kind": "number",
+          "default": -2,
+          "nullable": false,
+          "doc": "The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents."
+        },
+        {
+          "key": "feedbackScale",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents."
+        },
+        {
+          "key": "feedbackOpacity",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents."
+        },
+        {
+          "key": "feedbackElevation",
+          "type": "double",
+          "kind": "number",
+          "default": 24,
+          "nullable": false,
+          "doc": "The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents."
         },
         {
           "key": "returnSpring",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "spring",
           "type": "Spring",
           "kind": "object",
           "default": {},
           "nullable": false,
           "object": "Spring",
-          "doc": "The spring it returns on with `returnSpring` (JSON `spring`; the legacy `springStiffness`/`springDamping` read as it)."
+          "doc": "The spring an unaccepted drop flies home on; `false`: none."
         },
         {
           "key": "enabled",
@@ -16085,460 +16042,7 @@
           "kind": "boolean",
           "default": true,
           "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "physics",
-          "type": "GesturePhysics",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "GesturePhysics",
-          "doc": "The return spring (over `returnSpring` and its settings)."
-        }
-      ]
-    },
-    "DragTrack": {
-      "doc": "Makes a dragged node a value control (a knob, a fader): it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable (unless `write` is off); a double tap goes to `defaultValue` (or through `doubleTapValues`), the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read.\n\nIts settings and geometry are bindable as `drag.track.<field>` (`drag.track.x2`: `${= parent.width - 26}`); `drag.track.value` gives the value the node is drawn at in place of reading `variable`.",
-      "fields": [
-        {
-          "key": "variable",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": "The variable the control sets."
-        },
-        {
-          "key": "shape",
-          "type": "DragTrackShape",
-          "kind": "enumeration",
-          "default": "line",
-          "nullable": false,
-          "enum": "DragTrackShape",
-          "values": [
-            "line",
-            "arc",
-            "path"
-          ],
-          "doc": ""
-        },
-        {
-          "key": "min",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "max",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "step",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "defaultValue",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "What a double tap resets to (bindable as `drag.track.defaultValue`)."
-        },
-        {
-          "key": "input",
-          "type": "DragTrackInput",
-          "kind": "enumeration",
-          "default": "follow",
-          "nullable": false,
-          "enum": "DragTrackInput",
-          "values": [
-            "follow",
-            "vertical",
-            "horizontal",
-            "both"
-          ],
-          "doc": ""
-        },
-        {
-          "key": "pixelsPerRange",
-          "type": "double",
-          "kind": "number",
-          "default": 200,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "x1",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's)."
-        },
-        {
-          "key": "y1",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's)."
-        },
-        {
-          "key": "x2",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's)."
-        },
-        {
-          "key": "y2",
-          "type": "double",
-          "kind": "number",
-          "default": -100,
-          "nullable": false,
-          "doc": "A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's)."
-        },
-        {
-          "key": "startAngle",
-          "type": "double",
-          "kind": "number",
-          "default": -135,
-          "nullable": false,
-          "doc": "Degrees about the pivot."
-        },
-        {
-          "key": "endAngle",
-          "type": "double",
-          "kind": "number",
-          "default": 135,
-          "nullable": false,
-          "doc": "An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center)."
-        },
-        {
-          "key": "pivotX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center)."
-        },
-        {
-          "key": "pivotY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center)."
-        },
-        {
-          "key": "rotate",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Turns the node with the arc."
-        },
-        {
-          "key": "path",
-          "type": "String",
-          "kind": "string",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "orientToPath",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "jumpOnTap",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Pressing anywhere along the track (or the `hitArea`) moves the node there, then the drag goes on (only for `DragTrackInput.follow`)."
-        },
-        {
-          "key": "wheel",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Whether the mouse wheel steps the value."
-        },
-        {
-          "key": "value",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "The value it's drawn at, from a binding; null reads `variable`."
-        },
-        {
-          "key": "orientUpright",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "With `orientToPath`, never upside down (as `Motion.orientUpright`)."
-        },
-        {
-          "key": "detent",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": "How magnetic the steps are while dragging (0–1)."
-        },
-        {
-          "key": "overscroll",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": "How far past an end it stretches (0–1)."
-        },
-        {
-          "key": "settle",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": "The glide to its value's place when not following the pointer (ms; 0 jumps), its curve, and the spring of `AnimationCurve.spring` (mass 1), which a release mid-fling starts at the pointer's speed."
-        },
-        {
-          "key": "settleCurve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": "easeOutCubic",
-          "nullable": false,
-          "enum": "AnimationCurve",
-          "doc": ""
-        },
-        {
-          "key": "settleSpring",
-          "type": "Spring",
-          "kind": "object",
-          "default": {},
-          "nullable": false,
-          "object": "Spring",
-          "doc": "The spring of a `spring` `settleCurve` (JSON `settleSpring`; the legacy `settleStiffness`/`settleDamping` read as it)."
-        },
-        {
-          "key": "parkedProgress",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "Where it parks while the value is out of range or empty."
-        },
-        {
-          "key": "keyboard",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Takes keyboard focus: arrows step by `keyStep` (else `step`, else 1% of the range), Page Up/Down by 10 steps, Home and End to the ends."
-        },
-        {
-          "key": "viewBoxWidth",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "With both above 0, `path` is drawn in the box of the frame the node sits in, in these units, stretched to the frame's size."
-        },
-        {
-          "key": "viewBoxHeight",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "With both above 0, `path` is drawn in the box of the frame the node sits in, in these units, stretched to the frame's size."
-        },
-        {
-          "key": "relative",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "A line's ends are multiples of the node's size."
-        },
-        {
-          "key": "wheelStep",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "One wheel notch, one arrow key (null: `step`, else 1% of the range)."
-        },
-        {
-          "key": "doubleTapValues",
-          "type": "List<double>",
-          "kind": "list",
-          "default": [],
-          "nullable": false,
-          "item": "double",
-          "itemKind": "number",
-          "doc": "Values a double tap moves between, in order (empty: `defaultValue`)."
-        },
-        {
-          "key": "keyStep",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "One wheel notch, one arrow key (null: `step`, else 1% of the range)."
-        },
-        {
-          "key": "hitArea",
-          "type": "DragTrackHitArea",
-          "kind": "enumeration",
-          "default": "self",
-          "nullable": false,
-          "enum": "DragTrackHitArea",
-          "values": [
-            "self",
-            "parent"
-          ],
-          "doc": ""
-        },
-        {
-          "key": "units",
-          "type": "DragTrackUnits",
-          "kind": "enumeration",
-          "default": "pixels",
-          "nullable": false,
-          "enum": "DragTrackUnits",
-          "values": [
-            "pixels",
-            "parent"
-          ],
-          "doc": ""
-        },
-        {
-          "key": "fineStep",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine."
-        },
-        {
-          "key": "finePixelsPerRange",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine."
-        },
-        {
-          "key": "fineHold",
-          "type": "int",
-          "kind": "integer",
-          "default": 380,
-          "nullable": false,
-          "min": 0,
-          "doc": ""
-        },
-        {
-          "key": "fineVariable",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "snap",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": "Animates the node to each new value over `snap` ms along `snapCurve` (a knob clicking from detent to detent); 0 jumps."
-        },
-        {
-          "key": "snapCurve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": "easeOutBack",
-          "nullable": false,
-          "enum": "AnimationCurve",
-          "doc": ""
-        },
-        {
-          "key": "write",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Whether dragging writes `variable`; off, it only shows it and its reactions set what changes from `${result.value}`."
-        },
-        {
-          "key": "endless",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "An arc that keeps turning past its ends, the value unbounded (a combination dial)."
-        },
-        {
-          "key": "momentum",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Let go while moving, it coasts, slowing by `friction` per second, then settles on a `step`."
-        },
-        {
-          "key": "friction",
-          "type": "double",
-          "kind": "number",
-          "default": 2.6,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "smooth",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Draws the node between `step`s while dragged or coasting, springing onto the nearest when it rests (the variable only holds steps)."
-        },
-        {
-          "key": "gain",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": "How far the node moves per pointer movement (0.5 fine, 2 coarse)."
+          "doc": "Bindable as `draggable.enabled`."
         }
       ]
     },
@@ -18067,7 +17571,7 @@
       ]
     },
     "Motion": {
-      "doc": "A transform painted over the node's layout (Flutter's `Transform`): it moves nothing else. Its values are the node's rest pose; how it gets there is the node's `animations` and `transitions`.\n\nOne matrix, outermost first: a translation (the `path`'s offset, then `translateX`/`translateY` in pixels, then `shiftX`/`shiftY` times the node's size, `FractionalTranslation`), then about `alignment`: the scale (`scale` times `scaleX`/`scaleY`), the rotation `rotate` (degrees, about z, plus the path's turn), then `rotateX` and `rotateY` (3D, seen with `perspective`). JSON (sparse): `{\"translateY\": -4, \"scale\": 1.02, \"alignment\": [0, 1]}`.\n\nReads the legacy keys too: `originX`/`originY` as `alignment`; the flat path keys (`path` text, `pathProgress`, `orientToPath`, `orientUpright`, `uprightMirror`, `pathViewBox`, `pathPacing`, `pathFocusX/Y`) as `path`. Its other legacy keys belong to the node (`Node.fromJson`: `opacity`, `blur`) or to its animations and transitions (`Behaviors.fromJson`: the timing, entrance, loop, spin, keyframes and shimmer).",
+      "doc": "How a node moves: a transform drawn over its layout (CSS-like: it doesn't move anything else), the transitions between its values when they change, an entrance, a loop and a spin. Its values are the node's rest pose; the design canvas draws the node there.\n\nThe transform, in order: `translateX`/`translateY` (pixels), `scale` times `scaleX`/`scaleY`, `rotate` (degrees, plus the spin), then `rotateX`/`rotateY` in 3D with `perspective`, about the point (`originX`, `originY`) in the box (-1–1, 0 the center); then a shift by `shiftX`/`shiftY` times the node's size. `opacity` and `blur` apply on top of the node's own.",
       "fields": [
         {
           "key": "translateX",
@@ -18083,23 +17587,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "Pixels (`Transform.translate(offset:)`)."
-        },
-        {
-          "key": "shiftX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Times the node's size (`FractionalTranslation`)."
-        },
-        {
-          "key": "shiftY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Multiples of the node's own size (`FractionalTranslation`)."
+          "doc": ""
         },
         {
           "key": "scale",
@@ -18107,7 +17595,7 @@
           "kind": "number",
           "default": 1,
           "nullable": false,
-          "doc": "The axis factors multiply `scale`."
+          "doc": ""
         },
         {
           "key": "scaleX",
@@ -18115,7 +17603,7 @@
           "kind": "number",
           "default": 1,
           "nullable": false,
-          "doc": "`Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`."
+          "doc": ""
         },
         {
           "key": "scaleY",
@@ -18123,7 +17611,33 @@
           "kind": "number",
           "default": 1,
           "nullable": false,
-          "doc": "`Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`."
+          "doc": ""
+        },
+        {
+          "key": "shiftX",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Times the node's size."
+        },
+        {
+          "key": "shiftY",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "opacity",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": ""
         },
         {
           "key": "rotate",
@@ -18131,7 +17645,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "Degrees, about z."
+          "doc": "Degrees."
         },
         {
           "key": "rotateX",
@@ -18139,7 +17653,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "Degrees, in 3D."
+          "doc": ""
         },
         {
           "key": "rotateY",
@@ -18147,7 +17661,32 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "Degrees. `rotate` turns about z (`Transform.rotate`); `rotateX` and `rotateY` turn in 3D, seen with `perspective` (0 flat)."
+          "doc": ""
+        },
+        {
+          "key": "spin",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Turns per second."
+        },
+        {
+          "key": "pathProgress",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "blur",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": ""
         },
         {
           "key": "perspective",
@@ -18155,18 +17694,136 @@
           "kind": "number",
           "default": 1,
           "nullable": false,
-          "doc": "How strongly a 3D rotation is seen in depth (0 flat)."
+          "doc": ""
         },
         {
-          "key": "alignment",
-          "type": "Alignment",
-          "kind": "value",
-          "default": [
-            0,
-            0
-          ],
+          "key": "originX",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
           "nullable": false,
-          "doc": "The point scale and rotation are about (`Transform.alignment`)."
+          "doc": "The transform's origin in the box (-1–1, 0 the center)."
+        },
+        {
+          "key": "originY",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "duration",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "A transition's length and its wait (ms)."
+        },
+        {
+          "key": "delay",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "A transition's length and its wait (ms)."
+        },
+        {
+          "key": "curve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": "easeInOut",
+          "nullable": false,
+          "enum": "AnimationCurve",
+          "doc": ""
+        },
+        {
+          "key": "rotateCurve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": null,
+          "nullable": true,
+          "enum": "AnimationCurve",
+          "doc": "The rotation's own curve; null follows `curve`."
+        },
+        {
+          "key": "fadeShare",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "The share of the duration in which the opacity arrives (easing out)."
+        },
+        {
+          "key": "spring",
+          "type": "Spring",
+          "kind": "object",
+          "default": {},
+          "nullable": false,
+          "object": "Spring",
+          "doc": "The spring of the `spring` curve."
+        },
+        {
+          "key": "spinRamp",
+          "type": "int",
+          "kind": "integer",
+          "default": 800,
+          "nullable": false,
+          "min": 0,
+          "doc": ""
+        },
+        {
+          "key": "loop",
+          "type": "MotionLoop",
+          "kind": "enumeration",
+          "default": "none",
+          "nullable": false,
+          "enum": "MotionLoop",
+          "values": [
+            "none",
+            "restart",
+            "reverse",
+            "swing"
+          ],
+          "doc": "Plays between the start (`enterFrom`, else rest) and the values."
+        },
+        {
+          "key": "repeat",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "Loop runs (0: forever)."
+        },
+        {
+          "key": "enter",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Plays an entrance when the node appears: from `enterFrom`, or from rest to the values when null."
+        },
+        {
+          "key": "enterFrom",
+          "type": "Motion",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "Motion",
+          "doc": ""
+        },
+        {
+          "key": "replayKey",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": "A change of this text replays the entrance."
         },
         {
           "key": "backfaceHidden",
@@ -18174,16 +17831,297 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "Not painted while its back faces the viewer (through every transform above it too)."
+          "doc": "Hidden while its back faces the viewer."
         },
         {
           "key": "path",
-          "type": "PathFollow",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": "An SVG path the node moves along."
+        },
+        {
+          "key": "orientToPath",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Turns with the path's direction."
+        },
+        {
+          "key": "keyframes",
+          "type": "List<MotionKeyframe>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "MotionKeyframe",
+          "itemKind": "object",
+          "item_object": "MotionKeyframe",
+          "doc": ""
+        },
+        {
+          "key": "revealOnScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Waits to enter until `revealFraction` of the node scrolls into view."
+        },
+        {
+          "key": "enterHeld",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Holds the entrance at its start while true (bindable)."
+        },
+        {
+          "key": "revealFraction",
+          "type": "double",
+          "kind": "number",
+          "default": 0.15,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "orientUpright",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "With `orientToPath`: never upside down."
+        },
+        {
+          "key": "uprightMirror",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "With `orientUpright`: heading left mirrors the node, so its front leads."
+        },
+        {
+          "key": "arc",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "A change of position bends this share of its distance off the line."
+        },
+        {
+          "key": "paused",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Freezes the loop and the spin where they are."
+        },
+        {
+          "key": "phase",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "Where the loop starts in its cycle (0–1)."
+        },
+        {
+          "key": "pathPacing",
+          "type": "MotionPathPacing",
+          "kind": "enumeration",
+          "default": "length",
+          "nullable": false,
+          "enum": "MotionPathPacing",
+          "values": [
+            "length",
+            "area"
+          ],
+          "doc": "How `pathProgress` maps to a point on `path`: by length or by area swept about (`pathFocusX`, `pathFocusY`)."
+        },
+        {
+          "key": "pathFocusX",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "The focus of area pacing, in the path's coordinates."
+        },
+        {
+          "key": "pathFocusY",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "pathWrap",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Reads the progress modulo 1."
+        },
+        {
+          "key": "pathViewBox",
+          "type": "List<double>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "double",
+          "itemKind": "number",
+          "doc": "The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels."
+        },
+        {
+          "key": "shimmer",
+          "type": "MotionShimmer",
           "kind": "object",
           "default": null,
           "nullable": true,
-          "object": "PathFollow",
-          "doc": "A path the node sits on."
+          "object": "MotionShimmer",
+          "doc": "A band of light sweeping across the node; null for none."
+        }
+      ]
+    },
+    "MotionKeyframe": {
+      "doc": "The values a `Motion` passes through at `t` (0–1) between its start and its values; null values follow the curve.",
+      "fields": [
+        {
+          "key": "t",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "translateX",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "translateY",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "scale",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "scaleX",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "scaleY",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "opacity",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "rotate",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "rotateX",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "rotateY",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "pathProgress",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        }
+      ]
+    },
+    "MotionShimmer": {
+      "doc": "A band of light sweeping across what the node paints, over and over (a loading skeleton's shimmer). Blended over the node's own pixels only. The design canvas draws it still, halfway across.",
+      "fields": [
+        {
+          "key": "color",
+          "type": "Color",
+          "kind": "value",
+          "default": "#FFFFFFFF",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "strength",
+          "type": "double",
+          "kind": "number",
+          "default": 0.8,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "How strongly the band's center blends the color in (0–1)."
+        },
+        {
+          "key": "width",
+          "type": "double",
+          "kind": "number",
+          "default": 0.44,
+          "nullable": false,
+          "doc": "A share of the node's size along the sweep."
+        },
+        {
+          "key": "duration",
+          "type": "int",
+          "kind": "integer",
+          "default": 1400,
+          "nullable": false,
+          "min": 0,
+          "doc": "One sweep across (ms)."
+        },
+        {
+          "key": "angle",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Degrees: 0 left to right, 90 top to bottom."
         }
       ]
     },
@@ -18413,23 +18351,6 @@
           "default": null,
           "nullable": true,
           "doc": "Where the design canvas draws it (a share of a cycle); empty: not applied there."
-        },
-        {
-          "key": "ramp",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": "Ms to speed up from still, and to slow to a stop when paused."
-        },
-        {
-          "key": "visibleFraction",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "Waits to start until this share of the node is in view."
         }
       ]
     },
@@ -18756,6 +18677,207 @@
         }
       ]
     },
+    "Pan": {
+      "doc": "Follows the pointer (node key `pan`): `GestureDetector(onPanUpdate:)` moving a `Transform.translate`. On release it springs back to rest or stays (`release`), with `physics` a fling that slows by friction, a spring and snap points within `bounds` and the limits `minX`...`maxY` (a bottom sheet: `{\"axis\": \"vertical\", \"release\": \"stay\", \"minY\": -560, \"maxY\": 0, \"physics\": {\"snap\": {\"points\": [[0, 0], [0, -560]]}}}`). Its offset binds two-way to `xVariable` and `yVariable`; `x` and `y` (bindable) place its rest.\n\nInside it `${pan.dx}`, `${pan.dy}`, `${pan.dragging}`, `${pan.settling}`, `${pan.snapIndex}` can be read (and the same as the legacy `${drag.*}`). It fires `drag` and `dragEnd`. The legacy `drag` that is neither a track, a reorder handle nor dismissing reads as this.",
+      "fields": [
+        {
+          "key": "enabled",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Bindable as `pan.enabled`."
+        },
+        {
+          "key": "axis",
+          "type": "DragAxis",
+          "kind": "enumeration",
+          "default": "free",
+          "nullable": false,
+          "enum": "DragAxis",
+          "values": [
+            "free",
+            "horizontal",
+            "vertical"
+          ],
+          "doc": "The axis it moves on (`Draggable.axis`, `InteractiveViewer.panAxis`)."
+        },
+        {
+          "key": "release",
+          "type": "PanRelease",
+          "kind": "enumeration",
+          "default": "snapBack",
+          "nullable": false,
+          "enum": "PanRelease",
+          "values": [
+            "snapBack",
+            "stay"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "returnDuration",
+          "type": "int",
+          "kind": "integer",
+          "default": 450,
+          "nullable": false,
+          "min": 0,
+          "doc": "The spring back without physics."
+        },
+        {
+          "key": "returnCurve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": "spring",
+          "nullable": false,
+          "enum": "AnimationCurve",
+          "doc": ""
+        },
+        {
+          "key": "x",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Its rest, from its layout's place (pixels)."
+        },
+        {
+          "key": "y",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Where it rests, from where its layout puts it (pixels; bindable as `pan.x`, `pan.y`): it springs back here, and a new value moves it."
+        },
+        {
+          "key": "xVariable",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Number variables its offset from where its layout puts it is written to (rounded to hundredths) as it moves."
+        },
+        {
+          "key": "yVariable",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Number variables its offset from where its layout puts it is written to (rounded to hundredths) as it moves."
+        },
+        {
+          "key": "physics",
+          "type": "GesturePhysics",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "GesturePhysics",
+          "doc": "The release's fling, spring and snap points."
+        },
+        {
+          "key": "bounds",
+          "type": "GestureBounds",
+          "kind": "enumeration",
+          "default": "none",
+          "nullable": false,
+          "enum": "GestureBounds",
+          "values": [
+            "none",
+            "contain",
+            "cover"
+          ],
+          "doc": "What it's kept inside of while dragged and flung, narrowed by the offsets from rest `minX`...`maxY` (null: no limit)."
+        },
+        {
+          "key": "minX",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "Offsets from rest it stays within (pixels; null no limit)."
+        },
+        {
+          "key": "maxX",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "minY",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "maxY",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "rotateFactor",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Deprecated: degrees of tilt per the node's width of travel."
+        },
+        {
+          "key": "originX",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "originY",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "shakeWhenDisabled",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Deprecated: wiggles when a disabled drag is tried."
+        },
+        {
+          "key": "disabledFollow",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Deprecated: the share of the travel a disabled drag follows."
+        },
+        {
+          "key": "shareAs",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Deprecated: a variable the live drag values are written to."
+        },
+        {
+          "key": "follow",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Deprecated: off, the node only reports its drag."
+        }
+      ]
+    },
     "ParticleEmitter": {
       "doc": "Confetti, stars or emoji the node bursts with on cue.\n\nEach particle leaves from the origin at `speed` (55–115%) in a direction within `spread` of `direction`, slows by `drag`, falls by `gravity` no faster than `terminalVelocity`, sways `sway` px side to side, spins and turns over (`flutter`), and fades out over the last `fadeOut` ms of its `lifetime`.",
       "fields": [
@@ -18988,7 +19110,7 @@
       ]
     },
     "PathFollow": {
-      "doc": "A place along an SVG path: `progress` (0–1) of the way along `path`'s length, turned with it as `orient` says. Shared by `motion.path` and a drag track's path.\n\nValues of `progress` outside 0–1 wrap round a closed path (one that ends where it starts) and clamp to the ends of an open one.\n\nJSON: `{\"path\": \"M0 0 C 40 -60, 120 -60, 160 0\", \"progress\": 0.5, \"orient\": \"tangent\"}`; a bare string reads as `path`.",
+      "doc": "A place along an SVG path. Shared by `motion.path` and `track.path`.",
       "fields": [
         {
           "key": "path",
@@ -19006,7 +19128,7 @@
           "nullable": false,
           "item": "double",
           "itemKind": "number",
-          "doc": "The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels from the node's place."
+          "doc": "`[width, height]` stretched over the parent; empty: pixels."
         },
         {
           "key": "progress",
@@ -19014,7 +19136,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "0–1 of its length; wraps on a closed path."
+          "doc": "Where along the path's length, 0–1. Values outside wrap on a closed path and clamp on an open one."
         },
         {
           "key": "orient",
@@ -19026,36 +19148,9 @@
           "values": [
             "none",
             "tangent",
-            "upright",
-            "uprightFlip"
+            "upright"
           ],
-          "doc": ""
-        },
-        {
-          "key": "pacing",
-          "type": "PathPacing",
-          "kind": "enumeration",
-          "default": "length",
-          "nullable": false,
-          "enum": "PathPacing",
-          "values": [
-            "length",
-            "area"
-          ],
-          "doc": "Deprecated: `area` pacing (one app)."
-        },
-        {
-          "key": "focus",
-          "type": "List<double>",
-          "kind": "list",
-          "default": [
-            0,
-            0
-          ],
-          "nullable": false,
-          "item": "double",
-          "itemKind": "number",
-          "doc": "Deprecated: the focus `[x, y]` of `area` pacing."
+          "doc": "`none`; `tangent`: turned with the path's direction; `upright`: the same, folded into −90…90 degrees so it is never upside down."
         }
       ]
     },
@@ -19321,146 +19416,6 @@
           "default": "",
           "nullable": false,
           "doc": ""
-        }
-      ]
-    },
-    "Pose": {
-      "doc": "A `Motion` drawn with a fade and a blur: the pose a page of a page view (`pageMotion`) or a side of a route transition is drawn at. Flutter: a `Transform` in an `Opacity` in an `ImageFiltered`. JSON: `motion`'s keys with `opacity` and `blur` beside them, flat (`{\"shiftX\": -1, \"opacity\": 0.5}`).",
-      "fields": [
-        {
-          "key": "translateX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Pixels."
-        },
-        {
-          "key": "translateY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Pixels (`Transform.translate(offset:)`)."
-        },
-        {
-          "key": "shiftX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Times the node's size (`FractionalTranslation`)."
-        },
-        {
-          "key": "shiftY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Multiples of the node's own size (`FractionalTranslation`)."
-        },
-        {
-          "key": "scale",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": "The axis factors multiply `scale`."
-        },
-        {
-          "key": "scaleX",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": "`Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`."
-        },
-        {
-          "key": "scaleY",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": "`Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`."
-        },
-        {
-          "key": "rotate",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Degrees, about z."
-        },
-        {
-          "key": "rotateX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Degrees, in 3D."
-        },
-        {
-          "key": "rotateY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Degrees. `rotate` turns about z (`Transform.rotate`); `rotateX` and `rotateY` turn in 3D, seen with `perspective` (0 flat)."
-        },
-        {
-          "key": "perspective",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": "How strongly a 3D rotation is seen in depth (0 flat)."
-        },
-        {
-          "key": "alignment",
-          "type": "Alignment",
-          "kind": "value",
-          "default": [
-            0,
-            0
-          ],
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "backfaceHidden",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Not painted while its back faces the viewer (through every transform above it too)."
-        },
-        {
-          "key": "path",
-          "type": "PathFollow",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "PathFollow",
-          "doc": "A path the node sits on."
-        },
-        {
-          "key": "opacity",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": "0–1."
-        },
-        {
-          "key": "blur",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "A layer blur's radius."
         }
       ]
     },
@@ -19731,53 +19686,6 @@
           "nullable": true,
           "object": "BorderSide",
           "doc": "The outline; null draws none."
-        }
-      ]
-    },
-    "Shimmer": {
-      "doc": "A band of light across what the node paints (a loading skeleton's shimmer: Flutter's `ShaderMask` with a moving `LinearGradient`), blended over the node's own pixels only. `position` places it; the `shimmer` animation preset sweeps it across, over and over. JSON (sparse): `{\"color\": \"#FFFFFFFF\", \"strength\": 0.8, \"width\": 0.44, \"angle\": 0, \"position\": 0.5}`.",
-      "fields": [
-        {
-          "key": "color",
-          "type": "Color",
-          "kind": "value",
-          "default": "#FFFFFFFF",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "strength",
-          "type": "double",
-          "kind": "number",
-          "default": 0.8,
-          "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": "How strongly the band's center blends the color in (0–1)."
-        },
-        {
-          "key": "width",
-          "type": "double",
-          "kind": "number",
-          "default": 0.44,
-          "nullable": false,
-          "doc": "A share of the node's size along the sweep."
-        },
-        {
-          "key": "angle",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Degrees: 0 left to right, 90 top to bottom."
-        },
-        {
-          "key": "position",
-          "type": "double",
-          "kind": "number",
-          "default": 0.5,
-          "nullable": false,
-          "doc": "0 off the start side, 1 off the end (the `shimmer` preset sweeps it)."
         }
       ]
     },
@@ -20565,8 +20473,402 @@
         }
       ]
     },
+    "Track": {
+      "doc": "A value the user sets by dragging (node key `track`): Flutter's `Slider` (`value`, `min`, `max`, divisions as `step`, `onChanged` as the `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a straight bar to a line, an arc or any path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable; the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read; it fires `changed` (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and `changeEnd`.\n\nIts settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`. The legacy `drag.track` (and its `drag.track.*` binding paths) reads as this: see `fromJson` for its renamed keys.",
+      "fields": [
+        {
+          "key": "enabled",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Off, it takes no pointer, wheel or keys."
+        },
+        {
+          "key": "variable",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The variable the control sets."
+        },
+        {
+          "key": "value",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "The value it's drawn at, from a binding; null reads `variable`."
+        },
+        {
+          "key": "min",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous)."
+        },
+        {
+          "key": "max",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous)."
+        },
+        {
+          "key": "step",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous)."
+        },
+        {
+          "key": "clamp",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Off, an arc turns past its ends (a combination dial)."
+        },
+        {
+          "key": "input",
+          "type": "TrackInput",
+          "kind": "enumeration",
+          "default": "follow",
+          "nullable": false,
+          "enum": "TrackInput",
+          "values": [
+            "follow",
+            "vertical",
+            "horizontal",
+            "both"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "allowedInteraction",
+          "type": "TrackInteraction",
+          "kind": "enumeration",
+          "default": "slideThumb",
+          "nullable": false,
+          "enum": "TrackInteraction",
+          "values": [
+            "slideThumb",
+            "tapAndSlide"
+          ],
+          "doc": "The legacy `jumpOnTap: true` reads as `TrackInteraction.tapAndSlide`."
+        },
+        {
+          "key": "hitArea",
+          "type": "TrackHitArea",
+          "kind": "enumeration",
+          "default": "self",
+          "nullable": false,
+          "enum": "TrackHitArea",
+          "values": [
+            "self",
+            "parent"
+          ],
+          "doc": "With `TrackHitArea.parent` the node's parent takes the pointer too."
+        },
+        {
+          "key": "pixelsPerRange",
+          "type": "double",
+          "kind": "number",
+          "default": 200,
+          "nullable": false,
+          "doc": "Pixels of drag for the whole range (`TrackInput.vertical`, `TrackInput.horizontal`, `TrackInput.both`; the legacy `gain` divides it)."
+        },
+        {
+          "key": "wheelStep",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the step (else 1% of the range); 0: off."
+        },
+        {
+          "key": "keyStep",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "One wheel notch, one arrow key: null `step`, else 1% of the range; 0 turns the wheel (the legacy `wheel: false`) or the keys (`keyboard: false`) off. With the keys on it takes focus: arrows step, Page Up/Down by 10 steps, Home and End to the ends."
+        },
+        {
+          "key": "shape",
+          "type": "TrackShape",
+          "kind": "enumeration",
+          "default": "line",
+          "nullable": false,
+          "enum": "TrackShape",
+          "values": [
+            "line",
+            "arc",
+            "path"
+          ],
+          "doc": "Inferred from `path` when not given."
+        },
+        {
+          "key": "x1",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's)."
+        },
+        {
+          "key": "y1",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's)."
+        },
+        {
+          "key": "x2",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's)."
+        },
+        {
+          "key": "y2",
+          "type": "double",
+          "kind": "number",
+          "default": -100,
+          "nullable": false,
+          "doc": "A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's)."
+        },
+        {
+          "key": "relative",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "A line's ends are multiples of the node's size."
+        },
+        {
+          "key": "units",
+          "type": "TrackUnits",
+          "kind": "enumeration",
+          "default": "pixels",
+          "nullable": false,
+          "enum": "TrackUnits",
+          "values": [
+            "pixels",
+            "parent"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "startAngle",
+          "type": "double",
+          "kind": "number",
+          "default": -135,
+          "nullable": false,
+          "doc": "Degrees: the arc's start, and its turn to the end."
+        },
+        {
+          "key": "sweepAngle",
+          "type": "double",
+          "kind": "number",
+          "default": 270,
+          "nullable": false,
+          "doc": "An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place."
+        },
+        {
+          "key": "pivotX",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place."
+        },
+        {
+          "key": "pivotY",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place."
+        },
+        {
+          "key": "rotate",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "path",
+          "type": "PathFollow",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "PathFollow",
+          "doc": "A path's SVG data, view box and orientation."
+        },
+        {
+          "key": "detent",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "How magnetic the steps are while dragging (0–1)."
+        },
+        {
+          "key": "overscroll",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "How far past an end it stretches (0–1)."
+        },
+        {
+          "key": "physics",
+          "type": "GesturePhysics",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "GesturePhysics",
+          "doc": "A fling's coast (fling, friction); null stops where let go."
+        },
+        {
+          "key": "settle",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "The glide to its value's place when not following the pointer (ms; 0 jumps), its curve, and the spring of `AnimationCurve.spring` (mass 1), which a release mid-fling starts at the pointer's speed."
+        },
+        {
+          "key": "settleCurve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": "easeOutCubic",
+          "nullable": false,
+          "enum": "AnimationCurve",
+          "doc": ""
+        },
+        {
+          "key": "settleSpring",
+          "type": "Spring",
+          "kind": "object",
+          "default": {},
+          "nullable": false,
+          "object": "Spring",
+          "doc": "The spring of a `spring` `settleCurve` (JSON `settleSpring`; the legacy `settleStiffness`/`settleDamping` read as it)."
+        },
+        {
+          "key": "snap",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "Animates the node to each new value over `snap` ms along `snapCurve` (a knob clicking from detent to detent); 0 jumps."
+        },
+        {
+          "key": "snapCurve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": "easeOutBack",
+          "nullable": false,
+          "enum": "AnimationCurve",
+          "doc": ""
+        },
+        {
+          "key": "defaultValue",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "Deprecated: what a double tap resets to, or moves between."
+        },
+        {
+          "key": "doubleTapValues",
+          "type": "List<double>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "double",
+          "itemKind": "number",
+          "doc": ""
+        },
+        {
+          "key": "parkedProgress",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "Deprecated: where it parks while the value is out of range or empty."
+        },
+        {
+          "key": "fineStep",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Deprecated: fine mode."
+        },
+        {
+          "key": "finePixelsPerRange",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. Deprecated: a boolean variable set by key and hold reactions, bound to `track.step` and `track.pixelsPerRange`."
+        },
+        {
+          "key": "fineHold",
+          "type": "int",
+          "kind": "integer",
+          "default": 380,
+          "nullable": false,
+          "min": 0,
+          "doc": ""
+        },
+        {
+          "key": "fineVariable",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "smooth",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Deprecated: drawn between steps while moving."
+        },
+        {
+          "key": "gain",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "Deprecated: the turn per degree round an arc followed by angle."
+        }
+      ]
+    },
     "TransformGesture": {
-      "doc": "Makes the node pannable, zoomable and rotatable by touch, mouse and trackpad (Flutter's `InteractiveViewer`, and more): pinch and ctrl+wheel zoom about the focal point, one finger pans, two rotate, a double tap zooms to a point; a release flings and settles by `physics` within `bounds` and `minScale`–`maxScale`. The pose binds two-way to variables (`xVariable`...); inside it reads as `${transform.x}`, `${transform.scale}`... Each change runs the node's `changed` reactions, the end of a gesture its `changeEnd` ones.\n\n`Behaviors.zoomable` is its first form: `zoomable`.",
+      "doc": "Makes the node pannable, zoomable and rotatable by touch, mouse and trackpad (Flutter's `InteractiveViewer`, and more): pinch and ctrl+wheel zoom about the focal point, one finger pans, two rotate, a double tap zooms to a point; a release flings and settles by `physics` within `bounds` and `minScale`–`maxScale`. The pose binds two-way to variables (`xVariable`...); inside it reads as `${transform.x}`, `${transform.scale}`... Each change runs the node's `changed` reactions, the end of a gesture its `changeEnd` ones.\n\nThe legacy `zoomable: true` reads as its first form: `zoomable`.",
       "fields": [
         {
           "key": "enabled",
@@ -20915,16 +21217,8 @@
       ]
     },
     "Transition": {
-      "doc": "How a change of `property` animates (Flutter's implicit animations: `AnimatedContainer(duration:, curve:)`, `AnimatedOpacity`, `AnimatedScale`, `TweenAnimationBuilder`): when the value there changes (a binding, a condition, a state style), the node tweens from what it shows to the new value over `duration` after `delay` on `curve`, or on `spring`. A change mid-flight carries on from where it is. A behavior key, a list: `\"transitions\": [{\"property\": \"motion\", \"duration\": 240, \"curve\": \"easeOutCubic\"}, {\"property\": \"opacity\", \"duration\": 120}]`.\n\n`property` is a binding path or a prefix of one; the longest that matches wins (`motion.rotate` over `motion`), `*` matches every path. A prefix eases what's under it as one value, as `AnimatedContainer` does its `transform`: a change of any of its numbers starts them together, and `keyframes` are passed through each time. A path an animation track is playing isn't transitioned. The design canvas shows new values at once.\n\nReads the legacy `{\"style\", \"opacity\", \"size\"}` object: `style` as `opacity`, `scale`, `decoration.fills` and `visible`; `size` as `layout`. A map from property to timing reads too.",
+      "doc": "An implicit animation's `duration` (ms) and `curve`, as Flutter's `AnimatedOpacity(duration:, curve:)`.",
       "fields": [
-        {
-          "key": "property",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": "A binding path or a prefix of one (`motion`, `motion.rotate`, `opacity`); `*` for every path."
-        },
         {
           "key": "duration",
           "type": "int",
@@ -20932,16 +21226,7 @@
           "default": 0,
           "nullable": false,
           "min": 0,
-          "doc": "Milliseconds."
-        },
-        {
-          "key": "delay",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": "Milliseconds."
+          "doc": ""
         },
         {
           "key": "curve",
@@ -20951,47 +21236,6 @@
           "nullable": false,
           "enum": "AnimationCurve",
           "doc": ""
-        },
-        {
-          "key": "spring",
-          "type": "Spring",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "Spring",
-          "doc": "Replaces `duration` and `curve`."
-        },
-        {
-          "key": "keyframes",
-          "type": "List<Keyframe>",
-          "kind": "list",
-          "default": [],
-          "nullable": false,
-          "item": "Keyframe",
-          "itemKind": "object",
-          "item_object": "Keyframe",
-          "doc": "Values passed through on the way (`Keyframe`s, `at` 0–1 of the run): a number for a single property; for a prefix, an object of the numbers under it (`{\"at\": 0.5, \"value\": {\"scale\": 1.05}}`: a card that swells as it turns over). Joined as `interpolation` says."
-        },
-        {
-          "key": "interpolation",
-          "type": "KeyframeInterpolation",
-          "kind": "enumeration",
-          "default": "linear",
-          "nullable": false,
-          "enum": "KeyframeInterpolation",
-          "values": [
-            "linear",
-            "monotoneCubic"
-          ],
-          "doc": ""
-        },
-        {
-          "key": "arc",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Deprecated: bends position changes off the straight line."
         }
       ]
     },
@@ -21053,15 +21297,15 @@
       ]
     },
     "TransitionSide": {
-      "doc": "How one screen moves during a `RouteTransition`: an entering screen starts at `motion` and comes to rest; a leaving one starts at rest and ends at `motion` (a `Pose`: a transform, `shiftX`/`shiftY` in screen sizes, with an opacity and a blur); this side's `curve`, `delayMs` and `durationMs` time it inside the route's duration.",
+      "doc": "How one screen moves during a `RouteTransition`: an entering screen starts at `motion` and comes to rest; a leaving one starts at rest and ends at `motion`. Only the motion's values are used (the 3D ones, `shiftX`/`shiftY` in screen sizes, opacity, blur); this side's `curve`, `delayMs` and `durationMs` time it inside the route's duration.",
       "fields": [
         {
           "key": "motion",
-          "type": "Pose",
+          "type": "Motion",
           "kind": "object",
           "default": {},
           "nullable": false,
-          "object": "Pose",
+          "object": "Motion",
           "doc": "The values it moves from (entering) or to (leaving)."
         },
         {
@@ -21098,6 +21342,38 @@
           "default": null,
           "nullable": true,
           "doc": "Null: to the end."
+        }
+      ]
+    },
+    "Transitions": {
+      "doc": "How changes to a node animate at runtime. The design canvas shows the new values at once.",
+      "fields": [
+        {
+          "key": "style",
+          "type": "Transition",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "Transition",
+          "doc": "Changes of opacity, `Behaviors.scale` and solid fills; a node shown or hidden by a binding grows open and shrinks closed."
+        },
+        {
+          "key": "opacity",
+          "type": "Transition",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "Transition",
+          "doc": "Opacity changes (over `style`'s)."
+        },
+        {
+          "key": "size",
+          "type": "Transition",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "Transition",
+          "doc": "Size changes: on an axis the node hugs, its box grows or shrinks and clips; on others it's laid out at each size in between."
         }
       ]
     },
@@ -22098,6 +22374,34 @@
         "doc": "A circle the box's shortest side across, in its middle: painted (fill and stroke) as circles, as Flutter's `BoxShape.circle`."
       }
     ],
+    "DismissCommand": [
+      {
+        "value": "dismiss",
+        "doc": "What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset)."
+      },
+      {
+        "value": "returnFrom",
+        "doc": "What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset)."
+      },
+      {
+        "value": "reset",
+        "doc": "What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset)."
+      },
+      {
+        "value": "shake",
+        "doc": "What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset)."
+      }
+    ],
+    "DragAnchor": [
+      {
+        "value": "child",
+        "doc": "Which point of the copy that follows the pointer sits under it (`Draggable.dragAnchorStrategy`): where it was grabbed (`childDragAnchorStrategy`), or its center (a feedback node of another size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it."
+      },
+      {
+        "value": "center",
+        "doc": "Which point of the copy that follows the pointer sits under it (`Draggable.dragAnchorStrategy`): where it was grabbed (`childDragAnchorStrategy`), or its center (a feedback node of another size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it."
+      }
+    ],
     "DragAxis": [
       {
         "value": "free",
@@ -22112,80 +22416,36 @@
         "doc": ""
       }
     ],
-    "DragCommand": [
-      {
-        "value": "fling",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "returnFrom",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "reset",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "shake",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "step",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "zoom",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "pose",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      }
-    ],
     "DragDirection": [
       {
         "value": "left",
-        "doc": ""
+        "doc": "A direction a node is dragged or dismissed in."
       },
       {
         "value": "right",
-        "doc": ""
+        "doc": "A direction a node is dragged or dismissed in."
       },
       {
         "value": "up",
-        "doc": ""
+        "doc": "A direction a node is dragged or dismissed in."
       },
       {
         "value": "down",
-        "doc": ""
-      }
-    ],
-    "DragRelease": [
-      {
-        "value": "snapBack",
-        "doc": "What a dragged node does when let go."
-      },
-      {
-        "value": "stay",
-        "doc": "What a dragged node does when let go."
-      },
-      {
-        "value": "dismiss",
-        "doc": "What a dragged node does when let go."
+        "doc": "A direction a node is dragged or dismissed in."
       }
     ],
     "DragSourceStyle": [
       {
         "value": "ghost",
-        "doc": "What the node shows where it was picked up while dragged."
+        "doc": "What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself."
       },
       {
         "value": "hidden",
-        "doc": "What the node shows where it was picked up while dragged."
+        "doc": "What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself."
       },
       {
         "value": "keep",
-        "doc": "What the node shows where it was picked up while dragged."
+        "doc": "What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself."
       }
     ],
     "DragStart": [
@@ -22200,58 +22460,6 @@
       {
         "value": "auto",
         "doc": "How a node starts a drag: on press, on long press, or long press on touch and press with a mouse."
-      }
-    ],
-    "DragTrackHitArea": [
-      {
-        "value": "self",
-        "doc": "Where a `DragTrack`'s node takes the pointer: on itself, or anywhere in its parent (a knob turned from anywhere in its box)."
-      },
-      {
-        "value": "parent",
-        "doc": "Where a `DragTrack`'s node takes the pointer: on itself, or anywhere in its parent (a knob turned from anywhere in its box)."
-      }
-    ],
-    "DragTrackInput": [
-      {
-        "value": "follow",
-        "doc": "How the pointer moves along a `DragTrack`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
-      },
-      {
-        "value": "vertical",
-        "doc": "How the pointer moves along a `DragTrack`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
-      },
-      {
-        "value": "horizontal",
-        "doc": "How the pointer moves along a `DragTrack`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
-      },
-      {
-        "value": "both",
-        "doc": "How the pointer moves along a `DragTrack`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
-      }
-    ],
-    "DragTrackShape": [
-      {
-        "value": "line",
-        "doc": "The shape of a `DragTrack`."
-      },
-      {
-        "value": "arc",
-        "doc": "The shape of a `DragTrack`."
-      },
-      {
-        "value": "path",
-        "doc": "The shape of a `DragTrack`."
-      }
-    ],
-    "DragTrackUnits": [
-      {
-        "value": "pixels",
-        "doc": "What a `DragTrack`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height)."
-      },
-      {
-        "value": "parent",
-        "doc": "What a `DragTrack`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height)."
       }
     ],
     "DropSlot": [
@@ -22338,16 +22546,6 @@
       {
         "value": "vimeo",
         "doc": "Where an embedded video is hosted."
-      }
-    ],
-    "FeedbackAnchor": [
-      {
-        "value": "grab",
-        "doc": "Which point of the copy that follows the pointer sits under it: where it was grabbed, or its center (a feedback node of another size)."
-      },
-      {
-        "value": "center",
-        "doc": "Which point of the copy that follows the pointer sits under it: where it was grabbed, or its center (a feedback node of another size)."
       }
     ],
     "FlipAxis": [
@@ -22626,16 +22824,6 @@
         "doc": "When a view's keyboard is dismissed (`ScrollViewKeyboardDismissBehavior`)."
       }
     ],
-    "KeyframeInterpolation": [
-      {
-        "value": "linear",
-        "doc": "Straight segments, each on its keyframe's curve (`TweenSequence`)."
-      },
-      {
-        "value": "monotoneCubic",
-        "doc": "One smooth curve through every keyframe that never overshoots one (monotone cubic, Fritsch–Carlson): a lift that swells and settles. The keyframes' own curves are not used."
-      }
-    ],
     "LineChartXLabelAnchor": [
       {
         "value": "edgeClamped",
@@ -22816,6 +23004,34 @@
         "doc": "A banner along the top edge of the screen (the bottom edge when `OpenModalAction.alignment`'s y is above 0), with no barrier: the app behind stays usable. It slides in, a swipe dismisses it when `OpenModalAction.barrierDismissible`, and its screen closes it with a `CloseModalAction` (after a `delay`, for one that goes by itself). A runtime that doesn't know it shows a dialog."
       }
     ],
+    "MotionLoop": [
+      {
+        "value": "none",
+        "doc": "Plays once."
+      },
+      {
+        "value": "restart",
+        "doc": "From the start again."
+      },
+      {
+        "value": "reverse",
+        "doc": "Back and forth."
+      },
+      {
+        "value": "swing",
+        "doc": "Swings around rest on a sine, to its values and as far the other way, one swing per `Motion.duration`: a pendulum, a needle sweeping a gauge. It rests at rest, not at an end."
+      }
+    ],
+    "MotionPathPacing": [
+      {
+        "value": "length",
+        "doc": "The share of the path's length: even speed along the curve."
+      },
+      {
+        "value": "area",
+        "doc": "The share of the area swept by a line from the focus (`Motion.pathFocusX`, `Motion.pathFocusY`, in the path's coordinates) to the node: Kepler's second law, an orbit that speeds up near its Sun."
+      }
+    ],
     "NavigationDestinationLabelBehavior": [
       {
         "value": "alwaysShow",
@@ -22994,6 +23210,16 @@
         "doc": ""
       }
     ],
+    "PanRelease": [
+      {
+        "value": "snapBack",
+        "doc": "What a `Pan` does when let go: springs back to rest, or stays where it is (settling by its physics: a fling, snap points)."
+      },
+      {
+        "value": "stay",
+        "doc": "What a `Pan` does when let go: springs back to rest, or stays where it is (settling by its physics: a fling, snap points)."
+      }
+    ],
     "ParticleShape": [
       {
         "value": "square",
@@ -23049,29 +23275,15 @@
     "PathOrient": [
       {
         "value": "none",
-        "doc": "It keeps its own rotation."
+        "doc": "It doesn't."
       },
       {
         "value": "tangent",
-        "doc": "Turned with the path's direction (`Transform.rotate(angle: tangent.angle)`)."
+        "doc": "With the path's direction."
       },
       {
         "value": "upright",
-        "doc": "The same, folded into −90…90 degrees so it is never upside down."
-      },
-      {
-        "value": "uprightFlip",
-        "doc": "`upright`, and mirrored (`Transform.flip(flipX: true)`) while the path heads left, so its front still leads: a train, a car, a fish."
-      }
-    ],
-    "PathPacing": [
-      {
-        "value": "length",
-        "doc": "The share of the path's length: even speed along the curve."
-      },
-      {
-        "value": "area",
-        "doc": "The share of the area swept about `PathFollow.focus` (Kepler's second law: an orbit speeding up near its Sun)."
+        "doc": "With the path's direction, folded into −90…90 degrees so it is never upside down."
       }
     ],
     "PathUnit": [
@@ -24042,6 +24254,92 @@
       {
         "value": "multiply",
         "doc": "Multiplies the property's own: a scale or opacity nested inside the node's (`ScaleTransition`, `FadeTransition` around it)."
+      }
+    ],
+    "TrackCommand": [
+      {
+        "value": "step",
+        "doc": "What a `ControlTrackAction` does to a `Track`: `step` turns it by `ControlTrackAction.steps` of its step, as if dragged there (crossing each step, then settling: a dial's nudge buttons); `animateTo` moves it to `ControlTrackAction.value` (`Slider.onChanged(value)`), reporting `changed`, `dragEnd` and `changeEnd`."
+      },
+      {
+        "value": "animateTo",
+        "doc": "What a `ControlTrackAction` does to a `Track`: `step` turns it by `ControlTrackAction.steps` of its step, as if dragged there (crossing each step, then settling: a dial's nudge buttons); `animateTo` moves it to `ControlTrackAction.value` (`Slider.onChanged(value)`), reporting `changed`, `dragEnd` and `changeEnd`."
+      }
+    ],
+    "TrackHitArea": [
+      {
+        "value": "self",
+        "doc": "Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent too (a knob turned from anywhere in its box)."
+      },
+      {
+        "value": "parent",
+        "doc": "Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent too (a knob turned from anywhere in its box)."
+      }
+    ],
+    "TrackInput": [
+      {
+        "value": "follow",
+        "doc": "How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
+      },
+      {
+        "value": "vertical",
+        "doc": "How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
+      },
+      {
+        "value": "horizontal",
+        "doc": "How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
+      },
+      {
+        "value": "both",
+        "doc": "How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
+      }
+    ],
+    "TrackInteraction": [
+      {
+        "value": "slideThumb",
+        "doc": "How the pointer may move a `Track`'s value (Flutter's `SliderInteraction`, the two it has of four): only by dragging the thumb (`slideThumb`), or also by pressing the track, which moves the thumb there before the drag goes on (`tapAndSlide`; `TrackInput.follow` only)."
+      },
+      {
+        "value": "tapAndSlide",
+        "doc": "How the pointer may move a `Track`'s value (Flutter's `SliderInteraction`, the two it has of four): only by dragging the thumb (`slideThumb`), or also by pressing the track, which moves the thumb there before the drag goes on (`tapAndSlide`; `TrackInput.follow` only)."
+      }
+    ],
+    "TrackShape": [
+      {
+        "value": "line",
+        "doc": "The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`)."
+      },
+      {
+        "value": "arc",
+        "doc": "The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`)."
+      },
+      {
+        "value": "path",
+        "doc": "The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`)."
+      }
+    ],
+    "TrackUnits": [
+      {
+        "value": "pixels",
+        "doc": "What a `Track`'s line and pivot are measured in: pixels, or fractions of the parent's size (x values of its width, y of its height)."
+      },
+      {
+        "value": "parent",
+        "doc": "What a `Track`'s line and pivot are measured in: pixels, or fractions of the parent's size (x values of its width, y of its height)."
+      }
+    ],
+    "TransformCommand": [
+      {
+        "value": "reset",
+        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
+      },
+      {
+        "value": "scaleBy",
+        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
+      },
+      {
+        "value": "animateTo",
+        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
       }
     ],
     "TransformPan": [

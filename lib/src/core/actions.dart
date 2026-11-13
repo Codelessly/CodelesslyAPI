@@ -86,9 +86,10 @@ abstract base class ActionDef {
     final spec = c.action(type);
     if (spec == null) {
       // A legacy type of a declared one (playAnimation, animateVariable:
-      // animate) reads as it; it is never written.
+      // animate; controlDrag: controlTrack, controlDismissible,
+      // controlTransform) reads as it; it is never written.
       final legacy = _legacyDecoders[type];
-      if (legacy != null && c.action(AnimateAction.typeName) != null) {
+      if (legacy != null && c.action(_legacyNeeds[type]!) != null) {
         return Catalog.run(c, () => legacy(m, ActionCommon(m, catalog: c)));
       }
       return UnknownAction(type, m);
@@ -135,6 +136,14 @@ typedef _Decoder = ActionDef Function(Json m, _Common c);
 final Map<String, _Decoder> _legacyDecoders = {
   'playAnimation': AnimateAction._fromPlayAnimation,
   'animateVariable': AnimateAction._fromAnimateVariable,
+  'controlDrag': _fromControlDrag,
+};
+
+/// The type a legacy type needs declared to be read.
+const Map<String, String> _legacyNeeds = {
+  'playAnimation': AnimateAction.typeName,
+  'animateVariable': AnimateAction.typeName,
+  'controlDrag': ControlTrackAction.typeName,
 };
 
 // --- reading helpers -------------------------------------------------------------
@@ -1177,23 +1186,19 @@ final class FocusAction extends CoreAction {
   Json get _fields => {'node': node, if (unfocus) 'unfocus': true, if (selectAll) 'selectAll': true};
 }
 
-/// What a [ControlDragAction] does to a draggable node. [step] turns a
-/// drag track control by [ControlDragAction.steps] of its step, as if
-/// dragged there (a dial's nudge buttons and arrow keys). On a node with a
-/// transform gesture (a map, a photo): [reset] springs it to its rest pose,
-/// [zoom] scales it by [ControlDragAction.value] (a factor: `1.5` in, `0.67`
-/// out) about the middle of what its viewport shows (zoom buttons), and
-/// [pose] springs it to the pose [ControlDragAction.value] gives (`{x, y,
-/// scale, rotation}`, keys left out kept: "fit to route").
-enum DragCommand { fling, returnFrom, reset, shake, step, zoom, pose }
+/// What a [ControlTrackAction] does to a [Track]: [step] turns it by
+/// [ControlTrackAction.steps] of its step, as if dragged there (crossing
+/// each step, then settling: a dial's nudge buttons); [animateTo] moves it
+/// to [ControlTrackAction.value] (`Slider.onChanged(value)`), reporting
+/// `changed`, `dragEnd` and `changeEnd`.
+enum TrackCommand { step, animateTo }
 
-/// Flings, returns, resets or shakes draggable node [node] (a swipe card),
-/// or steps a drag track.
-final class ControlDragAction extends CoreAction {
-  const ControlDragAction({
+/// Turns the [Track] of node [node] (several ids: comma-separated, the
+/// first on screen takes it). The legacy `controlDrag` `step` reads as it.
+final class ControlTrackAction extends CoreAction {
+  const ControlTrackAction({
     this.node = '',
-    this.command = DragCommand.fling,
-    this.direction = DragDirection.right,
+    this.command = TrackCommand.step,
     this.steps = '1',
     this.value = '',
     super.enabled,
@@ -1201,27 +1206,121 @@ final class ControlDragAction extends CoreAction {
     super.when,
   });
 
-  static const typeName = 'controlDrag';
+  static const typeName = 'controlTrack';
   @override
   String get type => typeName;
 
   final String node;
-  final DragCommand command;
-  final DragDirection direction;
+  final TrackCommand command;
 
-  /// [DragCommand.step]: how many steps to turn, negative toward the
-  /// track's start; a number or an expression.
+  /// [TrackCommand.step]: how many steps, negative toward the track's start
+  /// (a number or an expression).
   final String steps;
 
-  /// [DragCommand.zoom]: the factor; [DragCommand.pose]: the pose (a map, its
-  /// JSON text, or an expression giving one).
+  /// [TrackCommand.animateTo]: the value (a number or an expression).
   final String value;
 
-  static ControlDragAction _fromJson(Json m, _Common c) => ControlDragAction(
+  static ControlTrackAction _fromJson(Json m, _Common c) => ControlTrackAction(
     node: _s(m, 'node'),
-    command: _e(DragCommand.values, m, 'command', DragCommand.fling),
-    direction: _e(DragDirection.values, m, 'direction', DragDirection.right),
+    command: _e(TrackCommand.values, m, 'command', TrackCommand.step),
     steps: _s(m, 'steps', '1'),
+    value: _s(m, 'value'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {
+    'node': node,
+    if (command != TrackCommand.step) 'command': command.name,
+    if (steps != '1') 'steps': steps,
+    if (value.isNotEmpty) 'value': value,
+  };
+}
+
+/// What a [ControlDismissibleAction] does to a [DismissibleBehavior] (or a
+/// [Pan]): [dismiss] flies it off toward the direction as if swiped (and
+/// fires that swipe: removing the item); [returnFrom] brings it back from
+/// off-screen on that side (re-inserting it; a card built in the next
+/// frame, an undo's, starts there); [reset] springs it back to rest.
+/// [shake] wiggles it once (deprecated: the `shake` animation preset).
+enum DismissCommand { dismiss, returnFrom, reset, shake }
+
+/// Dismisses, brings back or resets node [node] (several ids:
+/// comma-separated). The legacy `controlDrag` `fling`, `returnFrom` and
+/// `shake` read as it.
+final class ControlDismissibleAction extends CoreAction {
+  const ControlDismissibleAction({
+    this.node = '',
+    this.command = DismissCommand.dismiss,
+    this.direction = DragDirection.right,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'controlDismissible';
+  @override
+  String get type => typeName;
+
+  final String node;
+  final DismissCommand command;
+  final DragDirection direction;
+
+  static ControlDismissibleAction _fromJson(Json m, _Common c) => ControlDismissibleAction(
+    node: _s(m, 'node'),
+    command: _e(DismissCommand.values, m, 'command', DismissCommand.dismiss),
+    direction: _e(DragDirection.values, m, 'direction', DragDirection.right),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {
+    'node': node,
+    if (command != DismissCommand.dismiss) 'command': command.name,
+    if (direction != DragDirection.right) 'direction': direction.name,
+  };
+}
+
+/// What a [ControlTransformAction] does to a [TransformGesture] (a map, a
+/// photo; `transformationController.value = ...`): [reset] springs it to its
+/// rest pose (on a node without one, its dismissible or pan: the legacy
+/// `controlDrag` `reset`, whose target JSON can't tell); [scaleBy] scales it
+/// by [ControlTransformAction.value] (a factor: `1.5` in, `0.67` out) about
+/// the middle of what its viewport shows; [animateTo] springs it to the pose
+/// [ControlTransformAction.value] gives (`{x, y, scale, rotation}`, keys left
+/// out kept: "fit to route").
+enum TransformCommand { reset, scaleBy, animateTo }
+
+/// Resets, zooms or poses the transform gesture of node [node]. The legacy
+/// `controlDrag` `reset`, `zoom` and `pose` read as it.
+final class ControlTransformAction extends CoreAction {
+  const ControlTransformAction({
+    this.node = '',
+    this.command = TransformCommand.reset,
+    this.value = '',
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'controlTransform';
+  @override
+  String get type => typeName;
+
+  final String node;
+  final TransformCommand command;
+
+  /// [TransformCommand.scaleBy]: the factor; [TransformCommand.animateTo]:
+  /// the pose (a map, its JSON text, or an expression giving one).
+  final String value;
+
+  static ControlTransformAction _fromJson(Json m, _Common c) => ControlTransformAction(
+    node: _s(m, 'node'),
+    command: _e(TransformCommand.values, m, 'command', TransformCommand.reset),
     value: m['value'] is Map ? jsonEncode(m['value']) : _s(m, 'value'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -1231,10 +1330,31 @@ final class ControlDragAction extends CoreAction {
   @override
   Json get _fields => {
     'node': node,
-    if (command != DragCommand.fling) 'command': command.name,
-    if (direction != DragDirection.right) 'direction': direction.name,
-    if (steps != '1') 'steps': steps,
+    if (command != TransformCommand.reset) 'command': command.name,
     if (value.isNotEmpty) 'value': value,
+  };
+}
+
+/// The legacy `controlDrag` (one action over three render objects) as the
+/// typed action of its command: `step` → [ControlTrackAction]; `fling`,
+/// `returnFrom`, `shake` → [ControlDismissibleAction]; `reset`, `zoom`,
+/// `pose` → [ControlTransformAction] (`reset` falls back to a dismissible or
+/// pan at run time).
+CoreAction _fromControlDrag(Json m, _Common c) {
+  final command = readString(m['command']) ?? 'fling';
+  final legacy = {...m, 'command': ?switch (command) {
+    'fling' => 'dismiss',
+    'returnFrom' || 'shake' => command,
+    'zoom' => 'scaleBy',
+    'pose' => 'animateTo',
+    'reset' => 'reset',
+    'step' => 'step',
+    _ => null,
+  }};
+  return switch (command) {
+    'step' => ControlTrackAction._fromJson(legacy, c),
+    'reset' || 'zoom' || 'pose' => ControlTransformAction._fromJson(legacy, c),
+    _ => ControlDismissibleAction._fromJson(legacy, c),
   };
 }
 
@@ -1744,7 +1864,9 @@ const List<ActionSpec> coreActionSpecs = [
   ActionSpec(CopyToClipboardAction.typeName, label: 'Copy to clipboard', fields: CopyToClipboardFields.all, decode: CopyToClipboardAction._fromJson),
   ActionSpec(EditTextAction.typeName, label: 'Edit text', fields: EditTextFields.all, decode: EditTextAction._fromJson),
   ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all, decode: FocusAction._fromJson),
-  ActionSpec(ControlDragAction.typeName, label: 'Control drag', fields: ControlDragFields.all, decode: ControlDragAction._fromJson),
+  ActionSpec(ControlTrackAction.typeName, label: 'Control track', fields: ControlTrackFields.all, decode: ControlTrackAction._fromJson),
+  ActionSpec(ControlDismissibleAction.typeName, label: 'Control dismissible', fields: ControlDismissibleFields.all, decode: ControlDismissibleAction._fromJson),
+  ActionSpec(ControlTransformAction.typeName, label: 'Control transform', fields: ControlTransformFields.all, decode: ControlTransformAction._fromJson),
   ActionSpec(ScrollToAction.typeName, label: 'Scroll to', fields: ScrollToFields.all, decode: ScrollToAction._fromJson),
   ActionSpec(AnimateAction.typeName, label: 'Animate', fields: AnimateFields.all, decode: AnimateAction._fromJson),
   ActionSpec(HapticAction.typeName, label: 'Haptic feedback', fields: HapticFields.all, decode: HapticAction._fromJson),

@@ -13,6 +13,7 @@ import 'package:meta/meta.dart';
 
 import 'custom_paint.dart';
 import 'json.dart';
+import 'path_follow.dart';
 import 'values/color.dart';
 import 'values/enums.dart';
 import 'values/geometry.dart';
@@ -21,7 +22,6 @@ import 'values/text.dart';
 part 'animation.dart';
 part 'animation_presets.dart';
 part 'gestures.dart';
-part 'path_follow.dart';
 
 /// An easing curve, by the name of its Flutter `Curves` constant. `spring`
 /// is a damped spring (see [Motion.spring]); `step` jumps half way.
@@ -822,15 +822,19 @@ enum DragAxis { free, horizontal, vertical }
 /// touch and press with a mouse.
 enum DragStart { press, longPress, auto }
 
-/// What the node shows where it was picked up while dragged.
+/// What the node shows where it was picked up while dragged
+/// (`Draggable.childWhenDragging`): a faded copy, nothing, or itself.
 enum DragSourceStyle { ghost, hidden, keep }
 
-/// Which point of the copy that follows the pointer sits under it: where
-/// it was grabbed, or its center (a feedback node of another size).
-enum FeedbackAnchor { grab, center }
+/// Which point of the copy that follows the pointer sits under it
+/// (`Draggable.dragAnchorStrategy`): where it was grabbed
+/// (`childDragAnchorStrategy`), or its center (a feedback node of another
+/// size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it.
+enum DragAnchor { child, center }
 
 /// Lets the user pick the node up and drop it on a [DropTarget] that takes
-/// its [group] (Flutter's `Draggable`).
+/// its [group] (Flutter's `Draggable`; `LongPressDraggable` with [start]
+/// `longPress`).
 @immutable
 final class DragSource extends _Value {
   const DragSource({
@@ -838,45 +842,74 @@ final class DragSource extends _Value {
     this.data = '',
     this.start = DragStart.auto,
     this.axis = DragAxis.free,
-    this.whileDragging = DragSourceStyle.ghost,
+    this.childWhenDragging = DragSourceStyle.ghost,
     this.ghostOpacity = 0.35,
+    this.feedback = '',
+    this.dragAnchor = DragAnchor.child,
     this.feedbackRotation = -2,
     this.feedbackScale = 1,
     this.feedbackOpacity = 1,
     this.feedbackElevation = 24,
-    this.feedbackNodeId = '',
-    this.feedbackAnchor = FeedbackAnchor.grab,
-    this.returnSpring = true,
-    this.spring = DragSource.defaultSpring,
+    this.returnSpring = DragSource.defaultSpring,
     this.enabled = true,
-    this.physics,
   });
 
+  /// The drag group a [DropTarget] [DropTarget.accepts], and the data it
+  /// hands over (`Draggable.data`; may hold `${...}`).
   final String group, data;
+
+  /// How a drag starts: press, long press (`LongPressDraggable`), or long
+  /// press on touch and press with a mouse.
   final DragStart start;
+
+  /// `Draggable.axis`: the feedback moves only along it.
   final DragAxis axis;
-  final DragSourceStyle whileDragging;
-  final double ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, feedbackElevation;
 
-  /// The node drawn under the pointer instead of this one.
-  final String feedbackNodeId;
-  final FeedbackAnchor feedbackAnchor;
-  final bool returnSpring;
+  /// What stays where it was picked up (the legacy `whileDragging`).
+  final DragSourceStyle childWhenDragging;
 
-  /// The spring it returns on with [returnSpring] (JSON `spring`; the
-  /// legacy `springStiffness`/`springDamping` read as it).
-  final Spring spring;
+  /// The opacity of a [DragSourceStyle.ghost].
+  final double ghostOpacity;
+
+  /// The node drawn under the pointer instead of this one
+  /// (`Draggable.feedback`); empty: the node itself. The legacy
+  /// `feedbackNodeId` reads as it.
+  final String feedback;
+
+  /// The legacy `feedbackAnchor` reads as it.
+  final DragAnchor dragAnchor;
+
+  /// The feedback's tilt (degrees), scale, opacity and shadow while it
+  /// follows the pointer. Not yet a `states.dragged` patch: their defaults
+  /// (−2°, a 24 shadow) can't change under existing documents.
+  final double feedbackRotation, feedbackScale, feedbackOpacity, feedbackElevation;
+
+  /// The spring a drop no target takes flies home on; null: none (it
+  /// reappears at once, as Flutter's `Draggable` does). JSON `false` is
+  /// null. The legacy `returnSpring: true` with `spring`,
+  /// `springStiffness`/`springDamping` or `physics` reads as it.
+  final Spring? returnSpring;
   static const Spring defaultSpring = Spring.physical(stiffness: 260, damping: 14);
+
+  /// Bindable as `draggable.enabled`.
   final bool enabled;
 
-  /// The return spring of a drag no target takes; null uses
-  /// [returnSpring] and [spring].
-  final GesturePhysics? physics;
+  /// The spring it flies back on, as gesture physics; null for none.
+  GesturePhysics? get effectivePhysics => returnSpring == null ? null : GesturePhysics(spring: returnSpring!, fling: false);
 
-  /// The spring it flies back on, or null for none (it reappears at once).
-  GesturePhysics? get effectivePhysics =>
-      physics ??
-      (returnSpring ? GesturePhysics(spring: spring, fling: false) : null);
+  /// [m]'s return spring: `returnSpring` (an object, `false`, or `true`
+  /// with the legacy `spring`, `springStiffness`/`springDamping` or
+  /// `physics`).
+  static Spring? _returnSpringOf(Json m) {
+    final v = m['returnSpring'];
+    if (Spring.fromJson(v, fallback: defaultSpring) case final Spring s) return s;
+    // The legacy `physics` overrode `returnSpring: false`.
+    if (GesturePhysics.fromJson(m['physics']) case final GesturePhysics p) return p.spring;
+    if (readBool(v) == false) return null;
+    return Spring.fromJson(m['spring'], fallback: defaultSpring) ??
+        Spring.legacy(m, 'springStiffness', 'springDamping', fallback: defaultSpring) ??
+        defaultSpring;
+  }
 
   static DragSource? fromJson(Object? json) {
     final m = readMap(json);
@@ -887,20 +920,23 @@ final class DragSource extends _Value {
       data: r.s('data'),
       start: r.e(DragStart.values, 'start', DragStart.auto),
       axis: r.e(DragAxis.values, 'axis', DragAxis.free),
-      whileDragging: r.e(DragSourceStyle.values, 'whileDragging', DragSourceStyle.ghost),
+      childWhenDragging: readEnum(
+        DragSourceStyle.values,
+        m['childWhenDragging'] ?? m['whileDragging'],
+        DragSourceStyle.ghost,
+      ),
       ghostOpacity: r.d('ghostOpacity', 0.35),
+      feedback: readString(m['feedback']) ?? r.s('feedbackNodeId'),
+      dragAnchor: switch (m['dragAnchor'] ?? m['dragAnchorStrategy'] ?? m['feedbackAnchor']) {
+        'center' || 'pointer' => DragAnchor.center,
+        _ => DragAnchor.child,
+      },
       feedbackRotation: r.d('feedbackRotation', -2),
       feedbackScale: r.d('feedbackScale', 1),
       feedbackOpacity: r.d('feedbackOpacity', 1),
       feedbackElevation: r.d('feedbackElevation', 24),
-      feedbackNodeId: r.s('feedbackNodeId'),
-      feedbackAnchor: r.e(FeedbackAnchor.values, 'feedbackAnchor', FeedbackAnchor.grab),
-      returnSpring: r.b('returnSpring', true),
-      spring: Spring.fromJson(m['spring'], fallback: defaultSpring) ??
-          Spring.legacy(m, 'springStiffness', 'springDamping', fallback: defaultSpring) ??
-          defaultSpring,
+      returnSpring: _returnSpringOf(m),
       enabled: _loose(m['enabled']) ?? true,
-      physics: GesturePhysics.fromJson(m['physics']),
     );
   }
 
@@ -910,25 +946,26 @@ final class DragSource extends _Value {
       ..s('data', data)
       ..e('start', start, DragStart.auto)
       ..e('axis', axis, DragAxis.free)
-      ..e('whileDragging', whileDragging, DragSourceStyle.ghost)
+      ..e('childWhenDragging', childWhenDragging, DragSourceStyle.ghost)
       ..d('ghostOpacity', ghostOpacity, 0.35)
+      ..s('feedback', feedback)
+      ..e('dragAnchor', dragAnchor, DragAnchor.child)
       ..d('feedbackRotation', feedbackRotation, -2)
       ..d('feedbackScale', feedbackScale, 1)
       ..d('feedbackOpacity', feedbackOpacity, 1)
-      ..d('feedbackElevation', feedbackElevation, 24)
-      ..s('feedbackNodeId', feedbackNodeId)
-      ..e('feedbackAnchor', feedbackAnchor, FeedbackAnchor.grab)
-      ..b('returnSpring', returnSpring, true);
-    if (spring != defaultSpring) j['spring'] = spring.toJsonOver(defaultSpring);
-    j.b('enabled', enabled, true);
-    if (physics != null) j['physics'] = physics!.toJson();
-    return j;
+      ..d('feedbackElevation', feedbackElevation, 24);
+    if (returnSpring == null) {
+      j['returnSpring'] = false;
+    } else if (returnSpring != defaultSpring) {
+      j['returnSpring'] = returnSpring!.toJsonOver(defaultSpring);
+    }
+    return j..b('enabled', enabled, true);
   }
 
   @override
   List<Object?> get props => [
-    group, data, start, axis, whileDragging, ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, //
-    feedbackElevation, feedbackNodeId, feedbackAnchor, returnSpring, spring, enabled, physics,
+    group, data, start, axis, childWhenDragging, ghostOpacity, feedback, dragAnchor, feedbackRotation, //
+    feedbackScale, feedbackOpacity, feedbackElevation, returnSpring, enabled,
   ];
 }
 
@@ -1016,130 +1053,170 @@ final class DropTarget extends _Value {
   ];
 }
 
-/// What a dragged node does when let go.
-enum DragRelease { snapBack, stay, dismiss }
-
+/// A direction a node is dragged or dismissed in.
 enum DragDirection { left, right, up, down }
 
-/// The shape of a [DragTrack].
-enum DragTrackShape { line, arc, path }
+/// The shape of a [Track]: a straight line, an arc about a pivot, or an
+/// SVG path ([Track.path]).
+enum TrackShape { line, arc, path }
 
-/// How the pointer moves along a [DragTrack]: following it, or dragging
-/// up/down, left/right, or either (up or right raises it: dx − dy).
-enum DragTrackInput { follow, vertical, horizontal, both }
+/// How the pointer moves along a [Track]: following it (along the line or
+/// path, round the arc), or dragging up/down, left/right, or either (up or
+/// right raises it: dx − dy).
+enum TrackInput { follow, vertical, horizontal, both }
 
-/// Where a [DragTrack]'s node takes the pointer: on itself, or anywhere in
-/// its parent (a knob turned from anywhere in its box).
-enum DragTrackHitArea { self, parent }
+/// Where a [Track]'s node takes the pointer: on itself, or anywhere in
+/// its parent too (a knob turned from anywhere in its box).
+enum TrackHitArea { self, parent }
 
-/// What a [DragTrack]'s geometry is measured in: pixels, or fractions of
+/// What a [Track]'s line and pivot are measured in: pixels, or fractions of
 /// the parent's size (x values of its width, y of its height).
-enum DragTrackUnits { pixels, parent }
+enum TrackUnits { pixels, parent }
 
-/// Makes a dragged node a value control (a knob, a fader): it moves along
-/// the track as variable [variable] goes from [min] to [max], and the
-/// design canvas draws it at the variable's value. Dragging it writes the
-/// variable (unless [write] is off); a double tap goes to [defaultValue]
-/// (or through [doubleTapValues]), the wheel and arrow keys step it. Inside
-/// it `${track.value}`, `${track.progress}`, `${track.dragging}`,
-/// `${track.fine}` and `${track.focused}` can be read.
+/// How the pointer may move a [Track]'s value (Flutter's
+/// `SliderInteraction`, the two it has of four): only by dragging the thumb
+/// (`slideThumb`), or also by pressing the track, which moves the thumb
+/// there before the drag goes on (`tapAndSlide`; [TrackInput.follow] only).
+enum TrackInteraction { slideThumb, tapAndSlide }
+
+/// A value the user sets by dragging (node key `track`): Flutter's `Slider`
+/// (`value`, `min`, `max`, divisions as [step], `onChanged` as the
+/// `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a
+/// straight bar to a line, an arc or any path. The node carrying it is the
+/// thumb: it moves along the track as variable [variable] goes from [min] to
+/// [max], and the design canvas draws it at the variable's value. Dragging
+/// it writes the variable; the wheel and arrow keys step it. Inside it
+/// `${track.value}`, `${track.progress}`, `${track.dragging}`,
+/// `${track.fine}` and `${track.focused}` can be read; it fires `changed`
+/// (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and
+/// `changeEnd`.
 ///
-/// Its settings and geometry are bindable as `drag.track.<field>`
-/// (`drag.track.x2`: `${= parent.width - 26}`); `drag.track.value` gives
-/// the value the node is drawn at in place of reading [variable].
+/// Its settings and geometry are bindable as `track.<field>`
+/// (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the
+/// node is drawn at in place of reading [variable]. The legacy
+/// `drag.track` (and its `drag.track.*` binding paths) reads as this: see
+/// [fromJson] for its renamed keys.
 @immutable
-final class DragTrack extends _Value {
-  const DragTrack({
-    this.shape = DragTrackShape.line,
+final class Track extends _Value {
+  const Track({
+    this.enabled = true,
     this.variable = '',
+    this.value,
     this.min = 0,
     this.max = 1,
     this.step = 0,
-    this.defaultValue,
-    this.input = DragTrackInput.follow,
+    this.clamp = true,
+    this.input = TrackInput.follow,
+    this.allowedInteraction = TrackInteraction.slideThumb,
+    this.hitArea = TrackHitArea.self,
     this.pixelsPerRange = 200,
+    this.wheelStep,
+    this.keyStep,
+    this.shape = TrackShape.line,
     this.x1 = 0,
     this.y1 = 0,
     this.x2 = 0,
     this.y2 = -100,
+    this.relative = false,
+    this.units = TrackUnits.pixels,
     this.startAngle = -135,
-    this.endAngle = 135,
+    this.sweepAngle = 270,
     this.pivotX = 0,
     this.pivotY = 0,
     this.rotate = true,
     this.path,
-    this.orientToPath = false,
-    this.jumpOnTap = false,
-    this.wheel = true,
-    this.value,
-    this.orientUpright = false,
     this.detent = 0,
     this.overscroll = 0,
+    this.physics,
     this.settle = 0,
     this.settleCurve = AnimationCurve.easeOutCubic,
-    this.settleSpring = DragTrack.defaultSettleSpring,
-    this.parkedProgress,
-    this.keyboard = true,
-    this.viewBoxWidth = 0,
-    this.viewBoxHeight = 0,
-    this.relative = false,
-    this.wheelStep,
+    this.settleSpring = Track.defaultSettleSpring,
+    this.snap = 0,
+    this.snapCurve = AnimationCurve.easeOutBack,
+    this.defaultValue,
     this.doubleTapValues = const [],
-    this.keyStep,
-    this.hitArea = DragTrackHitArea.self,
-    this.units = DragTrackUnits.pixels,
+    this.parkedProgress,
     this.fineStep = 0,
     this.finePixelsPerRange = 0,
     this.fineHold = 380,
     this.fineVariable = '',
-    this.snap = 0,
-    this.snapCurve = AnimationCurve.easeOutBack,
-    this.write = true,
-    this.endless = false,
-    this.momentum = false,
-    this.friction = 2.6,
     this.smooth = false,
     this.gain = 1,
   });
 
-  final DragTrackShape shape;
+  // --- the value (Slider) ---
 
-  /// The variable it reads and writes; empty when `drag.track.value` is
-  /// bound and its reactions write the value.
+  /// Whether it takes the pointer, the wheel and the keys (bindable as
+  /// `track.enabled`; the legacy `drag.enabled` reads as it).
+  final bool enabled;
+
+  /// The variable it reads and writes; empty when `track.value` is bound
+  /// and its reactions write the value (the legacy `write: false`).
   final String variable;
+
+  /// The value the node is drawn at, from a binding (`track.value`); null
+  /// reads [variable].
+  final double? value;
+
+  /// The range and its step (`Slider.divisions` = (max − min) / step; 0 is
+  /// continuous).
   final double min, max, step;
 
-  /// What a double tap resets to (bindable as `drag.track.defaultValue`).
-  final double? defaultValue;
-  final DragTrackInput input;
+  /// Whether the value stays within [min]–[max]. Off, an [TrackShape.arc]
+  /// keeps turning past its ends and the value counts on (a combination
+  /// dial; the legacy `endless`).
+  final bool clamp;
+
+  // --- input ---
+
+  final TrackInput input;
+
+  /// The legacy `jumpOnTap: true` reads as [TrackInteraction.tapAndSlide].
+  final TrackInteraction allowedInteraction;
+
+  /// With [TrackHitArea.parent] the node's parent takes the pointer too.
+  final TrackHitArea hitArea;
+
+  /// Pixels of drag for the whole range ([TrackInput.vertical],
+  /// [TrackInput.horizontal], [TrackInput.both]; the legacy `gain` divides
+  /// it).
   final double pixelsPerRange;
+
+  /// One wheel notch, one arrow key: null [step], else 1% of the range; 0
+  /// turns the wheel (the legacy `wheel: false`) or the keys (`keyboard:
+  /// false`) off. With the keys on it takes focus: arrows step, Page Up/Down
+  /// by 10 steps, Home and End to the ends.
+  final double? wheelStep, keyStep;
+
+  // --- where the thumb is drawn ---
+
+  /// Inferred from [path] when not given.
+  final TrackShape shape;
 
   /// A line's ends, from the node's place (pixels, or with [relative]
   /// multiples of the node's size, with [units] parent of the parent's).
   final double x1, y1, x2, y2;
 
-  /// An arc's angles (degrees, clockwise, 0 up) about the pivot (from the
-  /// node's center).
-  final double startAngle, endAngle, pivotX, pivotY;
+  /// A line's ends are multiples of the node's own size (a full-width scrub
+  /// area: `x1: -0.5, x2: 0.5`).
+  final bool relative;
+  final TrackUnits units;
 
-  /// Turns the node with the arc.
+  /// An arc: the angle of [min] (degrees, clockwise, 0 up) and the turn to
+  /// [max] (the legacy `endAngle` is `startAngle + sweepAngle`), about the
+  /// pivot (from the node's center); the node orbits it on the circle
+  /// through its place, turning with it ([rotate]). A pivot at the center is
+  /// a knob that turns in place.
+  final double startAngle, sweepAngle, pivotX, pivotY;
   final bool rotate;
-  final String? path;
-  final bool orientToPath;
 
-  /// Pressing anywhere along the track (or the [hitArea]) moves the node
-  /// there, then the drag goes on (only for [DragTrackInput.follow]).
-  final bool jumpOnTap;
+  /// A path ([TrackShape.path]): its SVG data in pixels from the node's
+  /// place, or in a view box stretched over the parent, and whether the node
+  /// turns with it (the legacy `path`, `viewBoxWidth`/`viewBoxHeight`,
+  /// `orientToPath` and `orientUpright`).
+  final PathFollow? path;
 
-  /// Whether the mouse wheel steps the value.
-  final bool wheel;
-
-  /// The value the node is drawn at, from a binding (`drag.track.value`);
-  /// null reads [variable].
-  final double? value;
-
-  /// With [orientToPath], never upside down (as [Motion.orientUpright]).
-  final bool orientUpright;
+  // --- feel ---
 
   /// How magnetic [step]s are while dragging (0–1): 0 jumps from step to
   /// step; above 0 the node follows that share of the way past a step.
@@ -1149,83 +1226,74 @@ final class DragTrack extends _Value {
   /// travel there (0–1); it springs back on release.
   final double overscroll;
 
+  /// Let go while moving, with [GesturePhysics.fling] it coasts on, slowing
+  /// by [GesturePhysics.friction], then settles on a [step] (the legacy
+  /// `momentum` and its `friction` rate). Null stops where let go.
+  final GesturePhysics? physics;
+
   /// The glide to its value's place when not following the pointer (ms; 0
   /// jumps), its curve, and the spring of [AnimationCurve.spring] (mass 1),
   /// which a release mid-fling starts at the pointer's speed.
   final int settle;
   final AnimationCurve settleCurve;
+
   /// The spring of a `spring` [settleCurve] (JSON `settleSpring`; the
   /// legacy `settleStiffness`/`settleDamping` read as it).
   final Spring settleSpring;
   static const Spring defaultSettleSpring = Spring.physical(stiffness: 380, damping: 20);
-
-  /// Where the node parks while the value is out of range or empty, as a
-  /// progress that may lie outside 0–1 (an unrated dial parks below its
-  /// first mark); null draws such a value at the nearest end.
-  final double? parkedProgress;
-
-  /// Takes keyboard focus: arrows step by [keyStep] (else [step], else 1%
-  /// of the range), Page Up/Down by 10 steps, Home and End to the ends.
-  final bool keyboard;
-
-  /// With both above 0, [path] is drawn in the box of the frame the node
-  /// sits in, in these units, stretched to the frame's size.
-  final double viewBoxWidth, viewBoxHeight;
-
-  /// A line's ends are multiples of the node's own size (a full-width scrub
-  /// area: `x1: -0.5, x2: 0.5`).
-  final bool relative;
-
-  /// One wheel notch, one arrow key (null: [step], else 1% of the range).
-  final double? wheelStep, keyStep;
-
-  /// Values a double tap moves between, in order (empty: [defaultValue]).
-  final List<double> doubleTapValues;
-  final DragTrackHitArea hitArea;
-  final DragTrackUnits units;
-
-  /// A finer step while Shift is held or after the pointer is held still
-  /// [fineHold] ms (0: hold doesn't), [finePixelsPerRange] pixels for the
-  /// range (0: 4 × [pixelsPerRange]); 0 has no fine mode. [fineVariable], a
-  /// boolean variable, is kept true while fine.
-  final double fineStep, finePixelsPerRange;
-  final int fineHold;
-  final String fineVariable;
 
   /// Animates the node to each new value over [snap] ms along [snapCurve]
   /// (a knob clicking from detent to detent); 0 jumps.
   final int snap;
   final AnimationCurve snapCurve;
 
-  /// Whether dragging writes [variable]; off, it only shows it and its
-  /// reactions set what changes from `${result.value}`.
-  final bool write;
+  // --- deprecated: one-app fields, kept working until migrated ---
 
-  /// An arc that keeps turning past its ends, the value unbounded (a
-  /// combination dial).
-  final bool endless;
+  /// What a double tap resets to, or the values it moves between in order.
+  /// Deprecated: a `doubleTap` reaction.
+  final double? defaultValue;
+  final List<double> doubleTapValues;
 
-  /// Let go while moving, it coasts, slowing by [friction] per second, then
-  /// settles on a [step].
-  final bool momentum;
-  final double friction;
+  /// Where the node parks while the value is out of range or empty, as a
+  /// progress that may lie outside 0–1; null draws such a value at the
+  /// nearest end. Deprecated: bind `track.value` outside the range.
+  final double? parkedProgress;
+
+  /// A finer step while Shift is held or after the pointer is held still
+  /// [fineHold] ms (0: hold doesn't), [finePixelsPerRange] pixels for the
+  /// range (0: 4 × [pixelsPerRange]); 0 has no fine mode. [fineVariable], a
+  /// boolean variable, is kept true while fine. Deprecated: a boolean
+  /// variable set by key and hold reactions, bound to `track.step` and
+  /// `track.pixelsPerRange`.
+  final double fineStep, finePixelsPerRange;
+  final int fineHold;
+  final String fineVariable;
 
   /// Draws the node between [step]s while dragged or coasting, springing
-  /// onto the nearest when it rests (the variable only holds steps).
+  /// onto the nearest when it rests. Deprecated: [detent] 1.
   final bool smooth;
 
-  /// How far the node moves per pointer movement (0.5 fine, 2 coarse).
+  /// How far an arc followed round its pivot turns per degree of pointer
+  /// turn (0.5 fine). Deprecated; on any other input it is folded into
+  /// [pixelsPerRange].
   final double gain;
 
-  /// Whether the value is unbounded ([endless] on an arc).
-  bool get unbounded => endless && shape == DragTrackShape.arc;
+  /// Whether the value is unbounded (not [clamp]ed).
+  bool get unbounded => !clamp;
 
   bool get hasVariable => variable.trim().isNotEmpty;
   bool get hasFine => fineStep > 0;
-  bool get usesViewBox => viewBoxWidth > 0 && viewBoxHeight > 0;
+  bool get usesViewBox => shape == TrackShape.path && path?.viewBoxSize != null;
+  bool get jumpOnTap => allowedInteraction == TrackInteraction.tapAndSlide;
+  bool get momentum => physics?.fling ?? false;
+
+  /// The legacy coast rate: the share of speed lost per second as an
+  /// exponential rate (`v *= e^(−rate·dt)`).
+  double get frictionRate => physics == null ? 0 : -math.log(physics!.frictionDrag);
+  double get endAngle => startAngle + sweepAngle;
   double get effectiveFinePixelsPerRange => finePixelsPerRange > 0 ? finePixelsPerRange : pixelsPerRange * 4;
 
-  /// Where [value] is along the track (0–1; past them on an endless arc).
+  /// Where [value] is along the track (0–1; past them when unbounded).
   double progressOf(double value) {
     if (max == min) return 0;
     final p = (value - min) / (max - min);
@@ -1244,7 +1312,7 @@ final class DragTrack extends _Value {
   /// Where the node is drawn for [value].
   double restProgressOf(double value) => isParked(value) ? parkedProgress! : (value.isNaN ? 0 : progressOf(value));
 
-  /// [progress] held to the track (any progress on an endless arc).
+  /// [progress] held to the track (any progress when unbounded).
   double clampProgress(double progress) => unbounded ? progress : progress.clamp(0.0, 1.0);
 
   /// [v] snapped to [by] (from [min]; 0 continuous) and kept in range.
@@ -1265,11 +1333,14 @@ final class DragTrack extends _Value {
   /// The value at [progress], snapped to [step].
   double valueAt(double progress) => snapValue(min + (max - min) * clampProgress(progress));
 
+  /// Whether the wheel steps it.
+  bool get wheel => wheelStep != 0;
+
   double get effectiveWheelStep => (wheelStep ?? 0) > 0 ? wheelStep! : (step > 0 ? step : (max - min).abs() / 100);
 
-  /// Null with [keyboard] off.
+  /// Null with the keys off ([keyStep] 0).
   double? get effectiveKeyStep =>
-      !keyboard ? null : ((keyStep ?? 0) > 0 ? keyStep! : (step > 0 ? step : (max - min).abs() / 100));
+      keyStep == 0 ? null : ((keyStep ?? 0) > 0 ? keyStep! : (step > 0 ? step : (max - min).abs() / 100));
 
   /// The value a double tap moves to from [v], or null when it does nothing.
   double? doubleTapTarget(double v) {
@@ -1282,166 +1353,512 @@ final class DragTrack extends _Value {
     return snapValue(cycle.first);
   }
 
-  double angleAt(double progress) => startAngle + (endAngle - startAngle) * clampProgress(progress);
+  double angleAt(double progress) => startAngle + sweepAngle * clampProgress(progress);
 
-  static DragTrack? fromJson(Object? json) {
+  /// The track of a legacy `drag` object [d] (its `track`, switched by its
+  /// `enabled`), or null when it has none.
+  static Track? fromLegacyDrag(Json? d) {
+    if (d == null || readMap(d['track']) == null) return null;
+    final t = <String, Object?>{...readMap(d['track'])!};
+    if (!t.containsKey('enabled') && d.containsKey('enabled')) t['enabled'] = d['enabled'];
+    return fromJson(t);
+  }
+
+  /// Whether the track JSON [m] holds the legacy `write: false` with a
+  /// variable: the variable is dropped and, without a literal `value`, moves
+  /// to a `track.value` binding ([readsOnly], [Behaviors.migrateBind]).
+  static bool _dropsVariable(Json m) =>
+      readBool(m['write']) == false && (readString(m['variable'])?.trim().isNotEmpty ?? false);
+
+  /// [_dropsVariable] with no literal `value`: the variable is then bound.
+  static bool readsOnly(Json m) => _dropsVariable(m) && m['value'] == null;
+
+  /// Reads the new shape and every legacy key: `endAngle` (as
+  /// [sweepAngle]), `endless` ([clamp] off on an arc), `jumpOnTap`
+  /// ([allowedInteraction]), `wheel`/`keyboard: false` ([wheelStep]/
+  /// [keyStep] 0), `momentum`/`friction` ([physics]: fling with the share of
+  /// speed lost a second the rate amounts to), `gain` ([pixelsPerRange] ÷
+  /// gain, except round an arc followed by angle), the path string,
+  /// `viewBoxWidth`/`viewBoxHeight`, `orientToPath`/`orientUpright` ([path]),
+  /// `write: false` (the variable dropped: see [readsOnly]) and
+  /// `settleStiffness`/`settleDamping` ([settleSpring]).
+  static Track? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    return DragTrack(
-      shape: r.e(DragTrackShape.values, 'shape', DragTrackShape.line),
-      variable: r.s('variable'),
+    final path = _pathOf(m);
+    final shape = readEnum(TrackShape.values, m['shape'], path != null ? TrackShape.path : TrackShape.line);
+    final input = r.e(TrackInput.values, 'input', TrackInput.follow);
+    final start = r.d('startAngle', -135);
+    final gain = r.d('gain', 1);
+    // A gain other than round an arc followed by angle is a pixel rate.
+    final angular = shape == TrackShape.arc && input == TrackInput.follow;
+    final ppr = r.d('pixelsPerRange', 200);
+    return Track(
+      enabled: _loose(m['enabled']) ?? true,
+      variable: _dropsVariable(m) ? '' : r.s('variable'),
+      value: r.dn('value'),
       min: r.d('min', 0),
       max: r.d('max', 1),
       step: math.max(0, r.d('step', 0)),
-      defaultValue: r.dn('defaultValue'),
-      input: r.e(DragTrackInput.values, 'input', DragTrackInput.follow),
-      pixelsPerRange: r.d('pixelsPerRange', 200),
+      clamp: readBool(m['clamp']) ?? !(r.b('endless', false) && shape == TrackShape.arc),
+      input: input,
+      allowedInteraction: readEnum(
+        TrackInteraction.values,
+        m['allowedInteraction'],
+        r.b('jumpOnTap', false) ? TrackInteraction.tapAndSlide : TrackInteraction.slideThumb,
+      ),
+      hitArea: r.e(TrackHitArea.values, 'hitArea', TrackHitArea.self),
+      pixelsPerRange: angular || gain <= 0 ? ppr : ppr / gain,
+      wheelStep: r.b('wheel', true) ? r.dn('wheelStep') : 0,
+      keyStep: r.b('keyboard', true) ? r.dn('keyStep') : 0,
+      shape: shape,
       x1: r.d('x1', 0),
       y1: r.d('y1', 0),
       x2: r.d('x2', 0),
       y2: r.d('y2', -100),
-      startAngle: r.d('startAngle', -135),
-      endAngle: r.d('endAngle', 135),
+      relative: r.b('relative', false),
+      units: r.e(TrackUnits.values, 'units', TrackUnits.pixels),
+      startAngle: start,
+      sweepAngle: r.dn('sweepAngle') ?? (r.d('endAngle', 135) - start),
       pivotX: r.d('pivotX', 0),
       pivotY: r.d('pivotY', 0),
       rotate: r.b('rotate', true),
-      path: r.sn('path'),
-      orientToPath: r.b('orientToPath', false),
-      jumpOnTap: r.b('jumpOnTap', false),
-      wheel: r.b('wheel', true),
-      value: r.dn('value'),
-      orientUpright: r.b('orientUpright', false),
+      path: path,
       detent: r.d('detent', 0),
       overscroll: r.d('overscroll', 0),
+      physics: GesturePhysics.fromJson(m['physics']) ??
+          ((_loose(m['momentum']) ?? false) ? _legacyMomentum(r.d('friction', 2.6)) : null),
       settle: r.ms('settle', 0),
       settleCurve: r.curve('settleCurve', AnimationCurve.easeOutCubic),
       settleSpring: Spring.fromJson(m['settleSpring'], fallback: defaultSettleSpring) ??
           Spring.legacy(m, 'settleStiffness', 'settleDamping', fallback: defaultSettleSpring) ??
           defaultSettleSpring,
-      parkedProgress: r.dn('parkedProgress'),
-      keyboard: r.b('keyboard', true),
-      viewBoxWidth: r.d('viewBoxWidth', 0),
-      viewBoxHeight: r.d('viewBoxHeight', 0),
-      relative: r.b('relative', false),
-      wheelStep: r.dn('wheelStep'),
-      doubleTapValues: r.doubles('doubleTapValues'),
-      keyStep: r.dn('keyStep'),
-      hitArea: r.e(DragTrackHitArea.values, 'hitArea', DragTrackHitArea.self),
-      units: r.e(DragTrackUnits.values, 'units', DragTrackUnits.pixels),
-      fineStep: r.d('fineStep', 0),
-      finePixelsPerRange: r.d('finePixelsPerRange', 0),
-      fineHold: r.ms('fineHold', 380),
-      fineVariable: r.s('fineVariable'),
       snap: r.ms('snap', 0),
       snapCurve: r.curve('snapCurve', AnimationCurve.easeOutBack),
-      write: r.b('write', true),
-      endless: r.b('endless', false),
-      momentum: _loose(m['momentum']) ?? false,
-      friction: r.d('friction', 2.6),
+      defaultValue: r.dn('defaultValue'),
+      doubleTapValues: r.doubles('doubleTapValues'),
+      parkedProgress: r.dn('parkedProgress'),
+      fineStep: r.d('fineStep', 0),
+      finePixelsPerRange: angular || gain <= 0 ? r.d('finePixelsPerRange', 0) : r.d('finePixelsPerRange', 0) / gain,
+      fineHold: r.ms('fineHold', 380),
+      fineVariable: r.s('fineVariable'),
       smooth: _loose(m['smooth']) ?? false,
-      gain: r.d('gain', 1),
+      gain: angular ? gain : 1,
+    );
+  }
+
+  /// The legacy `momentum` coast slowing at [rate] per second
+  /// (`v *= e^(−rate·dt)`): a fling losing `1 − e^(−rate)` of its speed a
+  /// second (to 4 places).
+  static GesturePhysics _legacyMomentum(double rate) =>
+      GesturePhysics(friction: double.parse((1 - math.exp(-math.max(0, rate))).toStringAsFixed(4)));
+
+  /// [m]'s path: `path` as an object or SVG data, with the legacy
+  /// `viewBoxWidth`/`viewBoxHeight`, `orientToPath` and `orientUpright`.
+  static PathFollow? _pathOf(Json m) {
+    final p = PathFollow.fromJson(m['path']);
+    if (p == null || m['path'] is! String) return p;
+    final r = _R(m);
+    final w = r.d('viewBoxWidth', 0), h = r.d('viewBoxHeight', 0);
+    return PathFollow(
+      path: p.path,
+      viewBox: w > 0 && h > 0 ? [w, h] : const [],
+      orient: !r.b('orientToPath', false)
+          ? PathOrient.none
+          : (r.b('orientUpright', false) ? PathOrient.upright : PathOrient.tangent),
     );
   }
 
   Json toJson() {
     final j = <String, Object?>{}
+      ..b('enabled', enabled, true)
       ..s('variable', variable)
-      ..e('shape', shape, DragTrackShape.line)
+      ..dn('value', value)
       ..d('min', min, 0)
       ..d('max', max, 1)
       ..d('step', step, 0)
-      ..dn('defaultValue', defaultValue)
-      ..e('input', input, DragTrackInput.follow)
+      ..b('clamp', clamp, true)
+      ..e('input', input, TrackInput.follow)
+      ..e('allowedInteraction', allowedInteraction, TrackInteraction.slideThumb)
+      ..e('hitArea', hitArea, TrackHitArea.self)
       ..d('pixelsPerRange', pixelsPerRange, 200)
+      ..dn('wheelStep', wheelStep)
+      ..dn('keyStep', keyStep)
+      ..e('shape', shape, path != null ? TrackShape.path : TrackShape.line)
       ..d('x1', x1, 0)
       ..d('y1', y1, 0)
       ..d('x2', x2, 0)
       ..d('y2', y2, -100)
+      ..b('relative', relative, false)
+      ..e('units', units, TrackUnits.pixels)
       ..d('startAngle', startAngle, -135)
-      ..d('endAngle', endAngle, 135)
+      ..d('sweepAngle', sweepAngle, 270)
       ..d('pivotX', pivotX, 0)
       ..d('pivotY', pivotY, 0)
-      ..b('rotate', rotate, true)
-      ..s('path', path)
-      ..b('orientToPath', orientToPath, false)
-      ..b('jumpOnTap', jumpOnTap, false)
-      ..b('wheel', wheel, true)
-      ..dn('value', value)
-      ..b('orientUpright', orientUpright, false)
+      ..b('rotate', rotate, true);
+    if (path != null) j['path'] = path!.toJson();
+    j
       ..d('detent', detent, 0)
-      ..d('overscroll', overscroll, 0)
+      ..d('overscroll', overscroll, 0);
+    if (physics != null) j['physics'] = physics!.toJson();
+    j
       ..i('settle', settle, 0)
-      ..e('settleCurve', settleCurve, AnimationCurve.easeOutCubic)
-      ..let((j) {
-        if (settleSpring != defaultSettleSpring) j['settleSpring'] = settleSpring.toJsonOver(defaultSettleSpring);
-      })
-      ..dn('parkedProgress', parkedProgress)
-      ..b('keyboard', keyboard, true)
-      ..d('viewBoxWidth', viewBoxWidth, 0)
-      ..d('viewBoxHeight', viewBoxHeight, 0)
-      ..b('relative', relative, false)
-      ..dn('wheelStep', wheelStep);
+      ..e('settleCurve', settleCurve, AnimationCurve.easeOutCubic);
+    if (settleSpring != defaultSettleSpring) j['settleSpring'] = settleSpring.toJsonOver(defaultSettleSpring);
+    j
+      ..i('snap', snap, 0)
+      ..e('snapCurve', snapCurve, AnimationCurve.easeOutBack)
+      ..dn('defaultValue', defaultValue);
     if (doubleTapValues.isNotEmpty) j['doubleTapValues'] = doubleTapValues.map(writeDouble).toList();
     return j
-      ..dn('keyStep', keyStep)
-      ..e('hitArea', hitArea, DragTrackHitArea.self)
-      ..e('units', units, DragTrackUnits.pixels)
+      ..dn('parkedProgress', parkedProgress)
       ..d('fineStep', fineStep, 0)
       ..d('finePixelsPerRange', finePixelsPerRange, 0)
       ..i('fineHold', fineHold, 380)
       ..s('fineVariable', fineVariable)
-      ..i('snap', snap, 0)
-      ..e('snapCurve', snapCurve, AnimationCurve.easeOutBack)
-      ..b('write', write, true)
-      ..b('endless', endless, false)
-      ..b('momentum', momentum, false)
-      ..d('friction', friction, 2.6)
       ..b('smooth', smooth, false)
       ..d('gain', gain, 1);
   }
 
   @override
   List<Object?> get props => [
-    shape, variable, min, max, step, defaultValue, input, pixelsPerRange, x1, y1, x2, y2, startAngle, endAngle, //
-    pivotX, pivotY, rotate, path, orientToPath, jumpOnTap, wheel, value, orientUpright, detent, overscroll, settle,
-    settleCurve, settleSpring, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
-    wheelStep, doubleTapValues, keyStep, hitArea, units, fineStep, finePixelsPerRange, fineHold, fineVariable, snap,
-    snapCurve, write, endless, momentum, friction, smooth, gain,
+    enabled, variable, value, min, max, step, clamp, input, allowedInteraction, hitArea, pixelsPerRange, //
+    wheelStep, keyStep, shape, x1, y1, x2, y2, relative, units, startAngle, sweepAngle, pivotX, pivotY, rotate,
+    path, detent, overscroll, physics, settle, settleCurve, settleSpring, snap, snapCurve, defaultValue,
+    doubleTapValues, parkedProgress, fineStep, finePixelsPerRange, fineHold, fineVariable, smooth, gain,
   ];
 }
 
-/// Makes the node follow the pointer: it tilts, and on release springs
-/// back, stays, or flies off past a threshold (a swiped card); with a
-/// [track] it's a value control.
+// --- following the pointer: dismissible and pan ---------------------------------
+
+/// The legacy `drag` fields that only some apps used, kept read and working
+/// on [DismissibleBehavior] and [Pan] until each has its replacement (see
+/// docs/design/04-drag-and-track.md, "Not yet migrated"). Deprecated: new
+/// documents should not use them.
+mixin _LegacyFollow {
+  /// Degrees the node tilts per its own width of horizontal travel, about
+  /// ([originX], [originY]) (-1–1 of its box). Deprecated: bind
+  /// `motion.rotate` to the drag's offset.
+  double get rotateFactor;
+  double get originX;
+  double get originY;
+
+  /// Wiggles when a disabled drag is tried. Deprecated: a `dragEnd`
+  /// reaction playing the `shake` animation preset.
+  bool get shakeWhenDisabled;
+
+  /// The share of the pointer's travel a disabled drag still follows (and
+  /// springs back from). Deprecated: stay enabled and bind the limits.
+  double get disabledFollow;
+
+  /// A variable the live drag values (`${drag}`) are written to.
+  /// Deprecated: [Pan.xVariable]/[Pan.yVariable], or a reaction writing
+  /// what is shared.
+  String get shareAs;
+
+  /// Off, the node isn't moved, only reports its drag. Deprecated.
+  bool get follow;
+}
+
+/// How [DismissibleBehavior]'s and [Pan]'s legacy fields read from [r].
+({double rotateFactor, double originX, double originY, bool shakeWhenDisabled, double disabledFollow, String shareAs, bool follow})
+    _legacyFollowOf(_R r) => (
+          rotateFactor: r.d('rotateFactor', 0),
+          originX: r.d('originX', 0),
+          originY: r.d('originY', 0),
+          shakeWhenDisabled: r.b('shakeWhenDisabled', false),
+          disabledFollow: r.d('disabledFollow', 0),
+          shareAs: r.s('shareAs'),
+          follow: r.b('follow', true),
+        );
+
+extension on Json {
+  void legacyFollow(_LegacyFollow f) => this
+    ..d('rotateFactor', f.rotateFactor, 0)
+    ..d('originX', f.originX, 0)
+    ..d('originY', f.originY, 0)
+    ..b('shakeWhenDisabled', f.shakeWhenDisabled, false)
+    ..d('disabledFollow', f.disabledFollow, 0)
+    ..s('shareAs', f.shareAs)
+    ..b('follow', f.follow, true);
+}
+
+/// The [DragDirection]s of a list of names, or of a Flutter
+/// `DismissDirection` name (`horizontal`, `vertical`, `endToStart`,
+/// `startToEnd`, `up`, `down`, `none`); null when [v] is neither.
+List<DragDirection>? _directionsOf(Object? v) {
+  if (v is String) {
+    return switch (v) {
+      'horizontal' => const [DragDirection.left, DragDirection.right],
+      'vertical' => const [DragDirection.up, DragDirection.down],
+      'endToStart' || 'left' => const [DragDirection.left],
+      'startToEnd' || 'right' => const [DragDirection.right],
+      'up' => const [DragDirection.up],
+      'down' => const [DragDirection.down],
+      'none' => const [],
+      _ => null,
+    };
+  }
+  final l = readList(_jsonText(v));
+  if (l == null) return null;
+  return [
+    for (final d in DragDirection.values)
+      if (l.contains(d.name)) d,
+  ];
+}
+
+/// Swiped away past a threshold (node key `dismissible`): Flutter's
+/// `Dismissible`. The node follows the pointer toward its [directions]
+/// (held back by [resistance] the other ways); let go past its
+/// [dismissThresholds] share of its size, or faster than [flingVelocity],
+/// it flies off over [movementDuration] and fires the swipe of that
+/// direction (`swipeLeft`...; `Dismissible.onDismissed`), then shows its
+/// next content back at rest. Otherwise it returns: on [returnSpring], else
+/// over [returnDuration] along [returnCurve]. A swipe card.
+///
+/// Inside it `${dismiss.dx}`, `${dismiss.dy}`, `${dismiss.progress}` (0–1
+/// toward the threshold, `Dismissible.onUpdate`), `${dismiss.direction}`,
+/// `${dismiss.dragging}` can be read (and the same as the legacy
+/// `${drag.*}`). It fires `drag` and `dragEnd`. The legacy `drag` with
+/// `release: dismiss` reads as this, with its old defaults written out.
 @immutable
-final class DragMotion extends _Value {
-  const DragMotion({
+final class DismissibleBehavior extends _Value with _LegacyFollow {
+  const DismissibleBehavior({
+    this.enabled = true,
+    this.directions = const [DragDirection.left, DragDirection.right],
     this.axis = DragAxis.free,
-    this.release = DragRelease.snapBack,
-    this.directions = DragDirection.values,
-    this.distanceThreshold = 0.35,
-    this.verticalThreshold,
-    this.velocityThreshold = 800,
+    this.dismissThresholds = const {},
+    this.flingVelocity = 700,
+    this.resistance = 0,
+    this.movementDuration = 200,
+    this.curve = AnimationCurve.linear,
+    this.returnDuration,
+    this.returnCurve,
+    this.returnSpring,
+    this.restX = 0,
+    this.restY = 0,
+    this.xVariable = '',
+    this.yVariable = '',
+    this.flyOutRotate = 0,
     this.rotateFactor = 0,
     this.originX = 0,
     this.originY = 0,
-    this.resistance = 0,
-    this.snapBack = 450,
-    this.snapCurve = AnimationCurve.spring,
-    this.flyOut = 320,
-    this.flyOutCurve = AnimationCurve.easeIn,
-    this.flyOutDistance,
-    this.flyOutRotate = 0,
-    this.enabled = true,
     this.shakeWhenDisabled = false,
     this.disabledFollow = 0,
     this.shareAs = '',
-    this.restX = 0,
-    this.restY = 0,
-    this.track,
-    this.reorder = false,
     this.follow = true,
+  });
+
+  /// `Dismissible`'s `_kDismissThreshold`: the share of the node's size a
+  /// drag must travel when [dismissThresholds] doesn't name its direction.
+  static const double defaultThreshold = 0.4;
+
+  /// Bindable as `dismissible.enabled`: off, a drag doesn't move it.
+  final bool enabled;
+
+  /// The directions it can be dismissed in (`Dismissible.direction`; its
+  /// Flutter names `horizontal`, `vertical`, `endToStart`, `startToEnd`,
+  /// `up`, `down` and `none` read too).
+  final List<DragDirection> directions;
+
+  /// The axis it moves on (`Draggable.axis`); free moves it both ways, the
+  /// ones it can't be dismissed in held back by [resistance].
+  final DragAxis axis;
+
+  /// Per direction, the share of its size a drag must travel to dismiss
+  /// (`Dismissible.dismissThresholds`); a direction not named takes
+  /// [defaultThreshold].
+  final Map<DragDirection, double> dismissThresholds;
+
+  /// Pixels per second along a direction past which a release dismisses
+  /// however short the drag.
+  final double flingVelocity;
+
+  /// 0–1: how much of the pointer's travel toward a direction it can't be
+  /// dismissed in is ignored (1 none follows; below 1 a rubber band).
+  final double resistance;
+
+  /// The fly-off (ms, `Dismissible.movementDuration`) and its curve.
+  final int movementDuration;
+  final AnimationCurve curve;
+
+  /// The return to rest when let go short (ms and curve); null takes
+  /// [movementDuration] and [curve]. [returnSpring] overrides them.
+  final int? returnDuration;
+  final AnimationCurve? returnCurve;
+
+  /// The spring it returns on, carrying the release's speed; null returns
+  /// over [returnDuration].
+  final Spring? returnSpring;
+
+  /// Where it rests, from where its layout puts it (pixels); a new value
+  /// moves it there. Deprecated (one app): a `motion.translateX` binding.
+  final double restX, restY;
+
+  /// Number variables its offset is written to (rounded to hundredths) as
+  /// it moves. Deprecated: a `drag` reaction writing `${result.dx}`.
+  final String xVariable, yVariable;
+
+  /// Degrees it turns while flying off (left and up negative). Deprecated:
+  /// an animation played by the swipe's reaction.
+  final double flyOutRotate;
+  @override
+  final double rotateFactor, originX, originY, disabledFollow;
+  @override
+  final bool shakeWhenDisabled, follow;
+  @override
+  final String shareAs;
+
+  int get effectiveReturnDuration => returnDuration ?? movementDuration;
+  AnimationCurve get effectiveReturnCurve => returnCurve ?? curve;
+
+  /// The share of its size a drag toward [d] must travel to dismiss.
+  double thresholdFor(DragDirection d) => dismissThresholds[d] ?? defaultThreshold;
+
+  /// The dismissible a legacy `drag` object [d] amounts to (`release:
+  /// dismiss`, no track, not a reorder handle), its old defaults written
+  /// out; null for any other drag.
+  static DismissibleBehavior? fromLegacyDrag(Json? d) {
+    if (d == null || readMap(d['track']) != null || readBool(d['reorder']) == true) return null;
+    final r = _R(d);
+    if (r.e(DragRelease.values, 'release', DragRelease.snapBack) != DragRelease.dismiss) return null;
+    final distance = r.d('distanceThreshold', 0.35), vertical = r.dn('verticalThreshold') ?? distance;
+    final physics = GesturePhysics.fromJson(d['physics']);
+    final legacy = _legacyFollowOf(r);
+    return DismissibleBehavior(
+      enabled: _loose(d['enabled']) ?? true,
+      directions: _directionsOf(d['directions']) ?? DragDirection.values,
+      axis: r.e(DragAxis.values, 'axis', DragAxis.free),
+      dismissThresholds: {
+        for (final dir in DragDirection.values)
+          if ((dir == DragDirection.up || dir == DragDirection.down ? vertical : distance) case final t
+              when t != defaultThreshold)
+            dir: t,
+      },
+      flingVelocity: r.d('velocityThreshold', 800),
+      resistance: r.d('resistance', 0),
+      movementDuration: r.ms('flyOut', 320),
+      curve: r.curve('flyOutCurve', AnimationCurve.easeIn),
+      returnDuration: r.ms('snapBack', 450),
+      returnCurve: r.curve('snapCurve', AnimationCurve.spring),
+      returnSpring: physics?.spring,
+      restX: r.d('restX', 0),
+      restY: r.d('restY', 0),
+      xVariable: r.s('xVariable'),
+      yVariable: r.s('yVariable'),
+      flyOutRotate: r.d('flyOutRotate', 0),
+      rotateFactor: legacy.rotateFactor,
+      originX: legacy.originX,
+      originY: legacy.originY,
+      shakeWhenDisabled: legacy.shakeWhenDisabled,
+      disabledFollow: legacy.disabledFollow,
+      shareAs: legacy.shareAs,
+      follow: legacy.follow,
+    );
+  }
+
+  static DismissibleBehavior? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    final legacy = _legacyFollowOf(r);
+    final thresholds = readMap(_jsonText(m['dismissThresholds']));
+    return DismissibleBehavior(
+      enabled: _loose(m['enabled']) ?? true,
+      directions: _directionsOf(m['directions'] ?? m['direction']) ?? const [DragDirection.left, DragDirection.right],
+      axis: r.e(DragAxis.values, 'axis', DragAxis.free),
+      dismissThresholds: {
+        for (final d in DragDirection.values)
+          if (readDouble(thresholds?[d.name]) case final double t) d: t,
+      },
+      flingVelocity: r.d('flingVelocity', 700),
+      resistance: r.d('resistance', 0),
+      movementDuration: r.ms('movementDuration', 200),
+      curve: r.curve('curve', AnimationCurve.linear),
+      returnDuration: readInt(m['returnDuration'])?.let((v) => math.max(0, v)),
+      returnCurve: AnimationCurve.parse(m['returnCurve']),
+      returnSpring: Spring.fromJson(m['returnSpring']),
+      restX: r.d('restX', 0),
+      restY: r.d('restY', 0),
+      xVariable: r.s('xVariable'),
+      yVariable: r.s('yVariable'),
+      flyOutRotate: r.d('flyOutRotate', 0),
+      rotateFactor: legacy.rotateFactor,
+      originX: legacy.originX,
+      originY: legacy.originY,
+      shakeWhenDisabled: legacy.shakeWhenDisabled,
+      disabledFollow: legacy.disabledFollow,
+      shareAs: legacy.shareAs,
+      follow: legacy.follow,
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}..b('enabled', enabled, true);
+    if (!jsonEquality.equals(directions, const [DragDirection.left, DragDirection.right])) {
+      j['directions'] = [for (final d in directions) d.name];
+    }
+    j.e('axis', axis, DragAxis.free);
+    if (dismissThresholds.isNotEmpty) {
+      j['dismissThresholds'] = {for (final e in dismissThresholds.entries) e.key.name: writeDouble(e.value)};
+    }
+    j
+      ..d('flingVelocity', flingVelocity, 700)
+      ..d('resistance', resistance, 0)
+      ..i('movementDuration', movementDuration, 200)
+      ..e('curve', curve, AnimationCurve.linear);
+    if (returnDuration != null) j['returnDuration'] = returnDuration;
+    if (returnCurve != null) j['returnCurve'] = returnCurve!.name;
+    if (returnSpring != null) j['returnSpring'] = returnSpring!.toJson();
+    return j
+      ..d('restX', restX, 0)
+      ..d('restY', restY, 0)
+      ..s('xVariable', xVariable)
+      ..s('yVariable', yVariable)
+      ..d('flyOutRotate', flyOutRotate, 0)
+      ..legacyFollow(this);
+  }
+
+  @override
+  List<Object?> get props => [
+    enabled, directions, axis, dismissThresholds, flingVelocity, resistance, movementDuration, curve, //
+    returnDuration, returnCurve, returnSpring, restX, restY, xVariable, yVariable, flyOutRotate, rotateFactor, originX,
+    originY,
+    shakeWhenDisabled, disabledFollow, shareAs, follow,
+  ];
+}
+
+/// What a [Pan] does when let go: springs back to rest, or stays where it
+/// is (settling by its physics: a fling, snap points).
+enum PanRelease { snapBack, stay }
+
+/// The legacy `drag.release`; `dismiss` reads as [DismissibleBehavior].
+enum DragRelease { snapBack, stay, dismiss }
+
+/// Follows the pointer (node key `pan`): `GestureDetector(onPanUpdate:)`
+/// moving a `Transform.translate`. On release it springs back to rest or
+/// stays ([release]), with [physics] a fling that slows by friction, a
+/// spring and snap points within [bounds] and the limits [minX]...[maxY]
+/// (a bottom sheet: `{"axis": "vertical", "release": "stay", "minY": -560,
+/// "maxY": 0, "physics": {"snap": {"points": [[0, 0], [0, -560]]}}}`).
+/// Its offset binds two-way to [xVariable] and [yVariable]; [x] and [y]
+/// (bindable) place its rest.
+///
+/// Inside it `${pan.dx}`, `${pan.dy}`, `${pan.dragging}`,
+/// `${pan.settling}`, `${pan.snapIndex}` can be read (and the same as the
+/// legacy `${drag.*}`). It fires `drag` and `dragEnd`. The legacy `drag`
+/// that is neither a track, a reorder handle nor dismissing reads as this.
+@immutable
+final class Pan extends _Value with _LegacyFollow {
+  const Pan({
+    this.enabled = true,
+    this.axis = DragAxis.free,
+    this.release = PanRelease.snapBack,
+    this.returnDuration = 450,
+    this.returnCurve = AnimationCurve.spring,
+    this.x = 0,
+    this.y = 0,
     this.xVariable = '',
     this.yVariable = '',
     this.physics,
@@ -1450,93 +1867,81 @@ final class DragMotion extends _Value {
     this.maxX,
     this.minY,
     this.maxY,
+    this.rotateFactor = 0,
+    this.originX = 0,
+    this.originY = 0,
+    this.shakeWhenDisabled = false,
+    this.disabledFollow = 0,
+    this.shareAs = '',
+    this.follow = true,
   });
 
+  /// Bindable as `pan.enabled`.
+  final bool enabled;
+
+  /// The axis it moves on (`Draggable.axis`, `InteractiveViewer.panAxis`).
   final DragAxis axis;
-  final DragRelease release;
+  final PanRelease release;
 
-  /// The directions it flies off in.
-  final List<DragDirection> directions;
+  /// The spring back to rest without [physics] (ms and curve).
+  final int returnDuration;
+  final AnimationCurve returnCurve;
 
-  /// The fraction of its size (and the speed, px/s) past which it flies off.
-  final double distanceThreshold;
-  final double? verticalThreshold;
-  final double velocityThreshold;
-  final double rotateFactor, originX, originY, resistance;
+  /// Where it rests, from where its layout puts it (pixels; bindable as
+  /// `pan.x`, `pan.y`): it springs back here, and a new value moves it.
+  final double x, y;
 
-  /// Spring-back and fly-off times (ms) and curves.
-  final int snapBack;
-  final AnimationCurve snapCurve;
-  final int flyOut;
-  final AnimationCurve flyOutCurve;
-  final double? flyOutDistance;
-  final double flyOutRotate;
-  final bool enabled, shakeWhenDisabled;
-  final double disabledFollow;
-
-  /// A variable the live drag values are written to.
-  final String shareAs;
-  final double restX, restY;
-  final DragTrack? track;
-  final bool reorder, follow;
+  /// Number variables its offset from where its layout puts it is written
+  /// to (rounded to hundredths) as it moves.
   final String xVariable, yVariable;
 
   /// How it moves on its own after release (a fling, a spring settle, snap
-  /// points, overscroll). Null keeps the curve-timed [snapBack] release;
-  /// see [effectivePhysics].
+  /// points, overscroll); null returns over [returnDuration].
   final GesturePhysics? physics;
 
   /// What it's kept inside of while dragged and flung, narrowed by the
-  /// offsets from rest [minX]...[maxY] (null: no limit). A bottom sheet
-  /// opening 560px: `minY: -560, maxY: 0`.
+  /// offsets from rest [minX]...[maxY] (null: no limit).
   final GestureBounds bounds;
   final double? minX, maxX, minY, maxY;
+  @override
+  final double rotateFactor, originX, originY, disabledFollow;
+  @override
+  final bool shakeWhenDisabled, follow;
+  @override
+  final String shareAs;
 
   bool get hasBounds => bounds != GestureBounds.none || minX != null || maxX != null || minY != null || maxY != null;
 
-  /// [physics], or what the release settings amount to: a spring snap back
-  /// is a spring settling in [snapBack] with a little bounce. Null for a
-  /// curve-timed release.
-  GesturePhysics? get effectivePhysics =>
-      physics ??
-      (snapCurve == AnimationCurve.spring ? GesturePhysics(spring: Spring(duration: snapBack, bounce: 0.25), fling: false) : null);
+  /// The pan a legacy `drag` object [d] amounts to (not a track, a reorder
+  /// handle or dismissing); null for any other drag.
+  static Pan? fromLegacyDrag(Json? d) {
+    if (d == null || readMap(d['track']) != null || readBool(d['reorder']) == true) return null;
+    final r = _R(d);
+    final release = r.e(DragRelease.values, 'release', DragRelease.snapBack);
+    if (release == DragRelease.dismiss) return null;
+    return fromJson({
+      ...d,
+      'release': release.name,
+      'returnDuration': ?d['snapBack'],
+      'returnCurve': ?d['snapCurve'],
+      'x': ?d['restX'],
+      'y': ?d['restY'],
+    });
+  }
 
-  static DragMotion? fromJson(Object? json) {
+  static Pan? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    final dirs = readList(m['directions']);
-    return DragMotion(
-      axis: r.e(DragAxis.values, 'axis', DragAxis.free),
-      release: r.e(DragRelease.values, 'release', DragRelease.snapBack),
-      directions: dirs == null
-          ? DragDirection.values
-          : [
-              for (final d in DragDirection.values)
-                if (dirs.contains(d.name)) d,
-            ],
-      distanceThreshold: r.d('distanceThreshold', 0.35),
-      verticalThreshold: r.dn('verticalThreshold'),
-      velocityThreshold: r.d('velocityThreshold', 800),
-      rotateFactor: r.d('rotateFactor', 0),
-      originX: r.d('originX', 0),
-      originY: r.d('originY', 0),
-      resistance: r.d('resistance', 0),
-      snapBack: r.ms('snapBack', 450),
-      snapCurve: r.curve('snapCurve', AnimationCurve.spring),
-      flyOut: r.ms('flyOut', 320),
-      flyOutCurve: r.curve('flyOutCurve', AnimationCurve.easeIn),
-      flyOutDistance: r.dn('flyOutDistance'),
-      flyOutRotate: r.d('flyOutRotate', 0),
+    final legacy = _legacyFollowOf(r);
+    return Pan(
       enabled: _loose(m['enabled']) ?? true,
-      shakeWhenDisabled: r.b('shakeWhenDisabled', false),
-      disabledFollow: r.d('disabledFollow', 0),
-      shareAs: r.s('shareAs'),
-      restX: r.d('restX', 0),
-      restY: r.d('restY', 0),
-      track: DragTrack.fromJson(m['track']),
-      reorder: r.b('reorder', false),
-      follow: r.b('follow', true),
+      axis: r.e(DragAxis.values, 'axis', DragAxis.free),
+      release: r.e(PanRelease.values, 'release', PanRelease.snapBack),
+      returnDuration: r.ms('returnDuration', 450),
+      returnCurve: r.curve('returnCurve', AnimationCurve.spring),
+      x: r.d('x', 0),
+      y: r.d('y', 0),
       xVariable: r.s('xVariable'),
       yVariable: r.s('yVariable'),
       physics: GesturePhysics.fromJson(m['physics']),
@@ -1545,38 +1950,25 @@ final class DragMotion extends _Value {
       maxX: r.dn('maxX'),
       minY: r.dn('minY'),
       maxY: r.dn('maxY'),
+      rotateFactor: legacy.rotateFactor,
+      originX: legacy.originX,
+      originY: legacy.originY,
+      shakeWhenDisabled: legacy.shakeWhenDisabled,
+      disabledFollow: legacy.disabledFollow,
+      shareAs: legacy.shareAs,
+      follow: legacy.follow,
     );
   }
 
   Json toJson() {
     final j = <String, Object?>{}
-      ..e('axis', axis, DragAxis.free)
-      ..e('release', release, DragRelease.snapBack);
-    if (!jsonEquality.equals(directions, DragDirection.values)) j['directions'] = [for (final d in directions) d.name];
-    j
-      ..d('distanceThreshold', distanceThreshold, 0.35)
-      ..dn('verticalThreshold', verticalThreshold)
-      ..d('velocityThreshold', velocityThreshold, 800)
-      ..d('rotateFactor', rotateFactor, 0)
-      ..d('originX', originX, 0)
-      ..d('originY', originY, 0)
-      ..d('resistance', resistance, 0)
-      ..i('snapBack', snapBack, 450)
-      ..e('snapCurve', snapCurve, AnimationCurve.spring)
-      ..i('flyOut', flyOut, 320)
-      ..e('flyOutCurve', flyOutCurve, AnimationCurve.easeIn)
-      ..dn('flyOutDistance', flyOutDistance)
-      ..d('flyOutRotate', flyOutRotate, 0)
       ..b('enabled', enabled, true)
-      ..b('shakeWhenDisabled', shakeWhenDisabled, false)
-      ..d('disabledFollow', disabledFollow, 0)
-      ..s('shareAs', shareAs)
-      ..d('restX', restX, 0)
-      ..d('restY', restY, 0);
-    if (track != null) j['track'] = track!.toJson();
-    j
-      ..b('reorder', reorder, false)
-      ..b('follow', follow, true)
+      ..e('axis', axis, DragAxis.free)
+      ..e('release', release, PanRelease.snapBack)
+      ..i('returnDuration', returnDuration, 450)
+      ..e('returnCurve', returnCurve, AnimationCurve.spring)
+      ..d('x', x, 0)
+      ..d('y', y, 0)
       ..s('xVariable', xVariable)
       ..s('yVariable', yVariable);
     if (physics != null) j['physics'] = physics!.toJson();
@@ -1585,15 +1977,14 @@ final class DragMotion extends _Value {
       ..dn('minX', minX)
       ..dn('maxX', maxX)
       ..dn('minY', minY)
-      ..dn('maxY', maxY);
+      ..dn('maxY', maxY)
+      ..legacyFollow(this);
   }
 
   @override
   List<Object?> get props => [
-    axis, release, directions, distanceThreshold, verticalThreshold, velocityThreshold, rotateFactor, originX, //
-    originY, resistance, snapBack, snapCurve, flyOut, flyOutCurve, flyOutDistance, flyOutRotate, enabled,
-    shakeWhenDisabled, disabledFollow, shareAs, restX, restY, track, reorder, follow, xVariable, yVariable, physics,
-    bounds, minX, maxX, minY, maxY,
+    enabled, axis, release, returnDuration, returnCurve, x, y, xVariable, yVariable, physics, bounds, minX, maxX, //
+    minY, maxY, rotateFactor, originX, originY, shakeWhenDisabled, disabledFollow, shareAs, follow,
   ];
 }
 
@@ -2442,14 +2833,16 @@ final class Behaviors extends _Value {
     this.states = StateStyles.none,
     this.tooltip = '',
     this.ignorePointer = false,
-    this.zoomable = false,
     this.floating = false,
     this.hero,
     this.flightKey = '',
     this.flight,
     this.draggable,
     this.dropTarget,
-    this.drag,
+    this.track,
+    this.dismissible,
+    this.pan,
+    this.reorderHandle = false,
     this.reveal,
     this.strokePath,
     this.typewriter,
@@ -2499,10 +2892,6 @@ final class Behaviors extends _Value {
   /// `IgnorePointer`).
   final bool ignorePointer;
 
-  /// Pinch, scroll and double-tap zoom and pan (Flutter's
-  /// `InteractiveViewer`).
-  final bool zoomable;
-
   /// Drawn above everything else at runtime (a menu under a field), still
   /// taking its place in the layout. The design canvas draws it in place.
   final bool floating;
@@ -2515,7 +2904,22 @@ final class Behaviors extends _Value {
   final Flight? flight;
   final DragSource? draggable;
   final DropTarget? dropTarget;
-  final DragMotion? drag;
+
+  /// A value set by dragging the node along a line, arc or path (Flutter's
+  /// `Slider`); the legacy `drag.track` reads as it.
+  final Track? track;
+
+  /// Swiped away past a threshold (Flutter's `Dismissible`); the legacy
+  /// `drag` with `release: dismiss` reads as it.
+  final DismissibleBehavior? dismissible;
+
+  /// Follows the pointer and springs back or stays; the legacy `drag`
+  /// that neither tracks, reorders nor dismisses reads as it.
+  final Pan? pan;
+
+  /// The handle a reorderable list's row is dragged by (Flutter's
+  /// `ReorderableDragStartListener`); the legacy `drag.reorder` reads as it.
+  final bool reorderHandle;
   final Reveal? reveal;
   final StrokePath? strokePath;
 
@@ -2533,8 +2937,8 @@ final class Behaviors extends _Value {
   /// Tilts in 3D toward the pointer.
   final Tilt? tilt;
 
-  /// Pinch, pan and rotate, with fling physics and optional handles (over
-  /// [zoomable]: see [effectiveTransformGesture]).
+  /// Pinch, pan and rotate, with fling physics and optional handles (the
+  /// legacy `zoomable: true` reads as [TransformGesture.zoomable]).
   final TransformGesture? transformGesture;
 
   /// Pinned in its scrolling view while its parent is in view.
@@ -2549,21 +2953,24 @@ final class Behaviors extends _Value {
   /// Flutter's `CustomPaint`: draw lists behind and over its content.
   final CustomPaint? customPaint;
 
-  /// [transformGesture], or what [zoomable] amounts to.
-  TransformGesture? get effectiveTransformGesture =>
-      transformGesture ?? (zoomable ? TransformGesture.zoomable : null);
+  /// [transformGesture] (its former name, from when `zoomable` was its
+  /// own key; the legacy `zoomable: true` now reads into [transformGesture]).
+  TransformGesture? get effectiveTransformGesture => transformGesture;
 
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
     'motion', 'scale', 'animations', 'transitions', 'shimmer', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
-    'zoomable', 'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'typewriter',
+    'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'track', 'dismissible',
+    'pan', 'reorderHandle', 'reveal', 'strokePath', 'typewriter',
     'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
     'customPaint',
   };
 
   /// Legacy keys the decoder still reads (and never writes): `loops` and
-  /// `effectAnimations` become [animations].
-  static const Set<String> legacyKeys = {'loops', 'effectAnimations'};
+  /// `effectAnimations` become [animations]; `drag` becomes [track],
+  /// [dismissible], [pan] or [reorderHandle]; `zoomable: true` becomes
+  /// [transformGesture] ([TransformGesture.zoomable]) when it has none.
+  static const Set<String> legacyKeys = {'loops', 'effectAnimations', 'drag', 'zoomable'};
 
   bool get isNone => this == none;
 
@@ -2578,6 +2985,7 @@ final class Behaviors extends _Value {
     if (motion != null && (bind.keys.any((k) => k.startsWith('motion.')) || _legacyMotionKeys.any(motion.containsKey))) {
       bind = _migrateMotionBind(bind, m, motion);
     }
+    bind = _migrateDragBind(bind, m);
     if (!bind.keys.any((k) => k.startsWith('loops') || k.startsWith('effectAnimations') || k == 'motion.pulseKey')) {
       return bind;
     }
@@ -2846,14 +3254,16 @@ final class Behaviors extends _Value {
       states: StateStyles.fromJson(m['states']),
       tooltip: r.s('tooltip'),
       ignorePointer: r.b('ignorePointer', false),
-      zoomable: r.b('zoomable', false),
       floating: r.b('floating', false),
       hero: HeroTag.fromJson(m['hero']),
       flightKey: r.s('flightKey'),
       flight: Flight.fromJson(m['flight']),
       draggable: DragSource.fromJson(m['draggable']),
       dropTarget: DropTarget.fromJson(m['dropTarget']),
-      drag: DragMotion.fromJson(m['drag']),
+      track: Track.fromJson(m['track']) ?? Track.fromLegacyDrag(readMap(m['drag'])),
+      dismissible: DismissibleBehavior.fromJson(m['dismissible']) ?? DismissibleBehavior.fromLegacyDrag(readMap(m['drag'])),
+      pan: Pan.fromJson(m['pan']) ?? Pan.fromLegacyDrag(readMap(m['drag'])),
+      reorderHandle: r.b('reorderHandle', false) || _isLegacyReorderHandle(readMap(m['drag'])),
       reveal: Reveal.fromJson(m['reveal']),
       strokePath: StrokePath.fromJson(m['strokePath']),
       typewriter: Typewriter.fromJson(m['typewriter']),
@@ -2863,7 +3273,8 @@ final class Behaviors extends _Value {
           : null,
       flip: FlipCard.fromJson(m['flip']),
       tilt: Tilt.fromJson(m['tilt']),
-      transformGesture: TransformGesture.fromJson(m['transformGesture']),
+      transformGesture: TransformGesture.fromJson(m['transformGesture']) ??
+          (r.b('zoomable', false) ? TransformGesture.zoomable : null),
       sticky: Sticky.fromJson(m['sticky']),
       viewProgress: ViewProgress.fromJson(m['viewProgress']),
       measure: Measure.fromJson(m['measure']),
@@ -2883,14 +3294,16 @@ final class Behaviors extends _Value {
     j
       ..s('tooltip', tooltip)
       ..b('ignorePointer', ignorePointer, false)
-      ..b('zoomable', zoomable, false)
       ..b('floating', floating, false);
     if (hero != null) j['hero'] = hero!.toJson();
     j.s('flightKey', flightKey);
     if (flight != null) j['flight'] = flight!.toJson();
     if (draggable != null) j['draggable'] = draggable!.toJson();
     if (dropTarget != null) j['dropTarget'] = dropTarget!.toJson();
-    if (drag != null) j['drag'] = drag!.toJson();
+    if (track != null) j['track'] = track!.toJson();
+    if (dismissible != null) j['dismissible'] = dismissible!.toJson();
+    if (pan != null) j['pan'] = pan!.toJson();
+    j.b('reorderHandle', reorderHandle, false);
     if (reveal != null) j['reveal'] = reveal!.toJson();
     if (strokePath != null) j['strokePath'] = strokePath!.toJson();
     if (typewriter != null) j['typewriter'] = typewriter!.toJson();
@@ -2915,14 +3328,16 @@ final class Behaviors extends _Value {
     StateStyles? states,
     String? tooltip,
     bool? ignorePointer,
-    bool? zoomable,
     bool? floating,
     HeroTag? hero,
     String? flightKey,
     Flight? flight,
     DragSource? draggable,
     DropTarget? dropTarget,
-    DragMotion? drag,
+    Track? track,
+    DismissibleBehavior? dismissible,
+    Pan? pan,
+    bool? reorderHandle,
     Reveal? reveal,
     StrokePath? strokePath,
     Typewriter? typewriter,
@@ -2945,14 +3360,16 @@ final class Behaviors extends _Value {
     states: states ?? this.states,
     tooltip: tooltip ?? this.tooltip,
     ignorePointer: ignorePointer ?? this.ignorePointer,
-    zoomable: zoomable ?? this.zoomable,
     floating: floating ?? this.floating,
     hero: hero ?? this.hero,
     flightKey: flightKey ?? this.flightKey,
     flight: flight ?? this.flight,
     draggable: draggable ?? this.draggable,
     dropTarget: dropTarget ?? this.dropTarget,
-    drag: drag ?? this.drag,
+    track: track ?? this.track,
+    dismissible: dismissible ?? this.dismissible,
+    pan: pan ?? this.pan,
+    reorderHandle: reorderHandle ?? this.reorderHandle,
     reveal: reveal ?? this.reveal,
     strokePath: strokePath ?? this.strokePath,
     typewriter: typewriter ?? this.typewriter,
@@ -2969,8 +3386,96 @@ final class Behaviors extends _Value {
 
   @override
   List<Object?> get props => [
-    motion, scale, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, zoomable, floating, //
-    hero, flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, particles,
-    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
+    motion, scale, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
+    flightKey, flight, draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
+    particles, textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
+
+  /// Whether a legacy `drag` object [d] made its node a reorder handle
+  /// (`reorder: true` without a track).
+  static bool _isLegacyReorderHandle(Json? d) =>
+      d != null && readMap(d['track']) == null && (readBool(d['reorder']) ?? false);
+
+  /// [bind] with the legacy `drag.*` paths rewritten to the behavior the
+  /// node's `drag` became: `drag.track.<k>` → `track.<k>`, and for a drag
+  /// that follows the pointer `drag.<k>` → `dismissible.<k>` or `pan.<k>`
+  /// under their new names (`drag.restX` → `pan.x`, `drag.flyOut` →
+  /// `dismissible.movementDuration`...; `drag.distanceThreshold` binds each
+  /// direction's `dismissible.dismissThresholds`). `drag.enabled` →
+  /// `<behavior>.enabled`. A path it can't rewrite is kept as given.
+  static Map<String, String> _migrateDragBind(Map<String, String> bind, Json m) {
+    // A track that only shows its variable (`write: false`) binds its value.
+    final legacyTrack = readMap(m['track']) ?? readMap(readMap(m['drag'])?['track']);
+    if (legacyTrack != null && Track.readsOnly(legacyTrack) && !bind.containsKey('track.value') &&
+        !bind.containsKey('drag.track.value')) {
+      bind = {...bind, 'track.value': '\${${readString(legacyTrack['variable'])!.trim()}}'};
+    }
+    if (!bind.keys.any((k) => k.startsWith('drag.'))) return bind;
+    final d = readMap(m['drag']) ?? const <String, Object?>{};
+    final isTrack = readMap(d['track']) != null || bind.keys.any((k) => k.startsWith('drag.track.'));
+    final isHandle = !isTrack && (readBool(d['reorder']) ?? false);
+    final isDismiss = !isTrack && !isHandle && d['release'] == DragRelease.dismiss.name;
+    final hasVertical = d.containsKey('verticalThreshold') || bind.containsKey('drag.verticalThreshold');
+    final out = <String, String>{};
+    for (final e in bind.entries) {
+      final k = e.key;
+      if (!k.startsWith('drag.')) {
+        out[k] = e.value;
+        continue;
+      }
+      final rest = k.substring(5);
+      final List<String> to;
+      if (rest.startsWith('track.')) {
+        final key = rest.substring(6);
+        to = [key == 'path' ? 'track.path.path' : 'track.$key'];
+      } else if (isTrack) {
+        to = rest == 'enabled' ? ['track.enabled'] : const [];
+      } else if (isHandle) {
+        to = const [];
+      } else if (isDismiss) {
+        String t(DragDirection d) => 'dismissible.dismissThresholds.${d.name}';
+        to = switch (rest) {
+          'distanceThreshold' => [
+              t(DragDirection.left),
+              t(DragDirection.right),
+              if (!hasVertical) ...[t(DragDirection.up), t(DragDirection.down)],
+            ],
+          'verticalThreshold' => [t(DragDirection.up), t(DragDirection.down)],
+          'velocityThreshold' => ['dismissible.flingVelocity'],
+          'flyOut' => ['dismissible.movementDuration'],
+          'flyOutCurve' => ['dismissible.curve'],
+          'snapBack' => ['dismissible.returnDuration'],
+          'snapCurve' => ['dismissible.returnCurve'],
+          'physics.spring' => ['dismissible.returnSpring'],
+          'enabled' || 'directions' || 'axis' || 'resistance' || 'restX' || 'restY' || 'xVariable' || 'yVariable' ||
+          'flyOutRotate' ||
+          'rotateFactor' || 'originX' || 'originY' || 'shakeWhenDisabled' || 'disabledFollow' || 'shareAs' ||
+          'follow' =>
+            ['dismissible.$rest'],
+          _ => const [],
+        };
+      } else {
+        final head = rest.split('.').first;
+        to = switch (head) {
+          'restX' => ['pan.x'],
+          'restY' => ['pan.y'],
+          'snapBack' => ['pan.returnDuration'],
+          'snapCurve' => ['pan.returnCurve'],
+          'enabled' || 'axis' || 'release' || 'xVariable' || 'yVariable' || 'physics' || 'bounds' || 'minX' ||
+          'maxX' || 'minY' || 'maxY' || 'rotateFactor' || 'originX' || 'originY' || 'shakeWhenDisabled' ||
+          'disabledFollow' || 'shareAs' || 'follow' =>
+            ['pan.$rest'],
+          _ => const [],
+        };
+      }
+      if (to.isEmpty) {
+        out[k] = e.value;
+      } else {
+        for (final t in to) {
+          out[t] = e.value;
+        }
+      }
+    }
+    return out;
+  }
 }

@@ -11,6 +11,8 @@
   `pageMotionBefore`.
 - `Transition` (`property`, `duration`, `delay`, `curve`, `spring`, `keyframes`, `interpolation`, deprecated
   `arc`; `matches`, `of`, `keyframesOf`, `listFromJson`); `Behaviors.transitions` is a `List<Transition>`.
+- `PathFollow` is the one shared with `track.path` (it gained `uprightFlip`, deprecated `pacing`/`focus`; its
+  `viewBox` is a list, empty for none).
 - `Shimmer` (`color`, `strength`, `width`, `angle`, `position`), behavior key `shimmer`.
 - `NodeAnimation.ramp`, `visibleFraction`; `AnimationTrack.interpolation` (`KeyframeInterpolation`
   `linear`/`monotoneCubic`, `monotoneAt`, `monotoneCubic`); a wave on a replacing track is a share of
@@ -49,7 +51,51 @@ legacy motion keys encodes differently (four SDK fixtures; their corpus digests 
 - `Transition` gained `property` (first, default '') and the timing fields; `duration` is optional.
 - `AnimationTrack.lerpValue` extrapolates numbers outside 0–1.
 
-## Unreleased (catalogs)
+**New: drag and track** (docs/design/04-drag-and-track.md; guide chapter 10)
+
+- The `drag` key splits into four behaviors: `track` (`Track`, Flutter's `Slider` along a line, arc or path),
+  `dismissible` (`DismissibleBehavior`, Flutter's `Dismissible`), `pan` (`Pan`, pointer follow with spring
+  back or stay) and `reorderHandle` (a bool, `ReorderableDragStartListener`). `BehaviorFields.track`,
+  `.dismissible`, `.pan`, `.reorderHandle`; `TrackFields`, `DismissibleFields`, `PanFields`,
+  `PathFollowFields`; `trackType`, `dismissibleType`, `panType`, `pathFollowType`.
+- `PathFollow` and `PathOrient` (`lib/src/core/path_follow.dart`, doc 03's shared shape): `Track.path`.
+- `Track`: `enabled`, `clamp`, `sweepAngle`, `allowedInteraction` (`TrackInteraction`), `physics` (a
+  `GesturePhysics` coast), `path: PathFollow?`; getters `endAngle`, `jumpOnTap`, `momentum`, `wheel`,
+  `frictionRate`; `Track.readsOnly`, `Track.fromLegacyDrag`.
+- `DismissibleBehavior.defaultThreshold`, `thresholdFor`, `effectiveReturnDuration`/`Curve`, `fromLegacyDrag`;
+  `PanRelease`; `Pan.hasBounds`, `fromLegacyDrag`.
+- `DragSource`: `childWhenDragging`, `feedback`, `dragAnchor` (`DragAnchor { child, center }`),
+  `returnSpring: Spring?` (`false` in JSON: none).
+- Actions `controlTrack` (`ControlTrackAction`, `TrackCommand { step, animateTo }`), `controlDismissible`
+  (`ControlDismissibleAction`, `DismissCommand { dismiss, returnFrom, reset, shake }`), `controlTransform`
+  (`ControlTransformAction`, `TransformCommand { reset, scaleBy, animateTo }`), with `ControlTrackFields`,
+  `ControlDismissibleFields`, `ControlTransformFields`.
+- Expression scopes `dismiss` and `pan` (`runtimeScopes`).
+
+**JSON compatibility.** Every existing document reads and behaves as before: `drag` reads as `track`
+(`drag.track`, switched by `drag.enabled`), `reorderHandle` (`reorder: true`), `dismissible` (`release:
+dismiss`, with its old defaults — 0.35 thresholds, 800 px/s, a 320 ms easeIn fly-off, a 450 ms spring-curve
+return — written out) or `pan`; `zoomable: true` as `transformGesture: {target: content, pan: whenZoomed}`;
+`controlDrag` as the typed action its command names; a track's `endless`, `endAngle`, `jumpOnTap`, `wheel`,
+`keyboard`, `momentum`/`friction`, `gain`, `write: false`, its path string, `viewBoxWidth`/`Height`,
+`orientToPath`/`orientUpright`; a draggable's `whileDragging`, `feedbackNodeId`, `feedbackAnchor`, `spring`,
+`springStiffness`/`Damping`, `physics`. Legacy binding paths (`drag.track.*`, `drag.enabled`, `drag.restX`...)
+are rewritten when a node decodes. Only the new shape is written, so a document re-saved changes its JSON (not
+its behaviour); the catalog corpus digests of documents with a legacy `drag` change accordingly.
+
+**Breaking changes for Dart callers**
+
+- Removed: `DragMotion`, `DragMotionFields`, `dragMotionFields`, `dragMotionType`, `Behaviors.drag`,
+  `Behaviors.zoomable` (and their `copyWith` parameters), `BehaviorFields.drag`, `BehaviorFields.zoomable`,
+  `ControlDragAction`, `ControlDragFields`, `DragCommand`, `FeedbackAnchor`, `DragSource.whileDragging`,
+  `.feedbackNodeId`, `.feedbackAnchor`, `.spring`, `.physics` (and the `bool returnSpring`).
+- Renamed: `DragTrack` → `Track`, `DragTrackFields` → `TrackFields`, `dragTrackFields` → `trackFields`,
+  `dragTrackType` → `trackType`, `DragTrackShape`/`Input`/`HitArea`/`Units` → `TrackShape`/`TrackInput`/
+  `TrackHitArea`/`TrackUnits`.
+- `Track` lost `endless` (`clamp`), `endAngle` (now a getter over `sweepAngle`), `jumpOnTap`, `wheel`,
+  `keyboard`, `momentum`, `friction` (getters or `physics`), `write`, `viewBoxWidth`, `viewBoxHeight`,
+  `orientToPath`, `orientUpright` (`path`); `path` is a `PathFollow?`, not a `String?`.
+- `Behaviors.effectiveTransformGesture` is `transformGesture`.
 
 **New: catalogs, feature libraries and plugins** (docs/design/05-plugins-and-layers.md; guide chapter 9)
 

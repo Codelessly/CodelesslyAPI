@@ -72,10 +72,10 @@ String? rootName(String path) => RegExp(r'^\s*([A-Za-z_$][A-Za-z0-9_$]*)').first
 /// Names the runtime provides to every expression (besides the screen's
 /// variables): the app's data, route params, device storage, the screen's
 /// size class, the theme, a list's item, the previous action's result,
-/// a loop's item, auth, drag and drop, frame timings, node scopes (a drag
-/// track, transform gesture, flip card, tilt, view progress, sticky header),
-/// scripts and speech.
+/// a loop's item, auth, drag and drop, frame timings, node scopes (a track,
+/// a dismissible, a pan, a transform gesture, flip card, tilt, view progress,
+/// sticky header), scripts and speech.
 const Set<String> runtimeScopes = {
   'data', 'route', 'storage', 'screen', 'theme', 'item', 'index', 'parent', 'result', 'loop', 'auth', //
-  'drag', 'perf', 'track', 'transform', 'flip', 'tilt', 'view', 'sticky', 'script', 'speech', 'pageOffset',
+  'drag', 'perf', 'track', 'dismiss', 'pan', 'transform', 'flip', 'tilt', 'view', 'sticky', 'script', 'speech', 'pageOffset',
 };
