@@ -40,6 +40,11 @@
   with the suggestion `${= false}`; a wrapping `listView` no longer gets `fit_not_allowed` for its items'
   own sizes (it lays them out at their own sizes); new warning `vertical_wrap` for a wrapping list whose runs go top
   to bottom (the default `scrollDirection`).
+- `docs/reference/STARTER.md` is generated (`dart run tool/reference/generate.dart`): the core node types (canvas,
+  row, column, flex, stack, box, text, icon, spacer) with their Flutter equivalents, the guide's document, layout,
+  decoration, text, responsive design, variables (computed and function variables), checking and pitfalls
+  sections, and which reference file covers everything else. Guide parts marked `<!-- guide-only -->` stay out of
+  it.
 - Guide: section 7 (Responsive design) rewritten the web way: intrinsic layout (basis, auto-fit grids, max-width),
   media rules, `${screen}` bindings as the escape hatch, a canvas per breakpoint last; one verified example page
   with its CSS equivalent.
