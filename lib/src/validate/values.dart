@@ -1,10 +1,10 @@
 // Checks one JSON value against a declaration's PropType (and codec): the
 // strict reading of what the lenient decoders accept. Every rule here
 // mirrors a decoder: what it reads, what it silently replaces.
-import '../json.dart';
-import '../props.dart';
-import '../values/geometry.dart';
-import '../values/text.dart';
+import '../core/json.dart';
+import '../core/props.dart';
+import '../core/values/geometry.dart';
+import '../core/values/text.dart';
 import 'diagnostic.dart';
 
 /// Collects diagnostics for one document.

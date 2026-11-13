@@ -182,13 +182,13 @@ a fill, a radius and padding, not three nested widgets.
 | [`lineChart`](#node-lineChart) |  | none | blurs only |
 | [`barcode`](#node-barcode) |  | none | blurs only |
 | [`path`](#node-path) | `CustomPaint` | none | yes |
+| [`external`](#node-external) |  | none | blurs only |
+| [`placeholder`](#node-placeholder) |  | none | blurs only |
+| [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
 | [`video`](#node-video) |  | none | blurs only |
 | [`embeddedVideo`](#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](#node-audioPlayer) |  | none | blurs only |
 | [`webView`](#node-webView) |  | none | blurs only |
-| [`external`](#node-external) |  | none | blurs only |
-| [`placeholder`](#node-placeholder) |  | none | blurs only |
-| [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
 
 "Decoration: blurs only" means the type draws no box: give it a fill or a border by putting it inside a `box`,
 `row`, `column` or `stack` that has the decoration.
@@ -1456,13 +1456,13 @@ of a stack is placed by `x` and `y`, a child of a row or column by `flex`, `sque
 | [`lineChart`](#node-lineChart) |  | none | blurs only |
 | [`barcode`](#node-barcode) |  | none | blurs only |
 | [`path`](#node-path) | `CustomPaint` | none | yes |
+| [`external`](#node-external) |  | none | blurs only |
+| [`placeholder`](#node-placeholder) |  | none | blurs only |
+| [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
 | [`video`](#node-video) |  | none | blurs only |
 | [`embeddedVideo`](#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](#node-audioPlayer) |  | none | blurs only |
 | [`webView`](#node-webView) |  | none | blurs only |
-| [`external`](#node-external) |  | none | blurs only |
-| [`placeholder`](#node-placeholder) |  | none | blurs only |
-| [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
 
 <a id="node-canvas"></a>
 ## `canvas`
@@ -3055,6 +3055,34 @@ Flutter `CustomPaint`.
 - `strokeJoin`: [StrokeJoin](#enum-StrokeJoin) = `"miter"` (`miter`, `round`, `bevel`)
 - `subpathColors`: List<[Color](#type-Color)> = `[]`
 
+<a id="node-external"></a>
+## `external`
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+- `builderId`: String = `""`
+
+<a id="node-placeholder"></a>
+## `placeholder`
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+- `text`: String = `""`
+- `leadingAsset`: String = `""`
+
+<a id="node-singlePlaceholder"></a>
+## `singlePlaceholder`
+
+- Children: `children`.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+- `allowedTypes`: List<String> = `[]`
+- `deniedTypes`: List<String> = `[]`
+- `maxAllowedSize`: [Size](#type-Size) = unset
+- `ephemeral`: bool = `false`
+
 <a id="node-video"></a>
 ## `video`
 
@@ -3127,34 +3155,6 @@ Flutter `CustomPaint`.
 - `allowsInlineMediaPlayback`: bool = `false`
 - `mediaPlaybackRequiresUserAction`: bool = `true`
 - `backgroundColor`: [Color](#type-Color) = unset
-
-<a id="node-external"></a>
-## `external`
-
-- Children: none.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-- `builderId`: String = `""`
-
-<a id="node-placeholder"></a>
-## `placeholder`
-
-- Children: none.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-- `text`: String = `""`
-- `leadingAsset`: String = `""`
-
-<a id="node-singlePlaceholder"></a>
-## `singlePlaceholder`
-
-- Children: `children`.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-- `allowedTypes`: List<String> = `[]`
-- `deniedTypes`: List<String> = `[]`
-- `maxAllowedSize`: [Size](#type-Size) = unset
-- `ephemeral`: bool = `false`
 
 ---
 
@@ -5368,24 +5368,6 @@ _No fields._
 
 - `url`: String = `""`
 
-<a id="action-print"></a>
-## `print`: Print
-
-- `node`: String = `""`
-
-<a id="action-submitForm"></a>
-## `submitForm`: Submit form
-
-- `service`: [FormService](#enum-FormService) = `"local"` (`local`)
-- `payload`: String = `""`
-- `validationScript`: String = `""`
-- `validationArguments`: Object = unset
-- `responseVariable`: String = `""`
-- `prepend`: bool = `false`
-- `resultVariable`: String = `""`
-- `onSuccess`: Object = unset
-- `onError`: Object = unset
-
 <a id="action-setValue"></a>
 ## `setValue`: Set value
 
@@ -5415,6 +5397,135 @@ _No fields._
 - `name`: String = `""`
 - `params`: Object = unset
 - `optional`: bool = `false`
+
+<a id="action-if"></a>
+## `if`: If
+
+- `condition`: Object = unset
+- `then`: Object = unset
+- `else`: Object = unset
+
+<a id="action-forEach"></a>
+## `forEach`: For each
+
+- `items`: String = `""`
+- `actions`: Object = unset
+
+<a id="action-showToast"></a>
+## `showToast`: Show toast
+
+- `message`: String = `""`
+- `title`: String = `""`
+- `durationMs`: int = `2600`
+- `style`: [ToastStyle](#enum-ToastStyle) = `"neutral"` (`neutral`, `info`, `success`, `warning`, `error`)
+- `position`: [ToastPosition](#enum-ToastPosition) = `"bottom"` (`bottom`, `top`)
+- `actionLabel`: String = `""`
+- `actions`: Object = unset
+- `showClose`: bool = `false`
+- `icon`: Object = unset
+- `look`: Object = unset
+- `variables`: Object = unset
+
+<a id="action-confirm"></a>
+## `confirm`: Confirm
+
+- `title`: String = `""`
+- `message`: String = `""`
+- `caption`: String = `""`
+- `confirmLabel`: String = `"OK"`
+- `cancelLabel`: String = `"Cancel"`
+- `destructive`: bool = `false`
+- `actions`: Object = unset
+- `cancelActions`: Object = unset
+- `dialog`: String = `""`
+- `params`: Object = unset
+- `presentation`: [ModalPresentation](#enum-ModalPresentation) = `"dialog"` (`dialog`, `bottomSheet`, `adaptive`, `sideSheet`, `fullScreen`, `popover`, `banner`)
+- `placement`: [PopoverPlacement](#enum-PopoverPlacement) = `"belowStart"`
+- `barrierDismissible`: bool = `true`
+- `look`: Object = unset
+- `variables`: Object = unset
+
+<a id="action-delay"></a>
+## `delay`: Delay
+
+- `ms`: int = `500`
+- `duration`: String = `""`
+
+<a id="action-copyToClipboard"></a>
+## `copyToClipboard`: Copy to clipboard
+
+- `text`: String = `""`
+
+<a id="action-editText"></a>
+## `editText`: Edit text
+
+- `node`: String = `""`
+- `operation`: [EditTextOperation](#enum-EditTextOperation) = `"insert"` (`wrap`, `toggleList`, `insert`, `replaceWord`, `setText`, `clear`, `focus`)
+- `text`: String = `""`
+- `before`: String = `""`
+- `after`: String = unset
+- `numbered`: bool = `false`
+
+<a id="action-focus"></a>
+## `focus`: Focus
+
+- `node`: String = `""`
+- `unfocus`: bool = `false`
+- `selectAll`: bool = `false`
+
+<a id="action-controlDrag"></a>
+## `controlDrag`: Control drag
+
+- `node`: String = `""`
+- `command`: [DragCommand](#enum-DragCommand) = `"fling"` (`fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose`)
+- `direction`: [DragDirection](#enum-DragDirection) = `"right"` (`left`, `right`, `up`, `down`)
+- `steps`: String = `"1"`
+- `value`: String = `""`
+
+<a id="action-scrollTo"></a>
+## `scrollTo`: Scroll to
+
+- `node`: String = `""`
+- `item`: String = `""`
+- `durationMs`: int = `400`
+- `curve`: String = `"easeInOut"`
+- `alignment`: double = `0`
+- `offset`: double = `0`
+- `axis`: [ScrollAxis](#enum-ScrollAxis) = unset (`horizontal`, `vertical`)
+
+<a id="action-animate"></a>
+## `animate`: Animate
+
+- `node`: String = `""`
+- `animation`: String = `""`
+- `variable`: String = `""`
+- `command`: [AnimateCommand](#enum-AnimateCommand) = `"forward"` (`forward`, `reverse`, `toggle`, `repeat`, `stop`, `reset`, `animateTo`, `animateBack`, `set`)
+- `from`: String = `""`
+- `target`: String = `""`
+- `duration`: String = `""`
+- `curve`: [AnimationCurve](#enum-AnimationCurve) = unset
+- `spring`: [Spring](#type-Spring) = unset
+
+<a id="action-haptic"></a>
+## `haptic`: Haptic feedback
+
+- `kind`: [HapticKind](#enum-HapticKind) = `"selection"` (`selection`, `light`, `medium`, `heavy`, `vibrate`)
+
+<a id="action-runScript"></a>
+## `runScript`: Run script
+
+- `script`: String = `""`
+- `arguments`: Object = unset
+- `resultVariable`: String = `""`
+- `onError`: Object = unset
+
+<a id="action-paginate"></a>
+## `paginate`: Paginate
+
+- `controller`: String = `""`
+- `command`: [PaginateCommand](#enum-PaginateCommand) = `"next"` (`next`, `previous`, `goTo`, `first`, `last`, `refresh`, `retry`, `setPageSize`)
+- `page`: String = `"1"`
+- `pageSize`: String = `"20"`
 
 <a id="action-callApi"></a>
 ## `callApi`: Call API
@@ -5477,30 +5588,6 @@ _No fields._
 
 - `variable`: String = `""`
 
-<a id="action-auth"></a>
-## `auth`: Auth
-
-- `operation`: [AuthOperation](#enum-AuthOperation) = `"signIn"`
-- `email`: String = `""`
-- `password`: String = `""`
-- `displayName`: String = `""`
-- `photoUrl`: String = `""`
-- `currentPassword`: String = `""`
-- `errorVariable`: String = `""`
-
-<a id="action-if"></a>
-## `if`: If
-
-- `condition`: Object = unset
-- `then`: Object = unset
-- `else`: Object = unset
-
-<a id="action-forEach"></a>
-## `forEach`: For each
-
-- `items`: String = `""`
-- `actions`: Object = unset
-
 <a id="action-cloudFiles"></a>
 ## `cloudFiles`: Cloud files
 
@@ -5514,46 +5601,6 @@ _No fields._
 - `source`: String = `""`
 - `fileName`: String = `""`
 - `actions`: Object = unset
-
-<a id="action-showToast"></a>
-## `showToast`: Show toast
-
-- `message`: String = `""`
-- `title`: String = `""`
-- `durationMs`: int = `2600`
-- `style`: [ToastStyle](#enum-ToastStyle) = `"neutral"` (`neutral`, `info`, `success`, `warning`, `error`)
-- `position`: [ToastPosition](#enum-ToastPosition) = `"bottom"` (`bottom`, `top`)
-- `actionLabel`: String = `""`
-- `actions`: Object = unset
-- `showClose`: bool = `false`
-- `icon`: Object = unset
-- `look`: Object = unset
-- `variables`: Object = unset
-
-<a id="action-confirm"></a>
-## `confirm`: Confirm
-
-- `title`: String = `""`
-- `message`: String = `""`
-- `caption`: String = `""`
-- `confirmLabel`: String = `"OK"`
-- `cancelLabel`: String = `"Cancel"`
-- `destructive`: bool = `false`
-- `actions`: Object = unset
-- `cancelActions`: Object = unset
-- `dialog`: String = `""`
-- `params`: Object = unset
-- `presentation`: [ModalPresentation](#enum-ModalPresentation) = `"dialog"` (`dialog`, `bottomSheet`, `adaptive`, `sideSheet`, `fullScreen`, `popover`, `banner`)
-- `placement`: [PopoverPlacement](#enum-PopoverPlacement) = `"belowStart"`
-- `barrierDismissible`: bool = `true`
-- `look`: Object = unset
-- `variables`: Object = unset
-
-<a id="action-delay"></a>
-## `delay`: Delay
-
-- `ms`: int = `500`
-- `duration`: String = `""`
 
 <a id="action-cloudData"></a>
 ## `cloudData`: Cloud data
@@ -5576,33 +5623,29 @@ _No fields._
 - `transaction`: bool = `false`
 - `forEach`: String = `""`
 
-<a id="action-copyToClipboard"></a>
-## `copyToClipboard`: Copy to clipboard
+<a id="action-submitForm"></a>
+## `submitForm`: Submit form
 
-- `text`: String = `""`
+- `service`: [FormService](#enum-FormService) = `"local"` (`local`)
+- `payload`: String = `""`
+- `validationScript`: String = `""`
+- `validationArguments`: Object = unset
+- `responseVariable`: String = `""`
+- `prepend`: bool = `false`
+- `resultVariable`: String = `""`
+- `onSuccess`: Object = unset
+- `onError`: Object = unset
 
-<a id="action-downloadFile"></a>
-## `downloadFile`: Download file
+<a id="action-auth"></a>
+## `auth`: Auth
 
-- `fileName`: String = `"export.txt"`
-- `text`: String = `""`
-- `mimeType`: String = `"text/plain"`
-
-<a id="action-preloadImages"></a>
-## `preloadImages`: Preload images
-
-- `urls`: String = `""`
-- `progressVariable`: String = `""`
-
-<a id="action-editText"></a>
-## `editText`: Edit text
-
-- `node`: String = `""`
-- `operation`: [EditTextOperation](#enum-EditTextOperation) = `"insert"` (`wrap`, `toggleList`, `insert`, `replaceWord`, `setText`, `clear`, `focus`)
-- `text`: String = `""`
-- `before`: String = `""`
-- `after`: String = unset
-- `numbered`: bool = `false`
+- `operation`: [AuthOperation](#enum-AuthOperation) = `"signIn"`
+- `email`: String = `""`
+- `password`: String = `""`
+- `displayName`: String = `""`
+- `photoUrl`: String = `""`
+- `currentPassword`: String = `""`
+- `errorVariable`: String = `""`
 
 <a id="action-paywall"></a>
 ## `paywall`: Paywall
@@ -5617,21 +5660,16 @@ _No fields._
 - `reverseTransitionMs`: int = unset
 - `routeTransition`: [RouteTransition](#type-RouteTransition) = unset
 
-<a id="action-focus"></a>
-## `focus`: Focus
+<a id="action-print"></a>
+## `print`: Print
 
 - `node`: String = `""`
-- `unfocus`: bool = `false`
-- `selectAll`: bool = `false`
 
-<a id="action-controlDrag"></a>
-## `controlDrag`: Control drag
+<a id="action-preloadImages"></a>
+## `preloadImages`: Preload images
 
-- `node`: String = `""`
-- `command`: [DragCommand](#enum-DragCommand) = `"fling"` (`fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose`)
-- `direction`: [DragDirection](#enum-DragDirection) = `"right"` (`left`, `right`, `up`, `down`)
-- `steps`: String = `"1"`
-- `value`: String = `""`
+- `urls`: String = `""`
+- `progressVariable`: String = `""`
 
 <a id="action-speak"></a>
 ## `speak`: Speak
@@ -5643,17 +5681,6 @@ _No fields._
 - `stop`: bool = `false`
 - `readAlong`: bool = `false`
 - `startWord`: String = `""`
-
-<a id="action-scrollTo"></a>
-## `scrollTo`: Scroll to
-
-- `node`: String = `""`
-- `item`: String = `""`
-- `durationMs`: int = `400`
-- `curve`: String = `"easeInOut"`
-- `alignment`: double = `0`
-- `offset`: double = `0`
-- `axis`: [ScrollAxis](#enum-ScrollAxis) = unset (`horizontal`, `vertical`)
 
 <a id="action-playSound"></a>
 ## `playSound`: Play sound
@@ -5670,52 +5697,25 @@ _No fields._
 - `at`: String = `""`
 - `url`: String = `""`
 
-<a id="action-animate"></a>
-## `animate`: Animate
-
-- `node`: String = `""`
-- `animation`: String = `""`
-- `variable`: String = `""`
-- `command`: [AnimateCommand](#enum-AnimateCommand) = `"forward"` (`forward`, `reverse`, `toggle`, `repeat`, `stop`, `reset`, `animateTo`, `animateBack`, `set`)
-- `from`: String = `""`
-- `target`: String = `""`
-- `duration`: String = `""`
-- `curve`: [AnimationCurve](#enum-AnimationCurve) = unset
-- `spring`: [Spring](#type-Spring) = unset
-
-<a id="action-haptic"></a>
-## `haptic`: Haptic feedback
-
-- `kind`: [HapticKind](#enum-HapticKind) = `"selection"` (`selection`, `light`, `medium`, `heavy`, `vibrate`)
-
-<a id="action-runScript"></a>
-## `runScript`: Run script
-
-- `script`: String = `""`
-- `arguments`: Object = unset
-- `resultVariable`: String = `""`
-- `onError`: Object = unset
-
-<a id="action-paginate"></a>
-## `paginate`: Paginate
-
-- `controller`: String = `""`
-- `command`: [PaginateCommand](#enum-PaginateCommand) = `"next"` (`next`, `previous`, `goTo`, `first`, `last`, `refresh`, `retry`, `setPageSize`)
-- `page`: String = `"1"`
-- `pageSize`: String = `"20"`
-
-<a id="action-emitEvent"></a>
-## `emitEvent`: Emit event
-
-- `event`: String = `""`
-- `props`: Object = unset
-
 <a id="action-captureScreenshot"></a>
 ## `captureScreenshot`: Capture screenshot
 
 - `target`: [CaptureTarget](#enum-CaptureTarget) = `"layout"` (`layout`, `node`, `app`)
 - `node`: String = `""`
 - `pixelRatio`: double = `0`
+
+<a id="action-downloadFile"></a>
+## `downloadFile`: Download file
+
+- `fileName`: String = `"export.txt"`
+- `text`: String = `""`
+- `mimeType`: String = `"text/plain"`
+
+<a id="action-emitEvent"></a>
+## `emitEvent`: Emit event
+
+- `event`: String = `""`
+- `props`: Object = unset
 
 ---
 

@@ -304,7 +304,7 @@ final class Catalog {
           'props': props,
           for (final axis in const ['width', 'height'])
             axis: {
-              for (final e in childFitOptions(Node.fromJson({'type': type, 'props': props})!, horizontal: axis == 'width').entries)
+              for (final e in childFitOptions(Node.fromJson({'type': type, 'props': props}, catalog: standardCatalog)!, horizontal: axis == 'width').entries)
                 e.key.name: e.value,
             },
         },

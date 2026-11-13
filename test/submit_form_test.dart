@@ -18,23 +18,23 @@ void main() {
 
     test('decode without throwing, as unsupported', () {
       for (final json in stored) {
-        final a = ActionDef.fromJson(json);
+        final a = ActionDef.fromJson(json, catalog: standardCatalog);
         expect(a, isA<SubmitFormAction>(), reason: '$json');
         expect((a! as SubmitFormAction).service, FormService.unsupported, reason: '$json');
       }
-      expect(ActionDef.fromJson(stored.first)!.nonBlocking, isTrue);
+      expect(ActionDef.fromJson(stored.first, catalog: standardCatalog)!.nonBlocking, isTrue);
     });
 
     test('re-encode drops the removed fields and keeps them unsupported', () {
       for (final json in stored) {
-        final out = ActionDef.fromJson(json)!.toJson();
+        final out = ActionDef.fromJson(json, catalog: standardCatalog)!.toJson();
         for (final k in _removedKeys) {
           expect(out.containsKey(k), isFalse, reason: '$k in $out');
         }
         expect(out['service'], 'unsupported');
         expect(out.values.whereType<String>(), isNot(contains('key-us1')));
         // Stable: decoding the re-encoded action gives the same action.
-        expect(ActionDef.fromJson(out), ActionDef.fromJson(json));
+        expect(ActionDef.fromJson(out, catalog: standardCatalog), ActionDef.fromJson(json, catalog: standardCatalog));
       }
     });
 
@@ -42,7 +42,7 @@ void main() {
       final list = ActionDef.listFromJson([
         {'type': 'submitForm', 'service': 'local', 'onError': [stored.first]},
         stored[1],
-      ]);
+      ], catalog: standardCatalog);
       expect(list, hasLength(2));
       final nested = (list.first as SubmitFormAction).onError.single as SubmitFormAction;
       expect(nested.service, FormService.unsupported);
@@ -51,7 +51,7 @@ void main() {
   });
 
   test('a new submission is local', () {
-    expect((ActionDef.fromJson({'type': 'submitForm'})! as SubmitFormAction).service, FormService.local);
+    expect((ActionDef.fromJson({'type': 'submitForm'}, catalog: standardCatalog)! as SubmitFormAction).service, FormService.local);
     expect(const SubmitFormAction().service, FormService.local);
     expect(SubmitFormFields.service.defaultValue, FormService.local);
     final offered = (SubmitFormFields.service.codec as EnumCodec<FormService>).values;
@@ -72,7 +72,7 @@ void main() {
       'onSuccess': [{'type': 'setVariable', 'variable': 'done', 'value': 'true'}],
       'onError': [{'type': 'showToast', 'message': 'Invalid'}],
     };
-    final action = ActionDef.fromJson(json)! as SubmitFormAction;
+    final action = ActionDef.fromJson(json, catalog: standardCatalog)! as SubmitFormAction;
     expect(action.toJson(), json);
     expect(action.nested.length, 2);
     final fields = SubmitFormFields.all.map((f) => f.key);
@@ -80,7 +80,7 @@ void main() {
   });
 
   test('older local submissions with an empty emailField still roundtrip without it', () {
-    final a = ActionDef.fromJson({'type': 'submitForm', 'service': 'local', 'emailField': '', 'payload': r'${answers}'})! as SubmitFormAction;
+    final a = ActionDef.fromJson({'type': 'submitForm', 'service': 'local', 'emailField': '', 'payload': r'${answers}'}, catalog: standardCatalog)! as SubmitFormAction;
     expect(a.service, FormService.local);
     expect(a.toJson(), {'type': 'submitForm', 'service': 'local', 'payload': r'${answers}'});
   });
