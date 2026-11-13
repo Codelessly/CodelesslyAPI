@@ -83,10 +83,11 @@ canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 2);
    "paint": {"style": "stroke", "strokeWidth": 2}}]}}
 ```
 
-### Schema 3's special-purpose paint, in these terms
+### 30.0.0's special-purpose paint, in these terms
 
-Schema 4 rewrites three schema-3 features as ops (codelessly_api's `paintSteps4`; docs/design/01-paint-node.md,
-"Schema 4"); written in a schema-4 document, validation reports each with the form below:
+Since 30.1.0 three earlier features are ops (the migration's `paintSteps` rewrite a schema-2 document's;
+docs/design/01-paint-node.md, "30.1.0"); written in a schema-3 document, validation reports each with the form
+below:
 
 - **`strokePath`** (a line through points) is a `path` op in `painter` (`foregroundPainter` for `inFront`):
   `points`, a share of the box as `"${= 0.25 * size.width}"`, `curve` as `commands`, `progress` as `trimEnd`,

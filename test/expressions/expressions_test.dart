@@ -114,7 +114,7 @@ void main() {
 
   test('a document round-trips its variables and conditions', () {
     final doc = LayoutDocument.fromJson({
-      'schema': 4,
+      'schema': 3,
       'roots': ['c'],
       'nodes': {
         'c': {'type': 'canvas'},

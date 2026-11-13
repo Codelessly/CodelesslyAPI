@@ -323,7 +323,7 @@ final class ValueChecker {
         if (codec != null && readsKey(codec, m, e.key)) continue; // read by the model, though undeclared
         if (type.name == 'Paint' && e.key == 'gradientPerSubpath') {
           r.add(Codes.unknownField, p,
-              'A Paint has no "gradientPerSubpath" since schema 4: a gradient in each shape is one "customPaint" path op '
+              'A Paint has no "gradientPerSubpath" since 30.1.0: a gradient in each shape is one "customPaint" path op '
               'per shape, the gradient as its paint\'s "shader".');
           continue;
         }

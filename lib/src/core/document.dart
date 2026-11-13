@@ -10,9 +10,8 @@ export 'migrate/migrate.dart' show kSchemaVersion, kOldestSchemaVersion, schemaO
 /// One step that upgrades a document's JSON from schema `n - 1` to `n`.
 typedef SchemaMigration = Json Function(Json document, {MigrationReport? report});
 
-/// Upgrades by the version they produce: 3 is [migrate2to3], 4 is
-/// [migrate3to4].
-const Map<int, SchemaMigration> schemaMigrations = {3: migrate2to3, 4: migrate3to4};
+/// Upgrades by the version they produce: 3 is [migrate2to3].
+const Map<int, SchemaMigration> schemaMigrations = {3: migrate2to3};
 
 /// A layout: a set of node trees (one per canvas/screen) in one flat map.
 @immutable
@@ -69,8 +68,7 @@ final class LayoutDocument {
 
   /// Decodes a document of any schema with [catalog] (default:
   /// [Catalog.current]), upgrading it first: a schema-2 document (or one
-  /// with no `schema`) or a schema-3 one is migrated in memory
-  /// ([migrate2to3], [migrate3to4]). Never throws:
+  /// with no `schema`) is migrated in memory ([migrate2to3]). Never throws:
   /// entries that aren't nodes are dropped; a node or action type the
   /// catalog doesn't declare is kept as it is.
   static LayoutDocument fromJson(Object? json, {Catalog? catalog}) {

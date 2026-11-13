@@ -1,11 +1,11 @@
-// Schema 3 → 4: one shared-element concept, Flutter's `Hero`. Schema 3 had
+// 30.1.0: one shared-element concept, Flutter's `Hero`. 30.0.0 had
 // two: `hero` (a tag that flies between two screens while a navigation
 // plays, Flutter's `Hero`) and `flightKey` with `flight` (a key that flies a
 // node in from where the last node with the key was when it appears: a
 // shared element without a navigation, which Flutter lacks). Both are a
 // hero now: `flies` says when (`betweenScreens`, Flutter's; `inPlace`, the
-// flight key's), `flightShuttle` is the navigation flight's look (schema 3's
-// `hero.flight`), `flight` how an in-place flight moves (schema 3's node
+// flight key's), `flightShuttle` is the navigation flight's look (30.0.0's
+// `hero.flight`), `flight` how an in-place flight moves (30.0.0's node
 // `flight`).
 import '../json.dart';
 import 'legacy_read.dart';
@@ -23,11 +23,11 @@ final heroFlightStep = MigrationStep(
     final heroMap = readMap(hero);
     final hasKey = n.containsKey('flightKey') || bind.containsKey('flightKey');
     final hasFlight = n.containsKey('flight') || bind.keys.any((k) => k == 'flight' || k.startsWith('flight.'));
-    // Schema 3's hero.flight is a shuttle's name; schema 4's an in-place
+    // 30.0.0's hero.flight is a shuttle's name; 30.1.0's an in-place
     // flight (an object), on a hero that says it flies in place.
-    final schema4Hero = heroMap != null && (heroMap.containsKey('flies') || heroMap.containsKey('flightShuttle'));
+    final currentHero = heroMap != null && (heroMap.containsKey('flies') || heroMap.containsKey('flightShuttle'));
     final shuttle = heroMap != null && heroMap['flight'] is String;
-    final shuttleBound = bind.containsKey('hero.flight') && !schema4Hero;
+    final shuttleBound = bind.containsKey('hero.flight') && !currentHero;
     if (!hasKey && !hasFlight && !shuttle && !shuttleBound) return;
 
     final next = {...bind};
@@ -56,7 +56,7 @@ final heroFlightStep = MigrationStep(
       // One node, two tags: it can fly one way only.
       s.unconvertible(n, 'flightKey', n['flightKey'],
           instead: 'Put the in-place flight on a node of its own (a wrapper) with {"hero": {"tag": ..., "flies": "inPlace"}}.',
-          message: 'The node has a hero and a flight key: schema 4\'s one hero flies between screens or in place, not both; '
+          message: 'The node has a hero and a flight key: the one hero flies between screens or in place, not both; '
               'its flight key is kept as `legacy.flightKey`.');
       if (flight != null) n['legacy.flight'] = flight;
       if (keyBound) n['legacy.bind.flightKey'] = bind['flightKey'];

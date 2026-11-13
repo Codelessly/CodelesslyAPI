@@ -1,66 +1,67 @@
-// The steps of the schema 3 → 4 migration, in the order they run. Each is
-// small, named and tested on its own (test/migrate4_steps_test.dart).
+// The one-way steps of 30.1.0, the last steps of `migrate2to3`, in the
+// order they run. Each is small, named and tested on its own
+// (test/migrate_spellings_test.dart).
 //
-// Schema 4 gives each concept that schema 3 could say two ways one home,
-// under Flutter's name: the node's `scale` and `layout.rotation` are its
+// They give each concept that 30.0.0's schema 3 could say two ways one
+// spelling, under Flutter's name: the node's `scale` and `layout.rotation` are its
 // `motion` (`Transform`), `flightKey` and `flight` are its `hero` (`Hero`);
 // `strokePath`, a box's `path`, `subpathColors` and `gradientPerSubpath` are
-// `customPaint` path ops and the path node (steps_paint4.dart).
+// `customPaint` path ops and the path node (steps_paint.dart).
 import '../json.dart';
 import '../node_patch.dart' show mergeNodePatch;
 import '../behaviors.dart' show diffPatch;
 import 'legacy_read.dart';
 import 'migrate.dart';
-import 'steps_hero4.dart';
-import 'steps_paint4.dart';
-import 'steps_transform4.dart';
+import 'steps_hero.dart';
+import 'steps_paint.dart';
+import 'steps_transform.dart';
 
-/// The node steps of `migrate3to4`, in order. A schema-4 step that rewrites
-/// a node's own JSON goes here: `patches.schema4` re-expresses the
+/// The node steps of 30.1.0, in order. A one-way step that rewrites
+/// a node's own JSON goes here: `patches.moved` re-expresses the
 /// interaction-state and media patches through every step of this list, so
 /// a patch that sets what a step moved moves with it.
 ///
-/// [paintSteps4] come last, in their own order: `paint.patches` (a document
+/// [paintSteps] come last, in their own order: `paint.patches` (a document
 /// pass) first, because it re-expresses the patches that set a paint field
 /// against the nodes as they are before the paint node steps rewrite them;
 /// what it leaves in a patch the paint node steps no longer change.
-final List<MigrationStep> nodeSteps3to4 = [
+final List<MigrationStep> spellingSteps = [
   transformFoldStep,
   heroFlightStep,
-  pathsStep4,
-  ...paintSteps4,
+  movedPathsStep,
+  ...paintSteps,
 ];
 
-/// The schema-3 node paths [nodeSteps3to4] move, and where to (a schema-4
-/// path, or the object they went into). A patch that sets one sets the new
+/// The node paths [spellingSteps] move (30.0.0's spellings), and where to
+/// (the current path, or the object they went into). A patch that sets one sets the new
 /// path explicitly, at the value of the migrated patched node. A node step
 /// that moves a field adds its paths here.
-final Map<String, String> movedPaths3to4 = {
+final Map<String, String> movedSpellings = {
   'scale': 'motion.scale',
   'layout.rotation': 'motion.rotate',
   'flightKey': 'hero',
   'flight': 'hero',
   'hero': 'hero',
-  // paintSteps4: a stroke path and per-shape colors are custom paint ops; a
+  // paintSteps: a stroke path and per-shape colors are custom paint ops; a
   // box's path is a path node's data.
   'strokePath': 'customPaint',
   'props.subpathColors': 'customPaint',
   'props.path': 'props.data',
 };
 
-/// The steps of `migrate3to4`, in order: [nodeSteps3to4], then the patches
+/// The steps of 30.1.0, in order: [spellingSteps], then the patches
 /// re-expressed through them.
-final List<MigrationStep> migrationSteps3to4 = [
-  ...nodeSteps3to4,
-  patchesStep4(nodeSteps3to4, movedPaths3to4),
+final List<MigrationStep> spellingMigrationSteps = [
+  ...spellingSteps,
+  spellingPatchesStep(spellingSteps, movedSpellings),
 ];
 
-/// A binding path an action or a condition sets, and its value, in schema
-/// 4: `scale` → `motion.scale` (times the target's own motion scale),
+/// A binding path an action or a condition sets, and its value, as it is
+/// spelled now: `scale` → `motion.scale` (times the target's own motion scale),
 /// `layout.rotation` → `motion.rotate` (plus its own rotate), `flightKey` →
 /// `hero.tag`, `flight.*` → `hero.flight.*`, `hero.flight` →
-/// `hero.flightShuttle`. Null when [path] is not one schema 4 moved.
-(String, Object?)? _path4(String path, Object? value, Json? target, String where, MigrationScope s, {bool hasValue = true}) {
+/// `hero.flightShuttle`. Null when [path] is not one 30.1.0 moved.
+(String, Object?)? _movedPath(String path, Object? value, Json? target, String where, MigrationScope s, {bool hasValue = true}) {
   final motion = readMap(target?['motion']) ?? const <String, Object?>{};
   switch (path) {
     case 'scale' || 'layout.rotation':
@@ -73,7 +74,7 @@ final List<MigrationStep> migrationSteps3to4 = [
         final l = readList(m);
         if (l != null && l.length == 4 && (readDouble(l[0]) != readDouble(l[2]) || readDouble(l[1]) != readDouble(l[3]))) {
           s.behaviourChange('It sets the rotation of a node whose margin is uneven: schema 3 turned it about its center '
-              'moved by half the margin\'s difference, schema 4 about its center.', path: where);
+              'moved by half the margin\'s difference, now about its center.', path: where);
         }
       }
       if (!hasValue || own == identity) return (to, value);
@@ -86,7 +87,7 @@ final List<MigrationStep> migrationSteps3to4 = [
       return (to, value);
     case 'flightKey':
       if (readString(target?['hero']) != null || readMap(target?['hero']) != null) {
-        s.behaviourChange('It sets the flight key of a node that also has a hero: schema 4 sets the hero\'s tag.', path: where);
+        s.behaviourChange('It sets the flight key of a node that also has a hero: it now sets the hero\'s tag.', path: where);
       }
       return ('hero.tag', value);
     case 'hero.flight':
@@ -98,9 +99,9 @@ final List<MigrationStep> migrationSteps3to4 = [
 }
 
 /// The paths `setValue` actions (in a node's reactions) and conditions (the
-/// document's) set: moved as [_path4] says.
-final pathsStep4 = MigrationStep(
-  id: 'paths.schema4',
+/// document's) set: moved as [_movedPath] says.
+final movedPathsStep = MigrationStep(
+  id: 'paths.moved',
   description: 'setValue and condition paths scale, layout.rotation, flightKey, flight → motion and hero paths',
   node: (n, s) {
     final nodes = readMap(s.document?['nodes']);
@@ -115,7 +116,7 @@ final pathsStep4 = MigrationStep(
         if (v == null || path == null) continue;
         final where = '/actions$at/values/$i';
         final set = (readString(v['mode']) ?? 'set') == 'set';
-        final moved = _path4(path, v['value'], target, where, s, hasValue: set);
+        final moved = _movedPath(path, v['value'], target, where, s, hasValue: set);
         if (moved == null) continue;
         final out = {...v, 'path': moved.$1, if (set) 'value': moved.$2};
         s.rewrite(where, v, out);
@@ -129,7 +130,7 @@ final pathsStep4 = MigrationStep(
     eachMap(d['conditions'], (m, at) {
       final path = readString(m['path']), node = readString(m['node']);
       if (path == null || node == null || !m.containsKey('node')) return;
-      final moved = _path4(path, m['value'], readMap(original?[node]) ?? readMap(nodes?[node]), '/conditions$at', s);
+      final moved = _movedPath(path, m['value'], readMap(original?[node]) ?? readMap(nodes?[node]), '/conditions$at', s);
       if (moved == null) return;
       final old = {...m};
       m
@@ -148,16 +149,16 @@ final pathsStep4 = MigrationStep(
 /// the value the migrated patched node has (`motion.scale`: the patch's
 /// scale times the node's own motion scale). A patch whose node is not in
 /// the document is migrated alone.
-MigrationStep patchesStep4(List<MigrationStep> nodeSteps, Map<String, String> moved) => MigrationStep(
-      id: 'patches.schema4',
-      description: 'state and media patches that set moved fields → schema-4 patches',
+MigrationStep spellingPatchesStep(List<MigrationStep> nodeSteps, Map<String, String> moved) => MigrationStep(
+      id: 'patches.moved',
+      description: 'state and media patches that set moved fields → patches of the moved fields',
       document: (doc, s) {
         final nodes = readMap(doc['nodes']) ?? const <String, Object?>{};
         final original = readMap(s.document?['nodes']) ?? const <String, Object?>{};
         Json run(Json node, String id) {
           final out = copyJson(node) as Json;
           for (final step in nodeSteps) {
-            step.node?.call(out, MigrationScope.silent(step, nodeId: id, schema: s.schema, document: s.document));
+            step.node?.call(out, MigrationScope.silent(step, nodeId: id, document: s.document));
           }
           return out;
         }

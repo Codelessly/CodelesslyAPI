@@ -129,7 +129,6 @@ renderer computes.
   "x": {"start": 24},             // freeform parent only; see below
   "y": {"align": 0.5},
   "align": [0, 0],                // row/column parent only: alignment in its slot
-  "rotation": 15,                 // degrees, about the center
   "aspectRatio": 1.5
 }
 ```
@@ -186,9 +185,9 @@ Value types mirror Flutter: `Color` (`#AARRGGBB`), `EdgeInsets`,
 the nearest `defaultTextStyle` above it (a behavior on any node, Flutter's
 `DefaultTextStyle`), else the font's own line height (Flutter's
 `height: null`); a schema-2 document keeps its 1.33 through the migration
-(`defaultTextStyle: {"height": 1.33}` on its top-level nodes). A gradient `Paint` with
-`gradientPerSubpath` (JSON also `gradientUnits: "subpath"`) is laid out in
-each shape of a path.
+(`defaultTextStyle: {"height": 1.33}` on its top-level nodes). A node is
+turned and scaled by its `motion` (`rotate`, `scale`: Flutter's `Transform`),
+never by its layout.
 
 **Lists**: `listView` and `gridView` take `pagination` (a controller named
 by its `name`: source, mode, page size, pull to refresh), `reorder`
@@ -253,7 +252,7 @@ flat in the node's JSON. Every key is optional and sparse.
 | `inkWell` | `InkWellStyle` | `InkWell` colors: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
 | `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's JSON (`Node.patched`). |
 | `tooltip`, `ignorePointer`, `floating` | | `Tooltip`, `IgnorePointer`, drawn above the screen at runtime. |
-| `hero`, `flightKey` | tag or `{tag, flight, placeholder}`; string | `Hero` (`flight`: `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform`; `placeholder: source` keeps the source drawn until the destination's image loads); flying in from where the node with the same key was. |
+| `hero` | tag or `{tag, flies, flightShuttle, placeholder, flight}` | Flutter's `Hero`: `flies: betweenScreens` (the default) flies while a navigation plays, its look `flightShuttle` (`standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform`; `placeholder: source` keeps the source drawn until the destination's image loads); `flies: inPlace` flies the node in from where the node with the same tag was, on a spring or as its `flight` (`Flight`: a curve over a duration with lift, swell, turns and a trail) says. |
 | `draggable`, `dropTarget` | `DragSource`, `DropTarget` | `Draggable`/`LongPressDraggable` (`childWhenDragging`, `feedback`, `dragAnchor`, a `returnSpring`), `DragTarget` (`accepts`, `acceptIf`; list insertion `listNodeId`, `slot`, `slotSize`; the slot opens for accepted drags). |
 | `track` | `Track` | Flutter's `Slider` along a line, an arc or a `path` (`PathFollow`): `variable`/`value`, `min`, `max`, `step`, `clamp`, `input`, `allowedInteraction`, `hitArea`, `pixelsPerRange`, `wheelStep`/`keyStep` (0 off), `detent`, `overscroll`, `physics` (a coasting fling), settle and snap; guide chapter 10. |
 | `dismissible` | `DismissibleBehavior` | Flutter's `Dismissible`: `directions`, `dismissThresholds`, `flingVelocity`, `resistance`, `movementDuration`/`curve`, a return (`returnDuration`/`returnCurve` or `returnSpring`). |
@@ -265,15 +264,14 @@ Schema 2's `drag` is migrated to `track` (its `track`), `reorderHandle` (`reorde
 (`release: dismiss`, its old defaults written out) or `pan`, and `zoomable: true` to a `transformGesture`
 (docs/design/04-drag-and-track.md); the one-app fields schema 3 removed are kept as `legacy.<name>`.
 | `flip`, `tilt` | `FlipCard`, `Tilt` | A two-sided card turning over (first child front, second back; a runtime 3D turn, not the editor's mirror); a 3D tilt toward the pointer. |
-| `reveal`, `strokePath`, `particles`, `textDirection` | | Scroll into view; a line through points; confetti; `Directionality`. |
-| `flight` | `Flight` | How a `flightKey` node flies in from where the node with the same key was: a spring, or a curve over a duration with lift, swell, turns and a trail. |
+| `reveal`, `particles`, `textDirection` | | Scroll into view; confetti; `Directionality`. |
 | `typewriter` | `Typewriter` | A text node typing its text out (the layout is the whole text's; only what's typed is painted). |
 | `sticky` | `true` or `{offset}` | Pinned at its scrolling view's leading edge while its parent is in view (`SliverPersistentHeader(pinned)`); `${sticky.stuck}`. |
 | `viewProgress` | `ViewProgress` | `${view.progress}`: how far the node has scrolled through the viewport, optionally written to a variable. |
 | `measure` | `Measure` | The node's laid-out box, written to a variable as layout changes. |
 | `customPaint` | `CustomPaint` | Flutter's `CustomPaint`: `painter` drawn behind the node's content and `foregroundPainter` over it, each a list of draw ops that are `Canvas` calls (`path`, `line`, `rect`, `rrect`, `circle`, `oval`, `arc`, `points`, `paragraph`, `image`) with a `paint` (Flutter's `Paint`), `group` (save, transforms, clips, a layer, restore) and `repeat` (over a list: `item`, `index`, `count`); values may be inline expressions; a `viewBox` with a `fit`; ops with `hit` are hit regions whose id, view point and item reach the node's pointer reactions. Guide chapter 7. |
 
-`strokePath.progress` is a bindable fraction (0–1, default 1). It reveals the stroke by path length; dash patterns are clipped to that revealed prefix.
+A line through points is a `customPaint` `path` op (`points`, or `commands`: Flutter's `Path` calls); its `trimEnd` is a bindable fraction of its length (0–1, default 1), dashes included. A shape is a `path` node; shapes in different colors are one `path` op per color.
 
 A spring is one value wherever it is: `Spring`, Flutter's
 `SpringDescription` (`{stiffness, damping, mass}`, or `{duration, bounce}`
@@ -570,7 +568,6 @@ effect id for the item with that id, and `*` for every item.
 | `opacity` | 0–1 |
 | `layout.width`, `layout.height` | a number (design size, fit kept) or `{"fill": n}`... |
 | `layout.flex` | int ≥ 1 |
-| `layout.rotation` | degrees |
 | `layout.margin`, `layout.padding` | n, `[h, v]`, `[l, t, r, b]` or `{top: n}` |
 | `layout.x`, `layout.y` | distance from the start, or a position map |
 | `layout.<field>` | any other layout field, as its JSON |
@@ -589,7 +586,7 @@ effect id for the item with that id, and `*` for every item.
 | `props.<prop>.<field>` | a field of a structured prop |
 | `props.style.<field>` (text) | the base style and every run's |
 | `data` | the items a list, grid or page view builds one per (its item count follows) |
-| `scale`, `textDirection`, `motion.<field>`, `motion.path.progress`, `flightKey`, `tooltip`... | a behavior (§4.1); `animations.<id>.paused` reads loosely, `animations.<id>.params.frames` a list or its JSON text; schema 2's bound motion timing keys are migrated to the animations and `transitions[i]` they became |
+| `textDirection`, `motion.<field>`, `motion.path.progress`, `hero.<field>`, `tooltip`... | a behavior (§4.1); `animations.<id>.paused` reads loosely, `animations.<id>.params.frames` a list or its JSON text; schema 2's bound motion timing keys are migrated to the animations and `transitions[i]` they became |
 | `dismissible.<field>`, `pan.<field>`, `draggable.enabled`, `dropTarget.enabled`, `draggable.data` | a dismissible's or pan's setting (`enabled` read loosely, `pan.x`/`pan.y` its rest); a drag source's or drop target's switch; the payload |
 | `track.<field>`, `track.value` | a track's setting or geometry (a number written as is reads); the value it's drawn at. Schema 2's `drag.track.*` and `drag.*` paths are migrated to these (`drag.enabled` → the behavior's `enabled`, `drag.restX` → `pan.x`...) |
 | `animations.<id>.<field>` | an animation's field (`paused`, `phase`, `playKey`, `enabled`, `params.<p>`, `tracks.<trackId>.from`...); schema 2's `loops[i].*` and `effectAnimations[i].*` keys are migrated to these (a loop's `phase` and `lag` into one `phase` formula) |

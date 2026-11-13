@@ -15,7 +15,7 @@ Two screens: a list that opens a detail screen with a parameter, a modal, and a 
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home", "about", "signup"],
   "nodes": {
     "home": {

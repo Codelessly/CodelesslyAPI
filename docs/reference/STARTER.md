@@ -38,7 +38,7 @@ flat map:
 
 | Key | Meaning |
 |---|---|
-| `schema` | Always 4 (`kSchemaVersion`). A schema-2 or schema-3 document (or one with none) loads, migrated in memory (`migrate2to3`, `migrate3to4`). |
+| `schema` | Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`). |
 | `id` | The layout's id (optional). |
 | `roots` | Canvas ids, in order: the screens of this page. |
 | `nodes` | Every node, by id: `{"<id>": {"type": ..., ...}}`. A node's id is its key here. |
@@ -52,7 +52,7 @@ its default.
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -99,7 +99,7 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "pages": ["home.json"],
   "theme": {
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
@@ -207,7 +207,7 @@ under a stack (`layout_field_ignored`).
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["board"],
   "nodes": {
     "board": {"type": "canvas", "slots": {"body": "stage"}, "layout": {"width": 400, "height": 300}},
@@ -269,7 +269,7 @@ Colours are `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half), `"#RRGGBB"` o
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["deco"],
   "nodes": {
     "deco": {

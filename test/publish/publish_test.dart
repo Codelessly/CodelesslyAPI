@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   final layoutJson = <String, Object?>{
-    'schema': 4,
+    'schema': 3,
     'id': 'home',
     'roots': ['m', 'd'],
     'nodes': {

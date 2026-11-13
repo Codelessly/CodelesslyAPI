@@ -11,7 +11,7 @@ slots and events, the site manifest, and when to use a component, a list templat
 A definition (`components/Chip.json`; the file is named after the type):
 
 ```json
-{"schema": 4, "id": "Chip", "roots": ["chip"],
+{"schema": 3, "id": "Chip", "roots": ["chip"],
  "widget": {"type": "Chip", "doc": "A label with a remove button.", "children": "list", "slots": ["leading"],
    "props": [
      {"key": "label", "type": {"kind": "string", "flutter": "String"}, "default": "Chip", "required": true},
@@ -72,7 +72,7 @@ A directory with a `site.json` is a site: its pages, its components and its proj
 bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).
 
 ```json
-{"schema": 4, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
+{"schema": 3, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
  "variables": [{"name": "tags", "type": "list", "value": [{"name": "Design"}, {"name": "Code"}]}]}
 ```
 

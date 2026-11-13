@@ -1,5 +1,5 @@
-// Schema-2 JSON as the current schema reads it: through the migrations
-// (migrate2to3, then migrate3to4), for the tests written against the
+// Schema-2 JSON as schema 3 reads it: through the migration (migrate2to3,
+// 30.1.0's one-way steps included), for the tests written against the
 // schema-2 decoders' legacy reading.
 import 'package:codelessly_api/codelessly_api.dart';
 

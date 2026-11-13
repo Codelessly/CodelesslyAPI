@@ -15,7 +15,7 @@ A value saved on the device and read back as `${storage.theme}`:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["prefs"],
   "nodes": {
     "prefs": {

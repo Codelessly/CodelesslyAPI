@@ -26,8 +26,7 @@ understand, build, check or transform layouts as data.
 | 9 | [Catalogs, libraries and plugins](09-catalogs-and-plugins.md) | `Catalog`, the core and feature libraries, native plugins, catalog JSON, hosted plugins as data |
 | 10 | [Gestures](10-gestures.md) | `track` (Flutter's `Slider` on any path), `dismissible`, `pan`, `draggable`/`dropTarget`, the control actions, the schema-2 `drag` |
 | 11 | [Edit operations and streaming](11-edit-ops-and-streaming.md) | Six id-addressed ops, per-op validation, revisions and undo, streaming tool input, the outline, the two LLM tools, the trust profile |
-| 12 | [Migrating to schema 3](12-migrating-to-schema-3.md) | Schema 2 documents load, migrated in memory; `migrate2to3`, the report, `tool/migrate.dart`, what was rewritten and what was dropped |
-| 13 | [Migrating to schema 4](13-migrating-to-schema-4.md) | One Transform and one Hero: the node's `scale` and `layout.rotation` are its `motion`, `flightKey` and `flight` its `hero`; `migrate3to4`, what was rewritten and what is reported |
+| 12 | [Migrating to schema 3](12-migrating-to-schema-3.md) | Schema 2 documents load, migrated in memory; `migrate2to3`, the report, `tool/migrate.dart`, what was rewritten and what was dropped; 30.1.0's one spelling for each concept (`motion`, `hero`, `customPaint`, the path node) |
 
 For authors who write documents directly (people and AI agents), the generated reference is
 [`docs/reference`](../reference/README.md): one base to read first ([`STARTER.md`](../reference/STARTER.md)), a page

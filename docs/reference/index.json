@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5588
+      "words": 5585
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5697
+      "words": 5694
     }
   },
   "topics": [
@@ -1193,7 +1193,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 2348
+      "words": 2340
     },
     {
       "topic": "render-what-it-does",
@@ -1217,7 +1217,7 @@
       "anchor": "render-validation-codes",
       "title": "Validation codes",
       "summary": "From `package:codelessly_api/validate.dart`:",
-      "words": 588
+      "words": 605
     },
     {
       "topic": "render-render-codes",

@@ -22,7 +22,7 @@ void main() {
   });
 
   final docJson = <String, Object?>{
-    'schema': 4,
+    'schema': 3,
     'id': 'L',
     'roots': ['c'],
     'nodes': {

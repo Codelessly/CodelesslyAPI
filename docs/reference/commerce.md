@@ -13,7 +13,7 @@ legal link).
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["upgrade"],
   "nodes": {
     "upgrade": {

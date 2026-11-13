@@ -291,7 +291,7 @@ final class SettingTarget {
 /// as a layout document with one root, its design size, and where it was
 /// made from.
 ///
-/// JSON: `{"schema": 4, "id", "name", "version", "size": [w, h],
+/// JSON: `{"schema": 3, "id", "name", "version", "size": [w, h],
 /// "document": {LayoutDocument}, "preview": {"url", "blurhash"},
 /// "source": {"project", "page", "node"}, "createdAt": ms}`.
 @immutable

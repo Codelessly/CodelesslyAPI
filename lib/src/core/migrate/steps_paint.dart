@@ -1,5 +1,5 @@
-// Steps of the schema 3 → 4 migration that move the special-purpose paint
-// features onto the general ones (docs/design/01-paint-node.md, "Schema 4"):
+// Steps of 30.1.0 (the last of `migrate2to3`) that move the special-purpose paint
+// features onto the general ones (docs/design/01-paint-node.md, "30.1.0"):
 //
 // * `strokePath` (a line through points behind or over a node) → a `path`
 //   op of the node's `customPaint`, its stroke Flutter's `Paint`;
@@ -11,8 +11,8 @@
 //
 // Each step is written so the migrated document draws the same pixels; where
 // a value has no exact form it is kept as `legacy.<name>` and reported, with
-// what to write instead. `migrate3to4` applies [paintSteps4] after its other
-// node steps (steps4.dart's `nodeSteps3to4`).
+// what to write instead. `migrate2to3` runs [paintSteps] after its other
+// node steps (steps_spellings.dart's `spellingSteps`).
 import '../custom_paint.dart' show Expr;
 import '../json.dart';
 import '../node.dart';
@@ -27,9 +27,9 @@ import 'legacy_read.dart';
 import 'legacy_svg.dart';
 import 'migrate.dart';
 
-/// The paint steps of the schema 3 → 4 migration, in order.
+/// The paint steps of 30.1.0 (the last of `migrate2to3`), in order.
 /// The patches step comes first: it reads the nodes as they were.
-final List<MigrationStep> paintSteps4 = [
+final List<MigrationStep> paintSteps = [
   paintPatchesStep4,
   strokePathStep,
   boxPathStep,
@@ -66,7 +66,7 @@ void _unbind(Json n, Iterable<String> keys, MigrationScope s) {
 /// The strokePath fields a binding may set and the step can still express.
 const _boundOk = {'strokePath.points', 'strokePath.progress', 'strokePath.color'};
 
-/// The schema-3 `strokePath` behavior read as its decoder read it.
+/// 30.0.0's `strokePath` behavior read as its decoder read it.
 final class _StrokePath {
   _StrokePath(Json m)
       : xFraction = (readString(m['xUnit']) ?? 'fraction') != 'pixels',
@@ -237,7 +237,7 @@ final strokePathStep = MigrationStep(
       s.unconvertible(n, 'strokePath', {'value': raw, if (bound.isNotEmpty) 'bind': bound},
           path: '/strokePath',
           instead: 'Draw it with "customPaint": a "path" op with "points" (or "commands"), a stroke "paint" and "trimEnd" '
-              'for the progress (docs/design/01-paint-node.md, "Schema 4").',
+              'for the progress (docs/design/01-paint-node.md, "30.1.0").',
           message: 'strokePath has no exact customPaint form here (${why.join('; ')}); kept as `legacy.strokePath`.');
       s.behaviourChange('The stroke path is no longer drawn.', path: '/strokePath', old: raw);
       return;
@@ -716,7 +716,7 @@ final perShapePaintStep = MigrationStep(
 /// node that gives the node the migrated patched node is.
 final paintPatchesStep4 = MigrationStep(
   id: 'paint.patches',
-  description: 'state and media patches setting strokePath, a box path or per-shape paints → schema-4 patches',
+  description: 'state and media patches setting strokePath, a box path or per-shape paints → patches of the moved fields',
   document: (doc, s) {
     final steps = [strokePathStep, boxPathStep, perShapePaintStep];
     final nodes = readMap(doc['nodes']) ?? const <String, Object?>{};

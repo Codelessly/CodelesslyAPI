@@ -129,7 +129,7 @@ void main() {
     expect(b.track!.shape, TrackShape.arc);
     expect(b.track!.variable, 'volume');
     expect(b.dismissible, isNull);
-    // The stroke path is a custom paint path op (schema 4).
+    // The stroke path is a custom paint path op (since 30.1.0).
     expect(b.customPaint!.painter.single, isA<PathOp>());
     expect(b.particles!.colors, [const Color(0xFFFF0000)]);
     expect(b.textDirection, TextDirection.rtl);
@@ -164,7 +164,7 @@ void main() {
         'autoplay': true,
       },
     ]);
-    // The node's scale is the motion's (schema 4), with its own transition.
+    // The node's scale is the motion's (since 30.1.0), with its own transition.
     expect(written['motion'], {'translateX': 10, 'scale': 1.15, 'rotate': -3.5});
     expect(written['transitions'], [
       {'property': 'opacity', 'duration': 1100, 'curve': 'easeInOut'},

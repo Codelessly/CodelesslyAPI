@@ -46,7 +46,7 @@ const confetti = Catalog(id: 'party', actions: [
 ]);
 
 Json _page(List<Json> actions) => {
-  'schema': 4,
+  'schema': 3,
   'roots': ['c'],
   'nodes': {
     'c': {'type': 'canvas', 'children': ['r', 'v'], 'layout': {}},

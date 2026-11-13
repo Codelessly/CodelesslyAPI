@@ -17,7 +17,7 @@ free space 1 : 2 (`flex`) beside a fixed grey box.
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["sizing"],
   "nodes": {
     "sizing": {
@@ -470,7 +470,7 @@ column capped at 1200:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -641,7 +641,7 @@ comparison table built from one row template and one cell template:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -788,7 +788,7 @@ giving one; `"axis": "horizontal"` moves only sideways scroll views).
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["article"],
   "nodes": {
     "article": {
@@ -852,7 +852,7 @@ one part of a screen. Older documents use this:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home-mobile", "home-desktop"],
   "nodes": {
     "home-mobile": {
@@ -915,7 +915,7 @@ one part of a screen. Older documents use this:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["page"],
   "nodes": {
     "page": {

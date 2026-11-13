@@ -1,14 +1,15 @@
-// The schema 3 → 4 migration: each step's rewrites, that a migrated
-// document draws what the schema-3 one drew, and the framework that chains
-// 2 → 3 → 4.
+// 30.1.0's one-way steps, the last of the schema 2 → 3 migration: each
+// step's rewrites of 30.0.0's spellings, that a migrated document draws what
+// the 30.0.0 one drew, and how they run in migrate2to3.
 import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:codelessly_api/codelessly_api.dart';
+import 'package:codelessly_api/src/core/migrate/steps_spellings.dart' show spellingMigrationSteps;
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
-/// A schema-3 document holding [nodes] under one canvas.
+/// A document in 30.0.0's spellings holding [nodes] under one canvas.
 Json doc3(Map<String, Object?> nodes, {Json extra = const {}}) => {
       'schema': 3,
       'roots': ['home'],
@@ -19,10 +20,16 @@ Json doc3(Map<String, Object?> nodes, {Json extra = const {}}) => {
       ...extra,
     };
 
-/// Schema-3 node [node] (a 100 × 40 box, id `n`) migrated, with its report.
+/// [document] through the one-way steps alone ([steps]: some of them), as
+/// migrate2to3 runs them on a schema-2 document after schema 2's steps.
+Json oneWay(Json document, {MigrationReport? report, List<MigrationStep>? steps}) =>
+    migrate2to3({...document, 'schema': 2}, report: report, steps: steps ?? spellingMigrationSteps);
+
+/// Node [node] in 30.0.0's spellings (a 100 × 40 box, id `n`) through the
+/// one-way steps, with the report.
 (Json, MigrationReport) migrated(Json node, {Map<String, Object?> others = const {}, Json extra = const {}}) {
   final report = MigrationReport(document: 't');
-  final doc = migrate3to4(doc3({'n': {'type': 'box', 'layout': {'width': 100, 'height': 40}, ...node}, ...others}, extra: extra),
+  final doc = oneWay(doc3({'n': {'type': 'box', 'layout': {'width': 100, 'height': 40}, ...node}, ...others}, extra: extra),
       report: report);
   return (((doc['nodes'] as Map)['n'] as Map).cast<String, Object?>(), report);
 }
@@ -56,7 +63,7 @@ class Affine {
   Affine about(double px, double py) => Affine.translate(px, py) * this * Affine.translate(-px, -py);
 }
 
-/// Where a [w] × [h] box's corners are drawn by a centered schema-4 [motion]
+/// Where a [w] × [h] box's corners are drawn by a centered [motion] now
 /// (the SDK's RenderMotion: translate, then scale and rotate about the box's
 /// center).
 List<(double, double)> drawn4(Motion m, double w, double h) {
@@ -65,7 +72,7 @@ List<(double, double)> drawn4(Motion m, double w, double h) {
   return [for (final (x, y) in [(0.0, 0.0), (w, 0.0), (0.0, h), (w, h)]) t.apply(x, y)];
 }
 
-/// The same corners as schema 3 drew them: the motion, then the node's
+/// The same corners as 30.0.0 drew them: the motion, then the node's
 /// scale about its center, then its rotation about its center moved by half
 /// its margin's difference ([ml], [mt], [mr], [mb]).
 List<(double, double)> drawn3(Motion m, double scale, double rotation, double w, double h,
@@ -83,23 +90,25 @@ Matcher drawnAt(List<(double, double)> want) => predicate<List<(double, double)>
         .every((e) => e),
     'drawn at $want');
 
-/// Runs [step] alone on schema-4 node [node] again: nothing changes.
+/// Runs [step] alone on migrated node [node] again: nothing changes.
 void expectStable(MigrationStep step, Json node) {
-  final again = migrate3to4({'schema': 3, 'nodes': {'n': node}}, steps: [step]);
+  final again = oneWay({'nodes': {'n': node}}, steps: [step]);
   expect(jsonEncode((again['nodes'] as Map)['n']), jsonEncode(node), reason: step.id);
 }
 
 void main() {
   group('framework', () {
-    test('schema 4 is current; a schema-3 document is migrated to it and says so', () {
-      expect(kSchemaVersion, 4);
+    test('schema 3 is current; a schema-2 document runs schema 2\'s steps, then the one-way steps, and says so once', () {
+      expect(kSchemaVersion, 3);
       final report = MigrationReport(document: 'a.json');
-      final out = migrate3to4(doc3({'box': {'type': 'box', 'layout': {}}}), report: report);
-      expect(out['schema'], 4);
+      final out = migrate2to3({...doc3({'box': {'type': 'box', 'layout': {'width': 10, 'height': 10}, 'scale': 2}}), 'schema': 2}, report: report);
+      expect(out['schema'], 3);
+      expect(nodeOf(out, 'box')['motion'], {'scale': 2});
       expect(report.documents, ['a.json']);
+      expect(report.entries.map((e) => e.step), containsAll(['text.lineHeight', 'transform.fold']));
     });
 
-    test('a schema-2 document reaches schema 4 through schema 3, when decoded too', () {
+    test('a schema-2 document with an earlier spelling reaches its one spelling, when decoded too', () {
       final schema2 = {
         'roots': ['home'],
         'nodes': {
@@ -108,33 +117,34 @@ void main() {
         },
       };
       final out = migrateDocument(schema2);
-      expect(out['schema'], 4);
+      expect(out['schema'], 3);
       expect(nodeOf(out, 'b')['motion'], {'scale': 2, 'rotate': 30});
       final b = LayoutDocument.fromJson(schema2)['b']!;
       expect([b.behaviors.motion!.scale, b.behaviors.motion!.rotate], [2, 30]);
     });
 
-    test('migrate3to4 returns a schema-2 or a schema-4 document as given', () {
-      final two = {'schema': 2, 'roots': <String>[], 'nodes': <String, Object?>{}};
-      final four = {'schema': 4, 'roots': <String>[], 'nodes': <String, Object?>{}};
-      expect(identical(migrate3to4(two), two), isTrue);
-      expect(identical(migrate3to4(four), four), isTrue);
+    test('a schema-3 document is read as current schema 3: returned as given, earlier spellings and all', () {
+      final three = doc3({'b': {'type': 'box', 'scale': 2}});
+      expect(identical(migrate2to3(three), three), isTrue);
+      expect(identical(migrateDocument(three), three), isTrue);
+      expect(LayoutDocument.fromJson(three)['b']!.behaviors.motion, isNull);
     });
 
-    test('a node alone, and any JSON carrying documents, reach schema 4', () {
+    test('a node alone, and any JSON carrying schema-2 documents, reach the one spelling', () {
       expect(migrateNode({'type': 'box', 'scale': 0.5}), {'type': 'box', 'motion': {'scale': 0.5}});
-      expect(migrateNode({'type': 'box', 'flightKey': 'k'}, from: 3), {'type': 'box', 'hero': {'tag': 'k', 'flies': 'inPlace'}});
+      expect(migrateNode({'type': 'box', 'flightKey': 'k'}), {'type': 'box', 'hero': {'tag': 'k', 'flies': 'inPlace'}});
+      expect(migrateNode({'type': 'box', 'scale': 0.5}, from: 3), {'type': 'box', 'scale': 0.5});
       final out = migrateJson({
-        'schema': 3,
+        'schema': 2,
         'id': 'Chip',
-        'document': doc3({'b': {'type': 'box', 'scale': 2}}),
+        'document': {...doc3({'b': {'type': 'box', 'scale': 2}}), 'schema': 2},
       }) as Map;
-      expect(out['schema'], 4);
-      expect((out['document'] as Map)['schema'], 4);
+      expect(out['schema'], 3);
+      expect((out['document'] as Map)['schema'], 3);
       expect(nodeOf((out['document'] as Map).cast(), 'b')['motion'], {'scale': 2});
     });
 
-    test('validation notes a schema-3 document and checks it as migrated; a newer schema is reported', () {
+    test('validation reports an earlier spelling in a schema-3 document with its one spelling; a newer schema is reported', () {
       final d = validateDocument({
         'schema': 3,
         'roots': ['home'],
@@ -143,11 +153,12 @@ void main() {
           'b': {'type': 'box', 'layout': {'width': {'fill': 390}, 'height': {'fill': 844}, 'rotation': 5}, 'scale': 2},
         },
       });
-      expect(d.map((d) => '${d.code.name} ${d.severity.name}'), ['schema_outdated info']);
-      expect(validateDocument({...doc3({}), 'schema': 5}).map((d) => d.code.name), contains('schema_version'));
+      expect(d.map((d) => '${d.code.name} ${d.severity.name} ${d.suggestion}'),
+          unorderedEquals(['unknown_layout_key error motion.rotate', 'unknown_node_key error motion.scale']));
+      expect(validateDocument({...doc3({}), 'schema': 4}).map((d) => d.code.name), contains('schema_version'));
     });
 
-    test('every schema-4 step is stable: running it on its own output changes nothing', () {
+    test('every one-way step is stable: running it on its own output changes nothing', () {
       final samples = <String, Json>{
         'transform.fold': {
           'type': 'box',
@@ -158,16 +169,16 @@ void main() {
           'transitions': [{'property': 'scale', 'duration': 100}],
         },
         'hero.flight': {'type': 'box', 'flightKey': 'k', 'flight': {'duration': 300}, 'bind': {'flightKey': r'${k}'}},
-        'paths.schema4': {
+        'paths.moved': {
           'type': 'box',
           'actions': [
             {'trigger': {'type': 'click'}, 'actions': [{'type': 'setValue', 'node': 'n', 'values': [{'path': 'scale', 'value': 2}]}]},
           ],
         },
       };
-      final byId = {for (final s in schema4Steps) s.id: s};
+      final byId = {for (final s in spellingMigrationSteps) s.id: s};
       for (final e in samples.entries) {
-        final once = (migrate3to4({'schema': 3, 'nodes': {'n': e.value}}, steps: [byId[e.key]!])['nodes'] as Map)['n'] as Map;
+        final once = (oneWay({'nodes': {'n': e.value}}, steps: [byId[e.key]!])['nodes'] as Map)['n'] as Map;
         expect(jsonEncode(once), isNot(jsonEncode(e.value)), reason: '${e.key} changes its sample');
         expectStable(byId[e.key]!, once.cast());
       }
@@ -311,7 +322,7 @@ void main() {
       expect((states['pressed'] as Map)['n'], {'opacity': 0.8, 'motion': {'scale': 1.1}});
       expect((states['selected'] as Map)['n'], {'motion': {'translateY': -4}});
       expect(((n['media'] as List).single as Map)['patch'], {'motion': {'rotate': 90}});
-      expect(report.rewrites.where((e) => e.step == 'patches.schema4').length, 3);
+      expect(report.rewrites.where((e) => e.step == 'patches.moved').length, 3);
     });
 
     test('a patch for a node the document does not hold is migrated alone', () {
@@ -349,7 +360,7 @@ void main() {
         {'path': 'motion.rotate', 'value': r'${= a + 1}'},
         {'path': 'hero.tag', 'value': 'x'},
       ]);
-      final doc = migrate3to4(doc3({'n': {'type': 'box', 'motion': {'scale': 2}}}, extra: {
+      final doc = oneWay(doc3({'n': {'type': 'box', 'motion': {'scale': 2}}}, extra: {
         'conditions': {'home': [{'branches': [{'sets': [{'node': 'n', 'path': 'scale', 'value': 3}]}]}]},
       }));
       expect(jsonEncode(doc['conditions']), contains('{"node":"n","path":"motion.scale","value":6}'));
@@ -413,7 +424,7 @@ void main() {
     });
   });
 
-  group('schema 4 itself', () {
+  group('the one spelling', () {
     test('a hero is its tag while the rest is Flutter\'s default, else an object', () {
       expect(const HeroTag('a').toJson(), 'a');
       const inPlace = HeroTag('r', flies: HeroFlies.inPlace, flight: Flight(duration: 300));
@@ -422,9 +433,9 @@ void main() {
       expect(HeroTag.fromJson({'tag': 'c', 'flightShuttle': 'containerTransform'})!.flightShuttle, HeroFlightShuttle.containerTransform);
     });
 
-    test('schema 3\'s keys in a schema-4 document are reported with where they went', () {
+    test('30.0.0\'s keys in a schema-3 document are reported with where they went', () {
       final d = validateDocument({
-        'schema': 4,
+        'schema': 3,
         'roots': ['home'],
         'nodes': {
           'home': {'type': 'canvas', 'layout': {'width': 390, 'height': 844}, 'slots': {'body': 'b'}},
@@ -447,11 +458,36 @@ void main() {
       expect(d.where((x) => x.code.name == 'unknown_bind_path').single.message, contains('motion.scale'));
     });
 
+    test('a moved path in a transition, a track, a setValue or a condition, and a look set as a hero\'s flight, are reported', () {
+      final d = validateDocument(doc3({
+        'n': {
+          'type': 'box',
+          'layout': {'width': 10, 'height': 10},
+          'transitions': [{'property': 'scale', 'duration': 100}],
+          'animations': [
+            {'id': 'a', 'duration': 100, 'tracks': [{'path': 'layout.rotation', 'keyframes': [{'at': 0, 'value': 0}, {'at': 1, 'value': 9}]}]},
+          ],
+          'actions': [
+            {'trigger': {'type': 'click'}, 'actions': [{'type': 'setValue', 'node': 'n', 'values': [{'path': 'hero.flight', 'value': 'fade'}]}]},
+          ],
+        },
+      }, extra: {
+        'conditions': {'home': [{'branches': [{'set': [{'node': 'n', 'path': 'strokePath.progress', 'value': 1}]}]}]},
+      }));
+      final errors = [for (final x in d) if (x.severity == Severity.error && x.path != '/nodes/home/children') '${x.code.name} ${x.path}'];
+      expect(errors, unorderedEquals([
+        'unknown_bind_path /nodes/n/transitions/0/property',
+        'unknown_bind_path /nodes/n/animations/0/tracks/0/path',
+        'wrong_type /nodes/n/actions/0/actions/0/values/0/value',
+        'unknown_bind_path /conditions/home/0/branches/0/set/0/path',
+      ]));
+    });
+
     test('a node scale or rotation binding path set from outside is refused with what to write', () {
-      expect(schema3PathHint('scale'), contains('motion.scale'));
-      expect(schema3PathHint('layout.rotation'), contains('motion.rotate'));
-      expect(schema3PathHint('flight.duration'), contains('hero.flight.duration'));
-      expect(schema3PathHint('motion.scale'), isNull);
+      expect(movedPathHint('scale'), contains('motion.scale'));
+      expect(movedPathHint('layout.rotation'), contains('motion.rotate'));
+      expect(movedPathHint('flight.duration'), contains('hero.flight.duration'));
+      expect(movedPathHint('motion.scale'), isNull);
     });
   });
 }

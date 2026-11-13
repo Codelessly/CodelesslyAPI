@@ -18,7 +18,7 @@ A habit check-off: tapping the circle toggles `done`; its fill and scale change 
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["habit"],
   "nodes": {
     "habit": {

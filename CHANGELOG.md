@@ -1,73 +1,57 @@
-## Unreleased: schema 4
+## 30.1.0 (unreleased)
 
-**Schema 4: one Transform, one Hero, one CustomPaint.** Documents are `"schema": 4` (`kSchemaVersion`). Schema 2
-and 3 documents load and are migrated in memory (`migrate2to3`, then `migrate3to4`); nothing about a schema-3
-document's meaning changed, the fields below moved. docs/guide/13-migrating-to-schema-4.md is the authors' guide;
-docs/design/schema-4-migration-report.md the migration over the corpus (106 documents, 0 failures, 1020 rewrites:
-702 by the fold and its patches, 318 by the paint steps; nothing unconvertible; 5 behaviour changes, a box path's,
-in two m05 experiments); docs/design/01-paint-node.md, 03-motion.md and 04-drag-and-track.md ("Schema 4", "Done in
-schema 4") say what was decided and why.
+**One spelling for each concept; the schema stays 3.** Documents are still `"schema": 3` (`kSchemaVersion`), and
+schema-2 documents still load, migrated in memory by `migrate2to3`, whose last steps now give each concept that
+30.0.0 could say two ways one spelling, under Flutter's name. **30.0.0's schema-3 documents keep loading** as
+schema 3; but a schema-3 document is read as it is, not upgraded, so one written with the earlier spellings below
+must be updated once (the migration does it to schema-2 documents; validation reports each earlier spelling in a
+schema-3 document as an error naming the one to write). docs/guide/12-migrating-to-schema-3.md ("30.1.0") is the
+authors' guide; docs/design/schema-3-migration-report.md the migration over the corpus (106 documents, 0 failures,
+3502 rewrites of which 1020 by the new steps; 5 behaviour changes by the new steps, all a box path's, in two m05
+experiments).
 
-- **Breaking: the node's `scale` and `layout.rotation` are its `motion`.** Both were paint transforms
-  (`Transform.scale`, `Transform.rotate`; neither changed layout), so `motion` is the one way: `Behaviors.scale`,
-  `Layout.rotation`, `BehaviorFields.scale`, `LayoutFields.rotation`, `BindPaths.scale` and `BindPaths.rotation`
-  are gone. The migration (step `transform.fold`) multiplies the scale into `motion.scale` and adds the rotation to
-  `motion.rotate`, keeps schema 3's rotation pivot (its center moved by half an uneven margin) as a translation,
-  moves bindings (product and sum formulas), `scale`/`layout.rotation` transitions (to `motion.scale`/
-  `motion.rotate`: a transition keyed by a sub-path times it apart from the rest of the motion), tracks and
-  keyframes; a scale that changed with no transition beside a motion transition gets a `motion.scale` one with no
-  duration, so it still snaps. State and media patches (`patches.schema4`) set the moved paths explicitly at the
-  patched node's values.
-- **Breaking: `flightKey` and `flight` are the `hero`.** `HeroTag` gains `flies` (`HeroFlies.betweenScreens`,
-  Flutter's `Hero`, the default; `inPlace`, what `flightKey` did: fly in from where the node with the tag was) and
-  `flight` (how an in-place flight moves); `HeroTag.flight` (the look) is `flightShuttle`
-  (`Hero.flightShuttleBuilder`). `Behaviors.flightKey`, `Behaviors.flight`, `BehaviorFields.flightKey` and
-  `BehaviorFields.flight` are gone. Step `hero.flight`; a node with both a hero and a flight key keeps its hero and
-  the rest is kept as `legacy.*` and reported.
-- **The migration framework:** `migrate3to4`, `schema4Steps` (`nodeSteps3to4` is where a schema-4 node step is
-  appended; `patches.schema4` re-expresses patches through all of them; `movedPaths3to4`), `migrateDocument`,
-  `migrateNode`, `migrateNode3to4`, `migrateJson` (any older carrier to 4); `migrate2to3` stops at 3.
-  `MigrationScope.document` lets a node step read the document it is in; `MigrationScope.schema`. `setValue` and
-  condition paths are rewritten (`paths.schema4`); one that reaches a running app unmigrated is named by
-  `schema3PathHint` (`olderSchemaPathHint` for either older schema). `tool/migrate.dart` migrates to 4;
-  `tool/migration_corpus.dart --to 3|4` reports either migration.
-- **Validation:** `schema_outdated` (info) for schemas 2 and 3; `schema_version` for none or newer than 4. Schema
-  3's `scale`, `flightKey`, `flight` (node keys), `layout.rotation` and a string `hero.flight` in a schema-4
-  document are reported with where they went; a schema-3 bind path with the path to write.
-- **Reference:** regenerated; the animation page covers the one motion and the one hero; the examples and the
-  carriers' docs say `"schema": 4`.
-- **Breaking: `strokePath`, a box's `path`, `subpathColors` and `gradientPerSubpath` are `customPaint` and the
-  path node.** `StrokePath`, `PathUnit`, `PathCurve`, `StrokePathFields`, `strokePathType`,
-  `BehaviorFields.strokePath`, `Behaviors.strokePath`, `BoxProps.path`, `BoxProps.strokeJoin`,
-  `BoxProps.strokeMiterLimit`, `PathProps.subpathColors`, `Paint.gradientPerSubpath` and
-  `PaintFields.gradientPerSubpath` are gone (22 declared fields; the catalog's 2121 are 2099). The steps below
-  read the schema-3 keys as plain JSON; in a schema-4 document each is reported with its schema-4 form
-  (`unknown_node_key`, `unknown_prop`, `unknown_field`). `schema3PathHint` names the form of a `strokePath.*`,
-  `props.path` or `props.subpathColors` path set at run time.
-- **`paintSteps4`** (`lib/src/core/migrate/steps_paint4.dart`), the tail of `nodeSteps3to4` (`paint.patches`
-  first, so it re-expresses paint patches against the nodes before the paint node steps rewrite them;
-  `movedPaths3to4` names the paths they move):
-  `paint.patches`, `paint.strokePath` (a `path` op in `painter` or `foregroundPainter`; fractions of the box become
-  formulas of `size`, curves `Path` calls, `untilWidth` a `when` per call, `progress` `trimEnd`, `fillColor` a
-  closed op under the line), `paint.boxPath` (a `path` node), `paint.perShape` (one op per color, or per shape for a
-  gradient). What has no exact form is kept as `legacy.<name>` and reported: the draw-on animation
-  (`legacy.strokePath.draw`), and per-shape paints between shadows or beside a gradient laid out across the box.
-  Over the schema-4 report's corpus (106 documents): 140 rewrites by `paint.strokePath` in 7 documents, 133 by
-  `paint.boxPath` in 24, 45 by `paint.perShape` in 1; nothing kept; 5 behaviour changes by `paint.boxPath`, in two
-  m05 experiments (a logo mark's path past its box, a bound path). Rendered before and after, every affected node draws the same pixels except a box path's fill,
-  whose edge's anti-aliasing differs by at most 4/255 (the box clipped a rectangle to the path; the path node fills
-  the path), and a box path reaching outside its box, now filled there too (reported).
-- **`customPaint`: a path op's `commands`**, Flutter's `Path` builder calls (`moveTo`, `lineTo`,
-  `quadraticBezierTo`, `cubicTo`, `close`), each number a literal or a formula, each call with an optional `when`
-  (`PathCommand`, `PathOpFields.commands`).
-- **`PathProps.strokeMiterLimit`** (`Paint.strokeMiterLimit`), so a box path's limit carries over.
-- **Validation:** a custom paint's ops may read `size`, and its `viewBox` may be `[width, height]` (as the decoder
-  reads and writes it), so migrated documents gain no errors. A `legacy.<name>` a step keeps is `legacy_value`
-  (warning), held in `Node.extra`, never drawn.
-- The plot chart's Cartesian props stay: they are the chart's general features (series, grid steps, origin axes,
-  the selection's guides and tags), not one app's (docs/design/01-paint-node.md, "Schema 4").
+| 30.0.0 (schema 3) | 30.1.0 (schema 3) |
+|---|---|
+| a node's `"scale": s` | `"motion": {"scale": s × the motion's own}` |
+| `"layout": {"rotation": r}` | `"motion": {"rotate": r + the motion's own}` (an uneven margin's pivot offset as `motion.translateX/Y`) |
+| `flightKey`, `flight` | `"hero": {"tag": ..., "flies": "inPlace", "flight": {...}}` |
+| `"hero": {"flight": "<look>"}` | `"hero": {"flightShuttle": "<look>"}` |
+| `"strokePath": {...}` | a `customPaint` `path` op (`points` or `commands`, `trimEnd` for the progress) |
+| a box with `props.path`, `strokeJoin`, `strokeMiterLimit` | a `path` node, the path as `props.data` |
+| a path's `subpathColors` | one `customPaint` `path` op per color |
+| a paint's `gradientPerSubpath` | one `customPaint` `path` op per shape, the gradient as its paint's `shader` |
+| binding, transition, track, `setValue` and condition paths `scale`, `layout.rotation`, `flightKey`, `flight.*`, `hero.flight` (a look), `strokePath.*`, `props.path`, `props.subpathColors` | `motion.scale`, `motion.rotate`, `hero.tag`, `hero.flight.*`, `hero.flightShuttle`, the custom paint op's fields, `props.data` |
 
-## Unreleased
+- **Breaking, Dart: fields removed.** `Behaviors.scale`, `Layout.rotation`, `BehaviorFields.scale`,
+  `LayoutFields.rotation`, `BindPaths.scale`, `BindPaths.rotation`; `Behaviors.flightKey`, `Behaviors.flight`,
+  `BehaviorFields.flightKey`, `BehaviorFields.flight` (`HeroTag` gains `flies`, `HeroFlies` and `flight`; its look
+  is `flightShuttle`); `StrokePath`, `PathUnit`, `PathCurve`, `StrokePathFields`, `strokePathType`,
+  `BehaviorFields.strokePath`, `Behaviors.strokePath`; `BoxProps.path`, `BoxProps.strokeJoin`,
+  `BoxProps.strokeMiterLimit`; `PathProps.subpathColors`; `Paint.gradientPerSubpath`,
+  `PaintFields.gradientPerSubpath`; the `deprecated_key` diagnostic. The catalog's declared fields go from 2121
+  to 2099 for the paint fields alone.
+- **Added:** a `customPaint` path op's `commands` (Flutter's `Path` calls `moveTo`, `lineTo`,
+  `quadraticBezierTo`, `cubicTo`, `close`, each number a literal or a formula, each call with an optional `when`;
+  `PathCommand`, `PathOpFields.commands`); `PathProps.strokeMiterLimit`; `migrateDocument`, `migrateNode` (any
+  schema to 3) and `migrateJson`; `MigrationScope.document` (a node step reads the document it is in);
+  `movedPathHint` and `olderSchemaPathHint` (what to write for a moved path set at run time).
+- **The migration's new steps** (`steps_spellings.dart`, `steps_transform.dart`, `steps_hero.dart`,
+  `steps_paint.dart`), after schema 2's: `transform.fold` (scale multiplied into `motion.scale`, rotation added to
+  `motion.rotate`, the pivot kept, bindings, transitions, tracks and keyframes moved), `hero.flight`, `paths.moved`
+  (`setValue` and condition paths), the paint steps (`paint.patches`, `paint.strokePath`, `paint.boxPath`,
+  `paint.perShape`; what has no exact form is kept as `legacy.<name>` and reported, e.g. the draw-on animation as
+  `legacy.strokePath.draw`), then `patches.moved` (state and media patches). Rendered before and after, every
+  affected corpus node draws the same pixels except a box path's filled edge (at most 4/255) and a box path
+  reaching outside its box, now filled there too (reported).
+- **Validation:** an earlier spelling in a schema-3 document is an error naming the one spelling
+  (`unknown_node_key`, `unknown_layout_key`, `unknown_prop`, `unknown_field`, `unknown_bind_path` for a binding,
+  transition, track, `setValue` or condition path, `wrong_type` for a look written as `hero.flight`). A custom
+  paint's ops may read `size`, and its `viewBox` may be `[width, height]` (as the decoder reads and writes it). A
+  `legacy.<name>` is `legacy_value` (a warning), held in `Node.extra`, never drawn.
+- The plot chart's Cartesian props stay: they are the chart's general features (docs/design/01-paint-node.md,
+  "30.1.0").
+- **Reference:** regenerated; one spelling for each concept throughout.
+
 
 **The reference for authors is one base plus links.** `docs/reference/STARTER.md` is the base an agent reads in
 full (the document and the flat node map; layout, decoration, text with a theme; the base node types and which

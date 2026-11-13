@@ -1,5 +1,5 @@
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["board"],
   "nodes": {
     "board": {"type": "canvas", "slots": {"body": "stage"}, "layout": {"width": 400, "height": 300}},

@@ -1,5 +1,5 @@
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["deco"],
   "nodes": {
     "deco": {"type": "canvas", "slots": {"body": "row"}, "layout": {"width": 520, "height": 200},

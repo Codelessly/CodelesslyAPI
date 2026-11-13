@@ -15,7 +15,7 @@ A goal's progress as a bar bound to a variable, and a week as a bar chart:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["stats"],
   "nodes": {
     "stats": {

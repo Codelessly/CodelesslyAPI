@@ -584,10 +584,10 @@ Still as above (not deprecated, not done): the track's second coordinate system 
 `input: angular`, `transitions.track`, the draggable's feedback look, list insertion on drop targets,
 transform handles.
 
-## Done in schema 4: one shared element, Flutter's `Hero`
+## Done in 30.1.0: one shared element, Flutter's `Hero`
 
-*codelessly_api unreleased, schema 4 (`migrate3to4`, step `hero.flight`).* The README lists `Hero` among this
-document's behaviors; schema 3 had two of it.
+*codelessly_api 30.1.0, still schema 3: step `hero.flight`, among the one-way steps that end `migrate2to3`.* The
+README lists `Hero` among this document's behaviors; 30.0.0 had two of it.
 
 **What each did.** `hero` (a tag, or `{tag, flight, placeholder}`) was Flutter's `Hero`: while a navigation plays,
 the SDK finds the marks with the same tag on the screen that goes and the one that comes
@@ -602,18 +602,18 @@ instead of a navigation. Flutter's `Hero` has only the navigation; the nearest p
 `LocalHero`. Two keys for one concept, and two unrelated meanings of `flight` (an enum on the hero, an object on
 the node).
 
-**The decision.** One `hero`, under Flutter's name and shape: `tag`; `flightShuttle` (schema 3's `hero.flight`:
+**The decision.** One `hero`, under Flutter's name and shape: `tag`; `flightShuttle` (30.0.0's `hero.flight`:
 Flutter's `Hero.flightShuttleBuilder`); `placeholder`; and what Flutter lacks as a generic option on it: `flies`,
 `betweenScreens` (the default, Flutter's) or `inPlace` (the flight key's trigger), with `flight` saying how an
 in-place flight moves (on a spring without one). `flightKey` and the node's `flight` are gone. The two kinds find
 heroes of their own kind only: a navigation doesn't fly an in-place hero, and an in-place hero doesn't fly from a
-navigation hero, exactly as schema 3's two mechanisms didn't meet.
+navigation hero, exactly as 30.0.0's two mechanisms didn't meet.
 
 ```json
-// schema 3
+// 30.0.0
 {"type": "text", "flightKey": "react", "flight": {"duration": 720, "lift": 110}, "bind": {"flightKey": "react-${emoji}"}}
 {"type": "box", "hero": {"tag": "avatar", "flight": "morph"}}
-// schema 4
+// 30.1.0
 {"type": "text", "hero": {"tag": "react", "flies": "inPlace", "flight": {"duration": 720, "lift": 110}},
  "bind": {"hero.tag": "react-${emoji}"}}
 {"type": "box", "hero": {"tag": "avatar", "flightShuttle": "morph"}}
@@ -623,8 +623,8 @@ A plain `"hero": "avatar"` is unchanged. Bound `flightKey` binds `hero.tag`, bou
 `hero.flight.*`, bound `hero.flight` binds `hero.flightShuttle`; `setValue` and condition paths likewise. A node
 with both a hero and a flight key (one tag can fly one way) keeps its hero; its flight key and flight are kept as
 `legacy.flightKey` / `legacy.flight` and reported (none in the corpus). A flight with no key never flew and is
-dropped. Validation reports a schema-3 `flightKey`, `flight` or string `hero.flight` in a schema-4 document with
-where it went.
+dropped. Validation reports 30.0.0's `flightKey`, `flight` or a string `hero.flight` in a schema-3 document as an
+error naming where it went.
 
 **Over the corpus:** 10 heroes' `flight` look became `flightShuttle` (`containerTransform`: 9 in cheers, 1 in the SDK's strata_tabs fixture); no
 document holds a `flightKey` (cheers_v2 sets it in its generator, `editor/screens/wall.py`, whose output is not in

@@ -445,16 +445,17 @@ a bound `motion.originX/Y` binds `motion.alignment`. **Removed** (dropped by the
 `legacy.<name>` and reported): `Transition.arc` (lineup), `PathOrient.uprightFlip` (now `upright`;
 lineworks_v2), `PathFollow.pacing`/`focus` (orrery).
 
-**Not done in schema 3: folding the node `scale` and `layout.rotation` into `motion`**: done in schema 4 (below).
+**Not done in schema 3 (30.0.0): folding the node `scale` and `layout.rotation` into `motion`**: done in 30.1.0 (below).
 The survey that preceded it, kept for its numbers: over the 106-document corpus, 330 state patches set the node
 `scale`, none beside a state `motion.scale` on the same target; 6 nodes have their own `motion.scale`; 172 have a
 `layout.rotation` (6 bound), none with an off-centre or 3D motion. The blockers it named were (1) separate
 `transitions` timings for `scale` and `motion`, (2) the pivots (the node `scale` about the centre, `motion.scale`
 about `motion.alignment`), (3) the editor reading `layout.rotation`. How each was settled is below.
 
-## Done in schema 4: the node's scale and rotation are its motion
+## Done in 30.1.0: the node's scale and rotation are its motion
 
-*codelessly_api unreleased, schema 4 (`migrate3to4`, step `transform.fold`).*
+*codelessly_api 30.1.0, still schema 3: step `transform.fold`, among the one-way steps that end `migrate2to3`. A
+document marked schema 3 is read as it is; 30.0.0's spellings in one are validation errors naming the one to write.*
 
 **What each did.** In the SDK (30.0.0) the node `scale` was a `RenderPose` layer of its own (`render/behaviors.dart`,
 `Matrix4.diagonal3Values(s, s, 1)` about the centre) and `layout.rotation` a `RenderTransform` of its own
@@ -472,12 +473,12 @@ the concept `motion` already is, so both fold into it (rule 4: one way to do eac
 the one way. A turn that takes its turned size in the layout (`RotatedBox`) has no counterpart, as before.
 
 ```json
-// schema 3
+// 30.0.0
 {"type": "box", "scale": 1.5, "motion": {"scale": 2, "translateY": -4},
  "layout": {"width": 80, "height": 80, "rotation": -10, "margin": [0, 6, 14, 0]},
  "states": {"pressed": {"card": {"scale": 0.97}}},
  "transitions": [{"property": "motion", "duration": 240}, {"property": "scale", "duration": 120}]}
-// schema 4 (translations rounded here; the migration keeps 12 decimals)
+// 30.1.0 (translations rounded here; the migration keeps 12 decimals)
 {"type": "box", "motion": {"scale": 3, "translateY": -7.5099, "rotate": -10, "translateX": -1.8819},
  "layout": {"width": 80, "height": 80, "margin": [0, 6, 14, 0]},
  "states": {"pressed": {"card": {"motion": {"scale": 1.94, "translateY": -6.2697, "translateX": -1.2169}}}},
@@ -494,7 +495,7 @@ How the three blockers were settled:
    and a prefix's "move as one" restart leaves an entry of its own alone. A `scale` transition becomes a
    `motion.scale` one (a `layout.rotation` one `motion.rotate`). A scale that changes (bound, patched by a state or
    media rule, set by `setValue` or a condition) with no transition of its own beside a `motion` (or `*`)
-   transition gets `{"property": "motion.scale"}` (no duration): it snapped in schema 3 and still does. Only when
+   transition gets `{"property": "motion.scale"}` (no duration): it snapped in 30.0.0 and still does. Only when
    both the motion's own scale and the node scale change, timed differently, does one timing have to win; that is
    reported.
 2. **Pivot.** `motion.alignment`'s default is the centre, the node scale's pivot. A motion turned about another
@@ -510,28 +511,28 @@ bound `motion.scale` beside a static node scale) binds `motion.scale` to the pro
 (`${= (f) * 2}`); a state patch `{"scale": p}` is `{"motion": {"scale": p × own}}` (with the pivot offset at that
 scale, when the margin is uneven), set explicitly so a pressed
 `1` still wins over a hovered `1.05`; tracks and keyframes on the moved paths are moved and multiplied (added);
-`setValue` and condition paths are rewritten (`paths.schema4`), and one that reaches a running app unmigrated is
-refused with the path to write (`schema3PathHint`). A state style that moves a node keeps its motion layer at rest
+`setValue` and condition paths are rewritten (`paths.moved`), and one that reaches a running app unmigrated is
+refused with the path to write (`movedPathHint`). A state style that moves a node keeps its motion layer at rest
 in the SDK, as the scale layer was kept (a layer added mid-press lost the tap).
 
-**Over the corpus** (docs/design/schema-4-migration-report.md: 106 documents, 0 failures, a fixed point, no new
+**Over the corpus** (docs/design/schema-3-migration-report.md, "30.1.0's one-way steps": 106 documents, 0 failures, a fixed point, no new
 validation errors): 172 nodes' `layout.rotation` became `motion.rotate`, 3 of them (restaurant-B's menu accents,
 an uneven margin) with the pivot's offset as a translation; 6 bound rotations (reference-site's FAQ chevrons,
 petri's dial) bind `motion.rotate`; 6 `scale` transitions (the SDK's event_desktop fixtures) are `motion.scale`
-ones; 330 state patches' `scale` is `motion.scale` (`patches.schema4`). Nothing unconvertible, no behaviour
+ones; 330 state patches' `scale` is `motion.scale` (`patches.moved`). Nothing unconvertible, no behaviour
 change. Those 330 patches target `self` or `@name`, ids that name no node in their documents: they were inert in
-schema 3 (`StateStyles.patchFor` matches node ids only) and are inert in schema 4; they are migrated mechanically.
+30.0.0 (`StateStyles.patchFor` matches node ids only) and still are; they are migrated mechanically.
 
 **Proof of no visual change.** The SDK's parity goldens are unchanged (every set identical, `[static]` 99.65%
 before and after). 16 corpus documents holding a rotation, a bound rotation, a state scale or a hero (petri,
 restaurant-B's menu, five of cheers' layouts, six of lineworks', ninefold, rota, reference-site's home), rendered by
 the render command at three sizes with codelessly_sdk 30.0.0 and with this one: 48 of 48 PNGs pixel-identical. A
-schema-3 page of real state scales and rotations (a hovered scale beside an easing motion transition; a selected
+30.0.0 page of real state scales and rotations (a hovered scale beside an easing motion transition; a selected
 scale and rotation over a node scale, a motion scale and an uneven margin; bound scale and rotation over a motion
 scale and rotate), rendered at rest, hovered and selected: 3 of 3 pixel-identical. The SDK test
-test/motion/schema4_transform_test.dart pins the corners 30.0.0 drew for a scale, a motion scale and a rotation
+test/motion/fold_transform_test.dart pins the corners 30.0.0 drew for a scale, a motion scale and a rotation
 with an uneven margin, and that a state's scale still snaps beside an easing motion; the API test
-test/migrate4_steps_test.dart checks the drawn corners of 200 random combinations against schema 3's layer model.
+test/migrate_spellings_test.dart checks the drawn corners of 200 random combinations against 30.0.0's layer model.
 
 **Inexact, and reported:** a node scale or rotation under an off-centre motion alignment, a 3D motion turn, a
 shimmer, a flip or a tilt (they sat inside those; now outside); a rotation or margin set at run time with an
