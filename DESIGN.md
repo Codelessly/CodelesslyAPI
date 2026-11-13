@@ -1,6 +1,6 @@
 # Codelessly API and SDK: design
 
-**Packages:** `codelessly_api` 21.x, `codelessly_sdk` 21.x
+**Packages:** `codelessly_api` 24.x, `codelessly_sdk` 24.x
 
 Both packages are built on the architecture the canvas prototype proved:
 immutable nodes with no layout results in them, rendered straight into
@@ -30,8 +30,10 @@ The editor builds on all three; the API and SDK know nothing about it.
   Firestore document keeps its nodes gzipped and base64 encoded in
   `compressedNodes` (`{"nodes": {...}}`). A document in any other format
   fails to load with a clear message (§5.4).
-* **Decoding is total.** Unknown keys round-trip in `extra`. Unknown node types
-  decode as `UnknownNode` (they render as an empty box of their size). Bad
+* **Decoding is total.** Unknown keys round-trip in `extra`. A node type no
+  declaration knows decodes as a `Node` with that type, its props kept in
+  `Props.unknown` (the SDK renders it with the recipe the app gives for the
+  type, `CodelesslyConfig.recipes`, else as an empty box of its size). Bad
   values fall back to the default. A malformed field never throws.
 * **Encoding is sparse.** A field equal to its Flutter default is omitted.
 
@@ -219,6 +221,11 @@ flat in the node's JSON. Every key is optional and sparse.
 | `transformGesture` | `TransformGesture` | Pinch, pan and rotate (`InteractiveViewer` and more) with `physics`, `bounds`, wheel and double-tap zoom, two-way pose variables and `handles`. `zoomable` is its first form. |
 | `flip`, `tilt` | `FlipCard`, `Tilt` | A two-sided card turning over (first child front, second back; a runtime 3D turn, not the editor's mirror); a 3D tilt toward the pointer. |
 | `reveal`, `strokePath`, `effectAnimations`, `particles`, `textDirection` | | Scroll into view; a line through points; one-shot effects; confetti; `Directionality`. |
+| `flight` | `Flight` | How a `flightKey` node flies in from where the node with the same key was: a spring, or a curve over a duration with lift, swell, turns and a trail. |
+| `typewriter` | `Typewriter` | A text node typing its text out (the layout is the whole text's; only what's typed is painted). |
+| `sticky` | `true` or `{offset}` | Pinned at its scrolling view's leading edge while its parent is in view (`SliverPersistentHeader(pinned)`); `${sticky.stuck}`. |
+| `viewProgress` | `ViewProgress` | `${view.progress}`: how far the node has scrolled through the viewport, optionally written to a variable. |
+| `measure` | `Measure` | The node's laid-out box, written to a variable as layout changes. |
 
 `strokePath.progress` is a bindable fraction (0–1, default 1). It reveals the stroke by path length; dash patterns are clipped to that revealed prefix.
 
@@ -455,7 +462,8 @@ effect id for the item with that id, and `*` for every item.
 | `transformGesture.<pose>`, `flip.flipped` | the pose from data (`x`, `y`, `scale`, `rotation`...), `enabled`; the card's face |
 | `hero.tag` | a shared element's tag (`pass-${item.id}`; the hero is then always the object form) |
 | `effectAnimations[i].playKey`, `effectAnimations[i].delay`, `particles.playKey` | a one-shot effect's cue (it plays each time the value changes, not when it first shows) and delay; the particles' cue |
-| `selected`, `disabled`, `semantics.*`, `enabled` | reserved: kept, not applied yet |
+| `selected`, `disabled` | bool: true puts the node in `WidgetState.selected` / `disabled`, so its `states` styles patch it and its descendants |
+| `semantics.*`, `enabled` | reserved: kept, not applied yet |
 
 Values are read loosely (`"12"` is a number, `1` true,
 `"#F00F00"` a color); a value that can't be read leaves the property as it
@@ -527,7 +535,9 @@ what's left out. Every action can be off
 (`enabled: false`), not awaited (`nonBlocking`), or run only while a
 predicate holds (`when`, §5.1's `Predicate`). Text fields are expressions;
 `${result}` is what the previous action gave (the trigger's event first).
-An unknown type decodes as `UnknownAction` and round-trips.
+An unknown type decodes as `UnknownAction` and round-trips; the SDK runs it
+with the handler the app gives for the type (`CodelesslyActions.handlers`),
+else skips it.
 
 **Scripts** (`ScriptDef`, `lib/src/scripts.dart`): JavaScript a layout
 runs, in its document's `scripts` list (project scripts, then page scripts
@@ -696,5 +706,5 @@ the fixtures.
 
 ## 7. Release
 
-The packages are released as `codelessly_api` and `codelessly_sdk` 21.x, from each
+The packages are released as `codelessly_api` and `codelessly_sdk` 24.x, from each
 repository's root.
