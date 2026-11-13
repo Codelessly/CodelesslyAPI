@@ -4,7 +4,7 @@
 // they describe everything a node holds, so a properties panel, docs or
 // codegen read one kind of declaration for all of it (see PropType).
 //
-// The models keep their own fromJson/toJson; test/value_fields_test.dart
+// The models keep their own fromJson/toJson; test/document/declared_fields_test.dart
 // proves each declaration matches its model's JSON.
 import 'decoration.dart';
 import 'json.dart';

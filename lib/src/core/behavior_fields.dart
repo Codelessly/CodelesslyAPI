@@ -4,7 +4,7 @@
 // properties panel builds the behavior sections from these alone.
 //
 // The models keep their own fromJson/toJson (behaviors.dart); the codecs
-// here call them, and test/value_fields_test.dart proves each declaration
+// here call them, and test/document/declared_fields_test.dart proves each declaration
 // matches the model's JSON. Durations are whole milliseconds.
 import 'behaviors.dart';
 import 'custom_paint.dart' show CustomPaint;
