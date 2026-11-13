@@ -1,0 +1,26 @@
+{
+  "schema": 2,
+  "roots": ["home-mobile", "home-desktop"],
+  "nodes": {
+    "home-mobile": {"type": "canvas", "name": "Home", "props": {"screen": "home", "breakpoint": "mobile"},
+                    "slots": {"body": "m-page"}, "layout": {"width": 390, "height": 844},
+                    "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "m-page": {"type": "column", "children": ["m-title", "m-size"],
+               "layout": {"width": {"fill": 390}, "height": {"fill": 844}, "padding": 24},
+               "props": {"crossAxisAlignment": "start", "spacing": 8}},
+    "m-title": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 32}},
+                "props": {"text": "Stacked for phones", "style": {"fontSize": 24, "fontWeight": 700, "color": "#FF111827"}}},
+    "m-size": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+               "props": {"text": "${screen.breakpoint}: ${screen.width} px wide", "style": {"fontSize": 14, "color": "#FF6B7280"}}},
+    "home-desktop": {"type": "canvas", "name": "Home", "props": {"screen": "home", "breakpoint": "desktop"},
+                     "slots": {"body": "d-page"}, "layout": {"width": 1440, "height": 900},
+                     "decoration": {"fills": [{"color": "#FFF3F4F6"}]}},
+    "d-page": {"type": "row", "children": ["d-title", "d-size"],
+               "layout": {"width": {"fill": 1440}, "height": {"hug": 120}, "padding": 48},
+               "props": {"mainAxisAlignment": "spaceBetween"}},
+    "d-title": {"type": "text", "layout": {"width": {"hug": 400}, "height": {"hug": 48}},
+                "props": {"text": "Side by side on desktops", "style": {"fontSize": 40, "fontWeight": 700, "color": "#FF111827"}}},
+    "d-size": {"type": "text", "layout": {"width": {"hug": 200}, "height": {"hug": 20}},
+               "props": {"text": "${screen.breakpoint}: ${screen.width} px wide", "style": {"fontSize": 14, "color": "#FF6B7280"}}}
+  }
+}

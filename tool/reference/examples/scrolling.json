@@ -1,0 +1,17 @@
+{
+  "schema": 2,
+  "roots": ["article"],
+  "nodes": {
+    "article": {"type": "canvas", "slots": {"body": "scroller"}, "layout": {"width": 390, "height": 844},
+                "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "scroller": {"type": "column", "children": ["header", "p1", "p2", "p3"],
+                 "layout": {"width": {"fill": 390}, "height": {"fill": 844}, "padding": 24},
+                 "props": {"scrollable": true, "spacing": 16, "crossAxisAlignment": "start"}},
+    "header": {"type": "box", "layout": {"width": {"fill": 342}, "height": 400},
+               "decoration": {"fills": [{"color": "#FFDBEAFE"}], "radius": 16}},
+    "p1": {"type": "box", "layout": {"width": {"fill": 342}, "height": 300}, "decoration": {"fills": [{"color": "#FFFDE68A"}], "radius": 16}},
+    "p2": {"type": "box", "layout": {"width": {"fill": 342}, "height": 300}, "decoration": {"fills": [{"color": "#FFBBF7D0"}], "radius": 16}},
+    "p3": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+           "props": {"text": "The end of the page.", "style": {"fontSize": 16, "color": "#FF111827"}}}
+  }
+}
