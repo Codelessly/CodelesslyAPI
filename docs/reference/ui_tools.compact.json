@@ -23,7 +23,8 @@
                   "move",
                   "remove",
                   "vars",
-                  "roots"
+                  "roots",
+                  "scripts"
                 ]
               },
               "id": {
