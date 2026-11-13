@@ -10,7 +10,7 @@ import 'dart:convert';
 import 'package:meta/meta.dart';
 
 import 'action_fields.dart';
-import 'behaviors.dart' show AnimationCurve, Behaviors, DragDirection, Spring;
+import 'behaviors.dart' show AnimationCurve, DragDirection, Spring;
 import 'catalog.dart';
 import 'conditions.dart';
 import 'props.dart' show PropDef, Props;
@@ -84,16 +84,7 @@ abstract base class ActionDef {
     if (m == null || type == null || type.isEmpty) return null;
     final c = catalog ?? Catalog.current;
     final spec = c.action(type);
-    if (spec == null) {
-      // A legacy type of a declared one (playAnimation, animateVariable:
-      // animate; controlDrag: controlTrack, controlDismissible,
-      // controlTransform) reads as it; it is never written.
-      final legacy = _legacyDecoders[type];
-      if (legacy != null && c.action(_legacyNeeds[type]!) != null) {
-        return Catalog.run(c, () => legacy(m, ActionCommon(m, catalog: c)));
-      }
-      return UnknownAction(type, m);
-    }
+    if (spec == null) return UnknownAction(type, m);
     return Catalog.run(c, () {
       final common = ActionCommon(m, catalog: c);
       return spec.decode?.call(m, common) ?? DeclaredAction(spec, m, common);
@@ -130,22 +121,6 @@ sealed class CoreAction extends ActionDef {
 /// The fields every action has.
 typedef _Common = ActionCommon;
 
-typedef _Decoder = ActionDef Function(Json m, _Common c);
-
-/// Legacy action types the decoder reads as a current one (never written).
-final Map<String, _Decoder> _legacyDecoders = {
-  'playAnimation': AnimateAction._fromPlayAnimation,
-  'animateVariable': AnimateAction._fromAnimateVariable,
-  'controlDrag': _fromControlDrag,
-};
-
-/// The type a legacy type needs declared to be read.
-const Map<String, String> _legacyNeeds = {
-  'playAnimation': AnimateAction.typeName,
-  'animateVariable': AnimateAction.typeName,
-  'controlDrag': ControlTrackAction.typeName,
-};
-
 // --- reading helpers -------------------------------------------------------------
 
 String _s(Json m, String k, [String def = '']) => switch (m[k]) {
@@ -163,7 +138,6 @@ T _e<T extends Enum>(List<T> values, Json m, String k, T def) => readEnum(values
 List<ActionDef> _list(Json m, String k) => ActionDef.listFromJson(m[k]);
 Json _map(Json m, String k) => readMap(m[k]) ?? const {};
 List<Json> _actionsJson(List<ActionDef> l) => [for (final a in l) a.toJson()];
-AnimationCurve _curve(Json m, String k, AnimationCurve def) => AnimationCurve.parse(m[k]) ?? def;
 
 // --- navigation ----------------------------------------------------------------
 
@@ -328,7 +302,6 @@ final class OpenModalAction extends CoreAction {
     this.barrierDismissible = true,
     this.barrierColor,
     this.barrierBlur = 0,
-    this.showCloseButton = false,
     this.showDragHandle = false,
     this.alignment = const [0, 0],
     this.anchor = ModalAnchor.none,
@@ -343,7 +316,6 @@ final class OpenModalAction extends CoreAction {
     this.sheetRadius,
     this.sheetBelow = '',
     this.maxHeightFactor = 1,
-    this.fullHeight = false,
     this.cover = false,
     this.enterScale = 1,
     this.routeTransition,
@@ -364,7 +336,7 @@ final class OpenModalAction extends CoreAction {
   /// Null: the default scrim (`#8A000000`).
   final Color? barrierColor;
   final double barrierBlur;
-  final bool showCloseButton, showDragHandle;
+  final bool showDragHandle;
 
   /// A dialog's alignment in the screen, `[x, y]` (-1 to 1).
   final List<double> alignment;
@@ -408,7 +380,6 @@ final class OpenModalAction extends CoreAction {
   double sheetBelowWidthIn(Breakpoints breakpoints) =>
       breakpoints.byId(sheetBelow)?.minWidth ?? (breakpoints.length > 1 ? breakpoints.list[1].minWidth : 0);
   final double maxHeightFactor;
-  final bool fullHeight;
 
   /// A dialog that covers the screen (inside [insets]): its screen fills it
   /// and is laid out at that size, so its breakpoint and responsive layouts
@@ -429,7 +400,6 @@ final class OpenModalAction extends CoreAction {
     barrierDismissible: _b(m, 'barrierDismissible', true),
     barrierColor: Color.fromJson(m['barrierColor']),
     barrierBlur: _d(m, 'barrierBlur', 0),
-    showCloseButton: _b(m, 'showCloseButton', false),
     showDragHandle: _b(m, 'showDragHandle', false),
     alignment: _doubles(m['alignment'], 2) ?? const [0, 0],
     anchor: _e(ModalAnchor.values, m, 'anchor', ModalAnchor.none),
@@ -444,7 +414,6 @@ final class OpenModalAction extends CoreAction {
     sheetRadius: _dOrNull(m, 'sheetRadius'),
     sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
-    fullHeight: _b(m, 'fullHeight', false),
     cover: _b(m, 'cover', false),
     enterScale: _d(m, 'enterScale', 1),
     routeTransition: RouteTransition.fromJson(m['routeTransition']),
@@ -461,7 +430,6 @@ final class OpenModalAction extends CoreAction {
     if (!barrierDismissible) 'barrierDismissible': false,
     'barrierColor': ?barrierColor?.toJson(),
     if (barrierBlur != 0) 'barrierBlur': writeDouble(barrierBlur),
-    if (showCloseButton) 'showCloseButton': true,
     if (showDragHandle) 'showDragHandle': true,
     if (alignment.any((v) => v != 0)) 'alignment': [for (final v in alignment) writeDouble(v)],
     if (anchor != ModalAnchor.none) 'anchor': anchor.name,
@@ -476,7 +444,6 @@ final class OpenModalAction extends CoreAction {
     if (sheetRadius case final double r) 'sheetRadius': writeDouble(r),
     if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
-    if (fullHeight) 'fullHeight': true,
     if (cover) 'cover': true,
     if (enterScale != 1) 'enterScale': writeDouble(enterScale),
     'routeTransition': ?routeTransition?.toJson(),
@@ -713,15 +680,12 @@ final class ValueWrite {
 
 /// Changes variable [variable] (of the screen, or the app): [write]. JSON:
 /// `{"type": "setVariable", "variable": "count", "op": "add", "value": "1"}`.
-/// A computed variable can't be set. A number can glide to its new value
-/// ([animateMs], [curve]): the variable changes every frame (what's bound
-/// to it moves with it), and the chain goes on when it arrives.
+/// A computed variable can't be set. To glide a number to a new value,
+/// [AnimateAction] it (`animateTo`).
 final class SetVariableAction extends CoreAction {
   const SetVariableAction({
     this.variable = '',
     this.write = const ValueWrite(),
-    this.animateMs = '',
-    this.curve = AnimationCurve.linear,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -736,23 +700,9 @@ final class SetVariableAction extends CoreAction {
   final String variable;
   final ValueWrite write;
 
-  /// A number: milliseconds to glide to the new value (a number or an
-  /// expression); empty or 0 sets it at once.
-  final String animateMs;
-
-  /// The easing of an [animateMs] glide.
-  final AnimationCurve curve;
-
-  /// Reads one; a legacy glide (`animateMs` on a `set`, `add` or `subtract`
-  /// of a variable by a value it can read as a formula) as the
-  /// `animate` it is: `animateTo` the new value over that time on [curve].
-  static ActionDef _fromJson(Json m, _Common c) => AnimateAction._fromGlide(m, c) ?? _fromSet(m, c);
-
-  static SetVariableAction _fromSet(Json m, _Common c) => SetVariableAction(
+  static SetVariableAction _fromJson(Json m, _Common c) => SetVariableAction(
     variable: _s(m, 'variable'),
     write: ValueWrite.fromJson(m),
-    animateMs: _s(m, 'animateMs').trim() == '0' ? '' : _s(m, 'animateMs'),
-    curve: _curve(m, 'curve', AnimationCurve.linear),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -762,8 +712,6 @@ final class SetVariableAction extends CoreAction {
   Json get _fields => {
     'variable': variable,
     ...write.toJson(),
-    if (animateMs.isNotEmpty) 'animateMs': animateMs,
-    if (curve != AnimationCurve.linear) 'curve': curve.name,
   };
 }
 
@@ -1228,7 +1176,7 @@ final class FocusAction extends CoreAction {
 enum TrackCommand { step, animateTo }
 
 /// Turns the [Track] of node [node] (several ids: comma-separated, the
-/// first on screen takes it). The legacy `controlDrag` `step` reads as it.
+/// first on screen takes it).
 final class ControlTrackAction extends CoreAction {
   const ControlTrackAction({
     this.node = '',
@@ -1282,8 +1230,7 @@ final class ControlTrackAction extends CoreAction {
 enum DismissCommand { dismiss, returnFrom, reset, shake }
 
 /// Dismisses, brings back or resets node [node] (several ids:
-/// comma-separated). The legacy `controlDrag` `fling`, `returnFrom` and
-/// `shake` read as it.
+/// comma-separated).
 final class ControlDismissibleAction extends CoreAction {
   const ControlDismissibleAction({
     this.node = '',
@@ -1321,16 +1268,14 @@ final class ControlDismissibleAction extends CoreAction {
 
 /// What a [ControlTransformAction] does to a [TransformGesture] (a map, a
 /// photo; `transformationController.value = ...`): [reset] springs it to its
-/// rest pose (on a node without one, its dismissible or pan: the legacy
-/// `controlDrag` `reset`, whose target JSON can't tell); [scaleBy] scales it
+/// rest pose (on a node without one, its dismissible or pan); [scaleBy] scales it
 /// by [ControlTransformAction.value] (a factor: `1.5` in, `0.67` out) about
 /// the middle of what its viewport shows; [animateTo] springs it to the pose
 /// [ControlTransformAction.value] gives (`{x, y, scale, rotation}`, keys left
 /// out kept: "fit to route").
 enum TransformCommand { reset, scaleBy, animateTo }
 
-/// Resets, zooms or poses the transform gesture of node [node]. The legacy
-/// `controlDrag` `reset`, `zoom` and `pose` read as it.
+/// Resets, zooms or poses the transform gesture of node [node].
 final class ControlTransformAction extends CoreAction {
   const ControlTransformAction({
     this.node = '',
@@ -1366,29 +1311,6 @@ final class ControlTransformAction extends CoreAction {
     'node': node,
     if (command != TransformCommand.reset) 'command': command.name,
     if (value.isNotEmpty) 'value': value,
-  };
-}
-
-/// The legacy `controlDrag` (one action over three render objects) as the
-/// typed action of its command: `step` → [ControlTrackAction]; `fling`,
-/// `returnFrom`, `shake` → [ControlDismissibleAction]; `reset`, `zoom`,
-/// `pose` → [ControlTransformAction] (`reset` falls back to a dismissible or
-/// pan at run time).
-CoreAction _fromControlDrag(Json m, _Common c) {
-  final command = readString(m['command']) ?? 'fling';
-  final legacy = {...m, 'command': ?switch (command) {
-    'fling' => 'dismiss',
-    'returnFrom' || 'shake' => command,
-    'zoom' => 'scaleBy',
-    'pose' => 'animateTo',
-    'reset' => 'reset',
-    'step' => 'step',
-    _ => null,
-  }};
-  return switch (command) {
-    'step' => ControlTrackAction._fromJson(legacy, c),
-    'reset' || 'zoom' || 'pose' => ControlTransformAction._fromJson(legacy, c),
-    _ => ControlDismissibleAction._fromJson(legacy, c),
   };
 }
 
@@ -1512,10 +1434,6 @@ enum AnimateCommand {
 /// "command": "animateTo", "target": "${total}", "duration": "800", "curve":
 /// "easeOutCubic"}`. The chain waits for it to end (`TickerFuture`) unless
 /// it's [nonBlocking]; a repeat ends when its count does.
-///
-/// Reads the legacy `playAnimation` (`forward` from 0) and `animateVariable`
-/// (play → `animateTo`, pause and stop → `stop`, resume → `forward`, seek →
-/// `set`).
 final class AnimateAction extends CoreAction {
   const AnimateAction({
     this.node = '',
@@ -1576,73 +1494,6 @@ final class AnimateAction extends CoreAction {
     nonBlocking: c.nonBlocking,
     when: c.when,
   );
-
-  /// The legacy `playAnimation`: [node]'s one-shot effect from its start.
-  static AnimateAction _fromPlayAnimation(Json m, _Common c) => AnimateAction(
-    node: _s(m, 'node'),
-    animation: _s(m, 'animation'),
-    from: '0',
-    enabled: c.enabled,
-    nonBlocking: c.nonBlocking,
-    when: c.when,
-  );
-
-  /// A legacy `setVariable` glide (`animateMs`): `animateTo` its new value
-  /// (for `add`/`subtract`, the variable plus or minus the value, read when
-  /// the action runs). Null when it isn't one it can say so exactly: no
-  /// glide, another op, a path into a variable, a value that isn't a number
-  /// or a whole expression.
-  static AnimateAction? _fromGlide(Json m, _Common c) {
-    final ms = _s(m, 'animateMs').trim();
-    if (ms.isEmpty || ms == '0') return null;
-    final name = _s(m, 'variable').trim();
-    if (name.isEmpty || !RegExp(r'^[A-Za-z_]\w*$').hasMatch(name)) return null;
-    final write = ValueWrite.fromJson(m);
-    if (write.index.isNotEmpty || write.mapKey.isNotEmpty) return null;
-    final value = Behaviors.formulaOf(write.value);
-    if (value == null) return null;
-    final target = switch (write.op) {
-      WriteOp.set => write.value,
-      WriteOp.add => '\${= $name + ($value)}',
-      WriteOp.subtract => '\${= $name - ($value)}',
-      _ => null,
-    };
-    if (target == null) return null;
-    return AnimateAction(
-      variable: name,
-      command: AnimateCommand.animateTo,
-      target: target,
-      duration: ms,
-      curve: _curve(m, 'curve', AnimationCurve.linear),
-      enabled: c.enabled,
-      nonBlocking: c.nonBlocking,
-      when: c.when,
-    );
-  }
-
-  /// The legacy `animateVariable` (`mode`, `from`, `to`, `durationMs`,
-  /// `duration`, `curve`).
-  static AnimateAction _fromAnimateVariable(Json m, _Common c) {
-    final mode = _s(m, 'mode', 'play');
-    final ms = _i(m, 'durationMs', 1000);
-    final bound = _s(m, 'duration');
-    return AnimateAction(
-      variable: _s(m, 'variable'),
-      command: switch (mode) {
-        'pause' || 'stop' => AnimateCommand.stop,
-        'resume' => AnimateCommand.forward,
-        'seek' => AnimateCommand.set,
-        _ => AnimateCommand.animateTo,
-      },
-      from: _s(m, 'from'),
-      target: _s(m, 'to', '1'),
-      duration: bound.trim().isEmpty ? '$ms' : bound,
-      curve: AnimationCurve.parse(m['curve']),
-      enabled: c.enabled,
-      nonBlocking: c.nonBlocking,
-      when: c.when,
-    );
-  }
 
   @override
   Json get _fields => {

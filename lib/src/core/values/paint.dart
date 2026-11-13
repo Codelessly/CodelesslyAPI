@@ -248,8 +248,7 @@ final class Paint {
 
   /// A gradient laid out in each shape of a path (every closed subpath,
   /// with the holes inside it) instead of across the box: one path of many
-  /// cells shades each alike. Only paths paint per shape. JSON also reads
-  /// SVG's `gradientUnits: "subpath"`.
+  /// cells shades each alike. Only paths paint per shape.
   final bool gradientPerSubpath;
 
   /// A radial gradient's radius as a share of the box's shortest side,
@@ -346,8 +345,7 @@ final class Paint {
           (type == PaintType.radial || type == PaintType.diamond || type == PaintType.sweep ? centerTransform(Alignment.fromJson(m['center'])) : null),
       tileMode: readEnum(TileMode.values, m['tileMode'], TileMode.clamp),
       image: type == PaintType.image ? ImagePaint.fromJson(imageJson) : null,
-      gradientPerSubpath: readBool(m['gradientPerSubpath']) ??
-          (m['gradientUnits'] is String && (m['gradientUnits'] as String).toLowerCase() == 'subpath'),
+      gradientPerSubpath: readBool(m['gradientPerSubpath']) ?? false,
       radius: switch (readDouble(m['radius'])) { final double r when r > 0 && r.isFinite => r, _ => null },
       begin: Alignment.fromJson(m['begin']),
       end: Alignment.fromJson(m['end']),

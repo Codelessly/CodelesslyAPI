@@ -14,7 +14,7 @@ final samples = <Json>[
   {'type': 'submitForm', 'service': 'local', 'payload': r'${answers}', 'responseVariable': 'rows'},
   {'type': 'setValue', 'node': 'c', 'values': [{'path': 'props.value', 'mode': 'toggle'}, {'path': 'visible', 'value': false}]},
   {'type': 'setVariant', 'node': 'v', 'variant': 'b'},
-  {'type': 'setVariable', 'variable': 'rows', 'op': 'insert', 'value': r'${item}', 'index': '0', 'animateMs': '3600', 'curve': 'easeOutCubic'},
+  {'type': 'setVariable', 'variable': 'rows', 'op': 'insert', 'value': r'${item}', 'index': '0'},
   {'type': 'callFunction', 'name': 'f', 'params': {'a': 1}},
   {'type': 'callApi', 'api': 'tides', 'params': {'day': r'${day}'}, 'onSuccess': [{'type': 'openLink', 'url': 'a'}], 'onError': [{'type': 'delay', 'ms': 5}]},
   {'type': 'setStorage', 'key': 'prefs.theme', 'valueType': 'map', 'op': 'update', 'value': 'dark', 'mapKey': 'mode', 'skipIfExists': true},

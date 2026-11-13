@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
+import 'legacy_support.dart';
+
 void main() {
   test('a flight style round-trips and stays sparse', () {
     const f = Flight(duration: 720, curve: AnimationCurve.easeInOutCubic, lift: 110, liftShare: 0.55, swell: 1.75, turns: 0.6, trail: 4);
@@ -57,7 +59,7 @@ void main() {
   test('a motion can time its rotation and its fade on their own', () {
     // The legacy rotateCurve and fadeShare: a transition of the rotation on
     // its own curve, the opacity in the first share, easing out.
-    final b = Behaviors.fromJson({
+    final b = legacyBehaviors({
       'motion': {'duration': 600, 'rotateCurve': 'elasticOut', 'fadeShare': 0.35, 'opacity': 0.5},
     });
     expect(Transition.of(b.transitions, 'motion.rotate')!.curve, AnimationCurve.elasticOut);
@@ -65,7 +67,7 @@ void main() {
     final fade = Transition.of(b.transitions, 'opacity')!;
     expect((fade.duration, fade.curve), (210, AnimationCurve.easeOut));
     // In an entrance: that track's curve and interval.
-    final enter = Behaviors.fromJson({
+    final enter = legacyBehaviors({
       'motion': {'duration': 600, 'rotateCurve': 'elasticOut', 'fadeShare': 0.35, 'enterFrom': {'rotate': 8, 'opacity': 0}},
     }).animations.single.expanded;
     expect(enter.curve, AnimationCurve.linear);
@@ -73,7 +75,7 @@ void main() {
     expect(rotate.curve, AnimationCurve.elasticOut);
     expect(opacity.interval, [0, 0.35]);
     expect(opacity.curve, AnimationCurve.easeOut);
-    expect(Behaviors.fromJson({'motion': {'duration': 600}}).transitions.single.toJson(),
+    expect(legacyBehaviors({'motion': {'duration': 600}}).transitions.single.toJson(),
         {'property': 'motion', 'duration': 600, 'curve': 'easeInOut'});
   });
 

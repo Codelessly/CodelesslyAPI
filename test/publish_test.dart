@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   final layoutJson = <String, Object?>{
-    'schema': 2,
+    'schema': 3,
     'id': 'home',
     'roots': ['m', 'd'],
     'nodes': {
@@ -114,7 +114,7 @@ void main() {
 
   group('PublishModel', () {
     final modelJson = <String, Object?>{
-      'schema': 2,
+      'schema': 3,
       'projectId': 'p',
       'entryLayoutId': 'home',
       'pages': ['page'],
@@ -246,7 +246,7 @@ void main() {
 
   test('a bundle holds the model and its layouts', () {
     final bundle = PublishBundle.fromJson({
-      'schema': 2,
+      'schema': 3,
       'model': {'projectId': 'p', 'layouts': {'home': {}}},
       'layouts': {'home': {...layoutJson}..remove('id')},
     });

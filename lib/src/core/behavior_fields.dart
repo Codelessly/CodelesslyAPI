@@ -164,12 +164,7 @@ abstract final class PathFollowFields {
   static const progress = PropDef<double>('progress', Codecs.double, 0);
   static const orient = PropDef<PathOrient>('orient', EnumCodec(PathOrient.values), PathOrient.none);
 
-  /// Deprecated: `area` pacing (one app).
-  static const pacing = PropDef<PathPacing>('pacing', EnumCodec(PathPacing.values), PathPacing.length);
-
-  /// Deprecated: the focus `[x, y]` of `area` pacing.
-  static const focus = PropDef<List<double>>('focus', Codecs.doubles, [0, 0]);
-  static const List<PropDef<Object?>> all = [path, viewBox, progress, orient, pacing, focus];
+  static const List<PropDef<Object?>> all = [path, viewBox, progress, orient];
 }
 
 List<PropDef<Object?>> pathFollowFields() => PathFollowFields.all;
@@ -366,9 +361,7 @@ abstract final class TransitionFields {
     KeyframeInterpolation.linear,
   );
 
-  /// Deprecated: bends position changes off the straight line.
-  static const arc = PropDef<double>('arc', Codecs.double, 0);
-  static const List<PropDef<Object?>> all = [property, duration, delay, curve, spring, keyframes, interpolation, arc];
+  static const List<PropDef<Object?>> all = [property, duration, delay, curve, spring, keyframes, interpolation];
 }
 
 List<PropDef<Object?>> transitionFields() => TransitionFields.all;
@@ -478,15 +471,11 @@ abstract final class DropTargetFields {
   static const listNodeId = PropDef<String>('listNodeId', Codecs.string, '');
   static const slot = PropDef<DropSlot>('slot', EnumCodec(DropSlot.values), DropSlot.gap);
   static const slotNodeId = PropDef<String>('slotNodeId', Codecs.string, '');
-  static const hoverDelay = PropDef<int>('hoverDelay', _ms, 0);
-  static const fullIf = PropDef<String>('fullIf', Codecs.string, '');
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const slotSize = PropDef<DropSlotSize>('slotSize', EnumCodec(DropSlotSize.values), DropSlotSize.dragged);
 
-  /// Opens the slot for a drop [acceptIf] refuses too.
-  static const slotWhenRefused = PropDef<bool>('slotWhenRefused', Codecs.bool, true);
   static const List<PropDef<Object?>> all = [
-    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, slotWhenRefused, hoverDelay, fullIf, enabled, //
+    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, enabled, //
   ];
 }
 
@@ -558,56 +547,14 @@ abstract final class TrackFields {
   static const snap = PropDef<int>('snap', _ms, 0);
   static const snapCurve = PropDef<AnimationCurve>('snapCurve', _curve, AnimationCurve.easeOutBack);
 
-  /// Deprecated: what a double tap resets to, or moves between.
-  static const defaultValue = PropDef<double?>('defaultValue', Codecs.optionalDouble, null);
-  static const doubleTapValues = PropDef<List<double>>('doubleTapValues', Codecs.doubles, []);
-
-  /// Deprecated: where it parks while the value is out of range or empty.
-  static const parkedProgress = PropDef<double?>('parkedProgress', Codecs.optionalDouble, null);
-
-  /// Deprecated: fine mode.
-  static const fineStep = PropDef<double>('fineStep', Codecs.positive, 0);
-  static const finePixelsPerRange = PropDef<double>('finePixelsPerRange', Codecs.positive, 0);
-  static const fineHold = PropDef<int>('fineHold', _ms, 380);
-  static const fineVariable = PropDef<String>('fineVariable', Codecs.string, '');
-
-  /// Deprecated: drawn between steps while moving.
-  static const smooth = PropDef<bool>('smooth', Codecs.bool, false);
-
-  /// Deprecated: the turn per degree round an arc followed by angle.
-  static const gain = PropDef<double>('gain', Codecs.double, 1);
   static const List<PropDef<Object?>> all = [
     enabled, variable, value, min, max, step, clamp, input, allowedInteraction, hitArea, pixelsPerRange, //
     wheelStep, keyStep, shape, x1, y1, x2, y2, relative, units, startAngle, sweepAngle, pivotX, pivotY, rotate,
-    path, detent, overscroll, physics, settle, settleCurve, settleSpring, snap, snapCurve, defaultValue,
-    doubleTapValues, parkedProgress, fineStep, finePixelsPerRange, fineHold, fineVariable, smooth, gain,
+    path, detent, overscroll, physics, settle, settleCurve, settleSpring, snap, snapCurve,
   ];
 }
 
 List<PropDef<Object?>> trackFields() => TrackFields.all;
-
-/// The legacy follow fields [DismissibleBehavior] and [Pan] still read
-/// (deprecated; see docs/design/04-drag-and-track.md, "Not yet migrated").
-abstract final class _LegacyFollowFields {
-  /// Deprecated: degrees of tilt per the node's width of travel.
-  static const rotateFactor = PropDef<double>('rotateFactor', Codecs.double, 0);
-
-  /// Deprecated: the tilt's origin in the box (-1–1).
-  static const originX = PropDef<double>('originX', Codecs.double, 0);
-  static const originY = PropDef<double>('originY', Codecs.double, 0);
-
-  /// Deprecated: wiggles when a disabled drag is tried.
-  static const shakeWhenDisabled = PropDef<bool>('shakeWhenDisabled', Codecs.bool, false);
-
-  /// Deprecated: the share of the travel a disabled drag follows.
-  static const disabledFollow = PropDef<double>('disabledFollow', Codecs.double, 0);
-
-  /// Deprecated: a variable the live drag values are written to.
-  static const shareAs = PropDef<String>('shareAs', Codecs.string, '');
-
-  /// Deprecated: off, the node only reports its drag.
-  static const follow = PropDef<bool>('follow', Codecs.bool, true);
-}
 
 Spring? _springOrNull(Object? j) => Spring.fromJson(j);
 Map<DragDirection, double>? _thresholdsIn(Object? j) => readMap(j) == null
@@ -648,22 +595,9 @@ abstract final class DismissibleFields {
   static const returnCurve = PropDef<AnimationCurve?>('returnCurve', OptionalEnumCodec(AnimationCurve.values), null);
   static const returnSpring = PropDef<Spring?>('returnSpring', ValueCodec(_springOrNull, _out, springType), null);
 
-  /// Deprecated: where it rests, from its layout's place.
-  static const restX = PropDef<double>('restX', Codecs.double, 0);
-  static const restY = PropDef<double>('restY', Codecs.double, 0);
-
-  /// Deprecated: number variables its offset is written to.
-  static const xVariable = PropDef<String>('xVariable', Codecs.string, '');
-  static const yVariable = PropDef<String>('yVariable', Codecs.string, '');
-
-  /// Deprecated: degrees it turns while flying off.
-  static const flyOutRotate = PropDef<double>('flyOutRotate', Codecs.double, 0);
   static const List<PropDef<Object?>> all = [
     enabled, directions, axis, dismissThresholds, flingVelocity, resistance, movementDuration, curve, //
-    returnDuration, returnCurve, returnSpring, restX, restY, xVariable, yVariable, flyOutRotate,
-    _LegacyFollowFields.rotateFactor,
-    _LegacyFollowFields.originX, _LegacyFollowFields.originY, _LegacyFollowFields.shakeWhenDisabled,
-    _LegacyFollowFields.disabledFollow, _LegacyFollowFields.shareAs, _LegacyFollowFields.follow,
+    returnDuration, returnCurve, returnSpring,
   ];
 }
 
@@ -696,9 +630,7 @@ abstract final class PanFields {
   static const maxY = PropDef<double?>('maxY', Codecs.optionalDouble, null);
   static const List<PropDef<Object?>> all = [
     enabled, axis, release, returnDuration, returnCurve, x, y, xVariable, yVariable, physics, bounds, minX, maxX, //
-    minY, maxY, _LegacyFollowFields.rotateFactor, _LegacyFollowFields.originX, _LegacyFollowFields.originY,
-    _LegacyFollowFields.shakeWhenDisabled, _LegacyFollowFields.disabledFollow, _LegacyFollowFields.shareAs,
-    _LegacyFollowFields.follow,
+    minY, maxY,
   ];
 }
 
@@ -738,8 +670,7 @@ abstract final class GestureSnapFields {
   );
   static const gridX = PropDef<double>('gridX', Codecs.positive, 0);
   static const gridY = PropDef<double>('gridY', Codecs.positive, 0);
-  static const projectVelocity = PropDef<bool>('projectVelocity', Codecs.bool, true);
-  static const List<PropDef<Object?>> all = [kind, points, gridX, gridY, projectVelocity];
+  static const List<PropDef<Object?>> all = [kind, points, gridX, gridY];
 }
 
 List<PropDef<Object?>> gestureSnapFields() => GestureSnapFields.all;
@@ -786,8 +717,6 @@ abstract final class TransformGestureFields {
   static const doubleTapScale = PropDef<double>('doubleTapScale', Codecs.double, 2.5);
   static const wheel = PropDef<WheelZoom>('wheel', EnumCodec(WheelZoom.values), WheelZoom.ctrlZoom);
 
-  /// Degrees; 0 is free.
-  static const rotationSnap = PropDef<double>('rotationSnap', Codecs.double, 0);
   static const physics = PropDef<GesturePhysics?>('physics', _physics, null);
   static const xVariable = PropDef<String>('xVariable', Codecs.string, '');
   static const yVariable = PropDef<String>('yVariable', Codecs.string, '');
@@ -809,7 +738,7 @@ abstract final class TransformGestureFields {
   static const scaleX = PropDef<double?>('scaleX', Codecs.optionalDouble, null);
   static const scaleY = PropDef<double?>('scaleY', Codecs.optionalDouble, null);
   static const List<PropDef<Object?>> all = [
-    enabled, target, pan, zoom, rotate, minScale, maxScale, bounds, doubleTapScale, wheel, rotationSnap, physics, //
+    enabled, target, pan, zoom, rotate, minScale, maxScale, bounds, doubleTapScale, wheel, physics, //
     xVariable, yVariable, scaleVariable, rotationVariable, scaleXVariable, scaleYVariable, handles, x, y, scale,
     rotation, scaleX, scaleY,
   ];
@@ -1065,15 +994,13 @@ abstract final class BehaviorFields {
 
   /// `Transform.scale` about the center; a value not above 0 reads as 1.
   static const scale = PropDef<double>('scale', Codecs.positive, 1);
-  /// Its animation controllers (the legacy `loops` and `effectAnimations`
-  /// read as these).
+  /// Its animation controllers.
   static const animations = PropDef<List<NodeAnimation>>(
     'animations',
     ListCodec(ValueCodec(NodeAnimation.fromJson, _out, nodeAnimationType)),
     [],
   );
-  /// How changes animate, one per property path (the legacy
-  /// `{style, opacity, size}` reads as these).
+  /// How changes animate, one per property path.
   static const transitions = PropDef<List<Transition>>(
     'transitions',
     ListCodec(ValueCodec(Transition.fromJson, _out, transitionType)),

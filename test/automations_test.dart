@@ -60,7 +60,7 @@ void main() {
     });
 
     test('a publish model keeps them in extra: a model without any is unchanged', () {
-      final plain = {'schema': 2, 'projectId': 'p', 'layouts': <String, Object?>{}};
+      final plain = {'schema': 3, 'projectId': 'p', 'layouts': <String, Object?>{}};
       final model = PublishModel.fromJson(plain);
       expect(model.automations, isEmpty);
       expect(model.toJson(), plain);

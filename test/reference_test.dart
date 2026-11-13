@@ -46,7 +46,7 @@ void main() {
         json = jsonDecode('{$b}'); // a fragment: one or more keys of an object
       }
       // A site manifest (site.json) is not a layout document.
-      if (json is Map && json['schema'] == 2 && !json.containsKey('pages')) {
+      if (json is Map && json['schema'] == 3 && !json.containsKey('pages')) {
         documents++;
         expect(validateDocument(json).map((d) => '$d'), isEmpty, reason: b);
       }

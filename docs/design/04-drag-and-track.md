@@ -561,3 +561,23 @@ Each is read and works exactly as before.
 - **Legacy binding paths set at run time** (`setValue` with `drag.enabled`): only a node's `bind` map is
   rewritten when it decodes. A bound `drag.track.endAngle` or `drag.track.viewBoxWidth` keeps its key and is no
   longer read.
+
+## Done in schema 3
+
+Migrated, not read by the model any more: the `drag` key and its three modes (`drag.split`), the track's
+legacy keys (`track.legacy`), `zoomable` (`zoomable`), the draggable's old names and spring shapes
+(`draggable.legacy`), `controlDrag` (`action.controlDrag`), legacy `drag.*` bind paths. **Removed** (the
+migration keeps a value that acted as `legacy.<behavior>.<field>` and reports a behaviour change naming the
+apps): `Track.defaultValue` and `doubleTapValues` (a track with no value is drawn at its minimum; lamplight),
+`parkedProgress` (apiary), the four fine-mode fields (cutroom, cutroom_v2, darkroom), `smooth` and `gain`
+round an arc (safecracker); `DismissibleBehavior.restX/Y`, `xVariable/yVariable`, `flyOutRotate`; on
+`DismissibleBehavior` and `Pan`: `rotateFactor`, `originX/Y`, `shakeWhenDisabled`, `disabledFollow`,
+`shareAs`, `follow` (flashcards, gesture_lab); `DropTarget.fullIf` with the `dropFull` trigger (lamplight,
+seedbox), `slotWhenRefused` (the slot opens for accepted drags; mixtape), `hoverDelay` with the `dragHover`
+trigger (no user); `GestureSnap.projectVelocity`, `TransformGesture.rotationSnap` (no user). None had a
+generic construct that behaves the same (the reasons are in "Not yet migrated" above); their SDK code is gone.
+
+Still as above (not deprecated, not done): the track's second coordinate system (`x1..y2`, `relative`,
+`units`, `pivotX/Y`, `rotate`; blocked on a path coordinate space of offsets scaled by the node or parent),
+`input: angular`, `transitions.track`, the draggable's feedback look, list insertion on drop targets,
+transform handles.

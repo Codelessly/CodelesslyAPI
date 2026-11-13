@@ -127,8 +127,11 @@ that read the old keys, so the reference apps keep running between phases.
 
 ## Compatibility, in one place
 
-Documents keep `"schema": 2`; loaders reject other numbers, so nothing here
-bumps it. Every change is made in decoders (`Behaviors.fromJson`,
+*Superseded by schema 3 (codelessly_api 30.0.0):* documents are `"schema": 3`; a schema-2 document is
+migrated once, in memory, by `migrate2to3`, and the legacy readers described below live in that migration,
+not in the decoders (docs/guide/12-migrating-to-schema-3.md, docs/design/schema-3-migration-report.md). The
+text below is the schema-2 plan as it was: documents kept `"schema": 2`; loaders rejected other numbers, so
+nothing here bumped it. Every change is made in decoders (`Behaviors.fromJson`,
 `Motion.fromJson`, `ActionDef.fromJson`, `Trigger.fromJson`,
 `Node.fromJson`): they read the legacy keys, return the new values and
 rewrite `bind` keys; encoders write only the new shape. Each document lists

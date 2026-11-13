@@ -6,7 +6,7 @@
   "type": "object",
   "properties": {
     "schema": {
-      "const": 2
+      "const": 3
     },
     "id": {
       "type": "string"
@@ -291,9 +291,6 @@
               "barrierBlur": {
                 "type": "number"
               },
-              "showCloseButton": {
-                "type": "boolean"
-              },
               "showDragHandle": {
                 "type": "boolean"
               },
@@ -355,9 +352,6 @@
               },
               "maxHeightFactor": {
                 "type": "number"
-              },
-              "fullHeight": {
-                "type": "boolean"
               },
               "cover": {
                 "type": "boolean"
@@ -480,12 +474,6 @@
               },
               "mapKey": {
                 "type": "string"
-              },
-              "animateMs": {
-                "type": "string"
-              },
-              "curve": {
-                "$ref": "#/$defs/enum.AnimationCurve"
               }
             }
           }
@@ -2472,14 +2460,7 @@
       "enum": [
         "none",
         "tangent",
-        "upright",
-        "uprightFlip"
-      ]
-    },
-    "enum.PathPacing": {
-      "enum": [
-        "length",
-        "area"
+        "upright"
       ]
     },
     "enum.PathUnit": {
@@ -3010,9 +2991,7 @@
         "drop",
         "dragEnter",
         "dragExit",
-        "dragHover",
         "dropRejected",
-        "dropFull",
         "reorder",
         "refresh",
         "swipeAction",
@@ -3618,42 +3597,6 @@
               "type": "null"
             }
           ]
-        },
-        "restX": {
-          "type": "number"
-        },
-        "restY": {
-          "type": "number"
-        },
-        "xVariable": {
-          "type": "string"
-        },
-        "yVariable": {
-          "type": "string"
-        },
-        "flyOutRotate": {
-          "type": "number"
-        },
-        "rotateFactor": {
-          "type": "number"
-        },
-        "originX": {
-          "type": "number"
-        },
-        "originY": {
-          "type": "number"
-        },
-        "shakeWhenDisabled": {
-          "type": "boolean"
-        },
-        "disabledFollow": {
-          "type": "number"
-        },
-        "shareAs": {
-          "type": "string"
-        },
-        "follow": {
-          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -3743,16 +3686,6 @@
         },
         "slotSize": {
           "$ref": "#/$defs/enum.DropSlotSize"
-        },
-        "slotWhenRefused": {
-          "type": "boolean"
-        },
-        "hoverDelay": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "fullIf": {
-          "type": "string"
         },
         "enabled": {
           "type": "boolean"
@@ -3927,9 +3860,6 @@
         "gridY": {
           "type": "number",
           "minimum": 0.0
-        },
-        "projectVelocity": {
-          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -5430,27 +5360,6 @@
               "type": "null"
             }
           ]
-        },
-        "rotateFactor": {
-          "type": "number"
-        },
-        "originX": {
-          "type": "number"
-        },
-        "originY": {
-          "type": "number"
-        },
-        "shakeWhenDisabled": {
-          "type": "boolean"
-        },
-        "disabledFollow": {
-          "type": "number"
-        },
-        "shareAs": {
-          "type": "string"
-        },
-        "follow": {
-          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -5564,15 +5473,6 @@
         },
         "orient": {
           "$ref": "#/$defs/enum.PathOrient"
-        },
-        "pacing": {
-          "$ref": "#/$defs/enum.PathPacing"
-        },
-        "focus": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
         }
       },
       "additionalProperties": false
@@ -6694,53 +6594,6 @@
         },
         "snapCurve": {
           "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "defaultValue": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "doubleTapValues": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
-        },
-        "parkedProgress": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "fineStep": {
-          "type": "number",
-          "minimum": 0.0
-        },
-        "finePixelsPerRange": {
-          "type": "number",
-          "minimum": 0.0
-        },
-        "fineHold": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "fineVariable": {
-          "type": "string"
-        },
-        "smooth": {
-          "type": "boolean"
-        },
-        "gain": {
-          "type": "number"
         }
       },
       "additionalProperties": false
@@ -6777,9 +6630,6 @@
         },
         "wheel": {
           "$ref": "#/$defs/enum.WheelZoom"
-        },
-        "rotationSnap": {
-          "type": "number"
         },
         "physics": {
           "anyOf": [
@@ -6965,9 +6815,6 @@
         },
         "interpolation": {
           "$ref": "#/$defs/enum.KeyframeInterpolation"
-        },
-        "arc": {
-          "type": "number"
         }
       },
       "additionalProperties": false
@@ -16257,9 +16104,7 @@
             "drop",
             "dragEnter",
             "dragExit",
-            "dragHover",
             "dropRejected",
-            "dropFull",
             "reorder",
             "refresh",
             "swipeAction",

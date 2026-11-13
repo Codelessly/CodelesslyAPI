@@ -45,7 +45,7 @@ EditCheck strictEditCheck([ValidateOptions options = const ValidateOptions()]) =
         for (final e in input.nodes.entries) e.key: e.value,
       };
       final mini = <String, Object?>{
-        'schema': 2,
+        'schema': kSchemaVersion,
         'roots': [for (final r in doc.roots) if (nodes.containsKey(r)) r],
         'nodes': nodes,
         ...{

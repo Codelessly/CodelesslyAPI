@@ -2,16 +2,16 @@ import 'package:meta/meta.dart';
 
 import 'catalog.dart';
 import 'json.dart';
+import 'migrate/migrate.dart';
 import 'node.dart';
 
-/// The schema version this package reads and writes.
-const int kSchemaVersion = 2;
+export 'migrate/migrate.dart' show kSchemaVersion, kOldestSchemaVersion, schemaOf;
 
 /// One step that upgrades a document's JSON from schema `n - 1` to `n`.
-typedef SchemaMigration = Json Function(Json document);
+typedef SchemaMigration = Json Function(Json document, {MigrationReport? report});
 
-/// Upgrades for schemas after 2, by the version they produce.
-const Map<int, SchemaMigration> schemaMigrations = {};
+/// Upgrades by the version they produce: 3 is [migrate2to3].
+const Map<int, SchemaMigration> schemaMigrations = {3: migrate2to3};
 
 /// A layout: a set of node trees (one per canvas/screen) in one flat map.
 @immutable
@@ -67,9 +67,10 @@ final class LayoutDocument {
       );
 
   /// Decodes a document of any schema with [catalog] (default:
-  /// [Catalog.current]), upgrading it first. Never throws: entries that
-  /// aren't nodes are dropped; a node or action type the catalog doesn't
-  /// declare is kept as it is.
+  /// [Catalog.current]), upgrading it first: a schema-2 document (or one
+  /// with no `schema`) is migrated in memory ([migrate2to3]). Never throws:
+  /// entries that aren't nodes are dropped; a node or action type the
+  /// catalog doesn't declare is kept as it is.
   static LayoutDocument fromJson(Object? json, {Catalog? catalog}) {
     final c = catalog ?? Catalog.current;
     return identical(c, Catalog.current) ? _fromJson(json, c) : Catalog.run(c, () => _fromJson(json, c));
@@ -95,14 +96,15 @@ final class LayoutDocument {
     );
   }
 
-  /// [json] upgraded to [kSchemaVersion].
-  static Json migrateSchema(Json json) {
-    var version = readInt(json['schema']) ?? kSchemaVersion;
+  /// [json] upgraded to [kSchemaVersion] (a document with no `schema` is
+  /// read as [kOldestSchemaVersion]); [report] collects what changed.
+  static Json migrateSchema(Json json, {MigrationReport? report}) {
+    var version = schemaOf(json);
     var out = json;
     while (version < kSchemaVersion) {
       version++;
       final step = schemaMigrations[version];
-      if (step != null) out = step(out);
+      if (step != null) out = step(out, report: report);
     }
     return out;
   }
