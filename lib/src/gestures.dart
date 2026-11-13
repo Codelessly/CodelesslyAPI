@@ -97,18 +97,14 @@ final class GestureSnap extends _Value {
 
 /// How a node moves on its own once the pointer lets go, the same for a
 /// [DragMotion], a [DragSource]'s return and a [TransformGesture]: a fling
-/// that slows by [friction], a stretch of [overscroll] past the bounds, and
-/// a spring ([stiffness], [damping], [mass]; or [bounce] and [duration], as
-/// Flutter's `SpringDescription.withDurationAndBounce`) onto the [snap]
-/// target nearest to where the fling would stop.
+/// that slows by [friction] (Flutter's `FrictionSimulation`), a stretch of
+/// [overscroll] past the bounds, and a [spring] onto the [snap] target
+/// nearest to where the fling would stop. The legacy flat spring keys
+/// (`stiffness`, `damping`, `mass`, `bounce`, `duration`) read as [spring].
 @immutable
 final class GesturePhysics extends _Value {
   const GesturePhysics({
-    this.stiffness = 380,
-    this.damping = 32,
-    this.mass = 1,
-    this.bounce,
-    this.duration,
+    this.spring = GesturePhysics.defaultSpring,
     this.fling = true,
     this.friction = 0.865,
     this.minFlingVelocity = 50,
@@ -118,21 +114,18 @@ final class GesturePhysics extends _Value {
   });
 
   static const GesturePhysics standard = GesturePhysics();
+  static const Spring defaultSpring = Spring.physical(stiffness: 380, damping: 32);
 
   /// The presets `{"preset": "<name>"}` reads as (other keys override).
   static const Map<String, GesturePhysics> presets = {
-    'gentle': GesturePhysics(bounce: 0, duration: 450),
-    'snappy': GesturePhysics(bounce: 0.15, duration: 300),
-    'bouncy': GesturePhysics(bounce: 0.4, duration: 600),
-    'heavy': GesturePhysics(stiffness: 200, damping: 30, mass: 2),
+    'gentle': GesturePhysics(spring: Spring(duration: 450)),
+    'snappy': GesturePhysics(spring: Spring(duration: 300, bounce: 0.15)),
+    'bouncy': GesturePhysics(spring: Spring(duration: 600, bounce: 0.4)),
+    'heavy': GesturePhysics(spring: Spring.physical(stiffness: 200, damping: 30, mass: 2)),
   };
 
-  final double stiffness, damping, mass;
-
-  /// The spring as a bounce (0 none, up to 1 wobbly; negative sluggish)
-  /// and a settle time (ms) instead of [stiffness] and [damping].
-  final double? bounce;
-  final int? duration;
+  /// The spring it settles on.
+  final Spring spring;
 
   /// Whether a release keeps the pointer's velocity and coasts.
   final bool fling;
@@ -147,23 +140,11 @@ final class GesturePhysics extends _Value {
   final double overscroll;
   final GestureSnap? snap;
 
-  bool get usesBounce => bounce != null || duration != null;
-
   /// The spring's stiffness in effect.
-  double get effectiveStiffness {
-    if (!usesBounce) return stiffness;
-    final seconds = math.max(1, duration ?? 500) / 1000;
-    return math.pow(2 * math.pi / seconds, 2) * mass;
-  }
+  double get effectiveStiffness => spring.effectiveStiffness;
 
   /// The spring's damping in effect.
-  double get effectiveDamping {
-    if (!usesBounce) return damping;
-    final seconds = math.max(1, duration ?? 500) / 1000;
-    final b = (bounce ?? 0).clamp(-0.95, 1.0);
-    final ratio = b >= 0 ? 1 - b : 1 / (1 + b);
-    return ratio * 4 * math.pi * mass / seconds;
-  }
+  double get effectiveDamping => spring.effectiveDamping;
 
   /// The drag of Flutter's `FrictionSimulation`: the share of speed kept
   /// after a second.
@@ -176,35 +157,46 @@ final class GesturePhysics extends _Value {
     return position - v / math.log(frictionDrag);
   }
 
-  static GesturePhysics? fromJson(Object? json) {
-    var m = readMap(json);
-    if (m == null) return null;
-    if (presets[m['preset']] case final GesturePhysics preset) {
-      m = {...preset.toJson(), ...m}..remove('preset');
+  /// The legacy flat spring of [m]: `bounce`/`duration` (withDurationAndBounce)
+  /// over `stiffness`/`damping`, with [base]'s for what it leaves out.
+  static Spring? _legacySpring(Json m, Spring base) {
+    const keys = ['stiffness', 'damping', 'mass', 'bounce', 'duration'];
+    if (!keys.any(m.containsKey)) return null;
+    final r = _R(m);
+    final mass = r.d('mass', base.mass);
+    if (readDouble(m['bounce']) != null || readInt(m['duration']) != null || !base.isPhysical) {
+      return Spring(
+        duration: math.max(1, readInt(m['duration']) ?? (base.isPhysical ? 500 : base.duration)),
+        bounce: readDouble(m['bounce']) ?? (base.isPhysical ? 0 : base.bounce),
+        mass: mass,
+      );
     }
+    return Spring(
+      stiffness: r.d('stiffness', base.isPhysical ? base.stiffness! : 380),
+      damping: r.d('damping', base.isPhysical ? base.damping! : 32),
+      mass: mass,
+    );
+  }
+
+  static GesturePhysics? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final preset = presets[m['preset']] ?? standard;
     final r = _R(m);
     return GesturePhysics(
-      stiffness: r.d('stiffness', 380),
-      damping: r.d('damping', 32),
-      mass: r.d('mass', 1),
-      bounce: r.dn('bounce'),
-      duration: readInt(m['duration'])?.let((d) => math.max(0, d)),
-      fling: r.b('fling', true),
-      friction: r.d('friction', 0.865),
-      minFlingVelocity: r.d('minFlingVelocity', 50),
-      maxFlingVelocity: r.d('maxFlingVelocity', 8000),
-      overscroll: r.d('overscroll', 0.5),
-      snap: GestureSnap.fromJson(m['snap']),
+      spring: Spring.fromJson(m['spring'], fallback: preset.spring) ?? _legacySpring(m, preset.spring) ?? preset.spring,
+      fling: r.b('fling', preset.fling),
+      friction: r.d('friction', preset.friction),
+      minFlingVelocity: r.d('minFlingVelocity', preset.minFlingVelocity),
+      maxFlingVelocity: r.d('maxFlingVelocity', preset.maxFlingVelocity),
+      overscroll: r.d('overscroll', preset.overscroll),
+      snap: GestureSnap.fromJson(m['snap']) ?? preset.snap,
     );
   }
 
   Json toJson() {
-    final j = <String, Object?>{}
-      ..d('stiffness', stiffness, 380)
-      ..d('damping', damping, 32)
-      ..d('mass', mass, 1)
-      ..dn('bounce', bounce);
-    if (duration != null) j['duration'] = duration;
+    final j = <String, Object?>{};
+    if (spring != defaultSpring) j['spring'] = spring.toJsonOver(defaultSpring);
     j
       ..b('fling', fling, true)
       ..d('friction', friction, 0.865)
@@ -216,19 +208,7 @@ final class GesturePhysics extends _Value {
   }
 
   @override
-  List<Object?> get props => [
-    stiffness,
-    damping,
-    mass,
-    bounce,
-    duration,
-    fling,
-    friction,
-    minFlingVelocity,
-    maxFlingVelocity,
-    overscroll, //
-    snap,
-  ];
+  List<Object?> get props => [spring, fling, friction, minFlingVelocity, maxFlingVelocity, overscroll, snap];
 }
 
 // --- a card that turns over ----------------------------------------------------
@@ -240,29 +220,6 @@ enum FlipAxis {
 
   /// Top over bottom, like a calendar page ([Motion.rotateX]).
   x,
-}
-
-/// A spring (mass, stiffness, damping), as Flutter's `SpringDescription`.
-@immutable
-final class FlipSpring extends _Value {
-  const FlipSpring({this.stiffness = 380, this.damping = 36, this.mass = 1});
-
-  final double stiffness, damping, mass;
-
-  static FlipSpring? fromJson(Object? json) {
-    final m = readMap(json);
-    if (m == null) return null;
-    final r = _R(m);
-    return FlipSpring(stiffness: r.d('stiffness', 380), damping: r.d('damping', 36), mass: r.d('mass', 1));
-  }
-
-  Json toJson() => <String, Object?>{}
-    ..d('stiffness', stiffness, 380)
-    ..d('damping', damping, 36)
-    ..d('mass', mass, 1);
-
-  @override
-  List<Object?> get props => [stiffness, damping, mass];
 }
 
 /// Makes the node a two-sided card (node key `flip`; a runtime 3D turn,
@@ -280,7 +237,7 @@ final class FlipCard extends _Value {
     this.tapToFlip = true,
     this.dragToFlip = false,
     this.variable = '',
-    this.spring = const FlipSpring(),
+    this.spring = FlipCard.defaultSpring,
   });
 
   final FlipAxis axis;
@@ -299,7 +256,8 @@ final class FlipCard extends _Value {
   final String variable;
 
   /// The spring it settles with after a drag.
-  final FlipSpring spring;
+  final Spring spring;
+  static const Spring defaultSpring = Spring.physical(stiffness: 380, damping: 36);
 
   /// How long a turn takes (ms): [motion]'s duration, else 600.
   static int durationOf(Motion? motion) => (motion?.duration ?? 0) > 0 ? motion!.duration : 600;
@@ -314,7 +272,7 @@ final class FlipCard extends _Value {
       tapToFlip: r.b('tapToFlip', true),
       dragToFlip: r.b('dragToFlip', false),
       variable: r.s('variable'),
-      spring: FlipSpring.fromJson(m['spring']) ?? const FlipSpring(),
+      spring: Spring.fromJson(m['spring'], fallback: defaultSpring) ?? defaultSpring,
     );
   }
 
@@ -325,7 +283,7 @@ final class FlipCard extends _Value {
       ..b('tapToFlip', tapToFlip, true)
       ..b('dragToFlip', dragToFlip, false)
       ..s('variable', variable);
-    if (spring != const FlipSpring()) j['spring'] = spring.toJson();
+    if (spring != defaultSpring) j['spring'] = spring.toJsonOver(defaultSpring);
     return j;
   }
 

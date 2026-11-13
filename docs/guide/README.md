@@ -22,5 +22,6 @@ understand, build, check or transform layouts as data.
 | 5 | [Logic](05-logic.md) | Variables, conditions, bindings, reactions and actions, scripts |
 | 6 | [Chart data transitions](06-chart-data-transitions.md) | Data matching, animation controls, interrupted updates and gaps |
 | 7 | [Drawing with `customPaint`](07-custom-paint.md) | Flutter's `CustomPaint` and `Canvas` calls as data: ops, paints, expressions, hit regions |
+| 8 | [Animation](08-animation.md) | `AnimationController` and `Tween` as data: `animations`, tracks, presets, `animate`, `frame`, `Spring`, the legacy keys |
 
 For contributors, [`DESIGN.md`](../../DESIGN.md) is the full design of the format.
