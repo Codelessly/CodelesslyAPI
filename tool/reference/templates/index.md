@@ -66,7 +66,7 @@ per color the design uses) and the type scale (a name per kind of text: display,
 - In a binding, a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`.
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name) and a theme of
   the wrong shape (`invalid_theme`). Without a `site.json`, put the page in a directory with one:
-  `{"schema": 2, "pages": ["home.json"], "theme": {...}}`.
+  `{"schema": 3, "pages": ["home.json"], "theme": {...}}`.
 
 A page using it (a fragment of `home.json`'s `nodes`):
 
@@ -791,7 +791,7 @@ widget class: the declaration is its constructor, a call is `PlanCard(price: 47,
 A definition (`components/Chip.json`; the file is named after the type):
 
 ```json
-{"schema": 2, "id": "Chip", "roots": ["chip"],
+{"schema": 3, "id": "Chip", "roots": ["chip"],
  "widget": {"type": "Chip", "doc": "A label with a remove button.", "children": "list", "slots": ["leading"],
    "props": [
      {"key": "label", "type": {"kind": "string", "flutter": "String"}, "default": "Chip", "required": true},
@@ -877,7 +877,7 @@ node inside an instance by its **path**: the call ids from the page down, then t
 bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).
 
 ```json
-{"schema": 2, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
+{"schema": 3, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
  "variables": [{"name": "tags", "type": "list", "value": [{"name": "Design"}, {"name": "Code"}]}]}
 ```
 

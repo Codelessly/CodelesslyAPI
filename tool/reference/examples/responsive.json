@@ -1,5 +1,5 @@
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["home-mobile", "home-desktop"],
   "nodes": {
     "home-mobile": {"type": "canvas", "name": "Home", "props": {"screen": "home", "breakpoint": "mobile"},

@@ -26,7 +26,7 @@ void main() {
 
   test('validation reads both as declared', () {
     Json doc(Json paint) => {
-          'schema': 2,
+          'schema': 3,
           'roots': ['c'],
           'nodes': {
             'c': {'type': 'canvas', 'layout': {'width': 390, 'height': 844}, 'slots': {'body': 'b'}},

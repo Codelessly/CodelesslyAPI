@@ -23,7 +23,7 @@ void main() {
 
 void decoding() {
   final document = LayoutDocument.fromJson({
-    'schema': 2,
+    'schema': 3,
     'id': 'L',
     'roots': ['c', 'missing'],
     'nodes': {
@@ -141,7 +141,7 @@ void introspection() {
 
 void logic() {
   final document = LayoutDocument.fromJson({
-    'schema': 2,
+    'schema': 3,
     'roots': ['home'],
     'nodes': {
       'home': {'type': 'canvas'},
@@ -211,7 +211,7 @@ void breakpoints() {
 void publish() {
   final bundle = PublishBundle.fromJson({
     'model': {
-      'schema': 2,
+      'schema': 3,
       'projectId': 'p',
       'entryLayoutId': 'home',
       'layoutIDMap': {'start': 'home'},
@@ -226,7 +226,7 @@ void publish() {
     },
     'layouts': {
       'home': {
-        'schema': 2,
+        'schema': 3,
         'id': 'home',
         'roots': ['home-m', 'home-d'],
         'breakpoints': [

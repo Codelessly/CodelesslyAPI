@@ -114,7 +114,7 @@ void main() {
 
   test('a layout document holds its variables and conditions', () {
     final doc = LayoutDocument.fromJson({
-      'schema': 2,
+      'schema': 3,
       'roots': ['c'],
       'nodes': {
         'c': {'type': 'canvas'},

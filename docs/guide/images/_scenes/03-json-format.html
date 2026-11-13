@@ -7,7 +7,7 @@
 <!-- Hero: three rules -->
 <tut-stage name="hero" w="800" h="420" bg="solid">
   <div class="hd"><div class="t">The JSON format: three rules</div><div class="s">They let an older app show a layout made by a newer Editor.</div></div>
-  <div class="dn blue" style="left:40px;top:110px;width:228px;height:220px"><div class="k">Versioned</div><div class="t m" style="font-size:14px">"schema": 2</div><div class="d" style="margin-top:8px">Older schemas are upgraded on load, so stored data keeps working.</div></div>
+  <div class="dn blue" style="left:40px;top:110px;width:228px;height:220px"><div class="k">Versioned</div><div class="t m" style="font-size:14px">"schema": 3</div><div class="d" style="margin-top:8px">Older schemas are upgraded on load, so stored data keeps working.</div></div>
   <div class="dn green" style="left:286px;top:110px;width:228px;height:220px"><div class="k">Total decoding</div><div class="t m" style="font-size:14px">fromJson never throws</div><div class="d" style="margin-top:8px">Unknown keys, types and props are kept and written back; a bad value falls back to its default.</div></div>
   <div class="dn purple" style="left:532px;top:110px;width:228px;height:220px"><div class="k">Sparse encoding</div><div class="t m" style="font-size:14px">defaults omitted</div><div class="d" style="margin-top:8px">JSON stays small and diffs readable. Doubles rounded to 4 decimals.</div></div>
   <div class="at" style="left:40px;top:350px;width:720px;font-size:12.5px;color:var(--fg1)">The price of total decoding: decoding doesn't tell you a document is wrong. Checking is a separate step.</div>
@@ -17,7 +17,7 @@
 <tut-stage name="total-decoding" w="800" h="580" bg="solid">
   <div class="hd"><div class="t">Total decoding, on a messy input</div><div class="s">The example from this page: what <span class="m">LayoutDocument.fromJson</span> keeps, defaults and drops.</div></div>
   <tut-code-window class="xs" at="40,96" w="500" file="input" lang="json" highlight="3,12,15,16">
-'schema': 2,
+'schema': 3,
 'id': 'L',
 'roots': ['c', 'missing'],
 'nodes': {
