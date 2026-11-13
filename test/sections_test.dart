@@ -2,6 +2,7 @@
 // the slot node, the event trigger, componentEvent, the variable parameter,
 // the site manifest, cycles, and every diagnostic of a call or a definition.
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/catalog_json.dart';
@@ -622,5 +623,22 @@ void main() {
       );
       expect(coded(project(docs(p: p)), Codes.duplicateId), isEmpty);
     });
+  });
+
+  test('the guide\'s example site (tool/reference/examples/sections) is valid, and is the guide\'s', () {
+    const base = 'tool/reference/examples/sections';
+    Json read(String f) => jsonDecode(File('$base/$f').readAsStringSync()) as Json;
+    final manifest = SiteManifest.fromJson(read('site.json'));
+    final docs = {for (final f in ['pages/home.json', ...manifest.components]) f: read(f)};
+    expect(validateProject(docs, manifest: manifest).map((d) => '$d'), isEmpty);
+    final guide = File('docs/reference/index.md').readAsStringSync();
+    final section = guide.substring(guide.indexOf('<a id="guide-components">'));
+    final blocks = RegExp(r'```json\n(.*?)\n```', dotAll: true).allMatches(section).map((m) => m[1]!).toList();
+    expect(jsonDecode(blocks[0]), read('components/Chip.json'));
+    final calls = (jsonDecode('{${blocks[1]}}') as Map)['nodes'] as Map;
+    for (final e in calls.entries) {
+      expect((read('pages/home.json')['nodes'] as Map)[e.key], e.value);
+    }
+    expect(jsonDecode(blocks[2]), read('site.json'));
   });
 }

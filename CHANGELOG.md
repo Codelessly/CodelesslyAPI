@@ -1,5 +1,32 @@
 ## Unreleased
 
+**Sections and components by reference (docs/design/06, phase 1)**
+
+- A component is a document: one non-canvas root plus a `widget` declaration (the catalog's widget JSON with
+  `events`). `ComponentDocument` (`LayoutDocument.widget`, `componentType`, `componentRoot`, `previews`,
+  `componentVariables`), `ComponentPreview`, `ComponentLibrary` (definitions by type, their `catalog`, the call
+  graph, `cycles`, `closureOf`), `componentCycles`, `isComponentTypeName`, `seamCall` (the call's size and
+  placement over the root's inside), `callLayoutKeys`.
+- A call is a node whose `type` is a component's: decode a page with `standardCatalog + library.catalog` and its
+  props are typed; without it they stay raw and round-trip.
+- `WidgetSpec.events` and `EventSpec`; `PropDef.required` (`"required": true`); `PropType.variable` (JSON
+  `{"kind": "variable", "of": ...}`, kind `string`: no new `PropKind`). The catalog JSON reads and writes all
+  three.
+- New node type `slot` (`SlotProps`, prop `name`). New trigger type `event` with `Trigger.event`. New core action
+  `componentEvent` (`ComponentEventAction`, `ComponentEventFields`); the managed library's
+  `kComponentEventAction`, `componentEventAction` and `componentEventOf` now use it (an unknown-typed one still
+  reads).
+- `SiteManifest` (`site.json`: pages, components, project variables, breakpoints) and `Site`.
+- `validateProject(..., manifest:)` checks component libraries and calls: new codes `unknown_component`,
+  `duplicate_component`, `component_cycle`, `component_id_mismatch`, `invalid_component`, `missing_prop`,
+  `unknown_event`, `call_field_not_allowed`, `slot_outside_component`, `root_placement_bound`; definitions read
+  `props` and their own variables only; project variables colliding with a document's are `duplicate_variable`;
+  `duplicate_id` no longer spans a component and another document. `ValidateOptions.components`.
+- Copy instances (`ComponentLink`, `ComponentDefinition`) are unchanged.
+- Fix: a number declared as data (`JsonPropCodec`) below its `min` no longer throws.
+- Guide §19 "Sections and components", a STARTER section, and a validated example site
+  (`tool/reference/examples/sections`).
+
 **Authoring fixes from the first direct-authoring experiment (cycle 1)**
 
 - New node type `flex` (Flutter `Flex`, the widget `Row` and `Column` extend): the row/column props plus
