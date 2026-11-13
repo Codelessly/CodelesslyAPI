@@ -191,7 +191,6 @@ abstract final class OpenModalFields {
   static const barrierDismissible = PropDef<bool>('barrierDismissible', Codecs.bool, true);
   static const barrierColor = PropDef<Color?>('barrierColor', Codecs.optionalColor, null, doc: 'Null: the default scrim.');
   static const barrierBlur = PropDef<double>('barrierBlur', Codecs.double, 0);
-  static const showCloseButton = PropDef<bool>('showCloseButton', Codecs.bool, false);
   static const showDragHandle = PropDef<bool>('showDragHandle', Codecs.bool, false);
   static const alignment = PropDef<List<double>>('alignment', Codecs.doubles, [0, 0], doc: 'A dialog\'s alignment, [x, y] (-1 to 1).');
   static const anchor = PropDef<ModalAnchor>('anchor', EnumCodec(ModalAnchor.values), ModalAnchor.none);
@@ -212,16 +211,15 @@ abstract final class OpenModalFields {
   static const sheetBelow = PropDef<String>('sheetBelow', Codecs.string, '',
       doc: 'Adaptive: a bottom sheet on breakpoints narrower than this one (a breakpoint id; empty: the second).');
   static const maxHeightFactor = PropDef<double>('maxHeightFactor', Codecs.double, 1);
-  static const fullHeight = PropDef<bool>('fullHeight', Codecs.bool, false);
   static const cover = PropDef<bool>('cover', Codecs.bool, false,
       doc: 'A dialog that covers the screen: its screen fills it at the device size (its breakpoint follows the device).');
   static const enterScale = PropDef<double>('enterScale', Codecs.double, 1);
   static const routeTransition = PropDef<RouteTransition?>('routeTransition', routeTransitionCodec, null,
       doc: 'A custom transition: entrance, the screen behind, barrier, drag to dismiss.');
   static const List<PropDef<Object?>> all = [
-    to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showCloseButton, showDragHandle, //
+    to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showDragHandle, //
     alignment, anchor, placement, anchorGap, anchorOffset, anchorReserve, anchorNode, anchorItem, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor,
-    fullHeight, cover, enterScale, routeTransition,
+    cover, enterScale, routeTransition,
   ];
 }
 

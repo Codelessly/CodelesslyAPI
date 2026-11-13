@@ -302,7 +302,6 @@ final class OpenModalAction extends CoreAction {
     this.barrierDismissible = true,
     this.barrierColor,
     this.barrierBlur = 0,
-    this.showCloseButton = false,
     this.showDragHandle = false,
     this.alignment = const [0, 0],
     this.anchor = ModalAnchor.none,
@@ -317,7 +316,6 @@ final class OpenModalAction extends CoreAction {
     this.sheetRadius,
     this.sheetBelow = '',
     this.maxHeightFactor = 1,
-    this.fullHeight = false,
     this.cover = false,
     this.enterScale = 1,
     this.routeTransition,
@@ -338,7 +336,7 @@ final class OpenModalAction extends CoreAction {
   /// Null: the default scrim (`#8A000000`).
   final Color? barrierColor;
   final double barrierBlur;
-  final bool showCloseButton, showDragHandle;
+  final bool showDragHandle;
 
   /// A dialog's alignment in the screen, `[x, y]` (-1 to 1).
   final List<double> alignment;
@@ -382,7 +380,6 @@ final class OpenModalAction extends CoreAction {
   double sheetBelowWidthIn(Breakpoints breakpoints) =>
       breakpoints.byId(sheetBelow)?.minWidth ?? (breakpoints.length > 1 ? breakpoints.list[1].minWidth : 0);
   final double maxHeightFactor;
-  final bool fullHeight;
 
   /// A dialog that covers the screen (inside [insets]): its screen fills it
   /// and is laid out at that size, so its breakpoint and responsive layouts
@@ -403,7 +400,6 @@ final class OpenModalAction extends CoreAction {
     barrierDismissible: _b(m, 'barrierDismissible', true),
     barrierColor: Color.fromJson(m['barrierColor']),
     barrierBlur: _d(m, 'barrierBlur', 0),
-    showCloseButton: _b(m, 'showCloseButton', false),
     showDragHandle: _b(m, 'showDragHandle', false),
     alignment: _doubles(m['alignment'], 2) ?? const [0, 0],
     anchor: _e(ModalAnchor.values, m, 'anchor', ModalAnchor.none),
@@ -418,7 +414,6 @@ final class OpenModalAction extends CoreAction {
     sheetRadius: _dOrNull(m, 'sheetRadius'),
     sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
-    fullHeight: _b(m, 'fullHeight', false),
     cover: _b(m, 'cover', false),
     enterScale: _d(m, 'enterScale', 1),
     routeTransition: RouteTransition.fromJson(m['routeTransition']),
@@ -435,7 +430,6 @@ final class OpenModalAction extends CoreAction {
     if (!barrierDismissible) 'barrierDismissible': false,
     'barrierColor': ?barrierColor?.toJson(),
     if (barrierBlur != 0) 'barrierBlur': writeDouble(barrierBlur),
-    if (showCloseButton) 'showCloseButton': true,
     if (showDragHandle) 'showDragHandle': true,
     if (alignment.any((v) => v != 0)) 'alignment': [for (final v in alignment) writeDouble(v)],
     if (anchor != ModalAnchor.none) 'anchor': anchor.name,
@@ -450,7 +444,6 @@ final class OpenModalAction extends CoreAction {
     if (sheetRadius case final double r) 'sheetRadius': writeDouble(r),
     if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
-    if (fullHeight) 'fullHeight': true,
     if (cover) 'cover': true,
     if (enterScale != 1) 'enterScale': writeDouble(enterScale),
     'routeTransition': ?routeTransition?.toJson(),

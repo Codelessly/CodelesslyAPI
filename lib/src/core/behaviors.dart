@@ -531,7 +531,6 @@ final class Transition extends _Value {
     this.spring,
     this.keyframes = const [],
     this.interpolation = KeyframeInterpolation.linear,
-    this.arc = 0,
   });
 
   /// The binding path (or prefix) it eases: `motion`, `motion.rotate`,
@@ -551,14 +550,6 @@ final class Transition extends _Value {
   /// that swells as it turns over). Joined as [interpolation] says.
   final List<Keyframe> keyframes;
   final KeyframeInterpolation interpolation;
-
-  /// Deprecated (one app): bends a change of a `motion` position
-  /// (`translateX/Y`, `shiftX/Y`) into a quadratic curve whose middle sits
-  /// this share of the distance off the straight line, to the right of the
-  /// way it goes (negative: left). Different curves on the two axes
-  /// (`motion.translateX` and `motion.translateY`) or a `motion.path` say
-  /// the same in the current shape.
-  final double arc;
 
   /// Whether it eases binding path [path].
   bool matches(String path) => property == '*' || path == property || path.startsWith('$property.');
@@ -595,7 +586,6 @@ final class Transition extends _Value {
       spring: Spring.fromJson(m['spring']),
       keyframes: [...?readList(_jsonText(m['keyframes']))?.map(Keyframe.fromJson).nonNulls],
       interpolation: r.e(KeyframeInterpolation.values, 'interpolation', KeyframeInterpolation.linear),
-      arc: r.d('arc', 0),
     );
   }
 
@@ -609,13 +599,11 @@ final class Transition extends _Value {
       ..e('curve', curve, AnimationCurve.linear);
     if (spring != null) j['spring'] = spring!.toJson();
     if (keyframes.isNotEmpty) j['keyframes'] = [for (final k in keyframes) k.toJson()];
-    return j
-      ..e('interpolation', interpolation, KeyframeInterpolation.linear)
-      ..d('arc', arc, 0);
+    return j..e('interpolation', interpolation, KeyframeInterpolation.linear);
   }
 
   @override
-  List<Object?> get props => [property, duration, delay, curve, spring, keyframes, interpolation, arc];
+  List<Object?> get props => [property, duration, delay, curve, spring, keyframes, interpolation];
 }
 
 // --- ink and states -------------------------------------------------------------
@@ -930,9 +918,6 @@ final class DropTarget extends _Value {
     this.slot = DropSlot.gap,
     this.slotNodeId = '',
     this.slotSize = DropSlotSize.dragged,
-    this.slotWhenRefused = true,
-    this.hoverDelay = 0,
-    this.fullIf = '',
     this.enabled = true,
   });
 
@@ -950,11 +935,6 @@ final class DropTarget extends _Value {
   final String slotNodeId;
   final DropSlotSize slotSize;
 
-  /// Whether the list opens its slot for a drop [acceptIf] refuses; off,
-  /// only accepted drops show where they'd land.
-  final bool slotWhenRefused;
-  final int hoverDelay;
-  final String fullIf;
   final bool enabled;
 
   static DropTarget? fromJson(Object? json) {
@@ -969,9 +949,6 @@ final class DropTarget extends _Value {
       slot: r.e(DropSlot.values, 'slot', DropSlot.gap),
       slotNodeId: r.s('slotNodeId'),
       slotSize: r.e(DropSlotSize.values, 'slotSize', DropSlotSize.dragged),
-      slotWhenRefused: r.b('slotWhenRefused', true),
-      hoverDelay: r.ms('hoverDelay', 0),
-      fullIf: r.s('fullIf'),
       enabled: _loose(m['enabled']) ?? true,
     );
   }
@@ -983,14 +960,11 @@ final class DropTarget extends _Value {
     ..e('slot', slot, DropSlot.gap)
     ..s('slotNodeId', slotNodeId)
     ..e('slotSize', slotSize, DropSlotSize.dragged)
-    ..b('slotWhenRefused', slotWhenRefused, true)
-    ..i('hoverDelay', hoverDelay, 0)
-    ..s('fullIf', fullIf)
     ..b('enabled', enabled, true);
 
   @override
   List<Object?> get props => [
-    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, slotWhenRefused, hoverDelay, fullIf, enabled, //
+    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, enabled, //
   ];
 }
 
@@ -1027,8 +1001,8 @@ enum TrackInteraction { slideThumb, tapAndSlide }
 /// thumb: it moves along the track as variable [variable] goes from [min] to
 /// [max], and the design canvas draws it at the variable's value. Dragging
 /// it writes the variable; the wheel and arrow keys step it. Inside it
-/// `${track.value}`, `${track.progress}`, `${track.dragging}`,
-/// `${track.fine}` and `${track.focused}` can be read; it fires `changed`
+/// `${track.value}`, `${track.progress}`, `${track.dragging}` and
+/// `${track.focused}` can be read; it fires `changed`
 /// (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and
 /// `changeEnd`.
 ///
@@ -1072,15 +1046,6 @@ final class Track extends _Value {
     this.settleSpring = Track.defaultSettleSpring,
     this.snap = 0,
     this.snapCurve = AnimationCurve.easeOutBack,
-    this.defaultValue,
-    this.doubleTapValues = const [],
-    this.parkedProgress,
-    this.fineStep = 0,
-    this.finePixelsPerRange = 0,
-    this.fineHold = 380,
-    this.fineVariable = '',
-    this.smooth = false,
-    this.gain = 1,
   });
 
   // --- the value (Slider) ---
@@ -1181,42 +1146,10 @@ final class Track extends _Value {
   final int snap;
   final AnimationCurve snapCurve;
 
-  // --- deprecated: one-app fields, kept working until migrated ---
-
-  /// What a double tap resets to, or the values it moves between in order.
-  /// Deprecated: a `doubleTap` reaction.
-  final double? defaultValue;
-  final List<double> doubleTapValues;
-
-  /// Where the node parks while the value is out of range or empty, as a
-  /// progress that may lie outside 0–1; null draws such a value at the
-  /// nearest end. Deprecated: bind `track.value` outside the range.
-  final double? parkedProgress;
-
-  /// A finer step while Shift is held or after the pointer is held still
-  /// [fineHold] ms (0: hold doesn't), [finePixelsPerRange] pixels for the
-  /// range (0: 4 × [pixelsPerRange]); 0 has no fine mode. [fineVariable], a
-  /// boolean variable, is kept true while fine. Deprecated: a boolean
-  /// variable set by key and hold reactions, bound to `track.step` and
-  /// `track.pixelsPerRange`.
-  final double fineStep, finePixelsPerRange;
-  final int fineHold;
-  final String fineVariable;
-
-  /// Draws the node between [step]s while dragged or coasting, springing
-  /// onto the nearest when it rests. Deprecated: [detent] 1.
-  final bool smooth;
-
-  /// How far an arc followed round its pivot turns per degree of pointer
-  /// turn (0.5 fine). Deprecated; on any other input it is folded into
-  /// [pixelsPerRange].
-  final double gain;
-
   /// Whether the value is unbounded (not [clamp]ed).
   bool get unbounded => !clamp;
 
   bool get hasVariable => variable.trim().isNotEmpty;
-  bool get hasFine => fineStep > 0;
   bool get usesViewBox => shape == TrackShape.path && path?.viewBoxSize != null;
   bool get jumpOnTap => allowedInteraction == TrackInteraction.tapAndSlide;
   bool get momentum => physics?.fling ?? false;
@@ -1225,7 +1158,6 @@ final class Track extends _Value {
   /// exponential rate (`v *= e^(−rate·dt)`).
   double get frictionRate => physics == null ? 0 : -math.log(physics!.frictionDrag);
   double get endAngle => startAngle + sweepAngle;
-  double get effectiveFinePixelsPerRange => finePixelsPerRange > 0 ? finePixelsPerRange : pixelsPerRange * 4;
 
   /// Where [value] is along the track (0–1; past them when unbounded).
   double progressOf(double value) {
@@ -1234,17 +1166,8 @@ final class Track extends _Value {
     return unbounded ? p : p.clamp(0.0, 1.0);
   }
 
-  /// Whether [value] is drawn at [parkedProgress] (out of range, or NaN for
-  /// an empty variable).
-  bool isParked(double value) {
-    if (parkedProgress == null) return false;
-    if (value.isNaN) return true;
-    final lo = math.min(min, max), hi = math.max(min, max);
-    return value < lo || value > hi;
-  }
-
   /// Where the node is drawn for [value].
-  double restProgressOf(double value) => isParked(value) ? parkedProgress! : (value.isNaN ? 0 : progressOf(value));
+  double restProgressOf(double value) => value.isNaN ? 0 : progressOf(value);
 
   /// [progress] held to the track (any progress when unbounded).
   double clampProgress(double progress) => unbounded ? progress : progress.clamp(0.0, 1.0);
@@ -1275,17 +1198,6 @@ final class Track extends _Value {
   /// Null with the keys off ([keyStep] 0).
   double? get effectiveKeyStep =>
       keyStep == 0 ? null : ((keyStep ?? 0) > 0 ? keyStep! : (step > 0 ? step : (max - min).abs() / 100));
-
-  /// The value a double tap moves to from [v], or null when it does nothing.
-  double? doubleTapTarget(double v) {
-    final cycle = doubleTapValues.isNotEmpty ? doubleTapValues : [?defaultValue];
-    if (cycle.isEmpty) return null;
-    final current = snapValue(v);
-    for (var i = 0; i < cycle.length; i++) {
-      if ((snapValue(cycle[i]) - current).abs() < 1e-6) return snapValue(cycle[(i + 1) % cycle.length]);
-    }
-    return snapValue(cycle.first);
-  }
 
   double angleAt(double progress) => startAngle + sweepAngle * clampProgress(progress);
 
@@ -1329,15 +1241,6 @@ final class Track extends _Value {
       settleSpring: Spring.fromJson(m['settleSpring'], fallback: defaultSettleSpring) ?? defaultSettleSpring,
       snap: r.ms('snap', 0),
       snapCurve: r.curve('snapCurve', AnimationCurve.easeOutBack),
-      defaultValue: r.dn('defaultValue'),
-      doubleTapValues: r.doubles('doubleTapValues'),
-      parkedProgress: r.dn('parkedProgress'),
-      fineStep: r.d('fineStep', 0),
-      finePixelsPerRange: r.d('finePixelsPerRange', 0),
-      fineHold: r.ms('fineHold', 380),
-      fineVariable: r.s('fineVariable'),
-      smooth: _loose(m['smooth']) ?? false,
-      gain: r.d('gain', 1),
     );
   }
 
@@ -1379,81 +1282,19 @@ final class Track extends _Value {
     if (settleSpring != defaultSettleSpring) j['settleSpring'] = settleSpring.toJsonOver(defaultSettleSpring);
     j
       ..i('snap', snap, 0)
-      ..e('snapCurve', snapCurve, AnimationCurve.easeOutBack)
-      ..dn('defaultValue', defaultValue);
-    if (doubleTapValues.isNotEmpty) j['doubleTapValues'] = doubleTapValues.map(writeDouble).toList();
-    return j
-      ..dn('parkedProgress', parkedProgress)
-      ..d('fineStep', fineStep, 0)
-      ..d('finePixelsPerRange', finePixelsPerRange, 0)
-      ..i('fineHold', fineHold, 380)
-      ..s('fineVariable', fineVariable)
-      ..b('smooth', smooth, false)
-      ..d('gain', gain, 1);
+      ..e('snapCurve', snapCurve, AnimationCurve.easeOutBack);
+    return j;
   }
 
   @override
   List<Object?> get props => [
     enabled, variable, value, min, max, step, clamp, input, allowedInteraction, hitArea, pixelsPerRange, //
     wheelStep, keyStep, shape, x1, y1, x2, y2, relative, units, startAngle, sweepAngle, pivotX, pivotY, rotate,
-    path, detent, overscroll, physics, settle, settleCurve, settleSpring, snap, snapCurve, defaultValue,
-    doubleTapValues, parkedProgress, fineStep, finePixelsPerRange, fineHold, fineVariable, smooth, gain,
+    path, detent, overscroll, physics, settle, settleCurve, settleSpring, snap, snapCurve,
   ];
 }
 
 // --- following the pointer: dismissible and pan ---------------------------------
-
-/// The legacy `drag` fields that only some apps used, kept read and working
-/// on [DismissibleBehavior] and [Pan] until each has its replacement (see
-/// docs/design/04-drag-and-track.md, "Not yet migrated"). Deprecated: new
-/// documents should not use them.
-mixin _LegacyFollow {
-  /// Degrees the node tilts per its own width of horizontal travel, about
-  /// ([originX], [originY]) (-1–1 of its box). Deprecated: bind
-  /// `motion.rotate` to the drag's offset.
-  double get rotateFactor;
-  double get originX;
-  double get originY;
-
-  /// Wiggles when a disabled drag is tried. Deprecated: a `dragEnd`
-  /// reaction playing the `shake` animation preset.
-  bool get shakeWhenDisabled;
-
-  /// The share of the pointer's travel a disabled drag still follows (and
-  /// springs back from). Deprecated: stay enabled and bind the limits.
-  double get disabledFollow;
-
-  /// A variable the live drag values (`${drag}`) are written to.
-  /// Deprecated: [Pan.xVariable]/[Pan.yVariable], or a reaction writing
-  /// what is shared.
-  String get shareAs;
-
-  /// Off, the node isn't moved, only reports its drag. Deprecated.
-  bool get follow;
-}
-
-/// How [DismissibleBehavior]'s and [Pan]'s legacy fields read from [r].
-({double rotateFactor, double originX, double originY, bool shakeWhenDisabled, double disabledFollow, String shareAs, bool follow})
-    _legacyFollowOf(_R r) => (
-          rotateFactor: r.d('rotateFactor', 0),
-          originX: r.d('originX', 0),
-          originY: r.d('originY', 0),
-          shakeWhenDisabled: r.b('shakeWhenDisabled', false),
-          disabledFollow: r.d('disabledFollow', 0),
-          shareAs: r.s('shareAs'),
-          follow: r.b('follow', true),
-        );
-
-extension on Json {
-  void legacyFollow(_LegacyFollow f) => this
-    ..d('rotateFactor', f.rotateFactor, 0)
-    ..d('originX', f.originX, 0)
-    ..d('originY', f.originY, 0)
-    ..b('shakeWhenDisabled', f.shakeWhenDisabled, false)
-    ..d('disabledFollow', f.disabledFollow, 0)
-    ..s('shareAs', f.shareAs)
-    ..b('follow', f.follow, true);
-}
 
 /// The [DragDirection]s of a list of names, or of a Flutter
 /// `DismissDirection` name (`horizontal`, `vertical`, `endToStart`,
@@ -1493,7 +1334,7 @@ List<DragDirection>? _directionsOf(Object? v) {
 /// `${dismiss.dragging}` can be read (and the same as `${drag.*}`). It fires
 /// `drag` and `dragEnd`.
 @immutable
-final class DismissibleBehavior extends _Value with _LegacyFollow {
+final class DismissibleBehavior extends _Value {
   const DismissibleBehavior({
     this.enabled = true,
     this.directions = const [DragDirection.left, DragDirection.right],
@@ -1506,18 +1347,6 @@ final class DismissibleBehavior extends _Value with _LegacyFollow {
     this.returnDuration,
     this.returnCurve,
     this.returnSpring,
-    this.restX = 0,
-    this.restY = 0,
-    this.xVariable = '',
-    this.yVariable = '',
-    this.flyOutRotate = 0,
-    this.rotateFactor = 0,
-    this.originX = 0,
-    this.originY = 0,
-    this.shakeWhenDisabled = false,
-    this.disabledFollow = 0,
-    this.shareAs = '',
-    this.follow = true,
   });
 
   /// `Dismissible`'s `_kDismissThreshold`: the share of the node's size a
@@ -1562,24 +1391,6 @@ final class DismissibleBehavior extends _Value with _LegacyFollow {
   /// over [returnDuration].
   final Spring? returnSpring;
 
-  /// Where it rests, from where its layout puts it (pixels); a new value
-  /// moves it there. Deprecated (one app): a `motion.translateX` binding.
-  final double restX, restY;
-
-  /// Number variables its offset is written to (rounded to hundredths) as
-  /// it moves. Deprecated: a `drag` reaction writing `${result.dx}`.
-  final String xVariable, yVariable;
-
-  /// Degrees it turns while flying off (left and up negative). Deprecated:
-  /// an animation played by the swipe's reaction.
-  final double flyOutRotate;
-  @override
-  final double rotateFactor, originX, originY, disabledFollow;
-  @override
-  final bool shakeWhenDisabled, follow;
-  @override
-  final String shareAs;
-
   int get effectiveReturnDuration => returnDuration ?? movementDuration;
   AnimationCurve get effectiveReturnCurve => returnCurve ?? curve;
 
@@ -1590,7 +1401,6 @@ final class DismissibleBehavior extends _Value with _LegacyFollow {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    final legacy = _legacyFollowOf(r);
     final thresholds = readMap(_jsonText(m['dismissThresholds']));
     return DismissibleBehavior(
       enabled: _loose(m['enabled']) ?? true,
@@ -1607,18 +1417,6 @@ final class DismissibleBehavior extends _Value with _LegacyFollow {
       returnDuration: readInt(m['returnDuration'])?.let((v) => math.max(0, v)),
       returnCurve: AnimationCurve.parse(m['returnCurve']),
       returnSpring: Spring.fromJson(m['returnSpring']),
-      restX: r.d('restX', 0),
-      restY: r.d('restY', 0),
-      xVariable: r.s('xVariable'),
-      yVariable: r.s('yVariable'),
-      flyOutRotate: r.d('flyOutRotate', 0),
-      rotateFactor: legacy.rotateFactor,
-      originX: legacy.originX,
-      originY: legacy.originY,
-      shakeWhenDisabled: legacy.shakeWhenDisabled,
-      disabledFollow: legacy.disabledFollow,
-      shareAs: legacy.shareAs,
-      follow: legacy.follow,
     );
   }
 
@@ -1639,21 +1437,13 @@ final class DismissibleBehavior extends _Value with _LegacyFollow {
     if (returnDuration != null) j['returnDuration'] = returnDuration;
     if (returnCurve != null) j['returnCurve'] = returnCurve!.name;
     if (returnSpring != null) j['returnSpring'] = returnSpring!.toJson();
-    return j
-      ..d('restX', restX, 0)
-      ..d('restY', restY, 0)
-      ..s('xVariable', xVariable)
-      ..s('yVariable', yVariable)
-      ..d('flyOutRotate', flyOutRotate, 0)
-      ..legacyFollow(this);
+    return j;
   }
 
   @override
   List<Object?> get props => [
     enabled, directions, axis, dismissThresholds, flingVelocity, resistance, movementDuration, curve, //
-    returnDuration, returnCurve, returnSpring, restX, restY, xVariable, yVariable, flyOutRotate, rotateFactor, originX,
-    originY,
-    shakeWhenDisabled, disabledFollow, shareAs, follow,
+    returnDuration, returnCurve, returnSpring,
   ];
 }
 
@@ -1674,7 +1464,7 @@ enum PanRelease { snapBack, stay }
 /// `${pan.settling}`, `${pan.snapIndex}` can be read (and the same as
 /// `${drag.*}`). It fires `drag` and `dragEnd`.
 @immutable
-final class Pan extends _Value with _LegacyFollow {
+final class Pan extends _Value {
   const Pan({
     this.enabled = true,
     this.axis = DragAxis.free,
@@ -1691,13 +1481,6 @@ final class Pan extends _Value with _LegacyFollow {
     this.maxX,
     this.minY,
     this.maxY,
-    this.rotateFactor = 0,
-    this.originX = 0,
-    this.originY = 0,
-    this.shakeWhenDisabled = false,
-    this.disabledFollow = 0,
-    this.shareAs = '',
-    this.follow = true,
   });
 
   /// Bindable as `pan.enabled`.
@@ -1727,12 +1510,6 @@ final class Pan extends _Value with _LegacyFollow {
   /// offsets from rest [minX]...[maxY] (null: no limit).
   final GestureBounds bounds;
   final double? minX, maxX, minY, maxY;
-  @override
-  final double rotateFactor, originX, originY, disabledFollow;
-  @override
-  final bool shakeWhenDisabled, follow;
-  @override
-  final String shareAs;
 
   bool get hasBounds => bounds != GestureBounds.none || minX != null || maxX != null || minY != null || maxY != null;
 
@@ -1740,7 +1517,6 @@ final class Pan extends _Value with _LegacyFollow {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    final legacy = _legacyFollowOf(r);
     return Pan(
       enabled: _loose(m['enabled']) ?? true,
       axis: r.e(DragAxis.values, 'axis', DragAxis.free),
@@ -1757,13 +1533,6 @@ final class Pan extends _Value with _LegacyFollow {
       maxX: r.dn('maxX'),
       minY: r.dn('minY'),
       maxY: r.dn('maxY'),
-      rotateFactor: legacy.rotateFactor,
-      originX: legacy.originX,
-      originY: legacy.originY,
-      shakeWhenDisabled: legacy.shakeWhenDisabled,
-      disabledFollow: legacy.disabledFollow,
-      shareAs: legacy.shareAs,
-      follow: legacy.follow,
     );
   }
 
@@ -1784,14 +1553,13 @@ final class Pan extends _Value with _LegacyFollow {
       ..dn('minX', minX)
       ..dn('maxX', maxX)
       ..dn('minY', minY)
-      ..dn('maxY', maxY)
-      ..legacyFollow(this);
+      ..dn('maxY', maxY);
   }
 
   @override
   List<Object?> get props => [
     enabled, axis, release, returnDuration, returnCurve, x, y, xVariable, yVariable, physics, bounds, minX, maxX, //
-    minY, maxY, rotateFactor, originX, originY, shakeWhenDisabled, disabledFollow, shareAs, follow,
+    minY, maxY,
   ];
 }
 

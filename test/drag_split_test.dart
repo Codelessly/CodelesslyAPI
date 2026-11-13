@@ -72,9 +72,9 @@ void main() {
       'curve': 'easeIn',
       'returnDuration': 450,
       'returnCurve': 'spring',
-      'rotateFactor': 15,
-      'originY': 1.6,
     });
+    // The deprecated tilt is dropped in schema 3, kept unread as legacy.*.
+    expect(n.extra, {'legacy.dismissible.rotateFactor': 15, 'legacy.dismissible.originY': 1.6});
     expect(_node(n.toJson()), n);
     // Every direction by default; physics is the return spring.
     final all = _node({
@@ -158,7 +158,6 @@ void main() {
     });
     expect(card.bind, {
       'dismissible.enabled': r'${ok}',
-      'dismissible.restX': r'${peek}',
       'dismissible.dismissThresholds.left': '0.2',
       'dismissible.dismissThresholds.right': '0.2',
       'dismissible.dismissThresholds.up': '0.2',
@@ -166,6 +165,8 @@ void main() {
       'dismissible.movementDuration': '200',
       'drag.unknown': '1',
     });
+    // A dismissible's rest (deprecated) is dropped with its binding.
+    expect(card.extra['legacy.dismissible.restX'], {'value': null, 'bind': r'${peek}'});
     final applied = BindPaths.apply(card, 'dismissible.dismissThresholds.up', 0.1);
     expect(applied.behaviors.dismissible!.thresholdFor(DragDirection.up), 0.1);
     final sheet = _node({
@@ -255,20 +256,18 @@ void main() {
     expect(dial.momentum, isTrue);
     expect(dial.physics!.friction, 0.9257);
     expect(dial.frictionRate, closeTo(2.6, 0.001));
-    expect(dial.gain, 0.5);
     expect(dial.allowedInteraction, TrackInteraction.tapAndSlide);
     expect(dial.wheelStep, 0);
     expect(dial.wheel, isFalse);
     expect(dial.toJson(), {
       'variable': 'dial', 'max': 40, 'step': 1, 'clamp': false, 'allowedInteraction': 'tapAndSlide', 'wheelStep': 0, //
-      'shape': 'arc', 'startAngle': 0, 'sweepAngle': 360, 'physics': {'friction': 0.9257}, 'gain': 0.5,
+      'shape': 'arc', 'startAngle': 0, 'sweepAngle': 360, 'physics': {'friction': 0.9257},
     });
     // endless on a line did nothing: still clamped.
     expect(legacyTrack({'endless': true})!.clamp, isTrue);
     // A vertical knob's gain is a pixel rate.
     final knob = legacyTrack({'input': 'vertical', 'pixelsPerRange': 300, 'gain': 2, 'keyboard': false})!;
     expect(knob.pixelsPerRange, 150);
-    expect(knob.gain, 1);
     expect(knob.effectiveKeyStep, isNull);
     // A path with its legacy view box and orientation.
     final p = legacyTrack({

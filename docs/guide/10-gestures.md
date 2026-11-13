@@ -54,15 +54,19 @@ A knob that turns in place (an arc about its own center) by angle, the wheel off
 ```
 
 A combination dial: unclamped, coasting when flicked (the legacy `friction` 2.6 was a rate per second; the
-same coast loses 0.9257 of its speed a second), drawn between numbers while it moves:
+same coast loses 0.9257 of its speed a second):
 
 ```json legacy
-{"drag": {"track": {"shape": "arc", "variable": "dialTurns", "max": 100, "step": 1, "startAngle": 0, "endAngle": 360, "endless": true, "momentum": true, "smooth": true, "gain": 0.8}}}
+{"drag": {"track": {"shape": "arc", "variable": "dialTurns", "max": 100, "step": 1, "startAngle": 0, "endAngle": 360, "endless": true, "momentum": true}}}
 ```
 
 ```json
-{"track": {"variable": "dialTurns", "max": 100, "step": 1, "clamp": false, "shape": "arc", "startAngle": 0, "sweepAngle": 360, "physics": {"friction": 0.9257}, "smooth": true, "gain": 0.8}}
+{"track": {"variable": "dialTurns", "max": 100, "step": 1, "clamp": false, "shape": "arc", "startAngle": 0, "sweepAngle": 360, "physics": {"friction": 0.9257}}}
 ```
+
+Schema 3 dropped the one-app track fields (`smooth`, `gain` round an arc, `parkedProgress`, the fine mode,
+`defaultValue`/`doubleTapValues`): the migration keeps such a value as `legacy.track.<field>`, unread, and its
+report says what to write instead (docs/guide/12-migrating-to-schema-3.md).
 
 A playhead that only shows its variable (its reactions seek): `write: false` became a bound value.
 
@@ -152,7 +156,7 @@ undo: a card built in the next frame starts off-screen there) or springs it home
 under the pointer), `dragAnchor` (`child`: where grabbed; `center`), the feedback's `feedbackRotation`,
 `feedbackScale`, `feedbackOpacity`, `feedbackElevation`, and `returnSpring` (a `Spring`, default
 `{"stiffness": 260, "damping": 14}`; `false`: none). `dropTarget` is `DragTarget`: `accepts`, `acceptIf`, a list
-to insert into (`listNodeId`, `slot`, `slotNodeId`, `slotSize`) and `fullIf`. `${drag.*}` reads the session.
+to insert into (`listNodeId`, `slot`, `slotNodeId`, `slotSize`; the slot opens for drags it accepts). `${drag.*}` reads the session.
 
 ```json legacy
 {"draggable": {"group": "cards", "whileDragging": "hidden", "feedbackNodeId": "ghost", "feedbackAnchor": "center", "returnSpring": false}}

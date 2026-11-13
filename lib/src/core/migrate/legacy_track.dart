@@ -14,6 +14,36 @@ import 'legacy_read.dart';
 
 List<double> _doubles(Json m, String k) => [...?readList(m[k])?.map(readDouble).nonNulls];
 
+/// [out] with [extra]'s entries that aren't null added: the deprecated
+/// fields the schema-2 shape still had, for the steps that drop them.
+Json _with(Json out, Map<String, Object?> extra) => {
+      ...out,
+      for (final e in extra.entries)
+        if (e.value != null) e.key: e.value,
+    };
+
+/// [out] (encoded from a value whose `physics` was read from [raw]) with
+/// the raw snap's `projectVelocity` kept, for the step that drops it.
+Json _keepSnap(Json out, Json? raw) {
+  final v = readMap(readMap(raw?['physics'])?['snap'])?['projectVelocity'];
+  final physics = readMap(out['physics']);
+  final snap = readMap(physics?['snap']);
+  if (v == null || physics == null || snap == null) return out;
+  return {...out, 'physics': {...physics, 'snap': {...snap, 'projectVelocity': v}}};
+}
+
+/// The deprecated follow fields of a legacy `drag` [r] that differ from
+/// their defaults.
+Map<String, Object?> _followExtra(LegacyReader r) => {
+      if (r.d('rotateFactor', 0) != 0) 'rotateFactor': writeDouble(r.d('rotateFactor', 0)),
+      if (r.d('originX', 0) != 0) 'originX': writeDouble(r.d('originX', 0)),
+      if (r.d('originY', 0) != 0) 'originY': writeDouble(r.d('originY', 0)),
+      if (r.b('shakeWhenDisabled', false)) 'shakeWhenDisabled': true,
+      if (r.d('disabledFollow', 0) != 0) 'disabledFollow': writeDouble(r.d('disabledFollow', 0)),
+      if (r.s('shareAs').isNotEmpty) 'shareAs': r.s('shareAs'),
+      if (!r.b('follow', true)) 'follow': false,
+    };
+
 /// The legacy `drag` object's split.
 abstract final class LegacyDrag {
   /// The track of a legacy `drag` object [d] (its `track`, switched by its
@@ -30,17 +60,6 @@ abstract final class LegacyDrag {
   /// (`reorder: true` without a track).
   static bool isReorderHandle(Json? d) => d != null && readMap(d['track']) == null && (readBool(d['reorder']) ?? false);
 
-  static ({double rotateFactor, double originX, double originY, bool shakeWhenDisabled, double disabledFollow, String shareAs, bool follow})
-      _follow(LegacyReader r) => (
-            rotateFactor: r.d('rotateFactor', 0),
-            originX: r.d('originX', 0),
-            originY: r.d('originY', 0),
-            shakeWhenDisabled: r.b('shakeWhenDisabled', false),
-            disabledFollow: r.d('disabledFollow', 0),
-            shareAs: r.s('shareAs'),
-            follow: r.b('follow', true),
-          );
-
   /// The dismissible a legacy `drag` object [d] amounts to (`release:
   /// dismiss`, no track, not a reorder handle), its old defaults written
   /// out, as JSON; null for any other drag.
@@ -50,7 +69,6 @@ abstract final class LegacyDrag {
     if (r.s('release', 'snapBack') != 'dismiss') return null;
     final distance = r.d('distanceThreshold', 0.35), vertical = r.dn('verticalThreshold') ?? distance;
     final physics = GesturePhysics.fromJson(LegacyPhysics.migrate(readMap(d['physics'])));
-    final f = _follow(r);
     final j = DismissibleBehavior(
       enabled: loose(d['enabled']) ?? true,
       directions: directionsOf(d['directions']) ?? DragDirection.values,
@@ -68,20 +86,15 @@ abstract final class LegacyDrag {
       returnDuration: r.ms('snapBack', 450),
       returnCurve: r.curve('snapCurve', AnimationCurve.spring),
       returnSpring: physics?.spring,
-      restX: r.d('restX', 0),
-      restY: r.d('restY', 0),
-      xVariable: r.s('xVariable'),
-      yVariable: r.s('yVariable'),
-      flyOutRotate: r.d('flyOutRotate', 0),
-      rotateFactor: f.rotateFactor,
-      originX: f.originX,
-      originY: f.originY,
-      shakeWhenDisabled: f.shakeWhenDisabled,
-      disabledFollow: f.disabledFollow,
-      shareAs: f.shareAs,
-      follow: f.follow,
     ).toJson();
-    return j;
+    return _with(j, {
+      if (r.d('restX', 0) != 0) 'restX': writeDouble(r.d('restX', 0)),
+      if (r.d('restY', 0) != 0) 'restY': writeDouble(r.d('restY', 0)),
+      if (r.s('xVariable').isNotEmpty) 'xVariable': r.s('xVariable'),
+      if (r.s('yVariable').isNotEmpty) 'yVariable': r.s('yVariable'),
+      if (r.d('flyOutRotate', 0) != 0) 'flyOutRotate': writeDouble(r.d('flyOutRotate', 0)),
+      ..._followExtra(r),
+    });
   }
 
   /// The [DragDirection]s of a list of names, or of a Flutter
@@ -122,9 +135,8 @@ abstract final class LegacyDrag {
       'x': ?d['restX'],
       'y': ?d['restY'],
     };
-    final f = _follow(LegacyReader(m));
     final mr = LegacyReader(m);
-    return Pan(
+    final pan = Pan(
       enabled: loose(m['enabled']) ?? true,
       axis: mr.e(DragAxis.values, 'axis', DragAxis.free),
       release: mr.e(PanRelease.values, 'release', PanRelease.snapBack),
@@ -140,14 +152,8 @@ abstract final class LegacyDrag {
       maxX: mr.dn('maxX'),
       minY: mr.dn('minY'),
       maxY: mr.dn('maxY'),
-      rotateFactor: f.rotateFactor,
-      originX: f.originX,
-      originY: f.originY,
-      shakeWhenDisabled: f.shakeWhenDisabled,
-      disabledFollow: f.disabledFollow,
-      shareAs: f.shareAs,
-      follow: f.follow,
     ).toJson();
+    return _keepSnap(_with(pan, _followExtra(mr)), m);
   }
 }
 
@@ -170,7 +176,7 @@ abstract final class LegacyTrack {
   /// `momentum`/`friction`, `gain`, the path string with
   /// `viewBoxWidth`/`viewBoxHeight` and `orientToPath`/`orientUpright`,
   /// `write: false`, `settleStiffness`/`settleDamping`).
-  static Track read(Json m) {
+  static Json read(Json m) {
     final r = LegacyReader(m);
     final path = _pathOf(m);
     final shape = readEnum(TrackShape.values, m['shape'], path != null ? TrackShape.path : TrackShape.line);
@@ -180,7 +186,7 @@ abstract final class LegacyTrack {
     // A gain other than round an arc followed by angle is a pixel rate.
     final angular = shape == TrackShape.arc && input == TrackInput.follow;
     final ppr = r.d('pixelsPerRange', 200);
-    return Track(
+    final track = Track(
       enabled: loose(m['enabled']) ?? true,
       variable: dropsVariable(m) ? '' : r.s('variable'),
       value: r.dn('value'),
@@ -222,16 +228,30 @@ abstract final class LegacyTrack {
           Track.defaultSettleSpring,
       snap: r.ms('snap', 0),
       snapCurve: r.curve('snapCurve', AnimationCurve.easeOutBack),
-      defaultValue: r.dn('defaultValue'),
-      doubleTapValues: r.doubles('doubleTapValues'),
-      parkedProgress: r.dn('parkedProgress'),
-      fineStep: r.d('fineStep', 0),
-      finePixelsPerRange: angular || gain <= 0 ? r.d('finePixelsPerRange', 0) : r.d('finePixelsPerRange', 0) / gain,
-      fineHold: r.ms('fineHold', 380),
-      fineVariable: r.s('fineVariable'),
-      smooth: loose(m['smooth']) ?? false,
-      gain: angular ? gain : 1,
-    );
+    ).toJson();
+    final fine = angular || gain <= 0 ? r.d('finePixelsPerRange', 0) : r.d('finePixelsPerRange', 0) / gain;
+    final rawPath = readMap(m['path']);
+    final out = _with(track, {
+      'defaultValue': ?r.dn('defaultValue')?.let(writeDouble),
+      if (r.doubles('doubleTapValues').isNotEmpty) 'doubleTapValues': r.doubles('doubleTapValues').map(writeDouble).toList(),
+      'parkedProgress': ?r.dn('parkedProgress')?.let(writeDouble),
+      if (r.d('fineStep', 0) != 0) 'fineStep': writeDouble(r.d('fineStep', 0)),
+      if (fine != 0) 'finePixelsPerRange': writeDouble(fine),
+      if (r.ms('fineHold', 380) != 380) 'fineHold': r.ms('fineHold', 380),
+      if (r.s('fineVariable').isNotEmpty) 'fineVariable': r.s('fineVariable'),
+      if (loose(m['smooth']) ?? false) 'smooth': true,
+      if (angular && gain != 1) 'gain': writeDouble(gain),
+    });
+    // A path object's deprecated keys, for the step that drops them.
+    final outPath = readMap(out['path']);
+    if (rawPath != null && outPath != null) {
+      out['path'] = <String, Object?>{
+        ...outPath,
+        for (final k in const ['pacing', 'focus']) k: ?rawPath[k],
+        if (rawPath['orient'] == 'uprightFlip') 'orient': 'uprightFlip',
+      };
+    }
+    return _keepSnap(out, m);
   }
 
   /// The legacy `momentum` coast slowing at [rate] per second
@@ -347,6 +367,30 @@ abstract final class LegacyMotion {
     'perspective', 'alignment', 'backfaceHidden', 'path',
   };
 
+  /// The motion as schema 3 JSON, with its path's deprecated keys
+  /// (`pacing`, `focus`, `orient: uprightFlip`, from the path object or the
+  /// flat `pathPacing`, `pathFocusX/Y`, `uprightMirror`) kept for the step
+  /// that drops them.
+  static Json json(Json m) {
+    final out = read(m).toJson();
+    final path = readMap(out['path']);
+    if (path == null) return out;
+    final raw = readMap(m['path']) ?? const <String, Object?>{};
+    final focus = [..._doubles(raw, 'focus'), 0.0, 0.0];
+    final fx = readDouble(m['pathFocusX']) ?? focus[0], fy = readDouble(m['pathFocusY']) ?? focus[1];
+    final pacing = m['pathPacing'] ?? raw['pacing'];
+    final tangent = readBool(m['orientToPath']) ?? raw['orient'] != null && raw['orient'] != 'none';
+    final upright = readBool(m['orientUpright']) ?? (raw['orient'] == 'upright' || raw['orient'] == 'uprightFlip');
+    final flip = readBool(m['uprightMirror']) ?? raw['orient'] == 'uprightFlip';
+    out['path'] = {
+      ...path,
+      if (pacing is String && pacing != 'length') 'pacing': pacing,
+      if (fx != 0 || fy != 0) 'focus': [writeDouble(fx), writeDouble(fy)],
+      if (tangent && upright && flip) 'orient': 'uprightFlip',
+    };
+    return out;
+  }
+
   static Motion read(Json m) {
     final r = LegacyReader(m);
     final legacyOrigin = m.containsKey('originX') || m.containsKey('originY');
@@ -382,9 +426,7 @@ abstract final class LegacyMotion {
     final box = _doubles(m, 'pathViewBox');
     final orient = base?.orient ?? PathOrient.none;
     final tangent = b('orientToPath', orient != PathOrient.none);
-    final upright = b('orientUpright', orient == PathOrient.upright || orient == PathOrient.uprightFlip);
-    final flip = b('uprightMirror', orient == PathOrient.uprightFlip);
-    final focus = [...?base?.focus, 0.0, 0.0];
+    final upright = b('orientUpright', orient == PathOrient.upright || readMap(m['path'])?['orient'] == 'uprightFlip');
     return PathFollow(
       path: base?.path ?? '',
       viewBox: box.isNotEmpty ? box : base?.viewBox ?? const [],
@@ -393,11 +435,7 @@ abstract final class LegacyMotion {
           ? PathOrient.none
           : !upright
               ? PathOrient.tangent
-              : flip
-                  ? PathOrient.uprightFlip
-                  : PathOrient.upright,
-      pacing: readEnum(PathPacing.values, m['pathPacing'], base?.pacing ?? PathPacing.length),
-      focus: [d('pathFocusX', focus[0]), d('pathFocusY', focus[1])],
+              : PathOrient.upright,
     );
   }
 }

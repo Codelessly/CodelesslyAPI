@@ -22,9 +22,10 @@ understand, build, check or transform layouts as data.
 | 5 | [Logic](05-logic.md) | Variables, conditions, bindings, reactions and actions, scripts |
 | 6 | [Chart data transitions](06-chart-data-transitions.md) | Data matching, animation controls, interrupted updates and gaps |
 | 7 | [Drawing with `customPaint`](07-custom-paint.md) | Flutter's `CustomPaint` and `Canvas` calls as data: ops, paints, expressions, hit regions |
-| 8 | [Animation](08-animation.md) | `AnimationController` and `Tween` as data: `animations`, tracks, presets, `animate`, `frame`, `Spring`, the legacy keys |
+| 8 | [Animation](08-animation.md) | `AnimationController` and `Tween` as data: `animations`, tracks, presets, `animate`, `frame`, `Spring`, the schema-2 keys |
 | 9 | [Catalogs, libraries and plugins](09-catalogs-and-plugins.md) | `Catalog`, the core and feature libraries, native plugins, catalog JSON, hosted plugins as data |
-| 10 | [Gestures](10-gestures.md) | `track` (Flutter's `Slider` on any path), `dismissible`, `pan`, `draggable`/`dropTarget`, the control actions, the legacy `drag` |
+| 10 | [Gestures](10-gestures.md) | `track` (Flutter's `Slider` on any path), `dismissible`, `pan`, `draggable`/`dropTarget`, the control actions, the schema-2 `drag` |
 | 11 | [Edit operations and streaming](11-edit-ops-and-streaming.md) | Six id-addressed ops, per-op validation, revisions and undo, streaming tool input, the outline, the two LLM tools, the trust profile |
+| 12 | [Migrating to schema 3](12-migrating-to-schema-3.md) | Schema 2 documents load, migrated in memory; `migrate2to3`, the report, `tool/migrate.dart`, what was rewritten and what was dropped |
 
 For contributors, [`DESIGN.md`](../../DESIGN.md) is the full design of the format.

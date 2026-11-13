@@ -6,6 +6,7 @@
 import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
+import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 /// [node] migrated in a document, with its report.
@@ -47,6 +48,17 @@ void main() {
     'action.animateVariable': {'actions': [{'trigger': {'type': 'click'}, 'actions': [{'type': 'animateVariable', 'variable': 't', 'to': '5'}]}]},
     'action.setVariable.animateMs': {'actions': [{'trigger': {'type': 'click'}, 'actions': [{'type': 'setVariable', 'variable': 't', 'value': '5', 'animateMs': '300'}]}]},
     'action.controlDrag': {'actions': [{'trigger': {'type': 'click'}, 'actions': [{'type': 'controlDrag', 'node': 'n', 'command': 'step'}]}]},
+    'track.oneApp': {'track': {'variable': 'v', 'parkedProgress': -0.5, 'fineStep': 0.1, 'smooth': true, 'fineHold': 380}},
+    'dismissible.oneApp': {'dismissible': {'rotateFactor': 10, 'restX': 0}},
+    'pan.oneApp': {'pan': {'shareAs': 'drag'}},
+    'path.oneApp': {'motion': {'path': {'path': 'M0 0 L1 0', 'pacing': 'area', 'focus': [1, 2], 'orient': 'uprightFlip'}}},
+    'transition.arc': {'transitions': [{'property': 'motion', 'duration': 200, 'arc': 0.3}]},
+    'dropTarget.oneApp': {
+      'dropTarget': {'accepts': ['g'], 'acceptIf': r'${ok}', 'listNodeId': 'l', 'fullIf': r'${full}', 'hoverDelay': 0},
+      'actions': [{'trigger': {'type': 'dropFull'}, 'actions': <Object?>[]}],
+    },
+    'gesture.oneApp': {'pan': {'physics': {'snap': {'points': [[0, 0]], 'projectVelocity': false}}}, 'transformGesture': {'rotationSnap': 15}},
+    'openModal.unread': {'actions': [{'trigger': {'type': 'click'}, 'actions': [{'type': 'openModal', 'to': 'm', 'fullHeight': true}]}]},
     'trigger.clock': {'actions': [{'trigger': {'type': 'clock', 'every': 500, 'runWhen': r'${on}'}, 'actions': <Object?>[]}]},
   };
 
@@ -117,6 +129,55 @@ void main() {
     expect((out['props'] as Map)['pageMotionBefore'], {'shiftX': 1, 'alignment': [-1, 0], 'opacity': 0.5});
     final nav = (((out['actions'] as List).single as Map)['actions'] as List).single as Map;
     expect(((nav['transition'] as Map)['enter'] as Map)['motion'], {'scale': 0.9, 'alignment': [0, 1]});
+  });
+
+  test('a deprecated field that did something is kept as legacy.<name>, said with what to write and who used it', () {
+    final (out, report) = migrated({'track': {'variable': 'v', 'parkedProgress': -0.5, 'fineHold': 200, 'smooth': false}});
+    expect(out['track'], {'variable': 'v'});
+    expect(out['legacy.track.parkedProgress'], -0.5);
+    // fineHold without a fine step, smooth at its default: they did nothing.
+    expect(out.keys.where((k) => k.startsWith('legacy.')), ['legacy.track.parkedProgress']);
+    final change = report.behaviourChanges.single;
+    expect(change.instead, contains('apiary'));
+    expect(report.unconvertible.single.instead, contains('track.value'));
+  });
+
+  test('dropTarget.oneApp: a refused drag no longer opens the slot, said once', () {
+    final (out, report) = migrated({
+      'dropTarget': {'accepts': ['g'], 'acceptIf': r'${ok}', 'listNodeId': 'l'},
+    });
+    expect(out['dropTarget'], {'accepts': ['g'], 'acceptIf': r'${ok}', 'listNodeId': 'l'});
+    expect(report.behaviourChanges.single.message, contains('acceptIf'));
+  });
+
+  test('a clock with a formula interval is a timer that validates (intervalMs takes an expression)', () {
+    final doc = migrate2to3({
+      'schema': 2,
+      'roots': ['c'],
+      'nodes': {
+        'c': {
+          'type': 'canvas',
+          'layout': {'width': 390, 'height': 844},
+          'actions': [
+            {'trigger': {'type': 'clock', 'every': '1000 / speed'}, 'actions': <Object?>[]},
+          ],
+        },
+      },
+      'variables': {
+        'c': [
+          {'name': 'speed', 'type': 'decimal', 'value': 2},
+        ],
+      },
+    });
+    final trigger = ((((doc['nodes'] as Map)['c'] as Map)['actions'] as List).single as Map)['trigger'];
+    expect(trigger, {'type': 'timer', 'intervalMs': r'${= 1000 / speed}'});
+    expect(validateDocument(doc).where((d) => d.code == Codes.wrongType), isEmpty);
+  });
+
+  test('path.oneApp: uprightFlip is upright', () {
+    final (out, _) = migrated({'motion': {'path': {'path': 'M0 0', 'orient': 'uprightFlip'}}});
+    expect((out['motion'] as Map)['path'], {'path': 'M0 0', 'orient': 'upright'});
+    expect(out['legacy.motion.path.orient'], 'uprightFlip');
   });
 
   test('a bound legacy origin binds the alignment', () {

@@ -196,7 +196,7 @@ moved: `strokePath`'s drawing, `typewriter` and text `countUp` (see
 `shiftX`/`shiftY` (the node's size, `FractionalTranslation`), `scale` times `scaleX`/`scaleY`, `rotate` (degrees),
 `rotateX`/`rotateY` with `perspective`, `alignment` (`[x, y]`, what scale and rotation are about),
 `backfaceHidden`, and `path` (a `PathFollow`: `path`, `viewBox`, `progress`, `orient` `none`/`tangent`/
-`upright`/`uprightFlip`). One matrix, outermost first: the path's offset, the translations, then about
+`upright`). One matrix, outermost first: the path's offset, the translations, then about
 `alignment` the scale, the rotation (and the path's turn), `rotateX`, `rotateY`. A closed path wraps its
 `progress`; an open one stops at its ends.
 
@@ -247,18 +247,18 @@ A swing around rest and a spin that speeds up (`ramp`), slows to a stop while pa
  "transitions": [{"property": "motion", "duration": 1200, "curve": "easeInOut"}]}
 ```
 
-A train on its route, upright and facing the way it goes, faded and blurred, entering when it scrolls into view:
+A train on its route, upright, faded and blurred, entering when it scrolls into view:
 
 ```json legacy
 {"motion": {"path": "M0 0 C 40 -60, 120 -60, 160 0", "pathProgress": 1, "orientToPath": true,
-            "orientUpright": true, "uprightMirror": true, "opacity": 0.8, "blur": 2,
+            "orientUpright": true, "opacity": 0.8, "blur": 2,
             "revealOnScroll": true, "duration": 600}}
 ```
 
 ```json
 {"opacity": 0.8,
  "decoration": {"effects": [{"type": "layerBlur", "id": "motionBlur", "blurRadius": 2}]},
- "motion": {"path": {"path": "M0 0 C 40 -60, 120 -60, 160 0", "progress": 1, "orient": "uprightFlip"}},
+ "motion": {"path": {"path": "M0 0 C 40 -60, 120 -60, 160 0", "progress": 1, "orient": "upright"}},
  "animations": [{"id": "enter", "preset": "enter", "params": {"from": {"opacity": 0, "pathProgress": 0, "blur": 0}},
                  "duration": 600, "curve": "easeInOut", "autoplay": true, "visibleFraction": 0.15}],
  "transitions": [{"property": "motion", "duration": 600, "curve": "easeInOut"},
