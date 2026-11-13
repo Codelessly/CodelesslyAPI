@@ -849,8 +849,21 @@ first applies:
 
 LLM APIs deliver a tool call's input as text deltas cut anywhere. `OpStreamDecoder` yields each op the moment its
 closing brace arrives (inside a `set` with `nodes`, each node as its own brace closes), whatever the cuts; a stream
-cut mid-op keeps every complete op and reports the tail (`truncated_op`). While a document streams in, it is
-incomplete by nature:
+cut mid-op keeps every complete op and reports the tail (`truncated_op`).
+
+**Malformed input.** With eager (fine-grained) tool input streaming a provider does not promise valid JSON, and
+models do not always write it: a recorded live generation closed one brace too many three times in 24 ops. The
+decoder works around op boundaries, not the enclosing JSON: it keeps a repaired copy of the text (a closer that
+closes nothing is dropped, a missing one is inferred, trailing commas are removed, missing commas inserted), reads an
+op object (`{"op": ...}`) at any depth outside another op (after an `ops` array closed early, in a wrapper of
+another name, after text), and when an op begins before the previous one closed, closes that one where the next
+began and reads what it can of it. Each repair is one `malformed_input` warning with the character offset; the ops
+around it apply. A node field written beside `"node"` (what an early closing brace produces) is moved into the node
+(`misplaced_field`). A single stray or missing brace, bracket or comma loses at most the op it is in
+(`test/edit_stream_recovery_test.dart` checks this property on 2,000 random edits, and that every chunking yields the
+same ops). `OpStreamEnd.repairs` and `.recovered` count the repairs and the ops read after the first one.
+
+While a document streams in, it is incomplete by nature:
 
 * **Order.** Root first, then top-down: the `roots` op, the canvas, its container, then each section complete before
   the next. Nothing breaks if a model does otherwise.
@@ -862,6 +875,21 @@ incomplete by nature:
   room (or the size a `set`'s `placeholders` gave it); a container none of whose children has arrived waits for
   its first, so no empty shells flash; text and values are never shown half-written (an op applies only whole).
 
+### The retry protocol
+
+After a stream, the tool result (`EditResult.toModelJson()`) says exactly what the document holds and what to do:
+`rev`, the ops that applied (by index, and the ids they set, patched, moved and removed), every rejected op with its
+code, path, what was expected and a suggestion, warnings (at most 20), the pending ids, the document's roots and node
+count, and, when anything was rejected or is pending, `next`: fix it by patching the document as it is (same ids),
+never start over. A host sends it back and lets the model answer with one more `ui_apply`, a capped number of
+times (the chat example: 2), stopping when nothing is rejected or pending. `applyOps(..., protectRoots: true)`
+answers a batch that would replace the existing roots or create a new canvas with `start_over` (a live retry did
+exactly that instead of fixing three ops). The diagnostics models hit carry the fix as JSON (`explainDiagnostic`): a
+size written as a layout key (`"height": {"hug": 46}`), children on a type that takes none (the types that do, and a
+row with a fill for a tag or button), a button's `text` (its `label`). `uiLints(document)` adds what no declaration
+catches: `empty_button` (a tappable box that shows nothing) and `low_contrast` (text in its background's colour); a
+renderer adds `missing_glyph` and `no_size` (the SDK's `UiSession.renderDiagnostics`).
+
 ### What a model reads
 
 `outline(document)` is one row per node, `[id, type, label, depth, {what is bound, states, triggers}]`, a sixth to
@@ -872,6 +900,17 @@ The two tools (`uiTools(catalog)`), their input schemas generated from the op de
 node types (the agent profile over the core: [ui_tools.json](ui_tools.json)):
 
 {{uiTools}}
+
+A schema that enumerates every node type and key is the wrong shape for a runtime tool: it costs tokens on every
+call and still cannot say what a prop holds. `uiTools(catalog, compact: true)` gives the op envelope strictly (op
+names, field names and kinds from the declarations; [ui_tools.compact.json](ui_tools.compact.json)) and leaves the
+node's contents to the system prompt, `runtimeStarter(catalog:, profile:)`
+([RUNTIME_STARTER.md](RUNTIME_STARTER.md)): generated from the declarations of the types the trust profile allows
+(the op rules, the node shape, layout, decoration and text style essentials, the core types with their most-used
+props, the rules live runs showed models need, two examples that apply cleanly), about 10,500 characters. With the
+compact tools that is ≈ 3,500 tokens at 3.5 characters per token, ≈ 5,100 at the 2.37 the API counted for the
+full prompt (60,225 characters of starter and 7,813 of tools: 28,768 tokens). `ui_read {"types": [...]}` describes
+any other allowed type on demand (`describeTypes`), and validation does the rest.
 
 ### The trust profile
 
