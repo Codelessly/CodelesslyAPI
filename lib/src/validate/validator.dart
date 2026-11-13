@@ -188,14 +188,23 @@ final class _Validator {
   String? definitionRoot;
 
   void document(Object? json) {
-    final m = readMap(json);
+    var m = readMap(json);
     if (m == null) {
-      r.add(Codes.invalidDocument, '', 'A layout document is a JSON object: {"schema": 2, "roots": [...], "nodes": {...}}.');
+      r.add(Codes.invalidDocument, '', 'A layout document is a JSON object: {"schema": 3, "roots": [...], "nodes": {...}}.');
       return;
     }
-    if (m['schema'] != 2) {
-      r.add(Codes.schemaVersion, '/schema', m['schema'] == null ? 'Add "schema": 2.' : 'This package reads "schema": 2, got ${describe(m['schema'])}.');
+    final schema = m['schema'];
+    if (schema == null) {
+      r.add(Codes.schemaVersion, '/schema', 'Add "schema": 3. A document without one is read as schema 2 and migrated.');
+    } else if (schema == 2) {
+      r.add(Codes.schemaOutdated, '/schema',
+          'Schema 2: migrated to 3 when read; the paths below are of the migrated document. `dart run tool/migrate.dart <file> --write` rewrites it.');
+    } else if (schema != kSchemaVersion) {
+      r.add(Codes.schemaVersion, '/schema', 'This package reads "schema": 2 and 3, got ${describe(schema)}.');
     }
+    // Validated as it decodes: a schema-2 document (or one without a
+    // schema) migrated first.
+    m = LayoutDocument.migrateSchema(m);
     final isDefinition = m.containsKey(kWidgetKey);
     for (final k in m.keys) {
       if (!documentKeys.contains(k) && !(isDefinition && componentDocumentKeys.contains(k))) {
@@ -490,6 +499,12 @@ final class _Validator {
     };
     for (final k in n.extra.keys) {
       if (n.type == CanvasProps.spec.type && canvasRouteKeys.contains(k)) continue;
+      if (k.startsWith('legacy.')) {
+        r.add(Codes.legacyValue, pointer(at, k),
+            'Kept by the schema-3 migration: "${k.substring(7)}" had no schema-3 form and is no longer read. '
+            'See the migration report for what to write instead, then remove it.');
+        continue;
+      }
       r.add(Codes.unknownNodeKey, pointer(at, k), _unknownNodeKeyMessage(k, spec),
           suggestion: _whereKeyBelongs(k, spec) ?? nearest(k, nodeKeys));
     }

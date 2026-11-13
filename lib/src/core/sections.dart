@@ -266,7 +266,7 @@ Node seamCall(Node root, Node call) {
 /// bare name in every document), breakpoints and any keys it doesn't model.
 ///
 /// ```json
-/// {"schema": 2, "pages": ["pages/pricing.json"], "components": ["components/PlanCard.json"],
+/// {"schema": 3, "pages": ["pages/pricing.json"], "components": ["components/PlanCard.json"],
 ///  "variables": [{"name": "plans", "type": "list", "value": [...]}],
 ///  "breakpoints": [{"id": "mobile", "minWidth": 0}, {"id": "desktop", "minWidth": 1024}]}
 /// ```

@@ -128,7 +128,7 @@ Codelessly's hosting is **data**: its declarations and an implementation in
 the model itself (`PluginPackage`, `package:codelessly_api/managed.dart`):
 
 ```json
-{"schema": 2, "id": "acme.stars", "semver": "1.0.0", "minSdk": "24.0.0", "requires": [],
+{"schema": 3, "id": "acme.stars", "semver": "1.0.0", "minSdk": "24.0.0", "requires": [],
  "catalog": {"widgets": [...], "actions": [...]},
  "implementation": {
    "widgets": {"acme.rating": {"document": {"roots": ["root"], "nodes": {

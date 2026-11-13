@@ -1,5 +1,5 @@
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["buttons"],
   "nodes": {
     "buttons": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 200},

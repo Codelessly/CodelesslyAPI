@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 
 /// A valid document: a canvas, a column, a text and a box.
 Map<String, Object?> base() => jsonDecode(jsonEncode({
-      'schema': 2,
+      'schema': 3,
       'roots': ['home'],
       'nodes': {
         'home': {
@@ -58,12 +58,25 @@ void main() {
 
   test('every code has a test below', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 67); // invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
+    expect(Codes.all.length, 69); // invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
   });
 
   group('document', () {
     test('invalid_document', () => expectOne([1, 2], Codes.invalidDocument));
-    test('schema_version', () => expectOne(base()..remove('schema'), Codes.schemaVersion, path: '/schema'));
+    test('schema_version', () {
+      expectOne(base()..remove('schema'), Codes.schemaVersion, path: '/schema');
+      expectOne(base()..['schema'] = 4, Codes.schemaVersion, path: '/schema');
+    });
+    test('schema_outdated: a schema-2 document is valid, with a note; its diagnostics are of the migrated one', () {
+      final d = validateDocument(base()..['schema'] = 2);
+      expect(d.map((d) => '${d.code.name} ${d.severity.name}'), ['schema_outdated info']);
+    });
+    test('legacy_value: a value the migration kept', () {
+      final d = base();
+      node(d, 'box')['legacy.track.parkedProgress'] = -0.6;
+      expectOne(d, Codes.legacyValue, path: '/nodes/box/legacy.track.parkedProgress');
+      expect(withCode(d, Codes.unknownNodeKey), isEmpty);
+    });
     test('unknown_document_key', () => expectOne(base()..['node'] = {}, Codes.unknownDocumentKey, suggestion: 'nodes'));
     test('dangling_root', () => expectOne(base()..['roots'] = ['home', 'hone'], Codes.danglingRoot, path: '/roots/1'));
     test('root_not_canvas', () => expectOne(base()..['roots'] = ['home', 'box'], Codes.rootNotCanvas));

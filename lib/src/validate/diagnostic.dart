@@ -14,6 +14,10 @@ enum Severity {
   /// Legal, but probably not what was meant (a value the renderer ignores,
   /// a node nothing shows).
   warning,
+
+  /// Nothing wrong: a note (a schema-2 document, which is migrated when
+  /// read).
+  info,
 }
 
 /// One diagnostic code: its name, severity and what it means.
@@ -38,7 +42,11 @@ abstract final class Codes {
   static const invalidDocument = DiagnosticCode('invalid_document', Severity.error,
       'The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list).');
   static const schemaVersion = DiagnosticCode('schema_version', Severity.warning,
-      'The document has no "schema": 2, or another version.');
+      'The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3).');
+  static const schemaOutdated = DiagnosticCode('schema_outdated', Severity.info,
+      'A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document.');
+  static const legacyValue = DiagnosticCode('legacy_value', Severity.warning,
+      'A `legacy.<name>` key the schema-3 migration kept: a value that had no schema-3 form and is no longer read.');
   static const unknownDocumentKey = DiagnosticCode('unknown_document_key', Severity.error,
       'A top-level key of the document that nothing reads.');
   static const danglingRoot = DiagnosticCode('dangling_root', Severity.error, 'A root id that names no node.');
@@ -178,7 +186,7 @@ abstract final class Codes {
 
   /// Every code, in the order above.
   static const List<DiagnosticCode> all = [
-    invalidDocument, schemaVersion, unknownDocumentKey, danglingRoot, rootNotCanvas, noRoots, //
+    invalidDocument, schemaVersion, schemaOutdated, legacyValue, unknownDocumentKey, danglingRoot, rootNotCanvas, noRoots, //
     invalidNode, unknownNodeType, unknownNodeKey, unknownProp, unknownLayoutKey, unknownDecorationKey, unknownField,
     wrongType, looseValue, invalidEnum, outOfRange, decorationIgnored,
     danglingChild, danglingSlot, multipleParents, cycle, unreachableNode, unknownSlot, childrenNotAllowed, slotsNotAllowed,

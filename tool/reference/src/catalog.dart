@@ -100,7 +100,7 @@ final class Catalog {
       'schema': kSchemaVersion,
       'document': {
         'keys': [
-          {'key': 'schema', 'doc': 'Always 2 (`kSchemaVersion`).'},
+          {'key': 'schema', 'doc': 'Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`).'},
           {'key': 'id', 'doc': 'The layout\'s id (optional).'},
           {'key': 'roots', 'doc': 'Canvas ids, in order: the screens of this page.'},
           {'key': 'nodes', 'doc': 'Every node, by id: `{"<id>": {"type": ..., ...}}`. A node\'s id is its key here.'},

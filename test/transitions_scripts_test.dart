@@ -104,7 +104,7 @@ void main() {
 
     test('a page script wins over a project script by name', () {
       final doc = LayoutDocument.fromJson({
-        'schema': 2,
+        'schema': 3,
         'roots': <String>[],
         'nodes': <String, Object?>{},
         'scripts': [
