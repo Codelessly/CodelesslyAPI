@@ -1046,6 +1046,39 @@ final class CopyToClipboardAction extends CoreAction {
   Json get _fields => {'text': text};
 }
 
+/// Sets the site's theme mode (Flutter's `ThemeMode`, as an app sets
+/// `MaterialApp.themeMode`): [mode] is an expression giving `system`,
+/// `light` or `dark` (`"dark"`, `"${= theme.isDark ? 'light' : 'dark'}"` to
+/// toggle). Every screen of the site redraws its named colors, text styles
+/// and controls in that mode at once, and `${theme.mode}` / `${theme.isDark}`
+/// change with it. With [persist] the choice is kept in the site's local
+/// storage: a reload, and every page after it, starts in it.
+/// JSON: `{"type": "setThemeMode", "mode": "dark"}`.
+final class SetThemeModeAction extends CoreAction {
+  const SetThemeModeAction({this.mode = 'system', this.persist = true, super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'setThemeMode';
+  @override
+  String get type => typeName;
+
+  /// `system`, `light` or `dark`; an expression.
+  final String mode;
+
+  /// Keep the choice in local storage, for the next visit.
+  final bool persist;
+
+  static SetThemeModeAction _fromJson(Json m, _Common c) => SetThemeModeAction(
+    mode: _s(m, 'mode', 'system'),
+    persist: _b(m, 'persist', true),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {'mode': mode, if (!persist) 'persist': false};
+}
+
 // --- components ---------------------------------------------------------------------
 
 /// Inside a component definition: fires the component's event [event] with
@@ -1747,6 +1780,13 @@ const List<ActionSpec> coreActionSpecs = [
   ActionSpec(ConfirmAction.typeName, label: 'Confirm', fields: ConfirmFields.all, decode: ConfirmAction._fromJson, nested: ['actions', 'cancelActions']),
   ActionSpec(DelayAction.typeName, label: 'Delay', fields: DelayFields.all, decode: DelayAction._fromJson),
   ActionSpec(CopyToClipboardAction.typeName, label: 'Copy to clipboard', fields: CopyToClipboardFields.all, decode: CopyToClipboardAction._fromJson),
+  ActionSpec(SetThemeModeAction.typeName,
+      label: 'Set theme mode',
+      fields: SetThemeModeFields.all,
+      doc: 'Sets the site\'s theme mode (Flutter\'s ThemeMode: system, light or dark), as an app sets MaterialApp.themeMode: '
+          'every screen redraws its named colors, text styles and controls in it; with persist (the default) the choice '
+          'survives a reload. JSON: {"type": "setThemeMode", "mode": "\${= theme.isDark ? \'light\' : \'dark\'}"}.',
+      decode: SetThemeModeAction._fromJson),
   ActionSpec(EditTextAction.typeName, label: 'Edit text', fields: EditTextFields.all, decode: EditTextAction._fromJson),
   ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all, decode: FocusAction._fromJson),
   ActionSpec(ControlTrackAction.typeName, label: 'Control track', fields: ControlTrackFields.all, decode: ControlTrackAction._fromJson),

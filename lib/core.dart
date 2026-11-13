@@ -46,6 +46,7 @@ export 'src/core/migrate/migrate.dart';
 export 'src/core/route_transition.dart';
 export 'src/core/scripts.dart';
 export 'src/core/sections.dart';
+export 'src/core/site_fonts.dart';
 export 'src/core/theme.dart';
 export 'src/core/theme_refs.dart';
 export 'src/core/triggers.dart';

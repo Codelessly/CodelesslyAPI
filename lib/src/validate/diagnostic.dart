@@ -154,6 +154,10 @@ abstract final class Codes {
       'A color or text style names a color or text style the project\'s theme (the site manifest\'s "theme") does not have: it would show transparent or unstyled.');
   static const invalidTheme = DiagnosticCode('invalid_theme', Severity.error,
       'The site manifest\'s "theme" is not of the right shape: colors are "#AARRGGBB" (or another color\'s name), text styles are TextStyle objects, media rules patch colors and textStyles.');
+  static const invalidFonts = DiagnosticCode('invalid_fonts', Severity.error,
+      'The site manifest\'s "fonts" is not of the right shape: a list of {"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf", "weight": 400, "style": "normal"}]} (a pubspec\'s fonts: section).');
+  static const fontFormat = DiagnosticCode('font_format', Severity.error,
+      'A declared font file is not .ttf, .otf or .woff: WOFF2 (Brotli-compressed) and font collections (.ttc) are not read. Use the .woff or .ttf of the same face.');
   static const mediaOverridden = DiagnosticCode('media_overridden', Severity.warning,
       'A media rule patches a field the node also binds: the binding wins, so the patch never shows.');
   static const duplicateBreakpointCanvas = DiagnosticCode('duplicate_breakpoint_canvas', Severity.error,
@@ -197,7 +201,7 @@ abstract final class Codes {
     unknownBindPath, reservedBindPath, expressionSyntax, unknownName,
     unknownTrigger, unknownTriggerKey, unknownActionType, unknownActionKey, unknownTargetNode, unknownScreen,
     unknownVariable, invalidReaction,
-    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, unknownThemeName, invalidTheme, duplicateBreakpointCanvas,
+    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, unknownThemeName, invalidTheme, invalidFonts, fontFormat, duplicateBreakpointCanvas,
     screenWithoutBreakpoint, duplicateId,
     unknownComponent, duplicateComponent, componentCycle, componentIdMismatch, invalidComponent, missingProp, unknownEvent,
     callFieldNotAllowed, slotOutsideComponent, rootPlacementBound, repeatedSubtree,

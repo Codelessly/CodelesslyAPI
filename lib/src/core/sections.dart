@@ -24,6 +24,7 @@ import 'json.dart';
 import 'logic.dart';
 import 'node.dart';
 import 'props.dart';
+import 'site_fonts.dart';
 import 'theme.dart';
 import 'variables.dart';
 
@@ -284,6 +285,7 @@ final class SiteManifest {
     this.variables = const [],
     this.breakpoints,
     this.theme = ThemeTokens.none,
+    this.fonts = const [],
     this.extra = const {},
   });
 
@@ -310,10 +312,15 @@ final class SiteManifest {
   /// theme.
   final ThemeTokens theme;
 
-  /// Keys it doesn't model (fonts...), kept.
+  /// The font families the site ships as files beside it (a pubspec's
+  /// `fonts:`), registered when it runs: published as the project's fonts,
+  /// each file at its path relative to the site.
+  final List<FontFamily> fonts;
+
+  /// Keys it doesn't model, kept.
   final Json extra;
 
-  static const Set<String> keys = {'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme'};
+  static const Set<String> keys = {'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme', 'fonts'};
 
   static SiteManifest fromJson(Object? json) {
     final m = readMap(json) ?? const {};
@@ -323,6 +330,7 @@ final class SiteManifest {
       variables: Variable.listFromJson(m['variables']),
       breakpoints: m['breakpoints'],
       theme: ThemeTokens.fromJson(m['theme']),
+      fonts: FontFamily.listFromJson(m['fonts']),
       extra: {
         for (final e in m.entries)
           if (!keys.contains(e.key)) e.key: e.value,
@@ -337,6 +345,7 @@ final class SiteManifest {
     if (variables.isNotEmpty) 'variables': [for (final v in variables) v.toJson()],
     'breakpoints': ?breakpoints,
     if (!theme.isEmpty) 'theme': theme.toJson(),
+    if (fonts.isNotEmpty) 'fonts': [for (final f in fonts) f.toJson()],
     ...extra,
   };
 }

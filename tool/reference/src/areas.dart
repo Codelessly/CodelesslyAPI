@@ -45,7 +45,7 @@ const List<PageDef> featurePages = [
       behaviors: ['sticky', 'floating', 'measure'],
       triggers: ['scroll', 'scrollEnd', 'enterViewport', 'exitViewport'],
       actions: ['scrollTo']),
-  PageDef('theme', nodes: ['text'], behaviors: ['textDirection', 'defaultTextStyle'], models: ['TextStyle', 'TextRun']),
+  PageDef('theme', nodes: ['text'], behaviors: ['textDirection', 'defaultTextStyle'], actions: ['setThemeMode'], models: ['TextStyle', 'TextRun']),
   PageDef('decoration',
       nodes: ['icon', 'path'],
       behaviors: ['customPaint'],
