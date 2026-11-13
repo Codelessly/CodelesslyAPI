@@ -1,6 +1,8 @@
 // Strict validation of a layout document: everything the lenient decoders
 // would silently drop, replace or ignore, reported with a code, a JSON
 // pointer and (where the declarations allow) a suggestion. Never throws.
+import 'dart:math' as math;
+
 import '../core/action_fields.dart';
 import '../core/actions.dart';
 import '../core/behavior_fields.dart';
@@ -12,6 +14,7 @@ import '../core/json.dart';
 import '../core/layout.dart';
 import '../core/logic.dart';
 import '../core/node.dart';
+import '../core/node_patch.dart';
 import '../core/props.dart';
 import '../core/media.dart';
 import '../core/breakpoints.dart';
@@ -218,6 +221,7 @@ final class _Validator {
       _node(n, readMap(e.value)!, pointer('/nodes', e.key));
     }
     r.node = null;
+    if (fitsAtEachWidth) _fitsAtEachWidth();
     _breakpoints();
     _conditions(m);
     _scripts(m);
@@ -464,6 +468,13 @@ final class _Validator {
           'For items side by side that wrap onto new rows, set "scrollDirection": "horizontal"; for equal columns from data, use a gridView with "minCrossAxisExtent".',
           suggestion: 'scrollDirection: horizontal');
     }
+    if (n.type == 'gridView' && n.props.get(GridViewProps.shrinkWrapRows) && n.props.get(GridViewProps.mainAxisExtent) != null &&
+        !n.props.get(GridViewProps.masonry)) {
+      r.add(Codes.propIgnored, pointer(pointer(at, 'props'), 'mainAxisExtent'),
+          'mainAxisExtent is ignored: "shrinkWrapRows": true sizes each row to its tallest item (CSS grid auto rows) instead of a fixed extent. '
+          'For rows of exactly this length remove shrinkWrapRows; for rows at least this long keep it and give the item "constraints": {"minHeight": n}.',
+          suggestion: 'shrinkWrapRows: false');
+    }
     for (final def in BehaviorFields.all) {
       if (!raw.containsKey(def.key)) continue;
       if (def.key == BehaviorFields.states.key) {
@@ -558,7 +569,7 @@ final class _Validator {
         }
       }
     }
-    if (m.containsKey('basis') && parent != null && reads.contains('basis') && !parent.props.get(FlexProps.wrap)) {
+    if (!fitsAtEachWidth && m.containsKey('basis') && parent != null && reads.contains('basis') && !parent.props.get(FlexProps.wrap)) {
       r.add(Codes.layoutFieldIgnored, pointer(at, 'basis'),
           'layout.basis (CSS flex-basis) is read only when the parent ${parent.type} wraps ("wrap": true); in a ${parent.type} that does not wrap, size the child with width/height and flex.');
     }
@@ -638,21 +649,23 @@ final class _Validator {
         final kp = pointer(pp, e.key);
         switch (e.key) {
           case 'props':
-            _props(n, e.value, kp);
+            _props(n, e.value is Map ? _withoutNulls(e.value) : e.value, kp);
           case 'layout':
             if (readMap(e.value) case final Json lm) {
-              _layoutKeys(n, lm, kp);
-              _sizes(n.patched({'layout': lm}), lm, kp);
+              // `null` removes a key (a JSON merge patch): nothing to check.
+              final set = _withoutNulls(lm);
+              _layoutKeys(n, set, kp);
+              _sizes(n.patched({'layout': lm}), set, kp);
             } else {
               r.add(Codes.wrongType, kp, '"layout" is an object, got ${describe(e.value)}.');
             }
           case 'decoration':
-            _decoration(n, e.value, kp);
+            _decoration(n, e.value is Map ? _withoutNulls(e.value) : e.value, kp);
           case 'visible':
-            if (e.value is! bool) r.add(Codes.wrongType, kp, '"visible" is true or false, got ${describe(e.value)}.');
+            if (e.value != null && e.value is! bool) r.add(Codes.wrongType, kp, '"visible" is true or false, got ${describe(e.value)}.');
           case 'opacity':
             final o = readDouble(e.value);
-            if (o == null || o < 0 || o > 1) r.add(Codes.wrongType, kp, '"opacity" is a number from 0 to 1, got ${describe(e.value)}.');
+            if (e.value != null && (o == null || o < 0 || o > 1)) r.add(Codes.wrongType, kp, '"opacity" is a number from 0 to 1, got ${describe(e.value)}.');
           default:
             r.add(Codes.invalidMedia, kp,
                 e.key == 'children'
@@ -673,6 +686,12 @@ final class _Validator {
     }
   }
 
+  /// [v] without the keys a merge patch removes (`null`), at every depth.
+  static Json _withoutNulls(Object? v) => {
+        for (final e in (readMap(v) ?? const <String, Object?>{}).entries)
+          if (e.value != null) e.key: e.value is Map ? _withoutNulls(e.value) : e.value,
+      };
+
   /// Dotted paths of the leaves of [v] (`props.style.fontSize`).
   static Iterable<String> _leafPaths(Object? v, String at) sync* {
     if (v is Map && v.isNotEmpty) {
@@ -689,11 +708,12 @@ final class _Validator {
     final parent = parentId == null ? null : nodes[parentId];
     final l = n.layout;
     for (final (axis, size) in [('width', l.width), ('height', l.height)]) {
-      if (parent != null && m != null && m.containsKey(axis)) {
-        var reason = childFitOptions(parent, horizontal: axis == 'width')[size.fit];
-        // A filling child with a basis grows to share its line of a wrapping flex.
-        final wrapsAlong = parent.props.get(FlexProps.wrap) && (flexAxisOf(parent) == Axis.horizontal) == (axis == 'width');
-        if (wrapsAlong && n.layout.basis != null && size.fit == SizeFit.fill) reason = null;
+      // The document's own nodes have their fits checked at each screen
+      // width, with the media rules that hold there ([_fitsAtEachWidth]);
+      // an interaction state's patch is checked here, against the parent
+      // as written.
+      if (!fitsAtEachWidth && parent != null && m != null && m.containsKey(axis)) {
+        final reason = _fitProblem(n, parent, axis == 'width');
         if (reason != null) {
           r.add(Codes.fitNotAllowed, pointer(at, axis), '${size.fit.name} is not honored here: $reason');
         }
@@ -703,6 +723,109 @@ final class _Validator {
             'No $axis: a node without "layout.$axis" is fixed at 0 and draws nothing. Give it a size: a number, {"hug": n}, {"fill": n} or {"flexible": n}.');
       }
     }
+  }
+
+  /// Off for a validator checking an interaction state's patch.
+  bool fitsAtEachWidth = true;
+
+  /// Why [n]'s fit on an axis is not honored under [parent] (both as shown
+  /// at one screen size), or null.
+  String? _fitProblem(Node n, Node parent, bool horizontal) {
+    final size = horizontal ? n.layout.width : n.layout.height;
+    var reason = childFitOptions(parent, horizontal: horizontal)[size.fit];
+    // A filling child with a basis grows to share its line of a wrapping flex.
+    final wrapsAlong = parent.props.get(FlexProps.wrap) && (flexAxisOf(parent) == Axis.horizontal) == horizontal;
+    if (wrapsAlong && n.layout.basis != null && size.fit == SizeFit.fill) reason = null;
+    return reason;
+  }
+
+  /// Every node's size fits (and its `layout.basis`), judged as the node is
+  /// shown at each screen width: with its own and its parent's media rules
+  /// that hold there, so a patch is checked against the parent as patched
+  /// at the same widths, and a base value only where no patch replaces it.
+  /// Each finding is reported once, at the value that is in effect, naming
+  /// the widths where it applies when that is not every width.
+  void _fitsAtEachWidth() {
+    for (final n in nodes.values) {
+      final parentId = parents[n.id];
+      final parent = parentId == null ? null : nodes[parentId];
+      final raw = readMap(nodesJson[n.id]);
+      if (parent == null || raw == null) continue;
+      final rules = [...n.media, ...parent.media];
+      final ranges = rules.isEmpty ? [(width: 0.0, end: double.infinity)] : mediaWidthRanges(rules, breakpoints);
+      final heights = rules.any((r) => r.orientation != null) ? const [2.0, 0.5] : const [2.0];
+      final at = pointer('/nodes', n.id);
+      final baseLayout = readMap(raw['layout']) ?? const {};
+      // pointer → (message, the ranges where it holds)
+      final found = <String, (String, List<({double width, double end})>)>{};
+      for (final range in ranges) {
+        for (final aspect in heights) {
+          final w = range.width, h = math.max(1.0, w) * aspect;
+          final nw = n.media.isEmpty ? n : n.atScreen(w, h, breakpoints);
+          final pw = parent.media.isEmpty ? parent : parent.atScreen(w, h, breakpoints);
+          String? source(String key) {
+            final i = mediaRuleSetting(n.media, ['layout', key], w, h, breakpoints);
+            if (i != null) return pointer(pointer(pointer(pointer(pointer(at, 'media'), i), 'patch'), 'layout'), key);
+            return baseLayout.containsKey(key) ? pointer(pointer(at, 'layout'), key) : null;
+          }
+
+          for (final axis in const ['width', 'height']) {
+            final src = source(axis);
+            if (src == null) continue;
+            final reason = _fitProblem(nw, pw, axis == 'width');
+            if (reason == null) continue;
+            final fit = (axis == 'width' ? nw.layout.width : nw.layout.height).fit;
+            final e = found.putIfAbsent(src, () => ('${fit.name} is not honored here', []));
+            if (!e.$2.contains(range)) e.$2.add(range);
+            _reasons[src] = reason;
+          }
+          final basisSrc = source('basis');
+          final reads = {for (final f in pw.spec?.childFields ?? const <PropDef<Object?>>[]) f.key};
+          if (basisSrc != null && nw.layout.basis != null && reads.contains('basis') && !pw.props.get(FlexProps.wrap)) {
+            final e = found.putIfAbsent(basisSrc, () => ('', []));
+            if (!e.$2.contains(range)) e.$2.add(range);
+            _reasons[basisSrc] = 'layout.basis (CSS flex-basis) is read only when the parent ${pw.type} wraps ("wrap": true); '
+                'in a ${pw.type} that does not wrap, size the child with width/height and flex.';
+          }
+        }
+      }
+      r.node = n.id;
+      for (final e in found.entries) {
+        final where = ranges.length > 1 && e.value.$2.length < ranges.length ? ' ${_widthsText(e.value.$2)}' : '';
+        final reason = _reasons[e.key]!;
+        if (e.key.endsWith('/basis')) {
+          r.add(Codes.layoutFieldIgnored, e.key, '$reason${where.isEmpty ? '' : ' (It does not wrap$where.)'}');
+        } else {
+          r.add(Codes.fitNotAllowed, e.key, '${e.value.$1}$where: $reason');
+        }
+      }
+      r.node = null;
+    }
+  }
+
+  final Map<String, String> _reasons = {};
+
+  /// "at widths below 600 px", "at widths from 600 to 1023 px"...
+  static String _widthsText(List<({double width, double end})> ranges) {
+    String px(double v) => v == v.roundToDouble() ? '${v.round()}' : v.toStringAsFixed(1);
+    // Merge adjacent ranges.
+    final sorted = [...ranges]..sort((a, b) => a.width.compareTo(b.width));
+    final merged = <({double width, double end})>[];
+    for (final r in sorted) {
+      if (merged.isNotEmpty && merged.last.end == r.width) {
+        merged[merged.length - 1] = (width: merged.last.width, end: r.end);
+      } else {
+        merged.add(r);
+      }
+    }
+    String one(({double width, double end}) r) {
+      // A max-width cut sits half a pixel past its last width.
+      final last = r.end - (r.end - r.end.floorToDouble() == 0.5 ? 0.5 : 1);
+      if (r.width <= 0) return 'up to ${px(last)} px';
+      if (!r.end.isFinite) return 'from ${px(r.width)} px';
+      return 'from ${px(r.width)} to ${px(last)} px';
+    }
+    return 'at screen widths ${merged.map(one).join(' and ')}';
   }
 
   void _decoration(Node n, Object? json, String at) {
@@ -1088,9 +1211,11 @@ final class _Validator {
         // The target's own states and reactions are checked where it is.
         if (!patch.containsKey('states')) base.remove('states');
         if (!patch.containsKey('actions')) base.remove('actions');
-        final merged = mergePatch(base, patch);
+        final merged = mergeNodePatch(base, patch, props: target.spec?.props);
         final sub = Reporter()..node = n.id;
         final v = _Validator(sub, options)
+          ..fitsAtEachWidth = false
+          ..breakpoints = breakpoints
           ..nodes = nodes
           ..nodesJson = nodesJson
           ..canvases = canvases

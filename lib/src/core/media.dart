@@ -13,6 +13,8 @@ import 'package:meta/meta.dart';
 
 import 'breakpoints.dart';
 import 'json.dart';
+import 'node_patch.dart';
+import 'props.dart';
 
 /// CSS `orientation`: portrait when the screen is at least as tall as wide.
 enum MediaOrientation { portrait, landscape }
@@ -137,24 +139,61 @@ final class MediaRule {
 }
 
 /// The merged patch of the [rules] that hold on a screen [width] ×
-/// [height]: in order, a later one winning where two set the same field;
-/// keys outside [MediaRule.patchKeys] left out. Null when none holds.
-Json? mediaPatchAt(List<MediaRule> rules, double width, double? height, Breakpoints breakpoints) {
+/// [height]: in order, a later one winning where two set the same field
+/// (a union-typed value written in another form replaces the earlier one:
+/// [mergeNodePatch], with the node type's [props]); keys outside
+/// [MediaRule.patchKeys] left out. Null when none holds.
+Json? mediaPatchAt(List<MediaRule> rules, double width, double? height, Breakpoints breakpoints,
+    {List<PropDef<Object?>>? props}) {
   Json? out;
   for (final r in rules) {
     if (!r.holds(width, height, breakpoints)) continue;
     final own = {for (final e in r.patch.entries) if (MediaRule.patchKeys.contains(e.key)) e.key: e.value};
     if (own.isEmpty) continue;
-    out = out == null ? own : _merge(out, own);
+    out = out == null ? own : mergeNodePatch(out, own, props: props, keepNulls: true);
   }
   return out;
 }
 
-Json _merge(Json a, Json b) {
-  final out = <String, Object?>{...a};
-  for (final e in b.entries) {
-    final cur = out[e.key];
-    out[e.key] = e.value is Map && cur is Map ? _merge(cur.cast<String, Object?>(), (e.value as Map).cast<String, Object?>()) : e.value;
+/// The index of the last rule of [rules] holding on a screen [width] ×
+/// [height] whose patch sets the field at [path] (`["layout", "width"]`),
+/// or null when none does (the node's own value applies).
+int? mediaRuleSetting(List<MediaRule> rules, List<String> path, double width, double? height, Breakpoints breakpoints) {
+  int? out;
+  for (var i = 0; i < rules.length; i++) {
+    if (!rules[i].holds(width, height, breakpoints)) continue;
+    Object? v = rules[i].patch;
+    var found = true;
+    for (final k in path) {
+      if (v is Map && v.containsKey(k)) {
+        v = v[k];
+      } else {
+        found = false;
+        break;
+      }
+    }
+    if (found) out = i;
   }
   return out;
+}
+
+/// Screen widths that between them meet every combination of [rules]'
+/// width conditions: the first width of each range their bounds cut the
+/// widths into (from 0), each with the range's end (exclusive; infinity
+/// for the last).
+List<({double width, double end})> mediaWidthRanges(Iterable<MediaRule> rules, Breakpoints breakpoints) {
+  final cuts = <double>{0};
+  for (final r in rules) {
+    if (r.lowest(breakpoints) case final double lo) cuts.add(lo);
+    if (r.maxWidth is num) {
+      // max-width: n holds up to n inclusive.
+      cuts.add((r.maxWidth as num).toDouble() + 0.5);
+    } else if (r.below(breakpoints) case final double hi when hi.isFinite) {
+      cuts.add(hi);
+    }
+  }
+  final sorted = cuts.where((c) => c >= 0 && c.isFinite).toList()..sort();
+  return [
+    for (var i = 0; i < sorted.length; i++) (width: sorted[i], end: i + 1 < sorted.length ? sorted[i + 1] : double.infinity),
+  ];
 }

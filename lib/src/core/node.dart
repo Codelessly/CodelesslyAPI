@@ -11,6 +11,7 @@ import 'json.dart';
 import 'layout.dart';
 import 'props.dart';
 import 'media.dart';
+import 'node_patch.dart';
 import 'breakpoints.dart';
 import 'triggers.dart';
 import 'values/paint.dart' show Effect, EffectType, listEquals;
@@ -92,7 +93,7 @@ final class Node {
   /// that hold, merged over it in order. Itself when none holds.
   Node atScreen(double width, double? height, Breakpoints breakpoints) {
     if (media.isEmpty) return this;
-    final patch = mediaPatchAt(media, width, height, breakpoints);
+    final patch = mediaPatchAt(media, width, height, breakpoints, props: spec?.props);
     return patch == null ? this : patched(patch);
   }
 
@@ -193,8 +194,11 @@ final class Node {
   };
 
   /// This node with [patch] (a JSON merge patch over its JSON, as an
-  /// interaction state's) applied.
-  Node patched(Json patch) => Node.fromJson(mergePatch(toJson(), patch), id: id, catalog: catalog) ?? this;
+  /// interaction state's) applied, as its declarations read it: a value of
+  /// a union type (a size, a position, a paint...) written in another form
+  /// is replaced, not merged ([mergeNodePatch]).
+  Node patched(Json patch) =>
+      Node.fromJson(mergeNodePatch(toJson(), patch, props: spec?.props), id: id, catalog: catalog) ?? this;
 
   /// Decodes a node with [catalog] (default: [Catalog.current]); [id] wins
   /// over the JSON's own (the document map key). Returns null only when
