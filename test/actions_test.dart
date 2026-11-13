@@ -60,52 +60,52 @@ final samples = <Json>[
 void main() {
   runScriptArgsAliasTests();
   test('every action type round-trips exactly', () {
-    expect(samples.map((s) => s['type']).toSet(), ActionDef.types.toSet());
+    expect(samples.map((s) => s['type']).toSet(), standardCatalog.actions.map((s) => s.type).toSet());
     for (final s in samples) {
-      final a = ActionDef.fromJson(s)!;
+      final a = ActionDef.fromJson(s, catalog: standardCatalog)!;
       expect(a, isNot(isA<UnknownAction>()), reason: '${s['type']}');
       expect(a.toJson(), s, reason: '${s['type']}');
-      expect(ActionDef.fromJson(jsonDecode(jsonEncode(a.toJson()))), a);
+      expect(ActionDef.fromJson(jsonDecode(jsonEncode(a.toJson())), catalog: standardCatalog), a);
     }
   });
 
   test('typed fields', () {
-    final nav = ActionDef.fromJson(samples[0])! as NavigateAction;
+    final nav = ActionDef.fromJson(samples[0], catalog: standardCatalog)! as NavigateAction;
     expect((nav.mode, nav.to, nav.base, nav.transition), (NavigationMode.reset, 'home', 'start', PageTransition.fade));
-    final set = ActionDef.fromJson(samples[7])! as SetVariableAction;
+    final set = ActionDef.fromJson(samples[7], catalog: standardCatalog)! as SetVariableAction;
     expect((set.variable, set.write.op, set.write.index), ('rows', WriteOp.insert, '0'));
-    final api = ActionDef.fromJson(samples[9])! as CallApiAction;
+    final api = ActionDef.fromJson(samples[9], catalog: standardCatalog)! as CallApiAction;
     expect(api.onSuccess.single, isA<OpenLinkAction>());
     expect(api.nested, hasLength(2));
-    final branch = ActionDef.fromJson(samples[14])! as IfAction;
+    final branch = ActionDef.fromJson(samples[14], catalog: standardCatalog)! as IfAction;
     expect(branch.condition, isA<Comparison>());
     expect(branch.selfAndNested.map((a) => a.type), ['if', 'openLink', 'openLink']);
   });
 
   test('loadCloudData is screen scoped unless it says app', () {
-    final old = ActionDef.fromJson({'type': 'loadCloudData', 'variable': 'v', 'query': {'collectionPath': 'c'}})! as LoadCloudDataAction;
+    final old = ActionDef.fromJson({'type': 'loadCloudData', 'variable': 'v', 'query': {'collectionPath': 'c'}}, catalog: standardCatalog)! as LoadCloudDataAction;
     expect(old.scope, CloudDataScope.screen);
     expect(old.toJson().containsKey('scope'), isFalse);
-    final app = ActionDef.fromJson({...old.toJson(), 'scope': 'app'})! as LoadCloudDataAction;
+    final app = ActionDef.fromJson({...old.toJson(), 'scope': 'app'}, catalog: standardCatalog)! as LoadCloudDataAction;
     expect(app.scope, CloudDataScope.app);
     expect(app.toJson()['scope'], 'app');
-    final unknown = ActionDef.fromJson({...old.toJson(), 'scope': 'galaxy'})! as LoadCloudDataAction;
+    final unknown = ActionDef.fromJson({...old.toJson(), 'scope': 'galaxy'}, catalog: standardCatalog)! as LoadCloudDataAction;
     expect(unknown.scope, CloudDataScope.screen);
   });
 
   test('closeModal returns any value: a menu choice, a picked date, a map', () {
     for (final r in ['duplicate', r'${item.iso}', 3, {'ok': true}, ['a', 'b']]) {
-      final a = ActionDef.fromJson({'type': 'closeModal', 'result': r})! as CloseModalAction;
+      final a = ActionDef.fromJson({'type': 'closeModal', 'result': r}, catalog: standardCatalog)! as CloseModalAction;
       expect(a.result, r);
       expect(a.toJson()['result'], r);
     }
-    final none = ActionDef.fromJson({'type': 'closeModal'})! as CloseModalAction;
+    final none = ActionDef.fromJson({'type': 'closeModal'}, catalog: standardCatalog)! as CloseModalAction;
     expect(none.result, isNull);
     expect(none.toJson().containsKey('result'), isFalse);
   });
 
   test('retryFailed round-trips, with its common fields', () {
-    final a = ActionDef.fromJson({'type': 'retryFailed', 'when': {'left': r'${error.retryable}', 'op': 'isTrue'}})!;
+    final a = ActionDef.fromJson({'type': 'retryFailed', 'when': {'left': r'${error.retryable}', 'op': 'isTrue'}}, catalog: standardCatalog)!;
     expect(a, isA<RetryFailedAction>());
     expect(a.toJson()['type'], 'retryFailed');
     expect(a.when, isNotNull);
@@ -114,7 +114,7 @@ void main() {
 
   test('a popover anchors to a named node, in a list the copy of an item', () {
     final json = {'type': 'openModal', 'to': 's', 'anchor': 'node', 'anchorNode': 'lane', 'anchorItem': r'${route.lane}'};
-    final a = ActionDef.fromJson(json)! as OpenModalAction;
+    final a = ActionDef.fromJson(json, catalog: standardCatalog)! as OpenModalAction;
     expect(a.anchor, ModalAnchor.node);
     expect(a.anchorNode, 'lane');
     expect(a.anchorItem, r'${route.lane}');
@@ -123,7 +123,7 @@ void main() {
   });
 
   test('a popover keeps the room it reserves', () {
-    final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'popover', 'anchorReserve': 360})! as OpenModalAction;
+    final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'popover', 'anchorReserve': 360}, catalog: standardCatalog)! as OpenModalAction;
     expect(a.anchorReserve, 360);
     expect(a.toJson()['anchorReserve'], 360);
     expect(const OpenModalAction(to: 's').toJson().containsKey('anchorReserve'), isFalse);
@@ -142,10 +142,10 @@ void main() {
   });
 
   test('a bottom sheet can round its top corners', () {
-    final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'bottomSheet', 'sheetRadius': 24})! as OpenModalAction;
+    final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'bottomSheet', 'sheetRadius': 24}, catalog: standardCatalog)! as OpenModalAction;
     expect(a.sheetRadius, 24);
     expect(a.toJson()['sheetRadius'], 24);
-    expect((ActionDef.fromJson({'type': 'openModal', 'to': 's'})! as OpenModalAction).sheetRadius, isNull);
+    expect((ActionDef.fromJson({'type': 'openModal', 'to': 's'}, catalog: standardCatalog)! as OpenModalAction).sheetRadius, isNull);
     expect(const OpenModalAction(to: 's').toJson().containsKey('sheetRadius'), isFalse);
     expect(OpenModalFields.all.map((f) => f.key), contains('sheetRadius'));
   });
@@ -154,19 +154,19 @@ void main() {
     final a = ActionDef.fromJson({
       'type': 'openLink', 'url': 'x', 'enabled': false, 'nonBlocking': true, //
       'when': {'left': r'${ok}', 'op': 'isTrue'},
-    })!;
+    }, catalog: standardCatalog)!;
     expect((a.enabled, a.nonBlocking), (false, true));
     expect(a.when, isA<Comparison>());
-    expect(ActionDef.fromJson(a.toJson()), a);
+    expect(ActionDef.fromJson(a.toJson(), catalog: standardCatalog), a);
   });
 
   test('decoding is total: unknown types round-trip, junk is dropped', () {
-    final u = ActionDef.fromJson({'type': 'teleport', 'to': 'mars', 'nonBlocking': true})!;
+    final u = ActionDef.fromJson({'type': 'teleport', 'to': 'mars', 'nonBlocking': true}, catalog: standardCatalog)!;
     expect(u, isA<UnknownAction>());
     expect(u.toJson(), {'type': 'teleport', 'to': 'mars', 'nonBlocking': true});
-    expect(ActionDef.fromJson('x'), isNull);
-    expect(ActionDef.fromJson({'url': 'x'}), isNull);
-    expect(ActionDef.listFromJson([1, null, {'type': 'delay', 'ms': 'soon'}]).single, const DelayAction());
+    expect(ActionDef.fromJson('x', catalog: standardCatalog), isNull);
+    expect(ActionDef.fromJson({'url': 'x'}, catalog: standardCatalog), isNull);
+    expect(ActionDef.listFromJson([1, null, {'type': 'delay', 'ms': 'soon'}], catalog: standardCatalog).single, const DelayAction());
     expect(const DelayAction().toJson(), {'type': 'delay', 'ms': 500});
   });
 
@@ -180,11 +180,11 @@ void main() {
     final r = Reaction.fromJson({
       'id': 'r', 'trigger': {'type': 'changed', 'debounceMs': 300}, //
       'actions': [samples[7], samples[14]],
-    })!;
+    }, catalog: standardCatalog)!;
     expect(r.type, TriggerType.changed);
     expect(r.allActions.map((a) => a.type), ['setVariable', 'if', 'openLink', 'openLink']);
-    expect(Reaction.fromJson(r.toJson()), r);
-    expect(Reaction.listFromJson([{'actions': []}, r.toJson()]), [r]);
+    expect(Reaction.fromJson(r.toJson(), catalog: standardCatalog), r);
+    expect(Reaction.listFromJson([{'actions': []}, r.toJson()], catalog: standardCatalog), [r]);
   });
 
   test('key combinations', () {
@@ -204,9 +204,9 @@ void main() {
       'actions': [
         {'trigger': {'type': 'click'}, 'actions': [{'type': 'setVariable', 'variable': 'n', 'op': 'add', 'value': '1'}]},
       ],
-    }, id: 'b')!;
+    }, id: 'b', catalog: standardCatalog)!;
     expect(n.actions.single.actions.single, isA<SetVariableAction>());
-    expect(Node.fromJson(n.toJson(), id: 'b'), n);
+    expect(Node.fromJson(n.toJson(), id: 'b', catalog: standardCatalog), n);
   });
 }
 
@@ -218,9 +218,9 @@ void runScriptArgsAliasTests() {
       'type': 'runScript',
       'script': 'plotter',
       'args': {'op': 'model', 'input': r'${= {a: 1}}', 'n': 3, 'opts': {'x': 1}},
-    }) as RunScriptAction;
+    }, catalog: standardCatalog) as RunScriptAction;
     expect(a.arguments, {'op': 'model', 'input': r'${= {a: 1}}', 'n': '3', 'opts': '{"x":1}'});
     expect(a.toJson()['arguments'], a.arguments);
-    expect((ActionDef.fromJson(a.toJson()) as RunScriptAction).arguments, a.arguments);
+    expect((ActionDef.fromJson(a.toJson(), catalog: standardCatalog) as RunScriptAction).arguments, a.arguments);
   });
 }

@@ -367,6 +367,14 @@ BarcodeProps.data (`data`), BarcodeProps.symbology (`symbology`), BarcodeProps.c
 
 PathProps.trimEnd (`trimEnd`)
 
+## prop placeholder (2)
+
+PlaceholderProps.text (`text`), PlaceholderProps.leadingAsset (`leadingAsset`)
+
+## prop singlePlaceholder (1)
+
+SinglePlaceholderProps.deniedTypes (`deniedTypes`)
+
 ## prop video (4)
 
 VideoProps.autoPlay (`autoPlay`), VideoProps.showControls (`showControls`), VideoProps.volume (`volume`), VideoProps.loop (`loop`)
@@ -382,14 +390,6 @@ AudioPlayerProps.autoPlay (`autoPlay`), AudioPlayerProps.showControls (`showCont
 ## prop webView (5)
 
 WebViewProps.sourceType (`sourceType`), WebViewProps.gestures (`gestures`), WebViewProps.allowsInlineMediaPlayback (`allowsInlineMediaPlayback`), WebViewProps.mediaPlaybackRequiresUserAction (`mediaPlaybackRequiresUserAction`), WebViewProps.backgroundColor (`backgroundColor`)
-
-## prop placeholder (2)
-
-PlaceholderProps.text (`text`), PlaceholderProps.leadingAsset (`leadingAsset`)
-
-## prop singlePlaceholder (1)
-
-SinglePlaceholderProps.deniedTypes (`deniedTypes`)
 
 ## layout (3)
 
@@ -527,33 +527,9 @@ RouteDismissFields.spring (`spring`)
 
 ConfirmFields.presentation (`presentation`), ConfirmFields.barrierDismissible (`barrierDismissible`), OpenModalFields.barrierBlur (`barrierBlur`), OpenModalFields.showCloseButton (`showCloseButton`), OpenModalFields.showDragHandle (`showDragHandle`), OpenModalFields.anchor (`anchor`), ConfirmFields.placement (`placement`), OpenModalFields.anchorGap (`anchorGap`), OpenModalFields.anchorOffset (`anchorOffset`), OpenModalFields.sheetWidth (`sheetWidth`), OpenModalFields.maxHeightFactor (`maxHeightFactor`), OpenModalFields.fullHeight (`fullHeight`), OpenModalFields.enterScale (`enterScale`)
 
-## action submitForm (3)
-
-SubmitFormFields.prepend (`prepend`), SubmitFormFields.onSuccess (`onSuccess`), SubmitFormFields.onError (`onError`)
-
 ## action setValue (1)
 
 AnimationTrackFields.node (`node`)
-
-## action setStorage (1)
-
-SetStorageFields.operation (`operation`)
-
-## action cloudDocuments (4)
-
-CloudDocumentsFields.operation (`operation`), CloudDocumentsFields.idField (`idField`), CloudDocumentsFields.merge (`merge`), CloudDocumentsFields.replaceCollection (`replaceCollection`)
-
-## action loadCloudData (2)
-
-FlipCardFields.variable (`variable`), NodeAnimationFields.id (`id`)
-
-## action auth (5)
-
-AuthFields.operation (`operation`), AuthFields.email (`email`), AuthFields.password (`password`), AuthFields.displayName (`displayName`), AuthFields.photoUrl (`photoUrl`)
-
-## action cloudFiles (6)
-
-CloudFilesFields.operation (`operation`), CloudFilesFields.kind (`kind`), CloudFilesFields.allowMultiple (`allowMultiple`), CloudFilesFields.maxSizeMB (`maxSizeMB`), CloudFilesFields.progressVariable (`progressVariable`), CloudFilesFields.access (`access`)
 
 ## action showToast (4)
 
@@ -567,21 +543,9 @@ ConfirmFields.confirmLabel (`confirmLabel`), ConfirmFields.cancelLabel (`cancelL
 
 DelayFields.ms (`ms`)
 
-## action cloudData (9)
-
-CloudDataFields.operation (`operation`), CloudDataFields.collection (`collection`), NodeAnimationFields.id (`id`), CloudDataFields.whereFilters (`whereFilters`), CloudDataFields.orderByFilters (`orderByFilters`), CloudDataFields.limit (`limit`), CloudDataFields.aggregateField (`aggregateField`), CloudDataFields.loadRelated (`loadRelated`), CloudDataFields.resultVariable (`resultVariable`)
-
-## action downloadFile (1)
-
-DownloadFileFields.mimeType (`mimeType`)
-
 ## action editText (4)
 
 EditTextFields.operation (`operation`), EditTextFields.text (`text`), EditTextFields.before (`before`), EditTextFields.numbered (`numbered`)
-
-## action paywall (4)
-
-PaywallFields.operation (`operation`), PaywallFields.slot (`slot`), NavigateFields.transitionMs (`transitionMs`), NavigateFields.reverseTransitionMs (`reverseTransitionMs`)
 
 ## action focus (2)
 
@@ -591,17 +555,9 @@ FocusFields.unfocus (`unfocus`), FocusFields.selectAll (`selectAll`)
 
 ControlDragFields.command (`command`), ControlDragFields.direction (`direction`)
 
-## action speak (2)
-
-EditTextFields.text (`text`), SpeakFields.language (`language`)
-
 ## action scrollTo (3)
 
 AnimationTrackFields.node (`node`), ScrollToFields.durationMs (`durationMs`), StickyFields.offset (`offset`)
-
-## action playSound (2)
-
-PlaySoundFields.volume (`volume`), PlaySoundFields.pitch (`pitch`)
 
 ## action animate (1)
 
@@ -614,6 +570,50 @@ HapticFields.kind (`kind`)
 ## action paginate (1)
 
 PaginateFields.command (`command`)
+
+## action setStorage (1)
+
+SetStorageFields.operation (`operation`)
+
+## action cloudDocuments (4)
+
+CloudDocumentsFields.operation (`operation`), CloudDocumentsFields.idField (`idField`), CloudDocumentsFields.merge (`merge`), CloudDocumentsFields.replaceCollection (`replaceCollection`)
+
+## action loadCloudData (2)
+
+FlipCardFields.variable (`variable`), NodeAnimationFields.id (`id`)
+
+## action cloudFiles (6)
+
+CloudFilesFields.operation (`operation`), CloudFilesFields.kind (`kind`), CloudFilesFields.allowMultiple (`allowMultiple`), CloudFilesFields.maxSizeMB (`maxSizeMB`), CloudFilesFields.progressVariable (`progressVariable`), CloudFilesFields.access (`access`)
+
+## action cloudData (9)
+
+CloudDataFields.operation (`operation`), CloudDataFields.collection (`collection`), NodeAnimationFields.id (`id`), CloudDataFields.whereFilters (`whereFilters`), CloudDataFields.orderByFilters (`orderByFilters`), CloudDataFields.limit (`limit`), CloudDataFields.aggregateField (`aggregateField`), CloudDataFields.loadRelated (`loadRelated`), CloudDataFields.resultVariable (`resultVariable`)
+
+## action submitForm (3)
+
+SubmitFormFields.prepend (`prepend`), SubmitFormFields.onSuccess (`onSuccess`), SubmitFormFields.onError (`onError`)
+
+## action auth (5)
+
+AuthFields.operation (`operation`), AuthFields.email (`email`), AuthFields.password (`password`), AuthFields.displayName (`displayName`), AuthFields.photoUrl (`photoUrl`)
+
+## action paywall (4)
+
+PaywallFields.operation (`operation`), PaywallFields.slot (`slot`), NavigateFields.transitionMs (`transitionMs`), NavigateFields.reverseTransitionMs (`reverseTransitionMs`)
+
+## action speak (2)
+
+EditTextFields.text (`text`), SpeakFields.language (`language`)
+
+## action playSound (2)
+
+PlaySoundFields.volume (`volume`), PlaySoundFields.pitch (`pitch`)
+
+## action downloadFile (1)
+
+DownloadFileFields.mimeType (`mimeType`)
 
 ## trigger type (18)
 

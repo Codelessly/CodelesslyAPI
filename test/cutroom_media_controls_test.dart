@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   test('media controls are optional and preserve legacy sparse documents', () {
     for (final type in ['video', 'audioPlayer']) {
-      final n = Node.fromJson({'type': type})!;
+      final n = Node.fromJson({'type': type}, catalog: standardCatalog)!;
       expect(n.toJson()['props'], isNull);
       if (type == 'video') {
         expect(n.prop(VideoProps.playing), isNull);
@@ -20,13 +20,13 @@ void main() {
       final n = Node.fromJson({
         'type': type,
         'props': {'playing': false, 'positionSeconds': 2.375, 'volume': .4, 'loop': true},
-      })!;
-      expect(Node.fromJson(n.toJson()), n);
+      }, catalog: standardCatalog)!;
+      expect(Node.fromJson(n.toJson(), catalog: standardCatalog), n);
       expect((n.toJson()['props'] as Map)['positionSeconds'], 2.375);
       final invalid = Node.fromJson({
         'type': type,
         'props': {'positionSeconds': -5, 'volume': 4},
-      })!;
+      }, catalog: standardCatalog)!;
       expect(
         type == 'video' ? invalid.prop(VideoProps.positionSeconds) : invalid.prop(AudioPlayerProps.positionSeconds),
         0,
@@ -35,7 +35,7 @@ void main() {
     }
   });
   test('playback bindings accept the same loose booleans as other controls', () {
-    final video=Node.fromJson({'type':'video'})!;
+    final video=Node.fromJson({'type':'video'}, catalog: standardCatalog)!;
     final playing=BindPaths.apply(video,'props.playing','true');
     expect(playing.prop(VideoProps.playing),true);
     expect(BindPaths.apply(playing,'props.playing','false').prop(VideoProps.playing),false);

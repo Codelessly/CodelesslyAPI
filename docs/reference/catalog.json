@@ -10431,6 +10431,93 @@
         }
       ]
     },
+    "external": {
+      "doc": "A widget built by the app.\n\nA widget the app builds (`Codelessly`'s external component builders).",
+      "children": "none",
+      "slots": [],
+      "decorated": false,
+      "childFields": [],
+      "props": [
+        {
+          "key": "builderId",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The id of the app's builder."
+        }
+      ]
+    },
+    "placeholder": {
+      "doc": "An empty slot (`SizedBox`).\n\nAn empty slot shown at design time (Flutter `SizedBox`).",
+      "children": "none",
+      "slots": [],
+      "decorated": false,
+      "childFields": [],
+      "props": [
+        {
+          "key": "text",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "leadingAsset",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        }
+      ]
+    },
+    "singlePlaceholder": {
+      "doc": "A one-child slot.\n\nA slot that shows its one child, or keeps its size when empty.",
+      "children": "list",
+      "slots": [],
+      "decorated": false,
+      "childFields": [],
+      "props": [
+        {
+          "key": "allowedTypes",
+          "type": "List<String>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "String",
+          "itemKind": "string",
+          "doc": "The node types the slot accepts (empty: any) and refuses."
+        },
+        {
+          "key": "deniedTypes",
+          "type": "List<String>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "String",
+          "itemKind": "string",
+          "doc": ""
+        },
+        {
+          "key": "maxAllowedSize",
+          "type": "Size",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "The largest child it accepts, `[width, height]`."
+        },
+        {
+          "key": "ephemeral",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Its child is temporary (not kept when the slot is filled again)."
+        }
+      ]
+    },
     "video": {
       "doc": "`VideoPlayer`. Its changed trigger reports ready/error and, when ready, durationSeconds/positionSeconds without autoplay; with reportIntervalMs, also positionSeconds/playing while it plays.\n\nA network video (`video_player`'s `VideoPlayer`).",
       "children": "none",
@@ -10868,93 +10955,6 @@
           "default": null,
           "nullable": true,
           "doc": ""
-        }
-      ]
-    },
-    "external": {
-      "doc": "A widget built by the app.\n\nA widget the app builds (`Codelessly`'s external component builders).",
-      "children": "none",
-      "slots": [],
-      "decorated": false,
-      "childFields": [],
-      "props": [
-        {
-          "key": "builderId",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": "The id of the app's builder."
-        }
-      ]
-    },
-    "placeholder": {
-      "doc": "An empty slot (`SizedBox`).\n\nAn empty slot shown at design time (Flutter `SizedBox`).",
-      "children": "none",
-      "slots": [],
-      "decorated": false,
-      "childFields": [],
-      "props": [
-        {
-          "key": "text",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "leadingAsset",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": ""
-        }
-      ]
-    },
-    "singlePlaceholder": {
-      "doc": "A one-child slot.\n\nA slot that shows its one child, or keeps its size when empty.",
-      "children": "list",
-      "slots": [],
-      "decorated": false,
-      "childFields": [],
-      "props": [
-        {
-          "key": "allowedTypes",
-          "type": "List<String>",
-          "kind": "list",
-          "default": [],
-          "nullable": false,
-          "item": "String",
-          "itemKind": "string",
-          "doc": "The node types the slot accepts (empty: any) and refuses."
-        },
-        {
-          "key": "deniedTypes",
-          "type": "List<String>",
-          "kind": "list",
-          "default": [],
-          "nullable": false,
-          "item": "String",
-          "itemKind": "string",
-          "doc": ""
-        },
-        {
-          "key": "maxAllowedSize",
-          "type": "Size",
-          "kind": "value",
-          "default": null,
-          "nullable": true,
-          "doc": "The largest child it accepts, `[width, height]`."
-        },
-        {
-          "key": "ephemeral",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Its child is temporary (not kept when the slot is filled again)."
         }
       ]
     }
@@ -12461,104 +12461,6 @@
           }
         ]
       },
-      "print": {
-        "label": "Print",
-        "class": "PrintAction",
-        "doc": "Requests the platform print dialog for a rendered node. The user chooses the destination and confirms; this action never silently submits a job.",
-        "fields": [
-          {
-            "key": "node",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "A rendered node to print through a user-confirmed platform dialog."
-          }
-        ]
-      },
-      "submitForm": {
-        "label": "Submit form",
-        "class": "SubmitFormAction",
-        "doc": "Validates a form's answers and stores them in the app's own variables (`service: local`). See `docs/submit_form.md`.\n\nA remote destination is an explicit later action (`callApi` in `onSuccess`) to an endpoint the app defines; this action itself never calls a service.",
-        "fields": [
-          {
-            "key": "service",
-            "type": "FormService",
-            "kind": "enumeration",
-            "default": "local",
-            "nullable": false,
-            "enum": "FormService",
-            "values": [
-              "local"
-            ],
-            "doc": "Only `local` is offered: `FormService.unsupported` marks old data."
-          },
-          {
-            "key": "payload",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "An expression yielding a JSON object."
-          },
-          {
-            "key": "validationScript",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Await a script returning {valid, errors?, payload?}."
-          },
-          {
-            "key": "validationArguments",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Named script argument expressions."
-          },
-          {
-            "key": "responseVariable",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Optional mutable list variable receiving the validated payload. Persist the variable to keep submissions."
-          },
-          {
-            "key": "prepend",
-            "type": "bool",
-            "kind": "boolean",
-            "default": false,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "resultVariable",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "An expression yielding a JSON object. An awaited validator may replace it with its normalized `payload`."
-          },
-          {
-            "key": "onSuccess",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": ""
-          },
-          {
-            "key": "onError",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": ""
-          }
-        ]
-      },
       "setValue": {
         "label": "Set value",
         "class": "SetValueAction",
@@ -12709,6 +12611,777 @@
             "default": false,
             "nullable": false,
             "doc": "A function the app didn't register is skipped (${result} is null) instead of failing the chain."
+          }
+        ]
+      },
+      "if": {
+        "label": "If",
+        "class": "IfAction",
+        "doc": "Runs `then` when `condition` holds, else `orElse`. JSON: `{\"type\": \"if\", \"condition\": {...}, \"then\": [...], \"else\": [...]}`.",
+        "fields": [
+          {
+            "key": "condition",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "A predicate; null never holds."
+          },
+          {
+            "key": "then",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Nested actions: run when it holds."
+          },
+          {
+            "key": "else",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Nested actions: run when it doesn't."
+          }
+        ]
+      },
+      "forEach": {
+        "label": "For each",
+        "class": "ForEachAction",
+        "doc": "Runs `actions` once per item of list `items` (a path or expression). Every action of a turn reads the item and its index as `${loop.item}` and `${loop.index}`; `${result.item}` and `${result.index}` hold them too, until an action of the turn gives a result of its own.",
+        "fields": [
+          {
+            "key": "items",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A list (a path or expression)."
+          },
+          {
+            "key": "actions",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Nested actions: run per item (${loop.item}, ${loop.index})."
+          }
+        ]
+      },
+      "showToast": {
+        "label": "Show toast",
+        "class": "ShowToastAction",
+        "doc": "Shows a short message (a snackbar). Its button (`actionLabel`) runs `actions` on the chain that showed it. Cosmetics beyond the fields below (colors, radius, shadows, text styles, offsets per breakpoint) are in `style`, JSON.",
+        "fields": [
+          {
+            "key": "message",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "An expression."
+          },
+          {
+            "key": "title",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Expressions."
+          },
+          {
+            "key": "durationMs",
+            "type": "int",
+            "kind": "integer",
+            "default": 2600,
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "style",
+            "type": "ToastStyle",
+            "kind": "enumeration",
+            "default": "neutral",
+            "nullable": false,
+            "enum": "ToastStyle",
+            "values": [
+              "neutral",
+              "info",
+              "success",
+              "warning",
+              "error"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "position",
+            "type": "ToastPosition",
+            "kind": "enumeration",
+            "default": "bottom",
+            "nullable": false,
+            "enum": "ToastPosition",
+            "values": [
+              "bottom",
+              "top"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "actionLabel",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Its button."
+          },
+          {
+            "key": "actions",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Nested actions: run by its button."
+          },
+          {
+            "key": "showClose",
+            "type": "bool",
+            "kind": "boolean",
+            "default": false,
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "icon",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "An icon glyph's JSON."
+          },
+          {
+            "key": "look",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Cosmetics, JSON: colors, radius, border, shadows, padding, widths, text styles, offsets, alignment; the button's actionBackgroundColor, actionBorder, actionCornerRadius, actionShadows; iconShadows; rotation (degrees), enterCurve, enterOffset (a share of its height)."
+          },
+          {
+            "key": "variables",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Style values bound to expressions, by style key."
+          }
+        ]
+      },
+      "confirm": {
+        "label": "Confirm",
+        "class": "ConfirmAction",
+        "doc": "Asks the user to confirm; runs `actions` when they do, `cancelActions` when they don't. With `dialog` (a screen id), that screen is the dialog and what its close modal action returns is `${result}`.",
+        "fields": [
+          {
+            "key": "title",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Expressions."
+          },
+          {
+            "key": "message",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Expressions."
+          },
+          {
+            "key": "caption",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Expressions."
+          },
+          {
+            "key": "confirmLabel",
+            "type": "String",
+            "kind": "string",
+            "default": "OK",
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "cancelLabel",
+            "type": "String",
+            "kind": "string",
+            "default": "Cancel",
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "destructive",
+            "type": "bool",
+            "kind": "boolean",
+            "default": false,
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "actions",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Nested actions: run when confirmed."
+          },
+          {
+            "key": "cancelActions",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Nested actions: run when canceled."
+          },
+          {
+            "key": "dialog",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A screen id to show as the dialog."
+          },
+          {
+            "key": "params",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": ""
+          },
+          {
+            "key": "presentation",
+            "type": "ModalPresentation",
+            "kind": "enumeration",
+            "default": "dialog",
+            "nullable": false,
+            "enum": "ModalPresentation",
+            "values": [
+              "dialog",
+              "bottomSheet",
+              "adaptive",
+              "sideSheet",
+              "fullScreen",
+              "popover",
+              "banner"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "placement",
+            "type": "PopoverPlacement",
+            "kind": "enumeration",
+            "default": "belowStart",
+            "nullable": false,
+            "enum": "PopoverPlacement",
+            "doc": ""
+          },
+          {
+            "key": "barrierDismissible",
+            "type": "bool",
+            "kind": "boolean",
+            "default": true,
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "look",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Cosmetics, JSON: colors, radius, border, shadows, text styles, button radius/border/shadows; confirmBorder, cancelBorder, buttonHeight, expandButtons; icon, iconSize, iconColor, iconDiscColor, iconDiscSize, iconDiscBorder; centered, width, maxWidth, insets, padding."
+          },
+          {
+            "key": "variables",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Style values bound to expressions, by style key."
+          }
+        ]
+      },
+      "delay": {
+        "label": "Delay",
+        "class": "DelayAction",
+        "doc": "Waits `ms` milliseconds, or `duration` (a formula giving them) when that gives a number.",
+        "fields": [
+          {
+            "key": "ms",
+            "type": "int",
+            "kind": "integer",
+            "default": 500,
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "duration",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A formula giving milliseconds."
+          }
+        ]
+      },
+      "copyToClipboard": {
+        "label": "Copy to clipboard",
+        "class": "CopyToClipboardAction",
+        "doc": "Copies `text` (an expression) to the clipboard.",
+        "fields": [
+          {
+            "key": "text",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "An expression."
+          }
+        ]
+      },
+      "editText": {
+        "label": "Edit text",
+        "class": "EditTextAction",
+        "doc": "Edits text field `node`'s text at its cursor: wraps the selection in `before` / `after`, toggles a (numbered) list, inserts or sets `text`, replaces the word being typed, clears it or focuses it.",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A text field."
+          },
+          {
+            "key": "operation",
+            "type": "EditTextOperation",
+            "kind": "enumeration",
+            "default": "insert",
+            "nullable": false,
+            "enum": "EditTextOperation",
+            "values": [
+              "wrap",
+              "toggleList",
+              "insert",
+              "replaceWord",
+              "setText",
+              "clear",
+              "focus"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "text",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "before",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "after",
+            "type": "String",
+            "kind": "string",
+            "default": null,
+            "nullable": true,
+            "doc": "Null: the same as before."
+          },
+          {
+            "key": "numbered",
+            "type": "bool",
+            "kind": "boolean",
+            "default": false,
+            "nullable": false,
+            "doc": ""
+          }
+        ]
+      },
+      "focus": {
+        "label": "Focus",
+        "class": "FocusAction",
+        "doc": "Focuses text field `node` (selecting its text with `selectAll`), or takes the focus away (`unfocus`; from every field when `node` is empty).",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A text field; empty with unfocus: every field."
+          },
+          {
+            "key": "unfocus",
+            "type": "bool",
+            "kind": "boolean",
+            "default": false,
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "selectAll",
+            "type": "bool",
+            "kind": "boolean",
+            "default": false,
+            "nullable": false,
+            "doc": ""
+          }
+        ]
+      },
+      "controlDrag": {
+        "label": "Control drag",
+        "class": "ControlDragAction",
+        "doc": "Flings, returns, resets or shakes draggable node `node` (a swipe card), or steps a drag track.",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A draggable node."
+          },
+          {
+            "key": "command",
+            "type": "DragCommand",
+            "kind": "enumeration",
+            "default": "fling",
+            "nullable": false,
+            "enum": "DragCommand",
+            "values": [
+              "fling",
+              "returnFrom",
+              "reset",
+              "shake",
+              "step",
+              "zoom",
+              "pose"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "direction",
+            "type": "DragDirection",
+            "kind": "enumeration",
+            "default": "right",
+            "nullable": false,
+            "enum": "DragDirection",
+            "values": [
+              "left",
+              "right",
+              "up",
+              "down"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "steps",
+            "type": "String",
+            "kind": "string",
+            "default": "1",
+            "nullable": false,
+            "doc": "Step: how many steps (an expression)."
+          },
+          {
+            "key": "value",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression)."
+          }
+        ]
+      },
+      "scrollTo": {
+        "label": "Scroll to",
+        "class": "ScrollToAction",
+        "doc": "Scrolls node `node` into view: `alignment` 0 puts it at the start of the view, 1 at the end; `offset` moves it further. `axis` limits it to the scroll views along one axis (a map in a sideways window centers a point without scrolling the page under it); null scrolls every one around it.",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "item",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "For a repeated node: the key (or index) of the list item whose copy to reveal."
+          },
+          {
+            "key": "durationMs",
+            "type": "int",
+            "kind": "integer",
+            "default": 400,
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "curve",
+            "type": "String",
+            "kind": "string",
+            "default": "easeInOut",
+            "nullable": false,
+            "doc": "A Curves name."
+          },
+          {
+            "key": "alignment",
+            "type": "double",
+            "kind": "number",
+            "default": 0,
+            "nullable": false,
+            "doc": "0: at the start of the view, 1: at the end."
+          },
+          {
+            "key": "offset",
+            "type": "double",
+            "kind": "number",
+            "default": 0,
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "axis",
+            "type": "ScrollAxis",
+            "kind": "enumeration",
+            "default": null,
+            "nullable": true,
+            "enum": "ScrollAxis",
+            "values": [
+              "horizontal",
+              "vertical"
+            ],
+            "doc": "Only the scroll views along this axis; null: every one."
+          }
+        ]
+      },
+      "animate": {
+        "label": "Animate",
+        "class": "AnimateAction",
+        "doc": "Drives an animation (Flutter's `AnimationController` methods): node `node`'s `animation` (`NodeAnimation`), or the number variable `variable` (an unbounded controller the screen keeps for it). JSON: `{\"type\": \"animate\", \"node\": \"card\", \"animation\": \"pop\", \"command\": \"forward\", \"from\": \"0\"}`, `{\"type\": \"animate\", \"variable\": \"shownTotal\", \"command\": \"animateTo\", \"target\": \"${total}\", \"duration\": \"800\", \"curve\": \"easeOutCubic\"}`. The chain waits for it to end (`TickerFuture`) unless it's `nonBlocking`; a repeat ends when its count does.\n\nReads the legacy `playAnimation` (`forward` from 0) and `animateVariable` (play → `animateTo`, pause and stop → `stop`, resume → `forward`, seek → `set`).",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A node id or key; empty: the reacting node."
+          },
+          {
+            "key": "animation",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "The animation's id on the node."
+          },
+          {
+            "key": "variable",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Instead of a node: a number variable."
+          },
+          {
+            "key": "command",
+            "type": "AnimateCommand",
+            "kind": "enumeration",
+            "default": "forward",
+            "nullable": false,
+            "enum": "AnimateCommand",
+            "values": [
+              "forward",
+              "reverse",
+              "toggle",
+              "repeat",
+              "stop",
+              "reset",
+              "animateTo",
+              "animateBack",
+              "set"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "from",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Where forward/reverse start (an expression)."
+          },
+          {
+            "key": "target",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "animateTo, animateBack, set (an expression)."
+          },
+          {
+            "key": "duration",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Milliseconds (an expression); empty: the animation's."
+          },
+          {
+            "key": "curve",
+            "type": "AnimationCurve",
+            "kind": "enumeration",
+            "default": null,
+            "nullable": true,
+            "enum": "AnimationCurve",
+            "doc": "Null: the animation's (linear for a variable)."
+          },
+          {
+            "key": "spring",
+            "type": "Spring",
+            "kind": "object",
+            "default": null,
+            "nullable": true,
+            "object": "Spring",
+            "doc": "`animateWith(SpringSimulation)` toward `target` instead of a duration."
+          }
+        ]
+      },
+      "haptic": {
+        "label": "Haptic feedback",
+        "class": "HapticAction",
+        "doc": "Buzzes the device (`HapticFeedback`, on phones that support it; nothing elsewhere). Its common `when` buzzes only while a setting holds.",
+        "fields": [
+          {
+            "key": "kind",
+            "type": "HapticKind",
+            "kind": "enumeration",
+            "default": "selection",
+            "nullable": false,
+            "enum": "HapticKind",
+            "values": [
+              "selection",
+              "light",
+              "medium",
+              "heavy",
+              "vibrate"
+            ],
+            "doc": ""
+          }
+        ]
+      },
+      "runScript": {
+        "label": "Run script",
+        "class": "RunScriptAction",
+        "doc": "Runs script `script` (a layout's `scripts`, by id) with `arguments` (by parameter name; expressions: one `${...}` passes its value as is, other text passes as JSON when it is JSON, else as text). Its result is the chain's `${result}` (and goes in `resultVariable` when set). When it fails, `onError` runs with `${result}` `{error: {type, message, line, column}, logs}`; without `onError` a failure stops the chain.",
+        "fields": [
+          {
+            "key": "script",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A script of the layout's scripts."
+          },
+          {
+            "key": "arguments",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "By parameter name (expressions)."
+          },
+          {
+            "key": "resultVariable",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Gets the result."
+          },
+          {
+            "key": "onError",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Nested actions: run when it fails (${result.error}, ${result.logs})."
+          }
+        ]
+      },
+      "paginate": {
+        "label": "Paginate",
+        "class": "PaginateAction",
+        "doc": "Moves the pagination controller of a list or grid (its `pagination`, by `controller`, the pagination's name).",
+        "fields": [
+          {
+            "key": "controller",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "The pagination's name."
+          },
+          {
+            "key": "command",
+            "type": "PaginateCommand",
+            "kind": "enumeration",
+            "default": "next",
+            "nullable": false,
+            "enum": "PaginateCommand",
+            "values": [
+              "next",
+              "previous",
+              "goTo",
+              "first",
+              "last",
+              "refresh",
+              "retry",
+              "setPageSize"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "page",
+            "type": "String",
+            "kind": "string",
+            "default": "1",
+            "nullable": false,
+            "doc": "For goTo: a number or an expression."
+          },
+          {
+            "key": "pageSize",
+            "type": "String",
+            "kind": "string",
+            "default": "20",
+            "nullable": false,
+            "doc": "For setPageSize."
           }
         ]
       },
@@ -13150,124 +13823,6 @@
           }
         ]
       },
-      "auth": {
-        "label": "Auth",
-        "class": "AuthAction",
-        "doc": "Signs app users in, up and out, and manages their account. A failure's message goes in `errorVariable` (and stops the chain).",
-        "fields": [
-          {
-            "key": "operation",
-            "type": "AuthOperation",
-            "kind": "enumeration",
-            "default": "signIn",
-            "nullable": false,
-            "enum": "AuthOperation",
-            "doc": ""
-          },
-          {
-            "key": "email",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "password",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "displayName",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "photoUrl",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "currentPassword",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Re-authenticates first (change password, delete account)."
-          },
-          {
-            "key": "errorVariable",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Gets a failure's message."
-          }
-        ]
-      },
-      "if": {
-        "label": "If",
-        "class": "IfAction",
-        "doc": "Runs `then` when `condition` holds, else `orElse`. JSON: `{\"type\": \"if\", \"condition\": {...}, \"then\": [...], \"else\": [...]}`.",
-        "fields": [
-          {
-            "key": "condition",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "A predicate; null never holds."
-          },
-          {
-            "key": "then",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Nested actions: run when it holds."
-          },
-          {
-            "key": "else",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Nested actions: run when it doesn't."
-          }
-        ]
-      },
-      "forEach": {
-        "label": "For each",
-        "class": "ForEachAction",
-        "doc": "Runs `actions` once per item of list `items` (a path or expression). Every action of a turn reads the item and its index as `${loop.item}` and `${loop.index}`; `${result.item}` and `${result.index}` hold them too, until an action of the turn gives a result of its own.",
-        "fields": [
-          {
-            "key": "items",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "A list (a path or expression)."
-          },
-          {
-            "key": "actions",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Nested actions: run per item (${loop.item}, ${loop.index})."
-          }
-        ]
-      },
       "cloudFiles": {
         "label": "Cloud files",
         "class": "CloudFilesAction",
@@ -13367,275 +13922,6 @@
             "default": null,
             "nullable": true,
             "doc": "Nested actions: run with each file."
-          }
-        ]
-      },
-      "showToast": {
-        "label": "Show toast",
-        "class": "ShowToastAction",
-        "doc": "Shows a short message (a snackbar). Its button (`actionLabel`) runs `actions` on the chain that showed it. Cosmetics beyond the fields below (colors, radius, shadows, text styles, offsets per breakpoint) are in `style`, JSON.",
-        "fields": [
-          {
-            "key": "message",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "An expression."
-          },
-          {
-            "key": "title",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Expressions."
-          },
-          {
-            "key": "durationMs",
-            "type": "int",
-            "kind": "integer",
-            "default": 2600,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "style",
-            "type": "ToastStyle",
-            "kind": "enumeration",
-            "default": "neutral",
-            "nullable": false,
-            "enum": "ToastStyle",
-            "values": [
-              "neutral",
-              "info",
-              "success",
-              "warning",
-              "error"
-            ],
-            "doc": ""
-          },
-          {
-            "key": "position",
-            "type": "ToastPosition",
-            "kind": "enumeration",
-            "default": "bottom",
-            "nullable": false,
-            "enum": "ToastPosition",
-            "values": [
-              "bottom",
-              "top"
-            ],
-            "doc": ""
-          },
-          {
-            "key": "actionLabel",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Its button."
-          },
-          {
-            "key": "actions",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Nested actions: run by its button."
-          },
-          {
-            "key": "showClose",
-            "type": "bool",
-            "kind": "boolean",
-            "default": false,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "icon",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "An icon glyph's JSON."
-          },
-          {
-            "key": "look",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Cosmetics, JSON: colors, radius, border, shadows, padding, widths, text styles, offsets, alignment; the button's actionBackgroundColor, actionBorder, actionCornerRadius, actionShadows; iconShadows; rotation (degrees), enterCurve, enterOffset (a share of its height)."
-          },
-          {
-            "key": "variables",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Style values bound to expressions, by style key."
-          }
-        ]
-      },
-      "confirm": {
-        "label": "Confirm",
-        "class": "ConfirmAction",
-        "doc": "Asks the user to confirm; runs `actions` when they do, `cancelActions` when they don't. With `dialog` (a screen id), that screen is the dialog and what its close modal action returns is `${result}`.",
-        "fields": [
-          {
-            "key": "title",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Expressions."
-          },
-          {
-            "key": "message",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Expressions."
-          },
-          {
-            "key": "caption",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Expressions."
-          },
-          {
-            "key": "confirmLabel",
-            "type": "String",
-            "kind": "string",
-            "default": "OK",
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "cancelLabel",
-            "type": "String",
-            "kind": "string",
-            "default": "Cancel",
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "destructive",
-            "type": "bool",
-            "kind": "boolean",
-            "default": false,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "actions",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Nested actions: run when confirmed."
-          },
-          {
-            "key": "cancelActions",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Nested actions: run when canceled."
-          },
-          {
-            "key": "dialog",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "A screen id to show as the dialog."
-          },
-          {
-            "key": "params",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": ""
-          },
-          {
-            "key": "presentation",
-            "type": "ModalPresentation",
-            "kind": "enumeration",
-            "default": "dialog",
-            "nullable": false,
-            "enum": "ModalPresentation",
-            "values": [
-              "dialog",
-              "bottomSheet",
-              "adaptive",
-              "sideSheet",
-              "fullScreen",
-              "popover",
-              "banner"
-            ],
-            "doc": ""
-          },
-          {
-            "key": "placement",
-            "type": "PopoverPlacement",
-            "kind": "enumeration",
-            "default": "belowStart",
-            "nullable": false,
-            "enum": "PopoverPlacement",
-            "doc": ""
-          },
-          {
-            "key": "barrierDismissible",
-            "type": "bool",
-            "kind": "boolean",
-            "default": true,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "look",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Cosmetics, JSON: colors, radius, border, shadows, text styles, button radius/border/shadows; confirmBorder, cancelBorder, buttonHeight, expandButtons; icon, iconSize, iconColor, iconDiscColor, iconDiscSize, iconDiscBorder; centered, width, maxWidth, insets, padding."
-          },
-          {
-            "key": "variables",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Style values bound to expressions, by style key."
-          }
-        ]
-      },
-      "delay": {
-        "label": "Delay",
-        "class": "DelayAction",
-        "doc": "Waits `ms` milliseconds, or `duration` (a formula giving them) when that gives a number.",
-        "fields": [
-          {
-            "key": "ms",
-            "type": "int",
-            "kind": "integer",
-            "default": 500,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "duration",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "A formula giving milliseconds."
           }
         ]
       },
@@ -13770,137 +14056,150 @@
           }
         ]
       },
-      "copyToClipboard": {
-        "label": "Copy to clipboard",
-        "class": "CopyToClipboardAction",
-        "doc": "Copies `text` (an expression) to the clipboard.",
+      "submitForm": {
+        "label": "Submit form",
+        "class": "SubmitFormAction",
+        "doc": "Validates a form's answers and stores them in the app's own variables (`service: local`). See `docs/submit_form.md`.\n\nA remote destination is an explicit later action (`callApi` in `onSuccess`) to an endpoint the app defines; this action itself never calls a service.",
         "fields": [
           {
-            "key": "text",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "An expression."
-          }
-        ]
-      },
-      "downloadFile": {
-        "label": "Download file",
-        "class": "DownloadFileAction",
-        "doc": "Exports generated UTF-8 text (CSV, JSON, plain text...) as a file. The browser downloads it; native apps show the platform save picker. Cancellation returns `{saved: false}` as the action result.",
-        "fields": [
-          {
-            "key": "fileName",
-            "type": "String",
-            "kind": "string",
-            "default": "export.txt",
-            "nullable": false,
-            "doc": "Suggested filename, an expression."
-          },
-          {
-            "key": "text",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Generated file contents as UTF-8 text."
-          },
-          {
-            "key": "mimeType",
-            "type": "String",
-            "kind": "string",
-            "default": "text/plain",
-            "nullable": false,
-            "doc": ""
-          }
-        ]
-      },
-      "preloadImages": {
-        "label": "Preload images",
-        "class": "PreloadImagesAction",
-        "doc": "Loads images ahead of showing them (a story's pages before reading), so they draw at once: `urls` is an expression giving a list of URLs (or a comma-separated text). While it runs, `progressVariable` (a variable's name; empty for none) holds the share done (0–1). It waits for every image and gives `{loaded, failed, total}`.",
-        "fields": [
-          {
-            "key": "urls",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "The image URLs: a list (an expression) or comma-separated text."
-          },
-          {
-            "key": "progressVariable",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "A variable to hold the share loaded (0-1) while it runs."
-          }
-        ]
-      },
-      "editText": {
-        "label": "Edit text",
-        "class": "EditTextAction",
-        "doc": "Edits text field `node`'s text at its cursor: wraps the selection in `before` / `after`, toggles a (numbered) list, inserts or sets `text`, replaces the word being typed, clears it or focuses it.",
-        "fields": [
-          {
-            "key": "node",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "A text field."
-          },
-          {
-            "key": "operation",
-            "type": "EditTextOperation",
+            "key": "service",
+            "type": "FormService",
             "kind": "enumeration",
-            "default": "insert",
+            "default": "local",
             "nullable": false,
-            "enum": "EditTextOperation",
+            "enum": "FormService",
             "values": [
-              "wrap",
-              "toggleList",
-              "insert",
-              "replaceWord",
-              "setText",
-              "clear",
-              "focus"
+              "local"
             ],
-            "doc": ""
+            "doc": "Only `local` is offered: `FormService.unsupported` marks old data."
           },
           {
-            "key": "text",
+            "key": "payload",
             "type": "String",
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": ""
+            "doc": "An expression yielding a JSON object."
           },
           {
-            "key": "before",
+            "key": "validationScript",
             "type": "String",
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": ""
+            "doc": "Await a script returning {valid, errors?, payload?}."
           },
           {
-            "key": "after",
-            "type": "String",
-            "kind": "string",
+            "key": "validationArguments",
+            "type": "Object",
+            "kind": "json",
             "default": null,
             "nullable": true,
-            "doc": "Null: the same as before."
+            "doc": "Named script argument expressions."
           },
           {
-            "key": "numbered",
+            "key": "responseVariable",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Optional mutable list variable receiving the validated payload. Persist the variable to keep submissions."
+          },
+          {
+            "key": "prepend",
             "type": "bool",
             "kind": "boolean",
             "default": false,
             "nullable": false,
             "doc": ""
+          },
+          {
+            "key": "resultVariable",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "An expression yielding a JSON object. An awaited validator may replace it with its normalized `payload`."
+          },
+          {
+            "key": "onSuccess",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": ""
+          },
+          {
+            "key": "onError",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": ""
+          }
+        ]
+      },
+      "auth": {
+        "label": "Auth",
+        "class": "AuthAction",
+        "doc": "Signs app users in, up and out, and manages their account. A failure's message goes in `errorVariable` (and stops the chain).",
+        "fields": [
+          {
+            "key": "operation",
+            "type": "AuthOperation",
+            "kind": "enumeration",
+            "default": "signIn",
+            "nullable": false,
+            "enum": "AuthOperation",
+            "doc": ""
+          },
+          {
+            "key": "email",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "password",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "displayName",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "photoUrl",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": ""
+          },
+          {
+            "key": "currentPassword",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Re-authenticates first (change password, delete account)."
+          },
+          {
+            "key": "errorVariable",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Gets a failure's message."
           }
         ]
       },
@@ -14003,10 +14302,10 @@
           }
         ]
       },
-      "focus": {
-        "label": "Focus",
-        "class": "FocusAction",
-        "doc": "Focuses text field `node` (selecting its text with `selectAll`), or takes the focus away (`unfocus`; from every field when `node` is empty).",
+      "print": {
+        "label": "Print",
+        "class": "PrintAction",
+        "doc": "Requests the platform print dialog for a rendered node. The user chooses the destination and confirms; this action never silently submits a job.",
         "fields": [
           {
             "key": "node",
@@ -14014,87 +14313,30 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "A text field; empty with unfocus: every field."
-          },
-          {
-            "key": "unfocus",
-            "type": "bool",
-            "kind": "boolean",
-            "default": false,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "selectAll",
-            "type": "bool",
-            "kind": "boolean",
-            "default": false,
-            "nullable": false,
-            "doc": ""
+            "doc": "A rendered node to print through a user-confirmed platform dialog."
           }
         ]
       },
-      "controlDrag": {
-        "label": "Control drag",
-        "class": "ControlDragAction",
-        "doc": "Flings, returns, resets or shakes draggable node `node` (a swipe card), or steps a drag track.",
+      "preloadImages": {
+        "label": "Preload images",
+        "class": "PreloadImagesAction",
+        "doc": "Loads images ahead of showing them (a story's pages before reading), so they draw at once: `urls` is an expression giving a list of URLs (or a comma-separated text). While it runs, `progressVariable` (a variable's name; empty for none) holds the share done (0–1). It waits for every image and gives `{loaded, failed, total}`.",
         "fields": [
           {
-            "key": "node",
+            "key": "urls",
             "type": "String",
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "A draggable node."
+            "doc": "The image URLs: a list (an expression) or comma-separated text."
           },
           {
-            "key": "command",
-            "type": "DragCommand",
-            "kind": "enumeration",
-            "default": "fling",
-            "nullable": false,
-            "enum": "DragCommand",
-            "values": [
-              "fling",
-              "returnFrom",
-              "reset",
-              "shake",
-              "step",
-              "zoom",
-              "pose"
-            ],
-            "doc": ""
-          },
-          {
-            "key": "direction",
-            "type": "DragDirection",
-            "kind": "enumeration",
-            "default": "right",
-            "nullable": false,
-            "enum": "DragDirection",
-            "values": [
-              "left",
-              "right",
-              "up",
-              "down"
-            ],
-            "doc": ""
-          },
-          {
-            "key": "steps",
-            "type": "String",
-            "kind": "string",
-            "default": "1",
-            "nullable": false,
-            "doc": "Step: how many steps (an expression)."
-          },
-          {
-            "key": "value",
+            "key": "progressVariable",
             "type": "String",
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression)."
+            "doc": "A variable to hold the share loaded (0-1) while it runs."
           }
         ]
       },
@@ -14158,74 +14400,6 @@
             "default": "",
             "nullable": false,
             "doc": "Read along: the word to start at (an index or expression), to carry on after a pause."
-          }
-        ]
-      },
-      "scrollTo": {
-        "label": "Scroll to",
-        "class": "ScrollToAction",
-        "doc": "Scrolls node `node` into view: `alignment` 0 puts it at the start of the view, 1 at the end; `offset` moves it further. `axis` limits it to the scroll views along one axis (a map in a sideways window centers a point without scrolling the page under it); null scrolls every one around it.",
-        "fields": [
-          {
-            "key": "node",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "item",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "For a repeated node: the key (or index) of the list item whose copy to reveal."
-          },
-          {
-            "key": "durationMs",
-            "type": "int",
-            "kind": "integer",
-            "default": 400,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "curve",
-            "type": "String",
-            "kind": "string",
-            "default": "easeInOut",
-            "nullable": false,
-            "doc": "A Curves name."
-          },
-          {
-            "key": "alignment",
-            "type": "double",
-            "kind": "number",
-            "default": 0,
-            "nullable": false,
-            "doc": "0: at the start of the view, 1: at the end."
-          },
-          {
-            "key": "offset",
-            "type": "double",
-            "kind": "number",
-            "default": 0,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "axis",
-            "type": "ScrollAxis",
-            "kind": "enumeration",
-            "default": null,
-            "nullable": true,
-            "enum": "ScrollAxis",
-            "values": [
-              "horizontal",
-              "vertical"
-            ],
-            "doc": "Only the scroll views along this axis; null: every one."
           }
         ]
       },
@@ -14324,234 +14498,6 @@
           }
         ]
       },
-      "animate": {
-        "label": "Animate",
-        "class": "AnimateAction",
-        "doc": "Drives an animation (Flutter's `AnimationController` methods): node `node`'s `animation` (`NodeAnimation`), or the number variable `variable` (an unbounded controller the screen keeps for it). JSON: `{\"type\": \"animate\", \"node\": \"card\", \"animation\": \"pop\", \"command\": \"forward\", \"from\": \"0\"}`, `{\"type\": \"animate\", \"variable\": \"shownTotal\", \"command\": \"animateTo\", \"target\": \"${total}\", \"duration\": \"800\", \"curve\": \"easeOutCubic\"}`. The chain waits for it to end (`TickerFuture`) unless it's `nonBlocking`; a repeat ends when its count does.\n\nReads the legacy `playAnimation` (`forward` from 0) and `animateVariable` (play → `animateTo`, pause and stop → `stop`, resume → `forward`, seek → `set`).",
-        "fields": [
-          {
-            "key": "node",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "A node id or key; empty: the reacting node."
-          },
-          {
-            "key": "animation",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "The animation's id on the node."
-          },
-          {
-            "key": "variable",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Instead of a node: a number variable."
-          },
-          {
-            "key": "command",
-            "type": "AnimateCommand",
-            "kind": "enumeration",
-            "default": "forward",
-            "nullable": false,
-            "enum": "AnimateCommand",
-            "values": [
-              "forward",
-              "reverse",
-              "toggle",
-              "repeat",
-              "stop",
-              "reset",
-              "animateTo",
-              "animateBack",
-              "set"
-            ],
-            "doc": ""
-          },
-          {
-            "key": "from",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Where forward/reverse start (an expression)."
-          },
-          {
-            "key": "target",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "animateTo, animateBack, set (an expression)."
-          },
-          {
-            "key": "duration",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Milliseconds (an expression); empty: the animation's."
-          },
-          {
-            "key": "curve",
-            "type": "AnimationCurve",
-            "kind": "enumeration",
-            "default": null,
-            "nullable": true,
-            "enum": "AnimationCurve",
-            "doc": "Null: the animation's (linear for a variable)."
-          },
-          {
-            "key": "spring",
-            "type": "Spring",
-            "kind": "object",
-            "default": null,
-            "nullable": true,
-            "object": "Spring",
-            "doc": "`animateWith(SpringSimulation)` toward `target` instead of a duration."
-          }
-        ]
-      },
-      "haptic": {
-        "label": "Haptic feedback",
-        "class": "HapticAction",
-        "doc": "Buzzes the device (`HapticFeedback`, on phones that support it; nothing elsewhere). Its common `when` buzzes only while a setting holds.",
-        "fields": [
-          {
-            "key": "kind",
-            "type": "HapticKind",
-            "kind": "enumeration",
-            "default": "selection",
-            "nullable": false,
-            "enum": "HapticKind",
-            "values": [
-              "selection",
-              "light",
-              "medium",
-              "heavy",
-              "vibrate"
-            ],
-            "doc": ""
-          }
-        ]
-      },
-      "runScript": {
-        "label": "Run script",
-        "class": "RunScriptAction",
-        "doc": "Runs script `script` (a layout's `scripts`, by id) with `arguments` (by parameter name; expressions: one `${...}` passes its value as is, other text passes as JSON when it is JSON, else as text). Its result is the chain's `${result}` (and goes in `resultVariable` when set). When it fails, `onError` runs with `${result}` `{error: {type, message, line, column}, logs}`; without `onError` a failure stops the chain.",
-        "fields": [
-          {
-            "key": "script",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "A script of the layout's scripts."
-          },
-          {
-            "key": "arguments",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "By parameter name (expressions)."
-          },
-          {
-            "key": "resultVariable",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "Gets the result."
-          },
-          {
-            "key": "onError",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Nested actions: run when it fails (${result.error}, ${result.logs})."
-          }
-        ]
-      },
-      "paginate": {
-        "label": "Paginate",
-        "class": "PaginateAction",
-        "doc": "Moves the pagination controller of a list or grid (its `pagination`, by `controller`, the pagination's name).",
-        "fields": [
-          {
-            "key": "controller",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "The pagination's name."
-          },
-          {
-            "key": "command",
-            "type": "PaginateCommand",
-            "kind": "enumeration",
-            "default": "next",
-            "nullable": false,
-            "enum": "PaginateCommand",
-            "values": [
-              "next",
-              "previous",
-              "goTo",
-              "first",
-              "last",
-              "refresh",
-              "retry",
-              "setPageSize"
-            ],
-            "doc": ""
-          },
-          {
-            "key": "page",
-            "type": "String",
-            "kind": "string",
-            "default": "1",
-            "nullable": false,
-            "doc": "For goTo: a number or an expression."
-          },
-          {
-            "key": "pageSize",
-            "type": "String",
-            "kind": "string",
-            "default": "20",
-            "nullable": false,
-            "doc": "For setPageSize."
-          }
-        ]
-      },
-      "emitEvent": {
-        "label": "Emit event",
-        "class": "EmitEventAction",
-        "doc": "Fires app event `event` with `props` (text values are expressions) on the app's event bus: the project's automations listening for it run (a popup after the third order), and the host app hears it (`codelessly.events`). The same bus a host fires with `codelessly.emit(name, props)`. JSON: `{\"type\": \"emitEvent\", \"event\": \"onboarding_done\", \"props\": {\"plan\": \"${plan}\"}}`.",
-        "fields": [
-          {
-            "key": "event",
-            "type": "String",
-            "kind": "string",
-            "default": "",
-            "nullable": false,
-            "doc": "The app event's name (an expression)."
-          },
-          {
-            "key": "props",
-            "type": "Object",
-            "kind": "json",
-            "default": null,
-            "nullable": true,
-            "doc": "Its properties; text values are expressions."
-          }
-        ]
-      },
       "captureScreenshot": {
         "label": "Capture screenshot",
         "class": "CaptureScreenshotAction",
@@ -14586,6 +14532,60 @@
             "default": 0,
             "nullable": false,
             "doc": "Pixels per logical pixel; 0: the device's."
+          }
+        ]
+      },
+      "downloadFile": {
+        "label": "Download file",
+        "class": "DownloadFileAction",
+        "doc": "Exports generated UTF-8 text (CSV, JSON, plain text...) as a file. The browser downloads it; native apps show the platform save picker. Cancellation returns `{saved: false}` as the action result.",
+        "fields": [
+          {
+            "key": "fileName",
+            "type": "String",
+            "kind": "string",
+            "default": "export.txt",
+            "nullable": false,
+            "doc": "Suggested filename, an expression."
+          },
+          {
+            "key": "text",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "Generated file contents as UTF-8 text."
+          },
+          {
+            "key": "mimeType",
+            "type": "String",
+            "kind": "string",
+            "default": "text/plain",
+            "nullable": false,
+            "doc": ""
+          }
+        ]
+      },
+      "emitEvent": {
+        "label": "Emit event",
+        "class": "EmitEventAction",
+        "doc": "Fires app event `event` with `props` (text values are expressions) on the app's event bus: the project's automations listening for it run (a popup after the third order), and the host app hears it (`codelessly.events`). The same bus a host fires with `codelessly.emit(name, props)`. JSON: `{\"type\": \"emitEvent\", \"event\": \"onboarding_done\", \"props\": {\"plan\": \"${plan}\"}}`.",
+        "fields": [
+          {
+            "key": "event",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "The app event's name (an expression)."
+          },
+          {
+            "key": "props",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "Its properties; text values are expressions."
           }
         ]
       }

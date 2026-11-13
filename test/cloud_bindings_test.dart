@@ -13,7 +13,7 @@ void main() {
       'single': false,
       'query': {'enabled': true, 'collectionPath': 'tasks', 'status': 'x'},
     };
-    final a = ActionDef.fromJson(old)! as LoadCloudDataAction;
+    final a = ActionDef.fromJson(old, catalog: standardCatalog)! as LoadCloudDataAction;
     expect((a.limit, a.aggregate, a.aggregateField, a.refreshSeconds, a.reactive), ('', CloudLoadAggregate.none, '', 0, true));
     expect(a.query.joins, isEmpty);
     expect(a.toJson(), old);
@@ -31,12 +31,12 @@ void main() {
       'refreshSeconds': 60,
       'reactive': false,
     };
-    final a = ActionDef.fromJson(json)! as LoadCloudDataAction;
+    final a = ActionDef.fromJson(json, catalog: standardCatalog)! as LoadCloudDataAction;
     expect((a.limit, a.aggregate, a.aggregateField, a.refreshSeconds, a.reactive),
         (r'${shown}', CloudLoadAggregate.sum, 'amount', 60, false));
     expect(a.toJson(), json);
-    expect(ActionDef.fromJson(jsonDecode(jsonEncode(a.toJson()))), a);
-    expect((ActionDef.fromJson({...json, 'refreshSeconds': -5})! as LoadCloudDataAction).refreshSeconds, 0);
+    expect(ActionDef.fromJson(jsonDecode(jsonEncode(a.toJson())), catalog: standardCatalog), a);
+    expect((ActionDef.fromJson({...json, 'refreshSeconds': -5}, catalog: standardCatalog)! as LoadCloudDataAction).refreshSeconds, 0);
     expect(kDefaultCloudLoadLimit, 500);
   });
 
@@ -76,16 +76,16 @@ void main() {
       ],
       'forEach': r'${unread}',
     };
-    final a = ActionDef.fromJson(json)! as CloudBatchAction;
+    final a = ActionDef.fromJson(json, catalog: standardCatalog)! as CloudBatchAction;
     expect(a.forEach, r'${unread}');
     expect(a.toJson(), json);
     final old = {'type': 'cloudBatch', 'steps': <Object?>[], 'transaction': true};
-    expect(ActionDef.fromJson(old)!.toJson(), old);
+    expect(ActionDef.fromJson(old, catalog: standardCatalog)!.toJson(), old);
     expect(kMaxCloudBatchWrites, 500);
   });
 
   test('reloadCloudData names a variable', () {
-    final a = ActionDef.fromJson({'type': 'reloadCloudData', 'variable': 'cards', 'nonBlocking': true})!;
+    final a = ActionDef.fromJson({'type': 'reloadCloudData', 'variable': 'cards', 'nonBlocking': true}, catalog: standardCatalog)!;
     expect(a, const ReloadCloudDataAction(variable: 'cards', nonBlocking: true));
     expect(a.toJson(), {'type': 'reloadCloudData', 'variable': 'cards', 'nonBlocking': true});
   });
@@ -101,9 +101,9 @@ void main() {
 
   test('a list can be pulled to refresh without pagination', () {
     expect(ListViewProps.spec.props, contains(ListViewProps.pullToRefresh));
-    final n = Node.fromJson({'type': 'listView', 'props': {'pullToRefresh': true}}, id: 'l')!;
+    final n = Node.fromJson({'type': 'listView', 'props': {'pullToRefresh': true}}, id: 'l', catalog: standardCatalog)!;
     expect(n.prop(ListViewProps.pullToRefresh), isTrue);
-    expect(Node.fromJson({'type': 'listView'}, id: 'l')!.prop(ListViewProps.pullToRefresh), isFalse);
+    expect(Node.fromJson({'type': 'listView'}, id: 'l', catalog: standardCatalog)!.prop(ListViewProps.pullToRefresh), isFalse);
   });
 
   test('the editor fields list every new key', () {

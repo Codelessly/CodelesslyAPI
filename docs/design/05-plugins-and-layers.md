@@ -530,3 +530,90 @@ boundary test.
    loader, cache, digest check, expansion; `gaugeMeter` as the first.
 6. Move further widgets per §5.5's table, one release each, each with its
    goldens unchanged.
+
+## Implementation notes (2026-11-13)
+
+Implemented in `codelessly_api` (lib/src/core/catalog.dart, catalog_json.dart,
+lib/src/features/*, lib/src/standard_catalog.dart) and `codelessly_sdk`
+(runtime/actions/feature.dart, runner.dart, features/hosted, app/hosted_plugins.dart).
+
+### Deviations from the proposal
+
+1. **The default catalog is `Catalog.core`, not `Catalog.standard`.** A
+   static decoder in the core (`LayoutDocument.fromJson`) can only default to
+   something the core library can name; naming the standard catalog would put
+   every feature library in the core's import closure and defeat §6.4. So
+   decoders default to `Catalog.current` (the catalog of an enclosing decode or
+   `Catalog.run`, else `Catalog.core`), and code reading feature types passes
+   `standardCatalog`. Undeclared types still round-trip byte for byte; `Props`
+   decode a raw value read through its `PropDef`; `Catalog.upgrade` types an
+   `UnknownAction` later (the SDK's runner does, with its catalog). The API's
+   tests that decode feature types pass `standardCatalog`.
+2. **`standardCatalog` is a top-level constant, not `Catalog.standard`**: a
+   static of `Catalog` would live in the core. `Catalog.core` exists.
+3. **Nested decodes find the catalog through a zone value** (`Catalog.current`
+   while a decode runs) rather than a parameter on every codec: reactions are
+   decoded inside prop codecs (`PropCodec.decode(json)` has no context). It is
+   scoped to the synchronous decode, not a registry.
+4. **The core stays one directory, `lib/src/core`, with `theme.dart` in it**:
+   the renderer reads theme tokens (`render/node_tree.dart`), and Flutter's
+   `Theme` is core Flutter. `services/config.dart` (`ServiceConfig`, which
+   composes the data and commerce configs) sits at `lib/src/service_config.dart`
+   with the standard catalog rather than in publish, which would then import
+   two features.
+5. **`submitForm` is in the data library, `downloadFile` in media**, where the
+   SDK runs them (data's form services; media's file saving), so each SDK
+   feature's catalog is exactly the API library it pairs with.
+6. **`preloadImages`, `captureScreenshot` and `emitEvent` moved as proposed**:
+   their SDK handlers moved from the core switch into the media and engage
+   features.
+7. **The boundary test is `test/library_boundaries_test.dart`**; its exception
+   list is empty; the allowed feature dependencies are the proposal's
+   (managed → publish, engage → publish).
+8. **The SDK's core-only proof follows imports into the API package**
+   (`test/core_only_import_test.dart`) instead of adding a `render.dart` entry:
+   render, widgets, runtime and scripting import `package:codelessly_api/core.dart`
+   only. That needed the video, audio, embed and web view players to move to the
+   SDK's media feature (they render through `CodelesslyFeature.recipes`), cloud
+   lists to take their query as JSON, and the core runtime to stop importing
+   `app/fonts.dart` and `app/viewport.dart`'s barrel.
+9. **Hosted plugins reuse `ManagedComponentMaster`, `Semver`, `sdkSatisfies`
+   and the version storage shape**, but a release is a `PluginVersion`
+   (payload: the package) rather than a `ManagedComponentVersion`, whose
+   payload must be a component definition.
+10. **A hosted node type renders in an island** holding its own node tree with
+    the node's props in scope, rather than the list item-template expansion.
+11. `IssueCode`/`validate`/`toJsonSchema` were not built here: the reference
+    generator and `lib/validate.dart` (merged from the base) cover them; they
+    walk `Widgets.all`, the `*Fields` classes and `ActionSpecs`, which are views
+    of `standardCatalog`.
+
+### Not done
+
+* **The list `source` object (§6.3).** Writing `source` changes the JSON and
+  the SDK's list runtime; lists keep `query`, `pagination.source`, `apiId`,
+  `parameters`, `itemsPath`, `totalPath`, `cursorPath`, `apply: cloud`. The
+  `data`, `cloud` and `api` sources are declared (`DataSourceSpec`) so editors
+  and validators can describe them. To do: a `DataSourceSpec`-typed `source`
+  prop on listView/gridView/pagination, a decoder that reads the legacy keys
+  into it, the SDK list runtime resolving it through the installed features.
+* **Hosted plugins in the running app.** Model, verification, cache and
+  install exist (`loadHostedPlugins`), but `Codelessly` does not yet call them:
+  to do, after loading the publish model, call `loadHostedPlugins(model.plugins,
+  source: <loader as PluginSource>, host: config.catalog, cache: cache)`, add
+  the installed features to the runner (`CodelesslyActions(features: [...first
+  party, ...installed])`) before the first layout is decoded, and decode
+  layouts with the extended catalog. The Firestore and HTTP loaders need
+  `PluginSource` implementations (`plugins/{id}/versions/{n}`), and the
+  publish bundle should embed the pinned payloads for a first offline run.
+* **Hosted widget events and slots**: `PluginWidget.slots` and `events` are
+  modelled but not wired (the island's tree is not interactive and doesn't
+  graft the node's slots); assets aren't fetched or digest-checked; plugin
+  scripts are carried but not installed in the script runtime; formula
+  functions are in scope of the widget tree only.
+* **Capability profile per project**: `allowed` is a parameter; nothing
+  stores a project's allowed capabilities yet.
+* **`animationPresets` in the catalog**: presets live in `AnimationPresets`
+  (the animation work); the catalog does not list them.
+* **Editor port**: panels from `Catalog.fromJson`, a plugin browser, publish
+  as plugin.

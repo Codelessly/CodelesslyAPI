@@ -3,7 +3,7 @@
 // can be made from the declarations.
 import 'package:meta/meta.dart';
 
-import '../json.dart';
+import '../core/json.dart';
 
 /// How bad a [Diagnostic] is.
 enum Severity {

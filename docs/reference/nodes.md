@@ -71,13 +71,13 @@ of a stack is placed by `x` and `y`, a child of a row or column by `flex`, `sque
 | [`lineChart`](nodes.md#node-lineChart) |  | none | blurs only |
 | [`barcode`](nodes.md#node-barcode) |  | none | blurs only |
 | [`path`](nodes.md#node-path) | `CustomPaint` | none | yes |
+| [`external`](nodes.md#node-external) |  | none | blurs only |
+| [`placeholder`](nodes.md#node-placeholder) |  | none | blurs only |
+| [`singlePlaceholder`](nodes.md#node-singlePlaceholder) |  | `children` | blurs only |
 | [`video`](nodes.md#node-video) |  | none | blurs only |
 | [`embeddedVideo`](nodes.md#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](nodes.md#node-audioPlayer) |  | none | blurs only |
 | [`webView`](nodes.md#node-webView) |  | none | blurs only |
-| [`external`](nodes.md#node-external) |  | none | blurs only |
-| [`placeholder`](nodes.md#node-placeholder) |  | none | blurs only |
-| [`singlePlaceholder`](nodes.md#node-singlePlaceholder) |  | `children` | blurs only |
 
 <a id="node-canvas"></a>
 ## `canvas`
@@ -1926,6 +1926,52 @@ An SVG path, filled and stroked with the node's decoration (Flutter `CustomPaint
 | `strokeJoin` | [StrokeJoin](values.md#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How segments meet when stroked (`Paint.strokeJoin`). |
 | `subpathColors` | List<[Color](values.md#type-Color)> | `[]` |  | Colors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color. |
 
+<a id="node-external"></a>
+## `external`
+
+A widget built by the app.
+
+A widget the app builds (`Codelessly`'s external component builders).
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `builderId` | String | `""` |  | The id of the app's builder. |
+
+<a id="node-placeholder"></a>
+## `placeholder`
+
+An empty slot (`SizedBox`).
+
+An empty slot shown at design time (Flutter `SizedBox`).
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `text` | String | `""` |  |  |
+| `leadingAsset` | String | `""` |  |  |
+
+<a id="node-singlePlaceholder"></a>
+## `singlePlaceholder`
+
+A one-child slot.
+
+A slot that shows its one child, or keeps its size when empty.
+
+- Children: `children`.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `allowedTypes` | List<String> | `[]` |  | The node types the slot accepts (empty: any) and refuses. |
+| `deniedTypes` | List<String> | `[]` |  |  |
+| `maxAllowedSize` | [Size](values.md#type-Size) | unset |  | The largest child it accepts, `[width, height]`. |
+| `ephemeral` | bool | `false` |  | Its child is temporary (not kept when the slot is filled again). |
+
 <a id="node-video"></a>
 ## `video`
 
@@ -2022,50 +2068,4 @@ A web page (`webview_flutter`'s `WebViewWidget`).
 | `allowsInlineMediaPlayback` | bool | `false` |  |  |
 | `mediaPlaybackRequiresUserAction` | bool | `true` |  |  |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  |  |
-
-<a id="node-external"></a>
-## `external`
-
-A widget built by the app.
-
-A widget the app builds (`Codelessly`'s external component builders).
-
-- Children: none.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `builderId` | String | `""` |  | The id of the app's builder. |
-
-<a id="node-placeholder"></a>
-## `placeholder`
-
-An empty slot (`SizedBox`).
-
-An empty slot shown at design time (Flutter `SizedBox`).
-
-- Children: none.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `text` | String | `""` |  |  |
-| `leadingAsset` | String | `""` |  |  |
-
-<a id="node-singlePlaceholder"></a>
-## `singlePlaceholder`
-
-A one-child slot.
-
-A slot that shows its one child, or keeps its size when empty.
-
-- Children: `children`.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `allowedTypes` | List<String> | `[]` |  | The node types the slot accepts (empty: any) and refuses. |
-| `deniedTypes` | List<String> | `[]` |  |  |
-| `maxAllowedSize` | [Size](values.md#type-Size) | unset |  | The largest child it accepts, `[width, height]`. |
-| `ephemeral` | bool | `false` |  | Its child is temporary (not kept when the slot is filled again). |
 

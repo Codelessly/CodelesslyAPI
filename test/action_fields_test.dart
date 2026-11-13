@@ -97,7 +97,7 @@ List<Json> _samples(ActionSpec spec) => [
     ];
 
 Json _roundTrip(String type, Json sample) {
-  final a = ActionDef.fromJson({'type': type, ...sample});
+  final a = ActionDef.fromJson({'type': type, ...sample}, catalog: standardCatalog);
   expect(a, isNotNull);
   expect(a, isNot(isA<UnknownAction>()));
   return a!.toJson();
@@ -105,7 +105,7 @@ Json _roundTrip(String type, Json sample) {
 
 void main() {
   test('every action type is declared', () {
-    final types = ActionDef.types.toList();
+    final types = standardCatalog.actions.map((s) => s.type).toList();
     expect(types, isNotEmpty);
     for (final type in types) {
       expect(ActionSpecs.of(type), isNotNull, reason: type);

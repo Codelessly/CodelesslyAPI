@@ -143,42 +143,42 @@
             "closeModal",
             "retryFailed",
             "openLink",
-            "print",
-            "submitForm",
             "setValue",
             "setVariant",
             "setVariable",
             "callFunction",
+            "if",
+            "forEach",
+            "showToast",
+            "confirm",
+            "delay",
+            "copyToClipboard",
+            "editText",
+            "focus",
+            "controlDrag",
+            "scrollTo",
+            "animate",
+            "haptic",
+            "runScript",
+            "paginate",
             "callApi",
             "setStorage",
             "cloudDocuments",
             "loadCloudData",
             "reloadCloudData",
-            "auth",
-            "if",
-            "forEach",
             "cloudFiles",
-            "showToast",
-            "confirm",
-            "delay",
             "cloudData",
             "cloudBatch",
-            "copyToClipboard",
-            "downloadFile",
-            "preloadImages",
-            "editText",
+            "submitForm",
+            "auth",
             "paywall",
-            "focus",
-            "controlDrag",
+            "print",
+            "preloadImages",
             "speak",
-            "scrollTo",
             "playSound",
-            "animate",
-            "haptic",
-            "runScript",
-            "paginate",
-            "emitEvent",
-            "captureScreenshot"
+            "captureScreenshot",
+            "downloadFile",
+            "emitEvent"
           ]
         },
         "id": {
@@ -421,66 +421,6 @@
           "if": {
             "properties": {
               "type": {
-                "const": "print"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "node": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "submitForm"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "service": {
-                "$ref": "#/$defs/enum.FormService"
-              },
-              "payload": {
-                "type": "string"
-              },
-              "validationScript": {
-                "type": "string"
-              },
-              "validationArguments": {},
-              "responseVariable": {
-                "type": "string"
-              },
-              "prepend": {
-                "type": "boolean"
-              },
-              "resultVariable": {
-                "type": "string"
-              },
-              "onSuccess": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/action"
-                }
-              },
-              "onError": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/action"
-                }
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
                 "const": "setValue"
               }
             }
@@ -563,6 +503,442 @@
               "params": {},
               "optional": {
                 "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "if"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "condition": {
+                "$ref": "#/$defs/predicate"
+              },
+              "then": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              },
+              "else": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "forEach"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "items": {
+                "type": "string"
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "showToast"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "durationMs": {
+                "type": "integer"
+              },
+              "style": {
+                "$ref": "#/$defs/enum.ToastStyle"
+              },
+              "position": {
+                "$ref": "#/$defs/enum.ToastPosition"
+              },
+              "actionLabel": {
+                "type": "string"
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              },
+              "showClose": {
+                "type": "boolean"
+              },
+              "icon": {},
+              "look": {},
+              "variables": {}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "confirm"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "caption": {
+                "type": "string"
+              },
+              "confirmLabel": {
+                "type": "string"
+              },
+              "cancelLabel": {
+                "type": "string"
+              },
+              "destructive": {
+                "type": "boolean"
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              },
+              "cancelActions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              },
+              "dialog": {
+                "type": "string"
+              },
+              "params": {},
+              "presentation": {
+                "$ref": "#/$defs/enum.ModalPresentation"
+              },
+              "placement": {
+                "$ref": "#/$defs/enum.PopoverPlacement"
+              },
+              "barrierDismissible": {
+                "type": "boolean"
+              },
+              "look": {},
+              "variables": {}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "delay"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "ms": {
+                "type": "integer"
+              },
+              "duration": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "copyToClipboard"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "editText"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "operation": {
+                "$ref": "#/$defs/enum.EditTextOperation"
+              },
+              "text": {
+                "type": "string"
+              },
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "numbered": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "focus"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "unfocus": {
+                "type": "boolean"
+              },
+              "selectAll": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "controlDrag"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "command": {
+                "$ref": "#/$defs/enum.DragCommand"
+              },
+              "direction": {
+                "$ref": "#/$defs/enum.DragDirection"
+              },
+              "steps": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "scrollTo"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "item": {
+                "type": "string"
+              },
+              "durationMs": {
+                "type": "integer"
+              },
+              "curve": {
+                "type": "string"
+              },
+              "alignment": {
+                "type": "number"
+              },
+              "offset": {
+                "type": "number"
+              },
+              "axis": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/enum.ScrollAxis"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "animate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "animation": {
+                "type": "string"
+              },
+              "variable": {
+                "type": "string"
+              },
+              "command": {
+                "$ref": "#/$defs/enum.AnimateCommand"
+              },
+              "from": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "duration": {
+                "type": "string"
+              },
+              "curve": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/enum.AnimationCurve"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "spring": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/model.Spring"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "haptic"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "$ref": "#/$defs/enum.HapticKind"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "runScript"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "script": {
+                "type": "string"
+              },
+              "arguments": {},
+              "resultVariable": {
+                "type": "string"
+              },
+              "onError": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "paginate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "controller": {
+                "type": "string"
+              },
+              "command": {
+                "$ref": "#/$defs/enum.PaginateCommand"
+              },
+              "page": {
+                "type": "string"
+              },
+              "pageSize": {
+                "type": "string"
               }
             }
           }
@@ -760,90 +1136,6 @@
           "if": {
             "properties": {
               "type": {
-                "const": "auth"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "operation": {
-                "$ref": "#/$defs/enum.AuthOperation"
-              },
-              "email": {
-                "type": "string"
-              },
-              "password": {
-                "type": "string"
-              },
-              "displayName": {
-                "type": "string"
-              },
-              "photoUrl": {
-                "type": "string"
-              },
-              "currentPassword": {
-                "type": "string"
-              },
-              "errorVariable": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "if"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "condition": {
-                "$ref": "#/$defs/predicate"
-              },
-              "then": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/action"
-                }
-              },
-              "else": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/action"
-                }
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "forEach"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "items": {
-                "type": "string"
-              },
-              "actions": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/action"
-                }
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
                 "const": "cloudFiles"
               }
             }
@@ -882,126 +1174,6 @@
                 "items": {
                   "$ref": "#/$defs/action"
                 }
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "showToast"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "message": {
-                "type": "string"
-              },
-              "title": {
-                "type": "string"
-              },
-              "durationMs": {
-                "type": "integer"
-              },
-              "style": {
-                "$ref": "#/$defs/enum.ToastStyle"
-              },
-              "position": {
-                "$ref": "#/$defs/enum.ToastPosition"
-              },
-              "actionLabel": {
-                "type": "string"
-              },
-              "actions": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/action"
-                }
-              },
-              "showClose": {
-                "type": "boolean"
-              },
-              "icon": {},
-              "look": {},
-              "variables": {}
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "confirm"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "title": {
-                "type": "string"
-              },
-              "message": {
-                "type": "string"
-              },
-              "caption": {
-                "type": "string"
-              },
-              "confirmLabel": {
-                "type": "string"
-              },
-              "cancelLabel": {
-                "type": "string"
-              },
-              "destructive": {
-                "type": "boolean"
-              },
-              "actions": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/action"
-                }
-              },
-              "cancelActions": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/action"
-                }
-              },
-              "dialog": {
-                "type": "string"
-              },
-              "params": {},
-              "presentation": {
-                "$ref": "#/$defs/enum.ModalPresentation"
-              },
-              "placement": {
-                "$ref": "#/$defs/enum.PopoverPlacement"
-              },
-              "barrierDismissible": {
-                "type": "boolean"
-              },
-              "look": {},
-              "variables": {}
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "delay"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "ms": {
-                "type": "integer"
-              },
-              "duration": {
-                "type": "string"
               }
             }
           }
@@ -1077,93 +1249,76 @@
           "if": {
             "properties": {
               "type": {
-                "const": "copyToClipboard"
+                "const": "submitForm"
               }
             }
           },
           "then": {
             "properties": {
-              "text": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "downloadFile"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "fileName": {
+              "service": {
+                "$ref": "#/$defs/enum.FormService"
+              },
+              "payload": {
                 "type": "string"
               },
-              "text": {
+              "validationScript": {
                 "type": "string"
               },
-              "mimeType": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "preloadImages"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "urls": {
+              "validationArguments": {},
+              "responseVariable": {
                 "type": "string"
               },
-              "progressVariable": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "editText"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "node": {
-                "type": "string"
-              },
-              "operation": {
-                "$ref": "#/$defs/enum.EditTextOperation"
-              },
-              "text": {
-                "type": "string"
-              },
-              "before": {
-                "type": "string"
-              },
-              "after": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "numbered": {
+              "prepend": {
                 "type": "boolean"
+              },
+              "resultVariable": {
+                "type": "string"
+              },
+              "onSuccess": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              },
+              "onError": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "auth"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "operation": {
+                "$ref": "#/$defs/enum.AuthOperation"
+              },
+              "email": {
+                "type": "string"
+              },
+              "password": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              },
+              "photoUrl": {
+                "type": "string"
+              },
+              "currentPassword": {
+                "type": "string"
+              },
+              "errorVariable": {
+                "type": "string"
               }
             }
           }
@@ -1261,7 +1416,7 @@
           "if": {
             "properties": {
               "type": {
-                "const": "focus"
+                "const": "print"
               }
             }
           },
@@ -1269,12 +1424,6 @@
             "properties": {
               "node": {
                 "type": "string"
-              },
-              "unfocus": {
-                "type": "boolean"
-              },
-              "selectAll": {
-                "type": "boolean"
               }
             }
           }
@@ -1283,25 +1432,16 @@
           "if": {
             "properties": {
               "type": {
-                "const": "controlDrag"
+                "const": "preloadImages"
               }
             }
           },
           "then": {
             "properties": {
-              "node": {
+              "urls": {
                 "type": "string"
               },
-              "command": {
-                "$ref": "#/$defs/enum.DragCommand"
-              },
-              "direction": {
-                "$ref": "#/$defs/enum.DragDirection"
-              },
-              "steps": {
-                "type": "string"
-              },
-              "value": {
+              "progressVariable": {
                 "type": "string"
               }
             }
@@ -1337,47 +1477,6 @@
               },
               "startWord": {
                 "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "scrollTo"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "node": {
-                "type": "string"
-              },
-              "item": {
-                "type": "string"
-              },
-              "durationMs": {
-                "type": "integer"
-              },
-              "curve": {
-                "type": "string"
-              },
-              "alignment": {
-                "type": "number"
-              },
-              "offset": {
-                "type": "number"
-              },
-              "axis": {
-                "anyOf": [
-                  {
-                    "$ref": "#/$defs/enum.ScrollAxis"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
               }
             }
           }
@@ -1432,52 +1531,20 @@
           "if": {
             "properties": {
               "type": {
-                "const": "animate"
+                "const": "captureScreenshot"
               }
             }
           },
           "then": {
             "properties": {
+              "target": {
+                "$ref": "#/$defs/enum.CaptureTarget"
+              },
               "node": {
                 "type": "string"
               },
-              "animation": {
-                "type": "string"
-              },
-              "variable": {
-                "type": "string"
-              },
-              "command": {
-                "$ref": "#/$defs/enum.AnimateCommand"
-              },
-              "from": {
-                "type": "string"
-              },
-              "target": {
-                "type": "string"
-              },
-              "duration": {
-                "type": "string"
-              },
-              "curve": {
-                "anyOf": [
-                  {
-                    "$ref": "#/$defs/enum.AnimationCurve"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "spring": {
-                "anyOf": [
-                  {
-                    "$ref": "#/$defs/model.Spring"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+              "pixelRatio": {
+                "type": "number"
               }
             }
           }
@@ -1486,64 +1553,19 @@
           "if": {
             "properties": {
               "type": {
-                "const": "haptic"
+                "const": "downloadFile"
               }
             }
           },
           "then": {
             "properties": {
-              "kind": {
-                "$ref": "#/$defs/enum.HapticKind"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "runScript"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "script": {
+              "fileName": {
                 "type": "string"
               },
-              "arguments": {},
-              "resultVariable": {
+              "text": {
                 "type": "string"
               },
-              "onError": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/action"
-                }
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "paginate"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "controller": {
-                "type": "string"
-              },
-              "command": {
-                "$ref": "#/$defs/enum.PaginateCommand"
-              },
-              "page": {
-                "type": "string"
-              },
-              "pageSize": {
+              "mimeType": {
                 "type": "string"
               }
             }
@@ -1563,28 +1585,6 @@
                 "type": "string"
               },
               "props": {}
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "captureScreenshot"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "target": {
-                "$ref": "#/$defs/enum.CaptureTarget"
-              },
-              "node": {
-                "type": "string"
-              },
-              "pixelRatio": {
-                "type": "number"
-              }
             }
           }
         }
@@ -7183,13 +7183,13 @@
             "lineChart",
             "barcode",
             "path",
+            "external",
+            "placeholder",
+            "singlePlaceholder",
             "video",
             "embeddedVideo",
             "audioPlayer",
-            "webView",
-            "external",
-            "placeholder",
-            "singlePlaceholder"
+            "webView"
           ]
         },
         "id": {
@@ -15447,6 +15447,117 @@
           "if": {
             "properties": {
               "type": {
+                "const": "external"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "builderId": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "children": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "placeholder"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "leadingAsset": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "children": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "singlePlaceholder"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "allowedTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "deniedTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "maxAllowedSize": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Size"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "ephemeral": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
                 "const": "video"
               }
             }
@@ -15759,117 +15870,6 @@
               "children": {
                 "type": "array",
                 "maxItems": 0
-              },
-              "slots": {
-                "type": "object",
-                "maxProperties": 0
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "external"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "props": {
-                "type": "object",
-                "properties": {
-                  "builderId": {
-                    "type": "string"
-                  }
-                },
-                "additionalProperties": false
-              },
-              "children": {
-                "type": "array",
-                "maxItems": 0
-              },
-              "slots": {
-                "type": "object",
-                "maxProperties": 0
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "placeholder"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "props": {
-                "type": "object",
-                "properties": {
-                  "text": {
-                    "type": "string"
-                  },
-                  "leadingAsset": {
-                    "type": "string"
-                  }
-                },
-                "additionalProperties": false
-              },
-              "children": {
-                "type": "array",
-                "maxItems": 0
-              },
-              "slots": {
-                "type": "object",
-                "maxProperties": 0
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "singlePlaceholder"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "props": {
-                "type": "object",
-                "properties": {
-                  "allowedTypes": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "deniedTypes": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "maxAllowedSize": {
-                    "anyOf": [
-                      {
-                        "$ref": "#/$defs/value.Size"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "ephemeral": {
-                    "type": "boolean"
-                  }
-                },
-                "additionalProperties": false
               },
               "slots": {
                 "type": "object",
