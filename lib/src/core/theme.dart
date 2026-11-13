@@ -36,7 +36,6 @@ final class ThemeTokens {
     this.colors = const {},
     this.textStyles = const {},
     this.dark,
-    this.naturalLineHeight,
     this.media = const [],
   });
 
@@ -93,10 +92,6 @@ final class ThemeTokens {
   /// The colors for dark mode: the tokens and [colors] that differ from the
   /// light ones (its other fields are not used).
   final ThemeTokens? dark;
-
-  /// Whether text without a line height takes its font's own (Flutter's
-  /// default) rather than the SDK's 1.33 ([StyleSheet.naturalLineHeight]).
-  final bool? naturalLineHeight;
 
   static const ThemeTokens none = ThemeTokens();
 
@@ -178,7 +173,6 @@ final class ThemeTokens {
       buttonRadius: buttonRadius,
       colors: {...colors, ...d.colors},
       textStyles: textStyles,
-      naturalLineHeight: naturalLineHeight,
       media: media,
     );
   }
@@ -225,7 +219,6 @@ final class ThemeTokens {
           if (readMap(e.value) != null) e.key: TextStyle.fromJson(e.value),
       },
       dark: m['dark'] == null ? null : fromJson(m['dark']),
-      naturalLineHeight: readBool(m['naturalLineHeight']),
       media: MediaRule.listFromJson(m['media']),
     );
   }
@@ -246,7 +239,6 @@ final class ThemeTokens {
     if (colors.isNotEmpty) j['colors'] = {for (final e in colors.entries) e.key: e.value.toJson()};
     if (textStyles.isNotEmpty) j['textStyles'] = {for (final e in textStyles.entries) e.key: e.value.toJson()};
     if (dark != null && !dark!.isEmpty) j['dark'] = dark!.toJson();
-    put(j, 'naturalLineHeight', naturalLineHeight);
     if (media.isNotEmpty) j['media'] = [for (final r in media) r.toJson()];
     return j;
   }
@@ -268,10 +260,9 @@ final class ThemeTokens {
       jsonEquality.equals(other.colors, colors) &&
       jsonEquality.equals(other.textStyles, textStyles) &&
       other.dark == dark &&
-      other.naturalLineHeight == naturalLineHeight &&
       listEquals(other.media, media);
 
   @override
   int get hashCode => Object.hash(primary, onPrimary, surface, onSurface, error, success, warning, fontFamily,
-      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, naturalLineHeight, Object.hashAll(media));
+      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, Object.hashAll(media));
 }

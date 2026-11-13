@@ -132,7 +132,15 @@ Json migrateNode2to3(Json node, {MigrationReport? report, String id = ''}) {
     'schema': kOldestSchemaVersion,
     'nodes': {key: node},
   }, report: report);
-  return readMap(readMap(doc['nodes'])?[key]) ?? copyJson(node) as Json;
+  final out = readMap(readMap(doc['nodes'])?[key]) ?? copyJson(node) as Json;
+  // A node alone is not where a document starts: it inherits the default
+  // text style of the document it is put in (step text.lineHeight writes
+  // schema 2's on a document's top-level nodes).
+  if (!node.containsKey('defaultTextStyle') && jsonEquality.equals(out['defaultTextStyle'], {'height': 1.33})) {
+    out.remove('defaultTextStyle');
+    report?.entries.removeWhere((e) => e.step == 'text.lineHeight' && e.node.isEmpty && e.path == '/nodes/$key/defaultTextStyle');
+  }
+  return out;
 }
 
 /// Runs [apply] on [json]; on an exception restores it and reports the step
@@ -191,7 +199,9 @@ Object? migrateJson2to3(Object? json, {MigrationReport? report}) {
       if (m['digest'] is String && isLayoutDocumentJson(m['document'])) return m;
       final carrier = m.containsKey('schema') && schemaOf(m) < kSchemaVersion;
       return <String, Object?>{
-        for (final e in m.entries) e.key: e.key == 'schema' && carrier ? kSchemaVersion : walk(e.value, '$at/${e.key}'),
+        for (final e in m.entries)
+          if (!_naturalFlag(e.key, e.value, '$at/${e.key}', report))
+            e.key: e.key == 'schema' && carrier ? kSchemaVersion : walk(e.value, '$at/${e.key}'),
       };
     }
     if (v is List) return [for (var i = 0; i < v.length; i++) walk(v[i], '$at/$i')];
@@ -200,3 +210,40 @@ Object? migrateJson2to3(Object? json, {MigrationReport? report}) {
 
   return walk(json, '');
 }
+
+/// Whether [key] is one of schema 2's natural line height flags outside a
+/// document (a theme's `naturalLineHeight`, a theme style's
+/// `naturalHeight`), dropped by [migrateJson2to3] and `migratePublish2to3`
+/// and reported: a document migrated on its own can't see its project's
+/// theme, so it keeps 1.33 (step `text.lineHeight`).
+bool _naturalFlag(String key, Object? value, String at, MigrationReport? report) {
+  if (key != 'naturalLineHeight' && key != 'naturalHeight') return false;
+  if (value == true) {
+    report?.add(MigrationEntry(
+      kind: MigrationEntryKind.behaviourChange,
+      step: 'text.lineHeight',
+      document: report.document,
+      path: at,
+      old: value,
+      message: key == 'naturalLineHeight'
+          ? 'The theme\'s naturalLineHeight is gone: the project\'s schema-2 documents keep 1.33 after the migration.'
+          : 'A theme style\'s naturalHeight is gone: a text naming it takes its document\'s line height (1.33 in a migrated one).',
+      instead: key == 'naturalLineHeight'
+          ? 'Remove "defaultTextStyle" from the top-level nodes of the project\'s migrated documents (the font\'s own line height).'
+          : 'Remove "defaultTextStyle" from the document, or put "defaultTextStyle": {} on the texts that name the style.',
+    ));
+  }
+  return true;
+}
+
+/// [json] without schema 2's natural line height flags ([_naturalFlag]),
+/// for a carrier migrated by hand (a publish model).
+Object? dropNaturalLineHeightFlags(Object? json, {MigrationReport? report, String at = ''}) => switch (json) {
+      final Map m => <String, Object?>{
+          for (final e in m.entries)
+            if (!_naturalFlag('${e.key}', e.value, '$at/${e.key}', report))
+              '${e.key}': dropNaturalLineHeightFlags(e.value, report: report, at: '$at/${e.key}'),
+        },
+      final List l => [for (var i = 0; i < l.length; i++) dropNaturalLineHeightFlags(l[i], report: report, at: '$at/$i')],
+      _ => json,
+    };
