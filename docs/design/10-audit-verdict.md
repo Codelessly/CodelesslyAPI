@@ -32,7 +32,7 @@ on top**, or had they become a pile of workarounds?
 | Text | padding ignored; an opt-in flag for natural line height | padding applies; the font's own line height; `defaultTextStyle` as in Flutter |
 | Extension | unknown types failed | a `Catalog` of widget and action specs; app-registered recipes and action handlers |
 | Layers | one library | `core` plus `data`, `auth`, `commerce`, `media`, `engage`, `publish`, `managed`; an architecture test keeps the render layer free of them, and a core-only build proves it |
-| One-app fields | 171 | 135 after the first pass, then the paint and transform folds (declared fields 2,122 → 2,099) |
+| Special-case fields | present across behaviors, props and paint | removed or made general in three passes: the schema 3 cleanup (one counted group went from 171 fields to 135), then the paint and transform folds (declared fields 2,122 → 2,099) |
 | Stored format | schema 2 with legacy readers | schema 3; schema 2 migrates in memory through named steps; no legacy readers |
 
 ## 3. What deliberately has no Flutter counterpart, and why it stays
