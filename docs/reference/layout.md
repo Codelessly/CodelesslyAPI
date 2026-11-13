@@ -308,7 +308,7 @@ A leaf box: Flutter `Container` with a decoration and no child.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `path` | String | `""` |  | An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`. |
+| `path` | String | `""` |  | Schema 3 only: write a `path` node (schema 4 makes this box one, with the path as its `data`). An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`. |
 | `strokeJoin` | [StrokeJoin](values.md#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How the path's segments meet when stroked (`Paint.strokeJoin`). |
 | `strokeMiterLimit` | double | `4` | ≥ 0 | The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`). |
 

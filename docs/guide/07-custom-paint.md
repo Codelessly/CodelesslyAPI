@@ -40,7 +40,7 @@ Every op is `{"op": name, ...}` and may carry `id` (a stable name: editor select
 
 | `op` | Fields | Flutter |
 |---|---|---|
-| `path` | `d` (SVG path data) or `points` (`[[x, y], ...]`, a `null` breaks the line; `close`), `fillType` (`nonZero`, `evenOdd`), `trimStart`, `trimEnd` (0–1 of its length) | `canvas.drawPath`; `PathMetric.extractPath` |
+| `path` | `d` (SVG path data), or `commands` (`Path` builder calls, below), or `points` (`[[x, y], ...]`, a `null` breaks the line; `close`), `fillType` (`nonZero`, `evenOdd`), `trimStart`, `trimEnd` (0–1 of its length) | `canvas.drawPath`; `PathMetric.extractPath` |
 | `line` | `p1`, `p2` | `canvas.drawLine(p1, p2, paint)` |
 | `rect` | `rect` (`[left, top, width, height]`) | `canvas.drawRect(rect, paint)` |
 | `rrect` | `rect`, `radius` (`8`, `[x, y]` or `[tl, tr, br, bl]`) | `canvas.drawRRect(rrect, paint)` |
@@ -59,6 +59,43 @@ is kept whole and written back, and draws nothing.
 
 `group` is the only way to save and restore: a list can't leave the canvas unbalanced. `repeat` is the only
 control flow: arithmetic is a formula.
+
+### A path built call by call
+
+A path op's `commands` are the calls a `CustomPainter` makes to build its `Path`, each with its positional
+arguments (each a number or a formula) and an optional `when` (`if (cond) path.lineTo(...)`): `moveTo` and
+`lineTo` take `[x, y]`, `quadraticBezierTo` `[x1, y1, x2, y2]`, `cubicTo` `[x1, y1, x2, y2, x3, y3]`, and
+`close` is `{"close": true}`. The numbers reach the `Path` as written, with no SVG text between, so a drawing
+ported from Dart draws the same pixels:
+
+```dart
+final path = Path()
+  ..moveTo(0, size.height)
+  ..quadraticBezierTo(size.width / 2, 0, size.width, size.height);
+canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 2);
+```
+
+```json
+{"customPaint": {"painter": [
+  {"op": "path", "commands": [
+     {"moveTo": [0, "${size.height}"]},
+     {"quadraticBezierTo": ["${= size.width / 2}", 0, "${size.width}", "${size.height}"]}],
+   "paint": {"style": "stroke", "strokeWidth": 2}}]}}
+```
+
+### Schema 3's special-purpose paint, in these terms
+
+Schema 4 rewrites three schema-3 features as ops (codelessly_api's `paintSteps4`; docs/design/01-paint-node.md,
+"Schema 4"), and validation notes each where it is (`deprecated_key`):
+
+- **`strokePath`** (a line through points) is a `path` op in `painter` (`foregroundPainter` for `inFront`):
+  `points`, a share of the box as `"${= 0.25 * size.width}"`, `curve` as `commands`, `progress` as `trimEnd`,
+  the line `{"style": "stroke", "strokeWidth": 4, "strokeCap": "round", "strokeJoin": "round"}`, `fillColor` a
+  closed op under it. Its draw-on animation (`drawMs`) has no form here: an animation on a variable bound into
+  `trimEnd` does it.
+- **A path's `subpathColors`** is one `path` op per color, its `d` the shapes of that color; a gradient laid out
+  in each shape (`gradientPerSubpath`) is one op per shape with the gradient as its paint's `shader`.
+- **A box's `props.path`** is a `path` node (`"type": "path"`, the path as `props.data`), the decorated shape.
 
 ## Paint
 
