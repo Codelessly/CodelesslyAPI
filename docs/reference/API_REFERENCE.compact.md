@@ -3537,18 +3537,16 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `data`: String = `""`
 - `start`: [DragStart](#enum-DragStart) = `"auto"` (`press`, `longPress`, `auto`)
 - `axis`: [DragAxis](#enum-DragAxis) = `"free"` (`free`, `horizontal`, `vertical`)
-- `whileDragging`: [DragSourceStyle](#enum-DragSourceStyle) = `"ghost"` (`ghost`, `hidden`, `keep`)
+- `childWhenDragging`: [DragSourceStyle](#enum-DragSourceStyle) = `"ghost"` (`ghost`, `hidden`, `keep`)
 - `ghostOpacity`: double = `0.35`
+- `feedback`: String = `""`
+- `dragAnchor`: [DragAnchor](#enum-DragAnchor) = `"child"` (`child`, `center`)
 - `feedbackRotation`: double = `-2`
 - `feedbackScale`: double = `1`
 - `feedbackOpacity`: double = `1`
 - `feedbackElevation`: double = `24`
-- `feedbackNodeId`: String = `""`
-- `feedbackAnchor`: [FeedbackAnchor](#enum-FeedbackAnchor) = `"grab"` (`grab`, `center`)
-- `returnSpring`: bool = `true`
-- `spring`: [Spring](#type-Spring) = `{}`
+- `returnSpring`: [Spring](#type-Spring) = `{}`
 - `enabled`: bool = `true`
-- `physics`: [GesturePhysics](#type-GesturePhysics) = unset
 
 <a id="type-DropTarget"></a>
 ### DropTarget
@@ -4547,6 +4545,11 @@ Written as the value's name, a JSON string (`"center"`).
 
 `rectangle`, `circle`
 
+<a id="enum-DragAnchor"></a>
+### DragAnchor
+
+`child`, `center`
+
 <a id="enum-DragAxis"></a>
 ### DragAxis
 
@@ -4596,11 +4599,6 @@ Written as the value's name, a JSON string (`"center"`).
 ### EmbeddedVideoSource
 
 `youtube`, `vimeo`
-
-<a id="enum-FeedbackAnchor"></a>
-### FeedbackAnchor
-
-`grab`, `center`
 
 <a id="enum-FlipAxis"></a>
 ### FlipAxis

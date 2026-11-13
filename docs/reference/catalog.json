@@ -15852,7 +15852,7 @@
       ]
     },
     "DragSource": {
-      "doc": "Lets the user pick the node up and drop it on a `DropTarget` that takes its `group` (Flutter's `Draggable`).",
+      "doc": "Lets the user pick the node up and drop it on a `DropTarget` that takes its `group` (Flutter's `Draggable`; `LongPressDraggable` with `start` `longPress`).",
       "fields": [
         {
           "key": "group",
@@ -15860,7 +15860,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`)."
         },
         {
           "key": "data",
@@ -15868,7 +15868,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`)."
         },
         {
           "key": "start",
@@ -15882,7 +15882,7 @@
             "longPress",
             "auto"
           ],
-          "doc": ""
+          "doc": "How a drag starts: press, long press (`LongPressDraggable`), or long press on touch and press with a mouse."
         },
         {
           "key": "axis",
@@ -15896,10 +15896,10 @@
             "horizontal",
             "vertical"
           ],
-          "doc": ""
+          "doc": "`Draggable.axis`: the feedback moves only along it."
         },
         {
-          "key": "whileDragging",
+          "key": "childWhenDragging",
           "type": "DragSourceStyle",
           "kind": "enumeration",
           "default": "ghost",
@@ -15910,7 +15910,7 @@
             "hidden",
             "keep"
           ],
-          "doc": ""
+          "doc": "What stays where it was picked up."
         },
         {
           "key": "ghostOpacity",
@@ -15918,42 +15918,10 @@
           "kind": "number",
           "default": 0.35,
           "nullable": false,
-          "doc": ""
+          "doc": "The opacity of a `DragSourceStyle.ghost`."
         },
         {
-          "key": "feedbackRotation",
-          "type": "double",
-          "kind": "number",
-          "default": -2,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "feedbackScale",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "feedbackOpacity",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "feedbackElevation",
-          "type": "double",
-          "kind": "number",
-          "default": 24,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "feedbackNodeId",
+          "key": "feedback",
           "type": "String",
           "kind": "string",
           "default": "",
@@ -15961,34 +15929,58 @@
           "doc": "The node drawn under the pointer instead of this one."
         },
         {
-          "key": "feedbackAnchor",
-          "type": "FeedbackAnchor",
+          "key": "dragAnchor",
+          "type": "DragAnchor",
           "kind": "enumeration",
-          "default": "grab",
+          "default": "child",
           "nullable": false,
-          "enum": "FeedbackAnchor",
+          "enum": "DragAnchor",
           "values": [
-            "grab",
+            "child",
             "center"
           ],
-          "doc": ""
+          "doc": "The legacy `feedbackAnchor` reads as it."
+        },
+        {
+          "key": "feedbackRotation",
+          "type": "double",
+          "kind": "number",
+          "default": -2,
+          "nullable": false,
+          "doc": "The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents."
+        },
+        {
+          "key": "feedbackScale",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents."
+        },
+        {
+          "key": "feedbackOpacity",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents."
+        },
+        {
+          "key": "feedbackElevation",
+          "type": "double",
+          "kind": "number",
+          "default": 24,
+          "nullable": false,
+          "doc": "The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents."
         },
         {
           "key": "returnSpring",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "spring",
           "type": "Spring",
           "kind": "object",
           "default": {},
           "nullable": false,
           "object": "Spring",
-          "doc": "The spring it returns on with `returnSpring` (JSON `spring`; the legacy `springStiffness`/`springDamping` read as it)."
+          "doc": "The spring an unaccepted drop flies home on; `false`: none."
         },
         {
           "key": "enabled",
@@ -15996,16 +15988,7 @@
           "kind": "boolean",
           "default": true,
           "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "physics",
-          "type": "GesturePhysics",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "GesturePhysics",
-          "doc": "The return spring (over `returnSpring` and its settings)."
+          "doc": "Bindable as `draggable.enabled`."
         }
       ]
     },
@@ -22350,6 +22333,16 @@
         "doc": "A circle the box's shortest side across, in its middle: painted (fill and stroke) as circles, as Flutter's `BoxShape.circle`."
       }
     ],
+    "DragAnchor": [
+      {
+        "value": "child",
+        "doc": "Which point of the copy that follows the pointer sits under it (`Draggable.dragAnchorStrategy`): where it was grabbed (`childDragAnchorStrategy`), or its center (a feedback node of another size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it."
+      },
+      {
+        "value": "center",
+        "doc": "Which point of the copy that follows the pointer sits under it (`Draggable.dragAnchorStrategy`): where it was grabbed (`childDragAnchorStrategy`), or its center (a feedback node of another size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it."
+      }
+    ],
     "DragAxis": [
       {
         "value": "free",
@@ -22415,15 +22408,15 @@
     "DragSourceStyle": [
       {
         "value": "ghost",
-        "doc": "What the node shows where it was picked up while dragged."
+        "doc": "What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself."
       },
       {
         "value": "hidden",
-        "doc": "What the node shows where it was picked up while dragged."
+        "doc": "What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself."
       },
       {
         "value": "keep",
-        "doc": "What the node shows where it was picked up while dragged."
+        "doc": "What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself."
       }
     ],
     "DragStart": [
@@ -22524,16 +22517,6 @@
       {
         "value": "vimeo",
         "doc": "Where an embedded video is hosted."
-      }
-    ],
-    "FeedbackAnchor": [
-      {
-        "value": "grab",
-        "doc": "Which point of the copy that follows the pointer sits under it: where it was grabbed, or its center (a feedback node of another size)."
-      },
-      {
-        "value": "center",
-        "doc": "Which point of the copy that follows the pointer sits under it: where it was grabbed, or its center (a feedback node of another size)."
       }
     ],
     "FlipAxis": [

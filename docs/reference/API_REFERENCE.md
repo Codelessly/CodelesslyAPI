@@ -3936,26 +3936,24 @@ Inside it `${dismiss.dx}`, `${dismiss.dy}`, `${dismiss.progress}` (0–1 toward 
 <a id="type-DragSource"></a>
 ### DragSource
 
-Lets the user pick the node up and drop it on a `DropTarget` that takes its `group` (Flutter's `Draggable`).
+Lets the user pick the node up and drop it on a `DropTarget` that takes its `group` (Flutter's `Draggable`; `LongPressDraggable` with `start` `longPress`).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `group` | String | `""` |  |  |
-| `data` | String | `""` |  |  |
-| `start` | [DragStart](#enum-DragStart) | `"auto"` | `press`, `longPress`, `auto` |  |
-| `axis` | [DragAxis](#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` |  |
-| `whileDragging` | [DragSourceStyle](#enum-DragSourceStyle) | `"ghost"` | `ghost`, `hidden`, `keep` |  |
-| `ghostOpacity` | double | `0.35` |  |  |
-| `feedbackRotation` | double | `-2` |  |  |
-| `feedbackScale` | double | `1` |  |  |
-| `feedbackOpacity` | double | `1` |  |  |
-| `feedbackElevation` | double | `24` |  |  |
-| `feedbackNodeId` | String | `""` |  | The node drawn under the pointer instead of this one. |
-| `feedbackAnchor` | [FeedbackAnchor](#enum-FeedbackAnchor) | `"grab"` | `grab`, `center` |  |
-| `returnSpring` | bool | `true` |  |  |
-| `spring` | [Spring](#type-Spring) | `{}` |  | The spring it returns on with `returnSpring` (JSON `spring`; the legacy `springStiffness`/`springDamping` read as it). |
-| `enabled` | bool | `true` |  |  |
-| `physics` | [GesturePhysics](#type-GesturePhysics) | unset |  | The return spring (over `returnSpring` and its settings). |
+| `group` | String | `""` |  | The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`). |
+| `data` | String | `""` |  | The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`). |
+| `start` | [DragStart](#enum-DragStart) | `"auto"` | `press`, `longPress`, `auto` | How a drag starts: press, long press (`LongPressDraggable`), or long press on touch and press with a mouse. |
+| `axis` | [DragAxis](#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` | `Draggable.axis`: the feedback moves only along it. |
+| `childWhenDragging` | [DragSourceStyle](#enum-DragSourceStyle) | `"ghost"` | `ghost`, `hidden`, `keep` | What stays where it was picked up. |
+| `ghostOpacity` | double | `0.35` |  | The opacity of a `DragSourceStyle.ghost`. |
+| `feedback` | String | `""` |  | The node drawn under the pointer instead of this one. |
+| `dragAnchor` | [DragAnchor](#enum-DragAnchor) | `"child"` | `child`, `center` | The legacy `feedbackAnchor` reads as it. |
+| `feedbackRotation` | double | `-2` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
+| `feedbackScale` | double | `1` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
+| `feedbackOpacity` | double | `1` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
+| `feedbackElevation` | double | `24` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
+| `returnSpring` | [Spring](#type-Spring) | `{}` |  | The spring an unaccepted drop flies home on; `false`: none. |
+| `enabled` | bool | `true` |  | Bindable as `draggable.enabled`. |
 
 <a id="type-DropTarget"></a>
 ### DropTarget
@@ -5341,6 +5339,14 @@ Written as the value's name, a JSON string (`"center"`).
 | `rectangle` | The box, its corners rounded by `Decoration.radius`. |
 | `circle` | A circle the box's shortest side across, in its middle: painted (fill and stroke) as circles, as Flutter's `BoxShape.circle`. |
 
+<a id="enum-DragAnchor"></a>
+### DragAnchor
+
+| Value | Meaning |
+|---|---|
+| `child` | Which point of the copy that follows the pointer sits under it (`Draggable.dragAnchorStrategy`): where it was grabbed (`childDragAnchorStrategy`), or its center (a feedback node of another size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it. |
+| `center` | Which point of the copy that follows the pointer sits under it (`Draggable.dragAnchorStrategy`): where it was grabbed (`childDragAnchorStrategy`), or its center (a feedback node of another size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it. |
+
 <a id="enum-DragAxis"></a>
 ### DragAxis
 
@@ -5374,9 +5380,9 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `ghost` | What the node shows where it was picked up while dragged. |
-| `hidden` | What the node shows where it was picked up while dragged. |
-| `keep` | What the node shows where it was picked up while dragged. |
+| `ghost` | What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself. |
+| `hidden` | What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself. |
+| `keep` | What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself. |
 
 <a id="enum-DragStart"></a>
 ### DragStart
@@ -5430,14 +5436,6 @@ Written as the value's name, a JSON string (`"center"`).
 |---|---|
 | `youtube` | Where an embedded video is hosted. |
 | `vimeo` | Where an embedded video is hosted. |
-
-<a id="enum-FeedbackAnchor"></a>
-### FeedbackAnchor
-
-| Value | Meaning |
-|---|---|
-| `grab` | Which point of the copy that follows the pointer sits under it: where it was grabbed, or its center (a feedback node of another size). |
-| `center` | Which point of the copy that follows the pointer sits under it: where it was grabbed, or its center (a feedback node of another size). |
 
 <a id="enum-FlipAxis"></a>
 ### FlipAxis

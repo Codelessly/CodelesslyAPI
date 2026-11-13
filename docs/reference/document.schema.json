@@ -2005,6 +2005,12 @@
         "circle"
       ]
     },
+    "enum.DragAnchor": {
+      "enum": [
+        "child",
+        "center"
+      ]
+    },
     "enum.DragAxis": {
       "enum": [
         "free",
@@ -2082,12 +2088,6 @@
       "enum": [
         "youtube",
         "vimeo"
-      ]
-    },
-    "enum.FeedbackAnchor": {
-      "enum": [
-        "grab",
-        "center"
       ]
     },
     "enum.FlipAxis": {
@@ -3564,11 +3564,17 @@
         "axis": {
           "$ref": "#/$defs/enum.DragAxis"
         },
-        "whileDragging": {
+        "childWhenDragging": {
           "$ref": "#/$defs/enum.DragSourceStyle"
         },
         "ghostOpacity": {
           "type": "number"
+        },
+        "feedback": {
+          "type": "string"
+        },
+        "dragAnchor": {
+          "$ref": "#/$defs/enum.DragAnchor"
         },
         "feedbackRotation": {
           "type": "number"
@@ -3582,30 +3588,22 @@
         "feedbackElevation": {
           "type": "number"
         },
-        "feedbackNodeId": {
-          "type": "string"
-        },
-        "feedbackAnchor": {
-          "$ref": "#/$defs/enum.FeedbackAnchor"
-        },
         "returnSpring": {
-          "type": "boolean"
-        },
-        "spring": {
-          "$ref": "#/$defs/model.Spring"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Spring"
+            },
+            {
+              "type": [
+                "string",
+                "boolean",
+                "number"
+              ]
+            }
+          ]
         },
         "enabled": {
           "type": "boolean"
-        },
-        "physics": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.GesturePhysics"
-            },
-            {
-              "type": "null"
-            }
-          ]
         }
       },
       "additionalProperties": false
