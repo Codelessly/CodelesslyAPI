@@ -524,30 +524,24 @@ Plays a synthesised `sound` (a voice name), now or `at` a time on the sound cloc
 | `at` | String | `""` |  | A time on the sound clock. |
 | `url` | String | `""` |  | A sound file. |
 
-<a id="action-playAnimation"></a>
-## `playAnimation`: Play animation
+<a id="action-animate"></a>
+## `animate`: Animate
 
-Plays node `node`'s one-shot animation (or particles) named `animation`.
+Drives an animation (Flutter's `AnimationController` methods): node `node`'s `animation` (`NodeAnimation`), or the number variable `variable` (an unbounded controller the screen keeps for it). JSON: `{"type": "animate", "node": "card", "animation": "pop", "command": "forward", "from": "0"}`, `{"type": "animate", "variable": "shownTotal", "command": "animateTo", "target": "${total}", "duration": "800", "curve": "easeOutCubic"}`. The chain waits for it to end (`TickerFuture`) unless it's `nonBlocking`; a repeat ends when its count does.
 
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `node` | String | `""` |  |  |
-| `animation` | String | `""` |  | A one-shot animation (or particles). |
-
-<a id="action-animateVariable"></a>
-## `animateVariable`: Animate variable
-
-Animates number variable `variable` over time: plays it from `from` to `to` over `durationMs` (or `duration`, an expression giving milliseconds) along `curve`, or pauses, resumes, stops or seeks the animation it runs. A play (or a resume) completes when its timeline ends: make it non-blocking to go on at once. Resume with nothing paused plays from where the value is.
+Reads the legacy `playAnimation` (`forward` from 0) and `animateVariable` (play → `animateTo`, pause and stop → `stop`, resume → `forward`, seek → `set`).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `variable` | String | `""` |  | A number variable. |
-| `mode` | [AnimateVariableMode](values.md#enum-AnimateVariableMode) | `"play"` | `play`, `pause`, `resume`, `stop`, `seek` |  |
-| `from` | String | `""` |  | Play: the start (empty: the value now). |
-| `to` | String | `"1"` |  | Play: the end; seek: the value to jump to. |
-| `durationMs` | int | `1000` |  |  |
-| `duration` | String | `""` |  | An expression giving milliseconds. |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
+| `node` | String | `""` |  | A node id or key; empty: the reacting node. |
+| `animation` | String | `""` |  | The animation's id on the node. |
+| `variable` | String | `""` |  | Instead of a node: a number variable. |
+| `command` | [AnimateCommand](values.md#enum-AnimateCommand) | `"forward"` | `forward`, `reverse`, `toggle`, `repeat`, `stop`, `reset`, `animateTo`, `animateBack`, `set` |  |
+| `from` | String | `""` |  | Where forward/reverse start (an expression). |
+| `target` | String | `""` |  | animateTo, animateBack, set (an expression). |
+| `duration` | String | `""` |  | Milliseconds (an expression); empty: the animation's. |
+| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | unset |  | Null: the animation's (linear for a variable). |
+| `spring` | [Spring](values.md#type-Spring) | unset |  | `animateWith(SpringSimulation)` toward `target` instead of a duration. |
 
 <a id="action-haptic"></a>
 ## `haptic`: Haptic feedback

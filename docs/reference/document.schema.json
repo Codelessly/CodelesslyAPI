@@ -173,8 +173,7 @@
             "speak",
             "scrollTo",
             "playSound",
-            "playAnimation",
-            "animateVariable",
+            "animate",
             "haptic",
             "runScript",
             "paginate",
@@ -1433,7 +1432,7 @@
           "if": {
             "properties": {
               "type": {
-                "const": "playAnimation"
+                "const": "animate"
               }
             }
           },
@@ -1444,40 +1443,41 @@
               },
               "animation": {
                 "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "animateVariable"
-              }
-            }
-          },
-          "then": {
-            "properties": {
+              },
               "variable": {
                 "type": "string"
               },
-              "mode": {
-                "$ref": "#/$defs/enum.AnimateVariableMode"
+              "command": {
+                "$ref": "#/$defs/enum.AnimateCommand"
               },
               "from": {
                 "type": "string"
               },
-              "to": {
+              "target": {
                 "type": "string"
-              },
-              "durationMs": {
-                "type": "integer"
               },
               "duration": {
                 "type": "string"
               },
               "curve": {
-                "$ref": "#/$defs/enum.AnimationCurve"
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/enum.AnimationCurve"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "spring": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/model.Spring"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             }
           }
@@ -1700,13 +1700,17 @@
       },
       "additionalProperties": false
     },
-    "enum.AnimateVariableMode": {
+    "enum.AnimateCommand": {
       "enum": [
-        "play",
-        "pause",
-        "resume",
+        "forward",
+        "reverse",
+        "toggle",
+        "repeat",
         "stop",
-        "seek"
+        "reset",
+        "animateTo",
+        "animateBack",
+        "set"
       ]
     },
     "enum.AnimationCurve": {
@@ -2100,18 +2104,6 @@
         "focus"
       ]
     },
-    "enum.EffectAnimationType": {
-      "enum": [
-        "shake",
-        "bounce",
-        "pop",
-        "wiggle",
-        "jelly",
-        "flash",
-        "spin",
-        "keyframes"
-      ]
-    },
     "enum.EffectType": {
       "enum": [
         "dropShadow",
@@ -2300,17 +2292,6 @@
         "top",
         "center",
         "bottom"
-      ]
-    },
-    "enum.LoopAnimationType": {
-      "enum": [
-        "pulse",
-        "fade",
-        "scale",
-        "spin",
-        "bob",
-        "sway",
-        "flicker"
       ]
     },
     "enum.MainAxisAlignment": {
@@ -2872,6 +2853,13 @@
         "error"
       ]
     },
+    "enum.TrackBlend": {
+      "enum": [
+        "replace",
+        "add",
+        "multiply"
+      ]
+    },
     "enum.TransformPan": {
       "enum": [
         "always",
@@ -2919,7 +2907,7 @@
         "backPressed",
         "valueChanged",
         "timer",
-        "clock",
+        "frame",
         "keyDown",
         "keyUp",
         "scroll",
@@ -3078,6 +3066,63 @@
         "heightFactor": {
           "type": "number",
           "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.AnimationRepeat": {
+      "type": "object",
+      "properties": {
+        "reverse": {
+          "type": "boolean"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.AnimationTrack": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "node": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "from": {},
+        "to": {},
+        "keyframes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model.Keyframe"
+          }
+        },
+        "wave": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model.Wave"
+          }
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "curve": {
+          "$ref": "#/$defs/enum.AnimationCurve"
+        },
+        "blend": {
+          "$ref": "#/$defs/enum.TrackBlend"
         }
       },
       "additionalProperties": false
@@ -3612,11 +3657,8 @@
         "returnSpring": {
           "type": "boolean"
         },
-        "springStiffness": {
-          "type": "number"
-        },
-        "springDamping": {
-          "type": "number"
+        "spring": {
+          "$ref": "#/$defs/model.Spring"
         },
         "enabled": {
           "type": "boolean"
@@ -3744,11 +3786,8 @@
         "settleCurve": {
           "$ref": "#/$defs/enum.AnimationCurve"
         },
-        "settleStiffness": {
-          "type": "number"
-        },
-        "settleDamping": {
-          "type": "number"
+        "settleSpring": {
+          "$ref": "#/$defs/model.Spring"
         },
         "parkedProgress": {
           "anyOf": [
@@ -3930,51 +3969,6 @@
       },
       "additionalProperties": false
     },
-    "model.EffectAnimation": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/$defs/enum.EffectAnimationType"
-        },
-        "duration": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "delay": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "amount": {
-          "type": "number"
-        },
-        "originX": {
-          "type": "number"
-        },
-        "originY": {
-          "type": "number"
-        },
-        "playOnAppear": {
-          "type": "boolean"
-        },
-        "cycles": {
-          "type": "number",
-          "minimum": 0.0
-        },
-        "keyframes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/model.MotionKeyframe"
-          }
-        },
-        "curve": {
-          "$ref": "#/$defs/enum.AnimationCurve"
-        }
-      },
-      "additionalProperties": false
-    },
     "model.Flight": {
       "type": "object",
       "properties": {
@@ -4027,22 +4021,7 @@
           "type": "string"
         },
         "spring": {
-          "$ref": "#/$defs/model.FlipSpring"
-        }
-      },
-      "additionalProperties": false
-    },
-    "model.FlipSpring": {
-      "type": "object",
-      "properties": {
-        "stiffness": {
-          "type": "number"
-        },
-        "damping": {
-          "type": "number"
-        },
-        "mass": {
-          "type": "number"
+          "$ref": "#/$defs/model.Spring"
         }
       },
       "additionalProperties": false
@@ -4065,34 +4044,8 @@
     "model.GesturePhysics": {
       "type": "object",
       "properties": {
-        "stiffness": {
-          "type": "number"
-        },
-        "damping": {
-          "type": "number"
-        },
-        "mass": {
-          "type": "number"
-        },
-        "bounce": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "duration": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ]
+        "spring": {
+          "$ref": "#/$defs/model.Spring"
         },
         "fling": {
           "type": "boolean"
@@ -4822,6 +4775,21 @@
       },
       "additionalProperties": false
     },
+    "model.Keyframe": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "value": {},
+        "curve": {
+          "$ref": "#/$defs/enum.AnimationCurve"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.ListReorder": {
       "type": "object",
       "properties": {
@@ -4973,61 +4941,6 @@
       },
       "additionalProperties": false
     },
-    "model.LoopAnimation": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "$ref": "#/$defs/enum.LoopAnimationType"
-        },
-        "enabled": {
-          "type": "boolean"
-        },
-        "duration": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "delay": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "reverse": {
-          "type": "boolean"
-        },
-        "curve": {
-          "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "scaleFrom": {
-          "type": "number"
-        },
-        "scaleTo": {
-          "type": "number"
-        },
-        "opacityFrom": {
-          "type": "number"
-        },
-        "opacityTo": {
-          "type": "number"
-        },
-        "turns": {
-          "type": "number"
-        },
-        "distance": {
-          "type": "number"
-        },
-        "angle": {
-          "type": "number"
-        },
-        "phase": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "lag": {
-          "type": "integer"
-        }
-      },
-      "additionalProperties": false
-    },
     "model.Measure": {
       "type": "object",
       "properties": {
@@ -5126,11 +5039,8 @@
           "minimum": 0.0,
           "maximum": 1.0
         },
-        "springStiffness": {
-          "type": "number"
-        },
-        "springDamping": {
-          "type": "number"
+        "spring": {
+          "$ref": "#/$defs/model.Spring"
         },
         "spinRamp": {
           "type": "integer",
@@ -5187,16 +5097,6 @@
           "items": {
             "$ref": "#/$defs/model.MotionKeyframe"
           }
-        },
-        "pulseKey": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
         },
         "revealOnScroll": {
           "type": "boolean"
@@ -5452,6 +5352,157 @@
           "items": {
             "$ref": "#/$defs/reaction"
           }
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.NodeAnimation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "preset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "params": {},
+        "enabled": {
+          "type": "boolean"
+        },
+        "duration": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reverseDuration": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "delay": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "curve": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/enum.AnimationCurve"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repeat": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.AnimationRepeat"
+                },
+                {
+                  "type": [
+                    "boolean",
+                    "number"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "autoplay": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "playKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "paused": {
+          "type": "boolean"
+        },
+        "phase": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "spring": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Spring"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "progress": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "alignment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Alignment"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model.AnimationTrack"
+          }
+        },
+        "previewAt": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -5955,7 +6006,7 @@
           "type": "number"
         },
         "spring": {
-          "$ref": "#/$defs/model.TransitionSpring"
+          "$ref": "#/$defs/model.Spring"
         }
       },
       "additionalProperties": false
@@ -6094,6 +6145,42 @@
               "type": "null"
             }
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.Spring": {
+      "type": "object",
+      "properties": {
+        "stiffness": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "damping": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mass": {
+          "type": "number"
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bounce": {
+          "type": "number"
         }
       },
       "additionalProperties": false
@@ -6814,21 +6901,6 @@
       },
       "additionalProperties": false
     },
-    "model.TransitionSpring": {
-      "type": "object",
-      "properties": {
-        "stiffness": {
-          "type": "number"
-        },
-        "damping": {
-          "type": "number"
-        },
-        "mass": {
-          "type": "number"
-        }
-      },
-      "additionalProperties": false
-    },
     "model.Transitions": {
       "type": "object",
       "properties": {
@@ -6983,6 +7055,27 @@
       },
       "additionalProperties": false
     },
+    "model.Wave": {
+      "type": "object",
+      "properties": {
+        "cycles": {
+          "type": "number"
+        },
+        "amplitude": {
+          "type": "number"
+        },
+        "phase": {
+          "type": "number"
+        },
+        "decay": {
+          "type": "number"
+        },
+        "rectify": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
     "node": {
       "type": "object",
       "properties": {
@@ -7123,10 +7216,10 @@
           "type": "number",
           "minimum": 0.0
         },
-        "loops": {
+        "animations": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/model.LoopAnimation"
+            "$ref": "#/$defs/model.NodeAnimation"
           }
         },
         "transitions": {
@@ -7270,12 +7363,6 @@
               "type": "null"
             }
           ]
-        },
-        "effectAnimations": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/model.EffectAnimation"
-          }
         },
         "particles": {
           "anyOf": [
@@ -15875,7 +15962,7 @@
             "backPressed",
             "valueChanged",
             "timer",
-            "clock",
+            "frame",
             "keyDown",
             "keyUp",
             "scroll",
@@ -15921,12 +16008,6 @@
             },
             "holdMs": {
               "type": "integer"
-            },
-            "every": {
-              "type": "string"
-            },
-            "runWhen": {
-              "type": "string"
             },
             "visibleFraction": {
               "type": "number"

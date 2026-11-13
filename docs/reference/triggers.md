@@ -49,8 +49,8 @@ A reaction (`"actions": [{"trigger": {...}, "actions": [...]}]` on a node) start
 | <a id="trigger-load"></a>`load` | A screen appeared (set on its canvas). |
 | <a id="trigger-backPressed"></a>`backPressed` | On a screen (its canvas): the user tried to leave it (the system or browser back button, a back gesture, Escape on a dialog) while the canvas's `blockBack` holds (`props.blockBack`, usually bound: `${= dirty}`). The screen stays and these actions run instead, e.g. a "Discard changes?" confirm that leaves with a navigate pop, which the block doesn't stop. While `blockBack` is false, back leaves as usual and this doesn't fire. |
 | <a id="trigger-valueChanged"></a>`valueChanged` | Variable `Trigger.variable` changed while the screen shows. |
-| <a id="trigger-timer"></a>`timer` | Every `Trigger.intervalMs` while the screen shows. |
-| <a id="trigger-clock"></a>`clock` | A steady audio clock: ticks every `Trigger.every` ms while `Trigger.runWhen` holds (`${result.tick}`, `${result.at}`, `${result.waitMs}`). |
+| <a id="trigger-timer"></a>`timer` | Every `Trigger.intervalMs` while the screen shows (`Timer.periodic`) and `Trigger.when` holds; `${result.tick}` counts. The legacy `clock` (`every`, `runWhen`) reads as this. |
+| <a id="trigger-frame"></a>`frame` | Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks. |
 | <a id="trigger-keyDown"></a>`keyDown` | A key went down (or up) while the screen shows; `Trigger.key` limits it to one key or combination, `Trigger.when` to while a formula holds. `${result.key}`, `${result.shift}`, `${result.alt}`, `${result.meta}`. |
 | <a id="trigger-keyUp"></a>`keyUp` |  |
 | <a id="trigger-actionError"></a>`actionError` | On the current canvas: a failed action chain or cloud subscription. `${result.error}` is `{type, message, action, nodeId}` (no stack or raw service objects). A failure in this reaction reports to the host without recursively firing another actionError reaction. |
@@ -89,12 +89,10 @@ A trigger is `{"type": "<type>", ...these}`, or just the type as a string (`"cli
 | `type` | [TriggerType](values.md#enum-TriggerType) | `"click"` |  |  |
 | `debounceMs` | int | `0` |  | Waits this long after the last trigger before running, so a burst (typing in a search field) runs once. 0 runs every time. |
 | `variable` | String | `""` |  | `TriggerType.valueChanged`: the variable watched. |
-| `intervalMs` | int | `1000` |  | `TriggerType.timer`: how often it fires. |
+| `intervalMs` | int | `1000` |  | Timer: ms between ticks (a number or an expression). |
 | `key` | String | `""` |  | Key triggers: the key or combination (`KeyCombo`); empty: any key. |
-| `when` | String | `""` |  | Key triggers: a formula; they run (and take the key) only while it's true. Empty: always. |
+| `when` | String | `""` |  | A formula; the reaction runs only while it's true (key triggers take the key only then; a timer or a frame ticker runs only then). Empty: always. |
 | `holdMs` | int | `1200` |  | `TriggerType.hold`: how long the press is held. |
-| `every` | String | `""` |  | `TriggerType.clock`: milliseconds between ticks, a number or formula. |
-| `runWhen` | String | `""` |  | `TriggerType.clock`: runs while this formula is true; empty: always. |
 | `visibleFraction` | double | `0.15` |  | Viewport triggers: the visible share (0–1) that counts as in view. |
 | `repeat` | bool | `false` |  | keyDown: also while the key repeats. |
 | `visibleMs` | int | `0` | ≥ 0 | Viewport: how long it stays in view before firing (ms). |

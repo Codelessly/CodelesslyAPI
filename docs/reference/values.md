@@ -104,6 +104,37 @@ JSON: [width, height].
 
 Objects with declared fields. Keys not listed are reported by validation (`unknown_field`).
 
+<a id="type-AnimationRepeat"></a>
+### AnimationRepeat
+
+`controller.repeat(reverse:, count:)`. `count` 0 repeats forever; a count ends at the end of its last run. JSON: `{}` (forever), `{"reverse": true, "count": 3}`; `true` and a bare count read too.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `reverse` | bool | `false` |  |  |
+| `count` | int | `0` | ≥ 0 | 0: forever. |
+
+<a id="type-AnimationTrack"></a>
+### AnimationTrack
+
+One tween a `NodeAnimation` drives: a property at a binding `path` of a node, or a `variable`.
+
+The value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers and colors interpolate; any other value switches at the end.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `id` | String | `""` |  | Stable within its animation, so an edit can address it (`animations.enter.tracks.fade.from`). Optional. |
+| `path` | String | `""` |  | A binding path (`motion.rotate`, `opacity`, `decoration.fills[0].color`). |
+| `node` | String | `""` |  | The target node's id or key; empty: the node the animation is on. |
+| `variable` | String | `""` |  | Instead of `path`: a number variable the value is written to. |
+| `from` | Object | unset |  | A number, a color or an expression; empty: the property's own value. |
+| `to` | Object | unset |  | `Tween(begin:, end:)`: numbers, colors, or `${...}` expressions read when a play starts. |
+| `keyframes` | List<[Keyframe](values.md#type-Keyframe)> | `[]` |  |  |
+| `wave` | List<[Wave](values.md#type-Wave)> | `[]` |  |  |
+| `interval` | List<double> | `[0,1]` |  | `Interval(begin, end)`. |
+| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
+| `blend` | [TrackBlend](values.md#enum-TrackBlend) | `"replace"` | `replace`, `add`, `multiply` |  |
+
 <a id="type-BorderSide"></a>
 ### BorderSide
 
@@ -270,8 +301,7 @@ Lets the user pick the node up and drop it on a `DropTarget` that takes its `gro
 | `feedbackNodeId` | String | `""` |  | The node drawn under the pointer instead of this one. |
 | `feedbackAnchor` | [FeedbackAnchor](values.md#enum-FeedbackAnchor) | `"grab"` | `grab`, `center` |  |
 | `returnSpring` | bool | `true` |  |  |
-| `springStiffness` | double | `260` |  |  |
-| `springDamping` | double | `14` |  |  |
+| `spring` | [Spring](values.md#type-Spring) | `{}` |  | The spring it returns on with `returnSpring` (JSON `spring`; the legacy `springStiffness`/`springDamping` read as it). |
 | `enabled` | bool | `true` |  |  |
 | `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | The return spring (over `returnSpring` and its settings). |
 
@@ -311,8 +341,7 @@ Its settings and geometry are bindable as `drag.track.<field>` (`drag.track.x2`:
 | `overscroll` | double | `0` | ≥ 0, ≤ 1 | How far past an end it stretches (0–1). |
 | `settle` | int | `0` | ≥ 0 | The glide to its value's place when not following the pointer (ms; 0 jumps), its curve, and the spring of `AnimationCurve.spring` (mass 1), which a release mid-fling starts at the pointer's speed. |
 | `settleCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutCubic"` |  |  |
-| `settleStiffness` | double | `380` |  |  |
-| `settleDamping` | double | `20` |  |  |
+| `settleSpring` | [Spring](values.md#type-Spring) | `{}` |  | The spring of a `spring` `settleCurve` (JSON `settleSpring`; the legacy `settleStiffness`/`settleDamping` read as it). |
 | `parkedProgress` | double | unset |  | Where it parks while the value is out of range or empty. |
 | `keyboard` | bool | `true` |  | Takes keyboard focus: arrows step by `keyStep` (else `step`, else 1% of the range), Page Up/Down by 10 steps, Home and End to the ends. |
 | `viewBoxWidth` | double | `0` | ≥ 0 | With both above 0, `path` is drawn in the box of the frame the node sits in, in these units, stretched to the frame's size. |
@@ -371,25 +400,6 @@ A shadow or blur (Flutter's `BoxShadow`, `ImageFilter.blur`).
 | `spreadRadius` | double | `0` |  |  |
 | `blendMode` | [BlendMode](values.md#enum-BlendMode) | `"srcOver"` |  |  |
 
-<a id="type-EffectAnimation"></a>
-### EffectAnimation
-
-A one-shot effect the node plays on cue (an action, a bound play key, or when it appears).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `name` | String | `""` |  | The name an action plays it by. |
-| `type` | [EffectAnimationType](values.md#enum-EffectAnimationType) | `"shake"` | `shake`, `bounce`, `pop`, `wiggle`, `jelly`, `flash`, `spin`, `keyframes` |  |
-| `duration` | int | `520` | ≥ 0 |  |
-| `delay` | int | `0` | ≥ 0 |  |
-| `amount` | double | `1` |  |  |
-| `originX` | double | `0` |  |  |
-| `originY` | double | `0` |  |  |
-| `playOnAppear` | bool | `false` |  |  |
-| `cycles` | double | `0` | ≥ 0 | Swings of a shake, wiggle or jelly (blinks of a flash); 0 the type's own. |
-| `keyframes` | List<[MotionKeyframe](values.md#type-MotionKeyframe)> | `[]` |  | A `keyframes` effect's poses at times 0–1 (from rest, back to rest). |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  | How a `keyframes` effect's time runs (the keyframes' times are on it). |
-
 <a id="type-Flight"></a>
 ### Flight
 
@@ -418,18 +428,7 @@ Makes the node a two-sided card (node key `flip`; a runtime 3D turn, not a mirro
 | `tapToFlip` | bool | `true` |  | A tap turns it over (and writes `variable`). |
 | `dragToFlip` | bool | `false` |  | A drag across turns it with the finger; it settles on the nearer face (or follows a fling) on release. |
 | `variable` | String | `""` |  | A boolean variable it follows and writes. |
-| `spring` | [FlipSpring](values.md#type-FlipSpring) | `{}` |  | The spring it settles with after a drag. |
-
-<a id="type-FlipSpring"></a>
-### FlipSpring
-
-A spring (mass, stiffness, damping), as Flutter's `SpringDescription`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `stiffness` | double | `380` |  |  |
-| `damping` | double | `36` |  |  |
-| `mass` | double | `1` |  |  |
+| `spring` | [Spring](values.md#type-Spring) | `{}` |  | The spring it settles with after a drag. |
 
 <a id="type-GaugeZone"></a>
 ### GaugeZone
@@ -445,15 +444,11 @@ A colored band of a radial gauge, from `from` to `to` in value units.
 <a id="type-GesturePhysics"></a>
 ### GesturePhysics
 
-How a node moves on its own once the pointer lets go, the same for a `DragMotion`, a `DragSource`'s return and a `TransformGesture`: a fling that slows by `friction`, a stretch of `overscroll` past the bounds, and a spring (`stiffness`, `damping`, `mass`; or `bounce` and `duration`, as Flutter's `SpringDescription.withDurationAndBounce`) onto the `snap` target nearest to where the fling would stop.
+How a node moves on its own once the pointer lets go, the same for a `DragMotion`, a `DragSource`'s return and a `TransformGesture`: a fling that slows by `friction` (Flutter's `FrictionSimulation`), a stretch of `overscroll` past the bounds, and a `spring` onto the `snap` target nearest to where the fling would stop. The legacy flat spring keys (`stiffness`, `damping`, `mass`, `bounce`, `duration`) read as `spring`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `stiffness` | double | `380` |  |  |
-| `damping` | double | `32` |  |  |
-| `mass` | double | `1` |  |  |
-| `bounce` | double | unset |  | The spring as a bounce and a settle time, over stiffness and damping. |
-| `duration` | int | unset |  |  |
+| `spring` | [Spring](values.md#type-Spring) | `{}` |  | The spring it settles on. |
 | `fling` | bool | `true` |  | Whether a release keeps the pointer's velocity and coasts. |
 | `friction` | double | `0.865` | ≥ 0, ≤ 1 | The share of a fling's speed lost per second. |
 | `minFlingVelocity` | double | `50` |  | Pixels per second: slower releases don't fling; the fastest start. |
@@ -607,6 +602,17 @@ An icon an input shows (`Icon`): a glyph as the icon node's `icon` prop (`{"sour
 | `color` | [Color](values.md#type-Color) | unset |  |  |
 | `actions` | List<Reaction> | `[]` |  |  |
 
+<a id="type-Keyframe"></a>
+### Keyframe
+
+One stop of a `TweenSequence`: the track's `value` at `at` (0–1 of the track's run), reached on `curve` from the stop before it.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `at` | double | `0` | ≥ 0, ≤ 1 |  |
+| `value` | Object | unset |  |  |
+| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
+
 <a id="type-ListReorder"></a>
 ### ListReorder
 
@@ -651,29 +657,6 @@ Groups a data list's consecutive items with the same `groupBy` value into sectio
 | `indexBubbleStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
 | `indexInsets` | List<double> | `[0,0,0,0]` |  | Space between the index bar and the list's edges: left (unused), top, right, bottom. Zero sits it on the right edge, full height. |
 
-<a id="type-LoopAnimation"></a>
-### LoopAnimation
-
-An animation that repeats while the node is shown (a pulsing halo, a spinning icon). A run takes `duration` ms, eased by `curve`, from the `from` values to the `to` ones (and back with `reverse`). The design canvas draws its first frame.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `type` | [LoopAnimationType](values.md#enum-LoopAnimationType) | `"pulse"` | `pulse`, `fade`, `scale`, `spin`, `bob`, `sway`, `flicker` |  |
-| `enabled` | bool | `true` |  | Off, it holds the node still (bindable as `loops.enabled`). |
-| `duration` | int | `1000` | ≥ 0 |  |
-| `delay` | int | `0` | ≥ 0 |  |
-| `reverse` | bool | `false` |  |  |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
-| `scaleFrom` | double | `1` |  |  |
-| `scaleTo` | double | `1` |  |  |
-| `opacityFrom` | double | `1` |  |  |
-| `opacityTo` | double | `1` |  |  |
-| `turns` | double | `1` |  |  |
-| `distance` | double | `10` |  |  |
-| `angle` | double | `4` |  | Degrees each way. |
-| `phase` | double | `0` | ≥ 0, ≤ 1 | Where in its whole loop it starts (0–1). |
-| `lag` | int | `0` |  | Milliseconds it runs behind (a phase in time; it doesn't wait). |
-
 <a id="type-Measure"></a>
 ### Measure
 
@@ -716,8 +699,7 @@ The transform, in order: `translateX`/`translateY` (pixels), `scale` times `scal
 | `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeInOut"` |  |  |
 | `rotateCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | unset |  | The rotation's own curve; null follows `curve`. |
 | `fadeShare` | double | `1` | ≥ 0, ≤ 1 | The share of the duration in which the opacity arrives (easing out). |
-| `springStiffness` | double | `380` |  | The spring of `AnimationCurve.spring` (mass 1). |
-| `springDamping` | double | `20` |  | The spring of `AnimationCurve.spring` (mass 1). |
+| `spring` | [Spring](values.md#type-Spring) | `{}` |  | The spring of the `spring` curve. |
 | `spinRamp` | int | `800` | ≥ 0 |  |
 | `loop` | [MotionLoop](values.md#enum-MotionLoop) | `"none"` | `none`, `restart`, `reverse`, `swing` | Plays between the start (`enterFrom`, else rest) and the values. |
 | `repeat` | int | `0` | ≥ 0 | Loop runs (0: forever). |
@@ -728,7 +710,6 @@ The transform, in order: `translateX`/`translateY` (pixels), `scale` times `scal
 | `path` | String | unset |  | An SVG path the node moves along. |
 | `orientToPath` | bool | `false` |  | Turns with the path's direction. |
 | `keyframes` | List<[MotionKeyframe](values.md#type-MotionKeyframe)> | `[]` |  |  |
-| `pulseKey` | String | unset |  | A change of this text plays the transition there and back. |
 | `revealOnScroll` | bool | `false` |  | Waits to enter until `revealFraction` of the node scrolls into view. |
 | `enterHeld` | bool | `false` |  | Holds the entrance at its start while true (bindable). |
 | `revealFraction` | double | `0.15` |  |  |
@@ -791,6 +772,38 @@ A navigation bar item: Flutter's `NavigationDestination` (and `BottomNavigationB
 | `tooltip` | String | unset |  |  |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  | `BottomNavigationBarItem.backgroundColor` (shifting bars). |
 | `actions` | List<Reaction> | `[]` |  |  |
+
+<a id="type-NodeAnimation"></a>
+### NodeAnimation
+
+One `AnimationController` on a node and the tweens it drives (behavior key `animations`, a list). A screen-wide one sits on the canvas node.
+
+Its value runs 0 → 1 over `duration` (back over `reverseDuration`), after `delay`, eased by `curve` (`CurvedAnimation`), `repeat`ed or once; on a `spring` instead of the clock; or follows `progress` (an expression) with no clock at all. Each track maps that value to its property (`AnimationTrack`).
+
+`preset` names a short form (`pulse`, `shake`, `spin`... see `AnimationPresets`) whose tracks and timing it stands for, with `params`; fields given here override the preset's (`expanded`).
+
+Read as `${animation.<id>.value}` (after `curve`), `.status` (`dismissed`, `forward`, `reverse`, `completed`) and `.isAnimating` by the node and the nodes inside it; driven by the `animate` action.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `id` | String | `""` |  | Unique on the node; what `animate` and `${animation.<id>}` name. |
+| `preset` | String | unset |  | A short form (`AnimationPresets`); its params below. |
+| `params` | Object | unset |  |  |
+| `enabled` | bool | `true` |  | Off, it applies nothing and doesn't run (the node shows its own values). Bindable. |
+| `duration` | int | unset |  | Milliseconds; empty: the preset's, else 300. |
+| `reverseDuration` | int | unset |  | `AnimationController.duration` / `reverseDuration` (ms); null: the preset's, else 300. |
+| `delay` | int | `0` | ≥ 0 | Waits this long (ms) before each play starts; the value holds at its start meanwhile. |
+| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | unset |  | Applied to the controller's value before every track; null: the preset's, else linear. |
+| `repeat` | [AnimationRepeat](values.md#type-AnimationRepeat) | unset |  | `repeat(reverse:, count:)`; null: the preset's, else plays once. |
+| `autoplay` | bool | unset |  | Plays when the node appears; false waits for `playKey` or an action. Null: the preset's, else true. |
+| `playKey` | String | unset |  | A change plays it from the start (bindable). |
+| `paused` | bool | `false` |  | Holds the controller where it is (`stop()`) while true; it carries on when false. Held before it starts, it waits at its start. Bindable. |
+| `phase` | double | `0` | ≥ 0, ≤ 1 | Where a play starts in its cycle (0–1). |
+| `spring` | [Spring](values.md#type-Spring) | unset |  | Runs on this spring instead of `duration` and `curve`: `animateWith(SpringSimulation(spring, 0, 1, 0))`. |
+| `progress` | String | unset |  | An expression giving its value (0–1) instead of a clock. |
+| `alignment` | [Alignment](values.md#type-Alignment) | unset |  | The point the scale and rotation of its adding and multiplying tracks are about (`ScaleTransition(alignment:)`); null: the preset's, else the center. |
+| `tracks` | List<[AnimationTrack](values.md#type-AnimationTrack)> | `[]` |  |  |
+| `previewAt` | double | unset |  | Where the design canvas draws it (a share of a cycle); empty: not applied there. |
 
 <a id="type-Pagination"></a>
 ### Pagination
@@ -975,7 +988,7 @@ A drag anywhere on a screen that closes it interactively: the drag runs the tran
 | `direction` | [DragDirection](values.md#enum-DragDirection) | `"down"` | `left`, `right`, `up`, `down` | The way the screen is dragged to close it. |
 | `distance` | double | `0.25` |  | The share of the screen's size along `direction` a slow drag must pass. |
 | `velocity` | double | `700` |  | A fling faster than this (px/s) toward `direction` closes it. |
-| `spring` | [TransitionSpring](values.md#type-TransitionSpring) | `{}` |  |  |
+| `spring` | [Spring](values.md#type-Spring) | `{}` |  |  |
 
 <a id="type-RouteTransition"></a>
 ### RouteTransition
@@ -1006,6 +1019,19 @@ One of Flutter's `OutlinedBorder`s: its kind, corner radius and side. JSON: `{"t
 | `type` | [ShapeBorderType](values.md#enum-ShapeBorderType) | `"roundedRectangle"` | `roundedRectangle`, `circle`, `stadium`, `continuousRectangle`, `beveledRectangle`, `roundedSuperellipse` |  |
 | `borderRadius` | [BorderRadius](values.md#type-BorderRadius) | `0` |  | Corner radii (rectangle types). |
 | `side` | [BorderSide](values.md#type-BorderSide) | unset |  | The outline; null draws none. |
+
+<a id="type-Spring"></a>
+### Spring
+
+Flutter's `SpringDescription`: either the physical triple (`SpringDescription(mass:, stiffness:, damping:)`, when `stiffness` and `damping` are both given) or `SpringDescription.withDurationAndBounce` (`duration` ms, `bounce`). The one spring value of the model: transitions, animations, gestures, a flip card's settle and a route's dismiss all take it. JSON: `{"stiffness": 380, "damping": 36}` or `{"duration": 500, "bounce": 0.3}` (sparse; `{}` is `withDurationAndBounce()`'s defaults).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `stiffness` | double | unset |  | The physical spring's constants; both null: `duration` and `bounce`. |
+| `damping` | double | unset |  | The physical spring's constants; both null: `duration` and `bounce`. |
+| `mass` | double | `1` |  |  |
+| `duration` | int | `500` | ≥ 1 | `withDurationAndBounce`: ms, and 0 (none) to 1. |
+| `bounce` | double | `0` |  |  |
 
 <a id="type-StateStyles"></a>
 ### StateStyles
@@ -1249,17 +1275,6 @@ How one screen moves during a `RouteTransition`: an entering screen starts at `m
 | `delayMs` | int | `0` | ≥ 0 | Milliseconds into the transition this side starts. |
 | `durationMs` | int | unset |  | Null: to the end. |
 
-<a id="type-TransitionSpring"></a>
-### TransitionSpring
-
-The spring a released interactive transition settles with (Flutter's `SpringDescription`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `stiffness` | double | `380` |  |  |
-| `damping` | double | `36` |  |  |
-| `mass` | double | `1` |  |  |
-
 <a id="type-Transitions"></a>
 ### Transitions
 
@@ -1317,20 +1332,37 @@ Flutter's `VisualDensity`.
 | `horizontal` | double | `0` | ≥ -4, ≤ 4 |  |
 | `vertical` | double | `0` | ≥ -4, ≤ 4 |  |
 
+<a id="type-Wave"></a>
+### Wave
+
+A sine added to a track's value: `amplitude * sin(2π(cycles·t + phase))`, fading by `1 − decay·t` (a shake dies out with decay 1), folded to its absolute value with `rectify` (a ball's hops). Flutter has no counterpart; a list of them is a Fourier series: a wobble, a sway, a flame's flicker.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `cycles` | double | `1` |  |  |
+| `amplitude` | double | `1` |  |  |
+| `phase` | double | `0` |  |  |
+| `decay` | double | `0` |  |  |
+| `rectify` | bool | `false` |  |  |
+
 ## Enums
 
 Written as the value's name, a JSON string (`"center"`).
 
-<a id="enum-AnimateVariableMode"></a>
-### AnimateVariableMode
+<a id="enum-AnimateCommand"></a>
+### AnimateCommand
 
 | Value | Meaning |
 |---|---|
-| `play` | Animates from `AnimateVariableAction.from` (empty: the current value) to `AnimateVariableAction.to`, restarting one already running. |
-| `pause` | Holds the running animation where it is. |
-| `resume` | Goes on with a paused animation. |
-| `stop` | Ends the animation, leaving the variable where it is. |
-| `seek` | Sets the variable to `AnimateVariableAction.to`; its timeline goes on from there (or stays paused there). |
+| `forward` | `forward(from:)`: plays to the end; on a variable, carries on toward `AnimateAction.target` (from where it is, or from `AnimateAction.from`). |
+| `reverse` | `reverse(from:)`: plays back to the start. |
+| `toggle` | Forward when at (or heading to) the start, else back. |
+| `repeat` | `repeat()`, as the animation's own `NodeAnimation.repeat` says (forever when it says nothing). |
+| `stop` | `stop()`: holds where it is. |
+| `reset` | `reset()`: back to the start, stopped. |
+| `animateTo` | `animateTo(target)`: from where it is to `AnimateAction.target` (0–1; on a variable, any number) over `AnimateAction.duration`. |
+| `animateBack` | `animateBack(target)`. |
+| `set` | `value = target`: jumps there; a running animation carries on from it. |
 
 <a id="enum-AnimationCurve"></a>
 ### AnimationCurve
@@ -1740,20 +1772,6 @@ Written as the value's name, a JSON string (`"center"`).
 | `clear` | What an `EditTextAction` does to its text field. |
 | `focus` | What an `EditTextAction` does to its text field. |
 
-<a id="enum-EffectAnimationType"></a>
-### EffectAnimationType
-
-| Value | Meaning |
-|---|---|
-| `shake` | A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest. |
-| `bounce` | A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest. |
-| `pop` | A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest. |
-| `wiggle` | A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest. |
-| `jelly` | A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest. |
-| `flash` | A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest. |
-| `spin` | A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest. |
-| `keyframes` | A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest. |
-
 <a id="enum-EffectType"></a>
 ### EffectType
 
@@ -1955,19 +1973,6 @@ Written as the value's name, a JSON string (`"center"`).
 ### ListTileTitleAlignment
 
 `threeLine`, `titleHeight`, `top`, `center`, `bottom`
-
-<a id="enum-LoopAnimationType"></a>
-### LoopAnimationType
-
-| Value | Meaning |
-|---|---|
-| `pulse` | Scales and fades. |
-| `fade` |  |
-| `scale` |  |
-| `spin` | Turns `LoopAnimation.turns` times per run. |
-| `bob` | Hops up `LoopAnimation.distance` and back, once per run. |
-| `sway` | Swings `LoopAnimation.angle` degrees each way, once per run. |
-| `flicker` | A candle flame or a lamp's glow: scales and fades between the `from` and `to` values along an uneven, wavering path (three detuned waves), not a steady pulse. A run loops seamlessly. |
 
 <a id="enum-MainAxisAlignment"></a>
 ### MainAxisAlignment
@@ -2538,6 +2543,15 @@ Written as the value's name, a JSON string (`"center"`).
 | `warning` | A toast's look. |
 | `error` | A toast's look. |
 
+<a id="enum-TrackBlend"></a>
+### TrackBlend
+
+| Value | Meaning |
+|---|---|
+| `replace` | The value is the property's (a `Tween` driving it). |
+| `add` | Added to the property's own: a translation or rotation nested inside the node's (`SlideTransition`, `RotationTransition` around it). |
+| `multiply` | Multiplies the property's own: a scale or opacity nested inside the node's (`ScaleTransition`, `FadeTransition` around it). |
+
 <a id="enum-TransformPan"></a>
 ### TransformPan
 
@@ -2591,8 +2605,8 @@ Written as the value's name, a JSON string (`"center"`).
 | `imageError` |  |
 | `backPressed` | On a screen (its canvas): the user tried to leave it (the system or browser back button, a back gesture, Escape on a dialog) while the canvas's `blockBack` holds (`props.blockBack`, usually bound: `${= dirty}`). The screen stays and these actions run instead, e.g. a "Discard changes?" confirm that leaves with a navigate pop, which the block doesn't stop. While `blockBack` is false, back leaves as usual and this doesn't fire. |
 | `valueChanged` | Variable `Trigger.variable` changed while the screen shows. |
-| `timer` | Every `Trigger.intervalMs` while the screen shows. |
-| `clock` | A steady audio clock: ticks every `Trigger.every` ms while `Trigger.runWhen` holds (`${result.tick}`, `${result.at}`, `${result.waitMs}`). |
+| `timer` | Every `Trigger.intervalMs` while the screen shows (`Timer.periodic`) and `Trigger.when` holds; `${result.tick}` counts. The legacy `clock` (`every`, `runWhen`) reads as this. |
+| `frame` | Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks. |
 | `keyDown` | A key went down (or up) while the screen shows; `Trigger.key` limits it to one key or combination, `Trigger.when` to while a formula holds. `${result.key}`, `${result.shift}`, `${result.alt}`, `${result.meta}`. |
 | `keyUp` |  |
 | `scroll` | The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page). |
