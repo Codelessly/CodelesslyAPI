@@ -67,7 +67,7 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `textDirection` | [TextDirection](values.md#enum-TextDirection) | unset | `ltr`, `rtl` | Null inherits. |
 | `flip` | [FlipCard](values.md#type-FlipCard) | unset |  | A two-sided card that turns over (a runtime 3D turn, not a mirror). |
 | `tilt` | [Tilt](values.md#type-Tilt) | unset |  | Tilts in 3D toward the pointer. |
-| `transformGesture` | [TransformGesture](values.md#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles (the legacy `zoomable: true` reads as `TransformGesture.zoomable`). |
+| `transformGesture` | [TransformGesture](values.md#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles. |
 | `sticky` | [Sticky](values.md#type-Sticky) | unset |  | Pinned in its scrolling view while its parent is in view. |
 | `viewProgress` | [ViewProgress](values.md#type-ViewProgress) | unset |  | `${view.progress}` through the viewport. |
 | `measure` | [Measure](values.md#type-Measure) | unset |  | Its laid-out box, written to a variable. |

@@ -6421,8 +6421,6 @@ _No fields._
 - `value`: String = `""`
 - `index`: String = `""`
 - `mapKey`: String = `""`
-- `animateMs`: String = `""`
-- `curve`: [AnimationCurve](#enum-AnimationCurve) = `"linear"`
 
 <a id="action-callFunction"></a>
 ## `callFunction`: Call function

@@ -124,8 +124,6 @@ Changes variable `variable` (of the screen, or the app): `write`. JSON: `{"type"
 | `value` | String | `""` |  | The value (an expression); not for toggle, removeAt. |
 | `index` | String | `""` |  | A list index (an expression). |
 | `mapKey` | String | `""` |  | A map key (an expression). |
-| `animateMs` | String | `""` |  | A number: glide to the new value over these milliseconds (an expression). |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  | The glide's easing. |
 
 <a id="action-callFunction"></a>
 ## `callFunction`: Call function
@@ -298,8 +296,6 @@ Scrolls node `node` into view: `alignment` 0 puts it at the start of the view, 1
 ## `animate`: Animate
 
 Drives an animation (Flutter's `AnimationController` methods): node `node`'s `animation` (`NodeAnimation`), or the number variable `variable` (an unbounded controller the screen keeps for it). JSON: `{"type": "animate", "node": "card", "animation": "pop", "command": "forward", "from": "0"}`, `{"type": "animate", "variable": "shownTotal", "command": "animateTo", "target": "${total}", "duration": "800", "curve": "easeOutCubic"}`. The chain waits for it to end (`TickerFuture`) unless it's `nonBlocking`; a repeat ends when its count does.
-
-Reads the legacy `playAnimation` (`forward` from 0) and `animateVariable` (play → `animateTo`, pause and stop → `stop`, resume → `forward`, seek → `set`).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
