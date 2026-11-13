@@ -10,6 +10,7 @@ held is now here (the old links still land on the right line):
 - <a id="behavior-floating"></a>`floating`: [layout.md#behavior-floating](layout.md#behavior-floating)
 - <a id="behavior-measure"></a>`measure`: [layout.md#behavior-measure](layout.md#behavior-measure)
 - <a id="behavior-textDirection"></a>`textDirection`: [theme.md#behavior-textDirection](theme.md#behavior-textDirection)
+- <a id="behavior-defaultTextStyle"></a>`defaultTextStyle`: [theme.md#behavior-defaultTextStyle](theme.md#behavior-defaultTextStyle)
 - <a id="behavior-customPaint"></a>`customPaint`: [decoration.md#behavior-customPaint](decoration.md#behavior-customPaint)
 - <a id="behavior-strokePath"></a>`strokePath`: [decoration.md#behavior-strokePath](decoration.md#behavior-strokePath)
 - <a id="behavior-reorderHandle"></a>`reorderHandle`: [lists.md#behavior-reorderHandle](lists.md#behavior-reorderHandle)

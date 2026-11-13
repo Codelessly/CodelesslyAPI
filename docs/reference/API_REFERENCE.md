@@ -189,7 +189,7 @@ only in a row or column that has some (a fill or fixed main size).
 ### Padding, margin, constraints, a capped width
 
 - `padding` is space inside the node's box, `margin` outside it: a number (all sides) or **four** numbers
-  `[left, top, right, bottom]` (two numbers are not read). A `text` has no padding: use `margin` or a row around it.
+  `[left, top, right, bottom]` (two numbers are not read).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`. `aspectRatio`: width / height.
 - **A full-width band with capped, centered content** (CSS `max-width: 1200px; margin: 0 auto`): the band fills
   the width and holds the background; its one child fills with `"constraints": {"maxWidth": 1200}`, centered by the
@@ -323,7 +323,8 @@ A `text` node has `props.text` and `props.style`: a theme style's name (`"style"
 `decoration`, `fontStyle`), plus `textAlign`, `maxLines` and `overflow` (`ellipsis`).
 
 - **No `color`: the text is painted white.** Always set it (in the style or the named style).
-- No `fontSize`: 12. No `fontWeight`: 400. No `fontFamily`: the platform's default (Roboto).
+- No `fontSize`: 12. No `fontWeight`: 400. No `fontFamily`: the platform's default (Roboto). No `height`: the
+  nearest `defaultTextStyle`'s, else the font's own line height ([text](#theme-text)).
 - Size: one line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide (it wraps) × `{"hug": n}` high.
 - `text` may hold expressions: `"Hello, ${user.name}"`; `"$${price}"` shows `$47`.
 - Symbols the font has no glyph for (✦, ✓, →) draw as empty boxes (`missing_glyph`): use an `icon` node.
@@ -603,7 +604,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | How one value type is written (colour, alignment, insets) | [values-colours-and-alignments](#values-colours-and-alignments) |
 
 - [layout.md](#page-layout): Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
-- [theme.md](#page-theme): Theme and text. Documents text, textDirection.
+- [theme.md](#page-theme): Theme and text. Documents text, textDirection, defaultTextStyle.
 - [decoration.md](#page-decoration): Decoration, images, icons and drawing. Documents icon, path, customPaint, strokePath, imageLoading, imageLoaded, imageError.
 - [forms.md](#page-forms): Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, editText, focus.
 - [lists.md](#page-lists): Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.
@@ -732,13 +733,13 @@ section's anchor is its topic.
 | Page | What it covers | Words |
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4252 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7021 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1958 |
+| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7054 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1979 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3939 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10159 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6372 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6373 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5120 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4536 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2383 |
@@ -764,7 +765,7 @@ Every declared name and the page that documents it.
 
 **C** · [`callApi`](#action-callApi) action · [`callFunction`](#action-callFunction) action · [`canvas`](#node-canvas) node type · [`captureScreenshot`](#action-captureScreenshot) action · [`CaptureTarget`](#enum-CaptureTarget) enum · [`ceil`](#fn-ceil) formula function · [`changed`](#trigger-changed) trigger · [`changeEnd`](#trigger-changeEnd) trigger · [`charCode`](#fn-charCode) formula function · [`chart`](#node-chart) node type · [`ChartGridLineMode`](#enum-ChartGridLineMode) enum · [`ChartReferenceLine`](#type-ChartReferenceLine) model · [`ChartSeries`](#type-ChartSeries) model · [`ChartSeriesKind`](#enum-ChartSeriesKind) enum · [`ChartStackGapEdge`](#enum-ChartStackGapEdge) enum · [`ChartType`](#enum-ChartType) enum · [`ChartYLabelAlign`](#enum-ChartYLabelAlign) enum · [`checkbox`](#node-checkbox) node type · [`chip`](#node-chip) node type · [`ChipVariant`](#enum-ChipVariant) enum · [`choiceChip`](#node-choiceChip) node type · [`circularProgressIndicator`](#node-circularProgressIndicator) node type · [`clamp`](#fn-clamp) formula function · [`click`](#trigger-click) trigger · [`Clip`](#enum-Clip) enum · [`closeModal`](#action-closeModal) action · [`cloudBatch`](#action-cloudBatch) action · [`cloudData`](#action-cloudData) action · [`CloudDataOperation`](#enum-CloudDataOperation) enum · [`CloudDataScope`](#enum-CloudDataScope) enum · [`cloudDocuments`](#action-cloudDocuments) action · [`CloudDocumentsOperation`](#enum-CloudDocumentsOperation) enum · [`CloudFileAccess`](#enum-CloudFileAccess) enum · [`CloudFileKind`](#enum-CloudFileKind) enum · [`cloudFiles`](#action-cloudFiles) action · [`CloudFilesOperation`](#enum-CloudFilesOperation) enum · [`CloudLoadAggregate`](#enum-CloudLoadAggregate) enum · [`coalesce`](#fn-coalesce) formula function · [`codeUnits`](#fn-codeUnits) formula function · [`Color`](#type-Color) value type · [`ColorStop`](#type-ColorStop) model · [`column`](#node-column) node type · [`compact`](#fn-compact) formula function · [`componentEvent`](#action-componentEvent) action · [`concat`](#fn-concat) formula function · [`ConditionOp`](#enum-ConditionOp) enum · [`confirm`](#action-confirm) action · [`contains`](#fn-contains) formula function · [`controlDismissible`](#action-controlDismissible) action · [`controlTrack`](#action-controlTrack) action · [`controlTransform`](#action-controlTransform) action · [`copyToClipboard`](#action-copyToClipboard) action · [`cos`](#fn-cos) formula function · [`count`](#fn-count) formula function · [`CrossAxisAlignment`](#enum-CrossAxisAlignment) enum · [`currency`](#fn-currency) formula function · [`currencyDecimals`](#fn-currencyDecimals) formula function · [`currencySymbol`](#fn-currencySymbol) formula function · [`cursorEnter`](#trigger-cursorEnter) trigger · [`cursorExit`](#trigger-cursorExit) trigger · [`CustomPaint`](#type-CustomPaint) model · [`customPaint`](#behavior-customPaint) behavior
 
-**D** · [`datePicker`](#node-datePicker) node type · [`dateTimeInput`](#node-dateTimeInput) node type · [`DateTimeInputMode`](#enum-DateTimeInputMode) enum · [`DateTimeInputPicker`](#enum-DateTimeInputPicker) enum · [`day`](#fn-day) formula function · [`daysInMonth`](#fn-daysInMonth) formula function · [`DecorationShape`](#enum-DecorationShape) enum · [`degrees`](#fn-degrees) formula function · [`delay`](#action-delay) action · [`diffDays`](#fn-diffDays) formula function · [`diffHours`](#fn-diffHours) formula function · [`diffMinutes`](#fn-diffMinutes) formula function · [`diffSeconds`](#fn-diffSeconds) formula function · [`DismissCommand`](#enum-DismissCommand) enum · [`dismissible`](#behavior-dismissible) behavior · [`DismissibleBehavior`](#type-DismissibleBehavior) model · [`distance`](#fn-distance) formula function · [`divider`](#node-divider) node type · [`doubleTap`](#trigger-doubleTap) trigger · [`downloadFile`](#action-downloadFile) action · [`drag`](#trigger-drag) trigger · [`DragAnchor`](#enum-DragAnchor) enum · [`DragAxis`](#enum-DragAxis) enum · [`dragCancel`](#trigger-dragCancel) trigger · [`dragCompleted`](#trigger-dragCompleted) trigger · [`DragDirection`](#enum-DragDirection) enum · [`dragEnd`](#trigger-dragEnd) trigger · [`dragEnter`](#trigger-dragEnter) trigger · [`dragExit`](#trigger-dragExit) trigger · [`draggable`](#behavior-draggable) behavior · [`DragSource`](#type-DragSource) model · [`DragSourceStyle`](#enum-DragSourceStyle) enum · [`DragStart`](#enum-DragStart) enum · [`dragStart`](#trigger-dragStart) trigger · [`drop`](#trigger-drop) trigger · [`dropdown`](#node-dropdown) node type · [`dropRejected`](#trigger-dropRejected) trigger · [`DropSlot`](#enum-DropSlot) enum · [`DropSlotSize`](#enum-DropSlotSize) enum · [`DropTarget`](#type-DropTarget) model · [`dropTarget`](#behavior-dropTarget) behavior · [`duration`](#fn-duration) formula function
+**D** · [`datePicker`](#node-datePicker) node type · [`dateTimeInput`](#node-dateTimeInput) node type · [`DateTimeInputMode`](#enum-DateTimeInputMode) enum · [`DateTimeInputPicker`](#enum-DateTimeInputPicker) enum · [`day`](#fn-day) formula function · [`daysInMonth`](#fn-daysInMonth) formula function · [`DecorationShape`](#enum-DecorationShape) enum · [`defaultTextStyle`](#behavior-defaultTextStyle) behavior · [`degrees`](#fn-degrees) formula function · [`delay`](#action-delay) action · [`diffDays`](#fn-diffDays) formula function · [`diffHours`](#fn-diffHours) formula function · [`diffMinutes`](#fn-diffMinutes) formula function · [`diffSeconds`](#fn-diffSeconds) formula function · [`DismissCommand`](#enum-DismissCommand) enum · [`dismissible`](#behavior-dismissible) behavior · [`DismissibleBehavior`](#type-DismissibleBehavior) model · [`distance`](#fn-distance) formula function · [`divider`](#node-divider) node type · [`doubleTap`](#trigger-doubleTap) trigger · [`downloadFile`](#action-downloadFile) action · [`drag`](#trigger-drag) trigger · [`DragAnchor`](#enum-DragAnchor) enum · [`DragAxis`](#enum-DragAxis) enum · [`dragCancel`](#trigger-dragCancel) trigger · [`dragCompleted`](#trigger-dragCompleted) trigger · [`DragDirection`](#enum-DragDirection) enum · [`dragEnd`](#trigger-dragEnd) trigger · [`dragEnter`](#trigger-dragEnter) trigger · [`dragExit`](#trigger-dragExit) trigger · [`draggable`](#behavior-draggable) behavior · [`DragSource`](#type-DragSource) model · [`DragSourceStyle`](#enum-DragSourceStyle) enum · [`DragStart`](#enum-DragStart) enum · [`dragStart`](#trigger-dragStart) trigger · [`drop`](#trigger-drop) trigger · [`dropdown`](#node-dropdown) node type · [`dropRejected`](#trigger-dropRejected) trigger · [`DropSlot`](#enum-DropSlot) enum · [`DropSlotSize`](#enum-DropSlotSize) enum · [`DropTarget`](#type-DropTarget) model · [`dropTarget`](#behavior-dropTarget) behavior · [`duration`](#fn-duration) formula function
 
 **E** · [`EdgeInsets`](#type-EdgeInsets) value type · [`editingComplete`](#trigger-editingComplete) trigger · [`editText`](#action-editText) action · [`EditTextOperation`](#enum-EditTextOperation) enum · [`Effect`](#type-Effect) model · [`EffectType`](#enum-EffectType) enum · [`elevatedButton`](#node-elevatedButton) node type · [`embeddedVideo`](#node-embeddedVideo) node type · [`EmbeddedVideoSource`](#enum-EmbeddedVideoSource) enum · [`emitEvent`](#action-emitEvent) action · [`endsWith`](#fn-endsWith) formula function · [`enterViewport`](#trigger-enterViewport) trigger · [`event`](#trigger-event) trigger · [`exitViewport`](#trigger-exitViewport) trigger · [`exp`](#fn-exp) formula function · [`expansionTile`](#node-expansionTile) node type · [`external`](#node-external) node type
 
@@ -930,7 +931,7 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 | `height` | [AxisSize](#type-AxisSize) | `0` |  | The node's height: a number (fixed), `{"hug": n}`, `{"fill": n}` or `{"flexible": n}`, as `width`. Without one the node is 0 high. |
 | `constraints` | [BoxConstraints](#type-BoxConstraints) | `{}` |  |  |
 | `margin` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space around the node, outside its box. |
-| `padding` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space between the node's box and its content. |
+| `padding` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there). |
 | `rotation` | double | `0` |  | Degrees, clockwise. |
 | `aspectRatio` | double | unset | ≥ 0 | Width / height the node keeps when its parent resizes it. |
 | `flex` | int | `1` | ≥ 0 | Under a row/column: share of the free space (`Expanded.flex`). |
@@ -1908,7 +1909,6 @@ The theme (`site.json`'s `theme`, or the app's theme at run time):
 | `titleFontFamily` | Font family of titles. |
 | `radius` | Corner radius of dialogs. |
 | `buttonRadius` | Corner radius of buttons. |
-| `naturalLineHeight` | Whether text without a line height takes its font's own (Flutter's default) rather than the SDK's 1.33 (`StyleSheet.naturalLineHeight`). |
 
 <a id="node-text"></a>
 ### `text`
@@ -1943,8 +1943,15 @@ A node key (beside `layout` and `props`). Type: [TextDirection](#enum-TextDirect
 
 Null inherits.
 
+<a id="behavior-defaultTextStyle"></a>
+### `defaultTextStyle` (behavior)
+
+A node key (beside `layout` and `props`). Type: [TextStyle](#type-TextStyle). Default: unset.
+
+The text style every text style of this node and its descendants is merged over (Flutter's DefaultTextStyle); the nearest one wins ({} gives Flutter's defaults back). Unset everywhere: Flutter's defaults, the font's own line height.
+
 <a id="type-TextStyle"></a>
-### TextStyle
+#### TextStyle
 
 Flutter's `TextStyle`. Every field is optional: a span's style is merged over its text's base style, as in `Text.rich`.
 
@@ -1958,7 +1965,7 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `color` | [Color](#type-Color) | unset |  | Solid text color. |
 | `foreground` | [Paint](#type-Paint) | unset |  | A gradient or image paint for the glyphs, used instead of `color`. |
 | `letterSpacing` | double | unset |  | Logical pixels between letters. |
-| `height` | double | unset | ≥ 0 | Line height, as a multiple of the font size. |
+| `height` | double | unset | ≥ 0 | Line height as a multiple of the font size. Unset: the inherited defaultTextStyle's, else the font's own (Flutter's height: null, CSS line-height: normal). |
 | `decoration` | [TextDecoration](#enum-TextDecoration) | unset | `none`, `underline`, `overline`, `lineThrough` | A line through the text: `underline`, `overline`, `lineThrough` or `none`. |
 | `decorationColor` | [Color](#type-Color) | unset |  | The colour of the `decoration` line; without one, the text's colour. |
 | `backgroundColor` | [Color](#type-Color) | unset |  | Painted behind the glyphs. |
@@ -1968,7 +1975,6 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `fontFeatures` | List<[FontFeature](#type-FontFeature)> | `[]` |  | OpenType feature settings (`"lnum"`, `"ss01"`, `"liga=0"`). |
 | `leadingDistribution` | [TextLeadingDistribution](#enum-TextLeadingDistribution) | unset | `proportional`, `even` | Where a line's extra (or missing) height goes (`TextStyle .leadingDistribution`); null is Flutter's default, proportional. |
 | `shadows` | List<[Effect](#type-Effect)> | `[]` |  | Text shadows (drop shadows only). |
-| `naturalHeight` | bool | unset |  | With no height, the font's own line height instead of the base style's. |
 
 <a id="type-TextRun"></a>
 ### TextRun
@@ -2018,7 +2024,8 @@ the device's mode. `${theme.isDark}` is true in dark mode.
 
 A `text` node has `props.text` and `props.style`. What a text looks like when the style leaves something out: no
 `color`, white; no `fontSize`, 12; no `fontWeight`, 400; no `fontFamily`, the platform's default (Roboto on Android
-and the web). Sizing: one line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide × `{"hug": n}` high. A
+and the web); no `height`, the nearest `defaultTextStyle`'s (a node key, Flutter's `DefaultTextStyle`, for its
+whole subtree), else the font's own line height. Sizing: one line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide × `{"hug": n}` high. A
 fixed height shorter than the lines clips them (`text_clipped`).
 
 `runs` style parts of the text: `[{"start": 0, "end": 5, "style": {"fontWeight": 700}}]` (character offsets, end
@@ -2047,7 +2054,6 @@ name. The render command uses font files from `--fonts <dir>` plus Roboto, and r
   `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
   "theme": {...}}`.
 - A theme colour's name is not read from a formula: bind `${theme.colors.ember}`.
-- A `text` has no padding (its box is its lines): use `margin`, or a row with padding around it.
 - Run offsets count characters, `\n` as one.
 
 <a id="theme-see-also"></a>
@@ -4943,7 +4949,7 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 - `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type, and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`scale`](#behavior-scale), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`flightKey`](#behavior-flightKey), [`flight`](#behavior-flight), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`strokePath`](#behavior-strokePath), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint).
+- `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`scale`](#behavior-scale), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`flightKey`](#behavior-flightKey), [`flight`](#behavior-flight), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`strokePath`](#behavior-strokePath), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`defaultTextStyle`](#behavior-defaultTextStyle), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint).
 
 Named paths:
 
