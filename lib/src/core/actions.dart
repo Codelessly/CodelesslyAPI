@@ -10,7 +10,7 @@ import 'dart:convert';
 import 'package:meta/meta.dart';
 
 import 'action_fields.dart';
-import 'behaviors.dart' show AnimationCurve, DragDirection, Spring;
+import 'behaviors.dart' show AnimationCurve, Behaviors, DragDirection, Spring;
 import 'catalog.dart';
 import 'conditions.dart';
 import 'props.dart' show PropDef, Props;
@@ -734,7 +734,12 @@ final class SetVariableAction extends CoreAction {
   /// The easing of an [animateMs] glide.
   final AnimationCurve curve;
 
-  static SetVariableAction _fromJson(Json m, _Common c) => SetVariableAction(
+  /// Reads one; a legacy glide (`animateMs` on a `set`, `add` or `subtract`
+  /// of a variable by a value it can read as a formula) as the
+  /// `animate` it is: `animateTo` the new value over that time on [curve].
+  static ActionDef _fromJson(Json m, _Common c) => AnimateAction._fromGlide(m, c) ?? _fromSet(m, c);
+
+  static SetVariableAction _fromSet(Json m, _Common c) => SetVariableAction(
     variable: _s(m, 'variable'),
     write: ValueWrite.fromJson(m),
     animateMs: _s(m, 'animateMs').trim() == '0' ? '' : _s(m, 'animateMs'),
@@ -1427,6 +1432,39 @@ final class AnimateAction extends CoreAction {
     nonBlocking: c.nonBlocking,
     when: c.when,
   );
+
+  /// A legacy `setVariable` glide (`animateMs`): `animateTo` its new value
+  /// (for `add`/`subtract`, the variable plus or minus the value, read when
+  /// the action runs). Null when it isn't one it can say so exactly: no
+  /// glide, another op, a path into a variable, a value that isn't a number
+  /// or a whole expression.
+  static AnimateAction? _fromGlide(Json m, _Common c) {
+    final ms = _s(m, 'animateMs').trim();
+    if (ms.isEmpty || ms == '0') return null;
+    final name = _s(m, 'variable').trim();
+    if (name.isEmpty || !RegExp(r'^[A-Za-z_]\w*$').hasMatch(name)) return null;
+    final write = ValueWrite.fromJson(m);
+    if (write.index.isNotEmpty || write.mapKey.isNotEmpty) return null;
+    final value = Behaviors.formulaOf(write.value);
+    if (value == null) return null;
+    final target = switch (write.op) {
+      WriteOp.set => write.value,
+      WriteOp.add => '\${= $name + ($value)}',
+      WriteOp.subtract => '\${= $name - ($value)}',
+      _ => null,
+    };
+    if (target == null) return null;
+    return AnimateAction(
+      variable: name,
+      command: AnimateCommand.animateTo,
+      target: target,
+      duration: ms,
+      curve: _curve(m, 'curve', AnimationCurve.linear),
+      enabled: c.enabled,
+      nonBlocking: c.nonBlocking,
+      when: c.when,
+    );
+  }
 
   /// The legacy `animateVariable` (`mode`, `from`, `to`, `durationMs`,
   /// `duration`, `curve`).
