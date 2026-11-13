@@ -16,7 +16,7 @@ A counter: a variable, two buttons that change it, and a text and a colour bound
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["counter"],
   "nodes": {
     "counter": {
@@ -123,7 +123,6 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 | `layout.constraints` | `BoxConstraints` | {"minWidth", "maxWidth", "minHeight", "maxHeight"} (each optional, numbers >= 0) |
 | `layout.margin` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
 | `layout.padding` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
-| `layout.rotation` | `double` | a number |
 | `layout.aspectRatio` | `double` | a number |
 | `layout.flex` | `int` | a whole number |
 | `layout.squeezable` | `bool` | `true` or `false` |
@@ -149,10 +148,10 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 `props.<prop>` takes what the prop's type is written as: `"${= open ? 'vertical' : 'horizontal'}"` for
 `props.direction`, a TextStyle object or a theme style's name for `props.style`. Every bindable field:
 
-- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
+- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](decoration.md#type-Paint) or [Effect](decoration.md#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type, and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: [`motion`](animation.md#behavior-motion), [`scale`](animation.md#behavior-scale), [`animations`](animation.md#behavior-animations), [`transitions`](animation.md#behavior-transitions), [`shimmer`](animation.md#behavior-shimmer), [`inkWell`](interaction.md#behavior-inkWell), [`states`](interaction.md#behavior-states), [`tooltip`](interaction.md#behavior-tooltip), [`ignorePointer`](interaction.md#behavior-ignorePointer), [`floating`](layout.md#behavior-floating), [`hero`](animation.md#behavior-hero), [`flightKey`](animation.md#behavior-flightKey), [`flight`](animation.md#behavior-flight), [`draggable`](interaction.md#behavior-draggable), [`dropTarget`](interaction.md#behavior-dropTarget), [`track`](interaction.md#behavior-track), [`dismissible`](interaction.md#behavior-dismissible), [`pan`](interaction.md#behavior-pan), [`reorderHandle`](lists.md#behavior-reorderHandle), [`reveal`](animation.md#behavior-reveal), [`strokePath`](decoration.md#behavior-strokePath), [`typewriter`](animation.md#behavior-typewriter), [`particles`](animation.md#behavior-particles), [`textDirection`](theme.md#behavior-textDirection), [`defaultTextStyle`](theme.md#behavior-defaultTextStyle), [`flip`](animation.md#behavior-flip), [`tilt`](animation.md#behavior-tilt), [`transformGesture`](interaction.md#behavior-transformGesture), [`sticky`](layout.md#behavior-sticky), [`viewProgress`](animation.md#behavior-viewProgress), [`measure`](layout.md#behavior-measure), [`customPaint`](decoration.md#behavior-customPaint).
+- `<behavior>` and `<behavior>.<field>`: [`motion`](animation.md#behavior-motion), [`animations`](animation.md#behavior-animations), [`transitions`](animation.md#behavior-transitions), [`shimmer`](animation.md#behavior-shimmer), [`inkWell`](interaction.md#behavior-inkWell), [`states`](interaction.md#behavior-states), [`tooltip`](interaction.md#behavior-tooltip), [`ignorePointer`](interaction.md#behavior-ignorePointer), [`floating`](layout.md#behavior-floating), [`hero`](animation.md#behavior-hero), [`draggable`](interaction.md#behavior-draggable), [`dropTarget`](interaction.md#behavior-dropTarget), [`track`](interaction.md#behavior-track), [`dismissible`](interaction.md#behavior-dismissible), [`pan`](interaction.md#behavior-pan), [`reorderHandle`](lists.md#behavior-reorderHandle), [`reveal`](animation.md#behavior-reveal), [`strokePath`](decoration.md#behavior-strokePath), [`typewriter`](animation.md#behavior-typewriter), [`particles`](animation.md#behavior-particles), [`textDirection`](theme.md#behavior-textDirection), [`defaultTextStyle`](theme.md#behavior-defaultTextStyle), [`flip`](animation.md#behavior-flip), [`tilt`](animation.md#behavior-tilt), [`transformGesture`](interaction.md#behavior-transformGesture), [`sticky`](layout.md#behavior-sticky), [`viewProgress`](animation.md#behavior-viewProgress), [`measure`](layout.md#behavior-measure), [`customPaint`](decoration.md#behavior-customPaint).
 
 Named paths:
 
@@ -166,14 +165,12 @@ Named paths:
 | `layout.width` |  |
 | `layout.height` |  |
 | `layout.flex` |  |
-| `layout.rotation` |  |
 | `layout.margin` |  |
 | `layout.padding` |  |
 | `layout.x` |  |
 | `layout.y` |  |
 | `decoration.radius` |  |
 | `decoration.strokeWidth` |  |
-| `scale` |  |
 | `textDirection` |  |
 
 <a id="state-conditions"></a>
@@ -621,7 +618,7 @@ over the node's binding. A binding with a formula is often simpler; conditions s
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["plans"],
   "nodes": {
     "plans": {

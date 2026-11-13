@@ -159,6 +159,22 @@ On a replacing track a wave's amplitude is a share of the way from `from` to `to
 | `blend` | [TrackBlend](values.md#enum-TrackBlend) | `"replace"` | `replace`, `add`, `multiply` |  |
 | `interpolation` | [KeyframeInterpolation](values.md#enum-KeyframeInterpolation) | `"linear"` | `linear`, `monotoneCubic` | How `keyframes` are joined. |
 
+<a id="type-Flight"></a>
+### Flight
+
+How a hero that flies in place (`HeroFlies.inPlace`) flies in from where the node with its tag was: on a spring by default (the node's `motion` transition's, when it has one with a spring), or, with a `duration`, along a curve that rises `lift` (or `liftShare` of the distance, the larger) above the higher end (as Flutter's `MaterialRectArcTween` bends a hero's path), swelling to `swell` at the middle and spinning `turns` times (toward the way it flies), trailing `trail` fading dots.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `duration` | int | `0` | ≥ 0 | 0: on the node's spring. |
+| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeInOut"` |  |  |
+| `lift` | double | `0` |  | Rise of the path's control point above the higher end (px). |
+| `liftShare` | double | `0` |  | The same as a share of the distance flown (the larger wins). |
+| `swell` | double | `1` | ≥ 0 | Scale at the middle of the flight. |
+| `turns` | double | `0` |  | Turns over the flight, clockwise when flying right. |
+| `trail` | int | `0` | ≥ 0 | Fading dots left behind. |
+| `trailColor` | [Color](values.md#type-Color) | `"#FFFFC83D"` |  |  |
+
 <a id="type-GesturePhysics"></a>
 ### GesturePhysics
 
@@ -809,6 +825,14 @@ Written as the value's name, a JSON string (`"center"`).
 | `medium` |  |
 | `heavy` |  |
 | `vibrate` | A long buzz: an error, an alarm. |
+
+<a id="enum-HeroFlies"></a>
+### HeroFlies
+
+| Value | Meaning |
+|---|---|
+| `betweenScreens` | While a navigation plays, from its place on the screen that goes to its place on the screen that comes, when both have the tag (Flutter's `Hero`). |
+| `inPlace` | When it appears, from where the node with its tag was a moment ago (a node hidden or removed in the last two seconds, a dropped drag copy, a node on a screen that is closing): a picked emoji flying from its picker to its chip. Flutter's `Hero` has no such trigger (the `local_hero` package's `LocalHero` is the nearest). Heroes that fly in place find each other only. |
 
 <a id="enum-HeroFlightShuttle"></a>
 ### HeroFlightShuttle

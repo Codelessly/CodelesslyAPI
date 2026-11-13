@@ -191,17 +191,18 @@ final class _Validator {
   void document(Object? json) {
     var m = readMap(json);
     if (m == null) {
-      r.add(Codes.invalidDocument, '', 'A layout document is a JSON object: {"schema": 3, "roots": [...], "nodes": {...}}.');
+      r.add(Codes.invalidDocument, '', 'A layout document is a JSON object: {"schema": $kSchemaVersion, "roots": [...], "nodes": {...}}.');
       return;
     }
     final schema = m['schema'];
     if (schema == null) {
-      r.add(Codes.schemaVersion, '/schema', 'Add "schema": 3. A document without one is read as schema 2 and migrated.');
-    } else if (schema == 2) {
+      r.add(Codes.schemaVersion, '/schema', 'Add "schema": $kSchemaVersion. A document without one is read as schema 2 and migrated.');
+    } else if (schema == 2 || schema == 3) {
       r.add(Codes.schemaOutdated, '/schema',
-          'Schema 2: migrated to 3 when read; the paths below are of the migrated document. `dart run tool/migrate.dart <file> --write` rewrites it.');
+          'Schema $schema: migrated to $kSchemaVersion when read; the paths below are of the migrated document. '
+          '`dart run tool/migrate.dart <file> --write` rewrites it.');
     } else if (schema != kSchemaVersion) {
-      r.add(Codes.schemaVersion, '/schema', 'This package reads "schema": 2 and 3, got ${describe(schema)}.');
+      r.add(Codes.schemaVersion, '/schema', 'This package reads "schema": 2, 3 and $kSchemaVersion, got ${describe(schema)}.');
     }
     // Validated as it decodes: a schema-2 document (or one without a
     // schema) migrated first.
@@ -502,7 +503,7 @@ final class _Validator {
       if (n.type == CanvasProps.spec.type && canvasRouteKeys.contains(k)) continue;
       if (k.startsWith('legacy.')) {
         r.add(Codes.legacyValue, pointer(at, k),
-            'Kept by the schema-3 migration: "${k.substring(7)}" had no schema-3 form and is no longer read. '
+            'Kept by a schema migration: "${k.substring(7)}" had no form in the newer schema and is no longer read. '
             'See the migration report for what to write instead, then remove it.');
         continue;
       }
@@ -545,6 +546,13 @@ final class _Validator {
       if (def.key == BehaviorFields.states.key) {
         _states(n, raw[def.key], pointer(at, def.key));
       } else {
+        if (def.key == BehaviorFields.hero.key && readMap(raw[def.key])?['flight'] is String) {
+          r.add(Codes.wrongType, pointer(pointer(at, def.key), 'flight'),
+              'A hero\'s "flight" is how it flies in place (an object) since schema 4; a navigation flight\'s look '
+              '("${readMap(raw[def.key])!['flight']}") is its "flightShuttle".',
+              suggestion: 'flightShuttle');
+          continue;
+        }
         values.checkDef(def, raw[def.key], pointer(at, def.key));
         _strings(raw[def.key], pointer(at, def.key));
       }
@@ -552,13 +560,24 @@ final class _Validator {
   }
 
   String _unknownNodeKeyMessage(String k, WidgetSpec? spec) {
+    if (_movedInSchema4[k] case final String moved) return 'A node has no "$k" since schema 4: $moved.';
     final where = _whereKeyBelongs(k, spec);
     if (where != null) return 'A node has no "$k"; it belongs in "$where".';
     return 'A node has no "$k". Node keys: type, name, children, slots, visible, opacity, layout, decoration, props, bind, actions, and the behaviors ${Behaviors.keys.join(', ')}.';
   }
 
+  /// Schema 3's node keys that schema 4 moved, and where.
+  static const _movedInSchema4 = {
+    'scale': 'it is "motion": {"scale": ...} (Flutter\'s Transform.scale; schema 3 multiplied the two)',
+    'flightKey': 'it is "hero": {"tag": ..., "flies": "inPlace"} (one shared element, Flutter\'s Hero)',
+    'flight': 'it is the hero\'s "flight" ("hero": {"tag": ..., "flies": "inPlace", "flight": {...}})',
+  };
+
   /// Where a misplaced key goes: `props.text`, `layout.width`...
   String? _whereKeyBelongs(String k, WidgetSpec? spec) {
+    if (k == 'scale') return 'motion.scale';
+    if (k == 'flightKey') return 'hero.tag';
+    if (k == 'flight') return 'hero.flight';
     if (spec?.prop(k) != null) return 'props.$k';
     if (LayoutFields.all.any((f) => f.key == k)) return 'layout.$k';
     if (DecorationFields.all.any((f) => f.key == k)) return 'decoration.$k';
@@ -590,6 +609,13 @@ final class _Validator {
       if (f == null) {
         if (readsKey(_layoutCodec, m, e.key)) {
           if (readDouble(e.value) == null) r.add(Codes.wrongType, p, 'Expected a number, got ${describe(e.value)}.');
+          continue;
+        }
+        if (e.key == 'rotation') {
+          r.add(Codes.unknownLayoutKey, p,
+              'layout has no "rotation" since schema 4: a rotation is drawn, never laid out, so it is "motion": {"rotate": ...} '
+              '(Flutter\'s Transform.rotate; for a turn that takes its turned size in the layout, Flutter\'s RotatedBox, there is none).',
+              suggestion: 'motion.rotate');
           continue;
         }
         r.add(Codes.unknownLayoutKey, p, 'layout has no "${e.key}". It takes: ${fields.keys.join(', ')}, widthFactor, heightFactor.',

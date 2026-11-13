@@ -52,8 +52,7 @@ Object? randomJson(math.Random r, int depth) {
 
 void main() {
   group('framework', () {
-    test('schema 3 is current; a schema-2 document is migrated and says so', () {
-      expect(kSchemaVersion, 3);
+    test('a schema-2 document is migrated to schema 3 and says so', () {
       final report = MigrationReport(document: 'a.json');
       final out = migrate2to3(doc2({'box': {'type': 'box', 'layout': {}}}), report: report);
       expect(out['schema'], 3);

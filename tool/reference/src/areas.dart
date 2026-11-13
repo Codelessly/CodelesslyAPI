@@ -84,8 +84,8 @@ const List<PageDef> featurePages = [
       actions: ['controlTrack', 'controlDismissible', 'controlTransform', 'copyToClipboard', 'haptic']),
   PageDef('animation',
       behaviors: [
-        'motion', 'scale', 'animations', 'transitions', 'shimmer', 'reveal', 'typewriter', 'particles', 'flip', 'tilt', //
-        'hero', 'flightKey', 'flight', 'viewProgress',
+        'motion', 'animations', 'transitions', 'shimmer', 'reveal', 'typewriter', 'particles', 'flip', 'tilt', 'hero', //
+        'viewProgress',
       ],
       triggers: ['timer', 'frame'],
       actions: ['animate']),

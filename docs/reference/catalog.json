@@ -1,12 +1,12 @@
 {
   "package": "codelessly_api",
   "version": "30.0.0",
-  "schema": 3,
+  "schema": 4,
   "document": {
     "keys": [
       {
         "key": "schema",
-        "doc": "Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`)."
+        "doc": "Always 4 (`kSchemaVersion`). A schema-2 or schema-3 document (or one with none) loads, migrated in memory (`migrate2to3`, `migrate3to4`)."
       },
       {
         "key": "id",
@@ -11286,14 +11286,6 @@
         "doc": "Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there)."
       },
       {
-        "key": "rotation",
-        "type": "double",
-        "kind": "number",
-        "default": 0,
-        "nullable": false,
-        "doc": "Degrees, clockwise."
-      },
-      {
         "key": "aspectRatio",
         "type": "double",
         "kind": "number",
@@ -11371,7 +11363,6 @@
       "constraints",
       "margin",
       "padding",
-      "rotation",
       "aspectRatio"
     ],
     "parentData": [
@@ -11735,18 +11726,8 @@
         "default": null,
         "nullable": true,
         "object": "Motion",
-        "doc": "The transform over the layout (Flutter's `Transform`).",
+        "doc": "The transform over the layout (Flutter's `Transform`): its move, scale and rotation are drawn, never laid out.",
         "docs": "animation.md#behavior-motion"
-      },
-      {
-        "key": "scale",
-        "type": "double",
-        "kind": "number",
-        "default": 1,
-        "nullable": false,
-        "min": 0.0,
-        "doc": "Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`.",
-        "docs": "animation.md#behavior-scale"
       },
       {
         "key": "animations",
@@ -11836,27 +11817,8 @@
         "default": null,
         "nullable": true,
         "object": "HeroTag",
-        "doc": "",
+        "doc": "A shared element (Flutter's `Hero`): the tag, or `{\"tag\", \"flies\", ...}`.",
         "docs": "animation.md#behavior-hero"
-      },
-      {
-        "key": "flightKey",
-        "type": "String",
-        "kind": "string",
-        "default": "",
-        "nullable": false,
-        "doc": "Flies the node in from where the node with the same key just was.",
-        "docs": "animation.md#behavior-flightKey"
-      },
-      {
-        "key": "flight",
-        "type": "Flight",
-        "kind": "object",
-        "default": null,
-        "nullable": true,
-        "object": "Flight",
-        "doc": "How it flies there (`flightKey`); null flies on the node's spring.",
-        "docs": "animation.md#behavior-flight"
       },
       {
         "key": "draggable",
@@ -15131,10 +15093,6 @@
         "doc": ""
       },
       {
-        "path": "layout.rotation",
-        "doc": ""
-      },
-      {
         "path": "layout.margin",
         "doc": ""
       },
@@ -15156,10 +15114,6 @@
       },
       {
         "path": "decoration.strokeWidth",
-        "doc": ""
-      },
-      {
-        "path": "scale",
         "doc": ""
       },
       {
@@ -16571,7 +16525,7 @@
       ]
     },
     "Flight": {
-      "doc": "How a node with a `Behaviors.flightKey` flies in from where the node with the same key was: on a spring by default, or, with a `duration`, along a curve that rises `lift` (or `liftShare` of the distance, the larger) above the higher end, swelling to `swell` at the middle and spinning `turns` times (toward the way it flies), trailing `trail` fading dots.",
+      "doc": "How a hero that flies in place (`HeroFlies.inPlace`) flies in from where the node with its tag was: on a spring by default (the node's `motion` transition's, when it has one with a spring), or, with a `duration`, along a curve that rises `lift` (or `liftShare` of the distance, the larger) above the higher end (as Flutter's `MaterialRectArcTween` bends a hero's path), swelling to `swell` at the middle and spinning `turns` times (toward the way it flies), trailing `trail` fading dots.",
       "fields": [
         {
           "key": "duration",
@@ -16846,7 +16800,7 @@
       ]
     },
     "HeroTag": {
-      "doc": "Makes the node a shared element (Flutter's `Hero`): it flies between its places on two screens with the same `tag` while a navigation plays.",
+      "doc": "Makes the node a shared element (Flutter's `Hero`): it flies from where the node with the same `tag` was to where it is, between two screens while a navigation plays (`HeroFlies.betweenScreens`, Flutter's) or when it appears in place (`HeroFlies.inPlace`). JSON: the tag alone (`\"hero\": \"avatar-1\"`) or `{\"tag\", \"flies\", \"flightShuttle\", \"placeholder\", \"flight\"}`.",
       "fields": [
         {
           "key": "tag",
@@ -16854,10 +16808,23 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "Flutter's `Hero.tag`: the node with the same tag is where it flies from."
         },
         {
-          "key": "flight",
+          "key": "flies",
+          "type": "HeroFlies",
+          "kind": "enumeration",
+          "default": "betweenScreens",
+          "nullable": false,
+          "enum": "HeroFlies",
+          "values": [
+            "betweenScreens",
+            "inPlace"
+          ],
+          "doc": "When it flies: `betweenScreens` (Flutter's `Hero`: while a navigation plays) or `inPlace` (when it appears, from where the node with its tag just was on screen)."
+        },
+        {
+          "key": "flightShuttle",
           "type": "HeroFlightShuttle",
           "kind": "enumeration",
           "default": "standard",
@@ -16871,7 +16838,7 @@
             "fadeThrough",
             "containerTransform"
           ],
-          "doc": ""
+          "doc": "What a flight between screens draws (`Hero.flightShuttleBuilder`)."
         },
         {
           "key": "placeholder",
@@ -16884,7 +16851,16 @@
             "none",
             "source"
           ],
-          "doc": "What the destination shows until its own image has loaded."
+          "doc": "What the destination shows until its own image has loaded (between screens)."
+        },
+        {
+          "key": "flight",
+          "type": "Flight",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "Flight",
+          "doc": "How it flies in place: on a spring when unset, or timed along an arc."
         }
       ]
     },
@@ -22798,6 +22774,16 @@
         "doc": "A long buzz: an error, an alarm."
       }
     ],
+    "HeroFlies": [
+      {
+        "value": "betweenScreens",
+        "doc": "While a navigation plays, from its place on the screen that goes to its place on the screen that comes, when both have the tag (Flutter's `Hero`)."
+      },
+      {
+        "value": "inPlace",
+        "doc": "When it appears, from where the node with its tag was a moment ago (a node hidden or removed in the last two seconds, a dropped drag copy, a node on a screen that is closing): a picked emoji flying from its picker to its chip. Flutter's `Hero` has no such trigger (the `local_hero` package's `LocalHero` is the nearest). Heroes that fly in place find each other only."
+      }
+    ],
     "HeroFlightShuttle": [
       {
         "value": "standard",
@@ -25792,17 +25778,17 @@
     {
       "code": "schema_version",
       "severity": "warning",
-      "meaning": "The document has no \"schema\", or one this package does not read (it reads 2 and 3, and writes 3)."
+      "meaning": "The document has no \"schema\", or one this package does not read (it reads 2, 3 and 4, and writes 4)."
     },
     {
       "code": "schema_outdated",
       "severity": "info",
-      "meaning": "A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document."
+      "meaning": "A schema-2 or schema-3 document: it loads, migrated to schema 4 in memory (`migrate2to3`, `migrate3to4`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document."
     },
     {
       "code": "legacy_value",
       "severity": "warning",
-      "meaning": "A `legacy.<name>` key the schema-3 migration kept: a value that had no schema-3 form and is no longer read."
+      "meaning": "A `legacy.<name>` key a schema migration kept: a value that had no form in the newer schema and is no longer read."
     },
     {
       "code": "unknown_document_key",

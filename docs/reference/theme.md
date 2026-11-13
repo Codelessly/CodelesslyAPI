@@ -15,7 +15,7 @@ A site manifest (`site.json`) with a theme: a palette and a type scale. The page
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "pages": ["home.json"],
   "theme": {
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
@@ -205,7 +205,7 @@ name. The render command uses font files from `--fonts <dir>` plus Roboto, and r
 
 - A text without a colour is white (`text_no_color` when rendered): set it in the style or the named style.
 - A name the theme does not have is `unknown_theme_name` (with the nearest name); a theme of the wrong shape is
-  `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
+  `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 4, "pages": ["home.json"],
   "theme": {...}}`.
 - A theme colour's name is not read from a formula: bind `${theme.colors.ember}`.
 - Run offsets count characters, `\n` as one.

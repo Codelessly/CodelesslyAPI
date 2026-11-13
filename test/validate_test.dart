@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 
 /// A valid document: a canvas, a column, a text and a box.
 Map<String, Object?> base() => jsonDecode(jsonEncode({
-      'schema': 3,
+      'schema': 4,
       'roots': ['home'],
       'nodes': {
         'home': {
@@ -63,9 +63,9 @@ void main() {
 
   group('document', () {
     test('a document that is not a map is invalid (invalid_document)', () => expectOne([1, 2], Codes.invalidDocument));
-    test('a document without schema 3 is reported (schema_version)', () {
+    test('a document without a schema, or with one newer than 4, is reported (schema_version)', () {
       expectOne(base()..remove('schema'), Codes.schemaVersion, path: '/schema');
-      expectOne(base()..['schema'] = 4, Codes.schemaVersion, path: '/schema');
+      expectOne(base()..['schema'] = 5, Codes.schemaVersion, path: '/schema');
     });
     test('a schema-2 document is valid with a note, and is checked as migrated (schema_outdated)', () {
       final d = validateDocument(base()..['schema'] = 2);

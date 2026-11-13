@@ -3,7 +3,7 @@
 ## When to use
 
 Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving,
-scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on
+scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on
 scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and
 games.
 
@@ -30,8 +30,11 @@ This is the simplest way to animate a check-off, a selected card or an opening p
 ### Move, scale or turn without changing layout (motion)
 
 `motion` is a transform painted over the node's layout (Flutter's `Transform`): `translateX`/`translateY` in pixels,
-`scale`, `rotate` in degrees, 3D `rotateX`/`rotateY` with `perspective`, about `alignment`. Nothing else moves. Bind
-a field (`"motion.rotate": "${= open ? 180 : 0}"`) and add a transition to animate it.
+`scale`, `rotate` in degrees, 3D `rotateX`/`rotateY` with `perspective`, about `alignment` (the center by default).
+It is the one way to scale or turn a node: there is no node `scale` and no `layout.rotation` (a turned node keeps
+its unturned box in the layout, as `Transform.rotate` does; Flutter's `RotatedBox` has no counterpart). Nothing else
+moves. Bind a field (`"motion.rotate": "${= open ? 180 : 0}"`) and add a transition to animate it; a transition on
+`motion.scale` times the scale apart from the rest of the motion (`AnimatedScale` beside `AnimatedSlide`).
 
 ### Play an animation (animations and presets)
 
@@ -45,10 +48,14 @@ change of `playKey`. A screen-wide animation sits on the canvas.
 `reveal` plays when the node scrolls into view; `viewProgress` gives `${view.progress}` (0–1 through the viewport)
 to bind to; the `enterViewport` and `exitViewport` triggers run actions.
 
-### Shared elements between screens
+### Shared elements (hero)
 
-`hero` (a tag) flies the node from one screen to the matching one on the next; `flightKey` flies a node in from
-where the node with the same key just was (a card that becomes a detail header), with `flight` saying how.
+`hero` is Flutter's `Hero`: a tag (`"hero": "avatar-${item.id}"`) flies the node from its place on the screen a
+navigation leaves to the node with the same tag on the screen it opens; `flightShuttle` picks what flies (`morph`,
+`containerTransform`...). With `"flies": "inPlace"` it flies when it appears instead, from where the node with its
+tag was a moment ago on screen (a picked emoji flying from its picker to its chip, a card dropped into a column):
+`{"hero": {"tag": "react", "flies": "inPlace", "flight": {"duration": 720, "lift": 110}}}`, on a spring without a
+`flight`.
 
 ### Clocks and game loops
 
@@ -58,7 +65,8 @@ physics and game loops. Keep the state in variables and the work in a script whe
 
 ## Pitfalls
 
-- `motion` and `scale` do not change layout: neighbours do not move. To make room, animate a layout field.
+- `motion` (its scale and rotate too) does not change layout: neighbours do not move. To make room, animate a
+  layout field.
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.
 - Animations run in a running app. The render command settles about a second after each step, so a short

@@ -75,13 +75,13 @@ void main() {
 
   test('a component definition round-trips through JSON', () {
     final json = {
-      'schema': 3,
+      'schema': 4,
       'id': 'cmp1',
       'name': 'Card',
       'version': 3,
       'size': [100, 50],
       'document': {
-        'schema': 3,
+        'schema': 4,
         'roots': ['card'],
         'nodes': {
           'card': {

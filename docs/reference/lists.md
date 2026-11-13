@@ -17,7 +17,7 @@ A `listView` repeats its first child once per item of its `data` binding; inside
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["faq"],
   "nodes": {
     "faq": {
@@ -544,7 +544,7 @@ A tap on a day flips it in the habit's record (`setAt` and `set` build the new l
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
