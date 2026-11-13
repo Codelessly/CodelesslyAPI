@@ -507,7 +507,7 @@ final class TransformHandles extends _Value {
 /// `${transform.scale}`... Each change runs the node's `changed`
 /// reactions, the end of a gesture its `changeEnd` ones.
 ///
-/// [Behaviors.zoomable] is its first form: [zoomable].
+/// The legacy `zoomable: true` reads as its first form: [zoomable].
 @immutable
 final class TransformGesture extends _Value {
   const TransformGesture({
@@ -538,7 +538,7 @@ final class TransformGesture extends _Value {
     this.scaleY,
   });
 
-  /// What [Behaviors.zoomable] amounts to: the content zooms inside the
+  /// What the legacy `zoomable: true` amounts to: the content zooms inside the
   /// node up to 4×, pans once zoomed, a double tap zooms 2.5×.
   static const TransformGesture zoomable = TransformGesture(
     target: TransformTarget.content,

@@ -1141,7 +1141,6 @@ abstract final class BehaviorFields {
   );
   static const tooltip = PropDef<String>('tooltip', Codecs.string, '');
   static const ignorePointer = PropDef<bool>('ignorePointer', Codecs.bool, false);
-  static const zoomable = PropDef<bool>('zoomable', Codecs.bool, false);
   static const floating = PropDef<bool>('floating', Codecs.bool, false);
   static const hero = PropDef<HeroTag?>('hero', ValueCodec(HeroTag.fromJson, _heroOut, heroTagType), null);
   static const flightKey = PropDef<String>('flightKey', Codecs.string, '');
@@ -1223,7 +1222,7 @@ abstract final class BehaviorFields {
 
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
-    motion, scale, animations, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
+    motion, scale, animations, transitions, inkWell, states, tooltip, ignorePointer, floating, hero, //
     flightKey, flight, draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
     particles, textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];

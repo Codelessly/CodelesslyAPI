@@ -123,7 +123,8 @@ void main() {
     final legacy = {...nodeJson}
       ..remove('loops')
       ..remove('effectAnimations')
-      ..remove('drag');
+      ..remove('drag')
+      ..remove('zoomable');
     final written = jsonDecode(jsonEncode(n.toJson())) as Map;
     expect(written['animations'], [
       {'id': 'loop0', 'preset': 'pulse', 'params': {'scaleFrom': 0.65, 'opacityFrom': 0.35, 'opacityTo': 0}, 'duration': 1400},
@@ -131,7 +132,10 @@ void main() {
       {'id': 'shake', 'preset': 'shake', 'duration': 400},
     ]);
     expect(written['track'], {'variable': 'volume', 'shape': 'arc', 'max': 10});
-    expect({...written}..remove('animations')..remove('track'), jsonDecode(jsonEncode(legacy)));
+    // zoomable: true is the transform gesture's zoomable form.
+    expect(written['transformGesture'], {'target': 'content', 'pan': 'whenZoomed'});
+    expect(b.transformGesture, TransformGesture.zoomable);
+    expect({...written}..remove('animations')..remove('track')..remove('transformGesture'), jsonDecode(jsonEncode(legacy)));
     expect(Node.fromJson(n.toJson()), n);
   });
 

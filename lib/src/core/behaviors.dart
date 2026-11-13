@@ -3173,7 +3173,6 @@ final class Behaviors extends _Value {
     this.states = StateStyles.none,
     this.tooltip = '',
     this.ignorePointer = false,
-    this.zoomable = false,
     this.floating = false,
     this.hero,
     this.flightKey = '',
@@ -3226,10 +3225,6 @@ final class Behaviors extends _Value {
   /// `IgnorePointer`).
   final bool ignorePointer;
 
-  /// Pinch, scroll and double-tap zoom and pan (Flutter's
-  /// `InteractiveViewer`).
-  final bool zoomable;
-
   /// Drawn above everything else at runtime (a menu under a field), still
   /// taking its place in the layout. The design canvas draws it in place.
   final bool floating;
@@ -3275,8 +3270,8 @@ final class Behaviors extends _Value {
   /// Tilts in 3D toward the pointer.
   final Tilt? tilt;
 
-  /// Pinch, pan and rotate, with fling physics and optional handles (over
-  /// [zoomable]: see [effectiveTransformGesture]).
+  /// Pinch, pan and rotate, with fling physics and optional handles (the
+  /// legacy `zoomable: true` reads as [TransformGesture.zoomable]).
   final TransformGesture? transformGesture;
 
   /// Pinned in its scrolling view while its parent is in view.
@@ -3291,13 +3286,13 @@ final class Behaviors extends _Value {
   /// Flutter's `CustomPaint`: draw lists behind and over its content.
   final CustomPaint? customPaint;
 
-  /// [transformGesture], or what [zoomable] amounts to.
-  TransformGesture? get effectiveTransformGesture =>
-      transformGesture ?? (zoomable ? TransformGesture.zoomable : null);
+  /// [transformGesture] (its former name, from when `zoomable` was its
+  /// own key; the legacy `zoomable: true` now reads into [transformGesture]).
+  TransformGesture? get effectiveTransformGesture => transformGesture;
 
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
-    'motion', 'scale', 'animations', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
+    'motion', 'scale', 'animations', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
     'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'track', 'dismissible',
     'pan', 'reorderHandle', 'reveal', 'strokePath', 'typewriter',
     'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
@@ -3306,8 +3301,9 @@ final class Behaviors extends _Value {
 
   /// Legacy keys the decoder still reads (and never writes): `loops` and
   /// `effectAnimations` become [animations]; `drag` becomes [track],
-  /// [dismissible], [pan] or [reorderHandle].
-  static const Set<String> legacyKeys = {'loops', 'effectAnimations', 'drag'};
+  /// [dismissible], [pan] or [reorderHandle]; `zoomable: true` becomes
+  /// [transformGesture] ([TransformGesture.zoomable]) when it has none.
+  static const Set<String> legacyKeys = {'loops', 'effectAnimations', 'drag', 'zoomable'};
 
   bool get isNone => this == none;
 
@@ -3444,7 +3440,6 @@ final class Behaviors extends _Value {
       states: StateStyles.fromJson(m['states']),
       tooltip: r.s('tooltip'),
       ignorePointer: r.b('ignorePointer', false),
-      zoomable: r.b('zoomable', false),
       floating: r.b('floating', false),
       hero: HeroTag.fromJson(m['hero']),
       flightKey: r.s('flightKey'),
@@ -3464,7 +3459,8 @@ final class Behaviors extends _Value {
           : null,
       flip: FlipCard.fromJson(m['flip']),
       tilt: Tilt.fromJson(m['tilt']),
-      transformGesture: TransformGesture.fromJson(m['transformGesture']),
+      transformGesture: TransformGesture.fromJson(m['transformGesture']) ??
+          (r.b('zoomable', false) ? TransformGesture.zoomable : null),
       sticky: Sticky.fromJson(m['sticky']),
       viewProgress: ViewProgress.fromJson(m['viewProgress']),
       measure: Measure.fromJson(m['measure']),
@@ -3483,7 +3479,6 @@ final class Behaviors extends _Value {
     j
       ..s('tooltip', tooltip)
       ..b('ignorePointer', ignorePointer, false)
-      ..b('zoomable', zoomable, false)
       ..b('floating', floating, false);
     if (hero != null) j['hero'] = hero!.toJson();
     j.s('flightKey', flightKey);
@@ -3517,7 +3512,6 @@ final class Behaviors extends _Value {
     StateStyles? states,
     String? tooltip,
     bool? ignorePointer,
-    bool? zoomable,
     bool? floating,
     HeroTag? hero,
     String? flightKey,
@@ -3549,7 +3543,6 @@ final class Behaviors extends _Value {
     states: states ?? this.states,
     tooltip: tooltip ?? this.tooltip,
     ignorePointer: ignorePointer ?? this.ignorePointer,
-    zoomable: zoomable ?? this.zoomable,
     floating: floating ?? this.floating,
     hero: hero ?? this.hero,
     flightKey: flightKey ?? this.flightKey,
@@ -3576,7 +3569,7 @@ final class Behaviors extends _Value {
 
   @override
   List<Object?> get props => [
-    motion, scale, animations, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
+    motion, scale, animations, transitions, inkWell, states, tooltip, ignorePointer, floating, hero, //
     flightKey, flight, draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
     particles, textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
