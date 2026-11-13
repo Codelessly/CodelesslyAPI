@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'actions.dart';
+import 'catalog_json.dart';
 import 'conditions.dart';
 import 'json.dart';
 import 'props.dart';
@@ -102,6 +103,21 @@ final class Catalog {
 
   /// The formula function named [name], or null.
   FormulaSpec? formula(String name) => _index.formulasByName[name];
+
+  /// The catalog as JSON, for the generated reference, editors and agents:
+  /// every node type with its props (key, kind, Flutter type, default,
+  /// enum values, bounds, doc), child model and slots; the node envelope
+  /// (layout, decoration, behaviors) once; action types with their fields,
+  /// result, nested chains and required capabilities; the trigger types;
+  /// data sources; formula functions; the object value types' fields; and
+  /// [instructions]. [compact] keeps each prop to key, type name and
+  /// default. [Catalog.fromJson] reads the declarations back.
+  Json toJson({bool compact = false}) => catalogToJson(this, compact: compact);
+
+  /// Declarations read from JSON (a hosted plugin's `catalog`, a native
+  /// plugin's manifest, or [toJson]'s output): node types, action types
+  /// (decoding as [DeclaredAction]s), data sources and formula functions.
+  static Catalog fromJson(Object? json) => catalogFromJson(json);
 
   /// Whether this catalog declares every type [other] declares, with the same
   /// declaration: a document decoded with this one needs no decoding again
