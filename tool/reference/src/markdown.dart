@@ -4,7 +4,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:codelessly_api/codelessly_api.dart' show Json;
+import 'package:codelessly_api/codelessly_api.dart'
+    show Catalog, EditCodes, EditOp, Json, LayoutDocument, TrustProfile, applyOps, opsFromDocument, uiTools;
 
 /// How links are written: across page files, or within one file.
 enum LinkMode { pages, single }
@@ -107,7 +108,39 @@ final class Pages {
           for (final o in catalog['conditions']['ops'] as List) ['`${o['op']}`', o['takesRight'] == true ? 'yes' : 'no', _cell('${o['doc']}')],
         ]),
     'variableTypes': () => _enumTable('VariableType'),
+    // The edit layer, from its declarations.
+    'editOps': () => _table(['Op', 'Fields', 'Means', 'Example'], [
+          for (final o in EditOp.specs)
+            [
+              '`${o.op}`',
+              [for (final f in o.fields) if (f.key != 'op') '`${f.key}`${f.required ? ' (required)' : ''}'].join(', '),
+              o.doc,
+              '`${jsonEncode(o.example)}`',
+            ],
+        ]),
+    'editCodes': () => _table(['Code', 'Rejects the op', 'Meaning'], [
+          for (final c in EditCodes.all) ['`${c.name}`', c.error ? 'yes' : 'no (a warning)', c.meaning],
+        ]),
+    'uiTools': () => '```json\n${prettyJson(uiTools(TrustProfile.agent.restrict(Catalog.core)).map((t) => {...t, 'input_schema': '(see ui_tools.json)'}).toList())}\n```',
+    'editRejected': () => _editRejected(),
+    'editBuild': () => '```json\n${prettyJson({'ops': [for (final o in opsFromDocument(LayoutDocument.fromJson(jsonDecode(File('$root/tool/reference/examples/minimal.json').readAsStringSync()), catalog: Catalog.core))) o.toJson()]})}\n```',
   };
+
+  /// A batch with a rejected op, applied for real: the tool result a model
+  /// reads.
+  String _editRejected() {
+    final doc = LayoutDocument.fromJson(jsonDecode(File('$root/tool/reference/examples/minimal.json').readAsStringSync()),
+        catalog: Catalog.core);
+    final title = doc.nodes.values.firstWhere((n) => n.type == 'text').id;
+    final ops = {
+      'ops': [
+        {'op': 'patch', 'id': title, 'patch': {'props': {'text': 'Welcome back'}}},
+        {'op': 'patch', 'id': title, 'patch': {'decoration': {'fill': [{'color': '#FFF1F5F9'}]}}},
+      ],
+    };
+    final r = applyOps(doc, ops, catalog: Catalog.core);
+    return '```json\n${prettyJson(ops)}\n```\n\nThe result (`EditResult.toModelJson()`, the tool result):\n\n```json\n${prettyJson(r.toModelJson())}\n```';
+  }
 
   String _example(String name) {
     final f = File('$root/tool/reference/examples/$name.json');
