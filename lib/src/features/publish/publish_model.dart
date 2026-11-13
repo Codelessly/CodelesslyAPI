@@ -5,6 +5,7 @@ import '../../core/document.dart';
 import '../../core/json.dart';
 import 'app_identity.dart';
 import '../../core/breakpoints.dart';
+import 'publish_component.dart';
 import 'publish_layout.dart';
 import '../../core/theme.dart';
 
@@ -17,8 +18,9 @@ const int kPublishSchemaVersion = 2;
 const Map<int, SchemaMigration> publishSchemaMigrations = {};
 
 /// Where published data comes from. A project's
-/// publish model is `publish/{projectId}` (a Firestore document) and each
-/// layout `publish/{projectId}/layouts/{layoutId}`, in the current format with
+/// publish model is `publish/{projectId}` (a Firestore document), each
+/// layout `publish/{projectId}/layouts/{layoutId}` and each component
+/// `publish/{projectId}/components/{type}`, in the current format with
 /// `schema: 2`; the preview's and the templates' the same under
 /// `publish_preview` and `templates`. A slug's bundle is the storage file
 /// `publish/{slug}.json`.
@@ -46,6 +48,10 @@ enum PublishSource {
   /// The path of the bundle (model and every layout, one file) published for
   /// [slug] (or a project id).
   String bundlePath(String slug) => '$collection/$slug.json';
+
+  /// The path of component [type] (its type name) of project [projectId]:
+  /// a [PublishComponent].
+  String componentPath(String projectId, String type) => '$collection/$projectId/components/$type';
 }
 
 /// A canvas (screen) of a published layout, as the model lists it: enough
@@ -98,6 +104,7 @@ final class PublishLayoutInfo {
     this.canvases = const [],
     this.fonts = const [],
     this.apis = const [],
+    this.components = const [],
     this.lastUpdated,
   });
 
@@ -112,6 +119,11 @@ final class PublishLayoutInfo {
 
   /// Ids of the APIs it calls.
   final List<String> apis;
+
+  /// The component types it calls, directly or through others (its
+  /// closure, `ComponentLibrary.closureOf`): loaded with it, before it
+  /// shows.
+  final List<String> components;
 
   /// When it was last published; a cached layout older than this is stale.
   final DateTime? lastUpdated;
@@ -128,6 +140,7 @@ final class PublishLayoutInfo {
       canvases: [...?readList(m['canvases'])?.map(PublishCanvas.fromJson).nonNulls],
       fonts: readStrings(m['fonts']),
       apis: readStrings(m['apis']),
+      components: readStrings(m['components']),
       lastUpdated: readTimestamp(m['lastUpdated']),
     );
   }
@@ -137,11 +150,14 @@ final class PublishLayoutInfo {
         if (canvases.isNotEmpty) 'canvases': [for (final c in canvases) c.toJson()],
         if (fonts.isNotEmpty) 'fonts': fonts,
         if (apis.isNotEmpty) 'apis': apis,
+        if (components.isNotEmpty) 'components': components,
         'lastUpdated': ?lastUpdated?.let(writeTimestamp),
       };
 
-  /// The entry listing a loaded [layout].
-  factory PublishLayoutInfo.of(PublishLayout layout) => PublishLayoutInfo(
+  /// The entry listing a loaded [layout]; [components] is the closure of
+  /// component types it calls (the publisher's to compute: the layout alone
+  /// doesn't know which of its types are components).
+  factory PublishLayoutInfo.of(PublishLayout layout, {List<String> components = const []}) => PublishLayoutInfo(
         id: layout.id,
         pageId: layout.pageId,
         canvases: [
@@ -150,6 +166,7 @@ final class PublishLayoutInfo {
         ],
         fonts: layout.fonts,
         apis: layout.apis,
+        components: components,
         lastUpdated: layout.lastUpdated,
       );
 
@@ -161,6 +178,7 @@ final class PublishLayoutInfo {
       jsonEquality.equals(other.canvases, canvases) &&
       jsonEquality.equals(other.fonts, fonts) &&
       jsonEquality.equals(other.apis, apis) &&
+      jsonEquality.equals(other.components, components) &&
       other.lastUpdated == lastUpdated;
 
   @override
@@ -242,6 +260,7 @@ final class PublishModel {
     this.fonts = const {},
     this.apis = const {},
     this.variables = const {},
+    this.components = const {},
     this.appIdentity,
     Breakpoints? breakpoints,
     this.lastUpdated,
@@ -306,6 +325,11 @@ final class PublishModel {
   /// Variables shared by every screen of the app, as published: variable
   /// id → variable.
   final Json variables;
+
+  /// The project's published component definitions, by type name: what
+  /// the layouts' calls render (each layout lists the ones it needs,
+  /// [PublishLayoutInfo.components]).
+  final Map<String, PublishComponentInfo> components;
 
   /// The app's name, screen titles and description, icons, social card,
   /// manifest and splash; null when it has none.
@@ -379,9 +403,14 @@ final class PublishModel {
     return null;
   }
 
-  /// The fonts layout [layoutId] uses.
+  /// The fonts layout [layoutId] uses: its own and those of the
+  /// components it calls.
   List<PublishFont> fontsOf(String layoutId) => [
-        for (final id in layouts[layoutId]?.fonts ?? const <String>[]) ?fonts[id],
+        for (final id in {
+          ...?layouts[layoutId]?.fonts,
+          for (final c in layouts[layoutId]?.components ?? const <String>[]) ...?components[c]?.fonts,
+        })
+          ?fonts[id],
       ];
 
   /// Decodes a publish model of any schema, upgrading it first. Never
@@ -391,6 +420,7 @@ final class PublishModel {
     m = migratePublishSchema(m);
     final layouts = readMap(m['layouts']) ?? const {};
     final fonts = readMap(m['fonts']) ?? const {};
+    final components = readMap(m['components']) ?? const {};
     return PublishModel(
       projectId: readString(m['projectId']) ?? '',
       slug: readString(m['slug']),
@@ -416,6 +446,10 @@ final class PublishModel {
       },
       apis: readMap(m['apis']) ?? const {},
       variables: readMap(m['variables']) ?? const {},
+      components: {
+        for (final e in components.entries)
+          if (PublishComponentInfo.fromJson(e.value, id: e.key) case final PublishComponentInfo c) e.key: c,
+      },
       appIdentity: AppIdentity.fromJson(m['appIdentity']),
       breakpoints: Breakpoints.fromJson(m['breakpoints']),
       lastUpdated: readTimestamp(m['lastUpdated']),
@@ -428,7 +462,7 @@ final class PublishModel {
 
   static const Set<String> _keys = {
     'schema', 'projectId', 'slug', 'entryLayoutId', 'entryPageId', 'entryCanvasId', 'pages', 'layouts', //
-    'layoutIDMap', 'disabledLayouts', 'overlayLayoutIds', 'backdropLayoutIds', 'theme', 'fonts', 'apis', 'variables', 'appIdentity', 'breakpoints', 'lastUpdated',
+    'layoutIDMap', 'disabledLayouts', 'overlayLayoutIds', 'backdropLayoutIds', 'theme', 'fonts', 'apis', 'variables', 'components', 'appIdentity', 'breakpoints', 'lastUpdated',
   };
 
   /// [json] (a publish model or bundle) upgraded to [kPublishSchemaVersion].
@@ -460,6 +494,7 @@ final class PublishModel {
         if (fonts.isNotEmpty) 'fonts': {for (final e in fonts.entries) e.key: e.value.toJson()},
         if (apis.isNotEmpty) 'apis': apis,
         if (variables.isNotEmpty) 'variables': variables,
+        if (components.isNotEmpty) 'components': {for (final e in components.entries) e.key: e.value.toJson()},
         'appIdentity': ?appIdentity?.toJson(),
         if (!breakpoints.isDefault) 'breakpoints': breakpoints.toJson(),
         'lastUpdated': ?lastUpdated?.let(writeTimestamp),
@@ -482,6 +517,7 @@ final class PublishModel {
     Map<String, PublishFont>? fonts,
     Json? apis,
     Json? variables,
+    Map<String, PublishComponentInfo>? components,
     AppIdentity? appIdentity,
     Breakpoints? breakpoints,
     DateTime? lastUpdated,
@@ -503,6 +539,7 @@ final class PublishModel {
         fonts: fonts ?? this.fonts,
         apis: apis ?? this.apis,
         variables: variables ?? this.variables,
+        components: components ?? this.components,
         appIdentity: appIdentity ?? this.appIdentity,
         breakpoints: breakpoints ?? this.breakpoints,
         lastUpdated: lastUpdated ?? this.lastUpdated,
@@ -510,27 +547,47 @@ final class PublishModel {
       );
 }
 
-/// A publish model with its layouts in one piece: what a slug serves, an
-/// app bundles as an asset to run offline.
+/// A publish model with its layouts and components in one piece: what a
+/// slug serves, an app bundles as an asset to run offline.
 ///
-/// JSON: `{"schema": 2, "model": {...}, "layouts": {"id": {...}}}`.
+/// JSON: `{"schema": 2, "model": {...}, "layouts": {"id": {...}}, "components":
+/// {"PlanCard": {...}}}`, each component as stored at
+/// [PublishSource.componentPath] ([PublishComponent]).
 @immutable
 final class PublishBundle {
-  const PublishBundle({required this.model, this.layouts = const {}});
+  const PublishBundle({required this.model, this.layouts = const {}, this.components = const {}, this.extra = const {}});
 
   final PublishModel model;
   final Map<String, PublishLayout> layouts;
 
-  /// Its layouts decode with [catalog] (default: `Catalog.current`).
+  /// The published component definitions, by type name.
+  final Map<String, PublishComponent> components;
+
+  /// Keys this version doesn't model, kept (the managed library's embedded
+  /// plugin versions, `plugins`).
+  final Json extra;
+
+  static const Set<String> _keys = {'schema', 'model', 'layouts', 'components'};
+
+  /// Its layouts and components decode with [catalog] (default:
+  /// `Catalog.current`).
   static PublishBundle fromJson(Object? json, {Catalog? catalog}) {
     var m = readMap(json) ?? const {};
     m = PublishModel.migratePublishSchema(m);
     final layouts = readMap(m['layouts']) ?? const {};
+    final components = readMap(m['components']) ?? const {};
     return PublishBundle(
       model: PublishModel.fromJson(m['model']),
       layouts: {
         for (final e in layouts.entries)
           e.key: PublishLayout.fromJson(e.value, catalog: catalog).let((l) => l.id.isEmpty ? l.copyWith(document: l.document.copyWith(id: e.key)) : l),
+      },
+      components: {
+        for (final e in components.entries) e.key: PublishComponent.fromJson(e.value, catalog: catalog, id: e.key),
+      },
+      extra: {
+        for (final e in m.entries)
+          if (!_keys.contains(e.key)) e.key: e.value,
       },
     );
   }
@@ -539,5 +596,7 @@ final class PublishBundle {
         'schema': kPublishSchemaVersion,
         'model': model.toJson(),
         'layouts': {for (final e in layouts.entries) e.key: e.value.toJson()},
+        if (components.isNotEmpty) 'components': {for (final e in components.entries) e.key: e.value.toJson()},
+        ...extra,
       };
 }

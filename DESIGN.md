@@ -32,6 +32,25 @@ The editor builds on all three; the API and SDK know nothing about it.
   Firestore document keeps its nodes gzipped and base64 encoded in
   `compressedNodes` (`{"nodes": {...}}`). A document in any other format
   fails to load with a clear message (§5.4).
+* Each published component (§4.2) is its own document,
+  `publish/{projectId}/components/{type}` (`PublishComponent`):
+
+  ```json
+  {"schema": 2, "id": "PlanCard", "version": 3, "digest": "9f2c…", "lastUpdated": 1731456000000,
+   "fonts": ["Inter/600/false"], "document": {"schema": 2, "id": "PlanCard", "roots": ["card"], "widget": {...}, "nodes": {...}}}
+  ```
+
+  `digest` is the sha256 hex of the UTF-8 bytes of `canonicalJson(document)`
+  (keys sorted, no whitespace, whole doubles as integers), so it holds
+  whatever order a store keeps keys in; one too large for a Firestore
+  document keeps its `document` gzipped and base64 encoded in
+  `compressedDocument`. The model lists them,
+  `"components": {"PlanCard": {"version": 3, "digest": "9f2c…", "lastUpdated": …, "fonts": [...]}}`
+  (`PublishModel.components`), and each layout entry the closure of types it
+  calls, directly or through others (`PublishLayoutInfo.components`). A
+  bundle (`publish/{slug}.json`) carries them in its `components` map, as
+  stored. The editor's write side does not exist yet: this is the shape it
+  is to write (the SDK's render command publishes it, `tool/render/src/publish.dart`).
 * **Decoding is total.** Unknown keys round-trip in `extra`. A node type no
   declaration knows decodes as a `Node` with that type, its props kept in
   `Props.unknown` (the SDK renders it with the recipe the app gives for the
@@ -337,9 +356,18 @@ transitively) and every call against its declaration (`unknown_component`,
 The SDK renders an instance as ordinary boxes in the screen's render tree,
 one per definition node per instance, from a `ComponentRegistry`
 (`Codelessly.components`); editing a definition replaces its document and
-re-applies only the nodes that changed, in every instance. Loading
-definitions from a publish is not done yet: an app fills the registry
-itself (docs/design/06, "Not done").
+re-applies only the nodes that changed, in every instance. A published app
+loads its components with the screens that call them (§2.1, §5.4); an app
+may also define its own (they win over published ones of the same type).
+
+**Per instance**, as a Flutter `State`: an instance's variables, interaction
+states and the values `setValue` / `setVariant` set inside it are its own; a
+`persist: true` variable is kept per instance path; when an instance leaves the
+tree its scopes are released. A `slot` inside a list of the definition shows
+the passed content once per item, built in the caller's scope (a `child`, not a
+builder). **Hosted scope**: a hosted plugin's node type is a definition too
+(`PluginPackage.definitions`), installed from `model.plugins` and rendered on
+the same path (§4.3, §8).
 
 **Copies, still read.** Before components by reference, a component was a
 `ComponentDefinition` in the library (`id`, `name`, `version`, `size`,
@@ -403,6 +431,13 @@ The core keeps a managed instance's reference as JSON
   `replaceManagedInstance` swaps it, keeping slot content.
 * **Forking**: editing an instance's inner nodes detaches it (a plain copy
   that no longer updates).
+
+Managed snapshots render as before. What they share with components and
+hosted plugins is the versioning (masters, channels, pins, rollouts, digests,
+`minSdk`); a hosted plugin version is already a component definition rendered as
+a call (§4.2), and a managed component published that way would be one too:
+what differs today is only that existing pages hold snapshots, which the
+editor's converter (docs/design/06 §5.9) would turn into calls.
 
 ```json
 "signin": {"type": "column", "children": ["signin__title", "..."],
@@ -796,6 +831,28 @@ layout whose entry got newer is dropped and loads again when shown, so a
 publish (or a preview save) reaches running apps. A
 document without `"schema": 2` is not in this format: loading fails
 with a `PublishLoadException` saying so.
+
+**Components.** `PublishLoader.loadComponent(source, type)` reads one
+published component (§2.1): the Firestore loader the document
+`PublishSource.componentPath`, `compressedDocument` expanded; the HTTP loader
+the bundle's `components` map, or `<path>.json` under its base URL for a
+self-hosted mirror; the asset and memory loaders the bundle's map.
+`Codelessly.loadLayout` loads a layout's closure before the screen shows: the
+types its model entry lists plus any call it finds in the layout and in each
+loaded definition (an older model that lists none still works), in parallel
+by depth, each once per app, and the fonts of each with the layout's. Each
+component is cached on its own at its publish path; a cached copy is used
+while its digest is the model's (offline, any cached copy), and a copy whose
+document doesn't match its own digest is refused. When a followed model
+lists a component with another digest, it loads again at once and its
+definition is replaced: every instance on screen updates in place, the
+pages that call it don't reload. A component that can't be loaded leaves
+its calls as empty boxes of their size, listed in
+`ComponentRegistry.missing` and logged to the app's analytics as
+`component_missing`; a call rendered without its definition fetches it if
+the model lists it, and renders when it arrives. A component the app
+defined itself (`Codelessly(components: ComponentRegistry([...]))`) is
+never replaced by a published one.
 
 ## 6. Proving it: parity
 
