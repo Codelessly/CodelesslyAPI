@@ -56,6 +56,9 @@ abstract final class PathProps {
   /// How segments meet when stroked (`Paint.strokeJoin`).
   static const strokeJoin = PropDef<StrokeJoin>('strokeJoin', EnumCodec(StrokeJoin.values), StrokeJoin.miter);
 
+  /// The miter limit of [StrokeJoin.miter] corners (`Paint.strokeMiterLimit`).
+  static const strokeMiterLimit = PropDef<double>('strokeMiterLimit', Codecs.positive, 4);
+
   /// Colors of the path's shapes, one per closed subpath (`M ... Z`) in
   /// drawing order, repeating when shorter; a subpath inside the previous
   /// shape's bounds (a hole) belongs to it. They replace the solid fills'
@@ -67,7 +70,7 @@ abstract final class PathProps {
   );
 
   static const spec = WidgetSpec('path',
-      props: [data, viewBox, scaleStroke, trimStart, trimEnd, strokeJoin, subpathColors],
+      props: [data, viewBox, scaleStroke, trimStart, trimEnd, strokeJoin, strokeMiterLimit, subpathColors],
       decorated: true,
       doc: 'Flutter `CustomPaint` of an SVG path.');
 }

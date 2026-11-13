@@ -443,9 +443,59 @@ void _putVec(Json j, String k, Expr<Vec>? v) {
 const _point = {2};
 const _rect = {4};
 
-/// `Canvas.drawPath`: SVG path data [d], or [points] joined by straight
-/// lines ([close]d back to the first); [trimStart]–[trimEnd] of its length
-/// (`PathMetric.extractPath`).
+/// One call of Flutter's `Path` builder: [method] (`moveTo`, `lineTo`,
+/// `quadraticBezierTo`, `cubicTo`, `close`) with its positional arguments
+/// [args] (each a literal or an expression), made only while [when] holds
+/// (`if (cond) path.lineTo(x, y)`). JSON: `{"lineTo": [x, y]}`,
+/// `{"quadraticBezierTo": [x1, y1, x2, y2]}`, `{"close": true}`, with an
+/// optional `"when"`.
+@immutable
+final class PathCommand {
+  const PathCommand(this.method, [this.args = const [], this.when]);
+
+  /// The `Path` method, one of [arity]'s keys.
+  final String method;
+  final Vec args;
+  final Expr<bool>? when;
+
+  /// The methods and how many numbers each takes.
+  static const arity = {'moveTo': 2, 'lineTo': 2, 'quadraticBezierTo': 4, 'cubicTo': 6, 'close': 0};
+
+  /// [json] as a command; null when it names no method of [arity] or its
+  /// arguments don't fit.
+  static PathCommand? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    for (final e in arity.entries) {
+      if (!m.containsKey(e.key)) continue;
+      final when = Expr.read<bool>(m['when'], readBool);
+      if (e.value == 0) return readBool(m[e.key]) == false ? null : PathCommand(e.key, const [], when);
+      final args = readVec(m[e.key], {e.value});
+      return args == null ? null : PathCommand(e.key, args, when);
+    }
+    return null;
+  }
+
+  Json toJson() => {
+    method: method == 'close' ? true : writeVec(args),
+    if (when != null) 'when': when!.toJson(),
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PathCommand && other.method == method && other.when == when && jsonEquality.equals(other.args, args);
+
+  @override
+  int get hashCode => Object.hash(method, when, jsonEquality.hash(args));
+}
+
+/// A list of [PathCommand]s; unreadable entries are dropped.
+List<PathCommand>? readPathCommands(Object? json) => readList(json)?.map(PathCommand.fromJson).nonNulls.toList();
+
+/// `Canvas.drawPath`: SVG path data [d]; or the `Path` builder's calls
+/// [commands]; or [points] joined by straight lines ([close]d back to the
+/// first). [trimStart]–[trimEnd] of its length (`PathMetric.extractPath`).
 final class PathOp extends ShapeOp {
   const PathOp({
     super.id,
@@ -454,6 +504,7 @@ final class PathOp extends ShapeOp {
     super.paint,
     super.hit,
     this.d,
+    this.commands,
     this.points,
     this.close = false,
     this.fillType = PathFillType.nonZero,
@@ -463,6 +514,11 @@ final class PathOp extends ShapeOp {
 
   /// SVG path data; may hold `${...}`.
   final String? d;
+
+  /// Without [d]: the path built call by call, as Flutter code builds it
+  /// (`Path()..moveTo(..)..quadraticBezierTo(..)`), exact numbers and no
+  /// SVG text in between.
+  final List<PathCommand>? commands;
   final Expr<List<Vec?>>? points;
   final bool close;
   final PathFillType fillType;
@@ -470,7 +526,7 @@ final class PathOp extends ShapeOp {
 
   @override
   String get op => 'path';
-  static const keys = {'d', 'points', 'close', 'fillType', 'trimStart', 'trimEnd', ...ShapeOp._shapeKeys};
+  static const keys = {'d', 'commands', 'points', 'close', 'fillType', 'trimStart', 'trimEnd', ...ShapeOp._shapeKeys};
 
   static PathOp _read(Json m, _Common c) => PathOp(
     id: c.id,
@@ -479,6 +535,7 @@ final class PathOp extends ShapeOp {
     paint: readPaints(m['paint']),
     hit: readString(m['hit']),
     d: readString(m['d']),
+    commands: readPathCommands(m['commands']),
     points: readExprPoints(m['points']),
     close: readBool(m['close']) ?? false,
     fillType: readEnum(PathFillType.values, m['fillType'], PathFillType.nonZero),
@@ -489,6 +546,7 @@ final class PathOp extends ShapeOp {
   @override
   void _write(Json j) {
     put(j, 'd', d);
+    if (commands != null) j['commands'] = [for (final c in commands!) c.toJson()];
     if (points != null) j['points'] = writeExprPoints(points!);
     put(j, 'close', close, false);
     put(j, 'fillType', fillType.name, PathFillType.nonZero.name);
@@ -498,7 +556,7 @@ final class PathOp extends ShapeOp {
   }
 
   @override
-  List<Object?> get _props => [paint, hit, d, points, close, fillType, trimStart, trimEnd];
+  List<Object?> get _props => [paint, hit, d, commands, points, close, fillType, trimStart, trimEnd];
 
   PathOp copyWith({
     String? id,
@@ -506,6 +564,7 @@ final class PathOp extends ShapeOp {
     List<Expr<DrawPaint>>? paint,
     String? hit,
     String? d,
+    List<PathCommand>? commands,
     Expr<List<Vec?>>? points,
     bool? close,
     PathFillType? fillType,
@@ -518,6 +577,7 @@ final class PathOp extends ShapeOp {
     paint: paint ?? this.paint,
     hit: hit ?? this.hit,
     d: d ?? this.d,
+    commands: commands ?? this.commands,
     points: points ?? this.points,
     close: close ?? this.close,
     fillType: fillType ?? this.fillType,

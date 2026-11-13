@@ -24,6 +24,11 @@ Object? _sample(PropDef<Object?> def) {
       null,
       [3, 4],
     ],
+    'commands' => [
+      {'moveTo': [0, 1]},
+      {'quadraticBezierTo': [2, 3, r'${x}', 5], 'when': r'${on}'},
+      {'close': true},
+    ],
     'scale' => [2, 3],
     'transform' => [for (var i = 0; i < 16; i++) i == 0 || i == 5 || i == 10 || i == 15 ? 2 : 0],
     'clipRRect' => {'rect': [0, 0, 10, 20], 'radius': 4},

@@ -58,6 +58,20 @@ final class PointsCodec extends PropCodec<List<Vec?>> {
   PropType get type => const PropType.list(PropTypes.offset);
 }
 
+/// A path op's `commands`: Flutter `Path` builder calls ([PathCommand]).
+final class PathCommandsCodec extends PropCodec<List<PathCommand>> {
+  const PathCommandsCodec();
+  @override
+  List<PathCommand>? decode(Object? json) => readPathCommands(json);
+  @override
+  Object? encode(List<PathCommand> value) => [for (final c in value) c.toJson()];
+  @override
+  PropType get type => const PropType.list(pathCommandType);
+}
+
+/// One `Path` builder call: `{"<method>": [numbers...], "when": ...}`.
+const pathCommandType = PropType.json('PathCommand');
+
 /// An op's `paint`: one [DrawPaint] or several (each may be an expression).
 final class DrawPaintsCodec extends PropCodec<List<Expr<DrawPaint>>> {
   const DrawPaintsCodec();
@@ -188,13 +202,16 @@ abstract final class ShapeOpFields {
 
 abstract final class PathOpFields {
   static const d = PropDef<String?>('d', Codecs.optionalString, null, doc: 'SVG path data.');
+  static const commands = PropDef<List<PathCommand>?>('commands', PathCommandsCodec(), null,
+      doc: 'Without d: Path builder calls ({"moveTo": [x, y]}, lineTo, quadraticBezierTo, cubicTo, {"close": true}), '
+          'each number a literal or an expression, each call with an optional "when".');
   static const points = PropDef<Expr<List<Vec?>>?>('points', _points, null,
-      doc: 'Without d: points joined by straight lines ([[x, y], ...]; null breaks the line).');
+      doc: 'Without d or commands: points joined by straight lines ([[x, y], ...]; null breaks the line).');
   static const close = PropDef<bool>('close', Codecs.bool, false, doc: 'Points: back to the first one.');
   static const fillType = PropDef<PathFillType>('fillType', EnumCodec(PathFillType.values), PathFillType.nonZero);
   static const trimStart = PropDef<Expr<double>>('trimStart', _fraction, Expr(0.0), doc: 'Drawn from this share of its length.');
   static const trimEnd = PropDef<Expr<double>>('trimEnd', _fraction, Expr(1.0), doc: 'Drawn up to this share of its length.');
-  static const List<PropDef<Object?>> all = [d, points, close, fillType, trimStart, trimEnd, ...ShapeOpFields.all];
+  static const List<PropDef<Object?>> all = [d, commands, points, close, fillType, trimStart, trimEnd, ...ShapeOpFields.all];
 }
 
 abstract final class LineOpFields {
