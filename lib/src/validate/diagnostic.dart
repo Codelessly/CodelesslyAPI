@@ -209,7 +209,7 @@ String? nearest(String word, Iterable<String> candidates) {
     if (l == w) return c;
     var d = _distance(w, l);
     // A prefix or containment is close whatever its length.
-    if (l.startsWith(w) || w.startsWith(l) || (w.length > 3 && l.contains(w))) d = d < 2 ? d : 2;
+    if (w.length >= 3 && (l.startsWith(w) || w.startsWith(l) || l.contains(w))) d = d < 1 ? d : 1;
     if (d < bestScore) {
       bestScore = d;
       best = c;
