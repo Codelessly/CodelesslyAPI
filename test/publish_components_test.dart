@@ -65,6 +65,15 @@ void main() {
     expect(PublishComponent(document: LayoutDocument.fromJson(card)).digestInput, canonicalJson(LayoutDocument.fromJson(card).toJson()));
   });
 
+  test('a stored component keeps its document as stored: written back and digested as the publisher wrote it', () {
+    final raw = {...card, 'nodes': {...card['nodes']! as Map, 'extra': {'type': 'box', 'zzz': 1}}};
+    final c = PublishComponent.fromJson({'schema': 2, 'id': 'Card', 'document': raw});
+    expect(c.toJson()['document'], raw);
+    expect(c.digestInput, canonicalJson(raw));
+    expect(c.copyWith(version: 2).digestInput, canonicalJson(raw));
+    expect(c.copyWith(document: c.document).digestInput, canonicalJson(c.document.toJson()));
+  });
+
   test('the model lists components and each layout its closure; fonts of called components come with the layout', () {
     final model = PublishModel.fromJson({
       'schema': 2,

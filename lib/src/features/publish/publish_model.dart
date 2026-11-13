@@ -555,13 +555,19 @@ final class PublishModel {
 /// [PublishSource.componentPath] ([PublishComponent]).
 @immutable
 final class PublishBundle {
-  const PublishBundle({required this.model, this.layouts = const {}, this.components = const {}});
+  const PublishBundle({required this.model, this.layouts = const {}, this.components = const {}, this.extra = const {}});
 
   final PublishModel model;
   final Map<String, PublishLayout> layouts;
 
   /// The published component definitions, by type name.
   final Map<String, PublishComponent> components;
+
+  /// Keys this version doesn't model, kept (the managed library's embedded
+  /// plugin versions, `plugins`).
+  final Json extra;
+
+  static const Set<String> _keys = {'schema', 'model', 'layouts', 'components'};
 
   /// Its layouts and components decode with [catalog] (default:
   /// `Catalog.current`).
@@ -579,6 +585,10 @@ final class PublishBundle {
       components: {
         for (final e in components.entries) e.key: PublishComponent.fromJson(e.value, catalog: catalog, id: e.key),
       },
+      extra: {
+        for (final e in m.entries)
+          if (!_keys.contains(e.key)) e.key: e.value,
+      },
     );
   }
 
@@ -587,5 +597,6 @@ final class PublishBundle {
         'model': model.toJson(),
         'layouts': {for (final e in layouts.entries) e.key: e.value.toJson()},
         if (components.isNotEmpty) 'components': {for (final e in components.entries) e.key: e.value.toJson()},
+        ...extra,
       };
 }

@@ -31,7 +31,13 @@ import 'publish_layout.dart' show readTimestamp, writeTimestamp;
 /// screens that call it).
 @immutable
 final class PublishComponentInfo {
-  const PublishComponentInfo({required this.id, this.version = 0, this.digest = '', this.lastUpdated, this.fonts = const []});
+  const PublishComponentInfo({
+    required this.id,
+    this.version = 0,
+    this.digest = '',
+    this.lastUpdated,
+    this.fonts = const [],
+  });
 
   /// The component's type name (`PlanCard`).
   final String id;
@@ -88,7 +94,8 @@ final class PublishComponentInfo {
   int get hashCode => Object.hash(id, version, digest, lastUpdated);
 
   @override
-  String toString() => 'PublishComponentInfo($id v$version ${digest.isEmpty ? '-' : digest.substring(0, digest.length.clamp(0, 8))})';
+  String toString() =>
+      'PublishComponentInfo($id v$version ${digest.isEmpty ? '-' : digest.substring(0, digest.length.clamp(0, 8))})';
 }
 
 /// One published component definition (`publish/{p}/components/{id}`): its
@@ -104,7 +111,24 @@ final class PublishComponent {
     this.lastUpdated,
     this.fonts = const [],
     this.extra = const {},
-  }) : id = id ?? document.componentType ?? document.id;
+  }) : id = id ?? document.componentType ?? document.id,
+       _documentJson = null;
+
+  PublishComponent._stored({
+    required this.document,
+    required this.id,
+    required this.version,
+    required this.digest,
+    required this.lastUpdated,
+    required this.fonts,
+    required this.extra,
+    required Json documentJson,
+    // ignore: prefer_initializing_formals
+  }) : _documentJson = documentJson;
+
+  /// The document's JSON as stored, when decoded from it: written back as it
+  /// was, so the digest stays over the publisher's bytes.
+  final Json? _documentJson;
 
   /// The component's type name.
   final String id;
@@ -125,8 +149,9 @@ final class PublishComponent {
   /// Whether [document] is a component definition.
   bool get isComponent => document.isComponent;
 
-  /// The text [digest] is over: [canonicalJson] of the document's JSON.
-  String get digestInput => canonicalJson(document.toJson());
+  /// The text [digest] is over: [canonicalJson] of the document's JSON (as
+  /// stored, when it was decoded from a store).
+  String get digestInput => canonicalJson(_documentJson ?? document.toJson());
 
   static const Set<String> _keys = {'schema', 'id', 'version', 'digest', 'lastUpdated', 'fonts', 'document'};
 
@@ -135,11 +160,13 @@ final class PublishComponent {
   /// [catalog]. Never throws; [id] fills a missing `id`.
   static PublishComponent fromJson(Object? json, {Catalog? catalog, String? id}) {
     final m = readMap(json) ?? const {};
-    final document = LayoutDocument.fromJson(readMap(m['document']) ?? const {}, catalog: catalog);
+    final raw = readMap(m['document']) ?? const {};
+    final document = LayoutDocument.fromJson(raw, catalog: catalog);
     final key = readString(m['id']) ?? id;
-    return PublishComponent(
+    return PublishComponent._stored(
       document: document,
-      id: key == null || key.isEmpty ? null : key,
+      documentJson: raw,
+      id: key == null || key.isEmpty ? (document.componentType ?? document.id) : key,
       version: readInt(m['version']) ?? 0,
       digest: readString(m['digest']) ?? '',
       lastUpdated: readTimestamp(m['lastUpdated']),
@@ -158,7 +185,7 @@ final class PublishComponent {
     if (digest.isNotEmpty) 'digest': digest,
     'lastUpdated': ?lastUpdated?.let(writeTimestamp),
     if (fonts.isNotEmpty) 'fonts': fonts,
-    'document': document.toJson(),
+    'document': _documentJson ?? document.toJson(),
     ...extra,
   };
 
@@ -169,13 +196,24 @@ final class PublishComponent {
     DateTime? lastUpdated,
     List<String>? fonts,
     Json? extra,
-  }) => PublishComponent(
-    document: document ?? this.document,
-    id: id,
-    version: version ?? this.version,
-    digest: digest ?? this.digest,
-    lastUpdated: lastUpdated ?? this.lastUpdated,
-    fonts: fonts ?? this.fonts,
-    extra: extra ?? this.extra,
-  );
+  }) => document == null && _documentJson != null
+      ? PublishComponent._stored(
+          document: this.document,
+          documentJson: _documentJson,
+          id: id,
+          version: version ?? this.version,
+          digest: digest ?? this.digest,
+          lastUpdated: lastUpdated ?? this.lastUpdated,
+          fonts: fonts ?? this.fonts,
+          extra: extra ?? this.extra,
+        )
+      : PublishComponent(
+          document: document ?? this.document,
+          id: id,
+          version: version ?? this.version,
+          digest: digest ?? this.digest,
+          lastUpdated: lastUpdated ?? this.lastUpdated,
+          fonts: fonts ?? this.fonts,
+          extra: extra ?? this.extra,
+        );
 }
