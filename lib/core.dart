@@ -32,6 +32,7 @@ export 'src/core/props.dart';
 export 'src/core/media.dart';
 export 'src/core/route_transition.dart';
 export 'src/core/scripts.dart';
+export 'src/core/sections.dart';
 export 'src/core/theme.dart';
 export 'src/core/triggers.dart';
 export 'src/core/value_fields.dart';

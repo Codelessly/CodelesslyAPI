@@ -10708,6 +10708,23 @@
         }
       ]
     },
+    "slot": {
+      "doc": "Inside a component: where the call's children (or one named slot) go; its own children show when the call passes none.\n\nWhere a definition places what a call passes: the `children` slot (the call's `children`) or a named one (the call's `slots`name``). With nothing passed it shows its own children (the default). Outside a definition it shows its children. Flutter: `child` / `children` / a `Widget title` parameter, placed in `build`.",
+      "children": "list",
+      "slots": [],
+      "decorated": false,
+      "childFields": [],
+      "props": [
+        {
+          "key": "name",
+          "type": "String",
+          "kind": "string",
+          "default": "children",
+          "nullable": false,
+          "doc": "children (the call's children) or a declared slot name."
+        }
+      ]
+    },
     "video": {
       "doc": "`VideoPlayer`. Its changed trigger reports ready/error and, when ready, durationSeconds/positionSeconds without autoplay; with reportIntervalMs, also positionSeconds/playing while it plays.\n\nA network video (`video_player`'s `VideoPlayer`).",
       "children": "none",
@@ -12179,6 +12196,11 @@
         "type": "actionError",
         "doc": "On the current canvas: a failed action chain or cloud subscription. `${result.error}` is `{type, message, action, nodeId}` (no stack or raw service objects). A failure in this reaction reports to the host without recursively firing another actionError reaction.",
         "group": "screen"
+      },
+      {
+        "type": "event",
+        "doc": "On a component call: the component fired its event `Trigger.event` (a `componentEvent` action inside its definition); `${result}` is the event's payload. Flutter: the callback passed to a widget's `onChanged`-style parameter. The handler runs in the caller's scope.",
+        "group": "other"
       }
     ],
     "fields": [
@@ -12271,6 +12293,14 @@
         "default": "",
         "nullable": false,
         "doc": "Runs once per key (an expression, such as ${item.id}) per app session."
+      },
+      {
+        "key": "event",
+        "type": "String",
+        "kind": "string",
+        "default": "",
+        "nullable": false,
+        "doc": "event: the key of the component event it handles (one of the component's widget.events)."
       }
     ]
   },
@@ -13656,6 +13686,29 @@
             "default": "20",
             "nullable": false,
             "doc": "For setPageSize."
+          }
+        ]
+      },
+      "componentEvent": {
+        "label": "Fire component event",
+        "class": "ComponentEventAction",
+        "doc": "Inside a component: fires one of its declared events; the call's event reactions run with the value as ${result}.",
+        "fields": [
+          {
+            "key": "event",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "The key of the event, one of the component's widget.events."
+          },
+          {
+            "key": "value",
+            "type": "Object",
+            "kind": "json",
+            "default": null,
+            "nullable": true,
+            "doc": "The payload (`${result}` in the call's handler): JSON whose strings are expressions."
           }
         ]
       },
@@ -24654,6 +24707,10 @@
       {
         "value": "actionError",
         "doc": "On the current canvas: a failed action chain or cloud subscription. `${result.error}` is `{type, message, action, nodeId}` (no stack or raw service objects). A failure in this reaction reports to the host without recursively firing another actionError reaction."
+      },
+      {
+        "value": "event",
+        "doc": "On a component call: the component fired its event `Trigger.event` (a `componentEvent` action inside its definition); `${result}` is the event's payload. Flutter: the callback passed to a widget's `onChanged`-style parameter. The handler runs in the caller's scope."
       }
     ],
     "VariableType": [
@@ -26071,6 +26128,56 @@
       "code": "duplicate_id",
       "severity": "warning",
       "meaning": "The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id."
+    },
+    {
+      "code": "unknown_component",
+      "severity": "error",
+      "meaning": "A call names a component type (UpperCamelCase) that no definition of the project declares: it renders as an empty box of its size."
+    },
+    {
+      "code": "duplicate_component",
+      "severity": "error",
+      "meaning": "Two definitions declare the same component type, or a component type is also a catalog type: there is no shadowing."
+    },
+    {
+      "code": "component_cycle",
+      "severity": "error",
+      "meaning": "A component calls itself, directly or through other components: it can never finish rendering."
+    },
+    {
+      "code": "component_id_mismatch",
+      "severity": "error",
+      "meaning": "A component document whose file name (or \"id\") is not its widget type: a file holds the component it is named after."
+    },
+    {
+      "code": "invalid_component",
+      "severity": "error",
+      "meaning": "A component document of the wrong shape: a \"widget\" without a type, a type that is not UpperCamelCase, or not exactly one root."
+    },
+    {
+      "code": "missing_prop",
+      "severity": "error",
+      "meaning": "A call does not set a parameter the component declares as required."
+    },
+    {
+      "code": "unknown_event",
+      "severity": "error",
+      "meaning": "An event reaction (or a componentEvent action) names an event the component does not declare, or sits on a node that is not a component call."
+    },
+    {
+      "code": "call_field_not_allowed",
+      "severity": "error",
+      "meaning": "A field on a call that belongs to the definition (decoration, layout.padding): the call gives size and placement only."
+    },
+    {
+      "code": "slot_outside_component",
+      "severity": "warning",
+      "meaning": "A slot node in a document that is not a component: nothing fills it, its own children show."
+    },
+    {
+      "code": "root_placement_bound",
+      "severity": "warning",
+      "meaning": "A component root binds its size or placement: the call sizes and places the root, so the binding is dropped."
     }
   ]
 }

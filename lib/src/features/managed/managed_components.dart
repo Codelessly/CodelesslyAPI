@@ -42,17 +42,22 @@ import '../../core/variables.dart';
 const String kManagedComponentsCollection = 'managed_components';
 
 /// The action type a master's chains name an event by: `{"type":
-/// "componentEvent", "event": "onSuccess"}`. Building an instance splices
-/// the instance's chain for that event in its place; an unbuilt one is an
-/// unknown action, which runtimes skip.
-const String kComponentEventAction = 'componentEvent';
+/// "componentEvent", "event": "onSuccess"}`, the core's
+/// [ComponentEventAction]. Building a snapshot instance splices the
+/// instance's chain for that event in its place; in a component rendered by
+/// reference it runs the call's `event` reactions.
+const String kComponentEventAction = ComponentEventAction.typeName;
 
-/// The placeholder action for event [key] (see [kComponentEventAction]).
-ActionDef componentEventAction(String key) => UnknownAction(kComponentEventAction, {'event': key});
+/// The action firing event [key] (see [kComponentEventAction]).
+ActionDef componentEventAction(String key) => ComponentEventAction(event: key);
 
-/// The event [action] is the placeholder of, or null.
-String? componentEventOf(ActionDef action) =>
-    action is UnknownAction && action.unknownType == kComponentEventAction ? readString(action.json['event']) : null;
+/// The event [action] fires, or null: a [ComponentEventAction], or one read
+/// as an unknown type (decoded with a catalog without it).
+String? componentEventOf(ActionDef action) => switch (action) {
+  ComponentEventAction(:final event) => event,
+  UnknownAction(:final unknownType, :final json) when unknownType == kComponentEventAction => readString(json['event']),
+  _ => null,
+};
 
 /// A release channel of managed components.
 enum ManagedChannel {

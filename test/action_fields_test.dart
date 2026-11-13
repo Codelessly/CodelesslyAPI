@@ -37,6 +37,7 @@ Object? _anySample(String type, String key) => switch (key) {
       'icon' => {'codepoint': 1},
       'look' => {'a': 1},
       'variables' || 'arguments' || 'validationArguments' || 'props' => {'a': 'x'},
+      'value' when type == 'componentEvent' => r'${props.plan.id}',
       _ => throw StateError('No Codecs.any sample for $type.$key'),
     };
 

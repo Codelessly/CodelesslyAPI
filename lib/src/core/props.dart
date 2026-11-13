@@ -47,6 +47,7 @@ enum PropKind {
 final class PropType {
   const PropType.boolean()
     : kind = PropKind.boolean,
+      variableOf = null,
       name = 'bool',
       values = const [],
       item = null,
@@ -56,6 +57,7 @@ final class PropType {
       max = null;
   const PropType.integer({this.min, this.max})
     : kind = PropKind.integer,
+      variableOf = null,
       name = 'int',
       values = const [],
       item = null,
@@ -63,6 +65,7 @@ final class PropType {
       _spec = null;
   const PropType.number({this.min, this.max})
     : kind = PropKind.number,
+      variableOf = null,
       name = 'double',
       values = const [],
       item = null,
@@ -70,6 +73,7 @@ final class PropType {
       _spec = null;
   const PropType.string()
     : kind = PropKind.string,
+      variableOf = null,
       name = 'String',
       values = const [],
       item = null,
@@ -81,6 +85,7 @@ final class PropType {
   /// An enum: its Flutter name and its values' names.
   const PropType.enumeration(this.name, this.values)
     : kind = PropKind.enumeration,
+      variableOf = null,
       item = null,
       _fields = null,
       _spec = null,
@@ -90,6 +95,7 @@ final class PropType {
   /// A Flutter value type with a JSON form of its own ([PropKind.value]).
   const PropType.value(this.name)
     : kind = PropKind.value,
+      variableOf = null,
       values = const [],
       item = null,
       _fields = null,
@@ -100,6 +106,7 @@ final class PropType {
   /// A list; [name] is the item's Flutter type (the list's is [typeName]).
   const PropType.list(PropType this.item)
     : kind = PropKind.list,
+      variableOf = null,
       name = 'List',
       values = const [],
       _fields = null,
@@ -111,6 +118,7 @@ final class PropType {
   /// contain itself (a paint's image) and declarations can be cyclic.
   const PropType.object(this.name, List<PropDef<Object?>> Function() fields)
     : kind = PropKind.object,
+      variableOf = null,
       values = const [],
       item = null,
       _fields = fields,
@@ -121,14 +129,32 @@ final class PropType {
   /// A model declared as a [WidgetSpec] of fields (a record).
   const PropType.record(this.name, WidgetSpec spec)
     : kind = PropKind.object,
+      variableOf = null,
       values = const [],
       item = null,
       _fields = null,
       _spec = spec,
       min = null,
       max = null;
+  /// A `variable` parameter of a component (Flutter: a `ValueNotifier<T>`
+  /// passed in): the call names a variable of its scope (`"menuOpen"`), the
+  /// definition reads it live (`${props.menuOpen}`) and writes it
+  /// (`setVariable "props.menuOpen"`). Its JSON is `{"kind": "variable",
+  /// "of": {...}}`; [kind] is [PropKind.string] (the name), so a panel that
+  /// switches over the kinds offers a text field, and [variableOf] is the
+  /// variable's own type.
+  const PropType.variable(PropType this.variableOf)
+    : kind = PropKind.string,
+      name = 'ValueNotifier',
+      values = const [],
+      item = null,
+      _fields = null,
+      _spec = null,
+      min = null,
+      max = null;
   const PropType.json([this.name = 'Object'])
     : kind = PropKind.json,
+      variableOf = null,
       values = const [],
       item = null,
       _fields = null,
@@ -152,11 +178,22 @@ final class PropType {
   /// Bounds of a number (inclusive).
   final num? min, max;
 
+  /// The type of the variable a [PropType.variable] parameter names; null
+  /// for every other type.
+  final PropType? variableOf;
+
+  /// Whether this is a [PropType.variable] (its value is a variable's name).
+  bool get isVariable => variableOf != null;
+
   /// The fields of a [PropKind.object] (empty for other kinds).
   List<PropDef<Object?>> get fields => _fields?.call() ?? _spec?.props ?? const [];
 
   /// The full Flutter type name (`List<Paint>`).
-  String get typeName => kind == PropKind.list ? 'List<${item!.typeName}>' : name;
+  String get typeName => variableOf != null
+      ? 'ValueNotifier<${variableOf!.typeName}>'
+      : kind == PropKind.list
+          ? 'List<${item!.typeName}>'
+          : name;
 
   @override
   String toString() => 'PropType($typeName)';
@@ -487,7 +524,7 @@ abstract final class Codecs {
 /// One prop of a widget.
 @immutable
 final class PropDef<T> {
-  const PropDef(this.key, this.codec, this.defaultValue, {this.doc = ''});
+  const PropDef(this.key, this.codec, this.defaultValue, {this.doc = '', this.required = false});
 
   /// The JSON key: Flutter's parameter name.
   final String key;
@@ -496,6 +533,10 @@ final class PropDef<T> {
   /// Flutter's default. Values equal to it aren't stored.
   final T defaultValue;
   final String doc;
+
+  /// A component parameter the call must set (Flutter's `required`): a call
+  /// without it is `missing_prop`. The core's own props are never required.
+  final bool required;
 
   T? decode(Object? json) => codec.decode(json);
   Object? encode(T value) => codec.encode(value);
@@ -549,6 +590,7 @@ final class WidgetSpec {
     this.childFields = const [],
     this.childFits,
     this.doc = '',
+    this.events = const [],
   });
 
   /// The node `type`.
@@ -573,12 +615,43 @@ final class WidgetSpec {
   final ChildFitRule? childFits;
   final String doc;
 
+  /// The events it fires (a component's `widget.events`): what a call's
+  /// `{"type": "event", "event": "<key>"}` reactions handle. Empty for the
+  /// core's widgets, whose events are triggers.
+  final List<EventSpec> events;
+
   PropDef<Object?>? prop(String key) {
     for (final p in props) {
       if (p.key == key) return p;
     }
     return null;
   }
+
+  /// The event [key], or null.
+  EventSpec? event(String key) {
+    for (final e in events) {
+      if (e.key == key) return e;
+    }
+    return null;
+  }
+}
+
+/// An event a component fires with `componentEvent` (Flutter: a
+/// `VoidCallback` or `ValueChanged<T>` constructor parameter, `onChanged`).
+/// JSON: `{"key": "onChoose", "payload": {"kind": "string"}, "doc": "..."}`.
+@immutable
+final class EventSpec {
+  const EventSpec(this.key, {this.payload, this.doc = ''});
+
+  /// The name a call's `event` trigger handles (`onChoose`).
+  final String key;
+
+  /// What `${result}` holds in the handler; null: nothing (a `VoidCallback`).
+  final PropType? payload;
+  final String doc;
+
+  @override
+  String toString() => 'EventSpec($key)';
 }
 
 /// A widget's prop values: only the ones that differ from Flutter's defaults

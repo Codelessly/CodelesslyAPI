@@ -189,6 +189,7 @@ a fill, a radius and padding, not three nested widgets.
 | [`external`](#node-external) |  | none | blurs only |
 | [`placeholder`](#node-placeholder) |  | none | blurs only |
 | [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
+| [`slot`](#node-slot) |  | `children` | blurs only |
 | [`video`](#node-video) |  | none | blurs only |
 | [`embeddedVideo`](#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](#node-audioPlayer) |  | none | blurs only |
@@ -1639,6 +1640,16 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
+| `unknown_component` | error | A call names a component type (UpperCamelCase) that no definition of the project declares: it renders as an empty box of its size. |
+| `duplicate_component` | error | Two definitions declare the same component type, or a component type is also a catalog type: there is no shadowing. |
+| `component_cycle` | error | A component calls itself, directly or through other components: it can never finish rendering. |
+| `component_id_mismatch` | error | A component document whose file name (or "id") is not its widget type: a file holds the component it is named after. |
+| `invalid_component` | error | A component document of the wrong shape: a "widget" without a type, a type that is not UpperCamelCase, or not exactly one root. |
+| `missing_prop` | error | A call does not set a parameter the component declares as required. |
+| `unknown_event` | error | An event reaction (or a componentEvent action) names an event the component does not declare, or sits on a node that is not a component call. |
+| `call_field_not_allowed` | error | A field on a call that belongs to the definition (decoration, layout.padding): the call gives size and placement only. |
+| `slot_outside_component` | warning | A slot node in a document that is not a component: nothing fills it, its own children show. |
+| `root_placement_bound` | warning | A component root binds its size or placement: the call sizes and places the root, so the binding is dropped. |
 
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
@@ -1673,6 +1684,139 @@ there, so formula syntax errors and unknown names in formulas are reported only 
     is Flutter's overflow); `basis`, `order` and `minCrossAxisExtent` are CSS's; a negative margin is not CSS's.
 18. Repeated content from data: a `gridView` with `minCrossAxisExtent` for columns, a `listView` for a list; a
     wrapping `listView` runs along its `scrollDirection`.
+
+<a id="guide-components"></a>
+## 19. Sections and components
+
+A page can be split into parts, each in a file of its own: a **component** is a document with one root (not a
+canvas) and a `widget` declaration, and a page (or another component) **calls** it with one node whose `type` is
+the component's type. A **section** is a component used once (a header, a hero, an FAQ band). It is Flutter's
+widget class: the declaration is its constructor, a call is `PlanCard(price: 47, ...)`.
+
+| Here | Flutter |
+|---|---|
+| a component document | a `StatelessWidget` / `StatefulWidget` class, in its own file |
+| `widget.props` (parameters) | the constructor's named parameters, with types and defaults |
+| a call `{"type": "PlanCard", "props": {...}}` | `PlanCard(...)` in a parent's `build` |
+| `${props.price}` in the definition | `widget.price` |
+| the definition's own `variables` (one set per instance) | the `State`'s fields |
+| a `slot` node, the call's `children` / `slots` | `child`, `children`, `Widget title` parameters, placed in `build` |
+| `widget.events`, `componentEvent`, the call's `event` reaction | a `ValueChanged<T>` / `VoidCallback` parameter (`onChanged`) |
+| a `variable` parameter | a `ValueNotifier<T>` passed in |
+| `site.json` | the app's `lib/`: its pages and its globals |
+
+A definition (`components/Chip.json`; the file is named after the type):
+
+```json
+{"schema": 2, "id": "Chip", "roots": ["chip"],
+ "widget": {"type": "Chip", "doc": "A label with a remove button.", "children": "list", "slots": ["leading"],
+   "props": [
+     {"key": "label", "type": {"kind": "string", "flutter": "String"}, "default": "Chip", "required": true},
+     {"key": "selected", "type": {"kind": "variable", "of": {"kind": "boolean", "flutter": "bool"}}, "default": ""}],
+   "events": [{"key": "onRemove", "payload": {"kind": "string", "flutter": "String"}}]},
+ "variables": {"chip": [{"name": "hovered", "type": "boolean", "value": false}]},
+ "previews": [{"name": "Selected", "size": [240, 48], "props": {"label": "Design", "selected": true}}],
+ "nodes": {
+  "chip": {"type": "row", "children": ["lead", "text", "extra", "remove"], "props": {"spacing": 6},
+           "layout": {"width": {"hug": 120}, "height": 36, "padding": [12, 0, 8, 0]},
+           "decoration": {"fills": [{"color": "#FFE8EAF6"}], "radius": 18},
+           "bind": {"decoration.fills[0].color": "${= props.selected ? '#FF3F51B5' : '#FFE8EAF6'}"},
+           "actions": [{"trigger": {"type": "click"},
+                        "actions": [{"type": "setVariable", "variable": "props.selected", "op": "toggle"}]}]},
+  "lead": {"type": "slot", "props": {"name": "leading"}},
+  "text": {"type": "text", "props": {"text": "${props.label}", "style": {"fontSize": 14, "color": "#FF1A237E"}},
+           "layout": {"width": {"hug": 60}, "height": {"hug": 20}},
+           "bind": {"props.style.color": "${= props.selected ? '#FFFFFFFF' : '#FF1A237E'}"}},
+  "extra": {"type": "slot"},
+  "remove": {"type": "icon", "props": {"icon": "close", "color": "#FF5C6BC0"},
+             "layout": {"width": 20, "height": 20},
+             "actions": [{"trigger": {"type": "click"},
+                          "actions": [{"type": "componentEvent", "event": "onRemove", "value": "${props.label}"}]}]}
+ }}
+```
+
+And calls to it, in a page's `nodes` (the page declares `tag` and `removed`):
+
+```json
+"nodes": {
+  "design": {"type": "Chip", "props": {"label": "Design", "selected": "tag"},
+             "slots": {"leading": "dot"}, "layout": {"width": {"hug": 120}, "height": 36},
+             "actions": [{"trigger": {"type": "event", "event": "onRemove"},
+                          "actions": [{"type": "setVariable", "variable": "removed", "value": "${result}"}]}]},
+  "dot": {"type": "box", "layout": {"width": 8, "height": 8}, "decoration": {"fills": [{"color": "#FF4CAF50"}], "radius": 4}},
+  "tags": {"type": "listView", "children": ["tagChip"], "bind": {"data": "${tags}"},
+           "props": {"scrollDirection": "horizontal", "spacing": 8}, "layout": {"width": {"fill": 360}, "height": 36}},
+  "tagChip": {"type": "Chip", "bind": {"props.label": "${item.name}"}, "layout": {"width": {"hug": 120}, "height": {"fill": 36}}}
+}
+```
+
+**Parameters.** Declared in `widget.props` as the catalog declares any prop: `key`, `type` (`kind` and the
+Flutter type; `min`, `max`, enum `values`, list `item`), `default`, `doc`, and `"required": true` for one a call
+must set. Inside, read them as `${props.<key>}`. A call sets them as any node's props: a literal in `props`, an
+expression in `bind` (`"props.label": "${item.name}"`). Validation checks every call against the declaration:
+unknown keys, wrong types and bounds, missing required ones, children and slots the component does not take.
+
+**What a definition reads.** Its parameters (`props`), its own variables (one set per instance: two chips are
+hovered apart), the project's variables (`site.json`, below) and the runtime's scopes (`screen`, `route`,
+`theme`, `auth`...); inside its own lists, `item` and `index`. **Never the caller's variables**: the same chip works
+on any page. What a section needs from its page comes in as a parameter.
+
+**`variable` parameters** share state with the caller: `{"kind": "variable", "of": {"kind": "boolean"}}`. The
+call passes the *name* of one of its variables (`"selected": "tag"`); inside, `${props.selected}` reads it live and
+`setVariable "props.selected"` writes it. A header and a menu both taking `"menuOpen": "menuOpen"` open and close
+the page's one menu.
+
+**Slots.** A `slot` node in the definition is replaced by what the call passes: the call's `children` for the
+slot named `children` (the default name; declare `"children": "list"`), or the call's `slots[name]` for a named
+slot (declare it in `widget.slots`). With nothing passed, the slot shows its own children. What is passed belongs
+to the caller: it is stored in the page and reads the page's variables.
+
+**Events.** Declared in `widget.events`; fired inside with `{"type": "componentEvent", "event": "onRemove",
+"value": ...}`; handled by the call's reaction `{"trigger": {"type": "event", "event": "onRemove"}}`, which runs in
+the caller's scope with the value as `${result}`. An event nobody handles does nothing.
+
+**Size and place.** The call and the definition's root are one box: the call's `layout` sizes and places it
+(width, height, flex, margin, x/y, align, constraints); the root keeps its padding, decoration and contents. A call
+has no `decoration` and no `layout.padding`. The root's own size is the design size its previews and new calls
+use. `visible` hides the instance when either the call or the root is hidden.
+
+**Ids are local.** A definition's ids are its own (`text`, `remove`); a page may use the same ids. Tools name a
+node inside an instance by its **path**: the call ids from the page down, then the node's id
+(`design/remove`, `plans/card1/cta`); `#n` picks the n-th copy a list repeats (`tagChip#2/text`).
+
+**A site.** A directory with a `site.json` is a site: its pages, its components and its project variables, read by
+bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).
+
+```json
+{"schema": 2, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
+ "variables": [{"name": "tags", "type": "list", "value": [{"name": "Design"}, {"name": "Code"}]}]}
+```
+
+Without `components`, the files under `components/` are the site's components.
+
+**Rendering one part.** `tool/render/render.sh site --out out --component Chip` renders the component alone, once
+per preview at its size; `--props '{"label": "Long label"}'` renders one parameter set at each size, and
+`--slots fixture.json` (`{"children": [ids], "slots": {"leading": id}, "nodes": {...}}`) passes slot content.
+Steps take paths: `--tap design/remove`.
+
+**When to make what.**
+
+* **List template**: one shape repeated from data in one parent. When the item is more than about five nodes, or
+  appears elsewhere too, make the template one call node (`"bind": {"props.plan": "${item}"}`).
+* **Component**: the same structure in two or more places with different values (buttons, cards, chips, rows),
+  or a part others will reuse. Data comes in as parameters.
+* **Section**: a top-level band of a page (header, hero, plans, FAQ, footer), in its own file when it is more
+  than about 15 nodes or someone will edit it alone, even if it is used once. Parameters only for what it shares
+  with its page (`variable` parameters for state both change).
+
+**Validation codes** for components: `unknown_component` (a call to a type no definition declares),
+`duplicate_component`, `component_cycle` (a component calling itself, directly or through others),
+`component_id_mismatch` (the file is not named after its type), `invalid_component`, `missing_prop`,
+`unknown_event`, `call_field_not_allowed`, `slot_outside_component`, `root_placement_bound`. The render command
+adds `component_missing` (a call rendered without its definition: an empty box of its size).
+
+Components made by copying a node tree into the library (`ComponentLink`, DESIGN.md §4.2) are still read and
+drawn as before: their instances are copies.
 
 ---
 
@@ -1753,6 +1897,7 @@ of a stack is placed by `x` and `y`, a child of a row or column by `flex`, `sque
 | [`external`](#node-external) |  | none | blurs only |
 | [`placeholder`](#node-placeholder) |  | none | blurs only |
 | [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
+| [`slot`](#node-slot) |  | `children` | blurs only |
 | [`video`](#node-video) |  | none | blurs only |
 | [`embeddedVideo`](#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](#node-audioPlayer) |  | none | blurs only |
@@ -3679,6 +3824,20 @@ A slot that shows its one child, or keeps its size when empty.
 | `deniedTypes` | List<String> | `[]` |  |  |
 | `maxAllowedSize` | [Size](#type-Size) | unset |  | The largest child it accepts, `[width, height]`. |
 | `ephemeral` | bool | `false` |  | Its child is temporary (not kept when the slot is filled again). |
+
+<a id="node-slot"></a>
+## `slot`
+
+Inside a component: where the call's children (or one named slot) go; its own children show when the call passes none.
+
+Where a definition places what a call passes: the `children` slot (the call's `children`) or a named one (the call's `slots`name``). With nothing passed it shows its own children (the default). Outside a definition it shows its children. Flutter: `child` / `children` / a `Widget title` parameter, placed in `build`.
+
+- Children: `children`.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `name` | String | `"children"` |  | children (the call's children) or a declared slot name. |
 
 <a id="node-video"></a>
 ## `video`
@@ -6655,6 +6814,7 @@ Written as the value's name, a JSON string (`"center"`).
 | `swipeAction` | A swipe action of a list item ran (the list's `swipeActions`): `${result.action}`, `${result.label}`, `${result.item}`, `${result.index}`. |
 | `rowTap` | A table view's body row was tapped: `${result.row}` (the row's data), `${result.rowIndex}`, `${result.column}` (the tapped column's key), `${result.columnIndex}`. |
 | `actionError` | On the current canvas: a failed action chain or cloud subscription. `${result.error}` is `{type, message, action, nodeId}` (no stack or raw service objects). A failure in this reaction reports to the host without recursively firing another actionError reaction. |
+| `event` | On a component call: the component fired its event `Trigger.event` (a `componentEvent` action inside its definition); `${result}` is the event's payload. Flutter: the callback passed to a widget's `onChanged`-style parameter. The handler runs in the caller's scope. |
 
 <a id="enum-VariableType"></a>
 ### VariableType
@@ -6945,6 +7105,7 @@ A reaction (`"actions": [{"trigger": {...}, "actions": [...]}]` on a node) start
 | <a id="trigger-refresh"></a>`refresh` | A list or grid was pulled past its start to refresh (its `pullToRefresh`, or its pagination's); its pagination reloads its first page too. A list with this reaction can always be pulled. |
 | <a id="trigger-swipeAction"></a>`swipeAction` | A swipe action of a list item ran (the list's `swipeActions`): `${result.action}`, `${result.label}`, `${result.item}`, `${result.index}`. |
 | <a id="trigger-rowTap"></a>`rowTap` | A table view's body row was tapped: `${result.row}` (the row's data), `${result.rowIndex}`, `${result.column}` (the tapped column's key), `${result.columnIndex}`. |
+| <a id="trigger-event"></a>`event` | On a component call: the component fired its event `Trigger.event` (a `componentEvent` action inside its definition); `${result}` is the event's payload. Flutter: the callback passed to a widget's `onChanged`-style parameter. The handler runs in the caller's scope. |
 
 ## Trigger fields
 
@@ -6963,6 +7124,7 @@ A trigger is `{"type": "<type>", ...these}`, or just the type as a string (`"cli
 | `repeat` | bool | `false` |  | keyDown: also while the key repeats. |
 | `visibleMs` | int | `0` | ≥ 0 | Viewport: how long it stays in view before firing (ms). |
 | `onceKey` | String | `""` |  | Runs once per key (an expression, such as ${item.id}) per app session. |
+| `event` | String | `""` |  | event: the key of the component event it handles (one of the component's widget.events). |
 
 ---
 
@@ -7313,6 +7475,16 @@ Moves the pagination controller of a list or grid (its `pagination`, by `control
 | `command` | [PaginateCommand](#enum-PaginateCommand) | `"next"` | `next`, `previous`, `goTo`, `first`, `last`, `refresh`, `retry`, `setPageSize` |  |
 | `page` | String | `"1"` |  | For goTo: a number or an expression. |
 | `pageSize` | String | `"20"` |  | For setPageSize. |
+
+<a id="action-componentEvent"></a>
+## `componentEvent`: Fire component event
+
+Inside a component: fires one of its declared events; the call's event reactions run with the value as ${result}.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `event` | String | `""` |  | The key of the event, one of the component's widget.events. |
+| `value` | Object | unset |  | The payload (`${result}` in the call's handler): JSON whose strings are expressions. |
 
 <a id="action-callApi"></a>
 ## `callApi`: Call API
