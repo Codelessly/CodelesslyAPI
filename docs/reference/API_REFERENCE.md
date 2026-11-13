@@ -292,7 +292,9 @@ Under a row or column a child may also set, in its own `layout`:
 - `basis` (CSS `flex-basis`, in a **wrapping** row, column or flex): the main size the child counts when lines are
   broken; a child that also fills the main axis (`{"fill": n}`) then grows by its `flex` share of what its line
   leaves. `"width": {"fill": 300}, "basis": 280` is CSS `flex: 1 1 280px`: three across at 1000 px, two at 700, one
-  at 390 ([section 7](#guide-responsive)). Without `basis`, children of a wrapping row keep their own size.
+  at 390 ([section 7](#guide-responsive)). Without `basis`, children of a wrapping row keep their own size. In a
+wrapping row `crossAxisAlignment: stretch` makes the children of each line as tall as its tallest (CSS
+`align-items: stretch`: equal-height cards per line).
 
 A child hidden by a binding, a condition or a media rule takes no room and no slot: `spaceBetween` spreads the
 children that show (CSS `display: none`; in Flutter, leaving it out of the list). A node written with
