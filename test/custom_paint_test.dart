@@ -9,7 +9,7 @@ import 'dart:io';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-import 'value_fields_test.dart' show sample;
+import 'document/declared_fields_test.dart' show sample;
 
 /// A non-default JSON sample for [def] (an expression field: its literal's).
 Object? _sample(PropDef<Object?> def) {

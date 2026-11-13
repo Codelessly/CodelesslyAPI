@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-import 'actions_test.dart' show samples;
+import 'actions/actions_test.dart' show samples;
 
 // A native plugin, declared in Dart: one node type and one action type.
 abstract final class RatingProps {
