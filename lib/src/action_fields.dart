@@ -52,7 +52,6 @@ abstract final class TriggerFields {
   static const holdMs = PropDef<int>('holdMs', Codecs.int, kDefaultHoldMs);
   static const every = PropDef<String>('every', Codecs.string, '');
   static const runWhen = PropDef<String>('runWhen', Codecs.string, '');
-  static const lookaheadMs = PropDef<int>('lookaheadMs', Codecs.int, 100);
   static const visibleFraction = PropDef<double>('visibleFraction', Codecs.double, kDefaultVisibleFraction);
   static const repeat = PropDef<bool>('repeat', Codecs.bool, false, doc: 'keyDown: also while the key repeats.');
   static const visibleMs = PropDef<int>('visibleMs', IntCodec(min: 0), 0,
@@ -60,7 +59,7 @@ abstract final class TriggerFields {
   static const onceKey = PropDef<String>('onceKey', Codecs.string, '',
       doc: 'Runs once per key (an expression, such as \${item.id}) per app session.');
   static const List<PropDef<Object?>> all = [
-    type, debounceMs, variable, intervalMs, key, when, holdMs, every, runWhen, lookaheadMs, visibleFraction, repeat, //
+    type, debounceMs, variable, intervalMs, key, when, holdMs, every, runWhen, visibleFraction, repeat, //
     visibleMs, onceKey,
   ];
 }
@@ -530,11 +529,10 @@ abstract final class CloudDataFields {
   static const limit = PropDef<int?>('limit', Codecs.optionalInt, null);
   static const aggregateField = PropDef<String>('aggregateField', Codecs.string, '');
   static const loadRelated = PropDef<List<String>>('loadRelated', Codecs.strings, []);
-  static const deleteSubcollections = PropDef<List<String>>('deleteSubcollections', Codecs.strings, []);
   static const resultVariable = PropDef<String>('resultVariable', Codecs.string, '');
   static const List<PropDef<Object?>> all = [
     operation, collection, id, fields, whereFilters, orderByFilters, limit, aggregateField, loadRelated, //
-    deleteSubcollections, resultVariable,
+    resultVariable,
   ];
 }
 
