@@ -597,20 +597,13 @@ lib/src/features/*, lib/src/standard_catalog.dart) and `codelessly_sdk`
   and validators can describe them. To do: a `DataSourceSpec`-typed `source`
   prop on listView/gridView/pagination, a decoder that reads the legacy keys
   into it, the SDK list runtime resolving it through the installed features.
-* **Hosted plugins in the running app.** Model, verification, cache and
-  install exist (`loadHostedPlugins`), but `Codelessly` does not yet call them:
-  to do, after loading the publish model, call `loadHostedPlugins(model.plugins,
-  source: <loader as PluginSource>, host: config.catalog, cache: cache)`, add
-  the installed features to the runner (`CodelesslyActions(features: [...first
-  party, ...installed])`) before the first layout is decoded, and decode
-  layouts with the extended catalog. The Firestore and HTTP loaders need
-  `PluginSource` implementations (`plugins/{id}/versions/{n}`), and the
-  publish bundle should embed the pinned payloads for a first offline run.
-* **Hosted widget events and slots**: `PluginWidget.slots` and `events` are
-  modelled but not wired (the island's tree is not interactive and doesn't
-  graft the node's slots); assets aren't fetched or digest-checked; plugin
-  scripts are carried but not installed in the script runtime; formula
-  functions are in scope of the widget tree only.
+* ~~Hosted plugins in the running app~~ and ~~hosted widget events and slots~~: done (2026-11-13,
+  docs/design/06 "Implementation notes (phase 2)"): `Codelessly` installs `model.plugins` through its loader as
+  a `PluginSource` (bundle-embedded versions, `plugins/{id}/versions/{n}` over HTTP and in Firestore), a plugin
+  node type is a component definition rendered on the components' path (slots, events, hug and fill, per-node
+  watching), its action types run through `Codelessly.actions`. The island (deviation 10) is gone.
+* **Plugin assets and scripts**: assets aren't fetched or digest-checked; plugin scripts are carried but not
+  installed in the script runtime; automations run hosted action types only when the app's runner installs them.
 * **Capability profile per project**: `allowed` is a parameter; nothing
   stores a project's allowed capabilities yet.
 * **`animationPresets` in the catalog**: presets live in `AnimationPresets`
