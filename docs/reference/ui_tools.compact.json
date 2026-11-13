@@ -1,0 +1,123 @@
+[
+  {
+    "name": "ui_apply",
+    "description": "Build or change the UI with edit ops, applied in order (the system prompt describes the ops and the nodes). Balanced JSON; every child id you list is set in the same call. The result lists rejected ops and pending ids: fix them by patching, never start over.",
+    "input_schema": {
+      "type": "object",
+      "required": [
+        "ops"
+      ],
+      "properties": {
+        "ops": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "op"
+            ],
+            "properties": {
+              "op": {
+                "enum": [
+                  "set",
+                  "patch",
+                  "move",
+                  "remove",
+                  "vars",
+                  "roots"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "node": {
+                "type": "object"
+              },
+              "nodes": {
+                "type": "object"
+              },
+              "parent": {
+                "type": "string"
+              },
+              "index": {
+                "type": "integer"
+              },
+              "slot": {
+                "type": "string"
+              },
+              "placeholders": {
+                "type": "object"
+              },
+              "patch": {
+                "type": "object"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "scope": {
+                "type": "string"
+              },
+              "set": {
+                "type": "object"
+              },
+              "remove": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "roots": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "baseRev": {
+          "type": "integer"
+        },
+        "atomic": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "ui_read",
+    "description": "Read the UI before changing it (the outline, or full nodes by id), or the props of node types (\"types\").",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Node types whose props to describe (one you have not used yet)."
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Ids of the nodes to return in full."
+        },
+        "outline": {
+          "type": "boolean",
+          "description": "Include the outline (default: when no ids are given)."
+        },
+        "variables": {
+          "type": "boolean",
+          "description": "Include the variables."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+]

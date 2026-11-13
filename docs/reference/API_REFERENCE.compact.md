@@ -1998,12 +1998,13 @@ The result (`EditResult.toModelJson()`, the tool result):
 {
   "rev": 1,
   "applied": [0],
+  "ids": {"patched": ["title"]},
   "rejected": [
     {
       "op": 1,
       "code": "unknown_decoration_key",
       "path": "/nodes/title/decoration/fill",
-      "message": "decoration has no \"fill\".",
+      "message": "decoration has no \"fill\": a fill is a list of paints: \"decoration\": {\"fills\": [{\"color\": \"#FF2563EB\"}]}.",
       "nodeId": "title",
       "expected": [
         "fills",
@@ -2023,7 +2024,9 @@ The result (`EditResult.toModelJson()`, the tool result):
       "suggestion": "fills"
     }
   ],
-  "warnings": []
+  "warnings": [],
+  "document": {"roots": ["home"], "nodes": 4},
+  "next": "The UI exists as described (rev 1): fix it by patching it, in one ui_apply call. Resend only the rejected ops, corrected, with the same ids; patch fields of nodes that exist. Never start over: no new roots, no new canvas, no re-sending nodes that applied."
 }
 ```
 
@@ -2031,8 +2034,21 @@ The result (`EditResult.toModelJson()`, the tool result):
 
 LLM APIs deliver a tool call's input as text deltas cut anywhere. `OpStreamDecoder` yields each op the moment its
 closing brace arrives (inside a `set` with `nodes`, each node as its own brace closes), whatever the cuts; a stream
-cut mid-op keeps every complete op and reports the tail (`truncated_op`). While a document streams in, it is
-incomplete by nature:
+cut mid-op keeps every complete op and reports the tail (`truncated_op`).
+
+**Malformed input.** With eager (fine-grained) tool input streaming a provider does not promise valid JSON, and
+models do not always write it: a recorded live generation closed one brace too many three times in 24 ops. The
+decoder works around op boundaries, not the enclosing JSON: it keeps a repaired copy of the text (a closer that
+closes nothing is dropped, a missing one is inferred, trailing commas are removed, missing commas inserted), reads an
+op object (`{"op": ...}`) at any depth outside another op (after an `ops` array closed early, in a wrapper of
+another name, after text), and when an op begins before the previous one closed, closes that one where the next
+began and reads what it can of it. Each repair is one `malformed_input` warning with the character offset; the ops
+around it apply. A node field written beside `"node"` (what an early closing brace produces) is moved into the node
+(`misplaced_field`). A single stray or missing brace, bracket or comma loses at most the op it is in
+(`test/edit_stream_recovery_test.dart` checks this property on 2,000 random edits, and that every chunking yields the
+same ops). `OpStreamEnd.repairs` and `.recovered` count the repairs and the ops read after the first one.
+
+While a document streams in, it is incomplete by nature:
 
 * **Order.** Root first, then top-down: the `roots` op, the canvas, its container, then each section complete before
   the next. Nothing breaks if a model does otherwise.
@@ -2043,6 +2059,21 @@ incomplete by nature:
 * **Rendering** (the SDK's `UiSession`): nothing paints until a root canvas has content; a pending child takes no
   room (or the size a `set`'s `placeholders` gave it); a container none of whose children has arrived waits for
   its first, so no empty shells flash; text and values are never shown half-written (an op applies only whole).
+
+### The retry protocol
+
+After a stream, the tool result (`EditResult.toModelJson()`) says exactly what the document holds and what to do:
+`rev`, the ops that applied (by index, and the ids they set, patched, moved and removed), every rejected op with its
+code, path, what was expected and a suggestion, warnings (at most 20), the pending ids, the document's roots and node
+count, and, when anything was rejected or is pending, `next`: fix it by patching the document as it is (same ids),
+never start over. A host sends it back and lets the model answer with one more `ui_apply`, a capped number of
+times (the chat example: 2), stopping when nothing is rejected or pending. `applyOps(..., protectRoots: true)`
+answers a batch that would replace the existing roots or create a new canvas with `start_over` (a live retry did
+exactly that instead of fixing three ops). The diagnostics models hit carry the fix as JSON (`explainDiagnostic`): a
+size written as a layout key (`"height": {"hug": 46}`), children on a type that takes none (the types that do, and a
+row with a fill for a tag or button), a button's `text` (its `label`). `uiLints(document)` adds what no declaration
+catches: `empty_button` (a tappable box that shows nothing) and `low_contrast` (text in its background's colour); a
+renderer adds `missing_glyph` and `no_size` (the SDK's `UiSession.renderDiagnostics`).
 
 ### What a model reads
 
@@ -2067,6 +2098,17 @@ node types (the agent profile over the core: [ui_tools.json](ui_tools.json)):
   }
 ]
 ```
+
+A schema that enumerates every node type and key is the wrong shape for a runtime tool: it costs tokens on every
+call and still cannot say what a prop holds. `uiTools(catalog, compact: true)` gives the op envelope strictly (op
+names, field names and kinds from the declarations; [ui_tools.compact.json](ui_tools.compact.json)) and leaves the
+node's contents to the system prompt, `runtimeStarter(catalog:, profile:)`
+([RUNTIME_STARTER.md](RUNTIME_STARTER.md)): generated from the declarations of the types the trust profile allows
+(the op rules, the node shape, layout, decoration and text style essentials, the core types with their most-used
+props, the rules live runs showed models need, two examples that apply cleanly), about 10,500 characters. With the
+compact tools that is ≈ 3,500 tokens at 3.5 characters per token, ≈ 5,100 at the 2.37 the API counted for the
+full prompt (60,225 characters of starter and 7,813 of tools: 28,768 tokens). `ui_read {"types": [...]}` describes
+any other allowed type on demand (`describeTypes`), and validation does the rest.
 
 ### The trust profile
 
@@ -2104,6 +2146,13 @@ session delivers it to the app, which sends it to the model.
 | `invalid_json` | yes | The tool input is not JSON where an op was expected. |
 | `invalid_variable` | yes | A vars op that declares a variable without a name, or sets one with a value its type cannot hold. |
 | `unknown_variable` | no (a warning) | A vars op that sets (or removes) a variable the scope does not declare: declare it with a full variable object. |
+| `malformed_input` | no (a warning) | The tool input's JSON was not well formed at a character offset (a stray or missing brace or bracket, a trailing or missing comma, an op that began before the previous one closed): the decoder repaired it and read the ops around it. Write balanced JSON: one closing brace per opening brace. |
+| `misplaced_field` | no (a warning) | A node field ("bind", "props", "actions"...) written on a set op instead of inside its "node": it was moved into the node. |
+| `start_over` | yes | A batch that rebuilds a UI that already exists (new roots, a new canvas) instead of patching it: fix the existing document with patch, set (same ids) and remove; never start over. |
+| `empty_button` | no (a warning) | A node that reacts to a tap but shows nothing (a box, row or column with no children): a button with no label. |
+| `low_contrast` | no (a warning) | Text drawn in (nearly) the colour of the fill behind it, or with no colour (the default near-black) over a dark fill. |
+| `missing_glyph` | no (a warning) | Text with characters the loaded fonts do not have (an arrow, a symbol): they draw as empty boxes. Use an icon node. Reported by a renderer that knows its fonts. |
+| `no_size` | no (a warning) | A node that has content but was laid out with no width or no height, so nothing of it shows. Reported by a renderer. |
 
 ---
 
