@@ -12,6 +12,7 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 <a id="behavior-scale"></a>
 <a id="behavior-animations"></a>
 <a id="behavior-transitions"></a>
+<a id="behavior-shimmer"></a>
 <a id="behavior-inkWell"></a>
 <a id="behavior-states"></a>
 <a id="behavior-tooltip"></a>
@@ -38,10 +39,11 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 <a id="behavior-customPaint"></a>
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `motion` | [Motion](values.md#type-Motion) | unset |  | The transform over the layout, its transitions, entrance and spin. |
+| `motion` | [Motion](values.md#type-Motion) | unset |  | The transform over the layout (Flutter's `Transform`). |
 | `scale` | double | `1` | ≥ 0 | Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`. |
 | `animations` | List<[NodeAnimation](values.md#type-NodeAnimation)> | `[]` |  | Its animation controllers (the legacy `loops` and `effectAnimations` read as these). |
-| `transitions` | [Transitions](values.md#type-Transitions) | `{}` |  |  |
+| `transitions` | List<[Transition](values.md#type-Transition)> | `[]` |  | How changes animate, one per property path (the legacy `{style, opacity, size}` reads as these). |
+| `shimmer` | [Shimmer](values.md#type-Shimmer) | unset |  | A band of light over what it paints. |
 | `inkWell` | [InkWellStyle](values.md#type-InkWellStyle) | unset |  | Ink: ripples, and hover/focus/press overlays. |
 | `states` | [StateStyles](values.md#type-StateStyles) | `{}` |  | Property overrides per interaction state. |
 | `tooltip` | String | `""` |  | Shown on hover or long press; may hold `${...}` data. |
@@ -67,5 +69,5 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `measure` | [Measure](values.md#type-Measure) | unset |  | Its laid-out box, written to a variable. |
 | `customPaint` | [CustomPaint](values.md#type-CustomPaint) | unset |  | Flutter's `CustomPaint`: draw lists behind and over the content. |
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [NodeAnimation](values.md#type-NodeAnimation), [Transitions](values.md#type-Transitions), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [DragMotion](values.md#type-DragMotion), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [NodeAnimation](values.md#type-NodeAnimation), [Transition](values.md#type-Transition), [Shimmer](values.md#type-Shimmer), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [DragMotion](values.md#type-DragMotion), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
 
