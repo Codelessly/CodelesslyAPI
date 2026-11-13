@@ -11,6 +11,7 @@ import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
 
+import 'custom_paint.dart';
 import 'json.dart';
 import 'values/color.dart';
 import 'values/enums.dart';
@@ -3049,6 +3050,7 @@ final class Behaviors extends _Value {
     this.sticky,
     this.viewProgress,
     this.measure,
+    this.customPaint,
   });
 
   static const Behaviors none = Behaviors();
@@ -3125,6 +3127,9 @@ final class Behaviors extends _Value {
   /// Its laid-out box, written to a variable.
   final Measure? measure;
 
+  /// Flutter's `CustomPaint`: draw lists behind and over its content.
+  final CustomPaint? customPaint;
+
   /// [transformGesture], or what [zoomable] amounts to.
   TransformGesture? get effectiveTransformGesture =>
       transformGesture ?? (zoomable ? TransformGesture.zoomable : null);
@@ -3134,6 +3139,7 @@ final class Behaviors extends _Value {
     'motion', 'scale', 'loops', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
     'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'typewriter',
     'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
+    'customPaint',
   };
 
   bool get isNone => this == none;
@@ -3174,6 +3180,7 @@ final class Behaviors extends _Value {
       sticky: Sticky.fromJson(m['sticky']),
       viewProgress: ViewProgress.fromJson(m['viewProgress']),
       measure: Measure.fromJson(m['measure']),
+      customPaint: CustomPaint.fromJson(m['customPaint']),
     );
   }
 
@@ -3208,6 +3215,7 @@ final class Behaviors extends _Value {
     if (sticky != null) j['sticky'] = sticky!.toJson();
     if (viewProgress != null) j['viewProgress'] = viewProgress!.toJson();
     if (measure != null) j['measure'] = measure!.toJson();
+    if (customPaint != null) j['customPaint'] = customPaint!.toJson();
   }
 
   Behaviors copyWith({
@@ -3239,6 +3247,7 @@ final class Behaviors extends _Value {
     Sticky? sticky,
     ViewProgress? viewProgress,
     Measure? measure,
+    CustomPaint? customPaint,
   }) => Behaviors(
     motion: motion ?? this.motion,
     scale: scale ?? this.scale,
@@ -3268,12 +3277,13 @@ final class Behaviors extends _Value {
     sticky: sticky ?? this.sticky,
     viewProgress: viewProgress ?? this.viewProgress,
     measure: measure ?? this.measure,
+    customPaint: customPaint ?? this.customPaint,
   );
 
   @override
   List<Object?> get props => [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
     flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
-    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure,
+    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }

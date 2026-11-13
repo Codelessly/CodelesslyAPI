@@ -7,6 +7,8 @@
 // here call them, and test/value_fields_test.dart proves each declaration
 // matches the model's JSON. Durations are whole milliseconds.
 import 'behaviors.dart';
+import 'custom_paint.dart' show CustomPaint;
+import 'custom_paint_fields.dart' show customPaintType;
 import 'json.dart';
 import 'props.dart';
 import 'values/color.dart';
@@ -1051,10 +1053,17 @@ abstract final class BehaviorFields {
   /// Its laid-out box, written to a variable.
   static const measure = PropDef<Measure?>('measure', ValueCodec(Measure.fromJson, _out, measureType), null);
 
+  /// Flutter's `CustomPaint`: draw lists behind and over the content.
+  static const customPaint = PropDef<CustomPaint?>(
+    'customPaint',
+    ValueCodec(CustomPaint.fromJson, _out, customPaintType),
+    null,
+  );
+
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
     flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
-    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure,
+    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }
