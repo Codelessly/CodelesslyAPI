@@ -1,0 +1,19 @@
+{
+  "schema": 2,
+  "roots": ["buttons"],
+  "nodes": {
+    "buttons": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 200},
+                "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["cta"], "layout": {"width": {"fill": 390}, "height": {"fill": 200}},
+            "props": {"mainAxisAlignment": "center"}},
+    "cta": {"type": "row", "children": ["ctaLabel"],
+            "layout": {"width": {"hug": 160}, "height": {"hug": 44}, "padding": [20, 12, 20, 12]},
+            "decoration": {"fills": [{"color": "#FF2563EB"}], "radius": 10},
+            "states": {"hovered": {"cta": {"decoration": {"fills": [{"color": "#FF1D4ED8"}]}},
+                                   "ctaLabel": {"props": {"text": "Let's go"}}},
+                       "pressed": {"cta": {"opacity": 0.8}}},
+            "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "openLink", "url": "https://example.com"}]}]},
+    "ctaLabel": {"type": "text", "layout": {"width": {"hug": 100}, "height": {"hug": 20}},
+                 "props": {"text": "Get started", "style": {"fontSize": 16, "fontWeight": 600, "color": "#FFFFFFFF"}}}
+  }
+}

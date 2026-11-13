@@ -10,7 +10,7 @@ import 'dart:convert';
 import 'package:meta/meta.dart';
 
 import 'action_fields.dart';
-import 'behaviors.dart' show AnimationCurve, DragDirection;
+import 'behaviors.dart' show AnimationCurve, DragDirection, Spring;
 import 'catalog.dart';
 import 'conditions.dart';
 import 'props.dart' show PropDef, Props;
@@ -84,7 +84,15 @@ abstract base class ActionDef {
     if (m == null || type == null || type.isEmpty) return null;
     final c = catalog ?? Catalog.current;
     final spec = c.action(type);
-    if (spec == null) return UnknownAction(type, m);
+    if (spec == null) {
+      // A legacy type of a declared one (playAnimation, animateVariable:
+      // animate) reads as it; it is never written.
+      final legacy = _legacyDecoders[type];
+      if (legacy != null && c.action(AnimateAction.typeName) != null) {
+        return Catalog.run(c, () => legacy(m, ActionCommon(m, catalog: c)));
+      }
+      return UnknownAction(type, m);
+    }
     return Catalog.run(c, () {
       final common = ActionCommon(m, catalog: c);
       return spec.decode?.call(m, common) ?? DeclaredAction(spec, m, common);
@@ -120,6 +128,14 @@ sealed class CoreAction extends ActionDef {
 
 /// The fields every action has.
 typedef _Common = ActionCommon;
+
+typedef _Decoder = ActionDef Function(Json m, _Common c);
+
+/// Legacy action types the decoder reads as a current one (never written).
+final Map<String, _Decoder> _legacyDecoders = {
+  'playAnimation': AnimateAction._fromPlayAnimation,
+  'animateVariable': AnimateAction._fromAnimateVariable,
+};
 
 // --- reading helpers -------------------------------------------------------------
 
@@ -737,88 +753,6 @@ final class SetVariableAction extends CoreAction {
   };
 }
 
-/// What an [AnimateVariableAction] does.
-enum AnimateVariableMode {
-  /// Animates from [AnimateVariableAction.from] (empty: the current value)
-  /// to [AnimateVariableAction.to], restarting one already running.
-  play,
-
-  /// Holds the running animation where it is.
-  pause,
-
-  /// Goes on with a paused animation.
-  resume,
-
-  /// Ends the animation, leaving the variable where it is.
-  stop,
-
-  /// Sets the variable to [AnimateVariableAction.to]; its timeline goes
-  /// on from there (or stays paused there).
-  seek,
-}
-
-/// Animates number variable [variable] over time: plays it from [from] to
-/// [to] over [durationMs] (or [duration], an expression giving
-/// milliseconds) along [curve], or pauses, resumes, stops or seeks the
-/// animation it runs. A play (or a resume) completes when its timeline
-/// ends: make it non-blocking to go on at once. Resume with nothing paused
-/// plays from where the value is.
-final class AnimateVariableAction extends CoreAction {
-  const AnimateVariableAction({
-    this.variable = '',
-    this.mode = AnimateVariableMode.play,
-    this.from = '',
-    this.to = '1',
-    this.durationMs = 1000,
-    this.duration = '',
-    this.curve = AnimationCurve.linear,
-    super.enabled,
-    super.nonBlocking,
-    super.when,
-  });
-
-  static const typeName = 'animateVariable';
-  @override
-  String get type => typeName;
-
-  final String variable;
-  final AnimateVariableMode mode;
-
-  /// Expressions: where play starts (empty: the variable's value now) and
-  /// ends; for seek, [to] is the value to jump to.
-  final String from, to;
-  final int durationMs;
-
-  /// An expression giving milliseconds, over [durationMs] when it gives a
-  /// number.
-  final String duration;
-  final AnimationCurve curve;
-
-  static AnimateVariableAction _fromJson(Json m, _Common c) => AnimateVariableAction(
-    variable: _s(m, 'variable'),
-    mode: _e(AnimateVariableMode.values, m, 'mode', AnimateVariableMode.play),
-    from: _s(m, 'from'),
-    to: _s(m, 'to', '1'),
-    durationMs: _i(m, 'durationMs', 1000),
-    duration: _s(m, 'duration'),
-    curve: _curve(m, 'curve', AnimationCurve.linear),
-    enabled: c.enabled,
-    nonBlocking: c.nonBlocking,
-    when: c.when,
-  );
-
-  @override
-  Json get _fields => {
-    'variable': variable,
-    if (mode != AnimateVariableMode.play) 'mode': mode.name,
-    if (from.isNotEmpty) 'from': from,
-    if (to != '1') 'to': to,
-    if (durationMs != 1000) 'durationMs': durationMs,
-    if (duration.isNotEmpty) 'duration': duration,
-    if (curve != AnimationCurve.linear) 'curve': curve.name,
-  };
-}
-
 /// Calls a function the app registered by [name] with [params] (text
 /// values are expressions). Its result is the chain's `${result}`: what the
 /// app's code answered (a permission granted, a share completed), which
@@ -1378,26 +1312,158 @@ ScrollAxis? _axis(Object? v) => switch (v) {
   _ => null,
 };
 
-/// Plays node [node]'s one-shot animation (or particles) named [animation].
-final class PlayAnimationAction extends CoreAction {
-  const PlayAnimationAction({this.node = '', this.animation = '', super.enabled, super.nonBlocking, super.when});
+/// An `AnimationController` method ([AnimateAction.command]).
+enum AnimateCommand {
+  /// `forward(from:)`: plays to the end; on a variable, carries on toward
+  /// [AnimateAction.target] (from where it is, or from [AnimateAction.from]).
+  forward,
 
-  static const typeName = 'playAnimation';
+  /// `reverse(from:)`: plays back to the start.
+  reverse,
+
+  /// Forward when at (or heading to) the start, else back.
+  toggle,
+
+  /// `repeat()`, as the animation's own [NodeAnimation.repeat] says (forever
+  /// when it says nothing).
+  repeat,
+
+  /// `stop()`: holds where it is.
+  stop,
+
+  /// `reset()`: back to the start, stopped.
+  reset,
+
+  /// `animateTo(target)`: from where it is to [AnimateAction.target] (0–1;
+  /// on a variable, any number) over [AnimateAction.duration].
+  animateTo,
+
+  /// `animateBack(target)`.
+  animateBack,
+
+  /// `value = target`: jumps there; a running animation carries on from it.
+  set,
+}
+
+/// Drives an animation (Flutter's `AnimationController` methods): node
+/// [node]'s [animation] ([NodeAnimation]), or the number variable
+/// [variable] (an unbounded controller the screen keeps for it). JSON:
+/// `{"type": "animate", "node": "card", "animation": "pop", "command":
+/// "forward", "from": "0"}`, `{"type": "animate", "variable": "shownTotal",
+/// "command": "animateTo", "target": "${total}", "duration": "800", "curve":
+/// "easeOutCubic"}`. The chain waits for it to end (`TickerFuture`) unless
+/// it's [nonBlocking]; a repeat ends when its count does.
+///
+/// Reads the legacy `playAnimation` (`forward` from 0) and `animateVariable`
+/// (play → `animateTo`, pause and stop → `stop`, resume → `forward`, seek →
+/// `set`).
+final class AnimateAction extends CoreAction {
+  const AnimateAction({
+    this.node = '',
+    this.animation = '',
+    this.variable = '',
+    this.command = AnimateCommand.forward,
+    this.from = '',
+    this.target = '',
+    this.duration = '',
+    this.curve,
+    this.spring,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'animate';
   @override
   String get type => typeName;
 
-  final String node, animation;
+  /// Whose animation: a node id or key; empty: the reacting node.
+  final String node;
 
-  static PlayAnimationAction _fromJson(Json m, _Common c) => PlayAnimationAction(
+  /// The animation's id on [node]. A node's `particles` burst plays by its
+  /// reserved name too.
+  final String animation;
+
+  /// Instead of [node] and [animation]: a number variable.
+  final String variable;
+  final AnimateCommand command;
+
+  /// Expressions: where [AnimateCommand.forward] / [AnimateCommand.reverse]
+  /// start (0–1; on a variable, its start value), and the target of
+  /// [AnimateCommand.animateTo], [AnimateCommand.animateBack] and
+  /// [AnimateCommand.set].
+  final String from, target;
+
+  /// An expression giving milliseconds; empty: the animation's.
+  final String duration;
+
+  /// Null: the animation's (linear for a variable).
+  final AnimationCurve? curve;
+
+  /// `animateWith(SpringSimulation)` toward [target] instead of a duration.
+  final Spring? spring;
+
+  static AnimateAction _fromJson(Json m, _Common c) => AnimateAction(
     node: _s(m, 'node'),
     animation: _s(m, 'animation'),
+    variable: _s(m, 'variable'),
+    command: _e(AnimateCommand.values, m, 'command', AnimateCommand.forward),
+    from: _s(m, 'from'),
+    target: _s(m, 'target'),
+    duration: _s(m, 'duration'),
+    curve: AnimationCurve.parse(m['curve']),
+    spring: Spring.fromJson(m['spring']),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
   );
 
+  /// The legacy `playAnimation`: [node]'s one-shot effect from its start.
+  static AnimateAction _fromPlayAnimation(Json m, _Common c) => AnimateAction(
+    node: _s(m, 'node'),
+    animation: _s(m, 'animation'),
+    from: '0',
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  /// The legacy `animateVariable` (`mode`, `from`, `to`, `durationMs`,
+  /// `duration`, `curve`).
+  static AnimateAction _fromAnimateVariable(Json m, _Common c) {
+    final mode = _s(m, 'mode', 'play');
+    final ms = _i(m, 'durationMs', 1000);
+    final bound = _s(m, 'duration');
+    return AnimateAction(
+      variable: _s(m, 'variable'),
+      command: switch (mode) {
+        'pause' || 'stop' => AnimateCommand.stop,
+        'resume' => AnimateCommand.forward,
+        'seek' => AnimateCommand.set,
+        _ => AnimateCommand.animateTo,
+      },
+      from: _s(m, 'from'),
+      target: _s(m, 'to', '1'),
+      duration: bound.trim().isEmpty ? '$ms' : bound,
+      curve: AnimationCurve.parse(m['curve']),
+      enabled: c.enabled,
+      nonBlocking: c.nonBlocking,
+      when: c.when,
+    );
+  }
+
   @override
-  Json get _fields => {'node': node, if (animation.isNotEmpty) 'animation': animation};
+  Json get _fields => {
+    if (node.isNotEmpty) 'node': node,
+    if (animation.isNotEmpty) 'animation': animation,
+    if (variable.isNotEmpty) 'variable': variable,
+    if (command != AnimateCommand.forward) 'command': command.name,
+    if (from.isNotEmpty) 'from': from,
+    if (target.isNotEmpty) 'target': target,
+    if (duration.isNotEmpty) 'duration': duration,
+    'curve': ?curve?.name,
+    'spring': ?spring?.toJson(),
+  };
 }
 
 /// How strong a [HapticAction] buzz is (Flutter's `HapticFeedback`).
@@ -1642,8 +1708,7 @@ const List<ActionSpec> coreActionSpecs = [
   ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all, decode: FocusAction._fromJson),
   ActionSpec(ControlDragAction.typeName, label: 'Control drag', fields: ControlDragFields.all, decode: ControlDragAction._fromJson),
   ActionSpec(ScrollToAction.typeName, label: 'Scroll to', fields: ScrollToFields.all, decode: ScrollToAction._fromJson),
-  ActionSpec(PlayAnimationAction.typeName, label: 'Play animation', fields: PlayAnimationFields.all, decode: PlayAnimationAction._fromJson),
-  ActionSpec(AnimateVariableAction.typeName, label: 'Animate variable', fields: AnimateVariableFields.all, decode: AnimateVariableAction._fromJson),
+  ActionSpec(AnimateAction.typeName, label: 'Animate', fields: AnimateFields.all, decode: AnimateAction._fromJson),
   ActionSpec(HapticAction.typeName, label: 'Haptic feedback', fields: HapticFields.all, decode: HapticAction._fromJson),
   ActionSpec(RunScriptAction.typeName, label: 'Run script', fields: RunScriptFields.all, decode: RunScriptAction._fromJson, nested: ['onError']),
   ActionSpec(PaginateAction.typeName, label: 'Paginate', fields: PaginateFields.all, decode: PaginateAction._fromJson),

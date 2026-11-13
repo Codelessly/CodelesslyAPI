@@ -83,7 +83,7 @@ not a behavior or a widget parameter, so it is a top-level node field
 | `props` | per type | The widget's own parameters, Flutter names (§4). |
 | `bind` | `{path: expression}` | Properties bound to variables or formulas (`"props.text": "${user.name}"`; paths §5.1). |
 | `actions` | `[Reaction]` | Trigger → the chain of actions it runs (§5.2). |
-| `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, ... | | Behaviors (§4.1), flat in the node. |
+| `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, ... | | Behaviors (§4.1), flat in the node. |
 | `component` | `ComponentLink` | The component this node is the main node or an instance of (§4.2). |
 | `extra` | map | Unknown keys, round-tripped. |
 
@@ -194,7 +194,7 @@ chart records...). A parent declares what it reads from each child
 variance, `flex`, `squeezable`, `align` for a row or column), so a panel
 shows a child's placement from its parent's declaration, apart from the
 child's own API. Behaviors (§4.1) are declared too: `BehaviorFields`
-has one field per flat node key (`motion`, `loops`, `drag`, `hero`...),
+has one field per flat node key (`motion`, `animations`, `drag`, `hero`...),
 and each behavior model has its own (`MotionFields`, `DragMotionFields`,
 `ParticleEmitterFields`...; curves are the `AnimationCurve` enumeration,
 durations whole milliseconds). A properties panel is generated from these alone; a
@@ -211,7 +211,7 @@ flat in the node's JSON. Every key is optional and sparse.
 |---|---|---|
 | `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path is followed from the node's own place (offsets from the path's start point); it can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright` (with `uprightMirror`, heading left mirrors the node so its front leads). Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
 | `scale` | number | `Transform.scale` about the center; layout unchanged. |
-| `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first, each starting at its `phase` of a whole loop less `lag` ms. |
+| `animations` | `[NodeAnimation]` | Flutter's `AnimationController` as data, outermost first (guide chapter 8): `id`, `duration`/`reverseDuration`, `delay`, `curve`, `repeat` (`{reverse, count}`), `autoplay`, `playKey`, `paused`, `phase`, `spring`, `progress` (an expression instead of a clock), `alignment`, `previewAt`, and `tracks` (`Tween`/`TweenSequence`/`Interval`/`CurveTween` on a binding `path` of the node or of `node`, or on a `variable`; `blend` `replace`, `add` or `multiply`; `wave`s). `preset` with `params` is a short form (`pulse`, `fade`, `scale`, `spin`, `bob`, `sway`, `flicker`, `shake`, `bounce`, `pop`, `wiggle`, `jelly`, `flash`, `keyframes`, `enter`). Its state reads as `${animation.<id>.value}`, `.status`, `.isAnimating` in the node and the nodes inside it. The legacy `loops` and `effectAnimations` (and `motion.pulseKey`) read as these. |
 | `transitions` | `{style, opacity, size}` | Implicit animations (`AnimatedOpacity`, `AnimatedSize`): `style` for opacity, scale, fills and visibility; `opacity` over it; `size`. |
 | `inkWell` | `InkWellStyle` | `InkWell` colors: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
 | `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's JSON (`Node.patched`). |
@@ -220,7 +220,7 @@ flat in the node's JSON. Every key is optional and sparse.
 | `draggable`, `dropTarget`, `drag` | `DragSource`, `DropTarget`, `DragMotion` | `Draggable` (`feedbackAnchor`, a `physics` return), `DragTarget` (`slotSize`, `slotWhenRefused`); a node that follows the pointer (swipe, spring back; `physics`, `bounds`, `minX`...`maxY`), or with a `DragTrack` a value control (knob, fader, dial: detents, fine mode, momentum, settle, keyboard, parked, relative or parent units, viewBox paths). |
 | `transformGesture` | `TransformGesture` | Pinch, pan and rotate (`InteractiveViewer` and more) with `physics`, `bounds`, wheel and double-tap zoom, two-way pose variables and `handles`. `zoomable` is its first form. |
 | `flip`, `tilt` | `FlipCard`, `Tilt` | A two-sided card turning over (first child front, second back; a runtime 3D turn, not the editor's mirror); a 3D tilt toward the pointer. |
-| `reveal`, `strokePath`, `effectAnimations`, `particles`, `textDirection` | | Scroll into view; a line through points; one-shot effects; confetti; `Directionality`. |
+| `reveal`, `strokePath`, `particles`, `textDirection` | | Scroll into view; a line through points; confetti; `Directionality`. |
 | `flight` | `Flight` | How a `flightKey` node flies in from where the node with the same key was: a spring, or a curve over a duration with lift, swell, turns and a trail. |
 | `typewriter` | `Typewriter` | A text node typing its text out (the layout is the whole text's; only what's typed is painted). |
 | `sticky` | `true` or `{offset}` | Pinned at its scrolling view's leading edge while its parent is in view (`SliverPersistentHeader(pinned)`); `${sticky.stuck}`. |
@@ -230,11 +230,15 @@ flat in the node's JSON. Every key is optional and sparse.
 
 `strokePath.progress` is a bindable fraction (0–1, default 1). It reveals the stroke by path length; dash patterns are clipped to that revealed prefix.
 
-A release's motion is one model wherever it is: `GesturePhysics` (a fling
-with `friction`, `overscroll` past `bounds`, a spring by `stiffness`/
-`damping`/`mass` or `bounce`/`duration`, a `snap` to points, a grid or the
-edges; `{"preset": "bouncy"}` reads as a preset) for `drag.physics`,
-`draggable.physics` and `transformGesture.physics`.
+A spring is one value wherever it is: `Spring`, Flutter's
+`SpringDescription` (`{stiffness, damping, mass}`, or `{duration, bounce}`
+for `withDurationAndBounce`), on an animation, a motion's `spring` curve, a
+drag source's return, a drag track's `settleSpring`, a flip card and a
+route's dismiss; each owner's legacy flat keys read as it. A release's
+motion is one model wherever it is: `GesturePhysics` (a fling with
+`friction`, `overscroll` past `bounds`, a `spring`, a `snap` to points, a
+grid or the edges; `{"preset": "bouncy"}` reads as a preset) for
+`drag.physics`, `draggable.physics` and `transformGesture.physics`.
 
 Blur effects (`layerBlur`, `backgroundBlur`) stay in `decoration.effects`, which
 a type without a box decoration (text, icon) keeps for its blurs only: they act
@@ -348,15 +352,20 @@ codelessly_sdk/lib/src/
 A node's behaviors are layers of its render chain, outermost first: (a running app's drag follow) → margin → constraints →
 track pose → transform gesture → motion → shimmer → flip face → tilt → flip
 card → scale → rotation → (drag source → drop target → reactions →
-hover/press tracking) → loops → opacity → blurs → stroke path → content. A
+hover/press tracking) → animations → opacity → blurs → stroke path → content. A
 drag's follow and release physics and drag and drop run in
 `runtime/gestures` (one release physics, `physics.dart`, for every
 gesture). A running app drags a track (its variable written, `changed` /
 `dragEnd` / `changeEnd` fired), runs transform gestures and turns flip
 cards by tap, drag and variable; navigation flies shared elements (`hero`,
-`runtime/actions/hero_flights.dart`) and `playAnimation` plays one-shot
-effects (`render/play.dart`). A design canvas draws them at rest (the motion's values, each loop's
-first frame, a track at its variable's value); a running app
+`runtime/actions/hero_flights.dart`) and `animate` drives a node's
+animations. One player plays every animation (`render/animations.dart`): a
+clock per animation (Flutter's `AnimationController`) ticking inside the
+node's render object; adding and multiplying tracks pose that layer, tracks
+that replace a `motion.*` value set the motion layer, other paths patch the
+node as shown (`RenderTree.setAnimatedValues`), variable tracks write
+through the render-owned `BoundValues`. A design canvas draws them at rest (the motion's values, an
+animation at its `previewAt` only — a loop's first frame —, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
 and applies interaction state patches to the nodes they target.
 
@@ -459,10 +468,10 @@ effect id for the item with that id, and `*` for every item.
 | `scale`, `textDirection`, `motion.<field>`, `flightKey`, `tooltip`... | a behavior (§4.1); `motion.paused` reads loosely, `motion.keyframes` a list or its JSON text |
 | `drag.enabled`, `drag.restX`, `drag.restY`, `draggable.enabled`, `dropTarget.enabled`, `draggable.data` | a drag's switch (read loosely) and resting offset; a drag source's or drop target's switch; the payload |
 | `drag.track.<field>`, `drag.track.value` | a drag track's setting or geometry (a number written as is reads); the value it's drawn at |
-| `loops[i].phase`, `loops[i].lag` | a loop's phase (0–1), lag (ms) |
+| `animations.<id>.<field>` | an animation's field (`paused`, `phase`, `playKey`, `enabled`, `params.<p>`, `tracks.<trackId>.from`...); the legacy `loops[i].*` and `effectAnimations[i].*` keys are rewritten to these when a node decodes (a loop's `phase` and `lag` into one `phase` formula) |
 | `transformGesture.<pose>`, `flip.flipped` | the pose from data (`x`, `y`, `scale`, `rotation`...), `enabled`; the card's face |
 | `hero.tag` | a shared element's tag (`pass-${item.id}`; the hero is then always the object form) |
-| `effectAnimations[i].playKey`, `effectAnimations[i].delay`, `particles.playKey` | a one-shot effect's cue (it plays each time the value changes, not when it first shows) and delay; the particles' cue |
+| `particles.playKey` | the particles' cue |
 | `selected`, `disabled` | bool: true puts the node in `WidgetState.selected` / `disabled`, so its `states` styles patch it and its descendants |
 | `semantics.*`, `enabled` | reserved: kept, not applied yet |
 
@@ -493,14 +502,18 @@ node to one trigger run as one chain.
 `hover`, `cursorEnter`/`Exit`, `swipeLeft`/`Right`/`Up`/`Down`, `drag`,
 `dragEnd`, `wheel`, `pinch`), an input's (`changed`, `changeEnd`,
 `submitted`, `editingComplete`, `focusGained`/`Lost`), a screen's (`load`,
-`valueChanged`, `timer`, `clock`, `keyDown`/`Up`, `backPressed`: back was
+`valueChanged`, `timer`, `frame`, `keyDown`/`Up`, `backPressed`: back was
 pressed while the canvas's `props.blockBack` holds, usually bound to
 `${= dirty}`; the screen stays and these run, a navigate pop from them is
 never blocked), scrolling and viewport (`scroll`, `scrollEnd`,
 `enterViewport`, `exitViewport`), drag and drop (`dropFull`: let go on a
 target whose `fullIf` holds) and `reorder`. Settings are sparse: `debounceMs`, `variable`, `intervalMs`,
-`key` (`KeyCombo`: `Meta+Enter`), `when`, `holdMs`, `every`/`runWhen`,
-`visibleFraction`. A list fires `refresh` (pulled to
+`key` (`KeyCombo`: `Meta+Enter`), `when`, `holdMs`,
+`visibleFraction`. `timer` is `Timer.periodic`: `intervalMs` a number or an
+expression, `${result.tick}`; the legacy `clock` reads as it (`every` →
+`intervalMs`, `runWhen` → `when`). `frame` is a `Ticker`: `${result.dt}`,
+`${result.elapsed}`, `${result.frame}`, while `when` holds and the node is on
+stage; a frame that comes while its chain runs is skipped. A list fires `refresh` (pulled to
 refresh) and `swipeAction` (`${result.action}`, `${result.item}`).
 
 **Actions** (`ActionDef`, sealed, one immutable class per type,
@@ -511,8 +524,10 @@ base, transition), `openModal` (dialog, sheets, full screen, popover),
 sync), `setVariant`, `setVariable` (a `ValueWrite`: `op` set, toggle,
 add, subtract, insert, insertAll, removeAt, remove, update; `index`,
 `mapKey`; a number glides over `animateMs` along `curve`, the chain
-waiting), `animateVariable` (a number variable's timeline: play, pause,
-resume, stop, seek), `callFunction`, `runScript` (a layout script, below;
+waiting), `animate` (an `AnimationController` command — `forward`,
+`reverse`, `toggle`, `repeat`, `stop`, `reset`, `animateTo`, `animateBack`,
+`set` — on a node's animation or a number variable's timeline; the legacy
+`playAnimation` and `animateVariable` read as it), `callFunction`, `runScript` (a layout script, below;
 `onError` reads `${result.error}`), `callApi` (`onSuccess` / `onError`),
 `setStorage`, `cloudDocuments`, `loadCloudData`, `cloudData`, `cloudBatch`,
 `cloudFiles`, `auth`, `if`, `forEach` (each turn reads `${loop.item}`,
@@ -522,7 +537,7 @@ resume, stop, seek), `callFunction`, `runScript` (a layout script, below;
 by closing with `{confirmed: true, ...values}`, the values its actions'
 `${result}`), `copyToClipboard`, `editText`, `focus`, `scrollTo` (`axis`: only
 the scroll views along it), `speak`, `playSound`, `paywall`,
-`controlDrag` (`step` turns a drag track `steps`), `playAnimation`,
+`controlDrag` (`step` turns a drag track `steps`),
 `haptic` (`HapticFeedback`: selection, light, medium, heavy, vibrate),
 `paginate` (a list's pagination by name: next, previous, goTo, first,
 last, refresh, retry, setPageSize).

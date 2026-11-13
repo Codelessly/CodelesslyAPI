@@ -1,0 +1,129 @@
+{
+  "schema": 2,
+  "roots": [
+    "counter"
+  ],
+  "nodes": {
+    "counter": {
+      "type": "canvas",
+      "slots": {
+        "body": "col"
+      },
+      "layout": {
+        "width": 390,
+        "height": 400
+      },
+      "decoration": {
+        "fills": [
+          {
+            "color": "#FFFFFFFF"
+          }
+        ]
+      }
+    },
+    "col": {
+      "type": "column",
+      "children": [
+        "label",
+        "total",
+        "add"
+      ],
+      "layout": {
+        "width": {
+          "fill": 390
+        },
+        "height": {
+          "fill": 400
+        },
+        "padding": 24
+      },
+      "props": {
+        "spacing": 12,
+        "mainAxisAlignment": "center"
+      }
+    },
+    "label": {
+      "type": "text",
+      "layout": {
+        "width": {
+          "hug": 120
+        },
+        "height": {
+          "hug": 24
+        }
+      },
+      "props": {
+        "text": "Clicked ${count} times",
+        "style": {
+          "fontSize": 18,
+          "color": "#FF111827"
+        }
+      }
+    },
+    "total": {
+      "type": "text",
+      "layout": {
+        "width": {
+          "hug": 120
+        },
+        "height": {
+          "hug": 20
+        }
+      },
+      "props": {
+        "text": "",
+        "style": {
+          "fontSize": 14,
+          "color": "#FF6B7280"
+        }
+      },
+      "bind": {
+        "props.text": "${= 'Total: ' + money(count * price, '$')}"
+      }
+    },
+    "add": {
+      "type": "box",
+      "layout": {
+        "width": 160,
+        "height": 44
+      },
+      "decoration": {
+        "fills": [
+          {
+            "color": "#FF2563EB"
+          }
+        ],
+        "radius": 8
+      },
+      "actions": [
+        {
+          "trigger": {
+            "type": "click"
+          },
+          "actions": [
+            {
+              "type": "setVariable",
+              "variable": "count",
+              "op": "add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "variables": {
+    "counter": [
+      {
+        "name": "count",
+        "type": "integer",
+        "value": 0
+      },
+      {
+        "name": "price",
+        "type": "decimal",
+        "value": 2.5
+      }
+    ]
+  }
+}

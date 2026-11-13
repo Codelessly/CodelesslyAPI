@@ -1,0 +1,22 @@
+{
+  "schema": 2,
+  "roots": ["page"],
+  "nodes": {
+    "page": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 844},
+             "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["features"], "layout": {"width": {"fill": 390}, "height": {"fill": 844}, "padding": 24}},
+    "features": {"type": "variance", "children": ["stacked", "sideBySide"],
+                 "layout": {"width": {"fill": 342}, "height": {"hug": 200}},
+                 "props": {"variants": [
+                   {"id": "narrow", "name": "Narrow", "breakpoint": "mobile", "children": ["stacked"]},
+                   {"id": "wide", "name": "Wide", "breakpoint": "tablet", "children": ["sideBySide"]}]}},
+    "stacked": {"type": "column", "children": ["a1", "a2"], "layout": {"width": {"fill": 342}, "height": {"hug": 100}},
+                "props": {"spacing": 12}},
+    "a1": {"type": "box", "layout": {"width": {"fill": 342}, "height": 80}, "decoration": {"fills": [{"color": "#FF6366F1"}], "radius": 8}},
+    "a2": {"type": "box", "layout": {"width": {"fill": 342}, "height": 80}, "decoration": {"fills": [{"color": "#FF22C55E"}], "radius": 8}},
+    "sideBySide": {"type": "row", "children": ["b1", "b2"], "layout": {"width": {"fill": 342}, "height": {"hug": 80}},
+                   "props": {"spacing": 12}},
+    "b1": {"type": "box", "layout": {"width": {"fill": 100}, "height": 80}, "decoration": {"fills": [{"color": "#FF6366F1"}], "radius": 8}},
+    "b2": {"type": "box", "layout": {"width": {"fill": 100}, "height": 80}, "decoration": {"fills": [{"color": "#FF22C55E"}], "radius": 8}}
+  }
+}

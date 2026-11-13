@@ -1,5 +1,5 @@
 // What a node does beyond its layout and paint: how it moves (motion,
-// loops, transitions), how it reacts (ink, interaction states, drag and
+// animations, transitions), how it reacts (ink, interaction states, drag and
 // drop, tooltip) and the one-shot effects it plays. Each is an immutable
 // value with total decoding and sparse encoding; all of them together are a
 // node's [Behaviors], stored flat in the node's JSON (`"motion": {...}`,
@@ -18,10 +18,12 @@ import 'values/enums.dart';
 import 'values/geometry.dart';
 import 'values/text.dart';
 
+part 'animation.dart';
+part 'animation_presets.dart';
 part 'gestures.dart';
 
 /// An easing curve, by the name of its Flutter `Curves` constant. `spring`
-/// is a damped spring (see [Motion.springStiffness]); `step` jumps half way.
+/// is a damped spring (see [Motion.spring]); `step` jumps half way.
 enum AnimationCurve {
   linear,
   easeIn,
@@ -400,8 +402,7 @@ final class Motion extends _Value {
     this.curve = AnimationCurve.easeInOut,
     this.rotateCurve,
     this.fadeShare = 1,
-    this.springStiffness = 380,
-    this.springDamping = 20,
+    this.spring = Motion.defaultSpring,
     this.spin = 0,
     this.spinRamp = 800,
     this.loop = MotionLoop.none,
@@ -415,7 +416,6 @@ final class Motion extends _Value {
     this.pathProgress = 0,
     this.orientToPath = false,
     this.keyframes = const [],
-    this.pulseKey,
     this.revealOnScroll = false,
     this.enterHeld = false,
     this.revealFraction = 0.15,
@@ -451,8 +451,11 @@ final class Motion extends _Value {
   /// follows [curve].
   final double fadeShare;
 
-  /// The spring of [AnimationCurve.spring] (mass 1).
-  final double springStiffness, springDamping;
+  /// The spring of [AnimationCurve.spring] (JSON `spring`; the legacy
+  /// `springStiffness`/`springDamping` read as it).
+  final Spring spring;
+
+  static const Spring defaultSpring = Spring.physical(stiffness: 380, damping: 20);
 
   /// Continuous turns per second (negative: counter-clockwise), reached
   /// over [spinRamp] ms.
@@ -487,9 +490,6 @@ final class Motion extends _Value {
   /// Turns with the path's direction.
   final bool orientToPath;
   final List<MotionKeyframe> keyframes;
-
-  /// A change of this text plays the transition there and back.
-  final String? pulseKey;
 
   /// Waits to enter until [revealFraction] of the node scrolls into view.
   final bool revealOnScroll;
@@ -618,8 +618,7 @@ final class Motion extends _Value {
       curve: curve,
       rotateCurve: rotateCurve,
       fadeShare: fadeShare,
-      springStiffness: springStiffness,
-      springDamping: springDamping,
+      spring: spring,
       spin: v['spin']!,
       spinRamp: spinRamp,
       loop: loop,
@@ -633,7 +632,6 @@ final class Motion extends _Value {
       pathProgress: v['pathProgress']!,
       orientToPath: orientToPath,
       keyframes: keyframes,
-      pulseKey: pulseKey,
       revealOnScroll: revealOnScroll,
       enterHeld: enterHeld,
       revealFraction: revealFraction,
@@ -824,8 +822,9 @@ final class Motion extends _Value {
       curve: r.curve('curve', AnimationCurve.easeInOut),
       rotateCurve: AnimationCurve.parse(m['rotateCurve']),
       fadeShare: r.d('fadeShare', 1).clamp(0.01, 1).toDouble(),
-      springStiffness: r.d('springStiffness', 380),
-      springDamping: r.d('springDamping', 20),
+      spring: Spring.fromJson(m['spring'], fallback: defaultSpring) ??
+          Spring.legacy(m, 'springStiffness', 'springDamping', fallback: defaultSpring) ??
+          defaultSpring,
       spin: r.d('spin', 0),
       spinRamp: r.ms('spinRamp', 800),
       loop: r.e(MotionLoop.values, 'loop', MotionLoop.none),
@@ -839,7 +838,6 @@ final class Motion extends _Value {
       pathProgress: r.d('pathProgress', 0),
       orientToPath: r.b('orientToPath', false),
       keyframes: [...?readList(_jsonText(m['keyframes']))?.map(MotionKeyframe.fromJson).nonNulls],
-      pulseKey: r.sn('pulseKey'),
       revealOnScroll: r.b('revealOnScroll', false),
       enterHeld: r.b('enterHeld', false),
       revealFraction: r.d('revealFraction', 0.15),
@@ -878,9 +876,9 @@ final class Motion extends _Value {
       ..i('delay', delay, 0)
       ..e('curve', curve, AnimationCurve.easeInOut)
       ..s('rotateCurve', rotateCurve?.name)
-      ..d('fadeShare', fadeShare, 1)
-      ..d('springStiffness', springStiffness, 380)
-      ..d('springDamping', springDamping, 20)
+      ..d('fadeShare', fadeShare, 1);
+    if (spring != defaultSpring) j['spring'] = spring.toJsonOver(defaultSpring);
+    j
       ..i('spinRamp', spinRamp, 800)
       ..e('loop', loop, MotionLoop.none)
       ..i('repeat', repeat, 0)
@@ -898,7 +896,6 @@ final class Motion extends _Value {
       ..b('orientToPath', orientToPath, false);
     if (keyframes.isNotEmpty) j['keyframes'] = [for (final k in keyframes) k.toJson()];
     j
-      ..s('pulseKey', pulseKey)
       ..b('revealOnScroll', revealOnScroll, false)
       ..b('enterHeld', enterHeld, false)
       ..d('revealFraction', revealFraction, 0.15)
@@ -919,41 +916,16 @@ final class Motion extends _Value {
   @override
   List<Object?> get props => [
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
-    perspective, originX, originY, duration, delay, curve, rotateCurve, fadeShare, springStiffness, springDamping,
+    perspective, originX, originY, duration, delay, curve, rotateCurve, fadeShare, spring,
     spin, spinRamp, loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
-    keyframes, pulseKey, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase,
+    keyframes, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase,
     pathPacing, pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
 }
 
-// --- loops --------------------------------------------------------------------
+// --- flicker ------------------------------------------------------------------
 
-/// What a [LoopAnimation] changes.
-enum LoopAnimationType {
-  /// Scales and fades.
-  pulse,
-  fade,
-  scale,
-
-  /// Turns [LoopAnimation.turns] times per run.
-  spin,
-
-  /// Hops up [LoopAnimation.distance] and back, once per run.
-  bob,
-
-  /// Swings [LoopAnimation.angle] degrees each way, once per run.
-  sway,
-
-  /// A candle flame or a lamp's glow: scales and fades between the `from`
-  /// and `to` values along an uneven, wavering path (three detuned waves),
-  /// not a steady pulse. A run loops seamlessly.
-  flicker;
-
-  bool get scales => this == pulse || this == scale || this == flicker;
-  bool get fades => this == pulse || this == fade || this == flicker;
-}
-
-/// How far (0–1) a [LoopAnimationType.flicker] is between its `from` and
+/// How far (0–1) the `flicker` preset ([AnimationPresets]) is between its `from` and
 /// `to` values at [t] (0–1) of a run: waves of 3, 7 and 17 per run, so it
 /// wavers, flares and dips like a flame and ends where it began.
 double flickerAt(double t) {
@@ -961,138 +933,6 @@ double flickerAt(double t) {
   final b = math.sin(t * 2 * math.pi * 7 + 1.3) * 0.25;
   final c = math.sin(t * 2 * math.pi * 17 + 0.4) * 0.15;
   return (0.5 + (a + b + c) / 1.5).clamp(0.0, 1.0);
-}
-
-/// The pose of a [LoopAnimation] at one moment, about the node's center.
-typedef LoopPose = ({double scale, double opacity, double turns, double dy});
-
-/// An animation that repeats while the node is shown (a pulsing halo, a
-/// spinning icon). A run takes [duration] ms, eased by [curve], from the
-/// `from` values to the `to` ones (and back with [reverse]). The design
-/// canvas draws its first frame.
-@immutable
-final class LoopAnimation extends _Value {
-  const LoopAnimation({
-    required this.type,
-    this.enabled = true,
-    this.duration = 1000,
-    this.delay = 0,
-    this.reverse = false,
-    this.curve = AnimationCurve.linear,
-    this.scaleFrom = 1,
-    this.scaleTo = 1,
-    this.opacityFrom = 1,
-    this.opacityTo = 1,
-    this.turns = 1,
-    this.distance = 10,
-    this.angle = 4,
-    this.phase = 0,
-    this.lag = 0,
-  });
-
-  final LoopAnimationType type;
-
-  /// Off, it holds the node still (bindable as `loops.enabled`).
-  final bool enabled;
-  final int duration, delay;
-  final bool reverse;
-  final AnimationCurve curve;
-  final double scaleFrom, scaleTo, opacityFrom, opacityTo, turns, distance, angle;
-
-  /// Where in its loop it starts, a share (0–1) of one whole loop ([loop],
-  /// there and back with [reverse]): loading dots that ripple in sequence
-  /// at phases 0, 0.15 and 0.3. Bindable as `loops[i].phase`.
-  final double phase;
-
-  /// How far (ms) it runs behind a loop without it: [phase] less
-  /// `lag / loop`. Unlike [delay] it doesn't wait. Bindable as
-  /// `loops[i].lag` (`${= index * 160}`).
-  final int lag;
-
-  /// One whole loop (ms): a run, or a run there and back with [reverse].
-  int get loop => (reverse ? 2 : 1) * math.max(1, duration);
-
-  /// The share (0–1) of a whole loop it starts at: [phase] and [lag].
-  double get startFraction {
-    final raw = (phase.isFinite ? phase : 0) - lag / loop;
-    final w = raw % 1;
-    return w < 0 ? w + 1 : w;
-  }
-
-  /// The pose at [t] (0–1, before the curve) of a run. 0 is the first frame.
-  LoopPose poseAt(double t) {
-    if (!enabled) return (scale: 1, opacity: 1, turns: 0, dy: 0);
-    final eased = curve.transform(t.clamp(0, 1));
-    final c = type == LoopAnimationType.flicker ? flickerAt(eased) : eased;
-    return (
-      scale: type.scales ? _lerp(scaleFrom, scaleTo, c) : 1,
-      opacity: type.fades ? _lerp(opacityFrom.clamp(0, 1), opacityTo.clamp(0, 1), c) : 1,
-      turns: switch (type) {
-        LoopAnimationType.spin => turns * c,
-        LoopAnimationType.sway => math.sin(c * 2 * math.pi) * angle / 360,
-        _ => 0,
-      },
-      dy: type == LoopAnimationType.bob ? -math.sin(c * math.pi) * distance : 0,
-    );
-  }
-
-  static LoopAnimation? fromJson(Object? json) {
-    final m = readMap(json);
-    if (m == null) return null;
-    final r = _R(m);
-    return LoopAnimation(
-      type: r.e(LoopAnimationType.values, 'type', LoopAnimationType.pulse),
-      enabled: r.b('enabled', true),
-      duration: r.ms('duration', 1000),
-      delay: r.ms('delay', 0),
-      reverse: r.b('reverse', false),
-      curve: r.curve('curve', AnimationCurve.linear),
-      scaleFrom: r.d('scaleFrom', 1),
-      scaleTo: r.d('scaleTo', 1),
-      opacityFrom: r.d('opacityFrom', 1),
-      opacityTo: r.d('opacityTo', 1),
-      turns: r.d('turns', 1),
-      distance: r.d('distance', 10),
-      angle: r.d('angle', 4),
-      phase: r.d('phase', 0),
-      lag: r.i('lag', 0),
-    );
-  }
-
-  Json toJson() => <String, Object?>{'type': type.name}
-    ..b('enabled', enabled, true)
-    ..i('duration', duration, 1000)
-    ..i('delay', delay, 0)
-    ..b('reverse', reverse, false)
-    ..e('curve', curve, AnimationCurve.linear)
-    ..d('scaleFrom', scaleFrom, 1)
-    ..d('scaleTo', scaleTo, 1)
-    ..d('opacityFrom', opacityFrom, 1)
-    ..d('opacityTo', opacityTo, 1)
-    ..d('turns', turns, 1)
-    ..d('distance', distance, 10)
-    ..d('angle', angle, 4)
-    ..d('phase', phase, 0)
-    ..i('lag', lag, 0);
-
-  @override
-  List<Object?> get props => [
-    type,
-    enabled,
-    duration,
-    delay,
-    reverse,
-    curve,
-    scaleFrom,
-    scaleTo,
-    opacityFrom,
-    opacityTo,
-    turns,
-    distance,
-    angle,
-    phase,
-    lag,
-  ];
 }
 
 // --- transitions --------------------------------------------------------------
@@ -1347,8 +1187,7 @@ final class DragSource extends _Value {
     this.feedbackNodeId = '',
     this.feedbackAnchor = FeedbackAnchor.grab,
     this.returnSpring = true,
-    this.springStiffness = 260,
-    this.springDamping = 14,
+    this.spring = DragSource.defaultSpring,
     this.enabled = true,
     this.physics,
   });
@@ -1363,17 +1202,21 @@ final class DragSource extends _Value {
   final String feedbackNodeId;
   final FeedbackAnchor feedbackAnchor;
   final bool returnSpring;
-  final double springStiffness, springDamping;
+
+  /// The spring it returns on with [returnSpring] (JSON `spring`; the
+  /// legacy `springStiffness`/`springDamping` read as it).
+  final Spring spring;
+  static const Spring defaultSpring = Spring.physical(stiffness: 260, damping: 14);
   final bool enabled;
 
   /// The return spring of a drag no target takes; null uses
-  /// [returnSpring], [springStiffness] and [springDamping].
+  /// [returnSpring] and [spring].
   final GesturePhysics? physics;
 
   /// The spring it flies back on, or null for none (it reappears at once).
   GesturePhysics? get effectivePhysics =>
       physics ??
-      (returnSpring ? GesturePhysics(stiffness: springStiffness, damping: springDamping, fling: false) : null);
+      (returnSpring ? GesturePhysics(spring: spring, fling: false) : null);
 
   static DragSource? fromJson(Object? json) {
     final m = readMap(json);
@@ -1393,8 +1236,9 @@ final class DragSource extends _Value {
       feedbackNodeId: r.s('feedbackNodeId'),
       feedbackAnchor: r.e(FeedbackAnchor.values, 'feedbackAnchor', FeedbackAnchor.grab),
       returnSpring: r.b('returnSpring', true),
-      springStiffness: r.d('springStiffness', 260),
-      springDamping: r.d('springDamping', 14),
+      spring: Spring.fromJson(m['spring'], fallback: defaultSpring) ??
+          Spring.legacy(m, 'springStiffness', 'springDamping', fallback: defaultSpring) ??
+          defaultSpring,
       enabled: _loose(m['enabled']) ?? true,
       physics: GesturePhysics.fromJson(m['physics']),
     );
@@ -1414,10 +1258,9 @@ final class DragSource extends _Value {
       ..d('feedbackElevation', feedbackElevation, 24)
       ..s('feedbackNodeId', feedbackNodeId)
       ..e('feedbackAnchor', feedbackAnchor, FeedbackAnchor.grab)
-      ..b('returnSpring', returnSpring, true)
-      ..d('springStiffness', springStiffness, 260)
-      ..d('springDamping', springDamping, 14)
-      ..b('enabled', enabled, true);
+      ..b('returnSpring', returnSpring, true);
+    if (spring != defaultSpring) j['spring'] = spring.toJsonOver(defaultSpring);
+    j.b('enabled', enabled, true);
     if (physics != null) j['physics'] = physics!.toJson();
     return j;
   }
@@ -1425,7 +1268,7 @@ final class DragSource extends _Value {
   @override
   List<Object?> get props => [
     group, data, start, axis, whileDragging, ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, //
-    feedbackElevation, feedbackNodeId, feedbackAnchor, returnSpring, springStiffness, springDamping, enabled, physics,
+    feedbackElevation, feedbackNodeId, feedbackAnchor, returnSpring, spring, enabled, physics,
   ];
 }
 
@@ -1574,8 +1417,7 @@ final class DragTrack extends _Value {
     this.overscroll = 0,
     this.settle = 0,
     this.settleCurve = AnimationCurve.easeOutCubic,
-    this.settleStiffness = 380,
-    this.settleDamping = 20,
+    this.settleSpring = DragTrack.defaultSettleSpring,
     this.parkedProgress,
     this.keyboard = true,
     this.viewBoxWidth = 0,
@@ -1652,7 +1494,10 @@ final class DragTrack extends _Value {
   /// which a release mid-fling starts at the pointer's speed.
   final int settle;
   final AnimationCurve settleCurve;
-  final double settleStiffness, settleDamping;
+  /// The spring of a `spring` [settleCurve] (JSON `settleSpring`; the
+  /// legacy `settleStiffness`/`settleDamping` read as it).
+  final Spring settleSpring;
+  static const Spring defaultSettleSpring = Spring.physical(stiffness: 380, damping: 20);
 
   /// Where the node parks while the value is out of range or empty, as a
   /// progress that may lie outside 0–1 (an unrated dial parks below its
@@ -1811,8 +1656,9 @@ final class DragTrack extends _Value {
       overscroll: r.d('overscroll', 0),
       settle: r.ms('settle', 0),
       settleCurve: r.curve('settleCurve', AnimationCurve.easeOutCubic),
-      settleStiffness: r.d('settleStiffness', 380),
-      settleDamping: r.d('settleDamping', 20),
+      settleSpring: Spring.fromJson(m['settleSpring'], fallback: defaultSettleSpring) ??
+          Spring.legacy(m, 'settleStiffness', 'settleDamping', fallback: defaultSettleSpring) ??
+          defaultSettleSpring,
       parkedProgress: r.dn('parkedProgress'),
       keyboard: r.b('keyboard', true),
       viewBoxWidth: r.d('viewBoxWidth', 0),
@@ -1867,8 +1713,9 @@ final class DragTrack extends _Value {
       ..d('overscroll', overscroll, 0)
       ..i('settle', settle, 0)
       ..e('settleCurve', settleCurve, AnimationCurve.easeOutCubic)
-      ..d('settleStiffness', settleStiffness, 380)
-      ..d('settleDamping', settleDamping, 20)
+      ..let((j) {
+        if (settleSpring != defaultSettleSpring) j['settleSpring'] = settleSpring.toJsonOver(defaultSettleSpring);
+      })
       ..dn('parkedProgress', parkedProgress)
       ..b('keyboard', keyboard, true)
       ..d('viewBoxWidth', viewBoxWidth, 0)
@@ -1898,7 +1745,7 @@ final class DragTrack extends _Value {
   List<Object?> get props => [
     shape, variable, min, max, step, defaultValue, input, pixelsPerRange, x1, y1, x2, y2, startAngle, endAngle, //
     pivotX, pivotY, rotate, path, orientToPath, jumpOnTap, wheel, value, orientUpright, detent, overscroll, settle,
-    settleCurve, settleStiffness, settleDamping, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
+    settleCurve, settleSpring, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
     wheelStep, doubleTapValues, keyStep, hitArea, units, fineStep, finePixelsPerRange, fineHold, fineVariable, snap,
     snapCurve, write, endless, momentum, friction, smooth, gain,
   ];
@@ -1992,7 +1839,7 @@ final class DragMotion extends _Value {
   /// curve-timed release.
   GesturePhysics? get effectivePhysics =>
       physics ??
-      (snapCurve == AnimationCurve.spring ? GesturePhysics(bounce: 0.25, duration: snapBack, fling: false) : null);
+      (snapCurve == AnimationCurve.spring ? GesturePhysics(spring: Spring(duration: snapBack, bounce: 0.25), fling: false) : null);
 
   static DragMotion? fromJson(Object? json) {
     final m = readMap(json);
@@ -2091,102 +1938,6 @@ final class DragMotion extends _Value {
 }
 
 // --- one-shot effects -----------------------------------------------------------
-
-/// A one-shot effect's shape. `keyframes` plays the effect's own
-/// [EffectAnimation.keyframes] (a hop with squash and stretch, a fly-away
-/// and back) from rest and back to rest.
-enum EffectAnimationType { shake, bounce, pop, wiggle, jelly, flash, spin, keyframes }
-
-/// A one-shot effect the node plays on cue (an action, a bound play key,
-/// or when it appears).
-@immutable
-final class EffectAnimation extends _Value {
-  const EffectAnimation({
-    required this.name,
-    required this.type,
-    this.duration = 520,
-    this.delay = 0,
-    this.amount = 1,
-    this.originX = 0,
-    this.originY = 0,
-    this.playOnAppear = false,
-    this.cycles = 0,
-    this.playKey,
-    this.keyframes = const [],
-    this.curve = AnimationCurve.linear,
-  });
-
-  final String name;
-  final EffectAnimationType type;
-
-  /// A `keyframes` effect's poses (translateX/Y, scale, scaleX/Y, rotate in
-  /// degrees, opacity) at times 0–1; it starts and ends at rest, and values a
-  /// keyframe leaves out follow the keyframes around it.
-  final List<MotionKeyframe> keyframes;
-
-  /// How a `keyframes` effect's time runs (the keyframes' times are on it).
-  final AnimationCurve curve;
-  final int duration, delay;
-  final double amount, originX, originY;
-  final bool playOnAppear;
-
-  /// How many times a shake, wiggle or jelly swings (and a flash blinks)
-  /// over the effect; 0 uses the type's own count (a shake swings 4 times).
-  final double cycles;
-
-  /// A cue the node's bindings set (`effectAnimations[i].playKey`): the
-  /// effect plays each time it changes to a new non-empty value (not when
-  /// it first shows, and not when it clears), so many nodes can share one
-  /// cue (`${= shake.cell == item.i ? shake.tick : ''}`): only the node
-  /// whose cue becomes non-empty plays.
-  final String? playKey;
-
-  static EffectAnimation? fromJson(Object? json) {
-    final m = readMap(json);
-    if (m == null) return null;
-    final r = _R(m);
-    return EffectAnimation(
-      name: r.s('name'),
-      type: r.e(EffectAnimationType.values, 'type', EffectAnimationType.shake),
-      duration: r.ms('duration', 520),
-      delay: r.ms('delay', 0),
-      amount: r.d('amount', 1),
-      originX: r.d('originX', 0),
-      originY: r.d('originY', 0),
-      playOnAppear: r.b('playOnAppear', false),
-      cycles: math.max(0, r.d('cycles', 0)),
-      playKey: m['playKey']?.toString(),
-      keyframes: [...?readList(m['keyframes'] is String ? _decodeList(m['keyframes'] as String) : m['keyframes'])?.map(MotionKeyframe.fromJson).nonNulls],
-      curve: AnimationCurve.parse(m['curve']) ?? AnimationCurve.linear,
-    );
-  }
-
-  static Object? _decodeList(String s) {
-    try {
-      return jsonDecode(s);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Json toJson() => <String, Object?>{
-    'name': name,
-    'type': type.name,
-    if (keyframes.isNotEmpty) 'keyframes': [for (final k in keyframes) k.toJson()],
-    if (curve != AnimationCurve.linear) 'curve': curve.name,
-  }
-    ..i('duration', duration, 520)
-    ..i('delay', delay, 0)
-    ..d('amount', amount, 1)
-    ..d('originX', originX, 0)
-    ..d('originY', originY, 0)
-    ..b('playOnAppear', playOnAppear, false)
-    ..d('cycles', cycles, 0)
-    ..s('playKey', playKey);
-
-  @override
-  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey, keyframes, curve];
-}
 
 /// A particle's shape; `image` draws the emitter's [ParticleEmitter.image].
 enum ParticleShape {
@@ -3024,7 +2775,7 @@ final class Behaviors extends _Value {
   const Behaviors({
     this.motion,
     this.scale = 1,
-    this.loops = const [],
+    this.animations = const [],
     this.transitions = Transitions.none,
     this.inkWell,
     this.states = StateStyles.none,
@@ -3041,7 +2792,6 @@ final class Behaviors extends _Value {
     this.reveal,
     this.strokePath,
     this.typewriter,
-    this.effectAnimations = const [],
     this.particles,
     this.textDirection,
     this.flip,
@@ -3062,8 +2812,10 @@ final class Behaviors extends _Value {
   /// `Transform.scale`). Bindable as `scale`.
   final double scale;
 
-  /// Animations repeating while shown, outermost first.
-  final List<LoopAnimation> loops;
+  /// Its animation controllers and their tracks, outermost first
+  /// ([NodeAnimation]); the legacy `loops` and `effectAnimations` read as
+  /// these.
+  final List<NodeAnimation> animations;
   final Transitions transitions;
 
   /// Ink: ripples, and hover/focus/press overlays.
@@ -3101,7 +2853,6 @@ final class Behaviors extends _Value {
 
   /// A text that types itself out in a running app.
   final Typewriter? typewriter;
-  final List<EffectAnimation> effectAnimations;
   final ParticleEmitter? particles;
 
   /// The direction its content lays out in (Flutter's `Directionality`);
@@ -3136,23 +2887,145 @@ final class Behaviors extends _Value {
 
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
-    'motion', 'scale', 'loops', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
+    'motion', 'scale', 'animations', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
     'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'typewriter',
-    'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
+    'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
     'customPaint',
   };
 
+  /// Legacy keys the decoder still reads (and never writes): `loops` and
+  /// `effectAnimations` become [animations].
+  static const Set<String> legacyKeys = {'loops', 'effectAnimations'};
+
   bool get isNone => this == none;
+
+  /// [bind] (a node's binding paths) with the legacy behavior paths
+  /// rewritten to the animations they now address, read against the node's
+  /// JSON [m]: `loops[i].<key>` → `animations.loop<i>.<key>` (a loop's
+  /// `phase` and `lag` → one `phase` formula), `effectAnimations[i].<key>`
+  /// → `animations.<its id>.<key>`, `motion.pulseKey` →
+  /// `animations.pulse.playKey`. A key it can't rewrite is kept as given.
+  static Map<String, String> migrateBind(Map<String, String> bind, Json m) {
+    if (!bind.keys.any((k) => k.startsWith('loops') || k.startsWith('effectAnimations') || k == 'motion.pulseKey')) {
+      return bind;
+    }
+    final loops = readList(m['loops']) ?? const [];
+    final effects = readList(m['effectAnimations']) ?? const [];
+    final out = <String, String>{};
+    final phases = <int, (String?, String?)>{};
+    final legacy = RegExp(r'^(loops|effectAnimations)(?:\[(\d+)\]|\.\*)\.(\w+)$');
+    for (final e in bind.entries) {
+      if (e.key == 'motion.pulseKey') {
+        out['animations.pulse.playKey'] = e.value;
+        continue;
+      }
+      final match = legacy.firstMatch(e.key);
+      if (match == null) {
+        out[e.key] = e.value;
+        continue;
+      }
+      final isLoop = match[1] == 'loops';
+      final list = isLoop ? loops : effects;
+      final indices = match[2] == null ? [for (var i = 0; i < list.length; i++) i] : [int.parse(match[2]!)];
+      final key = match[3]!;
+      var kept = false;
+      for (final i in indices) {
+        if (i >= list.length) continue;
+        if (isLoop) {
+          if (key == 'phase' || key == 'lag') {
+            final (p, l) = phases[i] ?? (null, null);
+            phases[i] = key == 'phase' ? (e.value, l) : (p, e.value);
+            continue;
+          }
+          final to = _loopKey(key);
+          if (to == null) {
+            kept = true;
+            continue;
+          }
+          out['animations.loop$i.$to'] = e.value;
+        } else {
+          final a = AnimationPresets.fromEffect(list[i], i);
+          final to = a == null ? null : _effectKey(key, a.preset == 'spin');
+          if (a == null || to == null) {
+            kept = true;
+            continue;
+          }
+          out['animations.${a.id}.$to'] = e.value;
+        }
+      }
+      if (kept) out[e.key] = e.value;
+    }
+    for (final MapEntry(key: i, value: (p, l)) in phases.entries) {
+      final r = _R(readMap(loops[i]) ?? const {});
+      final cycle = (r.b('reverse', false) ? 2 : 1) * math.max(1, r.ms('duration', 1000));
+      final phase = p == null ? writeDouble(r.d('phase', 0)).toString() : _formula(p);
+      final lag = l == null ? writeDouble(r.d('lag', 0)).toString() : _formula(l);
+      if (phase == null || lag == null) {
+        // Not a formula it can combine: kept as given (no longer read).
+        if (p != null) out['loops[$i].phase'] = p;
+        if (l != null) out['loops[$i].lag'] = l;
+        continue;
+      }
+      out['animations.loop$i.phase'] = lag == '0' || lag == '0.0' ? '\${= $phase}' : '\${= ($phase) - ($lag) / $cycle}';
+    }
+    return out;
+  }
+
+  /// A loop's key as the key of its animation; null when it has none.
+  static String? _loopKey(String key) => switch (key) {
+        'enabled' || 'duration' || 'delay' || 'curve' => key,
+        'type' => 'preset',
+        'reverse' => 'repeat.reverse',
+        'scaleFrom' || 'scaleTo' || 'opacityFrom' || 'opacityTo' || 'turns' || 'distance' || 'angle' => 'params.$key',
+        _ => null,
+      };
+
+  /// An effect's key as the key of its animation; null when it has none.
+  static String? _effectKey(String key, bool spin) => switch (key) {
+        'duration' || 'delay' || 'playKey' || 'curve' => key,
+        'type' => 'preset',
+        'playOnAppear' => 'autoplay',
+        'amount' => spin ? 'params.turns' : 'params.amount',
+        'cycles' => 'params.cycles',
+        'keyframes' => 'params.frames',
+        _ => null,
+      };
+
+  /// The formula of binding [expression]: `${= f}` → `f`, `${path}` →
+  /// `path`, a number → itself; null for anything else (text around it).
+  static String? _formula(String expression) {
+    final t = expression.trim();
+    if (num.tryParse(t) != null) return t;
+    final f = RegExp(r'^\$\{=\s*([^]*)\}$').firstMatch(t);
+    if (f != null && !f[1]!.contains(r'${')) return f[1]!.trim();
+    final p = RegExp(r'^\$\{([^{}=]+)\}$').firstMatch(t);
+    return p?[1]!.trim();
+  }
+
+  /// The legacy keys of [m] as animations, after [m]'s own `animations`; a
+  /// legacy one replaces an animation of the same id.
+  static List<NodeAnimation> _animations(Json m) {
+    final own = [...?readList(_jsonText(m['animations']))?.map(NodeAnimation.fromJson).nonNulls];
+    final legacy = <NodeAnimation>[
+      for (final (i, l) in (readList(m['loops']) ?? const []).indexed) ?AnimationPresets.fromLoop(l, i),
+      for (final (i, e) in (readList(m['effectAnimations']) ?? const []).indexed) ?AnimationPresets.fromEffect(e, i),
+      if (readMap(m['motion']) case final Json motion)
+        ?AnimationPresets.fromPulseKey(motion, bound: readMap(m['bind'])?.containsKey('motion.pulseKey') ?? false),
+    ];
+    if (legacy.isEmpty) return own;
+    final ids = {for (final a in legacy) a.id};
+    return [...own.where((a) => !ids.contains(a.id)), ...legacy];
+  }
 
   /// Reads the behavior keys of a node's JSON [m].
   static Behaviors fromJson(Json m) {
-    if (!m.keys.any(keys.contains)) return none;
+    if (!m.keys.any((k) => keys.contains(k) || legacyKeys.contains(k))) return none;
     final r = _R(m);
     final scale = r.d('scale', 1);
     return Behaviors(
       motion: Motion.fromJson(m['motion']),
       scale: scale > 0 ? scale : 1,
-      loops: [...?readList(m['loops'])?.map(LoopAnimation.fromJson).nonNulls],
+      animations: _animations(m),
       transitions: Transitions.fromJson(m['transitions']),
       inkWell: InkWellStyle.fromJson(m['inkWell']),
       states: StateStyles.fromJson(m['states']),
@@ -3169,7 +3042,6 @@ final class Behaviors extends _Value {
       reveal: Reveal.fromJson(m['reveal']),
       strokePath: StrokePath.fromJson(m['strokePath']),
       typewriter: Typewriter.fromJson(m['typewriter']),
-      effectAnimations: [...?readList(m['effectAnimations'])?.map(EffectAnimation.fromJson).nonNulls],
       particles: ParticleEmitter.fromJson(m['particles']),
       textDirection: m['textDirection'] is String
           ? r.e(TextDirection.values, 'textDirection', TextDirection.ltr)
@@ -3188,7 +3060,7 @@ final class Behaviors extends _Value {
   void writeTo(Json j) {
     if (motion != null) j['motion'] = motion!.toJson();
     j.d('scale', scale, 1);
-    if (loops.isNotEmpty) j['loops'] = [for (final l in loops) l.toJson()];
+    if (animations.isNotEmpty) j['animations'] = [for (final a in animations) a.toJson()];
     if (!transitions.isNone) j['transitions'] = transitions.toJson();
     if (inkWell != null) j['inkWell'] = inkWell!.toJson();
     if (!states.isEmpty) j['states'] = states.toJson();
@@ -3206,7 +3078,6 @@ final class Behaviors extends _Value {
     if (reveal != null) j['reveal'] = reveal!.toJson();
     if (strokePath != null) j['strokePath'] = strokePath!.toJson();
     if (typewriter != null) j['typewriter'] = typewriter!.toJson();
-    if (effectAnimations.isNotEmpty) j['effectAnimations'] = [for (final e in effectAnimations) e.toJson()];
     if (particles != null) j['particles'] = particles!.toJson();
     if (textDirection != null) j['textDirection'] = textDirection!.name;
     if (flip != null) j['flip'] = flip!.toJson();
@@ -3221,7 +3092,7 @@ final class Behaviors extends _Value {
   Behaviors copyWith({
     Motion? motion,
     double? scale,
-    List<LoopAnimation>? loops,
+    List<NodeAnimation>? animations,
     Transitions? transitions,
     InkWellStyle? inkWell,
     StateStyles? states,
@@ -3238,7 +3109,6 @@ final class Behaviors extends _Value {
     Reveal? reveal,
     StrokePath? strokePath,
     Typewriter? typewriter,
-    List<EffectAnimation>? effectAnimations,
     ParticleEmitter? particles,
     TextDirection? textDirection,
     FlipCard? flip,
@@ -3251,7 +3121,7 @@ final class Behaviors extends _Value {
   }) => Behaviors(
     motion: motion ?? this.motion,
     scale: scale ?? this.scale,
-    loops: loops ?? this.loops,
+    animations: animations ?? this.animations,
     transitions: transitions ?? this.transitions,
     inkWell: inkWell ?? this.inkWell,
     states: states ?? this.states,
@@ -3268,7 +3138,6 @@ final class Behaviors extends _Value {
     reveal: reveal ?? this.reveal,
     strokePath: strokePath ?? this.strokePath,
     typewriter: typewriter ?? this.typewriter,
-    effectAnimations: effectAnimations ?? this.effectAnimations,
     particles: particles ?? this.particles,
     textDirection: textDirection ?? this.textDirection,
     flip: flip ?? this.flip,
@@ -3282,8 +3151,8 @@ final class Behaviors extends _Value {
 
   @override
   List<Object?> get props => [
-    motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
+    motion, scale, animations, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
+    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, particles,
     textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }

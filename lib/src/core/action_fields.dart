@@ -7,9 +7,11 @@
 // "when"}` (ActionDef.toJson); an editor reads the fields listed here off it
 // and writes them back, keeping keys it doesn't list.
 import 'actions.dart';
-import 'behavior_fields.dart' show AnimationCurveCodec, motionType;
-import 'behaviors.dart' show AnimationCurve, DragDirection, Motion;
+import 'behavior_fields.dart' show AnimationCurveCodec, motionType, springType;
+import 'behaviors.dart' show AnimationCurve, DragDirection, Motion, Spring;
 import 'json.dart' show readMap;
+import 'custom_paint.dart' show Expr;
+import 'custom_paint_fields.dart' show ExprCodec;
 import 'props.dart';
 import 'route_transition.dart';
 import 'scripts.dart';
@@ -32,12 +34,11 @@ abstract final class TriggerFields {
   static const type = PropDef<TriggerType>('type', EnumCodec(TriggerType.values), TriggerType.click);
   static const debounceMs = PropDef<int>('debounceMs', Codecs.int, 0);
   static const variable = PropDef<String>('variable', Codecs.string, '');
-  static const intervalMs = PropDef<int>('intervalMs', Codecs.int, 1000);
+  static const intervalMs = PropDef<Expr<int>>('intervalMs', ExprCodec(Codecs.int), Expr(1000),
+      doc: 'Timer: ms between ticks (a number or an expression).');
   static const key = PropDef<String>('key', Codecs.string, '');
   static const when = PropDef<String>('when', Codecs.string, '');
   static const holdMs = PropDef<int>('holdMs', Codecs.int, kDefaultHoldMs);
-  static const every = PropDef<String>('every', Codecs.string, '');
-  static const runWhen = PropDef<String>('runWhen', Codecs.string, '');
   static const visibleFraction = PropDef<double>('visibleFraction', Codecs.double, kDefaultVisibleFraction);
   static const repeat = PropDef<bool>('repeat', Codecs.bool, false, doc: 'keyDown: also while the key repeats.');
   static const visibleMs = PropDef<int>('visibleMs', IntCodec(min: 0), 0,
@@ -45,7 +46,7 @@ abstract final class TriggerFields {
   static const onceKey = PropDef<String>('onceKey', Codecs.string, '',
       doc: 'Runs once per key (an expression, such as \${item.id}) per app session.');
   static const List<PropDef<Object?>> all = [
-    type, debounceMs, variable, intervalMs, key, when, holdMs, every, runWhen, visibleFraction, repeat, //
+    type, debounceMs, variable, intervalMs, key, when, holdMs, visibleFraction, repeat, //
     visibleMs, onceKey,
   ];
 }
@@ -59,7 +60,6 @@ const routeTransitionType = PropType.object('RouteTransition', routeTransitionFi
 const transitionSideType = PropType.object('TransitionSide', transitionSideFields);
 const transitionRevealType = PropType.object('TransitionReveal', transitionRevealFields);
 const routeDismissType = PropType.object('RouteDismiss', routeDismissFields);
-const transitionSpringType = PropType.object('TransitionSpring', transitionSpringFields);
 
 /// [RouteTransition]; a bare preset name reads as that preset.
 const routeTransitionCodec = ValueCodec<RouteTransition?>(RouteTransition.fromJson, _out, routeTransitionType);
@@ -117,21 +117,15 @@ abstract final class RouteDismissFields {
   static const direction = PropDef<DragDirection>('direction', EnumCodec(DragDirection.values), DragDirection.down);
   static const distance = PropDef<double>('distance', Codecs.double, 0.25);
   static const velocity = PropDef<double>('velocity', Codecs.double, 700);
-  static const spring = PropDef<TransitionSpring>(
-      'spring', ValueCodec<TransitionSpring>(TransitionSpring.fromJson, _out, transitionSpringType), TransitionSpring());
+  static const spring = PropDef<Spring>('spring', ValueCodec<Spring>(_dismissSpringIn, _dismissSpringOut, springType), RouteDismiss.defaultSpring);
   static const List<PropDef<Object?>> all = [direction, distance, velocity, spring];
 }
 
 List<PropDef<Object?>> routeDismissFields() => RouteDismissFields.all;
 
-abstract final class TransitionSpringFields {
-  static const stiffness = PropDef<double>('stiffness', Codecs.double, 380);
-  static const damping = PropDef<double>('damping', Codecs.double, 36);
-  static const mass = PropDef<double>('mass', Codecs.double, 1);
-  static const List<PropDef<Object?>> all = [stiffness, damping, mass];
-}
+Spring? _dismissSpringIn(Object? j) => Spring.fromJson(j, fallback: RouteDismiss.defaultSpring);
+Object? _dismissSpringOut(Spring s) => s.toJsonOver(RouteDismiss.defaultSpring);
 
-List<PropDef<Object?>> transitionSpringFields() => TransitionSpringFields.all;
 
 // --- scripts ----------------------------------------------------------------------
 
@@ -267,18 +261,6 @@ abstract final class SetVariableFields {
   static const List<PropDef<Object?>> all = [variable, ...ValueWriteFields.all, animateMs, curve];
 }
 
-/// [AnimateVariableAction].
-abstract final class AnimateVariableFields {
-  static const variable = PropDef<String>('variable', Codecs.string, '', doc: 'A number variable.');
-  static const mode = PropDef<AnimateVariableMode>('mode', EnumCodec(AnimateVariableMode.values), AnimateVariableMode.play);
-  static const from = PropDef<String>('from', Codecs.string, '', doc: 'Play: the start (empty: the value now).');
-  static const to = PropDef<String>('to', Codecs.string, '1', doc: 'Play: the end; seek: the value to jump to.');
-  static const durationMs = PropDef<int>('durationMs', Codecs.int, 1000);
-  static const duration = PropDef<String>('duration', Codecs.string, '', doc: 'An expression giving milliseconds.');
-  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
-  static const List<PropDef<Object?>> all = [variable, mode, from, to, durationMs, duration, curve];
-}
-
 /// [CallFunctionAction].
 abstract final class CallFunctionFields {
   static const name = PropDef<String>('name', Codecs.string, '', doc: 'The function the app registered.');
@@ -409,11 +391,19 @@ abstract final class ScrollToFields {
   static const List<PropDef<Object?>> all = [node, item, durationMs, curve, alignment, offset, axis];
 }
 
-/// [PlayAnimationAction].
-abstract final class PlayAnimationFields {
-  static const node = PropDef<String>('node', Codecs.string, '');
-  static const animation = PropDef<String>('animation', Codecs.string, '', doc: 'A one-shot animation (or particles).');
-  static const List<PropDef<Object?>> all = [node, animation];
+/// [AnimateAction]: an `AnimationController` method on a node's animation
+/// or a number variable.
+abstract final class AnimateFields {
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A node id or key; empty: the reacting node.');
+  static const animation = PropDef<String>('animation', Codecs.string, '', doc: "The animation's id on the node.");
+  static const variable = PropDef<String>('variable', Codecs.string, '', doc: 'Instead of a node: a number variable.');
+  static const command = PropDef<AnimateCommand>('command', EnumCodec(AnimateCommand.values), AnimateCommand.forward);
+  static const from = PropDef<String>('from', Codecs.string, '', doc: 'Where forward/reverse start (an expression).');
+  static const target = PropDef<String>('target', Codecs.string, '', doc: 'animateTo, animateBack, set (an expression).');
+  static const duration = PropDef<String>('duration', Codecs.string, '', doc: 'Milliseconds (an expression); empty: the animation\'s.');
+  static const curve = PropDef<AnimationCurve?>('curve', OptionalEnumCodec(AnimationCurve.values), null);
+  static const spring = PropDef<Spring?>('spring', ValueCodec<Spring?>(Spring.fromJson, _out, springType), null);
+  static const List<PropDef<Object?>> all = [node, animation, variable, command, from, target, duration, curve, spring];
 }
 
 /// [HapticAction].
