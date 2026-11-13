@@ -52,7 +52,7 @@ String? defaultChildFits(Node parent, SizeFit fit, bool horizontal) => switch (f
 /// A row or column: Flexible along its main axis only; no Fill or Flexible
 /// along the main axis when it wraps or scrolls.
 String? flexChildFits(Node parent, SizeFit fit, bool horizontal) {
-  final main = (parent.type == 'row') == horizontal;
+  final main = (flexAxisOf(parent) == Axis.horizontal) == horizontal;
   final wraps = parent.props.get(FlexProps.wrap);
   if (fit == SizeFit.flexible && !main) return _flexOnly;
   if ((fit == SizeFit.fill || fit == SizeFit.flexible) && main && wraps) {

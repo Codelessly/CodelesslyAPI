@@ -13,6 +13,7 @@ import '../core/layout.dart';
 import '../core/logic.dart';
 import '../core/node.dart';
 import '../core/props.dart';
+import '../core/responsive.dart';
 import '../core/breakpoints.dart';
 import '../core/scripts.dart';
 import '../core/triggers.dart';
@@ -428,7 +429,7 @@ final class _Validator {
     // Keys a node doesn't read are kept in extra.
     final nodeKeys = <String>{
       'id', 'type', 'name', 'key', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
-      'actions', 'component', ...Behaviors.keys,
+      'actions', 'component', 'responsive', ...Behaviors.keys,
     };
     for (final k in n.extra.keys) {
       if (n.type == CanvasProps.spec.type && canvasRouteKeys.contains(k)) continue;
@@ -452,6 +453,7 @@ final class _Validator {
     _props(n, raw['props'], pointer(at, 'props'));
     _bind(n, raw['bind'], pointer(at, 'bind'));
     _reactions(n, raw['actions'], pointer(at, 'actions'));
+    if (raw.containsKey('responsive')) _responsive(n, raw['responsive'], pointer(at, 'responsive'));
     for (final def in BehaviorFields.all) {
       if (!raw.containsKey(def.key)) continue;
       if (def.key == BehaviorFields.states.key) {
@@ -488,6 +490,13 @@ final class _Validator {
       return;
     }
     final m = readMap(json)!;
+    _layoutKeys(n, m, at);
+    _sizes(n, m, at);
+  }
+
+  /// The keys of layout object [m]: known, of the right type, read by the
+  /// parent.
+  void _layoutKeys(Node n, Json m, String at) {
     final fields = {for (final f in LayoutFields.all) f.key: f};
     for (final e in m.entries) {
       final f = fields[e.key];
@@ -522,7 +531,114 @@ final class _Validator {
       r.add(Codes.layoutFieldIgnored, pointer(at, f.key),
           'layout.${f.key} is read only by $readers; this node is $what, so it is ignored.');
     }
-    _sizes(n, m, at);
+  }
+
+  /// A node's responsive patches: one condition each, naming breakpoints
+  /// of the project; a patch of the node's own fields, checked as those
+  /// fields are.
+  void _responsive(Node n, Object? json, String at) {
+    final list = readList(json);
+    if (list == null) {
+      r.add(Codes.invalidResponsive, at,
+          '"responsive" is a list of {"<condition>": "<breakpoint>", "patch": {...}}, e.g. [{"smallerThan": "tablet", "patch": {"props": {"direction": "vertical"}}}]; got ${describe(json)}.');
+      return;
+    }
+    final names = [for (final b in breakpoints.list) b.key.isEmpty ? b.id : b.key];
+    for (var i = 0; i < list.length; i++) {
+      final p = pointer(at, i);
+      final m = readMap(list[i]);
+      if (m == null) {
+        r.add(Codes.invalidResponsive, p, 'A responsive entry is an object {"<condition>": "<breakpoint>", "patch": {...}}, got ${describe(list[i])}.');
+        continue;
+      }
+      final conditions = [for (final k in m.keys) if (ResponsivePatch.conditionKeys.contains(k)) k];
+      for (final k in m.keys) {
+        if (k == 'patch' || ResponsivePatch.conditionKeys.contains(k)) continue;
+        r.add(Codes.invalidResponsive, pointer(p, k),
+            'A responsive entry has no "$k". It takes one condition (${ResponsivePatch.conditionKeys.join(', ')}) and "patch".',
+            suggestion: nearest(k, [...ResponsivePatch.conditionKeys, 'patch']));
+      }
+      if (conditions.length != 1) {
+        r.add(Codes.invalidResponsive, p,
+            conditions.isEmpty
+                ? 'No condition: add one of equals, largerThan, smallerThan (a breakpoint name: ${names.join(', ')}) or between (two names).'
+                : 'One condition per entry, got ${conditions.join(' and ')}: write one entry per condition.');
+      }
+      for (final k in conditions) {
+        final v = m[k];
+        final given = k == 'between' ? (v is List && v.length == 2 && v.every((e) => e is String) ? v.cast<String>() : null) : (v is String ? [v] : null);
+        if (given == null) {
+          r.add(Codes.invalidResponsive, pointer(p, k),
+              k == 'between' ? '"between" takes two breakpoint names, narrower first: ["tablet", "desktop"].' : '"$k" takes a breakpoint name (${names.join(', ')}).');
+          continue;
+        }
+        for (var j = 0; j < given.length; j++) {
+          if (breakpoints.find(given[j]) == null) {
+            r.add(Codes.unknownBreakpoint, k == 'between' ? pointer(pointer(p, k), j) : pointer(p, k),
+                '"${given[j]}" is not a breakpoint of the project. Breakpoints: ${names.join(', ')}.',
+                suggestion: nearest(given[j], names));
+          }
+        }
+      }
+      final patch = m['patch'];
+      final pp = pointer(p, 'patch');
+      final pm = readMap(patch);
+      if (pm == null) {
+        r.add(Codes.invalidResponsive, pp, 'Add "patch": the node\'s fields at those breakpoints, shaped like the node ({"props": {...}, "layout": {...}}).');
+        continue;
+      }
+      for (final e in pm.entries) {
+        final kp = pointer(pp, e.key);
+        switch (e.key) {
+          case 'props':
+            _props(n, e.value, kp);
+          case 'layout':
+            if (readMap(e.value) case final Json lm) {
+              _layoutKeys(n, lm, kp);
+              _sizes(n.patched({'layout': lm}), lm, kp);
+            } else {
+              r.add(Codes.wrongType, kp, '"layout" is an object, got ${describe(e.value)}.');
+            }
+          case 'decoration':
+            _decoration(n, e.value, kp);
+          case 'visible':
+            if (e.value is! bool) r.add(Codes.wrongType, kp, '"visible" is true or false, got ${describe(e.value)}.');
+          case 'opacity':
+            final o = readDouble(e.value);
+            if (o == null || o < 0 || o > 1) r.add(Codes.wrongType, kp, '"opacity" is a number from 0 to 1, got ${describe(e.value)}.');
+          case 'children':
+            final ids = e.value is List && (e.value as List).every((c) => c is String) ? (e.value as List).cast<String>() : null;
+            if (ids == null || ids.length != n.children.length || !ids.toSet().containsAll(n.children)) {
+              r.add(Codes.invalidResponsive, kp,
+                  '"children" in a patch reorders the node\'s own children: list the same ids (${n.children.join(', ')}) in the new order. To hide one at a breakpoint, patch that child\'s "visible".');
+            }
+          default:
+            r.add(Codes.invalidResponsive, kp,
+                '"${e.key}" cannot vary per breakpoint. A patch takes: ${ResponsivePatch.patchKeys.join(', ')}.',
+                suggestion: nearest(e.key, ResponsivePatch.patchKeys));
+        }
+      }
+      // A binding of the same field wins over the patch.
+      for (final path in _leafPaths(pm, '')) {
+        for (final b in n.bind.keys) {
+          if (path == b || path.startsWith('$b.') || b.startsWith('$path.')) {
+            r.add(Codes.responsiveOverridden, pp,
+                'The patch sets $path, which "bind" also sets ("$b"): the binding wins at every size. Remove one of them.');
+          }
+        }
+      }
+    }
+  }
+
+  /// Dotted paths of the leaves of [v] (`props.style.fontSize`).
+  static Iterable<String> _leafPaths(Object? v, String at) sync* {
+    if (v is Map && v.isNotEmpty) {
+      for (final e in v.entries) {
+        yield* _leafPaths(e.value, at.isEmpty ? '${e.key}' : '$at.${e.key}');
+      }
+    } else if (at.isNotEmpty) {
+      yield at;
+    }
   }
 
   void _sizes(Node n, Json? m, String at) {

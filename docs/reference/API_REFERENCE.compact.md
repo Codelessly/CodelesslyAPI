@@ -103,6 +103,7 @@ Every node has a `type` (one of the [node types](#page-nodes)). Its keys:
 | `bind` | `Map<String, String>` | Bound properties: a binding path (`visible`, `props.text`, `layout.width`, `decoration.fills.<paintId>`; see `BindPaths` and DESIGN.md §5.1) → an expression (`${user.name}`, `${= qty * 2}`). |
 | `actions` | `List<Reaction>` | Reactions: `{"trigger": {...}, "actions": [...]}` (see triggers, actions). |
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
+| `responsive` | `List<ResponsivePatch>` | The node's own fields per breakpoint: `[{"smallerThan": "tablet", "patch": {"props": {"direction": "vertical"}}}]`. Each entry has one condition (`equals`, `largerThan`, `smallerThan` a breakpoint name, or `between` two) and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`, `children` reordered), merged over the node while the condition holds, in order (see the guide, Responsive design). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
 | behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
@@ -128,6 +129,7 @@ a fill, a radius and padding, not three nested widgets.
 | [`box`](#node-box) | `Container` | none | yes |
 | [`row`](#node-row) | `Row` | `children` | yes |
 | [`column`](#node-column) | `Column` | `children` | yes |
+| [`flex`](#node-flex) | `Flex` | `children` | yes |
 | [`text`](#node-text) | `Text.rich` | none | blurs only |
 | [`icon`](#node-icon) | `Icon` | none | blurs only |
 | [`spacer`](#node-spacer) | `Spacer` | none | blurs only |
@@ -1354,7 +1356,9 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `duplicate_variable` | error | Two variables of the same name in one scope. |
 | `unknown_scope` | error | Variables or conditions keyed by an id that is not a canvas of the document (nor page_variables). |
 | `invalid_condition` | error | A condition, branch, predicate or set entry of the wrong shape. |
-| `unknown_breakpoint` | error | A canvas or variant names a breakpoint id the project does not define. |
+| `unknown_breakpoint` | error | A canvas, variant or responsive patch names a breakpoint the project does not define. |
+| `invalid_responsive` | error | A "responsive" entry of the wrong shape: not exactly one condition (equals, largerThan, smallerThan, between), a patch key that cannot vary, or "children" that are not the node's own children reordered. |
+| `responsive_overridden` | warning | A responsive patch sets a field the node also binds: the binding wins, so the patch never shows. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
@@ -1402,6 +1406,7 @@ of a stack is placed by `x` and `y`, a child of a row or column by `flex`, `sque
 | [`box`](#node-box) | `Container` | none | yes |
 | [`row`](#node-row) | `Row` | `children` | yes |
 | [`column`](#node-column) | `Column` | `children` | yes |
+| [`flex`](#node-flex) | `Flex` | `children` | yes |
 | [`text`](#node-text) | `Text.rich` | none | blurs only |
 | [`icon`](#node-icon) | `Icon` | none | blurs only |
 | [`spacer`](#node-spacer) | `Spacer` | none | blurs only |
@@ -1542,6 +1547,30 @@ Flutter `Column`.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
 - Reads from each child's layout: [`flex`](#layout-flex), [`squeezable`](#layout-squeezable), [`align`](#layout-align).
 
+- `mainAxisAlignment`: [MainAxisAlignment](#enum-MainAxisAlignment) = `"start"` (`start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly`)
+- `crossAxisAlignment`: [CrossAxisAlignment](#enum-CrossAxisAlignment) = `"center"` (`start`, `end`, `center`, `stretch`, `baseline`)
+- `spacing`: double = `0` (≥ 0)
+- `wrap`: bool = `false`
+- `runSpacing`: double = `0` (≥ 0)
+- `squeezeChildren`: bool = `true`
+- `scrollable`: bool = `false`
+- `scrollDirection`: [Axis](#enum-Axis) = `"vertical"` (`horizontal`, `vertical`)
+- `reverse`: bool = `false`
+- `physics`: [ScrollPhysicsType](#enum-ScrollPhysicsType) = `"platform"` (`platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining`)
+- `alwaysScroll`: bool = `false`
+- `clipBehavior`: [Clip](#enum-Clip) = `"hardEdge"` (`none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer`)
+- `fillViewport`: bool = `false`
+
+<a id="node-flex"></a>
+## `flex`
+
+Flutter `Flex`.
+
+- Children: `children`.
+- Decoration: box decoration (fills, strokes, radius, shadows, clip).
+- Reads from each child's layout: [`flex`](#layout-flex), [`squeezable`](#layout-squeezable), [`align`](#layout-align).
+
+- `direction`: [Axis](#enum-Axis) = `"horizontal"` (`horizontal`, `vertical`)
 - `mainAxisAlignment`: [MainAxisAlignment](#enum-MainAxisAlignment) = `"start"` (`start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly`)
 - `crossAxisAlignment`: [CrossAxisAlignment](#enum-CrossAxisAlignment) = `"center"` (`start`, `end`, `center`, `stretch`, `baseline`)
 - `spacing`: double = `0` (≥ 0)

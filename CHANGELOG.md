@@ -1,5 +1,21 @@
 ## Unreleased
 
+**Authoring fixes from the first direct-authoring experiment (cycle 1)**
+
+- New node type `flex` (Flutter `Flex`, the widget `Row` and `Column` extend): the row/column props plus
+  `direction` (`horizontal` | `vertical`, Flutter `Axis`, default `horizontal`). Bindable and patchable per
+  breakpoint, so a row becomes a column without copying its children. `FlexProps.flex`, `FlexProps.direction`,
+  `FlexProps.types`, `flexAxisOf(node)`. `row` and `column` are unchanged.
+- New node key `responsive`: the node's own fields per breakpoint, as a list of `{"<condition>": ..., "patch": {...}}`.
+  Conditions use ResponsiveFramework's vocabulary over the project's named breakpoints: `equals`, `largerThan`,
+  `smallerThan` (a name) and `between` (two names, inclusive). The patch is a JSON merge patch over the node
+  (`props`, `layout`, `decoration`, `visible`, `opacity`, `children` reordered); entries that hold apply in order,
+  later wins. `ResponsivePatch`, `Node.responsive`, `Node.atBreakpoint`, `responsivePatchAt`.
+  Validation type-checks every patched value as the node's own (`invalid_enum`, `unknown_prop`... with paths into
+  the patch) and adds `invalid_responsive` (shape, patch keys, `children` not a reordering) and
+  `responsive_overridden` (a patched field the node also binds: the binding wins); `unknown_breakpoint` also covers
+  a condition's breakpoint name.
+
 **New: catalogs, feature libraries and plugins** (docs/design/05-plugins-and-layers.md; guide chapter 9)
 
 - `Catalog` (`id`, `widgets`, `actions`, `dataSources`, `formulas`, `instructions`, `parts`; `+`, `widget`,

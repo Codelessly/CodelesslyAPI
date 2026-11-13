@@ -7086,6 +7086,7 @@
             "box",
             "row",
             "column",
+            "flex",
             "text",
             "icon",
             "spacer",
@@ -7193,6 +7194,62 @@
         },
         "component": {
           "type": "object"
+        },
+        "responsive": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "equals": {
+                "type": "string"
+              },
+              "largerThan": {
+                "type": "string"
+              },
+              "smallerThan": {
+                "type": "string"
+              },
+              "between": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "patch": {
+                "type": "object",
+                "properties": {
+                  "props": {
+                    "type": "object"
+                  },
+                  "layout": {
+                    "type": "object"
+                  },
+                  "decoration": {
+                    "type": "object"
+                  },
+                  "visible": {
+                    "type": "boolean"
+                  },
+                  "opacity": {
+                    "type": "number"
+                  },
+                  "children": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "patch"
+            ],
+            "additionalProperties": false
+          }
         },
         "visible": {
           "type": "boolean"
@@ -7720,6 +7777,73 @@
               "props": {
                 "type": "object",
                 "properties": {
+                  "mainAxisAlignment": {
+                    "$ref": "#/$defs/enum.MainAxisAlignment"
+                  },
+                  "crossAxisAlignment": {
+                    "$ref": "#/$defs/enum.CrossAxisAlignment"
+                  },
+                  "spacing": {
+                    "type": "number",
+                    "minimum": 0.0
+                  },
+                  "wrap": {
+                    "type": "boolean"
+                  },
+                  "runSpacing": {
+                    "type": "number",
+                    "minimum": 0.0
+                  },
+                  "squeezeChildren": {
+                    "type": "boolean"
+                  },
+                  "scrollable": {
+                    "type": "boolean"
+                  },
+                  "scrollDirection": {
+                    "$ref": "#/$defs/enum.Axis"
+                  },
+                  "reverse": {
+                    "type": "boolean"
+                  },
+                  "physics": {
+                    "$ref": "#/$defs/enum.ScrollPhysicsType"
+                  },
+                  "alwaysScroll": {
+                    "type": "boolean"
+                  },
+                  "clipBehavior": {
+                    "$ref": "#/$defs/enum.Clip"
+                  },
+                  "fillViewport": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "flex"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "direction": {
+                    "$ref": "#/$defs/enum.Axis"
+                  },
                   "mainAxisAlignment": {
                     "$ref": "#/$defs/enum.MainAxisAlignment"
                   },

@@ -8,6 +8,8 @@ import 'decoration.dart';
 import 'json.dart';
 import 'layout.dart';
 import 'props.dart';
+import 'responsive.dart';
+import 'breakpoints.dart';
 import 'triggers.dart';
 import 'values/paint.dart' show listEquals;
 import 'widgets/canvas.dart';
@@ -35,6 +37,7 @@ final class Node {
     this.actions = const [],
     this.behaviors = Behaviors.none,
     this.component,
+    this.responsive = const [],
     this.extra = const {},
     this.catalog,
   });
@@ -77,6 +80,20 @@ final class Node {
   /// The component this node is the main node of, or the top node of an
   /// instance of (DESIGN.md §4.2).
   final ComponentLink? component;
+
+  /// Its own fields per breakpoint: patches over this node, each applied
+  /// while the screen's breakpoint meets its condition (`equals`,
+  /// `largerThan`, `smallerThan`, `between` a named breakpoint), in order.
+  final List<ResponsivePatch> responsive;
+
+  /// This node as shown at breakpoint [current] of [breakpoints]: its
+  /// [responsive] patches that hold, merged over it in order. Itself when
+  /// none holds.
+  Node atBreakpoint(Breakpoint current, Breakpoints breakpoints) {
+    if (responsive.isEmpty) return this;
+    final patch = responsivePatchAt(responsive, current, breakpoints);
+    return patch == null ? this : patched(patch);
+  }
 
   /// Keys this version doesn't model, round-tripped.
   final Json extra;
@@ -124,6 +141,7 @@ final class Node {
         actions: actions,
         behaviors: behaviors,
         component: link,
+        responsive: responsive,
         extra: extra,
         catalog: catalog,
       );
@@ -144,6 +162,7 @@ final class Node {
     List<Reaction>? actions,
     Behaviors? behaviors,
     ComponentLink? component,
+    List<ResponsivePatch>? responsive,
     Json? extra,
   }) =>
       Node(
@@ -162,13 +181,14 @@ final class Node {
         actions: actions ?? this.actions,
         behaviors: behaviors ?? this.behaviors,
         component: component ?? this.component,
+        responsive: responsive ?? this.responsive,
         extra: extra ?? this.extra,
         catalog: catalog,
       );
 
   static const _keys = {
     'id', 'type', 'name', 'key', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
-    'actions', 'component',
+    'actions', 'component', 'responsive',
   };
 
   /// This node with [patch] (a JSON merge patch over its JSON, as an
@@ -219,6 +239,7 @@ final class Node {
       actions: Reaction.listFromJson(m['actions']),
       behaviors: Behaviors.fromJson(m),
       component: ComponentLink.fromJson(m['component']),
+      responsive: ResponsivePatch.listFromJson(m['responsive']),
       extra: {
         for (final e in m.entries)
           if (!_keys.contains(e.key) && !Behaviors.keys.contains(e.key) && !Behaviors.legacyKeys.contains(e.key)) e.key: e.value,
@@ -242,6 +263,7 @@ final class Node {
     if (actions.isNotEmpty) j['actions'] = [for (final r in actions) r.toJson()];
     behaviors.writeTo(j);
     if (component != null) j['component'] = component!.toJson();
+    if (responsive.isNotEmpty) j['responsive'] = [for (final p in responsive) p.toJson()];
     j.addAll(extra);
     return j;
   }
@@ -265,6 +287,7 @@ final class Node {
           listEquals(other.actions, actions) &&
           other.behaviors == behaviors &&
           other.component == component &&
+          listEquals(other.responsive, responsive) &&
           jsonEquality.equals(other.extra, extra);
 
   @override

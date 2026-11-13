@@ -17,6 +17,7 @@ of a stack is placed by `x` and `y`, a child of a row or column by `flex`, `sque
 | [`box`](nodes.md#node-box) | `Container` | none | yes |
 | [`row`](nodes.md#node-row) | `Row` | `children` | yes |
 | [`column`](nodes.md#node-column) | `Column` | `children` | yes |
+| [`flex`](nodes.md#node-flex) | `Flex` | `children` | yes |
 | [`text`](nodes.md#node-text) | `Text.rich` | none | blurs only |
 | [`icon`](nodes.md#node-icon) | `Icon` | none | blurs only |
 | [`spacer`](nodes.md#node-spacer) | `Spacer` | none | blurs only |
@@ -177,6 +178,34 @@ Flutter `Column`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
+| `mainAxisAlignment` | [MainAxisAlignment](values.md#enum-MainAxisAlignment) | `"start"` | `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly` |  |
+| `crossAxisAlignment` | [CrossAxisAlignment](values.md#enum-CrossAxisAlignment) | `"center"` | `start`, `end`, `center`, `stretch`, `baseline` |  |
+| `spacing` | double | `0` | ≥ 0 | Space between children along the main axis. |
+| `wrap` | bool | `false` |  | Wraps children onto new runs when they overflow (`Wrap`). |
+| `runSpacing` | double | `0` | ≥ 0 | Space between runs when wrapping. |
+| `squeezeChildren` | bool | `true` |  | Children that overflow a bounded main axis shrink to fit it (by how far each can, never below its content), as the editor lays them out; false lays them out at their own sizes and lets them run past the end, as Flutter's `Row`/`Column` does. |
+| `scrollable` | bool | `false` |  | Scrolls its content. |
+| `scrollDirection` | [Axis](values.md#enum-Axis) | `"vertical"` | `horizontal`, `vertical` | The axis it scrolls along. |
+| `reverse` | bool | `false` |  |  |
+| `physics` | [ScrollPhysicsType](values.md#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
+| `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
+| `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
+
+<a id="node-flex"></a>
+## `flex`
+
+Flutter `Flex`.
+
+`Row` and `Column`: the same props, different main axis.
+
+- Children: `children`.
+- Decoration: box decoration (fills, strokes, radius, shadows, clip).
+- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `direction` | [Axis](values.md#enum-Axis) | `"horizontal"` | `horizontal`, `vertical` | The main axis (Flutter `Flex.direction`): `horizontal` lays the children out as a row, `vertical` as a column. Bindable and patchable per breakpoint (`responsive`), so a row becomes a column without copying its children. |
 | `mainAxisAlignment` | [MainAxisAlignment](values.md#enum-MainAxisAlignment) | `"start"` | `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly` |  |
 | `crossAxisAlignment` | [CrossAxisAlignment](values.md#enum-CrossAxisAlignment) | `"center"` | `start`, `end`, `center`, `stretch`, `baseline` |  |
 | `spacing` | double | `0` | ≥ 0 | Space between children along the main axis. |
