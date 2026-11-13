@@ -2,12 +2,31 @@
 <a id="page-values"></a>
 # Value types, models and enums
 
-How values are written in JSON. **Value types** are written in a compact form of their own (a color as
-`"#AARRGGBB"`). **Models** are JSON objects with the fields listed. **Enums** are written as the value's name.
-Decoding is lenient and never fails: a value it cannot read becomes the field's default, which is why
-validation reports it.
+<a id="values-when-to-use"></a>
+## When to use
 
-## Value types
+Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows
+(its fields) or an enum (its names). Link to one with `values.md#type-<Name>` or `values.md#enum-<Name>`. Models
+that belong to a feature are on that feature's page (TextStyle on the theme page, InputDecoration on the forms
+page...); the [A–Z](index.md#index-a-z) finds any of them.
+
+<a id="values-minimal-example"></a>
+## Minimal example
+
+Value types are written in a compact form of their own; models are objects; enums are names:
+
+```json
+{"color": "#FF2563EB", "padding": [16, 8, 16, 8], "alignment": [0, -1], "fit": "cover"}
+```
+
+<a id="values-reference"></a>
+## Reference
+
+Decoding is lenient and never fails: a value it cannot read becomes the field's default, which is why validation
+reports it.
+
+<a id="values-value-types"></a>
+### Value types
 
 <a id="type-Alignment"></a>
 ### Alignment
@@ -100,7 +119,9 @@ JSON: [left, top, width, height].
 
 JSON: [width, height].
 
-## Models
+
+<a id="values-models"></a>
+### Models
 
 Objects with declared fields. Keys not listed are reported by validation (`unknown_field`).
 
@@ -138,227 +159,6 @@ On a replacing track a wave's amplitude is a share of the way from `from` to `to
 | `blend` | [TrackBlend](values.md#enum-TrackBlend) | `"replace"` | `replace`, `add`, `multiply` |  |
 | `interpolation` | [KeyframeInterpolation](values.md#enum-KeyframeInterpolation) | `"linear"` | `linear`, `monotoneCubic` | How `keyframes` are joined. |
 
-<a id="type-BorderSide"></a>
-### BorderSide
-
-Flutter's `BorderSide`. A null `color` is unset: the widget's theme default where it has one, else Flutter's black.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `color` | [Color](values.md#type-Color) | unset |  |  |
-| `width` | double | `1` | ≥ 0 |  |
-| `style` | [BorderStyle](values.md#enum-BorderStyle) | `"solid"` | `none`, `solid` |  |
-| `strokeAlign` | [StrokeAlign](values.md#enum-StrokeAlign) | `"inside"` | `inside`, `center`, `outside` |  |
-
-<a id="type-ButtonSegment"></a>
-### ButtonSegment
-
-Flutter's `ButtonSegment<String>`: one segment of a segmented button.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `value` | String | `""` |  |  |
-| `label` | String | `""` |  |  |
-| `icon` | [InputIcon](values.md#type-InputIcon) | unset |  |  |
-| `tooltip` | String | unset |  |  |
-| `enabled` | bool | `true` |  |  |
-
-<a id="type-ButtonStyle"></a>
-### ButtonStyle
-
-Flutter's `ButtonStyle`, as the buttons' `styleFrom` takes it. Null fields are the button's own defaults. The padding is the node's `layout.padding`; the size is the node's box (no minimum size).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `backgroundColor` | [Color](values.md#type-Color) | unset |  |  |
-| `foregroundColor` | [Color](values.md#type-Color) | unset |  | Label (and icon) color. |
-| `shadowColor` | [Color](values.md#type-Color) | unset |  |  |
-| `elevation` | double | unset |  |  |
-| `textStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `side` | [BorderSide](values.md#type-BorderSide) | unset |  |  |
-| `shape` | [ShapeBorder](values.md#type-ShapeBorder) | unset |  |  |
-| `iconSize` | double | unset |  |  |
-| `iconColor` | [Color](values.md#type-Color) | unset |  |  |
-
-<a id="type-ChartReferenceLine"></a>
-### ChartReferenceLine
-
-A horizontal line across a chart's plot at `value`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `value` | double | `0` |  |  |
-| `color` | [Color](values.md#type-Color) | `"#99FFFFFF"` |  |  |
-| `dashed` | bool | `true` |  |  |
-| `strokeWidth` | double | `1.5` | ≥ 0 |  |
-| `label` | String | `""` |  |  |
-| `labelColor` | [Color](values.md#type-Color) | unset |  |  |
-| `labelBelow` | bool | `false` |  |  |
-
-<a id="type-ChartSeries"></a>
-### ChartSeries
-
-One series of a chart: the values of `field` in each data row.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `field` | String | `""` |  |  |
-| `name` | String | `""` |  |  |
-| `kind` | [ChartSeriesKind](values.md#enum-ChartSeriesKind) | `"bar"` | `bar`, `line`, `area`, `tick` |  |
-| `color` | [Color](values.md#type-Color) | `"#FF2ED17A"` |  |  |
-| `colorField` | String | unset |  | A row field holding a per-row color (hex), overriding `color`. |
-| `stack` | String | unset |  | Bar series with the same stack id are stacked into one bar. |
-| `dashed` | bool | `false` |  |  |
-| `strokeWidth` | double | `2` | ≥ 0 |  |
-| `endDot` | bool | `false` |  |  |
-| `endDotHaloColor` | [Color](values.md#type-Color) | unset |  |  |
-| `curved` | bool | `false` |  |  |
-| `fillTo` | String | unset |  | Area series: fill down to this field's line instead of the axis. |
-| `fillOpacity` | double | `0.25` | ≥ 0, ≤ 1 |  |
-| `endLabel` | bool | `false` |  | Line and area series: its `name` and last value written at the end of its line, in its color (labels of different series are kept apart). |
-
-<a id="type-ColorStop"></a>
-### ColorStop
-
-One gradient stop.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `position` | double | `0` | ≥ 0, ≤ 1 |  |
-| `color` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
-
-<a id="type-CustomPaint"></a>
-### CustomPaint
-
-Flutter's `CustomPaint` on a node: `painter` drawn behind the node's content (its decoration and children) and `foregroundPainter` over it, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.
-
-`viewBox` is the ops' coordinate space, `[minX, minY, width, height]` (JSON also `[width, height]`), mapped onto the box by `fit` (`fill` stretches, as the `path` node's view box does); null: the box's own pixels. In expressions `size.width` and `size.height` are the view box's size when there is one, else the box's.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `painter` | List<DrawOp> | `[]` |  | Drawn behind the node's content (CustomPaint.painter). |
-| `foregroundPainter` | List<DrawOp> | `[]` |  | Drawn over the node's content (CustomPaint.foregroundPainter). |
-| `viewBox` | [Rect](values.md#type-Rect) | unset |  | The ops' coordinates, [width, height] or [minX, minY, width, height], mapped onto the box by fit. Null: box pixels. |
-| `fit` | [BoxFit](values.md#enum-BoxFit) | `"fill"` | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | How the view box maps onto the box. |
-| `isComplex` | bool | `false` |  | Raster cache hint: the drawing is costly. |
-| `willChange` | bool | `false` |  | Raster cache hint: the drawing changes often. |
-
-<a id="type-DismissibleBehavior"></a>
-### DismissibleBehavior
-
-Swiped away past a threshold (node key `dismissible`): Flutter's `Dismissible`. The node follows the pointer toward its `directions` (held back by `resistance` the other ways); let go past its `dismissThresholds` share of its size, or faster than `flingVelocity`, it flies off over `movementDuration` and fires the swipe of that direction (`swipeLeft`...; `Dismissible.onDismissed`), then shows its next content back at rest. Otherwise it returns: on `returnSpring`, else over `returnDuration` along `returnCurve`. A swipe card.
-
-Inside it `${dismiss.dx}`, `${dismiss.dy}`, `${dismiss.progress}` (0–1 toward the threshold, `Dismissible.onUpdate`), `${dismiss.direction}`, `${dismiss.dragging}` can be read (and the same as `${drag.*}`). It fires `drag` and `dragEnd`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `enabled` | bool | `true` |  | Bindable as `dismissible.enabled`: off, a drag doesn't move it. |
-| `directions` | List<[DragDirection](values.md#enum-DragDirection)> | `["left","right"]` | `left`, `right`, `up`, `down` | The directions it can be dismissed in. |
-| `axis` | [DragAxis](values.md#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` | The axis it moves on (`Draggable.axis`); free moves it both ways, the ones it can't be dismissed in held back by `resistance`. |
-| `dismissThresholds` | DismissThresholds | `{}` |  | Per direction, the share of the node's size to travel (0.4 when not named). |
-| `flingVelocity` | double | `700` | ≥ 0 | Pixels per second. |
-| `resistance` | double | `0` | ≥ 0, ≤ 1 | 0–1: how much of the pointer's travel toward a direction it can't be dismissed in is ignored (1 none follows; below 1 a rubber band). |
-| `movementDuration` | int | `200` | ≥ 0 | The fly-off (ms, `Dismissible.movementDuration`) and its curve. |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
-| `returnDuration` | int | unset |  | Null: `movementDuration` and `curve`. |
-| `returnCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | unset |  |  |
-| `returnSpring` | [Spring](values.md#type-Spring) | unset |  | The spring it returns on, carrying the release's speed; null returns over `returnDuration`. |
-
-<a id="type-DragSource"></a>
-### DragSource
-
-Lets the user pick the node up and drop it on a `DropTarget` that takes its `group` (Flutter's `Draggable`; `LongPressDraggable` with `start` `longPress`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `group` | String | `""` |  | The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`). |
-| `data` | String | `""` |  | The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`). |
-| `start` | [DragStart](values.md#enum-DragStart) | `"auto"` | `press`, `longPress`, `auto` | How a drag starts: press, long press (`LongPressDraggable`), or long press on touch and press with a mouse. |
-| `axis` | [DragAxis](values.md#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` | `Draggable.axis`: the feedback moves only along it. |
-| `childWhenDragging` | [DragSourceStyle](values.md#enum-DragSourceStyle) | `"ghost"` | `ghost`, `hidden`, `keep` | What stays where it was picked up. |
-| `ghostOpacity` | double | `0.35` |  | The opacity of a `DragSourceStyle.ghost`. |
-| `feedback` | String | `""` |  | The node drawn under the pointer instead of this one. |
-| `dragAnchor` | [DragAnchor](values.md#enum-DragAnchor) | `"child"` | `child`, `center` |  |
-| `feedbackRotation` | double | `-2` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
-| `feedbackScale` | double | `1` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
-| `feedbackOpacity` | double | `1` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
-| `feedbackElevation` | double | `24` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
-| `returnSpring` | [Spring](values.md#type-Spring) | `{}` |  | The spring an unaccepted drop flies home on; `false`: none. |
-| `enabled` | bool | `true` |  | Bindable as `draggable.enabled`. |
-
-<a id="type-DropTarget"></a>
-### DropTarget
-
-Takes `DragSource`s of the groups it `accepts` (Flutter's `DragTarget`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `accepts` | List<String> | `[]` |  | The `DragSource` groups it takes. |
-| `key` | String | `""` |  |  |
-| `acceptIf` | String | `""` |  | A condition on the dragged data. |
-| `listNodeId` | String | `""` |  | The list it drops into, and how. A target outside the list's repeat (a column's tab, beside the columns) drops at the end of the copy of the list whose own target has the same `key`. |
-| `slot` | [DropSlot](values.md#enum-DropSlot) | `"gap"` | `none`, `gap`, `node` |  |
-| `slotNodeId` | String | `""` |  |  |
-| `slotSize` | [DropSlotSize](values.md#enum-DropSlotSize) | `"dragged"` | `dragged`, `node`, `inGap` |  |
-| `enabled` | bool | `true` |  |  |
-
-<a id="type-Effect"></a>
-### Effect
-
-A shadow or blur (Flutter's `BoxShadow`, `ImageFilter.blur`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `type` | [EffectType](values.md#enum-EffectType) | `"dropShadow"` | `dropShadow`, `innerShadow`, `layerBlur`, `backgroundBlur` |  |
-| `id` | String | unset |  |  |
-| `visible` | bool | `true` |  |  |
-| `color` | [Color](values.md#type-Color) | `"#40000000"` |  |  |
-| `offset` | [Offset](values.md#type-Offset) | `[0,0]` |  |  |
-| `blurRadius` | double | `0` | ≥ 0 |  |
-| `spreadRadius` | double | `0` |  |  |
-| `blendMode` | [BlendMode](values.md#enum-BlendMode) | `"srcOver"` |  |  |
-
-<a id="type-Flight"></a>
-### Flight
-
-How a node with a `Behaviors.flightKey` flies in from where the node with the same key was: on a spring by default, or, with a `duration`, along a curve that rises `lift` (or `liftShare` of the distance, the larger) above the higher end, swelling to `swell` at the middle and spinning `turns` times (toward the way it flies), trailing `trail` fading dots.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `duration` | int | `0` | ≥ 0 | 0: on the node's spring. |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeInOut"` |  |  |
-| `lift` | double | `0` |  | Rise of the path's control point above the higher end (px). |
-| `liftShare` | double | `0` |  | The same as a share of the distance flown (the larger wins). |
-| `swell` | double | `1` | ≥ 0 | Scale at the middle of the flight. |
-| `turns` | double | `0` |  | Turns over the flight, clockwise when flying right. |
-| `trail` | int | `0` | ≥ 0 | Fading dots left behind. |
-| `trailColor` | [Color](values.md#type-Color) | `"#FFFFC83D"` |  |  |
-
-<a id="type-FlipCard"></a>
-### FlipCard
-
-Makes the node a two-sided card (node key `flip`; a runtime 3D turn, not a mirror): its first child is the front, its second the back, turned 180° in advance; each hides while it faces away. The turn is the node's own `Motion` (rotateY, or rotateX for `FlipAxis.x`, 0 or 180), with its perspective, duration (600 ms without one), curve and keyframes. Inside the card `${flip.flipped}` and `${flip.progress}` (0 front, 1 back) can be read.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `axis` | [FlipAxis](values.md#enum-FlipAxis) | `"y"` | `y`, `x` |  |
-| `flipped` | bool | `false` |  | Whether the back shows. Bindable as `flip.flipped`. |
-| `tapToFlip` | bool | `true` |  | A tap turns it over (and writes `variable`). |
-| `dragToFlip` | bool | `false` |  | A drag across turns it with the finger; it settles on the nearer face (or follows a fling) on release. |
-| `variable` | String | `""` |  | A boolean variable it follows and writes. |
-| `spring` | [Spring](values.md#type-Spring) | `{}` |  | The spring it settles with after a drag. |
-
-<a id="type-GaugeZone"></a>
-### GaugeZone
-
-A colored band of a radial gauge, from `from` to `to` in value units.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `from` | double | `0` |  |  |
-| `to` | double | `0` |  |  |
-| `color` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
-
 <a id="type-GesturePhysics"></a>
 ### GesturePhysics
 
@@ -386,139 +186,6 @@ The places a released node settles at (`GesturePhysics.snap`).
 | `gridX` | double | `0` | ≥ 0 | For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis. |
 | `gridY` | double | `0` | ≥ 0 | For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis. |
 
-<a id="type-HeroTag"></a>
-### HeroTag
-
-Makes the node a shared element (Flutter's `Hero`): it flies between its places on two screens with the same `tag` while a navigation plays.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `tag` | String | `""` |  |  |
-| `flight` | [HeroFlightShuttle](values.md#enum-HeroFlightShuttle) | `"standard"` | `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform` |  |
-| `placeholder` | [HeroPlaceholder](values.md#enum-HeroPlaceholder) | `"none"` | `none`, `source` | What the destination shows until its own image has loaded. |
-
-<a id="type-IconAction"></a>
-### IconAction
-
-An icon with its own size, color and tooltip: an app bar's leading icon or action (Flutter's `IconButton` in `AppBar.actions`). `actions` are its reactions, as a node's.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `icon` | [IconData](values.md#type-IconData) | `{}` |  |  |
-| `size` | double | unset |  |  |
-| `color` | [Color](values.md#type-Color) | unset |  |  |
-| `tooltip` | String | unset |  |  |
-| `actions` | List<Reaction> | `[]` |  |  |
-
-<a id="type-ImagePaint"></a>
-### ImagePaint
-
-An image source and how it fills its box (Flutter's `DecorationImage`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `url` | String | unset |  |  |
-| `assetId` | String | unset |  |  |
-| `fit` | [BoxFit](values.md#enum-BoxFit) | `"cover"` | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` |  |
-| `alignment` | [Alignment](values.md#type-Alignment) | `[0,0]` |  |  |
-| `repeat` | [ImageRepeat](values.md#enum-ImageRepeat) | `"noRepeat"` | `noRepeat`, `repeat`, `repeatX`, `repeatY` |  |
-| `scale` | double | `1` | ≥ 0 | The image's pixel scale (`Image.scale`): 2 draws it at half its size. |
-| `tint` | [Color](values.md#type-Color) | unset |  | Draws every pixel in this color, keeping its alpha (`ColorFilter.mode(tint, BlendMode.srcIn)`). |
-| `flipX` | bool | `false` |  | Mirrors the image horizontally / vertically. |
-| `flipY` | bool | `false` |  | Mirrors the image horizontally / vertically. |
-| `saturation` | double | `1` | ≥ 0 | Color saturation: 1 keeps the colors, 0 is grayscale. |
-| `rect` | [Rect](values.md#type-Rect) | unset |  | `[left, top, width, height]`, or null (placed by fit and alignment). |
-
-<a id="type-InkWellStyle"></a>
-### InkWellStyle
-
-The ink a tappable box shows, as Flutter's `InkWell`: ripples and the overlays of its states. Clipped to the box's radius.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `overlayColor` | [Color](values.md#type-Color) | unset |  | Every state's overlay (Flutter's `overlayColor`, for all states). |
-| `splashColor` | [Color](values.md#type-Color) | unset |  |  |
-| `highlightColor` | [Color](values.md#type-Color) | unset |  |  |
-| `hoverColor` | [Color](values.md#type-Color) | unset |  |  |
-| `focusColor` | [Color](values.md#type-Color) | unset |  |  |
-
-<a id="type-InputBorder"></a>
-### InputBorder
-
-Flutter's `InputBorder`: an `OutlineInputBorder` (the default here), an `UnderlineInputBorder` or `InputBorder.none`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `type` | [InputBorderType](values.md#enum-InputBorderType) | `"outline"` | `none`, `outline`, `underline` |  |
-| `borderSide` | [BorderSide](values.md#type-BorderSide) | `{}` |  |  |
-| `borderRadius` | [BorderRadius](values.md#type-BorderRadius) | `4` |  |  |
-| `gapPadding` | double | `4` | ≥ 0 |  |
-
-<a id="type-InputDecoration"></a>
-### InputDecoration
-
-Flutter's `InputDecoration`: a text field's border, label, hint, helper, error, prefix and suffix. Every field has Flutter's default (unset: the theme's).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `icon` | [InputIcon](values.md#type-InputIcon) | unset |  |  |
-| `labelText` | String | unset |  |  |
-| `labelStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `floatingLabelStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `helperText` | String | unset |  |  |
-| `helperStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `helperMaxLines` | int | unset |  |  |
-| `hintText` | String | unset |  |  |
-| `hintStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `hintMaxLines` | int | unset |  |  |
-| `errorText` | String | unset |  | The error under the field. Bound to a yes/no (SDK 8.x's error switch), `true` puts the field in error without a message (`kErrorWithoutMessage`: the error border only) and `false` clears it. |
-| `errorStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `errorMaxLines` | int | unset |  |  |
-| `floatingLabelBehavior` | [FloatingLabelBehavior](values.md#enum-FloatingLabelBehavior) | unset | `never`, `auto`, `always` |  |
-| `isCollapsed` | bool | `false` |  |  |
-| `isDense` | bool | unset |  |  |
-| `contentPadding` | [EdgeInsets](values.md#type-EdgeInsets) | unset |  |  |
-| `prefixIcon` | [InputIcon](values.md#type-InputIcon) | unset |  |  |
-| `prefixIconConstraints` | [BoxConstraints](values.md#type-BoxConstraints) | `{}` |  |  |
-| `prefixText` | String | unset |  |  |
-| `prefixStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `suffixIcon` | [InputIcon](values.md#type-InputIcon) | unset |  |  |
-| `suffixIconConstraints` | [BoxConstraints](values.md#type-BoxConstraints) | `{}` |  |  |
-| `suffixText` | String | unset |  |  |
-| `suffixStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `counterText` | String | unset |  | Replaces the character counter; `""` hides it. |
-| `counterStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `filled` | bool | unset |  |  |
-| `fillColor` | [Color](values.md#type-Color) | unset |  |  |
-| `focusColor` | [Color](values.md#type-Color) | unset |  |  |
-| `hoverColor` | [Color](values.md#type-Color) | unset |  |  |
-| `errorBorder` | [InputBorder](values.md#type-InputBorder) | unset |  |  |
-| `focusedBorder` | [InputBorder](values.md#type-InputBorder) | unset |  |  |
-| `focusedErrorBorder` | [InputBorder](values.md#type-InputBorder) | unset |  |  |
-| `disabledBorder` | [InputBorder](values.md#type-InputBorder) | unset |  |  |
-| `enabledBorder` | [InputBorder](values.md#type-InputBorder) | unset |  |  |
-| `border` | [InputBorder](values.md#type-InputBorder) | unset |  |  |
-| `enabled` | bool | `true` |  |  |
-| `semanticCounterText` | String | unset |  |  |
-| `alignLabelWithHint` | bool | unset |  |  |
-| `constraints` | [BoxConstraints](values.md#type-BoxConstraints) | `{}` |  |  |
-| `prefixIconPadding` | [EdgeInsets](values.md#type-EdgeInsets) | unset |  | Space around the prefix icon inside its box: places it at a set inset instead of Material's centered 48 px box; null keeps Material's layout. |
-| `suffixIconPadding` | [EdgeInsets](values.md#type-EdgeInsets) | unset |  | Space around the suffix icon inside its box; see `prefixIconPadding`. |
-| `affixesAlwaysVisible` | bool | `false` |  | Shows `prefixText` and `suffixText` all the time, not only once the field is focused or has text (a unit such as "kWh"). |
-| `paddingIncludesBorder` | bool | `false` |  | The active border's width adds to `contentPadding`, as a container's border adds to its padding (Flutter draws an outline over the padding). |
-
-<a id="type-InputIcon"></a>
-### InputIcon
-
-An icon an input shows (`Icon`): a glyph as the icon node's `icon` prop (`{"source", "name", "codepoint", ...}` or an image), its size and color, and the actions a tap on it runs.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `icon` | [IconData](values.md#type-IconData) | `{}` |  | The glyph, written as the `icon` node's `props.icon`: a Material icon name (`"search"`) or `{"type": "MATERIAL_ICON", "name": "search"}`. |
-| `size` | double | `24` | ≥ 0 |  |
-| `color` | [Color](values.md#type-Color) | unset |  |  |
-| `actions` | List<Reaction> | `[]` |  |  |
-
 <a id="type-Keyframe"></a>
 ### Keyframe
 
@@ -529,261 +196,6 @@ One stop of a `TweenSequence`: the track's `value` at `at` (0–1 of the track's
 | `at` | double | `0` | ≥ 0, ≤ 1 |  |
 | `value` | Object | unset |  |  |
 | `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
-
-<a id="type-ListReorder"></a>
-### ListReorder
-
-Dragging a list's items to a new place, within the list and, with a `group`, into other lists of the group (a Kanban board). A drop runs the list's `reorder` reactions with `${result.from}`, `${result.to}`, `${result.item}`, `${result.fromList}` and `${result.toList}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `enabled` | bool | `true` |  |  |
-| `start` | [ReorderStart](values.md#enum-ReorderStart) | `"handle"` | `handle`, `longPress`, `press` |  |
-| `group` | String | `""` |  | Lists of one group take each other's items; empty: within this list. |
-| `listKey` | String | `""` |  | This list in `${result.fromList}` / `${result.toList}` (an expression); empty: the list's id. |
-| `canReorderIf` | String | `""` |  | Must hold for an item (`${item}`, `${index}`) to be picked up. |
-| `canDropIf` | String | `""` |  | Must hold for a drop (`${result}` as the drop would be). |
-| `proxyElevation` | double | `6` | ≥ 0 |  |
-| `proxyScale` | double | `1` | ≥ 0 |  |
-| `proxyOpacity` | double | `1` | ≥ 0, ≤ 1 |  |
-| `placeholder` | [ReorderPlaceholder](values.md#enum-ReorderPlaceholder) | `"gap"` | `gap`, `node` |  |
-| `autoScroll` | bool | `true` |  |  |
-| `autoScrollEdge` | double | `48` | ≥ 0 |  |
-| `keyboard` | bool | `true` |  | A focused item moves with Alt and the arrow keys, and is announced. |
-| `apply` | [ListApply](values.md#enum-ListApply) | `"none"` | `none`, `variable`, `cloud` |  |
-| `orderField` | String | `"order"` |  | The numeric field of a document's position (`ListApply.cloud`). |
-| `listField` | String | `""` |  | The field of the list a document is in, for moves between lists. |
-
-<a id="type-ListSections"></a>
-### ListSections
-
-Groups a data list's consecutive items with the same `groupBy` value into sections, each under the list's `sectionHeader` slot.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `groupBy` | String | `""` |  | A path in the item (`group`, `date.day`) or an expression. |
-| `sticky` | bool | `true` |  | The current section's header stays pinned until the next pushes it out. |
-| `indexBar` | bool | `false` |  | An index of the sections' keys along the list's edge (A–Z). |
-| `indexKeys` | List<String> | `[]` |  | The keys the index shows, in order (`A`…`Z`); empty shows the sections'. A key no item has is drawn in `indexMutedColor` and does nothing. With a data-paged list the keys of every item count, and picking one loads pages until its section is in. |
-| `indexStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  | The index's text (font, size, weight, color). |
-| `indexActiveColor` | [Color](values.md#type-Color) | unset |  | A key while it is touched. |
-| `indexMutedColor` | [Color](values.md#type-Color) | unset |  | A key no item has. |
-| `indexWidth` | double | `20` | ≥ 0 |  |
-| `indexBubble` | bool | `false` |  | The touched key pops up large beside the index while it is dragged. |
-| `indexBubbleColor` | [Color](values.md#type-Color) | unset |  |  |
-| `indexBubbleStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `indexInsets` | List<double> | `[0,0,0,0]` |  | Space between the index bar and the list's edges: left (unused), top, right, bottom. Zero sits it on the right edge, full height. |
-
-<a id="type-Measure"></a>
-### Measure
-
-Writes where the node is laid out, `{x, y, width, height, centerX, centerY}` in pixels, to a variable as layout changes: in the coordinates of the ancestor node `relativeTo` (empty: the screen), under `key` when the variable is a map. Other nodes then follow it: a marker travelling to the chip of the reader's layer on a timeline whose chips are laid out by data. The design canvas measures too.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `variable` | String | `""` |  | The variable its box is written to. |
-| `key` | String | `""` |  | The key it's written under, for a map variable. |
-| `relativeTo` | String | `""` |  | An ancestor node whose box it's measured in; empty: the screen. |
-
-<a id="type-Motion"></a>
-### Motion
-
-A transform painted over the node's layout (Flutter's `Transform`): it moves nothing else. Its values are the node's rest pose; how it gets there is the node's `animations` and `transitions`.
-
-One matrix, outermost first: a translation (the `path`'s offset, then `translateX`/`translateY` in pixels, then `shiftX`/`shiftY` times the node's size, `FractionalTranslation`), then about `alignment`: the scale (`scale` times `scaleX`/`scaleY`), the rotation `rotate` (degrees, about z, plus the path's turn), then `rotateX` and `rotateY` (3D, seen with `perspective`). JSON (sparse): `{"translateY": -4, "scale": 1.02, "alignment": [0, 1]}`.
-
-Schema 2's other motion keys (`originX`/`originY`, the flat path keys, `opacity`, `blur`, the timing, entrance, loop, spin, keyframes and shimmer) are rewritten by the schema-3 migration (`migrate2to3`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `translateX` | double | `0` |  | Pixels. |
-| `translateY` | double | `0` |  | Pixels (`Transform.translate(offset:)`). |
-| `shiftX` | double | `0` |  | Times the node's size (`FractionalTranslation`). |
-| `shiftY` | double | `0` |  | Multiples of the node's own size (`FractionalTranslation`). |
-| `scale` | double | `1` |  | The axis factors multiply `scale`. |
-| `scaleX` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
-| `scaleY` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
-| `rotate` | double | `0` |  | Degrees, about z. |
-| `rotateX` | double | `0` |  | Degrees, in 3D. |
-| `rotateY` | double | `0` |  | Degrees. `rotate` turns about z (`Transform.rotate`); `rotateX` and `rotateY` turn in 3D, seen with `perspective` (0 flat). |
-| `perspective` | double | `1` |  | How strongly a 3D rotation is seen in depth (0 flat). |
-| `alignment` | [Alignment](values.md#type-Alignment) | `[0,0]` |  | The point scale and rotation are about (`Transform.alignment`). |
-| `backfaceHidden` | bool | `false` |  | Not painted while its back faces the viewer (through every transform above it too). |
-| `path` | [PathFollow](values.md#type-PathFollow) | unset |  | A path the node sits on. |
-
-<a id="type-NavigationDestination"></a>
-### NavigationDestination
-
-A navigation bar item: Flutter's `NavigationDestination` (and `BottomNavigationBarItem`). Icon colors are the item's own, over the bar's. `actions` are its reactions.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `label` | String | `""` |  |  |
-| `icon` | [IconData](values.md#type-IconData) | `{}` |  |  |
-| `iconColor` | [Color](values.md#type-Color) | unset |  |  |
-| `selectedIcon` | [IconData](values.md#type-IconData) | unset |  |  |
-| `selectedIconColor` | [Color](values.md#type-Color) | unset |  |  |
-| `tooltip` | String | unset |  |  |
-| `backgroundColor` | [Color](values.md#type-Color) | unset |  | `BottomNavigationBarItem.backgroundColor` (shifting bars). |
-| `actions` | List<Reaction> | `[]` |  |  |
-
-<a id="type-NodeAnimation"></a>
-### NodeAnimation
-
-One `AnimationController` on a node and the tweens it drives (behavior key `animations`, a list). A screen-wide one sits on the canvas node.
-
-Its value runs 0 → 1 over `duration` (back over `reverseDuration`), after `delay`, eased by `curve` (`CurvedAnimation`), `repeat`ed or once; on a `spring` instead of the clock; or follows `progress` (an expression) with no clock at all. Each track maps that value to its property (`AnimationTrack`).
-
-`preset` names a short form (`pulse`, `shake`, `spin`... see `AnimationPresets`) whose tracks and timing it stands for, with `params`; fields given here override the preset's (`expanded`).
-
-Read as `${animation.<id>.value}` (after `curve`), `.status` (`dismissed`, `forward`, `reverse`, `completed`) and `.isAnimating` by the node and the nodes inside it; driven by the `animate` action.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `id` | String | `""` |  | Unique on the node; what `animate` and `${animation.<id>}` name. |
-| `preset` | String | unset |  | A short form (`AnimationPresets`); its params below. |
-| `params` | Object | unset |  |  |
-| `enabled` | bool | `true` |  | Off, it applies nothing and doesn't run (the node shows its own values). Bindable. |
-| `duration` | int | unset |  | Milliseconds; empty: the preset's, else 300. |
-| `reverseDuration` | int | unset |  | `AnimationController.duration` / `reverseDuration` (ms); null: the preset's, else 300. |
-| `delay` | int | `0` | ≥ 0 | Waits this long (ms) before each play starts; the value holds at its start meanwhile. |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | unset |  | Applied to the controller's value before every track; null: the preset's, else linear. |
-| `repeat` | [AnimationRepeat](values.md#type-AnimationRepeat) | unset |  | `repeat(reverse:, count:)`; null: the preset's, else plays once. |
-| `autoplay` | bool | unset |  | Plays when the node appears; false waits for `playKey` or an action. Null: the preset's, else true. |
-| `playKey` | String | unset |  | A change plays it from the start (bindable). |
-| `paused` | bool | `false` |  | Holds the controller where it is (`stop()`) while true; it carries on when false. Held before it starts, it waits at its start. Bindable. |
-| `phase` | double | `0` | ≥ 0, ≤ 1 | Where a play starts in its cycle (0–1). |
-| `spring` | [Spring](values.md#type-Spring) | unset |  | Runs on this spring instead of `duration` and `curve`: `animateWith(SpringSimulation(spring, 0, 1, 0))`. |
-| `progress` | String | unset |  | An expression giving its value (0–1) instead of a clock. |
-| `alignment` | [Alignment](values.md#type-Alignment) | unset |  | The point the scale and rotation of its adding and multiplying tracks are about (`ScaleTransition(alignment:)`); null: the preset's, else the center. |
-| `tracks` | List<[AnimationTrack](values.md#type-AnimationTrack)> | `[]` |  |  |
-| `previewAt` | double | unset |  | Where the design canvas draws it (a share of a cycle); empty: not applied there. |
-| `ramp` | int | `0` | ≥ 0 | Ms to speed up from still, and to slow to a stop when paused. |
-| `visibleFraction` | double | unset |  | Waits to start until this share of the node is in view. |
-
-<a id="type-NoisePaint"></a>
-### NoisePaint
-
-A `noise` paint's procedural noise, parameterised as SVG's `<feTurbulence>` (`baseFrequency`, `numOctaves`, `seed`, `type`): the texture a web page's grain overlay draws (`filter: url(#grain)`), here a paint, drawn as a seamless tile repeated over the box.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `baseFrequency` | double | `0.8` | ≥ 0, ≤ 4 | Lattice cells per pixel (feTurbulence `baseFrequency`): 0.8 a fine grain, 0.05 soft clouds. |
-| `numOctaves` | int | `3` | ≥ 1 | Octaves summed, each twice the frequency at half the amplitude. |
-| `seed` | int | `0` |  | The random seed: the same seed draws the same grain. |
-| `type` | [NoiseType](values.md#enum-NoiseType) | `"fractalNoise"` | `fractalNoise`, `turbulence` | `fractalNoise` (a soft grain) or `turbulence` (ridged). |
-
-<a id="type-Pagination"></a>
-### Pagination
-
-A pagination controller: loads a list's items page by page and exposes its state as a map variable named `name` (`${name.items}`, `${name.page}`, `${name.pageCount}`, `${name.hasMore}`, `${name.isLoadingMore}`, `${name.error}`...). Paginate actions move it.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `name` | String | `""` |  | The map variable that holds the state, unique on its page. |
-| `mode` | [PaginationMode](values.md#enum-PaginationMode) | `"infinite"` | `pages`, `infinite`, `bidirectional` |  |
-| `source` | [PaginationSource](values.md#enum-PaginationSource) | `"data"` | `data`, `cloud`, `api` |  |
-| `pageSize` | int | `20` | ≥ 1 |  |
-| `pageSizeOptions` | List<int> | `[10,20,50,100]` |  | The page sizes a pagination node offers; empty offers none. |
-| `strategy` | [PaginationStrategy](values.md#enum-PaginationStrategy) | `"offset"` | `offset`, `page`, `cursor` |  |
-| `keyPath` | String | `"id"` |  | The path in an item of the value that identifies it; items with the same value show once. Empty keeps every item. |
-| `initialPage` | int | `1` | ≥ 1 | The page shown first, from 1. |
-| `thresholdItems` | int | `5` | ≥ 0 | How many items from the end (or start) the next page starts loading. |
-| `thresholdPixels` | double | `0` | ≥ 0 | The same in pixels of scroll left; 0 uses `thresholdItems` alone. |
-| `cachePages` | bool | `true` |  | Loaded pages are kept to show again until a refresh. |
-| `apiId` | String | unset |  | The API (`PaginationSource.api`). |
-| `parameters` | Object | `{}` |  | The API call's parameters (`${page.page}`...). |
-| `itemsPath` | String | `""` |  | Where in an API response the page's items, the total count and the next cursor are (empty: the response itself, unknown, none). |
-| `totalPath` | String | `""` |  |  |
-| `cursorPath` | String | `""` |  |  |
-| `pullToRefresh` | bool | `false` |  | Pull to refresh (`RefreshIndicator`): the list's `refresh` reactions. |
-| `refreshColor` | [Color](values.md#type-Color) | unset |  |  |
-| `refreshBackgroundColor` | [Color](values.md#type-Color) | unset |  |  |
-| `refreshDisplacement` | double | `40` | ≥ 0 |  |
-
-<a id="type-Paint"></a>
-### Paint
-
-A fill or stroke paint: a solid color, a gradient or an image. Several paints stack, first at the bottom.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `type` | [PaintType](values.md#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise` |  |
-| `id` | String | unset |  | Stable id, so a binding can target one paint (`fill-<id>`). |
-| `visible` | bool | `true` |  |  |
-| `opacity` | double | `1` | ≥ 0, ≤ 1 |  |
-| `blendMode` | [BlendMode](values.md#enum-BlendMode) | `"srcOver"` |  |  |
-| `color` | [Color](values.md#type-Color) | unset |  | Solid color (type `solid`). |
-| `stops` | List<[ColorStop](values.md#type-ColorStop)> | `[]` |  | Gradient stops (gradient types). |
-| `transform` | List<double> | unset |  | Six numbers `[a, b, tx, c, d, ty]` mapping a point (x, y) of the box, in its unit square (0 to 1 each way), into the gradient's unit square: u = a·x + b·y + tx, v = c·x + d·y + ty. A linear gradient runs along u from 0 to 1; `[20, 0, 0, 0, 1, 0]` with `"tileMode": "repeated"` repeats it 20 times across the box. Simpler: `begin`/`end` (linear) or `center`/`radius` (radial). |
-| `begin` | [Alignment](values.md#type-Alignment) | unset |  | Linear: where the gradient starts, an alignment (`[-1, 0]` or `"centerLeft"`, Flutter `LinearGradient.begin`). Read into `transform`; default the left edge. |
-| `end` | [Alignment](values.md#type-Alignment) | unset |  | Linear: where the gradient ends (Flutter `LinearGradient.end`). `"begin": [0, -1], "end": [0, 1]` runs top to bottom; `"begin": [-1, 0], "end": [-0.9, 0]` with `"tileMode": "repeated"` repeats it every 5% of the width. |
-| `center` | [Alignment](values.md#type-Alignment) | unset |  | Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center. |
-| `tileMode` | [TileMode](values.md#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` |  |
-| `image` | [ImagePaint](values.md#type-ImagePaint) | unset |  | Image (type `image`). |
-| `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
-| `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
-| `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
-| `noise` | [NoisePaint](values.md#type-NoisePaint) | unset |  | Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, "type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` (`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box. |
-
-<a id="type-Pan"></a>
-### Pan
-
-Follows the pointer (node key `pan`): `GestureDetector(onPanUpdate:)` moving a `Transform.translate`. On release it springs back to rest or stays (`release`), with `physics` a fling that slows by friction, a spring and snap points within `bounds` and the limits `minX`...`maxY` (a bottom sheet: `{"axis": "vertical", "release": "stay", "minY": -560, "maxY": 0, "physics": {"snap": {"points": [[0, 0], [0, -560]]}}}`). Its offset binds two-way to `xVariable` and `yVariable`; `x` and `y` (bindable) place its rest.
-
-Inside it `${pan.dx}`, `${pan.dy}`, `${pan.dragging}`, `${pan.settling}`, `${pan.snapIndex}` can be read (and the same as `${drag.*}`). It fires `drag` and `dragEnd`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `enabled` | bool | `true` |  | Bindable as `pan.enabled`. |
-| `axis` | [DragAxis](values.md#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` | The axis it moves on (`Draggable.axis`, `InteractiveViewer.panAxis`). |
-| `release` | [PanRelease](values.md#enum-PanRelease) | `"snapBack"` | `snapBack`, `stay` |  |
-| `returnDuration` | int | `450` | ≥ 0 | The spring back without physics. |
-| `returnCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"spring"` |  |  |
-| `x` | double | `0` |  | Its rest, from its layout's place (pixels). |
-| `y` | double | `0` |  | Where it rests, from where its layout puts it (pixels; bindable as `pan.x`, `pan.y`): it springs back here, and a new value moves it. |
-| `xVariable` | String | `""` |  | Number variables its offset from where its layout puts it is written to (rounded to hundredths) as it moves. |
-| `yVariable` | String | `""` |  | Number variables its offset from where its layout puts it is written to (rounded to hundredths) as it moves. |
-| `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | The release's fling, spring and snap points. |
-| `bounds` | [GestureBounds](values.md#enum-GestureBounds) | `"none"` | `none`, `contain`, `cover` | What it's kept inside of while dragged and flung, narrowed by the offsets from rest `minX`...`maxY` (null: no limit). |
-| `minX` | double | unset |  | Offsets from rest it stays within (pixels; null no limit). |
-| `maxX` | double | unset |  |  |
-| `minY` | double | unset |  |  |
-| `maxY` | double | unset |  |  |
-
-<a id="type-ParticleEmitter"></a>
-### ParticleEmitter
-
-Confetti, stars or emoji the node bursts with on cue.
-
-Each particle leaves from the origin at `speed` (55–115%) in a direction within `spread` of `direction`, slows by `drag`, falls by `gravity` no faster than `terminalVelocity`, sways `sway` px side to side, spins and turns over (`flutter`), and fades out over the last `fadeOut` ms of its `lifetime`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `count` | int | `40` | ≥ 0 |  |
-| `emit` | int | `0` | ≥ 0 | Over how long the particles leave (0: all at once). |
-| `colors` | List<[Color](values.md#type-Color)> | `["#FFFFC83D","#FFFF6F61","#FF2FD9A4","#FF8B6CFF","#FF3FB8...` |  |  |
-| `shapes` | List<[ParticleShape](values.md#enum-ParticleShape)> | `["square","strip","circle"]` | `square`, `circle`, `strip`, `star`, `image`, `triangle`, `squiggle`, `emoji` |  |
-| `size` | double | `10` |  |  |
-| `originX` | double | `0` |  |  |
-| `originY` | double | `0` |  |  |
-| `originWidth` | double | `0` |  |  |
-| `direction` | double | `0` |  | Degrees. |
-| `spread` | double | `60` |  |  |
-| `speed` | double | `700` |  |  |
-| `gravity` | double | `900` |  |  |
-| `lifetime` | int | `2600` | ≥ 0 |  |
-| `playOnAppear` | bool | `false` |  |  |
-| `delay` | int | `0` | ≥ 0 | Wait after the cue (ms). |
-| `drag` | double | `0` | ≥ 0 | Speed lost per second, e^(-drag). |
-| `terminalVelocity` | double | `0` | ≥ 0 | The fastest fall (px/s; 0: no limit). |
-| `sway` | double | `0` |  | Side-to-side sway (px). |
-| `flutter` | double | `8` | ≥ 0 | Turning over in 3D (radians per second, up to). |
-| `spin` | double | `515` |  | Spin (degrees per second, up to). |
-| `fadeOut` | int | `500` | ≥ 0 | Fade out over the end of each particle's life (ms). |
-| `mirror` | bool | `false` |  | Two cannons: every other particle mirrored across the middle. |
-| `glyph` | String | `""` |  | The text emoji particles draw. |
-| `image` | String | `""` |  | The image `image` particles draw (a URL). |
 
 <a id="type-PathFollow"></a>
 ### PathFollow
@@ -800,74 +212,6 @@ JSON: `{"path": "M0 0 C 40 -60, 120 -60, 160 0", "progress": 0.5, "orient": "tan
 | `viewBox` | List<double> | `[]` |  | The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels from the node's place. |
 | `progress` | double | `0` |  | 0–1 of its length; wraps on a closed path. |
 | `orient` | [PathOrient](values.md#enum-PathOrient) | `"none"` | `none`, `tangent`, `upright` |  |
-
-<a id="type-PlotChartLabel"></a>
-### PlotChartLabel
-
-A label on a plot chart's x axis, centered on `x`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `x` | double | `0` |  |  |
-| `label` | String | `""` |  |  |
-
-<a id="type-PlotChartMarker"></a>
-### PlotChartMarker
-
-A labeled dot on a plot chart (on the curve when `y` is null).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `x` | double | `0` |  |  |
-| `y` | double | unset |  |  |
-| `label` | String | `""` |  |  |
-| `color` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
-| `position` | [PlotChartMarkerPosition](values.md#enum-PlotChartMarkerPosition) | `"above"` | `above`, `below` |  |
-| `shape` | [PlotChartMarkerShape](values.md#enum-PlotChartMarkerShape) | `"dot"` | `dot`, `ring`, `square`, `diamond` | The marker's shape. A ring and a square are outlined in `color` and filled with `fillColor`; a dot is filled with `color`; a diamond is filled with `fillColor` and outlined in `strokeColor`. |
-| `radius` | double | unset |  | The size: a dot's or ring's radius, half a square's side, a diamond's half diagonal. Null uses the chart's markerRadius. |
-| `fillColor` | [Color](values.md#type-Color) | unset |  |  |
-| `strokeColor` | [Color](values.md#type-Color) | unset |  | An outline around a dot or diamond (none by default for a dot; black for a diamond). |
-| `strokeWidth` | double | unset |  | The outline width (default 2 for a ring and square, 1.2 for a dot or diamond's `strokeColor`). |
-
-<a id="type-PlotChartRange"></a>
-### PlotChartRange
-
-A shaded x range of a plot chart, painted behind the curve.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `from` | double | `0` |  |  |
-| `to` | double | `0` |  |  |
-| `color` | [Color](values.md#type-Color) | `"#19000000"` |  |  |
-| `label` | String | `""` |  |  |
-| `labelColor` | [Color](values.md#type-Color) | unset |  |  |
-
-<a id="type-PlotChartSeries"></a>
-### PlotChartSeries
-
-One more curve on a plot chart, over the chart's x domain: `points` are evenly spaced from xMin to xMax like the chart's own, and a null point is a gap (the line breaks there: an undefined value or an asymptote).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `points` | List<double> | `[]` |  |  |
-| `color` | [Color](values.md#type-Color) | `"#FF1F6F78"` |  |  |
-| `width` | double | `2` | ≥ 0 |  |
-| `id` | String | `""` |  |  |
-
-<a id="type-PlotChartYLine"></a>
-### PlotChartYLine
-
-A horizontal line across a plot chart at `y`: a grid line, or a reference such as a target (dashed, with an inline `label`). `axisLabel` is written in the chart's y-axis gutter (`PlotChartProps.yAxisWidth`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `y` | double | `0` |  |  |
-| `color` | [Color](values.md#type-Color) | `"#19000000"` |  |  |
-| `width` | double | `1` | ≥ 0 |  |
-| `dashed` | bool | `false` |  |  |
-| `label` | String | `""` |  |  |
-| `labelBackground` | [Color](values.md#type-Color) | unset |  |  |
-| `axisLabel` | String | `""` |  |  |
 
 <a id="type-Pose"></a>
 ### Pose
@@ -893,84 +237,6 @@ A `Motion` drawn with a fade and a blur: the pose a page of a page view (`pageMo
 | `opacity` | double | `1` | ≥ 0, ≤ 1 | 0–1. |
 | `blur` | double | `0` | ≥ 0 | A layer blur's radius. |
 
-<a id="type-ProgressBand"></a>
-### ProgressBand
-
-A colored zone of an arc progress bar, from `start` to `end` as fractions of the max value.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `start` | double | `0` |  |  |
-| `end` | double | `0` |  |  |
-| `color` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
-
-<a id="type-Reveal"></a>
-### Reveal
-
-Scrolls the node into view when it appears (or when its `reveal.when` binding turns true), to `alignment` of the viewport (0 top, 1 bottom). With `follow` it stays there while the content around it moves (lines added above an end marker, an image that loads late), until the user scrolls away: a chat or transcript pinned to its newest line.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `alignment` | double | `0.5` |  | Where in the viewport (0 top, 1 bottom). |
-| `duration` | int | `600` | ≥ 0 |  |
-| `delay` | int | `0` | ≥ 0 |  |
-| `follow` | bool | `false` |  | Stays revealed while the content moves, until the user scrolls away. |
-
-<a id="type-RouteDismiss"></a>
-### RouteDismiss
-
-A drag anywhere on a screen that closes it interactively: the drag runs the transition backwards, and on release the pop completes or cancels with `spring`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `direction` | [DragDirection](values.md#enum-DragDirection) | `"down"` | `left`, `right`, `up`, `down` | The way the screen is dragged to close it. |
-| `distance` | double | `0.25` |  | The share of the screen's size along `direction` a slow drag must pass. |
-| `velocity` | double | `700` |  | A fling faster than this (px/s) toward `direction` closes it. |
-| `spring` | [Spring](values.md#type-Spring) | `{}` |  |  |
-
-<a id="type-RouteTransition"></a>
-### RouteTransition
-
-A composable route transition. `enter` is where the incoming screen starts, `exit` where the covered one ends; closing plays them in reverse unless `popEnter` (where the screen revealed by the pop starts) or `popExit` (where the closing screen goes) are given. A `preset` fills in what's left null. JSON: an object, or a bare preset name.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `preset` | [RouteTransitionPreset](values.md#enum-RouteTransitionPreset) | unset | `sharedAxisX`, `sharedAxisY`, `sharedAxisZ`, `fadeThrough`, `iosPush`, `iosModal`, `circularReveal`, `zoom`, `coverVertical`, `cube`, `flip` | A ready-made transition; the sides given override its own. |
-| `enter` | [TransitionSide](values.md#type-TransitionSide) | unset |  | Where the incoming screen starts. |
-| `exit` | [TransitionSide](values.md#type-TransitionSide) | unset |  | Where the covered screen ends. |
-| `popEnter` | [TransitionSide](values.md#type-TransitionSide) | unset |  | Null: exit reversed. |
-| `popExit` | [TransitionSide](values.md#type-TransitionSide) | unset |  | Null: enter reversed. |
-| `durationMs` | int | unset |  | Null: the preset's (300). |
-| `reverseDurationMs` | int | unset |  | Null: `durationMs`. |
-| `barrierColor` | [Color](values.md#type-Color) | unset |  | Drawn behind a modal (or a see-through page) while it's open. Null: none on pages, the dialog's own on modals. |
-| `opaque` | bool | unset |  | Whether the screen hides the one below once open. Null: the preset's (true without one). |
-| `swipeBack` | [RouteSwipeBack](values.md#enum-RouteSwipeBack) | unset | `platform`, `always`, `never` | Null: the preset's (`RouteSwipeBack.platform` without one). |
-| `dismiss` | [RouteDismiss](values.md#type-RouteDismiss) | unset |  | A drag that closes the screen. |
-
-<a id="type-ShapeBorder"></a>
-### ShapeBorder
-
-One of Flutter's `OutlinedBorder`s: its kind, corner radius and side. JSON: `{"type": "stadium", "borderRadius": 8, "side": {...}}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `type` | [ShapeBorderType](values.md#enum-ShapeBorderType) | `"roundedRectangle"` | `roundedRectangle`, `circle`, `stadium`, `continuousRectangle`, `beveledRectangle`, `roundedSuperellipse` |  |
-| `borderRadius` | [BorderRadius](values.md#type-BorderRadius) | `0` |  | Corner radii (rectangle types). |
-| `side` | [BorderSide](values.md#type-BorderSide) | unset |  | The outline; null draws none. |
-
-<a id="type-Shimmer"></a>
-### Shimmer
-
-A band of light across what the node paints (a loading skeleton's shimmer: Flutter's `ShaderMask` with a moving `LinearGradient`), blended over the node's own pixels only. `position` places it; the `shimmer` animation preset sweeps it across, over and over. JSON (sparse): `{"color": "#FFFFFFFF", "strength": 0.8, "width": 0.44, "angle": 0, "position": 0.5}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `color` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `strength` | double | `0.8` | ≥ 0, ≤ 1 | How strongly the band's center blends the color in (0–1). |
-| `width` | double | `0.44` |  | A share of the node's size along the sweep. |
-| `angle` | double | `0` |  | Degrees: 0 left to right, 90 top to bottom. |
-| `position` | double | `0.5` |  | 0 off the start side, 1 off the end (the `shimmer` preset sweeps it). |
-
 <a id="type-Spring"></a>
 ### Spring
 
@@ -983,232 +249,6 @@ Flutter's `SpringDescription`: either the physical triple (`SpringDescription(ma
 | `mass` | double | `1` |  |  |
 | `duration` | int | `500` | ≥ 1 | `withDurationAndBounce`: ms, and 0 (none) to 1. |
 | `bounce` | double | `0` |  |  |
-
-<a id="type-StateStyles"></a>
-### StateStyles
-
-What a node and its descendants change to in each `WidgetState`: per state, node id → a patch of that node's JSON (a merge patch: maps merge, `null` removes, anything else replaces; see `mergePatch`). Later states in `WidgetState`'s order win where active states overlap.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `hovered` | NodePatches | unset |  |  |
-| `focused` | NodePatches | unset |  |  |
-| `pressed` | NodePatches | unset |  |  |
-| `selected` | NodePatches | unset |  |  |
-| `disabled` | NodePatches | unset |  |  |
-| `dragged` | NodePatches | unset |  |  |
-
-<a id="type-Sticky"></a>
-### Sticky
-
-Pins the node inside the scrolling row or column it scrolls in, as CSS `position: sticky`: once its leading edge reaches `offset` from the view's leading edge it stays there, drawn above the content scrolling under it, until the end of its parent (the section it heads) pushes it on. `${sticky.stuck}` says whether it is pinned now (the node's own bindings and the nodes inside it read it). The design canvas, which doesn't scroll, draws it in place. JSON `true` or `{"offset": 8}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `offset` | double | `0` |  | Distance from the view's leading edge where it pins (px). |
-
-<a id="type-StrokePath"></a>
-### StrokePath
-
-A line drawn through `points` in the node's box (a dotted trail, a connector), behind its content or `inFront` of it. x and y are fractions of the box or pixels, per `xUnit`/`yUnit`.
-
-With `drawMs` a running app draws the line along its length, like a pen (a map's passages inking in, a route tracing itself): over `drawMs` ms after `drawDelayMs`, eased by `drawCurve`, up to `progress`; when the node first shows, again from nothing when `drawKey` changes, and from where it is when `progress` changes. The design canvas draws it at `progress`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `points` | List<[Offset](values.md#type-Offset)> | `[]` |  | In the box: fractions or pixels per `xUnit` / `yUnit`. |
-| `xUnit` | [PathUnit](values.md#enum-PathUnit) | `"fraction"` | `fraction`, `pixels` |  |
-| `yUnit` | [PathUnit](values.md#enum-PathUnit) | `"pixels"` | `fraction`, `pixels` |  |
-| `curve` | [PathCurve](values.md#enum-PathCurve) | `"straight"` | `straight`, `vertical`, `horizontal`, `quadratic` | The shape the points enclose (the path closed), filled behind the line: a hand-drawn box with its own wobble. It fades in as the line draws (its alpha times `progress`). Null: no fill. |
-| `color` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `width` | double | `4` |  |  |
-| `progress` | double | `1` | ≥ 0, ≤ 1 | Fraction of the stroke drawn along its length. |
-| `dashPattern` | List<double> | `[]` |  | Dash and gap lengths, alternating; empty is solid. |
-| `cap` | [StrokeCap](values.md#enum-StrokeCap) | `"round"` | `butt`, `round`, `square` |  |
-| `inFront` | bool | `false` |  |  |
-| `drawMs` | int | `0` | ≥ 0 | Draw-on time (ms) in a running app; 0 shows it at once. |
-| `drawDelayMs` | int | `0` | ≥ 0 | Wait (ms) before drawing. |
-| `drawCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeInOut"` |  | How the drawing eases. |
-| `drawKey` | String | `""` |  | Draws again from nothing when it changes. |
-| `fillColor` | [Color](values.md#type-Color) | unset |  | Fills the shape the points enclose, behind the line (fading in as it draws). |
-| `untilWidth` | bool | `false` |  | Draws only the segments that start within the box width (a long ruled line fits any width). |
-
-<a id="type-SwipeAction"></a>
-### SwipeAction
-
-One action revealed behind a list item as it is swiped.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `id` | String | `""` |  | The action in `${result.action}`. |
-| `label` | String | `""` |  |  |
-| `icon` | [IconData](values.md#type-IconData) | unset |  |  |
-| `background` | [Color](values.md#type-Color) | `"#FFDB2626"` |  |  |
-| `foreground` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `removes` | bool | `true` |  | Takes the item out of the list (delete, archive); otherwise it springs back. |
-| `when` | String | `""` |  | Offered for an item only while this holds (an expression reading `${item}`, e.g. `${= item.done}`); empty: always. The first action of a side that holds is the one a full swipe runs. |
-| `labelStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  | The label's text (font, size, weight; its color is `foreground`). |
-| `iconSize` | double | `22` | ≥ 0 |  |
-| `inline` | bool | `false` |  | The icon beside the label instead of above it. |
-
-<a id="type-SwipeActions"></a>
-### SwipeActions
-
-Swipe actions on a list's items (`Dismissible`): toward the start reveals `endActions`, toward the end `startActions`; past `threshold` the first of the side runs. Running one fires the list's `swipeAction` reactions with `${result.action}`, `${result.item}`, `${result.index}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `enabled` | bool | `true` |  |  |
-| `startActions` | List<[SwipeAction](values.md#type-SwipeAction)> | `[]` |  |  |
-| `endActions` | List<[SwipeAction](values.md#type-SwipeAction)> | `[]` |  |  |
-| `threshold` | double | `0.4` | ≥ 0, ≤ 1 | The fraction of the item's width a swipe passes to run the first action. |
-| `undo` | bool | `true` |  | An action that removes the item shows an Undo bar first. |
-| `undoMs` | int | `4000` | ≥ 0 |  |
-| `undoMessage` | String | `"${result.label}"` |  | `${result.label}` reads the action's label. |
-| `apply` | [ListApply](values.md#enum-ListApply) | `"none"` | `none`, `variable`, `cloud` |  |
-| `radius` | [BorderRadius](values.md#type-BorderRadius) | `0` |  | The revealed actions' corners (round them to match the item's). |
-| `armedScale` | double | `1` | ≥ 0 | The action's label grows to this scale once a release would run it. |
-| `armHaptic` | bool | `false` |  | A selection click when a swipe passes the threshold either way. |
-
-<a id="type-TableColumn"></a>
-### TableColumn
-
-One column of a table view: the row field its cells show (`key`, read as `${item.value}`), its header text (`label`, `${item.label}`) and its width (null: the table's `columnWidth`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `key` | String | `""` |  |  |
-| `label` | String | `""` |  |  |
-| `width` | double | unset | ≥ 0 |  |
-| `flex` | double | `0` | ≥ 0 | The column's share of the room left when the table is wider than its columns (its width is then the least it takes); 0: fixed. |
-
-<a id="type-TextRun"></a>
-### TextRun
-
-A styled range of a text's characters, `[start, end)`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `start` | int | `0` |  |  |
-| `end` | int | `0` |  |  |
-| `style` | [TextStyle](values.md#type-TextStyle) | `{}` |  |  |
-| `link` | String | unset |  | A URL the run opens when tapped. |
-
-<a id="type-TextStyle"></a>
-### TextStyle
-
-Flutter's `TextStyle`. Every field is optional: a span's style is merged over its text's base style, as in `Text.rich`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `from` | String | unset |  | The name of one of the project's text styles (the site manifest's `theme.textStyles`) this style starts from, as `Theme.of(context).textTheme.titleLarge.merge(...)`: the fields written here change it. `"style": "title"` is short for `{"from": "title"}`. |
-| `fontFamily` | String | unset |  |  |
-| `fontWeight` | [FontWeight](values.md#type-FontWeight) | unset |  | Flutter's `FontWeight`: 100–900, in hundreds. |
-| `fontStyle` | [FontStyle](values.md#enum-FontStyle) | unset | `normal`, `italic` |  |
-| `fontSize` | double | unset | ≥ 0 |  |
-| `color` | [Color](values.md#type-Color) | unset |  | Solid text color. |
-| `foreground` | [Paint](values.md#type-Paint) | unset |  | A gradient or image paint for the glyphs, used instead of `color`. |
-| `letterSpacing` | double | unset |  | Logical pixels between letters. |
-| `height` | double | unset | ≥ 0 | Line height, as a multiple of the font size. |
-| `decoration` | [TextDecoration](values.md#enum-TextDecoration) | unset | `none`, `underline`, `overline`, `lineThrough` |  |
-| `decorationColor` | [Color](values.md#type-Color) | unset |  |  |
-| `backgroundColor` | [Color](values.md#type-Color) | unset |  | Painted behind the glyphs. |
-| `decorationStyle` | [TextDecorationStyle](values.md#enum-TextDecorationStyle) | unset | `solid`, `double`, `dotted`, `dashed`, `wavy` |  |
-| `decorationThickness` | double | unset |  |  |
-| `tabularFigures` | bool | unset |  | Fixed-width digits (`OpenTypeFeature.tabularFigures`). |
-| `fontFeatures` | List<[FontFeature](values.md#type-FontFeature)> | `[]` |  | OpenType feature settings (`"lnum"`, `"ss01"`, `"liga=0"`). |
-| `leadingDistribution` | [TextLeadingDistribution](values.md#enum-TextLeadingDistribution) | unset | `proportional`, `even` | Where a line's extra (or missing) height goes (`TextStyle .leadingDistribution`); null is Flutter's default, proportional. |
-| `shadows` | List<[Effect](values.md#type-Effect)> | `[]` |  | Text shadows (drop shadows only). |
-| `naturalHeight` | bool | unset |  | With no height, the font's own line height instead of the base style's. |
-
-<a id="type-Tilt"></a>
-### Tilt
-
-Tilts the node in 3D toward the pointer while it hovers or drags over it. `max` holds the `Motion` values reached with the pointer at an edge: the edge under it tips away (rotateX at the top and bottom, rotateY at the sides, with its perspective); scale and translate are reached while the pointer is over the node at all. Inside it `${tilt.x}`, `${tilt.y}` (-1–1) can be read, for parallax.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `max` | [Motion](values.md#type-Motion) | `{"scale":1.03,"rotateX":10,"rotateY":10}` |  | The motion values at the edges. |
-| `hover` | bool | `true` |  | Whether a hovering mouse tilts it, and a drag (or a held touch). |
-| `drag` | bool | `true` |  | Whether a hovering mouse tilts it, and a drag (or a held touch). |
-| `reset` | int | `400` | ≥ 0 | The settle back when the pointer leaves (ms) and its curve. |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutCubic"` |  |  |
-
-<a id="type-Track"></a>
-### Track
-
-A value the user sets by dragging (node key `track`): Flutter's `Slider` (`value`, `min`, `max`, divisions as `step`, `onChanged` as the `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a straight bar to a line, an arc or any path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable; the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}` and `${track.focused}` can be read; it fires `changed` (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and `changeEnd`.
-
-Its settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `enabled` | bool | `true` |  | Off, it takes no pointer, wheel or keys. |
-| `variable` | String | `""` |  | The variable the control sets. |
-| `value` | double | unset |  | The value it's drawn at, from a binding; null reads `variable`. |
-| `min` | double | `0` |  | The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous). |
-| `max` | double | `1` |  | The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous). |
-| `step` | double | `0` | ≥ 0 | The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous). |
-| `clamp` | bool | `true` |  | Off, an arc turns past its ends (a combination dial). |
-| `input` | [TrackInput](values.md#enum-TrackInput) | `"follow"` | `follow`, `vertical`, `horizontal`, `both` |  |
-| `allowedInteraction` | [TrackInteraction](values.md#enum-TrackInteraction) | `"slideThumb"` | `slideThumb`, `tapAndSlide` |  |
-| `hitArea` | [TrackHitArea](values.md#enum-TrackHitArea) | `"self"` | `self`, `parent` | With `TrackHitArea.parent` the node's parent takes the pointer too. |
-| `pixelsPerRange` | double | `200` |  | Pixels of drag for the whole range (`TrackInput.vertical`, `TrackInput.horizontal`, `TrackInput.both`). |
-| `wheelStep` | double | unset |  | Null: the step (else 1% of the range); 0: off. |
-| `keyStep` | double | unset |  | One wheel notch, one arrow key: null `step`, else 1% of the range; 0 turns the wheel or the keys off. With the keys on it takes focus: arrows step, Page Up/Down by 10 steps, Home and End to the ends. |
-| `shape` | [TrackShape](values.md#enum-TrackShape) | `"line"` | `line`, `arc`, `path` | Inferred from `path` when not given. |
-| `x1` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
-| `y1` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
-| `x2` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
-| `y2` | double | `-100` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
-| `relative` | bool | `false` |  | A line's ends are multiples of the node's size. |
-| `units` | [TrackUnits](values.md#enum-TrackUnits) | `"pixels"` | `pixels`, `parent` |  |
-| `startAngle` | double | `-135` |  | Degrees: the arc's start, and its turn to the end. |
-| `sweepAngle` | double | `270` |  | An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max`, about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place. |
-| `pivotX` | double | `0` |  | An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max`, about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place. |
-| `pivotY` | double | `0` |  | An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max`, about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place. |
-| `rotate` | bool | `true` |  |  |
-| `path` | [PathFollow](values.md#type-PathFollow) | unset |  | A path's SVG data, view box and orientation. |
-| `detent` | double | `0` | ≥ 0, ≤ 1 | How magnetic the steps are while dragging (0–1). |
-| `overscroll` | double | `0` | ≥ 0, ≤ 1 | How far past an end it stretches (0–1). |
-| `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | A fling's coast (fling, friction); null stops where let go. |
-| `settle` | int | `0` | ≥ 0 | The glide to its value's place when not following the pointer (ms; 0 jumps), its curve, and the spring of `AnimationCurve.spring` (mass 1), which a release mid-fling starts at the pointer's speed. |
-| `settleCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutCubic"` |  |  |
-| `settleSpring` | [Spring](values.md#type-Spring) | `{}` |  | The spring of a `spring` `settleCurve` (JSON `settleSpring`). |
-| `snap` | int | `0` | ≥ 0 | Animates the node to each new value over `snap` ms along `snapCurve` (a knob clicking from detent to detent); 0 jumps. |
-| `snapCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutBack"` |  |  |
-
-<a id="type-TransformGesture"></a>
-### TransformGesture
-
-Makes the node pannable, zoomable and rotatable by touch, mouse and trackpad (Flutter's `InteractiveViewer`, and more): pinch and ctrl+wheel zoom about the focal point, one finger pans, two rotate, a double tap zooms to a point; a release flings and settles by `physics` within `bounds` and `minScale`–`maxScale`. The pose binds two-way to variables (`xVariable`...); inside it reads as `${transform.x}`, `${transform.scale}`... Each change runs the node's `changed` reactions, the end of a gesture its `changeEnd` ones.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `enabled` | bool | `true` |  | Bindable as `transformGesture.enabled`. |
-| `target` | [TransformTarget](values.md#enum-TransformTarget) | `"node"` | `node`, `content` |  |
-| `pan` | [TransformPan](values.md#enum-TransformPan) | `"always"` | `always`, `whenZoomed`, `never`, `multiTouch` |  |
-| `zoom` | bool | `true` |  | Whether pinch, wheel and double tap zoom; two fingers rotate. |
-| `rotate` | bool | `false` |  | Whether pinch, wheel and double tap zoom; two fingers rotate. |
-| `minScale` | double | `1` |  | Past either, the scale rubber-bands and springs back. |
-| `maxScale` | double | `4` |  | Past either, the scale rubber-bands and springs back. |
-| `bounds` | [GestureBounds](values.md#enum-GestureBounds) | `"cover"` | `none`, `contain`, `cover` |  |
-| `doubleTapScale` | double | `2.5` |  | 0 turns double tap zoom off. |
-| `wheel` | [WheelZoom](values.md#enum-WheelZoom) | `"ctrlZoom"` | `none`, `ctrlZoom`, `zoom`, `pan` |  |
-| `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | Null for `GesturePhysics.standard`. |
-| `xVariable` | String | `""` |  | Number variables holding the pose, two-way (a zoom slider). |
-| `yVariable` | String | `""` |  | Number variables holding the pose, two-way (a zoom slider). |
-| `scaleVariable` | String | `""` |  | Number variables holding the pose, two-way (a zoom slider). |
-| `rotationVariable` | String | `""` |  | Number variables holding the pose, two-way (a zoom slider). |
-| `scaleXVariable` | String | `""` |  | Number variables holding the pose, two-way (a zoom slider). |
-| `scaleYVariable` | String | `""` |  | Number variables holding the pose, two-way (a zoom slider). |
-| `handles` | [TransformHandles](values.md#type-TransformHandles) | unset |  |  |
-| `x` | double | unset |  | The pose given from data; null for the gesture's own. |
-| `y` | double | unset |  | The pose given from data (bound as `transformGesture.x`...), which the node springs to when it changes; null for the gesture's own. |
-| `scale` | double | unset |  | The pose given from data (bound as `transformGesture.x`...), which the node springs to when it changes; null for the gesture's own. |
-| `rotation` | double | unset |  | The pose given from data (bound as `transformGesture.x`...), which the node springs to when it changes; null for the gesture's own. |
-| `scaleX` | double | unset |  | The pose given from data (bound as `transformGesture.x`...), which the node springs to when it changes; null for the gesture's own. |
-| `scaleY` | double | unset |  | The pose given from data (bound as `transformGesture.x`...), which the node springs to when it changes; null for the gesture's own. |
 
 <a id="type-TransformHandles"></a>
 ### TransformHandles
@@ -1231,23 +271,6 @@ On-canvas handles that make a node an editable object (a sticker, a collage): co
 | `handleSize` | double | `12` |  | A handle's size; its touch target is at least 32. |
 | `selectionVariable` | String | `""` |  | A text variable holding the selected object's key: handles show only while it equals `selectionKey` (empty: the node's id), and a tap writes it. Empty: handles always show. |
 | `selectionKey` | String | `""` |  | A text variable holding the selected object's key: handles show only while it equals `selectionKey` (empty: the node's id), and a tap writes it. Empty: handles always show. |
-
-<a id="type-Transition"></a>
-### Transition
-
-How a change of `property` animates (Flutter's implicit animations: `AnimatedContainer(duration:, curve:)`, `AnimatedOpacity`, `AnimatedScale`, `TweenAnimationBuilder`): when the value there changes (a binding, a condition, a state style), the node tweens from what it shows to the new value over `duration` after `delay` on `curve`, or on `spring`. A change mid-flight carries on from where it is. A behavior key, a list: `"transitions": [{"property": "motion", "duration": 240, "curve": "easeOutCubic"}, {"property": "opacity", "duration": 120}]`.
-
-`property` is a binding path or a prefix of one; the longest that matches wins (`motion.rotate` over `motion`), `*` matches every path. A prefix eases what's under it as one value, as `AnimatedContainer` does its `transform`: a change of any of its numbers starts them together, and `keyframes` are passed through each time. A path an animation track is playing isn't transitioned. The design canvas shows new values at once.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `property` | String | `""` |  | A binding path or a prefix of one (`motion`, `motion.rotate`, `opacity`); `*` for every path. |
-| `duration` | int | `0` | ≥ 0 | Milliseconds. |
-| `delay` | int | `0` | ≥ 0 | Milliseconds. |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
-| `spring` | [Spring](values.md#type-Spring) | unset |  | Replaces `duration` and `curve`. |
-| `keyframes` | List<[Keyframe](values.md#type-Keyframe)> | `[]` |  | Values passed through on the way (`Keyframe`s, `at` 0–1 of the run): a number for a single property; for a prefix, an object of the numbers under it (`{"at": 0.5, "value": {"scale": 1.05}}`: a card that swells as it turns over). Joined as `interpolation` says. |
-| `interpolation` | [KeyframeInterpolation](values.md#enum-KeyframeInterpolation) | `"linear"` | `linear`, `monotoneCubic` |  |
 
 <a id="type-TransitionReveal"></a>
 ### TransitionReveal
@@ -1275,42 +298,6 @@ How one screen moves during a `RouteTransition`: an entering screen starts at `m
 | `delayMs` | int | `0` | ≥ 0 | Milliseconds into the transition this side starts. |
 | `durationMs` | int | unset |  | Null: to the end. |
 
-<a id="type-Typewriter"></a>
-### Typewriter
-
-Text that types itself out in a running app, like a typewriter or a terminal: `charsPerSecond` characters a second after `delayMs`, with a blinking block `caret` after the last one while it types. It types when the text first shows and again from the start when `playKey` changes; when the text grows by appending (a streamed reply) only the new characters type, and when it changes otherwise it types afresh. `skip` (bindable, e.g. to a tap that sets a variable) shows the rest at once; off `enabled` it shows all of it. The layout never changes as it types: the whole text is laid out and only what's typed is painted. The design canvas shows it all.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `enabled` | bool | `true` |  | Off, the whole text shows. |
-| `charsPerSecond` | double | `40` | ≥ 0 | Typing speed. |
-| `delayMs` | int | `0` | ≥ 0 | Wait (ms) before the first character. |
-| `caret` | bool | `true` |  | A blinking block after the last character while it types. |
-| `caretColor` | [Color](values.md#type-Color) | unset |  | Null uses the text color. |
-| `caretWidth` | double | `0` | ≥ 0 | 0 is about half the font size. |
-| `caretHeight` | double | `0` | ≥ 0 | Centered on the text's middle; 0 is about three quarters of the line. |
-| `caretGap` | double | `1` |  | Space between the last character and the caret. |
-| `caretAlignStyle` | [TextStyle](values.md#type-TextStyle) | `{}` |  | With a caret height: the style whose middle it centers on (empty: the text's). |
-| `blinkMs` | int | `500` | ≥ 1 | How long the caret stays on, and off. |
-| `skip` | bool | `false` |  | Shows the rest at once. |
-| `playKey` | String | `""` |  | Types again from the start when it changes. |
-| `holdAtMs` | int | unset |  | Stops the typing clock this many ms in (delay included): a part-typed still. Null types to the end. |
-| `grow` | bool | `false` |  | Only as tall as the lines typed so far (off: the whole text's size from the start). |
-
-<a id="type-ViewProgress"></a>
-### ViewProgress
-
-How far the node has scrolled through the viewport of the scrolling row or column (or list) it is in, as `${view.progress}` (0–1) and `${view.visible}` for its own bindings and the nodes inside it: a figure that draws itself as it scrolls up the screen (a path's `trimEnd`), a heading that fades in, a gauge reading how far through a section the reader is. Positions are fractions of the viewport's extent from its leading edge (0 top, 1 bottom), plus `offset` pixels. With `variable`, the progress is also written to that screen (or app) variable, under `key` when it's a map, for nodes elsewhere to read. The design canvas reads progress 0 above the fold and 1 for a node it shows whole.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `mode` | [ViewProgressMode](values.md#enum-ViewProgressMode) | `"travel"` | `travel`, `pass` |  |
-| `from` | double | `1` |  | Where progress is 0 (travel) or where the line is (pass): a fraction of the viewport from its leading edge. |
-| `to` | double | `0` |  | Where progress is 1 (travel). |
-| `offset` | double | `0` |  | Pixels added to both. |
-| `variable` | String | `""` |  | A variable the progress is written to. |
-| `key` | String | `""` |  | The key it's written under, for a map variable. |
-
 <a id="type-VisualDensity"></a>
 ### VisualDensity
 
@@ -1334,7 +321,10 @@ A sine added to a track's value: `amplitude * sin(2π(cycles·t + phase))`, fadi
 | `decay` | double | `0` |  |  |
 | `rectify` | bool | `false` |  |  |
 
-## Enums
+
+
+<a id="values-enums"></a>
+### Enums
 
 Written as the value's name, a JSON string (`"center"`).
 
@@ -2793,3 +1783,23 @@ Written as the value's name, a JSON string (`"center"`).
 
 `and`, `or`
 
+
+<a id="values-patterns"></a>
+## Patterns
+
+<a id="values-colours-and-alignments"></a>
+### Colours and alignments
+
+A colour is `"#AARRGGBB"`, `"#RRGGBB"` or a theme colour's name. An alignment is `[x, y]` from -1 to 1 or a name
+(`"topCenter"`, `"centerRight"`).
+
+<a id="values-pitfalls"></a>
+## Pitfalls
+
+- Padding and margin are a number or four numbers; a list of two is not read.
+- An enum value is case sensitive.
+
+<a id="values-see-also"></a>
+## See also
+
+[The index](index.md) (every name, A–Z).

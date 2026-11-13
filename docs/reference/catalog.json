@@ -152,7 +152,7 @@
             "responsive",
             "autoScale"
           ],
-          "doc": ""
+          "doc": "How the canvas fits a screen of another size than its design size: lays out at the screen's size, or scales the design."
         },
         {
           "key": "blockBack",
@@ -203,7 +203,8 @@
           "nullable": false,
           "doc": "Drawn beneath every screen, outside navigation."
         }
-      ]
+      ],
+      "docs": "layout.md#node-canvas"
     },
     "stack": {
       "doc": "Flutter `Stack`.\n\nA freeform container: children placed by `layout.x`/`layout.y` (Flutter `Stack` with `Positioned`/`Align` children).",
@@ -313,7 +314,8 @@
           "nullable": false,
           "doc": "Where a `fit` board sits in its box."
         }
-      ]
+      ],
+      "docs": "layout.md#node-stack"
     },
     "box": {
       "doc": "Flutter `Container`.\n\nA leaf box: Flutter `Container` with a decoration and no child.",
@@ -354,7 +356,8 @@
           "min": 0.0,
           "doc": "The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`)."
         }
-      ]
+      ],
+      "docs": "layout.md#node-box"
     },
     "row": {
       "doc": "Flutter `Row`.\n\n`Row` and `Column`: the same props, different main axis.",
@@ -385,7 +388,7 @@
             "spaceAround",
             "spaceEvenly"
           ],
-          "doc": ""
+          "doc": "How the children are placed along the main axis (horizontal in a row, vertical in a column), Flutter's `MainAxisAlignment`: `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly`."
         },
         {
           "key": "crossAxisAlignment",
@@ -401,7 +404,7 @@
             "stretch",
             "baseline"
           ],
-          "doc": ""
+          "doc": "How the children are placed across the main axis, Flutter's `CrossAxisAlignment`. The default `center` centers them: write `start` for left-aligned (or top-aligned) content, `stretch` to make every child as wide (or tall) as the node."
         },
         {
           "key": "spacing",
@@ -513,7 +516,8 @@
           "nullable": false,
           "doc": "A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case."
         }
-      ]
+      ],
+      "docs": "layout.md#node-row"
     },
     "column": {
       "doc": "Flutter `Column`.\n\n`Row` and `Column`: the same props, different main axis.",
@@ -544,7 +548,7 @@
             "spaceAround",
             "spaceEvenly"
           ],
-          "doc": ""
+          "doc": "How the children are placed along the main axis (horizontal in a row, vertical in a column), Flutter's `MainAxisAlignment`: `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly`."
         },
         {
           "key": "crossAxisAlignment",
@@ -560,7 +564,7 @@
             "stretch",
             "baseline"
           ],
-          "doc": ""
+          "doc": "How the children are placed across the main axis, Flutter's `CrossAxisAlignment`. The default `center` centers them: write `start` for left-aligned (or top-aligned) content, `stretch` to make every child as wide (or tall) as the node."
         },
         {
           "key": "spacing",
@@ -672,7 +676,8 @@
           "nullable": false,
           "doc": "A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case."
         }
-      ]
+      ],
+      "docs": "layout.md#node-column"
     },
     "flex": {
       "doc": "Flutter `Flex`.\n\n`Row` and `Column`: the same props, different main axis.",
@@ -716,7 +721,7 @@
             "spaceAround",
             "spaceEvenly"
           ],
-          "doc": ""
+          "doc": "How the children are placed along the main axis (horizontal in a row, vertical in a column), Flutter's `MainAxisAlignment`: `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly`."
         },
         {
           "key": "crossAxisAlignment",
@@ -732,7 +737,7 @@
             "stretch",
             "baseline"
           ],
-          "doc": ""
+          "doc": "How the children are placed across the main axis, Flutter's `CrossAxisAlignment`. The default `center` centers them: write `start` for left-aligned (or top-aligned) content, `stretch` to make every child as wide (or tall) as the node."
         },
         {
           "key": "spacing",
@@ -844,7 +849,8 @@
           "nullable": false,
           "doc": "A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case."
         }
-      ]
+      ],
+      "docs": "layout.md#node-flex"
     },
     "text": {
       "doc": "Flutter `Text.rich`.\n\n`Text.rich`: a string with styled runs.",
@@ -860,7 +866,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The text shown. May hold expressions: `\"Hello, ${user.name}\"`."
         },
         {
           "key": "style",
@@ -897,7 +903,7 @@
             "start",
             "end"
           ],
-          "doc": ""
+          "doc": "How lines are aligned inside the node's width (Flutter's `TextAlign`)."
         },
         {
           "key": "textAlignVertical",
@@ -911,7 +917,7 @@
             "center",
             "bottom"
           ],
-          "doc": ""
+          "doc": "Where the lines sit when the node is taller than they are."
         },
         {
           "key": "maxLines",
@@ -919,7 +925,7 @@
           "kind": "integer",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "At most this many lines; the rest is cut as `overflow` says. Null: no limit."
         },
         {
           "key": "overflow",
@@ -934,7 +940,7 @@
             "ellipsis",
             "visible"
           ],
-          "doc": ""
+          "doc": "What shows where the text is cut by `maxLines` or the node's size (Flutter's `TextOverflow`): `clip`, `fade`, `ellipsis`, `visible`."
         },
         {
           "key": "selectable",
@@ -942,7 +948,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": ""
+          "doc": "The user can select and copy the text (Flutter's `SelectableText`)."
         },
         {
           "key": "scaleDown",
@@ -976,7 +982,7 @@
           "default": "linear",
           "nullable": false,
           "enum": "AnimationCurve",
-          "doc": ""
+          "doc": "The curve a number in the text counts up along when it changes."
         },
         {
           "key": "countUpOnShow",
@@ -986,7 +992,8 @@
           "nullable": false,
           "doc": "The first value counts up from 0 when the text first shows; off, it shows at rest and only later changes count."
         }
-      ]
+      ],
+      "docs": "theme.md#node-text"
     },
     "icon": {
       "doc": "Flutter `Icon`.\n\nFlutter `Icon` (font icons) or an SVG/image icon.",
@@ -1010,7 +1017,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The glyph's colour (`\"#AARRGGBB\"` or a theme colour's name)."
         },
         {
           "key": "size",
@@ -1021,7 +1028,8 @@
           "min": 0.0,
           "doc": "Flutter `Icon.size`: the glyph's width and height. Unset, the glyph fills the node's box (contained, centred), as before. Set, the glyph is drawn at this size, centred in the node's box (at most the box), and a hugging axis of the node takes it (`{\"hug\": 24}` with `\"size\": 18` is 18 wide)."
         }
-      ]
+      ],
+      "docs": "decoration.md#node-icon"
     },
     "spacer": {
       "doc": "Flutter `Spacer`.\n\nFlexible empty space in a row/column (`Spacer`), or a fixed gap. With no size along its parent's main axis it is Flutter's `Spacer()`: it takes the free space by its `layout.flex`; a fixed size there makes it a gap.",
@@ -1030,7 +1038,8 @@
       "slots": [],
       "decorated": false,
       "childFields": [],
-      "props": []
+      "props": [],
+      "docs": "layout.md#node-spacer"
     },
     "variance": {
       "doc": "Variant switcher.\n\nShows one of several variants of its content (by id, or by breakpoint).",
@@ -1068,7 +1077,8 @@
           "nullable": false,
           "doc": "Its own switch points, by breakpoint."
         }
-      ]
+      ],
+      "docs": "layout.md#node-variance"
     },
     "listView": {
       "doc": "Flutter `ListView`; the first child is the item.\n\nFlutter `ListView`: its first child repeated per item.",
@@ -1409,7 +1419,8 @@
           "nullable": false,
           "doc": "Opens at the end, keeps its place when items are put before, follows new items at the end."
         }
-      ]
+      ],
+      "docs": "lists.md#node-listView"
     },
     "gridView": {
       "doc": "Flutter `GridView`; the first child is the item.\n\nFlutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCrossAxisCount`) or, when `maxCrossAxisExtent` is set, a maximum cell extent (`SliverGridDelegateWithMaxCrossAxisExtent`).",
@@ -1537,7 +1548,7 @@
           "default": 2,
           "nullable": false,
           "min": 1,
-          "doc": ""
+          "doc": "A fixed number of columns (of rows when the grid scrolls sideways). For as many columns as fit, use `minCrossAxisExtent` instead."
         },
         {
           "key": "maxCrossAxisExtent",
@@ -1563,7 +1574,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "The gap between rows (along the scrolling axis), in pixels."
         },
         {
           "key": "crossAxisSpacing",
@@ -1571,7 +1582,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "The gap between columns, in pixels."
         },
         {
           "key": "childAspectRatio",
@@ -1638,7 +1649,8 @@
           "object": "ListReorder",
           "doc": "Lets the user drag the items to a new place."
         }
-      ]
+      ],
+      "docs": "lists.md#node-gridView"
     },
     "pageView": {
       "doc": "Flutter `PageView`; the first child is the page.\n\nFlutter `PageView`: its first child repeated per page.",
@@ -1814,7 +1826,8 @@
           ],
           "doc": "Which pages draw on top where they overlap: `forward` (Flutter's order: later pages over earlier ones) or `reverse` (earlier pages on top, so a page turning away covers the one it reveals). Taps reach the page on top first."
         }
-      ]
+      ],
+      "docs": "lists.md#node-pageView"
     },
     "tabs": {
       "doc": "Tabs: a `TabBar` over its selected child.\n\nA `TabBar` over the selected child: one tab per child, titled by `titles`.",
@@ -1842,7 +1855,8 @@
           "min": 0,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "navigation.md#node-tabs"
     },
     "tabBar": {
       "doc": "Flutter `TabBar`.\n\nFlutter `TabBar` (labels only; no pages).",
@@ -2081,7 +2095,8 @@
           "min": 0.0,
           "doc": "The gap between a tab's icon and label."
         }
-      ]
+      ],
+      "docs": "navigation.md#node-tabBar"
     },
     "accordion": {
       "doc": "Accordion: a header and collapsible content.\n\nAn accordion: its first child is the header (with a toggle button over its end), its second the content shown while `expanded`.",
@@ -2131,7 +2146,8 @@
           ],
           "doc": ""
         }
-      ]
+      ],
+      "docs": "navigation.md#node-accordion"
     },
     "expansionTile": {
       "doc": "Flutter `ExpansionTile`.\n\nFlutter `ExpansionTile`. The `tile` slot is a list tile whose `leading`, `title`, `subtitle` and `trailing` slots make the header; the children are shown while expanded.",
@@ -2309,7 +2325,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "navigation.md#node-expansionTile"
     },
     "pagination": {
       "doc": "Page controls for a list's pagination.\n\nPage controls for a list's pagination (found by its name, `controller`): first, previous, page numbers with ellipses (1 … 4 5 6 … 16), next, last, a page size select and a summary. Choosing a page fires the node's `changed` reactions with the page as `${result}`.",
@@ -2561,7 +2578,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "lists.md#node-pagination"
     },
     "tableView": {
       "doc": "Flutter `TableView`; its slots are the cell templates.\n\nFlutter's `TableView` (two_dimensional_scrollables): a table that scrolls on both axes, with a header row and column that stay pinned. Rows are the bound `data` (or `rowCount`); columns are `columns` (or bound `props.columns`). Its slots are templates built per cell with `${item}`: `cell` (`{value, row, column, rowIndex, columnIndex}`), `columnHeader` (`{label, column, columnIndex}`), `rowHeader` (`{row, rowIndex}`) and `corner`.",
@@ -2795,7 +2813,8 @@
           "nullable": false,
           "doc": "The last column takes the width the columns leave over, so the ruled rows run to the table's edge."
         }
-      ]
+      ],
+      "docs": "lists.md#node-tableView"
     },
     "textField": {
       "doc": "Flutter `TextField`.\n\nFlutter `TextField` (a `TextFormField` when it validates).",
@@ -2820,7 +2839,7 @@
           "default": {},
           "nullable": false,
           "object": "InputDecoration",
-          "doc": ""
+          "doc": "The field's label, hint, helper and error texts, border (per state), fill, padding and icons (Flutter's `InputDecoration`)."
         },
         {
           "key": "style",
@@ -2869,7 +2888,7 @@
           "default": "text",
           "nullable": false,
           "enum": "TextInputType",
-          "doc": ""
+          "doc": "The on-screen keyboard to show (Flutter's `TextInputType`): `text`, `number`, `emailAddress`, `phone`, `url`, `multiline`..."
         },
         {
           "key": "keyboardDecimal",
@@ -2949,7 +2968,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": ""
+          "doc": "Hides what is typed (a password field)."
         },
         {
           "key": "obscuringCharacter",
@@ -3172,7 +3191,8 @@
           "object": "TextStyle",
           "doc": ""
         }
-      ]
+      ],
+      "docs": "forms.md#node-textField"
     },
     "checkbox": {
       "doc": "Flutter `Checkbox`.\n\nFlutter `Checkbox`, scaled to its box (40 px is Flutter's own size, 18 px when `compact`).",
@@ -3220,7 +3240,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The box's fill when checked."
         },
         {
           "key": "hoverColor",
@@ -3289,7 +3309,8 @@
           "nullable": false,
           "doc": "Its box is the checkbox itself (18 px), not its tap target (40 px). The box and its check mark scale to the node, but its `borderRadius` and sides' widths are node pixels."
         }
-      ]
+      ],
+      "docs": "forms.md#node-checkbox"
     },
     "switch": {
       "doc": "Flutter `Switch`.\n\nFlutter `Switch`, scaled to its box (59 px wide is Flutter's own size).",
@@ -3321,7 +3342,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": ""
+          "doc": "Whether the switch is on. Bind it to a variable and store the `changed` value in that variable."
         },
         {
           "key": "autofocus",
@@ -3337,7 +3358,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The track's colour when on."
         },
         {
           "key": "inactiveTrackColor",
@@ -3510,7 +3531,8 @@
           "min": 0.0,
           "doc": "The thumb's corner radius: null is round; a square switch sets a small one. With it the switch is a plain toggle."
         }
-      ]
+      ],
+      "docs": "forms.md#node-switch"
     },
     "radio": {
       "doc": "Flutter `Radio`.\n\nFlutter `Radio<String>`, scaled to its box (32 px is its own size; its ring, 18 px, when `compact`).",
@@ -3526,7 +3548,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The value this radio stands for; it is selected when `groupValue` equals it."
         },
         {
           "key": "groupValue",
@@ -3558,7 +3580,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The dot's colour when selected."
         },
         {
           "key": "inactiveColor",
@@ -3627,7 +3649,8 @@
           "nullable": false,
           "doc": "The ring fills the box (no tap padding around it), as a compact checkbox's square does: an 18 px radio is an 18 px ring."
         }
-      ]
+      ],
+      "docs": "forms.md#node-radio"
     },
     "slider": {
       "doc": "Flutter `Slider`.\n\nFlutter `Slider` with its `SliderThemeData`, at its box's design size.",
@@ -3643,7 +3666,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "The current value, between `min` and `max`. Bind it to a variable and store the `changed` value in that variable."
         },
         {
           "key": "min",
@@ -3651,7 +3674,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "The value at the start of the track."
         },
         {
           "key": "max",
@@ -3659,7 +3682,7 @@
           "kind": "number",
           "default": 1,
           "nullable": false,
-          "doc": ""
+          "doc": "The value at the end of the track."
         },
         {
           "key": "divisions",
@@ -3667,7 +3690,7 @@
           "kind": "integer",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "Snaps to this many equal steps between `min` and `max`. Null: continuous."
         },
         {
           "key": "label",
@@ -3725,7 +3748,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The track's colour from `min` to the thumb."
         },
         {
           "key": "inactiveTrackColor",
@@ -4129,7 +4152,8 @@
           "nullable": true,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "forms.md#node-slider"
     },
     "dropdown": {
       "doc": "Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it.\n\nFlutter `DropdownButton<Object>`. Its padding is the node's `layout.padding`.",
@@ -4243,7 +4267,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The text shown while no item is selected."
         },
         {
           "key": "hintStyle",
@@ -4395,7 +4419,8 @@
           "nullable": true,
           "doc": "A card menu anchored under the button instead of Flutter's route menu: `{\"color\", \"radius\", \"border\", \"shadows\", \"maxHeight\", \"minWidth\", \"offset\", \"itemHeight\", \"itemPadding\", \"padding\", \"selectedItemColor\", \"hoverItemColor\", \"selectedTextStyle\", \"showCheck\", \"checkPosition\", \"checkColor\", \"checkSize\"}`."
         }
-      ]
+      ],
+      "docs": "forms.md#node-dropdown"
     },
     "datePicker": {
       "doc": "Flutter `showDatePicker` button or field.\n\nAn `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`yyyy-MM-dd`) that opens `showDatePicker`.",
@@ -4479,7 +4504,8 @@
           "nullable": true,
           "doc": "The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
         }
-      ]
+      ],
+      "docs": "forms.md#node-datePicker"
     },
     "timePicker": {
       "doc": "Flutter `showTimePicker` button or field.\n\nAn `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`HH:mm`) that opens `showTimePicker`.",
@@ -4555,7 +4581,8 @@
           "nullable": true,
           "doc": "The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
         }
-      ]
+      ],
+      "docs": "forms.md#node-timePicker"
     },
     "dateTimeInput": {
       "doc": "Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.\n\nAn outlined `InputDecorator` showing a date, time or both, that opens the pickers.",
@@ -4724,7 +4751,8 @@
           ],
           "doc": ""
         }
-      ]
+      ],
+      "docs": "forms.md#node-dateTimeInput"
     },
     "segmentedButton": {
       "doc": "Flutter `SegmentedButton`, or a filter track (`variant: track`).\n\nFlutter `SegmentedButton<String>`.",
@@ -4743,7 +4771,7 @@
           "item": "ButtonSegment",
           "itemKind": "object",
           "item_object": "ButtonSegment",
-          "doc": ""
+          "doc": "The segments, in order: each a value, a label and an optional icon."
         },
         {
           "key": "selected",
@@ -4753,7 +4781,7 @@
           "nullable": false,
           "item": "String",
           "itemKind": "string",
-          "doc": ""
+          "doc": "The values of the selected segments."
         },
         {
           "key": "multiSelectionEnabled",
@@ -4939,7 +4967,8 @@
           "nullable": false,
           "doc": "A track's selection is one thumb that slides between its segments (single selection, horizontal, segments sharing the width); otherwise each segment fills in place."
         }
-      ]
+      ],
+      "docs": "forms.md#node-segmentedButton"
     },
     "signature": {
       "doc": "A signature pad.\n\nA signature pad: strokes drawn with a finger or mouse, on a bordered card with a placeholder and a sign line.",
@@ -5338,7 +5367,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "forms.md#node-signature"
     },
     "elevatedButton": {
       "doc": "Flutter `ElevatedButton`.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
@@ -5354,7 +5384,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The button's text (not `text`). Its colour, size and weight are in `style`."
         },
         {
           "key": "textAlign",
@@ -5418,9 +5448,10 @@
           "default": {},
           "nullable": false,
           "object": "ButtonStyle",
-          "doc": ""
+          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
         }
-      ]
+      ],
+      "docs": "forms.md#node-elevatedButton"
     },
     "filledButton": {
       "doc": "Flutter `FilledButton`.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
@@ -5436,7 +5467,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The button's text (not `text`). Its colour, size and weight are in `style`."
         },
         {
           "key": "textAlign",
@@ -5500,7 +5531,7 @@
           "default": {},
           "nullable": false,
           "object": "ButtonStyle",
-          "doc": ""
+          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
         },
         {
           "key": "tonal",
@@ -5510,7 +5541,8 @@
           "nullable": false,
           "doc": "`FilledButton.tonal`."
         }
-      ]
+      ],
+      "docs": "forms.md#node-filledButton"
     },
     "textButton": {
       "doc": "Flutter `TextButton`.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
@@ -5526,7 +5558,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The button's text (not `text`). Its colour, size and weight are in `style`."
         },
         {
           "key": "textAlign",
@@ -5590,9 +5622,10 @@
           "default": {},
           "nullable": false,
           "object": "ButtonStyle",
-          "doc": ""
+          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
         }
-      ]
+      ],
+      "docs": "forms.md#node-textButton"
     },
     "outlinedButton": {
       "doc": "Flutter `OutlinedButton`.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
@@ -5608,7 +5641,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": ""
+          "doc": "The button's text (not `text`). Its colour, size and weight are in `style`."
         },
         {
           "key": "textAlign",
@@ -5672,9 +5705,10 @@
           "default": {},
           "nullable": false,
           "object": "ButtonStyle",
-          "doc": ""
+          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
         }
-      ]
+      ],
+      "docs": "forms.md#node-outlinedButton"
     },
     "iconButton": {
       "doc": "Flutter `IconButton`.\n\n`IconButton`: an icon, styled by a `ButtonStyle`.",
@@ -5690,7 +5724,7 @@
           "kind": "value",
           "default": {},
           "nullable": false,
-          "doc": ""
+          "doc": "The icon shown: a Material icon name (`\"close\"`, `\"menu\"`)."
         },
         {
           "key": "enabled",
@@ -5707,9 +5741,10 @@
           "default": {},
           "nullable": false,
           "object": "ButtonStyle",
-          "doc": ""
+          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`."
         }
-      ]
+      ],
+      "docs": "forms.md#node-iconButton"
     },
     "floatingActionButton": {
       "doc": "Flutter `FloatingActionButton`.\n\n`FloatingActionButton` (and its small, large and extended forms).",
@@ -5865,7 +5900,8 @@
           "enum": "FloatingActionButtonLocation",
           "doc": "Where a screen's `Scaffold` places it."
         }
-      ]
+      ],
+      "docs": "forms.md#node-floatingActionButton"
     },
     "chip": {
       "doc": "Flutter `Chip`.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
@@ -6003,7 +6039,8 @@
           "nullable": false,
           "doc": "`ChipVariant.plain`: the gap between the check (or avatar) and the label."
         }
-      ]
+      ],
+      "docs": "forms.md#node-chip"
     },
     "actionChip": {
       "doc": "Flutter `ActionChip`.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
@@ -6157,7 +6194,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "forms.md#node-actionChip"
     },
     "choiceChip": {
       "doc": "Flutter `ChoiceChip`.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
@@ -6343,7 +6381,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "forms.md#node-choiceChip"
     },
     "filterChip": {
       "doc": "Flutter `FilterChip`.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
@@ -6529,7 +6568,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "forms.md#node-filterChip"
     },
     "inputChip": {
       "doc": "Flutter `InputChip`.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
@@ -6739,7 +6779,8 @@
           "nullable": true,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "forms.md#node-inputChip"
     },
     "badge": {
       "doc": "Flutter `Badge`.\n\n`Badge`: a small label (or a dot) over its `child` slot.",
@@ -6861,7 +6902,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "charts.md#node-badge"
     },
     "listTile": {
       "doc": "Flutter `ListTile`.\n\n`ListTile`, its widgets in the `leading`, `title`, `subtitle` and `trailing` slots.",
@@ -7054,7 +7096,8 @@
           ],
           "doc": ""
         }
-      ]
+      ],
+      "docs": "lists.md#node-listTile"
     },
     "appBar": {
       "doc": "Flutter `AppBar` (its toolbar height is the node height).\n\n`AppBar`.",
@@ -7181,7 +7224,8 @@
           "nullable": true,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "navigation.md#node-appBar"
     },
     "navigationBar": {
       "doc": "Flutter `NavigationBar`.\n\nWhat `NavigationBar` and `BottomNavigationBar` share: items, the selection, and the selected/unselected label and icon styles.",
@@ -7318,7 +7362,8 @@
           "nullable": true,
           "doc": "`NavigationBar.indicatorColor`."
         }
-      ]
+      ],
+      "docs": "navigation.md#node-navigationBar"
     },
     "bottomNavigationBar": {
       "doc": "Flutter `BottomNavigationBar`.\n\nWhat `NavigationBar` and `BottomNavigationBar` share: items, the selection, and the selected/unselected label and icon styles.",
@@ -7474,7 +7519,8 @@
           ],
           "doc": ""
         }
-      ]
+      ],
+      "docs": "navigation.md#node-bottomNavigationBar"
     },
     "divider": {
       "doc": "Flutter `Divider`.\n\n`Divider` and `VerticalDivider`: a line across the node's box.",
@@ -7491,7 +7537,7 @@
           "default": 1,
           "nullable": false,
           "min": 0.0,
-          "doc": ""
+          "doc": "The line's thickness in pixels, drawn centered in the node's height (Flutter's `Divider.thickness`)."
         },
         {
           "key": "color",
@@ -7519,7 +7565,8 @@
           "min": 0.0,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "layout.md#node-divider"
     },
     "verticalDivider": {
       "doc": "Flutter `VerticalDivider`.\n\n`Divider` and `VerticalDivider`: a line across the node's box.",
@@ -7536,7 +7583,7 @@
           "default": 1,
           "nullable": false,
           "min": 0.0,
-          "doc": ""
+          "doc": "The line's thickness in pixels, drawn centered in the node's height (Flutter's `Divider.thickness`)."
         },
         {
           "key": "color",
@@ -7564,7 +7611,8 @@
           "min": 0.0,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "layout.md#node-verticalDivider"
     },
     "modal": {
       "doc": "Flutter `showDialog` + `Dialog`.\n\nA dialog: its `trigger` slot is shown in place and opens the `content` slot in a `Dialog`.",
@@ -7576,7 +7624,8 @@
       ],
       "decorated": false,
       "childFields": [],
-      "props": []
+      "props": [],
+      "docs": "navigation.md#node-modal"
     },
     "circularProgressIndicator": {
       "doc": "Flutter `CircularProgressIndicator`.\n\nFlutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).",
@@ -7665,7 +7714,8 @@
           "nullable": false,
           "doc": "How much of the circle the ring spans, in degrees."
         }
-      ]
+      ],
+      "docs": "charts.md#node-circularProgressIndicator"
     },
     "activityIndicator": {
       "doc": "Flutter `CupertinoActivityIndicator`.",
@@ -7700,7 +7750,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "charts.md#node-activityIndicator"
     },
     "progressBar": {
       "doc": "Progress bar (bar or arc).\n\nA progress bar filled to `value` of `max`: a bar (horizontal, or vertical filling upward) or an arc with ticks, bands and a needle.",
@@ -7915,7 +7966,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "charts.md#node-progressBar"
     },
     "radialGauge": {
       "doc": "Radial gauge (dial).\n\nA radial dial: zones, ticks, labels, a value arc (continuous or in segments), a target notch and a needle.",
@@ -8203,7 +8255,8 @@
           "nullable": false,
           "doc": "The target mark crosses the arc (a newspaper's \"last time\" line) instead of sitting outside it."
         }
-      ]
+      ],
+      "docs": "charts.md#node-radialGauge"
     },
     "gaugeMeter": {
       "doc": "Gauge meter (arc or bar).\n\nA meter: `value` between `min` and `max` as a filled arc or bar (continuous or in segments), with ticks and a `limit` marker.",
@@ -8450,7 +8503,8 @@
           "min": 0,
           "doc": "Milliseconds."
         }
-      ]
+      ],
+      "docs": "charts.md#node-gaugeMeter"
     },
     "chart": {
       "doc": "Series chart (bar, line, timeline, donut).\n\nA chart of data rows: bars, lines and areas over categories, a timeline of segments, or a donut.",
@@ -9078,7 +9132,8 @@
           "min": 0,
           "doc": "Milliseconds. Zero applies data changes immediately."
         }
-      ]
+      ],
+      "docs": "charts.md#node-chart"
     },
     "plotChart": {
       "doc": "Plot chart (line/area over an x domain; with series, origin axes and a zero-anchored grid, a Cartesian graph).\n\nA line/area chart of `points` spread evenly over an x domain, with an x value selected by tapping or dragging.",
@@ -9669,7 +9724,8 @@
           "min": 0,
           "doc": "Milliseconds. Zero applies data changes immediately."
         }
-      ]
+      ],
+      "docs": "charts.md#node-plotChart"
     },
     "barChart": {
       "doc": "Bar chart.\n\nA bar chart of `values` with optional labels, grid and a highlighted bar.",
@@ -10006,7 +10062,8 @@
           "nullable": true,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "charts.md#node-barChart"
     },
     "lineChart": {
       "doc": "Line chart.\n\nA line chart of data rows (`xField`, `yField`; dates or numbers on x), with bands, ticks, markers and lines given as data (usually bound).",
@@ -10468,7 +10525,8 @@
           "min": 0,
           "doc": "Milliseconds. Zero applies data changes immediately."
         }
-      ]
+      ],
+      "docs": "charts.md#node-lineChart"
     },
     "barcode": {
       "doc": "Barcode / QR code.\n\nA barcode or QR code of `data`, filling the box.",
@@ -10550,7 +10608,8 @@
           "min": 0.0,
           "doc": "Pixels each dark bar and module reaches past its right and bottom edge, so neighbours overlap: no hairline seams where anti-aliased edges meet, and a small ink gain (as `canvas.drawRect` codes widen bars to hide seams). 0 draws the exact geometry."
         }
-      ]
+      ],
+      "docs": "charts.md#node-barcode"
     },
     "path": {
       "doc": "Flutter `CustomPaint` of an SVG path.\n\nAn SVG path, filled and stroked with the node's decoration (Flutter `CustomPaint`).",
@@ -10628,7 +10687,8 @@
           "itemKind": "value",
           "doc": "Colors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color."
         }
-      ]
+      ],
+      "docs": "decoration.md#node-path"
     },
     "external": {
       "doc": "A widget built by the app.\n\nA widget the app builds (`Codelessly`'s external component builders).",
@@ -10645,7 +10705,8 @@
           "nullable": false,
           "doc": "The id of the app's builder."
         }
-      ]
+      ],
+      "docs": "components.md#node-external"
     },
     "placeholder": {
       "doc": "An empty slot (`SizedBox`).\n\nAn empty slot shown at design time (Flutter `SizedBox`).",
@@ -10670,7 +10731,8 @@
           "nullable": false,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "components.md#node-placeholder"
     },
     "singlePlaceholder": {
       "doc": "A one-child slot.\n\nA slot that shows its one child, or keeps its size when empty.",
@@ -10715,7 +10777,8 @@
           "nullable": false,
           "doc": "Its child is temporary (not kept when the slot is filled again)."
         }
-      ]
+      ],
+      "docs": "components.md#node-singlePlaceholder"
     },
     "slot": {
       "doc": "Inside a component: where the call's children (or one named slot) go; its own children show when the call passes none.\n\nWhere a definition places what a call passes: the `children` slot (the call's `children`) or a named one (the call's `slots`name``). With nothing passed it shows its own children (the default). Outside a definition it shows its children. Flutter: `child` / `children` / a `Widget title` parameter, placed in `build`.",
@@ -10732,7 +10795,8 @@
           "nullable": false,
           "doc": "children (the call's children) or a declared slot name."
         }
-      ]
+      ],
+      "docs": "components.md#node-slot"
     },
     "video": {
       "doc": "`VideoPlayer`. Its changed trigger reports ready/error and, when ready, durationSeconds/positionSeconds without autoplay; with reportIntervalMs, also positionSeconds/playing while it plays.\n\nA network video (`video_player`'s `VideoPlayer`).",
@@ -10844,7 +10908,8 @@
           "min": 0,
           "doc": "While playing, fires the changed trigger every this many milliseconds with `positionSeconds` and `playing` (0: off): the video as a clock."
         }
-      ]
+      ],
+      "docs": "media.md#node-video"
     },
     "embeddedVideo": {
       "doc": "An embedded YouTube / Vimeo player (`WebViewWidget`).\n\nA YouTube or Vimeo video, played in a web view.",
@@ -10997,7 +11062,8 @@
           "max": 1.0,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "media.md#node-embeddedVideo"
     },
     "audioPlayer": {
       "doc": "An audio player.\n\nA network audio player (`just_audio`).",
@@ -11090,7 +11156,8 @@
           "min": 0.0,
           "doc": "While playing, a changed `positionSeconds` seeks only when playback is more than this many seconds away from it (see `VideoProps.syncTolerance`)."
         }
-      ]
+      ],
+      "docs": "media.md#node-audioPlayer"
     },
     "webView": {
       "doc": "`WebViewWidget`.\n\nA web page (`webview_flutter`'s `WebViewWidget`).",
@@ -11172,7 +11239,8 @@
           "nullable": true,
           "doc": ""
         }
-      ]
+      ],
+      "docs": "media.md#node-webView"
     }
   },
   "layout": {
@@ -11183,7 +11251,7 @@
         "kind": "value",
         "default": 0,
         "nullable": false,
-        "doc": ""
+        "doc": "The node's width: a number (fixed), `{\"hug\": n}` (its content), `{\"fill\": n}` (the room its parent gives) or `{\"flexible\": n}` (up to n). n is the design size. Without one the node is 0 wide."
       },
       {
         "key": "height",
@@ -11191,7 +11259,7 @@
         "kind": "value",
         "default": 0,
         "nullable": false,
-        "doc": ""
+        "doc": "The node's height: a number (fixed), `{\"hug\": n}`, `{\"fill\": n}` or `{\"flexible\": n}`, as `width`. Without one the node is 0 high."
       },
       {
         "key": "constraints",
@@ -11519,7 +11587,7 @@
         "item": "Paint",
         "itemKind": "object",
         "item_object": "Paint",
-        "doc": ""
+        "doc": "Paints for the box, bottom to top: a colour, a gradient, an image or noise."
       },
       {
         "key": "strokes",
@@ -11530,7 +11598,7 @@
         "item": "Paint",
         "itemKind": "object",
         "item_object": "Paint",
-        "doc": ""
+        "doc": "Paints for the border, drawn `strokeWidth` wide."
       },
       {
         "key": "strokeWidth",
@@ -11539,7 +11607,7 @@
         "default": 1,
         "nullable": false,
         "min": 0.0,
-        "doc": ""
+        "doc": "The border's width in pixels. Without `strokes` it draws nothing."
       },
       {
         "key": "strokeAlign",
@@ -11562,7 +11630,7 @@
         "default": "all",
         "nullable": false,
         "enum": "StrokeSides",
-        "doc": ""
+        "doc": "Which sides the border is drawn on: `all`, `top`, `bottom`, `left`, `right`, `topBottom`, `leftRight`..."
       },
       {
         "key": "strokeCap",
@@ -11606,7 +11674,7 @@
         "item": "Effect",
         "itemKind": "object",
         "item_object": "Effect",
-        "doc": ""
+        "doc": "Shadows and blurs: each `{\"type\": \"dropShadow\" | \"innerShadow\" | \"layerBlur\" | \"backgroundBlur\", ...}`."
       },
       {
         "key": "clip",
@@ -11667,7 +11735,8 @@
         "default": null,
         "nullable": true,
         "object": "Motion",
-        "doc": "The transform over the layout (Flutter's `Transform`)."
+        "doc": "The transform over the layout (Flutter's `Transform`).",
+        "docs": "animation.md#behavior-motion"
       },
       {
         "key": "scale",
@@ -11676,7 +11745,8 @@
         "default": 1,
         "nullable": false,
         "min": 0.0,
-        "doc": "Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`."
+        "doc": "Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`.",
+        "docs": "animation.md#behavior-scale"
       },
       {
         "key": "animations",
@@ -11687,7 +11757,8 @@
         "item": "NodeAnimation",
         "itemKind": "object",
         "item_object": "NodeAnimation",
-        "doc": "Its animation controllers."
+        "doc": "Its animation controllers.",
+        "docs": "animation.md#behavior-animations"
       },
       {
         "key": "transitions",
@@ -11698,7 +11769,8 @@
         "item": "Transition",
         "itemKind": "object",
         "item_object": "Transition",
-        "doc": "How changes animate, one per property path."
+        "doc": "How changes animate, one per property path.",
+        "docs": "animation.md#behavior-transitions"
       },
       {
         "key": "shimmer",
@@ -11707,7 +11779,8 @@
         "default": null,
         "nullable": true,
         "object": "Shimmer",
-        "doc": "A band of light over what it paints."
+        "doc": "A band of light over what it paints.",
+        "docs": "animation.md#behavior-shimmer"
       },
       {
         "key": "inkWell",
@@ -11716,7 +11789,8 @@
         "default": null,
         "nullable": true,
         "object": "InkWellStyle",
-        "doc": "Ink: ripples, and hover/focus/press overlays."
+        "doc": "Ink: ripples, and hover/focus/press overlays.",
+        "docs": "interaction.md#behavior-inkWell"
       },
       {
         "key": "states",
@@ -11725,7 +11799,8 @@
         "default": {},
         "nullable": false,
         "object": "StateStyles",
-        "doc": "Property overrides per interaction state."
+        "doc": "Property overrides per interaction state.",
+        "docs": "interaction.md#behavior-states"
       },
       {
         "key": "tooltip",
@@ -11733,7 +11808,8 @@
         "kind": "string",
         "default": "",
         "nullable": false,
-        "doc": "Shown on hover or long press; may hold `${...}` data."
+        "doc": "Shown on hover or long press; may hold `${...}` data.",
+        "docs": "interaction.md#behavior-tooltip"
       },
       {
         "key": "ignorePointer",
@@ -11741,7 +11817,8 @@
         "kind": "boolean",
         "default": false,
         "nullable": false,
-        "doc": "Lets pointer events through to what's under the node (Flutter's `IgnorePointer`)."
+        "doc": "Lets pointer events through to what's under the node (Flutter's `IgnorePointer`).",
+        "docs": "interaction.md#behavior-ignorePointer"
       },
       {
         "key": "floating",
@@ -11749,7 +11826,8 @@
         "kind": "boolean",
         "default": false,
         "nullable": false,
-        "doc": "Drawn above everything else at runtime (a menu under a field), still taking its place in the layout. The design canvas draws it in place."
+        "doc": "Drawn above everything else at runtime (a menu under a field), still taking its place in the layout. The design canvas draws it in place.",
+        "docs": "layout.md#behavior-floating"
       },
       {
         "key": "hero",
@@ -11758,7 +11836,8 @@
         "default": null,
         "nullable": true,
         "object": "HeroTag",
-        "doc": ""
+        "doc": "",
+        "docs": "animation.md#behavior-hero"
       },
       {
         "key": "flightKey",
@@ -11766,7 +11845,8 @@
         "kind": "string",
         "default": "",
         "nullable": false,
-        "doc": "Flies the node in from where the node with the same key just was."
+        "doc": "Flies the node in from where the node with the same key just was.",
+        "docs": "animation.md#behavior-flightKey"
       },
       {
         "key": "flight",
@@ -11775,7 +11855,8 @@
         "default": null,
         "nullable": true,
         "object": "Flight",
-        "doc": "How it flies there (`flightKey`); null flies on the node's spring."
+        "doc": "How it flies there (`flightKey`); null flies on the node's spring.",
+        "docs": "animation.md#behavior-flight"
       },
       {
         "key": "draggable",
@@ -11784,7 +11865,8 @@
         "default": null,
         "nullable": true,
         "object": "DragSource",
-        "doc": ""
+        "doc": "",
+        "docs": "interaction.md#behavior-draggable"
       },
       {
         "key": "dropTarget",
@@ -11793,7 +11875,8 @@
         "default": null,
         "nullable": true,
         "object": "DropTarget",
-        "doc": ""
+        "doc": "",
+        "docs": "interaction.md#behavior-dropTarget"
       },
       {
         "key": "track",
@@ -11802,7 +11885,8 @@
         "default": null,
         "nullable": true,
         "object": "Track",
-        "doc": "A value set by dragging (Flutter's `Slider`, along any path)."
+        "doc": "A value set by dragging (Flutter's `Slider`, along any path).",
+        "docs": "interaction.md#behavior-track"
       },
       {
         "key": "dismissible",
@@ -11811,7 +11895,8 @@
         "default": null,
         "nullable": true,
         "object": "DismissibleBehavior",
-        "doc": "Swiped away (Flutter's `Dismissible`)."
+        "doc": "Swiped away (Flutter's `Dismissible`).",
+        "docs": "interaction.md#behavior-dismissible"
       },
       {
         "key": "pan",
@@ -11820,7 +11905,8 @@
         "default": null,
         "nullable": true,
         "object": "Pan",
-        "doc": "Follows the pointer."
+        "doc": "Follows the pointer.",
+        "docs": "interaction.md#behavior-pan"
       },
       {
         "key": "reorderHandle",
@@ -11828,7 +11914,8 @@
         "kind": "boolean",
         "default": false,
         "nullable": false,
-        "doc": "A reorderable list row's drag handle (`ReorderableDragStartListener`)."
+        "doc": "A reorderable list row's drag handle (`ReorderableDragStartListener`).",
+        "docs": "lists.md#behavior-reorderHandle"
       },
       {
         "key": "reveal",
@@ -11837,7 +11924,8 @@
         "default": null,
         "nullable": true,
         "object": "Reveal",
-        "doc": ""
+        "doc": "",
+        "docs": "animation.md#behavior-reveal"
       },
       {
         "key": "strokePath",
@@ -11846,7 +11934,8 @@
         "default": null,
         "nullable": true,
         "object": "StrokePath",
-        "doc": ""
+        "doc": "",
+        "docs": "decoration.md#behavior-strokePath"
       },
       {
         "key": "typewriter",
@@ -11855,7 +11944,8 @@
         "default": null,
         "nullable": true,
         "object": "Typewriter",
-        "doc": "A text that types itself out in a running app."
+        "doc": "A text that types itself out in a running app.",
+        "docs": "animation.md#behavior-typewriter"
       },
       {
         "key": "particles",
@@ -11864,7 +11954,8 @@
         "default": null,
         "nullable": true,
         "object": "ParticleEmitter",
-        "doc": ""
+        "doc": "",
+        "docs": "animation.md#behavior-particles"
       },
       {
         "key": "textDirection",
@@ -11877,7 +11968,8 @@
           "ltr",
           "rtl"
         ],
-        "doc": "Null inherits."
+        "doc": "Null inherits.",
+        "docs": "theme.md#behavior-textDirection"
       },
       {
         "key": "flip",
@@ -11886,7 +11978,8 @@
         "default": null,
         "nullable": true,
         "object": "FlipCard",
-        "doc": "A two-sided card that turns over (a runtime 3D turn, not a mirror)."
+        "doc": "A two-sided card that turns over (a runtime 3D turn, not a mirror).",
+        "docs": "animation.md#behavior-flip"
       },
       {
         "key": "tilt",
@@ -11895,7 +11988,8 @@
         "default": null,
         "nullable": true,
         "object": "Tilt",
-        "doc": "Tilts in 3D toward the pointer."
+        "doc": "Tilts in 3D toward the pointer.",
+        "docs": "animation.md#behavior-tilt"
       },
       {
         "key": "transformGesture",
@@ -11904,7 +11998,8 @@
         "default": null,
         "nullable": true,
         "object": "TransformGesture",
-        "doc": "Pinch, pan and rotate, with fling physics and optional handles."
+        "doc": "Pinch, pan and rotate, with fling physics and optional handles.",
+        "docs": "interaction.md#behavior-transformGesture"
       },
       {
         "key": "sticky",
@@ -11913,7 +12008,8 @@
         "default": null,
         "nullable": true,
         "object": "Sticky",
-        "doc": "Pinned in its scrolling view while its parent is in view."
+        "doc": "Pinned in its scrolling view while its parent is in view.",
+        "docs": "layout.md#behavior-sticky"
       },
       {
         "key": "viewProgress",
@@ -11922,7 +12018,8 @@
         "default": null,
         "nullable": true,
         "object": "ViewProgress",
-        "doc": "`${view.progress}` through the viewport."
+        "doc": "`${view.progress}` through the viewport.",
+        "docs": "animation.md#behavior-viewProgress"
       },
       {
         "key": "measure",
@@ -11931,7 +12028,8 @@
         "default": null,
         "nullable": true,
         "object": "Measure",
-        "doc": "Its laid-out box, written to a variable."
+        "doc": "Its laid-out box, written to a variable.",
+        "docs": "layout.md#behavior-measure"
       },
       {
         "key": "customPaint",
@@ -11940,7 +12038,8 @@
         "default": null,
         "nullable": true,
         "object": "CustomPaint",
-        "doc": "Flutter's `CustomPaint`: draw lists behind and over the content."
+        "doc": "Flutter's `CustomPaint`: draw lists behind and over the content.",
+        "docs": "decoration.md#behavior-customPaint"
       }
     ]
   },
@@ -11949,257 +12048,308 @@
       {
         "type": "click",
         "doc": "A tap (a click with a mouse). `${result}` holds where it landed (`x`, `y` in the node, `globalX`, `globalY`) and the modifier keys held (`meta`, `shift`, `alt`).",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-click"
       },
       {
         "type": "doubleTap",
         "doc": "Two taps in quick succession. A node with double tap reactions waits out the double tap timeout before its single taps run.",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-doubleTap"
       },
       {
         "type": "longPress",
         "doc": "A long press.",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-longPress"
       },
       {
         "type": "hold",
         "doc": "A press held for `Trigger.holdMs`; letting go early cancels it.",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-hold"
       },
       {
         "type": "secondaryClick",
         "doc": "A right click, or a two-finger tap on a trackpad (`${result.x}`, `${result.y}`: where, on screen).",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-secondaryClick"
       },
       {
         "type": "pointerDown",
         "doc": "A pointer went down on the node.",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-pointerDown"
       },
       {
         "type": "pointerUp",
         "doc": "A pointer went up (or was canceled) on the node.",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-pointerUp"
       },
       {
         "type": "hover",
         "doc": "The mouse cursor moved over the node (fires when it enters, too).",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-hover"
       },
       {
         "type": "cursorEnter",
         "doc": "The mouse cursor entered the node (once).",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-cursorEnter"
       },
       {
         "type": "cursorExit",
         "doc": "The mouse cursor left the node (once).",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-cursorExit"
       },
       {
         "type": "swipeLeft",
         "doc": "A swipe (a fling) to the left, right, up or down.",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-swipeLeft"
       },
       {
         "type": "swipeRight",
         "doc": "",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-swipeRight"
       },
       {
         "type": "swipeUp",
         "doc": "",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-swipeUp"
       },
       {
         "type": "swipeDown",
         "doc": "",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-swipeDown"
       },
       {
         "type": "drag",
         "doc": "The node is dragged (every move); `dragEnd` when it's let go.",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-drag"
       },
       {
         "type": "dragEnd",
         "doc": "",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-dragEnd"
       },
       {
         "type": "wheel",
         "doc": "Wheel or trackpad scroll over the node; a pinch on it.",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-wheel"
       },
       {
         "type": "pinch",
         "doc": "",
-        "group": "pointer"
+        "group": "pointer",
+        "docs": "interaction.md#trigger-pinch"
       },
       {
         "type": "changed",
         "doc": "An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection).",
-        "group": "input"
+        "group": "input",
+        "docs": "forms.md#trigger-changed"
       },
       {
         "type": "changeEnd",
         "doc": "A slider was let go, with its final value.",
-        "group": "input"
+        "group": "input",
+        "docs": "forms.md#trigger-changeEnd"
       },
       {
         "type": "submitted",
         "doc": "A text field was submitted from the keyboard.",
-        "group": "input"
+        "group": "input",
+        "docs": "forms.md#trigger-submitted"
       },
       {
         "type": "editingComplete",
         "doc": "A text field lost focus after editing.",
-        "group": "input"
+        "group": "input",
+        "docs": "forms.md#trigger-editingComplete"
       },
       {
         "type": "focusGained",
         "doc": "A text field gained or lost focus.",
-        "group": "input"
+        "group": "input",
+        "docs": "forms.md#trigger-focusGained"
       },
       {
         "type": "focusLost",
         "doc": "",
-        "group": "input"
+        "group": "input",
+        "docs": "forms.md#trigger-focusLost"
       },
       {
         "type": "load",
         "doc": "A screen appeared (set on its canvas).",
-        "group": "screen"
+        "group": "screen",
+        "docs": "navigation.md#trigger-load"
       },
       {
         "type": "imageLoading",
         "doc": "A node's image fill started loading, became ready, or failed. `${result.url}` identifies the image and `${result.status}` is `loading`, `loaded`, or `error`. Cached images can report loaded immediately without a loading event.",
-        "group": "other"
+        "group": "other",
+        "docs": "decoration.md#trigger-imageLoading"
       },
       {
         "type": "imageLoaded",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "decoration.md#trigger-imageLoaded"
       },
       {
         "type": "imageError",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "decoration.md#trigger-imageError"
       },
       {
         "type": "backPressed",
         "doc": "On a screen (its canvas): the user tried to leave it (the system or browser back button, a back gesture, Escape on a dialog) while the canvas's `blockBack` holds (`props.blockBack`, usually bound: `${= dirty}`). The screen stays and these actions run instead, e.g. a \"Discard changes?\" confirm that leaves with a navigate pop, which the block doesn't stop. While `blockBack` is false, back leaves as usual and this doesn't fire.",
-        "group": "screen"
+        "group": "screen",
+        "docs": "navigation.md#trigger-backPressed"
       },
       {
         "type": "valueChanged",
         "doc": "Variable `Trigger.variable` changed while the screen shows.",
-        "group": "screen"
+        "group": "screen",
+        "docs": "state.md#trigger-valueChanged"
       },
       {
         "type": "timer",
         "doc": "Every `Trigger.intervalMs` while the screen shows (`Timer.periodic`) and `Trigger.when` holds; `${result.tick}` counts.",
-        "group": "screen"
+        "group": "screen",
+        "docs": "animation.md#trigger-timer"
       },
       {
         "type": "frame",
         "doc": "Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks.",
-        "group": "screen"
+        "group": "screen",
+        "docs": "animation.md#trigger-frame"
       },
       {
         "type": "keyDown",
         "doc": "A key went down (or up) while the screen shows; `Trigger.key` limits it to one key or combination, `Trigger.when` to while a formula holds. `${result.key}`, `${result.shift}`, `${result.alt}`, `${result.meta}`.",
-        "group": "screen"
+        "group": "screen",
+        "docs": "forms.md#trigger-keyDown"
       },
       {
         "type": "keyUp",
         "doc": "",
-        "group": "screen"
+        "group": "screen",
+        "docs": "forms.md#trigger-keyUp"
       },
       {
         "type": "scroll",
         "doc": "The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page).",
-        "group": "other"
+        "group": "other",
+        "docs": "layout.md#trigger-scroll"
       },
       {
         "type": "scrollEnd",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "layout.md#trigger-scrollEnd"
       },
       {
         "type": "enterViewport",
         "doc": "At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session.",
-        "group": "other"
+        "group": "other",
+        "docs": "layout.md#trigger-enterViewport"
       },
       {
         "type": "exitViewport",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "layout.md#trigger-exitViewport"
       },
       {
         "type": "dragStart",
         "doc": "Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch.",
-        "group": "other"
+        "group": "other",
+        "docs": "interaction.md#trigger-dragStart"
       },
       {
         "type": "dragCancel",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "interaction.md#trigger-dragCancel"
       },
       {
         "type": "dragCompleted",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "interaction.md#trigger-dragCompleted"
       },
       {
         "type": "drop",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "interaction.md#trigger-drop"
       },
       {
         "type": "dragEnter",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "interaction.md#trigger-dragEnter"
       },
       {
         "type": "dragExit",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "interaction.md#trigger-dragExit"
       },
       {
         "type": "dropRejected",
         "doc": "",
-        "group": "other"
+        "group": "other",
+        "docs": "interaction.md#trigger-dropRejected"
       },
       {
         "type": "reorder",
         "doc": "A data list row was dragged to a new place by this node, its reorder handle (`${result.from}`, `${result.to}`). A list with a `reorder` fires it too, with `${result.item}`, `${result.fromList}`, `${result.toList}`.",
-        "group": "other"
+        "group": "other",
+        "docs": "lists.md#trigger-reorder"
       },
       {
         "type": "refresh",
         "doc": "A list or grid was pulled past its start to refresh (its `pullToRefresh`, or its pagination's); its pagination reloads its first page too. A list with this reaction can always be pulled.",
-        "group": "other"
+        "group": "other",
+        "docs": "lists.md#trigger-refresh"
       },
       {
         "type": "swipeAction",
         "doc": "A swipe action of a list item ran (the list's `swipeActions`): `${result.action}`, `${result.label}`, `${result.item}`, `${result.index}`.",
-        "group": "other"
+        "group": "other",
+        "docs": "lists.md#trigger-swipeAction"
       },
       {
         "type": "rowTap",
         "doc": "A table view's body row was tapped: `${result.row}` (the row's data), `${result.rowIndex}`, `${result.column}` (the tapped column's key), `${result.columnIndex}`.",
-        "group": "other"
+        "group": "other",
+        "docs": "lists.md#trigger-rowTap"
       },
       {
         "type": "actionError",
         "doc": "On the current canvas: a failed action chain or cloud subscription. `${result.error}` is `{type, message, action, nodeId}` (no stack or raw service objects). A failure in this reaction reports to the host without recursively firing another actionError reaction.",
-        "group": "screen"
+        "group": "screen",
+        "docs": "state.md#trigger-actionError"
       },
       {
         "type": "event",
         "doc": "On a component call: the component fired its event `Trigger.event` (a `componentEvent` action inside its definition); `${result}` is the event's payload. Flutter: the callback passed to a widget's `onChanged`-style parameter. The handler runs in the caller's scope.",
-        "group": "other"
+        "group": "other",
+        "docs": "components.md#trigger-event"
       }
     ],
     "fields": [
@@ -12426,7 +12576,8 @@
             "object": "RouteTransition",
             "doc": "A custom transition; replaces transition and its times."
           }
-        ]
+        ],
+        "docs": "navigation.md#action-navigate"
       },
       "openModal": {
         "label": "Open modal",
@@ -12648,7 +12799,8 @@
             "object": "RouteTransition",
             "doc": "A custom transition: entrance, the screen behind, barrier, drag to dismiss."
           }
-        ]
+        ],
+        "docs": "navigation.md#action-openModal"
       },
       "closeModal": {
         "label": "Close modal",
@@ -12663,13 +12815,15 @@
             "nullable": true,
             "doc": "What the opening chain reads as ${result}; text values are expressions."
           }
-        ]
+        ],
+        "docs": "navigation.md#action-closeModal"
       },
       "retryFailed": {
         "label": "Retry failed actions",
         "class": "RetryFailedAction",
         "doc": "In an actionError reaction: runs the failed action chain again.",
-        "fields": []
+        "fields": [],
+        "docs": "state.md#action-retryFailed"
       },
       "openLink": {
         "label": "Open link",
@@ -12684,7 +12838,8 @@
             "nullable": false,
             "doc": "A web page, mailto:, tel: or app link."
           }
-        ]
+        ],
+        "docs": "navigation.md#action-openLink"
       },
       "setValue": {
         "label": "Set value",
@@ -12707,7 +12862,8 @@
             "nullable": true,
             "doc": "The properties set: [{\"path\", \"value\" | \"mode\"}]."
           }
-        ]
+        ],
+        "docs": "state.md#action-setValue"
       },
       "setVariant": {
         "label": "Set variant",
@@ -12730,7 +12886,8 @@
             "nullable": false,
             "doc": "The variant's id (an expression)."
           }
-        ]
+        ],
+        "docs": "state.md#action-setVariant"
       },
       "setVariable": {
         "label": "Set variable",
@@ -12789,7 +12946,8 @@
             "nullable": false,
             "doc": "A map key (an expression)."
           }
-        ]
+        ],
+        "docs": "state.md#action-setVariable"
       },
       "callFunction": {
         "label": "Call function",
@@ -12820,7 +12978,8 @@
             "nullable": false,
             "doc": "A function the app didn't register is skipped (${result} is null) instead of failing the chain."
           }
-        ]
+        ],
+        "docs": "state.md#action-callFunction"
       },
       "if": {
         "label": "If",
@@ -12851,7 +13010,8 @@
             "nullable": true,
             "doc": "Nested actions: run when it doesn't."
           }
-        ]
+        ],
+        "docs": "state.md#action-if"
       },
       "forEach": {
         "label": "For each",
@@ -12874,7 +13034,8 @@
             "nullable": true,
             "doc": "Nested actions: run per item (${loop.item}, ${loop.index})."
           }
-        ]
+        ],
+        "docs": "state.md#action-forEach"
       },
       "showToast": {
         "label": "Show toast",
@@ -12982,7 +13143,8 @@
             "nullable": true,
             "doc": "Style values bound to expressions, by style key."
           }
-        ]
+        ],
+        "docs": "navigation.md#action-showToast"
       },
       "confirm": {
         "label": "Confirm",
@@ -13120,7 +13282,8 @@
             "nullable": true,
             "doc": "Style values bound to expressions, by style key."
           }
-        ]
+        ],
+        "docs": "navigation.md#action-confirm"
       },
       "delay": {
         "label": "Delay",
@@ -13143,7 +13306,8 @@
             "nullable": false,
             "doc": "A formula giving milliseconds."
           }
-        ]
+        ],
+        "docs": "state.md#action-delay"
       },
       "copyToClipboard": {
         "label": "Copy to clipboard",
@@ -13158,7 +13322,8 @@
             "nullable": false,
             "doc": "An expression."
           }
-        ]
+        ],
+        "docs": "interaction.md#action-copyToClipboard"
       },
       "editText": {
         "label": "Edit text",
@@ -13223,7 +13388,8 @@
             "nullable": false,
             "doc": ""
           }
-        ]
+        ],
+        "docs": "forms.md#action-editText"
       },
       "focus": {
         "label": "Focus",
@@ -13254,7 +13420,8 @@
             "nullable": false,
             "doc": ""
           }
-        ]
+        ],
+        "docs": "forms.md#action-focus"
       },
       "controlTrack": {
         "label": "Control track",
@@ -13298,7 +13465,8 @@
             "nullable": false,
             "doc": "animateTo: the value (an expression)."
           }
-        ]
+        ],
+        "docs": "interaction.md#action-controlTrack"
       },
       "controlDismissible": {
         "label": "Control dismissible",
@@ -13343,7 +13511,8 @@
             ],
             "doc": ""
           }
-        ]
+        ],
+        "docs": "interaction.md#action-controlDismissible"
       },
       "controlTransform": {
         "label": "Control transform",
@@ -13380,7 +13549,8 @@
             "nullable": false,
             "doc": "scaleBy: the factor (1.5 in, 0.67 out). animateTo: {x, y, scale, rotation} (an expression)."
           }
-        ]
+        ],
+        "docs": "interaction.md#action-controlTransform"
       },
       "scrollTo": {
         "label": "Scroll to",
@@ -13448,7 +13618,8 @@
             ],
             "doc": "Only the scroll views along this axis; null: every one."
           }
-        ]
+        ],
+        "docs": "layout.md#action-scrollTo"
       },
       "animate": {
         "label": "Animate",
@@ -13541,7 +13712,8 @@
             "object": "Spring",
             "doc": "`animateWith(SpringSimulation)` toward `target` instead of a duration."
           }
-        ]
+        ],
+        "docs": "animation.md#action-animate"
       },
       "haptic": {
         "label": "Haptic feedback",
@@ -13564,7 +13736,8 @@
             ],
             "doc": ""
           }
-        ]
+        ],
+        "docs": "interaction.md#action-haptic"
       },
       "runScript": {
         "label": "Run script",
@@ -13603,7 +13776,8 @@
             "nullable": true,
             "doc": "Nested actions: run when it fails (${result.error}, ${result.logs})."
           }
-        ]
+        ],
+        "docs": "state.md#action-runScript"
       },
       "paginate": {
         "label": "Paginate",
@@ -13653,7 +13827,8 @@
             "nullable": false,
             "doc": "For setPageSize."
           }
-        ]
+        ],
+        "docs": "lists.md#action-paginate"
       },
       "componentEvent": {
         "label": "Fire component event",
@@ -13676,7 +13851,8 @@
             "nullable": true,
             "doc": "The payload (`${result}` in the call's handler): JSON whose strings are expressions."
           }
-        ]
+        ],
+        "docs": "components.md#action-componentEvent"
       },
       "callApi": {
         "label": "Call API",
@@ -13715,7 +13891,8 @@
             "nullable": true,
             "doc": "Nested actions: run after a failure."
           }
-        ]
+        ],
+        "docs": "data.md#action-callApi"
       },
       "setStorage": {
         "label": "Set storage",
@@ -13816,7 +13993,8 @@
             "nullable": false,
             "doc": "Leaves a key that has a value."
           }
-        ]
+        ],
+        "docs": "data.md#action-setStorage"
       },
       "cloudDocuments": {
         "label": "Cloud documents",
@@ -13999,7 +14177,8 @@
             "nullable": false,
             "doc": ""
           }
-        ]
+        ],
+        "docs": "data.md#action-cloudDocuments"
       },
       "loadCloudData": {
         "label": "Load cloud data",
@@ -14099,7 +14278,8 @@
             "nullable": false,
             "doc": "Runs again when a value its query reads changes (${auth.uid}, a bound limit)."
           }
-        ]
+        ],
+        "docs": "data.md#action-loadCloudData"
       },
       "reloadCloudData": {
         "label": "Reload cloud data",
@@ -14114,7 +14294,8 @@
             "nullable": false,
             "doc": "A variable a load cloud data action fills."
           }
-        ]
+        ],
+        "docs": "data.md#action-reloadCloudData"
       },
       "cloudFiles": {
         "label": "Cloud files",
@@ -14216,7 +14397,8 @@
             "nullable": true,
             "doc": "Nested actions: run with each file."
           }
-        ]
+        ],
+        "docs": "data.md#action-cloudFiles"
       },
       "cloudData": {
         "label": "Cloud data",
@@ -14316,7 +14498,8 @@
             "nullable": false,
             "doc": ""
           }
-        ]
+        ],
+        "docs": "data.md#action-cloudData"
       },
       "cloudBatch": {
         "label": "Cloud batch",
@@ -14347,7 +14530,8 @@
             "nullable": false,
             "doc": "A list: the steps run per item (${loop.item}, ${loop.index}), all in one commit."
           }
-        ]
+        ],
+        "docs": "data.md#action-cloudBatch"
       },
       "submitForm": {
         "label": "Submit form",
@@ -14430,7 +14614,8 @@
             "nullable": true,
             "doc": ""
           }
-        ]
+        ],
+        "docs": "data.md#action-submitForm"
       },
       "auth": {
         "label": "Auth",
@@ -14494,7 +14679,8 @@
             "nullable": false,
             "doc": "Gets a failure's message."
           }
-        ]
+        ],
+        "docs": "auth.md#action-auth"
       },
       "paywall": {
         "label": "Paywall",
@@ -14593,7 +14779,8 @@
             "object": "RouteTransition",
             "doc": "openPaywall: a custom transition for its screen; replaces transition and its times."
           }
-        ]
+        ],
+        "docs": "commerce.md#action-paywall"
       },
       "print": {
         "label": "Print",
@@ -14608,7 +14795,8 @@
             "nullable": false,
             "doc": "A rendered node to print through a user-confirmed platform dialog."
           }
-        ]
+        ],
+        "docs": "media.md#action-print"
       },
       "preloadImages": {
         "label": "Preload images",
@@ -14631,7 +14819,8 @@
             "nullable": false,
             "doc": "A variable to hold the share loaded (0-1) while it runs."
           }
-        ]
+        ],
+        "docs": "media.md#action-preloadImages"
       },
       "speak": {
         "label": "Speak",
@@ -14694,7 +14883,8 @@
             "nullable": false,
             "doc": "Read along: the word to start at (an index or expression), to carry on after a pause."
           }
-        ]
+        ],
+        "docs": "media.md#action-speak"
       },
       "playSound": {
         "label": "Play sound",
@@ -14789,7 +14979,8 @@
             "nullable": false,
             "doc": "A sound file."
           }
-        ]
+        ],
+        "docs": "media.md#action-playSound"
       },
       "captureScreenshot": {
         "label": "Capture screenshot",
@@ -14826,7 +15017,8 @@
             "nullable": false,
             "doc": "Pixels per logical pixel; 0: the device's."
           }
-        ]
+        ],
+        "docs": "media.md#action-captureScreenshot"
       },
       "downloadFile": {
         "label": "Download file",
@@ -14857,7 +15049,8 @@
             "nullable": false,
             "doc": ""
           }
-        ]
+        ],
+        "docs": "media.md#action-downloadFile"
       },
       "emitEvent": {
         "label": "Emit event",
@@ -14880,7 +15073,8 @@
             "nullable": true,
             "doc": "Its properties; text values are expressions."
           }
-        ]
+        ],
+        "docs": "engage.md#action-emitEvent"
       }
     },
     "nestedChainKeys": [
@@ -15498,7 +15692,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The line's colour."
         },
         {
           "key": "width",
@@ -15507,7 +15701,7 @@
           "default": 1,
           "nullable": false,
           "min": 0.0,
-          "doc": ""
+          "doc": "The line's width in pixels."
         },
         {
           "key": "style",
@@ -15520,7 +15714,7 @@
             "none",
             "solid"
           ],
-          "doc": ""
+          "doc": "`solid` or `none`."
         },
         {
           "key": "strokeAlign",
@@ -15534,7 +15728,7 @@
             "center",
             "outside"
           ],
-          "doc": ""
+          "doc": "Where the line sits on the edge: inside, centered on it, or outside."
         }
       ]
     },
@@ -15593,7 +15787,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The button's fill."
         },
         {
           "key": "foregroundColor",
@@ -15609,7 +15803,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The colour of the shadow under a raised button."
         },
         {
           "key": "elevation",
@@ -15617,7 +15811,7 @@
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "How raised the button is (its shadow)."
         },
         {
           "key": "textStyle",
@@ -15626,7 +15820,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": ""
+          "doc": "The label's style (a TextStyle or a theme style's name). Its colour comes from `foregroundColor`; without a `fontSize` the label is 12 px."
         },
         {
           "key": "side",
@@ -15635,7 +15829,7 @@
           "default": null,
           "nullable": true,
           "object": "BorderSide",
-          "doc": ""
+          "doc": "The button's border."
         },
         {
           "key": "shape",
@@ -15644,7 +15838,7 @@
           "default": null,
           "nullable": true,
           "object": "ShapeBorder",
-          "doc": ""
+          "doc": "The button's shape: `{\"type\": \"roundedRectangle\", \"borderRadius\": 10}`, `stadium`, `circle`..."
         },
         {
           "key": "iconSize",
@@ -15652,7 +15846,7 @@
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The icon's size."
         },
         {
           "key": "iconColor",
@@ -15660,7 +15854,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The icon's colour; without one, `foregroundColor`."
         }
       ]
     },
@@ -15864,7 +16058,7 @@
           "nullable": false,
           "min": 0.0,
           "max": 1.0,
-          "doc": ""
+          "doc": "Where the colour sits along the gradient, 0 (its start) to 1 (its end)."
         },
         {
           "key": "color",
@@ -15872,7 +16066,7 @@
           "kind": "value",
           "default": "#FF000000",
           "nullable": false,
-          "doc": ""
+          "doc": "The colour at `position`."
         }
       ]
     },
@@ -16301,7 +16495,7 @@
             "layerBlur",
             "backgroundBlur"
           ],
-          "doc": ""
+          "doc": "The effect: `dropShadow`, `innerShadow`, `layerBlur` (blurs the node) or `backgroundBlur` (blurs what is behind it: frosted glass). Required: an effect without a type is dropped."
         },
         {
           "key": "id",
@@ -16309,7 +16503,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "An id a binding can select the effect by (`decoration.effects.glow.color`)."
         },
         {
           "key": "visible",
@@ -16317,7 +16511,7 @@
           "kind": "boolean",
           "default": true,
           "nullable": false,
-          "doc": ""
+          "doc": "False keeps the effect but does not draw it."
         },
         {
           "key": "color",
@@ -16325,7 +16519,7 @@
           "kind": "value",
           "default": "#40000000",
           "nullable": false,
-          "doc": ""
+          "doc": "The shadow's colour."
         },
         {
           "key": "offset",
@@ -16336,7 +16530,7 @@
             0
           ],
           "nullable": false,
-          "doc": ""
+          "doc": "The shadow's offset `[dx, dy]` in pixels."
         },
         {
           "key": "blurRadius",
@@ -16345,7 +16539,7 @@
           "default": 0,
           "nullable": false,
           "min": 0.0,
-          "doc": ""
+          "doc": "How soft the shadow or blur is, in pixels."
         },
         {
           "key": "spreadRadius",
@@ -16353,7 +16547,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "How far the shadow grows past the box before blurring, in pixels."
         },
         {
           "key": "blendMode",
@@ -16362,7 +16556,7 @@
           "default": "srcOver",
           "nullable": false,
           "enum": "BlendMode",
-          "doc": ""
+          "doc": "How the effect blends with what is under it."
         }
       ]
     },
@@ -16740,7 +16934,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The image's URL: `https://`, a `data:image/...` URL, or (for the render command's drafts) a path relative to the document."
         },
         {
           "key": "assetId",
@@ -16748,7 +16942,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "A project asset's id, for images uploaded to the project."
         },
         {
           "key": "fit",
@@ -16766,7 +16960,7 @@
             "none",
             "scaleDown"
           ],
-          "doc": ""
+          "doc": "How the image fills the box (Flutter's `BoxFit`): `cover`, `contain`, `fill`, `fitWidth`..."
         },
         {
           "key": "alignment",
@@ -16777,7 +16971,7 @@
             0
           ],
           "nullable": false,
-          "doc": ""
+          "doc": "Where the image sits in the box when it does not fill it, or which part shows when it is cropped."
         },
         {
           "key": "repeat",
@@ -16792,7 +16986,7 @@
             "repeatX",
             "repeatY"
           ],
-          "doc": ""
+          "doc": "Whether the image repeats to fill the box (Flutter's `ImageRepeat`)."
         },
         {
           "key": "scale",
@@ -16906,7 +17100,7 @@
             "outline",
             "underline"
           ],
-          "doc": ""
+          "doc": "`outline` (a box), `underline` (a line under the text) or `none`."
         },
         {
           "key": "borderSide",
@@ -16915,7 +17109,7 @@
           "default": {},
           "nullable": false,
           "object": "BorderSide",
-          "doc": ""
+          "doc": "The line: its colour and width."
         },
         {
           "key": "borderRadius",
@@ -16923,7 +17117,7 @@
           "kind": "value",
           "default": 4,
           "nullable": false,
-          "doc": ""
+          "doc": "The corners' radius."
         },
         {
           "key": "gapPadding",
@@ -16932,7 +17126,7 @@
           "default": 4,
           "nullable": false,
           "min": 0.0,
-          "doc": ""
+          "doc": "The gap around a floating label in an outline border."
         }
       ]
     },
@@ -16946,7 +17140,7 @@
           "default": null,
           "nullable": true,
           "object": "InputIcon",
-          "doc": ""
+          "doc": "An icon before the field, outside its border."
         },
         {
           "key": "labelText",
@@ -16954,7 +17148,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The label: inside the empty field, floating above it when focused or filled."
         },
         {
           "key": "labelStyle",
@@ -16963,7 +17157,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": ""
+          "doc": "The label's style."
         },
         {
           "key": "floatingLabelStyle",
@@ -16972,7 +17166,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": ""
+          "doc": "The label's style when it floats above the field."
         },
         {
           "key": "helperText",
@@ -16980,7 +17174,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "A line of help under the field."
         },
         {
           "key": "helperStyle",
@@ -16989,7 +17183,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": ""
+          "doc": "The helper text's style."
         },
         {
           "key": "helperMaxLines",
@@ -16997,7 +17191,7 @@
           "kind": "integer",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "At most this many lines of helper text."
         },
         {
           "key": "hintText",
@@ -17005,7 +17199,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "Shown in the empty field (a placeholder)."
         },
         {
           "key": "hintStyle",
@@ -17014,7 +17208,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": ""
+          "doc": "The hint's style."
         },
         {
           "key": "hintMaxLines",
@@ -17022,7 +17216,7 @@
           "kind": "integer",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "At most this many lines of hint."
         },
         {
           "key": "errorText",
@@ -17039,7 +17233,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": ""
+          "doc": "The error text's style."
         },
         {
           "key": "errorMaxLines",
@@ -17047,7 +17241,7 @@
           "kind": "integer",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "At most this many lines of error text."
         },
         {
           "key": "floatingLabelBehavior",
@@ -17061,7 +17255,7 @@
             "auto",
             "always"
           ],
-          "doc": ""
+          "doc": "When the label floats above the field: `auto`, `always`, `never`."
         },
         {
           "key": "isCollapsed",
@@ -17069,7 +17263,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": ""
+          "doc": "No padding and no room for a label: the field is as small as its text."
         },
         {
           "key": "isDense",
@@ -17077,7 +17271,7 @@
           "kind": "boolean",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "Less vertical padding."
         },
         {
           "key": "contentPadding",
@@ -17085,7 +17279,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "Space between the border and the text: a number or `[left, top, right, bottom]`. An outlined field needs some (`[14, 16, 14, 16]`) to keep the text off the border."
         },
         {
           "key": "prefixIcon",
@@ -17094,7 +17288,7 @@
           "default": null,
           "nullable": true,
           "object": "InputIcon",
-          "doc": ""
+          "doc": "An icon inside the border, before the text: `{\"icon\": \"search\", \"size\": 18}`; it may take reactions."
         },
         {
           "key": "prefixIconConstraints",
@@ -17102,7 +17296,7 @@
           "kind": "value",
           "default": {},
           "nullable": false,
-          "doc": ""
+          "doc": "The prefix icon's size limits."
         },
         {
           "key": "prefixText",
@@ -17110,7 +17304,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "Text before the typed text (`$`)."
         },
         {
           "key": "prefixStyle",
@@ -17119,7 +17313,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": ""
+          "doc": "The prefix text's style."
         },
         {
           "key": "suffixIcon",
@@ -17128,7 +17322,7 @@
           "default": null,
           "nullable": true,
           "object": "InputIcon",
-          "doc": ""
+          "doc": "An icon inside the border, after the text: a clear (`close`) or show-password button; it may take reactions."
         },
         {
           "key": "suffixIconConstraints",
@@ -17136,7 +17330,7 @@
           "kind": "value",
           "default": {},
           "nullable": false,
-          "doc": ""
+          "doc": "The suffix icon's size limits."
         },
         {
           "key": "suffixText",
@@ -17144,7 +17338,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "Text after the typed text (`kg`)."
         },
         {
           "key": "suffixStyle",
@@ -17153,7 +17347,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": ""
+          "doc": "The suffix text's style."
         },
         {
           "key": "counterText",
@@ -17170,7 +17364,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": ""
+          "doc": "The character counter's style."
         },
         {
           "key": "filled",
@@ -17178,7 +17372,7 @@
           "kind": "boolean",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "Paints `fillColor` behind the field."
         },
         {
           "key": "fillColor",
@@ -17186,7 +17380,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The field's background, drawn when `filled` is true."
         },
         {
           "key": "focusColor",
@@ -17194,7 +17388,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The fill while the field has the focus."
         },
         {
           "key": "hoverColor",
@@ -17202,7 +17396,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The fill while a mouse is over the field."
         },
         {
           "key": "errorBorder",
@@ -17211,7 +17405,7 @@
           "default": null,
           "nullable": true,
           "object": "InputBorder",
-          "doc": ""
+          "doc": "The border while the field shows an error (`errorText` set)."
         },
         {
           "key": "focusedBorder",
@@ -17220,7 +17414,7 @@
           "default": null,
           "nullable": true,
           "object": "InputBorder",
-          "doc": ""
+          "doc": "The border while the field has the focus."
         },
         {
           "key": "focusedErrorBorder",
@@ -17229,7 +17423,7 @@
           "default": null,
           "nullable": true,
           "object": "InputBorder",
-          "doc": ""
+          "doc": "The border while the field has the focus and shows an error."
         },
         {
           "key": "disabledBorder",
@@ -17238,7 +17432,7 @@
           "default": null,
           "nullable": true,
           "object": "InputBorder",
-          "doc": ""
+          "doc": "The border while the field is disabled."
         },
         {
           "key": "enabledBorder",
@@ -17247,7 +17441,7 @@
           "default": null,
           "nullable": true,
           "object": "InputBorder",
-          "doc": ""
+          "doc": "The border while the field is enabled and not focused."
         },
         {
           "key": "border",
@@ -17256,7 +17450,7 @@
           "default": null,
           "nullable": true,
           "object": "InputBorder",
-          "doc": ""
+          "doc": "The border used for any state without its own (`{\"type\": \"outline\", \"borderSide\": {...}, \"borderRadius\": 8}`, `underline` or `none`)."
         },
         {
           "key": "enabled",
@@ -17264,7 +17458,7 @@
           "kind": "boolean",
           "default": true,
           "nullable": false,
-          "doc": ""
+          "doc": "False draws the field disabled."
         },
         {
           "key": "semanticCounterText",
@@ -17272,7 +17466,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "What a screen reader says for the counter."
         },
         {
           "key": "alignLabelWithHint",
@@ -17280,7 +17474,7 @@
           "kind": "boolean",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "Aligns the label with the hint in a multi-line field."
         },
         {
           "key": "constraints",
@@ -17288,7 +17482,7 @@
           "kind": "value",
           "default": {},
           "nullable": false,
-          "doc": ""
+          "doc": "Size limits for the decorated field."
         },
         {
           "key": "prefixIconPadding",
@@ -17342,7 +17536,7 @@
           "default": 24,
           "nullable": false,
           "min": 0.0,
-          "doc": ""
+          "doc": "The glyph's size."
         },
         {
           "key": "color",
@@ -17350,7 +17544,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The glyph's colour."
         },
         {
           "key": "actions",
@@ -17360,7 +17554,7 @@
           "nullable": false,
           "item": "Reaction",
           "itemKind": "json",
-          "doc": ""
+          "doc": "Reactions, as a node's: a tap on the icon (`{\"trigger\": {\"type\": \"click\"}, \"actions\": [...]}`)."
         }
       ]
     },
@@ -18320,7 +18514,7 @@
             "image",
             "noise"
           ],
-          "doc": ""
+          "doc": "What the paint is: `solid` (a colour), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`), `image`, or `noise`. Without one: an image if it has `image`, a linear gradient if it has `stops`, else solid."
         },
         {
           "key": "id",
@@ -18336,7 +18530,7 @@
           "kind": "boolean",
           "default": true,
           "nullable": false,
-          "doc": ""
+          "doc": "False keeps the paint but does not draw it."
         },
         {
           "key": "opacity",
@@ -18346,7 +18540,7 @@
           "nullable": false,
           "min": 0.0,
           "max": 1.0,
-          "doc": ""
+          "doc": "The paint's opacity, 0 to 1, multiplied with its colours' own alpha."
         },
         {
           "key": "blendMode",
@@ -18355,7 +18549,7 @@
           "default": "srcOver",
           "nullable": false,
           "enum": "BlendMode",
-          "doc": ""
+          "doc": "How the paint blends with what is under it (CSS `mix-blend-mode`)."
         },
         {
           "key": "color",
@@ -18423,7 +18617,7 @@
             "mirror",
             "decal"
           ],
-          "doc": ""
+          "doc": "What a gradient does past `begin` and `end`: `clamp` (keeps the end colours), `repeated`, `mirror`, `decal`."
         },
         {
           "key": "image",
@@ -20181,7 +20375,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The font family (`\"Inter\"`); `fontWeight` picks its file. Without one: the platform's default (Roboto)."
         },
         {
           "key": "fontWeight",
@@ -20202,7 +20396,7 @@
             "normal",
             "italic"
           ],
-          "doc": ""
+          "doc": "`normal` or `italic`."
         },
         {
           "key": "fontSize",
@@ -20211,7 +20405,7 @@
           "default": null,
           "nullable": true,
           "min": 0.0,
-          "doc": ""
+          "doc": "The font size in logical pixels. Without one: 12."
         },
         {
           "key": "color",
@@ -20260,7 +20454,7 @@
             "overline",
             "lineThrough"
           ],
-          "doc": ""
+          "doc": "A line through the text: `underline`, `overline`, `lineThrough` or `none`."
         },
         {
           "key": "decorationColor",
@@ -20268,7 +20462,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The colour of the `decoration` line; without one, the text's colour."
         },
         {
           "key": "backgroundColor",
@@ -20292,7 +20486,7 @@
             "dashed",
             "wavy"
           ],
-          "doc": ""
+          "doc": "The `decoration` line's style: `solid`, `double`, `dotted`, `dashed`, `wavy`."
         },
         {
           "key": "decorationThickness",
@@ -20300,7 +20494,7 @@
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "The `decoration` line's thickness, as a multiple of the font's default."
         },
         {
           "key": "tabularFigures",
