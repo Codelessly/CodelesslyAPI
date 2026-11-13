@@ -8,8 +8,15 @@
 // for what could not be read; nothing throws.
 import 'package:meta/meta.dart';
 
+import '../behaviors.dart' show Behaviors;
 import '../json.dart';
 import 'diagnostics.dart';
+
+/// The keys a node reads (beyond the behaviors).
+const Set<String> editNodeKeys = {
+  'type', 'name', 'key', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
+  'actions', 'component', 'media',
+};
 
 /// The kind of value an op field holds (its JSON Schema type).
 enum EditFieldKind { string, integer, boolean, object, strings }
@@ -79,6 +86,17 @@ sealed class EditOp {
     }
     return null;
   }
+
+  /// The op [name] means (`set` for `set`, `Set` and the alias `add`), or
+  /// null when it names none.
+  static String? canonical(String? name) {
+    if (name == null) return null;
+    final l = name.trim().toLowerCase();
+    return specOf(l)?.op ?? specOf(_aliases[l] ?? '')?.op;
+  }
+
+  /// Whether [name] names an op (or an alias models write for one).
+  static bool isOpName(String name) => canonical(name) != null;
 
   @override
   String toString() => 'EditOp(${toJson()})';
@@ -394,9 +412,22 @@ List<EditOp> _decodeOne(Object? json, int i, List<EditDiagnostic> out) {
     out.add(EditDiagnostic.of(code, i, message, path: editPointer(at, key), expected: expected, suggestion: suggestion));
   }
 
+  // Node fields written on a set op instead of inside its node (an early
+  // closing brace does this): moved into the node.
+  final moved = <String, Object?>{};
   // Keys the op does not read.
   for (final k in m.keys) {
     if (spec.field(k) != null || (spec.op == RemoveOp.opName && k == 'id')) continue;
+    if (spec.op == SetOp.opName && m['node'] is Map && (editNodeKeys.contains(k) || Behaviors.keys.contains(k))) {
+      final inNode = (m['node'] as Map)[k];
+      if (inNode == null || (inNode is Map && m[k] is Map)) {
+        moved[k] = m[k];
+        out.add(EditDiagnostic.of(EditCodes.misplacedField, i,
+            '"$k" is a node field: it goes inside "node" ({"op": "set", "id": ..., "node": {..., "$k": ...}}). It was moved there.',
+            path: editPointer(at, k)));
+        continue;
+      }
+    }
     final known = [for (final f in spec.fields) f.key];
     final s = nearestName(k, known);
     // A misspelt field is an error only when it hides a required one.
@@ -460,7 +491,13 @@ List<EditOp> _decodeOne(Object? json, int i, List<EditDiagnostic> out) {
           if (readMap(e.value) case final Json l) e.key: l,
       };
       final bulk = object('nodes');
-      final node = object('node');
+      var node = object('node');
+      if (node != null && moved.isNotEmpty) {
+        node = {
+          ...node,
+          for (final e in moved.entries) e.key: node[e.key] is Map ? {...(e.value! as Map), ...(node[e.key] as Map)} : e.value,
+        };
+      }
       if (bulk != null && node == null) {
         final ops = <EditOp>[];
         for (final e in bulk.entries) {

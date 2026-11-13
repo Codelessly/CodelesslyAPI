@@ -6,7 +6,6 @@ import '../behaviors.dart';
 import '../catalog.dart';
 import '../json.dart';
 import '../value_fields.dart';
-import 'catalog_check.dart' show editNodeKeys;
 import 'edit_ops.dart';
 
 /// The `ui_apply` tool's description: what a model reads about the ops.

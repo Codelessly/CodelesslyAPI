@@ -13,12 +13,8 @@ import '../value_fields.dart';
 import '../widgets/canvas.dart';
 import 'apply.dart';
 import 'diagnostics.dart';
+import 'edit_ops.dart' show editNodeKeys;
 
-/// The keys a node reads (beyond the behaviors).
-const Set<String> editNodeKeys = {
-  'type', 'name', 'key', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
-  'actions', 'component', 'media',
-};
 
 /// An [EditCheck] over [EditCheckInput.catalog]'s declarations: unknown
 /// node types, node keys, props, layout and decoration keys and action

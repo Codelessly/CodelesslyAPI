@@ -63,10 +63,23 @@ abstract final class EditCodes {
   static const unknownVariable = EditCode('unknown_variable',
       'A vars op that sets (or removes) a variable the scope does not declare: declare it with a full variable object.', error: false);
 
+  static const malformedInput = EditCode(
+      'malformed_input',
+      'The tool input\'s JSON was not well formed at a character offset (a stray or missing brace or bracket, a '
+          'trailing or missing comma, an op that began before the previous one closed): the decoder repaired it '
+          'and read the ops around it. Write balanced JSON: one closing brace per opening brace.',
+      error: false);
+  static const misplacedField = EditCode('misplaced_field',
+      'A node field ("bind", "props", "actions"...) written on a set op instead of inside its "node": it was moved into the node.',
+      error: false);
+  static const startOver = EditCode('start_over',
+      'A batch that rebuilds a UI that already exists (new roots, a new canvas) instead of patching it: fix the '
+          'existing document with patch, set (same ids) and remove; never start over.');
+
   static const List<EditCode> all = [
     invalidOp, missingField, wrongType, unknownId, structuralKeyInPatch, staleRev, wouldOrphan, multipleParents, cycle, //
     canvasAsChild, invalidParent, danglingChild, unreachableNode, pendingChild, capabilityNotAllowed, limitExceeded,
-    truncatedOp, invalidJson, invalidVariable, unknownVariable,
+    truncatedOp, invalidJson, invalidVariable, unknownVariable, malformedInput, misplacedField, startOver,
   ];
 }
 
