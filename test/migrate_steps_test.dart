@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/validate.dart';
+import 'package:codelessly_api/src/core/migrate/steps_spellings.dart' show spellingMigrationSteps;
 import 'package:test/test.dart';
 
 /// [node] migrated in a document, with its report.
@@ -181,8 +182,9 @@ void main() {
     expect(d.message, contains('motion.alignment'));
   });
 
-  test('every step has a sample here', () {
-    expect(byId.keys.toSet().difference({...samples.keys, ...documentSamples.keys, 'patches.legacy'}), isEmpty);
+  test('every step has a sample here (30.1.0\'s one-way steps in test/migrate_spellings_test.dart and test/migrate_paint_test.dart)', () {
+    final oneWay = {for (final s in spellingMigrationSteps) s.id};
+    expect(byId.keys.toSet().difference({...samples.keys, ...documentSamples.keys, 'patches.legacy', ...oneWay}), isEmpty);
   });
 
   for (final e in samples.entries) {

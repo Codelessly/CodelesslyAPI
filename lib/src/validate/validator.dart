@@ -20,7 +20,9 @@ import '../core/media.dart';
 import '../core/breakpoints.dart';
 import '../core/catalog.dart';
 import '../core/catalog_json.dart' show widgetSpecFromJson;
+import '../core/custom_paint.dart' show Expr;
 import '../core/document.dart';
+import '../core/migrate/legacy_paths.dart' show movedPathHint;
 import '../core/scripts.dart';
 import '../core/sections.dart';
 import '../core/theme.dart';
@@ -197,12 +199,12 @@ final class _Validator {
     final schema = m['schema'];
     if (schema == null) {
       r.add(Codes.schemaVersion, '/schema', 'Add "schema": $kSchemaVersion. A document without one is read as schema 2 and migrated.');
-    } else if (schema == 2 || schema == 3) {
+    } else if (schema == 2) {
       r.add(Codes.schemaOutdated, '/schema',
-          'Schema $schema: migrated to $kSchemaVersion when read; the paths below are of the migrated document. '
+          'Schema 2: migrated to $kSchemaVersion when read; the paths below are of the migrated document. '
           '`dart run tool/migrate.dart <file> --write` rewrites it.');
     } else if (schema != kSchemaVersion) {
-      r.add(Codes.schemaVersion, '/schema', 'This package reads "schema": 2, 3 and $kSchemaVersion, got ${describe(schema)}.');
+      r.add(Codes.schemaVersion, '/schema', 'This package reads "schema": 2 and $kSchemaVersion, got ${describe(schema)}.');
     }
     // Validated as it decodes: a schema-2 document (or one without a
     // schema) migrated first.
@@ -503,7 +505,7 @@ final class _Validator {
       if (n.type == CanvasProps.spec.type && canvasRouteKeys.contains(k)) continue;
       if (k.startsWith('legacy.')) {
         r.add(Codes.legacyValue, pointer(at, k),
-            'Kept by a schema migration: "${k.substring(7)}" had no form in the newer schema and is no longer read. '
+            'Kept by a schema migration: "${k.substring(7)}" had no current form and is no longer read. '
             'See the migration report for what to write instead, then remove it.');
         continue;
       }
@@ -541,6 +543,7 @@ final class _Validator {
           'For rows of exactly this length remove shrinkWrapRows; for rows at least this long keep it and give the item "constraints": {"minHeight": n}.',
           suggestion: 'shrinkWrapRows: false');
     }
+    _movedPathsIn(raw, at);
     for (final def in BehaviorFields.all) {
       if (!raw.containsKey(def.key)) continue;
       if (def.key == BehaviorFields.states.key) {
@@ -548,7 +551,7 @@ final class _Validator {
       } else {
         if (def.key == BehaviorFields.hero.key && readMap(raw[def.key])?['flight'] is String) {
           r.add(Codes.wrongType, pointer(pointer(at, def.key), 'flight'),
-              'A hero\'s "flight" is how it flies in place (an object) since schema 4; a navigation flight\'s look '
+              'A hero\'s "flight" is how it flies in place (an object) since 30.1.0; a navigation flight\'s look '
               '("${readMap(raw[def.key])!['flight']}") is its "flightShuttle".',
               suggestion: 'flightShuttle');
           continue;
@@ -560,23 +563,23 @@ final class _Validator {
   }
 
   String _unknownNodeKeyMessage(String k, WidgetSpec? spec) {
-    if (_movedInSchema4[k] case final String moved) return 'A node has no "$k" since schema 4: $moved.';
+    if (_movedIn301[k] case final String moved) return 'A node has no "$k" since 30.1.0: $moved.';
     final where = _whereKeyBelongs(k, spec);
     if (where != null) return 'A node has no "$k"; it belongs in "$where".';
     return 'A node has no "$k". Node keys: type, name, children, slots, visible, opacity, layout, decoration, props, bind, actions, and the behaviors ${Behaviors.keys.join(', ')}.';
   }
 
-  /// Schema 3's node keys that schema 4 moved, and where.
-  static const _movedInSchema4 = {
-    'scale': 'it is "motion": {"scale": ...} (Flutter\'s Transform.scale; schema 3 multiplied the two)',
+  /// The node keys 30.1.0 moved (30.0.0's spellings), and where.
+  static const _movedIn301 = {
+    'scale': 'it is "motion": {"scale": ...} (Flutter\'s Transform.scale; 30.0.0 multiplied the two)',
     'flightKey': 'it is "hero": {"tag": ..., "flies": "inPlace"} (one shared element, Flutter\'s Hero)',
     'flight': 'it is the hero\'s "flight" ("hero": {"tag": ..., "flies": "inPlace", "flight": {...}})',
     'strokePath': 'a line through points is a "customPaint" path op ({"customPaint": {"painter": [{"op": "path", '
         '"points": [...], "paint": {"style": "stroke", "strokeWidth": 4}}]}}; "foregroundPainter" draws it in front)',
   };
 
-  /// Schema 3's props that schema 4 moved, by node type, and where.
-  static const _propsMovedInSchema4 = {
+  /// The props 30.1.0 moved (30.0.0's spellings), by node type, and where.
+  static const _propsMovedIn301 = {
     ('box', 'path'): 'a shape is a "path" node: "type": "path" with the path as "props.data"',
     ('box', 'strokeJoin'): 'it belongs to a "path" node (a box drawn as a path is one)',
     ('box', 'strokeMiterLimit'): 'it belongs to a "path" node (a box drawn as a path is one)',
@@ -624,7 +627,7 @@ final class _Validator {
         }
         if (e.key == 'rotation') {
           r.add(Codes.unknownLayoutKey, p,
-              'layout has no "rotation" since schema 4: a rotation is drawn, never laid out, so it is "motion": {"rotate": ...} '
+              'layout has no "rotation" since 30.1.0: a rotation is drawn, never laid out, so it is "motion": {"rotate": ...} '
               '(Flutter\'s Transform.rotate; for a turn that takes its turned size in the layout, Flutter\'s RotatedBox, there is none).',
               suggestion: 'motion.rotate');
           continue;
@@ -1015,8 +1018,8 @@ final class _Validator {
       final def = spec.prop(e.key);
       final p = pointer(at, e.key);
       if (def == null) {
-        if (_propsMovedInSchema4[(n.type, e.key)] case final String moved) {
-          r.add(Codes.unknownProp, p, 'A ${n.type} has no prop "${e.key}" since schema 4: $moved.');
+        if (_propsMovedIn301[(n.type, e.key)] case final String moved) {
+          r.add(Codes.unknownProp, p, 'A ${n.type} has no prop "${e.key}" since 30.1.0: $moved.');
           continue;
         }
         final where = LayoutFields.all.any((f) => f.key == e.key)
@@ -1239,7 +1242,42 @@ final class _Validator {
           if (problem != null) {
             r.add(Codes.unknownBindPath, pointer(pointer(pointer(at, 'values'), i), 'path'), problem.message, suggestion: problem.suggestion);
           }
+          _lookAsFlight(path, v?['value'], pointer(pointer(pointer(at, 'values'), i), 'value'));
         }
+      }
+    }
+  }
+
+  /// 30.0.0's `hero.flight` was a navigation flight's look (a name); since
+  /// 30.1.0 it is how a hero flies in place (an object), the look being
+  /// `hero.flightShuttle`. A name set there is the earlier spelling.
+  void _lookAsFlight(String path, Object? value, String at) {
+    if (path.trim() != 'hero.flight' || value is! String || Expr.isSource(value.trim())) return;
+    r.add(Codes.wrongType, at,
+        '"hero.flight" is how a hero flies in place (an object) since 30.1.0; a navigation flight\'s look ("$value") is '
+        '"hero.flightShuttle".',
+        suggestion: 'hero.flightShuttle');
+  }
+
+  /// A transition's property or an animation track's path that 30.1.0
+  /// moved (30.0.0's spelling): what to write.
+  void _movedPathsIn(Json raw, String at) {
+    void check(Object? path, String where) {
+      if (path is! String) return;
+      if (movedPathHint(path) case final String hint) {
+        r.add(Codes.unknownBindPath, where, '"$path" is 30.0.0\'s spelling, which 30.1.0 does not read: write $hint.');
+      }
+    }
+
+    final transitions = readList(raw['transitions']) ?? const [];
+    for (var i = 0; i < transitions.length; i++) {
+      check(readMap(transitions[i])?['property'], '${pointer(pointer(at, 'transitions'), '$i')}/property');
+    }
+    final animations = readList(raw['animations']) ?? const [];
+    for (var i = 0; i < animations.length; i++) {
+      final tracks = readList(readMap(animations[i])?['tracks']) ?? const [];
+      for (var j = 0; j < tracks.length; j++) {
+        check(readMap(tracks[j])?['path'], '${pointer(pointer(at, 'animations'), '$i')}/tracks/$j/path');
       }
     }
   }
@@ -1472,6 +1510,7 @@ final class _Validator {
                 if (problem != null) {
                   r.add(Codes.unknownBindPath, pointer(sp, 'path'), problem.message, suggestion: problem.suggestion);
                 }
+                _lookAsFlight(path, entry['value'], pointer(sp, 'value'));
               }
             }
             if (entry['value'] is String) _expression(entry['value'] as String, pointer(sp, 'value'));

@@ -473,7 +473,7 @@ abstract final class PlotChartProps {
   // selection's guides), as chart libraries name them; any plot can use
   // them, and each is computed from the data as it paints (extents, tick
   // positions and labels), which a draw list would have to be handed
-  // (docs/design/01-paint-node.md, "Schema 4").
+  // (docs/design/01-paint-node.md, "30.1.0").
 
   /// More curves over the same x domain, each with gaps (null points): a
   /// chart's series (fl_chart's `LineChartData.lineBarsData`).

@@ -1,12 +1,11 @@
-// Migrates schema-2 and schema-3 documents to the current schema (4), for
-// authors.
+// Migrates schema-2 documents to schema 3, for authors.
 //
 //   dart run tool/migrate.dart <file|dir>... [--write] [--report out.json] [--markdown out.md]
 //
 // Reads every .json file given (directories recursively); every document in
 // it (a layout document, a publish model or bundle, a component definition,
 // a site manifest, a plugin package, a file holding several) is migrated
-// with `migrateJson` (2 → 3 → 4). Without --write it only reports; with it, each
+// with `migrateJson2to3`. Without --write it only reports; with it, each
 // file that changed is rewritten (indented as it was: two spaces, or one
 // line). --report writes the MigrationReport as JSON; --markdown as the
 // summary table. Exit code 0 always, unless a file could not be read.
@@ -52,7 +51,7 @@ void main(List<String> args) {
       continue;
     }
     report.document = f.path;
-    final out = migrateJson(json, report: report);
+    final out = migrateJson2to3(json, report: report);
     if (jsonEquality.equals(out, json)) continue;
     changed++;
     if (write) {
@@ -68,6 +67,6 @@ void main(List<String> args) {
     stdout.writeln('  $e${e.instead.isEmpty ? '' : '\n      instead: ${e.instead}'}');
   }
   if (reportPath != null) File(reportPath).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(report.toJson()));
-  if (markdownPath != null) File(markdownPath).writeAsStringSync(migrationReportMarkdown(report, title: 'Migration report (to schema $kSchemaVersion)'));
+  if (markdownPath != null) File(markdownPath).writeAsStringSync(migrationReportMarkdown(report));
   if (failed > 0) exitCode = 1;
 }

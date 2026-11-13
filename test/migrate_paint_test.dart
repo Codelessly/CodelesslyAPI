@@ -1,5 +1,5 @@
-// The paint steps of the schema 3 → 4 migration (`paintSteps4`, run by
-// `migrate3to4`), applied to schema-3 JSON: a stroke path becomes a customPaint path op, a box
+// The paint steps of 30.1.0 (`paintSteps`, among the one-way steps that end
+// `migrate2to3`), applied to 30.0.0's spellings: a stroke path becomes a customPaint path op, a box
 // drawn as a path a path node, per-shape paints customPaint ops per color or
 // per shape; what has no exact form is kept and reported. That the results
 // draw the same pixels is tested in the SDK
@@ -8,14 +8,16 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/migrate/legacy_svg.dart';
+import 'package:codelessly_api/src/core/migrate/steps_spellings.dart' show spellingMigrationSteps;
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
-/// Schema-3 [nodes] migrated to schema 4 (`migrate3to4`, whose last steps
-/// are the paint steps), and the report.
+/// [nodes] in 30.0.0's spellings through the one-way steps (whose last are
+/// the paint steps), as migrate2to3 runs them after schema 2's, and the
+/// report.
 (Map<String, Json>, MigrationReport) _apply(Map<String, Json> nodes) {
   final report = MigrationReport(document: 't');
-  final doc = migrate3to4({'schema': 3, 'nodes': nodes}, report: report);
+  final doc = migrate2to3({'schema': 2, 'nodes': nodes}, report: report, steps: spellingMigrationSteps);
   return ({for (final e in (doc['nodes'] as Map).entries) e.key as String: readMap(e.value)!}, report);
 }
 
@@ -338,7 +340,7 @@ void main() {
       final (twice, report) = _apply(once);
       expect(jsonEncode(twice), jsonEncode(once));
       expect(report.isEmpty, isTrue);
-      final doc = {'schema': 4, 'roots': <String>[], 'nodes': once};
+      final doc = {'schema': 3, 'roots': <String>[], 'nodes': once};
       expect(identical(migrateDocument(doc), doc), isTrue);
       final e1 = LayoutDocument.fromJson(doc).toJson();
       expect(jsonEncode(LayoutDocument.fromJson(e1).toJson()), jsonEncode(e1));
@@ -349,7 +351,7 @@ void main() {
   });
 
   group('in the whole migration', () {
-    test('a schema-2 gradient per shape reaches schema 4 as path ops through both migrations', () {
+    test('a schema-2 gradient per shape is path ops after schema 2\'s steps and the paint steps', () {
       final report = MigrationReport(document: 't');
       final doc = migrateDocument({
         'schema': 2,
@@ -366,7 +368,7 @@ void main() {
           },
         },
       }, report: report);
-      expect(doc['schema'], 4);
+      expect(doc['schema'], 3);
       final n = (doc['nodes'] as Map)['n'] as Map<String, Object?>;
       expect(_painter(n).map((o) => (o as Map)['d']), ['M0 0 H5 V5 Z', 'M10 0 H15 V5 Z']);
       expect(report.entries.map((e) => e.step), containsAll(['paint.gradientUnits', 'paint.perShape']));
@@ -392,7 +394,7 @@ void main() {
     });
 
     test('a node alone migrates its own paint patches too', () {
-      final n = migrateNode3to4(_box({
+      final n = migrateNode(_box({
         'props': {'path': 'M0 0 L9 9'},
         'media': [
           {'minWidth': 600, 'patch': {'props': {'path': 'M0 0 L20 20'}}},
@@ -403,10 +405,10 @@ void main() {
     });
   });
 
-  group('what schema 4 keeps as legacy', () {
+  group('what the migration keeps as legacy', () {
     test('a kept draw-on animation is a legacy_value warning, is not read, and round-trips', () {
       final doc = migrateDocument({
-        'schema': 3,
+        'schema': 2,
         'roots': ['c'],
         'nodes': {
           'c': {'type': 'canvas', 'layout': {'width': 100, 'height': 100}, 'slots': {'body': 'n'}},

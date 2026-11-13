@@ -1,5 +1,5 @@
-// SVG path data split into the shapes schema 3's per-shape paints colored
-// one by one (`subpathColors`, `gradientPerSubpath`), for the schema-4 step
+// SVG path data split into the shapes 30.0.0's per-shape paints colored
+// one by one (`subpathColors`, `gradientPerSubpath`), for the 30.1.0 step
 // that draws them with `customPaint` ops instead. Pure Dart: it reads the
 // data as the SDK's parser does (path_parsing) only as far as needed to
 // find each subpath, its start point and its control-point bounds; the

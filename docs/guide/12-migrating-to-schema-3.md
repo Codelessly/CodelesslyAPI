@@ -1,8 +1,5 @@
 # Migrating to schema 3
 
-*Schema 4 followed (chapter 13): a document is now migrated 2 → 3 → 4 when it is read. This chapter is the
-2 → 3 step.*
-
 Schema 3 is the format break that finishes the API cleanup: the model's classes and decoders know only the
 current shape. Documents written before it (schema 2) keep working: they are migrated **once, in memory, when
 they are read**, by a pure-JSON function. Nothing an app loads has to change, and nothing a loader reads is
@@ -114,3 +111,84 @@ something is kept on the node as `legacy.<behavior>.<field>`, unread, and report
 | a snap's `projectVelocity: false` | none: a snap projects the fling | none |
 | `transformGesture.rotationSnap` | round the bound `rotationVariable` | none |
 | a `setVariable` glide that is not one formula | `animate {variable, command: animateTo}` | (one raw export) |
+
+## 30.1.0: one spelling for each concept
+
+codelessly_api 30.1.0 keeps `"schema": 3` and gives three concepts that 30.0.0 could say two ways one spelling
+each, under Flutter's name:
+
+* **One `Transform`.** A node's `scale` (Flutter's `Transform.scale`) and `layout.rotation` (`Transform.rotate`: it
+  was drawn, never laid out) are its `motion`: `motion.scale` and `motion.rotate`.
+* **One `Hero`.** `flightKey` and `flight` (fly in from where the node with the same key was) are a `hero` that
+  flies in place: `{"hero": {"tag": "...", "flies": "inPlace", "flight": {...}}}`. A hero's flight look (30.0.0's
+  `hero.flight`, a name) is its `flightShuttle`, Flutter's `flightShuttleBuilder`.
+* **One `CustomPaint`, one decorated shape.** A line through points (`strokePath`) and a path's shapes painted one
+  by one (`subpathColors`, `gradientPerSubpath`) are `customPaint` path ops; a box drawn as an SVG path (a box's
+  `props.path`, `strokeJoin`, `strokeMiterLimit`) is a `path` node.
+
+**Schema-2 documents** reach the one spelling through `migrate2to3`, whose last steps are these (in memory, when
+read, as above). **A document marked `"schema": 3` is read as it is**: one written with 30.0.0's spellings must
+be updated once. Validation reports each earlier spelling as an error naming the one to write (`unknown_node_key`,
+`unknown_layout_key`, `unknown_prop`, `unknown_field`, `unknown_bind_path` for a binding, transition, track,
+`setValue` or condition path, `wrong_type` for a look written as `hero.flight`); the SDK sets nothing for a moved
+path set at run time and says so once (`movedPathHint`). What was rewritten:
+
+| 30.0.0 | 30.1.0 | Step |
+|---|---|---|
+| `"scale": s` | `"motion": {"scale": s × the motion's own}` | `transform.fold` |
+| `"layout": {"rotation": r}` | `"motion": {"rotate": r + the motion's own}`; with an uneven margin, the pivot's offset (half the margin's difference, which 30.0.0 turned about) as `motion.translateX/Y` | `transform.fold` |
+| `bind` `scale`, `layout.rotation` | `motion.scale`, `motion.rotate` (a formula times / plus the other part when both have one) | `transform.fold` |
+| a `scale` / `layout.rotation` transition | a `motion.scale` / `motion.rotate` transition (its own timing, beside the motion's) | `transform.fold` |
+| a scale or rotation that changes with no transition, beside a `motion` transition | `{"property": "motion.scale"}` (no duration: it still snaps) | `transform.fold` |
+| animation tracks on `scale` / `layout.rotation`; replacing tracks and keyframes on the motion of a scaled or turned node | the motion paths, values moved by the node's own | `transform.fold` |
+| a state or media patch's `scale`, `layout.rotation` | `motion.scale`, `motion.rotate`, at the patched node's values, set explicitly | `patches.moved` |
+| `flightKey`, `flight`, bound `flightKey` / `flight.*` | `hero` with `"flies": "inPlace"` and its `flight`; `hero.tag`, `hero.flight.*` | `hero.flight` |
+| `hero.flight` (a look), bound `hero.flight` | `hero.flightShuttle` | `hero.flight` |
+| a `setValue` or condition path `scale`, `layout.rotation`, `flightKey`, `flight.*` | the moved path (a value moved by the target's own motion) | `paths.moved` |
+| `"strokePath": {...}` | a `customPaint` path op with id `strokePath`, first in `painter` (last in `foregroundPainter` for `inFront`): `points` (a share of the box as `"${= 0.25 * size.width}"`), curves and `untilWidth` as `commands`, `progress` as `trimEnd`, `fillColor` a closed op under it; bound `points`, `progress`, `color` move into the op | `paint.strokePath` |
+| a box with `props.path` (and `strokeJoin`, `strokeMiterLimit`) | a `path` node, the path as `props.data`; a box without a path drops the two props it never read | `paint.boxPath` |
+| a path's `subpathColors`; `gradientPerSubpath` on its fills or strokes | one `customPaint` path op per color (the shapes of that color as its `d`), or per shape with the gradient as its `shader`; the path's view box is the custom paint's | `paint.perShape` |
+| a state or media patch setting any of these | the patch of the migrated node | `paint.patches` |
+
+The migration rewrites these all the same and says so in the report:
+
+* a node scale or rotation under a motion turned about another point than its center, a 3D motion turn, a
+  shimmer, a flip or a tilt (30.0.0 drew the scale and rotation inside those; 30.1.0 in the motion, outside);
+* a rotation or margin set while the app runs (bound, `setValue`, a condition) with an uneven margin: the pivot's
+  offset can't be a fixed translation;
+* a node scale and a motion scale that both change, timed differently: one key, one timing;
+* a `motion` transition's keyframes naming `scale` when the node's scale gets a transition of its own;
+* a preset that replaces `motion.scale` or `motion.rotate` with values of its own on a node with its own scale or
+  rotation;
+* a node with both a hero and a flight key: it keeps its hero; the flight key and flight are kept as
+  `legacy.flightKey` / `legacy.flight`;
+* a stroke path's draw-on animation (`drawMs`): kept as `legacy.strokePath.draw`, the line shows at its progress
+  at once (an animation on a variable bound into the op's `trimEnd` does it); a stroke path with no exact op (a
+  binding of another field, bound points in fractions or with curves, a fill fading with a bound progress, beside
+  a custom paint's view box) is kept whole as `legacy.strokePath`;
+* a box path whose fill reaches past its box (now filled there), is clipped to rounded corners, has a gradient
+  stroke, foreground fills, inner shadows, blending fills, more than one dash and gap, or a bound path;
+* per-shape colors or gradients beside visible effects, a blending, image or noise fill, or a gradient laid out
+  across the box: kept as `legacy.props.subpathColors` / `legacy.decoration.<list>.<i>.gradientPerSubpath`.
+
+Over the reference apps and the SDK's documents (docs/design/schema-3-migration-report.md, "30.1.0's one-way steps") only a box path's
+behaviour changes occur, 5 of them in two m05 experiments: 172 rotations, 6 bound rotations, 6 scale transitions,
+330 state scales, 10 hero looks, 140 stroke path rewrites, 133 box path ones and 45 per-shape color ones are
+rewritten, and the documents that use them render as before (pixel for pixel, but a box path's filled edge within
+4/255: docs/design/03-motion.md, "Done in 30.1.0"; docs/design/01-paint-node.md, "30.1.0").
+
+### The shapes
+
+```json
+{"motion": {"scale": 1.2, "rotate": -8, "alignment": [0, 0]},
+ "transitions": [{"property": "motion", "duration": 240}, {"property": "motion.scale", "duration": 120}]}
+
+{"hero": "avatar-1"}
+{"hero": {"tag": "card-1", "flightShuttle": "containerTransform", "placeholder": "source"}}
+{"hero": {"tag": "react", "flies": "inPlace", "flight": {"duration": 720, "curve": "easeInOutCubic", "lift": 110}}}
+```
+
+`flies: betweenScreens` (the default) is Flutter's `Hero`: it flies while a navigation plays, between the two
+screens' nodes with the tag. `flies: inPlace` flies the node in when it appears, from where the node with its tag
+was a moment ago (hidden, removed, a dropped drag copy, on a closing screen), on a spring without a `flight`.
+Heroes of the two kinds don't fly to each other.

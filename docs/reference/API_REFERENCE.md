@@ -38,7 +38,7 @@ flat map:
 
 | Key | Meaning |
 |---|---|
-| `schema` | Always 4 (`kSchemaVersion`). A schema-2 or schema-3 document (or one with none) loads, migrated in memory (`migrate2to3`, `migrate3to4`). |
+| `schema` | Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`). |
 | `id` | The layout's id (optional). |
 | `roots` | Canvas ids, in order: the screens of this page. |
 | `nodes` | Every node, by id: `{"<id>": {"type": ..., ...}}`. A node's id is its key here. |
@@ -52,7 +52,7 @@ its default.
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -99,7 +99,7 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "pages": ["home.json"],
   "theme": {
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
@@ -207,7 +207,7 @@ under a stack (`layout_field_ignored`).
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["board"],
   "nodes": {
     "board": {"type": "canvas", "slots": {"body": "stage"}, "layout": {"width": 400, "height": 300}},
@@ -269,7 +269,7 @@ Colours are `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half), `"#RRGGBB"` o
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["deco"],
   "nodes": {
     "deco": {
@@ -732,7 +732,7 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4255 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4252 |
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 6920 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1979 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3541 |
@@ -751,7 +751,7 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2348 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2340 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13107 |
 
 <a id="index-a-z"></a>
@@ -855,7 +855,7 @@ free space 1 : 2 (`flex`) beside a fixed grey box.
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["sizing"],
   "nodes": {
     "sizing": {
@@ -1308,7 +1308,7 @@ column capped at 1200:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -1479,7 +1479,7 @@ comparison table built from one row template and one cell template:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -1626,7 +1626,7 @@ giving one; `"axis": "horizontal"` moves only sideways scroll views).
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["article"],
   "nodes": {
     "article": {
@@ -1690,7 +1690,7 @@ one part of a screen. Older documents use this:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home-mobile", "home-desktop"],
   "nodes": {
     "home-mobile": {
@@ -1753,7 +1753,7 @@ one part of a screen. Older documents use this:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["page"],
   "nodes": {
     "page": {
@@ -1855,7 +1855,7 @@ A site manifest (`site.json`) with a theme: a palette and a type scale. The page
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "pages": ["home.json"],
   "theme": {
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
@@ -2045,7 +2045,7 @@ name. The render command uses font files from `--fonts <dir>` plus Roboto, and r
 
 - A text without a colour is white (`text_no_color` when rendered): set it in the style or the named style.
 - A name the theme does not have is `unknown_theme_name` (with the nearest name); a theme of the wrong shape is
-  `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 4, "pages": ["home.json"],
+  `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
   "theme": {...}}`.
 - A theme colour's name is not read from a formula: bind `${theme.colors.ember}`.
 - Run offsets count characters, `\n` as one.
@@ -2075,7 +2075,7 @@ A card with a solid fill, a border, rounded corners and a shadow, and a gradient
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["deco"],
   "nodes": {
     "deco": {
@@ -2371,7 +2371,7 @@ fetch network images (`image_network`).
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["gallery"],
   "nodes": {
     "gallery": {
@@ -2473,7 +2473,7 @@ good one:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["contact"],
   "nodes": {
     "contact": {
@@ -3579,7 +3579,7 @@ A `listView` repeats its first child once per item of its `data` binding; inside
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["faq"],
   "nodes": {
     "faq": {
@@ -4106,7 +4106,7 @@ A tap on a day flips it in the habit's record (`setAt` and `set` build the new l
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -4226,7 +4226,7 @@ Two screens: a list that opens a detail screen with a parameter, a modal, and a 
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home", "about", "signup"],
   "nodes": {
     "home": {
@@ -4779,7 +4779,7 @@ A counter: a variable, two buttons that change it, and a text and a colour bound
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["counter"],
   "nodes": {
     "counter": {
@@ -5381,7 +5381,7 @@ over the node's binding. A binding with a formula is often simpler; conditions s
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["plans"],
   "nodes": {
     "plans": {
@@ -5493,7 +5493,7 @@ A button-like row that changes colour while hovered and pressed, and while selec
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["buttons"],
   "nodes": {
     "buttons": {
@@ -6001,7 +6001,7 @@ A habit check-off: tapping the circle toggles `done`; its fill and scale change 
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["habit"],
   "nodes": {
     "habit": {
@@ -6449,7 +6449,7 @@ slots and events, the site manifest, and when to use a component, a list templat
 A definition (`components/Chip.json`; the file is named after the type):
 
 ```json
-{"schema": 4, "id": "Chip", "roots": ["chip"],
+{"schema": 3, "id": "Chip", "roots": ["chip"],
  "widget": {"type": "Chip", "doc": "A label with a remove button.", "children": "list", "slots": ["leading"],
    "props": [
      {"key": "label", "type": {"kind": "string", "flutter": "String"}, "default": "Chip", "required": true},
@@ -6513,7 +6513,7 @@ A directory with a `site.json` is a site: its pages, its components and its proj
 bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).
 
 ```json
-{"schema": 4, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
+{"schema": 3, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
  "variables": [{"name": "tags", "type": "list", "value": [{"name": "Design"}, {"name": "Code"}]}]}
 ```
 
@@ -6770,7 +6770,7 @@ A goal's progress as a bar bound to a variable, and a week as a bar chart:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["stats"],
   "nodes": {
     "stats": {
@@ -7478,7 +7478,7 @@ A value saved on the device and read back as `${storage.theme}`:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["prefs"],
   "nodes": {
     "prefs": {
@@ -7732,7 +7732,7 @@ A sign-in form whose error appears in a text:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["signIn"],
   "nodes": {
     "signIn": {
@@ -7856,7 +7856,7 @@ legal link).
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["upgrade"],
   "nodes": {
     "upgrade": {
@@ -7946,7 +7946,7 @@ playing sounds, printing, capturing a screenshot, downloading a file and preload
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["watch"],
   "nodes": {
     "watch": {
@@ -8195,7 +8195,7 @@ lesson, a review prompt after the third order), and the `${usage}` counters they
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["done"],
   "nodes": {
     "done": {
@@ -8274,7 +8274,7 @@ A page whose canvas has a URL path and a name (its default title):
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "id": "pricing",
   "roots": ["pricing"],
   "nodes": {
@@ -8694,7 +8694,7 @@ The smallest document, and the command that checks it at three sizes:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -8769,9 +8769,9 @@ From `package:codelessly_api/validate.dart`:
 | Code | Severity | Meaning |
 |---|---|---|
 | `invalid_document` | error | The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list). |
-| `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2, 3 and 4, and writes 4). |
-| `schema_outdated` | info | A schema-2 or schema-3 document: it loads, migrated to schema 4 in memory (`migrate2to3`, `migrate3to4`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
-| `legacy_value` | warning | A `legacy.<name>` key a schema migration kept: a value that had no form in the newer schema and is no longer read. |
+| `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3). |
+| `schema_outdated` | info | A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
+| `legacy_value` | warning | A `legacy.<name>` key the migration kept: a value that had no current form and is no longer read. |
 | `unknown_document_key` | error | A top-level key of the document that nothing reads. |
 | `dangling_root` | error | A root id that names no node. |
 | `root_not_canvas` | warning | A root that is not a canvas: it is never shown as a screen. |

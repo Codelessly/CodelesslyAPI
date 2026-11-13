@@ -1,14 +1,10 @@
-// A schema migration over a corpus of older documents: every document
+// The schema-3 migration over a corpus of schema-2 documents: every document
 // migrates without throwing, validates with no new errors, and re-encodes
 // stably (migrate → encode → decode → encode is a fixed point); the
-// aggregated MigrationReport of one migration is written as Markdown.
+// aggregated MigrationReport is written as Markdown.
 //
-//   dart run tool/migration_corpus.dart <file|dir>... [--to 3|4] [--baseline-errors errors.json] [--markdown out.md] [--strip prefix]
+//   dart run tool/migration_corpus.dart <file|dir>... [--baseline-errors errors.json] [--markdown out.md] [--strip prefix]
 //
-// --to: the migration reported (default 4, the current schema): 3 reports
-// schema 2 → 3; 4 migrates each document to schema 3 first (unreported) and
-// reports schema 3 → 4. Either way the checks are of the document at the
-// current schema.
 // --baseline-errors: per document (`file#pointer`), the error codes and
 // counts the schema-2 validator reported (written by the same walk with the
 // previous release); a code whose count grows is a new error. --strip
@@ -17,6 +13,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
+import 'package:codelessly_api/src/core/migrate/steps_spellings.dart' show spellingMigrationSteps;
 import 'package:codelessly_api/validate.dart';
 
 void main(List<String> args) {
@@ -25,8 +22,7 @@ void main(List<String> args) {
     return i >= 0 && i + 1 < args.length ? args[i + 1] : null;
   }
 
-  final options = {'--baseline-errors', '--markdown', '--strip', '--to'};
-  final to = int.tryParse(option('--to') ?? '') ?? kSchemaVersion;
+  final options = {'--baseline-errors', '--markdown', '--strip'};
   final inputs = [
     for (var i = 0; i < args.length; i++)
       if (!args[i].startsWith('--') && (i == 0 || !options.contains(args[i - 1]))) args[i],
@@ -62,24 +58,24 @@ void main(List<String> args) {
         documents++;
         final key = '${f.path}#$at';
         report.document = '$name${at.isEmpty ? '' : '#$at'}';
-        final original = readMap(v)!;
-        Json doc, out;
+        final doc = readMap(v)!;
+        Json out;
         try {
-          // The migration reported starts from the schema before it.
-          doc = to == 3 ? original : migrate2to3(original);
-          final reported = to == 3 ? migrate2to3(doc, report: report) : migrate3to4(doc, report: report);
-          out = migrateDocument(reported);
+          out = migrate2to3(doc, report: report);
         } catch (e) {
           failures.add('$key: migrate threw $e');
           return;
         }
-        if (schemaOf(doc) < to) {
+        if (schemaOf(doc) < 3) {
           migrated++;
           bytesBefore += utf8.encode(jsonEncode(doc)).length;
-          bytesAfter += utf8.encode(jsonEncode(to == 3 ? migrate2to3(doc) : out)).length;
+          bytesAfter += utf8.encode(jsonEncode(out)).length;
         }
-        // Idempotent: again is the same.
-        if (!identical(migrateDocument(out), out)) failures.add('$key: a schema-$kSchemaVersion document changed when migrated again');
+        // Idempotent: again is the same, and 30.1.0's one-way steps change
+        // nothing in their own output.
+        if (!identical(migrate2to3(out), out)) failures.add('$key: a schema-3 document changed when migrated again');
+        final again = migrate2to3({...out, 'schema': 2}, steps: spellingMigrationSteps);
+        if (jsonEncode(again) != jsonEncode(out)) failures.add('$key: the one-way steps changed their own output');
         // A fixed point: encode → decode → encode.
         final e1 = LayoutDocument.fromJson(out, catalog: standardCatalog).toJson();
         final e2 = LayoutDocument.fromJson(e1, catalog: standardCatalog).toJson();
@@ -113,19 +109,19 @@ void main(List<String> args) {
 
     walk(json, '');
   }
-  stdout.writeln('$documents documents ($migrated schema ${to - 1}) in ${files.length} files; '
+  stdout.writeln('$documents documents ($migrated schema 2) in ${files.length} files; '
       '${report.rewrites.length} rewrites, ${report.unconvertible.length} unconvertible, ${report.behaviourChanges.length} behaviour changes');
   final growth = bytesBefore == 0 ? 0 : (bytesAfter - bytesBefore) * 100 / bytesBefore;
-  final bytes = 'encoded size of the schema-${to - 1} documents: $bytesBefore bytes before, $bytesAfter after '
+  final bytes = 'encoded size of the schema-2 documents: $bytesBefore bytes before, $bytesAfter after '
       '(${growth >= 0 ? '+' : ''}${growth.toStringAsFixed(2)}%)';
   stdout.writeln(bytes);
   stdout.writeln('failures: ${failures.length}${failures.isEmpty ? '' : '\n  ${failures.join('\n  ')}'}');
   stdout.writeln('new errors: ${newErrors.length}${newErrors.isEmpty ? '' : '\n  ${newErrors.join('\n  ')}'}');
   final markdown = option('--markdown');
   if (markdown != null) {
-    final body = migrationReportMarkdown(report, title: 'Schema ${to - 1} → $to: the migration over the corpus');
+    final body = migrationReportMarkdown(report, title: 'Schema 2 → 3: the migration over the corpus');
     File(markdown).writeAsStringSync('$body\n## Checks\n\n'
-        '- $documents documents in ${files.length} files ($migrated schema ${to - 1}) migrated without throwing.\n'
+        '- $documents documents in ${files.length} files ($migrated schema 2) migrated without throwing.\n'
         '- Migrating each result again changed nothing; migrate → encode → decode → encode was a fixed point for '
         '${failures.isEmpty ? 'every one' : 'all but ${failures.length}'}.\n'
         '- New validation errors against the schema-2 validator: ${newErrors.length}.\n'

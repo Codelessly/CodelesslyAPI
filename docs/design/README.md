@@ -32,7 +32,7 @@ them.
 
 | # | Document | What it decides |
 |---|---|---|
-| 1 | [CustomPaint as data](01-paint-node.md) | A `customPaint` draw list mirroring `Canvas`, with `repeat`, a view box, hit regions, and a path built from `Path` calls. Schema 4 moves `strokePath`, `subpathColors` and `gradientPerSubpath` onto it and a box's `path` onto the path node; `plotChart`'s Cartesian props stay as the chart's general features |
+| 1 | [CustomPaint as data](01-paint-node.md) | A `customPaint` draw list mirroring `Canvas`, with `repeat`, a view box, hit regions, and a path built from `Path` calls. 30.1.0 moves `strokePath`, `subpathColors` and `gradientPerSubpath` onto it and a box's `path` onto the path node; `plotChart`'s Cartesian props stay as the chart's general features |
 | 2 | [Animation](02-animation.md) | `animations` (an `AnimationController` with tween tracks on any binding path), one `animate` action, a `frame` trigger, one `Spring`. Loops, effects, entrances, spins, keyframes become presets. `clock` folds into `timer` |
 | 3 | [Motion](03-motion.md) | `Motion` from 50 fields to a 14-field transform plus a shared `PathFollow`; `transitions` per property; one way to scale and rotate |
 | 4 | [Drag and track](04-drag-and-track.md) | `drag` splits into `dismissible`, `track`, pan in `transformGesture`, and the list's `reorder`. 162 fields to 69. `controlDrag` becomes three typed actions. Transform handles become a component |
@@ -99,8 +99,8 @@ Ranked by how much later work depends on them.
    `layout.rotation` and the node-level `scale` fold into it (doc 03 §9).
    This reaches into the Figma-shaped envelope in one place.
    *Done:* `opacity` and `blur` in schema 3; `layout.rotation` and `scale` in
-   schema 4 (doc 03, "Done in schema 4"), with `flightKey`/`flight` folded
-   into `hero` (doc 04, "Done in schema 4").
+   30.1.0, still schema 3 (doc 03, "Done in 30.1.0"), with `flightKey`/`flight`
+   folded into `hero` (doc 04, "Done in 30.1.0").
 7. **The `drag` split**: pointer-follow merges into `transformGesture`; the
    track stays on the thumb node (doc 04 §10.1–2).
 8. **Flutter's defaults where the model invented its own**:
@@ -131,9 +131,8 @@ that read the old keys, so the reference apps keep running between phases.
 
 ## Compatibility, in one place
 
-*Superseded by schemas 3 and 4:* documents are `"schema": 4` (a schema-3 one is migrated by `migrate3to4`, after
-`migrate2to3` for schema 2: docs/guide/13-migrating-to-schema-4.md; what it does over the corpus, the fold and the paint
-steps together: docs/design/schema-4-migration-report.md). Schema 3 (codelessly_api 30.0.0): a schema-2 document is
+*Superseded by schema 3:* documents are `"schema": 3`. Schema 3 (codelessly_api 30.0.0; 30.1.0 added one-way steps
+that give each concept one spelling, docs/guide/12-migrating-to-schema-3.md, "30.1.0"): a schema-2 document is
 migrated once, in memory, by `migrate2to3`, and the legacy readers described below live in that migration,
 not in the decoders (docs/guide/12-migrating-to-schema-3.md, docs/design/schema-3-migration-report.md). The
 text below is the schema-2 plan as it was: documents kept `"schema": 2`; loaders rejected other numbers, so
@@ -189,7 +188,7 @@ targets in doc 01 need the benchmark named there.
   (`widgets/collections_models.dart:260-288`); `DropTarget`'s list-slot
   fields duplicate it too.
 * `layout.rotation` was a paint transform in the SDK
-  (`render/node_tree.dart:1003`), not layout: schema 4 made it `motion.rotate`.
+  (`render/node_tree.dart:1003`), not layout: 30.1.0 made it `motion.rotate`.
 * `hoverDelay`, `flyOutDistance`, `flyOutCurve`, `rotationSnap`,
   `scaleXVariable/Y`, `Motion.springStiffness/Damping` have no user in any
   reference build source.

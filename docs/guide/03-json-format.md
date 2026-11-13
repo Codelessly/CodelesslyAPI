@@ -10,10 +10,9 @@
 
 ### Versioned
 
-Every document carries `"schema": 4` (`kSchemaVersion`). A schema-2 or schema-3 document (or one with no
-`schema`, read as 2) is migrated once, in memory, when it is read (`LayoutDocument.migrateSchema`: `migrate2to3`,
-then `migrate3to4`), so stored data keeps working; the decoders know only the schema-4 shape. Chapters 12 and 13
-are the migration guides.
+Every document carries `"schema": 3` (`kSchemaVersion`). A schema-2 document (or one with no `schema`) is
+migrated once, in memory, when it is read (`LayoutDocument.migrateSchema`, `migrate2to3`), so stored data
+keeps working; the decoders know only the schema-3 shape. Chapter 12 is the migration guide.
 
 ### Total decoding
 
@@ -31,7 +30,7 @@ are the migration guides.
 
 ```dart
 final document = LayoutDocument.fromJson({
-  'schema': 4,
+  'schema': 3,
   'id': 'L',
   'roots': ['c', 'missing'],
   'nodes': {
@@ -77,7 +76,7 @@ to 4 decimals, and integral ones are written as integers.
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "id": "layout-id",
   "roots": ["canvas-a"],
   "nodes": {
@@ -123,7 +122,7 @@ A published project is a **publish model** and its **layouts**.
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "projectId": "p",
   "slug": "my-project",
   "entryLayoutId": "home",

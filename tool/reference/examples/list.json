@@ -1,5 +1,5 @@
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["faq"],
   "nodes": {
     "faq": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 600},

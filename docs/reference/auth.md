@@ -15,7 +15,7 @@ A sign-in form whose error appears in a text:
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["signIn"],
   "nodes": {
     "signIn": {

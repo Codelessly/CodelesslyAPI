@@ -1,6 +1,6 @@
-// Schema 3 → 4: the node's `scale` (Flutter's `Transform.scale`) and
+// 30.1.0: the node's `scale` (Flutter's `Transform.scale`) and
 // `layout.rotation` (`Transform.rotate`; the SDK painted it, it never
-// changed layout) fold into `motion`, the node's one `Transform`. Schema 3
+// changed layout) fold into `motion`, the node's one `Transform`. 30.0.0
 // drew them as two more layers inside the motion: the scale about the
 // node's center, then the rotation about its center moved by half its
 // margin's difference (left − right, top − bottom). Folded, the motion's
@@ -15,13 +15,13 @@ import '../json.dart';
 import 'legacy_read.dart';
 import 'migrate.dart';
 
-/// The binding paths schema 4 moved into `motion`, with the motion key each
+/// The binding paths 30.1.0 moved into `motion`, with the motion key each
 /// is folded into.
 const Map<String, String> foldedTransformPaths = {'scale': 'motion.scale', 'layout.rotation': 'motion.rotate'};
 
 /// What changes a node's transform after it is drawn (bindings, state and
 /// media patches, `setValue`, conditions), by node id: read from the
-/// schema-3 document once.
+/// 30.0.0 document once.
 final class _Changes {
   final Set<String> scale = {}, rotation = {}, motionScale = {}, motionRotate = {}, margin = {}, motionOther = {};
 
@@ -68,7 +68,7 @@ final class _Changes {
   }
 }
 
-final Expando<_Changes> _changesCache = Expando('schema 4 transform changes');
+final Expando<_Changes> _changesCache = Expando('30.1.0 transform changes');
 
 _Changes _changesOf(Json? document) {
   if (document == null) return _Changes();
@@ -107,7 +107,7 @@ _Changes _survey(Json document) {
   return out;
 }
 
-/// The node's static transform as schema 3 drew it, read from its JSON.
+/// The node's static transform as 30.0.0 drew it, read from its JSON.
 final class _Pose {
   _Pose(Json n) : motion = readMap(n['motion']) ?? const {} {
     final s = readDouble(n['scale']) ?? 1;
@@ -118,7 +118,7 @@ final class _Pose {
     final all = readDouble(m);
     final l = readList(m);
     double side(int i) => all ?? (l != null && l.length == 4 ? readDouble(l[i]) ?? 0 : 0);
-    // Where schema 3's rotation turned about, from the node's center.
+    // Where 30.0.0's rotation turned about, from the node's center.
     pivot = ((side(0) - side(2)) / 2, (side(1) - side(3)) / 2);
   }
 
@@ -146,10 +146,10 @@ final class _Pose {
 
 /// The node's `scale` and `layout.rotation` (and their bindings,
 /// transitions and animation tracks) → `motion.scale` (multiplied in) and
-/// `motion.rotate` (added), schema 3's rotation pivot (moved by half the
+/// `motion.rotate` (added), 30.0.0's rotation pivot (moved by half the
 /// margin's difference) kept as a translation. The state and media patches
-/// that set them are rewritten by `patches.schema4`, actions and conditions
-/// by `paths.schema4`.
+/// that set them are rewritten by `patches.moved`, actions and conditions
+/// by `paths.moved`.
 final transformFoldStep = MigrationStep(
   id: 'transform.fold',
   description: 'node scale and layout.rotation → motion.scale (multiplied) and motion.rotate (added)',
@@ -183,7 +183,7 @@ void foldTransform(Json n, String id, MigrationScope s) {
   final motionRotateMoves = bind.containsKey('motion.rotate') || bind.containsKey('motion') || changes.motionRotate.contains(id);
   final folds = hasScale || hasRotation || scaleBound || rotationBound;
 
-  // What sits between schema 3's motion and its scale and rotation layers,
+  // What sits between 30.0.0's motion and its scale and rotation layers,
   // or makes the two pivots differ: reported, folded all the same.
   if (folds || scaleMoves || rotationMoves) {
     final what = [
@@ -195,7 +195,7 @@ void foldTransform(Json n, String id, MigrationScope s) {
     ];
     if (what.isNotEmpty) {
       s.behaviourChange(
-          'Schema 3 drew the node\'s scale and rotation inside ${what.join(', ')}; schema 4 draws them in the motion, '
+          '30.0.0 drew the node\'s scale and rotation inside ${what.join(', ')}; 30.1.0 draws them in the motion, '
           'outside it, about the motion\'s alignment: the picture differs while either is not at rest.',
           path: '/motion',
           instead: 'Check the node; a separate wrapping node can carry the turn or the scale inside the effect.');
@@ -212,18 +212,18 @@ void foldTransform(Json n, String id, MigrationScope s) {
     motion['rotate'] = writeRatio(pose.motionRotate + pose.rotation);
     if (motion['rotate'] == 0) motion.remove('rotate');
   }
-  // Schema 3 turned the rotation about the node's center moved by half the
+  // 30.0.0 turned the rotation about the node's center moved by half the
   // margin's difference: the same turn about the center, then the offset
   // e = d − R·d, carried through the motion's own scale and rotation. A
   // state or media patch that changes the rotation or the margin gets its
-  // own offset (patches.schema4 runs this on the patched node).
+  // own offset (patches.moved runs this on the patched node).
   final rotationAtRunTime = rotationBound || changes.rotationAtRunTime.contains(id);
   final marginAtRunTime = bind.containsKey('layout.margin') || changes.marginAtRunTime.contains(id);
   if ((pose.rotation != 0 || rotationAtRunTime) && pose.offCenterPivot) {
     if (rotationAtRunTime || marginAtRunTime) {
       s.behaviourChange(
-          'The rotation or the margin is bound or set while the app runs, and the margin is uneven: schema 3 turned the node '
-          'about its center moved by half the margin\'s difference, schema 4 about its center.',
+          'The rotation or the margin is bound or set while the app runs, and the margin is uneven: 30.0.0 turned the node '
+          'about its center moved by half the margin\'s difference, 30.1.0 about its center.',
           path: '/layout/rotation',
           instead: 'Bind "motion.translateX"/"motion.translateY" to the offset, or even out the margin.');
     } else if (changes.motionAtRunTime.contains(id) || bind.keys.any((k) => k == 'motion' || k.startsWith('motion.')) ||
@@ -338,11 +338,11 @@ void foldTransform(Json n, String id, MigrationScope s) {
     if (!moves) return;
     final eased = Transition.of(Transition.listFromJson(list), to);
     if (eased == null) return;
-    // It snapped in schema 3 while the motion eased: a transition of its
+    // It snapped in 30.0.0 while the motion eased: a transition of its
     // own that takes no time keeps it so.
     if (motionMoves) {
       s.behaviourChange('"$from" changes with no transition of its own and the motion\'s "${eased.property}" transition '
-          'eases "$to": they are one value in schema 4, eased together.', path: '/transitions');
+          'eases "$to": they are one value in 30.1.0, eased together.', path: '/transitions');
       return;
     }
     final key = to.substring('motion.'.length);
@@ -462,7 +462,7 @@ void _foldTracks(Json n, String id, _Pose own, MigrationScope s) {
       if (hits.isNotEmpty) {
         s.behaviourChange(
             'The "${a['preset']}" animation replaces ${hits.map((t) => '"${t.path}"').toSet().join(' and ')} with values of its own; '
-            'schema 3 drew the node\'s own ${own.scale != 1 ? 'scale' : 'rotation'} on top of them, schema 4 does not.',
+            '30.0.0 drew the node\'s own ${own.scale != 1 ? 'scale' : 'rotation'} on top of them, 30.1.0 does not.',
             path: '/animations/$ai',
             instead: 'Give the preset\'s params times (plus) the node\'s own, or write its tracks.');
       }
@@ -511,8 +511,8 @@ void _foldTracks(Json n, String id, _Pose own, MigrationScope s) {
           }
         }
         if (moved == 'motion.rotate' && target.offCenterPivot) {
-          s.behaviourChange('A track turns a node whose margin is uneven: schema 3 turned it about its center moved by half '
-              'the margin\'s difference, schema 4 about its center.', path: '/animations/$ai/tracks/$ti');
+          s.behaviourChange('A track turns a node whose margin is uneven: 30.0.0 turned it about its center moved by half '
+              'the margin\'s difference, 30.1.0 about its center.', path: '/animations/$ai/tracks/$ti');
         }
         if (!jsonEquality.equals(m, t)) {
           s.rewrite('/animations/$ai/tracks/$ti', t, m);

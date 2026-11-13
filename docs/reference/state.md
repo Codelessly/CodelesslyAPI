@@ -16,7 +16,7 @@ A counter: a variable, two buttons that change it, and a text and a colour bound
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["counter"],
   "nodes": {
     "counter": {
@@ -618,7 +618,7 @@ over the node's binding. A binding with a formula is often simpler; conditions s
 
 ```json
 {
-  "schema": 4,
+  "schema": 3,
   "roots": ["plans"],
   "nodes": {
     "plans": {

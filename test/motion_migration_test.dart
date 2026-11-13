@@ -131,7 +131,7 @@ void main() {
     test('the legacy transitions object and a property map read as the list', () {
       expect(legacyTransitions({'style': {'duration': 120}, 'size': {'duration': 300, 'curve': 'easeInOut'}}), [
         const Transition(property: 'opacity', duration: 120),
-        // Schema 3's node scale is schema 4's motion.scale.
+        // 30.0.0's node scale is motion.scale since 30.1.0.
         const Transition(property: 'motion.scale', duration: 120),
         const Transition(property: 'decoration.fills', duration: 120),
         const Transition(property: 'visible', duration: 120),

@@ -426,27 +426,28 @@ disagreed, Flutter won. Every `Canvas` and `Paint` name below was checked agains
     node's pointer triggers only when the node has a `customPaint`. A paragraph's region is its laid-out box,
     an image's its `dst`.
 12. **Not migrated in this wave:** `strokePath`, `box.path`, `subpathColors`, `gradientPerSubpath` and
-    `plotChart`'s props are unchanged; their decoders still read and write them as before. Schema 4 moves the
-    first four (below, "Schema 4"); the chart's props stay.
+    `plotChart`'s props are unchanged; their decoders still read and write them as before. 30.1.0 moves the
+    first four (below, "30.1.0"); the chart's props stay.
 
 ## Done in schema 3
 
 `gradientUnits: "subpath"` is migrated to `gradientPerSubpath: true` (`paint.gradientUnits`).
 
-## Schema 4: the four special-purpose paint features
+## 30.1.0: the four special-purpose paint features
 
 Decided 2026-11-13 under the audit's rule (a construct Flutter has takes its name; any special case is made
-generic or removed). The steps are `paintSteps4` in `lib/src/core/migrate/steps_paint4.dart`, for `migrate3to4`;
-each was applied to the corpus of the schema-3 report (113 documents: the reference apps' exports, the m05
+generic or removed). The steps are `paintSteps` in `lib/src/core/migrate/steps_paint.dart`, among the one-way
+steps that end `migrate2to3`; each was applied to the corpus of the schema-3 report (113 documents: the reference apps' exports, the m05
 experiments, the SDK's fixtures, benchmarks and examples) and every affected node rendered before and after, at its
-design size and at 1.37 × 1.21 of it, plus each document's roots at 390 × 844 and 1440 × 900. `migrate3to4` runs
-them after its other node steps (`nodeSteps3to4`), and with schema 4 the gate the schema-3 fields are gone from the
-model (`StrokePath`, `BoxProps.path`/`strokeJoin`/`strokeMiterLimit`, `PathProps.subpathColors`,
-`Paint.gradientPerSubpath`) and from the SDK's painters: the steps read them as plain JSON. In a schema-4 document
-validation reports each with its schema-4 form; a value a step keeps is a `legacy_value` warning, never drawn
-(docs/design/schema-4-migration-report.md). Over that report's corpus (106 documents) the steps rewrite 140 stroke
+design size and at 1.37 × 1.21 of it, plus each document's roots at 390 × 844 and 1440 × 900. `migrate2to3` runs
+them after its other steps (`spellingSteps`), so they rewrite schema-2 documents; the schema stays 3, and a
+document marked schema 3 is read as it is. The 30.0.0 fields are gone from the model (`StrokePath`,
+`BoxProps.path`/`strokeJoin`/`strokeMiterLimit`, `PathProps.subpathColors`, `Paint.gradientPerSubpath`) and from the
+SDK's painters: the steps read them as plain JSON. In a schema-3 document validation reports each as an error with
+the form to write; a value a step keeps is a `legacy_value` warning, never drawn
+(docs/design/schema-3-migration-report.md). Over that report's corpus (106 documents) the steps rewrite 140 stroke
 paths, 133 box path values and 45 per-shape color sets; the SDK's test/custom_paint/migrated_paint_test.dart pins
-what the migrated nodes draw as goldens, taken while the schema-3 painters still agreed.
+what the migrated nodes draw as goldens, taken while the 30.0.0 painters still agreed.
 
 | Feature | What it did | Uses (corpus documents; build sources by grep) | Decision |
 |---|---|---|---|

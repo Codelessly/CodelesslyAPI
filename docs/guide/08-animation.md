@@ -187,7 +187,7 @@ the new one; the encoders write only the new one:
 ```
 
 A motion's timing, entrance, loop, spin and shimmer read as transitions and animations (below); not yet
-moved: `strokePath`'s drawing (schema 4 keeps it as `legacy.strokePath.draw`: an animation on a variable
+moved: `strokePath`'s drawing (the migration keeps it as `legacy.strokePath.draw`: an animation on a variable
 bound into the path op's `trimEnd` does it), `typewriter` and text `countUp` (see
 [docs/design/02-animation.md](../design/02-animation.md), "Not yet migrated").
 
