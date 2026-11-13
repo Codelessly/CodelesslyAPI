@@ -16,11 +16,11 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 
 | File | What it is | Words | ≈ tokens |
 |---|---|---|---|
-| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 5585 | 11574 |
-| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 5694 | 10975 |
+| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 5639 | 11668 |
+| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 5748 | 11069 |
 | [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4326 | 13378 |
 | [layout.md](layout.md) | Feature page. | 6920 | 12494 |
-| [theme.md](theme.md) | Feature page. | 1979 | 3403 |
+| [theme.md](theme.md) | Feature page. | 2092 | 3597 |
 | [decoration.md](decoration.md) | Feature page. | 3541 | 6135 |
 | [forms.md](forms.md) | Feature page. | 10159 | 17098 |
 | [lists.md](lists.md) | Feature page. | 6101 | 10080 |
@@ -39,9 +39,9 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [edit-ops.md](edit-ops.md) | Feature page. | 3297 | 5460 |
 | [render.md](render.md) | Feature page. | 2340 | 3590 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13107 | 20561 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 92417 | 158601 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 92584 | 158889 |
 | [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 71386 | 189262 |
-| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 8861 | 25418 |
+| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 8939 | 25585 |
 | [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 24570 | 102886 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1259 | 3789 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |

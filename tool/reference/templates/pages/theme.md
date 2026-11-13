@@ -45,6 +45,15 @@ The theme (`site.json`'s `theme`, or the app's theme at run time):
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`; inside
   a formula, `${= done ? theme.colors.sage : theme.colors.mist}`.
 
+### What controls take from the theme
+
+A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons
+(labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface`
+(else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius`
+shapes every kind of button and chip, `radius` dialogs, menus and pickers. Without a theme, controls are neutral:
+ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font of
+their own. Nothing comes from Material's defaults (no purple, ripples or elevation) or from the host app's theme.
+
 ### A type scale that changes with the screen size
 
 The theme's `media` rules patch the theme as a node's rules patch a node: `{"minWidth": 1024, "patch":
