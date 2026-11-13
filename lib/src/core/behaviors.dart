@@ -1846,6 +1846,11 @@ enum PathCurve {
   quadratic,
 }
 
+/// **Schema 3 only.** Schema 4 draws it as a `customPaint` path op
+/// (`paint.strokePath` in migrate/steps_paint4.dart), which is what renders
+/// a migrated document; this stays readable until schema 4's version gate
+/// removes it.
+///
 /// A line drawn through [points] in the node's box (a dotted trail, a
 /// connector), behind its content or [inFront] of it. x and y are fractions
 /// of the box or pixels, per [xUnit]/[yUnit].
