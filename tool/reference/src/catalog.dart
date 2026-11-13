@@ -124,6 +124,14 @@ final class Catalog {
           {'key': 'bind', 'type': 'Map<String, String>', 'doc': docs.fieldDocs['Node']?['bind'] ?? ''},
           {'key': 'actions', 'type': 'List<Reaction>', 'doc': 'Reactions: `{"trigger": {...}, "actions": [...]}` (see triggers, actions).'},
           {'key': 'component', 'type': 'ComponentLink', 'doc': docs.fieldDocs['Node']?['component'] ?? ''},
+          {
+            'key': 'responsive',
+            'type': 'List<ResponsivePatch>',
+            'doc': 'The node\'s own fields per breakpoint: `[{"smallerThan": "tablet", "patch": {"props": {"direction": "vertical"}}}]`. '
+                'Each entry has one condition (`equals`, `largerThan`, `smallerThan` a breakpoint name, or `between` two) and a `patch` '
+                '(`props`, `layout`, `decoration`, `visible`, `opacity`, `children` reordered), merged over the node while the condition '
+                'holds, in order (see the guide, Responsive design).',
+          },
         ],
         'fields': node,
       },

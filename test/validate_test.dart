@@ -58,7 +58,7 @@ void main() {
 
   test('every code has a test below', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 50);
+    expect(Codes.all.length, 52); // invalid_responsive, responsive_overridden: test/responsive_test.dart
   });
 
   group('document', () {

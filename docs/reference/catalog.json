@@ -99,6 +99,11 @@
         "key": "component",
         "type": "ComponentLink",
         "doc": "The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2)."
+      },
+      {
+        "key": "responsive",
+        "type": "List<ResponsivePatch>",
+        "doc": "The node's own fields per breakpoint: `[{\"smallerThan\": \"tablet\", \"patch\": {\"props\": {\"direction\": \"vertical\"}}}]`. Each entry has one condition (`equals`, `largerThan`, `smallerThan` a breakpoint name, or `between` two) and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`, `children` reordered), merged over the node while the condition holds, in order (see the guide, Responsive design)."
       }
     ],
     "fields": [
@@ -520,6 +525,176 @@
         "align"
       ],
       "props": [
+        {
+          "key": "mainAxisAlignment",
+          "type": "MainAxisAlignment",
+          "kind": "enumeration",
+          "default": "start",
+          "nullable": false,
+          "enum": "MainAxisAlignment",
+          "values": [
+            "start",
+            "end",
+            "center",
+            "spaceBetween",
+            "spaceAround",
+            "spaceEvenly"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "crossAxisAlignment",
+          "type": "CrossAxisAlignment",
+          "kind": "enumeration",
+          "default": "center",
+          "nullable": false,
+          "enum": "CrossAxisAlignment",
+          "values": [
+            "start",
+            "end",
+            "center",
+            "stretch",
+            "baseline"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "spacing",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Space between children along the main axis."
+        },
+        {
+          "key": "wrap",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Wraps children onto new runs when they overflow (`Wrap`)."
+        },
+        {
+          "key": "runSpacing",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Space between runs when wrapping."
+        },
+        {
+          "key": "squeezeChildren",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Children that overflow a bounded main axis shrink to fit it (by how far each can, never below its content), as the editor lays them out; false lays them out at their own sizes and lets them run past the end, as Flutter's `Row`/`Column` does."
+        },
+        {
+          "key": "scrollable",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Scrolls its content."
+        },
+        {
+          "key": "scrollDirection",
+          "type": "Axis",
+          "kind": "enumeration",
+          "default": "vertical",
+          "nullable": false,
+          "enum": "Axis",
+          "values": [
+            "horizontal",
+            "vertical"
+          ],
+          "doc": "The axis it scrolls along."
+        },
+        {
+          "key": "reverse",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "physics",
+          "type": "ScrollPhysicsType",
+          "kind": "enumeration",
+          "default": "platform",
+          "nullable": false,
+          "enum": "ScrollPhysicsType",
+          "values": [
+            "platform",
+            "bouncing",
+            "clamping",
+            "never",
+            "rangeMaintaining"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "alwaysScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Scrolls even when the content fits."
+        },
+        {
+          "key": "clipBehavior",
+          "type": "Clip",
+          "kind": "enumeration",
+          "default": "hardEdge",
+          "nullable": false,
+          "enum": "Clip",
+          "values": [
+            "none",
+            "hardEdge",
+            "antiAlias",
+            "antiAliasWithSaveLayer"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "fillViewport",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case."
+        }
+      ]
+    },
+    "flex": {
+      "doc": "Flutter `Flex`.\n\n`Row` and `Column`: the same props, different main axis.",
+      "flutter": "Flex",
+      "children": "list",
+      "slots": [],
+      "decorated": true,
+      "childFields": [
+        "flex",
+        "squeezable",
+        "align"
+      ],
+      "props": [
+        {
+          "key": "direction",
+          "type": "Axis",
+          "kind": "enumeration",
+          "default": "horizontal",
+          "nullable": false,
+          "enum": "Axis",
+          "values": [
+            "horizontal",
+            "vertical"
+          ],
+          "doc": "The main axis (Flutter `Flex.direction`): `horizontal` lays the children out as a row, `vertical` as a column. Bindable and patchable per breakpoint (`responsive`), so a row becomes a column without copying its children."
+        },
         {
           "key": "mainAxisAlignment",
           "type": "MainAxisAlignment",
@@ -25759,7 +25934,17 @@
     {
       "code": "unknown_breakpoint",
       "severity": "error",
-      "meaning": "A canvas or variant names a breakpoint id the project does not define."
+      "meaning": "A canvas, variant or responsive patch names a breakpoint the project does not define."
+    },
+    {
+      "code": "invalid_responsive",
+      "severity": "error",
+      "meaning": "A \"responsive\" entry of the wrong shape: not exactly one condition (equals, largerThan, smallerThan, between), a patch key that cannot vary, or \"children\" that are not the node's own children reordered."
+    },
+    {
+      "code": "responsive_overridden",
+      "severity": "warning",
+      "meaning": "A responsive patch sets a field the node also binds: the binding wins, so the patch never shows."
     },
     {
       "code": "duplicate_breakpoint_canvas",

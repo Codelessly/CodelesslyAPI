@@ -162,6 +162,32 @@ final class SchemaBuilder {
       'bind': {'type': 'object', 'additionalProperties': {'type': 'string'}},
       'actions': {'type': 'array', 'items': {r'$ref': '#/\$defs/reaction'}},
       'component': {'type': 'object'},
+      'responsive': {
+        'type': 'array',
+        'items': {
+          'type': 'object',
+          'properties': {
+            'equals': {'type': 'string'},
+            'largerThan': {'type': 'string'},
+            'smallerThan': {'type': 'string'},
+            'between': {'type': 'array', 'items': {'type': 'string'}, 'minItems': 2, 'maxItems': 2},
+            'patch': {
+              'type': 'object',
+              'properties': {
+                'props': {'type': 'object'},
+                'layout': {'type': 'object'},
+                'decoration': {'type': 'object'},
+                'visible': {'type': 'boolean'},
+                'opacity': {'type': 'number'},
+                'children': {'type': 'array', 'items': {'type': 'string'}},
+              },
+              'additionalProperties': false,
+            },
+          },
+          'required': ['patch'],
+          'additionalProperties': false,
+        },
+      },
       for (final f in NodeFields.all) f.key: _field(f),
       for (final f in BehaviorFields.all) f.key: _field(f),
     };
