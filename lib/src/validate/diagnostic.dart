@@ -186,10 +186,6 @@ abstract final class Codes {
       'A component root binds its size or placement: the call sizes and places the root, so the binding is dropped.');
   static const repeatedSubtree = DiagnosticCode('repeated_subtree', Severity.info,
       'A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once.');
-  static const deprecatedKey = DiagnosticCode('deprecated_key', Severity.info,
-      'A schema-3 paint field schema 4 replaces: `strokePath` (a customPaint path op), a box\'s `path` (a path node), '
-      '`subpathColors` and `gradientPerSubpath` (customPaint path ops per color or per shape). It still draws; the schema-4 '
-      'migration rewrites it the same way.');
 
   /// Every code, in the order above.
   static const List<DiagnosticCode> all = [
@@ -205,7 +201,6 @@ abstract final class Codes {
     screenWithoutBreakpoint, duplicateId,
     unknownComponent, duplicateComponent, componentCycle, componentIdMismatch, invalidComponent, missingProp, unknownEvent,
     callFieldNotAllowed, slotOutsideComponent, rootPlacementBound, repeatedSubtree,
-    deprecatedKey,
   ];
 }
 

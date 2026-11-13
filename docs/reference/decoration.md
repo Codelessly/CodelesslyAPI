@@ -122,7 +122,6 @@ An SVG path, filled and stroked with the node's decoration (Flutter `CustomPaint
 | `trimEnd` | double | `1` | ≥ 0, ≤ 1 |  |
 | `strokeJoin` | [StrokeJoin](values.md#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How segments meet when stroked (`Paint.strokeJoin`). |
 | `strokeMiterLimit` | double | `4` | ≥ 0 | The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`). |
-| `subpathColors` | List<[Color](values.md#type-Color)> | `[]` |  | **Schema 3 only**: schema 4 draws the shapes as `customPaint` path ops, one per color (`paint.perShape` in migrate/steps_paint4.dart).<br><br>Colors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color. |
 
 <a id="behavior-customPaint"></a>
 ### `customPaint` (behavior)
@@ -146,39 +145,6 @@ Flutter's `CustomPaint` on a node: `painter` drawn behind the node's content (it
 | `fit` | [BoxFit](values.md#enum-BoxFit) | `"fill"` | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | How the view box maps onto the box. |
 | `isComplex` | bool | `false` |  | Raster cache hint: the drawing is costly. |
 | `willChange` | bool | `false` |  | Raster cache hint: the drawing changes often. |
-
-<a id="behavior-strokePath"></a>
-### `strokePath` (behavior)
-
-A node key (beside `layout` and `props`). Type: [StrokePath](decoration.md#type-StrokePath). Default: unset.
-
-<a id="type-StrokePath"></a>
-#### StrokePath
-
-**Schema 3 only.** Schema 4 draws it as a `customPaint` path op (`paint.strokePath` in migrate/steps_paint4.dart), which is what renders a migrated document; this stays readable until schema 4's version gate removes it.
-
-A line drawn through `points` in the node's box (a dotted trail, a connector), behind its content or `inFront` of it. x and y are fractions of the box or pixels, per `xUnit`/`yUnit`.
-
-With `drawMs` a running app draws the line along its length, like a pen (a map's passages inking in, a route tracing itself): over `drawMs` ms after `drawDelayMs`, eased by `drawCurve`, up to `progress`; when the node first shows, again from nothing when `drawKey` changes, and from where it is when `progress` changes. The design canvas draws it at `progress`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `points` | List<[Offset](values.md#type-Offset)> | `[]` |  | In the box: fractions or pixels per `xUnit` / `yUnit`. |
-| `xUnit` | [PathUnit](values.md#enum-PathUnit) | `"fraction"` | `fraction`, `pixels` |  |
-| `yUnit` | [PathUnit](values.md#enum-PathUnit) | `"pixels"` | `fraction`, `pixels` |  |
-| `curve` | [PathCurve](values.md#enum-PathCurve) | `"straight"` | `straight`, `vertical`, `horizontal`, `quadratic` | The shape the points enclose (the path closed), filled behind the line: a hand-drawn box with its own wobble. It fades in as the line draws (its alpha times `progress`). Null: no fill. |
-| `color` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `width` | double | `4` |  |  |
-| `progress` | double | `1` | ≥ 0, ≤ 1 | Fraction of the stroke drawn along its length. |
-| `dashPattern` | List<double> | `[]` |  | Dash and gap lengths, alternating; empty is solid. |
-| `cap` | [StrokeCap](values.md#enum-StrokeCap) | `"round"` | `butt`, `round`, `square` |  |
-| `inFront` | bool | `false` |  |  |
-| `drawMs` | int | `0` | ≥ 0 | Draw-on time (ms) in a running app; 0 shows it at once. |
-| `drawDelayMs` | int | `0` | ≥ 0 | Wait (ms) before drawing. |
-| `drawCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeInOut"` |  | How the drawing eases. |
-| `drawKey` | String | `""` |  | Draws again from nothing when it changes. |
-| `fillColor` | [Color](values.md#type-Color) | unset |  | Fills the shape the points enclose, behind the line (fading in as it draws). |
-| `untilWidth` | bool | `false` |  | Draws only the segments that start within the box width (a long ruled line fits any width). |
 
 <a id="decoration-triggers"></a>
 ### Triggers
@@ -211,7 +177,6 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `center` | [Alignment](values.md#type-Alignment) | unset |  | Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center. |
 | `tileMode` | [TileMode](values.md#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` | What a gradient does past `begin` and `end`: `clamp` (keeps the end colours), `repeated`, `mirror`, `decal`. |
 | `image` | [ImagePaint](decoration.md#type-ImagePaint) | unset |  | Image (type `image`). |
-| `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. Schema 3 only (`Paint.gradientPerSubpath`). |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
 | `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
 | `noise` | [NoisePaint](decoration.md#type-NoisePaint) | unset |  | Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, "type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` (`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box. |
@@ -408,8 +373,7 @@ drawing beyond one path (several shapes, a line through points, shapes in differ
 `customPaint` behavior's draw lists, behind or over the node's content. A line through points is a `path` op with
 `points` (a formula of `${size.width}` for a share of the box), or with `commands` (Flutter's `Path` calls:
 `moveTo`, `lineTo`, `quadraticBezierTo`, `cubicTo`, `close`) for curves; shapes in different colors are one `path`
-op per color. `strokePath`, a box's `props.path` and a path's `subpathColors` are schema 3's spellings of these
-(`deprecated_key`): schema 4 rewrites them so.
+op per color.
 
 <a id="decoration-pitfalls"></a>
 ## Pitfalls
@@ -417,9 +381,7 @@ op per color. `strokePath`, a box's `props.path` and a path's `subpathColors` ar
 - An effect needs its `type`; without it the effect is dropped.
 - Colours are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
 - A `path` node without a `viewBox` is drawn in its box's own pixels from the top left and is not clipped to the
-  box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`). Write a
-  shape as a `path` node, not as a box's `props.path` (schema 3's spelling, which also filled only the part inside the
-  box).
+  box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
 - Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
 - `clip` is needed for children to follow rounded corners.
 - A child's fill covers its parent's inside border: pad the parent, stroke outside, or move the border to the child.

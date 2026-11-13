@@ -111,6 +111,13 @@ void main() {
       expect(((_painter(f).single as Map)['commands'] as List).length, 3);
     });
 
+    test('points read as pairs or as x and y; one that is neither is skipped', () {
+      final (n, _) = _node(_box({
+        'strokePath': {'points': [[0, 1], {'x': 2, 'y': 3}, {'x': 'bad'}], 'xUnit': 'pixels'},
+      }));
+      expect((_painter(n).single as Map)['points'], [[0, 1], [2, 3]]);
+    });
+
     test('fillColor is a closed path op under the line; its fade is written into the color', () {
       final (n, _) = _node(_box({
         'strokePath': {'points': [[0, 0], [10, 0], [10, 10]], 'xUnit': 'pixels', 'fillColor': '#FF00FF00', 'progress': 0.5},
@@ -239,6 +246,20 @@ void main() {
       ]);
     });
 
+    test('colors read from text too, and an entry that is not a color keeps its place with the fill\'s color', () {
+      final (n, _) = _node({
+        'type': 'path',
+        'layout': {'width': 100, 'height': 50},
+        'props': {'data': 'M0 0 H10 V10 Z M20 0 H30 V10 Z M40 0 H50 V10 Z', 'subpathColors': '#FFAA0000, x; #FF00AA00'},
+        'decoration': {'fills': [{'color': '#FF0000AA'}]},
+      });
+      expect(_painter(n), [
+        {'op': 'path', 'd': 'M0 0 H10 V10 Z', 'paint': '#FFAA0000'},
+        {'op': 'path', 'd': 'M20 0 H30 V10 Z', 'paint': '#FF0000AA'},
+        {'op': 'path', 'd': 'M40 0 H50 V10 Z', 'paint': '#FF00AA00'},
+      ]);
+    });
+
     test('the path\'s view box becomes the custom paint\'s; strokes stay on the node', () {
       final (n, _) = _node({
         'type': 'path',
@@ -321,7 +342,7 @@ void main() {
       final e1 = LayoutDocument.fromJson(doc).toJson();
       expect(jsonEncode(LayoutDocument.fromJson(e1).toJson()), jsonEncode(e1));
       for (final n in LayoutDocument.fromJson(doc).nodes.values) {
-        expect(n.behaviors.strokePath, isNull);
+        expect(n.extra, isEmpty);
       }
     });
   });

@@ -4,7 +4,6 @@
 // ../props.dart).
 import '../json.dart';
 import '../props.dart';
-import '../values/color.dart';
 import '../values/enums.dart';
 
 /// A size `[width, height]`, or null.
@@ -19,20 +18,6 @@ Object? _sizeOut(List<double>? s) => s?.map(writeDouble).toList();
 /// `[width, height]` (a view box, a maximum size).
 const _size = ValueCodec<List<double>?>(_sizeIn, _sizeOut, PropType.value('Size'));
 const _strings = Codecs.strings;
-
-/// Colors one per entry, an entry that isn't a color kept as null (so the
-/// others keep their index): a list, or text separated by commas, spaces or
-/// semicolons (as a binding may give).
-List<Color?>? _colorsIn(Object? j) {
-  final items = switch (j) {
-    final List l => l,
-    final String s => s.split(RegExp(r'[\s,;]+')).where((e) => e.isNotEmpty).toList(),
-    _ => null,
-  };
-  return items?.map((e) => Color.fromHex(e is String ? e.trim() : e)).toList();
-}
-
-Object? _colorsOut(List<Color?> v) => [for (final c in v) c?.toJson()];
 
 /// An SVG path, filled and stroked with the node's decoration
 /// (Flutter `CustomPaint`).
@@ -59,21 +44,8 @@ abstract final class PathProps {
   /// The miter limit of [StrokeJoin.miter] corners (`Paint.strokeMiterLimit`).
   static const strokeMiterLimit = PropDef<double>('strokeMiterLimit', Codecs.positive, 4);
 
-  /// **Schema 3 only**: schema 4 draws the shapes as `customPaint` path ops,
-  /// one per color (`paint.perShape` in migrate/steps_paint4.dart).
-  ///
-  /// Colors of the path's shapes, one per closed subpath (`M ... Z`) in
-  /// drawing order, repeating when shorter; a subpath inside the previous
-  /// shape's bounds (a hole) belongs to it. They replace the solid fills'
-  /// color (keeping each fill's opacity); null keeps the fill's color.
-  static const subpathColors = PropDef<List<Color?>>(
-    'subpathColors',
-    ValueCodec(_colorsIn, _colorsOut, PropType.list(PropTypes.color)),
-    [],
-  );
-
   static const spec = WidgetSpec('path',
-      props: [data, viewBox, scaleStroke, trimStart, trimEnd, strokeJoin, strokeMiterLimit, subpathColors],
+      props: [data, viewBox, scaleStroke, trimStart, trimEnd, strokeJoin, strokeMiterLimit],
       decorated: true,
       doc: 'Flutter `CustomPaint` of an SVG path.');
 }

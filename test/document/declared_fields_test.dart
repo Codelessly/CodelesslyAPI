@@ -259,7 +259,7 @@ void main() {
       containsAll([
         'Motion', 'PathFollow', 'Pose', 'NodeAnimation', 'AnimationTrack', 'Keyframe', 'Wave', 'AnimationRepeat', //
         'Spring', 'Transition', 'InkWellStyle', 'StateStyles',
-        'HeroTag', 'DragSource', 'DropTarget', 'Track', 'DismissibleBehavior', 'Pan', 'Reveal', 'StrokePath',
+        'HeroTag', 'DragSource', 'DropTarget', 'Track', 'DismissibleBehavior', 'Pan', 'Reveal',
         'ParticleEmitter', 'Shimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
         'Tilt', 'TransformGesture', 'TransformHandles',
         'RouteTransition', 'TransitionSide', 'TransitionReveal', 'RouteDismiss', 'CustomPaint',

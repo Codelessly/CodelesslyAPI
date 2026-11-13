@@ -160,7 +160,6 @@ From `package:codelessly_api/validate.dart`:
 | `slot_outside_component` | warning | A slot node in a document that is not a component: nothing fills it, its own children show. |
 | `root_placement_bound` | warning | A component root binds its size or placement: the call sizes and places the root, so the binding is dropped. |
 | `repeated_subtree` | info | A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once. |
-| `deprecated_key` | info | A schema-3 paint field schema 4 replaces: `strokePath` (a customPaint path op), a box's `path` (a path node), `subpathColors` and `gradientPerSubpath` (customPaint path ops per color or per shape). It still draws; the schema-4 migration rewrites it the same way. |
 
 <a id="render-render-codes"></a>
 ### Render codes
