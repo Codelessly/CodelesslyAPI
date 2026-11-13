@@ -1,5 +1,26 @@
 ## Unreleased
 
+**Authoring fixes from the second direct-authoring experiment (cycle 2)**
+
+- Media and state patches merge by the declarations: a union-typed value written in another form replaces the old
+  one (`mergeNodePatch`, `unionForm`, `isUnionType`; `Node.patched`, `mediaPatchAt(props:)`,
+  `StateStyles.patchFor(props:)`), so `{"width": {"hug": 200}}` over `{"fill": 292}` is a hug size, not an object
+  with two modes; sizes, positions (edges / align / relative), icons and the models a `type` discriminates (paints,
+  effects, shape and input borders). Validation accepts `null` in a patch (it removes the key) as documented.
+  **Behaviour change (bug fix):** a patch that wrote another form of such a value produced an invalid value before.
+- `fit_not_allowed` (and `layout.basis` ignored) are judged at each range of screen widths the node's and its
+  parent's media rules cut (`mediaWidthRanges`, `mediaRuleSetting`), with the rules that hold there, at the value in
+  effect; a finding names the widths it holds at. No more warnings for a child patch checked against the parent's
+  unpatched props.
+- Grid cells: in a `gridView` with `shrinkWrapRows` a hugging or filling item is honoured along the rows (the
+  renderer stretches it to the row); a masonry grid's fill is reported. New warning `prop_ignored`:
+  `mainAxisExtent` under `shrinkWrapRows` (which wins, as documented).
+- `Paint.length` (a gradient's length in pixels: CSS `repeating-linear-gradient(..., 80px)`), `PaintType.noise`
+  with `NoisePaint` / `NoiseType` (SVG `feTurbulence` as a paint), `StrokeSides.none`.
+- An input icon's `actions` validate as a list of reactions (both forms tried were rejected as "got an object").
+- Docs: `scrollTo.node` takes an expression; `IconProps.icon` documents the name form; the guide's sections
+  3, 4, 7, 10, 12, 13, 14, 16 and 17 (see the guide commit).
+
 **Sections and components by reference (docs/design/06, phase 1)**
 
 - A component is a document: one non-canvas root plus a `widget` declaration (the catalog's widget JSON with
