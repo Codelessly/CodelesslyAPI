@@ -1,5 +1,56 @@
 ## Unreleased
 
+**`Motion` is a transform; its timing, entrance, loop, spin and shimmer are animations and transitions**
+(docs/design/03-motion.md; the rest of docs/design/02-animation.md's presets; guide chapter 8)
+
+- `Motion` has 14 fields (was 50): `translateX/Y`, `shiftX/Y`, `scale`, `scaleX/Y`, `rotate`, `rotateX/Y`,
+  `perspective`, `alignment`, `backfaceHidden`, `path`. `PathFollow` (`path`, `viewBox`, `progress`, `orient`;
+  deprecated `pacing`, `focus`), `PathOrient` (`none`, `tangent`, `upright`, `uprightFlip`), `PathPacing`
+  (deprecated). `Motion.properties`, `valueOf`, `withValue`, `restOf`, `lerp`, `hasPath`, `hasTransform`.
+- `Pose` (a `Motion` with `opacity`, `blur`; flat JSON): `TransitionSide.motion`, `PageViewProps.pageMotion`,
+  `pageMotionBefore`.
+- `Transition` (`property`, `duration`, `delay`, `curve`, `spring`, `keyframes`, `interpolation`, deprecated
+  `arc`; `matches`, `of`, `keyframesOf`, `listFromJson`); `Behaviors.transitions` is a `List<Transition>`.
+- `Shimmer` (`color`, `strength`, `width`, `angle`, `position`), behavior key `shimmer`.
+- `NodeAnimation.ramp`, `visibleFraction`; `AnimationTrack.interpolation` (`KeyframeInterpolation`
+  `linear`/`monotoneCubic`, `monotoneAt`, `monotoneCubic`); a wave on a replacing track is a share of
+  `to − from` (a swing); track numbers carry on past their ends on an overshooting curve.
+- Presets `loop` (`from`, `frames`, `mode: swing`, `curve`, `rotateCurve`, `fadeShare`), `shimmer`; `enter` takes
+  `frames`, `curve`, `rotateCurve`, `fadeShare`; `spin` takes `perSecond` (a turn a run, its duration
+  `1000 / |perSecond|`). `AnimationPreset.durationOf`. `AnimationPresets.fromMotion`, `legacyLoopMode`,
+  `legacyMotionPath`, `legacyMotionProperties`, `legacyKeyframeProperties`, `motionBlurId`, `legacyMotionSpring`.
+- `setVariable` with `animateMs` (set/add/subtract of a variable) decodes as `AnimateAction` (`animateTo`).
+- `Behaviors.formulaOf`. `FlipCard.durationOf` takes a `Transition?`.
+
+**JSON compatibility.** `"schema": 2` stays. Every legacy motion key reads (test/motion_migration_test.dart):
+the pose's (`originX/Y` → `alignment`, the flat `path*` keys → `path`), `opacity` → the node's opacity
+(multiplied), `blur` → a `layerBlur` effect `motionBlur`, `duration`/`delay`/`curve`/`spring*` → a `motion`
+transition (plus `opacity`/blur ones, `rotateCurve` → `motion.rotate`), `enter`/`enterFrom`/`replayKey`/
+`enterHeld`/`revealOnScroll`/`revealFraction` → animation `enter`, `loop`/`repeat`/`phase`/`paused` → animation
+`loop`, `spin`/`spinRamp` → animation `spin`, `shimmer` → `shimmer` + animation `shimmer`, `keyframes` → their
+`frames`; bound keys are rewritten. A state style's `motion.opacity` is its `opacity`. `transitions` also reads
+the legacy `{style, opacity, size}` object and a property map. Encoders write only the new shape: a document with
+legacy motion keys encodes differently (four SDK fixtures; their corpus digests changed). Not read any more:
+`pathWrap` on an open path (a closed path wraps), bound `rotateCurve`/`fadeShare`/`arc`/`spring*`/
+`revealOnScroll`/`revealFraction`.
+
+**Breaking changes for Dart callers**
+
+- Removed from `Motion`: `opacity`, `blur`, `originX`, `originY`, `duration`, `delay`, `curve`, `rotateCurve`,
+  `fadeShare`, `spring`, `defaultSpring`, `spin`, `spinRamp`, `loop`, `repeat`, `enter`, `enterFrom`,
+  `replayKey`, `pathProgress`, `orientToPath`, `keyframes`, `revealOnScroll`, `enterHeld`, `revealFraction`,
+  `orientUpright`, `uprightMirror`, `arc`, `paused`, `phase`, `pathPacing`, `pathFocusX/Y`, `pathWrap`,
+  `pathViewBox`, `shimmer`, `named`, `atRest`, `entranceStart`, `loopStart`, `hasEntrance`, `keyframed`,
+  `wrapProgress` (→ `PathFollow.wrap`), `headsLeft` (→ `PathFollow.headsLeft`); `Motion.path` is a `PathFollow?`.
+- Removed: `MotionLoop`, `MotionPathPacing` (→ `PathPacing`), `MotionShimmer` (→ `Shimmer`), `MotionKeyframe`,
+  `Transitions` (→ `List<Transition>`), `TransitionsFields`, `MotionShimmerFields`, `MotionKeyframeFields`,
+  `motionKeyframeType`, `motionShimmerType`, `transitionsType`. `MotionFields` keeps only the pose.
+- `TransitionSide.motion`, `PageViewProps.pageMotion`/`pageMotionBefore` are `Pose`s (`.motion.rotateY`).
+- `Transition` gained `property` (first, default '') and the timing fields; `duration` is optional.
+- `AnimationTrack.lerpValue` extrapolates numbers outside 0–1.
+
+## Unreleased (catalogs)
+
 **New: catalogs, feature libraries and plugins** (docs/design/05-plugins-and-layers.md; guide chapter 9)
 
 - `Catalog` (`id`, `widgets`, `actions`, `dataSources`, `formulas`, `instructions`, `parts`; `+`, `widget`,
