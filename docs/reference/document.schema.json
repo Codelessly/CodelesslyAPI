@@ -480,12 +480,6 @@
               },
               "mapKey": {
                 "type": "string"
-              },
-              "animateMs": {
-                "type": "string"
-              },
-              "curve": {
-                "$ref": "#/$defs/enum.AnimationCurve"
               }
             }
           }
