@@ -91,6 +91,8 @@ abstract final class Codes {
       'A layout field the node\'s parent does not read (x/y outside a stack, flex/align outside a row or column).');
   static const fitNotAllowed = DiagnosticCode('fit_not_allowed', Severity.warning,
       'A width or height mode the parent cannot honor (fill along a scrolling axis, flexible outside a row/column).');
+  static const layoutClamped = DiagnosticCode('layout_clamped', Severity.warning,
+      'A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks).');
   static const verticalWrap = DiagnosticCode('vertical_wrap', Severity.warning,
       'A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side.');
   static const zeroSize = DiagnosticCode('zero_size', Severity.warning,
@@ -152,7 +154,7 @@ abstract final class Codes {
     invalidNode, unknownNodeType, unknownNodeKey, unknownProp, unknownLayoutKey, unknownDecorationKey, unknownField,
     wrongType, looseValue, invalidEnum, outOfRange, decorationIgnored,
     danglingChild, danglingSlot, multipleParents, cycle, unreachableNode, unknownSlot, childrenNotAllowed, slotsNotAllowed,
-    canvasAsChild, layoutFieldIgnored, fitNotAllowed, zeroSize, verticalWrap,
+    canvasAsChild, layoutFieldIgnored, fitNotAllowed, zeroSize, verticalWrap, layoutClamped,
     unknownBindPath, reservedBindPath, expressionSyntax, unknownName,
     unknownTrigger, unknownTriggerKey, unknownActionType, unknownActionKey, unknownTargetNode, unknownScreen,
     unknownVariable, invalidReaction,

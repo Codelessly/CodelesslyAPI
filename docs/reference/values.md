@@ -847,11 +847,14 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `blendMode` | [BlendMode](values.md#enum-BlendMode) | `"srcOver"` |  |  |
 | `color` | [Color](values.md#type-Color) | unset |  | Solid color (type `solid`). |
 | `stops` | List<[ColorStop](values.md#type-ColorStop)> | `[]` |  | Gradient stops (gradient types). |
-| `transform` | List<double> | unset |  | The gradient's transform, a 2D affine matrix `[a, b, c, d, tx, ty]` in the box's unit square. |
+| `transform` | List<double> | unset |  | Six numbers `[a, b, tx, c, d, ty]` mapping a point (x, y) of the box, in its unit square (0 to 1 each way), into the gradient's unit square: u = a·x + b·y + tx, v = c·x + d·y + ty. A linear gradient runs along u from 0 to 1; `[20, 0, 0, 0, 1, 0]` with `"tileMode": "repeated"` repeats it 20 times across the box. Simpler: `begin`/`end` (linear) or `center`/`radius` (radial). |
+| `begin` | [Alignment](values.md#type-Alignment) | unset |  | Linear: where the gradient starts, an alignment (`[-1, 0]` or `"centerLeft"`, Flutter `LinearGradient.begin`). Read into `transform`; default the left edge. |
+| `end` | [Alignment](values.md#type-Alignment) | unset |  | Linear: where the gradient ends (Flutter `LinearGradient.end`). `"begin": [0, -1], "end": [0, 1]` runs top to bottom; `"begin": [-1, 0], "end": [-0.9, 0]` with `"tileMode": "repeated"` repeats it every 5% of the width. |
+| `center` | [Alignment](values.md#type-Alignment) | unset |  | Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center. |
 | `tileMode` | [TileMode](values.md#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` |  |
 | `image` | [ImagePaint](values.md#type-ImagePaint) | unset |  | Image (type `image`). |
 | `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
-| `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: the transform's. |
+| `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
 
 <a id="type-ParticleEmitter"></a>
 ### ParticleEmitter

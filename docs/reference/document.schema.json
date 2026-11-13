@@ -5673,6 +5673,36 @@
             }
           ]
         },
+        "begin": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Alignment"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "end": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Alignment"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "center": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Alignment"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "tileMode": {
           "$ref": "#/$defs/enum.TileMode"
         },

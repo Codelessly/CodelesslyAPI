@@ -28,7 +28,10 @@ abstract final class StackProps {
 /// A leaf box: Flutter `Container` with a decoration and no child.
 abstract final class BoxProps {
   /// An SVG path drawn instead of the rectangle (shapes, vectors).
-  static const path = PropDef<String>('path', Codecs.string, '');
+  static const path = PropDef<String>('path', Codecs.string, '',
+      doc: 'An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration\'s fills and strokes. '
+          'Its coordinates are the box\'s own pixels from its top left, not scaled to the box and not clipped to it '
+          '(as Flutter\'s `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`.');
 
   /// How the path's segments meet when stroked (`Paint.strokeJoin`).
   static const strokeJoin = PropDef<StrokeJoin>('strokeJoin', EnumCodec(StrokeJoin.values), StrokeJoin.miter);
@@ -39,7 +42,9 @@ abstract final class BoxProps {
       WidgetSpec('box', props: [path, strokeJoin, strokeMiterLimit], decorated: true, doc: 'Flutter `Container`.');
 }
 
-/// Flexible empty space in a row/column (`Spacer`), or a fixed gap.
+/// Flexible empty space in a row/column (`Spacer`), or a fixed gap. With no
+/// size along its parent's main axis it is Flutter's `Spacer()`: it takes the
+/// free space by its `layout.flex`; a fixed size there makes it a gap.
 abstract final class SpacerProps {
   static const spec = WidgetSpec('spacer', props: [], doc: 'Flutter `Spacer`.');
 }

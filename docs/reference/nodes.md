@@ -134,7 +134,7 @@ A leaf box: Flutter `Container` with a decoration and no child.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `path` | String | `""` |  | An SVG path drawn instead of the rectangle (shapes, vectors). |
+| `path` | String | `""` |  | An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`. |
 | `strokeJoin` | [StrokeJoin](values.md#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How the path's segments meet when stroked (`Paint.strokeJoin`). |
 | `strokeMiterLimit` | double | `4` | ≥ 0 | The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`). |
 
@@ -266,7 +266,7 @@ Flutter `Icon` (font icons) or an SVG/image icon.
 
 Flutter `Spacer`.
 
-Flexible empty space in a row/column (`Spacer`), or a fixed gap.
+Flexible empty space in a row/column (`Spacer`), or a fixed gap. With no size along its parent's main axis it is Flutter's `Spacer()`: it takes the free space by its `layout.flex`; a fixed size there makes it a gap.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
