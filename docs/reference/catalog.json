@@ -1,12 +1,12 @@
 {
   "package": "codelessly_api",
   "version": "24.0.0",
-  "schema": 2,
+  "schema": 3,
   "document": {
     "keys": [
       {
         "key": "schema",
-        "doc": "Always 2 (`kSchemaVersion`)."
+        "doc": "Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`)."
       },
       {
         "key": "id",
@@ -25966,7 +25966,17 @@
     {
       "code": "schema_version",
       "severity": "warning",
-      "meaning": "The document has no \"schema\": 2, or another version."
+      "meaning": "The document has no \"schema\", or one this package does not read (it reads 2 and 3, and writes 3)."
+    },
+    {
+      "code": "schema_outdated",
+      "severity": "info",
+      "meaning": "A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document."
+    },
+    {
+      "code": "legacy_value",
+      "severity": "warning",
+      "meaning": "A `legacy.<name>` key the schema-3 migration kept: a value that had no schema-3 form and is no longer read."
     },
     {
       "code": "unknown_document_key",

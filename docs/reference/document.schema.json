@@ -6,7 +6,7 @@
   "type": "object",
   "properties": {
     "schema": {
-      "const": 2
+      "const": 3
     },
     "id": {
       "type": "string"

@@ -31,7 +31,7 @@ single flat map.
 
 | Key | Meaning |
 |---|---|
-| `schema` | Always 2 (`kSchemaVersion`). |
+| `schema` | Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`). |
 | `id` | The layout's id (optional). |
 | `roots` | Canvas ids, in order: the screens of this page. |
 | `nodes` | Every node, by id: `{"<id>": {"type": ..., ...}}`. A node's id is its key here. |
@@ -44,7 +44,7 @@ The smallest useful document: a canvas whose `body` slot holds a column with two
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -91,7 +91,7 @@ per color the design uses) and the type scale (a name per kind of text: display,
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "pages": ["home.json"],
   "theme": {
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
@@ -124,7 +124,7 @@ per color the design uses) and the type scale (a name per kind of text: display,
 - In a binding, a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`.
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name) and a theme of
   the wrong shape (`invalid_theme`). Without a `site.json`, put the page in a directory with one:
-  `{"schema": 2, "pages": ["home.json"], "theme": {...}}`.
+  `{"schema": 3, "pages": ["home.json"], "theme": {...}}`.
 
 A page using it (a fragment of `home.json`'s `nodes`):
 
@@ -280,7 +280,7 @@ node both, except a `canvas` (its size is the screen's) and a `spacer`.
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["sizing"],
   "nodes": {
     "sizing": {
@@ -416,7 +416,7 @@ a fixed or fill size (a negative `start`, as Flutter's `Positioned(top: -40)`); 
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["board"],
   "nodes": {
     "board": {"type": "canvas", "slots": {"body": "stage"}, "layout": {"width": 400, "height": 300}},
@@ -513,7 +513,7 @@ name of a theme color (`"ember"`, [the theme](#guide-theme)). `"#FFF"`, `"rgb(..
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["deco"],
   "nodes": {
     "deco": {
@@ -611,7 +611,7 @@ is the entry screen.
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["home", "about", "signup"],
   "nodes": {
     "home": {
@@ -759,7 +759,7 @@ change what must change at a width. Use these, in this order:
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -867,7 +867,7 @@ centered:
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -1031,7 +1031,7 @@ Older documents use a canvas per breakpoint:
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["home-mobile", "home-desktop"],
   "nodes": {
     "home-mobile": {
@@ -1094,7 +1094,7 @@ Older documents use a canvas per breakpoint:
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["page"],
   "nodes": {
     "page": {
@@ -1228,7 +1228,7 @@ Paths: `visible`, `opacity`, `layout.<field>` (`layout.width`), `decoration.fill
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["counter"],
   "nodes": {
     "counter": {
@@ -1304,7 +1304,7 @@ once.
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["plans"],
   "nodes": {
     "plans": {
@@ -1417,7 +1417,7 @@ JSON merged over that node (objects merge, other values replace, `null` removes)
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["buttons"],
   "nodes": {
     "buttons": {
@@ -1471,7 +1471,7 @@ scroll only on phones by a media rule on its `scrollable`); give each table row 
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["article"],
   "nodes": {
     "article": {
@@ -1527,7 +1527,7 @@ columns (`vertical_wrap`); set `"scrollDirection": "horizontal"` for chips side 
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["faq"],
   "nodes": {
     "faq": {
@@ -1664,7 +1664,7 @@ reactions, as a node's), shown only while there is text by binding the icon:
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["contact"],
   "nodes": {
     "contact": {
@@ -1781,7 +1781,7 @@ See the navigation example in [section 6](#guide-screens).
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["gallery"],
   "nodes": {
     "gallery": {
@@ -1857,7 +1857,9 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | Code | Severity | Meaning |
 |---|---|---|
 | `invalid_document` | error | The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list). |
-| `schema_version` | warning | The document has no "schema": 2, or another version. |
+| `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3). |
+| `schema_outdated` | info | A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
+| `legacy_value` | warning | A `legacy.<name>` key the schema-3 migration kept: a value that had no schema-3 form and is no longer read. |
 | `unknown_document_key` | error | A top-level key of the document that nothing reads. |
 | `dangling_root` | error | A root id that names no node. |
 | `root_not_canvas` | warning | A root that is not a canvas: it is never shown as a screen. |
@@ -1983,7 +1985,7 @@ widget class: the declaration is its constructor, a call is `PlanCard(price: 47,
 A definition (`components/Chip.json`; the file is named after the type):
 
 ```json
-{"schema": 2, "id": "Chip", "roots": ["chip"],
+{"schema": 3, "id": "Chip", "roots": ["chip"],
  "widget": {"type": "Chip", "doc": "A label with a remove button.", "children": "list", "slots": ["leading"],
    "props": [
      {"key": "label", "type": {"kind": "string", "flutter": "String"}, "default": "Chip", "required": true},
@@ -2069,7 +2071,7 @@ node inside an instance by its **path**: the call ids from the page down, then t
 bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).
 
 ```json
-{"schema": 2, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
+{"schema": 3, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
  "variables": [{"name": "tags", "type": "list", "value": [{"name": "Design"}, {"name": "Code"}]}]}
 ```
 
