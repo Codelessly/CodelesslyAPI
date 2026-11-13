@@ -331,7 +331,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "An SVG path (`\"M0 0 L10 5 L0 10 Z\"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`."
+          "doc": "Schema 3 only: write a `path` node (schema 4 makes this box one, with the path as its `data`). An SVG path (`\"M0 0 L10 5 L0 10 Z\"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`."
         },
         {
           "key": "strokeJoin",
@@ -9522,7 +9522,7 @@
           "item": "PlotChartSeries",
           "itemKind": "object",
           "item_object": "PlotChartSeries",
-          "doc": "More curves over the same x domain, each with gaps (null points)."
+          "doc": "More curves over the same x domain, each with gaps (null points): a chart's series (fl_chart's `LineChartData.lineBarsData`)."
         },
         {
           "key": "gridAnchor",
@@ -9543,7 +9543,7 @@
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": "Horizontal grid lines at multiples of this step (none when unset)."
+          "doc": "Horizontal grid lines at multiples of this step (none when unset): the grid's horizontal interval (fl_chart's `FlGridData.horizontalInterval`)."
         },
         {
           "key": "minorDivisions",
@@ -9552,7 +9552,7 @@
           "default": 0,
           "nullable": false,
           "min": 0,
-          "doc": "Minor lines between grid lines (0: none), drawn in `minorGridColor` only while at least 6px apart."
+          "doc": "Minor lines between grid lines (0: none), drawn in `minorGridColor` only while at least 6px apart: minor gridlines, as a plotting library's minor ticks."
         },
         {
           "key": "minorGridColor",
@@ -9568,7 +9568,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "Draws the x axis at y = 0 and the y axis at x = 0 (in `axisColor`) instead of a baseline, with tick labels at grid lines along them; labels of an axis off the plot stick to the nearest edge."
+          "doc": "Draws the x axis at y = 0 and the y axis at x = 0 (in `axisColor`) instead of a baseline, with tick labels at grid lines along them; labels of an axis off the plot stick to the nearest edge: axes that cross at the origin (a plotting library's spines at zero)."
         },
         {
           "key": "axisWidth",
@@ -9626,7 +9626,7 @@
           "kind": "value",
           "default": 2,
           "nullable": false,
-          "doc": "Room kept clear of axis labels at each edge (left, top, right, bottom), e.g. for buttons over the chart."
+          "doc": "Room kept clear of axis labels at each edge (left, top, right, bottom), for whatever sits over the chart's edges (a legend, buttons)."
         },
         {
           "key": "selectionY",
@@ -9664,7 +9664,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "Text in tags where the guides meet the axes (empty: no tag)."
+          "doc": "Text in tags where the guides meet the axes (empty: no tag): a crosshair's axis labels."
         },
         {
           "key": "selectionYLabel",
@@ -10678,6 +10678,15 @@
           "doc": "How segments meet when stroked (`Paint.strokeJoin`)."
         },
         {
+          "key": "strokeMiterLimit",
+          "type": "double",
+          "kind": "number",
+          "default": 4,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`)."
+        },
+        {
           "key": "subpathColors",
           "type": "List<Color>",
           "kind": "list",
@@ -10685,7 +10694,7 @@
           "nullable": false,
           "item": "Color",
           "itemKind": "value",
-          "doc": "Colors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color."
+          "doc": "**Schema 3 only**: schema 4 draws the shapes as `customPaint` path ops, one per color (`paint.perShape` in migrate/steps_paint4.dart).\n\nColors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color."
         }
       ],
       "docs": "decoration.md#node-path"
@@ -18620,7 +18629,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "A path paints the gradient in each of its shapes."
+          "doc": "A path paints the gradient in each of its shapes. Schema 3 only (`Paint.gradientPerSubpath`)."
         },
         {
           "key": "radius",
@@ -19907,7 +19916,7 @@
       ]
     },
     "StrokePath": {
-      "doc": "A line drawn through `points` in the node's box (a dotted trail, a connector), behind its content or `inFront` of it. x and y are fractions of the box or pixels, per `xUnit`/`yUnit`.\n\nWith `drawMs` a running app draws the line along its length, like a pen (a map's passages inking in, a route tracing itself): over `drawMs` ms after `drawDelayMs`, eased by `drawCurve`, up to `progress`; when the node first shows, again from nothing when `drawKey` changes, and from where it is when `progress` changes. The design canvas draws it at `progress`.",
+      "doc": "**Schema 3 only.** Schema 4 draws it as a `customPaint` path op (`paint.strokePath` in migrate/steps_paint4.dart), which is what renders a migrated document; this stays readable until schema 4's version gate removes it.\n\nA line drawn through `points` in the node's box (a dotted trail, a connector), behind its content or `inFront` of it. x and y are fractions of the box or pixels, per `xUnit`/`yUnit`.\n\nWith `drawMs` a running app draws the line along its length, like a pen (a map's passages inking in, a route tracing itself): over `drawMs` ms after `drawDelayMs`, eased by `drawCurve`, up to `progress`; when the node first shows, again from nothing when `drawKey` changes, and from where it is when `progress` changes. The design canvas draws it at `progress`.",
       "fields": [
         {
           "key": "points",
@@ -26119,6 +26128,11 @@
       "code": "repeated_subtree",
       "severity": "info",
       "meaning": "A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once."
+    },
+    {
+      "code": "deprecated_key",
+      "severity": "info",
+      "meaning": "A schema-3 paint field schema 4 replaces: `strokePath` (a customPaint path op), a box's `path` (a path node), `subpathColors` and `gradientPerSubpath` (customPaint path ops per color or per shape). It still draws; the schema-4 migration rewrites it the same way."
     }
   ]
 }

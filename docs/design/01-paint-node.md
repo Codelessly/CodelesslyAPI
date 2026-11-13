@@ -426,11 +426,124 @@ disagreed, Flutter won. Every `Canvas` and `Paint` name below was checked agains
     node's pointer triggers only when the node has a `customPaint`. A paragraph's region is its laid-out box,
     an image's its `dst`.
 12. **Not migrated in this wave:** `strokePath`, `box.path`, `subpathColors`, `gradientPerSubpath` and
-    `plotChart`'s props are unchanged; their decoders still read and write them as before.
+    `plotChart`'s props are unchanged; their decoders still read and write them as before. Schema 4 moves the
+    first four (below, "Schema 4"); the chart's props stay.
 
 ## Done in schema 3
 
-`gradientUnits: "subpath"` is migrated to `gradientPerSubpath: true` (`paint.gradientUnits`). **Not done:**
-moving `strokePath`, `box.path`, `gradientPerSubpath`/`subpathColors` and the plot chart's canvas props onto
-`customPaint` (schema-3 step 4): each needs a synthesized draw list proven pixel-equal against the goldens of
-its users (strata, lineworks, ninefold_v2, apiary, northstar, plotter_v2); not started.
+`gradientUnits: "subpath"` is migrated to `gradientPerSubpath: true` (`paint.gradientUnits`).
+
+## Schema 4: the four special-purpose paint features
+
+Decided 2026-11-13 under the audit's rule (a construct Flutter has takes its name; any special case is made
+generic or removed). The steps are `paintSteps4` in `lib/src/core/migrate/steps_paint4.dart`, for `migrate3to4`;
+each was applied to the corpus of the schema-3 report (113 documents: the reference apps' exports, the m05
+experiments, the SDK's fixtures, benchmarks and examples) and every affected node rendered before and after, at its
+design size and at 1.37 × 1.21 of it, plus each document's roots at 390 × 844 and 1440 × 900. In this branch the
+schema-3 fields stay readable and are marked "Schema 3 only"; schema 4's version gate retires them. Validation
+notes them as `deprecated_key` (info).
+
+| Feature | What it did | Uses (corpus documents; build sources by grep) | Decision |
+|---|---|---|---|
+| `strokePath` | A line through points in the box, behind or over the content; fractions or pixels per axis; straight, vertical/horizontal-eased or quadratic; dashes, progress, a fill under it, `untilWidth`, a draw-on animation | 115 nodes in 7 documents (lineworks bundle ×6: 114, every one pixels, straight, 18 `inFront`, 24 with bound points; the SDK fixture strata_tabs: 1, x in fractions, bound progress). Build sources: 684 in strata, lineworks, lineworks_v2, lantern, lantern_v2 (curves, `untilWidth`, `fillColor`, dashes only in lantern_v2; `drawMs` in none) | **(c)**: a `path` op, with one generic addition |
+| A box's `path` (`box.path`, `strokeJoin`, `strokeMiterLimit`) | A box drawn as an SVG path: drop shadows along it, fills clipped to the path *and* the box's rounded rectangle, solid strokes (a gradient stroke in its first stop's color), the first dash and gap only, foreground fills, no inner shadows | 100 nodes in 15 documents: 93 stroked outlines (lineworks bundle ×6: 84; petri: 3; relay-pricing's FinalCta and PricingHero, the clipped_paths fixture), 7 filled (relay-pricing's logo marks in three components and the sections fixture, and the authoring/checks fixture's overflow check) | **(a)**: a `path` node |
+| `subpathColors`, `gradientPerSubpath` | A path's shapes (each subpath with the holes inside it) painted one by one: a color per shape replacing the solid fills', a gradient laid out in each shape's bounds | `subpathColors`: 45 nodes in 1 document (northstar's starfields, 160 colors each). `gradientPerSubpath`: 0 anywhere | **(a)**: `customPaint` path ops |
+| `plotChart`'s 23 Cartesian props | Series, grid steps and anchor, minor grid, origin axes with arrows and titles, label background and margin, the selection's series, guides, axis tags and halo, clip | 0 in corpus documents (plotter_v2's generator inputs set 21 of them on 3 charts) | **(b)**: kept as the chart's general features |
+
+### `strokePath` → a `path` op (c)
+
+`strokePath` is a one-off: a line through points is `canvas.drawPath`. The step writes a `path` op with id
+`strokePath` first in `painter` (or last in `foregroundPainter` for `inFront`; both lists sit just inside the
+stroke path's place in the node's chain, so the order around the content is unchanged), its paint
+`{"style": "stroke", "strokeWidth": w, "strokeCap": "round", "strokeJoin": "round"}` with the color and the dashes
+(gaps of 0 dropped, as the painter dropped them); `progress` is `trimEnd` (a bound progress moves into it as the
+expression); a bound `points` or `color` likewise. A coordinate in fractions of the box becomes
+`"${= 0.25 * size.width}"` (`0` and `1` are written `0` and `"${size.width}"`), which computes the same double the
+painter did. `fillColor` is a closed `path` op under the line; its fade (alpha × progress) is written into the
+color, rounded to 8 bits, when the progress is below 1.
+
+**The generic addition:** a path op's `commands`, Flutter's `Path` builder calls (`moveTo`, `lineTo`,
+`quadraticBezierTo`, `cubicTo`, `close`), each number a literal or a formula, each call with an optional `when`
+(`if (cond) path.lineTo(...)`). The painter's curves are those calls (`vertical` is `cubicTo(prev.x, midY,
+next.x, midY, next.x, next.y)`, `horizontal` the same across, `quadratic` `quadraticBezierTo` per pair), and
+neither `points` nor SVG `d` can say them exactly: `d` goes through text and the SVG parser, which draws a
+quadratic as a cubic. `untilWidth` is a `when` per call, `"${= size.width >= m}"` with `m` the furthest start so
+far, which skips the first segment starting past the box and every one after it, as the painter's `break` did; in
+fractions of the box it is decided at migration (a start past 1 is past any width).
+
+Not expressible exactly, kept as `legacy.<name>` and reported: the draw-on animation (`drawMs` > 0, with
+`drawDelayMs`, `drawCurve`, `drawKey`: `legacy.strokePath.draw`; the line then shows at its progress; an animation
+on a variable bound into `trimEnd` does it); and, keeping the whole behavior as `legacy.strokePath`, a binding of
+any field but `points`, `progress` and `color`, bound points in fractions of the box, with curves or with
+`untilWidth`, a fill fading with a bound progress, and a node whose own `customPaint` has a view box. None occurs in
+the corpus or in the build sources. Without `drawMs` the timing fields did nothing and are dropped.
+
+Evaluated formulas need the node's values, which every running app and design canvas has; a render tree built
+with no binder draws a fraction-of-the-box line nowhere (the stroke path drew it).
+
+### A box's `path` → a `path` node (a)
+
+A box with a path and a `path` node were two ways to draw one decorated shape; the path node is the one Flutter
+spells (a `CustomPaint` of a path, filled and stroked as `ShapeDecoration` paints a shape: `drawPath` with each
+paint). The step changes the type, moves `props.path` to `props.data` (and the binding), and keeps `strokeJoin` and
+`strokeMiterLimit` (the path node gains `strokeMiterLimit`, `Paint.strokeMiterLimit`); a box without a path loses
+the two props it never read. `gradientPerSubpath` on the box's paints, which it never read, is dropped first.
+
+Where the box painter drew differently the step reports a behaviour change on the node: a fill with a rounded
+radius (clipped to the rounded rectangle too), a gradient stroke (drawn in its first stop's color), foreground
+fills (a path node draws none), a dash pattern beyond one dash and gap or over several subpaths, inner shadows
+(drawn now), blending fills (a layer now), a fixed-size box whose path reaches outside it (filled there now), a bound
+path (empty: nothing drawn, where the box drew its rectangle), and a bare box filling across a stretching row or
+column that hugs it (sized by its siblings; a path node takes its design size).
+
+### `subpathColors` and `gradientPerSubpath` → path ops per color or per shape (a)
+
+Coloring one path's shapes one by one is one app's (northstar's star field); `customPaint` draws it as Flutter
+would, one `drawPath` per color. The step splits the SVG data into the painter's shapes (`legacy_svg.dart`: each
+subpath from its move, a draw after `Z` starting where the subpath did, a subpath inside the previous shape's
+control-point bounds joining it as a hole, arcs bounded by the cubics path_parsing draws them as), groups them by
+color as the painter merged them (one path per color, in the order the colors first appear, `null` keeping the
+fill's color, a translucent fill's alpha multiplied in), and writes one `path` op per color with the original text
+of its shapes (a subpath starting with a relative move gets an absolute one in front). A per-shape gradient is one
+op per shape with the gradient as its paint's `shader`, laid out in the shape's bounds. The ops go in `painter`
+(the strokes, when per shape, in `foregroundPainter`), the path's view box becomes the custom paint's (the same
+stretch), and the fills leave the decoration; when nothing is left for the node to draw, its `data` goes too.
+
+Kept as `legacy.<name>` and reported where the order or the layout can't be kept: visible effects (shadows are
+drawn between the fills and the strokes), a blending, image or noise fill, a gradient fill laid out across the box
+beside the colors, bound colors, per-shape strokes that are trimmed or dashed or under a view box, another custom
+paint with ops beside a view box. `gradientPerSubpath` anywhere but a path node's own fills and strokes never acted
+and is dropped.
+
+### `plotChart`'s Cartesian props stay (b)
+
+The proposal above moved them to `customPaint`; on reading the chart they are not a drawing that one app needed
+but the general parts of a line chart's model, each with a counterpart in chart libraries: `series`
+(`LineChartData.lineBarsData`), `gridStepY`, `gridAnchor`, `minorDivisions`, `minorGridColor` (the grid's
+intervals and origin, minor ticks), `originAxes`, `axisWidth`, `axisArrows`, `xAxisTitle`, `yAxisTitle`,
+`axisTitleStyle` (axes crossing at zero, their ends and titles), `labelBackground`, `labelMargin` (tick labels kept
+legible and clear of what sits over an edge), `selectionY`, `selectionSeries`, `selectionGuides`,
+`selectionXLabel`, `selectionYLabel`, `selectionTagColor`, `selectionTagStyle`, `selectionHaloRadius`,
+`selectionHaloColor` (a crosshair: which series it follows, its guides, its axis tags, the touched dot), `clip`
+(`clipBehavior`). Every one reads the chart's data and none plotter_v2's content. What the chart does with them is
+computed from the data as it paints (the extents, where ticks fall, how a tick label is formatted, which labels
+stick to an edge or are skipped), so a draw list would have to be handed all of it by a script: the special case
+would move into every document that draws a graph, not go away. A chart node with general chart props is what the
+rules allow (an addition Flutter lacks, generic and declared). No corpus document sets them; plotter_v2's graph can
+still be rebuilt on `customPaint` by hand (§3.3) where an app wants its own drawing.
+
+### Pixels, before and after
+
+Rendered with the SDK (`NodeTree` with the runtime's binder), each pair compared pixel by pixel:
+
+| Documents | Result |
+|---|---|
+| lineworks bundle ×6 (84 box paths, 114 stroke paths), petri (3 box paths), relay-pricing's FinalCta and PricingHero, the clipped_paths fixture (stroked box paths), northstar (45 per-color paths, under view boxes), strata_tabs (a fraction-of-the-box stroke path) | identical at every size |
+| relay-pricing's logo marks (MobileMenu, SiteFooter, SiteHeader and the sections fixture): box paths filled | 92 pixels differ at the marks' edges, by at most 3/255 per channel (4/255 in a whole page): the box clipped a rectangle to the path, the path node fills the path, and their anti-aliasing differs at the edge |
+| authoring/checks fixture: a 10 × 10 box whose path reaches to 40 × 40 (an overflow check) | the fill outside the box is drawn now (660 pixels); reported by the step |
+
+`test/custom_paint/migrated_paint_test.dart` in the SDK holds the cases the corpus doesn't reach: both axes in
+fractions, curves, quadratics, `untilWidth` in pixels and in fractions, dashes with a progress, a fill in front of
+the node's own fill, a bound progress, holes and view boxes for per-shape colors (identical); a fill fading with a
+progress below 1 (within 1/255), a gradient per shape (within 2/255: laid out in the shape's exact bounds, where
+the painter rounded its size to 0.01 px).

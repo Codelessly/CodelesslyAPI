@@ -246,6 +246,10 @@ final class Paint {
   /// Image (type `image`).
   final ImagePaint? image;
 
+  /// **Schema 3 only**: schema 4 draws each shape as a `customPaint` path op
+  /// with this gradient as its shader (`paint.perShape` in
+  /// migrate/steps_paint4.dart).
+  ///
   /// A gradient laid out in each shape of a path (every closed subpath,
   /// with the holes inside it) instead of across the box: one path of many
   /// cells shades each alike. Only paths paint per shape.

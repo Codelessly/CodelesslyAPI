@@ -89,15 +89,22 @@ glyph's size, centered in the node's box; without it the glyph fills the box). A
 ### Small marks and shapes
 
 A mark the font lacks (✦, ✳): an `icon` (`"auto_awesome"`, `"star"`), or a `path` node with SVG path data and a
-`viewBox` so it scales to its box. Custom drawing beyond one path (several shapes, strokes along a path, text on a
-canvas): the `customPaint` behavior's draw lists, behind or over the node's content.
+`viewBox` so it scales to its box: the one decorated shape (fills, strokes and shadows from its `decoration`). Custom
+drawing beyond one path (several shapes, a line through points, shapes in different colors, text on a canvas): the
+`customPaint` behavior's draw lists, behind or over the node's content. A line through points is a `path` op with
+`points` (a formula of `${size.width}` for a share of the box), or with `commands` (Flutter's `Path` calls:
+`moveTo`, `lineTo`, `quadraticBezierTo`, `cubicTo`, `close`) for curves; shapes in different colors are one `path`
+op per color. `strokePath`, a box's `props.path` and a path's `subpathColors` are schema 3's spellings of these
+(`deprecated_key`): schema 4 rewrites them so.
 
 ## Pitfalls
 
 - An effect needs its `type`; without it the effect is dropped.
 - Colours are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
-- A `path` is drawn in its box's own pixels from the top left and is not clipped to the box (as Flutter's
-  `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
+- A `path` node without a `viewBox` is drawn in its box's own pixels from the top left and is not clipped to the
+  box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`). Write a
+  shape as a `path` node, not as a box's `props.path` (schema 3's spelling, which also filled only the part inside the
+  box).
 - Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
 - `clip` is needed for children to follow rounded corners.
 - A child's fill covers its parent's inside border: pad the parent, stroke outside, or move the border to the child.

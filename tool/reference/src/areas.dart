@@ -48,6 +48,8 @@ const List<PageDef> featurePages = [
   PageDef('theme', nodes: ['text'], behaviors: ['textDirection', 'defaultTextStyle'], models: ['TextStyle', 'TextRun']),
   PageDef('decoration',
       nodes: ['icon', 'path'],
+      // strokePath: schema 3 only (schema 4 writes a customPaint path op);
+      // listed until schema 4's version gate removes it.
       behaviors: ['customPaint', 'strokePath'],
       triggers: ['imageLoading', 'imageLoaded', 'imageError'],
       models: ['Paint', 'ColorStop', 'ImagePaint', 'NoisePaint', 'Effect', 'BorderSide']),

@@ -32,7 +32,7 @@ them.
 
 | # | Document | What it decides |
 |---|---|---|
-| 1 | [CustomPaint as data](01-paint-node.md) | A `customPaint` draw list mirroring `Canvas`, with `repeat`, a view box, hit regions. Replaces `strokePath`, `box.path`, `subpathColors`, `gradientPerSubpath` and `plotChart`'s 23 Cartesian props |
+| 1 | [CustomPaint as data](01-paint-node.md) | A `customPaint` draw list mirroring `Canvas`, with `repeat`, a view box, hit regions, and a path built from `Path` calls. Schema 4 moves `strokePath`, `subpathColors` and `gradientPerSubpath` onto it and a box's `path` onto the path node; `plotChart`'s Cartesian props stay as the chart's general features |
 | 2 | [Animation](02-animation.md) | `animations` (an `AnimationController` with tween tracks on any binding path), one `animate` action, a `frame` trigger, one `Spring`. Loops, effects, entrances, spins, keyframes become presets. `clock` folds into `timer` |
 | 3 | [Motion](03-motion.md) | `Motion` from 50 fields to a 14-field transform plus a shared `PathFollow`; `transitions` per property; one way to scale and rotate |
 | 4 | [Drag and track](04-drag-and-track.md) | `drag` splits into `dismissible`, `track`, pan in `transformGesture`, and the list's `reorder`. 162 fields to 69. `controlDrag` becomes three typed actions. Transform handles become a component |
