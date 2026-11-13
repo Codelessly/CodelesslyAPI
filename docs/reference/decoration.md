@@ -30,7 +30,7 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `type` | [PaintType](values.md#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image` |  |
+| `type` | [PaintType](values.md#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise` |  |
 | `id` | String | unset |  | Stable id, so a binding can target one paint (`fill-<id>`). |
 | `visible` | bool | `true` |  |  |
 | `opacity` | double | `1` | ≥ 0, ≤ 1 |  |
@@ -45,6 +45,8 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `image` | [ImagePaint](values.md#type-ImagePaint) | unset |  | Image (type `image`). |
 | `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
+| `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
+| `noise` | [NoisePaint](values.md#type-NoisePaint) | unset |  | Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, "type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` (`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box. |
 
 
 ## ColorStop
@@ -94,7 +96,7 @@ A shadow or blur (Flutter's `BoxShadow`, `ImageFilter.blur`).
 
 ### PaintType
 
-`solid`, `linear`, `radial`, `sweep`, `diamond`, `image`
+`solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise`
 
 ### EffectType
 
@@ -102,7 +104,24 @@ A shadow or blur (Flutter's `BoxShadow`, `ImageFilter.blur`).
 
 ### StrokeSides
 
-`all`, `left`, `top`, `right`, `bottom`, `topBottom`, `leftRight`, `topRight`, `bottomRight`, `bottomLeft`, `topLeft`, `noTop`, `noRight`, `noBottom`, `noLeft`
+| Value | Meaning |
+|---|---|
+| `all` |  |
+| `left` |  |
+| `top` |  |
+| `right` |  |
+| `bottom` |  |
+| `topBottom` |  |
+| `leftRight` |  |
+| `topRight` |  |
+| `bottomRight` |  |
+| `bottomLeft` |  |
+| `topLeft` |  |
+| `noTop` |  |
+| `noRight` |  |
+| `noBottom` |  |
+| `noLeft` |  |
+| `none` | No side: Flutter's `Border()` (every side `BorderSide.none`), CSS `border-style: none`; for a stroke bound or patched off. |
 
 ### StrokeAlign
 

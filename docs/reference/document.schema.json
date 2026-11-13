@@ -2375,6 +2375,12 @@
         "reset"
       ]
     },
+    "enum.NoiseType": {
+      "enum": [
+        "fractalNoise",
+        "turbulence"
+      ]
+    },
     "enum.PagePaintOrder": {
       "enum": [
         "forward",
@@ -2432,7 +2438,8 @@
         "radial",
         "sweep",
         "diamond",
-        "image"
+        "image",
+        "noise"
       ]
     },
     "enum.PanRelease": {
@@ -2738,7 +2745,8 @@
         "noTop",
         "noRight",
         "noBottom",
-        "noLeft"
+        "noLeft",
+        "none"
       ]
     },
     "enum.TabAlignment": {
@@ -5076,6 +5084,27 @@
       },
       "additionalProperties": false
     },
+    "model.NoisePaint": {
+      "type": "object",
+      "properties": {
+        "baseFrequency": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 4.0
+        },
+        "numOctaves": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "type": {
+          "$ref": "#/$defs/enum.NoiseType"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.Pagination": {
       "type": "object",
       "properties": {
@@ -5288,6 +5317,27 @@
             {
               "type": "number",
               "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "length": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "noise": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.NoisePaint"
             },
             {
               "type": "null"

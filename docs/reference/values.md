@@ -677,6 +677,18 @@ Read as `${animation.<id>.value}` (after `curve`), `.status` (`dismissed`, `forw
 | `ramp` | int | `0` | ≥ 0 | Ms to speed up from still, and to slow to a stop when paused. |
 | `visibleFraction` | double | unset |  | Waits to start until this share of the node is in view. |
 
+<a id="type-NoisePaint"></a>
+### NoisePaint
+
+A `noise` paint's procedural noise, parameterised as SVG's `<feTurbulence>` (`baseFrequency`, `numOctaves`, `seed`, `type`): the texture a web page's grain overlay draws (`filter: url(#grain)`), here a paint, drawn as a seamless tile repeated over the box.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `baseFrequency` | double | `0.8` | ≥ 0, ≤ 4 | Lattice cells per pixel (feTurbulence `baseFrequency`): 0.8 a fine grain, 0.05 soft clouds. |
+| `numOctaves` | int | `3` | ≥ 1 | Octaves summed, each twice the frequency at half the amplitude. |
+| `seed` | int | `0` |  | The random seed: the same seed draws the same grain. |
+| `type` | [NoiseType](values.md#enum-NoiseType) | `"fractalNoise"` | `fractalNoise`, `turbulence` | `fractalNoise` (a soft grain) or `turbulence` (ridged). |
+
 <a id="type-Pagination"></a>
 ### Pagination
 
@@ -712,7 +724,7 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `type` | [PaintType](values.md#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image` |  |
+| `type` | [PaintType](values.md#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise` |  |
 | `id` | String | unset |  | Stable id, so a binding can target one paint (`fill-<id>`). |
 | `visible` | bool | `true` |  |  |
 | `opacity` | double | `1` | ≥ 0, ≤ 1 |  |
@@ -727,6 +739,8 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `image` | [ImagePaint](values.md#type-ImagePaint) | unset |  | Image (type `image`). |
 | `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
+| `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
+| `noise` | [NoisePaint](values.md#type-NoisePaint) | unset |  | Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, "type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` (`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box. |
 
 <a id="type-Pan"></a>
 ### Pan
@@ -2010,6 +2024,14 @@ Written as the value's name, a JSON string (`"center"`).
 | `replace` | Replaces the current screen. |
 | `reset` | Clears the history: the destination becomes the only screen (over `NavigateAction.base`, when set). |
 
+<a id="enum-NoiseType"></a>
+### NoiseType
+
+| Value | Meaning |
+|---|---|
+| `fractalNoise` | SVG `feTurbulence`'s `type`: Perlin noise summed (`fractalNoise`, a soft grain) or its absolute values summed (`turbulence`, ridged). |
+| `turbulence` | SVG `feTurbulence`'s `type`: Perlin noise summed (`fractalNoise`, a soft grain) or its absolute values summed (`turbulence`, ridged). |
+
 <a id="enum-PagePaintOrder"></a>
 ### PagePaintOrder
 
@@ -2075,7 +2097,7 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="enum-PaintType"></a>
 ### PaintType
 
-`solid`, `linear`, `radial`, `sweep`, `diamond`, `image`
+`solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise`
 
 <a id="enum-PanRelease"></a>
 ### PanRelease
@@ -2406,7 +2428,24 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="enum-StrokeSides"></a>
 ### StrokeSides
 
-`all`, `left`, `top`, `right`, `bottom`, `topBottom`, `leftRight`, `topRight`, `bottomRight`, `bottomLeft`, `topLeft`, `noTop`, `noRight`, `noBottom`, `noLeft`
+| Value | Meaning |
+|---|---|
+| `all` |  |
+| `left` |  |
+| `top` |  |
+| `right` |  |
+| `bottom` |  |
+| `topBottom` |  |
+| `leftRight` |  |
+| `topRight` |  |
+| `bottomRight` |  |
+| `bottomLeft` |  |
+| `topLeft` |  |
+| `noTop` |  |
+| `noRight` |  |
+| `noBottom` |  |
+| `noLeft` |  |
+| `none` | No side: Flutter's `Border()` (every side `BorderSide.none`), CSS `border-style: none`; for a stroke bound or patched off. |
 
 <a id="enum-TabAlignment"></a>
 ### TabAlignment
