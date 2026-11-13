@@ -1,0 +1,32 @@
+{
+  "schema": 2,
+  "roots": ["plans"],
+  "nodes": {
+    "plans": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 300},
+              "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["toggle", "price", "note"],
+            "layout": {"width": {"fill": 390}, "height": {"fill": 300}, "padding": 24},
+            "props": {"spacing": 12, "crossAxisAlignment": "start"}},
+    "toggle": {"type": "row", "children": ["toggleLabel"],
+               "layout": {"width": {"hug": 120}, "height": {"hug": 36}, "padding": [14, 8, 14, 8]},
+               "decoration": {"strokes": [{"color": "#FF2563EB"}], "radius": 18},
+               "actions": [{"trigger": {"type": "click"},
+                            "actions": [{"type": "setVariable", "variable": "annual", "op": "toggle"}]}]},
+    "toggleLabel": {"type": "text", "layout": {"width": {"hug": 80}, "height": {"hug": 20}},
+                    "props": {"text": "Monthly", "style": {"fontSize": 14, "color": "#FF2563EB"}},
+                    "bind": {"props.text": "${= annual ? 'Annual billing' : 'Monthly billing'}"}},
+    "price": {"type": "text", "layout": {"width": {"hug": 80}, "height": {"hug": 40}},
+              "props": {"text": "$12 / month", "style": {"fontSize": 32, "fontWeight": 700, "color": "#FF111827"}}},
+    "note": {"type": "text", "layout": {"width": {"hug": 80}, "height": {"hug": 20}},
+             "props": {"text": "Save 20% with annual billing", "style": {"fontSize": 14, "color": "#FF16A34A"}}}
+  },
+  "variables": {"plans": [{"name": "annual", "type": "boolean", "value": false}]},
+  "conditions": {"plans": [
+    {"id": "billing", "branches": [
+      {"when": {"left": "${annual}", "op": "isTrue"},
+       "set": [{"node": "price", "path": "props.text", "value": "$120 / year"},
+               {"node": "note", "path": "visible", "value": false}]},
+      {"set": [{"node": "price", "path": "props.text", "value": "$12 / month"}]}
+    ]}
+  ]}
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "roots": ["board"],
+  "nodes": {
+    "board": {"type": "canvas", "slots": {"body": "stage"}, "layout": {"width": 400, "height": 300}},
+    "stage": {"type": "stack", "children": ["photo", "badge", "caption"],
+              "layout": {"width": {"fill": 400}, "height": {"fill": 300}},
+              "decoration": {"fills": [{"color": "#FFE5E7EB"}]}},
+    "photo": {"type": "box", "layout": {"width": 200, "height": 120, "x": {"align": 0}, "y": {"align": 0}},
+              "decoration": {"fills": [{"type": "linear", "stops": [{"position": 0, "color": "#FF6366F1"}, {"position": 1, "color": "#FFEC4899"}]}],
+                             "radius": 16}},
+    "badge": {"type": "box", "layout": {"width": 48, "height": 48, "x": {"end": 16}, "y": {"start": 16}},
+              "decoration": {"fills": [{"color": "#FFF59E0B"}], "shape": "circle"}},
+    "caption": {"type": "text", "layout": {"width": {"hug": 100}, "height": {"hug": 20}, "x": {"start": 16, "end": 16}, "y": {"end": 16}},
+                "props": {"text": "Pinned 16 px from the left, right and bottom", "textAlign": "center",
+                          "style": {"fontSize": 14, "color": "#FF374151"}}}
+  }
+}

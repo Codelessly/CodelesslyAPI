@@ -1,0 +1,866 @@
+{
+  "source": "codelessly_sdk lib/src/runtime/expressions/formula.dart (FormulaEvaluator.functionDocs, FormulaEvaluator.functions)",
+  "functions": [
+    {
+      "name": "left",
+      "signature": "left(text, count)",
+      "example": "left(\"MX4821\", 2) → MX"
+    },
+    {
+      "name": "right",
+      "signature": "right(text, count)",
+      "example": "right(\"1FUJGLDR5MX4821\", 6) → MX4821"
+    },
+    {
+      "name": "toMap",
+      "signature": "toMap(list, item => key, item => value)",
+      "example": "toMap(items, i => i.id, i => \"pass\") → {1a: pass, 1b: pass}"
+    },
+    {
+      "name": "money",
+      "signature": "money(value, symbol, decimals) or money(value, decimals)",
+      "example": "money(price) → $1,234.50"
+    },
+    {
+      "name": "currency",
+      "signature": "currency(value, code, options?)",
+      "example": "currency(-1234.5, \"EUR\") → −1.234,50 €; currency(42, \"USD\", \"signed\") → +$42.00"
+    },
+    {
+      "name": "parseAmount",
+      "signature": "parseAmount(text, code)",
+      "example": "parseAmount(\"1.234,50\", \"EUR\") → 1234.5"
+    },
+    {
+      "name": "formatAmount",
+      "signature": "formatAmount(text, code)",
+      "example": "formatAmount(\"12345.6\", \"USD\") → 12,345.6"
+    },
+    {
+      "name": "currencySymbol",
+      "signature": "currencySymbol(code)",
+      "example": "currencySymbol(\"GBP\") → £"
+    },
+    {
+      "name": "currencyDecimals",
+      "signature": "currencyDecimals(code)",
+      "example": "currencyDecimals(\"JPY\") → 0"
+    },
+    {
+      "name": "formatNumber",
+      "signature": "formatNumber(value, digits?, locale?)",
+      "example": "formatNumber(2481.64, 1) → 2,481.6 · formatNumber(1234.5, 1, \"ar_EG\") → ١٬٢٣٤٫٥"
+    },
+    {
+      "name": "formatCurrency",
+      "signature": "formatCurrency(value, currencyCode, locale?, decimals?)",
+      "example": "formatCurrency(1234.5, \"EUR\", \"fr_FR\") → 1 234,50 € · formatCurrency(1500, \"JPY\", \"ja_JP\") → ￥1,500"
+    },
+    {
+      "name": "formatPercent",
+      "signature": "formatPercent(value, locale?, decimals?)",
+      "example": "formatPercent(0.42) → 42% · formatPercent(0.42, \"fr_FR\") → 42 %"
+    },
+    {
+      "name": "pluralCategory",
+      "signature": "pluralCategory(count, locale?)",
+      "example": "pluralCategory(3, \"ar\") → few · pluralCategory(0, \"en\") → other"
+    },
+    {
+      "name": "textDirection",
+      "signature": "textDirection(locale)",
+      "example": "textDirection(\"he_IL\") → rtl · textDirection(\"fr\") → ltr"
+    },
+    {
+      "name": "textDirectionOf",
+      "signature": "textDirectionOf(text)",
+      "example": "textDirectionOf(\"שלום\") → rtl · textDirectionOf(\"123\") → (empty)"
+    },
+    {
+      "name": "fill",
+      "signature": "fill(template, map or list)",
+      "example": "fill(\"{i} of {n}\", {i: 1, n: 10}) → 1 of 10"
+    },
+    {
+      "name": "feetInches",
+      "signature": "feetInches(feet)",
+      "example": "feetInches(6.67) → 6′ 8″"
+    },
+    {
+      "name": "fixed",
+      "signature": "fixed(value, decimals)",
+      "example": "fixed(4.5, 2) → 4.50"
+    },
+    {
+      "name": "round",
+      "signature": "round(value, decimals)",
+      "example": "round(4.567, 1) → 4.6"
+    },
+    {
+      "name": "floor",
+      "signature": "floor(value)",
+      "example": "floor(4.7) → 4"
+    },
+    {
+      "name": "ceil",
+      "signature": "ceil(value)",
+      "example": "ceil(4.2) → 5"
+    },
+    {
+      "name": "abs",
+      "signature": "abs(value)",
+      "example": "abs(-3) → 3"
+    },
+    {
+      "name": "min",
+      "signature": "min(a, b, …) or min(list)",
+      "example": "min(3, 7) → 3"
+    },
+    {
+      "name": "max",
+      "signature": "max(a, b, …) or max(list)",
+      "example": "max(3, 7) → 7"
+    },
+    {
+      "name": "sum",
+      "signature": "sum(list, field or item => value)",
+      "example": "sum(cart, i => i.price * i.qty) → 24"
+    },
+    {
+      "name": "count",
+      "signature": "count(list, item => condition) or count(list, field, value)",
+      "example": "count(tasks, t => !t.done) → 2"
+    },
+    {
+      "name": "length",
+      "signature": "length(text or list)",
+      "example": "length(cart) → 3"
+    },
+    {
+      "name": "if",
+      "signature": "if(condition, then, else)",
+      "example": "if(qty > 1, \"items\", \"item\")"
+    },
+    {
+      "name": "plural",
+      "signature": "plural(count, one, many) or plural(count, forms, locale?)",
+      "example": "plural(2, \"photo\") → photos · plural(2, {one: \"{n} phrase\", other: \"{n} phrases\"}, \"en\") → 2 phrases"
+    },
+    {
+      "name": "join",
+      "signature": "join(list, separator, field or item => value)",
+      "example": "join(tags, \" · \")"
+    },
+    {
+      "name": "upper",
+      "signature": "upper(text)",
+      "example": "upper(\"hi\") → HI"
+    },
+    {
+      "name": "charCode",
+      "signature": "charCode(text, index)",
+      "example": "charCode(\"MX\", 1) → 88"
+    },
+    {
+      "name": "fromCharCode",
+      "signature": "fromCharCode(code, …) or fromCharCode(list)",
+      "example": "fromCharCode(65 + seat) → B"
+    },
+    {
+      "name": "lower",
+      "signature": "lower(text)",
+      "example": "lower(\"Hi\") → hi"
+    },
+    {
+      "name": "codeUnits",
+      "signature": "codeUnits(text)",
+      "example": "sum(codeUnits(tag)) % 8 → a stable color index for tag"
+    },
+    {
+      "name": "trim",
+      "signature": "trim(text)",
+      "example": "trim(\"  hi \") → hi"
+    },
+    {
+      "name": "contains",
+      "signature": "contains(text or list, value)",
+      "example": "contains(lower(title), lower(search)) → true"
+    },
+    {
+      "name": "startsWith",
+      "signature": "startsWith(text, prefix)",
+      "example": "startsWith(\"Buy milk\", \"Buy\") → true"
+    },
+    {
+      "name": "endsWith",
+      "signature": "endsWith(text, suffix)",
+      "example": "endsWith(\"photo.png\", \".png\") → true"
+    },
+    {
+      "name": "padLeft",
+      "signature": "padLeft(value, width, char)",
+      "example": "padLeft(4, 2) → 04 (numbers pad with 0, text with spaces)"
+    },
+    {
+      "name": "padRight",
+      "signature": "padRight(value, width, char)",
+      "example": "padRight(\"A\", 3, \".\") → A.."
+    },
+    {
+      "name": "substring",
+      "signature": "substring(text, start, end)",
+      "example": "substring(\"Vinyl\", 0, 3) → Vin"
+    },
+    {
+      "name": "replace",
+      "signature": "replace(text, from, to)",
+      "example": "replace(\"a-b-c\", \"-\", \" \") → a b c"
+    },
+    {
+      "name": "regexReplace",
+      "signature": "regexReplace(text, pattern, to)",
+      "example": "regexReplace(\"WILLOW PHARMACY 044\", \" [0-9]+$\", \"\") → WILLOW PHARMACY; \\$1 in to inserts a group"
+    },
+    {
+      "name": "titleCase",
+      "signature": "titleCase(text)",
+      "example": "titleCase(\"SQ *KESTREL FLOWERS\") → Sq *Kestrel Flowers"
+    },
+    {
+      "name": "split",
+      "signature": "split(text, separator)",
+      "example": "split(\"rock, jazz\", \", \") → [rock, jazz]"
+    },
+    {
+      "name": "matches",
+      "signature": "matches(text, pattern)",
+      "example": "matches(code, \"^\\d{4}$\") → true"
+    },
+    {
+      "name": "slug",
+      "signature": "slug(text)",
+      "example": "slug(\"Kind of Blue!\") → kind-of-blue"
+    },
+    {
+      "name": "seconds",
+      "signature": "seconds(\"m:ss\" or \"h:mm:ss\")",
+      "example": "seconds(\"3:45\") → 225"
+    },
+    {
+      "name": "duration",
+      "signature": "duration(seconds)",
+      "example": "duration(225) → 3:45"
+    },
+    {
+      "name": "luminance",
+      "signature": "luminance(color)",
+      "example": "luminance(\"#FFFFFF\") → 1"
+    },
+    {
+      "name": "filter",
+      "signature": "filter(list, item => condition) or filter(list, field, value)",
+      "example": "filter(tasks, t => contains(lower(t.title), lower(search)))"
+    },
+    {
+      "name": "where",
+      "signature": "where(list, field, value) or where(list, item => condition)",
+      "example": "where(tasks, \"done\", false)"
+    },
+    {
+      "name": "find",
+      "signature": "find(list, item => condition) or find(list, field, value)",
+      "example": "find(users, u => u.id == userId)"
+    },
+    {
+      "name": "any",
+      "signature": "any(list, item => condition) or any(list, field, value)",
+      "example": "any(tasks, t => t.due < today()) → true"
+    },
+    {
+      "name": "all",
+      "signature": "all(list, item => condition) or all(list, field, value)",
+      "example": "all(tasks, \"done\") → false"
+    },
+    {
+      "name": "map",
+      "signature": "map(list, field or item => value or (item, index) => value)",
+      "example": "map(cart, i => i.price * i.qty) → [8, 16]"
+    },
+    {
+      "name": "sortBy",
+      "signature": "sortBy(list, field or item => key, \"desc\", more keys…)",
+      "example": "sortBy(records, r => r.artist, r => r.year, \"desc\") (missing keys last)"
+    },
+    {
+      "name": "sortByDesc",
+      "signature": "sortByDesc(list, field or item => key, more keys…)",
+      "example": "sortByDesc(records, \"year\")"
+    },
+    {
+      "name": "findIndex",
+      "signature": "findIndex(list, item => condition) or findIndex(list, field, value)",
+      "example": "findIndex(records, r => r.id == selectedId) → 2 (-1 when none)"
+    },
+    {
+      "name": "groupBy",
+      "signature": "groupBy(list, field or item => key) → [{key, items, count}]",
+      "example": "groupBy(txns, \"date\") → one entry per day, in order of first appearance"
+    },
+    {
+      "name": "unique",
+      "signature": "unique(list, field or item => key)",
+      "example": "unique(tags) or unique(tasks, \"category\")"
+    },
+    {
+      "name": "without",
+      "signature": "without(list, other or item) or without(map, keys)",
+      "example": "without(held, 64) or without(task, [\"draft\", \"tmp\"])"
+    },
+    {
+      "name": "concat",
+      "signature": "concat(list or item, ...)",
+      "example": "concat([record.art], sleeves) or list1 + list2"
+    },
+    {
+      "name": "sqrt",
+      "signature": "sqrt(value)",
+      "example": "sqrt(16) → 4"
+    },
+    {
+      "name": "pow",
+      "signature": "pow(base, exponent)",
+      "example": "pow(2, 10) → 1024"
+    },
+    {
+      "name": "exp",
+      "signature": "exp(value)",
+      "example": "exp(1) → 2.71828… (zoom by exp(-delta / 500))"
+    },
+    {
+      "name": "ln",
+      "signature": "ln(value)",
+      "example": "ln(exp(2)) → 2"
+    },
+    {
+      "name": "log",
+      "signature": "log(value, base?)",
+      "example": "log(1000) → 3, log(8, 2) → 3"
+    },
+    {
+      "name": "sign",
+      "signature": "sign(value)",
+      "example": "sign(-4) → -1"
+    },
+    {
+      "name": "hypot",
+      "signature": "hypot(x, y)",
+      "example": "hypot(3, 4) → 5"
+    },
+    {
+      "name": "sin",
+      "signature": "sin(radians)",
+      "example": "sin(pi() / 2) → 1"
+    },
+    {
+      "name": "cos",
+      "signature": "cos(radians)",
+      "example": "cos(0) → 1"
+    },
+    {
+      "name": "tan",
+      "signature": "tan(radians)",
+      "example": "tan(0) → 0"
+    },
+    {
+      "name": "asin",
+      "signature": "asin(value)",
+      "example": "asin(1) → 1.5708"
+    },
+    {
+      "name": "acos",
+      "signature": "acos(value)",
+      "example": "acos(1) → 0"
+    },
+    {
+      "name": "atan",
+      "signature": "atan(value)",
+      "example": "atan(1) → 0.7854"
+    },
+    {
+      "name": "atan2",
+      "signature": "atan2(y, x)",
+      "example": "atan2(1, 1) → 0.7854"
+    },
+    {
+      "name": "pi",
+      "signature": "pi or pi()",
+      "example": "pi → 3.14159…"
+    },
+    {
+      "name": "radians",
+      "signature": "radians(degrees)",
+      "example": "radians(180) → 3.14159…"
+    },
+    {
+      "name": "degrees",
+      "signature": "degrees(radians)",
+      "example": "degrees(pi()) → 180"
+    },
+    {
+      "name": "clamp",
+      "signature": "clamp(value, min, max)",
+      "example": "clamp(12, 0, 10) → 10"
+    },
+    {
+      "name": "distance",
+      "signature": "distance(lat1, lng1, lat2, lng2, 'km' or 'mi')",
+      "example": "distance(a.lat, a.lng, b.lat, b.lng, 'mi') → 362.4"
+    },
+    {
+      "name": "first",
+      "signature": "first(list)",
+      "example": "first(stops) → the first stop"
+    },
+    {
+      "name": "last",
+      "signature": "last(list)",
+      "example": "last(stops) → the last stop"
+    },
+    {
+      "name": "concat",
+      "signature": "concat(list, list2, ...)",
+      "example": "concat(range(2), [9]) → [0, 1, 9]"
+    },
+    {
+      "name": "slice",
+      "signature": "slice(list, start, end)",
+      "example": "slice(['a', 'b', 'c', 'd'], 1, 3) → ['b', 'c']"
+    },
+    {
+      "name": "take",
+      "signature": "take(list, n)",
+      "example": "take(stops, index) → stops before this one"
+    },
+    {
+      "name": "skip",
+      "signature": "skip(list, n)",
+      "example": "skip(stops, 1) → all but the first"
+    },
+    {
+      "name": "reverse",
+      "signature": "reverse(list or text)",
+      "example": "reverse([1, 2, 3]) → [3, 2, 1]"
+    },
+    {
+      "name": "range",
+      "signature": "range(count) or range(start, end, step), end included (dates: step in minutes)",
+      "example": "range(3, 7) → [3, 4, 5, 6, 7]; range(3) → [0, 1, 2]"
+    },
+    {
+      "name": "indexOf",
+      "signature": "indexOf(list, value), indexOf(list, item => test) or indexOf(text, part)",
+      "example": "indexOf(trips, t => t.id == id) → 2; indexOf(\"Dining\", \"in\") → 1"
+    },
+    {
+      "name": "object",
+      "signature": "object(key, value, key, value, …)",
+      "example": "object('nights', 2, 'cg', id) → {nights: 2, cg: id}"
+    },
+    {
+      "name": "merge",
+      "signature": "merge(map, map, …)",
+      "example": "merge(stop, object('nights', 3)) → stop with 3 nights"
+    },
+    {
+      "name": "set",
+      "signature": "set(map, key, value, …) or set(list, index, value)",
+      "example": "set(rig, 'length', 36) → rig, 36 ft long"
+    },
+    {
+      "name": "keys",
+      "signature": "keys(map)",
+      "example": "keys(rig) → [name, length, …]"
+    },
+    {
+      "name": "values",
+      "signature": "values(map)",
+      "example": "values(totals) → [3, 5]"
+    },
+    {
+      "name": "flatten",
+      "signature": "flatten(list of lists)",
+      "example": "flatten([[1, 2], [3]]) → [1, 2, 3]"
+    },
+    {
+      "name": "compact",
+      "signature": "compact(list)",
+      "example": "compact([1, null, '', 2]) → [1, 2]"
+    },
+    {
+      "name": "append",
+      "signature": "append(list, item, …)",
+      "example": "append(stops, object('cg', id, 'nights', 2))"
+    },
+    {
+      "name": "setAt",
+      "signature": "setAt(list, index, item)",
+      "example": "setAt([1, 2, 3], 1, 9) → [1, 9, 3]"
+    },
+    {
+      "name": "insertAt",
+      "signature": "insertAt(list, index, item)",
+      "example": "insertAt([1, 3], 1, 2) → [1, 2, 3]"
+    },
+    {
+      "name": "removeAt",
+      "signature": "removeAt(list, index)",
+      "example": "removeAt([1, 2, 3], 0) → [2, 3]"
+    },
+    {
+      "name": "move",
+      "signature": "move(list, from, to)",
+      "example": "move([a, b, c], 2, 0) → [c, a, b]"
+    },
+    {
+      "name": "moveItems",
+      "signature": "moveItems(list, ids, beforeId, changes)",
+      "example": "moveItems(cards, drag.ids, drag.beforeId, object('lane', drag.over)) → the cards with those ids (or values) moved before the one with beforeId ('' = to the end), with the changes merged in"
+    },
+    {
+      "name": "thousands",
+      "signature": "thousands(value, decimals)",
+      "example": "thousands(1094) → 1,094"
+    },
+    {
+      "name": "unset",
+      "signature": "unset(map, key)",
+      "example": "unset(task, \"draft\")"
+    },
+    {
+      "name": "prepend",
+      "signature": "prepend(list, item)",
+      "example": "prepend(notes, note)"
+    },
+    {
+      "name": "updateWhere",
+      "signature": "updateWhere(list, item => condition, item => newItem) or updateWhere(list, field, value, item => newItem or map to merge)",
+      "example": "updateWhere(tasks, \"id\", id, t => set(t, \"done\", !t.done))"
+    },
+    {
+      "name": "removeWhere",
+      "signature": "removeWhere(list, item => condition) or removeWhere(list, field, value)",
+      "example": "removeWhere(tasks, \"id\", id)"
+    },
+    {
+      "name": "findIndex",
+      "signature": "findIndex(list, item => condition) or findIndex(list, field, value)",
+      "example": "findIndex(tasks, \"id\", id) → 2 (-1 when missing)"
+    },
+    {
+      "name": "newId",
+      "signature": "newId(prefix)",
+      "example": "newId(\"task\") → task_k3x9f2"
+    },
+    {
+      "name": "get",
+      "signature": "get(map or list, key)",
+      "example": "get(lineNames, item.line) → 'Weld'"
+    },
+    {
+      "name": "take",
+      "signature": "take(list, count)",
+      "example": "take(pareto, index + 1)"
+    },
+    {
+      "name": "skip",
+      "signature": "skip(list, count)",
+      "example": "skip(events, 25)"
+    },
+    {
+      "name": "number",
+      "signature": "number(value)",
+      "example": "number(\"42\") → 42"
+    },
+    {
+      "name": "mix",
+      "signature": "mix(color1, color2, amount)",
+      "example": "mix('#FFFFFF', '#000000', 0.25) → #BFBFBF"
+    },
+    {
+      "name": "alpha",
+      "signature": "alpha(color, opacity)",
+      "example": "alpha('#FF4D4F', 0.12) → #1FFF4D4F"
+    },
+    {
+      "name": "mix",
+      "signature": "mix(colorA, colorB, t)",
+      "example": "mix('#000000', '#FFFFFF', 0.5) → #FF808080"
+    },
+    {
+      "name": "lerpColor",
+      "signature": "lerpColor(colorA, colorB, t), same as mix",
+      "example": "lerpColor('#FF4D4F', '#1677FF', 0.25) → #FFC5587B"
+    },
+    {
+      "name": "pad",
+      "signature": "pad(value, width, fill)",
+      "example": "pad(5, 2) → 05"
+    },
+    {
+      "name": "text",
+      "signature": "text(value)",
+      "example": "text(42) → \"42\""
+    },
+    {
+      "name": "isEmpty",
+      "signature": "isEmpty(text or list)",
+      "example": "isEmpty(cart) → false"
+    },
+    {
+      "name": "isNotEmpty",
+      "signature": "isNotEmpty(text or list)",
+      "example": "isNotEmpty(cart) → true"
+    },
+    {
+      "name": "now",
+      "signature": "now(utcOffset?)",
+      "example": "now() → 2026-10-21T14:30:00.000, now(\"-07:00\") at UTC−7"
+    },
+    {
+      "name": "nowMs",
+      "signature": "nowMs()",
+      "example": "nowMs() → 1793356053036, milliseconds since 1970 (time taps: 60000 / (nowMs() - lastTap) is a tempo)"
+    },
+    {
+      "name": "today",
+      "signature": "today(utcOffset?)",
+      "example": "today() → 2026-10-21T00:00:00.000"
+    },
+    {
+      "name": "wallTime",
+      "signature": "wallTime(dateWithOffset)",
+      "example": "wallTime(\"2026-10-22T07:25:17-07:00\") → 2026-10-22T07:25:17.000"
+    },
+    {
+      "name": "interpolate",
+      "signature": "interpolate(points, xField, yField, x)",
+      "example": "interpolate(tides, \"t\", \"v\", now())"
+    },
+    {
+      "name": "runs",
+      "signature": "runs(list, item => condition)",
+      "example": "runs(steps, s => s.h <= 1) → [{first, last, items, count}]"
+    },
+    {
+      "name": "minBy",
+      "signature": "minBy(list, field or item => key)",
+      "example": "minBy(lows, \"v\")"
+    },
+    {
+      "name": "maxBy",
+      "signature": "maxBy(list, field or item => key)",
+      "example": "maxBy(highs, \"v\")"
+    },
+    {
+      "name": "parseDate",
+      "signature": "parseDate(text or millis)",
+      "example": "parseDate(\"10/21/2026\") or parseDate(\"Oct 21, 2026\") → 2026-10-21; null when not a real date"
+    },
+    {
+      "name": "formatDate",
+      "signature": "formatDate(date, pattern or style, locale?)",
+      "example": "formatDate(now(), \"EEE, MMM d · h:mm a\") → Wed, Oct 21 · 2:30 PM · formatDate(today(), \"full\", \"fr_FR\") → jeudi 30 octobre 2026"
+    },
+    {
+      "name": "addSeconds",
+      "signature": "addSeconds(date, seconds)",
+      "example": "addSeconds(start, 90)"
+    },
+    {
+      "name": "diffSeconds",
+      "signature": "diffSeconds(from, to)",
+      "example": "diffSeconds(startedAt, now()) → 240"
+    },
+    {
+      "name": "formatDuration",
+      "signature": "formatDuration(seconds, pattern)",
+      "example": "formatDuration(6480, 'h:mm:ss') → 1:48:00 · 'mm:ss' → 108:00 · 'compact' → 1h 48m"
+    },
+    {
+      "name": "addMinutes",
+      "signature": "addMinutes(date, minutes)",
+      "example": "addMinutes(start, 90)"
+    },
+    {
+      "name": "addHours",
+      "signature": "addHours(date, hours)",
+      "example": "addHours(now(), 2)"
+    },
+    {
+      "name": "addDays",
+      "signature": "addDays(date, days)",
+      "example": "addDays(today(), 7)"
+    },
+    {
+      "name": "addMonths",
+      "signature": "addMonths(date, months)",
+      "example": "addMonths(\"2026-01-31\", 1) → 2026-02-28T00:00:00.000"
+    },
+    {
+      "name": "diffMinutes",
+      "signature": "diffMinutes(from, to)",
+      "example": "diffMinutes(start, end) → 45"
+    },
+    {
+      "name": "diffHours",
+      "signature": "diffHours(from, to)",
+      "example": "diffHours(start, end) → 3"
+    },
+    {
+      "name": "diffDays",
+      "signature": "diffDays(from, to)",
+      "example": "diffDays(today(), dueDate) → 5"
+    },
+    {
+      "name": "timeAgo",
+      "signature": "timeAgo(date, style?, locale?, labels?)",
+      "example": "timeAgo(sentAt) → now · 5m · 3h · Yesterday · 3d · Mar 4 · timeAgo(sentAt, \"long\") → 5 minutes ago (alias formatRelative)"
+    },
+    {
+      "name": "formatRelative",
+      "signature": "formatRelative(date, style?, locale?, labels?)",
+      "example": "formatRelative(sentAt) → 3h (the same as timeAgo)"
+    },
+    {
+      "name": "isToday",
+      "signature": "isToday(date)",
+      "example": "isToday(sentAt) → true"
+    },
+    {
+      "name": "isPast",
+      "signature": "isPast(date)",
+      "example": "isPast(expiresAt) → true once it has passed (checked every minute)"
+    },
+    {
+      "name": "isFuture",
+      "signature": "isFuture(date)",
+      "example": "isFuture(startsAt) → true until it comes (checked every minute)"
+    },
+    {
+      "name": "isSameDay",
+      "signature": "isSameDay(a, b)",
+      "example": "isSameDay(a.sentAt, b.sentAt) → false"
+    },
+    {
+      "name": "isBefore",
+      "signature": "isBefore(a, b)",
+      "example": "isBefore(expiresAt, now()) → true"
+    },
+    {
+      "name": "isAfter",
+      "signature": "isAfter(a, b)",
+      "example": "isAfter(startsAt, now()) → false"
+    },
+    {
+      "name": "year",
+      "signature": "year(date)",
+      "example": "year(\"2026-10-21\") → 2026"
+    },
+    {
+      "name": "month",
+      "signature": "month(date)",
+      "example": "month(\"2026-10-21\") → 10"
+    },
+    {
+      "name": "day",
+      "signature": "day(date)",
+      "example": "day(\"2026-10-21\") → 21"
+    },
+    {
+      "name": "hour",
+      "signature": "hour(date)",
+      "example": "hour(\"2026-10-21T14:30\") → 14"
+    },
+    {
+      "name": "minute",
+      "signature": "minute(date)",
+      "example": "minute(\"2026-10-21T14:30\") → 30"
+    },
+    {
+      "name": "second",
+      "signature": "second(date)",
+      "example": "second(\"2026-10-21T14:30:15\") → 15"
+    },
+    {
+      "name": "weekday",
+      "signature": "weekday(date)",
+      "example": "weekday(\"2026-10-21\") → 3 (Monday is 1)"
+    },
+    {
+      "name": "daysInMonth",
+      "signature": "daysInMonth(date)",
+      "example": "daysInMonth(\"2026-02-10\") → 28"
+    },
+    {
+      "name": "obj",
+      "signature": "obj(key, value, key2, value2, ...)",
+      "example": "obj(\"id\", \"ex1\", \"hours\", 12) → {id: ex1, hours: 12}"
+    },
+    {
+      "name": "padLeft",
+      "signature": "padLeft(text, width, char?)",
+      "example": "padLeft(42, 5, \"0\") → 00042"
+    },
+    {
+      "name": "padRight",
+      "signature": "padRight(text, width, char?)",
+      "example": "padRight(\"ab\", 4, \".\") → ab.."
+    },
+    {
+      "name": "substring",
+      "signature": "substring(text, start, end?)",
+      "example": "substring(\"EX-102\", 3) → 102"
+    },
+    {
+      "name": "split",
+      "signature": "split(text, separator?)",
+      "example": "split(\"2481\") → [2, 4, 8, 1]"
+    },
+    {
+      "name": "replace",
+      "signature": "replace(text, from, to)",
+      "example": "replace(\"1,402\", \",\", \"\") → 1402"
+    },
+    {
+      "name": "coalesce",
+      "signature": "coalesce(value, fallback, ...)",
+      "example": "coalesce(route.date, today())"
+    },
+    {
+      "name": "random",
+      "signature": "random() · random(n) · random(a, b)",
+      "example": "random(1, 6) → a whole number from 1 to 6"
+    },
+    {
+      "name": "pick",
+      "signature": "pick(list)",
+      "example": "pick(guests) → a random guest"
+    },
+    {
+      "name": "with",
+      "signature": "with(map, key, value, …)",
+      "example": "with(item, 'x', item.x + 1) → item with x changed"
+    },
+    {
+      "name": "at",
+      "signature": "at(list, index) or at(map, key)",
+      "example": "at(drafts, '' + ticketId)"
+    },
+    {
+      "name": "flatMap",
+      "signature": "flatMap(list, item => list)",
+      "example": "flatMap(orders, o => o.items) → every item"
+    }
+  ],
+  "undocumented": []
+}
