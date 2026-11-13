@@ -1366,7 +1366,8 @@ final class _Validator {
         final tp = pointer(p, t.key);
         final target = nodes[t.key];
         if (target == null) {
-          r.add(Codes.unknownTargetNode, tp, 'No node "${t.key}" to patch.', suggestion: nearest(t.key, nodes.keys));
+          final (message, :suggestion) = _unknownStateTarget(n, t.key);
+          r.add(Codes.unknownTargetNode, tp, message, suggestion: suggestion);
           continue;
         }
         if (t.key != n.id && !_isDescendant(t.key, n.id)) {
@@ -1406,6 +1407,20 @@ final class _Validator {
         }
       }
     }
+  }
+
+  /// The message and suggestion for a state target [target] on [n] that
+  /// is no node id: `self` and `@<key>` (spellings no schema reads) name
+  /// the id they mean.
+  (String, {String? suggestion}) _unknownStateTarget(Node n, String target) {
+    const form = 'A state patch names its target by node id ("states": {"hovered": {"<node id>": {...}}})';
+    if (target == 'self') return ('$form; "self" is not one: this node is "${n.id}".', suggestion: n.id);
+    final key = target.startsWith('@') ? target.substring(1) : target;
+    final byKey = [for (final e in nodes.entries) if (e.value.key.isNotEmpty && e.value.key == key) e.key];
+    if (byKey.length == 1) {
+      return ('$form; "$target" names node "${byKey.single}" by its key: write "${byKey.single}".', suggestion: byKey.single);
+    }
+    return ('No node "$target" to patch. $form.', suggestion: nearest(target, nodes.keys));
   }
 
   bool _isDescendant(String id, String ancestor) {

@@ -5,6 +5,7 @@ import 'steps_actions.dart';
 import 'steps_behaviors.dart';
 import 'steps_deprecated.dart';
 import 'steps_pose.dart';
+import 'steps_states.dart';
 import 'steps_text.dart';
 
 /// The node steps, in order: the legacy readers of schema 2, moved out of
@@ -41,6 +42,8 @@ final List<MigrationStep> _deprecatedNodeSteps = [
 
 /// The steps of `migrate2to3`, in order.
 final List<MigrationStep> migrationSteps2to3 = [
+  // First: the patch steps after it find the targets by id.
+  stateTargetsStep,
   ..._legacyNodeSteps,
   ..._deprecatedNodeSteps,
   patchesStep([..._legacyNodeSteps, ..._deprecatedNodeSteps]),

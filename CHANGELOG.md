@@ -1,3 +1,11 @@
+## Unreleased
+
+- **State patches that targeted `self` or `@<key>` now run.** A state patch names the node it patches by id; generated
+  schema-2 documents also wrote `self` and `@<key>` (the node's key), which matched no node, so those hover, press
+  and selection styles never applied (1131 patches in 9 corpus documents, all naming the node their states are on).
+  `migrate2to3`'s first step, `states.target`, rewrites them to the id they mean and reports a behaviour change. In a
+  schema-3 document validation refuses them (`unknown_target_node`) with the id to write as the suggestion.
+
 ## 30.1.0
 
 **One spelling for each concept; the schema stays 3.** Documents are still `"schema": 3` (`kSchemaVersion`), and
