@@ -1591,7 +1591,7 @@
           "default": 1,
           "nullable": false,
           "min": 0.0001,
-          "doc": ""
+          "doc": "Each cell's width / height when no `mainAxisExtent` is set (Flutter's `childAspectRatio`): 1 makes square cells."
         },
         {
           "key": "mainAxisExtent",
@@ -1600,7 +1600,7 @@
           "default": null,
           "nullable": true,
           "min": 0.0,
-          "doc": ""
+          "doc": "Each cell's height (its length along the scrolling axis), in pixels, whatever its width; wins over `childAspectRatio`. A cell fills it: give the item `{\"fill\": n}` on that axis, not a fixed size."
         },
         {
           "key": "shrinkWrapRows",

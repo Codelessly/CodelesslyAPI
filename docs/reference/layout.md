@@ -774,7 +774,9 @@ value where the node binds the field at other sizes, drop the binding in the rul
 `Transform.translate`: `"motion": {"translateY": -36}` moves what the node paints, not its layout, so the next node
 does not move up; a node later in its parent paints over the ones before it. A media rule may patch it. A card
 overlapping the bottom of a hero band: the card after the hero with `translateY: -36`, and 36 px of `margin` below it
-if the next section should keep its distance. To overlap by an amount that depends on the content, use a `stack`.
+if the next section should keep its distance. The render command reports a node translated past its parent's box as
+`layout_overflow` (a warning naming the parent): expected for this pattern, and the only diagnostic it leaves. To
+overlap by an amount that depends on the content, or with no warning, use a `stack`.
 
 **Bleeding past the gutter** (a table or photo running to the screen's edge while the text keeps its padding): put
 the padding on the children, not on the band, or let the one child that bleeds translate out of it (`"motion":
@@ -836,9 +838,11 @@ giving one; `"axis": "horizontal"` moves only sideways scroll views).
 
 A header that stays at the top while the page scrolls under it: the scrolling column's first child with
 `"sticky": {"offset": 0}` (CSS `position: sticky`); it is drawn above the content and is pushed on by the end of
-its parent. `${sticky.stuck}` is true while it is pinned (bind a shadow or a smaller height to it). A header
-fixed to the window instead (it never scrolls): a `stack` filling the canvas body, the scrolling column first and
-the header after it at `"y": 0`.
+its parent. `${sticky.stuck}` is true while it is pinned (bind a shadow or a smaller height to it). In a `--full-page`
+capture a sticky node is drawn where it would pin in each window height (once per 900 px on desktop): check it with
+window captures (`--scroll <scrolling column id>=1200` without `--full-page`). A header fixed to the window instead (it never
+scrolls, and a full-page capture draws it once, at the top): a `stack` filling the canvas body, the scrolling column
+first (with a top spacer of the header's height) and the header after it at `"y": 0`.
 
 A comparison table with a **sticky first column** on phones is two parts side by side: a fixed column of row
 labels, and a row of plan columns that scrolls sideways (made to scroll only on phones by a media rule on its

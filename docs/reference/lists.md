@@ -162,8 +162,8 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
 | `mainAxisSpacing` | double | `0` |  | The gap between rows (along the scrolling axis), in pixels. |
 | `crossAxisSpacing` | double | `0` |  | The gap between columns, in pixels. |
-| `childAspectRatio` | double | `1` | ≥ 0.0001 |  |
-| `mainAxisExtent` | double | unset | ≥ 0 |  |
+| `childAspectRatio` | double | `1` | ≥ 0.0001 | Each cell's width / height when no `mainAxisExtent` is set (Flutter's `childAspectRatio`): 1 makes square cells. |
+| `mainAxisExtent` | double | unset | ≥ 0 | Each cell's height (its length along the scrolling axis), in pixels, whatever its width; wins over `childAspectRatio`. A cell fills it: give the item `{"fill": n}` on that axis, not a fixed size. |
 | `shrinkWrapRows` | bool | `false` |  | Each row (column, scrolling horizontally) as long as its longest item instead of a fixed extent. |
 | `masonry` | bool | `false` |  | Natural-height items in independent lanes, placed by `masonryPlacement`. |
 | `masonryPlacement` | [MasonryPlacement](values.md#enum-MasonryPlacement) | `"cycle"` | `cycle`, `shortest` | A masonry grid's lane for each item: in turn, or the shortest. |
@@ -485,7 +485,8 @@ For cards in columns from one list inside a scrolling page, use a `gridView` wit
 `repeat(auto-fit, minmax(280px, 1fr))`: as many equal columns as fit), `"shrinkWrapRows": true` and
 `"physics": "never"` (it lays out every item and the page scrolls). A fixed number of columns: `crossAxisCount`. A
 `listView` with `"wrap": true` lays its items out at their own sizes in runs along its `scrollDirection`: set
-`"scrollDirection": "horizontal"` for chips side by side.
+`"scrollDirection": "horizontal"` for chips or nav links side by side. In wrap mode the gap between items is
+`wrapSpacing` and between runs `runSpacing`; `spacing` does not apply.
 
 <a id="lists-equal-height-cards"></a>
 ### Equal-height cards
@@ -536,7 +537,85 @@ table written four times. For a column that stays while the others scroll sidewa
 Seven columns of days from data: a `gridView` with `"crossAxisCount": 7` bound to the days (`${= range(7)}`, or a
 computed list of `{day, done}` records), each cell a box whose fill is bound to the item. Rows of habits × days: a
 `listView` of habits whose item holds a label and that 7-column grid bound to `${item.days}`; in a cell, `${parent}`
-is the habit.
+is the habit and `${index}` the day. A grid sizes its cells: set the cell height with `mainAxisExtent` and give
+the cell `fill` on both axes (a fixed size is `fit_not_allowed`).
+
+A tap on a day flips it in the habit's record (`setAt` and `set` build the new list); the label counts the checks:
+
+```json
+{
+  "schema": 3,
+  "roots": ["home"],
+  "nodes": {
+    "home": {
+      "type": "canvas",
+      "slots": {"body": "col"},
+      "layout": {"width": 390, "height": 400},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "col": {
+      "type": "column",
+      "children": ["habitList"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 400}, "padding": 24}
+    },
+    "habitList": {
+      "type": "listView",
+      "children": ["habit"],
+      "bind": {"data": "${habits}"},
+      "props": {"scrollable": false, "spacing": 12},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 200}}
+    },
+    "habit": {
+      "type": "column",
+      "children": ["name", "week"],
+      "props": {"crossAxisAlignment": "start", "spacing": 6},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 70}}
+    },
+    "name": {
+      "type": "text",
+      "props": {"text": "${item.name}: ${= count(item.days, d => d)}", "style": {"fontSize": 15, "color": "#FF111827"}},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 20}}
+    },
+    "week": {
+      "type": "gridView",
+      "children": ["day"],
+      "bind": {"data": "${item.days}"},
+      "props": {"crossAxisCount": 7, "mainAxisExtent": 40, "crossAxisSpacing": 6, "physics": "never"},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 40}}
+    },
+    "day": {
+      "type": "box",
+      "layout": {"width": {"fill": 40}, "height": {"fill": 40}},
+      "decoration": {"fills": [{"color": "#FFE5E7EB"}], "radius": 20},
+      "bind": {"decoration.fills[0].color": "${= item ? '#FF16A34A' : '#FFE5E7EB'}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "setVariable",
+              "variable": "habits",
+              "value": "${= setAt(habits, parent.index, set(parent.item, 'days', setAt(parent.item.days, index, !item)))}"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "variables": {
+    "home": [
+      {
+        "name": "habits",
+        "type": "list",
+        "value": [
+          {"name": "Water", "days": [true, true, false, false, false, false, false]},
+          {"name": "Read", "days": [false, true, false, false, false, false, false]}
+        ]
+      }
+    ]
+  }
+}
+```
 
 <a id="lists-a-carousel-pages-and-pagination"></a>
 ### A carousel, pages and pagination
@@ -550,8 +629,8 @@ neighbours' edges; `initialPage`). Long lists that load in pages: the list's `pa
 
 - Only the first child is the template; other children are ignored.
 - `item` and `index` are the innermost list's; the outer one is `parent`.
-- A list inside a scrolling page needs `"scrollable": false` (a grid `"physics": "never"`), or it takes its design
-  height and scrolls inside itself.
+- A list inside a scrolling page needs `"scrollable": false` (or `"physics": "never"`, which a `gridView` needs:
+  it has no `scrollable`), or it takes its design height and scrolls inside itself.
 - A wrapping `listView` runs along its `scrollDirection`: with the default `vertical` it flows top to bottom into
   columns (`vertical_wrap`).
 - Decoration on a `listView` or `gridView` is ignored (`decoration_ignored`): put the list inside a column that has

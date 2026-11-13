@@ -6,7 +6,8 @@ You write Codelessly user interfaces directly as JSON files: screens, their layo
 behavior. This file is the **base**: read it in full first; it is enough to build most pages. Everything else is on
 a page of its own in this folder, linked from here and listed in the [index](#base-index) at the end (the same
 index, with an A–Z of every name, is `index.md`). Open a page when you need what it covers; do not read the folder
-end to end. This describes `codelessly_api` 30.0.0; every example here is checked by a test.
+end to end. On a page, *Patterns* is usually what you need; *Reference* holds the generated tables to look one prop
+up. This describes `codelessly_api` 30.0.0; every example here is checked by a test.
 
 <a id="base-the-model-in-one-table"></a>
 ## The model in one table
@@ -400,8 +401,8 @@ Types: `integer`, `text`, `decimal`, `boolean`, `color`, `list`, `map`, `image`,
 binding.
 
 **Expressions**: `${name}` or `${path}` reads a value (`${user.name}`, `${items[0].price}`, `${item.title}`);
-`${= formula}` computes one (`${= count * price}`, `${= annual ? 'Yearly' : 'Monthly'}`). A text that is exactly
-one expression keeps the value's type. `${false}` reads a variable called `false`: a literal is `${= false}`.
+`${= formula}` computes one (`${= count * price}`, `${= annual ? 'Yearly' : 'Monthly'}`, a list
+`${= popular ? [0, 0, 0, 0] : [0, 28, 0, 0]}`). A text that is exactly one expression keeps the value's type. `${false}` reads a variable called `false`: a literal is `${= false}`.
 Every formula function, grouped (text, numbers, money, lists, dates): [formula functions](#state-formula-functions).
 
 **Bindings** put an expression on a field: `"bind": {path: expression}`, updated whenever what it reads changes.
@@ -430,7 +431,8 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   `timer`... (all of them: [triggers](#interaction-triggers)).
 - `setVariable` (`op`: `set` (default), `toggle`, `add`, `subtract`, `insert`, `removeAt`...; `value` is an
   expression), `navigate` (`to`: a canvas id; `"mode": "pop"` goes back), `openModal` / `closeModal`, `showToast`,
-  `if` (`condition`, `then`, `else`), `scrollTo`, `componentEvent` (a component's event, or at run time the event
+  `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
+  "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
   to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `openLink`, `setValue`, `setVariant`, `setVariable`, `callFunction`, `if`, `forEach`, `showToast`, `confirm`, `delay`, `copyToClipboard`, `editText`, `focus`, `controlTrack`, `controlDismissible`, `controlTransform`, `scrollTo`, `animate`, `haptic`, `runScript`, `paginate`, `componentEvent`, `callApi`, `setStorage`, `cloudDocuments`, `loadCloudData`, `reloadCloudData`, `cloudFiles`, `cloudData`, `cloudBatch`, `submitForm`, `auth`, `paywall`, `print`, `preloadImages`, `speak`, `playSound`, `captureScreenshot`, `downloadFile`, `emitEvent`.
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
 - A tap on a control inside a tappable row runs the control's reaction only: to toggle from the whole row, give the
@@ -538,6 +540,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | Background grid lines, a repeating pattern in pixels, grain | [decoration-a-pattern-in-pixels-a-background-grid-grain](#decoration-a-pattern-in-pixels-a-background-grid-grain) |
 | A border on one side, a rule under a text, dashed borders, shadows, frosted glass | [decoration-borders-rules-and-shadows](#decoration-borders-rules-and-shadows) |
 | A dark gradient over a photo with a caption | [decoration-a-scrim-over-a-photo](#decoration-a-scrim-over-a-photo) |
+| A border hidden by a child's fill (paint order) | [decoration-borders-rules-and-shadows](#decoration-borders-rules-and-shadows) |
 | Images (local files, cover, aspect ratio) | [decoration-images](#decoration-images) |
 | Icons, their size and style | [decoration-icons](#decoration-icons) |
 | A star, sparkle or other mark the font does not have; a custom shape | [decoration-small-marks-and-shapes](#decoration-small-marks-and-shapes) |
@@ -552,7 +555,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | A button's label, colours, corners and label size | [forms-buttons](#forms-buttons) |
 | Every prop of a text field | [node-textField](#node-textField) |
 | Repeat one template per item of a list | [lists-one-template-from-data](#lists-one-template-from-data) |
-| A grid of cards from data, as many columns as fit | [lists-a-grid-of-cards](#lists-a-grid-of-cards) |
+| A grid of cards from data, as many columns as fit; gaps between wrapped items | [lists-a-grid-of-cards](#lists-a-grid-of-cards) |
 | Nested lists; the outer item inside the inner list (`parent`) | [lists-nested-lists](#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists-a-table-from-one-template](#lists-a-table-from-one-template) |
 | A weekly grid (days × habits) | [lists-a-weekly-grid](#lists-a-weekly-grid) |
@@ -661,6 +664,7 @@ section's anchor is its topic.
 | Background grid lines, a repeating pattern in pixels, grain | [decoration.md#decoration-a-pattern-in-pixels-a-background-grid-grain](#decoration-a-pattern-in-pixels-a-background-grid-grain) |
 | A border on one side, a rule under a text, dashed borders, shadows, frosted glass | [decoration.md#decoration-borders-rules-and-shadows](#decoration-borders-rules-and-shadows) |
 | A dark gradient over a photo with a caption | [decoration.md#decoration-a-scrim-over-a-photo](#decoration-a-scrim-over-a-photo) |
+| A border hidden by a child's fill (paint order) | [decoration.md#decoration-borders-rules-and-shadows](#decoration-borders-rules-and-shadows) |
 | Images (local files, cover, aspect ratio) | [decoration.md#decoration-images](#decoration-images) |
 | Icons, their size and style | [decoration.md#decoration-icons](#decoration-icons) |
 | A star, sparkle or other mark the font does not have; a custom shape | [decoration.md#decoration-small-marks-and-shapes](#decoration-small-marks-and-shapes) |
@@ -675,7 +679,7 @@ section's anchor is its topic.
 | A button's label, colours, corners and label size | [forms.md#forms-buttons](#forms-buttons) |
 | Every prop of a text field | [forms.md#node-textField](#node-textField) |
 | Repeat one template per item of a list | [lists.md#lists-one-template-from-data](#lists-one-template-from-data) |
-| A grid of cards from data, as many columns as fit | [lists.md#lists-a-grid-of-cards](#lists-a-grid-of-cards) |
+| A grid of cards from data, as many columns as fit; gaps between wrapped items | [lists.md#lists-a-grid-of-cards](#lists-a-grid-of-cards) |
 | Nested lists; the outer item inside the inner list (`parent`) | [lists.md#lists-nested-lists](#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists.md#lists-a-table-from-one-template](#lists-a-table-from-one-template) |
 | A weekly grid (days × habits) | [lists.md#lists-a-weekly-grid](#lists-a-weekly-grid) |
@@ -726,18 +730,18 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4191 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 6937 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1949 |
-| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3873 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10127 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 5750 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4241 |
+| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7021 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1958 |
+| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3939 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10159 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6257 |
-| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5101 |
-| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4524 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6372 |
+| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5120 |
+| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4536 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2288 |
-| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6502 |
+| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6522 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2181 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 468 |
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
@@ -745,7 +749,7 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2249 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2341 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 12872 |
 
 <a id="index-a-z"></a>
@@ -1606,7 +1610,9 @@ value where the node binds the field at other sizes, drop the binding in the rul
 `Transform.translate`: `"motion": {"translateY": -36}` moves what the node paints, not its layout, so the next node
 does not move up; a node later in its parent paints over the ones before it. A media rule may patch it. A card
 overlapping the bottom of a hero band: the card after the hero with `translateY: -36`, and 36 px of `margin` below it
-if the next section should keep its distance. To overlap by an amount that depends on the content, use a `stack`.
+if the next section should keep its distance. The render command reports a node translated past its parent's box as
+`layout_overflow` (a warning naming the parent): expected for this pattern, and the only diagnostic it leaves. To
+overlap by an amount that depends on the content, or with no warning, use a `stack`.
 
 **Bleeding past the gutter** (a table or photo running to the screen's edge while the text keeps its padding): put
 the padding on the children, not on the band, or let the one child that bleeds translate out of it (`"motion":
@@ -1668,9 +1674,11 @@ giving one; `"axis": "horizontal"` moves only sideways scroll views).
 
 A header that stays at the top while the page scrolls under it: the scrolling column's first child with
 `"sticky": {"offset": 0}` (CSS `position: sticky`); it is drawn above the content and is pushed on by the end of
-its parent. `${sticky.stuck}` is true while it is pinned (bind a shadow or a smaller height to it). A header
-fixed to the window instead (it never scrolls): a `stack` filling the canvas body, the scrolling column first and
-the header after it at `"y": 0`.
+its parent. `${sticky.stuck}` is true while it is pinned (bind a shadow or a smaller height to it). In a `--full-page`
+capture a sticky node is drawn where it would pin in each window height (once per 900 px on desktop): check it with
+window captures (`--scroll <scrolling column id>=1200` without `--full-page`). A header fixed to the window instead (it never
+scrolls, and a full-page capture draws it once, at the top): a `stack` filling the canvas body, the scrolling column
+first (with a top spacer of the header's height) and the header after it at `"y": 0`.
 
 A comparison table with a **sticky first column** on phones is two parts side by side: a fixed column of row
 labels, and a row of plan columns that scrolls sideways (made to scroll only on phones by a media rule on its
@@ -1987,7 +1995,8 @@ A styled range of a text's characters, `[start, end)`.
   "color": "ember"}` (`textTheme.titleLarge.merge(...)`: the fields written win). Runs, a button's `textStyle` and
   an input's styles take the same two forms.
 - Changing a colour or style in the theme changes every node that names it, and only those.
-- In a binding a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`.
+- In a binding a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`; inside
+  a formula, `${= done ? theme.colors.sage : theme.colors.mist}`.
 
 <a id="theme-a-type-scale-that-changes-with-the-screen-size"></a>
 ### A type scale that changes with the screen size
@@ -2367,7 +2376,9 @@ two of them, one `topCenter` → `bottomCenter`, one `centerLeft` → `centerRig
 <a id="decoration-borders-rules-and-shadows"></a>
 ### Borders, rules and shadows
 
-`strokes` with `strokeWidth` (default 1), `strokeAlign` (`inside`, `center`, `outside`), `strokeSides` (`all`,
+A node's border is painted with its own box, **under its children**: a child with a fill covers an `inside` border
+(the default). Give the parent padding of the border's width, set `"strokeAlign": "outside"`, or put the border (or
+the rule) on the filled child. `strokes` with `strokeWidth` (default 1), `strokeAlign` (`inside`, `center`, `outside`), `strokeSides` (`all`,
 `bottom`, `topBottom`...) and `dashPattern` (`[6, 4]`). A rule under a text: the text inside a `row` or `column`
 with `"strokes": [{"color": ...}], "strokeSides": "bottom"`, or a `box` 1 high. `strokeWidth` without `strokes`
 draws nothing. Effects: `dropShadow`, `innerShadow`, `layerBlur`, `backgroundBlur` (frosted glass), each with
@@ -2460,6 +2471,7 @@ canvas): the `customPaint` behavior's draw lists, behind or over the node's cont
   `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
 - Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
 - `clip` is needed for children to follow rounded corners.
+- A child's fill covers its parent's inside border: pad the parent, stroke outside, or move the border to the child.
 
 <a id="decoration-see-also"></a>
 ## See also
@@ -3492,7 +3504,8 @@ Keep the values in variables, set a `tried` flag on submit, and show errors from
     "border": {"type": "outline", "borderRadius": 8}, "errorBorder": {"type": "outline", "borderRadius": 8, "borderSide": {"color": "#FFDC2626"}}}}}
 ```
 
-A form submitted to a service: `submitForm` ([data](#page-data)).
+Give a field that may show an error a hug height (`{"hug": 56}`): it grows by the error line, and the form with it;
+a fixed height keeps the field that tall. A form submitted to a service: `submitForm` ([data](#page-data)).
 
 <a id="forms-a-stepper-around-a-field"></a>
 ### A stepper around a field
@@ -3738,8 +3751,8 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
 | `mainAxisSpacing` | double | `0` |  | The gap between rows (along the scrolling axis), in pixels. |
 | `crossAxisSpacing` | double | `0` |  | The gap between columns, in pixels. |
-| `childAspectRatio` | double | `1` | ≥ 0.0001 |  |
-| `mainAxisExtent` | double | unset | ≥ 0 |  |
+| `childAspectRatio` | double | `1` | ≥ 0.0001 | Each cell's width / height when no `mainAxisExtent` is set (Flutter's `childAspectRatio`): 1 makes square cells. |
+| `mainAxisExtent` | double | unset | ≥ 0 | Each cell's height (its length along the scrolling axis), in pixels, whatever its width; wins over `childAspectRatio`. A cell fills it: give the item `{"fill": n}` on that axis, not a fixed size. |
 | `shrinkWrapRows` | bool | `false` |  | Each row (column, scrolling horizontally) as long as its longest item instead of a fixed extent. |
 | `masonry` | bool | `false` |  | Natural-height items in independent lanes, placed by `masonryPlacement`. |
 | `masonryPlacement` | [MasonryPlacement](#enum-MasonryPlacement) | `"cycle"` | `cycle`, `shortest` | A masonry grid's lane for each item: in turn, or the shortest. |
@@ -4061,7 +4074,8 @@ For cards in columns from one list inside a scrolling page, use a `gridView` wit
 `repeat(auto-fit, minmax(280px, 1fr))`: as many equal columns as fit), `"shrinkWrapRows": true` and
 `"physics": "never"` (it lays out every item and the page scrolls). A fixed number of columns: `crossAxisCount`. A
 `listView` with `"wrap": true` lays its items out at their own sizes in runs along its `scrollDirection`: set
-`"scrollDirection": "horizontal"` for chips side by side.
+`"scrollDirection": "horizontal"` for chips or nav links side by side. In wrap mode the gap between items is
+`wrapSpacing` and between runs `runSpacing`; `spacing` does not apply.
 
 <a id="lists-equal-height-cards"></a>
 ### Equal-height cards
@@ -4112,7 +4126,85 @@ table written four times. For a column that stays while the others scroll sidewa
 Seven columns of days from data: a `gridView` with `"crossAxisCount": 7` bound to the days (`${= range(7)}`, or a
 computed list of `{day, done}` records), each cell a box whose fill is bound to the item. Rows of habits × days: a
 `listView` of habits whose item holds a label and that 7-column grid bound to `${item.days}`; in a cell, `${parent}`
-is the habit.
+is the habit and `${index}` the day. A grid sizes its cells: set the cell height with `mainAxisExtent` and give
+the cell `fill` on both axes (a fixed size is `fit_not_allowed`).
+
+A tap on a day flips it in the habit's record (`setAt` and `set` build the new list); the label counts the checks:
+
+```json
+{
+  "schema": 3,
+  "roots": ["home"],
+  "nodes": {
+    "home": {
+      "type": "canvas",
+      "slots": {"body": "col"},
+      "layout": {"width": 390, "height": 400},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "col": {
+      "type": "column",
+      "children": ["habitList"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 400}, "padding": 24}
+    },
+    "habitList": {
+      "type": "listView",
+      "children": ["habit"],
+      "bind": {"data": "${habits}"},
+      "props": {"scrollable": false, "spacing": 12},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 200}}
+    },
+    "habit": {
+      "type": "column",
+      "children": ["name", "week"],
+      "props": {"crossAxisAlignment": "start", "spacing": 6},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 70}}
+    },
+    "name": {
+      "type": "text",
+      "props": {"text": "${item.name}: ${= count(item.days, d => d)}", "style": {"fontSize": 15, "color": "#FF111827"}},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 20}}
+    },
+    "week": {
+      "type": "gridView",
+      "children": ["day"],
+      "bind": {"data": "${item.days}"},
+      "props": {"crossAxisCount": 7, "mainAxisExtent": 40, "crossAxisSpacing": 6, "physics": "never"},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 40}}
+    },
+    "day": {
+      "type": "box",
+      "layout": {"width": {"fill": 40}, "height": {"fill": 40}},
+      "decoration": {"fills": [{"color": "#FFE5E7EB"}], "radius": 20},
+      "bind": {"decoration.fills[0].color": "${= item ? '#FF16A34A' : '#FFE5E7EB'}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "setVariable",
+              "variable": "habits",
+              "value": "${= setAt(habits, parent.index, set(parent.item, 'days', setAt(parent.item.days, index, !item)))}"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "variables": {
+    "home": [
+      {
+        "name": "habits",
+        "type": "list",
+        "value": [
+          {"name": "Water", "days": [true, true, false, false, false, false, false]},
+          {"name": "Read", "days": [false, true, false, false, false, false, false]}
+        ]
+      }
+    ]
+  }
+}
+```
 
 <a id="lists-a-carousel-pages-and-pagination"></a>
 ### A carousel, pages and pagination
@@ -4126,8 +4218,8 @@ neighbours' edges; `initialPage`). Long lists that load in pages: the list's `pa
 
 - Only the first child is the template; other children are ignored.
 - `item` and `index` are the innermost list's; the outer one is `parent`.
-- A list inside a scrolling page needs `"scrollable": false` (a grid `"physics": "never"`), or it takes its design
-  height and scrolls inside itself.
+- A list inside a scrolling page needs `"scrollable": false` (or `"physics": "never"`, which a `gridView` needs:
+  it has no `scrollable`), or it takes its design height and scrolls inside itself.
 - A wrapping `listView` runs along its `scrollDirection`: with the default `vertical` it flows top to bottom into
   columns (`vertical_wrap`).
 - Decoration on a `listView` or `gridView` is ignored (`decoration_ignored`): put the list inside a column that has
@@ -5284,18 +5376,31 @@ not in every binding. A function variable's name must not be a formula function'
 <a id="state-a-streak-and-other-counts-from-data"></a>
 ### A streak and other counts from data
 
-Derive, do not store: a computed variable over the records. Habits done today: `count(habits, h => h.done)`. A
-streak from a list of days, newest first: a function variable, or a script for anything with a loop. Totals:
-`sum(map(cart, i => i.price * i.qty))`. Dates: `formatDate(today(), 'EEE d')`, `addDays(today(), -i)`,
-`weekday(date)` (Monday is 1).
+Derive, do not store: a computed variable over the records. Habits done today: `count(habits, h => h.done)`.
+Totals: `sum(map(cart, i => i.price * i.qty))`. Dates: `formatDate(today(), 'EEE d')`, `addDays(today(), -i)`,
+`weekday(date)` (Monday is 1). Function variables may call each other. A streak (checked days in a row ending at
+day `end` of a list of booleans): the days up to `end`, reversed, and the index of the first unchecked one.
+
+```json
+"variables": {"page_variables": [
+  {"name": "todayIdx", "type": "integer", "formula": "weekday(today()) - 1"},
+  {"name": "gapAt", "type": "integer", "parameters": ["days", "end"], "formula": "findIndex(reverse(take(days, end + 1)), d => !d)"},
+  {"name": "streak", "type": "integer", "parameters": ["days", "end"], "formula": "gapAt(days, end) < 0 ? end + 1 : gapAt(days, end)"}
+]}
+```
+
+`${= streak(item.days, todayIdx)}` in a habit's row; `${= streak(item.days, todayIdx - 1)}` when today is not
+checked yet. For anything with a real loop, a script.
 
 <a id="state-changing-state-from-a-reaction"></a>
 ### Changing state from a reaction
 
 `setVariable` with `op`: `set` (default), `toggle`, `add` (a number adds; a list appends; a map merges),
 `subtract`, `insert` / `removeAt` / `update` at `index`, `remove`. `value` is an expression. A chain that branches:
-`if` with a `condition` (a predicate: `{"left": "${count}", "op": "greaterThan", "right": "5"}`) and `then` / `else`
-chains; every action also takes `when` (run only while it holds). `forEach` runs a chain per item; `delay` waits.
+`if` with a `condition` (a predicate: `{"left": "${count}", "op": "greaterThan", "right": "5"}`, `{"left":
+"${name}", "op": "isEmpty"}`; every op is in [Conditions](#state-conditions)) and `then` / `else` chains. Every
+action also takes `when`, the same kind of predicate object (run only while it holds); a trigger's `when` is a
+formula string instead (`"when": "!item.future"`). `forEach` runs a chain per item; `delay` waits.
 
 <a id="state-setting-several-nodes-with-a-condition"></a>
 ### Setting several nodes with a condition
@@ -5843,7 +5948,9 @@ A node's `actions` is a list of **reactions**: a trigger and the chain of action
   control's reaction only, as Flutter's gesture arena gives the tap to the innermost recognizer. To toggle from the
   whole row with one handler, give the control `"ignorePointer": true` and bind its value.
 - Screen triggers (`load`, `valueChanged`, `timer`, `frame`, `keyDown`) go on the canvas.
-- Every action also takes `enabled`, `nonBlocking` and `when` (run only while a predicate holds).
+- Every action also takes `enabled`, `nonBlocking` and `when` (run only while a predicate holds:
+  `{"left": "${count}", "op": "greaterThan", "right": "5"}`; the ops are in [Conditions](#state-conditions)). A
+  trigger's own `when` is a formula string.
 - Write each action's fields flat in the action object; a misspelled key is dropped by the runtime and reported by
   validation (`unknown_action_key`).
 
@@ -6369,8 +6476,8 @@ physics and game loops. Keep the state in variables and the work in a script whe
 - `motion` and `scale` do not change layout: neighbours do not move. To make room, animate a layout field.
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.
-- Animations run in a running app; the render command captures the frame at the moment of capture (`--wait <ms>`
-  to let one finish).
+- Animations run in a running app. The render command settles about a second after each step, so a short
+  animation is over when it captures; to check one mid-flight, lengthen its duration in a copy.
 
 <a id="animation-see-also"></a>
 ## See also
@@ -6737,7 +6844,12 @@ A goal's progress as a bar bound to a variable, and a week as a bar chart:
     "week": {
       "type": "barChart",
       "layout": {"width": {"fill": 342}, "height": 160},
-      "props": {"values": [1, 1, 0, 1, 1, 0, 0], "labels": ["M", "T", "W", "T", "F", "S", "S"], "color": "#FF16A34A"}
+      "props": {
+        "values": [1, 1, 0, 1, 1, 0, 0],
+        "labels": ["M", "T", "W", "T", "F", "S", "S"],
+        "color": "#FF16A34A",
+        "labelFontFamily": "Roboto"
+      }
     }
   },
   "variables": {"stats": [{"name": "done", "type": "integer", "value": 4}]}
@@ -7382,6 +7494,7 @@ reference lines.
 ## Pitfalls
 
 - Chart colours default to a dark theme's; set `color`, `gridColor` and the label colours on a light page.
+- A `barChart`'s labels default to JetBrains Mono: set `labelFontFamily` to a font you have (`font_fallback`).
 - A chart's size is its node's layout: give it a fixed height.
 - `value` above `max` is clamped.
 
@@ -8683,7 +8796,12 @@ scrolled to the middle first, and a tap that would land on another node is repor
 `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or
 screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`. A step may name a node by its `name` too. In a site, steps
 name nodes inside components by path (`--tap plans/card1/cta`). `--label <name>` keeps the screenshots and
-`diagnostics-<name>.json` of each state apart. `--full-page` captures the whole page from its top, its own scroll
+`diagnostics-<name>.json` of each state apart. After each step the page settles before the next one and the capture
+(about a second): an animation shorter than that is over when the screenshot is taken; to see one mid-flight,
+lengthen its duration in a copy. `--key` presses a key for the screen's `keyDown` reactions; it does not submit a
+focused text field (test `submitted` chains through a button). In nested lists `#n` counts the copies across the
+whole repeat, outer item by outer item, from 0: with a 7-day grid per habit, `day#9` is the second habit's third
+day. `--full-page` captures the whole page from its top, its own scroll
 height, with content fixed to the window drawn in the first window; without it the capture is the window where the
 steps left the page. `--fonts <dir>` adds font files; `--component <Type>` and `--components-all` render
 components alone.
