@@ -37,11 +37,15 @@ final class MediaRule {
   final MediaOrientation? orientation;
 
   /// A JSON merge patch over the node (maps merge, `null` removes, anything
-  /// else replaces): `props`, `layout`, `decoration`, `visible`, `opacity`.
+  /// else replaces): `props`, `layout`, `decoration`, `visible`, `opacity`,
+  /// `motion` (a transform that moves what is painted, not the layout:
+  /// `Transform.translate`), and `bind`: bindings that hold at these sizes
+  /// only (`"bind": {"visible": "${= !open}"}`), or `null` to drop one of the
+  /// node's own here, so its patched value shows.
   final Json patch;
 
   /// The keys a patch may set.
-  static const patchKeys = {'props', 'layout', 'decoration', 'visible', 'opacity'};
+  static const patchKeys = {'props', 'layout', 'decoration', 'visible', 'opacity', 'motion', 'bind'};
 
   /// The condition keys a rule may have (at least one).
   static const conditionKeys = {'minWidth', 'maxWidth', 'orientation'};

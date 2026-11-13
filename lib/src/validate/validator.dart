@@ -23,6 +23,7 @@ import '../core/catalog_json.dart' show widgetSpecFromJson;
 import '../core/document.dart';
 import '../core/scripts.dart';
 import '../core/sections.dart';
+import '../core/theme.dart';
 import '../core/triggers.dart';
 import '../core/value_fields.dart';
 import '../core/variables.dart';
@@ -47,6 +48,7 @@ final class ValidateOptions {
     this.formulas,
     this.breakpoints,
     this.components,
+    this.theme,
   });
 
   /// Screen ids (canvas and layout ids) of the other documents of the
@@ -66,6 +68,10 @@ final class ValidateOptions {
   /// The project's component definitions: calls to them are checked against
   /// their declarations ([validateProject] gives the documents' own).
   final ComponentLibrary? components;
+
+  /// The project's theme (the site manifest's): the color and text style
+  /// names documents may use. Null: no theme, so any name is reported.
+  final ThemeTokens? theme;
 }
 
 /// The keys a layout document reads at its top level.
@@ -129,7 +135,8 @@ List<Diagnostic> validateProject(Map<String, Object?> documents,
         variables: projectVariables,
         formulas: options.formulas,
         breakpoints: options.breakpoints,
-        components: library);
+        components: library,
+        theme: options.theme ?? manifest?.theme);
     out.addAll(validateDocument(e.value, options: o).map((d) => d.withFile(e.key)));
   }
   return out;
@@ -155,7 +162,7 @@ final _decorationCodec = _ModelCodec<Decoration>(
 
 final class _Validator {
   _Validator(this.r, this.options) {
-    values = ValueChecker(r, hook: _jsonHook);
+    values = ValueChecker(r, hook: _jsonHook, theme: options.theme);
   }
 
   final Reporter r;
@@ -708,6 +715,17 @@ final class _Validator {
           case 'opacity':
             final o = readDouble(e.value);
             if (e.value != null && (o == null || o < 0 || o > 1)) r.add(Codes.wrongType, kp, '"opacity" is a number from 0 to 1, got ${describe(e.value)}.');
+          case 'bind':
+            // Bindings at these sizes: a path to an expression, or null to
+            // drop the node's own binding of it here.
+            final bm = readMap(e.value);
+            if (bm == null) {
+              r.add(Codes.wrongType, kp, '"bind" maps binding paths to expressions, got ${describe(e.value)}.');
+            } else {
+              _bind(n, {for (final b in bm.entries) if (b.value != null) b.key: b.value}, kp);
+            }
+          case 'motion':
+            values.checkDef(BehaviorFields.motion, e.value is Map ? _withoutNulls(e.value) : e.value, kp);
           default:
             r.add(Codes.invalidMedia, kp,
                 e.key == 'children'
@@ -716,12 +734,23 @@ final class _Validator {
                 suggestion: e.key == 'children' ? 'layout.order' : nearest(e.key, MediaRule.patchKeys));
         }
       }
-      // A binding of the same field wins over the patch.
-      for (final path in _leafPaths(pm, '')) {
-        for (final b in n.bind.keys) {
+      // A binding of the same field wins over the patch, unless the patch
+      // drops that binding at these sizes ("bind": {"<path>": null}).
+      final patchBinds = readMap(pm['bind']) ?? const <String, Object?>{};
+      final binds = {
+        for (final b in n.bind.keys)
+          if (!patchBinds.containsKey(b)) b,
+        for (final b in patchBinds.entries)
+          if (b.value != null) b.key,
+      };
+      for (final path in _leafPaths({...pm}..remove('bind'), '')) {
+        for (final b in binds) {
           if (path == b || path.startsWith('$b.') || b.startsWith('$path.')) {
+            final own = patchBinds[b] == null;
             r.add(Codes.mediaOverridden, pp,
-                'The patch sets $path, which "bind" also sets ("$b"): the binding wins at every size. Remove one of them.');
+                'The patch sets $path, which ${own ? '"bind"' : 'the patch\'s own "bind"'} also sets ("$b"): a binding wins over a value, so the patch\'s value never shows. '
+                'To bind it only at these sizes, put the binding in the patch ("patch": {"bind": {"$b": "\${...}"}}) and give the node its value for the other sizes; '
+                'to use the patch\'s value here, drop the binding at these sizes ("patch": {"bind": {"$b": null}, ...}).');
           }
         }
       }
@@ -1528,4 +1557,117 @@ final class _Validator {
     }
     return false;
   }
+}
+
+/// The keys a theme (the site manifest's `theme`) reads.
+const Set<String> themeKeys = {
+  'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning', 'fontFamily', 'titleFontFamily', //
+  'radius', 'buttonRadius', 'colors', 'textStyles', 'dark', 'naturalLineHeight', 'media',
+};
+
+/// Checks a theme's JSON (the site manifest's `theme`, at [at]): its keys,
+/// its colors (`#AARRGGBB` or another color's name), its text styles (as
+/// TextStyle, their `from` and color names against the theme itself) and
+/// its media rules (conditions as a node's, patches of colors and text
+/// styles).
+List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints? breakpoints}) {
+  final r = Reporter();
+  final m = readMap(json);
+  if (json == null) return r.out;
+  if (m == null) {
+    r.add(Codes.invalidTheme, at, 'A theme is an object: {"colors": {"ink": "#FF111111"}, "textStyles": {"body": {...}}}.');
+    return r.out;
+  }
+  final theme = ThemeTokens.fromJson(m);
+  final values = ValueChecker(r, theme: theme);
+  void body(Json m, String at, {required bool patch}) {
+    for (final e in m.entries) {
+      final p = pointer(at, e.key);
+      if (!themeKeys.contains(e.key) || (patch && (e.key == 'media' || e.key == 'dark'))) {
+        r.add(Codes.invalidTheme, p, 'A theme has no "${e.key}". It takes: ${themeKeys.join(', ')}.',
+            suggestion: nearest(e.key, themeKeys));
+        continue;
+      }
+      if (e.value == null) continue;
+      switch (e.key) {
+        case 'colors':
+          final colors = readMap(e.value);
+          if (colors == null) {
+            r.add(Codes.invalidTheme, p, '"colors" maps names to colors: {"ink": "#FF111111"}.');
+            continue;
+          }
+          for (final c in colors.entries) {
+            values.check(PropTypes.color, c.value, pointer(p, c.key));
+          }
+        case 'textStyles':
+          final styles = readMap(e.value);
+          if (styles == null) {
+            r.add(Codes.invalidTheme, p, '"textStyles" maps names to text styles: {"body": {"fontSize": 16}}.');
+            continue;
+          }
+          for (final s in styles.entries) {
+            if (s.value is! Map) {
+              r.add(Codes.invalidTheme, pointer(p, s.key), 'A theme text style is a TextStyle object, got ${describe(s.value)}.');
+              continue;
+            }
+            values.check(PropTypes.textStyle, s.value, pointer(p, s.key));
+          }
+        case 'dark':
+          final d = readMap(e.value);
+          if (d == null) {
+            r.add(Codes.invalidTheme, p, '"dark" holds the colors that differ in dark mode: {"colors": {...}}.');
+          } else {
+            body(d, p, patch: true);
+          }
+        case 'media':
+          final list = readList(e.value);
+          if (list == null) {
+            r.add(Codes.invalidTheme, p, '"media" is a list of rules: [{"minWidth": 1024, "patch": {"textStyles": {...}}}].');
+            continue;
+          }
+          for (var i = 0; i < list.length; i++) {
+            final rule = readMap(list[i]);
+            final rp = pointer(p, i);
+            if (rule == null || !rule.keys.any(MediaRule.conditionKeys.contains)) {
+              r.add(Codes.invalidMedia, rp, 'A theme media rule is {"minWidth"|"maxWidth"|"orientation": ..., "patch": {...}}.');
+              continue;
+            }
+            final names = MediaRule.fromJson(rule)!.unknownNames(breakpoints ?? Breakpoints.defaults);
+            if (names.isNotEmpty) {
+              r.add(Codes.unknownBreakpoint, rp, 'No breakpoint ${names.map((n) => '"$n"').join(', ')}.');
+            }
+            for (final k in rule.keys) {
+              if (k != 'patch' && !MediaRule.conditionKeys.contains(k)) {
+                r.add(Codes.invalidMedia, pointer(rp, k), 'A media rule has no "$k".', suggestion: nearest(k, [...MediaRule.conditionKeys, 'patch']));
+              }
+            }
+            final patch = readMap(rule['patch']);
+            if (patch == null) {
+              r.add(Codes.invalidMedia, pointer(rp, 'patch'), 'Add "patch": the theme\'s fields at those sizes ({"textStyles": {"display": {"fontSize": 40}}}).');
+            } else {
+              // A patch's text style changes some fields of the theme's.
+              final checked = <String, Object?>{...patch};
+              final ts = readMap(patch['textStyles']);
+              if (ts != null) {
+                checked['textStyles'] = <String, Object?>{
+                  for (final s in ts.entries) s.key: s.value is Map ? ({...readMap(s.value)!}..remove('from')) : s.value,
+                };
+              }
+              body(checked, pointer(rp, 'patch'), patch: true);
+            }
+          }
+        default:
+          final def = switch (e.key) {
+            'fontFamily' || 'titleFontFamily' => const PropType.string(),
+            'radius' || 'buttonRadius' => const PropType.number(),
+            'naturalLineHeight' => const PropType.boolean(),
+            _ => PropTypes.color,
+          };
+          values.check(def, e.value, p);
+      }
+    }
+  }
+
+  body(m, at, patch: false);
+  return r.out;
 }
