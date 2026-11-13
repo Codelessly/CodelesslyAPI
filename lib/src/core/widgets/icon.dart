@@ -13,6 +13,12 @@ abstract final class IconProps {
           'to write everywhere (an icon node, an input\'s `prefixIcon`). Also read: an image URL, and the object forms '
           'of older documents (`{"type": "MATERIAL_ICON", "name", "style"}`, `{"type": "CUPERTINO_ICON", "codepoint"}`).');
   static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
-  static const spec = WidgetSpec('icon', props: [icon, color], doc: 'Flutter `Icon`.');
+
+  /// Flutter's `Icon.size`: the glyph's extent (square).
+  static const size = PropDef<double?>('size', OptionalDoubleCodec(min: 0), null,
+      doc: 'Flutter `Icon.size`: the glyph\'s width and height. Unset, the glyph fills the node\'s box (contained, centred), '
+          'as before. Set, the glyph is drawn at this size, centred in the node\'s box (at most the box), and a hugging axis '
+          'of the node takes it (`{"hug": 24}` with `"size": 18` is 18 wide).');
+  static const spec = WidgetSpec('icon', props: [icon, color, size], doc: 'Flutter `Icon`.');
 }
 

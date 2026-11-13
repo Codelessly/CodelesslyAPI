@@ -1011,6 +1011,15 @@
           "default": null,
           "nullable": true,
           "doc": ""
+        },
+        {
+          "key": "size",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "min": 0.0,
+          "doc": "Flutter `Icon.size`: the glyph's width and height. Unset, the glyph fills the node's box (contained, centred), as before. Set, the glyph is drawn at this size, centred in the node's box (at most the box), and a hugging axis of the node takes it (`{\"hug\": 24}` with `\"size\": 18` is 18 wide)."
         }
       ]
     },
@@ -15345,7 +15354,7 @@
     },
     "Color": {
       "forms": "\"#AARRGGBB\" or \"#RRGGBB\" (hex, alpha first)",
-      "doc": "A 32-bit ARGB color, as Flutter's `Color`. JSON: `\"#AARRGGBB\"` (`\"#RRGGBB\"` and ints also read)."
+      "doc": "A 32-bit ARGB color, as Flutter's `Color`. JSON: `\"#AARRGGBB\"` (`\"#RRGGBB\"` and ints also read), or the name of one of the project's theme colors (`\"ember\"`: `ThemeTokens.colors`, resolved before the document renders; see `resolveThemeRefs`)."
     },
     "EdgeInsets": {
       "forms": "a number (all sides) or [left, top, right, bottom]",
@@ -20413,6 +20422,14 @@
     "TextStyle": {
       "doc": "Flutter's `TextStyle`. Every field is optional: a span's style is merged over its text's base style, as in `Text.rich`.",
       "fields": [
+        {
+          "key": "from",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": "The name of one of the project's text styles (the site manifest's `theme.textStyles`) this style starts from, as `Theme.of(context).textTheme.titleLarge.merge(...)`: the fields written here change it. `\"style\": \"title\"` is short for `{\"from\": \"title\"}`."
+        },
         {
           "key": "fontFamily",
           "type": "String",
@@ -26200,6 +26217,16 @@
       "code": "media_overridden",
       "severity": "warning",
       "meaning": "A media rule patches a field the node also binds: the binding wins, so the patch never shows."
+    },
+    {
+      "code": "unknown_theme_name",
+      "severity": "error",
+      "meaning": "A color or text style names a color or text style the project's theme (the site manifest's \"theme\") does not have: it would show transparent or unstyled."
+    },
+    {
+      "code": "invalid_theme",
+      "severity": "error",
+      "meaning": "The site manifest's \"theme\" is not of the right shape: colors are \"#AARRGGBB\" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles."
     },
     {
       "code": "duplicate_breakpoint_canvas",
