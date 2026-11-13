@@ -2,9 +2,9 @@
 // layouts, `${screen}` and per-breakpoint values speak of (DESIGN.md §5.3).
 import 'package:meta/meta.dart';
 
-import '../document.dart';
-import '../json.dart';
-import '../props.dart';
+import 'document.dart';
+import 'json.dart';
+import 'props.dart';
 
 /// One screen size class of a project: from [minWidth] (inclusive) up to the
 /// next breakpoint's.

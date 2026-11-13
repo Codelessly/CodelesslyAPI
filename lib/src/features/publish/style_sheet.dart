@@ -1,11 +1,11 @@
 // A project's style sheet: named text styles and color styles the editor
 // applies to nodes (presets: a node keeps the values, not a link), and the
 // app's theme ([ThemeTokens]) read from them by name.
-import '../json.dart';
-import '../values/color.dart';
-import '../values/paint.dart';
-import '../values/text.dart';
-import 'theme.dart';
+import '../../core/json.dart';
+import '../../core/values/color.dart';
+import '../../core/values/paint.dart';
+import '../../core/values/text.dart';
+import '../../core/theme.dart';
 
 /// A named text style.
 final class NamedTextStyle {

@@ -15,7 +15,7 @@ import 'actions.dart';
 import 'conditions.dart';
 import 'json.dart';
 import 'props.dart';
-import 'standard_catalog.dart';
+import '../standard_catalog.dart';
 
 /// What a document may contain: declared node types, action types, data
 /// sources and formula functions. Immutable; composed with `+` or [parts],

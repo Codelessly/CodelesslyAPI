@@ -1,11 +1,11 @@
 import 'package:meta/meta.dart';
 
-import '../document.dart';
-import '../json.dart';
+import '../../core/document.dart';
+import '../../core/json.dart';
 import 'app_identity.dart';
-import 'breakpoints.dart';
+import '../../core/breakpoints.dart';
 import 'publish_layout.dart';
-import 'theme.dart';
+import '../../core/theme.dart';
 
 /// The schema version of the publish model and bundle this package reads
 /// and writes. Layouts carry the document schema ([kSchemaVersion]).

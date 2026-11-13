@@ -25,16 +25,16 @@ import 'dart:convert';
 
 import 'package:meta/meta.dart';
 
-import 'actions.dart';
-import 'bindings.dart';
-import 'components.dart';
-import 'document.dart';
-import 'json.dart';
-import 'layout.dart';
-import 'node.dart';
-import 'publish/publish_layout.dart';
-import 'publish/theme.dart';
-import 'variables.dart';
+import '../../core/actions.dart';
+import '../../core/bindings.dart';
+import '../../core/components.dart';
+import '../../core/document.dart';
+import '../../core/json.dart';
+import '../../core/layout.dart';
+import '../../core/node.dart';
+import '../publish/publish_layout.dart';
+import '../../core/theme.dart';
+import '../../core/variables.dart';
 
 /// The collection of managed component masters; versions are its
 /// `versions` subcollection.

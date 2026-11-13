@@ -1,9 +1,9 @@
 // What a publish model carries for the app's services.
 import 'package:meta/meta.dart';
 
-import '../json.dart';
-import 'http_api.dart';
-import 'paywall.dart';
+import 'core/json.dart';
+import 'features/data/http_api.dart';
+import 'features/commerce/paywall.dart';
 
 /// The services part of a publish model (its `services` key):
 ///

@@ -10,7 +10,7 @@
 // `#AARRGGBB`.
 import 'package:meta/meta.dart';
 
-import '../json.dart';
+import '../../core/json.dart';
 
 /// `${page.title} · ${app.name}`: the default title template.
 const String kDefaultTitleTemplate = r'${page.title} · ${app.name}';

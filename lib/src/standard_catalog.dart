@@ -1,10 +1,10 @@
 // The standard catalog: the core and the first-party feature libraries
 // (data, auth, commerce, media, engage). What decoding uses by default, so
 // code written before catalogs existed keeps reading every type.
-import 'actions.dart';
-import 'catalog.dart';
-import 'widgets/media.dart';
-import 'widgets/widgets.dart';
+import 'core/actions.dart';
+import 'core/catalog.dart';
+import 'core/widgets/media.dart';
+import 'core/widgets/widgets.dart';
 
 /// The core: node types, layout, decoration, behaviors, triggers and the
 /// core actions ([CoreAction]).

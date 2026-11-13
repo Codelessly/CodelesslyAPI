@@ -17,10 +17,10 @@
 // ```
 import 'package:meta/meta.dart';
 
-import '../actions.dart';
-import '../json.dart';
-import '../props.dart';
-import 'publish_model.dart';
+import '../../core/actions.dart';
+import '../../core/json.dart';
+import '../../core/props.dart';
+import '../publish/publish_model.dart';
 
 /// The publish model's key holding its automations.
 const String kAutomationsKey = 'automations';

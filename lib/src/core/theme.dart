@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
 
-import '../json.dart';
-import '../values/color.dart';
-import '../values/text.dart';
+import 'json.dart';
+import 'values/color.dart';
+import 'values/text.dart';
 
 /// A project's theme as published: what the runtime draws itself (dialogs,
 /// toasts, the loading and error screens), what layouts read at run time

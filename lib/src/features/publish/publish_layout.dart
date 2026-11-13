@@ -1,14 +1,14 @@
 import 'package:meta/meta.dart';
 
-import '../catalog.dart';
-import '../document.dart';
-import '../conditions.dart';
-import '../json.dart';
-import '../logic.dart';
-import '../scripts.dart';
-import '../variables.dart';
-import 'breakpoints.dart';
-import 'theme.dart';
+import '../../core/catalog.dart';
+import '../../core/document.dart';
+import '../../core/conditions.dart';
+import '../../core/json.dart';
+import '../../core/logic.dart';
+import '../../core/scripts.dart';
+import '../../core/variables.dart';
+import '../../core/breakpoints.dart';
+import '../../core/theme.dart';
 
 /// Which project breakpoint a canvas of a layout is the design for
 /// (DESIGN.md §5.3). A layout with several canvases (one screen, one canvas
