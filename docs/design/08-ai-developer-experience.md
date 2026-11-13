@@ -655,6 +655,33 @@ Implemented 2026-11-13 (codelessly_api `lib/src/core/edit`, `lib/src/validate/ed
   SDK's: the SDK takes no LLM dependency. It asks for eager tool input streaming, so `input_json_delta` events arrive
   as the input is generated.
 
+* **Real streams are not valid JSON** (recorded 2026-11-13, three live generations). With eager tool input
+  streaming the API does not validate the input, and `flights@claude-haiku-5-5` closed one brace too many three
+  times (after writing `bind` beside `node`): the first decoder took the `ops` array as closed after 6 of 24 ops.
+  The decoder now works around op boundaries (a repaired copy of the text, op objects at any depth outside an op,
+  re-synchronisation when an op begins inside an unclosed one), reports each repair as `malformed_input` with its
+  offset, and moves node fields written beside `node` into it (`misplaced_field`); all 24 ops apply.
+* **The retry protocol is part of the edit layer**, not the host's prose: `toModelJson()` carries what the document
+  holds and `next` (fix by patching, same ids, never start over); `protectRoots` answers a rebuild with
+  `start_over` (the live haiku retry re-created the card under a new root); the diagnostics models hit carry the fix
+  as JSON (`explainDiagnostic`). Lints of a finished UI (`empty_button`, `low_contrast`, `missing_glyph`, `no_size`)
+  go back through the same channel: the weather card's empty yellow button was a model mistake (a `box` with a
+  click reaction and no label: a box takes no children) that nothing reported; now `empty_button` does.
+* **Runtime context: a base set plus a link to the full reference.** §4's ≈2.5k-word starter became
+  `runtimeStarter` (generated from the declarations for the profile's types: rules, ops, layout and decoration
+  essentials, one table of the base node types including the button family and the inputs, two verified examples)
+  and the `ui_docs` tool (`docsTopic`: any node type, action type, trigger, behavior or guide area, generated from
+  the same declarations and templates as docs/reference). 15,125 characters with 2,126 of compact tools against
+  72,898 + 8,369 (full STARTER and full schemas). Not counted with a tokenizer here: ≈ 4,900 tokens at 3.5
+  characters per token, ≈ 7,300 at the 2.37 the API measured for the full prompt (28,768 tokens): within §4's 6k
+  budget only at the first estimate; the interactive components' tables were kept over the budget, as the owner
+  asked.
+* **Apps may run scripts** (`TrustProfile.agentApps`): the `scripts` op writes the document's sandboxed scripts,
+  capabilities limited to variables and the clock; `agent` (chat cards) stays script-free.
+* **Forced tool use only where the model takes it.** Haiku 5.5 with thinking off gets `tool_choice: any`; Sonnet
+  5.5, Opus 5.5 and Fable 5.2 reject a forced choice (400), so they get `auto` and one nudge when a turn ends with
+  text only.
+
 ## Measured
 
 On the replay's virtual clock (synthetic streams, 4 characters per token; `CodelesslySDK/tool/stream/out/summary.md`):
@@ -674,14 +701,19 @@ tokens, above §4's 6k budget (it is cached).
 
 ## Not done
 
-* **The live path is not verified.** `LlmStreamSource` and `tool/record.dart` were checked offline only (the request
-  JSON; the missing-key exit): the authorization to run them was not available where this was built, so no real
-  stream, time to first token, rejection rate or retry outcome was measured. The command to record them is in
-  `examples/stream_chat/README.md`.
+* **The hardened path is verified on three recorded streams only.** The compact prompt, `ui_docs`, the retry
+  protocol, forced tool use and the app briefs were built and checked offline (the request JSON, recorded streams,
+  hand-written fixtures for "works when used"); their effect on live validity, size and time is what
+  `examples/stream_chat/tool/record_all.sh` measures.
+* Formulas that call a session's scripts (`script.name(...)` in a binding) are validated and allowed by
+  `agentApps`, but `CodelesslyView` wires only `runScript` reactions to the script runner; formula calls are not
+  evaluated in a session view yet.
+* `missing_glyph` needs the host to say which characters its fonts draw (`UiSession.glyphCoverage`); the replay
+  and the record command use Roboto's cmap, an app passes nothing by default.
 * The `codelessly` CLI and MCP server (phase 2), the editor's `DocStore` as op batches (phase 5), interop (phase 6).
 * Components by path in ops (`plans/card1/cta`): ops address the session's own document only.
 * `TrustProfile.dataScopes`, image host allow-lists by default, `maxDepth` measured through slots of instances.
-* A smaller runtime starter (≈2.5k words) and the compact op format of §4: not built; the numbers above say the
-  compact format's threshold is crossed by the cards.
+* The compact op format of §4: not built; the recorded cards (3,170 to 4,886 output tokens) are above its
+  2,000-token threshold.
 * Partial text inside an incomplete op (A2UI Express's healing): an op applies only whole.
 * Render-time feedback to the model (`render_exception`, overflow) after the first frame.
