@@ -13,6 +13,7 @@ import 'package:meta/meta.dart';
 
 import 'custom_paint.dart';
 import 'json.dart';
+import 'path_follow.dart';
 import 'values/color.dart';
 import 'values/enums.dart';
 import 'values/geometry.dart';
@@ -1396,133 +1397,167 @@ final class DropTarget extends _Value {
 /// A direction a node is dragged or dismissed in.
 enum DragDirection { left, right, up, down }
 
-/// The shape of a [Track].
+/// The shape of a [Track]: a straight line, an arc about a pivot, or an
+/// SVG path ([Track.path]).
 enum TrackShape { line, arc, path }
 
-/// How the pointer moves along a [Track]: following it, or dragging
-/// up/down, left/right, or either (up or right raises it: dx − dy).
+/// How the pointer moves along a [Track]: following it (along the line or
+/// path, round the arc), or dragging up/down, left/right, or either (up or
+/// right raises it: dx − dy).
 enum TrackInput { follow, vertical, horizontal, both }
 
 /// Where a [Track]'s node takes the pointer: on itself, or anywhere in
-/// its parent (a knob turned from anywhere in its box).
+/// its parent too (a knob turned from anywhere in its box).
 enum TrackHitArea { self, parent }
 
-/// What a [Track]'s geometry is measured in: pixels, or fractions of the
-/// parent's size (x values of its width, y of its height).
+/// What a [Track]'s line and pivot are measured in: pixels, or fractions of
+/// the parent's size (x values of its width, y of its height).
 enum TrackUnits { pixels, parent }
 
-/// A value the user sets by dragging (node key `track`): Flutter's `Slider`,
-/// generalised from a straight bar to any line, arc or path. The node
-/// carrying it is the thumb: it moves along the track as variable
-/// [variable] goes from [min] to [max], and the design canvas draws it at
-/// the variable's value. Dragging it writes the variable (unless [write]
-/// is off); a double tap goes to [defaultValue] (or through
-/// [doubleTapValues]), the wheel and arrow keys step it. Inside it
+/// How the pointer may move a [Track]'s value (Flutter's
+/// `SliderInteraction`, the two it has of four): only by dragging the thumb
+/// (`slideThumb`), or also by pressing the track, which moves the thumb
+/// there before the drag goes on (`tapAndSlide`; [TrackInput.follow] only).
+enum TrackInteraction { slideThumb, tapAndSlide }
+
+/// A value the user sets by dragging (node key `track`): Flutter's `Slider`
+/// (`value`, `min`, `max`, divisions as [step], `onChanged` as the
+/// `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a
+/// straight bar to a line, an arc or any path. The node carrying it is the
+/// thumb: it moves along the track as variable [variable] goes from [min] to
+/// [max], and the design canvas draws it at the variable's value. Dragging
+/// it writes the variable; the wheel and arrow keys step it. Inside it
 /// `${track.value}`, `${track.progress}`, `${track.dragging}`,
-/// `${track.fine}` and `${track.focused}` can be read; it fires `changed`,
-/// `dragEnd` and `changeEnd`.
+/// `${track.fine}` and `${track.focused}` can be read; it fires `changed`
+/// (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and
+/// `changeEnd`.
 ///
 /// Its settings and geometry are bindable as `track.<field>`
 /// (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the
 /// node is drawn at in place of reading [variable]. The legacy
-/// `drag.track` (and its `drag.track.*` binding paths) read as this.
+/// `drag.track` (and its `drag.track.*` binding paths) reads as this: see
+/// [fromJson] for its renamed keys.
 @immutable
 final class Track extends _Value {
   const Track({
     this.enabled = true,
-    this.shape = TrackShape.line,
     this.variable = '',
+    this.value,
     this.min = 0,
     this.max = 1,
     this.step = 0,
-    this.defaultValue,
+    this.clamp = true,
     this.input = TrackInput.follow,
+    this.allowedInteraction = TrackInteraction.slideThumb,
+    this.hitArea = TrackHitArea.self,
     this.pixelsPerRange = 200,
+    this.wheelStep,
+    this.keyStep,
+    this.shape = TrackShape.line,
     this.x1 = 0,
     this.y1 = 0,
     this.x2 = 0,
     this.y2 = -100,
+    this.relative = false,
+    this.units = TrackUnits.pixels,
     this.startAngle = -135,
-    this.endAngle = 135,
+    this.sweepAngle = 270,
     this.pivotX = 0,
     this.pivotY = 0,
     this.rotate = true,
     this.path,
-    this.orientToPath = false,
-    this.jumpOnTap = false,
-    this.wheel = true,
-    this.value,
-    this.orientUpright = false,
     this.detent = 0,
     this.overscroll = 0,
+    this.physics,
     this.settle = 0,
     this.settleCurve = AnimationCurve.easeOutCubic,
     this.settleSpring = Track.defaultSettleSpring,
-    this.parkedProgress,
-    this.keyboard = true,
-    this.viewBoxWidth = 0,
-    this.viewBoxHeight = 0,
-    this.relative = false,
-    this.wheelStep,
+    this.snap = 0,
+    this.snapCurve = AnimationCurve.easeOutBack,
+    this.defaultValue,
     this.doubleTapValues = const [],
-    this.keyStep,
-    this.hitArea = TrackHitArea.self,
-    this.units = TrackUnits.pixels,
+    this.parkedProgress,
     this.fineStep = 0,
     this.finePixelsPerRange = 0,
     this.fineHold = 380,
     this.fineVariable = '',
-    this.snap = 0,
-    this.snapCurve = AnimationCurve.easeOutBack,
-    this.write = true,
-    this.endless = false,
-    this.momentum = false,
-    this.friction = 2.6,
     this.smooth = false,
     this.gain = 1,
   });
 
+  // --- the value (Slider) ---
+
   /// Whether it takes the pointer, the wheel and the keys (bindable as
   /// `track.enabled`; the legacy `drag.enabled` reads as it).
   final bool enabled;
-  final TrackShape shape;
 
   /// The variable it reads and writes; empty when `track.value` is bound
-  /// and its reactions write the value.
+  /// and its reactions write the value (the legacy `write: false`).
   final String variable;
-  final double min, max, step;
-
-  /// What a double tap resets to (bindable as `track.defaultValue`).
-  final double? defaultValue;
-  final TrackInput input;
-  final double pixelsPerRange;
-
-  /// A line's ends, from the node's place (pixels, or with [relative]
-  /// multiples of the node's size, with [units] parent of the parent's).
-  final double x1, y1, x2, y2;
-
-  /// An arc's angles (degrees, clockwise, 0 up) about the pivot (from the
-  /// node's center).
-  final double startAngle, endAngle, pivotX, pivotY;
-
-  /// Turns the node with the arc.
-  final bool rotate;
-  final String? path;
-  final bool orientToPath;
-
-  /// Pressing anywhere along the track (or the [hitArea]) moves the node
-  /// there, then the drag goes on (only for [TrackInput.follow]).
-  final bool jumpOnTap;
-
-  /// Whether the mouse wheel steps the value.
-  final bool wheel;
 
   /// The value the node is drawn at, from a binding (`track.value`); null
   /// reads [variable].
   final double? value;
 
-  /// With [orientToPath], never upside down (as [Motion.orientUpright]).
-  final bool orientUpright;
+  /// The range and its step (`Slider.divisions` = (max − min) / step; 0 is
+  /// continuous).
+  final double min, max, step;
+
+  /// Whether the value stays within [min]–[max]. Off, an [TrackShape.arc]
+  /// keeps turning past its ends and the value counts on (a combination
+  /// dial; the legacy `endless`).
+  final bool clamp;
+
+  // --- input ---
+
+  final TrackInput input;
+
+  /// The legacy `jumpOnTap: true` reads as [TrackInteraction.tapAndSlide].
+  final TrackInteraction allowedInteraction;
+
+  /// With [TrackHitArea.parent] the node's parent takes the pointer too.
+  final TrackHitArea hitArea;
+
+  /// Pixels of drag for the whole range ([TrackInput.vertical],
+  /// [TrackInput.horizontal], [TrackInput.both]; the legacy `gain` divides
+  /// it).
+  final double pixelsPerRange;
+
+  /// One wheel notch, one arrow key: null [step], else 1% of the range; 0
+  /// turns the wheel (the legacy `wheel: false`) or the keys (`keyboard:
+  /// false`) off. With the keys on it takes focus: arrows step, Page Up/Down
+  /// by 10 steps, Home and End to the ends.
+  final double? wheelStep, keyStep;
+
+  // --- where the thumb is drawn ---
+
+  /// Inferred from [path] when not given.
+  final TrackShape shape;
+
+  /// A line's ends, from the node's place (pixels, or with [relative]
+  /// multiples of the node's size, with [units] parent of the parent's).
+  final double x1, y1, x2, y2;
+
+  /// A line's ends are multiples of the node's own size (a full-width scrub
+  /// area: `x1: -0.5, x2: 0.5`).
+  final bool relative;
+  final TrackUnits units;
+
+  /// An arc: the angle of [min] (degrees, clockwise, 0 up) and the turn to
+  /// [max] (the legacy `endAngle` is `startAngle + sweepAngle`), about the
+  /// pivot (from the node's center); the node orbits it on the circle
+  /// through its place, turning with it ([rotate]). A pivot at the center is
+  /// a knob that turns in place.
+  final double startAngle, sweepAngle, pivotX, pivotY;
+  final bool rotate;
+
+  /// A path ([TrackShape.path]): its SVG data in pixels from the node's
+  /// place, or in a view box stretched over the parent, and whether the node
+  /// turns with it (the legacy `path`, `viewBoxWidth`/`viewBoxHeight`,
+  /// `orientToPath` and `orientUpright`).
+  final PathFollow? path;
+
+  // --- feel ---
 
   /// How magnetic [step]s are while dragging (0–1): 0 jumps from step to
   /// step; above 0 the node follows that share of the way past a step.
@@ -1531,6 +1566,11 @@ final class Track extends _Value {
   /// How far it can be dragged past an end, a share of the pointer's
   /// travel there (0–1); it springs back on release.
   final double overscroll;
+
+  /// Let go while moving, with [GesturePhysics.fling] it coasts on, slowing
+  /// by [GesturePhysics.friction], then settles on a [step] (the legacy
+  /// `momentum` and its `friction` rate). Null stops where let go.
+  final GesturePhysics? physics;
 
   /// The glide to its value's place when not following the pointer (ms; 0
   /// jumps), its curve, and the spring of [AnimationCurve.spring] (mass 1),
@@ -1543,73 +1583,58 @@ final class Track extends _Value {
   final Spring settleSpring;
   static const Spring defaultSettleSpring = Spring.physical(stiffness: 380, damping: 20);
 
-  /// Where the node parks while the value is out of range or empty, as a
-  /// progress that may lie outside 0–1 (an unrated dial parks below its
-  /// first mark); null draws such a value at the nearest end.
-  final double? parkedProgress;
-
-  /// Takes keyboard focus: arrows step by [keyStep] (else [step], else 1%
-  /// of the range), Page Up/Down by 10 steps, Home and End to the ends.
-  final bool keyboard;
-
-  /// With both above 0, [path] is drawn in the box of the frame the node
-  /// sits in, in these units, stretched to the frame's size.
-  final double viewBoxWidth, viewBoxHeight;
-
-  /// A line's ends are multiples of the node's own size (a full-width scrub
-  /// area: `x1: -0.5, x2: 0.5`).
-  final bool relative;
-
-  /// One wheel notch, one arrow key (null: [step], else 1% of the range).
-  final double? wheelStep, keyStep;
-
-  /// Values a double tap moves between, in order (empty: [defaultValue]).
-  final List<double> doubleTapValues;
-  final TrackHitArea hitArea;
-  final TrackUnits units;
-
-  /// A finer step while Shift is held or after the pointer is held still
-  /// [fineHold] ms (0: hold doesn't), [finePixelsPerRange] pixels for the
-  /// range (0: 4 × [pixelsPerRange]); 0 has no fine mode. [fineVariable], a
-  /// boolean variable, is kept true while fine.
-  final double fineStep, finePixelsPerRange;
-  final int fineHold;
-  final String fineVariable;
-
   /// Animates the node to each new value over [snap] ms along [snapCurve]
   /// (a knob clicking from detent to detent); 0 jumps.
   final int snap;
   final AnimationCurve snapCurve;
 
-  /// Whether dragging writes [variable]; off, it only shows it and its
-  /// reactions set what changes from `${result.value}`.
-  final bool write;
+  // --- deprecated: one-app fields, kept working until migrated ---
 
-  /// An arc that keeps turning past its ends, the value unbounded (a
-  /// combination dial).
-  final bool endless;
+  /// What a double tap resets to, or the values it moves between in order.
+  /// Deprecated: a `doubleTap` reaction.
+  final double? defaultValue;
+  final List<double> doubleTapValues;
 
-  /// Let go while moving, it coasts, slowing by [friction] per second, then
-  /// settles on a [step].
-  final bool momentum;
-  final double friction;
+  /// Where the node parks while the value is out of range or empty, as a
+  /// progress that may lie outside 0–1; null draws such a value at the
+  /// nearest end. Deprecated: bind `track.value` outside the range.
+  final double? parkedProgress;
+
+  /// A finer step while Shift is held or after the pointer is held still
+  /// [fineHold] ms (0: hold doesn't), [finePixelsPerRange] pixels for the
+  /// range (0: 4 × [pixelsPerRange]); 0 has no fine mode. [fineVariable], a
+  /// boolean variable, is kept true while fine. Deprecated: a boolean
+  /// variable set by key and hold reactions, bound to `track.step` and
+  /// `track.pixelsPerRange`.
+  final double fineStep, finePixelsPerRange;
+  final int fineHold;
+  final String fineVariable;
 
   /// Draws the node between [step]s while dragged or coasting, springing
-  /// onto the nearest when it rests (the variable only holds steps).
+  /// onto the nearest when it rests. Deprecated: [detent] 1.
   final bool smooth;
 
-  /// How far the node moves per pointer movement (0.5 fine, 2 coarse).
+  /// How far an arc followed round its pivot turns per degree of pointer
+  /// turn (0.5 fine). Deprecated; on any other input it is folded into
+  /// [pixelsPerRange].
   final double gain;
 
-  /// Whether the value is unbounded ([endless] on an arc).
-  bool get unbounded => endless && shape == TrackShape.arc;
+  /// Whether the value is unbounded (not [clamp]ed).
+  bool get unbounded => !clamp;
 
   bool get hasVariable => variable.trim().isNotEmpty;
   bool get hasFine => fineStep > 0;
-  bool get usesViewBox => viewBoxWidth > 0 && viewBoxHeight > 0;
+  bool get usesViewBox => shape == TrackShape.path && path?.viewBoxSize != null;
+  bool get jumpOnTap => allowedInteraction == TrackInteraction.tapAndSlide;
+  bool get momentum => physics?.fling ?? false;
+
+  /// The legacy coast rate: the share of speed lost per second as an
+  /// exponential rate (`v *= e^(−rate·dt)`).
+  double get frictionRate => physics == null ? 0 : -math.log(physics!.frictionDrag);
+  double get endAngle => startAngle + sweepAngle;
   double get effectiveFinePixelsPerRange => finePixelsPerRange > 0 ? finePixelsPerRange : pixelsPerRange * 4;
 
-  /// Where [value] is along the track (0–1; past them on an endless arc).
+  /// Where [value] is along the track (0–1; past them when unbounded).
   double progressOf(double value) {
     if (max == min) return 0;
     final p = (value - min) / (max - min);
@@ -1628,7 +1653,7 @@ final class Track extends _Value {
   /// Where the node is drawn for [value].
   double restProgressOf(double value) => isParked(value) ? parkedProgress! : (value.isNaN ? 0 : progressOf(value));
 
-  /// [progress] held to the track (any progress on an endless arc).
+  /// [progress] held to the track (any progress when unbounded).
   double clampProgress(double progress) => unbounded ? progress : progress.clamp(0.0, 1.0);
 
   /// [v] snapped to [by] (from [min]; 0 continuous) and kept in range.
@@ -1649,11 +1674,14 @@ final class Track extends _Value {
   /// The value at [progress], snapped to [step].
   double valueAt(double progress) => snapValue(min + (max - min) * clampProgress(progress));
 
+  /// Whether the wheel steps it.
+  bool get wheel => wheelStep != 0;
+
   double get effectiveWheelStep => (wheelStep ?? 0) > 0 ? wheelStep! : (step > 0 ? step : (max - min).abs() / 100);
 
-  /// Null with [keyboard] off.
+  /// Null with the keys off ([keyStep] 0).
   double? get effectiveKeyStep =>
-      !keyboard ? null : ((keyStep ?? 0) > 0 ? keyStep! : (step > 0 ? step : (max - min).abs() / 100));
+      keyStep == 0 ? null : ((keyStep ?? 0) > 0 ? keyStep! : (step > 0 ? step : (max - min).abs() / 100));
 
   /// The value a double tap moves to from [v], or null when it does nothing.
   double? doubleTapTarget(double v) {
@@ -1666,7 +1694,7 @@ final class Track extends _Value {
     return snapValue(cycle.first);
   }
 
-  double angleAt(double progress) => startAngle + (endAngle - startAngle) * clampProgress(progress);
+  double angleAt(double progress) => startAngle + sweepAngle * clampProgress(progress);
 
   /// The track of a legacy `drag` object [d] (its `track`, switched by its
   /// `enabled`), or null when it has none.
@@ -1677,64 +1705,109 @@ final class Track extends _Value {
     return fromJson(t);
   }
 
+  /// Whether the track JSON [m] holds the legacy `write: false` with a
+  /// variable: the variable is dropped and, without a literal `value`, moves
+  /// to a `track.value` binding ([readsOnly], [Behaviors.migrateBind]).
+  static bool _dropsVariable(Json m) =>
+      readBool(m['write']) == false && (readString(m['variable'])?.trim().isNotEmpty ?? false);
+
+  /// [_dropsVariable] with no literal `value`: the variable is then bound.
+  static bool readsOnly(Json m) => _dropsVariable(m) && m['value'] == null;
+
+  /// Reads the new shape and every legacy key: `endAngle` (as
+  /// [sweepAngle]), `endless` ([clamp] off on an arc), `jumpOnTap`
+  /// ([allowedInteraction]), `wheel`/`keyboard: false` ([wheelStep]/
+  /// [keyStep] 0), `momentum`/`friction` ([physics]: fling with the share of
+  /// speed lost a second the rate amounts to), `gain` ([pixelsPerRange] ÷
+  /// gain, except round an arc followed by angle), the path string,
+  /// `viewBoxWidth`/`viewBoxHeight`, `orientToPath`/`orientUpright` ([path]),
+  /// `write: false` (the variable dropped: see [readsOnly]) and
+  /// `settleStiffness`/`settleDamping` ([settleSpring]).
   static Track? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
+    final path = _pathOf(m);
+    final shape = readEnum(TrackShape.values, m['shape'], path != null ? TrackShape.path : TrackShape.line);
+    final input = r.e(TrackInput.values, 'input', TrackInput.follow);
+    final start = r.d('startAngle', -135);
+    final gain = r.d('gain', 1);
+    // A gain other than round an arc followed by angle is a pixel rate.
+    final angular = shape == TrackShape.arc && input == TrackInput.follow;
+    final ppr = r.d('pixelsPerRange', 200);
     return Track(
       enabled: _loose(m['enabled']) ?? true,
-      shape: r.e(TrackShape.values, 'shape', TrackShape.line),
-      variable: r.s('variable'),
+      variable: _dropsVariable(m) ? '' : r.s('variable'),
+      value: r.dn('value'),
       min: r.d('min', 0),
       max: r.d('max', 1),
       step: math.max(0, r.d('step', 0)),
-      defaultValue: r.dn('defaultValue'),
-      input: r.e(TrackInput.values, 'input', TrackInput.follow),
-      pixelsPerRange: r.d('pixelsPerRange', 200),
+      clamp: readBool(m['clamp']) ?? !(r.b('endless', false) && shape == TrackShape.arc),
+      input: input,
+      allowedInteraction: readEnum(
+        TrackInteraction.values,
+        m['allowedInteraction'],
+        r.b('jumpOnTap', false) ? TrackInteraction.tapAndSlide : TrackInteraction.slideThumb,
+      ),
+      hitArea: r.e(TrackHitArea.values, 'hitArea', TrackHitArea.self),
+      pixelsPerRange: angular || gain <= 0 ? ppr : ppr / gain,
+      wheelStep: r.b('wheel', true) ? r.dn('wheelStep') : 0,
+      keyStep: r.b('keyboard', true) ? r.dn('keyStep') : 0,
+      shape: shape,
       x1: r.d('x1', 0),
       y1: r.d('y1', 0),
       x2: r.d('x2', 0),
       y2: r.d('y2', -100),
-      startAngle: r.d('startAngle', -135),
-      endAngle: r.d('endAngle', 135),
+      relative: r.b('relative', false),
+      units: r.e(TrackUnits.values, 'units', TrackUnits.pixels),
+      startAngle: start,
+      sweepAngle: r.dn('sweepAngle') ?? (r.d('endAngle', 135) - start),
       pivotX: r.d('pivotX', 0),
       pivotY: r.d('pivotY', 0),
       rotate: r.b('rotate', true),
-      path: r.sn('path'),
-      orientToPath: r.b('orientToPath', false),
-      jumpOnTap: r.b('jumpOnTap', false),
-      wheel: r.b('wheel', true),
-      value: r.dn('value'),
-      orientUpright: r.b('orientUpright', false),
+      path: path,
       detent: r.d('detent', 0),
       overscroll: r.d('overscroll', 0),
+      physics: GesturePhysics.fromJson(m['physics']) ??
+          ((_loose(m['momentum']) ?? false) ? _legacyMomentum(r.d('friction', 2.6)) : null),
       settle: r.ms('settle', 0),
       settleCurve: r.curve('settleCurve', AnimationCurve.easeOutCubic),
       settleSpring: Spring.fromJson(m['settleSpring'], fallback: defaultSettleSpring) ??
           Spring.legacy(m, 'settleStiffness', 'settleDamping', fallback: defaultSettleSpring) ??
           defaultSettleSpring,
-      parkedProgress: r.dn('parkedProgress'),
-      keyboard: r.b('keyboard', true),
-      viewBoxWidth: r.d('viewBoxWidth', 0),
-      viewBoxHeight: r.d('viewBoxHeight', 0),
-      relative: r.b('relative', false),
-      wheelStep: r.dn('wheelStep'),
-      doubleTapValues: r.doubles('doubleTapValues'),
-      keyStep: r.dn('keyStep'),
-      hitArea: r.e(TrackHitArea.values, 'hitArea', TrackHitArea.self),
-      units: r.e(TrackUnits.values, 'units', TrackUnits.pixels),
-      fineStep: r.d('fineStep', 0),
-      finePixelsPerRange: r.d('finePixelsPerRange', 0),
-      fineHold: r.ms('fineHold', 380),
-      fineVariable: r.s('fineVariable'),
       snap: r.ms('snap', 0),
       snapCurve: r.curve('snapCurve', AnimationCurve.easeOutBack),
-      write: r.b('write', true),
-      endless: r.b('endless', false),
-      momentum: _loose(m['momentum']) ?? false,
-      friction: r.d('friction', 2.6),
+      defaultValue: r.dn('defaultValue'),
+      doubleTapValues: r.doubles('doubleTapValues'),
+      parkedProgress: r.dn('parkedProgress'),
+      fineStep: r.d('fineStep', 0),
+      finePixelsPerRange: angular || gain <= 0 ? r.d('finePixelsPerRange', 0) : r.d('finePixelsPerRange', 0) / gain,
+      fineHold: r.ms('fineHold', 380),
+      fineVariable: r.s('fineVariable'),
       smooth: _loose(m['smooth']) ?? false,
-      gain: r.d('gain', 1),
+      gain: angular ? gain : 1,
+    );
+  }
+
+  /// The legacy `momentum` coast slowing at [rate] per second
+  /// (`v *= e^(−rate·dt)`): a fling losing `1 − e^(−rate)` of its speed a
+  /// second (to 4 places).
+  static GesturePhysics _legacyMomentum(double rate) =>
+      GesturePhysics(friction: double.parse((1 - math.exp(-math.max(0, rate))).toStringAsFixed(4)));
+
+  /// [m]'s path: `path` as an object or SVG data, with the legacy
+  /// `viewBoxWidth`/`viewBoxHeight`, `orientToPath` and `orientUpright`.
+  static PathFollow? _pathOf(Json m) {
+    final p = PathFollow.fromJson(m['path']);
+    if (p == null || m['path'] is! String) return p;
+    final r = _R(m);
+    final w = r.d('viewBoxWidth', 0), h = r.d('viewBoxHeight', 0);
+    return PathFollow(
+      path: p.path,
+      viewBox: w > 0 && h > 0 ? [w, h] : null,
+      orient: !r.b('orientToPath', false)
+          ? PathOrient.none
+          : (r.b('orientUpright', false) ? PathOrient.upright : PathOrient.tangent),
     );
   }
 
@@ -1742,66 +1815,59 @@ final class Track extends _Value {
     final j = <String, Object?>{}
       ..b('enabled', enabled, true)
       ..s('variable', variable)
-      ..e('shape', shape, TrackShape.line)
+      ..dn('value', value)
       ..d('min', min, 0)
       ..d('max', max, 1)
       ..d('step', step, 0)
-      ..dn('defaultValue', defaultValue)
+      ..b('clamp', clamp, true)
       ..e('input', input, TrackInput.follow)
+      ..e('allowedInteraction', allowedInteraction, TrackInteraction.slideThumb)
+      ..e('hitArea', hitArea, TrackHitArea.self)
       ..d('pixelsPerRange', pixelsPerRange, 200)
+      ..dn('wheelStep', wheelStep)
+      ..dn('keyStep', keyStep)
+      ..e('shape', shape, path != null ? TrackShape.path : TrackShape.line)
       ..d('x1', x1, 0)
       ..d('y1', y1, 0)
       ..d('x2', x2, 0)
       ..d('y2', y2, -100)
+      ..b('relative', relative, false)
+      ..e('units', units, TrackUnits.pixels)
       ..d('startAngle', startAngle, -135)
-      ..d('endAngle', endAngle, 135)
+      ..d('sweepAngle', sweepAngle, 270)
       ..d('pivotX', pivotX, 0)
       ..d('pivotY', pivotY, 0)
-      ..b('rotate', rotate, true)
-      ..s('path', path)
-      ..b('orientToPath', orientToPath, false)
-      ..b('jumpOnTap', jumpOnTap, false)
-      ..b('wheel', wheel, true)
-      ..dn('value', value)
-      ..b('orientUpright', orientUpright, false)
+      ..b('rotate', rotate, true);
+    if (path != null) j['path'] = path!.toJson();
+    j
       ..d('detent', detent, 0)
-      ..d('overscroll', overscroll, 0)
+      ..d('overscroll', overscroll, 0);
+    if (physics != null) j['physics'] = physics!.toJson();
+    j
       ..i('settle', settle, 0)
       ..e('settleCurve', settleCurve, AnimationCurve.easeOutCubic);
     if (settleSpring != defaultSettleSpring) j['settleSpring'] = settleSpring.toJsonOver(defaultSettleSpring);
     j
-      ..dn('parkedProgress', parkedProgress)
-      ..b('keyboard', keyboard, true)
-      ..d('viewBoxWidth', viewBoxWidth, 0)
-      ..d('viewBoxHeight', viewBoxHeight, 0)
-      ..b('relative', relative, false)
-      ..dn('wheelStep', wheelStep);
+      ..i('snap', snap, 0)
+      ..e('snapCurve', snapCurve, AnimationCurve.easeOutBack)
+      ..dn('defaultValue', defaultValue);
     if (doubleTapValues.isNotEmpty) j['doubleTapValues'] = doubleTapValues.map(writeDouble).toList();
     return j
-      ..dn('keyStep', keyStep)
-      ..e('hitArea', hitArea, TrackHitArea.self)
-      ..e('units', units, TrackUnits.pixels)
+      ..dn('parkedProgress', parkedProgress)
       ..d('fineStep', fineStep, 0)
       ..d('finePixelsPerRange', finePixelsPerRange, 0)
       ..i('fineHold', fineHold, 380)
       ..s('fineVariable', fineVariable)
-      ..i('snap', snap, 0)
-      ..e('snapCurve', snapCurve, AnimationCurve.easeOutBack)
-      ..b('write', write, true)
-      ..b('endless', endless, false)
-      ..b('momentum', momentum, false)
-      ..d('friction', friction, 2.6)
       ..b('smooth', smooth, false)
       ..d('gain', gain, 1);
   }
 
   @override
   List<Object?> get props => [
-    enabled, shape, variable, min, max, step, defaultValue, input, pixelsPerRange, x1, y1, x2, y2, startAngle, //
-    endAngle, pivotX, pivotY, rotate, path, orientToPath, jumpOnTap, wheel, value, orientUpright, detent, overscroll,
-    settle, settleCurve, settleSpring, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
-    wheelStep, doubleTapValues, keyStep, hitArea, units, fineStep, finePixelsPerRange, fineHold, fineVariable, snap,
-    snapCurve, write, endless, momentum, friction, smooth, gain,
+    enabled, variable, value, min, max, step, clamp, input, allowedInteraction, hitArea, pixelsPerRange, //
+    wheelStep, keyStep, shape, x1, y1, x2, y2, relative, units, startAngle, sweepAngle, pivotX, pivotY, rotate,
+    path, detent, overscroll, physics, settle, settleCurve, settleSpring, snap, snapCurve, defaultValue,
+    doubleTapValues, parkedProgress, fineStep, finePixelsPerRange, fineHold, fineVariable, smooth, gain,
   ];
 }
 
@@ -3528,6 +3594,12 @@ final class Behaviors extends _Value {
   /// direction's `dismissible.dismissThresholds`). `drag.enabled` →
   /// `<behavior>.enabled`. A path it can't rewrite is kept as given.
   static Map<String, String> _migrateDragBind(Map<String, String> bind, Json m) {
+    // A track that only shows its variable (`write: false`) binds its value.
+    final legacyTrack = readMap(m['track']) ?? readMap(readMap(m['drag'])?['track']);
+    if (legacyTrack != null && Track.readsOnly(legacyTrack) && !bind.containsKey('track.value') &&
+        !bind.containsKey('drag.track.value')) {
+      bind = {...bind, 'track.value': '\${${readString(legacyTrack['variable'])!.trim()}}'};
+    }
     if (!bind.keys.any((k) => k.startsWith('drag.'))) return bind;
     final d = readMap(m['drag']) ?? const <String, Object?>{};
     final isTrack = readMap(d['track']) != null || bind.keys.any((k) => k.startsWith('drag.track.'));
@@ -3544,7 +3616,8 @@ final class Behaviors extends _Value {
       final rest = k.substring(5);
       final List<String> to;
       if (rest.startsWith('track.')) {
-        to = ['track.${rest.substring(6)}'];
+        final key = rest.substring(6);
+        to = [key == 'path' ? 'track.path.path' : 'track.$key'];
       } else if (isTrack) {
         to = rest == 'enabled' ? ['track.enabled'] : const [];
       } else if (isHandle) {

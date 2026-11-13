@@ -136,14 +136,14 @@ void main() {
       step: 1,
       parkedProgress: -0.125,
       doubleTapValues: [5, 3],
-      endless: false,
+      clamp: true,
     );
     expect(t.restProgressOf(double.nan), -0.125);
     expect(t.restProgressOf(0), -0.125);
     expect(t.restProgressOf(3), 0.5);
     expect(t.doubleTapTarget(5), 3);
     expect(t.doubleTapTarget(2), 5);
-    const e = Track(shape: TrackShape.arc, max: 40, endless: true, step: 1);
+    const e = Track(shape: TrackShape.arc, max: 40, clamp: false, step: 1);
     expect(e.progressOf(80), 2);
     expect(e.snapValue(81.4), 81);
     final j = {
@@ -171,9 +171,34 @@ void main() {
       'value': 3,
     };
     final track = Track.fromJson(j)!;
-    expect(track.toJson(), j);
+    // Read into the new shape (docs/design/04-drag-and-track.md): gain folds
+    // into pixelsPerRange, momentum is physics, keyboard off is keyStep 0,
+    // write off drops the variable (a bound value shows it), a view box
+    // without a path draws nothing.
+    expect(track.toJson(), {
+      'value': 3,
+      'input': 'both',
+      'hitArea': 'parent',
+      'pixelsPerRange': 400,
+      'keyStep': 0,
+      'relative': true,
+      'units': 'parent',
+      'detent': 0.35,
+      'overscroll': 0.35,
+      'physics': {'friction': 0.9257},
+      'settle': 250,
+      'settleCurve': 'spring',
+      'snap': 120,
+      'snapCurve': 'elasticOut',
+      'fineStep': 0.1,
+      'fineHold': 500,
+      'fineVariable': 'fine',
+      'smooth': true,
+    });
+    expect(Track.fromJson(track.toJson()), track);
     expect(track.effectiveKeyStep, isNull);
-    expect(track.usesViewBox, isTrue);
+    expect(track.usesViewBox, isFalse);
+    expect(Track.fromJson({'path': 'M0 0 L10 0', 'viewBoxWidth': 100, 'viewBoxHeight': 50})!.usesViewBox, isTrue);
   });
 
   test('flip, tilt, transform gesture, hero placeholder, node key', () {

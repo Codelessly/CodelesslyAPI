@@ -10,6 +10,7 @@ import 'behaviors.dart';
 import 'custom_paint.dart' show CustomPaint;
 import 'custom_paint_fields.dart' show customPaintType;
 import 'json.dart';
+import 'path_follow.dart';
 import 'props.dart';
 import 'values/color.dart';
 import 'values/enums.dart';
@@ -55,6 +56,7 @@ const heroTagType = PropType.object('HeroTag', heroTagFields);
 const dragSourceType = PropType.object('DragSource', dragSourceFields);
 const dropTargetType = PropType.object('DropTarget', dropTargetFields);
 const trackType = PropType.object('Track', trackFields);
+const pathFollowType = PropType.object('PathFollow', pathFollowFields);
 const dismissibleType = PropType.object('DismissibleBehavior', dismissibleFields);
 const panType = PropType.object('Pan', panFields);
 const revealType = PropType.object('Reveal', revealFields);
@@ -529,45 +531,62 @@ abstract final class DropTargetFields {
 
 List<PropDef<Object?>> dropTargetFields() => DropTargetFields.all;
 
-/// [Track] (node key `track`): a value set by dragging.
+/// [Track] (node key `track`): a value set by dragging (Flutter's `Slider`).
 abstract final class TrackFields {
   /// Off, it takes no pointer, wheel or keys.
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
 
   /// The variable the control sets.
   static const variable = PropDef<String>('variable', Codecs.string, '');
-  static const shape = PropDef<TrackShape>('shape', EnumCodec(TrackShape.values), TrackShape.line);
+
+  /// The value it's drawn at, from a binding; null reads [variable].
+  static const value = PropDef<double?>('value', Codecs.optionalDouble, null);
   static const min = PropDef<double>('min', Codecs.double, 0);
   static const max = PropDef<double>('max', Codecs.double, 1);
-  static const step = PropDef<double>('step', Codecs.double, 0);
-  static const defaultValue = PropDef<double?>('defaultValue', Codecs.optionalDouble, null);
+  static const step = PropDef<double>('step', Codecs.positive, 0);
+
+  /// Off, an arc turns past its ends (a combination dial).
+  static const clamp = PropDef<bool>('clamp', Codecs.bool, true);
   static const input = PropDef<TrackInput>('input', EnumCodec(TrackInput.values), TrackInput.follow);
+  static const allowedInteraction = PropDef<TrackInteraction>(
+    'allowedInteraction',
+    EnumCodec(TrackInteraction.values),
+    TrackInteraction.slideThumb,
+  );
+  static const hitArea = PropDef<TrackHitArea>('hitArea', EnumCodec(TrackHitArea.values), TrackHitArea.self);
   static const pixelsPerRange = PropDef<double>('pixelsPerRange', Codecs.double, 200);
+
+  /// Null: the step (else 1% of the range); 0: off.
+  static const wheelStep = PropDef<double?>('wheelStep', Codecs.optionalDouble, null);
+  static const keyStep = PropDef<double?>('keyStep', Codecs.optionalDouble, null);
+  static const shape = PropDef<TrackShape>('shape', EnumCodec(TrackShape.values), TrackShape.line);
   static const x1 = PropDef<double>('x1', Codecs.double, 0);
   static const y1 = PropDef<double>('y1', Codecs.double, 0);
   static const x2 = PropDef<double>('x2', Codecs.double, 0);
   static const y2 = PropDef<double>('y2', Codecs.double, -100);
 
-  /// Degrees about the pivot.
+  /// A line's ends are multiples of the node's size.
+  static const relative = PropDef<bool>('relative', Codecs.bool, false);
+  static const units = PropDef<TrackUnits>('units', EnumCodec(TrackUnits.values), TrackUnits.pixels);
+
+  /// Degrees: the arc's start, and its turn to the end.
   static const startAngle = PropDef<double>('startAngle', Codecs.double, -135);
-  static const endAngle = PropDef<double>('endAngle', Codecs.double, 135);
+  static const sweepAngle = PropDef<double>('sweepAngle', Codecs.double, 270);
   static const pivotX = PropDef<double>('pivotX', Codecs.double, 0);
   static const pivotY = PropDef<double>('pivotY', Codecs.double, 0);
   static const rotate = PropDef<bool>('rotate', Codecs.bool, true);
-  static const path = PropDef<String?>('path', Codecs.optionalString, null);
-  static const orientToPath = PropDef<bool>('orientToPath', Codecs.bool, false);
-  static const jumpOnTap = PropDef<bool>('jumpOnTap', Codecs.bool, false);
-  static const wheel = PropDef<bool>('wheel', Codecs.bool, true);
 
-  /// The value it's drawn at, from a binding; null reads [variable].
-  static const value = PropDef<double?>('value', Codecs.optionalDouble, null);
-  static const orientUpright = PropDef<bool>('orientUpright', Codecs.bool, false);
+  /// A path's SVG data, view box and orientation.
+  static const path = PropDef<PathFollow?>('path', ValueCodec(PathFollow.fromJson, _out, pathFollowType), null);
 
   /// How magnetic the steps are while dragging (0–1).
   static const detent = PropDef<double>('detent', DoubleCodec(min: 0, max: 1), 0);
 
   /// How far past an end it stretches (0–1).
   static const overscroll = PropDef<double>('overscroll', DoubleCodec(min: 0, max: 1), 0);
+
+  /// A fling's coast (fling, friction); null stops where let go.
+  static const physics = PropDef<GesturePhysics?>('physics', _physics, null);
   static const settle = PropDef<int>('settle', _ms, 0);
   static const settleCurve = PropDef<AnimationCurve>('settleCurve', _curve, AnimationCurve.easeOutCubic);
   static const settleSpring = PropDef<Spring>(
@@ -575,44 +594,47 @@ abstract final class TrackFields {
     ValueCodec(_settleSpringIn, _settleSpringOut, springType),
     Track.defaultSettleSpring,
   );
+  static const snap = PropDef<int>('snap', _ms, 0);
+  static const snapCurve = PropDef<AnimationCurve>('snapCurve', _curve, AnimationCurve.easeOutBack);
 
-  /// Where it parks while the value is out of range or empty.
-  static const parkedProgress = PropDef<double?>('parkedProgress', Codecs.optionalDouble, null);
-  static const keyboard = PropDef<bool>('keyboard', Codecs.bool, true);
-  static const viewBoxWidth = PropDef<double>('viewBoxWidth', Codecs.positive, 0);
-  static const viewBoxHeight = PropDef<double>('viewBoxHeight', Codecs.positive, 0);
-
-  /// A line's ends are multiples of the node's size.
-  static const relative = PropDef<bool>('relative', Codecs.bool, false);
-  static const wheelStep = PropDef<double?>('wheelStep', Codecs.optionalDouble, null);
+  /// Deprecated: what a double tap resets to, or moves between.
+  static const defaultValue = PropDef<double?>('defaultValue', Codecs.optionalDouble, null);
   static const doubleTapValues = PropDef<List<double>>('doubleTapValues', Codecs.doubles, []);
-  static const keyStep = PropDef<double?>('keyStep', Codecs.optionalDouble, null);
-  static const hitArea = PropDef<TrackHitArea>(
-    'hitArea',
-    EnumCodec(TrackHitArea.values),
-    TrackHitArea.self,
-  );
-  static const units = PropDef<TrackUnits>('units', EnumCodec(TrackUnits.values), TrackUnits.pixels);
+
+  /// Deprecated: where it parks while the value is out of range or empty.
+  static const parkedProgress = PropDef<double?>('parkedProgress', Codecs.optionalDouble, null);
+
+  /// Deprecated: fine mode.
   static const fineStep = PropDef<double>('fineStep', Codecs.positive, 0);
   static const finePixelsPerRange = PropDef<double>('finePixelsPerRange', Codecs.positive, 0);
   static const fineHold = PropDef<int>('fineHold', _ms, 380);
   static const fineVariable = PropDef<String>('fineVariable', Codecs.string, '');
-  static const snap = PropDef<int>('snap', _ms, 0);
-  static const snapCurve = PropDef<AnimationCurve>('snapCurve', _curve, AnimationCurve.easeOutBack);
-  static const write = PropDef<bool>('write', Codecs.bool, true);
-  static const endless = PropDef<bool>('endless', Codecs.bool, false);
-  static const momentum = PropDef<bool>('momentum', Codecs.bool, false);
-  static const friction = PropDef<double>('friction', Codecs.double, 2.6);
+
+  /// Deprecated: drawn between steps while moving.
   static const smooth = PropDef<bool>('smooth', Codecs.bool, false);
+
+  /// Deprecated: the turn per degree round an arc followed by angle.
   static const gain = PropDef<double>('gain', Codecs.double, 1);
   static const List<PropDef<Object?>> all = [
-    enabled, variable, shape, min, max, step, defaultValue, input, pixelsPerRange, x1, y1, x2, y2, startAngle, endAngle, //
-    pivotX, pivotY, rotate, path, orientToPath, jumpOnTap, wheel, value, orientUpright, detent, overscroll, settle,
-    settleCurve, settleSpring, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
-    wheelStep, doubleTapValues, keyStep, hitArea, units, fineStep, finePixelsPerRange, fineHold, fineVariable, snap,
-    snapCurve, write, endless, momentum, friction, smooth, gain,
+    enabled, variable, value, min, max, step, clamp, input, allowedInteraction, hitArea, pixelsPerRange, //
+    wheelStep, keyStep, shape, x1, y1, x2, y2, relative, units, startAngle, sweepAngle, pivotX, pivotY, rotate,
+    path, detent, overscroll, physics, settle, settleCurve, settleSpring, snap, snapCurve, defaultValue,
+    doubleTapValues, parkedProgress, fineStep, finePixelsPerRange, fineHold, fineVariable, smooth, gain,
   ];
 }
+
+/// [PathFollow]: a place along an SVG path (shared with `motion.path`).
+abstract final class PathFollowFields {
+  static const path = PropDef<String>('path', Codecs.string, '');
+
+  /// `[width, height]` stretched over the parent; empty: pixels.
+  static const viewBox = PropDef<List<double>>('viewBox', Codecs.doubles, []);
+  static const progress = PropDef<double>('progress', Codecs.double, 0);
+  static const orient = PropDef<PathOrient>('orient', EnumCodec(PathOrient.values), PathOrient.none);
+  static const List<PropDef<Object?>> all = [path, viewBox, progress, orient];
+}
+
+List<PropDef<Object?>> pathFollowFields() => PathFollowFields.all;
 
 List<PropDef<Object?>> trackFields() => TrackFields.all;
 

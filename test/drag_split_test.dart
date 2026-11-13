@@ -238,4 +238,62 @@ void main() {
     expect(pose.toJson()['type'], 'controlTransform');
     expect(ActionDef.fromJson(pose.toJson()), pose);
   });
+
+  test('track special-case keys read into generic ones', () {
+    // A combination dial (safecracker): endless, momentum, a gain round its arc.
+    final dial = Track.fromJson({
+      'shape': 'arc', 'variable': 'dial', 'max': 40, 'step': 1, 'startAngle': 0, 'endAngle': 360, //
+      'endless': true, 'momentum': true, 'friction': 2.6, 'gain': 0.5, 'jumpOnTap': true, 'wheel': false,
+    })!;
+    expect(dial.clamp, isFalse);
+    expect(dial.sweepAngle, 360);
+    expect(dial.endAngle, 360);
+    expect(dial.momentum, isTrue);
+    expect(dial.physics!.friction, 0.9257);
+    expect(dial.frictionRate, closeTo(2.6, 0.001));
+    expect(dial.gain, 0.5);
+    expect(dial.allowedInteraction, TrackInteraction.tapAndSlide);
+    expect(dial.wheelStep, 0);
+    expect(dial.wheel, isFalse);
+    expect(dial.toJson(), {
+      'variable': 'dial', 'max': 40, 'step': 1, 'clamp': false, 'allowedInteraction': 'tapAndSlide', 'wheelStep': 0, //
+      'shape': 'arc', 'startAngle': 0, 'sweepAngle': 360, 'physics': {'friction': 0.9257}, 'gain': 0.5,
+    });
+    // endless on a line did nothing: still clamped.
+    expect(Track.fromJson({'endless': true})!.clamp, isTrue);
+    // A vertical knob's gain is a pixel rate.
+    final knob = Track.fromJson({'input': 'vertical', 'pixelsPerRange': 300, 'gain': 2, 'keyboard': false})!;
+    expect(knob.pixelsPerRange, 150);
+    expect(knob.gain, 1);
+    expect(knob.effectiveKeyStep, isNull);
+    // A path with its legacy view box and orientation.
+    final p = Track.fromJson({
+      'shape': 'path', 'path': 'M0 0 L100 0', 'viewBoxWidth': 600, 'viewBoxHeight': 320, //
+      'orientToPath': true, 'orientUpright': true,
+    })!;
+    expect(p.path, const PathFollow(path: 'M0 0 L100 0', viewBox: [600, 320], orient: PathOrient.upright));
+    expect(p.toJson(), {
+      'path': {'path': 'M0 0 L100 0', 'viewBox': [600, 320], 'orient': 'upright'},
+    });
+    expect(Track.fromJson(p.toJson()), p);
+  });
+
+  test('a track that only shows its variable binds its value to it', () {
+    final n = _node({
+      'drag': {
+        'track': {'variable': 'playhead', 'write': false, 'x2': 200, 'y2': 0},
+      },
+    });
+    expect(n.behaviors.track!.variable, '');
+    expect(n.bind, {'track.value': r'${playhead}'});
+    expect(n.toJson()['track'], {'x2': 200, 'y2': 0});
+    // A bound value already given is kept.
+    final bound = _node({
+      'drag': {
+        'track': {'variable': 'v', 'write': false},
+      },
+      'bind': {'drag.track.value': r'${= v * 2}'},
+    });
+    expect(bound.bind, {'track.value': r'${= v * 2}'});
+  });
 }
