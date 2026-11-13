@@ -286,7 +286,7 @@ Scrolls node `node` into view: `alignment` 0 puts it at the start of the view, 1
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `node` | String | `""` |  |  |
+| `node` | String | `""` |  | The node to reveal: its id, or an expression giving one (`"cmp-col-${cmpCol + 1}"`). A node that is not on screen when the action runs is reported as an action error, not skipped silently. |
 | `item` | String | `""` |  | For a repeated node: the key (or index) of the list item whose copy to reveal. |
 | `durationMs` | int | `400` |  |  |
 | `curve` | String | `"easeInOut"` |  | A Curves name. |

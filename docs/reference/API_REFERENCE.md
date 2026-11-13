@@ -313,7 +313,14 @@ a fixed size along the main axis; in a row whose width hugs its children there i
   read (it becomes 0 on every side; validation reports it).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`, each optional. A `fill` width with
   `"maxWidth": 1100` gives a content column that grows with the window up to 1100; its parent's
-  `crossAxisAlignment` (center by default) places it.
+  `crossAxisAlignment` (center by default) places it. Under `crossAxisAlignment: stretch` a cap holds too, as CSS
+  `max-width` does over `align-items: stretch`: the child sits at the start, or where its `layout.align` puts it
+  (`[0, 0]` centers it). Across a row or column, a child's width comes out as:
+
+  | Parent's `crossAxisAlignment` | child `fill` | child `hug` | child fixed `n` |
+  |---|---|---|---|
+  | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
+  | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width (Flutter's stretch), at most its `maxWidth` |
 - `aspectRatio`: width / height the node keeps (`1.5`).
 - `rotation`: degrees, clockwise, about the center; layout is unchanged.
 
@@ -409,9 +416,14 @@ Which modes each parent allows (from the parents' own rules):
   it keeps that stop's color, so end a glow on a transparent stop. `transform` is the general form
   ([Paint](#type-Paint)). An image is `{"type": "image", "image": {"url": "...", "fit": "cover"}}`.
   A paint without `type` is an image if it has `image`, a linear gradient if it has `stops`, else a solid color.
-  There is no noise or texture paint: a grain needs an image file (a repeated image fill, `"repeat": "repeat"`).
+  **A pattern in pixels** (CSS `repeating-linear-gradient(to bottom, #E5E7EB 0 1px, transparent 1px 80px)`): a
+  linear gradient with `"length": 80` (px from `begin` toward `end`) and `"tileMode": "repeated"`; a background grid
+  is two of them, one `topCenter` → `bottomCenter`, one `centerLeft` → `centerRight` ([Paint](values.md#type-Paint)).
+  **Grain**: `{"type": "noise", "noise": {"baseFrequency": 0.8, "numOctaves": 3, "seed": 1}, "color": "#FF000000",
+  "opacity": 0.08}`, SVG's `feTurbulence` as a paint (a seamless tile repeated over the box; `blendMode` as CSS
+  `mix-blend-mode`).
 - `strokes`: paints for the border, with `strokeWidth` (default 1), `strokeAlign` (`inside`, `center`,
-  `outside`), `strokeSides` (`all`, `bottom`, `topBottom`...) and `dashPattern` (`[6, 4]`). `strokeWidth` without
+  `outside`), `strokeSides` (`all`, `bottom`, `topBottom`..., `none`) and `dashPattern` (`[6, 4]`). `strokeWidth` without
   `strokes` draws nothing.
 - `radius`: corner radius: a number, `[x, y]`, or `[topLeft, topRight, bottomRight, bottomLeft]`.
 - `shape`: `"circle"` paints a circle the box's shortest side across.
@@ -635,9 +647,13 @@ change what must change at a width. Use these, in this order:
    CSS) or a breakpoint name (`minWidth: "tablet"`: from tablet's min width; `maxWidth: "tablet"`: up to the next
    breakpoint, so tablet and narrower); `orientation` is `portrait` or `landscape`; all conditions of a rule must
    hold. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `opacity`) and merged over
-   it (objects merge, `null` removes). Rules apply in order, a later one winning where two set the same field (the
+   it (objects merge, `null` removes a key), except that a value with several forms is **replaced**, as CSS
+   replaces a declaration: `{"width": {"hug": 200}}` over `{"fill": 292}` is `{"hug": 200}` (a size, a position
+   form, a paint or border of another `type`, an icon). Rules apply in order, a later one winning where two set the same field (the
    CSS cascade): write the node for phones and add `minWidth` rules for wider screens (mobile first), or the other
-   way round with `maxWidth`. Validation checks every patched value as the node's own.
+   way round with `maxWidth`. Validation checks every patched value as the node's own, and judges sizes at each
+   range of widths with the rules that hold there (a child's `fill` against its parent as patched at the same
+   widths); a finding names those widths.
    - **A row that becomes a column**: a `flex` node (Flutter `Flex`) with `"direction": "horizontal"` and a rule
      patching `"direction": "vertical"`. Its children stay the same nodes, keeping their state.
    - **Another order at a width**: each child's `layout.order` (CSS `order`; ascending, equal orders as listed),
@@ -1196,8 +1212,14 @@ order:
   `insert`, `removeAt`...; `value` is an expression), `navigate`, `openModal`, `closeModal`, `showToast`,
   `openLink` (`url`), `if` (`condition`: a predicate; `then` and `else`: action lists), `delay` (`ms`),
   `scrollTo` (`node`), `setValue`, `submitForm`, `callApi`.
-- In a chain `${result}` is what the previous action (first: the trigger's event) gave: for a text field's
-  `changed`, its text.
+- In a chain `${result}` starts as the trigger's event (a text field's `changed`: its text; a checkbox's: its
+  value) and is replaced only by an action that gives a value (`callApi`, `openModal`'s closing value,
+  `runScript`, `callFunction`, a cloud read); `setVariable`, `navigate`, `showToast`, `scrollTo`... leave it as it
+  was, so every action of a `changed` chain can read the text as `${result}`.
+- A tap on a control (a checkbox, a switch, a button, a text field) inside a node with a `click` reaction runs the
+  control's own reaction only, as Flutter's gesture arena gives the tap to the innermost recognizer; a tap beside
+  the control runs the row's. To toggle from the whole row with one handler, give the control
+  `"ignorePointer": true` and bind its value.
 - Every action also takes `enabled`, `nonBlocking` and `when` (a predicate: run only while it holds).
 
 Write each action's fields flat in the action object, exactly as named in [actions](#page-actions);
@@ -1261,6 +1283,11 @@ A screen scrolls only if something in it scrolls. Make the canvas's body column 
 scrolls when they are taller than the screen. Without it, content past the bottom of the screen is cut off on a
 device (the render command reports `offscreen`). Inside a scrolling column, a child cannot `fill` the scrolling
 axis (there is no end to fill to). Rows scroll sideways with `"scrollable": true, "scrollDirection": "horizontal"`.
+
+`scrollTo` reveals a node (`"node"`: an id, or an expression giving one: `"node": "col-${step}"`; `"axis":
+"horizontal"` moves only sideways scroll views). A comparison table with a **sticky first column** on phones is
+two columns side by side: a fixed column of row labels, and a row of plan columns that scrolls sideways (made to
+scroll only on phones by a media rule on its `scrollable`); give each table row the same height in both.
 
 ```json
 {
@@ -1391,6 +1418,32 @@ columns (`vertical_wrap`); set `"scrollDirection": "horizontal"` for chips side 
 
 The same item template can carry reactions: a click on an item runs with that item's `item` and `index`.
 
+**Nested lists.** A list inside a list's item repeats per item of its own `data`, usually a field of the outer
+item: sections, then each section's dishes, then each dish's tags. Inside the inner template `item` and `index`
+are the innermost list's; `parent` is the item around it (`${parent.item}`, `${parent.index}`, and its fields
+directly: `${parent.name}`). Two levels:
+
+```json
+"sections": {"type": "listView", "children": ["section"], "bind": {"data": "${= groupBy(dishes, 'section')}"},
+             "props": {"scrollable": false, "spacing": 24}, "layout": {"width": {"fill": 600}, "height": {"hug": 400}}},
+"section":  {"type": "column", "children": ["sectionTitle", "dishList"], "props": {"crossAxisAlignment": "start"},
+             "layout": {"width": {"fill": 600}, "height": {"hug": 200}}},
+"sectionTitle": {"type": "text", "props": {"text": "${item.key} (${item.count})", "style": {"fontSize": 20, "color": "#FF111827"}},
+             "layout": {"width": {"hug": 200}, "height": {"hug": 24}}},
+"dishList": {"type": "listView", "children": ["dish"], "bind": {"data": "${item.items}"}, "props": {"scrollable": false},
+             "layout": {"width": {"fill": 600}, "height": {"hug": 120}}},
+"dish":     {"type": "text", "props": {"text": "${parent.key} ${parent.index}: ${item.name} (#${index})", "style": {"color": "#FF374151"}},
+             "layout": {"width": {"fill": 600}, "height": {"hug": 20}}}
+```
+
+A third level reads the second's item as `parent`; to reach further out, carry the value down in the data.
+
+**Equal-height cards** in a `gridView` with `"shrinkWrapRows": true` (CSS grid's auto rows): each row is as tall as
+its tallest item, and every item is stretched to it (`align-items: stretch`), whether it hugs or fills its height.
+Make the item the card (the box with the decoration): a card *inside* a hugging item column keeps its own height,
+as a CSS card inside a stretched grid item does. `shrinkWrapRows` wins over `mainAxisExtent` (validation warns:
+`prop_ignored`); for rows at least n tall, keep it and give the item `"constraints": {"minHeight": n}`.
+
 <a id="guide-forms"></a>
 ## 14. Forms and inputs
 
@@ -1409,7 +1462,17 @@ its text off the border.
 **A text field bound to a variable**: bind its `props.initialValue` to the variable (`"bind": {"props.initialValue": "${query}"}`).
 That is a two-way binding, as a Flutter `TextEditingController` held in state: typing sets the variable (its
 `changed` reaction also runs), and setting the variable elsewhere (a clear button, `--set`) changes the text, keeping
-the caret. The render command types with `--type <id>=<text>`.
+the caret. The render command types with `--type <id>=<text>`: the text replaces what the field held.
+
+**A clear button in the field** ("×"): its `decoration.suffixIcon` with a tap reaction (`actions` is a list of
+reactions, as a node's), shown only while there is text by binding the icon:
+
+```json
+"search": {"type": "textField", "layout": {"width": {"fill": 280}, "height": 44},
+  "bind": {"props.initialValue": "${query}", "props.decoration.suffixIcon.icon": "${= query == '' ? '' : 'close'}"},
+  "props": {"decoration": {"hintText": "Search dishes", "suffixIcon": {"icon": "close", "size": 18,
+    "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "query", "value": ""}]}]}}}}
+```
 
 ```json
 {
@@ -1509,8 +1572,10 @@ See the navigation example in [section 6](#guide-screens).
   `decoration.prefixIcon` is `{"icon": "search", "size": 18}`. A name the renderer does not know draws nothing
   (`icon_not_drawn`).
 - **Fonts**: `style.fontFamily` names a family (`"Inter"`), with `fontWeight` choosing the file. An app fetches
-  Google Fonts by name. The render command uses font files from `--fonts <dir>` (read by their real family and
-  weight) plus Roboto, and reports a family it does not have (`font_fallback`).
+  Google Fonts by name. The render command uses font files from `--fonts <dir>` (`.ttf`, `.otf`, `.woff`, read
+  by their real family and weight; a font package folder such as `node_modules/@fontsource/<family>` works as it is;
+  `--fonts system` adds the system's fonts) plus Roboto, and reports a family it does not have (`font_fallback`:
+  the family, weight and style asked for and where it looked).
 
 ```json
 {
@@ -1579,7 +1644,10 @@ node is reported, not made), `--hover <id>`, `--focus <id>`, `--type <id>=<text>
 `--scroll <id or screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`. A step may name a node by its `name`
 too: give the matching nodes of a screen's breakpoint canvases the same `name` and one step reaches whichever is
 shown. `--label <name>` keeps the screenshots and `diagnostics-<name>.json` of each state apart. `--full-page`
-captures the page's own scroll height, with content fixed to the window drawn in the first window.
+captures the whole page from its top (whatever a step scrolled it to), its own scroll height, with content fixed to
+the window drawn in the first window; without it the capture is the window where the steps left the page. Every
+diagnostic is about the page as it renders at that size: its media rules applied, what scrolls there, what an
+ancestor clips away.
 Look at the screenshots: validation cannot tell you that a page is ugly.
 
 Validation codes (from `package:codelessly_api/validate.dart`):
@@ -1618,6 +1686,7 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `zero_size` | warning | A fixed width or height of 0 (often a missing "width"/"height"): the node is invisible. |
 | `vertical_wrap` | warning | A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side. |
 | `layout_clamped` | warning | A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks). |
+| `prop_ignored` | warning | A prop that has no effect with another the node sets (a grid's mainAxisExtent while shrinkWrapRows sizes its rows): one of them is ignored. |
 | `unknown_bind_path` | error | A "bind" key that names no bindable field of the node. |
 | `reserved_bind_path` | warning | A binding path that is kept but not applied yet. |
 | `expression_syntax` | error | A "${" that is not closed, or an empty ${}. |
@@ -2081,7 +2150,7 @@ Flutter `Icon` (font icons) or an SVG/image icon.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `icon` | [IconData](#type-IconData) | `{}` |  | Which glyph: `{"type":"MATERIAL_ICON"\|"MATERIAL_SYMBOL", "name", "style"}` or `{"type":"CUPERTINO_ICON", "codepoint"}`. Image icons use `{"source":"image", "image":url}`. |
+| `icon` | [IconData](#type-IconData) | `{}` |  | Which glyph: a Material icon name, `"check_circle"` (a style by suffix: `"search_rounded"`), the one form to write everywhere (an icon node, an input's `prefixIcon`). Also read: an image URL, and the object forms of older documents (`{"type": "MATERIAL_ICON", "name", "style"}`, `{"type": "CUPERTINO_ICON", "codepoint"}`). |
 | `color` | [Color](#type-Color) | unset |  |  |
 
 <a id="node-spacer"></a>
@@ -4046,7 +4115,7 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `type` | [PaintType](#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image` |  |
+| `type` | [PaintType](#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise` |  |
 | `id` | String | unset |  | Stable id, so a binding can target one paint (`fill-<id>`). |
 | `visible` | bool | `true` |  |  |
 | `opacity` | double | `1` | ≥ 0, ≤ 1 |  |
@@ -4061,6 +4130,8 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `image` | [ImagePaint](#type-ImagePaint) | unset |  | Image (type `image`). |
 | `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
+| `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
+| `noise` | [NoisePaint](#type-NoisePaint) | unset |  | Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, "type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` (`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box. |
 
 
 ## ColorStop
@@ -4110,7 +4181,7 @@ A shadow or blur (Flutter's `BoxShadow`, `ImageFilter.blur`).
 
 ### PaintType
 
-`solid`, `linear`, `radial`, `sweep`, `diamond`, `image`
+`solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise`
 
 ### EffectType
 
@@ -4118,7 +4189,24 @@ A shadow or blur (Flutter's `BoxShadow`, `ImageFilter.blur`).
 
 ### StrokeSides
 
-`all`, `left`, `top`, `right`, `bottom`, `topBottom`, `leftRight`, `topRight`, `bottomRight`, `bottomLeft`, `topLeft`, `noTop`, `noRight`, `noBottom`, `noLeft`
+| Value | Meaning |
+|---|---|
+| `all` |  |
+| `left` |  |
+| `top` |  |
+| `right` |  |
+| `bottom` |  |
+| `topBottom` |  |
+| `leftRight` |  |
+| `topRight` |  |
+| `bottomRight` |  |
+| `bottomLeft` |  |
+| `topLeft` |  |
+| `noTop` |  |
+| `noRight` |  |
+| `noBottom` |  |
+| `noLeft` |  |
+| `none` | No side: Flutter's `Border()` (every side `BorderSide.none`), CSS `border-style: none`; for a stroke bound or patched off. |
 
 ### StrokeAlign
 
@@ -4816,6 +4904,18 @@ Read as `${animation.<id>.value}` (after `curve`), `.status` (`dismissed`, `forw
 | `ramp` | int | `0` | ≥ 0 | Ms to speed up from still, and to slow to a stop when paused. |
 | `visibleFraction` | double | unset |  | Waits to start until this share of the node is in view. |
 
+<a id="type-NoisePaint"></a>
+### NoisePaint
+
+A `noise` paint's procedural noise, parameterised as SVG's `<feTurbulence>` (`baseFrequency`, `numOctaves`, `seed`, `type`): the texture a web page's grain overlay draws (`filter: url(#grain)`), here a paint, drawn as a seamless tile repeated over the box.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `baseFrequency` | double | `0.8` | ≥ 0, ≤ 4 | Lattice cells per pixel (feTurbulence `baseFrequency`): 0.8 a fine grain, 0.05 soft clouds. |
+| `numOctaves` | int | `3` | ≥ 1 | Octaves summed, each twice the frequency at half the amplitude. |
+| `seed` | int | `0` |  | The random seed: the same seed draws the same grain. |
+| `type` | [NoiseType](#enum-NoiseType) | `"fractalNoise"` | `fractalNoise`, `turbulence` | `fractalNoise` (a soft grain) or `turbulence` (ridged). |
+
 <a id="type-Pagination"></a>
 ### Pagination
 
@@ -4851,7 +4951,7 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `type` | [PaintType](#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image` |  |
+| `type` | [PaintType](#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise` |  |
 | `id` | String | unset |  | Stable id, so a binding can target one paint (`fill-<id>`). |
 | `visible` | bool | `true` |  |  |
 | `opacity` | double | `1` | ≥ 0, ≤ 1 |  |
@@ -4866,6 +4966,8 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `image` | [ImagePaint](#type-ImagePaint) | unset |  | Image (type `image`). |
 | `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
+| `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
+| `noise` | [NoisePaint](#type-NoisePaint) | unset |  | Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, "type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` (`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box. |
 
 <a id="type-Pan"></a>
 ### Pan
@@ -6149,6 +6251,14 @@ Written as the value's name, a JSON string (`"center"`).
 | `replace` | Replaces the current screen. |
 | `reset` | Clears the history: the destination becomes the only screen (over `NavigateAction.base`, when set). |
 
+<a id="enum-NoiseType"></a>
+### NoiseType
+
+| Value | Meaning |
+|---|---|
+| `fractalNoise` | SVG `feTurbulence`'s `type`: Perlin noise summed (`fractalNoise`, a soft grain) or its absolute values summed (`turbulence`, ridged). |
+| `turbulence` | SVG `feTurbulence`'s `type`: Perlin noise summed (`fractalNoise`, a soft grain) or its absolute values summed (`turbulence`, ridged). |
+
 <a id="enum-PagePaintOrder"></a>
 ### PagePaintOrder
 
@@ -6214,7 +6324,7 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="enum-PaintType"></a>
 ### PaintType
 
-`solid`, `linear`, `radial`, `sweep`, `diamond`, `image`
+`solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise`
 
 <a id="enum-PanRelease"></a>
 ### PanRelease
@@ -6545,7 +6655,24 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="enum-StrokeSides"></a>
 ### StrokeSides
 
-`all`, `left`, `top`, `right`, `bottom`, `topBottom`, `leftRight`, `topRight`, `bottomRight`, `bottomLeft`, `topLeft`, `noTop`, `noRight`, `noBottom`, `noLeft`
+| Value | Meaning |
+|---|---|
+| `all` |  |
+| `left` |  |
+| `top` |  |
+| `right` |  |
+| `bottom` |  |
+| `topBottom` |  |
+| `leftRight` |  |
+| `topRight` |  |
+| `bottomRight` |  |
+| `bottomLeft` |  |
+| `topLeft` |  |
+| `noTop` |  |
+| `noRight` |  |
+| `noBottom` |  |
+| `noLeft` |  |
+| `none` | No side: Flutter's `Border()` (every side `BorderSide.none`), CSS `border-style: none`; for a stroke bound or patched off. |
 
 <a id="enum-TabAlignment"></a>
 ### TabAlignment
@@ -7416,7 +7543,7 @@ Scrolls node `node` into view: `alignment` 0 puts it at the start of the view, 1
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `node` | String | `""` |  |  |
+| `node` | String | `""` |  | The node to reveal: its id, or an expression giving one (`"cmp-col-${cmpCol + 1}"`). A node that is not on screen when the action runs is reported as an action error, not skipped silently. |
 | `item` | String | `""` |  | For a repeated node: the key (or index) of the list item whose copy to reveal. |
 | `durationMs` | int | `400` |  |  |
 | `curve` | String | `"easeInOut"` |  | A Curves name. |

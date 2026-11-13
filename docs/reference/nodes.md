@@ -259,7 +259,7 @@ Flutter `Icon` (font icons) or an SVG/image icon.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `icon` | [IconData](values.md#type-IconData) | `{}` |  | Which glyph: `{"type":"MATERIAL_ICON"\|"MATERIAL_SYMBOL", "name", "style"}` or `{"type":"CUPERTINO_ICON", "codepoint"}`. Image icons use `{"source":"image", "image":url}`. |
+| `icon` | [IconData](values.md#type-IconData) | `{}` |  | Which glyph: a Material icon name, `"check_circle"` (a style by suffix: `"search_rounded"`), the one form to write everywhere (an icon node, an input's `prefixIcon`). Also read: an image URL, and the object forms of older documents (`{"type": "MATERIAL_ICON", "name", "style"}`, `{"type": "CUPERTINO_ICON", "codepoint"}`). |
 | `color` | [Color](values.md#type-Color) | unset |  |  |
 
 <a id="node-spacer"></a>

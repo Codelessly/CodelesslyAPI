@@ -234,7 +234,14 @@ a fixed size along the main axis; in a row whose width hugs its children there i
   read (it becomes 0 on every side; validation reports it).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`, each optional. A `fill` width with
   `"maxWidth": 1100` gives a content column that grows with the window up to 1100; its parent's
-  `crossAxisAlignment` (center by default) places it.
+  `crossAxisAlignment` (center by default) places it. Under `crossAxisAlignment: stretch` a cap holds too, as CSS
+  `max-width` does over `align-items: stretch`: the child sits at the start, or where its `layout.align` puts it
+  (`[0, 0]` centers it). Across a row or column, a child's width comes out as:
+
+  | Parent's `crossAxisAlignment` | child `fill` | child `hug` | child fixed `n` |
+  |---|---|---|---|
+  | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
+  | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width (Flutter's stretch), at most its `maxWidth` |
 - `aspectRatio`: width / height the node keeps (`1.5`).
 - `rotation`: degrees, clockwise, about the center; layout is unchanged.
 
@@ -330,9 +337,14 @@ Which modes each parent allows (from the parents' own rules):
   it keeps that stop's color, so end a glow on a transparent stop. `transform` is the general form
   ([Paint](values.md#type-Paint)). An image is `{"type": "image", "image": {"url": "...", "fit": "cover"}}`.
   A paint without `type` is an image if it has `image`, a linear gradient if it has `stops`, else a solid color.
-  There is no noise or texture paint: a grain needs an image file (a repeated image fill, `"repeat": "repeat"`).
+  **A pattern in pixels** (CSS `repeating-linear-gradient(to bottom, #E5E7EB 0 1px, transparent 1px 80px)`): a
+  linear gradient with `"length": 80` (px from `begin` toward `end`) and `"tileMode": "repeated"`; a background grid
+  is two of them, one `topCenter` → `bottomCenter`, one `centerLeft` → `centerRight` ([Paint](values.md#type-Paint)).
+  **Grain**: `{"type": "noise", "noise": {"baseFrequency": 0.8, "numOctaves": 3, "seed": 1}, "color": "#FF000000",
+  "opacity": 0.08}`, SVG's `feTurbulence` as a paint (a seamless tile repeated over the box; `blendMode` as CSS
+  `mix-blend-mode`).
 - `strokes`: paints for the border, with `strokeWidth` (default 1), `strokeAlign` (`inside`, `center`,
-  `outside`), `strokeSides` (`all`, `bottom`, `topBottom`...) and `dashPattern` (`[6, 4]`). `strokeWidth` without
+  `outside`), `strokeSides` (`all`, `bottom`, `topBottom`..., `none`) and `dashPattern` (`[6, 4]`). `strokeWidth` without
   `strokes` draws nothing.
 - `radius`: corner radius: a number, `[x, y]`, or `[topLeft, topRight, bottomRight, bottomLeft]`.
 - `shape`: `"circle"` paints a circle the box's shortest side across.
@@ -437,9 +449,13 @@ change what must change at a width. Use these, in this order:
    CSS) or a breakpoint name (`minWidth: "tablet"`: from tablet's min width; `maxWidth: "tablet"`: up to the next
    breakpoint, so tablet and narrower); `orientation` is `portrait` or `landscape`; all conditions of a rule must
    hold. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `opacity`) and merged over
-   it (objects merge, `null` removes). Rules apply in order, a later one winning where two set the same field (the
+   it (objects merge, `null` removes a key), except that a value with several forms is **replaced**, as CSS
+   replaces a declaration: `{"width": {"hug": 200}}` over `{"fill": 292}` is `{"hug": 200}` (a size, a position
+   form, a paint or border of another `type`, an icon). Rules apply in order, a later one winning where two set the same field (the
    CSS cascade): write the node for phones and add `minWidth` rules for wider screens (mobile first), or the other
-   way round with `maxWidth`. Validation checks every patched value as the node's own.
+   way round with `maxWidth`. Validation checks every patched value as the node's own, and judges sizes at each
+   range of widths with the rules that hold there (a child's `fill` against its parent as patched at the same
+   widths); a finding names those widths.
    - **A row that becomes a column**: a `flex` node (Flutter `Flex`) with `"direction": "horizontal"` and a rule
      patching `"direction": "vertical"`. Its children stay the same nodes, keeping their state.
    - **Another order at a width**: each child's `layout.order` (CSS `order`; ascending, equal orders as listed),
@@ -954,7 +970,7 @@ Flutter `Icon` (font icons) or an SVG/image icon.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `icon` | [IconData](values.md#type-IconData) | `{}` |  | Which glyph: `{"type":"MATERIAL_ICON"\|"MATERIAL_SYMBOL", "name", "style"}` or `{"type":"CUPERTINO_ICON", "codepoint"}`. Image icons use `{"source":"image", "image":url}`. |
+| `icon` | [IconData](values.md#type-IconData) | `{}` |  | Which glyph: a Material icon name, `"check_circle"` (a style by suffix: `"search_rounded"`), the one form to write everywhere (an icon node, an input's `prefixIcon`). Also read: an image URL, and the object forms of older documents (`{"type": "MATERIAL_ICON", "name", "style"}`, `{"type": "CUPERTINO_ICON", "codepoint"}`). |
 | `color` | [Color](values.md#type-Color) | unset |  |  |
 
 <a id="node-spacer"></a>
@@ -992,7 +1008,10 @@ node is reported, not made), `--hover <id>`, `--focus <id>`, `--type <id>=<text>
 `--scroll <id or screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`. A step may name a node by its `name`
 too: give the matching nodes of a screen's breakpoint canvases the same `name` and one step reaches whichever is
 shown. `--label <name>` keeps the screenshots and `diagnostics-<name>.json` of each state apart. `--full-page`
-captures the page's own scroll height, with content fixed to the window drawn in the first window.
+captures the whole page from its top (whatever a step scrolled it to), its own scroll height, with content fixed to
+the window drawn in the first window; without it the capture is the window where the steps left the page. Every
+diagnostic is about the page as it renders at that size: its media rules applied, what scrolls there, what an
+ancestor clips away.
 Look at the screenshots: validation cannot tell you that a page is ugly.
 
 The validation codes are listed in `index.md`, section 17.
