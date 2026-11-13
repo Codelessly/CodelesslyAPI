@@ -71,7 +71,6 @@ Useful members: `prop(def)`, `withProp(def, value)`, `copyWith(...)`, `patched(j
   "x": {"start": 24},
   "y": {"align": 0.5},
   "align": [0, 0],
-  "rotation": 15,
   "aspectRatio": 1.5
 }
 ```
@@ -105,7 +104,8 @@ The number is the design size: the size used for `fixed`, and the fallback when 
 another kind of parent are kept, so moving a node back restores them, and renderers ignore them.
 
 `margin` and `padding` are `[left, top, right, bottom]`, or a single number for all four sides.
-`rotation` is in degrees, about the center.
+A turn or a scale is not layout (neighbours don't move): it is the node's `motion`, Flutter's `Transform`
+(`"motion": {"rotate": 15}`, chapter 8). Schema 3's `layout.rotation` and node `scale` are migrated there.
 
 ## Decoration
 

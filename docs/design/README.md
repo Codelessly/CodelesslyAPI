@@ -98,6 +98,9 @@ Ranked by how much later work depends on them.
 6. **`Motion` is a transform only**: `opacity` and `blur` leave it;
    `layout.rotation` and the node-level `scale` fold into it (doc 03 §9).
    This reaches into the Figma-shaped envelope in one place.
+   *Done:* `opacity` and `blur` in schema 3; `layout.rotation` and `scale` in
+   schema 4 (doc 03, "Done in schema 4"), with `flightKey`/`flight` folded
+   into `hero` (doc 04, "Done in schema 4").
 7. **The `drag` split**: pointer-follow merges into `transformGesture`; the
    track stays on the thumb node (doc 04 §10.1–2).
 8. **Flutter's defaults where the model invented its own**:
@@ -128,7 +131,8 @@ that read the old keys, so the reference apps keep running between phases.
 
 ## Compatibility, in one place
 
-*Superseded by schema 3 (codelessly_api 30.0.0):* documents are `"schema": 3`; a schema-2 document is
+*Superseded by schemas 3 and 4:* documents are `"schema": 4` (a schema-3 one is migrated by `migrate3to4`, after
+`migrate2to3` for schema 2: docs/guide/13-migrating-to-schema-4.md). Schema 3 (codelessly_api 30.0.0): a schema-2 document is
 migrated once, in memory, by `migrate2to3`, and the legacy readers described below live in that migration,
 not in the decoders (docs/guide/12-migrating-to-schema-3.md, docs/design/schema-3-migration-report.md). The
 text below is the schema-2 plan as it was: documents kept `"schema": 2`; loaders rejected other numbers, so
@@ -183,8 +187,8 @@ targets in doc 01 need the benchmark named there.
 * `drag.reorder` duplicates a list-level `reorder` prop that already exists
   (`widgets/collections_models.dart:260-288`); `DropTarget`'s list-slot
   fields duplicate it too.
-* `layout.rotation` is already a paint transform in the SDK
-  (`render/node_tree.dart:1003`), not layout.
+* `layout.rotation` was a paint transform in the SDK
+  (`render/node_tree.dart:1003`), not layout: schema 4 made it `motion.rotate`.
 * `hoverDelay`, `flyOutDistance`, `flyOutCurve`, `rotationSnap`,
   `scaleXVariable/Y`, `Motion.springStiffness/Damping` have no user in any
   reference build source.
