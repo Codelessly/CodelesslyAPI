@@ -30,6 +30,7 @@ export 'src/core/edit/explain.dart';
 export 'src/core/edit/from_document.dart';
 export 'src/core/edit/lint.dart';
 export 'src/core/edit/outline.dart';
+export 'src/core/edit/starter.dart';
 export 'src/core/edit/stream.dart';
 export 'src/core/edit/tools.dart';
 export 'src/core/edit/trust.dart';
