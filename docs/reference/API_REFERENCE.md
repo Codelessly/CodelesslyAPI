@@ -113,7 +113,9 @@ Every node has a `type` (one of the [node types](#page-nodes)). Its keys:
 - `children` is an ordered list of ids, for the types that take children: `row`, `column`, `stack`, `listView`,
   `gridView`, `pageView`, `variance` and a few more (the "Children" column below).
 - `slots` maps a slot name to one id, for types with named places: a `canvas` has `body`, `appBar`,
-  `floatingActionButton` and `bottomNavigationBar`; a `listTile` has `leading`, `title`, `subtitle`, `trailing`.
+  `floatingActionButton` and `bottomNavigationBar` (placed as Flutter's `Scaffold` places them: the app bar across
+  the top at its own height, the bottom bar across the bottom, the body between, the button 16 px from the right
+  and above the bottom bar); a `listTile` has `leading`, `title`, `subtitle`, `trailing`.
 - Every node except a canvas has exactly one parent. A node listed under two parents, or not listed under any,
   is an error or a warning in validation. To show the same thing twice, write two nodes with their own ids.
 - `roots` lists the canvases. A canvas is never a child.
@@ -270,10 +272,12 @@ node both, except a `canvas` (its size is the screen's) and a `spacer`.
 In this example the text hugs its content, the red box fills the column's width, and in the row the green box
 and the blue box share the free space 1 : 2 (`flex`) beside a fixed grey box.
 
-### Rows and columns
+### Rows, columns and flex
 
-`row` and `column` lay their children along their **main axis** (horizontal for a row, vertical for a column)
-with these props: `mainAxisAlignment` (default `start`), `crossAxisAlignment` (default **`center`**: children are
+`row` and `column` lay their children along their **main axis** (horizontal for a row, vertical for a column).
+`flex` is Flutter's `Flex`, the widget both extend: the same props plus `direction` (`horizontal` | `vertical`),
+which a media rule or a binding can change, so the same children become a column at a width. They take
+these props: `mainAxisAlignment` (default `start`), `crossAxisAlignment` (default **`center`**: children are
 centered across the axis unless you say `start`, `end` or `stretch`), `spacing` (gap between children, default
 0), `wrap` (flow onto new lines, like `Wrap`; `runSpacing` between lines), `squeezeChildren` (default true: if
 the children do not fit, they shrink toward their content size instead of overflowing).
@@ -283,11 +287,25 @@ Under a row or column a child may also set, in its own `layout`:
 - `flex`: its share of the free space when its main-axis size is `fill` or `flexible` (default 1);
 - `align`: its alignment within its slot, as `[x, y]` from -1 to 1 or a name (`"centerRight"`); the node's box
   then spans the slot and its content sits at that alignment;
-- `squeezable`: a hugging child that may shrink below its content when room runs out.
+- `squeezable`: a hugging child that may shrink below its content when room runs out;
+- `order` (CSS `order`): children are laid out and painted by ascending order, equal orders as listed;
+- `basis` (CSS `flex-basis`, in a **wrapping** row, column or flex): the main size the child counts when lines are
+  broken; a child that also fills the main axis (`{"fill": n}`) then grows by its `flex` share of what its line
+  leaves. `"width": {"fill": 300}, "basis": 280` is CSS `flex: 1 1 280px`: three across at 1000 px, two at 700, one
+  at 390 ([section 7](#guide-responsive)). Without `basis`, children of a wrapping row keep their own size.
+
+A child hidden by a binding, a condition or a media rule takes no room and no slot: `spaceBetween` spreads the
+children that show (CSS `display: none`; in Flutter, leaving it out of the list). A node written with
+`"visible": false` and nothing that shows it keeps its room empty.
+
+A `spacer` is Flutter's `Spacer`: in a row or column it takes the free space (`flex` shares it) unless it is given
+a fixed size along the main axis; in a row whose width hugs its children there is no free space to take.
 
 ### Padding, margin, constraints, aspect ratio
 
-- `padding` is space inside the node's box, around its content and children; `margin` is space outside it.
+- `padding` is space inside the node's box, around its content and children; `margin` is space outside it. A
+  `text` has no padding (its box is its lines; validation warns): use `margin`, or a row with the padding around it. A negative margin does not overlap neighbours (Flutter has none):
+  overlap in a stack with a negative offset.
   Both are a number (all sides) or a list of **four** numbers `[left, top, right, bottom]`. A list of two is not
   read (it becomes 0 on every side; validation reports it).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`, each optional. A `fill` width with
@@ -310,7 +328,10 @@ margin box. Each axis takes one of:
 | `{"relative": 300}` | 300 from the start at the stack's design size, keeping its share of the free space as the stack resizes |
 
 `x`, `y` mean nothing under a row or column, and `flex`, `align` nothing under a stack: validation warns
-(`layout_field_ignored`). Children paint in order: later ones on top.
+(`layout_field_ignored`). Children paint in order: later ones on top. A child may sit partly outside a stack with
+a fixed or fill size (a negative `start`, as Flutter's `Positioned(top: -40)`); it is clipped only if the stack's
+`decoration.clip` says so. A stack that hugs its children grows to hold them, so there a negative offset is 0
+(`layout_clamped`).
 
 ```json
 {
@@ -377,10 +398,15 @@ Which modes each parent allows (from the parents' own rules):
 `decoration` paints the node's box (types with "box decoration" above). Full list: [decoration](#page-decoration).
 
 - `fills`: a list of paints, bottom to top. `{"color": "#FF2563EB"}` is a solid color. A gradient is
-  `{"type": "linear" | "radial" | "sweep" | "diamond", "stops": [{"position": 0, "color": ...}, {"position": 1, "color": ...}]}`;
-  a linear gradient runs left to right unless it has `"begin"` and `"end"` (alignments, `[0, -1]` to `[0, 1]` is
-  top to bottom) or a `transform`. An image is `{"type": "image", "image": {"url": "...", "fit": "cover"}}`. A paint
-  without `type` is an image if it has `image`, a linear gradient if it has `stops`, else a solid color.
+  `{"type": "linear" | "radial" | "sweep" | "diamond", "stops": [{"position": 0, "color": ...}, {"position": 1, "color": ...}]}`.
+  As Flutter's `LinearGradient`, a linear one runs from `"begin"` to `"end"` (alignments; default left to right;
+  `[0, -1]` to `[0, 1]` is top to bottom), with `"tileMode": "repeated"` repeating it past them (thin stripes:
+  `"begin": [-1, 0], "end": [-0.96, 0]`). As `RadialGradient`, a radial one has a `"center"` (alignment, default
+  the middle) and a `"radius"` (a share of the box's shortest side; default half its width); past the last stop
+  it keeps that stop's color, so end a glow on a transparent stop. `transform` is the general form
+  ([Paint](#type-Paint)). An image is `{"type": "image", "image": {"url": "...", "fit": "cover"}}`.
+  A paint without `type` is an image if it has `image`, a linear gradient if it has `stops`, else a solid color.
+  There is no noise or texture paint: a grain needs an image file (a repeated image fill, `"repeat": "repeat"`).
 - `strokes`: paints for the border, with `strokeWidth` (default 1), `strokeAlign` (`inside`, `center`,
   `outside`), `strokeSides` (`all`, `bottom`, `topBottom`...) and `dashPattern` (`[6, 4]`). `strokeWidth` without
   `strokes` draws nothing.
@@ -458,6 +484,9 @@ What a text looks like when the style leaves something out:
 
 Sizing: a single line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide (it wraps) × `{"hug": n}` high.
 A fixed height shorter than the lines clips them (the render command reports `text_clipped`).
+
+Characters the font has no glyph for (✦, ✳ in Roboto) are drawn as empty boxes; the render command reports
+them (`missing_glyph`). Draw a small mark with an `icon` or a `box` with a `path` instead.
 
 `runs` style parts of the text: `[{"start": 0, "end": 5, "style": {"fontWeight": 700}}]` (character offsets, end
 exclusive), merged over `style`; a run may carry a `"link"` URL. `text` may contain expressions:
@@ -954,6 +983,23 @@ Types: | Value | Meaning |
 | `choice` | One of `Variable.options`, stored as the option's value. |. `value` is written as the type holds it in JSON: `3`, `2.5`, `true`, `"text"`,
 `"#FF2563EB"`, `[...]`, `{...}`.
 
+**Computed variables** define a value once: a variable with a `formula` (what goes in `${= ...}`) is read-only and
+follows what it reads. **Function variables** add `parameters` and are called by name from any formula. Declare
+them in `page_variables` to share them with every canvas of the document (a screen's breakpoint canvases too):
+
+```json
+"variables": {"page_variables": [
+  {"name": "query", "type": "text", "value": ""},
+  {"name": "dishes", "type": "list", "value": [{"name": "Lamb", "vegan": false}, {"name": "Squash", "vegan": true}]},
+  {"name": "shown", "type": "list", "formula": "filter(dishes, d => contains(lower(d.name), lower(query)))"},
+  {"name": "count", "type": "integer", "formula": "length(shown)"},
+  {"name": "money", "type": "text", "parameters": ["n"], "formula": "'$' + round(n)"}
+]}
+```
+
+`${shown}` feeds a list, `${count}` a label, `${= money(price * 12)}` any text, wherever they are needed: write a
+filter or a rule once, not in every binding.
+
 **Expressions** are text that reads values:
 
 - `${name}` or `${path}` reads a value: `${count}`, `${user.name}`, `${items[0].price}`, `${item.title}`.
@@ -973,6 +1019,9 @@ value whenever the names it reads change:
 ```json
 "bind": {"props.text": "${= 'Total: ' + money(count * price, '$')}", "visible": "${= count > 0}"}
 ```
+
+Literals are not names: `${false}` reads a variable called `false`; write `${= false}` (or just `false` in the
+field, without a binding).
 
 Paths: `visible`, `opacity`, `layout.<field>` (`layout.width`), `decoration.fills[0].color`,
 `decoration.radius`, `props.<prop>` and `props.<prop>.<field>` (`props.style.color`), `data` (a list's items),
@@ -1258,6 +1307,13 @@ A `listView` (or `gridView`, `pageView`) repeats its **first child** once per it
 its position from 0. A list in a scrolling page sets `"scrollable": false` so it lays out every item at its full
 height; `spacing` separates items. Items fill the list's width.
 
+For cards in columns from one list, inside a scrolling page, use a `gridView` with `minCrossAxisExtent` (CSS
+`repeat(auto-fit, minmax(280px, 1fr))`: as many equal columns as fit), `"shrinkWrapRows": true` (each row as tall
+as its tallest card, the cards stretched to it: equal heights) and `"physics": "never"` (it lays out every item and
+the page scrolls), as in [section 7](#guide-responsive). A `listView` with `"wrap": true` lays its items out at
+their own sizes in runs along its `scrollDirection`: with the default `vertical` they flow top to bottom into
+columns (`vertical_wrap`); set `"scrollDirection": "horizontal"` for chips side by side.
+
 ```json
 {
   "schema": 2,
@@ -1344,8 +1400,12 @@ Validate with variables: keep the values, set a `tried` flag on submit, and show
 bindings (or bind `props.decoration.errorText`). The `validator` prop of a text field is declared but not applied
 by the SDK, and `inputFormatter` only applies `{"type": "regex", "pattern": ..., "allow": true}`. An outlined
 field (`"border": {"type": "outline", ...}`) needs `"contentPadding": [14, 16, 14, 16]` in its decoration to keep
-its text off the border. A text field is not bound to its variable: setting the variable does not change the
-text shown.
+its text off the border.
+
+**A text field bound to a variable**: bind its `props.initialValue` to the variable (`"bind": {"props.initialValue": "${query}"}`).
+That is a two-way binding, as a Flutter `TextEditingController` held in state: typing sets the variable (its
+`changed` reaction also runs), and setting the variable elsewhere (a clear button, `--set`) changes the text, keeping
+the caret. The render command types with `--type <id>=<text>`.
 
 ```json
 {
@@ -1440,7 +1500,10 @@ See the navigation example in [section 6](#guide-screens).
   inlines it; a real publish needs the image uploaded and its URL. The render command does not fetch network
   images: it reports them (`image_network`) and leaves them blank.
 - **Icons**: an `icon` node with `props.icon` set to a Material icon name (`"check_circle"`, `"menu"`,
-  `"arrow_forward"`; `_outlined`, `_rounded`, `_sharp` suffixes pick the style) and `props.color`.
+  `"arrow_forward"`, `"north_east"`; any name at fonts.google.com/icons; `_outlined`, `_rounded`, `_sharp` suffixes
+  pick the style) and `props.color`. An icon is written the same way everywhere: a text field's
+  `decoration.prefixIcon` is `{"icon": "search", "size": 18}`. A name the renderer does not know draws nothing
+  (`icon_not_drawn`).
 - **Fonts**: `style.fontFamily` names a family (`"Inter"`), with `fontWeight` choosing the file. An app fetches
   Google Fonts by name. The render command uses font files from `--fonts <dir>` (read by their real family and
   weight) plus Roboto, and reports a family it does not have (`font_fallback`).
@@ -1505,10 +1568,15 @@ tool/render/render.sh site/ --out shots/ --sizes 390x844,834x1112,1440x900 --ful
 
 It validates every document strictly, renders each screen with the SDK at each size, writes
 `shots/<screen>@<w>x<h>.png` and `shots/diagnostics.json`, and prints one line per problem with a code, the
-JSON pointer of the value (`/nodes/hero-title/props/style/fontSize`) and what to do. It exits 1 when there are
-errors. Interactions before the capture: `--tap <id>` (scrolled into view first; `<id>#<n>` for the n-th copy
-of a list item), `--hover <id>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`,
-`--navigate <canvas id>`, `--wait <ms>`, with `--label <name>` to keep the screenshots apart. Look at the screenshots: validation cannot tell you that a page is ugly.
+JSON pointer of the value (`/nodes/hero-title/props/style/fontSize`) or the node, and what to do. It exits 1 when
+there are errors. Interactions before the capture, in order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list
+item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another
+node is reported, not made), `--hover <id>`, `--focus <id>`, `--type <id>=<text>`, `--set <variable>=<json>`,
+`--scroll <id or screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`. A step may name a node by its `name`
+too: give the matching nodes of a screen's breakpoint canvases the same `name` and one step reaches whichever is
+shown. `--label <name>` keeps the screenshots and `diagnostics-<name>.json` of each state apart. `--full-page`
+captures the page's own scroll height, with content fixed to the window drawn in the first window.
+Look at the screenshots: validation cannot tell you that a page is ugly.
 
 Validation codes (from `package:codelessly_api/validate.dart`):
 
@@ -1545,6 +1613,7 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `fit_not_allowed` | warning | A width or height mode the parent cannot honor (fill along a scrolling axis, flexible outside a row/column). |
 | `zero_size` | warning | A fixed width or height of 0 (often a missing "width"/"height"): the node is invisible. |
 | `vertical_wrap` | warning | A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side. |
+| `layout_clamped` | warning | A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks). |
 | `unknown_bind_path` | error | A "bind" key that names no bindable field of the node. |
 | `reserved_bind_path` | warning | A binding path that is kept but not applied yet. |
 | `expression_syntax` | error | A "${" that is not closed, or an empty ${}. |
@@ -1568,8 +1637,9 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
 
-The render step adds what only rendering shows: `render_exception`, `action_error`, `interaction_failed`,
-`layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `font_fallback`,
+The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
+`interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
+`text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `image_failed`, `image_network`, `empty_screen`, `invalid_json`; formulas are parsed by the SDK's own parser
 there, so formula syntax errors and unknown names in formulas are reported only by the render command.
 
@@ -1589,6 +1659,17 @@ there, so formula syntax errors and unknown names in formulas are reported only 
 10. Per-breakpoint canvases have separate nodes: shared state lives in `page_variables`.
 11. `fill` takes all the room it is given; cap it with `constraints.maxWidth`.
 12. A backslash inside a formula is written twice in JSON: `"${= matches(code, '^\\d{4}$')}"`.
+13. `${...}` reads a name; a literal value is a formula: `${= false}`, not `${false}`.
+14. A node hidden by a binding, condition or media rule takes no room or slot; `"visible": false` written on the
+    node with nothing to show it keeps its room.
+15. A `path` (and a box's `path`) is drawn in its box's own pixels from the top left and is not clipped to the box
+    (as Flutter's `CustomPaint`): give a `path` node a `viewBox` to scale it, or clip an ancestor.
+16. A `spacer` takes the free space only in a row or column with room to spare (a `fill` or fixed main size).
+17. Where CSS and Flutter differ, the model follows Flutter, except where it says so: rows and columns shrink
+    children that do not fit toward their content (`squeezeChildren`, default true, as CSS flex items shrink; false
+    is Flutter's overflow); `basis`, `order` and `minCrossAxisExtent` are CSS's; a negative margin is not CSS's.
+18. Repeated content from data: a `gridView` with `minCrossAxisExtent` for columns, a `listView` for a list; a
+    wrapping `listView` runs along its `scrollDirection`.
 
 ---
 
@@ -1728,7 +1809,7 @@ A leaf box: Flutter `Container` with a decoration and no child.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `path` | String | `""` |  | An SVG path drawn instead of the rectangle (shapes, vectors). |
+| `path` | String | `""` |  | An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`. |
 | `strokeJoin` | [StrokeJoin](#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How the path's segments meet when stroked (`Paint.strokeJoin`). |
 | `strokeMiterLimit` | double | `4` | ≥ 0 | The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`). |
 
@@ -1860,7 +1941,7 @@ Flutter `Icon` (font icons) or an SVG/image icon.
 
 Flutter `Spacer`.
 
-Flexible empty space in a row/column (`Spacer`), or a fixed gap.
+Flexible empty space in a row/column (`Spacer`), or a fixed gap. With no size along its parent's main axis it is Flutter's `Spacer()`: it takes the free space by its `layout.flex`; a fixed size there makes it a gap.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -3810,11 +3891,14 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `blendMode` | [BlendMode](#enum-BlendMode) | `"srcOver"` |  |  |
 | `color` | [Color](#type-Color) | unset |  | Solid color (type `solid`). |
 | `stops` | List<[ColorStop](#type-ColorStop)> | `[]` |  | Gradient stops (gradient types). |
-| `transform` | List<double> | unset |  | The gradient's transform, a 2D affine matrix `[a, b, c, d, tx, ty]` in the box's unit square. |
+| `transform` | List<double> | unset |  | Six numbers `[a, b, tx, c, d, ty]` mapping a point (x, y) of the box, in its unit square (0 to 1 each way), into the gradient's unit square: u = a·x + b·y + tx, v = c·x + d·y + ty. A linear gradient runs along u from 0 to 1; `[20, 0, 0, 0, 1, 0]` with `"tileMode": "repeated"` repeats it 20 times across the box. Simpler: `begin`/`end` (linear) or `center`/`radius` (radial). |
+| `begin` | [Alignment](#type-Alignment) | unset |  | Linear: where the gradient starts, an alignment (`[-1, 0]` or `"centerLeft"`, Flutter `LinearGradient.begin`). Read into `transform`; default the left edge. |
+| `end` | [Alignment](#type-Alignment) | unset |  | Linear: where the gradient ends (Flutter `LinearGradient.end`). `"begin": [0, -1], "end": [0, 1]` runs top to bottom; `"begin": [-1, 0], "end": [-0.9, 0]` with `"tileMode": "repeated"` repeats it every 5% of the width. |
+| `center` | [Alignment](#type-Alignment) | unset |  | Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center. |
 | `tileMode` | [TileMode](#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` |  |
 | `image` | [ImagePaint](#type-ImagePaint) | unset |  | Image (type `image`). |
 | `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
-| `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: the transform's. |
+| `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
 
 
 ## ColorStop
@@ -4740,11 +4824,14 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `blendMode` | [BlendMode](#enum-BlendMode) | `"srcOver"` |  |  |
 | `color` | [Color](#type-Color) | unset |  | Solid color (type `solid`). |
 | `stops` | List<[ColorStop](#type-ColorStop)> | `[]` |  | Gradient stops (gradient types). |
-| `transform` | List<double> | unset |  | The gradient's transform, a 2D affine matrix `[a, b, c, d, tx, ty]` in the box's unit square. |
+| `transform` | List<double> | unset |  | Six numbers `[a, b, tx, c, d, ty]` mapping a point (x, y) of the box, in its unit square (0 to 1 each way), into the gradient's unit square: u = a·x + b·y + tx, v = c·x + d·y + ty. A linear gradient runs along u from 0 to 1; `[20, 0, 0, 0, 1, 0]` with `"tileMode": "repeated"` repeats it 20 times across the box. Simpler: `begin`/`end` (linear) or `center`/`radius` (radial). |
+| `begin` | [Alignment](#type-Alignment) | unset |  | Linear: where the gradient starts, an alignment (`[-1, 0]` or `"centerLeft"`, Flutter `LinearGradient.begin`). Read into `transform`; default the left edge. |
+| `end` | [Alignment](#type-Alignment) | unset |  | Linear: where the gradient ends (Flutter `LinearGradient.end`). `"begin": [0, -1], "end": [0, 1]` runs top to bottom; `"begin": [-1, 0], "end": [-0.9, 0]` with `"tileMode": "repeated"` repeats it every 5% of the width. |
+| `center` | [Alignment](#type-Alignment) | unset |  | Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center. |
 | `tileMode` | [TileMode](#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` |  |
 | `image` | [ImagePaint](#type-ImagePaint) | unset |  | Image (type `image`). |
 | `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
-| `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: the transform's. |
+| `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
 
 <a id="type-ParticleEmitter"></a>
 ### ParticleEmitter

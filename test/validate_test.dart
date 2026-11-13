@@ -58,7 +58,7 @@ void main() {
 
   test('every code has a test below', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 53); // invalid_media, media_overridden: test/media_test.dart
+    expect(Codes.all.length, 54); // invalid_media, media_overridden: test/media_test.dart
   });
 
   group('document', () {
@@ -227,6 +227,23 @@ void main() {
       node(d, 'box').remove('layout');
       expectOne(d, Codes.zeroSize, path: '/nodes/box/layout/width');
     });
+    test('layout_field_ignored: padding on a text', () {
+      final d = base();
+      (node(d, 'title')['layout'] as Map)['padding'] = [0, 0, 0, 26];
+      expectOne(d, Codes.layoutFieldIgnored, path: '/nodes/title/layout/padding');
+    });
+    test('layout_clamped: a negative margin; a negative offset in a hugging stack', () {
+      final d = base();
+      (node(d, 'box')['layout'] as Map)['margin'] = [0, -8, 0, 0];
+      expectOne(d, Codes.layoutClamped, path: '/nodes/box/layout/margin');
+      final s = base();
+      nodes(s)['st'] = <String, Object?>{'type': 'stack', 'children': ['glow'], 'layout': <String, Object?>{'width': {'fill': 390}, 'height': {'hug': 100}}};
+      nodes(s)['glow'] = <String, Object?>{'type': 'box', 'layout': {'width': 100, 'height': 100, 'y': {'start': -30}}};
+      (node(s, 'col')['children'] as List).add('st');
+      expectOne(s, Codes.layoutClamped, path: '/nodes/glow/layout/y');
+      (node(s, 'st')['layout'] as Map)['height'] = 300;
+      expect(withCode(s, Codes.layoutClamped), isEmpty);
+    });
     test('vertical_wrap; a wrapping list keeps its items\' sizes (no fit_not_allowed)', () {
       final d = base();
       nodes(d)['list'] = <String, Object?>{'type': 'listView', 'children': ['it'], 'layout': {'width': {'fill': 390}, 'height': {'hug': 40}}, 'props': <String, Object?>{'wrap': true}};
@@ -236,13 +253,11 @@ void main() {
       (node(d, 'list')['props'] as Map)['scrollDirection'] = 'horizontal';
       expect(validateDocument(d), isEmpty);
     });
-    test('zero_size: a spacer with no main-axis size is 0 long (Flutter Spacer() is {"fill": 0})', () {
+    test('a spacer with no size is valid: it is Flutter\'s Spacer() (it fills its row or column)', () {
       final d = base();
       nodes(d)['sp'] = {'type': 'spacer'};
       (node(d, 'col')['children'] as List).add('sp');
-      final found = withCode(d, Codes.zeroSize);
-      expect(found.map((x) => x.path), ['/nodes/sp/layout/height']);
-      expect(found.single.message, contains('{"fill": 0}'));
+      expect(validateDocument(d), isEmpty);
     });
   });
 

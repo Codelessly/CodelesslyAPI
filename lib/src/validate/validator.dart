@@ -23,6 +23,7 @@ import '../core/widgets/canvas.dart';
 import '../core/widgets/flex.dart';
 import '../core/widgets/collections.dart';
 import '../core/values/enums.dart';
+import '../core/values/geometry.dart' show EdgeInsets;
 import '../standard_catalog.dart';
 import 'bind_paths.dart';
 import 'diagnostic.dart';
@@ -530,6 +531,33 @@ final class _Validator {
     final parentId = parents[n.id];
     final parent = parentId == null ? null : nodes[parentId];
     final reads = {for (final f in parent?.spec?.childFields ?? const <PropDef<Object?>>[]) f.key};
+    // A text draws no box of its own: its padding is not applied (as the
+    // editor's text), so say where padding goes.
+    if (n.type == 'text' && m.containsKey('padding') && EdgeInsets.fromJson(m['padding']) != EdgeInsets.zero) {
+      r.add(Codes.layoutFieldIgnored, pointer(at, 'padding'),
+          'A text has no padding: its box is its lines. Put the space outside it with "margin", or put the text in a row (or column) that has the padding and the decoration.');
+    }
+    // Negative values that cannot take effect as written.
+    if (readList(m['margin']) case final List<Object?> mg when mg.any((v) => (readDouble(v) ?? 0) < 0)) {
+      r.add(Codes.layoutClamped, pointer(at, 'margin'),
+          'A negative margin does not overlap neighbours (Flutter has no negative margins): it takes room from the node\'s own box. '
+          'To overlap, put both in a stack and give this one a negative x/y offset, or use a negative "spacing".');
+    } else if ((readDouble(m['margin']) ?? 0) < 0) {
+      r.add(Codes.layoutClamped, pointer(at, 'margin'),
+          'A negative margin does not overlap neighbours (Flutter has no negative margins): it takes room from the node\'s own box.');
+    }
+    if (parent != null && parent.type == 'stack' && (parent.layout.width.fit == SizeFit.hug || parent.layout.height.fit == SizeFit.hug)) {
+      for (final (k, hug) in [('x', parent.layout.width.fit == SizeFit.hug), ('y', parent.layout.height.fit == SizeFit.hug)]) {
+        final pos = readMap(m[k]);
+        final start = readDouble(pos?['start']) ?? (pos == null ? readDouble(m[k]) : null);
+        final end = readDouble(pos?['end']);
+        if (hug && ((start ?? 0) < 0 || (end ?? 0) < 0)) {
+          r.add(Codes.layoutClamped, pointer(at, k),
+              'Stack "$parentId" hugs its children on this axis, so it grows to hold them: a negative offset is clamped to 0. '
+              'Give the stack a fixed or fill size to let this child overhang its edge (as Flutter\'s Positioned with a negative offset), and clip with "decoration": {"clip": "hardEdge"}.');
+        }
+      }
+    }
     if (m.containsKey('basis') && parent != null && reads.contains('basis') && !parent.props.get(FlexProps.wrap)) {
       r.add(Codes.layoutFieldIgnored, pointer(at, 'basis'),
           'layout.basis (CSS flex-basis) is read only when the parent ${parent.type} wraps ("wrap": true); in a ${parent.type} that does not wrap, size the child with width/height and flex.');
@@ -670,13 +698,6 @@ final class _Validator {
           r.add(Codes.fitNotAllowed, pointer(at, axis), '${size.fit.name} is not honored here: $reason');
         }
       }
-      // A spacer without its parent's main-axis size is 0 long: Flutter's
-      // Spacer() fills, so say how to write that.
-      final parentAxis = parent == null ? null : flexAxisOf(parent);
-      if (n.type == 'spacer' && parentAxis != null && (parentAxis == Axis.horizontal) == (axis == 'width') && size.isFixed && size.value == 0) {
-        r.add(Codes.zeroSize, pointer(at, axis),
-            'This spacer has no $axis, so it is 0 long and does nothing. For Flutter\'s Spacer() (the free space of the ${parent!.type}) write "$axis": {"fill": 0}; for a fixed gap, a number (or use the ${parent.type}\'s "spacing").');
-      }
       if (size.isFixed && size.value == 0 && !(m?.containsKey(axis) ?? false) && n.type != 'spacer' && n.type != 'canvas') {
         r.add(Codes.zeroSize, pointer(at, axis),
             'No $axis: a node without "layout.$axis" is fixed at 0 and draws nothing. Give it a size: a number, {"hug": n}, {"fill": n} or {"flexible": n}.');
@@ -714,6 +735,19 @@ final class _Validator {
       if (dropped.isNotEmpty) {
         r.add(Codes.decorationIgnored, at,
             'A ${n.type} has no box decoration: ${dropped.join(', ')} ${dropped.length == 1 ? 'is' : 'are'} ignored (only blur effects apply). Put it in a box/row/column/stack with the decoration, or use the type\'s own style props.');
+      }
+    }
+    for (final k in const ['fills', 'strokes', 'foregroundFills']) {
+      final list = readList(m[k]) ?? const [];
+      for (var i = 0; i < list.length; i++) {
+        final t = readList(readMap(list[i])?['transform']);
+        if (t == null || t.length != 6) continue;
+        final v = [for (final x in t) readDouble(x) ?? 0];
+        if ((v[0] * v[4] - v[1] * v[3]).abs() < 1e-12) {
+          r.add(Codes.outOfRange, pointer(pointer(pointer(at, k), i), 'transform'),
+              'This transform [a, b, tx, c, d, ty] collapses the box onto a line (a·d - b·c = 0), so the gradient draws one color. '
+              'u = a·x + b·y + tx, v = c·x + d·y + ty: to repeat a linear gradient 20 times across, write [20, 0, 0, 0, 1, 0] with "tileMode": "repeated", or use "begin"/"end".');
+        }
       }
     }
     if (m['strokes'] == null && (m.containsKey('strokeWidth') || m.containsKey('strokeAlign'))) {

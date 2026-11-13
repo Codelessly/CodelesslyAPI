@@ -22,13 +22,22 @@
   a flex that does not wrap is reported as `layout_field_ignored`.
 - `gridView.minCrossAxisExtent`: CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`, as many equal columns as fit at
   least that wide, never more than there are items.
+- Gradients in Flutter's shape, declared and validated: `Paint.begin`/`end` (LinearGradient; read before but
+  undeclared, so validation rejected them as `unknown_field`) and `Paint.center` (RadialGradient, new), kept as
+  written and encoded back as written (before, begin/end were re-encoded as the `transform` they give). The
+  `transform` doc now gives its real layout, `[a, b, tx, c, d, ty]` (it said `[a, b, c, d, tx, ty]`); a transform
+  that collapses the box (a·d − b·c = 0) is `out_of_range`. The radial default extent is documented.
+- Validation: new warning `layout_clamped` for a negative margin (Flutter has none: it shrinks the box) and a
+  negative offset in a stack that hugs its children (clamped to 0); `layout_field_ignored` for padding on a
+  `text` (a text has no padding, as the editor draws it). A `spacer` with no main-axis size is Flutter's
+  `Spacer()` (the SDK now lays it out so) and is valid.
+- `BoxProps.path` documents its coordinate space (the box's own pixels, not scaled or clipped).
 - An icon is written the same way everywhere: `InputIcon.icon` (a text field's `prefixIcon`, `suffixIcon`, `icon`)
   reads a Material icon name string as the `icon` node's `props.icon` does (before, the string was a `wrong_type`
   error), and an untyped `{"name": "search"}` decodes as that Material icon (before, it decoded to a glyph nothing
   can draw: a bug fix).
 - Validation: `${false}`, `${12}`, `${'a'}` (a literal where `${...}` reads a name) is reported as `unknown_name`
-  with the suggestion `${= false}`; a `spacer` with no main-axis size in a row/column is `zero_size` with how to
-  write Flutter's `Spacer()` (`{"fill": 0}`); a wrapping `listView` no longer gets `fit_not_allowed` for its items'
+  with the suggestion `${= false}`; a wrapping `listView` no longer gets `fit_not_allowed` for its items'
   own sizes (it lays them out at their own sizes); new warning `vertical_wrap` for a wrapping list whose runs go top
   to bottom (the default `scrollDirection`).
 - Guide: section 7 (Responsive design) rewritten the web way: intrinsic layout (basis, auto-fit grids, max-width),
