@@ -1877,6 +1877,234 @@ adds `component_missing` (a call rendered without its definition: an empty box o
 Components made by copying a node tree into the library (`ComponentLink`, DESIGN.md §4.2) are still read and
 drawn as before: their instances are copies.
 
+<a id="guide-edit"></a>
+## 20. Editing with ops, and streaming
+
+A document is built and changed with six **edit operations**, each addressed by node id: what an agent sends in a
+`ui_apply` tool call, what `codelessly apply` takes, and what an app's `UiSession` applies while a model streams
+(`applyOps`, `decodeOps`, `OpStreamDecoder` in `package:codelessly_api/core.dart`). Generation is just the first
+batch of ops; every change after it is a few more.
+
+| Op | Fields | Means | Example |
+|---|---|---|---|
+| `set` | `id`, `node`, `nodes`, `parent`, `index`, `slot`, `placeholders` | Create node `id` (or replace it: the result says which), optionally placed under `parent` at `index` (default: last) or in `slot`. `node` is the node as the document holds it under "nodes": its `children` may list ids that arrive in later ops (pending until then). `nodes` sets several nodes at once (id → node), in order. `placeholders` gives a size (a layout fragment) to show for a pending child until it arrives. | `{"op":"set","id":"faqTitle","parent":"faqSec","index":0,"node":{"type":"text","layout":{"width":{"hug":120},"height":{"hug":28}},"props":{"text":"Questions","style":{"fontSize":22,"fontWeight":700,"color":"#FF111827"}}}}` |
+| `patch` | `id` (required), `patch` (required) | Merge `patch` into node `id` (RFC 7396): objects merge, arrays and scalars replace, null deletes a key. Shaped like the node (`{"props": {"text": "Book a demo"}}`). It cannot change `children`, `slots` or `type`. | `{"op":"patch","id":"heroTitle","patch":{"props":{"text":"Book a demo","style":{"color":"#FF0F766E"}}}}` |
+| `move` | `id` (required), `parent` (required), `index`, `slot` | Move node `id` (with its subtree) under `parent` at `index` (default: last), or into `slot`. Reorder: move within the same parent. | `{"op":"move","id":"faqSec","parent":"page","index":2}` |
+| `remove` | `ids` (required) | Remove the nodes `ids` and everything under them; their parents stop listing them. | `{"op":"remove","ids":["promoBanner"]}` |
+| `vars` | `scope` (required), `set`, `remove` | Variables of `scope` (a canvas id, or "page_variables"): `set` maps a name to its new value, or to a full variable object (`{"type": "boolean", "value": false}`) to declare it; `remove` lists names to remove. Bindings that read them update at once. | `{"op":"vars","scope":"pricing","set":{"annual":true}}` |
+| `roots` | `roots` (required) | Set the document's canvases, in order. A root may name a canvas that arrives in a later op. | `{"op":"roots","roots":["home"]}` |
+
+Rules:
+
+* A `patch` is an RFC 7396 merge patch on one node, shaped like the node: objects merge, lists and values replace,
+  `null` deletes a key. It never changes `children`, `slots` or `type` (`structural_key_in_patch`): child lists
+  change only through `set` (with `parent`), `move` and `remove`.
+* A `set` of an id that exists replaces the node (the result says which ids it created). Replacing a node that had
+  children it no longer lists is `would_orphan`: keep them, move or remove them first, or patch instead.
+* Each op is checked on its own, against what it touched: its structure (one parent, no cycle, no canvas as a child,
+  a parent that takes children there), the trust profile, and the nodes' fields (the strict validator of
+  §17 on the nodes the op created or changed, their parents and children). A rejected op changes nothing; the others
+  apply (with `"atomic": true`, all or none).
+* A batch may carry `"baseRev"`, the revision the author read: a patch of a field, or a set of a node, that another
+  author changed since is `stale_rev`, with the current value. Every applied batch has inverse ops: applied
+  atomically, they restore the document (undo).
+
+The ops that build the smallest document of §1, top-down, as a model streams them:
+
+```json
+{
+  "ops": [
+    {"op": "roots", "roots": ["home"]},
+    {
+      "op": "set",
+      "id": "home",
+      "node": {
+        "type": "canvas",
+        "name": "Home",
+        "slots": {"body": "page"},
+        "layout": {"width": 390, "height": 844},
+        "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+      }
+    },
+    {
+      "op": "set",
+      "id": "page",
+      "node": {
+        "type": "column",
+        "children": ["title", "body"],
+        "layout": {"width": {"fill": 390}, "height": {"fill": 844}, "padding": 24},
+        "props": {"crossAxisAlignment": "start", "spacing": 12}
+      }
+    },
+    {
+      "op": "set",
+      "id": "title",
+      "node": {
+        "type": "text",
+        "layout": {"width": {"fill": 342}, "height": {"hug": 34}},
+        "props": {"text": "Hello", "style": {"fontWeight": 700, "fontSize": 28, "color": "#FF111827"}}
+      }
+    },
+    {
+      "op": "set",
+      "id": "body",
+      "node": {
+        "type": "text",
+        "layout": {"width": {"fill": 342}, "height": {"hug": 40}},
+        "props": {
+          "text": "A column with two texts, filling the screen's width.",
+          "style": {"fontSize": 15, "color": "#FF4B5563", "height": 1.4}
+        }
+      }
+    }
+  ]
+}
+```
+
+Then a follow-up instruction ("add a button under the title, drop the body text, make the title say Welcome") is
+a few ops, not a new document:
+
+```json
+{"ops": [
+  {"op": "set", "id": "cta", "parent": "page", "index": 1,
+   "node": {"type": "row", "children": ["ctaText"], "layout": {"width": {"hug": 140}, "height": 44, "padding": [16, 0, 16, 0]},
+            "decoration": {"fills": [{"color": "#FF2563EB"}], "radius": 10}}},
+  {"op": "set", "id": "ctaText", "node": {"type": "text", "layout": {"width": {"hug": 100}, "height": {"hug": 20}},
+            "props": {"text": "Get started", "style": {"fontSize": 15, "fontWeight": 600, "color": "#FFFFFFFF"}}}},
+  {"op": "remove", "ids": ["body"]},
+  {"op": "patch", "id": "title", "patch": {"props": {"text": "Welcome"}}},
+  {"op": "vars", "scope": "home", "set": {"taps": {"type": "integer", "value": 0}}},
+  {"op": "patch", "id": "cta", "patch": {"actions": [{"trigger": {"type": "click"},
+            "actions": [{"type": "setVariable", "variable": "taps", "op": "add", "value": 1}]}]}},
+  {"op": "move", "id": "cta", "parent": "page", "index": 0}
+]}
+```
+
+A batch with a mistake: the second op misspells `fills`. It is rejected with a code, the path and a suggestion; the
+first applies:
+
+```json
+{
+  "ops": [
+    {"op": "patch", "id": "title", "patch": {"props": {"text": "Welcome back"}}},
+    {"op": "patch", "id": "title", "patch": {"decoration": {"fill": [{"color": "#FFF1F5F9"}]}}}
+  ]
+}
+```
+
+The result (`EditResult.toModelJson()`, the tool result):
+
+```json
+{
+  "rev": 1,
+  "applied": [0],
+  "rejected": [
+    {
+      "op": 1,
+      "code": "unknown_decoration_key",
+      "path": "/nodes/title/decoration/fill",
+      "message": "decoration has no \"fill\".",
+      "nodeId": "title",
+      "expected": [
+        "fills",
+        "strokes",
+        "strokeWidth",
+        "strokeAlign",
+        "strokeSides",
+        "strokeCap",
+        "dashPattern",
+        "radius",
+        "effects",
+        "clip",
+        "blendMode",
+        "foregroundFills",
+        "shape"
+      ],
+      "suggestion": "fills"
+    }
+  ],
+  "warnings": []
+}
+```
+
+### Streaming
+
+LLM APIs deliver a tool call's input as text deltas cut anywhere. `OpStreamDecoder` yields each op the moment its
+closing brace arrives (inside a `set` with `nodes`, each node as its own brace closes), whatever the cuts; a stream
+cut mid-op keeps every complete op and reports the tail (`truncated_op`). While a document streams in, it is
+incomplete by nature:
+
+* **Order.** Root first, then top-down: the `roots` op, the canvas, its container, then each section complete before
+  the next. Nothing breaks if a model does otherwise.
+* **Forward references.** A child id listed before its node arrives is **pending**, not an error; a reference to a
+  node, screen or variable that has not arrived yet (a state that patches it, a navigation to it) is a warning while
+  the stream runs (`applyOps(..., incomplete: true)`). When the stream ends, `endOfStream` reports every id still
+  dangling (`dangling_child`), so the model can send it.
+* **Rendering** (the SDK's `UiSession`): nothing paints until a root canvas has content; a pending child takes no
+  room (or the size a `set`'s `placeholders` gave it); a container none of whose children has arrived waits for
+  its first, so no empty shells flash; text and values are never shown half-written (an op applies only whole).
+
+### What a model reads
+
+`outline(document)` is one row per node, `[id, type, label, depth, {what is bound, states, triggers}]`, a sixth to
+a seventh of the document's size (the two m05 pages: 6.7 KB for 147 nodes against 47.6 KB, 8.3 KB for 196 nodes
+against 55.4 KB). `readUi` answers the `ui_read` tool: the outline, or whole nodes by id.
+
+The two tools (`uiTools(catalog)`), their input schemas generated from the op declarations and the catalog's
+node types (the agent profile over the core: [ui_tools.json](ui_tools.json)):
+
+```json
+[
+  {
+    "name": "ui_apply",
+    "description": "Build or change the UI. The UI is one document: a flat map of nodes by id, each a Flutter-like widget (type, layout, decoration, props, children). Ops apply in order: set (create or replace a node, optionally placing it under a parent), patch (RFC 7396 merge patch on one node; null deletes a key), move, remove, vars (set or declare variables) and roots (the screens). Ids are the addresses: choose short readable ids. A node may list children that arrive in later ops. When building, write top-down: the roots op and the canvas first, then each container before its children, section by section, so the UI paints as it streams. To change an existing UI, send only the small ops the change needs (patch a prop instead of re-sending a node). The result lists the ops that were rejected with a code, a path and a suggestion: fix and resend only those.",
+    "input_schema": "(see ui_tools.json)"
+  },
+  {
+    "name": "ui_read",
+    "description": "Read the current UI before changing it: the outline (one row per node: id, type, label, depth, what is bound), or full nodes by id. Read the outline first; ask for full nodes only for the ones you will change.",
+    "input_schema": "(see ui_tools.json)"
+  }
+]
+```
+
+### The trust profile
+
+`TrustProfile` is what an edited document may use: node types and action types (a restricted catalog,
+`profile.restrict(catalog)`), scripts, link and image hosts, navigation, and limits (nodes, depth, text length, ops
+per call). `TrustProfile.agent`, the default for agent-written UI, allows the core's node types and its local
+actions (variables, values, in-document navigation, modals, toasts, scrolling, animation, `componentEvent`): no
+scripts, no links, no host functions, no feature library's types. A violation is `capability_not_allowed` or
+`limit_exceeded`, with the op and the path.
+
+`componentEvent` in a document that is not a component (an agent's UI) is the event to the document's host: the
+session delivers it to the app, which sends it to the model.
+
+### Codes of the edit layer
+
+| Code | Rejects the op | Meaning |
+|---|---|---|
+| `invalid_op` | yes | An op that is not an object, or names no known "op" (set, patch, move, remove, vars, roots). |
+| `missing_field` | yes | An op without a field it needs ("id", "node", "patch", "parent", "ids", "scope", "roots"). |
+| `wrong_type` | yes | A field of an op with the wrong JSON type (an id that is not text, a node that is not an object). |
+| `unknown_id` | yes | A patch, move or remove of a node the document does not have, or a set or move under a parent it does not have. |
+| `structural_key_in_patch` | yes | A patch that changes "children" or "slots" (or "type"): child lists change only through set, move and remove; a type through set. |
+| `stale_rev` | yes | The op changes a field another author changed after the batch's "baseRev": re-read the node (ui_read) and decide. |
+| `would_orphan` | yes | A set that replaces a node and drops children it had: they would be left under no parent. Keep them in "children", move or remove them first, or use patch. |
+| `multiple_parents` | yes | The op would list a node under a second parent (or twice in one): a node has one parent. Use move to change its parent. |
+| `cycle` | yes | The op would put a node inside its own subtree. |
+| `canvas_as_child` | yes | The op would place a canvas under a parent: canvases are only roots. |
+| `invalid_parent` | yes | A set or move under a parent that takes no children there: a type without children, or a slot the type does not have. |
+| `dangling_child` | yes | At the end of the stream, a child or slot id that names no node (it was pending and never arrived). |
+| `unreachable_node` | no (a warning) | At the end of the stream, a node no root reaches (nothing lists it as a child or slot). |
+| `pending_child` | no (a warning) | A child or slot id the op lists that has not arrived yet: accepted while streaming, an error (dangling_child) if it never comes. |
+| `capability_not_allowed` | yes | The op uses a node type, action, script, link, image host or navigation target the session's trust profile does not allow. |
+| `limit_exceeded` | yes | The op would exceed a limit of the trust profile (nodes, depth, text length, ops per call). |
+| `truncated_op` | yes | The stream ended inside an op: what arrived of it was not applied. |
+| `invalid_json` | yes | The tool input is not JSON where an op was expected. |
+| `invalid_variable` | yes | A vars op that declares a variable without a name, or sets one with a value its type cannot hold. |
+| `unknown_variable` | no (a warning) | A vars op that sets (or removes) a variable the scope does not declare: declare it with a full variable object. |
+
 ---
 
 <!-- Generated by tool/reference/generate.dart from the declarations of codelessly_api 24.0.0. Do not edit: edit the declarations or tool/reference/templates. -->

@@ -617,3 +617,71 @@ separately.
   measured.
 * `catalog.select` and `TrustProfile` do not exist yet (doc 05 §7 proposes
   `select`); action names in §5 are from `docs/reference/catalog.json`.
+
+## Deviations from the proposal
+
+Implemented 2026-11-13 (codelessly_api `lib/src/core/edit`, `lib/src/validate/edit_check.dart`; the SDK's
+`lib/src/session`, `tool/stream`, `examples/stream_chat`).
+
+* **`applyOps` takes the check as a parameter.** The strict validator imports every feature library (it decodes
+  with `standardCatalog`), so the core cannot call it. `applyOps(..., check:)` defaults to `catalogCheck` (the core:
+  types, keys and values against the catalog's declarations); `strictEditCheck()` in `validate.dart` runs the
+  validator on what the op touched: the nodes it created or changed, their parents and children in full, the rest of
+  the document as type-only stubs, codes the edit layer reports itself filtered out. `UiSession` defaults to the
+  core check, so agent UI stays core-only; an app passes `strictEditCheck()` (the replay command does).
+* **`incomplete: true` instead of a session-only rule.** Forward references are a flag of `applyOps`: a pending child
+  is never an error, and while it is set, references to nodes, screens and variables that have not arrived
+  (`unknown_target_node`, `unknown_screen`, `unknown_variable`, `unknown_name`) are warnings. `endOfStream` turns
+  what is still dangling into `dangling_child`.
+* **Events through `componentEvent`, not `emitEvent`.** `emitEvent` is the engage library's, so the core-only agent
+  profile cannot allow it. A `componentEvent` outside any component (an agent's document is not one) goes to the
+  document's host: `CodelesslyView` delivers it to `UiSession.events` (`event`, evaluated `value`, `source` node id,
+  `rev`); `strictEditCheck` accepts it in a document without `widget`. `emitEvent` is handled the same way when the
+  catalog has it.
+* **Pending children render as hidden boxes, and empty containers wait.** Not a zero-size box: a box hidden as a
+  binding hides it takes no room and no spacing, so the layout is the same as without the child, and its arrival
+  re-applies only its own box. A container none of whose children shows yet is held back
+  (`UiSession.holdEmptyContainers`, on) so no empty bordered shells flash. The canvas waits for content too.
+* **A `set` may carry `nodes` (several nodes) and `placeholders`** (a pending child id → the layout to reserve). The
+  streaming decoder yields each node of a `nodes` map as its own brace closes.
+* **`set` that drops children is `would_orphan`**, not a silent orphaning; `remove` of an id already gone is a
+  warning. Undo is `inverseOps` applied atomically (structure checked at the end), one step per batch or stream.
+* **`TrustProfile.agent` allows every core node type**, not a hand-picked `safeWidgets` list (the core has no
+  web view or embed: those are feature types), and no links by default (`linkHosts: {}`), images from any https
+  host (`imageHosts: null`); `dataScopes` and `NavigationLimit` beyond `withinDocument` are not implemented.
+* **`opsFromDocument`** declares a large data variable just before the first node that reads it (state variables
+  with their canvas): declared up front, the restaurant page's 8 KB menu data held its header back 11 s at 150 tok/s.
+* **The live adapter** is the example's (`examples/stream_chat/lib/src/llm.dart`, `anthropic_sdk_dart`), not the
+  SDK's: the SDK takes no LLM dependency. It asks for eager tool input streaming, so `input_json_delta` events arrive
+  as the input is generated.
+
+## Measured
+
+On the replay's virtual clock (synthetic streams, 4 characters per token; `CodelesslySDK/tool/stream/out/summary.md`):
+
+| UI | Output tokens | First paint at 60 / 150 / 400 tok/s | Complete at 60 / 150 / 400 tok/s |
+|---|---|---|---|
+| Flight card (43 nodes) | ≈2,825 | 5.8 / 2.7 / 1.3 s | 47.6 / 19.3 / 7.6 s |
+| Weather card (54 nodes) | ≈2,692 | 5.7 / 2.6 / 1.3 s | 45.4 / 18.4 / 7.2 s |
+| Restaurant menu page (147 nodes) | ≈12,840 | 11.1 / 4.7 / 2.1 s | 214.5 / 86.1 / 32.6 s |
+| SaaS pricing page (196 nodes) | ≈15,154 | 12.1 / 5.1 / 2.2 s | 253.1 / 101.5 / 38.4 s |
+
+Median boxes re-applied per op: 0 to 2 (p90 6 to 15); the largest single op re-applies a list's 113 item boxes when
+its data arrives. Follow-up edits: "sort by price" 17 tokens (one `move`), "make it dark" 156 tokens (five
+`patch`es), against 2,825 and 2,692 to regenerate. The two cards are above the 2,000-token threshold of §4 for a
+runtime screen; the system prompt the live example sends (rules, node and action types, the STARTER) is about 15k
+tokens, above §4's 6k budget (it is cached).
+
+## Not done
+
+* **The live path is not verified.** `LlmStreamSource` and `tool/record.dart` were checked offline only (the request
+  JSON; the missing-key exit): the authorization to run them was not available where this was built, so no real
+  stream, time to first token, rejection rate or retry outcome was measured. The command to record them is in
+  `examples/stream_chat/README.md`.
+* The `codelessly` CLI and MCP server (phase 2), the editor's `DocStore` as op batches (phase 5), interop (phase 6).
+* Components by path in ops (`plans/card1/cta`): ops address the session's own document only.
+* `TrustProfile.dataScopes`, image host allow-lists by default, `maxDepth` measured through slots of instances.
+* A smaller runtime starter (≈2.5k words) and the compact op format of §4: not built; the numbers above say the
+  compact format's threshold is crossed by the cards.
+* Partial text inside an incomplete op (A2UI Express's healing): an op applies only whole.
+* Render-time feedback to the model (`render_exception`, overflow) after the first frame.

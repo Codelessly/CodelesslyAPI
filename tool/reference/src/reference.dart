@@ -1,6 +1,8 @@
 // Builds every file of docs/reference from the declarations.
 import 'dart:convert';
 
+import 'package:codelessly_api/codelessly_api.dart' as api;
+
 import 'catalog.dart';
 import 'markdown.dart';
 import 'schema.dart';
@@ -20,6 +22,9 @@ Map<String, String> buildReference(String root) {
     'docs/reference/catalog.json': '${const JsonEncoder.withIndent('  ').convert(json)}\n',
     'docs/reference/document.schema.json': '${const JsonEncoder.withIndent('  ').convert(SchemaBuilder().build())}\n',
     'docs/reference/_missing_docs.md': _missing(catalog),
+    // The two tools a model is given, for the agent profile over the core.
+    'docs/reference/ui_tools.json':
+        '${const JsonEncoder.withIndent('  ').convert(api.uiTools(api.TrustProfile.agent.restrict(api.Catalog.core)))}\n',
   };
   return out;
 }

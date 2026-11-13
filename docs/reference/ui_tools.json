@@ -1,0 +1,392 @@
+[
+  {
+    "name": "ui_apply",
+    "description": "Build or change the UI. The UI is one document: a flat map of nodes by id, each a Flutter-like widget (type, layout, decoration, props, children). Ops apply in order: set (create or replace a node, optionally placing it under a parent), patch (RFC 7396 merge patch on one node; null deletes a key), move, remove, vars (set or declare variables) and roots (the screens). Ids are the addresses: choose short readable ids. A node may list children that arrive in later ops. When building, write top-down: the roots op and the canvas first, then each container before its children, section by section, so the UI paints as it streams. To change an existing UI, send only the small ops the change needs (patch a prop instead of re-sending a node). The result lists the ops that were rejected with a code, a path and a suggestion: fix and resend only those.",
+    "input_schema": {
+      "type": "object",
+      "required": [
+        "ops"
+      ],
+      "properties": {
+        "ops": {
+          "type": "array",
+          "description": "The ops, applied in order.",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "description": "Create node `id` (or replace it: the result says which), optionally placed under `parent` at `index` (default: last) or in `slot`. `node` is the node as the document holds it under \"nodes\": its `children` may list ids that arrive in later ops (pending until then). `nodes` sets several nodes at once (id → node), in order. `placeholders` gives a size (a layout fragment) to show for a pending child until it arrives.",
+                "required": [
+                  "op"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "set"
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "The node id: readable, unique (`heroTitle`)."
+                  },
+                  "node": {
+                    "$ref": "#/$defs/Node",
+                    "description": "The node: {\"type\", \"layout\", \"props\", \"children\"...}."
+                  },
+                  "nodes": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/$defs/Node"
+                    },
+                    "description": "Several nodes, id → node, set in order (instead of id and node)."
+                  },
+                  "parent": {
+                    "type": "string",
+                    "description": "Place it under this node (listed in its children)."
+                  },
+                  "index": {
+                    "type": "integer",
+                    "description": "Its position among the parent's children (default: last)."
+                  },
+                  "slot": {
+                    "type": "string",
+                    "description": "Place it in this slot of the parent instead (`body`, `appBar`)."
+                  },
+                  "placeholders": {
+                    "type": "object",
+                    "description": "Pending child id → layout to reserve until it arrives."
+                  }
+                },
+                "anyOf": [
+                  {
+                    "required": [
+                      "id",
+                      "node"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "nodes"
+                    ]
+                  }
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "description": "Merge `patch` into node `id` (RFC 7396): objects merge, arrays and scalars replace, null deletes a key. Shaped like the node (`{\"props\": {\"text\": \"Book a demo\"}}`). It cannot change `children`, `slots` or `type`.",
+                "required": [
+                  "op",
+                  "id",
+                  "patch"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "patch"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "patch": {
+                    "type": "object",
+                    "description": "RFC 7396 merge patch on the node; null deletes a key."
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "description": "Move node `id` (with its subtree) under `parent` at `index` (default: last), or into `slot`. Reorder: move within the same parent.",
+                "required": [
+                  "op",
+                  "id",
+                  "parent"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "move"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "parent": {
+                    "type": "string"
+                  },
+                  "index": {
+                    "type": "integer"
+                  },
+                  "slot": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "description": "Remove the nodes `ids` and everything under them; their parents stop listing them.",
+                "required": [
+                  "op",
+                  "ids"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "remove"
+                  },
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "description": "Variables of `scope` (a canvas id, or \"page_variables\"): `set` maps a name to its new value, or to a full variable object (`{\"type\": \"boolean\", \"value\": false}`) to declare it; `remove` lists names to remove. Bindings that read them update at once.",
+                "required": [
+                  "op",
+                  "scope"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "vars"
+                  },
+                  "scope": {
+                    "type": "string"
+                  },
+                  "set": {
+                    "type": "object",
+                    "description": "Variable name → value, or → a full variable object to declare it."
+                  },
+                  "remove": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "description": "Set the document's canvases, in order. A root may name a canvas that arrives in a later op.",
+                "required": [
+                  "op",
+                  "roots"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "roots"
+                  },
+                  "roots": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "baseRev": {
+          "type": "integer",
+          "description": "The revision you read (from ui_read or the last result)."
+        },
+        "atomic": {
+          "type": "boolean",
+          "description": "Apply all ops or none."
+        }
+      },
+      "$defs": {
+        "Node": {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "canvas",
+                "stack",
+                "box",
+                "row",
+                "column",
+                "flex",
+                "text",
+                "icon",
+                "spacer",
+                "variance",
+                "listView",
+                "gridView",
+                "pageView",
+                "tabs",
+                "tabBar",
+                "accordion",
+                "expansionTile",
+                "pagination",
+                "tableView",
+                "textField",
+                "checkbox",
+                "switch",
+                "radio",
+                "slider",
+                "dropdown",
+                "datePicker",
+                "timePicker",
+                "dateTimeInput",
+                "segmentedButton",
+                "signature",
+                "elevatedButton",
+                "filledButton",
+                "textButton",
+                "outlinedButton",
+                "iconButton",
+                "floatingActionButton",
+                "chip",
+                "actionChip",
+                "choiceChip",
+                "filterChip",
+                "inputChip",
+                "badge",
+                "listTile",
+                "appBar",
+                "navigationBar",
+                "bottomNavigationBar",
+                "divider",
+                "verticalDivider",
+                "modal",
+                "circularProgressIndicator",
+                "activityIndicator",
+                "progressBar",
+                "radialGauge",
+                "gaugeMeter",
+                "chart",
+                "plotChart",
+                "barChart",
+                "lineChart",
+                "barcode",
+                "path",
+                "external",
+                "placeholder",
+                "singlePlaceholder",
+                "slot"
+              ]
+            },
+            "name": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Child ids, in order (they may arrive in later ops)."
+            },
+            "slots": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Slot name → child id (a canvas: body, appBar, bottomNavigationBar, floatingActionButton)."
+            },
+            "layout": {
+              "type": "object",
+              "description": "Size and placement: width, height, constraints, margin, padding, rotation, aspectRatio, flex, squeezable, x, y, align, order, basis."
+            },
+            "decoration": {
+              "type": "object",
+              "description": "Paint: fills, strokes, strokeWidth, strokeAlign, strokeSides, strokeCap, dashPattern, radius, effects, clip, blendMode, foregroundFills, shape."
+            },
+            "props": {
+              "type": "object",
+              "description": "The node type's own parameters (text, style, spacing...)."
+            },
+            "bind": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Binding path → expression (`props.text`: `${user.name}`)."
+            },
+            "actions": {
+              "type": "array",
+              "description": "Reactions: {\"trigger\": {\"type\": \"click\"}, \"actions\": [...]}."
+            },
+            "visible": {
+              "type": "boolean"
+            },
+            "opacity": {
+              "type": "number"
+            },
+            "media": {
+              "type": "array",
+              "description": "Rules by screen width: [{\"maxWidth\": 599, \"patch\": {...}}]."
+            },
+            "motion": {},
+            "scale": {},
+            "animations": {},
+            "transitions": {},
+            "shimmer": {},
+            "inkWell": {},
+            "states": {},
+            "tooltip": {},
+            "ignorePointer": {},
+            "floating": {},
+            "hero": {},
+            "flightKey": {},
+            "flight": {},
+            "draggable": {},
+            "dropTarget": {},
+            "track": {},
+            "dismissible": {},
+            "pan": {},
+            "reorderHandle": {},
+            "reveal": {},
+            "strokePath": {},
+            "typewriter": {},
+            "particles": {},
+            "textDirection": {},
+            "flip": {},
+            "tilt": {},
+            "transformGesture": {},
+            "sticky": {},
+            "viewProgress": {},
+            "measure": {},
+            "customPaint": {},
+            "key": {},
+            "component": {}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "ui_read",
+    "description": "Read the current UI before changing it: the outline (one row per node: id, type, label, depth, what is bound), or full nodes by id. Read the outline first; ask for full nodes only for the ones you will change.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Ids of the nodes to return in full."
+        },
+        "outline": {
+          "type": "boolean",
+          "description": "Include the outline (default: when no ids are given)."
+        },
+        "variables": {
+          "type": "boolean",
+          "description": "Include the variables."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+]
