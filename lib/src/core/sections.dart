@@ -12,6 +12,8 @@
 // constructor's parameters, a `slot` node where `build` places `child`,
 // `children` or a `Widget title` parameter, `componentEvent` a call of an
 // `onChanged`-style callback.
+import 'dart:convert';
+
 import 'package:meta/meta.dart';
 
 import 'behaviors.dart';
@@ -359,4 +361,40 @@ final class Site {
   /// [base] with the components' declarations over it: what the site's
   /// documents decode with.
   Catalog catalogOver(Catalog base) => components.isEmpty ? base : base + components.catalog;
+}
+
+/// [value] (JSON) as text with every object's keys sorted, no whitespace,
+/// and a whole double written as an integer (`1.0` → `1`): one text for one
+/// value, whatever order a store kept its keys in. What a published
+/// component's digest is over, and how validation compares subtrees.
+String canonicalJson(Object? value) {
+  final out = StringBuffer();
+  void write(Object? v) {
+    switch (v) {
+      case Map():
+        final keys = [for (final k in v.keys) '$k']..sort();
+        out.write('{');
+        for (var i = 0; i < keys.length; i++) {
+          if (i > 0) out.write(',');
+          out.write(jsonEncode(keys[i]));
+          out.write(':');
+          write(v[keys[i]]);
+        }
+        out.write('}');
+      case List():
+        out.write('[');
+        for (var i = 0; i < v.length; i++) {
+          if (i > 0) out.write(',');
+          write(v[i]);
+        }
+        out.write(']');
+      case double() when v.isFinite && v == v.truncateToDouble() && v.abs() < 9007199254740992:
+        out.write(v.toInt());
+      default:
+        out.write(jsonEncode(v));
+    }
+  }
+
+  write(value);
+  return out.toString();
 }

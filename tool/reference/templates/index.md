@@ -888,6 +888,32 @@ per preview at its size; `--props '{"label": "Long label"}'` renders one paramet
 `--slots fixture.json` (`{"children": [ids], "slots": {"leading": id}, "nodes": {...}}`) passes slot content.
 Steps take paths: `--tap design/remove`.
 
+`--components-all` renders every component of the site that way in one run (`<Type>-<preview>@<w>x<h>.png`):
+the quickest look at every part a page can call.
+
+**Per instance.** Everything a definition keeps is kept per instance, as a Flutter `State` is: its variables, its
+interaction states, the values a `setValue` (or `setVariant`) sets on its nodes (set inside an instance, they change
+that instance's node only). A variable with `"persist": true` is kept per instance path
+(`codelessly.component.<Type>.<path>.<name>` in the app's storage). When an instance leaves the screen (a list
+item scrolled away, data that shrank), what it kept goes with it, as a `State` is disposed; shown again, it starts
+afresh (a persisted variable from its stored value).
+
+**A slot inside a list of the definition** shows what the call passes once per item, as a Flutter `child` placed
+in each item an `itemBuilder` builds: the same nodes, built in the caller's scope. They read the caller's
+variables, not the item: to show the item, make it a parameter of a component the list calls. Tools name each copy
+by the caller's path with `#n` (`note#2`).
+
+**Published.** A published site carries its components beside its pages (each at
+`publish/{project}/components/{Type}`, with a version and a digest; a bundle holds them in its `components` map),
+and an app loads the ones a screen calls with the screen, caches them, and follows a republished one: every
+instance updates where it is, without reloading the pages that call it. Nothing to write in the app: a
+`CodelesslyWidget` showing a published site with components just works. A call whose component can't be loaded
+is an empty box of its size until it arrives (`component_missing` in the app's error log).
+
+**A hint.** Validation reports `repeated_subtree` (an INFO, not a problem) when a document writes the same subtree
+of three or more nodes several times over, node for node but for ids and names: that subtree is a component (or a
+list template) waiting to be made.
+
 **When to make what.**
 
 * **List template**: one shape repeated from data in one parent. When the item is more than about five nodes, or

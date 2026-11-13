@@ -58,7 +58,7 @@ void main() {
 
   test('every code has a test below', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 69); // invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
+    expect(Codes.all.length, 70); // invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
   });
 
   group('document', () {
@@ -466,6 +466,53 @@ void main() {
       final out = validateProject({'a': base(), 'b': base()});
       expect(out.where((d) => d.code == Codes.duplicateId), isNotEmpty);
       expect(out.first.file, isNotNull);
+    });
+  });
+
+  group('repeated_subtree (info)', () {
+    Map<String, Object?> card(String t, String x) => {
+          't$x': {'type': 'column', 'children': ['h$x', 'b$x'], 'name': 'Card $x', 'layout': {'width': 100, 'height': {'hug': 50}}},
+          'h$x': {'type': 'text', 'props': {'text': t, 'style': {'color': '#FF000000'}}, 'layout': {'width': {'hug': 50}, 'height': {'hug': 20}}},
+          'b$x': {'type': 'box', 'layout': {'width': 10, 'height': 10}},
+        };
+    Map<String, Object?> page(List<Map<String, Object?>> cards) {
+      final d = base();
+      final ids = [for (final c in cards) c.keys.first];
+      node(d, 'col')['children'] = ['title', 'box', ...ids];
+      for (final c in cards) {
+        nodes(d).addAll(c);
+      }
+      return d;
+    }
+
+    test('exact repeats (ids and names aside) are reported once, as an info', () {
+      final d = page([card('A', '1'), card('A', '2'), card('A', '3')]);
+      final found = withCode(d, Codes.repeatedSubtree);
+      expect(found, hasLength(1));
+      expect(found.single.severity, Severity.info);
+      expect(found.single.nodeId, 't1');
+      expect(found.single.message, contains('3 times'));
+      expect(found.single.message, contains('t1, t2, t3'));
+      // Nothing else: the page is valid.
+      expect(validateDocument(d).where((x) => x.code != Codes.repeatedSubtree), isEmpty);
+    });
+
+    test('no hint when anything but ids and names differs, or for small repeats', () {
+      expect(withCode(page([card('A', '1'), card('B', '2')]), Codes.repeatedSubtree), isEmpty);
+      final d = base();
+      node(d, 'col')['children'] = ['title', 'box', 'box2'];
+      nodes(d)['box2'] = {'type': 'box', 'layout': {'width': 40, 'height': 40}};
+      expect(withCode(d, Codes.repeatedSubtree), isEmpty, reason: 'one node is not a subtree worth a component');
+    });
+
+    test('a repeat inside a reported one is not reported again', () {
+      Map<String, Object?> pair(String x) => {
+            'p$x': {'type': 'row', 'children': ['t${x}a', 't${x}b']},
+            ...card('A', '${x}a'),
+            ...card('A', '${x}b'),
+          };
+      final found = withCode(page([pair('1'), pair('2')]), Codes.repeatedSubtree);
+      expect([for (final f in found) f.nodeId], ['p1']);
     });
   });
 

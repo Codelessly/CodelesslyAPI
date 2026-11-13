@@ -26,6 +26,7 @@ import '../../core/catalog.dart';
 import '../../core/catalog_json.dart';
 import '../../core/document.dart';
 import '../../core/json.dart';
+import '../../core/sections.dart' show kChildrenSlot, kWidgetKey;
 import '../../core/variables.dart';
 import '../publish/publish_model.dart';
 import 'managed_components.dart';
@@ -212,6 +213,57 @@ final class PluginWidget {
   /// The tree decoded with [catalog].
   LayoutDocument decode(Catalog catalog) => LayoutDocument.fromJson(document, catalog: catalog);
 
+  /// This implementation of node type [type] as a component definition
+  /// (docs/design/06 §5.8, the hosted scope): its [document] with
+  /// [declaration] (the catalog's widget JSON of [type]) as its `widget`,
+  /// [events] declared there, each of [slots]' host nodes given a `slot`
+  /// node in place of its children (which become the slot's default), and
+  /// [formulas] (the package's formula functions) as the root's variables.
+  /// A plugin node is then a call: rendered as ordinary boxes, its props
+  /// read as `${props.*}`, its slots and events those of any component.
+  Json definitionJson(String type, {Json declaration = const {}, List<Variable> formulas = const []}) {
+    final roots = readStrings(document['roots']);
+    final nodes = <String, Object?>{
+      for (final e in (readMap(document['nodes']) ?? const {}).entries) e.key: readMap(e.value) == null ? e.value : {...readMap(e.value)!},
+    };
+    for (final e in slots.entries) {
+      final host = readMap(nodes[e.value]);
+      if (host == null) continue;
+      var id = '${e.value}__${e.key}';
+      while (nodes.containsKey(id)) {
+        id = '_$id';
+      }
+      final own = readStrings(host['children']);
+      nodes[id] = {
+        'type': 'slot',
+        if (e.key != kChildrenSlot) 'props': {'name': e.key},
+        if (own.isNotEmpty) 'children': own,
+      };
+      nodes[e.value] = {...host, 'children': [id]};
+    }
+    final declaredSlots = [...readStrings(declaration['slots']), for (final s in slots.keys) if (s != kChildrenSlot) s];
+    final widget = <String, Object?>{
+      ...declaration,
+      'type': type,
+      if (slots.containsKey(kChildrenSlot) && declaration['children'] == null) 'children': 'list',
+      if (declaredSlots.isNotEmpty) 'slots': {...declaredSlots}.toList(),
+      if (declaration['events'] == null && events.isNotEmpty) 'events': events,
+    };
+    final variables = {...?readMap(document['variables'])};
+    if (formulas.isNotEmpty && roots.length == 1) {
+      variables[roots.single] = [...?readList(variables[roots.single]), for (final f in formulas) f.toJson()];
+    }
+    return {
+      ...document,
+      'schema': kSchemaVersion,
+      'id': type,
+      'roots': roots,
+      'nodes': nodes,
+      if (variables.isNotEmpty) 'variables': variables,
+      kWidgetKey: widget,
+    };
+  }
+
   static PluginWidget? fromJson(Object? json) {
     final m = readMap(json);
     final doc = readMap(m?['document']);
@@ -319,6 +371,22 @@ final class PluginPackage {
   final List<Json> scripts;
   final Map<String, PluginAsset> assets;
   final Json extra;
+
+  /// Its node types as component definitions, by type, decoded with [host]
+  /// and its own catalog: what a host registers so that a plugin node renders
+  /// as a call (`PluginWidget.definitionJson`).
+  Map<String, LayoutDocument> definitions(Catalog host) {
+    final all = host + catalog;
+    final declared = {
+      for (final w in readList(catalogJson['widgets']) ?? const [])
+        if (readMap(w) case final Json m when m['type'] is String) m['type'] as String: m,
+    };
+    return {
+      for (final e in widgets.entries)
+        e.key: LayoutDocument.fromJson(e.value.definitionJson(e.key, declaration: declared[e.key] ?? const {}, formulas: formulas),
+            catalog: all),
+    };
+  }
 
   /// Its declarations: node types and action types with their fields. Its
   /// action types have no Dart class: they decode as [DeclaredAction]s.
@@ -447,4 +515,23 @@ extension PublishModelPlugins on PublishModel {
       if (e.key != key) e.key: e.value,
     if (plugins.isNotEmpty) key: [for (final p in plugins) p.toJson()],
   });
+}
+
+/// The plugin versions a bundle embeds (its `plugins` key, `[PluginVersion
+/// JSON]`): the pinned payloads a first run offline installs.
+extension PublishBundlePlugins on PublishBundle {
+  static const key = 'plugins';
+
+  List<PluginVersion> get pluginVersions => [...?readList(extra[key])?.map(PluginVersion.fromJson).nonNulls];
+
+  PublishBundle withPluginVersions(List<PluginVersion> versions) => PublishBundle(
+    model: model,
+    layouts: layouts,
+    components: components,
+    extra: {
+      for (final e in extra.entries)
+        if (e.key != key) e.key: e.value,
+      if (versions.isNotEmpty) key: [for (final v in versions) v.toJson()],
+    },
+  );
 }
