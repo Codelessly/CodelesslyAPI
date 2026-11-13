@@ -1,6 +1,11 @@
 import 'package:meta/meta.dart';
 
+import 'behaviors.dart' show mergePatch;
+import 'breakpoints.dart';
 import 'json.dart';
+import 'media.dart';
+import 'theme_refs.dart';
+import 'values/paint.dart' show listEquals;
 import 'values/color.dart';
 import 'values/text.dart';
 
@@ -32,6 +37,7 @@ final class ThemeTokens {
     this.textStyles = const {},
     this.dark,
     this.naturalLineHeight,
+    this.media = const [],
   });
 
   /// Primary buttons and info toasts.
@@ -71,8 +77,18 @@ final class ThemeTokens {
   /// "Brand Blue" is `brandBlue`), read as `${theme.colors.brandBlue}`.
   final Map<String, Color> colors;
 
-  /// Every named text style by key, read as `${theme.text.title.fontSize}`.
+  /// Every named text style by key, read as `${theme.text.title.fontSize}`
+  /// and named by a text's style (`"style": "title"`, or `{"from": "title",
+  /// ...}` to change some of its fields). A style may itself start `from`
+  /// another and name [colors]; [textStyle] gives it resolved.
   final Map<String, TextStyle> textStyles;
+
+  /// The theme by screen size, as CSS media queries over custom properties:
+  /// each rule's `patch` is a theme's JSON (`{"textStyles": {"display":
+  /// {"fontSize": 40}}, "colors": {...}}`) merged over this one while the
+  /// screen meets its conditions ([atScreen]). A type scale that changes at
+  /// a breakpoint is written once here, not on every text.
+  final List<MediaRule> media;
 
   /// The colors for dark mode: the tokens and [colors] that differ from the
   /// light ones (its other fields are not used).
@@ -83,6 +99,62 @@ final class ThemeTokens {
   final bool? naturalLineHeight;
 
   static const ThemeTokens none = ThemeTokens();
+
+  /// The color named [name]: a key of [colors], else a role (`primary`,
+  /// `onSurface`...). A color may name another (`"accent": "ember"`).
+  Color? color(String name) {
+    var c = colors[name] ?? _role(name);
+    for (var i = 0; i < 8 && c != null && c.name != null; i++) {
+      c = colors[c.name!] ?? _role(c.name!);
+    }
+    return c?.name == null ? c : null;
+  }
+
+  Color? _role(String name) => switch (name) {
+        'primary' => primary,
+        'onPrimary' => onPrimary,
+        'surface' => surface,
+        'onSurface' => onSurface,
+        'error' => error,
+        'success' => success,
+        'warning' => warning,
+        _ => null,
+      };
+
+  /// Every name [color] reads.
+  Iterable<String> get colorNames => {
+        ...colors.keys,
+        for (final r in const ['primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'])
+          if (_role(r) != null) r,
+      };
+
+  /// The text style named [name], resolved: the styles it starts [from]
+  /// merged in order (`TextStyle.merge`), its color names read from
+  /// [colors]. Null when there is no such style (or it starts from itself).
+  TextStyle? textStyle(String name) => _resolved(name, const {});
+
+  TextStyle? _resolved(String name, Set<String> seen) {
+    final own = textStyles[name];
+    if (own == null || seen.contains(name)) return null;
+    final from = own.from;
+    final base = from == null ? TextStyle.empty : _resolved(from, {...seen, name});
+    if (base == null) return null;
+    return base.merge(resolveStyleColors(own, color)).withoutFrom();
+  }
+
+  /// These tokens on a screen [width] × [height]: [media] rules that hold
+  /// merged over them in order (a JSON merge patch of the theme). Itself
+  /// when none holds.
+  ThemeTokens atScreen(double width, double? height, Breakpoints breakpoints) {
+    if (media.isEmpty) return this;
+    Json? merged;
+    for (final r in media) {
+      if (!r.holds(width, height, breakpoints)) continue;
+      merged = mergePatch(merged ?? (toJson()..remove('media')), r.patch);
+    }
+    if (merged == null) return this;
+    return fromJson(merged);
+  }
 
   /// Whether [dark] gives any color.
   bool get hasDark => dark != null && !dark!.isEmpty;
@@ -107,6 +179,7 @@ final class ThemeTokens {
       colors: {...colors, ...d.colors},
       textStyles: textStyles,
       naturalLineHeight: naturalLineHeight,
+      media: media,
     );
   }
 
@@ -153,6 +226,7 @@ final class ThemeTokens {
       },
       dark: m['dark'] == null ? null : fromJson(m['dark']),
       naturalLineHeight: readBool(m['naturalLineHeight']),
+      media: MediaRule.listFromJson(m['media']),
     );
   }
 
@@ -173,6 +247,7 @@ final class ThemeTokens {
     if (textStyles.isNotEmpty) j['textStyles'] = {for (final e in textStyles.entries) e.key: e.value.toJson()};
     if (dark != null && !dark!.isEmpty) j['dark'] = dark!.toJson();
     put(j, 'naturalLineHeight', naturalLineHeight);
+    if (media.isNotEmpty) j['media'] = [for (final r in media) r.toJson()];
     return j;
   }
 
@@ -193,9 +268,10 @@ final class ThemeTokens {
       jsonEquality.equals(other.colors, colors) &&
       jsonEquality.equals(other.textStyles, textStyles) &&
       other.dark == dark &&
-      other.naturalLineHeight == naturalLineHeight;
+      other.naturalLineHeight == naturalLineHeight &&
+      listEquals(other.media, media);
 
   @override
   int get hashCode => Object.hash(primary, onPrimary, surface, onSurface, error, success, warning, fontFamily,
-      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, naturalLineHeight);
+      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, naturalLineHeight, Object.hashAll(media));
 }
