@@ -5,6 +5,7 @@
 import 'package:meta/meta.dart';
 
 import 'actions.dart';
+import 'custom_paint.dart' show Expr;
 import 'json.dart';
 import 'values/paint.dart' show listEquals;
 
@@ -99,13 +100,17 @@ enum TriggerType {
   /// Variable [Trigger.variable] changed while the screen shows.
   valueChanged,
 
-  /// Every [Trigger.intervalMs] while the screen shows.
+  /// Every [Trigger.intervalMs] while the screen shows (`Timer.periodic`)
+  /// and [Trigger.when] holds; `${result.tick}` counts. The legacy `clock`
+  /// (`every`, `runWhen`) reads as this.
   timer,
 
-  /// A steady audio clock: ticks every [Trigger.every] ms while
-  /// [Trigger.runWhen] holds (`${result.tick}`, `${result.at}`,
-  /// `${result.waitMs}`).
-  clock,
+  /// Every frame while the node is on stage and [Trigger.when] holds (a
+  /// `Ticker`): `${result.dt}` (ms since the tick this chain last got),
+  /// `${result.elapsed}` (ms since it started), `${result.frame}`. A frame
+  /// that comes while the chain still runs is skipped; its time goes to
+  /// the next `dt`. A design canvas never ticks.
+  frame,
 
   /// A key went down (or up) while the screen shows; [Trigger.key] limits
   /// it to one key or combination, [Trigger.when] to while a formula holds.
@@ -188,7 +193,7 @@ enum TriggerType {
   };
 
   /// The triggers of a screen: they fire while it shows, wherever they're set.
-  static const Set<TriggerType> screen = {load, valueChanged, timer, clock, keyDown, keyUp, backPressed, actionError};
+  static const Set<TriggerType> screen = {load, valueChanged, timer, frame, keyDown, keyUp, backPressed, actionError};
 
   /// The triggers an input fires.
   static const Set<TriggerType> input = {changed, changeEnd, submitted, editingComplete, focusGained, focusLost};
@@ -210,12 +215,10 @@ final class Trigger {
     this.type, {
     this.debounceMs = 0,
     this.variable = '',
-    this.intervalMs = 1000,
+    this.intervalMs = const Expr(1000),
     this.key = '',
     this.when = '',
     this.holdMs = kDefaultHoldMs,
-    this.every = '',
-    this.runWhen = '',
     this.visibleFraction = kDefaultVisibleFraction,
     this.repeat = false,
     this.visibleMs = 0,
@@ -231,24 +234,21 @@ final class Trigger {
   /// [TriggerType.valueChanged]: the variable watched.
   final String variable;
 
-  /// [TriggerType.timer]: how often it fires.
-  final int intervalMs;
+  /// [TriggerType.timer]: how often it fires, in ms: a number or an
+  /// expression (`${= 60000 / bpm}`), at least [minIntervalMs]. Not a
+  /// positive number: it doesn't fire.
+  final Expr<int> intervalMs;
 
   /// Key triggers: the key or combination ([KeyCombo]); empty: any key.
   final String key;
 
-  /// Key triggers: a formula; they run (and take the key) only while it's
-  /// true. Empty: always.
+  /// A formula; the reaction runs only while it's true (key triggers take
+  /// the key only then; a timer or a frame ticker runs only then). Empty:
+  /// always.
   final String when;
 
   /// [TriggerType.hold]: how long the press is held.
   final int holdMs;
-
-  /// [TriggerType.clock]: milliseconds between ticks, a number or formula.
-  final String every;
-
-  /// [TriggerType.clock]: runs while this formula is true; empty: always.
-  final String runWhen;
 
   /// Viewport triggers: the visible share (0–1) that counts as in view.
   final double visibleFraction;
@@ -269,8 +269,17 @@ final class Trigger {
   /// The shortest timer interval.
   static const int minIntervalMs = 16;
 
-  /// [intervalMs], kept between [minIntervalMs] and a day.
-  int get effectiveIntervalMs => intervalMs.clamp(minIntervalMs, 86400000);
+  /// [intervalMs] as a literal number of ms, kept between [minIntervalMs]
+  /// and a day; null when it's an expression or not positive.
+  int? get effectiveIntervalMs => intervalMs.isExpression ? null : intervalMsOf(intervalMs.value);
+
+  /// A worked-out interval [value] in ms, kept between [minIntervalMs] and
+  /// a day; null when it isn't a positive number.
+  static int? intervalMsOf(Object? value) {
+    final n = value is num ? value : num.tryParse('${value ?? ''}'.trim());
+    if (n == null || !n.isFinite || n <= 0) return null;
+    return n.round().clamp(minIntervalMs, 86400000);
+  }
 
   /// [key] as a key combination; null for any key.
   KeyCombo? get keyCombo => KeyCombo.tryParse(key);
@@ -281,23 +290,37 @@ final class Trigger {
       return t == null ? null : Trigger(t);
     }
     final m = readMap(json);
-    final type = _type(m?['type']);
+    final clock = m?['type'] == 'clock';
+    final type = clock ? TriggerType.timer : _type(m?['type']);
     if (m == null || type == null) return null;
+    // The legacy clock: `every` is the interval, `runWhen` the guard; its
+    // `lookaheadMs` was never read.
+    final interval = clock ? _interval(m['every']) ?? const Expr(0) : _interval(m['intervalMs']) ?? const Expr(1000);
+    final when = readString(m['when']) ?? '';
     return Trigger(
       type,
       debounceMs: (readInt(m['debounceMs']) ?? 0).clamp(0, 600000),
       variable: readString(m['variable']) ?? '',
-      intervalMs: readInt(m['intervalMs']) ?? 1000,
+      intervalMs: interval,
       key: readString(m['key']) ?? '',
-      when: readString(m['when']) ?? '',
+      when: clock && when.isEmpty ? readString(m['runWhen']) ?? '' : when,
       holdMs: readInt(m['holdMs']) ?? kDefaultHoldMs,
-      every: m['every'] == null ? '' : '${m['every']}',
-      runWhen: readString(m['runWhen']) ?? '',
       visibleFraction: (readDouble(m['visibleFraction']) ?? kDefaultVisibleFraction).clamp(0, 1).toDouble(),
       repeat: m['repeat'] == true,
       visibleMs: (readInt(m['visibleMs']) ?? 0).clamp(0, 600000),
       onceKey: readString(m['onceKey']) ?? '',
     );
+  }
+
+  /// An interval: a number, a `${...}` expression, or (the legacy clock's
+  /// `every`) a bare formula, read as `${= formula}`.
+  static Expr<int>? _interval(Object? v) {
+    if (v is num) return Expr(v.round());
+    if (v is! String || v.trim().isEmpty) return null;
+    final t = v.trim();
+    if (Expr.isSource(t)) return Expr.source(t);
+    final n = num.tryParse(t);
+    return n != null ? Expr(n.round()) : Expr.source('\${= $t}');
   }
 
   static TriggerType? _type(Object? v) {
@@ -312,12 +335,10 @@ final class Trigger {
         'type': type.name,
         if (debounceMs != 0) 'debounceMs': debounceMs,
         if (variable.isNotEmpty) 'variable': variable,
-        if (intervalMs != 1000) 'intervalMs': intervalMs,
+        if (intervalMs != const Expr(1000)) 'intervalMs': intervalMs.toJson(),
         if (key.isNotEmpty) 'key': key,
         if (when.isNotEmpty) 'when': when,
         if (holdMs != kDefaultHoldMs) 'holdMs': holdMs,
-        if (every.isNotEmpty) 'every': every,
-        if (runWhen.isNotEmpty) 'runWhen': runWhen,
         if (visibleFraction != kDefaultVisibleFraction) 'visibleFraction': writeDouble(visibleFraction),
         if (repeat) 'repeat': true,
         if (visibleMs != 0) 'visibleMs': visibleMs,

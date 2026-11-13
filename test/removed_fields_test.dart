@@ -9,13 +9,14 @@ void main() {
   test('a trigger with lookaheadMs decodes; the key is dropped', () {
     const json = {'type': 'clock', 'every': r'${60000 / bpm}', 'runWhen': r'${playing}', 'lookaheadMs': 120};
     final t = Trigger.fromJson(json)!;
-    expect(t.type, TriggerType.clock);
-    expect(t.every, r'${60000 / bpm}');
-    expect(t.runWhen, r'${playing}');
-    expect(t.toJson(), {'type': 'clock', 'every': r'${60000 / bpm}', 'runWhen': r'${playing}'});
+    // The clock is a timer now: `every` its interval, `runWhen` its guard.
+    expect(t.type, TriggerType.timer);
+    expect(t.intervalMs, const Expr<int>.source(r'${60000 / bpm}'));
+    expect(t.when, r'${playing}');
+    expect(t.toJson(), {'type': 'timer', 'intervalMs': r'${60000 / bpm}', 'when': r'${playing}'});
     expect(t, Trigger.fromJson(t.toJson()));
     // Malformed: still no throw.
-    expect(Trigger.fromJson({'type': 'clock', 'lookaheadMs': 'soon'})!.type, TriggerType.clock);
+    expect(Trigger.fromJson({'type': 'clock', 'lookaheadMs': 'soon'})!.type, TriggerType.timer);
     expect(TriggerFields.all.map((f) => f.key), isNot(contains('lookaheadMs')));
   });
 

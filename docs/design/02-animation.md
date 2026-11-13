@@ -434,3 +434,74 @@ counted), and any script that calls the removed action types by name.
    temporal half of `RenderMotion`.
 4. Editor: Animations section, preset menu, track editor.
 5. Docs 03 and 04 land on top (they delete the fields this doc empties).
+
+## Deviations from the proposal
+
+Implemented in `lib/src/animation.dart` and `animation_presets.dart` (parts of `behaviors.dart`), declared in
+`behavior_fields.dart` and `action_fields.dart`; SDK: `lib/src/render/animations.dart` (the player), the
+`animate` handler in `runtime/actions/handlers.dart`, `frame` and the timer in `runtime/actions/wiring.dart`.
+Flutter names were checked against `/opt/flutter/packages/flutter/lib/src/animation/animation_controller.dart`
+and `physics/spring_simulation.dart`; the SDK's controller is tested against a real `AnimationController` +
+`Tween` (`test/animations_test.dart`).
+
+1. **`id`, not `name`.** Every other list entry of the model is addressed by `id`, and `BindPaths` selects a list
+   item by its `id` (`animations.year.paused`, `animations.enter.tracks.fade.from`). `name` is read too. Tracks
+   take an optional `id` for the same reason.
+2. **`TrackBlend` (`replace`, `add`, `multiply`) and `Wave` were added.** The loops and effects composed *on top
+   of* the node's pose (a loop's scale multiplied `motion.scale`, a fade multiplied the node's opacity); a
+   `replace` tween can't say that without changing every node that has both. `add`/`multiply` are what a
+   `SlideTransition`/`RotationTransition`/`ScaleTransition`/`FadeTransition` wrapped around the node does, and
+   their tracks pose the player's own layer (where the loops were in the chain), about the animation's
+   `alignment` (`ScaleTransition(alignment:)`), which also carries an effect's `originX/Y`. The effects and
+   `bob`/`sway`/`flicker` are sines; keyframes would only approximate them (the proposal accepted 32 samples for
+   `flicker`). A `wave` list (`amplitude · sin(2π(cycles·t + phase)) · (1 − decay·t)`, `rectify` for |sin|)
+   reproduces every one of them exactly (tested against the old formulas to 1e-9), `flicker` included.
+3. **`enabled` was added** (as actions have it). A disabled loop showed the node untransformed; `paused` holds
+   it where it is, which is not the same picture.
+4. **`phase` is a share of one cycle**, a run there and back when `repeat.reverse`: a loop's `phase` and
+   `lag / loop` were, and `forward(from: phase)` alone can't start on the way back. For a non-repeating
+   animation it is `forward(from: phase)`.
+5. **Fields a preset fills are nullable** (`duration`, `curve`, `repeat`, `autoplay`, `alignment`,
+   `previewAt`): null takes the preset's, else Flutter's default (300 ms, linear, once, true, center, not
+   drawn). This keeps presets short in JSON without the `named` bookkeeping `Motion` needed.
+6. **`previewAt` is a share of a cycle after `phase`**, so a loop rests at its first frame (as the canvas drew
+   it) even when its phase is bound per copy.
+7. **A spring is unbounded.** Flutter clamps a bounded controller's spring to 0–1; the player lets the bounce
+   show (else `spring` on a 0–1 animation could never overshoot).
+8. **Play keys fire on a new value that isn't empty, `0`, `false` or `null`**, not only non-empty: the
+   reference apps cue with `${= cond ? tick : 0}`, which made a node play when its cue went *away*. This is a
+   behaviour change for an effect whose bound key turns to `0`/`false` (it no longer plays then).
+9. **A replay or `stop` completes the waiting chain** (the legacy effects did), where Flutter's `TickerFuture`
+   never completes once stopped. On a variable, `stop` holds the timeline and its waiting chain stays waiting
+   until `forward` (the legacy `pause`); the legacy `stop` mode now behaves as `pause` did.
+10. **`timer.intervalMs` is an `Expr<int>`** (the `ExprCodec` precedent of doc 01), and a bare legacy `every`
+    formula reads as `${= formula}`. Its interval is worked out again when a name it or `when` reads changes; a
+    reaction whose `when` is false doesn't set the timer's pace (the clock's rule, now every timer's).
+11. **No new `PropKind`s**: `params`, `from`, `to` and `value` are `Codecs.any`, a track list is
+    `List<AnimationTrack>`.
+12. **The animate action finds a node's player through the tree** (`NodeBox.animations`), so the render core keeps
+    no registry: `EffectPlayers` (a process-wide map) is gone. An action can only reach nodes of its own tree.
+13. **A replacing track's patch of a non-composite path** (`decoration.*`, `layout.*`, `props.*`) is held per
+    node by `RenderTree.setAnimatedValues` and applied over the node as shown, before the frame lays out (a
+    microtask), not through `NodeBindings` itself.
+
+## Not yet migrated
+
+Kept readable and working exactly as before; each still has its own code in the SDK.
+
+- **The temporal half of `motion`**: `enter`, `enterFrom`, `replayKey`, `loop`/`repeat`/`phase`/`paused`, `spin`/
+  `spinRamp`, `keyframes` (monotone-cubic, not a `TweenSequence`), `shimmer`, `rotateCurve`, `fadeShare`, `arc`,
+  `enterHeld`, `revealOnScroll`/`revealFraction`, and the implicit `duration`/`delay`/`curve`. They are played by
+  `RenderMotion` as before. Their mapping to the `enter`/`loop`/`spin`/`keyframes`/`shimmer` presets needs the
+  monotone keyframe interpolation, the swing loop and `spinRamp`'s ramp, and the `transitions` table of doc 03.
+- **`setVariable.animateMs`**: still a glide on `VariableAnimator` (a plain set stops a glide, not an `animate`
+  timeline, and `add`/`subtract` need the value at the time the action runs).
+- **`strokePath.draw*`, `typewriter`, text `countUp`, `flip`'s turn**: their clocks are their own.
+- **`progress` with a `spring`** reads the value directly; easing toward each new value is not built.
+- **Legacy binding paths set at run time** (`setValue` with `loops[0].phase` or `effectAnimations[1].playKey`):
+  only a node's `bind` map is rewritten when it decodes.
+- **A `spring` on an `animate {variable}`** is ignored (the variable's timeline is duration-based).
+- **Effects now sit inside the motion and rotation layers** (where loops were), not outside them; an effect on a
+  node that also scales or rotates through `motion` or `layout.rotation` moves in that frame. Two effects playing
+  at once compose first-outermost (they composed last-outermost), and a keyframes effect's scale and rotation
+  compose scale-then-rotate. None of the SDK's tests or fixtures has such a node.

@@ -101,7 +101,8 @@ void main() {
     final b = n.behaviors;
     expect(b.motion!.rotate, -3.5);
     expect(b.motion!.enterFrom!.opacity, 0);
-    expect(b.loops, hasLength(2));
+    // The legacy loops and effect read as animations.
+    expect([for (final a in b.animations) a.id], ['loop0', 'loop1', 'shake']);
     expect(b.transitions.opacity!.curve, AnimationCurve.easeInOut);
     expect(b.inkWell!.overlayColor, const Color(0x1F000000));
     expect(b.states.patchFor('t', {WidgetState.hovered}), {
@@ -115,7 +116,18 @@ void main() {
     expect(b.particles!.colors, [const Color(0xFFFF0000)]);
     expect(b.textDirection, TextDirection.rtl);
     expect(n.extra, {'custom': 1});
-    expect(jsonDecode(jsonEncode(n.toJson())), jsonDecode(jsonEncode(nodeJson)));
+    // Written in the new shape: `animations` instead of `loops` and
+    // `effectAnimations`, the rest as given.
+    final legacy = {...nodeJson}
+      ..remove('loops')
+      ..remove('effectAnimations');
+    final written = jsonDecode(jsonEncode(n.toJson())) as Map;
+    expect(written['animations'], [
+      {'id': 'loop0', 'preset': 'pulse', 'params': {'scaleFrom': 0.65, 'opacityFrom': 0.35, 'opacityTo': 0}, 'duration': 1400},
+      {'id': 'loop1', 'preset': 'fade', 'params': {'opacityFrom': 0.45}, 'duration': 1100, 'curve': 'easeInOut', 'repeat': {'reverse': true}},
+      {'id': 'shake', 'preset': 'shake', 'duration': 400},
+    ]);
+    expect({...written}..remove('animations'), jsonDecode(jsonEncode(legacy)));
     expect(Node.fromJson(n.toJson()), n);
   });
 
@@ -134,20 +146,23 @@ void main() {
     expect(n.behaviors.motion, Motion.none);
     expect(n.behaviors.motion!.toJson(), isEmpty);
     expect(n.behaviors.scale, 1);
-    expect(n.behaviors.loops.single.type, LoopAnimationType.pulse);
+    expect(n.behaviors.animations.single.preset, 'pulse');
     expect(n.behaviors.states.isEmpty, isTrue);
     expect(n.behaviors.hero, isNull);
     expect(n.behaviors.textDirection, isNull);
-    expect(n.toJson()..remove('layout'), {'id': '', 'type': 'box', 'motion': {}, 'loops': [{'type': 'pulse'}]});
+    expect(n.toJson()..remove('layout'), {'id': '', 'type': 'box', 'motion': {}, 'animations': [{'id': 'loop1', 'preset': 'pulse'}]});
   });
 
   test('a loop rests on its first frame', () {
-    const halo = LoopAnimation(type: LoopAnimationType.pulse, scaleFrom: 0.65, opacityFrom: 0.35, opacityTo: 0);
-    expect(halo.poseAt(0), (scale: 0.65, opacity: 0.35, turns: 0.0, dy: 0.0));
-    expect(halo.poseAt(1).scale, 1);
-    expect(const LoopAnimation(type: LoopAnimationType.scale, scaleFrom: 0.5, enabled: false).poseAt(0).scale, 1);
-    final bob = const LoopAnimation(type: LoopAnimationType.bob, distance: 10).poseAt(0.5);
-    expect(bob.dy, closeTo(-10, 1e-9));
+    // LoopAnimation.poseAt is gone: the loop is the preset's tracks.
+    double at(NodeAnimation a, String id, double v) =>
+        readDouble(a.expanded.tracks.firstWhere((t) => t.id == id).valueAt(v))!;
+    final halo = AnimationPresets.fromLoop({'type': 'pulse', 'scaleFrom': 0.65, 'opacityFrom': 0.35, 'opacityTo': 0}, 0)!;
+    expect((at(halo, 'scale', 0), at(halo, 'opacity', 0)), (0.65, 0.35));
+    expect(at(halo, 'scale', 1), 1);
+    expect(AnimationPresets.fromLoop({'type': 'scale', 'scaleFrom': 0.5, 'enabled': false}, 0)!.enabled, isFalse);
+    final bob = AnimationPresets.fromLoop({'type': 'bob', 'distance': 10}, 0)!;
+    expect(at(bob, 'translateY', 0.5), closeTo(-10, 1e-9));
   });
 
   test('stroke path points read as pairs or {x, y} maps', () {
@@ -162,11 +177,13 @@ void main() {
   });
 
   test('a flicker wavers between its values and loops seamlessly', () {
-    const glow = LoopAnimation(type: LoopAnimationType.flicker, scaleFrom: 0.9, scaleTo: 1.1, opacityFrom: 0.6, opacityTo: 1);
-    final samples = [for (var i = 0; i <= 100; i++) glow.poseAt(i / 100)];
+    final glow = AnimationPresets.fromLoop(
+        {'type': 'flicker', 'scaleFrom': 0.9, 'scaleTo': 1.1, 'opacityFrom': 0.6, 'opacityTo': 1}, 0)!.expanded;
+    double value(String id, double t) => readDouble(glow.tracks.firstWhere((x) => x.id == id).valueAt(t))!;
+    final samples = [for (var i = 0; i <= 100; i++) (scale: value('scale', i / 100), opacity: value('opacity', i / 100))];
     for (final p in samples) {
-      expect(p.scale, inInclusiveRange(0.9, 1.1));
-      expect(p.opacity, inInclusiveRange(0.6, 1));
+      expect(p.scale, inInclusiveRange(0.9 - 1e-9, 1.1 + 1e-9));
+      expect(p.opacity, inInclusiveRange(0.6 - 1e-9, 1 + 1e-9));
     }
     // Not a steady pulse: it changes direction many times in a run.
     var turns = 0;
@@ -175,9 +192,13 @@ void main() {
       if (a.sign != b.sign && a != 0 && b != 0) turns++;
     }
     expect(turns, greaterThan(6));
-    expect(glow.poseAt(0).opacity, closeTo(glow.poseAt(1).opacity, 1e-9));
-    expect(LoopAnimation.fromJson(glow.toJson()), glow);
-    expect(LoopAnimationType.flicker.scales && LoopAnimationType.flicker.fades, isTrue);
+    expect(samples.first.opacity, closeTo(samples.last.opacity, 1e-9));
+    // Exactly the legacy curve: from + (to - from) * flickerAt(t).
+    for (var i = 0; i <= 100; i++) {
+      expect(samples[i].opacity, closeTo(0.6 + 0.4 * flickerAt(i / 100), 1e-12));
+    }
+    final short = AnimationPresets.fromLoop({'type': 'flicker', 'scaleFrom': 0.9, 'scaleTo': 1.1}, 0)!;
+    expect(NodeAnimation.fromJson(short.toJson()), short);
   });
 
   test('motion: rest, entrance start, keyframes', () {
@@ -239,12 +260,14 @@ void main() {
     }, id: 'n')!;
     final tagged = BindPaths.apply(n, 'hero.tag', 'pass-7');
     expect(tagged.behaviors.hero, const HeroTag('pass-7', flight: HeroFlightShuttle.arc));
-    final cued = BindPaths.apply(n, 'effectAnimations[1].playKey', 3);
-    expect(cued.behaviors.effectAnimations[1].playKey, '3');
-    expect(cued.behaviors.effectAnimations[0].playKey, isNull);
-    expect(BindPaths.apply(n, 'effectAnimations[1].delay', 250).behaviors.effectAnimations[1].delay, 250);
+    // The effects are animations now, addressed by id.
+    NodeAnimation effect(Node n, String id) => n.behaviors.animations.firstWhere((a) => a.id == id);
+    final cued = BindPaths.apply(n, 'animations.nudge.playKey', 3);
+    expect(effect(cued, 'nudge').playKey, '3');
+    expect(effect(cued, 'pop').playKey, isNull);
+    expect(effect(BindPaths.apply(n, 'animations.nudge.delay', 250), 'nudge').delay, 250);
     expect(BindPaths.apply(n, 'particles.playKey', 'w1').behaviors.particles!.playKey, 'w1');
-    expect(EffectAnimation.fromJson(cued.behaviors.effectAnimations[1].toJson())!.playKey, '3');
+    expect(NodeAnimation.fromJson(effect(cued, 'nudge').toJson())!.playKey, '3');
   });
 
   test('reveal.follow round-trips and defaults off', () {

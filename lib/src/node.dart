@@ -196,17 +196,17 @@ final class Node {
           ? Decoration.fromJson(m['decoration'])
           : Decoration(effects: [...Decoration.fromJson(m['decoration']).effects.where((e) => !e.isShadow)]),
       props: Props.fromJson(spec, m['props']),
-      bind: {
+      bind: Behaviors.migrateBind({
         if (bind != null)
           for (final e in bind.entries)
             if (e.value is String) e.key: e.value as String,
-      },
+      }, m),
       actions: Reaction.listFromJson(m['actions']),
       behaviors: Behaviors.fromJson(m),
       component: ComponentLink.fromJson(m['component']),
       extra: {
         for (final e in m.entries)
-          if (!_keys.contains(e.key) && !Behaviors.keys.contains(e.key)) e.key: e.value,
+          if (!_keys.contains(e.key) && !Behaviors.keys.contains(e.key) && !Behaviors.legacyKeys.contains(e.key)) e.key: e.value,
       },
     );
   }

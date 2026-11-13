@@ -366,3 +366,23 @@ After doc 02's player is in:
    `motion.rotate`.
 4. Rebuild the four hand-migrated spots (lineup, lineworks_v2, orrery,
    chairlift/flashcards) and delete the legacy readers one release later.
+
+## Deviations from the proposal
+
+Doc 03 is not implemented in this wave; only what doc 02 needed from it landed:
+
+1. **`Motion.springStiffness`/`springDamping` became `Motion.spring`** (the one `Spring`, doc 02), the legacy keys
+   read with their 380/20 defaults. It stays on `Motion` until `transitions` per property exists.
+2. **`Motion.pulseKey` left `Motion`**: it reads as the animation `pulse` (doc 02 §9), which now plays (it never
+   did).
+3. **A track that replaces a `motion.*` value overrides it in `RenderMotion`** (drawn over the motion's own
+   value, its transitions starting from what is drawn); a node whose animations set motion values gets a motion
+   layer even without a `motion`.
+
+## Not yet migrated
+
+All of §3 and §6 except the two rows above: `Motion` keeps its 50 fields (`opacity`, `blur`, `originX/Y`, path
+pacing, wrap, mirror, `arc`, the entrance/loop/spin/keyframe keys), `PathFollow` and `${path.*}` don't exist,
+`transitions` is still `{style, opacity, size}`, and the node `scale` behavior and `layout.rotation` are still
+their own chain layers. Removing `opacity`/`blur` from `Motion` was not attempted: route transitions
+(`TransitionSide.motion`) use `Motion.opacity`, and the lossless-migration condition the owner set wasn't shown.

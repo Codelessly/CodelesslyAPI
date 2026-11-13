@@ -66,13 +66,14 @@ void main() {
   });
 
   test('loop phase and lag; effect cycles', () {
-    const l = LoopAnimation(type: LoopAnimationType.fade, duration: 500, reverse: true, phase: 0.3, lag: 100);
-    expect(l.loop, 1000);
-    expect(l.startFraction, closeTo(0.2, 1e-9));
-    expect(LoopAnimation.fromJson(l.toJson()), l);
-    final e = EffectAnimation.fromJson({'name': 'no', 'type': 'shake', 'cycles': 3})!;
-    expect(e.cycles, 3);
-    expect(e.toJson()['cycles'], 3);
+    // A loop's lag folds into its phase (a share of the whole loop).
+    final l = AnimationPresets.fromLoop({'type': 'fade', 'duration': 500, 'reverse': true, 'phase': 0.3, 'lag': 100}, 0)!;
+    expect(l.cycleMs, 1000);
+    expect(l.phase, closeTo(0.2, 1e-9));
+    expect(NodeAnimation.fromJson(l.toJson()), l);
+    final e = AnimationPresets.fromEffect({'name': 'no', 'type': 'shake', 'cycles': 3}, 0)!;
+    expect(e.params['cycles'], 3);
+    expect(e.toJson()['params'], {'cycles': 3});
   });
 
   test('gesture physics: presets, snap points, effective spring', () {
@@ -86,8 +87,8 @@ void main() {
         ],
       },
     })!;
-    expect(p.bounce, 0.4);
-    expect(p.duration, 600);
+    expect(p.spring.bounce, 0.4);
+    expect(p.spring.duration, 600);
     expect(p.snap!.points, const [Offset(0, 0), Offset(0, -280), Offset(-560, -560)]);
     expect(GesturePhysics.fromJson(p.toJson()), p);
     expect(p.effectiveStiffness, greaterThan(0));
@@ -113,7 +114,7 @@ void main() {
     final b = n.behaviors;
     expect(b.drag!.hasBounds, isTrue);
     expect(b.drag!.minY, -560);
-    expect(b.drag!.effectivePhysics!.duration, 420);
+    expect(b.drag!.effectivePhysics!.spring.duration, 420);
     expect(b.draggable!.feedbackAnchor, FeedbackAnchor.center);
     expect(b.dropTarget!.slotSize, DropSlotSize.node);
     expect(b.dropTarget!.slotWhenRefused, isFalse);
@@ -123,7 +124,7 @@ void main() {
     expect(bar.behaviors.dropTarget!.slotSize, DropSlotSize.inGap);
     expect(_node(bar.toJson()), bar);
     // A spring snap back is a spring.
-    expect(const DragMotion().effectivePhysics!.bounce, 0.25);
+    expect(const DragMotion().effectivePhysics!.spring.bounce, 0.25);
     expect(const DragSource(returnSpring: false).effectivePhysics, isNull);
   });
 
