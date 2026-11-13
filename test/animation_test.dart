@@ -98,11 +98,12 @@ void main() {
       expect(FlipCard.fromJson({})!.spring, const Spring.physical(stiffness: 380, damping: 36));
       // TransitionSpring (380 / 36 / 1).
       expect(RouteDismiss.fromJson({'spring': {'stiffness': 200}})!.spring, const Spring.physical(stiffness: 200, damping: 36));
-      // Motion.springStiffness/Damping (380 / 20).
-      final m = Motion.fromJson({'springStiffness': 500})!;
+      // Motion.springStiffness/Damping (380 / 20): the spring of its
+      // transitions on the `spring` curve.
+      final m = Behaviors.fromJson({'motion': {'curve': 'spring', 'springStiffness': 500}}).transitions.single;
       expect(m.spring, const Spring.physical(stiffness: 500, damping: 20));
-      expect(m.toJson(), {'spring': {'stiffness': 500}});
-      expect(Motion.fromJson(m.toJson()), m);
+      expect(m.toJson()['spring'], {'stiffness': 500, 'damping': 20});
+      expect(Transition.fromJson(m.toJson()), m);
       // DragSource.springStiffness/Damping (260 / 14), now its returnSpring.
       final d = DragSource.fromJson({'springDamping': 9})!;
       expect(d.returnSpring, const Spring.physical(stiffness: 260, damping: 9));

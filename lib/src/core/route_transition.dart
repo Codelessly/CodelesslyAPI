@@ -3,7 +3,8 @@
 // data; the SDK builds the route (DESIGN.md §5.2).
 import 'package:meta/meta.dart';
 
-import 'behaviors.dart' show AnimationCurve, DragDirection, Motion, Spring;
+import 'behaviors.dart' show AnimationCurve, DragDirection, Motion, Pose, Spring;
+import 'values/geometry.dart' show Alignment;
 import 'json.dart';
 import 'values/color.dart';
 
@@ -132,13 +133,13 @@ final class TransitionReveal {
 
 /// How one screen moves during a [RouteTransition]: an entering screen
 /// starts at [motion] and comes to rest; a leaving one starts at rest and
-/// ends at [motion]. Only the motion's values are used (the 3D ones,
-/// `shiftX`/`shiftY` in screen sizes, opacity, blur); this side's [curve],
+/// ends at [motion] (a [Pose]: a transform, `shiftX`/`shiftY` in screen
+/// sizes, with an opacity and a blur); this side's [curve],
 /// [delayMs] and [durationMs] time it inside the route's duration.
 @immutable
 final class TransitionSide {
   const TransitionSide({
-    this.motion = Motion.none,
+    this.motion = Pose.none,
     this.reveal,
     this.curve = AnimationCurve.fastOutSlowIn,
     this.delayMs = 0,
@@ -148,7 +149,7 @@ final class TransitionSide {
   /// A side that doesn't move.
   static const TransitionSide still = TransitionSide();
 
-  final Motion motion;
+  final Pose motion;
   final TransitionReveal? reveal;
   final AnimationCurve curve;
 
@@ -159,7 +160,7 @@ final class TransitionSide {
   final int? durationMs;
 
   /// Whether it moves nothing.
-  bool get isStill => reveal == null && motion == Motion.none;
+  bool get isStill => reveal == null && motion.isNone;
 
   /// The share of a transition of [totalMs] this side starts and ends at,
   /// 0–1, as Flutter's `Interval`.
@@ -174,7 +175,7 @@ final class TransitionSide {
     final m = readMap(json);
     if (m == null) return null;
     return TransitionSide(
-      motion: Motion.fromJson(m['motion']) ?? Motion.none,
+      motion: Pose.fromJson(m['motion']) ?? Pose.none,
       reveal: TransitionReveal.fromJson(m['reveal']),
       curve: AnimationCurve.parse(m['curve']) ?? AnimationCurve.fastOutSlowIn,
       delayMs: (readInt(m['delayMs']) ?? 0).clamp(0, 60000),
@@ -183,7 +184,7 @@ final class TransitionSide {
   }
 
   Json toJson() => {
-        if (motion != Motion.none) 'motion': motion.toJson(),
+        if (!motion.isNone) 'motion': motion.toJson(),
         'reveal': ?reveal?.toJson(),
         if (curve != AnimationCurve.fastOutSlowIn) 'curve': curve.name,
         if (delayMs != 0) 'delayMs': delayMs,
@@ -323,42 +324,42 @@ final class RouteTransition {
   static RouteTransition presetTransition(RouteTransitionPreset preset) => switch (preset) {
         RouteTransitionPreset.sharedAxisX => const RouteTransition(
             durationMs: 300,
-            enter: TransitionSide(motion: Motion(translateX: 30, opacity: 0)),
-            exit: TransitionSide(motion: Motion(translateX: -30, opacity: 0), durationMs: 90),
-            popEnter: TransitionSide(motion: Motion(translateX: -30, opacity: 0)),
-            popExit: TransitionSide(motion: Motion(translateX: 30, opacity: 0), durationMs: 90),
+            enter: TransitionSide(motion: Pose(motion: Motion(translateX: 30), opacity: 0)),
+            exit: TransitionSide(motion: Pose(motion: Motion(translateX: -30), opacity: 0), durationMs: 90),
+            popEnter: TransitionSide(motion: Pose(motion: Motion(translateX: -30), opacity: 0)),
+            popExit: TransitionSide(motion: Pose(motion: Motion(translateX: 30), opacity: 0), durationMs: 90),
           ),
         RouteTransitionPreset.sharedAxisY => const RouteTransition(
             durationMs: 300,
-            enter: TransitionSide(motion: Motion(translateY: 30, opacity: 0)),
-            exit: TransitionSide(motion: Motion(translateY: -30, opacity: 0), durationMs: 90),
-            popEnter: TransitionSide(motion: Motion(translateY: -30, opacity: 0)),
-            popExit: TransitionSide(motion: Motion(translateY: 30, opacity: 0), durationMs: 90),
+            enter: TransitionSide(motion: Pose(motion: Motion(translateY: 30), opacity: 0)),
+            exit: TransitionSide(motion: Pose(motion: Motion(translateY: -30), opacity: 0), durationMs: 90),
+            popEnter: TransitionSide(motion: Pose(motion: Motion(translateY: -30), opacity: 0)),
+            popExit: TransitionSide(motion: Pose(motion: Motion(translateY: 30), opacity: 0), durationMs: 90),
           ),
         RouteTransitionPreset.sharedAxisZ => const RouteTransition(
             durationMs: 300,
-            enter: TransitionSide(motion: Motion(scale: 0.8, opacity: 0)),
-            exit: TransitionSide(motion: Motion(scale: 1.1, opacity: 0), durationMs: 90),
-            popEnter: TransitionSide(motion: Motion(scale: 1.1, opacity: 0)),
-            popExit: TransitionSide(motion: Motion(scale: 0.8, opacity: 0), durationMs: 90),
+            enter: TransitionSide(motion: Pose(motion: Motion(scale: 0.8), opacity: 0)),
+            exit: TransitionSide(motion: Pose(motion: Motion(scale: 1.1), opacity: 0), durationMs: 90),
+            popEnter: TransitionSide(motion: Pose(motion: Motion(scale: 1.1), opacity: 0)),
+            popExit: TransitionSide(motion: Pose(motion: Motion(scale: 0.8), opacity: 0), durationMs: 90),
           ),
         RouteTransitionPreset.fadeThrough => const RouteTransition(
             durationMs: 300,
-            enter: TransitionSide(motion: Motion(scale: 0.92, opacity: 0), delayMs: 105),
-            exit: TransitionSide(motion: Motion(opacity: 0), curve: AnimationCurve.easeIn, durationMs: 105),
+            enter: TransitionSide(motion: Pose(motion: Motion(scale: 0.92), opacity: 0), delayMs: 105),
+            exit: TransitionSide(motion: Pose(opacity: 0), curve: AnimationCurve.easeIn, durationMs: 105),
           ),
         RouteTransitionPreset.iosPush => const RouteTransition(
             durationMs: 400,
-            enter: TransitionSide(motion: Motion(shiftX: 1), curve: AnimationCurve.easeOutCubic),
-            exit: TransitionSide(motion: Motion(shiftX: -1 / 3), curve: AnimationCurve.easeOutCubic),
+            enter: TransitionSide(motion: Pose(motion: Motion(shiftX: 1)), curve: AnimationCurve.easeOutCubic),
+            exit: TransitionSide(motion: Pose(motion: Motion(shiftX: -1 / 3)), curve: AnimationCurve.easeOutCubic),
             swipeBack: RouteSwipeBack.always,
           ),
         RouteTransitionPreset.iosModal => const RouteTransition(
             durationMs: 400,
             opaque: false,
             barrierColor: Color(0x33000000),
-            enter: TransitionSide(motion: Motion(shiftY: 1), curve: AnimationCurve.easeOutCubic),
-            exit: TransitionSide(motion: Motion(scale: 0.93, translateY: 12), curve: AnimationCurve.easeOutCubic),
+            enter: TransitionSide(motion: Pose(motion: Motion(shiftY: 1)), curve: AnimationCurve.easeOutCubic),
+            exit: TransitionSide(motion: Pose(motion: Motion(scale: 0.93, translateY: 12)), curve: AnimationCurve.easeOutCubic),
             dismiss: RouteDismiss(),
           ),
         RouteTransitionPreset.circularReveal => const RouteTransition(
@@ -367,28 +368,28 @@ final class RouteTransition {
           ),
         RouteTransitionPreset.zoom => const RouteTransition(
             durationMs: 300,
-            enter: TransitionSide(motion: Motion(scale: 0.85, opacity: 0)),
-            exit: TransitionSide(motion: Motion(scale: 1.05, opacity: 0)),
+            enter: TransitionSide(motion: Pose(motion: Motion(scale: 0.85), opacity: 0)),
+            exit: TransitionSide(motion: Pose(motion: Motion(scale: 1.05), opacity: 0)),
           ),
         RouteTransitionPreset.coverVertical => const RouteTransition(
             durationMs: 350,
-            enter: TransitionSide(motion: Motion(shiftY: 1), curve: AnimationCurve.easeOutCubic),
+            enter: TransitionSide(motion: Pose(motion: Motion(shiftY: 1)), curve: AnimationCurve.easeOutCubic),
             dismiss: RouteDismiss(),
           ),
         RouteTransitionPreset.cube => const RouteTransition(
             durationMs: 600,
             enter: TransitionSide(
-                motion: Motion(shiftX: 1, rotateY: 90, originX: -1, perspective: 1.5),
+                motion: Pose(motion: Motion(shiftX: 1, rotateY: 90, alignment: Alignment(-1, 0), perspective: 1.5)),
                 curve: AnimationCurve.easeInOutCubic),
             exit: TransitionSide(
-                motion: Motion(shiftX: -1, rotateY: -90, originX: 1, perspective: 1.5),
+                motion: Pose(motion: Motion(shiftX: -1, rotateY: -90, alignment: Alignment(1, 0), perspective: 1.5)),
                 curve: AnimationCurve.easeInOutCubic),
           ),
         RouteTransitionPreset.flip => const RouteTransition(
             durationMs: 600,
             enter: TransitionSide(
-                motion: Motion(rotateY: 90, perspective: 1.5), curve: AnimationCurve.easeOutCubic, delayMs: 300),
-            exit: TransitionSide(motion: Motion(rotateY: -90, perspective: 1.5), curve: AnimationCurve.easeIn, durationMs: 300),
+                motion: Pose(motion: Motion(rotateY: 90, perspective: 1.5)), curve: AnimationCurve.easeOutCubic, delayMs: 300),
+            exit: TransitionSide(motion: Pose(motion: Motion(rotateY: -90, perspective: 1.5)), curve: AnimationCurve.easeIn, durationMs: 300),
           ),
       };
 

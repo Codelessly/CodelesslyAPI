@@ -1,86 +1,205 @@
-// A place along an SVG path (docs/design/03-motion.md §3.1): shared by a
-// node that follows a path (`motion.path`) and a track's thumb
-// (`track.path`, docs/design/04-drag-and-track.md).
+// A place along an SVG path (docs/design/03-motion.md §3.1): what a node's
+// `motion.path` sits on, and what a drag track's path (doc 04) follows.
+// Flutter: `PathMetric.getTangentForOffset`. A library of its own (the
+// track's and the motion's models import it).
+import 'dart:math' as math;
+
 import 'package:meta/meta.dart';
 
 import 'json.dart';
 
+/// [m]'s numbers at [k] (a list), or none.
+List<double> _doubles(Json m, String k) => [...?readList(m[k])?.map(readDouble).nonNulls];
+
 /// How a node on a [PathFollow] turns with the path.
 enum PathOrient {
-  /// It doesn't.
+  /// It keeps its own rotation.
   none,
 
-  /// With the path's direction.
+  /// Turned with the path's direction (`Transform.rotate(angle:
+  /// tangent.angle)`).
   tangent,
 
-  /// With the path's direction, folded into −90…90 degrees so it is never
-  /// upside down.
+  /// The same, folded into −90…90 degrees so it is never upside down.
   upright,
+
+  /// [upright], and mirrored (`Transform.flip(flipX: true)`) while the path
+  /// heads left, so its front still leads: a train, a car, a fish.
+  uprightFlip,
 }
 
-/// A place along an SVG path. Shared by `motion.path` and `track.path`.
+/// How [PathFollow.progress] maps to a place on the path.
+/// Deprecated: kept for the documents that set `pathPacing: area` (one
+/// app); pace a path with a curve or a formula on its progress instead.
+enum PathPacing {
+  /// The share of the path's length: even speed along the curve.
+  length,
+
+  /// The share of the area swept about [PathFollow.focus] (Kepler's second
+  /// law: an orbit speeding up near its Sun).
+  area,
+}
+
+/// A place along an SVG path: [progress] (0–1) of the way along [path]'s
+/// length, turned with it as [orient] says. Shared by `motion.path` and a
+/// drag track's path.
+///
+/// Values of [progress] outside 0–1 wrap round a closed path (one that ends
+/// where it starts) and clamp to the ends of an open one.
+///
+/// JSON: `{"path": "M0 0 C 40 -60, 120 -60, 160 0", "progress": 0.5,
+/// "orient": "tangent"}`; a bare string reads as [path].
 @immutable
 final class PathFollow {
-  const PathFollow({required this.path, this.viewBox, this.progress = 0, this.orient = PathOrient.none});
+  const PathFollow({
+    required this.path,
+    this.viewBox = const [],
+    this.progress = 0,
+    this.orient = PathOrient.none,
+    this.pacing = PathPacing.length,
+    this.focus = const [0, 0],
+  });
 
   /// SVG path data.
   final String path;
 
   /// The path's coordinate space `[width, height]`, stretched over the
-  /// node's parent; its points are where the node's center goes. Null: the
-  /// path is in pixels, as offsets from its first point, from the node's place.
-  final List<double>? viewBox;
+  /// node's parent: its points are where the node goes, from the parent's
+  /// origin (lay the node out at the origin, offset by half its size to
+  /// centre it). Empty: the path is in pixels, as offsets from its first
+  /// point, from the node's own place.
+  final List<double> viewBox;
 
-  /// Where along the path's length, 0–1. Values outside wrap on a closed
-  /// path and clamp on an open one.
+  /// Where along the path's length, 0–1. Bindable as `motion.path.progress`.
   final double progress;
 
-  /// `none`; `tangent`: turned with the path's direction; `upright`: the
-  /// same, folded into −90…90 degrees so it is never upside down.
   final PathOrient orient;
 
-  /// The view box's width and height, or null when it has none (or one not
-  /// above 0).
+  /// Deprecated: how [progress] maps to a place (`area` pacing, one app).
+  final PathPacing pacing;
+
+  /// Deprecated: the focus `[x, y]` of `area` pacing, in the path's
+  /// coordinates.
+  final List<double> focus;
+
+  bool get hasPath => path.trim().isNotEmpty;
+
+  /// [viewBox] when it is a usable size.
+  /// The view box's width and height (`[w, h]`, or the last two of `[x, y,
+  /// w, h]`), or null when it has none (or one not above 0).
   (double, double)? get viewBoxSize {
-    final v = viewBox;
-    if (v == null || v.length < 2) return null;
-    final (w, h) = v.length >= 4 ? (v[2], v[3]) : (v[0], v[1]);
+    if (viewBox.length < 2) return null;
+    final (w, h) = viewBox.length >= 4 ? (viewBox[2], viewBox[3]) : (viewBox[0], viewBox[1]);
     return w > 0 && h > 0 ? (w, h) : null;
   }
 
-  /// A path given as `{"path", "viewBox", "progress", "orient"}`, or as its
-  /// SVG data alone; null for anything else.
+  List<double>? get effectiveViewBox => viewBox.length >= 2 && viewBox[0] > 0 && viewBox[1] > 0 ? viewBox : null;
+
+  bool get pacedByArea => pacing == PathPacing.area;
+
+  PathFollow copyWith({double? progress}) => PathFollow(
+        path: path,
+        viewBox: viewBox,
+        progress: progress ?? this.progress,
+        orient: orient,
+        pacing: pacing,
+        focus: focus,
+      );
+
+  /// [progress] modulo 1 (1 stays the end): a closed path's place.
+  static double wrap(double progress) {
+    if (!progress.isFinite) return 0;
+    if (progress >= 0 && progress <= 1) return progress;
+    final r = progress % 1;
+    return r < 0 ? r + 1 : r;
+  }
+
+  /// A path direction [radians] folded into −90…90 degrees (turned half
+  /// round where it heads left), for [PathOrient.upright].
+  static double uprightAngle(double radians) {
+    var a = radians % (2 * math.pi);
+    if (a > math.pi) a -= 2 * math.pi;
+    if (a > math.pi / 2) return a - math.pi;
+    if (a < -math.pi / 2) return a + math.pi;
+    return a;
+  }
+
+  /// Whether a path direction [radians] heads left (what
+  /// [PathOrient.uprightFlip] mirrors).
+  static bool headsLeft(double radians) {
+    var a = radians % (2 * math.pi);
+    if (a > math.pi) a -= 2 * math.pi;
+    return a > math.pi / 2 || a < -math.pi / 2;
+  }
+
   static PathFollow? fromJson(Object? json) {
     if (json is String) return json.trim().isEmpty ? null : PathFollow(path: json);
     final m = readMap(json);
     if (m == null) return null;
-    final path = readString(m['path']);
-    if (path == null) return null;
-    final box = readList(m['viewBox'])?.map(readDouble).nonNulls.toList();
+    final box = _doubles(m, 'viewBox');
+    final focus = _doubles(m, 'focus');
     return PathFollow(
-      path: path,
-      viewBox: box == null || box.isEmpty ? null : box,
+      path: readString(m['path']) ?? '',
+      viewBox: box,
       progress: readDouble(m['progress']) ?? 0,
       orient: readEnum(PathOrient.values, m['orient'], PathOrient.none),
+      pacing: readEnum(PathPacing.values, m['pacing'], PathPacing.length),
+      focus: focus.isEmpty ? const [0, 0] : focus,
     );
   }
 
-  Json toJson() => {
-    'path': path,
-    if (viewBox != null) 'viewBox': [for (final v in viewBox!) writeDouble(v)],
-    if (progress != 0) 'progress': writeDouble(progress),
-    if (orient != PathOrient.none) 'orient': orient.name,
-  };
+  /// The legacy flat path keys of motion JSON [m] (`path` text,
+  /// `pathProgress`, `orientToPath`, `orientUpright`, `uprightMirror`,
+  /// `pathViewBox`, `pathPacing`, `pathFocusX/Y`), over its `path` (text or
+  /// object) when it has one; null when it names no path at all. `pathWrap`
+  /// isn't read: a closed path wraps by definition.
+  static PathFollow? fromLegacy(Json m) {
+    final base = fromJson(m['path']);
+    const keys = [
+      'pathProgress', 'orientToPath', 'orientUpright', 'uprightMirror', 'pathViewBox', 'pathPacing', 'pathFocusX', //
+      'pathFocusY',
+    ];
+    if (!keys.any(m.containsKey)) return base;
+    double d(String k, double fallback) => readDouble(m[k]) ?? fallback;
+    bool b(String k, bool fallback) => readBool(m[k]) ?? fallback;
+    final box = _doubles(m, 'pathViewBox');
+    final orient = base?.orient ?? PathOrient.none;
+    final tangent = b('orientToPath', orient != PathOrient.none);
+    final upright = b('orientUpright', orient == PathOrient.upright || orient == PathOrient.uprightFlip);
+    final flip = b('uprightMirror', orient == PathOrient.uprightFlip);
+    final focus = [...?base?.focus, 0.0, 0.0];
+    return PathFollow(
+      path: base?.path ?? '',
+      viewBox: box.isNotEmpty ? box : base?.viewBox ?? const [],
+      progress: d('pathProgress', base?.progress ?? 0),
+      orient: !tangent
+          ? PathOrient.none
+          : !upright
+              ? PathOrient.tangent
+              : flip
+                  ? PathOrient.uprightFlip
+                  : PathOrient.upright,
+      pacing: readEnum(PathPacing.values, m['pathPacing'], base?.pacing ?? PathPacing.length),
+      focus: [d('pathFocusX', focus[0]), d('pathFocusY', focus[1])],
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{'path': path};
+    if (viewBox.isNotEmpty) j['viewBox'] = viewBox.map(writeDouble).toList();
+    if (progress != 0) j['progress'] = writeDouble(progress);
+    if (orient != PathOrient.none) j['orient'] = orient.name;
+    if (pacing != PathPacing.length) j['pacing'] = pacing.name;
+    if (focus.any((v) => v != 0)) j['focus'] = focus.map(writeDouble).toList();
+    return j;
+  }
+
+  List<Object?> get _props => [path, viewBox, progress, orient, pacing, focus];
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is PathFollow &&
-          other.path == path &&
-          jsonEquality.equals(other.viewBox, viewBox) &&
-          other.progress == progress &&
-          other.orient == orient;
+      identical(this, other) || other is PathFollow && jsonEquality.equals(other._props, _props);
 
   @override
-  int get hashCode => Object.hash(path, jsonEquality.hash(viewBox), progress, orient);
+  int get hashCode => jsonEquality.hash(_props);
 }
