@@ -80,7 +80,6 @@ void main() {
     'zoomable': true,
     'floating': true,
     'hero': {'tag': 'card', 'flight': 'morphCorners'},
-    'flightKey': 'tile-1',
     'draggable': {'group': 'tiles', 'data': 'a'},
     'dropTarget': {
       'accepts': ['tiles'],
@@ -125,7 +124,7 @@ void main() {
       'props': {'text': 'Hovered!'}
     });
     expect(b.states.patchFor('t', {WidgetState.pressed}), isNull);
-    expect(b.hero, const HeroTag('card', flight: HeroFlightShuttle.morphCorners));
+    expect(b.hero, const HeroTag('card', flightShuttle: HeroFlightShuttle.morphCorners));
     // A legacy drag with a track is the track (its swipe fields did nothing).
     expect(b.track!.shape, TrackShape.arc);
     expect(b.track!.variable, 'volume');
@@ -164,10 +163,11 @@ void main() {
         'autoplay': true,
       },
     ]);
-    expect(written['motion'], {'translateX': 10, 'rotate': -3.5});
+    // The node's scale is the motion's (schema 4), with its own transition.
+    expect(written['motion'], {'translateX': 10, 'scale': 1.15, 'rotate': -3.5});
     expect(written['transitions'], [
       {'property': 'opacity', 'duration': 1100, 'curve': 'easeInOut'},
-      {'property': 'scale', 'duration': 120},
+      {'property': 'motion.scale', 'duration': 120},
       {'property': 'decoration.fills', 'duration': 120},
       {'property': 'visible', 'duration': 120},
       {
@@ -175,7 +175,7 @@ void main() {
         'duration': 900,
         'curve': 'easeOutBack',
         'keyframes': [
-          {'at': 0.5, 'value': {'scale': 1.2}},
+          {'at': 0.5, 'value': {'scale': 1.38}},
         ],
         'interpolation': 'monotoneCubic',
       },
@@ -185,7 +185,9 @@ void main() {
     expect(written['transformGesture'], {'target': 'content', 'pan': 'whenZoomed'});
     expect(b.transformGesture, zoomableGesture);
     expect({...written}..removeWhere((k, _) => const {'animations', 'motion', 'transitions', 'track', 'transformGesture'}.contains(k)),
-        jsonDecode(jsonEncode(legacy)));
+        jsonDecode(jsonEncode(legacy
+          ..remove('scale')
+          ..['hero'] = {'tag': 'card', 'flightShuttle': 'morphCorners'})));
     expect(migratedNode(n.toJson()), n);
   });
 
@@ -203,7 +205,6 @@ void main() {
     })!;
     expect(n.behaviors.motion, Motion.none);
     expect(n.behaviors.motion!.toJson(), isEmpty);
-    expect(n.behaviors.scale, 1);
     expect(n.behaviors.animations.single.preset, 'pulse');
     expect(n.behaviors.states.isEmpty, isTrue);
     expect(n.behaviors.hero, isNull);

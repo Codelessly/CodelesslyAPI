@@ -1,11 +1,12 @@
-// Schema-2 JSON as schema 3 reads it: through the migration (migrate2to3),
-// for the tests written against the schema-2 decoders' legacy reading.
+// Schema-2 JSON as the current schema reads it: through the migrations
+// (migrate2to3, then migrate3to4), for the tests written against the
+// schema-2 decoders' legacy reading.
 import 'package:codelessly_api/codelessly_api.dart';
 
 /// A schema-2 node [j] (a box with id `n` unless it says otherwise), migrated
 /// and decoded.
 Node legacyNode(Json j, {Catalog? catalog}) =>
-    Node.fromJson(migrateNode2to3({'id': 'n', 'type': 'box', ...j}), catalog: catalog ?? standardCatalog)!;
+    Node.fromJson(migrateNode({'id': 'n', 'type': 'box', ...j}), catalog: catalog ?? standardCatalog)!;
 
 /// A schema-2 node's behaviors.
 Behaviors legacyBehaviors(Json j) => legacyNode(j).behaviors;
@@ -59,10 +60,10 @@ NodeAnimation? legacyEffect(Json effect, int index) => legacyBehaviors({
 /// What schema 2's `zoomable: true` became.
 const zoomableGesture = TransformGesture(target: TransformTarget.content, pan: TransformPan.whenZoomed);
 
-/// [Node.fromJson] of schema-2 node JSON (migrated first; a schema-3 node
-/// is unchanged by it).
+/// [Node.fromJson] of schema-2 node JSON (migrated first; a node already in
+/// the current schema is unchanged by it).
 Node? migratedNode(Object? json, {String? id, Catalog? catalog}) =>
-    Node.fromJson(json is Map ? migrateNode2to3(readMap(json)!, id: id ?? '') : json, id: id, catalog: catalog);
+    Node.fromJson(json is Map ? migrateNode(readMap(json)!, id: id ?? '') : json, id: id, catalog: catalog);
 
 /// [Behaviors.fromJson] of schema-2 node JSON.
-Behaviors migratedBehaviors(Json m) => Behaviors.fromJson(migrateNode2to3(m));
+Behaviors migratedBehaviors(Json m) => Behaviors.fromJson(migrateNode(m));

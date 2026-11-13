@@ -84,13 +84,13 @@ of an app are in `PublishModel.variables`.
 |---|---|
 | `visible` | bool; false collapses the node |
 | `opacity` | 0 to 1 |
-| `layout.width`, `layout.height`, `layout.flex`, `layout.rotation`, `layout.margin`, `layout.padding`, `layout.x`, `layout.y` | Layout fields |
+| `layout.width`, `layout.height`, `layout.flex`, `layout.margin`, `layout.padding`, `layout.x`, `layout.y` | Layout fields |
 | `decoration.fills[0]`, `decoration.fills.<paintId>`, `...color`, `...image.url`, `...stops[i].color` | Paints |
 | `decoration.strokeWidth`, `decoration.radius`, `decoration.effects.*.color`... | Decoration |
 | `props.<prop>`, `props.<prop>.<field>` | A widget prop, by its declaration's codec |
 | `props.style.<field>` (text) | The base text style and every run's |
 | `data` | The items a list, grid or page view builds one child per |
-| `motion.<field>`, `scale`, `hero.tag`, `track.*`, `dismissible.*`, `pan.*`... | Behaviors |
+| `motion.<field>` (`motion.scale`, `motion.rotate`...), `hero.tag`, `track.*`, `dismissible.*`, `pan.*`... | Behaviors |
 
 `[i]` is a list index, a paint or effect id selects that item, and `*` every item. `BindPaths` (in
 `bindings.dart`) has the constants and helpers. Values are read loosely (`"12"` is a number, `"#F00F00"` a

@@ -99,15 +99,14 @@ Map<String, Json>? _patchesIn(Object? j) {
   return out.isEmpty ? null : out;
 }
 
-/// [HeroTag] in its object form (`{"tag", "flight"}`). The model also reads
-/// and writes a bare string tag when the flight is standard.
-Object? _heroOut(HeroTag? h) => h == null
-    ? null
-    : {
-        'tag': h.tag,
-        if (h.flight != HeroFlightShuttle.standard) 'flight': h.flight.name,
-        if (h.placeholder != HeroPlaceholder.none) 'placeholder': h.placeholder.name,
-      };
+/// [HeroTag] in its object form (`{"tag", "flies", "flightShuttle",
+/// "placeholder", "flight"}`). The model also reads and writes the bare tag
+/// when the rest is Flutter's default.
+Object? _heroOut(HeroTag? h) {
+  if (h == null) return null;
+  final j = h.toJson();
+  return j is String ? {'tag': j} : j;
+}
 
 // --- motion -------------------------------------------------------------------
 
@@ -399,12 +398,21 @@ List<PropDef<Object?>> stateStylesFields() => StateStylesFields.all;
 
 // --- shared elements ----------------------------------------------------------
 
-/// [HeroTag]. Its JSON is `{"tag", "flight"}`, or just the tag string when
-/// the flight is standard.
+/// [HeroTag] (Flutter's `Hero`). Its JSON is `{"tag", "flies",
+/// "flightShuttle", "placeholder", "flight"}`, or just the tag when the rest
+/// is Flutter's default.
 abstract final class HeroTagFields {
+  /// Flutter's `Hero.tag`: the node with the same tag is where it flies from.
   static const tag = PropDef<String>('tag', Codecs.string, '');
-  static const flight = PropDef<HeroFlightShuttle>(
-    'flight',
+
+  /// When it flies: `betweenScreens` (Flutter's `Hero`: while a navigation
+  /// plays) or `inPlace` (when it appears, from where the node with its tag
+  /// just was on screen).
+  static const flies = PropDef<HeroFlies>('flies', EnumCodec(HeroFlies.values), HeroFlies.betweenScreens);
+
+  /// What a flight between screens draws (`Hero.flightShuttleBuilder`).
+  static const flightShuttle = PropDef<HeroFlightShuttle>(
+    'flightShuttle',
     EnumCodec(HeroFlightShuttle.values),
     HeroFlightShuttle.standard,
   );
@@ -413,7 +421,10 @@ abstract final class HeroTagFields {
     EnumCodec(HeroPlaceholder.values),
     HeroPlaceholder.none,
   );
-  static const List<PropDef<Object?>> all = [tag, flight, placeholder];
+
+  /// How it flies in place: on a spring when unset, or timed along an arc.
+  static const flight = PropDef<Flight?>('flight', ValueCodec(Flight.fromJson, _out, flightType), null);
+  static const List<PropDef<Object?>> all = [tag, flies, flightShuttle, placeholder, flight];
 }
 
 List<PropDef<Object?>> heroTagFields() => HeroTagFields.all;
@@ -992,8 +1003,6 @@ List<PropDef<Object?>> measureFields() => MeasureFields.all;
 abstract final class BehaviorFields {
   static const motion = PropDef<Motion?>('motion', ValueCodec(Motion.fromJson, _out, motionType), null);
 
-  /// `Transform.scale` about the center; a value not above 0 reads as 1.
-  static const scale = PropDef<double>('scale', Codecs.positive, 1);
   /// Its animation controllers.
   static const animations = PropDef<List<NodeAnimation>>(
     'animations',
@@ -1022,9 +1031,8 @@ abstract final class BehaviorFields {
   static const tooltip = PropDef<String>('tooltip', Codecs.string, '');
   static const ignorePointer = PropDef<bool>('ignorePointer', Codecs.bool, false);
   static const floating = PropDef<bool>('floating', Codecs.bool, false);
+  /// A shared element (Flutter's `Hero`): the tag, or `{"tag", "flies", ...}`.
   static const hero = PropDef<HeroTag?>('hero', ValueCodec(HeroTag.fromJson, _heroOut, heroTagType), null);
-  static const flightKey = PropDef<String>('flightKey', Codecs.string, '');
-  static const flight = PropDef<Flight?>('flight', ValueCodec(Flight.fromJson, _out, flightType), null);
   static const draggable = PropDef<DragSource?>(
     'draggable',
     ValueCodec(DragSource.fromJson, _out, dragSourceType),
@@ -1107,8 +1115,8 @@ abstract final class BehaviorFields {
 
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
-    motion, scale, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
-    flightKey, flight, draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
+    motion, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
+    draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
     particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }

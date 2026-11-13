@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column).",
-      "words": 7054
+      "words": 7041
     },
     {
       "topic": "layout-layout-fields",
@@ -25,7 +25,7 @@
       "anchor": "layout-layout-fields",
       "title": "Layout fields",
       "summary": "A node's `\"layout\"`: its size, spacing and placement in its parent.",
-      "words": 475
+      "words": 464
     },
     {
       "topic": "layout-which-sizing-modes-each-parent-allows",
@@ -505,7 +505,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6373
+      "words": 6353
     },
     {
       "topic": "state-variables",
@@ -529,7 +529,7 @@
       "anchor": "state-binding-paths",
       "title": "Binding paths",
       "summary": "What each path of `bind` expects.",
-      "words": 486
+      "words": 492
     },
     {
       "topic": "state-conditions",
@@ -752,8 +752,8 @@
       "file": "animation.md",
       "anchor": "page-animation",
       "title": "Animation and motion",
-      "summary": "Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games.",
-      "words": 4536
+      "summary": "Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games.",
+      "words": 4483
     },
     {
       "topic": "animation-triggers",
@@ -776,8 +776,8 @@
       "file": "animation.md",
       "anchor": "animation-move-scale-or-turn-without-changing-layout-motion",
       "title": "Move, scale or turn without changing layout (motion)",
-      "summary": "`motion` is a transform painted over the node's layout (Flutter's `Transform`): `translateX`/`translateY` in pixels, `scale`, `rotate` in degrees, 3D `rotateX`/`rotateY` with `perspective`, about `alignment`.",
-      "words": 44
+      "summary": "`motion` is a transform painted over the node's layout (Flutter's `Transform`): `translateX`/`translateY` in pixels, `scale`, `rotate` in degrees, 3D `rotateX`/`rotateY` with `perspective`, about `alignment` (the center by default).",
+      "words": 102
     },
     {
       "topic": "animation-play-an-animation-animations-and-presets",
@@ -796,12 +796,12 @@
       "words": 25
     },
     {
-      "topic": "animation-shared-elements-between-screens",
+      "topic": "animation-shared-elements-hero",
       "file": "animation.md",
-      "anchor": "animation-shared-elements-between-screens",
-      "title": "Shared elements between screens",
-      "summary": "`hero` (a tag) flies the node from one screen to the matching one on the next; `flightKey` flies a node in from where the node with the same key just was (a card that becomes a detail header), with `flight` saying how.",
-      "words": 42
+      "anchor": "animation-shared-elements-hero",
+      "title": "Shared elements (hero)",
+      "summary": "`hero` is Flutter's `Hero`: a tag (`\"hero\": \"avatar-${item.id}\"`) flies the node from its place on the screen a navigation leaves to the node with the same tag on the screen it opens; `flightShuttle` picks what flies (`morph`, `containerTransform`...).",
+      "words": 92
     },
     {
       "topic": "animation-clocks-and-game-loops",
@@ -1193,7 +1193,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 2341
+      "words": 2348
     },
     {
       "topic": "render-what-it-does",
@@ -1217,7 +1217,7 @@
       "anchor": "render-validation-codes",
       "title": "Validation codes",
       "summary": "From `package:codelessly_api/validate.dart`:",
-      "words": 581
+      "words": 588
     },
     {
       "topic": "render-render-codes",
@@ -1249,7 +1249,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 12872
+      "words": 13207
     },
     {
       "topic": "values-value-types",
@@ -1797,7 +1797,6 @@
       "pan": "interaction.md#behavior-pan",
       "transformGesture": "interaction.md#behavior-transformGesture",
       "motion": "animation.md#behavior-motion",
-      "scale": "animation.md#behavior-scale",
       "animations": "animation.md#behavior-animations",
       "transitions": "animation.md#behavior-transitions",
       "shimmer": "animation.md#behavior-shimmer",
@@ -1807,8 +1806,6 @@
       "flip": "animation.md#behavior-flip",
       "tilt": "animation.md#behavior-tilt",
       "hero": "animation.md#behavior-hero",
-      "flightKey": "animation.md#behavior-flightKey",
-      "flight": "animation.md#behavior-flight",
       "viewProgress": "animation.md#behavior-viewProgress"
     },
     "trigger": {
@@ -1966,7 +1963,6 @@
       "InkWellStyle": "interaction.md#type-InkWellStyle",
       "StateStyles": "interaction.md#type-StateStyles",
       "HeroTag": "animation.md#type-HeroTag",
-      "Flight": "animation.md#type-Flight",
       "DragSource": "interaction.md#type-DragSource",
       "DropTarget": "interaction.md#type-DropTarget",
       "Track": "interaction.md#type-Track",
@@ -1985,6 +1981,7 @@
       "CustomPaint": "decoration.md#type-CustomPaint",
       "AnimationRepeat": "values.md#type-AnimationRepeat",
       "AnimationTrack": "values.md#type-AnimationTrack",
+      "Flight": "values.md#type-Flight",
       "GesturePhysics": "values.md#type-GesturePhysics",
       "GestureSnap": "values.md#type-GestureSnap",
       "Keyframe": "values.md#type-Keyframe",
@@ -2053,6 +2050,7 @@
       "GaugeShape": "values.md#enum-GaugeShape",
       "GestureBounds": "values.md#enum-GestureBounds",
       "HapticKind": "values.md#enum-HapticKind",
+      "HeroFlies": "values.md#enum-HeroFlies",
       "HeroFlightShuttle": "values.md#enum-HeroFlightShuttle",
       "HeroPlaceholder": "values.md#enum-HeroPlaceholder",
       "IconAlignment": "values.md#enum-IconAlignment",

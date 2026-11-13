@@ -13,7 +13,7 @@ lesson, a review prompt after the third order), and the `${usage}` counters they
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["done"],
   "nodes": {
     "done": {

@@ -198,7 +198,9 @@ moved: `strokePath`'s drawing, `typewriter` and text `countUp` (see
 `backfaceHidden`, and `path` (a `PathFollow`: `path`, `viewBox`, `progress`, `orient` `none`/`tangent`/
 `upright`). One matrix, outermost first: the path's offset, the translations, then about
 `alignment` the scale, the rotation (and the path's turn), `rotateX`, `rotateY`. A closed path wraps its
-`progress`; an open one stops at its ends.
+`progress`; an open one stops at its ends. It is the one way to scale or turn a node: schema 3's node `scale` and
+`layout.rotation` are migrated into it (chapter 13), and a transition on `motion.scale` times the scale apart from
+the rest of the motion.
 
 How a value gets there is the node's `animations`, and its `transitions`: Flutter's implicit animations
 (`AnimatedContainer`, `AnimatedOpacity`), one entry per property path. When the value there changes (a binding,

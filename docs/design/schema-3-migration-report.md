@@ -40,7 +40,7 @@
 
 ## Checks
 
-- 106 documents in 1353 files (106 schema 2) migrated without throwing.
+- 106 documents in 1385 files (106 schema 2) migrated without throwing.
 - Migrating each result again changed nothing; migrate → encode → decode → encode was a fixed point for every one.
 - New validation errors against the schema-2 validator: 0.
 - Encoded size of the schema-2 documents: 15998177 bytes before, 16021534 after (+0.15%).

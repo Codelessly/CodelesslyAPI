@@ -114,7 +114,7 @@ void main() {
 
   test('a document round-trips its variables and conditions', () {
     final doc = LayoutDocument.fromJson({
-      'schema': 3,
+      'schema': 4,
       'roots': ['c'],
       'nodes': {
         'c': {'type': 'canvas'},
@@ -249,7 +249,7 @@ void main() {
     });
 
     test('sets a behavior through its JSON', () {
-      expect(BindPaths.apply(box, 'scale', '1.5').behaviors.scale, 1.5);
+      expect(BindPaths.apply(box, 'motion.scale', '1.5').behaviors.motion!.scale, 1.5);
       final moved = BindPaths.apply(box, 'motion.translateY', 2);
       expect(moved.behaviors.motion!.translateY, 2);
     });

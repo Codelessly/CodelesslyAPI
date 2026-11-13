@@ -17,7 +17,7 @@ free space 1 : 2 (`flex`) beside a fixed grey box.
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["sizing"],
   "nodes": {
     "sizing": {
@@ -78,7 +78,6 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 <a id="layout-constraints"></a>
 <a id="layout-margin"></a>
 <a id="layout-padding"></a>
-<a id="layout-rotation"></a>
 <a id="layout-aspectRatio"></a>
 <a id="layout-flex"></a>
 <a id="layout-squeezable"></a>
@@ -94,7 +93,6 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 | `constraints` | [BoxConstraints](values.md#type-BoxConstraints) | `{}` |  |  |
 | `margin` | [EdgeInsets](values.md#type-EdgeInsets) | `0` |  | Space around the node, outside its box. |
 | `padding` | [EdgeInsets](values.md#type-EdgeInsets) | `0` |  | Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there). |
-| `rotation` | double | `0` |  | Degrees, clockwise. |
 | `aspectRatio` | double | unset | ≥ 0 | Width / height the node keeps when its parent resizes it. |
 | `flex` | int | `1` | ≥ 0 | Under a row/column: share of the free space (`Expanded.flex`). |
 | `squeezable` | bool | `false` |  | Under a row/column: a hugging child that may shrink (`Flexible`). |
@@ -476,7 +474,7 @@ column capped at 1200:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -647,7 +645,7 @@ comparison table built from one row template and one cell template:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -794,7 +792,7 @@ giving one; `"axis": "horizontal"` moves only sideways scroll views).
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["article"],
   "nodes": {
     "article": {
@@ -858,7 +856,7 @@ one part of a screen. Older documents use this:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home-mobile", "home-desktop"],
   "nodes": {
     "home-mobile": {
@@ -921,7 +919,7 @@ one part of a screen. Older documents use this:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["page"],
   "nodes": {
     "page": {

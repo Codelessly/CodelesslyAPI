@@ -111,7 +111,7 @@ int? pluginUpdateTarget(PluginRef ref, ManagedComponentMaster master, {String pr
 }
 
 /// One immutable release of a hosted plugin (`plugins/{id}/versions/{n}`),
-/// stored as a managed component version is: `{"schema": 3, "id", "version",
+/// stored as a managed component version is: `{"schema": 4, "id", "version",
 /// "semver", "minSdk", "payload", "digest", "changelog", "createdAt"}`, where
 /// `payload` is the package's JSON text and `digest` the sha256 hex of its
 /// UTF-8 bytes.
@@ -327,7 +327,7 @@ final class PluginAsset {
 /// `Catalog.toJson`'s form) and their implementation as data.
 ///
 /// ```json
-/// {"schema": 3, "id": "acme.stars", "semver": "1.0.0", "minSdk": "25.0.0", "requires": [],
+/// {"schema": 4, "id": "acme.stars", "semver": "1.0.0", "minSdk": "25.0.0", "requires": [],
 ///  "catalog": {"widgets": [{"type": "acme.rating", "props": [...]}], "actions": [...]},
 ///  "implementation": {
 ///    "widgets": {"acme.rating": {"document": {"roots": ["root"], "nodes": {...}}}},

@@ -42,3 +42,24 @@ String? schema2PathHint(String path) {
   }
   return null;
 }
+
+/// What to write in schema 4 instead of schema-3 binding path [path], or
+/// null when [path] is not one schema 4 moved: the node's `scale` and
+/// `layout.rotation` are in `motion`, `flightKey` and `flight` in `hero`.
+/// A path an action or a condition names in a schema-3 document is rewritten
+/// by the migration; one that comes from elsewhere at run time (another
+/// document, a script) is refused where it is used, with this.
+String? schema3PathHint(String path) {
+  final p = path.trim();
+  return switch (p) {
+    'scale' => '"motion.scale" (the node\'s Transform.scale is its motion; schema 3 multiplied the two)',
+    'layout.rotation' => '"motion.rotate" (the node\'s Transform.rotate is its motion; schema 3 added the two)',
+    'flightKey' => '"hero.tag" on a hero that flies "inPlace" ({"hero": {"tag": ..., "flies": "inPlace"}})',
+    _ when p.startsWith('flight.') || p == 'flight' => '"hero.$p" (how the hero flies in place)',
+    _ => null,
+  };
+}
+
+/// [schema2PathHint], else [schema3PathHint]: what to write in the current
+/// schema instead of an older schema's binding path [path].
+String? olderSchemaPathHint(String path) => schema2PathHint(path) ?? schema3PathHint(path);

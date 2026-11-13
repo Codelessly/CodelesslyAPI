@@ -1,3 +1,41 @@
+## Unreleased: schema 4
+
+**Schema 4: one Transform, one Hero.** Documents are `"schema": 4` (`kSchemaVersion`). Schema 2 and 3 documents
+load and are migrated in memory (`migrate2to3`, then `migrate3to4`); nothing about a schema-3 document's meaning
+changed, the fields below moved. docs/guide/13-migrating-to-schema-4.md is the authors' guide;
+docs/design/schema-4-migration-report.md the migration over the corpus (106 documents, 0 failures, 702 rewrites,
+nothing unconvertible, no behaviour change); docs/design/03-motion.md and 04-drag-and-track.md ("Done in schema 4")
+say what was decided and why.
+
+- **Breaking: the node's `scale` and `layout.rotation` are its `motion`.** Both were paint transforms
+  (`Transform.scale`, `Transform.rotate`; neither changed layout), so `motion` is the one way: `Behaviors.scale`,
+  `Layout.rotation`, `BehaviorFields.scale`, `LayoutFields.rotation`, `BindPaths.scale` and `BindPaths.rotation`
+  are gone. The migration (step `transform.fold`) multiplies the scale into `motion.scale` and adds the rotation to
+  `motion.rotate`, keeps schema 3's rotation pivot (its center moved by half an uneven margin) as a translation,
+  moves bindings (product and sum formulas), `scale`/`layout.rotation` transitions (to `motion.scale`/
+  `motion.rotate`: a transition keyed by a sub-path times it apart from the rest of the motion), tracks and
+  keyframes; a scale that changed with no transition beside a motion transition gets a `motion.scale` one with no
+  duration, so it still snaps. State and media patches (`patches.schema4`) set the moved paths explicitly at the
+  patched node's values.
+- **Breaking: `flightKey` and `flight` are the `hero`.** `HeroTag` gains `flies` (`HeroFlies.betweenScreens`,
+  Flutter's `Hero`, the default; `inPlace`, what `flightKey` did: fly in from where the node with the tag was) and
+  `flight` (how an in-place flight moves); `HeroTag.flight` (the look) is `flightShuttle`
+  (`Hero.flightShuttleBuilder`). `Behaviors.flightKey`, `Behaviors.flight`, `BehaviorFields.flightKey` and
+  `BehaviorFields.flight` are gone. Step `hero.flight`; a node with both a hero and a flight key keeps its hero and
+  the rest is kept as `legacy.*` and reported.
+- **The migration framework:** `migrate3to4`, `schema4Steps` (`nodeSteps3to4` is where a schema-4 node step is
+  appended; `patches.schema4` re-expresses patches through all of them; `movedPaths3to4`), `migrateDocument`,
+  `migrateNode`, `migrateNode3to4`, `migrateJson` (any older carrier to 4); `migrate2to3` stops at 3.
+  `MigrationScope.document` lets a node step read the document it is in; `MigrationScope.schema`. `setValue` and
+  condition paths are rewritten (`paths.schema4`); one that reaches a running app unmigrated is named by
+  `schema3PathHint` (`olderSchemaPathHint` for either older schema). `tool/migrate.dart` migrates to 4;
+  `tool/migration_corpus.dart --to 3|4` reports either migration.
+- **Validation:** `schema_outdated` (info) for schemas 2 and 3; `schema_version` for none or newer than 4. Schema
+  3's `scale`, `flightKey`, `flight` (node keys), `layout.rotation` and a string `hero.flight` in a schema-4
+  document are reported with where they went; a schema-3 bind path with the path to write.
+- **Reference:** regenerated; the animation page covers the one motion and the one hero; the examples and the
+  carriers' docs say `"schema": 4`.
+
 ## Unreleased
 
 **The reference for authors is one base plus links.** `docs/reference/STARTER.md` is the base an agent reads in

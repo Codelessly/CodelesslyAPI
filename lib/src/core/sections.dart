@@ -231,7 +231,7 @@ List<List<String>> componentCycles(Map<String, Set<String>> calls) {
 /// placement. The root keeps its own `padding` (the inside is the
 /// definition's).
 const Set<String> callLayoutKeys = {
-  'width', 'height', 'flex', 'squeezable', 'constraints', 'margin', 'x', 'y', 'align', 'rotation', 'aspectRatio', //
+  'width', 'height', 'flex', 'squeezable', 'constraints', 'margin', 'x', 'y', 'align', 'aspectRatio', //
   'widthFactor', 'heightFactor', 'order', 'basis',
 };
 
@@ -268,7 +268,7 @@ Node seamCall(Node root, Node call) {
 /// bare name in every document), breakpoints and any keys it doesn't model.
 ///
 /// ```json
-/// {"schema": 3, "pages": ["pages/pricing.json"], "components": ["components/PlanCard.json"],
+/// {"schema": 4, "pages": ["pages/pricing.json"], "components": ["components/PlanCard.json"],
 ///  "variables": [{"name": "plans", "type": "list", "value": [...]}],
 ///  "breakpoints": [{"id": "mobile", "minWidth": 0}, {"id": "desktop", "minWidth": 1024}]}
 /// ```

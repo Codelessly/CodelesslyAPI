@@ -1,5 +1,8 @@
 # Migrating to schema 3
 
+*Schema 4 followed (chapter 13): a document is now migrated 2 → 3 → 4 when it is read. This chapter is the
+2 → 3 step.*
+
 Schema 3 is the format break that finishes the API cleanup: the model's classes and decoders know only the
 current shape. Documents written before it (schema 2) keep working: they are migrated **once, in memory, when
 they are read**, by a pure-JSON function. Nothing an app loads has to change, and nothing a loader reads is

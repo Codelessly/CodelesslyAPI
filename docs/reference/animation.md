@@ -6,7 +6,7 @@
 ## When to use
 
 Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving,
-scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on
+scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on
 scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and
 games.
 
@@ -18,7 +18,7 @@ A habit check-off: tapping the circle toggles `done`; its fill and scale change 
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["habit"],
   "nodes": {
     "habit": {
@@ -72,7 +72,7 @@ A habit check-off: tapping the circle toggles `done`; its fill and scale change 
 
 A node key (beside `layout` and `props`). Type: [Motion](animation.md#type-Motion). Default: unset.
 
-The transform over the layout (Flutter's `Transform`).
+The transform over the layout (Flutter's `Transform`): its move, scale and rotation are drawn, never laid out.
 
 <a id="type-Motion"></a>
 #### Motion
@@ -99,13 +99,6 @@ Schema 2's other motion keys (`originX`/`originY`, the flat path keys, `opacity`
 | `alignment` | [Alignment](values.md#type-Alignment) | `[0,0]` |  | The point scale and rotation are about (`Transform.alignment`). |
 | `backfaceHidden` | bool | `false` |  | Not painted while its back faces the viewer (through every transform above it too). |
 | `path` | [PathFollow](values.md#type-PathFollow) | unset |  | A path the node sits on. |
-
-<a id="behavior-scale"></a>
-### `scale` (behavior)
-
-A node key (beside `layout` and `props`). Type: double. Default: `1`. Allowed: ≥ 0.
-
-Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`.
 
 <a id="behavior-animations"></a>
 ### `animations` (behavior)
@@ -323,46 +316,20 @@ Tilts the node in 3D toward the pointer while it hovers or drags over it. `max` 
 
 A node key (beside `layout` and `props`). Type: [HeroTag](animation.md#type-HeroTag). Default: unset.
 
+A shared element (Flutter's `Hero`): the tag, or `{"tag", "flies", ...}`.
+
 <a id="type-HeroTag"></a>
 #### HeroTag
 
-Makes the node a shared element (Flutter's `Hero`): it flies between its places on two screens with the same `tag` while a navigation plays.
+Makes the node a shared element (Flutter's `Hero`): it flies from where the node with the same `tag` was to where it is, between two screens while a navigation plays (`HeroFlies.betweenScreens`, Flutter's) or when it appears in place (`HeroFlies.inPlace`). JSON: the tag alone (`"hero": "avatar-1"`) or `{"tag", "flies", "flightShuttle", "placeholder", "flight"}`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `tag` | String | `""` |  |  |
-| `flight` | [HeroFlightShuttle](values.md#enum-HeroFlightShuttle) | `"standard"` | `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform` |  |
-| `placeholder` | [HeroPlaceholder](values.md#enum-HeroPlaceholder) | `"none"` | `none`, `source` | What the destination shows until its own image has loaded. |
-
-<a id="behavior-flightKey"></a>
-### `flightKey` (behavior)
-
-A node key (beside `layout` and `props`). Type: String. Default: `""`.
-
-Flies the node in from where the node with the same key just was.
-
-<a id="behavior-flight"></a>
-### `flight` (behavior)
-
-A node key (beside `layout` and `props`). Type: [Flight](animation.md#type-Flight). Default: unset.
-
-How it flies there (`flightKey`); null flies on the node's spring.
-
-<a id="type-Flight"></a>
-#### Flight
-
-How a node with a `Behaviors.flightKey` flies in from where the node with the same key was: on a spring by default, or, with a `duration`, along a curve that rises `lift` (or `liftShare` of the distance, the larger) above the higher end, swelling to `swell` at the middle and spinning `turns` times (toward the way it flies), trailing `trail` fading dots.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `duration` | int | `0` | ≥ 0 | 0: on the node's spring. |
-| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeInOut"` |  |  |
-| `lift` | double | `0` |  | Rise of the path's control point above the higher end (px). |
-| `liftShare` | double | `0` |  | The same as a share of the distance flown (the larger wins). |
-| `swell` | double | `1` | ≥ 0 | Scale at the middle of the flight. |
-| `turns` | double | `0` |  | Turns over the flight, clockwise when flying right. |
-| `trail` | int | `0` | ≥ 0 | Fading dots left behind. |
-| `trailColor` | [Color](values.md#type-Color) | `"#FFFFC83D"` |  |  |
+| `tag` | String | `""` |  | Flutter's `Hero.tag`: the node with the same tag is where it flies from. |
+| `flies` | [HeroFlies](values.md#enum-HeroFlies) | `"betweenScreens"` | `betweenScreens`, `inPlace` | When it flies: `betweenScreens` (Flutter's `Hero`: while a navigation plays) or `inPlace` (when it appears, from where the node with its tag just was on screen). |
+| `flightShuttle` | [HeroFlightShuttle](values.md#enum-HeroFlightShuttle) | `"standard"` | `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform` | What a flight between screens draws (`Hero.flightShuttleBuilder`). |
+| `placeholder` | [HeroPlaceholder](values.md#enum-HeroPlaceholder) | `"none"` | `none`, `source` | What the destination shows until its own image has loaded (between screens). |
+| `flight` | [Flight](values.md#type-Flight) | unset |  | How it flies in place: on a spring when unset, or timed along an arc. |
 
 <a id="behavior-viewProgress"></a>
 ### `viewProgress` (behavior)
@@ -427,8 +394,11 @@ This is the simplest way to animate a check-off, a selected card or an opening p
 ### Move, scale or turn without changing layout (motion)
 
 `motion` is a transform painted over the node's layout (Flutter's `Transform`): `translateX`/`translateY` in pixels,
-`scale`, `rotate` in degrees, 3D `rotateX`/`rotateY` with `perspective`, about `alignment`. Nothing else moves. Bind
-a field (`"motion.rotate": "${= open ? 180 : 0}"`) and add a transition to animate it.
+`scale`, `rotate` in degrees, 3D `rotateX`/`rotateY` with `perspective`, about `alignment` (the center by default).
+It is the one way to scale or turn a node: there is no node `scale` and no `layout.rotation` (a turned node keeps
+its unturned box in the layout, as `Transform.rotate` does; Flutter's `RotatedBox` has no counterpart). Nothing else
+moves. Bind a field (`"motion.rotate": "${= open ? 180 : 0}"`) and add a transition to animate it; a transition on
+`motion.scale` times the scale apart from the rest of the motion (`AnimatedScale` beside `AnimatedSlide`).
 
 <a id="animation-play-an-animation-animations-and-presets"></a>
 ### Play an animation (animations and presets)
@@ -444,11 +414,15 @@ change of `playKey`. A screen-wide animation sits on the canvas.
 `reveal` plays when the node scrolls into view; `viewProgress` gives `${view.progress}` (0–1 through the viewport)
 to bind to; the `enterViewport` and `exitViewport` triggers run actions.
 
-<a id="animation-shared-elements-between-screens"></a>
-### Shared elements between screens
+<a id="animation-shared-elements-hero"></a>
+### Shared elements (hero)
 
-`hero` (a tag) flies the node from one screen to the matching one on the next; `flightKey` flies a node in from
-where the node with the same key just was (a card that becomes a detail header), with `flight` saying how.
+`hero` is Flutter's `Hero`: a tag (`"hero": "avatar-${item.id}"`) flies the node from its place on the screen a
+navigation leaves to the node with the same tag on the screen it opens; `flightShuttle` picks what flies (`morph`,
+`containerTransform`...). With `"flies": "inPlace"` it flies when it appears instead, from where the node with its
+tag was a moment ago on screen (a picked emoji flying from its picker to its chip, a card dropped into a column):
+`{"hero": {"tag": "react", "flies": "inPlace", "flight": {"duration": 720, "lift": 110}}}`, on a spring without a
+`flight`.
 
 <a id="animation-clocks-and-game-loops"></a>
 ### Clocks and game loops
@@ -460,7 +434,8 @@ physics and game loops. Keep the state in variables and the work in a script whe
 <a id="animation-pitfalls"></a>
 ## Pitfalls
 
-- `motion` and `scale` do not change layout: neighbours do not move. To make room, animate a layout field.
+- `motion` (its scale and rotate too) does not change layout: neighbours do not move. To make room, animate a
+  layout field.
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.
 - Animations run in a running app. The render command settles about a second after each step, so a short

@@ -1756,12 +1756,13 @@ final class ParticleEmitter extends _Value {
   ];
 }
 
-/// How a node with a [Behaviors.flightKey] flies in from where the node
-/// with the same key was: on a spring by default, or, with a [duration],
+/// How a hero that flies in place ([HeroFlies.inPlace]) flies in from where
+/// the node with its tag was: on a spring by default (the node's `motion`
+/// transition's, when it has one with a spring), or, with a [duration],
 /// along a curve that rises [lift] (or [liftShare] of the distance, the
-/// larger) above the higher end, swelling to [swell] at the middle and
-/// spinning [turns] times (toward the way it flies), trailing [trail] fading
-/// dots.
+/// larger) above the higher end (as Flutter's `MaterialRectArcTween` bends a
+/// hero's path), swelling to [swell] at the middle and spinning [turns]
+/// times (toward the way it flies), trailing [trail] fading dots.
 @immutable
 final class Flight extends _Value {
   const Flight({
@@ -2328,7 +2329,8 @@ final class ViewProgress extends _Value {
   List<Object?> get props => [mode, from, to, offset, variable, key];
 }
 
-/// How a shared element flies between screens.
+/// What a hero's navigation flight draws (Flutter's
+/// `Hero.flightShuttleBuilder`; [standard] is Flutter's default shuttle).
 enum HeroFlightShuttle {
   /// Flutter's `Hero` flight.
   standard,
@@ -2357,17 +2359,53 @@ enum HeroFlightShuttle {
   bool get crossFades => this == morph || this == fadeThrough || this == containerTransform;
 }
 
-/// Makes the node a shared element (Flutter's `Hero`): it flies between
-/// its places on two screens with the same [tag] while a navigation plays.
+/// When a hero flies.
+enum HeroFlies {
+  /// While a navigation plays, from its place on the screen that goes to its
+  /// place on the screen that comes, when both have the tag (Flutter's
+  /// `Hero`).
+  betweenScreens,
+
+  /// When it appears, from where the node with its tag was a moment ago (a
+  /// node hidden or removed in the last two seconds, a dropped drag copy, a
+  /// node on a screen that is closing): a picked emoji flying from its
+  /// picker to its chip. Flutter's `Hero` has no such trigger (the
+  /// `local_hero` package's `LocalHero` is the nearest). Heroes that fly in
+  /// place find each other only.
+  inPlace,
+}
+
+/// Makes the node a shared element (Flutter's `Hero`): it flies from where
+/// the node with the same [tag] was to where it is, between two screens
+/// while a navigation plays ([HeroFlies.betweenScreens], Flutter's) or when
+/// it appears in place ([HeroFlies.inPlace]). JSON: the tag alone
+/// (`"hero": "avatar-1"`) or `{"tag", "flies", "flightShuttle",
+/// "placeholder", "flight"}`.
 @immutable
 final class HeroTag extends _Value {
-  const HeroTag(this.tag, {this.flight = HeroFlightShuttle.standard, this.placeholder = HeroPlaceholder.none});
+  const HeroTag(
+    this.tag, {
+    this.flies = HeroFlies.betweenScreens,
+    this.flightShuttle = HeroFlightShuttle.standard,
+    this.placeholder = HeroPlaceholder.none,
+    this.flight,
+  });
 
+  /// Flutter's `Hero.tag`: the node with the same tag on the other side.
   final String tag;
-  final HeroFlightShuttle flight;
 
-  /// What the destination shows until its own image has loaded.
+  /// When it flies.
+  final HeroFlies flies;
+
+  /// What a flight between screens draws (`Hero.flightShuttleBuilder`).
+  final HeroFlightShuttle flightShuttle;
+
+  /// What the destination shows until its own image has loaded (between
+  /// screens).
   final HeroPlaceholder placeholder;
+
+  /// How it flies in place; null: on a spring.
+  final Flight? flight;
 
   static HeroTag? fromJson(Object? json) {
     if (json is String) return json.isEmpty ? null : HeroTag(json);
@@ -2376,21 +2414,32 @@ final class HeroTag extends _Value {
     if (m == null || tag == null) return null;
     return HeroTag(
       tag,
-      flight: readEnum(HeroFlightShuttle.values, m['flight'], HeroFlightShuttle.standard),
+      flies: readEnum(HeroFlies.values, m['flies'], HeroFlies.betweenScreens),
+      flightShuttle: readEnum(HeroFlightShuttle.values, m['flightShuttle'], HeroFlightShuttle.standard),
       placeholder: readEnum(HeroPlaceholder.values, m['placeholder'], HeroPlaceholder.none),
+      flight: Flight.fromJson(m['flight']),
     );
   }
 
-  Object toJson() => flight == HeroFlightShuttle.standard && placeholder == HeroPlaceholder.none
+  /// The tag alone when everything else is Flutter's default.
+  bool get isPlain =>
+      flies == HeroFlies.betweenScreens &&
+      flightShuttle == HeroFlightShuttle.standard &&
+      placeholder == HeroPlaceholder.none &&
+      flight == null;
+
+  Object toJson() => isPlain
       ? tag
       : {
           'tag': tag,
-          if (flight != HeroFlightShuttle.standard) 'flight': flight.name,
+          if (flies != HeroFlies.betweenScreens) 'flies': flies.name,
+          if (flightShuttle != HeroFlightShuttle.standard) 'flightShuttle': flightShuttle.name,
           if (placeholder != HeroPlaceholder.none) 'placeholder': placeholder.name,
+          if (flight != null) 'flight': flight!.toJson(),
         };
 
   @override
-  List<Object?> get props => [tag, flight, placeholder];
+  List<Object?> get props => [tag, flies, flightShuttle, placeholder, flight];
 }
 
 // --- all together -----------------------------------------------------------------
@@ -2400,7 +2449,6 @@ final class HeroTag extends _Value {
 final class Behaviors extends _Value {
   const Behaviors({
     this.motion,
-    this.scale = 1,
     this.animations = const [],
     this.transitions = const [],
     this.shimmer,
@@ -2410,8 +2458,6 @@ final class Behaviors extends _Value {
     this.ignorePointer = false,
     this.floating = false,
     this.hero,
-    this.flightKey = '',
-    this.flight,
     this.draggable,
     this.dropTarget,
     this.track,
@@ -2435,12 +2481,9 @@ final class Behaviors extends _Value {
 
   static const Behaviors none = Behaviors();
 
-  /// The transform over the layout (Flutter's `Transform`).
+  /// The transform over the layout (Flutter's `Transform`): its move,
+  /// scale and rotation are drawn, never laid out.
   final Motion? motion;
-
-  /// Drawn at this size around its center; layout unchanged (Flutter's
-  /// `Transform.scale`). Bindable as `scale`.
-  final double scale;
 
   /// Its animation controllers and their tracks, outermost first
   /// ([NodeAnimation]).
@@ -2470,13 +2513,10 @@ final class Behaviors extends _Value {
   /// Drawn above everything else at runtime (a menu under a field), still
   /// taking its place in the layout. The design canvas draws it in place.
   final bool floating;
+
+  /// A shared element (Flutter's `Hero`): it flies from where the node with
+  /// its tag was, between screens or in place.
   final HeroTag? hero;
-
-  /// Flies the node in from where the node with the same key just was.
-  final String flightKey;
-
-  /// How it flies there ([flightKey]); null flies on the node's spring.
-  final Flight? flight;
   final DragSource? draggable;
   final DropTarget? dropTarget;
 
@@ -2536,8 +2576,8 @@ final class Behaviors extends _Value {
 
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
-    'motion', 'scale', 'animations', 'transitions', 'shimmer', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
-    'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'track', 'dismissible',
+    'motion', 'animations', 'transitions', 'shimmer', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
+    'floating', 'hero', 'draggable', 'dropTarget', 'track', 'dismissible',
     'pan', 'reorderHandle', 'reveal', 'strokePath', 'typewriter',
     'particles', 'textDirection', 'defaultTextStyle', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
     'customPaint',
@@ -2549,10 +2589,8 @@ final class Behaviors extends _Value {
   static Behaviors fromJson(Json m) {
     if (!m.keys.any(keys.contains)) return none;
     final r = _R(m);
-    final scale = r.d('scale', 1);
     return Behaviors(
       motion: Motion.fromJson(m['motion']),
-      scale: scale > 0 ? scale : 1,
       animations: [...?readList(_jsonText(m['animations']))?.map(NodeAnimation.fromJson).nonNulls],
       transitions: Transition.listFromJson(m['transitions']),
       shimmer: Shimmer.fromJson(m['shimmer']),
@@ -2562,8 +2600,6 @@ final class Behaviors extends _Value {
       ignorePointer: r.b('ignorePointer', false),
       floating: r.b('floating', false),
       hero: HeroTag.fromJson(m['hero']),
-      flightKey: r.s('flightKey'),
-      flight: Flight.fromJson(m['flight']),
       draggable: DragSource.fromJson(m['draggable']),
       dropTarget: DropTarget.fromJson(m['dropTarget']),
       track: Track.fromJson(m['track']),
@@ -2591,7 +2627,6 @@ final class Behaviors extends _Value {
   /// Writes these into a node's JSON [j] (sparse).
   void writeTo(Json j) {
     if (motion != null) j['motion'] = motion!.toJson();
-    j.d('scale', scale, 1);
     if (animations.isNotEmpty) j['animations'] = [for (final a in animations) a.toJson()];
     if (transitions.isNotEmpty) j['transitions'] = [for (final t in transitions) t.toJson()];
     if (shimmer != null) j['shimmer'] = shimmer!.toJson();
@@ -2602,8 +2637,6 @@ final class Behaviors extends _Value {
       ..b('ignorePointer', ignorePointer, false)
       ..b('floating', floating, false);
     if (hero != null) j['hero'] = hero!.toJson();
-    j.s('flightKey', flightKey);
-    if (flight != null) j['flight'] = flight!.toJson();
     if (draggable != null) j['draggable'] = draggable!.toJson();
     if (dropTarget != null) j['dropTarget'] = dropTarget!.toJson();
     if (track != null) j['track'] = track!.toJson();
@@ -2627,7 +2660,6 @@ final class Behaviors extends _Value {
 
   Behaviors copyWith({
     Motion? motion,
-    double? scale,
     List<NodeAnimation>? animations,
     List<Transition>? transitions,
     Shimmer? shimmer,
@@ -2637,8 +2669,6 @@ final class Behaviors extends _Value {
     bool? ignorePointer,
     bool? floating,
     HeroTag? hero,
-    String? flightKey,
-    Flight? flight,
     DragSource? draggable,
     DropTarget? dropTarget,
     Track? track,
@@ -2660,7 +2690,6 @@ final class Behaviors extends _Value {
     CustomPaint? customPaint,
   }) => Behaviors(
     motion: motion ?? this.motion,
-    scale: scale ?? this.scale,
     animations: animations ?? this.animations,
     transitions: transitions ?? this.transitions,
     shimmer: shimmer ?? this.shimmer,
@@ -2670,8 +2699,6 @@ final class Behaviors extends _Value {
     ignorePointer: ignorePointer ?? this.ignorePointer,
     floating: floating ?? this.floating,
     hero: hero ?? this.hero,
-    flightKey: flightKey ?? this.flightKey,
-    flight: flight ?? this.flight,
     draggable: draggable ?? this.draggable,
     dropTarget: dropTarget ?? this.dropTarget,
     track: track ?? this.track,
@@ -2695,8 +2722,8 @@ final class Behaviors extends _Value {
 
   @override
   List<Object?> get props => [
-    motion, scale, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
-    flightKey, flight, draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
+    motion, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
+    draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
     particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }

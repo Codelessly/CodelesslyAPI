@@ -16,7 +16,7 @@ A button-like row that changes colour while hovered and pressed, and while selec
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["buttons"],
   "nodes": {
     "buttons": {
