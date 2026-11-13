@@ -2,7 +2,8 @@
 
 Proposals for `codelessly_api`. The first five were written after the audit
 of the model that grew while about 60 reference apps were rebuilt; the sixth
-after the m05 authoring experiments. Each is meant to be
+after the m05 authoring experiments; the seventh and eighth map the
+generative-UI landscape and propose the API for AI built on it. Each is meant to be
 approved or changed by the product owner, then implemented from. Breaking
 changes behind migration are accepted.
 
@@ -37,6 +38,8 @@ them.
 | 4 | [Drag and track](04-drag-and-track.md) | `drag` splits into `dismissible`, `track`, pan in `transformGesture`, and the list's `reorder`. 162 fields to 69. `controlDrag` becomes three typed actions. Transform handles become a component |
 | 5 | [Plugins and layers](05-plugins-and-layers.md) | A `Catalog` passed to decode; `ActionSpec`; hosted plugins as data on the managed-component machinery; native plugins as the second tier; the core/feature library split with an import-boundary test; catalog and JSON Schema export with strict validation |
 | 6 | [Sections and components](06-sections-and-components.md) | A page composed of component documents by reference: a call is one node whose `type` is the component id; parameters (`${props.x}`, PropDef-declared), slots, events, per-instance state; document-local ids with instance-keyed boxes; no overrides; one mechanism at document, project and hosted scope replacing copies, managed snapshots and plugin islands; project variables; the render command per component |
+| 7 | [Generative-UI landscape](07-landscape.md) | Research, 2026-11-13: A2UI 1.0 (and Express), Vercel's UI SDK (2026-11-12) and json-render, MCP Apps, OpenAI, AG-UI/CopilotKit, code-into-sandbox, Flutter options and code generators, verified from primary sources; a comparison table with an honest Codelessly column; what to adopt from each |
+| 8 | [The API for AI](08-ai-developer-experience.md) | Positioning (the app as an editable document); six id-addressed edit ops with merge patch per node and per-op validation; a headless `codelessly` CLI/MCP for design-time agents; a runtime `UiSession` with two LLM tools (`ui_apply`, `ui_read`), streaming with placeholders, events and undo; trust profile as a restricted catalog; A2UI/MCP Apps/AG-UI interop; build order, paired-corpus evaluation and ranked decisions |
 
 ## AI authoring
 
