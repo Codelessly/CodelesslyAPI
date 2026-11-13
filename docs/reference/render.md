@@ -125,6 +125,7 @@ From `package:codelessly_api/validate.dart`:
 | `vertical_wrap` | warning | A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side. |
 | `layout_clamped` | warning | A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks). |
 | `prop_ignored` | warning | A prop that has no effect with another the node sets (a grid's mainAxisExtent while shrinkWrapRows sizes its rows): one of them is ignored. |
+| `state_no_effect` | warning | A bound "selected" with no "states.selected" style: the node is selected, but nothing changes how it looks. |
 | `unknown_bind_path` | error | A "bind" key that names no bindable field of the node. |
 | `reserved_bind_path` | warning | A binding path that is kept but not applied yet. |
 | `expression_syntax` | error | A "${" that is not closed, or an empty ${}. |

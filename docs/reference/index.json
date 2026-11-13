@@ -681,7 +681,7 @@
       "anchor": "page-interaction",
       "title": "Interaction: reactions, states and gestures",
       "summary": "What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics.",
-      "words": 5120
+      "words": 5179
     },
     {
       "topic": "interaction-trigger-fields",
@@ -721,7 +721,7 @@
       "anchor": "interaction-hover-press-and-other-states",
       "title": "Hover, press and other states",
       "summary": "`states` on a node changes it and its descendants while it is `hovered`, `pressed`, `focused`, `selected`, `disabled` or `dragged`.",
-      "words": 89
+      "words": 148
     },
     {
       "topic": "interaction-a-segmented-toggle-monthly-annual",
@@ -1201,7 +1201,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 2340
+      "words": 2363
     },
     {
       "topic": "render-what-it-does",

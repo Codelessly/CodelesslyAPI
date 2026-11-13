@@ -7,6 +7,7 @@ import '../core/action_fields.dart';
 import '../core/actions.dart';
 import '../core/behavior_fields.dart';
 import '../core/behaviors.dart';
+import '../core/bindings.dart' show BindPaths;
 import '../core/child_fits.dart';
 import '../core/conditions.dart';
 import '../core/decoration.dart';
@@ -528,6 +529,7 @@ final class _Validator {
     _decoration(n, raw['decoration'], pointer(at, 'decoration'));
     _props(n, raw['props'], pointer(at, 'props'));
     _bind(n, raw['bind'], pointer(at, 'bind'));
+    _selectedState(n, at);
     _reactions(n, raw['actions'], pointer(at, 'actions'));
     if (raw.containsKey('media')) _media(n, raw['media'], pointer(at, 'media'));
     if (n.type == 'listView' && n.props.get(ListViewProps.wrap) && n.props.get(CollectionScrollProps.scrollDirection) == Axis.vertical) {
@@ -809,6 +811,23 @@ final class _Validator {
         }
       }
     }
+  }
+
+  /// A bound `selected` puts the node in [WidgetState.selected], which only
+  /// its `states.selected` patches read (as a Flutter button's
+  /// `statesController` changes only a style resolved per state): without
+  /// one it changes nothing.
+  void _selectedState(Node n, String at) {
+    if (!n.bind.containsKey(BindPaths.selected)) return;
+    if (n.behaviors.states.patches[WidgetState.selected]?.isNotEmpty ?? false) return;
+    final chip = n.spec?.props.any((p) => p.key == 'selected') ?? false;
+    r.add(Codes.stateNoEffect, pointer(pointer(at, 'bind'), BindPaths.selected),
+        chip
+            ? 'The node-level "selected" is a state for "states.selected" styles; this ${n.type} has nothing styled for it. '
+                'The ${n.type}\'s own selection is its prop: bind "props.selected".'
+            : 'Nothing reads this node\'s selected state: give it a "states" entry, '
+                '"states": {"selected": {"<this node\'s id>": {"props": {"style": {"backgroundColor": "ink"}}}}}, for the look it takes while selected.',
+        suggestion: chip ? 'props.selected' : 'states.selected');
   }
 
   /// [v] without the keys a merge patch removes (`null`), at every depth.
