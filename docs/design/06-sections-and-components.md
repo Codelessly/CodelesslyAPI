@@ -806,3 +806,121 @@ paths in `publish.dart`.
   `app/managed_components.dart:155`).
 * Project-wide variables work at run time, but the only way to author them
   is a v1 scope name the validator rejects (§7).
+
+## Implementation notes (phase 1, 2026-11-13)
+
+Implemented in `codelessly_api` (`lib/src/core/sections.dart`, `props.dart`,
+`catalog_json.dart`, `triggers.dart`, `actions.dart`,
+`lib/src/validate/components.dart`) and `codelessly_sdk`
+(`lib/src/render/components.dart`, `render/node_tree.dart`,
+`runtime/expressions/component_scopes.dart`, `runtime/expressions/bindings.dart`,
+`runtime/actions/runner.dart`, `tool/render/src/site.dart`). The Relay pricing
+page of m05 round 2 (run B) rewritten as a page of section calls and ten
+component files is `codelessly_sdk/examples/relay-pricing`: every state it was
+checked in, at every size, renders byte-identical PNGs to the one-document page.
+
+### Deviations from the proposal
+
+1. **No `PropKind.variable`.** Following the `ExprCodec` precedent (docs 01, 02),
+   a `variable` parameter is `PropType.variable(of)`: its `kind` is `string` (the
+   variable's name, so a panel switching over the kinds shows a text field), its
+   new field `variableOf` is the variable's type, and its JSON is the proposal's
+   `{"kind": "variable", "of": {...}}`. `PropType.isVariable` tells it apart.
+2. **The definition lives in `LayoutDocument.extra`** (`widget`, `previews`), read
+   through an extension (`ComponentDocument`), rather than new fields on
+   `LayoutDocument`: the document round-trips byte for byte and nothing else
+   changes. A document-scope `components` map (§5.8, "document" scope) is not read
+   yet.
+3. **Preview file names** are `<Type>-<preview>@<w>x<h>.png`, not
+   `<Type>@<w>x<h>-<preview>.png`: the render command names every capture
+   `<screen>@<size>`, and the preview is the screen.
+4. **`duplicate_id` stays for pages**: ids are local to a component (no report
+   between a component and another document), but two pages sharing an id are
+   still reported, because render-command steps name page nodes by bare id.
+5. **Box keys print the full instance** (`(item, null, list, 2)/card/cta`), not
+   the tool path: two copies a list repeats must not share a key. Tool paths
+   (`componentPath`, `RenderTree.pathOf`, `boxAtPath`) are computed apart and use
+   `#n` for the n-th copy on screen.
+6. **The call keeps its own node** besides the definition's: a call is a node of
+   its page (counted in the page's nodes), and the definition's root box is the
+   call's box. The proof's node count went from 196 to 206 (one per call) while
+   the boxes rendered stayed 550.
+7. **Media rules and bindings of a section root's size and placement move to the
+   call** when a page is split (the root's padding and decoration stay): the seam
+   takes the call's layout but for padding, after both are resolved.
+8. **Project variables in the app** come from `PublishModel.variables` (declared
+   into `Codelessly.appVariables`, as before); `NodeBinder.projectScope` names the
+   scope a definition reads them from (the app passes `appVariables`). Without it
+   the outermost variable scope around the page is taken when there are several.
+9. **Ambient scopes are the caller's root's**: an instance reads `screen`,
+   `route`, `theme`... from the screen around its caller, not from a variance
+   around the call that restates `screen` with its own switch points (§4.4).
+10. **The validator's `unknown_slot` and `children_not_allowed` on a call** are the
+    generic ones (the call's spec is the component's declaration); `unknown_slot`
+    also reports a definition's `slot` node naming an undeclared slot.
+11. **`root_placement_bound` is a warning**, as the binding is dropped, not
+    misread.
+
+### Not done
+
+* **Loading from a publish (phase 2).** The app's components come from memory
+  only: `Codelessly(components: ComponentRegistry([...]))`, filled by the app (the
+  render command fills it from a site's files). To do: `PublishModel.components`
+  (`{id: {version, digest, lastUpdated}}`), `PublishLayoutInfo.components` (the
+  closure each layout calls, `ComponentLibrary.closureOf`), the publish path
+  `publish/{p}/components/{id}` (`{"schema": 2, "id", "version", "digest",
+  "document"}`), `PublishLoader.loadComponent(source, id)` (Firestore, HTTP,
+  asset bundle and `MemoryPublishLoader`; `PublishBundle` gains a `components`
+  map), `PublishCache` keys by that path, `Codelessly._loadLayout` loading the
+  closure in parallel before the screen shows and defining it in
+  `Codelessly.components`, live updates replacing a definition's document
+  (`ComponentRegistry.define` already updates instances in place), and the fonts
+  of called components preloaded with the layout's (the render command does this
+  itself: `publishPages(components:)`). Missing definitions render the call's
+  empty box and are listed in `ComponentRegistry.missing` (`component_missing`
+  in the render command); nothing logs them to the app's analytics yet.
+* **Hosted plugins on this path** (§6.5): `hostedPluginFeature` still renders a
+  plugin node type in an island. The step is to register each `PluginWidget` as a
+  definition in the app's registry (its `document` with a `widget` built from the
+  plugin's catalog entry) and drop `_HostedRecipe`; its formula functions need to
+  become the definition's function variables first.
+* **Actions naming a node inside a definition** (`scrollTo`, `animate`, `focus`,
+  `setValue`, `editText`) act on every instance's box of that id, not only the
+  instance they run in (`run.instance` is carried but not yet used to narrow).
+  `setValue` reads the node from the page's source.
+* **Slot content inside a list in the definition**: a slot placed inside a list
+  the definition repeats shows the caller's content box once (content is keyed in
+  the caller's instance).
+* **Per-instance scopes are kept until the binder is disposed** (one
+  `ComponentScopes` per instance that was shown): a long-scrolling list of
+  component items keeps the scopes of items that left.
+* **A changed declaration** (`widget`) re-places its calls but does not re-decode
+  the pages that call it: a call's props stay typed with the old declaration until
+  the page is decoded again (values are read through the new declaration anyway).
+* **`persist: true`** on a component variable is not persisted per instance path.
+* **The document scope** (`components` inside a document), `previews`' slot
+  content, inline/duplicate/convert in the editor, and the flattener for old SDKs
+  (§10.2) are later phases.
+* **The editor** is not ported. Call sites of what changed, read-only:
+  `CodelesslyEditor/lib/editor/managed_prebuilts.dart:163,195,289` and
+  `lib/editor/managed_components.dart:492,515` (`kComponentEventAction`: same
+  string; a decoded one is now a `ComponentEventAction`, not an `UnknownAction`);
+  `lib/api/node_json.dart:715` (`TriggerType.values` now has `event`);
+  `packages/codelessly_properties/lib/src/reactions_editor.dart:18`
+  (`triggerFieldsOf` should show `TriggerFields.event` for `event`) and `:192,
+  305` (the trigger menu lists `event`); `packages/codelessly_properties/test/
+  reactions_test.dart:29` (renders every trigger type). Panels for `PropDef.required`,
+  `PropType.variable` and `WidgetSpec.events` are new UI.
+
+### Measured
+
+* Relay pricing (m05 c2/B): 1 file, 196 nodes, 54,727 bytes minified, became 12
+  files, 206 nodes, 59,253 bytes (+8%: declarations and call layouts; the page
+  already repeated its cards and questions from lists). The largest file an editor
+  of one section opens is 11,225 bytes (CompareSection), the plan card 8,982, the
+  page 1,600. Render command runs: 7.8–8.3 s before, 7.8–8.9 s after (whole runs,
+  three full-page sizes per state).
+* A 500-item list whose template is a 15-node component builds and scrolls with
+  the same number of box applies as the same list inlined (835 at rest, in the
+  test's viewport), in about the same time (`test/components/components_perf_test.dart`);
+  a variable nothing in it reads re-applies none of its boxes.

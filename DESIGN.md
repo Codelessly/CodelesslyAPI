@@ -272,33 +272,85 @@ API doesn't model it. The editor keeps such state itself.
 
 ### 4.2 Components
 
-A component is a node tree saved to a project's library and placed as
-instances (`lib/src/core/components.dart`).
+A component is a part of a user interface defined once and used by
+reference (docs/design/06-sections-and-components.md; `lib/src/core/sections.dart`).
+Its Flutter shape is a widget class: a declaration of parameters, slots
+and callbacks, and a `build` that places them.
 
-* **`ComponentDefinition`** (the library entry, stored outside pages): `id`, `name`, `version`, `size`
-  (the root's design size), `document` (a `LayoutDocument` whose single
-  root is the component's top node, with its nodes, variables and
-  conditions), `preview` (`url`, `blurhash`), `source` (`project`, `page`,
-  `node`: where it was made from) and `createdAt` (ms since the epoch).
-* **`ComponentLink`** (`Node.component`): on the component's main node
-  (`"role": "main"`) and on the top node of each
-  instance (`role` defaults to `instance`), with the component `id` and the
-  `version` it was made from or last updated to; an instance below the
-  definition's version has an update.
-* **An instance is a copy**: the component's nodes with their own ids under
-  the linked top node. Editing them is overriding; updating an instance
-  replaces its nodes with the definition's (keeping the top node's place
-  and sizing).
-* **Settings** (`ComponentLink.settings`): what the
-  component lets an instance customize, shown by the editor as a panel.
-  Each is `{label, type, value, targets}`, or a `group` with its own
-  `settings`; `type` names the control (`string`, `number`, `bool`,
-  `color`, `radius`, `spacing`, `options`, `icon`...), `value` is the
-  component's value (what reset restores), and control options (`min`,
-  `max`, `fractionDigits`, `options`, `insetType`...) ride along. A target
-  is a node and a binding path (§5.1), as a condition's `set` entry:
-  `{"node": "label", "path": "props.text"}`. Targets name the ids of the
-  tree they sit in, so a copy remaps them (`ComponentLink.remapped`).
+* **A definition is a document**: a `LayoutDocument` with one root that is
+  not a canvas, and a `widget` declaration, which is the catalog's widget
+  JSON (`type`, `doc`, `children`, `slots`, `props` as `PropDef` JSON with
+  an optional `"required": true`) plus `events` (`EventSpec`: key, payload
+  type, doc). Its `variables` (keyed by the root's id) exist once per
+  instance, like a `State`'s fields; its `previews` are named parameter
+  sets with a size (Flutter's `@Preview`). `LayoutDocument.widget`,
+  `componentRoot`, `previews` and `componentVariables` read it
+  (`ComponentDocument`); everything else round-trips in `extra`.
+  The type name is UpperCamelCase, like a Dart class, and a project file
+  is named after it (`components/PlanCard.json`).
+* **A call is one node** whose `type` is the component's type, with `props`
+  (literal, or bound in `bind` as `props.<key>`, like any node's), the
+  `children` / `slots` it passes and reactions to its events. The
+  definitions' declarations form a catalog (`ComponentLibrary.catalog`):
+  a page decoded with it holds each call's props typed; without it they
+  stay raw (`Props.unknown`) and round-trip.
+* **Parameters** are read inside as `${props.<key>}`. A definition reads its
+  parameters, its own variables, the project's variables and the runtime's
+  scopes (`screen`, `route`, `theme`...), never its caller's variables.
+  A **`variable` parameter** (`PropType.variable`, written
+  `{"kind": "variable", "of": {...}}`; its `PropKind` is `string`, the
+  variable's name, so no new kind) passes one of the caller's variables by
+  name: `${props.open}` reads it live and `setVariable "props.open"` writes
+  it (a `ValueNotifier` passed in).
+* **Slots**: a `slot` node (`SlotProps`, prop `name`, default `children`)
+  is replaced by what the call passes: its `children`, or `slots[name]`;
+  with nothing passed it shows its own children. Passed nodes belong to the
+  caller and read its scope.
+* **Events**: `componentEvent` (`ComponentEventAction`, a core action) fires
+  one of the declared events with a value; the call's reaction
+  `{"trigger": {"type": "event", "event": "<key>"}}` runs in the caller's
+  scope with the value as `${result}`.
+* **The seam**: the call and the definition's root are one box
+  (`seamCall`): the call's layout but for padding sizes and places it; the
+  root keeps its padding, decoration and content; `visible` is the AND of
+  both, `opacity` their product. A call has no `decoration` or
+  `layout.padding`.
+* **Ids are local** to each document. The SDK keys an instance's boxes by
+  (node id, `ComponentInstance(outer, call id, type)`), as it keys list
+  items; tools name a node inside an instance by a path of call ids
+  (`plans/card1/cta`).
+* **A site** (`SiteManifest`, `site.json`): its pages, its components and
+  its project variables (read by bare name everywhere; a page or component
+  variable of the same name is `duplicate_variable`).
+* **No overrides**: an instance changes only what its definition declares
+  as parameters and slots.
+
+`validateProject` checks the definitions as a library (`invalid_component`,
+`component_id_mismatch`, `duplicate_component`, `component_cycle`, found
+transitively) and every call against its declaration (`unknown_component`,
+`unknown_prop`, `wrong_type`, `missing_prop`, `unknown_slot`,
+`children_not_allowed`, `unknown_event`, `call_field_not_allowed`, a
+`variable` parameter's variable), and each definition against itself
+(`unknown_name` for a page variable it reads, an undeclared slot or event,
+`root_placement_bound`).
+
+The SDK renders an instance as ordinary boxes in the screen's render tree,
+one per definition node per instance, from a `ComponentRegistry`
+(`Codelessly.components`); editing a definition replaces its document and
+re-applies only the nodes that changed, in every instance. Loading
+definitions from a publish is not done yet: an app fills the registry
+itself (docs/design/06, "Not done").
+
+**Copies, still read.** Before components by reference, a component was a
+`ComponentDefinition` in the library (`id`, `name`, `version`, `size`,
+`document`, `preview`, `source`, `createdAt`) and an **instance was a copy**
+of its nodes with their own ids under a top node carrying a
+**`ComponentLink`** (`Node.component`: the component `id`, `role` `main` or
+`instance`, the `version` it was made from, and **`settings`**: what an
+instance may customize, `{label, type, value, targets}` with targets as
+node + binding path pairs, remapped on every copy). These decode, encode
+and render exactly as before; converting them into calls is the editor's
+later work (docs/design/06 §5.9).
 
 ```json
 "card": {"type": "stack", "children": ["label"],

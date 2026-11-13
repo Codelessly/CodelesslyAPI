@@ -44,6 +44,26 @@ command and actions name nodes by id. A node's keys:
 
 {{guide:guide-variables}}
 
+## Split a page into components
+
+A page longer than a screen or two is easier to write, fix and reuse as parts, each in its own file: a
+**component** is a document with one root (not a canvas) and a `widget` declaration of its parameters
+(`"props": [{"key": "price", "type": {"kind": "number"}, "default": 0}]`), slots and events, read inside as
+`${props.price}`; a page **calls** it with one node of that type (`{"type": "PlanCard", "props": {"price": 47},
+"layout": {...}}`), exactly as Flutter builds `PlanCard(price: 47)`. A component never reads its page's variables:
+pass what it needs as parameters, and state it shares with the page as a `variable` parameter (the page's
+variable's name: `"props": {"menuOpen": "menuOpen"}`). A directory with `site.json` (pages, components, the
+project's shared variables) is a site; `render.sh site --component PlanCard` renders one part alone, and steps
+name nodes inside parts by path (`--tap plans/card1/cta`).
+
+* **List template**: one shape repeated from data in one parent; when it is more than about five nodes, make the
+  template one call (`"bind": {"props.plan": "${item}"}`).
+* **Component**: the same structure in two or more places with different values (a card, a chip, a row).
+* **Section**: a top-level band of a page (header, hero, pricing, FAQ, footer), in its own file when it is more
+  than about 15 nodes or someone will edit it alone, even if it is used once.
+
+The whole story, with a complete example: {{page:index.md|the guide}}, §19 "Sections and components".
+
 # The core node types
 
 {{coreNodes}}

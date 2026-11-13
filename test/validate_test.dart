@@ -58,7 +58,7 @@ void main() {
 
   test('every code has a test below', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 55); // invalid_media, media_overridden: test/media_test.dart
+    expect(Codes.all.length, 65); // invalid_media, media_overridden: test/media_test.dart; components: test/sections_test.dart
   });
 
   group('document', () {
