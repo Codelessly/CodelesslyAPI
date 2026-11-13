@@ -218,6 +218,8 @@ final class ValueChecker {
         return wrong();
       case 'Rect':
         if (json is List && json.length == 4 && json.every(isNum)) return;
+        // A custom paint's view box may be `[width, height]` (at the origin).
+        if (codec != null && codec.decode(json) != null) return;
         return wrong();
       case 'BoxConstraints':
         if (json is! Map) return wrong();

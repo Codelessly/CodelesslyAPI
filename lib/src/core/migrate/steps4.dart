@@ -3,23 +3,32 @@
 //
 // Schema 4 gives each concept that schema 3 could say two ways one home,
 // under Flutter's name: the node's `scale` and `layout.rotation` are its
-// `motion` (`Transform`), `flightKey` and `flight` are its `hero` (`Hero`).
+// `motion` (`Transform`), `flightKey` and `flight` are its `hero` (`Hero`);
+// `strokePath`, a box's `path`, `subpathColors` and `gradientPerSubpath` are
+// `customPaint` path ops and the path node (steps_paint4.dart).
 import '../json.dart';
 import '../node_patch.dart' show mergeNodePatch;
 import '../behaviors.dart' show diffPatch;
 import 'legacy_read.dart';
 import 'migrate.dart';
 import 'steps_hero4.dart';
+import 'steps_paint4.dart';
 import 'steps_transform4.dart';
 
 /// The node steps of `migrate3to4`, in order. A schema-4 step that rewrites
-/// a node's own JSON goes here (steps_paint4.dart's too): `patches.schema4`
-/// re-expresses the interaction-state and media patches through every step
-/// of this list, so a patch that sets what a step moved moves with it.
+/// a node's own JSON goes here: `patches.schema4` re-expresses the
+/// interaction-state and media patches through every step of this list, so
+/// a patch that sets what a step moved moves with it.
+///
+/// [paintSteps4] come last, in their own order: `paint.patches` (a document
+/// pass) first, because it re-expresses the patches that set a paint field
+/// against the nodes as they are before the paint node steps rewrite them;
+/// what it leaves in a patch the paint node steps no longer change.
 final List<MigrationStep> nodeSteps3to4 = [
   transformFoldStep,
   heroFlightStep,
   pathsStep4,
+  ...paintSteps4,
 ];
 
 /// The schema-3 node paths [nodeSteps3to4] move, and where to (a schema-4
@@ -32,6 +41,11 @@ final Map<String, String> movedPaths3to4 = {
   'flightKey': 'hero',
   'flight': 'hero',
   'hero': 'hero',
+  // paintSteps4: a stroke path and per-shape colors are custom paint ops; a
+  // box's path is a path node's data.
+  'strokePath': 'customPaint',
+  'props.subpathColors': 'customPaint',
+  'props.path': 'props.data',
 };
 
 /// The steps of `migrate3to4`, in order: [nodeSteps3to4], then the patches

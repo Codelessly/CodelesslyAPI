@@ -11,8 +11,8 @@
 //
 // Each step is written so the migrated document draws the same pixels; where
 // a value has no exact form it is kept as `legacy.<name>` and reported, with
-// what to write instead. Apply [paintSteps4] in `migrate3to4`, after the
-// other node steps.
+// what to write instead. `migrate3to4` applies [paintSteps4] after its other
+// node steps (steps4.dart's `nodeSteps3to4`).
 import '../custom_paint.dart' show Expr;
 import '../json.dart';
 import '../node.dart';

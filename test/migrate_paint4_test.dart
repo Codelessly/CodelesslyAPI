@@ -1,5 +1,5 @@
-// The paint steps of the schema 3 → 4 migration (`paintSteps4`), applied to
-// schema-3 JSON directly: a stroke path becomes a customPaint path op, a box
+// The paint steps of the schema 3 → 4 migration (`paintSteps4`, run by
+// `migrate3to4`), applied to schema-3 JSON: a stroke path becomes a customPaint path op, a box
 // drawn as a path a path node, per-shape paints customPaint ops per color or
 // per shape; what has no exact form is kept and reported. That the results
 // draw the same pixels is tested in the SDK
@@ -10,10 +10,11 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/migrate/legacy_svg.dart';
 import 'package:test/test.dart';
 
-/// Schema-3 [nodes] with the paint steps applied, and the report.
-(Map<String, Json>, MigrationReport) _apply(Map<String, Json> nodes, {List<MigrationStep>? steps}) {
+/// Schema-3 [nodes] migrated to schema 4 (`migrate3to4`, whose last steps
+/// are the paint steps), and the report.
+(Map<String, Json>, MigrationReport) _apply(Map<String, Json> nodes) {
   final report = MigrationReport(document: 't');
-  final doc = migrate2to3({'schema': 2, 'nodes': nodes}, report: report, steps: steps ?? paintSteps4);
+  final doc = migrate3to4({'schema': 3, 'nodes': nodes}, report: report);
   return ({for (final e in (doc['nodes'] as Map).entries) e.key as String: readMap(e.value)!}, report);
 }
 
@@ -315,12 +316,68 @@ void main() {
       final (twice, report) = _apply(once);
       expect(jsonEncode(twice), jsonEncode(once));
       expect(report.isEmpty, isTrue);
-      final doc = {'schema': 3, 'roots': <String>[], 'nodes': once};
+      final doc = {'schema': 4, 'roots': <String>[], 'nodes': once};
+      expect(identical(migrateDocument(doc), doc), isTrue);
       final e1 = LayoutDocument.fromJson(doc).toJson();
       expect(jsonEncode(LayoutDocument.fromJson(e1).toJson()), jsonEncode(e1));
       for (final n in LayoutDocument.fromJson(doc).nodes.values) {
         expect(n.behaviors.strokePath, isNull);
       }
+    });
+  });
+
+  group('in the whole migration', () {
+    test('a schema-2 gradient per shape reaches schema 4 as path ops through both migrations', () {
+      final report = MigrationReport(document: 't');
+      final doc = migrateDocument({
+        'schema': 2,
+        'nodes': {
+          'n': {
+            'type': 'path',
+            'layout': {'width': 20, 'height': 10},
+            'props': {'data': 'M0 0 H5 V5 Z M10 0 H15 V5 Z'},
+            'decoration': {
+              'fills': [
+                {'type': 'linear', 'gradientUnits': 'subpath', 'stops': [{'color': '#FF000000'}, {'color': '#FFFFFFFF', 'position': 1}]},
+              ],
+            },
+          },
+        },
+      }, report: report);
+      expect(doc['schema'], 4);
+      final n = (doc['nodes'] as Map)['n'] as Map<String, Object?>;
+      expect(_painter(n).map((o) => (o as Map)['d']), ['M0 0 H5 V5 Z', 'M10 0 H15 V5 Z']);
+      expect(report.entries.map((e) => e.step), containsAll(['paint.gradientUnits', 'paint.perShape']));
+    });
+
+    test('a state patch setting both a scale and a stroke path moves each where it went', () {
+      final (nodes, _) = _apply({
+        'n': _box({
+          'strokePath': {'points': [[0, 0], [10, 10]], 'xUnit': 'pixels', 'color': '#FF000000'},
+          'states': {
+            'pressed': {
+              'n': {'scale': 0.9, 'strokePath': {'color': '#FFFF0000'}},
+            },
+          },
+        }),
+      });
+      final patch = ((nodes['n']!['states'] as Map)['pressed'] as Map)['n'] as Map;
+      expect(patch.containsKey('scale'), isFalse);
+      expect(patch.containsKey('strokePath'), isFalse);
+      expect((patch['motion'] as Map)['scale'], 0.9);
+      final op = ((patch['customPaint'] as Map)['painter'] as List).single as Map;
+      expect((op['paint'] as Map)['color'], '#FFFF0000');
+    });
+
+    test('a node alone migrates its own paint patches too', () {
+      final n = migrateNode3to4(_box({
+        'props': {'path': 'M0 0 L9 9'},
+        'media': [
+          {'minWidth': 600, 'patch': {'props': {'path': 'M0 0 L20 20'}}},
+        ],
+      }), id: 'n');
+      expect(n['type'], 'path');
+      expect(((n['media'] as List).single as Map)['patch'], {'props': {'data': 'M0 0 L20 20'}});
     });
   });
 
