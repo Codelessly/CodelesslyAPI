@@ -1214,7 +1214,7 @@ Its settings and geometry are bindable as `track.<field>` (`track.x2`: `${= pare
 
 Makes the node pannable, zoomable and rotatable by touch, mouse and trackpad (Flutter's `InteractiveViewer`, and more): pinch and ctrl+wheel zoom about the focal point, one finger pans, two rotate, a double tap zooms to a point; a release flings and settles by `physics` within `bounds` and `minScale`–`maxScale`. The pose binds two-way to variables (`xVariable`...); inside it reads as `${transform.x}`, `${transform.scale}`... Each change runs the node's `changed` reactions, the end of a gesture its `changeEnd` ones.
 
-`Behaviors.zoomable` is its first form: `zoomable`.
+The legacy `zoomable: true` reads as its first form: `zoomable`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|

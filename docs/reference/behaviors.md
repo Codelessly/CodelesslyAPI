@@ -16,7 +16,6 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 <a id="behavior-states"></a>
 <a id="behavior-tooltip"></a>
 <a id="behavior-ignorePointer"></a>
-<a id="behavior-zoomable"></a>
 <a id="behavior-floating"></a>
 <a id="behavior-hero"></a>
 <a id="behavior-flightKey"></a>
@@ -49,7 +48,6 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `states` | [StateStyles](values.md#type-StateStyles) | `{}` |  | Property overrides per interaction state. |
 | `tooltip` | String | `""` |  | Shown on hover or long press; may hold `${...}` data. |
 | `ignorePointer` | bool | `false` |  | Lets pointer events through to what's under the node (Flutter's `IgnorePointer`). |
-| `zoomable` | bool | `false` |  | Pinch, scroll and double-tap zoom and pan (Flutter's `InteractiveViewer`). |
 | `floating` | bool | `false` |  | Drawn above everything else at runtime (a menu under a field), still taking its place in the layout. The design canvas draws it in place. |
 | `hero` | [HeroTag](values.md#type-HeroTag) | unset |  |  |
 | `flightKey` | String | `""` |  | Flies the node in from where the node with the same key just was. |
@@ -67,7 +65,7 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `textDirection` | [TextDirection](values.md#enum-TextDirection) | unset | `ltr`, `rtl` | Null inherits. |
 | `flip` | [FlipCard](values.md#type-FlipCard) | unset |  | A two-sided card that turns over (a runtime 3D turn, not a mirror). |
 | `tilt` | [Tilt](values.md#type-Tilt) | unset |  | Tilts in 3D toward the pointer. |
-| `transformGesture` | [TransformGesture](values.md#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles (over `zoomable`: see `effectiveTransformGesture`). |
+| `transformGesture` | [TransformGesture](values.md#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles (the legacy `zoomable: true` reads as `TransformGesture.zoomable`). |
 | `sticky` | [Sticky](values.md#type-Sticky) | unset |  | Pinned in its scrolling view while its parent is in view. |
 | `viewProgress` | [ViewProgress](values.md#type-ViewProgress) | unset |  | `${view.progress}` through the viewport. |
 | `measure` | [Measure](values.md#type-Measure) | unset |  | Its laid-out box, written to a variable. |

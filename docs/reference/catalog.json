@@ -11498,14 +11498,6 @@
         "doc": "Lets pointer events through to what's under the node (Flutter's `IgnorePointer`)."
       },
       {
-        "key": "zoomable",
-        "type": "bool",
-        "kind": "boolean",
-        "default": false,
-        "nullable": false,
-        "doc": "Pinch, scroll and double-tap zoom and pan (Flutter's `InteractiveViewer`)."
-      },
-      {
         "key": "floating",
         "type": "bool",
         "kind": "boolean",
@@ -11666,7 +11658,7 @@
         "default": null,
         "nullable": true,
         "object": "TransformGesture",
-        "doc": "Pinch, pan and rotate, with fling physics and optional handles (over `zoomable`: see `effectiveTransformGesture`)."
+        "doc": "Pinch, pan and rotate, with fling physics and optional handles (the legacy `zoomable: true` reads as `TransformGesture.zoomable`)."
       },
       {
         "key": "sticky",
@@ -20876,7 +20868,7 @@
       ]
     },
     "TransformGesture": {
-      "doc": "Makes the node pannable, zoomable and rotatable by touch, mouse and trackpad (Flutter's `InteractiveViewer`, and more): pinch and ctrl+wheel zoom about the focal point, one finger pans, two rotate, a double tap zooms to a point; a release flings and settles by `physics` within `bounds` and `minScale`–`maxScale`. The pose binds two-way to variables (`xVariable`...); inside it reads as `${transform.x}`, `${transform.scale}`... Each change runs the node's `changed` reactions, the end of a gesture its `changeEnd` ones.\n\n`Behaviors.zoomable` is its first form: `zoomable`.",
+      "doc": "Makes the node pannable, zoomable and rotatable by touch, mouse and trackpad (Flutter's `InteractiveViewer`, and more): pinch and ctrl+wheel zoom about the focal point, one finger pans, two rotate, a double tap zooms to a point; a release flings and settles by `physics` within `bounds` and `minScale`–`maxScale`. The pose binds two-way to variables (`xVariable`...); inside it reads as `${transform.x}`, `${transform.scale}`... Each change runs the node's `changed` reactions, the end of a gesture its `changeEnd` ones.\n\nThe legacy `zoomable: true` reads as its first form: `zoomable`.",
       "fields": [
         {
           "key": "enabled",
