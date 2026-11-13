@@ -1,57 +1,19 @@
-/// Flutter's widgets and layouts as plain, immutable data.
+/// Flutter's widgets and layouts as plain, immutable data: the core and
+/// every first-party feature library, with [standardCatalog].
+///
+/// A program that needs only part of it imports that part:
+/// `package:codelessly_api/core.dart` (the model and its [Catalog], no
+/// feature), and `data.dart`, `auth.dart`, `commerce.dart`, `media.dart`,
+/// `engage.dart`, `publish.dart`, `managed.dart` over it.
 library;
 
-export 'src/core/behavior_fields.dart';
-export 'src/core/behaviors.dart';
-export 'src/core/catalog.dart';
-export 'src/core/child_fits.dart';
-export 'src/core/bindings.dart';
-export 'src/core/action_fields.dart';
-export 'src/core/actions.dart';
-export 'src/core/components.dart';
-export 'src/core/conditions.dart';
-export 'src/core/custom_paint.dart';
-export 'src/core/custom_paint_fields.dart';
-export 'src/core/decoration.dart';
-export 'src/core/document.dart';
-export 'src/core/json.dart';
-export 'src/core/layout.dart';
-export 'src/core/logic.dart';
-export 'src/features/managed/managed_components.dart';
-export 'src/core/node.dart';
-export 'src/core/props.dart';
-export 'src/core/route_transition.dart';
-export 'src/core/scripts.dart';
-export 'src/standard_catalog.dart';
-export 'src/core/triggers.dart';
-export 'src/core/value_fields.dart';
-export 'src/features/data/cloud.dart';
+export 'auth.dart';
+export 'commerce.dart';
+export 'core.dart';
+export 'data.dart';
+export 'engage.dart';
+export 'managed.dart';
+export 'media.dart';
+export 'publish.dart';
 export 'src/service_config.dart';
-export 'src/features/data/http_api.dart';
-export 'src/features/commerce/paywall.dart';
-export 'src/features/publish/app_identity.dart';
-export 'src/features/engage/automations.dart';
-export 'src/core/breakpoints.dart';
-export 'src/features/publish/publish_layout.dart';
-export 'src/features/publish/publish_model.dart';
-export 'src/features/publish/style_sheet.dart';
-export 'src/core/theme.dart';
-export 'src/core/values/border.dart';
-export 'src/core/values/color.dart';
-export 'src/core/values/enums.dart';
-export 'src/core/values/geometry.dart';
-export 'src/core/values/paint.dart';
-export 'src/core/values/text.dart';
-export 'src/core/variables.dart';
-export 'src/core/widgets/canvas.dart';
-export 'src/core/widgets/collections.dart';
-export 'src/core/widgets/indicators.dart';
-export 'src/core/widgets/inputs.dart';
-export 'src/core/widgets/material.dart';
-export 'src/core/widgets/media.dart';
-export 'src/core/widgets/flex.dart';
-export 'src/core/widgets/icon.dart';
-export 'src/core/widgets/scroll.dart';
-export 'src/core/widgets/stack.dart';
-export 'src/core/widgets/text.dart';
-export 'src/core/widgets/widgets.dart';
+export 'src/standard_catalog.dart';

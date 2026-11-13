@@ -27,6 +27,7 @@ import 'package:meta/meta.dart';
 
 import '../../core/actions.dart';
 import '../../core/bindings.dart';
+import '../../core/catalog.dart';
 import '../../core/components.dart';
 import '../../core/document.dart';
 import '../../core/json.dart';
@@ -121,6 +122,23 @@ int managedRolloutBucket(String projectId, String componentId) {
 }
 
 // --- the instance's side --------------------------------------------------------------
+
+/// A component link's managed reference, typed: what the core keeps as JSON
+/// ([ComponentLink.managedJson]).
+extension ManagedLink on ComponentLink {
+  /// What a managed instance customizes and follows; null for a project
+  /// component's link.
+  ManagedComponentRef? get managed => ManagedComponentRef.fromJson(managedJson);
+
+  /// This link with [ref] as its managed reference.
+  ComponentLink withManaged(ManagedComponentRef? ref) => ComponentLink(
+    id: id,
+    role: role,
+    version: version,
+    settings: settings,
+    managedJson: ref?.toJson(),
+  );
+}
 
 /// A managed instance's reference ([ComponentLink.managed]): what it follows
 /// and how it customizes the component without forking it.
@@ -806,6 +824,7 @@ ManagedBuild buildManagedInstance({
   ManagedComponentRef ref = const ManagedComponentRef(),
   Layout? layout,
   ThemeTokens? theme,
+  Catalog? catalog,
 }) {
   final def = version.definition;
   final root = def.rootId!;
@@ -847,7 +866,7 @@ ManagedBuild buildManagedInstance({
     if (source == null) continue;
     final json = renameNode(source);
     if (json['actions'] != null) json['actions'] = splice(json['actions']);
-    final n = Node.fromJson(json, id: ids[id]);
+    final n = Node.fromJson(json, id: ids[id], catalog: catalog);
     if (n != null) nodes[n.id] = n;
   }
 
@@ -904,12 +923,12 @@ ManagedBuild buildManagedInstance({
   }
 
   final top = nodes[topId]!;
-  nodes[topId] = Node.fromJson({...top.toJson(), if (layout != null) 'layout': layout.toJson()}, id: topId)!
+  nodes[topId] = Node.fromJson({...top.toJson(), if (layout != null) 'layout': layout.toJson()}, id: topId, catalog: catalog)!
       .withComponent(
         ComponentLink(
           id: version.id,
           version: version.version,
-          managed: ref.copyWith(semver: version.semver, digest: version.digest),
+          managedJson: ref.copyWith(semver: version.semver, digest: version.digest).toJson(),
         ),
       );
   return ManagedBuild(

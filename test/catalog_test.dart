@@ -82,7 +82,8 @@ void main() {
       expect(Widgets.of('acme.rating'), isNull);
       expect(ActionSpecs.all.toList(), standardCatalog.actions);
       expect(ActionSpecs.of('callApi')?.label, 'Call API');
-      expect(ActionDef.types.toSet(), {for (final a in standardCatalog.actions) a.type});
+      // The core knows no feature: ActionDef.types lists Catalog.current's.
+      expect(ActionDef.types.toSet(), {for (final a in Catalog.core.actions) a.type});
     });
 
     test('composition: later entries win by type, parts first', () {
@@ -98,7 +99,7 @@ void main() {
     test('every first-party action type decodes to its family, and back', () {
       final families = <String, Type>{};
       for (final json in samples) {
-        final a = ActionDef.fromJson(json)!;
+        final a = ActionDef.fromJson(json, catalog: standardCatalog)!;
         expect(a, isNot(isA<UnknownAction>()), reason: '${json['type']}');
         expect(a, isNot(isA<DeclaredAction>()), reason: '${json['type']}');
         final family = switch (a) {
@@ -145,7 +146,7 @@ void main() {
       expect(chain[0], isA<UnknownAction>());
       expect(chain[1], isA<UnknownAction>(), reason: 'auth is not a core action');
       expect(doc['v']!.spec, isNull, reason: 'video is the media library\'s');
-      final standard = LayoutDocument.fromJson(json);
+      final standard = LayoutDocument.fromJson(json, catalog: standardCatalog);
       expect(standard['v']!.spec, same(VideoProps.spec));
       expect(standard['r']!.actions.single.actions[1], isA<AuthAction>());
       // Byte for byte, whichever catalog read it.
@@ -172,7 +173,7 @@ void main() {
       final destinations = node.prop(NavigationBarProps.destinations);
       final ifAction = destinations.single.actions.single.actions.single as IfAction;
       expect(ifAction.then.single, isA<ShareAction>());
-      final plain = Node.fromJson(json, id: 'n')!;
+      final plain = Node.fromJson(json, id: 'n', catalog: standardCatalog)!;
       expect((plain.prop(NavigationBarProps.destinations).single.actions.single.actions.single as IfAction).then.single,
           isA<UnknownAction>());
     });
@@ -215,17 +216,18 @@ void main() {
       expect(a, isA<UnknownAction>());
       expect((standardCatalog + acme).upgrade(a), isA<ShareAction>());
       expect(standardCatalog.upgrade(a), same(a));
-      final typed = ActionDef.fromJson({'type': 'delay', 'ms': 3})!;
+      final typed = ActionDef.fromJson({'type': 'delay', 'ms': 3}, catalog: standardCatalog)!;
       expect(standardCatalog.upgrade(typed), same(typed));
     });
 
-    test('Catalog.run scopes the default catalog', () {
-      expect(Catalog.current, same(standardCatalog));
-      Catalog.run(Catalog.core, () {
-        expect(Catalog.current, same(Catalog.core));
-        expect(ActionDef.fromJson({'type': 'callApi'}), isA<UnknownAction>());
+    test('the default catalog is the core; Catalog.run scopes another', () {
+      expect(Catalog.current, same(Catalog.core));
+      expect(ActionDef.fromJson({'type': 'callApi'}), isA<UnknownAction>());
+      Catalog.run(standardCatalog, () {
+        expect(Catalog.current, same(standardCatalog));
+        expect(ActionDef.fromJson({'type': 'callApi'}), isA<CallApiAction>());
       });
-      expect(ActionDef.fromJson({'type': 'callApi'}), isA<CallApiAction>());
+      expect(ActionDef.fromJson({'type': 'callApi'}), isA<UnknownAction>());
     });
   });
 }

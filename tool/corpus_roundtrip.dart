@@ -25,7 +25,9 @@ String digest(Object? json) {
   return '${h.toUnsigned(64).toRadixString(16)}:${s.length}';
 }
 
-void main(List<String> args) {
+void main(List<String> args) => Catalog.run(standardCatalog, () => _main(args));
+
+void _main(List<String> args) {
   final out = StringBuffer();
   var docs = 0, actions = 0, nodeCount = 0;
   for (final path in File(args.first).readAsLinesSync()) {

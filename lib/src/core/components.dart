@@ -13,7 +13,6 @@ import 'package:meta/meta.dart';
 import 'catalog.dart';
 import 'document.dart';
 import 'json.dart';
-import '../features/managed/managed_components.dart';
 
 /// What a node is to its component.
 enum ComponentRole {
@@ -30,9 +29,10 @@ enum ComponentRole {
 /// JSON (sparse): `{"id": "cmp1", "role": "main", "version": 3,
 /// "settings": [...]}`; `role` defaults to `instance`, `version` to 1.
 ///
-/// A linked, Codelessly-managed instance also has [managed] (`"managed":
-/// {...}`, [ManagedComponentRef]): [id] is then the managed component's id
-/// and [version] the version its nodes (the snapshot) were built from.
+/// A linked, Codelessly-managed instance also has [managedJson]
+/// (`"managed": {...}`, read as a `ManagedComponentRef` by the managed
+/// library's `ComponentLink.managed`): [id] is then the managed component's
+/// id and [version] the version its nodes (the snapshot) were built from.
 @immutable
 final class ComponentLink {
   const ComponentLink({
@@ -40,7 +40,7 @@ final class ComponentLink {
     this.role = ComponentRole.instance,
     this.version = 1,
     this.settings = const [],
-    this.managed,
+    this.managedJson,
   });
 
   /// The component's id (its [ComponentDefinition.id]).
@@ -56,34 +56,49 @@ final class ComponentLink {
   final List<ComponentSetting> settings;
 
   /// What a managed instance customizes and follows (channel, pin, setting
-  /// values by key, slots, events, theme tokens); null for a project
-  /// component's link.
-  final ManagedComponentRef? managed;
+  /// values by key, slots, events, theme tokens), as its JSON; null for a
+  /// project component's link. The managed library reads it
+  /// (`ComponentLink.managed`, package:codelessly_api/managed.dart).
+  final Json? managedJson;
 
   bool get isMain => role == ComponentRole.main;
   bool get isInstance => role == ComponentRole.instance;
 
   /// Whether this is an instance of a Codelessly-managed component.
-  bool get isManaged => managed != null && isInstance;
+  bool get isManaged => managedJson != null && isInstance;
 
   ComponentLink copyWith({
     String? id,
     ComponentRole? role,
     int? version,
     List<ComponentSetting>? settings,
-    ManagedComponentRef? managed,
+    Json? managedJson,
   }) => ComponentLink(
     id: id ?? this.id,
     role: role ?? this.role,
     version: version ?? this.version,
     settings: settings ?? this.settings,
-    managed: managed ?? this.managed,
+    managedJson: managedJson ?? this.managedJson,
   );
 
   /// The link with every setting target's node id mapped by [ids] (a copy
   /// of the tree with new ids). Ids [ids] doesn't have are kept.
   ComponentLink remapped(Map<String, String> ids) =>
-      copyWith(settings: [for (final s in settings) s.remapped(ids)], managed: managed?.remapped(ids));
+      copyWith(settings: [for (final s in settings) s.remapped(ids)], managedJson: _remapManaged(managedJson, ids));
+
+  /// A managed reference's `slots` (slot → node ids) with the ids mapped:
+  /// the only node ids it holds.
+  static Json? _remapManaged(Json? m, Map<String, String> ids) {
+    final slots = readMap(m?['slots']);
+    if (m == null || slots == null) return m;
+    return {
+      ...m,
+      'slots': {
+        for (final e in slots.entries)
+          e.key: e.value is List ? [for (final id in e.value as List) ids[id] ?? id] : e.value,
+      },
+    };
+  }
 
   /// Null without an id. Also reads the marker the editor kept in a
   /// node's `extra` before this model (`{"id", "marker": "component" |
@@ -101,7 +116,7 @@ final class ComponentLink {
       role: role,
       version: readInt(m['version']) ?? 1,
       settings: ComponentSetting.listFromJson(m['settings']),
-      managed: ManagedComponentRef.fromJson(m['managed']),
+      managedJson: readMap(m['managed']),
     );
   }
 
@@ -110,7 +125,7 @@ final class ComponentLink {
     if (role != ComponentRole.instance) 'role': role.name,
     if (version != 1) 'version': version,
     if (settings.isNotEmpty) 'settings': [for (final s in settings) s.toJson()],
-    if (managed != null) 'managed': managed!.toJson(),
+    if (managedJson != null) 'managed': managedJson,
   };
 
   @override
@@ -120,10 +135,10 @@ final class ComponentLink {
       other.role == role &&
       other.version == version &&
       jsonEquality.equals(other.settings, settings) &&
-      other.managed == managed;
+      jsonEquality.equals(other.managedJson, managedJson);
 
   @override
-  int get hashCode => Object.hash(id, role, version, Object.hashAll(settings), managed);
+  int get hashCode => Object.hash(id, role, version, Object.hashAll(settings), jsonEquality.hash(managedJson));
 
   @override
   String toString() => 'ComponentLink(${toJson()})';

@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../../core/catalog.dart';
 import '../../core/document.dart';
 import '../../core/json.dart';
 import 'app_identity.dart';
@@ -520,7 +521,8 @@ final class PublishBundle {
   final PublishModel model;
   final Map<String, PublishLayout> layouts;
 
-  static PublishBundle fromJson(Object? json) {
+  /// Its layouts decode with [catalog] (default: `Catalog.current`).
+  static PublishBundle fromJson(Object? json, {Catalog? catalog}) {
     var m = readMap(json) ?? const {};
     m = PublishModel.migratePublishSchema(m);
     final layouts = readMap(m['layouts']) ?? const {};
@@ -528,7 +530,7 @@ final class PublishBundle {
       model: PublishModel.fromJson(m['model']),
       layouts: {
         for (final e in layouts.entries)
-          e.key: PublishLayout.fromJson(e.value).let((l) => l.id.isEmpty ? l.copyWith(document: l.document.copyWith(id: e.key)) : l),
+          e.key: PublishLayout.fromJson(e.value, catalog: catalog).let((l) => l.id.isEmpty ? l.copyWith(document: l.document.copyWith(id: e.key)) : l),
       },
     );
   }

@@ -15,7 +15,7 @@ import 'actions.dart';
 import 'conditions.dart';
 import 'json.dart';
 import 'props.dart';
-import '../standard_catalog.dart';
+import 'widgets/widgets.dart' show coreWidgetSpecs;
 
 /// What a document may contain: declared node types, action types, data
 /// sources and formula functions. Immutable; composed with `+` or [parts],
@@ -25,6 +25,9 @@ import '../standard_catalog.dart';
 /// const acme = Catalog(id: 'acme', widgets: [RatingProps.spec], actions: [ShareAction.spec]);
 /// final doc = LayoutDocument.fromJson(json, catalog: standardCatalog + acme);
 /// ```
+///
+/// [Catalog.core] is the core library's; each feature library exports its
+/// own (`dataCatalog`, `mediaCatalog`...) and `standardCatalog` is their sum.
 ///
 /// Later entries win by type name, so a plugin can replace a declaration.
 @immutable
@@ -41,7 +44,7 @@ final class Catalog {
 
   /// The core: node types, layout, decoration, behaviors, triggers and the
   /// core actions.
-  static const Catalog core = coreCatalog;
+  static const Catalog core = Catalog(id: 'core', widgets: coreWidgetSpecs, actions: coreActionSpecs, dataSources: [listDataSource]);
 
   /// A name for messages and the export (`core`, `data`, `acme`).
   final String id;
@@ -57,13 +60,16 @@ final class Catalog {
   final List<DataSourceSpec> _dataSources;
   final List<FormulaSpec> _formulas;
 
-  /// The catalog nested decoding uses: the one a decoder was given (it
-  /// enters it for the decode, so a reaction inside a prop decodes with it
-  /// too), else [standardCatalog].
+  /// The catalog a decoder uses when it is given none: the one an
+  /// enclosing decoder was given (it enters it for the decode, so a reaction
+  /// inside a prop decodes with it too) or [run] set; else [Catalog.core].
+  /// The core knows no feature library, so code that reads feature types
+  /// passes the catalog it was built with (`standardCatalog` from
+  /// `package:codelessly_api/codelessly_api.dart`, or the SDK's).
   ///
   /// This is a scope, not a registry: it holds only for the duration of the
   /// decode (or [run]) that set it.
-  static Catalog get current => (Zone.current[_zoneKey] as Catalog?) ?? standardCatalog;
+  static Catalog get current => (Zone.current[_zoneKey] as Catalog?) ?? core;
 
   static final Object _zoneKey = Object();
 
@@ -96,6 +102,20 @@ final class Catalog {
 
   /// The formula function named [name], or null.
   FormulaSpec? formula(String name) => _index.formulasByName[name];
+
+  /// Whether this catalog declares every type [other] declares, with the same
+  /// declaration: a document decoded with this one needs no decoding again
+  /// for [other].
+  bool includes(Catalog other) {
+    if (identical(this, other)) return true;
+    for (final w in other.widgets) {
+      if (!identical(widget(w.type), w)) return false;
+    }
+    for (final a in other.actions) {
+      if (!identical(action(a.type), a)) return false;
+    }
+    return true;
+  }
 
   /// This catalog with [other]'s entries after (and over) its own.
   Catalog operator +(Catalog other) => Catalog(id: id.isEmpty ? other.id : id, parts: [this, other]);
@@ -267,3 +287,10 @@ final class FormulaSpec {
   @override
   String toString() => 'FormulaSpec($name)';
 }
+
+/// The core's data source: the list bound to a list's `data` (or its item
+/// count). The data library adds `cloud` and `api`.
+const listDataSource = DataSourceSpec('data', fields: [], doc: 'The bound list: the items a binding gives the list.');
+
+/// [Catalog.core]: the core's node types and actions.
+const Catalog coreCatalog = Catalog.core;

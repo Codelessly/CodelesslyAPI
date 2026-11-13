@@ -566,36 +566,54 @@ final class WidgetSpec {
 }
 
 /// A widget's prop values: only the ones that differ from Flutter's defaults
-/// are held. Keys a declaration doesn't know round-trip untouched.
+/// are held. Keys a declaration doesn't know round-trip untouched, and read
+/// through a [PropDef] they decode: a node decoded with a catalog that
+/// doesn't declare its type (`Catalog.core` reading a `video`) still gives
+/// its values to code that knows the type.
 @immutable
 final class Props {
-  const Props._(this._values, this._unknown);
+  const Props._(this._values, this._unknown, [this._defs = const {}]);
 
   static const Props empty = Props._({}, {});
 
   final Map<String, Object?> _values;
   final Json _unknown;
 
+  /// The declaration of each held value, so the props encode without the
+  /// spec they were decoded or set with. Not part of their value.
+  final Map<String, PropDef<Object?>> _defs;
+
   /// The value of [def] (its default when unset).
   T get<T>(PropDef<T> def) {
     final v = _values[def.key];
-    return v == null ? def.defaultValue : v as T;
+    if (v != null) return v as T;
+    if (_unknown.isNotEmpty && _unknown.containsKey(def.key)) return def.decode(_unknown[def.key]) ?? def.defaultValue;
+    return def.defaultValue;
   }
 
   /// Whether [def] holds a non-default value.
-  bool has(PropDef<Object?> def) => _values.containsKey(def.key);
+  bool has(PropDef<Object?> def) {
+    if (_values.containsKey(def.key)) return true;
+    if (!_unknown.containsKey(def.key)) return false;
+    final v = def.decode(_unknown[def.key]);
+    return v != null && !jsonEquality.equals(v, def.defaultValue);
+  }
 
   /// These props with [def] set to [value], held as [def]'s declared type
   /// ([PropDef.coerce]).
   Props set<T>(PropDef<T> def, T value) {
     final typed = def.coerce(value);
     final next = {..._values};
+    final defs = {..._defs};
     if (typed == null || jsonEquality.equals(typed, def.defaultValue)) {
       next.remove(def.key);
+      defs.remove(def.key);
     } else {
       next[def.key] = typed;
+      defs[def.key] = def;
     }
-    return Props._(next, _unknown);
+    final unknown = _unknown.containsKey(def.key) ? ({..._unknown}..remove(def.key)) : _unknown;
+    return Props._(next, unknown, defs);
   }
 
   /// Keys no declaration knows (kept for round trips).
@@ -608,6 +626,7 @@ final class Props {
     if (m == null || m.isEmpty) return empty;
     final values = <String, Object?>{};
     final unknown = <String, Object?>{};
+    final defs = <String, PropDef<Object?>>{};
     for (final e in m.entries) {
       final def = spec?.prop(e.key);
       if (def == null) {
@@ -615,15 +634,18 @@ final class Props {
         continue;
       }
       final v = def.decode(e.value);
-      if (v != null && !jsonEquality.equals(v, def.defaultValue)) values[e.key] = v;
+      if (v != null && !jsonEquality.equals(v, def.defaultValue)) {
+        values[e.key] = v;
+        defs[e.key] = def;
+      }
     }
-    return Props._(values, unknown);
+    return Props._(values, unknown, defs);
   }
 
   Json toJson(WidgetSpec? spec) {
     final j = <String, Object?>{..._unknown};
     for (final e in _values.entries) {
-      final def = spec?.prop(e.key);
+      final def = spec?.prop(e.key) ?? _defs[e.key];
       j[e.key] = def == null ? e.value : def.encode(e.value);
     }
     return j;
