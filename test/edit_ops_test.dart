@@ -283,7 +283,12 @@ void main() {
         for (final id in page.nodes.keys) {
           expect(doc[id], page[id], reason: '$name $id');
         }
-        expect(doc.extra, page.extra, reason: name);
+        // The same variables (a large one is declared where it is first read).
+        Map<String, Object?> byName(LayoutDocument d) => {
+              for (final e in (readMap(d.extra['variables']) ?? const {}).entries)
+                e.key: {for (final v in readList(e.value)!) (v as Map)['name']: v},
+            };
+        expect(byName(doc), byName(page), reason: name);
       }
     });
   });
