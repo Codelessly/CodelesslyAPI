@@ -54,6 +54,9 @@ guide; docs/design/schema-3-migration-report.md is the migration over the refere
   style into its node's `"defaultTextStyle": {}`, and drops (reporting) a theme's flags, which a document
   migrated on its own cannot see. `migrateJson2to3` and `migratePublish2to3` drop them from carriers;
   `dropNaturalLineHeightFlags`. `tool/migration_corpus.dart` reports the encoded size before and after.
+- **Paths an action names** (`setValue`'s `values[].path`) are not migrated: `schema2PathHint(path)` gives the
+  schema-3 path for a schema-2 one, and `unknown_bind_path` says it (`motion.originX` → `motion.alignment`,
+  `loops[i].<key>` → `animations.loop<i>.<key>`, `drag.track.<key>` → `track.<key>`...).
 - **Behaviour changes** (all reported by the migration, per document): a track with no value is drawn at
   its minimum, not at `defaultValue`, and a double tap resets nothing; the fine mode, `smooth`, a dismissible's
   tilt and fly-off spin, disabled follow and shake, `shareAs`, area pacing, the upright flip, a transition's

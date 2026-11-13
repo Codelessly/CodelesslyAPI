@@ -429,6 +429,8 @@ their assertions (the changes are listed in the changelog).
 - **`pathWrap` on an open path** and its short-way-round transition: a closed path wraps, an open one clamps.
 - **Legacy `motion.*` paths set at run time** (`setValue` with `motion.duration`): only a node's `bind` map is
   rewritten when it decodes; the pose paths and `motion.originX/Y`, `motion.pathProgress` still apply.
+  *Schema 3:* such a path is refused where it is used, with the schema-3 path to write (`schema2PathHint`; the
+  validator's `unknown_bind_path`; the SDK sets nothing and says so once). See docs/guide/12-migrating-to-schema-3.md.
 - **Bound motion keys with no counterpart** are dropped: `rotateCurve`, `fadeShare`, `arc`, `spring*`,
   `revealOnScroll`, `revealFraction`, `pathWrap`, and a loop's or entrance's keys on a motion that has none.
 - **Keyframes on a reverse loop** run backwards on the way back (the curve too, as `CurvedAnimation` over

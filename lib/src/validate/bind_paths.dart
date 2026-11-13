@@ -4,6 +4,7 @@
 // type's props and the behaviors' models.
 import '../core/behavior_fields.dart';
 import '../core/bindings.dart';
+import '../core/migrate/legacy_paths.dart';
 import '../core/props.dart';
 import '../core/value_fields.dart';
 import 'diagnostic.dart';
@@ -11,6 +12,10 @@ import 'diagnostic.dart';
 /// Why [path] isn't a bindable path of a node of [spec] (null: it is),
 /// with the nearest valid key at the step that failed.
 ({String message, String? suggestion, bool reserved})? bindPathProblem(String path, WidgetSpec? spec, String type) {
+  // A schema-2 path (one an action names is not migrated): what to write.
+  if (schema2PathHint(path) case final String hint) {
+    return (message: '"$path" is a schema-2 path, which schema 3 does not read: write $hint.', suggestion: null, reserved: false);
+  }
   final keys = BindPaths.parse(path);
   if (keys.isEmpty) return (message: '"$path" is not a binding path.', suggestion: null, reserved: false);
   final head = keys.first;

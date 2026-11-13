@@ -78,6 +78,16 @@ document renders the same; a schema-3 document written new gets Flutter's behavi
 | a text style with no `height` was drawn at 1.33 (Material's `bodySmall`), unless it said `naturalHeight: true` (or the project's theme `naturalLineHeight`) | the inherited `defaultTextStyle`'s height (Flutter's `DefaultTextStyle`), else the font's own line height (Flutter's `height: null`, CSS `line-height: normal`); `naturalHeight` and `naturalLineHeight` are gone | `"defaultTextStyle": {"height": 1.33}` on each top-level node of the document (one place per tree, not per style: 380 over 106 corpus documents, +0.08% bytes); a node with a `naturalHeight` style gets `"defaultTextStyle": {}` and 1.33 written on its other styles. Reported: a natural run beside 1.33 runs, a theme style a natural node names, a patch or binding switching it, a theme's `naturalLineHeight` or style's `naturalHeight` (a project's theme is not in its documents: remove `defaultTextStyle` from the top-level nodes of its migrated documents) | `text.lineHeight` |
 | a text's `layout.padding` was ignored (the lines sat at the node's edge; a hugging text did not grow) | applied around the lines, as `Padding(child: Text)`, and counted in a hugging size | dropped from text nodes, their `layout.padding` bindings, the state patches that target a text and a text's media patches (it did nothing) | `text.padding` |
 
+### Paths an action names
+
+A `setValue`'s `values[].path` is not migrated: it is read against the node it targets when it runs, which may be
+in another document, a component or a list item. A schema-2 path there (`motion.originX`, `loops[0].duration`,
+`drag.track.min`, `props.style.naturalHeight`...) is refused where it is used: the validator reports it as
+`unknown_bind_path` with the schema-3 path to write, and at run time the SDK sets nothing for it and says so once
+(`Codelessly: setValue on <node>: "<path>" is a schema-2 path, which schema 3 does not read (nothing set); write
+...`); the other values of the action still apply. `schema2PathHint(path)` gives the schema-3 spelling. None of
+the corpus's documents names one.
+
 ## What is dropped (behaviour changes)
 
 These one-app fields had no generic schema-3 form (docs/design/02–04 say why, field by field). A value that did

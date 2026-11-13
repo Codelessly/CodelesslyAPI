@@ -151,6 +151,36 @@ void main() {
     expect(report2.behaviourChanges.single.path, '/nodes/n/props/runs');
   });
 
+  test('a schema-2 path an action names is refused with the schema-3 path (schema2PathHint, unknown_bind_path)', () {
+    expect(schema2PathHint('loops[1].duration'), contains('animations.loop1.duration'));
+    expect(schema2PathHint('drag.track.min'), '"track.min"');
+    expect(schema2PathHint('motion.originX'), contains('motion.alignment'));
+    expect(schema2PathHint('props.style.naturalHeight'), contains('defaultTextStyle'));
+    for (final ok in ['motion.scale', 'motion.path.progress', 'opacity', 'track.value', 'props.text']) {
+      expect(schema2PathHint(ok), isNull, reason: ok);
+    }
+    final doc = {
+      'schema': 3,
+      'roots': ['c'],
+      'nodes': {
+        'c': {
+          'type': 'canvas',
+          'layout': {'width': 390, 'height': 844},
+          'actions': [
+            {
+              'trigger': {'type': 'click'},
+              'actions': [
+                {'type': 'setValue', 'node': 'c', 'values': [{'path': 'motion.originY', 'value': 1}]},
+              ],
+            },
+          ],
+        },
+      },
+    };
+    final d = validateDocument(doc).where((x) => x.code == Codes.unknownBindPath).single;
+    expect(d.message, contains('motion.alignment'));
+  });
+
   test('every step has a sample here', () {
     expect(byId.keys.toSet().difference({...samples.keys, ...documentSamples.keys, 'patches.legacy'}), isEmpty);
   });

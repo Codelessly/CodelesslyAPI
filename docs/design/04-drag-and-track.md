@@ -561,6 +561,8 @@ Each is read and works exactly as before.
 - **Legacy binding paths set at run time** (`setValue` with `drag.enabled`): only a node's `bind` map is
   rewritten when it decodes. A bound `drag.track.endAngle` or `drag.track.viewBoxWidth` keeps its key and is no
   longer read.
+  *Schema 3:* such a path is refused where it is used, with the schema-3 path to write (`schema2PathHint`; the
+  validator's `unknown_bind_path`; the SDK sets nothing and says so once). See docs/guide/12-migrating-to-schema-3.md.
 
 ## Done in schema 3
 
