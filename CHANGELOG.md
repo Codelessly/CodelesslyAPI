@@ -1,5 +1,19 @@
 ## Unreleased
 
+**New**
+
+- `customPaint`, a behavior on any node (`Behaviors.customPaint`, `CustomPaint`): Flutter's `CustomPaint` as
+  data. `painter` and `foregroundPainter` are lists of `DrawOp`s named as the `Canvas` calls they are
+  (`PathOp`, `LineOp`, `RectOp`, `RRectOp`, `CircleOp`, `OvalOp`, `ArcOp`, `PointsOp`, `ParagraphOp`,
+  `ImageOp`) with Flutter's parameter names and a `DrawPaint` (Flutter's `Paint`), plus `GroupOp` (save,
+  transforms, clips, a layer, restore) and `RepeatOp` (`item`, `index`, `count`); `viewBox`, `fit`,
+  `isComplex`, `willChange`. Values may be literals or inline expressions (`Expr`). Ops with `hit` are hit
+  regions. Total decoding (unknown ops and keys round-trip), sparse encoding, binding paths by op id. Declared
+  as `BehaviorFields.customPaint`, `CustomPaintFields`, `DrawPaintFields` and `DrawOpSpecs`; `ExprCodec` marks a
+  field that takes an expression. New enums `PaintingStyle`, `PathFillType`, `PointMode`. Guide chapter 7.
+  Nothing existing changes: `strokePath`, `box.path`, `subpathColors`, `gradientPerSubpath` and `plotChart` are
+  as they were.
+
 **Breaking changes**
 
 *Removed* (fields the SDK never read: setting them changed nothing at runtime)

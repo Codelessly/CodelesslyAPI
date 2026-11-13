@@ -373,3 +373,57 @@ are removed in the release after.
 5. Rebuild plotter_v2's graph, petri_v2's board, apiary's comb and
    safecracker's ticks on it; then delete the Cartesian chart props,
    `subpathColors` and `gradientPerSubpath`.
+
+## Deviations from the proposal
+
+Implemented in `lib/src/custom_paint.dart` and `custom_paint_fields.dart` (SDK:
+`lib/src/render/custom_paint.dart`). Decided by the owner: a behavior on any node (D1), expressions inline in
+the ops (D2), `group` instead of loose save/restore. Where the proposal and "Flutter's name and shape first"
+disagreed, Flutter won. Every `Canvas` and `Paint` name below was checked against
+`/opt/flutter/bin/cache/pkg/sky_engine/lib/ui/painting.dart`.
+
+1. **One `paint` per call, Flutter's `Paint`, instead of `fill` plus a `Stroke` value.** Flutter draws a shape
+   with one `Paint` whose `style` is `fill` or `stroke`; the proposal's `Stroke` renamed its fields (`width`,
+   `cap`, `join`, `miterLimit`). An op has `paint`: a `DrawPaint` with `Paint`'s names and defaults (`color`,
+   `style`, `strokeWidth`, `strokeCap`, `strokeJoin`, `strokeMiterLimit`, `blendMode`, `isAntiAlias`), a
+   gradient or image as `shader` (the model's `Paint` JSON, laid out in the shape's bounds as
+   `createShader(rect)`), plus `dashPattern` (the decoration's name) and `scaleStroke` (the `path` node's name
+   for the proposal's `nonScaling`, inverted). `paint` may be a list, drawn in order, which is a fill then a
+   stroke written as two Flutter calls would be, without repeating the geometry. A paint that is only a color is
+   written as the color.
+2. **`strokeWidth` defaults to 0, a hairline, as Flutter's** (open question 3). `{"style": "stroke"}` is then
+   exactly `Paint()..style = PaintingStyle.stroke`; the conformance tests rely on it.
+3. **Angles are radians** (`arc.startAngle`, `sweepAngle`, `group.rotate`). With Flutter's parameter names,
+   degrees would be a trap for a mechanical translation from `CustomPainter` code. Formulas have `pi` and
+   `radians()`: `"${= radians(index * 6)}"`.
+4. **Op and parameter names are the `Canvas` method's.** `circle.c` (`drawCircle(Offset c, ...)`; `center` is
+   read too). `rect` and `rrect` are two ops (`drawRect`, `drawRRect`), not a `rect` with a `radius`. The text op
+   is `paragraph` (`drawParagraph`; `text` is read too). `image` takes `src` and `dst` (`drawImageRect`), not
+   `rect` and `fit`. The decoder reads every op spelled as its method (`drawCircle`, `drawRRect`,
+   `drawImageRect`) and writes the short name.
+5. **Path:** `trim: [start, end]` became `trimStart`, `trimEnd` (the `path` node's names); `smooth`
+   (Catmull-Rom) is not built: it is no Flutter call, and the curves `strokePath` needs are decided in its
+   migration wave.
+6. **No new `PropKind`s.** `PropType.expression` and `PropType.union` would add values to `PropKind`, and the
+   editor's properties package switches over it exhaustively, so this additive wave would break its build.
+   Instead: a field that takes an expression has an `ExprCodec` whose type is the literal's (a panel checks
+   `codec is ExprCodec` to offer the formula toggle), and ops are declared as `DrawOpSpecs`, one `DrawOpSpec`
+   per op with its fields beside `DrawOpCommonFields`, exactly as `ActionSpecs` declares actions; a list of ops
+   is typed `PropType.json('DrawOp')`. Doc 05's single union mechanism can take both over. Until the editor has
+   an op-list panel, its coverage test should list `DrawOp` among the types shown as JSON by design.
+7. **`repeat.indexAs`** was added beside `as`: a 2D list needs the outer index inside the inner repeat.
+8. **View box** is held as `[minX, minY, width, height]`; `[width, height]` reads, and is written when the origin
+   is 0. Other fits than `fill` center the view box (`Alignment.center`) and clip to the box.
+9. **Caching is per top-level op**, each its own `ui.Picture` replayed until a name it reads changes, the box
+   resizes or an image it waits for arrives. Consecutive static ops are not merged into one picture and a
+   `repeat` of one rect is not batched into one path per color: measured, a 48 × 48 board (2,304 rects, three
+   expressions each) records in about 60 ms in a debug test run, once per change of its data.
+10. **Values come through a render-owned contract.** The render core imports no runtime code, so it reads
+    expressions through `ExpressionValues` (render/contracts.dart), which the runtime's values implement. A
+    tree without bindings draws the literals only; a design canvas draws expressions at the values its binder
+    gives (the variables' defaults).
+11. **Hit regions** report `region`, `x`, `y`, `viewX`, `viewY`, `item`, `index`, added to `${result}` of the
+    node's pointer triggers only when the node has a `customPaint`. A paragraph's region is its laid-out box,
+    an image's its `dst`.
+12. **Not migrated in this wave:** `strokePath`, `box.path`, `subpathColors`, `gradientPerSubpath` and
+    `plotChart`'s props are unchanged; their decoders still read and write them as before.

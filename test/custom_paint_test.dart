@@ -3,6 +3,9 @@
 // real JSON, as a literal and as an expression; decoding is total; encoding
 // is sparse; the proposal's worked examples read and write back unchanged;
 // binding paths reach ops by id.
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
@@ -304,5 +307,22 @@ void main() {
     expect(const CustomPaint(painter: [a]).copyWith(willChange: true).willChange, isTrue);
     expect(const DrawPaint().copyWith(style: PaintingStyle.stroke).toJson(), {'style': 'stroke'});
     expect(const GroupOp(ops: [a]).copyWith(opacity: const Expr(0.5)).hashCode, const GroupOp(ops: [a], opacity: Expr(0.5)).hashCode);
+  });
+
+  test('the guide\'s JSON samples read and write back unchanged', () {
+    final text = File('docs/guide/07-custom-paint.md').readAsStringSync();
+    final blocks = RegExp(r'```json\n([\s\S]*?)```').allMatches(text).map((m) => m[1]!).toList();
+    expect(blocks.length, greaterThanOrEqualTo(4));
+    for (final b in blocks) {
+      var json = jsonDecode(b) as Json;
+      if (json['customPaint'] case final Json inner) json = inner;
+      final paint = CustomPaint.fromJson(json)!;
+      expect(paint.toJson(), json, reason: b);
+      expect(paint.allOps.whereType<UnknownDrawOp>(), isEmpty, reason: b);
+    }
+    final spec = DrawOpSpecs.of('circle')!;
+    expect(spec.flutter, 'Canvas.drawCircle');
+    expect(spec.fields.first.key, 'c');
+    expect(CircleOpFields.radius.codec, isA<ExprCodec>());
   });
 }

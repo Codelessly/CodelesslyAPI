@@ -44,3 +44,5 @@ interpolated and do not start or restart data motion. A domain edit during a
 running plot transition changes the domain immediately while keeping its
 current numeric progression. A change of chart kind or identity-field
 configuration snaps the new model rather than morphing unrelated datasets.
+
+Next: [Drawing with `customPaint`](07-custom-paint.md)
