@@ -300,6 +300,18 @@ void main() {
   });
 
   group('bindings and expressions', () {
+    test('a custom paint\'s ops read the size they paint at, and its view box may be a width and a height', () {
+      final d = base();
+      node(d, 'box')['customPaint'] = {
+        'viewBox': [20, 10],
+        'painter': [
+          {'op': 'path', 'points': [[0, 0], [r'${= 0.5 * size.width}', r'${size.height}']], 'paint': '#FF000000'},
+        ],
+      };
+      expect(validateDocument(d), isEmpty);
+      node(d, 'title')['bind'] = {'props.text': r'${size.width}'};
+      expectOne(d, Codes.unknownName, path: '/nodes/title/bind/props.text');
+    });
     test('a binding to a path that does not exist is reported with the right one (unknown_bind_path)', () {
       final d = base();
       node(d, 'title')['bind'] = {'props.txt': r'${count}'};

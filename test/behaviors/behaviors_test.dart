@@ -129,7 +129,8 @@ void main() {
     expect(b.track!.shape, TrackShape.arc);
     expect(b.track!.variable, 'volume');
     expect(b.dismissible, isNull);
-    expect(b.strokePath!.points.last, const Offset(1, 10));
+    // The stroke path is a custom paint path op (schema 4).
+    expect(b.customPaint!.painter.single, isA<PathOp>());
     expect(b.particles!.colors, [const Color(0xFFFF0000)]);
     expect(b.textDirection, TextDirection.rtl);
     expect(n.extra, {'custom': 1});
@@ -183,10 +184,21 @@ void main() {
     expect(written['track'], {'variable': 'volume', 'shape': 'arc', 'max': 10});
     // zoomable: true is the transform gesture's zoomable form.
     expect(written['transformGesture'], {'target': 'content', 'pan': 'whenZoomed'});
+    expect(written['customPaint'], {
+      'painter': [
+        {
+          'op': 'path',
+          'id': 'strokePath',
+          'points': [[0, 10], [r'${size.width}', 10]],
+          'paint': {'color': '#FFFF5500', 'style': 'stroke', 'strokeWidth': 4, 'strokeCap': 'round', 'strokeJoin': 'round', 'dashPattern': [6, 4]},
+        },
+      ],
+    });
     expect(b.transformGesture, zoomableGesture);
-    expect({...written}..removeWhere((k, _) => const {'animations', 'motion', 'transitions', 'track', 'transformGesture'}.contains(k)),
+    expect({...written}..removeWhere((k, _) => const {'animations', 'motion', 'transitions', 'track', 'transformGesture', 'customPaint'}.contains(k)),
         jsonDecode(jsonEncode(legacy
           ..remove('scale')
+          ..remove('strokePath')
           ..['hero'] = {'tag': 'card', 'flightShuttle': 'morphCorners'})));
     expect(migratedNode(n.toJson()), n);
   });

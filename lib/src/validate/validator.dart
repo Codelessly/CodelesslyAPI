@@ -1606,6 +1606,8 @@ final class _Validator {
       }
       for (final name in roots) {
         if (declared.contains(name) || runtimeScopes.contains(name)) continue;
+        // A custom paint's ops read the size they paint at.
+        if (name == 'size' && at.contains('/customPaint/')) continue;
         r.add(Codes.unknownName, at,
             '"$name" is not a declared variable${currentCanvas == null ? '' : ' of canvas "$currentCanvas"'} nor a runtime scope (${runtimeScopes.join(', ')}).',
             suggestion: nearest(name, [...declared, ...runtimeScopes]));

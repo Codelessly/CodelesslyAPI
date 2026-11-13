@@ -121,8 +121,10 @@ List<MigrationStep> get schema4Steps => migrationSteps3to4;
 
 /// Upgrades a schema-3 layout document's JSON to schema 4: the fields schema
 /// 4 folded into one Flutter concept moved there (the node's `scale` and
-/// `layout.rotation` into `motion`; `flightKey` and `flight` into `hero`),
-/// or kept as `legacy.<name>` and reported when they have no schema-4 form.
+/// `layout.rotation` into `motion`; `flightKey` and `flight` into `hero`;
+/// `strokePath`, `subpathColors` and `gradientPerSubpath` into `customPaint`
+/// path ops, a box's `path` into a path node), or kept as `legacy.<name>`
+/// and reported when they have no schema-4 form.
 /// A schema-2 document is not migrated by it (chain [migrate2to3] first, as
 /// [migrateDocument] does); one already at schema 4 (or later) is returned
 /// as given. Never throws, as [migrate2to3].
