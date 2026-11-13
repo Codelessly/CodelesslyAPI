@@ -128,7 +128,7 @@ ComponentLink link(int version, String semver, {int? pin, ManagedChannel channel
     ComponentLink(
       id: 'sign_in',
       version: version,
-      managed: ManagedComponentRef(semver: semver, pin: pin, channel: channel),
+      managedJson: ManagedComponentRef(semver: semver, pin: pin, channel: channel).toJson(),
     );
 
 void main() {

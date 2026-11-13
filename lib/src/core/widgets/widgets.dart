@@ -1,5 +1,4 @@
 import '../props.dart';
-import '../../standard_catalog.dart';
 import 'canvas.dart';
 import 'collections.dart';
 import 'flex.dart';
@@ -28,15 +27,3 @@ const List<WidgetSpec> coreWidgetSpecs = [
   ...indicatorsSpecs,
   ...pathAndSlotSpecs,
 ];
-
-/// Every widget declaration of the standard catalog ([standardCatalog]):
-/// a view kept for code that lists or looks up node types without a
-/// catalog of its own.
-abstract final class Widgets {
-  /// The standard catalog's node types.
-  static List<WidgetSpec> get all => standardCatalog.widgets;
-
-  /// The declaration for [type], or null for a type the standard catalog
-  /// doesn't declare (its node still decodes and round-trips).
-  static WidgetSpec? of(String type) => standardCatalog.widget(type);
-}
