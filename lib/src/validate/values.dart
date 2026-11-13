@@ -4,6 +4,8 @@
 import '../core/json.dart';
 import '../core/props.dart';
 import '../core/values/geometry.dart';
+import '../core/theme.dart';
+import '../core/values/color.dart';
 import '../core/values/text.dart';
 import 'diagnostic.dart';
 
@@ -49,9 +51,37 @@ const Map<String, String> valueForms = {
 };
 
 final class ValueChecker {
-  ValueChecker(this.r, {this.hook});
+  ValueChecker(this.r, {this.hook, this.theme});
   final Reporter r;
   final JsonValueHook? hook;
+
+  /// The project's theme: the colors and text styles names may refer to
+  /// (null: names are checked as names only).
+  final ThemeTokens? theme;
+
+  void _colorName(String name, String path) {
+    final t = theme;
+    if (t != null && t.color(name) != null) return;
+    final names = t?.colorNames.toList() ?? const <String>[];
+    r.add(Codes.unknownThemeName, path,
+        names.isEmpty
+            ? '"$name" is not a color: write "#AARRGGBB", or declare "$name" in the site manifest\'s "theme": {"colors": {"$name": "#AARRGGBB"}} (site.json beside the pages).'
+            : 'No theme color "$name". The theme\'s colors: ${_list(names)}.',
+        suggestion: nearest(name, names));
+  }
+
+  void _styleName(String name, String path) {
+    final t = theme;
+    if (t != null && t.textStyle(name) != null) return;
+    final names = t?.textStyles.keys.toList() ?? const <String>[];
+    r.add(Codes.unknownThemeName, path,
+        names.isEmpty
+            ? 'No text style "$name": declare it in the site manifest\'s "theme": {"textStyles": {"$name": {...}}} (site.json beside the pages).'
+            : t!.textStyles.containsKey(name)
+                ? 'Text style "$name" starts from a style the theme does not have, or from itself.'
+                : 'No theme text style "$name". The theme\'s text styles: ${_list(names)}.',
+        suggestion: nearest(name, names));
+  }
 
   /// Checks [json] at [path] against [def] (its type, bounds and codec).
   void checkDef(PropDef<Object?> def, Object? json, String path) => check(def.type, json, path, codec: def.codec, def: def);
@@ -141,6 +171,7 @@ final class ValueChecker {
         if (json is String) {
           final hex = RegExp(r'^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$');
           if (hex.hasMatch(json)) return;
+          if (Color.isName(json)) return _colorName(json, path);
           if (RegExp(r'^([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$').hasMatch(json)) {
             r.add(Codes.looseValue, path, 'Write colors with a leading "#": "#$json".');
             return;
@@ -258,6 +289,10 @@ final class ValueChecker {
   }
 
   void _object(PropType type, Object? json, String path, PropCodec<Object?>? codec) {
+    if (type.name == 'TextStyle') {
+      if (json is String) return _styleName(json.trim(), path);
+      if (json is Map && json['from'] is String) _styleName((json['from'] as String).trim(), pointer(path, 'from'));
+    }
     if (json is! Map) {
       // A shorthand the model reads (a hero's tag, `sticky: true`, a preset name).
       if (codec != null && codec.decode(json) != null) return;

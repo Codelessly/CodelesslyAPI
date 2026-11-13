@@ -6,3 +6,9 @@ takes the expression's value. Paths: `visible`, `opacity`, `layout.<field>`, `de
 
 Expressions: `${path}` reads a value (`user.name`, `items[0].price`, `pal[item.kind]`), `${= formula}` computes
 one ({{page:formulas.md|formula functions}}). A binding that is exactly one expression keeps the value's type.
+
+A text's `props.text` may hold expressions directly. A literal `$` right before one is text: `"$${price}"` shows
+`$47`. There is no escape for a literal `${`.
+
+A media rule's patch may bind too (`"patch": {"bind": {"visible": "${= !open}"}}`): the binding holds at the
+rule's sizes only, and `null` drops one of the node's own there.

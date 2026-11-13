@@ -123,12 +123,47 @@ void main() {
         'invalid_media /nodes/f/media/0',
         'unknown_breakpoint /nodes/f/media/1/minWidth',
         'invalid_media /nodes/f/media/2/smallerThan',
-        'invalid_media /nodes/f/media/3/patch/bind',
         'invalid_media /nodes/f/media/3/patch/children',
         'media_overridden /nodes/f/media/4/patch',
         'invalid_media /nodes/f/media/5',
         'invalid_media /nodes/f/media/6',
       ]));
+    });
+
+    test('a patch may bind at its sizes only, drop a binding, and move what is painted (motion)', () {
+      Json withVisible(List<Object?> media) {
+        final d = base(media);
+        ((d['nodes'] as Map)['f'] as Map)['bind'] = {'visible': r'${= !open}'};
+        return d;
+      }
+      // The rule sets visible, which the node binds: the binding wins, and
+      // the warning names both ways out.
+      final over = validateDocument(withVisible([
+        {'minWidth': 600, 'patch': {'visible': true}},
+      ]));
+      expect([for (final d in over) d.code.name], ['media_overridden']);
+      expect(over.single.message, contains('"bind": {"visible": null}'));
+      // Dropping the binding at those sizes, or binding only there: clean.
+      expect(codesOf(withVisible([
+        {'minWidth': 600, 'patch': {'visible': true, 'bind': {'visible': null}}},
+      ])), isEmpty);
+      final d = base([
+        {'maxWidth': 599, 'patch': {'bind': {'visible': r'${= !open}'}, 'motion': {'translateY': -36}}},
+      ]);
+      expect(codesOf(d), isEmpty);
+      expect(codesOf(base([
+        {'maxWidth': 599, 'patch': {'bind': {'visibel': r'${= 1}'}, 'motion': {'translateY': 'up'}}},
+      ])), containsAll(['unknown_bind_path /nodes/f/media/0/patch/bind/visibel', 'wrong_type /nodes/f/media/0/patch/motion/translateY']));
+      // On a screen the patch's binding and transform apply.
+      final n = Node.fromJson((d['nodes'] as Map)['f'], id: 'f')!;
+      final narrow = n.atScreen(390, 844, bps);
+      expect(narrow.bind['visible'], r'${= !open}');
+      expect(narrow.behaviors.motion?.translateY, -36);
+      expect(n.atScreen(1440, 900, bps).bind.containsKey('visible'), isFalse);
+      final dropped = Node.fromJson({...?((withVisible([
+        {'minWidth': 600, 'patch': {'visible': true, 'bind': {'visible': null}}},
+      ])['nodes'] as Map)['f'] as Map?)}, id: 'f')!.atScreen(1440, 900, bps);
+      expect((dropped.visible, dropped.bind.containsKey('visible')), (true, false));
     });
 
     test('a filling child with a basis in a wrapping flex is allowed; basis without wrap is ignored', () {
