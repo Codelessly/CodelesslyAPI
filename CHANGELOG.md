@@ -1,4 +1,4 @@
-## 30.1.0 (unreleased)
+## 30.1.0
 
 **One spelling for each concept; the schema stays 3.** Documents are still `"schema": 3` (`kSchemaVersion`), and
 schema-2 documents still load, migrated in memory by `migrate2to3`, whose last steps now give each concept that
