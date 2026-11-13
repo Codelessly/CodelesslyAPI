@@ -7,8 +7,8 @@
 // "when"}` (ActionDef.toJson); an editor reads the fields listed here off it
 // and writes them back, keeping keys it doesn't list.
 import 'actions.dart';
-import 'behavior_fields.dart' show AnimationCurveCodec, motionType, springType;
-import 'behaviors.dart' show AnimationCurve, DragDirection, Motion, Spring;
+import 'behavior_fields.dart' show AnimationCurveCodec, poseType, springType;
+import 'behaviors.dart' show AnimationCurve, DragDirection, Pose, Spring;
 import 'json.dart' show readMap, readString;
 import 'custom_paint.dart' show Expr;
 import 'custom_paint_fields.dart' show ExprCodec;
@@ -102,7 +102,7 @@ abstract final class RouteTransitionFields {
 List<PropDef<Object?>> routeTransitionFields() => RouteTransitionFields.all;
 
 abstract final class TransitionSideFields {
-  static const motion = PropDef<Motion>('motion', ValueCodec<Motion>(_motionIn, _out, motionType), Motion.none,
+  static const motion = PropDef<Pose>('motion', ValueCodec<Pose>(_poseIn, _out, poseType), Pose.none,
       doc: 'The values it moves from (entering) or to (leaving).');
   static const reveal = PropDef<TransitionReveal?>(
       'reveal', ValueCodec<TransitionReveal?>(TransitionReveal.fromJson, _out, transitionRevealType), null);
@@ -112,7 +112,7 @@ abstract final class TransitionSideFields {
   static const List<PropDef<Object?>> all = [motion, reveal, curve, delayMs, durationMs];
 }
 
-Motion? _motionIn(Object? j) => readMap(j) == null ? null : Motion.fromJson(j);
+Pose? _poseIn(Object? j) => readMap(j) == null ? null : Pose.fromJson(j);
 
 List<PropDef<Object?>> transitionSideFields() => TransitionSideFields.all;
 

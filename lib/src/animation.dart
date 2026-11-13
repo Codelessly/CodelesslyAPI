@@ -229,6 +229,17 @@ enum TrackBlend {
       };
 }
 
+/// How a track's [AnimationTrack.keyframes] are joined.
+enum KeyframeInterpolation {
+  /// Straight segments, each on its keyframe's curve (`TweenSequence`).
+  linear,
+
+  /// One smooth curve through every keyframe that never overshoots one
+  /// (monotone cubic, Fritsch–Carlson): a lift that swells and settles. The
+  /// keyframes' own curves are not used.
+  monotoneCubic,
+}
+
 /// One tween a [NodeAnimation] drives: a property at a binding [path] of a
 /// node, or a [variable].
 ///
@@ -238,7 +249,15 @@ enum TrackBlend {
 /// (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing
 /// [from] or [to] is the property's own value (an entrance gives only
 /// `from`), or [blend]'s identity when the track adds or multiplies.
-/// Numbers and colors interpolate; any other value switches at the end.
+/// Numbers interpolate and, as `Tween<double>` does, carry on past the ends
+/// on a curve that overshoots (`elasticOut`); colors interpolate; any other
+/// value switches at the end.
+///
+/// On a replacing track a wave's amplitude is a share of the way from
+/// [from] to [to] (the property's own value when [to] is omitted):
+/// `{"from": 0, "wave": [{}]}` swings a property between its own value and
+/// as far the other way, once a run (a pendulum). On an adding or
+/// multiplying track it is in the property's own units.
 @immutable
 final class AnimationTrack extends _Value {
   const AnimationTrack({
@@ -253,6 +272,7 @@ final class AnimationTrack extends _Value {
     this.interval = const [0, 1],
     this.curve = AnimationCurve.linear,
     this.blend = TrackBlend.replace,
+    this.interpolation = KeyframeInterpolation.linear,
   });
 
   /// Stable within its animation, so an edit can address it
@@ -281,6 +301,9 @@ final class AnimationTrack extends _Value {
   final AnimationCurve curve;
   final TrackBlend blend;
 
+  /// How [keyframes] are joined.
+  final KeyframeInterpolation interpolation;
+
   /// [interval]'s begin and end, kept in order inside 0–1.
   (double, double) get span {
     final b = interval.isNotEmpty ? interval.first.clamp(0.0, 1.0) : 0.0;
@@ -302,16 +325,19 @@ final class AnimationTrack extends _Value {
     final u = local(v);
     final identity = blend.identity;
     final start = begin ?? from ?? identity ?? own;
+    final stop = end ?? to ?? identity ?? own;
     if (wave.isNotEmpty) {
       final base = readDouble(start) ?? 0;
-      var sum = base;
+      var sum = 0.0;
       for (final w in wave) {
         sum += w.at(u);
       }
-      return sum;
+      final span = blend == TrackBlend.replace ? readDouble(stop) : null;
+      return base + (span == null ? sum : (span - base) * sum);
     }
-    final stop = end ?? to ?? identity ?? own;
-    if (keyframes.isNotEmpty) return sequenceAt(u, start, stop);
+    if (keyframes.isNotEmpty) {
+      return interpolation == KeyframeInterpolation.monotoneCubic ? monotoneAt(u, start, stop) : sequenceAt(u, start, stop);
+    }
     return lerpValue(start, stop, u);
   }
 
@@ -343,13 +369,82 @@ final class AnimationTrack extends _Value {
     return points.last.$2;
   }
 
-  /// [a] to [b] at [t]: numbers and colors interpolate (`Tween`,
-  /// `ColorTween`); anything else switches at the end.
+  /// The number keyframes [keyframes] give through [start] (at 0) and
+  /// [stop] (at 1) at [u], on one monotone cubic (it never overshoots a
+  /// keyframe); a keyframe at 0 or 1 gives that end. [start] or [stop] that
+  /// isn't a number: [sequenceAt].
+  Object? monotoneAt(double u, Object? start, Object? stop) {
+    var from = readDouble(start), to = readDouble(stop);
+    if (from == null || to == null) return sequenceAt(u, start, stop);
+    final points = <(double, double)>[];
+    final sorted = [...keyframes]..sort((a, b) => a.at.compareTo(b.at));
+    for (final k in sorted) {
+      final v = readDouble(k.value);
+      if (v == null || !v.isFinite) continue;
+      if (k.at <= 0) {
+        from = v;
+      } else if (k.at >= 1) {
+        to = v;
+      } else if (points.isNotEmpty && points.last.$1 == k.at) {
+        points[points.length - 1] = (k.at, v);
+      } else {
+        points.add((k.at, v));
+      }
+    }
+    return monotoneCubic([(0, from!), ...points, (1, to!)], u);
+  }
+
+  /// The monotone cubic (Fritsch–Carlson) through [points] (times 0–1 in
+  /// order, the first at 0 and the last at 1) at [t].
+  static double monotoneCubic(List<(double, double)> points, double t) {
+    final n = points.length;
+    if (t <= 0) return points.first.$2;
+    if (t >= 1) return points.last.$2;
+    final slopes = [
+      for (var i = 0; i < n - 1; i++) (points[i + 1].$2 - points[i].$2) / (points[i + 1].$1 - points[i].$1),
+    ];
+    final tangents = List<double>.filled(n, 0);
+    tangents[0] = slopes.first;
+    tangents[n - 1] = slopes.last;
+    for (var i = 1; i < n - 1; i++) {
+      final a = slopes[i - 1], b = slopes[i];
+      tangents[i] = a * b <= 0 ? 0 : (a + b) / 2;
+    }
+    for (var i = 0; i < n - 1; i++) {
+      if (slopes[i] == 0) {
+        tangents[i] = 0;
+        tangents[i + 1] = 0;
+        continue;
+      }
+      final alpha = tangents[i] / slopes[i], beta = tangents[i + 1] / slopes[i];
+      final sum = alpha * alpha + beta * beta;
+      if (sum > 9) {
+        final tau = 3 / math.sqrt(sum);
+        tangents[i] = tau * alpha * slopes[i];
+        tangents[i + 1] = tau * beta * slopes[i];
+      }
+    }
+    var i = 0;
+    while (i < n - 2 && t > points[i + 1].$1) {
+      i++;
+    }
+    final (t0, v0) = points[i];
+    final (t1, v1) = points[i + 1];
+    final h = t1 - t0, s = (t - t0) / h, s2 = s * s, s3 = s2 * s;
+    return (2 * s3 - 3 * s2 + 1) * v0 +
+        (s3 - 2 * s2 + s) * h * tangents[i] +
+        (-2 * s3 + 3 * s2) * v1 +
+        (s3 - s2) * h * tangents[i + 1];
+  }
+
+  /// [a] to [b] at [t]: numbers interpolate, past the ends too when [t]
+  /// overshoots (`Tween<double>`); colors interpolate within them
+  /// (`ColorTween`); anything else switches at the end.
   static Object? lerpValue(Object? a, Object? b, double t) {
+    final x = readDouble(a), y = readDouble(b);
+    if (x != null && y != null) return t == 0 ? a : (t == 1 ? b : x + (y - x) * t);
     if (t <= 0 && a != null) return a;
     if (t >= 1 && b != null) return b;
-    final x = readDouble(a), y = readDouble(b);
-    if (x != null && y != null) return x + (y - x) * t;
     final ca = a is Color ? a : Color.fromJson(a), cb = b is Color ? b : Color.fromJson(b);
     if (ca != null && cb != null) {
       int ch(int p, int q) => (p + (q - p) * t).round().clamp(0, 255);
@@ -381,6 +476,7 @@ final class AnimationTrack extends _Value {
       interval: interval.isEmpty ? const [0, 1] : interval,
       curve: r.curve('curve', AnimationCurve.linear),
       blend: r.e(TrackBlend.values, 'blend', TrackBlend.replace),
+      interpolation: r.e(KeyframeInterpolation.values, 'interpolation', KeyframeInterpolation.linear),
     );
   }
 
@@ -397,11 +493,12 @@ final class AnimationTrack extends _Value {
     if (interval.length != 2 || interval[0] != 0 || interval[1] != 1) j['interval'] = interval.map(writeDouble).toList();
     return j
       ..e('curve', curve, AnimationCurve.linear)
-      ..e('blend', blend, TrackBlend.replace);
+      ..e('blend', blend, TrackBlend.replace)
+      ..e('interpolation', interpolation, KeyframeInterpolation.linear);
   }
 
   @override
-  List<Object?> get props => [id, path, node, variable, from, to, keyframes, wave, interval, curve, blend];
+  List<Object?> get props => [id, path, node, variable, from, to, keyframes, wave, interval, curve, blend, interpolation];
 }
 
 /// One `AnimationController` on a node and the tweens it drives (behavior
@@ -441,6 +538,8 @@ final class NodeAnimation extends _Value {
     this.alignment,
     this.tracks = const [],
     this.previewAt,
+    this.ramp = 0,
+    this.visibleFraction,
   });
 
   /// Unique on the node: `${animation.<id>.*}`, the `animate` action's
@@ -510,6 +609,18 @@ final class NodeAnimation extends _Value {
   /// is an entrance's end). Null takes the preset's.
   final double? previewAt;
 
+  /// A repeating animation speeds up from still to its full pace over this
+  /// many ms when it starts or resumes, slows to a stop over it when
+  /// [paused], and eases to a new pace when its [duration] changes (a fan,
+  /// a turntable spinning up). 0: at once, as `repeat()` does.
+  final int ramp;
+
+  /// With it, an autoplaying animation waits until this share (0–1) of the
+  /// node is visible in its view before it starts (a scroll reveal: the
+  /// share a `enterViewport` trigger's `visibleFraction` counts). Null: it
+  /// starts when the node appears.
+  final double? visibleFraction;
+
   /// The JSON key on a node.
   static const String key = 'animations';
 
@@ -536,7 +647,7 @@ final class NodeAnimation extends _Value {
     return NodeAnimation(
       id: id,
       enabled: enabled,
-      duration: duration ?? p.duration,
+      duration: duration ?? p.durationOf?.call(params) ?? p.duration,
       reverseDuration: reverseDuration,
       delay: delay,
       curve: curve ?? p.curve,
@@ -550,6 +661,8 @@ final class NodeAnimation extends _Value {
       alignment: alignment,
       tracks: [...p.tracks(params), ...tracks],
       previewAt: previewAt ?? p.previewAt,
+      ramp: ramp,
+      visibleFraction: visibleFraction,
     );
   }
 
@@ -577,6 +690,8 @@ final class NodeAnimation extends _Value {
       alignment: Alignment.fromJson(m['alignment']),
       tracks: [...?readList(_jsonText(m['tracks']))?.map(AnimationTrack.fromJson).nonNulls],
       previewAt: r.dn('previewAt'),
+      ramp: r.ms('ramp', 0),
+      visibleFraction: r.dn('visibleFraction'),
     );
   }
 
@@ -598,7 +713,10 @@ final class NodeAnimation extends _Value {
     j.s('progress', progress);
     if (alignment != null) j['alignment'] = alignment!.toJson();
     if (tracks.isNotEmpty) j['tracks'] = [for (final t in tracks) t.toJson()];
-    j.dn('previewAt', previewAt);
+    j
+      ..dn('previewAt', previewAt)
+      ..i('ramp', ramp, 0)
+      ..dn('visibleFraction', visibleFraction);
     return j;
   }
 
@@ -611,6 +729,7 @@ final class NodeAnimation extends _Value {
     double? phase,
     List<AnimationTrack>? tracks,
     double? previewAt,
+    bool? paused,
   }) =>
       NodeAnimation(
         id: id,
@@ -624,18 +743,20 @@ final class NodeAnimation extends _Value {
         repeat: repeat ?? this.repeat,
         autoplay: autoplay ?? this.autoplay,
         playKey: playKey ?? this.playKey,
-        paused: paused,
+        paused: paused ?? this.paused,
         phase: phase ?? this.phase,
         spring: spring,
         progress: progress,
         alignment: alignment,
         tracks: tracks ?? this.tracks,
         previewAt: previewAt ?? this.previewAt,
+        ramp: ramp,
+        visibleFraction: visibleFraction,
       );
 
   @override
   List<Object?> get props => [
         id, preset, params, enabled, duration, reverseDuration, delay, curve, repeat, autoplay, playKey, paused, //
-        phase, spring, progress, alignment, tracks, previewAt,
+        phase, spring, progress, alignment, tracks, previewAt, ramp, visibleFraction,
       ];
 }

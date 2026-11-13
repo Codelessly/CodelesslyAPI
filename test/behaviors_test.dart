@@ -5,20 +5,33 @@ import 'package:test/test.dart';
 
 void main() {
   test('keyframes at the ends give the values there (a 0 -> 1 path run with no keyframe between)', () {
-    final m = Motion.fromJson({
-      'path': 'M0 0 L100 0',
-      'keyframes': [
-        {'t': 0, 'pathProgress': 0},
-        {'t': 1, 'pathProgress': 1},
-      ],
-    })!;
-    expect(Motion.keyframed(m.keyframes, 'pathProgress', 0.3, 0.3, 0), 0);
-    expect(Motion.keyframed(m.keyframes, 'pathProgress', 0.3, 0.3, 0.5), closeTo(0.5, 1e-9));
-    expect(Motion.keyframed(m.keyframes, 'pathProgress', 0.3, 0.3, 1), 1);
+    // A legacy motion's keyframes, replayed by a key: a track per property
+    // they name, through them on one monotone cubic.
+    final a = Behaviors.fromJson({
+      'motion': {
+        'path': 'M0 0 L100 0',
+        'duration': 400,
+        'replayKey': 'a',
+        'keyframes': [
+          {'t': 0, 'pathProgress': 0},
+          {'t': 1, 'pathProgress': 1},
+        ],
+      },
+    }).animations.single.expanded;
+    final run = a.tracks.single;
+    expect(run.path, 'motion.path.progress');
+    expect(run.valueAt(0, own: 0.3), 0);
+    expect(run.valueAt(0.5, own: 0.3) as double, closeTo(0.5, 1e-9));
+    expect(run.valueAt(1, own: 0.3), 1);
     // Keyframes inside only still run from the motion's own ends.
-    expect(Motion.keyframed([MotionKeyframe.fromJson({'t': 0.5, 'opacity': 0})!], 'opacity', 1, 1, 0.5), closeTo(0, 1e-9));
-    // No keyframe for a property: none.
-    expect(Motion.keyframed(m.keyframes, 'opacity', 1, 1, 0.5), isNull);
+    const inside = AnimationTrack(
+      path: 'opacity',
+      keyframes: [Keyframe(at: 0.5, value: 0)],
+      interpolation: KeyframeInterpolation.monotoneCubic,
+    );
+    expect(inside.valueAt(0.5, own: 1) as double, closeTo(0, 1e-9));
+    // No keyframe for a property: no track.
+    expect(a.tracks.where((t) => t.path == 'opacity'), isEmpty);
   });
 
   final nodeJson = <String, Object?>{
@@ -100,10 +113,12 @@ void main() {
     final n = Node.fromJson(nodeJson)!;
     final b = n.behaviors;
     expect(b.motion!.rotate, -3.5);
-    expect(b.motion!.enterFrom!.opacity, 0);
-    // The legacy loops and effect read as animations.
-    expect([for (final a in b.animations) a.id], ['loop0', 'loop1', 'shake']);
-    expect(b.transitions.opacity!.curve, AnimationCurve.easeInOut);
+    // The legacy loops, effect and the motion's entrance read as animations.
+    expect([for (final a in b.animations) a.id], ['loop0', 'loop1', 'shake', 'enter']);
+    expect(readMap(b.animations.last.params['from']), {'opacity': 0, 'translateY': 20});
+    // The legacy transitions, and the motion's own timing, as transitions.
+    expect(Transition.of(b.transitions, 'opacity')!.curve, AnimationCurve.easeInOut);
+    expect(Transition.of(b.transitions, 'motion')!.duration, 900);
     expect(b.inkWell!.overlayColor, const Color(0x1F000000));
     expect(b.states.patchFor('t', {WidgetState.hovered}), {
       'props': {'text': 'Hovered!'}
@@ -116,18 +131,51 @@ void main() {
     expect(b.particles!.colors, [const Color(0xFFFF0000)]);
     expect(b.textDirection, TextDirection.rtl);
     expect(n.extra, {'custom': 1});
-    // Written in the new shape: `animations` instead of `loops` and
-    // `effectAnimations`, the rest as given.
+    // Written in the new shape: `animations` instead of `loops`,
+    // `effectAnimations` and the motion's entrance, `transitions` as a
+    // list with the motion's timing, the motion as its pose; the rest as
+    // given.
     final legacy = {...nodeJson}
       ..remove('loops')
-      ..remove('effectAnimations');
+      ..remove('effectAnimations')
+      ..remove('motion')
+      ..remove('transitions');
     final written = jsonDecode(jsonEncode(n.toJson())) as Map;
     expect(written['animations'], [
       {'id': 'loop0', 'preset': 'pulse', 'params': {'scaleFrom': 0.65, 'opacityFrom': 0.35, 'opacityTo': 0}, 'duration': 1400},
       {'id': 'loop1', 'preset': 'fade', 'params': {'opacityFrom': 0.45}, 'duration': 1100, 'curve': 'easeInOut', 'repeat': {'reverse': true}},
       {'id': 'shake', 'preset': 'shake', 'duration': 400},
+      {
+        'id': 'enter',
+        'preset': 'enter',
+        'params': {
+          'from': {'opacity': 0, 'translateY': 20},
+          'frames': [
+            {'t': 0.5, 'scale': 1.2},
+          ],
+        },
+        'duration': 900,
+        'curve': 'easeOutBack',
+        'autoplay': true,
+      },
     ]);
-    expect({...written}..remove('animations'), jsonDecode(jsonEncode(legacy)));
+    expect(written['motion'], {'translateX': 10, 'rotate': -3.5});
+    expect(written['transitions'], [
+      {'property': 'opacity', 'duration': 1100, 'curve': 'easeInOut'},
+      {'property': 'scale', 'duration': 120},
+      {'property': 'decoration.fills', 'duration': 120},
+      {'property': 'visible', 'duration': 120},
+      {
+        'property': 'motion',
+        'duration': 900,
+        'curve': 'easeOutBack',
+        'keyframes': [
+          {'at': 0.5, 'value': {'scale': 1.2}},
+        ],
+        'interpolation': 'monotoneCubic',
+      },
+    ]);
+    expect({...written}..removeWhere((k, _) => const {'animations', 'motion', 'transitions'}.contains(k)), jsonDecode(jsonEncode(legacy)));
     expect(Node.fromJson(n.toJson()), n);
   });
 
@@ -202,14 +250,21 @@ void main() {
   });
 
   test('motion: rest, entrance start, keyframes', () {
-    const m = Motion(rotate: 30, translateX: 10, enterFrom: Motion(opacity: 0));
+    const m = Motion(rotate: 30, translateX: 10);
     expect(m.hasTransform, isTrue);
-    expect(m.atRest.hasTransform, isFalse);
-    expect(m.entranceStart.opacity, 0);
-    expect(m.entranceStart.rotate, 30);
-    expect(Motion.lerp(m.atRest, m, 0.5).rotate, 15);
-    const k = Motion(scale: 2, keyframes: [MotionKeyframe(t: 0.5, scale: 3)]);
-    expect(Motion.lerp(k.atRest, k, 0.5).scale, 3);
+    expect(Motion.none.hasTransform, isFalse);
+    // An entrance from enterFrom: the opacity starts at 0, the rotation at
+    // its own value (no track).
+    final enter = Behaviors.fromJson({
+      'motion': {'rotate': 30, 'translateX': 10, 'duration': 300, 'enterFrom': {'opacity': 0}},
+    }).animations.single.expanded;
+    expect([for (final t in enter.tracks) (t.path, t.from)], [('opacity', 0)]);
+    expect(Motion.lerp(Motion.none, m, 0.5).rotate, 15);
+    // Keyframes pass through their values.
+    final k = Behaviors.fromJson({
+      'motion': {'scale': 2, 'duration': 300, 'enter': true, 'keyframes': [{'t': 0.5, 'scale': 3}]},
+    }).animations.single.expanded.tracks.single;
+    expect(k.valueAt(0.5, own: 2), 3);
     expect(AnimationCurve.easeInOut.transform(0.5), closeTo(0.5, 0.01));
     expect(AnimationCurve.parse('Ease Out Back'), AnimationCurve.easeOutBack);
   });

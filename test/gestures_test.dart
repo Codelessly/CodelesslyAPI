@@ -1,4 +1,4 @@
-// Behaviors: motion's shimmer, arc, phase, pause and
+// Behaviors: a legacy motion's shimmer, arc, phase, pause and
 // path pacing, loop phases, effect cycles, gesture physics and bounds,
 // drag tracks' settings, flip cards, tilt, transform gestures, hero
 // placeholders, and a node's insert key.
@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 Node _node(Json j) => Node.fromJson({'id': 'n', 'type': 'box', ...j})!;
 
 void main() {
-  test('motion additions round-trip; named values stay', () {
+  test('motion additions read into the new shape; named values stay', () {
     final j = {
       'motion': {
         'loop': 'swing',
@@ -30,38 +30,42 @@ void main() {
     };
     final n = _node(j);
     final m = n.behaviors.motion!;
-    expect(m.loop, MotionLoop.swing);
-    expect(m.paused, isTrue);
-    expect(m.pathPacing, MotionPathPacing.area);
-    expect(
-      m.shimmer,
-      const MotionShimmer(color: Color(0xFFFFCC00), strength: 0.5, width: 0.3, duration: 900, angle: 90),
-    );
-    expect(n.toJson()['motion'], j['motion']);
+    final loop = n.behaviors.animations.firstWhere((a) => a.id == 'loop');
+    expect(loop.params['mode'], 'swing');
+    expect(loop.paused, isTrue);
+    expect(m.path!.pacing, PathPacing.area);
+    expect(m.path!.focus, [10, -4]);
+    expect(m.path!.orient, PathOrient.upright);
+    expect(n.behaviors.shimmer, const Shimmer(color: Color(0xFFFFCC00), strength: 0.5, width: 0.3, angle: 90));
+    expect(n.behaviors.animations.firstWhere((a) => a.id == 'shimmer').duration, 900);
+    expect(Transition.of(n.behaviors.transitions, 'motion.translateX')!.arc, 0.25);
+    expect(Node.fromJson(n.toJson()), n);
     // enterFrom names opacity 1 on purpose: the entrance starts there.
-    final faded = Motion.fromJson({
-      'opacity': 0,
-      'enterFrom': {'opacity': 1},
-    })!;
-    expect(faded.entranceStart.opacity, 1);
-    // A loop starts only from what enterFrom moves.
-    expect(faded.loopStart.opacity, 0);
+    Map<String, Object?> from(Json motion) =>
+        readMap(_node({'motion': motion}).behaviors.animations.single.params['from'])!;
+    expect(from({'opacity': 0, 'duration': 300, 'enterFrom': {'opacity': 1}}), {'opacity': 1});
+    // A loop starts only from what enterFrom moves away from rest.
+    expect(from({'opacity': 0, 'duration': 300, 'loop': 'restart', 'enterFrom': {'opacity': 1}}), isEmpty);
   });
 
   test('motion bindings: paused reads loosely, keyframes from JSON text', () {
     var n = _node({
-      'motion': {'rotate': 5},
+      'motion': {'rotate': 5, 'loop': 'restart', 'duration': 400},
+      'bind': {'motion.paused': r'${p}', 'motion.keyframes': r'${k}'},
     });
-    n = BindPaths.apply(n, 'motion.paused', 1);
-    expect(n.behaviors.motion!.paused, isTrue);
-    n = BindPaths.apply(n, 'motion.keyframes', '[{"t": 0.4, "translateY": -60}]');
-    expect(n.behaviors.motion!.keyframes, [const MotionKeyframe(t: 0.4, translateY: -60)]);
+    expect(n.bind, {'animations.loop.paused': r'${p}', 'animations.loop.params.frames': r'${k}'});
+    n = BindPaths.apply(n, 'animations.loop.paused', 1);
+    expect(n.behaviors.animations.single.paused, isTrue);
+    n = BindPaths.apply(n, 'animations.loop.params.frames', '[{"t": 0.4, "translateY": -60}]');
+    final track = n.behaviors.animations.single.expanded.tracks.firstWhere((t) => t.id == 'translateY');
+    expect(track.keyframes, [const Keyframe(at: 0.4, value: -60.0)]);
+    expect(track.interpolation, KeyframeInterpolation.monotoneCubic);
   });
 
   test('path helpers', () {
-    expect(Motion.wrapProgress(1.25), closeTo(0.25, 1e-9));
-    expect(Motion.wrapProgress(-0.25), closeTo(0.75, 1e-9));
-    expect(Motion.wrapProgress(1), 1);
+    expect(PathFollow.wrap(1.25), closeTo(0.25, 1e-9));
+    expect(PathFollow.wrap(-0.25), closeTo(0.75, 1e-9));
+    expect(PathFollow.wrap(1), 1);
     expect(Motion.uprightAngle(3.0), closeTo(3.0 - 3.141592653589793, 1e-9));
   });
 
