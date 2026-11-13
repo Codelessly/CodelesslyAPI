@@ -216,6 +216,13 @@ hovered apart), the project's variables (`site.json`, below) and the runtime's s
 `theme`, `auth`...); inside its own lists, `item` and `index`. **Never the caller's variables**: the same chip works
 on any page. What a section needs from its page comes in as a parameter.
 
+<a id="components-computed-values-inside-a-definition"></a>
+### Computed values inside a definition
+
+A definition's own variables may be computed from its parameters: `{"name": "over", "type": "boolean", "formula":
+"props.seats > props.limit"}` under the root's id in its `variables`, then `${over}` in any of its nodes. One rule,
+read by five nodes, written once.
+
 <a id="components-shared-state-variable-parameters"></a>
 ### Shared state: variable parameters
 
@@ -245,7 +252,10 @@ the caller's scope with the value as `${result}`. An event nobody handles does n
 The call and the definition's root are one box: the call's `layout` sizes and places it
 (width, height, flex, margin, x/y, align, constraints); the root keeps its padding, decoration and contents. A call
 has no `decoration` and no `layout.padding`. The root's own size is the design size its previews and new calls
-use. `visible` hides the instance when either the call or the root is hidden.
+use. `visible` hides the instance when either the call or the root is hidden. The root's own placement (its
+`margin`, `flex`, `align`, `x`/`y`, bound or patched) is not read: place the instance from the call (a margin that
+depends on a parameter is bound on the call, `"bind": {"layout.margin": "${= item.popular ? [0, 0, 0, 0] : [0, 28,
+0, 0]}"}`).
 
 <a id="components-ids-and-paths"></a>
 ### Ids and paths
