@@ -1,16 +1,18 @@
-// The one-time upgrade of a schema-2 document to schema 3: pure JSON in, JSON
-// out, composed of small named steps (steps.dart). The model's decoders know
-// only the schema-3 shape; a schema-2 document is migrated before it is
-// decoded (LayoutDocument.fromJson does it), never written back by a loader.
+// The one-time upgrades of an older document to the current schema: pure
+// JSON in, JSON out, each composed of small named steps (steps.dart for 2 → 3,
+// steps4.dart for 3 → 4). The model's decoders know only the current shape;
+// an older document is migrated before it is decoded (LayoutDocument.fromJson
+// chains the upgrades), never written back by a loader.
 import '../json.dart';
 import 'report.dart';
 import 'steps.dart';
+import 'steps4.dart';
 
 export 'report.dart';
-export 'legacy_paths.dart' show schema2PathHint;
+export 'legacy_paths.dart' show schema2PathHint, schema3PathHint, olderSchemaPathHint;
 
 /// The schema version this package reads and writes.
-const int kSchemaVersion = 3;
+const int kSchemaVersion = 4;
 
 /// The oldest schema this package migrates. Anything older (and a document
 /// with no `schema`) is read as this one.
@@ -22,7 +24,9 @@ int schemaOf(Object? json) => readInt(readMap(json)?['schema']) ?? kOldestSchema
 
 /// A named, separately tested step of a migration. It changes a node's JSON
 /// ([node]) or a document's ([document]) in place, and says what it did
-/// through the [MigrationScope] it is given.
+/// through the [MigrationScope] it is given. A node step may read the
+/// document it is in ([MigrationScope.document]) to see what other nodes do
+/// to its node (a state style or a `setValue` that targets it).
 final class MigrationStep {
   const MigrationStep({required this.id, required this.description, this.node, this.document});
 
@@ -40,12 +44,11 @@ final class MigrationStep {
 
 /// What a step reports through, while it runs on one node or document.
 final class MigrationScope {
-  MigrationScope._(this._report, this.step, this.nodeId);
+  MigrationScope._(this._report, this.step, this.nodeId, {this.schema = 3, this.document});
 
-  /// A scope that reports nothing (a step run to compute a value).
-  MigrationScope.silent(this.step)
-      : _report = null,
-        nodeId = '';
+  /// A scope that reports nothing (a step run to compute a value), on node
+  /// [nodeId] of [document] when given.
+  MigrationScope.silent(this.step, {this.nodeId = '', this.schema = 3, this.document}) : _report = null;
 
   final MigrationReport? _report;
 
@@ -54,6 +57,13 @@ final class MigrationScope {
 
   /// The node it runs on; empty for a document step.
   final String nodeId;
+
+  /// The schema the migration produces.
+  final int schema;
+
+  /// The document being migrated, as it was before this migration's steps
+  /// ran; null for a node given alone to a step. Read it, never write it.
+  final Json? document;
 
   void _add(MigrationEntryKind kind, String path, Object? old, Object? value, String message, String instead) =>
       _report?.add(MigrationEntry(
@@ -72,12 +82,13 @@ final class MigrationScope {
   void rewrite(String path, Object? old, Object? value, [String message = '']) =>
       _add(MigrationEntryKind.rewrite, path, old, value, message.isEmpty ? step.description : message, '');
 
-  /// A value with no schema-3 form: kept in [node] as `legacy.<name>` (no
-  /// longer read) and reported with what to write [instead].
+  /// A value with no form in the schema migrated to: kept in [node] as
+  /// `legacy.<name>` (no longer read) and reported with what to write
+  /// [instead].
   void unconvertible(Json node, String name, Object? value, {required String instead, String path = '', String message = ''}) {
     node['legacy.$name'] = value;
     _add(MigrationEntryKind.unconvertible, path.isEmpty ? '/$name' : path, value, null,
-        message.isEmpty ? '`$name` has no schema-3 form; kept as `legacy.$name`.' : message, instead);
+        message.isEmpty ? '`$name` has no schema-$schema form; kept as `legacy.$name`.' : message, instead);
   }
 
   /// A behaviour that renders or acts differently after the migration.
@@ -102,8 +113,45 @@ List<MigrationStep> get schema3Steps => migrationSteps2to3;
 /// on a node leaves that node as it was before the step and is reported.
 /// [report] collects what was done ([MigrationReport.document] names the
 /// document).
-Json migrate2to3(Json document, {MigrationReport? report, List<MigrationStep>? steps}) {
-  if (schemaOf(document) >= 3) return document;
+Json migrate2to3(Json document, {MigrationReport? report, List<MigrationStep>? steps}) =>
+    _migrate(document, 3, steps ?? migrationSteps2to3, report);
+
+/// The steps of [migrate3to4], in order.
+List<MigrationStep> get schema4Steps => migrationSteps3to4;
+
+/// Upgrades a schema-3 layout document's JSON to schema 4: the fields schema
+/// 4 folded into one Flutter concept moved there (the node's `scale` and
+/// `layout.rotation` into `motion`; `flightKey` and `flight` into `hero`),
+/// or kept as `legacy.<name>` and reported when they have no schema-4 form.
+/// A schema-2 document is not migrated by it (chain [migrate2to3] first, as
+/// [migrateDocument] does); one already at schema 4 (or later) is returned
+/// as given. Never throws, as [migrate2to3].
+Json migrate3to4(Json document, {MigrationReport? report, List<MigrationStep>? steps}) =>
+    _migrate(document, 4, steps ?? migrationSteps3to4, report);
+
+/// [document] (a layout document of any schema; none reads as
+/// [kOldestSchemaVersion]) upgraded to [kSchemaVersion], one migration at a
+/// time: 2 → 3 ([migrate2to3]), 3 → 4 ([migrate3to4]). A document at
+/// [kSchemaVersion] or later is returned as given.
+Json migrateDocument(Json document, {MigrationReport? report}) {
+  var out = document;
+  for (var version = schemaOf(document); version < kSchemaVersion; version = schemaOf(out)) {
+    final next = switch (version) {
+      3 => migrate3to4(out, report: report),
+      _ => migrate2to3(out, report: report),
+    };
+    if (identical(next, out)) break;
+    out = next;
+  }
+  return out;
+}
+
+/// Runs [steps] over a copy of [document] and marks it schema [to]; returns
+/// [document] itself when it is at [to] or later, or more than one schema
+/// older (a migration upgrades one schema).
+Json _migrate(Json document, int to, List<MigrationStep> steps, MigrationReport? report) {
+  final from = schemaOf(document);
+  if (from >= to || (from < to - 1 && to > 3)) return document;
   if (report != null && (report.documents.isEmpty || report.documents.last != report.document)) {
     report.documents.add(report.document);
   }
@@ -111,16 +159,16 @@ Json migrate2to3(Json document, {MigrationReport? report, List<MigrationStep>? s
   final raw = readMap(out['nodes']);
   final nodes = raw == null ? null : <String, Object?>{for (final e in raw.entries) e.key: e.value};
   if (nodes != null) out['nodes'] = nodes;
-  for (final step in steps ?? migrationSteps2to3) {
-    if (step.document != null) _guarded(out, step, '', report, step.document!);
+  for (final step in steps) {
+    if (step.document != null) _guarded(out, step, '', report, step.document!, to, document);
     if (step.node != null && nodes != null) {
       for (final e in nodes.entries) {
         // Every map in [out] is a fresh Map<String, Object?> ([copyJson]).
-        if (readMap(e.value) case final Json node) _guarded(node, step, e.key, report, step.node!);
+        if (readMap(e.value) case final Json node) _guarded(node, step, e.key, report, step.node!, to, document);
       }
     }
   }
-  out['schema'] = kSchemaVersion;
+  out['schema'] = to;
   return out;
 }
 
@@ -144,12 +192,34 @@ Json migrateNode2to3(Json node, {MigrationReport? report, String id = ''}) {
   return out;
 }
 
+/// A node's JSON alone (outside a document) upgraded as [migrate3to4]
+/// upgrades the nodes of a document (its state and media patches on itself
+/// included). Returns a new map; never throws.
+Json migrateNode3to4(Json node, {MigrationReport? report, String id = ''}) {
+  final key = id.isEmpty ? (readString(node['id']) ?? 'node') : id;
+  final doc = migrate3to4({
+    'schema': 3,
+    'nodes': {key: node},
+  }, report: report);
+  return readMap(readMap(doc['nodes'])?[key]) ?? copyJson(node) as Json;
+}
+
+/// A node's JSON alone, written in schema [from], upgraded to
+/// [kSchemaVersion] ([migrateNode2to3], then [migrateNode3to4]). Returns a
+/// new map; never throws.
+Json migrateNode(Json node, {int from = kOldestSchemaVersion, MigrationReport? report, String id = ''}) {
+  var out = node;
+  if (from < 3) out = migrateNode2to3(out, report: report, id: id);
+  if (from < 4) out = migrateNode3to4(out, report: report, id: id);
+  return identical(out, node) ? copyJson(node) as Json : out;
+}
+
 /// Runs [apply] on [json]; on an exception restores it and reports the step
 /// as unable to convert.
 void _guarded(Json json, MigrationStep step, String nodeId, MigrationReport? report,
-    void Function(Json, MigrationScope) apply) {
+    void Function(Json, MigrationScope) apply, int schema, Json document) {
   final before = copyJson(json) as Json;
-  final scope = MigrationScope._(report, step, nodeId);
+  final scope = MigrationScope._(report, step, nodeId, schema: schema, document: document);
   try {
     apply(json, scope);
   } catch (e) {
@@ -162,7 +232,9 @@ void _guarded(Json json, MigrationStep step, String nodeId, MigrationReport? rep
       document: report.document,
       node: nodeId,
       message: 'The step could not run here ($e); left as it was.',
-      instead: 'Rewrite it by hand in the schema-3 form (docs/guide/12-migrating-to-schema-3.md).',
+      instead: schema == 3
+          ? 'Rewrite it by hand in the schema-3 form (docs/guide/12-migrating-to-schema-3.md).'
+          : 'Rewrite it by hand in the schema-$schema form (docs/guide/13-migrating-to-schema-4.md).',
     ));
   }
 }
@@ -198,11 +270,11 @@ Object? migrateJson2to3(Object? json, {MigrationReport? report}) {
       // A stored published component: its digest is over its document as
       // stored, so it is migrated when it is read, not here.
       if (m['digest'] is String && isLayoutDocumentJson(m['document'])) return m;
-      final carrier = m.containsKey('schema') && schemaOf(m) < kSchemaVersion;
+      final carrier = m.containsKey('schema') && schemaOf(m) < 3;
       return <String, Object?>{
         for (final e in m.entries)
           if (!_naturalFlag(e.key, e.value, '$at/${e.key}', report))
-            e.key: e.key == 'schema' && carrier ? kSchemaVersion : walk(e.value, '$at/${e.key}'),
+            e.key: e.key == 'schema' && carrier ? 3 : walk(e.value, '$at/${e.key}'),
       };
     }
     if (v is List) return [for (var i = 0; i < v.length; i++) walk(v[i], '$at/$i')];
@@ -210,6 +282,38 @@ Object? migrateJson2to3(Object? json, {MigrationReport? report}) {
   }
 
   return walk(json, '');
+}
+
+/// Any JSON that carries documents, as [migrateJson2to3] finds them, with
+/// every document in it upgraded to [kSchemaVersion] ([migrateJson2to3],
+/// then [migrate3to4] on each document) and every carrier's older
+/// `"schema"` set to [kSchemaVersion]. What [migrateJson2to3] leaves as it
+/// is stays so. Never throws.
+Object? migrateJson(Object? json, {MigrationReport? report}) {
+  Object? walk(Object? v, String at) {
+    if (v is Map) {
+      final m = <String, Object?>{for (final e in v.entries) '${e.key}': e.value};
+      if (isLayoutDocumentJson(m)) {
+        if (report == null) return migrate3to4(m);
+        final before = report.document;
+        report.document = '$before${at.isEmpty ? '' : '#$at'}';
+        try {
+          return migrate3to4(m, report: report);
+        } finally {
+          report.document = before;
+        }
+      }
+      if (m['digest'] is String && isLayoutDocumentJson(m['document'])) return m;
+      final carrier = m.containsKey('schema') && schemaOf(m) < kSchemaVersion;
+      return <String, Object?>{
+        for (final e in m.entries) e.key: e.key == 'schema' && carrier ? kSchemaVersion : walk(e.value, '$at/${e.key}'),
+      };
+    }
+    if (v is List) return [for (var i = 0; i < v.length; i++) walk(v[i], '$at/$i')];
+    return v;
+  }
+
+  return walk(migrateJson2to3(json, report: report), '');
 }
 
 /// Whether [key] is one of schema 2's natural line height flags outside a
