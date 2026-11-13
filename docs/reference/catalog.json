@@ -26292,6 +26292,11 @@
       "code": "root_placement_bound",
       "severity": "warning",
       "meaning": "A component root binds its size or placement: the call sizes and places the root, so the binding is dropped."
+    },
+    {
+      "code": "repeated_subtree",
+      "severity": "info",
+      "meaning": "A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once."
     }
   ]
 }

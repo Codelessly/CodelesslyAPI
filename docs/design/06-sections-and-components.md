@@ -861,7 +861,7 @@ checked in, at every size, renders byte-identical PNGs to the one-document page.
 11. **`root_placement_bound` is a warning**, as the binding is dropped, not
     misread.
 
-### Not done
+### Not done (phase 1; see phase 2 below for what is done since)
 
 * **Loading from a publish (phase 2).** The app's components come from memory
   only: `Codelessly(components: ComponentRegistry([...]))`, filled by the app (the
@@ -924,3 +924,98 @@ checked in, at every size, renders byte-identical PNGs to the one-document page.
   the same number of box applies as the same list inlined (835 at rest, in the
   test's viewport), in about the same time (`test/components/components_perf_test.dart`);
   a variable nothing in it reads re-applies none of its boxes.
+
+## Implementation notes (phase 2, 2026-11-13)
+
+Implemented in `codelessly_api` (`lib/src/features/publish/publish_component.dart`, `publish_model.dart`,
+`lib/src/features/managed/plugins.dart`, `lib/src/validate/repeats.dart`) and `codelessly_sdk`
+(`lib/src/app/loader.dart`, `codelessly.dart`, `codelessly_widget.dart`, `services/firebase/publish_loader.dart`,
+`render/components.dart`, `render/node_tree.dart`, `runtime/expressions/bindings.dart`,
+`runtime/actions/handlers.dart`, `features/hosted/hosted.dart`, `tool/render`).
+
+### Done (phase 1's "Not done", in order)
+
+* **Loading from a publish.** On the wire (DESIGN.md §2.1): `publish/{p}/components/{type}` holds
+  `{"schema": 2, "id", "version", "digest", "lastUpdated", "fonts", "document"}` (`PublishComponent`; a large
+  one's document gzipped in `compressedDocument`); the model lists `"components": {type: {version, digest,
+  lastUpdated, fonts}}` and each layout entry its closure, `"components": [types]`; a bundle carries the stored
+  components in its `components` map. `digest` = sha256 of `canonicalJson(document)`. Every loader implements
+  `loadComponent` (memory, asset, HTTP bundle and files, Firestore). `Codelessly._loadLayout` loads the closure
+  (the model's list plus every call found in the layout and in each loaded definition) in parallel by depth
+  before the screen shows; each component is cached at its publish path and reused while its digest is the
+  model's; a live model whose entry for a loaded component changed reloads that one at once (instances update in
+  place); the fonts of called components load with the layout. Tests: `test/app/component_loading_test.dart`
+  (each loader, cache, offline, digest, live update, late arrival), `test/examples/relay_site_test.dart`.
+* **Missing definitions** are logged to the app's analytics (`component_missing`, `ComponentRegistry.onMissing`)
+  and fetched when the model lists them; the call renders when the definition arrives.
+* **Hosted plugins on this path** (§6.5): `PluginPackage.definitions` makes each node type a definition
+  (declaration from the plugin's catalog entry, `PluginWidget.slots` as `slot` nodes whose default is the host's
+  children, `events` declared, formula functions as the root's function variables); `hostedPluginFeature`
+  returns them as `CodelesslyFeature.components`, `Codelessly` defines them in its registry, and a registered
+  type is a call whatever its name. `_HostedRecipe` and `_HostedNodeView` are deleted. `Codelessly` installs
+  `model.plugins` (`loadHostedPlugins` through the loader as a `PluginSource`: a bundle's embedded versions,
+  `plugins/{id}/versions/{n}` over HTTP or in Firestore; cache, digest, `minSdk`, catalog check) before decoding
+  layouts; their action types run through `Codelessly.actions`; their declarations join the decode catalog.
+* **`setValue` per instance**: inside an instance it sets that instance's node (`RenderTree.setInstanceValue`),
+  or the variable its property is bound to in the instance's scope; on a page, as before.
+* **Slot content inside a list of the definition** shows once per item (`SlotContent(outer, at)`), read in the
+  caller's scope. Decided by Flutter's analogue: a slot is a `child` widget, not a builder; placed in each item an
+  `itemBuilder` builds, the same child shows once per item and is built in the parent's context, so it does not
+  see the item. A slot that needs the item is a component parameter instead. Tools name a copy by the caller's
+  path and `#n` (`note#2`).
+* **Per-instance scopes are released** when the instance's root box is released (`InstanceBindings`,
+  `NodeBinder.releaseInstance`): its `ComponentScopes`, and the item, local and node scopes, interaction states,
+  animated and set values of every instance inside it. A list mounting and unmounting 1,000 component items keeps
+  none (`test/components/components_instance_test.dart`).
+* **A changed declaration** re-places its calls (as before) and decodes again the loaded layouts that call it.
+* **`persist: true`** on a component variable is kept per instance path
+  (`codelessly.component.<Type>.<path>.<name>`).
+* **Fonts of called components** load with the layout (`PublishModel.fontsOf`, `PublishComponentInfo.fonts`).
+* **Authoring**: `--components-all`; `repeated_subtree` (INFO, exact repeats only); a call can be tapped by its
+  id in the render command; `render_exception` names nodes inside instances by path.
+
+### Deviations
+
+1. The digest is over `canonicalJson(document)`, not the stored bytes: Firestore does not keep key order. A
+   stored component keeps its document JSON as read, so a cached copy digests as published.
+2. The closure is found as well as listed: an older model without `PublishLayoutInfo.components` still loads
+   every component its screens call.
+3. A component the app defines itself (`Codelessly(components: ...)`, or a feature's) is never replaced by a
+   published one of the same type.
+4. Live updates need no new watch: a republished component changes its entry in the model, which a
+   `LivePublishLoader` already follows.
+
+### What managed components share now, and what still differs
+
+A hosted plugin node type and a project component are one mechanism: a definition document with a `widget`
+declaration, called by one node, rendered as ordinary boxes keyed by `ComponentInstance`, with `${props.*}`,
+slots, events, per-instance state and the same validation. Only fetching and version choice differ (the
+managed library: `PluginRef` channel, pin, rollout, digest, `minSdk`). Managed components (`sign_in`,
+`paywall`...) are still **snapshots** in existing pages (`buildManagedInstance`, `ComponentLink.managed`), resolved
+by `ManagedComponentResolver` and rendered exactly as before; publishing one as a hosted plugin version makes it
+a call like any other, and the §5.9 converter (snapshot → call) is the editor's.
+
+### Not done
+
+* **The editor's write side**: the editor publishes no components yet (it should write
+  `publish/{p}/components/{type}` and the model's entries as DESIGN.md §2.1 defines; the render command's
+  `tool/render/src/publish.dart` is the reference writer), nor one document per definition.
+* **Plugin assets and scripts**: `PluginPackage.assets` are not fetched or digest-checked and its `scripts` are
+  not installed in the script runtime; a plugin's `requires` is checked against `allowed` but `Codelessly` passes
+  none (any). A capability profile per project is still not stored.
+* **The flattener for old SDKs** (§10.2) and `minSdk` on the publish model: an old SDK draws a call as an empty
+  box.
+* **The document scope** (`components` inside a document) and `previews`' slot content.
+* **Action runs from automations** (`features/engage/automations.dart`) use `CodelesslyConfig.actions`, not
+  `Codelessly.actions`: a hosted action type in an automation's chain is skipped.
+* **`action_error` diagnostics** of the render command still name the node by bare id (`ActionFailed` carries no
+  instance).
+* **Editor and site ports** (every change is additive; nothing there breaks). Call sites, read-only: the editor
+  implements no `PublishLoader`; `packages/codelessly_page_storage/lib/src/publish.dart:533` (`PublishLayoutInfo.of`,
+  which now takes `components:`, defaulting to none) is where a layout's closure is to be written, beside new
+  writes of `publish/{p}/components/{type}`; `packages/codelessly_studio/lib/src/app/preview.dart:230-235` builds a
+  `PublishBundle` for the preview and should pass the project's components (`components:`) so previews of pages
+  with calls render them. `CodelesslySite` uses none of
+  the changed APIs (grep for `PublishLoader`, `PublishBundle`, `hostedPluginFeature`, `CodelesslyFeature(`,
+  `PersistedVariable.attach`: no matches).
+

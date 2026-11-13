@@ -36,6 +36,7 @@ import '../standard_catalog.dart';
 import 'bind_paths.dart';
 import 'diagnostic.dart';
 import 'expressions.dart';
+import 'repeats.dart';
 import 'values.dart';
 
 part 'components.dart';
@@ -95,6 +96,7 @@ List<Diagnostic> validateDocument(Object? json, {ValidateOptions options = const
   final r = Reporter();
   try {
     _Validator(r, options).document(json);
+    r.out.addAll(repeatedSubtrees(readMap(readMap(json)?['nodes']) ?? const {}));
   } catch (e) {
     r.add(Codes.invalidDocument, '', 'Validation stopped on an unexpected value: ${'$e'.split('\n').first}');
   }

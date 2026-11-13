@@ -14,6 +14,10 @@ enum Severity {
   /// Legal, but probably not what was meant (a value the renderer ignores,
   /// a node nothing shows).
   warning,
+
+  /// Correct as written; a hint at a better way to write it (a subtree
+  /// written several times over that could be a component).
+  info,
 }
 
 /// One diagnostic code: its name, severity and what it means.
@@ -175,6 +179,8 @@ abstract final class Codes {
       'A slot node in a document that is not a component: nothing fills it, its own children show.');
   static const rootPlacementBound = DiagnosticCode('root_placement_bound', Severity.warning,
       'A component root binds its size or placement: the call sizes and places the root, so the binding is dropped.');
+  static const repeatedSubtree = DiagnosticCode('repeated_subtree', Severity.info,
+      'A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once.');
 
   /// Every code, in the order above.
   static const List<DiagnosticCode> all = [
@@ -189,7 +195,7 @@ abstract final class Codes {
     invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, unknownThemeName, invalidTheme, duplicateBreakpointCanvas,
     screenWithoutBreakpoint, duplicateId,
     unknownComponent, duplicateComponent, componentCycle, componentIdMismatch, invalidComponent, missingProp, unknownEvent,
-    callFieldNotAllowed, slotOutsideComponent, rootPlacementBound,
+    callFieldNotAllowed, slotOutsideComponent, rootPlacementBound, repeatedSubtree,
   ];
 }
 
