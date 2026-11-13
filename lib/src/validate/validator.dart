@@ -15,7 +15,11 @@ import '../core/node.dart';
 import '../core/props.dart';
 import '../core/media.dart';
 import '../core/breakpoints.dart';
+import '../core/catalog.dart';
+import '../core/catalog_json.dart' show widgetSpecFromJson;
+import '../core/document.dart';
 import '../core/scripts.dart';
+import '../core/sections.dart';
 import '../core/triggers.dart';
 import '../core/value_fields.dart';
 import '../core/variables.dart';
@@ -30,6 +34,8 @@ import 'diagnostic.dart';
 import 'expressions.dart';
 import 'values.dart';
 
+part 'components.dart';
+
 /// What a document is checked against beyond itself.
 final class ValidateOptions {
   const ValidateOptions({
@@ -37,6 +43,7 @@ final class ValidateOptions {
     this.variables = const {},
     this.formulas,
     this.breakpoints,
+    this.components,
   });
 
   /// Screen ids (canvas and layout ids) of the other documents of the
@@ -52,6 +59,10 @@ final class ValidateOptions {
 
   /// The project's breakpoints when the document doesn't carry them.
   final Breakpoints? breakpoints;
+
+  /// The project's component definitions: calls to them are checked against
+  /// their declarations ([validateProject] gives the documents' own).
+  final ComponentLibrary? components;
 }
 
 /// The keys a layout document reads at its top level.
@@ -84,11 +95,20 @@ List<Diagnostic> validateDocument(Object? json, {ValidateOptions options = const
 /// Checks several documents of one project (a site's pages): each against
 /// the others' screens and node ids. Keys are file names; diagnostics carry
 /// them in [Diagnostic.file].
-List<Diagnostic> validateProject(Map<String, Object?> documents, {ValidateOptions options = const ValidateOptions()}) {
+List<Diagnostic> validateProject(Map<String, Object?> documents,
+    {ValidateOptions options = const ValidateOptions(), SiteManifest? manifest}) {
   final screens = <String>{...options.screens};
   final owner = <String, String>{};
   final out = <Diagnostic>[];
+  // Component definitions: checked as a library first (types, file names,
+  // cycles); every document's calls are then checked against them.
+  final (library, componentProblems) = _componentLibrary(documents, options.components);
+  out.addAll(componentProblems);
+  final projectVariables = {...options.variables, for (final v in manifest?.variables ?? const <Variable>[]) v.name};
+  if (manifest != null) out.addAll(_projectVariableCollisions(documents, manifest));
   for (final e in documents.entries) {
+    // Ids are local to a component's document: only pages share a namespace.
+    if (readMap(e.value)?.containsKey(kWidgetKey) ?? false) continue;
     final nodes = readMap(readMap(e.value)?['nodes']) ?? const {};
     for (final id in nodes.keys) {
       final before = owner[id];
@@ -102,7 +122,11 @@ List<Diagnostic> validateProject(Map<String, Object?> documents, {ValidateOption
   }
   for (final e in documents.entries) {
     final o = ValidateOptions(
-        screens: screens, variables: options.variables, formulas: options.formulas, breakpoints: options.breakpoints);
+        screens: screens,
+        variables: projectVariables,
+        formulas: options.formulas,
+        breakpoints: options.breakpoints,
+        components: library);
     out.addAll(validateDocument(e.value, options: o).map((d) => d.withFile(e.key)));
   }
   return out;
@@ -144,6 +168,15 @@ final class _Validator {
   Breakpoints breakpoints = Breakpoints.defaults;
   String? currentCanvas;
 
+  /// What node types decode with: the standard catalog and the project's
+  /// components.
+  late final Catalog catalog = options.components == null || options.components!.isEmpty
+      ? standardCatalog
+      : standardCatalog + options.components!.catalog;
+
+  /// The root of this document when it is a component definition.
+  String? definitionRoot;
+
   void document(Object? json) {
     final m = readMap(json);
     if (m == null) {
@@ -153,8 +186,9 @@ final class _Validator {
     if (m['schema'] != 2) {
       r.add(Codes.schemaVersion, '/schema', m['schema'] == null ? 'Add "schema": 2.' : 'This package reads "schema": 2, got ${describe(m['schema'])}.');
     }
+    final isDefinition = m.containsKey(kWidgetKey);
     for (final k in m.keys) {
-      if (!documentKeys.contains(k)) {
+      if (!documentKeys.contains(k) && !(isDefinition && componentDocumentKeys.contains(k))) {
         r.add(Codes.unknownDocumentKey, pointer('', k), 'A layout document has no "$k". It takes: ${documentKeys.join(', ')}.',
             suggestion: nearest(k, documentKeys));
       }
@@ -165,7 +199,7 @@ final class _Validator {
     }
     nodesJson = readMap(rawNodes) ?? const {};
     for (final e in nodesJson.entries) {
-      final n = Node.fromJson(e.value, id: e.key, catalog: standardCatalog);
+      final n = Node.fromJson(e.value, id: e.key, catalog: catalog);
       if (n == null) {
         r.add(Codes.invalidNode, pointer('/nodes', e.key),
             e.value is Map ? 'A node needs a "type" (one of the node types, such as "column" or "text").' : 'A node is an object, got ${describe(e.value)}.',
@@ -201,13 +235,14 @@ final class _Validator {
               suggestion: nearest(id, nodes.keys), nodeId: id);
         } else {
           roots.add(id);
-          if (nodes[id]!.type != CanvasProps.spec.type) {
+          if (nodes[id]!.type != CanvasProps.spec.type && !isDefinition) {
             r.add(Codes.rootNotCanvas, pointer('/roots', i), 'Root "$id" is a ${nodes[id]!.type}: only canvases show as screens.', nodeId: id);
           }
         }
       }
     }
 
+    if (isDefinition && roots.length == 1) definitionRoot = roots.first;
     _variables(m);
     _tree(roots);
     for (final e in nodesJson.entries) {
@@ -221,6 +256,7 @@ final class _Validator {
     _breakpoints();
     _conditions(m);
     _scripts(m);
+    _components(m, roots);
   }
 
   // --- variables -------------------------------------------------------------
@@ -235,7 +271,7 @@ final class _Validator {
     }
     for (final e in scopes.entries) {
       final at = pointer('/variables', e.key);
-      if (e.key != pageVariablesScope && !canvases.contains(e.key)) {
+      if (e.key != pageVariablesScope && !canvases.contains(e.key) && e.key != definitionRoot) {
         r.add(Codes.unknownScope, at,
             'Variables are keyed by a canvas id of this document or "$pageVariablesScope"; "${e.key}" is neither.',
             suggestion: nearest(e.key, [...canvases, pageVariablesScope]));
@@ -293,6 +329,7 @@ final class _Validator {
         ...?variablesOf[canvas],
         ...options.variables,
         for (final v in variablesOf.values) ...v, // (reported per scope below when misplaced)
+        if (definitionRoot != null) 'props',
       };
 
   // --- tree --------------------------------------------------------------------
@@ -425,7 +462,12 @@ final class _Validator {
 
   void _node(Node n, Json raw, String at) {
     final spec = n.spec;
-    if (spec == null) {
+    if (spec == null && isComponentTypeName(n.type)) {
+      final known = options.components?.definitions.keys ?? const <String>[];
+      r.add(Codes.unknownComponent, pointer(at, 'type'),
+          'No component "${n.type}" in this project${known.isEmpty ? '' : ' (components: ${listOf(known)})'}: the call renders as an empty box.',
+          suggestion: nearest(n.type, known));
+    } else if (spec == null) {
       r.add(Codes.unknownNodeType, pointer(at, 'type'),
           '"${n.type}" is not a node type. Types: ${listOf(Widgets.all.map((s) => s.type))}.',
           suggestion: nearest(n.type, Widgets.all.map((s) => s.type)));
@@ -1096,9 +1138,10 @@ final class _Validator {
           ..canvases = canvases
           ..parents = parents
           ..pageVariables = pageVariables
-          ..currentCanvas = currentCanvas;
+          ..currentCanvas = currentCanvas
+          ..definitionRoot = definitionRoot;
         v.variablesOf.addAll(variablesOf);
-        final pn = Node.fromJson(merged, id: t.key, catalog: standardCatalog);
+        final pn = Node.fromJson(merged, id: t.key, catalog: catalog);
         if (pn != null) v._node(pn, merged, '');
         final set = _leafPointers(patch, '');
         for (final d in sub.out) {
@@ -1138,7 +1181,7 @@ final class _Validator {
     for (final e in scopes.entries) {
       final at = pointer('/conditions', e.key);
       currentCanvas = e.key;
-      if (!canvases.contains(e.key)) {
+      if (!canvases.contains(e.key) && e.key != definitionRoot) {
         r.add(Codes.unknownScope, at, 'Conditions are keyed by a canvas id of this document; "${e.key}" is not one.',
             suggestion: nearest(e.key, canvases));
       }

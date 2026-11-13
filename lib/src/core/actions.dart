@@ -1098,6 +1098,40 @@ final class CopyToClipboardAction extends CoreAction {
   Json get _fields => {'text': text};
 }
 
+// --- components ---------------------------------------------------------------------
+
+/// Inside a component definition: fires the component's event [event] with
+/// [value] as its payload. The call's reactions whose trigger is
+/// `{"type": "event", "event": "<event>"}` run, in the caller's scope, with
+/// the payload as `${result}` (Flutter: calling `widget.onChanged(value)`).
+/// JSON: `{"type": "componentEvent", "event": "onChoose", "value": "${props.plan.id}"}`.
+/// Outside an instance it does nothing.
+final class ComponentEventAction extends CoreAction {
+  const ComponentEventAction({this.event = '', this.value, super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'componentEvent';
+  @override
+  String get type => typeName;
+
+  /// The event's key.
+  final String event;
+
+  /// The payload: JSON whose strings are expressions (one `${...}` gives
+  /// its value as is).
+  final Object? value;
+
+  static ComponentEventAction _fromJson(Json m, _Common c) => ComponentEventAction(
+    event: _s(m, 'event'),
+    value: m['value'],
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {'event': event, 'value': ?value};
+}
+
 // --- nodes --------------------------------------------------------------------------
 
 /// What an [EditTextAction] does to its text field.
@@ -1872,4 +1906,9 @@ const List<ActionSpec> coreActionSpecs = [
   ActionSpec(HapticAction.typeName, label: 'Haptic feedback', fields: HapticFields.all, decode: HapticAction._fromJson),
   ActionSpec(RunScriptAction.typeName, label: 'Run script', fields: RunScriptFields.all, decode: RunScriptAction._fromJson, nested: ['onError']),
   ActionSpec(PaginateAction.typeName, label: 'Paginate', fields: PaginateFields.all, decode: PaginateAction._fromJson),
+  ActionSpec(ComponentEventAction.typeName,
+      label: 'Fire component event',
+      fields: ComponentEventFields.all,
+      doc: 'Inside a component: fires one of its declared events; the call\'s event reactions run with the value as \${result}.',
+      decode: ComponentEventAction._fromJson),
 ];

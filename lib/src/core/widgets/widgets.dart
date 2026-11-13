@@ -1,4 +1,5 @@
 import '../props.dart';
+import '../sections.dart' show SlotProps;
 import 'canvas.dart';
 import 'collections.dart';
 import 'flex.dart';
@@ -27,4 +28,5 @@ const List<WidgetSpec> coreWidgetSpecs = [
   ...materialSpecs,
   ...indicatorsSpecs,
   ...pathAndSlotSpecs,
+  SlotProps.spec,
 ];

@@ -45,9 +45,11 @@ abstract final class TriggerFields {
       doc: 'Viewport: how long it stays in view before firing (ms).');
   static const onceKey = PropDef<String>('onceKey', Codecs.string, '',
       doc: 'Runs once per key (an expression, such as \${item.id}) per app session.');
+  static const event = PropDef<String>('event', Codecs.string, '',
+      doc: 'event: the key of the component event it handles (one of the component\'s widget.events).');
   static const List<PropDef<Object?>> all = [
     type, debounceMs, variable, intervalMs, key, when, holdMs, visibleFraction, repeat, //
-    visibleMs, onceKey,
+    visibleMs, onceKey, event,
   ];
 }
 
@@ -342,6 +344,15 @@ abstract final class DelayFields {
 }
 
 /// [CopyToClipboardAction].
+/// [ComponentEventAction].
+abstract final class ComponentEventFields {
+  static const event = PropDef<String>('event', Codecs.string, '',
+      doc: 'The key of the event, one of the component\'s widget.events.');
+  static const value = PropDef<Object?>('value', Codecs.any, null,
+      doc: 'The payload (`\${result}` in the call\'s handler): JSON whose strings are expressions.');
+  static const List<PropDef<Object?>> all = [event, value];
+}
+
 abstract final class CopyToClipboardFields {
   static const text = PropDef<String>('text', Codecs.string, '', doc: 'An expression.');
   static const List<PropDef<Object?>> all = [text];

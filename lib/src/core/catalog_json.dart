@@ -17,7 +17,9 @@ import 'value_fields.dart' show DecorationFields, LayoutFields, NodeFields;
 /// "values": [...]}`, `{"kind": "list", "item": {...}}`, `{"kind": "object",
 /// "flutter": "TextStyle"}` (an object's fields are written once, under the
 /// catalog's `valueTypes`, unless [fields] is set).
-Json propTypeToJson(PropType t, {bool fields = false}) => {
+Json propTypeToJson(PropType t, {bool fields = false}) => t.variableOf != null
+    ? {'kind': 'variable', 'of': propTypeToJson(t.variableOf!, fields: fields)}
+    : {
   'kind': t.kind.name,
   if (t.kind != PropKind.list) 'flutter': t.name,
   if (t.values.isNotEmpty) 'values': t.values,
@@ -27,9 +29,14 @@ Json propTypeToJson(PropType t, {bool fields = false}) => {
   if (fields && t.kind == PropKind.object) 'fields': [for (final f in t.fields) propDefToJson(f)],
 };
 
+/// The `kind` a component's `variable` parameter is written with
+/// ([PropType.variable]): not a [PropKind], whose values panels switch over.
+const String kVariableKind = 'variable';
+
 /// A [PropType] from its JSON; a missing or unknown kind is free JSON.
 PropType propTypeFromJson(Object? json) {
   final m = readMap(json) ?? const {};
+  if (m['kind'] == kVariableKind) return PropType.variable(propTypeFromJson(m['of']));
   final kind = readEnum(PropKind.values, m['kind'], PropKind.json);
   final name = readString(m['flutter']);
   final min = readDouble(m['min']), max = readDouble(m['max']);
@@ -56,6 +63,7 @@ Json propDefToJson(PropDef<Object?> def) => {
   'type': propTypeToJson(def.type),
   'default': _encodeDefault(def),
   if (def.nullable) 'nullable': true,
+  if (def.required) 'required': true,
   if (def.doc.isNotEmpty) 'doc': def.doc,
 };
 
@@ -78,8 +86,11 @@ PropDef<Object?>? propDefFromJson(Object? json) {
   final codec = JsonPropCodec(propTypeFromJson(m['type']));
   final nullable = readBool(m['nullable']) ?? m['default'] == null;
   final def = codec.decode(m['default']) ?? (nullable ? null : codec.zero);
-  return PropDef<Object?>(key, codec, def, doc: readString(m['doc']) ?? '');
+  return PropDef<Object?>(key, codec, def, doc: readString(m['doc']) ?? '', required: readBool(m['required']) ?? false);
 }
+
+/// [v] within [min] and [max] (either may be absent).
+num _clamp(num v, num? min, num? max) => min != null && v < min ? min : (max != null && v > max ? max : v);
 
 /// Reads and writes a value of a [PropType] declared as data: numbers,
 /// booleans and text typed; enum values by name; a Flutter value type the
@@ -119,11 +130,11 @@ final class JsonPropCodec extends PropCodec<Object?> {
       case PropKind.integer:
         final v = readInt(json);
         if (v == null) return null;
-        return v.clamp(type.min ?? v, type.max ?? v).toInt();
+        return _clamp(v, type.min, type.max).toInt();
       case PropKind.number:
         final v = readDouble(json);
         if (v == null) return null;
-        return v.clamp(type.min ?? v, type.max ?? v).toDouble();
+        return _clamp(v, type.min, type.max).toDouble();
       case PropKind.string:
         return json is String ? json : (json is num || json is bool ? '$json' : null);
       case PropKind.enumeration:
@@ -165,7 +176,24 @@ Json widgetSpecToJson(WidgetSpec spec) => {
   if (spec.decorated) 'decorated': true,
   'props': [for (final p in spec.props) propDefToJson(p)],
   if (spec.childFields.isNotEmpty) 'childFields': [for (final p in spec.childFields) p.key],
+  if (spec.events.isNotEmpty) 'events': [for (final e in spec.events) eventSpecToJson(e)],
 };
+
+/// The JSON of [e]: `{"key", "payload": PropType, "doc"}`.
+Json eventSpecToJson(EventSpec e) => {
+  'key': e.key,
+  if (e.payload case final p?) 'payload': propTypeToJson(p),
+  if (e.doc.isNotEmpty) 'doc': e.doc,
+};
+
+/// An [EventSpec] from its JSON (or a bare key); null without a key.
+EventSpec? eventSpecFromJson(Object? json) {
+  if (json is String) return json.isEmpty ? null : EventSpec(json);
+  final m = readMap(json);
+  final key = readString(m?['key']);
+  if (m == null || key == null || key.isEmpty) return null;
+  return EventSpec(key, payload: m['payload'] == null ? null : propTypeFromJson(m['payload']), doc: readString(m['doc']) ?? '');
+}
 
 /// A [WidgetSpec] from its JSON; null without a type.
 WidgetSpec? widgetSpecFromJson(Object? json) {
@@ -179,6 +207,7 @@ WidgetSpec? widgetSpecFromJson(Object? json) {
     slots: readStrings(m['slots']),
     decorated: readBool(m['decorated']) ?? false,
     doc: readString(m['doc']) ?? '',
+    events: [...?readList(m['events'])?.map(eventSpecFromJson).nonNulls],
   );
 }
 
