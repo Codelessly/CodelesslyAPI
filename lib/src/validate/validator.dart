@@ -1,25 +1,25 @@
 // Strict validation of a layout document: everything the lenient decoders
 // would silently drop, replace or ignore, reported with a code, a JSON
 // pointer and (where the declarations allow) a suggestion. Never throws.
-import '../action_fields.dart';
-import '../actions.dart';
-import '../behavior_fields.dart';
-import '../behaviors.dart';
-import '../child_fits.dart';
-import '../conditions.dart';
-import '../decoration.dart';
-import '../json.dart';
-import '../layout.dart';
-import '../logic.dart';
-import '../node.dart';
-import '../props.dart';
-import '../publish/breakpoints.dart';
-import '../scripts.dart';
-import '../triggers.dart';
-import '../value_fields.dart';
-import '../variables.dart';
-import '../widgets/canvas.dart';
-import '../widgets/widgets.dart';
+import '../core/action_fields.dart';
+import '../core/actions.dart';
+import '../core/behavior_fields.dart';
+import '../core/behaviors.dart';
+import '../core/child_fits.dart';
+import '../core/conditions.dart';
+import '../core/decoration.dart';
+import '../core/json.dart';
+import '../core/layout.dart';
+import '../core/logic.dart';
+import '../core/node.dart';
+import '../core/props.dart';
+import '../core/breakpoints.dart';
+import '../core/scripts.dart';
+import '../core/triggers.dart';
+import '../core/value_fields.dart';
+import '../core/variables.dart';
+import '../core/widgets/canvas.dart';
+import '../standard_catalog.dart';
 import 'bind_paths.dart';
 import 'diagnostic.dart';
 import 'expressions.dart';
@@ -160,7 +160,7 @@ final class _Validator {
     }
     nodesJson = readMap(rawNodes) ?? const {};
     for (final e in nodesJson.entries) {
-      final n = Node.fromJson(e.value, id: e.key);
+      final n = Node.fromJson(e.value, id: e.key, catalog: standardCatalog);
       if (n == null) {
         r.add(Codes.invalidNode, pointer('/nodes', e.key),
             e.value is Map ? 'A node needs a "type" (one of the node types, such as "column" or "text").' : 'A node is an object, got ${describe(e.value)}.',
@@ -737,7 +737,7 @@ final class _Validator {
       return;
     }
     final fields = {for (final f in spec.fields) f.key: f, for (final f in ActionCommonFields.all) f.key: f};
-    final read = {...?ActionDef.fromJson(m)?.toJson().keys};
+    final read = {...?ActionDef.fromJson(m, catalog: standardCatalog)?.toJson().keys};
     for (final e in m.entries) {
       final p = pointer(at, e.key);
       if (e.key == 'type' || e.key == 'id') continue;
@@ -923,7 +923,7 @@ final class _Validator {
           ..pageVariables = pageVariables
           ..currentCanvas = currentCanvas;
         v.variablesOf.addAll(variablesOf);
-        final pn = Node.fromJson(merged, id: t.key);
+        final pn = Node.fromJson(merged, id: t.key, catalog: standardCatalog);
         if (pn != null) v._node(pn, merged, '');
         final set = _leafPointers(patch, '');
         for (final d in sub.out) {

@@ -1,55 +1,19 @@
-/// Flutter's widgets and layouts as plain, immutable data.
+/// Flutter's widgets and layouts as plain, immutable data: the core and
+/// every first-party feature library, with [standardCatalog].
+///
+/// A program that needs only part of it imports that part:
+/// `package:codelessly_api/core.dart` (the model and its [Catalog], no
+/// feature), and `data.dart`, `auth.dart`, `commerce.dart`, `media.dart`,
+/// `engage.dart`, `publish.dart`, `managed.dart` over it.
 library;
 
-export 'src/behavior_fields.dart';
-export 'src/behaviors.dart';
-export 'src/child_fits.dart';
-export 'src/bindings.dart';
-export 'src/action_fields.dart';
-export 'src/actions.dart';
-export 'src/components.dart';
-export 'src/conditions.dart';
-export 'src/custom_paint.dart';
-export 'src/custom_paint_fields.dart';
-export 'src/decoration.dart';
-export 'src/document.dart';
-export 'src/json.dart';
-export 'src/layout.dart';
-export 'src/logic.dart';
-export 'src/managed_components.dart';
-export 'src/node.dart';
-export 'src/props.dart';
-export 'src/route_transition.dart';
-export 'src/scripts.dart';
-export 'src/triggers.dart';
-export 'src/value_fields.dart';
-export 'src/services/cloud.dart';
-export 'src/services/config.dart';
-export 'src/services/http_api.dart';
-export 'src/services/paywall.dart';
-export 'src/publish/app_identity.dart';
-export 'src/publish/automations.dart';
-export 'src/publish/breakpoints.dart';
-export 'src/publish/publish_layout.dart';
-export 'src/publish/publish_model.dart';
-export 'src/publish/style_sheet.dart';
-export 'src/publish/theme.dart';
-export 'src/values/border.dart';
-export 'src/values/color.dart';
-export 'src/values/enums.dart';
-export 'src/values/geometry.dart';
-export 'src/values/paint.dart';
-export 'src/values/text.dart';
-export 'src/variables.dart';
-export 'src/widgets/canvas.dart';
-export 'src/widgets/collections.dart';
-export 'src/widgets/indicators.dart';
-export 'src/widgets/inputs.dart';
-export 'src/widgets/material.dart';
-export 'src/widgets/media.dart';
-export 'src/widgets/flex.dart';
-export 'src/widgets/icon.dart';
-export 'src/widgets/scroll.dart';
-export 'src/widgets/stack.dart';
-export 'src/widgets/text.dart';
-export 'src/widgets/widgets.dart';
+export 'auth.dart';
+export 'commerce.dart';
+export 'core.dart';
+export 'data.dart';
+export 'engage.dart';
+export 'managed.dart';
+export 'media.dart';
+export 'publish.dart';
+export 'src/service_config.dart';
+export 'src/standard_catalog.dart';

@@ -182,13 +182,13 @@ a fill, a radius and padding, not three nested widgets.
 | [`lineChart`](nodes.md#node-lineChart) |  | none | blurs only |
 | [`barcode`](nodes.md#node-barcode) |  | none | blurs only |
 | [`path`](nodes.md#node-path) | `CustomPaint` | none | yes |
+| [`external`](nodes.md#node-external) |  | none | blurs only |
+| [`placeholder`](nodes.md#node-placeholder) |  | none | blurs only |
+| [`singlePlaceholder`](nodes.md#node-singlePlaceholder) |  | `children` | blurs only |
 | [`video`](nodes.md#node-video) |  | none | blurs only |
 | [`embeddedVideo`](nodes.md#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](nodes.md#node-audioPlayer) |  | none | blurs only |
 | [`webView`](nodes.md#node-webView) |  | none | blurs only |
-| [`external`](nodes.md#node-external) |  | none | blurs only |
-| [`placeholder`](nodes.md#node-placeholder) |  | none | blurs only |
-| [`singlePlaceholder`](nodes.md#node-singlePlaceholder) |  | `children` | blurs only |
 
 "Decoration: blurs only" means the type draws no box: give it a fill or a border by putting it inside a `box`,
 `row`, `column` or `stack` that has the decoration.

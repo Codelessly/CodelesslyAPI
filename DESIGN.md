@@ -10,9 +10,11 @@ Flutter render objects.
 
 | Package | Owns | Never contains |
 |---|---|---|
-| **`codelessly_api`** (pure Dart) | Flutter's widget vocabulary as data: one declaration per widget, Flutter names and defaults. Immutable nodes with value equality. A flat node map. The layout document, publish model, variables, conditions and actions as data. JSON: sparse, total, versioned. | Flutter imports. Computed geometry. Editor state. Globals. Network code. |
+| **`codelessly_api`** core (`core.dart`, `lib/src/core`) | Flutter's widget vocabulary as data: one declaration per widget, Flutter names and defaults. Immutable nodes with value equality. A flat node map. The layout document, variables, conditions, bindings, scripts, the core actions as data, and the `Catalog` that declares them (§8). JSON: sparse, total, versioned. | Flutter imports. Computed geometry. Editor state. Globals. Network code. Any feature library: the boundary test (`test/library_boundaries_test.dart`) reads the imports. |
+| **`codelessly_api`** feature libraries (`data.dart`, `auth.dart`, `commerce.dart`, `media.dart`, `engage.dart`, `publish.dart`, `managed.dart`; `lib/src/features/<x>`) | Each over the core: its action family, node types, data sources and models (cloud queries, HTTP APIs, paywalls, the publish model, managed components, hosted plugins), and a `const Catalog` of its declarations. `codelessly_api.dart` exports all of them and `standardCatalog`. | Imports of another feature (except managed and engage over publish). |
 | **`codelessly_sdk`** render | Nodes → Flutter render objects, one `NodeBox` per node, with no widget or element per node. Widgets that need an element tree (text fields, video, charts) are islands. | Editor flags. Data or network code. Static registries. |
 | **`codelessly_sdk`** runtime | `Codelessly`, `CodelesslyWidget` and controllers. Bindings compiled once per layout. Actions as typed handlers over an `ActionContext`. Data sources, auth, navigation and analytics as plugins configured by the app. | `BuildContext` in actions. JSON round trips during a build. Hard-wired Firebase. |
+| **`codelessly_sdk`** features | Auth, data, commerce, media, engage and hosted plugins as `CodelesslyFeature`s: each pairs an API library's catalog with the handlers, recipes and scopes that run it. The render core, widgets and core runtime import `package:codelessly_api/core.dart` only (`test/core_only_import_test.dart` follows the imports into the API). | Imports between features. |
 
 The editor builds on all three; the API and SDK know nothing about it.
 
@@ -131,6 +133,12 @@ defaults, and which slots it takes. From that one declaration a generator
 emits the props class (immutable, `==`, `copyWith`, sparse JSON) and the
 metadata the editor's panels and the SDK use.
 
+The declarations are collected in catalogs (§8): `Catalog.core` holds the
+core's node types (`coreWidgetSpecs`), the media library's `mediaCatalog`
+holds `video`, `embeddedVideo`, `audioPlayer` and `webView`, and a plugin
+adds its own `vendor.name` types. `Widgets.all` / `Widgets.of` are views of
+`standardCatalog`.
+
 | Type | Flutter |
 |---|---|
 | `canvas` | Scaffold (screen) |
@@ -204,7 +212,7 @@ through its model's real JSON.
 ### 4.1 Behaviors
 
 What a node does beyond its layout and paint is the same for every type, so
-it isn't in `props`: it's `Node.behaviors` (`lib/src/behaviors.dart`), stored
+it isn't in `props`: it's `Node.behaviors` (`lib/src/core/behaviors.dart`), stored
 flat in the node's JSON. Every key is optional and sparse.
 
 | Key | Value | Flutter / meaning |
@@ -255,7 +263,7 @@ API doesn't model it. The editor keeps such state itself.
 ### 4.2 Components
 
 A component is a node tree saved to a project's library and placed as
-instances (`lib/src/components.dart`).
+instances (`lib/src/core/components.dart`).
 
 * **`ComponentDefinition`** (the library entry, stored outside pages): `id`, `name`, `version`, `size`
   (the root's design size), `document` (a `LayoutDocument` whose single
@@ -296,8 +304,12 @@ type, `external`, not components.
 
 Prebuilt UI (sign in, paywalls, inbox...) is published by Codelessly as
 versioned masters that projects reference instead of copying
-(`lib/src/managed_components.dart`). Same-major releases reach every app
+(`lib/src/features/managed/managed_components.dart`). Same-major releases reach every app
 using one without a republish; a major never applies on its own.
+
+The core keeps a managed instance's reference as JSON
+(`ComponentLink.managedJson`); the managed library reads it as a
+`ManagedComponentRef` (`ComponentLink.managed`, `withManaged`).
 
 * **`ManagedComponentMaster`** (`managed_components/{id}`): `versions`
   (number → `{semver, minSdk, createdAt}`), `channels` (`stable`/`beta` →
@@ -394,14 +406,14 @@ layout. The layout render objects
 
 ### 5.1 Variables, conditions and bindings
 
-**Variables** (`Variable`, `lib/src/variables.dart`): a name, a `VariableType`
+**Variables** (`Variable`, `lib/src/core/variables.dart`): a name, a `VariableType`
 (`integer`, `text`, `decimal`, `boolean`, `color`, `list`, `map`, `image`,
 `choice`) and a default `value` held as its type holds it (JSON-native:
 `3`, `4.5`, `true`, `"#FFFF0000"`, `[...]`, `{...}`), or a `formula` (what goes
 in `${= ...}`) that computes it; a formula with `parameters` is a function
 formulas call by name. Choice variables list their `options`.
 
-**Conditions** (`Condition`, `lib/src/conditions.dart`): an ordered list of
+**Conditions** (`Condition`, `lib/src/core/conditions.dart`): an ordered list of
 branches, `if` / `else if` / `else`. A branch has a `when` (`Predicate`: a
 `Comparison` `{left, op, right}` with loose operators (§5.1's loose reading), or a `Junction`
 `{"and"|"or": [...]}`; none for `else`) and `set`, the node properties it
@@ -436,7 +448,7 @@ and what a node gives itself and the nodes inside it: a dragged node's live
 `transform` (the pose, `active`, `selected`), a flip card's `flip`
 (`flipped`, `progress`) and a tilt's `tilt` (`x`, `y`, `active`).
 
-**Binding paths** (`Node.bind` keys, `BindPaths` in `lib/src/bindings.dart`):
+**Binding paths** (`Node.bind` keys, `BindPaths` in `lib/src/core/bindings.dart`):
 a path into the node's JSON, with `[i]` for a list index, a paint or
 effect id for the item with that id, and `*` for every item.
 
@@ -483,7 +495,7 @@ only the names each binding reads.
 
 ### 5.2 Reactions and actions
 
-**Reactions** (`Node.actions`, `Reaction`, `lib/src/triggers.dart`): a
+**Reactions** (`Node.actions`, `Reaction`, `lib/src/core/triggers.dart`): a
 `Trigger` and the chain of actions it runs, in order. All the reactions of a
 node to one trigger run as one chain.
 
@@ -516,8 +528,10 @@ expression, `${result.tick}`; the legacy `clock` reads as it (`every` →
 stage; a frame that comes while its chain runs is skipped. A list fires `refresh` (pulled to
 refresh) and `swipeAction` (`${result.action}`, `${result.item}`).
 
-**Actions** (`ActionDef`, sealed, one immutable class per type,
-`lib/src/actions.dart`): `navigate` (push, pop, replace, reset; params,
+**Actions** (`ActionDef`, one immutable class per type, each declared by an
+`ActionSpec` in a catalog, §8; the core's are the sealed `CoreAction`
+family in `lib/src/core/actions.dart`, each feature library's its own
+family in `lib/src/features/<x>/actions.dart`): `navigate` (push, pop, replace, reset; params,
 base, transition), `openModal` (dialog, sheets, full screen, popover),
 `closeModal` (its result is the opener's `${result}`), `openLink`,
 `submitForm`, `setValue` (node properties at binding paths: set, toggle,
@@ -542,7 +556,7 @@ the scroll views along it), `speak`, `playSound`, `paywall`,
 `paginate` (a list's pagination by name: next, previous, goTo, first,
 last, refresh, retry, setPageSize).
 `navigate` and `openModal` take a `routeTransition` (`RouteTransition`,
-`lib/src/route_transition.dart`; or a bare preset name): the incoming
+`lib/src/core/route_transition.dart`; or a bare preset name): the incoming
 screen's `enter` and the covered one's `exit` sides (a `Motion`, a
 `reveal` clip, a curve, `delayMs`, `durationMs`), `popEnter`/`popExit`
 for closing, `durationMs`, `barrierColor`, `opaque`, `swipeBack`, a
@@ -555,7 +569,7 @@ An unknown type decodes as `UnknownAction` and round-trips; the SDK runs it
 with the handler the app gives for the type (`CodelesslyActions.handlers`),
 else skips it.
 
-**Scripts** (`ScriptDef`, `lib/src/scripts.dart`): JavaScript a layout
+**Scripts** (`ScriptDef`, `lib/src/core/scripts.dart`): JavaScript a layout
 runs, in its document's `scripts` list (project scripts, then page scripts
 with a `pageId`; a page script wins by name): `name`, `params`
 (`{name, defaultValue}`), `source`, `capabilities` (`variables.read`,
@@ -593,7 +607,7 @@ mobile, tablet, desktop, 600 or 1024 except as the default *data* below.
 
 **Where they're defined: the project.** One set per project
 (`PublishModel.breakpoints`, `Breakpoints` in
-`lib/src/publish/breakpoints.dart`). One device is one breakpoint
+`lib/src/core/breakpoints.dart`). One device is one breakpoint
 everywhere: the screen it sees, the variant its responsive layouts show,
 `${screen.breakpoint}` and the toast's alignment must agree, and moving
 between screens must not change it. So a layout (screen) can't redefine
@@ -724,3 +738,49 @@ the fixtures.
 
 The packages are released as `codelessly_api` and `codelessly_sdk` 24.x, from each
 repository's root.
+
+## 8. Catalogs, feature libraries and plugins
+
+docs/design/05-plugins-and-layers.md is the design; docs/guide/09 the
+how-to. What a document may contain is a `Catalog` (`lib/src/core/catalog.dart`):
+node types (`WidgetSpec`), action types (`ActionSpec`: label, fields, a
+decoder for its class, result, nested chain keys, required capabilities),
+list data sources (`DataSourceSpec`) and formula functions (`FormulaSpec`).
+A catalog is an immutable value composed with `+` or `parts` (later entries
+win by type name), never a registry.
+
+* **Decoding takes one.** `LayoutDocument`, `Node`, `Reaction`, `ActionDef`,
+  `ComponentDefinition`, `PublishLayout` and `PublishBundle` decoders take
+  `catalog:`; nested decodes use the same (`Catalog.current`, a scope that
+  lasts for the decode). Without one they use `Catalog.core`: the core can't
+  name the feature libraries. `standardCatalog` (umbrella library) is the
+  core and every first-party library. A node keeps the catalog it was
+  decoded with (`Node.catalog`, outside equality; `spec` reads it).
+* **Undeclared types round-trip.** A node type the catalog lacks keeps its
+  props raw (`Props.unknown`; reading one through a `PropDef` decodes it),
+  an action type is an `UnknownAction` (`Catalog.upgrade` types it later).
+  JSON is the same whatever catalog read it.
+* **Families.** `ActionDef` is an `abstract base class`; `CoreAction`,
+  `DataAction`, `MediaAction`, `EngageAction` are sealed families,
+  `AuthAction` and `PaywallAction` one class each; a type declared without a
+  class is a `DeclaredAction` (its spec and its fields as `Props`). The SDK
+  switches exhaustively per family and tests that every declared type has a
+  handler.
+* **Export.** `catalog.toJson({compact})` / `Catalog.fromJson`: every
+  declaration with its prop types, defaults, enum values, bounds and docs,
+  for the generated reference, editors and agents; `JsonPropCodec` decodes
+  a value of any declared `PropType`.
+* **Two plugin tiers, one declaration.** A native plugin is Dart compiled
+  into the app: its `WidgetSpec`s and `ActionSpec`s in a `Catalog`, its
+  recipes and handlers in an SDK `CodelesslyFeature`. A hosted plugin is
+  data (`PluginPackage`, `lib/src/features/managed/plugins.dart`): its
+  declarations as catalog JSON, node types implemented as node trees reading
+  `${props.*}`, action types as chains reading `${params.*}`, formulas,
+  scripts with their capability lists, assets with digests. Its releases
+  are managed component releases (`PluginVersion` at
+  `plugins/{id}/versions/{n}`: payload text, sha256 digest, minSdk; a
+  `ManagedComponentMaster` at `plugins/{id}`; `pluginUpdateTarget`), a
+  publish lists them (`PublishModel.plugins`, `PluginRef`), and
+  `PluginPackage.problems` refuses one whose trees or chains use a type the
+  host lacks or a capability it doesn't list. It can do only what a
+  document can do.

@@ -111,7 +111,7 @@ void main() {
         'event': 'signed_up',
         'props': {'plan': r'${plan}'},
       };
-      final a = ActionDef.fromJson(json)! as EmitEventAction;
+      final a = ActionDef.fromJson(json, catalog: standardCatalog)! as EmitEventAction;
       expect(a.event, 'signed_up');
       expect(a.toJson(), json);
       expect(const EmitEventAction(event: 'x').toJson(), {'type': 'emitEvent', 'event': 'x'});
@@ -120,26 +120,26 @@ void main() {
     test('captureScreenshot round-trips, sparse at the defaults', () {
       expect(const CaptureScreenshotAction().toJson(), {'type': 'captureScreenshot'});
       final json = {'type': 'captureScreenshot', 'target': 'node', 'node': 'card', 'pixelRatio': 2};
-      final a = ActionDef.fromJson(json)! as CaptureScreenshotAction;
+      final a = ActionDef.fromJson(json, catalog: standardCatalog)! as CaptureScreenshotAction;
       expect(a.target, CaptureTarget.node);
       expect(a.toJson(), json);
       expect(
-        (ActionDef.fromJson({'type': 'captureScreenshot', 'target': 'moon'})! as CaptureScreenshotAction).target,
+        (ActionDef.fromJson({'type': 'captureScreenshot', 'target': 'moon'}, catalog: standardCatalog)! as CaptureScreenshotAction).target,
         CaptureTarget.layout,
       );
     });
 
     test('callFunction optional and cloudFiles source are sparse', () {
       const plain = {'type': 'callFunction', 'name': 'share'};
-      expect(ActionDef.fromJson(plain)!.toJson(), plain);
+      expect(ActionDef.fromJson(plain, catalog: standardCatalog)!.toJson(), plain);
       final optional = {...plain, 'optional': true};
-      expect((ActionDef.fromJson(optional)! as CallFunctionAction).optional, isTrue);
-      expect(ActionDef.fromJson(optional)!.toJson(), optional);
+      expect((ActionDef.fromJson(optional, catalog: standardCatalog)! as CallFunctionAction).optional, isTrue);
+      expect(ActionDef.fromJson(optional, catalog: standardCatalog)!.toJson(), optional);
 
       const upload = {'type': 'cloudFiles', 'path': 'shots'};
-      expect(ActionDef.fromJson(upload)!.toJson(), upload);
+      expect(ActionDef.fromJson(upload, catalog: standardCatalog)!.toJson(), upload);
       final fromSource = {...upload, 'source': r'${shot}', 'fileName': 'bug.png'};
-      final a = ActionDef.fromJson(fromSource)! as CloudFilesAction;
+      final a = ActionDef.fromJson(fromSource, catalog: standardCatalog)! as CloudFilesAction;
       expect(a.source, r'${shot}');
       expect(a.toJson(), fromSource);
     });
@@ -151,9 +151,9 @@ void main() {
         'presentation': 'banner',
         'alignment': [0, 1],
       };
-      expect(ActionDef.fromJson(json)!.toJson(), json);
+      expect(ActionDef.fromJson(json, catalog: standardCatalog)!.toJson(), json);
       final unknown =
-          ActionDef.fromJson({'type': 'openModal', 'to': 'x', 'presentation': 'hologram'})! as OpenModalAction;
+          ActionDef.fromJson({'type': 'openModal', 'to': 'x', 'presentation': 'hologram'}, catalog: standardCatalog)! as OpenModalAction;
       expect(unknown.presentation, ModalPresentation.dialog);
     });
   });
