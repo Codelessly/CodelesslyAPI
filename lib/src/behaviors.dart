@@ -3009,7 +3009,8 @@ final class Behaviors extends _Value {
     final legacy = <NodeAnimation>[
       for (final (i, l) in (readList(m['loops']) ?? const []).indexed) ?AnimationPresets.fromLoop(l, i),
       for (final (i, e) in (readList(m['effectAnimations']) ?? const []).indexed) ?AnimationPresets.fromEffect(e, i),
-      if (readMap(m['motion']) case final Json motion) ?AnimationPresets.fromPulseKey(motion),
+      if (readMap(m['motion']) case final Json motion)
+        ?AnimationPresets.fromPulseKey(motion, bound: readMap(m['bind'])?.containsKey('motion.pulseKey') ?? false),
     ];
     if (legacy.isEmpty) return own;
     final ids = {for (final a in legacy) a.id};

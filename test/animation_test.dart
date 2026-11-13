@@ -2,6 +2,8 @@
 // animation primitive and its presets, the animate action, the frame
 // trigger and the timer that absorbed the clock; and every legacy shape
 // read into them (old JSON in, new model out).
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:codelessly_api/codelessly_api.dart';
@@ -389,5 +391,32 @@ void main() {
       expect((f.type, f.when), (TriggerType.frame, r'${playing}'));
       expect(TriggerType.screen, contains(TriggerType.frame));
     });
+  });
+
+  test('the guide\'s JSON samples read and write back as shown', () {
+    final text = File('docs/guide/08-animation.md').readAsStringSync();
+    final blocks = RegExp(r'```json( legacy)?\n([\s\S]*?)```').allMatches(text).toList();
+    expect(blocks.length, greaterThanOrEqualTo(10));
+    Json written(Json j) {
+      if (j['type'] is String && j.length > 1 && !j.containsKey('animations') && !j.containsKey('bind')) {
+        return ActionDef.fromJson(j)!.toJson();
+      }
+      if (j.containsKey('trigger')) return Reaction.fromJson(j)!.toJson();
+      return Node.fromJson({'type': 'box', ...j}, id: 'n')!.toJson()
+        ..remove('id')
+        ..remove('type')
+        ..remove('layout');
+    }
+
+    for (var i = 0; i < blocks.length; i++) {
+      final json = jsonDecode(blocks[i][2]!) as Json;
+      if (blocks[i][1] != null) {
+        // An old shape: it reads as the next sample.
+        expect(written(json), jsonDecode(blocks[i + 1][2]!), reason: blocks[i][2]);
+        continue;
+      }
+      expect(written(json), json, reason: blocks[i][2]);
+      expect(written(json), isNot(contains('loops')));
+    }
   });
 }
