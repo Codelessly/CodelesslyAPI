@@ -5,3 +5,4 @@ library;
 
 export 'core.dart';
 export 'src/features/managed/managed_components.dart';
+export 'src/features/managed/plugins.dart';
