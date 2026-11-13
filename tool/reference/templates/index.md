@@ -310,11 +310,13 @@ The same page in CSS:
 #content { max-width: 1200px; margin: 0 auto }
 ```
 
+<!-- guide-only -->
 Older documents use a canvas per breakpoint:
 
 {{example:responsive}}
 
 {{example:variance}}
+<!-- /guide-only -->
 
 <a id="guide-variables"></a>
 ## 8. Variables, bindings and expressions
@@ -339,12 +341,13 @@ them in `page_variables` to share them with every canvas of the document (a scre
   {"name": "dishes", "type": "list", "value": [{"name": "Lamb", "vegan": false}, {"name": "Squash", "vegan": true}]},
   {"name": "shown", "type": "list", "formula": "filter(dishes, d => contains(lower(d.name), lower(query)))"},
   {"name": "count", "type": "integer", "formula": "length(shown)"},
-  {"name": "money", "type": "text", "parameters": ["n"], "formula": "'$' + round(n)"}
+  {"name": "usd", "type": "text", "parameters": ["n"], "formula": "'$' + round(n)"}
 ]}
 ```
 
-`${shown}` feeds a list, `${count}` a label, `${= money(price * 12)}` any text, wherever they are needed: write a
-filter or a rule once, not in every binding.
+`${shown}` feeds a list, `${count}` a label, `${= usd(price * 12)}` any text, wherever they are needed: write a
+filter or a rule once, not in every binding. A function variable's name must not be a formula function's
+({{page:formulas.md|formula functions}}): the built-in one wins.
 
 **Expressions** are text that reads values:
 
@@ -543,9 +546,14 @@ shown. `--label <name>` keeps the screenshots and `diagnostics-<name>.json` of e
 captures the page's own scroll height, with content fixed to the window drawn in the first window.
 Look at the screenshots: validation cannot tell you that a page is ugly.
 
+<!-- guide-only -->
 Validation codes (from `package:codelessly_api/validate.dart`):
 
 {{diagnosticCodes}}
+<!-- /guide-only -->
+<!-- starter-only -->
+The validation codes are listed in `index.md`, section 17.
+<!-- /starter-only -->
 
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,

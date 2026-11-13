@@ -993,12 +993,13 @@ them in `page_variables` to share them with every canvas of the document (a scre
   {"name": "dishes", "type": "list", "value": [{"name": "Lamb", "vegan": false}, {"name": "Squash", "vegan": true}]},
   {"name": "shown", "type": "list", "formula": "filter(dishes, d => contains(lower(d.name), lower(query)))"},
   {"name": "count", "type": "integer", "formula": "length(shown)"},
-  {"name": "money", "type": "text", "parameters": ["n"], "formula": "'$' + round(n)"}
+  {"name": "usd", "type": "text", "parameters": ["n"], "formula": "'$' + round(n)"}
 ]}
 ```
 
-`${shown}` feeds a list, `${count}` a label, `${= money(price * 12)}` any text, wherever they are needed: write a
-filter or a rule once, not in every binding.
+`${shown}` feeds a list, `${count}` a label, `${= usd(price * 12)}` any text, wherever they are needed: write a
+filter or a rule once, not in every binding. A function variable's name must not be a formula function's
+([formula functions](#page-formulas)): the built-in one wins.
 
 **Expressions** are text that reads values:
 
