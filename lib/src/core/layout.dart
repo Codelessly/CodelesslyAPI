@@ -184,7 +184,10 @@ final class Layout {
   /// Space around the node, outside its box.
   final EdgeInsets margin;
 
-  /// Space between the node's box and its content.
+  /// Space between the node's box and its content (Flutter's `Padding`). A
+  /// text's padding sits around its lines, as `Padding(child: Text(...))`:
+  /// a hugging text grows by it (schema 3; schema 2 ignored it on a text,
+  /// and the migration drops it there).
   final EdgeInsets padding;
 
   /// Position under a freeform parent.

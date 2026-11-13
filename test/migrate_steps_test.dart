@@ -62,8 +62,127 @@ void main() {
     'trigger.clock': {'actions': [{'trigger': {'type': 'clock', 'every': 500, 'runWhen': r'${on}'}, 'actions': <Object?>[]}]},
   };
 
+  final documentSamples = <String, Json>{
+    'text.padding': {
+      'type': 'text',
+      'layout': {'padding': [4, 8, 4, 8]},
+      'bind': {'layout.padding': r'${p}', 'opacity': r'${o}'},
+      'media': [
+        {'maxWidth': 600, 'patch': {'layout': {'padding': 2}, 'bind': {'layout.padding': r'${q}'}}},
+      ],
+      'states': {
+        'hovered': {'n': {'layout': {'padding': 6}, 'opacity': 0.5}},
+      },
+    },
+  };
+
+  documentSamples['text.lineHeight'] = {
+    'type': 'text',
+    'props': {
+      'text': 'ab',
+      'style': {'fontSize': 12, 'naturalHeight': true},
+      'runs': [
+        {'start': 0, 'end': 1, 'style': {'color': '#FF000000'}},
+      ],
+    },
+  };
+
+  test('text.lineHeight: schema 2\'s 1.33 on the top-level nodes only; a natural style\'s node takes the font\'s own', () {
+    final report = MigrationReport();
+    final doc = migrate2to3({
+      'schema': 2,
+      'roots': ['c'],
+      'nodes': {
+        'c': {'type': 'canvas', 'layout': {}, 'slots': {'body': 'col'}},
+        'col': {'type': 'column', 'layout': {}, 'children': ['plain', 'nat', 'btn']},
+        'plain': {'type': 'text', 'layout': {}, 'props': {'text': 'a', 'style': {'fontSize': 14}}},
+        'nat': {
+          'type': 'text',
+          'layout': {},
+          'props': {'text': 'b', 'style': {'fontSize': 14, 'naturalHeight': true}},
+          'typewriter': {'caretAlignStyle': {'fontSize': 9}},
+        },
+        'btn': {
+          'type': 'chip',
+          'layout': {},
+          'props': {'labelStyle': {'fontSize': 11, 'naturalHeight': false}},
+          'states': {'hovered': {'plain': {'props': {'style': {'naturalHeight': true}}}}},
+        },
+        'dialog': {'type': 'box', 'layout': {}},
+      },
+    }, report: report);
+    final nodes = (doc['nodes'] as Map).cast<String, Map>();
+    expect(nodes['c']!['defaultTextStyle'], {'height': 1.33});
+    expect(nodes['dialog']!['defaultTextStyle'], {'height': 1.33});
+    for (final id in ['col', 'plain', 'btn']) {
+      expect(nodes[id]!.containsKey('defaultTextStyle'), isFalse, reason: id);
+    }
+    expect(nodes['nat']!['defaultTextStyle'], <String, Object?>{});
+    expect((nodes['nat']!['props'] as Map)['style'], {'fontSize': 14});
+    expect((nodes['nat']!['typewriter'] as Map)['caretAlignStyle'], {'fontSize': 9, 'height': 1.33});
+    expect((nodes['btn']!['props'] as Map)['labelStyle'], {'fontSize': 11});
+    expect((((nodes['btn']!['states'] as Map)['hovered'] as Map)['plain'] as Map), {'props': {'style': <String, Object?>{}}});
+    expect(report.behaviourChanges.map((e) => e.path), ['/nodes/btn/states/hovered/plain/props/style/naturalHeight']);
+    expect(jsonEncode(doc), isNot(contains('naturalHeight')));
+    // Decoded: the text below the canvas inherits 1.33 (the nearest default wins).
+    final d = LayoutDocument.fromJson(doc, catalog: standardCatalog);
+    expect(d['c']!.behaviors.defaultTextStyle, const TextStyle(height: 1.33));
+    expect(d['nat']!.behaviors.defaultTextStyle, TextStyle.empty);
+    // Again: nothing changes.
+    expect(jsonEncode(migrate2to3({...doc, 'schema': 2})), jsonEncode({...doc}));
+  });
+
+  test('text.lineHeight: a natural text\'s runs inherit its base; a natural run beside 1.33 ones is reported', () {
+    final (out, report) = migrated(documentSamples['text.lineHeight']!);
+    expect(out['defaultTextStyle'], <String, Object?>{});
+    expect(((out['props'] as Map)['runs'] as List).single, {'start': 0, 'end': 1, 'style': {'color': '#FF000000'}});
+    expect(report.behaviourChanges, isEmpty);
+    final (out2, report2) = migrated({
+      'type': 'text',
+      'props': {
+        'text': 'ab',
+        'style': {'fontSize': 12},
+        'runs': [
+          {'start': 0, 'end': 1, 'style': {'naturalHeight': true}},
+        ],
+      },
+    });
+    expect((out2['props'] as Map)['style'], {'fontSize': 12, 'height': 1.33});
+    expect(report2.behaviourChanges.single.path, '/nodes/n/props/runs');
+  });
+
+  test('a schema-2 path an action names is refused with the schema-3 path (schema2PathHint, unknown_bind_path)', () {
+    expect(schema2PathHint('loops[1].duration'), contains('animations.loop1.duration'));
+    expect(schema2PathHint('drag.track.min'), '"track.min"');
+    expect(schema2PathHint('motion.originX'), contains('motion.alignment'));
+    expect(schema2PathHint('props.style.naturalHeight'), contains('defaultTextStyle'));
+    for (final ok in ['motion.scale', 'motion.path.progress', 'opacity', 'track.value', 'props.text']) {
+      expect(schema2PathHint(ok), isNull, reason: ok);
+    }
+    final doc = {
+      'schema': 3,
+      'roots': ['c'],
+      'nodes': {
+        'c': {
+          'type': 'canvas',
+          'layout': {'width': 390, 'height': 844},
+          'actions': [
+            {
+              'trigger': {'type': 'click'},
+              'actions': [
+                {'type': 'setValue', 'node': 'c', 'values': [{'path': 'motion.originY', 'value': 1}]},
+              ],
+            },
+          ],
+        },
+      },
+    };
+    final d = validateDocument(doc).where((x) => x.code == Codes.unknownBindPath).single;
+    expect(d.message, contains('motion.alignment'));
+  });
+
   test('every step has a sample here', () {
-    expect(byId.keys.toSet().difference({...samples.keys, 'patches.legacy'}), isEmpty);
+    expect(byId.keys.toSet().difference({...samples.keys, ...documentSamples.keys, 'patches.legacy'}), isEmpty);
   });
 
   for (final e in samples.entries) {
@@ -100,6 +219,31 @@ void main() {
     final hovered = node.patched(node.behaviors.states.patchFor('n', {WidgetState.hovered})!);
     expect(hovered.behaviors.motion!.alignment, const Alignment(1, 0));
     expect(hovered.opacity, 0.5);
+  });
+
+  test('text.padding: a text\'s padding, its bindings and the patches that set it are dropped; others keep theirs', () {
+    final (out, report) = migrated(documentSamples['text.padding']!, others: {
+      'b': {'type': 'box', 'layout': {'padding': 4}, 'states': {'pressed': {'n': {'layout': {'padding': 1, 'width': 9}}, 'b': {'layout': {'padding': 2}}}}},
+    });
+    expect(out['layout'], <String, Object?>{});
+    expect(out['bind'], {'opacity': r'${o}'});
+    expect(((out['media'] as List).single as Map)['patch'], <String, Object?>{});
+    expect(((out['states'] as Map)['hovered'] as Map)['n'], {'opacity': 0.5});
+    expect(report.entries.where((e) => e.step == 'text.padding').length, 6);
+    expect(report.unconvertible, isEmpty);
+    expect(report.behaviourChanges, isEmpty);
+    // Run on the whole document (the box's own padding and its patch of itself stay).
+    final doc = migrate2to3({
+      'schema': 2,
+      'nodes': {
+        'n': {'type': 'text', 'layout': {'padding': 3}},
+        'b': {'type': 'box', 'layout': {'padding': 4}, 'states': {'pressed': {'n': {'layout': {'padding': 1, 'width': 9}}, 'b': {'layout': {'padding': 2}}}}},
+      },
+    });
+    final b = (doc['nodes'] as Map)['b'] as Map;
+    expect(b['layout'], {'padding': 4});
+    expect((b['states'] as Map)['pressed'], {'n': {'layout': {'width': 9}}, 'b': {'layout': {'padding': 2}}});
+    expect(identical(migrate2to3(doc), doc), isTrue);
   });
 
   test('patches.legacy: a media patch with a drag', () {

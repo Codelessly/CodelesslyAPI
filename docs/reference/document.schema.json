@@ -6403,16 +6403,6 @@
           "items": {
             "$ref": "#/$defs/model.Effect"
           }
-        },
-        "naturalHeight": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            }
-          ]
         }
       },
       "additionalProperties": false
@@ -7392,6 +7382,16 @@
           "anyOf": [
             {
               "$ref": "#/$defs/enum.TextDirection"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "defaultTextStyle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.TextStyle"
             },
             {
               "type": "null"

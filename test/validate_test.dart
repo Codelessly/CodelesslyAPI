@@ -257,10 +257,10 @@ void main() {
       node(d, 'box').remove('layout');
       expectOne(d, Codes.zeroSize, path: '/nodes/box/layout/width');
     });
-    test('layout_field_ignored: padding on a text', () {
+    test('a text\'s padding is applied in schema 3 (Padding(child: Text)): no layout_field_ignored', () {
       final d = base();
       (node(d, 'title')['layout'] as Map)['padding'] = [0, 0, 0, 26];
-      expectOne(d, Codes.layoutFieldIgnored, path: '/nodes/title/layout/padding');
+      expect(withCode(d, Codes.layoutFieldIgnored), isEmpty);
     });
     test('layout_clamped: a negative margin; a negative offset in a hugging stack', () {
       final d = base();

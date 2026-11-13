@@ -1071,6 +1071,11 @@ abstract final class BehaviorFields {
   /// Null inherits.
   static const textDirection = PropDef<TextDirection?>('textDirection', OptionalEnumCodec(TextDirection.values), null);
 
+  /// Flutter's `DefaultTextStyle`: the style the text below starts from.
+  static const defaultTextStyle = PropDef<TextStyle?>('defaultTextStyle', _optionalTextStyle, null,
+      doc: 'The text style every text style of this node and its descendants is merged over (Flutter\'s DefaultTextStyle); '
+          'the nearest one wins ({} gives Flutter\'s defaults back). Unset everywhere: Flutter\'s defaults, the font\'s own line height.');
+
   /// A two-sided card that turns over (a runtime 3D turn, not a mirror).
   static const flip = PropDef<FlipCard?>('flip', ValueCodec(FlipCard.fromJson, _out, flipCardType), null);
   static const tilt = PropDef<Tilt?>('tilt', ValueCodec(Tilt.fromJson, _out, tiltType), null);
@@ -1104,6 +1109,9 @@ abstract final class BehaviorFields {
   static const List<PropDef<Object?>> all = [
     motion, scale, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
     flightKey, flight, draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
-    particles, textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
+    particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }
+
+TextStyle? _optionalTextStyleIn(Object? j) => readMap(j) == null ? null : TextStyle.fromJson(j);
+const _optionalTextStyle = ValueCodec<TextStyle?>(_optionalTextStyleIn, _out, PropTypes.textStyle);

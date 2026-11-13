@@ -62,8 +62,10 @@ abstract final class TextStyleFields {
   static const foreground = PropDef<Paint?>('foreground', Codecs.paint, null);
   static const letterSpacing = PropDef<double?>('letterSpacing', Codecs.optionalDouble, null);
 
-  /// Line height, as a multiple of the font size.
-  static const height = PropDef<double?>('height', Codecs.optionalPositive, null);
+  /// Line height, as a multiple of the font size (Flutter's `height`).
+  static const height = PropDef<double?>('height', Codecs.optionalPositive, null,
+      doc: 'Line height as a multiple of the font size. Unset: the inherited defaultTextStyle\'s, else the font\'s own '
+          '(Flutter\'s height: null, CSS line-height: normal).');
   /// A line through the text: `underline`, `overline`, `lineThrough` or `none`.
   static const decoration = PropDef<TextDecoration?>('decoration', OptionalEnumCodec(TextDecoration.values), null);
   /// The colour of the `decoration` line; without one, the text's colour.
@@ -94,9 +96,6 @@ abstract final class TextStyleFields {
     null,
   );
 
-  /// With no height, the font's own line height instead of the base style's.
-  static const naturalHeight = PropDef<bool?>('naturalHeight', Codecs.optionalBool, null);
-
   /// The project's named text style this one starts from.
   static const from = PropDef<String?>('from', Codecs.optionalString, null,
       doc: 'The name of one of the project\'s text styles (the site manifest\'s `theme.textStyles`) this style starts from, '
@@ -106,7 +105,7 @@ abstract final class TextStyleFields {
   static const List<PropDef<Object?>> all = [
     from, fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing, height, decoration, //
     decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, fontFeatures, leadingDistribution,
-    shadows, naturalHeight,
+    shadows,
   ];
 }
 

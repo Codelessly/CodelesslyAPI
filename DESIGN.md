@@ -182,7 +182,11 @@ Value types mirror Flutter: `Color` (`#AARRGGBB`), `EdgeInsets`,
 `Gradient`, and enums with Flutter's value names and defaults
 (`MainAxisAlignment.start`). `TextStyle` also holds
 `fontFeatures` (OpenType settings, `"lnum"`, `"liga=0"`; `tnum` as
-`tabularFigures`) and `leadingDistribution`; a gradient `Paint` with
+`tabularFigures`) and `leadingDistribution`. A style with no `height` takes
+the nearest `defaultTextStyle` above it (a behavior on any node, Flutter's
+`DefaultTextStyle`), else the font's own line height (Flutter's
+`height: null`); a schema-2 document keeps its 1.33 through the migration
+(`defaultTextStyle: {"height": 1.33}` on its top-level nodes). A gradient `Paint` with
 `gradientPerSubpath` (JSON also `gradientUnits: "subpath"`) is laid out in
 each shape of a path.
 
