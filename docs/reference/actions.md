@@ -346,6 +346,16 @@ Moves the pagination controller of a list or grid (its `pagination`, by `control
 | `page` | String | `"1"` |  | For goTo: a number or an expression. |
 | `pageSize` | String | `"20"` |  | For setPageSize. |
 
+<a id="action-componentEvent"></a>
+## `componentEvent`: Fire component event
+
+Inside a component: fires one of its declared events; the call's event reactions run with the value as ${result}.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `event` | String | `""` |  | The key of the event, one of the component's widget.events. |
+| `value` | Object | unset |  | The payload (`${result}` in the call's handler): JSON whose strings are expressions. |
+
 <a id="action-callApi"></a>
 ## `callApi`: Call API
 

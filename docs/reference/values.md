@@ -2675,6 +2675,7 @@ Written as the value's name, a JSON string (`"center"`).
 | `swipeAction` | A swipe action of a list item ran (the list's `swipeActions`): `${result.action}`, `${result.label}`, `${result.item}`, `${result.index}`. |
 | `rowTap` | A table view's body row was tapped: `${result.row}` (the row's data), `${result.rowIndex}`, `${result.column}` (the tapped column's key), `${result.columnIndex}`. |
 | `actionError` | On the current canvas: a failed action chain or cloud subscription. `${result.error}` is `{type, message, action, nodeId}` (no stack or raw service objects). A failure in this reaction reports to the host without recursively firing another actionError reaction. |
+| `event` | On a component call: the component fired its event `Trigger.event` (a `componentEvent` action inside its definition); `${result}` is the event's payload. Flutter: the callback passed to a widget's `onChanged`-style parameter. The handler runs in the caller's scope. |
 
 <a id="enum-VariableType"></a>
 ### VariableType

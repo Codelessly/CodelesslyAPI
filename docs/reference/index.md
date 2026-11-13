@@ -189,6 +189,7 @@ a fill, a radius and padding, not three nested widgets.
 | [`external`](nodes.md#node-external) |  | none | blurs only |
 | [`placeholder`](nodes.md#node-placeholder) |  | none | blurs only |
 | [`singlePlaceholder`](nodes.md#node-singlePlaceholder) |  | `children` | blurs only |
+| [`slot`](nodes.md#node-slot) |  | `children` | blurs only |
 | [`video`](nodes.md#node-video) |  | none | blurs only |
 | [`embeddedVideo`](nodes.md#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](nodes.md#node-audioPlayer) |  | none | blurs only |
@@ -1639,6 +1640,16 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
+| `unknown_component` | error | A call names a component type (UpperCamelCase) that no definition of the project declares: it renders as an empty box of its size. |
+| `duplicate_component` | error | Two definitions declare the same component type, or a component type is also a catalog type: there is no shadowing. |
+| `component_cycle` | error | A component calls itself, directly or through other components: it can never finish rendering. |
+| `component_id_mismatch` | error | A component document whose file name (or "id") is not its widget type: a file holds the component it is named after. |
+| `invalid_component` | error | A component document of the wrong shape: a "widget" without a type, a type that is not UpperCamelCase, or not exactly one root. |
+| `missing_prop` | error | A call does not set a parameter the component declares as required. |
+| `unknown_event` | error | An event reaction (or a componentEvent action) names an event the component does not declare, or sits on a node that is not a component call. |
+| `call_field_not_allowed` | error | A field on a call that belongs to the definition (decoration, layout.padding): the call gives size and placement only. |
+| `slot_outside_component` | warning | A slot node in a document that is not a component: nothing fills it, its own children show. |
+| `root_placement_bound` | warning | A component root binds its size or placement: the call sizes and places the root, so the binding is dropped. |
 
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
