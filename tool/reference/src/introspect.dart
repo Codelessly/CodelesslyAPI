@@ -135,7 +135,14 @@ final class DocIndex {
   List<Declared> declarations(Object value, {Iterable<String> prefer = const []}) {
     final all = [...?_byValue[value]];
     int rank(Declared d) => prefer.contains(d.owner) ? 0 : (d.doc.isNotEmpty ? 1 : 2);
-    all.sort((a, b) => rank(a).compareTo(rank(b)));
+    // Equal declarations in several classes tie: by owner and name, so the
+    // result doesn't depend on the order the libraries were loaded in.
+    all.sort((a, b) {
+      final r = rank(a).compareTo(rank(b));
+      if (r != 0) return r;
+      final o = a.owner.compareTo(b.owner);
+      return o != 0 ? o : a.name.compareTo(b.name);
+    });
     return all;
   }
 

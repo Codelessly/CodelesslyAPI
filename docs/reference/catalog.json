@@ -11679,6 +11679,15 @@
         "nullable": true,
         "object": "Measure",
         "doc": "Its laid-out box, written to a variable."
+      },
+      {
+        "key": "customPaint",
+        "type": "CustomPaint",
+        "kind": "object",
+        "default": null,
+        "nullable": true,
+        "object": "CustomPaint",
+        "doc": "Flutter's `CustomPaint`: draw lists behind and over the content."
       }
     ]
   },
@@ -15426,6 +15435,73 @@
           "default": "#FF000000",
           "nullable": false,
           "doc": ""
+        }
+      ]
+    },
+    "CustomPaint": {
+      "doc": "Flutter's `CustomPaint` on a node: `painter` drawn behind the node's content (its decoration and children) and `foregroundPainter` over it, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.\n\n`viewBox` is the ops' coordinate space, `[minX, minY, width, height]` (JSON also `[width, height]`), mapped onto the box by `fit` (`fill` stretches, as the `path` node's view box does); null: the box's own pixels. In expressions `size.width` and `size.height` are the view box's size when there is one, else the box's.",
+      "fields": [
+        {
+          "key": "painter",
+          "type": "List<DrawOp>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "DrawOp",
+          "itemKind": "json",
+          "doc": "Drawn behind the node's content (CustomPaint.painter)."
+        },
+        {
+          "key": "foregroundPainter",
+          "type": "List<DrawOp>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "DrawOp",
+          "itemKind": "json",
+          "doc": "Drawn over the node's content (CustomPaint.foregroundPainter)."
+        },
+        {
+          "key": "viewBox",
+          "type": "Rect",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "The ops' coordinates, [width, height] or [minX, minY, width, height], mapped onto the box by fit. Null: box pixels."
+        },
+        {
+          "key": "fit",
+          "type": "BoxFit",
+          "kind": "enumeration",
+          "default": "fill",
+          "nullable": false,
+          "enum": "BoxFit",
+          "values": [
+            "fill",
+            "contain",
+            "cover",
+            "fitWidth",
+            "fitHeight",
+            "none",
+            "scaleDown"
+          ],
+          "doc": "How the view box maps onto the box."
+        },
+        {
+          "key": "isComplex",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Raster cache hint: the drawing is costly."
+        },
+        {
+          "key": "willChange",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Raster cache hint: the drawing changes often."
         }
       ]
     },
