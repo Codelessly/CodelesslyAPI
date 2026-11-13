@@ -193,6 +193,22 @@ One gradient stop.
 | `position` | double | `0` | ≥ 0, ≤ 1 |  |
 | `color` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
 
+<a id="type-CustomPaint"></a>
+### CustomPaint
+
+Flutter's `CustomPaint` on a node: `painter` drawn behind the node's content (its decoration and children) and `foregroundPainter` over it, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.
+
+`viewBox` is the ops' coordinate space, `[minX, minY, width, height]` (JSON also `[width, height]`), mapped onto the box by `fit` (`fill` stretches, as the `path` node's view box does); null: the box's own pixels. In expressions `size.width` and `size.height` are the view box's size when there is one, else the box's.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `painter` | List<DrawOp> | `[]` |  | Drawn behind the node's content (CustomPaint.painter). |
+| `foregroundPainter` | List<DrawOp> | `[]` |  | Drawn over the node's content (CustomPaint.foregroundPainter). |
+| `viewBox` | [Rect](values.md#type-Rect) | unset |  | The ops' coordinates, [width, height] or [minX, minY, width, height], mapped onto the box by fit. Null: box pixels. |
+| `fit` | [BoxFit](values.md#enum-BoxFit) | `"fill"` | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | How the view box maps onto the box. |
+| `isComplex` | bool | `false` |  | Raster cache hint: the drawing is costly. |
+| `willChange` | bool | `false` |  | Raster cache hint: the drawing changes often. |
+
 <a id="type-DragMotion"></a>
 ### DragMotion
 

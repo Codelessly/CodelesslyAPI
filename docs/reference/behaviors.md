@@ -36,6 +36,7 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 <a id="behavior-sticky"></a>
 <a id="behavior-viewProgress"></a>
 <a id="behavior-measure"></a>
+<a id="behavior-customPaint"></a>
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `motion` | [Motion](values.md#type-Motion) | unset |  | The transform over the layout, its transitions, entrance and spin. |
@@ -66,6 +67,7 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `sticky` | [Sticky](values.md#type-Sticky) | unset |  | Pinned in its scrolling view while its parent is in view. |
 | `viewProgress` | [ViewProgress](values.md#type-ViewProgress) | unset |  | `${view.progress}` through the viewport. |
 | `measure` | [Measure](values.md#type-Measure) | unset |  | Its laid-out box, written to a variable. |
+| `customPaint` | [CustomPaint](values.md#type-CustomPaint) | unset |  | Flutter's `CustomPaint`: draw lists behind and over the content. |
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [LoopAnimation](values.md#type-LoopAnimation), [Transitions](values.md#type-Transitions), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [DragMotion](values.md#type-DragMotion), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [EffectAnimation](values.md#type-EffectAnimation), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [LoopAnimation](values.md#type-LoopAnimation), [Transitions](values.md#type-Transitions), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [DragMotion](values.md#type-DragMotion), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [EffectAnimation](values.md#type-EffectAnimation), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
 

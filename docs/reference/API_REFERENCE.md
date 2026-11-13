@@ -105,7 +105,7 @@ Every node has a `type` (one of the [node types](#page-nodes)). Its keys:
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
-| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `effectAnimations`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure` ([behaviors](#page-behaviors)). |
+| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `effectAnimations`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
 
 **The tree is made of ids.** A parent lists its children's ids; a child does not name its parent:
 
@@ -3853,6 +3853,22 @@ One gradient stop.
 | `position` | double | `0` | ≥ 0, ≤ 1 |  |
 | `color` | [Color](#type-Color) | `"#FF000000"` |  |  |
 
+<a id="type-CustomPaint"></a>
+### CustomPaint
+
+Flutter's `CustomPaint` on a node: `painter` drawn behind the node's content (its decoration and children) and `foregroundPainter` over it, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.
+
+`viewBox` is the ops' coordinate space, `[minX, minY, width, height]` (JSON also `[width, height]`), mapped onto the box by `fit` (`fill` stretches, as the `path` node's view box does); null: the box's own pixels. In expressions `size.width` and `size.height` are the view box's size when there is one, else the box's.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `painter` | List<DrawOp> | `[]` |  | Drawn behind the node's content (CustomPaint.painter). |
+| `foregroundPainter` | List<DrawOp> | `[]` |  | Drawn over the node's content (CustomPaint.foregroundPainter). |
+| `viewBox` | [Rect](#type-Rect) | unset |  | The ops' coordinates, [width, height] or [minX, minY, width, height], mapped onto the box by fit. Null: box pixels. |
+| `fit` | [BoxFit](#enum-BoxFit) | `"fill"` | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | How the view box maps onto the box. |
+| `isComplex` | bool | `false` |  | Raster cache hint: the drawing is costly. |
+| `willChange` | bool | `false` |  | Raster cache hint: the drawing changes often. |
+
 <a id="type-DragMotion"></a>
 ### DragMotion
 
@@ -6425,6 +6441,7 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 <a id="behavior-sticky"></a>
 <a id="behavior-viewProgress"></a>
 <a id="behavior-measure"></a>
+<a id="behavior-customPaint"></a>
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `motion` | [Motion](#type-Motion) | unset |  | The transform over the layout, its transitions, entrance and spin. |
@@ -6455,8 +6472,9 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 | `sticky` | [Sticky](#type-Sticky) | unset |  | Pinned in its scrolling view while its parent is in view. |
 | `viewProgress` | [ViewProgress](#type-ViewProgress) | unset |  | `${view.progress}` through the viewport. |
 | `measure` | [Measure](#type-Measure) | unset |  | Its laid-out box, written to a variable. |
+| `customPaint` | [CustomPaint](#type-CustomPaint) | unset |  | Flutter's `CustomPaint`: draw lists behind and over the content. |
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [LoopAnimation](#type-LoopAnimation), [Transitions](#type-Transitions), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [DragMotion](#type-DragMotion), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [EffectAnimation](#type-EffectAnimation), [ParticleEmitter](#type-ParticleEmitter), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [LoopAnimation](#type-LoopAnimation), [Transitions](#type-Transitions), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [DragMotion](#type-DragMotion), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [EffectAnimation](#type-EffectAnimation), [ParticleEmitter](#type-ParticleEmitter), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure), [CustomPaint](#type-CustomPaint).
 
 ---
 
@@ -7211,7 +7229,7 @@ one ([formula functions](#page-formulas)). A binding that is exactly one express
 - `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type ([node types](#page-nodes)), and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `effectAnimations`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`.
+- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `effectAnimations`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
 
 ## Scopes
 
