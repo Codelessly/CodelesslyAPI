@@ -101,9 +101,9 @@
         "doc": "The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2)."
       },
       {
-        "key": "responsive",
-        "type": "List<ResponsivePatch>",
-        "doc": "The node's own fields per breakpoint: `[{\"smallerThan\": \"tablet\", \"patch\": {\"props\": {\"direction\": \"vertical\"}}}]`. Each entry has one condition (`equals`, `largerThan`, `smallerThan` a breakpoint name, or `between` two) and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`, `children` reordered), merged over the node while the condition holds, in order (see the guide, Responsive design)."
+        "key": "media",
+        "type": "List<MediaRule>",
+        "doc": "The node's own fields by screen size, as CSS media queries: `[{\"maxWidth\": 599, \"patch\": {\"props\": {\"direction\": \"vertical\"}}}]`. A rule has `minWidth` and/or `maxWidth` (px, inclusive, or a breakpoint name: from its min width / up to the next one) and/or `orientation`, and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`) merged over the node while all its conditions hold; rules apply in order, the later winning (see the guide, Responsive design)."
       }
     ],
     "fields": [
@@ -365,7 +365,9 @@
       "childFields": [
         "flex",
         "squeezable",
-        "align"
+        "align",
+        "order",
+        "basis"
       ],
       "props": [
         {
@@ -522,7 +524,9 @@
       "childFields": [
         "flex",
         "squeezable",
-        "align"
+        "align",
+        "order",
+        "basis"
       ],
       "props": [
         {
@@ -679,7 +683,9 @@
       "childFields": [
         "flex",
         "squeezable",
-        "align"
+        "align",
+        "order",
+        "basis"
       ],
       "props": [
         {
@@ -1532,6 +1538,15 @@
           "nullable": true,
           "min": 0.0,
           "doc": ""
+        },
+        {
+          "key": "minCrossAxisExtent",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "min": 0.0,
+          "doc": "CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints."
         },
         {
           "key": "mainAxisSpacing",
@@ -11237,6 +11252,23 @@
         "default": null,
         "nullable": true,
         "doc": "Under a row/column: alignment in its slot (`Align`)."
+      },
+      {
+        "key": "order",
+        "type": "int",
+        "kind": "integer",
+        "default": 0,
+        "nullable": false,
+        "doc": "CSS `order`: under a row, column or flex, children are laid out and painted by ascending order (equal orders as listed). Patch it per screen size (`media`) to reorder at a width."
+      },
+      {
+        "key": "basis",
+        "type": "double",
+        "kind": "number",
+        "default": null,
+        "nullable": true,
+        "min": 0.0,
+        "doc": "CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; a child that fills the main axis (`{\"fill\": n}`) then grows by its `flex` share of the room left on its line (`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints."
       }
     ],
     "box": [
@@ -11253,7 +11285,9 @@
       "squeezable",
       "x",
       "y",
-      "align"
+      "align",
+      "order",
+      "basis"
     ],
     "undeclared": [
       "widthFactor",
@@ -11300,8 +11334,8 @@
         },
         "width": {
           "fixed": null,
-          "fill": "A wrapping row lays its children out in runs: they keep their own size along it.",
-          "flexible": "A wrapping row lays its children out in runs: they keep their own size along it.",
+          "fill": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.",
+          "flexible": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.",
           "hug": null
         },
         "height": {
@@ -25934,17 +25968,17 @@
     {
       "code": "unknown_breakpoint",
       "severity": "error",
-      "meaning": "A canvas, variant or responsive patch names a breakpoint the project does not define."
+      "meaning": "A canvas, variant or media rule names a breakpoint the project does not define."
     },
     {
-      "code": "invalid_responsive",
+      "code": "invalid_media",
       "severity": "error",
-      "meaning": "A \"responsive\" entry of the wrong shape: not exactly one condition (equals, largerThan, smallerThan, between), a patch key that cannot vary, or \"children\" that are not the node's own children reordered."
+      "meaning": "A \"media\" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size."
     },
     {
-      "code": "responsive_overridden",
+      "code": "media_overridden",
       "severity": "warning",
-      "meaning": "A responsive patch sets a field the node also binds: the binding wins, so the patch never shows."
+      "meaning": "A media rule patches a field the node also binds: the binding wins, so the patch never shows."
     },
     {
       "code": "duplicate_breakpoint_canvas",

@@ -13,13 +13,15 @@ import '../core/layout.dart';
 import '../core/logic.dart';
 import '../core/node.dart';
 import '../core/props.dart';
-import '../core/responsive.dart';
+import '../core/media.dart';
 import '../core/breakpoints.dart';
 import '../core/scripts.dart';
 import '../core/triggers.dart';
 import '../core/value_fields.dart';
 import '../core/variables.dart';
 import '../core/widgets/canvas.dart';
+import '../core/widgets/flex.dart';
+import '../core/values/enums.dart';
 import '../standard_catalog.dart';
 import 'bind_paths.dart';
 import 'diagnostic.dart';
@@ -429,7 +431,7 @@ final class _Validator {
     // Keys a node doesn't read are kept in extra.
     final nodeKeys = <String>{
       'id', 'type', 'name', 'key', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
-      'actions', 'component', 'responsive', ...Behaviors.keys,
+      'actions', 'component', 'media', ...Behaviors.keys,
     };
     for (final k in n.extra.keys) {
       if (n.type == CanvasProps.spec.type && canvasRouteKeys.contains(k)) continue;
@@ -453,7 +455,7 @@ final class _Validator {
     _props(n, raw['props'], pointer(at, 'props'));
     _bind(n, raw['bind'], pointer(at, 'bind'));
     _reactions(n, raw['actions'], pointer(at, 'actions'));
-    if (raw.containsKey('responsive')) _responsive(n, raw['responsive'], pointer(at, 'responsive'));
+    if (raw.containsKey('media')) _media(n, raw['media'], pointer(at, 'media'));
     for (final def in BehaviorFields.all) {
       if (!raw.containsKey(def.key)) continue;
       if (def.key == BehaviorFields.states.key) {
@@ -521,26 +523,30 @@ final class _Validator {
     final parentId = parents[n.id];
     final parent = parentId == null ? null : nodes[parentId];
     final reads = {for (final f in parent?.spec?.childFields ?? const <PropDef<Object?>>[]) f.key};
+    if (m.containsKey('basis') && parent != null && reads.contains('basis') && !parent.props.get(FlexProps.wrap)) {
+      r.add(Codes.layoutFieldIgnored, pointer(at, 'basis'),
+          'layout.basis (CSS flex-basis) is read only when the parent ${parent.type} wraps ("wrap": true); in a ${parent.type} that does not wrap, size the child with width/height and flex.');
+    }
     for (final f in LayoutFields.parentData) {
       if (!m.containsKey(f.key) || reads.contains(f.key)) continue;
       final what = parent == null ? 'a root' : 'a child of a ${parent.type}';
       final readers = switch (f.key) {
         'x' || 'y' => 'a stack (or variance)',
-        _ => 'a row or column',
+        _ => 'a row, column or flex',
       };
       r.add(Codes.layoutFieldIgnored, pointer(at, f.key),
           'layout.${f.key} is read only by $readers; this node is $what, so it is ignored.');
     }
   }
 
-  /// A node's responsive patches: one condition each, naming breakpoints
-  /// of the project; a patch of the node's own fields, checked as those
-  /// fields are.
-  void _responsive(Node n, Object? json, String at) {
+  /// A node's media rules: at least one condition each (px or breakpoint
+  /// names the project has); a patch of the node's own fields, checked as
+  /// those fields are.
+  void _media(Node n, Object? json, String at) {
     final list = readList(json);
+    const example = '[{"maxWidth": 599, "patch": {"props": {"direction": "vertical"}}}]';
     if (list == null) {
-      r.add(Codes.invalidResponsive, at,
-          '"responsive" is a list of {"<condition>": "<breakpoint>", "patch": {...}}, e.g. [{"smallerThan": "tablet", "patch": {"props": {"direction": "vertical"}}}]; got ${describe(json)}.');
+      r.add(Codes.invalidMedia, at, '"media" is a list of rules like CSS media queries, e.g. $example; got ${describe(json)}.');
       return;
     }
     final names = [for (final b in breakpoints.list) b.key.isEmpty ? b.id : b.key];
@@ -548,43 +554,49 @@ final class _Validator {
       final p = pointer(at, i);
       final m = readMap(list[i]);
       if (m == null) {
-        r.add(Codes.invalidResponsive, p, 'A responsive entry is an object {"<condition>": "<breakpoint>", "patch": {...}}, got ${describe(list[i])}.');
+        r.add(Codes.invalidMedia, p, 'A media rule is an object {"minWidth"|"maxWidth"|"orientation": ..., "patch": {...}}, got ${describe(list[i])}.');
         continue;
       }
-      final conditions = [for (final k in m.keys) if (ResponsivePatch.conditionKeys.contains(k)) k];
       for (final k in m.keys) {
-        if (k == 'patch' || ResponsivePatch.conditionKeys.contains(k)) continue;
-        r.add(Codes.invalidResponsive, pointer(p, k),
-            'A responsive entry has no "$k". It takes one condition (${ResponsivePatch.conditionKeys.join(', ')}) and "patch".',
-            suggestion: nearest(k, [...ResponsivePatch.conditionKeys, 'patch']));
+        if (k == 'patch' || MediaRule.conditionKeys.contains(k)) continue;
+        r.add(Codes.invalidMedia, pointer(p, k),
+            'A media rule has no "$k". It takes minWidth, maxWidth (px or a breakpoint name: ${names.join(', ')}), orientation (portrait, landscape) and patch.',
+            suggestion: nearest(k, [...MediaRule.conditionKeys, 'patch']) ?? switch (k) {
+              'largerThan' || 'min' || 'from' => 'minWidth',
+              'smallerThan' || 'max' || 'below' => 'maxWidth',
+              _ => null,
+            });
       }
-      if (conditions.length != 1) {
-        r.add(Codes.invalidResponsive, p,
-            conditions.isEmpty
-                ? 'No condition: add one of equals, largerThan, smallerThan (a breakpoint name: ${names.join(', ')}) or between (two names).'
-                : 'One condition per entry, got ${conditions.join(' and ')}: write one entry per condition.');
+      if (!m.keys.any(MediaRule.conditionKeys.contains)) {
+        r.add(Codes.invalidMedia, p, 'No condition: add minWidth and/or maxWidth (px, or a breakpoint name: ${names.join(', ')}), or orientation.');
       }
-      for (final k in conditions) {
+      for (final k in const ['minWidth', 'maxWidth']) {
+        if (!m.containsKey(k)) continue;
         final v = m[k];
-        final given = k == 'between' ? (v is List && v.length == 2 && v.every((e) => e is String) ? v.cast<String>() : null) : (v is String ? [v] : null);
-        if (given == null) {
-          r.add(Codes.invalidResponsive, pointer(p, k),
-              k == 'between' ? '"between" takes two breakpoint names, narrower first: ["tablet", "desktop"].' : '"$k" takes a breakpoint name (${names.join(', ')}).');
-          continue;
-        }
-        for (var j = 0; j < given.length; j++) {
-          if (breakpoints.find(given[j]) == null) {
-            r.add(Codes.unknownBreakpoint, k == 'between' ? pointer(pointer(p, k), j) : pointer(p, k),
-                '"${given[j]}" is not a breakpoint of the project. Breakpoints: ${names.join(', ')}.',
-                suggestion: nearest(given[j], names));
+        if (v is num) {
+          if (v < 0) r.add(Codes.invalidMedia, pointer(p, k), '"$k" is a width of 0 or more, got $v.');
+        } else if (v is String) {
+          if (breakpoints.find(v) == null) {
+            r.add(Codes.unknownBreakpoint, pointer(p, k), '"$v" is not a breakpoint of the project. Breakpoints: ${names.join(', ')}; or give a width in px.',
+                suggestion: nearest(v, names));
           }
+        } else {
+          r.add(Codes.invalidMedia, pointer(p, k), '"$k" is a width in px (600) or a breakpoint name ("tablet"), got ${describe(v)}.');
         }
+      }
+      if (m.containsKey('orientation') && m['orientation'] != 'portrait' && m['orientation'] != 'landscape') {
+        r.add(Codes.invalidMedia, pointer(p, 'orientation'), '"orientation" is "portrait" or "landscape", got ${describe(m['orientation'])}.');
+      }
+      final rule = MediaRule.fromJson(m)!;
+      final lo = rule.lowest(breakpoints), hi = rule.below(breakpoints);
+      if (lo != null && hi != null && (rule.maxWidth is num ? lo > hi : lo >= hi)) {
+        r.add(Codes.invalidMedia, p, 'minWidth ${rule.minWidth} is above maxWidth ${rule.maxWidth}: the rule never holds.');
       }
       final patch = m['patch'];
       final pp = pointer(p, 'patch');
       final pm = readMap(patch);
       if (pm == null) {
-        r.add(Codes.invalidResponsive, pp, 'Add "patch": the node\'s fields at those breakpoints, shaped like the node ({"props": {...}, "layout": {...}}).');
+        r.add(Codes.invalidMedia, pp, 'Add "patch": the node\'s fields at those sizes, shaped like the node ({"props": {...}, "layout": {...}}).');
         continue;
       }
       for (final e in pm.entries) {
@@ -606,23 +618,19 @@ final class _Validator {
           case 'opacity':
             final o = readDouble(e.value);
             if (o == null || o < 0 || o > 1) r.add(Codes.wrongType, kp, '"opacity" is a number from 0 to 1, got ${describe(e.value)}.');
-          case 'children':
-            final ids = e.value is List && (e.value as List).every((c) => c is String) ? (e.value as List).cast<String>() : null;
-            if (ids == null || ids.length != n.children.length || !ids.toSet().containsAll(n.children)) {
-              r.add(Codes.invalidResponsive, kp,
-                  '"children" in a patch reorders the node\'s own children: list the same ids (${n.children.join(', ')}) in the new order. To hide one at a breakpoint, patch that child\'s "visible".');
-            }
           default:
-            r.add(Codes.invalidResponsive, kp,
-                '"${e.key}" cannot vary per breakpoint. A patch takes: ${ResponsivePatch.patchKeys.join(', ')}.',
-                suggestion: nearest(e.key, ResponsivePatch.patchKeys));
+            r.add(Codes.invalidMedia, kp,
+                e.key == 'children'
+                    ? 'A media rule does not change "children": to reorder at a size, patch each child\'s layout.order (CSS order) in the child\'s own media rules.'
+                    : '"${e.key}" cannot vary by screen size. A patch takes: ${MediaRule.patchKeys.join(', ')}.',
+                suggestion: e.key == 'children' ? 'layout.order' : nearest(e.key, MediaRule.patchKeys));
         }
       }
       // A binding of the same field wins over the patch.
       for (final path in _leafPaths(pm, '')) {
         for (final b in n.bind.keys) {
           if (path == b || path.startsWith('$b.') || b.startsWith('$path.')) {
-            r.add(Codes.responsiveOverridden, pp,
+            r.add(Codes.mediaOverridden, pp,
                 'The patch sets $path, which "bind" also sets ("$b"): the binding wins at every size. Remove one of them.');
           }
         }
@@ -647,7 +655,10 @@ final class _Validator {
     final l = n.layout;
     for (final (axis, size) in [('width', l.width), ('height', l.height)]) {
       if (parent != null && m != null && m.containsKey(axis)) {
-        final reason = childFitOptions(parent, horizontal: axis == 'width')[size.fit];
+        var reason = childFitOptions(parent, horizontal: axis == 'width')[size.fit];
+        // A filling child with a basis grows to share its line of a wrapping flex.
+        final wrapsAlong = parent.props.get(FlexProps.wrap) && (flexAxisOf(parent) == Axis.horizontal) == (axis == 'width');
+        if (wrapsAlong && n.layout.basis != null && size.fit == SizeFit.fill) reason = null;
         if (reason != null) {
           r.add(Codes.fitNotAllowed, pointer(at, axis), '${size.fit.name} is not honored here: $reason');
         }

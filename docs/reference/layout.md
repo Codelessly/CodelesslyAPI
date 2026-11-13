@@ -23,6 +23,8 @@ size is fixed 0: a node without a width and a height draws nothing.
 <a id="layout-x"></a>
 <a id="layout-y"></a>
 <a id="layout-align"></a>
+<a id="layout-order"></a>
+<a id="layout-basis"></a>
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `width` | [AxisSize](values.md#type-AxisSize) | `0` |  |  |
@@ -37,6 +39,8 @@ size is fixed 0: a node without a width and a height draws nothing.
 | `x` | [AxisPosition](values.md#type-AxisPosition) | `{"start":0}` |  | Under a freeform parent (`Positioned` / `Align`). |
 | `y` | [AxisPosition](values.md#type-AxisPosition) | `{"start":0}` |  | Position under a freeform parent. |
 | `align` | [Alignment](values.md#type-Alignment) | unset |  | Under a row/column: alignment in its slot (`Align`). |
+| `order` | int | `0` |  | CSS `order`: under a row, column or flex, children are laid out and painted by ascending order (equal orders as listed). Patch it per screen size (`media`) to reorder at a width. |
+| `basis` | double | unset | ≥ 0 | CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; a child that fills the main axis (`{"fill": n}`) then grows by its `flex` share of the room left on its line (`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints. |
 
 Read by decoding but not declared as fields: `widthFactor`, `heightFactor`. A share (0–1 and up) of the room its parent gives it on that axis (`FractionallySizedBox`): a progress bar's fill is `widthFactor: 0.6` of its track. Null: sized by `width` / `height`. Bindable (`layout.widthFactor`).
 
@@ -59,7 +63,7 @@ Read by decoding but not declared as fields: `widthFactor`, `heightFactor`. A sh
 Why a mode is not allowed, as the declarations say it:
 
 - Flexible only applies in a row or column, along its main axis.
-- A wrapping row lays its children out in runs: they keep their own size along it.
+- A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.
 - The column scrolls: its content has no end to fill to.
 - The row scrolls: its content has no end to fill to.
 - Items in a list always fill across it.

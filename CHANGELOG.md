@@ -6,15 +6,22 @@
   `direction` (`horizontal` | `vertical`, Flutter `Axis`, default `horizontal`). Bindable and patchable per
   breakpoint, so a row becomes a column without copying its children. `FlexProps.flex`, `FlexProps.direction`,
   `FlexProps.types`, `flexAxisOf(node)`. `row` and `column` are unchanged.
-- New node key `responsive`: the node's own fields per breakpoint, as a list of `{"<condition>": ..., "patch": {...}}`.
-  Conditions use ResponsiveFramework's vocabulary over the project's named breakpoints: `equals`, `largerThan`,
-  `smallerThan` (a name) and `between` (two names, inclusive). The patch is a JSON merge patch over the node
-  (`props`, `layout`, `decoration`, `visible`, `opacity`, `children` reordered); entries that hold apply in order,
-  later wins. `ResponsivePatch`, `Node.responsive`, `Node.atBreakpoint`, `responsivePatchAt`.
-  Validation type-checks every patched value as the node's own (`invalid_enum`, `unknown_prop`... with paths into
-  the patch) and adds `invalid_responsive` (shape, patch keys, `children` not a reordering) and
-  `responsive_overridden` (a patched field the node also binds: the binding wins); `unknown_breakpoint` also covers
-  a condition's breakpoint name.
+- New node key `media`: the node's own fields by screen size, as CSS media queries:
+  `[{"maxWidth": 599, "patch": {"props": {"direction": "vertical"}}}]`. A rule's conditions are `minWidth` /
+  `maxWidth` (px, inclusive, or a breakpoint name: from its min width / up to the next breakpoint) and
+  `orientation`; all must hold. The patch is a JSON merge patch over the node (`props`, `layout`, `decoration`,
+  `visible`, `opacity`); rules apply in order, the later winning (the CSS cascade). `MediaRule`,
+  `MediaOrientation`, `Node.media`, `Node.atScreen`, `mediaPatchAt`. Validation type-checks every patched value as
+  the node's own (`invalid_enum`, `unknown_prop`... with paths into the patch) and adds `invalid_media` (shape, no
+  condition, bad width, min above max, a key that cannot vary) and `media_overridden` (a patched field the node
+  also binds); `unknown_breakpoint` also covers a rule's breakpoint name.
+- New layout fields from the CSS flex-item model, read by a row, column or flex: `order` (CSS `order`: layout and
+  paint order, ascending, equal orders as listed) and `basis` (CSS `flex-basis`, in a wrapping row/column/flex:
+  the size a child counts when lines are broken; a child that fills the main axis then grows by its `flex` share
+  of its line). A filling child with a `basis` in a wrapping flex no longer gets `fit_not_allowed`; `basis` under
+  a flex that does not wrap is reported as `layout_field_ignored`.
+- `gridView.minCrossAxisExtent`: CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`, as many equal columns as fit at
+  least that wide, never more than there are items.
 
 **New: catalogs, feature libraries and plugins** (docs/design/05-plugins-and-layers.md; guide chapter 9)
 

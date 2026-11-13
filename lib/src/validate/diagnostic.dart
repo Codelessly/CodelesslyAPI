@@ -132,11 +132,11 @@ abstract final class Codes {
   static const invalidCondition = DiagnosticCode('invalid_condition', Severity.error,
       'A condition, branch, predicate or set entry of the wrong shape.');
   static const unknownBreakpoint = DiagnosticCode('unknown_breakpoint', Severity.error,
-      'A canvas, variant or responsive patch names a breakpoint the project does not define.');
-  static const invalidResponsive = DiagnosticCode('invalid_responsive', Severity.error,
-      'A "responsive" entry of the wrong shape: not exactly one condition (equals, largerThan, smallerThan, between), a patch key that cannot vary, or "children" that are not the node\'s own children reordered.');
-  static const responsiveOverridden = DiagnosticCode('responsive_overridden', Severity.warning,
-      'A responsive patch sets a field the node also binds: the binding wins, so the patch never shows.');
+      'A canvas, variant or media rule names a breakpoint the project does not define.');
+  static const invalidMedia = DiagnosticCode('invalid_media', Severity.error,
+      'A "media" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size.');
+  static const mediaOverridden = DiagnosticCode('media_overridden', Severity.warning,
+      'A media rule patches a field the node also binds: the binding wins, so the patch never shows.');
   static const duplicateBreakpointCanvas = DiagnosticCode('duplicate_breakpoint_canvas', Severity.error,
       'Two canvases of one screen are the design for the same breakpoint.');
   static const screenWithoutBreakpoint = DiagnosticCode('screen_without_breakpoint', Severity.warning,
@@ -154,7 +154,7 @@ abstract final class Codes {
     unknownBindPath, reservedBindPath, expressionSyntax, unknownName,
     unknownTrigger, unknownTriggerKey, unknownActionType, unknownActionKey, unknownTargetNode, unknownScreen,
     unknownVariable, invalidReaction,
-    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidResponsive, responsiveOverridden, duplicateBreakpointCanvas,
+    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, duplicateBreakpointCanvas,
     screenWithoutBreakpoint, duplicateId,
   ];
 }

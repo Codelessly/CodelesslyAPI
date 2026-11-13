@@ -47,7 +47,7 @@ abstract final class FlexProps {
 
   /// What a row/column reads from a child: its flex share (`Expanded` /
   /// `Flexible`), whether a hugging child may shrink, its slot alignment.
-  static const childFields = [LayoutFields.flex, LayoutFields.squeezable, LayoutFields.align];
+  static const childFields = [LayoutFields.flex, LayoutFields.squeezable, LayoutFields.align, LayoutFields.order, LayoutFields.basis];
 
   /// The main axis of a `flex` node (Flutter's `Flex.direction`): a row
   /// runs [Axis.horizontal], a column [Axis.vertical]. A row is a `flex`

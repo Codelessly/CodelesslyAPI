@@ -162,15 +162,14 @@ final class SchemaBuilder {
       'bind': {'type': 'object', 'additionalProperties': {'type': 'string'}},
       'actions': {'type': 'array', 'items': {r'$ref': '#/\$defs/reaction'}},
       'component': {'type': 'object'},
-      'responsive': {
+      'media': {
         'type': 'array',
         'items': {
           'type': 'object',
           'properties': {
-            'equals': {'type': 'string'},
-            'largerThan': {'type': 'string'},
-            'smallerThan': {'type': 'string'},
-            'between': {'type': 'array', 'items': {'type': 'string'}, 'minItems': 2, 'maxItems': 2},
+            'minWidth': {'type': ['number', 'string']},
+            'maxWidth': {'type': ['number', 'string']},
+            'orientation': {'enum': ['portrait', 'landscape']},
             'patch': {
               'type': 'object',
               'properties': {
@@ -179,7 +178,6 @@ final class SchemaBuilder {
                 'decoration': {'type': 'object'},
                 'visible': {'type': 'boolean'},
                 'opacity': {'type': 'number'},
-                'children': {'type': 'array', 'items': {'type': 'string'}},
               },
               'additionalProperties': false,
             },

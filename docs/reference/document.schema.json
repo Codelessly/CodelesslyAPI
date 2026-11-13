@@ -3059,6 +3059,20 @@
             }
           ]
         },
+        "order": {
+          "type": "integer"
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "widthFactor": {
           "type": "number",
           "minimum": 0
@@ -7195,27 +7209,28 @@
         "component": {
           "type": "object"
         },
-        "responsive": {
+        "media": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "equals": {
-                "type": "string"
+              "minWidth": {
+                "type": [
+                  "number",
+                  "string"
+                ]
               },
-              "largerThan": {
-                "type": "string"
+              "maxWidth": {
+                "type": [
+                  "number",
+                  "string"
+                ]
               },
-              "smallerThan": {
-                "type": "string"
-              },
-              "between": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "minItems": 2,
-                "maxItems": 2
+              "orientation": {
+                "enum": [
+                  "portrait",
+                  "landscape"
+                ]
               },
               "patch": {
                 "type": "object",
@@ -7234,12 +7249,6 @@
                   },
                   "opacity": {
                     "type": "number"
-                  },
-                  "children": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
                   }
                 },
                 "additionalProperties": false
@@ -8335,6 +8344,17 @@
                     "minimum": 1
                   },
                   "maxCrossAxisExtent": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0.0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "minCrossAxisExtent": {
                     "anyOf": [
                       {
                         "type": "number",

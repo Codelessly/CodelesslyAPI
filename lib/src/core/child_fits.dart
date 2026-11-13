@@ -56,7 +56,8 @@ String? flexChildFits(Node parent, SizeFit fit, bool horizontal) {
   final wraps = parent.props.get(FlexProps.wrap);
   if (fit == SizeFit.flexible && !main) return _flexOnly;
   if ((fit == SizeFit.fill || fit == SizeFit.flexible) && main && wraps) {
-    return 'A wrapping ${parent.type} lays its children out in runs: they keep their own size along it.';
+    return 'A wrapping ${parent.type} lays its children out in runs: they keep their own size along it, unless they set '
+        'layout.basis (CSS flex-basis): then a filling child grows to share its line.';
   }
   if ((fit == SizeFit.fill || fit == SizeFit.flexible) && _scrollsAlong(parent, horizontal)) {
     return 'The ${parent.type} scrolls: its content has no end to fill to.';
