@@ -323,7 +323,7 @@ Flutter `ListView`: its first child repeated per item.
 | `layout` | [ListLayout](values.md#enum-ListLayout) | `"list"` | `list`, `stack`, `deck` |  |
 | `reversePaintOrder` | bool | `false` |  | Paints a layered list's items in the opposite order. |
 | `itemPosition` | [Offset](values.md#type-Offset) | unset |  | A `ListLayout.stack` list: where the item sits in the padded box when its x/y aren't bound. |
-| `wrap` | bool | `false` |  | Flows the items onto further runs (`Wrap`) instead of one line. |
+| `wrap` | bool | `false` |  | Lays every item out in runs, as Flutter `Wrap`, each item at its own size. The runs go along `scrollDirection`: with the default `vertical` the items flow top to bottom and wrap into columns; for items side by side that wrap onto new rows set `"scrollDirection": "horizontal"`. For cards in equal columns from data, a `gridView` with `minCrossAxisExtent` is usually what is wanted. |
 | `wrapSpacing` | double | `0` | ≥ 0 |  |
 | `runSpacing` | double | `0` | ≥ 0 |  |
 | `wrapAlignment` | [WrapAlignment](values.md#enum-WrapAlignment) | `"start"` | `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly` |  |

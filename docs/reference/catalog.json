@@ -1289,7 +1289,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "Flows the items onto further runs (`Wrap`) instead of one line."
+          "doc": "Lays every item out in runs, as Flutter `Wrap`, each item at its own size. The runs go along `scrollDirection`: with the default `vertical` the items flow top to bottom and wrap into columns; for items side by side that wrap onto new rows set `\"scrollDirection\": \"horizontal\"`. For cards in equal columns from data, a `gridView` with `minCrossAxisExtent` is usually what is wanted."
         },
         {
           "key": "wrapSpacing",
@@ -17887,11 +17887,11 @@
       "fields": [
         {
           "key": "icon",
-          "type": "Object",
-          "kind": "json",
+          "type": "IconData",
+          "kind": "value",
           "default": {},
           "nullable": false,
-          "doc": ""
+          "doc": "The glyph, written as the `icon` node's `props.icon`: a Material icon name (`\"search\"`) or `{\"type\": \"MATERIAL_ICON\", \"name\": \"search\"}`."
         },
         {
           "key": "size",
@@ -25884,6 +25884,11 @@
       "code": "zero_size",
       "severity": "warning",
       "meaning": "A fixed width or height of 0 (often a missing \"width\"/\"height\"): the node is invisible."
+    },
+    {
+      "code": "vertical_wrap",
+      "severity": "warning",
+      "meaning": "A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side."
     },
     {
       "code": "unknown_bind_path",

@@ -22,6 +22,18 @@
   a flex that does not wrap is reported as `layout_field_ignored`.
 - `gridView.minCrossAxisExtent`: CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`, as many equal columns as fit at
   least that wide, never more than there are items.
+- An icon is written the same way everywhere: `InputIcon.icon` (a text field's `prefixIcon`, `suffixIcon`, `icon`)
+  reads a Material icon name string as the `icon` node's `props.icon` does (before, the string was a `wrong_type`
+  error), and an untyped `{"name": "search"}` decodes as that Material icon (before, it decoded to a glyph nothing
+  can draw: a bug fix).
+- Validation: `${false}`, `${12}`, `${'a'}` (a literal where `${...}` reads a name) is reported as `unknown_name`
+  with the suggestion `${= false}`; a `spacer` with no main-axis size in a row/column is `zero_size` with how to
+  write Flutter's `Spacer()` (`{"fill": 0}`); a wrapping `listView` no longer gets `fit_not_allowed` for its items'
+  own sizes (it lays them out at their own sizes); new warning `vertical_wrap` for a wrapping list whose runs go top
+  to bottom (the default `scrollDirection`).
+- Guide: section 7 (Responsive design) rewritten the web way: intrinsic layout (basis, auto-fit grids, max-width),
+  media rules, `${screen}` bindings as the escape hatch, a canvas per breakpoint last; one verified example page
+  with its CSS equivalent.
 
 **New: catalogs, feature libraries and plugins** (docs/design/05-plugins-and-layers.md; guide chapter 9)
 

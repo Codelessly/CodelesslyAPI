@@ -4765,7 +4765,9 @@
     "model.InputIcon": {
       "type": "object",
       "properties": {
-        "icon": {},
+        "icon": {
+          "$ref": "#/$defs/value.IconData"
+        },
         "size": {
           "type": "number",
           "minimum": 0.0

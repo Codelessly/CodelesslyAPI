@@ -169,7 +169,8 @@ List<Reaction>? _actionsIn(Object? j) => readList(j) == null ? null : Reaction.l
 Object? _actionsOut(List<Reaction> v) => [for (final r in v) r.toJson()];
 
 abstract final class InputIconFields {
-  static const icon = PropDef<Json>('icon', InputCodecs.json, {});
+  static const icon = PropDef<Json>('icon', Codecs.icon, {},
+      doc: 'The glyph, written as the `icon` node\'s `props.icon`: a Material icon name (`"search"`) or `{"type": "MATERIAL_ICON", "name": "search"}`.');
   static const size = PropDef<double>('size', Codecs.positive, 24);
   static const color = PropDef<Color?>('color', Codecs.color, null);
   static const actions = PropDef<List<Reaction>>('actions', ValueCodec(_actionsIn, _actionsOut, PropType.list(PropType.json('Reaction'))), []);

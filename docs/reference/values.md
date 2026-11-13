@@ -597,7 +597,7 @@ An icon an input shows (`Icon`): a glyph as the icon node's `icon` prop (`{"sour
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `icon` | Object | `{}` |  |  |
+| `icon` | [IconData](values.md#type-IconData) | `{}` |  | The glyph, written as the `icon` node's `props.icon`: a Material icon name (`"search"`) or `{"type": "MATERIAL_ICON", "name": "search"}`. |
 | `size` | double | `24` | ≥ 0 |  |
 | `color` | [Color](values.md#type-Color) | unset |  |  |
 | `actions` | List<Reaction> | `[]` |  |  |
