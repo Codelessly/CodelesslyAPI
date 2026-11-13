@@ -601,10 +601,14 @@ final class _Validator {
     if (readList(m['margin']) case final List<Object?> mg when mg.any((v) => (readDouble(v) ?? 0) < 0)) {
       r.add(Codes.layoutClamped, pointer(at, 'margin'),
           'A negative margin does not overlap neighbours (Flutter has no negative margins): it takes room from the node\'s own box. '
-          'To overlap, put both in a stack and give this one a negative x/y offset, or use a negative "spacing".');
+          'To overlap a neighbour, move what it paints: "motion": {"translateY": -36} (Flutter\'s Transform.translate; a media rule may patch it), '
+          'or put both in a stack and give this one a negative x/y offset; to bleed past a parent\'s padding, see the guide\'s '
+          '"Overlapping a neighbour" and "Bleeding past the gutter" (section 3).');
     } else if ((readDouble(m['margin']) ?? 0) < 0) {
       r.add(Codes.layoutClamped, pointer(at, 'margin'),
-          'A negative margin does not overlap neighbours (Flutter has no negative margins): it takes room from the node\'s own box.');
+          'A negative margin does not overlap neighbours (Flutter has no negative margins): it takes room from the node\'s own box. '
+          'To overlap a neighbour, move what it paints: "motion": {"translateY": -36} (Flutter\'s Transform.translate; a media rule may patch it), '
+          'or use a stack (guide section 3, "Overlapping a neighbour").');
     }
     if (parent != null && parent.type == 'stack' && (parent.layout.width.fit == SizeFit.hug || parent.layout.height.fit == SizeFit.hug)) {
       for (final (k, hug) in [('x', parent.layout.width.fit == SizeFit.hug), ('y', parent.layout.height.fit == SizeFit.hug)]) {

@@ -2,6 +2,9 @@
 // (`"color": "ember"`, `"style": "title"`, `{"from": "title", ...}`), keeps
 // the names through a decode and encode, and resolves them against the
 // theme (its media rules and dark colors included).
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
@@ -153,5 +156,14 @@ void main() {
       '/theme/colors/bad', '/theme/colors/short', '/theme/textStyles/body/from', '/theme/textStyles/body/fontSize',
       '/theme/textStyles/x', '/theme/media/1', '/theme/colours',
     ]));
+  });
+
+  test('the guide\'s theme example is a valid site', () {
+    const dir = 'tool/reference/examples/theme';
+    final manifest = jsonDecode(File('$dir/site.json').readAsStringSync());
+    expect(validateTheme((manifest as Map)['theme']), isEmpty);
+    final ds = validateProject({'home.json': jsonDecode(File('$dir/home.json').readAsStringSync())},
+        manifest: SiteManifest.fromJson(manifest));
+    expect(ds.map((d) => '$d'), isEmpty);
   });
 }
