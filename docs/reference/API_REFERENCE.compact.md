@@ -4545,6 +4545,11 @@ Written as the value's name, a JSON string (`"center"`).
 
 `rectangle`, `circle`
 
+<a id="enum-DismissCommand"></a>
+### DismissCommand
+
+`dismiss`, `returnFrom`, `reset`, `shake`
+
 <a id="enum-DragAnchor"></a>
 ### DragAnchor
 
@@ -4554,11 +4559,6 @@ Written as the value's name, a JSON string (`"center"`).
 ### DragAxis
 
 `free`, `horizontal`, `vertical`
-
-<a id="enum-DragCommand"></a>
-### DragCommand
-
-`fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose`
 
 <a id="enum-DragDirection"></a>
 ### DragDirection
@@ -5055,6 +5055,11 @@ Written as the value's name, a JSON string (`"center"`).
 
 `replace`, `add`, `multiply`
 
+<a id="enum-TrackCommand"></a>
+### TrackCommand
+
+`step`, `animateTo`
+
 <a id="enum-TrackHitArea"></a>
 ### TrackHitArea
 
@@ -5074,6 +5079,11 @@ Written as the value's name, a JSON string (`"center"`).
 ### TrackUnits
 
 `pixels`, `parent`
+
+<a id="enum-TransformCommand"></a>
+### TransformCommand
+
+`reset`, `scaleBy`, `animateTo`
 
 <a id="enum-TransformPan"></a>
 ### TransformPan
@@ -5503,13 +5513,26 @@ _No fields._
 - `unfocus`: bool = `false`
 - `selectAll`: bool = `false`
 
-<a id="action-controlDrag"></a>
-## `controlDrag`: Control drag
+<a id="action-controlTrack"></a>
+## `controlTrack`: Control track
 
 - `node`: String = `""`
-- `command`: [DragCommand](#enum-DragCommand) = `"fling"` (`fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose`)
-- `direction`: [DragDirection](#enum-DragDirection) = `"right"` (`left`, `right`, `up`, `down`)
+- `command`: [TrackCommand](#enum-TrackCommand) = `"step"` (`step`, `animateTo`)
 - `steps`: String = `"1"`
+- `value`: String = `""`
+
+<a id="action-controlDismissible"></a>
+## `controlDismissible`: Control dismissible
+
+- `node`: String = `""`
+- `command`: [DismissCommand](#enum-DismissCommand) = `"dismiss"` (`dismiss`, `returnFrom`, `reset`, `shake`)
+- `direction`: [DragDirection](#enum-DragDirection) = `"right"` (`left`, `right`, `up`, `down`)
+
+<a id="action-controlTransform"></a>
+## `controlTransform`: Control transform
+
+- `node`: String = `""`
+- `command`: [TransformCommand](#enum-TransformCommand) = `"reset"` (`reset`, `scaleBy`, `animateTo`)
 - `value`: String = `""`
 
 <a id="action-scrollTo"></a>

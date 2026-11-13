@@ -13048,10 +13048,10 @@
           }
         ]
       },
-      "controlDrag": {
-        "label": "Control drag",
-        "class": "ControlDragAction",
-        "doc": "Flings, returns, resets or shakes draggable node `node` (a swipe card), or steps a drag track.",
+      "controlTrack": {
+        "label": "Control track",
+        "class": "ControlTrackAction",
+        "doc": "Turns the `Track` of node `node` (several ids: comma-separated, the first on screen takes it). The legacy `controlDrag` `step` reads as it.",
         "fields": [
           {
             "key": "node",
@@ -13059,38 +13059,18 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "A draggable node."
+            "doc": "A node with a track."
           },
           {
             "key": "command",
-            "type": "DragCommand",
+            "type": "TrackCommand",
             "kind": "enumeration",
-            "default": "fling",
+            "default": "step",
             "nullable": false,
-            "enum": "DragCommand",
+            "enum": "TrackCommand",
             "values": [
-              "fling",
-              "returnFrom",
-              "reset",
-              "shake",
               "step",
-              "zoom",
-              "pose"
-            ],
-            "doc": ""
-          },
-          {
-            "key": "direction",
-            "type": "DragDirection",
-            "kind": "enumeration",
-            "default": "right",
-            "nullable": false,
-            "enum": "DragDirection",
-            "values": [
-              "left",
-              "right",
-              "up",
-              "down"
+              "animateTo"
             ],
             "doc": ""
           },
@@ -13108,7 +13088,89 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression)."
+            "doc": "animateTo: the value (an expression)."
+          }
+        ]
+      },
+      "controlDismissible": {
+        "label": "Control dismissible",
+        "class": "ControlDismissibleAction",
+        "doc": "Dismisses, brings back or resets node `node` (several ids: comma-separated). The legacy `controlDrag` `fling`, `returnFrom` and `shake` read as it.",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A dismissible (or pan) node."
+          },
+          {
+            "key": "command",
+            "type": "DismissCommand",
+            "kind": "enumeration",
+            "default": "dismiss",
+            "nullable": false,
+            "enum": "DismissCommand",
+            "values": [
+              "dismiss",
+              "returnFrom",
+              "reset",
+              "shake"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "direction",
+            "type": "DragDirection",
+            "kind": "enumeration",
+            "default": "right",
+            "nullable": false,
+            "enum": "DragDirection",
+            "values": [
+              "left",
+              "right",
+              "up",
+              "down"
+            ],
+            "doc": ""
+          }
+        ]
+      },
+      "controlTransform": {
+        "label": "Control transform",
+        "class": "ControlTransformAction",
+        "doc": "Resets, zooms or poses the transform gesture of node `node`. The legacy `controlDrag` `reset`, `zoom` and `pose` read as it.",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A node with a transform gesture."
+          },
+          {
+            "key": "command",
+            "type": "TransformCommand",
+            "kind": "enumeration",
+            "default": "reset",
+            "nullable": false,
+            "enum": "TransformCommand",
+            "values": [
+              "reset",
+              "scaleBy",
+              "animateTo"
+            ],
+            "doc": ""
+          },
+          {
+            "key": "value",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "scaleBy: the factor (1.5 in, 0.67 out). animateTo: {x, y, scale, rotation} (an expression)."
           }
         ]
       },
@@ -22333,6 +22395,24 @@
         "doc": "A circle the box's shortest side across, in its middle: painted (fill and stroke) as circles, as Flutter's `BoxShape.circle`."
       }
     ],
+    "DismissCommand": [
+      {
+        "value": "dismiss",
+        "doc": "What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset)."
+      },
+      {
+        "value": "returnFrom",
+        "doc": "What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset)."
+      },
+      {
+        "value": "reset",
+        "doc": "What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset)."
+      },
+      {
+        "value": "shake",
+        "doc": "What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset)."
+      }
+    ],
     "DragAnchor": [
       {
         "value": "child",
@@ -22355,36 +22435,6 @@
       {
         "value": "vertical",
         "doc": ""
-      }
-    ],
-    "DragCommand": [
-      {
-        "value": "fling",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "returnFrom",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "reset",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "shake",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "step",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "zoom",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
-      },
-      {
-        "value": "pose",
-        "doc": "What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
       }
     ],
     "DragDirection": [
@@ -24213,6 +24263,16 @@
         "doc": "Multiplies the property's own: a scale or opacity nested inside the node's (`ScaleTransition`, `FadeTransition` around it)."
       }
     ],
+    "TrackCommand": [
+      {
+        "value": "step",
+        "doc": "What a `ControlTrackAction` does to a `Track`: `step` turns it by `ControlTrackAction.steps` of its step, as if dragged there (crossing each step, then settling: a dial's nudge buttons); `animateTo` moves it to `ControlTrackAction.value` (`Slider.onChanged(value)`), reporting `changed`, `dragEnd` and `changeEnd`."
+      },
+      {
+        "value": "animateTo",
+        "doc": "What a `ControlTrackAction` does to a `Track`: `step` turns it by `ControlTrackAction.steps` of its step, as if dragged there (crossing each step, then settling: a dial's nudge buttons); `animateTo` moves it to `ControlTrackAction.value` (`Slider.onChanged(value)`), reporting `changed`, `dragEnd` and `changeEnd`."
+      }
+    ],
     "TrackHitArea": [
       {
         "value": "self",
@@ -24263,6 +24323,20 @@
       {
         "value": "parent",
         "doc": "What a `Track`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height)."
+      }
+    ],
+    "TransformCommand": [
+      {
+        "value": "reset",
+        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
+      },
+      {
+        "value": "scaleBy",
+        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
+      },
+      {
+        "value": "animateTo",
+        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
       }
     ],
     "TransformPan": [
