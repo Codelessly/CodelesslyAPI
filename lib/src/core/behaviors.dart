@@ -217,13 +217,9 @@ bool? _loose(Object? v) => switch (v) {
 /// [perspective]). JSON (sparse): `{"translateY": -4, "scale": 1.02,
 /// "alignment": [0, 1]}`.
 ///
-/// Reads the legacy keys too: `originX`/`originY` as [alignment]; the flat
-/// path keys (`path` text, `pathProgress`, `orientToPath`, `orientUpright`,
-/// `uprightMirror`, `pathViewBox`, `pathPacing`, `pathFocusX/Y`) as
-/// [path]. Its other legacy keys belong to the node ([Node.fromJson]:
-/// `opacity`, `blur`) or to its animations and transitions
-/// ([Behaviors.fromJson]: the timing, entrance, loop, spin, keyframes and
-/// shimmer).
+/// Schema 2's other motion keys (`originX`/`originY`, the flat path keys,
+/// `opacity`, `blur`, the timing, entrance, loop, spin, keyframes and
+/// shimmer) are rewritten by the schema-3 migration (`migrate2to3`).
 @immutable
 final class Motion extends _Value {
   const Motion({
@@ -352,8 +348,6 @@ final class Motion extends _Value {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    final legacyOrigin = m.containsKey('originX') || m.containsKey('originY');
-    final alignment = Alignment.fromJson(m['alignment']) ?? Alignment.center;
     return Motion(
       translateX: r.d('translateX', 0),
       translateY: r.d('translateY', 0),
@@ -366,9 +360,9 @@ final class Motion extends _Value {
       rotateX: r.d('rotateX', 0),
       rotateY: r.d('rotateY', 0),
       perspective: r.d('perspective', 1),
-      alignment: legacyOrigin ? Alignment(r.d('originX', alignment.x), r.d('originY', alignment.y)) : alignment,
+      alignment: Alignment.fromJson(m['alignment']) ?? Alignment.center,
       backfaceHidden: r.b('backfaceHidden', false),
-      path: PathFollow.fromLegacy(m),
+      path: PathFollow.fromJson(m['path']),
     );
   }
 
@@ -527,10 +521,6 @@ double flickerAt(double t) {
 /// and [keyframes] are passed through each time. A path an animation track
 /// is playing isn't transitioned. The design canvas shows new values at
 /// once.
-///
-/// Reads the legacy `{"style", "opacity", "size"}` object: `style` as
-/// `opacity`, `scale`, `decoration.fills` and `visible`; `size` as
-/// `layout`. A map from property to timing reads too.
 @immutable
 final class Transition extends _Value {
   const Transition({
@@ -609,27 +599,8 @@ final class Transition extends _Value {
     );
   }
 
-  /// A node's `transitions`: the list, a property → timing map, or the
-  /// legacy `{style, opacity, size}` object.
-  static List<Transition> listFromJson(Object? json) {
-    if (readList(_jsonText(json)) case final List<Object?> l) return [...l.map(fromJson).nonNulls];
-    final m = readMap(json);
-    if (m == null) return const [];
-    if (m.keys.every((k) => k == 'style' || k == 'opacity' || k == 'size')) {
-      final style = m['style'], opacity = m['opacity'], size = m['size'];
-      return [
-        if (fromJson(opacity ?? style, property: 'opacity') case final Transition t) t,
-        if (fromJson(style, property: 'scale') case final Transition t) t,
-        if (fromJson(style, property: 'decoration.fills') case final Transition t) t,
-        if (fromJson(style, property: 'visible') case final Transition t) t,
-        if (fromJson(size, property: 'layout') case final Transition t) t,
-      ];
-    }
-    return [
-      for (final e in m.entries)
-        if (fromJson(e.value, property: e.key) case final Transition t) t,
-    ];
-  }
+  /// A node's `transitions` (a list; anything else is none).
+  static List<Transition> listFromJson(Object? json) => [...?readList(_jsonText(json))?.map(fromJson).nonNulls];
 
   Json toJson() {
     final j = <String, Object?>{'property': property}
@@ -754,26 +725,11 @@ final class StateStyles extends _Value {
       if (per == null) continue;
       final nodes = <String, Json>{
         for (final e in per.entries)
-          if (readMap(e.value) case final Json p) e.key: _migratePatch(p),
+          if (readMap(e.value) case final Json p) e.key: p,
       };
       if (nodes.isNotEmpty) out[s] = nodes;
     }
     return out.isEmpty ? none : StateStyles(out);
-  }
-
-  /// A patch's legacy `motion.opacity` as the node's `opacity` (times the
-  /// patch's own), since that is where a motion's opacity went
-  /// ([Node.fromJson]). Exact when the node's own opacity is 1.
-  static Json _migratePatch(Json patch) {
-    final motion = readMap(patch['motion']);
-    final o = readDouble(motion?['opacity']);
-    if (motion == null || o == null) return patch;
-    final own = readDouble(patch['opacity']);
-    return {
-      ...patch,
-      'motion': {...motion}..remove('opacity'),
-      'opacity': writeDouble((o * (own ?? 1)).clamp(0.0, 1.0)),
-    };
   }
 
   Json toJson() => {for (final e in patches.entries) e.key.name: e.value};
@@ -833,7 +789,7 @@ enum DragSourceStyle { ghost, hidden, keep }
 /// Which point of the copy that follows the pointer sits under it
 /// (`Draggable.dragAnchorStrategy`): where it was grabbed
 /// (`childDragAnchorStrategy`), or its center (a feedback node of another
-/// size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it.
+/// size).
 enum DragAnchor { child, center }
 
 /// Lets the user pick the node up and drop it on a [DropTarget] that takes
@@ -869,18 +825,16 @@ final class DragSource extends _Value {
   /// `Draggable.axis`: the feedback moves only along it.
   final DragAxis axis;
 
-  /// What stays where it was picked up (the legacy `whileDragging`).
+  /// What stays where it was picked up.
   final DragSourceStyle childWhenDragging;
 
   /// The opacity of a [DragSourceStyle.ghost].
   final double ghostOpacity;
 
   /// The node drawn under the pointer instead of this one
-  /// (`Draggable.feedback`); empty: the node itself. The legacy
-  /// `feedbackNodeId` reads as it.
+  /// (`Draggable.feedback`); empty: the node itself.
   final String feedback;
 
-  /// The legacy `feedbackAnchor` reads as it.
   final DragAnchor dragAnchor;
 
   /// The feedback's tilt (degrees), scale, opacity and shadow while it
@@ -890,8 +844,7 @@ final class DragSource extends _Value {
 
   /// The spring a drop no target takes flies home on; null: none (it
   /// reappears at once, as Flutter's `Draggable` does). JSON `false` is
-  /// null. The legacy `returnSpring: true` with `spring`,
-  /// `springStiffness`/`springDamping` or `physics` reads as it.
+  /// null.
   final Spring? returnSpring;
   static const Spring defaultSpring = Spring.physical(stiffness: 260, damping: 14);
 
@@ -901,19 +854,10 @@ final class DragSource extends _Value {
   /// The spring it flies back on, as gesture physics; null for none.
   GesturePhysics? get effectivePhysics => returnSpring == null ? null : GesturePhysics(spring: returnSpring!, fling: false);
 
-  /// [m]'s return spring: `returnSpring` (an object, `false`, or `true`
-  /// with the legacy `spring`, `springStiffness`/`springDamping` or
-  /// `physics`).
-  static Spring? _returnSpringOf(Json m) {
-    final v = m['returnSpring'];
-    if (Spring.fromJson(v, fallback: defaultSpring) case final Spring s) return s;
-    // The legacy `physics` overrode `returnSpring: false`.
-    if (GesturePhysics.fromJson(m['physics']) case final GesturePhysics p) return p.spring;
-    if (readBool(v) == false) return null;
-    return Spring.fromJson(m['spring'], fallback: defaultSpring) ??
-        Spring.legacy(m, 'springStiffness', 'springDamping', fallback: defaultSpring) ??
-        defaultSpring;
-  }
+  /// [m]'s return spring: `returnSpring` (an object; `false` for none; the
+  /// default otherwise).
+  static Spring? _returnSpringOf(Json m) =>
+      Spring.fromJson(m['returnSpring'], fallback: defaultSpring) ?? (readBool(m['returnSpring']) == false ? null : defaultSpring);
 
   static DragSource? fromJson(Object? json) {
     final m = readMap(json);
@@ -924,17 +868,10 @@ final class DragSource extends _Value {
       data: r.s('data'),
       start: r.e(DragStart.values, 'start', DragStart.auto),
       axis: r.e(DragAxis.values, 'axis', DragAxis.free),
-      childWhenDragging: readEnum(
-        DragSourceStyle.values,
-        m['childWhenDragging'] ?? m['whileDragging'],
-        DragSourceStyle.ghost,
-      ),
+      childWhenDragging: r.e(DragSourceStyle.values, 'childWhenDragging', DragSourceStyle.ghost),
       ghostOpacity: r.d('ghostOpacity', 0.35),
-      feedback: readString(m['feedback']) ?? r.s('feedbackNodeId'),
-      dragAnchor: switch (m['dragAnchor'] ?? m['dragAnchorStrategy'] ?? m['feedbackAnchor']) {
-        'center' || 'pointer' => DragAnchor.center,
-        _ => DragAnchor.child,
-      },
+      feedback: r.s('feedback'),
+      dragAnchor: r.e(DragAnchor.values, 'dragAnchor', DragAnchor.child),
       feedbackRotation: r.d('feedbackRotation', -2),
       feedbackScale: r.d('feedbackScale', 1),
       feedbackOpacity: r.d('feedbackOpacity', 1),
@@ -1097,9 +1034,7 @@ enum TrackInteraction { slideThumb, tapAndSlide }
 ///
 /// Its settings and geometry are bindable as `track.<field>`
 /// (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the
-/// node is drawn at in place of reading [variable]. The legacy
-/// `drag.track` (and its `drag.track.*` binding paths) reads as this: see
-/// [fromJson] for its renamed keys.
+/// node is drawn at in place of reading [variable].
 @immutable
 final class Track extends _Value {
   const Track({
@@ -1151,11 +1086,11 @@ final class Track extends _Value {
   // --- the value (Slider) ---
 
   /// Whether it takes the pointer, the wheel and the keys (bindable as
-  /// `track.enabled`; the legacy `drag.enabled` reads as it).
+  /// `track.enabled`).
   final bool enabled;
 
   /// The variable it reads and writes; empty when `track.value` is bound
-  /// and its reactions write the value (the legacy `write: false`).
+  /// and its reactions write the value.
   final String variable;
 
   /// The value the node is drawn at, from a binding (`track.value`); null
@@ -1168,27 +1103,24 @@ final class Track extends _Value {
 
   /// Whether the value stays within [min]–[max]. Off, an [TrackShape.arc]
   /// keeps turning past its ends and the value counts on (a combination
-  /// dial; the legacy `endless`).
+  /// dial).
   final bool clamp;
 
   // --- input ---
 
   final TrackInput input;
 
-  /// The legacy `jumpOnTap: true` reads as [TrackInteraction.tapAndSlide].
   final TrackInteraction allowedInteraction;
 
   /// With [TrackHitArea.parent] the node's parent takes the pointer too.
   final TrackHitArea hitArea;
 
   /// Pixels of drag for the whole range ([TrackInput.vertical],
-  /// [TrackInput.horizontal], [TrackInput.both]; the legacy `gain` divides
-  /// it).
+  /// [TrackInput.horizontal], [TrackInput.both]).
   final double pixelsPerRange;
 
   /// One wheel notch, one arrow key: null [step], else 1% of the range; 0
-  /// turns the wheel (the legacy `wheel: false`) or the keys (`keyboard:
-  /// false`) off. With the keys on it takes focus: arrows step, Page Up/Down
+  /// turns the wheel or the keys off. With the keys on it takes focus: arrows step, Page Up/Down
   /// by 10 steps, Home and End to the ends.
   final double? wheelStep, keyStep;
 
@@ -1207,7 +1139,7 @@ final class Track extends _Value {
   final TrackUnits units;
 
   /// An arc: the angle of [min] (degrees, clockwise, 0 up) and the turn to
-  /// [max] (the legacy `endAngle` is `startAngle + sweepAngle`), about the
+  /// [max], about the
   /// pivot (from the node's center); the node orbits it on the circle
   /// through its place, turning with it ([rotate]). A pivot at the center is
   /// a knob that turns in place.
@@ -1216,8 +1148,7 @@ final class Track extends _Value {
 
   /// A path ([TrackShape.path]): its SVG data in pixels from the node's
   /// place, or in a view box stretched over the parent, and whether the node
-  /// turns with it (the legacy `path`, `viewBoxWidth`/`viewBoxHeight`,
-  /// `orientToPath` and `orientUpright`).
+  /// turns with it.
   final PathFollow? path;
 
   // --- feel ---
@@ -1231,8 +1162,8 @@ final class Track extends _Value {
   final double overscroll;
 
   /// Let go while moving, with [GesturePhysics.fling] it coasts on, slowing
-  /// by [GesturePhysics.friction], then settles on a [step] (the legacy
-  /// `momentum` and its `friction` rate). Null stops where let go.
+  /// by [GesturePhysics.friction], then settles on a [step]. Null stops
+  /// where let go.
   final GesturePhysics? physics;
 
   /// The glide to its value's place when not following the pointer (ms; 0
@@ -1241,8 +1172,7 @@ final class Track extends _Value {
   final int settle;
   final AnimationCurve settleCurve;
 
-  /// The spring of a `spring` [settleCurve] (JSON `settleSpring`; the
-  /// legacy `settleStiffness`/`settleDamping` read as it).
+  /// The spring of a `spring` [settleCurve] (JSON `settleSpring`).
   final Spring settleSpring;
   static const Spring defaultSettleSpring = Spring.physical(stiffness: 380, damping: 20);
 
@@ -1359,118 +1289,55 @@ final class Track extends _Value {
 
   double angleAt(double progress) => startAngle + sweepAngle * clampProgress(progress);
 
-  /// The track of a legacy `drag` object [d] (its `track`, switched by its
-  /// `enabled`), or null when it has none.
-  static Track? fromLegacyDrag(Json? d) {
-    if (d == null || readMap(d['track']) == null) return null;
-    final t = <String, Object?>{...readMap(d['track'])!};
-    if (!t.containsKey('enabled') && d.containsKey('enabled')) t['enabled'] = d['enabled'];
-    return fromJson(t);
-  }
-
-  /// Whether the track JSON [m] holds the legacy `write: false` with a
-  /// variable: the variable is dropped and, without a literal `value`, moves
-  /// to a `track.value` binding ([readsOnly], [Behaviors.migrateBind]).
-  static bool _dropsVariable(Json m) =>
-      readBool(m['write']) == false && (readString(m['variable'])?.trim().isNotEmpty ?? false);
-
-  /// [_dropsVariable] with no literal `value`: the variable is then bound.
-  static bool readsOnly(Json m) => _dropsVariable(m) && m['value'] == null;
-
-  /// Reads the new shape and every legacy key: `endAngle` (as
-  /// [sweepAngle]), `endless` ([clamp] off on an arc), `jumpOnTap`
-  /// ([allowedInteraction]), `wheel`/`keyboard: false` ([wheelStep]/
-  /// [keyStep] 0), `momentum`/`friction` ([physics]: fling with the share of
-  /// speed lost a second the rate amounts to), `gain` ([pixelsPerRange] ÷
-  /// gain, except round an arc followed by angle), the path string,
-  /// `viewBoxWidth`/`viewBoxHeight`, `orientToPath`/`orientUpright` ([path]),
-  /// `write: false` (the variable dropped: see [readsOnly]) and
-  /// `settleStiffness`/`settleDamping` ([settleSpring]).
   static Track? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    final path = _pathOf(m);
-    final shape = readEnum(TrackShape.values, m['shape'], path != null ? TrackShape.path : TrackShape.line);
-    final input = r.e(TrackInput.values, 'input', TrackInput.follow);
-    final start = r.d('startAngle', -135);
-    final gain = r.d('gain', 1);
-    // A gain other than round an arc followed by angle is a pixel rate.
-    final angular = shape == TrackShape.arc && input == TrackInput.follow;
-    final ppr = r.d('pixelsPerRange', 200);
+    final path = PathFollow.fromJson(m['path']);
     return Track(
       enabled: _loose(m['enabled']) ?? true,
-      variable: _dropsVariable(m) ? '' : r.s('variable'),
+      variable: r.s('variable'),
       value: r.dn('value'),
       min: r.d('min', 0),
       max: r.d('max', 1),
       step: math.max(0, r.d('step', 0)),
-      clamp: readBool(m['clamp']) ?? !(r.b('endless', false) && shape == TrackShape.arc),
-      input: input,
-      allowedInteraction: readEnum(
-        TrackInteraction.values,
-        m['allowedInteraction'],
-        r.b('jumpOnTap', false) ? TrackInteraction.tapAndSlide : TrackInteraction.slideThumb,
-      ),
+      clamp: r.b('clamp', true),
+      input: r.e(TrackInput.values, 'input', TrackInput.follow),
+      allowedInteraction: r.e(TrackInteraction.values, 'allowedInteraction', TrackInteraction.slideThumb),
       hitArea: r.e(TrackHitArea.values, 'hitArea', TrackHitArea.self),
-      pixelsPerRange: angular || gain <= 0 ? ppr : ppr / gain,
-      wheelStep: r.b('wheel', true) ? r.dn('wheelStep') : 0,
-      keyStep: r.b('keyboard', true) ? r.dn('keyStep') : 0,
-      shape: shape,
+      pixelsPerRange: r.d('pixelsPerRange', 200),
+      wheelStep: r.dn('wheelStep'),
+      keyStep: r.dn('keyStep'),
+      shape: readEnum(TrackShape.values, m['shape'], path != null ? TrackShape.path : TrackShape.line),
       x1: r.d('x1', 0),
       y1: r.d('y1', 0),
       x2: r.d('x2', 0),
       y2: r.d('y2', -100),
       relative: r.b('relative', false),
       units: r.e(TrackUnits.values, 'units', TrackUnits.pixels),
-      startAngle: start,
-      sweepAngle: r.dn('sweepAngle') ?? (r.d('endAngle', 135) - start),
+      startAngle: r.d('startAngle', -135),
+      sweepAngle: r.d('sweepAngle', 270),
       pivotX: r.d('pivotX', 0),
       pivotY: r.d('pivotY', 0),
       rotate: r.b('rotate', true),
       path: path,
       detent: r.d('detent', 0),
       overscroll: r.d('overscroll', 0),
-      physics: GesturePhysics.fromJson(m['physics']) ??
-          ((_loose(m['momentum']) ?? false) ? _legacyMomentum(r.d('friction', 2.6)) : null),
+      physics: GesturePhysics.fromJson(m['physics']),
       settle: r.ms('settle', 0),
       settleCurve: r.curve('settleCurve', AnimationCurve.easeOutCubic),
-      settleSpring: Spring.fromJson(m['settleSpring'], fallback: defaultSettleSpring) ??
-          Spring.legacy(m, 'settleStiffness', 'settleDamping', fallback: defaultSettleSpring) ??
-          defaultSettleSpring,
+      settleSpring: Spring.fromJson(m['settleSpring'], fallback: defaultSettleSpring) ?? defaultSettleSpring,
       snap: r.ms('snap', 0),
       snapCurve: r.curve('snapCurve', AnimationCurve.easeOutBack),
       defaultValue: r.dn('defaultValue'),
       doubleTapValues: r.doubles('doubleTapValues'),
       parkedProgress: r.dn('parkedProgress'),
       fineStep: r.d('fineStep', 0),
-      finePixelsPerRange: angular || gain <= 0 ? r.d('finePixelsPerRange', 0) : r.d('finePixelsPerRange', 0) / gain,
+      finePixelsPerRange: r.d('finePixelsPerRange', 0),
       fineHold: r.ms('fineHold', 380),
       fineVariable: r.s('fineVariable'),
       smooth: _loose(m['smooth']) ?? false,
-      gain: angular ? gain : 1,
-    );
-  }
-
-  /// The legacy `momentum` coast slowing at [rate] per second
-  /// (`v *= e^(−rate·dt)`): a fling losing `1 − e^(−rate)` of its speed a
-  /// second (to 4 places).
-  static GesturePhysics _legacyMomentum(double rate) =>
-      GesturePhysics(friction: double.parse((1 - math.exp(-math.max(0, rate))).toStringAsFixed(4)));
-
-  /// [m]'s path: `path` as an object or SVG data, with the legacy
-  /// `viewBoxWidth`/`viewBoxHeight`, `orientToPath` and `orientUpright`.
-  static PathFollow? _pathOf(Json m) {
-    final p = PathFollow.fromJson(m['path']);
-    if (p == null || m['path'] is! String) return p;
-    final r = _R(m);
-    final w = r.d('viewBoxWidth', 0), h = r.d('viewBoxHeight', 0);
-    return PathFollow(
-      path: p.path,
-      viewBox: w > 0 && h > 0 ? [w, h] : const [],
-      orient: !r.b('orientToPath', false)
-          ? PathOrient.none
-          : (r.b('orientUpright', false) ? PathOrient.upright : PathOrient.tangent),
+      gain: r.d('gain', 1),
     );
   }
 
@@ -1623,9 +1490,8 @@ List<DragDirection>? _directionsOf(Object? v) {
 ///
 /// Inside it `${dismiss.dx}`, `${dismiss.dy}`, `${dismiss.progress}` (0–1
 /// toward the threshold, `Dismissible.onUpdate`), `${dismiss.direction}`,
-/// `${dismiss.dragging}` can be read (and the same as the legacy
-/// `${drag.*}`). It fires `drag` and `dragEnd`. The legacy `drag` with
-/// `release: dismiss` reads as this, with its old defaults written out.
+/// `${dismiss.dragging}` can be read (and the same as `${drag.*}`). It fires
+/// `drag` and `dragEnd`.
 @immutable
 final class DismissibleBehavior extends _Value with _LegacyFollow {
   const DismissibleBehavior({
@@ -1720,48 +1586,6 @@ final class DismissibleBehavior extends _Value with _LegacyFollow {
   /// The share of its size a drag toward [d] must travel to dismiss.
   double thresholdFor(DragDirection d) => dismissThresholds[d] ?? defaultThreshold;
 
-  /// The dismissible a legacy `drag` object [d] amounts to (`release:
-  /// dismiss`, no track, not a reorder handle), its old defaults written
-  /// out; null for any other drag.
-  static DismissibleBehavior? fromLegacyDrag(Json? d) {
-    if (d == null || readMap(d['track']) != null || readBool(d['reorder']) == true) return null;
-    final r = _R(d);
-    if (r.e(DragRelease.values, 'release', DragRelease.snapBack) != DragRelease.dismiss) return null;
-    final distance = r.d('distanceThreshold', 0.35), vertical = r.dn('verticalThreshold') ?? distance;
-    final physics = GesturePhysics.fromJson(d['physics']);
-    final legacy = _legacyFollowOf(r);
-    return DismissibleBehavior(
-      enabled: _loose(d['enabled']) ?? true,
-      directions: _directionsOf(d['directions']) ?? DragDirection.values,
-      axis: r.e(DragAxis.values, 'axis', DragAxis.free),
-      dismissThresholds: {
-        for (final dir in DragDirection.values)
-          if ((dir == DragDirection.up || dir == DragDirection.down ? vertical : distance) case final t
-              when t != defaultThreshold)
-            dir: t,
-      },
-      flingVelocity: r.d('velocityThreshold', 800),
-      resistance: r.d('resistance', 0),
-      movementDuration: r.ms('flyOut', 320),
-      curve: r.curve('flyOutCurve', AnimationCurve.easeIn),
-      returnDuration: r.ms('snapBack', 450),
-      returnCurve: r.curve('snapCurve', AnimationCurve.spring),
-      returnSpring: physics?.spring,
-      restX: r.d('restX', 0),
-      restY: r.d('restY', 0),
-      xVariable: r.s('xVariable'),
-      yVariable: r.s('yVariable'),
-      flyOutRotate: r.d('flyOutRotate', 0),
-      rotateFactor: legacy.rotateFactor,
-      originX: legacy.originX,
-      originY: legacy.originY,
-      shakeWhenDisabled: legacy.shakeWhenDisabled,
-      disabledFollow: legacy.disabledFollow,
-      shareAs: legacy.shareAs,
-      follow: legacy.follow,
-    );
-  }
-
   static DismissibleBehavior? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
@@ -1837,9 +1661,6 @@ final class DismissibleBehavior extends _Value with _LegacyFollow {
 /// is (settling by its physics: a fling, snap points).
 enum PanRelease { snapBack, stay }
 
-/// The legacy `drag.release`; `dismiss` reads as [DismissibleBehavior].
-enum DragRelease { snapBack, stay, dismiss }
-
 /// Follows the pointer (node key `pan`): `GestureDetector(onPanUpdate:)`
 /// moving a `Transform.translate`. On release it springs back to rest or
 /// stays ([release]), with [physics] a fling that slows by friction, a
@@ -1850,9 +1671,8 @@ enum DragRelease { snapBack, stay, dismiss }
 /// (bindable) place its rest.
 ///
 /// Inside it `${pan.dx}`, `${pan.dy}`, `${pan.dragging}`,
-/// `${pan.settling}`, `${pan.snapIndex}` can be read (and the same as the
-/// legacy `${drag.*}`). It fires `drag` and `dragEnd`. The legacy `drag`
-/// that is neither a track, a reorder handle nor dismissing reads as this.
+/// `${pan.settling}`, `${pan.snapIndex}` can be read (and the same as
+/// `${drag.*}`). It fires `drag` and `dragEnd`.
 @immutable
 final class Pan extends _Value with _LegacyFollow {
   const Pan({
@@ -1915,23 +1735,6 @@ final class Pan extends _Value with _LegacyFollow {
   final String shareAs;
 
   bool get hasBounds => bounds != GestureBounds.none || minX != null || maxX != null || minY != null || maxY != null;
-
-  /// The pan a legacy `drag` object [d] amounts to (not a track, a reorder
-  /// handle or dismissing); null for any other drag.
-  static Pan? fromLegacyDrag(Json? d) {
-    if (d == null || readMap(d['track']) != null || readBool(d['reorder']) == true) return null;
-    final r = _R(d);
-    final release = r.e(DragRelease.values, 'release', DragRelease.snapBack);
-    if (release == DragRelease.dismiss) return null;
-    return fromJson({
-      ...d,
-      'release': release.name,
-      'returnDuration': ?d['snapBack'],
-      'returnCurve': ?d['snapCurve'],
-      'x': ?d['restX'],
-      'y': ?d['restY'],
-    });
-  }
 
   static Pan? fromJson(Object? json) {
     final m = readMap(json);
@@ -2871,8 +2674,7 @@ final class Behaviors extends _Value {
   final double scale;
 
   /// Its animation controllers and their tracks, outermost first
-  /// ([NodeAnimation]); the legacy `loops` and `effectAnimations` read as
-  /// these.
+  /// ([NodeAnimation]).
   final List<NodeAnimation> animations;
 
   /// How changes of its properties animate ([Transition], one per
@@ -2910,19 +2712,17 @@ final class Behaviors extends _Value {
   final DropTarget? dropTarget;
 
   /// A value set by dragging the node along a line, arc or path (Flutter's
-  /// `Slider`); the legacy `drag.track` reads as it.
+  /// `Slider`).
   final Track? track;
 
-  /// Swiped away past a threshold (Flutter's `Dismissible`); the legacy
-  /// `drag` with `release: dismiss` reads as it.
+  /// Swiped away past a threshold (Flutter's `Dismissible`).
   final DismissibleBehavior? dismissible;
 
-  /// Follows the pointer and springs back or stays; the legacy `drag`
-  /// that neither tracks, reorders nor dismisses reads as it.
+  /// Follows the pointer and springs back or stays.
   final Pan? pan;
 
   /// The handle a reorderable list's row is dragged by (Flutter's
-  /// `ReorderableDragStartListener`); the legacy `drag.reorder` reads as it.
+  /// `ReorderableDragStartListener`).
   final bool reorderHandle;
   final Reveal? reveal;
   final StrokePath? strokePath;
@@ -2941,8 +2741,7 @@ final class Behaviors extends _Value {
   /// Tilts in 3D toward the pointer.
   final Tilt? tilt;
 
-  /// Pinch, pan and rotate, with fling physics and optional handles (the
-  /// legacy `zoomable: true` reads as [TransformGesture.zoomable]).
+  /// Pinch, pan and rotate, with fling physics and optional handles.
   final TransformGesture? transformGesture;
 
   /// Pinned in its scrolling view while its parent is in view.
@@ -2957,10 +2756,6 @@ final class Behaviors extends _Value {
   /// Flutter's `CustomPaint`: draw lists behind and over its content.
   final CustomPaint? customPaint;
 
-  /// [transformGesture] (its former name, from when `zoomable` was its
-  /// own key; the legacy `zoomable: true` now reads into [transformGesture]).
-  TransformGesture? get effectiveTransformGesture => transformGesture;
-
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
     'motion', 'scale', 'animations', 'transitions', 'shimmer', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
@@ -2970,290 +2765,19 @@ final class Behaviors extends _Value {
     'customPaint',
   };
 
-  /// Legacy keys the decoder still reads (and never writes): `loops` and
-  /// `effectAnimations` become [animations]; `drag` becomes [track],
-  /// [dismissible], [pan] or [reorderHandle]; `zoomable: true` becomes
-  /// [transformGesture] ([TransformGesture.zoomable]) when it has none.
-  static const Set<String> legacyKeys = {'loops', 'effectAnimations', 'drag', 'zoomable'};
-
   bool get isNone => this == none;
-
-  /// [bind] (a node's binding paths) with the legacy behavior paths
-  /// rewritten to the animations they now address, read against the node's
-  /// JSON [m]: `loops[i].<key>` → `animations.loop<i>.<key>` (a loop's
-  /// `phase` and `lag` → one `phase` formula), `effectAnimations[i].<key>`
-  /// → `animations.<its id>.<key>`, `motion.pulseKey` →
-  /// `animations.pulse.playKey`. A key it can't rewrite is kept as given.
-  static Map<String, String> migrateBind(Map<String, String> bind, Json m) {
-    final motion = readMap(m['motion']);
-    if (motion != null && (bind.keys.any((k) => k.startsWith('motion.')) || _legacyMotionKeys.any(motion.containsKey))) {
-      bind = _migrateMotionBind(bind, m, motion);
-    }
-    bind = _migrateDragBind(bind, m);
-    if (!bind.keys.any((k) => k.startsWith('loops') || k.startsWith('effectAnimations') || k == 'motion.pulseKey')) {
-      return bind;
-    }
-    final loops = readList(m['loops']) ?? const [];
-    final effects = readList(m['effectAnimations']) ?? const [];
-    final out = <String, String>{};
-    final phases = <int, (String?, String?)>{};
-    final legacy = RegExp(r'^(loops|effectAnimations)(?:\[(\d+)\]|\.\*)\.(\w+)$');
-    for (final e in bind.entries) {
-      if (e.key == 'motion.pulseKey') {
-        out['animations.pulse.playKey'] = e.value;
-        continue;
-      }
-      final match = legacy.firstMatch(e.key);
-      if (match == null) {
-        out[e.key] = e.value;
-        continue;
-      }
-      final isLoop = match[1] == 'loops';
-      final list = isLoop ? loops : effects;
-      final indices = match[2] == null ? [for (var i = 0; i < list.length; i++) i] : [int.parse(match[2]!)];
-      final key = match[3]!;
-      var kept = false;
-      for (final i in indices) {
-        if (i >= list.length) continue;
-        if (isLoop) {
-          if (key == 'phase' || key == 'lag') {
-            final (p, l) = phases[i] ?? (null, null);
-            phases[i] = key == 'phase' ? (e.value, l) : (p, e.value);
-            continue;
-          }
-          final to = _loopKey(key);
-          if (to == null) {
-            kept = true;
-            continue;
-          }
-          out['animations.loop$i.$to'] = e.value;
-        } else {
-          final a = AnimationPresets.fromEffect(list[i], i);
-          final to = a == null ? null : _effectKey(key, a.preset == 'spin');
-          if (a == null || to == null) {
-            kept = true;
-            continue;
-          }
-          out['animations.${a.id}.$to'] = e.value;
-        }
-      }
-      if (kept) out[e.key] = e.value;
-    }
-    for (final MapEntry(key: i, value: (p, l)) in phases.entries) {
-      final r = _R(readMap(loops[i]) ?? const {});
-      final cycle = (r.b('reverse', false) ? 2 : 1) * math.max(1, r.ms('duration', 1000));
-      final phase = p == null ? writeDouble(r.d('phase', 0)).toString() : _formula(p);
-      final lag = l == null ? writeDouble(r.d('lag', 0)).toString() : _formula(l);
-      if (phase == null || lag == null) {
-        // Not a formula it can combine: kept as given (no longer read).
-        if (p != null) out['loops[$i].phase'] = p;
-        if (l != null) out['loops[$i].lag'] = l;
-        continue;
-      }
-      out['animations.loop$i.phase'] = lag == '0' || lag == '0.0' ? '\${= $phase}' : '\${= ($phase) - ($lag) / $cycle}';
-    }
-    return out;
-  }
-
-  /// The temporal keys of a legacy motion.
-  static const _legacyMotionKeys = [
-    'duration', 'delay', 'curve', 'loop', 'spin', 'enter', 'enterFrom', 'keyframes', 'revealOnScroll', 'shimmer', //
-  ];
-
-  /// [bind]'s legacy `motion.*` paths (read against node JSON [m] and its
-  /// [motion]) as what they set now, plus what its legacy motion adds
-  /// ([AnimationPresets.fromMotion]): the pose's own paths stay (the flat
-  /// path keys become `motion.path.*`); the timing, entrance, loop and spin
-  /// keys address the animations and transitions they became; `opacity`
-  /// and `blur` the node's (see [Node.fromJson]). A legacy key with no
-  /// counterpart left (`rotateCurve`, `fadeShare`, `arc`, `spring`,
-  /// `revealOnScroll`, `revealFraction`, a loop or entrance key on a motion
-  /// that has none) is dropped.
-  static Map<String, String> _migrateMotionBind(Map<String, String> bind, Json m, Json motion) {
-    final legacy = _legacyMotion(m)!;
-    final ids = {for (final a in legacy.animations) a.id};
-    final played = [for (final id in const ['enter', 'loop']) if (ids.contains(id)) id];
-    final transitions = _transitions(m, legacy.transitions);
-    final legacyTransitions = {for (final t in legacy.transitions) t.property};
-    final timed = [
-      for (final (i, t) in transitions.indexed)
-        if (legacyTransitions.contains(t.property)) (i, t),
-    ];
-    final share = (readDouble(motion['fadeShare']) ?? 1).clamp(0.01, 1.0);
-    final reverse = AnimationPresets.legacyLoopMode(motion['loop'], bind['motion.loop']) == 'reverse';
-    final out = <String, String>{};
-    for (final e in bind.entries) {
-      final key = e.key, value = e.value;
-      if (!key.startsWith('motion.')) {
-        out[key] = value;
-        continue;
-      }
-      final rest = key.substring(7);
-      switch (rest) {
-        case 'pathProgress':
-          out['motion.path.progress'] = value;
-        case 'path':
-          out['motion.path.path'] = value;
-        case 'pathViewBox':
-          out['motion.path.viewBox'] = value;
-        case 'blur':
-          out[AnimationPresets.legacyMotionPath('blur')] = value;
-        case 'opacity':
-          // The node's opacity, multiplied by its own (Node.fromJson).
-          out['motion.opacity'] = value;
-        case 'replayKey' when ids.contains('enter'):
-          out['animations.enter.playKey'] = value;
-        case 'enterHeld' when ids.contains('enter'):
-          out['animations.enter.paused'] = value;
-        case 'enter' when ids.contains('enter') && !(legacy.animations.firstWhere((a) => a.id == 'enter').enabled):
-          out['animations.enter.enabled'] = value;
-        case 'keyframes':
-          for (final id in played) {
-            out['animations.$id.params.frames'] = value;
-          }
-        case 'duration' || 'delay' || 'curve':
-          for (final id in played) {
-            if (rest == 'curve' && legacy.animations.any((a) => a.id == id && a.curve == AnimationCurve.linear)) {
-              out['animations.$id.params.curve'] = value;
-            } else {
-              out['animations.$id.$rest'] = value;
-            }
-          }
-          for (final (i, t) in timed) {
-            if (rest == 'curve' && t.property != 'motion' && t.curve != AnimationCurve.parse(motion['curve'])) continue;
-            final f = _formula(value);
-            out['transitions[$i].$rest'] = rest == 'duration' && t.property == 'opacity' && share < 1 && f != null
-                ? '\${= ($f) * ${writeDouble(share)}}'
-                : value;
-          }
-        case 'paused':
-          for (final id in const ['loop', 'spin']) {
-            if (ids.contains(id)) out['animations.$id.paused'] = value;
-          }
-        case 'phase' when ids.contains('loop'):
-          final f = _formula(value);
-          if (reverse && f != null) {
-            out['animations.loop.phase'] = '\${= ($f) / 2}';
-          } else if (!reverse) {
-            out['animations.loop.phase'] = value;
-          }
-        case 'repeat' when ids.contains('loop'):
-          out['animations.loop.repeat.count'] = value;
-        case 'loop' when ids.contains('loop'):
-          final mode = AnimationPresets.legacyLoopMode(motion['loop'], value);
-          final f = _formula(value);
-          if (mode != null && f != null) out['animations.loop.enabled'] = "\${= ($f) == '$mode'}";
-        case 'spin' when ids.contains('spin'):
-          out['animations.spin.params.perSecond'] = value;
-        case 'spinRamp' when ids.contains('spin'):
-          out['animations.spin.ramp'] = value;
-        case 'shimmer.duration' when ids.contains('shimmer'):
-          out['animations.shimmer.duration'] = value;
-        case _ when rest.startsWith('shimmer.'):
-          out[rest] = value;
-        case _ when rest.startsWith('enterFrom.') && ids.contains('enter'):
-          out['animations.enter.params.from.${rest.substring(10)}'] = value;
-        case 'replayKey' || 'enterHeld' || 'enter' || 'phase' || 'repeat' || 'loop' || 'spin' || 'spinRamp' || 'rotateCurve' ||
-              'fadeShare' || 'arc' || 'spring' || 'springStiffness' || 'springDamping' || 'revealOnScroll' ||
-              'revealFraction' || 'pathWrap' || 'shimmer':
-          break;
-        case _ when rest.startsWith('enterFrom') || rest.startsWith('spring') || rest.startsWith('keyframes'):
-          break;
-        default:
-          out[key] = value;
-      }
-    }
-    for (final e in legacy.bind.entries) {
-      out.putIfAbsent(e.key, () => e.value);
-    }
-    return out;
-  }
-
-  /// A loop's key as the key of its animation; null when it has none.
-  static String? _loopKey(String key) => switch (key) {
-        'enabled' || 'duration' || 'delay' || 'curve' => key,
-        'type' => 'preset',
-        'reverse' => 'repeat.reverse',
-        'scaleFrom' || 'scaleTo' || 'opacityFrom' || 'opacityTo' || 'turns' || 'distance' || 'angle' => 'params.$key',
-        _ => null,
-      };
-
-  /// An effect's key as the key of its animation; null when it has none.
-  static String? _effectKey(String key, bool spin) => switch (key) {
-        'duration' || 'delay' || 'playKey' || 'curve' => key,
-        'type' => 'preset',
-        'playOnAppear' => 'autoplay',
-        'amount' => spin ? 'params.turns' : 'params.amount',
-        'cycles' => 'params.cycles',
-        'keyframes' => 'params.frames',
-        _ => null,
-      };
-
-  /// The formula of binding [expression]: `${= f}` → `f`, `${path}` →
-  /// `path`, a number → itself; null for anything else (text around it).
-  static String? formulaOf(String expression) => _formula(expression);
-
-  static String? _formula(String expression) {
-    final t = expression.trim();
-    if (num.tryParse(t) != null) return t;
-    final f = RegExp(r'^\$\{=\s*([^]*)\}$').firstMatch(t);
-    if (f != null && !f[1]!.contains(r'${')) return f[1]!.trim();
-    final p = RegExp(r'^\$\{([^{}=]+)\}$').firstMatch(t);
-    return p?[1]!.trim();
-  }
-
-  /// The legacy keys of [m] as animations, after [m]'s own `animations`; a
-  /// legacy one replaces an animation of the same id.
-  static List<NodeAnimation> _animations(Json m, List<NodeAnimation> fromMotion) {
-    final own = [...?readList(_jsonText(m['animations']))?.map(NodeAnimation.fromJson).nonNulls];
-    final legacy = <NodeAnimation>[
-      for (final (i, l) in (readList(m['loops']) ?? const []).indexed) ?AnimationPresets.fromLoop(l, i),
-      for (final (i, e) in (readList(m['effectAnimations']) ?? const []).indexed) ?AnimationPresets.fromEffect(e, i),
-      if (readMap(m['motion']) case final Json motion)
-        ?AnimationPresets.fromPulseKey(motion, bound: readMap(m['bind'])?.containsKey('motion.pulseKey') ?? false),
-      ...fromMotion,
-    ];
-    if (legacy.isEmpty) return own;
-    final ids = {for (final a in legacy) a.id};
-    return [...own.where((a) => !ids.contains(a.id)), ...legacy];
-  }
-
-  /// [m]'s own `transitions`, then those its legacy motion timing gives (a
-  /// legacy one replaces one for the same property).
-  static List<Transition> _transitions(Json m, List<Transition> fromMotion) {
-    final own = Transition.listFromJson(m['transitions']);
-    if (fromMotion.isEmpty) return own;
-    final props = {for (final t in fromMotion) t.property};
-    return [...own.where((t) => !props.contains(t.property)), ...fromMotion];
-  }
-
-  /// The legacy temporal keys of [m]'s motion, read
-  /// ([AnimationPresets.fromMotion]); null without a motion.
-  static ({List<NodeAnimation> animations, List<Transition> transitions, Shimmer? shimmer, Map<String, String> bind})?
-      _legacyMotion(Json m) {
-    final motion = readMap(m['motion']);
-    if (motion == null) return null;
-    final bind = {
-      for (final e in (readMap(m['bind']) ?? const <String, Object?>{}).entries)
-        if (e.value is String) e.key: e.value as String,
-    };
-    bool patches(String key) =>
-        (readMap(m['states'])?.values ?? const []).any((state) => (readMap(state)?.values ?? const []).any((patch) => readMap(readMap(patch)?['motion'])?.containsKey(key) ?? false));
-    return AnimationPresets.fromMotion(motion, bind: bind, patchesOpacity: patches('opacity'), patchesBlur: patches('blur'));
-  }
 
   /// Reads the behavior keys of a node's JSON [m].
   static Behaviors fromJson(Json m) {
-    if (!m.keys.any((k) => keys.contains(k) || legacyKeys.contains(k))) return none;
+    if (!m.keys.any(keys.contains)) return none;
     final r = _R(m);
     final scale = r.d('scale', 1);
-    final legacy = _legacyMotion(m);
     return Behaviors(
       motion: Motion.fromJson(m['motion']),
       scale: scale > 0 ? scale : 1,
-      animations: _animations(m, legacy?.animations ?? const []),
-      transitions: _transitions(m, legacy?.transitions ?? const []),
-      shimmer: Shimmer.fromJson(m['shimmer']) ?? legacy?.shimmer,
+      animations: [...?readList(_jsonText(m['animations']))?.map(NodeAnimation.fromJson).nonNulls],
+      transitions: Transition.listFromJson(m['transitions']),
+      shimmer: Shimmer.fromJson(m['shimmer']),
       inkWell: InkWellStyle.fromJson(m['inkWell']),
       states: StateStyles.fromJson(m['states']),
       tooltip: r.s('tooltip'),
@@ -3264,10 +2788,10 @@ final class Behaviors extends _Value {
       flight: Flight.fromJson(m['flight']),
       draggable: DragSource.fromJson(m['draggable']),
       dropTarget: DropTarget.fromJson(m['dropTarget']),
-      track: Track.fromJson(m['track']) ?? Track.fromLegacyDrag(readMap(m['drag'])),
-      dismissible: DismissibleBehavior.fromJson(m['dismissible']) ?? DismissibleBehavior.fromLegacyDrag(readMap(m['drag'])),
-      pan: Pan.fromJson(m['pan']) ?? Pan.fromLegacyDrag(readMap(m['drag'])),
-      reorderHandle: r.b('reorderHandle', false) || _isLegacyReorderHandle(readMap(m['drag'])),
+      track: Track.fromJson(m['track']),
+      dismissible: DismissibleBehavior.fromJson(m['dismissible']),
+      pan: Pan.fromJson(m['pan']),
+      reorderHandle: r.b('reorderHandle', false),
       reveal: Reveal.fromJson(m['reveal']),
       strokePath: StrokePath.fromJson(m['strokePath']),
       typewriter: Typewriter.fromJson(m['typewriter']),
@@ -3277,8 +2801,7 @@ final class Behaviors extends _Value {
           : null,
       flip: FlipCard.fromJson(m['flip']),
       tilt: Tilt.fromJson(m['tilt']),
-      transformGesture: TransformGesture.fromJson(m['transformGesture']) ??
-          (r.b('zoomable', false) ? TransformGesture.zoomable : null),
+      transformGesture: TransformGesture.fromJson(m['transformGesture']),
       sticky: Sticky.fromJson(m['sticky']),
       viewProgress: ViewProgress.fromJson(m['viewProgress']),
       measure: Measure.fromJson(m['measure']),
@@ -3394,92 +2917,4 @@ final class Behaviors extends _Value {
     flightKey, flight, draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
     particles, textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
-
-  /// Whether a legacy `drag` object [d] made its node a reorder handle
-  /// (`reorder: true` without a track).
-  static bool _isLegacyReorderHandle(Json? d) =>
-      d != null && readMap(d['track']) == null && (readBool(d['reorder']) ?? false);
-
-  /// [bind] with the legacy `drag.*` paths rewritten to the behavior the
-  /// node's `drag` became: `drag.track.<k>` → `track.<k>`, and for a drag
-  /// that follows the pointer `drag.<k>` → `dismissible.<k>` or `pan.<k>`
-  /// under their new names (`drag.restX` → `pan.x`, `drag.flyOut` →
-  /// `dismissible.movementDuration`...; `drag.distanceThreshold` binds each
-  /// direction's `dismissible.dismissThresholds`). `drag.enabled` →
-  /// `<behavior>.enabled`. A path it can't rewrite is kept as given.
-  static Map<String, String> _migrateDragBind(Map<String, String> bind, Json m) {
-    // A track that only shows its variable (`write: false`) binds its value.
-    final legacyTrack = readMap(m['track']) ?? readMap(readMap(m['drag'])?['track']);
-    if (legacyTrack != null && Track.readsOnly(legacyTrack) && !bind.containsKey('track.value') &&
-        !bind.containsKey('drag.track.value')) {
-      bind = {...bind, 'track.value': '\${${readString(legacyTrack['variable'])!.trim()}}'};
-    }
-    if (!bind.keys.any((k) => k.startsWith('drag.'))) return bind;
-    final d = readMap(m['drag']) ?? const <String, Object?>{};
-    final isTrack = readMap(d['track']) != null || bind.keys.any((k) => k.startsWith('drag.track.'));
-    final isHandle = !isTrack && (readBool(d['reorder']) ?? false);
-    final isDismiss = !isTrack && !isHandle && d['release'] == DragRelease.dismiss.name;
-    final hasVertical = d.containsKey('verticalThreshold') || bind.containsKey('drag.verticalThreshold');
-    final out = <String, String>{};
-    for (final e in bind.entries) {
-      final k = e.key;
-      if (!k.startsWith('drag.')) {
-        out[k] = e.value;
-        continue;
-      }
-      final rest = k.substring(5);
-      final List<String> to;
-      if (rest.startsWith('track.')) {
-        final key = rest.substring(6);
-        to = [key == 'path' ? 'track.path.path' : 'track.$key'];
-      } else if (isTrack) {
-        to = rest == 'enabled' ? ['track.enabled'] : const [];
-      } else if (isHandle) {
-        to = const [];
-      } else if (isDismiss) {
-        String t(DragDirection d) => 'dismissible.dismissThresholds.${d.name}';
-        to = switch (rest) {
-          'distanceThreshold' => [
-              t(DragDirection.left),
-              t(DragDirection.right),
-              if (!hasVertical) ...[t(DragDirection.up), t(DragDirection.down)],
-            ],
-          'verticalThreshold' => [t(DragDirection.up), t(DragDirection.down)],
-          'velocityThreshold' => ['dismissible.flingVelocity'],
-          'flyOut' => ['dismissible.movementDuration'],
-          'flyOutCurve' => ['dismissible.curve'],
-          'snapBack' => ['dismissible.returnDuration'],
-          'snapCurve' => ['dismissible.returnCurve'],
-          'physics.spring' => ['dismissible.returnSpring'],
-          'enabled' || 'directions' || 'axis' || 'resistance' || 'restX' || 'restY' || 'xVariable' || 'yVariable' ||
-          'flyOutRotate' ||
-          'rotateFactor' || 'originX' || 'originY' || 'shakeWhenDisabled' || 'disabledFollow' || 'shareAs' ||
-          'follow' =>
-            ['dismissible.$rest'],
-          _ => const [],
-        };
-      } else {
-        final head = rest.split('.').first;
-        to = switch (head) {
-          'restX' => ['pan.x'],
-          'restY' => ['pan.y'],
-          'snapBack' => ['pan.returnDuration'],
-          'snapCurve' => ['pan.returnCurve'],
-          'enabled' || 'axis' || 'release' || 'xVariable' || 'yVariable' || 'physics' || 'bounds' || 'minX' ||
-          'maxX' || 'minY' || 'maxY' || 'rotateFactor' || 'originX' || 'originY' || 'shakeWhenDisabled' ||
-          'disabledFollow' || 'shareAs' || 'follow' =>
-            ['pan.$rest'],
-          _ => const [],
-        };
-      }
-      if (to.isEmpty) {
-        out[k] = e.value;
-      } else {
-        for (final t in to) {
-          out[t] = e.value;
-        }
-      }
-    }
-    return out;
-  }
 }

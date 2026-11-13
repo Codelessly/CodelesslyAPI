@@ -9,7 +9,9 @@ import 'dart:math' as math;
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-Node _node(Json j) => Node.fromJson({'type': 'box', ...j}, id: 'n')!;
+import 'legacy_support.dart';
+
+Node _node(Json j) => migratedNode({'type': 'box', ...j}, id: 'n')!;
 
 double _v(NodeAnimation a, String track, double t) =>
     readDouble(a.expanded.tracks.firstWhere((x) => x.id == track).valueAt(t))!;
@@ -100,24 +102,24 @@ void main() {
       expect(RouteDismiss.fromJson({'spring': {'stiffness': 200}})!.spring, const Spring.physical(stiffness: 200, damping: 36));
       // Motion.springStiffness/Damping (380 / 20): the spring of its
       // transitions on the `spring` curve.
-      final m = Behaviors.fromJson({'motion': {'curve': 'spring', 'springStiffness': 500}}).transitions.single;
+      final m = migratedBehaviors({'motion': {'curve': 'spring', 'springStiffness': 500}}).transitions.single;
       expect(m.spring, const Spring.physical(stiffness: 500, damping: 20));
       expect(m.toJson()['spring'], {'stiffness': 500, 'damping': 20});
       expect(Transition.fromJson(m.toJson()), m);
       // DragSource.springStiffness/Damping (260 / 14), now its returnSpring.
-      final d = DragSource.fromJson({'springDamping': 9})!;
+      final d = legacyDraggable({'springDamping': 9})!;
       expect(d.returnSpring, const Spring.physical(stiffness: 260, damping: 9));
       expect(d.toJson()['returnSpring'], {'damping': 9});
       expect(d.toJson().containsKey('springDamping'), isFalse);
       expect(d.effectivePhysics!.effectiveStiffness, 260);
       // Track.settleStiffness/Damping (380 / 20).
-      final t = Track.fromJson({'settleStiffness': 100, 'settleDamping': 10})!;
+      final t = legacyTrack({'settleStiffness': 100, 'settleDamping': 10})!;
       expect(t.settleSpring, const Spring.physical(stiffness: 100, damping: 10));
       expect(t.toJson()['settleSpring'], {'stiffness': 100, 'damping': 10});
       expect(Track.fromJson(t.toJson())!.settleSpring, t.settleSpring);
       // GesturePhysics flat keys (380 / 32 / 1, or bounce + duration).
-      expect(GesturePhysics.fromJson({'stiffness': 200})!.spring, const Spring.physical(stiffness: 200, damping: 32));
-      final b = GesturePhysics.fromJson({'bounce': 0.12, 'duration': 420})!;
+      expect(legacyPhysics({'stiffness': 200})!.spring, const Spring.physical(stiffness: 200, damping: 32));
+      final b = legacyPhysics({'bounce': 0.12, 'duration': 420})!;
       expect(b.spring, const Spring(duration: 420, bounce: 0.12));
       expect(b.toJson(), {'spring': {'duration': 420, 'bounce': 0.12}});
       expect(GesturePhysics.fromJson(b.toJson()), b);
@@ -214,22 +216,22 @@ void main() {
       // LoopAnimation.poseAt: scale/opacity lerp, turns·c, sin(2πc)·angle,
       // -sin(πc)·distance.
       for (final c in [0.0, 0.1, 0.25, 0.4, 0.5, 0.77, 1.0]) {
-        final pulse = AnimationPresets.fromLoop({'type': 'pulse', 'scaleFrom': 0.5, 'scaleTo': 2, 'opacityFrom': 1.4, 'opacityTo': 0.2}, 0)!;
+        final pulse = legacyLoop({'type': 'pulse', 'scaleFrom': 0.5, 'scaleTo': 2, 'opacityFrom': 1.4, 'opacityTo': 0.2}, 0)!;
         expect(_v(pulse, 'scale', c), closeTo(0.5 + 1.5 * c, 1e-12));
         expect(_v(pulse, 'opacity', c), closeTo(1 + (0.2 - 1) * c, 1e-12));
-        final spin = AnimationPresets.fromLoop({'type': 'spin', 'turns': 2}, 0)!;
+        final spin = legacyLoop({'type': 'spin', 'turns': 2}, 0)!;
         expect(_v(spin, 'rotate', c), closeTo(720 * c, 1e-9));
-        final sway = AnimationPresets.fromLoop({'type': 'sway', 'angle': 6}, 0)!;
+        final sway = legacyLoop({'type': 'sway', 'angle': 6}, 0)!;
         expect(_v(sway, 'rotate', c), closeTo(math.sin(c * 2 * math.pi) * 6, 1e-9));
-        final bob = AnimationPresets.fromLoop({'type': 'bob', 'distance': 8}, 0)!;
+        final bob = legacyLoop({'type': 'bob', 'distance': 8}, 0)!;
         expect(_v(bob, 'translateY', c), closeTo(-math.sin(c * math.pi) * 8, 1e-9));
-        final flicker = AnimationPresets.fromLoop({'type': 'flicker', 'scaleFrom': 0.9, 'scaleTo': 1.1}, 0)!;
+        final flicker = legacyLoop({'type': 'flicker', 'scaleFrom': 0.9, 'scaleTo': 1.1}, 0)!;
         expect(_v(flicker, 'scale', c), closeTo(0.9 + 0.2 * flickerAt(c), 1e-12));
       }
     });
 
     test('timing: duration, delay, curve, reverse, enabled, phase less lag', () {
-      final a = AnimationPresets.fromLoop(
+      final a = legacyLoop(
           {'type': 'fade', 'duration': 500, 'delay': 30, 'curve': 'easeIn', 'reverse': true, 'enabled': false, 'phase': 0.3, 'lag': 100},
           2)!;
       expect(a.toJson(), {
@@ -238,7 +240,7 @@ void main() {
       });
       final e = a.expanded;
       expect((e.durationMs, e.repeat, e.effectiveCurve, e.autoplays), (500, const AnimationRepeat(reverse: true), AnimationCurve.easeIn, true));
-      expect(AnimationPresets.fromLoop({'type': 'scale', 'lag': 250}, 0)!.phase, 0.75);
+      expect(legacyLoop({'type': 'scale', 'lag': 250}, 0)!.phase, 0.75);
     });
 
     test('bindings into loops address the animation; phase and lag become one formula', () {
@@ -278,7 +280,7 @@ void main() {
     test('each type expands to tracks giving its old pose exactly', () {
       for (final type in ['shake', 'bounce', 'pop', 'wiggle', 'jelly', 'flash']) {
         for (final (amount, cycles) in [(1.0, 0.0), (1.7, 5.0)]) {
-          final a = AnimationPresets.fromEffect({'name': 'e', 'type': type, 'amount': amount, 'cycles': cycles}, 0)!;
+          final a = legacyEffect({'name': 'e', 'type': type, 'amount': amount, 'cycles': cycles}, 0)!;
           for (var i = 0; i <= 40; i++) {
             final t = i / 40;
             final want = _legacyEffect(type, t, amount, cycles: cycles), got = _pose(a, t);
@@ -294,11 +296,11 @@ void main() {
     });
 
     test('spin turns once on its curve; keyframes run from rest and back', () {
-      final spin = AnimationPresets.fromEffect({'name': 's', 'type': 'spin', 'amount': 2, 'duration': 600}, 0)!;
+      final spin = legacyEffect({'name': 's', 'type': 'spin', 'amount': 2, 'duration': 600}, 0)!;
       final e = spin.expanded;
       expect((e.repeat, e.effectiveCurve, e.autoplays, e.durationMs), (AnimationRepeat.once, AnimationCurve.easeInOutCubic, false, 600));
       expect(_v(spin, 'rotate', 0.5), 360);
-      final hop = AnimationPresets.fromEffect({
+      final hop = legacyEffect({
         'name': 'hop',
         'type': 'keyframes',
         'curve': 'easeOut',
@@ -353,9 +355,9 @@ void main() {
 
   group('animate action', () {
     test('reads playAnimation and every animateVariable mode', () {
-      final play = ActionDef.fromJson({'type': 'playAnimation', 'node': 'n', 'animation': 'pop', 'nonBlocking': true})! as AnimateAction;
+      final play = legacyAction({'type': 'playAnimation', 'node': 'n', 'animation': 'pop', 'nonBlocking': true}) as AnimateAction;
       expect(play.toJson(), {'type': 'animate', 'node': 'n', 'animation': 'pop', 'from': '0', 'nonBlocking': true});
-      AnimateAction v(Json j) => ActionDef.fromJson({'type': 'animateVariable', 'variable': 't', ...j})! as AnimateAction;
+      AnimateAction v(Json j) => legacyAction({'type': 'animateVariable', 'variable': 't', ...j}) as AnimateAction;
       expect(v({'to': '5', 'durationMs': 800, 'curve': 'easeOut'}).toJson(), {
         'type': 'animate', 'variable': 't', 'command': 'animateTo', 'target': '5', 'duration': '800', 'curve': 'easeOut',
       });
@@ -372,13 +374,13 @@ void main() {
 
   group('triggers', () {
     test('the clock is a timer: every → intervalMs, runWhen → when; lookaheadMs dropped', () {
-      final t = Trigger.fromJson({'type': 'clock', 'every': 'period', 'runWhen': 'playing', 'lookaheadMs': 50})!;
+      final t = legacyTrigger({'type': 'clock', 'every': 'period', 'runWhen': 'playing', 'lookaheadMs': 50});
       expect(t.type, TriggerType.timer);
       expect(t.intervalMs, const Expr<int>.source(r'${= period}'));
       expect(t.when, 'playing');
-      expect(Trigger.fromJson({'type': 'clock', 'every': 100})!.effectiveIntervalMs, 100);
+      expect(legacyTrigger({'type': 'clock', 'every': 100}).effectiveIntervalMs, 100);
       // A clock without `every` never ticked; neither does its timer.
-      expect(Trigger.fromJson({'type': 'clock'})!.effectiveIntervalMs, isNull);
+      expect(legacyTrigger({'type': 'clock'}).effectiveIntervalMs, isNull);
     });
 
     test('timer intervals are numbers or expressions; a frame ticker has a guard', () {
@@ -398,12 +400,15 @@ void main() {
     final text = File('docs/guide/08-animation.md').readAsStringSync();
     final blocks = RegExp(r'```json( legacy)?\n([\s\S]*?)```').allMatches(text).toList();
     expect(blocks.length, greaterThanOrEqualTo(10));
-    Json written(Json j) {
+    // An old shape is migrated first.
+    Json written(Json j, {bool legacy = false}) {
       if (j['type'] is String && j.length > 1 && !j.containsKey('animations') && !j.containsKey('bind')) {
-        return ActionDef.fromJson(j)!.toJson();
+        return (legacy ? legacyAction(j) : ActionDef.fromJson(j)!).toJson();
       }
-      if (j.containsKey('trigger')) return Reaction.fromJson(j)!.toJson();
-      return Node.fromJson({'type': 'box', ...j}, id: 'n')!.toJson()
+      if (j.containsKey('trigger')) {
+        return (legacy ? legacyNode({'actions': [j]}).actions.single : Reaction.fromJson(j)!).toJson();
+      }
+      return migratedNode({'type': 'box', ...j}, id: 'n')!.toJson()
         ..remove('id')
         ..remove('type')
         ..remove('layout');
@@ -413,7 +418,7 @@ void main() {
       final json = jsonDecode(blocks[i][2]!) as Json;
       if (blocks[i][1] != null) {
         // An old shape: it reads as the next sample.
-        expect(written(json), jsonDecode(blocks[i + 1][2]!), reason: blocks[i][2]);
+        expect(written(json, legacy: true), jsonDecode(blocks[i + 1][2]!), reason: blocks[i][2]);
         continue;
       }
       expect(written(json), json, reason: blocks[i][2]);

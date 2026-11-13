@@ -7,7 +7,9 @@ import 'dart:io';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-Node _node(Json j) => Node.fromJson({'id': 'n', 'type': 'box', ...j})!;
+import 'legacy_support.dart';
+
+Node _node(Json j) => legacyNode(j);
 
 void main() {
   test('a drag with a track is the track; drag.enabled is its enabled', () {
@@ -174,15 +176,14 @@ void main() {
     expect(BindPaths.apply(sheet, 'pan.x', 12).behaviors.pan!.x, 12);
   });
 
-  test('the new keys are declared and the legacy one is not written', () {
+  test('the new keys are declared and the legacy one is migrated, not kept', () {
     expect(Behaviors.keys, containsAll(['track', 'dismissible', 'pan', 'reorderHandle']));
     expect(Behaviors.keys, isNot(contains('drag')));
-    expect(Behaviors.legacyKeys, contains('drag'));
     expect(_node({'drag': <String, Object?>{}}).extra, isEmpty);
   });
 
   test("draggable takes Flutter's names; one return spring", () {
-    final d = DragSource.fromJson({
+    final d = legacyDraggable({
       'group': 'cards',
       'whileDragging': 'hidden',
       'feedbackNodeId': 'ghost',
@@ -200,28 +201,28 @@ void main() {
       'dragAnchor': 'center',
       'returnSpring': {'stiffness': 300},
     });
-    expect(DragSource.fromJson(d.toJson()), d);
+    expect(legacyDraggable(d.toJson()), d);
     // No return spring: `returnSpring: false`, written back as false.
-    final none = DragSource.fromJson({'returnSpring': false})!;
+    final none = legacyDraggable({'returnSpring': false})!;
     expect(none.returnSpring, isNull);
     expect(none.toJson(), {'returnSpring': false});
-    expect(DragSource.fromJson(none.toJson()), none);
+    expect(legacyDraggable(none.toJson()), none);
     // The legacy physics overrides the bool, its spring is the return.
     expect(
-      DragSource.fromJson({
+      legacyDraggable({
         'returnSpring': false,
         'physics': {'bounce': 0.2, 'duration': 300},
       })!.returnSpring,
       const Spring(duration: 300, bounce: 0.2),
     );
     // The default: the old 260 / 14 spring (existing documents rely on it).
-    expect(DragSource.fromJson(<String, Object?>{})!.returnSpring, DragSource.defaultSpring);
-    expect(DragSource.fromJson({'feedbackAnchor': 'grab'})!.dragAnchor, DragAnchor.child);
-    expect(DragSource.fromJson({'dragAnchorStrategy': 'pointer'})!.dragAnchor, DragAnchor.center);
+    expect(legacyDraggable(<String, Object?>{})!.returnSpring, DragSource.defaultSpring);
+    expect(legacyDraggable({'feedbackAnchor': 'grab'})!.dragAnchor, DragAnchor.child);
+    expect(legacyDraggable({'dragAnchorStrategy': 'pointer'})!.dragAnchor, DragAnchor.center);
   });
 
   test('controlDrag reads as the typed action of its command', () {
-    ActionDef read(Json j) => ActionDef.fromJson({'type': 'controlDrag', 'node': 'k', ...j})!;
+    ActionDef read(Json j) => legacyAction({'type': 'controlDrag', 'node': 'k', ...j});
     expect(read({'command': 'step', 'steps': '-2', 'direction': 'left'}), const ControlTrackAction(node: 'k', steps: '-2'));
     expect(read({}), const ControlDismissibleAction(node: 'k'));
     expect(read({'command': 'fling', 'direction': 'up'}),
@@ -244,7 +245,7 @@ void main() {
 
   test('track special-case keys read into generic ones', () {
     // A combination dial (safecracker): endless, momentum, a gain round its arc.
-    final dial = Track.fromJson({
+    final dial = legacyTrack({
       'shape': 'arc', 'variable': 'dial', 'max': 40, 'step': 1, 'startAngle': 0, 'endAngle': 360, //
       'endless': true, 'momentum': true, 'friction': 2.6, 'gain': 0.5, 'jumpOnTap': true, 'wheel': false,
     })!;
@@ -263,14 +264,14 @@ void main() {
       'shape': 'arc', 'startAngle': 0, 'sweepAngle': 360, 'physics': {'friction': 0.9257}, 'gain': 0.5,
     });
     // endless on a line did nothing: still clamped.
-    expect(Track.fromJson({'endless': true})!.clamp, isTrue);
+    expect(legacyTrack({'endless': true})!.clamp, isTrue);
     // A vertical knob's gain is a pixel rate.
-    final knob = Track.fromJson({'input': 'vertical', 'pixelsPerRange': 300, 'gain': 2, 'keyboard': false})!;
+    final knob = legacyTrack({'input': 'vertical', 'pixelsPerRange': 300, 'gain': 2, 'keyboard': false})!;
     expect(knob.pixelsPerRange, 150);
     expect(knob.gain, 1);
     expect(knob.effectiveKeyStep, isNull);
     // A path with its legacy view box and orientation.
-    final p = Track.fromJson({
+    final p = legacyTrack({
       'shape': 'path', 'path': 'M0 0 L100 0', 'viewBoxWidth': 600, 'viewBoxHeight': 320, //
       'orientToPath': true, 'orientUpright': true,
     })!;
@@ -278,7 +279,7 @@ void main() {
     expect(p.toJson(), {
       'path': {'path': 'M0 0 L100 0', 'viewBox': [600, 320], 'orient': 'upright'},
     });
-    expect(Track.fromJson(p.toJson()), p);
+    expect(legacyTrack(p.toJson()), p);
   });
 
   test('a track that only shows its variable binds its value to it', () {
@@ -304,11 +305,12 @@ void main() {
     final text = File('docs/guide/10-gestures.md').readAsStringSync();
     final blocks = RegExp(r'```json( legacy)?\n([\s\S]*?)```').allMatches(text).toList();
     expect(blocks.length, greaterThanOrEqualTo(15));
-    Json written(Json j) {
+    // A legacy (schema-2) sample is migrated first.
+    Json written(Json j, {bool legacy = false}) {
       if (j['type'] is String && j.length > 1 && !j.containsKey('bind')) {
-        return ActionDef.fromJson(j, catalog: standardCatalog)!.toJson();
+        return (legacy ? legacyAction(j) : ActionDef.fromJson(j, catalog: standardCatalog)!).toJson();
       }
-      return Node.fromJson({'type': 'box', ...j}, id: 'n', catalog: standardCatalog)!.toJson()
+      return (legacy ? legacyNode(j) : Node.fromJson({'type': 'box', ...j}, id: 'n', catalog: standardCatalog)!).toJson()
         ..remove('id')
         ..remove('type')
         ..remove('layout');
@@ -317,7 +319,7 @@ void main() {
     for (var i = 0; i < blocks.length; i++) {
       final json = jsonDecode(blocks[i][2]!) as Json;
       if (blocks[i][1] != null) {
-        expect(written(json), jsonDecode(blocks[i + 1][2]!), reason: blocks[i][2]);
+        expect(written(json, legacy: true), jsonDecode(blocks[i + 1][2]!), reason: blocks[i][2]);
         continue;
       }
       expect(written(json), json, reason: blocks[i][2]);

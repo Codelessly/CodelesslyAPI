@@ -257,10 +257,7 @@ abstract final class SetVariantFields {
 abstract final class SetVariableFields {
   static const variable = PropDef<String>('variable', Codecs.string, '',
       doc: 'The variable\'s name; a path into it sets that part.');
-  static const animateMs = PropDef<String>('animateMs', Codecs.string, '',
-      doc: 'A number: glide to the new value over these milliseconds (an expression).');
-  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear, doc: 'The glide\'s easing.');
-  static const List<PropDef<Object?>> all = [variable, ...ValueWriteFields.all, animateMs, curve];
+  static const List<PropDef<Object?>> all = [variable, ...ValueWriteFields.all];
 }
 
 /// [CallFunctionAction].
