@@ -1,5 +1,51 @@
 ## Unreleased
 
+**New: catalogs, feature libraries and plugins** (docs/design/05-plugins-and-layers.md; guide chapter 9)
+
+- `Catalog` (`id`, `widgets`, `actions`, `dataSources`, `formulas`, `instructions`, `parts`; `+`, `widget`,
+  `action`, `dataSource`, `formula`, `includes`, `upgrade`, `decodeAction`, `toJson({compact})`, `fromJson`,
+  `Catalog.core`, `Catalog.current`, `Catalog.run`). `standardCatalog`, `coreCatalog`, `dataCatalog`,
+  `authCatalog`, `commerceCatalog`, `mediaCatalog`, `engageCatalog`. `DataSourceSpec` (`listDataSource`,
+  `cloudDataSource`, `apiDataSource`), `FormulaSpec`, `ActionCommon`, `ActionDecoder`, `DeclaredAction`,
+  `JsonPropCodec`, `propTypeToJson`/`propTypeFromJson` and the other `*ToJson`/`*FromJson` declaration helpers.
+- `ActionSpec` gains `decode`, `result`, `nested`, `requires`, `field`, `fieldSpec`.
+- Decoders take `catalog:`: `LayoutDocument.fromJson`, `Node.fromJson`, `Reaction.fromJson`/`listFromJson`,
+  `ActionDef.fromJson`/`listFromJson`, `ComponentDefinition.fromJson`, `PublishLayout.fromJson`,
+  `PublishBundle.fromJson`, `buildManagedInstance`. `Node.catalog` and `LayoutDocument.catalog` (outside equality).
+- Libraries: `package:codelessly_api/core.dart`, `data.dart`, `auth.dart`, `commerce.dart`, `media.dart`,
+  `engage.dart`, `publish.dart`, `managed.dart`; `codelessly_api.dart` exports them all.
+- Hosted plugins (`managed.dart`): `PluginPackage` (`problems`), `PluginWidget`, `PluginAction`, `PluginAsset`,
+  `PluginVersion`, `PluginRef`, `pluginUpdateTarget`, `kPluginsCollection`, `PublishModel.plugins` /
+  `withPlugins` (`PublishModelPlugins`).
+- `Props`: a prop held raw (its spec unknown to the decoding catalog) decodes when read through its `PropDef`;
+  props keep each value's `PropDef` so they encode without the spec.
+- `tool/corpus_roundtrip.dart`: digests of every document's encoding, to compare before and after a change.
+
+**JSON compatibility.** None changes: every document decodes and encodes byte for byte as before (with
+`standardCatalog`), checked on 65 documents, 47,555 nodes and 20,573 reactions and actions of the reference apps
+and the SDK's fixtures. A type a catalog doesn't declare round-trips unchanged. The list `source` object of the
+proposal (§6.3) is not written: lists keep `query`, `pagination.source`, `apiId`.
+
+**Breaking changes for Dart callers**
+
+- **Decoding defaults to `Catalog.core`.** The core library cannot name the feature libraries, so a decoder
+  given no catalog reads feature types (callApi, cloud*, auth, paywall, speak, playSound, preloadImages,
+  captureScreenshot, print, downloadFile, submitForm, emitEvent; video, embeddedVideo, audioPlayer, webView) as
+  `UnknownAction`s and raw props. Pass `catalog: standardCatalog` (or wrap a block in
+  `Catalog.run(standardCatalog, ...)`). `ActionDef.types` lists `Catalog.current`'s types.
+- `ActionDef` is an `abstract base class`, not sealed: a `switch` over it needs a default, or switches over a
+  family (`CoreAction`, `DataAction`, `MediaAction`, `EngageAction`; `AuthAction`, `PaywallAction`). An action
+  class outside the core overrides `fieldsJson`.
+- `ComponentLink.managed` (field and constructor/`copyWith` parameter) is `managedJson` (raw JSON) in the core;
+  `ComponentLink.managed` and `withManaged` are an extension in `managed.dart` (exported by the umbrella).
+- `mediaSpecs` holds only `video`, `embeddedVideo`, `audioPlayer`, `webView`; `path`, `external`,
+  `placeholder`, `singlePlaceholder` are `pathAndSlotSpecs` (in `coreWidgetSpecs`). `Widgets.all` is a getter
+  (not `const`). `ActionSpecs.all` lists the core's types first, then each library's.
+- `submitForm` is in the data library, `downloadFile` in media (not engage, data).
+- Files moved: `lib/src/*` into `lib/src/core` and `lib/src/features/<x>`; deep `src/` imports change.
+
+### Animation
+
 **New: animation as data** (docs/design/02-animation.md; guide chapter 8)
 
 - `animations` (`Behaviors.animations`, `NodeAnimation`): Flutter's `AnimationController` as data, with
