@@ -1913,6 +1913,7 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `call_field_not_allowed` | error | A field on a call that belongs to the definition (decoration, layout.padding): the call gives size and placement only. |
 | `slot_outside_component` | warning | A slot node in a document that is not a component: nothing fills it, its own children show. |
 | `root_placement_bound` | warning | A component root binds its size or placement: the call sizes and places the root, so the binding is dropped. |
+| `repeated_subtree` | info | A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once. |
 
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
