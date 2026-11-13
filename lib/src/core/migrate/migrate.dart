@@ -7,6 +7,7 @@ import 'report.dart';
 import 'steps.dart';
 
 export 'report.dart';
+export 'legacy_paths.dart' show schema2PathHint;
 
 /// The schema version this package reads and writes.
 const int kSchemaVersion = 3;
