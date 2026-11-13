@@ -110,8 +110,10 @@ void main() {
     });
     expect(b.states.patchFor('t', {WidgetState.pressed}), isNull);
     expect(b.hero, const HeroTag('card', flight: HeroFlightShuttle.morphCorners));
-    expect(b.drag!.directions, [DragDirection.left, DragDirection.right]);
-    expect(b.drag!.track!.shape, DragTrackShape.arc);
+    // A legacy drag with a track is the track (its swipe fields did nothing).
+    expect(b.track!.shape, TrackShape.arc);
+    expect(b.track!.variable, 'volume');
+    expect(b.dismissible, isNull);
     expect(b.strokePath!.points.last, const Offset(1, 10));
     expect(b.particles!.colors, [const Color(0xFFFF0000)]);
     expect(b.textDirection, TextDirection.rtl);
@@ -120,14 +122,16 @@ void main() {
     // `effectAnimations`, the rest as given.
     final legacy = {...nodeJson}
       ..remove('loops')
-      ..remove('effectAnimations');
+      ..remove('effectAnimations')
+      ..remove('drag');
     final written = jsonDecode(jsonEncode(n.toJson())) as Map;
     expect(written['animations'], [
       {'id': 'loop0', 'preset': 'pulse', 'params': {'scaleFrom': 0.65, 'opacityFrom': 0.35, 'opacityTo': 0}, 'duration': 1400},
       {'id': 'loop1', 'preset': 'fade', 'params': {'opacityFrom': 0.45}, 'duration': 1100, 'curve': 'easeInOut', 'repeat': {'reverse': true}},
       {'id': 'shake', 'preset': 'shake', 'duration': 400},
     ]);
-    expect({...written}..remove('animations'), jsonDecode(jsonEncode(legacy)));
+    expect(written['track'], {'variable': 'volume', 'shape': 'arc', 'max': 10});
+    expect({...written}..remove('animations')..remove('track'), jsonDecode(jsonEncode(legacy)));
     expect(Node.fromJson(n.toJson()), n);
   });
 

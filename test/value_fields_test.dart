@@ -83,6 +83,8 @@ Object? sample(PropType type, [PropDef<Object?>? def]) {
         },
         // A draw op (a union on `op`; its fields: DrawOpSpecs).
         'DrawOp' => {'op': 'circle', 'c': [1, 2], 'radius': 3},
+        // A dismissible's thresholds: direction → share of its size.
+        'DismissThresholds' => {'up': 0.25},
         _ => {'a': 1},
       };
   }
@@ -253,7 +255,7 @@ void main() {
       containsAll([
         'Motion', 'MotionKeyframe', 'NodeAnimation', 'AnimationTrack', 'Keyframe', 'Wave', 'AnimationRepeat', //
         'Spring', 'Transitions', 'Transition', 'InkWellStyle', 'StateStyles',
-        'HeroTag', 'DragSource', 'DropTarget', 'DragMotion', 'DragTrack', 'Reveal', 'StrokePath',
+        'HeroTag', 'DragSource', 'DropTarget', 'Track', 'DismissibleBehavior', 'Pan', 'Reveal', 'StrokePath',
         'ParticleEmitter', 'MotionShimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
         'Tilt', 'TransformGesture', 'TransformHandles',
         'RouteTransition', 'TransitionSide', 'TransitionReveal', 'RouteDismiss', 'CustomPaint',

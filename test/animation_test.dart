@@ -109,11 +109,11 @@ void main() {
       expect(d.toJson()['spring'], {'damping': 9});
       expect(d.toJson().containsKey('springDamping'), isFalse);
       expect(d.effectivePhysics!.effectiveStiffness, 260);
-      // DragTrack.settleStiffness/Damping (380 / 20).
-      final t = DragTrack.fromJson({'settleStiffness': 100, 'settleDamping': 10})!;
+      // Track.settleStiffness/Damping (380 / 20).
+      final t = Track.fromJson({'settleStiffness': 100, 'settleDamping': 10})!;
       expect(t.settleSpring, const Spring.physical(stiffness: 100, damping: 10));
       expect(t.toJson()['settleSpring'], {'stiffness': 100, 'damping': 10});
-      expect(DragTrack.fromJson(t.toJson())!.settleSpring, t.settleSpring);
+      expect(Track.fromJson(t.toJson())!.settleSpring, t.settleSpring);
       // GesturePhysics flat keys (380 / 32 / 1, or bounce + duration).
       expect(GesturePhysics.fromJson({'stiffness': 200})!.spring, const Spring.physical(stiffness: 200, damping: 32));
       final b = GesturePhysics.fromJson({'bounce': 0.12, 'duration': 420})!;

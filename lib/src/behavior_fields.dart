@@ -54,8 +54,9 @@ const stateStylesType = PropType.object('StateStyles', stateStylesFields);
 const heroTagType = PropType.object('HeroTag', heroTagFields);
 const dragSourceType = PropType.object('DragSource', dragSourceFields);
 const dropTargetType = PropType.object('DropTarget', dropTargetFields);
-const dragTrackType = PropType.object('DragTrack', dragTrackFields);
-const dragMotionType = PropType.object('DragMotion', dragMotionFields);
+const trackType = PropType.object('Track', trackFields);
+const dismissibleType = PropType.object('DismissibleBehavior', dismissibleFields);
+const panType = PropType.object('Pan', panFields);
 const revealType = PropType.object('Reveal', revealFields);
 const stickyType = PropType.object('Sticky', stickyFields);
 const viewProgressType = PropType.object('ViewProgress', viewProgressFields);
@@ -80,8 +81,8 @@ Spring? _motionSpringIn(Object? j) => Spring.fromJson(j, fallback: Motion.defaul
 Object? _motionSpringOut(Spring s) => s.toJsonOver(Motion.defaultSpring);
 Spring? _dragSpringIn(Object? j) => Spring.fromJson(j, fallback: DragSource.defaultSpring);
 Object? _dragSpringOut(Spring s) => s.toJsonOver(DragSource.defaultSpring);
-Spring? _settleSpringIn(Object? j) => Spring.fromJson(j, fallback: DragTrack.defaultSettleSpring);
-Object? _settleSpringOut(Spring s) => s.toJsonOver(DragTrack.defaultSettleSpring);
+Spring? _settleSpringIn(Object? j) => Spring.fromJson(j, fallback: Track.defaultSettleSpring);
+Object? _settleSpringOut(Spring s) => s.toJsonOver(Track.defaultSettleSpring);
 Spring? _physicsSpringIn(Object? j) => Spring.fromJson(j, fallback: GesturePhysics.defaultSpring);
 Object? _physicsSpringOut(Spring s) => s.toJsonOver(GesturePhysics.defaultSpring);
 Spring? _flipSpringIn(Object? j) => Spring.fromJson(j, fallback: FlipCard.defaultSpring);
@@ -526,15 +527,19 @@ abstract final class DropTargetFields {
 
 List<PropDef<Object?>> dropTargetFields() => DropTargetFields.all;
 
-abstract final class DragTrackFields {
+/// [Track] (node key `track`): a value set by dragging.
+abstract final class TrackFields {
+  /// Off, it takes no pointer, wheel or keys.
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
   /// The variable the control sets.
   static const variable = PropDef<String>('variable', Codecs.string, '');
-  static const shape = PropDef<DragTrackShape>('shape', EnumCodec(DragTrackShape.values), DragTrackShape.line);
+  static const shape = PropDef<TrackShape>('shape', EnumCodec(TrackShape.values), TrackShape.line);
   static const min = PropDef<double>('min', Codecs.double, 0);
   static const max = PropDef<double>('max', Codecs.double, 1);
   static const step = PropDef<double>('step', Codecs.double, 0);
   static const defaultValue = PropDef<double?>('defaultValue', Codecs.optionalDouble, null);
-  static const input = PropDef<DragTrackInput>('input', EnumCodec(DragTrackInput.values), DragTrackInput.follow);
+  static const input = PropDef<TrackInput>('input', EnumCodec(TrackInput.values), TrackInput.follow);
   static const pixelsPerRange = PropDef<double>('pixelsPerRange', Codecs.double, 200);
   static const x1 = PropDef<double>('x1', Codecs.double, 0);
   static const y1 = PropDef<double>('y1', Codecs.double, 0);
@@ -566,7 +571,7 @@ abstract final class DragTrackFields {
   static const settleSpring = PropDef<Spring>(
     'settleSpring',
     ValueCodec(_settleSpringIn, _settleSpringOut, springType),
-    DragTrack.defaultSettleSpring,
+    Track.defaultSettleSpring,
   );
 
   /// Where it parks while the value is out of range or empty.
@@ -580,12 +585,12 @@ abstract final class DragTrackFields {
   static const wheelStep = PropDef<double?>('wheelStep', Codecs.optionalDouble, null);
   static const doubleTapValues = PropDef<List<double>>('doubleTapValues', Codecs.doubles, []);
   static const keyStep = PropDef<double?>('keyStep', Codecs.optionalDouble, null);
-  static const hitArea = PropDef<DragTrackHitArea>(
+  static const hitArea = PropDef<TrackHitArea>(
     'hitArea',
-    EnumCodec(DragTrackHitArea.values),
-    DragTrackHitArea.self,
+    EnumCodec(TrackHitArea.values),
+    TrackHitArea.self,
   );
-  static const units = PropDef<DragTrackUnits>('units', EnumCodec(DragTrackUnits.values), DragTrackUnits.pixels);
+  static const units = PropDef<TrackUnits>('units', EnumCodec(TrackUnits.values), TrackUnits.pixels);
   static const fineStep = PropDef<double>('fineStep', Codecs.positive, 0);
   static const finePixelsPerRange = PropDef<double>('finePixelsPerRange', Codecs.positive, 0);
   static const fineHold = PropDef<int>('fineHold', _ms, 380);
@@ -599,7 +604,7 @@ abstract final class DragTrackFields {
   static const smooth = PropDef<bool>('smooth', Codecs.bool, false);
   static const gain = PropDef<double>('gain', Codecs.double, 1);
   static const List<PropDef<Object?>> all = [
-    variable, shape, min, max, step, defaultValue, input, pixelsPerRange, x1, y1, x2, y2, startAngle, endAngle, //
+    enabled, variable, shape, min, max, step, defaultValue, input, pixelsPerRange, x1, y1, x2, y2, startAngle, endAngle, //
     pivotX, pivotY, rotate, path, orientToPath, jumpOnTap, wheel, value, orientUpright, detent, overscroll, settle,
     settleCurve, settleSpring, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
     wheelStep, doubleTapValues, keyStep, hitArea, units, fineStep, finePixelsPerRange, fineHold, fineVariable, snap,
@@ -607,46 +612,104 @@ abstract final class DragTrackFields {
   ];
 }
 
-List<PropDef<Object?>> dragTrackFields() => DragTrackFields.all;
+List<PropDef<Object?>> trackFields() => TrackFields.all;
 
-abstract final class DragMotionFields {
-  static const axis = PropDef<DragAxis>('axis', EnumCodec(DragAxis.values), DragAxis.free);
-  static const release = PropDef<DragRelease>('release', EnumCodec(DragRelease.values), DragRelease.snapBack);
+/// The legacy follow fields [DismissibleBehavior] and [Pan] still read
+/// (deprecated; see docs/design/04-drag-and-track.md, "Not yet migrated").
+abstract final class _LegacyFollowFields {
+  /// Deprecated: degrees of tilt per the node's width of travel.
+  static const rotateFactor = PropDef<double>('rotateFactor', Codecs.double, 0);
 
-  /// The directions it flies off in.
+  /// Deprecated: the tilt's origin in the box (-1–1).
+  static const originX = PropDef<double>('originX', Codecs.double, 0);
+  static const originY = PropDef<double>('originY', Codecs.double, 0);
+
+  /// Deprecated: wiggles when a disabled drag is tried.
+  static const shakeWhenDisabled = PropDef<bool>('shakeWhenDisabled', Codecs.bool, false);
+
+  /// Deprecated: the share of the travel a disabled drag follows.
+  static const disabledFollow = PropDef<double>('disabledFollow', Codecs.double, 0);
+
+  /// Deprecated: a variable the live drag values are written to.
+  static const shareAs = PropDef<String>('shareAs', Codecs.string, '');
+
+  /// Deprecated: off, the node only reports its drag.
+  static const follow = PropDef<bool>('follow', Codecs.bool, true);
+}
+
+Spring? _springOrNull(Object? j) => Spring.fromJson(j);
+Map<DragDirection, double>? _thresholdsIn(Object? j) => readMap(j) == null
+    ? null
+    : {
+        for (final d in DragDirection.values)
+          if (readDouble(readMap(j)![d.name]) case final double t) d: t,
+      };
+Object? _thresholdsOut(Map<DragDirection, double> m) => {for (final e in m.entries) e.key.name: writeDouble(e.value)};
+
+/// [DismissibleBehavior] (node key `dismissible`): Flutter's `Dismissible`.
+abstract final class DismissibleFields {
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
+  /// The directions it can be dismissed in.
   static const directions = PropDef<List<DragDirection>>(
     'directions',
     ListCodec(EnumCodec(DragDirection.values)),
-    DragDirection.values,
+    [DragDirection.left, DragDirection.right],
+  );
+  static const axis = PropDef<DragAxis>('axis', EnumCodec(DragAxis.values), DragAxis.free);
+
+  /// Per direction, the share of the node's size to travel (0.4 when not named).
+  static const dismissThresholds = PropDef<Map<DragDirection, double>>(
+    'dismissThresholds',
+    ValueCodec(_thresholdsIn, _thresholdsOut, PropType.json('DismissThresholds')),
+    {},
   );
 
-  /// A fraction of its size.
-  static const distanceThreshold = PropDef<double>('distanceThreshold', Codecs.double, 0.35);
-  static const verticalThreshold = PropDef<double?>('verticalThreshold', Codecs.optionalDouble, null);
-
   /// Pixels per second.
-  static const velocityThreshold = PropDef<double>('velocityThreshold', Codecs.double, 800);
-  static const rotateFactor = PropDef<double>('rotateFactor', Codecs.double, 0);
-  static const originX = PropDef<double>('originX', Codecs.double, 0);
-  static const originY = PropDef<double>('originY', Codecs.double, 0);
-  static const resistance = PropDef<double>('resistance', Codecs.double, 0);
-  static const snapBack = PropDef<int>('snapBack', _ms, 450);
-  static const snapCurve = PropDef<AnimationCurve>('snapCurve', _curve, AnimationCurve.spring);
-  static const flyOut = PropDef<int>('flyOut', _ms, 320);
-  static const flyOutCurve = PropDef<AnimationCurve>('flyOutCurve', _curve, AnimationCurve.easeIn);
-  static const flyOutDistance = PropDef<double?>('flyOutDistance', Codecs.optionalDouble, null);
-  static const flyOutRotate = PropDef<double>('flyOutRotate', Codecs.double, 0);
-  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
-  static const shakeWhenDisabled = PropDef<bool>('shakeWhenDisabled', Codecs.bool, false);
-  static const disabledFollow = PropDef<double>('disabledFollow', Codecs.double, 0);
+  static const flingVelocity = PropDef<double>('flingVelocity', Codecs.positive, 700);
+  static const resistance = PropDef<double>('resistance', DoubleCodec(min: 0, max: 1), 0);
+  static const movementDuration = PropDef<int>('movementDuration', _ms, 200);
+  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
 
-  /// A variable the live drag values are written to.
-  static const shareAs = PropDef<String>('shareAs', Codecs.string, '');
+  /// Null: [movementDuration] and [curve].
+  static const returnDuration = PropDef<int?>('returnDuration', Codecs.optionalInt, null);
+  static const returnCurve = PropDef<AnimationCurve?>('returnCurve', OptionalEnumCodec(AnimationCurve.values), null);
+  static const returnSpring = PropDef<Spring?>('returnSpring', ValueCodec(_springOrNull, _out, springType), null);
+
+  /// Deprecated: where it rests, from its layout's place.
   static const restX = PropDef<double>('restX', Codecs.double, 0);
   static const restY = PropDef<double>('restY', Codecs.double, 0);
-  static const track = PropDef<DragTrack?>('track', ValueCodec(DragTrack.fromJson, _out, dragTrackType), null);
-  static const reorder = PropDef<bool>('reorder', Codecs.bool, false);
-  static const follow = PropDef<bool>('follow', Codecs.bool, true);
+
+  /// Deprecated: number variables its offset is written to.
+  static const xVariable = PropDef<String>('xVariable', Codecs.string, '');
+  static const yVariable = PropDef<String>('yVariable', Codecs.string, '');
+
+  /// Deprecated: degrees it turns while flying off.
+  static const flyOutRotate = PropDef<double>('flyOutRotate', Codecs.double, 0);
+  static const List<PropDef<Object?>> all = [
+    enabled, directions, axis, dismissThresholds, flingVelocity, resistance, movementDuration, curve, //
+    returnDuration, returnCurve, returnSpring, restX, restY, xVariable, yVariable, flyOutRotate,
+    _LegacyFollowFields.rotateFactor,
+    _LegacyFollowFields.originX, _LegacyFollowFields.originY, _LegacyFollowFields.shakeWhenDisabled,
+    _LegacyFollowFields.disabledFollow, _LegacyFollowFields.shareAs, _LegacyFollowFields.follow,
+  ];
+}
+
+List<PropDef<Object?>> dismissibleFields() => DismissibleFields.all;
+
+/// [Pan] (node key `pan`): follows the pointer.
+abstract final class PanFields {
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+  static const axis = PropDef<DragAxis>('axis', EnumCodec(DragAxis.values), DragAxis.free);
+  static const release = PropDef<PanRelease>('release', EnumCodec(PanRelease.values), PanRelease.snapBack);
+
+  /// The spring back without physics.
+  static const returnDuration = PropDef<int>('returnDuration', _ms, 450);
+  static const returnCurve = PropDef<AnimationCurve>('returnCurve', _curve, AnimationCurve.spring);
+
+  /// Its rest, from its layout's place (pixels).
+  static const x = PropDef<double>('x', Codecs.double, 0);
+  static const y = PropDef<double>('y', Codecs.double, 0);
   static const xVariable = PropDef<String>('xVariable', Codecs.string, '');
   static const yVariable = PropDef<String>('yVariable', Codecs.string, '');
 
@@ -660,14 +723,14 @@ abstract final class DragMotionFields {
   static const minY = PropDef<double?>('minY', Codecs.optionalDouble, null);
   static const maxY = PropDef<double?>('maxY', Codecs.optionalDouble, null);
   static const List<PropDef<Object?>> all = [
-    axis, release, directions, distanceThreshold, verticalThreshold, velocityThreshold, rotateFactor, originX, //
-    originY, resistance, snapBack, snapCurve, flyOut, flyOutCurve, flyOutDistance, flyOutRotate, enabled,
-    shakeWhenDisabled, disabledFollow, shareAs, restX, restY, track, reorder, follow, xVariable, yVariable, physics,
-    bounds, minX, maxX, minY, maxY,
+    enabled, axis, release, returnDuration, returnCurve, x, y, xVariable, yVariable, physics, bounds, minX, maxX, //
+    minY, maxY, _LegacyFollowFields.rotateFactor, _LegacyFollowFields.originX, _LegacyFollowFields.originY,
+    _LegacyFollowFields.shakeWhenDisabled, _LegacyFollowFields.disabledFollow, _LegacyFollowFields.shareAs,
+    _LegacyFollowFields.follow,
   ];
 }
 
-List<PropDef<Object?>> dragMotionFields() => DragMotionFields.all;
+List<PropDef<Object?>> panFields() => PanFields.all;
 
 // --- gestures -----------------------------------------------------------------
 
@@ -1069,7 +1132,22 @@ abstract final class BehaviorFields {
     ValueCodec(DropTarget.fromJson, _out, dropTargetType),
     null,
   );
-  static const drag = PropDef<DragMotion?>('drag', ValueCodec(DragMotion.fromJson, _out, dragMotionType), null);
+
+  /// A value set by dragging (Flutter's `Slider`, along any path).
+  static const track = PropDef<Track?>('track', ValueCodec(Track.fromJson, _out, trackType), null);
+
+  /// Swiped away (Flutter's `Dismissible`).
+  static const dismissible = PropDef<DismissibleBehavior?>(
+    'dismissible',
+    ValueCodec(DismissibleBehavior.fromJson, _out, dismissibleType),
+    null,
+  );
+
+  /// Follows the pointer.
+  static const pan = PropDef<Pan?>('pan', ValueCodec(Pan.fromJson, _out, panType), null);
+
+  /// A reorderable list row's drag handle (`ReorderableDragStartListener`).
+  static const reorderHandle = PropDef<bool>('reorderHandle', Codecs.bool, false);
   static const reveal = PropDef<Reveal?>('reveal', ValueCodec(Reveal.fromJson, _out, revealType), null);
   static const strokePath = PropDef<StrokePath?>(
     'strokePath',
@@ -1122,7 +1200,7 @@ abstract final class BehaviorFields {
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, animations, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, particles,
-    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
+    flightKey, flight, draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
+    particles, textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }
