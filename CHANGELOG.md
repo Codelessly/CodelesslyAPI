@@ -1,3 +1,31 @@
+## Unreleased
+
+**The reference for authors is one base plus links.** `docs/reference/STARTER.md` is the base an agent reads in
+full (the document and the flat node map; layout, decoration, text with a theme; the base node types and which
+types take children or slots; variables, bindings, reactions; media rules; the rules that are easy to get wrong;
+an index); every other feature area is a page with the same six sections (When to use, Minimal example,
+Reference, Patterns, Pitfalls, See also); `index.md` maps needs and every declared name to their section. Each
+node type, behavior, trigger, action, model, enum, value type and formula function is on exactly one page
+(`tool/reference/src/areas.dart`; a test checks it, and that every link and anchor resolves).
+
+- **One base, two forms.** `baseDocument({form, catalog, profile, kind, docsTool})` assembles the base from the
+  generated segments of `tool/reference/templates/base.md`: `BaseForm.files` is `STARTER.md` (with checking your
+  work and sites as files), `BaseForm.runtime` is `runtimeStarter()` and `RUNTIME_STARTER.md` (with the
+  answering rules, the ops and two examples). The runtime base is about three times the earlier one (≈ 43k
+  characters against 15k): it now carries the theme, layout patterns, the children table and the index.
+- **`ui_docs` serves the pages.** `docsTopic` answers a page (When to use, minimal example, pitfalls, its
+  sections), any section by its anchor, or any node type, action, trigger or behavior by name; `docsIndex` is the
+  index the base ends with; `docPages`, `docTasks` are the generated data; `toRuntimeLinks` turns the files'
+  links into `ui_docs` topics. Earlier topic names (`responsive`, `reactions`, `gestures`, `scripts`...) still
+  answer. `starterProps`, `behaviorAreas` and `guideTopics` are gone (`baseProps`, `docPages`).
+- **Machine forms.** `catalog.json` names each node type's, action's, behavior's and trigger's page and anchor
+  (`docs`); `index.json` lists every topic with its file, anchor, summary and size.
+- **Retired.** `nodes.md`, `behaviors.md`, `triggers.md`, `actions.md`, `bindings.md`, `formulas.md` and
+  `variables-conditions-scripts.md` are stubs that keep their anchors and say where each item went; the old
+  guide's `index.md#guide-...` anchors land on a table of where each section went; `API_REFERENCE.compact.md` is
+  gone (the base's runtime form replaces it); `API_REFERENCE.md` is the base, the index and the pages in order.
+- **Docs at the declarations** for the props and fields the base shows.
+
 ## 30.0.0
 
 **Schema 3: the one planned format break.** Documents are `"schema": 3`. Schema 2 documents load and are

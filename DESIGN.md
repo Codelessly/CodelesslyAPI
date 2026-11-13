@@ -901,7 +901,8 @@ win by type name), never a registry.
   handler.
 * **Export.** `catalog.toJson({compact})` / `Catalog.fromJson`: every
   declaration with its prop types, defaults, enum values, bounds and docs,
-  for the generated reference, editors and agents; `JsonPropCodec` decodes
+  for the generated reference (docs/reference: one base plus a page per
+  feature area; docs/reference/README.md), editors and agents; `JsonPropCodec` decodes
   a value of any declared `PropType`.
 * **Two plugin tiers, one declaration.** A native plugin is Dart compiled
   into the app: its `WidgetSpec`s and `ActionSpec`s in a `Catalog`, its
