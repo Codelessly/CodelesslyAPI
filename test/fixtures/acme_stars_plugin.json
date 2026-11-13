@@ -2,7 +2,7 @@
   "schema": 2,
   "id": "acme.stars",
   "semver": "1.0.0",
-  "minSdk": "25.0.0",
+  "minSdk": "24.0.0",
   "requires": [],
   "catalog": {
     "widgets": [

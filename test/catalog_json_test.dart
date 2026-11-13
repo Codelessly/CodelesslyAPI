@@ -104,7 +104,7 @@ void main() {
       final back = PluginVersion.fromJson(v.toJson())!;
       expect(back.payload, v.payload);
       expect(back.package!.toJson(), p.toJson());
-      expect(back.minSdk, '25.0.0');
+      expect(back.minSdk, '24.0.0');
       const ref = PluginRef(id: 'acme.stars', version: 3, semver: '1.0.0', digest: 'abc');
       expect(PluginRef.fromJson(ref.toJson()), ref);
       expect(ref.vendor, 'acme');
