@@ -40,6 +40,8 @@ void main(List<String> args) {
 
   final report = MigrationReport();
   var documents = 0, migrated = 0;
+  // The size of the schema-2 documents, encoded compactly, before and after.
+  var bytesBefore = 0, bytesAfter = 0;
   final failures = <String>[];
   final newErrors = <String>[];
   for (final f in files) {
@@ -63,7 +65,11 @@ void main(List<String> args) {
           failures.add('$key: migrate threw $e');
           return;
         }
-        if (schemaOf(doc) < 3) migrated++;
+        if (schemaOf(doc) < 3) {
+          migrated++;
+          bytesBefore += utf8.encode(jsonEncode(doc)).length;
+          bytesAfter += utf8.encode(jsonEncode(out)).length;
+        }
         // Idempotent: again is the same.
         if (!identical(migrate2to3(out), out)) failures.add('$key: a schema-3 document changed when migrated again');
         // A fixed point: encode → decode → encode.
@@ -101,6 +107,10 @@ void main(List<String> args) {
   }
   stdout.writeln('$documents documents ($migrated schema 2) in ${files.length} files; '
       '${report.rewrites.length} rewrites, ${report.unconvertible.length} unconvertible, ${report.behaviourChanges.length} behaviour changes');
+  final growth = bytesBefore == 0 ? 0 : (bytesAfter - bytesBefore) * 100 / bytesBefore;
+  final bytes = 'encoded size of the schema-2 documents: $bytesBefore bytes before, $bytesAfter after '
+      '(${growth >= 0 ? '+' : ''}${growth.toStringAsFixed(2)}%)';
+  stdout.writeln(bytes);
   stdout.writeln('failures: ${failures.length}${failures.isEmpty ? '' : '\n  ${failures.join('\n  ')}'}');
   stdout.writeln('new errors: ${newErrors.length}${newErrors.isEmpty ? '' : '\n  ${newErrors.join('\n  ')}'}');
   final markdown = option('--markdown');
@@ -111,6 +121,7 @@ void main(List<String> args) {
         '- Migrating each result again changed nothing; migrate → encode → decode → encode was a fixed point for '
         '${failures.isEmpty ? 'every one' : 'all but ${failures.length}'}.\n'
         '- New validation errors against the schema-2 validator: ${newErrors.length}.\n'
+        '- ${bytes[0].toUpperCase()}${bytes.substring(1)}.\n'
         '${[...failures, ...newErrors].map((e) => '  - $e\n').join()}');
   }
   if (failures.isNotEmpty) exitCode = 1;

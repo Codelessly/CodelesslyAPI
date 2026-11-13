@@ -1,6 +1,6 @@
 # Schema 2 → 3: the migration over the corpus
 
-109 documents migrated; 2075 rewrites, 24 unconvertible values, 24 behaviour changes.
+106 documents migrated; 2482 rewrites, 24 unconvertible values, 24 behaviour changes.
 
 ## Entries per step
 
@@ -11,6 +11,8 @@
 | `drag.split` | 180 | 0 | 0 | 7 |
 | `motion.legacy` | 1789 | 0 | 0 | 33 |
 | `openModal.unread` | 4 | 0 | 0 | 1 |
+| `text.lineHeight` | 380 | 0 | 0 | 106 |
+| `text.padding` | 27 | 0 | 0 | 9 |
 | `track.legacy` | 30 | 0 | 0 | 5 |
 | `track.oneApp` | 0 | 24 | 24 | 5 |
 | `transitions.legacy` | 6 | 0 | 0 | 2 |
@@ -38,6 +40,7 @@
 
 ## Checks
 
-- 109 documents in 1356 files (109 schema 2) migrated without throwing.
+- 106 documents in 1353 files (106 schema 2) migrated without throwing.
 - Migrating each result again changed nothing; migrate → encode → decode → encode was a fixed point for every one.
 - New validation errors against the schema-2 validator: 0.
+- Encoded size of the schema-2 documents: 15998177 bytes before, 16021534 after (+0.15%).

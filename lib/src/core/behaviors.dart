@@ -2423,6 +2423,7 @@ final class Behaviors extends _Value {
     this.typewriter,
     this.particles,
     this.textDirection,
+    this.defaultTextStyle,
     this.flip,
     this.tilt,
     this.transformGesture,
@@ -2503,6 +2504,15 @@ final class Behaviors extends _Value {
   /// null inherits. Bindable as `textDirection`.
   final TextDirection? textDirection;
 
+  /// The text style its text and its descendants' text start from (Flutter's
+  /// `DefaultTextStyle`): every text style below it (a text's style and runs,
+  /// a widget's label style) is merged over it. The nearest one wins, as a
+  /// `DefaultTextStyle` replaces the one above it (`{}` gives the base back,
+  /// with the font's own line height). Without one: Flutter's defaults (the
+  /// font's own line height). A schema-2 document migrated to schema 3 has
+  /// `{"height": 1.33}` on its top-level nodes: schema 2's base line height.
+  final TextStyle? defaultTextStyle;
+
   /// A two-sided card that turns over (first child front, second back).
   final FlipCard? flip;
 
@@ -2529,7 +2539,7 @@ final class Behaviors extends _Value {
     'motion', 'scale', 'animations', 'transitions', 'shimmer', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
     'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'track', 'dismissible',
     'pan', 'reorderHandle', 'reveal', 'strokePath', 'typewriter',
-    'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
+    'particles', 'textDirection', 'defaultTextStyle', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
     'customPaint',
   };
 
@@ -2567,6 +2577,7 @@ final class Behaviors extends _Value {
       textDirection: m['textDirection'] is String
           ? r.e(TextDirection.values, 'textDirection', TextDirection.ltr)
           : null,
+      defaultTextStyle: readMap(m['defaultTextStyle']) == null ? null : TextStyle.fromJson(m['defaultTextStyle']),
       flip: FlipCard.fromJson(m['flip']),
       tilt: Tilt.fromJson(m['tilt']),
       transformGesture: TransformGesture.fromJson(m['transformGesture']),
@@ -2604,6 +2615,7 @@ final class Behaviors extends _Value {
     if (typewriter != null) j['typewriter'] = typewriter!.toJson();
     if (particles != null) j['particles'] = particles!.toJson();
     if (textDirection != null) j['textDirection'] = textDirection!.name;
+    if (defaultTextStyle != null) j['defaultTextStyle'] = defaultTextStyle!.toJson();
     if (flip != null) j['flip'] = flip!.toJson();
     if (tilt != null) j['tilt'] = tilt!.toJson();
     if (transformGesture != null) j['transformGesture'] = transformGesture!.toJson();
@@ -2638,6 +2650,7 @@ final class Behaviors extends _Value {
     Typewriter? typewriter,
     ParticleEmitter? particles,
     TextDirection? textDirection,
+    TextStyle? defaultTextStyle,
     FlipCard? flip,
     Tilt? tilt,
     TransformGesture? transformGesture,
@@ -2670,6 +2683,7 @@ final class Behaviors extends _Value {
     typewriter: typewriter ?? this.typewriter,
     particles: particles ?? this.particles,
     textDirection: textDirection ?? this.textDirection,
+    defaultTextStyle: defaultTextStyle ?? this.defaultTextStyle,
     flip: flip ?? this.flip,
     tilt: tilt ?? this.tilt,
     transformGesture: transformGesture ?? this.transformGesture,
@@ -2683,6 +2697,6 @@ final class Behaviors extends _Value {
   List<Object?> get props => [
     motion, scale, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
     flightKey, flight, draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
-    particles, textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
+    particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }

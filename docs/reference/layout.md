@@ -93,7 +93,7 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 | `height` | [AxisSize](values.md#type-AxisSize) | `0` |  | The node's height: a number (fixed), `{"hug": n}`, `{"fill": n}` or `{"flexible": n}`, as `width`. Without one the node is 0 high. |
 | `constraints` | [BoxConstraints](values.md#type-BoxConstraints) | `{}` |  |  |
 | `margin` | [EdgeInsets](values.md#type-EdgeInsets) | `0` |  | Space around the node, outside its box. |
-| `padding` | [EdgeInsets](values.md#type-EdgeInsets) | `0` |  | Space between the node's box and its content. |
+| `padding` | [EdgeInsets](values.md#type-EdgeInsets) | `0` |  | Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there). |
 | `rotation` | double | `0` |  | Degrees, clockwise. |
 | `aspectRatio` | double | unset | ≥ 0 | Width / height the node keeps when its parent resizes it. |
 | `flex` | int | `1` | ≥ 0 | Under a row/column: share of the free space (`Expanded.flex`). |

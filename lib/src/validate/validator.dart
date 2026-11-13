@@ -31,7 +31,6 @@ import '../core/widgets/canvas.dart';
 import '../core/widgets/flex.dart';
 import '../core/widgets/collections.dart';
 import '../core/values/enums.dart';
-import '../core/values/geometry.dart' show EdgeInsets;
 import '../standard_catalog.dart';
 import 'bind_paths.dart';
 import 'diagnostic.dart';
@@ -608,12 +607,6 @@ final class _Validator {
     final parentId = parents[n.id];
     final parent = parentId == null ? null : nodes[parentId];
     final reads = {for (final f in parent?.spec?.childFields ?? const <PropDef<Object?>>[]) f.key};
-    // A text draws no box of its own: its padding is not applied (as the
-    // editor's text), so say where padding goes.
-    if (n.type == 'text' && m.containsKey('padding') && EdgeInsets.fromJson(m['padding']) != EdgeInsets.zero) {
-      r.add(Codes.layoutFieldIgnored, pointer(at, 'padding'),
-          'A text has no padding: its box is its lines. Put the space outside it with "margin", or put the text in a row (or column) that has the padding and the decoration.');
-    }
     // Negative values that cannot take effect as written.
     if (readList(m['margin']) case final List<Object?> mg when mg.any((v) => (readDouble(v) ?? 0) < 0)) {
       r.add(Codes.layoutClamped, pointer(at, 'margin'),
@@ -1583,7 +1576,7 @@ final class _Validator {
 /// The keys a theme (the site manifest's `theme`) reads.
 const Set<String> themeKeys = {
   'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning', 'fontFamily', 'titleFontFamily', //
-  'radius', 'buttonRadius', 'colors', 'textStyles', 'dark', 'naturalLineHeight', 'media',
+  'radius', 'buttonRadius', 'colors', 'textStyles', 'dark', 'media',
 };
 
 /// Checks a theme's JSON (the site manifest's `theme`, at [at]): its keys,
@@ -1681,7 +1674,6 @@ List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints?
           final def = switch (e.key) {
             'fontFamily' || 'titleFontFamily' => const PropType.string(),
             'radius' || 'buttonRadius' => const PropType.number(),
-            'naturalLineHeight' => const PropType.boolean(),
             _ => PropTypes.color,
           };
           values.check(def, e.value, p);

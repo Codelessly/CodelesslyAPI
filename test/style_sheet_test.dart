@@ -88,15 +88,19 @@ void main() {
     expect(ThemeTokens.themeKey(' / '), '');
   });
 
-  test('natural line height: a project setting the theme carries', () {
+  test('schema 2\'s naturalLineHeight is gone: a stored sheet keeps it unread; the migration drops and reports it', () {
     final sheet = StyleSheet.fromJson({'schema': 2, 'naturalLineHeight': true});
-    expect(sheet.naturalLineHeight, isTrue);
-    expect(sheet.toJson()['naturalLineHeight'], isTrue);
-    expect(sheet.extra.containsKey('naturalLineHeight'), isFalse);
-    expect(sheet.theme.naturalLineHeight, isTrue);
-    expect(ThemeTokens.fromJson(sheet.theme.toJson()), sheet.theme);
-    expect(sheet.theme.forBrightness(dark: true).naturalLineHeight, isTrue);
-    expect(sheet.copyWith(naturalLineHeight: false).theme.naturalLineHeight, isNull);
-    expect(const StyleSheet().toJson().containsKey('naturalLineHeight'), isFalse);
+    expect(sheet.extra['naturalLineHeight'], isTrue);
+    expect(sheet.theme, ThemeTokens.fromJson(sheet.theme.toJson()));
+    expect(ThemeTokens.fromJson({'naturalLineHeight': true}), ThemeTokens.none);
+    final report = MigrationReport();
+    final out = migrateJson2to3({'schema': 2, 'naturalLineHeight': true, 'textStyles': [
+      {'id': 't', 'name': 'Title', 'style': {'fontSize': 20, 'naturalHeight': true}},
+    ]}, report: report) as Map;
+    expect(out.containsKey('naturalLineHeight'), isFalse);
+    expect((((out['textStyles'] as List).single as Map)['style'] as Map), {'fontSize': 20});
+    expect(report.behaviourChanges.map((e) => e.path), ['/naturalLineHeight', '/textStyles/0/style/naturalHeight']);
+    final model = migratePublish2to3({'schema': 2, 'theme': {'naturalLineHeight': true, 'primary': '#FF000000'}}, report: report);
+    expect(model['theme'], {'primary': '#FF000000'});
   });
 }
