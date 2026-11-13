@@ -5,6 +5,7 @@ library;
 
 export 'core.dart';
 export 'src/features/publish/app_identity.dart';
+export 'src/features/publish/publish_component.dart';
 export 'src/features/publish/publish_layout.dart';
 export 'src/features/publish/publish_model.dart';
 export 'src/features/publish/style_sheet.dart';
