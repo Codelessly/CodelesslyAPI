@@ -99,6 +99,11 @@
         "key": "component",
         "type": "ComponentLink",
         "doc": "The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2)."
+      },
+      {
+        "key": "media",
+        "type": "List<MediaRule>",
+        "doc": "The node's own fields by screen size, as CSS media queries: `[{\"maxWidth\": 599, \"patch\": {\"props\": {\"direction\": \"vertical\"}}}]`. A rule has `minWidth` and/or `maxWidth` (px, inclusive, or a breakpoint name: from its min width / up to the next one) and/or `orientation`, and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`) merged over the node while all its conditions hold; rules apply in order, the later winning (see the guide, Responsive design)."
       }
     ],
     "fields": [
@@ -324,7 +329,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "An SVG path drawn instead of the rectangle (shapes, vectors)."
+          "doc": "An SVG path (`\"M0 0 L10 5 L0 10 Z\"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`."
         },
         {
           "key": "strokeJoin",
@@ -360,7 +365,9 @@
       "childFields": [
         "flex",
         "squeezable",
-        "align"
+        "align",
+        "order",
+        "basis"
       ],
       "props": [
         {
@@ -517,9 +524,183 @@
       "childFields": [
         "flex",
         "squeezable",
-        "align"
+        "align",
+        "order",
+        "basis"
       ],
       "props": [
+        {
+          "key": "mainAxisAlignment",
+          "type": "MainAxisAlignment",
+          "kind": "enumeration",
+          "default": "start",
+          "nullable": false,
+          "enum": "MainAxisAlignment",
+          "values": [
+            "start",
+            "end",
+            "center",
+            "spaceBetween",
+            "spaceAround",
+            "spaceEvenly"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "crossAxisAlignment",
+          "type": "CrossAxisAlignment",
+          "kind": "enumeration",
+          "default": "center",
+          "nullable": false,
+          "enum": "CrossAxisAlignment",
+          "values": [
+            "start",
+            "end",
+            "center",
+            "stretch",
+            "baseline"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "spacing",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Space between children along the main axis."
+        },
+        {
+          "key": "wrap",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Wraps children onto new runs when they overflow (`Wrap`)."
+        },
+        {
+          "key": "runSpacing",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Space between runs when wrapping."
+        },
+        {
+          "key": "squeezeChildren",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Children that overflow a bounded main axis shrink to fit it (by how far each can, never below its content), as the editor lays them out; false lays them out at their own sizes and lets them run past the end, as Flutter's `Row`/`Column` does."
+        },
+        {
+          "key": "scrollable",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Scrolls its content."
+        },
+        {
+          "key": "scrollDirection",
+          "type": "Axis",
+          "kind": "enumeration",
+          "default": "vertical",
+          "nullable": false,
+          "enum": "Axis",
+          "values": [
+            "horizontal",
+            "vertical"
+          ],
+          "doc": "The axis it scrolls along."
+        },
+        {
+          "key": "reverse",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "physics",
+          "type": "ScrollPhysicsType",
+          "kind": "enumeration",
+          "default": "platform",
+          "nullable": false,
+          "enum": "ScrollPhysicsType",
+          "values": [
+            "platform",
+            "bouncing",
+            "clamping",
+            "never",
+            "rangeMaintaining"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "alwaysScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Scrolls even when the content fits."
+        },
+        {
+          "key": "clipBehavior",
+          "type": "Clip",
+          "kind": "enumeration",
+          "default": "hardEdge",
+          "nullable": false,
+          "enum": "Clip",
+          "values": [
+            "none",
+            "hardEdge",
+            "antiAlias",
+            "antiAliasWithSaveLayer"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "fillViewport",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case."
+        }
+      ]
+    },
+    "flex": {
+      "doc": "Flutter `Flex`.\n\n`Row` and `Column`: the same props, different main axis.",
+      "flutter": "Flex",
+      "children": "list",
+      "slots": [],
+      "decorated": true,
+      "childFields": [
+        "flex",
+        "squeezable",
+        "align",
+        "order",
+        "basis"
+      ],
+      "props": [
+        {
+          "key": "direction",
+          "type": "Axis",
+          "kind": "enumeration",
+          "default": "horizontal",
+          "nullable": false,
+          "enum": "Axis",
+          "values": [
+            "horizontal",
+            "vertical"
+          ],
+          "doc": "The main axis (Flutter `Flex.direction`): `horizontal` lays the children out as a row, `vertical` as a column. Bindable and patchable per breakpoint (`responsive`), so a row becomes a column without copying its children."
+        },
         {
           "key": "mainAxisAlignment",
           "type": "MainAxisAlignment",
@@ -834,7 +1015,7 @@
       ]
     },
     "spacer": {
-      "doc": "Flutter `Spacer`.\n\nFlexible empty space in a row/column (`Spacer`), or a fixed gap.",
+      "doc": "Flutter `Spacer`.\n\nFlexible empty space in a row/column (`Spacer`), or a fixed gap. With no size along its parent's main axis it is Flutter's `Spacer()`: it takes the free space by its `layout.flex`; a fixed size there makes it a gap.",
       "flutter": "Spacer",
       "children": "none",
       "slots": [],
@@ -1108,7 +1289,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "Flows the items onto further runs (`Wrap`) instead of one line."
+          "doc": "Lays every item out in runs, as Flutter `Wrap`, each item at its own size. The runs go along `scrollDirection`: with the default `vertical` the items flow top to bottom and wrap into columns; for items side by side that wrap onto new rows set `\"scrollDirection\": \"horizontal\"`. For cards in equal columns from data, a `gridView` with `minCrossAxisExtent` is usually what is wanted."
         },
         {
           "key": "wrapSpacing",
@@ -1357,6 +1538,15 @@
           "nullable": true,
           "min": 0.0,
           "doc": ""
+        },
+        {
+          "key": "minCrossAxisExtent",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "min": 0.0,
+          "doc": "CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints."
         },
         {
           "key": "mainAxisSpacing",
@@ -11062,6 +11252,23 @@
         "default": null,
         "nullable": true,
         "doc": "Under a row/column: alignment in its slot (`Align`)."
+      },
+      {
+        "key": "order",
+        "type": "int",
+        "kind": "integer",
+        "default": 0,
+        "nullable": false,
+        "doc": "CSS `order`: under a row, column or flex, children are laid out and painted by ascending order (equal orders as listed). Patch it per screen size (`media`) to reorder at a width."
+      },
+      {
+        "key": "basis",
+        "type": "double",
+        "kind": "number",
+        "default": null,
+        "nullable": true,
+        "min": 0.0,
+        "doc": "CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; a child that fills the main axis (`{\"fill\": n}`) then grows by its `flex` share of the room left on its line (`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints."
       }
     ],
     "box": [
@@ -11078,7 +11285,9 @@
       "squeezable",
       "x",
       "y",
-      "align"
+      "align",
+      "order",
+      "basis"
     ],
     "undeclared": [
       "widthFactor",
@@ -11125,8 +11334,8 @@
         },
         "width": {
           "fixed": null,
-          "fill": "A wrapping row lays its children out in runs: they keep their own size along it.",
-          "flexible": "A wrapping row lays its children out in runs: they keep their own size along it.",
+          "fill": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.",
+          "flexible": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.",
           "hug": null
         },
         "height": {
@@ -17230,11 +17439,11 @@
       "fields": [
         {
           "key": "icon",
-          "type": "Object",
-          "kind": "json",
+          "type": "IconData",
+          "kind": "value",
           "default": {},
           "nullable": false,
-          "doc": ""
+          "doc": "The glyph, written as the `icon` node's `props.icon`: a Material icon name (`\"search\"`) or `{\"type\": \"MATERIAL_ICON\", \"name\": \"search\"}`."
         },
         {
           "key": "size",
@@ -18239,7 +18448,31 @@
           "nullable": true,
           "item": "double",
           "itemKind": "number",
-          "doc": "The gradient's transform, a 2D affine matrix `[a, b, c, d, tx, ty]` in the box's unit square."
+          "doc": "Six numbers `[a, b, tx, c, d, ty]` mapping a point (x, y) of the box, in its unit square (0 to 1 each way), into the gradient's unit square: u = a·x + b·y + tx, v = c·x + d·y + ty. A linear gradient runs along u from 0 to 1; `[20, 0, 0, 0, 1, 0]` with `\"tileMode\": \"repeated\"` repeats it 20 times across the box. Simpler: `begin`/`end` (linear) or `center`/`radius` (radial)."
+        },
+        {
+          "key": "begin",
+          "type": "Alignment",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "Linear: where the gradient starts, an alignment (`[-1, 0]` or `\"centerLeft\"`, Flutter `LinearGradient.begin`). Read into `transform`; default the left edge."
+        },
+        {
+          "key": "end",
+          "type": "Alignment",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "Linear: where the gradient ends (Flutter `LinearGradient.end`). `\"begin\": [0, -1], \"end\": [0, 1]` runs top to bottom; `\"begin\": [-1, 0], \"end\": [-0.9, 0]` with `\"tileMode\": \"repeated\"` repeats it every 5% of the width."
+        },
+        {
+          "key": "center",
+          "type": "Alignment",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center."
         },
         {
           "key": "tileMode",
@@ -18280,7 +18513,7 @@
           "default": null,
           "nullable": true,
           "min": 0.0,
-          "doc": "Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: the transform's."
+          "doc": "Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box."
         }
       ]
     },
@@ -25720,6 +25953,16 @@
       "meaning": "A fixed width or height of 0 (often a missing \"width\"/\"height\"): the node is invisible."
     },
     {
+      "code": "vertical_wrap",
+      "severity": "warning",
+      "meaning": "A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side."
+    },
+    {
+      "code": "layout_clamped",
+      "severity": "warning",
+      "meaning": "A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks)."
+    },
+    {
       "code": "unknown_bind_path",
       "severity": "error",
       "meaning": "A \"bind\" key that names no bindable field of the node."
@@ -25802,7 +26045,17 @@
     {
       "code": "unknown_breakpoint",
       "severity": "error",
-      "meaning": "A canvas or variant names a breakpoint id the project does not define."
+      "meaning": "A canvas, variant or media rule names a breakpoint the project does not define."
+    },
+    {
+      "code": "invalid_media",
+      "severity": "error",
+      "meaning": "A \"media\" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size."
+    },
+    {
+      "code": "media_overridden",
+      "severity": "warning",
+      "meaning": "A media rule patches a field the node also binds: the binding wins, so the patch never shows."
     },
     {
       "code": "duplicate_breakpoint_canvas",

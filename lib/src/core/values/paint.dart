@@ -150,6 +150,9 @@ final class Paint {
     this.image,
     this.gradientPerSubpath = false,
     this.radius,
+    this.begin,
+    this.end,
+    this.center,
   });
 
   const Paint.solid(Color this.color, {this.id, this.opacity = 1})
@@ -161,7 +164,10 @@ final class Paint {
         tileMode = TileMode.clamp,
         image = null,
         gradientPerSubpath = false,
-        radius = null;
+        radius = null,
+        begin = null,
+        end = null,
+        center = null;
 
   final PaintType type;
 
@@ -197,6 +203,15 @@ final class Paint {
   /// Null: the transform's.
   final double? radius;
 
+  /// A linear gradient's start and end as written (Flutter's
+  /// `LinearGradient.begin`/`end`), kept for encoding; [transform] holds
+  /// the axis they give when no transform is written.
+  final Alignment? begin, end;
+
+  /// A radial (sweep, diamond) gradient's center as written (Flutter's
+  /// `RadialGradient.center`), kept for encoding; [transform] holds it.
+  final Alignment? center;
+
   bool get isGradient => type != PaintType.solid && type != PaintType.image;
 
   /// The solid color with the paint's opacity applied.
@@ -207,6 +222,14 @@ final class Paint {
   /// runs from the point [begin] names to the point [end] names. JSON may
   /// give `begin` and `end` (alignments: `[x, y]` in -1..1, or names such as
   /// `"topCenter"`) instead of a transform; they are read into one.
+  /// The [transform] of a radial (or sweep, diamond) gradient centered at
+  /// [center] (Flutter's `RadialGradient.center`), else null.
+  static List<double>? centerTransform(Alignment? center) {
+    if (center == null) return null;
+    final px = (center.x + 1) / 2, py = (center.y + 1) / 2;
+    return [1, 0, 0.5 - px, 0, 1, 0.5 - py];
+  }
+
   static List<double>? linearTransform(Alignment? begin, Alignment? end) {
     if (begin == null && end == null) return null;
     final b = begin ?? Alignment.centerLeft, e = end ?? Alignment.centerRight;
@@ -251,12 +274,16 @@ final class Paint {
       color: Color.fromJson(m['color']),
       stops: [...?readList(m['stops'])?.map(ColorStop.fromJson).nonNulls],
       transform: readList(m['transform'])?.map((v) => readDouble(v) ?? 0).toList() ??
-          (type == PaintType.linear ? linearTransform(Alignment.fromJson(m['begin']), Alignment.fromJson(m['end'])) : null),
+          (type == PaintType.linear ? linearTransform(Alignment.fromJson(m['begin']), Alignment.fromJson(m['end'])) : null) ??
+          (type == PaintType.radial || type == PaintType.diamond || type == PaintType.sweep ? centerTransform(Alignment.fromJson(m['center'])) : null),
       tileMode: readEnum(TileMode.values, m['tileMode'], TileMode.clamp),
       image: type == PaintType.image ? ImagePaint.fromJson(imageJson) : null,
       gradientPerSubpath: readBool(m['gradientPerSubpath']) ??
           (m['gradientUnits'] is String && (m['gradientUnits'] as String).toLowerCase() == 'subpath'),
       radius: switch (readDouble(m['radius'])) { final double r when r > 0 && r.isFinite => r, _ => null },
+      begin: Alignment.fromJson(m['begin']),
+      end: Alignment.fromJson(m['end']),
+      center: Alignment.fromJson(m['center']),
     );
   }
 
@@ -271,7 +298,13 @@ final class Paint {
     put(j, 'blendMode', blendMode.name, BlendMode.srcOver.name);
     put(j, 'color', color?.toJson());
     if (stops.isNotEmpty) j['stops'] = [for (final s in stops) s.toJson()];
-    put(j, 'transform', transform?.map(writeDouble).toList());
+    // A transform that begin/end or center gave is written as them.
+    final derived = (begin != null || end != null || center != null) &&
+        _listEq(transform, type == PaintType.linear ? linearTransform(begin, end) : centerTransform(center));
+    if (!derived) put(j, 'transform', transform?.map(writeDouble).toList());
+    put(j, 'begin', begin?.toJson());
+    put(j, 'end', end?.toJson());
+    put(j, 'center', center?.toJson());
     put(j, 'tileMode', tileMode.name, TileMode.clamp.name);
     put(j, 'image', image?.toJson());
     put(j, 'gradientPerSubpath', gradientPerSubpath, false);
@@ -293,7 +326,10 @@ final class Paint {
       other.tileMode == tileMode &&
       other.image == image &&
       other.gradientPerSubpath == gradientPerSubpath &&
-      other.radius == radius;
+      other.radius == radius &&
+      other.begin == begin &&
+      other.end == end &&
+      other.center == center;
 
   @override
   int get hashCode => Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, gradientPerSubpath, radius);

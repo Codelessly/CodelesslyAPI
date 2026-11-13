@@ -17,6 +17,7 @@ of a stack is placed by `x` and `y`, a child of a row or column by `flex`, `sque
 | [`box`](nodes.md#node-box) | `Container` | none | yes |
 | [`row`](nodes.md#node-row) | `Row` | `children` | yes |
 | [`column`](nodes.md#node-column) | `Column` | `children` | yes |
+| [`flex`](nodes.md#node-flex) | `Flex` | `children` | yes |
 | [`text`](nodes.md#node-text) | `Text.rich` | none | blurs only |
 | [`icon`](nodes.md#node-icon) | `Icon` | none | blurs only |
 | [`spacer`](nodes.md#node-spacer) | `Spacer` | none | blurs only |
@@ -133,7 +134,7 @@ A leaf box: Flutter `Container` with a decoration and no child.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `path` | String | `""` |  | An SVG path drawn instead of the rectangle (shapes, vectors). |
+| `path` | String | `""` |  | An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`. |
 | `strokeJoin` | [StrokeJoin](values.md#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How the path's segments meet when stroked (`Paint.strokeJoin`). |
 | `strokeMiterLimit` | double | `4` | ≥ 0 | The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`). |
 
@@ -146,7 +147,7 @@ Flutter `Row`.
 
 - Children: `children`.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
-- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align).
+- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align), [`order`](layout.md#layout-order), [`basis`](layout.md#layout-basis).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -173,10 +174,38 @@ Flutter `Column`.
 
 - Children: `children`.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
-- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align).
+- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align), [`order`](layout.md#layout-order), [`basis`](layout.md#layout-basis).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
+| `mainAxisAlignment` | [MainAxisAlignment](values.md#enum-MainAxisAlignment) | `"start"` | `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly` |  |
+| `crossAxisAlignment` | [CrossAxisAlignment](values.md#enum-CrossAxisAlignment) | `"center"` | `start`, `end`, `center`, `stretch`, `baseline` |  |
+| `spacing` | double | `0` | ≥ 0 | Space between children along the main axis. |
+| `wrap` | bool | `false` |  | Wraps children onto new runs when they overflow (`Wrap`). |
+| `runSpacing` | double | `0` | ≥ 0 | Space between runs when wrapping. |
+| `squeezeChildren` | bool | `true` |  | Children that overflow a bounded main axis shrink to fit it (by how far each can, never below its content), as the editor lays them out; false lays them out at their own sizes and lets them run past the end, as Flutter's `Row`/`Column` does. |
+| `scrollable` | bool | `false` |  | Scrolls its content. |
+| `scrollDirection` | [Axis](values.md#enum-Axis) | `"vertical"` | `horizontal`, `vertical` | The axis it scrolls along. |
+| `reverse` | bool | `false` |  |  |
+| `physics` | [ScrollPhysicsType](values.md#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
+| `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
+| `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
+
+<a id="node-flex"></a>
+## `flex`
+
+Flutter `Flex`.
+
+`Row` and `Column`: the same props, different main axis.
+
+- Children: `children`.
+- Decoration: box decoration (fills, strokes, radius, shadows, clip).
+- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align), [`order`](layout.md#layout-order), [`basis`](layout.md#layout-basis).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `direction` | [Axis](values.md#enum-Axis) | `"horizontal"` | `horizontal`, `vertical` | The main axis (Flutter `Flex.direction`): `horizontal` lays the children out as a row, `vertical` as a column. Bindable and patchable per breakpoint (`responsive`), so a row becomes a column without copying its children. |
 | `mainAxisAlignment` | [MainAxisAlignment](values.md#enum-MainAxisAlignment) | `"start"` | `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly` |  |
 | `crossAxisAlignment` | [CrossAxisAlignment](values.md#enum-CrossAxisAlignment) | `"center"` | `start`, `end`, `center`, `stretch`, `baseline` |  |
 | `spacing` | double | `0` | ≥ 0 | Space between children along the main axis. |
@@ -237,7 +266,7 @@ Flutter `Icon` (font icons) or an SVG/image icon.
 
 Flutter `Spacer`.
 
-Flexible empty space in a row/column (`Spacer`), or a fixed gap.
+Flexible empty space in a row/column (`Spacer`), or a fixed gap. With no size along its parent's main axis it is Flutter's `Spacer()`: it takes the free space by its `layout.flex`; a fixed size there makes it a gap.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -294,7 +323,7 @@ Flutter `ListView`: its first child repeated per item.
 | `layout` | [ListLayout](values.md#enum-ListLayout) | `"list"` | `list`, `stack`, `deck` |  |
 | `reversePaintOrder` | bool | `false` |  | Paints a layered list's items in the opposite order. |
 | `itemPosition` | [Offset](values.md#type-Offset) | unset |  | A `ListLayout.stack` list: where the item sits in the padded box when its x/y aren't bound. |
-| `wrap` | bool | `false` |  | Flows the items onto further runs (`Wrap`) instead of one line. |
+| `wrap` | bool | `false` |  | Lays every item out in runs, as Flutter `Wrap`, each item at its own size. The runs go along `scrollDirection`: with the default `vertical` the items flow top to bottom and wrap into columns; for items side by side that wrap onto new rows set `"scrollDirection": "horizontal"`. For cards in equal columns from data, a `gridView` with `minCrossAxisExtent` is usually what is wanted. |
 | `wrapSpacing` | double | `0` | ≥ 0 |  |
 | `runSpacing` | double | `0` | ≥ 0 |  |
 | `wrapAlignment` | [WrapAlignment](values.md#enum-WrapAlignment) | `"start"` | `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly` |  |
@@ -331,6 +360,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
 | `crossAxisCount` | int | `2` | ≥ 1 |  |
 | `maxCrossAxisExtent` | double | unset | ≥ 0 |  |
+| `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
 | `mainAxisSpacing` | double | `0` |  |  |
 | `crossAxisSpacing` | double | `0` |  |  |
 | `childAspectRatio` | double | `1` | ≥ 0.0001 |  |

@@ -124,6 +124,14 @@ final class Catalog {
           {'key': 'bind', 'type': 'Map<String, String>', 'doc': docs.fieldDocs['Node']?['bind'] ?? ''},
           {'key': 'actions', 'type': 'List<Reaction>', 'doc': 'Reactions: `{"trigger": {...}, "actions": [...]}` (see triggers, actions).'},
           {'key': 'component', 'type': 'ComponentLink', 'doc': docs.fieldDocs['Node']?['component'] ?? ''},
+          {
+            'key': 'media',
+            'type': 'List<MediaRule>',
+            'doc': 'The node\'s own fields by screen size, as CSS media queries: `[{"maxWidth": 599, "patch": {"props": {"direction": "vertical"}}}]`. '
+                'A rule has `minWidth` and/or `maxWidth` (px, inclusive, or a breakpoint name: from its min width / up to the next one) '
+                'and/or `orientation`, and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`) merged over the node while '
+                'all its conditions hold; rules apply in order, the later winning (see the guide, Responsive design).',
+          },
         ],
         'fields': node,
       },

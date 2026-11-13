@@ -175,13 +175,33 @@ abstract final class PaintFields {
     [],
   );
 
-  /// The gradient's transform, a 2D affine matrix `[a, b, c, d, tx, ty]`
-  /// in the box's unit square.
+  /// The gradient's transform: `[a, b, tx, c, d, ty]` maps a point (x, y)
+  /// of the box, in its unit square (0..1 each way), to the gradient's
+  /// unit square: u = a·x + b·y + tx, v = c·x + d·y + ty.
   static const transform = PropDef<List<double>?>(
     'transform',
     ValueCodec(_doublesIn, _same, PropType.list(PropType.number())),
     null,
+    doc: 'Six numbers `[a, b, tx, c, d, ty]` mapping a point (x, y) of the box, in its unit square (0 to 1 each way), into the '
+        'gradient\'s unit square: u = a·x + b·y + tx, v = c·x + d·y + ty. A linear gradient runs along u from 0 to 1; '
+        '`[20, 0, 0, 0, 1, 0]` with `"tileMode": "repeated"` repeats it 20 times across the box. '
+        'Simpler: `begin`/`end` (linear) or `center`/`radius` (radial).',
   );
+
+  /// A linear gradient's start (Flutter `LinearGradient.begin`).
+  static const begin = PropDef<Alignment?>('begin', Codecs.optionalAlignment, null,
+      doc: 'Linear: where the gradient starts, an alignment (`[-1, 0]` or `"centerLeft"`, Flutter `LinearGradient.begin`). '
+          'Read into `transform`; default the left edge.');
+
+  /// A linear gradient's end (Flutter `LinearGradient.end`).
+  static const end = PropDef<Alignment?>('end', Codecs.optionalAlignment, null,
+      doc: 'Linear: where the gradient ends (Flutter `LinearGradient.end`). `"begin": [0, -1], "end": [0, 1]` runs top to bottom; '
+          '`"begin": [-1, 0], "end": [-0.9, 0]` with `"tileMode": "repeated"` repeats it every 5% of the width.');
+
+  /// A radial gradient's center (Flutter `RadialGradient.center`).
+  static const center = PropDef<Alignment?>('center', Codecs.optionalAlignment, null,
+      doc: 'Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). '
+          'Read into `transform`; default the box\'s center.');
   static const tileMode = PropDef<TileMode>('tileMode', EnumCodec(TileMode.values), TileMode.clamp);
   static const image = PropDef<ImagePaint?>(
     'image',
@@ -192,7 +212,9 @@ abstract final class PaintFields {
   static const gradientPerSubpath = PropDef<bool>('gradientPerSubpath', Codecs.bool, false);
   /// A radial gradient's radius as a share of the box's shortest side.
   static const radius = PropDef<double?>('radius', Codecs.optionalPositive, null,
-      doc: "Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: the transform's.");
+      doc: "Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width "
+          "(as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): "
+          'end a glow on a transparent stop, or it fills the rest of the box.');
   static const List<PropDef<Object?>> all = [
     type,
     id,
@@ -202,6 +224,9 @@ abstract final class PaintFields {
     color,
     stops,
     transform,
+    begin,
+    end,
+    center,
     tileMode,
     image,
     gradientPerSubpath,
@@ -261,11 +286,23 @@ abstract final class LayoutFields {
   /// Under a row/column: alignment in its slot (`Align`).
   static const align = PropDef<Alignment?>('align', Codecs.optionalAlignment, null);
 
+  /// Under a row, column or flex: CSS `order`, the position it is laid out
+  /// and painted at (ascending; equal orders keep the children's order).
+  static const order = PropDef<int>('order', IntCodec(), 0,
+      doc: 'CSS `order`: under a row, column or flex, children are laid out and painted by ascending order (equal orders as listed). '
+          'Patch it per screen size (`media`) to reorder at a width.');
+
+  /// Under a wrapping row, column or flex: CSS `flex-basis`.
+  static const basis = PropDef<double?>('basis', OptionalDoubleCodec(min: 0), null,
+      doc: 'CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; '
+          'a child that fills the main axis (`{"fill": n}`) then grows by its `flex` share of the room left on its line '
+          '(`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints.');
+
   /// The node's own box.
   static const List<PropDef<Object?>> box = [width, height, constraints, margin, padding, rotation, aspectRatio];
 
   /// What a parent reads (Flutter's parent data).
-  static const List<PropDef<Object?>> parentData = [flex, squeezable, x, y, align];
+  static const List<PropDef<Object?>> parentData = [flex, squeezable, x, y, align, order, basis];
   static const List<PropDef<Object?>> all = [...box, ...parentData];
 }
 

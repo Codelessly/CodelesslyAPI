@@ -1,4 +1,5 @@
 import '../child_fits.dart';
+import '../node.dart';
 import '../props.dart';
 import '../value_fields.dart';
 import '../values/enums.dart';
@@ -46,10 +47,36 @@ abstract final class FlexProps {
 
   /// What a row/column reads from a child: its flex share (`Expanded` /
   /// `Flexible`), whether a hugging child may shrink, its slot alignment.
-  static const childFields = [LayoutFields.flex, LayoutFields.squeezable, LayoutFields.align];
+  static const childFields = [LayoutFields.flex, LayoutFields.squeezable, LayoutFields.align, LayoutFields.order, LayoutFields.basis];
+
+  /// The main axis of a `flex` node (Flutter's `Flex.direction`): a row
+  /// runs [Axis.horizontal], a column [Axis.vertical]. A row is a `flex`
+  /// fixed horizontal, a column one fixed vertical; a `flex` can change
+  /// direction at runtime (a binding or a responsive patch) and keeps its
+  /// children.
+  static const direction = PropDef<Axis>('direction', EnumCodec(Axis.values), Axis.horizontal,
+      doc: 'The main axis (Flutter `Flex.direction`): `horizontal` lays the children out as a row, `vertical` as a column. '
+          'Bindable and patchable per breakpoint (`responsive`), so a row becomes a column without copying its children.');
 
   static const row = WidgetSpec('row',
       props: all, children: ChildModel.list, decorated: true, childFields: childFields, childFits: flexChildFits, doc: 'Flutter `Row`.');
   static const column = WidgetSpec('column',
       props: all, children: ChildModel.list, decorated: true, childFields: childFields, childFits: flexChildFits, doc: 'Flutter `Column`.');
+
+  /// Flutter's `Flex`, the widget `Row` and `Column` extend: their props
+  /// plus [direction].
+  static const flex = WidgetSpec('flex',
+      props: [direction, ...all], children: ChildModel.list, decorated: true, childFields: childFields, childFits: flexChildFits, doc: 'Flutter `Flex`.');
+
+  /// The flex node types: `row`, `column` and `flex`.
+  static const types = {'row', 'column', 'flex'};
 }
+
+/// The main axis of a row, column or flex node (a `flex` by its
+/// [FlexProps.direction]); null for any other node.
+Axis? flexAxisOf(Node n) => switch (n.type) {
+      'row' => Axis.horizontal,
+      'column' => Axis.vertical,
+      'flex' => n.props.get(FlexProps.direction),
+      _ => null,
+    };

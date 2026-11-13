@@ -13,12 +13,17 @@ import '../core/layout.dart';
 import '../core/logic.dart';
 import '../core/node.dart';
 import '../core/props.dart';
+import '../core/media.dart';
 import '../core/breakpoints.dart';
 import '../core/scripts.dart';
 import '../core/triggers.dart';
 import '../core/value_fields.dart';
 import '../core/variables.dart';
 import '../core/widgets/canvas.dart';
+import '../core/widgets/flex.dart';
+import '../core/widgets/collections.dart';
+import '../core/values/enums.dart';
+import '../core/values/geometry.dart' show EdgeInsets;
 import '../standard_catalog.dart';
 import 'bind_paths.dart';
 import 'diagnostic.dart';
@@ -428,7 +433,7 @@ final class _Validator {
     // Keys a node doesn't read are kept in extra.
     final nodeKeys = <String>{
       'id', 'type', 'name', 'key', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
-      'actions', 'component', ...Behaviors.keys,
+      'actions', 'component', 'media', ...Behaviors.keys,
     };
     for (final k in n.extra.keys) {
       if (n.type == CanvasProps.spec.type && canvasRouteKeys.contains(k)) continue;
@@ -452,6 +457,13 @@ final class _Validator {
     _props(n, raw['props'], pointer(at, 'props'));
     _bind(n, raw['bind'], pointer(at, 'bind'));
     _reactions(n, raw['actions'], pointer(at, 'actions'));
+    if (raw.containsKey('media')) _media(n, raw['media'], pointer(at, 'media'));
+    if (n.type == 'listView' && n.props.get(ListViewProps.wrap) && n.props.get(CollectionScrollProps.scrollDirection) == Axis.vertical) {
+      r.add(Codes.verticalWrap, pointer(pointer(at, 'props'), 'wrap'),
+          'This wrapping list runs along its scrollDirection (vertical): its items flow top to bottom and wrap into columns. '
+          'For items side by side that wrap onto new rows, set "scrollDirection": "horizontal"; for equal columns from data, use a gridView with "minCrossAxisExtent".',
+          suggestion: 'scrollDirection: horizontal');
+    }
     for (final def in BehaviorFields.all) {
       if (!raw.containsKey(def.key)) continue;
       if (def.key == BehaviorFields.states.key) {
@@ -488,6 +500,13 @@ final class _Validator {
       return;
     }
     final m = readMap(json)!;
+    _layoutKeys(n, m, at);
+    _sizes(n, m, at);
+  }
+
+  /// The keys of layout object [m]: known, of the right type, read by the
+  /// parent.
+  void _layoutKeys(Node n, Json m, String at) {
     final fields = {for (final f in LayoutFields.all) f.key: f};
     for (final e in m.entries) {
       final f = fields[e.key];
@@ -512,17 +531,157 @@ final class _Validator {
     final parentId = parents[n.id];
     final parent = parentId == null ? null : nodes[parentId];
     final reads = {for (final f in parent?.spec?.childFields ?? const <PropDef<Object?>>[]) f.key};
+    // A text draws no box of its own: its padding is not applied (as the
+    // editor's text), so say where padding goes.
+    if (n.type == 'text' && m.containsKey('padding') && EdgeInsets.fromJson(m['padding']) != EdgeInsets.zero) {
+      r.add(Codes.layoutFieldIgnored, pointer(at, 'padding'),
+          'A text has no padding: its box is its lines. Put the space outside it with "margin", or put the text in a row (or column) that has the padding and the decoration.');
+    }
+    // Negative values that cannot take effect as written.
+    if (readList(m['margin']) case final List<Object?> mg when mg.any((v) => (readDouble(v) ?? 0) < 0)) {
+      r.add(Codes.layoutClamped, pointer(at, 'margin'),
+          'A negative margin does not overlap neighbours (Flutter has no negative margins): it takes room from the node\'s own box. '
+          'To overlap, put both in a stack and give this one a negative x/y offset, or use a negative "spacing".');
+    } else if ((readDouble(m['margin']) ?? 0) < 0) {
+      r.add(Codes.layoutClamped, pointer(at, 'margin'),
+          'A negative margin does not overlap neighbours (Flutter has no negative margins): it takes room from the node\'s own box.');
+    }
+    if (parent != null && parent.type == 'stack' && (parent.layout.width.fit == SizeFit.hug || parent.layout.height.fit == SizeFit.hug)) {
+      for (final (k, hug) in [('x', parent.layout.width.fit == SizeFit.hug), ('y', parent.layout.height.fit == SizeFit.hug)]) {
+        final pos = readMap(m[k]);
+        final start = readDouble(pos?['start']) ?? (pos == null ? readDouble(m[k]) : null);
+        final end = readDouble(pos?['end']);
+        if (hug && ((start ?? 0) < 0 || (end ?? 0) < 0)) {
+          r.add(Codes.layoutClamped, pointer(at, k),
+              'Stack "$parentId" hugs its children on this axis, so it grows to hold them: a negative offset is clamped to 0. '
+              'Give the stack a fixed or fill size to let this child overhang its edge (as Flutter\'s Positioned with a negative offset), and clip with "decoration": {"clip": "hardEdge"}.');
+        }
+      }
+    }
+    if (m.containsKey('basis') && parent != null && reads.contains('basis') && !parent.props.get(FlexProps.wrap)) {
+      r.add(Codes.layoutFieldIgnored, pointer(at, 'basis'),
+          'layout.basis (CSS flex-basis) is read only when the parent ${parent.type} wraps ("wrap": true); in a ${parent.type} that does not wrap, size the child with width/height and flex.');
+    }
     for (final f in LayoutFields.parentData) {
       if (!m.containsKey(f.key) || reads.contains(f.key)) continue;
       final what = parent == null ? 'a root' : 'a child of a ${parent.type}';
       final readers = switch (f.key) {
         'x' || 'y' => 'a stack (or variance)',
-        _ => 'a row or column',
+        _ => 'a row, column or flex',
       };
       r.add(Codes.layoutFieldIgnored, pointer(at, f.key),
           'layout.${f.key} is read only by $readers; this node is $what, so it is ignored.');
     }
-    _sizes(n, m, at);
+  }
+
+  /// A node's media rules: at least one condition each (px or breakpoint
+  /// names the project has); a patch of the node's own fields, checked as
+  /// those fields are.
+  void _media(Node n, Object? json, String at) {
+    final list = readList(json);
+    const example = '[{"maxWidth": 599, "patch": {"props": {"direction": "vertical"}}}]';
+    if (list == null) {
+      r.add(Codes.invalidMedia, at, '"media" is a list of rules like CSS media queries, e.g. $example; got ${describe(json)}.');
+      return;
+    }
+    final names = [for (final b in breakpoints.list) b.key.isEmpty ? b.id : b.key];
+    for (var i = 0; i < list.length; i++) {
+      final p = pointer(at, i);
+      final m = readMap(list[i]);
+      if (m == null) {
+        r.add(Codes.invalidMedia, p, 'A media rule is an object {"minWidth"|"maxWidth"|"orientation": ..., "patch": {...}}, got ${describe(list[i])}.');
+        continue;
+      }
+      for (final k in m.keys) {
+        if (k == 'patch' || MediaRule.conditionKeys.contains(k)) continue;
+        r.add(Codes.invalidMedia, pointer(p, k),
+            'A media rule has no "$k". It takes minWidth, maxWidth (px or a breakpoint name: ${names.join(', ')}), orientation (portrait, landscape) and patch.',
+            suggestion: nearest(k, [...MediaRule.conditionKeys, 'patch']) ?? switch (k) {
+              'largerThan' || 'min' || 'from' => 'minWidth',
+              'smallerThan' || 'max' || 'below' => 'maxWidth',
+              _ => null,
+            });
+      }
+      if (!m.keys.any(MediaRule.conditionKeys.contains)) {
+        r.add(Codes.invalidMedia, p, 'No condition: add minWidth and/or maxWidth (px, or a breakpoint name: ${names.join(', ')}), or orientation.');
+      }
+      for (final k in const ['minWidth', 'maxWidth']) {
+        if (!m.containsKey(k)) continue;
+        final v = m[k];
+        if (v is num) {
+          if (v < 0) r.add(Codes.invalidMedia, pointer(p, k), '"$k" is a width of 0 or more, got $v.');
+        } else if (v is String) {
+          if (breakpoints.find(v) == null) {
+            r.add(Codes.unknownBreakpoint, pointer(p, k), '"$v" is not a breakpoint of the project. Breakpoints: ${names.join(', ')}; or give a width in px.',
+                suggestion: nearest(v, names));
+          }
+        } else {
+          r.add(Codes.invalidMedia, pointer(p, k), '"$k" is a width in px (600) or a breakpoint name ("tablet"), got ${describe(v)}.');
+        }
+      }
+      if (m.containsKey('orientation') && m['orientation'] != 'portrait' && m['orientation'] != 'landscape') {
+        r.add(Codes.invalidMedia, pointer(p, 'orientation'), '"orientation" is "portrait" or "landscape", got ${describe(m['orientation'])}.');
+      }
+      final rule = MediaRule.fromJson(m)!;
+      final lo = rule.lowest(breakpoints), hi = rule.below(breakpoints);
+      if (lo != null && hi != null && (rule.maxWidth is num ? lo > hi : lo >= hi)) {
+        r.add(Codes.invalidMedia, p, 'minWidth ${rule.minWidth} is above maxWidth ${rule.maxWidth}: the rule never holds.');
+      }
+      final patch = m['patch'];
+      final pp = pointer(p, 'patch');
+      final pm = readMap(patch);
+      if (pm == null) {
+        r.add(Codes.invalidMedia, pp, 'Add "patch": the node\'s fields at those sizes, shaped like the node ({"props": {...}, "layout": {...}}).');
+        continue;
+      }
+      for (final e in pm.entries) {
+        final kp = pointer(pp, e.key);
+        switch (e.key) {
+          case 'props':
+            _props(n, e.value, kp);
+          case 'layout':
+            if (readMap(e.value) case final Json lm) {
+              _layoutKeys(n, lm, kp);
+              _sizes(n.patched({'layout': lm}), lm, kp);
+            } else {
+              r.add(Codes.wrongType, kp, '"layout" is an object, got ${describe(e.value)}.');
+            }
+          case 'decoration':
+            _decoration(n, e.value, kp);
+          case 'visible':
+            if (e.value is! bool) r.add(Codes.wrongType, kp, '"visible" is true or false, got ${describe(e.value)}.');
+          case 'opacity':
+            final o = readDouble(e.value);
+            if (o == null || o < 0 || o > 1) r.add(Codes.wrongType, kp, '"opacity" is a number from 0 to 1, got ${describe(e.value)}.');
+          default:
+            r.add(Codes.invalidMedia, kp,
+                e.key == 'children'
+                    ? 'A media rule does not change "children": to reorder at a size, patch each child\'s layout.order (CSS order) in the child\'s own media rules.'
+                    : '"${e.key}" cannot vary by screen size. A patch takes: ${MediaRule.patchKeys.join(', ')}.',
+                suggestion: e.key == 'children' ? 'layout.order' : nearest(e.key, MediaRule.patchKeys));
+        }
+      }
+      // A binding of the same field wins over the patch.
+      for (final path in _leafPaths(pm, '')) {
+        for (final b in n.bind.keys) {
+          if (path == b || path.startsWith('$b.') || b.startsWith('$path.')) {
+            r.add(Codes.mediaOverridden, pp,
+                'The patch sets $path, which "bind" also sets ("$b"): the binding wins at every size. Remove one of them.');
+          }
+        }
+      }
+    }
+  }
+
+  /// Dotted paths of the leaves of [v] (`props.style.fontSize`).
+  static Iterable<String> _leafPaths(Object? v, String at) sync* {
+    if (v is Map && v.isNotEmpty) {
+      for (final e in v.entries) {
+        yield* _leafPaths(e.value, at.isEmpty ? '${e.key}' : '$at.${e.key}');
+      }
+    } else if (at.isNotEmpty) {
+      yield at;
+    }
   }
 
   void _sizes(Node n, Json? m, String at) {
@@ -531,7 +690,10 @@ final class _Validator {
     final l = n.layout;
     for (final (axis, size) in [('width', l.width), ('height', l.height)]) {
       if (parent != null && m != null && m.containsKey(axis)) {
-        final reason = childFitOptions(parent, horizontal: axis == 'width')[size.fit];
+        var reason = childFitOptions(parent, horizontal: axis == 'width')[size.fit];
+        // A filling child with a basis grows to share its line of a wrapping flex.
+        final wrapsAlong = parent.props.get(FlexProps.wrap) && (flexAxisOf(parent) == Axis.horizontal) == (axis == 'width');
+        if (wrapsAlong && n.layout.basis != null && size.fit == SizeFit.fill) reason = null;
         if (reason != null) {
           r.add(Codes.fitNotAllowed, pointer(at, axis), '${size.fit.name} is not honored here: $reason');
         }
@@ -573,6 +735,19 @@ final class _Validator {
       if (dropped.isNotEmpty) {
         r.add(Codes.decorationIgnored, at,
             'A ${n.type} has no box decoration: ${dropped.join(', ')} ${dropped.length == 1 ? 'is' : 'are'} ignored (only blur effects apply). Put it in a box/row/column/stack with the decoration, or use the type\'s own style props.');
+      }
+    }
+    for (final k in const ['fills', 'strokes', 'foregroundFills']) {
+      final list = readList(m[k]) ?? const [];
+      for (var i = 0; i < list.length; i++) {
+        final t = readList(readMap(list[i])?['transform']);
+        if (t == null || t.length != 6) continue;
+        final v = [for (final x in t) readDouble(x) ?? 0];
+        if ((v[0] * v[4] - v[1] * v[3]).abs() < 1e-12) {
+          r.add(Codes.outOfRange, pointer(pointer(pointer(at, k), i), 'transform'),
+              'This transform [a, b, tx, c, d, ty] collapses the box onto a line (a·d - b·c = 0), so the gradient draws one color. '
+              'u = a·x + b·y + tx, v = c·x + d·y + ty: to repeat a linear gradient 20 times across, write [20, 0, 0, 0, 1, 0] with "tileMode": "repeated", or use "begin"/"end".');
+        }
       }
     }
     if (m['strokes'] == null && (m.containsKey('strokeWidth') || m.containsKey('strokeAlign'))) {
@@ -1145,6 +1320,14 @@ final class _Validator {
         roots = report.paths.map(rootName).nonNulls;
       } else {
         roots = [?rootName(e.source)];
+      }
+      // `${false}`, `${12}`, `${'a'}`: `${...}` reads a name; a literal
+      // value is a formula.
+      if (!e.formula && RegExp(r'''^\s*(true|false|null|-?\d+(\.\d+)?|'.*'|".*")\s*$''').hasMatch(e.source)) {
+        r.add(Codes.unknownName, at,
+            '"\${${e.source}}" reads a variable named "${e.source.trim()}"; "\${...}" only reads names. For the value itself write "\${= ${e.source.trim()}}", or set the field to ${e.source.trim()} without a binding.',
+            suggestion: '\${= ${e.source.trim()}}');
+        continue;
       }
       for (final name in roots) {
         if (declared.contains(name) || runtimeScopes.contains(name)) continue;
