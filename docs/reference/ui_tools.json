@@ -370,6 +370,13 @@
     "input_schema": {
       "type": "object",
       "properties": {
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Node types whose props to describe (one you have not used yet)."
+        },
         "ids": {
           "type": "array",
           "items": {
