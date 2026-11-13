@@ -26,6 +26,7 @@ export 'src/core/json.dart';
 export 'src/core/layout.dart';
 export 'src/core/logic.dart';
 export 'src/core/node.dart';
+export 'src/core/path_follow.dart';
 export 'src/core/props.dart';
 export 'src/core/route_transition.dart';
 export 'src/core/scripts.dart';

@@ -21,6 +21,10 @@ Json _extra(PropType type, String field) => switch (type.name) {
   'Paint' when field == 'image' => {'type': 'image'},
   // A hero needs its tag.
   'HeroTag' when field != 'tag' => {'tag': 't'},
+  // A track's gain is kept only round an arc it follows by angle.
+  'Track' when field == 'gain' => {'shape': 'arc'},
+  // A path needs its SVG data.
+  'PathFollow' when field != 'path' => {'path': 'M0 0 L10 0'},
   _ => {},
 };
 
