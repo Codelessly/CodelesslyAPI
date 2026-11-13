@@ -216,4 +216,26 @@ void main() {
     expect(DragSource.fromJson({'feedbackAnchor': 'grab'})!.dragAnchor, DragAnchor.child);
     expect(DragSource.fromJson({'dragAnchorStrategy': 'pointer'})!.dragAnchor, DragAnchor.center);
   });
+
+  test('controlDrag reads as the typed action of its command', () {
+    ActionDef read(Json j) => ActionDef.fromJson({'type': 'controlDrag', 'node': 'k', ...j})!;
+    expect(read({'command': 'step', 'steps': '-2', 'direction': 'left'}), const ControlTrackAction(node: 'k', steps: '-2'));
+    expect(read({}), const ControlDismissibleAction(node: 'k'));
+    expect(read({'command': 'fling', 'direction': 'up'}),
+        const ControlDismissibleAction(node: 'k', direction: DragDirection.up));
+    expect(read({'command': 'returnFrom', 'direction': 'left'}),
+        const ControlDismissibleAction(node: 'k', command: DismissCommand.returnFrom, direction: DragDirection.left));
+    expect(read({'command': 'shake'}), const ControlDismissibleAction(node: 'k', command: DismissCommand.shake));
+    expect(read({'command': 'reset'}), const ControlTransformAction(node: 'k'));
+    expect(read({'command': 'zoom', 'value': '1.5'}),
+        const ControlTransformAction(node: 'k', command: TransformCommand.scaleBy, value: '1.5'));
+    final pose = read({
+      'command': 'pose',
+      'value': {'x': 0, 'scale': 2},
+    });
+    expect(pose, const ControlTransformAction(node: 'k', command: TransformCommand.animateTo, value: '{"x":0,"scale":2}'));
+    // Written only as the new type.
+    expect(pose.toJson()['type'], 'controlTransform');
+    expect(ActionDef.fromJson(pose.toJson()), pose);
+  });
 }
