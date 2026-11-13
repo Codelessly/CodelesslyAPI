@@ -57,6 +57,7 @@ final samples = <Json>[
   {'type': 'loadCloudData', 'variable': 'unread', 'single': false, 'query': {'enabled': true, 'collectionPath': 'inbox'}, 'scope': 'app'},
   {'type': 'reloadCloudData', 'variable': 'tasks'},
   {'type': 'retryFailed'},
+  {'type': 'componentEvent', 'event': 'onChoose', 'value': r'${props.plan.id}'},
 ];
 
 void main() {

@@ -181,7 +181,13 @@ enum TriggerType {
   /// `${result.error}` is `{type, message, action, nodeId}` (no stack or
   /// raw service objects). A failure in this reaction reports to the host
   /// without recursively firing another actionError reaction.
-  actionError;
+  actionError,
+
+  /// On a component call: the component fired its event [Trigger.event]
+  /// (a `componentEvent` action inside its definition); `${result}` is the
+  /// event's payload. Flutter: the callback passed to a widget's
+  /// `onChanged`-style parameter. The handler runs in the caller's scope.
+  event;
 
   /// The swipe triggers.
   static const List<TriggerType> swipes = [swipeLeft, swipeRight, swipeUp, swipeDown];
@@ -224,6 +230,7 @@ final class Trigger {
     this.repeat = false,
     this.visibleMs = 0,
     this.onceKey = '',
+    this.event = '',
   });
 
   final TriggerType type;
@@ -266,6 +273,10 @@ final class Trigger {
   /// once per node and key for as long as the app runs, and never again
   /// for that key. Empty: every time.
   final String onceKey;
+
+  /// [TriggerType.event]: the key of the component event it handles
+  /// (`onChoose`), one of the component's declared `widget.events`.
+  final String event;
 
   /// The shortest timer interval.
   static const int minIntervalMs = 16;
@@ -310,6 +321,7 @@ final class Trigger {
       repeat: m['repeat'] == true,
       visibleMs: (readInt(m['visibleMs']) ?? 0).clamp(0, 600000),
       onceKey: readString(m['onceKey']) ?? '',
+      event: readString(m['event']) ?? '',
     );
   }
 
@@ -344,6 +356,7 @@ final class Trigger {
         if (repeat) 'repeat': true,
         if (visibleMs != 0) 'visibleMs': visibleMs,
         if (onceKey.isNotEmpty) 'onceKey': onceKey,
+        if (event.isNotEmpty) 'event': event,
       };
 
   @override

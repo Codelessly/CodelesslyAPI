@@ -148,6 +148,28 @@ abstract final class Codes {
   static const duplicateId = DiagnosticCode('duplicate_id', Severity.warning,
       'The same node id in two documents of one project: each document keeps its own, but reports and the render command\'s steps name nodes by id.');
 
+  // --- components and sections ---------------------------------------------
+  static const unknownComponent = DiagnosticCode('unknown_component', Severity.error,
+      'A call names a component type (UpperCamelCase) that no definition of the project declares: it renders as an empty box of its size.');
+  static const duplicateComponent = DiagnosticCode('duplicate_component', Severity.error,
+      'Two definitions declare the same component type, or a component type is also a catalog type: there is no shadowing.');
+  static const componentCycle = DiagnosticCode('component_cycle', Severity.error,
+      'A component calls itself, directly or through other components: it can never finish rendering.');
+  static const componentIdMismatch = DiagnosticCode('component_id_mismatch', Severity.error,
+      'A component document whose file name (or "id") is not its widget type: a file holds the component it is named after.');
+  static const invalidComponent = DiagnosticCode('invalid_component', Severity.error,
+      'A component document of the wrong shape: a "widget" without a type, a type that is not UpperCamelCase, or not exactly one root.');
+  static const missingProp = DiagnosticCode('missing_prop', Severity.error,
+      'A call does not set a parameter the component declares as required.');
+  static const unknownEvent = DiagnosticCode('unknown_event', Severity.error,
+      'An event reaction (or a componentEvent action) names an event the component does not declare, or sits on a node that is not a component call.');
+  static const callFieldNotAllowed = DiagnosticCode('call_field_not_allowed', Severity.error,
+      'A field on a call that belongs to the definition (decoration, layout.padding): the call gives size and placement only.');
+  static const slotOutsideComponent = DiagnosticCode('slot_outside_component', Severity.warning,
+      'A slot node in a document that is not a component: nothing fills it, its own children show.');
+  static const rootPlacementBound = DiagnosticCode('root_placement_bound', Severity.warning,
+      'A component root binds its size or placement: the call sizes and places the root, so the binding is dropped.');
+
   /// Every code, in the order above.
   static const List<DiagnosticCode> all = [
     invalidDocument, schemaVersion, unknownDocumentKey, danglingRoot, rootNotCanvas, noRoots, //
@@ -160,6 +182,8 @@ abstract final class Codes {
     unknownVariable, invalidReaction,
     invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, duplicateBreakpointCanvas,
     screenWithoutBreakpoint, duplicateId,
+    unknownComponent, duplicateComponent, componentCycle, componentIdMismatch, invalidComponent, missingProp, unknownEvent,
+    callFieldNotAllowed, slotOutsideComponent, rootPlacementBound,
   ];
 }
 
