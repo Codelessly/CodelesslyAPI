@@ -182,13 +182,13 @@ a fill, a radius and padding, not three nested widgets.
 | [`lineChart`](#node-lineChart) |  | none | blurs only |
 | [`barcode`](#node-barcode) |  | none | blurs only |
 | [`path`](#node-path) | `CustomPaint` | none | yes |
+| [`external`](#node-external) |  | none | blurs only |
+| [`placeholder`](#node-placeholder) |  | none | blurs only |
+| [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
 | [`video`](#node-video) |  | none | blurs only |
 | [`embeddedVideo`](#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](#node-audioPlayer) |  | none | blurs only |
 | [`webView`](#node-webView) |  | none | blurs only |
-| [`external`](#node-external) |  | none | blurs only |
-| [`placeholder`](#node-placeholder) |  | none | blurs only |
-| [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
 
 "Decoration: blurs only" means the type draws no box: give it a fill or a border by putting it inside a `box`,
 `row`, `column` or `stack` that has the decoration.
@@ -1466,13 +1466,13 @@ of a stack is placed by `x` and `y`, a child of a row or column by `flex`, `sque
 | [`lineChart`](#node-lineChart) |  | none | blurs only |
 | [`barcode`](#node-barcode) |  | none | blurs only |
 | [`path`](#node-path) | `CustomPaint` | none | yes |
+| [`external`](#node-external) |  | none | blurs only |
+| [`placeholder`](#node-placeholder) |  | none | blurs only |
+| [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
 | [`video`](#node-video) |  | none | blurs only |
 | [`embeddedVideo`](#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](#node-audioPlayer) |  | none | blurs only |
 | [`webView`](#node-webView) |  | none | blurs only |
-| [`external`](#node-external) |  | none | blurs only |
-| [`placeholder`](#node-placeholder) |  | none | blurs only |
-| [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
 
 <a id="node-canvas"></a>
 ## `canvas`
@@ -3321,6 +3321,52 @@ An SVG path, filled and stroked with the node's decoration (Flutter `CustomPaint
 | `strokeJoin` | [StrokeJoin](#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How segments meet when stroked (`Paint.strokeJoin`). |
 | `subpathColors` | List<[Color](#type-Color)> | `[]` |  | Colors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color. |
 
+<a id="node-external"></a>
+## `external`
+
+A widget built by the app.
+
+A widget the app builds (`Codelessly`'s external component builders).
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `builderId` | String | `""` |  | The id of the app's builder. |
+
+<a id="node-placeholder"></a>
+## `placeholder`
+
+An empty slot (`SizedBox`).
+
+An empty slot shown at design time (Flutter `SizedBox`).
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `text` | String | `""` |  |  |
+| `leadingAsset` | String | `""` |  |  |
+
+<a id="node-singlePlaceholder"></a>
+## `singlePlaceholder`
+
+A one-child slot.
+
+A slot that shows its one child, or keeps its size when empty.
+
+- Children: `children`.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `allowedTypes` | List<String> | `[]` |  | The node types the slot accepts (empty: any) and refuses. |
+| `deniedTypes` | List<String> | `[]` |  |  |
+| `maxAllowedSize` | [Size](#type-Size) | unset |  | The largest child it accepts, `[width, height]`. |
+| `ephemeral` | bool | `false` |  | Its child is temporary (not kept when the slot is filled again). |
+
 <a id="node-video"></a>
 ## `video`
 
@@ -3417,52 +3463,6 @@ A web page (`webview_flutter`'s `WebViewWidget`).
 | `allowsInlineMediaPlayback` | bool | `false` |  |  |
 | `mediaPlaybackRequiresUserAction` | bool | `true` |  |  |
 | `backgroundColor` | [Color](#type-Color) | unset |  |  |
-
-<a id="node-external"></a>
-## `external`
-
-A widget built by the app.
-
-A widget the app builds (`Codelessly`'s external component builders).
-
-- Children: none.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `builderId` | String | `""` |  | The id of the app's builder. |
-
-<a id="node-placeholder"></a>
-## `placeholder`
-
-An empty slot (`SizedBox`).
-
-An empty slot shown at design time (Flutter `SizedBox`).
-
-- Children: none.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `text` | String | `""` |  |  |
-| `leadingAsset` | String | `""` |  |  |
-
-<a id="node-singlePlaceholder"></a>
-## `singlePlaceholder`
-
-A one-child slot.
-
-A slot that shows its one child, or keeps its size when empty.
-
-- Children: `children`.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `allowedTypes` | List<String> | `[]` |  | The node types the slot accepts (empty: any) and refuses. |
-| `deniedTypes` | List<String> | `[]` |  |  |
-| `maxAllowedSize` | [Size](#type-Size) | unset |  | The largest child it accepts, `[width, height]`. |
-| `ephemeral` | bool | `false` |  | Its child is temporary (not kept when the slot is filled again). |
 
 ---
 
@@ -6692,34 +6692,6 @@ Opens a URL (a web page, `mailto:`, `tel:`, an app link).
 |---|---|---|---|---|
 | `url` | String | `""` |  | A web page, mailto:, tel: or app link. |
 
-<a id="action-print"></a>
-## `print`: Print
-
-Requests the platform print dialog for a rendered node. The user chooses the destination and confirms; this action never silently submits a job.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `node` | String | `""` |  | A rendered node to print through a user-confirmed platform dialog. |
-
-<a id="action-submitForm"></a>
-## `submitForm`: Submit form
-
-Validates a form's answers and stores them in the app's own variables (`service: local`). See `docs/submit_form.md`.
-
-A remote destination is an explicit later action (`callApi` in `onSuccess`) to an endpoint the app defines; this action itself never calls a service.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `service` | [FormService](#enum-FormService) | `"local"` | `local` | Only `local` is offered: `FormService.unsupported` marks old data. |
-| `payload` | String | `""` |  | An expression yielding a JSON object. |
-| `validationScript` | String | `""` |  | Await a script returning {valid, errors?, payload?}. |
-| `validationArguments` | Object | unset |  | Named script argument expressions. |
-| `responseVariable` | String | `""` |  | Optional mutable list variable receiving the validated payload. Persist the variable to keep submissions. |
-| `prepend` | bool | `false` |  |  |
-| `resultVariable` | String | `""` |  | An expression yielding a JSON object. An awaited validator may replace it with its normalized `payload`. |
-| `onSuccess` | Object | unset |  |  |
-| `onError` | Object | unset |  |  |
-
 <a id="action-setValue"></a>
 ## `setValue`: Set value
 
@@ -6765,6 +6737,193 @@ Calls a function the app registered by `name` with `params` (text values are exp
 | `name` | String | `""` |  | The function the app registered. |
 | `params` | Object | unset |  | Its arguments; text values are expressions. |
 | `optional` | bool | `false` |  | A function the app didn't register is skipped (${result} is null) instead of failing the chain. |
+
+<a id="action-if"></a>
+## `if`: If
+
+Runs `then` when `condition` holds, else `orElse`. JSON: `{"type": "if", "condition": {...}, "then": [...], "else": [...]}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `condition` | Object | unset |  | A predicate; null never holds. |
+| `then` | Object | unset |  | Nested actions: run when it holds. |
+| `else` | Object | unset |  | Nested actions: run when it doesn't. |
+
+<a id="action-forEach"></a>
+## `forEach`: For each
+
+Runs `actions` once per item of list `items` (a path or expression). Every action of a turn reads the item and its index as `${loop.item}` and `${loop.index}`; `${result.item}` and `${result.index}` hold them too, until an action of the turn gives a result of its own.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `items` | String | `""` |  | A list (a path or expression). |
+| `actions` | Object | unset |  | Nested actions: run per item (${loop.item}, ${loop.index}). |
+
+<a id="action-showToast"></a>
+## `showToast`: Show toast
+
+Shows a short message (a snackbar). Its button (`actionLabel`) runs `actions` on the chain that showed it. Cosmetics beyond the fields below (colors, radius, shadows, text styles, offsets per breakpoint) are in `style`, JSON.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `message` | String | `""` |  | An expression. |
+| `title` | String | `""` |  | Expressions. |
+| `durationMs` | int | `2600` |  |  |
+| `style` | [ToastStyle](#enum-ToastStyle) | `"neutral"` | `neutral`, `info`, `success`, `warning`, `error` |  |
+| `position` | [ToastPosition](#enum-ToastPosition) | `"bottom"` | `bottom`, `top` |  |
+| `actionLabel` | String | `""` |  | Its button. |
+| `actions` | Object | unset |  | Nested actions: run by its button. |
+| `showClose` | bool | `false` |  |  |
+| `icon` | Object | unset |  | An icon glyph's JSON. |
+| `look` | Object | unset |  | Cosmetics, JSON: colors, radius, border, shadows, padding, widths, text styles, offsets, alignment; the button's actionBackgroundColor, actionBorder, actionCornerRadius, actionShadows; iconShadows; rotation (degrees), enterCurve, enterOffset (a share of its height). |
+| `variables` | Object | unset |  | Style values bound to expressions, by style key. |
+
+<a id="action-confirm"></a>
+## `confirm`: Confirm
+
+Asks the user to confirm; runs `actions` when they do, `cancelActions` when they don't. With `dialog` (a screen id), that screen is the dialog and what its close modal action returns is `${result}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `title` | String | `""` |  | Expressions. |
+| `message` | String | `""` |  | Expressions. |
+| `caption` | String | `""` |  | Expressions. |
+| `confirmLabel` | String | `"OK"` |  |  |
+| `cancelLabel` | String | `"Cancel"` |  |  |
+| `destructive` | bool | `false` |  |  |
+| `actions` | Object | unset |  | Nested actions: run when confirmed. |
+| `cancelActions` | Object | unset |  | Nested actions: run when canceled. |
+| `dialog` | String | `""` |  | A screen id to show as the dialog. |
+| `params` | Object | unset |  |  |
+| `presentation` | [ModalPresentation](#enum-ModalPresentation) | `"dialog"` | `dialog`, `bottomSheet`, `adaptive`, `sideSheet`, `fullScreen`, `popover`, `banner` |  |
+| `placement` | [PopoverPlacement](#enum-PopoverPlacement) | `"belowStart"` |  |  |
+| `barrierDismissible` | bool | `true` |  |  |
+| `look` | Object | unset |  | Cosmetics, JSON: colors, radius, border, shadows, text styles, button radius/border/shadows; confirmBorder, cancelBorder, buttonHeight, expandButtons; icon, iconSize, iconColor, iconDiscColor, iconDiscSize, iconDiscBorder; centered, width, maxWidth, insets, padding. |
+| `variables` | Object | unset |  | Style values bound to expressions, by style key. |
+
+<a id="action-delay"></a>
+## `delay`: Delay
+
+Waits `ms` milliseconds, or `duration` (a formula giving them) when that gives a number.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `ms` | int | `500` |  |  |
+| `duration` | String | `""` |  | A formula giving milliseconds. |
+
+<a id="action-copyToClipboard"></a>
+## `copyToClipboard`: Copy to clipboard
+
+Copies `text` (an expression) to the clipboard.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `text` | String | `""` |  | An expression. |
+
+<a id="action-editText"></a>
+## `editText`: Edit text
+
+Edits text field `node`'s text at its cursor: wraps the selection in `before` / `after`, toggles a (numbered) list, inserts or sets `text`, replaces the word being typed, clears it or focuses it.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | A text field. |
+| `operation` | [EditTextOperation](#enum-EditTextOperation) | `"insert"` | `wrap`, `toggleList`, `insert`, `replaceWord`, `setText`, `clear`, `focus` |  |
+| `text` | String | `""` |  |  |
+| `before` | String | `""` |  |  |
+| `after` | String | unset |  | Null: the same as before. |
+| `numbered` | bool | `false` |  |  |
+
+<a id="action-focus"></a>
+## `focus`: Focus
+
+Focuses text field `node` (selecting its text with `selectAll`), or takes the focus away (`unfocus`; from every field when `node` is empty).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | A text field; empty with unfocus: every field. |
+| `unfocus` | bool | `false` |  |  |
+| `selectAll` | bool | `false` |  |  |
+
+<a id="action-controlDrag"></a>
+## `controlDrag`: Control drag
+
+Flings, returns, resets or shakes draggable node `node` (a swipe card), or steps a drag track.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | A draggable node. |
+| `command` | [DragCommand](#enum-DragCommand) | `"fling"` | `fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose` |  |
+| `direction` | [DragDirection](#enum-DragDirection) | `"right"` | `left`, `right`, `up`, `down` |  |
+| `steps` | String | `"1"` |  | Step: how many steps (an expression). |
+| `value` | String | `""` |  | Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression). |
+
+<a id="action-scrollTo"></a>
+## `scrollTo`: Scroll to
+
+Scrolls node `node` into view: `alignment` 0 puts it at the start of the view, 1 at the end; `offset` moves it further. `axis` limits it to the scroll views along one axis (a map in a sideways window centers a point without scrolling the page under it); null scrolls every one around it.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  |  |
+| `item` | String | `""` |  | For a repeated node: the key (or index) of the list item whose copy to reveal. |
+| `durationMs` | int | `400` |  |  |
+| `curve` | String | `"easeInOut"` |  | A Curves name. |
+| `alignment` | double | `0` |  | 0: at the start of the view, 1: at the end. |
+| `offset` | double | `0` |  |  |
+| `axis` | [ScrollAxis](#enum-ScrollAxis) | unset | `horizontal`, `vertical` | Only the scroll views along this axis; null: every one. |
+
+<a id="action-animate"></a>
+## `animate`: Animate
+
+Drives an animation (Flutter's `AnimationController` methods): node `node`'s `animation` (`NodeAnimation`), or the number variable `variable` (an unbounded controller the screen keeps for it). JSON: `{"type": "animate", "node": "card", "animation": "pop", "command": "forward", "from": "0"}`, `{"type": "animate", "variable": "shownTotal", "command": "animateTo", "target": "${total}", "duration": "800", "curve": "easeOutCubic"}`. The chain waits for it to end (`TickerFuture`) unless it's `nonBlocking`; a repeat ends when its count does.
+
+Reads the legacy `playAnimation` (`forward` from 0) and `animateVariable` (play → `animateTo`, pause and stop → `stop`, resume → `forward`, seek → `set`).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | A node id or key; empty: the reacting node. |
+| `animation` | String | `""` |  | The animation's id on the node. |
+| `variable` | String | `""` |  | Instead of a node: a number variable. |
+| `command` | [AnimateCommand](#enum-AnimateCommand) | `"forward"` | `forward`, `reverse`, `toggle`, `repeat`, `stop`, `reset`, `animateTo`, `animateBack`, `set` |  |
+| `from` | String | `""` |  | Where forward/reverse start (an expression). |
+| `target` | String | `""` |  | animateTo, animateBack, set (an expression). |
+| `duration` | String | `""` |  | Milliseconds (an expression); empty: the animation's. |
+| `curve` | [AnimationCurve](#enum-AnimationCurve) | unset |  | Null: the animation's (linear for a variable). |
+| `spring` | [Spring](#type-Spring) | unset |  | `animateWith(SpringSimulation)` toward `target` instead of a duration. |
+
+<a id="action-haptic"></a>
+## `haptic`: Haptic feedback
+
+Buzzes the device (`HapticFeedback`, on phones that support it; nothing elsewhere). Its common `when` buzzes only while a setting holds.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `kind` | [HapticKind](#enum-HapticKind) | `"selection"` | `selection`, `light`, `medium`, `heavy`, `vibrate` |  |
+
+<a id="action-runScript"></a>
+## `runScript`: Run script
+
+Runs script `script` (a layout's `scripts`, by id) with `arguments` (by parameter name; expressions: one `${...}` passes its value as is, other text passes as JSON when it is JSON, else as text). Its result is the chain's `${result}` (and goes in `resultVariable` when set). When it fails, `onError` runs with `${result}` `{error: {type, message, line, column}, logs}`; without `onError` a failure stops the chain.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `script` | String | `""` |  | A script of the layout's scripts. |
+| `arguments` | Object | unset |  | By parameter name (expressions). |
+| `resultVariable` | String | `""` |  | Gets the result. |
+| `onError` | Object | unset |  | Nested actions: run when it fails (${result.error}, ${result.logs}). |
+
+<a id="action-paginate"></a>
+## `paginate`: Paginate
+
+Moves the pagination controller of a list or grid (its `pagination`, by `controller`, the pagination's name).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `controller` | String | `""` |  | The pagination's name. |
+| `command` | [PaginateCommand](#enum-PaginateCommand) | `"next"` | `next`, `previous`, `goTo`, `first`, `last`, `refresh`, `retry`, `setPageSize` |  |
+| `page` | String | `"1"` |  | For goTo: a number or an expression. |
+| `pageSize` | String | `"20"` |  | For setPageSize. |
 
 <a id="action-callApi"></a>
 ## `callApi`: Call API
@@ -6849,42 +7008,6 @@ Runs again the live load of `variable` (a `LoadCloudDataAction` that ran on this
 |---|---|---|---|---|
 | `variable` | String | `""` |  | A variable a load cloud data action fills. |
 
-<a id="action-auth"></a>
-## `auth`: Auth
-
-Signs app users in, up and out, and manages their account. A failure's message goes in `errorVariable` (and stops the chain).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `operation` | [AuthOperation](#enum-AuthOperation) | `"signIn"` |  |  |
-| `email` | String | `""` |  |  |
-| `password` | String | `""` |  |  |
-| `displayName` | String | `""` |  |  |
-| `photoUrl` | String | `""` |  |  |
-| `currentPassword` | String | `""` |  | Re-authenticates first (change password, delete account). |
-| `errorVariable` | String | `""` |  | Gets a failure's message. |
-
-<a id="action-if"></a>
-## `if`: If
-
-Runs `then` when `condition` holds, else `orElse`. JSON: `{"type": "if", "condition": {...}, "then": [...], "else": [...]}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `condition` | Object | unset |  | A predicate; null never holds. |
-| `then` | Object | unset |  | Nested actions: run when it holds. |
-| `else` | Object | unset |  | Nested actions: run when it doesn't. |
-
-<a id="action-forEach"></a>
-## `forEach`: For each
-
-Runs `actions` once per item of list `items` (a path or expression). Every action of a turn reads the item and its index as `${loop.item}` and `${loop.index}`; `${result.item}` and `${result.index}` hold them too, until an action of the turn gives a result of its own.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `items` | String | `""` |  | A list (a path or expression). |
-| `actions` | Object | unset |  | Nested actions: run per item (${loop.item}, ${loop.index}). |
-
 <a id="action-cloudFiles"></a>
 ## `cloudFiles`: Cloud files
 
@@ -6902,58 +7025,6 @@ Uploads files the user picks to (or deletes them from) cloud storage folder `pat
 | `source` | String | `""` |  | Uploads this instead of asking the user: a data: URL (${result.image} of a screenshot), or a list. |
 | `fileName` | String | `""` |  | The name a source file is stored under. |
 | `actions` | Object | unset |  | Nested actions: run with each file. |
-
-<a id="action-showToast"></a>
-## `showToast`: Show toast
-
-Shows a short message (a snackbar). Its button (`actionLabel`) runs `actions` on the chain that showed it. Cosmetics beyond the fields below (colors, radius, shadows, text styles, offsets per breakpoint) are in `style`, JSON.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `message` | String | `""` |  | An expression. |
-| `title` | String | `""` |  | Expressions. |
-| `durationMs` | int | `2600` |  |  |
-| `style` | [ToastStyle](#enum-ToastStyle) | `"neutral"` | `neutral`, `info`, `success`, `warning`, `error` |  |
-| `position` | [ToastPosition](#enum-ToastPosition) | `"bottom"` | `bottom`, `top` |  |
-| `actionLabel` | String | `""` |  | Its button. |
-| `actions` | Object | unset |  | Nested actions: run by its button. |
-| `showClose` | bool | `false` |  |  |
-| `icon` | Object | unset |  | An icon glyph's JSON. |
-| `look` | Object | unset |  | Cosmetics, JSON: colors, radius, border, shadows, padding, widths, text styles, offsets, alignment; the button's actionBackgroundColor, actionBorder, actionCornerRadius, actionShadows; iconShadows; rotation (degrees), enterCurve, enterOffset (a share of its height). |
-| `variables` | Object | unset |  | Style values bound to expressions, by style key. |
-
-<a id="action-confirm"></a>
-## `confirm`: Confirm
-
-Asks the user to confirm; runs `actions` when they do, `cancelActions` when they don't. With `dialog` (a screen id), that screen is the dialog and what its close modal action returns is `${result}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `title` | String | `""` |  | Expressions. |
-| `message` | String | `""` |  | Expressions. |
-| `caption` | String | `""` |  | Expressions. |
-| `confirmLabel` | String | `"OK"` |  |  |
-| `cancelLabel` | String | `"Cancel"` |  |  |
-| `destructive` | bool | `false` |  |  |
-| `actions` | Object | unset |  | Nested actions: run when confirmed. |
-| `cancelActions` | Object | unset |  | Nested actions: run when canceled. |
-| `dialog` | String | `""` |  | A screen id to show as the dialog. |
-| `params` | Object | unset |  |  |
-| `presentation` | [ModalPresentation](#enum-ModalPresentation) | `"dialog"` | `dialog`, `bottomSheet`, `adaptive`, `sideSheet`, `fullScreen`, `popover`, `banner` |  |
-| `placement` | [PopoverPlacement](#enum-PopoverPlacement) | `"belowStart"` |  |  |
-| `barrierDismissible` | bool | `true` |  |  |
-| `look` | Object | unset |  | Cosmetics, JSON: colors, radius, border, shadows, text styles, button radius/border/shadows; confirmBorder, cancelBorder, buttonHeight, expandButtons; icon, iconSize, iconColor, iconDiscColor, iconDiscSize, iconDiscBorder; centered, width, maxWidth, insets, padding. |
-| `variables` | Object | unset |  | Style values bound to expressions, by style key. |
-
-<a id="action-delay"></a>
-## `delay`: Delay
-
-Waits `ms` milliseconds, or `duration` (a formula giving them) when that gives a number.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `ms` | int | `500` |  |  |
-| `duration` | String | `""` |  | A formula giving milliseconds. |
 
 <a id="action-cloudData"></a>
 ## `cloudData`: Cloud data
@@ -6986,49 +7057,39 @@ Up to `kMaxCloudBatchWrites` writes are all or none. More are committed in chunk
 | `transaction` | bool | `false` |  | All or none: more than 500 writes fail instead of committing in chunks. |
 | `forEach` | String | `""` |  | A list: the steps run per item (${loop.item}, ${loop.index}), all in one commit. |
 
-<a id="action-copyToClipboard"></a>
-## `copyToClipboard`: Copy to clipboard
+<a id="action-submitForm"></a>
+## `submitForm`: Submit form
 
-Copies `text` (an expression) to the clipboard.
+Validates a form's answers and stores them in the app's own variables (`service: local`). See `docs/submit_form.md`.
 
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `text` | String | `""` |  | An expression. |
-
-<a id="action-downloadFile"></a>
-## `downloadFile`: Download file
-
-Exports generated UTF-8 text (CSV, JSON, plain text...) as a file. The browser downloads it; native apps show the platform save picker. Cancellation returns `{saved: false}` as the action result.
+A remote destination is an explicit later action (`callApi` in `onSuccess`) to an endpoint the app defines; this action itself never calls a service.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `fileName` | String | `"export.txt"` |  | Suggested filename, an expression. |
-| `text` | String | `""` |  | Generated file contents as UTF-8 text. |
-| `mimeType` | String | `"text/plain"` |  |  |
+| `service` | [FormService](#enum-FormService) | `"local"` | `local` | Only `local` is offered: `FormService.unsupported` marks old data. |
+| `payload` | String | `""` |  | An expression yielding a JSON object. |
+| `validationScript` | String | `""` |  | Await a script returning {valid, errors?, payload?}. |
+| `validationArguments` | Object | unset |  | Named script argument expressions. |
+| `responseVariable` | String | `""` |  | Optional mutable list variable receiving the validated payload. Persist the variable to keep submissions. |
+| `prepend` | bool | `false` |  |  |
+| `resultVariable` | String | `""` |  | An expression yielding a JSON object. An awaited validator may replace it with its normalized `payload`. |
+| `onSuccess` | Object | unset |  |  |
+| `onError` | Object | unset |  |  |
 
-<a id="action-preloadImages"></a>
-## `preloadImages`: Preload images
+<a id="action-auth"></a>
+## `auth`: Auth
 
-Loads images ahead of showing them (a story's pages before reading), so they draw at once: `urls` is an expression giving a list of URLs (or a comma-separated text). While it runs, `progressVariable` (a variable's name; empty for none) holds the share done (0–1). It waits for every image and gives `{loaded, failed, total}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `urls` | String | `""` |  | The image URLs: a list (an expression) or comma-separated text. |
-| `progressVariable` | String | `""` |  | A variable to hold the share loaded (0-1) while it runs. |
-
-<a id="action-editText"></a>
-## `editText`: Edit text
-
-Edits text field `node`'s text at its cursor: wraps the selection in `before` / `after`, toggles a (numbered) list, inserts or sets `text`, replaces the word being typed, clears it or focuses it.
+Signs app users in, up and out, and manages their account. A failure's message goes in `errorVariable` (and stops the chain).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `node` | String | `""` |  | A text field. |
-| `operation` | [EditTextOperation](#enum-EditTextOperation) | `"insert"` | `wrap`, `toggleList`, `insert`, `replaceWord`, `setText`, `clear`, `focus` |  |
-| `text` | String | `""` |  |  |
-| `before` | String | `""` |  |  |
-| `after` | String | unset |  | Null: the same as before. |
-| `numbered` | bool | `false` |  |  |
+| `operation` | [AuthOperation](#enum-AuthOperation) | `"signIn"` |  |  |
+| `email` | String | `""` |  |  |
+| `password` | String | `""` |  |  |
+| `displayName` | String | `""` |  |  |
+| `photoUrl` | String | `""` |  |  |
+| `currentPassword` | String | `""` |  | Re-authenticates first (change password, delete account). |
+| `errorVariable` | String | `""` |  | Gets a failure's message. |
 
 <a id="action-paywall"></a>
 ## `paywall`: Paywall
@@ -7049,29 +7110,24 @@ A paywall interaction: buy the selected (or `slot`'s) product, restore purchases
 | `reverseTransitionMs` | int | unset |  |  |
 | `routeTransition` | [RouteTransition](#type-RouteTransition) | unset |  | openPaywall: a custom transition for its screen; replaces transition and its times. |
 
-<a id="action-focus"></a>
-## `focus`: Focus
+<a id="action-print"></a>
+## `print`: Print
 
-Focuses text field `node` (selecting its text with `selectAll`), or takes the focus away (`unfocus`; from every field when `node` is empty).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `node` | String | `""` |  | A text field; empty with unfocus: every field. |
-| `unfocus` | bool | `false` |  |  |
-| `selectAll` | bool | `false` |  |  |
-
-<a id="action-controlDrag"></a>
-## `controlDrag`: Control drag
-
-Flings, returns, resets or shakes draggable node `node` (a swipe card), or steps a drag track.
+Requests the platform print dialog for a rendered node. The user chooses the destination and confirms; this action never silently submits a job.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `node` | String | `""` |  | A draggable node. |
-| `command` | [DragCommand](#enum-DragCommand) | `"fling"` | `fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose` |  |
-| `direction` | [DragDirection](#enum-DragDirection) | `"right"` | `left`, `right`, `up`, `down` |  |
-| `steps` | String | `"1"` |  | Step: how many steps (an expression). |
-| `value` | String | `""` |  | Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression). |
+| `node` | String | `""` |  | A rendered node to print through a user-confirmed platform dialog. |
+
+<a id="action-preloadImages"></a>
+## `preloadImages`: Preload images
+
+Loads images ahead of showing them (a story's pages before reading), so they draw at once: `urls` is an expression giving a list of URLs (or a comma-separated text). While it runs, `progressVariable` (a variable's name; empty for none) holds the share done (0–1). It waits for every image and gives `{loaded, failed, total}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `urls` | String | `""` |  | The image URLs: a list (an expression) or comma-separated text. |
+| `progressVariable` | String | `""` |  | A variable to hold the share loaded (0-1) while it runs. |
 
 <a id="action-speak"></a>
 ## `speak`: Speak
@@ -7089,21 +7145,6 @@ With `readAlong` the words are timed for a read-along highlight (`speech.wordInd
 | `stop` | bool | `false` |  | Stops speaking. |
 | `readAlong` | bool | `false` |  | Times every word (speech.wordIndex) even when the voice reports no word boundaries, and reads along silently without a voice; the action waits until the text is said. |
 | `startWord` | String | `""` |  | Read along: the word to start at (an index or expression), to carry on after a pause. |
-
-<a id="action-scrollTo"></a>
-## `scrollTo`: Scroll to
-
-Scrolls node `node` into view: `alignment` 0 puts it at the start of the view, 1 at the end; `offset` moves it further. `axis` limits it to the scroll views along one axis (a map in a sideways window centers a point without scrolling the page under it); null scrolls every one around it.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `node` | String | `""` |  |  |
-| `item` | String | `""` |  | For a repeated node: the key (or index) of the list item whose copy to reveal. |
-| `durationMs` | int | `400` |  |  |
-| `curve` | String | `"easeInOut"` |  | A Curves name. |
-| `alignment` | double | `0` |  | 0: at the start of the view, 1: at the end. |
-| `offset` | double | `0` |  |  |
-| `axis` | [ScrollAxis](#enum-ScrollAxis) | unset | `horizontal`, `vertical` | Only the scroll views along this axis; null: every one. |
 
 <a id="action-playSound"></a>
 ## `playSound`: Play sound
@@ -7124,68 +7165,6 @@ Plays a synthesised `sound` (a voice name), now or `at` a time on the sound cloc
 | `at` | String | `""` |  | A time on the sound clock. |
 | `url` | String | `""` |  | A sound file. |
 
-<a id="action-animate"></a>
-## `animate`: Animate
-
-Drives an animation (Flutter's `AnimationController` methods): node `node`'s `animation` (`NodeAnimation`), or the number variable `variable` (an unbounded controller the screen keeps for it). JSON: `{"type": "animate", "node": "card", "animation": "pop", "command": "forward", "from": "0"}`, `{"type": "animate", "variable": "shownTotal", "command": "animateTo", "target": "${total}", "duration": "800", "curve": "easeOutCubic"}`. The chain waits for it to end (`TickerFuture`) unless it's `nonBlocking`; a repeat ends when its count does.
-
-Reads the legacy `playAnimation` (`forward` from 0) and `animateVariable` (play → `animateTo`, pause and stop → `stop`, resume → `forward`, seek → `set`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `node` | String | `""` |  | A node id or key; empty: the reacting node. |
-| `animation` | String | `""` |  | The animation's id on the node. |
-| `variable` | String | `""` |  | Instead of a node: a number variable. |
-| `command` | [AnimateCommand](#enum-AnimateCommand) | `"forward"` | `forward`, `reverse`, `toggle`, `repeat`, `stop`, `reset`, `animateTo`, `animateBack`, `set` |  |
-| `from` | String | `""` |  | Where forward/reverse start (an expression). |
-| `target` | String | `""` |  | animateTo, animateBack, set (an expression). |
-| `duration` | String | `""` |  | Milliseconds (an expression); empty: the animation's. |
-| `curve` | [AnimationCurve](#enum-AnimationCurve) | unset |  | Null: the animation's (linear for a variable). |
-| `spring` | [Spring](#type-Spring) | unset |  | `animateWith(SpringSimulation)` toward `target` instead of a duration. |
-
-<a id="action-haptic"></a>
-## `haptic`: Haptic feedback
-
-Buzzes the device (`HapticFeedback`, on phones that support it; nothing elsewhere). Its common `when` buzzes only while a setting holds.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `kind` | [HapticKind](#enum-HapticKind) | `"selection"` | `selection`, `light`, `medium`, `heavy`, `vibrate` |  |
-
-<a id="action-runScript"></a>
-## `runScript`: Run script
-
-Runs script `script` (a layout's `scripts`, by id) with `arguments` (by parameter name; expressions: one `${...}` passes its value as is, other text passes as JSON when it is JSON, else as text). Its result is the chain's `${result}` (and goes in `resultVariable` when set). When it fails, `onError` runs with `${result}` `{error: {type, message, line, column}, logs}`; without `onError` a failure stops the chain.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `script` | String | `""` |  | A script of the layout's scripts. |
-| `arguments` | Object | unset |  | By parameter name (expressions). |
-| `resultVariable` | String | `""` |  | Gets the result. |
-| `onError` | Object | unset |  | Nested actions: run when it fails (${result.error}, ${result.logs}). |
-
-<a id="action-paginate"></a>
-## `paginate`: Paginate
-
-Moves the pagination controller of a list or grid (its `pagination`, by `controller`, the pagination's name).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `controller` | String | `""` |  | The pagination's name. |
-| `command` | [PaginateCommand](#enum-PaginateCommand) | `"next"` | `next`, `previous`, `goTo`, `first`, `last`, `refresh`, `retry`, `setPageSize` |  |
-| `page` | String | `"1"` |  | For goTo: a number or an expression. |
-| `pageSize` | String | `"20"` |  | For setPageSize. |
-
-<a id="action-emitEvent"></a>
-## `emitEvent`: Emit event
-
-Fires app event `event` with `props` (text values are expressions) on the app's event bus: the project's automations listening for it run (a popup after the third order), and the host app hears it (`codelessly.events`). The same bus a host fires with `codelessly.emit(name, props)`. JSON: `{"type": "emitEvent", "event": "onboarding_done", "props": {"plan": "${plan}"}}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `event` | String | `""` |  | The app event's name (an expression). |
-| `props` | Object | unset |  | Its properties; text values are expressions. |
-
 <a id="action-captureScreenshot"></a>
 ## `captureScreenshot`: Capture screenshot
 
@@ -7196,6 +7175,27 @@ Captures what is on screen as a PNG image. `${result}` is `{"image": "data:image
 | `target` | [CaptureTarget](#enum-CaptureTarget) | `"layout"` | `layout`, `node`, `app` | The screen, one of its nodes, or the whole app (in the host's capture scope). |
 | `node` | String | `""` |  | The node captured (target node). |
 | `pixelRatio` | double | `0` |  | Pixels per logical pixel; 0: the device's. |
+
+<a id="action-downloadFile"></a>
+## `downloadFile`: Download file
+
+Exports generated UTF-8 text (CSV, JSON, plain text...) as a file. The browser downloads it; native apps show the platform save picker. Cancellation returns `{saved: false}` as the action result.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `fileName` | String | `"export.txt"` |  | Suggested filename, an expression. |
+| `text` | String | `""` |  | Generated file contents as UTF-8 text. |
+| `mimeType` | String | `"text/plain"` |  |  |
+
+<a id="action-emitEvent"></a>
+## `emitEvent`: Emit event
+
+Fires app event `event` with `props` (text values are expressions) on the app's event bus: the project's automations listening for it run (a popup after the third order), and the host app hears it (`codelessly.events`). The same bus a host fires with `codelessly.emit(name, props)`. JSON: `{"type": "emitEvent", "event": "onboarding_done", "props": {"plan": "${plan}"}}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `event` | String | `""` |  | The app event's name (an expression). |
+| `props` | Object | unset |  | Its properties; text values are expressions. |
 
 ---
 

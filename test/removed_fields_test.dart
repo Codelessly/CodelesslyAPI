@@ -29,13 +29,13 @@ void main() {
       'deleteSubcollections': ['items'],
       'resultVariable': 'gone',
     };
-    final a = ActionDef.fromJson(json)! as CloudDataAction;
+    final a = ActionDef.fromJson(json, catalog: standardCatalog)! as CloudDataAction;
     expect(a.operation, CloudDataOperation.delete);
     expect(a.collection, 'lists');
     expect(a.id, r'${item.id}');
     expect(a.resultVariable, 'gone');
     expect(a.toJson(), {...json}..remove('deleteSubcollections'));
-    expect(ActionDef.fromJson({...json, 'deleteSubcollections': 7}), isA<CloudDataAction>());
+    expect(ActionDef.fromJson({...json, 'deleteSubcollections': 7}, catalog: standardCatalog), isA<CloudDataAction>());
     // Tools that refuse keys an action doesn't have now name it.
     expect(ActionSpecs.unknownKeys(json), ['deleteSubcollections']);
     expect(CloudDataFields.all.map((f) => f.key), isNot(contains('deleteSubcollections')));

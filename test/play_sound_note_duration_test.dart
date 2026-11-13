@@ -8,7 +8,7 @@ void main() {
     expect(json['note'], r'${item.midi}');
     expect(json['duration'], '1600');
     expect(json['waveform'], 'felt');
-    final back = ActionDef.fromJson(json) as PlaySoundAction;
+    final back = ActionDef.fromJson(json, catalog: standardCatalog) as PlaySoundAction;
     expect(back, a);
     expect(back.note, r'${item.midi}');
     expect(back.duration, '1600');

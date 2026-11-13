@@ -2,10 +2,10 @@
 // node, walked over the declarations: the node's own fields, LayoutFields,
 // DecorationFields (paints and effects selected by index, id or `*`), the
 // type's props and the behaviors' models.
-import '../behavior_fields.dart';
-import '../bindings.dart';
-import '../props.dart';
-import '../value_fields.dart';
+import '../core/behavior_fields.dart';
+import '../core/bindings.dart';
+import '../core/props.dart';
+import '../core/value_fields.dart';
 import 'diagnostic.dart';
 
 /// Why [path] isn't a bindable path of a node of [spec] (null: it is),
