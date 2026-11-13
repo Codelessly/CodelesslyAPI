@@ -733,9 +733,9 @@ section's anchor is its topic.
 | Page | What it covers | Words |
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4252 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7054 |
+| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7073 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1979 |
-| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3939 |
+| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4116 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10159 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
@@ -743,7 +743,7 @@ section's anchor is its topic.
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5120 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4536 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2383 |
-| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6522 |
+| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6561 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2181 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 468 |
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
@@ -751,7 +751,7 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2341 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2387 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 12872 |
 
 <a id="index-a-z"></a>
@@ -1146,7 +1146,7 @@ A leaf box: Flutter `Container` with a decoration and no child.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `path` | String | `""` |  | An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`. |
+| `path` | String | `""` |  | Schema 3 only: write a `path` node (schema 4 makes this box one, with the path as its `data`). An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration's fills and strokes. Its coordinates are the box's own pixels from its top left, not scaled to the box and not clipped to it (as Flutter's `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`. |
 | `strokeJoin` | [StrokeJoin](#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How the path's segments meet when stroked (`Paint.strokeJoin`). |
 | `strokeMiterLimit` | double | `4` | ≥ 0 | The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`). |
 
@@ -2187,7 +2187,8 @@ An SVG path, filled and stroked with the node's decoration (Flutter `CustomPaint
 | `trimStart` | double | `0` | ≥ 0, ≤ 1 | The stroked part of the path, as fractions of its length. |
 | `trimEnd` | double | `1` | ≥ 0, ≤ 1 |  |
 | `strokeJoin` | [StrokeJoin](#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How segments meet when stroked (`Paint.strokeJoin`). |
-| `subpathColors` | List<[Color](#type-Color)> | `[]` |  | Colors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color. |
+| `strokeMiterLimit` | double | `4` | ≥ 0 | The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`). |
+| `subpathColors` | List<[Color](#type-Color)> | `[]` |  | **Schema 3 only**: schema 4 draws the shapes as `customPaint` path ops, one per color (`paint.perShape` in migrate/steps_paint4.dart).<br><br>Colors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color. |
 
 <a id="behavior-customPaint"></a>
 ### `customPaint` (behavior)
@@ -2219,6 +2220,8 @@ A node key (beside `layout` and `props`). Type: [StrokePath](#type-StrokePath). 
 
 <a id="type-StrokePath"></a>
 #### StrokePath
+
+**Schema 3 only.** Schema 4 draws it as a `customPaint` path op (`paint.strokePath` in migrate/steps_paint4.dart), which is what renders a migrated document; this stays readable until schema 4's version gate removes it.
 
 A line drawn through `points` in the node's box (a dotted trail, a connector), behind its content or `inFront` of it. x and y are fractions of the box or pixels, per `xUnit`/`yUnit`.
 
@@ -2274,7 +2277,7 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `center` | [Alignment](#type-Alignment) | unset |  | Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center. |
 | `tileMode` | [TileMode](#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` | What a gradient does past `begin` and `end`: `clamp` (keeps the end colours), `repeated`, `mirror`, `decal`. |
 | `image` | [ImagePaint](#type-ImagePaint) | unset |  | Image (type `image`). |
-| `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
+| `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. Schema 3 only (`Paint.gradientPerSubpath`). |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
 | `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
 | `noise` | [NoisePaint](#type-NoisePaint) | unset |  | Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, "type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` (`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box. |
@@ -2466,16 +2469,23 @@ glyph's size, centered in the node's box; without it the glyph fills the box). A
 ### Small marks and shapes
 
 A mark the font lacks (✦, ✳): an `icon` (`"auto_awesome"`, `"star"`), or a `path` node with SVG path data and a
-`viewBox` so it scales to its box. Custom drawing beyond one path (several shapes, strokes along a path, text on a
-canvas): the `customPaint` behavior's draw lists, behind or over the node's content.
+`viewBox` so it scales to its box: the one decorated shape (fills, strokes and shadows from its `decoration`). Custom
+drawing beyond one path (several shapes, a line through points, shapes in different colors, text on a canvas): the
+`customPaint` behavior's draw lists, behind or over the node's content. A line through points is a `path` op with
+`points` (a formula of `${size.width}` for a share of the box), or with `commands` (Flutter's `Path` calls:
+`moveTo`, `lineTo`, `quadraticBezierTo`, `cubicTo`, `close`) for curves; shapes in different colors are one `path`
+op per color. `strokePath`, a box's `props.path` and a path's `subpathColors` are schema 3's spellings of these
+(`deprecated_key`): schema 4 rewrites them so.
 
 <a id="decoration-pitfalls"></a>
 ## Pitfalls
 
 - An effect needs its `type`; without it the effect is dropped.
 - Colours are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
-- A `path` is drawn in its box's own pixels from the top left and is not clipped to the box (as Flutter's
-  `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
+- A `path` node without a `viewBox` is drawn in its box's own pixels from the top left and is not clipped to the
+  box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`). Write a
+  shape as a `path` node, not as a box's `props.path` (schema 3's spelling, which also filled only the part inside the
+  box).
 - Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
 - `clip` is needed for children to follow rounded corners.
 - A child's fill covers its parent's inside border: pad the parent, stroke outside, or move the border to the child.
@@ -7318,23 +7328,23 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `lineEndX` | double | unset |  | Where the curve (and the area under it) stops, an x value: the rest of the domain stays empty (a series that hasn't happened yet). Unset: the whole domain. |
 | `endDotRadius` | double | `0` |  | A dot of this radius where the curve ends, in the line color with a `selectionDotColor` ring; 0 for none. |
 | `markerHollow` | bool | `false` |  | Markers are rings (the marker's color round a `selectionDotColor` center) instead of dots. |
-| `series` | List<[PlotChartSeries](#type-PlotChartSeries)> | `[]` |  | More curves over the same x domain, each with gaps (null points). |
+| `series` | List<[PlotChartSeries](#type-PlotChartSeries)> | `[]` |  | More curves over the same x domain, each with gaps (null points): a chart's series (fl_chart's `LineChartData.lineBarsData`). |
 | `gridAnchor` | [PlotChartGridAnchor](#enum-PlotChartGridAnchor) | `"start"` | `start`, `zero` | Where vertical grid lines start: xMin (default) or multiples of the step. |
-| `gridStepY` | double | unset |  | Horizontal grid lines at multiples of this step (none when unset). |
-| `minorDivisions` | int | `0` | ≥ 0 | Minor lines between grid lines (0: none), drawn in `minorGridColor` only while at least 6px apart. |
+| `gridStepY` | double | unset |  | Horizontal grid lines at multiples of this step (none when unset): the grid's horizontal interval (fl_chart's `FlGridData.horizontalInterval`). |
+| `minorDivisions` | int | `0` | ≥ 0 | Minor lines between grid lines (0: none), drawn in `minorGridColor` only while at least 6px apart: minor gridlines, as a plotting library's minor ticks. |
 | `minorGridColor` | [Color](#type-Color) | `"#0D000000"` |  |  |
-| `originAxes` | bool | `false` |  | Draws the x axis at y = 0 and the y axis at x = 0 (in `axisColor`) instead of a baseline, with tick labels at grid lines along them; labels of an axis off the plot stick to the nearest edge. |
+| `originAxes` | bool | `false` |  | Draws the x axis at y = 0 and the y axis at x = 0 (in `axisColor`) instead of a baseline, with tick labels at grid lines along them; labels of an axis off the plot stick to the nearest edge: axes that cross at the origin (a plotting library's spines at zero). |
 | `axisWidth` | double | `1` | ≥ 0 |  |
 | `axisArrows` | bool | `false` |  | Arrowheads at the positive ends of the origin axes. |
 | `xAxisTitle` | String | `""` |  | Titles at the positive ends of the origin axes (`x`, `y`). |
 | `yAxisTitle` | String | `""` |  |  |
 | `axisTitleStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `labelBackground` | [Color](#type-Color) | unset |  | Behind each axis label, so grid lines don't run through it. |
-| `labelMargin` | [EdgeInsets](#type-EdgeInsets) | `2` |  | Room kept clear of axis labels at each edge (left, top, right, bottom), e.g. for buttons over the chart. |
+| `labelMargin` | [EdgeInsets](#type-EdgeInsets) | `2` |  | Room kept clear of axis labels at each edge (left, top, right, bottom), for whatever sits over the chart's edges (a legend, buttons). |
 | `selectionY` | double | unset |  | The selection's y (default: the curve at selectedX). |
 | `selectionSeries` | String | `""` |  | The curve the selection follows: the id of a `series`, or empty for the chart's own points. |
 | `selectionGuides` | [PlotChartSelectionGuides](#enum-PlotChartSelectionGuides) | `"line"` | `line`, `axes`, `none` |  |
-| `selectionXLabel` | String | `""` |  | Text in tags where the guides meet the axes (empty: no tag). |
+| `selectionXLabel` | String | `""` |  | Text in tags where the guides meet the axes (empty: no tag): a crosshair's axis labels. |
 | `selectionYLabel` | String | `""` |  |  |
 | `selectionTagColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
 | `selectionTagStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
@@ -8900,6 +8910,7 @@ From `package:codelessly_api/validate.dart`:
 | `slot_outside_component` | warning | A slot node in a document that is not a component: nothing fills it, its own children show. |
 | `root_placement_bound` | warning | A component root binds its size or placement: the call sizes and places the root, so the binding is dropped. |
 | `repeated_subtree` | info | A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once. |
+| `deprecated_key` | info | A schema-3 paint field schema 4 replaces: `strokePath` (a customPaint path op), a box's `path` (a path node), `subpathColors` and `gradientPerSubpath` (customPaint path ops per color or per shape). It still draws; the schema-4 migration rewrites it the same way. |
 
 <a id="render-render-codes"></a>
 ### Render codes

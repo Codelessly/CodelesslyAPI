@@ -1,3 +1,29 @@
+## Unreleased: schema 4's paint steps
+
+**`strokePath`, a box's `path`, `subpathColors` and `gradientPerSubpath` move onto `customPaint` and the path
+node.** No change to what a schema-3 document means or draws; schema 4's migration (not wired here) applies the
+steps, and the fields stay readable until its version gate.
+
+- **`paintSteps4`** (`lib/src/core/migrate/steps_paint4.dart`), the named steps for `migrate3to4`:
+  `paint.patches`, `paint.strokePath` (a `path` op in `painter` or `foregroundPainter`; fractions of the box become
+  formulas of `size`, curves `Path` calls, `untilWidth` a `when` per call, `progress` `trimEnd`, `fillColor` a
+  closed op under the line), `paint.boxPath` (a `path` node), `paint.perShape` (one op per color, or per shape for a
+  gradient). What has no exact form is kept as `legacy.<name>` and reported: the draw-on animation
+  (`legacy.strokePath.draw`), and per-shape paints between shadows or beside a gradient laid out across the box.
+  Over the corpus of the schema-3 migration report (113 documents): 140 rewrites by `paint.strokePath` in 7
+  documents, 100 by `paint.boxPath` in 15, 45 by `paint.perShape` in 1; nothing kept, nothing reported as a
+  behaviour change. Rendered before and after, every affected node draws the same pixels except a box path's fill,
+  whose edge's anti-aliasing differs by at most 4/255 (the box clipped a rectangle to the path; the path node fills
+  the path), and a box path reaching outside its box, now filled there too (reported).
+- **`customPaint`: a path op's `commands`**, Flutter's `Path` builder calls (`moveTo`, `lineTo`,
+  `quadraticBezierTo`, `cubicTo`, `close`), each number a literal or a formula, each call with an optional `when`
+  (`PathCommand`, `PathOpFields.commands`).
+- **`PathProps.strokeMiterLimit`** (`Paint.strokeMiterLimit`), so a box path's limit carries over.
+- **Validation:** `deprecated_key` (info) notes `strokePath`, a box's `props.path`, `subpathColors` and
+  `gradientPerSubpath` with the schema-4 form.
+- The plot chart's Cartesian props stay: they are the chart's general features (series, grid steps, origin axes,
+  the selection's guides and tags), not one app's (docs/design/01-paint-node.md, "Schema 4").
+
 ## Unreleased
 
 **The reference for authors is one base plus links.** `docs/reference/STARTER.md` is the base an agent reads in
