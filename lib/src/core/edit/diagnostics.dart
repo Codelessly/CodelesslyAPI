@@ -30,7 +30,7 @@ final class EditCode {
 /// touched adds the validator's codes (`unknown_prop`, `wrong_type`,
 /// `invalid_enum`...), listed with strict validation.
 abstract final class EditCodes {
-  static const invalidOp = EditCode('invalid_op', 'An op that is not an object, or names no known "op" (set, patch, move, remove, vars, roots).');
+  static const invalidOp = EditCode('invalid_op', 'An op that is not an object, or names no known "op" (set, patch, move, remove, vars, roots, scripts).');
   static const missingField = EditCode('missing_field', 'An op without a field it needs ("id", "node", "patch", "parent", "ids", "scope", "roots").');
   static const wrongType = EditCode('wrong_type', 'A field of an op with the wrong JSON type (an id that is not text, a node that is not an object).');
   static const unknownId = EditCode('unknown_id', 'A patch, move or remove of a node the document does not have, or a set or move under a parent it does not have.');
@@ -90,11 +90,15 @@ abstract final class EditCodes {
       'A node that has content but was laid out with no width or no height, so nothing of it shows. Reported by a renderer.',
       error: false);
 
+  static const invalidScript = EditCode('invalid_script',
+      'A scripts op whose script cannot be stored: a name or parameter that is not a JavaScript identifier, no source, '
+          'limits out of range.');
+
   static const List<EditCode> all = [
     invalidOp, missingField, wrongType, unknownId, structuralKeyInPatch, staleRev, wouldOrphan, multipleParents, cycle, //
     canvasAsChild, invalidParent, danglingChild, unreachableNode, pendingChild, capabilityNotAllowed, limitExceeded,
     truncatedOp, invalidJson, invalidVariable, unknownVariable, malformedInput, misplacedField, startOver, emptyButton,
-    lowContrast, missingGlyph, noSize,
+    lowContrast, missingGlyph, noSize, invalidScript,
   ];
 }
 

@@ -195,12 +195,30 @@ const Json uiReadInputSchema = {
 /// [compact]: the op envelope only ([uiApplyCompactInputSchema]), for a
 /// system prompt that describes the nodes (`runtimeStarter`); otherwise
 /// every node type and key of [catalog] is in the schema.
-List<Json> uiTools(Catalog catalog, {bool compact = false}) => [
+/// [docs]: also `ui_docs`, the full reference one topic at a time
+/// (`docsTopic`).
+List<Json> uiTools(Catalog catalog, {bool compact = false, bool docs = false}) => [
       compact
           ? {'name': 'ui_apply', 'description': uiApplyCompactDescription, 'input_schema': uiApplyCompactInputSchema()}
           : {'name': 'ui_apply', 'description': uiApplyDescription, 'input_schema': uiApplyInputSchema(catalog)},
       {'name': 'ui_read', 'description': compact ? uiReadCompactDescription : uiReadDescription, 'input_schema': uiReadInputSchema},
+      if (docs) {'name': 'ui_docs', 'description': uiDocsDescription, 'input_schema': uiDocsInputSchema},
     ];
+
+/// The `ui_docs` tool: the full reference, one topic at a time.
+const String uiDocsDescription =
+    'Look up what the system prompt does not cover: a node type, an action type, a behavior or a feature area '
+    '(the index at the end of the system prompt lists them). Returns its props or fields, a minimal example and pitfalls.';
+
+/// The `ui_docs` tool input's JSON Schema.
+const Json uiDocsInputSchema = {
+  'type': 'object',
+  'required': ['topic'],
+  'properties': {
+    'topic': {'type': 'string', 'description': 'One topic: "slider", "animation", "timer", "scripts"...'},
+  },
+  'additionalProperties': false,
+};
 
 /// The `ui_read` tool's description in the compact tools.
 const String uiReadCompactDescription =

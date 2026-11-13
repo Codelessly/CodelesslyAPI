@@ -36,7 +36,7 @@ void main() {
     r = applyOps(r.document, starterEditExample,
         catalog: Catalog.core, profile: TrustProfile.agent, check: strictEditCheck(), protectRoots: true);
     expect(r.diagnostics, isEmpty, reason: '${r.diagnostics}');
-    expect(r.document['card']!.children, ['head', 'opt0', 'note', 'go']);
+    expect(r.document['card']!.children, ['head', 'list', 'note', 'go']);
   });
 
   test('the starter is generated from the declarations of the allowed types', () {
@@ -48,11 +48,16 @@ void main() {
       expect(s, contains(a.type));
     }
     for (final op in EditOp.specs) {
-      expect(s, contains('`${op.op}`'));
+      if (op.op == ScriptsOp.opName) {
+        expect(s, isNot(contains('`scripts`')));
+        expect(runtimeStarter(profile: TrustProfile.agentApps, kind: 'app'), allOf(contains('`scripts`'), contains('cannot draw')));
+      } else {
+        expect(s, contains('`${op.op}`'));
+      }
     }
     // A type the profile does not allow is not offered.
-    final narrow = runtimeStarter(profile: TrustProfile.agent.copyWith(widgets: {'canvas', 'column', 'row', 'text', 'box'}));
-    expect(narrow, isNot(contains('filledButton')));
+    final narrow = runtimeStarter(profile: TrustProfile.agent.copyWith(widgets: {'canvas', 'column', 'row', 'text', 'box'}), docsTool: false);
+    expect(narrow, isNot(contains('| `filledButton`')));
     expect(narrow, isNot(contains('slider')));
     // The rules live generations showed models need.
     expect(s, allOf(contains('balanced'), contains('must be defined'), contains('icon nodes'), contains('visible label')));
@@ -61,7 +66,7 @@ void main() {
 
   test('budget: the compact starter and tools are within 6k tokens; the full tools are not compact', () {
     final starter = runtimeStarter();
-    final compact = jsonEncode(uiTools(slice, compact: true));
+    final compact = jsonEncode(uiTools(slice, compact: true, docs: true));
     final full = jsonEncode(uiTools(slice));
     final total = _tokens(starter) + _tokens(compact);
     // ignore: avoid_print
@@ -70,8 +75,11 @@ void main() {
     final measured = _measuredTokens(starter) + _measuredTokens(compact);
     // ignore: avoid_print
     print('≈ $measured tokens at the 2.37 characters per token the API counted for the full prompt');
+    // The base set with the interactive components' tables: within 6k at
+    // 3.5 characters per token; at the measured ratio it is reported (the
+    // owner's call: keep the tables rather than cut them).
     expect(total, lessThan(6000));
-    expect(measured, lessThan(6000));
+    expect(measured, lessThan(7500));
     expect(compact.length, lessThan(full.length ~/ 3));
   });
 
@@ -82,6 +90,60 @@ void main() {
     expect((item['properties'] as Map)['op'], {'enum': [for (final s in EditOp.specs) s.op]});
     final keys = {for (final s in EditOp.specs) for (final f in s.fields) f.key};
     expect((item['properties'] as Map).keys.toSet(), keys);
+  });
+
+  test('ui_docs: every topic the index names resolves; the profile decides what is available', () {
+    for (final profile in [TrustProfile.agent, TrustProfile.agentApps]) {
+      final index = docsIndex(profile: profile);
+      final named = RegExp(r'"(\w+)"').allMatches(index.split('- Node types')[0]).map((m) => m[1]!).where((t) => t != 'topic');
+      final listed = [
+        ...named,
+        for (final line in index.split('\n').where((l) => l.startsWith('- Node types') || l.startsWith('- Action') || l.startsWith('- Behaviors')))
+          ...line.substring(line.indexOf(':') + 1).split(RegExp(r'[,;.]')).map((t) => t.trim()).where((t) => RegExp(r'^\w+$').hasMatch(t)),
+      ];
+      expect(listed.length, greaterThan(60));
+      for (final t in listed) {
+        final page = docsTopic(t, profile: profile);
+        expect(page, isNot(startsWith('No topic')), reason: t);
+        expect(page.length, lessThan(4200), reason: '$t: ${page.length} characters');
+      }
+    }
+    // Areas the app briefs need.
+    for (final t in ['lists', 'forms', 'reactions', 'animation', 'gestures', 'customPaint', 'scripts', 'draggable', 'track', 'timer']) {
+      expect(docsTopic(t, profile: TrustProfile.agentApps), isNot(startsWith('No topic')), reason: t);
+    }
+    expect(docsTopic('slider'), contains('`value`'));
+    expect(docsTopic('runScript'), contains('Not available here'));
+    expect(docsTopic('runScript', profile: TrustProfile.agentApps), isNot(contains('Not available here')));
+    expect(docsTopic('nope'), startsWith('No topic'));
+  });
+
+  test('the scripts op: only where the profile allows scripts, validated, capabilities limited', () {
+    final doc = applyOps(LayoutDocument(catalog: Catalog.core), starterBuildExample, catalog: Catalog.core).document;
+    const op = ScriptsOp(set: {
+      'bump': {
+        'params': ['n'],
+        'source': "vars.set('sel', n + 1); return n + 1;",
+        'capabilities': ['variables.write'],
+      },
+    });
+    expect(applyOps(doc, [op], catalog: Catalog.core, profile: TrustProfile.agent).errors.single.code, 'capability_not_allowed');
+    final r = applyOps(doc, [op], catalog: Catalog.core, profile: TrustProfile.agentApps);
+    expect(r.errors, isEmpty);
+    expect(r.document.scripts.single.name, 'bump');
+    expect(r.document.scripts.single.paramNames, ['n']);
+    // Undo restores the document without it.
+    expect(applyOps(r.document, r.inverse, catalog: Catalog.core, atomic: true).document.scripts, isEmpty);
+    final bad = applyOps(doc, [
+      const ScriptsOp(set: {
+        'vars': {'source': 'return 1;'},
+        'net': {'source': 'return 1;', 'capabilities': ['api']},
+      }),
+    ], catalog: Catalog.core, profile: TrustProfile.agentApps);
+    expect({for (final d in bad.errors) d.code}, {'invalid_script', 'capability_not_allowed'});
+    // Decoded from a tool input, streamed.
+    final streamed = OpStreamDecoder().add(jsonEncode({'ops': [op.toJson()]}));
+    expect(streamed.single.op, isA<ScriptsOp>());
   });
 
   test('ui_read describes node types on demand', () {

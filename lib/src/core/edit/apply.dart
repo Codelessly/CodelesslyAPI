@@ -17,6 +17,7 @@ import '../json.dart';
 import '../logic.dart';
 import '../node.dart';
 import '../props.dart';
+import '../scripts.dart';
 import '../variables.dart';
 import '../widgets/canvas.dart';
 import 'catalog_check.dart';
@@ -157,6 +158,10 @@ final class EditResult {
           }
         case VarsOp(:final scope):
           add('vars', scope);
+        case ScriptsOp(:final set, :final remove):
+          for (final n in [...set.keys, ...remove]) {
+            add('scripts', n);
+          }
         case RootsOp():
           break;
       }
@@ -534,6 +539,8 @@ class _Batch {
         _vars(op);
       case RootsOp():
         roots = [...op.roots];
+      case ScriptsOp():
+        _scripts(op);
     }
   }
 
@@ -828,6 +835,68 @@ class _Batch {
     extra = {...extra, LayoutLogic.variablesKey: all};
   }
 
+  void _scripts(ScriptsOp op) {
+    if (!profile.scripts) {
+      return _error(EditCodes.capabilityNotAllowed, 'Scripts are not allowed here: use formulas, variables and reactions.',
+          path: '/ops/$_op');
+    }
+    final list = [...?readList(extra[LayoutDocumentScripts.key])?.map(readMap).nonNulls];
+    int find(String name) => list.indexWhere((s) => s['name'] == name);
+    for (final e in op.set.entries) {
+      final p = editPointer(editPointer('/ops/$_op', 'set'), e.key);
+      final m = readMap(e.value);
+      if (m == null) {
+        _error(EditCodes.wrongType, 'Script "${e.key}" is an object {"source", "params", "capabilities"}.', path: p);
+        continue;
+      }
+      final params = [
+        for (final x in readList(m['params']) ?? const [])
+          if (x is String) {'name': x} else if (readMap(x) case final Json j) j,
+      ];
+      final caps = readStrings(m['capabilities']);
+      final json = <String, Object?>{
+        ...m,
+        'id': readString(m['id']) ?? e.key,
+        'name': e.key,
+        'params': params,
+        if (caps.isNotEmpty) 'capabilities': caps,
+      };
+      final def = ScriptDef.fromJson(json);
+      if (def == null) {
+        _error(EditCodes.invalidScript, 'Script "${e.key}" could not be read.', path: p);
+        continue;
+      }
+      final problems = [...def.validate(), if (def.source.trim().isEmpty) 'It has no "source".'];
+      for (final c in caps) {
+        final cap = ScriptCapability.parse(c);
+        if (cap == null) {
+          problems.add('Capability "$c" is not one (${[for (final x in ScriptCapability.values) x.id].join(', ')}).');
+        } else if (profile.scriptCapabilities != null && !profile.scriptCapabilities!.contains(cap)) {
+          _error(EditCodes.capabilityNotAllowed,
+              'Script capability "$c" is not allowed here: only ${[for (final x in profile.scriptCapabilities!) x.id].join(', ')}.',
+              path: editPointer(p, 'capabilities'), expected: [for (final x in profile.scriptCapabilities!) x.id]);
+        }
+      }
+      for (final pr in problems) {
+        _error(EditCodes.invalidScript, 'Script "${e.key}": $pr', path: p);
+      }
+      if (problems.isNotEmpty) continue;
+      final stored = def.toJson();
+      final i = find(e.key);
+      if (i >= 0) {
+        list[i] = stored;
+      } else {
+        list.add(stored);
+      }
+    }
+    for (final name in op.remove) {
+      final i = find(name);
+      if (i >= 0) list.removeAt(i);
+    }
+    if (_failed) return;
+    extra = {...extra, LayoutDocumentScripts.key: list};
+  }
+
   // --- checks ---------------------------------------------------------------------
 
   /// The structure around [touched] (one parent each, no cycle, no canvas
@@ -940,6 +1009,14 @@ List<EditOp> _inverse(LayoutDocument before, LayoutDocument after) {
     out.add(VarsOp(scope,
         set: {for (final v in b) '${v['name']}': {...v}..remove('name')},
         remove: [for (final v in a) if (!bNames.contains(v['name'])) '${v['name']}']));
+  }
+  if (!jsonEquality.equals(before.extra[LayoutDocumentScripts.key], after.extra[LayoutDocumentScripts.key])) {
+    final b = [...?readList(before.extra[LayoutDocumentScripts.key])?.map(readMap).nonNulls];
+    final a = [...?readList(after.extra[LayoutDocumentScripts.key])?.map(readMap).nonNulls];
+    final bNames = {for (final s in b) s['name']};
+    out.add(ScriptsOp(
+        set: {for (final s in b) '${s['name']}': s},
+        remove: [for (final s in a) if (!bNames.contains(s['name'])) '${s['name']}']));
   }
   return out;
 }
