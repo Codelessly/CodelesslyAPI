@@ -1,6 +1,6 @@
 {
   "package": "codelessly_api",
-  "version": "24.0.0",
+  "version": "30.0.0",
   "schema": 3,
   "document": {
     "keys": [
@@ -11687,7 +11687,7 @@
         "item": "NodeAnimation",
         "itemKind": "object",
         "item_object": "NodeAnimation",
-        "doc": "Its animation controllers (the legacy `loops` and `effectAnimations` read as these)."
+        "doc": "Its animation controllers."
       },
       {
         "key": "transitions",
@@ -11698,7 +11698,7 @@
         "item": "Transition",
         "itemKind": "object",
         "item_object": "Transition",
-        "doc": "How changes animate, one per property path (the legacy `{style, opacity, size}` reads as these)."
+        "doc": "How changes animate, one per property path."
       },
       {
         "key": "shimmer",
@@ -12735,7 +12735,7 @@
       "setVariable": {
         "label": "Set variable",
         "class": "SetVariableAction",
-        "doc": "Changes variable `variable` (of the screen, or the app): `write`. JSON: `{\"type\": \"setVariable\", \"variable\": \"count\", \"op\": \"add\", \"value\": \"1\"}`. A computed variable can't be set. A number can glide to its new value (`animateMs`, `curve`): the variable changes every frame (what's bound to it moves with it), and the chain goes on when it arrives.",
+        "doc": "Changes variable `variable` (of the screen, or the app): `write`. JSON: `{\"type\": \"setVariable\", \"variable\": \"count\", \"op\": \"add\", \"value\": \"1\"}`. A computed variable can't be set. To glide a number to a new value, `AnimateAction` it (`animateTo`).",
         "fields": [
           {
             "key": "variable",
@@ -13259,7 +13259,7 @@
       "controlTrack": {
         "label": "Control track",
         "class": "ControlTrackAction",
-        "doc": "Turns the `Track` of node `node` (several ids: comma-separated, the first on screen takes it). The legacy `controlDrag` `step` reads as it.",
+        "doc": "Turns the `Track` of node `node` (several ids: comma-separated, the first on screen takes it).",
         "fields": [
           {
             "key": "node",
@@ -13303,7 +13303,7 @@
       "controlDismissible": {
         "label": "Control dismissible",
         "class": "ControlDismissibleAction",
-        "doc": "Dismisses, brings back or resets node `node` (several ids: comma-separated). The legacy `controlDrag` `fling`, `returnFrom` and `shake` read as it.",
+        "doc": "Dismisses, brings back or resets node `node` (several ids: comma-separated).",
         "fields": [
           {
             "key": "node",
@@ -13348,7 +13348,7 @@
       "controlTransform": {
         "label": "Control transform",
         "class": "ControlTransformAction",
-        "doc": "Resets, zooms or poses the transform gesture of node `node`. The legacy `controlDrag` `reset`, `zoom` and `pose` read as it.",
+        "doc": "Resets, zooms or poses the transform gesture of node `node`.",
         "fields": [
           {
             "key": "node",
@@ -24197,15 +24197,15 @@
     "TransformCommand": [
       {
         "value": "reset",
-        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
+        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
       },
       {
         "value": "scaleBy",
-        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
+        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
       },
       {
         "value": "animateTo",
-        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
+        "doc": "What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: \"fit to route\")."
       }
     ],
     "TransformPan": [
