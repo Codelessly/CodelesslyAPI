@@ -809,6 +809,11 @@ class _Batch {
   }
 }
 
+/// The ops that turn [after] back into [before] (apply them with `atomic:
+/// true`): what [EditResult.inverse] holds for one batch, for any two
+/// documents (a whole stream of batches).
+List<EditOp> inverseOps(LayoutDocument before, LayoutDocument after) => _inverse(before, after);
+
 /// The ops that turn [after] back into [before]: removes for nodes added,
 /// sets (whole node, children lists included) for nodes changed or removed,
 /// and the roots and variables as they were. Applied atomically (the
