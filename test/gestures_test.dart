@@ -5,7 +5,9 @@
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-Node _node(Json j) => Node.fromJson({'id': 'n', 'type': 'box', ...j})!;
+import 'legacy_support.dart';
+
+Node _node(Json j) => migratedNode({'id': 'n', 'type': 'box', ...j})!;
 
 void main() {
   test('motion additions read into the new shape; named values stay', () {
@@ -33,13 +35,14 @@ void main() {
     final loop = n.behaviors.animations.firstWhere((a) => a.id == 'loop');
     expect(loop.params['mode'], 'swing');
     expect(loop.paused, isTrue);
-    expect(m.path!.pacing, PathPacing.area);
-    expect(m.path!.focus, [10, -4]);
+    // Area pacing is dropped in schema 3 (kept, unread, as legacy.*).
+    expect(n.extra['legacy.motion.path.pacing'], {'pacing': 'area', 'focus': [10, -4]});
     expect(m.path!.orient, PathOrient.upright);
     expect(n.behaviors.shimmer, const Shimmer(color: Color(0xFFFFCC00), strength: 0.5, width: 0.3, angle: 90));
     expect(n.behaviors.animations.firstWhere((a) => a.id == 'shimmer').duration, 900);
-    expect(Transition.of(n.behaviors.transitions, 'motion.translateX')!.arc, 0.25);
-    expect(Node.fromJson(n.toJson()), n);
+    // So is a transition's arc.
+    expect(n.extra['legacy.transitions.motion.arc'], 0.25);
+    expect(migratedNode(n.toJson()), n);
     // enterFrom names opacity 1 on purpose: the entrance starts there.
     Map<String, Object?> from(Json motion) =>
         readMap(_node({'motion': motion}).behaviors.animations.single.params['from'])!;
@@ -71,11 +74,11 @@ void main() {
 
   test('loop phase and lag; effect cycles', () {
     // A loop's lag folds into its phase (a share of the whole loop).
-    final l = AnimationPresets.fromLoop({'type': 'fade', 'duration': 500, 'reverse': true, 'phase': 0.3, 'lag': 100}, 0)!;
+    final l = legacyLoop({'type': 'fade', 'duration': 500, 'reverse': true, 'phase': 0.3, 'lag': 100}, 0)!;
     expect(l.cycleMs, 1000);
     expect(l.phase, closeTo(0.2, 1e-9));
     expect(NodeAnimation.fromJson(l.toJson()), l);
-    final e = AnimationPresets.fromEffect({'name': 'no', 'type': 'shake', 'cycles': 3}, 0)!;
+    final e = legacyEffect({'name': 'no', 'type': 'shake', 'cycles': 3}, 0)!;
     expect(e.params['cycles'], 3);
     expect(e.toJson()['params'], {'cycles': 3});
   });
@@ -123,30 +126,19 @@ void main() {
     expect(b.pan!.physics!.spring.duration, 420);
     expect(b.draggable!.dragAnchor, DragAnchor.center);
     expect(b.dropTarget!.slotSize, DropSlotSize.node);
-    expect(b.dropTarget!.slotWhenRefused, isFalse);
     expect(_node(n.toJson()), n);
     // An insertion bar in the gap between items, taking no room.
-    final bar = Node.fromJson({'type': 'box', 'dropTarget': {'slot': 'node', 'slotNodeId': 'bar', 'slotSize': 'inGap'}}, id: 'n')!;
+    final bar = migratedNode({'type': 'box', 'dropTarget': {'slot': 'node', 'slotNodeId': 'bar', 'slotSize': 'inGap'}}, id: 'n')!;
     expect(bar.behaviors.dropTarget!.slotSize, DropSlotSize.inGap);
     expect(_node(bar.toJson()), bar);
     expect(const DragSource(returnSpring: null).effectivePhysics, isNull);
   });
 
-  test('drag track: new settings, parked, endless, double tap', () {
-    const t = Track(
-      shape: TrackShape.arc,
-      min: 1,
-      max: 5,
-      step: 1,
-      parkedProgress: -0.125,
-      doubleTapValues: [5, 3],
-      clamp: true,
-    );
-    expect(t.restProgressOf(double.nan), -0.125);
-    expect(t.restProgressOf(0), -0.125);
+  test('drag track: new settings, endless (parking and double tap are gone in schema 3)', () {
+    const t = Track(shape: TrackShape.arc, min: 1, max: 5, step: 1, clamp: true);
+    expect(t.restProgressOf(double.nan), 0);
+    expect(t.restProgressOf(0), 0);
     expect(t.restProgressOf(3), 0.5);
-    expect(t.doubleTapTarget(5), 3);
-    expect(t.doubleTapTarget(2), 5);
     const e = Track(shape: TrackShape.arc, max: 40, clamp: false, step: 1);
     expect(e.progressOf(80), 2);
     expect(e.snapValue(81.4), 81);
@@ -174,7 +166,7 @@ void main() {
       'overscroll': 0.35,
       'value': 3,
     };
-    final track = Track.fromJson(j)!;
+    final track = legacyTrack(j)!;
     // Read into the new shape (docs/design/04-drag-and-track.md): gain folds
     // into pixelsPerRange, momentum is physics, keyboard off is keyStep 0,
     // write off drops the variable (a bound value shows it), a view box
@@ -194,15 +186,13 @@ void main() {
       'settleCurve': 'spring',
       'snap': 120,
       'snapCurve': 'elasticOut',
-      'fineStep': 0.1,
-      'fineHold': 500,
-      'fineVariable': 'fine',
-      'smooth': true,
     });
+    // The fine mode and smooth are dropped in schema 3 (kept unread as legacy.*).
+    expect(legacyNode({'track': j}).extra.keys, containsAll(['legacy.track.fineStep', 'legacy.track.smooth']));
     expect(Track.fromJson(track.toJson()), track);
     expect(track.effectiveKeyStep, isNull);
     expect(track.usesViewBox, isFalse);
-    expect(Track.fromJson({'path': 'M0 0 L10 0', 'viewBoxWidth': 100, 'viewBoxHeight': 50})!.usesViewBox, isTrue);
+    expect(legacyTrack({'path': 'M0 0 L10 0', 'viewBoxWidth': 100, 'viewBoxHeight': 50})!.usesViewBox, isTrue);
   });
 
   test('flip, tilt, transform gesture, hero placeholder, node key', () {
@@ -242,7 +232,7 @@ void main() {
       expect(out[k], j[k], reason: k);
     }
     // zoomable is a transform gesture's first form.
-    expect(_node({'zoomable': true}).behaviors.effectiveTransformGesture, TransformGesture.zoomable);
+    expect(_node({'zoomable': true}).behaviors.transformGesture, zoomableGesture);
     expect(_node({'flip': <String, Object?>{}}).toJson()['flip'], isEmpty);
   });
 

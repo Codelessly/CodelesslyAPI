@@ -1,4 +1,53 @@
-## Unreleased
+## 30.0.0
+
+**Schema 3: the one planned format break.** Documents are `"schema": 3`. Schema 2 documents load and are
+migrated in memory; write schema 3. `LayoutDocument.fromJson` (and `PublishModel`, `PublishBundle`,
+`PublishLayout`, `PublishComponent`, `ComponentDefinition`, the site manifest and plugin packages, through
+the documents they hold) migrates a schema-2 document (or one with no `schema`) before decoding it; encoders
+write `"schema": 3`. The guide's new chapter, docs/guide/12-migrating-to-schema-3.md, is the authors' migration
+guide; docs/design/schema-3-migration-report.md is the migration over the reference apps and experiments.
+
+- **The migration:** `migrate2to3(Json document, {MigrationReport? report})` (pure, total, idempotent),
+  `migrateNode2to3`, `migratePublish2to3`, `migrateJson2to3` (any file that carries documents; a stored
+  payload or a stored published component, whose digest covers what was stored, is migrated when read),
+  `schemaOf`, `kSchemaVersion` = 3, `kPublishSchemaVersion` = 3, `schema3Steps` (named `MigrationStep`s).
+  `MigrationReport` lists every rewrite, every value with no schema-3 form (kept on the node as
+  `legacy.<name>`, unread, with what to write instead) and every behaviour change; `migrationReportMarkdown`.
+  Commands: `dart run tool/migrate.dart <file|dir> [--write] [--report out.json]`,
+  `dart run tool/migration_corpus.dart` (corpus checks and the aggregated report).
+- **Validation:** `validateDocument` reads 2 and 3: a schema-2 document gets the `schema_outdated` note
+  (`Severity.info`) and is validated as migrated; `legacy_value` (warning) flags a kept value; an expression
+  is accepted where a field takes one inline (`ExprCodec`: a timer's `intervalMs`).
+- **Breaking (Dart): the legacy readers are gone from the model**; the migration has them. `Behaviors.migrateBind`,
+  `Behaviors.legacyKeys`, `Behaviors.effectiveTransformGesture` (use `transformGesture`),
+  `TransformGesture.zoomable`, `DragRelease`, `Spring.legacy`, `PathFollow.fromLegacy`, `Track.fromLegacyDrag`,
+  `Track.readsOnly`, `DismissibleBehavior.fromLegacyDrag`, `Pan.fromLegacyDrag`, `AnimationPresets.fromLoop`,
+  `fromEffect`, `fromMotion`, `fromPulseKey`, `legacyLoopMode`, `loopTypes`, `effectTypes`,
+  `legacyMotionSpring`; `SetVariableAction.animateMs` and `curve` (`SetVariableFields.animateMs`, `curve`).
+  Decoders no longer read `loops`, `effectAnimations`, motion's temporal keys, `opacity`, `blur`, `originX/Y`
+  and flat path keys, `drag`, `zoomable`, a track's `endAngle`/`endless`/`jumpOnTap`/`wheel`/`keyboard`/
+  `momentum`/`friction`/`write`/`settleStiffness`/path string, a draggable's `whileDragging`/`feedbackNodeId`/
+  `feedbackAnchor`/`dragAnchorStrategy`/`spring*`/`physics`, flat physics springs, the `transitions` object and
+  map, `gradientUnits`, `playAnimation`, `animateVariable`, `setVariable.animateMs`, `controlDrag`, the `clock`
+  trigger: in a schema-3 document they are unknown keys (kept, unread).
+- **Breaking (Dart and JSON): the deprecated one-app fields are removed** (the migration keeps a value that
+  did something as `legacy.<behavior>.<field>` and reports what to write instead): `Track.defaultValue`,
+  `doubleTapValues`, `parkedProgress`, `fineStep`, `finePixelsPerRange`, `fineHold`, `fineVariable`, `smooth`,
+  `gain` (and `hasFine`, `isParked`, `doubleTapTarget`, `effectiveFinePixelsPerRange`, `${track.fine}`);
+  `DismissibleBehavior.restX`, `restY`, `xVariable`, `yVariable`, `flyOutRotate`; on `DismissibleBehavior` and
+  `Pan`: `rotateFactor`, `originX`, `originY`, `shakeWhenDisabled`, `disabledFollow`, `shareAs`, `follow`;
+  `PathFollow.pacing`, `focus`, `pacedByArea`, `headsLeft`, `PathPacing`, `PathOrient.uprightFlip` (now
+  `upright`); `Transition.arc`; `DropTarget.fullIf`, `slotWhenRefused` (the slot opens for accepted drags
+  only), `hoverDelay`, and the `dropFull` and `dragHover` triggers; `GestureSnap.projectVelocity` (a snap
+  always projects the fling); `TransformGesture.rotationSnap`; `OpenModalAction.showCloseButton`,
+  `fullHeight` (never read). Their `*Fields` declarations go with them.
+- **Behaviour changes** (all reported by the migration, per document): a track with no value is drawn at
+  its minimum, not at `defaultValue`, and a double tap resets nothing; the fine mode, `smooth`, a dismissible's
+  tilt and fly-off spin, disabled follow and shake, `shareAs`, area pacing, the upright flip, a transition's
+  arc, `fullIf`/`dropFull` and a hover delay no longer act; a refused drag opens no list slot; a
+  `setVariable` glide that is not a set, add or subtract by one formula sets at once. Over the corpus:
+  cutroom's fine step and safecracker's `smooth` (docs/design/schema-3-migration-report.md).
+
 
 **Streaming generative UI, hardened against real model output**
 

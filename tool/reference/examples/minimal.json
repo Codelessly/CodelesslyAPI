@@ -1,5 +1,5 @@
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["home"],
   "nodes": {
     "home": {"type": "canvas", "name": "Home", "slots": {"body": "page"},

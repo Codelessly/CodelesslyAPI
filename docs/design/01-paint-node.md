@@ -427,3 +427,10 @@ disagreed, Flutter won. Every `Canvas` and `Paint` name below was checked agains
     an image's its `dst`.
 12. **Not migrated in this wave:** `strokePath`, `box.path`, `subpathColors`, `gradientPerSubpath` and
     `plotChart`'s props are unchanged; their decoders still read and write them as before.
+
+## Done in schema 3
+
+`gradientUnits: "subpath"` is migrated to `gradientPerSubpath: true` (`paint.gradientUnits`). **Not done:**
+moving `strokePath`, `box.path`, `gradientPerSubpath`/`subpathColors` and the plot chart's canvas props onto
+`customPaint` (schema-3 step 4): each needs a synthesized draw list proven pixel-equal against the goldens of
+its users (strata, lineworks, ninefold_v2, apiary, northstar, plotter_v2); not started.

@@ -72,14 +72,6 @@ final class Spring extends _Value {
     return Spring(stiffness: fallback.stiffness, damping: fallback.damping, mass: mass > 0 ? mass : 1);
   }
 
-  /// A legacy flat spring (`springStiffness`, `springDamping` on the owner's
-  /// own JSON [m]): null when [m] gives neither key.
-  static Spring? legacy(Json m, String stiffnessKey, String dampingKey, {required Spring fallback}) {
-    final s = readDouble(m[stiffnessKey]), d = readDouble(m[dampingKey]);
-    if (s == null && d == null) return null;
-    return Spring(stiffness: s ?? fallback.effectiveStiffness, damping: d ?? fallback.effectiveDamping, mass: fallback.mass);
-  }
-
   Json toJson() {
     final j = <String, Object?>{};
     if (isPhysical) {

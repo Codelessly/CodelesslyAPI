@@ -6,7 +6,7 @@ import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 Json doc(Json paint) => {
-      'schema': 2,
+      'schema': 3,
       'roots': ['c'],
       'nodes': {
         'c': {'type': 'canvas', 'layout': {'width': 390, 'height': 844}, 'slots': {'body': 'b'}},

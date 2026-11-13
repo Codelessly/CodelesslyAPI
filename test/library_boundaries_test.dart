@@ -123,7 +123,7 @@ void main() {
 
   test('(4) with the core catalog, feature types decode whole and re-encode byte for byte', () {
     final json = {
-      'schema': 2,
+      'schema': 3,
       'roots': ['c'],
       'nodes': {
         'c': {'type': 'canvas', 'children': ['v'], 'layout': {}},

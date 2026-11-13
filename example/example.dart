@@ -76,7 +76,7 @@ void main() {
     nodes: {for (final n in [canvas, column, title, counter, button]) n.id: n},
   );
 
-  // 3. JSON: sparse (defaults are left out) and versioned ("schema": 2).
+  // 3. JSON: sparse (defaults are left out) and versioned ("schema": 3).
   final json = document.toJson();
   print(const JsonEncoder.withIndent('  ').convert(json));
 

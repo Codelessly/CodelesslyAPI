@@ -2,7 +2,7 @@
 
 [Guide](README.md) · Previous: [Widgets and `WidgetSpec`](02-widgets-and-widgetspec.md) · Next: [Building and checking a layout in code](04-building-layouts-in-code.md)
 
-![Three rules: versioned with "schema": 2, total decoding that never throws, sparse encoding that omits defaults](images/03-json-format/hero.png)
+![Three rules: versioned with "schema": 3, total decoding that never throws, sparse encoding that omits defaults](images/03-json-format/hero.png)
 
 *The three rules of the format.*
 
@@ -10,8 +10,9 @@
 
 ### Versioned
 
-Every document carries `"schema": 2` (`kSchemaVersion`). Decoders upgrade any older schema on load
-(`LayoutDocument.migrateSchema`, `schemaMigrations`), so the format can evolve without breaking stored data.
+Every document carries `"schema": 3` (`kSchemaVersion`). A schema-2 document (or one with no `schema`) is
+migrated once, in memory, when it is read (`LayoutDocument.migrateSchema`, `migrate2to3`), so stored data
+keeps working; the decoders know only the schema-3 shape. Chapter 12 is the migration guide.
 
 ### Total decoding
 
@@ -29,7 +30,7 @@ Every document carries `"schema": 2` (`kSchemaVersion`). Decoders upgrade any ol
 
 ```dart
 final document = LayoutDocument.fromJson({
-  'schema': 2,
+  'schema': 3,
   'id': 'L',
   'roots': ['c', 'missing'],
   'nodes': {
@@ -75,7 +76,7 @@ to 4 decimals, and integral ones are written as integers.
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "id": "layout-id",
   "roots": ["canvas-a"],
   "nodes": {
@@ -96,7 +97,7 @@ to 4 decimals, and integral ones are written as integers.
 
 | Key | |
 |---|---|
-| `schema` | `2` |
+| `schema` | `3` |
 | `id` | The layout's id |
 | `roots` | Canvas ids, in order |
 | `nodes` | `{id: node}`. A node's `id` is its key. |
@@ -121,7 +122,7 @@ A published project is a **publish model** and its **layouts**.
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "projectId": "p",
   "slug": "my-project",
   "entryLayoutId": "home",

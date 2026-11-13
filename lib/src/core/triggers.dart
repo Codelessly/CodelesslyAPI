@@ -102,8 +102,7 @@ enum TriggerType {
   valueChanged,
 
   /// Every [Trigger.intervalMs] while the screen shows (`Timer.periodic`)
-  /// and [Trigger.when] holds; `${result.tick}` counts. The legacy `clock`
-  /// (`every`, `runWhen`) reads as this.
+  /// and [Trigger.when] holds; `${result.tick}` counts.
   timer,
 
   /// Every frame while the node is on stage and [Trigger.when] holds (a
@@ -133,7 +132,7 @@ enum TriggerType {
   exitViewport,
 
   /// Drag and drop: on a draggable (start, cancel, completed) and on a drop
-  /// target (drop, enter, exit, hover, rejected; full: [dropFull]).
+  /// target (drop, enter, exit, rejected).
   /// `${result}` and `${drag}` hold the drag. A list with a `reorder` fires
   /// `dragStart` when a row is picked up and `dragCompleted` when it is let
   /// go (moved or not), with `${result.index}` and `${result.item}`: a list
@@ -148,13 +147,7 @@ enum TriggerType {
   drop,
   dragEnter,
   dragExit,
-  dragHover,
   dropRejected,
-
-  /// On a drop target that is full (its `fullIf` holds) when a drag of a
-  /// group it accepts is let go on it: the drag springs back and these
-  /// run, reading the drop as [drop] does; `${drag.full}` is true.
-  dropFull,
 
   /// A data list row was dragged to a new place by this node, its reorder
   /// handle (`${result.from}`, `${result.to}`). A list with a `reorder`
@@ -302,20 +295,16 @@ final class Trigger {
       return t == null ? null : Trigger(t);
     }
     final m = readMap(json);
-    final clock = m?['type'] == 'clock';
-    final type = clock ? TriggerType.timer : _type(m?['type']);
+    final type = _type(m?['type']);
     if (m == null || type == null) return null;
-    // The legacy clock: `every` is the interval, `runWhen` the guard; its
-    // `lookaheadMs` was never read.
-    final interval = clock ? _interval(m['every']) ?? const Expr(0) : _interval(m['intervalMs']) ?? const Expr(1000);
-    final when = readString(m['when']) ?? '';
+    final interval = _interval(m['intervalMs']) ?? const Expr(1000);
     return Trigger(
       type,
       debounceMs: (readInt(m['debounceMs']) ?? 0).clamp(0, 600000),
       variable: readString(m['variable']) ?? '',
       intervalMs: interval,
       key: readString(m['key']) ?? '',
-      when: clock && when.isEmpty ? readString(m['runWhen']) ?? '' : when,
+      when: readString(m['when']) ?? '',
       holdMs: readInt(m['holdMs']) ?? kDefaultHoldMs,
       visibleFraction: (readDouble(m['visibleFraction']) ?? kDefaultVisibleFraction).clamp(0, 1).toDouble(),
       repeat: m['repeat'] == true,
@@ -325,8 +314,8 @@ final class Trigger {
     );
   }
 
-  /// An interval: a number, a `${...}` expression, or (the legacy clock's
-  /// `every`) a bare formula, read as `${= formula}`.
+  /// An interval: a number, a `${...}` expression, or a bare formula, read
+  /// as `${= formula}`.
   static Expr<int>? _interval(Object? v) {
     if (v is num) return Expr(v.round());
     if (v is! String || v.trim().isEmpty) return null;

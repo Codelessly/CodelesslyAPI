@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:meta/meta.dart';
 
 import 'behaviors.dart';
@@ -14,7 +12,7 @@ import 'media.dart';
 import 'node_patch.dart';
 import 'breakpoints.dart';
 import 'triggers.dart';
-import 'values/paint.dart' show Effect, EffectType, listEquals;
+import 'values/paint.dart' show listEquals;
 import 'widgets/canvas.dart';
 
 /// One node: a widget declaration's values, placed in a tree by id.
@@ -216,26 +214,9 @@ final class Node {
     final spec = catalog.widget(type);
     final slots = readMap(m['slots']);
     final bind = readMap(m['bind']);
-    final motion = readMap(m['motion']);
-    // A legacy motion's opacity and blur are the node's: its opacity
-    // (multiplied in) and a layer blur.
-    final motionOpacity = readDouble(motion?['opacity'])?.clamp(0.0, 1.0);
-    final binds = Behaviors.migrateBind({
-      if (bind != null)
-        for (final e in bind.entries)
-          if (e.value is String) e.key: e.value as String,
-    }, m);
-    var decoration = spec == null || spec.decorated
+    final decoration = spec == null || spec.decorated
         ? Decoration.fromJson(m['decoration'])
         : Decoration(effects: [...Decoration.fromJson(m['decoration']).effects.where((e) => !e.isShadow)]);
-    if (motion != null && (motion.containsKey('blur') || (bind?.containsKey('motion.blur') ?? false))) {
-      const id = AnimationPresets.motionBlurId;
-      final blur = math.max(0.0, readDouble(motion['blur']) ?? 0);
-      decoration = decoration.copyWith(effects: [
-        ...decoration.effects.where((e) => e.id != id),
-        Effect(type: EffectType.layerBlur, id: id, blurRadius: blur),
-      ]);
-    }
     return Node(
       id: id ?? readString(m['id']) ?? '',
       type: type,
@@ -248,45 +229,27 @@ final class Node {
             if (e.value is String) e.key: e.value as String,
       },
       visible: readBool(m['visible']) ?? true,
-      opacity: ((readDouble(m['opacity']) ?? 1).clamp(0, 1) * (motionOpacity ?? 1)).toDouble(),
+      opacity: (readDouble(m['opacity']) ?? 1).clamp(0, 1).toDouble(),
       layout: Layout.fromJson(m['layout']),
       // A type without a box decoration keeps only its blurs (they act on
       // whatever it paints).
       decoration: decoration,
       props: Props.fromJson(spec, m['props']),
-      bind: _migrateOpacityBind(binds, readDouble(m['opacity']) ?? 1, motionOpacity ?? 1),
+      bind: {
+        if (bind != null)
+          for (final e in bind.entries)
+            if (e.value is String) e.key: e.value as String,
+      },
       actions: Reaction.listFromJson(m['actions']),
       behaviors: Behaviors.fromJson(m),
       component: ComponentLink.fromJson(m['component']),
       media: MediaRule.listFromJson(m['media']),
       extra: {
         for (final e in m.entries)
-          if (!_keys.contains(e.key) && !Behaviors.keys.contains(e.key) && !Behaviors.legacyKeys.contains(e.key)) e.key: e.value,
+          if (!_keys.contains(e.key) && !Behaviors.keys.contains(e.key)) e.key: e.value,
       },
       catalog: catalog,
     );
-  }
-
-  /// [bind] with a legacy `motion.opacity` binding as the node's
-  /// `opacity`: the two multiplied ([own] and [motion] are the static
-  /// values), or the motion's alone when the node's is 1 and unbound.
-  static Map<String, String> _migrateOpacityBind(Map<String, String> bind, double own, double motion) {
-    final m = bind['motion.opacity'];
-    final node = bind['opacity'];
-    if (m == null) {
-      // The node's bound opacity times the motion's static one.
-      final f = node == null || motion == 1 ? null : Behaviors.formulaOf(node);
-      return f == null ? bind : {...bind, 'opacity': '\${= ($f) * ${writeDouble(motion)}}'};
-    }
-    final out = {...bind}..remove('motion.opacity');
-    if (node == null && own == 1) {
-      out['opacity'] = m;
-      return out;
-    }
-    final a = node == null ? writeDouble(own).toString() : Behaviors.formulaOf(node);
-    final b = Behaviors.formulaOf(m);
-    out['opacity'] = a == null || b == null ? m : '\${= ($a) * ($b)}';
-    return out;
   }
 
   Json toJson() {

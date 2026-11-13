@@ -1,5 +1,5 @@
 {
-  "schema": 2,
+  "schema": 3,
   "roots": ["article"],
   "nodes": {
     "article": {"type": "canvas", "slots": {"body": "scroller"}, "layout": {"width": 390, "height": 844},
