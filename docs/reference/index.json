@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5585
+      "words": 5639
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5694
+      "words": 5748
     }
   },
   "topics": [
@@ -137,7 +137,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 1979
+      "words": 2092
     },
     {
       "topic": "theme-theme-keys",
@@ -154,6 +154,14 @@
       "title": "Named colours and styles",
       "summary": "- **Colours**: `colors` maps a name to `\"#AARRGGBB\"` (or to another colour's name: `\"accent\": \"ember\"`).",
       "words": 139
+    },
+    {
+      "topic": "theme-what-controls-take-from-the-theme",
+      "file": "theme.md",
+      "anchor": "theme-what-controls-take-from-the-theme",
+      "title": "What controls take from the theme",
+      "summary": "A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons (labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface` (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius` shapes every kind of button and chip, `radius` dialogs, menus and pickers.",
+      "words": 104
     },
     {
       "topic": "theme-a-type-scale-that-changes-with-the-screen-size",

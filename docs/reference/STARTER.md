@@ -121,6 +121,11 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"`.
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 
+Controls (buttons, chips, fields, switches, pickers, tabs) take the colours and fonts their props leave unset
+from the theme's roles (`primary`, `onPrimary`, `surface`, `onSurface`, `error`, `fontFamily`, `buttonRadius`...).
+Without a theme they are neutral: ink on paper and the greys between. Nothing comes from Material's defaults or
+from the app the layout is shown in.
+
 Dark mode, a theme that changes with the screen size, every theme key: [theme](theme.md#page-theme).
 
 <a id="base-nodes-ids-children-and-slots"></a>
