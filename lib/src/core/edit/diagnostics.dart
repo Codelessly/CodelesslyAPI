@@ -76,10 +76,25 @@ abstract final class EditCodes {
       'A batch that rebuilds a UI that already exists (new roots, a new canvas) instead of patching it: fix the '
           'existing document with patch, set (same ids) and remove; never start over.');
 
+  static const emptyButton = EditCode('empty_button',
+      'A node that reacts to a tap but shows nothing (a box, row or column with no children): a button with no label.',
+      error: false);
+  static const lowContrast = EditCode('low_contrast',
+      'Text drawn in (nearly) the colour of the fill behind it, or with no colour (the default near-black) over a dark fill.',
+      error: false);
+  static const missingGlyph = EditCode('missing_glyph',
+      'Text with characters the loaded fonts do not have (an arrow, a symbol): they draw as empty boxes. Use an icon node. '
+          'Reported by a renderer that knows its fonts.',
+      error: false);
+  static const noSize = EditCode('no_size',
+      'A node that has content but was laid out with no width or no height, so nothing of it shows. Reported by a renderer.',
+      error: false);
+
   static const List<EditCode> all = [
     invalidOp, missingField, wrongType, unknownId, structuralKeyInPatch, staleRev, wouldOrphan, multipleParents, cycle, //
     canvasAsChild, invalidParent, danglingChild, unreachableNode, pendingChild, capabilityNotAllowed, limitExceeded,
-    truncatedOp, invalidJson, invalidVariable, unknownVariable, malformedInput, misplacedField, startOver,
+    truncatedOp, invalidJson, invalidVariable, unknownVariable, malformedInput, misplacedField, startOver, emptyButton,
+    lowContrast, missingGlyph, noSize,
   ];
 }
 
@@ -127,8 +142,17 @@ final class EditDiagnostic {
       EditDiagnostic(
           op: op, code: code.name, error: code.error, message: message, path: path, nodeId: nodeId, expected: expected, suggestion: suggestion);
 
+  /// The same diagnostic for op [index] of a larger batch (a path into the
+  /// op, `/ops/0/...`, follows).
   EditDiagnostic atOp(int index) => EditDiagnostic(
-      op: index, code: code, error: error, message: message, path: path, nodeId: nodeId, expected: expected, suggestion: suggestion);
+      op: index,
+      code: code,
+      error: error,
+      message: message,
+      path: op >= 0 && path.startsWith('/ops/$op') ? path.replaceFirst('/ops/$op', '/ops/$index') : path,
+      nodeId: nodeId,
+      expected: expected,
+      suggestion: suggestion);
 
   /// As the tool result carries it (`{"op": 1, "code": ..., "path": ..., "message": ...}`).
   Json toJson() => {
