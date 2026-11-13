@@ -145,4 +145,132 @@ void main() {
       expect(codesOf(d), ['layout_field_ignored /nodes/b/layout/basis']);
     });
   });
+
+  group('a patch replaces a value written in another form (as CSS replaces a declaration)', () {
+    test('a size changes mode; null removes a key, as documented', () {
+      final n = Node.fromJson({
+        'type': 'row',
+        'layout': {'width': {'fill': 292}, 'height': 52, 'x': {'align': 0}, 'constraints': {'minWidth': 10, 'maxWidth': 400}},
+        'media': [
+          {'minWidth': 'tablet', 'patch': {'layout': {'width': {'hug': 200}}}},
+          {'minWidth': 'desktop', 'patch': {'layout': {'width': {'fill': null, 'hug': 232}, 'constraints': {'maxWidth': null}}}},
+        ],
+      }, id: 'b')!;
+      expect(n.atScreen(390, 844, bps).layout.width, const AxisSize.fill(292));
+      expect(n.atScreen(834, 1112, bps).layout.width, const AxisSize.hug(200), reason: 'was {"fill", "hug"}: no size');
+      final desk = n.atScreen(1440, 900, bps);
+      expect(desk.layout.width, const AxisSize.hug(232));
+      expect(desk.layout.constraints.maxWidth, isNull, reason: 'null removes maxWidth');
+      expect(desk.layout.constraints.minWidth, 10, reason: 'constraints are separate fields: they merge');
+    });
+
+    test('positions, paints, icons and borders replace across forms and merge within one', () {
+      Json m(Json base, Json patch, {List<PropDef<Object?>>? props}) => mergeNodePatch(base, patch, props: props);
+      expect(m({'layout': {'x': {'align': 0}}}, {'layout': {'x': {'start': 8}}}), {'layout': {'x': {'start': 8}}});
+      expect(m({'layout': {'x': {'start': 0, 'end': 0}}}, {'layout': {'x': {'start': 8}}}), {'layout': {'x': {'start': 8, 'end': 0}}},
+          reason: 'edges are one form: they merge (as CSS left/right)');
+      final text = TextProps.spec.props;
+      expect(
+          m({'props': {'style': {'foreground': {'type': 'linear', 'stops': []}}}}, {'props': {'style': {'foreground': {'type': 'solid', 'color': '#FF000000'}}}},
+              props: text),
+          {'props': {'style': {'foreground': {'type': 'solid', 'color': '#FF000000'}}}});
+      expect(
+          m({'props': {'style': {'foreground': {'type': 'solid', 'color': '#FF000000', 'opacity': 0.5}}}}, {'props': {'style': {'foreground': {'color': '#FFFFFFFF'}}}},
+              props: text),
+          {'props': {'style': {'foreground': {'type': 'solid', 'color': '#FFFFFFFF', 'opacity': 0.5}}}},
+          reason: 'the same form merges');
+      final icon = IconProps.spec.props;
+      expect(m({'props': {'icon': {'type': 'MATERIAL_ICON', 'name': 'add'}}}, {'props': {'icon': {'type': 'SVG', 'svg': '<svg/>'}}}, props: icon),
+          {'props': {'icon': {'type': 'SVG', 'svg': '<svg/>'}}});
+      // Two patches merged into one (a media cascade, active states) keep
+      // the later form too.
+      expect(mergeNodePatch({'layout': {'width': {'fill': 1}}}, {'layout': {'width': {'hug': 2}}}, keepNulls: true),
+          {'layout': {'width': {'hug': 2}}});
+    });
+
+    test('validation accepts the mode change and the documented null, and judges the patched size', () {
+      final d = doc({
+        'f': {'type': 'column', 'children': ['b'], 'layout': {'width': {'fill': 390}, 'height': {'hug': 60}}, 'props': {'crossAxisAlignment': 'start'}},
+        'b': {
+          'type': 'row',
+          'layout': {'width': {'fill': 292}, 'height': 52},
+          'media': [
+            {'minWidth': 'tablet', 'patch': {'layout': {'width': {'fill': null, 'hug': 200}}}},
+            {'minWidth': 'desktop', 'patch': {'layout': {'width': {'hug': 232}, 'margin': null}, 'opacity': null}},
+          ],
+        },
+      });
+      expect(codesOf(d), isEmpty);
+    });
+  });
+
+  group('fits are judged at each screen width, with the media rules that hold there', () {
+    // A comparison table: its row of plan columns scrolls sideways on phones
+    // only; the columns are fixed there and fill from tablet up.
+    Json table({bool baseScrolls = true}) => doc({
+          'f': {'type': 'column', 'children': ['plans'], 'layout': {'width': {'fill': 390}, 'height': {'hug': 60}}},
+          'plans': {
+            'type': 'row',
+            'children': ['p1'],
+            'layout': {'width': {'fill': 390}, 'height': {'hug': 60}},
+            'props': {'scrollable': baseScrolls, 'scrollDirection': 'horizontal'},
+            'media': [
+              {'minWidth': 'tablet', 'patch': {'props': {'scrollable': !baseScrolls}}},
+            ],
+          },
+          'p1': {
+            'type': 'column',
+            'layout': {'width': 128, 'height': {'hug': 40}},
+            'media': [
+              {'minWidth': 'tablet', 'patch': {'layout': {'width': {'fill': 220}}}},
+            ],
+          },
+        });
+
+    test('a child patch is checked against the parent as patched at the same widths', () {
+      expect(codesOf(table()), isEmpty, reason: 'the row stops scrolling where the column starts to fill');
+    });
+
+    test('a true finding names the widths where it holds, at the value in effect', () {
+      final d = table(baseScrolls: false);
+      // Now the row scrolls from tablet up, where the column fills.
+      final found = validateDocument(d).where((x) => x.code == Codes.fitNotAllowed).toList();
+      expect(found.map((x) => x.path), ['/nodes/p1/media/0/patch/layout/width']);
+      expect(found.single.message, contains('at screen widths from 600 px'));
+      // A base value replaced at every width it is wrong is not reported.
+      final e = table(baseScrolls: false);
+      ((e['nodes'] as Map)['p1'] as Map)['layout'] = {'width': {'fill': 128}, 'height': {'hug': 40}};
+      ((e['nodes'] as Map)['p1'] as Map)['media'] = [
+        {'maxWidth': 599, 'patch': {'layout': {'width': 128}}},
+      ];
+      ((e['nodes'] as Map)['plans'] as Map)['props'] = {'scrollable': false, 'scrollDirection': 'horizontal'};
+      ((e['nodes'] as Map)['plans'] as Map)['media'] = [
+        {'maxWidth': 599, 'patch': {'props': {'scrollable': true}}},
+      ];
+      expect(codesOf(e), isEmpty);
+    });
+
+    test('flexible follows a flex whose direction changes: reported only where it is across', () {
+      final d = doc({
+        'f': {
+          'type': 'flex',
+          'children': ['b'],
+          'layout': {'width': {'fill': 390}, 'height': {'hug': 60}},
+          'props': {'direction': 'vertical'},
+          'media': [
+            {'minWidth': 'tablet', 'patch': {'props': {'direction': 'horizontal'}}},
+          ],
+        },
+        'b': {'type': 'box', 'layout': {'width': {'flexible': 300}, 'height': 40}},
+      });
+      final found = validateDocument(d).where((x) => x.code == Codes.fitNotAllowed).toList();
+      expect(found.map((x) => x.path), ['/nodes/b/layout/width']);
+      expect(found.single.message, contains('at screen widths up to 599 px'));
+      final e = Map<String, Object?>.from(d);
+      ((e['nodes'] as Map)['b'] as Map)['media'] = [
+        {'maxWidth': 'mobile', 'patch': {'layout': {'width': {'fill': 300}}}},
+      ];
+      expect(codesOf(e), isEmpty, reason: 'flexible in a flex where it is the main axis, as in a row');
+    });
+  });
 }

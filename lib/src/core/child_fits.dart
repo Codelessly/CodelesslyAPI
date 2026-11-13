@@ -82,5 +82,27 @@ String? listChildFits(Node parent, SizeFit fit, bool horizontal) {
 }
 
 /// A grid or page view sizes its children: they fill their cell or page.
-String? cellChildFits(Node parent, SizeFit fit, bool horizontal) =>
-    fit == SizeFit.fill ? null : '${parent.type == 'pageView' ? 'Pages' : 'Grid cells'} size their children: they fill them.';
+/// Along a grid's rows, a grid whose rows shrink-wrap (`shrinkWrapRows`,
+/// CSS grid's auto rows) sizes each row by its tallest item and stretches
+/// the others to it (CSS `align-items: stretch`): a hugging or filling item
+/// counts its content there; a masonry grid's items keep their own length
+/// (they hug; fill has no end to reach).
+String? cellChildFits(Node parent, SizeFit fit, bool horizontal) {
+  if (parent.type == 'gridView') {
+    final along = (parent.props.get(CollectionScrollProps.scrollDirection) == Axis.horizontal) == horizontal;
+    if (along && parent.props.get(GridViewProps.masonry)) {
+      return switch (fit) {
+        SizeFit.fill || SizeFit.flexible =>
+          'A masonry grid lays each item out at its own length along its lanes: there is no end to fill to. Use hug.',
+        _ => null,
+      };
+    }
+    if (along && parent.props.get(GridViewProps.shrinkWrapRows)) {
+      return switch (fit) {
+        SizeFit.flexible => _flexOnly,
+        _ => null,
+      };
+    }
+  }
+  return fit == SizeFit.fill ? null : '${parent.type == 'pageView' ? 'Pages' : 'Grid cells'} size their children: they fill them.';
+}

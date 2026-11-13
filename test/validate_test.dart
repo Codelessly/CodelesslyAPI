@@ -58,7 +58,7 @@ void main() {
 
   test('every code has a test below', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 54); // invalid_media, media_overridden: test/media_test.dart
+    expect(Codes.all.length, 55); // invalid_media, media_overridden: test/media_test.dart
   });
 
   group('document', () {
@@ -221,6 +221,23 @@ void main() {
       node(d, 'col')['props'] = {'scrollable': true};
       (node(d, 'box')['layout'] as Map)['height'] = {'fill': 40};
       expectOne(d, Codes.fitNotAllowed, path: '/nodes/box/layout/height');
+    });
+    test('prop_ignored: mainAxisExtent under shrinkWrapRows; fit_not_allowed agrees with the grid\'s rows', () {
+      Map<String, Object?> grid(Map<String, Object?> props, Object? itemHeight) {
+        final d = base();
+        nodes(d)['grid'] = <String, Object?>{'type': 'gridView', 'children': ['card'], 'layout': {'width': {'fill': 390}, 'height': {'hug': 400}},
+          'props': {'physics': 'never', ...props}};
+        nodes(d)['card'] = {'type': 'column', 'layout': {'width': {'fill': 100}, 'height': itemHeight}};
+        (node(d, 'col')['children'] as List).add('grid');
+        return d;
+      }
+      expectOne(grid({'shrinkWrapRows': true, 'mainAxisExtent': 37}, {'hug': 37}), Codes.propIgnored, path: '/nodes/grid/props/mainAxisExtent');
+      // Rows sized by their tallest item stretch hugging and filling items to it.
+      expect(validateDocument(grid({'shrinkWrapRows': true}, {'hug': 300})), isEmpty);
+      expect(validateDocument(grid({'shrinkWrapRows': true}, {'fill': 300})), isEmpty);
+      // A fixed row extent fills the cell: hug cannot apply there.
+      expectOne(grid({'mainAxisExtent': 120}, {'hug': 300}), Codes.fitNotAllowed, path: '/nodes/card/layout/height');
+      expectOne(grid({'masonry': true}, {'fill': 300}), Codes.fitNotAllowed, path: '/nodes/card/layout/height');
     });
     test('zero_size', () {
       final d = base();

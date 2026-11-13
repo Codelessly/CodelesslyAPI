@@ -13,6 +13,8 @@ import 'package:meta/meta.dart';
 
 import 'custom_paint.dart';
 import 'json.dart';
+import 'node_patch.dart';
+import 'props.dart' show PropDef;
 import 'path_follow.dart';
 import 'values/color.dart';
 import 'values/enums.dart';
@@ -727,13 +729,15 @@ final class StateStyles extends _Value {
 
   bool get isEmpty => patches.isEmpty;
 
-  /// The merged patch of node [id] while [active] states hold.
-  Json? patchFor(String id, Set<WidgetState> active) {
+  /// The merged patch of node [id] while [active] states hold. With the
+  /// node type's [props], a union-typed value a later state writes in
+  /// another form replaces the earlier one ([mergeNodePatch]).
+  Json? patchFor(String id, Set<WidgetState> active, {List<PropDef<Object?>>? props}) {
     Json? out;
     for (final s in WidgetState.values) {
       if (!active.contains(s)) continue;
       final p = patches[s]?[id];
-      if (p != null) out = out == null ? p : mergePatch(out, p, keepNulls: true);
+      if (p != null) out = out == null ? p : mergeNodePatch(out, p, props: props, keepNulls: true);
     }
     return out;
   }
