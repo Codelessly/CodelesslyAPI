@@ -41,6 +41,11 @@ guide; docs/design/schema-3-migration-report.md is the migration over the refere
   only), `hoverDelay`, and the `dropFull` and `dragHover` triggers; `GestureSnap.projectVelocity` (a snap
   always projects the fling); `TransformGesture.rotationSnap`; `OpenModalAction.showCloseButton`,
   `fullHeight` (never read). Their `*Fields` declarations go with them.
+- **Flutter's reading where schema 2 had its own** (the migration writes out what schema 2 did, so migrated
+  documents render the same): a text's `layout.padding` is applied (`Padding(child: Text)`, counted in a hugging
+  size); schema 2 ignored it and the migration drops it from schema-2 texts (step `text.padding`, with the
+  bindings and state and media patches that set it). The `layout_field_ignored` warning for a text's padding is
+  gone.
 - **Behaviour changes** (all reported by the migration, per document): a track with no value is drawn at
   its minimum, not at `defaultValue`, and a double tap resets nothing; the fine mode, `smooth`, a dismissible's
   tilt and fly-off spin, disabled follow and shake, `shareAs`, area pacing, the upright flip, a transition's

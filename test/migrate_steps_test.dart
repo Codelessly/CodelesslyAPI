@@ -62,8 +62,22 @@ void main() {
     'trigger.clock': {'actions': [{'trigger': {'type': 'clock', 'every': 500, 'runWhen': r'${on}'}, 'actions': <Object?>[]}]},
   };
 
+  final documentSamples = <String, Json>{
+    'text.padding': {
+      'type': 'text',
+      'layout': {'padding': [4, 8, 4, 8]},
+      'bind': {'layout.padding': r'${p}', 'opacity': r'${o}'},
+      'media': [
+        {'maxWidth': 600, 'patch': {'layout': {'padding': 2}, 'bind': {'layout.padding': r'${q}'}}},
+      ],
+      'states': {
+        'hovered': {'n': {'layout': {'padding': 6}, 'opacity': 0.5}},
+      },
+    },
+  };
+
   test('every step has a sample here', () {
-    expect(byId.keys.toSet().difference({...samples.keys, 'patches.legacy'}), isEmpty);
+    expect(byId.keys.toSet().difference({...samples.keys, ...documentSamples.keys, 'patches.legacy'}), isEmpty);
   });
 
   for (final e in samples.entries) {
@@ -100,6 +114,31 @@ void main() {
     final hovered = node.patched(node.behaviors.states.patchFor('n', {WidgetState.hovered})!);
     expect(hovered.behaviors.motion!.alignment, const Alignment(1, 0));
     expect(hovered.opacity, 0.5);
+  });
+
+  test('text.padding: a text\'s padding, its bindings and the patches that set it are dropped; others keep theirs', () {
+    final (out, report) = migrated(documentSamples['text.padding']!, others: {
+      'b': {'type': 'box', 'layout': {'padding': 4}, 'states': {'pressed': {'n': {'layout': {'padding': 1, 'width': 9}}, 'b': {'layout': {'padding': 2}}}}},
+    });
+    expect(out['layout'], <String, Object?>{});
+    expect(out['bind'], {'opacity': r'${o}'});
+    expect(((out['media'] as List).single as Map)['patch'], <String, Object?>{});
+    expect(((out['states'] as Map)['hovered'] as Map)['n'], {'opacity': 0.5});
+    expect(report.entries.where((e) => e.step == 'text.padding').length, 6);
+    expect(report.unconvertible, isEmpty);
+    expect(report.behaviourChanges, isEmpty);
+    // Run on the whole document (the box's own padding and its patch of itself stay).
+    final doc = migrate2to3({
+      'schema': 2,
+      'nodes': {
+        'n': {'type': 'text', 'layout': {'padding': 3}},
+        'b': {'type': 'box', 'layout': {'padding': 4}, 'states': {'pressed': {'n': {'layout': {'padding': 1, 'width': 9}}, 'b': {'layout': {'padding': 2}}}}},
+      },
+    });
+    final b = (doc['nodes'] as Map)['b'] as Map;
+    expect(b['layout'], {'padding': 4});
+    expect((b['states'] as Map)['pressed'], {'n': {'layout': {'width': 9}}, 'b': {'layout': {'padding': 2}}});
+    expect(identical(migrate2to3(doc), doc), isTrue);
   });
 
   test('patches.legacy: a media patch with a drag', () {

@@ -68,6 +68,15 @@ reference apps and the experiments is `docs/design/schema-3-migration-report.md`
 | a state or media patch holding any of these | the schema-3 patch that gives the same node | `patches.legacy` |
 | `openModal.showCloseButton`, `fullHeight` (never read) | dropped | `openModal.unread` |
 
+### Flutter's reading where schema 2 had its own
+
+Schema 3 reads these fields as Flutter does. The migration writes out (or drops) what schema 2 did, so a migrated
+document renders the same; a schema-3 document written new gets Flutter's behaviour.
+
+| Schema 2 | Schema 3 | Migration | Step |
+|---|---|---|---|
+| a text's `layout.padding` was ignored (the lines sat at the node's edge; a hugging text did not grow) | applied around the lines, as `Padding(child: Text)`, and counted in a hugging size | dropped from text nodes, their `layout.padding` bindings, the state patches that target a text and a text's media patches (it did nothing) | `text.padding` |
+
 ## What is dropped (behaviour changes)
 
 These one-app fields had no generic schema-3 form (docs/design/02–04 say why, field by field). A value that did

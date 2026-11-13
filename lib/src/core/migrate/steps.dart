@@ -5,6 +5,7 @@ import 'steps_actions.dart';
 import 'steps_behaviors.dart';
 import 'steps_deprecated.dart';
 import 'steps_pose.dart';
+import 'steps_text.dart';
 
 /// The node steps, in order: the legacy readers of schema 2, moved out of
 /// the model.
@@ -43,4 +44,12 @@ final List<MigrationStep> migrationSteps2to3 = [
   ..._legacyNodeSteps,
   ..._deprecatedNodeSteps,
   patchesStep([..._legacyNodeSteps, ..._deprecatedNodeSteps]),
+  ..._flutterDefaultSteps,
+];
+
+/// The steps for schema 3 reading a field as Flutter does where schema 2
+/// did not: each writes out (or drops) what schema 2 did, so the document
+/// renders the same.
+final List<MigrationStep> _flutterDefaultSteps = [
+  textPaddingStep,
 ];
