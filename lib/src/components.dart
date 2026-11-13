@@ -10,6 +10,7 @@
 // with the component's when the component's version moves on.
 import 'package:meta/meta.dart';
 
+import 'catalog.dart';
 import 'document.dart';
 import 'json.dart';
 import 'managed_components.dart';
@@ -326,8 +327,9 @@ final class ComponentDefinition {
 
   static const _keys = {'schema', 'id', 'name', 'version', 'size', 'document', 'preview', 'source', 'createdAt'};
 
-  /// Null without an id.
-  static ComponentDefinition? fromJson(Object? json) {
+  /// Null without an id. Its document decodes with [catalog] (default:
+  /// [Catalog.current]).
+  static ComponentDefinition? fromJson(Object? json, {Catalog? catalog}) {
     final m = readMap(json);
     final id = readString(m?['id']);
     if (m == null || id == null || id.isEmpty) return null;
@@ -338,7 +340,7 @@ final class ComponentDefinition {
       id: id,
       name: readString(m['name']) ?? '',
       version: readInt(m['version']) ?? 1,
-      document: LayoutDocument.fromJson(m['document']),
+      document: LayoutDocument.fromJson(m['document'], catalog: catalog),
       width: size != null && size.length == 2 ? readDouble(size[0]) ?? 0 : 0,
       height: size != null && size.length == 2 ? readDouble(size[1]) ?? 0 : 0,
       previewUrl: readString(preview['url']),

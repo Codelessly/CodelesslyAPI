@@ -250,13 +250,19 @@ abstract final class SinglePlaceholderProps {
       doc: 'A one-child slot.');
 }
 
-const List<WidgetSpec> mediaSpecs = [
+/// The core's media-like types: vector paths and slots the app fills.
+const List<WidgetSpec> pathAndSlotSpecs = [
   PathProps.spec,
+  ExternalProps.spec,
+  PlaceholderProps.spec,
+  SinglePlaceholderProps.spec,
+];
+
+/// The media library's node types: video, embedded video, audio and web
+/// views (platform views and players).
+const List<WidgetSpec> mediaSpecs = [
   VideoProps.spec,
   EmbeddedVideoProps.spec,
   AudioPlayerProps.spec,
   WebViewProps.spec,
-  ExternalProps.spec,
-  PlaceholderProps.spec,
-  SinglePlaceholderProps.spec,
 ];

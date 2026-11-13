@@ -9,6 +9,8 @@
 import 'actions.dart';
 import 'behavior_fields.dart' show AnimationCurveCodec, motionType;
 import 'behaviors.dart' show AnimationCurve, DragDirection, Motion;
+import 'catalog.dart';
+import 'standard_catalog.dart';
 import 'json.dart' show readMap, readString;
 import 'props.dart';
 import 'route_transition.dart';
@@ -16,19 +18,6 @@ import 'scripts.dart';
 import 'triggers.dart';
 import 'values/color.dart';
 import 'variables.dart' show VariableType;
-
-/// An action type, as an editor shows it.
-final class ActionSpec {
-  const ActionSpec(this.type, {required this.label, required this.fields, this.doc = ''});
-
-  /// The JSON `type` (`ActionDef.type`).
-  final String type;
-  final String label;
-
-  /// Its own fields (not [ActionCommonFields]).
-  final List<PropDef<Object?>> fields;
-  final String doc;
-}
 
 /// The fields every action has.
 abstract final class ActionCommonFields {
@@ -696,58 +685,11 @@ abstract final class CaptureScreenshotFields {
 
 /// Every action type an editor can make, by JSON type.
 abstract final class ActionSpecs {
-  static final Map<String, ActionSpec> _all = {
-    for (final s in <ActionSpec>[
-      const ActionSpec(NavigateAction.typeName, label: 'Navigate', fields: NavigateFields.all),
-      const ActionSpec(OpenModalAction.typeName, label: 'Open modal', fields: OpenModalFields.all),
-      const ActionSpec(CloseModalAction.typeName, label: 'Close modal', fields: CloseModalFields.all),
-      const ActionSpec(RetryFailedAction.typeName, label: 'Retry failed actions', fields: [],
-          doc: 'In an actionError reaction: runs the failed action chain again.'),
-      const ActionSpec(OpenLinkAction.typeName, label: 'Open link', fields: OpenLinkFields.all),
-      const ActionSpec(PrintAction.typeName, label: 'Print', fields: PrintFields.all),
-      const ActionSpec(SubmitFormAction.typeName, label: 'Submit form', fields: SubmitFormFields.all),
-      const ActionSpec(SetValueAction.typeName, label: 'Set value', fields: SetValueFields.all),
-      const ActionSpec(SetVariantAction.typeName, label: 'Set variant', fields: SetVariantFields.all),
-      const ActionSpec(SetVariableAction.typeName, label: 'Set variable', fields: SetVariableFields.all),
-      const ActionSpec(CallFunctionAction.typeName, label: 'Call function', fields: CallFunctionFields.all),
-      const ActionSpec(CallApiAction.typeName, label: 'Call API', fields: CallApiFields.all),
-      const ActionSpec(SetStorageAction.typeName, label: 'Set storage', fields: SetStorageFields.all),
-      const ActionSpec(CloudDocumentsAction.typeName, label: 'Cloud documents', fields: CloudDocumentsFields.all),
-      const ActionSpec(LoadCloudDataAction.typeName, label: 'Load cloud data', fields: LoadCloudDataFields.all),
-      const ActionSpec(ReloadCloudDataAction.typeName, label: 'Reload cloud data', fields: ReloadCloudDataFields.all),
-      const ActionSpec(AuthAction.typeName, label: 'Auth', fields: AuthFields.all),
-      const ActionSpec(IfAction.typeName, label: 'If', fields: IfFields.all),
-      const ActionSpec(ForEachAction.typeName, label: 'For each', fields: ForEachFields.all),
-      const ActionSpec(CloudFilesAction.typeName, label: 'Cloud files', fields: CloudFilesFields.all),
-      const ActionSpec(ShowToastAction.typeName, label: 'Show toast', fields: ShowToastFields.all),
-      const ActionSpec(ConfirmAction.typeName, label: 'Confirm', fields: ConfirmFields.all),
-      const ActionSpec(DelayAction.typeName, label: 'Delay', fields: DelayFields.all),
-      const ActionSpec(CloudDataAction.typeName, label: 'Cloud data', fields: CloudDataFields.all),
-      const ActionSpec(CloudBatchAction.typeName, label: 'Cloud batch', fields: CloudBatchFields.all),
-      const ActionSpec(CopyToClipboardAction.typeName, label: 'Copy to clipboard', fields: CopyToClipboardFields.all),
-      const ActionSpec(DownloadFileAction.typeName, label: 'Download file', fields: DownloadFileFields.all),
-      const ActionSpec(PreloadImagesAction.typeName, label: 'Preload images', fields: PreloadImagesFields.all),
-      const ActionSpec(EditTextAction.typeName, label: 'Edit text', fields: EditTextFields.all),
-      const ActionSpec(PaywallAction.typeName, label: 'Paywall', fields: PaywallFields.all),
-      const ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all),
-      const ActionSpec(ControlDragAction.typeName, label: 'Control drag', fields: ControlDragFields.all),
-      const ActionSpec(SpeakAction.typeName, label: 'Speak', fields: SpeakFields.all),
-      const ActionSpec(ScrollToAction.typeName, label: 'Scroll to', fields: ScrollToFields.all),
-      const ActionSpec(PlaySoundAction.typeName, label: 'Play sound', fields: PlaySoundFields.all),
-      const ActionSpec(PlayAnimationAction.typeName, label: 'Play animation', fields: PlayAnimationFields.all),
-      const ActionSpec(AnimateVariableAction.typeName, label: 'Animate variable', fields: AnimateVariableFields.all),
-      const ActionSpec(HapticAction.typeName, label: 'Haptic feedback', fields: HapticFields.all),
-      const ActionSpec(RunScriptAction.typeName, label: 'Run script', fields: RunScriptFields.all),
-      const ActionSpec(PaginateAction.typeName, label: 'Paginate', fields: PaginateFields.all),
-      const ActionSpec(EmitEventAction.typeName, label: 'Emit event', fields: EmitEventFields.all),
-      const ActionSpec(CaptureScreenshotAction.typeName, label: 'Capture screenshot', fields: CaptureScreenshotFields.all),
-    ])
-      s.type: s,
-  };
+  /// The standard catalog's action declarations ([standardCatalog]).
+  static Iterable<ActionSpec> get all => standardCatalog.actions;
 
-  static Iterable<ActionSpec> get all => _all.values;
+  static ActionSpec? of(String type) => standardCatalog.action(type);
 
-  static ActionSpec? of(String type) => _all[type];
 
   /// The keys of action JSON [json], and of the actions nested in it, that
   /// its type doesn't have, as paths (`look`, `actions[1].style`): a
@@ -756,7 +698,7 @@ abstract final class ActionSpecs {
   /// is kept whole, so it has none.
   static List<String> unknownKeys(Object? json, [String path = '']) {
     final m = readMap(json);
-    final spec = m == null ? null : _all[readString(m['type']) ?? ''];
+    final spec = m == null ? null : of(readString(m['type']) ?? '');
     if (m == null || spec == null) return const [];
     final known = {
       'type', ActionCommonFields.enabled.key, ActionCommonFields.nonBlocking.key, ActionCommonFields.when.key,

@@ -5,6 +5,7 @@
 import 'package:meta/meta.dart';
 
 import 'actions.dart';
+import 'catalog.dart';
 import 'json.dart';
 import 'values/paint.dart' show listEquals;
 
@@ -356,8 +357,9 @@ final class Reaction {
   /// Every action, nested ones included, depth first.
   Iterable<ActionDef> get allActions => actions.expand((a) => a.selfAndNested);
 
-  /// Decodes a reaction; null without a known trigger.
-  static Reaction? fromJson(Object? json) {
+  /// Decodes a reaction, its actions with [catalog] (default:
+  /// [Catalog.current]); null without a known trigger.
+  static Reaction? fromJson(Object? json, {Catalog? catalog}) {
     final m = readMap(json);
     final trigger = Trigger.fromJson(m?['trigger']);
     if (m == null || trigger == null) return null;
@@ -365,11 +367,12 @@ final class Reaction {
       id: readString(m['id']) ?? '',
       name: readString(m['name']) ?? '',
       trigger: trigger,
-      actions: ActionDef.listFromJson(m['actions']),
+      actions: ActionDef.listFromJson(m['actions'], catalog: catalog),
     );
   }
 
-  static List<Reaction> listFromJson(Object? json) => [...?readList(json)?.map(fromJson).nonNulls];
+  static List<Reaction> listFromJson(Object? json, {Catalog? catalog}) =>
+      [...?readList(json)?.map((r) => fromJson(r, catalog: catalog)).nonNulls];
 
   Json toJson() => {
         if (id.isNotEmpty) 'id': id,

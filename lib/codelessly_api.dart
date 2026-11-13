@@ -3,6 +3,7 @@ library;
 
 export 'src/behavior_fields.dart';
 export 'src/behaviors.dart';
+export 'src/catalog.dart';
 export 'src/child_fits.dart';
 export 'src/bindings.dart';
 export 'src/action_fields.dart';
@@ -21,6 +22,7 @@ export 'src/node.dart';
 export 'src/props.dart';
 export 'src/route_transition.dart';
 export 'src/scripts.dart';
+export 'src/standard_catalog.dart';
 export 'src/triggers.dart';
 export 'src/value_fields.dart';
 export 'src/services/cloud.dart';

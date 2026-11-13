@@ -9,8 +9,11 @@
 import 'dart:convert';
 import 'package:meta/meta.dart';
 
+import 'action_fields.dart';
 import 'behaviors.dart' show AnimationCurve, DragDirection;
+import 'catalog.dart';
 import 'conditions.dart';
+import 'props.dart' show PropDef, Props;
 import 'json.dart';
 import 'publish/breakpoints.dart' show Breakpoint, Breakpoints;
 import 'route_transition.dart';
@@ -23,9 +26,16 @@ import 'variables.dart';
 /// being awaited ([nonBlocking]: the chain goes on at once and its failure
 /// doesn't stop it) and run only while a predicate holds ([when]). JSON:
 /// `{"type": type, ...its fields, "enabled": false, "nonBlocking": true,
-/// "when": {...}}`. Unknown types decode as [UnknownAction].
+/// "when": {...}}`.
+///
+/// Each action type is declared by an [ActionSpec] in a [Catalog]; decoding
+/// looks the type up there. The core types are the sealed [CoreAction]
+/// family; each feature library has its own sealed family ([DataAction],
+/// [MediaAction], [EngageAction]) or class ([AuthAction], [PaywallAction]); a
+/// type declared without a Dart class is a [DeclaredAction], and a type the
+/// catalog doesn't declare an [UnknownAction].
 @immutable
-sealed class ActionDef {
+abstract base class ActionDef {
   const ActionDef({this.enabled = true, this.nonBlocking = false, this.when});
 
   /// False skips the action.
@@ -40,8 +50,13 @@ sealed class ActionDef {
   /// The JSON `type`.
   String get type;
 
-  /// Its own fields, as JSON (sparse).
-  Json get _fields;
+  /// Its own fields, as JSON (sparse): what [toJson] writes besides `type`
+  /// and the common fields. An action class outside this library overrides
+  /// this.
+  @protected
+  Json get fieldsJson => _fields;
+
+  Json get _fields => const {};
 
   /// The actions it runs itself (branches, follow-ups), in order.
   List<ActionDef> get nested => const [];
@@ -56,27 +71,35 @@ sealed class ActionDef {
 
   Json toJson() => {
     'type': type,
-    ..._fields,
+    ...fieldsJson,
     if (!enabled) 'enabled': false,
     if (nonBlocking) 'nonBlocking': true,
     if (when != null) 'when': when!.toJson(),
   };
 
-  /// Decodes an action; null for anything that isn't a JSON object with a
-  /// type. A type this version doesn't know is an [UnknownAction].
-  static ActionDef? fromJson(Object? json) {
+  /// Decodes an action with [catalog] (default: [Catalog.current]); null
+  /// for anything that isn't a JSON object with a type. A type the catalog
+  /// doesn't declare is an [UnknownAction].
+  static ActionDef? fromJson(Object? json, {Catalog? catalog}) {
     final m = readMap(json);
     final type = readString(m?['type']);
     if (m == null || type == null || type.isEmpty) return null;
-    final c = _Common(m);
-    final decode = _decoders[type];
-    return decode == null ? UnknownAction(type, m) : decode(m, c);
+    final c = catalog ?? Catalog.current;
+    final spec = c.action(type);
+    if (spec == null) return UnknownAction(type, m);
+    return Catalog.run(c, () {
+      final common = ActionCommon(m, catalog: c);
+      return spec.decode?.call(m, common) ?? DeclaredAction(spec, m, common);
+    });
   }
 
-  static List<ActionDef> listFromJson(Object? json) => [...?readList(json)?.map(fromJson).nonNulls];
+  static List<ActionDef> listFromJson(Object? json, {Catalog? catalog}) =>
+      catalog == null || identical(catalog, Catalog.current)
+          ? [...?readList(json)?.map(fromJson).nonNulls]
+          : Catalog.run(catalog, () => listFromJson(json));
 
-  /// Every action type, by its JSON `type`.
-  static Iterable<String> get types => _decoders.keys;
+  /// Every action type [Catalog.current] declares, by its JSON `type`.
+  static Iterable<String> get types => Catalog.current.actions.map((s) => s.type);
 
   @override
   bool operator ==(Object other) =>
@@ -90,62 +113,30 @@ sealed class ActionDef {
   String toString() => '$runtimeType(${toJson()})';
 }
 
-/// The fields every action has.
-final class _Common {
-  _Common(Json m)
-    : enabled = readBool(m['enabled']) ?? true,
-      nonBlocking = readBool(m['nonBlocking']) ?? false,
-      when = Predicate.fromJson(m['when']);
-  final bool enabled, nonBlocking;
-  final Predicate? when;
+/// The core action types: navigation, modals, values and variables, flow,
+/// feedback, focus, scroll, animation, scripts, pagination. Exhaustive
+/// within itself.
+sealed class CoreAction extends ActionDef {
+  const CoreAction({super.enabled, super.nonBlocking, super.when});
 }
 
-typedef _Decoder = ActionDef Function(Json m, _Common c);
+/// The data library's action types: APIs, storage, cloud data and files.
+sealed class DataAction extends ActionDef {
+  const DataAction({super.enabled, super.nonBlocking, super.when});
+}
 
-final Map<String, _Decoder> _decoders = {
-  NavigateAction.typeName: NavigateAction._fromJson,
-  OpenModalAction.typeName: OpenModalAction._fromJson,
-  CloseModalAction.typeName: CloseModalAction._fromJson,
-  RetryFailedAction.typeName: RetryFailedAction._fromJson,
-  OpenLinkAction.typeName: OpenLinkAction._fromJson,
-  PrintAction.typeName: PrintAction._fromJson,
-  SubmitFormAction.typeName: SubmitFormAction._fromJson,
-  SetValueAction.typeName: SetValueAction._fromJson,
-  SetVariantAction.typeName: SetVariantAction._fromJson,
-  SetVariableAction.typeName: SetVariableAction._fromJson,
-  CallFunctionAction.typeName: CallFunctionAction._fromJson,
-  CallApiAction.typeName: CallApiAction._fromJson,
-  SetStorageAction.typeName: SetStorageAction._fromJson,
-  CloudDocumentsAction.typeName: CloudDocumentsAction._fromJson,
-  LoadCloudDataAction.typeName: LoadCloudDataAction._fromJson,
-  ReloadCloudDataAction.typeName: ReloadCloudDataAction._fromJson,
-  AuthAction.typeName: AuthAction._fromJson,
-  IfAction.typeName: IfAction._fromJson,
-  ForEachAction.typeName: ForEachAction._fromJson,
-  CloudFilesAction.typeName: CloudFilesAction._fromJson,
-  ShowToastAction.typeName: ShowToastAction._fromJson,
-  ConfirmAction.typeName: ConfirmAction._fromJson,
-  DelayAction.typeName: DelayAction._fromJson,
-  CloudDataAction.typeName: CloudDataAction._fromJson,
-  CloudBatchAction.typeName: CloudBatchAction._fromJson,
-  CopyToClipboardAction.typeName: CopyToClipboardAction._fromJson,
-  DownloadFileAction.typeName: DownloadFileAction._fromJson,
-  PreloadImagesAction.typeName: PreloadImagesAction._fromJson,
-  EditTextAction.typeName: EditTextAction._fromJson,
-  PaywallAction.typeName: PaywallAction._fromJson,
-  FocusAction.typeName: FocusAction._fromJson,
-  ControlDragAction.typeName: ControlDragAction._fromJson,
-  SpeakAction.typeName: SpeakAction._fromJson,
-  ScrollToAction.typeName: ScrollToAction._fromJson,
-  PlaySoundAction.typeName: PlaySoundAction._fromJson,
-  PlayAnimationAction.typeName: PlayAnimationAction._fromJson,
-  AnimateVariableAction.typeName: AnimateVariableAction._fromJson,
-  HapticAction.typeName: HapticAction._fromJson,
-  RunScriptAction.typeName: RunScriptAction._fromJson,
-  PaginateAction.typeName: PaginateAction._fromJson,
-  EmitEventAction.typeName: EmitEventAction._fromJson,
-  CaptureScreenshotAction.typeName: CaptureScreenshotAction._fromJson,
-};
+/// The media library's action types: speech, sound, images, capture, print.
+sealed class MediaAction extends ActionDef {
+  const MediaAction({super.enabled, super.nonBlocking, super.when});
+}
+
+/// The engage library's action types: app events and form submissions.
+sealed class EngageAction extends ActionDef {
+  const EngageAction({super.enabled, super.nonBlocking, super.when});
+}
+
+/// The fields every action has.
+typedef _Common = ActionCommon;
 
 // --- reading helpers -------------------------------------------------------------
 
@@ -191,7 +182,7 @@ enum PageTransition { platform, none, fade, fadeUp, slideUp, slideLeft, scale }
 /// Goes to another screen. JSON: `{"type": "navigate", "mode": "push",
 /// "to": "canvas-b", "params": {"id": "${item.id}"}}`. The destination
 /// reads [params] as `${route.<name>}`.
-final class NavigateAction extends ActionDef {
+final class NavigateAction extends CoreAction {
   const NavigateAction({
     this.mode = NavigationMode.push,
     this.to = '',
@@ -321,7 +312,7 @@ enum ModalAnchor { none, trigger, pointer, node }
 /// [CloseModalAction] that closes it gives the chain that opened it its
 /// `${result}`. JSON: `{"type": "openModal", "to": "canvas-d",
 /// "presentation": "bottomSheet"}`.
-final class OpenModalAction extends ActionDef {
+final class OpenModalAction extends CoreAction {
   const OpenModalAction({
     this.to = '',
     this.params = const {},
@@ -493,7 +484,7 @@ List<double>? _doubles(Object? json, int length) {
 
 /// Closes the modal it runs in, giving the chain that opened it [result]
 /// (its text values are expressions) as `${result}`.
-final class CloseModalAction extends ActionDef {
+final class CloseModalAction extends CoreAction {
   const CloseModalAction({this.result, super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'closeModal';
@@ -517,7 +508,7 @@ final class CloseModalAction extends ActionDef {
 /// load): the same node's reactions to the same trigger, with the same event
 /// and list item. Nothing happens outside an `actionError` reaction or when
 /// that failure can't be retried (`${error.retryable}` is false).
-final class RetryFailedAction extends ActionDef {
+final class RetryFailedAction extends CoreAction {
   const RetryFailedAction({super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'retryFailed';
@@ -532,7 +523,7 @@ final class RetryFailedAction extends ActionDef {
 }
 
 /// Opens a URL (a web page, `mailto:`, `tel:`, an app link).
-final class OpenLinkAction extends ActionDef {
+final class OpenLinkAction extends CoreAction {
   const OpenLinkAction({this.url = '', super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'openLink';
@@ -550,7 +541,7 @@ final class OpenLinkAction extends ActionDef {
 
 /// Requests the platform print dialog for a rendered node. The user chooses
 /// the destination and confirms; this action never silently submits a job.
-final class PrintAction extends ActionDef {
+final class PrintAction extends MediaAction {
   const PrintAction({this.node = '', super.enabled, super.nonBlocking, super.when});
   static const typeName = 'print';
   @override
@@ -581,7 +572,7 @@ enum FormService {
 /// A remote destination is an explicit later action (`callApi` in
 /// [onSuccess]) to an endpoint the app defines; this action itself never
 /// calls a service.
-final class SubmitFormAction extends ActionDef {
+final class SubmitFormAction extends EngageAction {
   const SubmitFormAction({
     this.service = FormService.local,
     this.payload = '',
@@ -700,7 +691,7 @@ final class NodeValue {
 
 /// Sets properties of node [node] at runtime (until the screen goes). A
 /// property bound to a variable sets the variable instead.
-final class SetValueAction extends ActionDef {
+final class SetValueAction extends CoreAction {
   const SetValueAction({this.node = '', this.values = const [], super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'setValue';
@@ -726,7 +717,7 @@ final class SetValueAction extends ActionDef {
 }
 
 /// Shows variant [variant] of variance node [node].
-final class SetVariantAction extends ActionDef {
+final class SetVariantAction extends CoreAction {
   const SetVariantAction({this.node = '', this.variant = '', super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'setVariant';
@@ -822,7 +813,7 @@ final class ValueWrite {
 /// A computed variable can't be set. A number can glide to its new value
 /// ([animateMs], [curve]): the variable changes every frame (what's bound
 /// to it moves with it), and the chain goes on when it arrives.
-final class SetVariableAction extends ActionDef {
+final class SetVariableAction extends CoreAction {
   const SetVariableAction({
     this.variable = '',
     this.write = const ValueWrite(),
@@ -894,7 +885,7 @@ enum AnimateVariableMode {
 /// animation it runs. A play (or a resume) completes when its timeline
 /// ends: make it non-blocking to go on at once. Resume with nothing paused
 /// plays from where the value is.
-final class AnimateVariableAction extends ActionDef {
+final class AnimateVariableAction extends CoreAction {
   const AnimateVariableAction({
     this.variable = '',
     this.mode = AnimateVariableMode.play,
@@ -955,7 +946,7 @@ final class AnimateVariableAction extends ActionDef {
 /// app's code answered (a permission granted, a share completed), which
 /// the next actions branch on. A function the app didn't register fails the
 /// chain, unless the action is [optional].
-final class CallFunctionAction extends ActionDef {
+final class CallFunctionAction extends CoreAction {
   const CallFunctionAction({
     this.name = '',
     this.params = const {},
@@ -994,7 +985,7 @@ final class CallFunctionAction extends ActionDef {
 /// [onSuccess] runs after a 2xx response, [onError] after any other or a
 /// failed request, both reading the response as `${result}`. A failed
 /// request without [onError] stops the chain.
-final class CallApiAction extends ActionDef {
+final class CallApiAction extends DataAction {
   const CallApiAction({
     this.api = '',
     this.params = const {},
@@ -1051,7 +1042,7 @@ enum StorageOperation {
 
 /// Changes the app's values on the device (read as `${storage.<key>}`). A
 /// key may be a path (`prefs.theme`) into a stored map or list.
-final class SetStorageAction extends ActionDef {
+final class SetStorageAction extends DataAction {
   const SetStorageAction({
     this.operation = StorageOperation.write,
     this.key = '',
@@ -1123,7 +1114,7 @@ enum CloudDocumentsOperation {
 
 /// Writes documents of a cloud collection: one at a time by id, or many at
 /// once.
-final class CloudDocumentsAction extends ActionDef {
+final class CloudDocumentsAction extends DataAction {
   const CloudDocumentsAction({
     this.operation = CloudDocumentsOperation.add,
     this.path = '',
@@ -1257,7 +1248,7 @@ const int kDefaultCloudLoadLimit = 500;
 /// [reactive] is false, the load runs again by itself when a value its
 /// query reads changes (`${auth.uid}`, `${search}`, a [limit] bound to a
 /// variable), but never for a change of its own variable.
-final class LoadCloudDataAction extends ActionDef {
+final class LoadCloudDataAction extends DataAction {
   const LoadCloudDataAction({
     this.variable = '',
     this.single = true,
@@ -1363,7 +1354,7 @@ enum CloudDataScope {
 /// on this screen): it subscribes afresh, with the values its query reads
 /// now, and waits for the first value. Nothing when the variable has no
 /// load. A list's pull to refresh (its `refresh` reaction) runs it.
-final class ReloadCloudDataAction extends ActionDef {
+final class ReloadCloudDataAction extends DataAction {
   const ReloadCloudDataAction({this.variable = '', super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'reloadCloudData';
@@ -1426,7 +1417,7 @@ final class CloudFieldWrite {
 /// Creates, updates, deletes, reads, queries or aggregates documents of a
 /// collection. Its result (the new id, the document, the documents, the
 /// number) is the chain's `${result}` and goes in [resultVariable].
-final class CloudDataAction extends ActionDef {
+final class CloudDataAction extends DataAction {
   const CloudDataAction({
     this.operation = CloudDataOperation.create,
     this.collection = '',
@@ -1501,7 +1492,7 @@ const int kMaxCloudBatchWrites = 500;
 /// in chunks of that size, each all or none; with [transaction], more fail
 /// before anything is written. A batch with a read step (get, query, count,
 /// sum, average) runs its steps one by one, as before.
-final class CloudBatchAction extends ActionDef {
+final class CloudBatchAction extends DataAction {
   const CloudBatchAction({
     this.steps = const [],
     this.transaction = false,
@@ -1558,7 +1549,7 @@ enum CloudFileAccess {
 /// folder [path]; [actions] run with each file (`${result.url}`...). With a
 /// [source], it uploads that value instead of asking the user (a captured
 /// screenshot, a drawing).
-final class CloudFilesAction extends ActionDef {
+final class CloudFilesAction extends DataAction {
   const CloudFilesAction({
     this.operation = CloudFilesOperation.upload,
     this.path = '',
@@ -1717,7 +1708,7 @@ final class AuthAction extends ActionDef {
 
 /// Runs [then] when [condition] holds, else [orElse]. JSON: `{"type": "if",
 /// "condition": {...}, "then": [...], "else": [...]}`.
-final class IfAction extends ActionDef {
+final class IfAction extends CoreAction {
   const IfAction({
     this.condition,
     this.then = const [],
@@ -1759,7 +1750,7 @@ final class IfAction extends ActionDef {
 /// Every action of a turn reads the item and its index as `${loop.item}`
 /// and `${loop.index}`; `${result.item}` and `${result.index}` hold them
 /// too, until an action of the turn gives a result of its own.
-final class ForEachAction extends ActionDef {
+final class ForEachAction extends CoreAction {
   const ForEachAction({this.items = '', this.actions = const [], super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'forEach';
@@ -1786,7 +1777,7 @@ final class ForEachAction extends ActionDef {
 
 /// Waits [ms] milliseconds, or [duration] (a formula giving them) when that
 /// gives a number.
-final class DelayAction extends ActionDef {
+final class DelayAction extends CoreAction {
   const DelayAction({this.ms = 500, this.duration = '', super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'delay';
@@ -1820,7 +1811,7 @@ enum ToastPosition { bottom, top }
 /// [actions] on the chain that showed it. Cosmetics beyond the fields
 /// below (colors, radius, shadows, text styles, offsets per breakpoint)
 /// are in [style], JSON.
-final class ShowToastAction extends ActionDef {
+final class ShowToastAction extends CoreAction {
   const ShowToastAction({
     this.message = '',
     this.title = '',
@@ -1902,7 +1893,7 @@ Map<String, String> _strings(Object? json) => {
 /// Asks the user to confirm; runs [actions] when they do, [cancelActions]
 /// when they don't. With [dialog] (a screen id), that screen is the dialog
 /// and what its close modal action returns is `${result}`.
-final class ConfirmAction extends ActionDef {
+final class ConfirmAction extends CoreAction {
   const ConfirmAction({
     this.title = '',
     this.message = '',
@@ -1989,7 +1980,7 @@ final class ConfirmAction extends ActionDef {
 }
 
 /// Copies [text] (an expression) to the clipboard.
-final class CopyToClipboardAction extends ActionDef {
+final class CopyToClipboardAction extends CoreAction {
   const CopyToClipboardAction({this.text = '', super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'copyToClipboard';
@@ -2008,7 +1999,7 @@ final class CopyToClipboardAction extends ActionDef {
 /// Exports generated UTF-8 text (CSV, JSON, plain text...) as a file.
 /// The browser downloads it; native apps show the platform save picker.
 /// Cancellation returns `{saved: false}` as the action result.
-final class DownloadFileAction extends ActionDef {
+final class DownloadFileAction extends DataAction {
   const DownloadFileAction({this.fileName = 'export.txt', this.text = '', this.mimeType = 'text/plain',
     super.enabled, super.nonBlocking, super.when});
 
@@ -2029,7 +2020,7 @@ final class DownloadFileAction extends ActionDef {
 /// comma-separated text). While it runs, [progressVariable] (a variable's
 /// name; empty for none) holds the share done (0–1). It waits for every image
 /// and gives `{loaded, failed, total}`.
-final class PreloadImagesAction extends ActionDef {
+final class PreloadImagesAction extends MediaAction {
   const PreloadImagesAction({this.urls = '', this.progressVariable = '', super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'preloadImages';
@@ -2057,7 +2048,7 @@ final class PreloadImagesAction extends ActionDef {
 /// real word and set the pace; without a voice the words are read along
 /// silently at that pace. It starts at [startWord] and the action waits until
 /// the text has been said (its result: `{completed: bool}`).
-final class SpeakAction extends ActionDef {
+final class SpeakAction extends MediaAction {
   const SpeakAction({
     this.text = '',
     this.language = '',
@@ -2105,7 +2096,7 @@ final class SpeakAction extends ActionDef {
 
 /// Plays a synthesised [sound] (a voice name), now or [at] a time on the
 /// sound clock, or the sound file at [url]. Every field is an expression.
-final class PlaySoundAction extends ActionDef {
+final class PlaySoundAction extends MediaAction {
   const PlaySoundAction({
     this.sound = 'wood',
     this.operation = 'play',
@@ -2271,7 +2262,7 @@ enum EditTextOperation { wrap, toggleList, insert, replaceWord, setText, clear, 
 /// Edits text field [node]'s text at its cursor: wraps the selection in
 /// [before] / [after], toggles a (numbered) list, inserts or sets [text],
 /// replaces the word being typed, clears it or focuses it.
-final class EditTextAction extends ActionDef {
+final class EditTextAction extends CoreAction {
   const EditTextAction({
     this.node = '',
     this.operation = EditTextOperation.insert,
@@ -2321,7 +2312,7 @@ final class EditTextAction extends ActionDef {
 
 /// Focuses text field [node] (selecting its text with [selectAll]), or
 /// takes the focus away ([unfocus]; from every field when [node] is empty).
-final class FocusAction extends ActionDef {
+final class FocusAction extends CoreAction {
   const FocusAction({
     this.node = '',
     this.unfocus = false,
@@ -2363,7 +2354,7 @@ enum DragCommand { fling, returnFrom, reset, shake, step, zoom, pose }
 
 /// Flings, returns, resets or shakes draggable node [node] (a swipe card),
 /// or steps a drag track.
-final class ControlDragAction extends ActionDef {
+final class ControlDragAction extends CoreAction {
   const ControlDragAction({
     this.node = '',
     this.command = DragCommand.fling,
@@ -2416,7 +2407,7 @@ final class ControlDragAction extends ActionDef {
 /// view, 1 at the end; [offset] moves it further. [axis] limits it to the
 /// scroll views along one axis (a map in a sideways window centers a point
 /// without scrolling the page under it); null scrolls every one around it.
-final class ScrollToAction extends ActionDef {
+final class ScrollToAction extends CoreAction {
   const ScrollToAction({
     this.node = '',
     this.item = '',
@@ -2492,7 +2483,7 @@ ScrollAxis? _axis(Object? v) => switch (v) {
 };
 
 /// Plays node [node]'s one-shot animation (or particles) named [animation].
-final class PlayAnimationAction extends ActionDef {
+final class PlayAnimationAction extends CoreAction {
   const PlayAnimationAction({this.node = '', this.animation = '', super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'playAnimation';
@@ -2529,7 +2520,7 @@ enum HapticKind {
 
 /// Buzzes the device (`HapticFeedback`, on phones that support it; nothing
 /// elsewhere). Its common `when` buzzes only while a setting holds.
-final class HapticAction extends ActionDef {
+final class HapticAction extends CoreAction {
   const HapticAction({this.kind = HapticKind.selection, super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'haptic';
@@ -2555,7 +2546,7 @@ final class HapticAction extends ActionDef {
 /// chain's `${result}` (and goes in [resultVariable] when set). When it
 /// fails, [onError] runs with `${result}` `{error: {type, message, line,
 /// column}, logs}`; without [onError] a failure stops the chain.
-final class RunScriptAction extends ActionDef {
+final class RunScriptAction extends CoreAction {
   const RunScriptAction({
     this.script = '',
     this.arguments = const {},
@@ -2626,6 +2617,37 @@ final class UnknownAction extends ActionDef {
   Json get _fields => json;
 }
 
+/// An action of a type its catalog declares without a Dart class (a hosted
+/// plugin's, or one a native plugin declares by manifest): its [spec] and
+/// its fields as typed [props], as a node holds props for its WidgetSpec.
+/// Keys the spec doesn't declare are kept ([Props.unknown]).
+final class DeclaredAction extends ActionDef {
+  DeclaredAction(this.spec, Json json, ActionCommon common)
+    : props = Props.fromJson(spec.fieldSpec, {
+        for (final e in json.entries)
+          if (!const {'type', 'enabled', 'nonBlocking', 'when'}.contains(e.key)) e.key: e.value,
+      }),
+      super(enabled: common.enabled, nonBlocking: common.nonBlocking, when: common.when);
+
+  final ActionSpec spec;
+  final Props props;
+
+  @override
+  String get type => spec.type;
+
+  /// The value of [field] (one of [ActionSpec.fields]).
+  T get<T>(PropDef<T> field) => props.get(field);
+
+  /// A field's JSON as written ([ActionSpec.fields] decoded, unknown keys raw).
+  Json get values => props.toJson(spec.fieldSpec);
+
+  @override
+  List<ActionDef> get nested => [for (final k in spec.nested) ...ActionDef.listFromJson(values[k])];
+
+  @override
+  Json get _fields => values;
+}
+
 /// Whether [a] and [b] hold equal actions in the same order.
 bool actionsEqual(List<ActionDef> a, List<ActionDef> b) => listEquals(a, b);
 
@@ -2658,7 +2680,7 @@ enum PaginateCommand {
 
 /// Moves the pagination controller of a list or grid (its `pagination`,
 /// by [controller], the pagination's name).
-final class PaginateAction extends ActionDef {
+final class PaginateAction extends CoreAction {
   const PaginateAction({
     this.controller = '',
     this.command = PaginateCommand.next,
@@ -2709,7 +2731,7 @@ final class PaginateAction extends ActionDef {
 /// (`codelessly.events`). The same bus a host fires with
 /// `codelessly.emit(name, props)`. JSON: `{"type": "emitEvent", "event":
 /// "onboarding_done", "props": {"plan": "${plan}"}}`.
-final class EmitEventAction extends ActionDef {
+final class EmitEventAction extends EngageAction {
   const EmitEventAction({this.event = '', this.props = const {}, super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'emitEvent';
@@ -2753,7 +2775,7 @@ enum CaptureTarget {
 /// pixels): bind it to an image fill to show it, or upload it with a
 /// `cloudFiles` action whose `source` is `${result.image}`. JSON:
 /// `{"type": "captureScreenshot", "target": "app"}`.
-final class CaptureScreenshotAction extends ActionDef {
+final class CaptureScreenshotAction extends MediaAction {
   const CaptureScreenshotAction({
     this.target = CaptureTarget.layout,
     this.node = '',
@@ -2791,3 +2813,71 @@ final class CaptureScreenshotAction extends ActionDef {
     if (pixelRatio != 0) 'pixelRatio': writeDouble(pixelRatio),
   };
 }
+
+// --- declarations ---------------------------------------------------------------
+
+/// The core action types (the [CoreAction] family).
+const List<ActionSpec> coreActionSpecs = [
+  ActionSpec(NavigateAction.typeName, label: 'Navigate', fields: NavigateFields.all, decode: NavigateAction._fromJson),
+  ActionSpec(OpenModalAction.typeName, label: 'Open modal', fields: OpenModalFields.all, decode: OpenModalAction._fromJson),
+  ActionSpec(CloseModalAction.typeName, label: 'Close modal', fields: CloseModalFields.all, decode: CloseModalAction._fromJson),
+  ActionSpec(RetryFailedAction.typeName, label: 'Retry failed actions', fields: [], doc: 'In an actionError reaction: runs the failed action chain again.', decode: RetryFailedAction._fromJson),
+  ActionSpec(OpenLinkAction.typeName, label: 'Open link', fields: OpenLinkFields.all, decode: OpenLinkAction._fromJson),
+  ActionSpec(SetValueAction.typeName, label: 'Set value', fields: SetValueFields.all, decode: SetValueAction._fromJson),
+  ActionSpec(SetVariantAction.typeName, label: 'Set variant', fields: SetVariantFields.all, decode: SetVariantAction._fromJson),
+  ActionSpec(SetVariableAction.typeName, label: 'Set variable', fields: SetVariableFields.all, decode: SetVariableAction._fromJson),
+  ActionSpec(CallFunctionAction.typeName, label: 'Call function', fields: CallFunctionFields.all, decode: CallFunctionAction._fromJson),
+  ActionSpec(IfAction.typeName, label: 'If', fields: IfFields.all, decode: IfAction._fromJson, nested: ['then', 'else']),
+  ActionSpec(ForEachAction.typeName, label: 'For each', fields: ForEachFields.all, decode: ForEachAction._fromJson, nested: ['actions']),
+  ActionSpec(ShowToastAction.typeName, label: 'Show toast', fields: ShowToastFields.all, decode: ShowToastAction._fromJson, nested: ['actions']),
+  ActionSpec(ConfirmAction.typeName, label: 'Confirm', fields: ConfirmFields.all, decode: ConfirmAction._fromJson, nested: ['actions', 'cancelActions']),
+  ActionSpec(DelayAction.typeName, label: 'Delay', fields: DelayFields.all, decode: DelayAction._fromJson),
+  ActionSpec(CopyToClipboardAction.typeName, label: 'Copy to clipboard', fields: CopyToClipboardFields.all, decode: CopyToClipboardAction._fromJson),
+  ActionSpec(EditTextAction.typeName, label: 'Edit text', fields: EditTextFields.all, decode: EditTextAction._fromJson),
+  ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all, decode: FocusAction._fromJson),
+  ActionSpec(ControlDragAction.typeName, label: 'Control drag', fields: ControlDragFields.all, decode: ControlDragAction._fromJson),
+  ActionSpec(ScrollToAction.typeName, label: 'Scroll to', fields: ScrollToFields.all, decode: ScrollToAction._fromJson),
+  ActionSpec(PlayAnimationAction.typeName, label: 'Play animation', fields: PlayAnimationFields.all, decode: PlayAnimationAction._fromJson),
+  ActionSpec(AnimateVariableAction.typeName, label: 'Animate variable', fields: AnimateVariableFields.all, decode: AnimateVariableAction._fromJson),
+  ActionSpec(HapticAction.typeName, label: 'Haptic feedback', fields: HapticFields.all, decode: HapticAction._fromJson),
+  ActionSpec(RunScriptAction.typeName, label: 'Run script', fields: RunScriptFields.all, decode: RunScriptAction._fromJson, nested: ['onError']),
+  ActionSpec(PaginateAction.typeName, label: 'Paginate', fields: PaginateFields.all, decode: PaginateAction._fromJson),
+];
+
+/// The data library's action types ([DataAction]).
+const List<ActionSpec> dataActionSpecs = [
+  ActionSpec(CallApiAction.typeName, label: 'Call API', fields: CallApiFields.all, decode: CallApiAction._fromJson, nested: ['onSuccess', 'onError'], requires: ['api']),
+  ActionSpec(SetStorageAction.typeName, label: 'Set storage', fields: SetStorageFields.all, decode: SetStorageAction._fromJson, requires: ['storage']),
+  ActionSpec(CloudDocumentsAction.typeName, label: 'Cloud documents', fields: CloudDocumentsFields.all, decode: CloudDocumentsAction._fromJson, requires: ['cloud']),
+  ActionSpec(LoadCloudDataAction.typeName, label: 'Load cloud data', fields: LoadCloudDataFields.all, decode: LoadCloudDataAction._fromJson, requires: ['cloud']),
+  ActionSpec(ReloadCloudDataAction.typeName, label: 'Reload cloud data', fields: ReloadCloudDataFields.all, decode: ReloadCloudDataAction._fromJson, requires: ['cloud']),
+  ActionSpec(CloudFilesAction.typeName, label: 'Cloud files', fields: CloudFilesFields.all, decode: CloudFilesAction._fromJson, nested: ['actions'], requires: ['cloud']),
+  ActionSpec(CloudDataAction.typeName, label: 'Cloud data', fields: CloudDataFields.all, decode: CloudDataAction._fromJson, requires: ['cloud']),
+  ActionSpec(CloudBatchAction.typeName, label: 'Cloud batch', fields: CloudBatchFields.all, decode: CloudBatchAction._fromJson, nested: ['steps'], requires: ['cloud']),
+  ActionSpec(DownloadFileAction.typeName, label: 'Download file', fields: DownloadFileFields.all, decode: DownloadFileAction._fromJson, requires: ['files']),
+];
+
+/// The auth library's action type ([AuthAction]).
+const List<ActionSpec> authActionSpecs = [
+  ActionSpec(AuthAction.typeName, label: 'Auth', fields: AuthFields.all, decode: AuthAction._fromJson, requires: ['auth']),
+];
+
+/// The commerce library's action type ([PaywallAction]).
+const List<ActionSpec> commerceActionSpecs = [
+  ActionSpec(PaywallAction.typeName, label: 'Paywall', fields: PaywallFields.all, decode: PaywallAction._fromJson, requires: ['purchases']),
+];
+
+/// The media library's action types ([MediaAction]).
+const List<ActionSpec> mediaActionSpecs = [
+  ActionSpec(PrintAction.typeName, label: 'Print', fields: PrintFields.all, decode: PrintAction._fromJson, requires: ['print']),
+  ActionSpec(PreloadImagesAction.typeName, label: 'Preload images', fields: PreloadImagesFields.all, decode: PreloadImagesAction._fromJson, requires: ['network']),
+  ActionSpec(SpeakAction.typeName, label: 'Speak', fields: SpeakFields.all, decode: SpeakAction._fromJson, requires: ['speech']),
+  ActionSpec(PlaySoundAction.typeName, label: 'Play sound', fields: PlaySoundFields.all, decode: PlaySoundAction._fromJson, requires: ['sound']),
+  ActionSpec(CaptureScreenshotAction.typeName, label: 'Capture screenshot', fields: CaptureScreenshotFields.all, decode: CaptureScreenshotAction._fromJson, requires: ['capture']),
+];
+
+/// The engage library's action types ([EngageAction]).
+const List<ActionSpec> engageActionSpecs = [
+  ActionSpec(SubmitFormAction.typeName, label: 'Submit form', fields: SubmitFormFields.all, decode: SubmitFormAction._fromJson, nested: ['onSuccess', 'onError'], requires: ['forms']),
+  ActionSpec(EmitEventAction.typeName, label: 'Emit event', fields: EmitEventFields.all, decode: EmitEventAction._fromJson, requires: ['events']),
+];

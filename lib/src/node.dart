@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'behaviors.dart';
 import 'bindings.dart' show BindPaths;
+import 'catalog.dart';
 import 'components.dart';
 import 'decoration.dart';
 import 'json.dart';
@@ -10,7 +11,6 @@ import 'props.dart';
 import 'triggers.dart';
 import 'values/paint.dart' show listEquals;
 import 'widgets/canvas.dart';
-import 'widgets/widgets.dart';
 
 /// One node: a widget declaration's values, placed in a tree by id.
 ///
@@ -36,6 +36,7 @@ final class Node {
     this.behaviors = Behaviors.none,
     this.component,
     this.extra = const {},
+    this.catalog,
   });
 
   final String id;
@@ -80,8 +81,13 @@ final class Node {
   /// Keys this version doesn't model, round-tripped.
   final Json extra;
 
-  /// The declaration, or null for a type this version doesn't know.
-  WidgetSpec? get spec => Widgets.of(type);
+  /// The catalog this node was decoded with; null for a node built in code
+  /// (its [spec] is then [Catalog.current]'s). Not part of its value: two
+  /// nodes with the same fields are equal whatever catalog read them.
+  final Catalog? catalog;
+
+  /// The declaration, or null for a type the node's catalog doesn't declare.
+  WidgetSpec? get spec => (catalog ?? Catalog.current).widget(type);
 
   /// Every child id: slots, then the ordered children, then (for a
   /// variance) each variant's children.
@@ -119,6 +125,7 @@ final class Node {
         behaviors: behaviors,
         component: link,
         extra: extra,
+        catalog: catalog,
       );
 
   Node copyWith({
@@ -156,6 +163,7 @@ final class Node {
         behaviors: behaviors ?? this.behaviors,
         component: component ?? this.component,
         extra: extra ?? this.extra,
+        catalog: catalog,
       );
 
   static const _keys = {
@@ -165,15 +173,22 @@ final class Node {
 
   /// This node with [patch] (a JSON merge patch over its JSON, as an
   /// interaction state's) applied.
-  Node patched(Json patch) => Node.fromJson(mergePatch(toJson(), patch), id: id) ?? this;
+  Node patched(Json patch) => Node.fromJson(mergePatch(toJson(), patch), id: id, catalog: catalog) ?? this;
 
-  /// Decodes a node; [id] wins over the JSON's own (the document map key).
-  /// Returns null only when there's no type.
-  static Node? fromJson(Object? json, {String? id}) {
+  /// Decodes a node with [catalog] (default: [Catalog.current]); [id] wins
+  /// over the JSON's own (the document map key). Returns null only when
+  /// there's no type. A type the catalog doesn't declare keeps its props
+  /// raw ([Props.unknown]).
+  static Node? fromJson(Object? json, {String? id, Catalog? catalog}) {
+    final c = catalog ?? Catalog.current;
+    return identical(c, Catalog.current) ? _fromJson(json, id, c) : Catalog.run(c, () => _fromJson(json, id, c));
+  }
+
+  static Node? _fromJson(Object? json, String? id, Catalog catalog) {
     final m = readMap(json);
     final type = readString(m?['type']);
     if (m == null || type == null || type.isEmpty) return null;
-    final spec = Widgets.of(type);
+    final spec = catalog.widget(type);
     final slots = readMap(m['slots']);
     final bind = readMap(m['bind']);
     return Node(
@@ -208,6 +223,7 @@ final class Node {
         for (final e in m.entries)
           if (!_keys.contains(e.key) && !Behaviors.keys.contains(e.key)) e.key: e.value,
       },
+      catalog: catalog,
     );
   }
 
