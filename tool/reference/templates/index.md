@@ -1028,6 +1028,24 @@ compact tools that is ≈ 3,500 tokens at 3.5 characters per token, ≈ 5,100 at
 full prompt (60,225 characters of starter and 7,813 of tools: 28,768 tokens). `ui_read {"types": [...]}` describes
 any other allowed type on demand (`describeTypes`), and validation does the rest.
 
+The runtime starter is a **base set plus a link to the full reference**. The base (`runtimeStarter`) covers what a
+chat card or a small screen uses: layout, decoration and text essentials, one table of the base node types (what
+takes children, slots or none; the props that matter: the button family, `textField`, `checkbox`, `switch`, `radio`,
+`slider`, `dropdown`, `segmentedButton`, `listView`, `gridView`...), state, bindings and reactions, the op rules and
+two examples that apply cleanly (one with a selectable list and a labelled button). It ends with the index of the
+third tool, `ui_docs {"topic": ...}` (`uiTools(catalog, compact: true, docs: true)`), which answers one topic at a
+time, sized for a tool result (`docsTopic`): any node type, action type, trigger or behavior, generated from the
+declarations, and the feature areas (theme, responsive, lists, forms, reactions, animation, gestures, customPaint,
+components, scripts...), the guide's own sections trimmed (`guide_topics.g.dart`, written by the reference
+generator). The trust profile decides what may be *used*: a topic outside it says it is not available here.
+`docsIndex` writes the index; the three functions are the base, the topic page and the index of any
+base-plus-links reference.
+
+`TrustProfile.agentApps` is `agent` plus the document's own sandboxed scripts, for apps and games an agent builds:
+the `scripts` op (name → `{"source", "params", "capabilities", "timeoutMs"}`, validated by `ScriptDef.validate()`,
+`invalid_script`), `runScript` and `script.name(...)` in formulas, with capabilities limited to `variables.read`,
+`variables.write` and `clock`. Everything else stays as `agent`'s.
+
 ### The trust profile
 
 `TrustProfile` is what an edited document may use: node types and action types (a restricted catalog,
