@@ -348,6 +348,16 @@ abstract final class ComponentEventFields {
   static const List<PropDef<Object?>> all = [event, value];
 }
 
+/// [SetThemeModeAction].
+abstract final class SetThemeModeFields {
+  static const mode = PropDef<String>('mode', Codecs.string, 'system',
+      doc: 'system (the device\'s setting), light or dark (Flutter\'s ThemeMode); an expression: '
+          '"\${= theme.isDark ? \'light\' : \'dark\'}" toggles.');
+  static const persist = PropDef<bool>('persist', Codecs.bool, true,
+      doc: 'Keep the choice in the site\'s local storage: a reload (and every page) starts in it.');
+  static const List<PropDef<Object?>> all = [mode, persist];
+}
+
 abstract final class CopyToClipboardFields {
   static const text = PropDef<String>('text', Codecs.string, '', doc: 'An expression.');
   static const List<PropDef<Object?>> all = [text];

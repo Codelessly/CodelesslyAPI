@@ -8,6 +8,7 @@ import 'app_identity.dart';
 import '../../core/breakpoints.dart';
 import 'publish_component.dart';
 import 'publish_layout.dart';
+import '../../core/site_fonts.dart';
 import '../../core/theme.dart';
 
 /// The schema version of the publish model and bundle this package reads
@@ -236,9 +237,27 @@ final class PublishFont {
   final int weight;
   final bool italic;
 
-  /// Where the font file is (an uploaded font). Null for a font the runtime
-  /// fetches by family (Google Fonts).
+  /// Where the font file is: an uploaded font's URL, or a path relative to
+  /// the published site (a site's declared font, [ofFamilies]), read through
+  /// the loader's files. Null for a font the runtime fetches by family
+  /// (Google Fonts).
   final String? url;
+
+  /// Whether [url] is a path relative to the published site
+  /// (`fonts/Inter.ttf`), not a URL.
+  bool get isSiteFile => url != null && isRelativeAssetPath(url!);
+
+  /// The id a family's face has in a publish model's `fonts`:
+  /// `Family/weight/italic`.
+  static String idOf(String family, int weight, bool italic) => '$family/$weight/$italic';
+
+  /// The fonts a site declares ([FontFamily], a `site.json`'s `fonts`), one
+  /// per file, each read from its path relative to the site.
+  static List<PublishFont> ofFamilies(Iterable<FontFamily> families) => [
+        for (final f in families)
+          for (final a in f.fonts)
+            PublishFont(id: idOf(f.family, a.weight, a.italic), family: f.family, weight: a.weight, italic: a.italic, url: a.asset),
+      ];
 
   static PublishFont? fromJson(Object? json, {String? id}) {
     final m = readMap(json);

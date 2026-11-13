@@ -32,6 +32,7 @@ final samples = <Json>[
   {'type': 'cloudData', 'operation': 'query', 'collection': 'tasks', 'whereFilters': [{'field': 'done', 'operator': 'equal', 'value': 'false'}], 'limit': 3, 'resultVariable': 'r'},
   {'type': 'cloudBatch', 'steps': [{'type': 'cloudData', 'operation': 'delete', 'collection': 'tasks', 'id': 'x'}], 'transaction': true},
   {'type': 'copyToClipboard', 'text': 'hi'},
+  {'type': 'setThemeMode', 'mode': r"${= theme.isDark ? 'light' : 'dark'}", 'persist': false},
   {'type': 'editText', 'node': 'f', 'operation': 'wrap', 'before': '**'},
   {'type': 'paywall', 'operation': 'purchase', 'slot': 'annual'},
   {'type': 'focus', 'node': 'f', 'selectAll': true},

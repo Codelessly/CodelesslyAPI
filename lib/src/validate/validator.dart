@@ -25,6 +25,7 @@ import '../core/document.dart';
 import '../core/migrate/legacy_paths.dart' show movedPathHint;
 import '../core/scripts.dart';
 import '../core/sections.dart';
+import '../core/site_fonts.dart';
 import '../core/theme.dart';
 import '../core/triggers.dart';
 import '../core/value_fields.dart';
@@ -1658,7 +1659,7 @@ final class _Validator {
 /// The keys a theme (the site manifest's `theme`) reads.
 const Set<String> themeKeys = {
   'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning', 'fontFamily', 'titleFontFamily', //
-  'radius', 'buttonRadius', 'colors', 'textStyles', 'dark', 'media',
+  'radius', 'buttonRadius', 'colors', 'textStyles', 'dark', 'media', 'mode',
 };
 
 /// Checks a theme's JSON (the site manifest's `theme`, at [at]): its keys,
@@ -1679,13 +1680,20 @@ List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints?
   void body(Json m, String at, {required bool patch}) {
     for (final e in m.entries) {
       final p = pointer(at, e.key);
-      if (!themeKeys.contains(e.key) || (patch && (e.key == 'media' || e.key == 'dark'))) {
+      if (!themeKeys.contains(e.key) || (patch && (e.key == 'media' || e.key == 'dark' || e.key == 'mode'))) {
         r.add(Codes.invalidTheme, p, 'A theme has no "${e.key}". It takes: ${themeKeys.join(', ')}.',
             suggestion: nearest(e.key, themeKeys));
         continue;
       }
       if (e.value == null) continue;
       switch (e.key) {
+        case 'mode':
+          if (ThemeMode.tryParse(e.value) == null) {
+            r.add(Codes.invalidTheme, p,
+                '"mode" is "system" (the device\'s setting), "light" or "dark" (Flutter\'s ThemeMode), got ${describe(e.value)}. '
+                'A setThemeMode action changes it while the site runs.',
+                suggestion: e.value is String ? nearest(e.value as String, [for (final m in ThemeMode.values) m.name]) : null);
+          }
         case 'colors':
           final colors = readMap(e.value);
           if (colors == null) {
@@ -1764,5 +1772,77 @@ List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints?
   }
 
   body(m, at, patch: false);
+  return r.out;
+}
+
+/// Checks a site manifest's `fonts` (at [at]): a list of families in the
+/// shape of a pubspec's `fonts:` (`[{"family": "Inter", "fonts": [{"asset":
+/// "fonts/Inter-Bold.ttf", "weight": 700, "style": "italic"}]}]`), each file
+/// `.ttf`, `.otf` or `.woff`. Whether the files exist is the loader's to
+/// say (the render command reports a missing one).
+List<Diagnostic> validateSiteFonts(Object? json, {String at = '/fonts'}) {
+  final r = Reporter();
+  if (json == null) return r.out;
+  final list = readList(json);
+  if (list == null) {
+    r.add(Codes.invalidFonts, at, '"fonts" is a list of families: [{"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf"}]}].');
+    return r.out;
+  }
+  final seen = <String>{};
+  for (var i = 0; i < list.length; i++) {
+    final p = pointer(at, i);
+    final m = readMap(list[i]);
+    if (m == null || readString(m['family'])?.trim().isEmpty != false) {
+      r.add(Codes.invalidFonts, p, 'A font family is {"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf"}]}: it needs a "family" name.');
+      continue;
+    }
+    final family = readString(m['family'])!.trim();
+    if (!seen.add(family.toLowerCase())) {
+      r.add(Codes.invalidFonts, pointer(p, 'family'), 'Font family "$family" is declared twice: list all its files under one entry.');
+    }
+    for (final k in m.keys) {
+      if (!FontFamily.keys.contains(k)) {
+        r.add(Codes.invalidFonts, pointer(p, k), 'A font family has no "$k". It takes: family, fonts.', suggestion: nearest(k, FontFamily.keys));
+      }
+    }
+    final files = readList(m['fonts']);
+    if (files == null || files.isEmpty) {
+      r.add(Codes.invalidFonts, pointer(p, 'fonts'), 'Font family "$family" lists no files: "fonts": [{"asset": "fonts/$family-Regular.ttf"}].');
+      continue;
+    }
+    for (var j = 0; j < files.length; j++) {
+      final fp = pointer(pointer(p, 'fonts'), j);
+      final f = readMap(files[j]);
+      final asset = readString(f?['asset'])?.trim();
+      if (f == null || asset == null || asset.isEmpty) {
+        r.add(Codes.invalidFonts, fp, 'A font file is {"asset": "fonts/$family-Regular.ttf", "weight": 400, "style": "normal"}: it needs an "asset" path.');
+        continue;
+      }
+      for (final k in f.keys) {
+        if (!FontAsset.keys.contains(k)) {
+          r.add(Codes.invalidFonts, pointer(fp, k), 'A font file has no "$k". It takes: asset, weight, style.', suggestion: nearest(k, FontAsset.keys));
+        }
+      }
+      final weight = f['weight'];
+      if (weight != null && (weight is! num || weight % 100 != 0 || weight < 100 || weight > 900)) {
+        r.add(Codes.invalidFonts, pointer(fp, 'weight'), '"weight" is 100, 200 ... 900 (Flutter\'s FontWeight), got ${describe(weight)}.');
+      }
+      final style = f['style'];
+      if (style != null && style != 'normal' && style != 'italic') {
+        r.add(Codes.invalidFonts, pointer(fp, 'style'), '"style" is "normal" or "italic", got ${describe(style)}.');
+      }
+      final lower = asset.toLowerCase();
+      if (!isRelativeAssetPath(asset)) {
+        r.add(Codes.invalidFonts, pointer(fp, 'asset'),
+            '"$asset" is not a path relative to the site: put the file beside site.json (fonts/...) and name it by its relative path.');
+      } else if (lower.endsWith('.woff2')) {
+        r.add(Codes.fontFormat, pointer(fp, 'asset'),
+            '"$asset" is WOFF2: not read (WOFF2 needs Brotli decoding, which the runtime does not do). '
+            'Declare the .woff or .ttf of the same face instead (a @fontsource package ships a .woff beside each .woff2).');
+      } else if (!FontFamily.extensions.any(lower.endsWith)) {
+        r.add(Codes.fontFormat, pointer(fp, 'asset'), '"$asset" is not a .ttf, .otf or .woff font file.');
+      }
+    }
+  }
   return r.out;
 }

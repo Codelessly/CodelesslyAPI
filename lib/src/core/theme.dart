@@ -18,7 +18,9 @@ import 'values/text.dart';
 /// [dark] holds the colors to use in dark mode where they differ: the
 /// runtime reads [forBrightness] (`dark: true`), so a binding to
 /// `${theme.surface}` shows the dark surface on a device in dark mode.
-/// Older runtimes ignore [colors], [textStyles] and [dark].
+/// [mode] is the site's light or dark choice (Flutter's `MaterialApp.themeMode`):
+/// `system` follows the device; a `setThemeMode` action changes it at run
+/// time. Older runtimes ignore [colors], [textStyles], [dark] and [mode].
 @immutable
 final class ThemeTokens {
   const ThemeTokens({
@@ -37,6 +39,7 @@ final class ThemeTokens {
     this.textStyles = const {},
     this.dark,
     this.media = const [],
+    this.mode = ThemeMode.system,
   });
 
   /// Primary buttons and info toasts.
@@ -92,6 +95,12 @@ final class ThemeTokens {
   /// The colors for dark mode: the tokens and [colors] that differ from the
   /// light ones (its other fields are not used).
   final ThemeTokens? dark;
+
+  /// Which of the light and [dark] colors a site starts in (Flutter's
+  /// `ThemeMode`): `system` follows the device, `light` and `dark` are fixed.
+  /// A `setThemeMode` action changes it while the site runs; `${theme.mode}`
+  /// reads it and `${theme.isDark}` whether the screen is dark.
+  final ThemeMode mode;
 
   static const ThemeTokens none = ThemeTokens();
 
@@ -174,6 +183,7 @@ final class ThemeTokens {
       colors: {...colors, ...d.colors},
       textStyles: textStyles,
       media: media,
+      mode: mode,
     );
   }
 
@@ -220,6 +230,7 @@ final class ThemeTokens {
       },
       dark: m['dark'] == null ? null : fromJson(m['dark']),
       media: MediaRule.listFromJson(m['media']),
+      mode: readEnum(ThemeMode.values, m['mode'], ThemeMode.system),
     );
   }
 
@@ -240,6 +251,7 @@ final class ThemeTokens {
     if (textStyles.isNotEmpty) j['textStyles'] = {for (final e in textStyles.entries) e.key: e.value.toJson()};
     if (dark != null && !dark!.isEmpty) j['dark'] = dark!.toJson();
     if (media.isNotEmpty) j['media'] = [for (final r in media) r.toJson()];
+    if (mode != ThemeMode.system) j['mode'] = mode.name;
     return j;
   }
 
@@ -260,9 +272,37 @@ final class ThemeTokens {
       jsonEquality.equals(other.colors, colors) &&
       jsonEquality.equals(other.textStyles, textStyles) &&
       other.dark == dark &&
-      listEquals(other.media, media);
+      listEquals(other.media, media) &&
+      other.mode == mode;
 
   @override
   int get hashCode => Object.hash(primary, onPrimary, surface, onSurface, error, success, warning, fontFamily,
-      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, Object.hashAll(media));
+      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, Object.hashAll(media), mode);
+}
+
+/// Whether a site shows its light or dark colors (Flutter's `ThemeMode`,
+/// as `MaterialApp.themeMode` takes it).
+enum ThemeMode {
+  /// The device's setting (`MediaQuery.platformBrightnessOf`).
+  system,
+
+  /// Always the light colors.
+  light,
+
+  /// Always the [ThemeTokens.dark] colors.
+  dark;
+
+  /// Whether a screen is dark in this mode on a device whose own setting is
+  /// [platformDark].
+  bool isDark({required bool platformDark}) => this == dark || (this == system && platformDark);
+
+  /// The mode [json] names (`"system"`, `"light"`, `"dark"`, any case), else
+  /// null.
+  static ThemeMode? tryParse(Object? json) {
+    final s = json is String ? json.trim().toLowerCase() : null;
+    for (final m in values) {
+      if (m.name == s) return m;
+    }
+    return null;
+  }
 }
