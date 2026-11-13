@@ -249,7 +249,7 @@ abstract final class GridViewProps {
   );
 }
 
-Object? _motionOut(Motion? m) => m?.toJson();
+Object? _poseOut(Pose? m) => m?.toJson();
 
 /// Flutter `PageView`: its first child repeated per page.
 abstract final class PageViewProps {
@@ -270,17 +270,17 @@ abstract final class PageViewProps {
   /// the motion a page has one page after the current one. The current page
   /// is at rest, pages between are interpolated by their distance (clamped
   /// to two pages) and pages before are mirrored (`translateX`, `shiftX`,
-  /// `rotate`, `rotateY`, `originX` change sign). Null: flat pages.
-  static const pageMotion =
-      PropDef<Motion?>('pageMotion', ValueCodec(Motion.fromJson, _motionOut, motionType), null);
+  /// `rotate`, `rotateY` and the alignment's x change sign). A [Pose]: a
+  /// transform with an opacity and a blur. Null: flat pages.
+  static const pageMotion = PropDef<Pose?>('pageMotion', ValueCodec(Pose.fromJson, _poseOut, poseType), null);
 
   /// The motion a page has one page *before* the current one, when the two
   /// sides differ (a book: the page leaving turns over about the spine,
-  /// `{shiftX: 1, rotateY: -100, originX: -1}`, while the next one lies
+  /// `{shiftX: 1, rotateY: -100, alignment: [-1, 0]}`, while the next one lies
   /// still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance
   /// like [pageMotion] and not mirrored. Null: [pageMotion] mirrored.
   static const pageMotionBefore =
-      PropDef<Motion?>('pageMotionBefore', ValueCodec(Motion.fromJson, _motionOut, motionType), null);
+      PropDef<Pose?>('pageMotionBefore', ValueCodec(Pose.fromJson, _poseOut, poseType), null);
 
   /// Which pages draw on top where they overlap: `forward` (Flutter's
   /// order: later pages over earlier ones) or `reverse` (earlier pages on

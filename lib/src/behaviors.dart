@@ -21,6 +21,7 @@ import 'values/text.dart';
 part 'animation.dart';
 part 'animation_presets.dart';
 part 'gestures.dart';
+part 'path_follow.dart';
 
 /// An easing curve, by the name of its Flutter `Curves` constant. `spring`
 /// is a damped spring (see [Motion.spring]); `step` jumps half way.
@@ -177,7 +178,6 @@ extension on Json {
   }
 }
 
-double _lerp(double a, double b, double t) => a + (b - a) * t;
 
 /// [v], or the JSON [v] holds as text (a bound list given as JSON text).
 Object? _jsonText(Object? v) {
@@ -203,47 +203,255 @@ bool? _loose(Object? v) => switch (v) {
 
 // --- motion -------------------------------------------------------------------
 
-/// How a [Motion] repeats.
-enum MotionLoop {
-  /// Plays once.
-  none,
-
-  /// From the start again.
-  restart,
-
-  /// Back and forth.
-  reverse,
-
-  /// Swings around rest on a sine, to its values and as far the other way,
-  /// one swing per [Motion.duration]: a pendulum, a needle sweeping a
-  /// gauge. It rests at rest, not at an end.
-  swing,
-}
-
-/// How [Motion.pathProgress] maps to a point on [Motion.path].
-enum MotionPathPacing {
-  /// The share of the path's length: even speed along the curve.
-  length,
-
-  /// The share of the area swept by a line from the focus
-  /// ([Motion.pathFocusX], [Motion.pathFocusY], in the path's coordinates)
-  /// to the node: Kepler's second law, an orbit that speeds up near its
-  /// Sun.
-  area,
-}
-
-/// A band of light sweeping across what the node paints, over and over (a
-/// loading skeleton's shimmer). Blended over the node's own pixels only.
-/// The design canvas draws it still, halfway across.
+/// A transform painted over the node's layout (Flutter's `Transform`): it
+/// moves nothing else. Its values are the node's rest pose; how it gets
+/// there is the node's `animations` and `transitions`.
+///
+/// One matrix, outermost first: a translation (the [path]'s offset, then
+/// [translateX]/[translateY] in pixels, then [shiftX]/[shiftY] times the
+/// node's size, `FractionalTranslation`), then about [alignment]: the scale
+/// ([scale] times [scaleX]/[scaleY]), the rotation [rotate] (degrees, about
+/// z, plus the path's turn), then [rotateX] and [rotateY] (3D, seen with
+/// [perspective]). JSON (sparse): `{"translateY": -4, "scale": 1.02,
+/// "alignment": [0, 1]}`.
+///
+/// Reads the legacy keys too: `originX`/`originY` as [alignment]; the flat
+/// path keys (`path` text, `pathProgress`, `orientToPath`, `orientUpright`,
+/// `uprightMirror`, `pathViewBox`, `pathPacing`, `pathFocusX/Y`) as
+/// [path]. Its other legacy keys belong to the node ([Node.fromJson]:
+/// `opacity`, `blur`) or to its animations and transitions
+/// ([Behaviors.fromJson]: the timing, entrance, loop, spin, keyframes and
+/// shimmer).
 @immutable
-final class MotionShimmer extends _Value {
-  const MotionShimmer({
-    this.color = Color.white,
-    this.strength = 0.8,
-    this.width = 0.44,
-    this.duration = 1400,
-    this.angle = 0,
+final class Motion extends _Value {
+  const Motion({
+    this.translateX = 0,
+    this.translateY = 0,
+    this.shiftX = 0,
+    this.shiftY = 0,
+    this.scale = 1,
+    this.scaleX = 1,
+    this.scaleY = 1,
+    this.rotate = 0,
+    this.rotateX = 0,
+    this.rotateY = 0,
+    this.perspective = 1,
+    this.alignment = Alignment.center,
+    this.backfaceHidden = false,
+    this.path,
   });
+
+  static const Motion none = Motion();
+
+  /// Pixels (`Transform.translate(offset:)`).
+  final double translateX, translateY;
+
+  /// Multiples of the node's own size (`FractionalTranslation`).
+  final double shiftX, shiftY;
+
+  /// `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply
+  /// [scale].
+  final double scale, scaleX, scaleY;
+
+  /// Degrees. [rotate] turns about z (`Transform.rotate`); [rotateX] and
+  /// [rotateY] turn in 3D, seen with [perspective] (0 flat).
+  final double rotate, rotateX, rotateY, perspective;
+
+  /// The point the scale and rotations are about (`Transform.alignment`):
+  /// `[x, y]`, −1…1, the center `[0, 0]`.
+  final Alignment alignment;
+
+  /// Not painted while its back faces the viewer (through every transform
+  /// above it too).
+  final bool backfaceHidden;
+
+  /// A path the node sits on, at its progress; turned with it as it says.
+  final PathFollow? path;
+
+  /// The number properties an animation track or a transition drives, as
+  /// paths under `motion.` (`motion.rotate`, `motion.path.progress`).
+  static const List<String> properties = [
+    'translateX', 'translateY', 'shiftX', 'shiftY', 'scale', 'scaleX', 'scaleY', 'rotate', 'rotateX', 'rotateY', //
+    'perspective', 'path.progress',
+  ];
+
+  bool get hasPath => path?.hasPath ?? false;
+
+  /// Whether it draws the node anywhere but where it's laid out.
+  bool get hasTransform => this != none && (_numbers.any((e) => e) || backfaceHidden || hasPath);
+
+  List<bool> get _numbers => [
+        translateX != 0, translateY != 0, shiftX != 0, shiftY != 0, scale != 1, scaleX != 1, scaleY != 1, //
+        rotate != 0, rotateX != 0, rotateY != 0,
+      ];
+
+  /// The value of [property] (one of [properties]); the value at rest for
+  /// any other.
+  double valueOf(String property) => switch (property) {
+        'translateX' => translateX,
+        'translateY' => translateY,
+        'shiftX' => shiftX,
+        'shiftY' => shiftY,
+        'scale' => scale,
+        'scaleX' => scaleX,
+        'scaleY' => scaleY,
+        'rotate' => rotate,
+        'rotateX' => rotateX,
+        'rotateY' => rotateY,
+        'perspective' => perspective,
+        'path.progress' || 'pathProgress' => path?.progress ?? 0,
+        _ => restOf(property),
+      };
+
+  /// [property] at rest: 1 for the scales (and the perspective), else 0.
+  static double restOf(String property) => switch (property) {
+        'scale' || 'scaleX' || 'scaleY' || 'perspective' => 1,
+        _ => 0,
+      };
+
+  /// This motion with [property] (one of [properties]) set to [value].
+  Motion withValue(String property, double value) {
+    double v(String p, double own) => p == property ? value : own;
+    return Motion(
+      translateX: v('translateX', translateX),
+      translateY: v('translateY', translateY),
+      shiftX: v('shiftX', shiftX),
+      shiftY: v('shiftY', shiftY),
+      scale: v('scale', scale),
+      scaleX: v('scaleX', scaleX),
+      scaleY: v('scaleY', scaleY),
+      rotate: v('rotate', rotate),
+      rotateX: v('rotateX', rotateX),
+      rotateY: v('rotateY', rotateY),
+      perspective: v('perspective', perspective),
+      alignment: alignment,
+      backfaceHidden: backfaceHidden,
+      path: (property == 'path.progress' || property == 'pathProgress') && path != null
+          ? path!.copyWith(progress: value)
+          : path,
+    );
+  }
+
+  /// [a] to [b] at [t], number by number (settings are [b]'s).
+  static Motion lerp(Motion a, Motion b, double t) {
+    var m = b;
+    for (final p in properties) {
+      final x = a.valueOf(p), y = b.valueOf(p);
+      if (x != y) m = m.withValue(p, x + (y - x) * t);
+    }
+    return m;
+  }
+
+  /// A path direction [radians] folded into −90…90 degrees
+  /// ([PathFollow.uprightAngle]).
+  static double uprightAngle(double radians) => PathFollow.uprightAngle(radians);
+
+  static Motion? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    final legacyOrigin = m.containsKey('originX') || m.containsKey('originY');
+    final alignment = Alignment.fromJson(m['alignment']) ?? Alignment.center;
+    return Motion(
+      translateX: r.d('translateX', 0),
+      translateY: r.d('translateY', 0),
+      shiftX: r.d('shiftX', 0),
+      shiftY: r.d('shiftY', 0),
+      scale: r.d('scale', 1),
+      scaleX: r.d('scaleX', 1),
+      scaleY: r.d('scaleY', 1),
+      rotate: r.d('rotate', 0),
+      rotateX: r.d('rotateX', 0),
+      rotateY: r.d('rotateY', 0),
+      perspective: r.d('perspective', 1),
+      alignment: legacyOrigin ? Alignment(r.d('originX', alignment.x), r.d('originY', alignment.y)) : alignment,
+      backfaceHidden: r.b('backfaceHidden', false),
+      path: PathFollow.fromLegacy(m),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..d('translateX', translateX, 0)
+      ..d('translateY', translateY, 0)
+      ..d('shiftX', shiftX, 0)
+      ..d('shiftY', shiftY, 0)
+      ..d('scale', scale, 1)
+      ..d('scaleX', scaleX, 1)
+      ..d('scaleY', scaleY, 1)
+      ..d('rotate', rotate, 0)
+      ..d('rotateX', rotateX, 0)
+      ..d('rotateY', rotateY, 0)
+      ..d('perspective', perspective, 1);
+    if (alignment != Alignment.center) j['alignment'] = alignment.toJson();
+    j.b('backfaceHidden', backfaceHidden, false);
+    if (path != null) j['path'] = path!.toJson();
+    return j;
+  }
+
+  @override
+  List<Object?> get props => [
+        translateX, translateY, shiftX, shiftY, scale, scaleX, scaleY, rotate, rotateX, rotateY, perspective, //
+        alignment, backfaceHidden, path,
+      ];
+}
+
+/// A [Motion] drawn with a fade and a blur: the pose a page of a page view
+/// (`pageMotion`) or a side of a route transition is drawn at. Flutter: a
+/// `Transform` in an `Opacity` in an `ImageFiltered`. JSON: [motion]'s keys
+/// with `opacity` and `blur` beside them, flat (`{"shiftX": -1, "opacity":
+/// 0.5}`).
+@immutable
+final class Pose extends _Value {
+  const Pose({this.motion = Motion.none, this.opacity = 1, this.blur = 0});
+
+  static const Pose none = Pose();
+
+  final Motion motion;
+
+  /// 0–1.
+  final double opacity;
+
+  /// A layer blur's radius.
+  final double blur;
+
+  bool get isNone => this == none;
+
+  /// [a] to [b] at [t].
+  static Pose lerp(Pose a, Pose b, double t) => Pose(
+        motion: Motion.lerp(a.motion, b.motion, t),
+        opacity: (a.opacity + (b.opacity - a.opacity) * t).clamp(0.0, 1.0),
+        blur: math.max(0, a.blur + (b.blur - a.blur) * t),
+      );
+
+  static Pose? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return Pose(
+      motion: Motion.fromJson(m) ?? Motion.none,
+      opacity: r.d('opacity', 1).clamp(0.0, 1.0),
+      blur: math.max(0, r.d('blur', 0)),
+    );
+  }
+
+  Json toJson() => motion.toJson()
+    ..d('opacity', opacity, 1)
+    ..d('blur', blur, 0);
+
+  @override
+  List<Object?> get props => [motion, opacity, blur];
+}
+
+/// A band of light across what the node paints (a loading skeleton's
+/// shimmer: Flutter's `ShaderMask` with a moving `LinearGradient`), blended
+/// over the node's own pixels only. [position] places it; the `shimmer`
+/// animation preset sweeps it across, over and over. JSON (sparse):
+/// `{"color": "#FFFFFFFF", "strength": 0.8, "width": 0.44, "angle": 0,
+/// "position": 0.5}`.
+@immutable
+final class Shimmer extends _Value {
+  const Shimmer({this.color = Color.white, this.strength = 0.8, this.width = 0.44, this.angle = 0, this.position = 0.5});
 
   final Color color;
 
@@ -253,22 +461,23 @@ final class MotionShimmer extends _Value {
   /// The band's width, a share of the node's size along the sweep.
   final double width;
 
-  /// One sweep across (ms).
-  final int duration;
-
   /// The sweep's direction in degrees: 0 left to right, 90 top to bottom.
   final double angle;
 
-  static MotionShimmer? fromJson(Object? json) {
+  /// Where the band is: 0 fully off the start side, 1 fully off the end.
+  /// Bindable as `shimmer.position`.
+  final double position;
+
+  static Shimmer? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    return MotionShimmer(
+    return Shimmer(
       color: r.color('color') ?? Color.white,
       strength: r.d('strength', 0.8),
       width: r.d('width', 0.44),
-      duration: r.ms('duration', 1400),
       angle: r.d('angle', 0),
+      position: r.d('position', 0.5),
     );
   }
 
@@ -278,649 +487,12 @@ final class MotionShimmer extends _Value {
     return j
       ..d('strength', strength, 0.8)
       ..d('width', width, 0.44)
-      ..i('duration', duration, 1400)
-      ..d('angle', angle, 0);
+      ..d('angle', angle, 0)
+      ..d('position', position, 0.5);
   }
 
   @override
-  List<Object?> get props => [color, strength, width, duration, angle];
-}
-
-/// The values a [Motion] passes through at [t] (0–1) between its start and
-/// its values; null values follow the curve.
-@immutable
-final class MotionKeyframe extends _Value {
-  const MotionKeyframe({
-    required this.t,
-    this.translateX,
-    this.translateY,
-    this.scale,
-    this.scaleX,
-    this.scaleY,
-    this.opacity,
-    this.rotate,
-    this.rotateX,
-    this.rotateY,
-    this.pathProgress,
-  });
-
-  final double t;
-  final double? translateX, translateY, scale, scaleX, scaleY, opacity, rotate, rotateX, rotateY, pathProgress;
-
-  static const List<String> properties = [
-    'translateX', 'translateY', 'scale', 'scaleX', 'scaleY', 'opacity', 'rotate', 'rotateX', 'rotateY', //
-    'pathProgress',
-  ];
-
-  double? valueOf(String property) => switch (property) {
-    'translateX' => translateX,
-    'translateY' => translateY,
-    'scale' => scale,
-    'scaleX' => scaleX,
-    'scaleY' => scaleY,
-    'opacity' => opacity,
-    'rotate' => rotate,
-    'rotateX' => rotateX,
-    'rotateY' => rotateY,
-    'pathProgress' => pathProgress,
-    _ => null,
-  };
-
-  static MotionKeyframe? fromJson(Object? json) {
-    final m = readMap(json);
-    if (m == null) return null;
-    final r = _R(m);
-    return MotionKeyframe(
-      t: r.d('t', 0),
-      translateX: r.dn('translateX'),
-      translateY: r.dn('translateY'),
-      scale: r.dn('scale'),
-      scaleX: r.dn('scaleX'),
-      scaleY: r.dn('scaleY'),
-      opacity: r.dn('opacity'),
-      rotate: r.dn('rotate'),
-      rotateX: r.dn('rotateX'),
-      rotateY: r.dn('rotateY'),
-      pathProgress: r.dn('pathProgress'),
-    );
-  }
-
-  Json toJson() {
-    final j = <String, Object?>{'t': writeDouble(t)};
-    for (final p in properties) {
-      j.dn(p, valueOf(p));
-    }
-    return j;
-  }
-
-  @override
-  List<Object?> get props => [
-    t,
-    translateX,
-    translateY,
-    scale,
-    scaleX,
-    scaleY,
-    opacity,
-    rotate,
-    rotateX,
-    rotateY,
-    pathProgress,
-  ];
-}
-
-/// How a node moves: a transform drawn over its layout (CSS-like: it
-/// doesn't move anything else), the transitions between its values when they
-/// change, an entrance, a loop and a spin. Its values are the node's rest
-/// pose; the design canvas draws the node there.
-///
-/// The transform, in order: [translateX]/[translateY] (pixels), [scale]
-/// times [scaleX]/[scaleY], [rotate] (degrees, plus the spin), then
-/// [rotateX]/[rotateY] in 3D with [perspective], about the point
-/// ([originX], [originY]) in the box (-1–1, 0 the center); then a shift by
-/// [shiftX]/[shiftY] times the node's size. [opacity] and [blur] apply on
-/// top of the node's own.
-@immutable
-final class Motion extends _Value {
-  const Motion({
-    this.translateX = 0,
-    this.translateY = 0,
-    this.scale = 1,
-    this.scaleX = 1,
-    this.scaleY = 1,
-    this.shiftX = 0,
-    this.shiftY = 0,
-    this.opacity = 1,
-    this.rotate = 0,
-    this.rotateX = 0,
-    this.rotateY = 0,
-    this.perspective = 1,
-    this.originX = 0,
-    this.originY = 0,
-    this.duration = 0,
-    this.delay = 0,
-    this.curve = AnimationCurve.easeInOut,
-    this.rotateCurve,
-    this.fadeShare = 1,
-    this.spring = Motion.defaultSpring,
-    this.spin = 0,
-    this.spinRamp = 800,
-    this.loop = MotionLoop.none,
-    this.repeat = 0,
-    this.enter = false,
-    this.enterFrom,
-    this.replayKey,
-    this.blur = 0,
-    this.backfaceHidden = false,
-    this.path,
-    this.pathProgress = 0,
-    this.orientToPath = false,
-    this.keyframes = const [],
-    this.revealOnScroll = false,
-    this.enterHeld = false,
-    this.revealFraction = 0.15,
-    this.orientUpright = false,
-    this.uprightMirror = false,
-    this.arc = 0,
-    this.paused = false,
-    this.phase = 0,
-    this.pathPacing = MotionPathPacing.length,
-    this.pathFocusX = 0,
-    this.pathFocusY = 0,
-    this.pathWrap = false,
-    this.pathViewBox = const [],
-    this.shimmer,
-    this.named = const {},
-  });
-
-  static const Motion none = Motion();
-
-  final double translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity;
-  final double rotate, rotateX, rotateY, perspective, originX, originY;
-
-  /// A transition's length and its wait (ms).
-  final int duration, delay;
-  final AnimationCurve curve;
-
-  /// The rotation's own curve (an entrance that drops in on [curve] and
-  /// wobbles upright on `elasticOut`); null follows [curve].
-  final AnimationCurve? rotateCurve;
-
-  /// The share (0–1] of [duration] in which the opacity arrives, easing out:
-  /// a card fades in over its first third while it keeps settling. 1
-  /// follows [curve].
-  final double fadeShare;
-
-  /// The spring of [AnimationCurve.spring] (JSON `spring`; the legacy
-  /// `springStiffness`/`springDamping` read as it).
-  final Spring spring;
-
-  static const Spring defaultSpring = Spring.physical(stiffness: 380, damping: 20);
-
-  /// Continuous turns per second (negative: counter-clockwise), reached
-  /// over [spinRamp] ms.
-  final double spin;
-  final int spinRamp;
-
-  /// Plays between the start ([enterFrom], else rest) and the values.
-  final MotionLoop loop;
-
-  /// Loop runs (0: forever).
-  final int repeat;
-
-  /// Plays an entrance when the node appears: from [enterFrom], or from
-  /// rest to the values when null.
-  final bool enter;
-  final Motion? enterFrom;
-
-  /// A change of this text replays the entrance.
-  final String? replayKey;
-  final double blur;
-
-  /// Hidden while its back faces the viewer.
-  final bool backfaceHidden;
-
-  /// An SVG path the node moves along, at [pathProgress] (0–1). It is
-  /// followed from where the node is laid out: the node is moved by the
-  /// path's offset from its start point, so a node tracing a route drawn in
-  /// its parent's coordinates sits at the route's first point.
-  final String? path;
-  final double pathProgress;
-
-  /// Turns with the path's direction.
-  final bool orientToPath;
-  final List<MotionKeyframe> keyframes;
-
-  /// Waits to enter until [revealFraction] of the node scrolls into view.
-  final bool revealOnScroll;
-
-  /// Holds the entrance at its start while true; it plays once this turns
-  /// false (bindable as `motion.enterHeld`: a page's characters wait for
-  /// the page to settle, `${= abs(pageOffset) > 0.01}`). Once played, it
-  /// doesn't hold again.
-  final bool enterHeld;
-  final double revealFraction;
-
-  /// With [orientToPath], never upside down: the path's direction folded
-  /// into -90–90 degrees.
-  final bool orientUpright;
-
-  /// With [orientUpright], a node heading left is mirrored (scaleX -1) as
-  /// well as turned upright, so its front still leads: a train, a car, a
-  /// fish. Without it the node keeps facing right, backwards.
-  final bool uprightMirror;
-
-  /// Bends every change of position (translate, shift) into a quadratic
-  /// curve whose middle sits this share of the distance off the straight
-  /// line, to the right of the direction of travel (negative: left).
-  final double arc;
-
-  /// Freezes the loop and the spin where they are; false carries on from
-  /// there (bindable as `motion.paused`).
-  final bool paused;
-
-  /// Where a [loop] starts in its cycle (0–1): nodes sharing one motion
-  /// spread round it (`motion.phase`: `${= index / count}`).
-  final double phase;
-
-  /// How [pathProgress] maps to a point on [path]: by length or by area
-  /// swept about ([pathFocusX], [pathFocusY]).
-  final MotionPathPacing pathPacing;
-  final double pathFocusX, pathFocusY;
-
-  /// Reads [pathProgress] modulo 1 (a closed path goes round and round); a
-  /// transition goes the short way round.
-  final bool pathWrap;
-
-  /// The coordinate space of [path], `[width, height]`, stretched over the
-  /// node's parent: the path follows the figure it's drawn on as that
-  /// resizes (a marker walking a line of a diagram). Its points are where
-  /// the node goes, from the parent's origin (lay the node out at the
-  /// origin, offset by half its size to centre it on the path). Empty:
-  /// [path] is in pixels, as offsets from its start, from the node's place.
-  final List<double> pathViewBox;
-
-  /// A band of light sweeping across the node; null for none.
-  final MotionShimmer? shimmer;
-
-  /// The animating values (of [properties]) its JSON gives explicitly, even
-  /// at their defaults: an [enterFrom] of `{"opacity": 1}` enters from full
-  /// opacity. Read from the JSON's keys and written back; not a key of its
-  /// own, and not part of equality.
-  final Set<String> named;
-
-  /// The properties that animate.
-  static const List<String> properties = [
-    'translateX', 'translateY', 'scale', 'shiftX', 'shiftY', 'scaleX', 'scaleY', 'opacity', 'rotate', //
-    'rotateX', 'rotateY', 'spin', 'pathProgress', 'blur',
-  ];
-
-  bool get hasPath => path != null && path!.trim().isNotEmpty;
-
-  /// Whether the pose differs from the layout (a transform, a fade, a
-  /// blur).
-  bool get hasTransform =>
-      translateX != 0 ||
-      translateY != 0 ||
-      scale != 1 ||
-      shiftX != 0 ||
-      shiftY != 0 ||
-      scaleX != 1 ||
-      scaleY != 1 ||
-      opacity != 1 ||
-      rotate != 0 ||
-      rotateX != 0 ||
-      rotateY != 0 ||
-      blur != 0 ||
-      backfaceHidden ||
-      hasPath;
-
-  bool get hasEntrance => enter || enterFrom != null || revealOnScroll;
-
-  double valueOf(String property) => switch (property) {
-    'translateX' => translateX,
-    'translateY' => translateY,
-    'scale' => scale,
-    'shiftX' => shiftX,
-    'shiftY' => shiftY,
-    'scaleX' => scaleX,
-    'scaleY' => scaleY,
-    'opacity' => opacity,
-    'rotate' => rotate,
-    'rotateX' => rotateX,
-    'rotateY' => rotateY,
-    'spin' => spin,
-    'pathProgress' => pathProgress,
-    'blur' => blur,
-    _ => 0,
-  };
-
-  /// This motion with [property] (one of [properties]) set to [value].
-  Motion withValue(String property, double value) {
-    final v = {for (final p in properties) p: valueOf(p), property: value};
-    return Motion(
-      translateX: v['translateX']!,
-      translateY: v['translateY']!,
-      scale: v['scale']!,
-      scaleX: v['scaleX']!,
-      scaleY: v['scaleY']!,
-      shiftX: v['shiftX']!,
-      shiftY: v['shiftY']!,
-      opacity: v['opacity']!.clamp(0, 1).toDouble(),
-      rotate: v['rotate']!,
-      rotateX: v['rotateX']!,
-      rotateY: v['rotateY']!,
-      perspective: perspective,
-      originX: originX,
-      originY: originY,
-      duration: duration,
-      delay: delay,
-      curve: curve,
-      rotateCurve: rotateCurve,
-      fadeShare: fadeShare,
-      spring: spring,
-      spin: v['spin']!,
-      spinRamp: spinRamp,
-      loop: loop,
-      repeat: repeat,
-      enter: enter,
-      enterFrom: enterFrom,
-      replayKey: replayKey,
-      blur: math.max(0, v['blur']!),
-      backfaceHidden: backfaceHidden,
-      path: path,
-      pathProgress: v['pathProgress']!,
-      orientToPath: orientToPath,
-      keyframes: keyframes,
-      revealOnScroll: revealOnScroll,
-      enterHeld: enterHeld,
-      revealFraction: revealFraction,
-      orientUpright: orientUpright,
-      uprightMirror: uprightMirror,
-      arc: arc,
-      paused: paused,
-      phase: phase,
-      pathPacing: pathPacing,
-      pathFocusX: pathFocusX,
-      pathFocusY: pathFocusY,
-      pathWrap: pathWrap,
-      pathViewBox: pathViewBox,
-      shimmer: shimmer,
-      named: named,
-    );
-  }
-
-  /// This motion with every animating value at rest (no transform).
-  Motion get atRest {
-    var m = this;
-    for (final p in properties) {
-      if (p != 'spin') m = m.withValue(p, none.valueOf(p));
-    }
-    return m;
-  }
-
-  /// Where an entrance starts: [enterFrom]'s values that differ from rest
-  /// over this motion's (a reveal without one fades in).
-  Motion get entranceStart {
-    final from = enterFrom;
-    if (from == null) return revealOnScroll && !enter ? atRest.withValue('opacity', 0) : atRest;
-    var start = this;
-    for (final p in properties) {
-      if (p == 'spin') continue;
-      final v = from.valueOf(p);
-      if (v != none.valueOf(p) || from.named.contains(p) || p == 'pathProgress' && hasPath) {
-        start = start.withValue(p, v);
-      }
-    }
-    return start;
-  }
-
-  /// Where a [loop] starts: every value [enterFrom] moves, and the path
-  /// progress of a path (rest without one).
-  Motion get loopStart {
-    final from = enterFrom;
-    if (from == null) return atRest;
-    var start = this;
-    for (final p in properties) {
-      if (p == 'spin') continue;
-      final v = from.valueOf(p);
-      if (v != none.valueOf(p) || p == 'pathProgress' && hasPath) start = start.withValue(p, v);
-    }
-    return start;
-  }
-
-  /// [progress] as a [pathWrap] path reads it: modulo 1, 1 kept as the end.
-  static double wrapProgress(double progress) {
-    if (!progress.isFinite) return 0;
-    if (progress >= 0 && progress <= 1) return progress;
-    final r = progress % 1;
-    return r < 0 ? r + 1 : r;
-  }
-
-  /// A path direction [radians] folded into -90–90 degrees (turned half
-  /// round where it heads left), for [orientUpright].
-  static double uprightAngle(double radians) {
-    var a = radians % (2 * math.pi);
-    if (a > math.pi) a -= 2 * math.pi;
-    if (a > math.pi / 2) return a - math.pi;
-    if (a < -math.pi / 2) return a + math.pi;
-    return a;
-  }
-
-  /// Whether a path direction [radians] heads left, so [uprightAngle] turns
-  /// it half round (and [uprightMirror] mirrors the node).
-  static bool headsLeft(double radians) {
-    var a = radians % (2 * math.pi);
-    if (a > math.pi) a -= 2 * math.pi;
-    return a > math.pi / 2 || a < -math.pi / 2;
-  }
-
-  /// The pose [t] (0–1, already eased) of the way from [a] to [b], through
-  /// [b]'s keyframes; settings are [b]'s.
-  static Motion lerp(Motion a, Motion b, double t) {
-    var m = b;
-    for (final p in properties) {
-      if (p == 'spin') continue;
-      final from = a.valueOf(p), to = b.valueOf(p);
-      m = m.withValue(p, keyframed(b.keyframes, p, from, to, t) ?? _lerp(from, to, t));
-    }
-    return m;
-  }
-
-  /// [property] at [t] through [keyframes] between [from] and [to]
-  /// (monotone cubic, so it never overshoots a keyframe); null without
-  /// keyframes for it.
-  static double? keyframed(List<MotionKeyframe> keyframes, String property, double from, double to, double t) {
-    if (keyframes.isEmpty) return null;
-    // A keyframe at an end (t 0 or 1) gives the value there.
-    var ended = false;
-    for (final k in keyframes) {
-      final v = k.valueOf(property);
-      if (v == null || !v.isFinite) continue;
-      if (k.t <= 0) {
-        from = v;
-        ended = true;
-      } else if (k.t >= 1) {
-        to = v;
-        ended = true;
-      }
-    }
-    final points = <(double, double)>[(0, from)];
-    final sorted = keyframes.where((k) => k.t > 0 && k.t < 1).toList()..sort((a, b) => a.t.compareTo(b.t));
-    for (final k in sorted) {
-      final v = k.valueOf(property);
-      if (v == null || !v.isFinite) continue;
-      if (k.t == points.last.$1) {
-        points[points.length - 1] = (k.t, v);
-      } else {
-        points.add((k.t, v));
-      }
-    }
-    if (points.length == 1 && !ended) return null;
-    points.add((1, to));
-    if (t <= 0) return from;
-    if (t >= 1) return to;
-    final n = points.length;
-    final slopes = [
-      for (var i = 0; i < n - 1; i++) (points[i + 1].$2 - points[i].$2) / (points[i + 1].$1 - points[i].$1),
-    ];
-    final tangents = List<double>.filled(n, 0);
-    tangents[0] = slopes.first;
-    tangents[n - 1] = slopes.last;
-    for (var i = 1; i < n - 1; i++) {
-      final a = slopes[i - 1], b = slopes[i];
-      tangents[i] = a * b <= 0 ? 0 : (a + b) / 2;
-    }
-    for (var i = 0; i < n - 1; i++) {
-      if (slopes[i] == 0) {
-        tangents[i] = 0;
-        tangents[i + 1] = 0;
-        continue;
-      }
-      final alpha = tangents[i] / slopes[i], beta = tangents[i + 1] / slopes[i];
-      final sum = alpha * alpha + beta * beta;
-      if (sum > 9) {
-        final tau = 3 / math.sqrt(sum);
-        tangents[i] = tau * alpha * slopes[i];
-        tangents[i + 1] = tau * beta * slopes[i];
-      }
-    }
-    var i = 0;
-    while (i < n - 2 && t > points[i + 1].$1) {
-      i++;
-    }
-    final (t0, v0) = points[i];
-    final (t1, v1) = points[i + 1];
-    final h = t1 - t0, s = (t - t0) / h, s2 = s * s, s3 = s2 * s;
-    return (2 * s3 - 3 * s2 + 1) * v0 +
-        (s3 - 2 * s2 + s) * h * tangents[i] +
-        (-2 * s3 + 3 * s2) * v1 +
-        (s3 - s2) * h * tangents[i + 1];
-  }
-
-  static Motion? fromJson(Object? json) {
-    final m = readMap(json);
-    if (m == null) return null;
-    final r = _R(m);
-    return Motion(
-      translateX: r.d('translateX', 0),
-      translateY: r.d('translateY', 0),
-      scale: r.d('scale', 1),
-      scaleX: r.d('scaleX', 1),
-      scaleY: r.d('scaleY', 1),
-      shiftX: r.d('shiftX', 0),
-      shiftY: r.d('shiftY', 0),
-      opacity: r.d('opacity', 1).clamp(0, 1).toDouble(),
-      rotate: r.d('rotate', 0),
-      rotateX: r.d('rotateX', 0),
-      rotateY: r.d('rotateY', 0),
-      perspective: r.d('perspective', 1),
-      originX: r.d('originX', 0),
-      originY: r.d('originY', 0),
-      duration: r.ms('duration', 0),
-      delay: r.ms('delay', 0),
-      curve: r.curve('curve', AnimationCurve.easeInOut),
-      rotateCurve: AnimationCurve.parse(m['rotateCurve']),
-      fadeShare: r.d('fadeShare', 1).clamp(0.01, 1).toDouble(),
-      spring: Spring.fromJson(m['spring'], fallback: defaultSpring) ??
-          Spring.legacy(m, 'springStiffness', 'springDamping', fallback: defaultSpring) ??
-          defaultSpring,
-      spin: r.d('spin', 0),
-      spinRamp: r.ms('spinRamp', 800),
-      loop: r.e(MotionLoop.values, 'loop', MotionLoop.none),
-      repeat: math.max(0, r.i('repeat', 0)),
-      enter: r.b('enter', false),
-      enterFrom: fromJson(m['enterFrom']),
-      replayKey: r.sn('replayKey'),
-      blur: math.max(0, r.d('blur', 0)),
-      backfaceHidden: r.b('backfaceHidden', false),
-      path: r.sn('path'),
-      pathProgress: r.d('pathProgress', 0),
-      orientToPath: r.b('orientToPath', false),
-      keyframes: [...?readList(_jsonText(m['keyframes']))?.map(MotionKeyframe.fromJson).nonNulls],
-      revealOnScroll: r.b('revealOnScroll', false),
-      enterHeld: r.b('enterHeld', false),
-      revealFraction: r.d('revealFraction', 0.15),
-      orientUpright: r.b('orientUpright', false),
-      uprightMirror: r.b('uprightMirror', false),
-      arc: r.d('arc', 0),
-      paused: _loose(m['paused']) ?? false,
-      phase: r.d('phase', 0),
-      pathPacing: r.e(MotionPathPacing.values, 'pathPacing', MotionPathPacing.length),
-      pathFocusX: r.d('pathFocusX', 0),
-      pathFocusY: r.d('pathFocusY', 0),
-      pathWrap: r.b('pathWrap', false),
-      pathViewBox: r.doubles('pathViewBox'),
-      shimmer: MotionShimmer.fromJson(m['shimmer']),
-      named: {
-        for (final p in properties)
-          if (readDouble(m[p]) != null) p,
-      },
-    );
-  }
-
-  Json toJson() {
-    final j = <String, Object?>{};
-    for (final p in properties) {
-      if (named.contains(p)) {
-        j[p] = writeDouble(valueOf(p));
-      } else {
-        j.d(p, valueOf(p), none.valueOf(p));
-      }
-    }
-    j
-      ..d('perspective', perspective, 1)
-      ..d('originX', originX, 0)
-      ..d('originY', originY, 0)
-      ..i('duration', duration, 0)
-      ..i('delay', delay, 0)
-      ..e('curve', curve, AnimationCurve.easeInOut)
-      ..s('rotateCurve', rotateCurve?.name)
-      ..d('fadeShare', fadeShare, 1);
-    if (spring != defaultSpring) j['spring'] = spring.toJsonOver(defaultSpring);
-    j
-      ..i('spinRamp', spinRamp, 800)
-      ..e('loop', loop, MotionLoop.none)
-      ..i('repeat', repeat, 0)
-      ..b('enter', enter, false);
-    if (enterFrom case final Motion from) {
-      final f = from.toJson();
-      // On a path the entrance starts at its progress even when it's 0.
-      if (hasPath) f['pathProgress'] = writeDouble(from.pathProgress);
-      j['enterFrom'] = f;
-    }
-    j
-      ..s('replayKey', replayKey)
-      ..b('backfaceHidden', backfaceHidden, false)
-      ..s('path', path)
-      ..b('orientToPath', orientToPath, false);
-    if (keyframes.isNotEmpty) j['keyframes'] = [for (final k in keyframes) k.toJson()];
-    j
-      ..b('revealOnScroll', revealOnScroll, false)
-      ..b('enterHeld', enterHeld, false)
-      ..d('revealFraction', revealFraction, 0.15)
-      ..b('orientUpright', orientUpright, false)
-      ..b('uprightMirror', uprightMirror, false)
-      ..d('arc', arc, 0)
-      ..b('paused', paused, false)
-      ..d('phase', phase, 0)
-      ..e('pathPacing', pathPacing, MotionPathPacing.length)
-      ..d('pathFocusX', pathFocusX, 0)
-      ..d('pathFocusY', pathFocusY, 0)
-      ..b('pathWrap', pathWrap, false);
-    if (pathViewBox.isNotEmpty) j['pathViewBox'] = pathViewBox.map(writeDouble).toList();
-    if (shimmer != null) j['shimmer'] = shimmer!.toJson();
-    return j;
-  }
-
-  @override
-  List<Object?> get props => [
-    translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
-    perspective, originX, originY, duration, delay, curve, rotateCurve, fadeShare, spring,
-    spin, spinRamp, loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
-    keyframes, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase,
-    pathPacing, pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
-  ];
+  List<Object?> get props => [color, strength, width, angle, position];
 }
 
 // --- flicker ------------------------------------------------------------------
@@ -937,67 +509,140 @@ double flickerAt(double t) {
 
 // --- transitions --------------------------------------------------------------
 
-/// An implicit animation's [duration] (ms) and [curve], as Flutter's
-/// `AnimatedOpacity(duration:, curve:)`.
+/// How a change of [property] animates (Flutter's implicit animations:
+/// `AnimatedContainer(duration:, curve:)`, `AnimatedOpacity`,
+/// `AnimatedScale`, `TweenAnimationBuilder`): when the value there changes
+/// (a binding, a condition, a state style), the node tweens from what it
+/// shows to the new value over [duration] after [delay] on [curve], or on
+/// [spring]. A change mid-flight carries on from where it is. A behavior
+/// key, a list: `"transitions": [{"property": "motion", "duration": 240,
+/// "curve": "easeOutCubic"}, {"property": "opacity", "duration": 120}]`.
+///
+/// [property] is a binding path or a prefix of one; the longest that
+/// matches wins (`motion.rotate` over `motion`), `*` matches every path. A
+/// prefix eases what's under it as one value, as `AnimatedContainer` does
+/// its `transform`: a change of any of its numbers starts them together,
+/// and [keyframes] are passed through each time. A path an animation track
+/// is playing isn't transitioned. The design canvas shows new values at
+/// once.
+///
+/// Reads the legacy `{"style", "opacity", "size"}` object: `style` as
+/// `opacity`, `scale`, `decoration.fills` and `visible`; `size` as
+/// `layout`. A map from property to timing reads too.
 @immutable
 final class Transition extends _Value {
-  const Transition({required this.duration, this.curve = AnimationCurve.linear});
+  const Transition({
+    this.property = '',
+    this.duration = 0,
+    this.delay = 0,
+    this.curve = AnimationCurve.linear,
+    this.spring,
+    this.keyframes = const [],
+    this.interpolation = KeyframeInterpolation.linear,
+    this.arc = 0,
+  });
 
-  final int duration;
+  /// The binding path (or prefix) it eases: `motion`, `motion.rotate`,
+  /// `opacity`, `decoration.fills`, `layout`, `visible`, `*`.
+  final String property;
+
+  /// Milliseconds.
+  final int duration, delay;
   final AnimationCurve curve;
 
-  static Transition? fromJson(Object? json) {
+  /// Eases on this spring instead of [duration] and [curve].
+  final Spring? spring;
+
+  /// Values passed through on the way ([Keyframe]s, `at` 0–1 of the run):
+  /// a number for a single property; for a prefix, an object of the
+  /// numbers under it (`{"at": 0.5, "value": {"scale": 1.05}}`: a card
+  /// that swells as it turns over). Joined as [interpolation] says.
+  final List<Keyframe> keyframes;
+  final KeyframeInterpolation interpolation;
+
+  /// Deprecated (one app): bends a change of a `motion` position
+  /// (`translateX/Y`, `shiftX/Y`) into a quadratic curve whose middle sits
+  /// this share of the distance off the straight line, to the right of the
+  /// way it goes (negative: left). Different curves on the two axes
+  /// (`motion.translateX` and `motion.translateY`) or a `motion.path` say
+  /// the same in the current shape.
+  final double arc;
+
+  /// Whether it eases binding path [path].
+  bool matches(String path) => property == '*' || path == property || path.startsWith('$property.');
+
+  /// The transition of [list] that eases [path]: the longest match.
+  static Transition? of(List<Transition> list, String path) {
+    Transition? best;
+    for (final t in list) {
+      if (!t.matches(path)) continue;
+      if (best == null || (best.property == '*' && t.property != '*') || t.property.length > best.property.length && t.property != '*') {
+        best = t;
+      }
+    }
+    return best;
+  }
+
+  /// The values [keyframes] give [key] (a number under a prefix, or the
+  /// property's own when it has no prefix).
+  List<Keyframe> keyframesOf(String key) => [
+        for (final k in keyframes)
+          if ((k.value is Map ? readDouble((k.value as Map)[key]) : (key.isEmpty ? readDouble(k.value) : null)) case final double v)
+            Keyframe(at: k.at, value: v, curve: k.curve),
+      ];
+
+  static Transition? fromJson(Object? json, {String? property}) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    return Transition(duration: r.ms('duration', 0), curve: r.curve('curve', AnimationCurve.linear));
-  }
-
-  Json toJson() => <String, Object?>{'duration': duration}..e('curve', curve, AnimationCurve.linear);
-
-  @override
-  List<Object?> get props => [duration, curve];
-}
-
-/// How changes to a node animate at runtime. The design canvas shows the
-/// new values at once.
-@immutable
-final class Transitions extends _Value {
-  const Transitions({this.style, this.opacity, this.size});
-
-  static const Transitions none = Transitions();
-
-  /// Changes of opacity, [Behaviors.scale] and solid fills; a node shown
-  /// or hidden by a binding grows open and shrinks closed.
-  final Transition? style;
-
-  /// Opacity changes (over [style]'s).
-  final Transition? opacity;
-
-  /// Size changes: on an axis the node hugs, its box grows or shrinks and
-  /// clips; on others it's laid out at each size in between.
-  final Transition? size;
-
-  bool get isNone => style == null && opacity == null && size == null;
-
-  static Transitions fromJson(Object? json) {
-    final m = readMap(json);
-    if (m == null) return none;
-    return Transitions(
-      style: Transition.fromJson(m['style']),
-      opacity: Transition.fromJson(m['opacity']),
-      size: Transition.fromJson(m['size']),
+    return Transition(
+      property: property ?? r.s('property'),
+      duration: r.ms('duration', 0),
+      delay: r.ms('delay', 0),
+      curve: r.curve('curve', AnimationCurve.linear),
+      spring: Spring.fromJson(m['spring']),
+      keyframes: [...?readList(_jsonText(m['keyframes']))?.map(Keyframe.fromJson).nonNulls],
+      interpolation: r.e(KeyframeInterpolation.values, 'interpolation', KeyframeInterpolation.linear),
+      arc: r.d('arc', 0),
     );
   }
 
-  Json toJson() => {
-    if (style != null) 'style': style!.toJson(),
-    if (opacity != null) 'opacity': opacity!.toJson(),
-    if (size != null) 'size': size!.toJson(),
-  };
+  /// A node's `transitions`: the list, a property → timing map, or the
+  /// legacy `{style, opacity, size}` object.
+  static List<Transition> listFromJson(Object? json) {
+    if (readList(_jsonText(json)) case final List<Object?> l) return [...l.map(fromJson).nonNulls];
+    final m = readMap(json);
+    if (m == null) return const [];
+    if (m.keys.every((k) => k == 'style' || k == 'opacity' || k == 'size')) {
+      final style = m['style'], opacity = m['opacity'], size = m['size'];
+      return [
+        if (fromJson(opacity ?? style, property: 'opacity') case final Transition t) t,
+        if (fromJson(style, property: 'scale') case final Transition t) t,
+        if (fromJson(style, property: 'decoration.fills') case final Transition t) t,
+        if (fromJson(style, property: 'visible') case final Transition t) t,
+        if (fromJson(size, property: 'layout') case final Transition t) t,
+      ];
+    }
+    return [
+      for (final e in m.entries)
+        if (fromJson(e.value, property: e.key) case final Transition t) t,
+    ];
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{'property': property}
+      ..i('duration', duration, 0)
+      ..i('delay', delay, 0)
+      ..e('curve', curve, AnimationCurve.linear);
+    if (spring != null) j['spring'] = spring!.toJson();
+    if (keyframes.isNotEmpty) j['keyframes'] = [for (final k in keyframes) k.toJson()];
+    return j
+      ..e('interpolation', interpolation, KeyframeInterpolation.linear)
+      ..d('arc', arc, 0);
+  }
 
   @override
-  List<Object?> get props => [style, opacity, size];
+  List<Object?> get props => [property, duration, delay, curve, spring, keyframes, interpolation, arc];
 }
 
 // --- ink and states -------------------------------------------------------------
@@ -1105,11 +750,26 @@ final class StateStyles extends _Value {
       if (per == null) continue;
       final nodes = <String, Json>{
         for (final e in per.entries)
-          if (readMap(e.value) case final Json p) e.key: p,
+          if (readMap(e.value) case final Json p) e.key: _migratePatch(p),
       };
       if (nodes.isNotEmpty) out[s] = nodes;
     }
     return out.isEmpty ? none : StateStyles(out);
+  }
+
+  /// A patch's legacy `motion.opacity` as the node's `opacity` (times the
+  /// patch's own), since that is where a motion's opacity went
+  /// ([Node.fromJson]). Exact when the node's own opacity is 1.
+  static Json _migratePatch(Json patch) {
+    final motion = readMap(patch['motion']);
+    final o = readDouble(motion?['opacity']);
+    if (motion == null || o == null) return patch;
+    final own = readDouble(patch['opacity']);
+    return {
+      ...patch,
+      'motion': {...motion}..remove('opacity'),
+      'opacity': writeDouble((o * (own ?? 1)).clamp(0.0, 1.0)),
+    };
   }
 
   Json toJson() => {for (final e in patches.entries) e.key.name: e.value};
@@ -2776,7 +2436,8 @@ final class Behaviors extends _Value {
     this.motion,
     this.scale = 1,
     this.animations = const [],
-    this.transitions = Transitions.none,
+    this.transitions = const [],
+    this.shimmer,
     this.inkWell,
     this.states = StateStyles.none,
     this.tooltip = '',
@@ -2805,7 +2466,7 @@ final class Behaviors extends _Value {
 
   static const Behaviors none = Behaviors();
 
-  /// The transform over the layout, its transitions, entrance and spin.
+  /// The transform over the layout (Flutter's `Transform`).
   final Motion? motion;
 
   /// Drawn at this size around its center; layout unchanged (Flutter's
@@ -2816,7 +2477,14 @@ final class Behaviors extends _Value {
   /// ([NodeAnimation]); the legacy `loops` and `effectAnimations` read as
   /// these.
   final List<NodeAnimation> animations;
-  final Transitions transitions;
+
+  /// How changes of its properties animate ([Transition], one per
+  /// property path).
+  final List<Transition> transitions;
+
+  /// A band of light over what it paints (the `shimmer` animation preset
+  /// sweeps it).
+  final Shimmer? shimmer;
 
   /// Ink: ripples, and hover/focus/press overlays.
   final InkWellStyle? inkWell;
@@ -2887,8 +2555,8 @@ final class Behaviors extends _Value {
 
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
-    'motion', 'scale', 'animations', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
-    'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'typewriter',
+    'motion', 'scale', 'animations', 'transitions', 'shimmer', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
+    'zoomable', 'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'typewriter',
     'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
     'customPaint',
   };
@@ -2906,6 +2574,10 @@ final class Behaviors extends _Value {
   /// → `animations.<its id>.<key>`, `motion.pulseKey` →
   /// `animations.pulse.playKey`. A key it can't rewrite is kept as given.
   static Map<String, String> migrateBind(Map<String, String> bind, Json m) {
+    final motion = readMap(m['motion']);
+    if (motion != null && (bind.keys.any((k) => k.startsWith('motion.')) || _legacyMotionKeys.any(motion.containsKey))) {
+      bind = _migrateMotionBind(bind, m, motion);
+    }
     if (!bind.keys.any((k) => k.startsWith('loops') || k.startsWith('effectAnimations') || k == 'motion.pulseKey')) {
       return bind;
     }
@@ -2971,6 +2643,120 @@ final class Behaviors extends _Value {
     return out;
   }
 
+  /// The temporal keys of a legacy motion.
+  static const _legacyMotionKeys = [
+    'duration', 'delay', 'curve', 'loop', 'spin', 'enter', 'enterFrom', 'keyframes', 'revealOnScroll', 'shimmer', //
+  ];
+
+  /// [bind]'s legacy `motion.*` paths (read against node JSON [m] and its
+  /// [motion]) as what they set now, plus what its legacy motion adds
+  /// ([AnimationPresets.fromMotion]): the pose's own paths stay (the flat
+  /// path keys become `motion.path.*`); the timing, entrance, loop and spin
+  /// keys address the animations and transitions they became; `opacity`
+  /// and `blur` the node's (see [Node.fromJson]). A legacy key with no
+  /// counterpart left (`rotateCurve`, `fadeShare`, `arc`, `spring`,
+  /// `revealOnScroll`, `revealFraction`, a loop or entrance key on a motion
+  /// that has none) is dropped.
+  static Map<String, String> _migrateMotionBind(Map<String, String> bind, Json m, Json motion) {
+    final legacy = _legacyMotion(m)!;
+    final ids = {for (final a in legacy.animations) a.id};
+    final played = [for (final id in const ['enter', 'loop']) if (ids.contains(id)) id];
+    final transitions = _transitions(m, legacy.transitions);
+    final legacyTransitions = {for (final t in legacy.transitions) t.property};
+    final timed = [
+      for (final (i, t) in transitions.indexed)
+        if (legacyTransitions.contains(t.property)) (i, t),
+    ];
+    final share = (readDouble(motion['fadeShare']) ?? 1).clamp(0.01, 1.0);
+    final reverse = AnimationPresets.legacyLoopMode(motion['loop'], bind['motion.loop']) == 'reverse';
+    final out = <String, String>{};
+    for (final e in bind.entries) {
+      final key = e.key, value = e.value;
+      if (!key.startsWith('motion.')) {
+        out[key] = value;
+        continue;
+      }
+      final rest = key.substring(7);
+      switch (rest) {
+        case 'pathProgress':
+          out['motion.path.progress'] = value;
+        case 'path':
+          out['motion.path.path'] = value;
+        case 'pathViewBox':
+          out['motion.path.viewBox'] = value;
+        case 'blur':
+          out[AnimationPresets.legacyMotionPath('blur')] = value;
+        case 'opacity':
+          // The node's opacity, multiplied by its own (Node.fromJson).
+          out['motion.opacity'] = value;
+        case 'replayKey' when ids.contains('enter'):
+          out['animations.enter.playKey'] = value;
+        case 'enterHeld' when ids.contains('enter'):
+          out['animations.enter.paused'] = value;
+        case 'enter' when ids.contains('enter') && !(legacy.animations.firstWhere((a) => a.id == 'enter').enabled):
+          out['animations.enter.enabled'] = value;
+        case 'keyframes':
+          for (final id in played) {
+            out['animations.$id.params.frames'] = value;
+          }
+        case 'duration' || 'delay' || 'curve':
+          for (final id in played) {
+            if (rest == 'curve' && legacy.animations.any((a) => a.id == id && a.curve == AnimationCurve.linear)) {
+              out['animations.$id.params.curve'] = value;
+            } else {
+              out['animations.$id.$rest'] = value;
+            }
+          }
+          for (final (i, t) in timed) {
+            if (rest == 'curve' && t.property != 'motion' && t.curve != AnimationCurve.parse(motion['curve'])) continue;
+            final f = _formula(value);
+            out['transitions[$i].$rest'] = rest == 'duration' && t.property == 'opacity' && share < 1 && f != null
+                ? '\${= ($f) * ${writeDouble(share)}}'
+                : value;
+          }
+        case 'paused':
+          for (final id in const ['loop', 'spin']) {
+            if (ids.contains(id)) out['animations.$id.paused'] = value;
+          }
+        case 'phase' when ids.contains('loop'):
+          final f = _formula(value);
+          if (reverse && f != null) {
+            out['animations.loop.phase'] = '\${= ($f) / 2}';
+          } else if (!reverse) {
+            out['animations.loop.phase'] = value;
+          }
+        case 'repeat' when ids.contains('loop'):
+          out['animations.loop.repeat.count'] = value;
+        case 'loop' when ids.contains('loop'):
+          final mode = AnimationPresets.legacyLoopMode(motion['loop'], value);
+          final f = _formula(value);
+          if (mode != null && f != null) out['animations.loop.enabled'] = "\${= ($f) == '$mode'}";
+        case 'spin' when ids.contains('spin'):
+          out['animations.spin.params.perSecond'] = value;
+        case 'spinRamp' when ids.contains('spin'):
+          out['animations.spin.ramp'] = value;
+        case 'shimmer.duration' when ids.contains('shimmer'):
+          out['animations.shimmer.duration'] = value;
+        case _ when rest.startsWith('shimmer.'):
+          out[rest] = value;
+        case _ when rest.startsWith('enterFrom.') && ids.contains('enter'):
+          out['animations.enter.params.from.${rest.substring(10)}'] = value;
+        case 'replayKey' || 'enterHeld' || 'enter' || 'phase' || 'repeat' || 'loop' || 'spin' || 'spinRamp' || 'rotateCurve' ||
+              'fadeShare' || 'arc' || 'spring' || 'springStiffness' || 'springDamping' || 'revealOnScroll' ||
+              'revealFraction' || 'pathWrap' || 'shimmer':
+          break;
+        case _ when rest.startsWith('enterFrom') || rest.startsWith('spring') || rest.startsWith('keyframes'):
+          break;
+        default:
+          out[key] = value;
+      }
+    }
+    for (final e in legacy.bind.entries) {
+      out.putIfAbsent(e.key, () => e.value);
+    }
+    return out;
+  }
+
   /// A loop's key as the key of its animation; null when it has none.
   static String? _loopKey(String key) => switch (key) {
         'enabled' || 'duration' || 'delay' || 'curve' => key,
@@ -2993,6 +2779,8 @@ final class Behaviors extends _Value {
 
   /// The formula of binding [expression]: `${= f}` → `f`, `${path}` →
   /// `path`, a number → itself; null for anything else (text around it).
+  static String? formulaOf(String expression) => _formula(expression);
+
   static String? _formula(String expression) {
     final t = expression.trim();
     if (num.tryParse(t) != null) return t;
@@ -3004,17 +2792,42 @@ final class Behaviors extends _Value {
 
   /// The legacy keys of [m] as animations, after [m]'s own `animations`; a
   /// legacy one replaces an animation of the same id.
-  static List<NodeAnimation> _animations(Json m) {
+  static List<NodeAnimation> _animations(Json m, List<NodeAnimation> fromMotion) {
     final own = [...?readList(_jsonText(m['animations']))?.map(NodeAnimation.fromJson).nonNulls];
     final legacy = <NodeAnimation>[
       for (final (i, l) in (readList(m['loops']) ?? const []).indexed) ?AnimationPresets.fromLoop(l, i),
       for (final (i, e) in (readList(m['effectAnimations']) ?? const []).indexed) ?AnimationPresets.fromEffect(e, i),
       if (readMap(m['motion']) case final Json motion)
         ?AnimationPresets.fromPulseKey(motion, bound: readMap(m['bind'])?.containsKey('motion.pulseKey') ?? false),
+      ...fromMotion,
     ];
     if (legacy.isEmpty) return own;
     final ids = {for (final a in legacy) a.id};
     return [...own.where((a) => !ids.contains(a.id)), ...legacy];
+  }
+
+  /// [m]'s own `transitions`, then those its legacy motion timing gives (a
+  /// legacy one replaces one for the same property).
+  static List<Transition> _transitions(Json m, List<Transition> fromMotion) {
+    final own = Transition.listFromJson(m['transitions']);
+    if (fromMotion.isEmpty) return own;
+    final props = {for (final t in fromMotion) t.property};
+    return [...own.where((t) => !props.contains(t.property)), ...fromMotion];
+  }
+
+  /// The legacy temporal keys of [m]'s motion, read
+  /// ([AnimationPresets.fromMotion]); null without a motion.
+  static ({List<NodeAnimation> animations, List<Transition> transitions, Shimmer? shimmer, Map<String, String> bind})?
+      _legacyMotion(Json m) {
+    final motion = readMap(m['motion']);
+    if (motion == null) return null;
+    final bind = {
+      for (final e in (readMap(m['bind']) ?? const <String, Object?>{}).entries)
+        if (e.value is String) e.key: e.value as String,
+    };
+    bool patches(String key) =>
+        (readMap(m['states'])?.values ?? const []).any((state) => (readMap(state)?.values ?? const []).any((patch) => readMap(readMap(patch)?['motion'])?.containsKey(key) ?? false));
+    return AnimationPresets.fromMotion(motion, bind: bind, patchesOpacity: patches('opacity'), patchesBlur: patches('blur'));
   }
 
   /// Reads the behavior keys of a node's JSON [m].
@@ -3022,11 +2835,13 @@ final class Behaviors extends _Value {
     if (!m.keys.any((k) => keys.contains(k) || legacyKeys.contains(k))) return none;
     final r = _R(m);
     final scale = r.d('scale', 1);
+    final legacy = _legacyMotion(m);
     return Behaviors(
       motion: Motion.fromJson(m['motion']),
       scale: scale > 0 ? scale : 1,
-      animations: _animations(m),
-      transitions: Transitions.fromJson(m['transitions']),
+      animations: _animations(m, legacy?.animations ?? const []),
+      transitions: _transitions(m, legacy?.transitions ?? const []),
+      shimmer: Shimmer.fromJson(m['shimmer']) ?? legacy?.shimmer,
       inkWell: InkWellStyle.fromJson(m['inkWell']),
       states: StateStyles.fromJson(m['states']),
       tooltip: r.s('tooltip'),
@@ -3061,7 +2876,8 @@ final class Behaviors extends _Value {
     if (motion != null) j['motion'] = motion!.toJson();
     j.d('scale', scale, 1);
     if (animations.isNotEmpty) j['animations'] = [for (final a in animations) a.toJson()];
-    if (!transitions.isNone) j['transitions'] = transitions.toJson();
+    if (transitions.isNotEmpty) j['transitions'] = [for (final t in transitions) t.toJson()];
+    if (shimmer != null) j['shimmer'] = shimmer!.toJson();
     if (inkWell != null) j['inkWell'] = inkWell!.toJson();
     if (!states.isEmpty) j['states'] = states.toJson();
     j
@@ -3093,7 +2909,8 @@ final class Behaviors extends _Value {
     Motion? motion,
     double? scale,
     List<NodeAnimation>? animations,
-    Transitions? transitions,
+    List<Transition>? transitions,
+    Shimmer? shimmer,
     InkWellStyle? inkWell,
     StateStyles? states,
     String? tooltip,
@@ -3123,6 +2940,7 @@ final class Behaviors extends _Value {
     scale: scale ?? this.scale,
     animations: animations ?? this.animations,
     transitions: transitions ?? this.transitions,
+    shimmer: shimmer ?? this.shimmer,
     inkWell: inkWell ?? this.inkWell,
     states: states ?? this.states,
     tooltip: tooltip ?? this.tooltip,
@@ -3151,8 +2969,8 @@ final class Behaviors extends _Value {
 
   @override
   List<Object?> get props => [
-    motion, scale, animations, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, particles,
+    motion, scale, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, zoomable, floating, //
+    hero, flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, particles,
     textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }

@@ -55,13 +55,26 @@ void main() {
   });
 
   test('a motion can time its rotation and its fade on their own', () {
-    final m = Motion.fromJson({'duration': 600, 'rotateCurve': 'elasticOut', 'fadeShare': 0.35})!;
-    expect(m.rotateCurve, AnimationCurve.elasticOut);
-    expect(m.fadeShare, 0.35);
-    expect(Motion.fromJson(m.toJson()), m);
-    expect(m.withValue('rotate', 4).rotateCurve, AnimationCurve.elasticOut);
-    expect(Motion.fromJson({'duration': 600})!.toJson().containsKey('fadeShare'), isFalse);
-    expect(MotionFields.all, containsAll([MotionFields.rotateCurve, MotionFields.fadeShare]));
+    // The legacy rotateCurve and fadeShare: a transition of the rotation on
+    // its own curve, the opacity in the first share, easing out.
+    final b = Behaviors.fromJson({
+      'motion': {'duration': 600, 'rotateCurve': 'elasticOut', 'fadeShare': 0.35, 'opacity': 0.5},
+    });
+    expect(Transition.of(b.transitions, 'motion.rotate')!.curve, AnimationCurve.elasticOut);
+    expect(Transition.of(b.transitions, 'motion.scale')!.curve, AnimationCurve.easeInOut);
+    final fade = Transition.of(b.transitions, 'opacity')!;
+    expect((fade.duration, fade.curve), (210, AnimationCurve.easeOut));
+    // In an entrance: that track's curve and interval.
+    final enter = Behaviors.fromJson({
+      'motion': {'duration': 600, 'rotateCurve': 'elasticOut', 'fadeShare': 0.35, 'enterFrom': {'rotate': 8, 'opacity': 0}},
+    }).animations.single.expanded;
+    expect(enter.curve, AnimationCurve.linear);
+    final rotate = enter.tracks.firstWhere((t) => t.id == 'rotate'), opacity = enter.tracks.firstWhere((t) => t.id == 'opacity');
+    expect(rotate.curve, AnimationCurve.elasticOut);
+    expect(opacity.interval, [0, 0.35]);
+    expect(opacity.curve, AnimationCurve.easeOut);
+    expect(Behaviors.fromJson({'motion': {'duration': 600}}).transitions.single.toJson(),
+        {'property': 'motion', 'duration': 600, 'curve': 'easeInOut'});
   });
 
   test('overshoot is the web ease-out-back, past easeOutBack', () {
