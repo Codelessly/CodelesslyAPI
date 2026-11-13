@@ -7387,9 +7387,6 @@
         "ignorePointer": {
           "type": "boolean"
         },
-        "zoomable": {
-          "type": "boolean"
-        },
         "floating": {
           "type": "boolean"
         },

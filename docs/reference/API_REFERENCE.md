@@ -105,7 +105,7 @@ Every node has a `type` (one of the [node types](#page-nodes)). Its keys:
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
-| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
+| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
 
 **The tree is made of ids.** A parent lists its children's ids; a child does not name its parent:
 
@@ -4874,7 +4874,7 @@ Its settings and geometry are bindable as `track.<field>` (`track.x2`: `${= pare
 
 Makes the node pannable, zoomable and rotatable by touch, mouse and trackpad (Flutter's `InteractiveViewer`, and more): pinch and ctrl+wheel zoom about the focal point, one finger pans, two rotate, a double tap zooms to a point; a release flings and settles by `physics` within `bounds` and `minScale`–`maxScale`. The pose binds two-way to variables (`xVariable`...); inside it reads as `${transform.x}`, `${transform.scale}`... Each change runs the node's `changed` reactions, the end of a gesture its `changeEnd` ones.
 
-`Behaviors.zoomable` is its first form: `zoomable`.
+The legacy `zoomable: true` reads as its first form: `zoomable`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -6497,7 +6497,6 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 <a id="behavior-states"></a>
 <a id="behavior-tooltip"></a>
 <a id="behavior-ignorePointer"></a>
-<a id="behavior-zoomable"></a>
 <a id="behavior-floating"></a>
 <a id="behavior-hero"></a>
 <a id="behavior-flightKey"></a>
@@ -6530,7 +6529,6 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 | `states` | [StateStyles](#type-StateStyles) | `{}` |  | Property overrides per interaction state. |
 | `tooltip` | String | `""` |  | Shown on hover or long press; may hold `${...}` data. |
 | `ignorePointer` | bool | `false` |  | Lets pointer events through to what's under the node (Flutter's `IgnorePointer`). |
-| `zoomable` | bool | `false` |  | Pinch, scroll and double-tap zoom and pan (Flutter's `InteractiveViewer`). |
 | `floating` | bool | `false` |  | Drawn above everything else at runtime (a menu under a field), still taking its place in the layout. The design canvas draws it in place. |
 | `hero` | [HeroTag](#type-HeroTag) | unset |  |  |
 | `flightKey` | String | `""` |  | Flies the node in from where the node with the same key just was. |
@@ -6548,7 +6546,7 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 | `textDirection` | [TextDirection](#enum-TextDirection) | unset | `ltr`, `rtl` | Null inherits. |
 | `flip` | [FlipCard](#type-FlipCard) | unset |  | A two-sided card that turns over (a runtime 3D turn, not a mirror). |
 | `tilt` | [Tilt](#type-Tilt) | unset |  | Tilts in 3D toward the pointer. |
-| `transformGesture` | [TransformGesture](#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles (over `zoomable`: see `effectiveTransformGesture`). |
+| `transformGesture` | [TransformGesture](#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles (the legacy `zoomable: true` reads as `TransformGesture.zoomable`). |
 | `sticky` | [Sticky](#type-Sticky) | unset |  | Pinned in its scrolling view while its parent is in view. |
 | `viewProgress` | [ViewProgress](#type-ViewProgress) | unset |  | `${view.progress}` through the viewport. |
 | `measure` | [Measure](#type-Measure) | unset |  | Its laid-out box, written to a variable. |
@@ -7322,7 +7320,7 @@ one ([formula functions](#page-formulas)). A binding that is exactly one express
 - `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type ([node types](#page-nodes)), and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
+- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
 
 ## Scopes
 
