@@ -14,7 +14,7 @@ field, enum value, trigger, action and formula function with its type and defaul
 [variables, conditions and scripts](#page-variables-conditions-scripts). `catalog.json` holds the same
 information as data and `document.schema.json` is a JSON Schema for a document.
 
-Contents: 1 [The document](#guide-document) · 2 [Nodes, ids and children](#guide-nodes) ·
+Contents: 1 [The document](#guide-document) (and [the theme](#guide-theme)) · 2 [Nodes, ids and children](#guide-nodes) ·
 3 [Layout](#guide-layout) · 4 [Decoration](#guide-decoration) · 5 [Text](#guide-text) ·
 6 [Screens and navigation](#guide-screens) · 7 [Responsive design](#guide-responsive) ·
 8 [Variables, bindings and expressions](#guide-variables) · 9 [Conditions](#guide-conditions) ·
@@ -80,6 +80,60 @@ The smallest useful document: a canvas whose `body` slot holds a column with two
 Nothing else is needed: every key not written takes its default. A document is a **page**; a site with several
 pages is either one document with several canvases in `roots`, or several documents (one file each) checked and
 rendered together ([section 6](#guide-screens)).
+
+<a id="guide-theme"></a>
+### Name your palette and type scale first: the theme
+
+A site's colors and text styles are declared once, in the site manifest's `theme` (`site.json`, next to the
+pages), and named everywhere else, as a Flutter app declares a `ThemeData` and its widgets read
+`Theme.of(context).colorScheme` and `.textTheme`. **Write the theme before the first page**: the palette (a name
+per color the design uses) and the type scale (a name per kind of text: display, title, body, label, eyebrow...).
+
+```json
+{
+  "schema": 2,
+  "pages": ["home.json"],
+  "theme": {
+    "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
+    "textStyles": {
+      "body": {"fontSize": 16, "height": 1.5, "color": "ink"},
+      "title": {"from": "body", "fontSize": 32, "fontWeight": 700, "height": 1.2},
+      "eyebrow": {"from": "body", "fontSize": 12, "letterSpacing": 2, "color": "ember"}
+    },
+    "media": [{"minWidth": 1024, "patch": {"textStyles": {"title": {"fontSize": 56}}}}]
+  }
+}
+```
+
+- **Colors**: `colors` maps a name to `"#AARRGGBB"` (or to another color's name: `"accent": "ember"`). Wherever a
+  color is accepted (a fill, a stroke, a text's color, a shadow, an input's border or fill...), write its name:
+  `"color": "ember"`. The roles `primary`, `onPrimary`, `surface`, `onSurface`, `error`, `success`, `warning`
+  (keys of the theme) are names too.
+- **Text styles**: `textStyles` maps a name to a [TextStyle](#type-TextStyle). A style may start
+  `from` another (`"title": {"from": "body", "fontSize": 32}`) and name colors. A text names its style in one
+  field: `"style": "title"`; to change some fields of it, `"style": {"from": "title", "color": "ember"}`
+  (`Theme.of(context).textTheme.titleLarge.merge(TextStyle(color: ...))`: the fields written win). Runs
+  (`runs[].style`) and every other TextStyle (a button's `textStyle`, an input's) take the same two forms.
+- **By screen size**: the theme's `media` rules patch the theme as a node's rules patch a node
+  (`{"minWidth": 1024, "patch": {"textStyles": {"title": {"fontSize": 56}}}}`): every text using `title` grows at
+  desktop width, written once. A node's own media rule may switch its style (`"patch": {"props": {"style":
+  "caption"}}`, which replaces the style as a whole) or change some fields (`{"style": {"fontSize": 20}}`, merged
+  over the named style).
+- **Dark mode**: `"dark": {"colors": {"ink": "#FFEEEEEE"}}` gives the colors that differ in dark mode.
+- Changing a color or style in the theme changes every node that names it, and only those.
+- In a binding, a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`.
+- Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name) and a theme of
+  the wrong shape (`invalid_theme`). Without a `site.json`, put the page in a directory with one:
+  `{"schema": 2, "pages": ["home.json"], "theme": {...}}`.
+
+A page using it (a fragment of `home.json`'s `nodes`):
+
+```json
+"eyebrow": {"type": "text", "props": {"text": "OUR MENU", "style": "eyebrow"}, "layout": {"width": {"fill": 342}, "height": {"hug": 18}}},
+"title":   {"type": "text", "props": {"text": "Fire, smoke and season", "style": "title"}, "layout": {"width": {"fill": 342}, "height": {"hug": 40}}},
+"note":    {"type": "text", "props": {"text": "Cooked over oak.", "style": {"from": "body", "color": "ember"}}, "layout": {"width": {"fill": 342}, "height": {"hug": 24}}},
+"rule":    {"type": "box", "layout": {"width": 120, "height": 4}, "decoration": {"fills": [{"color": "ember"}]}}
+```
 
 <a id="guide-nodes"></a>
 ## 2. Nodes, ids and children
@@ -214,8 +268,10 @@ Each axis has a **mode** and a **number**:
 | `{"fill": 120}` | fill | All the room the parent gives: the free space along a row's or column's main axis (shared by `flex`), the whole cross axis of a row or column, the whole box of a stack or canvas slot. |
 | `{"flexible": 120}` | flexible | Up to 120, less if a row or column runs out of room (only along a row's or column's main axis). |
 
-The number is the **design size**: the size of a fixed node, and the size used when a mode cannot apply (a fill
-inside something that scrolls on that axis, for instance). For `hug` and `fill` it does not limit the size:
+The number is the **design size**: the size of a fixed node, and the size used when a mode cannot apply: a fill
+inside something that scrolls on that axis, or inside a parent that measures it with no limit on that axis (a
+column that hugs its height, a wrapping row's line, a grid row sized to its content). The render command reports
+such a fill (`fill_fallback`, naming the parent): its size is then the number you wrote, not the room you meant. For `hug` and `fill` it does not limit the size:
 `{"fill": 760}` in a 1300 wide column is 1300 wide. Write the size you expect, and use
 `"constraints": {"maxWidth": 760}` to cap it.
 
@@ -308,7 +364,7 @@ a fixed size along the main axis; in a row whose width hugs its children there i
 
 - `padding` is space inside the node's box, around its content and children; `margin` is space outside it. A
   `text` has no padding (its box is its lines; validation warns): use `margin`, or a row with the padding around it. A negative margin does not overlap neighbours (Flutter has none):
-  overlap in a stack with a negative offset.
+  see **Overlapping a neighbour** below.
   Both are a number (all sides) or a list of **four** numbers `[left, top, right, bottom]`. A list of two is not
   read (it becomes 0 on every side; validation reports it).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`, each optional. A `fill` width with
@@ -323,6 +379,21 @@ a fixed size along the main axis; in a row whose width hugs its children there i
   | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width (Flutter's stretch), at most its `maxWidth` |
 - `aspectRatio`: width / height the node keeps (`1.5`).
 - `rotation`: degrees, clockwise, about the center; layout is unchanged.
+
+**Overlapping a neighbour** (CSS `margin-top: -36px`, `transform: translateY(-36px)`). Flutter's answer is
+`Transform.translate`: `"motion": {"translateY": -36}` moves what the node paints, not its layout, so the node
+after it does not move up and the gap is kept below; a node later in its parent paints over the ones before it.
+A media rule may patch it (`{"minWidth": 600, "patch": {"motion": {"translateY": -36}}}`). A card overlapping
+the bottom of a hero band: the card after the hero, with `translateY: -36`, and 36 px of `margin` below it if the
+next section should keep its distance. To overlap by an amount that depends on the content, use a `stack`
+(children are placed by `x`/`y`, may have a negative offset in a stack with a fixed or fill size, and later ones
+paint on top).
+
+**Bleeding past the gutter** (a table or photo running to the screen's edge while the text keeps its padding):
+put the padding on the children, not on the band, or let the one child that bleeds translate out of it
+(`"motion": {"translateX": 18}` with a width 18 larger), and give the band `"decoration": {"clip": "none"}`
+(the default). A photo frame that overhangs its photo: a `stack` with a fixed or fill size holding the frame at a
+negative `x`/`y`.
 
 ### Stacks: placing children freely
 
@@ -386,13 +457,14 @@ a fixed or fill size (a negative `start`, as Flutter's `Positioned(top: -40)`); 
 }
 ```
 
-Which modes each parent allows (from the parents' own rules):
+Which modes each parent allows (from the parents' own rules; "fill (with `basis`)": a child of a wrapping row
+may fill its line's share when it sets `layout.basis`):
 
 | Parent | Width may be | Height may be |
 |---|---|---|
 | `row` | fixed, fill, flexible, hug | fixed, fill, hug |
 | `column` | fixed, fill, hug | fixed, fill, flexible, hug |
-| `row` with {"wrap":true} | fixed, hug | fixed, fill, hug |
+| `row` with {"wrap":true} | fixed, fill (with `basis`), hug | fixed, fill, hug |
 | `column` with {"scrollable":true} | fixed, fill, hug | fixed, hug |
 | `row` with {"scrollable":true,"scrollDirection":"horizontal"} | fixed, hug | fixed, fill, hug |
 | `stack` | fixed, fill, hug | fixed, fill, hug |
@@ -431,9 +503,13 @@ Which modes each parent allows (from the parents' own rules):
   with `color`, `offset` (`[dx, dy]`), `blurRadius`, `spreadRadius`. **An effect needs its `type`**; without it the
   effect is dropped.
 - `clip`: `"antiAlias"` (or `hardEdge`) clips the content to the rounded box.
+- `foregroundFills`: paints over the node **and its children**, as Flutter's `foregroundDecoration`: a scrim over a
+  photo darkens a caption inside it too. For a caption over a photo, paint the photo in `fills` and put the
+  darkening gradient on a child `box` before the caption (a stack: photo box, gradient box, caption text), or on
+  the photo box's `foregroundFills` when the caption is a sibling painted after it.
 
-Colors are always `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half, `#00` invisible) or `"#RRGGBB"` (opaque).
-`"#FFF"`, `"rgb(...)"` and names are not read.
+Colors are `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half, `#00` invisible), `"#RRGGBB"` (opaque), or the
+name of a theme color (`"ember"`, [the theme](#guide-theme)). `"#FFF"`, `"rgb(...)"` and CSS names are not read.
 
 ```json
 {
@@ -486,7 +562,8 @@ Colors are always `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half, `#00` in
 <a id="guide-text"></a>
 ## 5. Text
 
-A `text` node has `props.text` and `props.style`, a [TextStyle](#type-TextStyle):
+A `text` node has `props.text` and `props.style`: the name of a theme text style (`"style": "body"`,
+[the theme](#guide-theme)), or a [TextStyle](#type-TextStyle) (starting `from` a named one or not):
 `fontSize`, `fontWeight` (100–900), `fontFamily`, `color`, `height` (line height as a multiple of the font size),
 `letterSpacing`, `decoration` (`underline`...), `fontStyle` (`italic`). Also `textAlign`, `maxLines` and
 `overflow` (`ellipsis`).
@@ -504,8 +581,13 @@ Characters the font has no glyph for (✦, ✳ in Roboto) are drawn as empty box
 them (`missing_glyph`). Draw a small mark with an `icon` or a `box` with a `path` instead.
 
 `runs` style parts of the text: `[{"start": 0, "end": 5, "style": {"fontWeight": 700}}]` (character offsets, end
-exclusive), merged over `style`; a run may carry a `"link"` URL. `text` may contain expressions:
-`"Hello, ${user.name}"` ([section 8](#guide-variables)).
+exclusive, `\n` counting as one), merged over `style`; a run may carry a `"link"` URL. `text` may contain
+expressions: `"Hello, ${user.name}"` ([section 8](#guide-variables)). A literal `$` right before an expression
+is text: `"$${price}"` shows `$47`. There is no escape for a literal `${`: compute it (`${= '$' + '{'}`).
+
+A raised or lowered character (a price's "$", a footnote mark): a run with `"fontFeatures": ["sups"]` (or
+`"subs"`) when the font has those OpenType features (Flutter's `FontFeature.superscripts()`); otherwise a smaller
+`fontSize` in the run, in a row of texts aligned `crossAxisAlignment: start` (or `baseline`) for the exact shift.
 
 <a id="guide-screens"></a>
 ## 6. Screens and navigation
@@ -646,7 +728,8 @@ change what must change at a width. Use these, in this order:
    `@media (min-width: 600px) { #title { font-size: 40px } }`. `minWidth` and `maxWidth` are pixels (inclusive, as in
    CSS) or a breakpoint name (`minWidth: "tablet"`: from tablet's min width; `maxWidth: "tablet"`: up to the next
    breakpoint, so tablet and narrower); `orientation` is `portrait` or `landscape`; all conditions of a rule must
-   hold. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `opacity`) and merged over
+   hold. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `opacity`, `motion`, and
+`bind`: below) and merged over
    it (objects merge, `null` removes a key), except that a value with several forms is **replaced**, as CSS
    replaces a declaration: `{"width": {"hug": 200}}` over `{"fill": 292}` is `{"hug": 200}` (a size, a position
    form, a paint or border of another `type`, an icon). Rules apply in order, a later one winning where two set the same field (the
@@ -663,6 +746,99 @@ change what must change at a width. Use these, in this order:
    - Precedence: the node's own values, then its media rules, then an active interaction state's patch
      ([section 11](#guide-states)), then its bindings, then conditions. A field both patched and bound shows the
      binding (validation warns: `media_overridden`).
+   - **A media rule and a binding on one field** (shown on phones only, and there only while a panel is closed):
+     a patch may set `bind`, bindings that hold at its sizes only. Write the node for the other sizes and bind in
+     the rule: `"visible": false, "media": [{"maxWidth": 599, "patch": {"bind": {"visible": "${= !filtersOpen}"}}}]`.
+     The breakpoint stays in the media rule; the formula knows nothing of widths. To show a patched value where
+     the node binds the field at other sizes, drop the binding in the rule: `"patch": {"visible": true, "bind":
+     {"visible": null}}`.
+   - **A full-width band with capped content** (CSS `max-width: 1200px; margin: 0 auto` inside a colored band):
+     the band fills the width and holds the background; its one child fills with `constraints.maxWidth`, centered
+     by the band's `crossAxisAlignment` (`center`, the default). Below, a comparison table built from one row
+     template and one cell template ([section 13](#guide-lists)):
+
+```json
+{
+  "schema": 2,
+  "roots": ["home"],
+  "nodes": {
+    "home": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 1440, "height": 900},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["band"],
+      "props": {"scrollable": true},
+      "layout": {"width": {"fill": 1440}, "height": {"fill": 900}}
+    },
+    "band": {
+      "type": "column",
+      "children": ["rail"],
+      "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": [24, 48, 24, 48]},
+      "decoration": {"fills": [{"color": "#FF1F2937"}]}
+    },
+    "rail": {
+      "type": "column",
+      "children": ["title", "table"],
+      "props": {"spacing": 16, "crossAxisAlignment": "stretch"},
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 160}, "constraints": {"maxWidth": 1200}}
+    },
+    "title": {
+      "type": "text",
+      "props": {"text": "Compare plans", "style": {"fontSize": 28, "fontWeight": 700, "color": "#FFFFFFFF"}},
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 34}}
+    },
+    "table": {
+      "type": "listView",
+      "children": ["tr"],
+      "bind": {"data": "${rows}"},
+      "props": {"physics": "never"},
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 120}}
+    },
+    "tr": {
+      "type": "row",
+      "children": ["label", "cells"],
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 44}},
+      "decoration": {"strokes": [{"color": "#FF374151"}], "strokeSides": "bottom"}
+    },
+    "label": {
+      "type": "text",
+      "bind": {"props.text": "${item.label}"},
+      "props": {"text": "", "style": {"fontSize": 14, "color": "#FFD1D5DB"}},
+      "layout": {"width": {"fill": 180}, "height": {"hug": 20}, "flex": 2}
+    },
+    "cells": {
+      "type": "gridView",
+      "children": ["cell"],
+      "bind": {"data": "${item.values}", "props.crossAxisCount": "${= length(item.values)}"},
+      "props": {"physics": "never", "crossAxisCount": 3, "shrinkWrapRows": true},
+      "layout": {"width": {"fill": 600}, "height": {"hug": 44}, "flex": 3}
+    },
+    "cell": {
+      "type": "text",
+      "bind": {"props.text": "${item}"},
+      "props": {"text": "", "textAlign": "center", "style": {"fontSize": 14, "color": "#FFFFFFFF"}},
+      "layout": {"width": {"fill": 200}, "height": {"hug": 20}, "margin": [0, 12, 0, 12]}
+    }
+  },
+  "variables": {
+    "home": [
+      {
+        "name": "rows",
+        "type": "list",
+        "value": [
+          {"label": "Seats", "values": ["5", "25", "Unlimited"]},
+          {"label": "SSO", "values": ["–", "Yes", "Yes"]},
+          {"label": "Support", "values": ["Email", "Chat", "24/7"]}
+        ]
+      }
+    ]
+  }
+}
+```
 3. **Bindings on `${screen}`** for values computed from the size, the escape hatch:
    `"bind": {"layout.width": "${= min(screen.width - 32, 760)}"}`. `${screen}` has `width`, `height`,
    `breakpoint` (the id), `is.<name>` and `atLeast.<name>` (`${= screen.atLeast.tablet ? 3 : 1}`), and
@@ -1211,6 +1387,10 @@ order:
   the control runs the row's. To toggle from the whole row with one handler, give the control
   `"ignorePointer": true` and bind its value.
 - Every action also takes `enabled`, `nonBlocking` and `when` (a predicate: run only while it holds).
+- **Keys**: a canvas's `keyDown` reaction (`{"trigger": {"type": "keyDown", "key": "ArrowRight"}, ...}`) runs
+  while no text field has the focus: arrow keys between tabs are two reactions that set the tab variable
+  (`${= (tabIndex + 1) % 4}`), Escape closing a menu is one. The render command presses keys with `--key
+  ArrowRight` (after `--unfocus` if a field has the focus).
 
 Write each action's fields flat in the action object, exactly as named in [actions](#page-actions);
 a misspelled key is dropped silently by the runtime and reported by validation (`unknown_action_key`).
@@ -1428,10 +1608,18 @@ directly: `${parent.name}`). Two levels:
 
 A third level reads the second's item as `parent`; to reach further out, carry the value down in the data.
 
+**A table from one template**: a `listView` of rows bound to the records, each row a label and a `gridView` of
+cells bound to `${item.values}` with `crossAxisCount` the number of columns: one cell node for every column (the
+example in [section 7](#guide-responsive)). Four columns written by hand, or four lists side by side, are the same
+table written four times; for a column that stays while the others scroll sideways, keep the label column a
+`listView` of its own beside one horizontally scrolling block of the cell grids.
+
 **Equal-height cards** in a `gridView` with `"shrinkWrapRows": true` (CSS grid's auto rows): each row is as tall as
 its tallest item, and every item is stretched to it (`align-items: stretch`), whether it hugs or fills its height.
 Make the item the card (the box with the decoration): a card *inside* a hugging item column keeps its own height,
-as a CSS card inside a stretched grid item does. `shrinkWrapRows` wins over `mainAxisExtent` (validation warns:
+as a CSS card inside a stretched grid item does, and a card that fills the item's height there takes its design
+number (`fill_fallback`). A banner above one card goes inside the card (the item), with a top margin on the
+others to line them up. `shrinkWrapRows` wins over `mainAxisExtent` (validation warns:
 `prop_ignored`); for rows at least n tall, keep it and give the item `"constraints": {"minHeight": n}`.
 
 <a id="guide-forms"></a>
@@ -1533,6 +1721,18 @@ reactions, as a node's), shown only while there is text by binding the icon:
 }
 ```
 
+**Styling the controls, in one place:**
+
+| Control | Its look | Where |
+|---|---|---|
+| `textField` | border (`"border": {"type": "outline", "borderSide": {"color": ..., "width": 1}, "borderRadius": 8}`), `focusedBorder`, `errorBorder`, `fillColor` + `filled`, `contentPadding`, `hintStyle`, `labelStyle`, `prefixIcon`/`suffixIcon` | `props.decoration` ([InputDecoration](#type-InputDecoration)) |
+| `textField` | the typed text's style, the caret (`cursorColor`, `showCursor`), the focus ring (`focusRingColor`, `focusRingWidth`) | `props` ([textField](#node-textField)) |
+| `checkbox` | `activeColor`, `checkColor`, `fillColor`, `side` / `activeSide` (the box's border), `borderRadius`, `compact` | `props` ([checkbox](#node-checkbox)) |
+| `switch` | `activeTrackColor`, `inactiveTrackColor`, `activeThumbColor`, `inactiveThumbColor`, `fillTrack`, `thumbInset`, `trackOutlineWidth`, `trackRadius` | `props` ([switch](#node-switch)) |
+| a labelled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [section 10](#guide-reactions) |
+
+Every color there may be a theme color's name.
+
 Buttons (`elevatedButton`, `filledButton`, `outlinedButton`, `textButton`) take `label` and `style`
 ([ButtonStyle](#type-ButtonStyle): `backgroundColor`, `foregroundColor`, `textStyle`, `shape`...).
 Their label text is 12 px unless `style.textStyle.fontSize` says otherwise. Give buttons a fixed width: a hugging
@@ -1558,13 +1758,15 @@ See the navigation example in [section 6](#guide-screens).
   images: it reports them (`image_network`) and leaves them blank.
 - **Icons**: an `icon` node with `props.icon` set to a Material icon name (`"check_circle"`, `"menu"`,
   `"arrow_forward"`, `"north_east"`; any name at fonts.google.com/icons; `_outlined`, `_rounded`, `_sharp` suffixes
-  pick the style) and `props.color`. An icon is written the same way everywhere: a text field's
-  `decoration.prefixIcon` is `{"icon": "search", "size": 18}`. A name the renderer does not know draws nothing
+  pick the style), `props.color` and `props.size` (Flutter's `Icon.size`: the glyph's size, centered in the node's
+  box; without it the glyph fills the box; a hugging icon takes its size). The glyph is written the same way
+  everywhere: a text field's `decoration.prefixIcon` is `{"icon": "search", "size": 18}`. A name the renderer does not know draws nothing
   (`icon_not_drawn`).
 - **Fonts**: `style.fontFamily` names a family (`"Inter"`), with `fontWeight` choosing the file. An app fetches
   Google Fonts by name. The render command uses font files from `--fonts <dir>` (`.ttf`, `.otf`, `.woff`, read
   by their real family and weight; a font package folder such as `node_modules/@fontsource/<family>` works as it is;
-  `--fonts system` adds the system's fonts) plus Roboto, and reports a family it does not have (`font_fallback`:
+  `--fonts system` adds the system's fonts; of a package's subset files for one face, the one with Latin text's
+  characters is used) plus Roboto, and reports a family it does not have (`font_fallback`:
   the family, weight and style asked for and where it looked).
 
 ```json
@@ -1696,6 +1898,8 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `unknown_breakpoint` | error | A canvas, variant or media rule names a breakpoint the project does not define. |
 | `invalid_media` | error | A "media" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size. |
 | `media_overridden` | warning | A media rule patches a field the node also binds: the binding wins, so the patch never shows. |
+| `unknown_theme_name` | error | A color or text style names a color or text style the project's theme (the site manifest's "theme") does not have: it would show transparent or unstyled. |
+| `invalid_theme` | error | The site manifest's "theme" is not of the right shape: colors are "#AARRGGBB" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
@@ -1722,7 +1926,8 @@ there, so formula syntax errors and unknown names in formulas are reported only 
 1. Every node needs `layout.width` and `layout.height`; without them it is 0 × 0.
 2. Every text needs `style.color`; without it, it is white.
 3. Padding and margin are a number or four numbers, never two.
-4. Colors are `#AARRGGBB` or `#RRGGBB`.
+4. Colors are `#AARRGGBB`, `#RRGGBB` or a theme color's name; declare the palette and type scale in the theme
+   first and name them ([the theme](#guide-theme)).
 5. Columns center their children across by default: write `"crossAxisAlignment": "start"` for left-aligned
    content.
 6. A screen taller than the window needs a scrolling body column.
@@ -1730,7 +1935,8 @@ there, so formula syntax errors and unknown names in formulas are reported only 
 8. `x`/`y` only work under a `stack`; `flex`/`align` only under a `row` or `column`.
 9. Ids are map keys; a child is listed in exactly one parent; canvases are only in `roots`.
 10. Per-breakpoint canvases have separate nodes: shared state lives in `page_variables`.
-11. `fill` takes all the room it is given; cap it with `constraints.maxWidth`.
+11. `fill` takes all the room it is given; cap it with `constraints.maxWidth`. Where its parent gives no room
+    on that axis (it hugs it), a fill is its design number (`fill_fallback`).
 12. A backslash inside a formula is written twice in JSON: `"${= matches(code, '^\\d{4}$')}"`.
 13. `${...}` reads a name; a literal value is a formula: `${= false}`, not `${false}`.
 14. A node hidden by a binding, condition or media rule takes no room or slot; `"visible": false` written on the
@@ -1811,7 +2017,10 @@ And calls to it, in a page's `nodes` (the page declares `tag` and `removed`):
 
 **Parameters.** Declared in `widget.props` as the catalog declares any prop: `key`, `type` (`kind` and the
 Flutter type; `min`, `max`, enum `values`, list `item`), `default`, `doc`, and `"required": true` for one a call
-must set. Inside, read them as `${props.<key>}`. A call sets them as any node's props: a literal in `props`, an
+must set. The kinds: `boolean` (`bool`), `integer` (`int`), `number` (`double`), `string` (`String`),
+`enumeration` (with `values`), `value` (a value type: `{"kind": "value", "flutter": "Color"}`, also `EdgeInsets`,
+`Alignment`, `IconData`...), `list` (with `item`), `object` (a model: `TextStyle`, `Paint`), `json` (any data: a
+record, `{"kind": "json", "flutter": "Map<String, dynamic>"}`) and `variable` (with `of`, below). Inside, read them as `${props.<key>}`. A call sets them as any node's props: a literal in `props`, an
 expression in `bind` (`"props.label": "${item.name}"`). Validation checks every call against the declaration:
 unknown keys, wrong types and bounds, missing required ones, children and slots the component does not take.
 
@@ -1839,7 +2048,10 @@ the caller's scope with the value as `${result}`. An event nobody handles does n
 has no `decoration` and no `layout.padding`. The root's own size is the design size its previews and new calls
 use. `visible` hides the instance when either the call or the root is hidden.
 
-**Ids are local.** A definition's ids are its own (`text`, `remove`); a page may use the same ids. Tools name a
+**Ids are local.** A definition's ids are its own (`text`, `remove`); a page may use the same ids, and
+diagnostics name a node of an instance by its path, so the two never mix. An action inside a definition that names
+a node (`scrollTo`, `animate`, `focus`) acts on that node of its own instance: two cards each scroll their own
+list. Tools name a
 node inside an instance by its **path**: the call ids from the page down, then the node's id
 (`design/remove`, `plans/card1/cta`); `#n` picks the n-th copy a list repeats (`tagChip#2/text`).
 
@@ -1863,7 +2075,8 @@ Steps take paths: `--tap design/remove`.
 * **List template**: one shape repeated from data in one parent. When the item is more than about five nodes, or
   appears elsewhere too, make the template one call node (`"bind": {"props.plan": "${item}"}`).
 * **Component**: the same structure in two or more places with different values (buttons, cards, chips, rows),
-  or a part others will reuse. Data comes in as parameters.
+  or a part others will reuse. Data comes in as parameters. Four near-identical columns of a table, or three plan
+  cards, are one component (or one list template) called four or three times, not four copies.
 * **Section**: a top-level band of a page (header, hero, plans, FAQ, footer), in its own file when it is more
   than about 15 nodes or someone will edit it alone, even if it is used once. Parameters only for what it shares
   with its page (`variable` parameters for state both change).
@@ -2110,6 +2323,7 @@ Flutter `Icon`.
 
 - `icon`: [IconData](#type-IconData) = `{}`
 - `color`: [Color](#type-Color) = unset
+- `size`: double = unset (≥ 0)
 
 <a id="node-spacer"></a>
 ## `spacer`
@@ -3739,7 +3953,7 @@ Read by decoding but not declared as fields: `widthFactor`, `heightFactor`. A sh
 |---|---|---|
 | `row` | fixed, fill, flexible, hug | fixed, fill, hug |
 | `column` | fixed, fill, hug | fixed, fill, flexible, hug |
-| `row` with {"wrap":true} | fixed, hug | fixed, fill, hug |
+| `row` with {"wrap":true} | fixed, fill (with `basis`), hug | fixed, fill, hug |
 | `column` with {"scrollable":true} | fixed, fill, hug | fixed, hug |
 | `row` with {"scrollable":true,"scrollDirection":"horizontal"} | fixed, hug | fixed, fill, hug |
 | `stack` | fixed, fill, hug | fixed, fill, hug |
@@ -3769,7 +3983,9 @@ Why a mode is not allowed, as the declarations say it:
 
 A node's `"decoration"` object: what its box paints. Types without a box decoration (see
 [node types](#page-nodes)) keep only blur effects. Fills paint bottom to top under the node's content;
-`foregroundFills` paint over it.
+`foregroundFills` paint over it, **children included** (Flutter's `foregroundDecoration`): a scrim in a photo's
+`foregroundFills` darkens a caption inside the photo node too; put the caption after a gradient box instead.
+Every color may be a theme color's name (`"ember"`).
 
 ## Fields
 
@@ -4705,6 +4921,7 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 <a id="type-TextStyle"></a>
 ### TextStyle
 
+- `from`: String = unset
 - `fontFamily`: String = unset
 - `fontWeight`: [FontWeight](#type-FontWeight) = unset
 - `fontStyle`: [FontStyle](#enum-FontStyle) = unset (`normal`, `italic`)
@@ -6337,6 +6554,12 @@ takes the expression's value. Paths: `visible`, `opacity`, `layout.<field>`, `de
 Expressions: `${path}` reads a value (`user.name`, `items[0].price`, `pal[item.kind]`), `${= formula}` computes
 one ([formula functions](#page-formulas)). A binding that is exactly one expression keeps the value's type.
 
+A text's `props.text` may hold expressions directly. A literal `$` right before one is text: `"$${price}"` shows
+`$47`. There is no escape for a literal `${`.
+
+A media rule's patch may bind too (`"patch": {"bind": {"visible": "${= !open}"}}`): the binding holds at the
+rule's sizes only, and `null` drops one of the node's own there.
+
 ## Named paths
 
 | Path | Meaning |
@@ -6358,6 +6581,47 @@ one ([formula functions](#page-formulas)). A binding that is exactly one express
 | `decoration.strokeWidth` |  |
 | `scale` |  |
 | `textDirection` |  |
+
+## What each path expects
+
+A formula gives the value as the field is written in JSON: a number, `true`/`false`, a name for an enum, a list or an object for the fields written that way. A value of another shape is not read and the field keeps its value.
+
+| Path | Type | A formula gives |
+|---|---|---|
+| `visible` | `bool` | `true` or `false` |
+| `opacity` | `double` | a number |
+| `selected` | `bool` | `true` or `false` |
+| `disabled` | `bool` | `true` or `false` |
+| `data` | `List` | a list |
+| `layout.width` | `AxisSize` | a number (fixed) or {"fill"\|"flexible"\|"hug"\|"fixed": number} |
+| `layout.height` | `AxisSize` | a number (fixed) or {"fill"\|"flexible"\|"hug"\|"fixed": number} |
+| `layout.constraints` | `BoxConstraints` | {"minWidth", "maxWidth", "minHeight", "maxHeight"} (each optional, numbers >= 0) |
+| `layout.margin` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
+| `layout.padding` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
+| `layout.rotation` | `double` | a number |
+| `layout.aspectRatio` | `double` | a number |
+| `layout.flex` | `int` | a whole number |
+| `layout.squeezable` | `bool` | `true` or `false` |
+| `layout.x` | `AxisPosition` | a number (distance from the start) or {"start": d}, {"end": d}, {"start": a, "end": b}, {"align": -1..1}, {"relative": d} |
+| `layout.y` | `AxisPosition` | a number (distance from the start) or {"start": d}, {"end": d}, {"start": a, "end": b}, {"align": -1..1}, {"relative": d} |
+| `layout.align` | `Alignment` | [x, y] from -1 to 1, or a name: topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight |
+| `layout.order` | `int` | a whole number |
+| `layout.basis` | `double` | a number |
+| `decoration.fills` | `List<Paint>` | a list of Paint objects |
+| `decoration.strokes` | `List<Paint>` | a list of Paint objects |
+| `decoration.strokeWidth` | `double` | a number |
+| `decoration.strokeAlign` | `StrokeAlign` | one of its names ([StrokeAlign](#enum-StrokeAlign)) |
+| `decoration.strokeSides` | `StrokeSides` | one of its names ([StrokeSides](#enum-StrokeSides)) |
+| `decoration.strokeCap` | `StrokeCap` | one of its names ([StrokeCap](#enum-StrokeCap)) |
+| `decoration.dashPattern` | `List<double>` | a list of double objects |
+| `decoration.radius` | `BorderRadius` | a number (every corner), [x, y] (every corner elliptical) or [topLeft, topRight, bottomRight, bottomLeft] (each a number or [x, y]) |
+| `decoration.effects` | `List<Effect>` | a list of Effect objects |
+| `decoration.clip` | `Clip` | one of its names ([Clip](#enum-Clip)) |
+| `decoration.blendMode` | `BlendMode` | one of its names ([BlendMode](#enum-BlendMode)) |
+| `decoration.foregroundFills` | `List<Paint>` | a list of Paint objects |
+| `decoration.shape` | `DecorationShape` | one of its names ([DecorationShape](#enum-DecorationShape)) |
+
+`props.<prop>` takes what the prop's type is written as ([node types](nodes.md), [value types](values.md)): `"${= open ? 'vertical' : 'horizontal'}"` for `props.direction`, a TextStyle object or a theme style's name for `props.style`. A theme color's name is not read from a formula: give `${theme.colors.ember}` (its value).
 
 ## Every bindable field
 

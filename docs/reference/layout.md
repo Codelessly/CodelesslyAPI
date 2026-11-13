@@ -50,7 +50,7 @@ Read by decoding but not declared as fields: `widthFactor`, `heightFactor`. A sh
 |---|---|---|
 | `row` | fixed, fill, flexible, hug | fixed, fill, hug |
 | `column` | fixed, fill, hug | fixed, fill, flexible, hug |
-| `row` with {"wrap":true} | fixed, hug | fixed, fill, hug |
+| `row` with {"wrap":true} | fixed, fill (with `basis`), hug | fixed, fill, hug |
 | `column` with {"scrollable":true} | fixed, fill, hug | fixed, hug |
 | `row` with {"scrollable":true,"scrollDirection":"horizontal"} | fixed, hug | fixed, fill, hug |
 | `stack` | fixed, fill, hug | fixed, fill, hug |
