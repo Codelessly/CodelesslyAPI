@@ -1162,15 +1162,19 @@ enum DragAxis { free, horizontal, vertical }
 /// touch and press with a mouse.
 enum DragStart { press, longPress, auto }
 
-/// What the node shows where it was picked up while dragged.
+/// What the node shows where it was picked up while dragged
+/// (`Draggable.childWhenDragging`): a faded copy, nothing, or itself.
 enum DragSourceStyle { ghost, hidden, keep }
 
-/// Which point of the copy that follows the pointer sits under it: where
-/// it was grabbed, or its center (a feedback node of another size).
-enum FeedbackAnchor { grab, center }
+/// Which point of the copy that follows the pointer sits under it
+/// (`Draggable.dragAnchorStrategy`): where it was grabbed
+/// (`childDragAnchorStrategy`), or its center (a feedback node of another
+/// size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it.
+enum DragAnchor { child, center }
 
 /// Lets the user pick the node up and drop it on a [DropTarget] that takes
-/// its [group] (Flutter's `Draggable`).
+/// its [group] (Flutter's `Draggable`; `LongPressDraggable` with [start]
+/// `longPress`).
 @immutable
 final class DragSource extends _Value {
   const DragSource({
@@ -1178,45 +1182,74 @@ final class DragSource extends _Value {
     this.data = '',
     this.start = DragStart.auto,
     this.axis = DragAxis.free,
-    this.whileDragging = DragSourceStyle.ghost,
+    this.childWhenDragging = DragSourceStyle.ghost,
     this.ghostOpacity = 0.35,
+    this.feedback = '',
+    this.dragAnchor = DragAnchor.child,
     this.feedbackRotation = -2,
     this.feedbackScale = 1,
     this.feedbackOpacity = 1,
     this.feedbackElevation = 24,
-    this.feedbackNodeId = '',
-    this.feedbackAnchor = FeedbackAnchor.grab,
-    this.returnSpring = true,
-    this.spring = DragSource.defaultSpring,
+    this.returnSpring = DragSource.defaultSpring,
     this.enabled = true,
-    this.physics,
   });
 
+  /// The drag group a [DropTarget] [DropTarget.accepts], and the data it
+  /// hands over (`Draggable.data`; may hold `${...}`).
   final String group, data;
+
+  /// How a drag starts: press, long press (`LongPressDraggable`), or long
+  /// press on touch and press with a mouse.
   final DragStart start;
+
+  /// `Draggable.axis`: the feedback moves only along it.
   final DragAxis axis;
-  final DragSourceStyle whileDragging;
-  final double ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, feedbackElevation;
 
-  /// The node drawn under the pointer instead of this one.
-  final String feedbackNodeId;
-  final FeedbackAnchor feedbackAnchor;
-  final bool returnSpring;
+  /// What stays where it was picked up (the legacy `whileDragging`).
+  final DragSourceStyle childWhenDragging;
 
-  /// The spring it returns on with [returnSpring] (JSON `spring`; the
-  /// legacy `springStiffness`/`springDamping` read as it).
-  final Spring spring;
+  /// The opacity of a [DragSourceStyle.ghost].
+  final double ghostOpacity;
+
+  /// The node drawn under the pointer instead of this one
+  /// (`Draggable.feedback`); empty: the node itself. The legacy
+  /// `feedbackNodeId` reads as it.
+  final String feedback;
+
+  /// The legacy `feedbackAnchor` reads as it.
+  final DragAnchor dragAnchor;
+
+  /// The feedback's tilt (degrees), scale, opacity and shadow while it
+  /// follows the pointer. Not yet a `states.dragged` patch: their defaults
+  /// (−2°, a 24 shadow) can't change under existing documents.
+  final double feedbackRotation, feedbackScale, feedbackOpacity, feedbackElevation;
+
+  /// The spring a drop no target takes flies home on; null: none (it
+  /// reappears at once, as Flutter's `Draggable` does). JSON `false` is
+  /// null. The legacy `returnSpring: true` with `spring`,
+  /// `springStiffness`/`springDamping` or `physics` reads as it.
+  final Spring? returnSpring;
   static const Spring defaultSpring = Spring.physical(stiffness: 260, damping: 14);
+
+  /// Bindable as `draggable.enabled`.
   final bool enabled;
 
-  /// The return spring of a drag no target takes; null uses
-  /// [returnSpring] and [spring].
-  final GesturePhysics? physics;
+  /// The spring it flies back on, as gesture physics; null for none.
+  GesturePhysics? get effectivePhysics => returnSpring == null ? null : GesturePhysics(spring: returnSpring!, fling: false);
 
-  /// The spring it flies back on, or null for none (it reappears at once).
-  GesturePhysics? get effectivePhysics =>
-      physics ??
-      (returnSpring ? GesturePhysics(spring: spring, fling: false) : null);
+  /// [m]'s return spring: `returnSpring` (an object, `false`, or `true`
+  /// with the legacy `spring`, `springStiffness`/`springDamping` or
+  /// `physics`).
+  static Spring? _returnSpringOf(Json m) {
+    final v = m['returnSpring'];
+    if (Spring.fromJson(v, fallback: defaultSpring) case final Spring s) return s;
+    // The legacy `physics` overrode `returnSpring: false`.
+    if (GesturePhysics.fromJson(m['physics']) case final GesturePhysics p) return p.spring;
+    if (readBool(v) == false) return null;
+    return Spring.fromJson(m['spring'], fallback: defaultSpring) ??
+        Spring.legacy(m, 'springStiffness', 'springDamping', fallback: defaultSpring) ??
+        defaultSpring;
+  }
 
   static DragSource? fromJson(Object? json) {
     final m = readMap(json);
@@ -1227,20 +1260,23 @@ final class DragSource extends _Value {
       data: r.s('data'),
       start: r.e(DragStart.values, 'start', DragStart.auto),
       axis: r.e(DragAxis.values, 'axis', DragAxis.free),
-      whileDragging: r.e(DragSourceStyle.values, 'whileDragging', DragSourceStyle.ghost),
+      childWhenDragging: readEnum(
+        DragSourceStyle.values,
+        m['childWhenDragging'] ?? m['whileDragging'],
+        DragSourceStyle.ghost,
+      ),
       ghostOpacity: r.d('ghostOpacity', 0.35),
+      feedback: readString(m['feedback']) ?? r.s('feedbackNodeId'),
+      dragAnchor: switch (m['dragAnchor'] ?? m['dragAnchorStrategy'] ?? m['feedbackAnchor']) {
+        'center' || 'pointer' => DragAnchor.center,
+        _ => DragAnchor.child,
+      },
       feedbackRotation: r.d('feedbackRotation', -2),
       feedbackScale: r.d('feedbackScale', 1),
       feedbackOpacity: r.d('feedbackOpacity', 1),
       feedbackElevation: r.d('feedbackElevation', 24),
-      feedbackNodeId: r.s('feedbackNodeId'),
-      feedbackAnchor: r.e(FeedbackAnchor.values, 'feedbackAnchor', FeedbackAnchor.grab),
-      returnSpring: r.b('returnSpring', true),
-      spring: Spring.fromJson(m['spring'], fallback: defaultSpring) ??
-          Spring.legacy(m, 'springStiffness', 'springDamping', fallback: defaultSpring) ??
-          defaultSpring,
+      returnSpring: _returnSpringOf(m),
       enabled: _loose(m['enabled']) ?? true,
-      physics: GesturePhysics.fromJson(m['physics']),
     );
   }
 
@@ -1250,25 +1286,26 @@ final class DragSource extends _Value {
       ..s('data', data)
       ..e('start', start, DragStart.auto)
       ..e('axis', axis, DragAxis.free)
-      ..e('whileDragging', whileDragging, DragSourceStyle.ghost)
+      ..e('childWhenDragging', childWhenDragging, DragSourceStyle.ghost)
       ..d('ghostOpacity', ghostOpacity, 0.35)
+      ..s('feedback', feedback)
+      ..e('dragAnchor', dragAnchor, DragAnchor.child)
       ..d('feedbackRotation', feedbackRotation, -2)
       ..d('feedbackScale', feedbackScale, 1)
       ..d('feedbackOpacity', feedbackOpacity, 1)
-      ..d('feedbackElevation', feedbackElevation, 24)
-      ..s('feedbackNodeId', feedbackNodeId)
-      ..e('feedbackAnchor', feedbackAnchor, FeedbackAnchor.grab)
-      ..b('returnSpring', returnSpring, true);
-    if (spring != defaultSpring) j['spring'] = spring.toJsonOver(defaultSpring);
-    j.b('enabled', enabled, true);
-    if (physics != null) j['physics'] = physics!.toJson();
-    return j;
+      ..d('feedbackElevation', feedbackElevation, 24);
+    if (returnSpring == null) {
+      j['returnSpring'] = false;
+    } else if (returnSpring != defaultSpring) {
+      j['returnSpring'] = returnSpring!.toJsonOver(defaultSpring);
+    }
+    return j..b('enabled', enabled, true);
   }
 
   @override
   List<Object?> get props => [
-    group, data, start, axis, whileDragging, ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, //
-    feedbackElevation, feedbackNodeId, feedbackAnchor, returnSpring, spring, enabled, physics,
+    group, data, start, axis, childWhenDragging, ghostOpacity, feedback, dragAnchor, feedbackRotation, //
+    feedbackScale, feedbackOpacity, feedbackElevation, returnSpring, enabled,
   ];
 }
 

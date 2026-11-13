@@ -79,8 +79,6 @@ const _physics = ValueCodec(GesturePhysics.fromJson, _out, gesturePhysicsType);
 Spring? _springIn(Object? j) => Spring.fromJson(j);
 Spring? _motionSpringIn(Object? j) => Spring.fromJson(j, fallback: Motion.defaultSpring);
 Object? _motionSpringOut(Spring s) => s.toJsonOver(Motion.defaultSpring);
-Spring? _dragSpringIn(Object? j) => Spring.fromJson(j, fallback: DragSource.defaultSpring);
-Object? _dragSpringOut(Spring s) => s.toJsonOver(DragSource.defaultSpring);
 Spring? _settleSpringIn(Object? j) => Spring.fromJson(j, fallback: Track.defaultSettleSpring);
 Object? _settleSpringOut(Spring s) => s.toJsonOver(Track.defaultSettleSpring);
 Spring? _physicsSpringIn(Object? j) => Spring.fromJson(j, fallback: GesturePhysics.defaultSpring);
@@ -466,40 +464,44 @@ List<PropDef<Object?>> heroTagFields() => HeroTagFields.all;
 
 // --- drag and drop ------------------------------------------------------------
 
+/// [DragSource] (node key `draggable`): Flutter's `Draggable`.
 abstract final class DragSourceFields {
   static const group = PropDef<String>('group', Codecs.string, '');
   static const data = PropDef<String>('data', Codecs.string, '');
   static const start = PropDef<DragStart>('start', EnumCodec(DragStart.values), DragStart.auto);
   static const axis = PropDef<DragAxis>('axis', EnumCodec(DragAxis.values), DragAxis.free);
-  static const whileDragging = PropDef<DragSourceStyle>(
-    'whileDragging',
+
+  /// What stays where it was picked up.
+  static const childWhenDragging = PropDef<DragSourceStyle>(
+    'childWhenDragging',
     EnumCodec(DragSourceStyle.values),
     DragSourceStyle.ghost,
   );
   static const ghostOpacity = PropDef<double>('ghostOpacity', Codecs.double, 0.35);
+
+  /// The node drawn under the pointer instead of this one.
+  static const feedback = PropDef<String>('feedback', Codecs.string, '');
+  static const dragAnchor = PropDef<DragAnchor>('dragAnchor', EnumCodec(DragAnchor.values), DragAnchor.child);
   static const feedbackRotation = PropDef<double>('feedbackRotation', Codecs.double, -2);
   static const feedbackScale = PropDef<double>('feedbackScale', Codecs.double, 1);
   static const feedbackOpacity = PropDef<double>('feedbackOpacity', Codecs.double, 1);
   static const feedbackElevation = PropDef<double>('feedbackElevation', Codecs.double, 24);
 
-  /// The node drawn under the pointer instead of this one.
-  static const feedbackNodeId = PropDef<String>('feedbackNodeId', Codecs.string, '');
-  static const returnSpring = PropDef<bool>('returnSpring', Codecs.bool, true);
-  static const spring = PropDef<Spring>('spring', ValueCodec(_dragSpringIn, _dragSpringOut, springType), DragSource.defaultSpring);
-  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
-  static const feedbackAnchor = PropDef<FeedbackAnchor>(
-    'feedbackAnchor',
-    EnumCodec(FeedbackAnchor.values),
-    FeedbackAnchor.grab,
+  /// The spring an unaccepted drop flies home on; `false`: none.
+  static const returnSpring = PropDef<Spring?>(
+    'returnSpring',
+    ValueCodec(_returnSpringIn, _returnSpringOut, springType),
+    DragSource.defaultSpring,
   );
-
-  /// The return spring (over [returnSpring] and its settings).
-  static const physics = PropDef<GesturePhysics?>('physics', _physics, null);
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const List<PropDef<Object?>> all = [
-    group, data, start, axis, whileDragging, ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, //
-    feedbackElevation, feedbackNodeId, feedbackAnchor, returnSpring, spring, enabled, physics,
+    group, data, start, axis, childWhenDragging, ghostOpacity, feedback, dragAnchor, feedbackRotation, //
+    feedbackScale, feedbackOpacity, feedbackElevation, returnSpring, enabled,
   ];
 }
+
+Spring? _returnSpringIn(Object? j) => DragSource.fromJson({'returnSpring': j})!.returnSpring;
+Object? _returnSpringOut(Spring? s) => s == null ? false : s.toJsonOver(DragSource.defaultSpring);
 
 List<PropDef<Object?>> dragSourceFields() => DragSourceFields.all;
 

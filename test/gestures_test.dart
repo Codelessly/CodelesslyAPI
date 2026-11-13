@@ -117,7 +117,7 @@ void main() {
     expect(b.pan!.hasBounds, isTrue);
     expect(b.pan!.minY, -560);
     expect(b.pan!.physics!.spring.duration, 420);
-    expect(b.draggable!.feedbackAnchor, FeedbackAnchor.center);
+    expect(b.draggable!.dragAnchor, DragAnchor.center);
     expect(b.dropTarget!.slotSize, DropSlotSize.node);
     expect(b.dropTarget!.slotWhenRefused, isFalse);
     expect(_node(n.toJson()), n);
@@ -125,7 +125,7 @@ void main() {
     final bar = Node.fromJson({'type': 'box', 'dropTarget': {'slot': 'node', 'slotNodeId': 'bar', 'slotSize': 'inGap'}}, id: 'n')!;
     expect(bar.behaviors.dropTarget!.slotSize, DropSlotSize.inGap);
     expect(_node(bar.toJson()), bar);
-    expect(const DragSource(returnSpring: false).effectivePhysics, isNull);
+    expect(const DragSource(returnSpring: null).effectivePhysics, isNull);
   });
 
   test('drag track: new settings, parked, endless, double tap', () {
