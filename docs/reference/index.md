@@ -103,7 +103,7 @@ Every node has a `type` (one of the [node types](nodes.md)). Its keys:
 | `bind` | `Map<String, String>` | Bound properties: a binding path (`visible`, `props.text`, `layout.width`, `decoration.fills.<paintId>`; see `BindPaths` and DESIGN.md §5.1) → an expression (`${user.name}`, `${= qty * 2}`). |
 | `actions` | `List<Reaction>` | Reactions: `{"trigger": {...}, "actions": [...]}` (see triggers, actions). |
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
-| `responsive` | `List<ResponsivePatch>` | The node's own fields per breakpoint: `[{"smallerThan": "tablet", "patch": {"props": {"direction": "vertical"}}}]`. Each entry has one condition (`equals`, `largerThan`, `smallerThan` a breakpoint name, or `between` two) and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`, `children` reordered), merged over the node while the condition holds, in order (see the guide, Responsive design). |
+| `media` | `List<MediaRule>` | The node's own fields by screen size, as CSS media queries: `[{"maxWidth": 599, "patch": {"props": {"direction": "vertical"}}}]`. A rule has `minWidth` and/or `maxWidth` (px, inclusive, or a breakpoint name: from its min width / up to the next one) and/or `orientation`, and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`) merged over the node while all its conditions hold; rules apply in order, the later winning (see the guide, Responsive design). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
 | behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](behaviors.md)). |
@@ -1366,9 +1366,9 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `duplicate_variable` | error | Two variables of the same name in one scope. |
 | `unknown_scope` | error | Variables or conditions keyed by an id that is not a canvas of the document (nor page_variables). |
 | `invalid_condition` | error | A condition, branch, predicate or set entry of the wrong shape. |
-| `unknown_breakpoint` | error | A canvas, variant or responsive patch names a breakpoint the project does not define. |
-| `invalid_responsive` | error | A "responsive" entry of the wrong shape: not exactly one condition (equals, largerThan, smallerThan, between), a patch key that cannot vary, or "children" that are not the node's own children reordered. |
-| `responsive_overridden` | warning | A responsive patch sets a field the node also binds: the binding wins, so the patch never shows. |
+| `unknown_breakpoint` | error | A canvas, variant or media rule names a breakpoint the project does not define. |
+| `invalid_media` | error | A "media" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size. |
+| `media_overridden` | warning | A media rule patches a field the node also binds: the binding wins, so the patch never shows. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |

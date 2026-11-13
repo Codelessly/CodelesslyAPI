@@ -8,7 +8,7 @@ import 'decoration.dart';
 import 'json.dart';
 import 'layout.dart';
 import 'props.dart';
-import 'responsive.dart';
+import 'media.dart';
 import 'breakpoints.dart';
 import 'triggers.dart';
 import 'values/paint.dart' show listEquals;
@@ -37,7 +37,7 @@ final class Node {
     this.actions = const [],
     this.behaviors = Behaviors.none,
     this.component,
-    this.responsive = const [],
+    this.media = const [],
     this.extra = const {},
     this.catalog,
   });
@@ -81,17 +81,16 @@ final class Node {
   /// instance of (DESIGN.md §4.2).
   final ComponentLink? component;
 
-  /// Its own fields per breakpoint: patches over this node, each applied
-  /// while the screen's breakpoint meets its condition (`equals`,
-  /// `largerThan`, `smallerThan`, `between` a named breakpoint), in order.
-  final List<ResponsivePatch> responsive;
+  /// Its own fields by screen size, as CSS media queries: rules whose
+  /// conditions (`minWidth`, `maxWidth`: px or a breakpoint name;
+  /// `orientation`) hold patch the node, in order.
+  final List<MediaRule> media;
 
-  /// This node as shown at breakpoint [current] of [breakpoints]: its
-  /// [responsive] patches that hold, merged over it in order. Itself when
-  /// none holds.
-  Node atBreakpoint(Breakpoint current, Breakpoints breakpoints) {
-    if (responsive.isEmpty) return this;
-    final patch = responsivePatchAt(responsive, current, breakpoints);
+  /// This node as shown on a screen [width] × [height]: its [media] rules
+  /// that hold, merged over it in order. Itself when none holds.
+  Node atScreen(double width, double? height, Breakpoints breakpoints) {
+    if (media.isEmpty) return this;
+    final patch = mediaPatchAt(media, width, height, breakpoints);
     return patch == null ? this : patched(patch);
   }
 
@@ -141,7 +140,7 @@ final class Node {
         actions: actions,
         behaviors: behaviors,
         component: link,
-        responsive: responsive,
+        media: media,
         extra: extra,
         catalog: catalog,
       );
@@ -162,7 +161,7 @@ final class Node {
     List<Reaction>? actions,
     Behaviors? behaviors,
     ComponentLink? component,
-    List<ResponsivePatch>? responsive,
+    List<MediaRule>? media,
     Json? extra,
   }) =>
       Node(
@@ -181,14 +180,14 @@ final class Node {
         actions: actions ?? this.actions,
         behaviors: behaviors ?? this.behaviors,
         component: component ?? this.component,
-        responsive: responsive ?? this.responsive,
+        media: media ?? this.media,
         extra: extra ?? this.extra,
         catalog: catalog,
       );
 
   static const _keys = {
     'id', 'type', 'name', 'key', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
-    'actions', 'component', 'responsive',
+    'actions', 'component', 'media',
   };
 
   /// This node with [patch] (a JSON merge patch over its JSON, as an
@@ -239,7 +238,7 @@ final class Node {
       actions: Reaction.listFromJson(m['actions']),
       behaviors: Behaviors.fromJson(m),
       component: ComponentLink.fromJson(m['component']),
-      responsive: ResponsivePatch.listFromJson(m['responsive']),
+      media: MediaRule.listFromJson(m['media']),
       extra: {
         for (final e in m.entries)
           if (!_keys.contains(e.key) && !Behaviors.keys.contains(e.key) && !Behaviors.legacyKeys.contains(e.key)) e.key: e.value,
@@ -263,7 +262,7 @@ final class Node {
     if (actions.isNotEmpty) j['actions'] = [for (final r in actions) r.toJson()];
     behaviors.writeTo(j);
     if (component != null) j['component'] = component!.toJson();
-    if (responsive.isNotEmpty) j['responsive'] = [for (final p in responsive) p.toJson()];
+    if (media.isNotEmpty) j['media'] = [for (final r in media) r.toJson()];
     j.addAll(extra);
     return j;
   }
@@ -287,7 +286,7 @@ final class Node {
           listEquals(other.actions, actions) &&
           other.behaviors == behaviors &&
           other.component == component &&
-          listEquals(other.responsive, responsive) &&
+          listEquals(other.media, media) &&
           jsonEquality.equals(other.extra, extra);
 
   @override

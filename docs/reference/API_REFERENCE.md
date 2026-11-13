@@ -103,7 +103,7 @@ Every node has a `type` (one of the [node types](#page-nodes)). Its keys:
 | `bind` | `Map<String, String>` | Bound properties: a binding path (`visible`, `props.text`, `layout.width`, `decoration.fills.<paintId>`; see `BindPaths` and DESIGN.md §5.1) → an expression (`${user.name}`, `${= qty * 2}`). |
 | `actions` | `List<Reaction>` | Reactions: `{"trigger": {...}, "actions": [...]}` (see triggers, actions). |
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
-| `responsive` | `List<ResponsivePatch>` | The node's own fields per breakpoint: `[{"smallerThan": "tablet", "patch": {"props": {"direction": "vertical"}}}]`. Each entry has one condition (`equals`, `largerThan`, `smallerThan` a breakpoint name, or `between` two) and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`, `children` reordered), merged over the node while the condition holds, in order (see the guide, Responsive design). |
+| `media` | `List<MediaRule>` | The node's own fields by screen size, as CSS media queries: `[{"maxWidth": 599, "patch": {"props": {"direction": "vertical"}}}]`. A rule has `minWidth` and/or `maxWidth` (px, inclusive, or a breakpoint name: from its min width / up to the next one) and/or `orientation`, and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`) merged over the node while all its conditions hold; rules apply in order, the later winning (see the guide, Responsive design). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
 | behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
@@ -1366,9 +1366,9 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `duplicate_variable` | error | Two variables of the same name in one scope. |
 | `unknown_scope` | error | Variables or conditions keyed by an id that is not a canvas of the document (nor page_variables). |
 | `invalid_condition` | error | A condition, branch, predicate or set entry of the wrong shape. |
-| `unknown_breakpoint` | error | A canvas, variant or responsive patch names a breakpoint the project does not define. |
-| `invalid_responsive` | error | A "responsive" entry of the wrong shape: not exactly one condition (equals, largerThan, smallerThan, between), a patch key that cannot vary, or "children" that are not the node's own children reordered. |
-| `responsive_overridden` | warning | A responsive patch sets a field the node also binds: the binding wins, so the patch never shows. |
+| `unknown_breakpoint` | error | A canvas, variant or media rule names a breakpoint the project does not define. |
+| `invalid_media` | error | A "media" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size. |
+| `media_overridden` | warning | A media rule patches a field the node also binds: the binding wins, so the patch never shows. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
@@ -1546,7 +1546,7 @@ Flutter `Row`.
 
 - Children: `children`.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
-- Reads from each child's layout: [`flex`](#layout-flex), [`squeezable`](#layout-squeezable), [`align`](#layout-align).
+- Reads from each child's layout: [`flex`](#layout-flex), [`squeezable`](#layout-squeezable), [`align`](#layout-align), [`order`](#layout-order), [`basis`](#layout-basis).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -1573,7 +1573,7 @@ Flutter `Column`.
 
 - Children: `children`.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
-- Reads from each child's layout: [`flex`](#layout-flex), [`squeezable`](#layout-squeezable), [`align`](#layout-align).
+- Reads from each child's layout: [`flex`](#layout-flex), [`squeezable`](#layout-squeezable), [`align`](#layout-align), [`order`](#layout-order), [`basis`](#layout-basis).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -1600,7 +1600,7 @@ Flutter `Flex`.
 
 - Children: `children`.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
-- Reads from each child's layout: [`flex`](#layout-flex), [`squeezable`](#layout-squeezable), [`align`](#layout-align).
+- Reads from each child's layout: [`flex`](#layout-flex), [`squeezable`](#layout-squeezable), [`align`](#layout-align), [`order`](#layout-order), [`basis`](#layout-basis).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -1759,6 +1759,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
 | `crossAxisCount` | int | `2` | ≥ 1 |  |
 | `maxCrossAxisExtent` | double | unset | ≥ 0 |  |
+| `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
 | `mainAxisSpacing` | double | `0` |  |  |
 | `crossAxisSpacing` | double | `0` |  |  |
 | `childAspectRatio` | double | `1` | ≥ 0.0001 |  |
@@ -3524,6 +3525,8 @@ size is fixed 0: a node without a width and a height draws nothing.
 <a id="layout-x"></a>
 <a id="layout-y"></a>
 <a id="layout-align"></a>
+<a id="layout-order"></a>
+<a id="layout-basis"></a>
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `width` | [AxisSize](#type-AxisSize) | `0` |  |  |
@@ -3538,6 +3541,8 @@ size is fixed 0: a node without a width and a height draws nothing.
 | `x` | [AxisPosition](#type-AxisPosition) | `{"start":0}` |  | Under a freeform parent (`Positioned` / `Align`). |
 | `y` | [AxisPosition](#type-AxisPosition) | `{"start":0}` |  | Position under a freeform parent. |
 | `align` | [Alignment](#type-Alignment) | unset |  | Under a row/column: alignment in its slot (`Align`). |
+| `order` | int | `0` |  | CSS `order`: under a row, column or flex, children are laid out and painted by ascending order (equal orders as listed). Patch it per screen size (`media`) to reorder at a width. |
+| `basis` | double | unset | ≥ 0 | CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; a child that fills the main axis (`{"fill": n}`) then grows by its `flex` share of the room left on its line (`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints. |
 
 Read by decoding but not declared as fields: `widthFactor`, `heightFactor`. A share (0–1 and up) of the room its parent gives it on that axis (`FractionallySizedBox`): a progress bar's fill is `widthFactor: 0.6` of its track. Null: sized by `width` / `height`. Bindable (`layout.widthFactor`).
 
@@ -3560,7 +3565,7 @@ Read by decoding but not declared as fields: `widthFactor`, `heightFactor`. A sh
 Why a mode is not allowed, as the declarations say it:
 
 - Flexible only applies in a row or column, along its main axis.
-- A wrapping row lays its children out in runs: they keep their own size along it.
+- A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.
 - The column scrolls: its content has no end to fill to.
 - The row scrolls: its content has no end to fill to.
 - Items in a list always fill across it.
@@ -7263,7 +7268,7 @@ one ([formula functions](#page-formulas)). A binding that is exactly one express
 
 ## Every bindable field
 
-- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, and `widthFactor`, `heightFactor`.
+- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type ([node types](#page-nodes)), and `props.<prop>.<field>` for a field of a model prop.
 - `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.

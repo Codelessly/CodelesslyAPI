@@ -147,7 +147,7 @@ Flutter `Row`.
 
 - Children: `children`.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
-- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align).
+- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align), [`order`](layout.md#layout-order), [`basis`](layout.md#layout-basis).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -174,7 +174,7 @@ Flutter `Column`.
 
 - Children: `children`.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
-- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align).
+- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align), [`order`](layout.md#layout-order), [`basis`](layout.md#layout-basis).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -201,7 +201,7 @@ Flutter `Flex`.
 
 - Children: `children`.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
-- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align).
+- Reads from each child's layout: [`flex`](layout.md#layout-flex), [`squeezable`](layout.md#layout-squeezable), [`align`](layout.md#layout-align), [`order`](layout.md#layout-order), [`basis`](layout.md#layout-basis).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -360,6 +360,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
 | `crossAxisCount` | int | `2` | ≥ 1 |  |
 | `maxCrossAxisExtent` | double | unset | ≥ 0 |  |
+| `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
 | `mainAxisSpacing` | double | `0` |  |  |
 | `crossAxisSpacing` | double | `0` |  |  |
 | `childAspectRatio` | double | `1` | ≥ 0.0001 |  |

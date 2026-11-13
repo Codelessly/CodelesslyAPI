@@ -261,11 +261,23 @@ abstract final class LayoutFields {
   /// Under a row/column: alignment in its slot (`Align`).
   static const align = PropDef<Alignment?>('align', Codecs.optionalAlignment, null);
 
+  /// Under a row, column or flex: CSS `order`, the position it is laid out
+  /// and painted at (ascending; equal orders keep the children's order).
+  static const order = PropDef<int>('order', IntCodec(), 0,
+      doc: 'CSS `order`: under a row, column or flex, children are laid out and painted by ascending order (equal orders as listed). '
+          'Patch it per screen size (`media`) to reorder at a width.');
+
+  /// Under a wrapping row, column or flex: CSS `flex-basis`.
+  static const basis = PropDef<double?>('basis', OptionalDoubleCodec(min: 0), null,
+      doc: 'CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; '
+          'a child that fills the main axis (`{"fill": n}`) then grows by its `flex` share of the room left on its line '
+          '(`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints.');
+
   /// The node's own box.
   static const List<PropDef<Object?>> box = [width, height, constraints, margin, padding, rotation, aspectRatio];
 
   /// What a parent reads (Flutter's parent data).
-  static const List<PropDef<Object?>> parentData = [flex, squeezable, x, y, align];
+  static const List<PropDef<Object?>> parentData = [flex, squeezable, x, y, align, order, basis];
   static const List<PropDef<Object?>> all = [...box, ...parentData];
 }
 

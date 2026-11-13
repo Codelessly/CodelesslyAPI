@@ -27,7 +27,7 @@ export 'src/core/layout.dart';
 export 'src/core/logic.dart';
 export 'src/core/node.dart';
 export 'src/core/props.dart';
-export 'src/core/responsive.dart';
+export 'src/core/media.dart';
 export 'src/core/route_transition.dart';
 export 'src/core/scripts.dart';
 export 'src/core/theme.dart';
