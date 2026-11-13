@@ -381,7 +381,7 @@ final class Renderer {
     'mediaRuleFields': () => _classFields('MediaRule', const ['minWidth', 'maxWidth', 'orientation', 'patch']),
     'themeKeys': () => _classFields('ThemeTokens', const [
           'colors', 'textStyles', 'dark', 'media', 'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning', //
-          'fontFamily', 'titleFontFamily', 'radius', 'buttonRadius', 'naturalLineHeight',
+          'fontFamily', 'titleFontFamily', 'radius', 'buttonRadius',
         ]),
     'decorationFields': () => fieldTable(catalog['decoration']['fields'] as List),
     'variableFields': () => table(['Key', 'Example', 'Meaning'], [
