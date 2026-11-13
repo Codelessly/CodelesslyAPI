@@ -2451,6 +2451,13 @@
         "quadratic"
       ]
     },
+    "enum.PathOrient": {
+      "enum": [
+        "none",
+        "tangent",
+        "upright"
+      ]
+    },
     "enum.PathUnit": {
       "enum": [
         "fraction",
@@ -2890,6 +2897,12 @@
         "vertical",
         "horizontal",
         "both"
+      ]
+    },
+    "enum.TrackInteraction": {
+      "enum": [
+        "slideThumb",
+        "tapAndSlide"
       ]
     },
     "enum.TrackShape": {
@@ -5671,6 +5684,27 @@
       },
       "additionalProperties": false
     },
+    "model.PathFollow": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "viewBox": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "progress": {
+          "type": "number"
+        },
+        "orient": {
+          "$ref": "#/$defs/enum.PathOrient"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.PlotChartLabel": {
       "type": "object",
       "properties": {
@@ -6536,19 +6570,7 @@
         "variable": {
           "type": "string"
         },
-        "shape": {
-          "$ref": "#/$defs/enum.TrackShape"
-        },
-        "min": {
-          "type": "number"
-        },
-        "max": {
-          "type": "number"
-        },
-        "step": {
-          "type": "number"
-        },
-        "defaultValue": {
+        "value": {
           "anyOf": [
             {
               "type": "number"
@@ -6558,11 +6580,53 @@
             }
           ]
         },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "step": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "clamp": {
+          "type": "boolean"
+        },
         "input": {
           "$ref": "#/$defs/enum.TrackInput"
         },
+        "allowedInteraction": {
+          "$ref": "#/$defs/enum.TrackInteraction"
+        },
+        "hitArea": {
+          "$ref": "#/$defs/enum.TrackHitArea"
+        },
         "pixelsPerRange": {
           "type": "number"
+        },
+        "wheelStep": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "keyStep": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "shape": {
+          "$ref": "#/$defs/enum.TrackShape"
         },
         "x1": {
           "type": "number"
@@ -6576,10 +6640,16 @@
         "y2": {
           "type": "number"
         },
+        "relative": {
+          "type": "boolean"
+        },
+        "units": {
+          "$ref": "#/$defs/enum.TrackUnits"
+        },
         "startAngle": {
           "type": "number"
         },
-        "endAngle": {
+        "sweepAngle": {
           "type": "number"
         },
         "pivotX": {
@@ -6594,34 +6664,21 @@
         "path": {
           "anyOf": [
             {
-              "type": "string"
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.PathFollow"
+                },
+                {
+                  "type": [
+                    "string"
+                  ]
+                }
+              ]
             },
             {
               "type": "null"
             }
           ]
-        },
-        "orientToPath": {
-          "type": "boolean"
-        },
-        "jumpOnTap": {
-          "type": "boolean"
-        },
-        "wheel": {
-          "type": "boolean"
-        },
-        "value": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "orientUpright": {
-          "type": "boolean"
         },
         "detent": {
           "type": "number",
@@ -6633,6 +6690,16 @@
           "minimum": 0.0,
           "maximum": 1.0
         },
+        "physics": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.GesturePhysics"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "settle": {
           "type": "integer",
           "minimum": 0
@@ -6643,31 +6710,14 @@
         "settleSpring": {
           "$ref": "#/$defs/model.Spring"
         },
-        "parkedProgress": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
+        "snap": {
+          "type": "integer",
+          "minimum": 0
         },
-        "keyboard": {
-          "type": "boolean"
+        "snapCurve": {
+          "$ref": "#/$defs/enum.AnimationCurve"
         },
-        "viewBoxWidth": {
-          "type": "number",
-          "minimum": 0.0
-        },
-        "viewBoxHeight": {
-          "type": "number",
-          "minimum": 0.0
-        },
-        "relative": {
-          "type": "boolean"
-        },
-        "wheelStep": {
+        "defaultValue": {
           "anyOf": [
             {
               "type": "number"
@@ -6683,7 +6733,7 @@
             "type": "number"
           }
         },
-        "keyStep": {
+        "parkedProgress": {
           "anyOf": [
             {
               "type": "number"
@@ -6692,12 +6742,6 @@
               "type": "null"
             }
           ]
-        },
-        "hitArea": {
-          "$ref": "#/$defs/enum.TrackHitArea"
-        },
-        "units": {
-          "$ref": "#/$defs/enum.TrackUnits"
         },
         "fineStep": {
           "type": "number",
@@ -6713,25 +6757,6 @@
         },
         "fineVariable": {
           "type": "string"
-        },
-        "snap": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "snapCurve": {
-          "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "write": {
-          "type": "boolean"
-        },
-        "endless": {
-          "type": "boolean"
-        },
-        "momentum": {
-          "type": "boolean"
-        },
-        "friction": {
-          "type": "number"
         },
         "smooth": {
           "type": "boolean"

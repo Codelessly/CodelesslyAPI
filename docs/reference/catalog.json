@@ -19117,6 +19117,51 @@
         }
       ]
     },
+    "PathFollow": {
+      "doc": "A place along an SVG path. Shared by `motion.path` and `track.path`.",
+      "fields": [
+        {
+          "key": "path",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "SVG path data."
+        },
+        {
+          "key": "viewBox",
+          "type": "List<double>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "double",
+          "itemKind": "number",
+          "doc": "`[width, height]` stretched over the parent; empty: pixels."
+        },
+        {
+          "key": "progress",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Where along the path's length, 0–1. Values outside wrap on a closed path and clamp on an open one."
+        },
+        {
+          "key": "orient",
+          "type": "PathOrient",
+          "kind": "enumeration",
+          "default": "none",
+          "nullable": false,
+          "enum": "PathOrient",
+          "values": [
+            "none",
+            "tangent",
+            "upright"
+          ],
+          "doc": "`none`; `tangent`: turned with the path's direction; `upright`: the same, folded into −90…90 degrees so it is never upside down."
+        }
+      ]
+    },
     "PlotChartLabel": {
       "doc": "A label on a plot chart's x axis, centered on `x`.",
       "fields": [
@@ -20437,7 +20482,7 @@
       ]
     },
     "Track": {
-      "doc": "A value the user sets by dragging (node key `track`): Flutter's `Slider`, generalised from a straight bar to any line, arc or path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable (unless `write` is off); a double tap goes to `defaultValue` (or through `doubleTapValues`), the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read; it fires `changed`, `dragEnd` and `changeEnd`.\n\nIts settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`. The legacy `drag.track` (and its `drag.track.*` binding paths) read as this.",
+      "doc": "A value the user sets by dragging (node key `track`): Flutter's `Slider` (`value`, `min`, `max`, divisions as `step`, `onChanged` as the `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a straight bar to a line, an arc or any path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable; the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read; it fires `changed` (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and `changeEnd`.\n\nIts settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`. The legacy `drag.track` (and its `drag.track.*` binding paths) reads as this: see `fromJson` for its renamed keys.",
       "fields": [
         {
           "key": "enabled",
@@ -20456,18 +20501,12 @@
           "doc": "The variable the control sets."
         },
         {
-          "key": "shape",
-          "type": "TrackShape",
-          "kind": "enumeration",
-          "default": "line",
-          "nullable": false,
-          "enum": "TrackShape",
-          "values": [
-            "line",
-            "arc",
-            "path"
-          ],
-          "doc": ""
+          "key": "value",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "The value it's drawn at, from a binding; null reads `variable`."
         },
         {
           "key": "min",
@@ -20475,7 +20514,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous)."
         },
         {
           "key": "max",
@@ -20483,7 +20522,7 @@
           "kind": "number",
           "default": 1,
           "nullable": false,
-          "doc": ""
+          "doc": "The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous)."
         },
         {
           "key": "step",
@@ -20491,15 +20530,16 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "min": 0.0,
+          "doc": "The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous)."
         },
         {
-          "key": "defaultValue",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "What a double tap resets to (bindable as `track.defaultValue`)."
+          "key": "clamp",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Off, an arc turns past its ends (a combination dial)."
         },
         {
           "key": "input",
@@ -20517,12 +20557,68 @@
           "doc": ""
         },
         {
+          "key": "allowedInteraction",
+          "type": "TrackInteraction",
+          "kind": "enumeration",
+          "default": "slideThumb",
+          "nullable": false,
+          "enum": "TrackInteraction",
+          "values": [
+            "slideThumb",
+            "tapAndSlide"
+          ],
+          "doc": "The legacy `jumpOnTap: true` reads as `TrackInteraction.tapAndSlide`."
+        },
+        {
+          "key": "hitArea",
+          "type": "TrackHitArea",
+          "kind": "enumeration",
+          "default": "self",
+          "nullable": false,
+          "enum": "TrackHitArea",
+          "values": [
+            "self",
+            "parent"
+          ],
+          "doc": "With `TrackHitArea.parent` the node's parent takes the pointer too."
+        },
+        {
           "key": "pixelsPerRange",
           "type": "double",
           "kind": "number",
           "default": 200,
           "nullable": false,
-          "doc": ""
+          "doc": "Pixels of drag for the whole range (`TrackInput.vertical`, `TrackInput.horizontal`, `TrackInput.both`; the legacy `gain` divides it)."
+        },
+        {
+          "key": "wheelStep",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the step (else 1% of the range); 0: off."
+        },
+        {
+          "key": "keyStep",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "One wheel notch, one arrow key: null `step`, else 1% of the range; 0 turns the wheel (the legacy `wheel: false`) or the keys (`keyboard: false`) off. With the keys on it takes focus: arrows step, Page Up/Down by 10 steps, Home and End to the ends."
+        },
+        {
+          "key": "shape",
+          "type": "TrackShape",
+          "kind": "enumeration",
+          "default": "line",
+          "nullable": false,
+          "enum": "TrackShape",
+          "values": [
+            "line",
+            "arc",
+            "path"
+          ],
+          "doc": "Inferred from `path` when not given."
         },
         {
           "key": "x1",
@@ -20557,20 +20653,41 @@
           "doc": "A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's)."
         },
         {
+          "key": "relative",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "A line's ends are multiples of the node's size."
+        },
+        {
+          "key": "units",
+          "type": "TrackUnits",
+          "kind": "enumeration",
+          "default": "pixels",
+          "nullable": false,
+          "enum": "TrackUnits",
+          "values": [
+            "pixels",
+            "parent"
+          ],
+          "doc": ""
+        },
+        {
           "key": "startAngle",
           "type": "double",
           "kind": "number",
           "default": -135,
           "nullable": false,
-          "doc": "Degrees about the pivot."
+          "doc": "Degrees: the arc's start, and its turn to the end."
         },
         {
-          "key": "endAngle",
+          "key": "sweepAngle",
           "type": "double",
           "kind": "number",
-          "default": 135,
+          "default": 270,
           "nullable": false,
-          "doc": "An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center)."
+          "doc": "An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place."
         },
         {
           "key": "pivotX",
@@ -20578,7 +20695,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center)."
+          "doc": "An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place."
         },
         {
           "key": "pivotY",
@@ -20586,7 +20703,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center)."
+          "doc": "An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place."
         },
         {
           "key": "rotate",
@@ -20594,55 +20711,16 @@
           "kind": "boolean",
           "default": true,
           "nullable": false,
-          "doc": "Turns the node with the arc."
+          "doc": ""
         },
         {
           "key": "path",
-          "type": "String",
-          "kind": "string",
+          "type": "PathFollow",
+          "kind": "object",
           "default": null,
           "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "orientToPath",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "jumpOnTap",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Pressing anywhere along the track (or the `hitArea`) moves the node there, then the drag goes on (only for `TrackInput.follow`)."
-        },
-        {
-          "key": "wheel",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Whether the mouse wheel steps the value."
-        },
-        {
-          "key": "value",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "The value it's drawn at, from a binding; null reads `variable`."
-        },
-        {
-          "key": "orientUpright",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "With `orientToPath`, never upside down (as `Motion.orientUpright`)."
+          "object": "PathFollow",
+          "doc": "A path's SVG data, view box and orientation."
         },
         {
           "key": "detent",
@@ -20663,6 +20741,15 @@
           "min": 0.0,
           "max": 1.0,
           "doc": "How far past an end it stretches (0–1)."
+        },
+        {
+          "key": "physics",
+          "type": "GesturePhysics",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "GesturePhysics",
+          "doc": "A fling's coast (fling, friction); null stops where let go."
         },
         {
           "key": "settle",
@@ -20692,54 +20779,30 @@
           "doc": "The spring of a `spring` `settleCurve` (JSON `settleSpring`; the legacy `settleStiffness`/`settleDamping` read as it)."
         },
         {
-          "key": "parkedProgress",
+          "key": "snap",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "Animates the node to each new value over `snap` ms along `snapCurve` (a knob clicking from detent to detent); 0 jumps."
+        },
+        {
+          "key": "snapCurve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": "easeOutBack",
+          "nullable": false,
+          "enum": "AnimationCurve",
+          "doc": ""
+        },
+        {
+          "key": "defaultValue",
           "type": "double",
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": "Where it parks while the value is out of range or empty."
-        },
-        {
-          "key": "keyboard",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Takes keyboard focus: arrows step by `keyStep` (else `step`, else 1% of the range), Page Up/Down by 10 steps, Home and End to the ends."
-        },
-        {
-          "key": "viewBoxWidth",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "With both above 0, `path` is drawn in the box of the frame the node sits in, in these units, stretched to the frame's size."
-        },
-        {
-          "key": "viewBoxHeight",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "With both above 0, `path` is drawn in the box of the frame the node sits in, in these units, stretched to the frame's size."
-        },
-        {
-          "key": "relative",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "A line's ends are multiples of the node's size."
-        },
-        {
-          "key": "wheelStep",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "One wheel notch, one arrow key (null: `step`, else 1% of the range)."
+          "doc": "Deprecated: what a double tap resets to, or moves between."
         },
         {
           "key": "doubleTapValues",
@@ -20749,41 +20812,15 @@
           "nullable": false,
           "item": "double",
           "itemKind": "number",
-          "doc": "Values a double tap moves between, in order (empty: `defaultValue`)."
+          "doc": ""
         },
         {
-          "key": "keyStep",
+          "key": "parkedProgress",
           "type": "double",
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": "One wheel notch, one arrow key (null: `step`, else 1% of the range)."
-        },
-        {
-          "key": "hitArea",
-          "type": "TrackHitArea",
-          "kind": "enumeration",
-          "default": "self",
-          "nullable": false,
-          "enum": "TrackHitArea",
-          "values": [
-            "self",
-            "parent"
-          ],
-          "doc": ""
-        },
-        {
-          "key": "units",
-          "type": "TrackUnits",
-          "kind": "enumeration",
-          "default": "pixels",
-          "nullable": false,
-          "enum": "TrackUnits",
-          "values": [
-            "pixels",
-            "parent"
-          ],
-          "doc": ""
+          "doc": "Deprecated: where it parks while the value is out of range or empty."
         },
         {
           "key": "fineStep",
@@ -20792,7 +20829,7 @@
           "default": 0,
           "nullable": false,
           "min": 0.0,
-          "doc": "A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine."
+          "doc": "Deprecated: fine mode."
         },
         {
           "key": "finePixelsPerRange",
@@ -20801,7 +20838,7 @@
           "default": 0,
           "nullable": false,
           "min": 0.0,
-          "doc": "A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine."
+          "doc": "A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. Deprecated: a boolean variable set by key and hold reactions, bound to `track.step` and `track.pixelsPerRange`."
         },
         {
           "key": "fineHold",
@@ -20821,62 +20858,12 @@
           "doc": ""
         },
         {
-          "key": "snap",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": "Animates the node to each new value over `snap` ms along `snapCurve` (a knob clicking from detent to detent); 0 jumps."
-        },
-        {
-          "key": "snapCurve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": "easeOutBack",
-          "nullable": false,
-          "enum": "AnimationCurve",
-          "doc": ""
-        },
-        {
-          "key": "write",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Whether dragging writes `variable`; off, it only shows it and its reactions set what changes from `${result.value}`."
-        },
-        {
-          "key": "endless",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "An arc that keeps turning past its ends, the value unbounded (a combination dial)."
-        },
-        {
-          "key": "momentum",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Let go while moving, it coasts, slowing by `friction` per second, then settles on a `step`."
-        },
-        {
-          "key": "friction",
-          "type": "double",
-          "kind": "number",
-          "default": 2.6,
-          "nullable": false,
-          "doc": ""
-        },
-        {
           "key": "smooth",
           "type": "bool",
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "Draws the node between `step`s while dragged or coasting, springing onto the nearest when it rests (the variable only holds steps)."
+          "doc": "Deprecated: drawn between steps while moving."
         },
         {
           "key": "gain",
@@ -20884,7 +20871,7 @@
           "kind": "number",
           "default": 1,
           "nullable": false,
-          "doc": "How far the node moves per pointer movement (0.5 fine, 2 coarse)."
+          "doc": "Deprecated: the turn per degree round an arc followed by angle."
         }
       ]
     },
@@ -23293,6 +23280,20 @@
         "doc": "Quadratic Béziers: after the first point the points come in pairs, a control point and an end point (a hand-drawn outline exactly as a painter's `quadraticBezierTo` draws it, not sampled into lines). A last point without its pair is a straight line to it."
       }
     ],
+    "PathOrient": [
+      {
+        "value": "none",
+        "doc": "It doesn't."
+      },
+      {
+        "value": "tangent",
+        "doc": "With the path's direction."
+      },
+      {
+        "value": "upright",
+        "doc": "With the path's direction, folded into −90…90 degrees so it is never upside down."
+      }
+    ],
     "PathUnit": [
       {
         "value": "fraction",
@@ -24276,53 +24277,63 @@
     "TrackHitArea": [
       {
         "value": "self",
-        "doc": "Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent (a knob turned from anywhere in its box)."
+        "doc": "Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent too (a knob turned from anywhere in its box)."
       },
       {
         "value": "parent",
-        "doc": "Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent (a knob turned from anywhere in its box)."
+        "doc": "Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent too (a knob turned from anywhere in its box)."
       }
     ],
     "TrackInput": [
       {
         "value": "follow",
-        "doc": "How the pointer moves along a `Track`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
+        "doc": "How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
       },
       {
         "value": "vertical",
-        "doc": "How the pointer moves along a `Track`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
+        "doc": "How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
       },
       {
         "value": "horizontal",
-        "doc": "How the pointer moves along a `Track`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
+        "doc": "How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
       },
       {
         "value": "both",
-        "doc": "How the pointer moves along a `Track`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
+        "doc": "How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy)."
+      }
+    ],
+    "TrackInteraction": [
+      {
+        "value": "slideThumb",
+        "doc": "How the pointer may move a `Track`'s value (Flutter's `SliderInteraction`, the two it has of four): only by dragging the thumb (`slideThumb`), or also by pressing the track, which moves the thumb there before the drag goes on (`tapAndSlide`; `TrackInput.follow` only)."
+      },
+      {
+        "value": "tapAndSlide",
+        "doc": "How the pointer may move a `Track`'s value (Flutter's `SliderInteraction`, the two it has of four): only by dragging the thumb (`slideThumb`), or also by pressing the track, which moves the thumb there before the drag goes on (`tapAndSlide`; `TrackInput.follow` only)."
       }
     ],
     "TrackShape": [
       {
         "value": "line",
-        "doc": "The shape of a `Track`."
+        "doc": "The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`)."
       },
       {
         "value": "arc",
-        "doc": "The shape of a `Track`."
+        "doc": "The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`)."
       },
       {
         "value": "path",
-        "doc": "The shape of a `Track`."
+        "doc": "The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`)."
       }
     ],
     "TrackUnits": [
       {
         "value": "pixels",
-        "doc": "What a `Track`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height)."
+        "doc": "What a `Track`'s line and pivot are measured in: pixels, or fractions of the parent's size (x values of its width, y of its height)."
       },
       {
         "value": "parent",
-        "doc": "What a `Track`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height)."
+        "doc": "What a `Track`'s line and pivot are measured in: pixels, or fractions of the parent's size (x values of its width, y of its height)."
       }
     ],
     "TransformCommand": [

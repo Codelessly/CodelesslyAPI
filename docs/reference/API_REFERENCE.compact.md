@@ -3982,6 +3982,14 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `glyph`: String = `""`
 - `image`: String = `""`
 
+<a id="type-PathFollow"></a>
+### PathFollow
+
+- `path`: String = `""`
+- `viewBox`: List<double> = `[]`
+- `progress`: double = `0`
+- `orient`: [PathOrient](#enum-PathOrient) = `"none"` (`none`, `tangent`, `upright`)
+
 <a id="type-PlotChartLabel"></a>
 ### PlotChartLabel
 
@@ -4200,53 +4208,45 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 
 - `enabled`: bool = `true`
 - `variable`: String = `""`
-- `shape`: [TrackShape](#enum-TrackShape) = `"line"` (`line`, `arc`, `path`)
+- `value`: double = unset
 - `min`: double = `0`
 - `max`: double = `1`
-- `step`: double = `0`
-- `defaultValue`: double = unset
+- `step`: double = `0` (≥ 0)
+- `clamp`: bool = `true`
 - `input`: [TrackInput](#enum-TrackInput) = `"follow"` (`follow`, `vertical`, `horizontal`, `both`)
+- `allowedInteraction`: [TrackInteraction](#enum-TrackInteraction) = `"slideThumb"` (`slideThumb`, `tapAndSlide`)
+- `hitArea`: [TrackHitArea](#enum-TrackHitArea) = `"self"` (`self`, `parent`)
 - `pixelsPerRange`: double = `200`
+- `wheelStep`: double = unset
+- `keyStep`: double = unset
+- `shape`: [TrackShape](#enum-TrackShape) = `"line"` (`line`, `arc`, `path`)
 - `x1`: double = `0`
 - `y1`: double = `0`
 - `x2`: double = `0`
 - `y2`: double = `-100`
+- `relative`: bool = `false`
+- `units`: [TrackUnits](#enum-TrackUnits) = `"pixels"` (`pixels`, `parent`)
 - `startAngle`: double = `-135`
-- `endAngle`: double = `135`
+- `sweepAngle`: double = `270`
 - `pivotX`: double = `0`
 - `pivotY`: double = `0`
 - `rotate`: bool = `true`
-- `path`: String = unset
-- `orientToPath`: bool = `false`
-- `jumpOnTap`: bool = `false`
-- `wheel`: bool = `true`
-- `value`: double = unset
-- `orientUpright`: bool = `false`
+- `path`: [PathFollow](#type-PathFollow) = unset
 - `detent`: double = `0` (≥ 0, ≤ 1)
 - `overscroll`: double = `0` (≥ 0, ≤ 1)
+- `physics`: [GesturePhysics](#type-GesturePhysics) = unset
 - `settle`: int = `0` (≥ 0)
 - `settleCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutCubic"`
 - `settleSpring`: [Spring](#type-Spring) = `{}`
-- `parkedProgress`: double = unset
-- `keyboard`: bool = `true`
-- `viewBoxWidth`: double = `0` (≥ 0)
-- `viewBoxHeight`: double = `0` (≥ 0)
-- `relative`: bool = `false`
-- `wheelStep`: double = unset
+- `snap`: int = `0` (≥ 0)
+- `snapCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutBack"`
+- `defaultValue`: double = unset
 - `doubleTapValues`: List<double> = `[]`
-- `keyStep`: double = unset
-- `hitArea`: [TrackHitArea](#enum-TrackHitArea) = `"self"` (`self`, `parent`)
-- `units`: [TrackUnits](#enum-TrackUnits) = `"pixels"` (`pixels`, `parent`)
+- `parkedProgress`: double = unset
 - `fineStep`: double = `0` (≥ 0)
 - `finePixelsPerRange`: double = `0` (≥ 0)
 - `fineHold`: int = `380` (≥ 0)
 - `fineVariable`: String = `""`
-- `snap`: int = `0` (≥ 0)
-- `snapCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutBack"`
-- `write`: bool = `true`
-- `endless`: bool = `false`
-- `momentum`: bool = `false`
-- `friction`: double = `2.6`
 - `smooth`: bool = `false`
 - `gain`: double = `1`
 
@@ -4800,6 +4800,11 @@ Written as the value's name, a JSON string (`"center"`).
 
 `straight`, `vertical`, `horizontal`, `quadratic`
 
+<a id="enum-PathOrient"></a>
+### PathOrient
+
+`none`, `tangent`, `upright`
+
 <a id="enum-PathUnit"></a>
 ### PathUnit
 
@@ -5069,6 +5074,11 @@ Written as the value's name, a JSON string (`"center"`).
 ### TrackInput
 
 `follow`, `vertical`, `horizontal`, `both`
+
+<a id="enum-TrackInteraction"></a>
+### TrackInteraction
+
+`slideThumb`, `tapAndSlide`
 
 <a id="enum-TrackShape"></a>
 ### TrackShape
