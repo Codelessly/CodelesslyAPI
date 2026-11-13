@@ -89,7 +89,7 @@ List<Diagnostic> validateProject(Map<String, Object?> documents, {ValidateOption
       final before = owner[id];
       if (before != null) {
         out.add(Diagnostic(Codes.duplicateId, pointer('/nodes', id),
-            'Node id "$id" is also used in $before: ids must be unique across the project.', nodeId: id, file: e.key));
+            'Node id "$id" is also used in $before: keep ids unique across a site so reports and steps name one node.', nodeId: id, file: e.key));
       }
       owner[id] = e.key;
       if (readMap(nodes[id])?['type'] == 'canvas') screens.add(id);

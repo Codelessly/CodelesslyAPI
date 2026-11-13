@@ -3,8 +3,8 @@
 # Decoration
 
 A node's `"decoration"` object: what its box paints. Types without a box decoration (see
-[node types](nodes.md)) keep only blur effects. Fills paint bottom to top, then the node's content, then
-`foregroundFills`, then strokes.
+[node types](nodes.md)) keep only blur effects. Fills paint bottom to top under the node's content;
+`foregroundFills` paint over it.
 
 ## Fields
 
