@@ -116,6 +116,11 @@ name per kind of text (display, title, body, label, eyebrow...).
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 - The theme belongs to the app: use the names it gives you; without one, write each colour and style in full.
 
+Controls (buttons, chips, fields, switches, pickers, tabs) take the colours and fonts their props leave unset
+from the theme's roles (`primary`, `onPrimary`, `surface`, `onSurface`, `error`, `fontFamily`, `buttonRadius`...).
+Without a theme they are neutral: ink on paper and the greys between. Nothing comes from Material's defaults or
+from the app the layout is shown in.
+
 Dark mode, a theme that changes with the screen size, every theme key: theme (ui_docs "theme").
 
 ## Nodes, ids, children and slots

@@ -22,6 +22,12 @@ experiments).
 | a paint's `gradientPerSubpath` | one `customPaint` `path` op per shape, the gradient as its paint's `shader` |
 | binding, transition, track, `setValue` and condition paths `scale`, `layout.rotation`, `flightKey`, `flight.*`, `hero.flight` (a look), `strokePath.*`, `props.path`, `props.subpathColors` | `motion.scale`, `motion.rotate`, `hero.tag`, `hero.flight.*`, `hero.flightShuttle`, the custom paint op's fields, `props.data` |
 
+- **Docs: controls take the theme, never Material's defaults.** The reference's base and its theme page say what
+  controls take from the theme's roles (`primary` fills filled buttons and draws checks, thumbs and text-button
+  labels where it reads on `surface`; `fontFamily` every control label; `buttonRadius` every button and chip), that
+  without a theme they are neutral (ink on paper and the greys between), and that nothing comes from Material's
+  defaults or from the host app's theme. No API change: the roles already cover it (outlines and tints are derived
+  from `onSurface` over `surface`, so no `outline` role is added).
 - **Breaking, Dart: fields removed.** `Behaviors.scale`, `Layout.rotation`, `BehaviorFields.scale`,
   `LayoutFields.rotation`, `BindPaths.scale`, `BindPaths.rotation`; `Behaviors.flightKey`, `Behaviors.flight`,
   `BehaviorFields.flightKey`, `BehaviorFields.flight` (`HeroTag` gains `flies`, `HeroFlies` and `flight`; its look

@@ -121,6 +121,11 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"`.
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 
+Controls (buttons, chips, fields, switches, pickers, tabs) take the colours and fonts their props leave unset
+from the theme's roles (`primary`, `onPrimary`, `surface`, `onSurface`, `error`, `fontFamily`, `buttonRadius`...).
+Without a theme they are neutral: ink on paper and the greys between. Nothing comes from Material's defaults or
+from the app the layout is shown in.
+
 Dark mode, a theme that changes with the screen size, every theme key: [theme](#page-theme).
 
 <a id="base-nodes-ids-children-and-slots"></a>
@@ -732,9 +737,9 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4252 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4306 |
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 6920 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1979 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2092 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3541 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10159 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
@@ -1998,6 +2003,16 @@ A styled range of a text's characters, `[start, end)`.
 - Changing a colour or style in the theme changes every node that names it, and only those.
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`; inside
   a formula, `${= done ? theme.colors.sage : theme.colors.mist}`.
+
+<a id="theme-what-controls-take-from-the-theme"></a>
+### What controls take from the theme
+
+A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons
+(labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface`
+(else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius`
+shapes every kind of button and chip, `radius` dialogs, menus and pickers. Without a theme, controls are neutral:
+ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font of
+their own. Nothing comes from Material's defaults (no purple, ripples or elevation) or from the host app's theme.
 
 <a id="theme-a-type-scale-that-changes-with-the-screen-size"></a>
 ### A type scale that changes with the screen size
