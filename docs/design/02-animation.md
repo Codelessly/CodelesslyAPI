@@ -518,3 +518,14 @@ Kept readable and working exactly as before; each still has its own code in the 
 - **A legacy spin turns in the player's layer** (about the motion's old origin), like the `spin` preset: inside
   the flip, tilt, `scale` and `layout.rotation` layers rather than inside the motion's matrix, so a spinning node
   that also turns in 3D (`rotateX/Y`, a flip) composes the spin last. No reference build source combines them.
+
+## Done in schema 3
+
+Schema 3 (codelessly_api 30.0.0) moved every legacy reader of this document into the one-time migration
+(`migrate2to3`, lib/src/core/migrate): `loops`, `effectAnimations`, motion's temporal keys and `pulseKey`
+(step `motion.legacy`), `playAnimation`, `animateVariable`, `setVariable.animateMs` (a glide that is not a
+set, add or subtract by one formula now sets at once, reported), `clock` (`trigger.clock`), the flat and
+legacy springs (`physics.flatSpring`, `draggable.legacy`, `track.legacy`), and the bound legacy paths in a
+node's `bind` (`loops[i].*`, `effectAnimations[i].*`, `motion.*`). The model decodes only the schema-3 shape.
+Still as above: `strokePath.draw*`, `typewriter`, `countUp` and `flip` keep their own clocks; legacy paths set
+at run time (`setValue` with `loops[0].phase`) are not rewritten (only stored documents are migrated).
