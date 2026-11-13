@@ -1,0 +1,17 @@
+{
+  "schema": 2,
+  "roots": ["home"],
+  "nodes": {
+    "home": {"type": "canvas", "name": "Home", "slots": {"body": "page"},
+             "layout": {"width": 390, "height": 844},
+             "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "page": {"type": "column", "children": ["title", "body"],
+             "layout": {"width": {"fill": 390}, "height": {"fill": 844}, "padding": 24},
+             "props": {"crossAxisAlignment": "start", "spacing": 12}},
+    "title": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 34}},
+              "props": {"text": "Hello", "style": {"fontSize": 28, "fontWeight": 700, "color": "#FF111827"}}},
+    "body": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 40}},
+             "props": {"text": "A column with two texts, filling the screen's width.",
+                       "style": {"fontSize": 15, "height": 1.4, "color": "#FF4B5563"}}}
+  }
+}

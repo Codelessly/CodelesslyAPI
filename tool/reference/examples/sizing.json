@@ -1,0 +1,23 @@
+{
+  "schema": 2,
+  "roots": ["sizing"],
+  "nodes": {
+    "sizing": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 400, "height": 400},
+               "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["hugText", "fillBox", "bar"],
+            "layout": {"width": {"fill": 400}, "height": {"fill": 400}, "padding": 10},
+            "props": {"crossAxisAlignment": "start", "spacing": 8}},
+    "hugText": {"type": "text", "layout": {"width": {"hug": 80}, "height": {"hug": 20}},
+                "props": {"text": "As wide as its text", "style": {"fontSize": 16, "color": "#FF000000"}}},
+    "fillBox": {"type": "box", "layout": {"width": {"fill": 380}, "height": 24},
+                "decoration": {"fills": [{"color": "#FFEF4444"}]}},
+    "bar": {"type": "row", "children": ["one", "two", "fixed"],
+            "layout": {"width": {"fill": 380}, "height": 40}, "props": {"spacing": 10}},
+    "one": {"type": "box", "layout": {"width": {"fill": 100}, "height": {"fill": 40}},
+            "decoration": {"fills": [{"color": "#FF22C55E"}]}},
+    "two": {"type": "box", "layout": {"width": {"fill": 200}, "height": {"fill": 40}, "flex": 2},
+            "decoration": {"fills": [{"color": "#FF3B82F6"}]}},
+    "fixed": {"type": "box", "layout": {"width": 60, "height": 20},
+              "decoration": {"fills": [{"color": "#FF9CA3AF"}]}}
+  }
+}

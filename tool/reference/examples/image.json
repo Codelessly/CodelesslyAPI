@@ -1,0 +1,20 @@
+{
+  "schema": 2,
+  "roots": ["gallery"],
+  "nodes": {
+    "gallery": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 360},
+                "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["photo", "caption"],
+            "layout": {"width": {"fill": 390}, "height": {"fill": 360}, "padding": 24},
+            "props": {"spacing": 12, "crossAxisAlignment": "start"}},
+    "photo": {"type": "box", "layout": {"width": {"fill": 342}, "height": 200},
+              "decoration": {"fills": [{"type": "image", "image": {"url": "assets/photo.png", "fit": "cover"}}],
+                             "radius": 12, "clip": "antiAlias"}},
+    "caption": {"type": "row", "children": ["check", "captionText"],
+                "layout": {"width": {"hug": 200}, "height": {"hug": 24}}, "props": {"spacing": 6}},
+    "check": {"type": "icon", "layout": {"width": 20, "height": 20},
+              "props": {"icon": "check_circle", "color": "#FF16A34A"}},
+    "captionText": {"type": "text", "layout": {"width": {"hug": 100}, "height": {"hug": 20}},
+                    "props": {"text": "An image fill and a Material icon", "style": {"fontSize": 14, "color": "#FF374151"}}}
+  }
+}

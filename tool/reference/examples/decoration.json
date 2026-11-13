@@ -1,0 +1,19 @@
+{
+  "schema": 2,
+  "roots": ["deco"],
+  "nodes": {
+    "deco": {"type": "canvas", "slots": {"body": "row"}, "layout": {"width": 520, "height": 200},
+             "decoration": {"fills": [{"color": "#FFF9FAFB"}]}},
+    "row": {"type": "row", "children": ["card", "gradient", "outlined"],
+            "layout": {"width": {"fill": 520}, "height": {"fill": 200}, "padding": 24},
+            "props": {"spacing": 24, "mainAxisAlignment": "center"}},
+    "card": {"type": "box", "layout": {"width": 140, "height": 120},
+             "decoration": {"fills": [{"color": "#FFFFFFFF"}], "radius": 12,
+                            "effects": [{"type": "dropShadow", "color": "#33000000", "offset": [0, 4], "blurRadius": 16}]}},
+    "gradient": {"type": "box", "layout": {"width": 140, "height": 120},
+                 "decoration": {"fills": [{"type": "radial", "stops": [{"position": 0, "color": "#FFFDE68A"}, {"position": 1, "color": "#FFF97316"}]}],
+                                "radius": [24, 4, 24, 4]}},
+    "outlined": {"type": "box", "layout": {"width": 140, "height": 120},
+                 "decoration": {"strokes": [{"color": "#FF2563EB"}], "strokeWidth": 2, "dashPattern": [6, 4], "radius": 12}}
+  }
+}

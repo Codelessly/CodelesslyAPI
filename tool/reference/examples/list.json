@@ -1,0 +1,36 @@
+{
+  "schema": 2,
+  "roots": ["faq"],
+  "nodes": {
+    "faq": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 600},
+            "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["heading", "items"],
+            "layout": {"width": {"fill": 390}, "height": {"fill": 600}, "padding": 24},
+            "props": {"spacing": 12, "crossAxisAlignment": "start", "scrollable": true}},
+    "heading": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 30}},
+                "props": {"text": "Questions", "style": {"fontSize": 24, "fontWeight": 700, "color": "#FF111827"}}},
+    "items": {"type": "listView", "children": ["item"],
+              "layout": {"width": {"fill": 342}, "height": {"hug": 300}},
+              "props": {"scrollable": false, "spacing": 8},
+              "bind": {"data": "${questions}"}},
+    "item": {"type": "column", "children": ["q", "a"],
+             "layout": {"width": {"fill": 342}, "height": {"hug": 60}, "padding": 12},
+             "props": {"crossAxisAlignment": "start", "spacing": 4},
+             "decoration": {"fills": [{"color": "#FFF3F4F6"}], "radius": 8},
+             "actions": [{"trigger": {"type": "click"},
+                          "actions": [{"type": "setVariable", "variable": "open", "value": "${= open == index ? -1 : index}"}]}]},
+    "q": {"type": "text", "layout": {"width": {"fill": 318}, "height": {"hug": 20}},
+          "props": {"text": "${item.q}", "style": {"fontSize": 16, "fontWeight": 600, "color": "#FF111827"}}},
+    "a": {"type": "text", "layout": {"width": {"fill": 318}, "height": {"hug": 20}},
+          "props": {"text": "${item.a}", "style": {"fontSize": 14, "height": 1.4, "color": "#FF4B5563"}},
+          "bind": {"visible": "${= open == index}"}}
+  },
+  "variables": {"faq": [
+    {"name": "open", "type": "integer", "value": -1},
+    {"name": "questions", "type": "list", "value": [
+      {"q": "Can I cancel any time?", "a": "Yes. Your plan stays active until the end of the period."},
+      {"q": "Do you offer refunds?", "a": "Within 14 days of purchase, no questions asked."},
+      {"q": "Is there a free trial?", "a": "Every plan starts with 30 days free."}
+    ]}
+  ]}
+}
