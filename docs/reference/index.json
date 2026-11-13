@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5577
+      "words": 5588
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5684
+      "words": 5695
     }
   },
   "topics": [
@@ -817,7 +817,7 @@
       "anchor": "page-components",
       "title": "Components and sections",
       "summary": "Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section.",
-      "words": 2288
+      "words": 2383
     },
     {
       "topic": "components-parameter-kinds",
@@ -876,6 +876,14 @@
       "words": 58
     },
     {
+      "topic": "components-computed-values-inside-a-definition",
+      "file": "components.md",
+      "anchor": "components-computed-values-inside-a-definition",
+      "title": "Computed values inside a definition",
+      "summary": "A definition's own variables may be computed from its parameters: `{\"name\": \"over\", \"type\": \"boolean\", \"formula\": \"props.seats > props.limit\"}` under the root's id in its `variables`, then `${over}` in any of its nodes.",
+      "words": 40
+    },
+    {
       "topic": "components-shared-state-variable-parameters",
       "file": "components.md",
       "anchor": "components-shared-state-variable-parameters",
@@ -905,7 +913,7 @@
       "anchor": "components-size-and-place",
       "title": "Size and place",
       "summary": "The call and the definition's root are one box: the call's `layout` sizes and places it (width, height, flex, margin, x/y, align, constraints); the root keeps its padding, decoration and contents.",
-      "words": 66
+      "words": 113
     },
     {
       "topic": "components-ids-and-paths",

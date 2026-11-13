@@ -358,7 +358,8 @@ The props that matter most; each type's page lists all of them.
   others). A text field's label, hint, border and fill are in `props.decoration` (an
   InputDecoration (ui_docs "type-InputDecoration")). Styling every control, validation: forms (ui_docs "forms").
 - **Lists**: a `listView` or `gridView` repeats its **first child** once per item of its `data` binding:
-  `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. In a page that scrolls, give the list
+  `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. An item fills the list across (its
+  cross-axis size is `fill`). In a page that scrolls, give the list
   `"scrollable": false` (a gridView: `"physics": "never"`). A grid of as many equal columns as fit:
   `minCrossAxisExtent` (CSS `repeat(auto-fit, minmax(280px, 1fr))`); equal-height cards: `"shrinkWrapRows": true`.
   Nested lists, tables, pagination: lists (ui_docs "lists").

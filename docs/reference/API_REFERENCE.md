@@ -372,7 +372,8 @@ The props that matter most; each type's page lists all of them.
   others). A text field's label, hint, border and fill are in `props.decoration` (an
   [InputDecoration](#type-InputDecoration)). Styling every control, validation: [forms](#page-forms).
 - **Lists**: a `listView` or `gridView` repeats its **first child** once per item of its `data` binding:
-  `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. In a page that scrolls, give the list
+  `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. An item fills the list across (its
+  cross-axis size is `fill`). In a page that scrolls, give the list
   `"scrollable": false` (a gridView: `"physics": "never"`). A grid of as many equal columns as fit:
   `minCrossAxisExtent` (CSS `repeat(auto-fit, minmax(280px, 1fr))`); equal-height cards: `"shrinkWrapRows": true`.
   Nested lists, tables, pagination: [lists](#page-lists).
@@ -730,7 +731,7 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4241 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4252 |
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7021 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1958 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3939 |
@@ -740,7 +741,7 @@ section's anchor is its topic.
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6372 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5120 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4536 |
-| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2288 |
+| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2383 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6522 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2181 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 468 |
@@ -6705,6 +6706,13 @@ hovered apart), the project's variables (`site.json`, below) and the runtime's s
 `theme`, `auth`...); inside its own lists, `item` and `index`. **Never the caller's variables**: the same chip works
 on any page. What a section needs from its page comes in as a parameter.
 
+<a id="components-computed-values-inside-a-definition"></a>
+### Computed values inside a definition
+
+A definition's own variables may be computed from its parameters: `{"name": "over", "type": "boolean", "formula":
+"props.seats > props.limit"}` under the root's id in its `variables`, then `${over}` in any of its nodes. One rule,
+read by five nodes, written once.
+
 <a id="components-shared-state-variable-parameters"></a>
 ### Shared state: variable parameters
 
@@ -6734,7 +6742,10 @@ the caller's scope with the value as `${result}`. An event nobody handles does n
 The call and the definition's root are one box: the call's `layout` sizes and places it
 (width, height, flex, margin, x/y, align, constraints); the root keeps its padding, decoration and contents. A call
 has no `decoration` and no `layout.padding`. The root's own size is the design size its previews and new calls
-use. `visible` hides the instance when either the call or the root is hidden.
+use. `visible` hides the instance when either the call or the root is hidden. The root's own placement (its
+`margin`, `flex`, `align`, `x`/`y`, bound or patched) is not read: place the instance from the call (a margin that
+depends on a parameter is bound on the call, `"bind": {"layout.margin": "${= item.popular ? [0, 0, 0, 0] : [0, 28,
+0, 0]}"}`).
 
 <a id="components-ids-and-paths"></a>
 ### Ids and paths
