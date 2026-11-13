@@ -61,7 +61,8 @@ the device's mode. `${theme.isDark}` is true in dark mode.
 
 A `text` node has `props.text` and `props.style`. What a text looks like when the style leaves something out: no
 `color`, white; no `fontSize`, 12; no `fontWeight`, 400; no `fontFamily`, the platform's default (Roboto on Android
-and the web). Sizing: one line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide × `{"hug": n}` high. A
+and the web); no `height`, the nearest `defaultTextStyle`'s (a node key, Flutter's `DefaultTextStyle`, for its
+whole subtree), else the font's own line height. Sizing: one line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide × `{"hug": n}` high. A
 fixed height shorter than the lines clips them (`text_clipped`).
 
 `runs` style parts of the text: `[{"start": 0, "end": 5, "style": {"fontWeight": 700}}]` (character offsets, end
@@ -87,7 +88,6 @@ name. The render command uses font files from `--fonts <dir>` plus Roboto, and r
   `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
   "theme": {...}}`.
 - A theme colour's name is not read from a formula: bind `${theme.colors.ember}`.
-- A `text` has no padding (its box is its lines): use `margin`, or a row with padding around it.
 - Run offsets count characters, `\n` as one.
 
 ## See also

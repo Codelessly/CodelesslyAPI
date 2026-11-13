@@ -187,7 +187,7 @@ only in a row or column that has some (a fill or fixed main size).
 ### Padding, margin, constraints, a capped width
 
 - `padding` is space inside the node's box, `margin` outside it: a number (all sides) or **four** numbers
-  `[left, top, right, bottom]` (two numbers are not read). A `text` has no padding: use `margin` or a row around it.
+  `[left, top, right, bottom]` (two numbers are not read).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`. `aspectRatio`: width / height.
 - **A full-width band with capped, centered content** (CSS `max-width: 1200px; margin: 0 auto`): the band fills
   the width and holds the background; its one child fills with `"constraints": {"maxWidth": 1200}`, centered by the
@@ -231,7 +231,8 @@ A `text` node has `props.text` and `props.style`: a theme style's name (`"style"
 `decoration`, `fontStyle`), plus `textAlign`, `maxLines` and `overflow` (`ellipsis`).
 
 - **No `color`: the text is painted white.** Always set it (in the style or the named style).
-- No `fontSize`: 12. No `fontWeight`: 400. No `fontFamily`: the platform's default (Roboto).
+- No `fontSize`: 12. No `fontWeight`: 400. No `fontFamily`: the platform's default (Roboto). No `height`: the
+  nearest `defaultTextStyle`'s, else the font's own line height ([text](@theme-text)).
 - Size: one line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide (it wraps) × `{"hug": n}` high.
 - `text` may hold expressions: `"Hello, ${user.name}"`; `"$${price}"` shows `$47`.
 - Symbols the font has no glyph for (✦, ✓, →) draw as empty boxes (`missing_glyph`): use an `icon` node.
