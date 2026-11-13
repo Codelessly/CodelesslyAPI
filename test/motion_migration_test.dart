@@ -385,4 +385,27 @@ void main() {
       expect(NodeAnimation.fromJson(a.toJson()), a);
     });
   });
+
+  group('setVariable.animateMs', () {
+    test('a glide is animate animateTo on the variable', () {
+      ActionDef read(Json j) => ActionDef.fromJson({'type': 'setVariable', ...j})!;
+      expect(read({'variable': 'total', 'value': r'${sum}', 'animateMs': '800', 'curve': 'easeOutCubic'}).toJson(), {
+        'type': 'animate',
+        'variable': 'total',
+        'command': 'animateTo',
+        'target': r'${sum}',
+        'duration': '800',
+        'curve': 'easeOutCubic',
+      });
+      // add and subtract: the value it has when the action runs, moved.
+      expect((read({'variable': 'n', 'op': 'add', 'value': '5', 'animateMs': r'${ms}'}) as AnimateAction).target, r'${= n + (5)}');
+      expect((read({'variable': 'n', 'op': 'subtract', 'value': r'${= d * 2}', 'animateMs': '300'}) as AnimateAction).target,
+          r'${= n - (d * 2)}');
+      // What isn't a glide of a whole variable stays a setVariable.
+      expect(read({'variable': 'rows', 'op': 'insert', 'value': r'${item}', 'animateMs': '300'}), isA<SetVariableAction>());
+      expect(read({'variable': 'draft.title', 'value': '1', 'animateMs': '300'}), isA<SetVariableAction>());
+      expect(read({'variable': 'n', 'value': 'a \${b}', 'animateMs': '300'}), isA<SetVariableAction>());
+      expect(read({'variable': 'n', 'value': '1', 'animateMs': '0'}), isA<SetVariableAction>());
+    });
+  });
 }
