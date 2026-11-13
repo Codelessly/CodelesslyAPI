@@ -849,6 +849,18 @@ Each particle leaves from the origin at `speed` (55–115%) in a direction withi
 | `glyph` | String | `""` |  | The text emoji particles draw. |
 | `image` | String | `""` |  | The image `image` particles draw (a URL). |
 
+<a id="type-PathFollow"></a>
+### PathFollow
+
+A place along an SVG path. Shared by `motion.path` and `track.path`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `path` | String | `""` |  | SVG path data. |
+| `viewBox` | List<double> | `[]` |  | `[width, height]` stretched over the parent; empty: pixels. |
+| `progress` | double | `0` |  | Where along the path's length, 0–1. Values outside wrap on a closed path and clamp on an open one. |
+| `orient` | [PathOrient](values.md#enum-PathOrient) | `"none"` | `none`, `tangent`, `upright` | `none`; `tangent`: turned with the path's direction; `upright`: the same, folded into −90…90 degrees so it is never upside down. |
+
 <a id="type-PlotChartLabel"></a>
 ### PlotChartLabel
 
@@ -1147,63 +1159,55 @@ Tilts the node in 3D toward the pointer while it hovers or drags over it. `max` 
 <a id="type-Track"></a>
 ### Track
 
-A value the user sets by dragging (node key `track`): Flutter's `Slider`, generalised from a straight bar to any line, arc or path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable (unless `write` is off); a double tap goes to `defaultValue` (or through `doubleTapValues`), the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read; it fires `changed`, `dragEnd` and `changeEnd`.
+A value the user sets by dragging (node key `track`): Flutter's `Slider` (`value`, `min`, `max`, divisions as `step`, `onChanged` as the `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a straight bar to a line, an arc or any path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable; the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read; it fires `changed` (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and `changeEnd`.
 
-Its settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`. The legacy `drag.track` (and its `drag.track.*` binding paths) read as this.
+Its settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`. The legacy `drag.track` (and its `drag.track.*` binding paths) reads as this: see `fromJson` for its renamed keys.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `enabled` | bool | `true` |  | Off, it takes no pointer, wheel or keys. |
 | `variable` | String | `""` |  | The variable the control sets. |
-| `shape` | [TrackShape](values.md#enum-TrackShape) | `"line"` | `line`, `arc`, `path` |  |
-| `min` | double | `0` |  |  |
-| `max` | double | `1` |  |  |
-| `step` | double | `0` |  |  |
-| `defaultValue` | double | unset |  | What a double tap resets to (bindable as `track.defaultValue`). |
+| `value` | double | unset |  | The value it's drawn at, from a binding; null reads `variable`. |
+| `min` | double | `0` |  | The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous). |
+| `max` | double | `1` |  | The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous). |
+| `step` | double | `0` | ≥ 0 | The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous). |
+| `clamp` | bool | `true` |  | Off, an arc turns past its ends (a combination dial). |
 | `input` | [TrackInput](values.md#enum-TrackInput) | `"follow"` | `follow`, `vertical`, `horizontal`, `both` |  |
-| `pixelsPerRange` | double | `200` |  |  |
+| `allowedInteraction` | [TrackInteraction](values.md#enum-TrackInteraction) | `"slideThumb"` | `slideThumb`, `tapAndSlide` | The legacy `jumpOnTap: true` reads as `TrackInteraction.tapAndSlide`. |
+| `hitArea` | [TrackHitArea](values.md#enum-TrackHitArea) | `"self"` | `self`, `parent` | With `TrackHitArea.parent` the node's parent takes the pointer too. |
+| `pixelsPerRange` | double | `200` |  | Pixels of drag for the whole range (`TrackInput.vertical`, `TrackInput.horizontal`, `TrackInput.both`; the legacy `gain` divides it). |
+| `wheelStep` | double | unset |  | Null: the step (else 1% of the range); 0: off. |
+| `keyStep` | double | unset |  | One wheel notch, one arrow key: null `step`, else 1% of the range; 0 turns the wheel (the legacy `wheel: false`) or the keys (`keyboard: false`) off. With the keys on it takes focus: arrows step, Page Up/Down by 10 steps, Home and End to the ends. |
+| `shape` | [TrackShape](values.md#enum-TrackShape) | `"line"` | `line`, `arc`, `path` | Inferred from `path` when not given. |
 | `x1` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
 | `y1` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
 | `x2` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
 | `y2` | double | `-100` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
-| `startAngle` | double | `-135` |  | Degrees about the pivot. |
-| `endAngle` | double | `135` |  | An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center). |
-| `pivotX` | double | `0` |  | An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center). |
-| `pivotY` | double | `0` |  | An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center). |
-| `rotate` | bool | `true` |  | Turns the node with the arc. |
-| `path` | String | unset |  |  |
-| `orientToPath` | bool | `false` |  |  |
-| `jumpOnTap` | bool | `false` |  | Pressing anywhere along the track (or the `hitArea`) moves the node there, then the drag goes on (only for `TrackInput.follow`). |
-| `wheel` | bool | `true` |  | Whether the mouse wheel steps the value. |
-| `value` | double | unset |  | The value it's drawn at, from a binding; null reads `variable`. |
-| `orientUpright` | bool | `false` |  | With `orientToPath`, never upside down (as `Motion.orientUpright`). |
+| `relative` | bool | `false` |  | A line's ends are multiples of the node's size. |
+| `units` | [TrackUnits](values.md#enum-TrackUnits) | `"pixels"` | `pixels`, `parent` |  |
+| `startAngle` | double | `-135` |  | Degrees: the arc's start, and its turn to the end. |
+| `sweepAngle` | double | `270` |  | An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place. |
+| `pivotX` | double | `0` |  | An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place. |
+| `pivotY` | double | `0` |  | An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place. |
+| `rotate` | bool | `true` |  |  |
+| `path` | [PathFollow](values.md#type-PathFollow) | unset |  | A path's SVG data, view box and orientation. |
 | `detent` | double | `0` | ≥ 0, ≤ 1 | How magnetic the steps are while dragging (0–1). |
 | `overscroll` | double | `0` | ≥ 0, ≤ 1 | How far past an end it stretches (0–1). |
+| `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | A fling's coast (fling, friction); null stops where let go. |
 | `settle` | int | `0` | ≥ 0 | The glide to its value's place when not following the pointer (ms; 0 jumps), its curve, and the spring of `AnimationCurve.spring` (mass 1), which a release mid-fling starts at the pointer's speed. |
 | `settleCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutCubic"` |  |  |
 | `settleSpring` | [Spring](values.md#type-Spring) | `{}` |  | The spring of a `spring` `settleCurve` (JSON `settleSpring`; the legacy `settleStiffness`/`settleDamping` read as it). |
-| `parkedProgress` | double | unset |  | Where it parks while the value is out of range or empty. |
-| `keyboard` | bool | `true` |  | Takes keyboard focus: arrows step by `keyStep` (else `step`, else 1% of the range), Page Up/Down by 10 steps, Home and End to the ends. |
-| `viewBoxWidth` | double | `0` | ≥ 0 | With both above 0, `path` is drawn in the box of the frame the node sits in, in these units, stretched to the frame's size. |
-| `viewBoxHeight` | double | `0` | ≥ 0 | With both above 0, `path` is drawn in the box of the frame the node sits in, in these units, stretched to the frame's size. |
-| `relative` | bool | `false` |  | A line's ends are multiples of the node's size. |
-| `wheelStep` | double | unset |  | One wheel notch, one arrow key (null: `step`, else 1% of the range). |
-| `doubleTapValues` | List<double> | `[]` |  | Values a double tap moves between, in order (empty: `defaultValue`). |
-| `keyStep` | double | unset |  | One wheel notch, one arrow key (null: `step`, else 1% of the range). |
-| `hitArea` | [TrackHitArea](values.md#enum-TrackHitArea) | `"self"` | `self`, `parent` |  |
-| `units` | [TrackUnits](values.md#enum-TrackUnits) | `"pixels"` | `pixels`, `parent` |  |
-| `fineStep` | double | `0` | ≥ 0 | A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. |
-| `finePixelsPerRange` | double | `0` | ≥ 0 | A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. |
-| `fineHold` | int | `380` | ≥ 0 |  |
-| `fineVariable` | String | `""` |  |  |
 | `snap` | int | `0` | ≥ 0 | Animates the node to each new value over `snap` ms along `snapCurve` (a knob clicking from detent to detent); 0 jumps. |
 | `snapCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutBack"` |  |  |
-| `write` | bool | `true` |  | Whether dragging writes `variable`; off, it only shows it and its reactions set what changes from `${result.value}`. |
-| `endless` | bool | `false` |  | An arc that keeps turning past its ends, the value unbounded (a combination dial). |
-| `momentum` | bool | `false` |  | Let go while moving, it coasts, slowing by `friction` per second, then settles on a `step`. |
-| `friction` | double | `2.6` |  |  |
-| `smooth` | bool | `false` |  | Draws the node between `step`s while dragged or coasting, springing onto the nearest when it rests (the variable only holds steps). |
-| `gain` | double | `1` |  | How far the node moves per pointer movement (0.5 fine, 2 coarse). |
+| `defaultValue` | double | unset |  | Deprecated: what a double tap resets to, or moves between. |
+| `doubleTapValues` | List<double> | `[]` |  |  |
+| `parkedProgress` | double | unset |  | Deprecated: where it parks while the value is out of range or empty. |
+| `fineStep` | double | `0` | ≥ 0 | Deprecated: fine mode. |
+| `finePixelsPerRange` | double | `0` | ≥ 0 | A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. Deprecated: a boolean variable set by key and hold reactions, bound to `track.step` and `track.pixelsPerRange`. |
+| `fineHold` | int | `380` | ≥ 0 |  |
+| `fineVariable` | String | `""` |  |  |
+| `smooth` | bool | `false` |  | Deprecated: drawn between steps while moving. |
+| `gain` | double | `1` |  | Deprecated: the turn per degree round an arc followed by angle. |
 
 <a id="type-TransformGesture"></a>
 ### TransformGesture
@@ -2128,6 +2132,15 @@ Written as the value's name, a JSON string (`"center"`).
 | `horizontal` |  |
 | `quadratic` | Quadratic Béziers: after the first point the points come in pairs, a control point and an end point (a hand-drawn outline exactly as a painter's `quadraticBezierTo` draws it, not sampled into lines). A last point without its pair is a straight line to it. |
 
+<a id="enum-PathOrient"></a>
+### PathOrient
+
+| Value | Meaning |
+|---|---|
+| `none` | It doesn't. |
+| `tangent` | With the path's direction. |
+| `upright` | With the path's direction, folded into −90…90 degrees so it is never upside down. |
+
 <a id="enum-PathUnit"></a>
 ### PathUnit
 
@@ -2554,35 +2567,43 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `self` | Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent (a knob turned from anywhere in its box). |
-| `parent` | Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent (a knob turned from anywhere in its box). |
+| `self` | Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent too (a knob turned from anywhere in its box). |
+| `parent` | Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent too (a knob turned from anywhere in its box). |
 
 <a id="enum-TrackInput"></a>
 ### TrackInput
 
 | Value | Meaning |
 |---|---|
-| `follow` | How the pointer moves along a `Track`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
-| `vertical` | How the pointer moves along a `Track`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
-| `horizontal` | How the pointer moves along a `Track`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
-| `both` | How the pointer moves along a `Track`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
+| `follow` | How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
+| `vertical` | How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
+| `horizontal` | How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
+| `both` | How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
+
+<a id="enum-TrackInteraction"></a>
+### TrackInteraction
+
+| Value | Meaning |
+|---|---|
+| `slideThumb` | How the pointer may move a `Track`'s value (Flutter's `SliderInteraction`, the two it has of four): only by dragging the thumb (`slideThumb`), or also by pressing the track, which moves the thumb there before the drag goes on (`tapAndSlide`; `TrackInput.follow` only). |
+| `tapAndSlide` | How the pointer may move a `Track`'s value (Flutter's `SliderInteraction`, the two it has of four): only by dragging the thumb (`slideThumb`), or also by pressing the track, which moves the thumb there before the drag goes on (`tapAndSlide`; `TrackInput.follow` only). |
 
 <a id="enum-TrackShape"></a>
 ### TrackShape
 
 | Value | Meaning |
 |---|---|
-| `line` | The shape of a `Track`. |
-| `arc` | The shape of a `Track`. |
-| `path` | The shape of a `Track`. |
+| `line` | The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`). |
+| `arc` | The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`). |
+| `path` | The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`). |
 
 <a id="enum-TrackUnits"></a>
 ### TrackUnits
 
 | Value | Meaning |
 |---|---|
-| `pixels` | What a `Track`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
-| `parent` | What a `Track`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
+| `pixels` | What a `Track`'s line and pivot are measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
+| `parent` | What a `Track`'s line and pivot are measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
 
 <a id="enum-TransformCommand"></a>
 ### TransformCommand
