@@ -79,6 +79,7 @@ A reaction (`"actions": [{"trigger": {...}, "actions": [...]}]` on a node) start
 | <a id="trigger-refresh"></a>`refresh` | A list or grid was pulled past its start to refresh (its `pullToRefresh`, or its pagination's); its pagination reloads its first page too. A list with this reaction can always be pulled. |
 | <a id="trigger-swipeAction"></a>`swipeAction` | A swipe action of a list item ran (the list's `swipeActions`): `${result.action}`, `${result.label}`, `${result.item}`, `${result.index}`. |
 | <a id="trigger-rowTap"></a>`rowTap` | A table view's body row was tapped: `${result.row}` (the row's data), `${result.rowIndex}`, `${result.column}` (the tapped column's key), `${result.columnIndex}`. |
+| <a id="trigger-event"></a>`event` | On a component call: the component fired its event `Trigger.event` (a `componentEvent` action inside its definition); `${result}` is the event's payload. Flutter: the callback passed to a widget's `onChanged`-style parameter. The handler runs in the caller's scope. |
 
 ## Trigger fields
 
@@ -97,3 +98,4 @@ A trigger is `{"type": "<type>", ...these}`, or just the type as a string (`"cli
 | `repeat` | bool | `false` |  | keyDown: also while the key repeats. |
 | `visibleMs` | int | `0` | ≥ 0 | Viewport: how long it stays in view before firing (ms). |
 | `onceKey` | String | `""` |  | Runs once per key (an expression, such as ${item.id}) per app session. |
+| `event` | String | `""` |  | event: the key of the component event it handles (one of the component's widget.events). |

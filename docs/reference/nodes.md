@@ -75,6 +75,7 @@ of a stack is placed by `x` and `y`, a child of a row or column by `flex`, `sque
 | [`external`](nodes.md#node-external) |  | none | blurs only |
 | [`placeholder`](nodes.md#node-placeholder) |  | none | blurs only |
 | [`singlePlaceholder`](nodes.md#node-singlePlaceholder) |  | `children` | blurs only |
+| [`slot`](nodes.md#node-slot) |  | `children` | blurs only |
 | [`video`](nodes.md#node-video) |  | none | blurs only |
 | [`embeddedVideo`](nodes.md#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](nodes.md#node-audioPlayer) |  | none | blurs only |
@@ -2001,6 +2002,20 @@ A slot that shows its one child, or keeps its size when empty.
 | `deniedTypes` | List<String> | `[]` |  |  |
 | `maxAllowedSize` | [Size](values.md#type-Size) | unset |  | The largest child it accepts, `[width, height]`. |
 | `ephemeral` | bool | `false` |  | Its child is temporary (not kept when the slot is filled again). |
+
+<a id="node-slot"></a>
+## `slot`
+
+Inside a component: where the call's children (or one named slot) go; its own children show when the call passes none.
+
+Where a definition places what a call passes: the `children` slot (the call's `children`) or a named one (the call's `slots`name``). With nothing passed it shows its own children (the default). Outside a definition it shows its children. Flutter: `child` / `children` / a `Widget title` parameter, placed in `build`.
+
+- Children: `children`.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `name` | String | `"children"` |  | children (the call's children) or a declared slot name. |
 
 <a id="node-video"></a>
 ## `video`

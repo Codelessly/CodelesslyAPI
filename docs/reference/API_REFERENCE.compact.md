@@ -189,6 +189,7 @@ a fill, a radius and padding, not three nested widgets.
 | [`external`](#node-external) |  | none | blurs only |
 | [`placeholder`](#node-placeholder) |  | none | blurs only |
 | [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
+| [`slot`](#node-slot) |  | `children` | blurs only |
 | [`video`](#node-video) |  | none | blurs only |
 | [`embeddedVideo`](#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](#node-audioPlayer) |  | none | blurs only |
@@ -1629,6 +1630,16 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
+| `unknown_component` | error | A call names a component type (UpperCamelCase) that no definition of the project declares: it renders as an empty box of its size. |
+| `duplicate_component` | error | Two definitions declare the same component type, or a component type is also a catalog type: there is no shadowing. |
+| `component_cycle` | error | A component calls itself, directly or through other components: it can never finish rendering. |
+| `component_id_mismatch` | error | A component document whose file name (or "id") is not its widget type: a file holds the component it is named after. |
+| `invalid_component` | error | A component document of the wrong shape: a "widget" without a type, a type that is not UpperCamelCase, or not exactly one root. |
+| `missing_prop` | error | A call does not set a parameter the component declares as required. |
+| `unknown_event` | error | An event reaction (or a componentEvent action) names an event the component does not declare, or sits on a node that is not a component call. |
+| `call_field_not_allowed` | error | A field on a call that belongs to the definition (decoration, layout.padding): the call gives size and placement only. |
+| `slot_outside_component` | warning | A slot node in a document that is not a component: nothing fills it, its own children show. |
+| `root_placement_bound` | warning | A component root binds its size or placement: the call sizes and places the root, so the binding is dropped. |
 
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
@@ -1743,6 +1754,7 @@ of a stack is placed by `x` and `y`, a child of a row or column by `flex`, `sque
 | [`external`](#node-external) |  | none | blurs only |
 | [`placeholder`](#node-placeholder) |  | none | blurs only |
 | [`singlePlaceholder`](#node-singlePlaceholder) |  | `children` | blurs only |
+| [`slot`](#node-slot) |  | `children` | blurs only |
 | [`video`](#node-video) |  | none | blurs only |
 | [`embeddedVideo`](#node-embeddedVideo) |  | none | blurs only |
 | [`audioPlayer`](#node-audioPlayer) |  | none | blurs only |
@@ -3391,6 +3403,14 @@ Flutter `CustomPaint`.
 - `deniedTypes`: List<String> = `[]`
 - `maxAllowedSize`: [Size](#type-Size) = unset
 - `ephemeral`: bool = `false`
+
+<a id="node-slot"></a>
+## `slot`
+
+- Children: `children`.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+- `name`: String = `"children"`
 
 <a id="node-video"></a>
 ## `video`
@@ -5403,7 +5423,7 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="enum-TriggerType"></a>
 ### TriggerType
 
-`click`, `doubleTap`, `longPress`, `hold`, `secondaryClick`, `pointerDown`, `pointerUp`, `hover`, `cursorEnter`, `cursorExit`, `swipeLeft`, `swipeRight`, `swipeUp`, `swipeDown`, `drag`, `dragEnd`, `wheel`, `pinch`, `changed`, `changeEnd`, `submitted`, `editingComplete`, `focusGained`, `focusLost`, `load`, `imageLoading`, `imageLoaded`, `imageError`, `backPressed`, `valueChanged`, `timer`, `frame`, `keyDown`, `keyUp`, `scroll`, `scrollEnd`, `enterViewport`, `exitViewport`, `dragStart`, `dragCancel`, `dragCompleted`, `drop`, `dragEnter`, `dragExit`, `dragHover`, `dropRejected`, `dropFull`, `reorder`, `refresh`, `swipeAction`, `rowTap`, `actionError`
+`click`, `doubleTap`, `longPress`, `hold`, `secondaryClick`, `pointerDown`, `pointerUp`, `hover`, `cursorEnter`, `cursorExit`, `swipeLeft`, `swipeRight`, `swipeUp`, `swipeDown`, `drag`, `dragEnd`, `wheel`, `pinch`, `changed`, `changeEnd`, `submitted`, `editingComplete`, `focusGained`, `focusLost`, `load`, `imageLoading`, `imageLoaded`, `imageError`, `backPressed`, `valueChanged`, `timer`, `frame`, `keyDown`, `keyUp`, `scroll`, `scrollEnd`, `enterViewport`, `exitViewport`, `dragStart`, `dragCancel`, `dragCompleted`, `drop`, `dragEnter`, `dragExit`, `dragHover`, `dropRejected`, `dropFull`, `reorder`, `refresh`, `swipeAction`, `rowTap`, `actionError`, `event`
 
 <a id="enum-VariableType"></a>
 ### VariableType
@@ -5620,6 +5640,7 @@ A reaction (`"actions": [{"trigger": {...}, "actions": [...]}]` on a node) start
 | <a id="trigger-refresh"></a>`refresh` |  |
 | <a id="trigger-swipeAction"></a>`swipeAction` |  |
 | <a id="trigger-rowTap"></a>`rowTap` |  |
+| <a id="trigger-event"></a>`event` |  |
 
 ## Trigger fields
 
@@ -5636,6 +5657,7 @@ A trigger is `{"type": "<type>", ...these}`, or just the type as a string (`"cli
 - `repeat`: bool = `false`
 - `visibleMs`: int = `0` (≥ 0)
 - `onceKey`: String = `""`
+- `event`: String = `""`
 
 ---
 
@@ -5884,6 +5906,12 @@ _No fields._
 - `command`: [PaginateCommand](#enum-PaginateCommand) = `"next"` (`next`, `previous`, `goTo`, `first`, `last`, `refresh`, `retry`, `setPageSize`)
 - `page`: String = `"1"`
 - `pageSize`: String = `"20"`
+
+<a id="action-componentEvent"></a>
+## `componentEvent`: Fire component event
+
+- `event`: String = `""`
+- `value`: Object = unset
 
 <a id="action-callApi"></a>
 ## `callApi`: Call API

@@ -163,6 +163,7 @@
             "haptic",
             "runScript",
             "paginate",
+            "componentEvent",
             "callApi",
             "setStorage",
             "cloudDocuments",
@@ -983,6 +984,23 @@
               "pageSize": {
                 "type": "string"
               }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "componentEvent"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "event": {
+                "type": "string"
+              },
+              "value": {}
             }
           }
         },
@@ -2991,7 +3009,8 @@
         "refresh",
         "swipeAction",
         "rowTap",
-        "actionError"
+        "actionError",
+        "event"
       ]
     },
     "enum.VariableType": {
@@ -7157,6 +7176,7 @@
             "external",
             "placeholder",
             "singlePlaceholder",
+            "slot",
             "video",
             "embeddedVideo",
             "audioPlayer",
@@ -15657,6 +15677,32 @@
           "if": {
             "properties": {
               "type": {
+                "const": "slot"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
                 "const": "video"
               }
             }
@@ -16147,7 +16193,8 @@
             "refresh",
             "swipeAction",
             "rowTap",
-            "actionError"
+            "actionError",
+            "event"
           ]
         },
         {
@@ -16185,6 +16232,9 @@
               "minimum": 0
             },
             "onceKey": {
+              "type": "string"
+            },
+            "event": {
               "type": "string"
             }
           },
