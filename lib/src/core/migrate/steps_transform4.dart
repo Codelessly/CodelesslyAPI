@@ -25,6 +25,11 @@ const Map<String, String> foldedTransformPaths = {'scale': 'motion.scale', 'layo
 final class _Changes {
   final Set<String> scale = {}, rotation = {}, motionScale = {}, motionRotate = {}, margin = {}, motionOther = {};
 
+  /// The nodes whose rotation or margin is set while the app runs (a
+  /// binding, `setValue`, a condition), not only by a patch: the pivot's
+  /// offset can't be a fixed translation for them.
+  final Set<String> rotationAtRunTime = {}, marginAtRunTime = {}, motionAtRunTime = {};
+
   void addPatch(String id, Json patch) {
     if (patch.containsKey('scale')) scale.add(id);
     final layout = readMap(patch['layout']);
@@ -39,13 +44,16 @@ final class _Changes {
   }
 
   void addPath(String id, String path) {
+    if (path == 'motion' || path.startsWith('motion.')) motionAtRunTime.add(id);
     switch (path) {
       case 'scale':
         scale.add(id);
       case 'layout.rotation':
         rotation.add(id);
+        rotationAtRunTime.add(id);
       case 'layout.margin':
         margin.add(id);
+        marginAtRunTime.add(id);
       case 'motion':
         motionScale.add(id);
         motionRotate.add(id);
@@ -206,22 +214,26 @@ void foldTransform(Json n, String id, MigrationScope s) {
   }
   // Schema 3 turned the rotation about the node's center moved by half the
   // margin's difference: the same turn about the center, then the offset
-  // e = d − R·d, carried through the motion's own scale and rotation.
-  if ((pose.rotation != 0 || rotationMoves) && pose.offCenterPivot) {
-    if (rotationMoves || changes.margin.contains(id) || bind.containsKey('layout.margin')) {
+  // e = d − R·d, carried through the motion's own scale and rotation. A
+  // state or media patch that changes the rotation or the margin gets its
+  // own offset (patches.schema4 runs this on the patched node).
+  final rotationAtRunTime = rotationBound || changes.rotationAtRunTime.contains(id);
+  final marginAtRunTime = bind.containsKey('layout.margin') || changes.marginAtRunTime.contains(id);
+  if ((pose.rotation != 0 || rotationAtRunTime) && pose.offCenterPivot) {
+    if (rotationAtRunTime || marginAtRunTime) {
       s.behaviourChange(
-          'The rotation is bound or changed while its margin is uneven: schema 3 turned it about its center moved by half '
-          'the margin\'s difference, schema 4 about its center.',
+          'The rotation or the margin is bound or set while the app runs, and the margin is uneven: schema 3 turned the node '
+          'about its center moved by half the margin\'s difference, schema 4 about its center.',
           path: '/layout/rotation',
           instead: 'Bind "motion.translateX"/"motion.translateY" to the offset, or even out the margin.');
-    } else if (motionScaleMoves || motionRotateMoves || pose.orientsOnPath || !pose.centered || pose.turns3d ||
-        bind.keys.any((k) => const {'motion.scaleX', 'motion.scaleY'}.contains(k))) {
+    } else if (changes.motionAtRunTime.contains(id) || bind.keys.any((k) => k == 'motion' || k.startsWith('motion.')) ||
+        pose.orientsOnPath || !pose.centered || pose.turns3d) {
       s.behaviourChange(
           'The rotation\'s pivot (its center moved by half the margin\'s difference) is kept as a translation for the '
           'motion at rest; a motion that turns or scales by itself moves it.',
           path: '/layout/rotation');
     }
-    if (!rotationMoves) {
+    if (!rotationAtRunTime && !marginAtRunTime) {
       final (dx, dy) = pose.pivot;
       final a = pose.rotation * math.pi / 180;
       // e = d − R(rotation)·d, then the outer layers: the node's scale, the

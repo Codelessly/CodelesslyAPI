@@ -214,6 +214,22 @@ void main() {
       }
     });
 
+    test('a state that turns a node with an uneven margin is drawn where schema 3 drew it, at rest and in the state', () {
+      final (n, report) = migrated({
+        'layout': {'width': 160, 'height': 56, 'rotation': 3, 'margin': [10, 0, 0, 4]},
+        'scale': 1.2,
+        'motion': {'scale': 1.1},
+        'states': {'selected': {'n': {'scale': 0.9, 'layout': {'rotation': 12}}}},
+      });
+      expect(report.behaviourChanges, isEmpty);
+      final rest = Motion.fromJson(n['motion'])!;
+      final patch = ((n['states'] as Map)['selected'] as Map)['n'] as Map;
+      final selected = Motion.fromJson({...(n['motion'] as Map), ...(patch['motion'] as Map)})!;
+      final m3 = Motion.fromJson({'scale': 1.1})!;
+      expect(drawn4(rest, 160, 56), drawnAt(drawn3(m3, 1.2, 3, 160, 56, ml: 10, mb: 4)));
+      expect(drawn4(selected, 160, 56), drawnAt(drawn3(m3, 0.9, 12, 160, 56, ml: 10, mb: 4)));
+    });
+
     test('a bound scale or rotation binds the motion, times or plus the other part', () {
       final (scaled, _) = migrated({'motion': {'scale': 2}, 'bind': {'scale': r'${= big ? 1.2 : 1}'}});
       expect(scaled['bind'], {'motion.scale': r'${= (big ? 1.2 : 1) * 2}'});
