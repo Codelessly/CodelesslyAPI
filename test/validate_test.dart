@@ -58,7 +58,7 @@ void main() {
 
   test('every diagnostic code has a test here', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 70); // invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
+    expect(Codes.all.length, 71); // invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
   });
 
   group('document', () {
@@ -76,6 +76,14 @@ void main() {
       node(d, 'box')['legacy.track.parkedProgress'] = -0.6;
       expectOne(d, Codes.legacyValue, path: '/nodes/box/legacy.track.parkedProgress');
       expect(withCode(d, Codes.unknownNodeKey), isEmpty);
+    });
+    test('a paint field schema 4 replaces is noted where it is, not an error (deprecated_key)', () {
+      final d = base();
+      node(d, 'box')['strokePath'] = {'points': [[0, 0], [1, 1]]};
+      node(d, 'box')['props'] = {'path': 'M0 0 L1 1'};
+      final found = withCode(d, Codes.deprecatedKey);
+      expect(found.map((x) => x.path), ['/nodes/box/strokePath', '/nodes/box/props/path']);
+      expect(found.every((x) => x.severity == Severity.info), isTrue);
     });
     test('a misspelt document key is reported with the right one (unknown_document_key)', () => expectOne(base()..['node'] = {}, Codes.unknownDocumentKey, suggestion: 'nodes'));
     test('a root naming no node is reported (dangling_root)', () => expectOne(base()..['roots'] = ['home', 'hone'], Codes.danglingRoot, path: '/roots/1'));
