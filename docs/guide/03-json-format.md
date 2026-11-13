@@ -107,7 +107,7 @@ to 4 decimals, and integral ones are written as integers.
 
 A node's keys are the fields in [The data model](01-data-model.md#node), plus its behaviors stored flat
 (`motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, `tooltip`, `hero`, `draggable`, `dropTarget`,
-`drag`, `flip`, `tilt`...).
+`track`, `dismissible`, `pan`, `flip`, `tilt`...).
 
 ## The publish format
 

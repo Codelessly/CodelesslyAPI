@@ -1,6 +1,6 @@
 # 04 · Drag, dismiss, pan and the value track
 
-Status: proposal. Builds on doc 02 (`Spring`, `animate`, presets) and doc 03
+Status: implemented in part (see "Deviations from the proposal" and "Not yet migrated" at the end). Builds on doc 02 (`Spring`, `animate`, presets) and doc 03
 (`PathFollow`, `transitions`). Usage counts are apps whose `editor/` or
 `tool/` build sources name the key (text grep; an upper bound for common
 words such as `smooth`, `snap`, `follow`, `write`).
@@ -458,3 +458,106 @@ pointer when `track` is null and `reorder` is false
 5. Rebuild the hand-migrated spots (apiary, cutroom, cutroom_v2, darkroom,
    flashcards, gesture_lab, safecracker); delete the legacy readers one
    release later.
+
+## Deviations from the proposal
+
+Implemented in `lib/src/core/behaviors.dart` (`Track`, `DismissibleBehavior`, `Pan`, `DragSource`),
+`lib/src/core/path_follow.dart` (`PathFollow`, doc 03's shape), `behavior_fields.dart`, `actions.dart` and
+`action_fields.dart` (the three control actions); legacy reading in `Behaviors.fromJson`, `Behaviors.migrateBind`,
+`Track.fromJson`, `DragSource.fromJson` and `ActionDef.fromJson` (`controlDrag`). SDK: `render/drag_track.dart`,
+`runtime/gestures/drag_motion.dart` (`FollowSpec`), `runtime/actions/handlers.dart`. Mappings are tested old
+JSON in → new model out in `test/drag_split_test.dart`; the SDK's drag, track, transform, drop and reorder tests
+(written in the legacy shape) pass unchanged. The rule throughout: a JSON document can't say whether it was
+written before or after this change, so **a default can change only on a new key**; on a key that already
+existed the old default stays.
+
+1. **Pointer-follow is its own `pan` behavior** (open question 10.2's alternative), not folded into
+   `transformGesture`. A release that springs back over a duration and curve, `${drag.*}`'s values, `drag`/
+   `dragEnd` with offsets from rest, resistance and the disabled-follow rules are not what the transform
+   gesture does, and folding them in exactly would have made it two behaviors in one. `dismissible` and `pan`
+   share one engine in the SDK (`FollowSpec` → `RenderDragMotion`).
+2. **`reorderHandle: true`** marks the node a list row is dragged by (`ReorderableDragStartListener`). The
+   proposal's "the parent list's `reorder`" loses *which* node is the handle, which `reorder.start: handle`
+   needs.
+3. **`dismissible` keeps `axis`, and a separate return** (`returnDuration`, `returnCurve`, or
+   `returnSpring`): the legacy return is a 450 ms curve on `AnimationCurve.spring`, which no `Spring` equals.
+   `directions` is a list (Flutter's `DismissDirection` names read too: a set such as left, right and up has
+   no Flutter name). New keys take Flutter's defaults (`[left, right]`, 0.4, 700 px/s, 200 ms, linear); the
+   legacy decode writes the old ones out. `resizeDuration` and `crossAxisEndOffset` were not added: the SDK
+   doesn't collapse a dismissed node, and a field it ignores would lie.
+4. **`draggable`'s defaults stay** (a 260/14 return spring, −2° tilt, a 24 shadow): `{"group": "x"}` is the
+   same JSON in an old document and a new one, so Flutter's no-spring, no-tilt defaults (open question 10.3)
+   would change every existing draggable. `returnSpring` is one `Spring?` (`false`: none). `dragAnchor` is
+   `child | center`, not `pointer`: Flutter's `pointerDragAnchorStrategy` puts the feedback's top left at the
+   pointer, the SDK centers it.
+5. **`GesturePhysics.friction` keeps its meaning** (the share of speed lost a second) for the same reason; the
+   proposal's `1 − old` would silently change every existing `physics`. The track's legacy `friction` (a rate
+   per second) is converted: `1 − e^(−rate)`, to 4 places.
+6. **`Track.allowedInteraction` has two of `SliderInteraction`'s four values** (`slideThumb`, `tapAndSlide`,
+   as `TrackInteraction`); `hitArea: parent` stays, since legacy `jumpOnTap` with `hitArea: parent` is a third
+   behaviour `slideOnly` doesn't name. `tapOnly`/`slideOnly` aren't built.
+7. **The geometry keeps `shape`, the line's ends, `relative`, `units`, `pivotX/Y` and `rotate`**; only the
+   path became `path: PathFollow` and `endAngle` became `sweepAngle`. See "Not yet migrated".
+8. **`clamp: false` is read from `endless` only on an arc** (where it did anything), and an unclamped path
+   wraps. `gain` folds into `pixelsPerRange` except round an arc followed by angle, where it is a ratio of
+   degrees (kept).
+9. **`controlDismissible` keeps `returnFrom` and `shake`** (a card flying back in from off-screen is not a
+   reset; the legacy shake is a 12 px drag-layer wiggle, not the `shake` preset), and `controlTrack` gained
+   `animateTo` (a whole change: `changed`, `dragEnd`, `changeEnd`). Legacy `controlDrag reset` decodes to
+   `controlTransform reset`, which resets a dismissible or pan when the node has no transform gesture.
+10. **`zoomable` is a legacy key**; `Behaviors.effectiveTransformGesture` stays as `transformGesture`'s
+    former name, so the render code that calls it is unchanged.
+11. **Scopes**: `${dismiss.*}` and `${pan.*}` hold the same map as the legacy `${drag.*}`, which both still
+    give (its `left`/`right`/`up`/`down`, `settling`, `snapIndex`, `dismissed` included).
+
+Field counts as built (deprecated fields included; they are read, written and working, and documented as
+deprecated):
+
+| Type | Before | After |
+|---|---|---|
+| `DragTrack` → `Track` | 51 | 43 (34 + 9 deprecated) + `PathFollow` 4 |
+| `DragMotion` → `DismissibleBehavior` / `Pan` / `reorderHandle` | 33 | 23 (11 + 12) / 22 (15 + 7) / 1 |
+| `DragSource` | 16 | 14 |
+| `DropTarget` | 11 | 11 |
+| `TransformGesture` + `TransformHandles` | 25 + 14 | 25 + 14 (`zoomable` folded in) |
+| `GesturePhysics` | 7 | 7 |
+| `controlDrag` | 1 action, 7 commands | 3 actions, 9 commands |
+
+## Not yet migrated
+
+Each is read and works exactly as before.
+
+- **One coordinate system for a track.** A line's `x1`/`y1` (its start off the node's place), `relative`
+  (multiples of the node's own size), `units: parent` (offsets as fractions of the parent; a view box places
+  absolutely, so it isn't the same), an arc's orbit about a pivot that starts at angle 0, and a line going on
+  past its ends while parked or overscrolled (a `PathFollow` clamps an open path) have no exact `path`
+  equivalent. Blocks: a path coordinate space "offsets from rest, scaled by the node or the parent", and
+  extrapolation past an open path's ends.
+- **`input: angular`.** A knob is still `shape: arc`, turning the node by `rotate`, not a bound
+  `motion.rotate` (the motion layer sits inside the track pose and may already be bound).
+- **`transitions.track`** (doc 03 not built): `settle`, `settleCurve`, `settleSpring`, `snap`, `snapCurve` stay
+  on the track.
+- **Deprecated track fields**: `defaultValue`/`doubleTapValues` (a `doubleTap` reaction with `controlTrack
+  animateTo` would compete in the gesture arena and fire while disabled; a cycle needs a `next()` formula),
+  `parkedProgress` (a bound out-of-range `track.value` is by hand: the bound value can't be null),
+  `fineStep`/`finePixelsPerRange`/`fineHold`/`fineVariable` (by hand: Shift and hold reactions),
+  `smooth` (approximate as `detent: 1` + a spring), `gain` round an arc.
+- **Deprecated follow fields** on `dismissible`/`pan`: `rotateFactor`, `originX/Y`, `flyOutRotate` (a
+  `motion.rotate` binding needs the node's width in scope, and the fly-off spin is timed by the fly-off),
+  `shakeWhenDisabled` (the `shake` preset is not the same wiggle), `disabledFollow`, `shareAs` (by hand),
+  `follow: false` (the plain `drag` trigger gives other values), a dismissible's `restX`/`restY` and
+  `xVariable`/`yVariable`.
+- **Draggable feedback look** (`feedbackRotation`, `feedbackScale`, `feedbackOpacity`, `feedbackElevation`) as
+  a `states.dragged` patch: the defaults can't change (deviation 4) and the SDK draws the feedback copy
+  without state patches.
+- **Drop targets' list insertion** (`listNodeId`, `slot`, `slotNodeId`, `slotSize`, `slotWhenRefused`) into the
+  list's `reorder` (`accepts`, `placeholderSize`): the slot preview lives in `drag_and_drop.dart`, and a target
+  outside its list (a column's tab) is by hand. `fullIf`/`dropFull` keep their own state (`${drag.full}`, a
+  full target still takes the hover) that `acceptIf` + `dropRejected` doesn't say. `hoverDelay` (no users,
+  but tested) stays.
+- **`TransformGesture`'s handles → a Selection box component**, and with them `scaleX`, `scaleY`,
+  `scaleXVariable`, `scaleYVariable` (the edge handles write them); `rotationSnap` (tested) stays; `panAxis`
+  and `boundaryMargin` are not added.
+- **Legacy binding paths set at run time** (`setValue` with `drag.enabled`): only a node's `bind` map is
+  rewritten when it decodes. A bound `drag.track.endAngle` or `drag.track.viewBoxWidth` keeps its key and is no
+  longer read.

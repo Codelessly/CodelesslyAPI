@@ -24,5 +24,6 @@ understand, build, check or transform layouts as data.
 | 7 | [Drawing with `customPaint`](07-custom-paint.md) | Flutter's `CustomPaint` and `Canvas` calls as data: ops, paints, expressions, hit regions |
 | 8 | [Animation](08-animation.md) | `AnimationController` and `Tween` as data: `animations`, tracks, presets, `animate`, `frame`, `Spring`, the legacy keys |
 | 9 | [Catalogs, libraries and plugins](09-catalogs-and-plugins.md) | `Catalog`, the core and feature libraries, native plugins, catalog JSON, hosted plugins as data |
+| 10 | [Gestures](10-gestures.md) | `track` (Flutter's `Slider` on any path), `dismissible`, `pan`, `draggable`/`dropTarget`, the control actions, the legacy `drag` |
 
 For contributors, [`DESIGN.md`](../../DESIGN.md) is the full design of the format.
