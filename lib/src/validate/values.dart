@@ -355,10 +355,14 @@ bool readsKey(PropCodec<Object?> codec, Json m, String key) {
     final a = withKey == null ? null : codec.encode(withKey);
     final b = without == null ? null : codec.encode(without);
     if (jsonEquality.equals(a, b)) return false;
-    // Kept verbatim (an `extra` map): not read.
+    // Kept verbatim (an `extra` map): not read. A value that decodes back
+    // as written (`widthFactor: 0`) looks the same, so the key is given a
+    // value no reader takes: an extra map keeps that too.
     if (a is Map && jsonEquality.equals(a[key], m[key])) {
-      final aWithout = {for (final e in a.entries) if (e.key != key) e.key: e.value};
-      if (jsonEquality.equals(aWithout, b)) return false;
+      const probe = {r'$notRead': true};
+      final probed = codec.decode({...m, key: probe});
+      final p = probed == null ? null : codec.encode(probed);
+      if (p is Map && jsonEquality.equals(p[key], probe)) return false;
     }
     return true;
   } catch (_) {
