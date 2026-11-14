@@ -612,6 +612,50 @@ Card
     expect((_node(r, 'barChart1')['props'] as Map)['color'], '#FF0F766E');
   });
 
+  test('named looks: the same lines name the theme\'s tokens, and resolve to each theme\'s own values', () {
+    Json theme(String primary, String border, String text, double title) => {
+          'primary': primary, 'surface': '#FFFFFCF7', 'success': '#FF15803D',
+          'colors': {'primaryText': text, 'secondaryText': '#B81C1917', 'primaryBackground': '#FFFFFCF7', 'primaryBorder': border,
+            'successTint': '#1A15803D', 'successTintBorder': '#4715803D'},
+          'textStyles': {'sectionTitle': {'fontSize': title, 'fontWeight': 600, 'color': 'primaryText'}, 'body': {'fontSize': 13, 'color': 'primaryText'}},
+          'radii': {'panel': 3},
+        };
+    final a = theme('#FF0F766E', '#FFE4E1DC', '#FF1C1917', 14), b = theme('#FFDB2777', '#FF334155', '#FFF8FAFC', 20);
+    const text = '''
+Card
+  Text.sectionTitle "Billing"
+  Text.muted "Next invoice on the 1st"
+  Badge.success "Paid"
+  Progress 0.4
+  BarChart values:[1,2,3]
+''';
+    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(a, named: true));
+    expect(r.issues, isEmpty);
+    expect((_node(r, 'text1')['props'] as Map)['style'], {'from': 'sectionTitle'});
+    expect(((_node(r, 'column1')['decoration'] as Map)['strokes'] as List).single, {'color': 'primaryBorder'});
+    expect((_node(r, 'barChart1')['props'] as Map)['color'], 'primary');
+    expect(validateDocument(r.document, options: ValidateOptions(theme: ThemeTokens.fromJson(a))).where((d) => d.severity == Severity.error), isEmpty);
+    // Written once, it is each theme's: the values are those the same lines
+    // give when expanded with that theme's values written out.
+    for (final t in [a, b]) {
+      final resolved = resolveThemeRefs(LayoutDocument.fromJson(r.document, catalog: standardCatalog), ThemeTokens.fromJson(t)).toJson();
+      final literal = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(t)).document;
+      Object? at(Json d, String id, List<String> path) => path.fold<Object?>((d['nodes'] as Map)[id], (v, k) => v is Map ? v[k] : (v as List)[int.parse(k)]);
+      for (final (id, path) in [
+        ('column1', ['decoration', 'strokes', '0', 'color']),
+        ('column1', ['decoration', 'fills', '0', 'color']),
+        ('text1', ['props', 'style', 'color']),
+        ('text1', ['props', 'style', 'fontSize']),
+        ('text2', ['props', 'style', 'color']),
+        ('row1', ['decoration', 'fills', '0', 'color']),
+        ('barChart1', ['props', 'color']),
+        ('progressBar1', ['props', 'color']),
+      ]) {
+        expect(at(resolved, id, path), at(literal, id, path), reason: '$id ${path.join('.')}');
+      }
+    }
+  });
+
   test('looks that follow data: a bound border and text color, an icon chosen by an expression, an expression in the tail', () {
     final r = _parse('''
 state on=false
