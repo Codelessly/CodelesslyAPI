@@ -342,3 +342,47 @@ ScriptDef? findScript(Iterable<ScriptDef> scripts, String idOrName) {
   }
   return byName;
 }
+
+
+/// Names a script is often written against that it does not have, found
+/// in the sources of [scripts] (the document's `scripts` list as JSON):
+/// `variables.get/set` for `vars`, and another script called bare instead
+/// of as `script.<name>(…)`. At run time these are only "not defined".
+List<({int index, String message, String suggestion})> scriptSourceProblems(Object? scripts) {
+  final out = <({int index, String message, String suggestion})>[];
+  if (scripts is! List) return out;
+  for (var i = 0; i < scripts.length; i++) {
+    final s = scripts[i];
+    final source = s is Map ? s['source'] : null;
+    if (source is! String) continue;
+    final code = source
+        .replaceAll(RegExp(r'/\*[\s\S]*?\*/'), ' ')
+        .replaceAll(RegExp(r'//[^\n]*'), ' ')
+        .replaceAll(RegExp(r"'(?:[^'\\\n]|\\.)*'"), '""')
+        .replaceAll(RegExp(r'"(?:[^"\\\n]|\\.)*"'), '""');
+    if (RegExp(r'(?<![.\w$])variables\s*\.\s*(get|set)\s*\(').hasMatch(code) && !RegExp(r'\b(var|let|const)\s+variables\b').hasMatch(code)) {
+      out.add((
+        index: i,
+        message: 'A script reads and writes variables with vars.get(name) and vars.set(name, value): "variables" is not defined in a script '
+            '("variables.read" and "variables.write" are the names of the capabilities).',
+        suggestion: 'vars',
+      ));
+    }
+    final name = (s as Map)['name'] ?? s['id'];
+    for (var j = 0; j < scripts.length; j++) {
+      final o = scripts[j];
+      final other = j == i || o is! Map ? null : (o['name'] ?? o['id']);
+      if (other is! String || !RegExp(r'^[A-Za-z_$][\w$]*$').hasMatch(other)) continue;
+      final call = RegExp('(?<![.\\w\$])${RegExp.escape(other)}\\s*\\(');
+      final own = RegExp('\\b(function|var|let|const)\\s+${RegExp.escape(other)}\\b');
+      if (call.hasMatch(code) && !own.hasMatch(code)) {
+        out.add((
+          index: i,
+          message: 'Script "$name" calls $other(…), another script: a script calls another as script.$other(…).',
+          suggestion: 'script.$other(',
+        ));
+      }
+    }
+  }
+  return out;
+}
