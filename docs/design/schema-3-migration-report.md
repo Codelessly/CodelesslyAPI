@@ -72,11 +72,10 @@ nothing in any document.
   `strokeMiterLimit`, a path's `subpathColors`, a paint's `gradientPerSubpath`, and the moved binding, transition,
   track, `setValue` and condition paths) is not upgraded on load: validation reports each as an error naming the
   one spelling, and the SDK sets nothing for a moved path set at run time and says so once (`movedPathHint`).
-- **`legacy.<name>`.** What a step keeps (the paint steps can keep `legacy.strokePath.draw`, `legacy.strokePath`,
+- **`legacy.<name>`.** What a step keeps (the paint steps can keep `legacy.strokePath`,
   `legacy.props.subpathColors` and `legacy.decoration.<list>.<i>.gradientPerSubpath`; `hero.flight`
   `legacy.flightKey` and `legacy.flight`; none in this corpus) stays on the node as given: the model holds it in
-  `Node.extra` and writes it back unchanged, the renderer never reads it (a kept draw-on animation shows the line
-  at its progress at once), and validation reports it as `legacy_value` (a warning) pointing here.
+  `Node.extra` and writes it back unchanged, the renderer never reads it, and validation reports it as `legacy_value` (a warning) pointing here.
 - The corpus is CodelesslyEditor/references, experiments/m05 and the SDK's examples, test/fixtures and benchmark
   (`dart run tool/migration_corpus.dart <dirs> --baseline-errors <schema-2 errors> --strip /home/user/`); 1353
   JSON files this time, 1385 when 30.0.0's report was taken (the same 106 documents).

@@ -1,5 +1,15 @@
 ## Unreleased
 
+- **A stroke path's draw-on animation migrates to the general pieces.** `strokePath.drawMs` (with `drawDelayMs`,
+  `drawCurve`) was kept as `legacy.strokePath.draw` and no longer drawn; `paint.strokePath` now writes an animation
+  `strokePathDraw` whose track draws the line op's `trimEnd` from 0 to its own value (the fill's paint from
+  transparent), played when the node appears, and a transition of that `trimEnd` with the same timing; a bound
+  progress becomes a binding of `customPaint.<painter>.strokePath.trimEnd`. Frame for frame the old painter's
+  drawing (codelessly_sdk's `stroke_draw_on_test.dart`), except a progress that changes while the line is still
+  drawing on. A literal `drawKey` is dropped (it never changed). `legacy.strokePath.draw` is no longer written.
+- **`BindPaths.declaredDefault(node, path)`**: the declared default at a binding path (`opacity`, `props.*`,
+  `layout.*`, `decoration.*`, a custom paint op's field), the node's value there when its JSON omits the field. An
+  animation track with no `from` or `to` uses it (codelessly_sdk), so a track can end at an op's default `trimEnd` 1.
 - **State patches that targeted `self` or `@<key>` now run.** A state patch names the node it patches by id; generated
   schema-2 documents also wrote `self` and `@<key>` (the node's key), which matched no node, so those hover, press
   and selection styles never applied (1131 patches in 9 corpus documents, all naming the node their states are on).
