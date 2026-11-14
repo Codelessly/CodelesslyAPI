@@ -434,15 +434,15 @@ final class AnimationTrack extends _Value {
   /// overshoots (`Tween<double>`); colors interpolate within them
   /// (`ColorTween`); anything else switches at the end.
   ///
-  /// A text that holds a number at the end ([b]: "1,204", "\$12.50", "87%";
-  /// a bare number written as text, "1204", only when [text]: the value is
-  /// a text's) counts: the number goes from [a]'s (a number, or the first
-  /// number in a text) to its own, written as [b] writes it (the characters
-  /// around it, its decimals, its thousands separators), at every [t], 0
-  /// too ([NumberInText]). A transition or a track on a text's
-  /// `props.text` counts its number up to each new value.
+  /// With [text] (the value is a text's, such as a text node's
+  /// `props.text`), a text that holds a number at the end ([b]: "1,204",
+  /// "\$12.50", "87%", "1204") counts: the number goes from [a]'s (a
+  /// number, or the first number in a text) to its own, written as [b]
+  /// writes it (the characters around it, its decimals, its thousands
+  /// separators), at every [t], 0 too ([NumberInText]). A transition or a
+  /// track on a text's `props.text` counts its number up to each new value.
   static Object? lerpValue(Object? a, Object? b, double t, {bool text = false}) {
-    if (b is String && (a is num || a is String) && (text || double.tryParse(b.trim()) == null)) {
+    if (text && b is String && (a is num || a is String)) {
       final end = NumberInText.parse(b), start = a is num ? a.toDouble() : NumberInText.parse(a as String)?.value;
       if (end != null && start != null && start.isFinite) return t == 1 ? b : end.format(start + (end.value - start) * t);
     }
@@ -795,9 +795,11 @@ final class NumberInText {
         decimals: dot < 0 ? 0 : raw.length - dot - 1, grouped: raw.contains(','));
   }
 
-  /// The text with [v] in place of the number, written the same way.
+  /// The text with [v] in place of the number, written the same way. [v]
+  /// is first rounded to six places past [decimals], so a value a clock
+  /// computes a hair under a half (0.3 / 0.4 of a run) rounds as the half.
   String format(double v) {
-    final fixed = v.abs().toStringAsFixed(decimals);
+    final fixed = double.parse(v.abs().toStringAsFixed(math.min(20, decimals + 6))).toStringAsFixed(decimals);
     final dot = fixed.indexOf('.');
     var whole = dot < 0 ? fixed : fixed.substring(0, dot);
     final fraction = dot < 0 ? '' : fixed.substring(dot);

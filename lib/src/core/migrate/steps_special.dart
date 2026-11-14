@@ -189,8 +189,12 @@ final sliderPaintStep = MigrationStep(
     final props = {...base, ...?readMap(n['props'])};
     final bindBefore = bindOf(n);
     final taken = _take(n, _sliderKeys, s);
-    if (taken == null) return;
-    final (literal, bound) = taken;
+    // A ruler track drew its ticks with none of their fields set too (20,
+    // every fifth long, black); not again once they are ops.
+    final drawsTicks = readString(props['trackShape']) == 'ruler' &&
+        !(readList(readMap(n['customPaint'])?['painter']) ?? const []).any((o) => readMap(o)?['id'] == 'rulerTicks');
+    if (taken == null && !(drawsTicks && n['type'] == 'slider')) return;
+    final (literal, bound) = taken ?? (const <String, Object?>{}, const <String, String>{});
     if (n['customPaint'] != null && readMap(n['customPaint'])?['viewBox'] != null) {
       s.behaviourChange('The slider\'s customPaint has a view box: the ops written in the slider\'s pixels are drawn in it.',
           path: '/customPaint/viewBox');
@@ -201,7 +205,7 @@ final sliderPaintStep = MigrationStep(
 
     // The ruler's baseline and ticks (always drawn by a ruler track, 20
     // ticks, every fifth long, by default; black, short ones as the long).
-    if (ruler || bindBefore['props.trackShape'] != null) {
+    if ((ruler && drawsTicks) || bindBefore['props.trackShape'] != null) {
       final ticks = _term(literal, bound, 'rulerTicks', 20), every = _term(literal, bound, 'rulerMajorEvery', 5);
       final major = _colorOf(literal, bound, 'rulerTickColor', const Color(0xFF000000));
       final minor = bound['rulerMinorTickColor'] ?? Color.fromJson(literal['rulerMinorTickColor'])?.toJson() ?? major;
