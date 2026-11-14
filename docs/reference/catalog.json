@@ -1401,7 +1401,12 @@
         "reorderPlaceholder"
       ],
       "decorated": false,
-      "childFields": [],
+      "childFields": [
+        "columnSpan",
+        "rowSpan",
+        "columnStart",
+        "rowStart"
+      ],
       "props": [
         {
           "key": "scrollDirection",
@@ -11323,6 +11328,40 @@
         "nullable": true,
         "min": 0.0,
         "doc": "CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; a child that fills the main axis (`{\"fill\": n}`) then grows by its `flex` share of the room left on its line (`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints."
+      },
+      {
+        "key": "columnSpan",
+        "type": "int",
+        "kind": "integer",
+        "default": 1,
+        "nullable": false,
+        "min": 1,
+        "doc": "CSS `grid-column: span n`, under a gridView: how many columns the item covers (at most the grid's columns). Bind it per item (`${= index == 0 ? 2 : 1}`: a lead story across two) and patch it per screen size (`media`)."
+      },
+      {
+        "key": "rowSpan",
+        "type": "int",
+        "kind": "integer",
+        "default": 1,
+        "nullable": false,
+        "min": 1,
+        "doc": "CSS `grid-row: span n`, under a gridView: how many rows the item covers."
+      },
+      {
+        "key": "columnStart",
+        "type": "int",
+        "kind": "integer",
+        "default": null,
+        "nullable": true,
+        "doc": "CSS `grid-column-start`, under a gridView: the column the item starts in, 1 the first; unset: the next free cell. With `rowStart`, a timetable puts each session at its track and time."
+      },
+      {
+        "key": "rowStart",
+        "type": "int",
+        "kind": "integer",
+        "default": null,
+        "nullable": true,
+        "doc": "CSS `grid-row-start`, under a gridView: the row the item starts in, 1 the first; unset: the next free cell."
       }
     ],
     "box": [
@@ -11340,7 +11379,11 @@
       "y",
       "align",
       "order",
-      "basis"
+      "basis",
+      "columnSpan",
+      "rowSpan",
+      "columnStart",
+      "rowStart"
     ],
     "undeclared": [
       "widthFactor",

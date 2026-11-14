@@ -316,7 +316,7 @@
             },
             "layout": {
               "type": "object",
-              "description": "Size and placement: width, height, constraints, margin, padding, aspectRatio, flex, squeezable, x, y, align, order, basis."
+              "description": "Size and placement: width, height, constraints, margin, padding, aspectRatio, flex, squeezable, x, y, align, order, basis, columnSpan, rowSpan, columnStart, rowStart."
             },
             "decoration": {
               "type": "object",

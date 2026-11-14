@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5691
+      "words": 5819
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5800
+      "words": 5930
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column).",
-      "words": 6920
+      "words": 8585
     },
     {
       "topic": "layout-layout-fields",
@@ -25,7 +25,7 @@
       "anchor": "layout-layout-fields",
       "title": "Layout fields",
       "summary": "A node's `\"layout\"`: its size, spacing and placement in its parent.",
-      "words": 464
+      "words": 539
     },
     {
       "topic": "layout-which-sizing-modes-each-parent-allows",
@@ -74,6 +74,22 @@
       "title": "A capped band",
       "summary": "A full-width band with capped, centered content (CSS `max-width: 1200px; margin: 0 auto` inside a coloured band): the band fills the width and holds the background; its one child fills with `constraints.maxWidth`, centered by the band's `crossAxisAlignment` (`center`, the default).",
       "words": 342
+    },
+    {
+      "topic": "layout-an-editorial-page-at-three-sizes",
+      "file": "layout.md",
+      "anchor": "layout-an-editorial-page-at-three-sizes",
+      "title": "An editorial page at three sizes",
+      "summary": "A phone, a tablet and a desktop are three layouts, not one stretched: **use the width**.",
+      "words": 407
+    },
+    {
+      "topic": "layout-grid-spans-a-timetable",
+      "file": "layout.md",
+      "anchor": "layout-grid-spans-a-timetable",
+      "title": "Grid spans; a timetable",
+      "summary": "A `gridView` item spans and is placed as in CSS grid, through its own `layout` (the template's, bound per item from its data, and patched per size like any field):",
+      "words": 394
     },
     {
       "topic": "layout-cards-that-wrap",
@@ -385,7 +401,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 6101
+      "words": 6111
     },
     {
       "topic": "lists-triggers",
@@ -521,7 +537,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6355
+      "words": 6395
     },
     {
       "topic": "state-variables",
@@ -545,7 +561,7 @@
       "anchor": "state-binding-paths",
       "title": "Binding paths",
       "summary": "What each path of `bind` expects.",
-      "words": 492
+      "words": 498
     },
     {
       "topic": "state-conditions",
@@ -1310,6 +1326,16 @@
       "need": "Content capped at a width and centered inside a full-width band (CSS max-width + margin auto)",
       "file": "layout.md",
       "anchor": "layout-a-capped-band"
+    },
+    {
+      "need": "A page at phone, tablet and desktop: one column, a split with a sticky rail, columns with a spanning lead",
+      "file": "layout.md",
+      "anchor": "layout-an-editorial-page-at-three-sizes"
+    },
+    {
+      "need": "A grid item spanning two columns or rows; items placed at a row and column (a timetable that is a list on phones)",
+      "file": "layout.md",
+      "anchor": "layout-grid-spans-a-timetable"
     },
     {
       "need": "Cards three across that wrap to two, then one, with no breakpoint",

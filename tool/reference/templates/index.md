@@ -13,6 +13,8 @@ section's anchor is its topic.
 |---|---|
 | A row that becomes a column at a width; another order or hidden at a width | @@layout-a-row-that-becomes-a-column |
 | Content capped at a width and centered inside a full-width band (CSS max-width + margin auto) | @@layout-a-capped-band |
+| A page at phone, tablet and desktop: one column, a split with a sticky rail, columns with a spanning lead | @@layout-an-editorial-page-at-three-sizes |
+| A grid item spanning two columns or rows; items placed at a row and column (a timetable that is a list on phones) | @@layout-grid-spans-a-timetable |
 | Cards three across that wrap to two, then one, with no breakpoint | @@layout-cards-that-wrap |
 | Equal-height cards in a grid; a banner above one card; a button pinned to a card's bottom | @@lists-equal-height-cards |
 | Overlap the section above (a negative margin); bleed past the page gutter | @@layout-overlap-and-bleed |

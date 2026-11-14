@@ -9,6 +9,7 @@ import '../behaviors.dart';
 import '../json.dart';
 import '../child_fits.dart';
 import '../props.dart';
+import '../value_fields.dart' show LayoutFields;
 import '../values/color.dart';
 import '../values/enums.dart';
 import '../values/geometry.dart';
@@ -268,6 +269,7 @@ abstract final class GridViewProps {
     slots: CollectionSlots.grid,
     children: ChildModel.list,
     childFits: cellChildFits,
+    childFields: [LayoutFields.columnSpan, LayoutFields.rowSpan, LayoutFields.columnStart, LayoutFields.rowStart],
     doc: 'Flutter `GridView`; the first child is the item.',
   );
 }

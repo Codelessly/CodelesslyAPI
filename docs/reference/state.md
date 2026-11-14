@@ -131,6 +131,10 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 | `layout.align` | `Alignment` | [x, y] from -1 to 1, or a name: topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight |
 | `layout.order` | `int` | a whole number |
 | `layout.basis` | `double` | a number |
+| `layout.columnSpan` | `int` | a whole number |
+| `layout.rowSpan` | `int` | a whole number |
+| `layout.columnStart` | `int` | a whole number |
+| `layout.rowStart` | `int` | a whole number |
 | `decoration.fills` | `List<Paint>` | a list of Paint objects |
 | `decoration.strokes` | `List<Paint>` | a list of Paint objects |
 | `decoration.strokeWidth` | `double` | a number |
@@ -148,7 +152,7 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 `props.<prop>` takes what the prop's type is written as: `"${= open ? 'vertical' : 'horizontal'}"` for
 `props.direction`, a TextStyle object or a theme style's name for `props.style`. Every bindable field:
 
-- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
+- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, `columnSpan`, `rowSpan`, `columnStart`, `rowStart`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](decoration.md#type-Paint) or [Effect](decoration.md#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type, and `props.<prop>.<field>` for a field of a model prop.
 - `<behavior>` and `<behavior>.<field>`: [`motion`](animation.md#behavior-motion), [`animations`](animation.md#behavior-animations), [`transitions`](animation.md#behavior-transitions), [`shimmer`](animation.md#behavior-shimmer), [`inkWell`](interaction.md#behavior-inkWell), [`states`](interaction.md#behavior-states), [`tooltip`](interaction.md#behavior-tooltip), [`ignorePointer`](interaction.md#behavior-ignorePointer), [`floating`](layout.md#behavior-floating), [`hero`](animation.md#behavior-hero), [`draggable`](interaction.md#behavior-draggable), [`dropTarget`](interaction.md#behavior-dropTarget), [`track`](interaction.md#behavior-track), [`dismissible`](interaction.md#behavior-dismissible), [`pan`](interaction.md#behavior-pan), [`reorderHandle`](lists.md#behavior-reorderHandle), [`reveal`](animation.md#behavior-reveal), [`typewriter`](animation.md#behavior-typewriter), [`particles`](animation.md#behavior-particles), [`textDirection`](theme.md#behavior-textDirection), [`defaultTextStyle`](theme.md#behavior-defaultTextStyle), [`flip`](animation.md#behavior-flip), [`tilt`](animation.md#behavior-tilt), [`transformGesture`](interaction.md#behavior-transformGesture), [`sticky`](layout.md#behavior-sticky), [`viewProgress`](animation.md#behavior-viewProgress), [`measure`](layout.md#behavior-measure), [`customPaint`](decoration.md#behavior-customPaint), [`form`](forms.md#behavior-form), [`radioGroup`](forms.md#behavior-radioGroup).
