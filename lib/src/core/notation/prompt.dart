@@ -41,6 +41,7 @@ LINE
 - -> runs on tap (on change, for a control): name=value sets a variable; emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal. Separate several with ;
 - state name=value on its own line (top level) declares a variable with a starting value.
 - if expression on its own line shows the lines indented under it only while it holds.
+- each row in rows on its own line repeats the lines indented under it once per element of a list variable (state rows=[{"name":"Ada","age":36}]); inside, {row.name} reads the element.
 - #id only when something else needs to name the node.
 - Sizes are worked out: in a Column a child is as wide as the column and as tall as its content; in a Row a child is as big as its content. Do not write sizes unless the design needs one.
 
