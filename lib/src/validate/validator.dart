@@ -1865,6 +1865,15 @@ List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints?
         continue;
       }
       if (e.value == null) continue;
+      // A role that names itself ("primary": "primary") resolves to nothing,
+      // and then every control and component that draws with it fails: said
+      // here, once, where it is written.
+      if (ThemeTokens.roleNames.contains(e.key) && e.value == e.key) {
+        r.add(Codes.invalidTheme, p,
+            '"${e.key}": "${e.key}" names itself, so it is no color. A role is a color ("#AARRGGBB") or the name of one of the theme\'s '
+            '"colors". To keep the design system\'s ${e.key}, leave this line out.');
+        continue;
+      }
       switch (e.key) {
         case 'mode':
           if (ThemeMode.tryParse(e.value) == null) {
