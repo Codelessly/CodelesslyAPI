@@ -229,7 +229,7 @@ Measured, not planned. Recordings are in `CodelesslySDK/tool/stream/streams/live
 | | **Sudoku**: 27 s, one retry. A number is placed, conflicts are highlighted, the timer runs. |
 | | **Kanban with drag and drop**: a card dragged from To do is dropped on Done and the counts follow. |
 | | **A whole app screen** (sidebar, top bar, stat tiles, chart, filterable table, activity, a New task dialog): 40 s, 66 nodes, one retry. Navigation, the tabs and the dialog work. |
-| H. SDK alignment pass | Not started as a pass; done piecemeal with each finding. |
+| H. SDK alignment pass | Held. Its first two steps (moving the package to the levels' layout, deleting the island hosts) cannot be done safely while the test suite is off and the widgets stay, by the owner's decisions of 2026-11-14. Done from it: the SDK's README says what the repository has for UI written by an agent. Still open and waiting on those decisions: the package layout, the public API trim, the repositioning of the README's opening, performance numbers, and the production checks. |
 
 What the complex targets found and fixed on the way, each a thing an agent hits:
 
