@@ -686,6 +686,20 @@ class _Batch {
             path: editPointer(at, 'children'), nodeId: id, expected: dropped);
       }
     }
+    // A root canvas is the screen the UI is shown on: replaced by a node of
+    // another type, nothing shows (image_gallery@claude-haiku-5-5's retry
+    // set its canvas to a column with "slot": "body" and no "parent").
+    if (existing?.type == CanvasProps.spec.type && n.type != CanvasProps.spec.type && roots.contains(id)) {
+      _error(EditCodes.wrongType,
+          '"$id" is the canvas this UI is shown on: replaced by a ${n.type}, the UI would show nothing. To change what it shows, set '
+          'its body: {"op": "set", "id": "<new id>", "parent": "$id", "slot": "body", "node": {"type": "${n.type}", ...}} (or patch '
+          'the node already in its body).',
+          path: editPointer(at, 'type'), nodeId: id, expected: [CanvasProps.spec.type]);
+    }
+    if (op.parent == null && op.slot != null) {
+      _error(EditCodes.missingField, '"slot" places the node in a slot of "parent": add "parent" (the node whose slot it is).',
+          path: '/ops/$_op/parent', nodeId: id);
+    }
     if (_failed) return;
     _put(id, n);
     _touched[id] = op.node;
