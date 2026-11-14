@@ -21,7 +21,8 @@ const Set<String> _structural = {
 };
 
 /// An [EditCheck] that runs [validateDocument] on the nodes an op touched
-/// (with [options]: formulas, the project's screens and variables). Its
+/// (with [options]: formulas, the project's screens, variables, components
+/// and theme). Its
 /// diagnostics keep the validator's codes, paths and suggestions; an error
 /// rejects the op.
 EditCheck strictEditCheck([ValidateOptions options = const ValidateOptions()]) => (input) {
@@ -59,13 +60,11 @@ EditCheck strictEditCheck([ValidateOptions options = const ValidateOptions()]) =
         formulas: options.formulas,
         breakpoints: options.breakpoints,
         components: options.components,
+        theme: options.theme,
       );
       final out = <EditDiagnostic>[];
       for (final d in validateDocument(mini, options: o)) {
         if (_structural.contains(d.code.name)) continue;
-        // A componentEvent in a document that is not a component is an
-        // event to the document's host: the session (and its agent).
-        if (d.code.name == 'unknown_event' && !doc.extra.containsKey('widget')) continue;
         final id = d.nodeId ?? _nodeOf(d.path);
         if (id == null || !ids.contains(id)) continue;
         final later = input.incomplete && _references.contains(d.code.name);
