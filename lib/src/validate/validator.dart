@@ -197,6 +197,9 @@ final class _Validator {
   Json nodesJson = const {};
   Map<String, Node> nodes = {};
   Set<String> canvases = {};
+
+  /// The document's scripts: name → the parameters each declares.
+  Map<String, List<String>> scriptParams = {};
   final Map<String, String> canvasOf = {}; // node id → its root canvas
   final Map<String, Set<String>> variablesOf = {}; // scope → names
   Set<String> pageVariables = {};
@@ -254,6 +257,14 @@ final class _Validator {
       }
     }
     canvases = {for (final n in nodes.values) if (n.type == CanvasProps.spec.type) n.id};
+    scriptParams = {
+      for (final s in readList(m[LayoutDocumentScripts.key]) ?? const [])
+        if (s is Map && (s['name'] ?? s['id']) is String)
+          (s['name'] ?? s['id']) as String: [
+            for (final p in readList(s['params']) ?? const [])
+              if (p is Map && p['name'] is String) p['name'] as String else if (p is String) p,
+          ],
+    };
     if (m.containsKey(LayoutDocumentBreakpoints.key)) {
       values.checkDef(
           const PropDef<Object?>('breakpoints', Breakpoints.codec, []), m[LayoutDocumentBreakpoints.key], '/breakpoints');
@@ -1305,7 +1316,8 @@ final class _Validator {
     for (final e in m.entries) {
       final p = pointer(at, e.key);
       if (e.key == 'type' || e.key == 'id') continue;
-      final f = fields[e.key];
+      // runScript's arguments are read from "args" too.
+      final f = fields[spec.type == 'runScript' && e.key == 'args' ? 'arguments' : e.key];
       if (f == null) {
         if (read.contains(e.key)) continue;
         r.add(Codes.unknownActionKey, p,
@@ -1328,6 +1340,18 @@ final class _Validator {
   }
 
   void _actionRefs(String type, Json m, String at) {
+    // A script that takes parameters is run with them: without, each is
+    // undefined inside it and what it does with them is lost silently.
+    if (type == 'runScript' && m['script'] is String) {
+      final wanted = scriptParams[m['script']];
+      final given = readMap(m['arguments']) ?? readMap(m['args']) ?? const {};
+      final missing = [for (final p in wanted ?? const <String>[]) if (!given.containsKey(p)) p];
+      if (missing.isNotEmpty) {
+        r.add(Codes.missingProp, pointer(at, 'arguments'),
+            'Script "${m['script']}" takes ${missing.map((p) => '"$p"').join(', ')}: pass ${missing.length == 1 ? 'it' : 'them'} as '
+            '"arguments": {${missing.map((p) => '"$p": …').join(', ')}} (a value may be an expression, such as "\${item}").');
+      }
+    }
     // Node targets.
     final node = m['node'];
     if (node is String && node.isNotEmpty && !node.contains(r'${') && !nodes.containsKey(node)) {

@@ -721,4 +721,21 @@ void main() {
     expect(withCode(doc("var v = vars.get('puzzle'); script.refresh(); // variables.get( and refresh( in a comment"), Codes.unknownName), isEmpty);
     expect(withCode(doc("function refresh() {} refresh(); var s = 'variables.get(x)';"), Codes.unknownName), isEmpty);
   });
+  test('runScript: "args" is read as its arguments, and a script that takes parameters must be given them (the generated Sudoku placed undefined)', () {
+    Map<String, Object?> doc(Map<String, Object?> action) => {
+          'schema': 3, 'roots': ['s'],
+          'nodes': {
+            's': {'type': 'canvas', 'slots': {'body': 'b'}, 'layout': {'width': 390, 'height': 200}},
+            'b': {'type': 'box', 'layout': {'width': 40, 'height': 40}, 'actions': [
+              {'trigger': {'type': 'click'}, 'actions': [action]},
+            ]},
+          },
+          'scripts': [
+            {'id': 'place', 'name': 'place', 'params': [{'name': 'd'}], 'source': "vars.set('n', d);", 'capabilities': ['variables.write']},
+          ],
+        };
+    expect(validateDocument(doc({'type': 'runScript', 'script': 'place', 'args': {'d': '4'}})).where((d) => d.isError), isEmpty);
+    expect(validateDocument(doc({'type': 'runScript', 'script': 'place', 'arguments': {'d': '4'}})).where((d) => d.isError), isEmpty);
+    expect(withCode(doc({'type': 'runScript', 'script': 'place'}), Codes.missingProp).single.message, contains('"arguments": {"d": …}'));
+  });
 }
