@@ -7,6 +7,7 @@ each with the same sections: When to use, Minimal example, Reference, Patterns, 
 held is now here (the old links still land on the right line):
 
 - <a id="action-scrollTo"></a>`scrollTo`: [layout.md#action-scrollTo](layout.md#action-scrollTo)
+- <a id="action-setThemeMode"></a>`setThemeMode`: [theme.md#action-setThemeMode](theme.md#action-setThemeMode)
 - <a id="action-editText"></a>`editText`: [forms.md#action-editText](forms.md#action-editText)
 - <a id="action-focus"></a>`focus`: [forms.md#action-focus](forms.md#action-focus)
 - <a id="action-paginate"></a>`paginate`: [lists.md#action-paginate](lists.md#action-paginate)

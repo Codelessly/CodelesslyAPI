@@ -40,8 +40,10 @@ focused text field (test `submitted` chains through a button). In nested lists `
 whole repeat, outer item by outer item, from 0: with a 7-day grid per habit, `day#9` is the second habit's third
 day. `--full-page` captures the whole page from its top, its own scroll
 height, with content fixed to the window drawn in the first window; without it the capture is the window where the
-steps left the page. `--fonts <dir>` adds font files; `--component <Type>` and `--components-all` render
-components alone.
+steps left the page. `--theme light|dark` starts the site in that theme mode (PNG names end `-light`, `-dark`; a
+`--tap` on a `setThemeMode` switch then changes it). A site's declared fonts (`site.json`'s `fonts`) and images
+named by a path relative to the site are read from its folder with no flag; `--fonts <dir>` adds other font files
+(`--fonts system`: the system's). `--component <Type>` and `--components-all` render components alone.
 
 ### Validation codes
 
@@ -54,7 +56,7 @@ From `package:codelessly_api/validate.dart`:
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
-`fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`. Formulas are
+`font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`. Formulas are
 parsed by the SDK's own parser there, so formula syntax errors and unknown names in formulas are reported only by
 the render command.
 
@@ -78,7 +80,8 @@ menuButton --label menu`. An error state: `--type seats=0 --unfocus --label erro
 
 - Every diagnostic is about the page as it renders at that size: its media rules applied, what scrolls there, what
   an ancestor clips away.
-- The command does not fetch network images or fonts: pass local files.
+- The command does not fetch network images or fonts: put the files beside `site.json` and name them by their
+  relative path.
 - A `--tap` scrolls the target into view; a `--full-page` capture still starts at the top.
 
 ## See also

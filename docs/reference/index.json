@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5639
+      "words": 5836
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5748
+      "words": 5841
     }
   },
   "topics": [
@@ -137,7 +137,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 2092
+      "words": 2568
     },
     {
       "topic": "theme-theme-keys",
@@ -176,8 +176,8 @@
       "file": "theme.md",
       "anchor": "theme-dark-mode",
       "title": "Dark mode",
-      "summary": "`\"dark\": {\"colors\": {\"ink\": \"#FFEEEEEE\"}}` gives the colours that differ in dark mode; a node naming `ink` follows the device's mode.",
-      "words": 26
+      "summary": "`\"dark\": {\"colors\": {\"ink\": \"#FFEEEEEE\"}}` gives the colours (and roles: `surface`, `primary`...) that differ in dark mode; everything naming `ink` follows the mode: fills, strokes, named text styles (a style whose `color` is `\"ink\"`), and the controls, which take the theme's roles.",
+      "words": 225
     },
     {
       "topic": "theme-text",
@@ -200,8 +200,8 @@
       "file": "theme.md",
       "anchor": "theme-fonts",
       "title": "Fonts",
-      "summary": "`style.fontFamily` names a family (`\"Inter\"`), with `fontWeight` choosing the file.",
-      "words": 52
+      "summary": "`style.fontFamily` names a family (`\"Inter\"`), with `fontWeight` and `fontStyle` choosing the file.",
+      "words": 210
     },
     {
       "topic": "decoration",
@@ -209,7 +209,7 @@
       "anchor": "page-decoration",
       "title": "Decoration, images, icons and drawing",
       "summary": "What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing.",
-      "words": 3541
+      "words": 4097
     },
     {
       "topic": "decoration-decoration-fields",
@@ -264,8 +264,16 @@
       "file": "decoration.md",
       "anchor": "decoration-images",
       "title": "Images",
-      "summary": "Images are image fills: `{\"type\": \"image\", \"image\": {\"url\": \"...\", \"fit\": \"cover\"}}` in `decoration.fills` of a box (give the box the image's size or an `aspectRatio`).",
-      "words": 191
+      "summary": "Images are image fills: `{\"type\": \"image\", \"image\": {\"url\": \"...\", \"fit\": \"cover\"}}` in `decoration.fills` of a box (give the box the image's size or an `aspectRatio`), placed as Flutter's `DecorationImage` places them: `fit` is a `BoxFit` (`cover`, `contain`, `fill`, `fitWidth`, `fitHeight`, `none`, `scaleDown`) and `alignment` an `Alignment` (`[0, -0.3]` keeps a face in a cropped photo).",
+      "words": 334
+    },
+    {
+      "topic": "decoration-illustration",
+      "file": "decoration.md",
+      "anchor": "decoration-illustration",
+      "title": "Illustration",
+      "summary": "Three ways to draw art without a photo, each scaled to its box:",
+      "words": 397
     },
     {
       "topic": "decoration-icons",
@@ -1201,7 +1209,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 2340
+      "words": 2468
     },
     {
       "topic": "render-what-it-does",
@@ -1217,7 +1225,7 @@
       "anchor": "render-steps-before-the-capture",
       "title": "Steps before the capture",
       "summary": "In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`, `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`.",
-      "words": 234
+      "words": 286
     },
     {
       "topic": "render-validation-codes",
@@ -1232,8 +1240,8 @@
       "file": "render.md",
       "anchor": "render-render-codes",
       "title": "Render codes",
-      "summary": "The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`.",
-      "words": 56
+      "summary": "The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`.",
+      "words": 57
     },
     {
       "topic": "render-a-loop-that-converges",
@@ -1870,6 +1878,7 @@
     },
     "action": {
       "scrollTo": "layout.md#action-scrollTo",
+      "setThemeMode": "theme.md#action-setThemeMode",
       "editText": "forms.md#action-editText",
       "focus": "forms.md#action-focus",
       "paginate": "lists.md#action-paginate",

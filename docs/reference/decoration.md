@@ -305,51 +305,180 @@ box's `foregroundFills` when the caption is a sibling painted after it.
 ### Images
 
 Images are image fills: `{"type": "image", "image": {"url": "...", "fit": "cover"}}` in `decoration.fills` of a box
-(give the box the image's size or an `aspectRatio`). The SDK loads `https://` and `data:image/...` URLs. For drafts
-the render command also reads a path relative to the document (`"assets/photo.png"`) and inlines it; it does not
-fetch network images (`image_network`).
+(give the box the image's size or an `aspectRatio`), placed as Flutter's `DecorationImage` places them: `fit` is a
+`BoxFit` (`cover`, `contain`, `fill`, `fitWidth`, `fitHeight`, `none`, `scaleDown`) and `alignment` an `Alignment`
+(`[0, -0.3]` keeps a face in a cropped photo). The `url` is one of:
+
+- **a file beside the site**, by its path relative to `site.json`'s folder (`"images/hero.jpg"`, as a Flutter app
+  names an asset): PNG, JPEG, WebP, GIF, BMP or SVG. The render command reads it from the folder; a published site
+  from its files. A path that names no file is `image_failed`, naming it. Use this for photos and illustrations.
+- `https://...`: loaded by the app; the render command does not fetch it (`image_network`).
+- `data:image/...` (an SVG may be written inline as `data:image/svg+xml;utf8,<svg ...>`, URL-encoded).
+
+Fills stack, first at the bottom: a photo with a gradient scrim over it, so text reads on it, is two fills:
 
 ```json
 {
   "schema": 3,
-  "roots": ["gallery"],
+  "roots": ["story"],
   "nodes": {
-    "gallery": {
+    "story": {
       "type": "canvas",
-      "slots": {"body": "col"},
-      "layout": {"width": 390, "height": 360},
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 320},
       "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
     },
-    "col": {
+    "page": {
       "type": "column",
-      "children": ["photo", "caption"],
-      "layout": {"width": {"fill": 390}, "height": {"fill": 360}, "padding": 24},
-      "props": {"spacing": 12, "crossAxisAlignment": "start"}
+      "children": ["card"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 320}, "padding": 24}
     },
-    "photo": {
-      "type": "box",
-      "layout": {"width": {"fill": 342}, "height": 200},
+    "card": {
+      "type": "column",
+      "children": ["kicker", "headline"],
+      "layout": {"width": {"fill": 342}, "height": 240, "padding": 20},
+      "props": {"mainAxisAlignment": "end", "crossAxisAlignment": "start", "spacing": 6},
       "decoration": {
-        "fills": [{"type": "image", "image": {"url": "assets/photo.png", "fit": "cover"}}],
-        "radius": 12,
-        "clip": "antiAlias"
+        "radius": 16,
+        "clip": "antiAlias",
+        "fills": [
+          {"type": "image", "image": {"url": "assets/photo.png", "fit": "cover", "alignment": [0, -0.3]}},
+          {
+            "type": "linear",
+            "begin": [0, -1],
+            "end": [0, 1],
+            "stops": [{"color": "#00000000", "position": 0.35}, {"color": "#CC000000", "position": 1}]
+          }
+        ]
       }
     },
-    "caption": {
-      "type": "row",
-      "children": ["check", "captionText"],
-      "layout": {"width": {"hug": 200}, "height": {"hug": 24}},
-      "props": {"spacing": 6}
-    },
-    "check": {
-      "type": "icon",
-      "layout": {"width": 20, "height": 20},
-      "props": {"icon": "check_circle", "color": "#FF16A34A"}
-    },
-    "captionText": {
+    "kicker": {
       "type": "text",
-      "layout": {"width": {"hug": 100}, "height": {"hug": 20}},
-      "props": {"text": "An image fill and a Material icon", "style": {"fontSize": 14, "color": "#FF374151"}}
+      "layout": {"width": {"fill": 302}, "height": {"hug": 16}},
+      "props": {
+        "text": "TRAVEL",
+        "style": {"fontSize": 12, "fontWeight": 700, "letterSpacing": 2, "color": "#FFFDE68A"}
+      }
+    },
+    "headline": {
+      "type": "text",
+      "layout": {"width": {"fill": 302}, "height": {"hug": 56}},
+      "props": {
+        "text": "A week on the salt marsh, by boat and on foot",
+        "style": {"fontSize": 20, "fontWeight": 700, "height": 1.3, "color": "#FFFFFFFF"}
+      }
+    }
+  }
+}
+```
+
+<a id="decoration-illustration"></a>
+### Illustration
+
+Three ways to draw art without a photo, each scaled to its box:
+
+- **An SVG file** (`images/hills.svg`) as an image fill: drawn as vectors at any size, `fit` and `alignment` as
+  for a photo. For a single shape or mark, a `path` node with SVG path data and a `viewBox`.
+
+```json
+{
+  "schema": 3,
+  "roots": ["hero"],
+  "nodes": {
+    "hero": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 340},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["art", "badge"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 340}, "padding": 24},
+      "props": {"spacing": 12}
+    },
+    "art": {
+      "type": "box",
+      "layout": {"width": {"fill": 342}, "height": 214},
+      "decoration": {
+        "radius": 12,
+        "clip": "antiAlias",
+        "fills": [{"type": "image", "image": {"url": "assets/hills.svg", "fit": "cover"}}]
+      }
+    },
+    "badge": {
+      "type": "path",
+      "layout": {"width": 48, "height": 48},
+      "props": {
+        "data": "M12 2 L15 9 L22 9 L16.5 13.5 L18.5 21 L12 16.5 L5.5 21 L7.5 13.5 L2 9 L9 9 Z",
+        "viewBox": [24, 24]
+      },
+      "decoration": {"fills": [{"color": "#FFF4B740"}]}
+    }
+  }
+}
+```
+
+- **`customPaint`**: draw lists in a view box, Flutter's `Canvas` calls as data (`rect`, `circle`, `path` with SVG
+  data, `line`, `repeat` over a count with `${index}`), behind (`painter`) or over (`foregroundPainter`) the node's
+  content. Values may be expressions, so a drawing can follow data. It is not
+  clipped by the box's `radius`: round a parent with `clip` for that.
+
+```json
+{
+  "schema": 3,
+  "roots": ["hero"],
+  "nodes": {
+    "hero": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 260},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["scene"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 260}, "padding": 24}
+    },
+    "scene": {
+      "type": "box",
+      "layout": {"width": {"fill": 342}, "height": 212},
+      "customPaint": {
+        "viewBox": [320, 200],
+        "fit": "cover",
+        "painter": [
+          {"op": "rect", "rect": [0, 0, 320, 200], "paint": "#FFE8F1F8"},
+          {"op": "circle", "c": [236, 62], "radius": 28, "paint": "#FFF4B740"},
+          {
+            "op": "repeat",
+            "count": 3,
+            "ops": [
+              {
+                "op": "circle",
+                "c": ["${= 60 + index * 34}", "${= 48 + index * 6}"],
+                "radius": 3,
+                "paint": "#FF5D6D7E"
+              }
+            ]
+          },
+          {
+            "op": "path",
+            "d": "M0 150 C60 100 120 110 170 140 C220 170 270 120 320 130 L320 200 L0 200 Z",
+            "paint": "#FF7FB685"
+          },
+          {
+            "op": "path",
+            "d": "M0 170 C80 140 160 160 220 175 C260 185 290 170 320 165 L320 200 L0 200 Z",
+            "paint": "#FF3E7C59"
+          },
+          {
+            "op": "line",
+            "p1": [40, 196],
+            "p2": [280, 196],
+            "paint": {"color": "#33FFFFFF", "style": "stroke", "strokeWidth": 2}
+          }
+        ]
+      }
     }
   }
 }

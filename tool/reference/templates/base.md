@@ -133,7 +133,26 @@ from the theme's roles (`primary`, `onPrimary`, `surface`, `onSurface`, `error`,
 Without a theme they are neutral: ink on paper and the greys between. Nothing comes from Material's defaults or
 from the app the layout is shown in.
 
-Dark mode, a theme that changes with the screen size, every theme key: [theme](@page-theme).
+**Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colours that differ in dark mode, and
+`"mode"` which one the site starts in (Flutter's `ThemeMode`: `system`, the default, follows the device; `light`;
+`dark`). A theme switch is one action, `{"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}`:
+every named colour, named text style and control of every screen follows, and the choice is kept for the next
+visit. Read the mode as `${theme.mode}` and `${theme.isDark}`. Name colours in your text styles (`"color": "ink"`)
+so they change with it: [dark mode](@theme-dark-mode).
+<!-- if files -->
+
+**Fonts.** Declare the site's fonts in `site.json` as a pubspec does, files beside it: `"fonts": [{"family":
+"Fraunces", "fonts": [{"asset": "fonts/Fraunces-Regular.ttf"}, {"asset": "fonts/Fraunces-Bold.ttf", "weight":
+700}]}]` (`.ttf`, `.otf` or `.woff`; not `.woff2`). Text styles name the family; the render command and the app
+load the files, and a family nobody declared is reported (`font_fallback`, naming the nodes): [fonts](@theme-fonts).
+
+**Images.** A photo or illustration is an image fill naming a file beside `site.json` by its relative path:
+`{"type": "image", "image": {"url": "images/hero.jpg", "fit": "cover"}}` (PNG, JPEG, WebP, GIF or SVG); a file
+that is not there is reported (`image_failed`). Drawn art is a `customPaint`: [images and
+illustration](@decoration-images).
+<!-- end -->
+
+A theme that changes with the screen size, every theme key: [theme](@page-theme).
 
 ## Nodes, ids, children and slots
 
