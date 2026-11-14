@@ -465,6 +465,27 @@ Column gap:8
     expect((bar['props'] as Map).containsKey('color'), isFalse);
   });
 
+  test('a size that follows data is a fixed size the binding fills in, so the box is not left to hug', () {
+    final r = _parse('''
+state levels=[6,14,22]
+state live=true
+Row gap:3 h:32
+  each l in levels
+    Box w:3 h:=live?l:4 fill:#FF2563EB
+  Box w:=live?40:8 h:3 fill:#FF2563EB
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final bars = (r.document['nodes'] as Map).values.cast<Map>().where((n) => (n['bind'] as Map?)?.containsKey('layout.height') ?? false).toList();
+    expect(bars, hasLength(1));
+    expect((bars.single['layout'] as Map)['height'], 0);
+    expect((bars.single['layout'] as Map)['width'], 3);
+    expect((bars.single['bind'] as Map)['layout.height'], r'${= live?item:4}');
+    final wide = (r.document['nodes'] as Map).values.cast<Map>().singleWhere((n) => (n['bind'] as Map?)?.containsKey('layout.width') ?? false);
+    expect((wide['layout'] as Map)['width'], 0);
+    expect((wide['layout'] as Map)['height'], 3);
+  });
+
   test('copies across a row that grow share its width: a grid with a column per item, rows as tall as their content', () {
     final r = _parse('''
 state plans=[{"name":"Team"},{"name":"Pro"},{"name":"Enterprise"}]

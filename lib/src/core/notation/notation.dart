@@ -1052,6 +1052,11 @@ class _Parser {
       layout['width'] = _size(layout['width']);
     }
     layout['height'] = layout.containsKey('height') ? _size(layout['height']) : {'hug': 0};
+    // A size that follows data (w:=…, h:=…) is a fixed one whose number the
+    // binding gives: left to hug or fill, the number would change nothing
+    // and an empty box would stay at no size.
+    if (bind.containsKey('layout.width')) layout['width'] = 0;
+    if (bind.containsKey('layout.height')) layout['height'] = 0;
     // Copies across a row that `grow` share its width: a grid with a column
     // per item, each row as tall as its tallest cell.
     if (parent != null && layout.containsKey('flex')) {
