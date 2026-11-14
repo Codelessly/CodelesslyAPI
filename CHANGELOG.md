@@ -6,6 +6,9 @@
 - `TrustProfile.withComponents(library)`: the profile with a component library's types allowed. A session given a
   design system checks ops with it (the SDK's `UiSession(designSystem:)`): `TrustProfile.agent` lists the core's node
   types only, so every call to a design system component was `capability_not_allowed`.
+- A top-level `componentEvent` (in a document that is not a component: a generated UI's own events to its agent) is
+  no longer `unknown_event` in document and site validation; it is an event to the document's host and needs only an
+  `"event"` name. The strict edit check no longer filters the code out for this case.
 
 ## 30.1.0
 

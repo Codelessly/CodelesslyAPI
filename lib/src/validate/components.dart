@@ -293,7 +293,9 @@ extension on _Validator {
   }
 
   /// `componentEvent` actions (anywhere in [json]): inside a component,
-  /// naming one of its events.
+  /// naming one of its events; in a document that is not one, an event to
+  /// the document's host (a generated UI's session sends it to its agent),
+  /// which needs only a name.
   void _componentEvents(Object? json, String at, WidgetSpec? own) {
     if (json is List) {
       for (var i = 0; i < json.length; i++) {
@@ -306,11 +308,13 @@ extension on _Validator {
     if (m['type'] == ComponentEventAction.typeName) {
       final key = m['event'];
       if (own == null) {
-        r.add(
-          Codes.unknownEvent,
-          pointer(at, 'type'),
-          'componentEvent fires an event of the component it is in; this document is not a component (it has no "widget").',
-        );
+        if (key is! String || key.trim().isEmpty) {
+          r.add(
+            Codes.unknownEvent,
+            pointer(at, 'event'),
+            'componentEvent names the event it sends to the document\'s host: "event": "<name>".',
+          );
+        }
       } else if (key is! String || own.event(key) == null) {
         final keys = own.events.map((e) => e.key);
         r.add(
