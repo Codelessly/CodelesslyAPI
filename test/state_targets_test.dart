@@ -37,7 +37,7 @@ void main() {
           'card': {'motion': {'scale': 0.97}},
         },
       });
-      final node = LayoutDocument.fromJson(out)!.nodes['card']!;
+      final node = LayoutDocument.fromJson(out).nodes['card']!;
       final pressed = node.patched(node.behaviors.states.patchFor('card', {WidgetState.pressed})!);
       expect(pressed.behaviors.motion!.scale, 0.97);
       expect(report.entries.where((e) => e.step == 'states.target').map((e) => e.kind),
