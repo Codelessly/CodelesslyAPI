@@ -593,7 +593,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6514
+      "words": 6575
     },
     {
       "topic": "state-variables",
@@ -737,7 +737,7 @@
       "anchor": "state-changing-state-from-a-reaction",
       "title": "Changing state from a reaction",
       "summary": "`setVariable` with `op`: `set` (default), `toggle`, `add` (a number adds; a list appends; a map merges), `subtract`, `insert` / `removeAt` / `update` at `index`, `remove`.",
-      "words": 139
+      "words": 200
     },
     {
       "topic": "state-setting-several-nodes-with-a-condition",

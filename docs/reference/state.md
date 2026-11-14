@@ -623,6 +623,14 @@ formula string instead (`"when": "!item.future"`). `forEach` runs a chain per it
  "else": [{"type": "setVariable", "variable": "saved", "op": "add", "value": "${trip.id}"}]}
 ```
 
+One line of a list, from its own row of a list template (a cart's quantity stepper): `update` at the row's `index`
+with the row's record changed. `value` is one expression giving the new record (`set` changes one field), not an
+object written out:
+
+```json
+{"type": "setVariable", "variable": "cart", "op": "update", "index": "${index}", "value": "${= set(item, 'qty', item.qty + 1)}"}
+```
+
 The condition is an object, never a formula string: a formula goes in `left` with `"op": "isTrue"`.
 
 <a id="state-setting-several-nodes-with-a-condition"></a>
