@@ -1,5 +1,10 @@
 ## Unreleased
 
+- **Levels of the vocabulary** (`docs/design/12-agent-first-flutter.md`). `lib/src/core/levels.dart` (internal,
+  not exported) gives every node type, action, data source, behavior and trigger a level: core, widgets, state,
+  design, full, features. `catalogAtLevel` cuts a catalog to a level, `levelOf` and `levelUses` read a document's,
+  and `ValidateOptions.level` reports anything above the level given (`above_level`).
+
 - Milestone 3 design: `docs/design/11-no-widgets.md` (the renderer as render objects with no `MaterialApp`,
   `Navigator`, `Overlay` or widget per control; the control kit; SSUI as the default look; the split of the remaining
   controls into parallel workstreams).

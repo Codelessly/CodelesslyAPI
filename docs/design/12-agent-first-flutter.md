@@ -73,7 +73,8 @@ higher level, and each level's reference is complete on its own. Higher levels a
 | 4 | **Full vocabulary** | Motion and animations, gestures, drag and drop, `customPaint`, scroll effects and parallax, hero, charts, timers, scripting, media and embeds. | It is building an app or a game, not a card |
 | 5 | **Feature layers** | Multi-page sites, publishing, storage, paywall, hosted plugins. Product features built from levels 0–4, never new render primitives. | It is shipping a product |
 
-Levels 0 and 1 together are the surface compared with A2UI, and the surface of the compact notation
+Levels 0 to 2 are the surface compared with A2UI (section 7); levels 0 and 1, with the level 2 forms a card needs,
+are the surface of the compact notation
 `Column([Slider, Input, Toggle, Button])`. The end targets (a custom-styled Sudoku, a drag-and-drop builder, a
 whole app screen from a description) are levels 3 and 4 on the same document.
 
@@ -200,11 +201,15 @@ Port CodelesslyEditor in one pass; the generative UI demo page; marketing drop-i
 | H starts | A's workstreams are merged (H1 moves their files) |
 | I starts | H is done and E's numbers hold |
 
-## 7. Open questions for the owner
+## 7. Decisions (owner, 2026-11-14)
 
-1. Is level 2 (state and behaviour) part of the A2UI comparison surface, or strictly 0–1 with the host holding
-   state, as A2UI does?
-2. Level names in the public API: numbers, or names (`core`, `widgets`, `state`, `design`, `full`)?
-3. May the compact notation drop Flutter's type names where a shorter one is unambiguous (`Input` for
-   `textField`, `Toggle` for `switch`), as in the owner's example, with the document keeping the full names?
-4. Convert a whole-value `"${…}"` into a binding on apply (phase B)?
+1. **The A2UI comparison surface is levels 0–2.** A2UI's own cases need forms, sliders and values that react, so
+   state is part of the comparison, not something we add after it. The compact notation therefore also covers
+   the level 2 forms a card needs (a bound value, a reaction).
+2. **Levels have names (`core`, `widgets`, `state`, `design`, `full`, `features`) and are internal
+   categorization, not public API.** They live in `lib/src/core/levels.dart`, are not exported, and are used by
+   our validator profile, the reference generator and the tools.
+3. **The compact notation may use shorter names where they are natural** (`Input`, `Toggle`); the document keeps
+   the full type names.
+4. **A whole-value `"${…}"` written where a plain value goes is converted to a binding on apply**, with a note to
+   the author; it is not rejected.

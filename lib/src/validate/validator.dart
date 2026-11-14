@@ -14,6 +14,7 @@ import '../core/conditions.dart';
 import '../core/decoration.dart';
 import '../core/json.dart';
 import '../core/layout.dart';
+import '../core/levels.dart';
 import '../core/logic.dart';
 import '../core/node.dart';
 import '../core/node_patch.dart';
@@ -54,7 +55,12 @@ final class ValidateOptions {
     this.breakpoints,
     this.components,
     this.theme,
+    this.level,
   });
+
+  /// The level the author was granted (docs/design/12): anything the
+  /// document uses above it is reported (`above_level`). Null: no limit.
+  final Level? level;
 
   /// Screen ids (canvas and layout ids) of the other documents of the
   /// project, which navigation may name.
@@ -101,6 +107,14 @@ List<Diagnostic> validateDocument(Object? json, {ValidateOptions options = const
   try {
     _Validator(r, options).document(json);
     r.out.addAll(repeatedSubtrees(readMap(readMap(json)?['nodes']) ?? const {}));
+    final level = options.level;
+    if (level != null) {
+      for (final u in levelUses(json, above: level)) {
+        r.out.add(Diagnostic(Codes.aboveLevel, u.path,
+            '${u.what} is level ${u.level.index} (${u.level.title}); this document is limited to level ${level.index} (${level.title}).',
+            nodeId: u.nodeId));
+      }
+    }
   } catch (e) {
     r.add(Codes.invalidDocument, '', 'Validation stopped on an unexpected value: ${'$e'.split('\n').first}');
   }
