@@ -222,4 +222,24 @@ Card
     expect((_node(r, 'progressBar1')['props'] as Map)['value'], 0.4);
     expect((_node(r, 'checkbox1')['bind'] as Map)['props.value'], r'${= qty>1}');
   });
+
+  test('each repeats the lines under it over a list: a list whose item is those lines, the element read as item', () {
+    final r = _parse('''
+state people=[{"name":"Ada","age":36},{"name":"Grace","age":45}]
+Card
+  each p in people
+    Row between
+      Text.strong "{p.name}"
+      Text "{p.age} years, people: {len(people)}"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final list = _node(r, 'listView1');
+    expect(list['bind'], {'data': r'${people}'});
+    expect(list['children'], ['listView1Item']);
+    expect(_node(r, 'listView1Item')['children'], ['row1']);
+    expect((_node(r, 'text1')['props'] as Map)['text'], r'${item.name}');
+    // Only the element's name is rewritten, not the word inside other names.
+    expect((_node(r, 'text2')['props'] as Map)['text'], r'${item.age} years, people: ${= len(people)}');
+  });
 }

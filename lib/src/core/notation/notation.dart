@@ -219,7 +219,10 @@ class _Grid {
 }
 
 class _Open {
-  _Open(this.indent, this.id, this.type, {this.condition, this.grid});
+  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each});
+
+  /// An `each <name> in …` above: the name its lines call an item by.
+  final String? each;
 
   /// A grid above (its own line, or an `if` inside it): children go in its
   /// rows.
@@ -334,9 +337,14 @@ class _Parser {
 
   void _issue(int column, String message) => issues.add(NotationIssue(_line, column, message));
 
-  void _lineAt(int indent, String line, int column) {
+  void _lineAt(int indent, String source, int column) {
+    var line = source;
     while (_stack.isNotEmpty && _stack.last.indent >= indent) {
       _close(_stack.removeLast());
+    }
+    // Inside an `each x in …`, x is the document's `item`.
+    for (final open in _stack) {
+      if (open.each != null && open.each != 'item') line = _rename(line, open.each!);
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     final parent = _stack.isEmpty ? null : _stack.last;
@@ -344,6 +352,31 @@ class _Parser {
       if (parent == null) return _issue(column, 'An "if" needs a parent: indent it under a node.');
       final own = _formula(line.substring(3).trim());
       _stack.add(_Open(indent, parent.id, parent.type, condition: _and(parent.condition, own), grid: parent.grid));
+      return;
+    }
+    final each = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
+    if (each != null) {
+      if (parent == null) return _issue(column, 'An "each" needs a parent: indent it under a node.');
+      // A list over the data, its item a column of the lines under it.
+      final listId = _id('listView'), itemId = '${listId}Item';
+      nodes[listId] = {
+        'type': 'listView',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'scrollable': false},
+        'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
+        'children': <Object?>[itemId],
+      };
+      final p = nodes[parent.id]!;
+      ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(listId);
+      _parentOf[listId] = parent.id;
+      if (parent.grid != null) _intoRow(parent.grid!, listId);
+      nodes[itemId] = {
+        'type': 'column',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'crossAxisAlignment': 'start'},
+      };
+      _parentOf[itemId] = listId;
+      _stack.add(_Open(indent, itemId, 'column', each: each[1]));
       return;
     }
     final t = _Tokens(line);
@@ -688,6 +721,36 @@ class _Parser {
         ((out['children'] as List<Object?>?) ?? (out['children'] = <Object?>[])).add(tid);
       }
     }
+  }
+
+  /// [line] with the word [name] read as `item`, outside quoted text and
+  /// inside `{…}` within it.
+  String _rename(String line, String name) {
+    final word = RegExp('(?<![A-Za-z0-9_.])${RegExp.escape(name)}(?![A-Za-z0-9_])');
+    final out = StringBuffer();
+    var quoted = false, depth = 0, start = 0;
+    void flush(int end, bool code) {
+      final part = line.substring(start, end);
+      out.write(code ? part.replaceAll(word, 'item') : part);
+      start = end;
+    }
+
+    for (var i = 0; i < line.length; i++) {
+      final c = line[i];
+      if (c == '"' && (i == 0 || line[i - 1] != r'\')) {
+        flush(i, !quoted || depth > 0);
+        quoted = !quoted;
+        depth = 0;
+      } else if (quoted && c == '{') {
+        if (depth == 0) flush(i, false);
+        depth++;
+      } else if (quoted && c == '}' && depth > 0) {
+        depth--;
+        if (depth == 0) flush(i, true);
+      }
+    }
+    flush(line.length, !quoted);
+    return out.toString();
   }
 
   /// Moves [id], just added under a grid, into the grid's current row (a
