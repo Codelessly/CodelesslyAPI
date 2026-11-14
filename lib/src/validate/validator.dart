@@ -1119,7 +1119,11 @@ final class _Validator {
             ? 'layout.${e.key}'
             : DecorationFields.all.any((f) => f.key == e.key)
                 ? 'decoration.${e.key}'
-                : null;
+                // A behavior any node takes (a tooltip, a hero, states) is
+                // written beside "props", not in it.
+                : Behaviors.keys.contains(e.key)
+                    ? 'the node\'s own "${e.key}", written beside "props": {"type": "${n.type}", "${e.key}": …, "props": {…}}'
+                    : null;
         r.add(Codes.unknownProp, p,
             'A ${n.type} has no prop "${e.key}"${where == null ? '' : ' (it is $where)'}. Its props: ${spec.props.isEmpty ? '(none)' : listOf(spec.props.map((d) => d.key))}.',
             suggestion: nearest(e.key, spec.props.map((d) => d.key)) ?? where);
