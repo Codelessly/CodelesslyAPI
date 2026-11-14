@@ -115,7 +115,7 @@ Its `decoration.suffixIcon` with a tap reaction (`actions` is a list of reaction
 there is text by binding the icon:
 
 ```json
-"search": {"type": "textField", "layout": {"width": {"fill": 280}, "height": 44},
+"search": {"type": "textField", "layout": {"width": {"fill": 280}, "height": {"hug": 28}},
   "bind": {"props.initialValue": "${query}", "props.decoration.suffixIcon.icon": "${= query == '' ? '' : 'close'}"},
   "props": {"decoration": {"hintText": "Search dishes", "prefixIcon": {"icon": "search", "size": 18}, "suffixIcon": {"icon": "close", "size": 18,
     "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "query", "value": ""}]}]}}}}

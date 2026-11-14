@@ -791,8 +791,8 @@ section's anchor is its topic.
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9529 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2906 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12705 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7875 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12891 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7877 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6662 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5250 |
@@ -801,7 +801,7 @@ section's anchor is its topic.
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7160 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2308 |
-| [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 468 |
+| [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 470 |
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
 | [media.md](#page-media) | The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images. | 1998 |
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
@@ -3241,7 +3241,7 @@ good one:
     },
     "email": {
       "type": "textField",
-      "layout": {"width": {"fill": 342}, "height": 56},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 28}},
       "props": {"decoration": {"labelText": "Email", "hintText": "you@example.com"}, "keyboardType": "emailAddress"},
       "actions": [
         {
@@ -3438,7 +3438,7 @@ Flutter `FloatingActionButton`.
 <a id="node-textField"></a>
 ### `textField`
 
-Flutter `TextField`.
+Flutter `TextField`. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 Flutter `TextField` (a `TextFormField` when it validates).
 
@@ -3637,7 +3637,7 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 <a id="node-dropdown"></a>
 ### `dropdown`
 
-Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it.
+Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 Flutter `DropdownButton<Object>`. Its padding is the node's `layout.padding`.
 
@@ -3716,7 +3716,7 @@ Flutter `SegmentedButton<String>`.
 <a id="node-datePicker"></a>
 ### `datePicker`
 
-Flutter `showDatePicker` button or field.
+Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).
 
@@ -3738,7 +3738,7 @@ A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calenda
 <a id="node-timePicker"></a>
 ### `timePicker`
 
-Flutter `showTimePicker` button or field.
+Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).
 
@@ -4535,7 +4535,7 @@ Its `decoration.suffixIcon` with a tap reaction (`actions` is a list of reaction
 there is text by binding the icon:
 
 ```json
-"search": {"type": "textField", "layout": {"width": {"fill": 280}, "height": 44},
+"search": {"type": "textField", "layout": {"width": {"fill": 280}, "height": {"hug": 28}},
   "bind": {"props.initialValue": "${query}", "props.decoration.suffixIcon.icon": "${= query == '' ? '' : 'close'}"},
   "props": {"decoration": {"hintText": "Search dishes", "prefixIcon": {"icon": "search", "size": 18}, "suffixIcon": {"icon": "close", "size": 18,
     "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "query", "value": ""}]}]}}}}
@@ -5197,9 +5197,9 @@ filters and sorts them, `paged` is one page of it, and the list binds `${paged}`
   "home": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 360}, "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
   "col": {"type": "column", "children": ["tools", "head", "list", "pager"], "props": {"spacing": 8}, "layout": {"width": {"fill": 390}, "height": {"hug": 320}, "padding": 16}},
   "tools": {"type": "row", "children": ["search", "pick"], "props": {"spacing": 8}, "layout": {"width": {"fill": 358}, "height": {"hug": 48}}},
-  "search": {"type": "textField", "props": {"decoration": {"hintText": "Search customer"}}, "bind": {"props.initialValue": "${search}"}, "layout": {"width": {"fill": 220}, "height": 48},
+  "search": {"type": "textField", "props": {"decoration": {"hintText": "Search customer"}}, "bind": {"props.initialValue": "${search}"}, "layout": {"width": {"fill": 220}, "height": {"hug": 28}},
     "actions": [{"trigger": {"type": "changed"}, "actions": [{"type": "setVariable", "variable": "search", "value": "${result}"}, {"type": "setVariable", "variable": "page", "value": "0"}]}]},
-  "pick": {"type": "dropdown", "props": {"items": ["All", "Paid", "Overdue"], "isExpanded": true}, "bind": {"props.value": "${statusFilter}"}, "layout": {"width": 130, "height": 48},
+  "pick": {"type": "dropdown", "props": {"items": ["All", "Paid", "Overdue"], "isExpanded": true}, "bind": {"props.value": "${statusFilter}"}, "layout": {"width": 130, "height": {"hug": 28}},
     "actions": [{"trigger": {"type": "changed"}, "actions": [{"type": "setVariable", "variable": "statusFilter", "value": "${result}"}, {"type": "setVariable", "variable": "page", "value": "0"}]}]},
   "head": {"type": "row", "children": ["hCust", "hAmt"], "layout": {"width": {"fill": 358}, "height": {"hug": 20}}},
   "hCust": {"type": "text", "props": {"text": "Customer", "style": {"fontSize": 13, "color": "#FF6B7280"}}, "bind": {"props.text": "Customer${= sortKey == 'cust' ? (desc ? ' ↓' : ' ↑') : ''}"}, "layout": {"width": {"fill": 270}, "height": {"hug": 18}},
@@ -9653,13 +9653,13 @@ A sign-in form whose error appears in a text:
     },
     "email": {
       "type": "textField",
-      "layout": {"width": {"fill": 342}, "height": 56},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 28}},
       "props": {"decoration": {"labelText": "Email"}, "keyboardType": "emailAddress"},
       "bind": {"props.initialValue": "${email}"}
     },
     "password": {
       "type": "textField",
-      "layout": {"width": {"fill": 342}, "height": 56},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 28}},
       "props": {"decoration": {"labelText": "Password"}, "obscureText": true},
       "bind": {"props.initialValue": "${password}"}
     },

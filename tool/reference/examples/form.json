@@ -7,7 +7,7 @@
     "col": {"type": "column", "children": ["email", "emailError", "send", "thanks"],
             "layout": {"width": {"fill": 390}, "height": {"fill": 500}, "padding": 24},
             "props": {"spacing": 8, "crossAxisAlignment": "start"}},
-    "email": {"type": "textField", "layout": {"width": {"fill": 342}, "height": 56},
+    "email": {"type": "textField", "layout": {"width": {"fill": 342}, "height": {"hug": 28}},
               "props": {"decoration": {"labelText": "Email", "hintText": "you@example.com"}, "keyboardType": "emailAddress"},
               "actions": [{"trigger": {"type": "changed"},
                            "actions": [{"type": "setVariable", "variable": "email", "value": "${result}"}]}]},
