@@ -309,4 +309,23 @@ Card
     expect((_node(r, 'accordion1')['props'] as Map)['expanded'], false);
     expect((_node(r, 'accordion2')['props'] as Map)['expanded'], true);
   });
+  test('a root that is not a card is on the surface; List holds an each; state written as a formula is read where it is used', () {
+    final r = _parse('''
+state cart=[{"name":"Beans","price":24,"qty":1}]
+state subtotal=sum(cart,x=>x.price*x.qty)
+state mode=fast
+Column gap:8
+  List gap:4
+    each row in cart
+      Text "{row.name}"
+  Text "Total {subtotal}"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect((_node(r, 'screen')['decoration'] as Map)['fills'], isNotEmpty);
+    expect(_node(r, 'column2')['children'], ['listView1'], reason: 'the List is a column holding the repeated list');
+    expect((_node(r, 'text2')['props'] as Map)['text'], r'Total ${= (sum(cart,x=>x.price*x.qty))}');
+    final names = [for (final v in (r.document['variables'] as Map)['screen'] as List) (v as Map)['name']];
+    expect(names, ['cart', 'mode'], reason: 'a formula is not a variable; a bare word is text');
+  });
 }
