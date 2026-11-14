@@ -170,7 +170,42 @@ by eye, and the share of lines that needed the `{...}` tail.
 4. The generated prompt, the session and chat-example wiring, line-and-column diagnostics.
 5. Record the 34 briefs in the notation and compare with the table in section 1.
 
-## 10. Open points
+## 10. Measured (2026-11-14)
+
+The first version is built (`lib/src/core/notation/`, `package:codelessly_api/notation.dart`): the parser, the
+line-by-line stream, the generated prompt, `UiSession.applyNotation` in the SDK and a recorder in the chat example
+(`tool/record_notation.dart`). The 17 card briefs were recorded on Claude Haiku 5.5 and Sonnet 5.5 with the same
+settings as the `ui_apply` recordings (low effort, thinking off where the model allows it).
+
+| | `ui_apply` | Notation |
+|---|---|---|
+| Prompt | 26,033 tokens | about 1,700 |
+| Output per card, median | 3,300 tokens | 905 |
+| Time to complete, median | 15.1 s | 4.75 s |
+| Time to first token, median | 0.96 s | 0.63 s |
+| Output per node | 137 tokens | 20.7 |
+| Nodes per card, median | 24 | 44.5 |
+
+The models write about twice as many nodes in under a third of the tokens and time. The per-node target of 15
+tokens is not met yet (20.7): the remainder is mostly long state expressions, which are content, not envelope.
+
+Validity went up by accepting what the models wrote, not by telling them more:
+
+| Run | Valid on the first answer | After one retry |
+|---|---|---|
+| 1 (first parser) | 8 of 20 | 13 of 20 |
+| 2 (`Grid cols`, `Progress 0.5`, `Box` with children, `Badge` variants, `enabled`) | 17 of 34 | 24 of 34 |
+| 3 (headers and tiles from strings, growing children, expressions with quotes, prices) | 28 of 34 | 31 of 34 |
+| Run 3's answers expanded again by the current parser (labels that read state, text style keys, segmented items, grid rows, parenthesised expressions) | | 33 of 34 |
+
+The rule that came out of it: when two models independently write the same form and its meaning is not in
+doubt, the notation takes that form. `tool/reexpand_notation.dart` expands recorded answers again with the
+current parser, so a parser change is measured on real answers without calling a model.
+
+Not built yet: `each` over data, the printer and its round trip, diagnostics by line in the tool result, the
+notation in the chat example's live path, and the A2UI front end.
+
+## 11. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
   without a card would then have no `Card`). Proposed: from the design system, with SSUI's as the built-in.
