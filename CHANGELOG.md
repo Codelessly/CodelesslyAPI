@@ -14,6 +14,7 @@
 - Date and time pickers (Milestone 3, workstream G): the `datePicker`, `timePicker` and `dateTimeInput` docs describe
   the SDK's own pickers (SSUI's field, a calendar or hour/minute columns in a popover or bottom sheet; an empty value
   shows its hint), no longer Material's dialogs; `docs/design/11-no-widgets.md` marks workstream G built.
+- Design 11: the text field as built (WS-A, section 3.2): field frame, editor and what is left (handles, toolbar).
 - Milestone 3 design: `docs/design/11-no-widgets.md` (the renderer as render objects with no `MaterialApp`,
   `Navigator`, `Overlay` or widget per control; the control kit; SSUI as the default look; the split of the remaining
   controls into parallel workstreams).
