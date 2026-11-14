@@ -14,13 +14,20 @@ String notationPrompt({Catalog? catalog, NotationOptions options = const Notatio
       if (e.key != 'Card' && e.key != 'Image') e.value.type: e.key,
   };
   String written(String type) => short[type] ?? '${type[0].toUpperCase()}${type.substring(1)}';
+  // The types worth naming in a small prompt: the rest of levels 0 and 1
+  // parse too, and are taught by the reference when a UI needs them.
+  const taught = {
+    'row', 'column', 'stack', 'text', 'icon', 'spacer', 'divider', 'listView', 'gridView', //
+    'filledButton', 'iconButton', 'textField', 'switch', 'checkbox', 'radio', 'slider', 'dropdown', 'segmentedButton',
+    'choiceChip', 'filterChip', 'chip', 'badge', 'progressBar', 'circularProgressIndicator', 'datePicker', 'timePicker',
+    'accordion', 'listTile',
+  };
   List<String> ofLevel(Level l) => [
         for (final w in c.widgets)
-          if (widgetLevels[w.type] == l && w.type != 'canvas' && !const {'placeholder', 'singlePlaceholder', 'flex'}.contains(w.type))
-            written(w.type),
+          if (widgetLevels[w.type] == l && taught.contains(w.type)) written(w.type),
       ];
-  final layout = [...ofLevel(Level.core), 'Card', 'Image'];
-  final controls = ofLevel(Level.widgets).where((t) => !t.endsWith('Button') || t == 'Button' || t == 'IconButton' || t == 'SegmentedButton').toList();
+  final layout = [...ofLevel(Level.core), 'Box', 'Card', 'Image'];
+  final controls = ofLevel(Level.widgets);
   return '''
 You describe a UI by writing it in this notation, one node per line, children indented two spaces under their parent. Write only the notation: no JSON, no prose, no code fence.
 
@@ -42,7 +49,11 @@ TYPES
   Controls: ${controls.join(', ')}
   Text variants: ${options.textStyles.keys.map((k) => 'Text.$k').join(', ')} (plain Text is body text)
   Button variants: ${buttonVariants.keys.map((k) => 'Button.$k').join(', ')} (plain Button is primary)
-  Card is a padded, bordered Column. Every control already has the design system's look: write no colours or sizes on controls.
+  Badge variants: ${badgeVariants.keys.map((k) => 'Badge.$k').join(', ')}
+  Card is a padded, bordered Column; Box is a Column you style (fill, radius, pad). Every control already has the design system's look: write no colours or sizes on controls.
+  Grid cols:3 gap:8 lays its children out in columns. Progress 0.6 (or Progress =done) shows a share from 0 to 1. Select and SegmentedButton take items:["A","B"]. Icon "name" uses Material icon names (check, close, star, chevron_right).
+  Only Row, Column, Stack, Box, Card, Grid, List, Accordion and ListTile take children.
+  An action is one of the forms above, never a condition: to choose, set a variable to a formula (-> step=valid?3:2). Chips have selected:=expression and enabled:=expression.
 
 EXAMPLES
 Column gap:12 pad:16

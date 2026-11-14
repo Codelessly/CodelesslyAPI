@@ -95,6 +95,7 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'List': (type: 'listView', node: {}),
   'Grid': (type: 'gridView', node: {}),
   'Image': (type: 'box', node: {}),
+  'Box': (type: 'column', node: {}),
   'Card': (type: 'column', node: {}),
 };
 
@@ -126,6 +127,28 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
 };
 
 const _shortKeys = {'gap': 'props.spacing', 'pad': 'layout.padding', 'w': 'layout.width', 'h': 'layout.height', 'grow': 'layout.flex'};
+/// Keys a model reaches for that a type spells otherwise.
+const Map<String, Map<String, List<String>>> _typeKeys = {
+  'gridView': {
+    'cols': ['props.crossAxisCount'],
+    'columns': ['props.crossAxisCount'],
+    'gap': ['props.mainAxisSpacing', 'props.crossAxisSpacing'],
+    'spacing': ['props.mainAxisSpacing', 'props.crossAxisSpacing'],
+  },
+};
+
+/// What `=expr` binds on a type that shows a value but takes no input.
+const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'badge': 'label', 'text': 'text'};
+
+/// `Badge.<variant>`: its fill and text colours (SSUI's tints).
+const Map<String, (String, String)> badgeVariants = {
+  'neutral': ('#FFF3F4F6', '#FF374151'),
+  'info': ('#FFDBEAFE', '#FF1D4ED8'),
+  'success': ('#FFDCFCE7', '#FF15803D'),
+  'warning': ('#FFFEF3C7', '#FFB45309'),
+  'danger': ('#FFFEE2E2', '#FFB91C1C'),
+};
+
 const _layoutKeys = {'width', 'height', 'padding', 'margin', 'flex', 'aspectRatio', 'x', 'y', 'align', 'constraints', 'order', 'basis'};
 const _decorationKeys = {'radius', 'strokeWidth', 'fills', 'strokes', 'effects', 'clip', 'shape'};
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
@@ -305,8 +328,16 @@ class _Parser {
       } else {
         props['style'] = style is Map ? _copy(style.cast<String, Object?>()) : style;
       }
+    } else if (type == 'badge' && variant != null) {
+      final v = badgeVariants[variant];
+      if (v == null) {
+        _issue(column + written.length + 1, 'No Badge.$variant. Variants: ${badgeVariants.keys.join(', ')}.');
+      } else {
+        props['backgroundColor'] = v.$1;
+        props['textColor'] = v.$2;
+      }
     } else if (variant != null) {
-      props['variant'] = variant;
+      _issue(column + written.length + 1, 'A $written has no variants: write $written, with props as key:value.');
     }
     final spec = catalog.widget(type);
     if (spec == null) {
@@ -343,6 +374,7 @@ class _Parser {
       if (short != null) return short;
       if (key == 'visible' || key == 'opacity') return key;
       if (spec.props.any((p) => p.key == key)) return 'props.$key';
+      if (key == 'enabled' && spec.props.any((p) => p.key == 'isEnabled')) return 'props.isEnabled';
       if (_layoutKeys.contains(key)) return 'layout.$key';
       if (_decorationKeys.contains(key)) return 'decoration.$key';
       return 'props.$key';
@@ -375,7 +407,12 @@ class _Parser {
         final expr = t.until(const [' -> ', ' {']).trim();
         final value = _valueProps[type];
         if (value == null) {
-          bind['props.${_mainKey(type, spec) ?? 'text'}'] = _read(expr);
+          final shown = _shownValue[type] ?? _mainKey(type, spec);
+          if (shown == null) {
+            _issue(col, 'A $written has no value to bind with =. Bind a prop: key:=expression.');
+          } else {
+            bind['props.$shown'] = _read(expr);
+          }
         } else {
           bind['props.${value.prop}'] = _read(expr);
           if (_identifier.hasMatch(expr)) {
@@ -401,6 +438,9 @@ class _Parser {
             props['mainAxisAlignment'] = m;
           } else if (_crossWords[word] case final String c when type == 'row' || type == 'column') {
             props['crossAxisAlignment'] = c;
+          } else if (num.tryParse(word) != null && (_valueProps[type]?.type == 'decimal' || _shownValue[type] == 'value')) {
+            // A bare number on a slider or a progress bar is its value.
+            props['value'] = num.parse(word);
           } else if (word == 'grow') {
             layout['flex'] = 1;
           } else if (word == 'fill') {
@@ -425,6 +465,20 @@ class _Parser {
             decoration['fills'] = [
               {'color': _value(raw)},
             ];
+          }
+          continue;
+        }
+        if (key == 'hidden' && raw.startsWith('=')) {
+          bind['visible'] = _formula('!(${raw.substring(1)})');
+          continue;
+        }
+        if (_typeKeys[type]?[key] case final List<String> paths) {
+          for (final path in paths) {
+            if (raw.startsWith('=')) {
+              bind[path] = _read(raw.substring(1));
+            } else {
+              put(path, _value(raw));
+            }
           }
           continue;
         }
