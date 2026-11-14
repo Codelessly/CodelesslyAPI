@@ -541,7 +541,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`
 |---|---|---|---|---|
 | `value` | String | `""` |  |  |
 | `enabled` | bool | `true` |  |  |
-| `use24h` | bool | `false` |  | The picker's dial and fields in 24-hour time. |
+| `alwaysUse24HourFormat` | bool | `false` |  | The picker's dial and fields in 24-hour time (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the picker reads). |
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](forms.md#type-InputDecoration) | `{}` |  |  |

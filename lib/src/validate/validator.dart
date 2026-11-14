@@ -585,6 +585,8 @@ final class _Validator {
     ('box', 'strokeMiterLimit'): 'it belongs to a "path" node (a box drawn as a path is one)',
     ('path', 'subpathColors'): 'shapes in different colors are "customPaint" path ops, one per color '
         '({"op": "path", "d": <the shapes of that color>, "paint": <the color>})',
+    ('timePicker', 'use24h'): 'it is "alwaysUse24HourFormat" (Flutter\'s MediaQueryData.alwaysUse24HourFormat, which the '
+        'picker reads; renamed after 30.1.0)',
   };
 
   /// Where a misplaced key goes: `props.text`, `layout.width`...

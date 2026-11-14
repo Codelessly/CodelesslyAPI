@@ -10,6 +10,11 @@
 - **`BindPaths.declaredDefault(node, path)`**: the declared default at a binding path (`opacity`, `props.*`,
   `layout.*`, `decoration.*`, a custom paint op's field), the node's value there when its JSON omits the field. An
   animation track with no `from` or `to` uses it (codelessly_sdk), so a track can end at an op's default `trimEnd` 1.
+- **A time picker's `use24h` is `alwaysUse24HourFormat`** (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the
+  picker reads). Step `props.renamed` (in `migrate2to3`'s one-way steps) renames the prop, its binding, state and media
+  patches and `setValue`/condition paths in a schema-2 document; in a schema-3 document `use24h` is refused
+  (`unknown_prop`) naming the new spelling, and `movedPathHint('props.use24h')` gives it. No document in the corpus or
+  either repository used it.
 - **State patches that targeted `self` or `@<key>` now run.** A state patch names the node it patches by id; generated
   schema-2 documents also wrote `self` and `@<key>` (the node's key), which matched no node, so those hover, press
   and selection styles never applied (1131 patches in 9 corpus documents, all naming the node their states are on).
