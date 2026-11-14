@@ -441,4 +441,78 @@ Card
     expect(((_node(r, 'row1')['decoration'] as Map)['fills'] as List).single, {'color': '#1A15803D'});
     expect((_node(r, 'barChart1')['props'] as Map)['color'], '#FF0F766E');
   });
+
+  test('looks that follow data: a bound border and text color, an icon chosen by an expression, an expression in the tail', () {
+    final r = _parse('''
+state on=false
+state score=72
+Column gap:8
+  Row pad:8 border:=on?"#FF2563EB":"#FFE5E7EB" -> on=!on
+    Icon "{on ? "expand_less" : "expand_more"}"
+    Text "{score}" color:=score>=80?"#FF16A34A":"#FFDC2626"
+  Progress =score/100 {"props": {"color": "\${= score>=80 ? '#FF16A34A' : '#FFDC2626'}"}}
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final row = _node(r, 'row1');
+    expect((row['bind'] as Map)['decoration.strokes[0].color'], r'${= on?"#FF2563EB":"#FFE5E7EB"}');
+    expect((row['decoration'] as Map)['strokes'], [{'color': '#00000000'}]);
+    expect((_node(r, 'icon1')['bind'] as Map)['props.icon'], r'${= on ? "expand_less" : "expand_more"}');
+    expect((_node(r, 'icon1')['props'] as Map?)?.containsKey('icon') ?? false, isFalse);
+    expect((_node(r, 'text1')['bind'] as Map)['props.style.color'], r'${= score>=80?"#FF16A34A":"#FFDC2626"}');
+    final bar = _node(r, 'progressBar1');
+    expect((bar['bind'] as Map)['props.color'], r"${= score>=80 ? '#FF16A34A' : '#FFDC2626'}");
+    expect((bar['props'] as Map).containsKey('color'), isFalse);
+  });
+
+  test('copies across a row that grow share its width: a grid with a column per item, rows as tall as their content', () {
+    final r = _parse('''
+state plans=[{"name":"Team"},{"name":"Pro"},{"name":"Enterprise"}]
+Row gap:8
+  each p in plans
+    Column pad:10 grow
+      Text "{p.name}"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final list = _node(r, 'listView1');
+    expect(list['type'], 'gridView');
+    expect(list['layout'], {'width': {'fill': 0}, 'height': {'hug': 0}});
+    expect(list['props'], {'crossAxisCount': 1, 'crossAxisSpacing': 8, 'shrinkWrapRows': true, 'physics': 'never'});
+    expect(list['bind'], {'data': r'${plans}', 'props.crossAxisCount': r'${= max(1, length(plans))}'});
+    expect(_node(r, 'listView1Item')['layout'], {'width': {'fill': 0}, 'height': {'hug': 0}});
+    expect((_node(r, 'column1')['layout'] as Map).containsKey('flex'), isFalse);
+    // Without grow, the copies keep their own widths in a line.
+    final plain = _parse('Row gap:8\n  each p in [1,2]\n    Text "{p}"\n');
+    expect(_node(plain, 'listView1')['type'], 'listView');
+    // Read as it arrives, the list sent as a line is patched into the grid.
+    const text = 'state plans=[{"name":"Team"},{"name":"Pro"}]\nRow gap:8\n  each p in plans\n    Column pad:10 grow\n      Text "{p.name}"\n';
+    final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
+    var doc = LayoutDocument(catalog: standardCatalog);
+    for (final ops in [stream.add(text), stream.close()]) {
+      if (ops.isEmpty) continue;
+      final applied = applyOps(doc, {'ops': ops}, catalog: standardCatalog);
+      expect(applied.errors, isEmpty, reason: '${applied.errors}');
+      doc = applied.document;
+    }
+    final built = (doc.toJson()['nodes'] as Map)['listView1'] as Map;
+    expect(built['type'], 'gridView');
+    expect(built['layout'], {'width': {'fill': 0}, 'height': {'hug': 0}});
+    expect((built['props'] as Map)['shrinkWrapRows'], true);
+    expect(built['children'], ['listView1Item']);
+    expect(((doc.toJson()['nodes'] as Map)['listView1Item'] as Map)['children'], ['column1']);
+    expect(_problems(doc.toJson()), isEmpty);
+  });
+
+  test('a derived value is read inside a text that quotes other texts', () {
+    final r = _parse('''
+state a=3
+state total=a*2
+Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect((_node(r, 'text1')['props'] as Map)['text'], contains('(a*2)>=5'));
+    expect((_node(r, 'text1')['props'] as Map)['text'], isNot(contains('total')));
+  });
 }
