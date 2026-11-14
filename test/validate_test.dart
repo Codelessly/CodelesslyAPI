@@ -1,7 +1,7 @@
 // One test per diagnostic code: a small document with exactly that mistake.
 import 'dart:convert';
 
-import 'package:codelessly_api/codelessly_api.dart' show Breakpoints;
+import 'package:codelessly_api/codelessly_api.dart' show AxisSize, Breakpoints, Node;
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
@@ -317,6 +317,22 @@ void main() {
       final d = base();
       node(d, 'box').remove('layout');
       expectOne(d, Codes.zeroSize, path: '/nodes/box/layout/width');
+    });
+    test('a control without a size hugs its content: no zero_size', () {
+      final d = base();
+      for (final (id, type) in [('save', 'filledButton'), ('more', 'iconButton')]) {
+        nodes(d)[id] = <String, Object?>{'type': type, 'props': <String, Object?>{'label': 'Save'}};
+        (node(d, 'col')['children'] as List).add(id);
+      }
+      (node(d, 'more')['props'] as Map).remove('label');
+      nodes(d)['half'] = <String, Object?>{'type': 'outlinedButton', 'layout': <String, Object?>{'height': 36}};
+      (node(d, 'col')['children'] as List).add('half');
+      expect(withCode(d, Codes.zeroSize), isEmpty);
+      final half = Node.fromJson(nodes(d)['half'], id: 'half')!;
+      expect(half.layout.width, const AxisSize.hug(0));
+      expect(half.layout.height, const AxisSize.fixed(36));
+      expect(Node.fromJson(nodes(d)['save'], id: 'save')!.layout.height, const AxisSize.hug(0));
+      expect(Node.fromJson({'type': 'box'})!.layout.width, const AxisSize.fixed(0), reason: 'a box is not a control');
     });
     test('a text\'s padding is applied, so it is not reported as ignored', () {
       final d = base();

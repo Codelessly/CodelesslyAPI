@@ -16,8 +16,8 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 
 | File | What it is | Words | ≈ tokens |
 |---|---|---|---|
-| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 6193 | 12781 |
-| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 6172 | 11791 |
+| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 6197 | 12786 |
+| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 6176 | 11797 |
 | [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4541 | 13859 |
 | [layout.md](layout.md) | Feature page. | 8938 | 16732 |
 | [theme.md](theme.md) | Feature page. | 2856 | 4962 |
@@ -39,7 +39,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [edit-ops.md](edit-ops.md) | Feature page. | 3297 | 5460 |
 | [render.md](render.md) | Feature page. | 2950 | 4573 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13299 | 20839 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 103843 | 181264 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 103847 | 181269 |
 | [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 73253 | 192489 |
 | [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 9958 | 27887 |
 | [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25124 | 105523 |
