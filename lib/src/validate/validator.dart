@@ -366,6 +366,12 @@ final class _Validator {
       }
     }
     pageVariables = variablesOf[pageVariablesScope] ?? {};
+    // A list's pagination controller is a map variable of its page, named
+    // by `props.pagination.name` (`${coastPages.page}`).
+    for (final raw in nodesJson.values) {
+      final name = readString(readMap(readMap(readMap(raw)?['props'])?['pagination'])?['name'])?.trim();
+      if (name != null && name.isNotEmpty && !name.contains(r'${')) controllerNames.add(name);
+    }
     // A computed variable's formula reads declared names as a node's
     // expressions do (its parameters too).
     for (final f in formulas) {
@@ -378,8 +384,12 @@ final class _Validator {
   /// Field name → the list variables whose records have it.
   final Map<String, Set<String>> itemFields = {};
 
+  /// The map variables lists' pagination controllers declare.
+  final Set<String> controllerNames = {};
+
   Set<String> _declared(String? canvas) => {
         ...pageVariables,
+        ...controllerNames,
         ...?variablesOf[canvas],
         ...options.variables,
         for (final v in variablesOf.values) ...v, // (reported per scope below when misplaced)

@@ -379,6 +379,25 @@ void main() {
       node(d, 'title')['bind'] = {'visible': r'${false}'};
       expectOne(d, Codes.unknownName, suggestion: r'${= false}');
     });
+    test('a list\'s pagination controller is a name its page may read, as the pagination node does', () {
+      final d = base();
+      final n = nodes(d);
+      (n['col'] as Map)['children'] = ['title', 'box', 'stories'];
+      n['stories'] = {
+        'type': 'listView',
+        'children': ['story'],
+        'layout': {'width': {'fill': 390}, 'height': {'hug': 300}},
+        'props': {'scrollable': false, 'pagination': {'name': 'coastPages', 'mode': 'pages', 'pageSize': 3}},
+        'bind': {'data': r'${= [1, 2, 3, 4]}'},
+      };
+      n['story'] = {'type': 'text', 'layout': {'width': {'fill': 390}, 'height': {'hug': 20}}, 'props': {'text': r'${item}', 'style': {'color': '#FF000000'}}};
+      node(d, 'title')['bind'] = {'visible': r'${= coastPages.page < coastPages.pageCount}'};
+      expect(withCode(d, Codes.unknownName, options: ValidateOptions(formulas: (f) => (error: null, paths: {'coastPages.page', 'coastPages.pageCount'}))),
+          isEmpty);
+      // A name nothing declares is still reported.
+      node(d, 'title')['bind'] = {'visible': r'${= coastPage.page < 2}'};
+      expectOne(d, Codes.unknownName, options: ValidateOptions(formulas: (f) => (error: null, paths: {'coastPage.page'})));
+    });
     test('a formula naming an unknown variable is reported by the formula checker (unknown_name)', () {
       final d = base();
       node(d, 'title')['bind'] = {'props.text': r'${= cnt * 2}'};
