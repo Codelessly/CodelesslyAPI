@@ -89,6 +89,32 @@ whole app screen from a description) are levels 3 and 4 on the same document.
 4. A level 1 control with zero props is complete: it has a size, a look and a value.
 5. Nothing at level 5 adds a render object.
 
+### 3.1 Where the design comes in
+
+The line between level 0 and level 1 is the line between structure and design (owner, 2026-11-14: "the natural
+division point where the design comes in").
+
+| | Level 0, core | Level 1 and up, controls |
+|---|---|---|
+| What it is | Boxes, layout, text, icons, images | Buttons, fields, switches, sliders, menus, tabs, pickers, dialogs, sheets, toasts |
+| Look with nothing written | None. A box has no fill, border or shadow; a layout has no look. Text is 12 px, regular weight, in the platform's font, with no color of a design system | SSUI's: its colors, radii, sizes and type, light or dark |
+| Where the look comes from | Only from what the document writes on the node, or a theme color or text style it names | The bundled SSUI tokens, with the document's theme over them, and the node's own style over that |
+| Changing the design system changes it | No | Yes, every control, with no change to the document |
+
+What follows from it:
+
+- A control must have a look to exist, so there is always a default, and it is SSUI. There is no Material
+  default anywhere in what a control draws.
+- The default is one order everywhere, whichever way the UI was written (a full document, `ui_apply`, the compact
+  notation): node style, over the document's theme, over the design system's tokens (SSUI's when none is given).
+- Level 0 is safe to hand to any host or design system: it carries no opinion to fight. A design system is
+  exactly the set of answers to "what does a level 1 control look like", plus named colors and text styles that
+  level 0 may refer to.
+- The model package holds no look. The defaults live in the renderer
+  (`codelessly_sdk`: `lib/src/render/controls/ssui_defaults.g.dart`, generated from
+  `design_systems/ssui/design_system.json`); the one place this package names SSUI is the notation's options
+  (`NotationOptions`, replaced by `NotationOptions.fromDesignSystem`).
+
 ## 4. The pipeline, simple to complex
 
 Following the A2UI pipeline (a description, a compact structured answer, a catalog the client trusts, rendering
