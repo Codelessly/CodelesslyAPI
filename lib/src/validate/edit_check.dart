@@ -65,9 +65,6 @@ EditCheck strictEditCheck([ValidateOptions options = const ValidateOptions()]) =
       final out = <EditDiagnostic>[];
       for (final d in validateDocument(mini, options: o)) {
         if (_structural.contains(d.code.name)) continue;
-        // A componentEvent in a document that is not a component is an
-        // event to the document's host: the session (and its agent).
-        if (d.code.name == 'unknown_event' && !doc.extra.containsKey('widget')) continue;
         final id = d.nodeId ?? _nodeOf(d.path);
         if (id == null || !ids.contains(id)) continue;
         final later = input.incomplete && _references.contains(d.code.name);
