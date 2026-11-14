@@ -173,8 +173,9 @@ The migration rewrites these all the same and says so in the report:
   rotation;
 * a node with both a hero and a flight key: it keeps its hero; the flight key and flight are kept as
   `legacy.flightKey` / `legacy.flight`;
-* a stroke path's draw-on animation (`drawMs`): kept as `legacy.strokePath.draw`, the line shows at its progress
-  at once (an animation on a variable bound into the op's `trimEnd` does it); a stroke path with no exact op (a
+* a stroke path's draw-on animation (`drawMs`) is an animation of the op's `trimEnd` from 0 and a transition of
+  it (docs/design/01-paint-node.md, "30.1.0"); the one difference: a progress that changes while the line is still
+  drawing on carries on toward the new value instead of restarting from where it is; a stroke path with no exact op (a
   binding of another field, bound points in fractions or with curves, a fill fading with a bound progress, beside
   a custom paint's view box) is kept whole as `legacy.strokePath`;
 * a box path whose fill reaches past its box (now filled there), is clipped to rounded corners, has a gradient

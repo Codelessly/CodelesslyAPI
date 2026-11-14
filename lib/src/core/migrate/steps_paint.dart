@@ -13,11 +13,13 @@
 // a value has no exact form it is kept as `legacy.<name>` and reported, with
 // what to write instead. `migrate2to3` runs [paintSteps] after its other
 // node steps (steps_spellings.dart's `spellingSteps`).
+import 'dart:math' as math;
+
 import '../custom_paint.dart' show Expr;
 import '../json.dart';
 import '../node.dart';
 import '../node_patch.dart' show mergeNodePatch;
-import '../behaviors.dart' show diffPatch;
+import '../behaviors.dart' show AnimationCurve, diffPatch;
 import '../values/color.dart';
 import '../values/paint.dart';
 import '../widgets/flex.dart' show FlexProps;
@@ -195,7 +197,8 @@ final class _StrokePath {
 /// become formulas of `size`; `progress` becomes `trimEnd`; the line is
 /// Flutter's `Paint` with `strokeJoin: round`; `fillColor` is a closed path
 /// op under it. The draw-on animation (`drawMs` and the fields that time
-/// it) has no exact form: it is kept as `legacy.strokePath.draw`.
+/// it) is an animation of the op's `trimEnd` and a transition of it
+/// ([_drawOn]).
 final strokePathStep = MigrationStep(
   id: 'paint.strokePath',
   description: 'strokePath → a customPaint path op',
@@ -246,20 +249,12 @@ final strokePathStep = MigrationStep(
     n.remove('strokePath');
     _unbind(n, bound.keys, s);
 
-    // The draw-on animation.
+    // The draw-on animation: an animation and a transition (below), once
+    // there are ops to draw.
     final draw = {for (final k in const ['drawMs', 'drawDelayMs', 'drawCurve', 'drawKey']) if (m.containsKey(k)) k: m[k]};
-    if (draw.isNotEmpty) {
-      if (sp.drawMs > 0) {
-        s.unconvertible(n, 'strokePath.draw', draw,
-            path: '/strokePath/drawMs',
-            instead: 'An animation (doc 02) with a track on a variable, from 0 to the progress, played on load and when the '
-                'key changes, the variable bound into the op\'s "trimEnd".',
-            message: 'The draw-on animation (drawMs) has no customPaint form; kept as `legacy.strokePath.draw`.');
-        s.behaviourChange('The stroke path no longer draws itself on: it shows at its progress at once.',
-            path: '/strokePath/drawMs', old: draw);
-      } else {
-        s.rewrite('/strokePath', draw, null, 'drawDelayMs/drawCurve/drawKey dropped: without drawMs they did nothing.');
-      }
+    final draws = sp.drawMs > 0;
+    if (draw.isNotEmpty && !draws) {
+      s.rewrite('/strokePath', draw, null, 'drawDelayMs/drawCurve/drawKey dropped: without drawMs they did nothing.');
     }
 
     // Nothing drawn: no op.
@@ -289,7 +284,9 @@ final strokePathStep = MigrationStep(
         'op': 'path',
         'id': 'strokePath',
         ...geometry(close: false),
-        if (boundProgress != null) 'trimEnd': boundProgress else if (sp.progress < 1) 'trimEnd': _j(sp.progress),
+        // Drawn on, a bound progress is a binding of the op's trimEnd (a
+        // transition eases a change of what the node binds).
+        if (boundProgress != null && !draws) 'trimEnd': boundProgress else if (boundProgress == null && sp.progress < 1) 'trimEnd': _j(sp.progress),
         'paint': {
           'color': boundColor ?? sp.color.toJson(),
           'style': 'stroke',
@@ -310,8 +307,51 @@ final strokePathStep = MigrationStep(
     s.rewrite('/strokePath', {'value': raw, if (bound.isNotEmpty) 'bind': bound}, {
       'customPaint/${sp.inFront ? 'foregroundPainter' : 'painter'}': ops,
     });
+    if (draws && ops.isNotEmpty) {
+      final list = sp.inFront ? 'foregroundPainter' : 'painter';
+      if (boundProgress != null && ops.any((o) => o['id'] == 'strokePath')) {
+        putBind(n, {...bindOf(n), 'customPaint.$list.strokePath.trimEnd': boundProgress}, s);
+      }
+      _drawOn(n, sp, m, draw, ops, list: list, s: s);
+    }
   },
 );
+
+/// The stroke path's draw-on (`drawMs`, `drawDelayMs`, `drawCurve`) as
+/// the general pieces: an animation on the node whose track draws the line
+/// op's `trimEnd` from 0 to its own value (and its fill's color from
+/// transparent, as the fill faded in with the drawn share), played when the
+/// node appears, over `drawMs` after `drawDelayMs` on `drawCurve`; and a
+/// transition of that `trimEnd` with the same timing, which draws a change
+/// of the progress from where it is. A literal `drawKey` never changed (a
+/// bound one keeps the whole behavior as legacy), so it is dropped.
+void _drawOn(Json n, _StrokePath sp, Json m, Json draw, List<Json> ops, {required String list, required MigrationScope s}) {
+  final curve = (AnimationCurve.parse(m['drawCurve']) ?? AnimationCurve.easeInOut).name;
+  final delay = math.max(0, readInt(m['drawDelayMs']) ?? 0);
+  final timing = {'duration': sp.drawMs, if (delay > 0) 'delay': delay, 'curve': curve};
+  final trim = 'customPaint.$list.strokePath.trimEnd';
+  final animations = [...?readList(n['animations'])];
+  final taken = {for (final a in animations) readMap(a)?['id'] ?? readMap(a)?['name']};
+  var id = 'strokePathDraw';
+  for (var i = 2; taken.contains(id); i++) {
+    id = 'strokePathDraw$i';
+  }
+  final fill = ops.where((o) => o['id'] == 'strokePathFill').firstOrNull;
+  final fillColor = fill == null ? null : Color.fromJson(fill['paint']);
+  final animation = {
+    'id': id,
+    ...timing,
+    'tracks': [
+      if (ops.any((o) => o['id'] == 'strokePath')) {'path': trim, 'from': 0},
+      if (fillColor != null) {'path': 'customPaint.$list.strokePathFill.paint', 'from': fillColor.withAlpha(0).toJson()},
+    ],
+  };
+  n['animations'] = [...animations, animation];
+  final transition = {'property': trim, ...timing};
+  n['transitions'] = [...?readList(n['transitions']), transition];
+  s.rewrite('/strokePath/drawMs', draw, {'animations/-': animation, 'transitions/-': transition},
+      'The draw-on: an animation of the line op\'s trimEnd from 0 (the fill from transparent), and a transition of it.');
+}
 
 // --- box.path -----------------------------------------------------------------------
 

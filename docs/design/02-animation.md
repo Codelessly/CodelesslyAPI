@@ -506,7 +506,7 @@ and `physics/spring_simulation.dart`; the SDK's controller is tested against a r
 
 Kept readable and working exactly as before; each still has its own code in the SDK.
 
-- **`strokePath.draw*`, `typewriter`, text `countUp`, `flip`'s turn**: their clocks are their own (the second
+- **`typewriter`, text `countUp`, `flip`'s turn**: their clocks are their own (the second
   wave did doc 03's steps 1–3 first; their presets are the next step).
 - **`progress` with a `spring`** reads the value directly; easing toward each new value is not built.
 - **Legacy binding paths set at run time** (`setValue` with `loops[0].phase` or `effectAnimations[1].playKey`):
@@ -527,5 +527,6 @@ Schema 3 (codelessly_api 30.0.0) moved every legacy reader of this document into
 set, add or subtract by one formula now sets at once, reported), `clock` (`trigger.clock`), the flat and
 legacy springs (`physics.flatSpring`, `draggable.legacy`, `track.legacy`), and the bound legacy paths in a
 node's `bind` (`loops[i].*`, `effectAnimations[i].*`, `motion.*`). The model decodes only the schema-3 shape.
-Still as above: `strokePath.draw*`, `typewriter`, `countUp` and `flip` keep their own clocks; legacy paths set
+Still as above: `typewriter`, `countUp` and `flip` keep their own clocks (`strokePath.draw*` is an animation of the
+path op's `trimEnd` and a transition of it since the stroke path became a custom paint op: doc 01, "30.1.0"); legacy paths set
 at run time (`setValue` with `loops[0].phase`) are not rewritten (only stored documents are migrated).

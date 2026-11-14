@@ -477,9 +477,20 @@ quadratic as a cubic. `untilWidth` is a `when` per call, `"${= size.width >= m}"
 far, which skips the first segment starting past the box and every one after it, as the painter's `break` did; in
 fractions of the box it is decided at migration (a start past 1 is past any width).
 
-Not expressible exactly, kept as `legacy.<name>` and reported: the draw-on animation (`drawMs` > 0, with
-`drawDelayMs`, `drawCurve`, `drawKey`: `legacy.strokePath.draw`; the line then shows at its progress; an animation
-on a variable bound into `trimEnd` does it); and, keeping the whole behavior as `legacy.strokePath`, a binding of
+The draw-on animation (`drawMs` > 0, with `drawDelayMs` and `drawCurve`, default `easeInOut`) is the general
+pieces: an animation `strokePathDraw` on the node (`duration` `drawMs`, `delay` `drawDelayMs`, `curve` `drawCurve`)
+whose track draws `customPaint.<painter>.strokePath.trimEnd` from 0 to the op's own value (and, with a fill,
+`strokePathFill.paint` from the fill's color at alpha 0, as the fill faded in with the drawn share), played when the
+node appears; and a transition of that `trimEnd` with the same timing, which draws a change of the progress from
+where it is, after the delay again, as the painter did. A bound progress becomes a binding of the op's `trimEnd`
+(in the node's `bind`, so the transition sees it change). A literal `drawKey` never changed and is dropped; a bound
+one keeps the whole behavior (below). Each frame is the old painter's (SDK `test/custom_paint/stroke_draw_on_test.dart`
+checks the drawn share against `from + (to − from) · drawCurve(t)`, t = (ms since its first tick − delay) /
+`drawMs`, and the pixels against the static drawing at that share, which the goldens pin to 30.0.0's painter:
+equal, a fill within one level of 255). One case differs: a progress that changes *while* the line is still
+drawing on carries on toward the new value on the same clock (the track's end is the op's own value), where the old
+painter restarted from where it was, with its delay. Not expressible exactly, keeping the whole behavior as
+`legacy.strokePath`: a binding of
 any field but `points`, `progress` and `color`, bound points in fractions of the box, with curves or with
 `untilWidth`, a fill fading with a bound progress, and a node whose own `customPaint` has a view box. None occurs in
 the corpus or in the build sources. Without `drawMs` the timing fields did nothing and are dropped.

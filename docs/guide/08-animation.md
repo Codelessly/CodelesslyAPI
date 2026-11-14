@@ -186,9 +186,11 @@ the new one; the encoders write only the new one:
  "bind": {"animations.nudge.playKey": "${hits}"}}
 ```
 
-A motion's timing, entrance, loop, spin and shimmer read as transitions and animations (below); not yet
-moved: `strokePath`'s drawing (the migration keeps it as `legacy.strokePath.draw`: an animation on a variable
-bound into the path op's `trimEnd` does it), `typewriter` and text `countUp` (see
+A motion's timing, entrance, loop, spin and shimmer read as transitions and animations (below), and so does
+`strokePath`'s drawing: an animation whose track draws the path op's `trimEnd` from 0
+(`{"path": "customPaint.painter.<op id>.trimEnd", "from": 0}`; an omitted `to` is the op's own value, its declared
+default 1 when the JSON omits it) and a transition of that path for a change of the progress. Not yet moved:
+`typewriter` and text `countUp` (see
 [docs/design/02-animation.md](../design/02-animation.md), "Not yet migrated").
 
 ## `motion`: a transform, and `transitions`
