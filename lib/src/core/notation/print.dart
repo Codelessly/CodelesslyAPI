@@ -141,6 +141,10 @@ String _line(String id, Json n) {
   if (fills is List && fills.length == 1 && fills.single is Map && (fills.single as Map).length == 1 && (fills.single as Map)['color'] is String) {
     b.write(' fill:${(fills.single as Map)['color']}');
   }
+  final strokes = decoration['strokes'];
+  if (strokes is List && strokes.length == 1 && strokes.single is Map && (strokes.single as Map).length == 1 && (strokes.single as Map)['color'] is String) {
+    b.write(' border:${(strokes.single as Map)['color']}');
+  }
   if (decoration['radius'] is num) b.write(' radius:${decoration['radius']}');
   if (layout['width'] is num) b.write(' w:${layout['width']}');
   if (layout['height'] is num) b.write(' h:${layout['height']}');

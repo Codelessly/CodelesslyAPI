@@ -692,6 +692,13 @@ class _Parser {
           }
           continue;
         }
+        // A hairline round it: `border:#FFE5E7EB`.
+        if (key == 'border' && !raw.startsWith('=')) {
+          decoration['strokes'] = [
+            {'color': _value(raw)},
+          ];
+          continue;
+        }
         if (type == 'text' && _textStyleKeys.containsKey(key)) {
           final style = switch (props['style']) { final Map m => m.cast<String, Object?>(), _ => <String, Object?>{} };
           final v = _value(raw);
