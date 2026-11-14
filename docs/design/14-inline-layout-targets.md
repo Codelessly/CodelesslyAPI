@@ -12,8 +12,9 @@ SSUI defaults, and polished until it stands beside theirs (alignment, spacing, c
 Status: the decision group is built as reference cards in the notation on SSUI's looks
 (`CodelesslySDK/design_systems/ssui/examples/targets`): approval card, option list, recommendation card,
 permission grant, guardrail notice, elicitation form and question flow, each with its states; and six of the data
-and comparison group: data table (sortable), comparison, spec sheet, score breakdown, cost meter, timeline.
-Thirteen of about 90. They were compared by eye with the descriptions, not side by side with assistant-ui's
+and comparison group: data table (sortable), comparison, spec sheet, score breakdown, cost meter, timeline; and six
+of plans and progress: agent plan, todo list, task card, tool call, tool failure, job progress.
+Nineteen of about 90. They were compared by eye with the descriptions, not side by side with assistant-ui's
 renders. Writing the data group found four things the notation did not read, now fixed in it: a border or a text
 color that follows data (`border:=`, `color:=`), an icon chosen by an expression, an expression written in a
 line's `{…}` tail (read as a binding), and copies across a row that `grow` (an equal column each). Seven overlap the 17 card briefs already recorded (approval, question flow, data table,
