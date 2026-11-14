@@ -108,6 +108,10 @@ FORMULAS (in {…}, after = and := and in -> name=…)
   Lists never change in place: set the variable to a new list (-> cart=append(cart,item); -> rows=updateWhere(rows,r=>r.id==row.id,r=>with(r,"qty",r.qty+1))).
   An action is one of the forms above, never a condition: to choose, set a variable to a formula (-> step=valid?3:2). Chips have selected:=expression and enabled:=expression.
 
+BEYOND THESE WORDS
+  The full vocabulary has more. Write that part as a node {…} line or a {…} tail; its reference page says how (ask for the page with ui_docs when you have that tool):
+  custom drawing and shapes: decoration · motion and entrance animation: animation · swipe, long press, hover: interaction · several screens: navigation · tables, paged and reorderable lists: lists · validation: forms · scripts: state · video, audio, embeds: media · chart options: charts
+
 EXAMPLES
 Column gap:12 pad:16
   Slider =volume min:0 max:100
