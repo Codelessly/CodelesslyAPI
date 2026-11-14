@@ -141,7 +141,8 @@ enum TriggerType {
 
   /// Drag and drop: on a draggable (start, cancel, completed) and on a drop
   /// target (drop, enter, exit, rejected).
-  /// `${result}` and `${drag}` hold the drag. A list with a `reorder` fires
+  /// `${result}` and `${drag}` hold the drag (what was dragged is
+  /// `${result.data}`). A list with a `reorder` fires
   /// `dragStart` when a row is picked up and `dragCompleted` when it is let
   /// go (moved or not), with `${result.index}` and `${result.item}`: a list
   /// can change while a row is lifted (fold its rows into tiles). On a node

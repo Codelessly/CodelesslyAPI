@@ -366,7 +366,7 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 | <a id="trigger-dragEnd"></a>`dragEnd` |  |
 | <a id="trigger-wheel"></a>`wheel` | Wheel or trackpad scroll over the node; a pinch on it. |
 | <a id="trigger-pinch"></a>`pinch` |  |
-| <a id="trigger-dragStart"></a>`dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
+| <a id="trigger-dragStart"></a>`dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag (what was dragged is `${result.data}`). A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
 | <a id="trigger-dragCancel"></a>`dragCancel` |  |
 | <a id="trigger-dragCompleted"></a>`dragCompleted` |  |
 | <a id="trigger-drop"></a>`drop` |  |
@@ -479,7 +479,8 @@ Two labels in a row with a fill; each label's `selected` binds to the variable (
 ### Drag and drop
 
 `draggable` (`{"group": "card", "data": "${item.id}"}`) lets the node be picked up; a `dropTarget` that `accepts`
-the group takes it, and its `drop` reaction reads the data as `${result}`. Reordering a list: the list's `reorder`
+the group takes it, and its `drop` reaction reads the data as `${result.data}` (`${result}` is the whole drag: `data`,
+`group`, `source`, `over`, `count`): `{"type": "setVariable", "variable": "cards", "value": "${= map(cards, c => c.id == result.data ? {id: c.id, title: c.title, col: 'done'} : c)}"}`. Reordering a list: the list's `reorder`
 settings with a `reorderHandle` in the item, and the `reorder` trigger.
 
 <a id="interaction-values-set-by-dragging-swiping-pinching"></a>
