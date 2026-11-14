@@ -369,7 +369,9 @@ The props that matter most; each type's page lists all of them.
   value through their `changed` trigger as `${result}`: store it with `setVariable`. **Two-way**: bind the value
   prop to the variable (`"bind": {"props.initialValue": "${query}"}` for a text field, `"props.value"` for the
   others). A text field's label, hint, border and fill are in `props.decoration` (an
-  InputDecoration (ui_docs "type-InputDecoration")). Styling every control, validation: forms (ui_docs "forms").
+  InputDecoration (ui_docs "type-InputDecoration")). Validation is Flutter's: a field's `validator` (`"${= value == '' ?
+  'Required.' : ''}"`), a `form` around the fields and a `validate` action on send
+  (validation (ui_docs "forms-validation-and-an-error-state")). Styling every control: forms (ui_docs "forms").
 - **Lists**: a `listView` or `gridView` repeats its **first child** once per item of its `data` binding:
   `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. An item fills the list across (its
   cross-axis size is `fill`). In a page that scrolls, give the list
@@ -446,13 +448,18 @@ navigation (ui_docs "navigation").
 
 1. Prefer layout that fits any width: wrapping rows with `basis`, a `gridView` with `minCrossAxisExtent`, a capped
    band.
-2. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
+2. **Use the width.** A tablet and a desktop are not a stretched phone: split the page into content and a rail
+   (a `flex` turning horizontal), give content columns (a `gridView` whose `crossAxisCount` grows, a lead item
+   spanning two: `layout.columnSpan`), and let every band fill the width with its content capped and centred. A
+   desktop page that is still one column, or content that stops short of its band, is unfinished:
+   an editorial page at three sizes (ui_docs "layout-an-editorial-page-at-three-sizes").
+3. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
    {"fontSize": 40}}}}]`. `minWidth`/`maxWidth` are px (inclusive) or a breakpoint name (`"tablet"`).
-3. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
+4. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
    over it; later rules win (the cascade). Write for phones, add `minWidth` rules (mobile first).
-4. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
+5. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
    `layout.order`; hidden: `"visible": false`.
-5. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
+6. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
 
 Breakpoints, sticky headers, scrolling, a canvas per breakpoint: responsive layout (ui_docs "layout").
 
@@ -509,6 +516,8 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 |---|---|
 | A row that becomes a column at a width; another order or hidden at a width | "layout-a-row-that-becomes-a-column" |
 | Content capped at a width and centered inside a full-width band (CSS max-width + margin auto) | "layout-a-capped-band" |
+| A page at phone, tablet and desktop: one column, a split with a sticky rail, columns with a spanning lead | "layout-an-editorial-page-at-three-sizes" |
+| A grid item spanning two columns or rows; items placed at a row and column (a timetable that is a list on phones) | "layout-grid-spans-a-timetable" |
 | Cards three across that wrap to two, then one, with no breakpoint | "layout-cards-that-wrap" |
 | Equal-height cards in a grid; a banner above one card; a button pinned to a card's bottom | "lists-equal-height-cards" |
 | Overlap the section above (a negative margin); bleed past the page gutter | "layout-overlap-and-bleed" |
@@ -537,7 +546,8 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 | A star, sparkle or other mark the font does not have; a custom shape | "decoration-small-marks-and-shapes" |
 | Style a text field (border, focus ring, fill, label, icons), a checkbox, a switch or a button, in one place | "forms-styling-the-controls-in-one-place" |
 | A text field that shows a variable and writes it back (two-way) | "forms-a-text-field-bound-to-a-variable-two-way" |
-| Validate input and show an error state | "forms-validation-and-an-error-state" |
+| Validate a form: per-field errors on blur or on send, the first error focused, a summary, a success state | "forms-validation-and-an-error-state" |
+| A radio group (one choice of several) | "forms-a-radio-group" |
 | A − / + stepper around a number field | "forms-a-stepper-around-a-field" |
 | A search icon or a clear (×) button inside a text field | "forms-a-clear-button-in-the-field" |
 | A checkbox or switch with a label, toggled from the whole row | "forms-a-labelled-checkbox-or-switch" |
@@ -550,7 +560,7 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 | Nested lists; the outer item inside the inner list (`parent`) | "lists-nested-lists" |
 | A comparison table from one row and one cell template | "lists-a-table-from-one-template" |
 | A weekly grid (days × habits) | "lists-a-weekly-grid" |
-| A carousel; long lists loaded in pages | "lists-a-carousel-pages-and-pagination" |
+| A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | "lists-a-carousel-pages-and-pagination" |
 | Several screens; a page's URL path | "navigation-screens" |
 | Go to a screen with parameters, and back | "navigation-going-to-a-screen-and-back" |
 | A dialog, a bottom sheet, a popover, a toast, a confirmation | "navigation-modals-and-toasts" |
@@ -598,7 +608,7 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 - "layout": Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
 - "theme": Theme and text. Documents text, textDirection, defaultTextStyle.
 - "decoration": Decoration, images, icons and drawing. Documents icon, path, customPaint, imageLoading, imageLoaded, imageError.
-- "forms": Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, focus.
+- "forms": Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, form, radioGroup, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, focus.
 - "lists": Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.
 - "navigation": Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, confirm.
 - "state": State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, if, forEach, delay, retryFailed.

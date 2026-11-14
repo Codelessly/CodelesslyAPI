@@ -393,7 +393,9 @@ The props that matter most; each type's page lists all of them.
   value through their `changed` trigger as `${result}`: store it with `setVariable`. **Two-way**: bind the value
   prop to the variable (`"bind": {"props.initialValue": "${query}"}` for a text field, `"props.value"` for the
   others). A text field's label, hint, border and fill are in `props.decoration` (an
-  [InputDecoration](#type-InputDecoration)). Styling every control, validation: [forms](#page-forms).
+  [InputDecoration](#type-InputDecoration)). Validation is Flutter's: a field's `validator` (`"${= value == '' ?
+  'Required.' : ''}"`), a `form` around the fields and a `validate` action on send
+  ([validation](#forms-validation-and-an-error-state)). Styling every control: [forms](#page-forms).
 - **Lists**: a `listView` or `gridView` repeats its **first child** once per item of its `data` binding:
   `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. An item fills the list across (its
   cross-axis size is `fill`). In a page that scrolls, give the list
@@ -457,7 +459,7 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   expression), `navigate` (`to`: a canvas id; `"mode": "pop"` goes back), `openModal` / `closeModal`, `showToast`,
   `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
   "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
-  to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `openLink`, `setValue`, `setVariant`, `setVariable`, `callFunction`, `if`, `forEach`, `showToast`, `confirm`, `delay`, `copyToClipboard`, `setThemeMode`, `editText`, `focus`, `controlTrack`, `controlDismissible`, `controlTransform`, `scrollTo`, `animate`, `haptic`, `runScript`, `paginate`, `componentEvent`, `callApi`, `setStorage`, `cloudDocuments`, `loadCloudData`, `reloadCloudData`, `cloudFiles`, `cloudData`, `cloudBatch`, `submitForm`, `auth`, `paywall`, `print`, `preloadImages`, `speak`, `playSound`, `captureScreenshot`, `downloadFile`, `emitEvent`.
+  to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `openLink`, `setValue`, `setVariant`, `setVariable`, `callFunction`, `if`, `forEach`, `showToast`, `confirm`, `delay`, `copyToClipboard`, `setThemeMode`, `editText`, `focus`, `validate`, `controlTrack`, `controlDismissible`, `controlTransform`, `scrollTo`, `animate`, `haptic`, `runScript`, `paginate`, `componentEvent`, `callApi`, `setStorage`, `cloudDocuments`, `loadCloudData`, `reloadCloudData`, `cloudFiles`, `cloudData`, `cloudBatch`, `submitForm`, `auth`, `paywall`, `print`, `preloadImages`, `speak`, `playSound`, `captureScreenshot`, `downloadFile`, `emitEvent`.
 - Keys are exact; validation names the one meant: `{"type": "scrollTo", "node": "faq"}`, `{"type":
   "copyToClipboard", "text": "${address}"}`, `{"type": "downloadFile", "fileName": "trip.txt", "text": "${brief}"}`;
   a list appends with `"op": "add"` (`insert` takes an `index`).
@@ -473,13 +475,18 @@ Hover and pressed styles (`states`), drag, gestures: [interaction](#page-interac
 
 1. Prefer layout that fits any width: wrapping rows with `basis`, a `gridView` with `minCrossAxisExtent`, a capped
    band.
-2. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
+2. **Use the width.** A tablet and a desktop are not a stretched phone: split the page into content and a rail
+   (a `flex` turning horizontal), give content columns (a `gridView` whose `crossAxisCount` grows, a lead item
+   spanning two: `layout.columnSpan`), and let every band fill the width with its content capped and centred. A
+   desktop page that is still one column, or content that stops short of its band, is unfinished:
+   [an editorial page at three sizes](#layout-an-editorial-page-at-three-sizes).
+3. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
    {"fontSize": 40}}}}]`. `minWidth`/`maxWidth` are px (inclusive) or a breakpoint name (`"tablet"`).
-3. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
+4. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
    over it; later rules win (the cascade). Write for phones, add `minWidth` rules (mobile first).
-4. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
+5. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
    `layout.order`; hidden: `"visible": false`.
-5. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
+6. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
 
 Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive layout](#page-layout).
 
@@ -548,6 +555,8 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 |---|---|
 | A row that becomes a column at a width; another order or hidden at a width | [layout-a-row-that-becomes-a-column](#layout-a-row-that-becomes-a-column) |
 | Content capped at a width and centered inside a full-width band (CSS max-width + margin auto) | [layout-a-capped-band](#layout-a-capped-band) |
+| A page at phone, tablet and desktop: one column, a split with a sticky rail, columns with a spanning lead | [layout-an-editorial-page-at-three-sizes](#layout-an-editorial-page-at-three-sizes) |
+| A grid item spanning two columns or rows; items placed at a row and column (a timetable that is a list on phones) | [layout-grid-spans-a-timetable](#layout-grid-spans-a-timetable) |
 | Cards three across that wrap to two, then one, with no breakpoint | [layout-cards-that-wrap](#layout-cards-that-wrap) |
 | Equal-height cards in a grid; a banner above one card; a button pinned to a card's bottom | [lists-equal-height-cards](#lists-equal-height-cards) |
 | Overlap the section above (a negative margin); bleed past the page gutter | [layout-overlap-and-bleed](#layout-overlap-and-bleed) |
@@ -576,7 +585,8 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | A star, sparkle or other mark the font does not have; a custom shape | [decoration-small-marks-and-shapes](#decoration-small-marks-and-shapes) |
 | Style a text field (border, focus ring, fill, label, icons), a checkbox, a switch or a button, in one place | [forms-styling-the-controls-in-one-place](#forms-styling-the-controls-in-one-place) |
 | A text field that shows a variable and writes it back (two-way) | [forms-a-text-field-bound-to-a-variable-two-way](#forms-a-text-field-bound-to-a-variable-two-way) |
-| Validate input and show an error state | [forms-validation-and-an-error-state](#forms-validation-and-an-error-state) |
+| Validate a form: per-field errors on blur or on send, the first error focused, a summary, a success state | [forms-validation-and-an-error-state](#forms-validation-and-an-error-state) |
+| A radio group (one choice of several) | [forms-a-radio-group](#forms-a-radio-group) |
 | A − / + stepper around a number field | [forms-a-stepper-around-a-field](#forms-a-stepper-around-a-field) |
 | A search icon or a clear (×) button inside a text field | [forms-a-clear-button-in-the-field](#forms-a-clear-button-in-the-field) |
 | A checkbox or switch with a label, toggled from the whole row | [forms-a-labelled-checkbox-or-switch](#forms-a-labelled-checkbox-or-switch) |
@@ -589,7 +599,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | Nested lists; the outer item inside the inner list (`parent`) | [lists-nested-lists](#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists-a-table-from-one-template](#lists-a-table-from-one-template) |
 | A weekly grid (days × habits) | [lists-a-weekly-grid](#lists-a-weekly-grid) |
-| A carousel; long lists loaded in pages | [lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
+| A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | [lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
 | Several screens; a page's URL path | [navigation-screens](#navigation-screens) |
 | Go to a screen with parameters, and back | [navigation-going-to-a-screen-and-back](#navigation-going-to-a-screen-and-back) |
 | A dialog, a bottom sheet, a popover, a toast, a confirmation | [navigation-modals-and-toasts](#navigation-modals-and-toasts) |
@@ -637,7 +647,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 - [layout.md](#page-layout): Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
 - [theme.md](#page-theme): Theme and text. Documents text, textDirection, defaultTextStyle, setThemeMode.
 - [decoration.md](#page-decoration): Decoration, images, icons and drawing. Documents icon, path, customPaint, imageLoading, imageLoaded, imageError.
-- [forms.md](#page-forms): Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, editText, focus.
+- [forms.md](#page-forms): Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, form, radioGroup, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, editText, focus, validate.
 - [lists.md](#page-lists): Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.
 - [navigation.md](#page-navigation): Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, confirm, openLink.
 - [state.md](#page-state): State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, callFunction, if, forEach, delay, runScript, retryFailed.
@@ -675,6 +685,8 @@ section's anchor is its topic.
 |---|---|
 | A row that becomes a column at a width; another order or hidden at a width | [layout.md#layout-a-row-that-becomes-a-column](#layout-a-row-that-becomes-a-column) |
 | Content capped at a width and centered inside a full-width band (CSS max-width + margin auto) | [layout.md#layout-a-capped-band](#layout-a-capped-band) |
+| A page at phone, tablet and desktop: one column, a split with a sticky rail, columns with a spanning lead | [layout.md#layout-an-editorial-page-at-three-sizes](#layout-an-editorial-page-at-three-sizes) |
+| A grid item spanning two columns or rows; items placed at a row and column (a timetable that is a list on phones) | [layout.md#layout-grid-spans-a-timetable](#layout-grid-spans-a-timetable) |
 | Cards three across that wrap to two, then one, with no breakpoint | [layout.md#layout-cards-that-wrap](#layout-cards-that-wrap) |
 | Equal-height cards in a grid; a banner above one card; a button pinned to a card's bottom | [lists.md#lists-equal-height-cards](#lists-equal-height-cards) |
 | Overlap the section above (a negative margin); bleed past the page gutter | [layout.md#layout-overlap-and-bleed](#layout-overlap-and-bleed) |
@@ -703,7 +715,8 @@ section's anchor is its topic.
 | A star, sparkle or other mark the font does not have; a custom shape | [decoration.md#decoration-small-marks-and-shapes](#decoration-small-marks-and-shapes) |
 | Style a text field (border, focus ring, fill, label, icons), a checkbox, a switch or a button, in one place | [forms.md#forms-styling-the-controls-in-one-place](#forms-styling-the-controls-in-one-place) |
 | A text field that shows a variable and writes it back (two-way) | [forms.md#forms-a-text-field-bound-to-a-variable-two-way](#forms-a-text-field-bound-to-a-variable-two-way) |
-| Validate input and show an error state | [forms.md#forms-validation-and-an-error-state](#forms-validation-and-an-error-state) |
+| Validate a form: per-field errors on blur or on send, the first error focused, a summary, a success state | [forms.md#forms-validation-and-an-error-state](#forms-validation-and-an-error-state) |
+| A radio group (one choice of several) | [forms.md#forms-a-radio-group](#forms-a-radio-group) |
 | A − / + stepper around a number field | [forms.md#forms-a-stepper-around-a-field](#forms-a-stepper-around-a-field) |
 | A search icon or a clear (×) button inside a text field | [forms.md#forms-a-clear-button-in-the-field](#forms-a-clear-button-in-the-field) |
 | A checkbox or switch with a label, toggled from the whole row | [forms.md#forms-a-labelled-checkbox-or-switch](#forms-a-labelled-checkbox-or-switch) |
@@ -716,7 +729,7 @@ section's anchor is its topic.
 | Nested lists; the outer item inside the inner list (`parent`) | [lists.md#lists-nested-lists](#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists.md#lists-a-table-from-one-template](#lists-a-table-from-one-template) |
 | A weekly grid (days × habits) | [lists.md#lists-a-weekly-grid](#lists-a-weekly-grid) |
-| A carousel; long lists loaded in pages | [lists.md#lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
+| A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | [lists.md#lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
 | Several screens; a page's URL path | [navigation.md#navigation-screens](#navigation-screens) |
 | Go to a screen with parameters, and back | [navigation.md#navigation-going-to-a-screen-and-back](#navigation-going-to-a-screen-and-back) |
 | A dialog, a bottom sheet, a popover, a toast, a confirmation | [navigation.md#navigation-modals-and-toasts](#navigation-modals-and-toasts) |
@@ -766,15 +779,15 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4603 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7037 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2632 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4705 |
+| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8938 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2674 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10165 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11428 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6857 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4166 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6398 |
-| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5162 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
+| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4610 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3706 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6561 |
@@ -785,8 +798,8 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2881 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13107 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2904 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13286 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -803,7 +816,7 @@ Every declared name and the page that documents it.
 
 **E** · [`EdgeInsets`](#type-EdgeInsets) value type · [`editingComplete`](#trigger-editingComplete) trigger · [`editText`](#action-editText) action · [`EditTextOperation`](#enum-EditTextOperation) enum · [`Effect`](#type-Effect) model · [`EffectType`](#enum-EffectType) enum · [`elevatedButton`](#node-elevatedButton) node type · [`embeddedVideo`](#node-embeddedVideo) node type · [`EmbeddedVideoSource`](#enum-EmbeddedVideoSource) enum · [`emitEvent`](#action-emitEvent) action · [`endsWith`](#fn-endsWith) formula function · [`enterViewport`](#trigger-enterViewport) trigger · [`event`](#trigger-event) trigger · [`exitViewport`](#trigger-exitViewport) trigger · [`exp`](#fn-exp) formula function · [`expansionTile`](#node-expansionTile) node type · [`external`](#node-external) node type
 
-**F** · [`feetInches`](#fn-feetInches) formula function · [`fill`](#fn-fill) formula function · [`filledButton`](#node-filledButton) node type · [`filter`](#fn-filter) formula function · [`filterChip`](#node-filterChip) node type · [`find`](#fn-find) formula function · [`findIndex`](#fn-findIndex) formula function · [`first`](#fn-first) formula function · [`fixed`](#fn-fixed) formula function · [`flatMap`](#fn-flatMap) formula function · [`flatten`](#fn-flatten) formula function · [`flex`](#node-flex) node type · [`Flight`](#type-Flight) model · [`flip`](#behavior-flip) behavior · [`FlipAxis`](#enum-FlipAxis) enum · [`FlipCard`](#type-FlipCard) model · [`floating`](#behavior-floating) behavior · [`floatingActionButton`](#node-floatingActionButton) node type · [`FloatingActionButtonLocation`](#enum-FloatingActionButtonLocation) enum · [`FloatingActionButtonType`](#enum-FloatingActionButtonType) enum · [`FloatingLabelBehavior`](#enum-FloatingLabelBehavior) enum · [`floor`](#fn-floor) formula function · [`focus`](#action-focus) action · [`focusGained`](#trigger-focusGained) trigger · [`focusLost`](#trigger-focusLost) trigger · [`FontFeature`](#type-FontFeature) value type · [`FontStyle`](#enum-FontStyle) enum · [`FontWeight`](#type-FontWeight) value type · [`forEach`](#action-forEach) action · [`formatAmount`](#fn-formatAmount) formula function · [`formatCurrency`](#fn-formatCurrency) formula function · [`formatDate`](#fn-formatDate) formula function · [`formatDuration`](#fn-formatDuration) formula function · [`formatNumber`](#fn-formatNumber) formula function · [`formatPercent`](#fn-formatPercent) formula function · [`formatRelative`](#fn-formatRelative) formula function · [`FormService`](#enum-FormService) enum · [`frame`](#trigger-frame) trigger · [`fromCharCode`](#fn-fromCharCode) formula function
+**F** · [`feetInches`](#fn-feetInches) formula function · [`fill`](#fn-fill) formula function · [`filledButton`](#node-filledButton) node type · [`filter`](#fn-filter) formula function · [`filterChip`](#node-filterChip) node type · [`find`](#fn-find) formula function · [`findIndex`](#fn-findIndex) formula function · [`first`](#fn-first) formula function · [`fixed`](#fn-fixed) formula function · [`flatMap`](#fn-flatMap) formula function · [`flatten`](#fn-flatten) formula function · [`flex`](#node-flex) node type · [`Flight`](#type-Flight) model · [`flip`](#behavior-flip) behavior · [`FlipAxis`](#enum-FlipAxis) enum · [`FlipCard`](#type-FlipCard) model · [`floating`](#behavior-floating) behavior · [`floatingActionButton`](#node-floatingActionButton) node type · [`FloatingActionButtonLocation`](#enum-FloatingActionButtonLocation) enum · [`FloatingActionButtonType`](#enum-FloatingActionButtonType) enum · [`FloatingLabelBehavior`](#enum-FloatingLabelBehavior) enum · [`floor`](#fn-floor) formula function · [`focus`](#action-focus) action · [`focusGained`](#trigger-focusGained) trigger · [`focusLost`](#trigger-focusLost) trigger · [`FontFeature`](#type-FontFeature) value type · [`FontStyle`](#enum-FontStyle) enum · [`FontWeight`](#type-FontWeight) value type · [`forEach`](#action-forEach) action · [`form`](#behavior-form) behavior · [`formatAmount`](#fn-formatAmount) formula function · [`formatCurrency`](#fn-formatCurrency) formula function · [`formatDate`](#fn-formatDate) formula function · [`formatDuration`](#fn-formatDuration) formula function · [`formatNumber`](#fn-formatNumber) formula function · [`formatPercent`](#fn-formatPercent) formula function · [`formatRelative`](#fn-formatRelative) formula function · [`FormBehavior`](#type-FormBehavior) model · [`FormService`](#enum-FormService) enum · [`frame`](#trigger-frame) trigger · [`fromCharCode`](#fn-fromCharCode) formula function
 
 **G** · [`GaugeLimitStyle`](#enum-GaugeLimitStyle) enum · [`gaugeMeter`](#node-gaugeMeter) node type · [`GaugeShape`](#enum-GaugeShape) enum · [`GaugeZone`](#type-GaugeZone) model · [`GestureBounds`](#enum-GestureBounds) enum · [`GesturePhysics`](#type-GesturePhysics) model · [`GestureSnap`](#type-GestureSnap) model · [`get`](#fn-get) formula function · [`gridView`](#node-gridView) node type · [`groupBy`](#fn-groupBy) formula function
 
@@ -825,7 +838,7 @@ Every declared name and the page that documents it.
 
 **P** · [`pad`](#fn-pad) formula function · [`padLeft`](#fn-padLeft) formula function · [`padRight`](#fn-padRight) formula function · [`PagePaintOrder`](#enum-PagePaintOrder) enum · [`PageTransition`](#enum-PageTransition) enum · [`pageView`](#node-pageView) node type · [`paginate`](#action-paginate) action · [`PaginateCommand`](#enum-PaginateCommand) enum · [`Pagination`](#type-Pagination) model · [`pagination`](#node-pagination) node type · [`PaginationMode`](#enum-PaginationMode) enum · [`PaginationSource`](#enum-PaginationSource) enum · [`PaginationStrategy`](#enum-PaginationStrategy) enum · [`Paint`](#type-Paint) model · [`PaintType`](#enum-PaintType) enum · [`Pan`](#type-Pan) model · [`pan`](#behavior-pan) behavior · [`PanRelease`](#enum-PanRelease) enum · [`parseAmount`](#fn-parseAmount) formula function · [`parseDate`](#fn-parseDate) formula function · [`ParticleEmitter`](#type-ParticleEmitter) model · [`particles`](#behavior-particles) behavior · [`ParticleShape`](#enum-ParticleShape) enum · [`path`](#node-path) node type · [`PathFollow`](#type-PathFollow) model · [`PathOrient`](#enum-PathOrient) enum · [`paywall`](#action-paywall) action · [`PaywallOperation`](#enum-PaywallOperation) enum · [`pi`](#fn-pi) formula function · [`pick`](#fn-pick) formula function · [`pinch`](#trigger-pinch) trigger · [`placeholder`](#node-placeholder) node type · [`playSound`](#action-playSound) action · [`plotChart`](#node-plotChart) node type · [`PlotChartGridAnchor`](#enum-PlotChartGridAnchor) enum · [`PlotChartLabel`](#type-PlotChartLabel) model · [`PlotChartMarker`](#type-PlotChartMarker) model · [`PlotChartMarkerPosition`](#enum-PlotChartMarkerPosition) enum · [`PlotChartMarkerShape`](#enum-PlotChartMarkerShape) enum · [`PlotChartRange`](#type-PlotChartRange) model · [`PlotChartSelectionGuides`](#enum-PlotChartSelectionGuides) enum · [`PlotChartSeries`](#type-PlotChartSeries) model · [`PlotChartYLine`](#type-PlotChartYLine) model · [`plural`](#fn-plural) formula function · [`pluralCategory`](#fn-pluralCategory) formula function · [`pointerDown`](#trigger-pointerDown) trigger · [`pointerUp`](#trigger-pointerUp) trigger · [`PopoverPlacement`](#enum-PopoverPlacement) enum · [`Pose`](#type-Pose) model · [`pow`](#fn-pow) formula function · [`preloadImages`](#action-preloadImages) action · [`prepend`](#fn-prepend) formula function · [`print`](#action-print) action · [`ProgressBand`](#type-ProgressBand) model · [`progressBar`](#node-progressBar) node type · [`ProgressBarShape`](#enum-ProgressBarShape) enum
 
-**R** · [`radialGauge`](#node-radialGauge) node type · [`radians`](#fn-radians) formula function · [`radio`](#node-radio) node type · [`random`](#fn-random) formula function · [`range`](#fn-range) formula function · [`Rect`](#type-Rect) value type · [`refresh`](#trigger-refresh) trigger · [`regexReplace`](#fn-regexReplace) formula function · [`reloadCloudData`](#action-reloadCloudData) action · [`removeAt`](#fn-removeAt) formula function · [`removeWhere`](#fn-removeWhere) formula function · [`reorder`](#trigger-reorder) trigger · [`reorderHandle`](#behavior-reorderHandle) behavior · [`ReorderPlaceholder`](#enum-ReorderPlaceholder) enum · [`ReorderStart`](#enum-ReorderStart) enum · [`replace`](#fn-replace) formula function · [`retryFailed`](#action-retryFailed) action · [`Reveal`](#type-Reveal) model · [`reveal`](#behavior-reveal) behavior · [`RevealOrigin`](#enum-RevealOrigin) enum · [`RevealShape`](#enum-RevealShape) enum · [`reverse`](#fn-reverse) formula function · [`right`](#fn-right) formula function · [`round`](#fn-round) formula function · [`RouteDismiss`](#type-RouteDismiss) model · [`RouteSwipeBack`](#enum-RouteSwipeBack) enum · [`RouteTransition`](#type-RouteTransition) model · [`RouteTransitionPreset`](#enum-RouteTransitionPreset) enum · [`row`](#node-row) node type · [`rowTap`](#trigger-rowTap) trigger · [`runs`](#fn-runs) formula function · [`runScript`](#action-runScript) action
+**R** · [`radialGauge`](#node-radialGauge) node type · [`radians`](#fn-radians) formula function · [`radio`](#node-radio) node type · [`radioGroup`](#behavior-radioGroup) behavior · [`RadioGroupBehavior`](#type-RadioGroupBehavior) model · [`random`](#fn-random) formula function · [`range`](#fn-range) formula function · [`Rect`](#type-Rect) value type · [`refresh`](#trigger-refresh) trigger · [`regexReplace`](#fn-regexReplace) formula function · [`reloadCloudData`](#action-reloadCloudData) action · [`removeAt`](#fn-removeAt) formula function · [`removeWhere`](#fn-removeWhere) formula function · [`reorder`](#trigger-reorder) trigger · [`reorderHandle`](#behavior-reorderHandle) behavior · [`ReorderPlaceholder`](#enum-ReorderPlaceholder) enum · [`ReorderStart`](#enum-ReorderStart) enum · [`replace`](#fn-replace) formula function · [`retryFailed`](#action-retryFailed) action · [`Reveal`](#type-Reveal) model · [`reveal`](#behavior-reveal) behavior · [`RevealOrigin`](#enum-RevealOrigin) enum · [`RevealShape`](#enum-RevealShape) enum · [`reverse`](#fn-reverse) formula function · [`right`](#fn-right) formula function · [`round`](#fn-round) formula function · [`RouteDismiss`](#type-RouteDismiss) model · [`RouteSwipeBack`](#enum-RouteSwipeBack) enum · [`RouteTransition`](#type-RouteTransition) model · [`RouteTransitionPreset`](#enum-RouteTransitionPreset) enum · [`row`](#node-row) node type · [`rowTap`](#trigger-rowTap) trigger · [`runs`](#fn-runs) formula function · [`runScript`](#action-runScript) action
 
 **S** · [`ScaleMode`](#enum-ScaleMode) enum · [`scroll`](#trigger-scroll) trigger · [`ScrollAxis`](#enum-ScrollAxis) enum · [`scrollEnd`](#trigger-scrollEnd) trigger · [`ScrollPhysicsType`](#enum-ScrollPhysicsType) enum · [`scrollTo`](#action-scrollTo) action · [`second`](#fn-second) formula function · [`secondaryClick`](#trigger-secondaryClick) trigger · [`seconds`](#fn-seconds) formula function · [`segmentedButton`](#node-segmentedButton) node type · [`SegmentedVariant`](#enum-SegmentedVariant) enum · [`set`](#fn-set) formula function · [`setAt`](#fn-setAt) formula function · [`setStorage`](#action-setStorage) action · [`setThemeMode`](#action-setThemeMode) action · [`setValue`](#action-setValue) action · [`setVariable`](#action-setVariable) action · [`setVariant`](#action-setVariant) action · [`ShapeBorder`](#type-ShapeBorder) model · [`ShapeBorderType`](#enum-ShapeBorderType) enum · [`Shimmer`](#type-Shimmer) model · [`shimmer`](#behavior-shimmer) behavior · [`showToast`](#action-showToast) action · [`ShowValueIndicator`](#enum-ShowValueIndicator) enum · [`sign`](#fn-sign) formula function · [`signature`](#node-signature) node type · [`SignaturePlaceholderPosition`](#enum-SignaturePlaceholderPosition) enum · [`SignLineStyle`](#enum-SignLineStyle) enum · [`SignMarkPlacement`](#enum-SignMarkPlacement) enum · [`sin`](#fn-sin) formula function · [`singlePlaceholder`](#node-singlePlaceholder) node type · [`Size`](#type-Size) value type · [`skip`](#fn-skip) formula function · [`slice`](#fn-slice) formula function · [`slider`](#node-slider) node type · [`SliderThumbShape`](#enum-SliderThumbShape) enum · [`SliderTickMarkStyle`](#enum-SliderTickMarkStyle) enum · [`SliderTrackShape`](#enum-SliderTrackShape) enum · [`SliderValueIndicatorShape`](#enum-SliderValueIndicatorShape) enum · [`slot`](#node-slot) node type · [`slug`](#fn-slug) formula function · [`SnapKind`](#enum-SnapKind) enum · [`sortBy`](#fn-sortBy) formula function · [`sortByDesc`](#fn-sortByDesc) formula function · [`spacer`](#node-spacer) node type · [`speak`](#action-speak) action · [`split`](#fn-split) formula function · [`Spring`](#type-Spring) model · [`sqrt`](#fn-sqrt) formula function · [`stack`](#node-stack) node type · [`startsWith`](#fn-startsWith) formula function · [`states`](#behavior-states) behavior · [`StateStyles`](#type-StateStyles) model · [`Sticky`](#type-Sticky) model · [`sticky`](#behavior-sticky) behavior · [`StorageOperation`](#enum-StorageOperation) enum · [`StrokeAlign`](#enum-StrokeAlign) enum · [`StrokeCap`](#enum-StrokeCap) enum · [`StrokeJoin`](#enum-StrokeJoin) enum · [`StrokeSides`](#enum-StrokeSides) enum · [`submitForm`](#action-submitForm) action · [`submitted`](#trigger-submitted) trigger · [`substring`](#fn-substring) formula function · [`sum`](#fn-sum) formula function · [`SwipeAction`](#type-SwipeAction) model · [`swipeAction`](#trigger-swipeAction) trigger · [`SwipeActions`](#type-SwipeActions) model · [`swipeDown`](#trigger-swipeDown) trigger · [`swipeLeft`](#trigger-swipeLeft) trigger · [`swipeRight`](#trigger-swipeRight) trigger · [`swipeUp`](#trigger-swipeUp) trigger · [`switch`](#node-switch) node type
 
@@ -833,7 +846,7 @@ Every declared name and the page that documents it.
 
 **U** · [`unique`](#fn-unique) formula function · [`unset`](#fn-unset) formula function · [`updateWhere`](#fn-updateWhere) formula function · [`upper`](#fn-upper) formula function
 
-**V** · [`valueChanged`](#trigger-valueChanged) trigger · [`values`](#fn-values) formula function · [`VariableType`](#enum-VariableType) enum · [`variance`](#node-variance) node type · [`verticalDivider`](#node-verticalDivider) node type · [`video`](#node-video) node type · [`ViewProgress`](#type-ViewProgress) model · [`viewProgress`](#behavior-viewProgress) behavior · [`ViewProgressMode`](#enum-ViewProgressMode) enum · [`VisualDensity`](#type-VisualDensity) model
+**V** · [`validate`](#action-validate) action · [`valueChanged`](#trigger-valueChanged) trigger · [`values`](#fn-values) formula function · [`VariableType`](#enum-VariableType) enum · [`variance`](#node-variance) node type · [`verticalDivider`](#node-verticalDivider) node type · [`video`](#node-video) node type · [`ViewProgress`](#type-ViewProgress) model · [`viewProgress`](#behavior-viewProgress) behavior · [`ViewProgressMode`](#enum-ViewProgressMode) enum · [`VisualDensity`](#type-VisualDensity) model
 
 **W** · [`wallTime`](#fn-wallTime) formula function · [`Wave`](#type-Wave) model · [`webView`](#node-webView) node type · [`WebViewGesture`](#enum-WebViewGesture) enum · [`WebViewSourceType`](#enum-WebViewSourceType) enum · [`weekday`](#fn-weekday) formula function · [`wheel`](#trigger-wheel) trigger · [`WheelZoom`](#enum-WheelZoom) enum · [`where`](#fn-where) formula function · [`WidgetState`](#enum-WidgetState) enum · [`with`](#fn-with) formula function · [`without`](#fn-without) formula function · [`WrapAlignment`](#enum-WrapAlignment) enum · [`WrapCrossAlignment`](#enum-WrapCrossAlignment) enum · [`WriteOp`](#enum-WriteOp) enum
 
@@ -958,6 +971,10 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 <a id="layout-align"></a>
 <a id="layout-order"></a>
 <a id="layout-basis"></a>
+<a id="layout-columnSpan"></a>
+<a id="layout-rowSpan"></a>
+<a id="layout-columnStart"></a>
+<a id="layout-rowStart"></a>
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `width` | [AxisSize](#type-AxisSize) | `0` |  | The node's width: a number (fixed), `{"hug": n}` (its content), `{"fill": n}` (the room its parent gives) or `{"flexible": n}` (up to n). n is the design size. Without one the node is 0 wide. |
@@ -973,6 +990,10 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 | `align` | [Alignment](#type-Alignment) | unset |  | Under a row/column: alignment in its slot (`Align`). |
 | `order` | int | `0` |  | CSS `order`: under a row, column or flex, children are laid out and painted by ascending order (equal orders as listed). Patch it per screen size (`media`) to reorder at a width. |
 | `basis` | double | unset | ≥ 0 | CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; a child that fills the main axis (`{"fill": n}`) then grows by its `flex` share of the room left on its line (`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints. |
+| `columnSpan` | int | `1` | ≥ 1 | CSS `grid-column: span n`, under a gridView: how many columns the item covers (at most the grid's columns). Bind it per item (`${= index == 0 ? 2 : 1}`: a lead story across two) and patch it per screen size (`media`). |
+| `rowSpan` | int | `1` | ≥ 1 | CSS `grid-row: span n`, under a gridView: how many rows the item covers. |
+| `columnStart` | int | unset |  | CSS `grid-column-start`, under a gridView: the column the item starts in, 1 the first; unset: the next free cell. With `rowStart`, a timetable puts each session at its track and time. |
+| `rowStart` | int | unset |  | CSS `grid-row-start`, under a gridView: the row the item starts in, 1 the first; unset: the next free cell. |
 
 Read by decoding but not declared as fields: `widthFactor`, `heightFactor`. A share (0–1 and up) of the room its parent gives it on that axis (`FractionallySizedBox`): a progress bar's fill is `widthFactor: 0.6` of its track. Null: sized by `width` / `height`. Bindable (`layout.widthFactor`).
 
@@ -1087,6 +1108,7 @@ Flutter `Row`.
 | `physics` | [ScrollPhysicsType](#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-column"></a>
@@ -1114,6 +1136,7 @@ Flutter `Column`.
 | `physics` | [ScrollPhysicsType](#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-flex"></a>
@@ -1142,6 +1165,7 @@ Flutter `Flex`.
 | `physics` | [ScrollPhysicsType](#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-stack"></a>
@@ -1163,6 +1187,7 @@ A freeform container: children placed by `layout.x`/`layout.y` (Flutter `Stack` 
 | `physics` | [ScrollPhysicsType](#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fit` | [BoxFit](#enum-BoxFit) | unset | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | Scale the board (its design size) into the box: contain, cover, scaleDown... |
 | `fitAlignment` | [Alignment](#type-Alignment) | `[0,0]` |  | Where a `fit` board sits in its box. |
 
@@ -1289,8 +1314,8 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 
 | Trigger | When it fires |
 |---|---|
-| <a id="trigger-scroll"></a>`scroll` | The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page). |
-| <a id="trigger-scrollEnd"></a>`scrollEnd` |  |
+| <a id="trigger-scroll"></a>`scroll` | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show. |
+| <a id="trigger-scrollEnd"></a>`scrollEnd` | The node stopped scrolling; `${result}` as for `scroll`. |
 | <a id="trigger-enterViewport"></a>`enterViewport` | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | <a id="trigger-exitViewport"></a>`exitViewport` |  |
 
@@ -1601,6 +1626,392 @@ Across a row or column, a child's width comes out as:
 | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
 | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width, at most its `maxWidth` |
 
+<a id="layout-an-editorial-page-at-three-sizes"></a>
+### An editorial page at three sizes
+
+A phone, a tablet and a desktop are three layouts, not one stretched: **use the width**. On a tablet, split the page
+into the content and a rail; on a desktop, give the content columns and let a lead item span them. A page that is
+one column at 1440 px wide, or whose content stops short of the width it was given, wastes the screen.
+
+The front page below is one document. On a phone it is one column: stories, then the "Most read" rail. From 834 px
+the `split` flex turns horizontal (its `direction` patched): the stories fill and the rail is 280 wide and `sticky`,
+pinned 24 px below the top as the page scrolls. The stories are a `gridView` whose `crossAxisCount` is 1, 2 from
+834 px and 3 from 1200 px; the lead story spans two columns (`"bind": {"layout.columnSpan": "${= index == 0 ? 2 :
+1}"}`), which is the whole row at two columns and the full width at one, because a span is never wider than the
+grid. The masthead is a full-width coloured band whose content is capped at 1200 and centred
+([a capped band](#layout-a-capped-band)), as is the split.
+
+```json
+{
+  "schema": 3,
+  "roots": ["front"],
+  "nodes": {
+    "front": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 844},
+      "decoration": {"fills": [{"color": "#FFFAF7F2"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["masthead", "main"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 844}},
+      "props": {"scrollable": true}
+    },
+    "masthead": {
+      "type": "column",
+      "children": ["mastheadInner"],
+      "layout": {"width": {"fill": 390}, "height": {"hug": 72}, "padding": [20, 20, 20, 20]},
+      "decoration": {"fills": [{"color": "#FF1F2A44"}]}
+    },
+    "mastheadInner": {
+      "type": "row",
+      "children": ["title", "edition"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 32}, "constraints": {"maxWidth": 1200}},
+      "props": {"mainAxisAlignment": "spaceBetween"}
+    },
+    "title": {
+      "type": "text",
+      "layout": {"width": {"hug": 140}, "height": {"hug": 32}},
+      "props": {"text": "The Long Tide", "style": {"fontSize": 24, "fontWeight": 700, "color": "#FFFAF7F2"}}
+    },
+    "edition": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 18}},
+      "props": {"text": "Saturday edition", "style": {"fontSize": 13, "color": "#FFCBD5E1"}},
+      "media": [{"maxWidth": 599, "patch": {"visible": false}}]
+    },
+    "main": {
+      "type": "column",
+      "children": ["split"],
+      "layout": {"width": {"fill": 390}, "height": {"hug": 1200}, "padding": [20, 24, 20, 40]}
+    },
+    "split": {
+      "type": "flex",
+      "children": ["river", "rail"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 1200}, "constraints": {"maxWidth": 1200}},
+      "props": {"direction": "vertical", "spacing": 32, "crossAxisAlignment": "start"},
+      "media": [{"minWidth": 834, "patch": {"props": {"direction": "horizontal"}}}]
+    },
+    "river": {
+      "type": "gridView",
+      "children": ["story"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 900}},
+      "props": {
+        "crossAxisCount": 1,
+        "shrinkWrapRows": true,
+        "physics": "never",
+        "mainAxisSpacing": 28,
+        "crossAxisSpacing": 24
+      },
+      "bind": {"data": "${stories}"},
+      "media": [
+        {"minWidth": 834, "patch": {"props": {"crossAxisCount": 2}}},
+        {"minWidth": 1200, "patch": {"props": {"crossAxisCount": 3}}}
+      ]
+    },
+    "story": {
+      "type": "column",
+      "children": ["storyArt", "storyKicker", "storyTitle", "storyDek"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 300}},
+      "props": {"spacing": 8, "crossAxisAlignment": "start"},
+      "bind": {"layout.columnSpan": "${= index == 0 ? 2 : 1}"}
+    },
+    "storyArt": {
+      "type": "box",
+      "layout": {"width": {"fill": 350}, "height": 200},
+      "bind": {"layout.height": "${= index == 0 ? 340 : 200}"},
+      "decoration": {
+        "fills": [
+          {
+            "type": "linear",
+            "begin": "topLeft",
+            "end": "bottomRight",
+            "stops": [{"position": 0, "color": "#FF94A3B8"}, {"position": 1, "color": "#FF1F2A44"}]
+          }
+        ],
+        "radius": 4
+      }
+    },
+    "storyKicker": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 16}},
+      "props": {
+        "text": "${item.section}",
+        "style": {"fontSize": 12, "fontWeight": 700, "letterSpacing": 1.2, "color": "#FFB45309"}
+      }
+    },
+    "storyTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 30}},
+      "props": {
+        "text": "${item.title}",
+        "style": {"fontSize": 20, "fontWeight": 700, "height": 1.2, "color": "#FF111827"}
+      },
+      "bind": {"props.style.fontSize": "${= index == 0 ? 30 : 20}"}
+    },
+    "storyDek": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 40}},
+      "props": {"text": "${item.dek}", "style": {"fontSize": 15, "height": 1.45, "color": "#FF4B5563"}}
+    },
+    "rail": {
+      "type": "column",
+      "children": ["railTitle", "railList"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 320}, "padding": 20},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}], "strokes": [{"color": "#FFE5E7EB"}], "radius": 6},
+      "props": {"spacing": 14, "crossAxisAlignment": "start"},
+      "sticky": {"offset": 24},
+      "media": [{"minWidth": 834, "patch": {"layout": {"width": 280}}}]
+    },
+    "railTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 20}},
+      "props": {"text": "Most read", "style": {"fontSize": 16, "fontWeight": 700, "color": "#FF111827"}}
+    },
+    "railList": {
+      "type": "listView",
+      "children": ["railItem"],
+      "layout": {"width": {"fill": 240}, "height": {"hug": 200}},
+      "props": {"scrollable": false, "spacing": 12},
+      "bind": {"data": "${mostRead}"}
+    },
+    "railItem": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 40}},
+      "props": {
+        "text": "${= (index + 1) + '. ' + item}",
+        "style": {"fontSize": 14, "height": 1.4, "color": "#FF374151"}
+      }
+    }
+  },
+  "variables": {
+    "front": [
+      {
+        "name": "stories",
+        "type": "list",
+        "value": [
+          {
+            "section": "CLIMATE",
+            "title": "Where the marsh moves, the town follows",
+            "dek": "On the Chesapeake's eastern shore, salt water is rewriting the map one field at a time."
+          },
+          {
+            "section": "CITIES",
+            "title": "The bus line that rebuilt a neighbourhood",
+            "dek": "Ten years after route 22 opened, its stops are the busiest corners in town."
+          },
+          {
+            "section": "SCIENCE",
+            "title": "Counting eels by moonlight",
+            "dek": "Volunteers spend spring nights at the weirs, tallying the year's arrivals."
+          },
+          {
+            "section": "FOOD",
+            "title": "Oyster season, earlier every year",
+            "dek": "Warmer water moves the harvest and the festival with it."
+          },
+          {
+            "section": "ARTS",
+            "title": "A museum of tide clocks",
+            "dek": "One collector's rooms of brass and glass keep the river's time."
+          }
+        ]
+      },
+      {
+        "name": "mostRead",
+        "type": "list",
+        "value": [
+          "Where the marsh moves, the town follows",
+          "Counting eels by moonlight",
+          "The ferry's last summer",
+          "A museum of tide clocks"
+        ]
+      }
+    ]
+  }
+}
+```
+
+<a id="layout-grid-spans-a-timetable"></a>
+### Grid spans; a timetable
+
+A `gridView` item spans and is placed as in CSS grid, through its own `layout` (the template's, bound per item from
+its data, and patched per size like any field):
+
+| `layout` | CSS | |
+|---|---|---|
+| `columnSpan`, `rowSpan` | `grid-column: span n`, `grid-row: span n` | cells covered across and down (a span is at most the grid's columns) |
+| `columnStart`, `rowStart` | `grid-column-start`, `grid-row-start` | the first column and row, 1 the first; unset: the next free cell |
+
+Items with both starts are placed first, then those with only a row, then the rest in order, each in the next cells
+where it fits (CSS's auto-placement). Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
+as their tallest item. A time-by-track timetable binds each session's track and slot to `columnStart` and
+`rowStart`, its length to `rowSpan`, and a session for every track to `columnSpan`; on a phone the bindings are only
+in a `minWidth` rule's patch, so the sessions fall back to one column in time order (a list), each naming its room:
+
+```json
+{
+  "schema": 3,
+  "roots": ["schedule"],
+  "nodes": {
+    "schedule": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 844},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["heading", "tracks", "grid"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 844}, "padding": 20},
+      "props": {"spacing": 12, "crossAxisAlignment": "start", "scrollable": true}
+    },
+    "heading": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 30}},
+      "props": {"text": "Saturday, 9:00 to 12:00", "style": {"fontSize": 22, "fontWeight": 700, "color": "#FF111827"}}
+    },
+    "tracks": {
+      "type": "row",
+      "children": ["track1", "track2", "track3"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 20}},
+      "props": {"spacing": 12},
+      "visible": false,
+      "media": [{"minWidth": 600, "patch": {"visible": true}}]
+    },
+    "track1": {
+      "type": "text",
+      "layout": {"width": {"fill": 100}, "height": {"hug": 20}},
+      "props": {"text": "Main hall", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF6B7280"}}
+    },
+    "track2": {
+      "type": "text",
+      "layout": {"width": {"fill": 100}, "height": {"hug": 20}},
+      "props": {"text": "Studio", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF6B7280"}}
+    },
+    "track3": {
+      "type": "text",
+      "layout": {"width": {"fill": 100}, "height": {"hug": 20}},
+      "props": {"text": "Workshop room", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF6B7280"}}
+    },
+    "grid": {
+      "type": "gridView",
+      "children": ["session"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 400}},
+      "props": {
+        "crossAxisCount": 1,
+        "mainAxisExtent": 64,
+        "mainAxisSpacing": 8,
+        "crossAxisSpacing": 12,
+        "physics": "never"
+      },
+      "bind": {"data": "${sessions}"},
+      "media": [{"minWidth": 600, "patch": {"props": {"crossAxisCount": 3}}}]
+    },
+    "session": {
+      "type": "column",
+      "children": ["sessionTime", "sessionTitle"],
+      "layout": {"width": {"fill": 350}, "height": {"fill": 64}, "padding": 10},
+      "decoration": {"fills": [{"color": "#FFEEF2FF"}], "radius": 6},
+      "props": {"spacing": 2, "crossAxisAlignment": "start"},
+      "media": [
+        {
+          "minWidth": 600,
+          "patch": {
+            "bind": {
+              "layout.columnStart": "${item.track}",
+              "layout.rowStart": "${item.slot}",
+              "layout.rowSpan": "${item.slots}",
+              "layout.columnSpan": "${item.tracks}"
+            }
+          }
+        }
+      ]
+    },
+    "sessionTime": {
+      "type": "text",
+      "layout": {"width": {"fill": 320}, "height": {"hug": 16}},
+      "props": {"text": "${item.time} · ${item.room}", "style": {"fontSize": 12, "color": "#FF4338CA"}}
+    },
+    "sessionTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 320}, "height": {"hug": 20}},
+      "props": {
+        "text": "${item.title}",
+        "maxLines": 2,
+        "overflow": "ellipsis",
+        "style": {"fontSize": 15, "fontWeight": 600, "color": "#FF111827"}
+      }
+    }
+  },
+  "variables": {
+    "schedule": [
+      {
+        "name": "sessions",
+        "type": "list",
+        "value": [
+          {
+            "title": "Opening keynote",
+            "time": "9:00",
+            "room": "Main hall",
+            "track": 1,
+            "slot": 1,
+            "slots": 1,
+            "tracks": 3
+          },
+          {
+            "title": "Designing for the tide",
+            "time": "9:30",
+            "room": "Main hall",
+            "track": 1,
+            "slot": 2,
+            "slots": 2,
+            "tracks": 1
+          },
+          {
+            "title": "Type on small screens",
+            "time": "9:30",
+            "room": "Studio",
+            "track": 2,
+            "slot": 2,
+            "slots": 1,
+            "tracks": 1
+          },
+          {
+            "title": "Hands-on: grids",
+            "time": "9:30",
+            "room": "Workshop room",
+            "track": 3,
+            "slot": 2,
+            "slots": 3,
+            "tracks": 1
+          },
+          {
+            "title": "Colour in the dark",
+            "time": "10:00",
+            "room": "Studio",
+            "track": 2,
+            "slot": 3,
+            "slots": 1,
+            "tracks": 1
+          },
+          {
+            "title": "Panel: open data",
+            "time": "10:30",
+            "room": "Main hall",
+            "track": 1,
+            "slot": 4,
+            "slots": 1,
+            "tracks": 2
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
 <a id="layout-cards-that-wrap"></a>
 ### Cards that wrap
 
@@ -1656,8 +2067,11 @@ A screen scrolls only if something in it scrolls. Make the canvas's body column 
 true}` with `{"fill": n}` width and height. Without it, content past the bottom of the screen is cut off
 (`offscreen`). Inside a scrolling column, a child cannot `fill` the scrolling axis. Rows scroll sideways with
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
-giving one; `"axis": "horizontal"` moves only sideways scroll views): `{"type": "scrollTo", "node": "faq",
-"durationMs": 400}` from a sub-navigation link (the key is `node`, not `target`).
+giving one; `"axis": "horizontal"` moves only sideways scroll views), or one item of a list (`"item"`: its key or
+index): `{"type": "scrollTo", "node": "faq", "durationMs": 400}` from a sub-navigation link (the key is `node`, not
+`target`). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item
+at the start `${result.index}`): store it for a header that condenses or a progress bar. Arrows, dots and snapping:
+[a carousel](#lists-a-carousel-pages-and-pagination).
 
 ```json
 {
@@ -1875,11 +2289,11 @@ one part of a screen. Older documents use this:
   negative margin does not overlap a neighbour (`layout_clamped`): translate with `motion`.
 - A media patch replaces a size of another mode: `{"hug": 200}` over `{"fill": 292}` is `{"hug": 200}`. A field
   both patched and bound shows the binding (`media_overridden`): bind in the rule instead.
-- `squeezeChildren` (default true) shrinks children that do not fit toward their content, as CSS flex items
-  shrink; false is Flutter's overflow (`layout_overflow`).
-- A `spacer` takes the free space only in a row or column with room to spare.
+- `squeezeChildren` (default true) shrinks children that do not fit, as CSS flex items shrink; false is
+  Flutter's overflow (`layout_overflow`).
+- A `spacer` takes free space only in a row or column with room to spare.
 - Without `basis`, children of a wrapping row keep their own size.
-- `${screen.width}` prints a decimal (`390.0`); `${= screen.width}` prints `390`.
+- `${screen.width}` prints `390.0`; `${= screen.width}` prints `390`.
 
 <a id="layout-see-also"></a>
 ## See also
@@ -2121,7 +2535,9 @@ whole subtree), else the font's own line height. Sizing: one line `{"hug": n}` �
 fixed height shorter than the lines clips them (`text_clipped`).
 
 `runs` style parts of the text: `[{"start": 0, "end": 5, "style": {"fontWeight": 700}}]` (character offsets, end
-exclusive, `\n` counting as one), merged over `style`; a run may carry a `"link"` URL. A literal `$` right before an
+exclusive, `\n` counting as one), merged over `style`; a run may carry a `"link"` URL. Offsets count the text as
+written, an expression keeping its run; a run that starts or ends inside a `${...}` counts the text as shown instead,
+so a drop cap on a bound paragraph (`"text": "${= story.lead}"`) is `{"start": 0, "end": 1}`. A literal `$` right before an
 expression is text: `"$${price}"` shows `$47`. There is no escape for a literal `${`: compute it.
 
 <a id="theme-superscripts-and-a-raised-currency-sign"></a>
@@ -2966,12 +3382,12 @@ Flutter `TextField` (a `TextFormField` when it validates).
 | `selectionHeightStyle` | [BoxHeightStyle](#enum-BoxHeightStyle) | `"tight"` | `tight`, `max`, `includeLineSpacingMiddle`, `includeLineSpacingTop`, `includeLineSpacingBottom`, `strut` |  |
 | `selectionWidthStyle` | [BoxWidthStyle](#enum-BoxWidthStyle) | `"tight"` | `tight`, `max` |  |
 | `autofillHints` | List<String> | `[]` |  | `AutofillHints` names (`email`, `password`...). |
-| `autovalidateMode` | [AutovalidateMode](#enum-AutovalidateMode) | `"disabled"` | `disabled`, `always`, `onUserInteraction`, `onUnfocus` |  |
+| `autovalidateMode` | [AutovalidateMode](#enum-AutovalidateMode) | `"disabled"` | `disabled`, `always`, `onUserInteraction`, `onUnfocus`, `onUserInteractionIfError` |  |
 | `selectAllOnFocus` | bool | `false` |  | Selects the whole text when the field gains focus. |
 | `focusRingColor` | [Color](#type-Color) | unset |  | A ring drawn around the field while it has focus. |
 | `focusRingWidth` | double | `0` | ≥ 0 |  |
 | `inputFormatter` | Object | `{}` |  | The input formatter (`{"type": "none"\|"email"\|"phone"\|..., ...}`). |
-| `validator` | Object | `{}` |  | The validator (`{"type": "none"\|"email"\|"required"\|..., ...}`). |
+| `validator` | String | `""` |  | Flutter's TextFormField.validator: an expression reading the text as `value`, giving the error or "" when valid. |
 | `markdown` | Object | unset |  | Markdown highlighting of the typed text. |
 | `highlightStart` | int | unset |  | Characters `highlightStart` (0-based) up to `highlightEnd` (exclusive) are drawn in `highlightStyle` over the field's style, e.g. the place a syntax error was found. Null or an empty range highlights nothing. |
 | `highlightEnd` | int | unset |  |  |
@@ -3506,6 +3922,38 @@ Flutter `InputChip`.
 | `deleteIconSize` | double | unset |  |  |
 | `deleteIconColor` | [Color](#type-Color) | unset |  |  |
 
+<a id="behavior-form"></a>
+### `form` (behavior)
+
+A node key (beside `layout` and `props`). Type: [FormBehavior](#type-FormBehavior). Default: unset.
+
+Flutter's Form: the text fields inside validate together (the validate action); its nodes read ${form.valid} and ${form.errors}.
+
+<a id="type-FormBehavior"></a>
+#### FormBehavior
+
+Flutter's `Form`: the text fields inside the node are one form. The `validate` action (`FormState.validate()`) checks them all with their validators, shows each one's error and focuses the first invalid field; `autovalidateMode` makes them check themselves too, as each field's own `autovalidateMode` does. The node and the nodes inside it read `${form.valid}` (every field passes its validator now) and `${form.errors}` (the errors the fields show, in order: `{field, label, message}`), for a summary. JSON `true` or `{"autovalidateMode": ...}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `autovalidateMode` | [AutovalidateMode](#enum-AutovalidateMode) | `"disabled"` | `disabled`, `always`, `onUserInteraction`, `onUnfocus`, `onUserInteractionIfError` | When every field inside checks itself, besides the validate action (Flutter's Form.autovalidateMode). |
+
+<a id="behavior-radioGroup"></a>
+### `radioGroup` (behavior)
+
+A node key (beside `layout` and `props`). Type: [RadioGroupBehavior](#type-RadioGroupBehavior). Default: unset.
+
+Flutter's RadioGroup: the radios inside share its groupValue; choosing one runs its changed reactions.
+
+<a id="type-RadioGroupBehavior"></a>
+#### RadioGroupBehavior
+
+Flutter's `RadioGroup`: the `radio` nodes inside the node that set no `groupValue` of their own share this one, and choosing one of them runs the node's `changed` reactions with its value as `${result}` (`RadioGroup.onChanged`). Bind `groupValue` to the variable the choice is kept in: `"bind": {"radioGroup.groupValue": "${budget}"}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `groupValue` | String | `""` |  | The value of the radio that is on; bind it to the variable the choice is kept in. |
+
 <a id="forms-triggers"></a>
 ### Triggers
 
@@ -3546,6 +3994,16 @@ Focuses text field `node` (selecting its text with `selectAll`), or takes the fo
 | `node` | String | `""` |  | A text field; empty with unfocus: every field. |
 | `unfocus` | bool | `false` |  |  |
 | `selectAll` | bool | `false` |  |  |
+
+<a id="action-validate"></a>
+### `validate` (action): Validate form
+
+Flutter's FormState.validate(): every field of the form shows its validator's error; the first invalid one takes the focus. ${result}: whether all are valid.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | The form (a node with a form behavior); empty: the form around the node running it, else the screen. |
+| `focusFirstError` | bool | `true` |  | Moves the focus to the first field that shows an error. |
 
 <a id="type-InputDecoration"></a>
 ### InputDecoration
@@ -3694,8 +4152,9 @@ An icon with its own size, color and tooltip: an app bar's leading icon or actio
 | `radio`, `slider`, `dropdown`, `segmentedButton` | their colours, track and thumb shapes | `props` ([radio](#node-radio), [slider](#node-slider), [dropdown](#node-dropdown), [segmentedButton](#node-segmentedButton)) |
 | a labelled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [a labelled checkbox](#forms-a-labelled-checkbox-or-switch) |
 
-Every colour there may be a theme colour's name; every text style may name a theme style. An outlined field needs
-`"contentPadding": [14, 16, 14, 16]` in its decoration to keep its text off the border.
+Every colour there may be a theme colour's name; every text style may name a theme style. An outlined or filled
+field that sets no `contentPadding` (nor a `layout.padding`) takes Flutter's default, 12 px at the sides, which
+keeps its text and label off the border; set `contentPadding` for another.
 
 <a id="forms-a-text-field-bound-to-a-variable-two-way"></a>
 ### A text field bound to a variable (two-way)
@@ -3710,27 +4169,201 @@ store `${result}` in the same variable and the control follows it.
 <a id="forms-validation-and-an-error-state"></a>
 ### Validation and an error state
 
-Keep the values in variables, set a `tried` flag on submit, and show errors from computed variables: bind
-`props.decoration.errorText` (the field turns to its `errorBorder` and shows the text) or a separate text's
-`visible`. An empty `errorText` shows no error. The `validator` prop is declared but not applied by the SDK; `inputFormatter` applies only
-`{"type": "regex", "pattern": ..., "allow": true}`.
+As Flutter's `TextFormField` and `Form`:
+
+- A field's `validator` is Flutter's `validator: (value) => ...`: an expression that reads the typed text as
+  `value` and gives the error to show under the field, or `''` when it is valid:
+  `"validator": "${= trim(value) == '' ? 'Enter your name.' : ''}"` (in `props`, not `bind`: it runs on the text
+  each time the field checks itself).
+- `autovalidateMode` says when a field checks itself (Flutter's `AutovalidateMode`): `disabled` (default: only
+  when its form is validated), `onUnfocus` (when the focus leaves it: validate on blur), `onUserInteraction` (as
+  it is typed in, once it has been), `onUserInteractionIfError` (as it is typed in, while it shows an error: the
+  error clears as soon as it is fixed), `always`. An error stays until the field checks itself again.
+- A node with `"form": {"autovalidateMode": ...}` is Flutter's `Form` around the fields inside it: the mode applies
+  to all of them, and its nodes read `${form.valid}` (every field passes now) and `${form.errors}` (the errors the
+  fields show, top to bottom: `{field, label, message}`) for a summary.
+- `{"type": "validate", "node": "<form>"}` is `FormState.validate()`: every field of the form shows its error,
+  the first invalid one takes the focus, and `${result}` is whether all are valid, for an `if` that submits.
+
+An error can also come from anywhere else: bind `props.decoration.errorText` (an empty text shows none); the
+validator's error, when it shows one, wins. Give a field that may show an error a hug height (`{"hug": 56}`): it
+grows by the error line, and the form with it; a fixed height keeps the field that tall. `inputFormatter` applies
+only `{"type": "regex", "pattern": ..., "allow": true}`. A form submitted to a service: `submitForm`
+([data](#page-data)).
+
+A contact form validated on blur and on send, with a summary of the errors above it, a radio group and a thank-you
+that replaces the form:
 
 ```json
-"variables": {"page_variables": [
-  {"name": "seats", "type": "text", "value": "10"},
-  {"name": "seatsError", "type": "text", "formula": "seats == '' || number(seats) < 1 ? 'Enter at least 1 seat.' : ''"}
-]}
+{
+  "schema": 3,
+  "roots": ["contact"],
+  "nodes": {
+    "contact": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 760},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["contactForm", "thanks"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 760}, "padding": 24},
+      "props": {"crossAxisAlignment": "start", "scrollable": true}
+    },
+    "contactForm": {
+      "type": "column",
+      "children": ["summary", "name", "email", "budgetLabel", "budget", "message", "send"],
+      "layout": {"width": {"fill": 342}, "height": {"hug": 560}},
+      "props": {"spacing": 14, "crossAxisAlignment": "start"},
+      "form": {"autovalidateMode": "onUnfocus"},
+      "bind": {"visible": "${= !sent}"}
+    },
+    "summary": {
+      "type": "column",
+      "children": ["summaryTitle", "summaryList"],
+      "layout": {"width": {"fill": 342}, "height": {"hug": 60}, "padding": 12},
+      "decoration": {"fills": [{"color": "#FFFEF2F2"}], "strokes": [{"color": "#FFDC2626"}], "radius": 8},
+      "props": {"spacing": 4, "crossAxisAlignment": "start"},
+      "bind": {"visible": "${= length(form.errors) > 0}"}
+    },
+    "summaryTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 318}, "height": {"hug": 20}},
+      "props": {"text": "", "style": {"fontSize": 15, "fontWeight": 600, "color": "#FF991B1B"}},
+      "bind": {
+        "props.text": "${= length(form.errors) + (length(form.errors) == 1 ? ' field needs' : ' fields need') + ' attention'}"
+      }
+    },
+    "summaryList": {
+      "type": "listView",
+      "children": ["summaryItem"],
+      "layout": {"width": {"fill": 318}, "height": {"hug": 40}},
+      "props": {"scrollable": false, "spacing": 2},
+      "bind": {"data": "${form.errors}"}
+    },
+    "summaryItem": {
+      "type": "text",
+      "layout": {"width": {"fill": 318}, "height": {"hug": 18}},
+      "props": {"text": "${item.label}: ${item.message}", "style": {"fontSize": 13, "color": "#FF991B1B"}}
+    },
+    "name": {
+      "type": "textField",
+      "layout": {"width": {"fill": 342}, "height": {"hug": 56}},
+      "props": {
+        "decoration": {"labelText": "Name", "border": {"type": "outline", "borderRadius": 8}},
+        "validator": "${= trim(value) == '' ? 'Enter your name.' : ''}"
+      },
+      "bind": {"props.initialValue": "${name}"}
+    },
+    "email": {
+      "type": "textField",
+      "layout": {"width": {"fill": 342}, "height": {"hug": 56}},
+      "props": {
+        "keyboardType": "emailAddress",
+        "decoration": {"labelText": "Email", "border": {"type": "outline", "borderRadius": 8}},
+        "validator": "${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"
+      },
+      "bind": {"props.initialValue": "${email}"}
+    },
+    "budgetLabel": {
+      "type": "text",
+      "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+      "props": {"text": "Budget", "style": {"fontSize": 14, "fontWeight": 600, "color": "#FF111827"}}
+    },
+    "budget": {
+      "type": "row",
+      "children": ["budgetSmall", "budgetSmallLabel", "budgetLarge", "budgetLargeLabel"],
+      "layout": {"width": {"fill": 342}, "height": {"hug": 32}},
+      "props": {"spacing": 8},
+      "radioGroup": {"groupValue": "small"},
+      "bind": {"radioGroup.groupValue": "${budget}"},
+      "actions": [
+        {
+          "trigger": {"type": "changed"},
+          "actions": [{"type": "setVariable", "variable": "budget", "value": "${result}"}]
+        }
+      ]
+    },
+    "budgetSmall": {"type": "radio", "layout": {"width": 24, "height": 24}, "props": {"value": "small"}},
+    "budgetSmallLabel": {
+      "type": "text",
+      "layout": {"width": {"hug": 90}, "height": {"hug": 20}},
+      "props": {"text": "Under $10k", "style": {"fontSize": 14, "color": "#FF374151"}}
+    },
+    "budgetLarge": {"type": "radio", "layout": {"width": 24, "height": 24}, "props": {"value": "large"}},
+    "budgetLargeLabel": {
+      "type": "text",
+      "layout": {"width": {"hug": 90}, "height": {"hug": 20}},
+      "props": {"text": "$10k or more", "style": {"fontSize": 14, "color": "#FF374151"}}
+    },
+    "message": {
+      "type": "textField",
+      "layout": {"width": {"fill": 342}, "height": {"hug": 120}},
+      "props": {
+        "maxLines": 5,
+        "minLines": 3,
+        "decoration": {"labelText": "Message", "alignLabelWithHint": true, "border": {"type": "outline", "borderRadius": 8}},
+        "validator": "${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"
+      },
+      "bind": {"props.initialValue": "${message}"}
+    },
+    "send": {
+      "type": "filledButton",
+      "layout": {"width": {"fill": 342}, "height": 48},
+      "props": {"label": "Send message"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {"type": "validate", "node": "contactForm"},
+            {
+              "type": "if",
+              "condition": {"left": "${result}", "op": "isTrue"},
+              "then": [{"type": "setVariable", "variable": "sent", "value": "${= true}"}]
+            }
+          ]
+        }
+      ]
+    },
+    "thanks": {
+      "type": "column",
+      "children": ["thanksTitle", "thanksBody"],
+      "layout": {"width": {"fill": 342}, "height": {"hug": 80}, "padding": 16},
+      "decoration": {"fills": [{"color": "#FFF0FDF4"}], "radius": 8},
+      "props": {"spacing": 6, "crossAxisAlignment": "start"},
+      "bind": {"visible": "${sent}"}
+    },
+    "thanksTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 310}, "height": {"hug": 24}},
+      "props": {"text": "Thanks, ${name}!", "style": {"fontSize": 18, "fontWeight": 700, "color": "#FF166534"}}
+    },
+    "thanksBody": {
+      "type": "text",
+      "layout": {"width": {"fill": 310}, "height": {"hug": 20}},
+      "props": {"text": "We'll reply to ${email} within a day.", "style": {"fontSize": 14, "color": "#FF166534"}}
+    }
+  },
+  "variables": {
+    "contact": [
+      {"name": "name", "type": "text", "value": ""},
+      {"name": "email", "type": "text", "value": ""},
+      {"name": "budget", "type": "text", "value": "small"},
+      {"name": "message", "type": "text", "value": ""},
+      {"name": "sent", "type": "boolean", "value": false}
+    ]
+  }
+}
 ```
 
-```json
-"seatsField": {"type": "textField", "layout": {"width": 160, "height": 72},
-  "bind": {"props.initialValue": "${seats}", "props.decoration.errorText": "${seatsError}"},
-  "props": {"keyboardType": "number", "decoration": {"labelText": "Seats",
-    "border": {"type": "outline", "borderRadius": 8}, "errorBorder": {"type": "outline", "borderRadius": 8, "borderSide": {"color": "#FFDC2626"}}}}}
-```
+<a id="forms-a-radio-group"></a>
+### A radio group
 
-Give a field that may show an error a hug height (`{"hug": 56}`): it grows by the error line, and the form with it;
-a fixed height keeps the field that tall. A form submitted to a service: `submitForm` ([data](#page-data)).
+Flutter's `RadioGroup`: give the node around the radios `"radioGroup": {"groupValue": ...}`, bind its
+`radioGroup.groupValue` to the variable that keeps the choice, and store `${result}` in its `changed` reaction. Each
+`radio` inside sets only its `value`: it is on when that is the group's value, and choosing it runs the group's
+`changed` (and its own). See `budget` in the form above.
 
 <a id="forms-a-stepper-around-a-field"></a>
 ### A stepper around a field
@@ -3801,8 +4434,10 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.
 - Every action key is written flat in the action; a misspelled one is dropped (`unknown_action_key`).
-- The `validator` prop is not applied: validate with variables.
-- An outlined border without `contentPadding` puts the text on the border.
+- A `validator` reads the field's text as `value`, not the variable the field is bound to; it goes in `props`, not
+  `bind`.
+- With `autovalidateMode` `disabled` (the default) a validator shows nothing until its form is validated: give the
+  form, or the field, a mode, or run `validate` on send.
 
 <a id="forms-see-also"></a>
 ## See also
@@ -3925,6 +4560,7 @@ Flutter `ListView`: its first child repeated per item.
 | `itemCount` | int | unset |  | The number of items; null repeats the item without end (or one per value of the bound `data`). |
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `scrollable` | bool | `true` |  | False builds every item without a viewport when the count is known and the list hugs its items (or stretches them across a cross axis it hugs). |
 | `itemExtent` | double | unset | ≥ 0 | Each item's extent along the scroll direction. |
 | `separator` | [ListSeparator](#enum-ListSeparator) | `"none"` | `none`, `space`, `divider` |  |
@@ -3958,6 +4594,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 
 - Children: `children` and slots: `loading`, `error`, `end`, `reorderPlaceholder`.
 - Decoration: none: only blur effects in `decoration.effects` apply.
+- Reads from each child's layout: [`columnSpan`](#layout-columnSpan), [`rowSpan`](#layout-rowSpan), [`columnStart`](#layout-columnStart), [`rowStart`](#layout-rowStart).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -3971,6 +4608,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `itemCount` | int | unset |  | The number of items; null repeats the item without end (or one per value of the bound `data`). |
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `crossAxisCount` | int | `2` | ≥ 1 | A fixed number of columns (of rows when the grid scrolls sideways). For as many columns as fit, use `minCrossAxisExtent` instead. |
 | `maxCrossAxisExtent` | double | unset | ≥ 0 |  |
 | `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
@@ -4437,6 +5075,188 @@ A tap on a day flips it in the habit's record (`setAt` and `set` build the new l
 A `pageView` shows one item (or child) per page and swipes between them (`viewportFraction` below 1 shows the
 neighbours' edges; `initialPage`). Long lists that load in pages: the list's `pagination` settings, with a
 `pagination` control or the `paginate` action to move between pages.
+
+A rail of cards with arrows, dots and a progress bar is a horizontal `listView` (or scrolling `row`):
+
+- `"itemSnapping": true` makes a drag or fling come to rest with a card at the start of the view (CSS
+  `scroll-snap-align: start`; Flutter's `PageView.pageSnapping`, for items).
+- Its `scroll` reaction gives `${result.index}` (the card at the start; the last at the end), `${result.count}`,
+  `${result.offset}` and `${result.fraction}` (0–1): store them in variables the controls bind.
+- An arrow is `{"type": "scrollTo", "node": "<item template>", "item": "${= current + 1}"}`: `item` is the key or
+  the index of the card to bring to the start (`alignment` 0; 0.5 centres it). A dot scrolls to its own `${index}`.
+  For a scrolling `row` of fixed children, name the child: `"node": "card${= current + 1}"`.
+
+The same pattern moves a horizontal timeline from its year buttons, or a featured-routes carousel from its dots:
+
+```json
+{
+  "schema": 3,
+  "roots": ["shop"],
+  "nodes": {
+    "shop": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 520},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["header", "rail", "footer"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 520}, "padding": [20, 24, 20, 24]},
+      "props": {"spacing": 16, "crossAxisAlignment": "start"}
+    },
+    "header": {
+      "type": "row",
+      "children": ["heading", "arrows"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 40}},
+      "props": {"mainAxisAlignment": "spaceBetween"}
+    },
+    "heading": {
+      "type": "text",
+      "layout": {"width": {"hug": 160}, "height": {"hug": 28}},
+      "props": {"text": "New arrivals", "style": {"fontSize": 22, "fontWeight": 700, "color": "#FF111827"}}
+    },
+    "arrows": {
+      "type": "row",
+      "children": ["prev", "next"],
+      "layout": {"width": {"hug": 96}, "height": 40},
+      "props": {"spacing": 8}
+    },
+    "prev": {
+      "type": "iconButton",
+      "layout": {"width": 40, "height": 40},
+      "props": {"icon": "chevron_left"},
+      "bind": {"props.enabled": "${= current > 0}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "scrollTo",
+              "node": "card",
+              "item": "${= current - 1}",
+              "axis": "horizontal",
+              "durationMs": 300
+            }
+          ]
+        }
+      ]
+    },
+    "next": {
+      "type": "iconButton",
+      "layout": {"width": 40, "height": 40},
+      "props": {"icon": "chevron_right"},
+      "bind": {"props.enabled": "${= current < length(products) - 1}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "scrollTo",
+              "node": "card",
+              "item": "${= current + 1}",
+              "axis": "horizontal",
+              "durationMs": 300
+            }
+          ]
+        }
+      ]
+    },
+    "rail": {
+      "type": "listView",
+      "children": ["card"],
+      "layout": {"width": {"fill": 350}, "height": 300},
+      "props": {"scrollDirection": "horizontal", "spacing": 16, "itemSnapping": true},
+      "bind": {"data": "${products}"},
+      "actions": [
+        {
+          "trigger": {"type": "scroll"},
+          "actions": [
+            {"type": "setVariable", "variable": "current", "value": "${result.index}"},
+            {"type": "setVariable", "variable": "progress", "value": "${result.fraction}"}
+          ]
+        }
+      ]
+    },
+    "card": {
+      "type": "column",
+      "children": ["cardArt", "cardName", "cardPrice"],
+      "layout": {"width": 240, "height": {"fill": 300}},
+      "props": {"spacing": 6, "crossAxisAlignment": "start"}
+    },
+    "cardArt": {
+      "type": "box",
+      "layout": {"width": {"fill": 240}, "height": 220},
+      "decoration": {"fills": [{"color": "#FFE7E5E4"}], "radius": 8},
+      "bind": {"decoration.fills[0].color": "${item.color}"}
+    },
+    "cardName": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 20}},
+      "props": {"text": "${item.name}", "style": {"fontSize": 15, "fontWeight": 600, "color": "#FF111827"}}
+    },
+    "cardPrice": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 20}},
+      "props": {"text": "$${item.price}", "style": {"fontSize": 14, "color": "#FF4B5563"}}
+    },
+    "footer": {
+      "type": "row",
+      "children": ["dots", "track"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 10}},
+      "props": {"spacing": 16}
+    },
+    "dots": {
+      "type": "listView",
+      "children": ["dot"],
+      "layout": {"width": {"hug": 90}, "height": 8},
+      "props": {"scrollDirection": "horizontal", "scrollable": false, "spacing": 6},
+      "bind": {"data": "${products}"}
+    },
+    "dot": {
+      "type": "box",
+      "layout": {"width": 8, "height": {"fill": 8}},
+      "decoration": {"fills": [{"color": "#FFD1D5DB"}], "shape": "circle"},
+      "bind": {"decoration.fills[0].color": "${= index == current ? '#FF111827' : '#FFD1D5DB'}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [{"type": "scrollTo", "node": "card", "item": "${index}", "axis": "horizontal", "durationMs": 300}]
+        }
+      ]
+    },
+    "track": {
+      "type": "stack",
+      "children": ["trackFill"],
+      "layout": {"width": {"fill": 200}, "height": 4},
+      "decoration": {"fills": [{"color": "#FFE5E7EB"}], "radius": 2}
+    },
+    "trackFill": {
+      "type": "box",
+      "layout": {"width": 0, "height": 4},
+      "decoration": {"fills": [{"color": "#FF111827"}], "radius": 2},
+      "bind": {"layout.widthFactor": "${progress}"}
+    }
+  },
+  "variables": {
+    "shop": [
+      {"name": "current", "type": "integer", "value": 0},
+      {"name": "progress", "type": "decimal", "value": 0},
+      {
+        "name": "products",
+        "type": "list",
+        "value": [
+          {"name": "Linen apron", "price": 48, "color": "#FFD6CFC4"},
+          {"name": "Moss bowl", "price": 36, "color": "#FFB7C4A1"},
+          {"name": "Oak board", "price": 72, "color": "#FFC9A27E"},
+          {"name": "Clay cup", "price": 22, "color": "#FFE3B5A4"},
+          {"name": "Wool throw", "price": 120, "color": "#FFA9B4C2"}
+        ]
+      }
+    ]
+  }
+}
+```
 
 <a id="lists-pitfalls"></a>
 ## Pitfalls
@@ -5120,7 +5940,11 @@ Types:
 `${= formula}` computes one: arithmetic (`+ - * / %`), comparisons (`== != < <= > >=`), `&&`, `||`, `!`,
 `cond ? a : b`, literals (`'text'`, `3.5`, `true`, `null`, lists `[1, 2]`), and lambdas for list functions
 (`x => x.price`). A text that is exactly one expression gives its value with its type; inside other text a number is
-printed without trailing zeros. Names an expression may start with, besides the variables: `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`.
+printed without trailing zeros. Names an expression may start with, besides the variables: `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`, `form`. The
+names a node gives the nodes inside it are read there only: `item`, `index`, `parent` in a list's item; `pageOffset`
+in a `pageView`'s page (its distance from the current page, for parallax; not the page's scroll); `form` inside a
+`form`; `track`, `sticky`, `view` and the like inside their node. A page's or a list's scroll position is its `scroll`
+reaction's `${result.offset}` (and `index`, `fraction`), stored in a variable that anything may bind.
 
 <a id="state-binding-paths"></a>
 ### Binding paths
@@ -5149,6 +5973,10 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 | `layout.align` | `Alignment` | [x, y] from -1 to 1, or a name: topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight |
 | `layout.order` | `int` | a whole number |
 | `layout.basis` | `double` | a number |
+| `layout.columnSpan` | `int` | a whole number |
+| `layout.rowSpan` | `int` | a whole number |
+| `layout.columnStart` | `int` | a whole number |
+| `layout.rowStart` | `int` | a whole number |
 | `decoration.fills` | `List<Paint>` | a list of Paint objects |
 | `decoration.strokes` | `List<Paint>` | a list of Paint objects |
 | `decoration.strokeWidth` | `double` | a number |
@@ -5166,10 +5994,10 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 `props.<prop>` takes what the prop's type is written as: `"${= open ? 'vertical' : 'horizontal'}"` for
 `props.direction`, a TextStyle object or a theme style's name for `props.style`. Every bindable field:
 
-- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
+- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, `columnSpan`, `rowSpan`, `columnStart`, `rowStart`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type, and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`defaultTextStyle`](#behavior-defaultTextStyle), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint).
+- `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`defaultTextStyle`](#behavior-defaultTextStyle), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint), [`form`](#behavior-form), [`radioGroup`](#behavior-radioGroup).
 
 Named paths:
 
@@ -6193,7 +7021,17 @@ A node's `actions` is a list of **reactions**: a trigger and the chain of action
 `states` on a node changes it and its descendants while it is `hovered`, `pressed`, `focused`, `selected`,
 `disabled` or `dragged`. Each state maps node ids (the node itself or nodes inside it) to a **patch**: partial node
 JSON merged over that node (objects merge, other values replace, `null` removes). `selected` and `disabled` follow
-bindings: `"bind": {"selected": "${= tab == 'pricing'}"}` puts the node in its `selected` state. `hovered` needs a
+bindings: `"bind": {"selected": "${= tab == 'pricing'}"}` puts the node in its `selected` state, as Flutter's
+`statesController` puts a button in `WidgetState.selected`: only the node's `states.selected` patch shows it, so a
+bound `selected` with none changes nothing (`state_no_effect`). A chip's own selection is its prop, `props.selected`.
+A selected outlined button (a filter or a delivery option):
+
+```json
+"bind": {"selected": "${= category == 'linen'}"},
+"states": {"selected": {"linen": {"props": {"style": {"backgroundColor": "ink", "foregroundColor": "paper"}}}}}
+```
+
+`hovered` needs a
 mouse: on touch screens it never happens, so do not hide anything behind it. Animate the change with
 `transitions` ([animation](#page-animation)).
 
@@ -9488,6 +10326,7 @@ From `package:codelessly_api/validate.dart`:
 | `vertical_wrap` | warning | A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side. |
 | `layout_clamped` | warning | A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks). |
 | `prop_ignored` | warning | A prop that has no effect with another the node sets (a grid's mainAxisExtent while shrinkWrapRows sizes its rows): one of them is ignored. |
+| `state_no_effect` | warning | A bound "selected" with no "states.selected" style: the node is selected, but nothing changes how it looks. |
 | `unknown_bind_path` | error | A "bind" key that names no bindable field of the node. |
 | `reserved_bind_path` | warning | A binding path that is kept but not applied yet. |
 | `expression_syntax` | error | A "${" that is not closed, or an empty ${}. |
@@ -10009,10 +10848,11 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `disabled` | Flutter's `AutovalidateMode`. |
-| `always` | Flutter's `AutovalidateMode`. |
-| `onUserInteraction` | Flutter's `AutovalidateMode`. |
-| `onUnfocus` | Flutter's `AutovalidateMode`. |
+| `disabled` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `always` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `onUserInteraction` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `onUnfocus` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `onUserInteractionIfError` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
 
 <a id="enum-Axis"></a>
 ### Axis
@@ -11239,8 +12079,8 @@ Written as the value's name, a JSON string (`"center"`).
 | `frame` | Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks. |
 | `keyDown` | A key went down (or up) while the screen shows; `Trigger.key` limits it to one key or combination, `Trigger.when` to while a formula holds. `${result.key}`, `${result.shift}`, `${result.alt}`, `${result.meta}`. |
 | `keyUp` |  |
-| `scroll` | The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page). |
-| `scrollEnd` |  |
+| `scroll` | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show. |
+| `scrollEnd` | The node stopped scrolling; `${result}` as for `scroll`. |
 | `enterViewport` | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | `exitViewport` |  |
 | `dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |

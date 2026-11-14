@@ -36,6 +36,7 @@ final samples = <Json>[
   {'type': 'editText', 'node': 'f', 'operation': 'wrap', 'before': '**'},
   {'type': 'paywall', 'operation': 'purchase', 'slot': 'annual'},
   {'type': 'focus', 'node': 'f', 'selectAll': true},
+  {'type': 'validate', 'node': 'contact', 'focusFirstError': false},
   {'type': 'controlTrack', 'node': 'card', 'command': 'animateTo', 'steps': '-2', 'value': r'${= rating}'},
   {'type': 'controlDismissible', 'node': 'card', 'command': 'returnFrom', 'direction': 'left'},
   {'type': 'controlTransform', 'node': 'map', 'command': 'animateTo', 'value': '{"scale":2}'},

@@ -101,7 +101,9 @@ whole subtree), else the font's own line height. Sizing: one line `{"hug": n}` Ã
 fixed height shorter than the lines clips them (`text_clipped`).
 
 `runs` style parts of the text: `[{"start": 0, "end": 5, "style": {"fontWeight": 700}}]` (character offsets, end
-exclusive, `\n` counting as one), merged over `style`; a run may carry a `"link"` URL. A literal `$` right before an
+exclusive, `\n` counting as one), merged over `style`; a run may carry a `"link"` URL. Offsets count the text as
+written, an expression keeping its run; a run that starts or ends inside a `${...}` counts the text as shown instead,
+so a drop cap on a bound paragraph (`"text": "${= story.lead}"`) is `{"start": 0, "end": 1}`. A literal `$` right before an
 expression is text: `"$${price}"` shows `$47`. There is no escape for a literal `${`: compute it.
 
 ### Superscripts and a raised currency sign

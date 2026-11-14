@@ -277,7 +277,9 @@ The props that matter most; each type's page lists all of them.
   value through their `changed` trigger as `${result}`: store it with `setVariable`. **Two-way**: bind the value
   prop to the variable (`"bind": {"props.initialValue": "${query}"}` for a text field, `"props.value"` for the
   others). A text field's label, hint, border and fill are in `props.decoration` (an
-  [InputDecoration](@type-InputDecoration)). Styling every control, validation: [forms](@page-forms).
+  [InputDecoration](@type-InputDecoration)). Validation is Flutter's: a field's `validator` (`"${= value == '' ?
+  'Required.' : ''}"`), a `form` around the fields and a `validate` action on send
+  ([validation](@forms-validation-and-an-error-state)). Styling every control: [forms](@page-forms).
 - **Lists**: a `listView` or `gridView` repeats its **first child** once per item of its `data` binding:
   `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. An item fills the list across (its
   cross-axis size is `fill`). In a page that scrolls, give the list
@@ -354,13 +356,18 @@ Hover and pressed styles (`states`), drag, gestures: [interaction](@page-interac
 
 1. Prefer layout that fits any width: wrapping rows with `basis`, a `gridView` with `minCrossAxisExtent`, a capped
    band.
-2. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
+2. **Use the width.** A tablet and a desktop are not a stretched phone: split the page into content and a rail
+   (a `flex` turning horizontal), give content columns (a `gridView` whose `crossAxisCount` grows, a lead item
+   spanning two: `layout.columnSpan`), and let every band fill the width with its content capped and centred. A
+   desktop page that is still one column, or content that stops short of its band, is unfinished:
+   [an editorial page at three sizes](@layout-an-editorial-page-at-three-sizes).
+3. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
    {"fontSize": 40}}}}]`. `minWidth`/`maxWidth` are px (inclusive) or a breakpoint name (`"tablet"`).
-3. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
+4. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
    over it; later rules win (the cascade). Write for phones, add `minWidth` rules (mobile first).
-4. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
+5. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
    `layout.order`; hidden: `"visible": false`.
-5. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
+6. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
 
 Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive layout](@page-layout).
 

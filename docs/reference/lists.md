@@ -111,6 +111,7 @@ Flutter `ListView`: its first child repeated per item.
 | `itemCount` | int | unset |  | The number of items; null repeats the item without end (or one per value of the bound `data`). |
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `scrollable` | bool | `true` |  | False builds every item without a viewport when the count is known and the list hugs its items (or stretches them across a cross axis it hugs). |
 | `itemExtent` | double | unset | ≥ 0 | Each item's extent along the scroll direction. |
 | `separator` | [ListSeparator](values.md#enum-ListSeparator) | `"none"` | `none`, `space`, `divider` |  |
@@ -144,6 +145,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 
 - Children: `children` and slots: `loading`, `error`, `end`, `reorderPlaceholder`.
 - Decoration: none: only blur effects in `decoration.effects` apply.
+- Reads from each child's layout: [`columnSpan`](layout.md#layout-columnSpan), [`rowSpan`](layout.md#layout-rowSpan), [`columnStart`](layout.md#layout-columnStart), [`rowStart`](layout.md#layout-rowStart).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -157,6 +159,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `itemCount` | int | unset |  | The number of items; null repeats the item without end (or one per value of the bound `data`). |
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `crossAxisCount` | int | `2` | ≥ 1 | A fixed number of columns (of rows when the grid scrolls sideways). For as many columns as fit, use `minCrossAxisExtent` instead. |
 | `maxCrossAxisExtent` | double | unset | ≥ 0 |  |
 | `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
@@ -623,6 +626,188 @@ A tap on a day flips it in the habit's record (`setAt` and `set` build the new l
 A `pageView` shows one item (or child) per page and swipes between them (`viewportFraction` below 1 shows the
 neighbours' edges; `initialPage`). Long lists that load in pages: the list's `pagination` settings, with a
 `pagination` control or the `paginate` action to move between pages.
+
+A rail of cards with arrows, dots and a progress bar is a horizontal `listView` (or scrolling `row`):
+
+- `"itemSnapping": true` makes a drag or fling come to rest with a card at the start of the view (CSS
+  `scroll-snap-align: start`; Flutter's `PageView.pageSnapping`, for items).
+- Its `scroll` reaction gives `${result.index}` (the card at the start; the last at the end), `${result.count}`,
+  `${result.offset}` and `${result.fraction}` (0–1): store them in variables the controls bind.
+- An arrow is `{"type": "scrollTo", "node": "<item template>", "item": "${= current + 1}"}`: `item` is the key or
+  the index of the card to bring to the start (`alignment` 0; 0.5 centres it). A dot scrolls to its own `${index}`.
+  For a scrolling `row` of fixed children, name the child: `"node": "card${= current + 1}"`.
+
+The same pattern moves a horizontal timeline from its year buttons, or a featured-routes carousel from its dots:
+
+```json
+{
+  "schema": 3,
+  "roots": ["shop"],
+  "nodes": {
+    "shop": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 520},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["header", "rail", "footer"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 520}, "padding": [20, 24, 20, 24]},
+      "props": {"spacing": 16, "crossAxisAlignment": "start"}
+    },
+    "header": {
+      "type": "row",
+      "children": ["heading", "arrows"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 40}},
+      "props": {"mainAxisAlignment": "spaceBetween"}
+    },
+    "heading": {
+      "type": "text",
+      "layout": {"width": {"hug": 160}, "height": {"hug": 28}},
+      "props": {"text": "New arrivals", "style": {"fontSize": 22, "fontWeight": 700, "color": "#FF111827"}}
+    },
+    "arrows": {
+      "type": "row",
+      "children": ["prev", "next"],
+      "layout": {"width": {"hug": 96}, "height": 40},
+      "props": {"spacing": 8}
+    },
+    "prev": {
+      "type": "iconButton",
+      "layout": {"width": 40, "height": 40},
+      "props": {"icon": "chevron_left"},
+      "bind": {"props.enabled": "${= current > 0}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "scrollTo",
+              "node": "card",
+              "item": "${= current - 1}",
+              "axis": "horizontal",
+              "durationMs": 300
+            }
+          ]
+        }
+      ]
+    },
+    "next": {
+      "type": "iconButton",
+      "layout": {"width": 40, "height": 40},
+      "props": {"icon": "chevron_right"},
+      "bind": {"props.enabled": "${= current < length(products) - 1}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "scrollTo",
+              "node": "card",
+              "item": "${= current + 1}",
+              "axis": "horizontal",
+              "durationMs": 300
+            }
+          ]
+        }
+      ]
+    },
+    "rail": {
+      "type": "listView",
+      "children": ["card"],
+      "layout": {"width": {"fill": 350}, "height": 300},
+      "props": {"scrollDirection": "horizontal", "spacing": 16, "itemSnapping": true},
+      "bind": {"data": "${products}"},
+      "actions": [
+        {
+          "trigger": {"type": "scroll"},
+          "actions": [
+            {"type": "setVariable", "variable": "current", "value": "${result.index}"},
+            {"type": "setVariable", "variable": "progress", "value": "${result.fraction}"}
+          ]
+        }
+      ]
+    },
+    "card": {
+      "type": "column",
+      "children": ["cardArt", "cardName", "cardPrice"],
+      "layout": {"width": 240, "height": {"fill": 300}},
+      "props": {"spacing": 6, "crossAxisAlignment": "start"}
+    },
+    "cardArt": {
+      "type": "box",
+      "layout": {"width": {"fill": 240}, "height": 220},
+      "decoration": {"fills": [{"color": "#FFE7E5E4"}], "radius": 8},
+      "bind": {"decoration.fills[0].color": "${item.color}"}
+    },
+    "cardName": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 20}},
+      "props": {"text": "${item.name}", "style": {"fontSize": 15, "fontWeight": 600, "color": "#FF111827"}}
+    },
+    "cardPrice": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 20}},
+      "props": {"text": "$${item.price}", "style": {"fontSize": 14, "color": "#FF4B5563"}}
+    },
+    "footer": {
+      "type": "row",
+      "children": ["dots", "track"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 10}},
+      "props": {"spacing": 16}
+    },
+    "dots": {
+      "type": "listView",
+      "children": ["dot"],
+      "layout": {"width": {"hug": 90}, "height": 8},
+      "props": {"scrollDirection": "horizontal", "scrollable": false, "spacing": 6},
+      "bind": {"data": "${products}"}
+    },
+    "dot": {
+      "type": "box",
+      "layout": {"width": 8, "height": {"fill": 8}},
+      "decoration": {"fills": [{"color": "#FFD1D5DB"}], "shape": "circle"},
+      "bind": {"decoration.fills[0].color": "${= index == current ? '#FF111827' : '#FFD1D5DB'}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [{"type": "scrollTo", "node": "card", "item": "${index}", "axis": "horizontal", "durationMs": 300}]
+        }
+      ]
+    },
+    "track": {
+      "type": "stack",
+      "children": ["trackFill"],
+      "layout": {"width": {"fill": 200}, "height": 4},
+      "decoration": {"fills": [{"color": "#FFE5E7EB"}], "radius": 2}
+    },
+    "trackFill": {
+      "type": "box",
+      "layout": {"width": 0, "height": 4},
+      "decoration": {"fills": [{"color": "#FF111827"}], "radius": 2},
+      "bind": {"layout.widthFactor": "${progress}"}
+    }
+  },
+  "variables": {
+    "shop": [
+      {"name": "current", "type": "integer", "value": 0},
+      {"name": "progress", "type": "decimal", "value": 0},
+      {
+        "name": "products",
+        "type": "list",
+        "value": [
+          {"name": "Linen apron", "price": 48, "color": "#FFD6CFC4"},
+          {"name": "Moss bowl", "price": 36, "color": "#FFB7C4A1"},
+          {"name": "Oak board", "price": 72, "color": "#FFC9A27E"},
+          {"name": "Clay cup", "price": 22, "color": "#FFE3B5A4"},
+          {"name": "Wool throw", "price": 120, "color": "#FFA9B4C2"}
+        ]
+      }
+    ]
+  }
+}
+```
 
 <a id="lists-pitfalls"></a>
 ## Pitfalls

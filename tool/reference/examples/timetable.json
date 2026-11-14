@@ -1,0 +1,53 @@
+{
+  "schema": 3,
+  "roots": ["schedule"],
+  "nodes": {
+    "schedule": {"type": "canvas", "slots": {"body": "page"}, "layout": {"width": 390, "height": 844},
+                 "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "page": {"type": "column", "children": ["heading", "tracks", "grid"],
+             "layout": {"width": {"fill": 390}, "height": {"fill": 844}, "padding": 20},
+             "props": {"spacing": 12, "crossAxisAlignment": "start", "scrollable": true}},
+    "heading": {"type": "text", "layout": {"width": {"fill": 350}, "height": {"hug": 30}},
+                "props": {"text": "Saturday, 9:00 to 12:00", "style": {"fontSize": 22, "fontWeight": 700, "color": "#FF111827"}}},
+    "tracks": {"type": "row", "children": ["track1", "track2", "track3"],
+               "layout": {"width": {"fill": 350}, "height": {"hug": 20}},
+               "props": {"spacing": 12},
+               "visible": false,
+               "media": [{"minWidth": 600, "patch": {"visible": true}}]},
+    "track1": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"hug": 20}},
+               "props": {"text": "Main hall", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF6B7280"}}},
+    "track2": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"hug": 20}},
+               "props": {"text": "Studio", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF6B7280"}}},
+    "track3": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"hug": 20}},
+               "props": {"text": "Workshop room", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF6B7280"}}},
+    "grid": {"type": "gridView", "children": ["session"],
+             "layout": {"width": {"fill": 350}, "height": {"hug": 400}},
+             "props": {"crossAxisCount": 1, "mainAxisExtent": 64, "mainAxisSpacing": 8, "crossAxisSpacing": 12, "physics": "never"},
+             "bind": {"data": "${sessions}"},
+             "media": [{"minWidth": 600, "patch": {"props": {"crossAxisCount": 3}}}]},
+    "session": {"type": "column", "children": ["sessionTime", "sessionTitle"],
+                "layout": {"width": {"fill": 350}, "height": {"fill": 64}, "padding": 10},
+                "decoration": {"fills": [{"color": "#FFEEF2FF"}], "radius": 6},
+                "props": {"spacing": 2, "crossAxisAlignment": "start"},
+                "media": [{"minWidth": 600, "patch": {"bind": {
+                  "layout.columnStart": "${item.track}",
+                  "layout.rowStart": "${item.slot}",
+                  "layout.rowSpan": "${item.slots}",
+                  "layout.columnSpan": "${item.tracks}"}}}]},
+    "sessionTime": {"type": "text", "layout": {"width": {"fill": 320}, "height": {"hug": 16}},
+                    "props": {"text": "${item.time} · ${item.room}", "style": {"fontSize": 12, "color": "#FF4338CA"}}},
+    "sessionTitle": {"type": "text", "layout": {"width": {"fill": 320}, "height": {"hug": 20}},
+                     "props": {"text": "${item.title}", "maxLines": 2, "overflow": "ellipsis",
+                               "style": {"fontSize": 15, "fontWeight": 600, "color": "#FF111827"}}}
+  },
+  "variables": {"schedule": [
+    {"name": "sessions", "type": "list", "value": [
+      {"title": "Opening keynote", "time": "9:00", "room": "Main hall", "track": 1, "slot": 1, "slots": 1, "tracks": 3},
+      {"title": "Designing for the tide", "time": "9:30", "room": "Main hall", "track": 1, "slot": 2, "slots": 2, "tracks": 1},
+      {"title": "Type on small screens", "time": "9:30", "room": "Studio", "track": 2, "slot": 2, "slots": 1, "tracks": 1},
+      {"title": "Hands-on: grids", "time": "9:30", "room": "Workshop room", "track": 3, "slot": 2, "slots": 3, "tracks": 1},
+      {"title": "Colour in the dark", "time": "10:00", "room": "Studio", "track": 2, "slot": 3, "slots": 1, "tracks": 1},
+      {"title": "Panel: open data", "time": "10:30", "room": "Main hall", "track": 1, "slot": 4, "slots": 1, "tracks": 2}
+    ]}
+  ]}
+}

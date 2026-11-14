@@ -84,3 +84,8 @@ enum VerticalDirection { up, down }
 enum ScrollPhysicsType { platform, bouncing, clamping, never, rangeMaintaining }
 
 enum TextDirection { ltr, rtl }
+
+/// Flutter's `AutovalidateMode`: when a field (or every field of a `form`)
+/// checks itself with its validator and shows the error, besides when the
+/// form is validated (the `validate` action).
+enum AutovalidateMode { disabled, always, onUserInteraction, onUnfocus, onUserInteractionIfError }

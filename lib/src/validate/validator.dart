@@ -8,6 +8,7 @@ import '../core/action_fields.dart';
 import '../core/actions.dart';
 import '../core/behavior_fields.dart';
 import '../core/behaviors.dart';
+import '../core/bindings.dart' show BindPaths;
 import '../core/child_fits.dart';
 import '../core/conditions.dart';
 import '../core/decoration.dart';
@@ -535,6 +536,7 @@ final class _Validator {
     _decoration(n, raw['decoration'], pointer(at, 'decoration'));
     _props(n, raw['props'], pointer(at, 'props'));
     _bind(n, raw['bind'], pointer(at, 'bind'));
+    _selectedState(n, at);
     _reactions(n, raw['actions'], pointer(at, 'actions'));
     if (raw.containsKey('media')) _media(n, raw['media'], pointer(at, 'media'));
     if (n.type == 'listView' && n.props.get(ListViewProps.wrap) && n.props.get(CollectionScrollProps.scrollDirection) == Axis.vertical) {
@@ -820,6 +822,23 @@ final class _Validator {
     }
   }
 
+  /// A bound `selected` puts the node in [WidgetState.selected], which only
+  /// its `states.selected` patches read (as a Flutter button's
+  /// `statesController` changes only a style resolved per state): without
+  /// one it changes nothing.
+  void _selectedState(Node n, String at) {
+    if (!n.bind.containsKey(BindPaths.selected)) return;
+    if (n.behaviors.states.patches[WidgetState.selected]?.isNotEmpty ?? false) return;
+    final chip = n.spec?.props.any((p) => p.key == 'selected') ?? false;
+    r.add(Codes.stateNoEffect, pointer(pointer(at, 'bind'), BindPaths.selected),
+        chip
+            ? 'The node-level "selected" is a state for "states.selected" styles; this ${n.type} has nothing styled for it. '
+                'The ${n.type}\'s own selection is its prop: bind "props.selected".'
+            : 'Nothing reads this node\'s selected state: give it a "states" entry, '
+                '"states": {"selected": {"<this node\'s id>": {"props": {"style": {"backgroundColor": "ink"}}}}}, for the look it takes while selected.',
+        suggestion: chip ? 'props.selected' : 'states.selected');
+  }
+
   /// [v] without the keys a merge patch removes (`null`), at every depth.
   static Json _withoutNulls(Object? v) => {
         for (final e in (readMap(v) ?? const <String, Object?>{}).entries)
@@ -1042,6 +1061,12 @@ final class _Validator {
         continue;
       }
       values.checkDef(def, e.value, p);
+      // A text field's validator reads its text as `value` (Flutter's
+      // `validator: (value) => ...`).
+      if (n.type == 'textField' && e.key == 'validator' && e.value is String) {
+        _expression(e.value as String, p, locals: const {'value'});
+        continue;
+      }
       _strings(e.value, p);
     }
   }
@@ -1623,7 +1648,7 @@ final class _Validator {
 
   /// Checks [text]'s `${...}` (or, with [bareFormula], [text] itself as a
   /// formula when it has none).
-  void _expression(String text, String at, {bool bareFormula = false}) {
+  void _expression(String text, String at, {bool bareFormula = false, Set<String> locals = const {}}) {
     final scan = scanExpressions(text);
     if (scan.error != null) r.add(Codes.expressionSyntax, at, scan.error!);
     final exprs = [...scan.expressions];
@@ -1654,12 +1679,12 @@ final class _Validator {
         continue;
       }
       for (final name in roots) {
-        if (declared.contains(name) || runtimeScopes.contains(name)) continue;
+        if (declared.contains(name) || runtimeScopes.contains(name) || locals.contains(name)) continue;
         // A custom paint's ops read the size they paint at.
         if (name == 'size' && at.contains('/customPaint/')) continue;
         r.add(Codes.unknownName, at,
             '"$name" is not a declared variable${currentCanvas == null ? '' : ' of canvas "$currentCanvas"'} nor a runtime scope (${runtimeScopes.join(', ')}).',
-            suggestion: nearest(name, [...declared, ...runtimeScopes]));
+            suggestion: nearest(name, [...declared, ...runtimeScopes, ...locals]));
       }
     }
   }

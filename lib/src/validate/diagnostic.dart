@@ -106,6 +106,8 @@ abstract final class Codes {
       'A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side.');
   static const propIgnored = DiagnosticCode('prop_ignored', Severity.warning,
       'A prop that has no effect with another the node sets (a grid\'s mainAxisExtent while shrinkWrapRows sizes its rows): one of them is ignored.');
+  static const stateNoEffect = DiagnosticCode('state_no_effect', Severity.warning,
+      'A bound "selected" with no "states.selected" style: the node is selected, but nothing changes how it looks.');
   static const zeroSize = DiagnosticCode('zero_size', Severity.warning,
       'A fixed width or height of 0 (often a missing "width"/"height"): the node is invisible.');
 
@@ -197,7 +199,7 @@ abstract final class Codes {
     invalidNode, unknownNodeType, unknownNodeKey, unknownProp, unknownLayoutKey, unknownDecorationKey, unknownField,
     wrongType, looseValue, invalidEnum, outOfRange, decorationIgnored,
     danglingChild, danglingSlot, multipleParents, cycle, unreachableNode, unknownSlot, childrenNotAllowed, slotsNotAllowed,
-    canvasAsChild, layoutFieldIgnored, fitNotAllowed, zeroSize, verticalWrap, layoutClamped, propIgnored,
+    canvasAsChild, layoutFieldIgnored, fitNotAllowed, zeroSize, verticalWrap, layoutClamped, propIgnored, stateNoEffect,
     unknownBindPath, reservedBindPath, expressionSyntax, unknownName,
     unknownTrigger, unknownTriggerKey, unknownActionType, unknownActionKey, unknownTargetNode, unknownScreen,
     unknownVariable, invalidReaction,
