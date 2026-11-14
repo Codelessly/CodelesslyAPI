@@ -32,7 +32,13 @@ import 'trust.dart';
 @immutable
 final class EditCheckInput {
   const EditCheckInput(
-      {required this.document, required this.nodes, required this.op, required this.catalog, this.screens = const {}, this.incomplete = false});
+      {required this.document,
+      required this.nodes,
+      required this.op,
+      required this.catalog,
+      this.screens = const {},
+      this.incomplete = false,
+      this.variables = const {}});
 
   /// The document after the op.
   final LayoutDocument document;
@@ -40,6 +46,10 @@ final class EditCheckInput {
   /// Node id → its JSON, for every node the op created, changed, moved or
   /// re-parented (a parent whose child list changed).
   final Map<String, Json> nodes;
+
+  /// Scope → the names of the variables the op declared or redeclared (a
+  /// `vars` op): their formulas are checked like a node's expressions.
+  final Map<String, Set<String>> variables;
 
   /// The op's index in its batch (diagnostics carry it).
   final int op;
@@ -293,6 +303,44 @@ List<EditDiagnostic> endOfStream(LayoutDocument document) {
   return out;
 }
 
+/// Codes of a reference to something that may arrive later in a stream: a
+/// warning while it streams, an error if it is still unresolved at the end.
+const Set<String> streamReferenceCodes = {'unknown_target_node', 'unknown_screen', 'unknown_variable', 'unknown_name'};
+
+/// What [check] still finds unresolved in [document] once a stream has
+/// ended: the references ([streamReferenceCodes]) of the [nodes] and
+/// [variables] (scope → names) the stream changed that were accepted as
+/// warnings while it ran ("it must exist when the stream ends") and never
+/// arrived, now errors (op -1; the ops stay applied). A formula that reads a
+/// name nothing declares, such as an item's field written without its item
+/// (`filter(rows, status == 'Paid')`), is reported here.
+List<EditDiagnostic> unresolvedReferences(LayoutDocument document, EditCheck check,
+    {required Catalog catalog, required Iterable<String> nodes, Map<String, Set<String>> variables = const {}}) {
+  final live = {for (final id in nodes) if (document[id] != null) id: document[id]!.toJson()..remove('id')};
+  if (live.isEmpty && variables.isEmpty) return const [];
+  final screens = {for (final n in document.nodes.values) if (n.type == CanvasProps.spec.type) n.id, ...document.roots};
+  return [
+    for (final d in check(EditCheckInput(document: document, nodes: live, op: -1, catalog: catalog, screens: screens, variables: variables)))
+      if (d.error && streamReferenceCodes.contains(d.code)) d.atOp(-1),
+  ];
+}
+
+/// Scope → the names of the variables declared in [after] that are new or
+/// changed since [before] (what [unresolvedReferences] checks after a
+/// stream).
+Map<String, Set<String>> changedVariables(LayoutDocument before, LayoutDocument after) {
+  Map<String, Map<String, Object?>> byName(LayoutDocument d) => {
+        for (final e in (readMap(d.extra[LayoutLogic.variablesKey]) ?? const {}).entries)
+          e.key: {for (final v in readList(e.value)?.map(readMap).nonNulls ?? const <Json>[]) if (v['name'] is String) v['name'] as String: v},
+      };
+  final was = byName(before), now = byName(after);
+  return {
+    for (final e in now.entries)
+      if ({for (final v in e.value.entries) if (!jsonEquality.equals(v.value, was[e.key]?[v.key])) v.key} case final names when names.isNotEmpty)
+        e.key: names,
+  };
+}
+
 /// Ids [document] references (children, slots, roots) that it does not
 /// define.
 Set<String> pendingIds(LayoutDocument document) => {
@@ -351,6 +399,7 @@ class _Batch {
   final Map<String, Node?> _before = {};
   final Map<String, Json> _touched = {};
   final Set<String> _lostLister = {};
+  final Map<String, Set<String>> _touchedVars = {};
   final List<EditDiagnostic> _diags = [];
   int _op = 0;
 
@@ -413,6 +462,7 @@ class _Batch {
     // Atomic: changes accumulate; checks run once at the end.
     final batchTouched = <String, Json>{};
     final batchLost = <String>{};
+    final batchVars = <String, Set<String>>{};
     for (final (index, op) in ops) {
       _op = index;
       if (rejected.contains(index) && !atomic) continue;
@@ -426,14 +476,18 @@ class _Batch {
       _before.clear();
       _touched.clear();
       _lostLister.clear();
+      _touchedVars.clear();
       final savedRoots = roots, savedExtra = extra, savedFields = fields;
       fields = {for (final e in fields.entries) e.key: {...e.value}};
       final wasNew = op is SetOp && !nodes.containsKey(op.id);
       _applyOp(op);
-      if (!atomic && !_failed) _checkOp(_touched, _lostLister);
+      if (!atomic && !_failed) _checkOp(_touched, _lostLister, vars: _touchedVars);
       if (atomic) {
         batchTouched.addAll(_touched);
         batchLost.addAll(_lostLister);
+        for (final e in _touchedVars.entries) {
+          (batchVars[e.key] ??= {}).addAll(e.value);
+        }
       }
       if (_failed && !atomic) {
         // Roll back: the nodes as they were, in reverse.
@@ -458,7 +512,7 @@ class _Batch {
       _op = -1;
       if (rejected.isEmpty) {
         _checkOp({for (final id in batchTouched.keys) if (nodes[id] != null) id: _json(nodes[id]!)}..addAll(batchTouched), batchLost,
-            batchStart: true);
+            batchStart: true, vars: batchVars);
         all.addAll(_diags);
         if (_failed) rejected.addAll(applied);
         _diags.clear();
@@ -799,6 +853,7 @@ class _Batch {
         } else {
           list.add(decl);
         }
+        (_touchedVars[scope] ??= {}).add(e.key);
       } else if (i >= 0) {
         final type = readEnum(VariableType.values, list[i]['type'], VariableType.text);
         if (v != null && type.coerce(v) == null) {
@@ -902,7 +957,7 @@ class _Batch {
   /// The structure around [touched] (one parent each, no cycle, no canvas
   /// as a child, nothing orphaned: [lost] lost a parent), the trust
   /// profile, and [check] on the touched nodes.
-  void _checkOp(Map<String, Json> touched, Set<String> lost, {bool batchStart = false}) {
+  void _checkOp(Map<String, Json> touched, Set<String> lost, {bool batchStart = false, Map<String, Set<String>> vars = const {}}) {
     for (final id in touched.keys) {
       final n = nodes[id];
       if (n == null) continue;
@@ -964,10 +1019,11 @@ class _Batch {
     final ch = check;
     if (ch != null) {
       final live = {for (final e in touched.entries) if (nodes.containsKey(e.key)) e.key: e.value};
-      if (live.isEmpty) return;
+      if (live.isEmpty && vars.isEmpty) return;
       final doc = LayoutDocument(id: start.id, roots: roots, nodes: nodes, extra: extra, catalog: start.catalog ?? catalog);
       _diags.addAll([
-        for (final d in ch(EditCheckInput(document: doc, nodes: live, op: _op, catalog: catalog, screens: screens, incomplete: incomplete)))
+        for (final d in ch(EditCheckInput(
+            document: doc, nodes: live, op: _op, catalog: catalog, screens: screens, incomplete: incomplete, variables: vars)))
           explainDiagnostic(d.atOp(_op), catalog: catalog, node: d.nodeId == null ? null : live[d.nodeId]),
       ]);
     }
