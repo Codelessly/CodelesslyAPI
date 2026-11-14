@@ -124,8 +124,11 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
   `"style": {"from": "title", "color": "ember"}`.
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"`.
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
-<!-- if runtime -->
+<!-- if runtime noDesignSystem -->
 - The theme belongs to the app: use the names it gives you; without one, write each colour and style in full.
+<!-- end -->
+<!-- if runtime designSystem -->
+- The theme is the design system's tokens (below): name its colours and text styles; do not write them in full.
 <!-- end -->
 
 Controls (buttons, chips, fields, switches, pickers, tabs) take the colours and fonts their props leave unset
@@ -153,6 +156,19 @@ illustration](@decoration-images).
 <!-- end -->
 
 A theme that changes with the screen size, every theme key: [theme](@page-theme).
+
+<!-- if files -->
+**Design systems.** `"designSystem": "../design_systems/ssui"` in `site.json`: its tokens, base theme; its
+components, callable: [design systems](@page-design-systems).
+<!-- end -->
+<!-- if runtime -->
+**Design systems.** An app may give you a design system: its components carry the look, its tokens are the theme.
+Use them by name; nothing comes from the app's own theme: [design systems](@page-design-systems).
+<!-- end -->
+<!-- if designSystem -->
+
+{{designSystem}}
+<!-- end -->
 
 ## Nodes, ids, children and slots
 
@@ -268,6 +284,10 @@ Runs (parts in another style), superscripts, links in text: [text](@theme-text).
 The props that matter most; each type's page lists all of them.
 
 {{baseTypes}}
+<!-- if designSystem -->
+
+{{replaced}}
+<!-- end -->
 
 - **Buttons**: the text is `label` (not `text`); colours, corners and the label's style are in `style` (a
   [ButtonStyle](@type-ButtonStyle): `backgroundColor`, `foregroundColor`, `textStyle`, `shape`), not in

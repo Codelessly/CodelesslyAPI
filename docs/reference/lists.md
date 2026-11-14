@@ -304,11 +304,11 @@ Page controls for a list's pagination (found by its name, `controller`): first, 
 | `alignment` | [WrapAlignment](values.md#enum-WrapAlignment) | `"spaceBetween"` | `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly` | How the parts are placed along the node (as a `Wrap`'s alignment). |
 | `fontSize` | double | `14` | ≥ 1 |  |
 | `fontWeight` | int | `400` | ≥ 100 |  |
-| `textColor` | [Color](values.md#type-Color) | `"#FF333842"` |  |  |
+| `textColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's ink (`onSurface`). |
 | `buttonColor` | [Color](values.md#type-Color) | unset |  |  |
-| `activeColor` | [Color](values.md#type-Color) | `"#FF2663EA"` |  |  |
-| `activeTextColor` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `borderColor` | [Color](values.md#type-Color) | `"#FFD8DDE5"` |  | A button's outline; transparent for none. |
+| `activeColor` | [Color](values.md#type-Color) | unset |  | The current page's fill. Null: the theme's primary. |
+| `activeTextColor` | [Color](values.md#type-Color) | unset |  | The current page's label. Null: what reads on `activeColor` (the theme's `onPrimary`). |
+| `borderColor` | [Color](values.md#type-Color) | unset |  | A button's outline; transparent for none. Null: the theme's hairline (`outlineVariant`). |
 | `borderWidth` | double | `1` | ≥ 0 |  |
 | `cornerRadius` | double | `6` | ≥ 0 |  |
 | `buttonSize` | double | `32` | ≥ 0 | The least width and height of a button. |

@@ -145,6 +145,9 @@ illustration](decoration.md#decoration-images).
 
 A theme that changes with the screen size, every theme key: [theme](theme.md#page-theme).
 
+**Design systems.** `"designSystem": "../design_systems/ssui"` in `site.json`: its tokens, base theme; its
+components, callable: [design systems](design-systems.md#page-design-systems).
+
 <a id="base-nodes-ids-children-and-slots"></a>
 ## Nodes, ids, children and slots
 
@@ -654,6 +657,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 - [interaction.md](interaction.md): Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, controlTrack, controlDismissible, controlTransform, copyToClipboard, haptic.
 - [animation.md](animation.md): Animation and motion. Documents motion, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, viewProgress, timer, frame, animate.
 - [components.md](components.md): Components and sections. Documents slot, external, placeholder, singlePlaceholder, event, componentEvent.
+- [design-systems.md](design-systems.md): Design systems.
 - [charts.md](charts.md): Charts, gauges and indicators. Documents progressBar, circularProgressIndicator, activityIndicator, badge, radialGauge, gaugeMeter, chart, barChart, lineChart, plotChart, barcode.
 - [data.md](data.md): Data: APIs, cloud data, storage and form submission. Documents callApi, setStorage, cloudDocuments, loadCloudData, reloadCloudData, cloudFiles, cloudData, cloudBatch, submitForm.
 - [auth.md](auth.md): Auth: signing users in. Documents auth.

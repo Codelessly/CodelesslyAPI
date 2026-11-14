@@ -1934,9 +1934,9 @@
           "key": "indicatorColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's primary (what controls draw on the surface)."
         },
         {
           "key": "indicatorWeight",
@@ -2003,17 +2003,17 @@
           "key": "labelColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's ink on its surface (`onSurface`)."
         },
         {
           "key": "unselectedLabelColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's secondary ink (`onSurface` at 68 % over the surface)."
         },
         {
           "key": "labelStyle",
@@ -2053,9 +2053,9 @@
           "key": "dividerColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's hairline (`outlineVariant`)."
         },
         {
           "key": "dividerHeight",
@@ -2509,9 +2509,9 @@
           "key": "textColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF333842",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's ink (`onSurface`)."
         },
         {
           "key": "buttonColor",
@@ -2525,25 +2525,25 @@
           "key": "activeColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF2663EA",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "The current page's fill. Null: the theme's primary."
         },
         {
           "key": "activeTextColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFFFFFFF",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "The current page's label. Null: what reads on `activeColor` (the theme's `onPrimary`)."
         },
         {
           "key": "borderColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFD8DDE5",
-          "nullable": false,
-          "doc": "A button's outline; transparent for none."
+          "default": null,
+          "nullable": true,
+          "doc": "A button's outline; transparent for none. Null: the theme's hairline (`outlineVariant`)."
         },
         {
           "key": "borderWidth",
@@ -4389,7 +4389,7 @@
           "kind": "boolean",
           "default": true,
           "nullable": false,
-          "doc": "Draws Flutter's default underline (false: `SizedBox.shrink()`)."
+          "doc": "Draws the field's border: the theme's field shape (an outline of the control radius, as an unstyled text field's) around the button, padded 12 at the sides when the node sets no padding; false: no border (`underline: SizedBox.shrink()`). Material's underline is never drawn."
         },
         {
           "key": "useDataSource",
@@ -5019,9 +5019,9 @@
           "key": "inkColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF13306B",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "inkWidth",
@@ -5036,17 +5036,17 @@
           "key": "backgroundColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFF8F8F5",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's surface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "borderColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFA9ADA5",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outline (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "borderWidth",
@@ -5061,9 +5061,9 @@
           "key": "errorBorderColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFD3302F",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's error (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "errorBorderWidth",
@@ -5094,9 +5094,9 @@
           "key": "placeholderColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFA9ADA5",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "placeholderFontSize",
@@ -8050,17 +8050,17 @@
           "key": "trackColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF121316",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "valueColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFFFD400",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's primary (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "colorByZone",
@@ -8144,9 +8144,9 @@
           "key": "tickColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFA3ABB2",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outline (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "labels",
@@ -8167,9 +8167,9 @@
           "key": "labelColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF707882",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "labelFontSize",
@@ -8208,9 +8208,9 @@
           "key": "targetColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFE8EBED",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "showNeedle",
@@ -8224,9 +8224,9 @@
           "key": "needleColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFE8EBED",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "needleClearance",
@@ -8336,17 +8336,17 @@
           "key": "color",
           "type": "Color",
           "kind": "value",
-          "default": "#FF3DD68C",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's primary (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "trackColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF282D35",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "fillStartOpacity",
@@ -8467,9 +8467,9 @@
           "key": "tickColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF3A3F47",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outline (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "limitColor",
@@ -8616,9 +8616,9 @@
           "key": "gridColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF292E33",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "showYAxis",
@@ -8656,9 +8656,9 @@
           "key": "axisLabelColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF707882",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "axisFontSize",
@@ -8732,9 +8732,9 @@
           "key": "selectionColor",
           "type": "Color",
           "kind": "value",
-          "default": "#14FFD400",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "xSlots",
@@ -8804,9 +8804,9 @@
           "key": "trackColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF121316",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "divisions",
@@ -8916,17 +8916,17 @@
           "key": "tooltipColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFF7F5F0",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "tooltipTextColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF0E0E10",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's surface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "tooltipTitleField",
@@ -9242,9 +9242,9 @@
           "key": "lineColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF1F6F78",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's primary (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "lineWidth",
@@ -9283,9 +9283,9 @@
           "key": "gridColor",
           "type": "Color",
           "kind": "value",
-          "default": "#19000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "axisColor",
@@ -9384,9 +9384,9 @@
           "key": "referenceColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFF2542D",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's error (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "referenceWidth",
@@ -9440,17 +9440,17 @@
           "key": "selectionColor",
           "type": "Color",
           "kind": "value",
-          "default": "#19000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface at 10 % (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "selectionLineColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "selectionLineWidth",
@@ -9472,17 +9472,17 @@
           "key": "selectionDotColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFFFFFFF",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's surface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "selectionDotStrokeColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "selectionDotStrokeWidth",
@@ -9580,9 +9580,9 @@
           "key": "minorGridColor",
           "type": "Color",
           "kind": "value",
-          "default": "#0D000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outlineVariant at 50 % (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "originAxes",
@@ -9700,9 +9700,9 @@
           "key": "selectionTagColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "selectionTagStyle",
@@ -9725,9 +9725,9 @@
           "key": "selectionHaloColor",
           "type": "Color",
           "kind": "value",
-          "default": "#2E000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface at 18 % (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "animate",
@@ -9796,9 +9796,9 @@
           "key": "color",
           "type": "Color",
           "kind": "value",
-          "default": "#FFF2C130",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's primary (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "colors",
@@ -9838,9 +9838,9 @@
           "key": "emptyColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF3A3F47",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "emptyHeight",
@@ -9863,9 +9863,9 @@
           "key": "gridColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF2B3038",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "gridLabels",
@@ -9889,9 +9889,9 @@
           "key": "baselineColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF3A3F47",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outline (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "labelFontFamily",
@@ -9914,17 +9914,17 @@
           "key": "labelColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF6B727C",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "highlightLabelColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFE8EAED",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "labelGap",
@@ -10177,9 +10177,9 @@
           "key": "lineColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's primary (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "lineWidth",
@@ -10194,9 +10194,9 @@
           "key": "areaTopColor",
           "type": "Color",
           "kind": "value",
-          "default": "#19000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "areaBottomColor",
@@ -10210,65 +10210,65 @@
           "key": "gridColor",
           "type": "Color",
           "kind": "value",
-          "default": "#19000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "zeroLineColor",
           "type": "Color",
           "kind": "value",
-          "default": "#89000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outline (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "axisColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's outline (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "markerHollowColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FFFFFFFF",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's surface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "tagBackground",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "cursorColor",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "cursorRingFill",
           "type": "Color",
           "kind": "value",
-          "default": "#FFFFFFFF",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's surface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "tooltipBackground",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "tooltipShadowColor",
@@ -10586,9 +10586,9 @@
           "key": "color",
           "type": "Color",
           "kind": "value",
-          "default": "#FF000000",
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "backgroundColor",

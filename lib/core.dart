@@ -25,6 +25,7 @@ export 'src/core/design_system.dart';
 export 'src/core/document.dart';
 export 'src/core/edit/apply.dart';
 export 'src/core/edit/catalog_check.dart';
+export 'src/core/edit/design_system_prompt.dart';
 export 'src/core/edit/diagnostics.dart';
 export 'src/core/edit/edit_ops.dart';
 export 'src/core/edit/explain.dart';

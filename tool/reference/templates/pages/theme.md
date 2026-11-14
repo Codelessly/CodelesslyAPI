@@ -50,16 +50,26 @@ The theme (`site.json`'s `theme`, or the app's theme at run time):
 A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons
 (labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface`
 (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius`
-shapes every kind of button and chip, `radius` dialogs, menus and pickers. Without a theme, controls are neutral:
-ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font of
-their own. Nothing comes from Material's defaults (no purple, ripples or elevation) or from the host app's theme.
+shapes every kind of button and chip, `radius` dialogs, menus, pickers and fields. Without a theme, controls are
+neutral: ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font
+of their own, and plain in shape: buttons and chips of a 6 px radius (not a stadium), fields and dropdowns outlined
+with their label as the placeholder (no underline, no floating label), date and time pickers plain fields, a
+switch with one thumb size, tabs with a square underline, dialogs and menus of an 8 px radius with a hairline
+border. Gauges, charts, barcodes, signature pads, tab bars and pagination take their unset colours from the theme
+too: values and lines `primary`, tracks and grids `outlineVariant`, ticks and axes `outline`, labels
+`onSurfaceVariant`, needles, cursors and tooltips `onSurface`. Nothing comes from Material's defaults (no purple,
+ripples, elevation or stadium shapes) or from the host app's theme.
 
-### Spacing and radius scales
+### Spacing, radii, sizes, shadows and motion
 
-The theme has no spacing or radius tokens for nodes: its `radius` and `buttonRadius` shape controls only. Write
-padding, gaps and corner radii as numbers, or keep a scale as a project variable (`{"name": "space", "type": "map",
-"value": {"sm": 8, "md": 16, "lg": 32}}` in `site.json`) and bind it where it varies: `"bind": {"layout.padding":
-"${space.md}", "props.spacing": "${space.sm}"}`.
+The theme names its scales as it names colours: `"spacing": {"1": 4, "2": 8, "3": 12}`, `"radii": {"control": 7,
+"panel": 8}`, `"sizes": {"compact": 28, "large": 44}`, `"shadows": {"level3": [{"type": "dropShadow", ...}]}` (with
+`dark` shadows of their own), `"durations": {"fast": 150}` (milliseconds) and `"curves": {"standard": "easeInOut"}`.
+A node reads a step in a binding, `"bind": {"layout.padding": "${theme.spacing.3}", "decoration.radius":
+"${theme.radii.panel}", "decoration.effects": "${theme.shadows.level3}"}`; a name the theme does not have is
+`unknown_theme_name`. A [design system](@page-design-systems) brings a whole set of them. The theme's `radius` and
+`buttonRadius` shape the controls (dialogs and fields, buttons and chips); without them controls take small radii
+of their own (6 and 8).
 
 ### A type scale that changes with the screen size
 
