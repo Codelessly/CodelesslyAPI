@@ -46,7 +46,8 @@ ladder on the same document, and the model takes only the rungs a UI needs.
 The 2,400 token prompt cannot hold level 4. The model needs to know it exists and fetch it:
 
 - The notation prompt ends with an index: one line per capability beyond it (drag and drop, scripts, custom
-  paint, charts, motion, navigation, data lists), each naming a reference page. About 200 tokens.
+  paint, charts, motion, navigation, data lists), each naming a reference page. About 200 tokens. Built
+  (2026-11-14) as its "BEYOND THESE WORDS" section, which names the page for each and the `ui_docs` tool.
 - A tool, `ui_reference(page)`, returns that page. The per-level reference pages already exist (design 12, phase
   C); they need a short form sized for this (a page of a few hundred tokens with one worked example).
 - So the cost of a full-featured UI is the base, plus only the pages it used.
@@ -259,6 +260,34 @@ tokens and seconds. The owner judges the images.
 The rule from the playground applies here too (§4.1): a page was restyled and did not hold together, then
 designed from scratch and did. Polish comes from designing the thing whole, not from fixing an average draft,
 which is the reason to expect the blocks to matter more than the polish pass.
+
+### 4.3 First results of the polish test (2026-11-14)
+
+Built: `CodelesslySDK/design_systems/skip` (the brand layer, 13 screen blocks, illustrations drawn as vectors
+and colored by tokens) and `examples/prompt_app/polish` (Home and History designed at the full API; the same two
+in nine lines of notation each, with identical renders; one Home document under three token sets).
+
+Then generated on the fly, by a model told only about the blocks (nine screens, one run each):
+
+| | SSUI's generic parts | Skip's blocks |
+|---|---|---|
+| Instructions read per screen | about 11,400 tokens | about 5,000 |
+| Output, median | about 540 tokens | 482 |
+| Time, median | about 4 s | 3.7 s |
+| Lines written for Home | 30 to 40 | 9 to 11 |
+
+- **The configuration works where it was applied.** Home and History come out designed (hero, illustration,
+  streak and goal tiles, week strip, chart card) for the cost of a plain screen, and still differ by person.
+- **A screen is as designed as its blocks.** The session timer had no block, and came out as cards and big
+  numbers. So the work for an app is its set of blocks: every screen kind needs its focal block.
+- **Layout and style are not yet fully apart.** The notation's `Card` writes its fill as a literal color, so on
+  the athlete's black page the timer's cards stayed white; the `Screen` block has to paint the page for the same
+  reason. Left unfixed until the restyle experiment has measured it.
+- **Not yet at a top consumer app**: the typeface is the platform's, the illustrations are clean but stiff, and
+  motion is an entrance only. The designer's notes (`polish/NOTES.md`) list thirteen limits met in the model and
+  renderer, among them a theme color name inside a custom paint drawing nothing with no error.
+- **Not run yet**: the cached polish pass; standalone agents on new screens (do the blocks carry a newcomer to
+  a designed screen?) and on a restyle (does a new look stay in the design layer?). Their prompts are written.
 
 ## 5. Order
 
