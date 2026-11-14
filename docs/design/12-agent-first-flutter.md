@@ -262,6 +262,8 @@ follows was checked the other way: real documents put through the render tool, d
 | Drag and drop | The generated kanban: a card dragged from To do to Doing | It moves; the counts follow |
 | Scripts and the complex end | The generated Sudoku (a cell chosen, a number placed, the conflict marked) and the form builder (two fields added) | Work as when first recorded |
 | A design system | Every SSUI component at each of its previews (225 tiles), and two screens generated in the notation with SSUI's components listed | 0 errors; both generations valid on the first answer |
+| The whole app screen, again | The screen generated on 2026-11-14 morning, rendered on today's code and driven | A section is switched and the New task dialog opens |
+| A whole app screen, new | A support inbox asked for in one paragraph (sidebar, top bar, four figures, a ticket table filtered by tabs, a side panel with a reply box, a New ticket dialog), Claude Sonnet 5.5 with all 160 SSUI components on offer | 62 nodes, 27 of them SSUI components (`NavigationMenu`, `StatTile`, `Tabs`, `Badge`, `Dialog`, `Field`, `HeaderSearchInput`...), no errors or lints left after one retry; renders with 0 errors and 0 warnings; a ticket is picked and the dialog opens. Recording: `CodelesslySDK/tool/stream/streams/live/2026-11-14/support_inbox@claude-sonnet-5-5.compact.ssui.*` |
 
 Found on the way, and fixed: a text field with `obscureText` drew its text in plain (Flutter's `RenderEditable` hides
 it only from screen readers; the field now draws the obscuring character).
