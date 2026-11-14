@@ -61,6 +61,17 @@ void main() {
     expect(Codes.all.length, 75); // above_level: test/levels_test.dart; invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
   });
 
+  test('a behavior written inside props says where it goes (test 4: tooltip on an icon button)', () {
+    final d = validateDocument(base()
+      ..['nodes'] = {
+        ...(base()['nodes'] as Map),
+        'tip': {'type': 'iconButton', 'props': {'icon': 'close', 'tooltip': 'Close'}},
+      });
+    final e = d.firstWhere((d) => d.code == Codes.unknownProp);
+    expect(e.message, contains('written beside "props"'));
+    expect(e.message, contains('"tooltip": …'));
+  });
+
   group('document', () {
     test('a document that is not a map is invalid (invalid_document)', () => expectOne([1, 2], Codes.invalidDocument));
     test('a document without a schema, or with one newer than 3, is reported (schema_version)', () {
