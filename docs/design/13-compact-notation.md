@@ -86,6 +86,10 @@ Type[.variant][#id] ["text"] [key:value ...] [=binding] [-> action; action]
   is only bound to a control needs no declaration; its type and start come from the control.
 - **Escape hatch**: `{...}` at the end of a line is merged into the node as JSON, for anything the notation
   has no word for. Using it is allowed and counted; a key that needs it often gets a word.
+- **Time**: `every 1s -> seconds=seconds-1` on its own line runs as time passes (milliseconds, or `1s`);
+  `every 1s when running -> …` only while the condition holds. It is a timer on the canvas.
+- **A field of a repeated element**: under `each row in rows`, `Input =row.name` shows that field and writes the
+  element back into `rows` on a change. `Column scroll` scrolls.
 - **A node written whole**: `node {"type": "…", …}` on its own line is a node exactly as the document holds
   it, for what the notation has no word for (a painted board, a positioned shape, a draggable list). Its JSON may
   run over several lines; `node#id {…}` names it. Nothing is added to it but its place in the tree and the
