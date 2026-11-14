@@ -573,6 +573,8 @@ class _Parser {
             layout['flex'] = 1;
           } else if (word == 'fill') {
             layout['width'] = {'fill': 0};
+          } else if (word == 'open' && (type == 'accordion' || type == 'expansionTile')) {
+            props[type == 'accordion' ? 'expanded' : 'initiallyExpanded'] = true;
           } else if (word == 'hidden') {
             node['visible'] = false;
           } else if (spec.props.any((p) => p.key == word)) {
@@ -677,6 +679,8 @@ class _Parser {
     // them on its line (what a form and a toolbar want), unless written.
     if (type == 'column') props.putIfAbsent('crossAxisAlignment', () => 'start');
     if (type == 'row') props.putIfAbsent('crossAxisAlignment', () => 'center');
+    // An accordion starts closed unless it says `open`.
+    if (type == 'accordion' && !bind.containsKey('props.expanded')) props.putIfAbsent('expanded', () => false);
     // Text with no variant is the body text, so it always has a colour.
     if (type == 'text' && !props.containsKey('style')) {
       if (options.textStyles['body'] case final Object body) props['style'] = body is Map ? _copy(body.cast<String, Object?>()) : body;
@@ -699,7 +703,11 @@ class _Parser {
     if (!layout.containsKey('width')) {
       // In a tile's slot (leading, trailing) a child is as wide as it is.
       final inTile = parent?.type == 'listTile';
-      final fills = layout.containsKey('flex') || !inRow && !inTile && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
+      // In a column that is only as wide as its content (a column in a
+      // row), so is each child.
+      final parentWidth = parent == null ? null : (nodes[parent.id]?['layout'] as Map?)?['width'];
+      final inHug = parent?.type == 'column' && parentWidth is Map && parentWidth.containsKey('hug') && parent?.grid == null;
+      final fills = layout.containsKey('flex') || !inRow && !inTile && !inHug && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
       layout['width'] = _size(layout['width']);
