@@ -387,6 +387,33 @@ validator rejects it as a duplicate (three agents); the render tool has no way t
 a sample list in the contract makes a first-run screen hard to show without `--set`; a week strip given every
 past session marks last week's days.
 
+### 4.6 The accurate head to head, and the pipeline it needs (2026-11-14)
+
+The comparisons so far are not one experiment. The measured head to head (design 13 §11) is A2UI as it comes
+against the notation with SSUI's generic parts, on 17 card briefs: it wins on cost, speed and behavior, and its
+cards are plain. The Skip comparison (`examples/prompt_app/renders/vs-a2ui.png`) is A2UI as it comes against
+the notation with a block set designed for that app, on three other briefs: it shows the look, and is not the
+same test. The owner's point: the missing piece was never A2UI's side, it was ours, the step from "fast, with
+pre-existing generic parts" to "fast, fully designed".
+
+The accurate head to head, from our side, is three arms on the same 17 briefs, models and renderer settings:
+
+| Arm | What it is | State |
+|---|---|---|
+| A2UI as it comes | Its schemas and basic catalog, on its own renderer | Recorded |
+| The notation, generic parts | SSUI's components | Recorded |
+| The notation, designed blocks | A card block set designed at the full API, composed by the model | The block set is being designed (`design_systems/cards`); then recorded |
+
+The third arm against the second isolates what blocks add (design, and their effect on tokens, time and first-try
+validity); the third against the first is the showcase.
+
+The pipeline for the third arm, in the product and not only in the offline recorder: `UiSession.applyNotation`
+now takes its design system's blocks by default, takes the host's prelude (the data contract's state, a
+screen's clock), and `UiSession.notationInstructions(blocks: …)` gives the short instructions that list only an
+app's blocks. Still to do on that path: the chat example's live generation uses `ui_apply`, not the notation;
+and the generator that makes a screen for a person (`examples/prompt_app/tool/generate.py`) runs ahead of time
+through the recorder, not through a session at first open.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
