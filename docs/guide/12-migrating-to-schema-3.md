@@ -112,6 +112,17 @@ something is kept on the node as `legacy.<behavior>.<field>`, unread, and report
 | `transformGesture.rotationSnap` | round the bound `rotationVariable` | none |
 | a `setVariable` glide that is not one formula | `animate {variable, command: animateTo}` | (one raw export) |
 
+### State patches that targeted no node
+
+A state patch names the node it patches by id (`"states": {"pressed": {"<node id>": {...}}}`), in every schema.
+Generated schema-2 documents also wrote `self` and `@<key>` there (the node's `key`, which an inserted tree's
+values were resolved from but its map keys were not), so those patches matched no node and never ran: in the
+corpus, 1131 patches in 9 documents, every one naming the node its states are on. Step `states.target` rewrites
+`self` to the node's id and `@<key>` to the id of the node with that key (the node itself first, else the one node
+with it), and reports a behaviour change: the hover, press and selection styles now apply. A target that names no
+node by any spelling stays and validation reports it. In a schema-3 document `self` and `@<key>` are refused
+(`unknown_target_node`) with the id to write.
+
 ## 30.1.0: one spelling for each concept
 
 codelessly_api 30.1.0 keeps `"schema": 3` and gives three concepts that 30.0.0 could say two ways one spelling
@@ -162,8 +173,9 @@ The migration rewrites these all the same and says so in the report:
   rotation;
 * a node with both a hero and a flight key: it keeps its hero; the flight key and flight are kept as
   `legacy.flightKey` / `legacy.flight`;
-* a stroke path's draw-on animation (`drawMs`): kept as `legacy.strokePath.draw`, the line shows at its progress
-  at once (an animation on a variable bound into the op's `trimEnd` does it); a stroke path with no exact op (a
+* a stroke path's draw-on animation (`drawMs`) is an animation of the op's `trimEnd` from 0 and a transition of
+  it (docs/design/01-paint-node.md, "30.1.0"); the one difference: a progress that changes while the line is still
+  drawing on carries on toward the new value instead of restarting from where it is; a stroke path with no exact op (a
   binding of another field, bound points in fractions or with curves, a fill fading with a bound progress, beside
   a custom paint's view box) is kept whole as `legacy.strokePath`;
 * a box path whose fill reaches past its box (now filled there), is clipped to rounded corners, has a gradient

@@ -10598,7 +10598,7 @@
                   "enabled": {
                     "type": "boolean"
                   },
-                  "use24h": {
+                  "alwaysUse24HourFormat": {
                     "type": "boolean"
                   },
                   "format": {

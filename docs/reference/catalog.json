@@ -4500,12 +4500,12 @@
           "doc": ""
         },
         {
-          "key": "use24h",
+          "key": "alwaysUse24HourFormat",
           "type": "bool",
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "The picker's dial and fields in 24-hour time."
+          "doc": "The picker's dial and fields in 24-hour time (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the picker reads)."
         },
         {
           "key": "format",

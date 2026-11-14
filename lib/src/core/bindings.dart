@@ -19,6 +19,8 @@ import 'values/paint.dart';
 import 'values/text.dart';
 import 'widgets/text.dart';
 import 'behaviors.dart';
+import 'custom_paint_fields.dart';
+import 'value_fields.dart';
 
 /// One step of a binding path: a key, an index (`[2]`), or every item (`*`).
 typedef PathKey = Object;
@@ -85,6 +87,44 @@ abstract final class BindPaths {
 
   static final RegExp _segment = RegExp(r'^([A-Za-z0-9_\-*$@:#]*)((?:\[\d+\])*)$');
   static final RegExp _index = RegExp(r'\[(\d+)\]');
+
+  /// The declared default (as JSON) of the field at binding [path] on
+  /// [node]: what the node has there when its JSON omits the field, as
+  /// encoders omit a default. Known for `opacity`, `props.<key>`,
+  /// `layout.<key>`, `decoration.<key>` and a custom paint op's field
+  /// (`customPaint.painter.<op id>.<field>`); null for any other path. An
+  /// animation track with no `from` or `to` starts or ends at the node's
+  /// own value, which is this when the JSON has none.
+  static Object? declaredDefault(Node node, String path) {
+    final keys = parse(path);
+    if (keys.isEmpty) return null;
+    Object? of(List<PropDef<Object?>> defs, Object? key) {
+      for (final d in defs) {
+        if (d.key == key) return d.encode(d.defaultValue);
+      }
+      return null;
+    }
+
+    switch (keys) {
+      case ['opacity']:
+        return 1;
+      case ['props', final String key]:
+        return of(node.spec?.props ?? const [], key);
+      case ['layout', final String key]:
+        return of(LayoutFields.all, key);
+      case ['decoration', final String key]:
+        return of(DecorationFields.all, key);
+      case ['customPaint', final String list, final Object sel, final String field]:
+        final j = <String, Object?>{};
+        node.behaviors.writeTo(j);
+        final ops = [...?readList(readMap(j['customPaint'])?[list])?.map(readMap)];
+        final op = sel is int ? (sel < ops.length ? ops[sel] : null) : ops.where((o) => o?['id'] == sel).firstOrNull;
+        final spec = DrawOpSpecs.of(readString(op?['op']) ?? '');
+        if (spec == null) return null;
+        return of([...DrawOpCommonFields.all, ...spec.fields], field);
+    }
+    return null;
+  }
 
   /// [node] with [value] at binding [path]; [node] itself when the path or
   /// the value doesn't apply.

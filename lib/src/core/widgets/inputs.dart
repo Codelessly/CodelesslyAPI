@@ -592,10 +592,11 @@ abstract final class TimePickerProps {
   static const value = PropDef<String>('value', Codecs.string, '');
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
 
-  /// The picker's dial and fields in 24-hour time.
-  static const use24h = PropDef<bool>('use24h', Codecs.bool, false);
+  /// The picker's dial and fields in 24-hour time (Flutter's
+  /// `MediaQueryData.alwaysUse24HourFormat`, which the picker reads).
+  static const alwaysUse24HourFormat = PropDef<bool>('alwaysUse24HourFormat', Codecs.bool, false);
   static const spec = WidgetSpec('timePicker',
-      props: [value, enabled, use24h, ...PickerFieldProps.all], doc: 'Flutter `showTimePicker` button or field.');
+      props: [value, enabled, alwaysUse24HourFormat, ...PickerFieldProps.all], doc: 'Flutter `showTimePicker` button or field.');
 }
 
 /// What a date/time input picks.

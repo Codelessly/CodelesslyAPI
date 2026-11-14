@@ -31,6 +31,7 @@ void main() {
   final byId = {for (final s in schema3Steps) s.id: s};
 
   final samples = <String, Json>{
+    'states.target': {'key': 'card', 'states': {'hovered': {'self': {'opacity': 0.5}}, 'pressed': {'@card': {'opacity': 0.4}}}},
     'motion.legacy': {
       'motion': {'duration': 300, 'enter': true, 'enterFrom': {'opacity': 0}, 'originX': -1, 'opacity': 0.5, 'blur': 2},
       'loops': [{'type': 'pulse'}],

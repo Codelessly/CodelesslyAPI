@@ -143,17 +143,64 @@ void main() {
       }
     });
 
-    test('the draw-on animation is kept as a legacy value and reported', () {
+    test('the draw-on becomes an animation of the line op\'s trimEnd and a transition of it, nothing kept', () {
       final (n, report) = _node(_box({
-        'strokePath': {'points': [[0, 0], [1, 1]], 'drawMs': 600, 'drawKey': r'k'},
+        'strokePath': {
+          'points': [[0, 0], [1, 1]], 'drawMs': 600, 'drawDelayMs': 100, 'drawCurve': 'easeOutCubic', 'drawKey': 'k',
+        },
       }));
-      expect(n['legacy.strokePath.draw'], {'drawMs': 600, 'drawKey': 'k'});
-      expect(_painter(n), hasLength(1));
-      expect(report.behaviourChanges.single.message, contains('no longer draws itself on'));
+      expect(n.keys.where((k) => k.startsWith('legacy.')), isEmpty);
+      expect((_painter(n).single as Map).containsKey('trimEnd'), isFalse, reason: 'the track ends at the op\'s own 1');
+      expect(n['animations'], [
+        {
+          'id': 'strokePathDraw',
+          'duration': 600,
+          'delay': 100,
+          'curve': 'easeOutCubic',
+          'tracks': [
+            {'path': 'customPaint.painter.strokePath.trimEnd', 'from': 0},
+          ],
+        },
+      ]);
+      expect(n['transitions'], [
+        {'property': 'customPaint.painter.strokePath.trimEnd', 'duration': 600, 'delay': 100, 'curve': 'easeOutCubic'},
+      ]);
+      expect(report.behaviourChanges, isEmpty);
+      expect(report.unconvertible, isEmpty);
+      // The node decodes to them.
+      final node = Node.fromJson(n, id: 'n')!;
+      expect(node.behaviors.animations.single.tracks.single.path, 'customPaint.painter.strokePath.trimEnd');
+      expect(node.behaviors.transitions.single.duration, 600);
       // Without drawMs the timing fields did nothing.
       final (quiet, r2) = _node(_box({'strokePath': {'points': [[0, 0], [1, 1]], 'drawCurve': 'linear'}}));
       expect(quiet.keys.where((k) => k.startsWith('legacy.')), isEmpty);
+      expect(quiet.containsKey('animations'), isFalse);
       expect(r2.behaviourChanges, isEmpty);
+    });
+
+    test('a drawn-on line in front with a fill fades the fill in from transparent, easeInOut by default', () {
+      final (n, _) = _node(_box({
+        'strokePath': {
+          'points': [[0.1, 10], [0.9, 15], [0.8, 40]], 'fillColor': '#C0FF8800', 'progress': 0.5, 'inFront': true,
+          'drawMs': 400,
+        },
+      }));
+      final anim = (n['animations'] as List).single as Map;
+      expect(anim['curve'], 'easeInOut');
+      expect(anim['tracks'], [
+        {'path': 'customPaint.foregroundPainter.strokePath.trimEnd', 'from': 0},
+        {'path': 'customPaint.foregroundPainter.strokePathFill.paint', 'from': '#00FF8800'},
+      ]);
+    });
+
+    test('a drawn-on line on a node that has an animation of that id takes the next free id', () {
+      final (n, _) = _node(_box({
+        'animations': [
+          {'id': 'strokePathDraw', 'tracks': <Object?>[]},
+        ],
+        'strokePath': {'points': [[0, 0], [1, 1]], 'drawMs': 300},
+      }));
+      expect([for (final a in n['animations'] as List) (a as Map)['id']], ['strokePathDraw', 'strokePathDraw2']);
     });
 
     test('what has no exact form keeps the whole behavior as a legacy value', () {
@@ -406,21 +453,36 @@ void main() {
   });
 
   group('what the migration keeps as legacy', () {
-    test('a kept draw-on animation is a legacy_value warning, is not read, and round-trips', () {
+    test('a migrated draw-on validates clean', () {
       final doc = migrateDocument({
         'schema': 2,
         'roots': ['c'],
         'nodes': {
           'c': {'type': 'canvas', 'layout': {'width': 100, 'height': 100}, 'slots': {'body': 'n'}},
-          'n': _box({'strokePath': {'points': [[0, 0], [1, 1]], 'drawMs': 600}}),
+          'n': _box({'strokePath': {'points': [[0, 0], [1, 1]], 'drawMs': 600, 'fillColor': '#80000000'}}),
         },
       });
-      final found = validateDocument(doc).where((d) => d.severity != Severity.info).toList();
-      expect(found.map((d) => (d.code, d.path)), [(Codes.legacyValue, '/nodes/n/legacy.strokePath.draw')]);
+      expect(validateDocument(doc).where((d) => d.severity != Severity.info), isEmpty);
+    });
+
+    test('a kept stroke path is a legacy_value warning, is not read, and round-trips', () {
+      final doc = migrateDocument({
+        'schema': 2,
+        'roots': ['c'],
+        'nodes': {
+          'c': {'type': 'canvas', 'layout': {'width': 100, 'height': 100}, 'slots': {'body': 'n'}},
+          'n': _box({
+            'strokePath': {'points': [[0, 0], [1, 1]]},
+            'bind': {'strokePath.width': r'${w}'},
+          }),
+        },
+      });
+      final found = validateDocument(doc).where((d) => d.severity != Severity.info && d.code == Codes.legacyValue).toList();
+      expect(found.map((d) => d.path), ['/nodes/n/legacy.strokePath']);
       expect(found.single.severity, Severity.warning);
       final n = LayoutDocument.fromJson(doc).nodes['n']!;
-      expect(n.extra, {'legacy.strokePath.draw': {'drawMs': 600}});
-      expect(n.toJson()['legacy.strokePath.draw'], {'drawMs': 600});
+      expect(n.extra.keys, ['legacy.strokePath']);
+      expect(n.toJson()['legacy.strokePath'], isNotNull);
     });
   });
 
