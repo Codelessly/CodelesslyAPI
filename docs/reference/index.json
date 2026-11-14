@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5639
+      "words": 5643
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5748
+      "words": 5750
     }
   },
   "topics": [
@@ -289,7 +289,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 10159
+      "words": 10534
     },
     {
       "topic": "forms-triggers",
@@ -513,7 +513,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6352
+      "words": 6355
     },
     {
       "topic": "state-variables",
@@ -529,7 +529,7 @@
       "anchor": "state-expressions",
       "title": "Expressions",
       "summary": "`${name}` or `${path}` reads a value: `${count}`, `${user.name}`, `${items[0].price}`, `${pal[item.kind]}`.",
-      "words": 107
+      "words": 108
     },
     {
       "topic": "state-binding-paths",
@@ -1257,7 +1257,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13107
+      "words": 13248
     },
     {
       "topic": "values-value-types",
@@ -1792,6 +1792,8 @@
       "textDirection": "theme.md#behavior-textDirection",
       "defaultTextStyle": "theme.md#behavior-defaultTextStyle",
       "customPaint": "decoration.md#behavior-customPaint",
+      "form": "forms.md#behavior-form",
+      "radioGroup": "forms.md#behavior-radioGroup",
       "reorderHandle": "lists.md#behavior-reorderHandle",
       "states": "interaction.md#behavior-states",
       "inkWell": "interaction.md#behavior-inkWell",
@@ -1872,6 +1874,7 @@
       "scrollTo": "layout.md#action-scrollTo",
       "editText": "forms.md#action-editText",
       "focus": "forms.md#action-focus",
+      "validate": "forms.md#action-validate",
       "paginate": "lists.md#action-paginate",
       "navigate": "navigation.md#action-navigate",
       "openModal": "navigation.md#action-openModal",
@@ -1985,6 +1988,8 @@
       "ViewProgress": "animation.md#type-ViewProgress",
       "Measure": "layout.md#type-Measure",
       "CustomPaint": "decoration.md#type-CustomPaint",
+      "FormBehavior": "forms.md#type-FormBehavior",
+      "RadioGroupBehavior": "forms.md#type-RadioGroupBehavior",
       "AnimationRepeat": "values.md#type-AnimationRepeat",
       "AnimationTrack": "values.md#type-AnimationTrack",
       "Flight": "values.md#type-Flight",

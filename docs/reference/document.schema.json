@@ -155,6 +155,7 @@
             "copyToClipboard",
             "editText",
             "focus",
+            "validate",
             "controlTrack",
             "controlDismissible",
             "controlTransform",
@@ -739,6 +740,25 @@
                 "type": "boolean"
               },
               "selectAll": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "validate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "focusFirstError": {
                 "type": "boolean"
               }
             }
@@ -1811,7 +1831,8 @@
         "disabled",
         "always",
         "onUserInteraction",
-        "onUnfocus"
+        "onUnfocus",
+        "onUserInteractionIfError"
       ]
     },
     "enum.Axis": {
@@ -3777,6 +3798,15 @@
       },
       "additionalProperties": false
     },
+    "model.FormBehavior": {
+      "type": "object",
+      "properties": {
+        "autovalidateMode": {
+          "$ref": "#/$defs/enum.AutovalidateMode"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.GaugeZone": {
       "type": "object",
       "properties": {
@@ -5732,6 +5762,15 @@
       },
       "additionalProperties": false
     },
+    "model.RadioGroupBehavior": {
+      "type": "object",
+      "properties": {
+        "groupValue": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.Reveal": {
       "type": "object",
       "properties": {
@@ -7381,6 +7420,44 @@
           "anyOf": [
             {
               "$ref": "#/$defs/model.CustomPaint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "form": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.FormBehavior"
+                },
+                {
+                  "type": [
+                    "boolean"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "radioGroup": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.RadioGroupBehavior"
+                },
+                {
+                  "type": [
+                    "boolean"
+                  ]
+                }
+              ]
             },
             {
               "type": "null"
@@ -9300,7 +9377,9 @@
                     "minimum": 0.0
                   },
                   "inputFormatter": {},
-                  "validator": {},
+                  "validator": {
+                    "type": "string"
+                  },
                   "markdown": {},
                   "highlightStart": {
                     "anyOf": [

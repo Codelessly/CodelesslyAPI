@@ -414,10 +414,11 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `disabled` | Flutter's `AutovalidateMode`. |
-| `always` | Flutter's `AutovalidateMode`. |
-| `onUserInteraction` | Flutter's `AutovalidateMode`. |
-| `onUnfocus` | Flutter's `AutovalidateMode`. |
+| `disabled` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `always` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `onUserInteraction` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `onUnfocus` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `onUserInteractionIfError` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
 
 <a id="enum-Axis"></a>
 ### Axis
