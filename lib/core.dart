@@ -40,6 +40,8 @@ export 'src/core/json.dart';
 export 'src/core/layout.dart';
 export 'src/core/logic.dart';
 export 'src/core/node.dart';
+export 'src/core/notation/notation.dart' show NotationIssue, NotationOptions, NotationResult, NotationStream, parseNotation;
+export 'src/core/notation/prompt.dart' show notationPrompt;
 export 'src/core/node_patch.dart';
 export 'src/core/path_follow.dart';
 export 'src/core/props.dart';
