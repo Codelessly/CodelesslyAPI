@@ -86,6 +86,7 @@ LINE
 - if expression on its own line shows the lines indented under it only while it holds.
 - each row in rows on its own line repeats the lines indented under it once per element of a list variable (state rows=[{"name":"Ada","age":36}]); inside, {row.name} reads the element.
 - #id only when something else needs to name the node.
+- Beyond these words: a {…} at the end of a line is merged into that node as JSON ({"props": {"size": 18}}). A whole node the notation has no word for is written as node {"type": "…", …} on its own line (its JSON may run over several lines); lines indented under it are its children, written as usual.
 - Sizes are worked out: in a Column a child is as wide as the column and as tall as its content; in a Row a child is as big as its content. Do not write sizes unless the design needs one.
 
 TYPES

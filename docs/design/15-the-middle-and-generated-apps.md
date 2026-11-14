@@ -37,7 +37,7 @@ ladder on the same document, and the model takes only the rungs a UI needs.
 |---|---|---|---|
 | 1. Words | Notation only | Lowest | Exists |
 | 2. A key on a line | Notation, with a JSON object at the end of a line carrying any key of the full vocabulary for that node (`Icon "dns" {"props": {"size": 15}}`) | A few tokens where used | Exists |
-| 3. A block in the full form | A subtree written as full nodes inside the notation, for a part the notation has no words for (a custom-painted board, a draggable list) | Full cost for that part only | To build |
+| 3. A block in the full form | A subtree written as full nodes inside the notation, for a part the notation has no words for (a custom-painted board, a draggable list) | Full cost for that part only | Exists: `node {…}`, with notation lines under it (design 13 §3) |
 | 4. Ops on the same document | The notation draws the screen; `ui_apply` ops then add what is beyond it (scripts, drop reactions, motion), addressed by node id | A second call, small | Both halves exist; the handover (stable ids the model can name, the outline it is given) is to build |
 | 5. The full form | `ui_apply` from the start | Highest | Exists |
 
