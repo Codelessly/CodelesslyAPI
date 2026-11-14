@@ -692,4 +692,17 @@ void main() {
     };
     expect(withCode(doc, Codes.unknownName), isEmpty);
   });
+  test('an icon object: {"icon": name} reads as its name, and one that names nothing is reported (test 4: a chip avatar that drew nothing)', () {
+    Map<String, Object?> doc(Object avatar) => {
+          'schema': 3, 'roots': ['s'],
+          'nodes': {
+            's': {'type': 'canvas', 'slots': {'body': 'c'}, 'layout': {'width': 390, 'height': 200}},
+            'c': {'type': 'chip', 'props': {'label': 'Open', 'avatar': avatar}},
+          },
+        };
+    expect(withCode(doc({'icon': 'circle'}), Codes.wrongType), isEmpty);
+    final chip = Node.fromJson((doc({'icon': 'circle'})['nodes'] as Map)['c'], id: 'c')!;
+    expect(chip.toJson().toString(), contains('MATERIAL_ICON'));
+    expect(withCode(doc({'colour': 'red'}), Codes.wrongType).single.message, contains('no "name"'));
+  });
 }

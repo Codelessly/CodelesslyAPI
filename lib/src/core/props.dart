@@ -380,7 +380,9 @@ Json? _untypedMaterial(Json m) {
   if (m.containsKey('type') || m.containsKey('source') || m.containsKey('image') || m.containsKey('imageUrl') || m.containsKey('svg')) {
     return null;
   }
-  final name = m['name'];
+  // `{"icon": "circle"}` is read as `{"name": "circle"}`: the key the prop
+  // itself is usually called.
+  final name = m['name'] ?? m['icon'];
   if (name is! String) return null;
   final named = materialIconNamed(name);
   if (named == null) return null;
