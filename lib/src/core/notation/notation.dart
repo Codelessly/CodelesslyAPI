@@ -545,7 +545,7 @@ class _Parser {
       if (set != null) {
         final v = set[2]!.trim();
         final literal = _literal(v);
-        out.add({'type': 'setVariable', 'variable': set[1], 'value': literal.$1 ? literal.$2 : _formula(v)});
+        out.add({'type': 'setVariable', 'variable': set[1], 'value': literal.$1 && literal.$2 is String ? _interpolate(literal.$2! as String) : _formula(v)});
         if (!variables.containsKey(set[1])) {
           final start = literal.$1 ? literal.$2 : null;
           variables[set[1]!] = {
