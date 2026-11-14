@@ -792,7 +792,7 @@ section's anchor is its topic.
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11893 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6575 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3719 |
@@ -6642,6 +6642,14 @@ formula string instead (`"when": "!item.future"`). `forEach` runs a chain per it
 {"type": "if", "condition": {"left": "${= contains(saved, trip.id)}", "op": "isTrue"},
  "then": [{"type": "setVariable", "variable": "saved", "op": "remove", "value": "${trip.id}"}],
  "else": [{"type": "setVariable", "variable": "saved", "op": "add", "value": "${trip.id}"}]}
+```
+
+One line of a list, from its own row of a list template (a cart's quantity stepper): `update` at the row's `index`
+with the row's record changed. `value` is one expression giving the new record (`set` changes one field), not an
+object written out:
+
+```json
+{"type": "setVariable", "variable": "cart", "op": "update", "index": "${index}", "value": "${= set(item, 'qty', item.qty + 1)}"}
 ```
 
 The condition is an object, never a formula string: a formula goes in `left` with `"op": "isTrue"`.
