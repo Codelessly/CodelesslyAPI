@@ -309,6 +309,14 @@ void main() {
               Codes.stateNoEffect),
           isEmpty);
     });
+    test('a role that names itself is reported once, where it is written', () {
+      final self = validateTheme({
+        'primary': 'primary',
+        'colors': {'board': '#FF101827'},
+      });
+      expect(self.map((d) => (d.code, d.path)), [(Codes.invalidTheme, '/theme/primary')]);
+      expect(self.single.message, contains('names itself'));
+    });
     test('a color role written inside the theme\'s colors is reported, and a role naming a color is not (theme_role_in_colors)', () {
       final inColors = validateTheme({
         'colors': {'forest': '#FF1F6F4A', 'primary': '#FF1F6F4A'},
