@@ -234,6 +234,14 @@ is built with (its app, split view, pane toolbars, code field, selects, segmente
 widgets, and it follows the Editor's layout conventions. What it shows inside the preview is whatever design
 system is chosen; the frame around it is always SSUI's.
 
+Added by the owner (2026-11-14): these surfaces also follow **the storyboard conventions** (the Storybook-like
+framework in `OverlookV2/packages/soft_saas_ui/storyboard`, which CodelesslyEditor uses in `lib/storyboard`: a
+sidebar of stories by category, phone-frame and flow viewers, its sync script and folder layout), and their
+**controls are the dynamic properties panel** (`CodelesslyEditor/packages/dynamic_properties_panel`: a
+schema-driven panel with a controller), not hand-made rows of toggles. A screen shown for a person is a story;
+a run through several screens is a flow; what varies (the person, the token set, the audience, the store's
+values) is a schema in the panel.
+
 ## 4.2 The polish gap, and the configuration to test (2026-11-14)
 
 The first generated screens (`CodelesslySDK/examples/prompt_app`) are correct and fitted to the person, and
