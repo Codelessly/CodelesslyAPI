@@ -799,7 +799,7 @@ section's anchor is its topic.
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4610 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3706 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
-| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7120 |
+| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7160 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2308 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 468 |
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
@@ -8533,7 +8533,7 @@ A progress bar filled to `value` of `max`: a bar (horizontal, or vertical fillin
 <a id="node-circularProgressIndicator"></a>
 ### `circularProgressIndicator`
 
-Flutter `CircularProgressIndicator`.
+Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary colour, round-ended, 16 px when it hugs.
 
 Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).
 
@@ -8554,6 +8554,8 @@ Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `st
 
 <a id="node-activityIndicator"></a>
 ### `activityIndicator`
+
+Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text colour unless `color` says.
 
 Flutter `CupertinoActivityIndicator`.
 

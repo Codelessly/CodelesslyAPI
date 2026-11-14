@@ -37,7 +37,9 @@ abstract final class CircularProgressIndicatorProps {
 
   static const spec = WidgetSpec('circularProgressIndicator',
       props: [value, color, backgroundColor, strokeWidth, strokeAlign, strokeCap, trackGap, startAngle, sweepAngle],
-      doc: 'Flutter `CircularProgressIndicator`.');
+      hugs: true,
+      doc: 'Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the '
+          'primary colour, round-ended, 16 px when it hugs.');
 }
 
 /// Flutter `CupertinoActivityIndicator`.
@@ -46,7 +48,9 @@ abstract final class ActivityIndicatorProps {
   static const radius = PropDef<double>('radius', Codecs.positive, 10);
   static const animating = PropDef<bool>('animating', Codecs.bool, true);
   static const spec = WidgetSpec('activityIndicator',
-      props: [color, radius, animating], doc: 'Flutter `CupertinoActivityIndicator`.');
+      props: [color, radius, animating], hugs: true,
+      doc: 'Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary '
+          'text colour unless `color` says.');
 }
 
 /// A straight progress bar, or an arc like a dial.

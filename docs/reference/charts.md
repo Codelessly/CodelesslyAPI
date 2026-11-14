@@ -98,7 +98,7 @@ A progress bar filled to `value` of `max`: a bar (horizontal, or vertical fillin
 <a id="node-circularProgressIndicator"></a>
 ### `circularProgressIndicator`
 
-Flutter `CircularProgressIndicator`.
+Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary colour, round-ended, 16 px when it hugs.
 
 Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).
 
@@ -119,6 +119,8 @@ Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `st
 
 <a id="node-activityIndicator"></a>
 ### `activityIndicator`
+
+Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text colour unless `color` says.
 
 Flutter `CupertinoActivityIndicator`.
 
