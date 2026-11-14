@@ -1,5 +1,20 @@
 ## Unreleased
 
+**What ten sites built as data (brief 3) ran into.**
+
+- Validation: a list's pagination controller (`props.pagination.name`) is a name its page may read
+  (`${coastPages.page < coastPages.pageCount}` was `unknown_name`).
+- `gridView.fillGaps`: CSS `grid-auto-flow: dense`, automatically placed items filling the holes earlier spans left.
+- `navigate.to` may be an expression (`${item.to}`): documented on the action; the SDK now evaluates it.
+- `fit_not_allowed` in a wrapping row gives the fix (`basis`, with an example); `decoration_ignored` on a text says
+  how to make a filled, rounded label (a row around it) or a highlight (`style.backgroundColor`).
+- Reference: a page gutter and max-width recipe that keeps every section on one left edge at 390, 834 and 1440, and
+  hero sizing (layout); submitting a form with no backend and simulated loading and error states (forms); a
+  `tableView` with bound data (lists); updating one list line at its `index` and UTC offsets instead of IANA time
+  zones (state); counting a number up, and running several `animate` actions together (animation); explicit grid
+  placement under a filter, `scrollTo`'s offset under a fixed header and scrolling to a heading on another page
+  (layout); declaring a variable font once (theme); `step_skipped` and `page_not_written` (render).
+
 - A computed variable's `formula` is checked like a node's expressions (it was not checked at all): it must parse
   and read only declared names, its `parameters` included. The edit layer checks the formulas of the variables a
   `vars` op declares (`EditCheckInput.variables`, read by `strictEditCheck`; the diagnostic's message names the

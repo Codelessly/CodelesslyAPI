@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 9469
+      "words": 9529
     },
     {
       "topic": "layout-layout-fields",
@@ -81,7 +81,7 @@
       "anchor": "layout-page-gutter",
       "title": "Page gutter",
       "summary": "The most common layout defect is sections that start at different x (one band padded 24, the next 32, a third capped).",
-      "words": 374
+      "words": 418
     },
     {
       "topic": "layout-an-editorial-page-at-three-sizes",
@@ -449,7 +449,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 7657
+      "words": 7875
     },
     {
       "topic": "lists-triggers",
@@ -498,6 +498,14 @@
       "title": "A table from one template",
       "summary": "A `listView` of rows bound to the records, each row a label and a `gridView` of cells bound to `${item.values}` with `crossAxisCount` the number of columns: one cell node for every column (the example in $1).",
       "words": 103
+    },
+    {
+      "topic": "lists-a-data-table-tableview",
+      "file": "lists.md",
+      "anchor": "lists-a-data-table-tableview",
+      "title": "A data table (tableView)",
+      "summary": "The rows are **bound data** (`\"bind\": {\"data\": \"${years}\"}`, a list of records), never a `props.data`; the columns are `props.columns`, each a record field (`key`), its header (`label`) and its width.",
+      "words": 211
     },
     {
       "topic": "lists-filter-sort-and-page-a-list",
@@ -593,7 +601,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6575
+      "words": 6662
     },
     {
       "topic": "state-variables",
@@ -641,7 +649,7 @@
       "anchor": "state-formula-functions",
       "title": "Formula functions",
       "summary": "The functions a formula (`${= ...}`) can call, from the SDK's formula engine, grouped.",
-      "words": 446
+      "words": 458
     },
     {
       "topic": "state-text",

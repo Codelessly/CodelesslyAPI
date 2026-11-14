@@ -533,6 +533,43 @@ table written four times. For a column that stays while the others scroll sidewa
 `listView` of its own beside one horizontally scrolling block of the cell grids, rows the same height in both. A
 `tableView` is a data table with columns declared once (sorting, row taps).
 
+<a id="lists-a-data-table-tableview"></a>
+### A data table (tableView)
+
+The rows are **bound data** (`"bind": {"data": "${years}"}`, a list of records), never a `props.data`; the columns
+are `props.columns`, each a record field (`key`), its header (`label`) and its width. The `cell` slot is one template
+for every cell, reading `${item.value}` (also `${item.row}`, the whole record, and `${item.column}`); `columnHeader`
+reads `${item.label}`. `fillWidth` shares a wide screen's extra width between the columns:
+
+```json
+{
+  "schema": 3,
+  "roots": ["impact"],
+  "nodes": {
+    "impact": {"type": "canvas", "slots": {"body": "table"}, "layout": {"width": 390, "height": 260},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "table": {"type": "tableView", "slots": {"cell": "cell", "columnHeader": "head"},
+      "layout": {"width": {"fill": 390}, "height": {"fill": 260}},
+      "props": {"rowHeight": 40, "headerHeight": 40, "pinHeaderColumn": false, "fillWidth": true,
+        "columns": [{"key": "year", "label": "Year", "width": 80}, {"key": "trees", "label": "Trees", "width": 100},
+                    {"key": "survival", "label": "Survival", "width": 100}]},
+      "bind": {"data": "${years}"}},
+    "head": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.label}", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF334155"}}},
+    "cell": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.value}", "style": {"fontSize": 14, "color": "#FF0F172A"}}}
+  },
+  "variables": {
+    "impact": [
+      {"name": "years", "type": "list", "value": [
+        {"year": "2023", "trees": "3,120", "survival": "94%"},
+        {"year": "2024", "trees": "4,480", "survival": "91%"},
+        {"year": "2025", "trees": "4,880", "survival": "87%"}]}
+    ]
+  }
+}
+```
+
 <a id="lists-filter-sort-and-page-a-list"></a>
 ### Filter, sort and page a list
 

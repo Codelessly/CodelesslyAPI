@@ -756,6 +756,10 @@ At 390 every rail starts at 16, at 834 at 32, at 1440 at 120 ((1440 − 1200) / 
 the rail or a section's first child to move content: change the gutter in every band at once. A part meant to run
 to the edge (a photo strip) is a band with no rail ([overlap and bleed](#layout-overlap-and-bleed)).
 
+A hero is a band like the others: give it and its copy a **hug** height with a minimum (`"height": {"hug": 560},
+"constraints": {"minHeight": 480}`), never a fixed one. A headline whose size steps up by a media rule takes more
+lines in a narrower column, and a fixed height then overflows by the extra lines at tablet or desktop.
+
 ```json
 {
   "schema": 3,

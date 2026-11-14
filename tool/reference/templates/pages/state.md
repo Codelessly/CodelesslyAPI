@@ -71,6 +71,12 @@ A document's sandboxed JavaScript (`scripts`), run by `runScript` or called from
 
 The functions a formula (`${= ...}`) can call, from the SDK's formula engine, grouped.
 
+Time zones are **UTC offsets**, not IANA names: `now('-06:00')`, `formatDate(now('+01:00'), 'HH:mm')`. The formula
+engine has no time zone database, so `now('America/Chicago')` is not a zone and daylight saving time is not applied.
+For a place that changes its clocks, pick the offset by date in the formula (Chicago, US rules: `now(month(now()) > 3
+&& month(now()) < 11 ? '-05:00' : '-06:00')`, exact except in the weeks of March and November when the clocks
+change), or have the host app pass the offset in (a variable it sets).
+
 {{formulaFunctions}}
 
 {{reference}}
