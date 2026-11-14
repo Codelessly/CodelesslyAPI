@@ -74,6 +74,60 @@ frame, time to complete, valid on the first answer, valid after one retry, and w
 The bar: the ladder reaches what `ui_apply` reaches, the first frame arrives at notation speed, and the total
 cost sits well under the full form's.
 
+### 2.5 The first experiments (2026-11-14)
+
+Eight standalone agents, none of which had seen this work, each built one of four briefs (Sudoku, kanban with
+drag and drop, form builder, a three-screen jump rope app) one of two ways: starting in the notation and
+climbing only when stuck, or as a full document by hand. Their reports and files are on the SDK's branches
+`session/<brief>-ladder`, `session/<brief>-full` and `codex/jump-rope-app-full`, under `experiments/bridge/`.
+They ran before `node {…}` existed, so rung 3 here means editing the expanded document by hand.
+
+All eight worked when driven (numbers placed and conflicts shown, a card dragged between columns, fields added,
+renamed, reordered and validated, a session finished and found in the history).
+
+| Brief | Notation ladder: lines written | Highest rung needed | Full document: lines written |
+|---|---|---|---|
+| Sudoku | 35 of notation, 15 of JSON by hand | 3, for the timer only | 1,090 |
+| Kanban | 38 | 2 (a JSON tail for drag and drop) | 241 |
+| Form builder | 51 | 2 (tails to read a repeated item's fields, a number keyboard, scrolling) | 283 |
+| Jump rope app | 58 | 2 (a tail for the countdown) | 247 |
+
+What this says:
+
+- **The middle is narrower than feared.** Nothing needed the full form, and no ladder agent needed a script:
+  formulas over lists (`append`, `setAt`, `removeAt`, `count`, `with`) carried a Sudoku's conflict check and a
+  form builder's reordering. The one script that was tried (the full Sudoku) failed for a missing engine in the
+  render tool, and the agent did without.
+- **The notation is four to thirty times shorter** than the full document for the same working UI. Lines are
+  not tokens, and the agents could not measure their own time, so this is not yet the cost comparison of §2.4.
+- **What pushed agents off rung 1 was a short list**, and most of it was missing words rather than missing
+  power. Each is now fixed in the notation, or listed below.
+
+| Found | By | Now |
+|---|---|---|
+| No word for a timer: a clock or a countdown needed a JSON tail or a hand edit | Sudoku, jump rope (and both said it was the one change that would have helped most) | `every 1s -> seconds=seconds-1`, with `when` |
+| A timer was level 4, so a countdown card was "full vocabulary" | (the tests of this fix) | The `timer` trigger is level 2: state changing as time passes |
+| `=field.label` under an `each` silently made a variable named `item.label`, which then failed validation | Form builder (its most-wanted change) | It binds the control to that field and writes the element back into its list; where that cannot be done, the line says so |
+| `Input "{field.label}"` showed the raw `${item.label}` as its label, with no warning | Form builder | A label that reads data is bound |
+| `Box#cell` under `each cell in …` lost its id (it became `item`), so two such blocks collided and `--tap cell` found nothing | Sudoku | An id is kept as written |
+| No word for scrolling: a screen 6 px too tall needed a tail | Form builder | `Column scroll` |
+| Nothing said a text can take a color: dark boards drew dark text | Sudoku | The prompt says `color:` on a text, `fill:` on a box, and to lighten text on a dark fill |
+| The published `codelessly_api` 30.1.0 has no notation, so the SDK's tools did not compile from a fresh checkout until the agent pointed them at the API's master | All four ladder agents | See below |
+
+Still open from the reports:
+
+- **Drag and drop words.** The kanban agent wrote `draggable` and `dropTarget` as tails, which worked first
+  time from the reference page; a word (`drag`, `drop ->`) is its second ask.
+- **A number keyboard on an input** (`type:number`), a validator on a dropdown (the full form builder's ask).
+- **SSUI under a site theme**: the full Sudoku met 109 `unknown_theme_name` errors because SSUI's components
+  name `primary` as a color while the base theme holds it as a role.
+- **The render tool without its script engine** says to add a package to an app; it should say how to build
+  the engine for the tool.
+- **A raw `${…}` or a `0` drawn as text** is a visibly wrong screen the tool does not flag.
+- **Setup.** The agents' checkouts started on an old branch and Flutter was not where the prompt said; that is
+  the test's environment, not the product, but the tools should fail with one clear line when the API they
+  compile against is too old.
+
 ## 3. Part B: apps described as prompts
 
 ### 3.1 The idea

@@ -390,7 +390,10 @@ class _Grid {
 }
 
 class _Open {
-  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each});
+  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list});
+
+  /// The list an `each` above repeats over, as written.
+  final String? list;
 
   /// An `each <name> in …` above: the name its lines call an item by.
   final String? each;
@@ -500,6 +503,7 @@ class _Parser {
             'type': 'canvas',
             'layout': {'width': options.width, 'height': {'hug': 0}},
             'decoration': _surface,
+            if (_timers.isNotEmpty) 'actions': [..._timers],
           },
         });
     }
@@ -514,6 +518,9 @@ class _Parser {
   }
 
   bool _canvas = false;
+
+  /// The `every` lines: timers on the canvas.
+  final _timers = <Json>[];
   final _parentOf = <String, String>{};
   final _slotOf = <String, String>{};
 
@@ -551,6 +558,7 @@ class _Parser {
           if (_root != null) 'slots': {'body': _root},
           'layout': {'width': options.width, 'height': {'hug': 0}},
           'decoration': _surface,
+          if (_timers.isNotEmpty) 'actions': _timers,
         },
         ...nodes,
       },
@@ -570,6 +578,22 @@ class _Parser {
       if (open.each != null && open.each != 'item') line = _rename(line, open.each!);
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
+    // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
+    // the screen does as time passes (a timer on the canvas).
+    final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s)?(?:\s+when\s+(.+?))?\s*->\s*(.+)$').firstMatch(line);
+    if (every != null) {
+      final ms = (double.parse(every[1]!) * (every[2] == 's' ? 1000 : 1)).round();
+      if (ms < 16) return _issue(column, 'An "every" runs at most once a frame: every 16 or more (milliseconds), or every 1s.');
+      _timers.add({
+        'trigger': {'type': 'timer', 'intervalMs': ms, if (every[3] != null) 'when': _formula(every[3]!.trim())},
+        'actions': _actions(every[4]!.trim(), column),
+      });
+      if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
+      return;
+    }
+    if (line.startsWith('every ')) {
+      return _issue(column, 'An "every" line is: every 1000 -> name=value (milliseconds, or 1s), optionally "every 1s when running -> …".');
+    }
     // `document {…}`: a merge patch over the whole document, for what is
     // not a node of the tree (the printer's last line).
     if (indent == 0 && line.startsWith('document {')) {
@@ -611,7 +635,7 @@ class _Parser {
         final p = nodes[parent.id]!;
         ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
         _parentOf[id] = parent.id;
-        _stack.add(_Open(indent, id, 'stack', each: each[1]));
+        _stack.add(_Open(indent, id, 'stack', each: each[1], list: each[2]!.trim()));
         return;
       }
       // In a row the copies go across, each at its own width.
@@ -638,7 +662,7 @@ class _Parser {
         'props': {'crossAxisAlignment': 'start', if (across) 'mainAxisAlignment': 'center'},
       };
       _parentOf[itemId] = listId;
-      _stack.add(_Open(indent, itemId, 'column', each: each[1]));
+      _stack.add(_Open(indent, itemId, 'column', each: each[1], list: each[2]!.trim()));
       return;
     }
     // Props written after the action (`-> size="7" selected:=size=="7"`)
@@ -879,7 +903,26 @@ class _Parser {
           // is its single choice.
           final list = type == 'segmentedButton';
           bind['props.${value.prop}'] = list ? _formula('[$expr]') : _read(expr);
-          if (_identifier.hasMatch(expr)) {
+          final field = RegExp(r'^item\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(expr);
+          final over = _stack.reversed.where((o) => o.each != null).firstOrNull?.list;
+          if (field != null) {
+            // A control bound to a field of the repeated element
+            // (`Input =field.label` under `each field in fields`): it shows
+            // the field, and a change writes the element back into its list.
+            if (over != null && _identifier.hasMatch(over) && !over.contains('.')) {
+              final next = list ? 'result[0]' : 'result';
+              reactions.insert(0, {
+                'trigger': {'type': 'changed'},
+                'actions': [
+                  {'type': 'setVariable', 'variable': over, 'value': _formula('setAt($over,index,with(item,"${field[1]}",$next))')},
+                ],
+              });
+            } else {
+              _issue(col, 'A control can be bound to a field of a repeated element only when the each is over a variable (each row in rows).');
+            }
+          } else if (expr.contains('.')) {
+            _issue(col, 'A control is bound to a variable by its name (=name), or under an each to a field of its element (=row.name): "$expr" is neither.');
+          } else if (_identifier.hasMatch(expr)) {
             variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
             reactions.insert(0, {
               'trigger': {'type': 'changed'},
@@ -926,6 +969,8 @@ class _Parser {
             props['value'] = num.parse(word);
           } else if (word == 'grow') {
             layout['flex'] = 1;
+          } else if (word == 'scroll' && (type == 'column' || type == 'row')) {
+            props['scrollable'] = true;
           } else if (word == 'fill') {
             layout['width'] = {'fill': 0};
           } else if (word == 'open' && (type == 'accordion' || type == 'expansionTile')) {
@@ -1282,7 +1327,7 @@ class _Parser {
   /// [line] with the word [name] read as `item`, outside quoted text and
   /// inside `{…}` within it.
   String _rename(String line, String name, [String to = 'item']) {
-    final word = RegExp('(?<![A-Za-z0-9_.])${RegExp.escape(name)}(?![A-Za-z0-9_])');
+    final word = RegExp('(?<![A-Za-z0-9_.#])${RegExp.escape(name)}(?![A-Za-z0-9_])');
     final out = StringBuffer();
     var quoted = false, inner = false, depth = 0, start = 0;
     void flush(int end, bool code) {
@@ -1368,6 +1413,11 @@ class _Parser {
       _close(_stack.removeLast());
     }
     nodes.keys.skip(before).toList().forEach(_emit);
+    // What a last line changed on a node already sent (an `every`).
+    if (_canvas && _patches.isNotEmpty) {
+      ops.addAll(_patches);
+      _patches.clear();
+    }
   }
 
   /// The node's main string: a text's text, a button's label, a field's label.
@@ -1375,7 +1425,14 @@ class _Parser {
     final text = _interpolate(s);
     if (type == 'textField') {
       final d = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
-      d[d.containsKey('labelText') ? 'hintText' : 'labelText'] = text;
+      final key = d.containsKey('labelText') || _labelBinds.containsKey('props.decoration.labelText') ? 'hintText' : 'labelText';
+      // A label that reads data (`Input "{field.label}"`) is bound: only a
+      // text node reads an expression as written.
+      if (text.contains(r'${')) {
+        _labelBinds['props.decoration.$key'] = text;
+      } else {
+        d[key] = text;
+      }
       return;
     }
     // A string on a container is a text inside it.

@@ -184,6 +184,75 @@ Column
     ]);
   });
 
+  test('what the bridge experiments reached for: every, scroll, a control bound to a field of a repeated element, a label that reads it, ids kept under each', () {
+    const text = '''
+state seconds=30
+state running=true
+state fields=[{"label":"Name","required":false}]
+state cells=[{"v":1},{"v":2}]
+every 1s when running -> seconds=seconds-1
+Column gap:8 scroll
+  Text "{seconds}"
+  Row gap:4
+    each cell in cells
+      Box#cell w:36 h:36 -> seconds=cell.v
+  each field in fields
+    Input "{field.label}" =field.label
+    Toggle "Required" =field.required
+''';
+    final r = _parse(text);
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    // The timer is on the canvas.
+    expect(_node(r, 'screen')['actions'], [
+      {
+        'trigger': {'type': 'timer', 'intervalMs': 1000, 'when': r'${= running}'},
+        'actions': [
+          {'type': 'setVariable', 'variable': 'seconds', 'value': r'${= seconds-1}'},
+        ],
+      },
+    ]);
+    expect((_node(r, 'column1')['props'] as Map)['scrollable'], isTrue);
+    // The id written under an each is kept (the element's name is not put in its place).
+    expect((r.document['nodes'] as Map).containsKey('cell'), isTrue);
+    // A field of the element: shown, and written back into the list; no variable named after it.
+    final input = _node(r, 'textField1');
+    expect((input['bind'] as Map)['props.initialValue'], r'${item.label}');
+    expect((input['bind'] as Map)['props.decoration.labelText'], r'${item.label}');
+    expect(((input['actions'] as List).first as Map)['actions'], [
+      {'type': 'setVariable', 'variable': 'fields', 'value': r'${= setAt(fields,index,with(item,"label",result))}'},
+    ]);
+    final names = [for (final v in ((r.document['variables'] as Map)['screen'] as List)) (v as Map)['name']];
+    expect(names, ['seconds', 'running', 'fields', 'cells']);
+
+    // The same as it arrives, the every line last.
+    final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
+    var doc = LayoutDocument(catalog: standardCatalog);
+    for (final chunk in ['state n=0\nColumn\n  Text "{n}"\n', 'every 500 -> n=n+1']) {
+      final ops = stream.add(chunk);
+      if (ops.isNotEmpty) doc = applyOps(doc, {'ops': ops}, catalog: standardCatalog).document;
+    }
+    final a = applyOps(doc, {'ops': stream.close()}, catalog: standardCatalog);
+    expect(a.errors, isEmpty, reason: '${a.errors}');
+    expect(stream.issues, isEmpty);
+    expect(((a.document['screen']!.toJson()['actions'] as List).single as Map)['trigger'], {'type': 'timer', 'intervalMs': 500});
+
+    // What cannot be meant is said.
+    final bad = _parse('''
+state rows=[{"n":1}]
+every soon -> x=1
+Column
+  Input "A" =form.name
+  each row in filter(rows, r => r.n>0)
+    Input "B" =row.n
+''');
+    expect(bad.issues.map((i) => i.message), [
+      contains('An "every" line is'),
+      contains('"form.name" is neither'),
+      contains('only when the each is over a variable'),
+    ]);
+  });
+
   test('read as it arrives: each completed line gives its operations, and applying them builds the same document', () {
     const text = '''
 state decision="pending"

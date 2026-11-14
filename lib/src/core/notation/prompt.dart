@@ -83,8 +83,9 @@ LINE
 - =name binds a control's value to a variable both ways (the variable is created for you): Slider =volume, Toggle "Wi-Fi" =wifi, Input "Email" =email, Select =size items:["S","M","L"]. On other keys write key:=expression with no spaces: visible:=count>0.
 - -> runs on tap (on change, for a control): name=value sets a variable; emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal. Separate several with ;
 - state name=value on its own line (top level) declares a variable with a starting value.
+- every 1000 -> name=value on its own line (top level) runs as time passes (milliseconds, or 1s): a clock, a countdown. every 1s when running -> … runs only while the condition holds.
 - if expression on its own line shows the lines indented under it only while it holds.
-- each row in rows on its own line repeats the lines indented under it once per element of a list variable (state rows=[{"name":"Ada","age":36}]); inside, {row.name} reads the element.
+- each row in rows on its own line repeats the lines indented under it once per element of a list variable (state rows=[{"name":"Ada","age":36}]); inside, {row.name} reads the element, and a control bound to one of its fields (Input =row.name, Toggle =row.done) changes that element in the list.
 - #id only when something else needs to name the node.
 - Beyond these words: a {…} at the end of a line is merged into that node as JSON ({"props": {"size": 18}}). A whole node the notation has no word for is written as node {"type": "…", …} on its own line (its JSON may run over several lines); lines indented under it are its children, written as usual.
 - Sizes are worked out: in a Column a child is as wide as the column and as tall as its content; in a Row a child is as big as its content. Do not write sizes unless the design needs one.
@@ -95,7 +96,7 @@ TYPES
   Text variants: ${options.textStyles.keys.map((k) => 'Text.$k').join(', ')} (plain Text is body text)
   Button variants: ${buttonVariants.keys.map((k) => 'Button.$k').join(', ')} (plain Button is primary)
   Badge variants: ${badgeVariants.keys.map((k) => 'Badge.$k').join(', ')}
-  Card is a padded, bordered Column; Box is a Column you style (fill, radius, pad). Every control already has the design system's look: write no colors or sizes on controls. A look can follow data: fill:=, border:= and color:= take an expression.
+  Card is a padded, bordered Column; Box is a Column you style (fill, radius, pad). Every control already has the design system's look: write no colors or sizes on controls. A Text takes color:#FF…; a Box or Card takes fill:#FF… (on a dark fill, give its texts a light color). A look can follow data: fill:=, border:= and color:= take an expression. Column scroll lets a tall screen scroll.
   Grid cols:3 gap:8 lays its children out in columns. Progress 0.6 (or Progress =done) shows a share from 0 to 1. Select and SegmentedButton take items:["A","B"]. Icon "name" uses Material icon names (check, close, star, chevron_right).
   BarChart values:[3,5,4] labels:["Mon","Tue","Wed"] and LineChart values:[10,12,11,14] draw charts: never link to a chart image.
   Only Row, Column, Stack, Box, Card, Grid, List, Accordion and ListTile take children.

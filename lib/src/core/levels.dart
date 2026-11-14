@@ -120,10 +120,13 @@ const Map<String, Level> triggerLevels = {
   'rowTap': _w,
   'load': _s, 'valueChanged': _s, 'backPressed': _s, 'actionError': _s, 'refresh': _s, 'doubleTap': _s,
   'longPress': _s, 'imageLoading': _s, 'imageLoaded': _s, 'imageError': _s,
+  // A clock or a countdown is state changing as time passes: three of the
+  // four bridge briefs needed one (design 15 §2.5).
+  'timer': _s,
   'event': _d,
   'hold': _f, 'secondaryClick': _f, 'pointerDown': _f, 'pointerUp': _f, 'hover': _f, 'cursorEnter': _f,
   'cursorExit': _f, 'swipeLeft': _f, 'swipeRight': _f, 'swipeUp': _f, 'swipeDown': _f, 'drag': _f, 'dragEnd': _f,
-  'wheel': _f, 'pinch': _f, 'timer': _f, 'frame': _f, 'keyDown': _f, 'keyUp': _f, 'scroll': _f, 'scrollEnd': _f,
+  'wheel': _f, 'pinch': _f, 'frame': _f, 'keyDown': _f, 'keyUp': _f, 'scroll': _f, 'scrollEnd': _f,
   'enterViewport': _f, 'exitViewport': _f, 'dragStart': _f, 'dragCancel': _f, 'dragCompleted': _f, 'drop': _f,
   'dragEnter': _f, 'dragExit': _f, 'dropRejected': _f, 'reorder': _f, 'swipeAction': _f,
 };
