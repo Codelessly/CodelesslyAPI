@@ -378,6 +378,26 @@ that hosts them (`islands.dart`, `recipe.dart`, `node_tree.dart`, `control_theme
 three files that read a `ScrollPosition`, drag and drop, and the `external` node. They go together: when the
 lists are render objects, the islands have only the players and `external` left, behind `EmbedFactory`.
 
+The table is ported: `RenderRunningTable` scrolls along both axes, builds only the cells of the window in view,
+pins the header row and column, and reports hover and taps; `two_dimensional_scrollables` is no longer a
+dependency. The core is at 16 files.
+
+**The list ports, in the order agreed** (one at a time, each with its tests rewritten against the render object):
+
+1. *Paging, sections and swipe* (`collections_data_list.dart`, `collections_swipe.dart`,
+   `collections_list_runtime.dart`: about 1,770 lines). What the widget does and the port must keep: pages from a
+   `PaginationController` (a page at a time, the next page as the end nears, and both ways with the page before
+   put in front without moving what is on screen); loading, error-with-retry and end footers from the list's
+   slots; pull to refresh; section headers that stay pinned, with an index bar that jumps (loading pages first
+   when the section is not loaded yet); swipe actions with an Undo bar; a list that sticks to its end (chat);
+   item snapping; the `scroll` and `scrollEnd` reactions with the index in view; grids that page. The plan: one
+   render object over the SDK's own scroll box (`RenderDesignScroll`), building items for the window in view
+   through a layout callback as the table does, with the header pinned by painting it last at the viewport's
+   start; the footers, the index bar and the Undo bar as node boxes or small render objects on it.
+2. *Reorder* (`collections_reorder.dart`, about 780 lines).
+3. *Page view* (`collections_page_runtime.dart`, about 515 lines).
+4. *The screen stack* (design step 2 above).
+
 Gaps the workstreams left, folded into the steps above: a `popupMenu` node type on the menu; tile text and icon
 color props; write-back of a bound `expanded`; app-bar and navigation item reactions; the implied back button;
 selection handles and the copy and paste toolbar; an icon size written at its catalog default.
