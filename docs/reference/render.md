@@ -74,7 +74,10 @@ scrolled to the middle first, and a tap that would land on another node is repor
 screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--navigate <screen>`, `--wait <ms>`. A step
 may name a node by its `name` too. In a site, steps name nodes inside components by path (`--tap plans/card1/cta`)
 and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`). Ids are
-per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
+also usable for a unique tab, segment or navigation destination declared inside a control: `--tap stay` selects
+the tab with `"id": "stay"`. To select by position instead, use `--tap tabs@2` for the third tab (from zero).
+Node ids are per document, so a page, a component and an open modal may share one: a step naming an id two shown
+nodes have is
 an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
 component's). A step on a node hidden at one size (a media rule, a binding, another breakpoint's canvas; a
 component's node by its path too) is skipped there with a `step_skipped` note, not a failure; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
