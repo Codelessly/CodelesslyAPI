@@ -59,20 +59,34 @@ final class NotationOptions {
   final Json card;
 }
 
-/// SSUI's text looks, written out so a document needs no theme.
+/// SSUI's text styles (design_systems/ssui/design_system.json, `theme
+/// .textStyles` with its colours), written out so a document needs no
+/// theme: SSUI's own names, and the short words an agent reaches for.
 const Map<String, Object> defaultTextVariants = {
+  // SSUI's names.
+  'pageTitle': {'fontSize': 20, 'fontWeight': 600, 'color': '#FF111827'},
+  'heading1': {'fontSize': 30, 'fontWeight': 700, 'color': '#FF111827'},
+  'heading2': {'fontSize': 24, 'fontWeight': 700, 'color': '#FF111827'},
+  'heading3': {'fontSize': 18, 'fontWeight': 600, 'color': '#FF111827'},
+  'sectionTitle': {'fontSize': 14, 'fontWeight': 600, 'color': '#FF111827'},
+  'panelTitle': {'fontSize': 12, 'fontWeight': 600, 'color': '#FF111827'},
+  'body': {'fontSize': 13, 'color': '#FF111827'},
+  'bodySecondary': {'fontSize': 12, 'color': '#FF4B5563'},
+  'fieldLabel': {'fontSize': 11.5, 'fontWeight': 600, 'color': '#FF4B5563'},
+  'caption': {'fontSize': 11, 'color': '#FF9CA3AF'},
+  'mono': {'fontSize': 12, 'fontFamily': 'monospace', 'color': '#FF111827'},
+  // Short words: each is one of SSUI's styles or its body in a role colour.
   'title': {'fontSize': 20, 'fontWeight': 600, 'color': '#FF111827'},
-  'heading': {'fontSize': 16, 'fontWeight': 600, 'color': '#FF111827'},
+  'heading': {'fontSize': 14, 'fontWeight': 600, 'color': '#FF111827'},
   'strong': {'fontSize': 13, 'fontWeight': 600, 'color': '#FF111827'},
-  'body': {'fontSize': 13, 'color': '#FF374151'},
-  'small': {'fontSize': 12, 'color': '#FF111827'},
-  'caption': {'fontSize': 12, 'color': '#FF6B7280'},
-  'muted': {'fontSize': 13, 'color': '#FF6B7280'},
-  'danger': {'fontSize': 13, 'fontWeight': 600, 'color': '#FFB91C1C'},
-  'success': {'fontSize': 13, 'fontWeight': 600, 'color': '#FF15803D'},
+  'small': {'fontSize': 12, 'color': '#FF4B5563'},
+  'muted': {'fontSize': 13, 'color': '#FF4B5563'},
+  'danger': {'fontSize': 13, 'fontWeight': 600, 'color': '#FFDC2626'},
+  'success': {'fontSize': 13, 'fontWeight': 600, 'color': '#FF16A34A'},
 };
 
-/// SSUI's card.
+/// SSUI's card (components/Card.json): the panel's fill, hairline and
+/// radius, its body's padding and gap.
 const Json defaultCard = {
   'decoration': {
     'fills': [
@@ -83,7 +97,7 @@ const Json defaultCard = {
     ],
     'radius': 8,
   },
-  'layout': {'padding': 16},
+  'layout': {'padding': 12},
 };
 
 /// Short names: what an agent writes → the node type and what it implies.
@@ -94,6 +108,7 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'Button': (type: 'filledButton', node: {}),
   'Progress': (type: 'progressBar', node: {}),
   'List': (type: 'column', node: {}),
+  'Badge': (type: 'row', node: {}),
   // A grid of the children written under it: rows of `cols` equal cells.
   'Grid': (type: 'column', node: {}),
   'GridView': (type: 'column', node: {}),
@@ -151,15 +166,18 @@ const Map<String, Map<String, List<String>>> _typeKeys = {
 };
 
 /// What `=expr` binds on a type that shows a value but takes no input.
-const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'badge': 'label', 'text': 'text'};
+const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'text': 'text'};
 
-/// `Badge.<variant>`: its fill and text colours (SSUI's tints).
-const Map<String, (String, String)> badgeVariants = {
-  'neutral': ('#FFF3F4F6', '#FF374151'),
-  'info': ('#FFDBEAFE', '#FF1D4ED8'),
-  'success': ('#FFDCFCE7', '#FF15803D'),
-  'warning': ('#FFFEF3C7', '#FFB45309'),
-  'danger': ('#FFFEE2E2', '#FFB91C1C'),
+/// `Badge.<tone>`: SSUI's badge tones (components/Badge.json) as fill,
+/// hairline and ink: a 10 % tint of the tone, its 28 % border, the tone.
+const Map<String, (String, String, String)> badgeVariants = {
+  'neutral': ('#FFF3F4F6', '#FFE5E7EB', '#FF4B5563'),
+  'primary': ('#1A2563EB', '#472563EB', '#FF2563EB'),
+  'info': ('#1A0891B2', '#470891B2', '#FF0891B2'),
+  'success': ('#1A16A34A', '#4716A34A', '#FF16A34A'),
+  'warning': ('#1AEA580C', '#47EA580C', '#FFEA580C'),
+  'error': ('#1ADC2626', '#47DC2626', '#FFDC2626'),
+  'danger': ('#1ADC2626', '#47DC2626', '#FFDC2626'),
 };
 
 /// Keys written on a Text that belong to its style.
@@ -325,6 +343,9 @@ class _Parser {
   /// accordion's header, a list tile's title and subtitle.
   final _texts = <String>[];
 
+  /// The style of the line's own strings, when its type sets one (a badge).
+  Json? _textStyle;
+
   /// A label that reads state (`Button "Step {n}"`): bound, since only a
   /// text node reads expressions as written.
   final _labelBinds = <String, String>{};
@@ -469,14 +490,25 @@ class _Parser {
       } else {
         props['style'] = style is Map ? _copy(style.cast<String, Object?>()) : style;
       }
-    } else if (type == 'badge' && variant != null) {
-      final v = badgeVariants[variant];
+    } else if (written == 'Badge') {
+      // SSUI's badge: a tinted pill-cornered row 20 high around its text.
+      final v = badgeVariants[variant ?? 'neutral'];
       if (v == null) {
         _issue(column + written.length + 1, 'No Badge.$variant. Variants: ${badgeVariants.keys.join(', ')}.');
-      } else {
-        props['backgroundColor'] = v.$1;
-        props['textColor'] = v.$2;
       }
+      final tone = v ?? badgeVariants['neutral']!;
+      decoration.addAll({
+        'fills': [
+          {'color': tone.$1},
+        ],
+        'strokes': [
+          {'color': tone.$2},
+        ],
+        'radius': 5,
+      });
+      layout.addAll({'width': {'hug': 0}, 'height': 20, 'padding': [8, 0, 8, 0]});
+      props.addAll({'mainAxisAlignment': 'center', 'crossAxisAlignment': 'center'});
+      _textStyle = {'fontSize': 11, 'fontWeight': 500, 'color': tone.$3};
     } else if (variant != null) {
       _issue(column + written.length + 1, 'A $written has no variants: write $written, with props as key:value.');
     }
@@ -562,7 +594,9 @@ class _Parser {
         final value = _valueProps[type];
         if (value == null) {
           final shown = _shownValue[type] ?? _mainKey(type, spec);
-          if (shown == null) {
+          if (written == 'Badge') {
+            _texts.add(_read(expr));
+          } else if (shown == null) {
             _issue(col, 'A $written has no value to bind with =. Bind a prop: key:=expression.');
           } else {
             bind['props.$shown'] = _read(expr);
@@ -812,14 +846,22 @@ class _Parser {
     // list tile's are its title and subtitle.
     final texts = [..._texts];
     _texts.clear();
+    try {
+      _strings(texts, type, id, out);
+    } finally {
+      _textStyle = null;
+    }
+  }
+
+  void _strings(List<String> texts, String type, String id, Json out) {
     for (var i = 0; i < texts.length; i++) {
       final tid = _id('text');
       final container = type == 'column' || type == 'row' || type == 'stack';
-      final style = options.textStyles[container ? 'body' : i == 0 ? 'strong' : 'muted'];
+      final style = _textStyle ?? options.textStyles[container ? 'body' : i == 0 ? 'strong' : 'muted'];
       nodes[tid] = {
         'type': 'text',
         // In a tile's slot a text is as wide as it is; an accordion's header fills it.
-        'layout': {'width': type == 'listTile' ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
+        'layout': {'width': type == 'listTile' || _textStyle != null ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
         'props': {'text': texts[i], if (style != null) 'style': style is Map ? _copy(style.cast<String, Object?>()) : style},
       };
       _parentOf[tid] = id;
