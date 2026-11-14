@@ -22,7 +22,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [layout.md](layout.md) | Feature page. | 8938 | 16732 |
 | [theme.md](theme.md) | Feature page. | 2856 | 4962 |
 | [decoration.md](decoration.md) | Feature page. | 4097 | 7222 |
-| [forms.md](forms.md) | Feature page. | 11630 | 20030 |
+| [forms.md](forms.md) | Feature page. | 11813 | 20277 |
 | [lists.md](lists.md) | Feature page. | 7618 | 13393 |
 | [navigation.md](navigation.md) | Feature page. | 4201 | 7475 |
 | [state.md](state.md) | Feature page. | 6514 | 11682 |
@@ -39,13 +39,13 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [edit-ops.md](edit-ops.md) | Feature page. | 3297 | 5460 |
 | [render.md](render.md) | Feature page. | 2950 | 4573 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13299 | 20839 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 103847 | 181269 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 73253 | 192489 |
-| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 9958 | 27887 |
-| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25124 | 105523 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 104030 | 181516 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 73447 | 192900 |
+| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 9959 | 27889 |
+| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25149 | 105636 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1267 | 3814 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |
-| [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2567 | 10927 |
+| [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2569 | 10937 |
 
 The old per-kind pages (`nodes.md`, `behaviors.md`, `triggers.md`, `actions.md`, `bindings.md`, `formulas.md`,
 `variables-conditions-scripts.md`) are stubs that say where each item went, so old links keep working. Old guide
