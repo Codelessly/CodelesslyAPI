@@ -561,7 +561,15 @@ class _Parser {
       final s = arg.startsWith('"') ? _interpolate(_Tokens(arg).string()) : arg;
       switch (verb) {
         case 'emit':
-          out.add({'type': 'emitEvent', 'event': s});
+          // The core's "tell the host": outside a component it reaches the
+          // session's events (and the app's), with an optional value.
+          final sp = s.indexOf(' ');
+          final value = sp < 0 ? null : s.substring(sp + 1).trim();
+          out.add({
+            'type': 'componentEvent',
+            'event': sp < 0 ? s : s.substring(0, sp),
+            if (value != null && value.isNotEmpty) 'value': _valueOrRead(value),
+          });
         case 'open':
           out.add({'type': 'openModal', 'modal': s});
         case 'close':
@@ -577,6 +585,11 @@ class _Parser {
       }
     }
     return out;
+  }
+
+  Object? _valueOrRead(String raw) {
+    final l = _literal(raw);
+    return l.$1 ? l.$2 : _read(raw);
   }
 
   String _id(String type) {

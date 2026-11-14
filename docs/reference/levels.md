@@ -10,7 +10,7 @@ A level is a closed set: a document written with one level's vocabulary uses not
 Boxes and layout: what draws any static UI, and one tap that tells the host.
 
 - **Node types:** [`box`](layout.md#node-box), [`canvas`](layout.md#node-canvas), [`column`](layout.md#node-column), [`divider`](layout.md#node-divider), [`flex`](layout.md#node-flex), [`gridView`](lists.md#node-gridView), [`icon`](decoration.md#node-icon), [`listView`](lists.md#node-listView), [`placeholder`](components.md#node-placeholder), [`row`](layout.md#node-row), [`singlePlaceholder`](components.md#node-singlePlaceholder), [`spacer`](layout.md#node-spacer), [`stack`](layout.md#node-stack), [`text`](theme.md#node-text), [`verticalDivider`](layout.md#node-verticalDivider)
-- **Actions:** [`emitEvent`](engage.md#action-emitEvent), [`openLink`](navigation.md#action-openLink)
+- **Actions:** [`componentEvent`](components.md#action-componentEvent), [`emitEvent`](engage.md#action-emitEvent), [`openLink`](navigation.md#action-openLink)
 - **Behaviors:** [`defaultTextStyle`](theme.md#behavior-defaultTextStyle), [`ignorePointer`](interaction.md#behavior-ignorePointer), [`textDirection`](theme.md#behavior-textDirection)
 - **Triggers:** [`click`](interaction.md#trigger-click)
 
@@ -41,7 +41,7 @@ The UI reacts without the host: variables, bindings, expressions, actions, state
 The UI looks like a specific product: theme scales, components by reference, responsive rules.
 
 - **Node types:** [`slot`](components.md#node-slot), [`variance`](layout.md#node-variance)
-- **Actions:** [`componentEvent`](components.md#action-componentEvent), [`setThemeMode`](theme.md#action-setThemeMode), [`setVariant`](state.md#action-setVariant)
+- **Actions:** [`setThemeMode`](theme.md#action-setThemeMode), [`setVariant`](state.md#action-setVariant)
 - **Triggers:** [`event`](components.md#trigger-event)
 - **Keys:** `component` (node), `media` (node), `breakpoints` (document)
 

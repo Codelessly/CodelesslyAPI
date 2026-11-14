@@ -48,7 +48,7 @@ Column gap:12
     expect((_node(r, 'filledButton1')['actions'] as List).single, {
       'trigger': {'type': 'click'},
       'actions': [
-        {'type': 'emitEvent', 'event': 'save'},
+        {'type': 'componentEvent', 'event': 'save'},
       ],
     });
     expect(r.document['variables'], {
@@ -95,7 +95,7 @@ Card gap:12
     expect(((_node(r, 'text2')['props'] as Map)['style'] as Map)['color'], '#FF374151');
     expect((_node(r, 'filledButton1')['actions'] as List).single['actions'], [
       {'type': 'setVariable', 'variable': 'decision', 'value': 'approved'},
-      {'type': 'emitEvent', 'event': 'approved'},
+      {'type': 'componentEvent', 'event': 'approved'},
     ]);
     expect((_node(r, 'row1')['props'] as Map)['mainAxisAlignment'], 'end');
   });
