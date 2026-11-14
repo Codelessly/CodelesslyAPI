@@ -225,15 +225,43 @@ notation and sees it render is the shell with one screen.
 
 ## 4.1 The playground, and the rule for every surface of this work
 
-Built (2026-11-14): `CodelesslySDK/examples/playground`. The notation on the left, the UI on the right as it is
-typed, a design system switch, three widths, the lines not read, the document it became. Not yet: writing from a
-prompt, and living in the Editor.
+Built (2026-11-14): `CodelesslySDK/examples/playground`, designed from scratch as an Editor workspace page after a
+first restyled version was rejected: a samples tree, the notation in a code field, the preview on a canvas, a
+drawer of problems, events and the document, a status bar. Not yet: writing from a prompt, and living in the
+Editor.
 
 The rule (owner, 2026-11-14): the playground, and any other screen built around generated UI, is designed to be
 integrated into CodelesslyEditor, in that exact style. So its own frame is `soft_saas_ui`, the package the Editor
 is built with (its app, split view, pane toolbars, code field, selects, segmented controls), never Material
 widgets, and it follows the Editor's layout conventions. What it shows inside the preview is whatever design
 system is chosen; the frame around it is always SSUI's.
+
+## 4.2 The polish gap, and the configuration to test (2026-11-14)
+
+The first generated screens (`CodelesslySDK/examples/prompt_app`) are correct and fitted to the person, and
+they look like a tidy dashboard, not a designed app (owner: "it's missing the illustrations, and design
+polish"). Three reasons: the model composes from a SaaS system's generic parts; composition is invented at
+generation time by a fast model; there are no assets.
+
+The configuration: **polish is authored once, at the full API; the fast path only chooses and fills.**
+
+| Piece | What it is | When it is paid for |
+|---|---|---|
+| A brand layer | The app's tokens over the base design system: palette, a display type scale, gradients, shadows, radii | Once; a palette change stays free |
+| Screen blocks | Sections designed at full-API polish (a hero session card, a streak visual, a week strip, a chart card, a session row, an empty state) and kept as design-system components | Once, with no time limit, reviewed by rendering |
+| Composition | The notation calls the blocks by name; the model decides order, emphasis, copy and which blocks a person gets | Per screen: about as today |
+| Illustrations by role | A set per audience ("hero", "streak", "empty"), drawn as vectors in the document so they recolor with the theme | Once per set |
+| A cached polish pass | The fast draft shows at once; a slower pass renders it, critiques it against a rubric and patches it with edit ops; the result is cached | Once per screen and memory version, after the first view |
+
+It joins the two ends already proven: the full API builds the blocks; the notation uses them.
+
+The test: Home for three people, five arms side by side (today's result; brand tokens; blocks; illustrations;
+the cached pass), against a Home designed from scratch at the full API with no time limit. Recorded per arm:
+tokens and seconds. The owner judges the images.
+
+The rule from the playground applies here too (§4.1): a page was restyled and did not hold together, then
+designed from scratch and did. Polish comes from designing the thing whole, not from fixing an average draft,
+which is the reason to expect the blocks to matter more than the polish pass.
 
 ## 5. Order
 
