@@ -25,7 +25,8 @@ void main() {
     final widgets = standardCatalog.atLevel(Level.widgets);
     expect(widgets.widget('column'), isNotNull);
     expect(widgets.widget('slider'), isNotNull);
-    expect(widgets.widget('lineChart'), isNull);
+    expect(widgets.widget('lineChart'), isNotNull, reason: 'the two simple charts are part of the widget catalog');
+    expect(widgets.widget('radialGauge'), isNull);
     expect(standardCatalog.atLevel(Level.features).widgets.length, standardCatalog.widgets.length);
     for (final l in Level.values.skip(1)) {
       final below = standardCatalog.atLevel(Level.values[l.index - 1]);

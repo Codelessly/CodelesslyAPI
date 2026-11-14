@@ -20,7 +20,7 @@ String notationPrompt({Catalog? catalog, NotationOptions options = const Notatio
     'row', 'column', 'stack', 'text', 'icon', 'spacer', 'divider', 'listView', 'gridView', //
     'filledButton', 'iconButton', 'textField', 'switch', 'checkbox', 'radio', 'slider', 'dropdown', 'segmentedButton',
     'choiceChip', 'filterChip', 'chip', 'badge', 'progressBar', 'circularProgressIndicator', 'datePicker', 'timePicker',
-    'accordion', 'listTile',
+    'accordion', 'listTile', 'barChart', 'lineChart',
   };
   List<String> ofLevel(Level l) => [
         for (final w in c.widgets)
@@ -52,6 +52,7 @@ TYPES
   Badge variants: ${badgeVariants.keys.map((k) => 'Badge.$k').join(', ')}
   Card is a padded, bordered Column; Box is a Column you style (fill, radius, pad). Every control already has the design system's look: write no colours or sizes on controls.
   Grid cols:3 gap:8 lays its children out in columns. Progress 0.6 (or Progress =done) shows a share from 0 to 1. Select and SegmentedButton take items:["A","B"]. Icon "name" uses Material icon names (check, close, star, chevron_right).
+  BarChart values:[3,5,4] labels:["Mon","Tue","Wed"] and LineChart values:[10,12,11,14] draw charts: never link to a chart image.
   Only Row, Column, Stack, Box, Card, Grid, List, Accordion and ListTile take children.
   An action is one of the forms above, never a condition: to choose, set a variable to a formula (-> step=valid?3:2). Chips have selected:=expression and enabled:=expression.
 

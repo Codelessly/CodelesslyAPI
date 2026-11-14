@@ -93,7 +93,8 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'Button': (type: 'filledButton', node: {}),
   'Progress': (type: 'progressBar', node: {}),
   'List': (type: 'listView', node: {}),
-  'Grid': (type: 'gridView', node: {}),
+  // A grid of the children written under it: rows of `cols` equal cells.
+  'Grid': (type: 'column', node: {}),
   'Image': (type: 'box', node: {}),
   'Box': (type: 'column', node: {}),
   'Card': (type: 'column', node: {}),
@@ -195,6 +196,7 @@ final class NotationStream {
     final rest = _buffer.toString();
     _buffer.clear();
     if (rest.isNotEmpty) _parser.line(rest);
+    _parser.finish();
     return _take();
   }
 
@@ -205,8 +207,23 @@ final class NotationStream {
   }
 }
 
+/// A `Grid`'s rows as its children arrive.
+class _Grid {
+  _Grid(this.id);
+  final String id;
+  int cols = 2;
+  num gap = 8;
+  String? row;
+  int inRow = 0;
+  int rows = 0;
+}
+
 class _Open {
-  _Open(this.indent, this.id, this.type, {this.condition});
+  _Open(this.indent, this.id, this.type, {this.condition, this.grid});
+
+  /// A grid above (its own line, or an `if` inside it): children go in its
+  /// rows.
+  final _Grid? grid;
   final int indent;
 
   /// The node children are added to (a condition's: its parent's).
@@ -298,6 +315,7 @@ class _Parser {
 
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
+    finish();
     final screen = options.screen;
     return NotationResult({
       'schema': 3,
@@ -318,14 +336,14 @@ class _Parser {
 
   void _lineAt(int indent, String line, int column) {
     while (_stack.isNotEmpty && _stack.last.indent >= indent) {
-      _stack.removeLast();
+      _close(_stack.removeLast());
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     final parent = _stack.isEmpty ? null : _stack.last;
     if (line.startsWith('if ')) {
       if (parent == null) return _issue(column, 'An "if" needs a parent: indent it under a node.');
       final own = _formula(line.substring(3).trim());
-      _stack.add(_Open(indent, parent.id, parent.type, condition: _and(parent.condition, own)));
+      _stack.add(_Open(indent, parent.id, parent.type, condition: _and(parent.condition, own), grid: parent.grid));
       return;
     }
     final t = _Tokens(line);
@@ -376,7 +394,9 @@ class _Parser {
       decoration.addAll(_copy(readMap(options.card['decoration']) ?? const {}));
       layout.addAll(_copy(readMap(options.card['layout']) ?? const {}));
     }
-    final id = head[3] ?? _id(type);
+    final id = head[3] ?? _id(written == 'Grid' ? 'grid' : type);
+    final grid = written == 'Grid' ? _Grid(id) : null;
+    if (grid != null) props['spacing'] = grid.gap;
     if (nodes.containsKey(id) || id == options.screen) {
       _issue(column, 'The id "$id" is used twice.');
       return;
@@ -496,6 +516,15 @@ class _Parser {
         if (raw.startsWith('=')) raw = '$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
+        if (grid != null && (key == 'cols' || key == 'columns')) {
+          grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 12);
+          continue;
+        }
+        if (grid != null && (key == 'gap' || key == 'spacing')) {
+          grid.gap = num.tryParse(raw) ?? 8;
+          props['spacing'] = grid.gap;
+          continue;
+        }
         if (key == 'fill') {
           if (raw.startsWith('=')) {
             bind['decoration.fills[0].color'] = _read(raw.substring(1));
@@ -556,6 +585,18 @@ class _Parser {
       ];
       layout.putIfAbsent('height', () => 160);
     }
+    // Charts: a height of their own, and a line chart's plain values as its
+    // data points.
+    if (type == 'barChart' || type == 'lineChart') {
+      layout.putIfAbsent('height', () => 140);
+      if (type == 'lineChart' && props['values'] is List) {
+        final values = props.remove('values')! as List;
+        props.remove('labels');
+        props['data'] = [for (var i = 0; i < values.length; i++) {'x': i, 'y': values[i]}];
+        props['xField'] = 'x';
+        props['yField'] = 'y';
+      }
+    }
     // A column starts its children at the leading edge and a row centres
     // them on its line (what a form and a toolbar want), unless written.
     if (type == 'column') props.putIfAbsent('crossAxisAlignment', () => 'start');
@@ -572,7 +613,12 @@ class _Parser {
     }
     // A grid's rows are as tall as their content unless a height is given.
     if (type == 'gridView' && !props.containsKey('mainAxisExtent')) props.putIfAbsent('shrinkWrapRows', () => true);
-    final inRow = parent?.type == 'row';
+    final cell = parent?.grid != null && !(grid != null && identical(parent!.grid, grid));
+    if (cell) {
+      layout['flex'] = 1;
+      layout['width'] = {'fill': 0};
+    }
+    final inRow = !cell && parent?.type == 'row';
     if (inRow && type == 'text' && !layout.containsKey('width')) layout['squeezable'] = true;
     if (!layout.containsKey('width')) {
       final fills = layout.containsKey('flex') || !inRow && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
@@ -617,8 +663,9 @@ class _Parser {
         ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
       }
       _parentOf[id] = parent.id;
+      if (cell) _intoRow(parent.grid!, id);
     }
-    _stack.add(_Open(indent, id, type, condition: null));
+    _stack.add(_Open(indent, id, type, condition: null, grid: grid));
     // Its strings as text nodes: an accordion's header is its first child, a
     // list tile's are its title and subtitle.
     final texts = [..._texts];
@@ -641,6 +688,57 @@ class _Parser {
         ((out['children'] as List<Object?>?) ?? (out['children'] = <Object?>[])).add(tid);
       }
     }
+  }
+
+  /// Moves [id], just added under a grid, into the grid's current row (a
+  /// new row every `cols` cells).
+  void _intoRow(_Grid g, String id) {
+    final gridNode = nodes[g.id]!;
+    (gridNode['children'] as List<Object?>).remove(id);
+    if (g.row == null || g.inRow >= g.cols) {
+      final rowId = '${g.id}Row${++g.rows}';
+      // Before the cell, so it is sent first.
+      final cellNode = nodes.remove(id)!;
+      nodes[rowId] = {
+        'type': 'row',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'spacing': g.gap, 'crossAxisAlignment': 'stretch'},
+        'children': <Object?>[],
+      };
+      nodes[id] = cellNode;
+      (gridNode['children'] as List<Object?>).add(rowId);
+      _parentOf[rowId] = g.id;
+      g
+        ..row = rowId
+        ..inRow = 0;
+    }
+    (nodes[g.row]!['children'] as List<Object?>).add(id);
+    _parentOf[id] = g.row!;
+    g.inRow++;
+  }
+
+  /// A grid ends: its last row is filled out with empty cells, so its cells
+  /// are as wide as the rows above.
+  void _close(_Open open) {
+    final g = open.grid;
+    if (g == null || open.id != g.id || open.condition != null || g.row == null) return;
+    while (g.inRow < g.cols) {
+      final sid = _id('spacer');
+      nodes[sid] = {'type': 'spacer', 'layout': {'flex': 1, 'width': {'fill': 0}, 'height': {'hug': 0}}};
+      (nodes[g.row]!['children'] as List<Object?>).add(sid);
+      _parentOf[sid] = g.row!;
+      g.inRow++;
+    }
+    g.row = null;
+  }
+
+  /// The end of the text: what is still open closes.
+  void finish() {
+    final before = nodes.length;
+    while (_stack.isNotEmpty) {
+      _close(_stack.removeLast());
+    }
+    nodes.keys.skip(before).toList().forEach(_emit);
   }
 
   /// The node's main string: a text's text, a button's label, a field's label.
