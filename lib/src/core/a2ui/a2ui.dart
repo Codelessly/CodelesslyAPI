@@ -147,6 +147,17 @@ class _Surface {
   String _name(String path, {bool item = false}) {
     if (!path.startsWith('/') && item) return 'item.${_pointer(path).join('.')}';
     final parts = _pointer(path);
+    // A path into a list of the model reads that list's variable
+    // (`/items/0/qty` is `items[0].qty`).
+    Object? at = data;
+    for (var i = 0; i < parts.length; i++) {
+      if (at is List) {
+        final head = _name('/${parts.take(i).join('/')}');
+        final rest = parts.skip(i).map((p) => int.tryParse(p) != null ? '[$p]' : '.$p').join();
+        return '$head$rest';
+      }
+      at = at is Map ? at[parts[i]] : null;
+    }
     final name = parts.map((p) => p.replaceAll(RegExp('[^A-Za-z0-9_]'), '_')).join('_');
     final safe = RegExp('^[A-Za-z_]').hasMatch(name) ? name : 'v_$name';
     _bound.add(parts.join('/'));
@@ -185,6 +196,19 @@ class _Surface {
       final path = readString(v['@path']) ?? readString(v['path']);
       if (path != null) return '{${_name(path, item: item)}}';
       final args = readMap(v['args']);
+      // The formatting functions as this engine's formulas.
+      final of = args == null ? null : _bindingOf(args['value'], item: item) ?? (args['value'] is num ? '${args['value']}' : null);
+      if (of != null) {
+        switch (v['@call']) {
+          case 'formatCurrency':
+            final symbol = switch (args!['currency']) { 'EUR' => '€', 'GBP' => '£', 'JPY' => '¥', _ => r'$' };
+            return '{money($of,"$symbol",2)}';
+          case 'formatNumber':
+            return '{$of}';
+          case 'formatDate':
+            return '{formatDate($of,${jsonEncode('${args!['format'] ?? 'MMM d, y'}')})}';
+        }
+      }
       if (v['@call'] == 'formatString' && args != null) {
         // "${/path}" inside the format reads the model.
         return '${args['value'] ?? ''}'.replaceAllMapped(RegExp(r'\$\{([^}]+)\}'), (m) => '{${_name(m[1]!.trim(), item: item)}}');
@@ -202,6 +226,14 @@ class _Surface {
     if (v is! Map) return null;
     final path = readString(v['@path']) ?? readString(v['path']);
     return path == null ? null : _name(path, item: item);
+  }
+
+  /// ` =name` for a control's value: two ways to a plain variable; an item's
+  /// field or a list's element is shown, not written back.
+  String _valueOf(Object? v, {required bool item}) {
+    final b = _bindingOf(v, item: item);
+    if (b == null) return '';
+    return RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(b) ? ' =$b' : ' =($b)';
   }
 
   void _write(Json c, int depth, List<String> out, Set<String> seen, {required bool item}) {
@@ -292,37 +324,33 @@ class _Surface {
         if (readMap(c['action'])?['functionCall'] != null) notes.add('Button "$cid": a function call action is not run.');
         out.add('${pad}Button$variant ${jsonEncode(text)}$grow$tail');
       case 'TextField':
-        final bound = _bindingOf(c['value'], item: item);
         final extra = switch (c['variant']) { 'longText' => ' lines:4', 'obscured' => ' obscureText:true', 'number' => ' keyboardType:number', _ => '' };
         final hint = c['placeholder'] == null ? '' : ' hint:${_quoted(c['placeholder'], item: item)}';
-        line('Input ${_quoted(c['label'], item: item)}$hint$extra${bound == null ? '' : ' =$bound'}');
+        line('Input ${_quoted(c['label'], item: item)}$hint$extra${_valueOf(c['value'], item: item)}');
       case 'CheckBox':
-        final bound = _bindingOf(c['value'], item: item);
-        line('Checkbox ${_quoted(c['label'], item: item)}${bound == null ? '' : ' =$bound'}');
+        line('Checkbox ${_quoted(c['label'], item: item)}${_valueOf(c['value'], item: item)}');
       case 'Slider':
         if (c['label'] != null) out.add('${pad}Text.small ${_quoted(c['label'], item: item)}');
         final bound = _bindingOf(c['value'], item: item);
-        line('Slider min:${c['min'] ?? 0} max:${c['max'] ?? 100}${bound == null ? (c['value'] is num ? ' ${c['value']}' : '') : ' =$bound'}');
+        line('Slider min:${c['min'] ?? 0} max:${c['max'] ?? 100}${bound == null ? (c['value'] is num ? ' ${c['value']}' : '') : _valueOf(c['value'], item: item)}');
       case 'ChoicePicker':
         final options = [for (final o in readList(c['options']) ?? const []) if (o is Map) o];
         final labels = [for (final o in options) _text(o['label'], item: item)];
         if (c['label'] != null) out.add('${pad}Text.small ${_quoted(c['label'], item: item)}');
-        final bound = _bindingOf(c['value'], item: item);
         if (c['variant'] == 'multipleSelection') {
           notes.add('ChoicePicker "$cid": several choices are drawn as checkboxes and not bound.');
           for (final l in labels) {
             out.add('${pad}Checkbox ${jsonEncode(l)}');
           }
         } else if (labels.length <= 4) {
-          line('SegmentedButton items:${jsonEncode(labels)}${bound == null ? '' : ' =$bound'}');
+          line('SegmentedButton items:${jsonEncode(labels)}${_valueOf(c['value'], item: item)}');
         } else {
-          line('Select items:${jsonEncode(labels)}${bound == null ? '' : ' =$bound'}');
+          line('Select items:${jsonEncode(labels)}${_valueOf(c['value'], item: item)}');
         }
       case 'DateTimeInput':
         if (c['label'] != null) out.add('${pad}Text.small ${_quoted(c['label'], item: item)}');
-        final bound = _bindingOf(c['value'], item: item);
         final time = c['enableTime'] == true && c['enableDate'] != true;
-        line('${time ? 'TimePicker' : 'DatePicker'}${bound == null ? '' : ' =$bound'}');
+        line('${time ? 'TimePicker' : 'DatePicker'}${_valueOf(c['value'], item: item)}');
       case 'Tabs':
         notes.add('Tabs "$cid": each tab is laid out in place, its title above its content.');
         out.add('${pad}Column gap:12$grow');
