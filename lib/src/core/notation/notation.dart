@@ -1112,6 +1112,11 @@ class _Parser {
           bind[path] = _read(raw);
         } else {
           var v = _value(raw);
+          // A text inside a list is kept as written: {name} there would be
+          // drawn with its braces, so it is said here.
+          if (v is List && v.any((e) => e is String && RegExp(r'\{[^{}]+\}').hasMatch(e))) {
+            _issue(col, 'A text inside a list is not read for {…}. Write the list as a formula: $key:=[a, b] (join text with +, as "Round "+n).');
+          }
           // A text parameter given a number (count:4) takes it as text.
           if (v is num && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.string)) v = '$v';
           if (v is String && v.contains(r'${') && !(type == 'text' && path == 'props.text')) {
