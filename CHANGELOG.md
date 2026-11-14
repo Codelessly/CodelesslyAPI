@@ -1,3 +1,32 @@
+## Unreleased
+
+Forms, grid placement and scroll control, in Flutter's shape (and CSS's where the responsive model follows the web);
+documents written for 30.1.0 load unchanged.
+
+- **Forms.** `textField.validator` is Flutter's `TextFormField.validator`: an expression that reads the typed text as
+  `value` and gives the error to show (`""` when valid), checked by validation with `value` as a name. The object
+  form older documents saved (`{"type": "required"}`, `{"type": "email"}`, never applied) reads as the expression it
+  named. `AutovalidateMode` gains Flutter's `onUserInteractionIfError`.
+- **`form` behavior** (Flutter's `Form`, with `autovalidateMode`): the fields inside validate together; its nodes
+  read `${form.valid}` and `${form.errors}` (`{field, label, message}`, top to bottom). `form` is a runtime scope.
+- **`validate` action** (`FormState.validate()`): every field of the form (`node`, else the form around the
+  reaction's node) shows its error, the first invalid one takes the focus (`focusFirstError`), `${result}` is
+  whether all are valid.
+- **`radioGroup` behavior** (Flutter's `RadioGroup`): radios inside take its bindable `groupValue`; choosing one runs
+  the group's `changed` reactions.
+- **Grid placement.** `layout.columnSpan`, `rowSpan` (CSS `grid-column: span n`) and `columnStart`, `rowStart`
+  (`grid-column-start`, 1 the first) are child fields a `gridView` reads; elsewhere `layout_field_ignored`.
+- **Scroll control.** `itemSnapping` on scrolling rows, columns, lists and grids (`PageView.pageSnapping` for items;
+  CSS `scroll-snap-align: start`); the `scroll` and `scrollEnd` triggers document `${result.index}` (the item at the
+  start of the view) and `${result.count}`.
+- **Validation.** `state_no_effect`: a bound `selected` with no `states.selected` patch changes nothing (a chip's
+  selection is `props.selected`).
+- **Reference.** Worked, validated examples: a complete contact form (per-field errors on blur and send, a summary,
+  a radio group, a success state), an editorial page at 390/834/1440 (one column, a split with a sticky rail, a
+  three-column river with a spanning lead), a timetable that is a list on a phone, and a carousel with arrows, dots,
+  progress and snapping. The base says to use the width at tablet and desktop. Where node-given names are read
+  (`pageOffset` is a page view's, not a page's scroll), and how runs that cut an expression count, are stated.
+
 ## 30.1.0
 
 **One spelling for each concept; the schema stays 3.** Documents are still `"schema": 3` (`kSchemaVersion`), and

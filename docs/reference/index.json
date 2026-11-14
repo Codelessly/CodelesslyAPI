@@ -153,7 +153,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 2092
+      "words": 2134
     },
     {
       "topic": "theme-theme-keys",
@@ -201,7 +201,7 @@
       "anchor": "theme-text",
       "title": "Text",
       "summary": "A `text` node has `props.text` and `props.style`.",
-      "words": 138
+      "words": 180
     },
     {
       "topic": "theme-superscripts-and-a-raised-currency-sign",

@@ -752,7 +752,7 @@ section's anchor is its topic.
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4408 |
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8827 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2092 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2134 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3541 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11422 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6857 |
@@ -2452,7 +2452,9 @@ whole subtree), else the font's own line height. Sizing: one line `{"hug": n}` Ã
 fixed height shorter than the lines clips them (`text_clipped`).
 
 `runs` style parts of the text: `[{"start": 0, "end": 5, "style": {"fontWeight": 700}}]` (character offsets, end
-exclusive, `\n` counting as one), merged over `style`; a run may carry a `"link"` URL. A literal `$` right before an
+exclusive, `\n` counting as one), merged over `style`; a run may carry a `"link"` URL. Offsets count the text as
+written, an expression keeping its run; a run that starts or ends inside a `${...}` counts the text as shown instead,
+so a drop cap on a bound paragraph (`"text": "${= story.lead}"`) is `{"start": 0, "end": 1}`. A literal `$` right before an
 expression is text: `"$${price}"` shows `$47`. There is no escape for a literal `${`: compute it.
 
 <a id="theme-superscripts-and-a-raised-currency-sign"></a>
