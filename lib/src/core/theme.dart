@@ -5,7 +5,7 @@ import 'breakpoints.dart';
 import 'json.dart';
 import 'media.dart';
 import 'theme_refs.dart';
-import 'values/paint.dart' show listEquals;
+import 'values/paint.dart' show Effect, listEquals;
 import 'values/color.dart';
 import 'values/text.dart';
 
@@ -40,6 +40,12 @@ final class ThemeTokens {
     this.dark,
     this.media = const [],
     this.mode = ThemeMode.system,
+    this.spacing = const {},
+    this.radii = const {},
+    this.sizes = const {},
+    this.shadows = const {},
+    this.durations = const {},
+    this.curves = const {},
   });
 
   /// Primary buttons and info toasts.
@@ -101,6 +107,55 @@ final class ThemeTokens {
   /// A `setThemeMode` action changes it while the site runs; `${theme.mode}`
   /// reads it and `${theme.isDark}` whether the screen is dark.
   final ThemeMode mode;
+
+  /// The spacing scale: gaps and paddings by name (`{"1": 4, "2": 8, "3":
+  /// 12}` or `{"sm": 8, "md": 16}`), read as `${theme.spacing.md}`.
+  /// Flutter has no spacing token; a design system names its steps here.
+  final Map<String, double> spacing;
+
+  /// Corner radii by name (`{"control": 7, "panel": 8, "dialog": 12}`;
+  /// Flutter's `Radius.circular`), read as `${theme.radii.panel}`.
+  final Map<String, double> radii;
+
+  /// Other lengths by name: a control scale's heights (`{"compact": 28,
+  /// "large": 44}`), icon sizes, a panel's width; read as
+  /// `${theme.sizes.compact}`.
+  final Map<String, double> sizes;
+
+  /// Shadows by name (Flutter's `BoxShadow` lists, as `kElevationToShadow`
+  /// gives one per elevation): each a list of drop shadows as
+  /// `decoration.effects` takes them, read as `${theme.shadows.level3}`.
+  /// [dark] may give other shadows for dark mode.
+  final Map<String, List<Effect>> shadows;
+
+  /// Durations in milliseconds by name (Flutter's `Durations`: `short2`,
+  /// `medium1`...; a design system's own names), read as
+  /// `${theme.durations.medium}`.
+  final Map<String, int> durations;
+
+  /// Easing curves by name (Flutter's `Curves`: `easeOut`, `easeInOut`...),
+  /// read as `${theme.curves.standard}`.
+  final Map<String, String> curves;
+
+  /// The keys of the named scales ([spacing], [radii], [sizes], [shadows],
+  /// [durations], [curves]) with their names: what `${theme.<scale>.<name>}`
+  /// may read.
+  Map<String, Iterable<String>> get scaleNames => {
+        'spacing': spacing.keys,
+        'radii': radii.keys,
+        'sizes': sizes.keys,
+        'shadows': shadows.keys,
+        'durations': durations.keys,
+        'curves': curves.keys,
+      };
+
+  /// These tokens with [over]'s over them, field by field (a JSON merge
+  /// patch of the theme): a site's theme over its design system's tokens.
+  ThemeTokens mergedWith(ThemeTokens over) {
+    if (over.isEmpty) return this;
+    if (isEmpty) return over;
+    return fromJson(mergePatch(toJson(), over.toJson()));
+  }
 
   static const ThemeTokens none = ThemeTokens();
 
@@ -184,6 +239,12 @@ final class ThemeTokens {
       textStyles: textStyles,
       media: media,
       mode: mode,
+      spacing: spacing,
+      radii: radii,
+      sizes: sizes,
+      shadows: {...shadows, ...d.shadows},
+      durations: durations,
+      curves: curves,
     );
   }
 
@@ -231,8 +292,28 @@ final class ThemeTokens {
       dark: m['dark'] == null ? null : fromJson(m['dark']),
       media: MediaRule.listFromJson(m['media']),
       mode: readEnum(ThemeMode.values, m['mode'], ThemeMode.system),
+      spacing: _numbers(m['spacing']),
+      radii: _numbers(m['radii']),
+      sizes: _numbers(m['sizes']),
+      shadows: {
+        for (final e in (readMap(m['shadows']) ?? const {}).entries)
+          if (readList(e.value) != null) e.key: Effect.listFromJson(e.value),
+      },
+      durations: {
+        for (final e in (readMap(m['durations']) ?? const {}).entries)
+          if (readDouble(e.value) case final double v) e.key: v.round(),
+      },
+      curves: {
+        for (final e in (readMap(m['curves']) ?? const {}).entries)
+          if (readString(e.value) case final String v) e.key: v,
+      },
     );
   }
+
+  static Map<String, double> _numbers(Object? json) => {
+        for (final e in (readMap(json) ?? const {}).entries)
+          if (readDouble(e.value) case final double v) e.key: v,
+      };
 
   Json toJson() {
     final j = <String, Object?>{};
@@ -252,6 +333,12 @@ final class ThemeTokens {
     if (dark != null && !dark!.isEmpty) j['dark'] = dark!.toJson();
     if (media.isNotEmpty) j['media'] = [for (final r in media) r.toJson()];
     if (mode != ThemeMode.system) j['mode'] = mode.name;
+    if (spacing.isNotEmpty) j['spacing'] = {for (final e in spacing.entries) e.key: writeDouble(e.value)};
+    if (radii.isNotEmpty) j['radii'] = {for (final e in radii.entries) e.key: writeDouble(e.value)};
+    if (sizes.isNotEmpty) j['sizes'] = {for (final e in sizes.entries) e.key: writeDouble(e.value)};
+    if (shadows.isNotEmpty) j['shadows'] = {for (final e in shadows.entries) e.key: [for (final x in e.value) x.toJson()]};
+    if (durations.isNotEmpty) j['durations'] = durations;
+    if (curves.isNotEmpty) j['curves'] = curves;
     return j;
   }
 
@@ -273,11 +360,19 @@ final class ThemeTokens {
       jsonEquality.equals(other.textStyles, textStyles) &&
       other.dark == dark &&
       listEquals(other.media, media) &&
-      other.mode == mode;
+      other.mode == mode &&
+      jsonEquality.equals(other.spacing, spacing) &&
+      jsonEquality.equals(other.radii, radii) &&
+      jsonEquality.equals(other.sizes, sizes) &&
+      jsonEquality.equals(other.shadows, shadows) &&
+      jsonEquality.equals(other.durations, durations) &&
+      jsonEquality.equals(other.curves, curves);
 
   @override
   int get hashCode => Object.hash(primary, onPrimary, surface, onSurface, error, success, warning, fontFamily,
-      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, Object.hashAll(media), mode);
+      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, Object.hashAll(media), mode,
+      Object.hash(jsonEquality.hash(spacing), jsonEquality.hash(radii), jsonEquality.hash(sizes), jsonEquality.hash(shadows),
+          jsonEquality.hash(durations), jsonEquality.hash(curves)));
 }
 
 /// Whether a site shows its light or dark colors (Flutter's `ThemeMode`,
