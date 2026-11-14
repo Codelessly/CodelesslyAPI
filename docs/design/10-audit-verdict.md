@@ -23,7 +23,7 @@ on top**, or had they become a pile of workarounds?
 
 | Area | Before | After |
 |---|---|---|
-| Painting | one-off props (`strokePath`, a box's `path`, per-subpath colours, a dial, a plot's extras) | `customPaint`: draw ops that mirror Flutter's `Canvas`, `Path` and `Paint`; a `path` node |
+| Painting | one-off props (`strokePath`, a box's `path`, per-subpath colors, a dial, a plot's extras) | `customPaint`: draw ops that mirror Flutter's `Canvas`, `Path` and `Paint`; a `path` node |
 | Animation | per-feature timers and tweens | `animations` with one `Spring`, an `animate` action, a `frame` trigger |
 | Motion | 50 fields, plus a separate node `scale` and `layout.rotation` | `motion` with 14 fields (Flutter's `Transform`), a `PathFollow`; scale and rotation folded in |
 | Dragging | one `drag` with modes | `track`, `dismissible`, `pan`, `reorderHandle` |
@@ -60,10 +60,10 @@ the nine reported nothing the API could not express.
 
 ## 5. What is not finished
 
-- **Controls are still Flutter's Material widgets underneath.** Their colours, fonts and shapes are now ours
-  (30.1.0: a neutral theme source, non-Material default shapes, a measured label-centring guard), and a design
+- **Controls are still Flutter's Material widgets underneath.** Their colors, fonts and shapes are now ours
+  (30.1.0: a neutral theme source, non-Material default shapes, a measured label-centering guard), and a design
   system as data (SSUI first) supplies a house look. But every recurring defect of this audit's last rounds
-  (seed colours, ripples, minimum heights pushing labels off centre, floating labels, clipped chips) came from a
+  (seed colors, ripples, minimum heights pushing labels off center, floating labels, clipped chips) came from a
   Material widget's own defaults leaking through. The remedy is Milestone 3: no Flutter widgets, each control a
   render object, with the render objects exposed through the API directly. It is scheduled after the third
   standalone prompts test.
@@ -79,9 +79,9 @@ the nine reported nothing the API could not express.
 Closed since this section was first written (codelessly_api "Unreleased"):
 
 - **Name conformance re-measured**: section 6.
-- **Material defaults in colour and font** (30.1.0): one theme source for every control and the runtime's own
+- **Material defaults in color and font** (30.1.0): one theme source for every control and the runtime's own
   dialogs and toasts, from the document's theme or a neutral set; no ripple, tint or elevation; a guard test fails
-  if a Material seed colour, ripple or default font appears. `useHostTheme` is removed: nothing is inherited from
+  if a Material seed color, ripple or default font appears. `useHostTheme` is removed: nothing is inherited from
   a host app.
 - **Theme mode, site fonts, local images**: `theme.mode` and `setThemeMode` (Flutter's `ThemeMode`); fonts
   declared in `site.json`; image paths relative to the site.
@@ -90,14 +90,14 @@ Closed since this section was first written (codelessly_api "Unreleased"):
   `Form`), `radioGroup`; `itemSnapping` and `${result.index}` on scroll reactions.
 - **Reported bugs**: a bound button icon, an expression inside text runs, a focused field leaving the tree, and
   a silent `selected` binding are fixed or reported by validation; two reports did not reproduce (a repeating
-  timer in a modal, a text button ignoring its foreground colour).
+  timer in a modal, a text button ignoring its foreground color).
 - **Inert state targets.** A state patch names its target by node id, and that is the general form: Flutter's
   `WidgetStateProperty` styles the widget it is given to, and the node's own id is that widget. The corpus has 1131
   patches (in 9 documents; the 330 the transform fold rewrote are among them) that wrote `self` or `@<key>`
   instead; every one names the node its states are on (the generators resolved `@key` where it was a value, never
   where it was a map key). They are migrated, not supported as a second spelling: the first step of `migrate2to3`,
   `states.target`, rewrites `self` to the node's id and `@<key>` to the id of the node with that key, and reports
-  each as a behaviour change, so those press, hover and selection styles now apply when the documents load; in a
+  each as a behavior change, so those press, hover and selection styles now apply when the documents load; in a
   schema-3 document validation refuses both (`unknown_target_node`) with the id to write as the suggestion. The
   corpus documents themselves are untouched.
 - **A stroke's draw-on animation** (`drawMs`) migrates to the general pieces: an animation on the node whose
@@ -210,7 +210,7 @@ would be; uses counted in the corpus and the two repositories' documents):
 2. `decoration.clip` (Flutter: `clipBehavior`) are **kept on purpose** (owner's decision, 2026-11-14): the same
    concepts under shorter names. No author or model was confused by either, `radius` is written on most decorated
    nodes so the shorter name costs fewer tokens when a UI streams, and a rename would break every stored document
-   for no change in behaviour. They are deliberate deviations, not open work.
+   for no change in behavior. They are deliberate deviations, not open work.
 3. `stack.fit` is Flutter's name for another thing (`Stack.fit` is a `StackFit`; ours is a `BoxFit` for the
    board, Flutter's `FittedBox(fit:)` around the stack), with `fitAlignment` (`FittedBox.alignment`). No document
    uses either. Recommended: `fit` as `StackFit`, the board's scaling under a name of its own; left because the
@@ -253,10 +253,10 @@ draws each migrated case against goldens taken with 30.1.0's renderer.
 - `slider` ruler, marker, `activeTrackStartOpacity`, `thumbGripColor`: the slider's `customPaint`, which a slider
   draws between its parts (the `painter` over the track and under the thumb, the `foregroundPainter` over the
   thumb, reading `slider.value`, `min`, `max`, `trackRect` and `thumbCenter`): the general hook a control needed.
-  Identical, but the fade, drawn as the inactive colour laid over the active track, is within one level except at
+  Identical, but the fade, drawn as the inactive color laid over the active track, is within one level except at
   the anti-aliased pixels of the track's rounded end; a marker or fade that made the slider draw a plain track
   now leaves the track to its `trackShape` (reported).
-- `slider.deriveOverlayColorFromThumb`: no renderer read it, so binding `overlayColor` to the thumb's colour (the
+- `slider.deriveOverlayColorFromThumb`: no renderer read it, so binding `overlayColor` to the thumb's color (the
   proposal) would have changed what is drawn; it is dropped.
 - `textField.highlightStart`/`End`/`Style`: the field's `runs`, as a text's (Flutter's
   `TextEditingController.buildTextSpan`).

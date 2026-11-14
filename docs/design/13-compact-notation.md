@@ -42,7 +42,7 @@ one second of the first token.**
 2. **Write the content, not the envelope.** Structure is nesting. Ids are generated. A size is written only when
    it is not the default for that type in that parent.
 3. **Defaults carry the look.** A control with nothing written is the design system's (SSUI's) control. Text
-   takes a named style. Colours are theme names.
+   takes a named style. Colors are theme names.
 4. **State is as short as layout.** A variable exists by being used. A binding is `=`, a reaction is `->`.
 5. **Streams.** Every line is complete when its newline arrives, and can be drawn then: a parent is declared
    before its children, never closed before them.
@@ -69,7 +69,7 @@ Type[.variant][#id] ["text"] [key:value ...] [=binding] [-> action; action]
   image's source. `{name}` inside it reads a variable (`"Total: {total}"`).
 - **`key:value`**: any prop, layout or decoration field by its own name, unquoted when it has no space
   (`gap:12 pad:16 width:200 fill:surface radius:8 min:0 max:100 hint:"you@example.com"`). The short keys `gap`
-  (`spacing`), `pad` (`padding`), `fill` (the first fill's colour) and `w`/`h` are accepted; every other key is
+  (`spacing`), `pad` (`padding`), `fill` (the first fill's color) and `w`/`h` are accepted; every other key is
   the document's own.
 - **Alignment words** stand alone: `start`, `center`, `end`, `between`, `stretch` on a row or column set its
   main-axis alignment; `top`, `middle`, `bottom` (row) or `left`, `right` (column) its cross axis.
@@ -236,7 +236,7 @@ nodes against 15.5 s for 23, and A2UI's first token comes after 8.1 s (0.8 s for
 
 What the numbers do not show, seen in the rendered sheets:
 
-- **A2UI has no behaviour in the card.** Every button tells the host; nothing is shown, hidden, counted or
+- **A2UI has no behavior in the card.** Every button tells the host; nothing is shown, hidden, counted or
   stepped locally. A checkout draws its four steps at once; a filter, a quantity stepper or "show file names" needs
   the agent to send a new surface. The notation's cards carry 158 local reactions between them.
 - **A2UI's failures are structural.** Four of Haiku's answers were not valid JSON (a brace too many or too few in a

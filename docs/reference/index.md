@@ -29,7 +29,7 @@ section's anchor is its topic.
 | Why a fill took its design size (`fill_fallback`); which sizes a parent allows | [layout.md#layout-which-sizing-modes-each-parent-allows](layout.md#layout-which-sizing-modes-each-parent-allows) |
 | Every layout field (constraints, aspectRatio, widthFactor, order, basis...) | [layout.md#layout-layout-fields](layout.md#layout-layout-fields) |
 | A screen designed separately per breakpoint | [layout.md#layout-a-canvas-per-breakpoint](layout.md#layout-a-canvas-per-breakpoint) |
-| Name the palette and the type scale once (the theme) | [theme.md#theme-named-colours-and-styles](theme.md#theme-named-colours-and-styles) |
+| Name the palette and the type scale once (the theme) | [theme.md#theme-named-colors-and-styles](theme.md#theme-named-colors-and-styles) |
 | A type size that grows at tablet and desktop, written once | [theme.md#theme-a-type-scale-that-changes-with-the-screen-size](theme.md#theme-a-type-scale-that-changes-with-the-screen-size) |
 | Dark mode | [theme.md#theme-dark-mode](theme.md#theme-dark-mode) |
 | Part of a text in another style, a link in text; text defaults | [theme.md#theme-text](theme.md#theme-text) |
@@ -50,10 +50,10 @@ section's anchor is its topic.
 | A radio group (one choice of several) | [forms.md#forms-a-radio-group](forms.md#forms-a-radio-group) |
 | A − / + stepper around a number field | [forms.md#forms-a-stepper-around-a-field](forms.md#forms-a-stepper-around-a-field) |
 | A search icon or a clear (×) button inside a text field | [forms.md#forms-a-clear-button-in-the-field](forms.md#forms-a-clear-button-in-the-field) |
-| A checkbox or switch with a label, toggled from the whole row | [forms.md#forms-a-labelled-checkbox-or-switch](forms.md#forms-a-labelled-checkbox-or-switch) |
+| A checkbox or switch with a label, toggled from the whole row | [forms.md#forms-a-labeled-checkbox-or-switch](forms.md#forms-a-labeled-checkbox-or-switch) |
 | Add and remove items of a list (a list editor) | [forms.md#forms-add-and-remove-items-a-list-editor](forms.md#forms-add-and-remove-items-a-list-editor) |
 | Focus a field; keyboard keys; arrow keys between tabs | [forms.md#forms-focus-and-the-keyboard](forms.md#forms-focus-and-the-keyboard) |
-| A button's label, colours, corners and label size | [forms.md#forms-buttons](forms.md#forms-buttons) |
+| A button's label, colors, corners and label size | [forms.md#forms-buttons](forms.md#forms-buttons) |
 | Every prop of a text field | [forms.md#node-textField](forms.md#node-textField) |
 | Repeat one template per item of a list | [lists.md#lists-one-template-from-data](lists.md#lists-one-template-from-data) |
 | A grid of cards from data, as many columns as fit; gaps between wrapped items | [lists.md#lists-a-grid-of-cards](lists.md#lists-a-grid-of-cards) |
@@ -71,7 +71,7 @@ section's anchor is its topic.
 | Declare variables; screen, page and project scope | [state.md#state-variables](state.md#state-variables) |
 | A value derived once from others (computed variables), a reusable formula (function variables) | [state.md#state-computed-and-function-variables](state.md#state-computed-and-function-variables) |
 | The value each binding path expects (lists for padding, names for enums) | [state.md#state-binding-paths](state.md#state-binding-paths) |
-| Every formula function: text, numbers, money, lists, objects, dates, colours | [state.md#state-formula-functions](state.md#state-formula-functions) |
+| Every formula function: text, numbers, money, lists, objects, dates, colors | [state.md#state-formula-functions](state.md#state-formula-functions) |
 | A count, a total, a streak from data; dates | [state.md#state-a-streak-and-other-counts-from-data](state.md#state-a-streak-and-other-counts-from-data) |
 | Toggle, add, append, remove at an index (setVariable ops); if / else in a chain | [state.md#state-changing-state-from-a-reaction](state.md#state-changing-state-from-a-reaction) |
 | Set several nodes while a test holds (conditions) | [state.md#state-conditions](state.md#state-conditions) |
@@ -104,7 +104,7 @@ section's anchor is its topic.
 | Capture the states (after a tap, typing, an open menu) with the render command | [render.md#render-capturing-states](render.md#render-capturing-states) |
 | Every validation and render code | [render.md#render-validation-codes](render.md#render-validation-codes) |
 | Build and edit with ops; streaming; the retry protocol | [edit-ops.md#edit-ops-the-ops](edit-ops.md#edit-ops-the-ops) |
-| How one value type is written (colour, alignment, insets) | [values.md#values-colours-and-alignments](values.md#values-colours-and-alignments) |
+| How one value type is written (color, alignment, insets) | [values.md#values-colors-and-alignments](values.md#values-colors-and-alignments) |
 
 <a id="index-the-pages"></a>
 ## The pages
@@ -118,7 +118,7 @@ section's anchor is its topic.
 | [forms.md](forms.md) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12891 |
 | [lists.md](lists.md) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7877 |
 | [navigation.md](navigation.md) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4269 |
-| [state.md](state.md) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6662 |
+| [state.md](state.md) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6662 |
 | [interaction.md](interaction.md) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5286 |
 | [animation.md](animation.md) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
 | [components.md](components.md) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3719 |
@@ -132,7 +132,7 @@ section's anchor is its topic.
 | [publish.md](publish.md) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](edit-ops.md) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
 | [render.md](render.md) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3081 |
-| [values.md](values.md) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13358 |
+| [values.md](values.md) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13358 |
 
 <a id="index-a-z"></a>
 ## A–Z

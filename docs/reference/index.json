@@ -72,7 +72,7 @@
       "file": "layout.md",
       "anchor": "layout-a-capped-band",
       "title": "A capped band",
-      "summary": "A full-width band with capped, centered content (CSS `max-width: 1200px; margin: 0 auto` inside a coloured band): the band fills the width and holds the background; its one child fills with `constraints.maxWidth`, centered by the band's `crossAxisAlignment` (`center`, the default).",
+      "summary": "A full-width band with capped, centered content (CSS `max-width: 1200px; margin: 0 auto` inside a colored band): the band fills the width and holds the background; its one child fills with `constraints.maxWidth`, centered by the band's `crossAxisAlignment` (`center`, the default).",
       "words": 342
     },
     {
@@ -128,7 +128,7 @@
       "file": "layout.md",
       "anchor": "layout-overlap-and-bleed",
       "title": "Overlap and bleed",
-      "summary": "**Overlapping a neighbour** (CSS `margin-top: -36px`, `transform: translateY(-36px)`): Flutter's answer is `Transform.translate`: `\"motion\": {\"translateY\": -36}` moves what the node paints, not its layout, so the next node does not move up; a node later in its parent paints over the ones before it.",
+      "summary": "**Overlapping a neighbor** (CSS `margin-top: -36px`, `transform: translateY(-36px)`): Flutter's answer is `Transform.translate`: `\"motion\": {\"translateY\": -36}` moves what the node paints, not its layout, so the next node does not move up; a node later in its parent paints over the ones before it.",
       "words": 205
     },
     {
@@ -180,11 +180,11 @@
       "words": 405
     },
     {
-      "topic": "theme-named-colours-and-styles",
+      "topic": "theme-named-colors-and-styles",
       "file": "theme.md",
-      "anchor": "theme-named-colours-and-styles",
-      "title": "Named colours and styles",
-      "summary": "- **Colours**: `colors` maps a name to `\"#AARRGGBB\"` (or to another colour's name: `\"accent\": \"ember\"`).",
+      "anchor": "theme-named-colors-and-styles",
+      "title": "Named colors and styles",
+      "summary": "- **Colors**: `colors` maps a name to `\"#AARRGGBB\"` (or to another color's name: `\"accent\": \"ember\"`).",
       "words": 139
     },
     {
@@ -192,7 +192,7 @@
       "file": "theme.md",
       "anchor": "theme-what-controls-take-from-the-theme",
       "title": "What controls take from the theme",
-      "summary": "A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons (labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface` (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius` shapes every kind of button and chip, `radius` dialogs, menus, pickers and fields.",
+      "summary": "A control's colors, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons (labeled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface` (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius` shapes every kind of button and chip, `radius` dialogs, menus, pickers and fields.",
       "words": 202
     },
     {
@@ -200,7 +200,7 @@
       "file": "theme.md",
       "anchor": "theme-spacing-radii-sizes-shadows-and-motion",
       "title": "Spacing, radii, sizes, shadows and motion",
-      "summary": "The theme names its scales as it names colours: `\"spacing\": {\"1\": 4, \"2\": 8, \"3\": 12}`, `\"radii\": {\"control\": 7, \"panel\": 8}`, `\"sizes\": {\"compact\": 28, \"large\": 44}`, `\"shadows\": {\"level3\": [{\"type\": \"dropShadow\", ...}]}` (with `dark` shadows of their own), `\"durations\": {\"fast\": 150}` (milliseconds) and `\"curves\": {\"standard\": \"easeInOut\"}`.",
+      "summary": "The theme names its scales as it names colors: `\"spacing\": {\"1\": 4, \"2\": 8, \"3\": 12}`, `\"radii\": {\"control\": 7, \"panel\": 8}`, `\"sizes\": {\"compact\": 28, \"large\": 44}`, `\"shadows\": {\"level3\": [{\"type\": \"dropShadow\", ...}]}` (with `dark` shadows of their own), `\"durations\": {\"fast\": 150}` (milliseconds) and `\"curves\": {\"standard\": \"easeInOut\"}`.",
       "words": 104
     },
     {
@@ -216,7 +216,7 @@
       "file": "theme.md",
       "anchor": "theme-dark-mode",
       "title": "Dark mode",
-      "summary": "`\"dark\": {\"colors\": {\"ink\": \"#FFEEEEEE\"}}` gives the colours (and roles: `surface`, `primary`...) that differ in dark mode; everything naming `ink` follows the mode: fills, strokes, named text styles (a style whose `color` is `\"ink\"`), and the controls, which take the theme's roles.",
+      "summary": "`\"dark\": {\"colors\": {\"ink\": \"#FFEEEEEE\"}}` gives the colors (and roles: `surface`, `primary`...) that differ in dark mode; everything naming `ink` follows the mode: fills, strokes, named text styles (a style whose `color` is `\"ink\"`), and the controls, which take the theme's roles.",
       "words": 225
     },
     {
@@ -352,7 +352,7 @@
       "file": "forms.md",
       "anchor": "forms-styling-the-controls-in-one-place",
       "title": "Styling the controls, in one place",
-      "summary": "Every colour there may be a theme colour's name; every text style may name a theme style.",
+      "summary": "Every color there may be a theme color's name; every text style may name a theme style.",
       "words": 230
     },
     {
@@ -412,10 +412,10 @@
       "words": 75
     },
     {
-      "topic": "forms-a-labelled-checkbox-or-switch",
+      "topic": "forms-a-labeled-checkbox-or-switch",
       "file": "forms.md",
-      "anchor": "forms-a-labelled-checkbox-or-switch",
-      "title": "A labelled checkbox or switch",
+      "anchor": "forms-a-labeled-checkbox-or-switch",
+      "title": "A labeled checkbox or switch",
       "summary": "The whole row toggles: the control ignores the pointer and shows the variable; the row's reaction toggles it.",
       "words": 97
     },
@@ -528,7 +528,7 @@
       "file": "lists.md",
       "anchor": "lists-a-carousel-pages-and-pagination",
       "title": "A carousel, pages and pagination",
-      "summary": "A `pageView` shows one item (or child) per page and swipes between them (`viewportFraction` below 1 shows the neighbours' edges; `initialPage`).",
+      "summary": "A `pageView` shows one item (or child) per page and swipes between them (`viewportFraction` below 1 shows the neighbors' edges; `initialPage`).",
       "words": 379
     },
     {
@@ -600,7 +600,7 @@
       "file": "state.md",
       "anchor": "page-state",
       "title": "State and logic",
-      "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
+      "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts.",
       "words": 6662
     },
     {
@@ -816,7 +816,7 @@
       "file": "interaction.md",
       "anchor": "interaction-a-segmented-toggle-monthly-annual",
       "title": "A segmented toggle (monthly / annual)",
-      "summary": "Two labels in a row with a fill; each label's `selected` binds to the variable (`${= annual}` and `${= !annual}`), its `states.selected` patches its fill and text colour, and its click sets the variable.",
+      "summary": "Two labels in a row with a fill; each label's `selected` binds to the variable (`${= annual}` and `${= !annual}`), its `states.selected` patches its fill and text color, and its click sets the variable.",
       "words": 45
     },
     {
@@ -1088,7 +1088,7 @@
       "file": "design-systems.md",
       "anchor": "design-systems-what-a-site-gets-from-it",
       "title": "What a site gets from it",
-      "summary": "- **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a colour, a   style, a scale step).",
+      "summary": "- **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a color, a   style, a scale step).",
       "words": 126
     },
     {
@@ -1460,11 +1460,11 @@
       "words": 9
     },
     {
-      "topic": "values-colours-and-alignments",
+      "topic": "values-colors-and-alignments",
       "file": "values.md",
-      "anchor": "values-colours-and-alignments",
-      "title": "Colours and alignments",
-      "summary": "A colour is `\"#AARRGGBB\"`, `\"#RRGGBB\"` or a theme colour's name.",
+      "anchor": "values-colors-and-alignments",
+      "title": "Colors and alignments",
+      "summary": "A color is `\"#AARRGGBB\"`, `\"#RRGGBB\"` or a theme color's name.",
       "words": 24
     }
   ],
@@ -1547,7 +1547,7 @@
     {
       "need": "Name the palette and the type scale once (the theme)",
       "file": "theme.md",
-      "anchor": "theme-named-colours-and-styles"
+      "anchor": "theme-named-colors-and-styles"
     },
     {
       "need": "A type size that grows at tablet and desktop, written once",
@@ -1652,7 +1652,7 @@
     {
       "need": "A checkbox or switch with a label, toggled from the whole row",
       "file": "forms.md",
-      "anchor": "forms-a-labelled-checkbox-or-switch"
+      "anchor": "forms-a-labeled-checkbox-or-switch"
     },
     {
       "need": "Add and remove items of a list (a list editor)",
@@ -1665,7 +1665,7 @@
       "anchor": "forms-focus-and-the-keyboard"
     },
     {
-      "need": "A button's label, colours, corners and label size",
+      "need": "A button's label, colors, corners and label size",
       "file": "forms.md",
       "anchor": "forms-buttons"
     },
@@ -1755,7 +1755,7 @@
       "anchor": "state-binding-paths"
     },
     {
-      "need": "Every formula function: text, numbers, money, lists, objects, dates, colours",
+      "need": "Every formula function: text, numbers, money, lists, objects, dates, colors",
       "file": "state.md",
       "anchor": "state-formula-functions"
     },
@@ -1920,9 +1920,9 @@
       "anchor": "edit-ops-the-ops"
     },
     {
-      "need": "How one value type is written (colour, alignment, insets)",
+      "need": "How one value type is written (color, alignment, insets)",
       "file": "values.md",
-      "anchor": "values-colours-and-alignments"
+      "anchor": "values-colors-and-alignments"
     }
   ],
   "items": {

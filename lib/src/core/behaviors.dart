@@ -2094,7 +2094,7 @@ final class RadioGroupBehavior extends _Value {
 /// centerY}` in pixels, to a variable as layout changes: in the
 /// coordinates of the ancestor node [relativeTo] (empty: the screen),
 /// under [key] when the variable is a map. Other nodes then follow it: a
-/// marker travelling to the chip of the reader's layer on a timeline whose
+/// marker traveling to the chip of the reader's layer on a timeline whose
 /// chips are laid out by data. The design canvas measures too.
 @immutable
 final class Measure extends _Value {

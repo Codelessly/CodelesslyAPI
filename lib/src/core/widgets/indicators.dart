@@ -39,7 +39,7 @@ abstract final class CircularProgressIndicatorProps {
       props: [value, color, backgroundColor, strokeWidth, strokeAlign, strokeCap, trackGap, startAngle, sweepAngle],
       hugs: true,
       doc: 'Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the '
-          'primary colour, round-ended, 16 px when it hugs.');
+          'primary color, round-ended, 16 px when it hugs.');
 }
 
 /// Flutter `CupertinoActivityIndicator`.
@@ -50,7 +50,7 @@ abstract final class ActivityIndicatorProps {
   static const spec = WidgetSpec('activityIndicator',
       props: [color, radius, animating], hugs: true,
       doc: 'Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary '
-          'text colour unless `color` says.');
+          'text color unless `color` says.');
 }
 
 /// A straight progress bar, or an arc like a dial.
@@ -150,7 +150,7 @@ abstract final class RadialGaugeProps {
   /// Where the needle starts, as a fraction of the radius.
   static const needleClearance = PropDef<double>('needleClearance', Codecs.double, 0.62);
 
-  /// How far inside the arc's centre line the labels sit (null: inside the
+  /// How far inside the arc's center line the labels sit (null: inside the
   /// track, clear of the ticks).
   static const labelInset = PropDef<double?>('labelInset', IndicatorCodecs.optionalDouble, null);
 
@@ -238,11 +238,11 @@ enum ChartType { bar, line, timeline, donut }
 enum ChartYLabelAlign { end, start }
 
 /// How a series chart places its grid lines (and solid reference lines).
-/// [centered]: centred on the value's rounded y (the bottom line one pixel
+/// [centered]: centered on the value's rounded y (the bottom line one pixel
 /// row up, inside the plot); a 1 px line there straddles two pixel rows.
 /// [crisp] (the default): whole pixel rows from the value's rounded y down
 /// (the bottom line's up, inside the plot), so a line of whole width is
-/// sharp; other widths stay centred on the value. [exact]: the rows just above the value's
+/// sharp; other widths stay centered on the value. [exact]: the rows just above the value's
 /// unrounded y, like a Flutter box of that height whose bottom edge sits at
 /// the value (sharp when that is a whole pixel, soft otherwise).
 enum ChartGridLineMode { centered, crisp, exact }
@@ -343,7 +343,7 @@ abstract final class ChartProps {
   static const totalsColor = PropDef<Color?>('totalsColor', Codecs.optionalColor, null);
   static const totalsSelectedColor = PropDef<Color?>('totalsSelectedColor', Codecs.optionalColor, null);
 
-  /// Each total's bottom this far above its bar; null centres it 10 px
+  /// Each total's bottom this far above its bar; null centers it 10 px
   /// above the bar.
   static const totalsGap = PropDef<double?>('totalsGap', IndicatorCodecs.optionalDouble, null);
 
@@ -388,7 +388,7 @@ abstract final class ChartProps {
   /// The x-axis label band's height below the plot.
   static const xAxisHeight = PropDef<double>('xAxisHeight', Codecs.positive, 22);
 
-  /// The x labels' top this far below the plot; null centres them in the
+  /// The x labels' top this far below the plot; null centers them in the
   /// band ([xAxisHeight]).
   static const xLabelGap = PropDef<double?>('xLabelGap', IndicatorCodecs.optionalDouble, null);
 
@@ -603,7 +603,7 @@ abstract final class BarChartProps {
   /// Null: the theme's primary (`ControlTheme`), so it reads in light and dark.
   static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
 
-  /// Per-bar colours; missing entries fall back to color.
+  /// Per-bar colors; missing entries fall back to color.
   static const colors = PropDef<List<Color>>('colors', ListCodec<Color>(Codecs.color), []);
   static const dimmedOpacity = PropDef<double>('dimmedOpacity', Codecs.double, 0.55);
   static const barGap = PropDef<double>('barGap', Codecs.double, 3);
@@ -635,7 +635,7 @@ abstract final class BarChartProps {
   /// The grid labels on the left of the chart instead of its right.
   static const gridLabelsLeft = PropDef<bool>('gridLabelsLeft', Codecs.bool, false);
 
-  /// The widest a bar gets, centred in its column (null: the column).
+  /// The widest a bar gets, centered in its column (null: the column).
   static const maxBarWidth = PropDef<double?>('maxBarWidth', Codecs.optionalPositive, null);
 
   /// Each bar's value above it (whole numbers without decimals).
@@ -685,9 +685,9 @@ abstract final class BarChartProps {
 }
 
 /// Where a line chart's x labels sit about their tick.
-/// [edgeClamped]: centred, the first starting at the tick and the last
+/// [edgeClamped]: centered, the first starting at the tick and the last
 /// ending there (so both stay over the plot). [start]: starting at the tick.
-/// [center]: centred on it. [end]: ending at it.
+/// [center]: centered on it. [end]: ending at it.
 enum LineChartXLabelAnchor { edgeClamped, start, center, end }
 
 /// A line chart of data rows ([xField], [yField]; dates or numbers on x),
@@ -848,7 +848,7 @@ abstract final class BarcodeProps {
   static const drawText = PropDef<bool>('drawText', Codecs.bool, true);
 
   /// Pixels each dark bar and module reaches past its right and bottom edge,
-  /// so neighbours overlap: no hairline seams where anti-aliased edges
+  /// so neighbors overlap: no hairline seams where anti-aliased edges
   /// meet, and a small ink gain (as `canvas.drawRect` codes widen bars to
   /// hide seams). 0 draws the exact geometry.
   static const overlap = PropDef<double>('overlap', Codecs.positive, 0);

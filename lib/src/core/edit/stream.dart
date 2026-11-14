@@ -10,7 +10,7 @@
 // close the `ops` array early, leave trailing commas or start an op before
 // the previous one closed. The scanner keeps a repaired copy of the text
 // (stray closers dropped, missing ones inferred, trailing commas removed,
-// missing commas inserted), recognises an op object (`{"op": ...}`) at any
+// missing commas inserted), recognizes an op object (`{"op": ...}`) at any
 // depth outside another op, and re-synchronises when an op begins inside an
 // op that never closed. Each repair is one `malformed_input` warning with
 // its character offset; the ops around it are kept.

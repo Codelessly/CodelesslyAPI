@@ -517,7 +517,7 @@ abstract final class BindValue {
 
   /// `#RRGGBB`, `#AARRGGBB`, `0xAARRGGBB`, `Color(0xAARRGGBB)`, an ARGB int,
   /// a `{r, g, b, a}` map with 0–1 or 0–255 components, or the name of a
-  /// theme colour ([Color.named], resolved where the node renders).
+  /// theme color ([Color.named], resolved where the node renders).
   static Color? color(Object? v) {
     switch (v) {
       case final Color c:
@@ -529,7 +529,7 @@ abstract final class BindValue {
         final call = RegExp(r'^Color\((0x[0-9a-fA-F]{8})\)$').firstMatch(t);
         if (call != null) t = call[1]!;
         if (t.startsWith('0x') || t.startsWith('0X')) return int.tryParse(t.substring(2), radix: 16)?.let(Color.new);
-        // A theme colour's name, as a written colour may be: it keeps its
+        // A theme color's name, as a written color may be: it keeps its
         // name and resolves against the theme where the node renders.
         if (Color.isName(t)) return Color.named(t);
         if (!RegExp(r'^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$').hasMatch(t)) return null;

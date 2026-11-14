@@ -43,7 +43,7 @@ final Map<String, String> _files = {
     'components': ['components/Button.json', 'components/Toggle.json'],
     'replaces': ['filledButton', 'textButton'],
   }),
-  'DESIGN.md': '# Acme\n\nLong prose.\n\n## In brief\n\nHairlines, not shadows. One radius per role.\n\n## Colour\n\nMore.',
+  'DESIGN.md': '# Acme\n\nLong prose.\n\n## In brief\n\nHairlines, not shadows. One radius per role.\n\n## Color\n\nMore.',
   'PATTERNS.md': '# Patterns\n\n## In brief\n\nA form is a column of fields 12 apart.\n',
   'components/Toggle.json': jsonEncode({
     'schema': 3,

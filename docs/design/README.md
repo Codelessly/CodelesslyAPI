@@ -90,7 +90,7 @@ Ranked by how much later work depends on them.
 2. **Hosted plugins are data on the managed-component machinery; native
    plugins are the second tier** (doc 05 §5). Confirms the capability
    boundary and who may publish (recommended: first-party and the project's
-   own organisation first).
+   own organization first).
 3. **`customPaint` as a behavior on any node, not a new node type**
    (doc 01 §10.1). Recommended; it makes `strokePath` and `box.path`
    migrate without inserting nodes.

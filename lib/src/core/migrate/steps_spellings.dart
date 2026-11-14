@@ -122,7 +122,7 @@ final List<MigrationStep> spellingMigrationSteps = [
         final m = readMap(target?['layout'])?['margin'];
         final l = readList(m);
         if (l != null && l.length == 4 && (readDouble(l[0]) != readDouble(l[2]) || readDouble(l[1]) != readDouble(l[3]))) {
-          s.behaviourChange('It sets the rotation of a node whose margin is uneven: schema 3 turned it about its center '
+          s.behaviorChange('It sets the rotation of a node whose margin is uneven: schema 3 turned it about its center '
               'moved by half the margin\'s difference, now about its center.', path: where);
         }
       }
@@ -131,12 +131,12 @@ final List<MigrationStep> spellingMigrationSteps = [
       if (value is num) return (to, writeRatio(scale ? value * own : value + own));
       final f = value is String ? formulaOf(value) : null;
       if (f != null) return (to, '\${= ($f) $op ${writeRatio(own)}}');
-      s.behaviourChange('It sets "$path" to a value the migration cannot combine with the target\'s own motion $op ${writeRatio(own)}.',
+      s.behaviorChange('It sets "$path" to a value the migration cannot combine with the target\'s own motion $op ${writeRatio(own)}.',
           path: where, old: value, instead: 'Set "$to" to the value $op ${writeRatio(own)}.');
       return (to, value);
     case 'flightKey':
       if (readString(target?['hero']) != null || readMap(target?['hero']) != null) {
-        s.behaviourChange('It sets the flight key of a node that also has a hero: it now sets the hero\'s tag.', path: where);
+        s.behaviorChange('It sets the flight key of a node that also has a hero: it now sets the hero\'s tag.', path: where);
       }
       return ('hero.tag', value);
     case 'hero.flight':
@@ -148,7 +148,7 @@ final List<MigrationStep> spellingMigrationSteps = [
     case 'props.highlightStart' || 'props.highlightEnd':
       return ('props.runs[0].${path == 'props.highlightStart' ? 'start' : 'end'}', value);
     case _ when movedSpecialPath(path):
-      s.behaviourChange('It sets "$path", which is gone: it now sets nothing.', path: where, old: value,
+      s.behaviorChange('It sets "$path", which is gone: it now sets nothing.', path: where, old: value,
           instead: movedPathHint(path) ?? '');
       return null;
     case _ when path == 'flight' || path.startsWith('flight.'):

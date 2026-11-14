@@ -110,7 +110,7 @@ void main(List<String> args) {
     walk(json, '');
   }
   stdout.writeln('$documents documents ($migrated schema 2) in ${files.length} files; '
-      '${report.rewrites.length} rewrites, ${report.unconvertible.length} unconvertible, ${report.behaviourChanges.length} behaviour changes');
+      '${report.rewrites.length} rewrites, ${report.unconvertible.length} unconvertible, ${report.behaviorChanges.length} behavior changes');
   final growth = bytesBefore == 0 ? 0 : (bytesAfter - bytesBefore) * 100 / bytesBefore;
   final bytes = 'encoded size of the schema-2 documents: $bytesBefore bytes before, $bytesAfter after '
       '(${growth >= 0 ? '+' : ''}${growth.toStringAsFixed(2)}%)';

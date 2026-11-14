@@ -194,7 +194,7 @@ void foldTransform(Json n, String id, MigrationScope s) {
       if (n['tilt'] != null) 'a tilt',
     ];
     if (what.isNotEmpty) {
-      s.behaviourChange(
+      s.behaviorChange(
           '30.0.0 drew the node\'s scale and rotation inside ${what.join(', ')}; 30.1.0 draws them in the motion, '
           'outside it, about the motion\'s alignment: the picture differs while either is not at rest.',
           path: '/motion',
@@ -221,14 +221,14 @@ void foldTransform(Json n, String id, MigrationScope s) {
   final marginAtRunTime = bind.containsKey('layout.margin') || changes.marginAtRunTime.contains(id);
   if ((pose.rotation != 0 || rotationAtRunTime) && pose.offCenterPivot) {
     if (rotationAtRunTime || marginAtRunTime) {
-      s.behaviourChange(
+      s.behaviorChange(
           'The rotation or the margin is bound or set while the app runs, and the margin is uneven: 30.0.0 turned the node '
           'about its center moved by half the margin\'s difference, 30.1.0 about its center.',
           path: '/layout/rotation',
           instead: 'Bind "motion.translateX"/"motion.translateY" to the offset, or even out the margin.');
     } else if (changes.motionAtRunTime.contains(id) || bind.keys.any((k) => k == 'motion' || k.startsWith('motion.')) ||
         pose.orientsOnPath || !pose.centered || pose.turns3d) {
-      s.behaviourChange(
+      s.behaviorChange(
           'The rotation\'s pivot (its center moved by half the margin\'s difference) is kept as a translation for the '
           'motion at rest; a motion that turns or scales by itself moves it.',
           path: '/layout/rotation');
@@ -314,7 +314,7 @@ void foldTransform(Json n, String id, MigrationScope s) {
       if (j >= 0) {
         // One key, one timing: the motion's own entry stays where it eases.
         if (moves && motionMoves) {
-          s.behaviourChange('"$from" and "$to" both change and had their own transitions; "$to" keeps its own.',
+          s.behaviorChange('"$from" and "$to" both change and had their own transitions; "$to" keeps its own.',
               path: '/transitions', old: t);
         }
         if (motionMoves || !moves) {
@@ -327,7 +327,7 @@ void foldTransform(Json n, String id, MigrationScope s) {
         final prefix = Transition.of(Transition.listFromJson([...list]..removeAt(i)), to);
         final key = to.substring('motion.'.length);
         if (prefix != null && prefix.keyframes.any((k) => readMap(k.value)?.containsKey(key) ?? false)) {
-          s.behaviourChange('The "${prefix.property}" transition\'s keyframes name "$key": they no longer run on "$to", which '
+          s.behaviorChange('The "${prefix.property}" transition\'s keyframes name "$key": they no longer run on "$to", which '
               'takes the node\'s own $from transition.', path: '/transitions');
         }
         list[i] = {...t, 'property': to, if (t['keyframes'] != null) 'keyframes': _shiftKeyframes(t['keyframes'], shift)};
@@ -341,13 +341,13 @@ void foldTransform(Json n, String id, MigrationScope s) {
     // It snapped in 30.0.0 while the motion eased: a transition of its
     // own that takes no time keeps it so.
     if (motionMoves) {
-      s.behaviourChange('"$from" changes with no transition of its own and the motion\'s "${eased.property}" transition '
+      s.behaviorChange('"$from" changes with no transition of its own and the motion\'s "${eased.property}" transition '
           'eases "$to": they are one value in 30.1.0, eased together.', path: '/transitions');
       return;
     }
     final key = to.substring('motion.'.length);
     if (eased.property != '*' && eased.keyframes.any((k) => readMap(k.value)?.containsKey(key) ?? false)) {
-      s.behaviourChange('The "${eased.property}" transition\'s keyframes name "$key": they no longer run on "$to", which '
+      s.behaviorChange('The "${eased.property}" transition\'s keyframes name "$key": they no longer run on "$to", which '
           'gets a transition of its own (none) for the node\'s $from.', path: '/transitions');
     }
     list.add({'property': to});
@@ -460,7 +460,7 @@ void _foldTracks(Json n, String id, _Pose own, MigrationScope s) {
           ((t.path == 'motion.scale' && own.scale != 1) || (t.path == 'motion.rotate' && own.rotation != 0)) &&
           (t.from != null || t.to != null || t.keyframes.isNotEmpty));
       if (hits.isNotEmpty) {
-        s.behaviourChange(
+        s.behaviorChange(
             'The "${a['preset']}" animation replaces ${hits.map((t) => '"${t.path}"').toSet().join(' and ')} with values of its own; '
             '30.0.0 drew the node\'s own ${own.scale != 1 ? 'scale' : 'rotation'} on top of them, 30.1.0 does not.',
             path: '/animations/$ai',
@@ -506,12 +506,12 @@ void _foldTracks(Json n, String id, _Pose own, MigrationScope s) {
           }
           if (t['keyframes'] != null) m['keyframes'] = _shiftKeyframes(t['keyframes'], (v) => op == '*' ? v * by : v + by);
           if (lost) {
-            s.behaviourChange('A track on "$path" has a value the migration cannot move by the node\'s own $op ${writeRatio(by)}.',
+            s.behaviorChange('A track on "$path" has a value the migration cannot move by the node\'s own $op ${writeRatio(by)}.',
                 path: '/animations/$ai/tracks/$ti', old: t, instead: 'Write the track\'s values $op ${writeRatio(by)}.');
           }
         }
         if (moved == 'motion.rotate' && target.offCenterPivot) {
-          s.behaviourChange('A track turns a node whose margin is uneven: 30.0.0 turned it about its center moved by half '
+          s.behaviorChange('A track turns a node whose margin is uneven: 30.0.0 turned it about its center moved by half '
               'the margin\'s difference, 30.1.0 about its center.', path: '/animations/$ai/tracks/$ti');
         }
         if (!jsonEquality.equals(m, t)) {

@@ -6,13 +6,13 @@
 ## When to use
 
 Variables and where they live, computed and function variables, expressions and every binding path with the value
-it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the
+it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the
 actions that change state, and sandboxed scripts.
 
 <a id="state-minimal-example"></a>
 ## Minimal example
 
-A counter: a variable, two buttons that change it, and a text and a colour bound to it.
+A counter: a variable, two buttons that change it, and a text and a color bound to it.
 
 ```json
 {

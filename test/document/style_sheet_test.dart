@@ -90,7 +90,7 @@ void main() {
     ]}, report: report) as Map;
     expect(out.containsKey('naturalLineHeight'), isFalse);
     expect((((out['textStyles'] as List).single as Map)['style'] as Map), {'fontSize': 20});
-    expect(report.behaviourChanges.map((e) => e.path), ['/naturalLineHeight', '/textStyles/0/style/naturalHeight']);
+    expect(report.behaviorChanges.map((e) => e.path), ['/naturalLineHeight', '/textStyles/0/style/naturalHeight']);
     final model = migratePublish2to3({'schema': 2, 'theme': {'naturalLineHeight': true, 'primary': '#FF000000'}}, report: report);
     expect(model['theme'], {'primary': '#FF000000'});
   });

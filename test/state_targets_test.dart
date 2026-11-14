@@ -41,7 +41,7 @@ void main() {
       final pressed = node.patched(node.behaviors.states.patchFor('card', {WidgetState.pressed})!);
       expect(pressed.behaviors.motion!.scale, 0.97);
       expect(report.entries.where((e) => e.step == 'states.target').map((e) => e.kind),
-          containsAll([MigrationEntryKind.rewrite, MigrationEntryKind.behaviourChange]));
+          containsAll([MigrationEntryKind.rewrite, MigrationEntryKind.behaviorChange]));
     });
 
     test('"@key" naming the node\'s own key becomes its id', () {

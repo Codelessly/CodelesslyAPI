@@ -309,7 +309,7 @@ void main() {
               Codes.stateNoEffect),
           isEmpty);
     });
-    test('a colour role written inside the theme\'s colors is reported, and a role naming a colour is not (theme_role_in_colors)', () {
+    test('a color role written inside the theme\'s colors is reported, and a role naming a color is not (theme_role_in_colors)', () {
       final inColors = validateTheme({
         'colors': {'forest': '#FF1F6F4A', 'primary': '#FF1F6F4A'},
       });
@@ -703,7 +703,7 @@ void main() {
     expect(withCode(doc({'icon': 'circle'}), Codes.wrongType), isEmpty);
     final chip = Node.fromJson((doc({'icon': 'circle'})['nodes'] as Map)['c'], id: 'c')!;
     expect(chip.toJson().toString(), contains('MATERIAL_ICON'));
-    expect(withCode(doc({'colour': 'red'}), Codes.wrongType).single.message, contains('no "name"'));
+    expect(withCode(doc({'color': 'red'}), Codes.wrongType).single.message, contains('no "name"'));
   });
   test('a script written against names it does not have is told at validation: variables.get, and another script called bare (the generated Sudoku)', () {
     Map<String, Object?> doc(String init) => {

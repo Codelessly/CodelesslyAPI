@@ -16,8 +16,8 @@ A card with a solid fill, a border, rounded corners and a shadow, and a gradient
 ### Decoration fields
 
 A node's `"decoration"`: what its box paints. Types without a box decoration keep only blur effects. Fills paint
-bottom to top under the node's content; `foregroundFills` paint over it, children included. Every colour may be a
-theme colour's name.
+bottom to top under the node's content; `foregroundFills` paint over it, children included. Every color may be a
+theme color's name.
 
 {{decorationFields}}
 
@@ -29,9 +29,9 @@ theme colour's name.
 
 As Flutter's `LinearGradient`, a linear gradient runs from `"begin"` to `"end"` (alignments; default left to
 right; `[0, -1]` to `[0, 1]` is top to bottom). As `RadialGradient`, a radial one has a `"center"` and a `"radius"`
-(a share of the box's shortest side); past the last stop it keeps that stop's colour, so end a glow on a transparent
+(a share of the box's shortest side); past the last stop it keeps that stop's color, so end a glow on a transparent
 stop. `transform` is the general form. A paint without `type` is an image if it has `image`, a linear gradient if it
-has `stops`, else a solid colour.
+has `stops`, else a solid color.
 
 ### A pattern in pixels, a background grid, grain
 
@@ -124,7 +124,7 @@ op per color.
 ## Pitfalls
 
 - An effect needs its `type`; without it the effect is dropped.
-- Colours are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
+- Colors are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
 - A `path` node without a `viewBox` is drawn in its box's own pixels from the top left and is not clipped to the
   box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
 - Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
@@ -133,5 +133,5 @@ op per color.
 
 ## See also
 
-[Theme](@page-theme) (named colours) · [animation](@page-animation) (shimmer, motion) · [values](@page-values)
+[Theme](@page-theme) (named colors) · [animation](@page-animation) (shimmer, motion) · [values](@page-values)
 (Alignment, BorderRadius and the enums).

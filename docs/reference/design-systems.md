@@ -62,22 +62,22 @@ A published design system is one bundle, `{"manifest": {...}, "design": "...", "
 <a id="design-systems-what-a-site-gets-from-it"></a>
 ### What a site gets from it
 
-- **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a colour, a
-  style, a scale step). Named colours and text styles, light and dark, work as in [the theme](theme.md#page-theme).
+- **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a color, a
+  style, a scale step). Named colors and text styles, light and dark, work as in [the theme](theme.md#page-theme).
 - **Scales.** `${theme.spacing.3}`, `${theme.radii.panel}`, `${theme.sizes.compact}`, `${theme.shadows.level3}` and
   `${theme.durations.fast}` are read in bindings: `"bind": {"layout.padding": "${theme.spacing.3}",
   "decoration.radius": "${theme.radii.panel}"}`. Validation reports a name the theme does not have
   (`unknown_theme_name`).
 - **Components.** Called by type as the site's own (`{"type": "Button", "props": {"label": "Save"}}`); a site
   component of the same type wins. Calls are checked against their declarations (`missing_prop`, `unknown_event`).
-- **Nothing from the app.** The app the site runs in lends no colour, font or shape; without a design system the
+- **Nothing from the app.** The app the site runs in lends no color, font or shape; without a design system the
   controls are neutral (ink on paper, small radii).
 
 <a id="design-systems-writing-one"></a>
 ### Writing one
 
-1. Write the tokens first: roles (`primary`, `surface`, `onSurface`, `error`...), named colours with their `dark`
-   values, text styles that name colours, and the scales.
+1. Write the tokens first: roles (`primary`, `surface`, `onSurface`, `error`...), named colors with their `dark`
+   values, text styles that name colors, and the scales.
 2. Draw each component from core nodes (`row`, `column`, `box`, `text`, `icon`): fills, strokes and radii by
    token name, hover and press as interaction `states`, sizes and variants as parameters bound with formulas.
    Wrap a core control only for what only it does (text editing, a native menu), and style every part of it.
@@ -96,12 +96,12 @@ parameters and a call, the patterns in brief, and no rows for the base controls 
 ## Pitfalls
 
 - A call has no `decoration`: style the definition, or add a parameter (`variant`, `size`).
-- A colour written in full (`"#FF2563EB"`) does not follow dark mode: name it.
+- A color written in full (`"#FF2563EB"`) does not follow dark mode: name it.
 - A scale step is read through a binding, not written where a number goes (`"padding": "md"` is not a number).
 - `replaces` hides base controls from the prompt only; documents that use them still validate and render.
 
 <a id="design-systems-see-also"></a>
 ## See also
 
-[Components](components.md#page-components) · [theme](theme.md#page-theme) (named colours, styles, dark mode) · [forms](forms.md#page-forms) ·
+[Components](components.md#page-components) · [theme](theme.md#page-theme) (named colors, styles, dark mode) · [forms](forms.md#page-forms) ·
 [render](render.md#page-render) (`--components-all`, `--theme`).

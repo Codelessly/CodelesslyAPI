@@ -24,7 +24,7 @@ enum Level {
 
   /// Variables, bindings, expressions, actions, states, lists over data,
   /// forms, navigation: the UI reacts without the host.
-  state('State and behaviour'),
+  state('State and behavior'),
 
   /// Theme scales, components by reference, responsive rules: the UI
   /// looks like a specific product.
@@ -88,7 +88,7 @@ const Map<String, Level> actionLevels = {
   // Widget catalog: what the controls and their surfaces need.
   'showToast': _w, 'confirm': _w, 'openModal': _w, 'closeModal': _w, 'focus': _w, 'editText': _w,
   'copyToClipboard': _w, 'validate': _w,
-  // State and behaviour.
+  // State and behavior.
   'setVariable': _s, 'setValue': _s, 'if': _s, 'forEach': _s, 'delay': _s, 'navigate': _s, 'scrollTo': _s,
   'paginate': _s, 'callFunction': _s, 'retryFailed': _s,
   // Design systems.

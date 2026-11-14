@@ -31,7 +31,7 @@ reference lines.
 
 ## Pitfalls
 
-- Chart colours default to a dark theme's; set `color`, `gridColor` and the label colours on a light page.
+- Chart colors default to a dark theme's; set `color`, `gridColor` and the label colors on a light page.
 - A `barChart`'s labels default to JetBrains Mono: set `labelFontFamily` to a font you have (`font_fallback`).
 - A chart's size is its node's layout: give it a fixed height.
 - `value` above `max` is clamped.

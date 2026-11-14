@@ -69,8 +69,8 @@ void main() {
     expect(Color.fromJson('not a name'), isNull);
   });
 
-  test('a colour name given by a binding keeps its name, so it resolves against the theme as a written one does', () {
-    // A model that styles a selected chip binds its fill to a colour name
+  test('a color name given by a binding keeps its name, so it resolves against the theme as a written one does', () {
+    // A model that styles a selected chip binds its fill to a color name
     // (`"${= selected ? 'primary' : 'surface'}"`), as it writes one.
     final box = Node.fromJson({
       'type': 'box',
@@ -80,9 +80,9 @@ void main() {
     expect(bound.decoration.fills.single.color, const Color.named('ember'));
     final resolved = ThemeRefs(theme()).node(bound.toJson(), bound.spec);
     expect(readList(readMap(resolved['decoration'])?['fills'])?.single, {'color': '#FFE4572E'});
-    // A hex colour still reads as one; text that is no colour still leaves the node as it was.
+    // A hex color still reads as one; text that is no color still leaves the node as it was.
     expect(BindPaths.apply(box, 'decoration.fills[0].color', '#FF000000').decoration.fills.single.color, const Color(0xFF000000));
-    expect(identical(BindPaths.apply(box, 'decoration.fills[0].color', 'not a colour'), box), isTrue);
+    expect(identical(BindPaths.apply(box, 'decoration.fills[0].color', 'not a color'), box), isTrue);
   });
 
   test('a text style written as a name is a style starting from it', () {
@@ -183,7 +183,7 @@ void main() {
     expect(ds.map((d) => '$d'), isEmpty);
   });
 
-  test('a role that names a theme colour resolves to that colour, in light and dark, through a chain of names', () {
+  test('a role that names a theme color resolves to that color, in light and dark, through a chain of names', () {
     final t = ThemeTokens.fromJson({
       'primary': 'forest',
       'onPrimary': 'paper',
@@ -194,7 +194,7 @@ void main() {
     final roles = t.resolvedRoles();
     expect(roles.primary, const Color(0xFF1F6F4A));
     expect(roles.onPrimary, const Color(0xFFFFFFFF));
-    expect(roles.error, isNull, reason: 'a name the theme does not have is no colour');
+    expect(roles.error, isNull, reason: 'a name the theme does not have is no color');
     expect(t.forBrightness(dark: true).resolvedRoles().primary, const Color(0xFF7FD1A6));
     final plain = ThemeTokens.fromJson({'primary': '#FF000000'});
     expect(identical(plain.resolvedRoles(), plain), isTrue);

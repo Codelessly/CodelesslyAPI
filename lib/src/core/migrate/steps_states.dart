@@ -29,7 +29,7 @@ String? stateTargetId(String target, {required String ownId, required String own
 }
 
 /// `states.<state>.self` and `states.<state>.@<key>` → the node's id: the
-/// patch runs (it never did; reported as a behaviour change). A target
+/// patch runs (it never did; reported as a behavior change). A target
 /// that names no node by any spelling is left for validation to report.
 final stateTargetsStep = MigrationStep(
   id: 'states.target',
@@ -73,7 +73,7 @@ final stateTargetsStep = MigrationStep(
     }
     if (!changed) return;
     n['states'] = out;
-    s.behaviourChange(
+    s.behaviorChange(
         'The ${rewritten.join(', ')} patch${rewritten.length == 1 ? '' : 'es'} now appl${rewritten.length == 1 ? 'ies' : 'y'}: '
         'its target matched no node, so it never ran.',
         path: '/states',

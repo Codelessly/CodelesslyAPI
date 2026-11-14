@@ -587,7 +587,7 @@ String _cap(String s) => s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}
 
 /// The base's build example: a `ui_apply` input that applies with no error
 /// or warning under [TrustProfile.agent] and strict validation, with a
-/// selectable list and a labelled button.
+/// selectable list and a labeled button.
 const Json starterBuildExample = {
   'ops': [
     {

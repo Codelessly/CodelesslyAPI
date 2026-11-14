@@ -102,13 +102,13 @@ Flutter `FilledButton`: the primary action, filled with the theme's `primary`. W
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `label` | String | `""` |  | The button's text (not `text`). Its colour, size and weight are in `style`. |
+| `label` | String | `""` |  | The button's text (not `text`). Its color, size and weight are in `style`. |
 | `textAlign` | [TextAlign](values.md#enum-TextAlign) | `"start"` | `left`, `right`, `center`, `justify`, `start`, `end` |  |
 | `icon` | [IconData](values.md#type-IconData) | `{}` |  | The icon beside the label; empty for none. |
 | `iconAlignment` | [IconAlignment](values.md#enum-IconAlignment) | `"start"` | `start`, `end` |  |
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
-| `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 | `tonal` | bool | `false` |  | `FilledButton.tonal`. |
@@ -125,13 +125,13 @@ Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled 
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `label` | String | `""` |  | The button's text (not `text`). Its colour, size and weight are in `style`. |
+| `label` | String | `""` |  | The button's text (not `text`). Its color, size and weight are in `style`. |
 | `textAlign` | [TextAlign](values.md#enum-TextAlign) | `"start"` | `left`, `right`, `center`, `justify`, `start`, `end` |  |
 | `icon` | [IconData](values.md#type-IconData) | `{}` |  | The icon beside the label; empty for none. |
 | `iconAlignment` | [IconAlignment](values.md#enum-IconAlignment) | `"start"` | `start`, `end` |  |
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
-| `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
@@ -147,13 +147,13 @@ Flutter `OutlinedButton`: a hairline border. With nothing styled it is the defau
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `label` | String | `""` |  | The button's text (not `text`). Its colour, size and weight are in `style`. |
+| `label` | String | `""` |  | The button's text (not `text`). Its color, size and weight are in `style`. |
 | `textAlign` | [TextAlign](values.md#enum-TextAlign) | `"start"` | `left`, `right`, `center`, `justify`, `start`, `end` |  |
 | `icon` | [IconData](values.md#type-IconData) | `{}` |  | The icon beside the label; empty for none. |
 | `iconAlignment` | [IconAlignment](values.md#enum-IconAlignment) | `"start"` | `start`, `end` |  |
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
-| `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
@@ -169,20 +169,20 @@ Flutter `TextButton`: no fill or border. With nothing styled it is the default (
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `label` | String | `""` |  | The button's text (not `text`). Its colour, size and weight are in `style`. |
+| `label` | String | `""` |  | The button's text (not `text`). Its color, size and weight are in `style`. |
 | `textAlign` | [TextAlign](values.md#enum-TextAlign) | `"start"` | `left`, `right`, `center`, `justify`, `start`, `end` |  |
 | `icon` | [IconData](values.md#type-IconData) | `{}` |  | The icon beside the label; empty for none. |
 | `iconAlignment` | [IconAlignment](values.md#enum-IconAlignment) | `"start"` | `start`, `end` |  |
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
-| `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-iconButton"></a>
 ### `iconButton`
 
-Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. Give it a "tooltip" (the behavior) to name it.
+Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. Give it a "tooltip" (the behavior) to name it.
 
 `IconButton`: an icon, styled by a `ButtonStyle`.
 
@@ -322,7 +322,7 @@ Flutter `Switch`, scaled to its box (59 px wide is Flutter's own size).
 | `controlled` | bool | `false` |  | It shows only its value: a tap reports the change (`changed`) and the reactions set the value, else it stays (a checkout rule that refuses). |
 | `value` | bool | `false` |  | Whether the switch is on. Bind it to a variable and store the `changed` value in that variable. |
 | `autofocus` | bool | `false` |  |  |
-| `activeTrackColor` | [Color](values.md#type-Color) | unset |  | The track's colour when on. |
+| `activeTrackColor` | [Color](values.md#type-Color) | unset |  | The track's color when on. |
 | `inactiveTrackColor` | [Color](values.md#type-Color) | unset |  |  |
 | `activeThumbColor` | [Color](values.md#type-Color) | unset |  |  |
 | `inactiveThumbColor` | [Color](values.md#type-Color) | unset |  |  |
@@ -361,7 +361,7 @@ Flutter `Radio<String>`, scaled to its box (32 px is its own size; its ring, 18 
 | `groupValue` | String | unset |  | The group's selected value; this radio is on when it equals `value`. |
 | `toggleable` | bool | `false` |  |  |
 | `autofocus` | bool | `false` |  |  |
-| `activeColor` | [Color](values.md#type-Color) | unset |  | The dot's colour when selected. |
+| `activeColor` | [Color](values.md#type-Color) | unset |  | The dot's color when selected. |
 | `inactiveColor` | [Color](values.md#type-Color) | unset |  | `fillColor` when not selected. |
 | `hoverColor` | [Color](values.md#type-Color) | unset |  |  |
 | `focusColor` | [Color](values.md#type-Color) | unset |  |  |
@@ -393,7 +393,7 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `secondaryTrackValue` | double | unset |  |  |
 | `padding` | [EdgeInsets](values.md#type-EdgeInsets) | unset |  |  |
 | `trackHeight` | double | unset | ≥ 0 |  |
-| `activeTrackColor` | [Color](values.md#type-Color) | unset |  | The track's colour from `min` to the thumb. |
+| `activeTrackColor` | [Color](values.md#type-Color) | unset |  | The track's color from `min` to the thumb. |
 | `inactiveTrackColor` | [Color](values.md#type-Color) | unset |  |  |
 | `secondaryActiveTrackColor` | [Color](values.md#type-Color) | unset |  |  |
 | `thumbColor` | [Color](values.md#type-Color) | unset |  |  |
@@ -638,7 +638,7 @@ A signature pad: strokes drawn with a finger or mouse, on a bordered card with a
 <a id="node-chip"></a>
 ### `chip`
 
-Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -666,7 +666,7 @@ Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing style
 <a id="node-actionChip"></a>
 ### `actionChip`
 
-Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -696,7 +696,7 @@ Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default
 <a id="node-choiceChip"></a>
 ### `choiceChip`
 
-Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -730,7 +730,7 @@ Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding
 <a id="node-filterChip"></a>
 ### `filterChip`
 
-Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -764,7 +764,7 @@ Flutter `FilterChip`: a tap toggles `selected` (written back through its binding
 <a id="node-inputChip"></a>
 ### `inputChip`
 
-Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -943,7 +943,7 @@ Flutter's `InputBorder`: an `OutlineInputBorder` (the default here), an `Underli
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `type` | [InputBorderType](values.md#enum-InputBorderType) | `"outline"` | `none`, `outline`, `underline` | `outline` (a box), `underline` (a line under the text) or `none`. |
-| `borderSide` | [BorderSide](decoration.md#type-BorderSide) | `{}` |  | The line: its colour and width. |
+| `borderSide` | [BorderSide](decoration.md#type-BorderSide) | `{}` |  | The line: its color and width. |
 | `borderRadius` | [BorderRadius](values.md#type-BorderRadius) | `4` |  | The corners' radius. |
 | `gapPadding` | double | `4` | ≥ 0 | The gap around a floating label in an outline border. |
 
@@ -956,7 +956,7 @@ An icon an input shows (`Icon`): a glyph as the icon node's `icon` prop (`{"sour
 |---|---|---|---|---|
 | `icon` | [IconData](values.md#type-IconData) | `{}` |  | The glyph, written as the `icon` node's `props.icon`: a Material icon name (`"search"`) or `{"type": "MATERIAL_ICON", "name": "search"}`. |
 | `size` | double | `24` | ≥ 0 | The glyph's size. |
-| `color` | [Color](values.md#type-Color) | unset |  | The glyph's colour. |
+| `color` | [Color](values.md#type-Color) | unset |  | The glyph's color. |
 | `actions` | List<Reaction> | `[]` |  | Reactions, as a node's: a tap on the icon (`{"trigger": {"type": "click"}, "actions": [...]}`). |
 
 <a id="type-ButtonStyle"></a>
@@ -968,13 +968,13 @@ Flutter's `ButtonStyle`, as the buttons' `styleFrom` takes it. Null fields are t
 |---|---|---|---|---|
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  | The button's fill. |
 | `foregroundColor` | [Color](values.md#type-Color) | unset |  | Label (and icon) color. |
-| `shadowColor` | [Color](values.md#type-Color) | unset |  | The colour of the shadow under a raised button. |
+| `shadowColor` | [Color](values.md#type-Color) | unset |  | The color of the shadow under a raised button. |
 | `elevation` | double | unset |  | How raised the button is (its shadow). |
-| `textStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  | The label's style (a TextStyle or a theme style's name). Its colour comes from `foregroundColor`; without a `fontSize` the label is 12 px. |
+| `textStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  | The label's style (a TextStyle or a theme style's name). Its color comes from `foregroundColor`; without a `fontSize` the label is 12 px. |
 | `side` | [BorderSide](decoration.md#type-BorderSide) | unset |  | The button's border. |
 | `shape` | [ShapeBorder](forms.md#type-ShapeBorder) | unset |  | The button's shape: `{"type": "roundedRectangle", "borderRadius": 10}`, `stadium`, `circle`... |
 | `iconSize` | double | unset |  | The icon's size. |
-| `iconColor` | [Color](values.md#type-Color) | unset |  | The icon's colour; without one, `foregroundColor`. |
+| `iconColor` | [Color](values.md#type-Color) | unset |  | The icon's color; without one, `foregroundColor`. |
 
 <a id="type-ShapeBorder"></a>
 ### ShapeBorder
@@ -1026,10 +1026,10 @@ An icon with its own size, color and tooltip: an app bar's leading icon or actio
 | buttons | `backgroundColor`, `foregroundColor`, `textStyle` (the label's size and weight), `shape` (`{"type": "roundedRectangle", "borderRadius": 10}`), `side` (border), `padding`, `elevation` | `props.style` ([ButtonStyle](#type-ButtonStyle)) |
 | `checkbox` | `activeColor`, `checkColor`, `fillColor`, `side` / `activeSide` (the box's border), `borderRadius`, `compact` | `props` ([checkbox](#node-checkbox)) |
 | `switch` | `activeTrackColor`, `inactiveTrackColor`, `activeThumbColor`, `inactiveThumbColor`, `fillTrack`, `thumbInset`, `trackOutlineWidth`, `trackRadius` | `props` ([switch](#node-switch)) |
-| `radio`, `slider`, `dropdown`, `segmentedButton` | their colours, track and thumb shapes | `props` ([radio](#node-radio), [slider](#node-slider), [dropdown](#node-dropdown), [segmentedButton](#node-segmentedButton)) |
-| a labelled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [a labelled checkbox](#forms-a-labelled-checkbox-or-switch) |
+| `radio`, `slider`, `dropdown`, `segmentedButton` | their colors, track and thumb shapes | `props` ([radio](#node-radio), [slider](#node-slider), [dropdown](#node-dropdown), [segmentedButton](#node-segmentedButton)) |
+| a labeled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [a labeled checkbox](#forms-a-labeled-checkbox-or-switch) |
 
-Every colour there may be a theme colour's name; every text style may name a theme style. An outlined or filled
+Every color there may be a theme color's name; every text style may name a theme style. An outlined or filled
 field that sets no `contentPadding` (nor a `layout.padding`) takes Flutter's default, 12 px at the sides, which
 keeps its text and label off the border; set `contentPadding` for another.
 
@@ -1334,8 +1334,8 @@ there is text by binding the icon:
     "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "query", "value": ""}]}]}}}}
 ```
 
-<a id="forms-a-labelled-checkbox-or-switch"></a>
-### A labelled checkbox or switch
+<a id="forms-a-labeled-checkbox-or-switch"></a>
+### A labeled checkbox or switch
 
 The whole row toggles: the control ignores the pointer and shows the variable; the row's reaction toggles it. A tap
 on a control inside a tappable row otherwise runs the control's own reaction only (the innermost wins).
@@ -1379,7 +1379,7 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 <a id="forms-pitfalls"></a>
 ## Pitfalls
 
-- A button's text is `label`, not `text`; its colours are in `style`, not `decoration`.
+- A button's text is `label`, not `text`; its colors are in `style`, not `decoration`.
 - An input does nothing with its value until a `changed` reaction stores it, or its value prop is bound.
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.

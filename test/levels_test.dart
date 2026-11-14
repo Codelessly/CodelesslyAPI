@@ -91,7 +91,7 @@ void main() {
     expect(above(Level.state), isEmpty);
     final atWidgets = above(Level.widgets);
     expect(atWidgets.map((d) => d.path), ['/nodes/s/actions/0/actions/0', '/nodes/s/actions/0/actions/0/value']);
-    expect(atWidgets.first.message, contains('action setVariable is level 2 (State and behaviour)'));
+    expect(atWidgets.first.message, contains('action setVariable is level 2 (State and behavior)'));
     expect(above(Level.core).map((d) => d.path), contains('/nodes/s/type'));
   });
 }

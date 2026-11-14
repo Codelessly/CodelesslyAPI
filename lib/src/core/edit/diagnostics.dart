@@ -87,7 +87,7 @@ abstract final class EditCodes {
       'A button (a core button, or a component named ...Button with an onPressed event) with no reaction and not disabled: pressing it does nothing.',
       error: false);
   static const lowContrast = EditCode('low_contrast',
-      'Text drawn in (nearly) the colour of the fill behind it, or with no colour (the default near-black) over a dark fill.',
+      'Text drawn in (nearly) the color of the fill behind it, or with no color (the default near-black) over a dark fill.',
       error: false);
   static const missingGlyph = EditCode('missing_glyph',
       'Text with characters the loaded fonts do not have (an arrow, a symbol): they draw as empty boxes. Use an icon node. '
@@ -113,7 +113,7 @@ abstract final class EditCodes {
           'is read). Reported by a renderer.',
       error: false);
   static const textNoColor = EditCode('text_no_color',
-      'A text with no colour, or a transparent one (an unresolved name): it does not show. Reported by a renderer.',
+      'A text with no color, or a transparent one (an unresolved name): it does not show. Reported by a renderer.',
       error: false);
   static const componentEmpty = EditCode('component_empty',
       'A design system component call that rendered nothing: no size, or nothing visible in it (its label or content '

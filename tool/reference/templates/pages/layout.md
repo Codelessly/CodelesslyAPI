@@ -9,7 +9,7 @@ wrap, a row turning into a column, a sticky header).
 ## Minimal example
 
 The text hugs its content, the red box fills the column's width, and in the row the green and blue boxes share the
-free space 1 : 2 (`flex`) beside a fixed grey box.
+free space 1 : 2 (`flex`) beside a fixed gray box.
 
 {{example:sizing}}
 
@@ -98,7 +98,7 @@ The same page in CSS:
 
 ### A capped band
 
-A full-width band with capped, centered content (CSS `max-width: 1200px; margin: 0 auto` inside a coloured band):
+A full-width band with capped, centered content (CSS `max-width: 1200px; margin: 0 auto` inside a colored band):
 the band fills the width and holds the background; its one child fills with `constraints.maxWidth`, centered by the
 band's `crossAxisAlignment` (`center`, the default). Under `crossAxisAlignment: stretch` a cap holds too, as CSS
 `max-width` does: the child sits at the start, or where its `layout.align` puts it (`[0, 0]` centers it). Below, a
@@ -120,7 +120,7 @@ capped). Give every section the same two layers, and they line up at every width
 
 - the **band** (the section) fills the page width, holds its background, and has the page **gutter** as its side
   padding: the same three values in every band, by the same media rules (16 on phones, 32 from 600, 64 from 1024);
-- its one **rail** child fills the band with `"constraints": {"maxWidth": 1200}`, centred (the band's default
+- its one **rail** child fills the band with `"constraints": {"maxWidth": 1200}`, centered (the band's default
   `crossAxisAlignment`); the section's content goes inside the rail.
 
 At 390 every rail starts at 16, at 834 at 32, at 1440 at 120 ((1440 − 1200) / 2: the cap, not the gutter). Never pad
@@ -144,7 +144,7 @@ the `split` flex turns horizontal (its `direction` patched): the stories fill an
 pinned 24 px below the top as the page scrolls. The stories are a `gridView` whose `crossAxisCount` is 1, 2 from
 834 px and 3 from 1200 px; the lead story spans two columns (`"bind": {"layout.columnSpan": "${= index == 0 ? 2 :
 1}"}`), which is the whole row at two columns and the full width at one, because a span is never wider than the
-grid. The masthead is a full-width coloured band whose content is capped at 1200 and centred
+grid. The masthead is a full-width colored band whose content is capped at 1200 and centered
 ([a capped band](@layout-a-capped-band)), as is the split.
 
 {{example:editorial}}
@@ -202,7 +202,7 @@ value where the node binds the field at other sizes, drop the binding in the rul
 
 ### Overlap and bleed
 
-**Overlapping a neighbour** (CSS `margin-top: -36px`, `transform: translateY(-36px)`): Flutter's answer is
+**Overlapping a neighbor** (CSS `margin-top: -36px`, `transform: translateY(-36px)`): Flutter's answer is
 `Transform.translate`: `"motion": {"translateY": -36}` moves what the node paints, not its layout, so the next node
 does not move up; a node later in its parent paints over the ones before it. A media rule may patch it. A card
 overlapping the bottom of a hero band: the card after the hero with `translateY: -36`, and 36 px of `margin` below it
@@ -278,7 +278,7 @@ one part of a screen. Older documents use this:
   axis (it hugs it, or scrolls), a fill is its design number (`fill_fallback`, naming the parent).
 - `x`/`y` mean nothing under a row or column, `flex`/`align` nothing under a stack (`layout_field_ignored`).
 - A stack that hugs its children grows to hold them, so there a negative offset is 0 (`layout_clamped`). A
-  negative margin does not overlap a neighbour (`layout_clamped`): translate with `motion`.
+  negative margin does not overlap a neighbor (`layout_clamped`): translate with `motion`.
 - A media patch replaces a size of another mode: `{"hug": 200}` over `{"fill": 292}` is `{"hug": 200}`. A field
   both patched and bound shows the binding (`media_overridden`): bind in the rule instead.
 - `squeezeChildren` (default true) shrinks children that do not fit, as CSS flex items shrink; false is

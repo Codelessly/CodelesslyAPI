@@ -12,7 +12,7 @@ pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and
 <a id="interaction-minimal-example"></a>
 ## Minimal example
 
-A button-like row that changes colour while hovered and pressed, and while selected:
+A button-like row that changes color while hovered and pressed, and while selected:
 
 ```json
 {
@@ -455,7 +455,7 @@ A node's `actions` is a list of **reactions**: a trigger and the chain of action
 JSON merged over that node (objects merge, other values replace, `null` removes). `selected` and `disabled` follow
 bindings: `"bind": {"selected": "${= tab == 'pricing'}"}` puts the node in its `selected` state, as Flutter's
 `statesController` puts a button in `WidgetState.selected`. Buttons draw it themselves (a tinted fill, the primary
-colour as ink: tabs and toggles made of buttons need nothing more); on other nodes only a `states.selected` patch
+color as ink: tabs and toggles made of buttons need nothing more); on other nodes only a `states.selected` patch
 shows it, so a bound `selected` with none changes nothing (`state_no_effect`). A chip's own selection is its prop,
 `props.selected`. A selected outlined button in a look of its own (a filter or a delivery option):
 
@@ -472,7 +472,7 @@ mouse: on touch screens it never happens, so do not hide anything behind it. Ani
 ### A segmented toggle (monthly / annual)
 
 Two labels in a row with a fill; each label's `selected` binds to the variable (`${= annual}` and
-`${= !annual}`), its `states.selected` patches its fill and text colour, and its click sets the variable. A
+`${= !annual}`), its `states.selected` patches its fill and text color, and its click sets the variable. A
 `switch` bound two-way to the same variable works as well.
 
 <a id="interaction-drag-and-drop"></a>

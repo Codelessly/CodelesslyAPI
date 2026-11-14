@@ -59,7 +59,7 @@ For anything else, call ui_docs with a topic from the index at the end (a page, 
   fix by patching the document as it is (same ids). Never start over with new roots or a new canvas.
 - Text uses the app's font: letters, digits and common punctuation only. Arrows, check marks, stars and other
   symbols are icon nodes (Material icon names: arrow_forward, check, star), not characters.
-- A button has a visible label with an explicit colour: {{button}}.
+- A button has a visible label with an explicit color: {{button}}.
 <!-- end -->
 <!-- if runtime scripts -->
 - Scripts: prefer a script (a scripts op) to long formulas for multi-step state changes, a puzzle's checks or a
@@ -105,10 +105,10 @@ A page is one file. A **site** is a folder with a `site.json` (its pages, compon
 see [checking your work](#base-checking-your-work) and [components](@page-components).
 <!-- end -->
 
-## Theme first: named colours and text styles
+## Theme first: named colors and text styles
 
 Declare a palette and a type scale once and name them everywhere, as a Flutter app declares `ThemeData` and its
-widgets read `Theme.of(context)`. **Write the theme before the first node**: a name per colour the design uses, a
+widgets read `Theme.of(context)`. **Write the theme before the first node**: a name per color the design uses, a
 name per kind of text (display, title, body, label, eyebrow...).
 
 <!-- if files -->
@@ -117,29 +117,29 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
 {{example:theme/site}}
 <!-- end -->
 
-- `colors` maps a name to `"#AARRGGBB"` (or another colour's name). Wherever a colour is accepted (a fill, a
-  stroke, a text's colour, a shadow, an input's border), write its name: `"color": "ember"`.
+- `colors` maps a name to `"#AARRGGBB"` (or another color's name). Wherever a color is accepted (a fill, a
+  stroke, a text's color, a shadow, an input's border), write its name: `"color": "ember"`.
 - `textStyles` maps a name to a [TextStyle](@type-TextStyle); a style may start `from` another (`"title": {"from":
   "body", "fontSize": 32}`). A text names its style: `"style": "title"`; to change a few fields of it,
   `"style": {"from": "title", "color": "ember"}`.
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"`.
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 <!-- if runtime noDesignSystem -->
-- The theme belongs to the app: use the names it gives you; without one, write each colour and style in full.
+- The theme belongs to the app: use the names it gives you; without one, write each color and style in full.
 <!-- end -->
 <!-- if runtime designSystem -->
-- The theme is the design system's tokens (below): name its colours and text styles; do not write them in full.
+- The theme is the design system's tokens (below): name its colors and text styles; do not write them in full.
 <!-- end -->
 
-Controls (buttons, chips, fields, switches, pickers, tabs) take the colours and fonts their props leave unset
+Controls (buttons, chips, fields, switches, pickers, tabs) take the colors and fonts their props leave unset
 from the theme's top-level **roles** (`ColorScheme` names: `primary`, `onPrimary`, `surface`, `onSurface`, `error`),
-which may name a colour but never sit in `colors`. Unstyled controls are SSUI's, never Material's.
+which may name a color but never sit in `colors`. Unstyled controls are SSUI's, never Material's.
 
-**Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colours that differ in dark mode, and
+**Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colors that differ in dark mode, and
 `"mode"` which one the site starts in (Flutter's `ThemeMode`: `system`, the default, follows the device; `light`;
 `dark`). A theme switch is one action, `{"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}`:
-every named colour, named text style and control of every screen follows, and the choice is kept for the next
-visit. Read the mode as `${theme.mode}` and `${theme.isDark}`. Name colours in your text styles (`"color": "ink"`)
+every named color, named text style and control of every screen follows, and the choice is kept for the next
+visit. Read the mode as `${theme.mode}` and `${theme.isDark}`. Name colors in your text styles (`"color": "ink"`)
 so they change with it: [dark mode](@theme-dark-mode).
 <!-- if files -->
 
@@ -232,7 +232,7 @@ only in a row or column that has some (a fill or fixed main size).
 - **A full-width band with capped, centered content** (CSS `max-width: 1200px; margin: 0 auto`): the band fills
   the width and holds the background; its one child fills with `"constraints": {"maxWidth": 1200}`, centered by the
   band's `crossAxisAlignment` (`center`, the default). [The capped band, with an example](@layout-a-capped-band).
-- A negative margin does not overlap a neighbour: to overlap, move what the node paints with `"motion":
+- A negative margin does not overlap a neighbor: to overlap, move what the node paints with `"motion":
   {"translateY": -36}` (layout unchanged), or use a stack. [Overlap and bleed](@layout-overlap-and-bleed).
 
 ### Stacks
@@ -258,7 +258,7 @@ under a stack (`layout_field_ignored`).
   its `type`.
 - `clip: "antiAlias"` clips the children to the rounded box.
 
-Colours are `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half), `"#RRGGBB"` or a theme colour's name; `"#FFF"`,
+Colors are `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half), `"#RRGGBB"` or a theme color's name; `"#FFF"`,
 `rgb()` and CSS names are not read. Patterns in pixels, grain, foreground scrims, icons, paths and custom drawing:
 [decoration](@page-decoration).
 
@@ -289,7 +289,7 @@ The props that matter most; each type's page lists all of them.
 {{replaced}}
 <!-- end -->
 
-- **Buttons**: the text is `label` (not `text`); colours, corners and the label's style are in `style` (a
+- **Buttons**: the text is `label` (not `text`); colors, corners and the label's style are in `style` (a
   [ButtonStyle](@type-ButtonStyle): `backgroundColor`, `foregroundColor`, `textStyle`, `shape`), not in
   `decoration`. Give a button a fixed width or a fill: a hugging button is only as wide as its label. For full
   control, use a `row` with a fill, padding, a text child and a `click` reaction.
@@ -378,7 +378,7 @@ Hover and pressed styles (`states`), drag, gestures: [interaction](@page-interac
    band.
 2. **Use the width.** A tablet and a desktop are not a stretched phone: split the page into content and a rail
    (a `flex` turning horizontal), give content columns (a `gridView` whose `crossAxisCount` grows, a lead item
-   spanning two: `layout.columnSpan`), and let every band fill the width with its content capped and centred. A
+   spanning two: `layout.columnSpan`), and let every band fill the width with its content capped and centered. A
    desktop page that is still one column, or content that stops short of its band, is unfinished:
    [an editorial page at three sizes](@layout-an-editorial-page-at-three-sizes).
 3. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
@@ -394,9 +394,9 @@ Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive lay
 ## Rules that are easy to get wrong
 
 1. Every node needs `layout.width` and `layout.height`; without them it is 0 × 0.
-2. Every text needs a colour; without one it is white.
+2. Every text needs a color; without one it is white.
 3. Padding and margin are a number or four numbers, never two.
-4. Colours are `#AARRGGBB`, `#RRGGBB` or a theme colour's name; define the theme first and name its colours and
+4. Colors are `#AARRGGBB`, `#RRGGBB` or a theme color's name; define the theme first and name its colors and
    styles.
 5. Columns center their children across by default: `"crossAxisAlignment": "start"` for left-aligned content.
 6. A screen taller than the window needs a scrolling body column (`"scrollable": true`, `fill` both ways).
@@ -406,7 +406,7 @@ Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive lay
 10. `fill` takes all the room it is given: cap it with `constraints.maxWidth`. Under a parent that hugs that
     axis, a fill is its design number (`fill_fallback`).
 11. A backslash in a formula is written twice in JSON: `"${= matches(code, '^\\d{4}$')}"`.
-12. Buttons: `label`, colours in `style`. Inputs: `changed` + `setVariable`, two-way by binding the value prop.
+12. Buttons: `label`, colors in `style`. Inputs: `changed` + `setVariable`, two-way by binding the value prop.
 13. Repeated content comes from data: one template in a `listView` / `gridView`, not copies.
 
 <!-- if files -->
@@ -455,7 +455,7 @@ Parameter kinds, slots, events, the manifest, rendering one part: [components](@
 
 ## Examples
 
-Build (a card with a selectable list and a labelled button):
+Build (a card with a selectable list and a labeled button):
 
 {{buildExample}}
 

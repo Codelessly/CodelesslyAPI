@@ -111,7 +111,7 @@ String _tokens(ThemeTokens t) {
       if (t.color(r) != null) r,
   ];
   if (roles.isNotEmpty || t.colors.isNotEmpty) {
-    lines.add('- **Colours** (write the name wherever a colour goes, `"color": "${t.colors.keys.firstOrNull ?? roles.first}"`; '
+    lines.add('- **Colors** (write the name wherever a color goes, `"color": "${t.colors.keys.firstOrNull ?? roles.first}"`; '
         'each has a dark value): ${[...roles, ...t.colors.keys].map((n) => '`$n`').join(', ')}.');
   }
   if (t.textStyles.isNotEmpty) {

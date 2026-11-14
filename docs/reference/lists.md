@@ -717,7 +717,7 @@ A tap on a day flips it in the habit's record (`setAt` and `set` build the new l
 ### A carousel, pages and pagination
 
 A `pageView` shows one item (or child) per page and swipes between them (`viewportFraction` below 1 shows the
-neighbours' edges; `initialPage`). Long lists that load in pages: the list's `pagination` settings, with a
+neighbors' edges; `initialPage`). Long lists that load in pages: the list's `pagination` settings, with a
 `pagination` control or the `paginate` action to move between pages.
 
 A rail of cards with arrows, dots and a progress bar is a horizontal `listView` (or scrolling `row`):
@@ -727,7 +727,7 @@ A rail of cards with arrows, dots and a progress bar is a horizontal `listView` 
 - Its `scroll` reaction gives `${result.index}` (the card at the start; the last at the end), `${result.count}`,
   `${result.offset}` and `${result.fraction}` (0–1): store them in variables the controls bind.
 - An arrow is `{"type": "scrollTo", "node": "<item template>", "item": "${= current + 1}"}`: `item` is the key or
-  the index of the card to bring to the start (`alignment` 0; 0.5 centres it). A dot scrolls to its own `${index}`.
+  the index of the card to bring to the start (`alignment` 0; 0.5 centers it). A dot scrolls to its own `${index}`.
   For a scrolling `row` of fixed children, name the child: `"node": "card${= current + 1}"`.
 
 The same pattern moves a horizontal timeline from its year buttons, or a featured-routes carousel from its dots:

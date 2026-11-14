@@ -2,7 +2,7 @@
 
 ## When to use
 
-Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows
+Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows
 (its fields) or an enum (its names). Link to one with `values.md#type-<Name>` or `values.md#enum-<Name>`. Models
 that belong to a feature are on that feature's page (TextStyle on the theme page, InputDecoration on the forms
 page...); the [A–Z](index.md#index-a-z) finds any of them.
@@ -38,9 +38,9 @@ Written as the value's name, a JSON string (`"center"`).
 
 ## Patterns
 
-### Colours and alignments
+### Colors and alignments
 
-A colour is `"#AARRGGBB"`, `"#RRGGBB"` or a theme colour's name. An alignment is `[x, y]` from -1 to 1 or a name
+A color is `"#AARRGGBB"`, `"#RRGGBB"` or a theme color's name. An alignment is `[x, y]` from -1 to 1 or a name
 (`"topCenter"`, `"centerRight"`).
 
 ## Pitfalls

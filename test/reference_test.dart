@@ -69,7 +69,7 @@ void main() {
   test('every JSON block of every page parses, and every whole document in them is valid', () {
     var documents = 0, blocks = 0;
     for (final f in [...pageFiles, 'STARTER.md', 'RUNTIME_STARTER.md']) {
-      // Blocks labelled with a site's file name (`pages/home.json`:) are the
+      // Blocks labeled with a site's file name (`pages/home.json`:) are the
       // files of one site, validated together against its site.json.
       final site = <String, Object?>{};
       Json? manifest;

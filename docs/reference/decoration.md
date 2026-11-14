@@ -68,12 +68,12 @@ A card with a solid fill, a border, rounded corners and a shadow, and a gradient
 ### Decoration fields
 
 A node's `"decoration"`: what its box paints. Types without a box decoration keep only blur effects. Fills paint
-bottom to top under the node's content; `foregroundFills` paint over it, children included. Every colour may be a
-theme colour's name.
+bottom to top under the node's content; `foregroundFills` paint over it, children included. Every color may be a
+theme color's name.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `fills` | List<[Paint](decoration.md#type-Paint)> | `[]` |  | Paints for the box, bottom to top: a colour, a gradient, an image or noise. |
+| `fills` | List<[Paint](decoration.md#type-Paint)> | `[]` |  | Paints for the box, bottom to top: a color, a gradient, an image or noise. |
 | `strokes` | List<[Paint](decoration.md#type-Paint)> | `[]` |  | Paints for the border, drawn `strokeWidth` wide. |
 | `strokeWidth` | double | `1` | ≥ 0 | The border's width in pixels. Without `strokes` it draws nothing. |
 | `strokeAlign` | [StrokeAlign](values.md#enum-StrokeAlign) | `"inside"` | `inside`, `center`, `outside` |  |
@@ -100,8 +100,8 @@ Flutter `Icon` (font icons) or an SVG/image icon.
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `icon` | [IconData](values.md#type-IconData) | `{}` |  | Which glyph: a Material icon name, `"check_circle"` (a style by suffix: `"search_rounded"`), the one form to write everywhere (an icon node, an input's `prefixIcon`). Also read: an image URL, and the object forms of older documents (`{"type": "MATERIAL_ICON", "name", "style"}`, `{"type": "CUPERTINO_ICON", "codepoint"}`). |
-| `color` | [Color](values.md#type-Color) | unset |  | The glyph's colour (`"#AARRGGBB"` or a theme colour's name). |
-| `size` | double | unset | ≥ 0 | Flutter `Icon.size`: the glyph's width and height. Unset, the glyph fills the node's box (contained, centred), as before. Set, the glyph is drawn at this size, centred in the node's box (at most the box), and a hugging axis of the node takes it (`{"hug": 24}` with `"size": 18` is 18 wide). |
+| `color` | [Color](values.md#type-Color) | unset |  | The glyph's color (`"#AARRGGBB"` or a theme color's name). |
+| `size` | double | unset | ≥ 0 | Flutter `Icon.size`: the glyph's width and height. Unset, the glyph fills the node's box (contained, centered), as before. Set, the glyph is drawn at this size, centered in the node's box (at most the box), and a hugging axis of the node takes it (`{"hug": 24}` with `"size": 18` is 18 wide). |
 
 <a id="node-path"></a>
 ### `path`
@@ -164,10 +164,10 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `type` | [PaintType](values.md#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise` | What the paint is: `solid` (a colour), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`), `image`, or `noise`. Without one: an image if it has `image`, a linear gradient if it has `stops`, else solid. |
+| `type` | [PaintType](values.md#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise` | What the paint is: `solid` (a color), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`), `image`, or `noise`. Without one: an image if it has `image`, a linear gradient if it has `stops`, else solid. |
 | `id` | String | unset |  | Stable id, so a binding can target one paint (`fill-<id>`). |
 | `visible` | bool | `true` |  | False keeps the paint but does not draw it. |
-| `opacity` | double | `1` | ≥ 0, ≤ 1 | The paint's opacity, 0 to 1, multiplied with its colours' own alpha. |
+| `opacity` | double | `1` | ≥ 0, ≤ 1 | The paint's opacity, 0 to 1, multiplied with its colors' own alpha. |
 | `blendMode` | [BlendMode](values.md#enum-BlendMode) | `"srcOver"` |  | How the paint blends with what is under it (CSS `mix-blend-mode`). |
 | `color` | [Color](values.md#type-Color) | unset |  | Solid color (type `solid`). |
 | `stops` | List<[ColorStop](decoration.md#type-ColorStop)> | `[]` |  | Gradient stops (gradient types). |
@@ -175,7 +175,7 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `begin` | [Alignment](values.md#type-Alignment) | unset |  | Linear: where the gradient starts, an alignment (`[-1, 0]` or `"centerLeft"`, Flutter `LinearGradient.begin`). Read into `transform`; default the left edge. |
 | `end` | [Alignment](values.md#type-Alignment) | unset |  | Linear: where the gradient ends (Flutter `LinearGradient.end`). `"begin": [0, -1], "end": [0, 1]` runs top to bottom; `"begin": [-1, 0], "end": [-0.9, 0]` with `"tileMode": "repeated"` repeats it every 5% of the width. |
 | `center` | [Alignment](values.md#type-Alignment) | unset |  | Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center. |
-| `tileMode` | [TileMode](values.md#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` | What a gradient does past `begin` and `end`: `clamp` (keeps the end colours), `repeated`, `mirror`, `decal`. |
+| `tileMode` | [TileMode](values.md#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` | What a gradient does past `begin` and `end`: `clamp` (keeps the end colors), `repeated`, `mirror`, `decal`. |
 | `image` | [ImagePaint](decoration.md#type-ImagePaint) | unset |  | Image (type `image`). |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
 | `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
@@ -188,8 +188,8 @@ One gradient stop.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `position` | double | `0` | ≥ 0, ≤ 1 | Where the colour sits along the gradient, 0 (its start) to 1 (its end). |
-| `color` | [Color](values.md#type-Color) | `"#FF000000"` |  | The colour at `position`. |
+| `position` | double | `0` | ≥ 0, ≤ 1 | Where the color sits along the gradient, 0 (its start) to 1 (its end). |
+| `color` | [Color](values.md#type-Color) | `"#FF000000"` |  | The color at `position`. |
 
 <a id="type-ImagePaint"></a>
 ### ImagePaint
@@ -232,7 +232,7 @@ A shadow or blur (Flutter's `BoxShadow`, `ImageFilter.blur`).
 | `type` | [EffectType](values.md#enum-EffectType) | `"dropShadow"` | `dropShadow`, `innerShadow`, `layerBlur`, `backgroundBlur` | The effect: `dropShadow`, `innerShadow`, `layerBlur` (blurs the node) or `backgroundBlur` (blurs what is behind it: frosted glass). Required: an effect without a type is dropped. |
 | `id` | String | unset |  | An id a binding can select the effect by (`decoration.effects.glow.color`). |
 | `visible` | bool | `true` |  | False keeps the effect but does not draw it. |
-| `color` | [Color](values.md#type-Color) | `"#40000000"` |  | The shadow's colour. |
+| `color` | [Color](values.md#type-Color) | `"#40000000"` |  | The shadow's color. |
 | `offset` | [Offset](values.md#type-Offset) | `[0,0]` |  | The shadow's offset `[dx, dy]` in pixels. |
 | `blurRadius` | double | `0` | ≥ 0 | How soft the shadow or blur is, in pixels. |
 | `spreadRadius` | double | `0` |  | How far the shadow grows past the box before blurring, in pixels. |
@@ -245,7 +245,7 @@ Flutter's `BorderSide`. A null `color` is unset: the widget's theme default wher
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `color` | [Color](values.md#type-Color) | unset |  | The line's colour. |
+| `color` | [Color](values.md#type-Color) | unset |  | The line's color. |
 | `width` | double | `1` | ≥ 0 | The line's width in pixels. |
 | `style` | [BorderStyle](values.md#enum-BorderStyle) | `"solid"` | `none`, `solid` | `solid` or `none`. |
 | `strokeAlign` | [StrokeAlign](values.md#enum-StrokeAlign) | `"inside"` | `inside`, `center`, `outside` | Where the line sits on the edge: inside, centered on it, or outside. |
@@ -258,9 +258,9 @@ Flutter's `BorderSide`. A null `color` is unset: the widget's theme default wher
 
 As Flutter's `LinearGradient`, a linear gradient runs from `"begin"` to `"end"` (alignments; default left to
 right; `[0, -1]` to `[0, 1]` is top to bottom). As `RadialGradient`, a radial one has a `"center"` and a `"radius"`
-(a share of the box's shortest side); past the last stop it keeps that stop's colour, so end a glow on a transparent
+(a share of the box's shortest side); past the last stop it keeps that stop's color, so end a glow on a transparent
 stop. `transform` is the general form. A paint without `type` is an image if it has `image`, a linear gradient if it
-has `stops`, else a solid colour.
+has `stops`, else a solid color.
 
 <a id="decoration-a-pattern-in-pixels-a-background-grid-grain"></a>
 ### A pattern in pixels, a background grid, grain
@@ -508,7 +508,7 @@ op per color.
 ## Pitfalls
 
 - An effect needs its `type`; without it the effect is dropped.
-- Colours are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
+- Colors are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
 - A `path` node without a `viewBox` is drawn in its box's own pixels from the top left and is not clipped to the
   box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
 - Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
@@ -518,5 +518,5 @@ op per color.
 <a id="decoration-see-also"></a>
 ## See also
 
-[Theme](theme.md#page-theme) (named colours) · [animation](animation.md#page-animation) (shimmer, motion) · [values](values.md#page-values)
+[Theme](theme.md#page-theme) (named colors) · [animation](animation.md#page-animation) (shimmer, motion) · [values](values.md#page-values)
 (Alignment, BorderRadius and the enums).

@@ -983,7 +983,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The glyph's colour (`\"#AARRGGBB\"` or a theme colour's name)."
+          "doc": "The glyph's color (`\"#AARRGGBB\"` or a theme color's name)."
         },
         {
           "key": "size",
@@ -992,7 +992,7 @@
           "default": null,
           "nullable": true,
           "min": 0.0,
-          "doc": "Flutter `Icon.size`: the glyph's width and height. Unset, the glyph fills the node's box (contained, centred), as before. Set, the glyph is drawn at this size, centred in the node's box (at most the box), and a hugging axis of the node takes it (`{\"hug\": 24}` with `\"size\": 18` is 18 wide)."
+          "doc": "Flutter `Icon.size`: the glyph's width and height. Unset, the glyph fills the node's box (contained, centered), as before. Set, the glyph is drawn at this size, centered in the node's box (at most the box), and a hugging axis of the node takes it (`{\"hug\": 24}` with `\"size\": 18` is 18 wide)."
         }
       ],
       "docs": "decoration.md#node-icon"
@@ -3339,7 +3339,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The track's colour when on."
+          "doc": "The track's color when on."
         },
         {
           "key": "inactiveTrackColor",
@@ -3569,7 +3569,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The dot's colour when selected."
+          "doc": "The dot's color when selected."
         },
         {
           "key": "inactiveColor",
@@ -3737,7 +3737,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The track's colour from `min` to the thumb."
+          "doc": "The track's color from `min` to the thumb."
         },
         {
           "key": "inactiveTrackColor",
@@ -5271,7 +5271,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The button's text (not `text`). Its colour, size and weight are in `style`."
+          "doc": "The button's text (not `text`). Its color, size and weight are in `style`."
         },
         {
           "key": "textAlign",
@@ -5335,7 +5335,7 @@
           "default": {},
           "nullable": false,
           "object": "ButtonStyle",
-          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
+          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`."
         },
         {
           "key": "autofocus",
@@ -5370,7 +5370,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The button's text (not `text`). Its colour, size and weight are in `style`."
+          "doc": "The button's text (not `text`). Its color, size and weight are in `style`."
         },
         {
           "key": "textAlign",
@@ -5434,7 +5434,7 @@
           "default": {},
           "nullable": false,
           "object": "ButtonStyle",
-          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
+          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`."
         },
         {
           "key": "autofocus",
@@ -5477,7 +5477,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The button's text (not `text`). Its colour, size and weight are in `style`."
+          "doc": "The button's text (not `text`). Its color, size and weight are in `style`."
         },
         {
           "key": "textAlign",
@@ -5541,7 +5541,7 @@
           "default": {},
           "nullable": false,
           "object": "ButtonStyle",
-          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
+          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`."
         },
         {
           "key": "autofocus",
@@ -5576,7 +5576,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The button's text (not `text`). Its colour, size and weight are in `style`."
+          "doc": "The button's text (not `text`). Its color, size and weight are in `style`."
         },
         {
           "key": "textAlign",
@@ -5640,7 +5640,7 @@
           "default": {},
           "nullable": false,
           "object": "ButtonStyle",
-          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
+          "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`."
         },
         {
           "key": "autofocus",
@@ -5662,7 +5662,7 @@
       "docs": "forms.md#node-outlinedButton"
     },
     "iconButton": {
-      "doc": "Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. Give it a \"tooltip\" (the behavior) to name it.\n\n`IconButton`: an icon, styled by a `ButtonStyle`.",
+      "doc": "Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. Give it a \"tooltip\" (the behavior) to name it.\n\n`IconButton`: an icon, styled by a `ButtonStyle`.",
       "flutter": "IconButton",
       "children": "none",
       "slots": [],
@@ -5879,7 +5879,7 @@
       "docs": "forms.md#node-floatingActionButton"
     },
     "chip": {
-      "doc": "Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
+      "doc": "Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
       "flutter": "Chip",
       "children": "none",
       "slots": [],
@@ -6018,7 +6018,7 @@
       "docs": "forms.md#node-chip"
     },
     "actionChip": {
-      "doc": "Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
+      "doc": "Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
       "flutter": "ActionChip",
       "children": "none",
       "slots": [],
@@ -6173,7 +6173,7 @@
       "docs": "forms.md#node-actionChip"
     },
     "choiceChip": {
-      "doc": "Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
+      "doc": "Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
       "flutter": "ChoiceChip",
       "children": "none",
       "slots": [],
@@ -6360,7 +6360,7 @@
       "docs": "forms.md#node-choiceChip"
     },
     "filterChip": {
-      "doc": "Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
+      "doc": "Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
       "flutter": "FilterChip",
       "children": "none",
       "slots": [],
@@ -6547,7 +6547,7 @@
       "docs": "forms.md#node-filterChip"
     },
     "inputChip": {
-      "doc": "Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
+      "doc": "Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.\n\n`Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.",
       "flutter": "InputChip",
       "children": "none",
       "slots": [],
@@ -7603,7 +7603,7 @@
       "docs": "navigation.md#node-modal"
     },
     "circularProgressIndicator": {
-      "doc": "Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary colour, round-ended, 16 px when it hugs.\n\nFlutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).",
+      "doc": "Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary color, round-ended, 16 px when it hugs.\n\nFlutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).",
       "flutter": "CircularProgressIndicator",
       "children": "none",
       "slots": [],
@@ -7693,7 +7693,7 @@
       "docs": "charts.md#node-circularProgressIndicator"
     },
     "activityIndicator": {
-      "doc": "Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text colour unless `color` says.\n\nFlutter `CupertinoActivityIndicator`.",
+      "doc": "Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text color unless `color` says.\n\nFlutter `CupertinoActivityIndicator`.",
       "flutter": "CupertinoActivityIndicator",
       "children": "none",
       "slots": [],
@@ -8212,7 +8212,7 @@
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": "How far inside the arc's centre line the labels sit (null: inside the track, clear of the ticks)."
+          "doc": "How far inside the arc's center line the labels sit (null: inside the track, clear of the ticks)."
         },
         {
           "key": "labelTicks",
@@ -8946,7 +8946,7 @@
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": "Each total's bottom this far above its bar; null centres it 10 px above the bar."
+          "doc": "Each total's bottom this far above its bar; null centers it 10 px above the bar."
         },
         {
           "key": "stackGap",
@@ -9074,7 +9074,7 @@
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": "The x labels' top this far below the plot; null centres them in the band (`xAxisHeight`)."
+          "doc": "The x labels' top this far below the plot; null centers them in the band (`xAxisHeight`)."
         },
         {
           "key": "gridLineMode",
@@ -9761,7 +9761,7 @@
           "nullable": false,
           "item": "Color",
           "itemKind": "value",
-          "doc": "Per-bar colours; missing entries fall back to color."
+          "doc": "Per-bar colors; missing entries fall back to color."
         },
         {
           "key": "dimmedOpacity",
@@ -9919,7 +9919,7 @@
           "default": null,
           "nullable": true,
           "min": 0.0,
-          "doc": "The widest a bar gets, centred in its column (null: the column)."
+          "doc": "The widest a bar gets, centered in its column (null: the column)."
         },
         {
           "key": "showValues",
@@ -10581,7 +10581,7 @@
           "default": 0,
           "nullable": false,
           "min": 0.0,
-          "doc": "Pixels each dark bar and module reaches past its right and bottom edge, so neighbours overlap: no hairline seams where anti-aliased edges meet, and a small ink gain (as `canvas.drawRect` codes widen bars to hide seams). 0 draws the exact geometry."
+          "doc": "Pixels each dark bar and module reaches past its right and bottom edge, so neighbors overlap: no hairline seams where anti-aliased edges meet, and a small ink gain (as `canvas.drawRect` codes widen bars to hide seams). 0 draws the exact geometry."
         }
       ],
       "docs": "charts.md#node-barcode"
@@ -11590,7 +11590,7 @@
         "item": "Paint",
         "itemKind": "object",
         "item_object": "Paint",
-        "doc": "Paints for the box, bottom to top: a colour, a gradient, an image or noise."
+        "doc": "Paints for the box, bottom to top: a color, a gradient, an image or noise."
       },
       {
         "key": "strokes",
@@ -15733,7 +15733,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The line's colour."
+          "doc": "The line's color."
         },
         {
           "key": "width",
@@ -15844,7 +15844,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The colour of the shadow under a raised button."
+          "doc": "The color of the shadow under a raised button."
         },
         {
           "key": "elevation",
@@ -15861,7 +15861,7 @@
           "default": {},
           "nullable": false,
           "object": "TextStyle",
-          "doc": "The label's style (a TextStyle or a theme style's name). Its colour comes from `foregroundColor`; without a `fontSize` the label is 12 px."
+          "doc": "The label's style (a TextStyle or a theme style's name). Its color comes from `foregroundColor`; without a `fontSize` the label is 12 px."
         },
         {
           "key": "side",
@@ -15895,7 +15895,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The icon's colour; without one, `foregroundColor`."
+          "doc": "The icon's color; without one, `foregroundColor`."
         }
       ]
     },
@@ -16099,7 +16099,7 @@
           "nullable": false,
           "min": 0.0,
           "max": 1.0,
-          "doc": "Where the colour sits along the gradient, 0 (its start) to 1 (its end)."
+          "doc": "Where the color sits along the gradient, 0 (its start) to 1 (its end)."
         },
         {
           "key": "color",
@@ -16107,7 +16107,7 @@
           "kind": "value",
           "default": "#FF000000",
           "nullable": false,
-          "doc": "The colour at `position`."
+          "doc": "The color at `position`."
         }
       ]
     },
@@ -16560,7 +16560,7 @@
           "kind": "value",
           "default": "#40000000",
           "nullable": false,
-          "doc": "The shadow's colour."
+          "doc": "The shadow's color."
         },
         {
           "key": "offset",
@@ -17193,7 +17193,7 @@
           "default": {},
           "nullable": false,
           "object": "BorderSide",
-          "doc": "The line: its colour and width."
+          "doc": "The line: its color and width."
         },
         {
           "key": "borderRadius",
@@ -17628,7 +17628,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The glyph's colour."
+          "doc": "The glyph's color."
         },
         {
           "key": "actions",
@@ -17943,7 +17943,7 @@
       ]
     },
     "Measure": {
-      "doc": "Writes where the node is laid out, `{x, y, width, height, centerX, centerY}` in pixels, to a variable as layout changes: in the coordinates of the ancestor node `relativeTo` (empty: the screen), under `key` when the variable is a map. Other nodes then follow it: a marker travelling to the chip of the reader's layer on a timeline whose chips are laid out by data. The design canvas measures too.",
+      "doc": "Writes where the node is laid out, `{x, y, width, height, centerX, centerY}` in pixels, to a variable as layout changes: in the coordinates of the ancestor node `relativeTo` (empty: the screen), under `key` when the variable is a map. Other nodes then follow it: a marker traveling to the chip of the reader's layer on a timeline whose chips are laid out by data. The design canvas measures too.",
       "fields": [
         {
           "key": "variable",
@@ -18598,7 +18598,7 @@
             "image",
             "noise"
           ],
-          "doc": "What the paint is: `solid` (a colour), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`), `image`, or `noise`. Without one: an image if it has `image`, a linear gradient if it has `stops`, else solid."
+          "doc": "What the paint is: `solid` (a color), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`), `image`, or `noise`. Without one: an image if it has `image`, a linear gradient if it has `stops`, else solid."
         },
         {
           "key": "id",
@@ -18624,7 +18624,7 @@
           "nullable": false,
           "min": 0.0,
           "max": 1.0,
-          "doc": "The paint's opacity, 0 to 1, multiplied with its colours' own alpha."
+          "doc": "The paint's opacity, 0 to 1, multiplied with its colors' own alpha."
         },
         {
           "key": "blendMode",
@@ -18701,7 +18701,7 @@
             "mirror",
             "decal"
           ],
-          "doc": "What a gradient does past `begin` and `end`: `clamp` (keeps the end colours), `repeated`, `mirror`, `decal`."
+          "doc": "What a gradient does past `begin` and `end`: `clamp` (keeps the end colors), `repeated`, `mirror`, `decal`."
         },
         {
           "key": "image",
@@ -20386,7 +20386,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The colour of the `decoration` line; without one, the text's colour."
+          "doc": "The color of the `decoration` line; without one, the text's color."
         },
         {
           "key": "backgroundColor",
@@ -22089,15 +22089,15 @@
     "ChartGridLineMode": [
       {
         "value": "centered",
-        "doc": "How a series chart places its grid lines (and solid reference lines). `centered`: centred on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centred on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise)."
+        "doc": "How a series chart places its grid lines (and solid reference lines). `centered`: centered on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centered on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise)."
       },
       {
         "value": "crisp",
-        "doc": "How a series chart places its grid lines (and solid reference lines). `centered`: centred on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centred on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise)."
+        "doc": "How a series chart places its grid lines (and solid reference lines). `centered`: centered on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centered on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise)."
       },
       {
         "value": "exact",
-        "doc": "How a series chart places its grid lines (and solid reference lines). `centered`: centred on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centred on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise)."
+        "doc": "How a series chart places its grid lines (and solid reference lines). `centered`: centered on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centered on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise)."
       }
     ],
     "ChartSeriesKind": [
@@ -22827,19 +22827,19 @@
     "LineChartXLabelAnchor": [
       {
         "value": "edgeClamped",
-        "doc": "Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it."
+        "doc": "Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it."
       },
       {
         "value": "start",
-        "doc": "Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it."
+        "doc": "Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it."
       },
       {
         "value": "center",
-        "doc": "Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it."
+        "doc": "Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it."
       },
       {
         "value": "end",
-        "doc": "Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it."
+        "doc": "Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it."
       }
     ],
     "ListApply": [
@@ -23633,11 +23633,11 @@
     "SignMarkPlacement": [
       {
         "value": "above",
-        "doc": "Where a signature pad's mark sits: over the line's start, or before the line (centred on it, the line starting after it)."
+        "doc": "Where a signature pad's mark sits: over the line's start, or before the line (centered on it, the line starting after it)."
       },
       {
         "value": "leading",
-        "doc": "Where a signature pad's mark sits: over the line's start, or before the line (centred on it, the line starting after it)."
+        "doc": "Where a signature pad's mark sits: over the line's start, or before the line (centered on it, the line starting after it)."
       }
     ],
     "SignaturePlaceholderPosition": [
@@ -25981,7 +25981,7 @@
     {
       "code": "theme_role_in_colors",
       "severity": "warning",
-      "meaning": "A colour role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's \"colors\": roles are top-level keys of the theme, so controls never read it. Move it up (\"primary\": \"#FF...\" or \"primary\": \"<a colour's name>\")."
+      "meaning": "A color role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's \"colors\": roles are top-level keys of the theme, so controls never read it. Move it up (\"primary\": \"#FF...\" or \"primary\": \"<a color's name>\")."
     },
     {
       "code": "invalid_fonts",

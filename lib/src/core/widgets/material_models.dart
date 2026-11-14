@@ -319,11 +319,11 @@ abstract final class ButtonStyleFields {
   /// The button's fill.
   static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.optionalColor, null);
   static const foregroundColor = PropDef<Color?>('foregroundColor', Codecs.optionalColor, null);
-  /// The colour of the shadow under a raised button.
+  /// The color of the shadow under a raised button.
   static const shadowColor = PropDef<Color?>('shadowColor', Codecs.optionalColor, null);
   /// How raised the button is (its shadow).
   static const elevation = PropDef<double?>('elevation', Codecs.optionalDouble, null);
-  /// The label's style (a TextStyle or a theme style's name). Its colour comes from `foregroundColor`; without a
+  /// The label's style (a TextStyle or a theme style's name). Its color comes from `foregroundColor`; without a
   /// `fontSize` the label is 12 px.
   static const textStyle = PropDef<TextStyle>('textStyle', Codecs.textStyle, TextStyle.empty);
   /// The button's border.
@@ -332,7 +332,7 @@ abstract final class ButtonStyleFields {
   static const shape = PropDef<ShapeBorder?>('shape', ShapeBorderFields.codec, null);
   /// The icon's size.
   static const iconSize = PropDef<double?>('iconSize', Codecs.optionalDouble, null);
-  /// The icon's colour; without one, `foregroundColor`.
+  /// The icon's color; without one, `foregroundColor`.
   static const iconColor = PropDef<Color?>('iconColor', Codecs.optionalColor, null);
   static const spec = WidgetSpec('ButtonStyle',
       props: [backgroundColor, foregroundColor, shadowColor, elevation, textStyle, side, shape, iconSize, iconColor],

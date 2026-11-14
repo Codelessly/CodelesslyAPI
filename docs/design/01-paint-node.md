@@ -506,7 +506,7 @@ paint). The step changes the type, moves `props.path` to `props.data` (and the b
 `strokeMiterLimit` (the path node gains `strokeMiterLimit`, `Paint.strokeMiterLimit`); a box without a path loses
 the two props it never read. `gradientPerSubpath` on the box's paints, which it never read, is dropped first.
 
-Where the box painter drew differently the step reports a behaviour change on the node: a fill with a rounded
+Where the box painter drew differently the step reports a behavior change on the node: a fill with a rounded
 radius (clipped to the rounded rectangle too), a gradient stroke (drawn in its first stop's color), foreground
 fills (a path node draws none), a dash pattern beyond one dash and gap or over several subpaths, inner shadows
 (drawn now), blending fills (a layer now), a fixed-size box whose path reaches outside it (filled there now), a bound
@@ -576,5 +576,5 @@ with each frame of the slider. The ops read `size` (the slider's box) and `slide
 dragged too), `min`, `max`, `trackRect` (`left`, `top`, `width`, `height`: `SliderTrackShape.getPreferredRect`) and
 `thumbCenter` (`x`, `y`). Hit regions and a view box are not read there. The SDK's
 test/migration/special_fields_test.dart matches each migrated look against 30.1.0's drawing: identical, but the
-fade (now the inactive colour laid over the active track, fading out) is within one level except at the 12
+fade (now the inactive color laid over the active track, fading out) is within one level except at the 12
 anti-aliased pixels of the track's rounded end.

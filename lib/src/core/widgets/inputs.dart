@@ -216,7 +216,7 @@ abstract final class SwitchProps {
   /// Whether the switch is on. Bind it to a variable and store the `changed` value in that variable.
   static const value = PropDef<bool>('value', Codecs.bool, false);
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
-  /// The track's colour when on.
+  /// The track's color when on.
   static const activeTrackColor = PropDef<Color?>('activeTrackColor', Codecs.color, null);
   static const inactiveTrackColor = PropDef<Color?>('inactiveTrackColor', Codecs.color, null);
   static const activeThumbColor = PropDef<Color?>('activeThumbColor', Codecs.color, null);
@@ -304,7 +304,7 @@ abstract final class RadioProps {
   static const groupValue = PropDef<String?>('groupValue', Codecs.string, null);
   static const toggleable = PropDef<bool>('toggleable', Codecs.bool, false);
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
-  /// The dot's colour when selected.
+  /// The dot's color when selected.
   static const activeColor = PropDef<Color?>('activeColor', Codecs.color, null);
 
   /// `fillColor` when not selected.
@@ -402,7 +402,7 @@ abstract final class SliderProps {
 
   // SliderThemeData.
   static const trackHeight = PropDef<double?>('trackHeight', Codecs.positive, null);
-  /// The track's colour from `min` to the thumb.
+  /// The track's color from `min` to the thumb.
   static const activeTrackColor = PropDef<Color?>('activeTrackColor', Codecs.color, null);
   static const inactiveTrackColor = PropDef<Color?>('inactiveTrackColor', Codecs.color, null);
   static const secondaryActiveTrackColor = PropDef<Color?>('secondaryActiveTrackColor', Codecs.color, null);
@@ -748,7 +748,7 @@ Object? _strokesOut(List<List<Offset>> v) => [
 enum SignLineStyle { solid, dashed }
 
 /// Where a signature pad's mark sits: over the line's start, or before the
-/// line (centred on it, the line starting after it).
+/// line (centered on it, the line starting after it).
 enum SignMarkPlacement { above, leading }
 
 /// Where a signature pad's placeholder sits.

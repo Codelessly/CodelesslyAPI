@@ -1,10 +1,10 @@
 # Schema 2 → 3: the migration over the corpus
 
-106 documents migrated; 3502 rewrites, 24 unconvertible values, 29 behaviour changes.
+106 documents migrated; 3502 rewrites, 24 unconvertible values, 29 behavior changes.
 
 ## Entries per step
 
-| Step | Rewrites | Unconvertible | Behaviour changes | Documents |
+| Step | Rewrites | Unconvertible | Behavior changes | Documents |
 |---|---|---|---|---|
 | `action.animateVariable` | 3 | 0 | 0 | 1 |
 | `action.playAnimation` | 42 | 0 | 0 | 4 |
@@ -34,7 +34,7 @@
   - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_rBb4H5uJLh77NDKr_raw.json#/result`: 0SgaqW7XhgQeMSEHHpLb/track/smooth = `true`; 0SgaqVbOWybKkCF5Kz4h/track/smooth = `true`; 0SgaqVIw3MHCAHG9Lso8/track/smooth = `true`
   - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_rCME4aBQcdyOppRp_raw.json#/result`: 0SgaqYOHd70ap2miX3Y4/track/smooth = `true`; 0SgaqY9xib6qDnNIr5Ah/track/smooth = `true`; 0SgaqXwj3MO0xD2G4jKl/track/smooth = `true`
 
-## Behaviour changes
+## Behavior changes
 
 - **`track.oneApp`**: `track.fineStep` no longer acts: A boolean variable set by keyDown/keyUp (Shift) and a hold reaction, bound into "track.step" and "track.pixelsPerRange". Instead: Used by: cutroom, cutroom_v2, darkroom.
   - `CodelesslyEditor/references/cutroom/editor/publish-local.json#/result/layouts/cutroom`: ho1st9hlcw-12x/track/fineStep = `0.01`; ho1st9hlcw-12y/track/fineStep = `0.01`; ho1st9hlcw-16l/track/fineStep = `0.01`; ho1st9hlcw-16m/track/fineStep = `0.01`; ho1st9hlcw-1aa/track/fineStep = `0.01`; ho1st9hlcw-1ab/track/fineStep = `0.01`
@@ -62,9 +62,9 @@
 "30.1.0"): `transform.fold`, `hero.flight`, `paths.moved`, then the paint steps (`paint.patches`,
 `paint.strokePath`, `paint.boxPath`, `paint.perShape`), then `patches.moved`. Of the totals above they made 1020
 rewrites (`transform.fold` 362, `patches.moved` 330, `hero.flight` 10, `paint.strokePath` 140, `paint.boxPath` 133,
-`paint.perShape` 45), nothing unconvertible, and the 5 behaviour changes of `paint.boxPath`, in two m05 experiments
+`paint.perShape` 45), nothing unconvertible, and the 5 behavior changes of `paint.boxPath`, in two m05 experiments
 (a logo mark's path reaching past its box, a bound path); the other 2482 rewrites, 24 unconvertible values and 24
-behaviour changes are schema 2's steps, as in 30.0.0. Run again on their own output, the one-way steps change
+behavior changes are schema 2's steps, as in 30.0.0. Run again on their own output, the one-way steps change
 nothing in any document.
 
 - **A document marked `"schema": 3` is read as it is.** One written with 30.0.0's spellings (`scale`,
@@ -91,11 +91,11 @@ read as it is: these tables cover the 53 still at schema 2, so their counts are 
 No document in the corpus, at either schema, uses one of the 21 removed fields: the five special-case steps make no
 entry. The run had no schema-2 error baseline (`--baseline-errors`), so it does not count new validation errors.
 
-53 documents migrated (the ones still stored at schema 2); 1355 rewrites, 12 unconvertible values, 18 behaviour changes.
+53 documents migrated (the ones still stored at schema 2); 1355 rewrites, 12 unconvertible values, 18 behavior changes.
 
 ### Entries per step
 
-| Step | Rewrites | Unconvertible | Behaviour changes | Documents |
+| Step | Rewrites | Unconvertible | Behavior changes | Documents |
 |---|---|---|---|---|
 | `drag.split` | 42 | 0 | 0 | 4 |
 | `hero.flight` | 1 | 0 | 0 | 1 |
@@ -118,7 +118,7 @@ entry. The run had no schema-2 error baseline (`--baseline-errors`), so it does 
   - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_rBb4H5uJLh77NDKr_raw.json#/result`: 0SgaqW7XhgQeMSEHHpLb/track/smooth = `true`; 0SgaqVbOWybKkCF5Kz4h/track/smooth = `true`; 0SgaqVIw3MHCAHG9Lso8/track/smooth = `true`
   - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_rCME4aBQcdyOppRp_raw.json#/result`: 0SgaqYOHd70ap2miX3Y4/track/smooth = `true`; 0SgaqY9xib6qDnNIr5Ah/track/smooth = `true`; 0SgaqXwj3MO0xD2G4jKl/track/smooth = `true`
 
-### Behaviour changes
+### Behavior changes
 
 - **`track.oneApp`**: `track.smooth` no longer acts: "detent": 1 with a settle spring is the nearest (approximate). Instead: Used by: safecracker.
   - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_r8kVBcPqHLqHcBXL_raw.json#/result`: 0SgcJ3bjodZMX9N94iq_/track/smooth = `true`; 0SgcJ3bicqGlqYEPjTaD/track/smooth = `true`; 0SgcJ2uWDMSv1dbP5MrE/track/smooth = `true`; 0SgcJ2uWDMSv1dbP5MqV/track/smooth = `true`; 0SgcJ23SBFamvxOoninv/track/smooth = `true`; 0SgcJ23SBFamvxOoninC/track/smooth = `true`

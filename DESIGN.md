@@ -26,7 +26,7 @@ The editor builds on all three; the API and SDK know nothing about it.
   load: a schema-2 document (or one with no `schema`) is migrated once, in
   memory, by `migrate2to3` (pure JSON, named steps, never throws; a
   `MigrationReport` says every rewrite, every value with no schema-3 form,
-  kept on its node as `legacy.<name>`, and every behaviour change), and the
+  kept on its node as `legacy.<name>`, and every behavior change), and the
   model's decoders know only the schema-3 shape. Loaders take 2 and 3 and
   never write a migrated document back; `tool/migrate.dart` rewrites files
   (docs/guide/12-migrating-to-schema-3.md).
