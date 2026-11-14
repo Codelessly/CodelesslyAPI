@@ -4294,7 +4294,7 @@
       "docs": "forms.md#node-dropdown"
     },
     "datePicker": {
-      "doc": "Flutter `showDatePicker` button or field.\n\nAn `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`yyyy-MM-dd`) that opens `showDatePicker`.",
+      "doc": "Flutter `showDatePicker` button or field.\n\nA field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).",
       "flutter": "showDatePicker",
       "children": "none",
       "slots": [],
@@ -4365,7 +4365,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's."
+          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: none."
         },
         {
           "key": "pickerTheme",
@@ -4379,7 +4379,7 @@
       "docs": "forms.md#node-datePicker"
     },
     "timePicker": {
-      "doc": "Flutter `showTimePicker` button or field.\n\nAn `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`HH:mm`) that opens `showTimePicker`.",
+      "doc": "Flutter `showTimePicker` button or field.\n\nA field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).",
       "flutter": "showTimePicker",
       "children": "none",
       "slots": [],
@@ -4442,7 +4442,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's."
+          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: none."
         },
         {
           "key": "pickerTheme",
@@ -4456,7 +4456,7 @@
       "docs": "forms.md#node-timePicker"
     },
     "dateTimeInput": {
-      "doc": "Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.\n\nAn outlined `InputDecorator` showing a date, time or both, that opens the pickers.",
+      "doc": "Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.\n\nA field (Flutter's `InputDecorator`) showing a date, time or both, that opens the pickers.",
       "flutter": "InputDecorator",
       "children": "none",
       "slots": [],
@@ -22267,11 +22267,11 @@
     "DateTimeInputPicker": [
       {
         "value": "dialog",
-        "doc": "What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value)."
+        "doc": "What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value)."
       },
       {
         "value": "none",
-        "doc": "What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value)."
+        "doc": "What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value)."
       }
     ],
     "DecorationShape": [
