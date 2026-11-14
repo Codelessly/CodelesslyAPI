@@ -168,6 +168,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `childAspectRatio` | double | `1` | ≥ 0.0001 | Each cell's width / height when no `mainAxisExtent` is set (Flutter's `childAspectRatio`): 1 makes square cells. |
 | `mainAxisExtent` | double | unset | ≥ 0 | Each cell's height (its length along the scrolling axis), in pixels, whatever its width; wins over `childAspectRatio`. A cell fills it: give the item `{"fill": n}` on that axis, not a fixed size. |
 | `shrinkWrapRows` | bool | `false` |  | Each row (column, scrolling horizontally) as long as its longest item instead of a fixed extent. |
+| `fillGaps` | bool | `false` |  | CSS `grid-auto-flow: dense`: items placed automatically fill the holes earlier spanning items left, instead of always following the item before. Explicitly placed items (`columnStart` and `rowStart`) stay where they are. |
 | `masonry` | bool | `false` |  | Natural-height items in independent lanes, placed by `masonryPlacement`. |
 | `masonryPlacement` | [MasonryPlacement](values.md#enum-MasonryPlacement) | `"cycle"` | `cycle`, `shortest` | A masonry grid's lane for each item: in turn, or the shortest. |
 | `pagination` | [Pagination](lists.md#type-Pagination) | unset |  | Loads the items page by page (see `ListViewProps.pagination`). |
@@ -531,6 +532,43 @@ A `listView` of rows bound to the records, each row a label and a `gridView` of 
 table written four times. For a column that stays while the others scroll sideways, keep the label column a
 `listView` of its own beside one horizontally scrolling block of the cell grids, rows the same height in both. A
 `tableView` is a data table with columns declared once (sorting, row taps).
+
+<a id="lists-a-data-table-tableview"></a>
+### A data table (tableView)
+
+The rows are **bound data** (`"bind": {"data": "${years}"}`, a list of records), never a `props.data`; the columns
+are `props.columns`, each a record field (`key`), its header (`label`) and its width. The `cell` slot is one template
+for every cell, reading `${item.value}` (also `${item.row}`, the whole record, and `${item.column}`); `columnHeader`
+reads `${item.label}`. `fillWidth` shares a wide screen's extra width between the columns:
+
+```json
+{
+  "schema": 3,
+  "roots": ["impact"],
+  "nodes": {
+    "impact": {"type": "canvas", "slots": {"body": "table"}, "layout": {"width": 390, "height": 260},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "table": {"type": "tableView", "slots": {"cell": "cell", "columnHeader": "head"},
+      "layout": {"width": {"fill": 390}, "height": {"fill": 260}},
+      "props": {"rowHeight": 40, "headerHeight": 40, "pinHeaderColumn": false, "fillWidth": true,
+        "columns": [{"key": "year", "label": "Year", "width": 80}, {"key": "trees", "label": "Trees", "width": 100},
+                    {"key": "survival", "label": "Survival", "width": 100}]},
+      "bind": {"data": "${years}"}},
+    "head": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.label}", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF334155"}}},
+    "cell": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.value}", "style": {"fontSize": 14, "color": "#FF0F172A"}}}
+  },
+  "variables": {
+    "impact": [
+      {"name": "years", "type": "list", "value": [
+        {"year": "2023", "trees": "3,120", "survival": "94%"},
+        {"year": "2024", "trees": "4,480", "survival": "91%"},
+        {"year": "2025", "trees": "4,880", "survival": "87%"}]}
+    ]
+  }
+}
+```
 
 <a id="lists-filter-sort-and-page-a-list"></a>
 ### Filter, sort and page a list
