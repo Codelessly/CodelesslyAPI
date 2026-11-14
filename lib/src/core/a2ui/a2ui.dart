@@ -274,8 +274,21 @@ class _Surface {
 
     switch (readString(c['component'])) {
       case 'Text':
-        final variant = c['variant'] == 'caption' ? '.caption' : '';
-        line('Text$variant ${_quoted(c['text'], item: item)}');
+        // A2UI text is Markdown: a heading or a line that is all bold is the
+        // matching look; other emphasis marks are dropped (the words stay).
+        var written = _text(c['text'], item: item);
+        var variant = c['variant'] == 'caption' ? '.caption' : '';
+        final heading = RegExp(r'^(#{1,4})\s+(.*)$').firstMatch(written);
+        final bold = RegExp(r'^\*\*([^*]+)\*\*$').firstMatch(written);
+        if (heading != null) {
+          variant = switch (heading[1]!.length) { 1 => '.title', 2 => '.heading3', _ => '.heading' };
+          written = heading[2]!;
+        } else if (bold != null) {
+          variant = '.strong';
+          written = bold[1]!;
+        }
+        written = written.replaceAllMapped(RegExp(r'\*\*([^*]+)\*\*|`([^`]+)`'), (m) => m[1] ?? m[2]!);
+        line('Text$variant ${jsonEncode(written).replaceAll(r'\\', r'\')}');
       case 'Image':
         final h = switch (c['variant']) { 'icon' => 24, 'avatar' => 40, 'smallFeature' => 80, 'largeFeature' => 220, 'header' => 180, _ => 140 };
         final small = c['variant'] == 'icon' || c['variant'] == 'avatar';
