@@ -76,6 +76,27 @@ that replaces the form:
 
 {{example:form_validated}}
 
+### Submitting without a backend
+
+A site with no service to send to still has a whole submit flow: validate, show a sending state, keep the entry,
+confirm, and tell the app that hosts the page. Here a `status` variable (`idle`, `sending`, `error`, `sent`) drives
+what shows; the `delay` stands in for the request; `setStorage` keeps every submission on the device (`insert` into
+the list `${storage.submissions}`); `emitEvent` hands it to the host app (`codelessly.events`, the same bus a
+real backend hook listens on); and the confirmation says plainly that nothing was sent. The success text is honest
+about it, so the page is a real offline form, not a mock-up.
+
+{{example-as-written:form_offline}}
+
+### Loading and error states without a backend
+
+The `status` variable above is the whole loading and error design: one value, a node per state bound to it
+(`"visible": "${= status == 'sending'}"`, a spinner and a line; `'error'`, a message over the form, which stays so
+the visitor can retry). `failNext` makes the next submit fail, so the error state is exercised by the page itself:
+a "simulate a failure" switch in a demo, or the render command's `--set failNext=true --type email=a@b.co --tap
+send`. Capture a state mid-flight with `--set 'status="sending"'` (the command settles past a short `delay`). For a
+list that loads, the same pattern drives its `loading` and `error` slots from a `status` a `load` reaction sets
+after a `delay`.
+
 ### A radio group
 
 Flutter's `RadioGroup`: give the node around the radios `"radioGroup": {"groupValue": ...}`, bind its

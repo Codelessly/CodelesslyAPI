@@ -112,7 +112,8 @@ call is `PlanCard(price: 47, ...)`.
 ### A complete multi-page site
 
 A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids
-`unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages. The trip
+`unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages (a listed
+page not written yet is one `page_not_written` warning, not an error). The trip
 page reads its route parameter (`${route.id}`, from `navigate.params` or a link `trip?id=coast`); the saved list is
 restored from storage when the home page loads; the packing list is kept per trip under a key built from the route.
 

@@ -57,7 +57,8 @@ String? flexChildFits(Node parent, SizeFit fit, bool horizontal) {
   if (fit == SizeFit.flexible && !main) return _flexOnly;
   if ((fit == SizeFit.fill || fit == SizeFit.flexible) && main && wraps) {
     return 'A wrapping ${parent.type} lays its children out in runs: they keep their own size along it, unless they set '
-        'layout.basis (CSS flex-basis): then a filling child grows to share its line.';
+        'layout.basis (CSS flex-basis): then a filling child grows to share its line. Add the width it starts from and '
+        'wraps at ("layout": {"width": {"fill": 300}, "basis": 240}), or give it a fixed or hug size.';
   }
   if ((fit == SizeFit.fill || fit == SizeFit.flexible) && _scrollsAlong(parent, horizontal)) {
     return 'The ${parent.type} scrolls: its content has no end to fill to.';

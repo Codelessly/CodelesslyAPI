@@ -2,9 +2,9 @@
 
 ## When to use
 
-Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
-modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that
-wrap, a row that becomes a column, overlap and bleed, a sticky header or column).
+Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
+modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that
+wrap, a row turning into a column, a sticky header).
 
 ## Minimal example
 
@@ -113,6 +113,26 @@ Across a row or column, a child's width comes out as:
 | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
 | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width, at most its `maxWidth` |
 
+### Page gutter
+
+The most common layout defect is sections that start at different x (one band padded 24, the next 32, a third
+capped). Give every section the same two layers, and they line up at every width:
+
+- the **band** (the section) fills the page width, holds its background, and has the page **gutter** as its side
+  padding: the same three values in every band, by the same media rules (16 on phones, 32 from 600, 64 from 1024);
+- its one **rail** child fills the band with `"constraints": {"maxWidth": 1200}`, centred (the band's default
+  `crossAxisAlignment`); the section's content goes inside the rail.
+
+At 390 every rail starts at 16, at 834 at 32, at 1440 at 120 ((1440 − 1200) / 2: the cap, not the gutter). Never pad
+the rail or a section's first child to move content: change the gutter in every band at once. A part meant to run
+to the edge (a photo strip) is a band with no rail ([overlap and bleed](@layout-overlap-and-bleed)).
+
+A hero is a band like the others: give it and its copy a **hug** height with a minimum (`"height": {"hug": 560},
+"constraints": {"minHeight": 480}`), never a fixed one. A headline whose size steps up by a media rule takes more
+lines in a narrower column, and a fixed height then overflows by the extra lines at tablet or desktop.
+
+{{example-as-written:gutter}}
+
 ### An editorial page at three sizes
 
 A phone, a tablet and a desktop are three layouts, not one stretched: **use the width**. On a tablet, split the page
@@ -140,7 +160,11 @@ its data, and patched per size like any field):
 | `columnStart`, `rowStart` | `grid-column-start`, `grid-row-start` | the first column and row, 1 the first; unset: the next free cell |
 
 Items with both starts are placed first, then those with only a row, then the rest in order, each in the next cells
-where it fits (CSS's auto-placement). Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
+where it fits (CSS's auto-placement); `"fillGaps": true` on the grid is CSS `grid-auto-flow: dense`, the rest taking
+the first cells they fit from the top (a hole a span left). **Explicit placement stays put when the data is
+filtered**: a session keeps its track's column and its slot's row, so filtering leaves those cells empty. For a
+filtered view that closes up, bind the starts only while showing everything (`"layout.columnStart": "${= track ==
+'all' ? item.track : null}"`): a null start is auto-placement. Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
 as their tallest item. A time-by-track timetable binds each session's track and slot to `columnStart` and
 `rowStart`, its length to `rowSpan`, and a session for every track to `columnSpan`; on a phone the bindings are only
 in a `minWidth` rule's patch, so the sessions fall back to one column in time order (a list), each naming its room:
@@ -199,7 +223,10 @@ true}` with `{"fill": n}` width and height. Without it, content past the bottom 
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
 giving one; `"axis": "horizontal"` moves only sideways scroll views), or one item of a list (`"item"`: its key or
 index): `{"type": "scrollTo", "node": "faq", "durationMs": 400}` from a sub-navigation link (the key is `node`, not
-`target`). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item
+`target`). Under a fixed or sticky header, `"offset": 88` (the header's height and a margin) lands the node that far
+below the top instead of under the header. A heading on another page: navigate with a param (`"params": {"anchor":
+"installation"}`) and scroll in that page's `load` reaction (`{"type": "scrollTo", "node": "${route.anchor}",
+"offset": 88, "when": {"left": "${route.anchor}", "op": "isNotEmpty"}}`). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item
 at the start `${result.index}`): store it for a header that condenses or a progress bar. Arrows, dots and snapping:
 [a carousel](@lists-a-carousel-pages-and-pagination).
 

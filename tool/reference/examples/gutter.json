@@ -1,0 +1,28 @@
+{
+  "schema": 3,
+  "roots": ["home"],
+  "nodes": {
+    "home": {"type": "canvas", "slots": {"body": "page"}, "layout": {"width": 1440, "height": 900},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "page": {"type": "column", "children": ["hero", "features"], "props": {"scrollable": true},
+      "layout": {"width": {"fill": 1440}, "height": {"fill": 900}}},
+    "hero": {"type": "column", "children": ["heroRail"],
+      "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": [16, 48, 16, 48]},
+      "decoration": {"fills": [{"color": "#FF0F172A"}]},
+      "media": [{"minWidth": 600, "patch": {"layout": {"padding": [32, 64, 32, 64]}}},
+                {"minWidth": 1024, "patch": {"layout": {"padding": [64, 96, 64, 96]}}}]},
+    "heroRail": {"type": "column", "children": ["heroTitle"],
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 60}, "constraints": {"maxWidth": 1200}}},
+    "heroTitle": {"type": "text", "layout": {"width": {"fill": 1200}, "height": {"hug": 40}},
+      "props": {"text": "Every section starts on one line", "style": {"fontSize": 32, "fontWeight": 700, "color": "#FFFFFFFF"}}},
+    "features": {"type": "column", "children": ["featuresRail"],
+      "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": [16, 48, 16, 48]},
+      "media": [{"minWidth": 600, "patch": {"layout": {"padding": [32, 64, 32, 64]}}},
+                {"minWidth": 1024, "patch": {"layout": {"padding": [64, 96, 64, 96]}}}]},
+    "featuresRail": {"type": "row", "children": ["f1"],
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 120}, "constraints": {"maxWidth": 1200}},
+      "props": {"wrap": true, "spacing": 24, "runSpacing": 24}},
+    "f1": {"type": "text", "layout": {"width": {"fill": 400}, "height": {"hug": 48}, "basis": 300},
+      "props": {"text": "The band holds the colour and the gutter.", "style": {"fontSize": 16, "color": "#FF334155"}}}
+  }
+}
