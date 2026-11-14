@@ -1,5 +1,40 @@
 ## Unreleased
 
+**No special cases left: the last 21 one-look fields are general mechanisms.** Documents stay `"schema": 3`.
+Each removed field is migrated by a one-way step at the end of `migrate2to3` (`steps_special.dart`); in a
+schema-3 document each is an `unknown_prop` whose message names the form to write, and a `setValue` path into one
+is rewritten where it has a place (`props.displayFormat`, `props.highlightStart`/`End`) or reported. No document in
+the corpus or either repository used one. Name conformance (docs/design/name-conformance.md, regenerated): 853
+fields, 62% Flutter's name and meaning, 77% of those with a Flutter counterpart, none (d).
+
+| Removed | Instead | Step |
+|---|---|---|
+| text `countUp`, `countUpDuration`, `countUpCurve`, `countUpOnShow` | a transition of `props.text` with the timing, and (with `countUpOnShow`, the default) an animation `countUp` with a track on `props.text` from 0 | `text.countUp` |
+| slider `rulerTicks`, `rulerMajorEvery`, `rulerTickColor`, `rulerMinorTickColor` | `customPaint.painter` ops: a baseline `line` and a `repeat` of tick `line`s (a `ruler` track's default 20 ticks too) | `slider.paint` |
+| slider `markerValue`, `markerColor`, `markerWidth`, `markerHeight` | a `rect` op at the value along `slider.trackRect` | `slider.paint` |
+| slider `activeTrackStartOpacity` | an `rrect` op over the active track: the inactive color fading out | `slider.paint` |
+| slider `thumbGripColor` | a `rect` op in `foregroundPainter` at `slider.thumbCenter` | `slider.paint` |
+| slider `deriveOverlayColorFromThumb` | nothing (no renderer read it) | `slider.paint` |
+| text field `highlightStart`, `highlightEnd`, `highlightStyle` | `runs` (new on the text field: styled ranges of the typed text, as a text's; Flutter's `TextEditingController.buildTextSpan`) | `textField.runs` |
+| table `selectedRowEdgeColor`, `selectedRowEdgeWidth` | the `cell` template's `selected` state style (a left stroke), `selected` bound to the cell being first in the selected row | `tableView.rowEdge` |
+| date/time input `displayFormat` | `format` | `dateTimeInput.format` |
+
+- **A number in a text counts.** `AnimationTrack.lerpValue(a, b, t, text: true)` (and `valueAt(..., text:)`,
+  `sequenceAt`): a text that holds a number goes from `a`'s number to its own, written as the end writes it (the
+  characters around it, decimals, thousands separators; a value a clock computes a hair under a half rounds as the
+  half). `NumberInText` (`parse`, `format`). A transition or track on a text prop such as `props.text` counts.
+- **A slider's custom paint** draws between its parts and reads `slider` (`value`, `min`, `max`, `trackRect`,
+  `thumbCenter`): `SliderTrackShape.ruler` draws its strip and fill only; the ticks are ops.
+- `TextFieldProps.runs`. `specialCaseProps` and `movedSpecialPath` (legacy_paths.dart): what each removed prop is
+  now, for validation and `movedPathHint`.
+- **Validation: a layout value written as it decodes is not an unknown key.** `"widthFactor": 0` (any
+  `widthFactor`/`heightFactor`) was reported as `unknown_layout_key`, with a message listing `widthFactor` among
+  the valid keys: `readsKey` took a value that encodes back unchanged for one kept verbatim in an extra map. It now
+  probes the key with a value no reader takes.
+- **Name conformance** (`tool/name_conformance.dart`): the 21 (d) verdicts go; `textField.runs` (b), the grid
+  placement fields (c) and `itemSnapping` (b) are classified. docs/design/10-audit-verdict.md section 6 re-measured;
+  docs/design/schema-3-migration-report.md's note after 30.1.0 regenerated over the corpus.
+
 **A site looks like itself: theme mode, declared fonts, local images.** Additions only; documents stay
 `"schema": 3`.
 

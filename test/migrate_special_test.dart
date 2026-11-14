@@ -191,7 +191,7 @@ void main() {
       });
       expect((n['bind'] as Map).keys, ['props.runs']);
       expect((n['bind'] as Map)['props.runs'],
-          "\${= (err.start) == null || (err.start + err.length) == null || (err.start + err.length) <= (err.start) ? [] : "
+          r'${= (err.start) == null || (err.start + err.length) == null || (err.start + err.length) <= (err.start) ? [] : '
           "[{'start': err.start, 'end': err.start + err.length, 'style': {'color': '#FFB3261E'}}]}");
     });
   });

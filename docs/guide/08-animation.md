@@ -189,9 +189,19 @@ the new one; the encoders write only the new one:
 A motion's timing, entrance, loop, spin and shimmer read as transitions and animations (below), and so does
 `strokePath`'s drawing: an animation whose track draws the path op's `trimEnd` from 0
 (`{"path": "customPaint.painter.<op id>.trimEnd", "from": 0}`; an omitted `to` is the op's own value, its declared
-default 1 when the JSON omits it) and a transition of that path for a change of the progress. Not yet moved:
-`typewriter` and text `countUp` (see
-[docs/design/02-animation.md](../design/02-animation.md), "Not yet migrated").
+default 1 when the JSON omits it) and a transition of that path for a change of the progress. A number in a text
+counts the same way: a transition of `props.text` counts it from the number shown to each new value, written as the
+text writes it (its decimals, its thousands separators, the characters around it), and an animation with a track
+on `props.text` from 0 counts it up when the text shows (what a text's `countUp` was):
+
+```json
+{"props": {"text": "$1,204.50"}, "bind": {"props.text": "${total}"},
+ "transitions": [{"property": "props.text", "duration": 800, "curve": "easeOutCubic"}],
+ "animations": [{"id": "countUp", "duration": 800, "curve": "easeOutCubic",
+                 "tracks": [{"path": "props.text", "from": 0}]}]}
+```
+
+Not yet moved: `typewriter` (see [docs/design/02-animation.md](../design/02-animation.md), "Not yet migrated").
 
 ## `motion`: a transform, and `transitions`
 

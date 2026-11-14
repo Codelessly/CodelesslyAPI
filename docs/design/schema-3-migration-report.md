@@ -82,12 +82,54 @@ nothing in any document.
 
 ## After 30.1.0 (Unreleased)
 
-Not re-run over the corpus; what the new steps change in it, counted by a walk of the same files:
+Regenerated on 2026-11-14 with `dart run tool/migration_corpus.dart <the corpus above> --strip /home/user/` and
+the steps after 30.1.0 in place (`states.target` first in `migrate2to3`, `paint.strokePath`'s draw-on as an animation,
+`props.renamed`, and the steps for the last special cases: `text.countUp`, `slider.paint`, `textField.runs`,
+`tableView.rowEdge`, `dateTimeInput.format`). The same 1353 files hold the same 106 documents, but 53 of them are
+stored at schema 3 now (they were rewritten in place since the tables above were taken), and a schema-3 document is
+read as it is: these tables cover the 53 still at schema 2, so their counts are not comparable with the ones above.
+No document in the corpus, at either schema, uses one of the 21 removed fields: the five special-case steps make no
+entry. The run had no schema-2 error baseline (`--baseline-errors`), so it does not count new validation errors.
 
-- `states.target` (first in `migrate2to3`): 1131 state patches in 9 documents target `self` (12) or `@<key>`
-  (1119), every one the node its states are on; each is rewritten to the node's id and reported as a behaviour
-  change (the style now applies). The 330 `patches.moved` rewrites above are among them: they moved a scale that
-  never ran.
-- `paint.strokePath` writes a draw-on as an animation and a transition instead of `legacy.strokePath.draw`;
-  nothing in the corpus has one.
-- `props.renamed` (a time picker's `use24h`): nothing in the corpus has one.
+53 documents migrated (the ones still stored at schema 2); 1355 rewrites, 12 unconvertible values, 18 behaviour changes.
+
+### Entries per step
+
+| Step | Rewrites | Unconvertible | Behaviour changes | Documents |
+|---|---|---|---|---|
+| `drag.split` | 42 | 0 | 0 | 4 |
+| `hero.flight` | 1 | 0 | 0 | 1 |
+| `motion.legacy` | 781 | 0 | 0 | 20 |
+| `paint.boxPath` | 5 | 0 | 0 | 5 |
+| `paint.strokePath` | 2 | 0 | 0 | 1 |
+| `patches.moved` | 12 | 0 | 0 | 2 |
+| `states.target` | 12 | 0 | 6 | 2 |
+| `text.lineHeight` | 130 | 0 | 0 | 53 |
+| `track.legacy` | 18 | 0 | 0 | 3 |
+| `track.oneApp` | 0 | 12 | 12 | 3 |
+| `transform.fold` | 344 | 0 | 0 | 5 |
+| `transitions.legacy` | 6 | 0 | 0 | 2 |
+| `trigger.clock` | 2 | 0 | 0 | 2 |
+
+### Unconvertible values (kept as `legacy.<name>`)
+
+- **`track.oneApp`**: `track.smooth` (deprecated, one app) has no schema-3 form; kept as `legacy.track.smooth`. Instead: "detent": 1 with a settle spring is the nearest (approximate).
+  - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_r8kVBcPqHLqHcBXL_raw.json#/result`: 0SgcJ3bjodZMX9N94iq_/track/smooth = `true`; 0SgcJ3bicqGlqYEPjTaD/track/smooth = `true`; 0SgcJ2uWDMSv1dbP5MrE/track/smooth = `true`; 0SgcJ2uWDMSv1dbP5MqV/track/smooth = `true`; 0SgcJ23SBFamvxOoninv/track/smooth = `true`; 0SgcJ23SBFamvxOoninC/track/smooth = `true`
+  - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_rBb4H5uJLh77NDKr_raw.json#/result`: 0SgaqW7XhgQeMSEHHpLb/track/smooth = `true`; 0SgaqVbOWybKkCF5Kz4h/track/smooth = `true`; 0SgaqVIw3MHCAHG9Lso8/track/smooth = `true`
+  - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_rCME4aBQcdyOppRp_raw.json#/result`: 0SgaqYOHd70ap2miX3Y4/track/smooth = `true`; 0SgaqY9xib6qDnNIr5Ah/track/smooth = `true`; 0SgaqXwj3MO0xD2G4jKl/track/smooth = `true`
+
+### Behaviour changes
+
+- **`track.oneApp`**: `track.smooth` no longer acts: "detent": 1 with a settle spring is the nearest (approximate). Instead: Used by: safecracker.
+  - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_r8kVBcPqHLqHcBXL_raw.json#/result`: 0SgcJ3bjodZMX9N94iq_/track/smooth = `true`; 0SgcJ3bicqGlqYEPjTaD/track/smooth = `true`; 0SgcJ2uWDMSv1dbP5MrE/track/smooth = `true`; 0SgcJ2uWDMSv1dbP5MqV/track/smooth = `true`; 0SgcJ23SBFamvxOoninv/track/smooth = `true`; 0SgcJ23SBFamvxOoninC/track/smooth = `true`
+  - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_rBb4H5uJLh77NDKr_raw.json#/result`: 0SgaqW7XhgQeMSEHHpLb/track/smooth = `true`; 0SgaqVbOWybKkCF5Kz4h/track/smooth = `true`; 0SgaqVIw3MHCAHG9Lso8/track/smooth = `true`
+  - `CodelesslyEditor/references/safecracker/editor/exports/0Sg_rCME4aBQcdyOppRp_raw.json#/result`: 0SgaqYOHd70ap2miX3Y4/track/smooth = `true`; 0SgaqY9xib6qDnNIr5Ah/track/smooth = `true`; 0SgaqXwj3MO0xD2G4jKl/track/smooth = `true`
+- **`states.target`**: The hovered.self, pressed.self patches now apply: its target matched no node, so it never ran. Instead: Remove the patch if the node should not change in that state.
+  - `CodelesslySDK/test/fixtures/event_desktop_bound.json#/doc`: ho204jxrko-73/states; ho204jxrko-7a/states; ho204jxrko-81/states
+  - `CodelesslySDK/test/fixtures/event_desktop_tip.json`: ho204jxrko-73/states; ho204jxrko-7a/states; ho204jxrko-81/states
+
+### Checks
+
+- 106 documents in 1353 files (53 schema 2) migrated without throwing.
+- Migrating each result again changed nothing; migrate → encode → decode → encode was a fixed point for every one.
+- Encoded size of the schema-2 documents: 5886668 bytes before, 5878042 after (-0.15%).

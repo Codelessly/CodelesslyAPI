@@ -564,3 +564,17 @@ fractions, curves, quadratics, `untilWidth` in pixels and in fractions, dashes w
 the node's own fill, a bound progress, holes and view boxes for per-shape colors (identical); a fill fading with a
 progress below 1 (within 1/255), a gradient per shape (within 2/255: laid out in the shape's exact bounds, where
 the painter rounded its size to 0.01 px).
+
+## After 30.1.0: a control's custom paint
+
+A slider's ruler ticks, marker, fading track start and thumb grip were ten slider props, each one look. They are
+the slider node's `customPaint` now (migration step `slider.paint`). For that, a control needed one general hook:
+a slider draws its node's lists between its own parts, as a custom `SliderTrackShape` paints after the track it
+extends and a `SliderComponentShape` after the thumb: `painter` over the track and under the overlay and thumb,
+`foregroundPainter` over the thumb, both in the slider's own frame (a vertical slider's is turned) and drawn afresh
+with each frame of the slider. The ops read `size` (the slider's box) and `slider`: `value` (as shown, while it is
+dragged too), `min`, `max`, `trackRect` (`left`, `top`, `width`, `height`: `SliderTrackShape.getPreferredRect`) and
+`thumbCenter` (`x`, `y`). Hit regions and a view box are not read there. The SDK's
+test/migration/special_fields_test.dart matches each migrated look against 30.1.0's drawing: identical, but the
+fade (now the inactive colour laid over the active track, fading out) is within one level except at the 12
+anti-aliased pixels of the track's rounded end.
