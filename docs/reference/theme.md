@@ -18,6 +18,8 @@ A site manifest (`site.json`) with a theme: a palette and a type scale. The page
   "schema": 3,
   "pages": ["home.json"],
   "theme": {
+    "primary": "ember",
+    "onPrimary": "paper",
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
     "textStyles": {
       "body": {"fontSize": 16, "height": 1.5, "color": "ink"},

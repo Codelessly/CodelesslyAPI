@@ -156,6 +156,8 @@ abstract final class Codes {
       'A color or text style names a color or text style the project\'s theme (the site manifest\'s "theme") does not have: it would show transparent or unstyled.');
   static const invalidTheme = DiagnosticCode('invalid_theme', Severity.error,
       'The site manifest\'s "theme" is not of the right shape: colors are "#AARRGGBB" (or another color\'s name), text styles are TextStyle objects, media rules patch colors and textStyles.');
+  static const themeRoleInColors = DiagnosticCode('theme_role_in_colors', Severity.warning,
+      'A colour role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter\'s ColorScheme names) written inside the theme\'s "colors": roles are top-level keys of the theme, so controls never read it. Move it up ("primary": "#FF..." or "primary": "<a colour\'s name>").');
   static const invalidFonts = DiagnosticCode('invalid_fonts', Severity.error,
       'The site manifest\'s "fonts" is not of the right shape: a list of {"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf", "weight": 400, "style": "normal"}]} (a pubspec\'s fonts: section).');
   static const fontFormat = DiagnosticCode('font_format', Severity.error,
@@ -203,7 +205,7 @@ abstract final class Codes {
     unknownBindPath, reservedBindPath, expressionSyntax, unknownName,
     unknownTrigger, unknownTriggerKey, unknownActionType, unknownActionKey, unknownTargetNode, unknownScreen,
     unknownVariable, invalidReaction,
-    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, unknownThemeName, invalidTheme, invalidFonts, fontFormat, duplicateBreakpointCanvas,
+    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, unknownThemeName, invalidTheme, themeRoleInColors, invalidFonts, fontFormat, duplicateBreakpointCanvas,
     screenWithoutBreakpoint, duplicateId,
     unknownComponent, duplicateComponent, componentCycle, componentIdMismatch, invalidComponent, missingProp, unknownEvent,
     callFieldNotAllowed, slotOutsideComponent, rootPlacementBound, repeatedSubtree,

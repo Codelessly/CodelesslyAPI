@@ -166,4 +166,21 @@ void main() {
         manifest: SiteManifest.fromJson(manifest));
     expect(ds.map((d) => '$d'), isEmpty);
   });
+
+  test('a role that names a theme colour resolves to that colour, in light and dark, through a chain of names', () {
+    final t = ThemeTokens.fromJson({
+      'primary': 'forest',
+      'onPrimary': 'paper',
+      'error': 'missing',
+      'colors': {'forest': 'pine', 'pine': '#FF1F6F4A', 'paper': '#FFFFFFFF', 'night': '#FF7FD1A6'},
+      'dark': {'primary': 'night'},
+    });
+    final roles = t.resolvedRoles();
+    expect(roles.primary, const Color(0xFF1F6F4A));
+    expect(roles.onPrimary, const Color(0xFFFFFFFF));
+    expect(roles.error, isNull, reason: 'a name the theme does not have is no colour');
+    expect(t.forBrightness(dark: true).resolvedRoles().primary, const Color(0xFF7FD1A6));
+    final plain = ThemeTokens.fromJson({'primary': '#FF000000'});
+    expect(identical(plain.resolvedRoles(), plain), isTrue);
+  });
 }

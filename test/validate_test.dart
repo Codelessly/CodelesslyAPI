@@ -58,7 +58,7 @@ void main() {
 
   test('every diagnostic code has a test here', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 73); // invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
+    expect(Codes.all.length, 74); // invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
   });
 
   group('document', () {
@@ -276,14 +276,16 @@ void main() {
         nodes(d)['choice'] = <String, Object?>{
           'type': type,
           'layout': {'width': 120, 'height': 40},
-          'props': {'label': 'Linen'},
+          if (type != 'box') 'props': {'label': 'Linen'},
           'bind': {'selected': r'${= count == 1}'},
           'states': ?states,
         };
         (node(d, 'col')['children'] as List).add('choice');
         return d;
       }
-      expectOne(doc('outlinedButton'), Codes.stateNoEffect, path: '/nodes/choice/bind/selected');
+      expectOne(doc('box'), Codes.stateNoEffect, path: '/nodes/choice/bind/selected');
+      // A button draws its selected state itself.
+      expect(withCode(doc('outlinedButton'), Codes.stateNoEffect), isEmpty);
       final chip = withCode(doc('filterChip'), Codes.stateNoEffect).single;
       expect(chip.suggestion, 'props.selected');
       expect(
@@ -295,6 +297,21 @@ void main() {
               }),
               Codes.stateNoEffect),
           isEmpty);
+    });
+    test('a colour role written inside the theme\'s colors is reported, and a role naming a colour is not (theme_role_in_colors)', () {
+      final inColors = validateTheme({
+        'colors': {'forest': '#FF1F6F4A', 'primary': '#FF1F6F4A'},
+      });
+      expect(inColors.where((d) => d.code == Codes.themeRoleInColors).map((d) => d.path), ['/theme/colors/primary']);
+      expect(inColors.single.suggestion, 'primary');
+      final named = validateTheme({
+        'primary': 'forest',
+        'onPrimary': 'paper',
+        'colors': {'forest': '#FF1F6F4A', 'paper': '#FFFFFFFF'},
+        'dark': {'colors': {'onSurface': '#FFFFFFFF'}},
+      });
+      expect(named.map((d) => d.code), [Codes.themeRoleInColors], reason: 'only the dark role inside colors');
+      expect(named.single.path, '/theme/dark/colors/onSurface');
     });
     test('a node without a size is reported (zero_size)', () {
       final d = base();

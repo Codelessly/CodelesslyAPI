@@ -102,6 +102,8 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
   "schema": 3,
   "pages": ["home.json"],
   "theme": {
+    "primary": "ember",
+    "onPrimary": "paper",
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
     "textStyles": {
       "body": {"fontSize": 16, "height": 1.5, "color": "ink"},
@@ -122,9 +124,8 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 
 Controls (buttons, chips, fields, switches, pickers, tabs) take the colours and fonts their props leave unset
-from the theme's roles (`primary`, `onPrimary`, `surface`, `onSurface`, `error`, `fontFamily`, `buttonRadius`...).
-Without a theme they are neutral: ink on paper and the greys between. Nothing comes from Material's defaults or
-from the app the layout is shown in.
+from the theme's top-level **roles** (`ColorScheme` names: `primary`, `onPrimary`, `surface`, `onSurface`, `error`),
+which may name a colour but never sit in `colors`. Unstyled controls are SSUI's, never Material's.
 
 **Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colours that differ in dark mode, and
 `"mode"` which one the site starts in (Flutter's `ThemeMode`: `system`, the default, follows the device; `light`;

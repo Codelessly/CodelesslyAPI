@@ -591,6 +591,7 @@ final class WidgetSpec {
     this.childFits,
     this.doc = '',
     this.events = const [],
+    this.states = const [],
   });
 
   /// The node `type`.
@@ -619,6 +620,12 @@ final class WidgetSpec {
   /// `{"type": "event", "event": "<key>"}` reactions handle. Empty for the
   /// core's widgets, whose events are triggers.
   final List<EventSpec> events;
+
+  /// The `WidgetState`s (by name: `hovered`, `focused`, `pressed`,
+  /// `selected`, `disabled`) its own look draws with nothing styled, as a
+  /// Flutter button's default `ButtonStyle` resolves them: a bound
+  /// `selected` on it shows without a `states.selected` patch.
+  final List<String> states;
 
   PropDef<Object?>? prop(String key) {
     for (final p in props) {

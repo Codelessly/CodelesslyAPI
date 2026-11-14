@@ -82,12 +82,23 @@ abstract final class ButtonProps {
   /// `FilledButton.tonal`.
   static const tonal = PropDef<bool>('tonal', Codecs.bool, false);
 
-  static const List<PropDef<Object?>> all = [label, textAlign, icon, iconAlignment, spacing, enabled, style];
+  /// Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it.
+  static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
 
-  static const elevated = WidgetSpec('elevatedButton', props: all, doc: 'Flutter `ElevatedButton`.');
-  static const filled = WidgetSpec('filledButton', props: [...all, tonal], doc: 'Flutter `FilledButton`.');
-  static const text = WidgetSpec('textButton', props: all, doc: 'Flutter `TextButton`.');
-  static const outlined = WidgetSpec('outlinedButton', props: all, doc: 'Flutter `OutlinedButton`.');
+  static const List<PropDef<Object?>> all = [label, textAlign, icon, iconAlignment, spacing, enabled, style, autofocus];
+
+  /// The states a button's own look draws (Flutter's `ButtonStyle` resolved per `WidgetState`): hover and press
+  /// overlays, a focus ring, 50 % opacity disabled, and `selected` (a bound `"selected"`, as Flutter's
+  /// `statesController`): a tinted fill with the primary colour as ink, for buttons used as tabs or toggles.
+  static const drawnStates = ['hovered', 'focused', 'pressed', 'selected', 'disabled'];
+
+  static const _doc = ' With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, '
+      'its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.';
+
+  static const elevated = WidgetSpec('elevatedButton', props: all, states: drawnStates, doc: 'Flutter `ElevatedButton`: a raised surface with a hairline.$_doc');
+  static const filled = WidgetSpec('filledButton', props: [...all, tonal], states: drawnStates, doc: 'Flutter `FilledButton`: the primary action, filled with the theme\'s `primary`.$_doc');
+  static const text = WidgetSpec('textButton', props: all, states: drawnStates, doc: 'Flutter `TextButton`: no fill or border.$_doc');
+  static const outlined = WidgetSpec('outlinedButton', props: all, states: drawnStates, doc: 'Flutter `OutlinedButton`: a hairline border.$_doc');
 }
 
 /// `IconButton`: an icon, styled by a `ButtonStyle`.
@@ -97,7 +108,12 @@ abstract final class IconButtonProps {
   static const enabled = ButtonProps.enabled;
   /// The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`.
   static const style = ButtonProps.style;
-  static const spec = WidgetSpec('iconButton', props: [icon, enabled, style], doc: 'Flutter `IconButton`.');
+  static const autofocus = ButtonProps.autofocus;
+  static const spec = WidgetSpec('iconButton',
+      props: [icon, enabled, style, autofocus],
+      states: ButtonProps.drawnStates,
+      doc: 'Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. '
+          'Give it a "tooltip" (the behavior) to name it.');
 }
 
 /// `FloatingActionButton` (and its small, large and extended forms).
@@ -126,12 +142,15 @@ abstract final class FloatingActionButtonProps {
   static const location = PropDef<FloatingActionButtonLocation>(
       'location', EnumCodec(FloatingActionButtonLocation.values), FloatingActionButtonLocation.endFloat);
 
+  static const autofocus = ButtonProps.autofocus;
+
   static const spec = WidgetSpec('floatingActionButton',
       props: [
         type, icon, label, backgroundColor, foregroundColor, focusColor, hoverColor, splashColor, elevation, //
         focusElevation, hoverElevation, highlightElevation, shape, extendedTextStyle, extendedIconLabelSpacing,
-        extendedPadding, location,
+        extendedPadding, location, autofocus,
       ],
+      states: ButtonProps.drawnStates,
       doc: 'Flutter `FloatingActionButton`.');
 }
 

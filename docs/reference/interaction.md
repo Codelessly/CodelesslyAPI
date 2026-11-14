@@ -454,9 +454,10 @@ A node's `actions` is a list of **reactions**: a trigger and the chain of action
 `disabled` or `dragged`. Each state maps node ids (the node itself or nodes inside it) to a **patch**: partial node
 JSON merged over that node (objects merge, other values replace, `null` removes). `selected` and `disabled` follow
 bindings: `"bind": {"selected": "${= tab == 'pricing'}"}` puts the node in its `selected` state, as Flutter's
-`statesController` puts a button in `WidgetState.selected`: only the node's `states.selected` patch shows it, so a
-bound `selected` with none changes nothing (`state_no_effect`). A chip's own selection is its prop, `props.selected`.
-A selected outlined button (a filter or a delivery option):
+`statesController` puts a button in `WidgetState.selected`. Buttons draw it themselves (a tinted fill, the primary
+colour as ink: tabs and toggles made of buttons need nothing more); on other nodes only a `states.selected` patch
+shows it, so a bound `selected` with none changes nothing (`state_no_effect`). A chip's own selection is its prop,
+`props.selected`. A selected outlined button in a look of its own (a filter or a delivery option):
 
 ```json
 "bind": {"selected": "${= category == 'linen'}"},
