@@ -318,3 +318,39 @@ against the test view; all six button types; the ratchet (60 files). Not built: 
 screen stack, a `main()` with no widget. The button path's own files import no widget library, but
 `render/node_tree.dart` (which every recipe imports) still imports `widgets.dart` for the island hook
 (`NodeBuilder.island`); that goes with WS-K.
+
+## 12. Status after the control workstreams (2026-11-14)
+
+Merged: the kit (with the 150 ms ease, `ControlTransition`, key pass-through and `busy`), focus, overlay, root,
+buttons (with `loading`), text field, dropdown and menu (`ControlPopup`, `AnchoredPlacement`, `CenteredPlacement`),
+chips and badge, tiles and accordions, toggles (with `label`), slider, segmented button, tab bars, navigation bars,
+app bar, date and time pickers, spinners. A control with no layout hugs (`WidgetSpec.hugs`). The SDK suite passes
+(1,885 tests). The import ratchet is at 51 files (from 60); no file imports Cupertino.
+
+What is left was measured by swapping each remaining file's widget imports for the rendering library and counting
+what breaks: about 2,300 uses in 51 files. By size: `app/codelessly_widget.dart` 238, `widgets/collections_data_list.dart`
+233, `features/media/players.dart` 166, `widgets/collections_reorder.dart` 160, `render/control_theme.dart` 134,
+`runtime/actions/toast.dart` 126, `widgets/inputs.dart` 110 (the signature pad and shared helpers), then about forty
+files under 90 each.
+
+The remainder, done in the main session, in this order:
+
+1. **Feedback as documents.** `ActionUi` is already the seam between actions and what shows them. A new
+   implementation on the root's overlay layer replaces `NavigatorActionUi`. A toast and a confirm dialog are built
+   as small node trees (a column, texts, buttons) from the request and shown in a `ControlPopup`, so they take the
+   theme, the controls and the design system like any other UI, and the bespoke widget views
+   (`toast.dart`, `confirm_dialog.dart`, `feedback_theme.dart`, `feedback_icon.dart`) are deleted. Focus is
+   trapped in a dialog and returned on close; popups open and close on `ControlTransition`.
+2. **Screens.** `render/controls/screens.dart`: a stack of screens as render objects with the route transitions
+   and hero flights on tickers, modals and sheets as popups, the system back button and URL sync from the host.
+   It replaces the Navigator, the routes and `app/codelessly_widget.dart`'s widget tree.
+3. **Lists.** The collections runtime (data list, reorder, swipe, pagination, table, page view) on the SDK's own
+   scroll render objects instead of `Scrollable`; `ScrollPosition` leaves `reveal`, `view_scroll`, `handlers`.
+4. **Embeds.** Islands, media players and web views behind `EmbedFactory` in `host/`; `control_theme.dart` and
+   `indicator_theme.dart` deleted with the last island control (the signature pad becomes a render object).
+5. **The whole-app entry.** A site runs from `attachRoot` with no widget; the adapter in `host/` is the only file
+   on the ratchet.
+
+Gaps the workstreams left, folded into the steps above: a `popupMenu` node type on the menu; tile text and icon
+colour props; write-back of a bound `expanded`; app-bar and navigation item reactions; the implied back button;
+selection handles and the copy and paste toolbar; an icon size written at its catalog default.
