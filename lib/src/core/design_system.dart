@@ -294,10 +294,15 @@ final class DesignSystemComponent {
             for (final p in spec.props)
               if (p.required) p.key: p.encode(p.defaultValue),
           };
+    // A variable parameter is called with the name of a variable (a
+    // preview gives its value): the example names one after the parameter.
+    final call = {
+      for (final e in props.entries) e.key: spec.prop(e.key)?.type.isVariable ?? false ? e.key : e.value,
+    };
     final root = document[document.componentRoot!];
     return {
       'type': type,
-      if (props.isNotEmpty) 'props': props,
+      if (call.isNotEmpty) 'props': call,
       if (root != null) 'layout': {'width': root.layout.width.toJson(), 'height': root.layout.height.toJson()},
     };
   }

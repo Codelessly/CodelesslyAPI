@@ -40,11 +40,29 @@ final Map<String, String> _files = {
       'durations': {'fast': 150},
       'curves': {'standard': 'easeInOut'},
     },
-    'components': ['components/Button.json'],
+    'components': ['components/Button.json', 'components/Toggle.json'],
     'replaces': ['filledButton', 'textButton'],
   }),
   'DESIGN.md': '# Acme\n\nLong prose.\n\n## In brief\n\nHairlines, not shadows. One radius per role.\n\n## Colour\n\nMore.',
   'PATTERNS.md': '# Patterns\n\n## In brief\n\nA form is a column of fields 12 apart.\n',
+  'components/Toggle.json': jsonEncode({
+    'schema': 3,
+    'id': 'Toggle',
+    'roots': ['t'],
+    'widget': {
+      'type': 'Toggle',
+      'doc': 'An on/off switch kept in your variable.',
+      'props': [
+        {'key': 'value', 'type': {'kind': 'variable', 'of': {'kind': 'boolean', 'flutter': 'bool'}}, 'default': ''},
+      ],
+    },
+    'previews': [
+      {'name': 'On', 'size': [36, 20], 'props': {'value': true}},
+    ],
+    'nodes': {
+      't': {'type': 'box', 'layout': {'width': 36, 'height': 20}},
+    },
+  }),
   'components/Button.json': jsonEncode({
     'schema': 3,
     'id': 'Button',
@@ -95,8 +113,8 @@ void main() {
     expect(ds.tokens.spacing['3'], 12);
     expect(ds.tokens.durations['fast'], 150);
     expect(ds.tokens.curves['standard'], 'easeInOut');
-    expect(ds.list.single.purpose, 'A pressable label.');
-    expect(ds.list.single.example, {
+    expect(ds.list.first.purpose, 'A pressable label.');
+    expect(ds.list.first.example, {
       'type': 'Button',
       'props': {'label': 'Save'},
       'layout': {'width': {'hug': 72}, 'height': 28},
@@ -107,7 +125,7 @@ void main() {
     final problems = <String>[];
     final ds = await DesignSystem.load(
         (ref) async => ref == 'components/Button.json' ? null : _files[ref], problems: problems);
-    expect(ds.components.isEmpty, isTrue);
+    expect(ds.components.definitions.keys, ['Toggle']);
     expect(problems.single, contains('components/Button.json'));
   });
 
@@ -116,7 +134,7 @@ void main() {
     final again = DesignSystem.fromJson(jsonDecode(jsonEncode(ds.toJson())));
     expect(again.manifest.toJson(), ds.manifest.toJson());
     expect(again.design, ds.design);
-    expect(again.components.definitions.keys, ['Button']);
+    expect(again.components.definitions.keys, ['Button', 'Toggle']);
   });
 
   test('a site\'s theme is merged over the tokens, key by key', () async {
@@ -208,6 +226,13 @@ void main() {
       expect(prompt, contains('**`Button`**: A pressable label.'));
       expect(prompt, contains('{"type":"Button","props":{"label":"Save"}'));
       expect(prompt, contains('A form is a column of fields 12 apart.'));
+    });
+
+    test('a variable parameter is described and called with the name of a variable, not a value', () async {
+      final ds = await _load();
+      final prompt = runtimeStarter(designSystem: ds);
+      expect(prompt, contains('`value` the name of your bool variable'));
+      expect(prompt, contains('{"type":"Toggle","props":{"value":"value"}'));
     });
 
     test('drops the base controls its components replace, and says so', () async {
