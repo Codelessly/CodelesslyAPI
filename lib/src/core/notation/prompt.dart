@@ -97,7 +97,7 @@ TYPES
   Text variants: ${options.textStyles.keys.map((k) => 'Text.$k').join(', ')} (plain Text is body text)
   Button variants: ${buttonVariants.keys.map((k) => 'Button.$k').join(', ')} (plain Button is primary)
   Badge variants: ${badgeVariants.keys.map((k) => 'Badge.$k').join(', ')}
-  Card is a padded, bordered Column; Box is a Column you style (fill, radius, pad). Every control already has the design system's look: write no colors or sizes on controls. A Text takes color:#FF…; a Box or Card takes fill:#FF… (on a dark fill, give its texts a light color). A look can follow data: fill:=, border:= and color:= take an expression. Column scroll lets a tall screen scroll.
+  Card is a padded, bordered Column; Box is a Column you style (fill, radius, pad). Every control already has the design system's look: write no colors or sizes on controls. A Text takes color:#FF…, size:32 and weight:700 (a big number is Text "{n}" size:64); a Box or Card takes fill:#FF… (on a dark fill, give its texts a light color). A look can follow data: fill:=, border:= and color:= take an expression. Column scroll lets a tall screen scroll.
   Grid cols:3 gap:8 lays its children out in columns. Progress 0.6 (or Progress =done) shows a share from 0 to 1. Select and SegmentedButton take items:["A","B"]. Input takes type:number (or email, phone) for its keyboard. Icon "name" uses Material icon names (check, close, star, chevron_right).
   BarChart values:[3,5,4] labels:["Mon","Tue","Wed"] and LineChart values:[10,12,11,14] draw charts: never link to a chart image.
   Only Row, Column, Stack, Box, Card, Grid, List, Accordion and ListTile take children.
