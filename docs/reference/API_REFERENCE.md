@@ -786,10 +786,10 @@ section's anchor is its topic.
 | Page | What it covers | Words |
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4813 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8938 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9311 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2852 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11322 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11893 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
@@ -897,9 +897,9 @@ The guide that was `index.md` was split into the base and the pages. Its section
 <a id="layout-when-to-use"></a>
 ## When to use
 
-Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
-modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that
-wrap, a row that becomes a column, overlap and bleed, a sticky header or column).
+Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
+modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that
+wrap, a row turning into a column, a sticky header).
 
 <a id="layout-minimal-example"></a>
 ## Minimal example
@@ -1632,6 +1632,52 @@ Across a row or column, a child's width comes out as:
 |---|---|---|---|
 | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
 | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width, at most its `maxWidth` |
+
+<a id="layout-page-gutter"></a>
+### Page gutter
+
+The most common layout defect is sections that start at different x (one band padded 24, the next 32, a third
+capped). Give every section the same two layers, and they line up at every width:
+
+- the **band** (the section) fills the page width, holds its background, and has the page **gutter** as its side
+  padding: the same three values in every band, by the same media rules (16 on phones, 32 from 600, 64 from 1024);
+- its one **rail** child fills the band with `"constraints": {"maxWidth": 1200}`, centred (the band's default
+  `crossAxisAlignment`); the section's content goes inside the rail.
+
+At 390 every rail starts at 16, at 834 at 32, at 1440 at 120 ((1440 − 1200) / 2: the cap, not the gutter). Never pad
+the rail or a section's first child to move content: change the gutter in every band at once. A part meant to run
+to the edge (a photo strip) is a band with no rail ([overlap and bleed](#layout-overlap-and-bleed)).
+
+```json
+{
+  "schema": 3,
+  "roots": ["home"],
+  "nodes": {
+    "home": {"type": "canvas", "slots": {"body": "page"}, "layout": {"width": 1440, "height": 900},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "page": {"type": "column", "children": ["hero", "features"], "props": {"scrollable": true},
+      "layout": {"width": {"fill": 1440}, "height": {"fill": 900}}},
+    "hero": {"type": "column", "children": ["heroRail"],
+      "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": [16, 48, 16, 48]},
+      "decoration": {"fills": [{"color": "#FF0F172A"}]},
+      "media": [{"minWidth": 600, "patch": {"layout": {"padding": [32, 64, 32, 64]}}},
+                {"minWidth": 1024, "patch": {"layout": {"padding": [64, 96, 64, 96]}}}]},
+    "heroRail": {"type": "column", "children": ["heroTitle"],
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 60}, "constraints": {"maxWidth": 1200}}},
+    "heroTitle": {"type": "text", "layout": {"width": {"fill": 1200}, "height": {"hug": 40}},
+      "props": {"text": "Every section starts on one line", "style": {"fontSize": 32, "fontWeight": 700, "color": "#FFFFFFFF"}}},
+    "features": {"type": "column", "children": ["featuresRail"],
+      "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": [16, 48, 16, 48]},
+      "media": [{"minWidth": 600, "patch": {"layout": {"padding": [32, 64, 32, 64]}}},
+                {"minWidth": 1024, "patch": {"layout": {"padding": [64, 96, 64, 96]}}}]},
+    "featuresRail": {"type": "row", "children": ["f1"],
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 120}, "constraints": {"maxWidth": 1200}},
+      "props": {"wrap": true, "spacing": 24, "runSpacing": 24}},
+    "f1": {"type": "text", "layout": {"width": {"fill": 400}, "height": {"hug": 48}, "basis": 300},
+      "props": {"text": "The band holds the colour and the gutter.", "style": {"fontSize": 16, "color": "#FF334155"}}}
+  }
+}
+```
 
 <a id="layout-an-editorial-page-at-three-sizes"></a>
 ### An editorial page at three sizes
@@ -4361,6 +4407,79 @@ that replaces the form:
   }
 }
 ```
+
+<a id="forms-submitting-without-a-backend"></a>
+### Submitting without a backend
+
+A site with no service to send to still has a whole submit flow: validate, show a sending state, keep the entry,
+confirm, and tell the app that hosts the page. Here a `status` variable (`idle`, `sending`, `error`, `sent`) drives
+what shows; the `delay` stands in for the request; `setStorage` keeps every submission on the device (`insert` into
+the list `${storage.submissions}`); `emitEvent` hands it to the host app (`codelessly.events`, the same bus a
+real backend hook listens on); and the confirmation says plainly that nothing was sent. The success text is honest
+about it, so the page is a real offline form, not a mock-up.
+
+```json
+{
+  "schema": 3,
+  "roots": ["signup"],
+  "nodes": {
+    "signup": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 420},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["form", "sending", "failed", "sent"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 420}, "padding": 24}, "props": {"spacing": 12}},
+    "form": {"type": "column", "children": ["email", "send"], "form": true,
+      "layout": {"width": {"fill": 342}, "height": {"hug": 120}}, "props": {"spacing": 12},
+      "bind": {"visible": "${= status == 'idle' || status == 'error'}"}},
+    "email": {"type": "textField", "layout": {"width": {"fill": 342}, "height": {"hug": 56}},
+      "props": {"decoration": {"labelText": "Email"}, "keyboardType": "emailAddress",
+        "validator": "${= matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? '' : 'Enter an email like name@example.com.'}"},
+      "bind": {"props.initialValue": "${email}"},
+      "actions": [{"trigger": {"type": "changed"}, "actions": [{"type": "setVariable", "variable": "email", "value": "${result}"}]}]},
+    "send": {"type": "filledButton", "layout": {"width": {"fill": 342}, "height": 48}, "props": {"label": "Subscribe"},
+      "actions": [{"trigger": {"type": "click"}, "actions": [
+        {"type": "validate", "node": "form"},
+        {"type": "if", "condition": {"left": "${result}", "op": "isTrue"}, "then": [
+          {"type": "setVariable", "variable": "status", "value": "sending"},
+          {"type": "delay", "ms": 900},
+          {"type": "if", "condition": {"left": "${failNext}", "op": "isTrue"},
+            "then": [{"type": "setVariable", "variable": "status", "value": "error"}],
+            "else": [
+              {"type": "setStorage", "key": "submissions", "op": "insert", "valueType": "list",
+                "value": "${= {'email': email, 'at': now()}}"},
+              {"type": "emitEvent", "event": "signupSubmitted", "props": {"email": "${email}"}},
+              {"type": "setVariable", "variable": "status", "value": "sent"}]}]}]}]},
+    "sending": {"type": "row", "children": ["spinner", "sendingText"], "props": {"spacing": 10},
+      "layout": {"width": {"fill": 342}, "height": 32}, "bind": {"visible": "${= status == 'sending'}"}},
+    "spinner": {"type": "circularProgressIndicator", "layout": {"width": 24, "height": 24}},
+    "sendingText": {"type": "text", "layout": {"width": {"fill": 300}, "height": {"hug": 20}},
+      "props": {"text": "Sending…", "style": {"fontSize": 15, "color": "#FF334155"}}},
+    "failed": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+      "props": {"text": "We couldn't send that. Try again.", "style": {"fontSize": 15, "color": "#FFDC2626"}},
+      "bind": {"visible": "${= status == 'error'}"}},
+    "sent": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+      "props": {"text": "Saved on this device: ${email}. Nothing is sent.", "style": {"fontSize": 15, "color": "#FF166534"}},
+      "bind": {"visible": "${= status == 'sent'}"}}
+  },
+  "variables": {
+    "signup": [
+      {"name": "email", "type": "text", "value": ""},
+      {"name": "status", "type": "text", "value": "idle"},
+      {"name": "failNext", "type": "boolean", "value": false}
+    ]
+  }
+}
+```
+
+<a id="forms-loading-and-error-states-without-a-backend"></a>
+### Loading and error states without a backend
+
+The `status` variable above is the whole loading and error design: one value, a node per state bound to it
+(`"visible": "${= status == 'sending'}"`, a spinner and a line; `'error'`, a message over the form, which stays so
+the visitor can retry). `failNext` makes the next submit fail, so the error state is exercised by the page itself:
+a "simulate a failure" switch in a demo, or the render command's `--set failNext=true --type email=a@b.co --tap
+send`. Capture a state mid-flight with `--set 'status="sending"'` (the command settles past a short `delay`). For a
+list that loads, the same pattern drives its `loading` and `error` slots from a `status` a `load` reaction sets
+after a `delay`.
 
 <a id="forms-a-radio-group"></a>
 ### A radio group

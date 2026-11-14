@@ -2,9 +2,9 @@
 
 ## When to use
 
-Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
-modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that
-wrap, a row that becomes a column, overlap and bleed, a sticky header or column).
+Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
+modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that
+wrap, a row turning into a column, a sticky header).
 
 ## Minimal example
 
@@ -112,6 +112,22 @@ Across a row or column, a child's width comes out as:
 |---|---|---|---|
 | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
 | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width, at most its `maxWidth` |
+
+### Page gutter
+
+The most common layout defect is sections that start at different x (one band padded 24, the next 32, a third
+capped). Give every section the same two layers, and they line up at every width:
+
+- the **band** (the section) fills the page width, holds its background, and has the page **gutter** as its side
+  padding: the same three values in every band, by the same media rules (16 on phones, 32 from 600, 64 from 1024);
+- its one **rail** child fills the band with `"constraints": {"maxWidth": 1200}`, centred (the band's default
+  `crossAxisAlignment`); the section's content goes inside the rail.
+
+At 390 every rail starts at 16, at 834 at 32, at 1440 at 120 ((1440 − 1200) / 2: the cap, not the gutter). Never pad
+the rail or a section's first child to move content: change the gutter in every band at once. A part meant to run
+to the edge (a photo strip) is a band with no rail ([overlap and bleed](@layout-overlap-and-bleed)).
+
+{{example-as-written:gutter}}
 
 ### An editorial page at three sizes
 
