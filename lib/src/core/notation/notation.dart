@@ -130,6 +130,16 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
 const _shortKeys = {'gap': 'props.spacing', 'pad': 'layout.padding', 'w': 'layout.width', 'h': 'layout.height', 'grow': 'layout.flex'};
 /// Keys a model reaches for that a type spells otherwise.
 const Map<String, Map<String, List<String>>> _typeKeys = {
+  'textField': {
+    'hint': ['props.decoration.hintText'],
+    'placeholder': ['props.decoration.hintText'],
+    'label': ['props.decoration.labelText'],
+    'helper': ['props.decoration.helperText'],
+    'error': ['props.decoration.errorText'],
+  },
+  'dropdown': {
+    'placeholder': ['props.hint'],
+  },
   'gridView': {
     'cols': ['props.crossAxisCount'],
     'columns': ['props.crossAxisCount'],
@@ -443,7 +453,13 @@ class _Parser {
       final where = dot < 0 ? '' : path.substring(0, dot), key = dot < 0 ? path : path.substring(dot + 1);
       switch (where) {
         case 'props':
-          props[key] = value;
+          final sub = key.indexOf('.');
+          if (sub < 0) {
+            props[key] = value;
+          } else {
+            final inner = (props[key.substring(0, sub)] as Json?) ?? (props[key.substring(0, sub)] = <String, Object?>{});
+            inner[key.substring(sub + 1)] = value;
+          }
         case 'layout':
           layout[key] = value;
         case 'decoration':
@@ -519,6 +535,15 @@ class _Parser {
           }
         }
       } else {
+        // An expression where the string goes (`Button open ? "Hide" : "Show"`).
+        final from = t.at;
+        final bare = t.expression();
+        final shownKey = _shownValue[type] ?? _mainKey(type, spec);
+        if (shownKey != null && bare.contains(' ') && bare.contains('?') && !RegExp(r'^[A-Za-z]+:').hasMatch(bare)) {
+          bind['props.$shownKey'] = _read(bare.trim());
+          continue;
+        }
+        t.at = from;
         final word = t.word();
         if (word.isEmpty) {
           _issue(col, 'Unexpected "${t.peek}".');
@@ -842,6 +867,7 @@ class _Parser {
 
   String? _mainKey(String type, WidgetSpec spec) {
     if (type == 'box') return 'text';
+    if (type == 'dropdown') return 'hint';
     for (final k in const ['text', 'label', 'title', 'icon', 'hint']) {
       if (spec.props.any((p) => p.key == k)) return k;
     }
@@ -1062,17 +1088,44 @@ class _Tokens {
   String string() {
     final start = at;
     at++;
+    var braced = false;
     while (!done && !(s[at] == '"' && s[at - 1] != r'\')) {
+      // {an expression} may hold quotes of its own ("{plan=="pro" ? "$9" : "$0"}").
+      if (s[at] == '{') {
+        final close = _closeOf(at);
+        if (close > at) {
+          braced = braced || s.substring(at, close).contains('"');
+          at = close;
+        }
+      }
       at++;
     }
     at++;
     final raw = s.substring(start, at > s.length ? s.length : at);
+    if (braced) return raw.substring(1, raw.endsWith('"') && raw.length > 1 ? raw.length - 1 : raw.length);
     try {
       return jsonDecode(raw.endsWith('"') && raw.length > 1 ? raw : '$raw"') as String;
     } catch (_) {
       return raw.replaceAll('"', '');
     }
   }
+
+  /// Where the `{` at [open] closes on this line (quotes inside it paired),
+  /// or -1.
+  int _closeOf(int open) {
+    var depth = 0, quoted = false;
+    for (var i = open; i < s.length; i++) {
+      final c = s[i];
+      if (c == '"' && s[i - 1] != r'\\') quoted = !quoted;
+      if (quoted) continue;
+      if (c == '{') depth++;
+      if (c == '}' && --depth == 0) return quoted ? -1 : i;
+    }
+    return -1;
+  }
+
+  static final _opAhead = RegExp(r' +(&&|\|\||\?|:(?![=A-Za-z])|==|!=|>=|<=|[<>+*/%]|-(?!>))');
+  static final _opBehind = RegExp(r'(&&|\|\||\?|[^A-Za-z0-9_"\])]:|==|!=|>=|<=|[<>+*/%])$');
 
   /// Up to the next space (a `key:"quoted value"` stops before its quote).
   String word() {
@@ -1095,7 +1148,22 @@ class _Tokens {
       if (!quoted) {
         if (c == '(' || c == '[') depth++;
         if (c == ')' || c == ']') depth--;
-        if (c == ' ' && depth <= 0) break;
+        if (c == ' ' && depth <= 0) {
+          // An operator on either side of the space carries on
+          // (`a!="" && b!=""`, `open ? "Hide" : "Show"`).
+          final ahead = _opAhead.matchAsPrefix(s, at);
+          if (ahead != null) {
+            at = ahead.end;
+            continue;
+          }
+          if (at > start && (_opBehind.hasMatch(s.substring(start, at)) || s[at - 1] == ':' && s.substring(start, at).contains('?'))) {
+            while (!done && s[at] == ' ') {
+              at++;
+            }
+            continue;
+          }
+          break;
+        }
       }
       at++;
     }

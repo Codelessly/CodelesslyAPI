@@ -249,4 +249,26 @@ Card
     // Only the element's name is rewritten, not the word inside other names.
     expect((_node(r, 'text2')['props'] as Map)['text'], r'${item.age} years, people: ${= length(people)}');
   });
+  test('forms from the fifth recording: quotes inside {…}, an expression with spaces, an expression where the string goes, a dropdown\'s hint', () {
+    final r = _parse('''
+state range="7 days"
+state open=false
+state to=""
+state plan="Free"
+Card
+  Text "{range=="7 days" ? "\$18.4k" : "\$231k"} total"
+  Button.ghost open ? "Hide" : "Show" -> open=!open
+  Button "Send" enabled:=trim(to)!="" && length(to)>3 -> emit send
+  Select "Plan" items:["Free","Pro"] =plan
+  Input hint:"you@example.com" =to
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect((_node(r, 'text1')['props'] as Map)['text'], r'${= range=="7 days" ? "$18.4k" : "$231k"} total');
+    expect((_node(r, 'textButton1')['bind'] as Map)['props.label'], r'${= open ? "Hide" : "Show"}');
+    expect((_node(r, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= trim(to)!="" && length(to)>3}');
+    expect((_node(r, 'filledButton1')['actions'] as List).length, 1);
+    expect((_node(r, 'dropdown1')['props'] as Map)['hint'], 'Plan');
+    expect(((_node(r, 'textField1')['props'] as Map)['decoration'] as Map)['hintText'], 'you@example.com');
+  });
 }
