@@ -97,6 +97,7 @@ void expectStable(MigrationStep step, Json node) {
 }
 
 void main() {
+  renamedPropsTests();
   group('framework', () {
     test('schema 3 is current; a schema-2 document runs schema 2\'s steps, then the one-way steps, and says so once', () {
       expect(kSchemaVersion, 3);
@@ -488,6 +489,49 @@ void main() {
       expect(movedPathHint('layout.rotation'), contains('motion.rotate'));
       expect(movedPathHint('flight.duration'), contains('hero.flight.duration'));
       expect(movedPathHint('motion.scale'), isNull);
+    });
+  });
+}
+
+/// The props renamed to Flutter's names after 30.1.0 (`props.renamed`).
+void renamedPropsTests() {
+  group('a time picker\'s use24h is Flutter\'s alwaysUse24HourFormat', () {
+    test('its prop, its binding, a state patch and a setValue path are renamed', () {
+      final doc = oneWay(doc3({
+        't': {
+          'type': 'timePicker',
+          'layout': {'width': 160, 'height': 40},
+          'props': {'value': '13:00', 'use24h': true},
+          'bind': {'props.use24h': r'${h24}'},
+          'states': {
+            'hovered': {
+              't': {'props': {'use24h': false}},
+            },
+          },
+          'actions': [
+            {
+              'trigger': {'type': 'click'},
+              'actions': [
+                {'type': 'setValue', 'node': 't', 'values': [{'path': 'props.use24h', 'value': true}]},
+              ],
+            },
+          ],
+        },
+      }));
+      final t = nodeOf(doc, 't');
+      expect(t['props'], {'value': '13:00', 'alwaysUse24HourFormat': true});
+      expect(t['bind'], {'props.alwaysUse24HourFormat': r'${h24}'});
+      expect(jsonEncode(t), isNot(contains('use24h')));
+      final node = Node.fromJson(t, id: 't')!;
+      expect(node.prop(TimePickerProps.alwaysUse24HourFormat), isTrue);
+    });
+
+    test('in a schema-3 document the old spelling is refused, naming the new one', () {
+      final found = validateDocument(doc3({
+        't': {'type': 'timePicker', 'layout': {'width': 160, 'height': 40}, 'props': {'use24h': true}},
+      })).where((d) => d.code == Codes.unknownProp).single;
+      expect(found.message, contains('alwaysUse24HourFormat'));
+      expect(movedPathHint('props.use24h'), contains('props.alwaysUse24HourFormat'));
     });
   });
 }
