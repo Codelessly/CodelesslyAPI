@@ -271,4 +271,23 @@ Card
     expect((_node(r, 'dropdown1')['props'] as Map)['hint'], 'Plan');
     expect(((_node(r, 'textField1')['props'] as Map)['decoration'] as Map)['hintText'], 'you@example.com');
   });
+  test('each in a row goes across with the row\'s gap, and GridView is read as Grid', () {
+    final r = _parse('''
+state i=0
+Card
+  Row center gap:8
+    each n in range(6)
+      Box w:10 h:10 radius:5 fill:=n==i?"#FF3366CC":"#FFCCCCCC" -> i=n
+  GridView cols:3 gap:8
+    each p in range(9)
+      Box h:40 fill:#FFEEEEEE
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final dots = _node(r, 'listView1');
+    expect((dots['props'] as Map)['scrollDirection'], 'horizontal');
+    expect((dots['props'] as Map)['spacing'], 8);
+    expect((dots['layout'] as Map)['width'], {'hug': 0});
+    expect(_node(r, 'gridView1')['type'], 'gridView');
+  });
 }
