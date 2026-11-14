@@ -262,7 +262,7 @@ its default styles, in Chromium at 390 wide. The harness is `examples/stream_cha
 
 - **The published schemas and the renderer release disagree.** The v1.0 schemas a model is given spell a
   component's `@checks` and `@accessibility` with an `@`; release 0.15.0 validates each component strictly and
-  reads them without, so 14 answers that follow the schemas are refused whole. A strict renderer in front of a
+  reads them without, so 9 answers that follow the schemas are refused whole. A strict renderer in front of a
   model drops a card for one key.
 - **Where both draw, they draw the same structure.** Their default look is plain (a gray card, large type); ours
   is SSUI. Their renderer shows Markdown in a text as written (`**Folder:**`) unless the host installs a Markdown
