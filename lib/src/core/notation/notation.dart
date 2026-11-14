@@ -92,7 +92,7 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'Select': (type: 'dropdown', node: {}),
   'Button': (type: 'filledButton', node: {}),
   'Progress': (type: 'progressBar', node: {}),
-  'List': (type: 'listView', node: {}),
+  'List': (type: 'column', node: {}),
   // A grid of the children written under it: rows of `cols` equal cells.
   'Grid': (type: 'column', node: {}),
   'GridView': (type: 'column', node: {}),
@@ -299,6 +299,7 @@ class _Parser {
           'node': {
             'type': 'canvas',
             'layout': {'width': options.width, 'height': {'hug': 0}},
+            'decoration': _surface,
           },
         });
     }
@@ -339,6 +340,7 @@ class _Parser {
           'type': 'canvas',
           if (_root != null) 'slots': {'body': _root},
           'layout': {'width': options.width, 'height': {'hug': 0}},
+          'decoration': _surface,
         },
         ...nodes,
       },
@@ -358,6 +360,9 @@ class _Parser {
       if (open.each != null && open.each != 'item') line = _rename(line, open.each!);
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
+    for (final d in _derived.entries) {
+      if (line.contains(d.key)) line = _rename(line, d.key, '(${d.value})');
+    }
     final parent = _stack.isEmpty ? null : _stack.last;
     if (line.startsWith('if ')) {
       if (parent == null) return _issue(column, 'An "if" needs a parent: indent it under a node.');
@@ -772,6 +777,10 @@ class _Parser {
         final slot = type == 'icon' && !slots.containsKey('leading') ? 'leading' : 'trailing';
         slots[slot] = id;
         _slotOf[id] = slot;
+        // A block of text beside a tile's title leaves the title room.
+        if (slot == 'trailing' && (type == 'column' || type == 'row')) {
+          (out['layout']! as Json)['constraints'] = {'maxWidth': 150};
+        }
       } else {
         ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
       }
@@ -806,13 +815,13 @@ class _Parser {
 
   /// [line] with the word [name] read as `item`, outside quoted text and
   /// inside `{…}` within it.
-  String _rename(String line, String name) {
+  String _rename(String line, String name, [String to = 'item']) {
     final word = RegExp('(?<![A-Za-z0-9_.])${RegExp.escape(name)}(?![A-Za-z0-9_])');
     final out = StringBuffer();
     var quoted = false, depth = 0, start = 0;
     void flush(int end, bool code) {
       final part = line.substring(start, end);
-      out.write(code ? part.replaceAll(word, 'item') : part);
+      out.write(code ? part.replaceAllMapped(word, (_) => to) : part);
       start = end;
     }
 
@@ -919,10 +928,27 @@ class _Parser {
     return null;
   }
 
+  /// What the UI is drawn on when its root is not a card: the surface, so
+  /// its dark text is never on nothing.
+  static const Json _surface = {
+    'fills': [
+      {'color': '#FFFFFFFF'},
+    ],
+  };
+
+  /// State written as a formula (`state total=sum(cart,x=>x.price)`): not a
+  /// variable but a name for the formula, written out where it is read.
+  final _derived = <String, String>{};
+
   void _state(String rest, int column) {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
-    final value = _value(m[2]!.trim());
+    final written = m[2]!.trim();
+    if (!_literal(written).$1 && RegExp(r'[(+*/?<>&|]').hasMatch(written) && !written.startsWith('"')) {
+      _derived[m[1]!] = written;
+      return;
+    }
+    final value = _value(written);
     variables[m[1]!] = {
       'name': m[1],
       'type': switch (value) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
