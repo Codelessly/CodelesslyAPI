@@ -1,4 +1,4 @@
-## Unreleased
+## 30.1.0
 
 **No special cases left: the last 21 one-look fields are general mechanisms.** Documents stay `"schema": 3`.
 Each removed field is migrated by a one-way step at the end of `migrate2to3` (`steps_special.dart`); in a
@@ -154,7 +154,7 @@ documents written for 30.1.0 load unchanged.
   progress and snapping. The base says to use the width at tablet and desktop. Where node-given names are read
   (`pageOffset` is a page view's, not a page's scroll), and how runs that cut an expression count, are stated.
 
-## 30.1.0
+### Earlier in 30.1.0
 
 **One spelling for each concept; the schema stays 3.** Documents are still `"schema": 3` (`kSchemaVersion`), and
 schema-2 documents still load, migrated in memory by `migrate2to3`, whose last steps now give each concept that
