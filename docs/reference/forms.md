@@ -1061,6 +1061,12 @@ As Flutter's `TextFormField` and `Form`:
 - `{"type": "validate", "node": "<form>"}` is `FormState.validate()`: every field of the form shows its error,
   the first invalid one takes the focus, and `${result}` is whether all are valid, for an `if` that submits.
 
+An error can also come from anywhere else: bind `props.decoration.errorText` (an empty text shows none); the
+validator's error, when it shows one, wins. Give a field that may show an error a hug height (`{"hug": 56}`): it
+grows by the error line, and the form with it; a fixed height keeps the field that tall. `inputFormatter` applies
+only `{"type": "regex", "pattern": ..., "allow": true}`. A form submitted to a service: `submitForm`
+([data](data.md#page-data)).
+
 A contact form validated on blur and on send, with a summary of the errors above it, a radio group and a thank-you
 that replaces the form:
 
@@ -1226,12 +1232,6 @@ that replaces the form:
   }
 }
 ```
-
-An error can also come from anywhere else: bind `props.decoration.errorText` (an empty text shows none); the
-validator's error, when it shows one, wins. Give a field that may show an error a hug height (`{"hug": 56}`): it
-grows by the error line, and the form with it; a fixed height keeps the field that tall. `inputFormatter` applies
-only `{"type": "regex", "pattern": ..., "allow": true}`. A form submitted to a service: `submitForm`
-([data](data.md#page-data)).
 
 <a id="forms-a-radio-group"></a>
 ### A radio group
