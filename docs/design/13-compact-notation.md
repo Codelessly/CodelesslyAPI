@@ -212,7 +212,45 @@ accordion starts closed. Open: an `each` under a `Stack` cannot place its copies
 Not built yet: the printer and its round trip, diagnostics by line in the tool result, the
 notation in the chat example's live path, and the A2UI front end.
 
-## 11. Open points
+## 11. Head to head with A2UI (2026-11-14)
+
+The same 17 card briefs, the same two models and settings, three forms of answer. A2UI is v1.0 with its published
+message schema, common types and basic catalog as the instructions (`examples/stream_chat/tool/a2ui_v1`, 64,046
+characters), read by `parseA2ui` and drawn by this renderer with SSUI's defaults. Recordings:
+`tool/stream/streams/live/2026-11-14-a2ui-1`.
+
+| Median of 34 | `ui_apply` | Notation | A2UI v1.0 |
+|---|---|---|---|
+| Instructions | 26,033 tokens | 2,379 | 21,169 |
+| Output | 3,300 tokens | 935 | 1,612 |
+| Output per node | 137 tokens | 27.7 | 84.5 |
+| Time to complete | 15.1 s | 5.4 s | 7.8 s |
+| Time to first token | 0.96 s | 0.70 s | 0.80 s |
+| Nodes drawn | 24 | 34.5 | 20 |
+| Valid on the first answer | not measured this way | 26 of 34 | 23 of 34 |
+| Valid after one retry | | 31 of 34 | 27 of 34 |
+| Taps that change the card itself | | 158 | 0 |
+
+By model: on Haiku 5.5 the notation takes 3.2 s for 29 nodes and A2UI 4.7 s for 11; on Sonnet 5.5, 8.4 s for 36
+nodes against 15.5 s for 23, and A2UI's first token comes after 8.1 s (0.8 s for the notation).
+
+What the numbers do not show, seen in the rendered sheets:
+
+- **A2UI has no behaviour in the card.** Every button tells the host; nothing is shown, hidden, counted or
+  stepped locally. A checkout draws its four steps at once; a filter, a quantity stepper or "show file names" needs
+  the agent to send a new surface. The notation's cards carry 158 local reactions between them.
+- **A2UI's failures are structural.** Four of Haiku's answers were not valid JSON (a brace too many or too few in a
+  5,000 character line), and two were refusals for want of data. The notation's failures were single lines, and
+  the rest of the card still drew.
+- **A2UI has nine layout words** and no charts, badges, progress or grids: a dashboard's chart came back as a row
+  of block characters.
+- Read with later versions of the parsers (the forms each model wrote, accepted): notation 34 of 34, A2UI 34 of
+  34 of the answers that were JSON.
+
+What was not compared: A2UI drawn by its own renderers (Lit, Angular, Flutter GenUI), which this measures nothing
+about; only what a model writes in each form, and what one renderer makes of it.
+
+## 12. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
   without a card would then have no `Card`). Proposed: from the design system, with SSUI's as the built-in.
