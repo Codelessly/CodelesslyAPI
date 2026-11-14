@@ -8368,6 +8368,9 @@
                   "shrinkWrapRows": {
                     "type": "boolean"
                   },
+                  "fillGaps": {
+                    "type": "boolean"
+                  },
                   "masonry": {
                     "type": "boolean"
                   },

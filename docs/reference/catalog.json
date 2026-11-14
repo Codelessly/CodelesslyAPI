@@ -1598,6 +1598,14 @@
           "doc": "Each row (column, scrolling horizontally) as long as its longest item instead of a fixed extent."
         },
         {
+          "key": "fillGaps",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "CSS `grid-auto-flow: dense`: items placed automatically fill the holes earlier spanning items left, instead of always following the item before. Explicitly placed items (`columnStart` and `rowStart`) stay where they are."
+        },
+        {
           "key": "masonry",
           "type": "bool",
           "kind": "boolean",
@@ -11311,8 +11319,8 @@
         },
         "width": {
           "fixed": null,
-          "fill": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.",
-          "flexible": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.",
+          "fill": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line. Add the width it starts from and wraps at (\"layout\": {\"width\": {\"fill\": 300}, \"basis\": 240}), or give it a fixed or hug size.",
+          "flexible": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line. Add the width it starts from and wraps at (\"layout\": {\"width\": {\"fill\": 300}, \"basis\": 240}), or give it a fixed or hug size.",
           "hug": null
         },
         "height": {
