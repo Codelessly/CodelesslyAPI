@@ -134,7 +134,7 @@ Flutter `CupertinoActivityIndicator`.
 <a id="node-badge"></a>
 ### `badge`
 
-Flutter `Badge`.
+Flutter `Badge`: over its `child`, a dot or a count at `alignment`. With no child it is the default (SSUI) badge: a tinted label 20 high, as wide as its text, a pill for a `count`.
 
 `Badge`: a small label (or a dot) over its `child` slot.
 

@@ -635,7 +635,7 @@ A signature pad: strokes drawn with a finger or mouse, on a bordered card with a
 <a id="node-chip"></a>
 ### `chip`
 
-Flutter `Chip`.
+Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -647,7 +647,7 @@ Flutter `Chip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](values.md#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](values.md#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  |  |
 | `side` | [BorderSide](decoration.md#type-BorderSide) | unset |  |  |
@@ -663,7 +663,7 @@ Flutter `Chip`.
 <a id="node-actionChip"></a>
 ### `actionChip`
 
-Flutter `ActionChip`.
+Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -675,7 +675,7 @@ Flutter `ActionChip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](values.md#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](values.md#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  |  |
 | `side` | [BorderSide](decoration.md#type-BorderSide) | unset |  |  |
@@ -693,7 +693,7 @@ Flutter `ActionChip`.
 <a id="node-choiceChip"></a>
 ### `choiceChip`
 
-Flutter `ChoiceChip`.
+Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -705,7 +705,7 @@ Flutter `ChoiceChip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](values.md#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](values.md#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  |  |
 | `side` | [BorderSide](decoration.md#type-BorderSide) | unset |  |  |
@@ -727,7 +727,7 @@ Flutter `ChoiceChip`.
 <a id="node-filterChip"></a>
 ### `filterChip`
 
-Flutter `FilterChip`.
+Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -739,7 +739,7 @@ Flutter `FilterChip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](values.md#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](values.md#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  |  |
 | `side` | [BorderSide](decoration.md#type-BorderSide) | unset |  |  |
@@ -761,7 +761,7 @@ Flutter `FilterChip`.
 <a id="node-inputChip"></a>
 ### `inputChip`
 
-Flutter `InputChip`.
+Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -773,7 +773,7 @@ Flutter `InputChip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](values.md#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](values.md#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  |  |
 | `side` | [BorderSide](decoration.md#type-BorderSide) | unset |  |  |
@@ -837,6 +837,7 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 | <a id="trigger-changed"></a>`changed` | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
 | <a id="trigger-changeEnd"></a>`changeEnd` | A slider was let go, with its final value. |
 | <a id="trigger-submitted"></a>`submitted` | A text field was submitted from the keyboard. |
+| <a id="trigger-deleted"></a>`deleted` | An input chip's delete icon was tapped, or Delete or Backspace pressed on it (Flutter's `onDeleted`). |
 | <a id="trigger-editingComplete"></a>`editingComplete` | A text field lost focus after editing. |
 | <a id="trigger-focusGained"></a>`focusGained` | A text field gained or lost focus. |
 | <a id="trigger-focusLost"></a>`focusLost` |  |

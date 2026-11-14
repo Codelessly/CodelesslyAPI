@@ -71,6 +71,10 @@ enum TriggerType {
   /// A text field was submitted from the keyboard.
   submitted,
 
+  /// An input chip's delete icon was tapped, or Delete or Backspace pressed
+  /// on it (Flutter's `onDeleted`).
+  deleted,
+
   /// A text field lost focus after editing.
   editingComplete,
 
@@ -200,7 +204,7 @@ enum TriggerType {
   static const Set<TriggerType> screen = {load, valueChanged, timer, frame, keyDown, keyUp, backPressed, actionError};
 
   /// The triggers an input fires.
-  static const Set<TriggerType> input = {changed, changeEnd, submitted, editingComplete, focusGained, focusLost};
+  static const Set<TriggerType> input = {changed, changeEnd, submitted, deleted, editingComplete, focusGained, focusLost};
 }
 
 /// How long a [TriggerType.hold] is held by default, in milliseconds.
