@@ -212,6 +212,31 @@ void main() {
       final d = validateDocument(page, options: ValidateOptions(theme: ds.tokens, components: ds.components));
       expect(d.map((x) => x.code.name), containsAll(['missing_prop', 'invalid_enum']));
     });
+
+    test('the strict edit check of a session with a design system knows its tokens and its components', () async {
+      final ds = await _load();
+      final check = strictEditCheck(ValidateOptions(theme: ds.tokens, components: ds.components));
+      final catalog = ds.catalogOver(Catalog.core);
+      final r = applyOps(LayoutDocument(catalog: catalog), [
+        {'op': 'roots', 'roots': ['c']},
+        {'op': 'set', 'id': 'c', 'node': {'type': 'canvas', 'slots': {'body': 'col'}, 'layout': {'width': 390, 'height': {'hug': 200}}}},
+        {
+          'op': 'set',
+          'id': 'col',
+          'node': {
+            'type': 'column',
+            'children': ['save', 'title'],
+            'layout': {'width': {'fill': 390}, 'height': {'hug': 200}},
+            'decoration': {'fills': [{'color': 'border'}]},
+          },
+        },
+        {'op': 'set', 'id': 'save', 'node': {'type': 'Button', 'props': {'label': 'Save'}, 'layout': {'width': 96, 'height': 28}}},
+        {'op': 'set', 'id': 'title', 'node': {'type': 'text', 'props': {'text': 'Hi', 'style': 'body'}, 'layout': {'width': 40, 'height': 16}}},
+        {'op': 'set', 'id': 'bad', 'node': {'type': 'text', 'props': {'text': 'No', 'style': {'color': 'nope'}}}, 'parent': 'col'},
+      ], catalog: catalog, check: check);
+      expect(r.errors.map((d) => '${d.op} ${d.code}'), ['5 unknown_theme_name']);
+      expect(r.applied, [0, 1, 2, 3, 4]);
+    });
   });
 
   group('the prompt generated from it', () {

@@ -1,3 +1,9 @@
+## Unreleased
+
+- `strictEditCheck` passes its options' `theme` on to the validator (it dropped it): a session with a design system
+  checks each op against the design system's tokens, so a theme color or text style name (`primaryBackground`,
+  `sectionTitle`) is no longer rejected as `unknown_theme_name`.
+
 ## 30.1.0
 
 **No special cases left: the last 21 one-look fields are general mechanisms.** Documents stay `"schema": 3`.
