@@ -79,3 +79,15 @@ nothing in any document.
 - The corpus is CodelesslyEditor/references, experiments/m05 and the SDK's examples, test/fixtures and benchmark
   (`dart run tool/migration_corpus.dart <dirs> --baseline-errors <schema-2 errors> --strip /home/user/`); 1353
   JSON files this time, 1385 when 30.0.0's report was taken (the same 106 documents).
+
+## After 30.1.0 (Unreleased)
+
+Not re-run over the corpus; what the new steps change in it, counted by a walk of the same files:
+
+- `states.target` (first in `migrate2to3`): 1131 state patches in 9 documents target `self` (12) or `@<key>`
+  (1119), every one the node its states are on; each is rewritten to the node's id and reported as a behaviour
+  change (the style now applies). The 330 `patches.moved` rewrites above are among them: they moved a scale that
+  never ran.
+- `paint.strokePath` writes a draw-on as an animation and a transition instead of `legacy.strokePath.draw`;
+  nothing in the corpus has one.
+- `props.renamed` (a time picker's `use24h`): nothing in the corpus has one.
