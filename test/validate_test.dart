@@ -682,4 +682,14 @@ void main() {
       expect(d.message, contains(r'{"left": "${= count > 1}", "op": "isTrue"}'));
     });
   });
+  test('a slider\'s label reads its own value', () {
+    final doc = {
+      'schema': 3, 'roots': ['s'],
+      'nodes': {
+        's': {'type': 'canvas', 'slots': {'body': 'sl'}, 'layout': {'width': 390, 'height': 200}},
+        'sl': {'type': 'slider', 'layout': {'width': 300, 'height': 48}, 'props': {'min': 0, 'max': 100, 'value': 50, 'label': r'${value}%'}},
+      },
+    };
+    expect(withCode(doc, Codes.unknownName), isEmpty);
+  });
 }
