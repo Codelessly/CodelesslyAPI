@@ -41,7 +41,8 @@ section's anchor is its topic.
 | A star, sparkle or other mark the font does not have; a custom shape | @@decoration-small-marks-and-shapes |
 | Style a text field (border, focus ring, fill, label, icons), a checkbox, a switch or a button, in one place | @@forms-styling-the-controls-in-one-place |
 | A text field that shows a variable and writes it back (two-way) | @@forms-a-text-field-bound-to-a-variable-two-way |
-| Validate input and show an error state | @@forms-validation-and-an-error-state |
+| Validate a form: per-field errors on blur or on send, the first error focused, a summary, a success state | @@forms-validation-and-an-error-state |
+| A radio group (one choice of several) | @@forms-a-radio-group |
 | A − / + stepper around a number field | @@forms-a-stepper-around-a-field |
 | A search icon or a clear (×) button inside a text field | @@forms-a-clear-button-in-the-field |
 | A checkbox or switch with a label, toggled from the whole row | @@forms-a-labelled-checkbox-or-switch |
