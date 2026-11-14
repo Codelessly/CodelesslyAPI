@@ -64,6 +64,11 @@ EditDiagnostic explainDiagnostic(EditDiagnostic d, {required Catalog catalog, Js
       message = 'A $type has no prop "$last". Its props: ${expected.join(', ')}.'
           '${last == 'text' && expected.contains('label') ? ' A button\'s text is "label".' : ''}';
       if (last == 'text' && expected.contains('label')) suggestion = 'label';
+    case 'wrong_type' when _expressionAt(d.path, node) != null:
+      final (bindPath, expression) = _expressionAt(d.path, node)!;
+      message = '${d.message} An expression is not read in a written value: it goes in "bind", keyed by the field\'s path, '
+          '"bind": {"$bindPath": ${_quote(expression)}}, and the written field keeps a plain value (or is left out).';
+      suggestion = 'bind.$bindPath';
     default:
       return d;
   }
@@ -72,3 +77,34 @@ EditDiagnostic explainDiagnostic(EditDiagnostic d, {required Catalog catalog, Js
 }
 
 String? _typeIn(String message) => RegExp(r'A (\w+) takes no').firstMatch(message)?[1];
+
+/// The binding path and the expression a `wrong_type` at [path] (a node's
+/// field, `/nodes/<id>/decoration/radius`) holds when it is a `${...}`
+/// expression written as the value: (`decoration.radius`,
+/// `${theme.radii.panel}`). Null for any other value.
+(String, String)? _expressionAt(String path, Json? node) {
+  final parts = path.split('/');
+  if (node == null || parts.length < 4 || parts[1] != 'nodes') return null;
+  final keys = parts.sublist(3).map((k) => k.replaceAll('~1', '/').replaceAll('~0', '~')).toList();
+  Object? v = node;
+  for (final k in keys) {
+    v = switch (v) {
+      final Map m => m[k],
+      final List l when int.tryParse(k) != null && int.parse(k) < l.length => l[int.parse(k)],
+      _ => null,
+    };
+  }
+  if (v is! String || !v.contains(r'${')) return null;
+  final b = StringBuffer();
+  for (final k in keys) {
+    if (int.tryParse(k) != null) {
+      b.write('[$k]');
+    } else {
+      if (b.isNotEmpty) b.write('.');
+      b.write(k);
+    }
+  }
+  return (b.toString(), v);
+}
+
+String _quote(String s) => '"${s.replaceAll(r'\', r'\\').replaceAll('"', r'\"')}"';

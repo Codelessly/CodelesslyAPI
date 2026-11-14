@@ -102,6 +102,34 @@ void main() {
       expect(d.message, contains('Its props: label'));
       expect(d.suggestion, 'label');
     });
+    test('an expression written as a plain value says to bind it, with the binding to write (question_flow, dashboard, carousel)', () {
+      // Five recorded SSUI cards wrote a theme token or a condition where a
+      // value goes: "radius": "${theme.radii.panel}", "visible": "${step > 0}".
+      final r = _apply(_card(), [
+        {
+          'op': 'set',
+          'id': 'panel',
+          'parent': 'wrap',
+          'node': {
+            'type': 'column',
+            'layout': {'width': {'fill': 358}, 'height': {'hug': 40}},
+            'decoration': {'radius': r'${theme.radii.panel}', 'fills': [{'color': '#FFFFFFFF'}]},
+          },
+        },
+        {
+          'op': 'set',
+          'id': 'back',
+          'parent': 'wrap',
+          'node': {'type': 'text', 'visible': r'${step > 0}', 'props': {'text': 'Back'}},
+        },
+      ]);
+      final radius = r.errors.firstWhere((d) => d.path == '/nodes/panel/decoration/radius');
+      expect(radius.code, 'wrong_type');
+      expect(radius.message, contains(r'"bind": {"decoration.radius": "${theme.radii.panel}"}'));
+      expect(radius.suggestion, 'bind.decoration.radius');
+      final visible = r.errors.firstWhere((d) => d.path == '/nodes/back/visible');
+      expect(visible.message, contains(r'"bind": {"visible": "${step > 0}"}'));
+    });
     test('would_orphan says to patch', () {
       final r = _apply(_card(), {
         'op': 'set',
