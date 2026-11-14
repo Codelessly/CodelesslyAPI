@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Design 11: the text field as built (WS-A, section 3.2): field frame, editor and what is left (handles, toolbar).
 - Milestone 3 design: `docs/design/11-no-widgets.md` (the renderer as render objects with no `MaterialApp`,
   `Navigator`, `Overlay` or widget per control; the control kit; SSUI as the default look; the split of the remaining
   controls into parallel workstreams).
