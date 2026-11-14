@@ -1854,7 +1854,7 @@
       "docs": "navigation.md#node-tabs"
     },
     "tabBar": {
-      "doc": "Flutter `TabBar`.\n\nFlutter `TabBar` (labels only; no pages).",
+      "doc": "Flutter `TabBar`. It has no fill of its own: for an opaque sticky sub-navigation, put it inside a sticky `column` or `box` with a fill, which paints over what passes behind the tabs.\n\nFlutter `TabBar` (labels only; no pages).",
       "flutter": "TabBar",
       "children": "none",
       "slots": [],
