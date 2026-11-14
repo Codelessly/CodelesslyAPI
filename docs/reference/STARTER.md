@@ -455,13 +455,18 @@ Hover and pressed styles (`states`), drag, gestures: [interaction](interaction.m
 
 1. Prefer layout that fits any width: wrapping rows with `basis`, a `gridView` with `minCrossAxisExtent`, a capped
    band.
-2. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
+2. **Use the width.** A tablet and a desktop are not a stretched phone: split the page into content and a rail
+   (a `flex` turning horizontal), give content columns (a `gridView` whose `crossAxisCount` grows, a lead item
+   spanning two: `layout.columnSpan`), and let every band fill the width with its content capped and centred. A
+   desktop page that is still one column, or content that stops short of its band, is unfinished:
+   [an editorial page at three sizes](layout.md#layout-an-editorial-page-at-three-sizes).
+3. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
    {"fontSize": 40}}}}]`. `minWidth`/`maxWidth` are px (inclusive) or a breakpoint name (`"tablet"`).
-3. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
+4. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
    over it; later rules win (the cascade). Write for phones, add `minWidth` rules (mobile first).
-4. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
+5. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
    `layout.order`; hidden: `"visible": false`.
-5. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
+6. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
 
 Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive layout](layout.md#page-layout).
 
@@ -527,6 +532,8 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 |---|---|
 | A row that becomes a column at a width; another order or hidden at a width | [layout-a-row-that-becomes-a-column](layout.md#layout-a-row-that-becomes-a-column) |
 | Content capped at a width and centered inside a full-width band (CSS max-width + margin auto) | [layout-a-capped-band](layout.md#layout-a-capped-band) |
+| A page at phone, tablet and desktop: one column, a split with a sticky rail, columns with a spanning lead | [layout-an-editorial-page-at-three-sizes](layout.md#layout-an-editorial-page-at-three-sizes) |
+| A grid item spanning two columns or rows; items placed at a row and column (a timetable that is a list on phones) | [layout-grid-spans-a-timetable](layout.md#layout-grid-spans-a-timetable) |
 | Cards three across that wrap to two, then one, with no breakpoint | [layout-cards-that-wrap](layout.md#layout-cards-that-wrap) |
 | Equal-height cards in a grid; a banner above one card; a button pinned to a card's bottom | [lists-equal-height-cards](lists.md#lists-equal-height-cards) |
 | Overlap the section above (a negative margin); bleed past the page gutter | [layout-overlap-and-bleed](layout.md#layout-overlap-and-bleed) |

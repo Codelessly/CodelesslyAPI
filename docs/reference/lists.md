@@ -144,6 +144,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 
 - Children: `children` and slots: `loading`, `error`, `end`, `reorderPlaceholder`.
 - Decoration: none: only blur effects in `decoration.effects` apply.
+- Reads from each child's layout: [`columnSpan`](layout.md#layout-columnSpan), [`rowSpan`](layout.md#layout-rowSpan), [`columnStart`](layout.md#layout-columnStart), [`rowStart`](layout.md#layout-rowStart).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|

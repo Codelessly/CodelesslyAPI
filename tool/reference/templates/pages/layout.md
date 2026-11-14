@@ -113,6 +113,40 @@ Across a row or column, a child's width comes out as:
 | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
 | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width, at most its `maxWidth` |
 
+### An editorial page at three sizes
+
+A phone, a tablet and a desktop are three layouts, not one stretched: **use the width**. On a tablet, split the page
+into the content and a rail; on a desktop, give the content columns and let a lead item span them. A page that is
+one column at 1440 px wide, or whose content stops short of the width it was given, wastes the screen.
+
+The front page below is one document. On a phone it is one column: stories, then the "Most read" rail. From 834 px
+the `split` flex turns horizontal (its `direction` patched): the stories fill and the rail is 280 wide and `sticky`,
+pinned 24 px below the top as the page scrolls. The stories are a `gridView` whose `crossAxisCount` is 1, 2 from
+834 px and 3 from 1200 px; the lead story spans two columns (`"bind": {"layout.columnSpan": "${= index == 0 ? 2 :
+1}"}`), which is the whole row at two columns and the full width at one, because a span is never wider than the
+grid. The masthead is a full-width coloured band whose content is capped at 1200 and centred
+([a capped band](@layout-a-capped-band)), as is the split.
+
+{{example:editorial}}
+
+### Grid spans; a timetable
+
+A `gridView` item spans and is placed as in CSS grid, through its own `layout` (the template's, bound per item from
+its data, and patched per size like any field):
+
+| `layout` | CSS | |
+|---|---|---|
+| `columnSpan`, `rowSpan` | `grid-column: span n`, `grid-row: span n` | cells covered across and down (a span is at most the grid's columns) |
+| `columnStart`, `rowStart` | `grid-column-start`, `grid-row-start` | the first column and row, 1 the first; unset: the next free cell |
+
+Items with both starts are placed first, then those with only a row, then the rest in order, each in the next cells
+where it fits (CSS's auto-placement). Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
+as their tallest item. A time-by-track timetable binds each session's track and slot to `columnStart` and
+`rowStart`, its length to `rowSpan`, and a session for every track to `columnSpan`; on a phone the bindings are only
+in a `minWidth` rule's patch, so the sessions fall back to one column in time order (a list), each naming its room:
+
+{{example:timetable}}
+
 ### Cards that wrap
 
 Three plan cards three across at desktop, two at tablet, one on phones, with no breakpoint: a wrapping `row`

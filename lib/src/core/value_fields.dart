@@ -375,11 +375,29 @@ abstract final class LayoutFields {
           'a child that fills the main axis (`{"fill": n}`) then grows by its `flex` share of the room left on its line '
           '(`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints.');
 
+  /// Under a gridView: CSS `grid-column: span n`.
+  static const columnSpan = PropDef<int>('columnSpan', IntCodec(min: 1), 1,
+      doc: 'CSS `grid-column: span n`, under a gridView: how many columns the item covers (at most the grid\'s columns). '
+          'Bind it per item (`\${= index == 0 ? 2 : 1}`: a lead story across two) and patch it per screen size (`media`).');
+
+  /// Under a gridView: CSS `grid-row: span n`.
+  static const rowSpan = PropDef<int>('rowSpan', IntCodec(min: 1), 1,
+      doc: 'CSS `grid-row: span n`, under a gridView: how many rows the item covers.');
+
+  /// Under a gridView: CSS `grid-column-start`.
+  static const columnStart = PropDef<int?>('columnStart', OptionalIntCodec(), null,
+      doc: 'CSS `grid-column-start`, under a gridView: the column the item starts in, 1 the first; unset: the next free '
+          'cell. With `rowStart`, a timetable puts each session at its track and time.');
+
+  /// Under a gridView: CSS `grid-row-start`.
+  static const rowStart = PropDef<int?>('rowStart', OptionalIntCodec(), null,
+      doc: 'CSS `grid-row-start`, under a gridView: the row the item starts in, 1 the first; unset: the next free cell.');
+
   /// The node's own box.
   static const List<PropDef<Object?>> box = [width, height, constraints, margin, padding, aspectRatio];
 
   /// What a parent reads (Flutter's parent data).
-  static const List<PropDef<Object?>> parentData = [flex, squeezable, x, y, align, order, basis];
+  static const List<PropDef<Object?>> parentData = [flex, squeezable, x, y, align, order, basis, columnSpan, rowSpan, columnStart, rowStart];
   static const List<PropDef<Object?>> all = [...box, ...parentData];
 }
 

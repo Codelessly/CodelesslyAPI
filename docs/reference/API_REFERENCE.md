@@ -455,13 +455,18 @@ Hover and pressed styles (`states`), drag, gestures: [interaction](#page-interac
 
 1. Prefer layout that fits any width: wrapping rows with `basis`, a `gridView` with `minCrossAxisExtent`, a capped
    band.
-2. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
+2. **Use the width.** A tablet and a desktop are not a stretched phone: split the page into content and a rail
+   (a `flex` turning horizontal), give content columns (a `gridView` whose `crossAxisCount` grows, a lead item
+   spanning two: `layout.columnSpan`), and let every band fill the width with its content capped and centred. A
+   desktop page that is still one column, or content that stops short of its band, is unfinished:
+   [an editorial page at three sizes](#layout-an-editorial-page-at-three-sizes).
+3. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
    {"fontSize": 40}}}}]`. `minWidth`/`maxWidth` are px (inclusive) or a breakpoint name (`"tablet"`).
-3. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
+4. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `motion`, `bind`) and merged
    over it; later rules win (the cascade). Write for phones, add `minWidth` rules (mobile first).
-4. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
+5. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
    `layout.order`; hidden: `"visible": false`.
-5. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
+6. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
 
 Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive layout](#page-layout).
 
@@ -527,6 +532,8 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 |---|---|
 | A row that becomes a column at a width; another order or hidden at a width | [layout-a-row-that-becomes-a-column](#layout-a-row-that-becomes-a-column) |
 | Content capped at a width and centered inside a full-width band (CSS max-width + margin auto) | [layout-a-capped-band](#layout-a-capped-band) |
+| A page at phone, tablet and desktop: one column, a split with a sticky rail, columns with a spanning lead | [layout-an-editorial-page-at-three-sizes](#layout-an-editorial-page-at-three-sizes) |
+| A grid item spanning two columns or rows; items placed at a row and column (a timetable that is a list on phones) | [layout-grid-spans-a-timetable](#layout-grid-spans-a-timetable) |
 | Cards three across that wrap to two, then one, with no breakpoint | [layout-cards-that-wrap](#layout-cards-that-wrap) |
 | Equal-height cards in a grid; a banner above one card; a button pinned to a card's bottom | [lists-equal-height-cards](#lists-equal-height-cards) |
 | Overlap the section above (a negative margin); bleed past the page gutter | [layout-overlap-and-bleed](#layout-overlap-and-bleed) |
@@ -652,6 +659,8 @@ section's anchor is its topic.
 |---|---|
 | A row that becomes a column at a width; another order or hidden at a width | [layout.md#layout-a-row-that-becomes-a-column](#layout-a-row-that-becomes-a-column) |
 | Content capped at a width and centered inside a full-width band (CSS max-width + margin auto) | [layout.md#layout-a-capped-band](#layout-a-capped-band) |
+| A page at phone, tablet and desktop: one column, a split with a sticky rail, columns with a spanning lead | [layout.md#layout-an-editorial-page-at-three-sizes](#layout-an-editorial-page-at-three-sizes) |
+| A grid item spanning two columns or rows; items placed at a row and column (a timetable that is a list on phones) | [layout.md#layout-grid-spans-a-timetable](#layout-grid-spans-a-timetable) |
 | Cards three across that wrap to two, then one, with no breakpoint | [layout.md#layout-cards-that-wrap](#layout-cards-that-wrap) |
 | Equal-height cards in a grid; a banner above one card; a button pinned to a card's bottom | [lists.md#lists-equal-height-cards](#lists-equal-height-cards) |
 | Overlap the section above (a negative margin); bleed past the page gutter | [layout.md#layout-overlap-and-bleed](#layout-overlap-and-bleed) |
@@ -741,14 +750,14 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4331 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 6920 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4408 |
+| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8585 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2092 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3541 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11422 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6111 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6355 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6395 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5179 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4483 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2383 |
@@ -933,6 +942,10 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 <a id="layout-align"></a>
 <a id="layout-order"></a>
 <a id="layout-basis"></a>
+<a id="layout-columnSpan"></a>
+<a id="layout-rowSpan"></a>
+<a id="layout-columnStart"></a>
+<a id="layout-rowStart"></a>
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `width` | [AxisSize](#type-AxisSize) | `0` |  | The node's width: a number (fixed), `{"hug": n}` (its content), `{"fill": n}` (the room its parent gives) or `{"flexible": n}` (up to n). n is the design size. Without one the node is 0 wide. |
@@ -948,6 +961,10 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 | `align` | [Alignment](#type-Alignment) | unset |  | Under a row/column: alignment in its slot (`Align`). |
 | `order` | int | `0` |  | CSS `order`: under a row, column or flex, children are laid out and painted by ascending order (equal orders as listed). Patch it per screen size (`media`) to reorder at a width. |
 | `basis` | double | unset | ≥ 0 | CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; a child that fills the main axis (`{"fill": n}`) then grows by its `flex` share of the room left on its line (`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints. |
+| `columnSpan` | int | `1` | ≥ 1 | CSS `grid-column: span n`, under a gridView: how many columns the item covers (at most the grid's columns). Bind it per item (`${= index == 0 ? 2 : 1}`: a lead story across two) and patch it per screen size (`media`). |
+| `rowSpan` | int | `1` | ≥ 1 | CSS `grid-row: span n`, under a gridView: how many rows the item covers. |
+| `columnStart` | int | unset |  | CSS `grid-column-start`, under a gridView: the column the item starts in, 1 the first; unset: the next free cell. With `rowStart`, a timetable puts each session at its track and time. |
+| `rowStart` | int | unset |  | CSS `grid-row-start`, under a gridView: the row the item starts in, 1 the first; unset: the next free cell. |
 
 Read by decoding but not declared as fields: `widthFactor`, `heightFactor`. A share (0–1 and up) of the room its parent gives it on that axis (`FractionallySizedBox`): a progress bar's fill is `widthFactor: 0.6` of its track. Null: sized by `width` / `height`. Bindable (`layout.widthFactor`).
 
@@ -1575,6 +1592,392 @@ Across a row or column, a child's width comes out as:
 |---|---|---|---|
 | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
 | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width, at most its `maxWidth` |
+
+<a id="layout-an-editorial-page-at-three-sizes"></a>
+### An editorial page at three sizes
+
+A phone, a tablet and a desktop are three layouts, not one stretched: **use the width**. On a tablet, split the page
+into the content and a rail; on a desktop, give the content columns and let a lead item span them. A page that is
+one column at 1440 px wide, or whose content stops short of the width it was given, wastes the screen.
+
+The front page below is one document. On a phone it is one column: stories, then the "Most read" rail. From 834 px
+the `split` flex turns horizontal (its `direction` patched): the stories fill and the rail is 280 wide and `sticky`,
+pinned 24 px below the top as the page scrolls. The stories are a `gridView` whose `crossAxisCount` is 1, 2 from
+834 px and 3 from 1200 px; the lead story spans two columns (`"bind": {"layout.columnSpan": "${= index == 0 ? 2 :
+1}"}`), which is the whole row at two columns and the full width at one, because a span is never wider than the
+grid. The masthead is a full-width coloured band whose content is capped at 1200 and centred
+([a capped band](#layout-a-capped-band)), as is the split.
+
+```json
+{
+  "schema": 3,
+  "roots": ["front"],
+  "nodes": {
+    "front": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 844},
+      "decoration": {"fills": [{"color": "#FFFAF7F2"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["masthead", "main"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 844}},
+      "props": {"scrollable": true}
+    },
+    "masthead": {
+      "type": "column",
+      "children": ["mastheadInner"],
+      "layout": {"width": {"fill": 390}, "height": {"hug": 72}, "padding": [20, 20, 20, 20]},
+      "decoration": {"fills": [{"color": "#FF1F2A44"}]}
+    },
+    "mastheadInner": {
+      "type": "row",
+      "children": ["title", "edition"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 32}, "constraints": {"maxWidth": 1200}},
+      "props": {"mainAxisAlignment": "spaceBetween"}
+    },
+    "title": {
+      "type": "text",
+      "layout": {"width": {"hug": 140}, "height": {"hug": 32}},
+      "props": {"text": "The Long Tide", "style": {"fontSize": 24, "fontWeight": 700, "color": "#FFFAF7F2"}}
+    },
+    "edition": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 18}},
+      "props": {"text": "Saturday edition", "style": {"fontSize": 13, "color": "#FFCBD5E1"}},
+      "media": [{"maxWidth": 599, "patch": {"visible": false}}]
+    },
+    "main": {
+      "type": "column",
+      "children": ["split"],
+      "layout": {"width": {"fill": 390}, "height": {"hug": 1200}, "padding": [20, 24, 20, 40]}
+    },
+    "split": {
+      "type": "flex",
+      "children": ["river", "rail"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 1200}, "constraints": {"maxWidth": 1200}},
+      "props": {"direction": "vertical", "spacing": 32, "crossAxisAlignment": "start"},
+      "media": [{"minWidth": 834, "patch": {"props": {"direction": "horizontal"}}}]
+    },
+    "river": {
+      "type": "gridView",
+      "children": ["story"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 900}},
+      "props": {
+        "crossAxisCount": 1,
+        "shrinkWrapRows": true,
+        "physics": "never",
+        "mainAxisSpacing": 28,
+        "crossAxisSpacing": 24
+      },
+      "bind": {"data": "${stories}"},
+      "media": [
+        {"minWidth": 834, "patch": {"props": {"crossAxisCount": 2}}},
+        {"minWidth": 1200, "patch": {"props": {"crossAxisCount": 3}}}
+      ]
+    },
+    "story": {
+      "type": "column",
+      "children": ["storyArt", "storyKicker", "storyTitle", "storyDek"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 300}},
+      "props": {"spacing": 8, "crossAxisAlignment": "start"},
+      "bind": {"layout.columnSpan": "${= index == 0 ? 2 : 1}"}
+    },
+    "storyArt": {
+      "type": "box",
+      "layout": {"width": {"fill": 350}, "height": 200},
+      "bind": {"layout.height": "${= index == 0 ? 340 : 200}"},
+      "decoration": {
+        "fills": [
+          {
+            "type": "linear",
+            "begin": "topLeft",
+            "end": "bottomRight",
+            "stops": [{"position": 0, "color": "#FF94A3B8"}, {"position": 1, "color": "#FF1F2A44"}]
+          }
+        ],
+        "radius": 4
+      }
+    },
+    "storyKicker": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 16}},
+      "props": {
+        "text": "${item.section}",
+        "style": {"fontSize": 12, "fontWeight": 700, "letterSpacing": 1.2, "color": "#FFB45309"}
+      }
+    },
+    "storyTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 30}},
+      "props": {
+        "text": "${item.title}",
+        "style": {"fontSize": 20, "fontWeight": 700, "height": 1.2, "color": "#FF111827"}
+      },
+      "bind": {"props.style.fontSize": "${= index == 0 ? 30 : 20}"}
+    },
+    "storyDek": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 40}},
+      "props": {"text": "${item.dek}", "style": {"fontSize": 15, "height": 1.45, "color": "#FF4B5563"}}
+    },
+    "rail": {
+      "type": "column",
+      "children": ["railTitle", "railList"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 320}, "padding": 20},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}], "strokes": [{"color": "#FFE5E7EB"}], "radius": 6},
+      "props": {"spacing": 14, "crossAxisAlignment": "start"},
+      "sticky": {"offset": 24},
+      "media": [{"minWidth": 834, "patch": {"layout": {"width": 280}}}]
+    },
+    "railTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 20}},
+      "props": {"text": "Most read", "style": {"fontSize": 16, "fontWeight": 700, "color": "#FF111827"}}
+    },
+    "railList": {
+      "type": "listView",
+      "children": ["railItem"],
+      "layout": {"width": {"fill": 240}, "height": {"hug": 200}},
+      "props": {"scrollable": false, "spacing": 12},
+      "bind": {"data": "${mostRead}"}
+    },
+    "railItem": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 40}},
+      "props": {
+        "text": "${= (index + 1) + '. ' + item}",
+        "style": {"fontSize": 14, "height": 1.4, "color": "#FF374151"}
+      }
+    }
+  },
+  "variables": {
+    "front": [
+      {
+        "name": "stories",
+        "type": "list",
+        "value": [
+          {
+            "section": "CLIMATE",
+            "title": "Where the marsh moves, the town follows",
+            "dek": "On the Chesapeake's eastern shore, salt water is rewriting the map one field at a time."
+          },
+          {
+            "section": "CITIES",
+            "title": "The bus line that rebuilt a neighbourhood",
+            "dek": "Ten years after route 22 opened, its stops are the busiest corners in town."
+          },
+          {
+            "section": "SCIENCE",
+            "title": "Counting eels by moonlight",
+            "dek": "Volunteers spend spring nights at the weirs, tallying the year's arrivals."
+          },
+          {
+            "section": "FOOD",
+            "title": "Oyster season, earlier every year",
+            "dek": "Warmer water moves the harvest and the festival with it."
+          },
+          {
+            "section": "ARTS",
+            "title": "A museum of tide clocks",
+            "dek": "One collector's rooms of brass and glass keep the river's time."
+          }
+        ]
+      },
+      {
+        "name": "mostRead",
+        "type": "list",
+        "value": [
+          "Where the marsh moves, the town follows",
+          "Counting eels by moonlight",
+          "The ferry's last summer",
+          "A museum of tide clocks"
+        ]
+      }
+    ]
+  }
+}
+```
+
+<a id="layout-grid-spans-a-timetable"></a>
+### Grid spans; a timetable
+
+A `gridView` item spans and is placed as in CSS grid, through its own `layout` (the template's, bound per item from
+its data, and patched per size like any field):
+
+| `layout` | CSS | |
+|---|---|---|
+| `columnSpan`, `rowSpan` | `grid-column: span n`, `grid-row: span n` | cells covered across and down (a span is at most the grid's columns) |
+| `columnStart`, `rowStart` | `grid-column-start`, `grid-row-start` | the first column and row, 1 the first; unset: the next free cell |
+
+Items with both starts are placed first, then those with only a row, then the rest in order, each in the next cells
+where it fits (CSS's auto-placement). Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
+as their tallest item. A time-by-track timetable binds each session's track and slot to `columnStart` and
+`rowStart`, its length to `rowSpan`, and a session for every track to `columnSpan`; on a phone the bindings are only
+in a `minWidth` rule's patch, so the sessions fall back to one column in time order (a list), each naming its room:
+
+```json
+{
+  "schema": 3,
+  "roots": ["schedule"],
+  "nodes": {
+    "schedule": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 844},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["heading", "tracks", "grid"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 844}, "padding": 20},
+      "props": {"spacing": 12, "crossAxisAlignment": "start", "scrollable": true}
+    },
+    "heading": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 30}},
+      "props": {"text": "Saturday, 9:00 to 12:00", "style": {"fontSize": 22, "fontWeight": 700, "color": "#FF111827"}}
+    },
+    "tracks": {
+      "type": "row",
+      "children": ["track1", "track2", "track3"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 20}},
+      "props": {"spacing": 12},
+      "visible": false,
+      "media": [{"minWidth": 600, "patch": {"visible": true}}]
+    },
+    "track1": {
+      "type": "text",
+      "layout": {"width": {"fill": 100}, "height": {"hug": 20}},
+      "props": {"text": "Main hall", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF6B7280"}}
+    },
+    "track2": {
+      "type": "text",
+      "layout": {"width": {"fill": 100}, "height": {"hug": 20}},
+      "props": {"text": "Studio", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF6B7280"}}
+    },
+    "track3": {
+      "type": "text",
+      "layout": {"width": {"fill": 100}, "height": {"hug": 20}},
+      "props": {"text": "Workshop room", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF6B7280"}}
+    },
+    "grid": {
+      "type": "gridView",
+      "children": ["session"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 400}},
+      "props": {
+        "crossAxisCount": 1,
+        "mainAxisExtent": 64,
+        "mainAxisSpacing": 8,
+        "crossAxisSpacing": 12,
+        "physics": "never"
+      },
+      "bind": {"data": "${sessions}"},
+      "media": [{"minWidth": 600, "patch": {"props": {"crossAxisCount": 3}}}]
+    },
+    "session": {
+      "type": "column",
+      "children": ["sessionTime", "sessionTitle"],
+      "layout": {"width": {"fill": 350}, "height": {"fill": 64}, "padding": 10},
+      "decoration": {"fills": [{"color": "#FFEEF2FF"}], "radius": 6},
+      "props": {"spacing": 2, "crossAxisAlignment": "start"},
+      "media": [
+        {
+          "minWidth": 600,
+          "patch": {
+            "bind": {
+              "layout.columnStart": "${item.track}",
+              "layout.rowStart": "${item.slot}",
+              "layout.rowSpan": "${item.slots}",
+              "layout.columnSpan": "${item.tracks}"
+            }
+          }
+        }
+      ]
+    },
+    "sessionTime": {
+      "type": "text",
+      "layout": {"width": {"fill": 320}, "height": {"hug": 16}},
+      "props": {"text": "${item.time} · ${item.room}", "style": {"fontSize": 12, "color": "#FF4338CA"}}
+    },
+    "sessionTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 320}, "height": {"hug": 20}},
+      "props": {
+        "text": "${item.title}",
+        "maxLines": 2,
+        "overflow": "ellipsis",
+        "style": {"fontSize": 15, "fontWeight": 600, "color": "#FF111827"}
+      }
+    }
+  },
+  "variables": {
+    "schedule": [
+      {
+        "name": "sessions",
+        "type": "list",
+        "value": [
+          {
+            "title": "Opening keynote",
+            "time": "9:00",
+            "room": "Main hall",
+            "track": 1,
+            "slot": 1,
+            "slots": 1,
+            "tracks": 3
+          },
+          {
+            "title": "Designing for the tide",
+            "time": "9:30",
+            "room": "Main hall",
+            "track": 1,
+            "slot": 2,
+            "slots": 2,
+            "tracks": 1
+          },
+          {
+            "title": "Type on small screens",
+            "time": "9:30",
+            "room": "Studio",
+            "track": 2,
+            "slot": 2,
+            "slots": 1,
+            "tracks": 1
+          },
+          {
+            "title": "Hands-on: grids",
+            "time": "9:30",
+            "room": "Workshop room",
+            "track": 3,
+            "slot": 2,
+            "slots": 3,
+            "tracks": 1
+          },
+          {
+            "title": "Colour in the dark",
+            "time": "10:00",
+            "room": "Studio",
+            "track": 2,
+            "slot": 3,
+            "slots": 1,
+            "tracks": 1
+          },
+          {
+            "title": "Panel: open data",
+            "time": "10:30",
+            "room": "Main hall",
+            "track": 1,
+            "slot": 4,
+            "slots": 1,
+            "tracks": 2
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 <a id="layout-cards-that-wrap"></a>
 ### Cards that wrap
@@ -3944,6 +4347,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 
 - Children: `children` and slots: `loading`, `error`, `end`, `reorderPlaceholder`.
 - Decoration: none: only blur effects in `decoration.effects` apply.
+- Reads from each child's layout: [`columnSpan`](#layout-columnSpan), [`rowSpan`](#layout-rowSpan), [`columnStart`](#layout-columnStart), [`rowStart`](#layout-rowStart).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -5132,6 +5536,10 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 | `layout.align` | `Alignment` | [x, y] from -1 to 1, or a name: topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight |
 | `layout.order` | `int` | a whole number |
 | `layout.basis` | `double` | a number |
+| `layout.columnSpan` | `int` | a whole number |
+| `layout.rowSpan` | `int` | a whole number |
+| `layout.columnStart` | `int` | a whole number |
+| `layout.rowStart` | `int` | a whole number |
 | `decoration.fills` | `List<Paint>` | a list of Paint objects |
 | `decoration.strokes` | `List<Paint>` | a list of Paint objects |
 | `decoration.strokeWidth` | `double` | a number |
@@ -5149,7 +5557,7 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 `props.<prop>` takes what the prop's type is written as: `"${= open ? 'vertical' : 'horizontal'}"` for
 `props.direction`, a TextStyle object or a theme style's name for `props.style`. Every bindable field:
 
-- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
+- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, `columnSpan`, `rowSpan`, `columnStart`, `rowStart`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type, and `props.<prop>.<field>` for a field of a model prop.
 - `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`defaultTextStyle`](#behavior-defaultTextStyle), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint), [`form`](#behavior-form), [`radioGroup`](#behavior-radioGroup).
