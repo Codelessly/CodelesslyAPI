@@ -9512,6 +9512,9 @@
               "props": {
                 "type": "object",
                 "properties": {
+                  "label": {
+                    "type": "string"
+                  },
                   "value": {
                     "anyOf": [
                       {
@@ -9649,6 +9652,9 @@
               "props": {
                 "type": "object",
                 "properties": {
+                  "label": {
+                    "type": "string"
+                  },
                   "enabled": {
                     "type": "boolean"
                   },
@@ -9873,6 +9879,9 @@
               "props": {
                 "type": "object",
                 "properties": {
+                  "label": {
+                    "type": "string"
+                  },
                   "value": {
                     "type": "string"
                   },

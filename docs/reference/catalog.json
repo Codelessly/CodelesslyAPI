@@ -3168,6 +3168,14 @@
       "childFields": [],
       "props": [
         {
+          "key": "label",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control."
+        },
+        {
           "key": "value",
           "type": "bool",
           "kind": "boolean",
@@ -3285,6 +3293,14 @@
       "decorated": false,
       "childFields": [],
       "props": [
+        {
+          "key": "label",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control."
+        },
         {
           "key": "enabled",
           "type": "bool",
@@ -3507,6 +3523,14 @@
       "decorated": false,
       "childFields": [],
       "props": [
+        {
+          "key": "label",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control."
+        },
         {
           "key": "value",
           "type": "String",

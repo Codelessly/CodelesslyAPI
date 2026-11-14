@@ -22,7 +22,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [layout.md](layout.md) | Feature page. | 9529 | 17791 |
 | [theme.md](theme.md) | Feature page. | 2906 | 5039 |
 | [decoration.md](decoration.md) | Feature page. | 4097 | 7222 |
-| [forms.md](forms.md) | Feature page. | 12204 | 21239 |
+| [forms.md](forms.md) | Feature page. | 12312 | 21388 |
 | [lists.md](lists.md) | Feature page. | 7875 | 13945 |
 | [navigation.md](navigation.md) | Feature page. | 4238 | 7527 |
 | [state.md](state.md) | Feature page. | 6662 | 11912 |
@@ -39,10 +39,10 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [edit-ops.md](edit-ops.md) | Feature page. | 3581 | 5855 |
 | [render.md](render.md) | Feature page. | 3020 | 4689 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13299 | 20836 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 106020 | 185272 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 73376 | 192715 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 106128 | 185422 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 73496 | 192972 |
 | [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10213 | 28441 |
-| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25129 | 105546 |
+| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25144 | 105611 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1267 | 3814 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |
 | [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2567 | 10927 |
