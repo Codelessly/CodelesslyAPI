@@ -34,8 +34,9 @@ Every control's props, then the models that style them ([InputDecoration](@type-
 | `radio`, `slider`, `dropdown`, `segmentedButton` | their colours, track and thumb shapes | `props` ([radio](@node-radio), [slider](@node-slider), [dropdown](@node-dropdown), [segmentedButton](@node-segmentedButton)) |
 | a labelled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [a labelled checkbox](@forms-a-labelled-checkbox-or-switch) |
 
-Every colour there may be a theme colour's name; every text style may name a theme style. An outlined field needs
-`"contentPadding": [14, 16, 14, 16]` in its decoration to keep its text off the border.
+Every colour there may be a theme colour's name; every text style may name a theme style. An outlined or filled
+field that sets no `contentPadding` (nor a `layout.padding`) takes Flutter's default, 12 px at the sides, which
+keeps its text and label off the border; set `contentPadding` for another.
 
 ### A text field bound to a variable (two-way)
 
@@ -48,27 +49,39 @@ store `${result}` in the same variable and the control follows it.
 
 ### Validation and an error state
 
-Keep the values in variables, set a `tried` flag on submit, and show errors from computed variables: bind
-`props.decoration.errorText` (the field turns to its `errorBorder` and shows the text) or a separate text's
-`visible`. An empty `errorText` shows no error. The `validator` prop is declared but not applied by the SDK; `inputFormatter` applies only
-`{"type": "regex", "pattern": ..., "allow": true}`.
+As Flutter's `TextFormField` and `Form`:
 
-```json
-"variables": {"page_variables": [
-  {"name": "seats", "type": "text", "value": "10"},
-  {"name": "seatsError", "type": "text", "formula": "seats == '' || number(seats) < 1 ? 'Enter at least 1 seat.' : ''"}
-]}
-```
+- A field's `validator` is Flutter's `validator: (value) => ...`: an expression that reads the typed text as
+  `value` and gives the error to show under the field, or `''` when it is valid:
+  `"validator": "${= trim(value) == '' ? 'Enter your name.' : ''}"` (in `props`, not `bind`: it runs on the text
+  each time the field checks itself).
+- `autovalidateMode` says when a field checks itself (Flutter's `AutovalidateMode`): `disabled` (default: only
+  when its form is validated), `onUnfocus` (when the focus leaves it: validate on blur), `onUserInteraction` (as
+  it is typed in, once it has been), `onUserInteractionIfError` (as it is typed in, while it shows an error: the
+  error clears as soon as it is fixed), `always`. An error stays until the field checks itself again.
+- A node with `"form": {"autovalidateMode": ...}` is Flutter's `Form` around the fields inside it: the mode applies
+  to all of them, and its nodes read `${form.valid}` (every field passes now) and `${form.errors}` (the errors the
+  fields show, top to bottom: `{field, label, message}`) for a summary.
+- `{"type": "validate", "node": "<form>"}` is `FormState.validate()`: every field of the form shows its error,
+  the first invalid one takes the focus, and `${result}` is whether all are valid, for an `if` that submits.
 
-```json
-"seatsField": {"type": "textField", "layout": {"width": 160, "height": 72},
-  "bind": {"props.initialValue": "${seats}", "props.decoration.errorText": "${seatsError}"},
-  "props": {"keyboardType": "number", "decoration": {"labelText": "Seats",
-    "border": {"type": "outline", "borderRadius": 8}, "errorBorder": {"type": "outline", "borderRadius": 8, "borderSide": {"color": "#FFDC2626"}}}}}
-```
+An error can also come from anywhere else: bind `props.decoration.errorText` (an empty text shows none); the
+validator's error, when it shows one, wins. Give a field that may show an error a hug height (`{"hug": 56}`): it
+grows by the error line, and the form with it; a fixed height keeps the field that tall. `inputFormatter` applies
+only `{"type": "regex", "pattern": ..., "allow": true}`. A form submitted to a service: `submitForm`
+([data](@page-data)).
 
-Give a field that may show an error a hug height (`{"hug": 56}`): it grows by the error line, and the form with it;
-a fixed height keeps the field that tall. A form submitted to a service: `submitForm` ([data](@page-data)).
+A contact form validated on blur and on send, with a summary of the errors above it, a radio group and a thank-you
+that replaces the form:
+
+{{example:form_validated}}
+
+### A radio group
+
+Flutter's `RadioGroup`: give the node around the radios `"radioGroup": {"groupValue": ...}`, bind its
+`radioGroup.groupValue` to the variable that keeps the choice, and store `${result}` in its `changed` reaction. Each
+`radio` inside sets only its `value`: it is on when that is the group's value, and choosing it runs the group's
+`changed` (and its own). See `budget` in the form above.
 
 ### A stepper around a field
 
@@ -132,8 +145,10 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.
 - Every action key is written flat in the action; a misspelled one is dropped (`unknown_action_key`).
-- The `validator` prop is not applied: validate with variables.
-- An outlined border without `contentPadding` puts the text on the border.
+- A `validator` reads the field's text as `value`, not the variable the field is bound to; it goes in `props`, not
+  `bind`.
+- With `autovalidateMode` `disabled` (the default) a validator shows nothing until its form is validated: give the
+  form, or the field, a mode, or run `validate` on send.
 
 ## See also
 

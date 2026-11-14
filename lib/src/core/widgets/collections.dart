@@ -9,11 +9,13 @@ import '../behaviors.dart';
 import '../json.dart';
 import '../child_fits.dart';
 import '../props.dart';
+import '../value_fields.dart' show LayoutFields;
 import '../values/color.dart';
 import '../values/enums.dart';
 import '../values/geometry.dart';
 import '../values/text.dart';
 import 'collections_models.dart';
+import 'scroll.dart' show ScrollProps;
 
 export 'collections_models.dart';
 
@@ -109,9 +111,12 @@ abstract final class CollectionScrollProps {
   /// "paging", "loadRelated", "statusVariable"}`). Runtime only.
   static const query = PropDef<Json>('query', _json, {});
 
+  /// Comes to rest with an item at the start of the view.
+  static const itemSnapping = ScrollProps.itemSnapping;
+
   static const List<PropDef<Object?>> all = [
     scrollDirection, reverse, physics, alwaysScroll, primary, keyboardDismissBehavior, clipBehavior, //
-    itemCount, cacheExtent, query,
+    itemCount, cacheExtent, query, itemSnapping,
   ];
 }
 
@@ -268,6 +273,7 @@ abstract final class GridViewProps {
     slots: CollectionSlots.grid,
     children: ChildModel.list,
     childFits: cellChildFits,
+    childFields: [LayoutFields.columnSpan, LayoutFields.rowSpan, LayoutFields.columnStart, LayoutFields.rowStart],
     doc: 'Flutter `GridView`; the first child is the item.',
   );
 }

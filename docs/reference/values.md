@@ -414,10 +414,11 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `disabled` | Flutter's `AutovalidateMode`. |
-| `always` | Flutter's `AutovalidateMode`. |
-| `onUserInteraction` | Flutter's `AutovalidateMode`. |
-| `onUnfocus` | Flutter's `AutovalidateMode`. |
+| `disabled` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `always` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `onUserInteraction` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `onUnfocus` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
+| `onUserInteractionIfError` | Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action). |
 
 <a id="enum-Axis"></a>
 ### Axis
@@ -1644,8 +1645,8 @@ Written as the value's name, a JSON string (`"center"`).
 | `frame` | Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks. |
 | `keyDown` | A key went down (or up) while the screen shows; `Trigger.key` limits it to one key or combination, `Trigger.when` to while a formula holds. `${result.key}`, `${result.shift}`, `${result.alt}`, `${result.meta}`. |
 | `keyUp` |  |
-| `scroll` | The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page). |
-| `scrollEnd` |  |
+| `scroll` | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show. |
+| `scrollEnd` | The node stopped scrolling; `${result}` as for `scroll`. |
 | `enterViewport` | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | `exitViewport` |  |
 | `dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |

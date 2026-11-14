@@ -233,7 +233,7 @@ List<List<String>> componentCycles(Map<String, Set<String>> calls) {
 /// definition's).
 const Set<String> callLayoutKeys = {
   'width', 'height', 'flex', 'squeezable', 'constraints', 'margin', 'x', 'y', 'align', 'aspectRatio', //
-  'widthFactor', 'heightFactor', 'order', 'basis',
+  'widthFactor', 'heightFactor', 'order', 'basis', 'columnSpan', 'rowSpan', 'columnStart', 'rowStart',
 };
 
 /// The node fields a call may not carry: the inside belongs to the

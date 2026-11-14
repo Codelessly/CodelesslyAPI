@@ -13,6 +13,8 @@ section's anchor is its topic.
 |---|---|
 | A row that becomes a column at a width; another order or hidden at a width | @@layout-a-row-that-becomes-a-column |
 | Content capped at a width and centered inside a full-width band (CSS max-width + margin auto) | @@layout-a-capped-band |
+| A page at phone, tablet and desktop: one column, a split with a sticky rail, columns with a spanning lead | @@layout-an-editorial-page-at-three-sizes |
+| A grid item spanning two columns or rows; items placed at a row and column (a timetable that is a list on phones) | @@layout-grid-spans-a-timetable |
 | Cards three across that wrap to two, then one, with no breakpoint | @@layout-cards-that-wrap |
 | Equal-height cards in a grid; a banner above one card; a button pinned to a card's bottom | @@lists-equal-height-cards |
 | Overlap the section above (a negative margin); bleed past the page gutter | @@layout-overlap-and-bleed |
@@ -41,7 +43,8 @@ section's anchor is its topic.
 | A star, sparkle or other mark the font does not have; a custom shape | @@decoration-small-marks-and-shapes |
 | Style a text field (border, focus ring, fill, label, icons), a checkbox, a switch or a button, in one place | @@forms-styling-the-controls-in-one-place |
 | A text field that shows a variable and writes it back (two-way) | @@forms-a-text-field-bound-to-a-variable-two-way |
-| Validate input and show an error state | @@forms-validation-and-an-error-state |
+| Validate a form: per-field errors on blur or on send, the first error focused, a summary, a success state | @@forms-validation-and-an-error-state |
+| A radio group (one choice of several) | @@forms-a-radio-group |
 | A − / + stepper around a number field | @@forms-a-stepper-around-a-field |
 | A search icon or a clear (×) button inside a text field | @@forms-a-clear-button-in-the-field |
 | A checkbox or switch with a label, toggled from the whole row | @@forms-a-labelled-checkbox-or-switch |
@@ -54,7 +57,7 @@ section's anchor is its topic.
 | Nested lists; the outer item inside the inner list (`parent`) | @@lists-nested-lists |
 | A comparison table from one row and one cell template | @@lists-a-table-from-one-template |
 | A weekly grid (days × habits) | @@lists-a-weekly-grid |
-| A carousel; long lists loaded in pages | @@lists-a-carousel-pages-and-pagination |
+| A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | @@lists-a-carousel-pages-and-pagination |
 | Several screens; a page's URL path | @@navigation-screens |
 | Go to a screen with parameters, and back | @@navigation-going-to-a-screen-and-back |
 | A dialog, a bottom sheet, a popover, a toast, a confirmation | @@navigation-modals-and-toasts |

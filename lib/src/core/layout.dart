@@ -167,6 +167,10 @@ final class Layout {
     this.heightFactor,
     this.order = 0,
     this.basis,
+    this.columnSpan = 1,
+    this.rowSpan = 1,
+    this.columnStart,
+    this.rowStart,
   });
 
   final AxisSize width;
@@ -212,6 +216,14 @@ final class Layout {
   /// axis then grows by its [flex] share of what its line leaves.
   final double? basis;
 
+  /// Under a grid: how many columns and rows the item covers (CSS
+  /// `grid-column: span n`, `grid-row: span n`); at most the grid's columns.
+  final int columnSpan, rowSpan;
+
+  /// Under a grid: the column and row the item starts in, 1 the first (CSS
+  /// `grid-column-start`, `grid-row-start`); null: the next free cell.
+  final int? columnStart, rowStart;
+
   AxisSize along(bool horizontal) => horizontal ? width : height;
 
   Layout copyWith({
@@ -230,6 +242,10 @@ final class Layout {
     double? Function()? heightFactor,
     int? order,
     double? Function()? basis,
+    int? columnSpan,
+    int? rowSpan,
+    int? Function()? columnStart,
+    int? Function()? rowStart,
   }) =>
       Layout(
         width: width ?? this.width,
@@ -247,6 +263,10 @@ final class Layout {
         heightFactor: heightFactor == null ? this.heightFactor : heightFactor(),
         order: order ?? this.order,
         basis: basis == null ? this.basis : basis(),
+        columnSpan: columnSpan ?? this.columnSpan,
+        rowSpan: rowSpan ?? this.rowSpan,
+        columnStart: columnStart == null ? this.columnStart : columnStart(),
+        rowStart: rowStart == null ? this.rowStart : rowStart(),
       );
 
   static Layout fromJson(Object? json) {
@@ -269,7 +289,16 @@ final class Layout {
       heightFactor: _factor(m['heightFactor']),
       order: readInt(m['order']) ?? 0,
       basis: _factor(m['basis']),
+      columnSpan: (readInt(m['columnSpan']) ?? 1).clamp(1, 1 << 10),
+      rowSpan: (readInt(m['rowSpan']) ?? 1).clamp(1, 1 << 10),
+      columnStart: _line(m['columnStart']),
+      rowStart: _line(m['rowStart']),
     );
+  }
+
+  static int? _line(Object? v) {
+    final i = readInt(v);
+    return i == null || i < 1 ? null : i;
   }
 
   static double? _factor(Object? v) {
@@ -295,6 +324,10 @@ final class Layout {
     if (heightFactor != null) j['heightFactor'] = writeDouble(heightFactor!);
     if (order != 0) j['order'] = order;
     if (basis != null) j['basis'] = writeDouble(basis!);
+    if (columnSpan != 1) j['columnSpan'] = columnSpan;
+    if (rowSpan != 1) j['rowSpan'] = rowSpan;
+    if (columnStart != null) j['columnStart'] = columnStart;
+    if (rowStart != null) j['rowStart'] = rowStart;
     return j;
   }
 
@@ -315,9 +348,14 @@ final class Layout {
       other.widthFactor == widthFactor &&
       other.heightFactor == heightFactor &&
       other.order == order &&
-      other.basis == basis;
+      other.basis == basis &&
+      other.columnSpan == columnSpan &&
+      other.rowSpan == rowSpan &&
+      other.columnStart == columnStart &&
+      other.rowStart == rowStart;
 
   @override
   int get hashCode =>
-      Object.hash(width, height, flex, squeezable, constraints, margin, padding, x, y, align, aspectRatio, widthFactor, heightFactor, order, basis);
+      Object.hash(width, height, flex, squeezable, constraints, margin, padding, x, y, align, aspectRatio, widthFactor, heightFactor, order, basis,
+          columnSpan, rowSpan, columnStart, rowStart);
 }

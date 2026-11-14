@@ -286,6 +286,14 @@
           "doc": ""
         },
         {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
           "key": "fit",
           "type": "BoxFit",
           "kind": "enumeration",
@@ -477,6 +485,14 @@
           "doc": ""
         },
         {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
           "key": "fillViewport",
           "type": "bool",
           "kind": "boolean",
@@ -635,6 +651,14 @@
             "antiAliasWithSaveLayer"
           ],
           "doc": ""
+        },
+        {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
         },
         {
           "key": "fillViewport",
@@ -808,6 +832,14 @@
             "antiAliasWithSaveLayer"
           ],
           "doc": ""
+        },
+        {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
         },
         {
           "key": "fillViewport",
@@ -1169,6 +1201,14 @@
           "doc": "Where the items come from in a running app: a cloud query (`{\"collectionPath\", \"limit\", \"whereFilters\", \"orderByFilters\", \"paging\", \"loadRelated\", \"statusVariable\"}`). Runtime only."
         },
         {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
           "key": "scrollable",
           "type": "bool",
           "kind": "boolean",
@@ -1401,7 +1441,12 @@
         "reorderPlaceholder"
       ],
       "decorated": false,
-      "childFields": [],
+      "childFields": [
+        "columnSpan",
+        "rowSpan",
+        "columnStart",
+        "rowStart"
+      ],
       "props": [
         {
           "key": "scrollDirection",
@@ -1508,6 +1553,14 @@
           "default": {},
           "nullable": false,
           "doc": "Where the items come from in a running app: a cloud query (`{\"collectionPath\", \"limit\", \"whereFilters\", \"orderByFilters\", \"paging\", \"loadRelated\", \"statusVariable\"}`). Runtime only."
+        },
+        {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
         },
         {
           "key": "crossAxisCount",
@@ -3081,7 +3134,8 @@
             "disabled",
             "always",
             "onUserInteraction",
-            "onUnfocus"
+            "onUnfocus",
+            "onUserInteractionIfError"
           ],
           "doc": ""
         },
@@ -3120,11 +3174,11 @@
         },
         {
           "key": "validator",
-          "type": "Object",
-          "kind": "json",
-          "default": {},
+          "type": "String",
+          "kind": "string",
+          "default": "",
           "nullable": false,
-          "doc": "The validator (`{\"type\": \"none\"|\"email\"|\"required\"|..., ...}`)."
+          "doc": "Flutter's TextFormField.validator: an expression reading the text as `value`, giving the error or \"\" when valid."
         },
         {
           "key": "markdown",
@@ -11322,6 +11376,40 @@
         "nullable": true,
         "min": 0.0,
         "doc": "CSS `flex-basis`, under a wrapping row, column or flex: the main size the child counts when lines are broken; a child that fills the main axis (`{\"fill\": n}`) then grows by its `flex` share of the room left on its line (`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints."
+      },
+      {
+        "key": "columnSpan",
+        "type": "int",
+        "kind": "integer",
+        "default": 1,
+        "nullable": false,
+        "min": 1,
+        "doc": "CSS `grid-column: span n`, under a gridView: how many columns the item covers (at most the grid's columns). Bind it per item (`${= index == 0 ? 2 : 1}`: a lead story across two) and patch it per screen size (`media`)."
+      },
+      {
+        "key": "rowSpan",
+        "type": "int",
+        "kind": "integer",
+        "default": 1,
+        "nullable": false,
+        "min": 1,
+        "doc": "CSS `grid-row: span n`, under a gridView: how many rows the item covers."
+      },
+      {
+        "key": "columnStart",
+        "type": "int",
+        "kind": "integer",
+        "default": null,
+        "nullable": true,
+        "doc": "CSS `grid-column-start`, under a gridView: the column the item starts in, 1 the first; unset: the next free cell. With `rowStart`, a timetable puts each session at its track and time."
+      },
+      {
+        "key": "rowStart",
+        "type": "int",
+        "kind": "integer",
+        "default": null,
+        "nullable": true,
+        "doc": "CSS `grid-row-start`, under a gridView: the row the item starts in, 1 the first; unset: the next free cell."
       }
     ],
     "box": [
@@ -11339,7 +11427,11 @@
       "y",
       "align",
       "order",
-      "basis"
+      "basis",
+      "columnSpan",
+      "rowSpan",
+      "columnStart",
+      "rowStart"
     ],
     "undeclared": [
       "widthFactor",
@@ -11969,6 +12061,26 @@
         "object": "CustomPaint",
         "doc": "Flutter's `CustomPaint`: draw lists behind and over the content.",
         "docs": "decoration.md#behavior-customPaint"
+      },
+      {
+        "key": "form",
+        "type": "FormBehavior",
+        "kind": "object",
+        "default": null,
+        "nullable": true,
+        "object": "FormBehavior",
+        "doc": "Flutter's Form: the text fields inside validate together (the validate action); its nodes read ${form.valid} and ${form.errors}.",
+        "docs": "forms.md#behavior-form"
+      },
+      {
+        "key": "radioGroup",
+        "type": "RadioGroupBehavior",
+        "kind": "object",
+        "default": null,
+        "nullable": true,
+        "object": "RadioGroupBehavior",
+        "doc": "Flutter's RadioGroup: the radios inside share its groupValue; choosing one runs its changed reactions.",
+        "docs": "forms.md#behavior-radioGroup"
       }
     ]
   },
@@ -12180,13 +12292,13 @@
       },
       {
         "type": "scroll",
-        "doc": "The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page).",
+        "doc": "The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show.",
         "group": "other",
         "docs": "layout.md#trigger-scroll"
       },
       {
         "type": "scrollEnd",
-        "doc": "",
+        "doc": "The node stopped scrolling; `${result}` as for `scroll`.",
         "group": "other",
         "docs": "layout.md#trigger-scrollEnd"
       },
@@ -13375,6 +13487,30 @@
           }
         ],
         "docs": "forms.md#action-focus"
+      },
+      "validate": {
+        "label": "Validate form",
+        "class": "ValidateAction",
+        "doc": "Flutter's FormState.validate(): every field of the form shows its validator's error; the first invalid one takes the focus. ${result}: whether all are valid.",
+        "fields": [
+          {
+            "key": "node",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "The form (a node with a form behavior); empty: the form around the node running it, else the screen."
+          },
+          {
+            "key": "focusFirstError",
+            "type": "bool",
+            "kind": "boolean",
+            "default": true,
+            "nullable": false,
+            "doc": "Moves the focus to the first field that shows an error."
+          }
+        ],
+        "docs": "forms.md#action-validate"
       },
       "controlTrack": {
         "label": "Control track",
@@ -15128,7 +15264,8 @@
     "sticky",
     "script",
     "speech",
-    "pageOffset"
+    "pageOffset",
+    "form"
   ],
   "variables": {
     "fields": [
@@ -16634,6 +16771,27 @@
           "nullable": false,
           "object": "Spring",
           "doc": "The spring it settles with after a drag."
+        }
+      ]
+    },
+    "FormBehavior": {
+      "doc": "Flutter's `Form`: the text fields inside the node are one form. The `validate` action (`FormState.validate()`) checks them all with their validators, shows each one's error and focuses the first invalid field; `autovalidateMode` makes them check themselves too, as each field's own `autovalidateMode` does. The node and the nodes inside it read `${form.valid}` (every field passes its validator now) and `${form.errors}` (the errors the fields show, in order: `{field, label, message}`), for a summary. JSON `true` or `{\"autovalidateMode\": ...}`.",
+      "fields": [
+        {
+          "key": "autovalidateMode",
+          "type": "AutovalidateMode",
+          "kind": "enumeration",
+          "default": "disabled",
+          "nullable": false,
+          "enum": "AutovalidateMode",
+          "values": [
+            "disabled",
+            "always",
+            "onUserInteraction",
+            "onUnfocus",
+            "onUserInteractionIfError"
+          ],
+          "doc": "When every field inside checks itself, besides the validate action (Flutter's Form.autovalidateMode)."
         }
       ]
     },
@@ -19479,6 +19637,19 @@
         }
       ]
     },
+    "RadioGroupBehavior": {
+      "doc": "Flutter's `RadioGroup`: the `radio` nodes inside the node that set no `groupValue` of their own share this one, and choosing one of them runs the node's `changed` reactions with its value as `${result}` (`RadioGroup.onChanged`). Bind `groupValue` to the variable the choice is kept in: `\"bind\": {\"radioGroup.groupValue\": \"${budget}\"}`.",
+      "fields": [
+        {
+          "key": "groupValue",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The value of the radio that is on; bind it to the variable the choice is kept in."
+        }
+      ]
+    },
     "Reveal": {
       "doc": "Scrolls the node into view when it appears (or when its `reveal.when` binding turns true), to `alignment` of the viewport (0 top, 1 bottom). With `follow` it stays there while the content around it moves (lines added above an end marker, an image that loads late), until the user scrolls away: a chat or transcript pinned to its newest line.",
       "fields": [
@@ -21651,19 +21822,23 @@
     "AutovalidateMode": [
       {
         "value": "disabled",
-        "doc": "Flutter's `AutovalidateMode`."
+        "doc": "Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action)."
       },
       {
         "value": "always",
-        "doc": "Flutter's `AutovalidateMode`."
+        "doc": "Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action)."
       },
       {
         "value": "onUserInteraction",
-        "doc": "Flutter's `AutovalidateMode`."
+        "doc": "Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action)."
       },
       {
         "value": "onUnfocus",
-        "doc": "Flutter's `AutovalidateMode`."
+        "doc": "Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action)."
+      },
+      {
+        "value": "onUserInteractionIfError",
+        "doc": "Flutter's `AutovalidateMode`: when a field (or every field of a `form`) checks itself with its validator and shows the error, besides when the form is validated (the `validate` action)."
       }
     ],
     "Axis": [
@@ -24337,11 +24512,11 @@
       },
       {
         "value": "scroll",
-        "doc": "The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page)."
+        "doc": "The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show."
       },
       {
         "value": "scrollEnd",
-        "doc": ""
+        "doc": "The node stopped scrolling; `${result}` as for `scroll`."
       },
       {
         "value": "enterViewport",
@@ -25724,6 +25899,11 @@
       "code": "prop_ignored",
       "severity": "warning",
       "meaning": "A prop that has no effect with another the node sets (a grid's mainAxisExtent while shrinkWrapRows sizes its rows): one of them is ignored."
+    },
+    {
+      "code": "state_no_effect",
+      "severity": "warning",
+      "meaning": "A bound \"selected\" with no \"states.selected\" style: the node is selected, but nothing changes how it looks."
     },
     {
       "code": "unknown_bind_path",

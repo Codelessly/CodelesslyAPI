@@ -156,6 +156,7 @@
             "setThemeMode",
             "editText",
             "focus",
+            "validate",
             "controlTrack",
             "controlDismissible",
             "controlTransform",
@@ -759,6 +760,25 @@
                 "type": "boolean"
               },
               "selectAll": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "validate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "focusFirstError": {
                 "type": "boolean"
               }
             }
@@ -1831,7 +1851,8 @@
         "disabled",
         "always",
         "onUserInteraction",
-        "onUnfocus"
+        "onUnfocus",
+        "onUserInteractionIfError"
       ]
     },
     "enum.Axis": {
@@ -3152,6 +3173,34 @@
             }
           ]
         },
+        "columnSpan": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rowSpan": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "columnStart": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rowStart": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "widthFactor": {
           "type": "number",
           "minimum": 0
@@ -3793,6 +3842,15 @@
         },
         "spring": {
           "$ref": "#/$defs/model.Spring"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.FormBehavior": {
+      "type": "object",
+      "properties": {
+        "autovalidateMode": {
+          "$ref": "#/$defs/enum.AutovalidateMode"
         }
       },
       "additionalProperties": false
@@ -5752,6 +5810,15 @@
       },
       "additionalProperties": false
     },
+    "model.RadioGroupBehavior": {
+      "type": "object",
+      "properties": {
+        "groupValue": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.Reveal": {
       "type": "object",
       "properties": {
@@ -7406,6 +7473,44 @@
               "type": "null"
             }
           ]
+        },
+        "form": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.FormBehavior"
+                },
+                {
+                  "type": [
+                    "boolean"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "radioGroup": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.RadioGroupBehavior"
+                },
+                {
+                  "type": [
+                    "boolean"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -7518,6 +7623,9 @@
                   "clipBehavior": {
                     "$ref": "#/$defs/enum.Clip"
                   },
+                  "itemSnapping": {
+                    "type": "boolean"
+                  },
                   "fit": {
                     "anyOf": [
                       {
@@ -7618,6 +7726,9 @@
                   "clipBehavior": {
                     "$ref": "#/$defs/enum.Clip"
                   },
+                  "itemSnapping": {
+                    "type": "boolean"
+                  },
                   "fillViewport": {
                     "type": "boolean"
                   }
@@ -7681,6 +7792,9 @@
                   },
                   "clipBehavior": {
                     "$ref": "#/$defs/enum.Clip"
+                  },
+                  "itemSnapping": {
+                    "type": "boolean"
                   },
                   "fillViewport": {
                     "type": "boolean"
@@ -7748,6 +7862,9 @@
                   },
                   "clipBehavior": {
                     "$ref": "#/$defs/enum.Clip"
+                  },
+                  "itemSnapping": {
+                    "type": "boolean"
                   },
                   "fillViewport": {
                     "type": "boolean"
@@ -8016,6 +8133,9 @@
                     ]
                   },
                   "query": {},
+                  "itemSnapping": {
+                    "type": "boolean"
+                  },
                   "scrollable": {
                     "type": "boolean"
                   },
@@ -8208,6 +8328,9 @@
                     ]
                   },
                   "query": {},
+                  "itemSnapping": {
+                    "type": "boolean"
+                  },
                   "crossAxisCount": {
                     "type": "integer",
                     "minimum": 1
@@ -9320,7 +9443,9 @@
                     "minimum": 0.0
                   },
                   "inputFormatter": {},
-                  "validator": {},
+                  "validator": {
+                    "type": "string"
+                  },
                   "markdown": {},
                   "highlightStart": {
                     "anyOf": [

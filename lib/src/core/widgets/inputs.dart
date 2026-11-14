@@ -73,8 +73,6 @@ enum BoxHeightStyle { tight, max, includeLineSpacingMiddle, includeLineSpacingTo
 /// Flutter's `BoxWidthStyle` (selection boxes).
 enum BoxWidthStyle { tight, max }
 
-/// Flutter's `AutovalidateMode`.
-enum AutovalidateMode { disabled, always, onUserInteraction, onUnfocus }
 
 /// Flutter `TextField` (a `TextFormField` when it validates).
 abstract final class TextFieldProps {
@@ -143,8 +141,13 @@ abstract final class TextFieldProps {
   /// The input formatter (`{"type": "none"|"email"|"phone"|..., ...}`).
   static const inputFormatter = PropDef<Json>('inputFormatter', InputCodecs.json, {});
 
-  /// The validator (`{"type": "none"|"email"|"required"|..., ...}`).
-  static const validator = PropDef<Json>('validator', InputCodecs.json, {});
+  /// Flutter's `TextFormField.validator`, `(value) => String?`: an
+  /// expression that reads the field's text as `value` and gives the error
+  /// to show under the field, or nothing (empty, null) when it is valid:
+  /// `"${= value == '' ? 'Enter your email.' : ''}"`. The field shows it
+  /// when its form is validated, and as [autovalidateMode] says.
+  static const validator = PropDef<String>('validator', ValueCodec(_validatorIn, _same, PropType.string()), '',
+      doc: 'Flutter\'s TextFormField.validator: an expression reading the text as `value`, giving the error or "" when valid.');
 
   /// Markdown highlighting of the typed text.
   static const markdown = PropDef<Json?>('markdown', InputCodecs.json, null);
@@ -868,4 +871,21 @@ abstract final class SignatureProps {
     signLineGap, signLineOffset, showSignMark, signMarkIcon, signMarkSize, signMarkColor,
     signMarkPlacement, signMarkGap, caption, captionStyle, captionGap, captionAlign, smooth, error, enabled, readOnly,
   ], doc: 'A signature pad.');
+}
+
+Object? _same(Object? v) => v;
+
+/// A validator: its expression. The object form older documents saved
+/// (`{"type": "required"}`, `{"type": "email"}`, never applied) reads as
+/// the expression it named; any other object, as none.
+String _validatorIn(Object? json) {
+  if (json is String) return json;
+  final m = readMap(json);
+  if (m == null) return '';
+  final message = m['message'] is String ? (m['message'] as String).replaceAll("'", "\\'") : null;
+  return switch (m['type']) {
+    'required' => "\${= trim(value) == '' ? '${message ?? 'Required.'}' : ''}",
+    'email' => "\${= matches(value, '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+\$') ? '' : '${message ?? 'Enter a valid email address.'}'}",
+    _ => '',
+  };
 }

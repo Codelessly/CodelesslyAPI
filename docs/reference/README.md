@@ -16,17 +16,17 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 
 | File | What it is | Words | ≈ tokens |
 |---|---|---|---|
-| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 5979 | 12329 |
-| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 5938 | 11397 |
-| [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4377 | 13513 |
-| [layout.md](layout.md) | Feature page. | 7037 | 12719 |
-| [theme.md](theme.md) | Feature page. | 2632 | 4521 |
+| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 6171 | 12677 |
+| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 6132 | 11710 |
+| [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4478 | 13744 |
+| [layout.md](layout.md) | Feature page. | 8938 | 16732 |
+| [theme.md](theme.md) | Feature page. | 2674 | 4581 |
 | [decoration.md](decoration.md) | Feature page. | 4097 | 7222 |
-| [forms.md](forms.md) | Feature page. | 10165 | 17121 |
-| [lists.md](lists.md) | Feature page. | 6101 | 10080 |
+| [forms.md](forms.md) | Feature page. | 11428 | 19754 |
+| [lists.md](lists.md) | Feature page. | 6857 | 11855 |
 | [navigation.md](navigation.md) | Feature page. | 4166 | 7425 |
-| [state.md](state.md) | Feature page. | 6398 | 11485 |
-| [interaction.md](interaction.md) | Feature page. | 5162 | 8514 |
+| [state.md](state.md) | Feature page. | 6514 | 11682 |
+| [interaction.md](interaction.md) | Feature page. | 5221 | 8635 |
 | [animation.md](animation.md) | Feature page. | 4610 | 7488 |
 | [components.md](components.md) | Feature page. | 3706 | 7508 |
 | [charts.md](charts.md) | Feature page. | 6561 | 9767 |
@@ -37,15 +37,15 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [engage.md](engage.md) | Feature library page. | 311 | 636 |
 | [publish.md](publish.md) | Feature page. | 672 | 1237 |
 | [edit-ops.md](edit-ops.md) | Feature page. | 3297 | 5460 |
-| [render.md](render.md) | Feature page. | 2881 | 4458 |
-| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13107 | 20561 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 96493 | 166765 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 71592 | 189718 |
-| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 9439 | 26677 |
-| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 24600 | 102997 |
-| [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1259 | 3789 |
+| [render.md](render.md) | Feature page. | 2904 | 4494 |
+| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13286 | 20831 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 101125 | 176400 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 72642 | 191939 |
+| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 9638 | 27152 |
+| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 24786 | 103707 |
+| [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1267 | 3814 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |
-| [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2690 | 11647 |
+| [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2689 | 11644 |
 
 The old per-kind pages (`nodes.md`, `behaviors.md`, `triggers.md`, `actions.md`, `bindings.md`, `formulas.md`,
 `variables-conditions-scripts.md`) are stubs that say where each item went, so old links keep working. Old guide

@@ -1201,6 +1201,36 @@ final class FocusAction extends CoreAction {
   Json get _fields => {'node': node, if (unfocus) 'unfocus': true, if (selectAll) 'selectAll': true};
 }
 
+/// Flutter's `FormState.validate()`: checks every text field of the form
+/// with its validator and shows each one's error; the first invalid field
+/// takes the focus. [node] is the form (a node with a `form` behavior);
+/// empty: the form around the node whose reaction runs it, else every field
+/// of the screen. `${result}` after it: whether all are valid (`true` /
+/// `false`), for an `if` that submits.
+final class ValidateAction extends CoreAction {
+  const ValidateAction({this.node = '', this.focusFirstError = true, super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'validate';
+  @override
+  String get type => typeName;
+
+  final String node;
+
+  /// Moves the focus to the first field that shows an error.
+  final bool focusFirstError;
+
+  static ValidateAction _fromJson(Json m, _Common c) => ValidateAction(
+    node: _s(m, 'node'),
+    focusFirstError: _b(m, 'focusFirstError', true),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {'node': node, if (!focusFirstError) 'focusFirstError': false};
+}
+
 /// What a [ControlTrackAction] does to a [Track]: [step] turns it by
 /// [ControlTrackAction.steps] of its step, as if dragged there (crossing
 /// each step, then settling: a dial's nudge buttons); [animateTo] moves it
@@ -1789,6 +1819,11 @@ const List<ActionSpec> coreActionSpecs = [
       decode: SetThemeModeAction._fromJson),
   ActionSpec(EditTextAction.typeName, label: 'Edit text', fields: EditTextFields.all, decode: EditTextAction._fromJson),
   ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all, decode: FocusAction._fromJson),
+  ActionSpec(ValidateAction.typeName,
+      label: 'Validate form',
+      fields: ValidateFields.all,
+      doc: 'Flutter\'s FormState.validate(): every field of the form shows its validator\'s error; the first invalid one takes the focus. \${result}: whether all are valid.',
+      decode: ValidateAction._fromJson),
   ActionSpec(ControlTrackAction.typeName, label: 'Control track', fields: ControlTrackFields.all, decode: ControlTrackAction._fromJson),
   ActionSpec(ControlDismissibleAction.typeName, label: 'Control dismissible', fields: ControlDismissibleFields.all, decode: ControlDismissibleAction._fromJson),
   ActionSpec(ControlTransformAction.typeName, label: 'Control transform', fields: ControlTransformFields.all, decode: ControlTransformAction._fromJson),

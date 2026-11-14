@@ -58,7 +58,7 @@ void main() {
 
   test('every diagnostic code has a test here', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 72); // invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
+    expect(Codes.all.length, 73); // invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
   });
 
   group('document', () {
@@ -262,6 +262,32 @@ void main() {
       // A fixed row extent fills the cell: hug cannot apply there.
       expectOne(grid({'mainAxisExtent': 120}, {'hug': 300}), Codes.fitNotAllowed, path: '/nodes/card/layout/height');
       expectOne(grid({'masonry': true}, {'fill': 300}), Codes.fitNotAllowed, path: '/nodes/card/layout/height');
+    });
+    test('a bound selected state with nothing styled for it is reported, and names the chip\'s own prop (state_no_effect)', () {
+      Map<String, Object?> doc(String type, {Map<String, Object?>? states}) {
+        final d = base();
+        nodes(d)['choice'] = <String, Object?>{
+          'type': type,
+          'layout': {'width': 120, 'height': 40},
+          'props': {'label': 'Linen'},
+          'bind': {'selected': r'${= count == 1}'},
+          'states': ?states,
+        };
+        (node(d, 'col')['children'] as List).add('choice');
+        return d;
+      }
+      expectOne(doc('outlinedButton'), Codes.stateNoEffect, path: '/nodes/choice/bind/selected');
+      final chip = withCode(doc('filterChip'), Codes.stateNoEffect).single;
+      expect(chip.suggestion, 'props.selected');
+      expect(
+          withCode(
+              doc('outlinedButton', states: {
+                'selected': {
+                  'choice': {'props': {'style': {'backgroundColor': '#FF1F6F4A'}}},
+                },
+              }),
+              Codes.stateNoEffect),
+          isEmpty);
     });
     test('a node without a size is reported (zero_size)', () {
       final d = base();

@@ -113,6 +113,40 @@ Across a row or column, a child's width comes out as:
 | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
 | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width, at most its `maxWidth` |
 
+### An editorial page at three sizes
+
+A phone, a tablet and a desktop are three layouts, not one stretched: **use the width**. On a tablet, split the page
+into the content and a rail; on a desktop, give the content columns and let a lead item span them. A page that is
+one column at 1440 px wide, or whose content stops short of the width it was given, wastes the screen.
+
+The front page below is one document. On a phone it is one column: stories, then the "Most read" rail. From 834 px
+the `split` flex turns horizontal (its `direction` patched): the stories fill and the rail is 280 wide and `sticky`,
+pinned 24 px below the top as the page scrolls. The stories are a `gridView` whose `crossAxisCount` is 1, 2 from
+834 px and 3 from 1200 px; the lead story spans two columns (`"bind": {"layout.columnSpan": "${= index == 0 ? 2 :
+1}"}`), which is the whole row at two columns and the full width at one, because a span is never wider than the
+grid. The masthead is a full-width coloured band whose content is capped at 1200 and centred
+([a capped band](@layout-a-capped-band)), as is the split.
+
+{{example:editorial}}
+
+### Grid spans; a timetable
+
+A `gridView` item spans and is placed as in CSS grid, through its own `layout` (the template's, bound per item from
+its data, and patched per size like any field):
+
+| `layout` | CSS | |
+|---|---|---|
+| `columnSpan`, `rowSpan` | `grid-column: span n`, `grid-row: span n` | cells covered across and down (a span is at most the grid's columns) |
+| `columnStart`, `rowStart` | `grid-column-start`, `grid-row-start` | the first column and row, 1 the first; unset: the next free cell |
+
+Items with both starts are placed first, then those with only a row, then the rest in order, each in the next cells
+where it fits (CSS's auto-placement). Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
+as their tallest item. A time-by-track timetable binds each session's track and slot to `columnStart` and
+`rowStart`, its length to `rowSpan`, and a session for every track to `columnSpan`; on a phone the bindings are only
+in a `minWidth` rule's patch, so the sessions fall back to one column in time order (a list), each naming its room:
+
+{{example:timetable}}
+
 ### Cards that wrap
 
 Three plan cards three across at desktop, two at tablet, one on phones, with no breakpoint: a wrapping `row`
@@ -163,8 +197,11 @@ A screen scrolls only if something in it scrolls. Make the canvas's body column 
 true}` with `{"fill": n}` width and height. Without it, content past the bottom of the screen is cut off
 (`offscreen`). Inside a scrolling column, a child cannot `fill` the scrolling axis. Rows scroll sideways with
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
-giving one; `"axis": "horizontal"` moves only sideways scroll views): `{"type": "scrollTo", "node": "faq",
-"durationMs": 400}` from a sub-navigation link (the key is `node`, not `target`).
+giving one; `"axis": "horizontal"` moves only sideways scroll views), or one item of a list (`"item"`: its key or
+index): `{"type": "scrollTo", "node": "faq", "durationMs": 400}` from a sub-navigation link (the key is `node`, not
+`target`). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item
+at the start `${result.index}`): store it for a header that condenses or a progress bar. Arrows, dots and snapping:
+[a carousel](@lists-a-carousel-pages-and-pagination).
 
 {{example:scrolling}}
 
@@ -217,11 +254,11 @@ one part of a screen. Older documents use this:
   negative margin does not overlap a neighbour (`layout_clamped`): translate with `motion`.
 - A media patch replaces a size of another mode: `{"hug": 200}` over `{"fill": 292}` is `{"hug": 200}`. A field
   both patched and bound shows the binding (`media_overridden`): bind in the rule instead.
-- `squeezeChildren` (default true) shrinks children that do not fit toward their content, as CSS flex items
-  shrink; false is Flutter's overflow (`layout_overflow`).
-- A `spacer` takes the free space only in a row or column with room to spare.
+- `squeezeChildren` (default true) shrinks children that do not fit, as CSS flex items shrink; false is
+  Flutter's overflow (`layout_overflow`).
+- A `spacer` takes free space only in a row or column with room to spare.
 - Without `basis`, children of a wrapping row keep their own size.
-- `${screen.width}` prints a decimal (`390.0`); `${= screen.width}` prints `390`.
+- `${screen.width}` prints `390.0`; `${= screen.width}` prints `390`.
 
 ## See also
 

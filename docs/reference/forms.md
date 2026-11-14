@@ -258,12 +258,12 @@ Flutter `TextField` (a `TextFormField` when it validates).
 | `selectionHeightStyle` | [BoxHeightStyle](values.md#enum-BoxHeightStyle) | `"tight"` | `tight`, `max`, `includeLineSpacingMiddle`, `includeLineSpacingTop`, `includeLineSpacingBottom`, `strut` |  |
 | `selectionWidthStyle` | [BoxWidthStyle](values.md#enum-BoxWidthStyle) | `"tight"` | `tight`, `max` |  |
 | `autofillHints` | List<String> | `[]` |  | `AutofillHints` names (`email`, `password`...). |
-| `autovalidateMode` | [AutovalidateMode](values.md#enum-AutovalidateMode) | `"disabled"` | `disabled`, `always`, `onUserInteraction`, `onUnfocus` |  |
+| `autovalidateMode` | [AutovalidateMode](values.md#enum-AutovalidateMode) | `"disabled"` | `disabled`, `always`, `onUserInteraction`, `onUnfocus`, `onUserInteractionIfError` |  |
 | `selectAllOnFocus` | bool | `false` |  | Selects the whole text when the field gains focus. |
 | `focusRingColor` | [Color](values.md#type-Color) | unset |  | A ring drawn around the field while it has focus. |
 | `focusRingWidth` | double | `0` | ≥ 0 |  |
 | `inputFormatter` | Object | `{}` |  | The input formatter (`{"type": "none"\|"email"\|"phone"\|..., ...}`). |
-| `validator` | Object | `{}` |  | The validator (`{"type": "none"\|"email"\|"required"\|..., ...}`). |
+| `validator` | String | `""` |  | Flutter's TextFormField.validator: an expression reading the text as `value`, giving the error or "" when valid. |
 | `markdown` | Object | unset |  | Markdown highlighting of the typed text. |
 | `highlightStart` | int | unset |  | Characters `highlightStart` (0-based) up to `highlightEnd` (exclusive) are drawn in `highlightStyle` over the field's style, e.g. the place a syntax error was found. Null or an empty range highlights nothing. |
 | `highlightEnd` | int | unset |  |  |
@@ -798,6 +798,38 @@ Flutter `InputChip`.
 | `deleteIconSize` | double | unset |  |  |
 | `deleteIconColor` | [Color](values.md#type-Color) | unset |  |  |
 
+<a id="behavior-form"></a>
+### `form` (behavior)
+
+A node key (beside `layout` and `props`). Type: [FormBehavior](forms.md#type-FormBehavior). Default: unset.
+
+Flutter's Form: the text fields inside validate together (the validate action); its nodes read ${form.valid} and ${form.errors}.
+
+<a id="type-FormBehavior"></a>
+#### FormBehavior
+
+Flutter's `Form`: the text fields inside the node are one form. The `validate` action (`FormState.validate()`) checks them all with their validators, shows each one's error and focuses the first invalid field; `autovalidateMode` makes them check themselves too, as each field's own `autovalidateMode` does. The node and the nodes inside it read `${form.valid}` (every field passes its validator now) and `${form.errors}` (the errors the fields show, in order: `{field, label, message}`), for a summary. JSON `true` or `{"autovalidateMode": ...}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `autovalidateMode` | [AutovalidateMode](values.md#enum-AutovalidateMode) | `"disabled"` | `disabled`, `always`, `onUserInteraction`, `onUnfocus`, `onUserInteractionIfError` | When every field inside checks itself, besides the validate action (Flutter's Form.autovalidateMode). |
+
+<a id="behavior-radioGroup"></a>
+### `radioGroup` (behavior)
+
+A node key (beside `layout` and `props`). Type: [RadioGroupBehavior](forms.md#type-RadioGroupBehavior). Default: unset.
+
+Flutter's RadioGroup: the radios inside share its groupValue; choosing one runs its changed reactions.
+
+<a id="type-RadioGroupBehavior"></a>
+#### RadioGroupBehavior
+
+Flutter's `RadioGroup`: the `radio` nodes inside the node that set no `groupValue` of their own share this one, and choosing one of them runs the node's `changed` reactions with its value as `${result}` (`RadioGroup.onChanged`). Bind `groupValue` to the variable the choice is kept in: `"bind": {"radioGroup.groupValue": "${budget}"}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `groupValue` | String | `""` |  | The value of the radio that is on; bind it to the variable the choice is kept in. |
+
 <a id="forms-triggers"></a>
 ### Triggers
 
@@ -838,6 +870,16 @@ Focuses text field `node` (selecting its text with `selectAll`), or takes the fo
 | `node` | String | `""` |  | A text field; empty with unfocus: every field. |
 | `unfocus` | bool | `false` |  |  |
 | `selectAll` | bool | `false` |  |  |
+
+<a id="action-validate"></a>
+### `validate` (action): Validate form
+
+Flutter's FormState.validate(): every field of the form shows its validator's error; the first invalid one takes the focus. ${result}: whether all are valid.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | The form (a node with a form behavior); empty: the form around the node running it, else the screen. |
+| `focusFirstError` | bool | `true` |  | Moves the focus to the first field that shows an error. |
 
 <a id="type-InputDecoration"></a>
 ### InputDecoration
@@ -986,8 +1028,9 @@ An icon with its own size, color and tooltip: an app bar's leading icon or actio
 | `radio`, `slider`, `dropdown`, `segmentedButton` | their colours, track and thumb shapes | `props` ([radio](#node-radio), [slider](#node-slider), [dropdown](#node-dropdown), [segmentedButton](#node-segmentedButton)) |
 | a labelled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [a labelled checkbox](#forms-a-labelled-checkbox-or-switch) |
 
-Every colour there may be a theme colour's name; every text style may name a theme style. An outlined field needs
-`"contentPadding": [14, 16, 14, 16]` in its decoration to keep its text off the border.
+Every colour there may be a theme colour's name; every text style may name a theme style. An outlined or filled
+field that sets no `contentPadding` (nor a `layout.padding`) takes Flutter's default, 12 px at the sides, which
+keeps its text and label off the border; set `contentPadding` for another.
 
 <a id="forms-a-text-field-bound-to-a-variable-two-way"></a>
 ### A text field bound to a variable (two-way)
@@ -1002,27 +1045,201 @@ store `${result}` in the same variable and the control follows it.
 <a id="forms-validation-and-an-error-state"></a>
 ### Validation and an error state
 
-Keep the values in variables, set a `tried` flag on submit, and show errors from computed variables: bind
-`props.decoration.errorText` (the field turns to its `errorBorder` and shows the text) or a separate text's
-`visible`. An empty `errorText` shows no error. The `validator` prop is declared but not applied by the SDK; `inputFormatter` applies only
-`{"type": "regex", "pattern": ..., "allow": true}`.
+As Flutter's `TextFormField` and `Form`:
+
+- A field's `validator` is Flutter's `validator: (value) => ...`: an expression that reads the typed text as
+  `value` and gives the error to show under the field, or `''` when it is valid:
+  `"validator": "${= trim(value) == '' ? 'Enter your name.' : ''}"` (in `props`, not `bind`: it runs on the text
+  each time the field checks itself).
+- `autovalidateMode` says when a field checks itself (Flutter's `AutovalidateMode`): `disabled` (default: only
+  when its form is validated), `onUnfocus` (when the focus leaves it: validate on blur), `onUserInteraction` (as
+  it is typed in, once it has been), `onUserInteractionIfError` (as it is typed in, while it shows an error: the
+  error clears as soon as it is fixed), `always`. An error stays until the field checks itself again.
+- A node with `"form": {"autovalidateMode": ...}` is Flutter's `Form` around the fields inside it: the mode applies
+  to all of them, and its nodes read `${form.valid}` (every field passes now) and `${form.errors}` (the errors the
+  fields show, top to bottom: `{field, label, message}`) for a summary.
+- `{"type": "validate", "node": "<form>"}` is `FormState.validate()`: every field of the form shows its error,
+  the first invalid one takes the focus, and `${result}` is whether all are valid, for an `if` that submits.
+
+An error can also come from anywhere else: bind `props.decoration.errorText` (an empty text shows none); the
+validator's error, when it shows one, wins. Give a field that may show an error a hug height (`{"hug": 56}`): it
+grows by the error line, and the form with it; a fixed height keeps the field that tall. `inputFormatter` applies
+only `{"type": "regex", "pattern": ..., "allow": true}`. A form submitted to a service: `submitForm`
+([data](data.md#page-data)).
+
+A contact form validated on blur and on send, with a summary of the errors above it, a radio group and a thank-you
+that replaces the form:
 
 ```json
-"variables": {"page_variables": [
-  {"name": "seats", "type": "text", "value": "10"},
-  {"name": "seatsError", "type": "text", "formula": "seats == '' || number(seats) < 1 ? 'Enter at least 1 seat.' : ''"}
-]}
+{
+  "schema": 3,
+  "roots": ["contact"],
+  "nodes": {
+    "contact": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 760},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["contactForm", "thanks"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 760}, "padding": 24},
+      "props": {"crossAxisAlignment": "start", "scrollable": true}
+    },
+    "contactForm": {
+      "type": "column",
+      "children": ["summary", "name", "email", "budgetLabel", "budget", "message", "send"],
+      "layout": {"width": {"fill": 342}, "height": {"hug": 560}},
+      "props": {"spacing": 14, "crossAxisAlignment": "start"},
+      "form": {"autovalidateMode": "onUnfocus"},
+      "bind": {"visible": "${= !sent}"}
+    },
+    "summary": {
+      "type": "column",
+      "children": ["summaryTitle", "summaryList"],
+      "layout": {"width": {"fill": 342}, "height": {"hug": 60}, "padding": 12},
+      "decoration": {"fills": [{"color": "#FFFEF2F2"}], "strokes": [{"color": "#FFDC2626"}], "radius": 8},
+      "props": {"spacing": 4, "crossAxisAlignment": "start"},
+      "bind": {"visible": "${= length(form.errors) > 0}"}
+    },
+    "summaryTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 318}, "height": {"hug": 20}},
+      "props": {"text": "", "style": {"fontSize": 15, "fontWeight": 600, "color": "#FF991B1B"}},
+      "bind": {
+        "props.text": "${= length(form.errors) + (length(form.errors) == 1 ? ' field needs' : ' fields need') + ' attention'}"
+      }
+    },
+    "summaryList": {
+      "type": "listView",
+      "children": ["summaryItem"],
+      "layout": {"width": {"fill": 318}, "height": {"hug": 40}},
+      "props": {"scrollable": false, "spacing": 2},
+      "bind": {"data": "${form.errors}"}
+    },
+    "summaryItem": {
+      "type": "text",
+      "layout": {"width": {"fill": 318}, "height": {"hug": 18}},
+      "props": {"text": "${item.label}: ${item.message}", "style": {"fontSize": 13, "color": "#FF991B1B"}}
+    },
+    "name": {
+      "type": "textField",
+      "layout": {"width": {"fill": 342}, "height": {"hug": 56}},
+      "props": {
+        "decoration": {"labelText": "Name", "border": {"type": "outline", "borderRadius": 8}},
+        "validator": "${= trim(value) == '' ? 'Enter your name.' : ''}"
+      },
+      "bind": {"props.initialValue": "${name}"}
+    },
+    "email": {
+      "type": "textField",
+      "layout": {"width": {"fill": 342}, "height": {"hug": 56}},
+      "props": {
+        "keyboardType": "emailAddress",
+        "decoration": {"labelText": "Email", "border": {"type": "outline", "borderRadius": 8}},
+        "validator": "${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"
+      },
+      "bind": {"props.initialValue": "${email}"}
+    },
+    "budgetLabel": {
+      "type": "text",
+      "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+      "props": {"text": "Budget", "style": {"fontSize": 14, "fontWeight": 600, "color": "#FF111827"}}
+    },
+    "budget": {
+      "type": "row",
+      "children": ["budgetSmall", "budgetSmallLabel", "budgetLarge", "budgetLargeLabel"],
+      "layout": {"width": {"fill": 342}, "height": {"hug": 32}},
+      "props": {"spacing": 8},
+      "radioGroup": {"groupValue": "small"},
+      "bind": {"radioGroup.groupValue": "${budget}"},
+      "actions": [
+        {
+          "trigger": {"type": "changed"},
+          "actions": [{"type": "setVariable", "variable": "budget", "value": "${result}"}]
+        }
+      ]
+    },
+    "budgetSmall": {"type": "radio", "layout": {"width": 24, "height": 24}, "props": {"value": "small"}},
+    "budgetSmallLabel": {
+      "type": "text",
+      "layout": {"width": {"hug": 90}, "height": {"hug": 20}},
+      "props": {"text": "Under $10k", "style": {"fontSize": 14, "color": "#FF374151"}}
+    },
+    "budgetLarge": {"type": "radio", "layout": {"width": 24, "height": 24}, "props": {"value": "large"}},
+    "budgetLargeLabel": {
+      "type": "text",
+      "layout": {"width": {"hug": 90}, "height": {"hug": 20}},
+      "props": {"text": "$10k or more", "style": {"fontSize": 14, "color": "#FF374151"}}
+    },
+    "message": {
+      "type": "textField",
+      "layout": {"width": {"fill": 342}, "height": {"hug": 120}},
+      "props": {
+        "maxLines": 5,
+        "minLines": 3,
+        "decoration": {"labelText": "Message", "alignLabelWithHint": true, "border": {"type": "outline", "borderRadius": 8}},
+        "validator": "${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"
+      },
+      "bind": {"props.initialValue": "${message}"}
+    },
+    "send": {
+      "type": "filledButton",
+      "layout": {"width": {"fill": 342}, "height": 48},
+      "props": {"label": "Send message"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {"type": "validate", "node": "contactForm"},
+            {
+              "type": "if",
+              "condition": {"left": "${result}", "op": "isTrue"},
+              "then": [{"type": "setVariable", "variable": "sent", "value": "${= true}"}]
+            }
+          ]
+        }
+      ]
+    },
+    "thanks": {
+      "type": "column",
+      "children": ["thanksTitle", "thanksBody"],
+      "layout": {"width": {"fill": 342}, "height": {"hug": 80}, "padding": 16},
+      "decoration": {"fills": [{"color": "#FFF0FDF4"}], "radius": 8},
+      "props": {"spacing": 6, "crossAxisAlignment": "start"},
+      "bind": {"visible": "${sent}"}
+    },
+    "thanksTitle": {
+      "type": "text",
+      "layout": {"width": {"fill": 310}, "height": {"hug": 24}},
+      "props": {"text": "Thanks, ${name}!", "style": {"fontSize": 18, "fontWeight": 700, "color": "#FF166534"}}
+    },
+    "thanksBody": {
+      "type": "text",
+      "layout": {"width": {"fill": 310}, "height": {"hug": 20}},
+      "props": {"text": "We'll reply to ${email} within a day.", "style": {"fontSize": 14, "color": "#FF166534"}}
+    }
+  },
+  "variables": {
+    "contact": [
+      {"name": "name", "type": "text", "value": ""},
+      {"name": "email", "type": "text", "value": ""},
+      {"name": "budget", "type": "text", "value": "small"},
+      {"name": "message", "type": "text", "value": ""},
+      {"name": "sent", "type": "boolean", "value": false}
+    ]
+  }
+}
 ```
 
-```json
-"seatsField": {"type": "textField", "layout": {"width": 160, "height": 72},
-  "bind": {"props.initialValue": "${seats}", "props.decoration.errorText": "${seatsError}"},
-  "props": {"keyboardType": "number", "decoration": {"labelText": "Seats",
-    "border": {"type": "outline", "borderRadius": 8}, "errorBorder": {"type": "outline", "borderRadius": 8, "borderSide": {"color": "#FFDC2626"}}}}}
-```
+<a id="forms-a-radio-group"></a>
+### A radio group
 
-Give a field that may show an error a hug height (`{"hug": 56}`): it grows by the error line, and the form with it;
-a fixed height keeps the field that tall. A form submitted to a service: `submitForm` ([data](data.md#page-data)).
+Flutter's `RadioGroup`: give the node around the radios `"radioGroup": {"groupValue": ...}`, bind its
+`radioGroup.groupValue` to the variable that keeps the choice, and store `${result}` in its `changed` reaction. Each
+`radio` inside sets only its `value`: it is on when that is the group's value, and choosing it runs the group's
+`changed` (and its own). See `budget` in the form above.
 
 <a id="forms-a-stepper-around-a-field"></a>
 ### A stepper around a field
@@ -1093,8 +1310,10 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.
 - Every action key is written flat in the action; a misspelled one is dropped (`unknown_action_key`).
-- The `validator` prop is not applied: validate with variables.
-- An outlined border without `contentPadding` puts the text on the border.
+- A `validator` reads the field's text as `value`, not the variable the field is bound to; it goes in `props`, not
+  `bind`.
+- With `autovalidateMode` `disabled` (the default) a validator shows nothing until its form is validated: give the
+  form, or the field, a mode, or run `validate` on send.
 
 <a id="forms-see-also"></a>
 ## See also
