@@ -298,3 +298,26 @@ it only from screen readers; the field now draws the obscuring character).
 have not been run since the widget-removal work: cloud data and its paging, sign-in, payments and the paywall, audio
 and video players, web views, file pickers, and screen capture. They need either the test suite turned back on for
 `test/services`, `test/session`, `test/paywall`, `test/media` and `test/app`, or a run on a device.
+
+## 10. The road to standalone test #5 (2026-11-14)
+
+A standalone test gives agents that have seen none of this work only what a newcomer gets (the published
+reference, the guides, the tools) and a brief, and records where they stall. Four rounds have run; each found
+friction that was then fixed. Round 5 is the first on the finished pathway: it tests each level from the
+notation to a whole app, including the bridge between them, and re-checks the round 4 findings. The owner
+starts it.
+
+What has to be true before it is worth running, in order:
+
+| # | Work | State |
+|---|---|---|
+| 1 | Both test suites on and green | Done: 847 and 1,907 tests |
+| 2 | assistant-ui parity: every listed element as a target | 73 of 81. Left: heat graph, flow graph, math, geo map, map, Mermaid diagram, diagram, orb, each needing drawing the notation has no words for |
+| 3 | The bridge (design 15, part A): a block in the full form inside the notation, ops on the notation's document, the capability index and `ui_reference`; measured on Sudoku, kanban, form builder and a multi-screen app | Planned |
+| 4 | The playground: type the notation or a prompt, see it render, switch design system | Planned |
+| 5 | Apps described as prompts (design 15, part B): spec, personas, generated and rendered side by side (steps 1 to 3 of the prototype) | Planned |
+| 6 | The alignment pass's remainder: layer order checked (done), performance numbers (running), public API audit, production checks, README opening (the owner's call) | In progress |
+| 7 | The briefs for round 5: one set per level, plus bridge briefs that start in the notation and must reach level 4, plus the round 4 findings to re-verify | To write |
+
+Rows 2 to 5 are what round 5 will exercise that no earlier round could; row 7 is written last, from what they
+turn out to be.
