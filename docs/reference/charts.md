@@ -98,7 +98,7 @@ A progress bar filled to `value` of `max`: a bar (horizontal, or vertical fillin
 <a id="node-circularProgressIndicator"></a>
 ### `circularProgressIndicator`
 
-Flutter `CircularProgressIndicator`.
+Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary colour, round-ended, 16 px when it hugs.
 
 Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).
 
@@ -120,6 +120,8 @@ Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `st
 <a id="node-activityIndicator"></a>
 ### `activityIndicator`
 
+Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text colour unless `color` says.
+
 Flutter `CupertinoActivityIndicator`.
 
 - Children: none.
@@ -134,7 +136,7 @@ Flutter `CupertinoActivityIndicator`.
 <a id="node-badge"></a>
 ### `badge`
 
-Flutter `Badge`.
+Flutter `Badge`: over its `child`, a dot or a count at `alignment`. With no child it is the default (SSUI) badge: a tinted label 20 high, as wide as its text, a pill for a `count`.
 
 `Badge`: a small label (or a dot) over its `child` slot.
 

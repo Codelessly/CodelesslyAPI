@@ -190,7 +190,8 @@ Each axis has a **mode** and a **number**:
 The number is the **design size**: the size of a fixed node, and the size used where a mode cannot apply (a fill
 inside something that scrolls on that axis, or inside a parent that hugs that axis: `fill_fallback`). For `hug` and
 `fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. **A node without `width` or
-`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas` and a `spacer`.
+`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas`, a `spacer` and a
+control, which hugs.
 
 <a id="base-rows-columns-and-flex"></a>
 ### Rows, columns and flex
@@ -652,7 +653,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 - [layout.md](layout.md): Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
 - [theme.md](theme.md): Theme and text. Documents text, textDirection, defaultTextStyle, setThemeMode.
 - [decoration.md](decoration.md): Decoration, images, icons and drawing. Documents icon, path, customPaint, imageLoading, imageLoaded, imageError.
-- [forms.md](forms.md): Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, form, radioGroup, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, editText, focus, validate.
+- [forms.md](forms.md): Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, form, radioGroup, changed, changeEnd, submitted, deleted, editingComplete, focusGained, focusLost, keyDown, keyUp, editText, focus, validate.
 - [lists.md](lists.md): Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.
 - [navigation.md](navigation.md): Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, confirm, openLink.
 - [state.md](state.md): State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, callFunction, if, forEach, delay, runScript, retryFailed.

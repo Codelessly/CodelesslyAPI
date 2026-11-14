@@ -190,7 +190,8 @@ Each axis has a **mode** and a **number**:
 The number is the **design size**: the size of a fixed node, and the size used where a mode cannot apply (a fill
 inside something that scrolls on that axis, or inside a parent that hugs that axis: `fill_fallback`). For `hug` and
 `fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. **A node without `width` or
-`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas` and a `spacer`.
+`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas`, a `spacer` and a
+control, which hugs.
 
 <a id="base-rows-columns-and-flex"></a>
 ### Rows, columns and flex
@@ -652,7 +653,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 - [layout.md](#page-layout): Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
 - [theme.md](#page-theme): Theme and text. Documents text, textDirection, defaultTextStyle, setThemeMode.
 - [decoration.md](#page-decoration): Decoration, images, icons and drawing. Documents icon, path, customPaint, imageLoading, imageLoaded, imageError.
-- [forms.md](#page-forms): Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, form, radioGroup, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, editText, focus, validate.
+- [forms.md](#page-forms): Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, form, radioGroup, changed, changeEnd, submitted, deleted, editingComplete, focusGained, focusLost, keyDown, keyUp, editText, focus, validate.
 - [lists.md](#page-lists): Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.
 - [navigation.md](#page-navigation): Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, confirm, openLink.
 - [state.md](#page-state): State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, callFunction, if, forEach, delay, runScript, retryFailed.
@@ -786,11 +787,11 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4807 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4811 |
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9529 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2906 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12312 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12705 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7875 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6662 |
@@ -798,7 +799,7 @@ section's anchor is its topic.
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3719 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
-| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7086 |
+| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7160 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2308 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 468 |
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
@@ -807,7 +808,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3020 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13299 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13353 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -820,7 +821,7 @@ Every declared name and the page that documents it.
 
 **C** · [`callApi`](#action-callApi) action · [`callFunction`](#action-callFunction) action · [`canvas`](#node-canvas) node type · [`captureScreenshot`](#action-captureScreenshot) action · [`CaptureTarget`](#enum-CaptureTarget) enum · [`ceil`](#fn-ceil) formula function · [`changed`](#trigger-changed) trigger · [`changeEnd`](#trigger-changeEnd) trigger · [`charCode`](#fn-charCode) formula function · [`chart`](#node-chart) node type · [`ChartGridLineMode`](#enum-ChartGridLineMode) enum · [`ChartReferenceLine`](#type-ChartReferenceLine) model · [`ChartSeries`](#type-ChartSeries) model · [`ChartSeriesKind`](#enum-ChartSeriesKind) enum · [`ChartStackGapEdge`](#enum-ChartStackGapEdge) enum · [`ChartType`](#enum-ChartType) enum · [`ChartYLabelAlign`](#enum-ChartYLabelAlign) enum · [`checkbox`](#node-checkbox) node type · [`chip`](#node-chip) node type · [`ChipVariant`](#enum-ChipVariant) enum · [`choiceChip`](#node-choiceChip) node type · [`circularProgressIndicator`](#node-circularProgressIndicator) node type · [`clamp`](#fn-clamp) formula function · [`click`](#trigger-click) trigger · [`Clip`](#enum-Clip) enum · [`closeModal`](#action-closeModal) action · [`cloudBatch`](#action-cloudBatch) action · [`cloudData`](#action-cloudData) action · [`CloudDataOperation`](#enum-CloudDataOperation) enum · [`CloudDataScope`](#enum-CloudDataScope) enum · [`cloudDocuments`](#action-cloudDocuments) action · [`CloudDocumentsOperation`](#enum-CloudDocumentsOperation) enum · [`CloudFileAccess`](#enum-CloudFileAccess) enum · [`CloudFileKind`](#enum-CloudFileKind) enum · [`cloudFiles`](#action-cloudFiles) action · [`CloudFilesOperation`](#enum-CloudFilesOperation) enum · [`CloudLoadAggregate`](#enum-CloudLoadAggregate) enum · [`coalesce`](#fn-coalesce) formula function · [`codeUnits`](#fn-codeUnits) formula function · [`Color`](#type-Color) value type · [`ColorStop`](#type-ColorStop) model · [`column`](#node-column) node type · [`compact`](#fn-compact) formula function · [`componentEvent`](#action-componentEvent) action · [`concat`](#fn-concat) formula function · [`ConditionOp`](#enum-ConditionOp) enum · [`confirm`](#action-confirm) action · [`contains`](#fn-contains) formula function · [`controlDismissible`](#action-controlDismissible) action · [`controlTrack`](#action-controlTrack) action · [`controlTransform`](#action-controlTransform) action · [`copyToClipboard`](#action-copyToClipboard) action · [`cos`](#fn-cos) formula function · [`count`](#fn-count) formula function · [`CrossAxisAlignment`](#enum-CrossAxisAlignment) enum · [`currency`](#fn-currency) formula function · [`currencyDecimals`](#fn-currencyDecimals) formula function · [`currencySymbol`](#fn-currencySymbol) formula function · [`cursorEnter`](#trigger-cursorEnter) trigger · [`cursorExit`](#trigger-cursorExit) trigger · [`CustomPaint`](#type-CustomPaint) model · [`customPaint`](#behavior-customPaint) behavior
 
-**D** · [`datePicker`](#node-datePicker) node type · [`dateTimeInput`](#node-dateTimeInput) node type · [`DateTimeInputMode`](#enum-DateTimeInputMode) enum · [`DateTimeInputPicker`](#enum-DateTimeInputPicker) enum · [`day`](#fn-day) formula function · [`daysInMonth`](#fn-daysInMonth) formula function · [`DecorationShape`](#enum-DecorationShape) enum · [`defaultTextStyle`](#behavior-defaultTextStyle) behavior · [`degrees`](#fn-degrees) formula function · [`delay`](#action-delay) action · [`diffDays`](#fn-diffDays) formula function · [`diffHours`](#fn-diffHours) formula function · [`diffMinutes`](#fn-diffMinutes) formula function · [`diffSeconds`](#fn-diffSeconds) formula function · [`DismissCommand`](#enum-DismissCommand) enum · [`dismissible`](#behavior-dismissible) behavior · [`DismissibleBehavior`](#type-DismissibleBehavior) model · [`distance`](#fn-distance) formula function · [`divider`](#node-divider) node type · [`doubleTap`](#trigger-doubleTap) trigger · [`downloadFile`](#action-downloadFile) action · [`drag`](#trigger-drag) trigger · [`DragAnchor`](#enum-DragAnchor) enum · [`DragAxis`](#enum-DragAxis) enum · [`dragCancel`](#trigger-dragCancel) trigger · [`dragCompleted`](#trigger-dragCompleted) trigger · [`DragDirection`](#enum-DragDirection) enum · [`dragEnd`](#trigger-dragEnd) trigger · [`dragEnter`](#trigger-dragEnter) trigger · [`dragExit`](#trigger-dragExit) trigger · [`draggable`](#behavior-draggable) behavior · [`DragSource`](#type-DragSource) model · [`DragSourceStyle`](#enum-DragSourceStyle) enum · [`DragStart`](#enum-DragStart) enum · [`dragStart`](#trigger-dragStart) trigger · [`drop`](#trigger-drop) trigger · [`dropdown`](#node-dropdown) node type · [`dropRejected`](#trigger-dropRejected) trigger · [`DropSlot`](#enum-DropSlot) enum · [`DropSlotSize`](#enum-DropSlotSize) enum · [`DropTarget`](#type-DropTarget) model · [`dropTarget`](#behavior-dropTarget) behavior · [`duration`](#fn-duration) formula function
+**D** · [`datePicker`](#node-datePicker) node type · [`dateTimeInput`](#node-dateTimeInput) node type · [`DateTimeInputMode`](#enum-DateTimeInputMode) enum · [`DateTimeInputPicker`](#enum-DateTimeInputPicker) enum · [`day`](#fn-day) formula function · [`daysInMonth`](#fn-daysInMonth) formula function · [`DecorationShape`](#enum-DecorationShape) enum · [`defaultTextStyle`](#behavior-defaultTextStyle) behavior · [`degrees`](#fn-degrees) formula function · [`delay`](#action-delay) action · [`deleted`](#trigger-deleted) trigger · [`diffDays`](#fn-diffDays) formula function · [`diffHours`](#fn-diffHours) formula function · [`diffMinutes`](#fn-diffMinutes) formula function · [`diffSeconds`](#fn-diffSeconds) formula function · [`DismissCommand`](#enum-DismissCommand) enum · [`dismissible`](#behavior-dismissible) behavior · [`DismissibleBehavior`](#type-DismissibleBehavior) model · [`distance`](#fn-distance) formula function · [`divider`](#node-divider) node type · [`doubleTap`](#trigger-doubleTap) trigger · [`downloadFile`](#action-downloadFile) action · [`drag`](#trigger-drag) trigger · [`DragAnchor`](#enum-DragAnchor) enum · [`DragAxis`](#enum-DragAxis) enum · [`dragCancel`](#trigger-dragCancel) trigger · [`dragCompleted`](#trigger-dragCompleted) trigger · [`DragDirection`](#enum-DragDirection) enum · [`dragEnd`](#trigger-dragEnd) trigger · [`dragEnter`](#trigger-dragEnter) trigger · [`dragExit`](#trigger-dragExit) trigger · [`draggable`](#behavior-draggable) behavior · [`DragSource`](#type-DragSource) model · [`DragSourceStyle`](#enum-DragSourceStyle) enum · [`DragStart`](#enum-DragStart) enum · [`dragStart`](#trigger-dragStart) trigger · [`drop`](#trigger-drop) trigger · [`dropdown`](#node-dropdown) node type · [`dropRejected`](#trigger-dropRejected) trigger · [`DropSlot`](#enum-DropSlot) enum · [`DropSlotSize`](#enum-DropSlotSize) enum · [`DropTarget`](#type-DropTarget) model · [`dropTarget`](#behavior-dropTarget) behavior · [`duration`](#fn-duration) formula function
 
 **E** · [`EdgeInsets`](#type-EdgeInsets) value type · [`editingComplete`](#trigger-editingComplete) trigger · [`editText`](#action-editText) action · [`EditTextOperation`](#enum-EditTextOperation) enum · [`Effect`](#type-Effect) model · [`EffectType`](#enum-EffectType) enum · [`elevatedButton`](#node-elevatedButton) node type · [`embeddedVideo`](#node-embeddedVideo) node type · [`EmbeddedVideoSource`](#enum-EmbeddedVideoSource) enum · [`emitEvent`](#action-emitEvent) action · [`endsWith`](#fn-endsWith) formula function · [`enterViewport`](#trigger-enterViewport) trigger · [`event`](#trigger-event) trigger · [`exitViewport`](#trigger-exitViewport) trigger · [`exp`](#fn-exp) formula function · [`expansionTile`](#node-expansionTile) node type · [`external`](#node-external) node type
 
@@ -3316,6 +3317,7 @@ Flutter `FilledButton`: the primary action, filled with the theme's `primary`. W
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 | `tonal` | bool | `false` |  | `FilledButton.tonal`. |
 
 <a id="node-elevatedButton"></a>
@@ -3338,6 +3340,7 @@ Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled 
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-outlinedButton"></a>
 ### `outlinedButton`
@@ -3359,6 +3362,7 @@ Flutter `OutlinedButton`: a hairline border. With nothing styled it is the defau
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-textButton"></a>
 ### `textButton`
@@ -3380,6 +3384,7 @@ Flutter `TextButton`: no fill or border. With nothing styled it is the default (
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-iconButton"></a>
 ### `iconButton`
@@ -3397,6 +3402,7 @@ Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the 
 | `enabled` | bool | `true` |  |  |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`. |
 | `autofocus` | bool | `false` |  |  |
+| `loading` | bool | `false` |  |  |
 
 <a id="node-floatingActionButton"></a>
 ### `floatingActionButton`
@@ -3839,7 +3845,7 @@ A signature pad: strokes drawn with a finger or mouse, on a bordered card with a
 <a id="node-chip"></a>
 ### `chip`
 
-Flutter `Chip`.
+Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -3851,7 +3857,7 @@ Flutter `Chip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](#type-Color) | unset |  |  |
 | `side` | [BorderSide](#type-BorderSide) | unset |  |  |
@@ -3867,7 +3873,7 @@ Flutter `Chip`.
 <a id="node-actionChip"></a>
 ### `actionChip`
 
-Flutter `ActionChip`.
+Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -3879,7 +3885,7 @@ Flutter `ActionChip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](#type-Color) | unset |  |  |
 | `side` | [BorderSide](#type-BorderSide) | unset |  |  |
@@ -3897,7 +3903,7 @@ Flutter `ActionChip`.
 <a id="node-choiceChip"></a>
 ### `choiceChip`
 
-Flutter `ChoiceChip`.
+Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -3909,7 +3915,7 @@ Flutter `ChoiceChip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](#type-Color) | unset |  |  |
 | `side` | [BorderSide](#type-BorderSide) | unset |  |  |
@@ -3931,7 +3937,7 @@ Flutter `ChoiceChip`.
 <a id="node-filterChip"></a>
 ### `filterChip`
 
-Flutter `FilterChip`.
+Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -3943,7 +3949,7 @@ Flutter `FilterChip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](#type-Color) | unset |  |  |
 | `side` | [BorderSide](#type-BorderSide) | unset |  |  |
@@ -3965,7 +3971,7 @@ Flutter `FilterChip`.
 <a id="node-inputChip"></a>
 ### `inputChip`
 
-Flutter `InputChip`.
+Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -3977,7 +3983,7 @@ Flutter `InputChip`.
 | `label` | String | `""` |  |  |
 | `labelStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `avatar` | [IconData](#type-IconData) | `{}` |  | An icon glyph, or `{"image": url}` for a `CircleAvatar`. |
-| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too (at 75 %), so it sizes the checkmark. Null: Material's. |
+| `avatarSize` | double | unset |  | The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13 for the plain variant). |
 | `avatarColor` | [Color](#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](#type-Color) | unset |  |  |
 | `side` | [BorderSide](#type-BorderSide) | unset |  |  |
@@ -4041,6 +4047,7 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 | <a id="trigger-changed"></a>`changed` | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
 | <a id="trigger-changeEnd"></a>`changeEnd` | A slider was let go, with its final value. |
 | <a id="trigger-submitted"></a>`submitted` | A text field was submitted from the keyboard. |
+| <a id="trigger-deleted"></a>`deleted` | An input chip's delete icon was tapped, or Delete or Backspace pressed on it (Flutter's `onDeleted`). |
 | <a id="trigger-editingComplete"></a>`editingComplete` | A text field lost focus after editing. |
 | <a id="trigger-focusGained"></a>`focusGained` | A text field gained or lost focus. |
 | <a id="trigger-focusLost"></a>`focusLost` |  |
@@ -4552,9 +4559,10 @@ on a control inside a tappable row otherwise runs the control's own reaction onl
 <a id="forms-buttons"></a>
 ### Buttons
 
-Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label` and `style`.
-Their label text is 12 px unless `style.textStyle.fontSize` says otherwise. Give buttons a fixed or fill width. For
-full control of a button's look (two lines, an icon after the label), use a `row` with a decoration, padding, text
+Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label`, `icon` and
+`style`. With no layout they hug: 28 high, padded, the label 12 px unless `style.textStyle.fontSize` says otherwise.
+`"loading": true` (bound to a variable an action sets while it runs) shows a spinner in place of the icon and ignores
+taps. For full control of a button's look (two lines, an icon after the label), use a `row` with a decoration, padding, text
 children, a `click` reaction and [hover and pressed states](#interaction-hover-press-and-other-states).
 
 <a id="forms-add-and-remove-items-a-list-editor"></a>
@@ -4579,7 +4587,6 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 ## Pitfalls
 
 - A button's text is `label`, not `text`; its colours are in `style`, not `decoration`.
-- A hugging button is only as wide as its label, without padding.
 - An input does nothing with its value until a `changed` reaction stores it, or its value prop is bound.
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.
@@ -8736,7 +8743,7 @@ A progress bar filled to `value` of `max`: a bar (horizontal, or vertical fillin
 <a id="node-circularProgressIndicator"></a>
 ### `circularProgressIndicator`
 
-Flutter `CircularProgressIndicator`.
+Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary colour, round-ended, 16 px when it hugs.
 
 Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).
 
@@ -8758,6 +8765,8 @@ Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `st
 <a id="node-activityIndicator"></a>
 ### `activityIndicator`
 
+Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text colour unless `color` says.
+
 Flutter `CupertinoActivityIndicator`.
 
 - Children: none.
@@ -8772,7 +8781,7 @@ Flutter `CupertinoActivityIndicator`.
 <a id="node-badge"></a>
 ### `badge`
 
-Flutter `Badge`.
+Flutter `Badge`: over its `child`, a dot or a count at `alignment`. With no child it is the default (SSUI) badge: a tinted label 20 high, as wide as its text, a pill for a `count`.
 
 `Badge`: a small label (or a dot) over its `child` slot.
 
@@ -11384,7 +11393,7 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `material` | Flutter's chip, with Material's own spacing and minimum sizes. |
+| `material` | The default (SSUI) chip: a pill 24 high (20 at a height of 20 or less), 10 px padding, a 12 px avatar or check mark 6 px before the label, room for the check mark always kept so selecting never resizes it. |
 | `plain` | Exactly its `ChipProps.padding` (default 10 × 4) around a check (when selected, `ChipProps.avatarSize` wide, default 13), a `ChipProps.spacing` gap and the label, in its fill, side and shape: the compact tag chips of dashboards and forms. |
 
 <a id="enum-Clip"></a>
@@ -12469,6 +12478,7 @@ Written as the value's name, a JSON string (`"center"`).
 | `changed` | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
 | `changeEnd` | A slider was let go, with its final value. |
 | `submitted` | A text field was submitted from the keyboard. |
+| `deleted` | An input chip's delete icon was tapped, or Delete or Backspace pressed on it (Flutter's `onDeleted`). |
 | `editingComplete` | A text field lost focus after editing. |
 | `focusGained` | A text field gained or lost focus. |
 | `focusLost` |  |

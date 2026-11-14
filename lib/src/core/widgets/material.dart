@@ -85,7 +85,11 @@ abstract final class ButtonProps {
   /// Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it.
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
 
-  static const List<PropDef<Object?>> all = [label, textAlign, icon, iconAlignment, spacing, enabled, style, autofocus];
+  /// Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn
+  /// as disabled, announced as busy. Bind it to the state an action sets while it runs.
+  static const loading = PropDef<bool>('loading', Codecs.bool, false);
+
+  static const List<PropDef<Object?>> all = [label, textAlign, icon, iconAlignment, spacing, enabled, style, autofocus, loading];
 
   /// The states a button's own look draws (Flutter's `ButtonStyle` resolved per `WidgetState`): hover and press
   /// overlays, a focus ring, 50 % opacity disabled, and `selected` (a bound `"selected"`, as Flutter's
@@ -95,10 +99,10 @@ abstract final class ButtonProps {
   static const _doc = ' With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, '
       'its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.';
 
-  static const elevated = WidgetSpec('elevatedButton', props: all, states: drawnStates, doc: 'Flutter `ElevatedButton`: a raised surface with a hairline.$_doc');
-  static const filled = WidgetSpec('filledButton', props: [...all, tonal], states: drawnStates, doc: 'Flutter `FilledButton`: the primary action, filled with the theme\'s `primary`.$_doc');
-  static const text = WidgetSpec('textButton', props: all, states: drawnStates, doc: 'Flutter `TextButton`: no fill or border.$_doc');
-  static const outlined = WidgetSpec('outlinedButton', props: all, states: drawnStates, doc: 'Flutter `OutlinedButton`: a hairline border.$_doc');
+  static const elevated = WidgetSpec('elevatedButton', props: all, states: drawnStates, hugs: true, doc: 'Flutter `ElevatedButton`: a raised surface with a hairline.$_doc');
+  static const filled = WidgetSpec('filledButton', props: [...all, tonal], states: drawnStates, hugs: true, doc: 'Flutter `FilledButton`: the primary action, filled with the theme\'s `primary`.$_doc');
+  static const text = WidgetSpec('textButton', props: all, states: drawnStates, hugs: true, doc: 'Flutter `TextButton`: no fill or border.$_doc');
+  static const outlined = WidgetSpec('outlinedButton', props: all, states: drawnStates, hugs: true, doc: 'Flutter `OutlinedButton`: a hairline border.$_doc');
 }
 
 /// `IconButton`: an icon, styled by a `ButtonStyle`.
@@ -109,9 +113,11 @@ abstract final class IconButtonProps {
   /// The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`.
   static const style = ButtonProps.style;
   static const autofocus = ButtonProps.autofocus;
+  static const loading = ButtonProps.loading;
   static const spec = WidgetSpec('iconButton',
-      props: [icon, enabled, style, autofocus],
+      props: [icon, enabled, style, autofocus, loading],
       states: ButtonProps.drawnStates,
+      hugs: true,
       doc: 'Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. '
           'Give it a "tooltip" (the behavior) to name it.');
 }
@@ -151,12 +157,14 @@ abstract final class FloatingActionButtonProps {
         extendedPadding, location, autofocus,
       ],
       states: ButtonProps.drawnStates,
+      hugs: true,
       doc: 'Flutter `FloatingActionButton`.');
 }
 
 /// How a chip is drawn.
 enum ChipVariant {
-  /// Flutter's chip, with Material's own spacing and minimum sizes.
+  /// The default (SSUI) chip: a pill 24 high (20 at a height of 20 or less), 10 px padding, a 12 px avatar or check
+  /// mark 6 px before the label, room for the check mark always kept so selecting never resizes it.
   material,
 
   /// Exactly its [ChipProps.padding] (default 10 × 4) around a check (when
@@ -173,8 +181,8 @@ abstract final class ChipProps {
 
   /// An icon glyph, or `{"image": url}` for a `CircleAvatar`.
   static const avatar = PropDef<IconGlyph>('avatar', _glyph, {});
-  /// The avatar's box; a selectable chip's checkmark is drawn in it too (at
-  /// 75 %), so it sizes the checkmark. Null: Material's.
+  /// The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13
+  /// for the plain variant).
   static const avatarSize = PropDef<double?>('avatarSize', _optionalDouble, null);
   static const avatarColor = PropDef<Color?>('avatarColor', _nullableColor, null);
   static const deleteIcon = PropDef<IconGlyph>('deleteIcon', _glyph, {});
@@ -207,12 +215,20 @@ abstract final class ChipProps {
     selected, showCheckmark, checkmarkColor, selectedColor, tooltip, isEnabled,
   ];
 
-  static const chip = WidgetSpec('chip', props: _common, doc: 'Flutter `Chip`.');
-  static const action = WidgetSpec('actionChip', props: [..._common, tooltip, isEnabled], doc: 'Flutter `ActionChip`.');
-  static const choice = WidgetSpec('choiceChip', props: [..._common, ..._selectable], doc: 'Flutter `ChoiceChip`.');
-  static const filter = WidgetSpec('filterChip', props: [..._common, ..._selectable], doc: 'Flutter `FilterChip`.');
+  static const _doc = ' With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label '
+      'centred, selected drawn tinted with the primary colour.';
+  static const chip = WidgetSpec('chip', props: _common, hugs: true, doc: 'Flutter `Chip`: a label (its `click` reactions run on a tap).$_doc');
+  static const action = WidgetSpec('actionChip',
+      props: [..._common, tooltip, isEnabled], hugs: true, doc: 'Flutter `ActionChip`: a tap fires `click`.$_doc');
+  static const choice = WidgetSpec('choiceChip',
+      props: [..._common, ..._selectable], hugs: true,
+      doc: 'Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`).$_doc');
+  static const filter = WidgetSpec('filterChip',
+      props: [..._common, ..._selectable], hugs: true,
+      doc: 'Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`).$_doc');
   static const input = WidgetSpec('inputChip',
-      props: [..._common, ..._selectable, deleteIcon, deleteIconSize, deleteIconColor], doc: 'Flutter `InputChip`.');
+      props: [..._common, ..._selectable, deleteIcon, deleteIconSize, deleteIconColor], hugs: true,
+      doc: 'Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`.$_doc');
 }
 
 /// `Badge`: a small label (or a dot) over its `child` slot.
@@ -242,7 +258,9 @@ abstract final class BadgeProps {
       ],
       children: ChildModel.slots,
       slots: ['child'],
-      doc: 'Flutter `Badge`.');
+      hugs: true,
+      doc: 'Flutter `Badge`: over its `child`, a dot or a count at `alignment`. With no child it is the default (SSUI) '
+          'badge: a tinted label 20 high, as wide as its text, a pill for a `count`.');
 }
 
 /// `ListTile`, its widgets in the `leading`, `title`, `subtitle` and
