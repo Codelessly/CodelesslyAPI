@@ -312,7 +312,7 @@ What has to be true before it is worth running, in order:
 | # | Work | State |
 |---|---|---|
 | 1 | Both test suites on and green | Done: 847 and 1,907 tests |
-| 2 | assistant-ui parity: every listed element as a target | 74 written. Seven excluded by the owner as domains with their own renderers (Mermaid diagram, diagram, flow graph, math, two maps, voice orb): to be node types backed by those renderers (design 14, "Domain blocks") |
+| 2 | assistant-ui parity: every listed element as a target | Done: 74 of 74. Seven were dropped as card types and are not supported, by the owner's decision (Mermaid diagram, diagram, flow graph, math, two maps, voice orb): domains with their own renderers elsewhere |
 | 3 | The bridge (design 15, part A): a block in the full form inside the notation, ops on the notation's document, the capability index and `ui_reference`; measured on Sudoku, kanban, form builder and a multi-screen app | Planned |
 | 4 | The playground: type the notation or a prompt, see it render, switch design system | Planned |
 | 5 | Apps described as prompts (design 15, part B): spec, personas, generated and rendered side by side (steps 1 to 3 of the prototype) | Planned |
