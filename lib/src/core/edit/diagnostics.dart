@@ -79,6 +79,9 @@ abstract final class EditCodes {
   static const emptyButton = EditCode('empty_button',
       'A node that reacts to a tap but shows nothing (a box, row or column with no children): a button with no label.',
       error: false);
+  static const deadControl = EditCode('dead_control',
+      'A button (a core button, or a component named ...Button with an onPressed event) with no reaction and not disabled: pressing it does nothing.',
+      error: false);
   static const lowContrast = EditCode('low_contrast',
       'Text drawn in (nearly) the colour of the fill behind it, or with no colour (the default near-black) over a dark fill.',
       error: false);
@@ -121,7 +124,7 @@ abstract final class EditCodes {
     invalidOp, missingField, wrongType, unknownId, structuralKeyInPatch, staleRev, wouldOrphan, multipleParents, cycle, //
     canvasAsChild, invalidParent, danglingChild, unreachableNode, pendingChild, capabilityNotAllowed, limitExceeded,
     truncatedOp, invalidJson, invalidVariable, unknownVariable, malformedInput, misplacedField, startOver, emptyButton,
-    lowContrast, missingGlyph, noSize, emptyView, listEmpty, emptyLabel, expressionNotEvaluated, textNoColor, componentEmpty,
+    deadControl, lowContrast, missingGlyph, noSize, emptyView, listEmpty, emptyLabel, expressionNotEvaluated, textNoColor, componentEmpty,
     invalidScript,
   ];
 }

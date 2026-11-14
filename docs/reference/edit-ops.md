@@ -114,6 +114,7 @@ batch of ops; every change after it is a few more.
 | `misplaced_field` | no (a warning) | A node field ("bind", "props", "actions"...) written on a set op instead of inside its "node": it was moved into the node. |
 | `start_over` | yes | A batch that rebuilds a UI that already exists (new roots, a new canvas) instead of patching it: fix the existing document with patch, set (same ids) and remove; never start over. |
 | `empty_button` | no (a warning) | A node that reacts to a tap but shows nothing (a box, row or column with no children): a button with no label. |
+| `dead_control` | no (a warning) | A button (a core button, or a component named ...Button with an onPressed event) with no reaction and not disabled: pressing it does nothing. |
 | `low_contrast` | no (a warning) | Text drawn in (nearly) the colour of the fill behind it, or with no colour (the default near-black) over a dark fill. |
 | `missing_glyph` | no (a warning) | Text with characters the loaded fonts do not have (an arrow, a symbol): they draw as empty boxes. Use an icon node. Reported by a renderer that knows its fonts. |
 | `no_size` | no (a warning) | A node that has content but was laid out with no width or no height, so nothing of it shows. Reported by a renderer. |

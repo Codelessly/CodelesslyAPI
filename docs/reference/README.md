@@ -36,10 +36,10 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [media.md](media.md) | Feature library page. | 1998 | 3119 |
 | [engage.md](engage.md) | Feature library page. | 311 | 636 |
 | [publish.md](publish.md) | Feature page. | 672 | 1237 |
-| [edit-ops.md](edit-ops.md) | Feature page. | 3510 | 5750 |
+| [edit-ops.md](edit-ops.md) | Feature page. | 3542 | 5795 |
 | [render.md](render.md) | Feature page. | 2904 | 4494 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13299 | 20839 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 103675 | 181004 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 103707 | 181049 |
 | [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 72872 | 191754 |
 | [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 9958 | 27887 |
 | [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25094 | 105385 |
