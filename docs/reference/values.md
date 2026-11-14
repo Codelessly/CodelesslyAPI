@@ -547,7 +547,7 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `material` | Flutter's chip, with Material's own spacing and minimum sizes. |
+| `material` | The default (SSUI) chip: a pill 24 high (20 at a height of 20 or less), 10 px padding, a 12 px avatar or check mark 6 px before the label, room for the check mark always kept so selecting never resizes it. |
 | `plain` | Exactly its `ChipProps.padding` (default 10 × 4) around a check (when selected, `ChipProps.avatarSize` wide, default 13), a `ChipProps.spacing` gap and the label, in its fill, side and shape: the compact tag chips of dashboards and forms. |
 
 <a id="enum-Clip"></a>
@@ -1632,6 +1632,7 @@ Written as the value's name, a JSON string (`"center"`).
 | `changed` | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
 | `changeEnd` | A slider was let go, with its final value. |
 | `submitted` | A text field was submitted from the keyboard. |
+| `deleted` | An input chip's delete icon was tapped, or Delete or Backspace pressed on it (Flutter's `onDeleted`). |
 | `editingComplete` | A text field lost focus after editing. |
 | `focusGained` | A text field gained or lost focus. |
 | `focusLost` |  |

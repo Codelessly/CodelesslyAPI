@@ -269,13 +269,16 @@ final class Layout {
         rowStart: rowStart == null ? this.rowStart : rowStart(),
       );
 
-  static Layout fromJson(Object? json) {
+  /// [hugs]: an axis the JSON does not give hugs (a control's,
+  /// `WidgetSpec.hugs`) instead of being fixed at 0.
+  static Layout fromJson(Object? json, {bool hugs = false}) {
+    const hug = AxisSize.hug(0);
     final m = readMap(json);
-    if (m == null) return const Layout();
+    if (m == null) return hugs ? const Layout(width: hug, height: hug) : const Layout();
     final ratio = readDouble(m['aspectRatio']);
     return Layout(
-      width: AxisSize.fromJson(m['width']),
-      height: AxisSize.fromJson(m['height']),
+      width: hugs && m['width'] == null ? hug : AxisSize.fromJson(m['width']),
+      height: hugs && m['height'] == null ? hug : AxisSize.fromJson(m['height']),
       flex: (readInt(m['flex']) ?? 1).clamp(0, 1 << 20),
       squeezable: readBool(m['squeezable']) ?? false,
       constraints: BoxConstraints.fromJson(m['constraints']),

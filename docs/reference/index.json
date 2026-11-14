@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6193
+      "words": 6198
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6172
+      "words": 6177
     }
   },
   "topics": [
@@ -337,7 +337,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 12312
+      "words": 12705
     },
     {
       "topic": "forms-triggers",
@@ -345,7 +345,7 @@
       "anchor": "forms-triggers",
       "title": "Triggers",
       "summary": "Written as `\"trigger\": {\"type\": \"<trigger>\", ...}` in a reaction ($1).",
-      "words": 146
+      "words": 167
     },
     {
       "topic": "forms-styling-the-controls-in-one-place",
@@ -424,8 +424,8 @@
       "file": "forms.md",
       "anchor": "forms-buttons",
       "title": "Buttons",
-      "summary": "Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label` and `style`.",
-      "words": 58
+      "summary": "Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label`, `icon` and `style`.",
+      "words": 81
     },
     {
       "topic": "forms-add-and-remove-items-a-list-editor",
@@ -1113,7 +1113,7 @@
       "anchor": "page-charts",
       "title": "Charts, gauges and indicators",
       "summary": "Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes.",
-      "words": 7086
+      "words": 7160
     },
     {
       "topic": "charts-progress-from-state",
@@ -1433,7 +1433,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13299
+      "words": 13353
     },
     {
       "topic": "values-value-types",
@@ -2039,6 +2039,7 @@
       "changed": "forms.md#trigger-changed",
       "changeEnd": "forms.md#trigger-changeEnd",
       "submitted": "forms.md#trigger-submitted",
+      "deleted": "forms.md#trigger-deleted",
       "editingComplete": "forms.md#trigger-editingComplete",
       "focusGained": "forms.md#trigger-focusGained",
       "focusLost": "forms.md#trigger-focusLost",

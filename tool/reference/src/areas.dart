@@ -58,7 +58,7 @@ const List<PageDef> featurePages = [
         'dateTimeInput', 'signature', 'chip', 'actionChip', 'choiceChip', 'filterChip', 'inputChip',
       ],
       behaviors: ['form', 'radioGroup'],
-      triggers: ['changed', 'changeEnd', 'submitted', 'editingComplete', 'focusGained', 'focusLost', 'keyDown', 'keyUp'],
+      triggers: ['changed', 'changeEnd', 'submitted', 'deleted', 'editingComplete', 'focusGained', 'focusLost', 'keyDown', 'keyUp'],
       actions: ['editText', 'focus', 'validate'],
       models: ['InputDecoration', 'InputBorder', 'InputIcon', 'ButtonStyle', 'ShapeBorder', 'ButtonSegment', 'IconAction']),
   PageDef('lists',

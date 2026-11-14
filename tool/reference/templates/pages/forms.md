@@ -137,9 +137,10 @@ on a control inside a tappable row otherwise runs the control's own reaction onl
 
 ### Buttons
 
-Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label` and `style`.
-Their label text is 12 px unless `style.textStyle.fontSize` says otherwise. Give buttons a fixed or fill width. For
-full control of a button's look (two lines, an icon after the label), use a `row` with a decoration, padding, text
+Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label`, `icon` and
+`style`. With no layout they hug: 28 high, padded, the label 12 px unless `style.textStyle.fontSize` says otherwise.
+`"loading": true` (bound to a variable an action sets while it runs) shows a spinner in place of the icon and ignores
+taps. For full control of a button's look (two lines, an icon after the label), use a `row` with a decoration, padding, text
 children, a `click` reaction and [hover and pressed states](@interaction-hover-press-and-other-states).
 
 ### Add and remove items (a list editor)
@@ -161,7 +162,6 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 ## Pitfalls
 
 - A button's text is `label`, not `text`; its colours are in `style`, not `decoration`.
-- A hugging button is only as wide as its label, without padding.
 - An input does nothing with its value until a `changed` reaction stores it, or its value prop is bound.
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.

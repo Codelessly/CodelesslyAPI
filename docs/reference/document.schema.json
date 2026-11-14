@@ -3001,6 +3001,7 @@
         "changed",
         "changeEnd",
         "submitted",
+        "deleted",
         "editingComplete",
         "focusGained",
         "focusLost",
@@ -11375,6 +11376,9 @@
                   },
                   "autofocus": {
                     "type": "boolean"
+                  },
+                  "loading": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -11437,6 +11441,9 @@
                     ]
                   },
                   "autofocus": {
+                    "type": "boolean"
+                  },
+                  "loading": {
                     "type": "boolean"
                   },
                   "tonal": {
@@ -11504,6 +11511,9 @@
                   },
                   "autofocus": {
                     "type": "boolean"
+                  },
+                  "loading": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -11567,6 +11577,9 @@
                   },
                   "autofocus": {
                     "type": "boolean"
+                  },
+                  "loading": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -11616,6 +11629,9 @@
                     ]
                   },
                   "autofocus": {
+                    "type": "boolean"
+                  },
+                  "loading": {
                     "type": "boolean"
                   }
                 },
@@ -16404,6 +16420,7 @@
             "changed",
             "changeEnd",
             "submitted",
+            "deleted",
             "editingComplete",
             "focusGained",
             "focusLost",
