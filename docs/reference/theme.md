@@ -85,10 +85,6 @@ Flutter `Text.rich`.
 | `overflow` | [TextOverflow](values.md#enum-TextOverflow) | `"clip"` | `clip`, `fade`, `ellipsis`, `visible` | What shows where the text is cut by `maxLines` or the node's size (Flutter's `TextOverflow`): `clip`, `fade`, `ellipsis`, `visible`. |
 | `selectable` | bool | `false` |  | The user can select and copy the text (Flutter's `SelectableText`). |
 | `scaleDown` | bool | `false` |  | Shrinks the whole text to fit its width, keeping its lines (`FittedBox(fit: BoxFit.scaleDown)`). |
-| `countUp` | bool | `false` |  | A number in the text (after binding: "1,204", "\$12.50", "87%") counts up to each new value in a running app, from the value on screen; the characters around it, its decimals and its thousands separators stay. A design canvas (or TickerMode off) shows the final text. |
-| `countUpDuration` | int | `500` | ≥ 0 | Milliseconds of one count. |
-| `countUpCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  | The curve a number in the text counts up along when it changes. |
-| `countUpOnShow` | bool | `true` |  | The first value counts up from 0 when the text first shows; off, it shows at rest and only later changes count. |
 
 <a id="behavior-textDirection"></a>
 ### `textDirection` (behavior)

@@ -63,8 +63,54 @@ String? movedPathHint(String path) {
     'props.path' => '"props.data" (a box drawn as a path is a path node)',
     'props.subpathColors' => 'a variable bound into the paint of each "customPaint" path op (one op per color)',
     'props.use24h' => '"props.alwaysUse24HourFormat" (a time picker\'s 24-hour dial, Flutter\'s name)',
-    _ => null,
+    _ => specialPathHint(p),
   };
+}
+
+/// The props of the last special cases (a text's countUp, a slider's ruler,
+/// marker, track fade, grip and overlay rule, a text field's highlight, a
+/// table's row edge, a date/time input's displayFormat), by name, and what
+/// to write instead.
+const Map<String, String> specialCaseProps = {
+  'countUp': 'a transition of "props.text" (its number counts to each new value) and, to count from 0 when it shows, '
+      'an animation with a track on "props.text" from 0',
+  'countUpDuration': 'the "duration" of the transition and the animation of "props.text"',
+  'countUpCurve': 'the "curve" of the transition and the animation of "props.text"',
+  'countUpOnShow': 'an animation with a track on "props.text" from 0 (none: no count when it shows)',
+  'rulerTicks': 'a "customPaint" "repeat" of "line" ops over the ruler track (the painter draws over a slider\'s track)',
+  'rulerMajorEvery': 'a "when" on the long ticks\' "line" op in the "customPaint" repeat ("\${= index % 5 == 0}")',
+  'rulerTickColor': 'the paint color of the ticks\' "customPaint" "line" ops',
+  'rulerMinorTickColor': 'the paint color of the short ticks\' "customPaint" "line" op',
+  'markerValue': 'a "customPaint" "rect" op at "\${= slider.trackRect.left + slider.trackRect.width * (value - slider.min) / '
+      '(slider.max - slider.min)}"',
+  'markerColor': 'the paint color of the marker\'s "customPaint" "rect" op',
+  'markerWidth': 'the width in the marker\'s "customPaint" "rect" op',
+  'markerHeight': 'the height in the marker\'s "customPaint" "rect" op',
+  'activeTrackStartOpacity': 'a "customPaint" "rrect" op over the active track ("slider.trackRect" to '
+      '"slider.thumbCenter.x") with a gradient of the inactive track\'s color',
+  'thumbGripColor': 'a "customPaint" "rect" op in "foregroundPainter" at "slider.thumbCenter"',
+  'deriveOverlayColorFromThumb': '"overlayColor" (no renderer read it)',
+  'highlightStart': '"runs": [{"start": ..., "end": ..., "style": {...}}] (styled ranges of the typed text, as a text\'s)',
+  'highlightEnd': 'the "end" of a run in "runs"',
+  'highlightStyle': 'the "style" of a run in "runs"',
+  'selectedRowEdgeColor': 'the cell template\'s "selected" state style (a left stroke), with "selected" bound to '
+      '"\${= item.rowIndex == <the selected row> && item.columnIndex == 0}"',
+  'selectedRowEdgeWidth': 'the "strokeWidth" of the cell template\'s "selected" state style',
+  'displayFormat': '"format" (one spelling)',
+};
+
+/// Whether binding path [path] is a prop of [specialCaseProps].
+bool movedSpecialPath(String path) {
+  final p = path.trim();
+  if (!p.startsWith('props.')) return false;
+  return specialCaseProps.containsKey(p.substring(6).split(RegExp(r'[.\[]')).first);
+}
+
+/// [movedPathHint] for the props of [specialCaseProps].
+String? specialPathHint(String path) {
+  if (!movedSpecialPath(path)) return null;
+  final key = path.trim().substring(6).split(RegExp(r'[.\[]')).first;
+  return '${specialCaseProps[key]} (the "$key" prop is gone)';
 }
 
 /// [schema2PathHint], else [movedPathHint]: what to write in the current

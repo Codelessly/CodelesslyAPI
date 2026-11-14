@@ -1,5 +1,3 @@
-import '../behavior_fields.dart' show AnimationCurveCodec;
-import '../behaviors.dart' show AnimationCurve;
 import '../props.dart';
 import '../values/enums.dart';
 import '../values/text.dart';
@@ -31,26 +29,9 @@ abstract final class TextProps {
   /// (`FittedBox(fit: BoxFit.scaleDown)`).
   static const scaleDown = PropDef<bool>('scaleDown', Codecs.bool, false);
 
-  /// A number in the text (after binding: "1,204", "\$12.50", "87%") counts
-  /// up to each new value in a running app, from the value on screen; the
-  /// characters around it, its decimals and its thousands separators stay.
-  /// A design canvas (or TickerMode off) shows the final text.
-  static const countUp = PropDef<bool>('countUp', Codecs.bool, false);
-
-  /// Milliseconds of one count.
-  static const countUpDuration = PropDef<int>('countUpDuration', IntCodec(min: 0), 500);
-  /// The curve a number in the text counts up along when it changes.
-  static const countUpCurve =
-      PropDef<AnimationCurve>('countUpCurve', AnimationCurveCodec(), AnimationCurve.linear);
-
-  /// The first value counts up from 0 when the text first shows; off, it
-  /// shows at rest and only later changes count.
-  static const countUpOnShow = PropDef<bool>('countUpOnShow', Codecs.bool, true);
-
   static const spec = WidgetSpec('text',
       props: [
-        text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, scaleDown, //
-        countUp, countUpDuration, countUpCurve, countUpOnShow,
+        text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, scaleDown,
       ],
       doc: 'Flutter `Text.rich`.');
 }

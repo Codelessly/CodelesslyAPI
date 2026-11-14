@@ -235,10 +235,8 @@ Flutter's `TableView` (two_dimensional_scrollables): a table that scrolls on bot
 | `headerBorderColor` | [Color](values.md#type-Color) | unset |  | A line under the header row only. |
 | `headerBorderWidth` | double | `1` | ≥ 0 |  |
 | `rowHoverColor` | [Color](values.md#type-Color) | unset |  | A body row's background while the pointer is over it. |
-| `selectedRow` | int | `-1` |  | The selected body row (bind it), -1 for none: drawn in `selectedRowColor` with a `selectedRowEdgeWidth` edge at its start in `selectedRowEdgeColor`. |
+| `selectedRow` | int | `-1` |  | The selected body row (bind it), -1 for none: drawn in `selectedRowColor`. More of its look (an edge at its start) is the `cell` template's `selected` state style, with `selected` bound to `${= item.rowIndex == <the selected row>}`. |
 | `selectedRowColor` | [Color](values.md#type-Color) | unset |  |  |
-| `selectedRowEdgeColor` | [Color](values.md#type-Color) | unset |  |  |
-| `selectedRowEdgeWidth` | double | `4` | ≥ 0 |  |
 | `stretchLastColumn` | bool | `false` |  | The last column takes the width the columns leave over, so the ruled rows run to the table's edge. |
 
 <a id="node-listTile"></a>
