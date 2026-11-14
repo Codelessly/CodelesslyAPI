@@ -429,6 +429,37 @@ class _Batch {
 
   bool get _failed => _diags.any((d) => d.error);
 
+  static final _formulaPath = RegExp(r'^/variables/([^/]+)/(\d+)/formula$');
+
+  /// The errors in the formulas of the variables the current `vars` op
+  /// declared, taken out of its diagnostics (so they do not reject it), each
+  /// saying that its variable is declared and gives nothing until fixed.
+  /// None when the op failed for another reason.
+  List<EditDiagnostic> _formulaErrors() {
+    final formula = [for (final d in _diags) if (d.error && _formulaPath.hasMatch(d.path)) d];
+    if (formula.isEmpty || _diags.any((d) => d.error && !formula.contains(d))) return const [];
+    _diags.removeWhere(formula.contains);
+    final vars = readMap(extra[LayoutLogic.variablesKey]);
+    return [
+      for (final d in formula)
+        () {
+          final m = _formulaPath.firstMatch(d.path)!;
+          final name = readMap(readList(vars?[m[1]])?.elementAtOrNull(int.parse(m[2]!)))?['name'];
+          return EditDiagnostic(
+            op: d.op,
+            code: d.code,
+            error: true,
+            path: d.path,
+            nodeId: d.nodeId,
+            expected: d.expected,
+            suggestion: d.suggestion,
+            message: '${d.message} ${name == null ? 'The variable' : '"$name"'} is declared but gives nothing until its formula is fixed: '
+                'send it again in a vars op with the formula corrected (the op\'s other variables were applied).',
+          );
+        }(),
+    ];
+  }
+
   Node? _decode(String id, Json json) => Node.fromJson(json, id: id, catalog: catalog);
 
   Json _json(Node n) => n.toJson()..remove('id');
@@ -482,6 +513,10 @@ class _Batch {
       final wasNew = op is SetOp && !nodes.containsKey(op.id);
       _applyOp(op);
       if (!atomic && !_failed) _checkOp(_touched, _lostLister, vars: _touchedVars);
+      // A wrong formula is reported, and its variable declared (it gives
+      // nothing until fixed): rejecting the op would take every variable it
+      // declares with it, and every node that reads them would show nothing.
+      final formulaErrors = op is VarsOp ? _formulaErrors() : const <EditDiagnostic>[];
       if (atomic) {
         batchTouched.addAll(_touched);
         batchLost.addAll(_lostLister);
@@ -506,6 +541,7 @@ class _Batch {
         if (wasNew) created.add(op.id);
       }
       all.addAll(_diags);
+      all.addAll(formulaErrors);
       _diags.clear();
     }
     if (atomic) {
