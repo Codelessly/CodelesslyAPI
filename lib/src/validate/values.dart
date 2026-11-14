@@ -289,6 +289,10 @@ final class ValueChecker {
           return;
         }
         if (json is! Map) return wrong();
+        // An object that names no glyph draws nothing: say so.
+        if (json.isNotEmpty && json['show'] != false && !const ['name', 'icon', 'codepoint', 'image', 'imageUrl', 'svg'].any(json.containsKey)) {
+          return wrong('An icon object with no "name" (a Material icon) or "image"');
+        }
       default:
         if (codec != null && codec.decode(json) == null) wrong();
     }
