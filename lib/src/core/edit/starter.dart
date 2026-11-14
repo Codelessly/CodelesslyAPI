@@ -24,6 +24,8 @@ import '../props.dart';
 import '../scripts.dart';
 import '../triggers.dart' show TriggerType;
 import '../variables.dart' show VariableType;
+import '../design_system.dart';
+import 'design_system_prompt.dart';
 import 'edit_ops.dart';
 import 'guide_topics.g.dart';
 
@@ -133,13 +135,16 @@ String baseDocument({
   TrustProfile? profile,
   String kind = 'card',
   bool docsTool = true,
+  DesignSystem? designSystem,
   List<BaseSegment>? segments,
   List<DocPage>? pages,
   List<DocTask>? tasks,
 }) {
   final runtime = form == BaseForm.runtime;
   final p = profile ?? (runtime ? TrustProfile.agent : TrustProfile.none);
-  final slice = p.restrict(catalog);
+  final ds = designSystem;
+  // A design system's components are node types like any other.
+  final slice = p.restrict(ds == null ? catalog : ds.catalogOver(catalog));
   final has = slice.widget;
   final conditions = {
     form.name,
@@ -147,13 +152,18 @@ String baseDocument({
     p.scripts ? 'scripts' : 'noScripts',
     if (runtime) docsTool ? 'docsTool' : 'noDocsTool',
     if (!runtime || docsTool) 'index',
+    ds == null ? 'noDesignSystem' : 'designSystem',
   };
   final b = StringBuffer();
   for (final s in segments ?? baseSegments) {
     if (s.when.every(conditions.contains)) b.write(s.text);
   }
   final fills = <String, String Function()>{
-    'baseTypes': () => _baseTypes(slice),
+    'baseTypes': () => _baseTypes(slice, without: {...?ds?.manifest.replaces}),
+    'designSystem': () => ds == null ? '' : designSystemSection(ds, docsTool: runtime && docsTool),
+    'replaced': () => ds == null || ds.manifest.replaces.isEmpty
+        ? ''
+        : '${ds.name}\'s components stand in for ${[for (final t in ds.manifest.replaces) '`$t`'].join(', ')}: use them.',
     'childrenTable': () => _childrenTable(slice),
     'ops': () => [
       for (final s in EditOp.specs)
@@ -187,7 +197,8 @@ String runtimeStarter({
   TrustProfile? profile,
   String kind = 'card',
   bool docsTool = true,
-}) => baseDocument(catalog: catalog, profile: profile, kind: kind, docsTool: docsTool);
+  DesignSystem? designSystem,
+}) => baseDocument(catalog: catalog, profile: profile, kind: kind, docsTool: docsTool, designSystem: designSystem);
 
 /// [text]'s links as `ui_docs` lookups: `[x](forms.md#forms-validation)` is
 /// `x (ui_docs "forms-validation")`, `[x](forms.md)` is `x (ui_docs
@@ -199,11 +210,12 @@ String toRuntimeLinks(String text) => text
     .replaceAllMapped(RegExp(r'\[([^\]]+)\]\(([\w-]+)\.md#(?:page-)?([\w-]+)\)'), (m) => '${m[1]} (ui_docs "${m[3]}")')
     .replaceAllMapped(RegExp(r'\[([^\]]+)\]\(([\w-]+)\.md\)'), (m) => '${m[1]} (ui_docs "${m[2]}")');
 
-String _baseTypes(Catalog slice) {
+String _baseTypes(Catalog slice, {Set<String> without = const {}}) {
   final b = StringBuffer()
     ..writeln('| type | takes | props (the base ones; all of them on its page) |')
     ..writeln('|---|---|---|');
   for (final e in baseProps.entries) {
+    if (without.contains(e.key)) continue;
     final w = slice.widget(e.key);
     if (w == null) continue;
     final props = [
@@ -339,7 +351,13 @@ List<String> docsTopicNames({Catalog catalog = Catalog.core, List<DocPage>? page
 /// sections), a section of a page by its anchor, or a node type, action
 /// type, trigger or behavior by name (or by its anchor, `node-slider`). What
 /// [profile] does not allow says so: it is documented, not available.
-String docsTopic(String topic, {Catalog catalog = Catalog.core, TrustProfile? profile, List<DocPage>? pages}) {
+String docsTopic(String topic,
+    {Catalog catalog = Catalog.core, TrustProfile? profile, List<DocPage>? pages, DesignSystem? designSystem}) {
+  // The design system's own documents and components first.
+  if (designSystem != null) {
+    final own = designSystemTopic(designSystem, topic);
+    if (own != null) return own;
+  }
   final p = profile ?? TrustProfile.agent;
   final slice = p.restrict(catalog);
   final ps = pages ?? docPages;

@@ -130,6 +130,9 @@ so they change with it: dark mode (ui_docs "theme-dark-mode").
 
 A theme that changes with the screen size, every theme key: theme (ui_docs "theme").
 
+**Design systems.** An app may give you a design system: its components carry the look, its tokens are the theme.
+Use them by name; nothing comes from the app's own theme: design systems (ui_docs "design-systems").
+
 ## Nodes, ids, children and slots
 
 `nodes` maps each node's **id** (the map key; do not repeat it inside the node) to the node. A parent lists its
@@ -615,6 +618,7 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 - "interaction": Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, haptic.
 - "animation": Animation and motion. Documents motion, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, viewProgress, timer, frame, animate.
 - "components": Components and sections. Documents slot, external, placeholder, singlePlaceholder, event, componentEvent.
+- "design-systems": Design systems.
 - "charts": Charts, gauges and indicators. Documents progressBar, circularProgressIndicator, activityIndicator, badge, radialGauge, gaugeMeter, chart, barChart, lineChart, plotChart, barcode.
 - "data": Data: APIs, cloud data, storage and form submission.
 - "auth": Auth: signing users in.
