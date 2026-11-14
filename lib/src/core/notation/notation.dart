@@ -1025,7 +1025,10 @@ class _Parser {
           out.add({
             'type': 'componentEvent',
             'event': sp < 0 ? s : s.substring(0, sp),
-            if (value != null && value.isNotEmpty) 'value': _valueOrRead(value),
+            // Plain words after the event are its value as text
+            // (`emit choose plan A`); anything else is read as a value.
+            if (value != null && value.isNotEmpty)
+              'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
           });
         case 'open':
           out.add({'type': 'openModal', 'modal': s});
