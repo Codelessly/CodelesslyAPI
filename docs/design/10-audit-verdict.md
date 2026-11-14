@@ -200,11 +200,12 @@ used it, so the cost was a one-way migration step (`props.renamed`: the prop, it
 **The (b) fields, ranked** (by how often an author or a model writes the field, then by how mechanical a rename
 would be; uses counted in the corpus and the two repositories' documents):
 
-1. `decoration.radius` → `borderRadius` (2,630 uses in 28 corpus documents, 293 in 37 repository files). The
-   field a model guesses first; left because every document, generator and the editor write it: a rename is a
-   2→3 step plus a rewrite of 37 in-repository files, worth doing in one pass with item 2.
-2. `decoration.clip` → `clipBehavior` (28 uses in 13 corpus documents, 26 in 13 repository files). Cheapest of
-   the frequent ones; left only to do it in the same pass as `radius`.
+1. `decoration.radius` (Flutter: `borderRadius`; 2,630 uses in 28 corpus documents, 293 in 37 repository files)
+   and
+2. `decoration.clip` (Flutter: `clipBehavior`) are **kept on purpose** (owner's decision, 2026-11-14): the same
+   concepts under shorter names. No author or model was confused by either, `radius` is written on most decorated
+   nodes so the shorter name costs fewer tokens when a UI streams, and a rename would break every stored document
+   for no change in behaviour. They are deliberate deviations, not open work.
 3. `stack.fit` is Flutter's name for another thing (`Stack.fit` is a `StackFit`; ours is a `BoxFit` for the
    board, Flutter's `FittedBox(fit:)` around the stack), with `fitAlignment` (`FittedBox.alignment`). No document
    uses either. Recommended: `fit` as `StackFit`, the board's scaling under a name of its own; left because the
