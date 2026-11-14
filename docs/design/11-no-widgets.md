@@ -367,6 +367,17 @@ controls' menu for the page size and a semantics node per button). No input is a
 still builds widgets inside the tree: the table view (`two_dimensional_scrollables`), the data list, reorder and
 page view (all on `Scrollable`), and the media players.
 
+The count is now kept in two parts (`test/architecture_test.dart`): the **core**, which goes to zero, and the
+**host adapter**, where a widget library is at home (`lib/src/app/`, the session view, the plugin players). The
+core is at 17 files. The action interface (`ActionUi`) is widget-free; its Navigator implementation, the toasts,
+confirm dialogs, modal routes, route transitions and hero flights moved from `runtime/actions` to `app/`, with
+what the runtime needs from them extracted without widgets (`look.dart`, `reveal_anchor.dart`); the capture
+registry holds boundary finders instead of widget keys; the automations hear the app lifecycle from a source the
+host supplies. The 17 are: the lists (seven files on `Scrollable` and one table package), the island machinery
+that hosts them (`islands.dart`, `recipe.dart`, `node_tree.dart`, `control_theme.dart`, `node_view.dart`), the
+three files that read a `ScrollPosition`, drag and drop, and the `external` node. They go together: when the
+lists are render objects, the islands have only the players and `external` left, behind `EmbedFactory`.
+
 Gaps the workstreams left, folded into the steps above: a `popupMenu` node type on the menu; tile text and icon
 color props; write-back of a bound `expanded`; app-bar and navigation item reactions; the implied back button;
 selection handles and the copy and paste toolbar; an icon size written at its catalog default.
