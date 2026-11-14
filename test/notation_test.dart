@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/levels.dart';
-import 'package:codelessly_api/src/core/notation/notation.dart';
+import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
@@ -123,5 +123,62 @@ Row#bar between w:300 h:44
     expect(_node(r, 'bar')['layout'], {'width': 300, 'height': 44});
     expect((_node(r, 'name')['layout'] as Map)['flex'], 1);
     expect(_node(r, 'icon1')['props'], {'icon': 'close', 'size': 18});
+  });
+
+  test('read as it arrives: each completed line gives its operations, and applying them builds the same document', () {
+    const text = '''
+state decision="pending"
+Card gap:12
+  Text.title "Approve?"
+  if decision!="pending"
+    Text "Decision: {decision}"
+  Row end gap:8
+    Button.ghost "Deny" -> decision="denied"
+    Button "Approve" -> decision="approved"
+  Slider =volume
+''';
+    final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
+    final perChunk = <int>[];
+    var doc = LayoutDocument(catalog: standardCatalog);
+    // Seven characters at a time: lines complete mid-chunk.
+    for (var i = 0; i < text.length; i += 7) {
+      final ops = stream.add(text.substring(i, i + 7 > text.length ? text.length : i + 7));
+      perChunk.add(ops.length);
+      if (ops.isEmpty) continue;
+      final r = applyOps(doc, {'ops': ops}, catalog: standardCatalog);
+      expect(r.errors, isEmpty, reason: '${r.errors}');
+      doc = r.document;
+    }
+    final last = stream.close();
+    if (last.isNotEmpty) doc = applyOps(doc, {'ops': last}, catalog: standardCatalog).document;
+    expect(stream.issues, isEmpty);
+    expect(perChunk.where((n) => n > 0).length, greaterThan(5), reason: 'operations arrive line by line, not all at the end');
+    // The same document as parsing it whole.
+    final whole = _parse(text).document;
+    final built = doc.toJson();
+    expect((built['nodes'] as Map).keys.toSet(), (whole['nodes'] as Map).keys.toSet());
+    for (final id in (whole['nodes'] as Map).keys) {
+      expect(jsonDecode(jsonEncode(doc[id as String]!.toJson())), jsonDecode(jsonEncode(LayoutDocument.fromJson(whole, catalog: standardCatalog)[id]!.toJson())),
+          reason: 'node $id');
+    }
+    expect(_problems(built), isEmpty);
+  });
+
+  test('the prompt is small, and every example in it parses and validates', () {
+    final prompt = Catalog.run(standardCatalog, () => notationPrompt(catalog: standardCatalog));
+    expect(prompt.length, lessThan(6000), reason: 'about 1,500 tokens');
+    final examples = prompt.substring(prompt.indexOf('EXAMPLES') + 9).trim().split(RegExp(r'\n\n+'));
+    expect(examples.length, 3);
+    for (final e in examples) {
+      final r = _parse(e);
+      expect(r.issues, isEmpty, reason: e);
+      expect(_problems(r.document), isEmpty, reason: e);
+    }
+    // Every type it names parses.
+    final types = RegExp(r'(?:Layout and content|Controls): (.+)').allMatches(prompt).expand((m) => m[1]!.split(', '));
+    for (final t in types) {
+      final r = _parse('Column\n  $t');
+      expect(r.issues, isEmpty, reason: t);
+    }
   });
 }

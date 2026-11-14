@@ -136,6 +136,46 @@ const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'botto
 NotationResult parseNotation(String text, {Catalog? catalog, NotationOptions options = const NotationOptions()}) =>
     _Parser(catalog ?? Catalog.current, options).parse(text);
 
+/// The notation read as it arrives: [add] takes text in any chunks and
+/// returns the edit operations of the lines completed so far (a `set` per
+/// node under its parent, `vars` for the state a line introduced), ready
+/// for `applyOps`; [close] gives the last line's.
+final class NotationStream {
+  NotationStream({Catalog? catalog, NotationOptions options = const NotationOptions()})
+      : _parser = _Parser(catalog ?? Catalog.current, options);
+
+  final _Parser _parser;
+  final _buffer = StringBuffer();
+
+  /// What could not be read so far.
+  List<NotationIssue> get issues => List.unmodifiable(_parser.issues);
+
+  List<Json> add(String chunk) {
+    _buffer.write(chunk);
+    final text = _buffer.toString();
+    final end = text.lastIndexOf('\n');
+    if (end < 0) return const [];
+    _buffer
+      ..clear()
+      ..write(text.substring(end + 1));
+    text.substring(0, end).split('\n').forEach(_parser.line);
+    return _take();
+  }
+
+  List<Json> close() {
+    final rest = _buffer.toString();
+    _buffer.clear();
+    if (rest.isNotEmpty) _parser.line(rest);
+    return _take();
+  }
+
+  List<Json> _take() {
+    final out = [..._parser.ops];
+    _parser.ops.clear();
+    return out;
+  }
+}
+
 class _Open {
   _Open(this.indent, this.id, this.type, {this.condition});
   final int indent;
@@ -156,18 +196,59 @@ class _Parser {
   final nodes = <String, Json>{};
   final variables = <String, Json>{};
   final issues = <NotationIssue>[];
+
+  /// The edit operations of the lines read so far, not yet taken ([take]).
+  final ops = <Json>[];
+  final _declared = <String>{};
   final _counts = <String, int>{};
   final _stack = <_Open>[];
   String? _root;
   int _line = 0;
 
-  NotationResult parse(String text) {
-    for (final raw in const LineSplitter().convert(text)) {
-      _line++;
-      if (raw.trim().isEmpty || raw.trimLeft().startsWith('//')) continue;
-      final indent = raw.length - raw.trimLeft().length;
-      _lineAt(indent, raw.trim(), indent + 1);
+  /// Reads one line (without its newline).
+  void line(String raw) {
+    _line++;
+    if (raw.trim().isEmpty || raw.trimLeft().startsWith('//')) return;
+    final indent = raw.length - raw.trimLeft().length;
+    final before = nodes.length;
+    _lineAt(indent, raw.trim(), indent + 1);
+    _emit(nodes.length > before ? nodes.keys.last : null);
+  }
+
+  /// The operations the line just read adds: the variables it introduced,
+  /// then its node under its parent (the first node under a new canvas).
+  void _emit(String? id) {
+    final screen = options.screen;
+    final fresh = {
+      for (final v in variables.values)
+        if (_declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
+    };
+    if (id == null && fresh.isEmpty) return;
+    if (!_canvas) {
+      _canvas = true;
+      ops
+        ..add({'op': 'roots', 'roots': [screen]})
+        ..add({
+          'op': 'set',
+          'id': screen,
+          'node': {
+            'type': 'canvas',
+            'layout': {'width': options.width, 'height': {'hug': 0}},
+          },
+        });
     }
+    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': screen, 'set': fresh});
+    if (id == null) return;
+    final node = {...nodes[id]!}..remove('children');
+    final parent = _parentOf[id];
+    ops.add({'op': 'set', 'id': id, 'parent': parent ?? screen, if (parent == null) 'slot': 'body', 'node': node});
+  }
+
+  bool _canvas = false;
+  final _parentOf = <String, String>{};
+
+  NotationResult parse(String text) {
+    const LineSplitter().convert(text).forEach(line);
     final screen = options.screen;
     return NotationResult({
       'schema': 3,
@@ -410,6 +491,7 @@ class _Parser {
       final p = nodes[parent.id]!;
       if (spec.type == 'canvas') return _issue(column, 'A canvas cannot be a child.');
       ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
+      _parentOf[id] = parent.id;
     }
     _stack.add(_Open(indent, id, type, condition: null));
   }
