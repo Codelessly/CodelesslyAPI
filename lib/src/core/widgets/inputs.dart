@@ -165,7 +165,7 @@ abstract final class TextFieldProps {
     obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength,
     maxLines, minLines, expands, selectionHeightStyle, selectionWidthStyle, autofillHints, autovalidateMode,
     selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown, runs,
-  ], doc: 'Flutter `TextField`.');
+  ], doc: 'Flutter `TextField`. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
 }
 
 // --- checkbox, switch, radio --------------------------------------------------
@@ -541,7 +541,7 @@ abstract final class DropdownProps {
     alignment, hint, hintStyle, iconDisabledColor, iconEnabledColor, iconSize, icon, dropdownColor, focusColor,
     hoverColor, splashColor, elevation, borderRadius, underline, useDataSource, itemLabel, itemImage, itemImageSize,
     itemImageRadius, menuStyle,
-  ], decorated: true, doc: 'Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it.');
+  ], decorated: true, doc: 'Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
 }
 
 // --- date and time ------------------------------------------------------------
@@ -580,7 +580,7 @@ abstract final class DatePickerProps {
   static const lastDate = PropDef<String?>('lastDate', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const spec = WidgetSpec('datePicker', hugs: true,
-      props: [value, firstDate, lastDate, enabled, ...PickerFieldProps.all], doc: 'Flutter `showDatePicker` button or field.');
+      props: [value, firstDate, lastDate, enabled, ...PickerFieldProps.all], doc: 'Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
 }
 
 /// A field showing a time (`HH:mm`; empty shows its hint) that opens hour and
@@ -593,7 +593,7 @@ abstract final class TimePickerProps {
   /// `MediaQueryData.alwaysUse24HourFormat`, which the picker reads).
   static const alwaysUse24HourFormat = PropDef<bool>('alwaysUse24HourFormat', Codecs.bool, false);
   static const spec = WidgetSpec('timePicker', hugs: true,
-      props: [value, enabled, alwaysUse24HourFormat, ...PickerFieldProps.all], doc: 'Flutter `showTimePicker` button or field.');
+      props: [value, enabled, alwaysUse24HourFormat, ...PickerFieldProps.all], doc: 'Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
 }
 
 /// What a date/time input picks.

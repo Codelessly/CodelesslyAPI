@@ -32,13 +32,13 @@ A sign-in form whose error appears in a text:
     },
     "email": {
       "type": "textField",
-      "layout": {"width": {"fill": 342}, "height": 56},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 28}},
       "props": {"decoration": {"labelText": "Email"}, "keyboardType": "emailAddress"},
       "bind": {"props.initialValue": "${email}"}
     },
     "password": {
       "type": "textField",
-      "layout": {"width": {"fill": 342}, "height": 56},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 28}},
       "props": {"decoration": {"labelText": "Password"}, "obscureText": true},
       "bind": {"props.initialValue": "${password}"}
     },

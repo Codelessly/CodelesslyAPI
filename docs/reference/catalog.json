@@ -2795,7 +2795,7 @@
       "docs": "lists.md#node-tableView"
     },
     "textField": {
-      "doc": "Flutter `TextField`.\n\nFlutter `TextField` (a `TextFormField` when it validates).",
+      "doc": "Flutter `TextField`. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nFlutter `TextField` (a `TextFormField` when it validates).",
       "flutter": "TextField",
       "children": "none",
       "slots": [],
@@ -4051,7 +4051,7 @@
       "docs": "forms.md#node-slider"
     },
     "dropdown": {
-      "doc": "Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it.\n\nFlutter `DropdownButton<Object>`. Its padding is the node's `layout.padding`.",
+      "doc": "Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nFlutter `DropdownButton<Object>`. Its padding is the node's `layout.padding`.",
       "flutter": "DropdownButton",
       "children": "none",
       "slots": [],
@@ -4318,7 +4318,7 @@
       "docs": "forms.md#node-dropdown"
     },
     "datePicker": {
-      "doc": "Flutter `showDatePicker` button or field.\n\nA field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).",
+      "doc": "Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).",
       "flutter": "showDatePicker",
       "children": "none",
       "slots": [],
@@ -4403,7 +4403,7 @@
       "docs": "forms.md#node-datePicker"
     },
     "timePicker": {
-      "doc": "Flutter `showTimePicker` button or field.\n\nA field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).",
+      "doc": "Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).",
       "flutter": "showTimePicker",
       "children": "none",
       "slots": [],

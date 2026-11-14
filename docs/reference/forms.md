@@ -34,7 +34,7 @@ good one:
     },
     "email": {
       "type": "textField",
-      "layout": {"width": {"fill": 342}, "height": 56},
+      "layout": {"width": {"fill": 342}, "height": {"hug": 28}},
       "props": {"decoration": {"labelText": "Email", "hintText": "you@example.com"}, "keyboardType": "emailAddress"},
       "actions": [
         {
@@ -231,7 +231,7 @@ Flutter `FloatingActionButton`.
 <a id="node-textField"></a>
 ### `textField`
 
-Flutter `TextField`.
+Flutter `TextField`. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 Flutter `TextField` (a `TextFormField` when it validates).
 
@@ -430,7 +430,7 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 <a id="node-dropdown"></a>
 ### `dropdown`
 
-Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it.
+Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 Flutter `DropdownButton<Object>`. Its padding is the node's `layout.padding`.
 
@@ -509,7 +509,7 @@ Flutter `SegmentedButton<String>`.
 <a id="node-datePicker"></a>
 ### `datePicker`
 
-Flutter `showDatePicker` button or field.
+Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).
 
@@ -531,7 +531,7 @@ A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calenda
 <a id="node-timePicker"></a>
 ### `timePicker`
 
-Flutter `showTimePicker` button or field.
+Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).
 
@@ -1328,7 +1328,7 @@ Its `decoration.suffixIcon` with a tap reaction (`actions` is a list of reaction
 there is text by binding the icon:
 
 ```json
-"search": {"type": "textField", "layout": {"width": {"fill": 280}, "height": 44},
+"search": {"type": "textField", "layout": {"width": {"fill": 280}, "height": {"hug": 28}},
   "bind": {"props.initialValue": "${query}", "props.decoration.suffixIcon.icon": "${= query == '' ? '' : 'close'}"},
   "props": {"decoration": {"hintText": "Search dishes", "prefixIcon": {"icon": "search", "size": 18}, "suffixIcon": {"icon": "close", "size": 18,
     "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "query", "value": ""}]}]}}}}

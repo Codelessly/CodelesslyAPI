@@ -337,7 +337,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 12705
+      "words": 12891
     },
     {
       "topic": "forms-triggers",
@@ -409,7 +409,7 @@
       "anchor": "forms-a-clear-button-in-the-field",
       "title": "A clear button in the field",
       "summary": "Its `decoration.suffixIcon` with a tap reaction (`actions` is a list of reactions, as a node's), shown only while there is text by binding the icon:",
-      "words": 74
+      "words": 75
     },
     {
       "topic": "forms-a-labelled-checkbox-or-switch",
@@ -449,7 +449,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 7875
+      "words": 7877
     },
     {
       "topic": "lists-triggers",
@@ -513,7 +513,7 @@
       "anchor": "lists-filter-sort-and-page-a-list",
       "title": "Filter, sort and page a list",
       "summary": "Search, a status filter, sortable columns and pages are computed variables over the records, chained: `shown` filters and sorts them, `paged` is one page of it, and the list binds `${paged}`.",
-      "words": 388
+      "words": 390
     },
     {
       "topic": "lists-a-weekly-grid",
@@ -1177,7 +1177,7 @@
       "anchor": "page-auth",
       "title": "Auth: signing users in",
       "summary": "The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in.",
-      "words": 468
+      "words": 470
     },
     {
       "topic": "auth-show-the-signed-in-user",
