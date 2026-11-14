@@ -22,8 +22,9 @@ const Map<int, String> symbolIcons = {
   0x2708: 'flight', 0x2600: 'wb_sunny', 0x2601: 'cloud', 0x2602: 'umbrella', 0x26A0: 'warning', 0x2139: 'info',
 };
 
-/// Lints [document] (or only the nodes [ids]): `empty_button` and
-/// `low_contrast` warnings, and with [hasGlyph], `missing_glyph`.
+/// Lints [document] (or only the nodes [ids]): `empty_button`,
+/// `dead_control` and `low_contrast` warnings, and with [hasGlyph],
+/// `missing_glyph`.
 List<EditDiagnostic> uiLints(LayoutDocument document, {Iterable<String>? ids, GlyphCoverage? hasGlyph}) {
   final out = <EditDiagnostic>[];
   for (final id in ids ?? document.nodes.keys) {
@@ -61,6 +62,23 @@ List<EditDiagnostic> uiLints(LayoutDocument document, {Iterable<String>? ids, Gl
           '$label. Or use a filledButton with "label".',
           path: at, nodeId: id));
     }
+    // A button that does nothing: no reaction, not disabled (a mock-up's
+    // Start and Pause, plan_progress@claude-haiku-5-5).
+    // A component counts when it is a button by name and fires a press (a
+    // list row or chip may be shown only, with no reaction).
+    final pressEvent = type.endsWith('Button') ? n.spec?.events.where((e) => e.key == 'onPressed').firstOrNull?.key : null;
+    if ((_buttons.contains(type) || pressEvent != null) &&
+        (readList(json['actions']) ?? const []).isEmpty &&
+        readMap(json['props'])?['enabled'] != false &&
+        !(readMap(json['bind'])?.containsKey('props.enabled') ?? false) &&
+        !_insideTappable(document, id)) {
+      final trigger = pressEvent == null ? '{"type": "click"}' : '{"type": "event", "event": "$pressEvent"}';
+      out.add(EditDiagnostic.of(EditCodes.deadControl, -1,
+          '"$id" ($type) does nothing when pressed: it has no reaction. Give it what it does: "actions": [{"trigger": $trigger, '
+          '"actions": [{"type": "setVariable", ...}]}] (a variable the UI reads: a step, a running flag), or "enabled": false '
+          'while it should not be pressed.',
+          path: editPointer(at, 'actions'), nodeId: id));
+    }
     // Text in the colour of what is behind it.
     if (type == 'text') {
       final bind = readMap(json['bind']) ?? const {};
@@ -81,6 +99,18 @@ List<EditDiagnostic> uiLints(LayoutDocument document, {Iterable<String>? ids, Gl
     }
   }
   return out;
+}
+
+/// The core's buttons: a press is what they are for.
+const _buttons = {'filledButton', 'textButton', 'outlinedButton', 'elevatedButton', 'iconButton', 'filledTonalButton'};
+
+/// Whether an ancestor of [id] reacts to a tap (the button is its label).
+bool _insideTappable(LayoutDocument document, String id) {
+  for (var p = document.parentOf(id); p != null; p = document.parentOf(p)) {
+    final n = document[p];
+    if (n != null && _tappable(n.toJson())) return true;
+  }
+  return false;
 }
 
 bool _tappable(Json node) {
