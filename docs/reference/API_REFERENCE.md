@@ -786,13 +786,13 @@ section's anchor is its topic.
 | Page | What it covers | Words |
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4813 |
-| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9469 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9529 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2902 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11893 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7657 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7875 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6575 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6662 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3719 |
@@ -1647,6 +1647,10 @@ capped). Give every section the same two layers, and they line up at every width
 At 390 every rail starts at 16, at 834 at 32, at 1440 at 120 ((1440 − 1200) / 2: the cap, not the gutter). Never pad
 the rail or a section's first child to move content: change the gutter in every band at once. A part meant to run
 to the edge (a photo strip) is a band with no rail ([overlap and bleed](#layout-overlap-and-bleed)).
+
+A hero is a band like the others: give it and its copy a **hug** height with a minimum (`"height": {"hug": 560},
+"constraints": {"minHeight": 480}`), never a fixed one. A headline whose size steps up by a media rule takes more
+lines in a narrower column, and a fixed height then overflows by the extra lines at tablet or desktop.
 
 ```json
 {
@@ -5116,6 +5120,43 @@ table written four times. For a column that stays while the others scroll sidewa
 `listView` of its own beside one horizontally scrolling block of the cell grids, rows the same height in both. A
 `tableView` is a data table with columns declared once (sorting, row taps).
 
+<a id="lists-a-data-table-tableview"></a>
+### A data table (tableView)
+
+The rows are **bound data** (`"bind": {"data": "${years}"}`, a list of records), never a `props.data`; the columns
+are `props.columns`, each a record field (`key`), its header (`label`) and its width. The `cell` slot is one template
+for every cell, reading `${item.value}` (also `${item.row}`, the whole record, and `${item.column}`); `columnHeader`
+reads `${item.label}`. `fillWidth` shares a wide screen's extra width between the columns:
+
+```json
+{
+  "schema": 3,
+  "roots": ["impact"],
+  "nodes": {
+    "impact": {"type": "canvas", "slots": {"body": "table"}, "layout": {"width": 390, "height": 260},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "table": {"type": "tableView", "slots": {"cell": "cell", "columnHeader": "head"},
+      "layout": {"width": {"fill": 390}, "height": {"fill": 260}},
+      "props": {"rowHeight": 40, "headerHeight": 40, "pinHeaderColumn": false, "fillWidth": true,
+        "columns": [{"key": "year", "label": "Year", "width": 80}, {"key": "trees", "label": "Trees", "width": 100},
+                    {"key": "survival", "label": "Survival", "width": 100}]},
+      "bind": {"data": "${years}"}},
+    "head": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.label}", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF334155"}}},
+    "cell": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.value}", "style": {"fontSize": 14, "color": "#FF0F172A"}}}
+  },
+  "variables": {
+    "impact": [
+      {"name": "years", "type": "list", "value": [
+        {"year": "2023", "trees": "3,120", "survival": "94%"},
+        {"year": "2024", "trees": "4,480", "survival": "91%"},
+        {"year": "2025", "trees": "4,880", "survival": "87%"}]}
+    ]
+  }
+}
+```
+
 <a id="lists-filter-sort-and-page-a-list"></a>
 ### Filter, sort and page a list
 
@@ -6272,6 +6313,12 @@ A document's sandboxed JavaScript (`scripts`), run by `runScript` or called from
 ### Formula functions
 
 The functions a formula (`${= ...}`) can call, from the SDK's formula engine, grouped.
+
+Time zones are **UTC offsets**, not IANA names: `now('-06:00')`, `formatDate(now('+01:00'), 'HH:mm')`. The formula
+engine has no time zone database, so `now('America/Chicago')` is not a zone and daylight saving time is not applied.
+For a place that changes its clocks, pick the offset by date in the formula (Chicago, US rules: `now(month(now()) > 3
+&& month(now()) < 11 ? '-05:00' : '-06:00')`, exact except in the weeks of March and November when the clocks
+change), or have the host app pass the offset in (a variable it sets).
 
 <a id="state-text"></a>
 #### Text
