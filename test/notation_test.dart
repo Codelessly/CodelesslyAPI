@@ -94,7 +94,7 @@ Card gap:12
     expect((banner['props'] as Map)['text'], r'Decision: ${decision}');
     expect(_node(r, 'textButton1')['type'], 'textButton');
     // Text with no variant is the body text: it has a colour.
-    expect(((_node(r, 'text2')['props'] as Map)['style'] as Map)['color'], '#FF374151');
+    expect(((_node(r, 'text2')['props'] as Map)['style'] as Map)['color'], '#FF111827', reason: 'SSUI\'s body ink');
     expect((_node(r, 'filledButton1')['actions'] as List).single['actions'], [
       {'type': 'setVariable', 'variable': 'decision', 'value': 'approved'},
       {'type': 'componentEvent', 'event': 'approved'},
@@ -390,5 +390,30 @@ Card gap:12
         },
       }, words: false);
     });
+  });
+  test('the looks are SSUI\'s: its text styles by name, its card, and its badge as a tinted 20 px label', () {
+    final r = _parse('''
+state count=3
+Card
+  Text.sectionTitle "Billing"
+  Text.caption "Updated today"
+  Badge.success "Paid"
+  Badge "{count} open"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect((_node(r, 'text1')['props'] as Map)['style'], {'fontSize': 14, 'fontWeight': 600, 'color': '#FF111827'});
+    expect((_node(r, 'text2')['props'] as Map)['style'], {'fontSize': 11, 'color': '#FF9CA3AF'});
+    expect((_node(r, 'column1')['layout'] as Map)['padding'], 12);
+    final badge = _node(r, 'row1');
+    expect((badge['layout'] as Map)['height'], 20);
+    expect(badge['decoration'], {
+      'fills': [{'color': '#1A16A34A'}],
+      'strokes': [{'color': '#4716A34A'}],
+      'radius': 5,
+    });
+    final label = _node(r, (badge['children'] as List).single as String);
+    expect((label['props'] as Map)['style'], {'fontSize': 11, 'fontWeight': 500, 'color': '#FF16A34A'});
+    expect((_node(r, (_node(r, 'row2')['children'] as List).single as String)['props'] as Map)['text'], r'${count} open');
   });
 }
