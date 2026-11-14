@@ -127,9 +127,9 @@ Dark mode, a theme that changes with the screen size, every theme key: theme (ui
 
 `nodes` maps each node's **id** (the map key; do not repeat it inside the node) to the node. A parent lists its
 children's ids in `children`, or names them in `slots`; a child does not name its parent. Every node except a
-canvas has exactly one parent; `roots` lists the canvases, and a canvas is never a child. Ids are any text: use
-short readable ones and keep them unique across a site's documents (actions, diagnostics and the render command
-name nodes by id). A node's main keys: `type`, `layout`, `decoration`, `props` (the type's own parameters),
+canvas has exactly one parent; `roots` lists the canvases, and a canvas is never a child. Ids are any text, and
+**per document**: a page's actions and conditions name its own nodes, a component's ids are its own, and two pages
+may both have a `title`. **Canvas ids are site-wide** (links name screens by them): never repeat one. A node's main keys: `type`, `layout`, `decoration`, `props` (the type's own parameters),
 `children` / `slots`, `bind`, `actions`, `media`, `visible`, `opacity`, `name`.
 
 Which types take children, which take named slots, which take neither:
@@ -425,6 +425,9 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
   "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
   to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `setValue`, `setVariant`, `setVariable`, `if`, `forEach`, `showToast`, `confirm`, `delay`, `focus`, `scrollTo`, `animate`, `haptic`, `paginate`, `componentEvent`.
+- Keys are exact; validation names the one meant: `{"type": "scrollTo", "node": "faq"}`, `{"type":
+  "copyToClipboard", "text": "${address}"}`, `{"type": "downloadFile", "fileName": "trip.txt", "text": "${brief}"}`;
+  a list appends with `"op": "add"` (`insert` takes an `index`).
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
 - A tap on a control inside a tappable row runs the control's reaction only: to toggle from the whole row, give the
   control `"ignorePointer": true` and bind its value.
@@ -572,6 +575,9 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 | Pass children into a component (slots); events out of it | "components-slots" |
 | The site manifest (`site.json`) | "components-the-site-manifest" |
 | Render one component alone | "components-rendering-one-part" |
+| A whole multi-page site: manifest first, shared header and footer, route parameters, storage, a modal | "components-a-complete-multi-page-site" |
+| A list kept per page or per item (a key built from `${route.id}`) | "data-storage-on-the-device" |
+| A reading-progress bar driven by the page's scroll | "layout-scroll-progress" |
 | A progress bar or ring bound to a value | "charts-progress-from-state" |
 | Bar, line and series charts | "charts-charts-from-data" |
 | Call an HTTP API and show the result | "data-call-an-api-and-show-the-result" |

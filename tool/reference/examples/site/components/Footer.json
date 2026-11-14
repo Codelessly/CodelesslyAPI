@@ -1,0 +1,88 @@
+{
+ "schema": 3,
+ "id": "Footer",
+ "roots": [
+  "foot"
+ ],
+ "widget": {
+  "type": "Footer",
+  "doc": "The site's footer, on every page."
+ },
+ "nodes": {
+  "foot": {
+   "type": "row",
+   "children": [
+    "copy",
+    "all"
+   ],
+   "props": {
+    "mainAxisAlignment": "spaceBetween"
+   },
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": 64,
+    "padding": [
+     20,
+     0,
+     20,
+     0
+    ]
+   },
+   "decoration": {
+    "fills": [
+     {
+      "color": "line"
+     }
+    ]
+   }
+  },
+  "copy": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "hug": 120
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "Waymark, slow travel by rail",
+    "style": {
+     "from": "body",
+     "color": "muted"
+    }
+   }
+  },
+  "all": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "hug": 120
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "All trips",
+    "style": "link"
+   },
+   "actions": [
+    {
+     "trigger": {
+      "type": "click"
+     },
+     "actions": [
+      {
+       "type": "navigate",
+       "to": "home"
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

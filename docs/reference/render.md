@@ -71,16 +71,26 @@ strictly, renders each screen with the SDK at each size, writes `shots/<screen>@
 In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is
 scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`,
 `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or
-screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`. A step may name a node by its `name` too. In a site, steps
-name nodes inside components by path (`--tap plans/card1/cta`). `--label <name>` keeps the screenshots and
+screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--navigate <screen>`, `--wait <ms>`. A step
+may name a node by its `name` too. In a site, steps name nodes inside components by path (`--tap plans/card1/cta`)
+and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`). Ids are
+per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
+an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
+component's). A step on a node hidden at one size (a media rule, another breakpoint's canvas) is skipped there with
+a note; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
+params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--navigate /project?id=7`); later steps
+act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
+not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
+navigation first unfocuses a focused text field elsewhere, as a click outside it does. `--label <name>` keeps the screenshots and
 `diagnostics-<name>.json` of each state apart. After each step the page settles before the next one and the capture
 (about a second): an animation shorter than that is over when the screenshot is taken; to see one mid-flight,
 lengthen its duration in a copy. `--key` presses a key for the screen's `keyDown` reactions; it does not submit a
 focused text field (test `submitted` chains through a button). In nested lists `#n` counts the copies across the
 whole repeat, outer item by outer item, from 0: with a 7-day grid per habit, `day#9` is the second habit's third
 day. `--full-page` captures the whole page from its top, its own scroll
-height, with content fixed to the window drawn in the first window; without it the capture is the window where the
-steps left the page. `--fonts <dir>` adds font files; `--component <Type>` and `--components-all` render
+height, as a reader sees it: content fixed to the window and an open modal (with its dimmed backdrop) in the first
+window, a sticky node once in its place, and after a navigation the page navigated to at its own height; without it
+the capture is the window where the steps left the page. `--fonts <dir>` adds font files; `--component <Type>` and `--components-all` render
 components alone.
 
 <a id="render-validation-codes"></a>
@@ -148,7 +158,7 @@ From `package:codelessly_api/validate.dart`:
 | `invalid_theme` | error | The site manifest's "theme" is not of the right shape: colors are "#AARRGGBB" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
-| `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
+| `duplicate_id` | warning | The same canvas id in two documents of one project: navigate and openModal name a screen by its canvas id, so a link reaches one of them. Other node ids are per document and may repeat. |
 | `unknown_component` | error | A call names a component type (UpperCamelCase) that no definition of the project declares: it renders as an empty box of its size. |
 | `duplicate_component` | error | Two definitions declare the same component type, or a component type is also a catalog type: there is no shadowing. |
 | `component_cycle` | error | A component calls itself, directly or through other components: it can never finish rendering. |
@@ -167,7 +177,8 @@ From `package:codelessly_api/validate.dart`:
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
-`fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`. Formulas are
+`fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`,
+`set_overwritten`. Links to a screen that is missing are one `unknown_screen` per screen, with how many links name it. Formulas are
 parsed by the SDK's own parser there, so formula syntax errors and unknown names in formulas are reported only by
 the render command.
 
@@ -188,7 +199,25 @@ cannot tell you that a page is ugly. Fix by the JSON pointer each line gives. Ca
 
 The annual price: `--tap billingSwitch --label annual`. An open menu at phone width: `--sizes 390x844 --tap
 menuButton --label menu`. An error state: `--type seats=0 --unfocus --label error`. A value set directly:
-`--set annual=true`.
+`--set annual=true`. A detail page with its parameter: `--navigate speaker?id=ada --full-page`. A reordered list or
+a slider: `--drag handle#0=0,120`, `--drag volume=80,0`. A countdown before the event: `--now
+2026-11-13T09:00:00Z`.
+
+<a id="render-what-a-run-keeps"></a>
+### What a run keeps
+
+Storage, variables and the clipboard live in memory for one run: steps and `--navigate` see what earlier steps
+wrote, and each size starts afresh, as does each run (nothing persists between runs, so a "restored on reload"
+state is captured by writing it first: `--tap save --navigate home`). `downloadFile` saves its file under
+`<out>/downloads/<capture>/` and `copyToClipboard` copies in memory; both are listed in the output and in the
+diagnostics file (`downloads`, `clipboard`). `openLink` opens nothing.
+
+<a id="render-comparing-with-a-reference"></a>
+### Comparing with a reference
+
+`--compare <dir>` picks, for each capture, the PNG of the same size whose name is the screen and the state exactly
+(`section--saved--390x844.png` for `--label saved`, never `section--saved-empty`); with no `--label`, `default` or
+no state. When the reference names a page otherwise, map it: `--compare-map home=index`.
 
 <a id="render-pitfalls"></a>
 ## Pitfalls
@@ -197,6 +226,8 @@ menuButton --label menu`. An error state: `--type seats=0 --unfocus --label erro
   an ancestor clips away.
 - The command does not fetch network images or fonts: pass local files.
 - A `--tap` scrolls the target into view; a `--full-page` capture still starts at the top.
+- Runs on one SDK checkout take turns (each waits for the one before): start several, and they finish one after
+  another.
 
 <a id="render-see-also"></a>
 ## See also

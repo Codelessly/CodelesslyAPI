@@ -573,10 +573,10 @@ void main() {
       expect(suggested({'type': 'downloadFile', 'fileName': 'a.txt', 'content': 'x'}, 'content'), 'text');
     });
 
-    test('copyToClipboard.value is text; setVariable and setStorage op append is insert; if.if is condition', () {
+    test('copyToClipboard.value is text; setVariable and setStorage op append is add (a list appends); if.if is condition', () {
       expect(suggested({'type': 'copyToClipboard', 'value': 'x'}, 'value'), 'text');
-      expect(suggested({'type': 'setVariable', 'variable': 'count', 'op': 'append', 'value': '1'}, 'op'), 'insert');
-      expect(suggested({'type': 'setStorage', 'key': 'k', 'op': 'append', 'value': '1'}, 'op'), 'insert');
+      expect(suggested({'type': 'setVariable', 'variable': 'count', 'op': 'append', 'value': '1'}, 'op'), 'add');
+      expect(suggested({'type': 'setStorage', 'key': 'k', 'op': 'append', 'value': '1'}, 'op'), 'add');
       expect(suggested({'type': 'if', 'if': r'${= count > 1}', 'then': []}, 'if'), 'condition');
     });
 

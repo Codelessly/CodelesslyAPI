@@ -133,9 +133,9 @@ Dark mode, a theme that changes with the screen size, every theme key: [theme](#
 
 `nodes` maps each node's **id** (the map key; do not repeat it inside the node) to the node. A parent lists its
 children's ids in `children`, or names them in `slots`; a child does not name its parent. Every node except a
-canvas has exactly one parent; `roots` lists the canvases, and a canvas is never a child. Ids are any text: use
-short readable ones and keep them unique across a site's documents (actions, diagnostics and the render command
-name nodes by id). A node's main keys: `type`, `layout`, `decoration`, `props` (the type's own parameters),
+canvas has exactly one parent; `roots` lists the canvases, and a canvas is never a child. Ids are any text, and
+**per document**: a page's actions and conditions name its own nodes, a component's ids are its own, and two pages
+may both have a `title`. **Canvas ids are site-wide** (links name screens by them): never repeat one. A node's main keys: `type`, `layout`, `decoration`, `props` (the type's own parameters),
 `children` / `slots`, `bind`, `actions`, `media`, `visible`, `opacity`, `name`.
 
 Which types take children, which take named slots, which take neither:
@@ -441,6 +441,9 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
   "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
   to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `openLink`, `setValue`, `setVariant`, `setVariable`, `callFunction`, `if`, `forEach`, `showToast`, `confirm`, `delay`, `copyToClipboard`, `editText`, `focus`, `controlTrack`, `controlDismissible`, `controlTransform`, `scrollTo`, `animate`, `haptic`, `runScript`, `paginate`, `componentEvent`, `callApi`, `setStorage`, `cloudDocuments`, `loadCloudData`, `reloadCloudData`, `cloudFiles`, `cloudData`, `cloudBatch`, `submitForm`, `auth`, `paywall`, `print`, `preloadImages`, `speak`, `playSound`, `captureScreenshot`, `downloadFile`, `emitEvent`.
+- Keys are exact; validation names the one meant: `{"type": "scrollTo", "node": "faq"}`, `{"type":
+  "copyToClipboard", "text": "${address}"}`, `{"type": "downloadFile", "fileName": "trip.txt", "text": "${brief}"}`;
+  a list appends with `"op": "add"` (`insert` takes an `index`).
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
 - A tap on a control inside a tappable row runs the control's reaction only: to toggle from the whole row, give the
   control `"ignorePointer": true` and bind its value.
@@ -496,7 +499,8 @@ It validates every document strictly, renders each screen at each size (`shots/<
 `shots/diagnostics.json`) and prints one line per problem: a code, the JSON pointer
 (`/nodes/hero-title/props/style/fontSize`) and what to do. It exits 1 on errors. Steps before the capture:
 `--tap <id>` (`<id>#<n>` for the n-th list item), `--hover`, `--focus`, `--type <id>=<text>`,
-`--set <variable>=<json>`, `--scroll <id>=<px>`, `--navigate <canvas>`, `--label <name>`. Look at the
+`--set <variable>=<json>`, `--scroll <id>=<px>`, `--drag <id>=<dx>,<dy>`, `--navigate <canvas>?<param>=<value>`,
+`--label <name>`. Look at the
 screenshots: validation cannot tell you a page is ugly. Every option and diagnostic code: [render](#page-render).
 
 <a id="base-sites-and-components-as-files"></a>
@@ -507,14 +511,16 @@ document with one root and a `widget` declaration of its parameters, slots and e
 `${props.price}`; a page **calls** it with one node of that type (`{"type": "PlanCard", "props": {"price": 47}}`),
 as Flutter builds `PlanCard(price: 47)`. A component never reads its page's variables: pass what it needs as
 parameters, and shared state as a `variable` parameter. A folder with `site.json` (pages, components, theme,
-project variables) is a site.
+project variables) is a site. **Write `site.json` first, with every page listed in `pages`**, before the pages
+that link to them: a link to a page not listed yet is an `unknown_screen` error.
 
 - **List template**: one shape repeated from data in one parent.
 - **Component**: the same structure in two or more places with different values (a card, a chip).
 - **Section**: a top-level band of a page (header, hero, pricing, FAQ, footer), in its own file when it is more
   than about 15 nodes.
 
-Parameter kinds, slots, events, the manifest, rendering one part: [components](#page-components).
+Parameter kinds, slots, events, the manifest, rendering one part: [components](#page-components). A whole site
+(manifest, shared header and footer, route parameters, storage, a modal): [a complete site](#components-a-complete-multi-page-site).
 
 <a id="base-index"></a>
 ## Index
@@ -598,6 +604,9 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | Pass children into a component (slots); events out of it | [components-slots](#components-slots) |
 | The site manifest (`site.json`) | [components-the-site-manifest](#components-the-site-manifest) |
 | Render one component alone | [components-rendering-one-part](#components-rendering-one-part) |
+| A whole multi-page site: manifest first, shared header and footer, route parameters, storage, a modal | [components-a-complete-multi-page-site](#components-a-complete-multi-page-site) |
+| A list kept per page or per item (a key built from `${route.id}`) | [data-storage-on-the-device](#data-storage-on-the-device) |
+| A reading-progress bar driven by the page's scroll | [layout-scroll-progress](#layout-scroll-progress) |
 | A progress bar or ring bound to a value | [charts-progress-from-state](#charts-progress-from-state) |
 | Bar, line and series charts | [charts-charts-from-data](#charts-charts-from-data) |
 | Call an HTTP API and show the result | [data-call-an-api-and-show-the-result](#data-call-an-api-and-show-the-result) |
@@ -722,6 +731,9 @@ section's anchor is its topic.
 | Pass children into a component (slots); events out of it | [components.md#components-slots](#components-slots) |
 | The site manifest (`site.json`) | [components.md#components-the-site-manifest](#components-the-site-manifest) |
 | Render one component alone | [components.md#components-rendering-one-part](#components-rendering-one-part) |
+| A whole multi-page site: manifest first, shared header and footer, route parameters, storage, a modal | [components.md#components-a-complete-multi-page-site](#components-a-complete-multi-page-site) |
+| A list kept per page or per item (a key built from `${route.id}`) | [data.md#data-storage-on-the-device](#data-storage-on-the-device) |
+| A reading-progress bar driven by the page's scroll | [layout.md#layout-scroll-progress](#layout-scroll-progress) |
 | A progress bar or ring bound to a value | [charts.md#charts-progress-from-state](#charts-progress-from-state) |
 | Bar, line and series charts | [charts.md#charts-charts-from-data](#charts-charts-from-data) |
 | Call an HTTP API and show the result | [data.md#data-call-an-api-and-show-the-result](#data-call-an-api-and-show-the-result) |
@@ -737,26 +749,26 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4306 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 6920 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2092 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4401 |
+| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7037 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2156 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3541 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10159 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
-| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6352 |
-| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5120 |
-| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4483 |
-| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2383 |
+| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4166 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6398 |
+| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5162 |
+| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4610 |
+| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3706 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6561 |
-| [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2181 |
+| [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2308 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 468 |
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
-| [media.md](#page-media) | The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images. | 1946 |
+| [media.md](#page-media) | The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images. | 1998 |
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2340 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2753 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13107 |
 
 <a id="index-a-z"></a>
@@ -1627,7 +1639,8 @@ A screen scrolls only if something in it scrolls. Make the canvas's body column 
 true}` with `{"fill": n}` width and height. Without it, content past the bottom of the screen is cut off
 (`offscreen`). Inside a scrolling column, a child cannot `fill` the scrolling axis. Rows scroll sideways with
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
-giving one; `"axis": "horizontal"` moves only sideways scroll views).
+giving one; `"axis": "horizontal"` moves only sideways scroll views): `{"type": "scrollTo", "node": "faq",
+"durationMs": 400}` from a sub-navigation link (the key is `node`, not `target`).
 
 ```json
 {
@@ -1670,14 +1683,30 @@ giving one; `"axis": "horizontal"` moves only sideways scroll views).
 }
 ```
 
+<a id="layout-scroll-progress"></a>
+### Scroll progress
+
+A reading-progress bar on an article or a long page: a `scroll` reaction on the page's scrolling column writes
+`${result.fraction}` (0 at the top, 1 at the end) to a variable, and a `progressBar` (or a box's width factor) is
+bound to it. Put the bar outside the scrolling column (a `stack` over it, or the canvas's `appBar`) so it stays in
+view:
+
+```json
+"actions": [{"trigger": {"type": "scroll"},
+             "actions": [{"type": "setVariable", "variable": "readFraction", "value": "${result.fraction}"}]}]
+```
+
+and on the bar `"bind": {"props.value": "${readFraction}"}`. Per section instead of per page: `viewProgress` on the
+section ([view progress](#animation-reveal-on-scroll-view-progress-sticky-effects)).
+
 <a id="layout-a-sticky-header-or-column"></a>
 ### A sticky header or column
 
 A header that stays at the top while the page scrolls under it: the scrolling column's first child with
 `"sticky": {"offset": 0}` (CSS `position: sticky`); it is drawn above the content and is pushed on by the end of
-its parent. `${sticky.stuck}` is true while it is pinned (bind a shadow or a smaller height to it). In a `--full-page`
-capture a sticky node is drawn where it would pin in each window height (once per 900 px on desktop): check it with
-window captures (`--scroll <scrolling column id>=1200` without `--full-page`). A header fixed to the window instead (it never
+its parent. `${sticky.stuck}` is true while it is pinned (bind a shadow or a smaller height to it). A `--full-page`
+capture draws it once, in its place in the page, as a reader sees it at the top; to see it pinned, capture a window
+scrolled down (`--scroll <scrolling column id>=1200` without `--full-page`). A header fixed to the window instead (it never
 scrolls, and a full-page capture draws it once, at the top): a `stack` filling the canvas body, the scrolling column
 first (with a top spacer of the header's height) and the header after it at `"y": 0`.
 
@@ -2013,6 +2042,14 @@ A control's colours, fonts and shapes that its props leave unset come from the t
 shapes every kind of button and chip, `radius` dialogs, menus and pickers. Without a theme, controls are neutral:
 ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font of
 their own. Nothing comes from Material's defaults (no purple, ripples or elevation) or from the host app's theme.
+
+<a id="theme-spacing-and-radius-scales"></a>
+### Spacing and radius scales
+
+The theme has no spacing or radius tokens for nodes: its `radius` and `buttonRadius` shape controls only. Write
+padding, gaps and corner radii as numbers, or keep a scale as a project variable (`{"name": "space", "type": "map",
+"value": {"sm": 8, "md": 16, "lg": 32}}` in `site.json`) and bind it where it varies: `"bind": {"layout.padding":
+"${space.md}", "props.spacing": "${space.sm}"}`.
 
 <a id="theme-a-type-scale-that-changes-with-the-screen-size"></a>
 ### A type scale that changes with the screen size
@@ -4721,7 +4758,10 @@ screen.
 
 `{"type": "navigate", "to": "<canvas id>"}` pushes the screen; `"mode": "pop"` goes back; `"replace"` and `"reset"`
 replace the history. For a screen with a canvas per breakpoint, name any of them. `"params": {"id": "${item.id}"}`
-passes values the destination reads as `${route.id}`. `transition` picks the animation (`fade`, `slideUp`...).
+passes values the destination reads as `${route.id}`. A link to the screen's path with a query string passes the same
+(`trip?id=coast`), and so does the render command's `--navigate trip?id=coast`. A screen opened without the param
+reads it as empty: give the page a default (`coalesce(find(trips, 'id', route.id), first(trips))`).
+`transition` picks the animation (`fade`, `slideUp`...).
 
 <a id="navigation-modals-and-toasts"></a>
 ### Modals and toasts
@@ -5387,6 +5427,14 @@ checked yet. For anything with a real loop, a script.
 action also takes `when`, the same kind of predicate object (run only while it holds); a trigger's `when` is a
 formula string instead (`"when": "!item.future"`). `forEach` runs a chain per item; `delay` waits.
 
+```json
+{"type": "if", "condition": {"left": "${= contains(saved, trip.id)}", "op": "isTrue"},
+ "then": [{"type": "setVariable", "variable": "saved", "op": "remove", "value": "${trip.id}"}],
+ "else": [{"type": "setVariable", "variable": "saved", "op": "add", "value": "${trip.id}"}]}
+```
+
+The condition is an object, never a formula string: a formula goes in `left` with `"op": "isTrue"`.
+
 <a id="state-setting-several-nodes-with-a-condition"></a>
 ### Setting several nodes with a condition
 
@@ -5971,6 +6019,12 @@ swipes a node away (a list item; the `swipeAction` trigger). `pan` makes a node 
 `transformGesture` pinches, pans and rotates with fling physics. The `drag` trigger reports `${result.dx}`,
 `${result.dy}` per move and `dragEnd` the velocity, for game controls.
 
+<a id="interaction-copy-to-the-clipboard"></a>
+### Copy to the clipboard
+
+`{"type": "copyToClipboard", "text": "${address}"}` (the key is `text`), then the chain goes on: a toast or a
+"Copied" state after it. The render command copies in memory and lists what was copied in its report.
+
 <a id="interaction-keys"></a>
 ### Keys
 
@@ -6409,8 +6463,18 @@ change of `playKey`. A screen-wide animation sits on the canvas.
 <a id="animation-reveal-on-scroll-view-progress-sticky-effects"></a>
 ### Reveal on scroll, view progress, sticky effects
 
-`reveal` plays when the node scrolls into view; `viewProgress` gives `${view.progress}` (0–1 through the viewport)
-to bind to; the `enterViewport` and `exitViewport` triggers run actions.
+An entrance when a node scrolls into view (CSS scroll-reveal) is an **animation with `visibleFraction`**: it waits
+until that share of the node is in view, then plays.
+
+```json
+"animations": [{"id": "enter", "duration": 600, "curve": "easeOut", "visibleFraction": 0.3,
+                "tracks": [{"path": "opacity", "from": 0, "to": 1}, {"path": "motion.translateY", "from": 24, "to": 0}]}]
+```
+
+The `reveal` behavior is not an entrance, despite its name: it **scrolls** the node into view (a chat's newest
+line). `viewProgress` gives `${view.progress}` (0–1 through the viewport) to bind to, for effects that follow the
+scroll; the `enterViewport` and `exitViewport` triggers run actions. A page's reading progress:
+[scroll progress](#layout-scroll-progress).
 
 <a id="animation-shared-elements-hero"></a>
 ### Shared elements (hero)
@@ -6428,6 +6492,10 @@ tag was a moment ago on screen (a picked emoji flying from its picker to its chi
 A canvas's `timer` trigger (`"intervalMs": 1000`, `"when"`: a formula that must hold) runs every interval
 (`${result.tick}` counts); `frame` runs every frame while `when` holds (`${result.dt}` ms since the last), for
 physics and game loops. Keep the state in variables and the work in a script when it has several steps.
+
+A clock written by a timer (`"value": "${= now()}"`) changes in every capture. To check a countdown's states, pin
+the time with the render command's `--now 2026-11-13T09:00:00Z` (`now()` returns it, so the timer writes it); a
+`--set clock=...` also holds against the timer for the capture. No test-only variable is needed.
 
 <a id="animation-pitfalls"></a>
 ## Pitfalls
@@ -6644,6 +6712,376 @@ call is `PlanCard(price: 47, ...)`.
 | `widget.events`, `componentEvent`, the call's `event` reaction | a `ValueChanged<T>` / `VoidCallback` parameter (`onChanged`) |
 | a `variable` parameter | a `ValueNotifier<T>` passed in |
 | `site.json` | the app's `lib/`: its pages and its globals |
+
+<a id="components-a-complete-multi-page-site"></a>
+### A complete multi-page site
+
+A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids
+`unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages. The trip
+page reads its route parameter (`${route.id}`, from `navigate.params` or a link `trip?id=coast`); the saved list is
+restored from storage when the home page loads; the packing list is kept per trip under a key built from the route.
+
+`site.json`:
+
+```json
+{
+  "schema": 3,
+  "pages": ["pages/home.json", "pages/trip.json"],
+  "components": ["components/Header.json", "components/Footer.json"],
+  "theme": {
+    "colors": {
+      "ink": "#FF1B1B1B",
+      "paper": "#FFFAF7F2",
+      "accent": "#FF2F6B4F",
+      "muted": "#FF6B7280",
+      "line": "#FFE5E1D8"
+    },
+    "textStyles": {
+      "body": {"fontSize": 15, "height": 1.4, "color": "ink"},
+      "title": {"from": "body", "fontSize": 28, "fontWeight": 700, "height": 1.2},
+      "link": {"from": "body", "fontWeight": 600, "color": "accent"}
+    }
+  },
+  "variables": [
+    {
+      "name": "trips",
+      "type": "list",
+      "value": [
+        {
+          "id": "alps",
+          "name": "The Alpine Arc",
+          "days": 7,
+          "packing": ["Rail pass", "Rain shell", "Walking boots"]
+        },
+        {"id": "coast", "name": "Coast to Coast", "days": 5, "packing": ["Swimwear", "Sun hat"]}
+      ]
+    },
+    {"name": "saved", "type": "list", "value": []}
+  ]
+}
+```
+
+`components/Header.json` (its About link opens the modal `about`, a canvas of `pages/home.json`; canvas ids are
+site-wide, so any page or component may open it):
+
+```json
+{
+  "schema": 3,
+  "id": "Header",
+  "roots": ["bar"],
+  "widget": {
+    "type": "Header",
+    "doc": "The site's top bar: the name (home) and an About link (a modal).",
+    "props": [{"key": "savedCount", "type": {"kind": "integer", "flutter": "int"}, "default": 0}]
+  },
+  "nodes": {
+    "bar": {
+      "type": "row",
+      "children": ["brand", "count", "about"],
+      "props": {"spacing": 16},
+      "layout": {"width": {"fill": 390}, "height": 56, "padding": [20, 0, 20, 0]},
+      "decoration": {"fills": [{"color": "paper"}], "strokes": [{"color": "line"}], "strokeSides": "bottom"}
+    },
+    "brand": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "Waymark", "style": {"from": "body", "fontWeight": 700}},
+      "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "navigate", "to": "home"}]}]
+    },
+    "count": {
+      "type": "text",
+      "layout": {"width": {"fill": 120}, "height": {"hug": 22}},
+      "props": {"text": "${props.savedCount} saved", "style": {"from": "body", "color": "muted"}, "textAlign": "right"}
+    },
+    "about": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "About", "style": "link"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [{"type": "openModal", "to": "about", "presentation": "dialog"}]
+        }
+      ]
+    }
+  }
+}
+```
+
+`components/Footer.json`:
+
+```json
+{
+  "schema": 3,
+  "id": "Footer",
+  "roots": ["foot"],
+  "widget": {"type": "Footer", "doc": "The site's footer, on every page."},
+  "nodes": {
+    "foot": {
+      "type": "row",
+      "children": ["copy", "all"],
+      "props": {"mainAxisAlignment": "spaceBetween"},
+      "layout": {"width": {"fill": 390}, "height": 64, "padding": [20, 0, 20, 0]},
+      "decoration": {"fills": [{"color": "line"}]}
+    },
+    "copy": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "Waymark, slow travel by rail", "style": {"from": "body", "color": "muted"}}
+    },
+    "all": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "All trips", "style": "link"},
+      "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "navigate", "to": "home"}]}]
+    }
+  }
+}
+```
+
+`pages/home.json`: restores `saved` on `load`, lists the trips from the project variable, links each to `trip`
+with its id, and holds the `about` modal canvas:
+
+```json
+{
+  "schema": 3,
+  "roots": ["home", "about"],
+  "nodes": {
+    "home": {
+      "type": "canvas",
+      "name": "Home",
+      "path": "/",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 844},
+      "decoration": {"fills": [{"color": "paper"}]},
+      "actions": [
+        {
+          "trigger": {"type": "load"},
+          "actions": [{"type": "setVariable", "variable": "saved", "value": "${= coalesce(storage.saved, [])}"}]
+        }
+      ]
+    },
+    "page": {
+      "type": "column",
+      "children": ["header", "main", "footer"],
+      "props": {"scrollable": true},
+      "layout": {"width": {"fill": 390}, "height": {"fill": 844}}
+    },
+    "header": {
+      "type": "Header",
+      "layout": {"width": {"fill": 390}, "height": 56},
+      "bind": {"props.savedCount": "${= length(saved)}"}
+    },
+    "main": {
+      "type": "column",
+      "children": ["title", "tripList"],
+      "props": {"spacing": 16, "crossAxisAlignment": "start"},
+      "layout": {"width": {"fill": 390}, "height": {"hug": 300}, "padding": 20, "constraints": {"maxWidth": 960}}
+    },
+    "title": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 34}},
+      "props": {"text": "Trips by rail", "style": "title"}
+    },
+    "tripList": {
+      "type": "listView",
+      "children": ["tripCard"],
+      "props": {"scrollable": false, "spacing": 12},
+      "layout": {"width": {"fill": 350}, "height": {"hug": 200}},
+      "bind": {"data": "${trips}"}
+    },
+    "tripCard": {
+      "type": "row",
+      "children": ["tripName", "tripDays"],
+      "props": {"mainAxisAlignment": "spaceBetween"},
+      "layout": {"width": {"fill": 350}, "height": 64, "padding": [16, 0, 16, 0]},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}], "strokes": [{"color": "line"}], "radius": 12},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [{"type": "navigate", "to": "trip", "params": {"id": "${item.id}"}}]
+        }
+      ]
+    },
+    "tripName": {
+      "type": "text",
+      "layout": {"width": {"hug": 200}, "height": {"hug": 22}},
+      "props": {"text": "${item.name}", "style": {"from": "body", "fontWeight": 600}}
+    },
+    "tripDays": {
+      "type": "text",
+      "layout": {"width": {"hug": 60}, "height": {"hug": 22}},
+      "props": {"text": "${item.days} days", "style": {"from": "body", "color": "muted"}}
+    },
+    "footer": {"type": "Footer", "layout": {"width": {"fill": 390}, "height": 64}},
+    "about": {
+      "type": "canvas",
+      "name": "About",
+      "slots": {"body": "aboutBody"},
+      "layout": {"width": 320, "height": 180},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}], "radius": 16}
+    },
+    "aboutBody": {
+      "type": "column",
+      "children": ["aboutText", "aboutClose"],
+      "props": {"spacing": 16, "crossAxisAlignment": "start"},
+      "layout": {"width": {"fill": 320}, "height": {"fill": 180}, "padding": 24}
+    },
+    "aboutText": {
+      "type": "text",
+      "layout": {"width": {"fill": 272}, "height": {"hug": 44}},
+      "props": {"text": "Itineraries for travelling slowly by train.", "style": "body"}
+    },
+    "aboutClose": {
+      "type": "filledButton",
+      "layout": {"width": 120, "height": 40},
+      "props": {"label": "Close"},
+      "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "closeModal"}]}]
+    }
+  }
+}
+```
+
+`pages/trip.json`: the trip named by `${route.id}` (the first one when the screen opens without it), a Save button
+that writes the saved list back to storage, and a packing checklist per trip (`setStorage` key
+`packed.${route.id}`, read with `get(storage.packed, route.id)`):
+
+```json
+{
+  "schema": 3,
+  "roots": ["trip"],
+  "variables": {
+    "trip": [
+      {"name": "trip", "type": "map", "formula": "coalesce(find(trips, 'id', route.id), first(trips))"},
+      {"name": "isSaved", "type": "boolean", "formula": "contains(saved, trip.id)"}
+    ]
+  },
+  "nodes": {
+    "trip": {
+      "type": "canvas",
+      "name": "Trip",
+      "path": "/trip",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 844},
+      "decoration": {"fills": [{"color": "paper"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["header", "main", "footer"],
+      "props": {"scrollable": true},
+      "layout": {"width": {"fill": 390}, "height": {"fill": 844}}
+    },
+    "header": {
+      "type": "Header",
+      "layout": {"width": {"fill": 390}, "height": 56},
+      "bind": {"props.savedCount": "${= length(saved)}"}
+    },
+    "main": {
+      "type": "column",
+      "children": ["back", "title", "save", "packTitle", "packList"],
+      "props": {"spacing": 16, "crossAxisAlignment": "start"},
+      "layout": {"width": {"fill": 390}, "height": {"hug": 400}, "padding": 20, "constraints": {"maxWidth": 960}}
+    },
+    "back": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "Back", "style": "link"},
+      "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "navigate", "mode": "pop"}]}]
+    },
+    "title": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 34}},
+      "props": {"text": "${trip.name}", "style": "title"}
+    },
+    "save": {
+      "type": "outlinedButton",
+      "layout": {"width": 160, "height": 40},
+      "props": {"label": "Save trip"},
+      "bind": {"props.label": "${= isSaved ? 'Saved' : 'Save trip'}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "if",
+              "condition": {"left": "${isSaved}", "op": "isTrue"},
+              "then": [{"type": "setVariable", "variable": "saved", "op": "remove", "value": "${trip.id}"}],
+              "else": [{"type": "setVariable", "variable": "saved", "op": "add", "value": "${trip.id}"}]
+            },
+            {"type": "setStorage", "key": "saved", "valueType": "list", "value": "${saved}"},
+            {"type": "showToast", "message": "${= isSaved ? 'Saved' : 'Removed'}"}
+          ]
+        }
+      ]
+    },
+    "packTitle": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "Packing list", "style": {"from": "body", "fontWeight": 700}}
+    },
+    "packList": {
+      "type": "listView",
+      "children": ["packRow"],
+      "props": {"scrollable": false, "spacing": 8},
+      "layout": {"width": {"fill": 350}, "height": {"hug": 120}},
+      "bind": {"data": "${trip.packing}"}
+    },
+    "packRow": {
+      "type": "row",
+      "children": ["packBox", "packName"],
+      "props": {"spacing": 12},
+      "layout": {"width": {"fill": 350}, "height": 32},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "if",
+              "condition": {"left": "${= contains(coalesce(get(storage.packed, route.id), []), item)}", "op": "isTrue"},
+              "then": [
+                {
+                  "type": "setStorage",
+                  "key": "packed.${route.id}",
+                  "valueType": "list",
+                  "op": "remove",
+                  "value": "${item}"
+                }
+              ],
+              "else": [
+                {
+                  "type": "setStorage",
+                  "key": "packed.${route.id}",
+                  "valueType": "list",
+                  "op": "add",
+                  "value": "${item}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "packBox": {
+      "type": "box",
+      "layout": {"width": 20, "height": 20},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}], "strokes": [{"color": "accent"}], "strokeWidth": 2, "radius": 4},
+      "bind": {
+        "decoration.fills[0].color": "${= contains(coalesce(get(storage.packed, route.id), []), item) ? '#FF2F6B4F' : '#FFFFFFFF'}"
+      }
+    },
+    "packName": {
+      "type": "text",
+      "layout": {"width": {"hug": 200}, "height": {"hug": 22}},
+      "props": {"text": "${item}", "style": "body"}
+    },
+    "footer": {"type": "Footer", "layout": {"width": {"fill": 390}, "height": 64}}
+  }
+}
+```
+
+Node ids are per document: both pages have `page`, `header`, `main` and `footer`, and each component its own ids.
+Render it and check each state: `--tap tripCard#1 --tap packRow#0 --tap save --label saved`; `--navigate
+trip?id=coast`; `--tap header/about --label about` (a node in a component instance by its call's id).
 
 <a id="components-when-to-make-what"></a>
 ### When to make what
@@ -7705,8 +8143,20 @@ through the list's `pagination`.
 <a id="data-storage-on-the-device"></a>
 ### Storage on the device
 
-`setStorage` writes `${storage.<key>}` (a key may be a path into a stored map or list; `op` as `setVariable`'s).
-A variable with `"persist": true` is kept on the device too.
+`setStorage` writes `${storage.<key>}` (a key may be a path into a stored map or list; `op` as `setVariable`'s:
+`set`, `add` appends to a list, `insert` puts at an `index`, `remove` takes a value out). A variable with
+`"persist": true` is kept on the device too.
+
+- **Restore on load**: a canvas `load` reaction copies storage into a variable, `{"type": "setVariable",
+  "variable": "saved", "value": "${= coalesce(storage.saved, [])}"}`; write it back after each change with
+  `{"type": "setStorage", "key": "saved", "valueType": "list", "value": "${saved}"}`.
+- **A key per page or item** (a checklist per route): the key is an expression, `"key": "packed.${route.id}"` with
+  `"op": "add"`, `"valueType": "list"`, `"value": "${item}"`; read it with `${= coalesce(get(storage.packed,
+  route.id), [])}`. A persisted variable is one value for every route.
+- The render command keeps storage in memory for one run: steps and `--navigate` see what earlier steps wrote; each
+  size and each run starts empty.
+
+A whole site using both: [a complete site](#components-a-complete-multi-page-site).
 
 <a id="data-submit-a-form"></a>
 ### Submit a form
@@ -8176,6 +8626,13 @@ Exports generated UTF-8 text (CSV, JSON, plain text...) as a file. The browser d
 
 Bind `props.playing` and `props.positionSeconds` to variables to play, pause and seek from buttons; the player's
 `changed` trigger reports `ready`, `error`, the duration and the position.
+
+<a id="media-save-a-file"></a>
+### Save a file
+
+`{"type": "downloadFile", "fileName": "trip.txt", "text": "${brief}", "mimeType": "text/plain"}` offers the text as
+a file (the browser's download, a save dialog elsewhere); `${result.saved}` says whether it was saved. The keys are
+`fileName` and `text` (not `filename`, `content`). The render command saves it under `<out>/downloads/` and lists it.
 
 <a id="media-read-along-text"></a>
 ### Read-along text
@@ -8764,16 +9221,26 @@ strictly, renders each screen with the SDK at each size, writes `shots/<screen>@
 In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is
 scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`,
 `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or
-screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`. A step may name a node by its `name` too. In a site, steps
-name nodes inside components by path (`--tap plans/card1/cta`). `--label <name>` keeps the screenshots and
+screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--navigate <screen>`, `--wait <ms>`. A step
+may name a node by its `name` too. In a site, steps name nodes inside components by path (`--tap plans/card1/cta`)
+and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`). Ids are
+per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
+an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
+component's). A step on a node hidden at one size (a media rule, another breakpoint's canvas) is skipped there with
+a note; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
+params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--navigate /project?id=7`); later steps
+act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
+not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
+navigation first unfocuses a focused text field elsewhere, as a click outside it does. `--label <name>` keeps the screenshots and
 `diagnostics-<name>.json` of each state apart. After each step the page settles before the next one and the capture
 (about a second): an animation shorter than that is over when the screenshot is taken; to see one mid-flight,
 lengthen its duration in a copy. `--key` presses a key for the screen's `keyDown` reactions; it does not submit a
 focused text field (test `submitted` chains through a button). In nested lists `#n` counts the copies across the
 whole repeat, outer item by outer item, from 0: with a 7-day grid per habit, `day#9` is the second habit's third
 day. `--full-page` captures the whole page from its top, its own scroll
-height, with content fixed to the window drawn in the first window; without it the capture is the window where the
-steps left the page. `--fonts <dir>` adds font files; `--component <Type>` and `--components-all` render
+height, as a reader sees it: content fixed to the window and an open modal (with its dimmed backdrop) in the first
+window, a sticky node once in its place, and after a navigation the page navigated to at its own height; without it
+the capture is the window where the steps left the page. `--fonts <dir>` adds font files; `--component <Type>` and `--components-all` render
 components alone.
 
 <a id="render-validation-codes"></a>
@@ -8841,7 +9308,7 @@ From `package:codelessly_api/validate.dart`:
 | `invalid_theme` | error | The site manifest's "theme" is not of the right shape: colors are "#AARRGGBB" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
-| `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
+| `duplicate_id` | warning | The same canvas id in two documents of one project: navigate and openModal name a screen by its canvas id, so a link reaches one of them. Other node ids are per document and may repeat. |
 | `unknown_component` | error | A call names a component type (UpperCamelCase) that no definition of the project declares: it renders as an empty box of its size. |
 | `duplicate_component` | error | Two definitions declare the same component type, or a component type is also a catalog type: there is no shadowing. |
 | `component_cycle` | error | A component calls itself, directly or through other components: it can never finish rendering. |
@@ -8860,7 +9327,8 @@ From `package:codelessly_api/validate.dart`:
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
-`fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`. Formulas are
+`fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`,
+`set_overwritten`. Links to a screen that is missing are one `unknown_screen` per screen, with how many links name it. Formulas are
 parsed by the SDK's own parser there, so formula syntax errors and unknown names in formulas are reported only by
 the render command.
 
@@ -8881,7 +9349,25 @@ cannot tell you that a page is ugly. Fix by the JSON pointer each line gives. Ca
 
 The annual price: `--tap billingSwitch --label annual`. An open menu at phone width: `--sizes 390x844 --tap
 menuButton --label menu`. An error state: `--type seats=0 --unfocus --label error`. A value set directly:
-`--set annual=true`.
+`--set annual=true`. A detail page with its parameter: `--navigate speaker?id=ada --full-page`. A reordered list or
+a slider: `--drag handle#0=0,120`, `--drag volume=80,0`. A countdown before the event: `--now
+2026-11-13T09:00:00Z`.
+
+<a id="render-what-a-run-keeps"></a>
+### What a run keeps
+
+Storage, variables and the clipboard live in memory for one run: steps and `--navigate` see what earlier steps
+wrote, and each size starts afresh, as does each run (nothing persists between runs, so a "restored on reload"
+state is captured by writing it first: `--tap save --navigate home`). `downloadFile` saves its file under
+`<out>/downloads/<capture>/` and `copyToClipboard` copies in memory; both are listed in the output and in the
+diagnostics file (`downloads`, `clipboard`). `openLink` opens nothing.
+
+<a id="render-comparing-with-a-reference"></a>
+### Comparing with a reference
+
+`--compare <dir>` picks, for each capture, the PNG of the same size whose name is the screen and the state exactly
+(`section--saved--390x844.png` for `--label saved`, never `section--saved-empty`); with no `--label`, `default` or
+no state. When the reference names a page otherwise, map it: `--compare-map home=index`.
 
 <a id="render-pitfalls"></a>
 ## Pitfalls
@@ -8890,6 +9376,8 @@ menuButton --label menu`. An error state: `--type seats=0 --unfocus --label erro
   an ancestor clips away.
 - The command does not fetch network images or fonts: pass local files.
 - A `--tap` scrolls the target into view; a `--full-page` capture still starts at the top.
+- Runs on one SDK checkout take turns (each waits for the one before): start several, and they finish one after
+  another.
 
 <a id="render-see-also"></a>
 ## See also

@@ -34,7 +34,10 @@ screen.
 
 `{"type": "navigate", "to": "<canvas id>"}` pushes the screen; `"mode": "pop"` goes back; `"replace"` and `"reset"`
 replace the history. For a screen with a canvas per breakpoint, name any of them. `"params": {"id": "${item.id}"}`
-passes values the destination reads as `${route.id}`. `transition` picks the animation (`fade`, `slideUp`...).
+passes values the destination reads as `${route.id}`. A link to the screen's path with a query string passes the same
+(`trip?id=coast`), and so does the render command's `--navigate trip?id=coast`. A screen opened without the param
+reads it as empty: give the page a default (`coalesce(find(trips, 'id', route.id), first(trips))`).
+`transition` picks the animation (`fade`, `slideUp`...).
 
 ### Modals and toasts
 

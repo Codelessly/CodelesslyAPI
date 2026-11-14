@@ -263,8 +263,8 @@ const Map<String, List<String>> _meantAs = {
   'body': ['text'],
   'value': ['text'],
   'message': ['text'],
-  'append': ['insert'],
-  'push': ['insert'],
+  'append': ['add'],
+  'push': ['add'],
   'prepend': ['insert'],
   'delete': ['remove', 'removeAt'],
   'pop': ['removeAt'],
@@ -283,7 +283,7 @@ const Map<String, List<String>> _meantAs = {
 
 /// The candidate nearest to [word] (case-insensitive edit distance), else
 /// the one an author writing [word] usually means (`target` for `node`,
-/// `append` for `insert`), or null when none is close.
+/// `append` for `add`), or null when none is close.
 String? nearest(String word, Iterable<String> candidates) {
   final spelled = _nearestSpelled(word, candidates);
   if (spelled != null) return spelled;
