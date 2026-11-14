@@ -1,5 +1,8 @@
 ## Unreleased
 
+- **`label` on `checkbox`, `radio` and `switch`**: text beside the control (SSUI's; Flutter has the
+  `*ListTile` widgets for it). Tapping it toggles and it names the control to a screen reader.
+
 - **An expression written where a plain value goes is bound, not rejected.** `"radius": "${theme.radii.panel}"`,
   `"visible": "${step > 0}"`, a non-text prop: `applyOps` moves it into the node's `bind` under the field's path
   and reports `expression_bound` (a note, with the binding written). A path already bound keeps its binding; text

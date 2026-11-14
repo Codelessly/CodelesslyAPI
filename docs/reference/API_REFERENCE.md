@@ -790,7 +790,7 @@ section's anchor is its topic.
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9529 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2906 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12204 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12312 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7875 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6662 |
@@ -3491,6 +3491,7 @@ Flutter `Checkbox`, scaled to its box (40 px is Flutter's own size, 18 px when `
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
+| `label` | String | `""` |  | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
 | `value` | bool | unset |  | Null is the indeterminate state (with `tristate`). |
 | `tristate` | bool | `false` |  |  |
 | `autofocus` | bool | `false` |  |  |
@@ -3517,6 +3518,7 @@ Flutter `Switch`, scaled to its box (59 px wide is Flutter's own size).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
+| `label` | String | `""` |  | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
 | `enabled` | bool | `true` |  | Off, it shows its value but can't be toggled (dimmed, as Flutter's). |
 | `controlled` | bool | `false` |  | It shows only its value: a tap reports the change (`changed`) and the reactions set the value, else it stays (a checkout rule that refuses). |
 | `value` | bool | `false` |  | Whether the switch is on. Bind it to a variable and store the `changed` value in that variable. |
@@ -3555,6 +3557,7 @@ Flutter `Radio<String>`, scaled to its box (32 px is its own size; its ring, 18 
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
+| `label` | String | `""` |  | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
 | `value` | String | `""` |  | The value this radio stands for; it is selected when `groupValue` equals it. |
 | `groupValue` | String | unset |  | The group's selected value; this radio is on when it equals `value`. |
 | `toggleable` | bool | `false` |  |  |

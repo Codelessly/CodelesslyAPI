@@ -200,8 +200,13 @@ abstract final class CheckboxProps {
   /// and sides' widths are node pixels.
   static const compact = PropDef<bool>('compact', Codecs.bool, false);
 
+  /// Text beside it (SSUI's label; Flutter has `CheckboxListTile` for
+  /// this): tapping it toggles too, and it names the control to a screen
+  /// reader. Empty: the bare control.
+  static const label = PropDef<String>('label', Codecs.string, '');
+
   static const spec = WidgetSpec('checkbox', props: [
-    value, tristate, autofocus, checkColor, activeColor, hoverColor, focusColor, splashRadius, borderRadius, side, //
+    label, value, tristate, autofocus, checkColor, activeColor, hoverColor, focusColor, splashRadius, borderRadius, side, //
     activeSide, fillColor, compact,
   ], doc: 'Flutter `Checkbox`.');
 }
@@ -276,8 +281,13 @@ abstract final class SwitchProps {
   /// one. With it the switch is a plain toggle.
   static const thumbRadius = PropDef<double?>('thumbRadius', Codecs.optionalPositive, null);
 
+  /// Text beside it (SSUI's label; Flutter has `CheckboxListTile` for
+  /// this): tapping it toggles too, and it names the control to a screen
+  /// reader. Empty: the bare control.
+  static const label = PropDef<String>('label', Codecs.string, '');
+
   static const spec = WidgetSpec('switch', props: [
-    enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
+    label, enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
     fillTrack, thumbShadows, thumbInset, activeThumbBorderColor, inactiveThumbBorderColor, thumbBorderWidth,
     toggleDurationMs, toggleCurve, trackRadius, thumbRadius,
@@ -310,8 +320,13 @@ abstract final class RadioProps {
   /// checkbox's square does: an 18 px radio is an 18 px ring.
   static const compact = PropDef<bool>('compact', Codecs.bool, false);
 
+  /// Text beside it (SSUI's label; Flutter has `CheckboxListTile` for
+  /// this): tapping it toggles too, and it names the control to a screen
+  /// reader. Empty: the bare control.
+  static const label = PropDef<String>('label', Codecs.string, '');
+
   static const spec = WidgetSpec('radio', props: [
-    value, groupValue, toggleable, autofocus, activeColor, inactiveColor, hoverColor, focusColor, splashRadius, side, //
+    label, value, groupValue, toggleable, autofocus, activeColor, inactiveColor, hoverColor, focusColor, splashRadius, side, //
     innerRadius, backgroundColor, compact,
   ], doc: 'Flutter `Radio`.');
 }
