@@ -181,4 +181,39 @@ Card gap:12
       expect(r.issues, isEmpty, reason: t);
     }
   });
+
+  test('forms models reach for: prices and formulas in text, a growing column, conditions with quotes, headers and tiles', () {
+    final r = _parse('''
+Here is the card:
+state qty=2
+state to=""
+Card
+  Text "Total \${qty*12} for {qty} items"
+  Row
+    Text "A long label that must be able to shrink"
+    Column grow
+      Text "x"
+  Button "Send" enabled:=to!=""&&len(to)>3 -> emit send
+  Accordion "Day 1"
+    Text "Walk"
+  ListTile "Bean There" "0.2 km"
+    Icon "place"
+  Grid cols:3 gap:8
+    Box h:40 fill:#FFEEEEEE
+  Progress 0.4
+  Checkbox "Done" checked:=qty>1
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect((_node(r, 'text1')['props'] as Map)['text'], r'Total $${= qty*12} for ${qty} items');
+    expect((_node(r, 'text2')['layout'] as Map)['squeezable'], true);
+    expect((_node(r, 'column2')['layout'] as Map)['width'], {'fill': 0});
+    final accordion = _node(r, 'accordion1');
+    expect((accordion['children'] as List).length, 2, reason: 'its header text, then its content');
+    final tile = _node(r, 'listTile1');
+    expect((tile['slots'] as Map).keys.toSet(), {'leading', 'title', 'subtitle'});
+    expect((_node(r, 'gridView1')['props'] as Map)['crossAxisCount'], 3);
+    expect((_node(r, 'progressBar1')['props'] as Map)['value'], 0.4);
+    expect((_node(r, 'checkbox1')['bind'] as Map)['props.value'], r'${= qty>1}');
+  });
 }
