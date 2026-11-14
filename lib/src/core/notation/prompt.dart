@@ -3,6 +3,8 @@
 // from the catalog and the notation's own tables, so it cannot name a type
 // or a variant that does not parse.
 import '../catalog.dart';
+import '../design_system.dart';
+import '../props.dart';
 import '../levels.dart';
 import 'notation.dart';
 
@@ -19,8 +21,37 @@ const List<String> notationFunctions = [
 ];
 
 /// The prompt for the notation over [catalog] (its level 0 and 1 types).
-String notationPrompt({Catalog? catalog, NotationOptions options = const NotationOptions()}) {
+///
+/// With a [designSystem], the prompt also lists its components, one line
+/// each, as they are called: the main string when it has one, `=name` when
+/// it keeps a value, its other parameters and what it is for. [only]
+/// narrows the list to those types (a chat that needs a dozen, not all).
+String notationPrompt({
+  Catalog? catalog,
+  NotationOptions options = const NotationOptions(),
+  DesignSystem? designSystem,
+  Set<String>? only,
+}) {
   final c = catalog ?? Catalog.current;
+  final componentLines = designSystem == null
+      ? const <String>[]
+      : [
+          for (final component in designSystem.list)
+            // A name the notation already reads as a core type (Button,
+            // Card, Slider) stays that: listing the component of the same
+            // name would teach parameters the line does not take.
+            if (!notationTypes.containsKey(component.type) &&
+                c.widget('${component.type[0].toLowerCase()}${component.type.substring(1)}') == null)
+              if (only == null || only.contains(component.type)) notationComponentLine(component),
+        ];
+  final components = componentLines.isEmpty
+      ? ''
+      : '''
+
+COMPONENTS (${designSystem!.name}: ready-made, already styled; prefer one of these to building its look from boxes)
+  Written like any node: Name "text" key:value =variable -> action. The quoted names are filled, in order, by the strings you write; a name ending in ! must be given (key:value). =variable is where the component keeps its value (created for you); -> runs when it is used (its first event). Lists are written ["a","b"]. A component with (children) takes lines indented under it.
+${componentLines.map((l) => '  $l').join('\n')}
+''';
   final short = {
     for (final e in notationTypes.entries)
       if (e.key != 'Card' && e.key != 'Image') e.value.type: e.key,
@@ -102,5 +133,28 @@ Card gap:8
     ChoiceChip "Poor" -> choice="poor"
   if choice!=""
     Text.muted "Thanks, you chose {choice}."
-''';
+$components''';
+}
+
+/// How [component] is called in the notation, on one line, with what it is
+/// for: `Stepper =value min max step label enabled -> onChanged : A number
+/// changed one step at a time.`
+String notationComponentLine(DesignSystemComponent component) {
+  final spec = component.spec;
+  final strings = notationStrings(spec);
+  final held = spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ??
+      spec.props.where((p) => p.type.isVariable).firstOrNull;
+  final rest = [
+    for (final p in spec.props)
+      if (!strings.contains(p.key) && p.key != held?.key) p.required ? '${p.key}!' : p.key,
+  ];
+  final parts = [
+    spec.type,
+    for (final k in strings) '"$k"',
+    if (held != null) '=${held.key}',
+    ...rest,
+    if (spec.events.isNotEmpty) '-> ${spec.events.first.key}',
+    if (spec.children == ChildModel.list) '(children)',
+  ];
+  return '${parts.join(' ')} : ${component.purpose}';
 }

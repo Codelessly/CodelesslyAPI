@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/levels.dart';
 import 'package:codelessly_api/notation.dart';
-import 'package:codelessly_api/src/core/notation/prompt.dart' show notationFunctions;
+import 'package:codelessly_api/src/core/notation/prompt.dart' show notationFunctions, notationPrompt;
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
@@ -514,5 +514,132 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
     expect(_problems(r.document), isEmpty);
     expect((_node(r, 'text1')['props'] as Map)['text'], contains('(a*2)>=5'));
     expect((_node(r, 'text1')['props'] as Map)['text'], isNot(contains('total')));
+  });
+
+  group('a design system\'s components', () {
+    Map<String, Object?> component(String type, List<Object?> props, {List<Object?> events = const [], Object width = 100, String? children}) => {
+          'schema': 3,
+          'id': type,
+          'roots': ['r'],
+          'widget': {'type': type, 'doc': 'What a $type is for. More.', 'props': props, 'events': events, if (children != null) 'children': children},
+          'nodes': {
+            'r': {'type': 'column', 'layout': {'width': width, 'height': 28}, if (children != null) 'children': ['c']},
+            if (children != null) 'c': {'type': 'slot'},
+          },
+        };
+    const string = {'kind': 'string', 'flutter': 'String'};
+    const number = {'kind': 'number', 'flutter': 'double'};
+    final files = {
+      'design_system.json': jsonEncode({
+        'id': 'acme',
+        'name': 'Acme',
+        'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
+        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json'],
+      }),
+      'components/StatusPill.json': jsonEncode(component('StatusPill', [
+        {'key': 'label', 'type': string, 'default': 'Status', 'required': true},
+        {'key': 'tone', 'type': string, 'default': 'neutral'},
+      ], events: [
+        {'key': 'onPressed'},
+      ], width: {'hug': 60})),
+      'components/Counter.json': jsonEncode(component('Counter', [
+        {'key': 'value', 'type': {'kind': 'variable', 'flutter': 'double', 'of': number}, 'default': ''},
+        {'key': 'max', 'type': number, 'default': 10},
+      ], events: [
+        {'key': 'onChanged', 'payload': number},
+      ], width: 120)),
+      'components/Frame.json': jsonEncode(component('Frame', [
+        {'key': 'title', 'type': string, 'default': ''},
+      ], width: {'fill': 200}, children: 'list')),
+      'components/Button.json': jsonEncode(component('Button', [
+        {'key': 'label', 'type': string, 'default': 'Button'},
+      ])),
+      'components/Note.json': jsonEncode(component('Note', [
+        {'key': 'title', 'type': string, 'default': ''},
+        {'key': 'message', 'type': string, 'default': '', 'required': true},
+        {'key': 'items', 'type': {'kind': 'list', 'flutter': 'List<String>', 'item': string}, 'default': <Object?>[]},
+      ])),
+    };
+    late DesignSystem ds;
+    late Catalog catalog;
+    setUp(() async {
+      final problems = <String>[];
+      ds = await DesignSystem.load((ref) async => files[ref], problems: problems);
+      expect(problems, isEmpty);
+      catalog = ds.catalogOver(standardCatalog);
+    });
+    NotationResult parse(String text) =>
+        Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+
+    test('are called by name: the string is the label, =name the variable it keeps its value in, -> its first event', () {
+      final r = parse('''
+Column gap:8
+  StatusPill "Paid" tone:success -> emit open
+  Counter =seats max:5
+  Frame "Billing"
+    Text "Inside"
+''');
+      expect(r.issues, isEmpty);
+      final pill = _node(r, 'StatusPill1');
+      expect(pill['type'], 'StatusPill');
+      expect(pill['props'], {'label': 'Paid', 'tone': 'success'});
+      expect(((pill['actions'] as List).single as Map)['trigger'], {'type': 'event', 'event': 'onPressed'});
+      // As big as its own design says: the pill hugs, the counter is 120 wide, the frame fills.
+      expect(pill['layout'], {'width': {'hug': 0}, 'height': 28.0});
+      final counter = _node(r, 'Counter1');
+      expect(counter['props'], {'value': 'seats', 'max': 5});
+      expect((counter['layout'] as Map)['width'], 120.0);
+      expect(r.document['variables'], {
+        'screen': [
+          {'name': 'seats', 'type': 'decimal', 'value': 0},
+        ],
+      });
+      final frame = _node(r, 'Frame1');
+      expect((frame['layout'] as Map)['width'], {'fill': 0});
+      expect(frame['children'], hasLength(1));
+      expect(
+        [
+          for (final d in Catalog.run(catalog, () => validateDocument(r.document, options: ValidateOptions(components: ds.components, theme: ds.tokens))))
+            if (d.severity == Severity.error) '${d.code.name} ${d.path}',
+        ],
+        isEmpty,
+      );
+    });
+
+    test('a parameter a component does not have is named on its line, with what it takes', () {
+      final r = parse('StatusPill "Paid" status:success');
+      expect(r.issues.single.toString(), contains('A StatusPill has no "status". It takes: label, tone.'));
+    });
+
+    test('strings fill a component\'s text parameters in order; one alone goes to the one it needs', () {
+      final two = parse('Note "Heads up" "The build is slow today."');
+      expect(two.issues, isEmpty);
+      expect(_node(two, 'Note1')['props'], {'title': 'Heads up', 'message': 'The build is slow today.'});
+      final one = parse('Note "Saved."');
+      expect(one.issues, isEmpty);
+      expect(_node(one, 'Note1')['props'], {'message': 'Saved.'});
+      final chosen = parse('state ok=true\nNote ok ? "Approved" : "Denied"');
+      expect(chosen.issues, isEmpty);
+      expect((_node(chosen, 'Note1')['bind'] as Map).keys, ['props.message']);
+      final none = parse('Note items:["a"]');
+      expect(none.issues.single.toString(), contains('A Note needs message: write message:"…".'));
+    });
+
+    test('a name the notation already reads as a core type stays that type', () {
+      final r = parse('Button "Save"');
+      expect(_node(r, 'filledButton1')['type'], 'filledButton');
+    });
+
+    test('the prompt lists them as they are called, leaving out the names it reads as core types', () {
+      final prompt = notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds);
+      expect(prompt, contains('COMPONENTS (Acme'));
+      expect(prompt, contains('StatusPill "label" tone -> onPressed : What a StatusPill is for.'));
+      expect(prompt, contains('Counter =value max -> onChanged : What a Counter is for.'));
+      expect(prompt, contains('Note "title" "message" items : What a Note is for.'));
+      expect(prompt, contains('Frame "title" (children) : What a Frame is for.'));
+      expect(prompt, isNot(contains('Button "label" :')));
+      expect(notationPrompt(catalog: catalog, designSystem: ds, only: {'Counter'}), isNot(contains('StatusPill "label"')));
+      expect(notationPrompt(), isNot(contains('COMPONENTS')));
+    });
   });
 }

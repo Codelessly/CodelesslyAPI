@@ -13,6 +13,8 @@ import 'dart:convert';
 
 import '../behaviors.dart' show mergePatch;
 import '../catalog.dart';
+import '../design_system.dart';
+import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
 
@@ -48,7 +50,36 @@ final class NotationOptions {
     this.surface = '#FFFFFFFF',
     this.accent = '#FF2563EB',
     this.track = '#FFE5E7EB',
+    this.components = const {},
   });
+
+  /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
+  /// tokens) and the sizes of its components, so a component called by name
+  /// (`StatusBadge "Paid"`, `Stepper =qty`) is as big as its own design says:
+  /// as wide as its parent, as its content, or a size of its own.
+  factory NotationOptions.fromDesignSystem(DesignSystem designSystem, {double width = 390, String screen = 'screen'}) {
+    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen);
+    Object size(SizeFit fit, double value) => switch (fit) {
+          SizeFit.fill || SizeFit.flexible => {'fill': 0},
+          SizeFit.hug => {'hug': 0},
+          _ => value,
+        };
+    return NotationOptions(
+      width: base.width,
+      screen: base.screen,
+      textStyles: base.textStyles,
+      card: base.card,
+      badges: base.badges,
+      surface: base.surface,
+      accent: base.accent,
+      track: base.track,
+      components: {
+        for (final c in designSystem.list)
+          if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
+            c.type: (width: size(root.layout.width.fit, root.layout.width.value), height: size(root.layout.height.fit, root.layout.height.value)),
+      },
+    );
+  }
 
   /// The looks of a design system's [theme] (its `theme` JSON: `colors`,
   /// `textStyles`, `radii`, the roles): its text styles by name with their
@@ -147,6 +178,10 @@ final class NotationOptions {
 
   /// What a progress bar's fill runs along.
   final String track;
+
+  /// A design system's components by type, each with the width and height
+  /// a call takes when it writes none (a number, `{fill: 0}` or `{hug: 0}`).
+  final Map<String, ({Object width, Object height})> components;
 }
 
 /// SSUI's text styles (design_systems/ssui/design_system.json, `theme
@@ -189,6 +224,22 @@ const Json defaultCard = {
   },
   'layout': {'padding': 12},
 };
+
+/// The text parameters of a component that the strings on its line fill, in
+/// order (at most two): its label, title or text first, then the next of
+/// its message, description and the like; any other text parameter last.
+List<String> notationStrings(WidgetSpec spec) {
+  bool text(PropDef<Object?> p) => p.type.kind == PropKind.string && !p.type.isVariable;
+  const order = ['label', 'title', 'text', 'name', 'message', 'description', 'subtitle', 'code', 'fileName', 'operation', 'note'];
+  final keys = [
+    for (final k in order)
+      if (spec.props.any((p) => p.key == k && text(p))) k,
+  ];
+  if (keys.isEmpty) {
+    keys.addAll([for (final p in spec.props) if (text(p) && p.required) p.key]);
+  }
+  return keys.take(2).toList();
+}
 
 /// Short names: what an agent writes → the node type and what it implies.
 const Map<String, ({String type, Json node})> notationTypes = {
@@ -565,6 +616,13 @@ class _Parser {
     final written = head[1]!, variant = head[2];
     final short = notationTypes[written];
     var type = short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
+    // A design system's component, called by its own name (`StatusBadge`,
+    // `Stepper`): a core type of that name, or a short name, comes first.
+    final component = short == null && catalog.widget(type) == null && catalog.widget(written) != null;
+    if (component) type = written;
+    // The text parameters a component's strings fill, and the ones filled so.
+    var strings = const <String>[];
+    final positional = <String>[];
     final node = <String, Object?>{};
     final props = <String, Object?>{}, layout = <String, Object?>{}, decoration = <String, Object?>{}, bind = <String, Object?>{};
     final reactions = <Json>[];
@@ -614,6 +672,7 @@ class _Parser {
       _issue(column, 'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).');
       return;
     }
+    if (component) strings = notationStrings(spec);
     if (written == 'Card') {
       decoration.addAll(_copy(readMap(options.card['decoration']) ?? const {}));
       layout.addAll(_copy(readMap(options.card['layout']) ?? const {}));
@@ -657,6 +716,11 @@ class _Parser {
       if ((key == 'selected' || key == 'checked') && (type == 'checkbox' || type == 'switch')) return 'props.value';
       if (_layoutKeys.contains(key)) return 'layout.$key';
       if (_decorationKeys.contains(key)) return 'decoration.$key';
+      // A component takes only what it declares: say so here, where the
+      // line is, with what it does take.
+      if (component) {
+        _issue(column, 'A $written has no "$key". It takes: ${spec.props.map((p) => p.key).join(', ')}.');
+      }
       return 'props.$key';
     }
 
@@ -664,13 +728,29 @@ class _Parser {
       t.skipSpace();
       if (t.done) break;
       final col = column + t.at;
-      if (t.peek == '"') {
+      if (t.peek == '"' && component) {
+        // A component's strings fill its text parameters in order.
+        final text = _interpolate(t.string());
+        final key = strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull;
+        if (key == null) {
+          _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key:"value".');
+        } else if (text.contains(r'${')) {
+          bind['props.$key'] = text;
+          positional.add(key);
+        } else {
+          props[key] = text;
+          positional.add(key);
+        }
+      } else if (t.peek == '"') {
         _main(type, spec, t.string(), props, decoration);
       } else if (t.rest.startsWith('->')) {
         t.at += 2;
         final tail = _tail(t);
+        // A component's action runs on its first event (onPressed,
+        // onChanged): what it fires when it is used.
+        final event = component ? spec.events.firstOrNull : null;
         reactions.add({
-          'trigger': {'type': _valueProps.containsKey(type) ? 'changed' : 'click'},
+          'trigger': event != null ? {'type': 'event', 'event': event.key} : {'type': _valueProps.containsKey(type) ? 'changed' : 'click'},
           'actions': _actions(t.rest.substring(0, tail).trim(), col),
         });
         t.at += tail;
@@ -686,7 +766,24 @@ class _Parser {
         t.at++;
         final expr = t.expression().trim();
         final value = _valueProps[type];
-        if (value == null) {
+        // A component keeps its value in the variable its parameter names.
+        final held = !component
+            ? null
+            : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
+        if (held != null) {
+          if (!_identifier.hasMatch(expr) || expr.contains('.')) {
+            _issue(col, 'A $written keeps its ${held.key} in a variable: write =name.');
+          } else {
+            props[held.key] = expr;
+            final (kind, start) = switch (held.type.variableOf?.kind) {
+              PropKind.number || PropKind.integer => ('decimal', 0 as Object),
+              PropKind.boolean => ('boolean', false as Object),
+              PropKind.list => ('list', const <Object?>[] as Object),
+              _ => ('text', '' as Object),
+            };
+            variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
+          }
+        } else if (value == null) {
           final shown = _shownValue[type] ?? _mainKey(type, spec);
           if (written == 'Badge') {
             _texts.add(_read(expr));
@@ -718,7 +815,12 @@ class _Parser {
         // An expression where the string goes (`Button open ? "Hide" : "Show"`).
         final from = t.at;
         final bare = t.expression();
-        final shownKey = _shownValue[type] ?? _mainKey(type, spec);
+        final shownKey = component
+            ? strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull
+            : _shownValue[type] ?? _mainKey(type, spec);
+        if (component && shownKey != null && bare.contains(' ') && bare.contains('?') && !RegExp(r'^[A-Za-z]+:').hasMatch(bare)) {
+          positional.add(shownKey);
+        }
         if (shownKey != null && bare.contains(' ') && bare.contains('?') && !RegExp(r'^[A-Za-z]+:').hasMatch(bare)) {
           bind['props.$shownKey'] = _read(bare.trim());
           continue;
@@ -846,6 +948,28 @@ class _Parser {
     // Sizes not written: in a column a child fills the width and hugs its
     // height; in a row it hugs both; a control hugs.
     final control = _valueProps.containsKey(type) || type.endsWith('Button') || type.endsWith('Chip');
+    if (component) {
+      bool has(String k) => props.containsKey(k) || bind.containsKey('props.$k');
+      for (final p in spec.props) {
+        if (!p.required || has(p.key)) continue;
+        // One string, and the component needs another text than the one it
+        // went to (`Banner "Saved"`: its message, not its title): it is that.
+        final moved = positional.where((k) => !(spec.prop(k)?.required ?? false)).firstOrNull;
+        if (moved != null && strings.contains(p.key)) {
+          if (props.containsKey(moved)) props[p.key] = props.remove(moved);
+          if (bind.containsKey('props.$moved')) bind['props.${p.key}'] = bind.remove('props.$moved');
+          positional.remove(moved);
+          continue;
+        }
+        _issue(column, 'A $written needs ${p.key}: write ${p.key}:${p.type.isVariable ? 'name (a variable), or =name' : p.type.kind == PropKind.list ? '["a","b"]' : p.type.kind == PropKind.string ? '"…"' : 'value'}.');
+      }
+    }
+    // A component is as big as its own design says, unless the line does.
+    if (component) {
+      final own = options.components[type];
+      layout.putIfAbsent('width', () => own?.width ?? {'hug': 0});
+      layout.putIfAbsent('height', () => own?.height ?? {'hug': 0});
+    }
     if (written == 'Image') {
       final url = props.remove('text');
       decoration['fills'] = [
@@ -1187,6 +1311,9 @@ class _Parser {
   String? _mainKey(String type, WidgetSpec spec) {
     if (type == 'box') return 'text';
     if (type == 'dropdown') return 'hint';
+    // A component's main string: its label, title or text, else its first
+    // text parameter.
+    if (type[0].toUpperCase() == type[0]) return notationStrings(spec).firstOrNull;
     for (final k in const ['text', 'label', 'title', 'icon', 'hint']) {
       if (spec.props.any((p) => p.key == k)) return k;
     }
