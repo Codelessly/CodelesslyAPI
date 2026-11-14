@@ -60,8 +60,13 @@ the nine reported nothing the API could not express.
 
 ## 5. What is not finished
 
-- **Control shapes are still Material's.** Colours and fonts no longer are (below), but stadium buttons,
-  underline fields, the switch and chip proportions remain until house shapes come from a design-system pack.
+- **Controls are still Flutter's Material widgets underneath.** Their colours, fonts and shapes are now ours
+  (30.1.0: a neutral theme source, non-Material default shapes, a measured label-centring guard), and a design
+  system as data (SSUI first) supplies a house look. But every recurring defect of this audit's last rounds
+  (seed colours, ripples, minimum heights pushing labels off centre, floating labels, clipped chips) came from a
+  Material widget's own defaults leaking through. The remedy is Milestone 3: no Flutter widgets, each control a
+  render object, with the render objects exposed through the API directly. It is scheduled after the third
+  standalone prompts test.
 - **Gaps the nine builds named that are still open:** pointer position on hover, a clip mask, page-transition
   overlays, focus management (trap, return, skip links), URL history and query state in the browser, Web Share and
   announcements. Each needs a design pass against Flutter's API.
