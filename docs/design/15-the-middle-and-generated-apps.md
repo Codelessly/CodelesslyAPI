@@ -289,6 +289,42 @@ Then generated on the fly, by a model told only about the blocks (nine screens, 
 - **Not run yet**: the cached polish pass; standalone agents on new screens (do the blocks carry a newcomer to
   a designed screen?) and on a restyle (does a new look stay in the design layer?). Their prompts are written.
 
+### 4.4 The session, and what the polish test taught (2026-11-14)
+
+The owner judged the first generated session screens below the bar, and the session designed from scratch as six
+blocks (a dial, a tap pad, a control bar, a big button, a summary, a top bar) at or above it. A model then
+composed those blocks for three people in 4 to 9 seconds, and the screens ran when driven (start, countdown, tap
+count, finish). `CodelesslySDK/examples/prompt_app/README.md` has the images and numbers.
+
+What is now established, each from something built and looked at:
+
+1. **Polish is authored, not generated.** Every screen that met the bar was built from blocks designed whole at
+   the full API. The same model, the same prompt and the same speed gave a plain screen without them and a
+   designed one with them.
+2. **A screen is as designed as its blocks.** So an app's design work is its block set: one focal block per kind
+   of screen, with its states. The session needed six.
+3. **Fixing a draft does not get there.** The render, critique and rewrite pass improved hierarchy and broke
+   contrast and a counter; a restyled playground was rejected and a redesigned one accepted. Design the part
+   whole.
+4. **Behavior that must be right is a constant.** A model asked to write the session's clock wrote one that
+   looked right and ran wrong. The clock is now part of the screen's constants, put before the answer as the
+   data contract is. The model composes the view; the host owns the data, the actions and the logic that cannot
+   be wrong.
+5. **Blocks should own their small interactions.** A block that takes a variable (`TapPad =count`,
+   `SessionControls =paused`) writes it itself, so the model wires nothing and cannot wire it wrong.
+6. **The cost goes down, not up.** Instructions fall from about 11,400 tokens to 5,000 to 6,200 (only the app's
+   blocks are listed), and a screen is 9 to 31 lines.
+7. **Some things are not layouts at all.** Diagrams, math, maps and a voice orb composed from boxes did not meet
+   the bar and are dropped as card types (design 14).
+8. **Where it still leaks.** The notation's `Card` writes a literal fill, so it stays white on a dark token set;
+   a string inside a list literal is not interpolated; a block's first sentence is all the model reads of it,
+   and wrong parameters on blocks caused most retries.
+
+The configuration, restated: **the app's constants are its contract, its screens' prompts, its logic and its
+block set; a person's variables are tokens, audience, tone and emphasis; the model composes blocks in the
+notation.** What remains to prove is that someone who did not build the blocks can use them (the standalone
+experiment), and that a new look stays in the design layer (the restyle experiment).
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
