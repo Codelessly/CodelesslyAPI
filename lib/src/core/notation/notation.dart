@@ -358,18 +358,21 @@ class _Parser {
     if (each != null) {
       if (parent == null) return _issue(column, 'An "each" needs a parent: indent it under a node.');
       // A list over the data, its item a column of the lines under it.
-      final listId = _id('listView'), itemId = '${listId}Item';
+      final g = parent.grid;
+      final listId = _id(g != null ? 'gridView' : 'listView'), itemId = '${listId}Item';
       nodes[listId] = {
-        'type': 'listView',
+        'type': g != null ? 'gridView' : 'listView',
         'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'scrollable': false},
+        // Under a Grid, the repeated lines are its cells.
+        'props': g != null
+            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
+            : {'scrollable': false},
         'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
         'children': <Object?>[itemId],
       };
       final p = nodes[parent.id]!;
       ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(listId);
       _parentOf[listId] = parent.id;
-      if (parent.grid != null) _intoRow(parent.grid!, listId);
       nodes[itemId] = {
         'type': 'column',
         'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
@@ -561,6 +564,9 @@ class _Parser {
         if (key == 'fill') {
           if (raw.startsWith('=')) {
             bind['decoration.fills[0].color'] = _read(raw.substring(1));
+            decoration.putIfAbsent('fills', () => [
+                  {'color': '#00000000'},
+                ]);
           } else {
             decoration['fills'] = [
               {'color': _value(raw)},
@@ -622,6 +628,8 @@ class _Parser {
     // data points.
     if (type == 'barChart' || type == 'lineChart') {
       layout.putIfAbsent('height', () => 140);
+      // The design system's primary, unless a colour is written.
+      props.putIfAbsent(type == 'barChart' ? 'color' : 'lineColor', () => '#FF2563EB');
       if (type == 'lineChart' && props['values'] is List) {
         final values = props.remove('values')! as List;
         props.remove('labels');
@@ -654,7 +662,9 @@ class _Parser {
     final inRow = !cell && parent?.type == 'row';
     if (inRow && type == 'text' && !layout.containsKey('width')) layout['squeezable'] = true;
     if (!layout.containsKey('width')) {
-      final fills = layout.containsKey('flex') || !inRow && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
+      // In a tile's slot (leading, trailing) a child is as wide as it is.
+      final inTile = parent?.type == 'listTile';
+      final fills = layout.containsKey('flex') || !inRow && !inTile && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
       layout['width'] = _size(layout['width']);
@@ -709,7 +719,8 @@ class _Parser {
       final style = options.textStyles[container ? 'body' : i == 0 ? 'strong' : 'muted'];
       nodes[tid] = {
         'type': 'text',
-        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        // In a tile's slot a text is as wide as it is; an accordion's header fills it.
+        'layout': {'width': type == 'listTile' ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
         'props': {'text': texts[i], if (style != null) 'style': style is Map ? _copy(style.cast<String, Object?>()) : style},
       };
       _parentOf[tid] = id;

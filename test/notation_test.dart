@@ -1,10 +1,12 @@
 // The compact notation (docs/design/13-compact-notation.md): what an agent
 // writes for levels 0 to 2 expands to an ordinary document that validates.
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/levels.dart';
 import 'package:codelessly_api/notation.dart';
+import 'package:codelessly_api/src/core/notation/prompt.dart' show notationFunctions;
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
@@ -166,7 +168,12 @@ Card gap:12
 
   test('the prompt is small, and every example in it parses and validates', () {
     final prompt = Catalog.run(standardCatalog, () => notationPrompt(catalog: standardCatalog));
-    expect(prompt.length, lessThan(6000), reason: 'about 1,500 tokens');
+    expect(prompt.length, lessThan(9000), reason: 'about 2,200 tokens');
+    // Every function it names is one the engine has.
+    final engine = {for (final f in (jsonDecode(File('tool/reference/data/formulas.json').readAsStringSync()) as Map)['functions'] as List) (f as Map)['name']};
+    for (final f in notationFunctions) {
+      expect(engine, contains(f.split('(').first), reason: f);
+    }
     final examples = prompt.substring(prompt.indexOf('EXAMPLES') + 9).trim().split(RegExp(r'\n\n+'));
     expect(examples.length, 3);
     for (final e in examples) {
@@ -193,7 +200,7 @@ Card
     Text "A long label that must be able to shrink"
     Column grow
       Text "x"
-  Button "Send" enabled:=to!=""&&len(to)>3 -> emit send
+  Button "Send" enabled:=to!=""&&length(to)>3 -> emit send
   Accordion "Day 1"
     Text "Walk"
   ListTile "Bean There" "0.2 km"
@@ -230,7 +237,7 @@ Card
   each p in people
     Row between
       Text.strong "{p.name}"
-      Text "{p.age} years, people: {len(people)}"
+      Text "{p.age} years, people: {length(people)}"
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -240,6 +247,6 @@ Card
     expect(_node(r, 'listView1Item')['children'], ['row1']);
     expect((_node(r, 'text1')['props'] as Map)['text'], r'${item.name}');
     // Only the element's name is rewritten, not the word inside other names.
-    expect((_node(r, 'text2')['props'] as Map)['text'], r'${item.age} years, people: ${= len(people)}');
+    expect((_node(r, 'text2')['props'] as Map)['text'], r'${item.age} years, people: ${= length(people)}');
   });
 }
