@@ -333,6 +333,60 @@ block set; a person's variables are tokens, audience, tone and emphasis; the mod
 notation.** What remains to prove is that someone who did not build the blocks can use them (the standalone
 experiment), and that a new look stays in the design layer (the restyle experiment).
 
+### 4.5 The six standalone runs (2026-11-14): newcomers with the blocks, and the restyle
+
+Six fresh agents, none of which had seen this work. Their reports and files are on the SDK's branches
+`codex/skip-beginner-default`, `session/kid-pink`, `session/athlete-athlete` (under `experiments/polish/`) and
+`codex/calm-restyle-blocks`, `session/calm-full-restyle`, `experiment/calm-restyle-20261114` (under
+`experiments/restyle/`). The owner reviewed the designs and passed them.
+
+**Newcomers with the blocks** (five screens each, for one person and token set):
+
+| | Result |
+|---|---|
+| Validation errors met, all three agents | 0 |
+| Block parameters guessed wrong | 0, 0 and 1 (a `TimePicker` binding) |
+| Reference pages opened | none: the notation's instructions, DESIGN.md and PATTERNS.md were enough |
+| Lines of notation per screen | 14 to 44 |
+| Session (blocks exist) | Designed, and ran when driven, in all three |
+| First run, achievements (a block for the focal part) | Designed |
+| Weekly plan (blocks for the top only) | Partly designed |
+| Settings (no block) | Plain, in all three |
+
+All three ranked their screens the same way and for the same reason: the screens with an illustrated focal block
+were designed, the ones built from rows and fields were not. All three asked for the same two blocks: a planned
+day (day, session, done, swap) and a settings panel. This is the rule of §4.4 found again by people who were not
+told it.
+
+**The restyle to "Calm"** (flat, sage, square, hairlines; the question was how much of it stays out of the
+screens):
+
+| Starting point | Screen lines changed | Token lines | Component lines | Why the screens changed |
+|---|---|---|---|---|
+| Notation with blocks | 2 (a brand label, as content) | 408 | 546 across 17 blocks | Nothing in layout: zero geometry or layout lines |
+| Notation a model wrote (blocks plus plain notation) | 28 | 145 | 512 across 18 blocks | Plain `Card`, `Text.*` and the canvas were expanded to literal colors, radii and weights |
+| Full documents, no components | 253 | 299 | none | Gradients, blur, borders and two weights are literals on the nodes |
+
+What this establishes:
+
+1. **Layout and style are apart at the screen, when the screen is made of blocks.** A new look changed no
+   layout line. This is the separation the owner asked to see proven.
+2. **Style is not yet apart from structure inside a block.** A token can recolor a gradient's stops; it cannot
+   make it flat, remove a blur, add a border, or change a weight or a radius written as a number. So a restyle
+   this different was a new set of 17 block files, not a token set. The agents' common proposal: a **surface
+   style token**, one named decoration (paint kind, stroke, effects, radius) that a node binds whole, and text
+   in custom paint that names a text style.
+3. **Plain notation leaks the look into the screen.** `Card`, `Text.*`, `Progress` and the canvas write literal
+   values at expansion, so they do not follow a token set or a new design system (a purple bar under the pink
+   set; dark ink on the athlete's dark page; white cards). They should write the token's name.
+4. **A hand-built full document carries half its restyle in the screen** (253 of 552 lines), which is the cost
+   blocks remove.
+
+Smaller findings: the reference says a site's component of the same type wins over the design system's, and the
+validator rejects it as a duplicate (three agents); the render tool has no way to show what a screen emitted;
+a sample list in the contract makes a first-run screen hard to show without `--set`; a week strip given every
+past session marks last week's days.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
