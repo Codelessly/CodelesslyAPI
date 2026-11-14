@@ -7939,19 +7939,6 @@
                   },
                   "scaleDown": {
                     "type": "boolean"
-                  },
-                  "countUp": {
-                    "type": "boolean"
-                  },
-                  "countUpDuration": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "countUpCurve": {
-                    "$ref": "#/$defs/enum.AnimationCurve"
-                  },
-                  "countUpOnShow": {
-                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -9196,20 +9183,6 @@
                       }
                     ]
                   },
-                  "selectedRowEdgeColor": {
-                    "anyOf": [
-                      {
-                        "$ref": "#/$defs/value.Color"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "selectedRowEdgeWidth": {
-                    "type": "number",
-                    "minimum": 0.0
-                  },
                   "stretchLastColumn": {
                     "type": "boolean"
                   }
@@ -9447,39 +9420,11 @@
                     "type": "string"
                   },
                   "markdown": {},
-                  "highlightStart": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "highlightEnd": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "highlightStyle": {
-                    "anyOf": [
-                      {
-                        "$ref": "#/$defs/model.TextStyle"
-                      },
-                      {
-                        "type": [
-                          "string",
-                          "boolean",
-                          "number"
-                        ]
-                      }
-                    ]
+                  "runs": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/model.TextRun"
+                    }
                   }
                 },
                 "additionalProperties": false
@@ -10117,9 +10062,6 @@
                       }
                     ]
                   },
-                  "deriveOverlayColorFromThumb": {
-                    "type": "boolean"
-                  },
                   "activeTickMarkColor": {
                     "anyOf": [
                       {
@@ -10247,16 +10189,6 @@
                     "type": "number",
                     "minimum": 0.0
                   },
-                  "thumbGripColor": {
-                    "anyOf": [
-                      {
-                        "$ref": "#/$defs/value.Color"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
                   "thumbGlowColor": {
                     "anyOf": [
                       {
@@ -10305,32 +10237,6 @@
                   "fillFromEnd": {
                     "type": "boolean"
                   },
-                  "activeTrackStartOpacity": {
-                    "type": "number",
-                    "minimum": 0.0,
-                    "maximum": 1.0
-                  },
-                  "markerValue": {
-                    "anyOf": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "markerColor": {
-                    "$ref": "#/$defs/value.Color"
-                  },
-                  "markerWidth": {
-                    "type": "number",
-                    "minimum": 0.0
-                  },
-                  "markerHeight": {
-                    "type": "number",
-                    "minimum": 0.0
-                  },
                   "selectableMin": {
                     "anyOf": [
                       {
@@ -10345,34 +10251,6 @@
                     "anyOf": [
                       {
                         "type": "number"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "rulerTicks": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "rulerMajorEvery": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "rulerTickColor": {
-                    "anyOf": [
-                      {
-                        "$ref": "#/$defs/value.Color"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "rulerMinorTickColor": {
-                    "anyOf": [
-                      {
-                        "$ref": "#/$defs/value.Color"
                       },
                       {
                         "type": "null"
@@ -10921,9 +10799,6 @@
                         ]
                       }
                     ]
-                  },
-                  "displayFormat": {
-                    "type": "string"
                   },
                   "displayText": {
                     "type": "string"

@@ -24,7 +24,7 @@ import '../core/catalog.dart';
 import '../core/catalog_json.dart' show widgetSpecFromJson;
 import '../core/custom_paint.dart' show Expr;
 import '../core/document.dart';
-import '../core/migrate/legacy_paths.dart' show movedPathHint;
+import '../core/migrate/legacy_paths.dart' show movedPathHint, specialCaseProps;
 import '../core/scripts.dart';
 import '../core/sections.dart';
 import '../core/site_fonts.dart';
@@ -598,6 +598,16 @@ final class _Validator {
         'picker reads; renamed after 30.1.0)',
   };
 
+  /// The node type each of [specialCaseProps] belonged to.
+  static const _specialCaseTypes = {
+    'countUp': 'text', 'countUpDuration': 'text', 'countUpCurve': 'text', 'countUpOnShow': 'text', //
+    'rulerTicks': 'slider', 'rulerMajorEvery': 'slider', 'rulerTickColor': 'slider', 'rulerMinorTickColor': 'slider',
+    'markerValue': 'slider', 'markerColor': 'slider', 'markerWidth': 'slider', 'markerHeight': 'slider',
+    'activeTrackStartOpacity': 'slider', 'thumbGripColor': 'slider', 'deriveOverlayColorFromThumb': 'slider',
+    'highlightStart': 'textField', 'highlightEnd': 'textField', 'highlightStyle': 'textField',
+    'selectedRowEdgeColor': 'tableView', 'selectedRowEdgeWidth': 'tableView', 'displayFormat': 'dateTimeInput',
+  };
+
   /// Where a misplaced key goes: `props.text`, `layout.width`...
   String? _whereKeyBelongs(String k, WidgetSpec? spec) {
     if (k == 'scale') return 'motion.scale';
@@ -1048,6 +1058,10 @@ final class _Validator {
       if (def == null) {
         if (_propsMovedIn301[(n.type, e.key)] case final String moved) {
           r.add(Codes.unknownProp, p, 'A ${n.type} has no prop "${e.key}" since 30.1.0: $moved.');
+          continue;
+        }
+        if (specialCaseProps[e.key] case final String instead when _specialCaseTypes[e.key] == n.type) {
+          r.add(Codes.unknownProp, p, 'A ${n.type} has no prop "${e.key}" (a special case, removed after 30.1.0): it is $instead.');
           continue;
         }
         final where = LayoutFields.all.any((f) => f.key == e.key)

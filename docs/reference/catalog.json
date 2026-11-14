@@ -957,40 +957,6 @@
           "default": false,
           "nullable": false,
           "doc": "Shrinks the whole text to fit its width, keeping its lines (`FittedBox(fit: BoxFit.scaleDown)`)."
-        },
-        {
-          "key": "countUp",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "A number in the text (after binding: \"1,204\", \"\\$12.50\", \"87%\") counts up to each new value in a running app, from the value on screen; the characters around it, its decimals and its thousands separators stay. A design canvas (or TickerMode off) shows the final text."
-        },
-        {
-          "key": "countUpDuration",
-          "type": "int",
-          "kind": "integer",
-          "default": 500,
-          "nullable": false,
-          "min": 0,
-          "doc": "Milliseconds of one count."
-        },
-        {
-          "key": "countUpCurve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": "linear",
-          "nullable": false,
-          "enum": "AnimationCurve",
-          "doc": "The curve a number in the text counts up along when it changes."
-        },
-        {
-          "key": "countUpOnShow",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "The first value counts up from 0 when the text first shows; off, it shows at rest and only later changes count."
         }
       ],
       "docs": "theme.md#node-text"
@@ -2799,7 +2765,7 @@
           "kind": "integer",
           "default": -1,
           "nullable": false,
-          "doc": "The selected body row (bind it), -1 for none: drawn in `selectedRowColor` with a `selectedRowEdgeWidth` edge at its start in `selectedRowEdgeColor`."
+          "doc": "The selected body row (bind it), -1 for none: drawn in `selectedRowColor`. More of its look (an edge at its start) is the `cell` template's `selected` state style, with `selected` bound to `${= item.rowIndex == <the selected row>}`."
         },
         {
           "key": "selectedRowColor",
@@ -2807,23 +2773,6 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "selectedRowEdgeColor",
-          "type": "Color",
-          "kind": "value",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "selectedRowEdgeWidth",
-          "type": "double",
-          "kind": "number",
-          "default": 4,
-          "nullable": false,
-          "min": 0.0,
           "doc": ""
         },
         {
@@ -3189,29 +3138,15 @@
           "doc": "Markdown highlighting of the typed text."
         },
         {
-          "key": "highlightStart",
-          "type": "int",
-          "kind": "integer",
-          "default": null,
-          "nullable": true,
-          "doc": "Characters `highlightStart` (0-based) up to `highlightEnd` (exclusive) are drawn in `highlightStyle` over the field's style, e.g. the place a syntax error was found. Null or an empty range highlights nothing."
-        },
-        {
-          "key": "highlightEnd",
-          "type": "int",
-          "kind": "integer",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "highlightStyle",
-          "type": "TextStyle",
-          "kind": "object",
-          "default": {},
+          "key": "runs",
+          "type": "List<TextRun>",
+          "kind": "list",
+          "default": [],
           "nullable": false,
-          "object": "TextStyle",
-          "doc": ""
+          "item": "TextRun",
+          "itemKind": "object",
+          "item_object": "TextRun",
+          "doc": "Styled ranges over the typed text, merged over `style`, as a text's `runs` are over its text (Flutter's `TextEditingController.buildTextSpan`): a syntax error's place drawn in red. A range past the text's end is cut at it; while a word is being composed the text is drawn plain."
         }
       ],
       "docs": "forms.md#node-textField"
@@ -3805,14 +3740,6 @@
           "doc": ""
         },
         {
-          "key": "deriveOverlayColorFromThumb",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "A bound thumb color tints the overlay too."
-        },
-        {
           "key": "activeTickMarkColor",
           "type": "Color",
           "kind": "value",
@@ -3979,14 +3906,6 @@
           "doc": ""
         },
         {
-          "key": "thumbGripColor",
-          "type": "Color",
-          "kind": "value",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
           "key": "thumbGlowColor",
           "type": "Color",
           "kind": "value",
@@ -4081,50 +4000,6 @@
           "doc": "The active track runs from the thumb to the end."
         },
         {
-          "key": "activeTrackStartOpacity",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": "The active track fades in from this opacity at its start."
-        },
-        {
-          "key": "markerValue",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "A marker drawn across the track at this value."
-        },
-        {
-          "key": "markerColor",
-          "type": "Color",
-          "kind": "value",
-          "default": "#FFFFFFFF",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "markerWidth",
-          "type": "double",
-          "kind": "number",
-          "default": 2,
-          "nullable": false,
-          "min": 0.0,
-          "doc": ""
-        },
-        {
-          "key": "markerHeight",
-          "type": "double",
-          "kind": "number",
-          "default": 14,
-          "nullable": false,
-          "min": 0.0,
-          "doc": ""
-        },
-        {
           "key": "selectableMin",
           "type": "double",
           "kind": "number",
@@ -4136,40 +4011,6 @@
           "key": "selectableMax",
           "type": "double",
           "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "rulerTicks",
-          "type": "int",
-          "kind": "integer",
-          "default": 20,
-          "nullable": false,
-          "min": 1,
-          "doc": "A ruler track's divisions (ticks at both ends and between)."
-        },
-        {
-          "key": "rulerMajorEvery",
-          "type": "int",
-          "kind": "integer",
-          "default": 5,
-          "nullable": false,
-          "min": 1,
-          "doc": "Every this many ticks, a long one."
-        },
-        {
-          "key": "rulerTickColor",
-          "type": "Color",
-          "kind": "value",
-          "default": null,
-          "nullable": true,
-          "doc": "A ruler's long ticks and baseline (default black) and short ticks (default the long ticks' color)."
-        },
-        {
-          "key": "rulerMinorTickColor",
-          "type": "Color",
-          "kind": "value",
           "default": null,
           "nullable": true,
           "doc": ""
@@ -4690,7 +4531,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": "How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is `displayFormat`, else Material's localized date and time."
+          "doc": "How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is Material's localized date and time."
         },
         {
           "key": "style",
@@ -4743,14 +4584,6 @@
           "nullable": false,
           "object": "InputDecoration",
           "doc": "The field's look, as a text field's (fill, borders, icons, hint, error); empty keeps the outlined default. Its hint and suffix icon win over `hint` and `icon`."
-        },
-        {
-          "key": "displayFormat",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": "An older name for `format` (a `formatDate` pattern, `EEE, MMM d · h:mm a`), read when `format` is unset."
         },
         {
           "key": "displayText",
@@ -23702,7 +23535,7 @@
       },
       {
         "value": "rectangle",
-        "doc": "A rectangle of `SliderProps.thumbSize` with an optional border and grip."
+        "doc": "A rectangle of `SliderProps.thumbSize` with an optional border."
       },
       {
         "value": "pointer",
@@ -23734,7 +23567,7 @@
       },
       {
         "value": "ruler",
-        "doc": "A ruler: a strip in the inactive track color with `SliderProps.rulerTicks` ticks (every `SliderProps.rulerMajorEvery`th long), and the active color filled from zero (or the minimum) to the value. It spans the slider's whole width."
+        "doc": "A ruler: a strip in the inactive track color, and the active color filled from zero (or the minimum) to the value under it. It spans the slider's whole width. Its ticks are drawn with the node's `customPaint` (the `painter` draws over the track: `size` is the slider's box)."
       }
     ],
     "SliderValueIndicatorShape": [

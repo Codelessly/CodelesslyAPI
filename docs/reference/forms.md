@@ -265,9 +265,7 @@ Flutter `TextField` (a `TextFormField` when it validates).
 | `inputFormatter` | Object | `{}` |  | The input formatter (`{"type": "none"\|"email"\|"phone"\|..., ...}`). |
 | `validator` | String | `""` |  | Flutter's TextFormField.validator: an expression reading the text as `value`, giving the error or "" when valid. |
 | `markdown` | Object | unset |  | Markdown highlighting of the typed text. |
-| `highlightStart` | int | unset |  | Characters `highlightStart` (0-based) up to `highlightEnd` (exclusive) are drawn in `highlightStyle` over the field's style, e.g. the place a syntax error was found. Null or an empty range highlights nothing. |
-| `highlightEnd` | int | unset |  |  |
-| `highlightStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
+| `runs` | List<[TextRun](theme.md#type-TextRun)> | `[]` |  | Styled ranges over the typed text, merged over `style`, as a text's `runs` are over its text (Flutter's `TextEditingController.buildTextSpan`): a syntax error's place drawn in red. A range past the text's end is cut at it; while a word is being composed the text is drawn plain. |
 
 <a id="node-checkbox"></a>
 ### `checkbox`
@@ -386,7 +384,6 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `secondaryActiveTrackColor` | [Color](values.md#type-Color) | unset |  |  |
 | `thumbColor` | [Color](values.md#type-Color) | unset |  |  |
 | `overlayColor` | [Color](values.md#type-Color) | unset |  |  |
-| `deriveOverlayColorFromThumb` | bool | `true` |  | A bound thumb color tints the overlay too. |
 | `activeTickMarkColor` | [Color](values.md#type-Color) | unset |  |  |
 | `inactiveTickMarkColor` | [Color](values.md#type-Color) | unset |  |  |
 | `valueIndicatorColor` | [Color](values.md#type-Color) | unset |  |  |
@@ -403,7 +400,6 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `thumbStrokeWidth` | double | `0` | ≥ 0 |  |
 | `thumbBorderColor` | [Color](values.md#type-Color) | unset |  |  |
 | `thumbBorderWidth` | double | `2` | ≥ 0 |  |
-| `thumbGripColor` | [Color](values.md#type-Color) | unset |  |  |
 | `thumbGlowColor` | [Color](values.md#type-Color) | unset |  | A blurred glow behind the thumb. |
 | `thumbGlowBlur` | double | `8` | ≥ 0 |  |
 | `thumbGlowSpread` | double | `6` | ≥ 0 |  |
@@ -414,17 +410,8 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `orientation` | [Axis](values.md#enum-Axis) | `"horizontal"` | `horizontal`, `vertical` | Vertical runs bottom (min) to top (max). |
 | `inverted` | bool | `false` |  | Runs from the end (right, or top when vertical) instead. |
 | `fillFromEnd` | bool | `false` |  | The active track runs from the thumb to the end. |
-| `activeTrackStartOpacity` | double | `1` | ≥ 0, ≤ 1 | The active track fades in from this opacity at its start. |
-| `markerValue` | double | unset |  | A marker drawn across the track at this value. |
-| `markerColor` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `markerWidth` | double | `2` | ≥ 0 |  |
-| `markerHeight` | double | `14` | ≥ 0 |  |
 | `selectableMin` | double | unset |  | The part of the track the thumb can be dragged within. |
 | `selectableMax` | double | unset |  |  |
-| `rulerTicks` | int | `20` | ≥ 1 | A ruler track's divisions (ticks at both ends and between). |
-| `rulerMajorEvery` | int | `5` | ≥ 1 | Every this many ticks, a long one. |
-| `rulerTickColor` | [Color](values.md#type-Color) | unset |  | A ruler's long ticks and baseline (default black) and short ticks (default the long ticks' color). |
-| `rulerMinorTickColor` | [Color](values.md#type-Color) | unset |  |  |
 
 <a id="node-dropdown"></a>
 ### `dropdown`
@@ -568,14 +555,13 @@ An outlined `InputDecorator` showing a date, time or both, that opens the picker
 | `min` | String | unset |  | The earliest and latest values accepted. |
 | `max` | String | unset |  |  |
 | `enabled` | bool | `true` |  |  |
-| `format` | String | unset |  | How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is `displayFormat`, else Material's localized date and time. |
+| `format` | String | unset |  | How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is Material's localized date and time. |
 | `style` | [TextStyle](theme.md#type-TextStyle) | `{}` |  | The value's text style. |
 | `hint` | String | unset |  | Shown while empty (null: "Select date" / "Select time"). |
 | `hintStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `icon` | [InputIcon](forms.md#type-InputIcon) | unset |  | The icon after the value (null: a calendar or clock). |
 | `bare` | bool | `false` |  | Only the value and its icon, no Material field around them: the node's own fill, border and padding make the box. |
 | `decoration` | [InputDecoration](forms.md#type-InputDecoration) | `{}` |  | The field's look, as a text field's (fill, borders, icons, hint, error); empty keeps the outlined default. Its hint and suffix icon win over `hint` and `icon`. |
-| `displayFormat` | String | `""` |  | An older name for `format` (a `formatDate` pattern, `EEE, MMM d · h:mm a`), read when `format` is unset. |
 | `displayText` | String | `""` |  | Shown instead of the formatted value when set (bind it: "Now · 1:20 PM"). |
 | `picker` | [DateTimeInputPicker](values.md#enum-DateTimeInputPicker) | `"dialog"` | `dialog`, `none` |  |
 

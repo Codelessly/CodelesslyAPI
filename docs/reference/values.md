@@ -1310,7 +1310,7 @@ Written as the value's name, a JSON string (`"center"`).
 |---|---|
 | `circle` | `RoundSliderThumbShape(enabledThumbRadius: thumbRadius)`. |
 | `roundedRect` | A rounded rectangle of `SliderProps.thumbSize`. |
-| `rectangle` | A rectangle of `SliderProps.thumbSize` with an optional border and grip. |
+| `rectangle` | A rectangle of `SliderProps.thumbSize` with an optional border. |
 | `pointer` | A drafting ruler's index: a hairline across the track and a triangle pointing up at it from below, in the thumb color, outlined in `SliderProps.thumbStrokeColor` (default black). |
 
 <a id="enum-SliderTickMarkStyle"></a>
@@ -1329,7 +1329,7 @@ Written as the value's name, a JSON string (`"center"`).
 | `rectangle` |  |
 | `roundedRectangle` |  |
 | `gapped` |  |
-| `ruler` | A ruler: a strip in the inactive track color with `SliderProps.rulerTicks` ticks (every `SliderProps.rulerMajorEvery`th long), and the active color filled from zero (or the minimum) to the value. It spans the slider's whole width. |
+| `ruler` | A ruler: a strip in the inactive track color, and the active color filled from zero (or the minimum) to the value under it. It spans the slider's whole width. Its ticks are drawn with the node's `customPaint` (the `painter` draws over the track: `size` is the slider's box). |
 
 <a id="enum-SliderValueIndicatorShape"></a>
 ### SliderValueIndicatorShape

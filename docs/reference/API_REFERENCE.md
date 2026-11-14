@@ -781,10 +781,10 @@ section's anchor is its topic.
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4705 |
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8938 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2674 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2551 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11428 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6857 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11225 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6854 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4166 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |
@@ -799,7 +799,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2904 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13286 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13299 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -2390,10 +2390,6 @@ Flutter `Text.rich`.
 | `overflow` | [TextOverflow](#enum-TextOverflow) | `"clip"` | `clip`, `fade`, `ellipsis`, `visible` | What shows where the text is cut by `maxLines` or the node's size (Flutter's `TextOverflow`): `clip`, `fade`, `ellipsis`, `visible`. |
 | `selectable` | bool | `false` |  | The user can select and copy the text (Flutter's `SelectableText`). |
 | `scaleDown` | bool | `false` |  | Shrinks the whole text to fit its width, keeping its lines (`FittedBox(fit: BoxFit.scaleDown)`). |
-| `countUp` | bool | `false` |  | A number in the text (after binding: "1,204", "\$12.50", "87%") counts up to each new value in a running app, from the value on screen; the characters around it, its decimals and its thousands separators stay. A design canvas (or TickerMode off) shows the final text. |
-| `countUpDuration` | int | `500` | ≥ 0 | Milliseconds of one count. |
-| `countUpCurve` | [AnimationCurve](#enum-AnimationCurve) | `"linear"` |  | The curve a number in the text counts up along when it changes. |
-| `countUpOnShow` | bool | `true` |  | The first value counts up from 0 when the text first shows; off, it shows at rest and only later changes count. |
 
 <a id="behavior-textDirection"></a>
 ### `textDirection` (behavior)
@@ -3389,9 +3385,7 @@ Flutter `TextField` (a `TextFormField` when it validates).
 | `inputFormatter` | Object | `{}` |  | The input formatter (`{"type": "none"\|"email"\|"phone"\|..., ...}`). |
 | `validator` | String | `""` |  | Flutter's TextFormField.validator: an expression reading the text as `value`, giving the error or "" when valid. |
 | `markdown` | Object | unset |  | Markdown highlighting of the typed text. |
-| `highlightStart` | int | unset |  | Characters `highlightStart` (0-based) up to `highlightEnd` (exclusive) are drawn in `highlightStyle` over the field's style, e.g. the place a syntax error was found. Null or an empty range highlights nothing. |
-| `highlightEnd` | int | unset |  |  |
-| `highlightStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
+| `runs` | List<[TextRun](#type-TextRun)> | `[]` |  | Styled ranges over the typed text, merged over `style`, as a text's `runs` are over its text (Flutter's `TextEditingController.buildTextSpan`): a syntax error's place drawn in red. A range past the text's end is cut at it; while a word is being composed the text is drawn plain. |
 
 <a id="node-checkbox"></a>
 ### `checkbox`
@@ -3510,7 +3504,6 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `secondaryActiveTrackColor` | [Color](#type-Color) | unset |  |  |
 | `thumbColor` | [Color](#type-Color) | unset |  |  |
 | `overlayColor` | [Color](#type-Color) | unset |  |  |
-| `deriveOverlayColorFromThumb` | bool | `true` |  | A bound thumb color tints the overlay too. |
 | `activeTickMarkColor` | [Color](#type-Color) | unset |  |  |
 | `inactiveTickMarkColor` | [Color](#type-Color) | unset |  |  |
 | `valueIndicatorColor` | [Color](#type-Color) | unset |  |  |
@@ -3527,7 +3520,6 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `thumbStrokeWidth` | double | `0` | ≥ 0 |  |
 | `thumbBorderColor` | [Color](#type-Color) | unset |  |  |
 | `thumbBorderWidth` | double | `2` | ≥ 0 |  |
-| `thumbGripColor` | [Color](#type-Color) | unset |  |  |
 | `thumbGlowColor` | [Color](#type-Color) | unset |  | A blurred glow behind the thumb. |
 | `thumbGlowBlur` | double | `8` | ≥ 0 |  |
 | `thumbGlowSpread` | double | `6` | ≥ 0 |  |
@@ -3538,17 +3530,8 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `orientation` | [Axis](#enum-Axis) | `"horizontal"` | `horizontal`, `vertical` | Vertical runs bottom (min) to top (max). |
 | `inverted` | bool | `false` |  | Runs from the end (right, or top when vertical) instead. |
 | `fillFromEnd` | bool | `false` |  | The active track runs from the thumb to the end. |
-| `activeTrackStartOpacity` | double | `1` | ≥ 0, ≤ 1 | The active track fades in from this opacity at its start. |
-| `markerValue` | double | unset |  | A marker drawn across the track at this value. |
-| `markerColor` | [Color](#type-Color) | `"#FFFFFFFF"` |  |  |
-| `markerWidth` | double | `2` | ≥ 0 |  |
-| `markerHeight` | double | `14` | ≥ 0 |  |
 | `selectableMin` | double | unset |  | The part of the track the thumb can be dragged within. |
 | `selectableMax` | double | unset |  |  |
-| `rulerTicks` | int | `20` | ≥ 1 | A ruler track's divisions (ticks at both ends and between). |
-| `rulerMajorEvery` | int | `5` | ≥ 1 | Every this many ticks, a long one. |
-| `rulerTickColor` | [Color](#type-Color) | unset |  | A ruler's long ticks and baseline (default black) and short ticks (default the long ticks' color). |
-| `rulerMinorTickColor` | [Color](#type-Color) | unset |  |  |
 
 <a id="node-dropdown"></a>
 ### `dropdown`
@@ -3692,14 +3675,13 @@ An outlined `InputDecorator` showing a date, time or both, that opens the picker
 | `min` | String | unset |  | The earliest and latest values accepted. |
 | `max` | String | unset |  |  |
 | `enabled` | bool | `true` |  |  |
-| `format` | String | unset |  | How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is `displayFormat`, else Material's localized date and time. |
+| `format` | String | unset |  | How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is Material's localized date and time. |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  | The value's text style. |
 | `hint` | String | unset |  | Shown while empty (null: "Select date" / "Select time"). |
 | `hintStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `icon` | [InputIcon](#type-InputIcon) | unset |  | The icon after the value (null: a calendar or clock). |
 | `bare` | bool | `false` |  | Only the value and its icon, no Material field around them: the node's own fill, border and padding make the box. |
 | `decoration` | [InputDecoration](#type-InputDecoration) | `{}` |  | The field's look, as a text field's (fill, borders, icons, hint, error); empty keeps the outlined default. Its hint and suffix icon win over `hint` and `icon`. |
-| `displayFormat` | String | `""` |  | An older name for `format` (a `formatDate` pattern, `EEE, MMM d · h:mm a`), read when `format` is unset. |
 | `displayText` | String | `""` |  | Shown instead of the formatted value when set (bind it: "Now · 1:20 PM"). |
 | `picker` | [DateTimeInputPicker](#enum-DateTimeInputPicker) | `"dialog"` | `dialog`, `none` |  |
 
@@ -4684,10 +4666,8 @@ Flutter's `TableView` (two_dimensional_scrollables): a table that scrolls on bot
 | `headerBorderColor` | [Color](#type-Color) | unset |  | A line under the header row only. |
 | `headerBorderWidth` | double | `1` | ≥ 0 |  |
 | `rowHoverColor` | [Color](#type-Color) | unset |  | A body row's background while the pointer is over it. |
-| `selectedRow` | int | `-1` |  | The selected body row (bind it), -1 for none: drawn in `selectedRowColor` with a `selectedRowEdgeWidth` edge at its start in `selectedRowEdgeColor`. |
+| `selectedRow` | int | `-1` |  | The selected body row (bind it), -1 for none: drawn in `selectedRowColor`. More of its look (an edge at its start) is the `cell` template's `selected` state style, with `selected` bound to `${= item.rowIndex == <the selected row>}`. |
 | `selectedRowColor` | [Color](#type-Color) | unset |  |  |
-| `selectedRowEdgeColor` | [Color](#type-Color) | unset |  |  |
-| `selectedRowEdgeWidth` | double | `4` | ≥ 0 |  |
 | `stretchLastColumn` | bool | `false` |  | The last column takes the width the columns leave over, so the ruled rows run to the table's edge. |
 
 <a id="node-listTile"></a>
@@ -11744,7 +11724,7 @@ Written as the value's name, a JSON string (`"center"`).
 |---|---|
 | `circle` | `RoundSliderThumbShape(enabledThumbRadius: thumbRadius)`. |
 | `roundedRect` | A rounded rectangle of `SliderProps.thumbSize`. |
-| `rectangle` | A rectangle of `SliderProps.thumbSize` with an optional border and grip. |
+| `rectangle` | A rectangle of `SliderProps.thumbSize` with an optional border. |
 | `pointer` | A drafting ruler's index: a hairline across the track and a triangle pointing up at it from below, in the thumb color, outlined in `SliderProps.thumbStrokeColor` (default black). |
 
 <a id="enum-SliderTickMarkStyle"></a>
@@ -11763,7 +11743,7 @@ Written as the value's name, a JSON string (`"center"`).
 | `rectangle` |  |
 | `roundedRectangle` |  |
 | `gapped` |  |
-| `ruler` | A ruler: a strip in the inactive track color with `SliderProps.rulerTicks` ticks (every `SliderProps.rulerMajorEvery`th long), and the active color filled from zero (or the minimum) to the value. It spans the slider's whole width. |
+| `ruler` | A ruler: a strip in the inactive track color, and the active color filled from zero (or the minimum) to the value under it. It spans the slider's whole width. Its ticks are drawn with the node's `customPaint` (the `painter` draws over the track: `size` is the slider's box). |
 
 <a id="enum-SliderValueIndicatorShape"></a>
 ### SliderValueIndicatorShape

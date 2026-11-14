@@ -312,8 +312,9 @@ final class AnimationTrack extends _Value {
 
   /// The track's value at controller value [v], with [own] the property's
   /// value, and [begin]/[end] standing in for [from]/[to] (resolved
-  /// expressions).
-  Object? valueAt(double v, {Object? own, Object? begin, Object? end}) {
+  /// expressions). [text]: the value is a text's (a number in it counts,
+  /// [lerpValue]).
+  Object? valueAt(double v, {Object? own, Object? begin, Object? end, bool text = false}) {
     final u = local(v);
     final identity = blend.identity;
     final start = begin ?? from ?? identity ?? own;
@@ -328,14 +329,14 @@ final class AnimationTrack extends _Value {
       return base + (span == null ? sum : (span - base) * sum);
     }
     if (keyframes.isNotEmpty) {
-      return interpolation == KeyframeInterpolation.monotoneCubic ? monotoneAt(u, start, stop) : sequenceAt(u, start, stop);
+      return interpolation == KeyframeInterpolation.monotoneCubic ? monotoneAt(u, start, stop) : sequenceAt(u, start, stop, text: text);
     }
-    return lerpValue(start, stop, u);
+    return lerpValue(start, stop, u, text: text);
   }
 
   /// `TweenSequence` through [keyframes] from [start] at 0 to [stop] at 1;
   /// a keyframe at 0 or 1 gives that end.
-  Object? sequenceAt(double u, Object? start, Object? stop) {
+  Object? sequenceAt(double u, Object? start, Object? stop, {bool text = false}) {
     final points = <(double, Object?, AnimationCurve)>[(0, start, AnimationCurve.linear)];
     final sorted = [...keyframes]..sort((a, b) => a.at.compareTo(b.at));
     var end = (1.0, stop, AnimationCurve.linear);
@@ -355,7 +356,7 @@ final class AnimationTrack extends _Value {
       if (u <= t1) {
         final (t0, v0, _) = points[i - 1];
         final s = t1 <= t0 ? 1.0 : (u - t0) / (t1 - t0);
-        return lerpValue(v0, v1, c.transform(s));
+        return lerpValue(v0, v1, c.transform(s), text: text);
       }
     }
     return points.last.$2;
@@ -432,7 +433,19 @@ final class AnimationTrack extends _Value {
   /// [a] to [b] at [t]: numbers interpolate, past the ends too when [t]
   /// overshoots (`Tween<double>`); colors interpolate within them
   /// (`ColorTween`); anything else switches at the end.
-  static Object? lerpValue(Object? a, Object? b, double t) {
+  ///
+  /// A text that holds a number at the end ([b]: "1,204", "\$12.50", "87%";
+  /// a bare number written as text, "1204", only when [text]: the value is
+  /// a text's) counts: the number goes from [a]'s (a number, or the first
+  /// number in a text) to its own, written as [b] writes it (the characters
+  /// around it, its decimals, its thousands separators), at every [t], 0
+  /// too ([NumberInText]). A transition or a track on a text's
+  /// `props.text` counts its number up to each new value.
+  static Object? lerpValue(Object? a, Object? b, double t, {bool text = false}) {
+    if (b is String && (a is num || a is String) && (text || double.tryParse(b.trim()) == null)) {
+      final end = NumberInText.parse(b), start = a is num ? a.toDouble() : NumberInText.parse(a as String)?.value;
+      if (end != null && start != null && start.isFinite) return t == 1 ? b : end.format(start + (end.value - start) * t);
+    }
     final x = readDouble(a), y = readDouble(b);
     if (x != null && y != null) return t == 0 ? a : (t == 1 ? b : x + (y - x) * t);
     if (t <= 0 && a != null) return a;
@@ -751,4 +764,52 @@ final class NodeAnimation extends _Value {
         id, preset, params, enabled, duration, reverseDuration, delay, curve, repeat, autoplay, playKey, paused, //
         phase, spring, progress, alignment, tracks, previewAt, ramp, visibleFraction,
       ];
+}
+
+// --- a number in a text -----------------------------------------------------------
+
+/// The first number in a text ("1,204", "-3.5", "\$12.50" → 12.50) and how
+/// it is written: what is around it, its decimals and whether its thousands
+/// are grouped. A text's number counts ([AnimationTrack.lerpValue]): each
+/// value between is written the same way ([format]).
+@immutable
+final class NumberInText {
+  const NumberInText(this.prefix, this.value, this.suffix, {required this.decimals, required this.grouped});
+
+  final String prefix, suffix;
+  final double value;
+  final int decimals;
+  final bool grouped;
+
+  static final _pattern = RegExp(r'-?\d{1,3}(?:,\d{3})+(?:\.\d+)?|-?\d+(?:\.\d+)?');
+
+  /// The number in [text], or null when it has none.
+  static NumberInText? parse(String text) {
+    final m = _pattern.firstMatch(text);
+    if (m == null) return null;
+    final raw = m[0]!;
+    final value = double.tryParse(raw.replaceAll(',', ''));
+    if (value == null || !value.isFinite) return null;
+    final dot = raw.indexOf('.');
+    return NumberInText(text.substring(0, m.start), value, text.substring(m.end),
+        decimals: dot < 0 ? 0 : raw.length - dot - 1, grouped: raw.contains(','));
+  }
+
+  /// The text with [v] in place of the number, written the same way.
+  String format(double v) {
+    final fixed = v.abs().toStringAsFixed(decimals);
+    final dot = fixed.indexOf('.');
+    var whole = dot < 0 ? fixed : fixed.substring(0, dot);
+    final fraction = dot < 0 ? '' : fixed.substring(dot);
+    if (grouped) {
+      final b = StringBuffer();
+      for (var i = 0; i < whole.length; i++) {
+        if (i > 0 && (whole.length - i) % 3 == 0) b.write(',');
+        b.write(whole[i]);
+      }
+      whole = b.toString();
+    }
+    final negative = v < 0 && (whole + fraction).contains(RegExp('[1-9]'));
+    return '$prefix${negative ? '-' : ''}$whole$fraction$suffix';
+  }
 }

@@ -647,12 +647,11 @@ abstract final class TableViewProps {
   static const rowHoverColor = PropDef<Color?>('rowHoverColor', _optionalColor, null);
 
   /// The selected body row (bind it), -1 for none: drawn in
-  /// [selectedRowColor] with a [selectedRowEdgeWidth] edge at its start in
-  /// [selectedRowEdgeColor].
+  /// [selectedRowColor]. More of its look (an edge at its start) is the
+  /// `cell` template's `selected` state style, with `selected` bound to
+  /// `${= item.rowIndex == <the selected row>}`.
   static const selectedRow = PropDef<int>('selectedRow', Codecs.int, -1);
   static const selectedRowColor = PropDef<Color?>('selectedRowColor', _optionalColor, null);
-  static const selectedRowEdgeColor = PropDef<Color?>('selectedRowEdgeColor', _optionalColor, null);
-  static const selectedRowEdgeWidth = PropDef<double>('selectedRowEdgeWidth', Codecs.positive, 4);
 
   /// The last column takes the width the columns leave over, so the ruled
   /// rows run to the table's edge.
@@ -666,8 +665,7 @@ abstract final class TableViewProps {
       columns, rowCount, rowHeight, rowHeightKey, headerHeight, columnWidth, rowHeaderWidth, fillWidth, //
       pinHeaderRow, pinHeaderColumn,
       gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, horizontalPadding,
-      headerBorderColor, headerBorderWidth, rowHoverColor, selectedRow, selectedRowColor, selectedRowEdgeColor,
-      selectedRowEdgeWidth, stretchLastColumn,
+      headerBorderColor, headerBorderWidth, rowHoverColor, selectedRow, selectedRowColor, stretchLastColumn,
     ],
     children: ChildModel.slots,
     slots: [cell, columnHeader, rowHeader, corner],

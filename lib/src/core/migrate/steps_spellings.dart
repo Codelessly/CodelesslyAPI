@@ -10,10 +10,12 @@
 import '../json.dart';
 import '../node_patch.dart' show mergeNodePatch;
 import '../behaviors.dart' show diffPatch;
+import 'legacy_paths.dart' show movedSpecialPath, movedPathHint;
 import 'legacy_read.dart';
 import 'migrate.dart';
 import 'steps_hero.dart';
 import 'steps_paint.dart';
+import 'steps_special.dart';
 import 'steps_transform.dart';
 
 /// The node steps of 30.1.0, in order. A one-way step that rewrites
@@ -26,10 +28,12 @@ import 'steps_transform.dart';
 /// against the nodes as they are before the paint node steps rewrite them;
 /// what it leaves in a patch the paint node steps no longer change.
 final List<MigrationStep> spellingSteps = [
+  ...specialCaseDocumentSteps,
   transformFoldStep,
   heroFlightStep,
   movedPathsStep,
   renamedPropsStep,
+  ...specialCaseSteps,
   ...paintSteps,
 ];
 
@@ -82,6 +86,16 @@ final Map<String, String> movedSpellings = {
   'props.path': 'props.data',
   // renamedPropsStep.
   'props.use24h': 'props.alwaysUse24HourFormat',
+  // specialCaseSteps: the last special-case fields, said generally.
+  for (final k in ['countUp', 'countUpDuration', 'countUpCurve', 'countUpOnShow']) 'props.$k': 'transitions',
+  for (final k in [
+    'rulerTicks', 'rulerMajorEvery', 'rulerTickColor', 'rulerMinorTickColor', 'markerValue', 'markerColor', //
+    'markerWidth', 'markerHeight', 'activeTrackStartOpacity', 'thumbGripColor',
+  ])
+    'props.$k': 'customPaint',
+  'props.deriveOverlayColorFromThumb': 'props.overlayColor',
+  for (final k in ['highlightStart', 'highlightEnd', 'highlightStyle']) 'props.$k': 'props.runs',
+  'props.displayFormat': 'props.format',
 };
 
 /// The steps of 30.1.0, in order: [spellingSteps], then the patches
@@ -129,6 +143,14 @@ final List<MigrationStep> spellingMigrationSteps = [
       return ('hero.flightShuttle', value);
     case 'props.use24h':
       return ('props.alwaysUse24HourFormat', value);
+    case 'props.displayFormat':
+      return ('props.format', value);
+    case 'props.highlightStart' || 'props.highlightEnd':
+      return ('props.runs[0].${path == 'props.highlightStart' ? 'start' : 'end'}', value);
+    case _ when movedSpecialPath(path):
+      s.behaviourChange('It sets "$path", which is gone: it now sets nothing.', path: where, old: value,
+          instead: movedPathHint(path) ?? '');
+      return null;
     case _ when path == 'flight' || path.startsWith('flight.'):
       return ('hero.$path', value);
   }

@@ -152,20 +152,19 @@ abstract final class TextFieldProps {
   /// Markdown highlighting of the typed text.
   static const markdown = PropDef<Json?>('markdown', InputCodecs.json, null);
 
-  /// Characters [highlightStart] (0-based) up to [highlightEnd] (exclusive)
-  /// are drawn in [highlightStyle] over the field's style, e.g. the place a
-  /// syntax error was found. Null or an empty range highlights nothing.
-  static const highlightStart = PropDef<int?>('highlightStart', OptionalIntCodec(), null);
-  static const highlightEnd = PropDef<int?>('highlightEnd', OptionalIntCodec(), null);
-  static const highlightStyle = PropDef<TextStyle>('highlightStyle', Codecs.textStyle, TextStyle.empty);
+  /// Styled ranges over the typed text, merged over [style], as a text's
+  /// `runs` are over its text (Flutter's
+  /// `TextEditingController.buildTextSpan`): a syntax error's place drawn in
+  /// red. A range past the text's end is cut at it; while a word is being
+  /// composed the text is drawn plain.
+  static const runs = PropDef<List<TextRun>>('runs', Codecs.textRuns, []);
 
   static const spec = WidgetSpec('textField', props: [
     initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, //
     textInputAction, textCapitalization, autocorrect, autofocus, enableInteractiveSelection, enabled, obscureText,
     obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength,
     maxLines, minLines, expands, selectionHeightStyle, selectionWidthStyle, autofillHints, autovalidateMode,
-    selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown, highlightStart,
-    highlightEnd, highlightStyle,
+    selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown, runs,
   ], doc: 'Flutter `TextField`.');
 }
 
@@ -330,7 +329,7 @@ enum SliderThumbShape {
   /// A rounded rectangle of [SliderProps.thumbSize].
   roundedRect,
 
-  /// A rectangle of [SliderProps.thumbSize] with an optional border and grip.
+  /// A rectangle of [SliderProps.thumbSize] with an optional border.
   rectangle,
 
   /// A drafting ruler's index: a hairline across the track and a triangle
@@ -345,10 +344,11 @@ enum SliderTrackShape {
   roundedRectangle,
   gapped,
 
-  /// A ruler: a strip in the inactive track color with [SliderProps.rulerTicks]
-  /// ticks (every [SliderProps.rulerMajorEvery]th long), and the active
-  /// color filled from zero (or the minimum) to the value. It spans the
-  /// slider's whole width.
+  /// A ruler: a strip in the inactive track color, and the active color
+  /// filled from zero (or the minimum) to the value under it. It spans the
+  /// slider's whole width. Its ticks are drawn with the node's
+  /// `customPaint` (the `painter` draws over the track: `size` is the
+  /// slider's box).
   ruler,
 }
 
@@ -394,8 +394,6 @@ abstract final class SliderProps {
   static const thumbColor = PropDef<Color?>('thumbColor', Codecs.color, null);
   static const overlayColor = PropDef<Color?>('overlayColor', Codecs.color, null);
 
-  /// A bound thumb color tints the overlay too.
-  static const deriveOverlayColorFromThumb = PropDef<bool>('deriveOverlayColorFromThumb', Codecs.bool, true);
   static const activeTickMarkColor = PropDef<Color?>('activeTickMarkColor', Codecs.color, null);
   static const inactiveTickMarkColor = PropDef<Color?>('inactiveTickMarkColor', Codecs.color, null);
   static const valueIndicatorColor = PropDef<Color?>('valueIndicatorColor', Codecs.color, null);
@@ -411,17 +409,6 @@ abstract final class SliderProps {
   static const trackShape = PropDef<SliderTrackShape?>('trackShape', EnumCodec(SliderTrackShape.values), null);
   static const thumbShape = PropDef<SliderThumbShape>('thumbShape', EnumCodec(SliderThumbShape.values), SliderThumbShape.circle);
 
-  /// A ruler track's divisions (ticks at both ends and between).
-  static const rulerTicks = PropDef<int>('rulerTicks', IntCodec(min: 1), 20);
-
-  /// Every this many ticks, a long one.
-  static const rulerMajorEvery = PropDef<int>('rulerMajorEvery', IntCodec(min: 1), 5);
-
-  /// A ruler's long ticks and baseline (default black) and short ticks
-  /// (default the long ticks' color).
-  static const rulerTickColor = PropDef<Color?>('rulerTickColor', Codecs.color, null);
-  static const rulerMinorTickColor = PropDef<Color?>('rulerMinorTickColor', Codecs.color, null);
-
   /// A circle thumb's radius.
   static const thumbRadius = PropDef<double>('thumbRadius', Codecs.positive, 10);
 
@@ -432,7 +419,6 @@ abstract final class SliderProps {
   static const thumbStrokeWidth = PropDef<double>('thumbStrokeWidth', Codecs.positive, 0);
   static const thumbBorderColor = PropDef<Color?>('thumbBorderColor', Codecs.color, null);
   static const thumbBorderWidth = PropDef<double>('thumbBorderWidth', Codecs.positive, 2);
-  static const thumbGripColor = PropDef<Color?>('thumbGripColor', Codecs.color, null);
 
   /// A blurred glow behind the thumb.
   static const thumbGlowColor = PropDef<Color?>('thumbGlowColor', Codecs.color, null);
@@ -453,29 +439,18 @@ abstract final class SliderProps {
   /// The active track runs from the thumb to the end.
   static const fillFromEnd = PropDef<bool>('fillFromEnd', Codecs.bool, false);
 
-  /// The active track fades in from this opacity at its start.
-  static const activeTrackStartOpacity = PropDef<double>('activeTrackStartOpacity', DoubleCodec(min: 0, max: 1), 1);
-
-  /// A marker drawn across the track at this value.
-  static const markerValue = PropDef<double?>('markerValue', Codecs.double, null);
-  static const markerColor = PropDef<Color>('markerColor', Codecs.color, Color.white);
-  static const markerWidth = PropDef<double>('markerWidth', Codecs.positive, 2);
-  static const markerHeight = PropDef<double>('markerHeight', Codecs.positive, 14);
-
   /// The part of the track the thumb can be dragged within.
   static const selectableMin = PropDef<double?>('selectableMin', Codecs.double, null);
   static const selectableMax = PropDef<double?>('selectableMax', Codecs.double, null);
 
   static const spec = WidgetSpec('slider', props: [
     value, min, max, divisions, label, labelFractionDigits, autofocus, secondaryTrackValue, padding, trackHeight, //
-    activeTrackColor, inactiveTrackColor, secondaryActiveTrackColor, thumbColor, overlayColor,
-    deriveOverlayColorFromThumb, activeTickMarkColor,
+    activeTrackColor, inactiveTrackColor, secondaryActiveTrackColor, thumbColor, overlayColor, activeTickMarkColor,
     inactiveTickMarkColor, valueIndicatorColor, valueIndicatorTextStyle, showValueIndicator, valueIndicatorShape,
     overlayRadius, trackShape, thumbShape, thumbRadius, thumbSize, thumbCornerRadius, thumbStrokeColor,
-    thumbStrokeWidth, thumbBorderColor, thumbBorderWidth, thumbGripColor, thumbGlowColor, thumbGlowBlur,
+    thumbStrokeWidth, thumbBorderColor, thumbBorderWidth, thumbGlowColor, thumbGlowBlur,
     thumbGlowSpread, showThumb, tickMarkRadius, tickMarkStyle, notchEvery, orientation, inverted, fillFromEnd,
-    activeTrackStartOpacity, markerValue, markerColor, markerWidth, markerHeight, selectableMin, selectableMax,
-    rulerTicks, rulerMajorEvery, rulerTickColor, rulerMinorTickColor,
+    selectableMin, selectableMax,
   ], doc: 'Flutter `Slider`.');
 }
 
@@ -632,7 +607,7 @@ abstract final class DateTimeInputProps {
   static const decoration = PropDef<InputDecoration>('decoration', InputCodecs.decoration, InputDecoration.empty);
 
   /// How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is
-  /// [displayFormat], else Material's localized date and time.
+  /// Material's localized date and time.
   static const format = PropDef<String?>('format', Codecs.optionalString, null);
 
   /// The value's text style.
@@ -649,10 +624,6 @@ abstract final class DateTimeInputProps {
   /// own fill, border and padding make the box.
   static const bare = PropDef<bool>('bare', Codecs.bool, false);
 
-  /// An older name for [format] (a `formatDate` pattern, `EEE, MMM d · h:mm a`),
-  /// read when [format] is unset.
-  static const displayFormat = PropDef<String>('displayFormat', Codecs.string, '');
-
   /// Shown instead of the formatted value when set (bind it: "Now · 1:20 PM").
   static const displayText = PropDef<String>('displayText', Codecs.string, '');
   static const picker = PropDef<DateTimeInputPicker>(
@@ -661,7 +632,7 @@ abstract final class DateTimeInputProps {
   static const spec = WidgetSpec('dateTimeInput',
       props: [
         mode, value, labelText, firstDate, lastDate, min, max, enabled, format, style, hint, hintStyle, icon, bare,
-        decoration, displayFormat, displayText, picker,
+        decoration, displayText, picker,
       ],
       decorated: true,
       doc: 'Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.');
