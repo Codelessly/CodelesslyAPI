@@ -282,6 +282,11 @@ Column gap:8
     expect(target['dropTarget'], {'accepts': ['todo', 'doing']});
     expect(((target['actions'] as List).single as Map)['trigger'], {'type': 'drop'});
     expect((_node(_parse('Column\n  Input "Age" type:number\n'), 'textField1')['props'] as Map)['keyboardType'], 'number');
+    // A state started from state already declared is that value, and its own.
+    final started = _parse('state today={"work":40,"rest":20}\nstate left=today.work\nstate phase=work\nColumn\n  Text "{left}"\n');
+    final vars = {for (final v in ((started.document['variables'] as Map)['screen'] as List)) (v as Map)['name']: v};
+    expect(vars['left'], {'name': 'left', 'type': 'integer', 'value': 40});
+    expect(vars['phase']!['value'], 'work');
     final bad = _parse('Column\n  Card drag:"a b"\n  Card drop:1x -> x=1\n');
     expect(bad.issues.map((i) => i.message), [contains('drag is written'), contains('drop is written')]);
   });
