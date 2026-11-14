@@ -791,7 +791,7 @@ section's anchor is its topic.
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8938 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2856 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11630 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11813 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4201 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
@@ -3257,6 +3257,7 @@ Flutter `FilledButton`: the primary action, filled with the theme's `primary`. W
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 | `tonal` | bool | `false` |  | `FilledButton.tonal`. |
 
 <a id="node-elevatedButton"></a>
@@ -3279,6 +3280,7 @@ Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled 
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-outlinedButton"></a>
 ### `outlinedButton`
@@ -3300,6 +3302,7 @@ Flutter `OutlinedButton`: a hairline border. With nothing styled it is the defau
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-textButton"></a>
 ### `textButton`
@@ -3321,6 +3324,7 @@ Flutter `TextButton`: no fill or border. With nothing styled it is the default (
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-iconButton"></a>
 ### `iconButton`
@@ -3338,6 +3342,7 @@ Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the 
 | `enabled` | bool | `true` |  |  |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`. |
 | `autofocus` | bool | `false` |  |  |
+| `loading` | bool | `false` |  |  |
 
 <a id="node-floatingActionButton"></a>
 ### `floatingActionButton`
@@ -4417,9 +4422,10 @@ on a control inside a tappable row otherwise runs the control's own reaction onl
 <a id="forms-buttons"></a>
 ### Buttons
 
-Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label` and `style`.
-Their label text is 12 px unless `style.textStyle.fontSize` says otherwise. Give buttons a fixed or fill width. For
-full control of a button's look (two lines, an icon after the label), use a `row` with a decoration, padding, text
+Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label`, `icon` and
+`style`. With no layout they hug: 28 high, padded, the label 12 px unless `style.textStyle.fontSize` says otherwise.
+`"loading": true` (bound to a variable an action sets while it runs) shows a spinner in place of the icon and ignores
+taps. For full control of a button's look (two lines, an icon after the label), use a `row` with a decoration, padding, text
 children, a `click` reaction and [hover and pressed states](#interaction-hover-press-and-other-states).
 
 <a id="forms-add-and-remove-items-a-list-editor"></a>
@@ -4444,7 +4450,6 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 ## Pitfalls
 
 - A button's text is `label`, not `text`; its colours are in `style`, not `decoration`.
-- A hugging button is only as wide as its label, without padding.
 - An input does nothing with its value until a `changed` reaction stores it, or its value prop is bound.
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.

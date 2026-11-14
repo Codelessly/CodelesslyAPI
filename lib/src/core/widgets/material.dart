@@ -85,7 +85,11 @@ abstract final class ButtonProps {
   /// Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it.
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
 
-  static const List<PropDef<Object?>> all = [label, textAlign, icon, iconAlignment, spacing, enabled, style, autofocus];
+  /// Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn
+  /// as disabled, announced as busy. Bind it to the state an action sets while it runs.
+  static const loading = PropDef<bool>('loading', Codecs.bool, false);
+
+  static const List<PropDef<Object?>> all = [label, textAlign, icon, iconAlignment, spacing, enabled, style, autofocus, loading];
 
   /// The states a button's own look draws (Flutter's `ButtonStyle` resolved per `WidgetState`): hover and press
   /// overlays, a focus ring, 50 % opacity disabled, and `selected` (a bound `"selected"`, as Flutter's
@@ -109,8 +113,9 @@ abstract final class IconButtonProps {
   /// The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`.
   static const style = ButtonProps.style;
   static const autofocus = ButtonProps.autofocus;
+  static const loading = ButtonProps.loading;
   static const spec = WidgetSpec('iconButton',
-      props: [icon, enabled, style, autofocus],
+      props: [icon, enabled, style, autofocus, loading],
       states: ButtonProps.drawnStates,
       hugs: true,
       doc: 'Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. '

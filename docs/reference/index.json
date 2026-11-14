@@ -329,7 +329,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 11630
+      "words": 11813
     },
     {
       "topic": "forms-triggers",
@@ -400,8 +400,8 @@
       "file": "forms.md",
       "anchor": "forms-buttons",
       "title": "Buttons",
-      "summary": "Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label` and `style`.",
-      "words": 58
+      "summary": "Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label`, `icon` and `style`.",
+      "words": 81
     },
     {
       "topic": "forms-add-and-remove-items-a-list-editor",

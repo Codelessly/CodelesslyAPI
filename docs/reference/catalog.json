@@ -5312,6 +5312,14 @@
           "default": false,
           "nullable": false,
           "doc": "Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it."
+        },
+        {
+          "key": "loading",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs."
         }
       ],
       "docs": "forms.md#node-elevatedButton"
@@ -5403,6 +5411,14 @@
           "default": false,
           "nullable": false,
           "doc": "Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it."
+        },
+        {
+          "key": "loading",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs."
         },
         {
           "key": "tonal",
@@ -5502,6 +5518,14 @@
           "default": false,
           "nullable": false,
           "doc": "Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it."
+        },
+        {
+          "key": "loading",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs."
         }
       ],
       "docs": "forms.md#node-textButton"
@@ -5593,6 +5617,14 @@
           "default": false,
           "nullable": false,
           "doc": "Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it."
+        },
+        {
+          "key": "loading",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs."
         }
       ],
       "docs": "forms.md#node-outlinedButton"
@@ -5632,6 +5664,14 @@
         },
         {
           "key": "autofocus",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "loading",
           "type": "bool",
           "kind": "boolean",
           "default": false,

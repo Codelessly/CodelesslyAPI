@@ -110,6 +110,7 @@ Flutter `FilledButton`: the primary action, filled with the theme's `primary`. W
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 | `tonal` | bool | `false` |  | `FilledButton.tonal`. |
 
 <a id="node-elevatedButton"></a>
@@ -132,6 +133,7 @@ Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled 
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-outlinedButton"></a>
 ### `outlinedButton`
@@ -153,6 +155,7 @@ Flutter `OutlinedButton`: a hairline border. With nothing styled it is the defau
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-textButton"></a>
 ### `textButton`
@@ -174,6 +177,7 @@ Flutter `TextButton`: no fill or border. With nothing styled it is the default (
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
+| `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-iconButton"></a>
 ### `iconButton`
@@ -191,6 +195,7 @@ Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the 
 | `enabled` | bool | `true` |  |  |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`. |
 | `autofocus` | bool | `false` |  |  |
+| `loading` | bool | `false` |  |  |
 
 <a id="node-floatingActionButton"></a>
 ### `floatingActionButton`
@@ -1270,9 +1275,10 @@ on a control inside a tappable row otherwise runs the control's own reaction onl
 <a id="forms-buttons"></a>
 ### Buttons
 
-Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label` and `style`.
-Their label text is 12 px unless `style.textStyle.fontSize` says otherwise. Give buttons a fixed or fill width. For
-full control of a button's look (two lines, an icon after the label), use a `row` with a decoration, padding, text
+Buttons (`filledButton`, `elevatedButton`, `outlinedButton`, `textButton`, `iconButton`) take `label`, `icon` and
+`style`. With no layout they hug: 28 high, padded, the label 12 px unless `style.textStyle.fontSize` says otherwise.
+`"loading": true` (bound to a variable an action sets while it runs) shows a spinner in place of the icon and ignores
+taps. For full control of a button's look (two lines, an icon after the label), use a `row` with a decoration, padding, text
 children, a `click` reaction and [hover and pressed states](interaction.md#interaction-hover-press-and-other-states).
 
 <a id="forms-add-and-remove-items-a-list-editor"></a>
@@ -1297,7 +1303,6 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 ## Pitfalls
 
 - A button's text is `label`, not `text`; its colours are in `style`, not `decoration`.
-- A hugging button is only as wide as its label, without padding.
 - An input does nothing with its value until a `changed` reaction stores it, or its value prop is bound.
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.
