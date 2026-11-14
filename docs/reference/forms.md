@@ -503,7 +503,7 @@ Flutter `SegmentedButton<String>`.
 
 Flutter `showDatePicker` button or field.
 
-An `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`yyyy-MM-dd`) that opens `showDatePicker`.
+A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -517,7 +517,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](forms.md#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's. |
+| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
 | `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-timePicker"></a>
@@ -525,7 +525,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`
 
 Flutter `showTimePicker` button or field.
 
-An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`HH:mm`) that opens `showTimePicker`.
+A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -538,7 +538,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](forms.md#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's. |
+| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
 | `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-dateTimeInput"></a>
@@ -546,7 +546,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`
 
 Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.
 
-An outlined `InputDecorator` showing a date, time or both, that opens the pickers.
+A field (Flutter's `InputDecorator`) showing a date, time or both, that opens the pickers.
 
 - Children: none.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
