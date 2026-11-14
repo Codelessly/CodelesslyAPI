@@ -57,8 +57,9 @@ final class NotationOptions {
   /// tokens) and the sizes of its components, so a component called by name
   /// (`StatusBadge "Paid"`, `Stepper =qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
-  factory NotationOptions.fromDesignSystem(DesignSystem designSystem, {double width = 390, String screen = 'screen'}) {
-    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen);
+  factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
+      {double width = 390, String screen = 'screen', bool named = false}) {
+    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named);
     Object size(SizeFit fit, double value) => switch (fit) {
           SizeFit.fill || SizeFit.flexible => {'fill': 0},
           SizeFit.hug => {'hug': 0},
@@ -86,14 +87,22 @@ final class NotationOptions {
   /// colors written out, the short words mapped onto them, its card,
   /// badge tones, surface and accent. A UI written in the notation then
   /// looks like that design system with nothing else said.
-  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen'}) {
+  ///
+  /// With [named], a look the theme has a name for is written as that name
+  /// (a color `"primaryBorder"`, a text style `{"from": "pageTitle"}`), not
+  /// its value: the document then follows whatever theme it is shown under
+  /// (another design system with the same names, dark mode, an edited
+  /// token) with nothing rewritten. It needs that theme to render; what the
+  /// theme has no name for is still written as a value.
+  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen', bool named = false}) {
     final colors = readMap(theme['colors']) ?? const {};
     String color(String name, String fallback) {
       Object? c = colors[name] ?? theme[name];
       for (var i = 0; i < 8 && c is String && !c.startsWith('#'); i++) {
         c = colors[c] ?? theme[c];
       }
-      return c is String && c.startsWith('#') ? c : fallback;
+      if (c is! String || !c.startsWith('#')) return fallback;
+      return named ? name : c;
     }
 
     final ink = color('primaryText', color('onSurface', '#FF111827'));
@@ -102,11 +111,13 @@ final class NotationOptions {
     for (final e in (readMap(theme['textStyles']) ?? const {}).entries) {
       final s = readMap(e.value);
       if (s == null) continue;
-      styles[e.key] = {
-        for (final k in const ['fontSize', 'fontWeight', 'fontFamily', 'letterSpacing', 'height'])
-          if (s[k] != null) k: s[k],
-        'color': s['color'] is String ? color(s['color'] as String, ink) : ink,
-      };
+      styles[e.key] = named
+          ? {'from': e.key, if (s['color'] == null) 'color': ink}
+          : {
+              for (final k in const ['fontSize', 'fontWeight', 'fontFamily', 'letterSpacing', 'height'])
+                if (s[k] != null) k: s[k],
+              'color': s['color'] is String ? color(s['color'] as String, ink) : ink,
+            };
     }
     Object style(String name, Object fallback) => styles[name] ?? fallback;
     Json body() => {...(style('body', const {'fontSize': 13}) as Map).cast<String, Object?>()};

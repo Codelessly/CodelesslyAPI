@@ -414,6 +414,27 @@ app's blocks. Still to do on that path: the chat example's live generation uses 
 and the generator that makes a screen for a person (`examples/prompt_app/tool/generate.py`) runs ahead of time
 through the recorder, not through a session at first open.
 
+### 4.7 Named looks: the notation's own parts follow the theme (2026-11-14)
+
+The restyle runs (§4.5) found that what the notation itself draws (`Card`, `Text.title`, `Badge.success`,
+`Progress`, a chart's color, the screen's surface) was written into the document as color values, so a new
+look meant expanding the screen again. That half is closed:
+
+- `NotationOptions.fromTheme(theme, named: true)` and `NotationOptions.fromDesignSystem(ds, named: true)` write a
+  look the theme has a name for as that name (a color `"primaryBorder"`, a text style `{"from": "pageTitle"}`),
+  using the document's existing theme names (resolved before rendering, live on a theme or mode change).
+- A session's notation path (`UiSession.applyNotation`) writes names by default.
+- Tested: a card written under SSUI holds no color value at all, and the same document shown under Paper has
+  Paper's border and surface (SDK `test/session/notation_restyle_test.dart`); in the API, the named expansion
+  resolved against two themes equals each theme's own literal expansion, for colors and text sizes
+  (`test/notation_test.dart`, "named looks").
+- The five design systems in the SDK share their token names, so this holds across all of them.
+
+Still values, not names: a card's radius and padding, and anything an author writes as a number or a color on a
+line. The surface style tokens (flat or raised, blur, border weight) that blocks need for a restyle with no new
+component files are still open. The offline recorder and the render tool still write values (their outputs are
+compared with earlier recordings); only the session path changed its default.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
