@@ -332,6 +332,7 @@ abstract final class PageViewProps {
 
   static const spec = WidgetSpec(
     'pageView',
+    fillsWidth: true,
     props: [
       CollectionScrollProps.scrollDirection, CollectionScrollProps.reverse, CollectionScrollProps.physics, //
       CollectionScrollProps.alwaysScroll, CollectionScrollProps.clipBehavior, CollectionScrollProps.itemCount,
@@ -451,6 +452,7 @@ abstract final class AccordionProps {
   );
   static const spec = WidgetSpec(
     'accordion',
+    fillsWidth: true,
     props: [expanded, mainAxisAlignment, crossAxisAlignment],
     children: ChildModel.list,
     doc: 'Accordion: a header and collapsible content.',
@@ -503,6 +505,7 @@ abstract final class ExpansionTileProps {
 
   static const spec = WidgetSpec(
     'expansionTile',
+    fillsWidth: true,
     props: [
       initiallyExpanded, maintainState, backgroundColor, collapsedBackgroundColor, tilePadding, childrenPadding, //
       expandedAlignment, expandedCrossAxisAlignment, iconColor, collapsedIconColor, textColor, collapsedTextColor,
@@ -575,6 +578,7 @@ abstract final class PaginationProps {
 
   static const spec = WidgetSpec(
     'pagination',
+    fillsWidth: true,
     props: [
       controller, showFirstLast, showPrevNext, showPageNumbers, siblingCount, boundaryCount, showPageSize, //
       showSummary, summaryText, pageSizeLabel, firstLabel, previousLabel, nextLabel, lastLabel, alignment, fontSize,
@@ -681,6 +685,7 @@ abstract final class TableViewProps {
 
   static const spec = WidgetSpec(
     'tableView',
+    fillsWidth: true,
     props: [
       columns, rowCount, rowHeight, rowHeightKey, headerHeight, columnWidth, rowHeaderWidth, fillWidth, //
       pinHeaderRow, pinHeaderColumn,

@@ -271,14 +271,19 @@ final class Layout {
 
   /// [hugs]: an axis the JSON does not give hugs (a control's,
   /// `WidgetSpec.hugs`) instead of being fixed at 0.
-  static Layout fromJson(Object? json, {bool hugs = false}) {
-    const hug = AxisSize.hug(0);
+  ///
+  /// [fillsWidth]: an unwritten width fills and an unwritten height hugs
+  /// (`WidgetSpec.fillsWidth`).
+  static Layout fromJson(Object? json, {bool hugs = false, bool fillsWidth = false}) {
+    const hug = AxisSize.hug(0), fill = AxisSize.fill(0);
     final m = readMap(json);
-    if (m == null) return hugs ? const Layout(width: hug, height: hug) : const Layout();
+    if (m == null) {
+      return fillsWidth ? const Layout(width: fill, height: hug) : (hugs ? const Layout(width: hug, height: hug) : const Layout());
+    }
     final ratio = readDouble(m['aspectRatio']);
     return Layout(
-      width: hugs && m['width'] == null ? hug : AxisSize.fromJson(m['width']),
-      height: hugs && m['height'] == null ? hug : AxisSize.fromJson(m['height']),
+      width: m['width'] == null && fillsWidth ? fill : (hugs && m['width'] == null ? hug : AxisSize.fromJson(m['width'])),
+      height: (hugs || fillsWidth) && m['height'] == null ? hug : AxisSize.fromJson(m['height']),
       flex: (readInt(m['flex']) ?? 1).clamp(0, 1 << 20),
       squeezable: readBool(m['squeezable']) ?? false,
       constraints: BoxConstraints.fromJson(m['constraints']),

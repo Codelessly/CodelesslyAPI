@@ -230,7 +230,7 @@ final class Node {
       },
       visible: readBool(m['visible']) ?? true,
       opacity: (readDouble(m['opacity']) ?? 1).clamp(0, 1).toDouble(),
-      layout: Layout.fromJson(m['layout'], hugs: spec?.hugs ?? false),
+      layout: Layout.fromJson(m['layout'], hugs: spec?.hugs ?? false, fillsWidth: spec?.fillsWidth ?? false),
       // A type without a box decoration keeps only its blurs (they act on
       // whatever it paints).
       decoration: decoration,

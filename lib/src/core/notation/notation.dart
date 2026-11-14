@@ -375,6 +375,23 @@ class _Parser {
       // A list over the data, its item a column of the lines under it.
       final g = parent.grid;
       final listId = _id(g != null ? 'gridView' : 'listView'), itemId = '${listId}Item';
+      // In a stack the copies are layered, each where its own x and y say:
+      // the line under the `each` is the item itself.
+      if (g == null && parent.type == 'stack') {
+        final id = _id('listView');
+        nodes[id] = {
+          'type': 'listView',
+          'layout': {'width': {'fill': 0}, 'height': {'fill': 0}, 'x': 0, 'y': 0},
+          'props': {'layout': 'stack'},
+          'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
+          'children': <Object?>[],
+        };
+        final p = nodes[parent.id]!;
+        ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
+        _parentOf[id] = parent.id;
+        _stack.add(_Open(indent, id, 'stack', each: each[1]));
+        return;
+      }
       // In a row the copies go across, each at its own width.
       final across = g == null && parent.type == 'row';
       nodes[listId] = {
@@ -562,7 +579,12 @@ class _Parser {
         }
         final colon = word.indexOf(':');
         if (colon < 0) {
-          if (_mainWords[word] case final String m when type == 'row' || type == 'column') {
+          if (written == 'Box' && (word == 'center' || word == 'middle')) {
+            // A box centres what is in it: across with `center`, down with
+            // `middle` (or with `center` alone).
+            if (word == 'center') props['crossAxisAlignment'] = 'center';
+            if (word == 'middle' || !line.contains(' middle')) props['mainAxisAlignment'] = 'center';
+          } else if (_mainWords[word] case final String m when type == 'row' || type == 'column') {
             props['mainAxisAlignment'] = m;
           } else if (_crossWords[word] case final String c when type == 'row' || type == 'column') {
             props['crossAxisAlignment'] = c;
@@ -706,7 +728,12 @@ class _Parser {
       // In a column that is only as wide as its content (a column in a
       // row), so is each child.
       final parentWidth = parent == null ? null : (nodes[parent.id]?['layout'] as Map?)?['width'];
-      final inHug = parent?.type == 'column' && parentWidth is Map && parentWidth.containsKey('hug') && parent?.grid == null;
+      // Nor in one that centres or ends its children: a child that filled
+      // it would have nowhere to move.
+      final parentCross = parent == null ? null : (nodes[parent.id]?['props'] as Map?)?['crossAxisAlignment'];
+      final inHug = parent?.type == 'column' &&
+          parent?.grid == null &&
+          (parentWidth is Map && parentWidth.containsKey('hug') || parentCross == 'center' || parentCross == 'end');
       final fills = layout.containsKey('flex') || !inRow && !inTile && !inHug && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
