@@ -448,7 +448,7 @@ Flutter `DropdownButton<Object>`. Its padding is the node's `layout.padding`.
 | `splashColor` | [Color](values.md#type-Color) | unset |  |  |
 | `elevation` | int | `8` | ≥ 0 |  |
 | `borderRadius` | [BorderRadius](values.md#type-BorderRadius) | unset |  |  |
-| `underline` | bool | `true` |  | Draws Flutter's default underline (false: `SizedBox.shrink()`). |
+| `underline` | bool | `true` |  | Draws the field's border: the theme's field shape (an outline of the control radius, as an unstyled text field's) around the button, padded 12 at the sides when the node sets no padding; false: no border (`underline: SizedBox.shrink()`). Material's underline is never drawn. |
 | `useDataSource` | bool | `false` |  | The items come from the bound `data` list; `itemLabel` labels each (`${item.name}`). |
 | `itemLabel` | String | `""` |  |  |
 | `itemImage` | String | `""` |  | An image before each item's label (a URL, may use `${item}`). |
@@ -579,16 +579,16 @@ A signature pad: strokes drawn with a finger or mouse, on a bordered card with a
 |---|---|---|---|---|
 | `value` | List<List<Offset>> | `[]` |  | The strokes, each a list of points. |
 | `normalized` | bool | `false` |  | Points are fractions of the pad's size (0–1) instead of pixels. |
-| `inkColor` | [Color](values.md#type-Color) | `"#FF13306B"` |  |  |
+| `inkColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `inkWidth` | double | `2.6` | ≥ 0 |  |
-| `backgroundColor` | [Color](values.md#type-Color) | `"#FFF8F8F5"` |  |  |
-| `borderColor` | [Color](values.md#type-Color) | `"#FFA9ADA5"` |  |  |
+| `backgroundColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
+| `borderColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
 | `borderWidth` | double | `1.5` | ≥ 0 |  |
-| `errorBorderColor` | [Color](values.md#type-Color) | `"#FFD3302F"` |  |  |
+| `errorBorderColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's error (`ControlTheme`), so it reads in light and dark. |
 | `errorBorderWidth` | double | `2` | ≥ 0 |  |
 | `borderRadius` | [BorderRadius](values.md#type-BorderRadius) | `4` |  |  |
 | `placeholder` | String | `"SIGN HERE"` |  |  |
-| `placeholderColor` | [Color](values.md#type-Color) | `"#FFA9ADA5"` |  |  |
+| `placeholderColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
 | `placeholderFontSize` | double | `12` | ≥ 0 |  |
 | `showSignLine` | bool | `true` |  |  |
 | `signLineColor` | [Color](values.md#type-Color) | `"#FFA9ADA5"` |  |  |

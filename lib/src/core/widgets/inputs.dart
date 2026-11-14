@@ -498,7 +498,10 @@ abstract final class DropdownProps {
   static const elevation = PropDef<int>('elevation', IntCodec(min: 0), 8);
   static const borderRadius = PropDef<BorderRadius?>('borderRadius', InputCodecs.radius, null);
 
-  /// Draws Flutter's default underline (false: `SizedBox.shrink()`).
+  /// Draws the field's border: the theme's field shape (an outline of the
+  /// control radius, as an unstyled text field's) around the button, padded
+  /// 12 at the sides when the node sets no padding; false: no border
+  /// (`underline: SizedBox.shrink()`). Material's underline is never drawn.
   static const underline = PropDef<bool>('underline', Codecs.bool, true);
 
   /// The items come from the bound `data` list; [itemLabel] labels each
@@ -749,20 +752,25 @@ abstract final class SignatureProps {
 
   /// Points are fractions of the pad's size (0–1) instead of pixels.
   static const normalized = PropDef<bool>('normalized', Codecs.bool, false);
-  static const inkColor = PropDef<Color>('inkColor', Codecs.color, Color(0xFF13306B));
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const inkColor = PropDef<Color?>('inkColor', Codecs.optionalColor, null);
   static const inkWidth = PropDef<double>('inkWidth', Codecs.positive, 2.6);
 
   /// Strokes drawn as smooth curves through their points; false joins the
   /// points with straight segments.
   static const smooth = PropDef<bool>('smooth', Codecs.bool, true);
-  static const backgroundColor = PropDef<Color>('backgroundColor', Codecs.color, Color(0xFFF8F8F5));
-  static const borderColor = PropDef<Color>('borderColor', Codecs.color, Color(0xFFA9ADA5));
+  /// Null: the theme's surface (`ControlTheme`), so it reads in light and dark.
+  static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.optionalColor, null);
+  /// Null: the theme's outline (`ControlTheme`), so it reads in light and dark.
+  static const borderColor = PropDef<Color?>('borderColor', Codecs.optionalColor, null);
   static const borderWidth = PropDef<double>('borderWidth', Codecs.positive, 1.5);
-  static const errorBorderColor = PropDef<Color>('errorBorderColor', Codecs.color, Color(0xFFD3302F));
+  /// Null: the theme's error (`ControlTheme`), so it reads in light and dark.
+  static const errorBorderColor = PropDef<Color?>('errorBorderColor', Codecs.optionalColor, null);
   static const errorBorderWidth = PropDef<double>('errorBorderWidth', Codecs.positive, 2);
   static const borderRadius = PropDef<BorderRadius>('borderRadius', InputCodecs.radius, BorderRadius.circular(4));
   static const placeholder = PropDef<String>('placeholder', Codecs.string, 'SIGN HERE');
-  static const placeholderColor = PropDef<Color>('placeholderColor', Codecs.color, Color(0xFFA9ADA5));
+  /// Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark.
+  static const placeholderColor = PropDef<Color?>('placeholderColor', Codecs.optionalColor, null);
   static const placeholderFontSize = PropDef<double>('placeholderFontSize', Codecs.positive, 12);
   /// The placeholder's text style, over [placeholderColor],
   /// [placeholderFontSize], [placeholderFontWeight] and

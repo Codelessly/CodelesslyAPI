@@ -36,6 +36,32 @@ fields, 62% Flutter's name and meaning, 77% of those with a Flutter counterpart,
   docs/design/schema-3-migration-report.md's note after 30.1.0 regenerated over the corpus.
 
 **A site looks like itself: theme mode, declared fonts, local images.** Additions only; documents stay
+
+**Design systems as data; controls that are not Material-shaped.** Additions and default changes; documents stay
+`"schema": 3`.
+
+- **`DesignSystem`** (`design_system.json`: `DesignSystemManifest`): DESIGN.md (principles), the tokens (a theme),
+  PATTERNS.md and component definitions by reference, plus `fonts`, `examples` and `replaces` (the base controls its
+  components stand in for). `DesignSystem.load(read)` reads one from a folder or a publish; `fromJson`/`toJson` is
+  one bundle. `themeUnder(site)`, `libraryUnder(site)`, `catalogOver(base)`, `list` (each component's purpose and
+  minimal call).
+- **`site.json`'s `designSystem`** names one (a folder relative to the manifest, or a publish id): its tokens are
+  the site's base theme, its components callable by type.
+- **Named theme scales**: `spacing`, `radii`, `sizes`, `shadows` (with `dark` shadows), `durations`, `curves`, read
+  as `${theme.<scale>.<name>}`; `ThemeTokens.mergedWith`. `validateTheme` checks them; a binding naming a step the
+  theme does not have is `unknown_theme_name`.
+- **The prompt**: `runtimeStarter(designSystem:)` adds a section generated from it (principles and patterns in
+  brief, tokens by name, each component with parameters, slots, events and a call) and drops the base controls it
+  replaces; `docsTopic(designSystem:)` answers `design`, `patterns`, `tokens` and a component's name. A
+  design-systems page joins the reference.
+- **Colours that follow the theme**: `tabBar` (`indicatorColor`, `labelColor`, `unselectedLabelColor`,
+  `dividerColor`), `pagination` (`textColor`, `activeColor`, `activeTextColor`, `borderColor`), the gauges', charts',
+  barcode's and signature pad's palettes are now optional, unset meaning the theme's role (documented per prop):
+  values and lines `primary`, tracks and grids `outlineVariant`, ticks and axes `outline`, labels
+  `onSurfaceVariant`, needles, cursors and tooltips `onSurface`.
+- `dropdown.underline` now means the field's border (the theme's outline), never Material's underline.
+
+**Earlier in this release: a site looks like itself: theme mode, declared fonts, local images.** Additions only; documents stay
 `"schema": 3`.
 
 - **Theme mode** (Flutter's `ThemeMode`): `ThemeTokens.mode` (`"mode": "system" | "light" | "dark"` in a theme,

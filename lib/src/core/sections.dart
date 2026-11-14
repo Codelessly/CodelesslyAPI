@@ -286,6 +286,7 @@ final class SiteManifest {
     this.breakpoints,
     this.theme = ThemeTokens.none,
     this.fonts = const [],
+    this.designSystem,
     this.extra = const {},
   });
 
@@ -317,10 +318,20 @@ final class SiteManifest {
   /// each file at its path relative to the site.
   final List<FontFamily> fonts;
 
+  /// The design system the site is made with (`"designSystem":
+  /// "../design_systems/ssui"`: its folder relative to the manifest, or its
+  /// published id): its tokens are the site's base theme ([theme] is merged
+  /// over them) and its components are callable by type, as the site's own
+  /// are ([DesignSystem]). Null: none (controls are neutral; nothing comes
+  /// from the app the site runs in).
+  final String? designSystem;
+
   /// Keys it doesn't model, kept.
   final Json extra;
 
-  static const Set<String> keys = {'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme', 'fonts'};
+  static const Set<String> keys = {
+    'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme', 'fonts', 'designSystem', //
+  };
 
   static SiteManifest fromJson(Object? json) {
     final m = readMap(json) ?? const {};
@@ -331,6 +342,7 @@ final class SiteManifest {
       breakpoints: m['breakpoints'],
       theme: ThemeTokens.fromJson(m['theme']),
       fonts: FontFamily.listFromJson(m['fonts']),
+      designSystem: readString(m['designSystem']),
       extra: {
         for (final e in m.entries)
           if (!keys.contains(e.key)) e.key: e.value,
@@ -346,6 +358,7 @@ final class SiteManifest {
     'breakpoints': ?breakpoints,
     if (!theme.isEmpty) 'theme': theme.toJson(),
     if (fonts.isNotEmpty) 'fonts': [for (final f in fonts) f.toJson()],
+    'designSystem': ?designSystem,
     ...extra,
   };
 }

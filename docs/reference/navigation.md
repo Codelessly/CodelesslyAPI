@@ -228,20 +228,20 @@ Flutter `TabBar` (labels only; no pages).
 | `initialIndex` | int | `0` | ≥ 0 |  |
 | `isScrollable` | bool | `false` |  |  |
 | `physics` | [ScrollPhysicsType](values.md#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
-| `indicatorColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
+| `indicatorColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary (what controls draw on the surface). |
 | `indicatorWeight` | double | `2` | ≥ 0 |  |
 | `indicatorSize` | [TabBarIndicatorSize](values.md#enum-TabBarIndicatorSize) | `"label"` | `tab`, `label` |  |
 | `indicatorPadding` | [EdgeInsets](values.md#type-EdgeInsets) | `0` |  |  |
 | `indicatorStyle` | [TabIndicatorStyle](values.md#enum-TabIndicatorStyle) | `"underline"` | `underline`, `filled`, `border`, `none` |  |
 | `indicatorShape` | String | `"roundedRectangle"` |  | The indicator's shape for the filled and border styles: `roundedRectangle`, `stadium`, `circle`, `beveledRectangle`, `continuousRectangle`. |
 | `indicatorRadius` | [BorderRadius](values.md#type-BorderRadius) | `0` |  |  |
-| `labelColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
-| `unselectedLabelColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
+| `labelColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's ink on its surface (`onSurface`). |
+| `unselectedLabelColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's secondary ink (`onSurface` at 68 % over the surface). |
 | `labelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `unselectedLabelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `labelPadding` | [EdgeInsets](values.md#type-EdgeInsets) | `0` |  |  |
 | `overlayColor` | [Color](values.md#type-Color) | unset |  |  |
-| `dividerColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
+| `dividerColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's hairline (`outlineVariant`). |
 | `dividerHeight` | double | unset |  |  |
 | `tabAlignment` | [TabAlignment](values.md#enum-TabAlignment) | unset | `start`, `startOffset`, `fill`, `center` |  |
 | `content` | [TabContent](values.md#enum-TabContent) | `"labelAndIcon"` | `label`, `icon`, `labelAndIcon` |  |

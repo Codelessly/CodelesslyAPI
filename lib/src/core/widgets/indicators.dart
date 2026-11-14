@@ -110,8 +110,10 @@ abstract final class RadialGaugeProps {
   static const startAngle = PropDef<double>('startAngle', Codecs.double, 150);
   static const sweepAngle = PropDef<double>('sweepAngle', Codecs.double, 240);
   static const thickness = PropDef<double>('thickness', Codecs.double, 14);
-  static const trackColor = PropDef<Color>('trackColor', Codecs.color, Color(0xFF121316));
-  static const valueColor = PropDef<Color>('valueColor', Codecs.color, Color(0xFFFFD400));
+  /// Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark.
+  static const trackColor = PropDef<Color?>('trackColor', Codecs.optionalColor, null);
+  /// Null: the theme's primary (`ControlTheme`), so it reads in light and dark.
+  static const valueColor = PropDef<Color?>('valueColor', Codecs.optionalColor, null);
 
   /// The value arc takes the color of the zone its value is in.
   static const colorByZone = PropDef<bool>('colorByZone', Codecs.bool, true);
@@ -126,16 +128,20 @@ abstract final class RadialGaugeProps {
   static const zoneOpacity = PropDef<double>('zoneOpacity', Codecs.double, 0.55);
   static const majorTicks = PropDef<int>('majorTicks', IntCodec(min: 0), 10);
   static const minorTicks = PropDef<int>('minorTicks', IntCodec(min: 0), 1);
-  static const tickColor = PropDef<Color>('tickColor', Codecs.color, Color(0xFFA3ABB2));
+  /// Null: the theme's outline (`ControlTheme`), so it reads in light and dark.
+  static const tickColor = PropDef<Color?>('tickColor', Codecs.optionalColor, null);
   static const labels = PropDef<List<double>>('labels', IndicatorCodecs.doubles, [0, 60, 85, 100]);
-  static const labelColor = PropDef<Color>('labelColor', Codecs.color, Color(0xFF707882));
+  /// Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark.
+  static const labelColor = PropDef<Color?>('labelColor', Codecs.optionalColor, null);
   static const labelFontSize = PropDef<double>('labelFontSize', Codecs.positive, 10);
   static const labelFontFamily = PropDef<String?>('labelFontFamily', IndicatorCodecs.optionalString, null);
   static const showTarget = PropDef<bool>('showTarget', Codecs.bool, true);
   static const target = PropDef<double>('target', Codecs.double, 85);
-  static const targetColor = PropDef<Color>('targetColor', Codecs.color, Color(0xFFE8EBED));
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const targetColor = PropDef<Color?>('targetColor', Codecs.optionalColor, null);
   static const showNeedle = PropDef<bool>('showNeedle', Codecs.bool, true);
-  static const needleColor = PropDef<Color>('needleColor', Codecs.color, Color(0xFFE8EBED));
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const needleColor = PropDef<Color?>('needleColor', Codecs.optionalColor, null);
 
   /// Where the needle starts, as a fraction of the radius.
   static const needleClearance = PropDef<double>('needleClearance', Codecs.double, 0.62);
@@ -178,8 +184,10 @@ abstract final class GaugeMeterProps {
   static const shape = PropDef<GaugeShape>('shape', EnumCodec(GaugeShape.values), GaugeShape.arc);
   static const min = PropDef<double>('min', Codecs.double, 0);
   static const max = PropDef<double>('max', Codecs.double, 100);
-  static const color = PropDef<Color>('color', Codecs.color, Color(0xFF3DD68C));
-  static const trackColor = PropDef<Color>('trackColor', Codecs.color, Color(0xFF282D35));
+  /// Null: the theme's primary (`ControlTheme`), so it reads in light and dark.
+  static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
+  /// Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark.
+  static const trackColor = PropDef<Color?>('trackColor', Codecs.optionalColor, null);
 
   /// Bar only: the fill fades from this opacity at its start to full.
   static const fillStartOpacity = PropDef<double>('fillStartOpacity', Codecs.double, 1);
@@ -198,7 +206,8 @@ abstract final class GaugeMeterProps {
   static const edgeColor = PropDef<Color>('edgeColor', Codecs.color, Color.white);
   static const ticks = PropDef<int>('ticks', IntCodec(min: 0), 0);
   static const majorTickEvery = PropDef<int>('majorTickEvery', IntCodec(min: 0), 0);
-  static const tickColor = PropDef<Color>('tickColor', Codecs.color, Color(0xFF3A3F47));
+  /// Null: the theme's outline (`ControlTheme`), so it reads in light and dark.
+  static const tickColor = PropDef<Color?>('tickColor', Codecs.optionalColor, null);
   static const limitColor = PropDef<Color>('limitColor', Codecs.color, Color(0xFFF2C130));
   static const limitWidth = PropDef<double>('limitWidth', Codecs.double, 3);
   static const limitStyle =
@@ -256,7 +265,8 @@ abstract final class ChartProps {
   static const minY = PropDef<double?>('minY', IndicatorCodecs.optionalDouble, null);
   static const maxY = PropDef<double?>('maxY', IndicatorCodecs.optionalDouble, null);
   static const gridLines = PropDef<int>('gridLines', IntCodec(min: 0), 4);
-  static const gridColor = PropDef<Color>('gridColor', Codecs.color, Color(0xFF292E33));
+  /// Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark.
+  static const gridColor = PropDef<Color?>('gridColor', Codecs.optionalColor, null);
 
   /// The grid's bottom line (the baseline), drawn with the grid under the
   /// bars; null: [gridColor].
@@ -265,7 +275,8 @@ abstract final class ChartProps {
   static const yAxisWidth = PropDef<double>('yAxisWidth', Codecs.double, 36);
   static const showXAxis = PropDef<bool>('showXAxis', Codecs.bool, true);
   static const xLabelEvery = PropDef<int>('xLabelEvery', Codecs.int, 1);
-  static const axisLabelColor = PropDef<Color>('axisLabelColor', Codecs.color, Color(0xFF707882));
+  /// Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark.
+  static const axisLabelColor = PropDef<Color?>('axisLabelColor', Codecs.optionalColor, null);
   static const axisFontSize = PropDef<double>('axisFontSize', Codecs.positive, 10);
   static const axisFontFamily = PropDef<String?>('axisFontFamily', IndicatorCodecs.optionalString, null);
   static const referenceLines = PropDef<List<ChartReferenceLine>>('referenceLines', ChartReferenceLine.codec, []);
@@ -274,7 +285,8 @@ abstract final class ChartProps {
   static const barGap = PropDef<double>('barGap', Codecs.double, 2);
   static const barRadius = PropDef<double>('barRadius', Codecs.double, 0);
   static const dashEmpty = PropDef<bool>('dashEmpty', Codecs.bool, true);
-  static const selectionColor = PropDef<Color>('selectionColor', Codecs.color, Color(0x14FFD400));
+  /// Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark.
+  static const selectionColor = PropDef<Color?>('selectionColor', Codecs.optionalColor, null);
   static const xSlots = PropDef<int>('xSlots', Codecs.int, 0);
   static const startField = PropDef<String>('startField', Codecs.string, 'from');
   static const endField = PropDef<String>('endField', Codecs.string, 'to');
@@ -283,7 +295,8 @@ abstract final class ChartProps {
   static const domainMax = PropDef<double>('domainMax', Codecs.double, 100);
   static const nowValue = PropDef<double?>('nowValue', IndicatorCodecs.optionalDouble, null);
   static const nowColor = PropDef<Color?>('nowColor', IndicatorCodecs.optionalColor, null);
-  static const trackColor = PropDef<Color>('trackColor', Codecs.color, Color(0xFF121316));
+  /// Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark.
+  static const trackColor = PropDef<Color?>('trackColor', Codecs.optionalColor, null);
   static const divisions = PropDef<int>('divisions', Codecs.int, 8);
   static const donutThickness = PropDef<double>('donutThickness', Codecs.double, 0.15);
   static const sliceGap = PropDef<double>('sliceGap', Codecs.double, 1.5);
@@ -305,8 +318,10 @@ abstract final class ChartProps {
   /// A box over the selected (or hovered) category: its label, then each
   /// series' name and value there.
   static const tooltip = PropDef<bool>('tooltip', Codecs.bool, false);
-  static const tooltipColor = PropDef<Color>('tooltipColor', Codecs.color, Color(0xFFF7F5F0));
-  static const tooltipTextColor = PropDef<Color>('tooltipTextColor', Codecs.color, Color(0xFF0E0E10));
+  /// Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark.
+  static const tooltipColor = PropDef<Color?>('tooltipColor', Codecs.optionalColor, null);
+  /// Null: the theme's surface (`ControlTheme`), so it reads in light and dark.
+  static const tooltipTextColor = PropDef<Color?>('tooltipTextColor', Codecs.optionalColor, null);
 
   /// The tooltip's first line: this row field, else the category label.
   static const tooltipTitleField = PropDef<String>('tooltipTitleField', Codecs.string, '');
@@ -411,12 +426,14 @@ abstract final class PlotChartProps {
   /// Room round the plot (top, right, bottom; the left is [yAxisWidth]) in
   /// place of [plotInset]: values map between them and ranges fill them.
   static const plotPadding = PropDef<EdgeInsets?>('plotPadding', Codecs.insets, null);
-  static const lineColor = PropDef<Color>('lineColor', Codecs.color, Color(0xFF1F6F78));
+  /// Null: the theme's primary (`ControlTheme`), so it reads in light and dark.
+  static const lineColor = PropDef<Color?>('lineColor', Codecs.optionalColor, null);
   static const lineWidth = PropDef<double>('lineWidth', Codecs.positive, 2);
   static const fillColor = PropDef<Color?>('fillColor', IndicatorCodecs.optionalColor, null);
   static const smooth = PropDef<bool>('smooth', Codecs.bool, false);
   static const gridStepX = PropDef<double?>('gridStepX', IndicatorCodecs.optionalDouble, null);
-  static const gridColor = PropDef<Color>('gridColor', Codecs.color, Color(0x19000000));
+  /// Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark.
+  static const gridColor = PropDef<Color?>('gridColor', Codecs.optionalColor, null);
   static const axisColor = PropDef<Color?>('axisColor', IndicatorCodecs.optionalColor, null);
   static const xLabels = PropDef<List<PlotChartLabel>>('xLabels', PlotChartLabel.codec, []);
   static const gridLabels = PropDef<List<String>>('gridLabels', IndicatorCodecs.strings, []);
@@ -432,19 +449,24 @@ abstract final class PlotChartProps {
   /// 10px bold.
   static const markerLabelStyle = PropDef<TextStyle>('markerLabelStyle', _style, TextStyle.empty);
   static const referenceX = PropDef<double?>('referenceX', IndicatorCodecs.optionalDouble, null);
-  static const referenceColor = PropDef<Color>('referenceColor', Codecs.color, Color(0xFFF2542D));
+  /// Null: the theme's error (`ControlTheme`), so it reads in light and dark.
+  static const referenceColor = PropDef<Color?>('referenceColor', Codecs.optionalColor, null);
   static const referenceWidth = PropDef<double>('referenceWidth', Codecs.double, 1.5);
   static const referenceDashed = PropDef<bool>('referenceDashed', Codecs.bool, true);
   static const selectable = PropDef<bool>('selectable', Codecs.bool, true);
   static const selectionStep = PropDef<double>('selectionStep', Codecs.double, 1);
   static const selectionMin = PropDef<double?>('selectionMin', IndicatorCodecs.optionalDouble, null);
   static const selectionMax = PropDef<double?>('selectionMax', IndicatorCodecs.optionalDouble, null);
-  static const selectionColor = PropDef<Color>('selectionColor', Codecs.color, Color(0x19000000));
-  static const selectionLineColor = PropDef<Color>('selectionLineColor', Codecs.color, Color.black);
+  /// Null: the theme's onSurface at 10 % (`ControlTheme`), so it reads in light and dark.
+  static const selectionColor = PropDef<Color?>('selectionColor', Codecs.optionalColor, null);
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const selectionLineColor = PropDef<Color?>('selectionLineColor', Codecs.optionalColor, null);
   static const selectionLineWidth = PropDef<double>('selectionLineWidth', Codecs.double, 1.5);
   static const selectionDotRadius = PropDef<double>('selectionDotRadius', Codecs.double, 6.5);
-  static const selectionDotColor = PropDef<Color>('selectionDotColor', Codecs.color, Color.white);
-  static const selectionDotStrokeColor = PropDef<Color>('selectionDotStrokeColor', Codecs.color, Color.black);
+  /// Null: the theme's surface (`ControlTheme`), so it reads in light and dark.
+  static const selectionDotColor = PropDef<Color?>('selectionDotColor', Codecs.optionalColor, null);
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const selectionDotStrokeColor = PropDef<Color?>('selectionDotStrokeColor', Codecs.optionalColor, null);
   static const selectionDotStrokeWidth = PropDef<double>('selectionDotStrokeWidth', Codecs.double, 2.5);
 
   /// Horizontal lines: grid lines with y-axis labels, and references (a
@@ -492,7 +514,8 @@ abstract final class PlotChartProps {
   /// only while at least 6px apart: minor gridlines, as a plotting library's
   /// minor ticks.
   static const minorDivisions = PropDef<int>('minorDivisions', IntCodec(min: 0), 0);
-  static const minorGridColor = PropDef<Color>('minorGridColor', Codecs.color, Color(0x0D000000));
+  /// Null: the theme's outlineVariant at 50 % (`ControlTheme`), so it reads in light and dark.
+  static const minorGridColor = PropDef<Color?>('minorGridColor', Codecs.optionalColor, null);
 
   /// Draws the x axis at y = 0 and the y axis at x = 0 (in [axisColor])
   /// instead of a baseline, with tick labels at grid lines along them;
@@ -529,12 +552,14 @@ abstract final class PlotChartProps {
   /// crosshair's axis labels.
   static const selectionXLabel = PropDef<String>('selectionXLabel', Codecs.string, '');
   static const selectionYLabel = PropDef<String>('selectionYLabel', Codecs.string, '');
-  static const selectionTagColor = PropDef<Color>('selectionTagColor', Codecs.color, Color.black);
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const selectionTagColor = PropDef<Color?>('selectionTagColor', Codecs.optionalColor, null);
   static const selectionTagStyle = PropDef<TextStyle>('selectionTagStyle', _style, TextStyle.empty);
 
   /// A soft disc under the selection dot (0: none).
   static const selectionHaloRadius = PropDef<double>('selectionHaloRadius', Codecs.double, 0);
-  static const selectionHaloColor = PropDef<Color>('selectionHaloColor', Codecs.color, Color(0x2E000000));
+  /// Null: the theme's onSurface at 18 % (`ControlTheme`), so it reads in light and dark.
+  static const selectionHaloColor = PropDef<Color?>('selectionHaloColor', Codecs.optionalColor, null);
 
   /// Animates numeric data changes; initial and design-canvas values rest.
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
@@ -571,26 +596,32 @@ abstract final class BarChartProps {
 
   /// The value of a full bar; 0 uses the largest value.
   static const max = PropDef<double>('max', Codecs.double, 0);
-  static const color = PropDef<Color>('color', Codecs.color, Color(0xFFF2C130));
+  /// Null: the theme's primary (`ControlTheme`), so it reads in light and dark.
+  static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
 
   /// Per-bar colours; missing entries fall back to color.
   static const colors = PropDef<List<Color>>('colors', ListCodec<Color>(Codecs.color), []);
   static const dimmedOpacity = PropDef<double>('dimmedOpacity', Codecs.double, 0.55);
   static const barGap = PropDef<double>('barGap', Codecs.double, 3);
   static const barRadius = PropDef<double>('barRadius', Codecs.double, 1);
-  static const emptyColor = PropDef<Color>('emptyColor', Codecs.color, Color(0xFF3A3F47));
+  /// Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark.
+  static const emptyColor = PropDef<Color?>('emptyColor', Codecs.optionalColor, null);
   static const emptyHeight = PropDef<double>('emptyHeight', Codecs.double, 2);
   static const gridLines = PropDef<int>('gridLines', IntCodec(min: 0), 3);
-  static const gridColor = PropDef<Color>('gridColor', Codecs.color, Color(0xFF2B3038));
+  /// Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark.
+  static const gridColor = PropDef<Color?>('gridColor', Codecs.optionalColor, null);
   /// The grid lines' labels, bottom up; one more than [gridLines] labels
   /// the baseline first ("0").
   static const gridLabels = PropDef<List<String>>('gridLabels', IndicatorCodecs.strings, []);
   static const gridLabelWidth = PropDef<double>('gridLabelWidth', Codecs.double, 40);
-  static const baselineColor = PropDef<Color>('baselineColor', Codecs.color, Color(0xFF3A3F47));
+  /// Null: the theme's outline (`ControlTheme`), so it reads in light and dark.
+  static const baselineColor = PropDef<Color?>('baselineColor', Codecs.optionalColor, null);
   static const labelFontFamily = PropDef<String>('labelFontFamily', Codecs.string, 'JetBrains Mono');
   static const labelFontSize = PropDef<double>('labelFontSize', Codecs.positive, 10);
-  static const labelColor = PropDef<Color>('labelColor', Codecs.color, Color(0xFF6B727C));
-  static const highlightLabelColor = PropDef<Color>('highlightLabelColor', Codecs.color, Color(0xFFE8EAED));
+  /// Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark.
+  static const labelColor = PropDef<Color?>('labelColor', Codecs.optionalColor, null);
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const highlightLabelColor = PropDef<Color?>('highlightLabelColor', Codecs.optionalColor, null);
   static const labelGap = PropDef<double>('labelGap', Codecs.double, 6);
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
@@ -670,18 +701,28 @@ abstract final class LineChartProps {
   static const plotPadding =
       PropDef<EdgeInsets>('plotPadding', Codecs.insets, EdgeInsets.fromLTRB(44, 30, 14, 30));
   static const smooth = PropDef<bool>('smooth', Codecs.bool, false);
-  static const lineColor = PropDef<Color>('lineColor', Codecs.color, Color.black);
+  /// Null: the theme's primary (`ControlTheme`), so it reads in light and dark.
+  static const lineColor = PropDef<Color?>('lineColor', Codecs.optionalColor, null);
   static const lineWidth = PropDef<double>('lineWidth', Codecs.positive, 2);
-  static const areaTopColor = PropDef<Color>('areaTopColor', Codecs.color, Color(0x19000000));
+  /// Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark.
+  static const areaTopColor = PropDef<Color?>('areaTopColor', Codecs.optionalColor, null);
   static const areaBottomColor = PropDef<Color>('areaBottomColor', Codecs.color, Color.transparent);
-  static const gridColor = PropDef<Color>('gridColor', Codecs.color, Color(0x19000000));
-  static const zeroLineColor = PropDef<Color>('zeroLineColor', Codecs.color, Color(0x89000000));
-  static const axisColor = PropDef<Color>('axisColor', Codecs.color, Color.black);
-  static const markerHollowColor = PropDef<Color>('markerHollowColor', Codecs.color, Color.white);
-  static const tagBackground = PropDef<Color>('tagBackground', Codecs.color, Color.black);
-  static const cursorColor = PropDef<Color>('cursorColor', Codecs.color, Color.black);
-  static const cursorRingFill = PropDef<Color>('cursorRingFill', Codecs.color, Color.white);
-  static const tooltipBackground = PropDef<Color>('tooltipBackground', Codecs.color, Color.black);
+  /// Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark.
+  static const gridColor = PropDef<Color?>('gridColor', Codecs.optionalColor, null);
+  /// Null: the theme's outline (`ControlTheme`), so it reads in light and dark.
+  static const zeroLineColor = PropDef<Color?>('zeroLineColor', Codecs.optionalColor, null);
+  /// Null: the theme's outline (`ControlTheme`), so it reads in light and dark.
+  static const axisColor = PropDef<Color?>('axisColor', Codecs.optionalColor, null);
+  /// Null: the theme's surface (`ControlTheme`), so it reads in light and dark.
+  static const markerHollowColor = PropDef<Color?>('markerHollowColor', Codecs.optionalColor, null);
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const tagBackground = PropDef<Color?>('tagBackground', Codecs.optionalColor, null);
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const cursorColor = PropDef<Color?>('cursorColor', Codecs.optionalColor, null);
+  /// Null: the theme's surface (`ControlTheme`), so it reads in light and dark.
+  static const cursorRingFill = PropDef<Color?>('cursorRingFill', Codecs.optionalColor, null);
+  /// Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark.
+  static const tooltipBackground = PropDef<Color?>('tooltipBackground', Codecs.optionalColor, null);
   static const tooltipShadowColor = PropDef<Color>('tooltipShadowColor', Codecs.color, Color.transparent);
   static const yAxisTitle = PropDef<String>('yAxisTitle', Codecs.string, '');
   static const axisLabelStyle = PropDef<TextStyle>('axisLabelStyle', _style, TextStyle.empty);
@@ -793,7 +834,8 @@ abstract final class BarcodeProps {
   static const data = PropDef<String>('data', Codecs.string, '');
   static const symbology =
       PropDef<BarcodeSymbology>('symbology', EnumCodec(BarcodeSymbology.values), BarcodeSymbology.qrCode);
-  static const color = PropDef<Color>('color', Codecs.color, Color.black);
+  /// Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark.
+  static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
   static const backgroundColor = PropDef<Color?>('backgroundColor', IndicatorCodecs.optionalColor, null);
   static const errorCorrection = PropDef<BarcodeErrorCorrection>(
       'errorCorrection', EnumCodec(BarcodeErrorCorrection.values), BarcodeErrorCorrection.medium);

@@ -145,6 +145,9 @@ illustration](#decoration-images).
 
 A theme that changes with the screen size, every theme key: [theme](#page-theme).
 
+**Design systems.** `"designSystem": "../design_systems/ssui"` in `site.json`: its tokens, base theme; its
+components, callable: [design systems](#page-design-systems).
+
 <a id="base-nodes-ids-children-and-slots"></a>
 ## Nodes, ids, children and slots
 
@@ -654,6 +657,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 - [interaction.md](#page-interaction): Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, controlTrack, controlDismissible, controlTransform, copyToClipboard, haptic.
 - [animation.md](#page-animation): Animation and motion. Documents motion, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, viewProgress, timer, frame, animate.
 - [components.md](#page-components): Components and sections. Documents slot, external, placeholder, singlePlaceholder, event, componentEvent.
+- [design-systems.md](#page-design-systems): Design systems.
 - [charts.md](#page-charts): Charts, gauges and indicators. Documents progressBar, circularProgressIndicator, activityIndicator, badge, radialGauge, gaugeMeter, chart, barChart, lineChart, plotChart, barcode.
 - [data.md](#page-data): Data: APIs, cloud data, storage and form submission. Documents callApi, setStorage, cloudDocuments, loadCloudData, reloadCloudData, cloudFiles, cloudData, cloudBatch, submitForm.
 - [auth.md](#page-auth): Auth: signing users in. Documents auth.
@@ -779,18 +783,19 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4705 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4813 |
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8938 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2551 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2852 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11225 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6854 |
-| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4166 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11322 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6884 |
+| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4201 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4610 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3706 |
-| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6561 |
+| [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
+| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7086 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2308 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 468 |
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
@@ -2368,6 +2373,12 @@ The theme (`site.json`'s `theme`, or the app's theme at run time):
 | `titleFontFamily` | Font family of titles. |
 | `radius` | Corner radius of dialogs. |
 | `buttonRadius` | Corner radius of buttons. |
+| `spacing` | The spacing scale: gaps and paddings by name (`{"1": 4, "2": 8, "3": 12}` or `{"sm": 8, "md": 16}`), read as `${theme.spacing.md}`. Flutter has no spacing token; a design system names its steps here. |
+| `radii` | Corner radii by name (`{"control": 7, "panel": 8, "dialog": 12}`; Flutter's `Radius.circular`), read as `${theme.radii.panel}`. |
+| `sizes` | Other lengths by name: a control scale's heights (`{"compact": 28, "large": 44}`), icon sizes, a panel's width; read as `${theme.sizes.compact}`. |
+| `shadows` | Shadows by name (Flutter's `BoxShadow` lists, as `kElevationToShadow` gives one per elevation): each a list of drop shadows as `decoration.effects` takes them, read as `${theme.shadows.level3}`. `dark` may give other shadows for dark mode. |
+| `durations` | Durations in milliseconds by name (Flutter's `Durations`: `short2`, `medium1`...; a design system's own names), read as `${theme.durations.medium}`. |
+| `curves` | Easing curves by name (Flutter's `Curves`: `easeOut`, `easeInOut`...), read as `${theme.curves.standard}`. |
 
 <a id="node-text"></a>
 ### `text`
@@ -2476,17 +2487,27 @@ A styled range of a text's characters, `[start, end)`.
 A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons
 (labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface`
 (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius`
-shapes every kind of button and chip, `radius` dialogs, menus and pickers. Without a theme, controls are neutral:
-ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font of
-their own. Nothing comes from Material's defaults (no purple, ripples or elevation) or from the host app's theme.
+shapes every kind of button and chip, `radius` dialogs, menus, pickers and fields. Without a theme, controls are
+neutral: ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font
+of their own, and plain in shape: buttons and chips of a 6 px radius (not a stadium), fields and dropdowns outlined
+with their label as the placeholder (no underline, no floating label), date and time pickers plain fields, a
+switch with one thumb size, tabs with a square underline, dialogs and menus of an 8 px radius with a hairline
+border. Gauges, charts, barcodes, signature pads, tab bars and pagination take their unset colours from the theme
+too: values and lines `primary`, tracks and grids `outlineVariant`, ticks and axes `outline`, labels
+`onSurfaceVariant`, needles, cursors and tooltips `onSurface`. Nothing comes from Material's defaults (no purple,
+ripples, elevation or stadium shapes) or from the host app's theme.
 
-<a id="theme-spacing-and-radius-scales"></a>
-### Spacing and radius scales
+<a id="theme-spacing-radii-sizes-shadows-and-motion"></a>
+### Spacing, radii, sizes, shadows and motion
 
-The theme has no spacing or radius tokens for nodes: its `radius` and `buttonRadius` shape controls only. Write
-padding, gaps and corner radii as numbers, or keep a scale as a project variable (`{"name": "space", "type": "map",
-"value": {"sm": 8, "md": 16, "lg": 32}}` in `site.json`) and bind it where it varies: `"bind": {"layout.padding":
-"${space.md}", "props.spacing": "${space.sm}"}`.
+The theme names its scales as it names colours: `"spacing": {"1": 4, "2": 8, "3": 12}`, `"radii": {"control": 7,
+"panel": 8}`, `"sizes": {"compact": 28, "large": 44}`, `"shadows": {"level3": [{"type": "dropShadow", ...}]}` (with
+`dark` shadows of their own), `"durations": {"fast": 150}` (milliseconds) and `"curves": {"standard": "easeInOut"}`.
+A node reads a step in a binding, `"bind": {"layout.padding": "${theme.spacing.3}", "decoration.radius":
+"${theme.radii.panel}", "decoration.effects": "${theme.shadows.level3}"}`; a name the theme does not have is
+`unknown_theme_name`. A [design system](#page-design-systems) brings a whole set of them. The theme's `radius` and
+`buttonRadius` shape the controls (dialogs and fields, buttons and chips); without them controls take small radii
+of their own (6 and 8).
 
 <a id="theme-a-type-scale-that-changes-with-the-screen-size"></a>
 ### A type scale that changes with the screen size
@@ -3568,7 +3589,7 @@ Flutter `DropdownButton<Object>`. Its padding is the node's `layout.padding`.
 | `splashColor` | [Color](#type-Color) | unset |  |  |
 | `elevation` | int | `8` | ≥ 0 |  |
 | `borderRadius` | [BorderRadius](#type-BorderRadius) | unset |  |  |
-| `underline` | bool | `true` |  | Draws Flutter's default underline (false: `SizedBox.shrink()`). |
+| `underline` | bool | `true` |  | Draws the field's border: the theme's field shape (an outline of the control radius, as an unstyled text field's) around the button, padded 12 at the sides when the node sets no padding; false: no border (`underline: SizedBox.shrink()`). Material's underline is never drawn. |
 | `useDataSource` | bool | `false` |  | The items come from the bound `data` list; `itemLabel` labels each (`${item.name}`). |
 | `itemLabel` | String | `""` |  |  |
 | `itemImage` | String | `""` |  | An image before each item's label (a URL, may use `${item}`). |
@@ -3699,16 +3720,16 @@ A signature pad: strokes drawn with a finger or mouse, on a bordered card with a
 |---|---|---|---|---|
 | `value` | List<List<Offset>> | `[]` |  | The strokes, each a list of points. |
 | `normalized` | bool | `false` |  | Points are fractions of the pad's size (0–1) instead of pixels. |
-| `inkColor` | [Color](#type-Color) | `"#FF13306B"` |  |  |
+| `inkColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `inkWidth` | double | `2.6` | ≥ 0 |  |
-| `backgroundColor` | [Color](#type-Color) | `"#FFF8F8F5"` |  |  |
-| `borderColor` | [Color](#type-Color) | `"#FFA9ADA5"` |  |  |
+| `backgroundColor` | [Color](#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
+| `borderColor` | [Color](#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
 | `borderWidth` | double | `1.5` | ≥ 0 |  |
-| `errorBorderColor` | [Color](#type-Color) | `"#FFD3302F"` |  |  |
+| `errorBorderColor` | [Color](#type-Color) | unset |  | Null: the theme's error (`ControlTheme`), so it reads in light and dark. |
 | `errorBorderWidth` | double | `2` | ≥ 0 |  |
 | `borderRadius` | [BorderRadius](#type-BorderRadius) | `4` |  |  |
 | `placeholder` | String | `"SIGN HERE"` |  |  |
-| `placeholderColor` | [Color](#type-Color) | `"#FFA9ADA5"` |  |  |
+| `placeholderColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
 | `placeholderFontSize` | double | `12` | ≥ 0 |  |
 | `showSignLine` | bool | `true` |  |  |
 | `signLineColor` | [Color](#type-Color) | `"#FFA9ADA5"` |  |  |
@@ -4733,11 +4754,11 @@ Page controls for a list's pagination (found by its name, `controller`): first, 
 | `alignment` | [WrapAlignment](#enum-WrapAlignment) | `"spaceBetween"` | `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly` | How the parts are placed along the node (as a `Wrap`'s alignment). |
 | `fontSize` | double | `14` | ≥ 1 |  |
 | `fontWeight` | int | `400` | ≥ 100 |  |
-| `textColor` | [Color](#type-Color) | `"#FF333842"` |  |  |
+| `textColor` | [Color](#type-Color) | unset |  | Null: the theme's ink (`onSurface`). |
 | `buttonColor` | [Color](#type-Color) | unset |  |  |
-| `activeColor` | [Color](#type-Color) | `"#FF2663EA"` |  |  |
-| `activeTextColor` | [Color](#type-Color) | `"#FFFFFFFF"` |  |  |
-| `borderColor` | [Color](#type-Color) | `"#FFD8DDE5"` |  | A button's outline; transparent for none. |
+| `activeColor` | [Color](#type-Color) | unset |  | The current page's fill. Null: the theme's primary. |
+| `activeTextColor` | [Color](#type-Color) | unset |  | The current page's label. Null: what reads on `activeColor` (the theme's `onPrimary`). |
+| `borderColor` | [Color](#type-Color) | unset |  | A button's outline; transparent for none. Null: the theme's hairline (`outlineVariant`). |
 | `borderWidth` | double | `1` | ≥ 0 |  |
 | `cornerRadius` | double | `6` | ≥ 0 |  |
 | `buttonSize` | double | `32` | ≥ 0 | The least width and height of a button. |
@@ -5491,20 +5512,20 @@ Flutter `TabBar` (labels only; no pages).
 | `initialIndex` | int | `0` | ≥ 0 |  |
 | `isScrollable` | bool | `false` |  |  |
 | `physics` | [ScrollPhysicsType](#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
-| `indicatorColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
+| `indicatorColor` | [Color](#type-Color) | unset |  | Null: the theme's primary (what controls draw on the surface). |
 | `indicatorWeight` | double | `2` | ≥ 0 |  |
 | `indicatorSize` | [TabBarIndicatorSize](#enum-TabBarIndicatorSize) | `"label"` | `tab`, `label` |  |
 | `indicatorPadding` | [EdgeInsets](#type-EdgeInsets) | `0` |  |  |
 | `indicatorStyle` | [TabIndicatorStyle](#enum-TabIndicatorStyle) | `"underline"` | `underline`, `filled`, `border`, `none` |  |
 | `indicatorShape` | String | `"roundedRectangle"` |  | The indicator's shape for the filled and border styles: `roundedRectangle`, `stadium`, `circle`, `beveledRectangle`, `continuousRectangle`. |
 | `indicatorRadius` | [BorderRadius](#type-BorderRadius) | `0` |  |  |
-| `labelColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
-| `unselectedLabelColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
+| `labelColor` | [Color](#type-Color) | unset |  | Null: the theme's ink on its surface (`onSurface`). |
+| `unselectedLabelColor` | [Color](#type-Color) | unset |  | Null: the theme's secondary ink (`onSurface` at 68 % over the surface). |
 | `labelStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `unselectedLabelStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `labelPadding` | [EdgeInsets](#type-EdgeInsets) | `0` |  |  |
 | `overlayColor` | [Color](#type-Color) | unset |  |  |
-| `dividerColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
+| `dividerColor` | [Color](#type-Color) | unset |  | Null: the theme's hairline (`outlineVariant`). |
 | `dividerHeight` | double | unset |  |  |
 | `tabAlignment` | [TabAlignment](#enum-TabAlignment) | unset | `start`, `startOffset`, `fill`, `center` |  |
 | `content` | [TabContent](#enum-TabContent) | `"labelAndIcon"` | `label`, `icon`, `labelAndIcon` |  |
@@ -8225,6 +8246,116 @@ command](#page-render) (`--component`, `--components-all`) · [publish](#page-pu
 ---
 
 <!-- Generated by tool/reference/generate.dart from the declarations of codelessly_api 30.1.0. Do not edit: edit the declarations or tool/reference/templates. -->
+<a id="page-design-systems"></a>
+# Design systems
+
+<a id="design-systems-when-to-use"></a>
+## When to use
+
+Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons,
+fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an
+author reads first, the principles and the patterns. Use one for a site (`site.json` names it) or for a generated UI
+(the app gives it to the session); write one when several projects should share a look.
+
+<a id="design-systems-minimal-example"></a>
+## Minimal example
+
+A design system is a folder with a manifest, `design_system.json`:
+
+```json
+{"id": "acme", "name": "Acme", "version": "1.0.0", "description": "Flat, hairline-bordered, dense.",
+ "design": "DESIGN.md", "patterns": "PATTERNS.md",
+ "theme": {"primary": "#FF2563EB", "onPrimary": "#FFFFFFFF", "surface": "#FFFFFFFF", "onSurface": "#FF111827",
+   "colors": {"border": "#FFE5E7EB"}, "dark": {"surface": "#FF141414", "onSurface": "#FFFFFFFF", "colors": {"border": "#FF383838"}},
+   "textStyles": {"body": {"fontSize": 13, "height": 1.5, "color": "onSurface"}},
+   "spacing": {"2": 8, "3": 12, "4": 16}, "radii": {"control": 7, "panel": 8}, "sizes": {"compact": 28}},
+ "components": ["components/Button.json", "components/Card.json"],
+ "replaces": ["filledButton", "outlinedButton", "textButton"]}
+```
+
+A site made with it names the folder; its pages call the components by type:
+
+```json
+{"schema": 3, "pages": ["home.json"], "designSystem": "../design_systems/acme",
+ "theme": {"primary": "#FF7C3AED"}}
+```
+
+<a id="design-systems-reference"></a>
+## Reference
+
+<a id="design-systems-the-manifest"></a>
+### The manifest
+
+| Key | Meaning |
+|---|---|
+| `id` | Its id: what a site names when it is published, the prefix of its components' publish paths. |
+| `name`, `version`, `description` | Shown to authors; the description is the prompt's first line about it. |
+| `design` | DESIGN.md: the principles (look, roles of the tokens, do and don't). Its `## In brief` section is what a prompt quotes. |
+| `patterns` | PATTERNS.md: forms, lists, cards, empty, loading and error states, density. Its `## In brief` is quoted too. |
+| `theme` | The tokens: a theme as `site.json` takes one, with its named scales (`spacing`, `radii`, `sizes`, `shadows`, `durations`, `curves`) and `dark`. |
+| `components` | Its component definitions, in the order its list shows them ([components](#page-components)). |
+| `fonts` | The families it ships, files relative to the manifest (a pubspec's `fonts:`). |
+| `replaces` | The base node types its components stand in for: a prompt lists the components instead. They stay valid. |
+| `examples` | Example documents: a gallery of every component, sample screens. |
+
+A published design system is one bundle, `{"manifest": {...}, "design": "...", "patterns": "...", "components":
+{"Button": {...}}}`, read with `DesignSystem.fromJson`; a folder is read with `DesignSystem.load`.
+
+
+
+<a id="design-systems-patterns"></a>
+## Patterns
+
+<a id="design-systems-what-a-site-gets-from-it"></a>
+### What a site gets from it
+
+- **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a colour, a
+  style, a scale step). Named colours and text styles, light and dark, work as in [the theme](#page-theme).
+- **Scales.** `${theme.spacing.3}`, `${theme.radii.panel}`, `${theme.sizes.compact}`, `${theme.shadows.level3}` and
+  `${theme.durations.fast}` are read in bindings: `"bind": {"layout.padding": "${theme.spacing.3}",
+  "decoration.radius": "${theme.radii.panel}"}`. Validation reports a name the theme does not have
+  (`unknown_theme_name`).
+- **Components.** Called by type as the site's own (`{"type": "Button", "props": {"label": "Save"}}`); a site
+  component of the same type wins. Calls are checked against their declarations (`missing_prop`, `unknown_event`).
+- **Nothing from the app.** The app the site runs in lends no colour, font or shape; without a design system the
+  controls are neutral (ink on paper, small radii).
+
+<a id="design-systems-writing-one"></a>
+### Writing one
+
+1. Write the tokens first: roles (`primary`, `surface`, `onSurface`, `error`...), named colours with their `dark`
+   values, text styles that name colours, and the scales.
+2. Draw each component from core nodes (`row`, `column`, `box`, `text`, `icon`): fills, strokes and radii by
+   token name, hover and press as interaction `states`, sizes and variants as parameters bound with formulas.
+   Wrap a core control only for what only it does (text editing, a native menu), and style every part of it.
+3. Give every component a one-sentence `doc` (its purpose) and a first preview (its minimal call).
+4. Render a gallery of every component, light and dark: `--components-all --theme dark`.
+
+<a id="design-systems-in-a-generated-ui"></a>
+### In a generated UI
+
+The app gives the session the design system: its catalog then has the components, and the prompt is generated from
+it (`runtimeStarter(designSystem: ds)`): the principles in brief, the tokens by name, each component with its
+parameters and a call, the patterns in brief, and no rows for the base controls it replaces. `ui_docs "design"`,
+`"patterns"` and a component's name give the rest.
+
+<a id="design-systems-pitfalls"></a>
+## Pitfalls
+
+- A call has no `decoration`: style the definition, or add a parameter (`variant`, `size`).
+- A colour written in full (`"#FF2563EB"`) does not follow dark mode: name it.
+- A scale step is read through a binding, not written where a number goes (`"padding": "md"` is not a number).
+- `replaces` hides base controls from the prompt only; documents that use them still validate and render.
+
+<a id="design-systems-see-also"></a>
+## See also
+
+[Components](#page-components) · [theme](#page-theme) (named colours, styles, dark mode) · [forms](#page-forms) ·
+[render](#page-render) (`--components-all`, `--theme`).
+
+---
+
+<!-- Generated by tool/reference/generate.dart from the declarations of codelessly_api 30.1.0. Do not edit: edit the declarations or tool/reference/templates. -->
 <a id="page-charts"></a>
 # Charts, gauges and indicators
 
@@ -8400,8 +8531,8 @@ A radial dial: zones, ticks, labels, a value arc (continuous or in segments), a 
 | `startAngle` | double | `150` |  |  |
 | `sweepAngle` | double | `240` |  |  |
 | `thickness` | double | `14` |  |  |
-| `trackColor` | [Color](#type-Color) | `"#FF121316"` |  |  |
-| `valueColor` | [Color](#type-Color) | `"#FFFFD400"` |  |  |
+| `trackColor` | [Color](#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
+| `valueColor` | [Color](#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
 | `colorByZone` | bool | `true` |  | The value arc takes the color of the zone its value is in. |
 | `roundCaps` | bool | `false` |  | Round the continuous value arc's ends; tracks and segments keep flat ends. |
 | `segments` | int | `40` | ≥ 0 |  |
@@ -8411,16 +8542,16 @@ A radial dial: zones, ticks, labels, a value arc (continuous or in segments), a 
 | `zoneOpacity` | double | `0.55` |  |  |
 | `majorTicks` | int | `10` | ≥ 0 |  |
 | `minorTicks` | int | `1` | ≥ 0 |  |
-| `tickColor` | [Color](#type-Color) | `"#FFA3ABB2"` |  |  |
+| `tickColor` | [Color](#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
 | `labels` | List<double> | `[0,60,85,100]` |  |  |
-| `labelColor` | [Color](#type-Color) | `"#FF707882"` |  |  |
+| `labelColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
 | `labelFontSize` | double | `10` | ≥ 0 |  |
 | `labelFontFamily` | String | unset |  |  |
 | `showTarget` | bool | `true` |  |  |
 | `target` | double | `85` |  |  |
-| `targetColor` | [Color](#type-Color) | `"#FFE8EBED"` |  |  |
+| `targetColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `showNeedle` | bool | `true` |  |  |
-| `needleColor` | [Color](#type-Color) | `"#FFE8EBED"` |  |  |
+| `needleColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `needleClearance` | double | `0.62` |  | Where the needle starts, as a fraction of the radius. |
 | `animate` | bool | `true` |  |  |
 | `animationDuration` | int | `420` | ≥ 0 | Milliseconds. |
@@ -8445,8 +8576,8 @@ A meter: `value` between `min` and `max` as a filled arc or bar (continuous or i
 | `shape` | [GaugeShape](#enum-GaugeShape) | `"arc"` | `arc`, `bar` |  |
 | `min` | double | `0` |  |  |
 | `max` | double | `100` |  |  |
-| `color` | [Color](#type-Color) | `"#FF3DD68C"` |  |  |
-| `trackColor` | [Color](#type-Color) | `"#FF282D35"` |  |  |
+| `color` | [Color](#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
+| `trackColor` | [Color](#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `fillStartOpacity` | double | `1` |  | Bar only: the fill fades from this opacity at its start to full. |
 | `segments` | int | `0` | ≥ 0 |  |
 | `segmentGap` | double | `1.25` |  |  |
@@ -8461,7 +8592,7 @@ A meter: `value` between `min` and `max` as a filled arc or bar (continuous or i
 | `edgeColor` | [Color](#type-Color) | `"#FFFFFFFF"` |  |  |
 | `ticks` | int | `0` | ≥ 0 |  |
 | `majorTickEvery` | int | `0` | ≥ 0 |  |
-| `tickColor` | [Color](#type-Color) | `"#FF3A3F47"` |  |  |
+| `tickColor` | [Color](#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
 | `limitColor` | [Color](#type-Color) | `"#FFF2C130"` |  |  |
 | `limitWidth` | double | `3` |  |  |
 | `limitStyle` | [GaugeLimitStyle](#enum-GaugeLimitStyle) | `"solid"` | `solid`, `dashed` |  |
@@ -8489,12 +8620,12 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `minY` | double | unset |  |  |
 | `maxY` | double | unset |  |  |
 | `gridLines` | int | `4` | ≥ 0 |  |
-| `gridColor` | [Color](#type-Color) | `"#FF292E33"` |  |  |
+| `gridColor` | [Color](#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `showYAxis` | bool | `true` |  |  |
 | `yAxisWidth` | double | `36` |  |  |
 | `showXAxis` | bool | `true` |  |  |
 | `xLabelEvery` | int | `1` |  |  |
-| `axisLabelColor` | [Color](#type-Color) | `"#FF707882"` |  |  |
+| `axisLabelColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
 | `axisFontSize` | double | `10` | ≥ 0 |  |
 | `axisFontFamily` | String | unset |  |  |
 | `referenceLines` | List<[ChartReferenceLine](#type-ChartReferenceLine)> | `[]` |  |  |
@@ -8503,7 +8634,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `barGap` | double | `2` |  |  |
 | `barRadius` | double | `0` |  |  |
 | `dashEmpty` | bool | `true` |  |  |
-| `selectionColor` | [Color](#type-Color) | `"#14FFD400"` |  |  |
+| `selectionColor` | [Color](#type-Color) | unset |  | Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark. |
 | `xSlots` | int | `0` |  |  |
 | `startField` | String | `"from"` |  |  |
 | `endField` | String | `"to"` |  |  |
@@ -8512,7 +8643,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `domainMax` | double | `100` |  |  |
 | `nowValue` | double | unset |  |  |
 | `nowColor` | [Color](#type-Color) | unset |  |  |
-| `trackColor` | [Color](#type-Color) | `"#FF121316"` |  |  |
+| `trackColor` | [Color](#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `divisions` | int | `8` |  |  |
 | `donutThickness` | double | `0.15` |  |  |
 | `sliceGap` | double | `1.5` |  |  |
@@ -8526,8 +8657,8 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `yAxisFontFamily` | String | unset |  |  |
 | `dimUnselected` | bool | `false` |  | Bars of other categories fade while one is selected (or hovered). |
 | `tooltip` | bool | `false` |  | A box over the selected (or hovered) category: its label, then each series' name and value there. |
-| `tooltipColor` | [Color](#type-Color) | `"#FFF7F5F0"` |  |  |
-| `tooltipTextColor` | [Color](#type-Color) | `"#FF0E0E10"` |  |  |
+| `tooltipColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
+| `tooltipTextColor` | [Color](#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTitleField` | String | `""` |  | The tooltip's first line: this row field, else the category label. |
 | `tooltipTitleStyle` | [TextStyle](#type-TextStyle) | `{}` |  | The tooltip's title, series names and values, merged over the defaults (12 bold, 13 semibold, 13 bold; the axis font family, in `tooltipTextColor`). |
 | `tooltipLabelStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
@@ -8570,22 +8701,22 @@ A bar chart of `values` with optional labels, grid and a highlighted bar.
 | `labels` | List<String> | `[]` |  |  |
 | `highlight` | int | unset |  |  |
 | `max` | double | `0` |  | The value of a full bar; 0 uses the largest value. |
-| `color` | [Color](#type-Color) | `"#FFF2C130"` |  |  |
+| `color` | [Color](#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
 | `colors` | List<[Color](#type-Color)> | `[]` |  | Per-bar colours; missing entries fall back to color. |
 | `dimmedOpacity` | double | `0.55` |  |  |
 | `barGap` | double | `3` |  |  |
 | `barRadius` | double | `1` |  |  |
-| `emptyColor` | [Color](#type-Color) | `"#FF3A3F47"` |  |  |
+| `emptyColor` | [Color](#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `emptyHeight` | double | `2` |  |  |
 | `gridLines` | int | `3` | ≥ 0 |  |
-| `gridColor` | [Color](#type-Color) | `"#FF2B3038"` |  |  |
+| `gridColor` | [Color](#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `gridLabels` | List<String> | `[]` |  | The grid lines' labels, bottom up; one more than `gridLines` labels the baseline first ("0"). |
 | `gridLabelWidth` | double | `40` |  |  |
-| `baselineColor` | [Color](#type-Color) | `"#FF3A3F47"` |  |  |
+| `baselineColor` | [Color](#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
 | `labelFontFamily` | String | `"JetBrains Mono"` |  |  |
 | `labelFontSize` | double | `10` | ≥ 0 |  |
-| `labelColor` | [Color](#type-Color) | `"#FF6B727C"` |  |  |
-| `highlightLabelColor` | [Color](#type-Color) | `"#FFE8EAED"` |  |  |
+| `labelColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
+| `highlightLabelColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `labelGap` | double | `6` |  |  |
 | `animate` | bool | `true` |  |  |
 | `animationDuration` | int | `700` | ≥ 0 | Milliseconds. |
@@ -8627,18 +8758,18 @@ A line chart of data rows (`xField`, `yField`; dates or numbers on x), with band
 | `yMax` | double | unset |  |  |
 | `plotPadding` | [EdgeInsets](#type-EdgeInsets) | `[44,30,14,30]` |  | Room around the plot for the axes and labels. |
 | `smooth` | bool | `false` |  |  |
-| `lineColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
+| `lineColor` | [Color](#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
 | `lineWidth` | double | `2` | ≥ 0 |  |
-| `areaTopColor` | [Color](#type-Color) | `"#19000000"` |  |  |
+| `areaTopColor` | [Color](#type-Color) | unset |  | Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark. |
 | `areaBottomColor` | [Color](#type-Color) | `"#00000000"` |  |  |
-| `gridColor` | [Color](#type-Color) | `"#19000000"` |  |  |
-| `zeroLineColor` | [Color](#type-Color) | `"#89000000"` |  |  |
-| `axisColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
-| `markerHollowColor` | [Color](#type-Color) | `"#FFFFFFFF"` |  |  |
-| `tagBackground` | [Color](#type-Color) | `"#FF000000"` |  |  |
-| `cursorColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
-| `cursorRingFill` | [Color](#type-Color) | `"#FFFFFFFF"` |  |  |
-| `tooltipBackground` | [Color](#type-Color) | `"#FF000000"` |  |  |
+| `gridColor` | [Color](#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
+| `zeroLineColor` | [Color](#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
+| `axisColor` | [Color](#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
+| `markerHollowColor` | [Color](#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
+| `tagBackground` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
+| `cursorColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
+| `cursorRingFill` | [Color](#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
+| `tooltipBackground` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
 | `tooltipShadowColor` | [Color](#type-Color) | `"#00000000"` |  |  |
 | `yAxisTitle` | String | `""` |  |  |
 | `axisLabelStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
@@ -8692,12 +8823,12 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `yMax` | double | unset |  |  |
 | `plotInset` | double | `8` |  |  |
 | `plotPadding` | [EdgeInsets](#type-EdgeInsets) | unset |  | Room round the plot (top, right, bottom; the left is `yAxisWidth`) in place of `plotInset`: values map between them and ranges fill them. |
-| `lineColor` | [Color](#type-Color) | `"#FF1F6F78"` |  |  |
+| `lineColor` | [Color](#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
 | `lineWidth` | double | `2` | ≥ 0 |  |
 | `fillColor` | [Color](#type-Color) | unset |  |  |
 | `smooth` | bool | `false` |  |  |
 | `gridStepX` | double | unset |  |  |
-| `gridColor` | [Color](#type-Color) | `"#19000000"` |  |  |
+| `gridColor` | [Color](#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `axisColor` | [Color](#type-Color) | unset |  |  |
 | `xLabels` | List<[PlotChartLabel](#type-PlotChartLabel)> | `[]` |  |  |
 | `gridLabels` | List<String> | `[]` |  |  |
@@ -8708,19 +8839,19 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `markerRadius` | double | `3.5` |  |  |
 | `markerLabelStyle` | [TextStyle](#type-TextStyle) | `{}` |  | Marker labels (each in its marker's color); unset fields fall back to 10px bold. |
 | `referenceX` | double | unset |  |  |
-| `referenceColor` | [Color](#type-Color) | `"#FFF2542D"` |  |  |
+| `referenceColor` | [Color](#type-Color) | unset |  | Null: the theme's error (`ControlTheme`), so it reads in light and dark. |
 | `referenceWidth` | double | `1.5` |  |  |
 | `referenceDashed` | bool | `true` |  |  |
 | `selectable` | bool | `true` |  |  |
 | `selectionStep` | double | `1` |  |  |
 | `selectionMin` | double | unset |  |  |
 | `selectionMax` | double | unset |  |  |
-| `selectionColor` | [Color](#type-Color) | `"#19000000"` |  |  |
-| `selectionLineColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
+| `selectionColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface at 10 % (`ControlTheme`), so it reads in light and dark. |
+| `selectionLineColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `selectionLineWidth` | double | `1.5` |  |  |
 | `selectionDotRadius` | double | `6.5` |  |  |
-| `selectionDotColor` | [Color](#type-Color) | `"#FFFFFFFF"` |  |  |
-| `selectionDotStrokeColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
+| `selectionDotColor` | [Color](#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
+| `selectionDotStrokeColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `selectionDotStrokeWidth` | double | `2.5` |  |  |
 | `yLines` | List<[PlotChartYLine](#type-PlotChartYLine)> | `[]` |  | Horizontal lines: grid lines with y-axis labels, and references (a dashed target with an inline label). |
 | `yAxisWidth` | double | `0` |  | Room left of the plot for the y lines' axis labels. |
@@ -8731,7 +8862,7 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `gridAnchor` | [PlotChartGridAnchor](#enum-PlotChartGridAnchor) | `"start"` | `start`, `zero` | Where vertical grid lines start: xMin (default) or multiples of the step. |
 | `gridStepY` | double | unset |  | Horizontal grid lines at multiples of this step (none when unset): the grid's horizontal interval (fl_chart's `FlGridData.horizontalInterval`). |
 | `minorDivisions` | int | `0` | ≥ 0 | Minor lines between grid lines (0: none), drawn in `minorGridColor` only while at least 6px apart: minor gridlines, as a plotting library's minor ticks. |
-| `minorGridColor` | [Color](#type-Color) | `"#0D000000"` |  |  |
+| `minorGridColor` | [Color](#type-Color) | unset |  | Null: the theme's outlineVariant at 50 % (`ControlTheme`), so it reads in light and dark. |
 | `originAxes` | bool | `false` |  | Draws the x axis at y = 0 and the y axis at x = 0 (in `axisColor`) instead of a baseline, with tick labels at grid lines along them; labels of an axis off the plot stick to the nearest edge: axes that cross at the origin (a plotting library's spines at zero). |
 | `axisWidth` | double | `1` | ≥ 0 |  |
 | `axisArrows` | bool | `false` |  | Arrowheads at the positive ends of the origin axes. |
@@ -8745,10 +8876,10 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `selectionGuides` | [PlotChartSelectionGuides](#enum-PlotChartSelectionGuides) | `"line"` | `line`, `axes`, `none` |  |
 | `selectionXLabel` | String | `""` |  | Text in tags where the guides meet the axes (empty: no tag): a crosshair's axis labels. |
 | `selectionYLabel` | String | `""` |  |  |
-| `selectionTagColor` | [Color](#type-Color) | `"#FF000000"` |  |  |
+| `selectionTagColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `selectionTagStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `selectionHaloRadius` | double | `0` |  | A soft disc under the selection dot (0: none). |
-| `selectionHaloColor` | [Color](#type-Color) | `"#2E000000"` |  |  |
+| `selectionHaloColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface at 18 % (`ControlTheme`), so it reads in light and dark. |
 | `animate` | bool | `true` |  | Animates numeric data changes; initial and design-canvas values rest. |
 | `animationDuration` | int | `700` | ≥ 0 | Milliseconds. Zero applies data changes immediately. |
 
@@ -8766,7 +8897,7 @@ A barcode or QR code of `data`, filling the box.
 |---|---|---|---|---|
 | `data` | String | `""` |  |  |
 | `symbology` | [BarcodeSymbology](#enum-BarcodeSymbology) | `"qrCode"` | `qrCode`, `pdf417`, `code128`, `aztec`, `dataMatrix`, `ean13` |  |
-| `color` | [Color](#type-Color) | `"#FF000000"` |  |  |
+| `color` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `backgroundColor` | [Color](#type-Color) | unset |  |  |
 | `errorCorrection` | [BarcodeErrorCorrection](#enum-BarcodeErrorCorrection) | `"medium"` | `low`, `medium`, `quartile`, `high` |  |
 | `drawText` | bool | `true` |  | 1D codes: the text under the bars. |

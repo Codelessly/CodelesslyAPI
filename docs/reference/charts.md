@@ -174,8 +174,8 @@ A radial dial: zones, ticks, labels, a value arc (continuous or in segments), a 
 | `startAngle` | double | `150` |  |  |
 | `sweepAngle` | double | `240` |  |  |
 | `thickness` | double | `14` |  |  |
-| `trackColor` | [Color](values.md#type-Color) | `"#FF121316"` |  |  |
-| `valueColor` | [Color](values.md#type-Color) | `"#FFFFD400"` |  |  |
+| `trackColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
+| `valueColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
 | `colorByZone` | bool | `true` |  | The value arc takes the color of the zone its value is in. |
 | `roundCaps` | bool | `false` |  | Round the continuous value arc's ends; tracks and segments keep flat ends. |
 | `segments` | int | `40` | ≥ 0 |  |
@@ -185,16 +185,16 @@ A radial dial: zones, ticks, labels, a value arc (continuous or in segments), a 
 | `zoneOpacity` | double | `0.55` |  |  |
 | `majorTicks` | int | `10` | ≥ 0 |  |
 | `minorTicks` | int | `1` | ≥ 0 |  |
-| `tickColor` | [Color](values.md#type-Color) | `"#FFA3ABB2"` |  |  |
+| `tickColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
 | `labels` | List<double> | `[0,60,85,100]` |  |  |
-| `labelColor` | [Color](values.md#type-Color) | `"#FF707882"` |  |  |
+| `labelColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
 | `labelFontSize` | double | `10` | ≥ 0 |  |
 | `labelFontFamily` | String | unset |  |  |
 | `showTarget` | bool | `true` |  |  |
 | `target` | double | `85` |  |  |
-| `targetColor` | [Color](values.md#type-Color) | `"#FFE8EBED"` |  |  |
+| `targetColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `showNeedle` | bool | `true` |  |  |
-| `needleColor` | [Color](values.md#type-Color) | `"#FFE8EBED"` |  |  |
+| `needleColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `needleClearance` | double | `0.62` |  | Where the needle starts, as a fraction of the radius. |
 | `animate` | bool | `true` |  |  |
 | `animationDuration` | int | `420` | ≥ 0 | Milliseconds. |
@@ -219,8 +219,8 @@ A meter: `value` between `min` and `max` as a filled arc or bar (continuous or i
 | `shape` | [GaugeShape](values.md#enum-GaugeShape) | `"arc"` | `arc`, `bar` |  |
 | `min` | double | `0` |  |  |
 | `max` | double | `100` |  |  |
-| `color` | [Color](values.md#type-Color) | `"#FF3DD68C"` |  |  |
-| `trackColor` | [Color](values.md#type-Color) | `"#FF282D35"` |  |  |
+| `color` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
+| `trackColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `fillStartOpacity` | double | `1` |  | Bar only: the fill fades from this opacity at its start to full. |
 | `segments` | int | `0` | ≥ 0 |  |
 | `segmentGap` | double | `1.25` |  |  |
@@ -235,7 +235,7 @@ A meter: `value` between `min` and `max` as a filled arc or bar (continuous or i
 | `edgeColor` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
 | `ticks` | int | `0` | ≥ 0 |  |
 | `majorTickEvery` | int | `0` | ≥ 0 |  |
-| `tickColor` | [Color](values.md#type-Color) | `"#FF3A3F47"` |  |  |
+| `tickColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
 | `limitColor` | [Color](values.md#type-Color) | `"#FFF2C130"` |  |  |
 | `limitWidth` | double | `3` |  |  |
 | `limitStyle` | [GaugeLimitStyle](values.md#enum-GaugeLimitStyle) | `"solid"` | `solid`, `dashed` |  |
@@ -263,12 +263,12 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `minY` | double | unset |  |  |
 | `maxY` | double | unset |  |  |
 | `gridLines` | int | `4` | ≥ 0 |  |
-| `gridColor` | [Color](values.md#type-Color) | `"#FF292E33"` |  |  |
+| `gridColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `showYAxis` | bool | `true` |  |  |
 | `yAxisWidth` | double | `36` |  |  |
 | `showXAxis` | bool | `true` |  |  |
 | `xLabelEvery` | int | `1` |  |  |
-| `axisLabelColor` | [Color](values.md#type-Color) | `"#FF707882"` |  |  |
+| `axisLabelColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
 | `axisFontSize` | double | `10` | ≥ 0 |  |
 | `axisFontFamily` | String | unset |  |  |
 | `referenceLines` | List<[ChartReferenceLine](charts.md#type-ChartReferenceLine)> | `[]` |  |  |
@@ -277,7 +277,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `barGap` | double | `2` |  |  |
 | `barRadius` | double | `0` |  |  |
 | `dashEmpty` | bool | `true` |  |  |
-| `selectionColor` | [Color](values.md#type-Color) | `"#14FFD400"` |  |  |
+| `selectionColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark. |
 | `xSlots` | int | `0` |  |  |
 | `startField` | String | `"from"` |  |  |
 | `endField` | String | `"to"` |  |  |
@@ -286,7 +286,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `domainMax` | double | `100` |  |  |
 | `nowValue` | double | unset |  |  |
 | `nowColor` | [Color](values.md#type-Color) | unset |  |  |
-| `trackColor` | [Color](values.md#type-Color) | `"#FF121316"` |  |  |
+| `trackColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `divisions` | int | `8` |  |  |
 | `donutThickness` | double | `0.15` |  |  |
 | `sliceGap` | double | `1.5` |  |  |
@@ -300,8 +300,8 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `yAxisFontFamily` | String | unset |  |  |
 | `dimUnselected` | bool | `false` |  | Bars of other categories fade while one is selected (or hovered). |
 | `tooltip` | bool | `false` |  | A box over the selected (or hovered) category: its label, then each series' name and value there. |
-| `tooltipColor` | [Color](values.md#type-Color) | `"#FFF7F5F0"` |  |  |
-| `tooltipTextColor` | [Color](values.md#type-Color) | `"#FF0E0E10"` |  |  |
+| `tooltipColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
+| `tooltipTextColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTitleField` | String | `""` |  | The tooltip's first line: this row field, else the category label. |
 | `tooltipTitleStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  | The tooltip's title, series names and values, merged over the defaults (12 bold, 13 semibold, 13 bold; the axis font family, in `tooltipTextColor`). |
 | `tooltipLabelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
@@ -344,22 +344,22 @@ A bar chart of `values` with optional labels, grid and a highlighted bar.
 | `labels` | List<String> | `[]` |  |  |
 | `highlight` | int | unset |  |  |
 | `max` | double | `0` |  | The value of a full bar; 0 uses the largest value. |
-| `color` | [Color](values.md#type-Color) | `"#FFF2C130"` |  |  |
+| `color` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
 | `colors` | List<[Color](values.md#type-Color)> | `[]` |  | Per-bar colours; missing entries fall back to color. |
 | `dimmedOpacity` | double | `0.55` |  |  |
 | `barGap` | double | `3` |  |  |
 | `barRadius` | double | `1` |  |  |
-| `emptyColor` | [Color](values.md#type-Color) | `"#FF3A3F47"` |  |  |
+| `emptyColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `emptyHeight` | double | `2` |  |  |
 | `gridLines` | int | `3` | ≥ 0 |  |
-| `gridColor` | [Color](values.md#type-Color) | `"#FF2B3038"` |  |  |
+| `gridColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `gridLabels` | List<String> | `[]` |  | The grid lines' labels, bottom up; one more than `gridLines` labels the baseline first ("0"). |
 | `gridLabelWidth` | double | `40` |  |  |
-| `baselineColor` | [Color](values.md#type-Color) | `"#FF3A3F47"` |  |  |
+| `baselineColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
 | `labelFontFamily` | String | `"JetBrains Mono"` |  |  |
 | `labelFontSize` | double | `10` | ≥ 0 |  |
-| `labelColor` | [Color](values.md#type-Color) | `"#FF6B727C"` |  |  |
-| `highlightLabelColor` | [Color](values.md#type-Color) | `"#FFE8EAED"` |  |  |
+| `labelColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
+| `highlightLabelColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `labelGap` | double | `6` |  |  |
 | `animate` | bool | `true` |  |  |
 | `animationDuration` | int | `700` | ≥ 0 | Milliseconds. |
@@ -401,18 +401,18 @@ A line chart of data rows (`xField`, `yField`; dates or numbers on x), with band
 | `yMax` | double | unset |  |  |
 | `plotPadding` | [EdgeInsets](values.md#type-EdgeInsets) | `[44,30,14,30]` |  | Room around the plot for the axes and labels. |
 | `smooth` | bool | `false` |  |  |
-| `lineColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
+| `lineColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
 | `lineWidth` | double | `2` | ≥ 0 |  |
-| `areaTopColor` | [Color](values.md#type-Color) | `"#19000000"` |  |  |
+| `areaTopColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark. |
 | `areaBottomColor` | [Color](values.md#type-Color) | `"#00000000"` |  |  |
-| `gridColor` | [Color](values.md#type-Color) | `"#19000000"` |  |  |
-| `zeroLineColor` | [Color](values.md#type-Color) | `"#89000000"` |  |  |
-| `axisColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
-| `markerHollowColor` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `tagBackground` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
-| `cursorColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
-| `cursorRingFill` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `tooltipBackground` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
+| `gridColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
+| `zeroLineColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
+| `axisColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outline (`ControlTheme`), so it reads in light and dark. |
+| `markerHollowColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
+| `tagBackground` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
+| `cursorColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
+| `cursorRingFill` | [Color](values.md#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
+| `tooltipBackground` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
 | `tooltipShadowColor` | [Color](values.md#type-Color) | `"#00000000"` |  |  |
 | `yAxisTitle` | String | `""` |  |  |
 | `axisLabelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
@@ -466,12 +466,12 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `yMax` | double | unset |  |  |
 | `plotInset` | double | `8` |  |  |
 | `plotPadding` | [EdgeInsets](values.md#type-EdgeInsets) | unset |  | Room round the plot (top, right, bottom; the left is `yAxisWidth`) in place of `plotInset`: values map between them and ranges fill them. |
-| `lineColor` | [Color](values.md#type-Color) | `"#FF1F6F78"` |  |  |
+| `lineColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
 | `lineWidth` | double | `2` | ≥ 0 |  |
 | `fillColor` | [Color](values.md#type-Color) | unset |  |  |
 | `smooth` | bool | `false` |  |  |
 | `gridStepX` | double | unset |  |  |
-| `gridColor` | [Color](values.md#type-Color) | `"#19000000"` |  |  |
+| `gridColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outlineVariant (`ControlTheme`), so it reads in light and dark. |
 | `axisColor` | [Color](values.md#type-Color) | unset |  |  |
 | `xLabels` | List<[PlotChartLabel](charts.md#type-PlotChartLabel)> | `[]` |  |  |
 | `gridLabels` | List<String> | `[]` |  |  |
@@ -482,19 +482,19 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `markerRadius` | double | `3.5` |  |  |
 | `markerLabelStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  | Marker labels (each in its marker's color); unset fields fall back to 10px bold. |
 | `referenceX` | double | unset |  |  |
-| `referenceColor` | [Color](values.md#type-Color) | `"#FFF2542D"` |  |  |
+| `referenceColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's error (`ControlTheme`), so it reads in light and dark. |
 | `referenceWidth` | double | `1.5` |  |  |
 | `referenceDashed` | bool | `true` |  |  |
 | `selectable` | bool | `true` |  |  |
 | `selectionStep` | double | `1` |  |  |
 | `selectionMin` | double | unset |  |  |
 | `selectionMax` | double | unset |  |  |
-| `selectionColor` | [Color](values.md#type-Color) | `"#19000000"` |  |  |
-| `selectionLineColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
+| `selectionColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface at 10 % (`ControlTheme`), so it reads in light and dark. |
+| `selectionLineColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `selectionLineWidth` | double | `1.5` |  |  |
 | `selectionDotRadius` | double | `6.5` |  |  |
-| `selectionDotColor` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `selectionDotStrokeColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
+| `selectionDotColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
+| `selectionDotStrokeColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `selectionDotStrokeWidth` | double | `2.5` |  |  |
 | `yLines` | List<[PlotChartYLine](charts.md#type-PlotChartYLine)> | `[]` |  | Horizontal lines: grid lines with y-axis labels, and references (a dashed target with an inline label). |
 | `yAxisWidth` | double | `0` |  | Room left of the plot for the y lines' axis labels. |
@@ -505,7 +505,7 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `gridAnchor` | [PlotChartGridAnchor](values.md#enum-PlotChartGridAnchor) | `"start"` | `start`, `zero` | Where vertical grid lines start: xMin (default) or multiples of the step. |
 | `gridStepY` | double | unset |  | Horizontal grid lines at multiples of this step (none when unset): the grid's horizontal interval (fl_chart's `FlGridData.horizontalInterval`). |
 | `minorDivisions` | int | `0` | ≥ 0 | Minor lines between grid lines (0: none), drawn in `minorGridColor` only while at least 6px apart: minor gridlines, as a plotting library's minor ticks. |
-| `minorGridColor` | [Color](values.md#type-Color) | `"#0D000000"` |  |  |
+| `minorGridColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's outlineVariant at 50 % (`ControlTheme`), so it reads in light and dark. |
 | `originAxes` | bool | `false` |  | Draws the x axis at y = 0 and the y axis at x = 0 (in `axisColor`) instead of a baseline, with tick labels at grid lines along them; labels of an axis off the plot stick to the nearest edge: axes that cross at the origin (a plotting library's spines at zero). |
 | `axisWidth` | double | `1` | ≥ 0 |  |
 | `axisArrows` | bool | `false` |  | Arrowheads at the positive ends of the origin axes. |
@@ -519,10 +519,10 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `selectionGuides` | [PlotChartSelectionGuides](values.md#enum-PlotChartSelectionGuides) | `"line"` | `line`, `axes`, `none` |  |
 | `selectionXLabel` | String | `""` |  | Text in tags where the guides meet the axes (empty: no tag): a crosshair's axis labels. |
 | `selectionYLabel` | String | `""` |  |  |
-| `selectionTagColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
+| `selectionTagColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `selectionTagStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `selectionHaloRadius` | double | `0` |  | A soft disc under the selection dot (0: none). |
-| `selectionHaloColor` | [Color](values.md#type-Color) | `"#2E000000"` |  |  |
+| `selectionHaloColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface at 18 % (`ControlTheme`), so it reads in light and dark. |
 | `animate` | bool | `true` |  | Animates numeric data changes; initial and design-canvas values rest. |
 | `animationDuration` | int | `700` | ≥ 0 | Milliseconds. Zero applies data changes immediately. |
 
@@ -540,7 +540,7 @@ A barcode or QR code of `data`, filling the box.
 |---|---|---|---|---|
 | `data` | String | `""` |  |  |
 | `symbology` | [BarcodeSymbology](values.md#enum-BarcodeSymbology) | `"qrCode"` | `qrCode`, `pdf417`, `code128`, `aztec`, `dataMatrix`, `ean13` |  |
-| `color` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
+| `color` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark. |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  |  |
 | `errorCorrection` | [BarcodeErrorCorrection](values.md#enum-BarcodeErrorCorrection) | `"medium"` | `low`, `medium`, `quartile`, `high` |  |
 | `drawText` | bool | `true` |  | 1D codes: the text under the bars. |
