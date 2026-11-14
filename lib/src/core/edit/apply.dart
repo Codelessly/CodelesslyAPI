@@ -263,6 +263,11 @@ EditResult applyOps(
 /// and every node no root reaches (`unreachable_node`, a warning).
 List<EditDiagnostic> endOfStream(LayoutDocument document) {
   final out = <EditDiagnostic>[];
+  // A script written against names it does not have fails only when it
+  // runs: said now, so the agent's next turn can fix it.
+  for (final p in scriptSourceProblems(document.extra['scripts'])) {
+    out.add(EditDiagnostic(op: -1, code: 'unknown_name', error: true, path: '/scripts/${p.index}/source', message: '${p.message} Did you mean "${p.suggestion}"?'));
+  }
   for (final n in document.nodes.values) {
     var i = 0;
     for (final c in n.children) {

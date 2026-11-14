@@ -1722,33 +1722,9 @@ final class _Validator {
       for (final problem in s.validate()) {
         r.add(Codes.wrongType, pointer('/scripts', i), problem.toString());
       }
-      final source = raw[i] is Map ? (raw[i] as Map)['source'] : null;
-      if (source is! String) continue;
-      // The two names a script is most often written against that it does
-      // not have: said here, since at run time it is only "not defined".
-      final code = source
-          .replaceAll(RegExp(r'/\*[\s\S]*?\*/'), ' ')
-          .replaceAll(RegExp(r'//[^\n]*'), ' ')
-          .replaceAll(RegExp(r"'(?:[^'\\\n]|\\.)*'"), '""')
-          .replaceAll(RegExp(r'"(?:[^"\\\n]|\\.)*"'), '""');
-      final at = pointer(pointer('/scripts', i), 'source');
-      if (RegExp(r'(?<![.\w$])variables\s*\.\s*(get|set)\s*\(').hasMatch(code) && !RegExp(r'\b(var|let|const)\s+variables\b').hasMatch(code)) {
-        r.add(Codes.unknownName, at,
-            'A script reads and writes variables with vars.get(name) and vars.set(name, value): "variables" is not defined in a script '
-            '("variables.read" and "variables.write" are the names of the capabilities).',
-            suggestion: 'vars');
-      }
-      for (var j = 0; j < raw.length; j++) {
-        final other = j == i || raw[j] is! Map ? null : ((raw[j] as Map)['name'] ?? (raw[j] as Map)['id']);
-        if (other is! String || !RegExp(r'^[A-Za-z_$][\w$]*$').hasMatch(other)) continue;
-        final call = RegExp('(?<![.\\w\$])${RegExp.escape(other)}\\s*\\(');
-        final own = RegExp('\\b(function|var|let|const)\\s+${RegExp.escape(other)}\\b');
-        if (call.hasMatch(code) && !own.hasMatch(code)) {
-          r.add(Codes.unknownName, at,
-              'Script "${s.name}" calls $other(…), another script: a script calls another as script.$other(…).',
-              suggestion: 'script.$other(');
-        }
-      }
+    }
+    for (final p in scriptSourceProblems(raw)) {
+      r.add(Codes.unknownName, pointer(pointer('/scripts', p.index), 'source'), p.message, suggestion: p.suggestion);
     }
   }
 
