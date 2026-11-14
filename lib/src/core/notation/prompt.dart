@@ -82,6 +82,7 @@ LINE
 - Words on a Row or Column: start, center, end, between (along it); top, middle, bottom, left, right, stretch (across it). grow on a child takes the remaining room. hidden hides a node.
 - =name binds a control's value to a variable both ways (the variable is created for you): Slider =volume, Toggle "Wi-Fi" =wifi, Input "Email" =email, Select =size items:["S","M","L"]. On other keys write key:=expression with no spaces: visible:=count>0.
 - -> runs on tap (on change, for a control): name=value sets a variable; emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal. Separate several with ;
+- drag:group(value) on a node lets it be dragged carrying a value; drop:groupA,groupB -> … on a node takes those drops, and its -> runs on a drop with result.data the value carried: Card drag:todo(card.id), then Column drop:todo -> done=append(done,result.data).
 - state name=value on its own line (top level) declares a variable with a starting value.
 - every 1000 -> name=value on its own line (top level) runs as time passes (milliseconds, or 1s): a clock, a countdown. every 1s when running -> … runs only while the condition holds.
 - if expression on its own line shows the lines indented under it only while it holds.
@@ -97,7 +98,7 @@ TYPES
   Button variants: ${buttonVariants.keys.map((k) => 'Button.$k').join(', ')} (plain Button is primary)
   Badge variants: ${badgeVariants.keys.map((k) => 'Badge.$k').join(', ')}
   Card is a padded, bordered Column; Box is a Column you style (fill, radius, pad). Every control already has the design system's look: write no colors or sizes on controls. A Text takes color:#FF…; a Box or Card takes fill:#FF… (on a dark fill, give its texts a light color). A look can follow data: fill:=, border:= and color:= take an expression. Column scroll lets a tall screen scroll.
-  Grid cols:3 gap:8 lays its children out in columns. Progress 0.6 (or Progress =done) shows a share from 0 to 1. Select and SegmentedButton take items:["A","B"]. Icon "name" uses Material icon names (check, close, star, chevron_right).
+  Grid cols:3 gap:8 lays its children out in columns. Progress 0.6 (or Progress =done) shows a share from 0 to 1. Select and SegmentedButton take items:["A","B"]. Input takes type:number (or email, phone) for its keyboard. Icon "name" uses Material icon names (check, close, star, chevron_right).
   BarChart values:[3,5,4] labels:["Mon","Tue","Wed"] and LineChart values:[10,12,11,14] draw charts: never link to a chart image.
   Only Row, Column, Stack, Box, Card, Grid, List, Accordion and ListTile take children.
 

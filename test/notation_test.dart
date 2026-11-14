@@ -265,6 +265,27 @@ Column
     ]);
   });
 
+  test('drag and drop in words: a dragged node carries a value in a group, a drop target takes groups and its -> runs on a drop', () {
+    final r = _parse('''
+state todo=[{"id":"a","title":"Sketch"}]
+state done=[]
+Column gap:8
+  each card in todo
+    Card#card drag:todo(card.id)
+      Text "{card.title}"
+  Card#doneCol drop:todo,doing -> done=append(done,result.data)
+    Text "Done {length(done)}"
+''');
+    expect(r.issues, isEmpty);
+    expect(_node(r, 'card')['draggable'], {'group': 'todo', 'data': r'${item.id}'});
+    final target = _node(r, 'doneCol');
+    expect(target['dropTarget'], {'accepts': ['todo', 'doing']});
+    expect(((target['actions'] as List).single as Map)['trigger'], {'type': 'drop'});
+    expect((_node(_parse('Column\n  Input "Age" type:number\n'), 'textField1')['props'] as Map)['keyboardType'], 'number');
+    final bad = _parse('Column\n  Card drag:"a b"\n  Card drop:1x -> x=1\n');
+    expect(bad.issues.map((i) => i.message), [contains('drag is written'), contains('drop is written')]);
+  });
+
   test('read as it arrives: each completed line gives its operations, and applying them builds the same document', () {
     const text = '''
 state decision="pending"
