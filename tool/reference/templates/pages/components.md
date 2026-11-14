@@ -109,6 +109,41 @@ call is `PlanCard(price: 47, ...)`.
 | a `variable` parameter | a `ValueNotifier<T>` passed in |
 | `site.json` | the app's `lib/`: its pages and its globals |
 
+### A complete multi-page site
+
+A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids
+`unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages. The trip
+page reads its route parameter (`${route.id}`, from `navigate.params` or a link `trip?id=coast`); the saved list is
+restored from storage when the home page loads; the packing list is kept per trip under a key built from the route.
+
+`site.json`:
+
+{{example:site/site}}
+
+`components/Header.json` (its About link opens the modal `about`, a canvas of `pages/home.json`; canvas ids are
+site-wide, so any page or component may open it):
+
+{{example:site/components/Header}}
+
+`components/Footer.json`:
+
+{{example:site/components/Footer}}
+
+`pages/home.json`: restores `saved` on `load`, lists the trips from the project variable, links each to `trip`
+with its id, and holds the `about` modal canvas:
+
+{{example:site/pages/home}}
+
+`pages/trip.json`: the trip named by `${route.id}` (the first one when the screen opens without it), a Save button
+that writes the saved list back to storage, and a packing checklist per trip (`setStorage` key
+`packed.${route.id}`, read with `get(storage.packed, route.id)`):
+
+{{example:site/pages/trip}}
+
+Node ids are per document: both pages have `page`, `header`, `main` and `footer`, and each component its own ids.
+Render it and check each state: `--tap tripCard#1 --tap packRow#0 --tap save --label saved`; `--navigate
+trip?id=coast`; `--tap header/about --label about` (a node in a component instance by its call's id).
+
 ### When to make what
 
 * **List template**: one shape repeated from data in one parent. When the item is more than about five nodes, or

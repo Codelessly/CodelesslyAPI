@@ -169,6 +169,14 @@ shapes every kind of button and chip, `radius` dialogs, menus and pickers. Witho
 ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font of
 their own. Nothing comes from Material's defaults (no purple, ripples or elevation) or from the host app's theme.
 
+<a id="theme-spacing-and-radius-scales"></a>
+### Spacing and radius scales
+
+The theme has no spacing or radius tokens for nodes: its `radius` and `buttonRadius` shape controls only. Write
+padding, gaps and corner radii as numbers, or keep a scale as a project variable (`{"name": "space", "type": "map",
+"value": {"sm": 8, "md": 16, "lg": 32}}` in `site.json`) and bind it where it varies: `"bind": {"layout.padding":
+"${space.md}", "props.spacing": "${space.sm}"}`.
+
 <a id="theme-a-type-scale-that-changes-with-the-screen-size"></a>
 ### A type scale that changes with the screen size
 

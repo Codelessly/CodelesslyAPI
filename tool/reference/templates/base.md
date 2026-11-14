@@ -139,9 +139,9 @@ Dark mode, a theme that changes with the screen size, every theme key: [theme](@
 
 `nodes` maps each node's **id** (the map key; do not repeat it inside the node) to the node. A parent lists its
 children's ids in `children`, or names them in `slots`; a child does not name its parent. Every node except a
-canvas has exactly one parent; `roots` lists the canvases, and a canvas is never a child. Ids are any text: use
-short readable ones and keep them unique across a site's documents (actions, diagnostics and the render command
-name nodes by id). A node's main keys: `type`, `layout`, `decoration`, `props` (the type's own parameters),
+canvas has exactly one parent; `roots` lists the canvases, and a canvas is never a child. Ids are any text, and
+**per document**: a page's actions and conditions name its own nodes, a component's ids are its own, and two pages
+may both have a `title`. **Canvas ids are site-wide** (links name screens by them): never repeat one. A node's main keys: `type`, `layout`, `decoration`, `props` (the type's own parameters),
 `children` / `slots`, `bind`, `actions`, `media`, `visible`, `opacity`, `name`.
 
 Which types take children, which take named slots, which take neither:
@@ -321,6 +321,9 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
   "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
   to the host app). Action types here: {{actionTypes}}.
+- Keys are exact; validation names the one meant: `{"type": "scrollTo", "node": "faq"}`, `{"type":
+  "copyToClipboard", "text": "${address}"}`, `{"type": "downloadFile", "fileName": "trip.txt", "text": "${brief}"}`;
+  a list appends with `"op": "add"` (`insert` takes an `index`).
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
 - A tap on a control inside a tappable row runs the control's reaction only: to toggle from the whole row, give the
   control `"ignorePointer": true` and bind its value.
@@ -374,7 +377,8 @@ It validates every document strictly, renders each screen at each size (`shots/<
 `shots/diagnostics.json`) and prints one line per problem: a code, the JSON pointer
 (`/nodes/hero-title/props/style/fontSize`) and what to do. It exits 1 on errors. Steps before the capture:
 `--tap <id>` (`<id>#<n>` for the n-th list item), `--hover`, `--focus`, `--type <id>=<text>`,
-`--set <variable>=<json>`, `--scroll <id>=<px>`, `--navigate <canvas>`, `--label <name>`. Look at the
+`--set <variable>=<json>`, `--scroll <id>=<px>`, `--drag <id>=<dx>,<dy>`, `--navigate <canvas>?<param>=<value>`,
+`--label <name>`. Look at the
 screenshots: validation cannot tell you a page is ugly. Every option and diagnostic code: [render](@page-render).
 
 ## Sites and components as files
@@ -384,14 +388,16 @@ document with one root and a `widget` declaration of its parameters, slots and e
 `${props.price}`; a page **calls** it with one node of that type (`{"type": "PlanCard", "props": {"price": 47}}`),
 as Flutter builds `PlanCard(price: 47)`. A component never reads its page's variables: pass what it needs as
 parameters, and shared state as a `variable` parameter. A folder with `site.json` (pages, components, theme,
-project variables) is a site.
+project variables) is a site. **Write `site.json` first, with every page listed in `pages`**, before the pages
+that link to them: a link to a page not listed yet is an `unknown_screen` error.
 
 - **List template**: one shape repeated from data in one parent.
 - **Component**: the same structure in two or more places with different values (a card, a chip).
 - **Section**: a top-level band of a page (header, hero, pricing, FAQ, footer), in its own file when it is more
   than about 15 nodes.
 
-Parameter kinds, slots, events, the manifest, rendering one part: [components](@page-components).
+Parameter kinds, slots, events, the manifest, rendering one part: [components](@page-components). A whole site
+(manifest, shared header and footer, route parameters, storage, a modal): [a complete site](@components-a-complete-multi-page-site).
 <!-- end -->
 
 <!-- if runtime -->

@@ -73,6 +73,11 @@ swipes a node away (a list item; the `swipeAction` trigger). `pan` makes a node 
 `transformGesture` pinches, pans and rotates with fling physics. The `drag` trigger reports `${result.dx}`,
 `${result.dy}` per move and `dragEnd` the velocity, for game controls.
 
+### Copy to the clipboard
+
+`{"type": "copyToClipboard", "text": "${address}"}` (the key is `text`), then the chain goes on: a toast or a
+"Copied" state after it. The render command copies in memory and lists what was copied in its report.
+
 ### Keys
 
 A canvas's `keyDown` reaction (`{"trigger": {"type": "keyDown", "key": "ArrowRight"}, ...}`) runs while no text

@@ -1,0 +1,304 @@
+{
+ "schema": 3,
+ "roots": [
+  "home",
+  "about"
+ ],
+ "nodes": {
+  "home": {
+   "type": "canvas",
+   "name": "Home",
+   "path": "/",
+   "slots": {
+    "body": "page"
+   },
+   "layout": {
+    "width": 390,
+    "height": 844
+   },
+   "decoration": {
+    "fills": [
+     {
+      "color": "paper"
+     }
+    ]
+   },
+   "actions": [
+    {
+     "trigger": {
+      "type": "load"
+     },
+     "actions": [
+      {
+       "type": "setVariable",
+       "variable": "saved",
+       "value": "${= coalesce(storage.saved, [])}"
+      }
+     ]
+    }
+   ]
+  },
+  "page": {
+   "type": "column",
+   "children": [
+    "header",
+    "main",
+    "footer"
+   ],
+   "props": {
+    "scrollable": true
+   },
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": {
+     "fill": 844
+    }
+   }
+  },
+  "header": {
+   "type": "Header",
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": 56
+   },
+   "bind": {
+    "props.savedCount": "${= length(saved)}"
+   }
+  },
+  "main": {
+   "type": "column",
+   "children": [
+    "title",
+    "tripList"
+   ],
+   "props": {
+    "spacing": 16,
+    "crossAxisAlignment": "start"
+   },
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": {
+     "hug": 300
+    },
+    "padding": 20,
+    "constraints": {
+     "maxWidth": 960
+    }
+   }
+  },
+  "title": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "fill": 350
+    },
+    "height": {
+     "hug": 34
+    }
+   },
+   "props": {
+    "text": "Trips by rail",
+    "style": "title"
+   }
+  },
+  "tripList": {
+   "type": "listView",
+   "children": [
+    "tripCard"
+   ],
+   "props": {
+    "scrollable": false,
+    "spacing": 12
+   },
+   "layout": {
+    "width": {
+     "fill": 350
+    },
+    "height": {
+     "hug": 200
+    }
+   },
+   "bind": {
+    "data": "${trips}"
+   }
+  },
+  "tripCard": {
+   "type": "row",
+   "children": [
+    "tripName",
+    "tripDays"
+   ],
+   "props": {
+    "mainAxisAlignment": "spaceBetween"
+   },
+   "layout": {
+    "width": {
+     "fill": 350
+    },
+    "height": 64,
+    "padding": [
+     16,
+     0,
+     16,
+     0
+    ]
+   },
+   "decoration": {
+    "fills": [
+     {
+      "color": "#FFFFFFFF"
+     }
+    ],
+    "strokes": [
+     {
+      "color": "line"
+     }
+    ],
+    "radius": 12
+   },
+   "actions": [
+    {
+     "trigger": {
+      "type": "click"
+     },
+     "actions": [
+      {
+       "type": "navigate",
+       "to": "trip",
+       "params": {
+        "id": "${item.id}"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "tripName": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "hug": 200
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "${item.name}",
+    "style": {
+     "from": "body",
+     "fontWeight": 600
+    }
+   }
+  },
+  "tripDays": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "hug": 60
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "${item.days} days",
+    "style": {
+     "from": "body",
+     "color": "muted"
+    }
+   }
+  },
+  "footer": {
+   "type": "Footer",
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": 64
+   }
+  },
+  "about": {
+   "type": "canvas",
+   "name": "About",
+   "slots": {
+    "body": "aboutBody"
+   },
+   "layout": {
+    "width": 320,
+    "height": 180
+   },
+   "decoration": {
+    "fills": [
+     {
+      "color": "#FFFFFFFF"
+     }
+    ],
+    "radius": 16
+   }
+  },
+  "aboutBody": {
+   "type": "column",
+   "children": [
+    "aboutText",
+    "aboutClose"
+   ],
+   "props": {
+    "spacing": 16,
+    "crossAxisAlignment": "start"
+   },
+   "layout": {
+    "width": {
+     "fill": 320
+    },
+    "height": {
+     "fill": 180
+    },
+    "padding": 24
+   }
+  },
+  "aboutText": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "fill": 272
+    },
+    "height": {
+     "hug": 44
+    }
+   },
+   "props": {
+    "text": "Itineraries for travelling slowly by train.",
+    "style": "body"
+   }
+  },
+  "aboutClose": {
+   "type": "filledButton",
+   "layout": {
+    "width": 120,
+    "height": 40
+   },
+   "props": {
+    "label": "Close"
+   },
+   "actions": [
+    {
+     "trigger": {
+      "type": "click"
+     },
+     "actions": [
+      {
+       "type": "closeModal"
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

@@ -196,6 +196,376 @@ call is `PlanCard(price: 47, ...)`.
 | a `variable` parameter | a `ValueNotifier<T>` passed in |
 | `site.json` | the app's `lib/`: its pages and its globals |
 
+<a id="components-a-complete-multi-page-site"></a>
+### A complete multi-page site
+
+A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids
+`unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages. The trip
+page reads its route parameter (`${route.id}`, from `navigate.params` or a link `trip?id=coast`); the saved list is
+restored from storage when the home page loads; the packing list is kept per trip under a key built from the route.
+
+`site.json`:
+
+```json
+{
+  "schema": 3,
+  "pages": ["pages/home.json", "pages/trip.json"],
+  "components": ["components/Header.json", "components/Footer.json"],
+  "theme": {
+    "colors": {
+      "ink": "#FF1B1B1B",
+      "paper": "#FFFAF7F2",
+      "accent": "#FF2F6B4F",
+      "muted": "#FF6B7280",
+      "line": "#FFE5E1D8"
+    },
+    "textStyles": {
+      "body": {"fontSize": 15, "height": 1.4, "color": "ink"},
+      "title": {"from": "body", "fontSize": 28, "fontWeight": 700, "height": 1.2},
+      "link": {"from": "body", "fontWeight": 600, "color": "accent"}
+    }
+  },
+  "variables": [
+    {
+      "name": "trips",
+      "type": "list",
+      "value": [
+        {
+          "id": "alps",
+          "name": "The Alpine Arc",
+          "days": 7,
+          "packing": ["Rail pass", "Rain shell", "Walking boots"]
+        },
+        {"id": "coast", "name": "Coast to Coast", "days": 5, "packing": ["Swimwear", "Sun hat"]}
+      ]
+    },
+    {"name": "saved", "type": "list", "value": []}
+  ]
+}
+```
+
+`components/Header.json` (its About link opens the modal `about`, a canvas of `pages/home.json`; canvas ids are
+site-wide, so any page or component may open it):
+
+```json
+{
+  "schema": 3,
+  "id": "Header",
+  "roots": ["bar"],
+  "widget": {
+    "type": "Header",
+    "doc": "The site's top bar: the name (home) and an About link (a modal).",
+    "props": [{"key": "savedCount", "type": {"kind": "integer", "flutter": "int"}, "default": 0}]
+  },
+  "nodes": {
+    "bar": {
+      "type": "row",
+      "children": ["brand", "count", "about"],
+      "props": {"spacing": 16},
+      "layout": {"width": {"fill": 390}, "height": 56, "padding": [20, 0, 20, 0]},
+      "decoration": {"fills": [{"color": "paper"}], "strokes": [{"color": "line"}], "strokeSides": "bottom"}
+    },
+    "brand": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "Waymark", "style": {"from": "body", "fontWeight": 700}},
+      "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "navigate", "to": "home"}]}]
+    },
+    "count": {
+      "type": "text",
+      "layout": {"width": {"fill": 120}, "height": {"hug": 22}},
+      "props": {"text": "${props.savedCount} saved", "style": {"from": "body", "color": "muted"}, "textAlign": "right"}
+    },
+    "about": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "About", "style": "link"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [{"type": "openModal", "to": "about", "presentation": "dialog"}]
+        }
+      ]
+    }
+  }
+}
+```
+
+`components/Footer.json`:
+
+```json
+{
+  "schema": 3,
+  "id": "Footer",
+  "roots": ["foot"],
+  "widget": {"type": "Footer", "doc": "The site's footer, on every page."},
+  "nodes": {
+    "foot": {
+      "type": "row",
+      "children": ["copy", "all"],
+      "props": {"mainAxisAlignment": "spaceBetween"},
+      "layout": {"width": {"fill": 390}, "height": 64, "padding": [20, 0, 20, 0]},
+      "decoration": {"fills": [{"color": "line"}]}
+    },
+    "copy": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "Waymark, slow travel by rail", "style": {"from": "body", "color": "muted"}}
+    },
+    "all": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "All trips", "style": "link"},
+      "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "navigate", "to": "home"}]}]
+    }
+  }
+}
+```
+
+`pages/home.json`: restores `saved` on `load`, lists the trips from the project variable, links each to `trip`
+with its id, and holds the `about` modal canvas:
+
+```json
+{
+  "schema": 3,
+  "roots": ["home", "about"],
+  "nodes": {
+    "home": {
+      "type": "canvas",
+      "name": "Home",
+      "path": "/",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 844},
+      "decoration": {"fills": [{"color": "paper"}]},
+      "actions": [
+        {
+          "trigger": {"type": "load"},
+          "actions": [{"type": "setVariable", "variable": "saved", "value": "${= coalesce(storage.saved, [])}"}]
+        }
+      ]
+    },
+    "page": {
+      "type": "column",
+      "children": ["header", "main", "footer"],
+      "props": {"scrollable": true},
+      "layout": {"width": {"fill": 390}, "height": {"fill": 844}}
+    },
+    "header": {
+      "type": "Header",
+      "layout": {"width": {"fill": 390}, "height": 56},
+      "bind": {"props.savedCount": "${= length(saved)}"}
+    },
+    "main": {
+      "type": "column",
+      "children": ["title", "tripList"],
+      "props": {"spacing": 16, "crossAxisAlignment": "start"},
+      "layout": {"width": {"fill": 390}, "height": {"hug": 300}, "padding": 20, "constraints": {"maxWidth": 960}}
+    },
+    "title": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 34}},
+      "props": {"text": "Trips by rail", "style": "title"}
+    },
+    "tripList": {
+      "type": "listView",
+      "children": ["tripCard"],
+      "props": {"scrollable": false, "spacing": 12},
+      "layout": {"width": {"fill": 350}, "height": {"hug": 200}},
+      "bind": {"data": "${trips}"}
+    },
+    "tripCard": {
+      "type": "row",
+      "children": ["tripName", "tripDays"],
+      "props": {"mainAxisAlignment": "spaceBetween"},
+      "layout": {"width": {"fill": 350}, "height": 64, "padding": [16, 0, 16, 0]},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}], "strokes": [{"color": "line"}], "radius": 12},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [{"type": "navigate", "to": "trip", "params": {"id": "${item.id}"}}]
+        }
+      ]
+    },
+    "tripName": {
+      "type": "text",
+      "layout": {"width": {"hug": 200}, "height": {"hug": 22}},
+      "props": {"text": "${item.name}", "style": {"from": "body", "fontWeight": 600}}
+    },
+    "tripDays": {
+      "type": "text",
+      "layout": {"width": {"hug": 60}, "height": {"hug": 22}},
+      "props": {"text": "${item.days} days", "style": {"from": "body", "color": "muted"}}
+    },
+    "footer": {"type": "Footer", "layout": {"width": {"fill": 390}, "height": 64}},
+    "about": {
+      "type": "canvas",
+      "name": "About",
+      "slots": {"body": "aboutBody"},
+      "layout": {"width": 320, "height": 180},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}], "radius": 16}
+    },
+    "aboutBody": {
+      "type": "column",
+      "children": ["aboutText", "aboutClose"],
+      "props": {"spacing": 16, "crossAxisAlignment": "start"},
+      "layout": {"width": {"fill": 320}, "height": {"fill": 180}, "padding": 24}
+    },
+    "aboutText": {
+      "type": "text",
+      "layout": {"width": {"fill": 272}, "height": {"hug": 44}},
+      "props": {"text": "Itineraries for travelling slowly by train.", "style": "body"}
+    },
+    "aboutClose": {
+      "type": "filledButton",
+      "layout": {"width": 120, "height": 40},
+      "props": {"label": "Close"},
+      "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "closeModal"}]}]
+    }
+  }
+}
+```
+
+`pages/trip.json`: the trip named by `${route.id}` (the first one when the screen opens without it), a Save button
+that writes the saved list back to storage, and a packing checklist per trip (`setStorage` key
+`packed.${route.id}`, read with `get(storage.packed, route.id)`):
+
+```json
+{
+  "schema": 3,
+  "roots": ["trip"],
+  "variables": {
+    "trip": [
+      {"name": "trip", "type": "map", "formula": "coalesce(find(trips, 'id', route.id), first(trips))"},
+      {"name": "isSaved", "type": "boolean", "formula": "contains(saved, trip.id)"}
+    ]
+  },
+  "nodes": {
+    "trip": {
+      "type": "canvas",
+      "name": "Trip",
+      "path": "/trip",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 844},
+      "decoration": {"fills": [{"color": "paper"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["header", "main", "footer"],
+      "props": {"scrollable": true},
+      "layout": {"width": {"fill": 390}, "height": {"fill": 844}}
+    },
+    "header": {
+      "type": "Header",
+      "layout": {"width": {"fill": 390}, "height": 56},
+      "bind": {"props.savedCount": "${= length(saved)}"}
+    },
+    "main": {
+      "type": "column",
+      "children": ["back", "title", "save", "packTitle", "packList"],
+      "props": {"spacing": 16, "crossAxisAlignment": "start"},
+      "layout": {"width": {"fill": 390}, "height": {"hug": 400}, "padding": 20, "constraints": {"maxWidth": 960}}
+    },
+    "back": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "Back", "style": "link"},
+      "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "navigate", "mode": "pop"}]}]
+    },
+    "title": {
+      "type": "text",
+      "layout": {"width": {"fill": 350}, "height": {"hug": 34}},
+      "props": {"text": "${trip.name}", "style": "title"}
+    },
+    "save": {
+      "type": "outlinedButton",
+      "layout": {"width": 160, "height": 40},
+      "props": {"label": "Save trip"},
+      "bind": {"props.label": "${= isSaved ? 'Saved' : 'Save trip'}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "if",
+              "condition": {"left": "${isSaved}", "op": "isTrue"},
+              "then": [{"type": "setVariable", "variable": "saved", "op": "remove", "value": "${trip.id}"}],
+              "else": [{"type": "setVariable", "variable": "saved", "op": "add", "value": "${trip.id}"}]
+            },
+            {"type": "setStorage", "key": "saved", "valueType": "list", "value": "${saved}"},
+            {"type": "showToast", "message": "${= isSaved ? 'Saved' : 'Removed'}"}
+          ]
+        }
+      ]
+    },
+    "packTitle": {
+      "type": "text",
+      "layout": {"width": {"hug": 120}, "height": {"hug": 22}},
+      "props": {"text": "Packing list", "style": {"from": "body", "fontWeight": 700}}
+    },
+    "packList": {
+      "type": "listView",
+      "children": ["packRow"],
+      "props": {"scrollable": false, "spacing": 8},
+      "layout": {"width": {"fill": 350}, "height": {"hug": 120}},
+      "bind": {"data": "${trip.packing}"}
+    },
+    "packRow": {
+      "type": "row",
+      "children": ["packBox", "packName"],
+      "props": {"spacing": 12},
+      "layout": {"width": {"fill": 350}, "height": 32},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "if",
+              "condition": {"left": "${= contains(coalesce(get(storage.packed, route.id), []), item)}", "op": "isTrue"},
+              "then": [
+                {
+                  "type": "setStorage",
+                  "key": "packed.${route.id}",
+                  "valueType": "list",
+                  "op": "remove",
+                  "value": "${item}"
+                }
+              ],
+              "else": [
+                {
+                  "type": "setStorage",
+                  "key": "packed.${route.id}",
+                  "valueType": "list",
+                  "op": "add",
+                  "value": "${item}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "packBox": {
+      "type": "box",
+      "layout": {"width": 20, "height": 20},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}], "strokes": [{"color": "accent"}], "strokeWidth": 2, "radius": 4},
+      "bind": {
+        "decoration.fills[0].color": "${= contains(coalesce(get(storage.packed, route.id), []), item) ? '#FF2F6B4F' : '#FFFFFFFF'}"
+      }
+    },
+    "packName": {
+      "type": "text",
+      "layout": {"width": {"hug": 200}, "height": {"hug": 22}},
+      "props": {"text": "${item}", "style": "body"}
+    },
+    "footer": {"type": "Footer", "layout": {"width": {"fill": 390}, "height": 64}}
+  }
+}
+```
+
+Node ids are per document: both pages have `page`, `header`, `main` and `footer`, and each component its own ids.
+Render it and check each state: `--tap tripCard#1 --tap packRow#0 --tap save --label saved`; `--navigate
+trip?id=coast`; `--tap header/about --label about` (a node in a component instance by its call's id).
+
 <a id="components-when-to-make-what"></a>
 ### When to make what
 

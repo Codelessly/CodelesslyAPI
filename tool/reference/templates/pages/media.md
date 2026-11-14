@@ -20,6 +20,12 @@ playing sounds, printing, capturing a screenshot, downloading a file and preload
 Bind `props.playing` and `props.positionSeconds` to variables to play, pause and seek from buttons; the player's
 `changed` trigger reports `ready`, `error`, the duration and the position.
 
+### Save a file
+
+`{"type": "downloadFile", "fileName": "trip.txt", "text": "${brief}", "mimeType": "text/plain"}` offers the text as
+a file (the browser's download, a save dialog elsewhere); `${result.saved}` says whether it was saved. The keys are
+`fileName` and `text` (not `filename`, `content`). The render command saves it under `<out>/downloads/` and lists it.
+
 ### Read-along text
 
 `speak` with `readAlong` times the words for a highlight bound to the spoken word.

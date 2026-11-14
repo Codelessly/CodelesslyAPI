@@ -1,0 +1,138 @@
+{
+ "schema": 3,
+ "id": "Header",
+ "roots": [
+  "bar"
+ ],
+ "widget": {
+  "type": "Header",
+  "doc": "The site's top bar: the name (home) and an About link (a modal).",
+  "props": [
+   {
+    "key": "savedCount",
+    "type": {
+     "kind": "integer",
+     "flutter": "int"
+    },
+    "default": 0
+   }
+  ]
+ },
+ "nodes": {
+  "bar": {
+   "type": "row",
+   "children": [
+    "brand",
+    "count",
+    "about"
+   ],
+   "props": {
+    "spacing": 16
+   },
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": 56,
+    "padding": [
+     20,
+     0,
+     20,
+     0
+    ]
+   },
+   "decoration": {
+    "fills": [
+     {
+      "color": "paper"
+     }
+    ],
+    "strokes": [
+     {
+      "color": "line"
+     }
+    ],
+    "strokeSides": "bottom"
+   }
+  },
+  "brand": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "hug": 120
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "Waymark",
+    "style": {
+     "from": "body",
+     "fontWeight": 700
+    }
+   },
+   "actions": [
+    {
+     "trigger": {
+      "type": "click"
+     },
+     "actions": [
+      {
+       "type": "navigate",
+       "to": "home"
+      }
+     ]
+    }
+   ]
+  },
+  "count": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "fill": 120
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "${props.savedCount} saved",
+    "style": {
+     "from": "body",
+     "color": "muted"
+    },
+    "textAlign": "right"
+   }
+  },
+  "about": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "hug": 120
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "About",
+    "style": "link"
+   },
+   "actions": [
+    {
+     "trigger": {
+      "type": "click"
+     },
+     "actions": [
+      {
+       "type": "openModal",
+       "to": "about",
+       "presentation": "dialog"
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,70 @@
+{
+ "schema": 3,
+ "pages": [
+  "pages/home.json",
+  "pages/trip.json"
+ ],
+ "components": [
+  "components/Header.json",
+  "components/Footer.json"
+ ],
+ "theme": {
+  "colors": {
+   "ink": "#FF1B1B1B",
+   "paper": "#FFFAF7F2",
+   "accent": "#FF2F6B4F",
+   "muted": "#FF6B7280",
+   "line": "#FFE5E1D8"
+  },
+  "textStyles": {
+   "body": {
+    "fontSize": 15,
+    "height": 1.4,
+    "color": "ink"
+   },
+   "title": {
+    "from": "body",
+    "fontSize": 28,
+    "fontWeight": 700,
+    "height": 1.2
+   },
+   "link": {
+    "from": "body",
+    "fontWeight": 600,
+    "color": "accent"
+   }
+  }
+ },
+ "variables": [
+  {
+   "name": "trips",
+   "type": "list",
+   "value": [
+    {
+     "id": "alps",
+     "name": "The Alpine Arc",
+     "days": 7,
+     "packing": [
+      "Rail pass",
+      "Rain shell",
+      "Walking boots"
+     ]
+    },
+    {
+     "id": "coast",
+     "name": "Coast to Coast",
+     "days": 5,
+     "packing": [
+      "Swimwear",
+      "Sun hat"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "saved",
+   "type": "list",
+   "value": []
+  }
+ ]
+}

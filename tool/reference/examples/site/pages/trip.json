@@ -1,0 +1,333 @@
+{
+ "schema": 3,
+ "roots": [
+  "trip"
+ ],
+ "variables": {
+  "trip": [
+   {
+    "name": "trip",
+    "type": "map",
+    "formula": "coalesce(find(trips, 'id', route.id), first(trips))"
+   },
+   {
+    "name": "isSaved",
+    "type": "boolean",
+    "formula": "contains(saved, trip.id)"
+   }
+  ]
+ },
+ "nodes": {
+  "trip": {
+   "type": "canvas",
+   "name": "Trip",
+   "path": "/trip",
+   "slots": {
+    "body": "page"
+   },
+   "layout": {
+    "width": 390,
+    "height": 844
+   },
+   "decoration": {
+    "fills": [
+     {
+      "color": "paper"
+     }
+    ]
+   }
+  },
+  "page": {
+   "type": "column",
+   "children": [
+    "header",
+    "main",
+    "footer"
+   ],
+   "props": {
+    "scrollable": true
+   },
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": {
+     "fill": 844
+    }
+   }
+  },
+  "header": {
+   "type": "Header",
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": 56
+   },
+   "bind": {
+    "props.savedCount": "${= length(saved)}"
+   }
+  },
+  "main": {
+   "type": "column",
+   "children": [
+    "back",
+    "title",
+    "save",
+    "packTitle",
+    "packList"
+   ],
+   "props": {
+    "spacing": 16,
+    "crossAxisAlignment": "start"
+   },
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": {
+     "hug": 400
+    },
+    "padding": 20,
+    "constraints": {
+     "maxWidth": 960
+    }
+   }
+  },
+  "back": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "hug": 120
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "Back",
+    "style": "link"
+   },
+   "actions": [
+    {
+     "trigger": {
+      "type": "click"
+     },
+     "actions": [
+      {
+       "type": "navigate",
+       "mode": "pop"
+      }
+     ]
+    }
+   ]
+  },
+  "title": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "fill": 350
+    },
+    "height": {
+     "hug": 34
+    }
+   },
+   "props": {
+    "text": "${trip.name}",
+    "style": "title"
+   }
+  },
+  "save": {
+   "type": "outlinedButton",
+   "layout": {
+    "width": 160,
+    "height": 40
+   },
+   "props": {
+    "label": "Save trip"
+   },
+   "bind": {
+    "props.label": "${= isSaved ? 'Saved' : 'Save trip'}"
+   },
+   "actions": [
+    {
+     "trigger": {
+      "type": "click"
+     },
+     "actions": [
+      {
+       "type": "if",
+       "condition": {
+        "left": "${isSaved}",
+        "op": "isTrue"
+       },
+       "then": [
+        {
+         "type": "setVariable",
+         "variable": "saved",
+         "op": "remove",
+         "value": "${trip.id}"
+        }
+       ],
+       "else": [
+        {
+         "type": "setVariable",
+         "variable": "saved",
+         "op": "add",
+         "value": "${trip.id}"
+        }
+       ]
+      },
+      {
+       "type": "setStorage",
+       "key": "saved",
+       "valueType": "list",
+       "value": "${saved}"
+      },
+      {
+       "type": "showToast",
+       "message": "${= isSaved ? 'Saved' : 'Removed'}"
+      }
+     ]
+    }
+   ]
+  },
+  "packTitle": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "hug": 120
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "Packing list",
+    "style": {
+     "from": "body",
+     "fontWeight": 700
+    }
+   }
+  },
+  "packList": {
+   "type": "listView",
+   "children": [
+    "packRow"
+   ],
+   "props": {
+    "scrollable": false,
+    "spacing": 8
+   },
+   "layout": {
+    "width": {
+     "fill": 350
+    },
+    "height": {
+     "hug": 120
+    }
+   },
+   "bind": {
+    "data": "${trip.packing}"
+   }
+  },
+  "packRow": {
+   "type": "row",
+   "children": [
+    "packBox",
+    "packName"
+   ],
+   "props": {
+    "spacing": 12
+   },
+   "layout": {
+    "width": {
+     "fill": 350
+    },
+    "height": 32
+   },
+   "actions": [
+    {
+     "trigger": {
+      "type": "click"
+     },
+     "actions": [
+      {
+       "type": "if",
+       "condition": {
+        "left": "${= contains(coalesce(get(storage.packed, route.id), []), item)}",
+        "op": "isTrue"
+       },
+       "then": [
+        {
+         "type": "setStorage",
+         "key": "packed.${route.id}",
+         "valueType": "list",
+         "op": "remove",
+         "value": "${item}"
+        }
+       ],
+       "else": [
+        {
+         "type": "setStorage",
+         "key": "packed.${route.id}",
+         "valueType": "list",
+         "op": "add",
+         "value": "${item}"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "packBox": {
+   "type": "box",
+   "layout": {
+    "width": 20,
+    "height": 20
+   },
+   "decoration": {
+    "fills": [
+     {
+      "color": "#FFFFFFFF"
+     }
+    ],
+    "strokes": [
+     {
+      "color": "accent"
+     }
+    ],
+    "strokeWidth": 2,
+    "radius": 4
+   },
+   "bind": {
+    "decoration.fills[0].color": "${= contains(coalesce(get(storage.packed, route.id), []), item) ? '#FF2F6B4F' : '#FFFFFFFF'}"
+   }
+  },
+  "packName": {
+   "type": "text",
+   "layout": {
+    "width": {
+     "hug": 200
+    },
+    "height": {
+     "hug": 22
+    }
+   },
+   "props": {
+    "text": "${item}",
+    "style": "body"
+   }
+  },
+  "footer": {
+   "type": "Footer",
+   "layout": {
+    "width": {
+     "fill": 390
+    },
+    "height": 64
+   }
+  }
+ }
+}

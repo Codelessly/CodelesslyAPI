@@ -227,8 +227,20 @@ through the list's `pagination`.
 <a id="data-storage-on-the-device"></a>
 ### Storage on the device
 
-`setStorage` writes `${storage.<key>}` (a key may be a path into a stored map or list; `op` as `setVariable`'s).
-A variable with `"persist": true` is kept on the device too.
+`setStorage` writes `${storage.<key>}` (a key may be a path into a stored map or list; `op` as `setVariable`'s:
+`set`, `add` appends to a list, `insert` puts at an `index`, `remove` takes a value out). A variable with
+`"persist": true` is kept on the device too.
+
+- **Restore on load**: a canvas `load` reaction copies storage into a variable, `{"type": "setVariable",
+  "variable": "saved", "value": "${= coalesce(storage.saved, [])}"}`; write it back after each change with
+  `{"type": "setStorage", "key": "saved", "valueType": "list", "value": "${saved}"}`.
+- **A key per page or item** (a checklist per route): the key is an expression, `"key": "packed.${route.id}"` with
+  `"op": "add"`, `"valueType": "list"`, `"value": "${item}"`; read it with `${= coalesce(get(storage.packed,
+  route.id), [])}`. A persisted variable is one value for every route.
+- The render command keeps storage in memory for one run: steps and `--navigate` see what earlier steps wrote; each
+  size and each run starts empty.
+
+A whole site using both: [a complete site](components.md#components-a-complete-multi-page-site).
 
 <a id="data-submit-a-form"></a>
 ### Submit a form

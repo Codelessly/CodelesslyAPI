@@ -784,7 +784,8 @@ A screen scrolls only if something in it scrolls. Make the canvas's body column 
 true}` with `{"fill": n}` width and height. Without it, content past the bottom of the screen is cut off
 (`offscreen`). Inside a scrolling column, a child cannot `fill` the scrolling axis. Rows scroll sideways with
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
-giving one; `"axis": "horizontal"` moves only sideways scroll views).
+giving one; `"axis": "horizontal"` moves only sideways scroll views): `{"type": "scrollTo", "node": "faq",
+"durationMs": 400}` from a sub-navigation link (the key is `node`, not `target`).
 
 ```json
 {
@@ -827,14 +828,30 @@ giving one; `"axis": "horizontal"` moves only sideways scroll views).
 }
 ```
 
+<a id="layout-scroll-progress"></a>
+### Scroll progress
+
+A reading-progress bar on an article or a long page: a `scroll` reaction on the page's scrolling column writes
+`${result.fraction}` (0 at the top, 1 at the end) to a variable, and a `progressBar` (or a box's width factor) is
+bound to it. Put the bar outside the scrolling column (a `stack` over it, or the canvas's `appBar`) so it stays in
+view:
+
+```json
+"actions": [{"trigger": {"type": "scroll"},
+             "actions": [{"type": "setVariable", "variable": "readFraction", "value": "${result.fraction}"}]}]
+```
+
+and on the bar `"bind": {"props.value": "${readFraction}"}`. Per section instead of per page: `viewProgress` on the
+section ([view progress](animation.md#animation-reveal-on-scroll-view-progress-sticky-effects)).
+
 <a id="layout-a-sticky-header-or-column"></a>
 ### A sticky header or column
 
 A header that stays at the top while the page scrolls under it: the scrolling column's first child with
 `"sticky": {"offset": 0}` (CSS `position: sticky`); it is drawn above the content and is pushed on by the end of
-its parent. `${sticky.stuck}` is true while it is pinned (bind a shadow or a smaller height to it). In a `--full-page`
-capture a sticky node is drawn where it would pin in each window height (once per 900 px on desktop): check it with
-window captures (`--scroll <scrolling column id>=1200` without `--full-page`). A header fixed to the window instead (it never
+its parent. `${sticky.stuck}` is true while it is pinned (bind a shadow or a smaller height to it). A `--full-page`
+capture draws it once, in its place in the page, as a reader sees it at the top; to see it pinned, capture a window
+scrolled down (`--scroll <scrolling column id>=1200` without `--full-page`). A header fixed to the window instead (it never
 scrolls, and a full-page capture draws it once, at the top): a `stack` filling the canvas body, the scrolling column
 first (with a top spacer of the header's height) and the header after it at `"y": 0`.
 

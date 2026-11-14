@@ -25819,7 +25819,7 @@
     {
       "code": "duplicate_id",
       "severity": "warning",
-      "meaning": "The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id."
+      "meaning": "The same canvas id in two documents of one project: navigate and openModal name a screen by its canvas id, so a link reaches one of them. Other node ids are per document and may repeat."
     },
     {
       "code": "unknown_component",
