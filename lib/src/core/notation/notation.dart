@@ -364,6 +364,10 @@ class _Parser {
       _stack.add(_Open(indent, parent.id, parent.type, condition: _and(parent.condition, own), grid: parent.grid));
       return;
     }
+    // `each rows` and `List =rows` are `each row in rows`: the element is
+    // read as `row` (or `item`).
+    final bare = RegExp(r'^each\s+(\S+)$').firstMatch(line) ?? RegExp(r'^List\s+=(\S+)$').firstMatch(line);
+    if (bare != null) line = 'each row in ${bare[1]}';
     final each = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (each != null) {
       if (parent == null) return _issue(column, 'An "each" needs a parent: indent it under a node.');
@@ -432,7 +436,8 @@ class _Parser {
     final spec = catalog.widget(type);
     if (spec == null) {
       // A sentence before the UI ("Here is the card:") is not a node.
-      if (_root == null && line.contains(' ')) return;
+      // Nor is one after it ("Two limits remain: …").
+      if ((_root == null || indent == 0) && line.contains(' ')) return;
       _issue(column, 'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).');
       return;
     }
@@ -1102,7 +1107,9 @@ class _Tokens {
     }
     at++;
     final raw = s.substring(start, at > s.length ? s.length : at);
-    if (braced) return raw.substring(1, raw.endsWith('"') && raw.length > 1 ? raw.length - 1 : raw.length);
+    if (braced) {
+      return raw.substring(1, raw.endsWith('"') && raw.length > 1 ? raw.length - 1 : raw.length).replaceAll(r'\"', '"').replaceAll(r'\\', r'\');
+    }
     try {
       return jsonDecode(raw.endsWith('"') && raw.length > 1 ? raw : '$raw"') as String;
     } catch (_) {
