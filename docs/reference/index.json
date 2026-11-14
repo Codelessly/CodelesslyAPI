@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5836
+      "words": 5979
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5841
+      "words": 5938
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column).",
-      "words": 6920
+      "words": 7037
     },
     {
       "topic": "layout-layout-fields",
@@ -113,7 +113,15 @@
       "anchor": "layout-scrolling",
       "title": "Scrolling",
       "summary": "A screen scrolls only if something in it scrolls.",
-      "words": 204
+      "words": 220
+    },
+    {
+      "topic": "layout-scroll-progress",
+      "file": "layout.md",
+      "anchor": "layout-scroll-progress",
+      "title": "Scroll progress",
+      "summary": "A reading-progress bar on an article or a long page: a `scroll` reaction on the page's scrolling column writes `${result.fraction}` (0 at the top, 1 at the end) to a variable, and a `progressBar` (or a box's width factor) is bound to it.",
+      "words": 95
     },
     {
       "topic": "layout-a-sticky-header-or-column",
@@ -121,7 +129,7 @@
       "anchor": "layout-a-sticky-header-or-column",
       "title": "A sticky header or column",
       "summary": "A header that stays at the top while the page scrolls under it: the scrolling column's first child with `\"sticky\": {\"offset\": 0}` (CSS `position: sticky`); it is drawn above the content and is pushed on by the end of its parent.",
-      "words": 197
+      "words": 198
     },
     {
       "topic": "layout-a-canvas-per-breakpoint",
@@ -137,7 +145,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 2568
+      "words": 2632
     },
     {
       "topic": "theme-theme-keys",
@@ -162,6 +170,14 @@
       "title": "What controls take from the theme",
       "summary": "A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons (labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface` (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius` shapes every kind of button and chip, `radius` dialogs, menus and pickers.",
       "words": 104
+    },
+    {
+      "topic": "theme-spacing-and-radius-scales",
+      "file": "theme.md",
+      "anchor": "theme-spacing-and-radius-scales",
+      "title": "Spacing and radius scales",
+      "summary": "The theme has no spacing or radius tokens for nodes: its `radius` and `buttonRadius` shape controls only.",
+      "words": 57
     },
     {
       "topic": "theme-a-type-scale-that-changes-with-the-screen-size",
@@ -457,7 +473,7 @@
       "anchor": "page-navigation",
       "title": "Screens, navigation, modals and toasts",
       "summary": "Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions).",
-      "words": 4125
+      "words": 4166
     },
     {
       "topic": "navigation-triggers",
@@ -481,7 +497,7 @@
       "anchor": "navigation-going-to-a-screen-and-back",
       "title": "Going to a screen and back",
       "summary": "`{\"type\": \"navigate\", \"to\": \"<canvas id>\"}` pushes the screen; `\"mode\": \"pop\"` goes back; `\"replace\"` and `\"reset\"` replace the history.",
-      "words": 46
+      "words": 87
     },
     {
       "topic": "navigation-modals-and-toasts",
@@ -521,7 +537,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6352
+      "words": 6398
     },
     {
       "topic": "state-variables",
@@ -665,7 +681,7 @@
       "anchor": "state-changing-state-from-a-reaction",
       "title": "Changing state from a reaction",
       "summary": "`setVariable` with `op`: `set` (default), `toggle`, `add` (a number adds; a list appends; a map merges), `subtract`, `insert` / `removeAt` / `update` at `index`, `remove`.",
-      "words": 93
+      "words": 139
     },
     {
       "topic": "state-setting-several-nodes-with-a-condition",
@@ -689,7 +705,7 @@
       "anchor": "page-interaction",
       "title": "Interaction: reactions, states and gestures",
       "summary": "What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics.",
-      "words": 5120
+      "words": 5162
     },
     {
       "topic": "interaction-trigger-fields",
@@ -756,6 +772,14 @@
       "words": 60
     },
     {
+      "topic": "interaction-copy-to-the-clipboard",
+      "file": "interaction.md",
+      "anchor": "interaction-copy-to-the-clipboard",
+      "title": "Copy to the clipboard",
+      "summary": "`{\"type\": \"copyToClipboard\", \"text\": \"${address}\"}` (the key is `text`), then the chain goes on: a toast or a \"Copied\" state after it.",
+      "words": 35
+    },
+    {
       "topic": "interaction-keys",
       "file": "interaction.md",
       "anchor": "interaction-keys",
@@ -769,7 +793,7 @@
       "anchor": "page-animation",
       "title": "Animation and motion",
       "summary": "Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games.",
-      "words": 4483
+      "words": 4610
     },
     {
       "topic": "animation-triggers",
@@ -808,8 +832,8 @@
       "file": "animation.md",
       "anchor": "animation-reveal-on-scroll-view-progress-sticky-effects",
       "title": "Reveal on scroll, view progress, sticky effects",
-      "summary": "`reveal` plays when the node scrolls into view; `viewProgress` gives `${view.progress}` (0–1 through the viewport) to bind to; the `enterViewport` and `exitViewport` triggers run actions.",
-      "words": 25
+      "summary": "An entrance when a node scrolls into view (CSS scroll-reveal) is an **animation with `visibleFraction`**: it waits until that share of the node is in view, then plays.",
+      "words": 101
     },
     {
       "topic": "animation-shared-elements-hero",
@@ -825,7 +849,7 @@
       "anchor": "animation-clocks-and-game-loops",
       "title": "Clocks and game loops",
       "summary": "A canvas's `timer` trigger (`\"intervalMs\": 1000`, `\"when\"`: a formula that must hold) runs every interval (`${result.tick}` counts); `frame` runs every frame while `when` holds (`${result.dt}` ms since the last), for physics and game loops.",
-      "words": 50
+      "words": 101
     },
     {
       "topic": "components",
@@ -833,7 +857,7 @@
       "anchor": "page-components",
       "title": "Components and sections",
       "summary": "Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section.",
-      "words": 2383
+      "words": 3706
     },
     {
       "topic": "components-parameter-kinds",
@@ -874,6 +898,14 @@
       "title": "Components are Flutter widget classes",
       "summary": "A page can be split into parts, each in a file of its own: a **component** is a document with one root (not a canvas) and a `widget` declaration, and a page (or another component) **calls** it with one node whose `type` is the component's type.",
       "words": 191
+    },
+    {
+      "topic": "components-a-complete-multi-page-site",
+      "file": "components.md",
+      "anchor": "components-a-complete-multi-page-site",
+      "title": "A complete multi-page site",
+      "summary": "A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids `unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages.",
+      "words": 370
     },
     {
       "topic": "components-when-to-make-what",
@@ -993,7 +1025,7 @@
       "anchor": "page-data",
       "title": "Data: APIs, cloud data, storage and form submission",
       "summary": "The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms.",
-      "words": 2181
+      "words": 2308
     },
     {
       "topic": "data-call-an-api-and-show-the-result",
@@ -1016,8 +1048,8 @@
       "file": "data.md",
       "anchor": "data-storage-on-the-device",
       "title": "Storage on the device",
-      "summary": "`setStorage` writes `${storage.<key>}` (a key may be a path into a stored map or list; `op` as `setVariable`'s).",
-      "words": 29
+      "summary": "`setStorage` writes `${storage.<key>}` (a key may be a path into a stored map or list; `op` as `setVariable`'s: `set`, `add` appends to a list, `insert` puts at an `index`, `remove` takes a value out).",
+      "words": 156
     },
     {
       "topic": "data-submit-a-form",
@@ -1073,7 +1105,7 @@
       "anchor": "page-media",
       "title": "Media: video, audio, web views, speech and sound",
       "summary": "The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images.",
-      "words": 1946
+      "words": 1998
     },
     {
       "topic": "media-control-a-player-from-state",
@@ -1082,6 +1114,14 @@
       "title": "Control a player from state",
       "summary": "Bind `props.playing` and `props.positionSeconds` to variables to play, pause and seek from buttons; the player's `changed` trigger reports `ready`, `error`, the duration and the position.",
       "words": 25
+    },
+    {
+      "topic": "media-save-a-file",
+      "file": "media.md",
+      "anchor": "media-save-a-file",
+      "title": "Save a file",
+      "summary": "`{\"type\": \"downloadFile\", \"fileName\": \"trip.txt\", \"text\": \"${brief}\", \"mimeType\": \"text/plain\"}` offers the text as a file (the browser's download, a save dialog elsewhere); `${result.saved}` says whether it was saved.",
+      "words": 46
     },
     {
       "topic": "media-read-along-text",
@@ -1209,7 +1249,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 2468
+      "words": 2881
     },
     {
       "topic": "render-what-it-does",
@@ -1224,8 +1264,8 @@
       "file": "render.md",
       "anchor": "render-steps-before-the-capture",
       "title": "Steps before the capture",
-      "summary": "In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`, `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`.",
-      "words": 286
+      "summary": "In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`, `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--navigate <screen>`, `--wait <ms>`.",
+      "words": 488
     },
     {
       "topic": "render-validation-codes",
@@ -1240,8 +1280,8 @@
       "file": "render.md",
       "anchor": "render-render-codes",
       "title": "Render codes",
-      "summary": "The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`.",
-      "words": 57
+      "summary": "The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`.",
+      "words": 76
     },
     {
       "topic": "render-a-loop-that-converges",
@@ -1257,7 +1297,23 @@
       "anchor": "render-capturing-states",
       "title": "Capturing states",
       "summary": "The annual price: `--tap billingSwitch --label annual`.",
-      "words": 33
+      "words": 59
+    },
+    {
+      "topic": "render-what-a-run-keeps",
+      "file": "render.md",
+      "anchor": "render-what-a-run-keeps",
+      "title": "What a run keeps",
+      "summary": "Storage, variables and the clipboard live in memory for one run: steps and `--navigate` see what earlier steps wrote, and each size starts afresh, as does each run (nothing persists between runs, so a \"restored on reload\" state is captured by writing it first: `--tap save --navigate home`).",
+      "words": 75
+    },
+    {
+      "topic": "render-comparing-with-a-reference",
+      "file": "render.md",
+      "anchor": "render-comparing-with-a-reference",
+      "title": "Comparing with a reference",
+      "summary": "`--compare <dir>` picks, for each capture, the PNG of the same size whose name is the screen and the state exactly (`section--saved--390x844.png` for `--label saved`, never `section--saved-empty`); with no `--label`, `default` or no state.",
+      "words": 45
     },
     {
       "topic": "values",
@@ -1675,6 +1731,21 @@
       "need": "Render one component alone",
       "file": "components.md",
       "anchor": "components-rendering-one-part"
+    },
+    {
+      "need": "A whole multi-page site: manifest first, shared header and footer, route parameters, storage, a modal",
+      "file": "components.md",
+      "anchor": "components-a-complete-multi-page-site"
+    },
+    {
+      "need": "A list kept per page or per item (a key built from `${route.id}`)",
+      "file": "data.md",
+      "anchor": "data-storage-on-the-device"
+    },
+    {
+      "need": "A reading-progress bar driven by the page's scroll",
+      "file": "layout.md",
+      "anchor": "layout-scroll-progress"
     },
     {
       "need": "A progress bar or ring bound to a value",

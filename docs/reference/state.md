@@ -609,6 +609,14 @@ checked yet. For anything with a real loop, a script.
 action also takes `when`, the same kind of predicate object (run only while it holds); a trigger's `when` is a
 formula string instead (`"when": "!item.future"`). `forEach` runs a chain per item; `delay` waits.
 
+```json
+{"type": "if", "condition": {"left": "${= contains(saved, trip.id)}", "op": "isTrue"},
+ "then": [{"type": "setVariable", "variable": "saved", "op": "remove", "value": "${trip.id}"}],
+ "else": [{"type": "setVariable", "variable": "saved", "op": "add", "value": "${trip.id}"}]}
+```
+
+The condition is an object, never a formula string: a formula goes in `left` with `"op": "isTrue"`.
+
 <a id="state-setting-several-nodes-with-a-condition"></a>
 ### Setting several nodes with a condition
 

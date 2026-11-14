@@ -45,8 +45,18 @@ change of `playKey`. A screen-wide animation sits on the canvas.
 
 ### Reveal on scroll, view progress, sticky effects
 
-`reveal` plays when the node scrolls into view; `viewProgress` gives `${view.progress}` (0–1 through the viewport)
-to bind to; the `enterViewport` and `exitViewport` triggers run actions.
+An entrance when a node scrolls into view (CSS scroll-reveal) is an **animation with `visibleFraction`**: it waits
+until that share of the node is in view, then plays.
+
+```json
+"animations": [{"id": "enter", "duration": 600, "curve": "easeOut", "visibleFraction": 0.3,
+                "tracks": [{"path": "opacity", "from": 0, "to": 1}, {"path": "motion.translateY", "from": 24, "to": 0}]}]
+```
+
+The `reveal` behavior is not an entrance, despite its name: it **scrolls** the node into view (a chat's newest
+line). `viewProgress` gives `${view.progress}` (0–1 through the viewport) to bind to, for effects that follow the
+scroll; the `enterViewport` and `exitViewport` triggers run actions. A page's reading progress:
+[scroll progress](@layout-scroll-progress).
 
 ### Shared elements (hero)
 
@@ -62,6 +72,10 @@ tag was a moment ago on screen (a picked emoji flying from its picker to its chi
 A canvas's `timer` trigger (`"intervalMs": 1000`, `"when"`: a formula that must hold) runs every interval
 (`${result.tick}` counts); `frame` runs every frame while `when` holds (`${result.dt}` ms since the last), for
 physics and game loops. Keep the state in variables and the work in a script when it has several steps.
+
+A clock written by a timer (`"value": "${= now()}"`) changes in every capture. To check a countdown's states, pin
+the time with the render command's `--now 2026-11-13T09:00:00Z` (`now()` returns it, so the timer writes it); a
+`--set clock=...` also holds against the timer for the capture. No test-only variable is needed.
 
 ## Pitfalls
 
