@@ -485,10 +485,20 @@ void main() {
       node(d, 'home')['props'] = {'screen': 'home'};
       expectOne(d, Codes.screenWithoutBreakpoint);
     });
-    test('the same node id in two documents of a project is reported (duplicate_id)', () {
+    test('the same canvas id in two documents of a project is reported (duplicate_id)', () {
       final out = validateProject({'a': base(), 'b': base()});
-      expect(out.where((d) => d.code == Codes.duplicateId), isNotEmpty);
-      expect(out.first.file, isNotNull);
+      final dup = out.where((d) => d.code == Codes.duplicateId).toList();
+      expect(dup.map((d) => d.nodeId), ['home']);
+      expect(dup.single.file, 'b');
+    });
+
+    test('node ids are per document: two pages may share every id but their canvases\'', () {
+      final b = base();
+      nodes(b)['about'] = nodes(b).remove('home');
+      b['roots'] = ['about'];
+      b['variables'] = {'about': (b['variables'] as Map)['home']};
+      final out = validateProject({'a': base(), 'b': b});
+      expect(out, isEmpty, reason: '$out');
     });
   });
 
@@ -543,5 +553,37 @@ void main() {
     for (final junk in <Object?>[null, 3, 'x', [], {}, {'nodes': 3}, {'nodes': {'a': 3}, 'roots': 'a'}]) {
       expect(() => validateDocument(junk), returnsNormally);
     }
+  });
+
+  group('did you mean: the key or value an author usually means', () {
+    Map<String, Object?> withAction(Map<String, Object?> action) {
+      final d = base();
+      node(d, 'box')['actions'] = [
+        {'trigger': {'type': 'click'}, 'actions': [action]},
+      ];
+      return d;
+    }
+
+    String? suggested(Map<String, Object?> action, String key) =>
+        validateDocument(withAction(action)).where((d) => d.path.endsWith('/$key')).single.suggestion;
+
+    test('scrollTo.target is node; downloadFile.filename and content are fileName and text', () {
+      expect(suggested({'type': 'scrollTo', 'target': 'box'}, 'target'), 'node');
+      expect(suggested({'type': 'downloadFile', 'filename': 'a.txt', 'text': 'x'}, 'filename'), 'fileName');
+      expect(suggested({'type': 'downloadFile', 'fileName': 'a.txt', 'content': 'x'}, 'content'), 'text');
+    });
+
+    test('copyToClipboard.value is text; setVariable and setStorage op append is insert; if.if is condition', () {
+      expect(suggested({'type': 'copyToClipboard', 'value': 'x'}, 'value'), 'text');
+      expect(suggested({'type': 'setVariable', 'variable': 'count', 'op': 'append', 'value': '1'}, 'op'), 'insert');
+      expect(suggested({'type': 'setStorage', 'key': 'k', 'op': 'append', 'value': '1'}, 'op'), 'insert');
+      expect(suggested({'type': 'if', 'if': r'${= count > 1}', 'then': []}, 'if'), 'condition');
+    });
+
+    test('an if whose condition is a formula is told the predicate to write', () {
+      final d = validateDocument(withAction({'type': 'if', 'condition': r'${= count > 1}', 'then': []})).single;
+      expect(d.code, Codes.invalidCondition);
+      expect(d.message, contains(r'{"left": "${= count > 1}", "op": "isTrue"}'));
+    });
   });
 }

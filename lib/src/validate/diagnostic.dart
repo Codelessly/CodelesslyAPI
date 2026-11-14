@@ -161,7 +161,7 @@ abstract final class Codes {
   static const screenWithoutBreakpoint = DiagnosticCode('screen_without_breakpoint', Severity.warning,
       'A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest.');
   static const duplicateId = DiagnosticCode('duplicate_id', Severity.warning,
-      'The same node id in two documents of one project: each document keeps its own, but reports and the render command\'s steps name nodes by id.');
+      'The same canvas id in two documents of one project: navigate and openModal name a screen by its canvas id, so a link reaches one of them. Other node ids are per document and may repeat.');
 
   // --- components and sections ---------------------------------------------
   static const unknownComponent = DiagnosticCode('unknown_component', Severity.error,
@@ -247,9 +247,53 @@ final class Diagnostic {
 /// [path] extended by [key], escaped as a JSON pointer token.
 String pointer(String path, Object key) => '$path/${'$key'.replaceAll('~', '~0').replaceAll('/', '~1')}';
 
-/// The candidate nearest to [word] (case-insensitive edit distance), or
-/// null when none is close.
+/// Names authors write for another one, by what they mean: the key or value
+/// to suggest when no candidate is spelled close to the word.
+const Map<String, List<String>> _meantAs = {
+  'target': ['node', 'to'],
+  'element': ['node'],
+  'nodeid': ['node'],
+  'scrollto': ['node'],
+  'filename': ['fileName'],
+  'name': ['fileName', 'key'],
+  'file': ['fileName'],
+  'content': ['text', 'value'],
+  'contents': ['text', 'value'],
+  'data': ['text', 'value'],
+  'body': ['text'],
+  'value': ['text'],
+  'message': ['text'],
+  'append': ['insert'],
+  'push': ['insert'],
+  'prepend': ['insert'],
+  'delete': ['remove', 'removeAt'],
+  'pop': ['removeAt'],
+  'increment': ['add'],
+  'decrement': ['subtract'],
+  'screen': ['to'],
+  'destination': ['to'],
+  'route': ['to'],
+  'page': ['to'],
+  'predicate': ['condition'],
+  'if': ['condition'],
+  'test': ['condition'],
+  'variablename': ['variable'],
+  'storagekey': ['key'],
+};
+
+/// The candidate nearest to [word] (case-insensitive edit distance), else
+/// the one an author writing [word] usually means (`target` for `node`,
+/// `append` for `insert`), or null when none is close.
 String? nearest(String word, Iterable<String> candidates) {
+  final spelled = _nearestSpelled(word, candidates);
+  if (spelled != null) return spelled;
+  for (final meant in _meantAs[word.toLowerCase()] ?? const <String>[]) {
+    if (candidates.contains(meant)) return meant;
+  }
+  return null;
+}
+
+String? _nearestSpelled(String word, Iterable<String> candidates) {
   String? best;
   var bestScore = 1 << 30;
   final w = word.toLowerCase();
