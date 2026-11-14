@@ -1,5 +1,29 @@
 ## Unreleased
 
+**Valid but blank, explained.** Of 34 recorded SSUI generations, several final frames showed an empty card or a
+card missing its content. Causes in this package, and what a model is now told:
+
+- A `vars` op with one formula that does not parse (or reads an unknown name) is no longer rejected whole: its other
+  variables are declared, and the formula's error stays an error at that op, saying the variable gives nothing until
+  its formula is fixed. Rejecting it left every node that read the op's variables showing nothing (three recorded
+  cards, reservation, checkout and itinerary by claude-sonnet-5-5, went blank once formulas were checked).
+- `BindValue.color` reads a theme colour's name (`Color.named`): a fill bound to
+  `"${= selected ? 'primary' : 'primaryBackground'}"` was dropped.
+- A `patch` op merges a node as its declarations read it (`mergeNodePatch`): `{"height": {"fill": 400}}` over
+  `{"hug": 480}` gave a two-key size and the patch was rejected.
+- A `set` that replaces the root canvas with another type is rejected (`wrong_type`, with how to set the canvas's
+  body): a recorded retry turned its canvas into a column and the view showed nothing.
+- `wrong_type` for a `${...}` expression written as a plain value (`"radius": "${theme.radii.panel}"`,
+  `"visible": "${step > 0}"`) names the binding to write, `"bind": {"decoration.radius": "${theme.radii.panel}"}`.
+  Five recorded base turns lost their whole card to one such rejected container.
+- The design system section shows its spacing, radii and sizes as the binding to write ("bound, not written: ...")
+  instead of the bare `${theme.radii.panel}` models wrote as a value.
+- New codes for what a rendered UI shows wrong, reported by the SDK's `UiSession.shownDiagnostics`: `empty_view` and
+  `list_empty` (errors), `empty_label`, `expression_not_evaluated`, `text_no_color`, `component_empty` (warnings).
+- `dead_control` lint: a core button, or a component named `...Button` with an `onPressed` event, with no reaction,
+  not disabled and not inside a tappable node (a recorded plan card was a static mock-up whose Start and Pause did
+  nothing).
+
 - A computed variable's `formula` is checked like a node's expressions (it was not checked at all): it must parse
   and read only declared names, its `parameters` included. The edit layer checks the formulas of the variables a
   `vars` op declares (`EditCheckInput.variables`, read by `strictEditCheck`; the diagnostic's message names the
