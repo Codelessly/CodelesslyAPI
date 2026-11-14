@@ -44,7 +44,19 @@ final class A2uiResult {
 /// [surfaceId]), as a document.
 A2uiResult parseA2ui(String text, {required Catalog catalog, String? surfaceId, NotationOptions options = const NotationOptions()}) {
   final messages = <Json>[];
-  for (final line in const LineSplitter().convert(text)) {
+  // A whole answer written as one JSON array (or one message), pretty
+  // printed or in a code fence, is read as its messages.
+  final body = RegExp(r'^\s*```[a-z]*\n([\s\S]*?)\n```\s*$').firstMatch(text)?[1] ?? text;
+  try {
+    final whole = jsonDecode(body);
+    for (final m in whole is List ? whole : [whole]) {
+      if (m is Map) messages.add(m.cast<String, Object?>());
+    }
+    return a2uiToDocument(messages, catalog: catalog, surfaceId: surfaceId, options: options);
+  } catch (_) {
+    // JSON Lines.
+  }
+  for (final line in const LineSplitter().convert(body)) {
     final t = line.trim();
     if (!t.startsWith('{')) continue;
     try {
