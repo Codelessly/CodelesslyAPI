@@ -177,7 +177,9 @@ String baseDocument({
     'buildExample': () => '```json\n${jsonEncode(starterBuildExample)}\n```',
     'editExample': () => '```json\n${jsonEncode(starterEditExample)}\n```',
     'index': () => docsIndex(catalog: catalog, profile: p, form: form, pages: pages, tasks: tasks),
-    'button': () => has('filledButton') != null
+    'button': () => ds != null && ds.manifest.replaces.contains('filledButton')
+        ? 'one of the design system\'s button components, with its label'
+        : has('filledButton') != null
         ? 'a `filledButton` with "label" and "style"'
         : 'a row with a fill and padding whose child is a text',
   };

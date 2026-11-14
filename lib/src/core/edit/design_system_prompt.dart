@@ -17,7 +17,7 @@ String designSystemSection(DesignSystem ds, {bool docsTool = true}) {
   final b = StringBuffer()
     ..writeln('## The design system: ${ds.name}')
     ..writeln()
-    ..writeln('Every UI you make is in ${ds.name}${ds.manifest.description.isEmpty ? '' : ': ${ds.manifest.description}'}. '
+    ..writeln('Every UI you make is in ${ds.name}${ds.manifest.description.isEmpty ? '' : ': ${ds.manifest.description.replaceFirst(RegExp(r'[.\s]+$'), '')}'}. '
         'Compose it from its components (below) and the layout nodes (`column`, `row`, `stack`, `text`, `icon`, `box`); '
         'style it with its tokens by name. Its components carry its look: do not restyle them, and do not draw a control '
         'yourself when a component is one.')
@@ -142,6 +142,8 @@ String _tokens(ThemeTokens t) {
 }
 
 String _param(PropDef<Object?> p) {
+  // A variable parameter takes the name of one of the caller's variables.
+  if (p.type.isVariable) return '`${p.key}` the name of your ${propTypeLabel(p.type.variableOf!)} variable';
   final def = p.required ? 'required' : '= ${jsonEncode(p.encode(p.defaultValue))}';
   return '`${p.key}` ${propTypeLabel(p.type)} $def';
 }
@@ -163,7 +165,9 @@ String _componentInFull(DesignSystemComponent c) {
     ..writeln('| parameter | type | default | |')
     ..writeln('|---|---|---|---|');
   for (final p in s.props) {
-    b.writeln('| `${p.key}` | ${propTypeLabel(p.type)} | ${p.required ? 'required' : '`${jsonEncode(p.encode(p.defaultValue))}`'} | ${p.doc} |');
+    final type = p.type.isVariable ? 'the name of your ${propTypeLabel(p.type.variableOf!)} variable' : propTypeLabel(p.type);
+    final def = p.type.isVariable ? '' : (p.required ? 'required' : '`${jsonEncode(p.encode(p.defaultValue))}`');
+    b.writeln('| `${p.key}` | $type | $def | ${p.doc} |');
   }
   if (s.slots.isNotEmpty) b.writeln('\nSlots: ${s.slots.map((x) => '`$x`').join(', ')}.');
   if (s.events.isNotEmpty) {
