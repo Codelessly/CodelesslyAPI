@@ -127,6 +127,63 @@ Row#bar between w:300 h:44
     expect(_node(r, 'icon1')['props'], {'icon': 'close', 'size': 18});
   });
 
+  test('a node written whole: its JSON as given, over several lines, with notation lines under it, and the same when read as it arrives', () {
+    const text = '''
+state open=true
+Column gap:8
+  Text "Above"
+  if open
+    node#board {
+      "type": "stack",
+      "layout": {"width": {"fill": 0}, "height": 120},
+      "decoration": {"fills": [{"color": "#FF111827"}], "radius": 8}
+    }
+      Text "On the board" color:#FFFFFFFF
+      node {"type": "icon", "props": {"icon": "star", "size": 20}}
+      node#odd {"type": "text",
+        "props": {"text": "braces in a string { [ stay text"}}
+  Button "Below" -> open=!open
+''';
+    final r = _parse(text);
+    expect(r.issues, isEmpty);
+    final board = _node(r, 'board');
+    expect(board['layout'], {'width': {'fill': 0}, 'height': 120});
+    expect((board['decoration'] as Map)['radius'], 8);
+    expect((board['bind'] as Map)['visible'], r'${= open}');
+    expect(board['children'], ['text2', 'icon1', 'odd']);
+    expect((_node(r, 'odd')['props'] as Map)['text'], 'braces in a string { [ stay text');
+    expect(_node(r, 'icon1')['props'], {'icon': 'star', 'size': 20});
+    expect(_node(r, 'column1')['children'], ['text1', 'board', 'filledButton1']);
+
+    // As it arrives, eleven characters at a time.
+    final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
+    var doc = LayoutDocument(catalog: standardCatalog);
+    for (var i = 0; i < text.length; i += 11) {
+      final ops = stream.add(text.substring(i, i + 11 > text.length ? text.length : i + 11));
+      if (ops.isEmpty) continue;
+      final a = applyOps(doc, {'ops': ops}, catalog: standardCatalog);
+      expect(a.errors, isEmpty, reason: '${a.errors}');
+      doc = a.document;
+    }
+    final last = stream.close();
+    if (last.isNotEmpty) doc = applyOps(doc, {'ops': last}, catalog: standardCatalog).document;
+    expect(stream.issues, isEmpty);
+    expect(doc['board']!.toJson()['children'], ['text2', 'icon1', 'odd']);
+
+    // What cannot be read is said, and the rest still parses.
+    final bad = _parse('''
+Column
+  node {"layout": {}}
+  node {"type": "noSuchThing"}
+  node {"type": "icon",
+''');
+    expect(bad.issues.map((i) => i.message), [
+      contains('the whole node as JSON with its type'),
+      contains('No node type "noSuchThing"'),
+      contains('never closed'),
+    ]);
+  });
+
   test('read as it arrives: each completed line gives its operations, and applying them builds the same document', () {
     const text = '''
 state decision="pending"

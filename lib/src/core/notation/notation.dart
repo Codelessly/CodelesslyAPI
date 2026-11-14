@@ -428,6 +428,20 @@ class _Parser {
   /// Reads one line (without its newline).
   void line(String raw) {
     _line++;
+    // A `node {…}` or `document {…}` whose JSON is not closed goes on over
+    // the next lines, until it is.
+    if (_pending case final String open) {
+      final all = '$open\n$raw';
+      if (_jsonOpen(all)) {
+        _pending = all;
+        return;
+      }
+      _pending = null;
+      raw = all;
+    } else if (_wholeJsonLine.hasMatch(raw) && _jsonOpen(raw)) {
+      _pending = raw;
+      return;
+    }
     if (raw.trim().isEmpty || raw.trimLeft().startsWith('//')) return;
     final indent = raw.length - raw.trimLeft().length;
     final before = nodes.length;
@@ -438,6 +452,32 @@ class _Parser {
     } else {
       added.forEach(_emit);
     }
+  }
+
+  /// A line begun and not yet closed (its JSON runs over several lines).
+  String? _pending;
+  static final _wholeJsonLine = RegExp(r'^\s*(?:node(?:#[A-Za-z_][A-Za-z0-9_]*)?|document)\s*\{');
+
+  /// Whether the JSON that starts at the first `{` of [s] is still open.
+  static bool _jsonOpen(String s) {
+    var depth = 0, quoted = false;
+    for (var i = s.indexOf('{'); i >= 0 && i < s.length; i++) {
+      final c = s[i];
+      if (quoted) {
+        if (c == r'\') {
+          i++;
+        } else if (c == '"') {
+          quoted = false;
+        }
+      } else if (c == '"') {
+        quoted = true;
+      } else if (c == '{' || c == '[') {
+        depth++;
+      } else if (c == '}' || c == ']') {
+        depth--;
+      }
+    }
+    return depth > 0 || quoted;
   }
 
   /// The operations the line just read adds: the variables it introduced,
@@ -608,6 +648,44 @@ class _Parser {
       final after = line.substring(arrow + 4);
       final late = RegExp(r' [a-z][A-Za-z]*:=').allMatches(after).where((m) => _outside(after.substring(0, m.start + 1), '"') < 0 || '"'.allMatches(after.substring(0, m.start)).length.isEven).firstOrNull;
       if (late != null) line = '${line.substring(0, arrow)}${after.substring(late.start)} -> ${after.substring(0, late.start)}';
+    }
+    // `node {…}`: a node written whole, as the document holds it, for what
+    // the notation has no words for (a painted board, a draggable list).
+    // Nothing is added to it but its place; the lines under it are its
+    // children, in the notation or as nodes again.
+    final whole = RegExp(r'^node(?:#([A-Za-z_][A-Za-z0-9_]*))?\s*(\{[\s\S]*)$').firstMatch(line);
+    if (whole != null) {
+      final j = _json(whole[2]!);
+      if (j == null) return;
+      final type = j is Map ? j['type'] : null;
+      if (j is! Map || type is! String) {
+        return _issue(column, 'A node line is: node {"type": "…", …}, the whole node as JSON with its type.');
+      }
+      if (catalog.widget(type) == null) {
+        return _issue(column, 'No node type "$type". A node line takes the document\'s own type names (column, row, stack, text, icon, customPaint…): see the reference\'s nodes page.');
+      }
+      if (type == 'canvas') return _issue(column, 'A canvas cannot be written as a node line: the screen is made for you.');
+      final out = _copy(j.cast<String, Object?>());
+      final written = out.remove('id');
+      final id = whole[1] ?? (written is String ? written : _id(type));
+      if (nodes.containsKey(id)) return _issue(column, 'There is already a node "$id": ids are unique.');
+      if (parent?.condition case final String c) {
+        final bind = (out['bind'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
+        final own = bind['visible'];
+        bind['visible'] = own is String ? _and(c, own) : c;
+        out['bind'] = bind;
+      }
+      if (parent == null) {
+        if (_root != null) return _issue(column, 'A second root: the first line is the root, everything else is indented under it.');
+        _root = id;
+      } else {
+        final p = nodes[parent.id]!;
+        ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
+        _parentOf[id] = parent.id;
+      }
+      nodes[id] = out;
+      _stack.add(_Open(indent, id, type));
+      return;
     }
     final t = _Tokens(line);
     final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*))?').firstMatch(line);
@@ -1281,6 +1359,10 @@ class _Parser {
 
   /// The end of the text: what is still open closes.
   void finish() {
+    if (_pending != null) {
+      _issue(1, 'The JSON of a node or document line was never closed: one closing brace per opening brace.');
+      _pending = null;
+    }
     final before = nodes.length;
     while (_stack.isNotEmpty) {
       _close(_stack.removeLast());

@@ -86,6 +86,11 @@ Type[.variant][#id] ["text"] [key:value ...] [=binding] [-> action; action]
   is only bound to a control needs no declaration; its type and start come from the control.
 - **Escape hatch**: `{...}` at the end of a line is merged into the node as JSON, for anything the notation
   has no word for. Using it is allowed and counted; a key that needs it often gets a word.
+- **A node written whole**: `node {"type": "…", …}` on its own line is a node exactly as the document holds
+  it, for what the notation has no word for (a painted board, a positioned shape, a draggable list). Its JSON may
+  run over several lines; `node#id {…}` names it. Nothing is added to it but its place in the tree and the
+  condition of an `if` above it, and the lines indented under it are its children, in the notation or as nodes
+  again. This is rung 3 of the ladder in [design 15](15-the-middle-and-generated-apps.md).
 
 Sizes not written follow one rule per parent: in a column a child fills the width and hugs its height; in a row
 a child hugs both, and `grow` makes it take the rest; a control hugs; the root fills the surface it is given.
