@@ -426,6 +426,9 @@ class _Parser {
   final _parentOf = <String, String>{};
   final _slotOf = <String, String>{};
 
+  /// The item of an `each` → its list, for one that may yet share a row's width.
+  final _acrossLists = <String, String>{};
+
   /// Changes a line makes to a node already sent (a grid's row height).
   final _patches = <Json>[];
 
@@ -522,6 +525,7 @@ class _Parser {
       }
       // In a row the copies go across, each at its own width.
       final across = g == null && parent.type == 'row';
+      _acrossLists[itemId] = listId;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
         'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
@@ -782,14 +786,26 @@ class _Parser {
           }
           continue;
         }
-        // A hairline round it: `border:#FFE5E7EB`.
-        if (key == 'border' && !raw.startsWith('=')) {
-          decoration['strokes'] = [
-            {'color': _value(raw)},
-          ];
+        // A hairline round it: `border:#FFE5E7EB`, or one that follows data: `border:=on?"#FF2563EB":"#FFE5E7EB"`.
+        if (key == 'border') {
+          if (raw.startsWith('=')) {
+            bind['decoration.strokes[0].color'] = _read(raw.substring(1));
+            decoration.putIfAbsent('strokes', () => [
+                  {'color': '#00000000'},
+                ]);
+          } else {
+            decoration['strokes'] = [
+              {'color': _value(raw)},
+            ];
+          }
           continue;
         }
         if (type == 'text' && _textStyleKeys.containsKey(key)) {
+          // A style that follows data: `color:=due?"#FFDC2626":"#FF111827"`.
+          if (raw.startsWith('=') && key != 'bold') {
+            bind['props.style.${_textStyleKeys[key]!}'] = _read(raw.substring(1));
+            continue;
+          }
           final style = switch (props['style']) { final Map m => m.cast<String, Object?>(), _ => <String, Object?>{} };
           final v = _value(raw);
           style[_textStyleKeys[key]!] = key == 'bold' ? 700 : v;
@@ -907,6 +923,46 @@ class _Parser {
       layout['width'] = _size(layout['width']);
     }
     layout['height'] = layout.containsKey('height') ? _size(layout['height']) : {'hug': 0};
+    // Copies across a row that `grow` share its width: a grid with a column
+    // per item, each row as tall as its tallest cell.
+    if (parent != null && layout.containsKey('flex')) {
+      final listId = _acrossLists[parent.id], list = listId == null ? null : nodes[listId];
+      if (list != null && list['type'] == 'listView' && (list['props'] as Map?)?['scrollDirection'] == 'horizontal') {
+        final data = '${(list['bind'] as Map?)?['data'] ?? ''}';
+        final inner = data.startsWith(r'${=')
+            ? data.substring(3, data.length - 1).trim()
+            : data.startsWith(r'${')
+                ? data.substring(2, data.length - 1).trim()
+                : '[]';
+        final Json listPatch = {
+          'type': 'gridView',
+          'layout': {'width': {'hug': null, 'fill': 0}},
+          'props': {
+            'scrollable': null,
+            'scrollDirection': null,
+            'spacing': null,
+            'crossAxisCount': 1,
+            'crossAxisSpacing': (list['props'] as Map?)?['spacing'] ?? 0,
+            'shrinkWrapRows': true,
+            'physics': 'never',
+          },
+          'bind': {'props.crossAxisCount': '\${= max(1, length($inner))}'},
+        };
+        const Json itemPatch = {
+          'layout': {'width': {'hug': null, 'fill': 0}, 'height': {'fill': null, 'hug': 0}},
+          'props': {'mainAxisAlignment': null, 'crossAxisAlignment': 'stretch'},
+        };
+        nodes[listId!] = mergePatch(list, listPatch);
+        nodes[parent.id] = mergePatch(nodes[parent.id]!, itemPatch);
+        // A patch cannot change a type: the list is set again, keeping its item.
+        _patches
+          ..add({'op': 'set', 'id': listId, 'node': {...nodes[listId]!}})
+          ..add({'op': 'patch', 'id': parent.id, 'patch': itemPatch});
+        layout
+          ..remove('flex')
+          ..['width'] = {'fill': 0};
+      }
+    }
     bind.addAll(_labelBinds);
     _labelBinds.clear();
     if (parent?.condition case final String c) {
@@ -923,6 +979,34 @@ class _Parser {
       if (reactions.isNotEmpty) 'actions': reactions,
     };
     _merge(out, node);
+    // An expression written as a value in the tail ({"props": {"color": "${= …}"}})
+    // is a binding: only a text's own text reads one as written.
+    if (node.isNotEmpty) {
+      final moved = <String, Object?>{};
+      void lift(Json m, String path) {
+        for (final key in m.keys.toList()) {
+          final v = m[key];
+          final at = '$path.$key';
+          if (v is Map) {
+            final inner = v.cast<String, Object?>();
+            lift(inner, at);
+            m[key] = inner;
+          } else if (v is String && v.contains(r'${') && !(type == 'text' && at == 'props.text')) {
+            moved[at] = v;
+            m.remove(key);
+          }
+        }
+      }
+
+      for (final section in const ['props', 'layout', 'decoration']) {
+        if (node[section] is Map && out[section] is Map) {
+          final m = (out[section]! as Map).cast<String, Object?>();
+          lift(m, section);
+          out[section] = m;
+        }
+      }
+      if (moved.isNotEmpty) out['bind'] = {...?(out['bind'] as Map?)?.cast<String, Object?>(), ...moved};
+    }
     nodes[id] = out;
     if (parent == null) {
       if (_root != null) {
@@ -988,7 +1072,7 @@ class _Parser {
   String _rename(String line, String name, [String to = 'item']) {
     final word = RegExp('(?<![A-Za-z0-9_.])${RegExp.escape(name)}(?![A-Za-z0-9_])');
     final out = StringBuffer();
-    var quoted = false, depth = 0, start = 0;
+    var quoted = false, inner = false, depth = 0, start = 0;
     void flush(int end, bool code) {
       final part = line.substring(start, end);
       out.write(code ? part.replaceAllMapped(word, (_) => to) : part);
@@ -997,7 +1081,13 @@ class _Parser {
 
     for (var i = 0; i < line.length; i++) {
       final c = line[i];
-      if (c == '"' && (i == 0 || line[i - 1] != r'\')) {
+      if (c == '"' && quoted && depth > 0) {
+        // A text inside an expression inside a text: "{late ? "Late" : name}".
+        flush(i, !inner);
+        inner = !inner;
+      } else if (inner) {
+        continue;
+      } else if (c == '"' && (i == 0 || line[i - 1] != r'\')) {
         flush(i, !quoted || depth > 0);
         quoted = !quoted;
         depth = 0;
@@ -1084,6 +1174,11 @@ class _Parser {
     }
     if (key != 'icon' && type != 'text' && type != 'box' && text.contains(r'${')) {
       _labelBinds['props.$key'] = text;
+      return;
+    }
+    // An icon chosen by data: `Icon "{open ? "expand_less" : "expand_more"}"`.
+    if (key == 'icon' && text.contains(r'${')) {
+      _labelBinds['props.icon'] = text;
       return;
     }
     props[key] = key == 'icon' ? s : text;
