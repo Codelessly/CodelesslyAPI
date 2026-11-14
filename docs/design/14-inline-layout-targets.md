@@ -9,8 +9,10 @@ report work in flight. Leaving out the app shells (thread, composer, sidebar, se
 inside a chat message. Each is a target: a brief, a reference card in the notation and as a document, rendered on
 SSUI defaults, and polished until it stands beside theirs (alignment, spacing, color, every state).
 
-Status: **listed**. Three have been read in detail (approval card, option list, data table); none is built as a
-reference card yet. Seven overlap the 17 card briefs already recorded (approval, question flow, data table,
+Status: the decision group is built as reference cards in the notation on SSUI's looks
+(`CodelesslySDK/design_systems/ssui/examples/targets`): approval card, option list, recommendation card,
+permission grant, guardrail notice, elicitation form and question flow, each with its states. Seven of about 90.
+They were compared by eye with the descriptions, not side by side with assistant-ui's renders. Seven overlap the 17 card briefs already recorded (approval, question flow, data table,
 comparison, code diff, image gallery, plan).
 
 ## The targets

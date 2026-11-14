@@ -224,7 +224,7 @@ Measured, not planned. Recordings are in `CodelesslySDK/tool/stream/streams/live
 | C. Levels | Tagged and validated at a level. Level 1 is audited by a test: every widget-catalog type has a size and draws with only its type written, except a page view and a table, which need a height. |
 | D. Compact notation | Built: parser, stream, prompt, printer with an exact round trip. 34 of 34 recorded cards expand cleanly with the current parser; 26 of 34 were valid on the model's first answer. |
 | E. Head to head with A2UI | Measured against A2UI v1.0 on the same briefs, models and renderer (design 13 §11). Not compared: A2UI on its own renderers. |
-| F. Design systems | SSUI's looks are the notation's defaults. 41 of 164 SSUI components are in the SDK (`design_systems/ssui/PARITY.md`). The generic template and a second design system are not started. |
+| F. Design systems | SSUI's looks are the notation's defaults, and `NotationOptions.fromTheme` takes them from any design system. 44 of 164 SSUI components are in the SDK (`design_systems/ssui/PARITY.md`). The template exists: `design_systems/tool/new_design_system.py` writes a design system from a ten-line brand file (SSUI's components over a derived theme), and a second one, Paper, renders a UI made for SSUI unchanged. Not done: density and type scale as brand choices; a design system with a different control anatomy. |
 | G. The complex end | All three produced by Claude Sonnet 5.5 from one paragraph each, with SSUI, and used through the render tool: |
 | | **Sudoku**: 27 s, one retry. A number is placed, conflicts are highlighted, the timer runs. |
 | | **Kanban with drag and drop**: a card dragged from To do is dropped on Done and the counts follow. |
