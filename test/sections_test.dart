@@ -464,6 +464,12 @@ void main() {
           },
         },
       );
+      // A top-level componentEvent (in a document that is not a component)
+      // is an event to the document's host: a generated UI's session, which
+      // sends it to the agent. Not reported; one without an event name is.
+      expect(coded(project(docs(p: p2)), Codes.unknownEvent), isEmpty);
+      final b = (p2['nodes'] as Map)['b'] as Map;
+      (((b['actions'] as List).single as Map)['actions'] as List)[0] = {'type': 'componentEvent'};
       expect(coded(project(docs(p: p2)), Codes.unknownEvent).single.nodeId, 'b');
     });
 

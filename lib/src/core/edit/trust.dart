@@ -9,6 +9,7 @@ import '../catalog.dart';
 import '../json.dart';
 import '../props.dart';
 import '../scripts.dart';
+import '../sections.dart';
 import 'diagnostics.dart';
 
 /// Where navigation may go.
@@ -138,6 +139,15 @@ final class TrustProfile {
         maxOpsPerCall: maxOpsPerCall ?? this.maxOpsPerCall,
         scriptCapabilities: scriptCapabilities ?? this.scriptCapabilities,
       );
+
+  /// This profile with the node types of [components] allowed too: what a
+  /// session given a design system (or the project's components) checks
+  /// ops with. A call is made of the nodes its definition holds, which the
+  /// library's author wrote, not the agent; the call's own props, actions
+  /// and children are checked as any node's. A profile that allows every
+  /// type is returned as it is.
+  TrustProfile withComponents(ComponentLibrary components) =>
+      widgets == null || components.isEmpty ? this : copyWith(widgets: {...widgets!, ...components.definitions.keys});
 
   /// [catalog] restricted to what this profile allows: the catalog an
   /// agent is described and validated with.
