@@ -292,6 +292,7 @@ Column gap:8
     expect(lenient.issues, isEmpty);
     expect((_node(lenient, 'filledButton1')['bind'] as Map)['props.tooltip'], r'${today.minutes}');
     expect((_node(lenient, 'filledButton2')['bind'] as Map)['props.tooltip'], r'${n} left');
+    expect(_parse('state n=1\nColumn\n  Select items:["Round {n}","B"]\n').issues.single.message, contains('inside a list is not read'));
     final bad = _parse('Column\n  Card drag:"a b"\n  Card drop:1x -> x=1\n');
     expect(bad.issues.map((i) => i.message), [contains('drag is written'), contains('drop is written')]);
   });
