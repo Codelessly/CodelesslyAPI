@@ -97,7 +97,7 @@ abstract final class ProgressBarProps {
   static const arcGlow = PropDef<double>('arcGlow', Codecs.positive, 0);
   static const arcHeadDot = PropDef<bool>('arcHeadDot', Codecs.bool, false);
 
-  static const spec = WidgetSpec('progressBar', props: [
+  static const spec = WidgetSpec('progressBar', fillsWidth: true, props: [
     exactFill, clipFill,
     value, max, color, backgroundColor, direction, borderRadius, animate, animationDuration, shape, arcStartAngle, //
     arcSweepAngle, arcStrokeWidth, needleColor, tickCount, tickColor, bands, arcFit, arcRoundCaps, progressEndColor,
@@ -676,7 +676,7 @@ abstract final class BarChartProps {
   static const valueFontSize = PropDef<double?>('valueFontSize', Codecs.optionalPositive, null);
   static const valueGap = PropDef<double>('valueGap', Codecs.double, 2);
 
-  static const spec = WidgetSpec('barChart', props: [
+  static const spec = WidgetSpec('barChart', fillsWidth: true, props: [
     values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
     highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight, valueDecimals, valueSuffix, labelLetterSpacing, labelAreaHeight, plotTopInset, barHeadroom, valueFontSize, valueGap,
@@ -800,7 +800,7 @@ abstract final class LineChartProps {
   /// Moves every x label right by this much (negative: left).
   static const xLabelOffset = PropDef<double>('xLabelOffset', Codecs.double, 0);
 
-  static const spec = WidgetSpec('lineChart', props: [
+  static const spec = WidgetSpec('lineChart', fillsWidth: true, props: [
     data, xField, yField, xMin, xMax, yMin, yMax, plotPadding, smooth, lineColor, lineWidth, areaTopColor, //
     areaBottomColor, gridColor, zeroLineColor, axisColor, markerHollowColor, tagBackground, cursorColor,
     cursorRingFill, tooltipBackground, tooltipShadowColor, yAxisTitle, axisLabelStyle, axisTitleStyle,

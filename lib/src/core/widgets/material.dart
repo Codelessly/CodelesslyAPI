@@ -290,7 +290,7 @@ abstract final class ListTileProps {
   static const titleAlignment = PropDef<ListTileTitleAlignment?>(
       'titleAlignment', OptionalEnumCodec(ListTileTitleAlignment.values), null);
 
-  static const spec = WidgetSpec('listTile',
+  static const spec = WidgetSpec('listTile', fillsWidth: true,
       props: [
         dense, isThreeLine, visualDensity, shape, selected, enabled, autofocus, enableFeedback, tileColor, //
         selectedTileColor, selectedColor, iconColor, textColor, hoverColor, focusColor, contentPadding,

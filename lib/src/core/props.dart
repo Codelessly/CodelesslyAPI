@@ -593,7 +593,13 @@ final class WidgetSpec {
     this.events = const [],
     this.states = const [],
     this.hugs = false,
+    this.fillsWidth = false,
   });
+
+  /// With no width written it fills its parent's, and with no height it
+  /// hugs (a progress bar, a list tile, a table, a chart): complete with
+  /// nothing written, like a control that [hugs].
+  final bool fillsWidth;
 
   /// The node `type`.
   final String type;
