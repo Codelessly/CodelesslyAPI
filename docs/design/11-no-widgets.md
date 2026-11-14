@@ -58,7 +58,7 @@ hero_flights,route_transition,presentation_route}.dart`). At the start of M3, 61
 | `Hero` flights | `render/hero.dart` marks already exist; the flight becomes an overlay entry of the root that paints the mark's picture between two screens | `runtime/actions/hero_flights.dart` → `render/` | planned (WS-J) |
 | tickers, `AnimationController` | already render-level: `Ticker` in `render/animations.dart`, `RenderMotion`; controls use the same (`ControlAnimation`) | `kit.dart` | exists |
 | `Scrollable`, `ScrollController`, `ListView` | already render-level: `RenderDesignScroll`, `render/view_scroll.dart`, `widgets/collections_layout.dart`'s item layouts; what is still a widget is the list's `Scrollable` (drag physics, scrollbars) | `widgets/collections*.dart` | exists / WS-K for the last `Scrollable` |
-| `EditableText` | a `RenderEditable` driven by a `TextInputClient` the control owns (section 3.2) | `render/controls/editable.dart` | planned (WS-A) |
+| `EditableText` | a `RenderEditable` driven by a `TextInputClient` the control owns (section 3.2) | `render/controls/editable.dart` | built (WS-A; handles and toolbar planned) |
 | platform views, video, web view | the **embed extension point**: an `EmbedFactory` registered by a feature layer; core never imports it (section 3.3) | `render/controls/embed.dart` | planned (WS-K) |
 
 ### 3.1 The root and its services
@@ -123,6 +123,15 @@ hit-testing of positions, and owns everything `EditableText` did around it:
 9. **Semantics**: `isTextField`, `value`, `textSelection`, `onSetText`, `onSetSelection`, `onCopy/Cut/Paste`,
    `isObscured`, `maxValueLength`, `currentValueLength`, `isMultiline`, `isReadOnly`.
 10. **Spell check** is deferred (section 9).
+
+**As built (WS-A).** `render/controls/field_frame.dart` (`RenderFieldFrame`, `FieldDecoration`: the SSUI field box
+that the dropdown shares), `editable.dart` (`FieldEditor`: items 1, 2, 5, 6, 7 and 8 above, with undo/redo as
+`FieldUndoHistory`) and `text_field.dart` (`RenderTextField`, the recipe; items 3 and 9). The runtime reaches a field
+through `TextFieldServices` (the `focus`/`editText` actions, forms). Not built yet: selection handles and the
+toolbar as overlay entries (item 4), showing the last obscured character on mobile, the floating cursor, and
+`DeltaTextInputClient` on web. Space and Enter are typed by the field itself (the focus scope would otherwise take
+them as activation and the platform would never see them), which an IME composing with those keys on desktop may
+notice.
 
 ### 3.3 What truly needs a widget or a texture
 
