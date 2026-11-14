@@ -230,7 +230,7 @@ const Json defaultCard = {
 /// its message, description and the like; any other text parameter last.
 List<String> notationStrings(WidgetSpec spec) {
   bool text(PropDef<Object?> p) => p.type.kind == PropKind.string && !p.type.isVariable;
-  const order = ['label', 'title', 'text', 'name', 'message', 'description', 'subtitle', 'code', 'fileName', 'operation', 'note'];
+  const order = ['label', 'title', 'text', 'name', 'message', 'description', 'subtitle', 'why', 'detail', 'code', 'fileName', 'operation', 'note', 'placeholder'];
   final keys = [
     for (final k in order)
       if (spec.props.any((p) => p.key == k && text(p))) k,
