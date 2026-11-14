@@ -4,5 +4,6 @@ library;
 
 export 'src/core/notation/notation.dart'
     show NotationIssue, NotationOptions, NotationResult, NotationStream, buttonVariants, defaultTextVariants, notationTypes, parseNotation;
+export 'src/core/notation/print.dart' show notationOptionsFor, printNotation;
 export 'src/core/notation/prompt.dart' show notationPrompt;
 export 'src/core/a2ui/a2ui.dart' show A2uiResult, a2uiToDocument, parseA2ui;

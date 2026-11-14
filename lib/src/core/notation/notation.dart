@@ -11,6 +11,7 @@
 // that (validation, rendering, editing) knows the notation was used.
 import 'dart:convert';
 
+import '../behaviors.dart' show mergePatch;
 import '../catalog.dart';
 import '../json.dart';
 import '../props.dart';
@@ -328,11 +329,15 @@ class _Parser {
   /// text node reads expressions as written.
   final _labelBinds = <String, String>{};
 
+  Json? _documentPatch;
+
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
     finish();
     final screen = options.screen;
-    return NotationResult({
+    final patch = _documentPatch;
+    Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
+    return NotationResult(patched({
       'schema': 3,
       'roots': [screen],
       'nodes': {
@@ -345,7 +350,7 @@ class _Parser {
         ...nodes,
       },
       if (variables.isNotEmpty) 'variables': {screen: variables.values.toList()},
-    }, issues);
+    }), issues);
   }
 
   void _issue(int column, String message) => issues.add(NotationIssue(_line, column, message));
@@ -360,6 +365,13 @@ class _Parser {
       if (open.each != null && open.each != 'item') line = _rename(line, open.each!);
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
+    // `document {…}`: a merge patch over the whole document, for what is
+    // not a node of the tree (the printer's last line).
+    if (indent == 0 && line.startsWith('document {')) {
+      final j = _json(line.substring(9));
+      if (j is Map) _documentPatch = mergePatch(_documentPatch ?? const {}, j.cast<String, Object?>(), keepNulls: true);
+      return;
+    }
     for (final d in _derived.entries) {
       if (line.contains(d.key)) line = _rename(line, d.key, '(${d.value})');
     }
@@ -1158,6 +1170,9 @@ class _Parser {
         final m = a.cast<String, Object?>();
         _merge(m, b.cast<String, Object?>());
         into[e.key] = m;
+      } else if (b == null) {
+        // As a merge patch: null takes the key away (a default not wanted).
+        into.remove(e.key);
       } else {
         into[e.key] = b;
       }
