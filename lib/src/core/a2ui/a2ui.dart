@@ -240,7 +240,9 @@ class _Surface {
     final cid = readString(c['id']) ?? '';
     if (!seen.add(cid)) return;
     final pad = '  ' * depth;
-    final grow = c['weight'] is num ? ' grow' : '';
+    // A weight is a share of the row: 1 is `grow`, another number its flex.
+    final weight = c['weight'];
+    final grow = weight is! num || weight <= 0 ? '' : (weight == 1 ? ' grow' : ' grow:${weight == weight.roundToDouble() ? weight.round() : weight}');
     void line(String s) => out.add('$pad$s$grow');
     void child(Object? id, int d, {bool? inItem}) {
       final next = id is String ? components[id] : null;
