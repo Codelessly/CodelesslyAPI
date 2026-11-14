@@ -48,7 +48,7 @@ final class PathFollow {
   /// The path's coordinate space `[width, height]`, stretched over the
   /// node's parent: its points are where the node goes, from the parent's
   /// origin (lay the node out at the origin, offset by half its size to
-  /// centre it). Empty: the path is in pixels, as offsets from its first
+  /// center it). Empty: the path is in pixels, as offsets from its first
   /// point, from the node's own place.
   final List<double> viewBox;
 

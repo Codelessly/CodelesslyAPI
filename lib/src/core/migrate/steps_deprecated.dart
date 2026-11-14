@@ -3,7 +3,7 @@
 // construct that behaves the same (the design documents say why, field by
 // field), so each is dropped: a value that did something is kept on the node
 // as `legacy.<behavior>.<field>`, reported with what to write instead, and
-// reported as a behaviour change naming the reference apps that used it. A
+// reported as a behavior change naming the reference apps that used it. A
 // value that did nothing (a default, a fine-mode setting without a fine step)
 // is dropped as a rewrite.
 import '../json.dart';
@@ -52,7 +52,7 @@ void _drop(Json n, MigrationScope s, String key, String what, List<_Field> field
         path: '/$key/${f.key}',
         instead: f.instead,
         message: '`$name` (deprecated, one app) has no schema-3 form; kept as `legacy.$name`.');
-    s.behaviourChange('`$name` no longer acts: ${f.instead}', path: '/$key/${f.key}', old: v, instead: 'Used by: ${f.apps}.');
+    s.behaviorChange('`$name` no longer acts: ${f.instead}', path: '/$key/${f.key}', old: v, instead: 'Used by: ${f.apps}.');
   }
   if (changed) n[key] = owner;
   if (bound.isNotEmpty) putBind(n, {...bind}..removeWhere((k, _) => fields.any((f) => k == '$key.${f.key}')), s);
@@ -142,7 +142,7 @@ final pathOneAppStep = MigrationStep(
           s.unconvertible(n, '$owner.path.pacing', {'pacing': pacing, 'focus': ?focus},
               path: '$at/pacing',
               instead: 'Bind "$owner.path.progress" to a formula of time that paces it (the orrery\'s Kepler function), or give its track a curve.');
-          s.behaviourChange('`$owner.path.pacing: area` no longer acts: progress is paced by length.',
+          s.behaviorChange('`$owner.path.pacing: area` no longer acts: progress is paced by length.',
               path: '$at/pacing', instead: 'Used by: orrery.');
         } else {
           s.rewrite('$at/pacing', {'pacing': ?pacing, 'focus': ?focus}, null, 'pacing/focus dropped: length pacing, as before.');
@@ -153,7 +153,7 @@ final pathOneAppStep = MigrationStep(
         path['orient'] = 'upright';
         s.unconvertible(n, '$owner.path.orient', 'uprightFlip',
             path: '$at/orient', instead: 'Bind "motion.scaleX" to -1 while the path heads left.');
-        s.behaviourChange('`orient: uprightFlip` is `upright`: the node no longer mirrors while the path heads left.',
+        s.behaviorChange('`orient: uprightFlip` is `upright`: the node no longer mirrors while the path heads left.',
             path: '$at/orient', instead: 'Used by: lineworks_v2 (as uprightMirror).');
       }
       if (changed) {
@@ -183,7 +183,7 @@ final transitionArcStep = MigrationStep(
       s.unconvertible(n, 'transitions.${t['property']}.arc', arc,
           path: '/transitions/$i/arc',
           instead: 'Give "motion.translateX" and "motion.translateY" transitions different curves (easeOut, easeIn), or move it along a quadratic "motion.path".');
-      s.behaviourChange('A transition\'s `arc` no longer bends the move: it goes straight.',
+      s.behaviorChange('A transition\'s `arc` no longer bends the move: it goes straight.',
           path: '/transitions/$i/arc', instead: 'Used by: lineup.');
     }
     n['transitions'] = list;
@@ -204,7 +204,7 @@ final dropTargetOneAppStep = MigrationStep(
       final hasSlot = (readString(d['listNodeId'])?.trim().isNotEmpty ?? false) && d['slot'] != 'none';
       if (d.containsKey('slotWhenRefused')) s.rewrite('/dropTarget/slotWhenRefused', d.remove('slotWhenRefused'), null);
       if (refusedSlot && acceptIf.isNotEmpty && hasSlot) {
-        s.behaviourChange('A drag acceptIf refuses no longer opens a slot in the list (the slot opens for accepted drags only).',
+        s.behaviorChange('A drag acceptIf refuses no longer opens a slot in the list (the slot opens for accepted drags only).',
             path: '/dropTarget/acceptIf', instead: 'Used by: mixtape (set it); any drop target with acceptIf and a list slot.');
       }
       n['dropTarget'] = d;
@@ -231,7 +231,7 @@ final dropTargetOneAppStep = MigrationStep(
               ? 'React to the refused drop (dropRejected) where acceptIf refuses it.'
               : 'React to dragEnter (with a timer reaction for a delay).');
       if (type == 'dropFull' || hovered) {
-        s.behaviourChange('A `$type` reaction no longer fires.', path: '/actions/$i',
+        s.behaviorChange('A `$type` reaction no longer fires.', path: '/actions/$i',
             instead: type == 'dropFull' ? 'Used by: seedbox.' : 'No reference app (sprint_kanban set hoverDelayMs, which was never read).');
       }
     }
@@ -255,7 +255,7 @@ final gestureOneAppStep = MigrationStep(
       if (readBool(v) == false) {
         s.unconvertible(n, '${at.substring(1).replaceAll('/', '.')}.projectVelocity', v,
             path: '$at/projectVelocity', instead: 'None: a snap now always picks the target nearest where the fling would stop.');
-        s.behaviourChange('A snap without projectVelocity now projects the fling (as Flutter\'s sheets do).', path: at);
+        s.behaviorChange('A snap without projectVelocity now projects the fling (as Flutter\'s sheets do).', path: at);
       } else {
         s.rewrite('$at/projectVelocity', v, null);
       }

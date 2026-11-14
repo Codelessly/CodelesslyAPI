@@ -124,7 +124,7 @@ void main() {
     expect((nodes['nat']!['typewriter'] as Map)['caretAlignStyle'], {'fontSize': 9, 'height': 1.33});
     expect((nodes['btn']!['props'] as Map)['labelStyle'], {'fontSize': 11});
     expect((((nodes['btn']!['states'] as Map)['hovered'] as Map)['plain'] as Map), {'props': {'style': <String, Object?>{}}});
-    expect(report.behaviourChanges.map((e) => e.path), ['/nodes/btn/states/hovered/plain/props/style/naturalHeight']);
+    expect(report.behaviorChanges.map((e) => e.path), ['/nodes/btn/states/hovered/plain/props/style/naturalHeight']);
     expect(jsonEncode(doc), isNot(contains('naturalHeight')));
     // Decoded: the text below the canvas inherits 1.33 (the nearest default wins).
     final d = LayoutDocument.fromJson(doc, catalog: standardCatalog);
@@ -138,7 +138,7 @@ void main() {
     final (out, report) = migrated(documentSamples['text.lineHeight']!);
     expect(out['defaultTextStyle'], <String, Object?>{});
     expect(((out['props'] as Map)['runs'] as List).single, {'start': 0, 'end': 1, 'style': {'color': '#FF000000'}});
-    expect(report.behaviourChanges, isEmpty);
+    expect(report.behaviorChanges, isEmpty);
     final (out2, report2) = migrated({
       'type': 'text',
       'props': {
@@ -150,7 +150,7 @@ void main() {
       },
     });
     expect((out2['props'] as Map)['style'], {'fontSize': 12, 'height': 1.33});
-    expect(report2.behaviourChanges.single.path, '/nodes/n/props/runs');
+    expect(report2.behaviorChanges.single.path, '/nodes/n/props/runs');
   });
 
   test('a schema-2 path an action names is refused with the schema-3 path (schema2PathHint, unknown_bind_path)', () {
@@ -234,7 +234,7 @@ void main() {
     expect(((out['states'] as Map)['hovered'] as Map)['n'], {'opacity': 0.5});
     expect(report.entries.where((e) => e.step == 'text.padding').length, 6);
     expect(report.unconvertible, isEmpty);
-    expect(report.behaviourChanges, isEmpty);
+    expect(report.behaviorChanges, isEmpty);
     // Run on the whole document (the box's own padding and its patch of itself stay).
     final doc = migrate2to3({
       'schema': 2,
@@ -284,7 +284,7 @@ void main() {
     expect(out['legacy.track.parkedProgress'], -0.5);
     // fineHold without a fine step, smooth at its default: they did nothing.
     expect(out.keys.where((k) => k.startsWith('legacy.')), ['legacy.track.parkedProgress']);
-    final change = report.behaviourChanges.single;
+    final change = report.behaviorChanges.single;
     expect(change.instead, contains('apiary'));
     expect(report.unconvertible.single.instead, contains('track.value'));
   });
@@ -294,7 +294,7 @@ void main() {
       'dropTarget': {'accepts': ['g'], 'acceptIf': r'${ok}', 'listNodeId': 'l'},
     });
     expect(out['dropTarget'], {'accepts': ['g'], 'acceptIf': r'${ok}', 'listNodeId': 'l'});
-    expect(report.behaviourChanges.single.message, contains('acceptIf'));
+    expect(report.behaviorChanges.single.message, contains('acceptIf'));
   });
 
   test('a clock with a formula interval is a timer that validates (intervalMs takes an expression)', () {
@@ -335,7 +335,7 @@ void main() {
     expect(out['bind'], {'motion.alignment': r'${= [x * 2, 1]}'});
   });
 
-  test('a setVariable glide that is not one formula sets at once, said as a behaviour change', () {
+  test('a setVariable glide that is not one formula sets at once, said as a behavior change', () {
     final (out, report) = migrated({
       'actions': [
         {
@@ -349,6 +349,6 @@ void main() {
     expect(((out['actions'] as List).single as Map)['actions'], [
       {'type': 'setVariable', 'variable': 't', 'value': r'n = ${n}'},
     ]);
-    expect(report.behaviourChanges.single.step, 'action.setVariable.animateMs');
+    expect(report.behaviorChanges.single.step, 'action.setVariable.animateMs');
   });
 }

@@ -98,7 +98,7 @@ A progress bar filled to `value` of `max`: a bar (horizontal, or vertical fillin
 <a id="node-circularProgressIndicator"></a>
 ### `circularProgressIndicator`
 
-Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary colour, round-ended, 16 px when it hugs.
+Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary color, round-ended, 16 px when it hugs.
 
 Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).
 
@@ -120,7 +120,7 @@ Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `st
 <a id="node-activityIndicator"></a>
 ### `activityIndicator`
 
-Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text colour unless `color` says.
+Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text color unless `color` says.
 
 Flutter `CupertinoActivityIndicator`.
 
@@ -200,7 +200,7 @@ A radial dial: zones, ticks, labels, a value arc (continuous or in segments), a 
 | `needleClearance` | double | `0.62` |  | Where the needle starts, as a fraction of the radius. |
 | `animate` | bool | `true` |  |  |
 | `animationDuration` | int | `420` | ≥ 0 | Milliseconds. |
-| `labelInset` | double | unset |  | How far inside the arc's centre line the labels sit (null: inside the track, clear of the ticks). |
+| `labelInset` | double | unset |  | How far inside the arc's center line the labels sit (null: inside the track, clear of the ticks). |
 | `labelTicks` | bool | `false` |  | A hairline tick just outside the arc at each label. |
 | `targetAcross` | bool | `false` |  | The target mark crosses the arc (a newspaper's "last time" line) instead of sitting outside it. |
 
@@ -311,7 +311,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `showTotals` | bool | `false` |  | Each bar group's total above it; the selected one in `totalsSelectedColor`. |
 | `totalsColor` | [Color](values.md#type-Color) | unset |  |  |
 | `totalsSelectedColor` | [Color](values.md#type-Color) | unset |  |  |
-| `totalsGap` | double | unset |  | Each total's bottom this far above its bar; null centres it 10 px above the bar. |
+| `totalsGap` | double | unset |  | Each total's bottom this far above its bar; null centers it 10 px above the bar. |
 | `stackGap` | double | `0` | ≥ 0 | Space between the segments of a stacked bar. |
 | `stackGapEdge` | [ChartStackGapEdge](values.md#enum-ChartStackGapEdge) | `"between"` | `between`, `top` | Where `stackGap` goes (see `ChartStackGapEdge`). |
 | `baselineColor` | [Color](values.md#type-Color) | unset |  | The grid's bottom line (the baseline), drawn with the grid under the bars; null: `gridColor`. |
@@ -325,7 +325,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `endLabelDecimals` | int | `1` | ≥ 0 | Decimals of the values in series end labels. |
 | `yLabelAlign` | [ChartYLabelAlign](values.md#enum-ChartYLabelAlign) | `"end"` | `end`, `start` | Where the y labels sit: right-aligned by the plot, or left-aligned at the chart's left edge. |
 | `xAxisHeight` | double | `22` | ≥ 0 | The x-axis label band's height below the plot. |
-| `xLabelGap` | double | unset |  | The x labels' top this far below the plot; null centres them in the band (`xAxisHeight`). |
+| `xLabelGap` | double | unset |  | The x labels' top this far below the plot; null centers them in the band (`xAxisHeight`). |
 | `gridLineMode` | [ChartGridLineMode](values.md#enum-ChartGridLineMode) | `"crisp"` | `centered`, `crisp`, `exact` | How grid lines and solid reference lines meet the pixel grid. |
 | `animate` | bool | `true` |  | Animates numeric data changes; initial and design-canvas values rest. |
 | `animationDuration` | int | `700` | ≥ 0 | Milliseconds. Zero applies data changes immediately. |
@@ -347,7 +347,7 @@ A bar chart of `values` with optional labels, grid and a highlighted bar.
 | `highlight` | int | unset |  |  |
 | `max` | double | `0` |  | The value of a full bar; 0 uses the largest value. |
 | `color` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
-| `colors` | List<[Color](values.md#type-Color)> | `[]` |  | Per-bar colours; missing entries fall back to color. |
+| `colors` | List<[Color](values.md#type-Color)> | `[]` |  | Per-bar colors; missing entries fall back to color. |
 | `dimmedOpacity` | double | `0.55` |  |  |
 | `barGap` | double | `3` |  |  |
 | `barRadius` | double | `1` |  |  |
@@ -366,7 +366,7 @@ A bar chart of `values` with optional labels, grid and a highlighted bar.
 | `animate` | bool | `true` |  |  |
 | `animationDuration` | int | `700` | ≥ 0 | Milliseconds. |
 | `gridLabelsLeft` | bool | `false` |  | The grid labels on the left of the chart instead of its right. |
-| `maxBarWidth` | double | unset | ≥ 0 | The widest a bar gets, centred in its column (null: the column). |
+| `maxBarWidth` | double | unset | ≥ 0 | The widest a bar gets, centered in its column (null: the column). |
 | `showValues` | bool | `false` |  | Each bar's value above it (whole numbers without decimals). |
 | `labelFontWeight` | int | `400` | ≥ 100 | The weight of the labels under the bars and of the values (100–900). |
 | `valueDecimals` | int | unset |  | Decimals of the values over the bars (null: whole numbers without decimals, else one), and text after each (`%`). |
@@ -546,7 +546,7 @@ A barcode or QR code of `data`, filling the box.
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  |  |
 | `errorCorrection` | [BarcodeErrorCorrection](values.md#enum-BarcodeErrorCorrection) | `"medium"` | `low`, `medium`, `quartile`, `high` |  |
 | `drawText` | bool | `true` |  | 1D codes: the text under the bars. |
-| `overlap` | double | `0` | ≥ 0 | Pixels each dark bar and module reaches past its right and bottom edge, so neighbours overlap: no hairline seams where anti-aliased edges meet, and a small ink gain (as `canvas.drawRect` codes widen bars to hide seams). 0 draws the exact geometry. |
+| `overlap` | double | `0` | ≥ 0 | Pixels each dark bar and module reaches past its right and bottom edge, so neighbors overlap: no hairline seams where anti-aliased edges meet, and a small ink gain (as `canvas.drawRect` codes widen bars to hide seams). 0 draws the exact geometry. |
 
 <a id="type-ChartSeries"></a>
 ### ChartSeries
@@ -695,7 +695,7 @@ reference lines.
 <a id="charts-pitfalls"></a>
 ## Pitfalls
 
-- Chart colours default to a dark theme's; set `color`, `gridColor` and the label colours on a light page.
+- Chart colors default to a dark theme's; set `color`, `gridColor` and the label colors on a light page.
 - A `barChart`'s labels default to JetBrains Mono: set `labelFontFamily` to a font you have (`font_fallback`).
 - A chart's size is its node's layout: give it a fixed height.
 - `value` above `max` is clamped.

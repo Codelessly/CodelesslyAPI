@@ -62,8 +62,8 @@ void main(List<String> args) {
   }
   stdout.writeln('${files.length} files, $changed ${write ? 'migrated' : 'to migrate'}; '
       '${report.rewrites.length} rewrites, ${report.unconvertible.length} unconvertible values, '
-      '${report.behaviourChanges.length} behaviour changes.');
-  for (final e in [...report.unconvertible, ...report.behaviourChanges]) {
+      '${report.behaviorChanges.length} behavior changes.');
+  for (final e in [...report.unconvertible, ...report.behaviorChanges]) {
     stdout.writeln('  $e${e.instead.isEmpty ? '' : '\n      instead: ${e.instead}'}');
   }
   if (reportPath != null) File(reportPath).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(report.toJson()));

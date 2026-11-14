@@ -16,7 +16,7 @@
 //   template's `selected` state style;
 // * a date/time input's `displayFormat` → its `format`.
 //
-// Each writes what the old field drew where it can, and reports a behaviour
+// Each writes what the old field drew where it can, and reports a behavior
 // change where it can't. A schema-3 document that still has one of the
 // fields is refused by validation, naming the form to write.
 import '../json.dart';
@@ -130,7 +130,7 @@ final countUpStep = MigrationStep(
     if (taken == null) return;
     final (literal, bound) = taken;
     if (bound.isNotEmpty) {
-      s.behaviourChange('A bound countUp setting has no single place to go; the count uses its literal values.',
+      s.behaviorChange('A bound countUp setting has no single place to go; the count uses its literal values.',
           path: '/bind', old: bound, instead: 'Bind the transition\'s or the animation\'s duration instead.');
     }
     final on = loose(literal['countUp']) ?? false;
@@ -196,7 +196,7 @@ final sliderPaintStep = MigrationStep(
     if (taken == null && !(drawsTicks && n['type'] == 'slider')) return;
     final (literal, bound) = taken ?? (const <String, Object?>{}, const <String, String>{});
     if (n['customPaint'] != null && readMap(n['customPaint'])?['viewBox'] != null) {
-      s.behaviourChange('The slider\'s customPaint has a view box: the ops written in the slider\'s pixels are drawn in it.',
+      s.behaviorChange('The slider\'s customPaint has a view box: the ops written in the slider\'s pixels are drawn in it.',
           path: '/customPaint/viewBox');
     }
     final trackShape = readString(props['trackShape']);
@@ -268,10 +268,10 @@ final sliderPaintStep = MigrationStep(
           'paint': {'color': _colorOf(literal, bound, 'markerColor', Color.white)},
         });
       } else {
-        s.behaviourChange('The marker\'s bound value is not a formula: it is not drawn.', path: '/bind', old: bound);
+        s.behaviorChange('The marker\'s bound value is not a formula: it is not drawn.', path: '/bind', old: bound);
       }
       if (!fillFromEnd) {
-        s.behaviourChange('The marker made the slider draw a plain rounded track; the track is now its trackShape\'s '
+        s.behaviorChange('The marker made the slider draw a plain rounded track; the track is now its trackShape\'s '
             '(Flutter\'s default when unset).', path: '/props/markerValue', instead: 'Set "trackShape" to the track you want.');
       }
     }
@@ -308,12 +308,12 @@ final sliderPaintStep = MigrationStep(
           },
         });
         if (!fillFromEnd) {
-          s.behaviourChange('The fade made the slider draw a plain rounded track; the track is now its trackShape\'s '
+          s.behaviorChange('The fade made the slider draw a plain rounded track; the track is now its trackShape\'s '
               '(Flutter\'s default when unset), with the fade over its active part.',
               path: '/props/activeTrackStartOpacity', instead: 'Set "trackShape" to the track you want.');
         }
       } else {
-        s.behaviourChange('The track\'s fade needs a fixed, opaque inactiveTrackColor to be drawn over it: it is not drawn.',
+        s.behaviorChange('The track\'s fade needs a fixed, opaque inactiveTrackColor to be drawn over it: it is not drawn.',
             path: '/props/activeTrackStartOpacity', old: literal['activeTrackStartOpacity'] ?? bound['activeTrackStartOpacity'],
             instead: 'A customPaint "rrect" op over the active part ("slider.trackRect", "slider.thumbCenter") with a '
                 'gradient of the inactive color.');
@@ -327,7 +327,7 @@ final sliderPaintStep = MigrationStep(
       final vertical = props['orientation'] == 'vertical';
       final w = readDouble(size?.elementAtOrNull(vertical ? 1 : 0)) ?? 20, h = readDouble(size?.elementAtOrNull(vertical ? 0 : 1)) ?? 20;
       if (bindBefore.keys.any((k) => k.startsWith('props.thumbSize') || k == 'props.showThumb' || k == 'props.thumbShape')) {
-        s.behaviourChange('The grip is drawn at the thumb\'s literal size; its size or shape is bound.', path: '/props/thumbGripColor');
+        s.behaviorChange('The grip is drawn at the thumb\'s literal size; its size or shape is bound.', path: '/props/thumbGripColor');
       }
       if (w > 0 && h > 0) {
         final width = w * 0.43;
@@ -391,7 +391,7 @@ final textFieldRunsStep = MigrationStep(
     ];
     final wholeStyle = bound['highlightStyle'] == null ? null : formulaOf(bound['highlightStyle']!);
     if (start == null || end == null || (bound['highlightStyle'] != null && wholeStyle == null)) {
-      s.behaviourChange('A bound highlight that is not a formula can\'t be written as runs: nothing is highlighted.',
+      s.behaviorChange('A bound highlight that is not a formula can\'t be written as runs: nothing is highlighted.',
           path: '/bind', old: bound, instead: 'Bind "props.runs" to a list of {start, end, style}.');
       return;
     }
@@ -431,7 +431,7 @@ final displayFormatStep = MigrationStep(
     n['props'] = {...?readMap(n['props']), 'format': pattern};
     s.rewrite('/props/format', format, pattern);
     if (_namedDateStyles.contains(pattern.trim())) {
-      s.behaviourChange('"$pattern" was formatDate\'s named style; format reads it as an intl pattern.',
+      s.behaviorChange('"$pattern" was formatDate\'s named style; format reads it as an intl pattern.',
           path: '/props/format', old: pattern, instead: 'Write the intl pattern the style stands for (full: "EEEE, MMMM d, y").');
     }
   },
@@ -468,7 +468,7 @@ final tableRowEdgeStep = MigrationStep(
       final selected = bindOf(n)['props.selectedRow'] ?? '${readInt(readMap(n['props'])?['selectedRow']) ?? -1}';
       final row = formulaOf(selected);
       if (cell == null || row == null || bindOf(cell).containsKey('selected') || readMap(readMap(cell['states'])?['selected']) != null) {
-        s.behaviourChange('The selected row\'s edge could not go on the table\'s cell template (none, or it is already '
+        s.behaviorChange('The selected row\'s edge could not go on the table\'s cell template (none, or it is already '
             'selected by a binding of its own): it is not drawn.', path: '/nodes/${e.key}/props/selectedRowEdgeColor', old: color,
             instead: 'A "selected" state style on the cell template, with "selected" bound to the row being the selected one.');
         continue;
@@ -494,7 +494,7 @@ final tableRowEdgeStep = MigrationStep(
       final strokes = readList(readMap(cell['decoration'])?['strokes']);
       final padding = readDouble(readMap(n['props'])?['horizontalPadding']) ?? 0;
       if (!fills(layout?['width']) || !fills(layout?['height']) || padding != 0 || (strokes != null && strokes.isNotEmpty)) {
-        s.behaviourChange('The edge is drawn on the first cell\'s box, which is not the whole row\'s start (the template '
+        s.behaviorChange('The edge is drawn on the first cell\'s box, which is not the whole row\'s start (the template '
             'does not fill its cell, the table has horizontal padding, or the cell has strokes of its own, which the '
             'style replaces while selected).', path: '/nodes/$cellId/states/selected');
       }

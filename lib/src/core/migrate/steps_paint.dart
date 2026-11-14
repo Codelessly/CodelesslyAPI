@@ -242,7 +242,7 @@ final strokePathStep = MigrationStep(
           instead: 'Draw it with "customPaint": a "path" op with "points" (or "commands"), a stroke "paint" and "trimEnd" '
               'for the progress (docs/design/01-paint-node.md, "30.1.0").',
           message: 'strokePath has no exact customPaint form here (${why.join('; ')}); kept as `legacy.strokePath`.');
-      s.behaviourChange('The stroke path is no longer drawn.', path: '/strokePath', old: raw);
+      s.behaviorChange('The stroke path is no longer drawn.', path: '/strokePath', old: raw);
       return;
     }
 
@@ -386,7 +386,7 @@ final boxPathStep = MigrationStep(
         final child = Node.fromJson(c, id: id);
         if (child == null || child.children.isNotEmpty) continue;
         if ((row ? child.layout.height.fit : child.layout.width.fit) != SizeFit.fill) continue;
-        s.behaviourChange(
+        s.behaviorChange(
             'Box "$id" with a path filled across a stretching ${p['type']} that hugs it, sized by its siblings; as a path node it takes its design size there.',
             path: '/nodes/$id/layout',
             instead: 'Give it a fixed size across the ${p['type']}.');
@@ -419,7 +419,7 @@ final boxPathStep = MigrationStep(
     s.rewrite('/props/path', path, path, type == 'box' ? 'box with a path → path node (props.data)' : 'props.path → props.data');
     if (bind.containsKey('props.path')) {
       putBind(n, {for (final e in bind.entries) e.key == 'props.path' ? 'props.data' : e.key: e.value}, s);
-      s.behaviourChange('While the bound path is empty the node draws nothing (a box drew its rectangle).',
+      s.behaviorChange('While the bound path is empty the node draws nothing (a box drew its rectangle).',
           path: '/bind/props.path', instead: 'Bind "visible" to whether the path is empty, with a box beside it.');
     }
     final d = readMap(n['decoration']);
@@ -441,7 +441,7 @@ final boxPathStep = MigrationStep(
     }
     if (dropped) n['decoration'] = d;
     // Where the two painters differ.
-    void differs(String what, String at, String instead) => s.behaviourChange(what, path: at, instead: instead);
+    void differs(String what, String at, String instead) => s.behaviorChange(what, path: at, instead: instead);
     final fills = _paints(d, 'fills').where(_visible).toList();
     // The box filled the part of the path inside its own rectangle.
     final layout = readMap(n['layout']);
@@ -616,7 +616,7 @@ final perShapePaintStep = MigrationStep(
             path: '/props/subpathColors',
             instead: 'One customPaint "path" op per color, each with the SVG data of its shapes.',
             message: 'subpathColors has no exact form here (${why.join('; ')}); kept as `legacy.props.subpathColors`.');
-        s.behaviourChange('The path\'s shapes are no longer colored one by one: the fills\' colors fill the whole path.',
+        s.behaviorChange('The path\'s shapes are no longer colored one by one: the fills\' colors fill the whole path.',
             path: '/props/subpathColors');
       }
       if (perFill || perStroke) {
@@ -631,7 +631,7 @@ final perShapePaintStep = MigrationStep(
                 path: '/decoration/$key/$i/gradientPerSubpath',
                 instead: 'One customPaint "path" op per shape, each with the gradient as its paint\'s shader.',
                 message: 'gradientPerSubpath has no exact form here (${why.join('; ')}); kept as `legacy.decoration.$key.$i.gradientPerSubpath`.');
-            s.behaviourChange('The gradient is laid out across the whole path, not in each shape.', path: '/decoration/$key/$i');
+            s.behaviorChange('The gradient is laid out across the whole path, not in each shape.', path: '/decoration/$key/$i');
           }
           if (list.isNotEmpty) d[key] = list;
         }

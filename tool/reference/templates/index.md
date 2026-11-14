@@ -26,7 +26,7 @@ section's anchor is its topic.
 | Why a fill took its design size (`fill_fallback`); which sizes a parent allows | @@layout-which-sizing-modes-each-parent-allows |
 | Every layout field (constraints, aspectRatio, widthFactor, order, basis...) | @@layout-layout-fields |
 | A screen designed separately per breakpoint | @@layout-a-canvas-per-breakpoint |
-| Name the palette and the type scale once (the theme) | @@theme-named-colours-and-styles |
+| Name the palette and the type scale once (the theme) | @@theme-named-colors-and-styles |
 | A type size that grows at tablet and desktop, written once | @@theme-a-type-scale-that-changes-with-the-screen-size |
 | Dark mode | @@theme-dark-mode |
 | Part of a text in another style, a link in text; text defaults | @@theme-text |
@@ -47,10 +47,10 @@ section's anchor is its topic.
 | A radio group (one choice of several) | @@forms-a-radio-group |
 | A − / + stepper around a number field | @@forms-a-stepper-around-a-field |
 | A search icon or a clear (×) button inside a text field | @@forms-a-clear-button-in-the-field |
-| A checkbox or switch with a label, toggled from the whole row | @@forms-a-labelled-checkbox-or-switch |
+| A checkbox or switch with a label, toggled from the whole row | @@forms-a-labeled-checkbox-or-switch |
 | Add and remove items of a list (a list editor) | @@forms-add-and-remove-items-a-list-editor |
 | Focus a field; keyboard keys; arrow keys between tabs | @@forms-focus-and-the-keyboard |
-| A button's label, colours, corners and label size | @@forms-buttons |
+| A button's label, colors, corners and label size | @@forms-buttons |
 | Every prop of a text field | @@node-textField |
 | Repeat one template per item of a list | @@lists-one-template-from-data |
 | A grid of cards from data, as many columns as fit; gaps between wrapped items | @@lists-a-grid-of-cards |
@@ -68,7 +68,7 @@ section's anchor is its topic.
 | Declare variables; screen, page and project scope | @@state-variables |
 | A value derived once from others (computed variables), a reusable formula (function variables) | @@state-computed-and-function-variables |
 | The value each binding path expects (lists for padding, names for enums) | @@state-binding-paths |
-| Every formula function: text, numbers, money, lists, objects, dates, colours | @@state-formula-functions |
+| Every formula function: text, numbers, money, lists, objects, dates, colors | @@state-formula-functions |
 | A count, a total, a streak from data; dates | @@state-a-streak-and-other-counts-from-data |
 | Toggle, add, append, remove at an index (setVariable ops); if / else in a chain | @@state-changing-state-from-a-reaction |
 | Set several nodes while a test holds (conditions) | @@state-conditions |
@@ -101,7 +101,7 @@ section's anchor is its topic.
 | Capture the states (after a tap, typing, an open menu) with the render command | @@render-capturing-states |
 | Every validation and render code | @@render-validation-codes |
 | Build and edit with ops; streaming; the retry protocol | @@edit-ops-the-ops |
-| How one value type is written (colour, alignment, insets) | @@values-colours-and-alignments |
+| How one value type is written (color, alignment, insets) | @@values-colors-and-alignments |
 
 ## The pages
 

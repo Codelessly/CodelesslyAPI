@@ -197,7 +197,7 @@ void main() {
       expect(n.containsKey('scale'), isFalse);
       expect((n['layout'] as Map).containsKey('rotation'), isFalse);
       expect(report.rewrites.map((e) => e.step).toSet(), {'transform.fold'});
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
     });
 
     test('a migrated node is drawn where schema 3 drew it, an uneven margin\'s pivot included', () {
@@ -233,7 +233,7 @@ void main() {
         'motion': {'scale': 1.1},
         'states': {'selected': {'n': {'scale': 0.9, 'layout': {'rotation': 12}}}},
       });
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
       final rest = Motion.fromJson(n['motion'])!;
       final patch = ((n['states'] as Map)['selected'] as Map)['n'] as Map;
       final selected = Motion.fromJson({...(n['motion'] as Map), ...(patch['motion'] as Map)})!;
@@ -375,15 +375,15 @@ void main() {
       ]) {
         final (n, report) = migrated(node);
         expect(n.containsKey('scale'), isFalse, reason: name);
-        expect(report.behaviourChanges.single.message, contains(name));
+        expect(report.behaviorChanges.single.message, contains(name));
       }
       final (_, bound) = migrated({'layout': {'width': 10, 'height': 10, 'margin': [8, 0, 0, 0]}, 'bind': {'layout.rotation': r'${a}'}});
-      expect(bound.behaviourChanges.single.message, contains('uneven'));
+      expect(bound.behaviorChanges.single.message, contains('uneven'));
       final (_, both) = migrated({
         'transitions': [{'property': 'motion', 'duration': 100}],
         'bind': {'scale': r'${s}', 'motion.scale': r'${m}'},
       });
-      expect(both.behaviourChanges.single.message, contains('eased together'));
+      expect(both.behaviorChanges.single.message, contains('eased together'));
     });
   });
 
@@ -397,7 +397,7 @@ void main() {
       expect(n['hero'], {'tag': 'react', 'flies': 'inPlace', 'flight': {'duration': 720, 'lift': 110}});
       expect(n['bind'], {'hero.tag': r'react-${emoji}', 'hero.flight.turns': r'${t}'});
       expect(n.containsKey('flightKey') || n.containsKey('flight'), isFalse);
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
       final hero = Node.fromJson(n, id: 'n')!.behaviors.hero!;
       expect([hero.tag, hero.flies, hero.flight!.duration], ['react', HeroFlies.inPlace, 720]);
     });
@@ -416,7 +416,7 @@ void main() {
       expect(n['hero'], 'avatar');
       expect([n['legacy.flightKey'], n['legacy.flight']], ['tile', {'duration': 300}]);
       expect(report.unconvertible.single.step, 'hero.flight');
-      expect(report.behaviourChanges.single.message, contains('no longer flies in'));
+      expect(report.behaviorChanges.single.message, contains('no longer flies in'));
     });
 
     test('a flight with no key never flew and is dropped', () {

@@ -66,9 +66,9 @@ higher level, and each level's reference is complete on its own. Higher levels a
 
 | Level | Name | What it adds | An agent reaches for it when |
 |---|---|---|---|
-| 0 | **Core** | Boxes and layout: `row`, `column`, `stack`, `wrap`, `gridView`, `container` (decoration, padding, clip), `text`, `icon`, `image`, `spacer`, `divider`, scrolling. Sizing (`fixed`, `hug`, `fill`, `flex`), alignment, spacing. Theme colours and text styles by name. One interaction: a tap that tells the host. | It needs to draw anything at all |
+| 0 | **Core** | Boxes and layout: `row`, `column`, `stack`, `wrap`, `gridView`, `container` (decoration, padding, clip), `text`, `icon`, `image`, `spacer`, `divider`, scrolling. Sizing (`fixed`, `hug`, `fill`, `flex`), alignment, spacing. Theme colors and text styles by name. One interaction: a tap that tells the host. | It needs to draw anything at all |
 | 1 | **Widget catalog** | Controls that are SSUI by default and hug with zero props: buttons, `textField`, `switch`, `checkbox`, `radio`, `slider`, `dropdown`, `popupMenu`, chips, `segmentedButton`, `tabs`, date and time pickers, progress, `listTile`, accordion, app and navigation bars, dialog, sheet, toast, tooltip. Each holds its own value and reports `changed`. | It needs input from a person |
-| 2 | **State and behaviour** | Variables, bindings, expressions and formulas, actions, `states`, list templates over data, forms and validation, conditions, navigation between screens. | The UI must react without the host |
+| 2 | **State and behavior** | Variables, bindings, expressions and formulas, actions, `states`, list templates over data, forms and validation, conditions, navigation between screens. | The UI must react without the host |
 | 3 | **Design systems** | Theme scales, components by reference, a design system as data (tokens, components, DESIGN.md, PATTERNS.md), responsive `media` rules. | It must look like a specific product |
 | 4 | **Full vocabulary** | Motion and animations, gestures, drag and drop, `customPaint`, scroll effects and parallax, hero, charts, timers, scripting, media and embeds. | It is building an app or a game, not a card |
 | 5 | **Feature layers** | Multi-page sites, publishing, storage, paywall, hosted plugins. Product features built from levels 0–4, never new render primitives. | It is shipping a product |
@@ -80,7 +80,7 @@ whole app screen from a description) are levels 3 and 4 on the same document.
 
 **Rules that keep the levels honest**
 
-1. Every type, prop, action and behaviour in the catalog carries its level. The validator can be run at a level
+1. Every type, prop, action and behavior in the catalog carries its level. The validator can be run at a level
    (a profile), and reports the first thing above it.
 2. The reference is generated per level: a level's page teaches only that level, and the base an agent is given
    grows by one page per level it is granted.

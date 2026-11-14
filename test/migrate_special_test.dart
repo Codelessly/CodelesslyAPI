@@ -117,13 +117,13 @@ void main() {
       expect((marker['rect'] as List)[0], contains('clamp((0.25 - slider.min) / (slider.max - slider.min), 0, 1) - 3 / 2'));
       expect((marker['rect'] as List)[3], r'${= (h)}');
       expect(n.containsKey('bind'), isFalse);
-      expect(report.behaviourChanges, isEmpty, reason: 'fillFromEnd keeps the plain track the marker drew on');
+      expect(report.behaviorChanges, isEmpty, reason: 'fillFromEnd keeps the plain track the marker drew on');
       expect(errors(doc), isEmpty);
     });
 
     test('a marker without fillFromEnd reports that the track is now its trackShape\'s', () {
       final (_, _, report) = migrate({'type': 'slider', 'props': {'markerValue': 0.5}});
-      expect(report.behaviourChanges.single.message, contains('trackShape'));
+      expect(report.behaviorChanges.single.message, contains('trackShape'));
     });
 
     test('a rectangular thumb\'s grip is a rect over the thumb, at its center', () {
@@ -146,16 +146,16 @@ void main() {
       final fade = ((n['customPaint'] as Map)['painter'] as List).single as Map;
       expect(fade['id'], 'activeTrackFade');
       expect(jsonEncode(fade), contains('#CCDDDDDD'));
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
       final (_, _, without) = migrate({'type': 'slider', 'props': {'activeTrackStartOpacity': 0.2}});
-      expect(without.behaviourChanges.single.message, contains('inactiveTrackColor'));
+      expect(without.behaviorChanges.single.message, contains('inactiveTrackColor'));
     });
 
     test('deriveOverlayColorFromThumb, read by no renderer, is dropped', () {
       final (n, doc, report) = migrate({'type': 'slider', 'props': {'deriveOverlayColorFromThumb': false, 'value': 0.5}});
       expect(n['props'], {'value': 0.5});
       expect(n.containsKey('customPaint'), isFalse);
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
       expect(errors(doc), isEmpty);
     });
   });
@@ -222,7 +222,7 @@ void main() {
           },
         },
       });
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
     });
 
     test('a template that does not fill its cell is reported: the edge is on its box', () {
@@ -234,7 +234,7 @@ void main() {
       }, others: {
         'cell': {'type': 'text', 'props': {'text': r'${item.value}'}},
       });
-      expect(report.behaviourChanges.single.message, contains('first cell\'s box'));
+      expect(report.behaviorChanges.single.message, contains('first cell\'s box'));
     });
   });
 
@@ -249,7 +249,7 @@ void main() {
 
     test('a named style is reported: format reads intl patterns', () {
       final (_, _, report) = migrate({'type': 'dateTimeInput', 'props': {'displayFormat': 'full'}});
-      expect(report.behaviourChanges.single.message, contains('named style'));
+      expect(report.behaviorChanges.single.message, contains('named style'));
     });
   });
 
@@ -291,7 +291,7 @@ void main() {
       }), report: report);
       final actions = (((nodeOf(doc, 'b')['actions'] as List).single as Map)['actions'] as List).cast<Map>();
       expect(((actions[0]['values'] as List).single as Map)['path'], 'props.format');
-      expect(report.behaviourChanges.map((e) => e.message), contains(contains('props.markerValue')));
+      expect(report.behaviorChanges.map((e) => e.message), contains(contains('props.markerValue')));
     });
   });
 }

@@ -88,11 +88,11 @@ its default.
 A page is one file. A **site** is a folder with a `site.json` (its pages, components, theme and shared variables);
 see [checking your work](#base-checking-your-work) and [components](#page-components).
 
-<a id="base-theme-first-named-colours-and-text-styles"></a>
-## Theme first: named colours and text styles
+<a id="base-theme-first-named-colors-and-text-styles"></a>
+## Theme first: named colors and text styles
 
 Declare a palette and a type scale once and name them everywhere, as a Flutter app declares `ThemeData` and its
-widgets read `Theme.of(context)`. **Write the theme before the first node**: a name per colour the design uses, a
+widgets read `Theme.of(context)`. **Write the theme before the first node**: a name per color the design uses, a
 name per kind of text (display, title, body, label, eyebrow...).
 
 The theme is the `theme` of the site manifest, `site.json`, next to the pages:
@@ -115,23 +115,23 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
 }
 ```
 
-- `colors` maps a name to `"#AARRGGBB"` (or another colour's name). Wherever a colour is accepted (a fill, a
-  stroke, a text's colour, a shadow, an input's border), write its name: `"color": "ember"`.
+- `colors` maps a name to `"#AARRGGBB"` (or another color's name). Wherever a color is accepted (a fill, a
+  stroke, a text's color, a shadow, an input's border), write its name: `"color": "ember"`.
 - `textStyles` maps a name to a [TextStyle](#type-TextStyle); a style may start `from` another (`"title": {"from":
   "body", "fontSize": 32}`). A text names its style: `"style": "title"`; to change a few fields of it,
   `"style": {"from": "title", "color": "ember"}`.
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"`.
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 
-Controls (buttons, chips, fields, switches, pickers, tabs) take the colours and fonts their props leave unset
+Controls (buttons, chips, fields, switches, pickers, tabs) take the colors and fonts their props leave unset
 from the theme's top-level **roles** (`ColorScheme` names: `primary`, `onPrimary`, `surface`, `onSurface`, `error`),
-which may name a colour but never sit in `colors`. Unstyled controls are SSUI's, never Material's.
+which may name a color but never sit in `colors`. Unstyled controls are SSUI's, never Material's.
 
-**Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colours that differ in dark mode, and
+**Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colors that differ in dark mode, and
 `"mode"` which one the site starts in (Flutter's `ThemeMode`: `system`, the default, follows the device; `light`;
 `dark`). A theme switch is one action, `{"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}`:
-every named colour, named text style and control of every screen follows, and the choice is kept for the next
-visit. Read the mode as `${theme.mode}` and `${theme.isDark}`. Name colours in your text styles (`"color": "ink"`)
+every named color, named text style and control of every screen follows, and the choice is kept for the next
+visit. Read the mode as `${theme.mode}` and `${theme.isDark}`. Name colors in your text styles (`"color": "ink"`)
 so they change with it: [dark mode](#theme-dark-mode).
 
 **Fonts.** Declare the site's fonts in `site.json` as a pubspec does, files beside it: `"fonts": [{"family":
@@ -221,7 +221,7 @@ only in a row or column that has some (a fill or fixed main size).
 - **A full-width band with capped, centered content** (CSS `max-width: 1200px; margin: 0 auto`): the band fills
   the width and holds the background; its one child fills with `"constraints": {"maxWidth": 1200}`, centered by the
   band's `crossAxisAlignment` (`center`, the default). [The capped band, with an example](#layout-a-capped-band).
-- A negative margin does not overlap a neighbour: to overlap, move what the node paints with `"motion":
+- A negative margin does not overlap a neighbor: to overlap, move what the node paints with `"motion":
   {"translateY": -36}` (layout unchanged), or use a stack. [Overlap and bleed](#layout-overlap-and-bleed).
 
 <a id="base-stacks"></a>
@@ -290,7 +290,7 @@ under a stack (`layout_field_ignored`).
   its `type`.
 - `clip: "antiAlias"` clips the children to the rounded box.
 
-Colours are `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half), `"#RRGGBB"` or a theme colour's name; `"#FFF"`,
+Colors are `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half), `"#RRGGBB"` or a theme color's name; `"#FFF"`,
 `rgb()` and CSS names are not read. Patterns in pixels, grain, foreground scrims, icons, paths and custom drawing:
 [decoration](#page-decoration).
 
@@ -390,7 +390,7 @@ The props that matter most; each type's page lists all of them.
 | [`listView`](#node-listView) | children; slots loading, error, end, sectionHeader, reorderPlaceholder; no decoration | `scrollDirection` horizontal|vertical, `spacing` number, `scrollable` bool |
 | [`gridView`](#node-gridView) | children; slots loading, error, end, reorderPlaceholder; no decoration | `crossAxisCount` int, `minCrossAxisExtent` number, `mainAxisSpacing` number, `crossAxisSpacing` number, `shrinkWrapRows` bool |
 
-- **Buttons**: the text is `label` (not `text`); colours, corners and the label's style are in `style` (a
+- **Buttons**: the text is `label` (not `text`); colors, corners and the label's style are in `style` (a
   [ButtonStyle](#type-ButtonStyle): `backgroundColor`, `foregroundColor`, `textStyle`, `shape`), not in
   `decoration`. Give a button a fixed width or a fill: a hugging button is only as wide as its label. For full
   control, use a `row` with a fill, padding, a text child and a `click` reaction.
@@ -482,7 +482,7 @@ Hover and pressed styles (`states`), drag, gestures: [interaction](#page-interac
    band.
 2. **Use the width.** A tablet and a desktop are not a stretched phone: split the page into content and a rail
    (a `flex` turning horizontal), give content columns (a `gridView` whose `crossAxisCount` grows, a lead item
-   spanning two: `layout.columnSpan`), and let every band fill the width with its content capped and centred. A
+   spanning two: `layout.columnSpan`), and let every band fill the width with its content capped and centered. A
    desktop page that is still one column, or content that stops short of its band, is unfinished:
    [an editorial page at three sizes](#layout-an-editorial-page-at-three-sizes).
 3. A node's `media` is a list of CSS media queries over the node: `[{"minWidth": 600, "patch": {"props": {"style":
@@ -499,9 +499,9 @@ Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive lay
 ## Rules that are easy to get wrong
 
 1. Every node needs `layout.width` and `layout.height`; without them it is 0 × 0.
-2. Every text needs a colour; without one it is white.
+2. Every text needs a color; without one it is white.
 3. Padding and margin are a number or four numbers, never two.
-4. Colours are `#AARRGGBB`, `#RRGGBB` or a theme colour's name; define the theme first and name its colours and
+4. Colors are `#AARRGGBB`, `#RRGGBB` or a theme color's name; define the theme first and name its colors and
    styles.
 5. Columns center their children across by default: `"crossAxisAlignment": "start"` for left-aligned content.
 6. A screen taller than the window needs a scrolling body column (`"scrollable": true`, `fill` both ways).
@@ -511,7 +511,7 @@ Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive lay
 10. `fill` takes all the room it is given: cap it with `constraints.maxWidth`. Under a parent that hugs that
     axis, a fill is its design number (`fill_fallback`).
 11. A backslash in a formula is written twice in JSON: `"${= matches(code, '^\\d{4}$')}"`.
-12. Buttons: `label`, colours in `style`. Inputs: `changed` + `setVariable`, two-way by binding the value prop.
+12. Buttons: `label`, colors in `style`. Inputs: `changed` + `setVariable`, two-way by binding the value prop.
 13. Repeated content comes from data: one template in a `listView` / `gridView`, not copies.
 
 <a id="base-checking-your-work"></a>
@@ -573,7 +573,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | Why a fill took its design size (`fill_fallback`); which sizes a parent allows | [layout-which-sizing-modes-each-parent-allows](#layout-which-sizing-modes-each-parent-allows) |
 | Every layout field (constraints, aspectRatio, widthFactor, order, basis...) | [layout-layout-fields](#layout-layout-fields) |
 | A screen designed separately per breakpoint | [layout-a-canvas-per-breakpoint](#layout-a-canvas-per-breakpoint) |
-| Name the palette and the type scale once (the theme) | [theme-named-colours-and-styles](#theme-named-colours-and-styles) |
+| Name the palette and the type scale once (the theme) | [theme-named-colors-and-styles](#theme-named-colors-and-styles) |
 | A type size that grows at tablet and desktop, written once | [theme-a-type-scale-that-changes-with-the-screen-size](#theme-a-type-scale-that-changes-with-the-screen-size) |
 | Dark mode | [theme-dark-mode](#theme-dark-mode) |
 | Part of a text in another style, a link in text; text defaults | [theme-text](#theme-text) |
@@ -594,10 +594,10 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | A radio group (one choice of several) | [forms-a-radio-group](#forms-a-radio-group) |
 | A − / + stepper around a number field | [forms-a-stepper-around-a-field](#forms-a-stepper-around-a-field) |
 | A search icon or a clear (×) button inside a text field | [forms-a-clear-button-in-the-field](#forms-a-clear-button-in-the-field) |
-| A checkbox or switch with a label, toggled from the whole row | [forms-a-labelled-checkbox-or-switch](#forms-a-labelled-checkbox-or-switch) |
+| A checkbox or switch with a label, toggled from the whole row | [forms-a-labeled-checkbox-or-switch](#forms-a-labeled-checkbox-or-switch) |
 | Add and remove items of a list (a list editor) | [forms-add-and-remove-items-a-list-editor](#forms-add-and-remove-items-a-list-editor) |
 | Focus a field; keyboard keys; arrow keys between tabs | [forms-focus-and-the-keyboard](#forms-focus-and-the-keyboard) |
-| A button's label, colours, corners and label size | [forms-buttons](#forms-buttons) |
+| A button's label, colors, corners and label size | [forms-buttons](#forms-buttons) |
 | Every prop of a text field | [node-textField](#node-textField) |
 | Repeat one template per item of a list | [lists-one-template-from-data](#lists-one-template-from-data) |
 | A grid of cards from data, as many columns as fit; gaps between wrapped items | [lists-a-grid-of-cards](#lists-a-grid-of-cards) |
@@ -615,7 +615,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | Declare variables; screen, page and project scope | [state-variables](#state-variables) |
 | A value derived once from others (computed variables), a reusable formula (function variables) | [state-computed-and-function-variables](#state-computed-and-function-variables) |
 | The value each binding path expects (lists for padding, names for enums) | [state-binding-paths](#state-binding-paths) |
-| Every formula function: text, numbers, money, lists, objects, dates, colours | [state-formula-functions](#state-formula-functions) |
+| Every formula function: text, numbers, money, lists, objects, dates, colors | [state-formula-functions](#state-formula-functions) |
 | A count, a total, a streak from data; dates | [state-a-streak-and-other-counts-from-data](#state-a-streak-and-other-counts-from-data) |
 | Toggle, add, append, remove at an index (setVariable ops); if / else in a chain | [state-changing-state-from-a-reaction](#state-changing-state-from-a-reaction) |
 | Set several nodes while a test holds (conditions) | [state-conditions](#state-conditions) |
@@ -648,7 +648,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | Capture the states (after a tap, typing, an open menu) with the render command | [render-capturing-states](#render-capturing-states) |
 | Every validation and render code | [render-validation-codes](#render-validation-codes) |
 | Build and edit with ops; streaming; the retry protocol | [edit-ops-the-ops](#edit-ops-the-ops) |
-| How one value type is written (colour, alignment, insets) | [values-colours-and-alignments](#values-colours-and-alignments) |
+| How one value type is written (color, alignment, insets) | [values-colors-and-alignments](#values-colors-and-alignments) |
 
 - [layout.md](#page-layout): Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
 - [theme.md](#page-theme): Theme and text. Documents text, textDirection, defaultTextStyle, setThemeMode.
@@ -705,7 +705,7 @@ section's anchor is its topic.
 | Why a fill took its design size (`fill_fallback`); which sizes a parent allows | [layout.md#layout-which-sizing-modes-each-parent-allows](#layout-which-sizing-modes-each-parent-allows) |
 | Every layout field (constraints, aspectRatio, widthFactor, order, basis...) | [layout.md#layout-layout-fields](#layout-layout-fields) |
 | A screen designed separately per breakpoint | [layout.md#layout-a-canvas-per-breakpoint](#layout-a-canvas-per-breakpoint) |
-| Name the palette and the type scale once (the theme) | [theme.md#theme-named-colours-and-styles](#theme-named-colours-and-styles) |
+| Name the palette and the type scale once (the theme) | [theme.md#theme-named-colors-and-styles](#theme-named-colors-and-styles) |
 | A type size that grows at tablet and desktop, written once | [theme.md#theme-a-type-scale-that-changes-with-the-screen-size](#theme-a-type-scale-that-changes-with-the-screen-size) |
 | Dark mode | [theme.md#theme-dark-mode](#theme-dark-mode) |
 | Part of a text in another style, a link in text; text defaults | [theme.md#theme-text](#theme-text) |
@@ -726,10 +726,10 @@ section's anchor is its topic.
 | A radio group (one choice of several) | [forms.md#forms-a-radio-group](#forms-a-radio-group) |
 | A − / + stepper around a number field | [forms.md#forms-a-stepper-around-a-field](#forms-a-stepper-around-a-field) |
 | A search icon or a clear (×) button inside a text field | [forms.md#forms-a-clear-button-in-the-field](#forms-a-clear-button-in-the-field) |
-| A checkbox or switch with a label, toggled from the whole row | [forms.md#forms-a-labelled-checkbox-or-switch](#forms-a-labelled-checkbox-or-switch) |
+| A checkbox or switch with a label, toggled from the whole row | [forms.md#forms-a-labeled-checkbox-or-switch](#forms-a-labeled-checkbox-or-switch) |
 | Add and remove items of a list (a list editor) | [forms.md#forms-add-and-remove-items-a-list-editor](#forms-add-and-remove-items-a-list-editor) |
 | Focus a field; keyboard keys; arrow keys between tabs | [forms.md#forms-focus-and-the-keyboard](#forms-focus-and-the-keyboard) |
-| A button's label, colours, corners and label size | [forms.md#forms-buttons](#forms-buttons) |
+| A button's label, colors, corners and label size | [forms.md#forms-buttons](#forms-buttons) |
 | Every prop of a text field | [forms.md#node-textField](#node-textField) |
 | Repeat one template per item of a list | [lists.md#lists-one-template-from-data](#lists-one-template-from-data) |
 | A grid of cards from data, as many columns as fit; gaps between wrapped items | [lists.md#lists-a-grid-of-cards](#lists-a-grid-of-cards) |
@@ -747,7 +747,7 @@ section's anchor is its topic.
 | Declare variables; screen, page and project scope | [state.md#state-variables](#state-variables) |
 | A value derived once from others (computed variables), a reusable formula (function variables) | [state.md#state-computed-and-function-variables](#state-computed-and-function-variables) |
 | The value each binding path expects (lists for padding, names for enums) | [state.md#state-binding-paths](#state-binding-paths) |
-| Every formula function: text, numbers, money, lists, objects, dates, colours | [state.md#state-formula-functions](#state-formula-functions) |
+| Every formula function: text, numbers, money, lists, objects, dates, colors | [state.md#state-formula-functions](#state-formula-functions) |
 | A count, a total, a streak from data; dates | [state.md#state-a-streak-and-other-counts-from-data](#state-a-streak-and-other-counts-from-data) |
 | Toggle, add, append, remove at an index (setVariable ops); if / else in a chain | [state.md#state-changing-state-from-a-reaction](#state-changing-state-from-a-reaction) |
 | Set several nodes while a test holds (conditions) | [state.md#state-conditions](#state-conditions) |
@@ -780,7 +780,7 @@ section's anchor is its topic.
 | Capture the states (after a tap, typing, an open menu) with the render command | [render.md#render-capturing-states](#render-capturing-states) |
 | Every validation and render code | [render.md#render-validation-codes](#render-validation-codes) |
 | Build and edit with ops; streaming; the retry protocol | [edit-ops.md#edit-ops-the-ops](#edit-ops-the-ops) |
-| How one value type is written (colour, alignment, insets) | [values.md#values-colours-and-alignments](#values-colours-and-alignments) |
+| How one value type is written (color, alignment, insets) | [values.md#values-colors-and-alignments](#values-colors-and-alignments) |
 
 <a id="index-the-pages"></a>
 ## The pages
@@ -794,7 +794,7 @@ section's anchor is its topic.
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12891 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7877 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4269 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6662 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6662 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5286 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3719 |
@@ -808,7 +808,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3081 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13358 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13358 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -907,7 +907,7 @@ wrap, a row turning into a column, a sticky header).
 ## Minimal example
 
 The text hugs its content, the red box fills the column's width, and in the row the green and blue boxes share the
-free space 1 : 2 (`flex`) beside a fixed grey box.
+free space 1 : 2 (`flex`) beside a fixed gray box.
 
 ```json
 {
@@ -1308,7 +1308,7 @@ Its laid-out box, written to a variable.
 <a id="type-Measure"></a>
 #### Measure
 
-Writes where the node is laid out, `{x, y, width, height, centerX, centerY}` in pixels, to a variable as layout changes: in the coordinates of the ancestor node `relativeTo` (empty: the screen), under `key` when the variable is a map. Other nodes then follow it: a marker travelling to the chip of the reader's layer on a timeline whose chips are laid out by data. The design canvas measures too.
+Writes where the node is laid out, `{x, y, width, height, centerX, centerY}` in pixels, to a variable as layout changes: in the coordinates of the ancestor node `relativeTo` (empty: the screen), under `key` when the variable is a map. Other nodes then follow it: a marker traveling to the chip of the reader's layer on a timeline whose chips are laid out by data. The design canvas measures too.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -1539,7 +1539,7 @@ The same page in CSS:
 <a id="layout-a-capped-band"></a>
 ### A capped band
 
-A full-width band with capped, centered content (CSS `max-width: 1200px; margin: 0 auto` inside a coloured band):
+A full-width band with capped, centered content (CSS `max-width: 1200px; margin: 0 auto` inside a colored band):
 the band fills the width and holds the background; its one child fills with `constraints.maxWidth`, centered by the
 band's `crossAxisAlignment` (`center`, the default). Under `crossAxisAlignment: stretch` a cap holds too, as CSS
 `max-width` does: the child sits at the start, or where its `layout.align` puts it (`[0, 0]` centers it). Below, a
@@ -1643,7 +1643,7 @@ capped). Give every section the same two layers, and they line up at every width
 
 - the **band** (the section) fills the page width, holds its background, and has the page **gutter** as its side
   padding: the same three values in every band, by the same media rules (16 on phones, 32 from 600, 64 from 1024);
-- its one **rail** child fills the band with `"constraints": {"maxWidth": 1200}`, centred (the band's default
+- its one **rail** child fills the band with `"constraints": {"maxWidth": 1200}`, centered (the band's default
   `crossAxisAlignment`); the section's content goes inside the rail.
 
 At 390 every rail starts at 16, at 834 at 32, at 1440 at 120 ((1440 − 1200) / 2: the cap, not the gutter). Never pad
@@ -1680,7 +1680,7 @@ lines in a narrower column, and a fixed height then overflows by the extra lines
       "layout": {"width": {"fill": 1200}, "height": {"hug": 120}, "constraints": {"maxWidth": 1200}},
       "props": {"wrap": true, "spacing": 24, "runSpacing": 24}},
     "f1": {"type": "text", "layout": {"width": {"fill": 400}, "height": {"hug": 48}, "basis": 300},
-      "props": {"text": "The band holds the colour and the gutter.", "style": {"fontSize": 16, "color": "#FF334155"}}}
+      "props": {"text": "The band holds the color and the gutter.", "style": {"fontSize": 16, "color": "#FF334155"}}}
   }
 }
 ```
@@ -1697,7 +1697,7 @@ the `split` flex turns horizontal (its `direction` patched): the stories fill an
 pinned 24 px below the top as the page scrolls. The stories are a `gridView` whose `crossAxisCount` is 1, 2 from
 834 px and 3 from 1200 px; the lead story spans two columns (`"bind": {"layout.columnSpan": "${= index == 0 ? 2 :
 1}"}`), which is the whole row at two columns and the full width at one, because a span is never wider than the
-grid. The masthead is a full-width coloured band whose content is capped at 1200 and centred
+grid. The masthead is a full-width colored band whose content is capped at 1200 and centered
 ([a capped band](#layout-a-capped-band)), as is the split.
 
 ```json
@@ -2110,7 +2110,7 @@ value where the node binds the field at other sizes, drop the binding in the rul
 <a id="layout-overlap-and-bleed"></a>
 ### Overlap and bleed
 
-**Overlapping a neighbour** (CSS `margin-top: -36px`, `transform: translateY(-36px)`): Flutter's answer is
+**Overlapping a neighbor** (CSS `margin-top: -36px`, `transform: translateY(-36px)`): Flutter's answer is
 `Transform.translate`: `"motion": {"translateY": -36}` moves what the node paints, not its layout, so the next node
 does not move up; a node later in its parent paints over the ones before it. A media rule may patch it. A card
 overlapping the bottom of a hero band: the card after the hero with `translateY: -36`, and 36 px of `margin` below it
@@ -2352,7 +2352,7 @@ one part of a screen. Older documents use this:
   axis (it hugs it, or scrolls), a fill is its design number (`fill_fallback`, naming the parent).
 - `x`/`y` mean nothing under a row or column, `flex`/`align` nothing under a stack (`layout_field_ignored`).
 - A stack that hugs its children grows to hold them, so there a negative offset is 0 (`layout_clamped`). A
-  negative margin does not overlap a neighbour (`layout_clamped`): translate with `motion`.
+  negative margin does not overlap a neighbor (`layout_clamped`): translate with `motion`.
 - A media patch replaces a size of another mode: `{"hug": 200}` over `{"fill": 292}` is `{"hug": 200}`. A field
   both patched and bound shows the binding (`media_overridden`): bind in the rule instead.
 - `squeezeChildren` (default true) shrinks children that do not fit, as CSS flex items shrink; false is
@@ -2496,7 +2496,7 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `letterSpacing` | double | unset |  | Logical pixels between letters. |
 | `height` | double | unset | ≥ 0 | Line height as a multiple of the font size. Unset: the inherited defaultTextStyle's, else the font's own (Flutter's height: null, CSS line-height: normal). |
 | `decoration` | [TextDecoration](#enum-TextDecoration) | unset | `none`, `underline`, `overline`, `lineThrough` | A line through the text: `underline`, `overline`, `lineThrough` or `none`. |
-| `decorationColor` | [Color](#type-Color) | unset |  | The colour of the `decoration` line; without one, the text's colour. |
+| `decorationColor` | [Color](#type-Color) | unset |  | The color of the `decoration` line; without one, the text's color. |
 | `backgroundColor` | [Color](#type-Color) | unset |  | Painted behind the glyphs. |
 | `decorationStyle` | [TextDecorationStyle](#enum-TextDecorationStyle) | unset | `solid`, `double`, `dotted`, `dashed`, `wavy` | The `decoration` line's style: `solid`, `double`, `dotted`, `dashed`, `wavy`. |
 | `decorationThickness` | double | unset |  | The `decoration` line's thickness, as a multiple of the font's default. |
@@ -2530,32 +2530,32 @@ A styled range of a text's characters, `[start, end)`.
 <a id="theme-patterns"></a>
 ## Patterns
 
-<a id="theme-named-colours-and-styles"></a>
-### Named colours and styles
+<a id="theme-named-colors-and-styles"></a>
+### Named colors and styles
 
-- **Colours**: `colors` maps a name to `"#AARRGGBB"` (or to another colour's name: `"accent": "ember"`). Wherever a
-  colour is accepted, write its name. The roles `primary`, `onPrimary`, `surface`, `onSurface`, `error`, `success`,
+- **Colors**: `colors` maps a name to `"#AARRGGBB"` (or to another color's name: `"accent": "ember"`). Wherever a
+  color is accepted, write its name. The roles `primary`, `onPrimary`, `surface`, `onSurface`, `error`, `success`,
   `warning` (keys of the theme) are names too.
-- **Text styles**: `textStyles` maps a name to a TextStyle. A style may start `from` another and name colours. A
+- **Text styles**: `textStyles` maps a name to a TextStyle. A style may start `from` another and name colors. A
   text names its style in one field, `"style": "title"`; to change some fields of it, `"style": {"from": "title",
   "color": "ember"}` (`textTheme.titleLarge.merge(...)`: the fields written win). Runs, a button's `textStyle` and
   an input's styles take the same two forms.
-- Changing a colour or style in the theme changes every node that names it, and only those.
+- Changing a color or style in the theme changes every node that names it, and only those.
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`; inside
   a formula, `${= done ? theme.colors.sage : theme.colors.mist}`.
 
 <a id="theme-what-controls-take-from-the-theme"></a>
 ### What controls take from the theme
 
-A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons
-(labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface`
+A control's colors, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons
+(labeled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface`
 (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius`
 shapes every kind of button and chip, `radius` dialogs, menus, pickers and fields. Without a theme, controls are
 neutral: ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font
 of their own, and plain in shape: buttons and chips of a 6 px radius (not a stadium), fields and dropdowns outlined
 with their label as the placeholder (no underline, no floating label), date and time pickers plain fields, a
 switch with one thumb size, tabs with a square underline, dialogs and menus of an 8 px radius with a hairline
-border. Gauges, charts, barcodes, signature pads, tab bars and pagination take their unset colours from the theme
+border. Gauges, charts, barcodes, signature pads, tab bars and pagination take their unset colors from the theme
 too: values and lines `primary`, tracks and grids `outlineVariant`, ticks and axes `outline`, labels
 `onSurfaceVariant`, needles, cursors and tooltips `onSurface`. Nothing comes from Material's defaults (no purple,
 ripples, elevation or stadium shapes) or from the host app's theme.
@@ -2563,7 +2563,7 @@ ripples, elevation or stadium shapes) or from the host app's theme.
 <a id="theme-spacing-radii-sizes-shadows-and-motion"></a>
 ### Spacing, radii, sizes, shadows and motion
 
-The theme names its scales as it names colours: `"spacing": {"1": 4, "2": 8, "3": 12}`, `"radii": {"control": 7,
+The theme names its scales as it names colors: `"spacing": {"1": 4, "2": 8, "3": 12}`, `"radii": {"control": 7,
 "panel": 8}`, `"sizes": {"compact": 28, "large": 44}`, `"shadows": {"level3": [{"type": "dropShadow", ...}]}` (with
 `dark` shadows of their own), `"durations": {"fast": 150}` (milliseconds) and `"curves": {"standard": "easeInOut"}`.
 A node reads a step in a binding, `"bind": {"layout.padding": "${theme.spacing.3}", "decoration.radius":
@@ -2583,10 +2583,10 @@ or change some fields (`{"style": {"fontSize": 20}}`, merged over the named styl
 <a id="theme-dark-mode"></a>
 ### Dark mode
 
-`"dark": {"colors": {"ink": "#FFEEEEEE"}}` gives the colours (and roles: `surface`, `primary`...) that differ in
+`"dark": {"colors": {"ink": "#FFEEEEEE"}}` gives the colors (and roles: `surface`, `primary`...) that differ in
 dark mode; everything naming `ink` follows the mode: fills, strokes, named text styles (a style whose `color` is
-`"ink"`), and the controls, which take the theme's roles. A style with a literal colour (`"#FF111111"`) does not
-change: name the colour.
+`"ink"`), and the controls, which take the theme's roles. A style with a literal color (`"#FF111111"`) does not
+change: name the color.
 
 Which mode shows is the theme's `mode` (Flutter's `ThemeMode`, as `MaterialApp.themeMode`): `system` (the default:
 the device's setting), `light` or `dark`. A site's own switch is one action:
@@ -2599,8 +2599,8 @@ the device's setting), `light` or `dark`. A site's own switch is one action:
 opens in the same mode, and with `persist` (the default) the choice is kept in the site's local storage, so a
 reload starts in it; `"persist": false` keeps it for this visit only. `${theme.mode}` reads the mode chosen and
 `${theme.isDark}` (also `${screen.isDark}`) whether the screen is dark; bind a switch's value to
-`${theme.isDark}` to show it. A theme without `dark` stays as designed in dark mode (its colours and controls light),
-while `${theme.isDark}` still says dark (`${theme.hasDark}` is false), so a page may choose its own colours.
+`${theme.isDark}` to show it. A theme without `dark` stays as designed in dark mode (its colors and controls light),
+while `${theme.isDark}` still says dark (`${theme.hasDark}` is false), so a page may choose its own colors.
 
 The render command captures either: `--theme light` or `--theme dark` (the PNG names end `-light`, `-dark`), and a
 `--tap` on the switch afterwards captures the other.
@@ -2665,17 +2665,17 @@ Characters the font has no glyph for draw as empty boxes (`missing_glyph`): use 
 <a id="theme-pitfalls"></a>
 ## Pitfalls
 
-- A text without a colour is white (`text_no_color` when rendered): set it in the style or the named style.
+- A text without a color is white (`text_no_color` when rendered): set it in the style or the named style.
 - A name the theme does not have is `unknown_theme_name` (with the nearest name); a theme of the wrong shape is
   `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
   "theme": {...}}`.
-- A theme colour's name is not read from a formula: bind `${theme.colors.ember}`.
+- A theme color's name is not read from a formula: bind `${theme.colors.ember}`.
 - Run offsets count characters, `\n` as one.
 
 <a id="theme-see-also"></a>
 ## See also
 
-[Decoration](#page-decoration) (paints that name theme colours) · [forms](#page-forms) (input and button text
+[Decoration](#page-decoration) (paints that name theme colors) · [forms](#page-forms) (input and button text
 styles) · [responsive layout](#layout-media-rules) (media rules).
 
 ---
@@ -2750,12 +2750,12 @@ A card with a solid fill, a border, rounded corners and a shadow, and a gradient
 ### Decoration fields
 
 A node's `"decoration"`: what its box paints. Types without a box decoration keep only blur effects. Fills paint
-bottom to top under the node's content; `foregroundFills` paint over it, children included. Every colour may be a
-theme colour's name.
+bottom to top under the node's content; `foregroundFills` paint over it, children included. Every color may be a
+theme color's name.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `fills` | List<[Paint](#type-Paint)> | `[]` |  | Paints for the box, bottom to top: a colour, a gradient, an image or noise. |
+| `fills` | List<[Paint](#type-Paint)> | `[]` |  | Paints for the box, bottom to top: a color, a gradient, an image or noise. |
 | `strokes` | List<[Paint](#type-Paint)> | `[]` |  | Paints for the border, drawn `strokeWidth` wide. |
 | `strokeWidth` | double | `1` | ≥ 0 | The border's width in pixels. Without `strokes` it draws nothing. |
 | `strokeAlign` | [StrokeAlign](#enum-StrokeAlign) | `"inside"` | `inside`, `center`, `outside` |  |
@@ -2782,8 +2782,8 @@ Flutter `Icon` (font icons) or an SVG/image icon.
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `icon` | [IconData](#type-IconData) | `{}` |  | Which glyph: a Material icon name, `"check_circle"` (a style by suffix: `"search_rounded"`), the one form to write everywhere (an icon node, an input's `prefixIcon`). Also read: an image URL, and the object forms of older documents (`{"type": "MATERIAL_ICON", "name", "style"}`, `{"type": "CUPERTINO_ICON", "codepoint"}`). |
-| `color` | [Color](#type-Color) | unset |  | The glyph's colour (`"#AARRGGBB"` or a theme colour's name). |
-| `size` | double | unset | ≥ 0 | Flutter `Icon.size`: the glyph's width and height. Unset, the glyph fills the node's box (contained, centred), as before. Set, the glyph is drawn at this size, centred in the node's box (at most the box), and a hugging axis of the node takes it (`{"hug": 24}` with `"size": 18` is 18 wide). |
+| `color` | [Color](#type-Color) | unset |  | The glyph's color (`"#AARRGGBB"` or a theme color's name). |
+| `size` | double | unset | ≥ 0 | Flutter `Icon.size`: the glyph's width and height. Unset, the glyph fills the node's box (contained, centered), as before. Set, the glyph is drawn at this size, centered in the node's box (at most the box), and a hugging axis of the node takes it (`{"hug": 24}` with `"size": 18` is 18 wide). |
 
 <a id="node-path"></a>
 ### `path`
@@ -2846,10 +2846,10 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `type` | [PaintType](#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise` | What the paint is: `solid` (a colour), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`), `image`, or `noise`. Without one: an image if it has `image`, a linear gradient if it has `stops`, else solid. |
+| `type` | [PaintType](#enum-PaintType) | `"solid"` | `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`, `noise` | What the paint is: `solid` (a color), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`), `image`, or `noise`. Without one: an image if it has `image`, a linear gradient if it has `stops`, else solid. |
 | `id` | String | unset |  | Stable id, so a binding can target one paint (`fill-<id>`). |
 | `visible` | bool | `true` |  | False keeps the paint but does not draw it. |
-| `opacity` | double | `1` | ≥ 0, ≤ 1 | The paint's opacity, 0 to 1, multiplied with its colours' own alpha. |
+| `opacity` | double | `1` | ≥ 0, ≤ 1 | The paint's opacity, 0 to 1, multiplied with its colors' own alpha. |
 | `blendMode` | [BlendMode](#enum-BlendMode) | `"srcOver"` |  | How the paint blends with what is under it (CSS `mix-blend-mode`). |
 | `color` | [Color](#type-Color) | unset |  | Solid color (type `solid`). |
 | `stops` | List<[ColorStop](#type-ColorStop)> | `[]` |  | Gradient stops (gradient types). |
@@ -2857,7 +2857,7 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `begin` | [Alignment](#type-Alignment) | unset |  | Linear: where the gradient starts, an alignment (`[-1, 0]` or `"centerLeft"`, Flutter `LinearGradient.begin`). Read into `transform`; default the left edge. |
 | `end` | [Alignment](#type-Alignment) | unset |  | Linear: where the gradient ends (Flutter `LinearGradient.end`). `"begin": [0, -1], "end": [0, 1]` runs top to bottom; `"begin": [-1, 0], "end": [-0.9, 0]` with `"tileMode": "repeated"` repeats it every 5% of the width. |
 | `center` | [Alignment](#type-Alignment) | unset |  | Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center. |
-| `tileMode` | [TileMode](#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` | What a gradient does past `begin` and `end`: `clamp` (keeps the end colours), `repeated`, `mirror`, `decal`. |
+| `tileMode` | [TileMode](#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` | What a gradient does past `begin` and `end`: `clamp` (keeps the end colors), `repeated`, `mirror`, `decal`. |
 | `image` | [ImagePaint](#type-ImagePaint) | unset |  | Image (type `image`). |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
 | `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
@@ -2870,8 +2870,8 @@ One gradient stop.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `position` | double | `0` | ≥ 0, ≤ 1 | Where the colour sits along the gradient, 0 (its start) to 1 (its end). |
-| `color` | [Color](#type-Color) | `"#FF000000"` |  | The colour at `position`. |
+| `position` | double | `0` | ≥ 0, ≤ 1 | Where the color sits along the gradient, 0 (its start) to 1 (its end). |
+| `color` | [Color](#type-Color) | `"#FF000000"` |  | The color at `position`. |
 
 <a id="type-ImagePaint"></a>
 ### ImagePaint
@@ -2914,7 +2914,7 @@ A shadow or blur (Flutter's `BoxShadow`, `ImageFilter.blur`).
 | `type` | [EffectType](#enum-EffectType) | `"dropShadow"` | `dropShadow`, `innerShadow`, `layerBlur`, `backgroundBlur` | The effect: `dropShadow`, `innerShadow`, `layerBlur` (blurs the node) or `backgroundBlur` (blurs what is behind it: frosted glass). Required: an effect without a type is dropped. |
 | `id` | String | unset |  | An id a binding can select the effect by (`decoration.effects.glow.color`). |
 | `visible` | bool | `true` |  | False keeps the effect but does not draw it. |
-| `color` | [Color](#type-Color) | `"#40000000"` |  | The shadow's colour. |
+| `color` | [Color](#type-Color) | `"#40000000"` |  | The shadow's color. |
 | `offset` | [Offset](#type-Offset) | `[0,0]` |  | The shadow's offset `[dx, dy]` in pixels. |
 | `blurRadius` | double | `0` | ≥ 0 | How soft the shadow or blur is, in pixels. |
 | `spreadRadius` | double | `0` |  | How far the shadow grows past the box before blurring, in pixels. |
@@ -2927,7 +2927,7 @@ Flutter's `BorderSide`. A null `color` is unset: the widget's theme default wher
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `color` | [Color](#type-Color) | unset |  | The line's colour. |
+| `color` | [Color](#type-Color) | unset |  | The line's color. |
 | `width` | double | `1` | ≥ 0 | The line's width in pixels. |
 | `style` | [BorderStyle](#enum-BorderStyle) | `"solid"` | `none`, `solid` | `solid` or `none`. |
 | `strokeAlign` | [StrokeAlign](#enum-StrokeAlign) | `"inside"` | `inside`, `center`, `outside` | Where the line sits on the edge: inside, centered on it, or outside. |
@@ -2940,9 +2940,9 @@ Flutter's `BorderSide`. A null `color` is unset: the widget's theme default wher
 
 As Flutter's `LinearGradient`, a linear gradient runs from `"begin"` to `"end"` (alignments; default left to
 right; `[0, -1]` to `[0, 1]` is top to bottom). As `RadialGradient`, a radial one has a `"center"` and a `"radius"`
-(a share of the box's shortest side); past the last stop it keeps that stop's colour, so end a glow on a transparent
+(a share of the box's shortest side); past the last stop it keeps that stop's color, so end a glow on a transparent
 stop. `transform` is the general form. A paint without `type` is an image if it has `image`, a linear gradient if it
-has `stops`, else a solid colour.
+has `stops`, else a solid color.
 
 <a id="decoration-a-pattern-in-pixels-a-background-grid-grain"></a>
 ### A pattern in pixels, a background grid, grain
@@ -3190,7 +3190,7 @@ op per color.
 ## Pitfalls
 
 - An effect needs its `type`; without it the effect is dropped.
-- Colours are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
+- Colors are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
 - A `path` node without a `viewBox` is drawn in its box's own pixels from the top left and is not clipped to the
   box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
 - Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
@@ -3200,7 +3200,7 @@ op per color.
 <a id="decoration-see-also"></a>
 ## See also
 
-[Theme](#page-theme) (named colours) · [animation](#page-animation) (shimmer, motion) · [values](#page-values)
+[Theme](#page-theme) (named colors) · [animation](#page-animation) (shimmer, motion) · [values](#page-values)
 (Alignment, BorderRadius and the enums).
 
 ---
@@ -3309,13 +3309,13 @@ Flutter `FilledButton`: the primary action, filled with the theme's `primary`. W
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `label` | String | `""` |  | The button's text (not `text`). Its colour, size and weight are in `style`. |
+| `label` | String | `""` |  | The button's text (not `text`). Its color, size and weight are in `style`. |
 | `textAlign` | [TextAlign](#enum-TextAlign) | `"start"` | `left`, `right`, `center`, `justify`, `start`, `end` |  |
 | `icon` | [IconData](#type-IconData) | `{}` |  | The icon beside the label; empty for none. |
 | `iconAlignment` | [IconAlignment](#enum-IconAlignment) | `"start"` | `start`, `end` |  |
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
-| `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 | `tonal` | bool | `false` |  | `FilledButton.tonal`. |
@@ -3332,13 +3332,13 @@ Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled 
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `label` | String | `""` |  | The button's text (not `text`). Its colour, size and weight are in `style`. |
+| `label` | String | `""` |  | The button's text (not `text`). Its color, size and weight are in `style`. |
 | `textAlign` | [TextAlign](#enum-TextAlign) | `"start"` | `left`, `right`, `center`, `justify`, `start`, `end` |  |
 | `icon` | [IconData](#type-IconData) | `{}` |  | The icon beside the label; empty for none. |
 | `iconAlignment` | [IconAlignment](#enum-IconAlignment) | `"start"` | `start`, `end` |  |
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
-| `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
@@ -3354,13 +3354,13 @@ Flutter `OutlinedButton`: a hairline border. With nothing styled it is the defau
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `label` | String | `""` |  | The button's text (not `text`). Its colour, size and weight are in `style`. |
+| `label` | String | `""` |  | The button's text (not `text`). Its color, size and weight are in `style`. |
 | `textAlign` | [TextAlign](#enum-TextAlign) | `"start"` | `left`, `right`, `center`, `justify`, `start`, `end` |  |
 | `icon` | [IconData](#type-IconData) | `{}` |  | The icon beside the label; empty for none. |
 | `iconAlignment` | [IconAlignment](#enum-IconAlignment) | `"start"` | `start`, `end` |  |
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
-| `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
@@ -3376,20 +3376,20 @@ Flutter `TextButton`: no fill or border. With nothing styled it is the default (
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `label` | String | `""` |  | The button's text (not `text`). Its colour, size and weight are in `style`. |
+| `label` | String | `""` |  | The button's text (not `text`). Its color, size and weight are in `style`. |
 | `textAlign` | [TextAlign](#enum-TextAlign) | `"start"` | `left`, `right`, `center`, `justify`, `start`, `end` |  |
 | `icon` | [IconData](#type-IconData) | `{}` |  | The icon beside the label; empty for none. |
 | `iconAlignment` | [IconAlignment](#enum-IconAlignment) | `"start"` | `start`, `end` |  |
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
-| `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`. |
 | `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `loading` | bool | `false` |  | Busy (SSUI's `isLoading`; no Flutter counterpart): a spinner in place of the icon, taps ignored, drawn as disabled, announced as busy. Bind it to the state an action sets while it runs. |
 
 <a id="node-iconButton"></a>
 ### `iconButton`
 
-Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. Give it a "tooltip" (the behavior) to name it.
+Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. Give it a "tooltip" (the behavior) to name it.
 
 `IconButton`: an icon, styled by a `ButtonStyle`.
 
@@ -3529,7 +3529,7 @@ Flutter `Switch`, scaled to its box (59 px wide is Flutter's own size).
 | `controlled` | bool | `false` |  | It shows only its value: a tap reports the change (`changed`) and the reactions set the value, else it stays (a checkout rule that refuses). |
 | `value` | bool | `false` |  | Whether the switch is on. Bind it to a variable and store the `changed` value in that variable. |
 | `autofocus` | bool | `false` |  |  |
-| `activeTrackColor` | [Color](#type-Color) | unset |  | The track's colour when on. |
+| `activeTrackColor` | [Color](#type-Color) | unset |  | The track's color when on. |
 | `inactiveTrackColor` | [Color](#type-Color) | unset |  |  |
 | `activeThumbColor` | [Color](#type-Color) | unset |  |  |
 | `inactiveThumbColor` | [Color](#type-Color) | unset |  |  |
@@ -3568,7 +3568,7 @@ Flutter `Radio<String>`, scaled to its box (32 px is its own size; its ring, 18 
 | `groupValue` | String | unset |  | The group's selected value; this radio is on when it equals `value`. |
 | `toggleable` | bool | `false` |  |  |
 | `autofocus` | bool | `false` |  |  |
-| `activeColor` | [Color](#type-Color) | unset |  | The dot's colour when selected. |
+| `activeColor` | [Color](#type-Color) | unset |  | The dot's color when selected. |
 | `inactiveColor` | [Color](#type-Color) | unset |  | `fillColor` when not selected. |
 | `hoverColor` | [Color](#type-Color) | unset |  |  |
 | `focusColor` | [Color](#type-Color) | unset |  |  |
@@ -3600,7 +3600,7 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `secondaryTrackValue` | double | unset |  |  |
 | `padding` | [EdgeInsets](#type-EdgeInsets) | unset |  |  |
 | `trackHeight` | double | unset | ≥ 0 |  |
-| `activeTrackColor` | [Color](#type-Color) | unset |  | The track's colour from `min` to the thumb. |
+| `activeTrackColor` | [Color](#type-Color) | unset |  | The track's color from `min` to the thumb. |
 | `inactiveTrackColor` | [Color](#type-Color) | unset |  |  |
 | `secondaryActiveTrackColor` | [Color](#type-Color) | unset |  |  |
 | `thumbColor` | [Color](#type-Color) | unset |  |  |
@@ -3845,7 +3845,7 @@ A signature pad: strokes drawn with a finger or mouse, on a bordered card with a
 <a id="node-chip"></a>
 ### `chip`
 
-Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -3873,7 +3873,7 @@ Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing style
 <a id="node-actionChip"></a>
 ### `actionChip`
 
-Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -3903,7 +3903,7 @@ Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default
 <a id="node-choiceChip"></a>
 ### `choiceChip`
 
-Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -3937,7 +3937,7 @@ Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding
 <a id="node-filterChip"></a>
 ### `filterChip`
 
-Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -3971,7 +3971,7 @@ Flutter `FilterChip`: a tap toggles `selected` (written back through its binding
 <a id="node-inputChip"></a>
 ### `inputChip`
 
-Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centred, selected drawn tinted with the primary colour.
+Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 
@@ -4150,7 +4150,7 @@ Flutter's `InputBorder`: an `OutlineInputBorder` (the default here), an `Underli
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `type` | [InputBorderType](#enum-InputBorderType) | `"outline"` | `none`, `outline`, `underline` | `outline` (a box), `underline` (a line under the text) or `none`. |
-| `borderSide` | [BorderSide](#type-BorderSide) | `{}` |  | The line: its colour and width. |
+| `borderSide` | [BorderSide](#type-BorderSide) | `{}` |  | The line: its color and width. |
 | `borderRadius` | [BorderRadius](#type-BorderRadius) | `4` |  | The corners' radius. |
 | `gapPadding` | double | `4` | ≥ 0 | The gap around a floating label in an outline border. |
 
@@ -4163,7 +4163,7 @@ An icon an input shows (`Icon`): a glyph as the icon node's `icon` prop (`{"sour
 |---|---|---|---|---|
 | `icon` | [IconData](#type-IconData) | `{}` |  | The glyph, written as the `icon` node's `props.icon`: a Material icon name (`"search"`) or `{"type": "MATERIAL_ICON", "name": "search"}`. |
 | `size` | double | `24` | ≥ 0 | The glyph's size. |
-| `color` | [Color](#type-Color) | unset |  | The glyph's colour. |
+| `color` | [Color](#type-Color) | unset |  | The glyph's color. |
 | `actions` | List<Reaction> | `[]` |  | Reactions, as a node's: a tap on the icon (`{"trigger": {"type": "click"}, "actions": [...]}`). |
 
 <a id="type-ButtonStyle"></a>
@@ -4175,13 +4175,13 @@ Flutter's `ButtonStyle`, as the buttons' `styleFrom` takes it. Null fields are t
 |---|---|---|---|---|
 | `backgroundColor` | [Color](#type-Color) | unset |  | The button's fill. |
 | `foregroundColor` | [Color](#type-Color) | unset |  | Label (and icon) color. |
-| `shadowColor` | [Color](#type-Color) | unset |  | The colour of the shadow under a raised button. |
+| `shadowColor` | [Color](#type-Color) | unset |  | The color of the shadow under a raised button. |
 | `elevation` | double | unset |  | How raised the button is (its shadow). |
-| `textStyle` | [TextStyle](#type-TextStyle) | `{}` |  | The label's style (a TextStyle or a theme style's name). Its colour comes from `foregroundColor`; without a `fontSize` the label is 12 px. |
+| `textStyle` | [TextStyle](#type-TextStyle) | `{}` |  | The label's style (a TextStyle or a theme style's name). Its color comes from `foregroundColor`; without a `fontSize` the label is 12 px. |
 | `side` | [BorderSide](#type-BorderSide) | unset |  | The button's border. |
 | `shape` | [ShapeBorder](#type-ShapeBorder) | unset |  | The button's shape: `{"type": "roundedRectangle", "borderRadius": 10}`, `stadium`, `circle`... |
 | `iconSize` | double | unset |  | The icon's size. |
-| `iconColor` | [Color](#type-Color) | unset |  | The icon's colour; without one, `foregroundColor`. |
+| `iconColor` | [Color](#type-Color) | unset |  | The icon's color; without one, `foregroundColor`. |
 
 <a id="type-ShapeBorder"></a>
 ### ShapeBorder
@@ -4233,10 +4233,10 @@ An icon with its own size, color and tooltip: an app bar's leading icon or actio
 | buttons | `backgroundColor`, `foregroundColor`, `textStyle` (the label's size and weight), `shape` (`{"type": "roundedRectangle", "borderRadius": 10}`), `side` (border), `padding`, `elevation` | `props.style` ([ButtonStyle](#type-ButtonStyle)) |
 | `checkbox` | `activeColor`, `checkColor`, `fillColor`, `side` / `activeSide` (the box's border), `borderRadius`, `compact` | `props` ([checkbox](#node-checkbox)) |
 | `switch` | `activeTrackColor`, `inactiveTrackColor`, `activeThumbColor`, `inactiveThumbColor`, `fillTrack`, `thumbInset`, `trackOutlineWidth`, `trackRadius` | `props` ([switch](#node-switch)) |
-| `radio`, `slider`, `dropdown`, `segmentedButton` | their colours, track and thumb shapes | `props` ([radio](#node-radio), [slider](#node-slider), [dropdown](#node-dropdown), [segmentedButton](#node-segmentedButton)) |
-| a labelled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [a labelled checkbox](#forms-a-labelled-checkbox-or-switch) |
+| `radio`, `slider`, `dropdown`, `segmentedButton` | their colors, track and thumb shapes | `props` ([radio](#node-radio), [slider](#node-slider), [dropdown](#node-dropdown), [segmentedButton](#node-segmentedButton)) |
+| a labeled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [a labeled checkbox](#forms-a-labeled-checkbox-or-switch) |
 
-Every colour there may be a theme colour's name; every text style may name a theme style. An outlined or filled
+Every color there may be a theme color's name; every text style may name a theme style. An outlined or filled
 field that sets no `contentPadding` (nor a `layout.padding`) takes Flutter's default, 12 px at the sides, which
 keeps its text and label off the border; set `contentPadding` for another.
 
@@ -4541,8 +4541,8 @@ there is text by binding the icon:
     "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "query", "value": ""}]}]}}}}
 ```
 
-<a id="forms-a-labelled-checkbox-or-switch"></a>
-### A labelled checkbox or switch
+<a id="forms-a-labeled-checkbox-or-switch"></a>
+### A labeled checkbox or switch
 
 The whole row toggles: the control ignores the pointer and shows the variable; the row's reaction toggles it. A tap
 on a control inside a tappable row otherwise runs the control's own reaction only (the innermost wins).
@@ -4586,7 +4586,7 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 <a id="forms-pitfalls"></a>
 ## Pitfalls
 
-- A button's text is `label`, not `text`; its colours are in `style`, not `decoration`.
+- A button's text is `label`, not `text`; its colors are in `style`, not `decoration`.
 - An input does nothing with its value until a `changed` reaction stores it, or its value prop is bound.
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.
@@ -5323,7 +5323,7 @@ A tap on a day flips it in the habit's record (`setAt` and `set` build the new l
 ### A carousel, pages and pagination
 
 A `pageView` shows one item (or child) per page and swipes between them (`viewportFraction` below 1 shows the
-neighbours' edges; `initialPage`). Long lists that load in pages: the list's `pagination` settings, with a
+neighbors' edges; `initialPage`). Long lists that load in pages: the list's `pagination` settings, with a
 `pagination` control or the `paginate` action to move between pages.
 
 A rail of cards with arrows, dots and a progress bar is a horizontal `listView` (or scrolling `row`):
@@ -5333,7 +5333,7 @@ A rail of cards with arrows, dots and a progress bar is a horizontal `listView` 
 - Its `scroll` reaction gives `${result.index}` (the card at the start; the last at the end), `${result.count}`,
   `${result.offset}` and `${result.fraction}` (0–1): store them in variables the controls bind.
 - An arrow is `{"type": "scrollTo", "node": "<item template>", "item": "${= current + 1}"}`: `item` is the key or
-  the index of the card to bring to the start (`alignment` 0; 0.5 centres it). A dot scrolls to its own `${index}`.
+  the index of the card to bring to the start (`alignment` 0; 0.5 centers it). A dot scrolls to its own `${index}`.
   For a scrolling `row` of fixed children, name the child: `"node": "card${= current + 1}"`.
 
 The same pattern moves a horizontal timeline from its year buttons, or a featured-routes carousel from its dots:
@@ -6098,13 +6098,13 @@ transitions).
 ## When to use
 
 Variables and where they live, computed and function variables, expressions and every binding path with the value
-it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the
+it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the
 actions that change state, and sandboxed scripts.
 
 <a id="state-minimal-example"></a>
 ## Minimal example
 
-A counter: a variable, two buttons that change it, and a text and a colour bound to it.
+A counter: a variable, two buttons that change it, and a text and a color bound to it.
 
 ```json
 {
@@ -6848,7 +6848,7 @@ pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and
 <a id="interaction-minimal-example"></a>
 ## Minimal example
 
-A button-like row that changes colour while hovered and pressed, and while selected:
+A button-like row that changes color while hovered and pressed, and while selected:
 
 ```json
 {
@@ -7291,7 +7291,7 @@ A node's `actions` is a list of **reactions**: a trigger and the chain of action
 JSON merged over that node (objects merge, other values replace, `null` removes). `selected` and `disabled` follow
 bindings: `"bind": {"selected": "${= tab == 'pricing'}"}` puts the node in its `selected` state, as Flutter's
 `statesController` puts a button in `WidgetState.selected`. Buttons draw it themselves (a tinted fill, the primary
-colour as ink: tabs and toggles made of buttons need nothing more); on other nodes only a `states.selected` patch
+color as ink: tabs and toggles made of buttons need nothing more); on other nodes only a `states.selected` patch
 shows it, so a bound `selected` with none changes nothing (`state_no_effect`). A chip's own selection is its prop,
 `props.selected`. A selected outlined button in a look of its own (a filter or a delivery option):
 
@@ -7308,7 +7308,7 @@ mouse: on touch screens it never happens, so do not hide anything behind it. Ani
 ### A segmented toggle (monthly / annual)
 
 Two labels in a row with a fill; each label's `selected` binds to the variable (`${= annual}` and
-`${= !annual}`), its `states.selected` patches its fill and text colour, and its click sets the variable. A
+`${= !annual}`), its `states.selected` patches its fill and text color, and its click sets the variable. A
 `switch` bound two-way to the same variable works as well.
 
 <a id="interaction-drag-and-drop"></a>
@@ -7826,7 +7826,7 @@ the time with the render command's `--now 2026-11-13T09:00:00Z` (`now()` returns
 <a id="animation-pitfalls"></a>
 ## Pitfalls
 
-- `motion` (its scale and rotate too) does not change layout: neighbours do not move. To make room, animate a
+- `motion` (its scale and rotate too) does not change layout: neighbors do not move. To make room, animate a
   layout field.
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.
@@ -8598,22 +8598,22 @@ A published design system is one bundle, `{"manifest": {...}, "design": "...", "
 <a id="design-systems-what-a-site-gets-from-it"></a>
 ### What a site gets from it
 
-- **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a colour, a
-  style, a scale step). Named colours and text styles, light and dark, work as in [the theme](#page-theme).
+- **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a color, a
+  style, a scale step). Named colors and text styles, light and dark, work as in [the theme](#page-theme).
 - **Scales.** `${theme.spacing.3}`, `${theme.radii.panel}`, `${theme.sizes.compact}`, `${theme.shadows.level3}` and
   `${theme.durations.fast}` are read in bindings: `"bind": {"layout.padding": "${theme.spacing.3}",
   "decoration.radius": "${theme.radii.panel}"}`. Validation reports a name the theme does not have
   (`unknown_theme_name`).
 - **Components.** Called by type as the site's own (`{"type": "Button", "props": {"label": "Save"}}`); a site
   component of the same type wins. Calls are checked against their declarations (`missing_prop`, `unknown_event`).
-- **Nothing from the app.** The app the site runs in lends no colour, font or shape; without a design system the
+- **Nothing from the app.** The app the site runs in lends no color, font or shape; without a design system the
   controls are neutral (ink on paper, small radii).
 
 <a id="design-systems-writing-one"></a>
 ### Writing one
 
-1. Write the tokens first: roles (`primary`, `surface`, `onSurface`, `error`...), named colours with their `dark`
-   values, text styles that name colours, and the scales.
+1. Write the tokens first: roles (`primary`, `surface`, `onSurface`, `error`...), named colors with their `dark`
+   values, text styles that name colors, and the scales.
 2. Draw each component from core nodes (`row`, `column`, `box`, `text`, `icon`): fills, strokes and radii by
    token name, hover and press as interaction `states`, sizes and variants as parameters bound with formulas.
    Wrap a core control only for what only it does (text editing, a native menu), and style every part of it.
@@ -8632,14 +8632,14 @@ parameters and a call, the patterns in brief, and no rows for the base controls 
 ## Pitfalls
 
 - A call has no `decoration`: style the definition, or add a parameter (`variant`, `size`).
-- A colour written in full (`"#FF2563EB"`) does not follow dark mode: name it.
+- A color written in full (`"#FF2563EB"`) does not follow dark mode: name it.
 - A scale step is read through a binding, not written where a number goes (`"padding": "md"` is not a number).
 - `replaces` hides base controls from the prompt only; documents that use them still validate and render.
 
 <a id="design-systems-see-also"></a>
 ## See also
 
-[Components](#page-components) · [theme](#page-theme) (named colours, styles, dark mode) · [forms](#page-forms) ·
+[Components](#page-components) · [theme](#page-theme) (named colors, styles, dark mode) · [forms](#page-forms) ·
 [render](#page-render) (`--components-all`, `--theme`).
 
 ---
@@ -8744,7 +8744,7 @@ A progress bar filled to `value` of `max`: a bar (horizontal, or vertical fillin
 <a id="node-circularProgressIndicator"></a>
 ### `circularProgressIndicator`
 
-Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary colour, round-ended, 16 px when it hugs.
+Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary color, round-ended, 16 px when it hugs.
 
 Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).
 
@@ -8766,7 +8766,7 @@ Flutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `st
 <a id="node-activityIndicator"></a>
 ### `activityIndicator`
 
-Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text colour unless `color` says.
+Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text color unless `color` says.
 
 Flutter `CupertinoActivityIndicator`.
 
@@ -8846,7 +8846,7 @@ A radial dial: zones, ticks, labels, a value arc (continuous or in segments), a 
 | `needleClearance` | double | `0.62` |  | Where the needle starts, as a fraction of the radius. |
 | `animate` | bool | `true` |  |  |
 | `animationDuration` | int | `420` | ≥ 0 | Milliseconds. |
-| `labelInset` | double | unset |  | How far inside the arc's centre line the labels sit (null: inside the track, clear of the ticks). |
+| `labelInset` | double | unset |  | How far inside the arc's center line the labels sit (null: inside the track, clear of the ticks). |
 | `labelTicks` | bool | `false` |  | A hairline tick just outside the arc at each label. |
 | `targetAcross` | bool | `false` |  | The target mark crosses the arc (a newspaper's "last time" line) instead of sitting outside it. |
 
@@ -8957,7 +8957,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `showTotals` | bool | `false` |  | Each bar group's total above it; the selected one in `totalsSelectedColor`. |
 | `totalsColor` | [Color](#type-Color) | unset |  |  |
 | `totalsSelectedColor` | [Color](#type-Color) | unset |  |  |
-| `totalsGap` | double | unset |  | Each total's bottom this far above its bar; null centres it 10 px above the bar. |
+| `totalsGap` | double | unset |  | Each total's bottom this far above its bar; null centers it 10 px above the bar. |
 | `stackGap` | double | `0` | ≥ 0 | Space between the segments of a stacked bar. |
 | `stackGapEdge` | [ChartStackGapEdge](#enum-ChartStackGapEdge) | `"between"` | `between`, `top` | Where `stackGap` goes (see `ChartStackGapEdge`). |
 | `baselineColor` | [Color](#type-Color) | unset |  | The grid's bottom line (the baseline), drawn with the grid under the bars; null: `gridColor`. |
@@ -8971,7 +8971,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `endLabelDecimals` | int | `1` | ≥ 0 | Decimals of the values in series end labels. |
 | `yLabelAlign` | [ChartYLabelAlign](#enum-ChartYLabelAlign) | `"end"` | `end`, `start` | Where the y labels sit: right-aligned by the plot, or left-aligned at the chart's left edge. |
 | `xAxisHeight` | double | `22` | ≥ 0 | The x-axis label band's height below the plot. |
-| `xLabelGap` | double | unset |  | The x labels' top this far below the plot; null centres them in the band (`xAxisHeight`). |
+| `xLabelGap` | double | unset |  | The x labels' top this far below the plot; null centers them in the band (`xAxisHeight`). |
 | `gridLineMode` | [ChartGridLineMode](#enum-ChartGridLineMode) | `"crisp"` | `centered`, `crisp`, `exact` | How grid lines and solid reference lines meet the pixel grid. |
 | `animate` | bool | `true` |  | Animates numeric data changes; initial and design-canvas values rest. |
 | `animationDuration` | int | `700` | ≥ 0 | Milliseconds. Zero applies data changes immediately. |
@@ -8993,7 +8993,7 @@ A bar chart of `values` with optional labels, grid and a highlighted bar.
 | `highlight` | int | unset |  |  |
 | `max` | double | `0` |  | The value of a full bar; 0 uses the largest value. |
 | `color` | [Color](#type-Color) | unset |  | Null: the theme's primary (`ControlTheme`), so it reads in light and dark. |
-| `colors` | List<[Color](#type-Color)> | `[]` |  | Per-bar colours; missing entries fall back to color. |
+| `colors` | List<[Color](#type-Color)> | `[]` |  | Per-bar colors; missing entries fall back to color. |
 | `dimmedOpacity` | double | `0.55` |  |  |
 | `barGap` | double | `3` |  |  |
 | `barRadius` | double | `1` |  |  |
@@ -9012,7 +9012,7 @@ A bar chart of `values` with optional labels, grid and a highlighted bar.
 | `animate` | bool | `true` |  |  |
 | `animationDuration` | int | `700` | ≥ 0 | Milliseconds. |
 | `gridLabelsLeft` | bool | `false` |  | The grid labels on the left of the chart instead of its right. |
-| `maxBarWidth` | double | unset | ≥ 0 | The widest a bar gets, centred in its column (null: the column). |
+| `maxBarWidth` | double | unset | ≥ 0 | The widest a bar gets, centered in its column (null: the column). |
 | `showValues` | bool | `false` |  | Each bar's value above it (whole numbers without decimals). |
 | `labelFontWeight` | int | `400` | ≥ 100 | The weight of the labels under the bars and of the values (100–900). |
 | `valueDecimals` | int | unset |  | Decimals of the values over the bars (null: whole numbers without decimals, else one), and text after each (`%`). |
@@ -9192,7 +9192,7 @@ A barcode or QR code of `data`, filling the box.
 | `backgroundColor` | [Color](#type-Color) | unset |  |  |
 | `errorCorrection` | [BarcodeErrorCorrection](#enum-BarcodeErrorCorrection) | `"medium"` | `low`, `medium`, `quartile`, `high` |  |
 | `drawText` | bool | `true` |  | 1D codes: the text under the bars. |
-| `overlap` | double | `0` | ≥ 0 | Pixels each dark bar and module reaches past its right and bottom edge, so neighbours overlap: no hairline seams where anti-aliased edges meet, and a small ink gain (as `canvas.drawRect` codes widen bars to hide seams). 0 draws the exact geometry. |
+| `overlap` | double | `0` | ≥ 0 | Pixels each dark bar and module reaches past its right and bottom edge, so neighbors overlap: no hairline seams where anti-aliased edges meet, and a small ink gain (as `canvas.drawRect` codes widen bars to hide seams). 0 draws the exact geometry. |
 
 <a id="type-ChartSeries"></a>
 ### ChartSeries
@@ -9341,7 +9341,7 @@ reference lines.
 <a id="charts-pitfalls"></a>
 ## Pitfalls
 
-- Chart colours default to a dark theme's; set `color`, `gridColor` and the label colours on a light page.
+- Chart colors default to a dark theme's; set `color`, `gridColor` and the label colors on a light page.
 - A `barChart`'s labels default to JetBrains Mono: set `labelFontFamily` to a font you have (`font_fallback`).
 - A chart's size is its node's layout: give it a fixed height.
 - `value` above `max` is clamped.
@@ -10377,14 +10377,14 @@ batch of ops; every change after it is a few more.
 | `start_over` | yes | A batch that rebuilds a UI that already exists (new roots, a new canvas) instead of patching it: fix the existing document with patch, set (same ids) and remove; never start over. |
 | `empty_button` | no (a warning) | A node that reacts to a tap but shows nothing (a box, row or column with no children): a button with no label. |
 | `dead_control` | no (a warning) | A button (a core button, or a component named ...Button with an onPressed event) with no reaction and not disabled: pressing it does nothing. |
-| `low_contrast` | no (a warning) | Text drawn in (nearly) the colour of the fill behind it, or with no colour (the default near-black) over a dark fill. |
+| `low_contrast` | no (a warning) | Text drawn in (nearly) the color of the fill behind it, or with no color (the default near-black) over a dark fill. |
 | `missing_glyph` | no (a warning) | Text with characters the loaded fonts do not have (an arrow, a symbol): they draw as empty boxes. Use an icon node. Reported by a renderer that knows its fonts. |
 | `no_size` | no (a warning) | A node that has content but was laid out with no width or no height, so nothing of it shows. Reported by a renderer. |
 | `empty_view` | yes | The UI shows nothing: its canvas laid out with no size or no visible content (no canvas root, its body never arrived, everything in it hidden or empty). Reported by a renderer. |
 | `list_empty` | yes | A list that shows no items: its data is not a list, its item template is missing, or (a warning) it is empty while the list it is computed from is not (a filter that matches nothing). Reported by a renderer. |
 | `empty_label` | no (a warning) | A control or component whose label (or title) shows as empty text: its binding gave nothing. Reported by a renderer. |
 | `expression_not_evaluated` | no (a warning) | A text shows "${" on screen: an expression that did not evaluate (a formula error, or one written where no expression is read). Reported by a renderer. |
-| `text_no_color` | no (a warning) | A text with no colour, or a transparent one (an unresolved name): it does not show. Reported by a renderer. |
+| `text_no_color` | no (a warning) | A text with no color, or a transparent one (an unresolved name): it does not show. Reported by a renderer. |
 | `component_empty` | no (a warning) | A design system component call that rendered nothing: no size, or nothing visible in it (its label or content parameters empty), or its definition missing. Reported by a renderer. |
 | `invalid_script` | yes | A scripts op whose script cannot be stored: a name or parameter that is not a JavaScript identifier, no source, limits out of range. |
 
@@ -10569,7 +10569,7 @@ answers a batch that would replace the existing roots or create a new canvas wit
 exactly that instead of fixing three ops). The diagnostics models hit carry the fix as JSON (`explainDiagnostic`): a
 size written as a layout key (`"height": {"hug": 46}`), children on a type that takes none (the types that do, and a
 row with a fill for a tag or button), a button's `text` (its `label`). `uiLints(document)` adds what no declaration
-catches: `empty_button` (a tappable box that shows nothing) and `low_contrast` (text in its background's colour); a
+catches: `empty_button` (a tappable box that shows nothing) and `low_contrast` (text in its background's color); a
 renderer adds `missing_glyph` and `no_size` (the SDK's `UiSession.renderDiagnostics`).
 
 <a id="edit-ops-pitfalls"></a>
@@ -10762,7 +10762,7 @@ From `package:codelessly_api/validate.dart`:
 | `media_overridden` | warning | A media rule patches a field the node also binds: the binding wins, so the patch never shows. |
 | `unknown_theme_name` | error | A color or text style names a color or text style the project's theme (the site manifest's "theme") does not have: it would show transparent or unstyled. |
 | `invalid_theme` | error | The site manifest's "theme" is not of the right shape: colors are "#AARRGGBB" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles. |
-| `theme_role_in_colors` | warning | A colour role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's "colors": roles are top-level keys of the theme, so controls never read it. Move it up ("primary": "#FF..." or "primary": "<a colour's name>"). |
+| `theme_role_in_colors` | warning | A color role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's "colors": roles are top-level keys of the theme, so controls never read it. Move it up ("primary": "#FF..." or "primary": "<a color's name>"). |
 | `invalid_fonts` | error | The site manifest's "fonts" is not of the right shape: a list of {"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf", "weight": 400, "style": "normal"}]} (a pubspec's fonts: section). |
 | `font_format` | error | A declared font file is not .ttf, .otf or .woff: WOFF2 (Brotli-compressed) and font collections (.ttc) are not read. Use the .woff or .ttf of the same face. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
@@ -10855,7 +10855,7 @@ no state. When the reference names a page otherwise, map it: `--compare-map home
 <a id="values-when-to-use"></a>
 ## When to use
 
-Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows
+Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows
 (its fields) or an enum (its names). Link to one with `values.md#type-<Name>` or `values.md#enum-<Name>`. Models
 that belong to a feature are on that feature's page (TextStyle on the theme page, InputDecoration on the forms
 page...); the [A–Z](#index-a-z) finds any of them.
@@ -11352,9 +11352,9 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `centered` | How a series chart places its grid lines (and solid reference lines). `centered`: centred on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centred on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
-| `crisp` | How a series chart places its grid lines (and solid reference lines). `centered`: centred on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centred on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
-| `exact` | How a series chart places its grid lines (and solid reference lines). `centered`: centred on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centred on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
+| `centered` | How a series chart places its grid lines (and solid reference lines). `centered`: centered on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centered on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
+| `crisp` | How a series chart places its grid lines (and solid reference lines). `centered`: centered on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centered on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
+| `exact` | How a series chart places its grid lines (and solid reference lines). `centered`: centered on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centered on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
 
 <a id="enum-ChartSeriesKind"></a>
 ### ChartSeriesKind
@@ -11748,10 +11748,10 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `edgeClamped` | Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it. |
-| `start` | Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it. |
-| `center` | Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it. |
-| `end` | Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it. |
+| `edgeClamped` | Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it. |
+| `start` | Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it. |
+| `center` | Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it. |
+| `end` | Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it. |
 
 <a id="enum-ListApply"></a>
 ### ListApply
@@ -12142,8 +12142,8 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `above` | Where a signature pad's mark sits: over the line's start, or before the line (centred on it, the line starting after it). |
-| `leading` | Where a signature pad's mark sits: over the line's start, or before the line (centred on it, the line starting after it). |
+| `above` | Where a signature pad's mark sits: over the line's start, or before the line (centered on it, the line starting after it). |
+| `leading` | Where a signature pad's mark sits: over the line's start, or before the line (centered on it, the line starting after it). |
 
 <a id="enum-SignaturePlaceholderPosition"></a>
 ### SignaturePlaceholderPosition
@@ -12645,10 +12645,10 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="values-patterns"></a>
 ## Patterns
 
-<a id="values-colours-and-alignments"></a>
-### Colours and alignments
+<a id="values-colors-and-alignments"></a>
+### Colors and alignments
 
-A colour is `"#AARRGGBB"`, `"#RRGGBB"` or a theme colour's name. An alignment is `[x, y]` from -1 to 1 or a name
+A color is `"#AARRGGBB"`, `"#RRGGBB"` or a theme color's name. An alignment is `[x, y]` from -1 to 1 or a name
 (`"topCenter"`, `"centerRight"`).
 
 <a id="values-pitfalls"></a>

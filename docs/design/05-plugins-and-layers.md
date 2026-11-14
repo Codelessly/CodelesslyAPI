@@ -333,7 +333,7 @@ docs 01 and 02 exist:
 
 ### 5.6 What the editor does
 
-* A plugin browser lists masters (first-party and the organisation's own);
+* A plugin browser lists masters (first-party and the organization's own);
   installing adds a `PluginRef` to the project and shows `requires`.
 * Property panels, the insert menu, action pickers and validation come from
   the plugin's catalog JSON: no editor release per plugin.
@@ -502,8 +502,8 @@ boundary test.
    features lose their typed classes).
 2. **Where hosted plugins are stored**: `plugins/{id}` beside
    `managed_components/{id}` (recommended), and whether third parties may
-   publish or only Codelessly and the project's organisation at first
-   (recommended: first-party and own-organisation only until the trust
+   publish or only Codelessly and the project's organization at first
+   (recommended: first-party and own-organization only until the trust
    model has been exercised).
 3. **May a plugin add behaviors or triggers?** Recommended: no. They change
    every node's envelope and the render chain; data cannot implement them.

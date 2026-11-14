@@ -2,7 +2,7 @@
 // actually wrote: diagnostics that spell out the fix, a retry that tries to
 // start over answered with start_over, the tool result that says what the
 // document holds and how to fix it, and the lints a finished UI is checked
-// with (a button with no label, text in its background's colour).
+// with (a button with no label, text in its background's color).
 import 'dart:convert';
 
 import 'package:codelessly_api/core.dart';
@@ -292,7 +292,7 @@ void main() {
       expect(l.single.error, isFalse);
       expect(l.single.message, contains('set "alertBtn" again as a row'));
     });
-    test('text in its background colour, or with no colour on a dark fill: low_contrast', () {
+    test('text in its background color, or with no color on a dark fill: low_contrast', () {
       final doc = _apply(_card(), [
         const SetOp('same', {'type': 'text', 'props': {'text': 'x', 'style': {'color': '#FF0F172A'}}}, parent: 'wrap'),
         const SetOp('none', {'type': 'text', 'props': {'text': 'y'}}, parent: 'wrap'),
@@ -300,7 +300,7 @@ void main() {
       final l = uiLints(doc);
       expect({for (final d in l) d.nodeId}, {'same', 'none'});
       expect(l.every((d) => d.code == 'low_contrast'), isTrue);
-      expect(l.firstWhere((d) => d.nodeId == 'none').message, contains('no text colour'));
+      expect(l.firstWhere((d) => d.nodeId == 'none').message, contains('no text color'));
       expect(uiLints(_card()), isEmpty);
     });
   });

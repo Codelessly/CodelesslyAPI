@@ -14,13 +14,13 @@ that proves it), **planned** (owned by a workstream in section 6).
   `RenderObjectWidget`) at the edge; a whole-app mode attaches the root render object to the view with no widget.
 - **SSUI is the default look.** A control with nothing styled is the SSUI control (design_systems/ssui), still
   overridable by the document's theme and the node's props. Nothing is inherited from a host app.
-- **The data keeps Flutter's names.** Prop names, enums and behaviours (`WidgetState`, `FocusNode` semantics,
+- **The data keeps Flutter's names.** Prop names, enums and behaviors (`WidgetState`, `FocusNode` semantics,
   `TextInputType`, `ButtonStyle`) stay; only the widgets behind them go.
 - Defaults must be good with zero props: the long-term notation `Column([Slider, Input, Toggle, Button])` renders
   the default controls.
 
 Why: three rounds of independent builds traced every recurring control defect to a Material widget's own defaults
-leaking through (seed colours, ripples, minimum heights pushing labels off centre, floating and notched labels,
+leaking through (seed colors, ripples, minimum heights pushing labels off center, floating and notched labels,
 labels vanishing in the error state, a hard-coded error red, chip check marks resizing the chip, the dropdown's
 arrow and menu card, the expansion tile's chevron and tap target, the slider thumb's shadow, Roboto beside a
 declared font). Restyling from outside fixed each control partly; owning the render objects fixes the class.
@@ -51,7 +51,7 @@ hero_flights,route_transition,presentation_route}.dart`). At the start of M3, 61
 | `Shortcuts` / `Actions` / `HardwareKeyboard` handlers | the root's `handleKeyEvent`; the adapter feeds it as a `FocusManager` early handler (so a handled key never reaches Flutter's traversal), whole-app mode as a `HardwareKeyboard` handler | `focus.dart`, `node_view.dart` | built |
 | `Semantics` widgets | `describeSemanticsConfiguration` on each control's render object (button, label, enabled, focusable, focused, selected, tap and focus actions) | `render/controls/kit.dart` | built (buttons) |
 | `GestureDetector`, `InkWell`, `MouseRegion` | the control's `handleEvent` with a `TapGestureRecognizer`, `MouseTrackerAnnotation` for hover and cursor; the tree already hit-tests without widgets (`NodeBox.hitTest`, `RenderReactions` in `runtime/actions/wiring.dart`, drag in `runtime/gestures`) | `kit.dart` | built |
-| ink, ripple, `Material` elevation | the **state layer**: an overlay colour per resolved `WidgetState`, a focus ring, shadows from tokens | `kit.dart` | built |
+| ink, ripple, `Material` elevation | the **state layer**: an overlay color per resolved `WidgetState`, a focus ring, shadows from tokens | `kit.dart` | built |
 | `Overlay`, `OverlayEntry` | the root's **overlay layer**: entries are render boxes laid out against the root, painted after the content, hit-tested before it | `render/controls/overlay.dart` | built (tooltip) |
 | `Tooltip` | the `tooltip` behavior (any node, declared since 30.0) shown in the overlay layer after `durations.tooltipDelay` | `overlay.dart` | built |
 | `Navigator`, routes, `ModalRoute`, `PopScope` | a **screen stack** on the root: screens are root children with an enter/exit transition, modals are overlay entries with a barrier, back is a key/system-back handler on the root | `render/controls/screens.dart` | planned (WS-J) |
@@ -151,15 +151,15 @@ Every control is assembled from one small set of render-layer pieces (`render/co
 |---|---|---|
 | `RenderControl` | Base render box of a control: its `WidgetState` set (hovered, focused, pressed, selected, disabled), pointer handling (`TapGestureRecognizer`; press on down, release on up/cancel), hover via `MouseTrackerAnnotation` with a cursor, `enabled`, a `ControlFocusNode`, `onActivate` (tap, Enter, Space), semantics, min tap target | `ButtonStyleButton`'s `InkWell` + `FocusableActionDetector` + `Semantics` |
 | `ControlStates` | the resolved state set, also written to the tree (`RenderTree.setState`) so the node's `states` patches apply as they did | `WidgetStatesController` |
-| state layer | an overlay colour per state from the tokens (`hoverOverlay`, `pressedOverlay`, filled-surface variants), drawn inside the shape, eased over `durations.control` | `ButtonStyle.overlayColor` |
-| focus ring | a `focusBorder`-coloured ring (1.5 px, SSUI's `controlFocusBorderWidth`) outside the shape when keyboard-focused | none in Material (SSUI's) |
-| `ControlLabel` | a `TextPainter` of one line, ellipsised, **optically centred** (laid out with `TextHeightBehavior` even leading and centred on the glyph box, measured by the guard test) | `Text` in `DefaultTextStyle` |
-| `ControlIcon` | a glyph from `render/paint/icon_glyph.dart` at a size and colour | `Icon` |
+| state layer | an overlay color per state from the tokens (`hoverOverlay`, `pressedOverlay`, filled-surface variants), drawn inside the shape, eased over `durations.control` | `ButtonStyle.overlayColor` |
+| focus ring | a `focusBorder`-colored ring (1.5 px, SSUI's `controlFocusBorderWidth`) outside the shape when keyboard-focused | none in Material (SSUI's) |
+| `ControlLabel` | a `TextPainter` of one line, ellipsised, **optically centered** (laid out with `TextHeightBehavior` even leading and centered on the glyph box, measured by the guard test) | `Text` in `DefaultTextStyle` |
+| `ControlIcon` | a glyph from `render/paint/icon_glyph.dart` at a size and color | `Icon` |
 | min tap target | `hitTest` grows to 44 × 44 (SSUI touch target; 48 for `MaterialTapTargetSize.padded`) around the visual box **without changing layout** | `MaterialTapTargetSize` (which Material does by layout) |
 | semantics role | `describeSemanticsConfiguration`: `isButton`, `label`, `isEnabled`, `isFocusable`, `isFocused`, `isSelected`/`isToggled`, `onTap`, `onFocus`, tooltip | `Semantics(button: true, ...)` |
 
 Controls are leaves: a button paints its surface, label and icon itself rather than composing node boxes, so
-nothing about Flutter's `Row`/`Text` intrinsic quirks can push a label off centre. A control that holds node
+nothing about Flutter's `Row`/`Text` intrinsic quirks can push a label off center. A control that holds node
 children (a list tile's slots, a card) uses the tree's own layout for them and the kit only for its chrome.
 
 ## 5. Defaults = SSUI
@@ -196,7 +196,7 @@ Material look. Now the core types **are** SSUI-looking, so:
 | `ListRow`, `Card`, `SectionHeader`, `Banner`, `EmptyState`, `Avatar`, `Dialog` | stay components (compositions with no Flutter control counterpart; `Dialog` → WS-H's dialog) | |
 
 The design system keeps its component files as **presets**: a call `{"type": "Button", "props": {"variant":
-"outline"}}` expands to the core node (`outlinedButton`) instead of a composition, so one look and one behaviour
+"outline"}}` expands to the core node (`outlinedButton`) instead of a composition, so one look and one behavior
 exist per control. The `replaces` list in design_system.json already names the core types each component stands
 for; WS-L rewrites the component files as expansions and the gallery renders both spellings identically.
 
@@ -219,12 +219,12 @@ for; WS-L rewrites the component files as expansions and the gallery renders bot
 | WS | Controls | Owns (new unless marked) | Size | Acceptance tests |
 |---|---|---|---|---|
 | 0 | kit, focus, overlay, tokens, root, **buttons** | `render/controls/{kit,focus,overlay,tokens,ssui_defaults.g,root,buttons}.dart`, `widgets/controls.dart`, `tool/controls/bundle_ssui.dart`, `test/controls/{root,direct_attach,buttons,ssui_reference,tokens}_test.dart` | done | section 10 |
-| A | `textField` (+ `signature` stays an island until A ends) | `render/controls/{editable,text_field,field_frame}.dart`, `test/controls/text_field_test.dart`; deletes `_TextFieldIsland` and its helpers in `widgets/inputs.dart` | XL (3–4 weeks) | typing, IME composition (a fake `TextInput` channel), selection by tap/drag/keys, handles and toolbar as overlay entries, clipboard, undo/redo, autofill group, obscure, `maxLength`, `submitted`/`changed`, `focus`/`editText` actions, label above (never floating), error text and red from tokens, label centred (guard), semantics, SSUI reference match |
-| B | `dropdown`, menus (`popupMenu` and the select list), the field frame shared with A | `render/controls/{dropdown,menu}.dart`; deletes `_DropdownIsland` | L | opens an overlay menu anchored under the field; keyboard (arrows, type-ahead, Enter, Escape); the value's label centred; no Material arrow or card; SSUI Select reference |
-| C | `chip`, `actionChip`, `choiceChip`, `filterChip`, `inputChip`, `badge` | `render/controls/chips.dart`; deletes `_chip`, `_ChipIsland`, `_ContentWidth` in `widgets/material.dart` | M | the check mark never resizes the chip (reserved), delete icon, selected via prop, label centred, SSUI Chip/Badge |
+| A | `textField` (+ `signature` stays an island until A ends) | `render/controls/{editable,text_field,field_frame}.dart`, `test/controls/text_field_test.dart`; deletes `_TextFieldIsland` and its helpers in `widgets/inputs.dart` | XL (3–4 weeks) | typing, IME composition (a fake `TextInput` channel), selection by tap/drag/keys, handles and toolbar as overlay entries, clipboard, undo/redo, autofill group, obscure, `maxLength`, `submitted`/`changed`, `focus`/`editText` actions, label above (never floating), error text and red from tokens, label centered (guard), semantics, SSUI reference match |
+| B | `dropdown`, menus (`popupMenu` and the select list), the field frame shared with A | `render/controls/{dropdown,menu}.dart`; deletes `_DropdownIsland` | L | opens an overlay menu anchored under the field; keyboard (arrows, type-ahead, Enter, Escape); the value's label centered; no Material arrow or card; SSUI Select reference |
+| C | `chip`, `actionChip`, `choiceChip`, `filterChip`, `inputChip`, `badge` | `render/controls/chips.dart`; deletes `_chip`, `_ChipIsland`, `_ContentWidth` in `widgets/material.dart` | M | the check mark never resizes the chip (reserved), delete icon, selected via prop, label centered, SSUI Chip/Badge |
 | D | `accordion`, `expansionTile`, `listTile` | `render/controls/{tile,expansion}.dart`; deletes `ExpansionTile` use in `widgets/collections_islands.dart`, `_listTile` in `widgets/material.dart` | M | the whole header is the tap target, chevron from tokens, slots laid out by the tree, keyboard, expand animation on the tree's ticker, semantics `isExpanded` |
 | E | `switch`, `checkbox`, `radio`, `slider` (+ range), `segmentedButton` | `render/controls/{toggles,slider,segmented}.dart`; deletes the islands in `widgets/inputs.dart`, `widgets/inputs_toggle.dart`, `widgets/slider_paint.dart` | L | value write-back (`changed`), drag and keys for the slider (arrows, Page, Home/End), no thumb shadow, `radioGroup`, toggled/checked semantics, SSUI Switch/Checkbox/Radio/Slider/SegmentedControl references |
-| F | `tabBar`, `tabs`, `navigationBar`, `bottomNavigationBar`, `appBar` | `render/controls/{tab_bar,navigation_bar,app_bar}.dart`; deletes `TabBar` in `collections_islands.dart`, `_navigationBar`, `_appBar`, the `Scaffold` in `widgets/material.dart` | M | selected indicator, keyboard arrows, labels centred, app bar slots via `render/layout/scaffold_slots.dart` |
+| F | `tabBar`, `tabs`, `navigationBar`, `bottomNavigationBar`, `appBar` | `render/controls/{tab_bar,navigation_bar,app_bar}.dart`; deletes `TabBar` in `collections_islands.dart`, `_navigationBar`, `_appBar`, the `Scaffold` in `widgets/material.dart` | M | selected indicator, keyboard arrows, labels centered, app bar slots via `render/layout/scaffold_slots.dart` |
 | G | `datePicker`, `timePicker`, `dateTimeInput` | `render/controls/{calendar,time_dial,pickers,kit_pickers}.dart`, `widgets/picker_locale.dart` (intl names and the runtime clock, which render may not import); deletes `showDatePicker`/`showTimePicker` use in `widgets/inputs.dart` | built (`test/controls/pickers_test.dart`, `pickers_reference_test.dart`) | picker as an overlay entry (popover on wide, sheet on narrow), keyboard navigation of the grid, locale first weekday, value write-back |
 | H | dialogs, drawers, bottom sheets, toasts, tooltips beyond the behavior, `confirm` | `render/controls/{dialog,sheet,toast}.dart`; rewrites `runtime/actions/{ui,toast,confirm_dialog,feedback_theme}.dart` on overlay entries | L | barrier and dismiss, focus trapped in the dialog and returned on close, Escape, toast stacking and timing, SSUI Dialog reference |
 | I | `circularProgressIndicator`, `activityIndicator`, progress bars | `widgets/indicators.dart` (`_circularProgressIndicator`, `_activityIndicator`) to painters; drops `cupertino.dart` | S | spinner on the tree's ticker, indeterminate animation, no Cupertino import |
@@ -241,13 +241,13 @@ last; L any time after E.
 Roles are top-level keys of the theme, by Flutter's `ColorScheme` names (`primary`, `onPrimary`, `surface`,
 `onSurface`, `error`, plus the SDK's `success`, `warning`). Two spellings the builds used never reached controls:
 
-- **`"primary": "forest"`** (a role naming a theme colour). It is the theme's general rule ("a colour may name
-  another"), so it **works**: `ThemeTokens.resolvedRoles()` (in this package) replaces each role that names a colour
-  with that colour, through any chain, in light and dark; every consumer (the SDK's `ControlTokens`, the island
+- **`"primary": "forest"`** (a role naming a theme color). It is the theme's general rule ("a color may name
+  another"), so it **works**: `ThemeTokens.resolvedRoles()` (in this package) replaces each role that names a color
+  with that color, through any chain, in light and dark; every consumer (the SDK's `ControlTokens`, the island
   `ThemeData`, `themeValues`) reads roles through it.
 - **`"colors": {"primary": ...}`** (a role written inside `colors`). That is a second spelling of the role, so per
   the one-way rule it is a **validation warning**, `theme_role_in_colors`, with the fix: move it to the top level
-  (or name it: `"primary": "<that colour's name>"`). It is not applied to controls.
+  (or name it: `"primary": "<that color's name>"`). It is not applied to controls.
 
 The generated STARTER's theme example now declares `primary` and `onPrimary` as names of its palette.
 
@@ -270,12 +270,12 @@ What an app developer uses today and what it becomes:
 (adapter mode, still supported) or drops `MaterialApp` for `CodelesslyView.attach` with a `UrlStrategy` passed to
 the screen stack, which replaces its `navigate` handler (about 120 lines in `lib/project_view.dart` go). The visible
 difference for the site: controls look SSUI by default instead of the neutral Material-derived look; sites that set a
-theme keep their colours.
+theme keep their colors.
 
 ## 9. Risks and what is deferred
 
 - **Text input is the largest risk** (WS-A): IME on web and Android, autofill and accessibility are where
-  `EditableText` holds years of fixes. Mitigation: keep `RenderEditable`; port behaviours with tests from
+  `EditableText` holds years of fixes. Mitigation: keep `RenderEditable`; port behaviors with tests from
   Flutter's `editable_text_test.dart` cases we rely on; ship the island as a fallback behind a config flag until A's
   test list is green on web.
 - **Focus across islands and render controls** during the migration: Tab moves within render controls of a root and
@@ -352,5 +352,5 @@ The remainder, done in the main session, in this order:
    on the ratchet.
 
 Gaps the workstreams left, folded into the steps above: a `popupMenu` node type on the menu; tile text and icon
-colour props; write-back of a bound `expanded`; app-bar and navigation item reactions; the implied back button;
+color props; write-back of a bound `expanded`; app-bar and navigation item reactions; the implied back button;
 selection handles and the copy and paste toolbar; an icon size written at its catalog default.

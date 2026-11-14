@@ -1,7 +1,7 @@
 // Schema-2 binding paths outside a document's `bind` maps: a path an action
 // names (`setValue`'s `values[].path`) is not rewritten by the migration
 // (it is read against the node it targets when it runs, which may be in
-// another document, a component or an instance), so it is recognised where
+// another document, a component or an instance), so it is recognized where
 // it is used and refused with the schema-3 path to write instead.
 import 'legacy_track.dart';
 

@@ -251,7 +251,7 @@ void main() {
     expect(ops, ['{"op":"roots","roots":["c"]}', '{"op":"set","id":"c","node":{"type":"canvas"}}']);
   });
 
-  test('each irregularity is reported once; many are summarised', () {
+  test('each irregularity is reported once; many are summarized', () {
     final text = '{"ops":[${List.filled(30, '{"op":"remove","ids":["x"]}}').join(',')}]}';
     final (ops, end) = _decode([text]);
     expect(ops, hasLength(30));

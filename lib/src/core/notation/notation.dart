@@ -44,7 +44,82 @@ final class NotationOptions {
     this.screen = 'screen',
     this.textStyles = defaultTextVariants,
     this.card = defaultCard,
+    this.badges = badgeVariants,
+    this.surface = '#FFFFFFFF',
+    this.accent = '#FF2563EB',
   });
+
+  /// The looks of a design system's [theme] (its `theme` JSON: `colors`,
+  /// `textStyles`, `radii`, the roles): its text styles by name with their
+  /// colors written out, the short words mapped onto them, its card,
+  /// badge tones, surface and accent. A UI written in the notation then
+  /// looks like that design system with nothing else said.
+  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen'}) {
+    final colors = readMap(theme['colors']) ?? const {};
+    String color(String name, String fallback) {
+      Object? c = colors[name] ?? theme[name];
+      for (var i = 0; i < 8 && c is String && !c.startsWith('#'); i++) {
+        c = colors[c] ?? theme[c];
+      }
+      return c is String && c.startsWith('#') ? c : fallback;
+    }
+
+    final ink = color('primaryText', color('onSurface', '#FF111827'));
+    final muted = color('secondaryText', ink), faint = color('tertiaryText', muted);
+    final styles = <String, Object>{};
+    for (final e in (readMap(theme['textStyles']) ?? const {}).entries) {
+      final s = readMap(e.value);
+      if (s == null) continue;
+      styles[e.key] = {
+        for (final k in const ['fontSize', 'fontWeight', 'fontFamily', 'letterSpacing', 'height'])
+          if (s[k] != null) k: s[k],
+        'color': s['color'] is String ? color(s['color'] as String, ink) : ink,
+      };
+    }
+    Object style(String name, Object fallback) => styles[name] ?? fallback;
+    Json body() => {...(style('body', const {'fontSize': 13}) as Map).cast<String, Object?>()};
+    styles
+      ..putIfAbsent('title', () => style('pageTitle', defaultTextVariants['title']!))
+      ..putIfAbsent('heading', () => style('sectionTitle', defaultTextVariants['heading']!))
+      ..putIfAbsent('strong', () => body()..addAll({'fontWeight': 600, 'color': ink}))
+      ..putIfAbsent('small', () => style('bodySecondary', defaultTextVariants['small']!))
+      ..putIfAbsent('muted', () => body()..['color'] = muted)
+      ..putIfAbsent('caption', () => {'fontSize': 11, 'color': faint})
+      ..putIfAbsent('body', () => body()..['color'] = ink)
+      ..putIfAbsent('danger', () => body()..addAll({'fontWeight': 600, 'color': color('error', '#FFDC2626')}))
+      ..putIfAbsent('success', () => body()..addAll({'fontWeight': 600, 'color': color('success', '#FF16A34A')}));
+    (String, String, String) tone(String role, String inkName) =>
+        (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
+    final error = tone('error', 'error');
+    return NotationOptions(
+      width: width,
+      screen: screen,
+      textStyles: styles,
+      card: {
+        'decoration': {
+          'fills': [
+            {'color': color('primaryBackground', '#FFFFFFFF')},
+          ],
+          'strokes': [
+            {'color': color('primaryBorder', '#FFE5E7EB')},
+          ],
+          'radius': readMap(theme['radii'])?['panel'] ?? theme['radius'] ?? 8,
+        },
+        'layout': {'padding': 12},
+      },
+      badges: {
+        'neutral': tone('neutral', 'secondaryText'),
+        'primary': tone('primary', 'primary'),
+        'info': tone('info', 'info'),
+        'success': tone('success', 'success'),
+        'warning': tone('warning', 'warning'),
+        'error': error,
+        'danger': error,
+      },
+      surface: color('surface', color('primaryBackground', '#FFFFFFFF')),
+      accent: color('primary', '#FF2563EB'),
+    );
+  }
 
   /// The canvas's width.
   final double width;
@@ -57,10 +132,19 @@ final class NotationOptions {
 
   /// What `Card` adds to a column: decoration and padding.
   final Json card;
+
+  /// `Badge.<tone>`: its fill, hairline and ink.
+  final Map<String, (String, String, String)> badges;
+
+  /// What the UI is drawn on when its root is not a card.
+  final String surface;
+
+  /// The color of what has none of its own (a chart's bars and line).
+  final String accent;
 }
 
 /// SSUI's text styles (design_systems/ssui/design_system.json, `theme
-/// .textStyles` with its colours), written out so a document needs no
+/// .textStyles` with its colors), written out so a document needs no
 /// theme: SSUI's own names, and the short words an agent reaches for.
 const Map<String, Object> defaultTextVariants = {
   // SSUI's names.
@@ -75,7 +159,7 @@ const Map<String, Object> defaultTextVariants = {
   'fieldLabel': {'fontSize': 11.5, 'fontWeight': 600, 'color': '#FF4B5563'},
   'caption': {'fontSize': 11, 'color': '#FF9CA3AF'},
   'mono': {'fontSize': 12, 'fontFamily': 'monospace', 'color': '#FF111827'},
-  // Short words: each is one of SSUI's styles or its body in a role colour.
+  // Short words: each is one of SSUI's styles or its body in a role color.
   'title': {'fontSize': 20, 'fontWeight': 600, 'color': '#FF111827'},
   'heading': {'fontSize': 14, 'fontWeight': 600, 'color': '#FF111827'},
   'strong': {'fontSize': 13, 'fontWeight': 600, 'color': '#FF111827'},
@@ -492,11 +576,11 @@ class _Parser {
       }
     } else if (written == 'Badge') {
       // SSUI's badge: a tinted pill-cornered row 20 high around its text.
-      final v = badgeVariants[variant ?? 'neutral'];
+      final v = options.badges[variant ?? 'neutral'];
       if (v == null) {
-        _issue(column + written.length + 1, 'No Badge.$variant. Variants: ${badgeVariants.keys.join(', ')}.');
+        _issue(column + written.length + 1, 'No Badge.$variant. Variants: ${options.badges.keys.join(', ')}.');
       }
-      final tone = v ?? badgeVariants['neutral']!;
+      final tone = v ?? options.badges['neutral'] ?? badgeVariants['neutral']!;
       decoration.addAll({
         'fills': [
           {'color': tone.$1},
@@ -639,7 +723,7 @@ class _Parser {
         final colon = word.indexOf(':');
         if (colon < 0) {
           if (written == 'Box' && (word == 'center' || word == 'middle')) {
-            // A box centres what is in it: across with `center`, down with
+            // A box centers what is in it: across with `center`, down with
             // `middle` (or with `center` alone).
             if (word == 'center') props['crossAxisAlignment'] = 'center';
             if (word == 'middle' || !line.contains(' middle')) props['mainAxisAlignment'] = 'center';
@@ -753,8 +837,8 @@ class _Parser {
     // data points.
     if (type == 'barChart' || type == 'lineChart') {
       layout.putIfAbsent('height', () => 140);
-      // The design system's primary, unless a colour is written.
-      props.putIfAbsent(type == 'barChart' ? 'color' : 'lineColor', () => '#FF2563EB');
+      // The design system's primary, unless a color is written.
+      props.putIfAbsent(type == 'barChart' ? 'color' : 'lineColor', () => options.accent);
       if (type == 'lineChart' && props['values'] is List) {
         final values = props.remove('values')! as List;
         props.remove('labels');
@@ -763,13 +847,13 @@ class _Parser {
         props['yField'] = 'y';
       }
     }
-    // A column starts its children at the leading edge and a row centres
+    // A column starts its children at the leading edge and a row centers
     // them on its line (what a form and a toolbar want), unless written.
     if (type == 'column') props.putIfAbsent('crossAxisAlignment', () => 'start');
     if (type == 'row') props.putIfAbsent('crossAxisAlignment', () => 'center');
     // An accordion starts closed unless it says `open`.
     if (type == 'accordion' && !bind.containsKey('props.expanded')) props.putIfAbsent('expanded', () => false);
-    // Text with no variant is the body text, so it always has a colour.
+    // Text with no variant is the body text, so it always has a color.
     if (type == 'text' && !props.containsKey('style')) {
       if (options.textStyles['body'] case final Object body) props['style'] = body is Map ? _copy(body.cast<String, Object?>()) : body;
     }
@@ -794,7 +878,7 @@ class _Parser {
       // In a column that is only as wide as its content (a column in a
       // row), so is each child.
       final parentWidth = parent == null ? null : (nodes[parent.id]?['layout'] as Map?)?['width'];
-      // Nor in one that centres or ends its children: a child that filled
+      // Nor in one that centers or ends its children: a child that filled
       // it would have nowhere to move.
       final parentCross = parent == null ? null : (nodes[parent.id]?['props'] as Map?)?['crossAxisAlignment'];
       final inHug = parent?.type == 'column' &&
@@ -1009,11 +1093,11 @@ class _Parser {
 
   /// What the UI is drawn on when its root is not a card: the surface, so
   /// its dark text is never on nothing.
-  static const Json _surface = {
-    'fills': [
-      {'color': '#FFFFFFFF'},
-    ],
-  };
+  Json get _surface => {
+        'fills': [
+          {'color': options.surface},
+        ],
+      };
 
   /// State written as a formula (`state total=sum(cart,x=>x.price)`): not a
   /// variable but a name for the formula, written out where it is read.

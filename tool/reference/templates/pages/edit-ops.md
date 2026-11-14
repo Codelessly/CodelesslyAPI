@@ -144,7 +144,7 @@ answers a batch that would replace the existing roots or create a new canvas wit
 exactly that instead of fixing three ops). The diagnostics models hit carry the fix as JSON (`explainDiagnostic`): a
 size written as a layout key (`"height": {"hug": 46}`), children on a type that takes none (the types that do, and a
 row with a fill for a tag or button), a button's `text` (its `label`). `uiLints(document)` adds what no declaration
-catches: `empty_button` (a tappable box that shows nothing) and `low_contrast` (text in its background's colour); a
+catches: `empty_button` (a tappable box that shows nothing) and `low_contrast` (text in its background's color); a
 renderer adds `missing_glyph` and `no_size` (the SDK's `UiSession.renderDiagnostics`).
 
 ## Pitfalls

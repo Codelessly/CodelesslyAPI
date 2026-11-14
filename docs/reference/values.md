@@ -5,7 +5,7 @@
 <a id="values-when-to-use"></a>
 ## When to use
 
-Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows
+Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows
 (its fields) or an enum (its names). Link to one with `values.md#type-<Name>` or `values.md#enum-<Name>`. Models
 that belong to a feature are on that feature's page (TextStyle on the theme page, InputDecoration on the forms
 page...); the [A–Z](index.md#index-a-z) finds any of them.
@@ -502,9 +502,9 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `centered` | How a series chart places its grid lines (and solid reference lines). `centered`: centred on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centred on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
-| `crisp` | How a series chart places its grid lines (and solid reference lines). `centered`: centred on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centred on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
-| `exact` | How a series chart places its grid lines (and solid reference lines). `centered`: centred on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centred on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
+| `centered` | How a series chart places its grid lines (and solid reference lines). `centered`: centered on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centered on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
+| `crisp` | How a series chart places its grid lines (and solid reference lines). `centered`: centered on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centered on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
+| `exact` | How a series chart places its grid lines (and solid reference lines). `centered`: centered on the value's rounded y (the bottom line one pixel row up, inside the plot); a 1 px line there straddles two pixel rows. `crisp` (the default): whole pixel rows from the value's rounded y down (the bottom line's up, inside the plot), so a line of whole width is sharp; other widths stay centered on the value. `exact`: the rows just above the value's unrounded y, like a Flutter box of that height whose bottom edge sits at the value (sharp when that is a whole pixel, soft otherwise). |
 
 <a id="enum-ChartSeriesKind"></a>
 ### ChartSeriesKind
@@ -898,10 +898,10 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `edgeClamped` | Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it. |
-| `start` | Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it. |
-| `center` | Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it. |
-| `end` | Where a line chart's x labels sit about their tick. `edgeClamped`: centred, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centred on it. `end`: ending at it. |
+| `edgeClamped` | Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it. |
+| `start` | Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it. |
+| `center` | Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it. |
+| `end` | Where a line chart's x labels sit about their tick. `edgeClamped`: centered, the first starting at the tick and the last ending there (so both stay over the plot). `start`: starting at the tick. `center`: centered on it. `end`: ending at it. |
 
 <a id="enum-ListApply"></a>
 ### ListApply
@@ -1292,8 +1292,8 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `above` | Where a signature pad's mark sits: over the line's start, or before the line (centred on it, the line starting after it). |
-| `leading` | Where a signature pad's mark sits: over the line's start, or before the line (centred on it, the line starting after it). |
+| `above` | Where a signature pad's mark sits: over the line's start, or before the line (centered on it, the line starting after it). |
+| `leading` | Where a signature pad's mark sits: over the line's start, or before the line (centered on it, the line starting after it). |
 
 <a id="enum-SignaturePlaceholderPosition"></a>
 ### SignaturePlaceholderPosition
@@ -1795,10 +1795,10 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="values-patterns"></a>
 ## Patterns
 
-<a id="values-colours-and-alignments"></a>
-### Colours and alignments
+<a id="values-colors-and-alignments"></a>
+### Colors and alignments
 
-A colour is `"#AARRGGBB"`, `"#RRGGBB"` or a theme colour's name. An alignment is `[x, y]` from -1 to 1 or a name
+A color is `"#AARRGGBB"`, `"#RRGGBB"` or a theme color's name. An alignment is `[x, y]` from -1 to 1 or a name
 (`"topCenter"`, `"centerRight"`).
 
 <a id="values-pitfalls"></a>

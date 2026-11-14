@@ -60,7 +60,7 @@ final heroFlightStep = MigrationStep(
               'its flight key is kept as `legacy.flightKey`.');
       if (flight != null) n['legacy.flight'] = flight;
       if (keyBound) n['legacy.bind.flightKey'] = bind['flightKey'];
-      s.behaviourChange('The node no longer flies in from where its flight key was (it keeps its hero).', path: '/flightKey', old: n['flightKey']);
+      s.behaviorChange('The node no longer flies in from where its flight key was (it keeps its hero).', path: '/flightKey', old: n['flightKey']);
     } else if (flies) {
       heroOut = <String, Object?>{
         'tag': key,

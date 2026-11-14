@@ -93,7 +93,7 @@ Card gap:12
     expect(banner['bind'], {'visible': r'${= decision!="pending"}'});
     expect((banner['props'] as Map)['text'], r'Decision: ${decision}');
     expect(_node(r, 'textButton1')['type'], 'textButton');
-    // Text with no variant is the body text: it has a colour.
+    // Text with no variant is the body text: it has a color.
     expect(((_node(r, 'text2')['props'] as Map)['style'] as Map)['color'], '#FF111827', reason: 'SSUI\'s body ink');
     expect((_node(r, 'filledButton1')['actions'] as List).single['actions'], [
       {'type': 'setVariable', 'variable': 'decision', 'value': 'approved'},
@@ -415,5 +415,30 @@ Card
     final label = _node(r, (badge['children'] as List).single as String);
     expect((label['props'] as Map)['style'], {'fontSize': 11, 'fontWeight': 500, 'color': '#FF16A34A'});
     expect((_node(r, (_node(r, 'row2')['children'] as List).single as String)['props'] as Map)['text'], r'${count} open');
+  });
+  test('the looks come from a design system\'s theme: its text styles with their colors written out, its card, tones, surface and accent', () {
+    final options = NotationOptions.fromTheme({
+      'primary': '#FF0F766E', 'surface': '#FFFFFCF7', 'success': '#FF15803D',
+      'colors': {'primaryText': '#FF1C1917', 'secondaryText': '#B81C1917', 'primaryBackground': '#FFFFFCF7', 'primaryBorder': '#FFE4E1DC',
+        'successTint': '#1A15803D', 'successTintBorder': '#4715803D'},
+      'textStyles': {'sectionTitle': {'fontSize': 14, 'fontWeight': 600, 'color': 'primaryText'}, 'body': {'fontSize': 13, 'color': 'primaryText'}},
+      'radii': {'panel': 3},
+    });
+    final r = parseNotation('''
+Card
+  Text.sectionTitle "Billing"
+  Text.muted "Next invoice on the 1st"
+  Badge.success "Paid"
+  BarChart values:[1,2,3]
+''', catalog: standardCatalog, options: options);
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect((_node(r, 'screen')['decoration'] as Map)['fills'], [{'color': '#FFFFFCF7'}]);
+    expect(((_node(r, 'column1')['decoration'] as Map)['strokes'] as List).single, {'color': '#FFE4E1DC'});
+    expect((_node(r, 'column1')['decoration'] as Map)['radius'], 3);
+    expect((_node(r, 'text1')['props'] as Map)['style'], {'fontSize': 14, 'fontWeight': 600, 'color': '#FF1C1917'});
+    expect(((_node(r, 'text2')['props'] as Map)['style'] as Map)['color'], '#B81C1917');
+    expect(((_node(r, 'row1')['decoration'] as Map)['fills'] as List).single, {'color': '#1A15803D'});
+    expect((_node(r, 'barChart1')['props'] as Map)['color'], '#FF0F766E');
   });
 }

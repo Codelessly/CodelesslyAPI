@@ -495,7 +495,7 @@ existed the old default stays.
    per second) is converted: `1 − e^(−rate)`, to 4 places.
 6. **`Track.allowedInteraction` has two of `SliderInteraction`'s four values** (`slideThumb`, `tapAndSlide`,
    as `TrackInteraction`); `hitArea: parent` stays, since legacy `jumpOnTap` with `hitArea: parent` is a third
-   behaviour `slideOnly` doesn't name. `tapOnly`/`slideOnly` aren't built.
+   behavior `slideOnly` doesn't name. `tapOnly`/`slideOnly` aren't built.
 7. **The geometry keeps `shape`, the line's ends, `relative`, `units`, `pivotX/Y` and `rotate`**; only the
    path became `path: PathFollow` and `endAngle` became `sweepAngle`. See "Not yet migrated".
 8. **`clamp: false` is read from `endless` only on an arc** (where it did anything), and an unclamped path
@@ -569,7 +569,7 @@ Each is read and works exactly as before.
 Migrated, not read by the model any more: the `drag` key and its three modes (`drag.split`), the track's
 legacy keys (`track.legacy`), `zoomable` (`zoomable`), the draggable's old names and spring shapes
 (`draggable.legacy`), `controlDrag` (`action.controlDrag`), legacy `drag.*` bind paths. **Removed** (the
-migration keeps a value that acted as `legacy.<behavior>.<field>` and reports a behaviour change naming the
+migration keeps a value that acted as `legacy.<behavior>.<field>` and reports a behavior change naming the
 apps): `Track.defaultValue` and `doubleTapValues` (a track with no value is drawn at its minimum; lamplight),
 `parkedProgress` (apiary), the four fine-mode fields (cutroom, cutroom_v2, darkroom), `smooth` and `gain`
 round an arc (safecracker); `DismissibleBehavior.restX/Y`, `xVariable/yVariable`, `flyOutRotate`; on

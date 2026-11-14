@@ -7,7 +7,7 @@ assistant-ui lists about 128 elements at `https://www.assistant-ui.com/elements`
 read 2026-11-14). Its Tool UI docs sort them by job: inform, ask for a decision, adjust something reversible,
 report work in flight. Leaving out the app shells (thread, composer, sidebar, settings), these are the ones drawn
 inside a chat message. Each is a target: a brief, a reference card in the notation and as a document, rendered on
-SSUI defaults, and polished until it stands beside theirs (alignment, spacing, colour, every state).
+SSUI defaults, and polished until it stands beside theirs (alignment, spacing, color, every state).
 
 Status: **listed**. Three have been read in detail (approval card, option list, data table); none is built as a
 reference card yet. Seven overlap the 17 card briefs already recorded (approval, question flow, data table,

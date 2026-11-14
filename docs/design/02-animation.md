@@ -470,7 +470,7 @@ and `physics/spring_simulation.dart`; the SDK's controller is tested against a r
    show (else `spring` on a 0–1 animation could never overshoot).
 8. **Play keys fire on a new value that isn't empty, `0`, `false` or `null`**, not only non-empty: the
    reference apps cue with `${= cond ? tick : 0}`, which made a node play when its cue went *away*. This is a
-   behaviour change for an effect whose bound key turns to `0`/`false` (it no longer plays then).
+   behavior change for an effect whose bound key turns to `0`/`false` (it no longer plays then).
 9. **A replay or `stop` completes the waiting chain** (the legacy effects did), where Flutter's `TickerFuture`
    never completes once stopped. On a variable, `stop` holds the timeline and its waiting chain stays waiting
    until `forward` (the legacy `pause`); the legacy `stop` mode now behaves as `pause` did.

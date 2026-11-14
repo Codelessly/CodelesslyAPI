@@ -1,6 +1,6 @@
 // What a finished agent-written UI gets wrong that no declaration catches,
 // read from the document alone: a tappable box that shows nothing (a button
-// without a label), text drawn in its background's colour. Warnings in the
+// without a label), text drawn in its background's color. Warnings in the
 // edit layer's diagnostic shape, so a host returns them in the same tool
 // result as validation and the model fixes them on its retry. A renderer
 // adds what only layout and fonts can tell ([EditCodes.missingGlyph],
@@ -79,7 +79,7 @@ List<EditDiagnostic> uiLints(LayoutDocument document, {Iterable<String>? ids, Gl
           'while it should not be pressed.',
           path: editPointer(at, 'actions'), nodeId: id));
     }
-    // Text in the colour of what is behind it.
+    // Text in the color of what is behind it.
     if (type == 'text') {
       final bind = readMap(json['bind']) ?? const {};
       if (bind.keys.any((k) => k == 'props.style.color' || k == 'props.style' || k == 'props.text.color')) continue;
@@ -91,7 +91,7 @@ List<EditDiagnostic> uiLints(LayoutDocument document, {Iterable<String>? ids, Gl
       final ratio = _contrast(fg, bg.$2);
       if (ratio < 1.6) {
         out.add(EditDiagnostic.of(EditCodes.lowContrast, -1,
-            '${color == null ? '"$id" has no text colour: it draws in the default (near black)' : '"$id" is drawn in ${_hex(fg)}'} over '
+            '${color == null ? '"$id" has no text color: it draws in the default (near black)' : '"$id" is drawn in ${_hex(fg)}'} over '
             '${_hex(bg.$2)} (the fill of "${bg.$1}"): contrast ${ratio.toStringAsFixed(2)}:1, it is not readable. Set "props": {"style": '
             '{"color": "${_hex(_luminance(bg.$2) > 0.4 ? 0xFF111827 : 0xFFFFFFFF)}"}}.',
             path: editPointer(editPointer(editPointer(at, 'props'), 'style'), 'color'), nodeId: id));
@@ -122,7 +122,7 @@ bool _tappable(Json node) {
 }
 
 /// The nearest ancestor (or [id] itself) with an opaque solid fill: its id
-/// and colour.
+/// and color.
 (String, int)? _background(LayoutDocument document, String id) {
   String? x = id;
   final seen = <String>{};

@@ -25,7 +25,7 @@ Controls, complete with zero props: each has a size, a look and a value, and rep
 - **Triggers:** [`changeEnd`](forms.md#trigger-changeEnd), [`changed`](forms.md#trigger-changed), [`deleted`](forms.md#trigger-deleted), [`editingComplete`](forms.md#trigger-editingComplete), [`focusGained`](forms.md#trigger-focusGained), [`focusLost`](forms.md#trigger-focusLost), [`rowTap`](lists.md#trigger-rowTap), [`submitted`](forms.md#trigger-submitted)
 
 <a id="level-state"></a>
-## 2. State and behaviour (`state`)
+## 2. State and behavior (`state`)
 
 The UI reacts without the host: variables, bindings, expressions, actions, states, lists over data, forms, navigation.
 

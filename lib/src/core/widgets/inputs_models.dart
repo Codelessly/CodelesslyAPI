@@ -126,7 +126,7 @@ final class InputBorder extends FieldValue {
 abstract final class InputBorderFields {
   /// `outline` (a box), `underline` (a line under the text) or `none`.
   static const type = PropDef<InputBorderType>('type', EnumCodec(InputBorderType.values), InputBorderType.outline);
-  /// The line: its colour and width.
+  /// The line: its color and width.
   static const borderSide = PropDef<BorderSide>('borderSide', _sideCodec, BorderSide.standard);
   /// The corners' radius.
   static const borderRadius = PropDef<BorderRadius>('borderRadius', InputCodecs.radius, BorderRadius.circular(4));
@@ -177,7 +177,7 @@ abstract final class InputIconFields {
       doc: 'The glyph, written as the `icon` node\'s `props.icon`: a Material icon name (`"search"`) or `{"type": "MATERIAL_ICON", "name": "search"}`.');
   /// The glyph's size.
   static const size = PropDef<double>('size', Codecs.positive, 24);
-  /// The glyph's colour.
+  /// The glyph's color.
   static const color = PropDef<Color?>('color', Codecs.color, null);
   /// Reactions, as a node's: a tap on the icon (`{"trigger": {"type": "click"}, "actions": [...]}`).
   static const actions = PropDef<List<Reaction>>('actions', ValueCodec(_actionsIn, _actionsOut, PropType.list(PropType.json('Reaction'))), []);

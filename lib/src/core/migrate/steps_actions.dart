@@ -102,7 +102,7 @@ final animateVariableStep = MigrationStep(
 /// `setVariable` with `animateMs` (a glide): `animate {variable, command:
 /// animateTo, target, duration, curve}` for a `set`, `add` or `subtract` of
 /// a whole variable by a value read as a formula; any other glide sets at
-/// once (a behaviour change).
+/// once (a behavior change).
 final setVariableGlideStep = MigrationStep(
   id: 'action.setVariable.animateMs',
   description: 'setVariable glide (animateMs) → animate animateTo',
@@ -130,7 +130,7 @@ final setVariableGlideStep = MigrationStep(
       // whose value isn't one formula.
       final glided = whole && const [WriteOp.set, WriteOp.add, WriteOp.subtract].contains(write.op);
       if (glided) {
-        s.behaviourChange(
+        s.behaviorChange(
             'A setVariable glide (animateMs: $ms) whose value is not one formula now sets the number at once.',
             path: at,
             old: {'animateMs': m['animateMs'], 'curve': ?m['curve']},

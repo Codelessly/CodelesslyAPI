@@ -31,10 +31,10 @@ Every control's props, then the models that style them ([InputDecoration](@type-
 | buttons | `backgroundColor`, `foregroundColor`, `textStyle` (the label's size and weight), `shape` (`{"type": "roundedRectangle", "borderRadius": 10}`), `side` (border), `padding`, `elevation` | `props.style` ([ButtonStyle](@type-ButtonStyle)) |
 | `checkbox` | `activeColor`, `checkColor`, `fillColor`, `side` / `activeSide` (the box's border), `borderRadius`, `compact` | `props` ([checkbox](@node-checkbox)) |
 | `switch` | `activeTrackColor`, `inactiveTrackColor`, `activeThumbColor`, `inactiveThumbColor`, `fillTrack`, `thumbInset`, `trackOutlineWidth`, `trackRadius` | `props` ([switch](@node-switch)) |
-| `radio`, `slider`, `dropdown`, `segmentedButton` | their colours, track and thumb shapes | `props` ([radio](@node-radio), [slider](@node-slider), [dropdown](@node-dropdown), [segmentedButton](@node-segmentedButton)) |
-| a labelled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [a labelled checkbox](@forms-a-labelled-checkbox-or-switch) |
+| `radio`, `slider`, `dropdown`, `segmentedButton` | their colors, track and thumb shapes | `props` ([radio](@node-radio), [slider](@node-slider), [dropdown](@node-dropdown), [segmentedButton](@node-segmentedButton)) |
+| a labeled row | a `row` holding the control (with `"ignorePointer": true` and its value bound) and a text, with the row's `click` reaction | [a labeled checkbox](@forms-a-labeled-checkbox-or-switch) |
 
-Every colour there may be a theme colour's name; every text style may name a theme style. An outlined or filled
+Every color there may be a theme color's name; every text style may name a theme style. An outlined or filled
 field that sets no `contentPadding` (nor a `layout.padding`) takes Flutter's default, 12 px at the sides, which
 keeps its text and label off the border; set `contentPadding` for another.
 
@@ -121,7 +121,7 @@ there is text by binding the icon:
     "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "query", "value": ""}]}]}}}}
 ```
 
-### A labelled checkbox or switch
+### A labeled checkbox or switch
 
 The whole row toggles: the control ignores the pointer and shows the variable; the row's reaction toggles it. A tap
 on a control inside a tappable row otherwise runs the control's own reaction only (the innermost wins).
@@ -161,7 +161,7 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 
 ## Pitfalls
 
-- A button's text is `label`, not `text`; its colours are in `style`, not `decoration`.
+- A button's text is `label`, not `text`; its colors are in `style`, not `decoration`.
 - An input does nothing with its value until a `changed` reaction stores it, or its value prop is bound.
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.

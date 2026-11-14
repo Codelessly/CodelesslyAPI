@@ -466,7 +466,7 @@ the time with the render command's `--now 2026-11-13T09:00:00Z` (`now()` returns
 <a id="animation-pitfalls"></a>
 ## Pitfalls
 
-- `motion` (its scale and rotate too) does not change layout: neighbours do not move. To make room, animate a
+- `motion` (its scale and rotate too) does not change layout: neighbors do not move. To make room, animate a
   layout field.
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.

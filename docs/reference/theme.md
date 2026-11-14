@@ -125,7 +125,7 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `letterSpacing` | double | unset |  | Logical pixels between letters. |
 | `height` | double | unset | ≥ 0 | Line height as a multiple of the font size. Unset: the inherited defaultTextStyle's, else the font's own (Flutter's height: null, CSS line-height: normal). |
 | `decoration` | [TextDecoration](values.md#enum-TextDecoration) | unset | `none`, `underline`, `overline`, `lineThrough` | A line through the text: `underline`, `overline`, `lineThrough` or `none`. |
-| `decorationColor` | [Color](values.md#type-Color) | unset |  | The colour of the `decoration` line; without one, the text's colour. |
+| `decorationColor` | [Color](values.md#type-Color) | unset |  | The color of the `decoration` line; without one, the text's color. |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  | Painted behind the glyphs. |
 | `decorationStyle` | [TextDecorationStyle](values.md#enum-TextDecorationStyle) | unset | `solid`, `double`, `dotted`, `dashed`, `wavy` | The `decoration` line's style: `solid`, `double`, `dotted`, `dashed`, `wavy`. |
 | `decorationThickness` | double | unset |  | The `decoration` line's thickness, as a multiple of the font's default. |
@@ -159,32 +159,32 @@ A styled range of a text's characters, `[start, end)`.
 <a id="theme-patterns"></a>
 ## Patterns
 
-<a id="theme-named-colours-and-styles"></a>
-### Named colours and styles
+<a id="theme-named-colors-and-styles"></a>
+### Named colors and styles
 
-- **Colours**: `colors` maps a name to `"#AARRGGBB"` (or to another colour's name: `"accent": "ember"`). Wherever a
-  colour is accepted, write its name. The roles `primary`, `onPrimary`, `surface`, `onSurface`, `error`, `success`,
+- **Colors**: `colors` maps a name to `"#AARRGGBB"` (or to another color's name: `"accent": "ember"`). Wherever a
+  color is accepted, write its name. The roles `primary`, `onPrimary`, `surface`, `onSurface`, `error`, `success`,
   `warning` (keys of the theme) are names too.
-- **Text styles**: `textStyles` maps a name to a TextStyle. A style may start `from` another and name colours. A
+- **Text styles**: `textStyles` maps a name to a TextStyle. A style may start `from` another and name colors. A
   text names its style in one field, `"style": "title"`; to change some fields of it, `"style": {"from": "title",
   "color": "ember"}` (`textTheme.titleLarge.merge(...)`: the fields written win). Runs, a button's `textStyle` and
   an input's styles take the same two forms.
-- Changing a colour or style in the theme changes every node that names it, and only those.
+- Changing a color or style in the theme changes every node that names it, and only those.
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`; inside
   a formula, `${= done ? theme.colors.sage : theme.colors.mist}`.
 
 <a id="theme-what-controls-take-from-the-theme"></a>
 ### What controls take from the theme
 
-A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons
-(labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface`
+A control's colors, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons
+(labeled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface`
 (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius`
 shapes every kind of button and chip, `radius` dialogs, menus, pickers and fields. Without a theme, controls are
 neutral: ink on paper (near-black on white; near-white on near-black in dark mode) and the greys between, in no font
 of their own, and plain in shape: buttons and chips of a 6 px radius (not a stadium), fields and dropdowns outlined
 with their label as the placeholder (no underline, no floating label), date and time pickers plain fields, a
 switch with one thumb size, tabs with a square underline, dialogs and menus of an 8 px radius with a hairline
-border. Gauges, charts, barcodes, signature pads, tab bars and pagination take their unset colours from the theme
+border. Gauges, charts, barcodes, signature pads, tab bars and pagination take their unset colors from the theme
 too: values and lines `primary`, tracks and grids `outlineVariant`, ticks and axes `outline`, labels
 `onSurfaceVariant`, needles, cursors and tooltips `onSurface`. Nothing comes from Material's defaults (no purple,
 ripples, elevation or stadium shapes) or from the host app's theme.
@@ -192,7 +192,7 @@ ripples, elevation or stadium shapes) or from the host app's theme.
 <a id="theme-spacing-radii-sizes-shadows-and-motion"></a>
 ### Spacing, radii, sizes, shadows and motion
 
-The theme names its scales as it names colours: `"spacing": {"1": 4, "2": 8, "3": 12}`, `"radii": {"control": 7,
+The theme names its scales as it names colors: `"spacing": {"1": 4, "2": 8, "3": 12}`, `"radii": {"control": 7,
 "panel": 8}`, `"sizes": {"compact": 28, "large": 44}`, `"shadows": {"level3": [{"type": "dropShadow", ...}]}` (with
 `dark` shadows of their own), `"durations": {"fast": 150}` (milliseconds) and `"curves": {"standard": "easeInOut"}`.
 A node reads a step in a binding, `"bind": {"layout.padding": "${theme.spacing.3}", "decoration.radius":
@@ -212,10 +212,10 @@ or change some fields (`{"style": {"fontSize": 20}}`, merged over the named styl
 <a id="theme-dark-mode"></a>
 ### Dark mode
 
-`"dark": {"colors": {"ink": "#FFEEEEEE"}}` gives the colours (and roles: `surface`, `primary`...) that differ in
+`"dark": {"colors": {"ink": "#FFEEEEEE"}}` gives the colors (and roles: `surface`, `primary`...) that differ in
 dark mode; everything naming `ink` follows the mode: fills, strokes, named text styles (a style whose `color` is
-`"ink"`), and the controls, which take the theme's roles. A style with a literal colour (`"#FF111111"`) does not
-change: name the colour.
+`"ink"`), and the controls, which take the theme's roles. A style with a literal color (`"#FF111111"`) does not
+change: name the color.
 
 Which mode shows is the theme's `mode` (Flutter's `ThemeMode`, as `MaterialApp.themeMode`): `system` (the default:
 the device's setting), `light` or `dark`. A site's own switch is one action:
@@ -228,8 +228,8 @@ the device's setting), `light` or `dark`. A site's own switch is one action:
 opens in the same mode, and with `persist` (the default) the choice is kept in the site's local storage, so a
 reload starts in it; `"persist": false` keeps it for this visit only. `${theme.mode}` reads the mode chosen and
 `${theme.isDark}` (also `${screen.isDark}`) whether the screen is dark; bind a switch's value to
-`${theme.isDark}` to show it. A theme without `dark` stays as designed in dark mode (its colours and controls light),
-while `${theme.isDark}` still says dark (`${theme.hasDark}` is false), so a page may choose its own colours.
+`${theme.isDark}` to show it. A theme without `dark` stays as designed in dark mode (its colors and controls light),
+while `${theme.isDark}` still says dark (`${theme.hasDark}` is false), so a page may choose its own colors.
 
 The render command captures either: `--theme light` or `--theme dark` (the PNG names end `-light`, `-dark`), and a
 `--tap` on the switch afterwards captures the other.
@@ -294,15 +294,15 @@ Characters the font has no glyph for draw as empty boxes (`missing_glyph`): use 
 <a id="theme-pitfalls"></a>
 ## Pitfalls
 
-- A text without a colour is white (`text_no_color` when rendered): set it in the style or the named style.
+- A text without a color is white (`text_no_color` when rendered): set it in the style or the named style.
 - A name the theme does not have is `unknown_theme_name` (with the nearest name); a theme of the wrong shape is
   `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
   "theme": {...}}`.
-- A theme colour's name is not read from a formula: bind `${theme.colors.ember}`.
+- A theme color's name is not read from a formula: bind `${theme.colors.ember}`.
 - Run offsets count characters, `\n` as one.
 
 <a id="theme-see-also"></a>
 ## See also
 
-[Decoration](decoration.md#page-decoration) (paints that name theme colours) · [forms](forms.md#page-forms) (input and button text
+[Decoration](decoration.md#page-decoration) (paints that name theme colors) · [forms](forms.md#page-forms) (input and button text
 styles) · [responsive layout](layout.md#layout-media-rules) (media rules).

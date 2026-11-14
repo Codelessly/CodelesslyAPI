@@ -47,7 +47,7 @@ void main() {
         },
       ]);
       expect(report.entries.single.step, 'paint.strokePath');
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
     });
 
     test('inFront goes in the foreground painter, after what was there; behind goes first', () {
@@ -139,7 +139,7 @@ void main() {
         final (n, report) = _node(_box({'strokePath': sp}));
         expect(n.containsKey('strokePath'), isFalse);
         expect(n.containsKey('customPaint'), isFalse);
-        expect(report.behaviourChanges, isEmpty);
+        expect(report.behaviorChanges, isEmpty);
       }
     });
 
@@ -165,7 +165,7 @@ void main() {
       expect(n['transitions'], [
         {'property': 'customPaint.painter.strokePath.trimEnd', 'duration': 600, 'delay': 100, 'curve': 'easeOutCubic'},
       ]);
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
       expect(report.unconvertible, isEmpty);
       // The node decodes to them.
       final node = Node.fromJson(n, id: 'n')!;
@@ -175,7 +175,7 @@ void main() {
       final (quiet, r2) = _node(_box({'strokePath': {'points': [[0, 0], [1, 1]], 'drawCurve': 'linear'}}));
       expect(quiet.keys.where((k) => k.startsWith('legacy.')), isEmpty);
       expect(quiet.containsKey('animations'), isFalse);
-      expect(r2.behaviourChanges, isEmpty);
+      expect(r2.behaviorChanges, isEmpty);
     });
 
     test('a drawn-on line in front with a fill fades the fill in from transparent, easeInOut by default', () {
@@ -215,7 +215,7 @@ void main() {
       expect(n.containsKey('strokePath'), isFalse);
       expect(n.containsKey('bind'), isFalse);
       expect(report.unconvertible, hasLength(1));
-      expect(report.behaviourChanges, hasLength(1));
+      expect(report.behaviorChanges, hasLength(1));
     });
   });
 
@@ -230,7 +230,7 @@ void main() {
       expect(n['props'], {'data': 'M0 0 L10 10', 'strokeJoin': 'round', 'strokeMiterLimit': 2});
       expect(n['bind'], {'props.data': r'${shape}'});
       expect(Node.fromJson(n, id: 'n')!.prop(PathProps.strokeMiterLimit), 2);
-      expect(report.behaviourChanges.single.message, contains('bound path is empty'));
+      expect(report.behaviorChanges.single.message, contains('bound path is empty'));
     });
 
     test('a box without a path loses the path props it never read', () {
@@ -251,7 +251,7 @@ void main() {
           'effects': [{'type': 'innerShadow'}],
         },
       }));
-      final said = report.behaviourChanges.map((e) => e.path).toSet();
+      final said = report.behaviorChanges.map((e) => e.path).toSet();
       expect(said, {'/props/data', '/decoration/radius', '/decoration/strokes', '/decoration/effects'});
       expect(report.rewrites.map((e) => e.path), contains('/decoration/fills/0/gradientPerSubpath'));
     });
@@ -262,7 +262,7 @@ void main() {
         'n': {'type': 'box', 'layout': {'width': 20, 'height': {'fill': 20}}, 'props': {'path': 'M0 0 L1 1'}},
         'x': {'type': 'box', 'layout': {'width': 20, 'height': 30}},
       });
-      expect(report.behaviourChanges.single.path, '/nodes/n/layout');
+      expect(report.behaviorChanges.single.path, '/nodes/n/layout');
     });
   });
 
@@ -280,7 +280,7 @@ void main() {
       ]);
       expect(n['props'], isEmpty);
       expect(n.containsKey('decoration'), isFalse);
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
     });
 
     test('a hole joins the shape around it; a null color keeps the fill\'s', () {
@@ -346,7 +346,7 @@ void main() {
       });
       expect(n['legacy.props.subpathColors'], {'subpathColors': '#FFAA0000, #FF00AA00'});
       expect(n.containsKey('customPaint'), isFalse);
-      expect(report.behaviourChanges, hasLength(1));
+      expect(report.behaviorChanges, hasLength(1));
     });
 
     test('gradientPerSubpath where only a path node read it is dropped', () {
@@ -354,7 +354,7 @@ void main() {
         'decoration': {'fills': [{'type': 'linear', 'gradientPerSubpath': true}]},
       }));
       expect((n['decoration'] as Map)['fills'], [{'type': 'linear'}]);
-      expect(report.behaviourChanges, isEmpty);
+      expect(report.behaviorChanges, isEmpty);
     });
   });
 

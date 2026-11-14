@@ -38,10 +38,10 @@ for (final e in report.unconvertible) print('$e\n  instead: ${e.instead}');
 
 `MigrationReport` lists, per document, every rewrite (step id, node, JSON pointer, old → new), every value that
 could not be converted (kept on the node as `legacy.<name>`, unread, with what to write instead) and every
-behaviour that changes. `migrationReportMarkdown(report)` renders it. The report of the migration over the
+behavior that changes. `migrationReportMarkdown(report)` renders it. The report of the migration over the
 reference apps and the experiments is `docs/design/schema-3-migration-report.md`.
 
-## What is rewritten (same behaviour)
+## What is rewritten (same behavior)
 
 | Schema 2 | Schema 3 | Step |
 |---|---|---|
@@ -71,7 +71,7 @@ reference apps and the experiments is `docs/design/schema-3-migration-report.md`
 ### Flutter's reading where schema 2 had its own
 
 Schema 3 reads these fields as Flutter does. The migration writes out (or drops) what schema 2 did, so a migrated
-document renders the same; a schema-3 document written new gets Flutter's behaviour.
+document renders the same; a schema-3 document written new gets Flutter's behavior.
 
 | Schema 2 | Schema 3 | Migration | Step |
 |---|---|---|---|
@@ -88,7 +88,7 @@ in another document, a component or a list item. A schema-2 path there (`motion.
 ...`); the other values of the action still apply. `schema2PathHint(path)` gives the schema-3 spelling. None of
 the corpus's documents names one.
 
-## What is dropped (behaviour changes)
+## What is dropped (behavior changes)
 
 These one-app fields had no generic schema-3 form (docs/design/02–04 say why, field by field). A value that did
 something is kept on the node as `legacy.<behavior>.<field>`, unread, and reported with what to write instead:
@@ -119,7 +119,7 @@ Generated schema-2 documents also wrote `self` and `@<key>` there (the node's `k
 values were resolved from but its map keys were not), so those patches matched no node and never ran: in the
 corpus, 1131 patches in 9 documents, every one naming the node its states are on. Step `states.target` rewrites
 `self` to the node's id and `@<key>` to the id of the node with that key (the node itself first, else the one node
-with it), and reports a behaviour change: the hover, press and selection styles now apply. A target that names no
+with it), and reports a behavior change: the hover, press and selection styles now apply. A target that names no
 node by any spelling stays and validation reports it. In a schema-3 document `self` and `@<key>` are refused
 (`unknown_target_node`) with the id to write.
 
@@ -184,7 +184,7 @@ The migration rewrites these all the same and says so in the report:
   across the box: kept as `legacy.props.subpathColors` / `legacy.decoration.<list>.<i>.gradientPerSubpath`.
 
 Over the reference apps and the SDK's documents (docs/design/schema-3-migration-report.md, "30.1.0's one-way steps") only a box path's
-behaviour changes occur, 5 of them in two m05 experiments: 172 rotations, 6 bound rotations, 6 scale transitions,
+behavior changes occur, 5 of them in two m05 experiments: 172 rotations, 6 bound rotations, 6 scale transitions,
 330 state scales, 10 hero looks, 140 stroke path rewrites, 133 box path ones and 45 per-shape color ones are
 rewritten, and the documents that use them render as before (pixel for pixel, but a box path's filled edge within
 4/255: docs/design/03-motion.md, "Done in 30.1.0"; docs/design/01-paint-node.md, "30.1.0").

@@ -33,10 +33,10 @@
   `Navigator`, `Overlay` or widget per control; the control kit; SSUI as the default look; the split of the remaining
   controls into parallel workstreams).
 - Theme roles: `ThemeTokens.resolvedRoles()` gives the roles (`primary`, `onPrimary`, `surface`, `onSurface`,
-  `error`, `success`, `warning`) as colours, a role that names a theme colour (`"primary": "forest"`) resolved
+  `error`, `success`, `warning`) as colors, a role that names a theme color (`"primary": "forest"`) resolved
   through any chain of names; such a role never reached controls before (they drew black or white). A role written
   inside `colors` is a second spelling and is reported, `theme_role_in_colors` (warning), with the key to move.
-  `ThemeTokens.roleNames`. The STARTER's theme example declares `primary` and `onPrimary` by colour name.
+  `ThemeTokens.roleNames`. The STARTER's theme example declares `primary` and `onPrimary` by color name.
 - Buttons (`filledButton`, `outlinedButton`, `textButton`, `elevatedButton`, `iconButton`, `floatingActionButton`)
   take `autofocus` (Flutter's), and draw `WidgetState.selected` themselves: a bound `selected` on a button no longer
   reports `state_no_effect`. `WidgetSpec.states` (catalog JSON `states`) lists the states a type's own look draws.
@@ -64,7 +64,7 @@ card missing its content. Causes in this package, and what a model is now told:
   variables are declared, and the formula's error stays an error at that op, saying the variable gives nothing until
   its formula is fixed. Rejecting it left every node that read the op's variables showing nothing (three recorded
   cards, reservation, checkout and itinerary by claude-sonnet-5-5, went blank once formulas were checked).
-- `BindValue.color` reads a theme colour's name (`Color.named`): a fill bound to
+- `BindValue.color` reads a theme color's name (`Color.named`): a fill bound to
   `"${= selected ? 'primary' : 'primaryBackground'}"` was dropped.
 - A `patch` op merges a node as its declarations read it (`mergeNodePatch`): `{"height": {"fill": 400}}` over
   `{"hug": 480}` gave a two-key size and the patch was rejected.
@@ -162,7 +162,7 @@ fields, 62% Flutter's name and meaning, 77% of those with a Flutter counterpart,
   brief, tokens by name, each component with parameters, slots, events and a call) and drops the base controls it
   replaces; `docsTopic(designSystem:)` answers `design`, `patterns`, `tokens` and a component's name. A
   design-systems page joins the reference.
-- **Colours that follow the theme**: `tabBar` (`indicatorColor`, `labelColor`, `unselectedLabelColor`,
+- **Colors that follow the theme**: `tabBar` (`indicatorColor`, `labelColor`, `unselectedLabelColor`,
   `dividerColor`), `pagination` (`textColor`, `activeColor`, `activeTextColor`, `borderColor`), the gauges', charts',
   barcode's and signature pad's palettes are now optional, unset meaning the theme's role (documented per prop):
   values and lines `primary`, tracks and grids `outlineVariant`, ticks and axes `outline`, labels
@@ -232,7 +232,7 @@ fields, 62% Flutter's name and meaning, 77% of those with a Flutter counterpart,
 - **State patches that targeted `self` or `@<key>` now run.** A state patch names the node it patches by id; generated
   schema-2 documents also wrote `self` and `@<key>` (the node's key), which matched no node, so those hover, press
   and selection styles never applied (1131 patches in 9 corpus documents, all naming the node their states are on).
-  `migrate2to3`'s first step, `states.target`, rewrites them to the id they mean and reports a behaviour change. In a
+  `migrate2to3`'s first step, `states.target`, rewrites them to the id they mean and reports a behavior change. In a
   schema-3 document validation refuses them (`unknown_target_node`) with the id to write as the suggestion.
 
 Forms, grid placement and scroll control, in Flutter's shape (and CSS's where the responsive model follows the web);
@@ -271,7 +271,7 @@ schema 3; but a schema-3 document is read as it is, not upgraded, so one written
 must be updated once (the migration does it to schema-2 documents; validation reports each earlier spelling in a
 schema-3 document as an error naming the one to write). docs/guide/12-migrating-to-schema-3.md ("30.1.0") is the
 authors' guide; docs/design/schema-3-migration-report.md the migration over the corpus (106 documents, 0 failures,
-3502 rewrites of which 1020 by the new steps; 5 behaviour changes by the new steps, all a box path's, in two m05
+3502 rewrites of which 1020 by the new steps; 5 behavior changes by the new steps, all a box path's, in two m05
 experiments).
 
 | 30.0.0 (schema 3) | 30.1.0 (schema 3) |
@@ -363,7 +363,7 @@ guide; docs/design/schema-3-migration-report.md is the migration over the refere
   payload or a stored published component, whose digest covers what was stored, is migrated when read),
   `schemaOf`, `kSchemaVersion` = 3, `kPublishSchemaVersion` = 3, `schema3Steps` (named `MigrationStep`s).
   `MigrationReport` lists every rewrite, every value with no schema-3 form (kept on the node as
-  `legacy.<name>`, unread, with what to write instead) and every behaviour change; `migrationReportMarkdown`.
+  `legacy.<name>`, unread, with what to write instead) and every behavior change; `migrationReportMarkdown`.
   Commands: `dart run tool/migrate.dart <file|dir> [--write] [--report out.json]`,
   `dart run tool/migration_corpus.dart` (corpus checks and the aggregated report).
 - **Validation:** `validateDocument` reads 2 and 3: a schema-2 document gets the `schema_outdated` note
@@ -408,7 +408,7 @@ guide; docs/design/schema-3-migration-report.md is the migration over the refere
 - **Paths an action names** (`setValue`'s `values[].path`) are not migrated: `schema2PathHint(path)` gives the
   schema-3 path for a schema-2 one, and `unknown_bind_path` says it (`motion.originX` → `motion.alignment`,
   `loops[i].<key>` → `animations.loop<i>.<key>`, `drag.track.<key>` → `track.<key>`...).
-- **Behaviour changes** (all reported by the migration, per document): a track with no value is drawn at
+- **Behavior changes** (all reported by the migration, per document): a track with no value is drawn at
   its minimum, not at `defaultValue`, and a double tap resets nothing; the fine mode, `smooth`, a dismissible's
   tilt and fly-off spin, disabled follow and shake, `shareAs`, area pacing, the upright flip, a transition's
   arc, `fullIf`/`dropFull` and a hover delay no longer act; a refused drag opens no list slot; a
@@ -476,14 +476,14 @@ guide; docs/design/schema-3-migration-report.md is the migration over the refere
   `Color.fromHex` reads values only (the old `fromJson`). A media or state patch that names another style
   replaces the style; one that changes fields merges over the named style. New diagnostics `unknown_theme_name`
   (with the nearest name) and `invalid_theme`; `validateTheme`; `ValidateOptions.theme` (the manifest's by
-  default). **Behaviour change (documents that validated stay the same):** a color string that is neither a hex
+  default). **Behavior change (documents that validated stay the same):** a color string that is neither a hex
   color nor anything else (`"blue"`) decoded to null and now decodes as an unresolved theme name (transparent);
   validation reported it before and reports it now.
 - `IconProps.size` (Flutter's `Icon.size`).
 - A media rule's patch may set `bind` (bindings at its sizes only; `null` drops one of the node's) and `motion`
   (a paint-only transform). `media_overridden` says how to combine a rule and a binding.
 - `layout_clamped` points to the overlap patterns (motion translate, a stack).
-- Docs: the guide and the starter lead with the theme; overlapping a neighbour, bleeding past the gutter, a
+- Docs: the guide and the starter lead with the theme; overlapping a neighbor, bleeding past the gutter, a
   verified full-width band with capped content and a table from one cell template, form control styling,
   `foregroundFills` over children, a literal `$` before an expression, superscripts, arrow keys through
   `keyDown`, component parameter kinds; the allowed-modes table marks fill with `basis` in a wrapping row;

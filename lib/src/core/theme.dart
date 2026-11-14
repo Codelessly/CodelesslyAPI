@@ -181,9 +181,9 @@ final class ThemeTokens {
       };
 
   /// The roles (Flutter's `ColorScheme` names: [primary], [onPrimary],
-  /// [surface], [onSurface], [error], and [success], [warning]) as colours:
-  /// a role that names a theme colour (`"primary": "forest"`) is that
-  /// colour, through any chain of names, as any colour naming another is. A
+  /// [surface], [onSurface], [error], and [success], [warning]) as colors:
+  /// a role that names a theme color (`"primary": "forest"`) is that
+  /// color, through any chain of names, as any color naming another is. A
   /// role whose name the theme does not have is null. Controls and the
   /// runtime read the roles through this. A role written inside [colors]
   /// (`"colors": {"primary": ...}`) is not a role: validation reports it

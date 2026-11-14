@@ -68,7 +68,7 @@ abstract final class TextStyleFields {
           '(Flutter\'s height: null, CSS line-height: normal).');
   /// A line through the text: `underline`, `overline`, `lineThrough` or `none`.
   static const decoration = PropDef<TextDecoration?>('decoration', OptionalEnumCodec(TextDecoration.values), null);
-  /// The colour of the `decoration` line; without one, the text's colour.
+  /// The color of the `decoration` line; without one, the text's color.
   static const decorationColor = PropDef<Color?>('decorationColor', Codecs.optionalColor, null);
 
   /// Painted behind the glyphs.
@@ -124,7 +124,7 @@ List<PropDef<Object?>> textRunFields() => TextRunFields.all;
 // --- BorderSide --------------------------------------------------------------
 
 abstract final class BorderSideFields {
-  /// The line's colour.
+  /// The line's color.
   static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
   /// The line's width in pixels.
   static const width = PropDef<double>('width', Codecs.positive, 1);
@@ -140,9 +140,9 @@ List<PropDef<Object?>> borderSideFields() => BorderSideFields.all;
 // --- Paint -------------------------------------------------------------------
 
 abstract final class ColorStopFields {
-  /// Where the colour sits along the gradient, 0 (its start) to 1 (its end).
+  /// Where the color sits along the gradient, 0 (its start) to 1 (its end).
   static const position = PropDef<double>('position', DoubleCodec(min: 0, max: 1), 0);
-  /// The colour at `position`.
+  /// The color at `position`.
   static const color = PropDef<Color>('color', Codecs.color, Color.black);
   static const List<PropDef<Object?>> all = [position, color];
 }
@@ -187,13 +187,13 @@ abstract final class ImagePaintFields {
 List<PropDef<Object?>> imagePaintFields() => ImagePaintFields.all;
 
 abstract final class PaintFields {
-  /// What the paint is: `solid` (a colour), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`),
+  /// What the paint is: `solid` (a color), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`),
   /// `image`, or `noise`. Without one: an image if it has `image`, a linear gradient if it has `stops`, else solid.
   static const type = PropDef<PaintType>('type', EnumCodec(PaintType.values), PaintType.solid);
   static const id = PropDef<String?>('id', Codecs.optionalString, null);
   /// False keeps the paint but does not draw it.
   static const visible = PropDef<bool>('visible', Codecs.bool, true);
-  /// The paint's opacity, 0 to 1, multiplied with its colours' own alpha.
+  /// The paint's opacity, 0 to 1, multiplied with its colors' own alpha.
   static const opacity = PropDef<double>('opacity', DoubleCodec(min: 0, max: 1), 1);
   /// How the paint blends with what is under it (CSS `mix-blend-mode`).
   static const blendMode = PropDef<BlendMode>('blendMode', EnumCodec(BlendMode.values), BlendMode.srcOver);
@@ -231,7 +231,7 @@ abstract final class PaintFields {
   static const center = PropDef<Alignment?>('center', Codecs.optionalAlignment, null,
       doc: 'Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). '
           'Read into `transform`; default the box\'s center.');
-  /// What a gradient does past `begin` and `end`: `clamp` (keeps the end colours), `repeated`, `mirror`, `decal`.
+  /// What a gradient does past `begin` and `end`: `clamp` (keeps the end colors), `repeated`, `mirror`, `decal`.
   static const tileMode = PropDef<TileMode>('tileMode', EnumCodec(TileMode.values), TileMode.clamp);
   static const image = PropDef<ImagePaint?>(
     'image',
@@ -310,7 +310,7 @@ abstract final class EffectFields {
   static const id = PropDef<String?>('id', Codecs.optionalString, null);
   /// False keeps the effect but does not draw it.
   static const visible = PropDef<bool>('visible', Codecs.bool, true);
-  /// The shadow's colour.
+  /// The shadow's color.
   static const color = PropDef<Color>('color', Codecs.color, Color(0x40000000));
   /// The shadow's offset `[dx, dy]` in pixels.
   static const offset = PropDef<Offset>('offset', Codecs.offset, Offset.zero);
@@ -405,7 +405,7 @@ abstract final class LayoutFields {
 
 /// A node's [Decoration], field by field (JSON under `decoration`).
 abstract final class DecorationFields {
-  /// Paints for the box, bottom to top: a colour, a gradient, an image or noise.
+  /// Paints for the box, bottom to top: a color, a gradient, an image or noise.
   static const fills = PropDef<List<Paint>>('fills', Codecs.paints, []);
   static const foregroundFills = PropDef<List<Paint>>('foregroundFills', Codecs.paints, []);
   /// Paints for the border, drawn `strokeWidth` wide.

@@ -116,7 +116,7 @@ void main() {
     test('the report round-trips and renders as Markdown', () {
       final report = MigrationReport(document: 'd')
         ..documents.add('d')
-        ..add(const MigrationEntry(kind: MigrationEntryKind.behaviourChange, step: 's', document: 'd', node: 'n', message: 'm'));
+        ..add(const MigrationEntry(kind: MigrationEntryKind.behaviorChange, step: 's', document: 'd', node: 'n', message: 'm'));
       expect(MigrationReport.fromJson(jsonDecode(jsonEncode(report.toJson()))).toJson(), report.toJson());
       expect(migrationReportMarkdown(report), contains('| `s` | 0 | 0 | 1 | 1 |'));
     });

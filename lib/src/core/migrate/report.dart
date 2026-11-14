@@ -1,5 +1,5 @@
 // What a schema migration did to the documents it was given: every rewrite,
-// every value it could not convert mechanically, and every behaviour that
+// every value it could not convert mechanically, and every behavior that
 // renders differently after it. Nothing a migration changes is silent: this
 // is where it is said.
 import 'dart:convert' show JsonEncoder;
@@ -8,7 +8,7 @@ import '../json.dart';
 
 /// What kind of thing a [MigrationEntry] records.
 enum MigrationEntryKind {
-  /// A value was rewritten into its current form (same behaviour).
+  /// A value was rewritten into its current form (same behavior).
   rewrite,
 
   /// A value has no current form: it is kept under the node's
@@ -17,7 +17,7 @@ enum MigrationEntryKind {
   unconvertible,
 
   /// The document behaves or renders differently after the migration.
-  behaviourChange,
+  behaviorChange,
 }
 
 /// One thing a migration step did.
@@ -56,7 +56,7 @@ final class MigrationEntry {
   /// What happened, in a sentence.
   final String message;
 
-  /// For an unconvertible value or a behaviour change: what to write
+  /// For an unconvertible value or a behavior change: what to write
   /// instead.
   final String instead;
 
@@ -108,7 +108,7 @@ final class MigrationReport {
 
   Iterable<MigrationEntry> get rewrites => entries.where((e) => e.kind == MigrationEntryKind.rewrite);
   Iterable<MigrationEntry> get unconvertible => entries.where((e) => e.kind == MigrationEntryKind.unconvertible);
-  Iterable<MigrationEntry> get behaviourChanges => entries.where((e) => e.kind == MigrationEntryKind.behaviourChange);
+  Iterable<MigrationEntry> get behaviorChanges => entries.where((e) => e.kind == MigrationEntryKind.behaviorChange);
 
   bool get isEmpty => entries.isEmpty;
 
@@ -138,15 +138,15 @@ final class MigrationReport {
 }
 
 /// [report] as Markdown: the counts per step, every unconvertible value with
-/// the documents it was in, and every behaviour change, grouped by what was
+/// the documents it was in, and every behavior change, grouped by what was
 /// said.
 String migrationReportMarkdown(MigrationReport report, {String title = 'Schema 2 → 3 migration report'}) {
   final b = StringBuffer('# $title\n\n');
   final docs = report.documents.toSet();
   b.writeln('${docs.length} documents migrated; ${report.rewrites.length} rewrites, '
-      '${report.unconvertible.length} unconvertible values, ${report.behaviourChanges.length} behaviour changes.\n');
+      '${report.unconvertible.length} unconvertible values, ${report.behaviorChanges.length} behavior changes.\n');
   b.writeln('## Entries per step\n');
-  b.writeln('| Step | Rewrites | Unconvertible | Behaviour changes | Documents |');
+  b.writeln('| Step | Rewrites | Unconvertible | Behavior changes | Documents |');
   b.writeln('|---|---|---|---|---|');
   final byStep = <String, List<MigrationEntry>>{};
   for (final e in report.entries) {
@@ -156,7 +156,7 @@ String migrationReportMarkdown(MigrationReport report, {String title = 'Schema 2
     final es = byStep[s]!;
     int n(MigrationEntryKind k) => es.where((e) => e.kind == k).length;
     b.writeln('| `$s` | ${n(MigrationEntryKind.rewrite)} | ${n(MigrationEntryKind.unconvertible)} | '
-        '${n(MigrationEntryKind.behaviourChange)} | ${es.map((e) => e.document).toSet().length} |');
+        '${n(MigrationEntryKind.behaviorChange)} | ${es.map((e) => e.document).toSet().length} |');
   }
   void grouped(String heading, Iterable<MigrationEntry> entries) {
     b.writeln('\n## $heading\n');
@@ -182,7 +182,7 @@ String migrationReportMarkdown(MigrationReport report, {String title = 'Schema 2
   }
 
   grouped('Unconvertible values (kept as `legacy.<name>`)', report.unconvertible);
-  grouped('Behaviour changes', report.behaviourChanges);
+  grouped('Behavior changes', report.behaviorChanges);
   return b.toString();
 }
 

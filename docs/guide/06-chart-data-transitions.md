@@ -39,7 +39,7 @@ categories' values. Empty data clears immediately and stops any old timeline.
 Use stable, unique category labels or x values when the dataset is filtered or
 reordered.
 
-Colours, text labels, axis bounds, ranges, selection and other styling are not
+Colors, text labels, axis bounds, ranges, selection and other styling are not
 interpolated and do not start or restart data motion. A domain edit during a
 running plot transition changes the domain immediately while keeping its
 current numeric progression. A change of chart kind or identity-field

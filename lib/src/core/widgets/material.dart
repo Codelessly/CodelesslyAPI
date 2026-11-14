@@ -61,7 +61,7 @@ enum FloatingActionButtonLocation {
 /// label with an optional icon (their `.icon` constructors), styled by a
 /// `ButtonStyle`.
 abstract final class ButtonProps {
-  /// The button's text (not `text`). Its colour, size and weight are in `style`.
+  /// The button's text (not `text`). Its color, size and weight are in `style`.
   static const label = PropDef<String>('label', Codecs.string, '');
   static const textAlign = PropDef<TextAlign>('textAlign', EnumCodec(TextAlign.values), TextAlign.start);
 
@@ -76,7 +76,7 @@ abstract final class ButtonProps {
   /// False is a disabled button (`onPressed: null`).
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   /// The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon),
-  /// `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`.
+  /// `textStyle`, `shape`, `side`, `padding`. A button's colors are here, not in `decoration`.
   static const style = PropDef<ButtonStyle>('style', ButtonStyleFields.codec, ButtonStyle.empty);
 
   /// `FilledButton.tonal`.
@@ -93,7 +93,7 @@ abstract final class ButtonProps {
 
   /// The states a button's own look draws (Flutter's `ButtonStyle` resolved per `WidgetState`): hover and press
   /// overlays, a focus ring, 50 % opacity disabled, and `selected` (a bound `"selected"`, as Flutter's
-  /// `statesController`): a tinted fill with the primary colour as ink, for buttons used as tabs or toggles.
+  /// `statesController`): a tinted fill with the primary color as ink, for buttons used as tabs or toggles.
   static const drawnStates = ['hovered', 'focused', 'pressed', 'selected', 'disabled'];
 
   static const _doc = ' With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, '
@@ -118,7 +118,7 @@ abstract final class IconButtonProps {
       props: [icon, enabled, style, autofocus, loading],
       states: ButtonProps.drawnStates,
       hugs: true,
-      doc: 'Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. '
+      doc: 'Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. '
           'Give it a "tooltip" (the behavior) to name it.');
 }
 
@@ -216,7 +216,7 @@ abstract final class ChipProps {
   ];
 
   static const _doc = ' With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label '
-      'centred, selected drawn tinted with the primary colour.';
+      'centered, selected drawn tinted with the primary color.';
   static const chip = WidgetSpec('chip', props: _common, hugs: true, doc: 'Flutter `Chip`: a label (its `click` reactions run on a tap).$_doc');
   static const action = WidgetSpec('actionChip',
       props: [..._common, tooltip, isEnabled], hugs: true, doc: 'Flutter `ActionChip`: a tap fires `click`.$_doc');

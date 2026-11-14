@@ -265,7 +265,7 @@ class _Surface {
       const cross = {'start': 'start', 'center': 'center', 'end': 'end', 'stretch': 'stretch'};
       final props = {
         'mainAxisAlignment': main[c['justify']] ?? 'start',
-        // A2UI stretches by default; a row's children are centred on its
+        // A2UI stretches by default; a row's children are centered on its
         // line here, as the notation's are.
         'crossAxisAlignment': cross[c['align']] ?? (row ? 'center' : 'stretch'),
       };

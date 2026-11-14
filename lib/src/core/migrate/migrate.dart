@@ -88,9 +88,9 @@ final class MigrationScope {
         message.isEmpty ? '`$name` has no schema-3 form; kept as `legacy.$name`.' : message, instead);
   }
 
-  /// A behaviour that renders or acts differently after the migration.
-  void behaviourChange(String message, {String path = '', Object? old, Object? value, String instead = ''}) =>
-      _add(MigrationEntryKind.behaviourChange, path, old, value, message, instead);
+  /// A behavior that renders or acts differently after the migration.
+  void behaviorChange(String message, {String path = '', Object? old, Object? value, String instead = ''}) =>
+      _add(MigrationEntryKind.behaviorChange, path, old, value, message, instead);
 }
 
 /// [json] deep-copied (maps and lists; other values are shared).
@@ -257,7 +257,7 @@ bool _naturalFlag(String key, Object? value, String at, MigrationReport? report)
   if (key != 'naturalLineHeight' && key != 'naturalHeight') return false;
   if (value == true) {
     report?.add(MigrationEntry(
-      kind: MigrationEntryKind.behaviourChange,
+      kind: MigrationEntryKind.behaviorChange,
       step: 'text.lineHeight',
       document: report.document,
       path: at,

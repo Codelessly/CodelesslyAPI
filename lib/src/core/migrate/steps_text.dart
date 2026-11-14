@@ -212,12 +212,12 @@ final textLineHeightStep = MigrationStep(
             replace(m);
             s.rewrite('$p/height', null, schema2LineHeight, 'Schema 2\'s line height written out beside a natural style.');
           } else if (m == null || m['naturalHeight'] != false) {
-            s.behaviourChange('A style beside a naturalHeight style takes its theme style\'s line height, or the font\'s own (was 1.33).',
+            s.behaviorChange('A style beside a naturalHeight style takes its theme style\'s line height, or the font\'s own (was 1.33).',
                 path: p, old: style, instead: instead);
           }
         }
         if (type == 'text' && !natural(base) && naturals.any((x) => x.$2.contains('/runs/'))) {
-          s.behaviourChange('A run with naturalHeight in a text whose style has none is drawn at its text\'s line height (1.33).',
+          s.behaviorChange('A run with naturalHeight in a text whose style has none is drawn at its text\'s line height (1.33).',
               path: '$at/props/runs', instead: 'Give the text one line height for all its runs.');
         }
         // A widget's text styles it does not set (drawn from the base
@@ -228,7 +228,7 @@ final textLineHeightStep = MigrationStep(
             if (d.type.name == 'TextStyle' && !props.containsKey(d.key)) d.key,
         ];
         if (unset.isNotEmpty) {
-          s.behaviourChange('The text styles this node leaves unset (${unset.join(', ')}) take the font\'s own line height beside its naturalHeight style (was 1.33).',
+          s.behaviorChange('The text styles this node leaves unset (${unset.join(', ')}) take the font\'s own line height beside its naturalHeight style (was 1.33).',
               path: '$at/defaultTextStyle', instead: 'Set "height": 1.33 on those styles.');
         }
       }
@@ -255,7 +255,7 @@ final textLineHeightStep = MigrationStep(
       final dropped = [for (final k in bind.keys) if (k.endsWith('.naturalHeight')) k];
       if (dropped.isNotEmpty) {
         for (final k in dropped) {
-          s.behaviourChange('A binding of naturalHeight no longer acts (naturalHeight is gone).', path: '$at/bind/$k', old: bind[k], instead: instead);
+          s.behaviorChange('A binding of naturalHeight no longer acts (naturalHeight is gone).', path: '$at/bind/$k', old: bind[k], instead: instead);
         }
         putBind(node, {...bind}..removeWhere((k, _) => dropped.contains(k)), MigrationScope.silent(s.step));
       }
@@ -278,7 +278,7 @@ void _stripPatch(Json patch, String? type, String at, MigrationScope s) {
     final v = m.remove('naturalHeight');
     replace(m);
     if (v == true && readDouble(m['height']) == null) {
-      s.behaviourChange('A patch that asked for the font\'s own line height (naturalHeight) no longer does.',
+      s.behaviorChange('A patch that asked for the font\'s own line height (naturalHeight) no longer does.',
           path: '$p/naturalHeight', old: v, instead: 'Patch "defaultTextStyle": {} on the node instead.');
     } else {
       s.rewrite('$p/naturalHeight', v, null);

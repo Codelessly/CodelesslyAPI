@@ -23,6 +23,6 @@
       "layout": {"width": {"fill": 1200}, "height": {"hug": 120}, "constraints": {"maxWidth": 1200}},
       "props": {"wrap": true, "spacing": 24, "runSpacing": 24}},
     "f1": {"type": "text", "layout": {"width": {"fill": 400}, "height": {"hug": 48}, "basis": 300},
-      "props": {"text": "The band holds the colour and the gutter.", "style": {"fontSize": 16, "color": "#FF334155"}}}
+      "props": {"text": "The band holds the color and the gutter.", "style": {"fontSize": 16, "color": "#FF334155"}}}
   }
 }
