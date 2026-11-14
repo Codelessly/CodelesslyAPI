@@ -90,6 +90,29 @@ abstract final class EditCodes {
       'A node that has content but was laid out with no width or no height, so nothing of it shows. Reported by a renderer.',
       error: false);
 
+  // What the UI shows, checked once a view has laid it out (the SDK's
+  // `UiSession.shownDiagnostics`): a valid document can still show nothing.
+  static const emptyView = EditCode('empty_view',
+      'The UI shows nothing: its canvas laid out with no size or no visible content (no canvas root, its body never arrived, '
+          'everything in it hidden or empty). Reported by a renderer.');
+  static const listEmpty = EditCode('list_empty',
+      'A list that shows no items: its data is not a list, its item template is missing, or (a warning) it is empty while the '
+          'list it is computed from is not (a filter that matches nothing). Reported by a renderer.');
+  static const emptyLabel = EditCode('empty_label',
+      'A control or component whose label (or title) shows as empty text: its binding gave nothing. Reported by a renderer.',
+      error: false);
+  static const expressionNotEvaluated = EditCode('expression_not_evaluated',
+      'A text shows "\${" on screen: an expression that did not evaluate (a formula error, or one written where no expression '
+          'is read). Reported by a renderer.',
+      error: false);
+  static const textNoColor = EditCode('text_no_color',
+      'A text with no colour, or a transparent one (an unresolved name): it does not show. Reported by a renderer.',
+      error: false);
+  static const componentEmpty = EditCode('component_empty',
+      'A design system component call that rendered nothing: no size, or nothing visible in it (its label or content '
+          'parameters empty), or its definition missing. Reported by a renderer.',
+      error: false);
+
   static const invalidScript = EditCode('invalid_script',
       'A scripts op whose script cannot be stored: a name or parameter that is not a JavaScript identifier, no source, '
           'limits out of range.');
@@ -98,7 +121,8 @@ abstract final class EditCodes {
     invalidOp, missingField, wrongType, unknownId, structuralKeyInPatch, staleRev, wouldOrphan, multipleParents, cycle, //
     canvasAsChild, invalidParent, danglingChild, unreachableNode, pendingChild, capabilityNotAllowed, limitExceeded,
     truncatedOp, invalidJson, invalidVariable, unknownVariable, malformedInput, misplacedField, startOver, emptyButton,
-    lowContrast, missingGlyph, noSize, invalidScript,
+    lowContrast, missingGlyph, noSize, emptyView, listEmpty, emptyLabel, expressionNotEvaluated, textNoColor, componentEmpty,
+    invalidScript,
   ];
 }
 
