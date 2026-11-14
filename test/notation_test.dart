@@ -290,4 +290,23 @@ Card
     expect((dots['layout'] as Map)['width'], {'hug': 0});
     expect(_node(r, 'gridView1')['type'], 'gridView');
   });
+  test('a column in a row is as wide as its content and so are its children; an accordion starts closed unless it says open', () {
+    final r = _parse('''
+Card
+  Row between
+    Text "Acme" grow
+    Column right
+      Text.strong "\$1,200"
+      Badge.neutral "Overdue"
+  Accordion "Day 1"
+    Text "Walk"
+  Accordion "Day 2" open
+    Text "Rest"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect((_node(r, 'text2')['layout'] as Map)['width'], {'hug': 0});
+    expect((_node(r, 'accordion1')['props'] as Map)['expanded'], false);
+    expect((_node(r, 'accordion2')['props'] as Map)['expanded'], true);
+  });
 }
