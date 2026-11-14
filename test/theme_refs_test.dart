@@ -69,6 +69,22 @@ void main() {
     expect(Color.fromJson('not a name'), isNull);
   });
 
+  test('a colour name given by a binding keeps its name, so it resolves against the theme as a written one does', () {
+    // A model that styles a selected chip binds its fill to a colour name
+    // (`"${= selected ? 'primary' : 'surface'}"`), as it writes one.
+    final box = Node.fromJson({
+      'type': 'box',
+      'decoration': {'fills': [{'color': '#FFFFFFFF'}]},
+    }, id: 'b')!;
+    final bound = BindPaths.apply(box, 'decoration.fills[0].color', 'ember');
+    expect(bound.decoration.fills.single.color, const Color.named('ember'));
+    final resolved = ThemeRefs(theme()).node(bound.toJson(), bound.spec);
+    expect(readList(readMap(resolved['decoration'])?['fills'])?.single, {'color': '#FFE4572E'});
+    // A hex colour still reads as one; text that is no colour still leaves the node as it was.
+    expect(BindPaths.apply(box, 'decoration.fills[0].color', '#FF000000').decoration.fills.single.color, const Color(0xFF000000));
+    expect(identical(BindPaths.apply(box, 'decoration.fills[0].color', 'not a colour'), box), isTrue);
+  });
+
   test('a text style written as a name is a style starting from it', () {
     expect(TextStyle.fromJson('title'), const TextStyle(from: 'title'));
     expect(TextStyle.fromJson('title').toJson(), {'from': 'title'});
