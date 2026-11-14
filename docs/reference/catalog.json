@@ -7571,7 +7571,7 @@
       "docs": "navigation.md#node-modal"
     },
     "circularProgressIndicator": {
-      "doc": "Flutter `CircularProgressIndicator`.\n\nFlutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).",
+      "doc": "Flutter `CircularProgressIndicator`. With nothing set it is the default (SSUI) spinner: a 2 px arc in the primary colour, round-ended, 16 px when it hugs.\n\nFlutter `CircularProgressIndicator`: a spinner, or a ring filled to `value`. `startAngle` and `sweepAngle` draw it as an arc (a dial).",
       "flutter": "CircularProgressIndicator",
       "children": "none",
       "slots": [],
@@ -7661,7 +7661,7 @@
       "docs": "charts.md#node-circularProgressIndicator"
     },
     "activityIndicator": {
-      "doc": "Flutter `CupertinoActivityIndicator`.",
+      "doc": "Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius` across, in the secondary text colour unless `color` says.\n\nFlutter `CupertinoActivityIndicator`.",
       "flutter": "CupertinoActivityIndicator",
       "children": "none",
       "slots": [],

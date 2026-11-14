@@ -1,5 +1,10 @@
 ## Unreleased
 
+- Milestone 3, kit follow-up and workstreams C and I: a control (`WidgetSpec.hugs`: buttons, chips, `badge`,
+  `circularProgressIndicator`, `activityIndicator`) with no `layout.width`/`height` hugs its content instead of being
+  0 × 0 (`zero_size` no longer reported for it); buttons take `loading` (SSUI's `isLoading`); `TriggerType.deleted`
+  (an input chip's delete icon, Flutter's `onDeleted`); the chip, badge and spinner docs say what their default
+  (SSUI) look is.
 - Milestone 3 design: `docs/design/11-no-widgets.md` (the renderer as render objects with no `MaterialApp`,
   `Navigator`, `Overlay` or widget per control; the control kit; SSUI as the default look; the split of the remaining
   controls into parallel workstreams).
