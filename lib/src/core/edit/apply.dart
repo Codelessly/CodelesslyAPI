@@ -696,10 +696,6 @@ class _Batch {
           'the node already in its body).',
           path: editPointer(at, 'type'), nodeId: id, expected: [CanvasProps.spec.type]);
     }
-    if (op.parent == null && op.slot != null) {
-      _error(EditCodes.missingField, '"slot" places the node in a slot of "parent": add "parent" (the node whose slot it is).',
-          path: '/ops/$_op/parent', nodeId: id);
-    }
     if (_failed) return;
     _put(id, n);
     _touched[id] = op.node;
