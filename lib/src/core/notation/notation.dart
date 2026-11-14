@@ -937,6 +937,11 @@ class _Parser {
           continue;
         }
         final path = pathOf(key);
+        // A string on the line already went to this parameter: saying it
+        // twice would silently drop one.
+        if (component && positional.contains(key)) {
+          _issue(col, 'The string on this line is already the $written\'s $key: write $key once.');
+        }
         if (raw.startsWith('=')) {
           bind[path] = _read(raw.substring(1) + (t.peek == ' ' ? '' : ''));
         } else {

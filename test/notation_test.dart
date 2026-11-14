@@ -621,6 +621,8 @@ Column gap:8
       final chosen = parse('state ok=true\nNote ok ? "Approved" : "Denied"');
       expect(chosen.issues, isEmpty);
       expect((_node(chosen, 'Note1')['bind'] as Map).keys, ['props.message']);
+      final twice = parse('Note "Heads up" title:"Again" message:"m"');
+      expect(twice.issues.single.toString(), contains("The string on this line is already the Note's title: write title once."));
       final none = parse('Note items:["a"]');
       expect(none.issues.single.toString(), contains('A Note needs message: write message:"…".'));
     });
