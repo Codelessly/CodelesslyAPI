@@ -60,10 +60,11 @@ the nine reported nothing the API could not express.
 
 ## 5. What is not finished
 
-- **Material defaults.** Unstyled controls still take Material's look. This is the largest remaining deviation
-  from "the document decides how it looks" and is the first item of iteration 2.
-- **Gaps the nine builds named:** a theme mode, grid item span, scroll control, pointer position on hover, a clip
-  mask, focus management, URL state. Each needs a design pass against Flutter's API.
+- **Control shapes are still Material's.** Colours and fonts no longer are (below), but stadium buttons,
+  underline fields, the switch and chip proportions remain until house shapes come from a design-system pack.
+- **Gaps the nine builds named that are still open:** pointer position on hover, a clip mask, page-transition
+  overlays, focus management (trap, return, skip links), URL history and query state in the browser, Web Share and
+  announcements. Each needs a design pass against Flutter's API.
 - **The (b) and (d) fields of section 6**: the ranked lists there say which to rename or remove next.
 - **The editor** still writes schema 2 and reads fields that have moved; its port follows the milestones.
 - **Fidelity to the web builds** is roughly 30 to 45 percent by reviewers' eyes. The causes found are defaults,
@@ -73,6 +74,18 @@ the nine reported nothing the API could not express.
 Closed since this section was first written (codelessly_api "Unreleased"):
 
 - **Name conformance re-measured**: section 6.
+- **Material defaults in colour and font** (30.1.0): one theme source for every control and the runtime's own
+  dialogs and toasts, from the document's theme or a neutral set; no ripple, tint or elevation; a guard test fails
+  if a Material seed colour, ripple or default font appears. `useHostTheme` is removed: nothing is inherited from
+  a host app.
+- **Theme mode, site fonts, local images**: `theme.mode` and `setThemeMode` (Flutter's `ThemeMode`); fonts
+  declared in `site.json`; image paths relative to the site.
+- **Grid placement, forms, scroll control**: `columnSpan`/`rowSpan`/`columnStart`/`rowStart` on grid items (CSS
+  grid, which Flutter lacks); `validator`, `autovalidateMode`, a `form` behavior and a `validate` action (Flutter's
+  `Form`), `radioGroup`; `itemSnapping` and `${result.index}` on scroll reactions.
+- **Reported bugs**: a bound button icon, an expression inside text runs, a focused field leaving the tree, and
+  a silent `selected` binding are fixed or reported by validation; two reports did not reproduce (a repeating
+  timer in a modal, a text button ignoring its foreground colour).
 - **Inert state targets.** A state patch names its target by node id, and that is the general form: Flutter's
   `WidgetStateProperty` styles the widget it is given to, and the node's own id is that widget. The corpus has 1131
   patches (in 9 documents; the 330 the transform fold rewrote are among them) that wrote `self` or `@<key>`
