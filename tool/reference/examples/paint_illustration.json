@@ -1,0 +1,27 @@
+{
+  "schema": 3,
+  "roots": ["hero"],
+  "nodes": {
+    "hero": {"type": "canvas", "slots": {"body": "page"}, "layout": {"width": 390, "height": 260},
+             "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "page": {"type": "column", "children": ["scene"], "layout": {"width": {"fill": 390}, "height": {"fill": 260}, "padding": 24}},
+    "scene": {
+      "type": "box",
+      "layout": {"width": {"fill": 342}, "height": 212},
+      "customPaint": {
+        "viewBox": [320, 200],
+        "fit": "cover",
+        "painter": [
+          {"op": "rect", "rect": [0, 0, 320, 200], "paint": "#FFE8F1F8"},
+          {"op": "circle", "c": [236, 62], "radius": 28, "paint": "#FFF4B740"},
+          {"op": "repeat", "count": 3, "ops": [
+            {"op": "circle", "c": ["${= 60 + index * 34}", "${= 48 + index * 6}"], "radius": 3, "paint": "#FF5D6D7E"}
+          ]},
+          {"op": "path", "d": "M0 150 C60 100 120 110 170 140 C220 170 270 120 320 130 L320 200 L0 200 Z", "paint": "#FF7FB685"},
+          {"op": "path", "d": "M0 170 C80 140 160 160 220 175 C260 185 290 170 320 165 L320 200 L0 200 Z", "paint": "#FF3E7C59"},
+          {"op": "line", "p1": [40, 196], "p2": [280, 196], "paint": {"color": "#33FFFFFF", "style": "stroke", "strokeWidth": 2}}
+        ]
+      }
+    }
+  }
+}

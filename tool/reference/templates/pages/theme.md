@@ -63,8 +63,27 @@ or change some fields (`{"style": {"fontSize": 20}}`, merged over the named styl
 
 ### Dark mode
 
-`"dark": {"colors": {"ink": "#FFEEEEEE"}}` gives the colours that differ in dark mode; a node naming `ink` follows
-the device's mode. `${theme.isDark}` is true in dark mode.
+`"dark": {"colors": {"ink": "#FFEEEEEE"}}` gives the colours (and roles: `surface`, `primary`...) that differ in
+dark mode; everything naming `ink` follows the mode: fills, strokes, named text styles (a style whose `color` is
+`"ink"`), and the controls, which take the theme's roles. A style with a literal colour (`"#FF111111"`) does not
+change: name the colour.
+
+Which mode shows is the theme's `mode` (Flutter's `ThemeMode`, as `MaterialApp.themeMode`): `system` (the default:
+the device's setting), `light` or `dark`. A site's own switch is one action:
+
+```json
+{"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}
+```
+
+`mode` is an expression giving `system`, `light` or `dark`. Every screen of the site redraws at once, the next page
+opens in the same mode, and with `persist` (the default) the choice is kept in the site's local storage, so a
+reload starts in it; `"persist": false` keeps it for this visit only. `${theme.mode}` reads the mode chosen and
+`${theme.isDark}` (also `${screen.isDark}`) whether the screen is dark; bind a switch's value to
+`${theme.isDark}` to show it. A theme without `dark` stays as designed in dark mode (its colours and controls light),
+while `${theme.isDark}` still says dark (`${theme.hasDark}` is false), so a page may choose its own colours.
+
+The render command captures either: `--theme light` or `--theme dark` (the PNG names end `-light`, `-dark`), and a
+`--tap` on the switch afterwards captures the other.
 
 ### Text
 
@@ -86,9 +105,34 @@ when the font has those OpenType features; otherwise a smaller `fontSize` in a r
 
 ### Fonts
 
-`style.fontFamily` names a family (`"Inter"`), with `fontWeight` choosing the file. An app fetches Google Fonts by
-name. The render command uses font files from `--fonts <dir>` plus Roboto, and reports a family it does not have
-(`font_fallback`). Characters the font has no glyph for draw as empty boxes (`missing_glyph`): use an `icon`.
+`style.fontFamily` names a family (`"Inter"`), with `fontWeight` and `fontStyle` choosing the file. A site declares
+the families it ships in `site.json`, in the shape of a Flutter pubspec's `fonts:` section, the files beside it:
+
+```json
+{
+  "schema": 3,
+  "pages": ["home.json"],
+  "fonts": [
+    {"family": "Fraunces", "fonts": [
+      {"asset": "fonts/fraunces-latin-400-normal.woff"},
+      {"asset": "fonts/fraunces-latin-700-normal.woff", "weight": 700},
+      {"asset": "fonts/fraunces-latin-400-italic.woff", "style": "italic"}
+    ]}
+  ],
+  "theme": {"fontFamily": "Fraunces", "textStyles": {"body": {"fontFamily": "Fraunces", "fontSize": 17}}}
+}
+```
+
+- `family` is the name text styles use, whatever the file calls itself; each file has a `weight` (100–900, default
+  400) and a `style` (`normal` or `italic`).
+- Files are `.ttf`, `.otf` or `.woff` (an npm `@fontsource/<family>` package's `files/` folder has a `.woff` beside
+  each `.woff2`). WOFF2 is not read (`font_format`); a declared file that is not there is `font_missing`.
+- The render command loads them with no flag, before the page shows; a published site loads them from its files.
+- A family a text style names that no file provides is `font_fallback`, naming the nodes that use it: declare it,
+  or pass `--fonts <dir>` (`--fonts system` for the system's fonts). A family nobody declared is fetched by name
+  from Google Fonts in an app.
+
+Characters the font has no glyph for draw as empty boxes (`missing_glyph`): use an `icon`.
 
 ## Pitfalls
 

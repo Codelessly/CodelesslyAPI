@@ -126,7 +126,24 @@ from the theme's roles (`primary`, `onPrimary`, `surface`, `onSurface`, `error`,
 Without a theme they are neutral: ink on paper and the greys between. Nothing comes from Material's defaults or
 from the app the layout is shown in.
 
-Dark mode, a theme that changes with the screen size, every theme key: [theme](theme.md#page-theme).
+**Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colours that differ in dark mode, and
+`"mode"` which one the site starts in (Flutter's `ThemeMode`: `system`, the default, follows the device; `light`;
+`dark`). A theme switch is one action, `{"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}`:
+every named colour, named text style and control of every screen follows, and the choice is kept for the next
+visit. Read the mode as `${theme.mode}` and `${theme.isDark}`. Name colours in your text styles (`"color": "ink"`)
+so they change with it: [dark mode](theme.md#theme-dark-mode).
+
+**Fonts.** Declare the site's fonts in `site.json` as a pubspec does, files beside it: `"fonts": [{"family":
+"Fraunces", "fonts": [{"asset": "fonts/Fraunces-Regular.ttf"}, {"asset": "fonts/Fraunces-Bold.ttf", "weight":
+700}]}]` (`.ttf`, `.otf` or `.woff`; not `.woff2`). Text styles name the family; the render command and the app
+load the files, and a family nobody declared is reported (`font_fallback`, naming the nodes): [fonts](theme.md#theme-fonts).
+
+**Images.** A photo or illustration is an image fill naming a file beside `site.json` by its relative path:
+`{"type": "image", "image": {"url": "images/hero.jpg", "fit": "cover"}}` (PNG, JPEG, WebP, GIF or SVG); a file
+that is not there is reported (`image_failed`). Drawn art is a `customPaint`: [images and
+illustration](decoration.md#decoration-images).
+
+A theme that changes with the screen size, every theme key: [theme](theme.md#page-theme).
 
 <a id="base-nodes-ids-children-and-slots"></a>
 ## Nodes, ids, children and slots
@@ -440,7 +457,7 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   expression), `navigate` (`to`: a canvas id; `"mode": "pop"` goes back), `openModal` / `closeModal`, `showToast`,
   `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
   "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
-  to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `openLink`, `setValue`, `setVariant`, `setVariable`, `callFunction`, `if`, `forEach`, `showToast`, `confirm`, `delay`, `copyToClipboard`, `editText`, `focus`, `controlTrack`, `controlDismissible`, `controlTransform`, `scrollTo`, `animate`, `haptic`, `runScript`, `paginate`, `componentEvent`, `callApi`, `setStorage`, `cloudDocuments`, `loadCloudData`, `reloadCloudData`, `cloudFiles`, `cloudData`, `cloudBatch`, `submitForm`, `auth`, `paywall`, `print`, `preloadImages`, `speak`, `playSound`, `captureScreenshot`, `downloadFile`, `emitEvent`.
+  to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `openLink`, `setValue`, `setVariant`, `setVariable`, `callFunction`, `if`, `forEach`, `showToast`, `confirm`, `delay`, `copyToClipboard`, `setThemeMode`, `editText`, `focus`, `controlTrack`, `controlDismissible`, `controlTransform`, `scrollTo`, `animate`, `haptic`, `runScript`, `paginate`, `componentEvent`, `callApi`, `setStorage`, `cloudDocuments`, `loadCloudData`, `reloadCloudData`, `cloudFiles`, `cloudData`, `cloudBatch`, `submitForm`, `auth`, `paywall`, `print`, `preloadImages`, `speak`, `playSound`, `captureScreenshot`, `downloadFile`, `emitEvent`.
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
 - A tap on a control inside a tappable row runs the control's reaction only: to toggle from the whole row, give the
   control `"ignorePointer": true` and bind its value.
@@ -609,7 +626,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | How one value type is written (colour, alignment, insets) | [values-colours-and-alignments](values.md#values-colours-and-alignments) |
 
 - [layout.md](layout.md): Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
-- [theme.md](theme.md): Theme and text. Documents text, textDirection, defaultTextStyle.
+- [theme.md](theme.md): Theme and text. Documents text, textDirection, defaultTextStyle, setThemeMode.
 - [decoration.md](decoration.md): Decoration, images, icons and drawing. Documents icon, path, customPaint, imageLoading, imageLoaded, imageError.
 - [forms.md](forms.md): Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, editText, focus.
 - [lists.md](lists.md): Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.

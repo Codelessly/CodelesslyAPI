@@ -126,7 +126,24 @@ from the theme's roles (`primary`, `onPrimary`, `surface`, `onSurface`, `error`,
 Without a theme they are neutral: ink on paper and the greys between. Nothing comes from Material's defaults or
 from the app the layout is shown in.
 
-Dark mode, a theme that changes with the screen size, every theme key: [theme](#page-theme).
+**Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colours that differ in dark mode, and
+`"mode"` which one the site starts in (Flutter's `ThemeMode`: `system`, the default, follows the device; `light`;
+`dark`). A theme switch is one action, `{"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}`:
+every named colour, named text style and control of every screen follows, and the choice is kept for the next
+visit. Read the mode as `${theme.mode}` and `${theme.isDark}`. Name colours in your text styles (`"color": "ink"`)
+so they change with it: [dark mode](#theme-dark-mode).
+
+**Fonts.** Declare the site's fonts in `site.json` as a pubspec does, files beside it: `"fonts": [{"family":
+"Fraunces", "fonts": [{"asset": "fonts/Fraunces-Regular.ttf"}, {"asset": "fonts/Fraunces-Bold.ttf", "weight":
+700}]}]` (`.ttf`, `.otf` or `.woff`; not `.woff2`). Text styles name the family; the render command and the app
+load the files, and a family nobody declared is reported (`font_fallback`, naming the nodes): [fonts](#theme-fonts).
+
+**Images.** A photo or illustration is an image fill naming a file beside `site.json` by its relative path:
+`{"type": "image", "image": {"url": "images/hero.jpg", "fit": "cover"}}` (PNG, JPEG, WebP, GIF or SVG); a file
+that is not there is reported (`image_failed`). Drawn art is a `customPaint`: [images and
+illustration](#decoration-images).
+
+A theme that changes with the screen size, every theme key: [theme](#page-theme).
 
 <a id="base-nodes-ids-children-and-slots"></a>
 ## Nodes, ids, children and slots
@@ -440,7 +457,7 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   expression), `navigate` (`to`: a canvas id; `"mode": "pop"` goes back), `openModal` / `closeModal`, `showToast`,
   `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
   "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
-  to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `openLink`, `setValue`, `setVariant`, `setVariable`, `callFunction`, `if`, `forEach`, `showToast`, `confirm`, `delay`, `copyToClipboard`, `editText`, `focus`, `controlTrack`, `controlDismissible`, `controlTransform`, `scrollTo`, `animate`, `haptic`, `runScript`, `paginate`, `componentEvent`, `callApi`, `setStorage`, `cloudDocuments`, `loadCloudData`, `reloadCloudData`, `cloudFiles`, `cloudData`, `cloudBatch`, `submitForm`, `auth`, `paywall`, `print`, `preloadImages`, `speak`, `playSound`, `captureScreenshot`, `downloadFile`, `emitEvent`.
+  to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `openLink`, `setValue`, `setVariant`, `setVariable`, `callFunction`, `if`, `forEach`, `showToast`, `confirm`, `delay`, `copyToClipboard`, `setThemeMode`, `editText`, `focus`, `controlTrack`, `controlDismissible`, `controlTransform`, `scrollTo`, `animate`, `haptic`, `runScript`, `paginate`, `componentEvent`, `callApi`, `setStorage`, `cloudDocuments`, `loadCloudData`, `reloadCloudData`, `cloudFiles`, `cloudData`, `cloudBatch`, `submitForm`, `auth`, `paywall`, `print`, `preloadImages`, `speak`, `playSound`, `captureScreenshot`, `downloadFile`, `emitEvent`.
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
 - A tap on a control inside a tappable row runs the control's reaction only: to toggle from the whole row, give the
   control `"ignorePointer": true` and bind its value.
@@ -609,7 +626,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | How one value type is written (colour, alignment, insets) | [values-colours-and-alignments](#values-colours-and-alignments) |
 
 - [layout.md](#page-layout): Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
-- [theme.md](#page-theme): Theme and text. Documents text, textDirection, defaultTextStyle.
+- [theme.md](#page-theme): Theme and text. Documents text, textDirection, defaultTextStyle, setThemeMode.
 - [decoration.md](#page-decoration): Decoration, images, icons and drawing. Documents icon, path, customPaint, imageLoading, imageLoaded, imageError.
 - [forms.md](#page-forms): Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, editText, focus.
 - [lists.md](#page-lists): Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.
@@ -737,10 +754,10 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4306 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4508 |
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 6920 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2092 |
-| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3541 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2568 |
+| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10159 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
@@ -756,7 +773,7 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2340 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2468 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13107 |
 
 <a id="index-a-z"></a>
@@ -798,7 +815,7 @@ Every declared name and the page that documents it.
 
 **R** · [`radialGauge`](#node-radialGauge) node type · [`radians`](#fn-radians) formula function · [`radio`](#node-radio) node type · [`random`](#fn-random) formula function · [`range`](#fn-range) formula function · [`Rect`](#type-Rect) value type · [`refresh`](#trigger-refresh) trigger · [`regexReplace`](#fn-regexReplace) formula function · [`reloadCloudData`](#action-reloadCloudData) action · [`removeAt`](#fn-removeAt) formula function · [`removeWhere`](#fn-removeWhere) formula function · [`reorder`](#trigger-reorder) trigger · [`reorderHandle`](#behavior-reorderHandle) behavior · [`ReorderPlaceholder`](#enum-ReorderPlaceholder) enum · [`ReorderStart`](#enum-ReorderStart) enum · [`replace`](#fn-replace) formula function · [`retryFailed`](#action-retryFailed) action · [`Reveal`](#type-Reveal) model · [`reveal`](#behavior-reveal) behavior · [`RevealOrigin`](#enum-RevealOrigin) enum · [`RevealShape`](#enum-RevealShape) enum · [`reverse`](#fn-reverse) formula function · [`right`](#fn-right) formula function · [`round`](#fn-round) formula function · [`RouteDismiss`](#type-RouteDismiss) model · [`RouteSwipeBack`](#enum-RouteSwipeBack) enum · [`RouteTransition`](#type-RouteTransition) model · [`RouteTransitionPreset`](#enum-RouteTransitionPreset) enum · [`row`](#node-row) node type · [`rowTap`](#trigger-rowTap) trigger · [`runs`](#fn-runs) formula function · [`runScript`](#action-runScript) action
 
-**S** · [`ScaleMode`](#enum-ScaleMode) enum · [`scroll`](#trigger-scroll) trigger · [`ScrollAxis`](#enum-ScrollAxis) enum · [`scrollEnd`](#trigger-scrollEnd) trigger · [`ScrollPhysicsType`](#enum-ScrollPhysicsType) enum · [`scrollTo`](#action-scrollTo) action · [`second`](#fn-second) formula function · [`secondaryClick`](#trigger-secondaryClick) trigger · [`seconds`](#fn-seconds) formula function · [`segmentedButton`](#node-segmentedButton) node type · [`SegmentedVariant`](#enum-SegmentedVariant) enum · [`set`](#fn-set) formula function · [`setAt`](#fn-setAt) formula function · [`setStorage`](#action-setStorage) action · [`setValue`](#action-setValue) action · [`setVariable`](#action-setVariable) action · [`setVariant`](#action-setVariant) action · [`ShapeBorder`](#type-ShapeBorder) model · [`ShapeBorderType`](#enum-ShapeBorderType) enum · [`Shimmer`](#type-Shimmer) model · [`shimmer`](#behavior-shimmer) behavior · [`showToast`](#action-showToast) action · [`ShowValueIndicator`](#enum-ShowValueIndicator) enum · [`sign`](#fn-sign) formula function · [`signature`](#node-signature) node type · [`SignaturePlaceholderPosition`](#enum-SignaturePlaceholderPosition) enum · [`SignLineStyle`](#enum-SignLineStyle) enum · [`SignMarkPlacement`](#enum-SignMarkPlacement) enum · [`sin`](#fn-sin) formula function · [`singlePlaceholder`](#node-singlePlaceholder) node type · [`Size`](#type-Size) value type · [`skip`](#fn-skip) formula function · [`slice`](#fn-slice) formula function · [`slider`](#node-slider) node type · [`SliderThumbShape`](#enum-SliderThumbShape) enum · [`SliderTickMarkStyle`](#enum-SliderTickMarkStyle) enum · [`SliderTrackShape`](#enum-SliderTrackShape) enum · [`SliderValueIndicatorShape`](#enum-SliderValueIndicatorShape) enum · [`slot`](#node-slot) node type · [`slug`](#fn-slug) formula function · [`SnapKind`](#enum-SnapKind) enum · [`sortBy`](#fn-sortBy) formula function · [`sortByDesc`](#fn-sortByDesc) formula function · [`spacer`](#node-spacer) node type · [`speak`](#action-speak) action · [`split`](#fn-split) formula function · [`Spring`](#type-Spring) model · [`sqrt`](#fn-sqrt) formula function · [`stack`](#node-stack) node type · [`startsWith`](#fn-startsWith) formula function · [`states`](#behavior-states) behavior · [`StateStyles`](#type-StateStyles) model · [`Sticky`](#type-Sticky) model · [`sticky`](#behavior-sticky) behavior · [`StorageOperation`](#enum-StorageOperation) enum · [`StrokeAlign`](#enum-StrokeAlign) enum · [`StrokeCap`](#enum-StrokeCap) enum · [`StrokeJoin`](#enum-StrokeJoin) enum · [`StrokeSides`](#enum-StrokeSides) enum · [`submitForm`](#action-submitForm) action · [`submitted`](#trigger-submitted) trigger · [`substring`](#fn-substring) formula function · [`sum`](#fn-sum) formula function · [`SwipeAction`](#type-SwipeAction) model · [`swipeAction`](#trigger-swipeAction) trigger · [`SwipeActions`](#type-SwipeActions) model · [`swipeDown`](#trigger-swipeDown) trigger · [`swipeLeft`](#trigger-swipeLeft) trigger · [`swipeRight`](#trigger-swipeRight) trigger · [`swipeUp`](#trigger-swipeUp) trigger · [`switch`](#node-switch) node type
+**S** · [`ScaleMode`](#enum-ScaleMode) enum · [`scroll`](#trigger-scroll) trigger · [`ScrollAxis`](#enum-ScrollAxis) enum · [`scrollEnd`](#trigger-scrollEnd) trigger · [`ScrollPhysicsType`](#enum-ScrollPhysicsType) enum · [`scrollTo`](#action-scrollTo) action · [`second`](#fn-second) formula function · [`secondaryClick`](#trigger-secondaryClick) trigger · [`seconds`](#fn-seconds) formula function · [`segmentedButton`](#node-segmentedButton) node type · [`SegmentedVariant`](#enum-SegmentedVariant) enum · [`set`](#fn-set) formula function · [`setAt`](#fn-setAt) formula function · [`setStorage`](#action-setStorage) action · [`setThemeMode`](#action-setThemeMode) action · [`setValue`](#action-setValue) action · [`setVariable`](#action-setVariable) action · [`setVariant`](#action-setVariant) action · [`ShapeBorder`](#type-ShapeBorder) model · [`ShapeBorderType`](#enum-ShapeBorderType) enum · [`Shimmer`](#type-Shimmer) model · [`shimmer`](#behavior-shimmer) behavior · [`showToast`](#action-showToast) action · [`ShowValueIndicator`](#enum-ShowValueIndicator) enum · [`sign`](#fn-sign) formula function · [`signature`](#node-signature) node type · [`SignaturePlaceholderPosition`](#enum-SignaturePlaceholderPosition) enum · [`SignLineStyle`](#enum-SignLineStyle) enum · [`SignMarkPlacement`](#enum-SignMarkPlacement) enum · [`sin`](#fn-sin) formula function · [`singlePlaceholder`](#node-singlePlaceholder) node type · [`Size`](#type-Size) value type · [`skip`](#fn-skip) formula function · [`slice`](#fn-slice) formula function · [`slider`](#node-slider) node type · [`SliderThumbShape`](#enum-SliderThumbShape) enum · [`SliderTickMarkStyle`](#enum-SliderTickMarkStyle) enum · [`SliderTrackShape`](#enum-SliderTrackShape) enum · [`SliderValueIndicatorShape`](#enum-SliderValueIndicatorShape) enum · [`slot`](#node-slot) node type · [`slug`](#fn-slug) formula function · [`SnapKind`](#enum-SnapKind) enum · [`sortBy`](#fn-sortBy) formula function · [`sortByDesc`](#fn-sortByDesc) formula function · [`spacer`](#node-spacer) node type · [`speak`](#action-speak) action · [`split`](#fn-split) formula function · [`Spring`](#type-Spring) model · [`sqrt`](#fn-sqrt) formula function · [`stack`](#node-stack) node type · [`startsWith`](#fn-startsWith) formula function · [`states`](#behavior-states) behavior · [`StateStyles`](#type-StateStyles) model · [`Sticky`](#type-Sticky) model · [`sticky`](#behavior-sticky) behavior · [`StorageOperation`](#enum-StorageOperation) enum · [`StrokeAlign`](#enum-StrokeAlign) enum · [`StrokeCap`](#enum-StrokeCap) enum · [`StrokeJoin`](#enum-StrokeJoin) enum · [`StrokeSides`](#enum-StrokeSides) enum · [`submitForm`](#action-submitForm) action · [`submitted`](#trigger-submitted) trigger · [`substring`](#fn-substring) formula function · [`sum`](#fn-sum) formula function · [`SwipeAction`](#type-SwipeAction) model · [`swipeAction`](#trigger-swipeAction) trigger · [`SwipeActions`](#type-SwipeActions) model · [`swipeDown`](#trigger-swipeDown) trigger · [`swipeLeft`](#trigger-swipeLeft) trigger · [`swipeRight`](#trigger-swipeRight) trigger · [`swipeUp`](#trigger-swipeUp) trigger · [`switch`](#node-switch) node type
 
 **T** · [`TabAlignment`](#enum-TabAlignment) enum · [`tabBar`](#node-tabBar) node type · [`TabBarIndicatorSize`](#enum-TabBarIndicatorSize) enum · [`TabContent`](#enum-TabContent) enum · [`TabIndicatorStyle`](#enum-TabIndicatorStyle) enum · [`TableColumn`](#type-TableColumn) model · [`tableView`](#node-tableView) node type · [`tabs`](#node-tabs) node type · [`take`](#fn-take) formula function · [`tan`](#fn-tan) formula function · [`text`](#fn-text) formula function · [`text`](#node-text) node type · [`TextAlign`](#enum-TextAlign) enum · [`TextAlignVertical`](#enum-TextAlignVertical) enum · [`textButton`](#node-textButton) node type · [`TextCapitalization`](#enum-TextCapitalization) enum · [`TextDecoration`](#enum-TextDecoration) enum · [`TextDecorationStyle`](#enum-TextDecorationStyle) enum · [`TextDirection`](#enum-TextDirection) enum · [`textDirection`](#fn-textDirection) formula function · [`textDirection`](#behavior-textDirection) behavior · [`textDirectionOf`](#fn-textDirectionOf) formula function · [`textField`](#node-textField) node type · [`TextInputAction`](#enum-TextInputAction) enum · [`TextInputType`](#enum-TextInputType) enum · [`TextLeadingDistribution`](#enum-TextLeadingDistribution) enum · [`TextOverflow`](#enum-TextOverflow) enum · [`TextRun`](#type-TextRun) model · [`TextStyle`](#type-TextStyle) model · [`thousands`](#fn-thousands) formula function · [`TileMode`](#enum-TileMode) enum · [`Tilt`](#type-Tilt) model · [`tilt`](#behavior-tilt) behavior · [`timeAgo`](#fn-timeAgo) formula function · [`timePicker`](#node-timePicker) node type · [`timer`](#trigger-timer) trigger · [`titleCase`](#fn-titleCase) formula function · [`ToastPosition`](#enum-ToastPosition) enum · [`ToastStyle`](#enum-ToastStyle) enum · [`today`](#fn-today) formula function · [`toMap`](#fn-toMap) formula function · [`tooltip`](#behavior-tooltip) behavior · [`Track`](#type-Track) model · [`track`](#behavior-track) behavior · [`TrackBlend`](#enum-TrackBlend) enum · [`TrackCommand`](#enum-TrackCommand) enum · [`TrackHitArea`](#enum-TrackHitArea) enum · [`TrackInput`](#enum-TrackInput) enum · [`TrackInteraction`](#enum-TrackInteraction) enum · [`TrackShape`](#enum-TrackShape) enum · [`TrackUnits`](#enum-TrackUnits) enum · [`TransformCommand`](#enum-TransformCommand) enum · [`TransformGesture`](#type-TransformGesture) model · [`transformGesture`](#behavior-transformGesture) behavior · [`TransformHandles`](#type-TransformHandles) model · [`TransformPan`](#enum-TransformPan) enum · [`TransformTarget`](#enum-TransformTarget) enum · [`Transition`](#type-Transition) model · [`TransitionReveal`](#type-TransitionReveal) model · [`transitions`](#behavior-transitions) behavior · [`TransitionSide`](#type-TransitionSide) model · [`TriggerType`](#enum-TriggerType) enum · [`trim`](#fn-trim) formula function · [`Typewriter`](#type-Typewriter) model · [`typewriter`](#behavior-typewriter) behavior
 
@@ -1975,6 +1992,16 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `leadingDistribution` | [TextLeadingDistribution](#enum-TextLeadingDistribution) | unset | `proportional`, `even` | Where a line's extra (or missing) height goes (`TextStyle .leadingDistribution`); null is Flutter's default, proportional. |
 | `shadows` | List<[Effect](#type-Effect)> | `[]` |  | Text shadows (drop shadows only). |
 
+<a id="action-setThemeMode"></a>
+### `setThemeMode` (action): Set theme mode
+
+Sets the site's theme mode (Flutter's ThemeMode: system, light or dark), as an app sets MaterialApp.themeMode: every screen redraws its named colors, text styles and controls in it; with persist (the default) the choice survives a reload. JSON: {"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `mode` | String | `"system"` |  | system (the device's setting), light or dark (Flutter's ThemeMode); an expression: "${= theme.isDark ? 'light' : 'dark'}" toggles. |
+| `persist` | bool | `true` |  | Keep the choice in the site's local storage: a reload (and every page) starts in it. |
+
 <a id="type-TextRun"></a>
 ### TextRun
 
@@ -2025,8 +2052,27 @@ or change some fields (`{"style": {"fontSize": 20}}`, merged over the named styl
 <a id="theme-dark-mode"></a>
 ### Dark mode
 
-`"dark": {"colors": {"ink": "#FFEEEEEE"}}` gives the colours that differ in dark mode; a node naming `ink` follows
-the device's mode. `${theme.isDark}` is true in dark mode.
+`"dark": {"colors": {"ink": "#FFEEEEEE"}}` gives the colours (and roles: `surface`, `primary`...) that differ in
+dark mode; everything naming `ink` follows the mode: fills, strokes, named text styles (a style whose `color` is
+`"ink"`), and the controls, which take the theme's roles. A style with a literal colour (`"#FF111111"`) does not
+change: name the colour.
+
+Which mode shows is the theme's `mode` (Flutter's `ThemeMode`, as `MaterialApp.themeMode`): `system` (the default:
+the device's setting), `light` or `dark`. A site's own switch is one action:
+
+```json
+{"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}
+```
+
+`mode` is an expression giving `system`, `light` or `dark`. Every screen of the site redraws at once, the next page
+opens in the same mode, and with `persist` (the default) the choice is kept in the site's local storage, so a
+reload starts in it; `"persist": false` keeps it for this visit only. `${theme.mode}` reads the mode chosen and
+`${theme.isDark}` (also `${screen.isDark}`) whether the screen is dark; bind a switch's value to
+`${theme.isDark}` to show it. A theme without `dark` stays as designed in dark mode (its colours and controls light),
+while `${theme.isDark}` still says dark (`${theme.hasDark}` is false), so a page may choose its own colours.
+
+The render command captures either: `--theme light` or `--theme dark` (the PNG names end `-light`, `-dark`), and a
+`--tap` on the switch afterwards captures the other.
 
 <a id="theme-text"></a>
 ### Text
@@ -2051,9 +2097,34 @@ when the font has those OpenType features; otherwise a smaller `fontSize` in a r
 <a id="theme-fonts"></a>
 ### Fonts
 
-`style.fontFamily` names a family (`"Inter"`), with `fontWeight` choosing the file. An app fetches Google Fonts by
-name. The render command uses font files from `--fonts <dir>` plus Roboto, and reports a family it does not have
-(`font_fallback`). Characters the font has no glyph for draw as empty boxes (`missing_glyph`): use an `icon`.
+`style.fontFamily` names a family (`"Inter"`), with `fontWeight` and `fontStyle` choosing the file. A site declares
+the families it ships in `site.json`, in the shape of a Flutter pubspec's `fonts:` section, the files beside it:
+
+```json
+{
+  "schema": 3,
+  "pages": ["home.json"],
+  "fonts": [
+    {"family": "Fraunces", "fonts": [
+      {"asset": "fonts/fraunces-latin-400-normal.woff"},
+      {"asset": "fonts/fraunces-latin-700-normal.woff", "weight": 700},
+      {"asset": "fonts/fraunces-latin-400-italic.woff", "style": "italic"}
+    ]}
+  ],
+  "theme": {"fontFamily": "Fraunces", "textStyles": {"body": {"fontFamily": "Fraunces", "fontSize": 17}}}
+}
+```
+
+- `family` is the name text styles use, whatever the file calls itself; each file has a `weight` (100–900, default
+  400) and a `style` (`normal` or `italic`).
+- Files are `.ttf`, `.otf` or `.woff` (an npm `@fontsource/<family>` package's `files/` folder has a `.woff` beside
+  each `.woff2`). WOFF2 is not read (`font_format`); a declared file that is not there is `font_missing`.
+- The render command loads them with no flag, before the page shows; a published site loads them from its files.
+- A family a text style names that no file provides is `font_fallback`, naming the nodes that use it: declare it,
+  or pass `--fonts <dir>` (`--fonts system` for the system's fonts). A family nobody declared is fetched by name
+  from Google Fonts in an app.
+
+Characters the font has no glyph for draw as empty boxes (`missing_glyph`): use an `icon`.
 
 <a id="theme-pitfalls"></a>
 ## Pitfalls
@@ -2380,51 +2451,180 @@ box's `foregroundFills` when the caption is a sibling painted after it.
 ### Images
 
 Images are image fills: `{"type": "image", "image": {"url": "...", "fit": "cover"}}` in `decoration.fills` of a box
-(give the box the image's size or an `aspectRatio`). The SDK loads `https://` and `data:image/...` URLs. For drafts
-the render command also reads a path relative to the document (`"assets/photo.png"`) and inlines it; it does not
-fetch network images (`image_network`).
+(give the box the image's size or an `aspectRatio`), placed as Flutter's `DecorationImage` places them: `fit` is a
+`BoxFit` (`cover`, `contain`, `fill`, `fitWidth`, `fitHeight`, `none`, `scaleDown`) and `alignment` an `Alignment`
+(`[0, -0.3]` keeps a face in a cropped photo). The `url` is one of:
+
+- **a file beside the site**, by its path relative to `site.json`'s folder (`"images/hero.jpg"`, as a Flutter app
+  names an asset): PNG, JPEG, WebP, GIF, BMP or SVG. The render command reads it from the folder; a published site
+  from its files. A path that names no file is `image_failed`, naming it. Use this for photos and illustrations.
+- `https://...`: loaded by the app; the render command does not fetch it (`image_network`).
+- `data:image/...` (an SVG may be written inline as `data:image/svg+xml;utf8,<svg ...>`, URL-encoded).
+
+Fills stack, first at the bottom: a photo with a gradient scrim over it, so text reads on it, is two fills:
 
 ```json
 {
   "schema": 3,
-  "roots": ["gallery"],
+  "roots": ["story"],
   "nodes": {
-    "gallery": {
+    "story": {
       "type": "canvas",
-      "slots": {"body": "col"},
-      "layout": {"width": 390, "height": 360},
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 320},
       "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
     },
-    "col": {
+    "page": {
       "type": "column",
-      "children": ["photo", "caption"],
-      "layout": {"width": {"fill": 390}, "height": {"fill": 360}, "padding": 24},
-      "props": {"spacing": 12, "crossAxisAlignment": "start"}
+      "children": ["card"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 320}, "padding": 24}
     },
-    "photo": {
-      "type": "box",
-      "layout": {"width": {"fill": 342}, "height": 200},
+    "card": {
+      "type": "column",
+      "children": ["kicker", "headline"],
+      "layout": {"width": {"fill": 342}, "height": 240, "padding": 20},
+      "props": {"mainAxisAlignment": "end", "crossAxisAlignment": "start", "spacing": 6},
       "decoration": {
-        "fills": [{"type": "image", "image": {"url": "assets/photo.png", "fit": "cover"}}],
-        "radius": 12,
-        "clip": "antiAlias"
+        "radius": 16,
+        "clip": "antiAlias",
+        "fills": [
+          {"type": "image", "image": {"url": "assets/photo.png", "fit": "cover", "alignment": [0, -0.3]}},
+          {
+            "type": "linear",
+            "begin": [0, -1],
+            "end": [0, 1],
+            "stops": [{"color": "#00000000", "position": 0.35}, {"color": "#CC000000", "position": 1}]
+          }
+        ]
       }
     },
-    "caption": {
-      "type": "row",
-      "children": ["check", "captionText"],
-      "layout": {"width": {"hug": 200}, "height": {"hug": 24}},
-      "props": {"spacing": 6}
-    },
-    "check": {
-      "type": "icon",
-      "layout": {"width": 20, "height": 20},
-      "props": {"icon": "check_circle", "color": "#FF16A34A"}
-    },
-    "captionText": {
+    "kicker": {
       "type": "text",
-      "layout": {"width": {"hug": 100}, "height": {"hug": 20}},
-      "props": {"text": "An image fill and a Material icon", "style": {"fontSize": 14, "color": "#FF374151"}}
+      "layout": {"width": {"fill": 302}, "height": {"hug": 16}},
+      "props": {
+        "text": "TRAVEL",
+        "style": {"fontSize": 12, "fontWeight": 700, "letterSpacing": 2, "color": "#FFFDE68A"}
+      }
+    },
+    "headline": {
+      "type": "text",
+      "layout": {"width": {"fill": 302}, "height": {"hug": 56}},
+      "props": {
+        "text": "A week on the salt marsh, by boat and on foot",
+        "style": {"fontSize": 20, "fontWeight": 700, "height": 1.3, "color": "#FFFFFFFF"}
+      }
+    }
+  }
+}
+```
+
+<a id="decoration-illustration"></a>
+### Illustration
+
+Three ways to draw art without a photo, each scaled to its box:
+
+- **An SVG file** (`images/hills.svg`) as an image fill: drawn as vectors at any size, `fit` and `alignment` as
+  for a photo. For a single shape or mark, a `path` node with SVG path data and a `viewBox`.
+
+```json
+{
+  "schema": 3,
+  "roots": ["hero"],
+  "nodes": {
+    "hero": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 340},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["art", "badge"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 340}, "padding": 24},
+      "props": {"spacing": 12}
+    },
+    "art": {
+      "type": "box",
+      "layout": {"width": {"fill": 342}, "height": 214},
+      "decoration": {
+        "radius": 12,
+        "clip": "antiAlias",
+        "fills": [{"type": "image", "image": {"url": "assets/hills.svg", "fit": "cover"}}]
+      }
+    },
+    "badge": {
+      "type": "path",
+      "layout": {"width": 48, "height": 48},
+      "props": {
+        "data": "M12 2 L15 9 L22 9 L16.5 13.5 L18.5 21 L12 16.5 L5.5 21 L7.5 13.5 L2 9 L9 9 Z",
+        "viewBox": [24, 24]
+      },
+      "decoration": {"fills": [{"color": "#FFF4B740"}]}
+    }
+  }
+}
+```
+
+- **`customPaint`**: draw lists in a view box, Flutter's `Canvas` calls as data (`rect`, `circle`, `path` with SVG
+  data, `line`, `repeat` over a count with `${index}`), behind (`painter`) or over (`foregroundPainter`) the node's
+  content. Values may be expressions, so a drawing can follow data. It is not
+  clipped by the box's `radius`: round a parent with `clip` for that.
+
+```json
+{
+  "schema": 3,
+  "roots": ["hero"],
+  "nodes": {
+    "hero": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 260},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["scene"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 260}, "padding": 24}
+    },
+    "scene": {
+      "type": "box",
+      "layout": {"width": {"fill": 342}, "height": 212},
+      "customPaint": {
+        "viewBox": [320, 200],
+        "fit": "cover",
+        "painter": [
+          {"op": "rect", "rect": [0, 0, 320, 200], "paint": "#FFE8F1F8"},
+          {"op": "circle", "c": [236, 62], "radius": 28, "paint": "#FFF4B740"},
+          {
+            "op": "repeat",
+            "count": 3,
+            "ops": [
+              {
+                "op": "circle",
+                "c": ["${= 60 + index * 34}", "${= 48 + index * 6}"],
+                "radius": 3,
+                "paint": "#FF5D6D7E"
+              }
+            ]
+          },
+          {
+            "op": "path",
+            "d": "M0 150 C60 100 120 110 170 140 C220 170 270 120 320 130 L320 200 L0 200 Z",
+            "paint": "#FF7FB685"
+          },
+          {
+            "op": "path",
+            "d": "M0 170 C80 140 160 160 220 175 C260 185 290 170 320 165 L320 200 L0 200 Z",
+            "paint": "#FF3E7C59"
+          },
+          {
+            "op": "line",
+            "p1": [40, 196],
+            "p2": [280, 196],
+            "paint": {"color": "#33FFFFFF", "style": "stroke", "strokeWidth": 2}
+          }
+        ]
+      }
     }
   }
 }
@@ -8773,8 +8973,10 @@ focused text field (test `submitted` chains through a button). In nested lists `
 whole repeat, outer item by outer item, from 0: with a 7-day grid per habit, `day#9` is the second habit's third
 day. `--full-page` captures the whole page from its top, its own scroll
 height, with content fixed to the window drawn in the first window; without it the capture is the window where the
-steps left the page. `--fonts <dir>` adds font files; `--component <Type>` and `--components-all` render
-components alone.
+steps left the page. `--theme light|dark` starts the site in that theme mode (PNG names end `-light`, `-dark`; a
+`--tap` on a `setThemeMode` switch then changes it). A site's declared fonts (`site.json`'s `fonts`) and images
+named by a path relative to the site are read from its folder with no flag; `--fonts <dir>` adds other font files
+(`--fonts system`: the system's). `--component <Type>` and `--components-all` render components alone.
 
 <a id="render-validation-codes"></a>
 ### Validation codes
@@ -8839,6 +9041,8 @@ From `package:codelessly_api/validate.dart`:
 | `media_overridden` | warning | A media rule patches a field the node also binds: the binding wins, so the patch never shows. |
 | `unknown_theme_name` | error | A color or text style names a color or text style the project's theme (the site manifest's "theme") does not have: it would show transparent or unstyled. |
 | `invalid_theme` | error | The site manifest's "theme" is not of the right shape: colors are "#AARRGGBB" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles. |
+| `invalid_fonts` | error | The site manifest's "fonts" is not of the right shape: a list of {"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf", "weight": 400, "style": "normal"}]} (a pubspec's fonts: section). |
+| `font_format` | error | A declared font file is not .ttf, .otf or .woff: WOFF2 (Brotli-compressed) and font collections (.ttc) are not read. Use the .woff or .ttf of the same face. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
@@ -8860,7 +9064,7 @@ From `package:codelessly_api/validate.dart`:
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
-`fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`. Formulas are
+`font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`. Formulas are
 parsed by the SDK's own parser there, so formula syntax errors and unknown names in formulas are reported only by
 the render command.
 
@@ -8888,7 +9092,8 @@ menuButton --label menu`. An error state: `--type seats=0 --unfocus --label erro
 
 - Every diagnostic is about the page as it renders at that size: its media rules applied, what scrolls there, what
   an ancestor clips away.
-- The command does not fetch network images or fonts: pass local files.
+- The command does not fetch network images or fonts: put the files beside `site.json` and name them by their
+  relative path.
 - A `--tap` scrolls the target into view; a `--full-page` capture still starts at the top.
 
 <a id="render-see-also"></a>

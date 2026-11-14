@@ -72,11 +72,36 @@ box's `foregroundFills` when the caption is a sibling painted after it.
 ### Images
 
 Images are image fills: `{"type": "image", "image": {"url": "...", "fit": "cover"}}` in `decoration.fills` of a box
-(give the box the image's size or an `aspectRatio`). The SDK loads `https://` and `data:image/...` URLs. For drafts
-the render command also reads a path relative to the document (`"assets/photo.png"`) and inlines it; it does not
-fetch network images (`image_network`).
+(give the box the image's size or an `aspectRatio`), placed as Flutter's `DecorationImage` places them: `fit` is a
+`BoxFit` (`cover`, `contain`, `fill`, `fitWidth`, `fitHeight`, `none`, `scaleDown`) and `alignment` an `Alignment`
+(`[0, -0.3]` keeps a face in a cropped photo). The `url` is one of:
 
-{{example:image}}
+- **a file beside the site**, by its path relative to `site.json`'s folder (`"images/hero.jpg"`, as a Flutter app
+  names an asset): PNG, JPEG, WebP, GIF, BMP or SVG. The render command reads it from the folder; a published site
+  from its files. A path that names no file is `image_failed`, naming it. Use this for photos and illustrations.
+- `https://...`: loaded by the app; the render command does not fetch it (`image_network`).
+- `data:image/...` (an SVG may be written inline as `data:image/svg+xml;utf8,<svg ...>`, URL-encoded).
+
+Fills stack, first at the bottom: a photo with a gradient scrim over it, so text reads on it, is two fills:
+
+{{example:photo_card}}
+
+<a id="decoration-illustration"></a>
+### Illustration
+
+Three ways to draw art without a photo, each scaled to its box:
+
+- **An SVG file** (`images/hills.svg`) as an image fill: drawn as vectors at any size, `fit` and `alignment` as
+  for a photo. For a single shape or mark, a `path` node with SVG path data and a `viewBox`.
+
+{{example:vector_illustration}}
+
+- **`customPaint`**: draw lists in a view box, Flutter's `Canvas` calls as data (`rect`, `circle`, `path` with SVG
+  data, `line`, `repeat` over a count with `${index}`), behind (`painter`) or over (`foregroundPainter`) the node's
+  content. Values may be expressions, so a drawing can follow data. It is not
+  clipped by the box's `radius`: round a parent with `clip` for that.
+
+{{example:paint_illustration}}
 
 ### Icons
 

@@ -13254,6 +13254,30 @@
         ],
         "docs": "interaction.md#action-copyToClipboard"
       },
+      "setThemeMode": {
+        "label": "Set theme mode",
+        "class": "SetThemeModeAction",
+        "doc": "Sets the site's theme mode (Flutter's ThemeMode: system, light or dark), as an app sets MaterialApp.themeMode: every screen redraws its named colors, text styles and controls in it; with persist (the default) the choice survives a reload. JSON: {\"type\": \"setThemeMode\", \"mode\": \"${= theme.isDark ? 'light' : 'dark'}\"}.",
+        "fields": [
+          {
+            "key": "mode",
+            "type": "String",
+            "kind": "string",
+            "default": "system",
+            "nullable": false,
+            "doc": "system (the device's setting), light or dark (Flutter's ThemeMode); an expression: \"${= theme.isDark ? 'light' : 'dark'}\" toggles."
+          },
+          {
+            "key": "persist",
+            "type": "bool",
+            "kind": "boolean",
+            "default": true,
+            "nullable": false,
+            "doc": "Keep the choice in the site's local storage: a reload (and every page) starts in it."
+          }
+        ],
+        "docs": "theme.md#action-setThemeMode"
+      },
       "editText": {
         "label": "Edit text",
         "class": "EditTextAction",
@@ -25805,6 +25829,16 @@
       "code": "invalid_theme",
       "severity": "error",
       "meaning": "The site manifest's \"theme\" is not of the right shape: colors are \"#AARRGGBB\" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles."
+    },
+    {
+      "code": "invalid_fonts",
+      "severity": "error",
+      "meaning": "The site manifest's \"fonts\" is not of the right shape: a list of {\"family\": \"Inter\", \"fonts\": [{\"asset\": \"fonts/Inter-Regular.ttf\", \"weight\": 400, \"style\": \"normal\"}]} (a pubspec's fonts: section)."
+    },
+    {
+      "code": "font_format",
+      "severity": "error",
+      "meaning": "A declared font file is not .ttf, .otf or .woff: WOFF2 (Brotli-compressed) and font collections (.ttc) are not read. Use the .woff or .ttf of the same face."
     },
     {
       "code": "duplicate_breakpoint_canvas",

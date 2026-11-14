@@ -121,7 +121,14 @@ from the theme's roles (`primary`, `onPrimary`, `surface`, `onSurface`, `error`,
 Without a theme they are neutral: ink on paper and the greys between. Nothing comes from Material's defaults or
 from the app the layout is shown in.
 
-Dark mode, a theme that changes with the screen size, every theme key: theme (ui_docs "theme").
+**Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colours that differ in dark mode, and
+`"mode"` which one the site starts in (Flutter's `ThemeMode`: `system`, the default, follows the device; `light`;
+`dark`). A theme switch is one action, `{"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}`:
+every named colour, named text style and control of every screen follows, and the choice is kept for the next
+visit. Read the mode as `${theme.mode}` and `${theme.isDark}`. Name colours in your text styles (`"color": "ink"`)
+so they change with it: dark mode (ui_docs "theme-dark-mode").
+
+A theme that changes with the screen size, every theme key: theme (ui_docs "theme").
 
 ## Nodes, ids, children and slots
 

@@ -1,3 +1,25 @@
+## Unreleased
+
+**A site looks like itself: theme mode, declared fonts, local images.** Additions only; documents stay
+`"schema": 3`.
+
+- **Theme mode** (Flutter's `ThemeMode`): `ThemeTokens.mode` (`"mode": "system" | "light" | "dark"` in a theme,
+  default `system`) is the mode a site starts in, and the **`setThemeMode`** action (`{"type": "setThemeMode",
+  "mode": "${= theme.isDark ? 'light' : 'dark'}"}`; `mode` is an expression, `persist` defaults to true) changes it.
+  `ThemeMode.isDark(platformDark:)` and `ThemeMode.tryParse`. Validation reports a bad mode, or a `mode` inside
+  `dark` or a media patch (`invalid_theme`).
+- **Site fonts**: `SiteManifest.fonts`, a list of `FontFamily` (`family`, `fonts`: `FontAsset` with `asset`,
+  `weight`, `style`) in the shape of a pubspec's `fonts:` section, the files beside `site.json`.
+  `PublishFont.ofFamilies` publishes them one per file with `url` the path relative to the site
+  (`PublishFont.isSiteFile`; ids `Family/weight/italic`, `PublishFont.idOf`). `validateSiteFonts` reports a bad shape
+  (`invalid_fonts`) and a file that is not `.ttf`, `.otf` or `.woff` (`font_format`; WOFF2 is not read).
+- **Site files**: `isRelativeAssetPath`, and `PublishSource.assetPath` (`publish/{slug}/files/{path}`), where a
+  published site's fonts and images named by a relative path are served.
+- **Reference**: theme mode, declared fonts and local images in the base (`STARTER.md`); theme.md's dark mode and
+  fonts sections rewritten; decoration.md's images section (local files, `BoxFit`/`Alignment`) and a new
+  illustration section, with three validated examples (a photo card with a gradient scrim, an SVG illustration and
+  a `path` mark, a `customPaint` scene); render.md's `--theme` and `font_missing`.
+
 ## 30.1.0
 
 **One spelling for each concept; the schema stays 3.** Documents are still `"schema": 3` (`kSchemaVersion`), and

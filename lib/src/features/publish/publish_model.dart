@@ -91,6 +91,12 @@ enum PublishSource {
   /// The path of component [type] (its type name) of project [projectId]:
   /// a [PublishComponent].
   String componentPath(String projectId, String type) => '$collection/$projectId/components/$type';
+
+  /// The path of file [path] of project [projectId] (or a slug): a file the
+  /// site ships beside its documents (a declared font, a local image),
+  /// named in the documents by its path relative to the site
+  /// (`fonts/Inter.ttf`, `images/hero.jpg`).
+  String assetPath(String projectId, String path) => '$collection/$projectId/files/$path';
 }
 
 /// A canvas (screen) of a published layout, as the model lists it: enough

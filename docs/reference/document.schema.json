@@ -153,6 +153,7 @@
             "confirm",
             "delay",
             "copyToClipboard",
+            "setThemeMode",
             "editText",
             "focus",
             "controlTrack",
@@ -680,6 +681,25 @@
             "properties": {
               "text": {
                 "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "setThemeMode"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "mode": {
+                "type": "string"
+              },
+              "persist": {
+                "type": "boolean"
               }
             }
           }
