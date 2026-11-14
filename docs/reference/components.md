@@ -610,6 +610,10 @@ slot named `children` (the default name; declare `"children": "list"`), or the c
 slot (declare it in `widget.slots`). With nothing passed, the slot shows its own children. What is passed belongs
 to the caller: it is stored in the page and reads the page's variables.
 
+Inside the definition, `${slots.<name>}` is true while the call fills that slot, and `${slots.children}` while
+it passes children. Hide what only frames a slot when the slot is empty: a footer with a rule and padding takes
+`"bind": {"visible": "${slots.actions}"}`, so a call without actions has no empty strip.
+
 <a id="components-events"></a>
 ### Events
 

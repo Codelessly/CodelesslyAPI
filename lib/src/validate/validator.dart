@@ -418,7 +418,7 @@ final class _Validator {
         ...?variablesOf[canvas],
         ...options.variables,
         for (final v in variablesOf.values) ...v, // (reported per scope below when misplaced)
-        if (definitionRoot != null) 'props',
+        if (definitionRoot != null) ...const ['props', 'slots'],
       };
 
   // --- tree --------------------------------------------------------------------

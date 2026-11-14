@@ -304,4 +304,41 @@ void main() {
       expect(docsTopic('forms', designSystem: ds), docsTopic('forms'));
     });
   });
+
+  test('inside a definition, slots.<name> says whether the call fills that slot; a page has no such scope', () {
+    List<String> errors(Map<String, Object?> doc) => [
+          for (final d in Catalog.run(standardCatalog, () => validateDocument(doc)))
+            if (d.severity == Severity.error) '${d.code.name} ${d.path}',
+        ];
+    Map<String, Object?> foot(String id) => {
+          'type': 'row',
+          'children': id == 'r' ? ['s'] : <String>[],
+          'layout': {'width': {'fill': 100}, 'height': {'hug': 20}},
+          'bind': {'visible': r'${slots.actions}'},
+        };
+    expect(
+      errors({
+        'schema': 3,
+        'id': 'Frame',
+        'roots': ['r'],
+        'widget': {'type': 'Frame', 'slots': ['actions'], 'props': <Object?>[]},
+        'nodes': {
+          'r': foot('r'),
+          's': {'type': 'slot', 'props': {'name': 'actions'}},
+        },
+      }),
+      isEmpty,
+    );
+    expect(
+      errors({
+        'schema': 3,
+        'roots': ['page'],
+        'nodes': {
+          'page': {'type': 'canvas', 'slots': {'body': 'f'}, 'layout': {'width': 300, 'height': 200}},
+          'f': foot('f'),
+        },
+      }),
+      contains('unknown_name /nodes/f/bind/visible'),
+    );
+  });
 }
