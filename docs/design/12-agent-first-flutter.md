@@ -213,3 +213,37 @@ Port CodelesslyEditor in one pass; the generative UI demo page; marketing drop-i
    the full type names.
 4. **A whole-value `"${…}"` written where a plain value goes is converted to a binding on apply**, with a note to
    the author; it is not rejected.
+
+## 8. Status (2026-11-14, evening)
+
+Measured, not planned. Recordings are in `CodelesslySDK/tool/stream/streams/live/`.
+
+| Phase | State |
+|---|---|
+| A. No widgets | 49 files still import Flutter's widget libraries (51 this morning). Every control is a render object. What is left hangs on three seams: the app shell (Navigator, routes, modals, toasts, confirm), lists on `Scrollable`, and embeds (media, web view). |
+| C. Levels | Tagged and validated at a level. Level 1 is audited by a test: every widget-catalog type has a size and draws with only its type written, except a page view and a table, which need a height. |
+| D. Compact notation | Built: parser, stream, prompt, printer with an exact round trip. 34 of 34 recorded cards expand cleanly with the current parser; 26 of 34 were valid on the model's first answer. |
+| E. Head to head with A2UI | Measured against A2UI v1.0 on the same briefs, models and renderer (design 13 §11). Not compared: A2UI on its own renderers. |
+| F. Design systems | SSUI's looks are the notation's defaults. 41 of 164 SSUI components are in the SDK (`design_systems/ssui/PARITY.md`). The generic template and a second design system are not started. |
+| G. The complex end | All three produced by Claude Sonnet 5.5 from one paragraph each, with SSUI, and used through the render tool: |
+| | **Sudoku**: 27 s, one retry. A number is placed, conflicts are highlighted, the timer runs. |
+| | **Kanban with drag and drop**: a card dragged from To do is dropped on Done and the counts follow. |
+| | **A whole app screen** (sidebar, top bar, stat tiles, chart, filterable table, activity, a New task dialog): 40 s, 66 nodes, one retry. Navigation, the tabs and the dialog work. |
+| H. SDK alignment pass | Not started as a pass; done piecemeal with each finding. |
+
+What the complex targets found and fixed on the way, each a thing an agent hits:
+
+- A script written with `variables.get` or calling another script bare failed only when run: said at validation
+  and at the end of a generation stream now.
+- `runScript` with `args` was rejected by the validator though the runtime reads it; a script's declared
+  parameters must now be passed.
+- A click reaction written on a design-system component ran in the component's scope and could not see the page's
+  variables: it runs in the caller's scope.
+- The guide said a drop reaction reads its data as `${result}`; it is `${result.data}`.
+- The render and replay tools did not find the built script engine, did not hold before a touch drag, and striped
+  a 0.2 px overflow.
+
+Known gaps in what was generated: the Sudoku's first answer needed its retry each time (script API names); the
+kanban used arrows until asked for dragging by name; in the app screen a list that fills a card which hugs falls
+back to its design height (the table is cut short).
+
