@@ -423,6 +423,14 @@ class _Parser {
       _stack.add(_Open(indent, itemId, 'column', each: each[1]));
       return;
     }
+    // Props written after the action (`-> size="7" selected:=size=="7"`)
+    // belong before it.
+    final arrow = _outside(line, ' -> ');
+    if (arrow >= 0) {
+      final after = line.substring(arrow + 4);
+      final late = RegExp(r' [a-z][A-Za-z]*:=').allMatches(after).where((m) => _outside(after.substring(0, m.start + 1), '"') < 0 || '"'.allMatches(after.substring(0, m.start)).length.isEven).firstOrNull;
+      if (late != null) line = '${line.substring(0, arrow)}${after.substring(late.start)} -> ${after.substring(0, late.start)}';
+    }
     final t = _Tokens(line);
     final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*))?').firstMatch(line);
     if (head == null) return _issue(column, 'A line starts with a node type: Column, Text "…", Button "…".');
@@ -928,6 +936,16 @@ class _Parser {
     return null;
   }
 
+  /// Where [what] first is in [line] outside quotes (-1: nowhere).
+  int _outside(String line, String what) {
+    var quoted = false;
+    for (var i = 0; i < line.length; i++) {
+      if (line[i] == '"' && (i == 0 || line[i - 1] != r'\')) quoted = !quoted;
+      if (!quoted && line.startsWith(what, i)) return i;
+    }
+    return -1;
+  }
+
   /// What the UI is drawn on when its root is not a card: the surface, so
   /// its dark text is never on nothing.
   static const Json _surface = {
@@ -943,7 +961,11 @@ class _Parser {
   void _state(String rest, int column) {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
-    final written = m[2]!.trim();
+    var written = m[2]!.trim();
+    // One formula may read another (`state total=subtotal-discount`).
+    for (final d in _derived.entries) {
+      if (written.contains(d.key)) written = _rename('x:=$written', d.key, '(${d.value})').substring(3);
+    }
     if (!_literal(written).$1 && RegExp(r'[(+*/?<>&|]').hasMatch(written) && !written.startsWith('"')) {
       _derived[m[1]!] = written;
       return;
