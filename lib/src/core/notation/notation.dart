@@ -47,6 +47,7 @@ final class NotationOptions {
     this.badges = badgeVariants,
     this.surface = '#FFFFFFFF',
     this.accent = '#FF2563EB',
+    this.track = '#FFE5E7EB',
   });
 
   /// The looks of a design system's [theme] (its `theme` JSON: `colors`,
@@ -118,6 +119,7 @@ final class NotationOptions {
       },
       surface: color('surface', color('primaryBackground', '#FFFFFFFF')),
       accent: color('primary', '#FF2563EB'),
+      track: color('track', '#FFE5E7EB'),
     );
   }
 
@@ -139,8 +141,12 @@ final class NotationOptions {
   /// What the UI is drawn on when its root is not a card.
   final String surface;
 
-  /// The color of what has none of its own (a chart's bars and line).
+  /// The color of what has none of its own (a chart's bars and line, a
+  /// progress bar's fill).
   final String accent;
+
+  /// What a progress bar's fill runs along.
+  final String track;
 }
 
 /// SSUI's text styles (design_systems/ssui/design_system.json, `theme
@@ -851,6 +857,17 @@ class _Parser {
     // them on its line (what a form and a toolbar want), unless written.
     if (type == 'column') props.putIfAbsent('crossAxisAlignment', () => 'start');
     if (type == 'row') props.putIfAbsent('crossAxisAlignment', () => 'center');
+    // Progress is written as a share (`Progress 0.4`, `Progress =step/3`):
+    // the bar is full at 1, unless a larger number or a max is written.
+    if (type == 'progressBar' && !props.containsKey('max')) {
+      final v = props['value'];
+      if (v is! num || v <= 1) props['max'] = 1;
+      props.putIfAbsent('borderRadius', () => 2);
+    }
+    if (type == 'progressBar') {
+      props.putIfAbsent('color', () => options.accent);
+      props.putIfAbsent('backgroundColor', () => options.track);
+    }
     // An accordion starts closed unless it says `open`.
     if (type == 'accordion' && !bind.containsKey('props.expanded')) props.putIfAbsent('expanded', () => false);
     // Text with no variant is the body text, so it always has a color.
