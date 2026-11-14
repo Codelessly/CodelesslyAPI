@@ -58,7 +58,7 @@ void main() {
 
   test('every diagnostic code has a test here', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 74); // invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
+    expect(Codes.all.length, 75); // above_level: test/levels_test.dart; invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
   });
 
   group('document', () {

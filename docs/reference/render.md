@@ -103,6 +103,7 @@ From `package:codelessly_api/validate.dart`:
 
 | Code | Severity | Meaning |
 |---|---|---|
+| `above_level` | error | Something from a higher level of the vocabulary than the document is limited to (`ValidateOptions.level`): a node type, action, trigger, behavior, binding or expression. |
 | `invalid_document` | error | The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list). |
 | `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3). |
 | `schema_outdated` | info | A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |

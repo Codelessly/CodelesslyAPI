@@ -55,6 +55,9 @@ abstract final class Codes {
       'A root that is not a canvas: it is never shown as a screen.');
   static const noRoots = DiagnosticCode('no_roots', Severity.error, 'The document has no roots, so nothing is shown.');
 
+  static const aboveLevel = DiagnosticCode('above_level', Severity.error,
+      'Something from a higher level of the vocabulary than the document is limited to (`ValidateOptions.level`): a node type, action, trigger, behavior, binding or expression.');
+
   // --- nodes -----------------------------------------------------------------
   static const invalidNode = DiagnosticCode('invalid_node', Severity.error,
       'A node that is not an object or has no "type": decoding drops it.');
@@ -197,6 +200,7 @@ abstract final class Codes {
 
   /// Every code, in the order above.
   static const List<DiagnosticCode> all = [
+    aboveLevel,
     invalidDocument, schemaVersion, schemaOutdated, legacyValue, unknownDocumentKey, danglingRoot, rootNotCanvas, noRoots, //
     invalidNode, unknownNodeType, unknownNodeKey, unknownProp, unknownLayoutKey, unknownDecorationKey, unknownField,
     wrongType, looseValue, invalidEnum, outOfRange, decorationIgnored,

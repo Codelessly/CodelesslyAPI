@@ -25615,6 +25615,11 @@
   },
   "diagnostics": [
     {
+      "code": "above_level",
+      "severity": "error",
+      "meaning": "Something from a higher level of the vocabulary than the document is limited to (`ValidateOptions.level`): a node type, action, trigger, behavior, binding or expression."
+    },
+    {
       "code": "invalid_document",
       "severity": "error",
       "meaning": "The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list)."
