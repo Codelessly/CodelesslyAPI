@@ -130,6 +130,22 @@ void main() {
       final visible = r.errors.firstWhere((d) => d.path == '/nodes/back/visible');
       expect(visible.message, contains(r'"bind": {"visible": "${step > 0}"}'));
     });
+    test('replacing the root canvas with a column is rejected, with how to set its body (image_gallery@claude-haiku-5-5 retry)', () {
+      // The retry wrote {"op": "set", "id": "gallery", "slot": "body", "node":
+      // {"type": "column", ...}}: the canvas became a column, and a view shows
+      // nothing without a canvas.
+      final r = _apply(_card(), {
+        'op': 'set',
+        'id': 'card',
+        'slot': 'body',
+        'node': {'type': 'column', 'children': ['wrap'], 'layout': {'width': {'fill': 390}, 'height': {'hug': 400}}},
+      });
+      expect(r.rejected, [0]);
+      final d = r.errors.firstWhere((d) => d.path == '/nodes/card/type');
+      expect(d.message, contains('"card" is the canvas this UI is shown on'));
+      expect(d.message, contains('"parent": "card", "slot": "body"'));
+      expect(r.errors.map((d) => d.message), contains(contains('"slot" places the node in a slot of "parent"')));
+    });
     test('would_orphan says to patch', () {
       final r = _apply(_card(), {
         'op': 'set',
