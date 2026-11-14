@@ -144,7 +144,15 @@ void main() {
       final d = r.errors.firstWhere((d) => d.path == '/nodes/card/type');
       expect(d.message, contains('"card" is the canvas this UI is shown on'));
       expect(d.message, contains('"parent": "card", "slot": "body"'));
-      expect(r.errors.map((d) => d.message), contains(contains('"slot" places the node in a slot of "parent"')));
+      // A node its canvas's slot already names may be set with "slot" and no
+      // "parent" (question_flow@claude-haiku-5-5's second retry did): it is placed.
+      final card = _apply(LayoutDocument(catalog: Catalog.core), [
+        {'op': 'roots', 'roots': ['quiz']},
+        {'op': 'set', 'id': 'quiz', 'node': {'type': 'canvas', 'slots': {'body': 'body'}, 'layout': {'width': 390, 'height': 200}}},
+        {'op': 'set', 'id': 'body', 'slot': 'body', 'node': {'type': 'column', 'layout': {'width': {'fill': 390}, 'height': {'hug': 40}}}},
+      ]);
+      expect(card.errors, isEmpty);
+      expect(card.document.parentOf('body'), 'quiz');
     });
     test('a patch that writes a size in another form replaces it (image_gallery@claude-haiku-5-5 retry2)', () {
       // {"layout": {"height": {"fill": 400}}} over {"hug": 200} merged into
