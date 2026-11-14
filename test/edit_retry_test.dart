@@ -102,6 +102,86 @@ void main() {
       expect(d.message, contains('Its props: label'));
       expect(d.suggestion, 'label');
     });
+    test('an expression written as a plain value is moved into the binding and reported, not rejected (question_flow, dashboard, carousel)', () {
+      // Five recorded SSUI cards wrote a theme token or a condition where a
+      // value goes: "radius": "${theme.radii.panel}", "visible": "${step > 0}".
+      // One rejected container blanked the whole card; the intent is plain.
+      final r = _apply(_card(), [
+        {
+          'op': 'set',
+          'id': 'panel',
+          'parent': 'wrap',
+          'node': {
+            'type': 'column',
+            'layout': {'width': {'fill': 358}, 'height': {'hug': 40}},
+            'decoration': {'radius': r'${theme.radii.panel}', 'fills': [{'color': '#FFFFFFFF'}]},
+          },
+        },
+        {
+          'op': 'set',
+          'id': 'back',
+          'parent': 'wrap',
+          'node': {'type': 'text', 'visible': r'${step > 0}', 'props': {'text': r'Step ${step}'}},
+        },
+        {
+          'op': 'set',
+          'id': 'vol',
+          'parent': 'wrap',
+          'node': {'type': 'slider', 'props': {'value': r'${volume}'}, 'bind': {'props.value': r'${kept}'}},
+        },
+      ]);
+      expect([for (final d in r.errors) if (d.code == 'wrong_type') d], isEmpty);
+      final notes = [for (final d in r.diagnostics) if (d.code == 'expression_bound') d];
+      expect(notes.map((d) => d.suggestion), ['bind.decoration.radius', 'bind.visible', 'bind.props.value']);
+      expect(notes.first.error, isFalse);
+      expect(notes.first.message, contains(r'"bind": {"decoration.radius": "${theme.radii.panel}"}'));
+      final panel = r.document['panel']!.toJson();
+      expect(panel['bind'], {'decoration.radius': r'${theme.radii.panel}'});
+      expect((panel['decoration'] as Map).containsKey('radius'), isFalse);
+      final back = r.document['back']!.toJson();
+      expect(back['bind'], {'visible': r'${step > 0}'});
+      // Text reads expressions as written: it stays.
+      expect((back['props'] as Map)['text'], r'Step ${step}');
+      // A path already bound keeps its binding.
+      expect(r.document['vol']!.toJson()['bind'], {'props.value': r'${kept}'});
+    });
+    test('replacing the root canvas with a column is rejected, with how to set its body (image_gallery@claude-haiku-5-5 retry)', () {
+      // The retry wrote {"op": "set", "id": "gallery", "slot": "body", "node":
+      // {"type": "column", ...}}: the canvas became a column, and a view shows
+      // nothing without a canvas.
+      final r = _apply(_card(), {
+        'op': 'set',
+        'id': 'card',
+        'slot': 'body',
+        'node': {'type': 'column', 'children': ['wrap'], 'layout': {'width': {'fill': 390}, 'height': {'hug': 400}}},
+      });
+      expect(r.rejected, [0]);
+      final d = r.errors.firstWhere((d) => d.path == '/nodes/card/type');
+      expect(d.message, contains('"card" is the canvas this UI is shown on'));
+      expect(d.message, contains('"parent": "card", "slot": "body"'));
+      // A node its canvas's slot already names may be set with "slot" and no
+      // "parent" (question_flow@claude-haiku-5-5's second retry did): it is placed.
+      final card = _apply(LayoutDocument(catalog: Catalog.core), [
+        {'op': 'roots', 'roots': ['quiz']},
+        {'op': 'set', 'id': 'quiz', 'node': {'type': 'canvas', 'slots': {'body': 'body'}, 'layout': {'width': 390, 'height': 200}}},
+        {'op': 'set', 'id': 'body', 'slot': 'body', 'node': {'type': 'column', 'layout': {'width': {'fill': 390}, 'height': {'hug': 40}}}},
+      ]);
+      expect(card.errors, isEmpty);
+      expect(card.document.parentOf('body'), 'quiz');
+    });
+    test('a patch that writes a size in another form replaces it (image_gallery@claude-haiku-5-5 retry2)', () {
+      // {"layout": {"height": {"fill": 400}}} over {"hug": 200} merged into
+      // {"hug": 200, "fill": 400}, no size at all, and the patch was rejected.
+      final r = _apply(_card(), {
+        'op': 'patch',
+        'id': 'wrap',
+        'patch': {
+          'layout': {'height': {'fill': 400}, 'padding': 12},
+        },
+      });
+      expect(r.errors, isEmpty);
+      expect(r.document['wrap']!.toJson()['layout'], {'width': {'fill': 390}, 'height': {'fill': 400}, 'padding': 12});
+    });
     test('would_orphan says to patch', () {
       final r = _apply(_card(), {
         'op': 'set',
@@ -158,6 +238,33 @@ void main() {
   });
 
   group('lints', () {
+    test('a button that does nothing when pressed: dead_control (plan_progress@claude-haiku-5-5)', () {
+      // The recorded plan card had Start and Pause buttons with no reactions
+      // and a "Migration complete" line shown from the start: a static
+      // mock-up that validated cleanly.
+      final doc = _apply(_card(), [
+        {'op': 'set', 'id': 'start', 'parent': 'wrap', 'node': {'type': 'filledButton', 'props': {'label': 'Start'}, 'layout': {'width': 120, 'height': 40}}},
+        {
+          'op': 'set',
+          'id': 'go',
+          'parent': 'wrap',
+          'node': {
+            'type': 'filledButton',
+            'props': {'label': 'Go'},
+            'layout': {'width': 120, 'height': 40},
+            'actions': [
+              {'trigger': {'type': 'click'}, 'actions': [{'type': 'setVariable', 'variable': 'x', 'value': '1'}]},
+            ],
+          },
+        },
+        {'op': 'set', 'id': 'off', 'parent': 'wrap', 'node': {'type': 'filledButton', 'props': {'label': 'Off', 'enabled': false}, 'layout': {'width': 120, 'height': 40}}},
+      ]).document;
+      final lints = uiLints(doc).where((d) => d.code == 'dead_control').toList();
+      expect([for (final d in lints) d.nodeId], ['start']);
+      expect(lints.single.error, isFalse);
+      expect(lints.single.message, contains('"start" (filledButton) does nothing when pressed'));
+      expect(lints.single.message, contains('"trigger": {"type": "click"}'));
+    });
     test('a tappable box with no label: empty_button (weather@claude-haiku-5-5)', () {
       final doc = _apply(_card(), {
         'op': 'set',

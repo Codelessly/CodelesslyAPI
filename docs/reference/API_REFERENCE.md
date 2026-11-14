@@ -788,16 +788,16 @@ section's anchor is its topic.
 | Page | What it covers | Words |
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4811 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8938 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2856 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9529 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2906 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12023 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
-| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4201 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12597 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7875 |
+| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6662 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5250 |
-| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4610 |
-| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3706 |
+| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
+| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3719 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7160 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2308 |
@@ -806,8 +806,8 @@ section's anchor is its topic.
 | [media.md](#page-media) | The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images. | 1998 |
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
-| [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2950 |
+| [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3020 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13353 |
 
 <a id="index-a-z"></a>
@@ -899,9 +899,9 @@ The guide that was `index.md` was split into the base and the pages. Its section
 <a id="layout-when-to-use"></a>
 ## When to use
 
-Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
-modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that
-wrap, a row that becomes a column, overlap and bleed, a sticky header or column).
+Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
+modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that
+wrap, a row turning into a column, a sticky header).
 
 <a id="layout-minimal-example"></a>
 ## Minimal example
@@ -1029,7 +1029,7 @@ From the parents' own rules; "fill (with `basis`)": a child of a wrapping row ma
 Why a mode is not allowed, as the declarations say it:
 
 - Flexible only applies in a row or column, along its main axis.
-- A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.
+- A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line. Add the width it starts from and wraps at ("layout": {"width": {"fill": 300}, "basis": 240}), or give it a fixed or hug size.
 - The column scrolls: its content has no end to fill to.
 - The row scrolls: its content has no end to fill to.
 - Items in a list always fill across it.
@@ -1635,6 +1635,56 @@ Across a row or column, a child's width comes out as:
 | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
 | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width, at most its `maxWidth` |
 
+<a id="layout-page-gutter"></a>
+### Page gutter
+
+The most common layout defect is sections that start at different x (one band padded 24, the next 32, a third
+capped). Give every section the same two layers, and they line up at every width:
+
+- the **band** (the section) fills the page width, holds its background, and has the page **gutter** as its side
+  padding: the same three values in every band, by the same media rules (16 on phones, 32 from 600, 64 from 1024);
+- its one **rail** child fills the band with `"constraints": {"maxWidth": 1200}`, centred (the band's default
+  `crossAxisAlignment`); the section's content goes inside the rail.
+
+At 390 every rail starts at 16, at 834 at 32, at 1440 at 120 ((1440 − 1200) / 2: the cap, not the gutter). Never pad
+the rail or a section's first child to move content: change the gutter in every band at once. A part meant to run
+to the edge (a photo strip) is a band with no rail ([overlap and bleed](#layout-overlap-and-bleed)).
+
+A hero is a band like the others: give it and its copy a **hug** height with a minimum (`"height": {"hug": 560},
+"constraints": {"minHeight": 480}`), never a fixed one. A headline whose size steps up by a media rule takes more
+lines in a narrower column, and a fixed height then overflows by the extra lines at tablet or desktop.
+
+```json
+{
+  "schema": 3,
+  "roots": ["home"],
+  "nodes": {
+    "home": {"type": "canvas", "slots": {"body": "page"}, "layout": {"width": 1440, "height": 900},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "page": {"type": "column", "children": ["hero", "features"], "props": {"scrollable": true},
+      "layout": {"width": {"fill": 1440}, "height": {"fill": 900}}},
+    "hero": {"type": "column", "children": ["heroRail"],
+      "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": [16, 48, 16, 48]},
+      "decoration": {"fills": [{"color": "#FF0F172A"}]},
+      "media": [{"minWidth": 600, "patch": {"layout": {"padding": [32, 64, 32, 64]}}},
+                {"minWidth": 1024, "patch": {"layout": {"padding": [64, 96, 64, 96]}}}]},
+    "heroRail": {"type": "column", "children": ["heroTitle"],
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 60}, "constraints": {"maxWidth": 1200}}},
+    "heroTitle": {"type": "text", "layout": {"width": {"fill": 1200}, "height": {"hug": 40}},
+      "props": {"text": "Every section starts on one line", "style": {"fontSize": 32, "fontWeight": 700, "color": "#FFFFFFFF"}}},
+    "features": {"type": "column", "children": ["featuresRail"],
+      "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": [16, 48, 16, 48]},
+      "media": [{"minWidth": 600, "patch": {"layout": {"padding": [32, 64, 32, 64]}}},
+                {"minWidth": 1024, "patch": {"layout": {"padding": [64, 96, 64, 96]}}}]},
+    "featuresRail": {"type": "row", "children": ["f1"],
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 120}, "constraints": {"maxWidth": 1200}},
+      "props": {"wrap": true, "spacing": 24, "runSpacing": 24}},
+    "f1": {"type": "text", "layout": {"width": {"fill": 400}, "height": {"hug": 48}, "basis": 300},
+      "props": {"text": "The band holds the colour and the gutter.", "style": {"fontSize": 16, "color": "#FF334155"}}}
+  }
+}
+```
+
 <a id="layout-an-editorial-page-at-three-sizes"></a>
 ### An editorial page at three sizes
 
@@ -1854,7 +1904,11 @@ its data, and patched per size like any field):
 | `columnStart`, `rowStart` | `grid-column-start`, `grid-row-start` | the first column and row, 1 the first; unset: the next free cell |
 
 Items with both starts are placed first, then those with only a row, then the rest in order, each in the next cells
-where it fits (CSS's auto-placement). Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
+where it fits (CSS's auto-placement); `"fillGaps": true` on the grid is CSS `grid-auto-flow: dense`, the rest taking
+the first cells they fit from the top (a hole a span left). **Explicit placement stays put when the data is
+filtered**: a session keeps its track's column and its slot's row, so filtering leaves those cells empty. For a
+filtered view that closes up, bind the starts only while showing everything (`"layout.columnStart": "${= track ==
+'all' ? item.track : null}"`): a null start is auto-placement. Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
 as their tallest item. A time-by-track timetable binds each session's track and slot to `columnStart` and
 `rowStart`, its length to `rowSpan`, and a session for every track to `columnSpan`; on a phone the bindings are only
 in a `minWidth` rule's patch, so the sessions fall back to one column in time order (a list), each naming its room:
@@ -2078,7 +2132,10 @@ true}` with `{"fill": n}` width and height. Without it, content past the bottom 
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
 giving one; `"axis": "horizontal"` moves only sideways scroll views), or one item of a list (`"item"`: its key or
 index): `{"type": "scrollTo", "node": "faq", "durationMs": 400}` from a sub-navigation link (the key is `node`, not
-`target`). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item
+`target`). Under a fixed or sticky header, `"offset": 88` (the header's height and a margin) lands the node that far
+below the top instead of under the header. A heading on another page: navigate with a param (`"params": {"anchor":
+"installation"}`) and scroll in that page's `load` reaction (`{"type": "scrollTo", "node": "${route.anchor}",
+"offset": 88, "when": {"left": "${route.anchor}", "op": "isNotEmpty"}}`). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item
 at the start `${result.index}`): store it for a header that condenses or a progress bar. Arrows, dots and snapping:
 [a carousel](#lists-a-carousel-pages-and-pagination).
 
@@ -2593,6 +2650,9 @@ the families it ships in `site.json`, in the shape of a Flutter pubspec's `fonts
 
 - `family` is the name text styles use, whatever the file calls itself; each file has a `weight` (100–900, default
   400) and a `style` (`normal` or `italic`).
+- A **variable font** (one file with a `wght` axis, `RobotoSlab[wght].ttf`) is declared **once**, without a weight:
+  it draws every weight of its axis (Flutter sets the axis from `fontWeight`), and the render command counts each
+  of them as declared. Listing the same file again per weight is not needed.
 - Files are `.ttf`, `.otf` or `.woff` (an npm `@fontsource/<family>` package's `files/` folder has a `.woff` beside
   each `.woff2`). WOFF2 is not read (`font_format`); a declared file that is not there is `font_missing`.
 - The render command loads them with no flag, before the page shows; a published site loads them from its files.
@@ -3655,7 +3715,7 @@ Flutter `SegmentedButton<String>`.
 
 Flutter `showDatePicker` button or field.
 
-An `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`yyyy-MM-dd`) that opens `showDatePicker`.
+A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -3669,7 +3729,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's. |
+| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
 | `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-timePicker"></a>
@@ -3677,7 +3737,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`
 
 Flutter `showTimePicker` button or field.
 
-An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`HH:mm`) that opens `showTimePicker`.
+A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -3690,7 +3750,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's. |
+| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
 | `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-dateTimeInput"></a>
@@ -3698,7 +3758,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`
 
 Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.
 
-An outlined `InputDecorator` showing a date, time or both, that opens the pickers.
+A field (Flutter's `InputDecorator`) showing a date, time or both, that opens the pickers.
 
 - Children: none.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
@@ -4378,6 +4438,79 @@ that replaces the form:
 }
 ```
 
+<a id="forms-submitting-without-a-backend"></a>
+### Submitting without a backend
+
+A site with no service to send to still has a whole submit flow: validate, show a sending state, keep the entry,
+confirm, and tell the app that hosts the page. Here a `status` variable (`idle`, `sending`, `error`, `sent`) drives
+what shows; the `delay` stands in for the request; `setStorage` keeps every submission on the device (`insert` into
+the list `${storage.submissions}`); `emitEvent` hands it to the host app (`codelessly.events`, the same bus a
+real backend hook listens on); and the confirmation says plainly that nothing was sent. The success text is honest
+about it, so the page is a real offline form, not a mock-up.
+
+```json
+{
+  "schema": 3,
+  "roots": ["signup"],
+  "nodes": {
+    "signup": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 420},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["form", "sending", "failed", "sent"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 420}, "padding": 24}, "props": {"spacing": 12}},
+    "form": {"type": "column", "children": ["email", "send"], "form": true,
+      "layout": {"width": {"fill": 342}, "height": {"hug": 120}}, "props": {"spacing": 12},
+      "bind": {"visible": "${= status == 'idle' || status == 'error'}"}},
+    "email": {"type": "textField", "layout": {"width": {"fill": 342}, "height": {"hug": 56}},
+      "props": {"decoration": {"labelText": "Email"}, "keyboardType": "emailAddress",
+        "validator": "${= matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? '' : 'Enter an email like name@example.com.'}"},
+      "bind": {"props.initialValue": "${email}"},
+      "actions": [{"trigger": {"type": "changed"}, "actions": [{"type": "setVariable", "variable": "email", "value": "${result}"}]}]},
+    "send": {"type": "filledButton", "layout": {"width": {"fill": 342}, "height": 48}, "props": {"label": "Subscribe"},
+      "actions": [{"trigger": {"type": "click"}, "actions": [
+        {"type": "validate", "node": "form"},
+        {"type": "if", "condition": {"left": "${result}", "op": "isTrue"}, "then": [
+          {"type": "setVariable", "variable": "status", "value": "sending"},
+          {"type": "delay", "ms": 900},
+          {"type": "if", "condition": {"left": "${failNext}", "op": "isTrue"},
+            "then": [{"type": "setVariable", "variable": "status", "value": "error"}],
+            "else": [
+              {"type": "setStorage", "key": "submissions", "op": "insert", "valueType": "list",
+                "value": "${= {'email': email, 'at': now()}}"},
+              {"type": "emitEvent", "event": "signupSubmitted", "props": {"email": "${email}"}},
+              {"type": "setVariable", "variable": "status", "value": "sent"}]}]}]}]},
+    "sending": {"type": "row", "children": ["spinner", "sendingText"], "props": {"spacing": 10},
+      "layout": {"width": {"fill": 342}, "height": 32}, "bind": {"visible": "${= status == 'sending'}"}},
+    "spinner": {"type": "circularProgressIndicator", "layout": {"width": 24, "height": 24}},
+    "sendingText": {"type": "text", "layout": {"width": {"fill": 300}, "height": {"hug": 20}},
+      "props": {"text": "Sending…", "style": {"fontSize": 15, "color": "#FF334155"}}},
+    "failed": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+      "props": {"text": "We couldn't send that. Try again.", "style": {"fontSize": 15, "color": "#FFDC2626"}},
+      "bind": {"visible": "${= status == 'error'}"}},
+    "sent": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+      "props": {"text": "Saved on this device: ${email}. Nothing is sent.", "style": {"fontSize": 15, "color": "#FF166534"}},
+      "bind": {"visible": "${= status == 'sent'}"}}
+  },
+  "variables": {
+    "signup": [
+      {"name": "email", "type": "text", "value": ""},
+      {"name": "status", "type": "text", "value": "idle"},
+      {"name": "failNext", "type": "boolean", "value": false}
+    ]
+  }
+}
+```
+
+<a id="forms-loading-and-error-states-without-a-backend"></a>
+### Loading and error states without a backend
+
+The `status` variable above is the whole loading and error design: one value, a node per state bound to it
+(`"visible": "${= status == 'sending'}"`, a spinner and a line; `'error'`, a message over the form, which stays so
+the visitor can retry). `failNext` makes the next submit fail, so the error state is exercised by the page itself:
+a "simulate a failure" switch in a demo, or the render command's `--set failNext=true --type email=a@b.co --tap
+send`. Capture a state mid-flight with `--set 'status="sending"'` (the command settles past a short `delay`). For a
+list that loads, the same pattern drives its `loading` and `error` slots from a `status` a `load` reaction sets
+after a `delay`.
+
 <a id="forms-a-radio-group"></a>
 ### A radio group
 
@@ -4638,6 +4771,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `childAspectRatio` | double | `1` | ≥ 0.0001 | Each cell's width / height when no `mainAxisExtent` is set (Flutter's `childAspectRatio`): 1 makes square cells. |
 | `mainAxisExtent` | double | unset | ≥ 0 | Each cell's height (its length along the scrolling axis), in pixels, whatever its width; wins over `childAspectRatio`. A cell fills it: give the item `{"fill": n}` on that axis, not a fixed size. |
 | `shrinkWrapRows` | bool | `false` |  | Each row (column, scrolling horizontally) as long as its longest item instead of a fixed extent. |
+| `fillGaps` | bool | `false` |  | CSS `grid-auto-flow: dense`: items placed automatically fill the holes earlier spanning items left, instead of always following the item before. Explicitly placed items (`columnStart` and `rowStart`) stay where they are. |
 | `masonry` | bool | `false` |  | Natural-height items in independent lanes, placed by `masonryPlacement`. |
 | `masonryPlacement` | [MasonryPlacement](#enum-MasonryPlacement) | `"cycle"` | `cycle`, `shortest` | A masonry grid's lane for each item: in turn, or the shortest. |
 | `pagination` | [Pagination](#type-Pagination) | unset |  | Loads the items page by page (see `ListViewProps.pagination`). |
@@ -5001,6 +5135,43 @@ A `listView` of rows bound to the records, each row a label and a `gridView` of 
 table written four times. For a column that stays while the others scroll sideways, keep the label column a
 `listView` of its own beside one horizontally scrolling block of the cell grids, rows the same height in both. A
 `tableView` is a data table with columns declared once (sorting, row taps).
+
+<a id="lists-a-data-table-tableview"></a>
+### A data table (tableView)
+
+The rows are **bound data** (`"bind": {"data": "${years}"}`, a list of records), never a `props.data`; the columns
+are `props.columns`, each a record field (`key`), its header (`label`) and its width. The `cell` slot is one template
+for every cell, reading `${item.value}` (also `${item.row}`, the whole record, and `${item.column}`); `columnHeader`
+reads `${item.label}`. `fillWidth` shares a wide screen's extra width between the columns:
+
+```json
+{
+  "schema": 3,
+  "roots": ["impact"],
+  "nodes": {
+    "impact": {"type": "canvas", "slots": {"body": "table"}, "layout": {"width": 390, "height": 260},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "table": {"type": "tableView", "slots": {"cell": "cell", "columnHeader": "head"},
+      "layout": {"width": {"fill": 390}, "height": {"fill": 260}},
+      "props": {"rowHeight": 40, "headerHeight": 40, "pinHeaderColumn": false, "fillWidth": true,
+        "columns": [{"key": "year", "label": "Year", "width": 80}, {"key": "trees", "label": "Trees", "width": 100},
+                    {"key": "survival", "label": "Survival", "width": 100}]},
+      "bind": {"data": "${years}"}},
+    "head": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.label}", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF334155"}}},
+    "cell": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.value}", "style": {"fontSize": 14, "color": "#FF0F172A"}}}
+  },
+  "variables": {
+    "impact": [
+      {"name": "years", "type": "list", "value": [
+        {"year": "2023", "trees": "3,120", "survival": "94%"},
+        {"year": "2024", "trees": "4,480", "survival": "91%"},
+        {"year": "2025", "trees": "4,880", "survival": "87%"}]}
+    ]
+  }
+}
+```
 
 <a id="lists-filter-sort-and-page-a-list"></a>
 ### Filter, sort and page a list
@@ -5855,7 +6026,9 @@ screen.
 ### Going to a screen and back
 
 `{"type": "navigate", "to": "<canvas id>"}` pushes the screen; `"mode": "pop"` goes back; `"replace"` and `"reset"`
-replace the history. For a screen with a canvas per breakpoint, name any of them. `"params": {"id": "${item.id}"}`
+replace the history. For a screen with a canvas per breakpoint, name any of them. `to` may be built by a binding
+(`"to": "${item.to}"` in a list of search results, each record naming its page's canvas id): it is the screen it names
+when the action runs (validation checks only literal names). `"params": {"id": "${item.id}"}`
 passes values the destination reads as `${route.id}`. A link to the screen's path with a query string passes the same
 (`trip?id=coast`), and so does the render command's `--navigate trip?id=coast`. A screen opened without the param
 reads it as empty: give the page a default (`coalesce(find(trips, 'id', route.id), first(trips))`).
@@ -6156,6 +6329,12 @@ A document's sandboxed JavaScript (`scripts`), run by `runScript` or called from
 ### Formula functions
 
 The functions a formula (`${= ...}`) can call, from the SDK's formula engine, grouped.
+
+Time zones are **UTC offsets**, not IANA names: `now('-06:00')`, `formatDate(now('+01:00'), 'HH:mm')`. The formula
+engine has no time zone database, so `now('America/Chicago')` is not a zone and daylight saving time is not applied.
+For a place that changes its clocks, pick the offset by date in the formula (Chicago, US rules: `now(month(now()) > 3
+&& month(now()) < 11 ? '-05:00' : '-06:00')`, exact except in the weeks of March and November when the clocks
+change), or have the host app pass the offset in (a variable it sets).
 
 <a id="state-text"></a>
 #### Text
@@ -6537,6 +6716,14 @@ formula string instead (`"when": "!item.future"`). `forEach` runs a chain per it
 {"type": "if", "condition": {"left": "${= contains(saved, trip.id)}", "op": "isTrue"},
  "then": [{"type": "setVariable", "variable": "saved", "op": "remove", "value": "${trip.id}"}],
  "else": [{"type": "setVariable", "variable": "saved", "op": "add", "value": "${trip.id}"}]}
+```
+
+One line of a list, from its own row of a list template (a cart's quantity stepper): `update` at the row's `index`
+with the row's record changed. `value` is one expression giving the new record (`set` changes one field), not an
+object written out:
+
+```json
+{"type": "setVariable", "variable": "cart", "op": "update", "index": "${index}", "value": "${= set(item, 'qty', item.qty + 1)}"}
 ```
 
 The condition is an object, never a formula string: a formula goes in `left` with `"op": "isTrue"`.
@@ -7603,6 +7790,24 @@ tag was a moment ago on screen (a picked emoji flying from its picker to its chi
 `{"hero": {"tag": "react", "flies": "inPlace", "flight": {"duration": 720, "lift": 110}}}`, on a spring without a
 `flight`.
 
+<a id="animation-count-up-a-number"></a>
+### Count up a number
+
+A figure that counts up when the page opens is a number variable the `animate` action plays
+(`AnimationController.animateTo`), shown through a formula that formats it: `thousands` (or `formatNumber`) puts
+in the thousands separators (`12,480`), which `round` alone does not.
+
+```json
+"variables": {"home": [{"name": "trees", "type": "decimal", "value": 0}, {"name": "people", "type": "decimal", "value": 0}]},
+"actions": [{"trigger": {"type": "load"}, "actions": [
+  {"type": "animate", "variable": "trees", "command": "animateTo", "target": "12480", "duration": "1300", "curve": "easeOutCubic", "nonBlocking": true},
+  {"type": "animate", "variable": "people", "command": "animateTo", "target": "3680", "duration": "1000", "curve": "easeOutCubic", "nonBlocking": true}]}]
+```
+
+with `"text": "${= thousands(trees)} trees planted"`. A chain waits for each `animate` to end before the next, so
+several in one `load` count **one after another**; `"nonBlocking": true` on each runs them **together** (or give
+each its own `load` reaction). The render command captures once every counting variable has arrived.
+
 <a id="animation-clocks-and-game-loops"></a>
 ### Clocks and game loops
 
@@ -7622,7 +7827,8 @@ the time with the render command's `--now 2026-11-13T09:00:00Z` (`now()` returns
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.
 - Animations run in a running app. The render command settles about a second after each step, so a short
-  animation is over when it captures; to check one mid-flight, lengthen its duration in a copy.
+  animation is over when it captures (a counting variable is waited for until it arrives, up to 20 s); to check
+  one mid-flight, lengthen its duration in a copy.
 
 <a id="animation-see-also"></a>
 ## See also
@@ -7834,7 +8040,8 @@ call is `PlanCard(price: 47, ...)`.
 ### A complete multi-page site
 
 A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids
-`unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages. The trip
+`unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages (a listed
+page not written yet is one `page_not_written` warning, not an error). The trip
 page reads its route parameter (`${route.id}`, from `navigate.params` or a link `trip?id=coast`); the saved list is
 restored from storage when the home page loads; the packing list is kept per trip under a key built from the route.
 
@@ -10162,11 +10369,19 @@ batch of ops; every change after it is a few more.
 | `unknown_variable` | no (a warning) | A vars op that sets (or removes) a variable the scope does not declare: declare it with a full variable object. |
 | `malformed_input` | no (a warning) | The tool input's JSON was not well formed at a character offset (a stray or missing brace or bracket, a trailing or missing comma, an op that began before the previous one closed): the decoder repaired it and read the ops around it. Write balanced JSON: one closing brace per opening brace. |
 | `misplaced_field` | no (a warning) | A node field ("bind", "props", "actions"...) written on a set op instead of inside its "node": it was moved into the node. |
+| `expression_bound` | no (a warning) | An expression written where a plain value goes ("radius": "${theme.radii.panel}", "visible": "${step > 0}"): it was moved into the node's "bind" under the field's path, which is where to write it. |
 | `start_over` | yes | A batch that rebuilds a UI that already exists (new roots, a new canvas) instead of patching it: fix the existing document with patch, set (same ids) and remove; never start over. |
 | `empty_button` | no (a warning) | A node that reacts to a tap but shows nothing (a box, row or column with no children): a button with no label. |
+| `dead_control` | no (a warning) | A button (a core button, or a component named ...Button with an onPressed event) with no reaction and not disabled: pressing it does nothing. |
 | `low_contrast` | no (a warning) | Text drawn in (nearly) the colour of the fill behind it, or with no colour (the default near-black) over a dark fill. |
 | `missing_glyph` | no (a warning) | Text with characters the loaded fonts do not have (an arrow, a symbol): they draw as empty boxes. Use an icon node. Reported by a renderer that knows its fonts. |
 | `no_size` | no (a warning) | A node that has content but was laid out with no width or no height, so nothing of it shows. Reported by a renderer. |
+| `empty_view` | yes | The UI shows nothing: its canvas laid out with no size or no visible content (no canvas root, its body never arrived, everything in it hidden or empty). Reported by a renderer. |
+| `list_empty` | yes | A list that shows no items: its data is not a list, its item template is missing, or (a warning) it is empty while the list it is computed from is not (a filter that matches nothing). Reported by a renderer. |
+| `empty_label` | no (a warning) | A control or component whose label (or title) shows as empty text: its binding gave nothing. Reported by a renderer. |
+| `expression_not_evaluated` | no (a warning) | A text shows "${" on screen: an expression that did not evaluate (a formula error, or one written where no expression is read). Reported by a renderer. |
+| `text_no_color` | no (a warning) | A text with no colour, or a transparent one (an unresolved name): it does not show. Reported by a renderer. |
+| `component_empty` | no (a warning) | A design system component call that rendered nothing: no size, or nothing visible in it (its label or content parameters empty), or its definition missing. Reported by a renderer. |
 | `invalid_script` | yes | A scripts op whose script cannot be stored: a name or parameter that is not a JavaScript identifier, no source, limits out of range. |
 
 <a id="edit-ops-the-tools"></a>
@@ -10455,8 +10670,8 @@ may name a node by its `name` too. In a site, steps name nodes inside components
 and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`). Ids are
 per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
 an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
-component's). A step on a node hidden at one size (a media rule, another breakpoint's canvas) is skipped there with
-a note; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
+component's). A step on a node hidden at one size (a media rule, a binding, another breakpoint's canvas; a
+component's node by its path too) is skipped there with a `step_skipped` note, not a failure; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
 params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--navigate /project?id=7`); later steps
 act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
 not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
@@ -10482,6 +10697,7 @@ From `package:codelessly_api/validate.dart`:
 
 | Code | Severity | Meaning |
 |---|---|---|
+| `above_level` | error | Something from a higher level of the vocabulary than the document is limited to (`ValidateOptions.level`): a node type, action, trigger, behavior, binding or expression. |
 | `invalid_document` | error | The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list). |
 | `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3). |
 | `schema_outdated` | info | A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
@@ -10561,11 +10777,12 @@ From `package:codelessly_api/validate.dart`:
 ### Render codes
 
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
-`interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
+`interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
-`component_missing`, `set_overwritten`. Links to a screen that is missing are one `unknown_screen` per screen, with
-how many links name it. Formulas are
+`component_missing`, `set_overwritten`, `page_not_written`. Links to a screen that is missing are one
+`unknown_screen` per screen, with how many links name it; a page `site.json` lists whose file is not written yet is
+one `page_not_written` warning per file instead (its links are checked once it is written). Formulas are
 parsed by the SDK's own parser there, so formula syntax errors and unknown names in formulas are reported only by
 the render command.
 
@@ -11267,8 +11484,8 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `dialog` | What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value). |
-| `none` | What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value). |
+| `dialog` | What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value). |
+| `none` | What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value). |
 
 <a id="enum-DecorationShape"></a>
 ### DecorationShape

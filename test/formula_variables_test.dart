@@ -112,12 +112,36 @@ void main() {
           },
         };
 
-    test('a vars op whose filter reads an item\'s field without the item is rejected, naming the variable', () {
+    test('a vars op whose filter reads an item\'s field without the item is an error naming the variable; the op stays applied', () {
       final r = applyOps(base, [vars(_bad)], check: check);
-      expect(r.rejected, [0]);
+      expect(r.applied, [0], reason: 'a wrong formula is reported, not a reason to drop the variables beside it');
       final d = r.errors.firstWhere((d) => d.code == 'unknown_name');
       expect(d.message, startsWith('Variable "shown": "status" is not a variable'));
       expect(d.path, '/variables/inv/4/formula');
+      expect(d.op, 0);
+    });
+
+    test('one formula that does not parse leaves the other variables of its vars op declared, so the UI that reads them still shows', () {
+      // A recorded reservation card (reservation@claude-sonnet-5-5, SSUI)
+      // declared its days, slots, party and chosen time in one vars op with
+      // a slot formula written as JavaScript; rejecting the op left every
+      // node reading nothing (25 unknown names, no days, no party size).
+      final r = applyOps(base, [
+        {
+          'op': 'vars',
+          'scope': 'inv',
+          'set': {
+            'party': {'type': 'integer', 'value': 2},
+            'slotData': {'type': 'list', 'formula': 'page +'},
+          },
+        },
+      ], check: check, incomplete: true);
+      expect(r.applied, [0]);
+      final names = [for (final v in readList(readMap(r.document.extra['variables'])?['inv'])!) (v as Map)['name']];
+      expect(names, containsAll(['party', 'slotData']));
+      final d = r.errors.single;
+      expect((d.code, d.op, d.path), ('expression_syntax', 0, '/variables/inv/5/formula'));
+      expect(d.message, contains('"slotData" is declared but gives nothing until its formula is fixed'));
     });
 
     test('the same op with a lambda applies', () {

@@ -641,8 +641,8 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `dialog` | What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value). |
-| `none` | What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value). |
+| `dialog` | What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value). |
+| `none` | What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value). |
 
 <a id="enum-DecorationShape"></a>
 ### DecorationShape

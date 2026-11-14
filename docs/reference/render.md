@@ -76,8 +76,8 @@ may name a node by its `name` too. In a site, steps name nodes inside components
 and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`). Ids are
 per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
 an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
-component's). A step on a node hidden at one size (a media rule, another breakpoint's canvas) is skipped there with
-a note; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
+component's). A step on a node hidden at one size (a media rule, a binding, another breakpoint's canvas; a
+component's node by its path too) is skipped there with a `step_skipped` note, not a failure; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
 params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--navigate /project?id=7`); later steps
 act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
 not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
@@ -103,6 +103,7 @@ From `package:codelessly_api/validate.dart`:
 
 | Code | Severity | Meaning |
 |---|---|---|
+| `above_level` | error | Something from a higher level of the vocabulary than the document is limited to (`ValidateOptions.level`): a node type, action, trigger, behavior, binding or expression. |
 | `invalid_document` | error | The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list). |
 | `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3). |
 | `schema_outdated` | info | A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
@@ -182,11 +183,12 @@ From `package:codelessly_api/validate.dart`:
 ### Render codes
 
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
-`interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
+`interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
-`component_missing`, `set_overwritten`. Links to a screen that is missing are one `unknown_screen` per screen, with
-how many links name it. Formulas are
+`component_missing`, `set_overwritten`, `page_not_written`. Links to a screen that is missing are one
+`unknown_screen` per screen, with how many links name it; a page `site.json` lists whose file is not written yet is
+one `page_not_written` warning per file instead (its links are checked once it is written). Formulas are
 parsed by the SDK's own parser there, so formula syntax errors and unknown names in formulas are reported only by
 the render command.
 

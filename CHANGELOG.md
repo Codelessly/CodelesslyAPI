@@ -1,5 +1,20 @@
 ## Unreleased
 
+- **An expression written where a plain value goes is bound, not rejected.** `"radius": "${theme.radii.panel}"`,
+  `"visible": "${step > 0}"`, a non-text prop: `applyOps` moves it into the node's `bind` under the field's path
+  and reports `expression_bound` (a note, with the binding written). A path already bound keeps its binding; text
+  props read expressions as written and are left alone. `strictEditCheck` passes `ValidateOptions.level` through.
+
+- **Levels of the vocabulary** (`docs/design/12-agent-first-flutter.md`). `lib/src/core/levels.dart` (internal,
+  not exported) gives every node type, action, data source, behavior and trigger a level: core, widgets, state,
+  design, full, features. `catalogAtLevel` cuts a catalog to a level, `levelOf` and `levelUses` read a document's,
+  and `ValidateOptions.level` reports anything above the level given (`above_level`).
+
+
+- Date and time pickers (Milestone 3, workstream G): the `datePicker`, `timePicker` and `dateTimeInput` docs describe
+  the SDK's own pickers (SSUI's field, a calendar or hour/minute columns in a popover or bottom sheet; an empty value
+  shows its hint), no longer Material's dialogs; `docs/design/11-no-widgets.md` marks workstream G built.
+- Design 11: the text field as built (WS-A, section 3.2): field frame, editor and what is left (handles, toolbar).
 - Milestone 3, kit follow-up and workstreams C and I: a control (`WidgetSpec.hugs`: buttons, chips, `badge`,
   `circularProgressIndicator`, `activityIndicator`) with no `layout.width`/`height` hugs its content instead of being
   0 × 0 (`zero_size` no longer reported for it); buttons take `loading` (SSUI's `isLoading`); `TriggerType.deleted`
@@ -17,6 +32,45 @@
   take `autofocus` (Flutter's), and draw `WidgetState.selected` themselves: a bound `selected` on a button no longer
   reports `state_no_effect`. `WidgetSpec.states` (catalog JSON `states`) lists the states a type's own look draws.
   Their docs say what the default (SSUI) button is.
+
+**What ten sites built as data (brief 3) ran into.**
+
+- Validation: a list's pagination controller (`props.pagination.name`) is a name its page may read
+  (`${coastPages.page < coastPages.pageCount}` was `unknown_name`).
+- `gridView.fillGaps`: CSS `grid-auto-flow: dense`, automatically placed items filling the holes earlier spans left.
+- `navigate.to` may be an expression (`${item.to}`): documented on the action; the SDK now evaluates it.
+- `fit_not_allowed` in a wrapping row gives the fix (`basis`, with an example); `decoration_ignored` on a text says
+  how to make a filled, rounded label (a row around it) or a highlight (`style.backgroundColor`).
+- Reference: a page gutter and max-width recipe that keeps every section on one left edge at 390, 834 and 1440, and
+  hero sizing (layout); submitting a form with no backend and simulated loading and error states (forms); a
+  `tableView` with bound data (lists); updating one list line at its `index` and UTC offsets instead of IANA time
+  zones (state); counting a number up, and running several `animate` actions together (animation); explicit grid
+  placement under a filter, `scrollTo`'s offset under a fixed header and scrolling to a heading on another page
+  (layout); declaring a variable font once (theme); `step_skipped` and `page_not_written` (render).
+
+**Valid but blank, explained.** Of 34 recorded SSUI generations, several final frames showed an empty card or a
+card missing its content. Causes in this package, and what a model is now told:
+
+- A `vars` op with one formula that does not parse (or reads an unknown name) is no longer rejected whole: its other
+  variables are declared, and the formula's error stays an error at that op, saying the variable gives nothing until
+  its formula is fixed. Rejecting it left every node that read the op's variables showing nothing (three recorded
+  cards, reservation, checkout and itinerary by claude-sonnet-5-5, went blank once formulas were checked).
+- `BindValue.color` reads a theme colour's name (`Color.named`): a fill bound to
+  `"${= selected ? 'primary' : 'primaryBackground'}"` was dropped.
+- A `patch` op merges a node as its declarations read it (`mergeNodePatch`): `{"height": {"fill": 400}}` over
+  `{"hug": 480}` gave a two-key size and the patch was rejected.
+- A `set` that replaces the root canvas with another type is rejected (`wrong_type`, with how to set the canvas's
+  body): a recorded retry turned its canvas into a column and the view showed nothing.
+- `wrong_type` for a `${...}` expression written as a plain value (`"radius": "${theme.radii.panel}"`,
+  `"visible": "${step > 0}"`) names the binding to write, `"bind": {"decoration.radius": "${theme.radii.panel}"}`.
+  Five recorded base turns lost their whole card to one such rejected container.
+- The design system section shows its spacing, radii and sizes as the binding to write ("bound, not written: ...")
+  instead of the bare `${theme.radii.panel}` models wrote as a value.
+- New codes for what a rendered UI shows wrong, reported by the SDK's `UiSession.shownDiagnostics`: `empty_view` and
+  `list_empty` (errors), `empty_label`, `expression_not_evaluated`, `text_no_color`, `component_empty` (warnings).
+- `dead_control` lint: a core button, or a component named `...Button` with an `onPressed` event, with no reaction,
+  not disabled and not inside a tappable node (a recorded plan card was a static mock-up whose Start and Pause did
+  nothing).
 
 - A computed variable's `formula` is checked like a node's expressions (it was not checked at all): it must parse
   and read only declared names, its `parameters` included. The edit layer checks the formulas of the variables a

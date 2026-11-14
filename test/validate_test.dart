@@ -58,7 +58,7 @@ void main() {
 
   test('every diagnostic code has a test here', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 74); // invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
+    expect(Codes.all.length, 75); // above_level: test/levels_test.dart; invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
   });
 
   group('document', () {
@@ -411,6 +411,25 @@ void main() {
       final d = base();
       node(d, 'title')['bind'] = {'visible': r'${false}'};
       expectOne(d, Codes.unknownName, suggestion: r'${= false}');
+    });
+    test('a list\'s pagination controller is a name its page may read, as the pagination node does', () {
+      final d = base();
+      final n = nodes(d);
+      (n['col'] as Map)['children'] = ['title', 'box', 'stories'];
+      n['stories'] = {
+        'type': 'listView',
+        'children': ['story'],
+        'layout': {'width': {'fill': 390}, 'height': {'hug': 300}},
+        'props': {'scrollable': false, 'pagination': {'name': 'coastPages', 'mode': 'pages', 'pageSize': 3}},
+        'bind': {'data': r'${= [1, 2, 3, 4]}'},
+      };
+      n['story'] = {'type': 'text', 'layout': {'width': {'fill': 390}, 'height': {'hug': 20}}, 'props': {'text': r'${item}', 'style': {'color': '#FF000000'}}};
+      node(d, 'title')['bind'] = {'visible': r'${= coastPages.page < coastPages.pageCount}'};
+      expect(withCode(d, Codes.unknownName, options: ValidateOptions(formulas: (f) => (error: null, paths: {'coastPages.page', 'coastPages.pageCount'}))),
+          isEmpty);
+      // A name nothing declares is still reported.
+      node(d, 'title')['bind'] = {'visible': r'${= coastPage.page < 2}'};
+      expectOne(d, Codes.unknownName, options: ValidateOptions(formulas: (f) => (error: null, paths: {'coastPage.page'})));
     });
     test('a formula naming an unknown variable is reported by the formula checker (unknown_name)', () {
       final d = base();

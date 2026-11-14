@@ -16,8 +16,8 @@
       "file": "layout.md",
       "anchor": "page-layout",
       "title": "Responsive layout",
-      "summary": "Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column).",
-      "words": 8938
+      "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
+      "words": 9529
     },
     {
       "topic": "layout-layout-fields",
@@ -33,7 +33,7 @@
       "anchor": "layout-which-sizing-modes-each-parent-allows",
       "title": "Which sizing modes each parent allows",
       "summary": "From the parents' own rules; \"fill (with `basis`)\": a child of a wrapping row may fill its line's share when it sets `layout.basis`.",
-      "words": 286
+      "words": 309
     },
     {
       "topic": "layout-media-rules",
@@ -76,6 +76,14 @@
       "words": 342
     },
     {
+      "topic": "layout-page-gutter",
+      "file": "layout.md",
+      "anchor": "layout-page-gutter",
+      "title": "Page gutter",
+      "summary": "The most common layout defect is sections that start at different x (one band padded 24, the next 32, a third capped).",
+      "words": 418
+    },
+    {
       "topic": "layout-an-editorial-page-at-three-sizes",
       "file": "layout.md",
       "anchor": "layout-an-editorial-page-at-three-sizes",
@@ -89,7 +97,7 @@
       "anchor": "layout-grid-spans-a-timetable",
       "title": "Grid spans; a timetable",
       "summary": "A `gridView` item spans and is placed as in CSS grid, through its own `layout` (the template's, bound per item from its data, and patched per size like any field):",
-      "words": 394
+      "words": 431
     },
     {
       "topic": "layout-cards-that-wrap",
@@ -129,7 +137,7 @@
       "anchor": "layout-scrolling",
       "title": "Scrolling",
       "summary": "A screen scrolls only if something in it scrolls.",
-      "words": 264
+      "words": 321
     },
     {
       "topic": "layout-scroll-progress",
@@ -161,7 +169,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 2856
+      "words": 2906
     },
     {
       "topic": "theme-theme-keys",
@@ -233,7 +241,7 @@
       "anchor": "theme-fonts",
       "title": "Fonts",
       "summary": "`style.fontFamily` names a family (`\"Inter\"`), with `fontWeight` and `fontStyle` choosing the file.",
-      "words": 210
+      "words": 260
     },
     {
       "topic": "decoration",
@@ -329,7 +337,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 12023
+      "words": 12597
     },
     {
       "topic": "forms-triggers",
@@ -362,6 +370,22 @@
       "title": "Validation and an error state",
       "summary": "As Flutter's `TextFormField` and `Form`:",
       "words": 429
+    },
+    {
+      "topic": "forms-submitting-without-a-backend",
+      "file": "forms.md",
+      "anchor": "forms-submitting-without-a-backend",
+      "title": "Submitting without a backend",
+      "summary": "A site with no service to send to still has a whole submit flow: validate, show a sending state, keep the entry, confirm, and tell the app that hosts the page.",
+      "words": 346
+    },
+    {
+      "topic": "forms-loading-and-error-states-without-a-backend",
+      "file": "forms.md",
+      "anchor": "forms-loading-and-error-states-without-a-backend",
+      "title": "Loading and error states without a backend",
+      "summary": "The `status` variable above is the whole loading and error design: one value, a node per state bound to it (`\"visible\": \"${= status == 'sending'}\"`, a spinner and a line; `'error'`, a message over the form, which stays so the visitor can retry).",
+      "words": 115
     },
     {
       "topic": "forms-a-radio-group",
@@ -425,7 +449,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 7618
+      "words": 7875
     },
     {
       "topic": "lists-triggers",
@@ -476,6 +500,14 @@
       "words": 103
     },
     {
+      "topic": "lists-a-data-table-tableview",
+      "file": "lists.md",
+      "anchor": "lists-a-data-table-tableview",
+      "title": "A data table (tableView)",
+      "summary": "The rows are **bound data** (`\"bind\": {\"data\": \"${years}\"}`, a list of records), never a `props.data`; the columns are `props.columns`, each a record field (`key`), its header (`label`) and its width.",
+      "words": 211
+    },
+    {
       "topic": "lists-filter-sort-and-page-a-list",
       "file": "lists.md",
       "anchor": "lists-filter-sort-and-page-a-list",
@@ -505,7 +537,7 @@
       "anchor": "page-navigation",
       "title": "Screens, navigation, modals and toasts",
       "summary": "Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions).",
-      "words": 4201
+      "words": 4238
     },
     {
       "topic": "navigation-triggers",
@@ -529,7 +561,7 @@
       "anchor": "navigation-going-to-a-screen-and-back",
       "title": "Going to a screen and back",
       "summary": "`{\"type\": \"navigate\", \"to\": \"<canvas id>\"}` pushes the screen; `\"mode\": \"pop\"` goes back; `\"replace\"` and `\"reset\"` replace the history.",
-      "words": 87
+      "words": 124
     },
     {
       "topic": "navigation-modals-and-toasts",
@@ -569,7 +601,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6514
+      "words": 6662
     },
     {
       "topic": "state-variables",
@@ -617,7 +649,7 @@
       "anchor": "state-formula-functions",
       "title": "Formula functions",
       "summary": "The functions a formula (`${= ...}`) can call, from the SDK's formula engine, grouped.",
-      "words": 446
+      "words": 458
     },
     {
       "topic": "state-text",
@@ -713,7 +745,7 @@
       "anchor": "state-changing-state-from-a-reaction",
       "title": "Changing state from a reaction",
       "summary": "`setVariable` with `op`: `set` (default), `toggle`, `add` (a number adds; a list appends; a map merges), `subtract`, `insert` / `removeAt` / `update` at `index`, `remove`.",
-      "words": 139
+      "words": 200
     },
     {
       "topic": "state-setting-several-nodes-with-a-condition",
@@ -825,7 +857,7 @@
       "anchor": "page-animation",
       "title": "Animation and motion",
       "summary": "Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games.",
-      "words": 4610
+      "words": 4769
     },
     {
       "topic": "animation-triggers",
@@ -876,6 +908,14 @@
       "words": 92
     },
     {
+      "topic": "animation-count-up-a-number",
+      "file": "animation.md",
+      "anchor": "animation-count-up-a-number",
+      "title": "Count up a number",
+      "summary": "A figure that counts up when the page opens is a number variable the `animate` action plays (`AnimationController.animateTo`), shown through a formula that formats it: `thousands` (or `formatNumber`) puts in the thousands separators (`12,480`), which `round` alone does not.",
+      "words": 139
+    },
+    {
       "topic": "animation-clocks-and-game-loops",
       "file": "animation.md",
       "anchor": "animation-clocks-and-game-loops",
@@ -889,7 +929,7 @@
       "anchor": "page-components",
       "title": "Components and sections",
       "summary": "Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section.",
-      "words": 3706
+      "words": 3719
     },
     {
       "topic": "components-parameter-kinds",
@@ -936,8 +976,8 @@
       "file": "components.md",
       "anchor": "components-a-complete-multi-page-site",
       "title": "A complete multi-page site",
-      "summary": "A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids `unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages.",
-      "words": 370
+      "summary": "A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids `unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages (a listed page not written yet is one `page_not_written` warning, not an error).",
+      "words": 375
     },
     {
       "topic": "components-when-to-make-what",
@@ -1257,7 +1297,7 @@
       "anchor": "page-edit-ops",
       "title": "Edit ops and streaming",
       "summary": "Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use.",
-      "words": 3297
+      "words": 3581
     },
     {
       "topic": "edit-ops-the-ops",
@@ -1321,7 +1361,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 2950
+      "words": 3020
     },
     {
       "topic": "render-what-it-does",
@@ -1337,7 +1377,7 @@
       "anchor": "render-steps-before-the-capture",
       "title": "Steps before the capture",
       "summary": "In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`, `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--navigate <screen>`, `--wait <ms>`.",
-      "words": 488
+      "words": 501
     },
     {
       "topic": "render-validation-codes",
@@ -1345,15 +1385,15 @@
       "anchor": "render-validation-codes",
       "title": "Validation codes",
       "summary": "From `package:codelessly_api/validate.dart`:",
-      "words": 605
+      "words": 590
     },
     {
       "topic": "render-render-codes",
       "file": "render.md",
       "anchor": "render-render-codes",
       "title": "Render codes",
-      "summary": "The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`.",
-      "words": 76
+      "summary": "The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `page_not_written`.",
+      "words": 103
     },
     {
       "topic": "render-a-loop-that-converges",

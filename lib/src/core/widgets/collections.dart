@@ -247,6 +247,15 @@ abstract final class GridViewProps {
   /// instead of a fixed extent.
   static const shrinkWrapRows = PropDef<bool>('shrinkWrapRows', Codecs.bool, false);
 
+  /// CSS `grid-auto-flow: dense`: an item placed automatically (no
+  /// `columnStart`/`rowStart`) takes the first cells it fits from the top,
+  /// filling a hole an earlier spanning item left; false (CSS's default,
+  /// sparse) places each after the one before.
+  static const fillGaps = PropDef<bool>('fillGaps', Codecs.bool, false,
+      doc: 'CSS `grid-auto-flow: dense`: items placed automatically fill the holes earlier spanning items left, '
+          'instead of always following the item before. Explicitly placed items (`columnStart` and `rowStart`) '
+          'stay where they are.');
+
   /// Natural-height items in independent lanes, placed by
   /// [masonryPlacement].
   static const masonry = PropDef<bool>('masonry', Codecs.bool, false);
@@ -268,7 +277,7 @@ abstract final class GridViewProps {
     'gridView',
     props: [
       ...CollectionScrollProps.all, crossAxisCount, maxCrossAxisExtent, minCrossAxisExtent, mainAxisSpacing, crossAxisSpacing, //
-      childAspectRatio, mainAxisExtent, shrinkWrapRows, masonry, masonryPlacement, pagination, reorder,
+      childAspectRatio, mainAxisExtent, shrinkWrapRows, fillGaps, masonry, masonryPlacement, pagination, reorder,
     ],
     slots: CollectionSlots.grid,
     children: ChildModel.list,
