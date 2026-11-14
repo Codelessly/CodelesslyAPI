@@ -787,7 +787,7 @@ section's anchor is its topic.
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4813 |
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9311 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2852 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2902 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11893 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
@@ -2635,6 +2635,9 @@ the families it ships in `site.json`, in the shape of a Flutter pubspec's `fonts
 
 - `family` is the name text styles use, whatever the file calls itself; each file has a `weight` (100–900, default
   400) and a `style` (`normal` or `italic`).
+- A **variable font** (one file with a `wght` axis, `RobotoSlab[wght].ttf`) is declared **once**, without a weight:
+  it draws every weight of its axis (Flutter sets the axis from `fontWeight`), and the render command counts each
+  of them as declared. Listing the same file again per weight is not needed.
 - Files are `.ttf`, `.otf` or `.woff` (an npm `@fontsource/<family>` package's `files/` folder has a `.woff` beside
   each `.woff2`). WOFF2 is not read (`font_format`); a declared file that is not there is `font_missing`.
 - The render command loads them with no flag, before the page shows; a published site loads them from its files.

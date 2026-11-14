@@ -169,7 +169,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 2852
+      "words": 2902
     },
     {
       "topic": "theme-theme-keys",
@@ -241,7 +241,7 @@
       "anchor": "theme-fonts",
       "title": "Fonts",
       "summary": "`style.fontFamily` names a family (`\"Inter\"`), with `fontWeight` and `fontStyle` choosing the file.",
-      "words": 210
+      "words": 260
     },
     {
       "topic": "decoration",
