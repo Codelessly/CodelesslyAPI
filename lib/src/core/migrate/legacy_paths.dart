@@ -62,6 +62,7 @@ String? movedPathHint(String path) {
       'a variable bound into the "customPaint" path op that draws the line ("points", "trimEnd" for the progress, "paint.color")',
     'props.path' => '"props.data" (a box drawn as a path is a path node)',
     'props.subpathColors' => 'a variable bound into the paint of each "customPaint" path op (one op per color)',
+    'props.use24h' => '"props.alwaysUse24HourFormat" (a time picker\'s 24-hour dial, Flutter\'s name)',
     _ => null,
   };
 }

@@ -41,6 +41,31 @@
   there are no such tokens; a project variable map). The render page covers `--drag`, `--navigate` with a query
   string, `--now`, `--compare-map`, what a run keeps, and full-page captures of sticky nodes, modals and navigation.
 
+- **A stroke path's draw-on animation migrates to the general pieces.** `strokePath.drawMs` (with `drawDelayMs`,
+  `drawCurve`) was kept as `legacy.strokePath.draw` and no longer drawn; `paint.strokePath` now writes an animation
+  `strokePathDraw` whose track draws the line op's `trimEnd` from 0 to its own value (the fill's paint from
+  transparent), played when the node appears, and a transition of that `trimEnd` with the same timing; a bound
+  progress becomes a binding of `customPaint.<painter>.strokePath.trimEnd`. Frame for frame the old painter's
+  drawing (codelessly_sdk's `stroke_draw_on_test.dart`), except a progress that changes while the line is still
+  drawing on. A literal `drawKey` is dropped (it never changed). `legacy.strokePath.draw` is no longer written.
+- **`BindPaths.declaredDefault(node, path)`**: the declared default at a binding path (`opacity`, `props.*`,
+  `layout.*`, `decoration.*`, a custom paint op's field), the node's value there when its JSON omits the field. An
+  animation track with no `from` or `to` uses it (codelessly_sdk), so a track can end at an op's default `trimEnd` 1.
+- **Name conformance, re-measured** (`tool/name_conformance.dart`; docs/design/10-audit-verdict.md, section 6, and
+  docs/design/name-conformance.md): 61% of the 863 declared fields of the Flutter-mirroring node types and shared
+  groups are Flutter's name and meaning, 78% of those with a Flutter counterpart; 21 special-case fields are listed
+  with a recommendation.
+- **A time picker's `use24h` is `alwaysUse24HourFormat`** (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the
+  picker reads). Step `props.renamed` (in `migrate2to3`'s one-way steps) renames the prop, its binding, state and media
+  patches and `setValue`/condition paths in a schema-2 document; in a schema-3 document `use24h` is refused
+  (`unknown_prop`) naming the new spelling, and `movedPathHint('props.use24h')` gives it. No document in the corpus or
+  either repository used it.
+- **State patches that targeted `self` or `@<key>` now run.** A state patch names the node it patches by id; generated
+  schema-2 documents also wrote `self` and `@<key>` (the node's key), which matched no node, so those hover, press
+  and selection styles never applied (1131 patches in 9 corpus documents, all naming the node their states are on).
+  `migrate2to3`'s first step, `states.target`, rewrites them to the id they mean and reports a behaviour change. In a
+  schema-3 document validation refuses them (`unknown_target_node`) with the id to write as the suggestion.
+
 ## 30.1.0
 
 **One spelling for each concept; the schema stays 3.** Documents are still `"schema": 3` (`kSchemaVersion`), and

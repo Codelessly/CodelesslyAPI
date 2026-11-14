@@ -41,7 +41,7 @@ them.
 | 7 | [Generative-UI landscape](07-landscape.md) | Research, 2026-11-13: A2UI 1.0 (and Express), Vercel's UI SDK (2026-11-12) and json-render, MCP Apps, OpenAI, AG-UI/CopilotKit, code-into-sandbox, Flutter options and code generators, verified from primary sources; a comparison table with an honest Codelessly column; what to adopt from each |
 | 8 | [The API for AI](08-ai-developer-experience.md) | Positioning (the app as an editable document); six id-addressed edit ops with merge patch per node and per-op validation; a headless `codelessly` CLI/MCP for design-time agents; a runtime `UiSession` with two LLM tools (`ui_apply`, `ui_read`), streaming with placeholders, events and undo; trust profile as a restricted catalog; A2UI/MCP Apps/AG-UI interop; build order, paired-corpus evaluation and ranked decisions |
 | 9 | [Inline generative UI: the use cases](09-genui-use-cases.md) | What A2UI, json-render, the OpenAI Apps SDK, assistant-ui and Tool UI show an assistant rendering in a conversation; thirteen use-case types ranked by sources; our streaming test list and the briefs to add; the demo page |
-| 10 | [The audit's verdict](10-audit-verdict.md) | What the audit found, what changed, what has no Flutter counterpart and why it stays, the verdict on the path (Flutter API → data model → renderer → feature layers), and what is not finished |
+| 10 | [The audit's verdict](10-audit-verdict.md) | What the audit found, what changed, what has no Flutter counterpart and why it stays, the verdict on the path (Flutter API → data model → renderer → feature layers), what is not finished, and name conformance re-measured ([name-conformance.md](name-conformance.md) lists every field not under Flutter's name) |
 
 ## AI authoring
 

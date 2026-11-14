@@ -92,8 +92,8 @@ below:
 - **`strokePath`** (a line through points) is a `path` op in `painter` (`foregroundPainter` for `inFront`):
   `points`, a share of the box as `"${= 0.25 * size.width}"`, `curve` as `commands`, `progress` as `trimEnd`,
   the line `{"style": "stroke", "strokeWidth": 4, "strokeCap": "round", "strokeJoin": "round"}`, `fillColor` a
-  closed op under it. Its draw-on animation (`drawMs`) has no form here: an animation on a variable bound into
-  `trimEnd` does it.
+  closed op under it. Its draw-on animation (`drawMs`) is an animation `strokePathDraw` whose track draws the
+  op's `trimEnd` from 0 (the fill's paint from transparent), and a transition of `trimEnd` with the same timing.
 - **A path's `subpathColors`** is one `path` op per color, its `d` the shapes of that color; a gradient laid out
   in each shape (`gradientPerSubpath`) is one op per shape with the gradient as its paint's `shader`.
 - **A box's `props.path`** is a `path` node (`"type": "path"`, the path as `props.data`), the decorated shape.

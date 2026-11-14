@@ -29,8 +29,41 @@ final List<MigrationStep> spellingSteps = [
   transformFoldStep,
   heroFlightStep,
   movedPathsStep,
+  renamedPropsStep,
   ...paintSteps,
 ];
+
+/// Props renamed to Flutter's name, by node type: old key → new key.
+const Map<String, Map<String, String>> renamedProps = {
+  'timePicker': {'use24h': 'alwaysUse24HourFormat'},
+};
+
+/// A prop [renamedProps] renames, in a node's `props` and `bind`.
+final renamedPropsStep = MigrationStep(
+  id: 'props.renamed',
+  description: 'props renamed to Flutter\'s names (timePicker use24h → alwaysUse24HourFormat)',
+  node: (n, s) {
+    // A patch (no type of its own) is of the node it patches.
+    final type = n['type'] ?? readMap(readMap(s.document?['nodes'])?[s.nodeId])?['type'];
+    final names = renamedProps[type];
+    if (names == null) return;
+    final props = readMap(n['props']);
+    if (props != null && names.keys.any(props.containsKey)) {
+      final out = <String, Object?>{
+        for (final e in props.entries) names[e.key] ?? e.key: e.value,
+      };
+      for (final e in names.entries) {
+        if (props.containsKey(e.key)) s.rewrite('/props/${e.key}', e.key, e.value, 'props.${e.key} → props.${e.value} (Flutter\'s name)');
+      }
+      n['props'] = out;
+    }
+    final bind = bindOf(n);
+    if (names.keys.any((k) => bind.containsKey('props.$k'))) {
+      final renamed = {for (final e in names.entries) 'props.${e.key}': 'props.${e.value}'};
+      putBind(n, {for (final e in bind.entries) renamed[e.key] ?? e.key: e.value}, s);
+    }
+  },
+);
 
 /// The node paths [spellingSteps] move (30.0.0's spellings), and where to
 /// (the current path, or the object they went into). A patch that sets one sets the new
@@ -47,6 +80,8 @@ final Map<String, String> movedSpellings = {
   'strokePath': 'customPaint',
   'props.subpathColors': 'customPaint',
   'props.path': 'props.data',
+  // renamedPropsStep.
+  'props.use24h': 'props.alwaysUse24HourFormat',
 };
 
 /// The steps of 30.1.0, in order: [spellingSteps], then the patches
@@ -92,6 +127,8 @@ final List<MigrationStep> spellingMigrationSteps = [
       return ('hero.tag', value);
     case 'hero.flight':
       return ('hero.flightShuttle', value);
+    case 'props.use24h':
+      return ('props.alwaysUse24HourFormat', value);
     case _ when path == 'flight' || path.startsWith('flight.'):
       return ('hero.$path', value);
   }
