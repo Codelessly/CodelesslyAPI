@@ -12,10 +12,10 @@ import 'package:meta/meta.dart';
 
 import '../catalog.dart';
 import '../document.dart';
-import '../behaviors.dart' show mergePatch;
 import '../json.dart';
 import '../logic.dart';
 import '../node.dart';
+import '../node_patch.dart';
 import '../props.dart';
 import '../scripts.dart';
 import '../variables.dart';
@@ -814,7 +814,9 @@ class _Batch {
     final paths = _leafPaths(op.patch, '').toList();
     _stale(id, paths);
     if (_failed) return;
-    final merged = mergePatch(_json(n), op.patch);
+    // As the node's declarations read it: a size (or another union) written
+    // in another form replaces the one there.
+    final merged = mergeNodePatch(_json(n), op.patch, props: n.spec?.props);
     final next = _decode(id, merged) ?? n;
     _put(id, next);
     _touched[id] = merged;

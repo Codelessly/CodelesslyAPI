@@ -146,6 +146,19 @@ void main() {
       expect(d.message, contains('"parent": "card", "slot": "body"'));
       expect(r.errors.map((d) => d.message), contains(contains('"slot" places the node in a slot of "parent"')));
     });
+    test('a patch that writes a size in another form replaces it (image_gallery@claude-haiku-5-5 retry2)', () {
+      // {"layout": {"height": {"fill": 400}}} over {"hug": 200} merged into
+      // {"hug": 200, "fill": 400}, no size at all, and the patch was rejected.
+      final r = _apply(_card(), {
+        'op': 'patch',
+        'id': 'wrap',
+        'patch': {
+          'layout': {'height': {'fill': 400}, 'padding': 12},
+        },
+      });
+      expect(r.errors, isEmpty);
+      expect(r.document['wrap']!.toJson()['layout'], {'width': {'fill': 390}, 'height': {'fill': 400}, 'padding': 12});
+    });
     test('would_orphan says to patch', () {
       final r = _apply(_card(), {
         'op': 'set',
