@@ -50,4 +50,17 @@ void main() {
     expect(r.issues, isEmpty, reason: '${r.issues}\n${r.notation}');
     expect(r.notes, hasLength(2));
   });
+
+  test('a choice whose options are sentences is a list of radios; short ones stay a segmented control', () {
+    const long = r'''
+{"version":"1.0","createSurface":{"surfaceId":"s","catalogId":"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json","components":[{"id":"root","component":"Column","children":["pick","size"]},{"id":"pick","component":"ChoicePicker","label":"Flight","variant":"mutuallyExclusive","value":{"@path":"/flight"},"options":[{"label":"06:45 to 09:10, TAP Air Portugal, direct","value":"f1"},{"label":"10:30 to 12:55, British Airways, direct","value":"f2"}]},{"id":"size","component":"ChoicePicker","variant":"mutuallyExclusive","value":{"@path":"/size"},"options":[{"label":"S","value":"s"},{"label":"M","value":"m"},{"label":"L","value":"l"}]}]}}
+''';
+    final r = parseA2ui(long, catalog: standardCatalog);
+    expect(r.issues, isEmpty, reason: '${r.issues}');
+    final nodes = (r.document['nodes'] as Map).cast<String, Map>();
+    final radios = [for (final n in nodes.values) if (n['type'] == 'radio') n];
+    expect([for (final n in radios) (n['props'] as Map)['value']], ['f1', 'f2']);
+    expect([for (final n in radios) (n['layout'] as Map)['width']], everyElement({'fill': 0}));
+    expect(nodes.values.where((n) => n['type'] == 'segmentedButton'), hasLength(1));
+  });
 }

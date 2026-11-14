@@ -220,11 +220,11 @@ Measured, not planned. Recordings are in `CodelesslySDK/tool/stream/streams/live
 
 | Phase | State |
 |---|---|
-| A. No widgets | 49 files still import Flutter's widget libraries (51 this morning). Every control is a render object. What is left hangs on three seams: the app shell (Navigator, routes, modals, toasts, confirm), lists on `Scrollable`, and embeds (media, web view). |
+| A. No widgets | 47 files still import Flutter's widget libraries (51 this morning). Every control is a render object; the indicators and the typewriter no longer touch a widget library. What is left hangs on three seams: the app shell (Navigator, routes, modals, toasts, confirm), lists on `Scrollable`, and embeds (media, web view). Toasts and confirms were scoped and wait for the screen stack (design 11 §12). |
 | C. Levels | Tagged and validated at a level. Level 1 is audited by a test: every widget-catalog type has a size and draws with only its type written, except a page view and a table, which need a height. |
 | D. Compact notation | Built: parser, stream, prompt, printer with an exact round trip. 34 of 34 recorded cards expand cleanly with the current parser; 26 of 34 were valid on the model's first answer. |
-| E. Head to head with A2UI | Measured against A2UI v1.0 on the same briefs, models and renderer (design 13 §11). Not compared: A2UI on its own renderers. |
-| F. Design systems | SSUI's looks are the notation's defaults, and `NotationOptions.fromTheme` takes them from any design system. 44 of 164 SSUI components are in the SDK (`design_systems/ssui/PARITY.md`). The template exists: `design_systems/tool/new_design_system.py` writes a design system from a ten-line brand file (SSUI's components over a derived theme), and a second one, Paper, renders a UI made for SSUI unchanged. Not done: density and type scale as brand choices; a design system with a different control anatomy. |
+| E. Head to head with A2UI | Measured against A2UI v1.0 on the same briefs, models and renderer (design 13 §11), and the same A2UI answers drawn by A2UI's own Lit renderer (§11.1): it draws 20 of 34 as written and 29 after two keys are renamed; `parseA2ui` draws 34. Not compared: its Angular and Flutter GenUI renderers. |
+| F. Design systems | SSUI's looks are the notation's defaults, and `NotationOptions.fromTheme` takes them from any design system. 73 of 164 SSUI components are in the SDK (`design_systems/ssui/PARITY.md`). The template is `design_systems/tool/new_design_system.py`: a design system from a brand file of about ten lines (colors, radius, font, density, type scale). Two were written with it and render the same documents unchanged: Paper (square, warm) and Harbor (comfortable density, type a tenth larger). |
 | G. The complex end | All three produced by Claude Sonnet 5.5 from one paragraph each, with SSUI, and used through the render tool: |
 | | **Sudoku**: 27 s, one retry. A number is placed, conflicts are highlighted, the timer runs. |
 | | **Kanban with drag and drop**: a card dragged from To do is dropped on Done and the counts follow. |
@@ -244,6 +244,7 @@ What the complex targets found and fixed on the way, each a thing an agent hits:
   a 0.2 px overflow.
 
 Known gaps in what was generated: the Sudoku's first answer needed its retry each time (script API names); the
-kanban used arrows until asked for dragging by name; in the app screen a list that fills a card which hugs falls
-back to its design height (the table is cut short).
+kanban used arrows until asked for dragging by name. The app screen's table was cut short inside its card (a list
+that fills a card whose body hugged fell back to its design height): fixed in the card, and the recording replays
+with every row.
 

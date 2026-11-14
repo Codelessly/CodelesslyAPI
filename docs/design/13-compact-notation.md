@@ -247,8 +247,33 @@ What the numbers do not show, seen in the rendered sheets:
 - Read with later versions of the parsers (the forms each model wrote, accepted): notation 34 of 34, A2UI 34 of
   34 of the answers that were JSON.
 
-What was not compared: A2UI drawn by its own renderers (Lit, Angular, Flutter GenUI), which this measures nothing
-about; only what a model writes in each form, and what one renderer makes of it.
+### 11.1 The same A2UI answers on A2UI's own renderer
+
+The 34 recorded A2UI answers (the retry's where there was one) were then drawn by A2UI's own web renderer:
+`@a2ui/web_core` 0.15.0's v1.0 message processor and basic catalog under `@a2ui/lit`'s `<a2ui-surface>`, with
+its default styles, in Chromium at 390 wide. The harness is `examples/stream_chat/tool/a2ui_own_renderer`.
+
+| Of 34 A2UI answers | A2UI's own renderer | CodelesslySDK through `parseA2ui` |
+|---|---|---|
+| Drawn as written | 20 | 34 |
+| Drawn after renaming `@checks` and `@accessibility` | 29 | not needed |
+| No surface at all | 3 (no valid `createSurface`) | 0: drawn from what was valid |
+| Refused for another reason | 2 (an id with a hyphen; a `variant` given as an object) | 0 |
+
+- **The published schemas and the renderer release disagree.** The v1.0 schemas a model is given spell a
+  component's `@checks` and `@accessibility` with an `@`; release 0.15.0 validates each component strictly and
+  reads them without, so 14 answers that follow the schemas are refused whole. A strict renderer in front of a
+  model drops a card for one key.
+- **Where both draw, they draw the same structure.** Their default look is plain (a gray card, large type); ours
+  is SSUI. Their renderer shows Markdown in a text as written (`**Folder:**`) unless the host installs a Markdown
+  renderer; `parseA2ui` reads the bold and heading marks.
+- **Drawing theirs beside ours found four faults on our side**, now fixed: an icon with no size drew nothing; a
+  row of repeated columns collapsed to no height in a card that hugs; a choice between sentences was a segmented
+  control with its labels cut (it is a list of radios, as theirs); a card's body did not fill a height its call
+  gave. Still different from theirs: a radio's label is one line (theirs wraps), a single choice starts unselected
+  when the data model holds it as a list, and the render tool's bundled font has no arrow glyph.
+
+Not compared: A2UI's Angular and Flutter GenUI renderers, or its renderer with a host's own styles and Markdown.
 
 ## 12. Open points
 
