@@ -190,7 +190,8 @@ Each axis has a **mode** and a **number**:
 The number is the **design size**: the size of a fixed node, and the size used where a mode cannot apply (a fill
 inside something that scrolls on that axis, or inside a parent that hugs that axis: `fill_fallback`). For `hug` and
 `fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. **A node without `width` or
-`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas` and a `spacer`.
+`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas`, a `spacer` and a
+control, which hugs.
 
 <a id="base-rows-columns-and-flex"></a>
 ### Rows, columns and flex

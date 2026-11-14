@@ -95,10 +95,10 @@ abstract final class ButtonProps {
   static const _doc = ' With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, '
       'its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.';
 
-  static const elevated = WidgetSpec('elevatedButton', props: all, states: drawnStates, doc: 'Flutter `ElevatedButton`: a raised surface with a hairline.$_doc');
-  static const filled = WidgetSpec('filledButton', props: [...all, tonal], states: drawnStates, doc: 'Flutter `FilledButton`: the primary action, filled with the theme\'s `primary`.$_doc');
-  static const text = WidgetSpec('textButton', props: all, states: drawnStates, doc: 'Flutter `TextButton`: no fill or border.$_doc');
-  static const outlined = WidgetSpec('outlinedButton', props: all, states: drawnStates, doc: 'Flutter `OutlinedButton`: a hairline border.$_doc');
+  static const elevated = WidgetSpec('elevatedButton', props: all, states: drawnStates, hugs: true, doc: 'Flutter `ElevatedButton`: a raised surface with a hairline.$_doc');
+  static const filled = WidgetSpec('filledButton', props: [...all, tonal], states: drawnStates, hugs: true, doc: 'Flutter `FilledButton`: the primary action, filled with the theme\'s `primary`.$_doc');
+  static const text = WidgetSpec('textButton', props: all, states: drawnStates, hugs: true, doc: 'Flutter `TextButton`: no fill or border.$_doc');
+  static const outlined = WidgetSpec('outlinedButton', props: all, states: drawnStates, hugs: true, doc: 'Flutter `OutlinedButton`: a hairline border.$_doc');
 }
 
 /// `IconButton`: an icon, styled by a `ButtonStyle`.
@@ -112,6 +112,7 @@ abstract final class IconButtonProps {
   static const spec = WidgetSpec('iconButton',
       props: [icon, enabled, style, autofocus],
       states: ButtonProps.drawnStates,
+      hugs: true,
       doc: 'Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. '
           'Give it a "tooltip" (the behavior) to name it.');
 }
@@ -151,6 +152,7 @@ abstract final class FloatingActionButtonProps {
         extendedPadding, location, autofocus,
       ],
       states: ButtonProps.drawnStates,
+      hugs: true,
       doc: 'Flutter `FloatingActionButton`.');
 }
 

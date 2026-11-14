@@ -592,6 +592,7 @@ final class WidgetSpec {
     this.doc = '',
     this.events = const [],
     this.states = const [],
+    this.hugs = false,
   });
 
   /// The node `type`.
@@ -626,6 +627,11 @@ final class WidgetSpec {
   /// Flutter button's default `ButtonStyle` resolves them: a bound
   /// `selected` on it shows without a `states.selected` patch.
   final List<String> states;
+
+  /// A control (a button, a chip, a spinner): a node of it that gives no
+  /// `layout.width` or `layout.height` hugs its content on that axis (the
+  /// default control's size) instead of being 0 (`zero_size`).
+  final bool hugs;
 
   PropDef<Object?>? prop(String key) {
     for (final p in props) {

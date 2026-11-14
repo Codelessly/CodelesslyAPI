@@ -190,7 +190,8 @@ Each axis has a **mode** and a **number**:
 The number is the **design size**: the size of a fixed node, and the size used where a mode cannot apply (a fill
 inside something that scrolls on that axis, or inside a parent that hugs that axis: `fill_fallback`). For `hug` and
 `fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. **A node without `width` or
-`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas` and a `spacer`.
+`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas`, a `spacer` and a
+control, which hugs.
 
 <a id="base-rows-columns-and-flex"></a>
 ### Rows, columns and flex
@@ -786,7 +787,7 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4807 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4811 |
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8938 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2856 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
