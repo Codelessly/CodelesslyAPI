@@ -7,14 +7,12 @@
 import '../core/document.dart';
 import '../core/edit/apply.dart';
 import '../core/edit/diagnostics.dart';
+import '../core/logic.dart' show LayoutLogic;
 import 'diagnostic.dart';
 import 'validator.dart';
 
 /// Codes the edit layer reports itself, or that mean nothing for a part of
 /// a document.
-/// References to what may arrive later in a stream.
-const Set<String> _references = {'unknown_target_node', 'unknown_screen', 'unknown_variable', 'unknown_name'};
-
 const Set<String> _structural = {
   'dangling_child', 'dangling_slot', 'unreachable_node', 'multiple_parents', 'cycle', 'canvas_as_child', 'no_roots', //
   'dangling_root', 'root_not_canvas', 'schema_version', 'unknown_scope', 'duplicate_id',
@@ -66,20 +64,36 @@ EditCheck strictEditCheck([ValidateOptions options = const ValidateOptions()]) =
       for (final d in validateDocument(mini, options: o)) {
         if (_structural.contains(d.code.name)) continue;
         final id = d.nodeId ?? _nodeOf(d.path);
-        if (id == null || !ids.contains(id)) continue;
-        final later = input.incomplete && _references.contains(d.code.name);
+        // A formula of a variable the op declared.
+        final variable = id == null ? _formulaVariableOf(d.path, doc) : null;
+        if (variable == null && (id == null || !ids.contains(id))) continue;
+        if (variable != null && !(input.variables[variable.scope]?.contains(variable.name) ?? false)) continue;
+        final later = input.incomplete && streamReferenceCodes.contains(d.code.name);
+        final message = variable == null ? d.message : 'Variable "${variable.name}": ${d.message}';
         out.add(EditDiagnostic(
           op: input.op,
           code: d.code.name,
           error: d.isError && !later,
           path: d.path,
-          message: later ? '${d.message} (Accepted while the UI streams in: it must exist when the stream ends.)' : d.message,
+          message: later ? '$message (Accepted while the UI streams in: it must exist when the stream ends.)' : message,
           nodeId: id,
           suggestion: d.suggestion,
         ));
       }
       return out;
     };
+
+/// The variable whose formula [path] points into
+/// (`/variables/<scope>/<index>/formula`), by scope and name.
+({String scope, String name})? _formulaVariableOf(String path, LayoutDocument doc) {
+  final m = RegExp(r'^/variables/([^/]+)/(\d+)/formula$').firstMatch(path);
+  if (m == null) return null;
+  final scope = m[1]!.replaceAll('~1', '/').replaceAll('~0', '~');
+  final list = doc.extra[LayoutLogic.variablesKey];
+  final v = list is Map && list[scope] is List ? (list[scope] as List).elementAtOrNull(int.parse(m[2]!)) : null;
+  final name = v is Map ? v['name'] : null;
+  return name is String ? (scope: scope, name: name) : null;
+}
 
 String? _nodeOf(String path) {
   final m = RegExp(r'^/nodes/([^/]+)').firstMatch(path);

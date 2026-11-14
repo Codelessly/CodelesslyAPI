@@ -296,6 +296,7 @@ final class _Validator {
   void _variables(Json m) {
     final raw = m[LayoutLogic.variablesKey];
     if (raw == null) return;
+    final formulas = <({String at, String formula, String scope, Set<String> params})>[];
     final scopes = readMap(raw);
     if (scopes == null) {
       r.add(Codes.invalidVariable, '/variables', '"variables" is an object: canvas id (or "$pageVariablesScope") → a list of variables.');
@@ -350,11 +351,32 @@ final class _Validator {
         }
         if (v['formula'] != null && v['formula'] is! String) {
           r.add(Codes.wrongType, pointer(p, 'formula'), 'A formula is text (what goes inside \${= ...}).');
+        } else if (v['formula'] case final String f when f.trim().isNotEmpty) {
+          formulas.add((at: pointer(p, 'formula'), formula: f, scope: e.key, params: {...?readList(v['parameters'])?.whereType<String>()}));
+        }
+        // The fields of a list variable's records: a name a formula reads
+        // that is one of them is an item's field written without its item.
+        if (readList(v['value']) case final List items) {
+          for (final item in items.take(50)) {
+            for (final k in readMap(item)?.keys ?? const <String>[]) {
+              (itemFields[k] ??= {}).add(name);
+            }
+          }
         }
       }
     }
     pageVariables = variablesOf[pageVariablesScope] ?? {};
+    // A computed variable's formula reads declared names as a node's
+    // expressions do (its parameters too).
+    for (final f in formulas) {
+      currentCanvas = f.scope == pageVariablesScope ? null : f.scope;
+      _expression(f.formula, f.at, bareFormula: true, locals: f.params);
+    }
+    currentCanvas = null;
   }
+
+  /// Field name → the list variables whose records have it.
+  final Map<String, Set<String>> itemFields = {};
 
   Set<String> _declared(String? canvas) => {
         ...pageVariables,
@@ -1467,6 +1489,7 @@ final class _Validator {
           ..currentCanvas = currentCanvas
           ..definitionRoot = definitionRoot;
         v.variablesOf.addAll(variablesOf);
+        v.itemFields.addAll(itemFields);
         final pn = Node.fromJson(merged, id: t.key, catalog: catalog);
         if (pn != null) v._node(pn, merged, '');
         final set = _leafPointers(patch, '');
@@ -1717,9 +1740,15 @@ final class _Validator {
         if (declared.contains(name) || runtimeScopes.contains(name) || locals.contains(name)) continue;
         // A custom paint's ops read the size they paint at.
         if (name == 'size' && at.contains('/customPaint/')) continue;
+        final lists = itemFields[name]?.where(declared.contains).toList();
         r.add(Codes.unknownName, at,
-            '"$name" is not a declared variable${currentCanvas == null ? '' : ' of canvas "$currentCanvas"'} nor a runtime scope (${runtimeScopes.join(', ')}).',
-            suggestion: nearest(name, [...declared, ...runtimeScopes, ...locals]));
+            lists != null && lists.isNotEmpty
+                ? '"$name" is not a variable: it is a field of the records of "${lists.first}". An item\'s field is read '
+                    'through the item, as a lambda\'s parameter: filter(${lists.first}, r => r.$name == x), '
+                    'map(${lists.first}, r => r.$name), sortBy(${lists.first}, \'$name\'). A condition written without one '
+                    '(filter(${lists.first}, $name == x)) is computed once, outside the list, and matches no item.'
+                : '"$name" is not a declared variable${currentCanvas == null ? '' : ' of canvas "$currentCanvas"'} nor a runtime scope (${runtimeScopes.join(', ')}).',
+            suggestion: lists != null && lists.isNotEmpty ? 'r => r.$name' : nearest(name, [...declared, ...runtimeScopes, ...locals]));
       }
     }
   }
