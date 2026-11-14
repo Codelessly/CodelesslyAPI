@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6171
+      "words": 6190
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6132
+      "words": 6171
     }
   },
   "topics": [
@@ -161,7 +161,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 2551
+      "words": 2852
     },
     {
       "topic": "theme-theme-keys",
@@ -169,7 +169,7 @@
       "anchor": "theme-theme-keys",
       "title": "Theme keys",
       "summary": "The theme (`site.json`'s `theme`, or the app's theme at run time):",
-      "words": 251
+      "words": 405
     },
     {
       "topic": "theme-named-colours-and-styles",
@@ -184,16 +184,16 @@
       "file": "theme.md",
       "anchor": "theme-what-controls-take-from-the-theme",
       "title": "What controls take from the theme",
-      "summary": "A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons (labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface` (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius` shapes every kind of button and chip, `radius` dialogs, menus and pickers.",
-      "words": 104
+      "summary": "A control's colours, fonts and shapes that its props leave unset come from the theme: `primary` fills filled buttons (labelled in `onPrimary`) and draws checks, thumbs, focus rings and text-button labels where it reads on `surface` (else `onSurface` does); `fontFamily` is every control label's font (`titleFontFamily` titles'); `buttonRadius` shapes every kind of button and chip, `radius` dialogs, menus, pickers and fields.",
+      "words": 202
     },
     {
-      "topic": "theme-spacing-and-radius-scales",
+      "topic": "theme-spacing-radii-sizes-shadows-and-motion",
       "file": "theme.md",
-      "anchor": "theme-spacing-and-radius-scales",
-      "title": "Spacing and radius scales",
-      "summary": "The theme has no spacing or radius tokens for nodes: its `radius` and `buttonRadius` shape controls only.",
-      "words": 57
+      "anchor": "theme-spacing-radii-sizes-shadows-and-motion",
+      "title": "Spacing, radii, sizes, shadows and motion",
+      "summary": "The theme names its scales as it names colours: `\"spacing\": {\"1\": 4, \"2\": 8, \"3\": 12}`, `\"radii\": {\"control\": 7, \"panel\": 8}`, `\"sizes\": {\"compact\": 28, \"large\": 44}`, `\"shadows\": {\"level3\": [{\"type\": \"dropShadow\", ...}]}` (with `dark` shadows of their own), `\"durations\": {\"fast\": 150}` (milliseconds) and `\"curves\": {\"standard\": \"easeInOut\"}`.",
+      "words": 104
     },
     {
       "topic": "theme-a-type-scale-that-changes-with-the-screen-size",
@@ -329,7 +329,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 11225
+      "words": 11322
     },
     {
       "topic": "forms-triggers",
@@ -425,7 +425,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 6854
+      "words": 6884
     },
     {
       "topic": "lists-triggers",
@@ -497,7 +497,7 @@
       "anchor": "page-navigation",
       "title": "Screens, navigation, modals and toasts",
       "summary": "Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions).",
-      "words": 4166
+      "words": 4201
     },
     {
       "topic": "navigation-triggers",
@@ -1020,12 +1020,52 @@
       "words": 97
     },
     {
+      "topic": "design-systems",
+      "file": "design-systems.md",
+      "anchor": "page-design-systems",
+      "title": "Design systems",
+      "summary": "Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns.",
+      "words": 839
+    },
+    {
+      "topic": "design-systems-the-manifest",
+      "file": "design-systems.md",
+      "anchor": "design-systems-the-manifest",
+      "title": "The manifest",
+      "summary": "A published design system is one bundle, `{\"manifest\": {...}, \"design\": \"...\", \"patterns\": \"...\", \"components\": {\"Button\": {...}}}`, read with `DesignSystem.fromJson`; a folder is read with `DesignSystem.load`.",
+      "words": 206
+    },
+    {
+      "topic": "design-systems-what-a-site-gets-from-it",
+      "file": "design-systems.md",
+      "anchor": "design-systems-what-a-site-gets-from-it",
+      "title": "What a site gets from it",
+      "summary": "- **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a colour, a   style, a scale step).",
+      "words": 126
+    },
+    {
+      "topic": "design-systems-writing-one",
+      "file": "design-systems.md",
+      "anchor": "design-systems-writing-one",
+      "title": "Writing one",
+      "summary": "1.",
+      "words": 107
+    },
+    {
+      "topic": "design-systems-in-a-generated-ui",
+      "file": "design-systems.md",
+      "anchor": "design-systems-in-a-generated-ui",
+      "title": "In a generated UI",
+      "summary": "The app gives the session the design system: its catalog then has the components, and the prompt is generated from it (`runtimeStarter(designSystem: ds)`): the principles in brief, the tokens by name, each component with its parameters and a call, the patterns in brief, and no rows for the base controls it replaces.",
+      "words": 62
+    },
+    {
       "topic": "charts",
       "file": "charts.md",
       "anchor": "page-charts",
       "title": "Charts, gauges and indicators",
       "summary": "Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes.",
-      "words": 6561
+      "words": 7086
     },
     {
       "topic": "charts-progress-from-state",

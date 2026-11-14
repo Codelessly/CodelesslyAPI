@@ -8573,7 +8573,14 @@
                     "$ref": "#/$defs/enum.ScrollPhysicsType"
                   },
                   "indicatorColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "indicatorWeight": {
                     "type": "number",
@@ -8595,10 +8602,24 @@
                     "$ref": "#/$defs/value.BorderRadius"
                   },
                   "labelColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "unselectedLabelColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "labelStyle": {
                     "anyOf": [
@@ -8642,7 +8663,14 @@
                     ]
                   },
                   "dividerColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "dividerHeight": {
                     "anyOf": [
@@ -8974,7 +9002,14 @@
                     "minimum": 100
                   },
                   "textColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "buttonColor": {
                     "anyOf": [
@@ -8987,13 +9022,34 @@
                     ]
                   },
                   "activeColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "activeTextColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "borderColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "borderWidth": {
                     "type": "number",
@@ -11017,24 +11073,52 @@
                     "type": "boolean"
                   },
                   "inkColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "inkWidth": {
                     "type": "number",
                     "minimum": 0.0
                   },
                   "backgroundColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "borderColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "borderWidth": {
                     "type": "number",
                     "minimum": 0.0
                   },
                   "errorBorderColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "errorBorderWidth": {
                     "type": "number",
@@ -11047,7 +11131,14 @@
                     "type": "string"
                   },
                   "placeholderColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "placeholderFontSize": {
                     "type": "number",
@@ -13714,10 +13805,24 @@
                     "type": "number"
                   },
                   "trackColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "valueColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "colorByZone": {
                     "type": "boolean"
@@ -13753,7 +13858,14 @@
                     "minimum": 0
                   },
                   "tickColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "labels": {
                     "type": "array",
@@ -13762,7 +13874,14 @@
                     }
                   },
                   "labelColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "labelFontSize": {
                     "type": "number",
@@ -13785,13 +13904,27 @@
                     "type": "number"
                   },
                   "targetColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "showNeedle": {
                     "type": "boolean"
                   },
                   "needleColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "needleClearance": {
                     "type": "number"
@@ -13869,10 +14002,24 @@
                     "type": "number"
                   },
                   "color": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "trackColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "fillStartOpacity": {
                     "type": "number"
@@ -13920,7 +14067,14 @@
                     "minimum": 0
                   },
                   "tickColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "limitColor": {
                     "$ref": "#/$defs/value.Color"
@@ -14012,7 +14166,14 @@
                     "minimum": 0
                   },
                   "gridColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "showYAxis": {
                     "type": "boolean"
@@ -14027,7 +14188,14 @@
                     "type": "integer"
                   },
                   "axisLabelColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "axisFontSize": {
                     "type": "number",
@@ -14065,7 +14233,14 @@
                     "type": "boolean"
                   },
                   "selectionColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "xSlots": {
                     "type": "integer"
@@ -14106,7 +14281,14 @@
                     ]
                   },
                   "trackColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "divisions": {
                     "type": "integer"
@@ -14162,10 +14344,24 @@
                     "type": "boolean"
                   },
                   "tooltipColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "tooltipTextColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "tooltipTitleField": {
                     "type": "string"
@@ -14424,7 +14620,14 @@
                     ]
                   },
                   "lineColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "lineWidth": {
                     "type": "number",
@@ -14454,7 +14657,14 @@
                     ]
                   },
                   "gridColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "axisColor": {
                     "anyOf": [
@@ -14535,7 +14745,14 @@
                     ]
                   },
                   "referenceColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "referenceWidth": {
                     "type": "number"
@@ -14570,10 +14787,24 @@
                     ]
                   },
                   "selectionColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "selectionLineColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "selectionLineWidth": {
                     "type": "number"
@@ -14582,10 +14813,24 @@
                     "type": "number"
                   },
                   "selectionDotColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "selectionDotStrokeColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "selectionDotStrokeWidth": {
                     "type": "number"
@@ -14639,7 +14884,14 @@
                     "minimum": 0
                   },
                   "minorGridColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "originAxes": {
                     "type": "boolean"
@@ -14707,7 +14959,14 @@
                     "type": "string"
                   },
                   "selectionTagColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "selectionTagStyle": {
                     "anyOf": [
@@ -14727,7 +14986,14 @@
                     "type": "number"
                   },
                   "selectionHaloColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "animate": {
                     "type": "boolean"
@@ -14789,7 +15055,14 @@
                     "type": "number"
                   },
                   "color": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "colors": {
                     "type": "array",
@@ -14807,7 +15080,14 @@
                     "type": "number"
                   },
                   "emptyColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "emptyHeight": {
                     "type": "number"
@@ -14817,7 +15097,14 @@
                     "minimum": 0
                   },
                   "gridColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "gridLabels": {
                     "type": "array",
@@ -14829,7 +15116,14 @@
                     "type": "number"
                   },
                   "baselineColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "labelFontFamily": {
                     "type": "string"
@@ -14839,10 +15133,24 @@
                     "minimum": 0.0
                   },
                   "labelColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "highlightLabelColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "labelGap": {
                     "type": "number"
@@ -15047,41 +15355,111 @@
                     "type": "boolean"
                   },
                   "lineColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "lineWidth": {
                     "type": "number",
                     "minimum": 0.0
                   },
                   "areaTopColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "areaBottomColor": {
                     "$ref": "#/$defs/value.Color"
                   },
                   "gridColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "zeroLineColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "axisColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "markerHollowColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "tagBackground": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "cursorColor": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "cursorRingFill": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "tooltipBackground": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "tooltipShadowColor": {
                     "$ref": "#/$defs/value.Color"
@@ -15292,7 +15670,14 @@
                     "$ref": "#/$defs/enum.BarcodeSymbology"
                   },
                   "color": {
-                    "$ref": "#/$defs/value.Color"
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "backgroundColor": {
                     "anyOf": [

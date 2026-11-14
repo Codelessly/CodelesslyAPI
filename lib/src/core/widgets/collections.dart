@@ -371,7 +371,8 @@ abstract final class TabBarProps {
     EnumCodec(ScrollPhysicsType.values),
     ScrollPhysicsType.platform,
   );
-  static const indicatorColor = PropDef<Color>('indicatorColor', Codecs.color, Color.black);
+  /// Null: the theme's primary (what controls draw on the surface).
+  static const indicatorColor = PropDef<Color?>('indicatorColor', _optionalColor, null);
   static const indicatorWeight = PropDef<double>('indicatorWeight', Codecs.positive, 2);
   static const indicatorSize = PropDef<TabBarIndicatorSize>(
     'indicatorSize',
@@ -390,13 +391,17 @@ abstract final class TabBarProps {
   /// `continuousRectangle`.
   static const indicatorShape = PropDef<String>('indicatorShape', Codecs.string, 'roundedRectangle');
   static const indicatorRadius = PropDef<BorderRadius>('indicatorRadius', _radius, BorderRadius.zero);
-  static const labelColor = PropDef<Color?>('labelColor', _optionalColor, Color.black);
-  static const unselectedLabelColor = PropDef<Color?>('unselectedLabelColor', _optionalColor, Color.black);
+  /// Null: the theme's ink on its surface (`onSurface`).
+  static const labelColor = PropDef<Color?>('labelColor', _optionalColor, null);
+
+  /// Null: the theme's secondary ink (`onSurface` at 68 % over the surface).
+  static const unselectedLabelColor = PropDef<Color?>('unselectedLabelColor', _optionalColor, null);
   static const labelStyle = PropDef<TextStyle>('labelStyle', Codecs.textStyle, TextStyle.empty);
   static const unselectedLabelStyle = PropDef<TextStyle>('unselectedLabelStyle', Codecs.textStyle, TextStyle.empty);
   static const labelPadding = PropDef<EdgeInsets>('labelPadding', Codecs.insets, EdgeInsets.zero);
   static const overlayColor = PropDef<Color?>('overlayColor', _optionalColor, null);
-  static const dividerColor = PropDef<Color?>('dividerColor', _optionalColor, Color.black);
+  /// Null: the theme's hairline (`outlineVariant`).
+  static const dividerColor = PropDef<Color?>('dividerColor', _optionalColor, null);
   static const dividerHeight = PropDef<double?>('dividerHeight', _optionalDouble, null);
   static const tabAlignment = PropDef<TabAlignment?>('tabAlignment', OptionalEnumCodec(TabAlignment.values), null);
   static const content = PropDef<TabContent>('content', EnumCodec(TabContent.values), TabContent.labelAndIcon);
@@ -536,12 +541,18 @@ abstract final class PaginationProps {
   static const alignment = PropDef<WrapAlignment>('alignment', EnumCodec(WrapAlignment.values), WrapAlignment.spaceBetween);
   static const fontSize = PropDef<double>('fontSize', DoubleCodec(min: 1), 14);
   static const fontWeight = PropDef<int>('fontWeight', IntCodec(min: 100), 400);
-  static const textColor = PropDef<Color>('textColor', Codecs.color, Color(0xFF333842));
+  /// Null: the theme's ink (`onSurface`).
+  static const textColor = PropDef<Color?>('textColor', _optionalColor, null);
   static const buttonColor = PropDef<Color?>('buttonColor', _optionalColor, null);
-  static const activeColor = PropDef<Color>('activeColor', Codecs.color, Color(0xFF2663EA));
-  static const activeTextColor = PropDef<Color>('activeTextColor', Codecs.color, Color.white);
-  /// A button's outline; transparent for none.
-  static const borderColor = PropDef<Color>('borderColor', Codecs.color, Color(0xFFD8DDE5));
+  /// The current page's fill. Null: the theme's primary.
+  static const activeColor = PropDef<Color?>('activeColor', _optionalColor, null);
+
+  /// The current page's label. Null: what reads on [activeColor] (the
+  /// theme's `onPrimary`).
+  static const activeTextColor = PropDef<Color?>('activeTextColor', _optionalColor, null);
+  /// A button's outline; transparent for none. Null: the theme's hairline
+  /// (`outlineVariant`).
+  static const borderColor = PropDef<Color?>('borderColor', _optionalColor, null);
   static const borderWidth = PropDef<double>('borderWidth', Codecs.positive, 1);
   static const cornerRadius = PropDef<double>('cornerRadius', Codecs.positive, 6);
 

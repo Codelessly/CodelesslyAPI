@@ -15,7 +15,7 @@ import 'schema.dart';
 /// trust profile).
 const _libFills = {
   'baseTypes', 'childrenTable', 'ops', 'actionTypes', 'variableTypes', 'scriptCapabilities', 'buildExample', //
-  'editExample', 'index', 'button',
+  'editExample', 'index', 'button', 'designSystem', 'replaced',
 };
 
 /// The reference files, by path relative to the package root.

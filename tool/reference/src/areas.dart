@@ -91,6 +91,7 @@ const List<PageDef> featurePages = [
       triggers: ['timer', 'frame'],
       actions: ['animate']),
   PageDef('components', nodes: ['slot', 'external', 'placeholder', 'singlePlaceholder'], triggers: ['event'], actions: ['componentEvent']),
+  PageDef('design-systems'),
   PageDef('charts',
       nodes: [
         'progressBar', 'circularProgressIndicator', 'activityIndicator', 'badge', 'radialGauge', 'gaugeMeter', 'chart', //

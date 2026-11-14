@@ -1107,8 +1107,29 @@ final class _Validator {
         r.add(Codes.wrongType, p, 'A binding holds an expression ("\${name}" or "\${= formula}"); "$s" has none. For a constant, set the field itself.');
       }
       _expression(s, p);
+      _themeScaleNames(s, p);
     }
   }
+
+  /// The names an expression reads from the theme's named scales
+  /// (`${theme.spacing.md}`, `${theme.radii.panel}`...) checked against the
+  /// project's theme (its design system's tokens and its own).
+  void _themeScaleNames(String expression, String at) {
+    final theme = options.theme;
+    if (theme == null) return;
+    final scales = theme.scaleNames;
+    for (final m in _themeScaleRef.allMatches(expression)) {
+      final names = scales[m[1]]!.toList();
+      if (names.contains(m[2])) continue;
+      r.add(Codes.unknownThemeName, at,
+          names.isEmpty
+              ? 'The theme has no "${m[1]}": declare it in the theme ("${m[1]}": {"${m[2]}": ...}).'
+              : 'No theme ${m[1]} "${m[2]}". The theme\'s ${m[1]}: ${names.join(', ')}.',
+          suggestion: nearest(m[2]!, names));
+    }
+  }
+
+  static final RegExp _themeScaleRef = RegExp(r'\btheme\.(spacing|radii|sizes|shadows|durations|curves)\.(\w+)');
 
   // --- reactions and actions ----------------------------------------------
 
@@ -1722,7 +1743,8 @@ final class _Validator {
 /// The keys a theme (the site manifest's `theme`) reads.
 const Set<String> themeKeys = {
   'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning', 'fontFamily', 'titleFontFamily', //
-  'radius', 'buttonRadius', 'colors', 'textStyles', 'dark', 'media', 'mode',
+  'radius', 'buttonRadius', 'colors', 'textStyles', 'dark', 'media', 'mode', //
+  'spacing', 'radii', 'sizes', 'shadows', 'durations', 'curves',
 };
 
 /// Checks a theme's JSON (the site manifest's `theme`, at [at]): its keys,
@@ -1821,6 +1843,41 @@ List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints?
                 };
               }
               body(checked, pointer(rp, 'patch'), patch: true);
+            }
+          }
+        case 'spacing' || 'radii' || 'sizes' || 'durations':
+          final scale = readMap(e.value);
+          if (scale == null) {
+            r.add(Codes.invalidTheme, p, '"${e.key}" maps names to numbers: {"sm": 8, "md": 16}.');
+            continue;
+          }
+          for (final v in scale.entries) {
+            final n = readDouble(v.value);
+            if (n == null || n < 0) {
+              r.add(Codes.invalidTheme, pointer(p, v.key),
+                  '"${e.key}" values are numbers >= 0${e.key == 'durations' ? ' (milliseconds)' : ''}, got ${describe(v.value)}.');
+            }
+          }
+        case 'shadows':
+          final scale = readMap(e.value);
+          if (scale == null) {
+            r.add(Codes.invalidTheme, p, '"shadows" maps names to lists of shadows: {"level1": [{"type": "dropShadow", ...}]}.');
+            continue;
+          }
+          for (final v in scale.entries) {
+            values.checkDef(DecorationFields.effects, v.value, pointer(p, v.key));
+          }
+        case 'curves':
+          final scale = readMap(e.value);
+          if (scale == null) {
+            r.add(Codes.invalidTheme, p, '"curves" maps names to curves: {"standard": "easeInOut"}.');
+            continue;
+          }
+          final curves = [for (final c in AnimationCurve.values) c.name];
+          for (final v in scale.entries) {
+            if (!curves.contains(v.value)) {
+              r.add(Codes.invalidTheme, pointer(p, v.key), 'A curve is one of Flutter\'s Curves: ${curves.join(', ')}; got ${describe(v.value)}.',
+                  suggestion: v.value is String ? nearest(v.value as String, curves) : null);
             }
           }
         default:
