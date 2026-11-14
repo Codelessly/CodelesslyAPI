@@ -705,4 +705,20 @@ void main() {
     expect(chip.toJson().toString(), contains('MATERIAL_ICON'));
     expect(withCode(doc({'colour': 'red'}), Codes.wrongType).single.message, contains('no "name"'));
   });
+  test('a script written against names it does not have is told at validation: variables.get, and another script called bare (the generated Sudoku)', () {
+    Map<String, Object?> doc(String init) => {
+          'schema': 3, 'roots': ['s'],
+          'nodes': {
+            's': {'type': 'canvas', 'layout': {'width': 390, 'height': 200}},
+          },
+          'scripts': [
+            {'id': 'init', 'name': 'init', 'source': init, 'capabilities': ['variables.read', 'variables.write']},
+            {'id': 'refresh', 'name': 'refresh', 'source': "vars.set('n', 1);", 'capabilities': ['variables.write']},
+          ],
+        };
+    final bad = withCode(doc("var v = variables.get('puzzle'); refresh();"), Codes.unknownName);
+    expect(bad.map((d) => d.suggestion), ['vars', 'script.refresh(']);
+    expect(withCode(doc("var v = vars.get('puzzle'); script.refresh(); // variables.get( and refresh( in a comment"), Codes.unknownName), isEmpty);
+    expect(withCode(doc("function refresh() {} refresh(); var s = 'variables.get(x)';"), Codes.unknownName), isEmpty);
+  });
 }
