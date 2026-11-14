@@ -505,7 +505,7 @@
       "anchor": "page-navigation",
       "title": "Screens, navigation, modals and toasts",
       "summary": "Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions).",
-      "words": 4201
+      "words": 4238
     },
     {
       "topic": "navigation-triggers",
@@ -529,7 +529,7 @@
       "anchor": "navigation-going-to-a-screen-and-back",
       "title": "Going to a screen and back",
       "summary": "`{\"type\": \"navigate\", \"to\": \"<canvas id>\"}` pushes the screen; `\"mode\": \"pop\"` goes back; `\"replace\"` and `\"reset\"` replace the history.",
-      "words": 87
+      "words": 124
     },
     {
       "topic": "navigation-modals-and-toasts",
@@ -825,7 +825,7 @@
       "anchor": "page-animation",
       "title": "Animation and motion",
       "summary": "Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games.",
-      "words": 4610
+      "words": 4769
     },
     {
       "topic": "animation-triggers",
@@ -876,6 +876,14 @@
       "words": 92
     },
     {
+      "topic": "animation-count-up-a-number",
+      "file": "animation.md",
+      "anchor": "animation-count-up-a-number",
+      "title": "Count up a number",
+      "summary": "A figure that counts up when the page opens is a number variable the `animate` action plays (`AnimationController.animateTo`), shown through a formula that formats it: `thousands` (or `formatNumber`) puts in the thousands separators (`12,480`), which `round` alone does not.",
+      "words": 139
+    },
+    {
       "topic": "animation-clocks-and-game-loops",
       "file": "animation.md",
       "anchor": "animation-clocks-and-game-loops",
@@ -889,7 +897,7 @@
       "anchor": "page-components",
       "title": "Components and sections",
       "summary": "Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section.",
-      "words": 3706
+      "words": 3719
     },
     {
       "topic": "components-parameter-kinds",
@@ -936,8 +944,8 @@
       "file": "components.md",
       "anchor": "components-a-complete-multi-page-site",
       "title": "A complete multi-page site",
-      "summary": "A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids `unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages.",
-      "words": 370
+      "summary": "A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids `unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages (a listed page not written yet is one `page_not_written` warning, not an error).",
+      "words": 375
     },
     {
       "topic": "components-when-to-make-what",
@@ -1321,7 +1329,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 2904
+      "words": 2944
     },
     {
       "topic": "render-what-it-does",
@@ -1337,7 +1345,7 @@
       "anchor": "render-steps-before-the-capture",
       "title": "Steps before the capture",
       "summary": "In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`, `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--navigate <screen>`, `--wait <ms>`.",
-      "words": 488
+      "words": 501
     },
     {
       "topic": "render-validation-codes",
@@ -1352,8 +1360,8 @@
       "file": "render.md",
       "anchor": "render-render-codes",
       "title": "Render codes",
-      "summary": "The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`.",
-      "words": 76
+      "summary": "The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `page_not_written`.",
+      "words": 103
     },
     {
       "topic": "render-a-loop-that-converges",
