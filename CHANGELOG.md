@@ -10,6 +10,10 @@
 - **`BindPaths.declaredDefault(node, path)`**: the declared default at a binding path (`opacity`, `props.*`,
   `layout.*`, `decoration.*`, a custom paint op's field), the node's value there when its JSON omits the field. An
   animation track with no `from` or `to` uses it (codelessly_sdk), so a track can end at an op's default `trimEnd` 1.
+- **Name conformance, re-measured** (`tool/name_conformance.dart`; docs/design/10-audit-verdict.md, section 6, and
+  docs/design/name-conformance.md): 61% of the 863 declared fields of the Flutter-mirroring node types and shared
+  groups are Flutter's name and meaning, 78% of those with a Flutter counterpart; 21 special-case fields are listed
+  with a recommendation.
 - **A time picker's `use24h` is `alwaysUse24HourFormat`** (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the
   picker reads). Step `props.renamed` (in `migrate2to3`'s one-way steps) renames the prop, its binding, state and media
   patches and `setValue`/condition paths in a schema-2 document; in a schema-3 document `use24h` is refused
