@@ -67,6 +67,23 @@ tag was a moment ago on screen (a picked emoji flying from its picker to its chi
 `{"hero": {"tag": "react", "flies": "inPlace", "flight": {"duration": 720, "lift": 110}}}`, on a spring without a
 `flight`.
 
+### Count up a number
+
+A figure that counts up when the page opens is a number variable the `animate` action plays
+(`AnimationController.animateTo`), shown through a formula that formats it: `thousands` (or `formatNumber`) puts
+in the thousands separators (`12,480`), which `round` alone does not.
+
+```json
+"variables": {"home": [{"name": "trees", "type": "decimal", "value": 0}, {"name": "people", "type": "decimal", "value": 0}]},
+"actions": [{"trigger": {"type": "load"}, "actions": [
+  {"type": "animate", "variable": "trees", "command": "animateTo", "target": "12480", "duration": "1300", "curve": "easeOutCubic", "nonBlocking": true},
+  {"type": "animate", "variable": "people", "command": "animateTo", "target": "3680", "duration": "1000", "curve": "easeOutCubic", "nonBlocking": true}]}]
+```
+
+with `"text": "${= thousands(trees)} trees planted"`. A chain waits for each `animate` to end before the next, so
+several in one `load` count **one after another**; `"nonBlocking": true` on each runs them **together** (or give
+each its own `load` reaction). The render command captures once every counting variable has arrived.
+
 ### Clocks and game loops
 
 A canvas's `timer` trigger (`"intervalMs": 1000`, `"when"`: a formula that must hold) runs every interval
@@ -84,7 +101,8 @@ the time with the render command's `--now 2026-11-13T09:00:00Z` (`now()` returns
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.
 - Animations run in a running app. The render command settles about a second after each step, so a short
-  animation is over when it captures; to check one mid-flight, lengthen its duration in a copy.
+  animation is over when it captures (a counting variable is waited for until it arrives, up to 20 s); to check
+  one mid-flight, lengthen its duration in a copy.
 
 ## See also
 

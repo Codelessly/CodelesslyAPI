@@ -24,11 +24,11 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [decoration.md](decoration.md) | Feature page. | 4097 | 7222 |
 | [forms.md](forms.md) | Feature page. | 11322 | 19611 |
 | [lists.md](lists.md) | Feature page. | 7618 | 13393 |
-| [navigation.md](navigation.md) | Feature page. | 4201 | 7475 |
+| [navigation.md](navigation.md) | Feature page. | 4238 | 7527 |
 | [state.md](state.md) | Feature page. | 6514 | 11682 |
 | [interaction.md](interaction.md) | Feature page. | 5221 | 8635 |
-| [animation.md](animation.md) | Feature page. | 4610 | 7488 |
-| [components.md](components.md) | Feature page. | 3706 | 7508 |
+| [animation.md](animation.md) | Feature page. | 4769 | 7798 |
+| [components.md](components.md) | Feature page. | 3719 | 7528 |
 | [charts.md](charts.md) | Feature page. | 7086 | 10509 |
 | [data.md](data.md) | Feature library page. | 2308 | 3758 |
 | [auth.md](auth.md) | Feature library page. | 468 | 993 |
@@ -37,11 +37,11 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [engage.md](engage.md) | Feature library page. | 311 | 636 |
 | [publish.md](publish.md) | Feature page. | 672 | 1237 |
 | [edit-ops.md](edit-ops.md) | Feature page. | 3297 | 5460 |
-| [render.md](render.md) | Feature page. | 2904 | 4494 |
+| [render.md](render.md) | Feature page. | 2944 | 4559 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13299 | 20839 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 103462 | 180714 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 103711 | 181162 |
 | [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 72872 | 191754 |
-| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 9958 | 27887 |
+| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10028 | 28038 |
 | [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25094 | 105385 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1267 | 3814 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |

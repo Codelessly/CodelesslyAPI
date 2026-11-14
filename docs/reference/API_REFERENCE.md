@@ -791,11 +791,11 @@ section's anchor is its topic.
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11322 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
-| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4201 |
+| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |
-| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4610 |
-| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3706 |
+| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
+| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3719 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7086 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2308 |
@@ -805,7 +805,7 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2904 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2944 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13299 |
 
 <a id="index-a-z"></a>
@@ -5839,7 +5839,9 @@ screen.
 ### Going to a screen and back
 
 `{"type": "navigate", "to": "<canvas id>"}` pushes the screen; `"mode": "pop"` goes back; `"replace"` and `"reset"`
-replace the history. For a screen with a canvas per breakpoint, name any of them. `"params": {"id": "${item.id}"}`
+replace the history. For a screen with a canvas per breakpoint, name any of them. `to` may be built by a binding
+(`"to": "${item.to}"` in a list of search results, each record naming its page's canvas id): it is the screen it names
+when the action runs (validation checks only literal names). `"params": {"id": "${item.id}"}`
 passes values the destination reads as `${route.id}`. A link to the screen's path with a query string passes the same
 (`trip?id=coast`), and so does the render command's `--navigate trip?id=coast`. A screen opened without the param
 reads it as empty: give the page a default (`coalesce(find(trips, 'id', route.id), first(trips))`).
@@ -7586,6 +7588,24 @@ tag was a moment ago on screen (a picked emoji flying from its picker to its chi
 `{"hero": {"tag": "react", "flies": "inPlace", "flight": {"duration": 720, "lift": 110}}}`, on a spring without a
 `flight`.
 
+<a id="animation-count-up-a-number"></a>
+### Count up a number
+
+A figure that counts up when the page opens is a number variable the `animate` action plays
+(`AnimationController.animateTo`), shown through a formula that formats it: `thousands` (or `formatNumber`) puts
+in the thousands separators (`12,480`), which `round` alone does not.
+
+```json
+"variables": {"home": [{"name": "trees", "type": "decimal", "value": 0}, {"name": "people", "type": "decimal", "value": 0}]},
+"actions": [{"trigger": {"type": "load"}, "actions": [
+  {"type": "animate", "variable": "trees", "command": "animateTo", "target": "12480", "duration": "1300", "curve": "easeOutCubic", "nonBlocking": true},
+  {"type": "animate", "variable": "people", "command": "animateTo", "target": "3680", "duration": "1000", "curve": "easeOutCubic", "nonBlocking": true}]}]
+```
+
+with `"text": "${= thousands(trees)} trees planted"`. A chain waits for each `animate` to end before the next, so
+several in one `load` count **one after another**; `"nonBlocking": true` on each runs them **together** (or give
+each its own `load` reaction). The render command captures once every counting variable has arrived.
+
 <a id="animation-clocks-and-game-loops"></a>
 ### Clocks and game loops
 
@@ -7605,7 +7625,8 @@ the time with the render command's `--now 2026-11-13T09:00:00Z` (`now()` returns
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.
 - Animations run in a running app. The render command settles about a second after each step, so a short
-  animation is over when it captures; to check one mid-flight, lengthen its duration in a copy.
+  animation is over when it captures (a counting variable is waited for until it arrives, up to 20 s); to check
+  one mid-flight, lengthen its duration in a copy.
 
 <a id="animation-see-also"></a>
 ## See also
@@ -7817,7 +7838,8 @@ call is `PlanCard(price: 47, ...)`.
 ### A complete multi-page site
 
 A site of two pages, a modal, a header and a footer shared by reference, written in the order that avoids
-`unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages. The trip
+`unknown_screen` errors: **the manifest first, every page listed**, then the components, then the pages (a listed
+page not written yet is one `page_not_written` warning, not an error). The trip
 page reads its route parameter (`${route.id}`, from `navigate.params` or a link `trip?id=coast`); the saved list is
 restored from storage when the home page loads; the packing list is kept per trip under a key built from the route.
 
@@ -10436,8 +10458,8 @@ may name a node by its `name` too. In a site, steps name nodes inside components
 and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`). Ids are
 per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
 an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
-component's). A step on a node hidden at one size (a media rule, another breakpoint's canvas) is skipped there with
-a note; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
+component's). A step on a node hidden at one size (a media rule, a binding, another breakpoint's canvas; a
+component's node by its path too) is skipped there with a `step_skipped` note, not a failure; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
 params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--navigate /project?id=7`); later steps
 act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
 not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
@@ -10541,11 +10563,12 @@ From `package:codelessly_api/validate.dart`:
 ### Render codes
 
 The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
-`interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
+`interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
-`component_missing`, `set_overwritten`. Links to a screen that is missing are one `unknown_screen` per screen, with
-how many links name it. Formulas are
+`component_missing`, `set_overwritten`, `page_not_written`. Links to a screen that is missing are one
+`unknown_screen` per screen, with how many links name it; a page `site.json` lists whose file is not written yet is
+one `page_not_written` warning per file instead (its links are checked once it is written). Formulas are
 parsed by the SDK's own parser there, so formula syntax errors and unknown names in formulas are reported only by
 the render command.
 
