@@ -1257,7 +1257,7 @@
       "anchor": "page-edit-ops",
       "title": "Edit ops and streaming",
       "summary": "Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use.",
-      "words": 3510
+      "words": 3542
     },
     {
       "topic": "edit-ops-the-ops",

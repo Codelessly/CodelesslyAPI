@@ -223,6 +223,33 @@ void main() {
   });
 
   group('lints', () {
+    test('a button that does nothing when pressed: dead_control (plan_progress@claude-haiku-5-5)', () {
+      // The recorded plan card had Start and Pause buttons with no reactions
+      // and a "Migration complete" line shown from the start: a static
+      // mock-up that validated cleanly.
+      final doc = _apply(_card(), [
+        {'op': 'set', 'id': 'start', 'parent': 'wrap', 'node': {'type': 'filledButton', 'props': {'label': 'Start'}, 'layout': {'width': 120, 'height': 40}}},
+        {
+          'op': 'set',
+          'id': 'go',
+          'parent': 'wrap',
+          'node': {
+            'type': 'filledButton',
+            'props': {'label': 'Go'},
+            'layout': {'width': 120, 'height': 40},
+            'actions': [
+              {'trigger': {'type': 'click'}, 'actions': [{'type': 'setVariable', 'variable': 'x', 'value': '1'}]},
+            ],
+          },
+        },
+        {'op': 'set', 'id': 'off', 'parent': 'wrap', 'node': {'type': 'filledButton', 'props': {'label': 'Off', 'enabled': false}, 'layout': {'width': 120, 'height': 40}}},
+      ]).document;
+      final lints = uiLints(doc).where((d) => d.code == 'dead_control').toList();
+      expect([for (final d in lints) d.nodeId], ['start']);
+      expect(lints.single.error, isFalse);
+      expect(lints.single.message, contains('"start" (filledButton) does nothing when pressed'));
+      expect(lints.single.message, contains('"trigger": {"type": "click"}'));
+    });
     test('a tappable box with no label: empty_button (weather@claude-haiku-5-5)', () {
       final doc = _apply(_card(), {
         'op': 'set',
