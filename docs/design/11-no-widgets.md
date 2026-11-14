@@ -351,6 +351,14 @@ The remainder, done in the main session, in this order:
 5. **The whole-app entry.** A site runs from `attachRoot` with no widget; the adapter in `host/` is the only file
    on the ratchet.
 
+Since then (same day): the ratchet is at 47. The indicators (charts, gauges, barcode, progress) take their color
+roles from `render/surface_roles.dart`, a widget-free file the Material theme is now also made from, so
+`indicator_theme.dart` imports no widget library; the typewriter's caret room is a painting-layer placeholder span
+instead of a `WidgetSpan`. Measured again by the same swap: about 2,270 uses in 47 files. Step 1 (feedback as
+documents) was scoped and found to depend on step 2: a toast outlives the screen it was shown on and sits under a
+modal's barrier, both of which are the Navigator's doing today, so the screen stack comes first and toasts,
+confirms and modals move onto its overlay with it.
+
 Gaps the workstreams left, folded into the steps above: a `popupMenu` node type on the menu; tile text and icon
 color props; write-back of a bound `expanded`; app-bar and navigation item reactions; the implied back button;
 selection handles and the copy and paste toolbar; an icon size written at its catalog default.
