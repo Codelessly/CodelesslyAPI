@@ -312,7 +312,7 @@ What has to be true before it is worth running, in order:
 | # | Work | State |
 |---|---|---|
 | 1 | Both test suites on and green | Done: 847 and 1,907 tests |
-| 2 | assistant-ui parity: every listed element as a target | 73 of 81. Left: heat graph, flow graph, math, geo map, map, Mermaid diagram, diagram, orb, each needing drawing the notation has no words for |
+| 2 | assistant-ui parity: every listed element as a target | 77 of 81. Left: math, geo map, map, a Mermaid diagram from its source, each needing something the document model lacks |
 | 3 | The bridge (design 15, part A): a block in the full form inside the notation, ops on the notation's document, the capability index and `ui_reference`; measured on Sudoku, kanban, form builder and a multi-screen app | Planned |
 | 4 | The playground: type the notation or a prompt, see it render, switch design system | Planned |
 | 5 | Apps described as prompts (design 15, part B): spec, personas, generated and rendered side by side (steps 1 to 3 of the prototype) | Planned |
