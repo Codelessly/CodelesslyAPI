@@ -16,6 +16,7 @@ held is now here (the old links still land on the right line):
 - <a id="trigger-changed"></a>`changed`: [forms.md#trigger-changed](forms.md#trigger-changed)
 - <a id="trigger-changeEnd"></a>`changeEnd`: [forms.md#trigger-changeEnd](forms.md#trigger-changeEnd)
 - <a id="trigger-submitted"></a>`submitted`: [forms.md#trigger-submitted](forms.md#trigger-submitted)
+- <a id="trigger-deleted"></a>`deleted`: [forms.md#trigger-deleted](forms.md#trigger-deleted)
 - <a id="trigger-editingComplete"></a>`editingComplete`: [forms.md#trigger-editingComplete](forms.md#trigger-editingComplete)
 - <a id="trigger-focusGained"></a>`focusGained`: [forms.md#trigger-focusGained](forms.md#trigger-focusGained)
 - <a id="trigger-focusLost"></a>`focusLost`: [forms.md#trigger-focusLost](forms.md#trigger-focusLost)

@@ -163,7 +163,8 @@ abstract final class FloatingActionButtonProps {
 
 /// How a chip is drawn.
 enum ChipVariant {
-  /// Flutter's chip, with Material's own spacing and minimum sizes.
+  /// The default (SSUI) chip: a pill 24 high (20 at a height of 20 or less), 10 px padding, a 12 px avatar or check
+  /// mark 6 px before the label, room for the check mark always kept so selecting never resizes it.
   material,
 
   /// Exactly its [ChipProps.padding] (default 10 × 4) around a check (when
@@ -180,8 +181,8 @@ abstract final class ChipProps {
 
   /// An icon glyph, or `{"image": url}` for a `CircleAvatar`.
   static const avatar = PropDef<IconGlyph>('avatar', _glyph, {});
-  /// The avatar's box; a selectable chip's checkmark is drawn in it too (at
-  /// 75 %), so it sizes the checkmark. Null: Material's.
+  /// The avatar's box; a selectable chip's checkmark is drawn in it too, so it sizes the checkmark. Null: 12 (13
+  /// for the plain variant).
   static const avatarSize = PropDef<double?>('avatarSize', _optionalDouble, null);
   static const avatarColor = PropDef<Color?>('avatarColor', _nullableColor, null);
   static const deleteIcon = PropDef<IconGlyph>('deleteIcon', _glyph, {});
@@ -214,12 +215,20 @@ abstract final class ChipProps {
     selected, showCheckmark, checkmarkColor, selectedColor, tooltip, isEnabled,
   ];
 
-  static const chip = WidgetSpec('chip', props: _common, doc: 'Flutter `Chip`.');
-  static const action = WidgetSpec('actionChip', props: [..._common, tooltip, isEnabled], doc: 'Flutter `ActionChip`.');
-  static const choice = WidgetSpec('choiceChip', props: [..._common, ..._selectable], doc: 'Flutter `ChoiceChip`.');
-  static const filter = WidgetSpec('filterChip', props: [..._common, ..._selectable], doc: 'Flutter `FilterChip`.');
+  static const _doc = ' With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label '
+      'centred, selected drawn tinted with the primary colour.';
+  static const chip = WidgetSpec('chip', props: _common, hugs: true, doc: 'Flutter `Chip`: a label (its `click` reactions run on a tap).$_doc');
+  static const action = WidgetSpec('actionChip',
+      props: [..._common, tooltip, isEnabled], hugs: true, doc: 'Flutter `ActionChip`: a tap fires `click`.$_doc');
+  static const choice = WidgetSpec('choiceChip',
+      props: [..._common, ..._selectable], hugs: true,
+      doc: 'Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`).$_doc');
+  static const filter = WidgetSpec('filterChip',
+      props: [..._common, ..._selectable], hugs: true,
+      doc: 'Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`).$_doc');
   static const input = WidgetSpec('inputChip',
-      props: [..._common, ..._selectable, deleteIcon, deleteIconSize, deleteIconColor], doc: 'Flutter `InputChip`.');
+      props: [..._common, ..._selectable, deleteIcon, deleteIconSize, deleteIconColor], hugs: true,
+      doc: 'Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`.$_doc');
 }
 
 /// `Badge`: a small label (or a dot) over its `child` slot.
@@ -249,7 +258,9 @@ abstract final class BadgeProps {
       ],
       children: ChildModel.slots,
       slots: ['child'],
-      doc: 'Flutter `Badge`.');
+      hugs: true,
+      doc: 'Flutter `Badge`: over its `child`, a dot or a count at `alignment`. With no child it is the default (SSUI) '
+          'badge: a tinted label 20 high, as wide as its text, a pill for a `count`.');
 }
 
 /// `ListTile`, its widgets in the `leading`, `title`, `subtitle` and
