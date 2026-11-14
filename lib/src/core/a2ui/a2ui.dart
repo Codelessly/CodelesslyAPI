@@ -355,8 +355,15 @@ class _Surface {
           for (final l in labels) {
             out.add('${pad}Checkbox ${jsonEncode(l)}');
           }
-        } else if (labels.length <= 4) {
+        } else if (labels.length <= 4 && labels.every((l) => l.length <= 14) && labels.join().length <= 36) {
           line('SegmentedButton items:${jsonEncode(labels)}${_valueOf(c['value'], item: item)}');
+        } else if (labels.length <= 6) {
+          // Options that are sentences: one under another, each with its radio, as A2UI's own renderers draw them.
+          out.add('${pad}Column gap:6$grow');
+          for (var i = 0; i < labels.length; i++) {
+            final value = options[i]['value'] ?? labels[i];
+            out.add('$pad  Radio ${jsonEncode(labels[i])} fill value:${jsonEncode('$value')}${_valueOf(c['value'], item: item)}');
+          }
         } else {
           line('Select items:${jsonEncode(labels)}${_valueOf(c['value'], item: item)}');
         }
