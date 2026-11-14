@@ -1052,6 +1052,12 @@ final class _Validator {
         continue;
       }
       values.checkDef(def, e.value, p);
+      // A text field's validator reads its text as `value` (Flutter's
+      // `validator: (value) => ...`).
+      if (n.type == 'textField' && e.key == 'validator' && e.value is String) {
+        _expression(e.value as String, p, locals: const {'value'});
+        continue;
+      }
       _strings(e.value, p);
     }
   }
@@ -1617,7 +1623,7 @@ final class _Validator {
 
   /// Checks [text]'s `${...}` (or, with [bareFormula], [text] itself as a
   /// formula when it has none).
-  void _expression(String text, String at, {bool bareFormula = false}) {
+  void _expression(String text, String at, {bool bareFormula = false, Set<String> locals = const {}}) {
     final scan = scanExpressions(text);
     if (scan.error != null) r.add(Codes.expressionSyntax, at, scan.error!);
     final exprs = [...scan.expressions];
@@ -1648,12 +1654,12 @@ final class _Validator {
         continue;
       }
       for (final name in roots) {
-        if (declared.contains(name) || runtimeScopes.contains(name)) continue;
+        if (declared.contains(name) || runtimeScopes.contains(name) || locals.contains(name)) continue;
         // A custom paint's ops read the size they paint at.
         if (name == 'size' && at.contains('/customPaint/')) continue;
         r.add(Codes.unknownName, at,
             '"$name" is not a declared variable${currentCanvas == null ? '' : ' of canvas "$currentCanvas"'} nor a runtime scope (${runtimeScopes.join(', ')}).',
-            suggestion: nearest(name, [...declared, ...runtimeScopes]));
+            suggestion: nearest(name, [...declared, ...runtimeScopes, ...locals]));
       }
     }
   }

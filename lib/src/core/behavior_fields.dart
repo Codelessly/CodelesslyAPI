@@ -60,6 +60,8 @@ const dismissibleType = PropType.object('DismissibleBehavior', dismissibleFields
 const panType = PropType.object('Pan', panFields);
 const revealType = PropType.object('Reveal', revealFields);
 const stickyType = PropType.object('Sticky', stickyFields);
+const formType = PropType.object('FormBehavior', formFields);
+const radioGroupType = PropType.object('RadioGroupBehavior', radioGroupFields);
 const viewProgressType = PropType.object('ViewProgress', viewProgressFields);
 const measureType = PropType.object('Measure', measureFields);
 const typewriterType = PropType.object('Typewriter', typewriterFields);
@@ -913,6 +915,25 @@ abstract final class StickyFields {
 
 List<PropDef<Object?>> stickyFields() => StickyFields.all;
 
+/// [FormBehavior]: Flutter's `Form`.
+abstract final class FormFields {
+  static const autovalidateMode = PropDef<AutovalidateMode>(
+      'autovalidateMode', EnumCodec(AutovalidateMode.values), AutovalidateMode.disabled,
+      doc: 'When every field inside checks itself, besides the validate action (Flutter\'s Form.autovalidateMode).');
+  static const List<PropDef<Object?>> all = [autovalidateMode];
+}
+
+List<PropDef<Object?>> formFields() => FormFields.all;
+
+/// [RadioGroupBehavior]: Flutter's `RadioGroup`.
+abstract final class RadioGroupFields {
+  static const groupValue = PropDef<String>('groupValue', Codecs.string, '',
+      doc: 'The value of the radio that is on; bind it to the variable the choice is kept in.');
+  static const List<PropDef<Object?>> all = [groupValue];
+}
+
+List<PropDef<Object?>> radioGroupFields() => RadioGroupFields.all;
+
 abstract final class ViewProgressFields {
   static const mode = PropDef<ViewProgressMode>('mode', EnumCodec(ViewProgressMode.values), ViewProgressMode.travel);
 
@@ -1056,6 +1077,15 @@ abstract final class BehaviorFields {
   /// Its laid-out box, written to a variable.
   static const measure = PropDef<Measure?>('measure', ValueCodec(Measure.fromJson, _out, measureType), null);
 
+  /// Flutter's `Form`: the text fields inside it validate together; `${form.valid}`, `${form.errors}`.
+  static const form = PropDef<FormBehavior?>('form', ValueCodec(FormBehavior.fromJson, _out, formType), null,
+      doc: 'Flutter\'s Form: the text fields inside validate together (the validate action); its nodes read \${form.valid} and \${form.errors}.');
+
+  /// Flutter's `RadioGroup`: the radios inside it share its value.
+  static const radioGroup = PropDef<RadioGroupBehavior?>(
+      'radioGroup', ValueCodec(RadioGroupBehavior.fromJson, _out, radioGroupType), null,
+      doc: 'Flutter\'s RadioGroup: the radios inside share its groupValue; choosing one runs its changed reactions.');
+
   /// Flutter's `CustomPaint`: draw lists behind and over the content.
   static const customPaint = PropDef<CustomPaint?>(
     'customPaint',
@@ -1068,6 +1098,7 @@ abstract final class BehaviorFields {
     motion, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
     draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, typewriter,
     particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
+    form, radioGroup,
   ];
 }
 

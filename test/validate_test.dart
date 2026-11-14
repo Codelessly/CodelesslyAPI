@@ -270,7 +270,7 @@ void main() {
           'type': type,
           'layout': {'width': 120, 'height': 40},
           'props': {'label': 'Linen'},
-          'bind': {'selected': r"${= count == 1}"},
+          'bind': {'selected': r'${= count == 1}'},
           'states': ?states,
         };
         (node(d, 'col')['children'] as List).add('choice');

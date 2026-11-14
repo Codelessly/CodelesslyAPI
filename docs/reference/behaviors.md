@@ -12,6 +12,8 @@ held is now here (the old links still land on the right line):
 - <a id="behavior-textDirection"></a>`textDirection`: [theme.md#behavior-textDirection](theme.md#behavior-textDirection)
 - <a id="behavior-defaultTextStyle"></a>`defaultTextStyle`: [theme.md#behavior-defaultTextStyle](theme.md#behavior-defaultTextStyle)
 - <a id="behavior-customPaint"></a>`customPaint`: [decoration.md#behavior-customPaint](decoration.md#behavior-customPaint)
+- <a id="behavior-form"></a>`form`: [forms.md#behavior-form](forms.md#behavior-form)
+- <a id="behavior-radioGroup"></a>`radioGroup`: [forms.md#behavior-radioGroup](forms.md#behavior-radioGroup)
 - <a id="behavior-reorderHandle"></a>`reorderHandle`: [lists.md#behavior-reorderHandle](lists.md#behavior-reorderHandle)
 - <a id="behavior-states"></a>`states`: [interaction.md#behavior-states](interaction.md#behavior-states)
 - <a id="behavior-inkWell"></a>`inkWell`: [interaction.md#behavior-inkWell](interaction.md#behavior-inkWell)

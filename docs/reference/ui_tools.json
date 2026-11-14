@@ -375,6 +375,8 @@
             "viewProgress": {},
             "measure": {},
             "customPaint": {},
+            "form": {},
+            "radioGroup": {},
             "key": {},
             "component": {}
           },

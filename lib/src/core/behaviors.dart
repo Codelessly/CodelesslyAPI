@@ -2032,6 +2032,64 @@ final class Sticky extends _Value {
   List<Object?> get props => [offset];
 }
 
+/// Flutter's `Form`: the text fields inside the node are one form. The
+/// `validate` action (`FormState.validate()`) checks them all with their
+/// validators, shows each one's error and focuses the first invalid field;
+/// [autovalidateMode] makes them check themselves too, as each field's own
+/// `autovalidateMode` does. The node and the nodes inside it read
+/// `${form.valid}` (every field passes its validator now) and
+/// `${form.errors}` (the errors the fields show, in order: `{field, label,
+/// message}`), for a summary. JSON `true` or `{"autovalidateMode": ...}`.
+@immutable
+final class FormBehavior extends _Value {
+  const FormBehavior({this.autovalidateMode = AutovalidateMode.disabled});
+
+  /// Flutter's `Form.autovalidateMode`: applies to every field inside, with
+  /// each field's own.
+  final AutovalidateMode autovalidateMode;
+
+  static FormBehavior? fromJson(Object? json) {
+    if (json == true) return const FormBehavior();
+    final m = readMap(json);
+    if (m == null) return null;
+    final mode = m['autovalidateMode'];
+    return FormBehavior(
+        autovalidateMode: AutovalidateMode.values.where((v) => v.name == mode).firstOrNull ?? AutovalidateMode.disabled);
+  }
+
+  Json toJson() =>
+      <String, Object?>{if (autovalidateMode != AutovalidateMode.disabled) 'autovalidateMode': autovalidateMode.name};
+
+  @override
+  List<Object?> get props => [autovalidateMode];
+}
+
+/// Flutter's `RadioGroup`: the `radio` nodes inside the node that set no
+/// `groupValue` of their own share this one, and choosing one of them runs
+/// the node's `changed` reactions with its value as `${result}`
+/// (`RadioGroup.onChanged`). Bind [groupValue] to the variable the choice
+/// is kept in: `"bind": {"radioGroup.groupValue": "${budget}"}`.
+@immutable
+final class RadioGroupBehavior extends _Value {
+  const RadioGroupBehavior({this.groupValue = ''});
+
+  /// The value of the radio that is on (`RadioGroup.groupValue`).
+  final String groupValue;
+
+  static RadioGroupBehavior? fromJson(Object? json) {
+    if (json == true) return const RadioGroupBehavior();
+    final m = readMap(json);
+    if (m == null) return null;
+    final v = m['groupValue'];
+    return RadioGroupBehavior(groupValue: v == null ? '' : '$v');
+  }
+
+  Json toJson() => <String, Object?>{if (groupValue.isNotEmpty) 'groupValue': groupValue};
+
+  @override
+  List<Object?> get props => [groupValue];
+}
+
 /// Writes where the node is laid out, `{x, y, width, height, centerX,
 /// centerY}` in pixels, to a variable as layout changes: in the
 /// coordinates of the ancestor node [relativeTo] (empty: the screen),
@@ -2304,6 +2362,8 @@ final class Behaviors extends _Value {
     this.viewProgress,
     this.measure,
     this.customPaint,
+    this.form,
+    this.radioGroup,
   });
 
   static const Behaviors none = Behaviors();
@@ -2400,13 +2460,19 @@ final class Behaviors extends _Value {
   /// Flutter's `CustomPaint`: draw lists behind and over its content.
   final CustomPaint? customPaint;
 
+  /// Flutter's `Form`: the text fields inside it validate together.
+  final FormBehavior? form;
+
+  /// Flutter's `RadioGroup`: the radios inside it share its value.
+  final RadioGroupBehavior? radioGroup;
+
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
     'motion', 'animations', 'transitions', 'shimmer', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
     'floating', 'hero', 'draggable', 'dropTarget', 'track', 'dismissible',
     'pan', 'reorderHandle', 'reveal', 'typewriter',
     'particles', 'textDirection', 'defaultTextStyle', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
-    'customPaint',
+    'customPaint', 'form', 'radioGroup',
   };
 
   bool get isNone => this == none;
@@ -2446,6 +2512,8 @@ final class Behaviors extends _Value {
       viewProgress: ViewProgress.fromJson(m['viewProgress']),
       measure: Measure.fromJson(m['measure']),
       customPaint: CustomPaint.fromJson(m['customPaint']),
+      form: FormBehavior.fromJson(m['form']),
+      radioGroup: RadioGroupBehavior.fromJson(m['radioGroup']),
     );
   }
 
@@ -2480,6 +2548,8 @@ final class Behaviors extends _Value {
     if (viewProgress != null) j['viewProgress'] = viewProgress!.toJson();
     if (measure != null) j['measure'] = measure!.toJson();
     if (customPaint != null) j['customPaint'] = customPaint!.toJson();
+    if (form != null) j['form'] = form!.toJson();
+    if (radioGroup != null) j['radioGroup'] = radioGroup!.toJson();
   }
 
   Behaviors copyWith({
@@ -2511,6 +2581,8 @@ final class Behaviors extends _Value {
     ViewProgress? viewProgress,
     Measure? measure,
     CustomPaint? customPaint,
+    FormBehavior? form,
+    RadioGroupBehavior? radioGroup,
   }) => Behaviors(
     motion: motion ?? this.motion,
     animations: animations ?? this.animations,
@@ -2540,6 +2612,8 @@ final class Behaviors extends _Value {
     viewProgress: viewProgress ?? this.viewProgress,
     measure: measure ?? this.measure,
     customPaint: customPaint ?? this.customPaint,
+    form: form ?? this.form,
+    radioGroup: radioGroup ?? this.radioGroup,
   );
 
   @override
@@ -2547,5 +2621,6 @@ final class Behaviors extends _Value {
     motion, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
     draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, typewriter,
     particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
+    form, radioGroup,
   ];
 }

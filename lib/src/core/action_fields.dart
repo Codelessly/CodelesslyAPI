@@ -372,6 +372,14 @@ abstract final class FocusFields {
   static const List<PropDef<Object?>> all = [node, unfocus, selectAll];
 }
 
+/// [ValidateAction].
+abstract final class ValidateFields {
+  static const node = PropDef<String>('node', Codecs.string, '',
+      doc: 'The form (a node with a form behavior); empty: the form around the node running it, else the screen.');
+  static const focusFirstError = PropDef<bool>('focusFirstError', Codecs.bool, true);
+  static const List<PropDef<Object?>> all = [node, focusFirstError];
+}
+
 /// [ControlTrackAction].
 abstract final class ControlTrackFields {
   static const node = PropDef<String>('node', Codecs.string, '', doc: 'A node with a track.');

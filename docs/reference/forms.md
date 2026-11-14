@@ -258,12 +258,12 @@ Flutter `TextField` (a `TextFormField` when it validates).
 | `selectionHeightStyle` | [BoxHeightStyle](values.md#enum-BoxHeightStyle) | `"tight"` | `tight`, `max`, `includeLineSpacingMiddle`, `includeLineSpacingTop`, `includeLineSpacingBottom`, `strut` |  |
 | `selectionWidthStyle` | [BoxWidthStyle](values.md#enum-BoxWidthStyle) | `"tight"` | `tight`, `max` |  |
 | `autofillHints` | List<String> | `[]` |  | `AutofillHints` names (`email`, `password`...). |
-| `autovalidateMode` | [AutovalidateMode](values.md#enum-AutovalidateMode) | `"disabled"` | `disabled`, `always`, `onUserInteraction`, `onUnfocus` |  |
+| `autovalidateMode` | [AutovalidateMode](values.md#enum-AutovalidateMode) | `"disabled"` | `disabled`, `always`, `onUserInteraction`, `onUnfocus`, `onUserInteractionIfError` |  |
 | `selectAllOnFocus` | bool | `false` |  | Selects the whole text when the field gains focus. |
 | `focusRingColor` | [Color](values.md#type-Color) | unset |  | A ring drawn around the field while it has focus. |
 | `focusRingWidth` | double | `0` | ≥ 0 |  |
 | `inputFormatter` | Object | `{}` |  | The input formatter (`{"type": "none"\|"email"\|"phone"\|..., ...}`). |
-| `validator` | Object | `{}` |  | The validator (`{"type": "none"\|"email"\|"required"\|..., ...}`). |
+| `validator` | String | `""` |  | Flutter's TextFormField.validator: an expression reading the text as `value`, giving the error or "" when valid. |
 | `markdown` | Object | unset |  | Markdown highlighting of the typed text. |
 | `highlightStart` | int | unset |  | Characters `highlightStart` (0-based) up to `highlightEnd` (exclusive) are drawn in `highlightStyle` over the field's style, e.g. the place a syntax error was found. Null or an empty range highlights nothing. |
 | `highlightEnd` | int | unset |  |  |
@@ -798,6 +798,38 @@ Flutter `InputChip`.
 | `deleteIconSize` | double | unset |  |  |
 | `deleteIconColor` | [Color](values.md#type-Color) | unset |  |  |
 
+<a id="behavior-form"></a>
+### `form` (behavior)
+
+A node key (beside `layout` and `props`). Type: [FormBehavior](forms.md#type-FormBehavior). Default: unset.
+
+Flutter's Form: the text fields inside validate together (the validate action); its nodes read ${form.valid} and ${form.errors}.
+
+<a id="type-FormBehavior"></a>
+#### FormBehavior
+
+Flutter's `Form`: the text fields inside the node are one form. The `validate` action (`FormState.validate()`) checks them all with their validators, shows each one's error and focuses the first invalid field; `autovalidateMode` makes them check themselves too, as each field's own `autovalidateMode` does. The node and the nodes inside it read `${form.valid}` (every field passes its validator now) and `${form.errors}` (the errors the fields show, in order: `{field, label, message}`), for a summary. JSON `true` or `{"autovalidateMode": ...}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `autovalidateMode` | [AutovalidateMode](values.md#enum-AutovalidateMode) | `"disabled"` | `disabled`, `always`, `onUserInteraction`, `onUnfocus`, `onUserInteractionIfError` | When every field inside checks itself, besides the validate action (Flutter's Form.autovalidateMode). |
+
+<a id="behavior-radioGroup"></a>
+### `radioGroup` (behavior)
+
+A node key (beside `layout` and `props`). Type: [RadioGroupBehavior](forms.md#type-RadioGroupBehavior). Default: unset.
+
+Flutter's RadioGroup: the radios inside share its groupValue; choosing one runs its changed reactions.
+
+<a id="type-RadioGroupBehavior"></a>
+#### RadioGroupBehavior
+
+Flutter's `RadioGroup`: the `radio` nodes inside the node that set no `groupValue` of their own share this one, and choosing one of them runs the node's `changed` reactions with its value as `${result}` (`RadioGroup.onChanged`). Bind `groupValue` to the variable the choice is kept in: `"bind": {"radioGroup.groupValue": "${budget}"}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `groupValue` | String | `""` |  | The value of the radio that is on; bind it to the variable the choice is kept in. |
+
 <a id="forms-triggers"></a>
 ### Triggers
 
@@ -838,6 +870,16 @@ Focuses text field `node` (selecting its text with `selectAll`), or takes the fo
 | `node` | String | `""` |  | A text field; empty with unfocus: every field. |
 | `unfocus` | bool | `false` |  |  |
 | `selectAll` | bool | `false` |  |  |
+
+<a id="action-validate"></a>
+### `validate` (action): Validate form
+
+Flutter's FormState.validate(): every field of the form shows its validator's error; the first invalid one takes the focus. ${result}: whether all are valid.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | The form (a node with a form behavior); empty: the form around the node running it, else the screen. |
+| `focusFirstError` | bool | `true` |  | Moves the focus to the first field that shows an error. |
 
 <a id="type-InputDecoration"></a>
 ### InputDecoration
