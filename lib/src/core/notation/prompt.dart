@@ -9,14 +9,17 @@ import 'notation.dart';
 /// The prompt for the notation over [catalog] (its level 0 and 1 types).
 String notationPrompt({Catalog? catalog, NotationOptions options = const NotationOptions()}) {
   final c = catalog ?? Catalog.current;
-  final short = {for (final e in notationTypes.entries) e.value.type: e.key};
+  final short = {
+    for (final e in notationTypes.entries)
+      if (e.key != 'Card' && e.key != 'Image') e.value.type: e.key,
+  };
   String written(String type) => short[type] ?? '${type[0].toUpperCase()}${type.substring(1)}';
   List<String> ofLevel(Level l) => [
         for (final w in c.widgets)
           if (widgetLevels[w.type] == l && w.type != 'canvas' && !const {'placeholder', 'singlePlaceholder', 'flex'}.contains(w.type))
             written(w.type),
       ];
-  final layout = ofLevel(Level.core)..addAll(['Card', 'Image']);
+  final layout = [...ofLevel(Level.core), 'Card', 'Image'];
   final controls = ofLevel(Level.widgets).where((t) => !t.endsWith('Button') || t == 'Button' || t == 'IconButton' || t == 'SegmentedButton').toList();
   return '''
 You describe a UI by writing it in this notation, one node per line, children indented two spaces under their parent. Write only the notation: no JSON, no prose, no code fence.
