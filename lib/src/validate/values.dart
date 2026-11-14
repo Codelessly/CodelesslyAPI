@@ -355,15 +355,40 @@ bool readsKey(PropCodec<Object?> codec, Json m, String key) {
     final a = withKey == null ? null : codec.encode(withKey);
     final b = without == null ? null : codec.encode(without);
     if (jsonEquality.equals(a, b)) return false;
-    // Kept verbatim (an `extra` map): not read.
+    // Kept verbatim (an `extra` map): not read. A typed field can also encode
+    // back to exactly what was written (`widthFactor: 0`), so the key only
+    // counts as kept when values of every shape survive under it unchanged.
     if (a is Map && jsonEquality.equals(a[key], m[key])) {
       final aWithout = {for (final e in a.entries) if (e.key != key) e.key: e.value};
-      if (jsonEquality.equals(aWithout, b)) return false;
+      if (jsonEquality.equals(aWithout, b) && _keepsAnything(codec, m, key)) return false;
     }
     return true;
   } catch (_) {
     return false;
   }
+}
+
+/// Values no typed field takes all of: a string, a number, a list and a map.
+const _probes = <Object>[
+  '\u0000probe',
+  -918273.645,
+  ['\u0000probe'],
+  {'\u0000probe': '\u0000probe'},
+];
+
+/// Whether [codec] carries whatever is written at [key] through a decode and
+/// an encode untouched, as an `extra` map does and a typed field does not.
+bool _keepsAnything(PropCodec<Object?> codec, Json m, String key) {
+  for (final probe in _probes) {
+    try {
+      final decoded = codec.decode({...m, key: probe});
+      final enc = decoded == null ? null : codec.encode(decoded);
+      if (enc is! Map || !jsonEquality.equals(enc[key], probe)) return false;
+    } catch (_) {
+      return false;
+    }
+  }
+  return true;
 }
 
 String _list(Iterable<String> xs) {

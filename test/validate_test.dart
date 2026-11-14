@@ -120,6 +120,16 @@ void main() {
       (node(d, 'box')['layout'] as Map)['widht'] = 3;
       expectOne(d, Codes.unknownLayoutKey, suggestion: 'width');
     });
+    test('widthFactor and heightFactor of 0 are read, not unknown layout keys', () {
+      for (final key in ['widthFactor', 'heightFactor']) {
+        final d = base();
+        node(d, 'box')['layout'] = {'width': 0, 'height': 4, key: 0};
+        expect(validateDocument(d).where((x) => x.code == Codes.unknownLayoutKey), isEmpty, reason: key);
+      }
+      final d = base();
+      node(d, 'box')['layout'] = {'width': 0, 'height': 4, 'widthFactor': 0, 'heightFactor': 0};
+      expect(validateDocument(d).where((x) => x.code == Codes.unknownLayoutKey), isEmpty);
+    });
     test('a misspelt decoration key is reported with the right one (unknown_decoration_key)', () {
       final d = base();
       node(d, 'box')['decoration'] = {'fill': []};
