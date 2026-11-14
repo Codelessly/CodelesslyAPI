@@ -197,12 +197,19 @@ Validity went up by accepting what the models wrote, not by telling them more:
 | 2 (`Grid cols`, `Progress 0.5`, `Box` with children, `Badge` variants, `enabled`) | 17 of 34 | 24 of 34 |
 | 3 (headers and tiles from strings, growing children, expressions with quotes, prices) | 28 of 34 | 31 of 34 |
 | Run 3's answers expanded again by the current parser (labels that read state, text style keys, segmented items, grid rows, parenthesised expressions) | | 33 of 34 |
+| 5 (the prompt lists the formula functions that exist: about 2,380 prompt tokens, median output 935, 5.4 s) | 26 of 34 | 31 of 34 |
+| Run 5's answers expanded again by the current parser (quotes inside `{…}`, expressions with spaces, an expression where the string goes, `List =rows`, `each rows`, a sentence after the UI) | | 34 of 34 |
 
 The rule that came out of it: when two models independently write the same form and its meaning is not in
 doubt, the notation takes that form. `tool/reexpand_notation.dart` expands recorded answers again with the
 current parser, so a parser change is measured on real answers without calling a model.
 
-Not built yet: `each` over data, the printer and its round trip, diagnostics by line in the tool result, the
+Listing the functions did not raise first-answer validity (26 against 28) and cost about 700 prompt tokens; what
+raised it was again accepting the forms written. Rendering the answers found layout rules the grammar needed: `each`
+in a row goes across, `GridView` is `Grid`, a column in a row and its children are as wide as their content, an
+accordion starts closed. Open: an `each` under a `Stack` cannot place its copies by `x`/`y` (a map's pins).
+
+Not built yet: the printer and its round trip, diagnostics by line in the tool result, the
 notation in the chat example's live path, and the A2UI front end.
 
 ## 11. Open points
