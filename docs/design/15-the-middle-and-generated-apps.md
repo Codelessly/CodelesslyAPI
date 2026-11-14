@@ -169,6 +169,18 @@ Steps 1 and 2 reuse what exists and come first; they will show whether the idea 
 built. Step 4 and the notation playground are one piece of work: a page where a person types a prompt or the
 notation and sees it render is the shell with one screen.
 
+## 4.1 The playground, and the rule for every surface of this work
+
+Built (2026-11-14): `CodelesslySDK/examples/playground`. The notation on the left, the UI on the right as it is
+typed, a design system switch, three widths, the lines not read, the document it became. Not yet: writing from a
+prompt, and living in the Editor.
+
+The rule (owner, 2026-11-14): the playground, and any other screen built around generated UI, is designed to be
+integrated into CodelesslyEditor, in that exact style. So its own frame is `soft_saas_ui`, the package the Editor
+is built with (its app, split view, pane toolbars, code field, selects, segmented controls), never Material
+widgets, and it follows the Editor's layout conventions. What it shows inside the preview is whatever design
+system is chosen; the frame around it is always SSUI's.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
