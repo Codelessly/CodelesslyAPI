@@ -1,6 +1,7 @@
 // Strict validation of a layout document: everything the lenient decoders
 // would silently drop, replace or ignore, reported with a code, a JSON
 // pointer and (where the declarations allow) a suggestion. Never throws.
+import 'dart:convert';
 import 'dart:math' as math;
 
 import '../core/action_fields.dart';
@@ -119,17 +120,22 @@ List<Diagnostic> validateProject(Map<String, Object?> documents,
   final projectVariables = {...options.variables, for (final v in manifest?.variables ?? const <Variable>[]) v.name};
   if (manifest != null) out.addAll(_projectVariableCollisions(documents, manifest));
   for (final e in documents.entries) {
-    // Ids are local to a component's document: only pages share a namespace.
+    // Node ids are per document: a page's actions and conditions name its
+    // own nodes, a component's are its own. Only canvas ids are site-wide
+    // (navigate and openModal name them), so only they must not repeat.
     if (readMap(e.value)?.containsKey(kWidgetKey) ?? false) continue;
     final nodes = readMap(readMap(e.value)?['nodes']) ?? const {};
     for (final id in nodes.keys) {
+      if (readMap(nodes[id])?['type'] != 'canvas') continue;
       final before = owner[id];
       if (before != null) {
         out.add(Diagnostic(Codes.duplicateId, pointer('/nodes', id),
-            'Node id "$id" is also used in $before: keep ids unique across a site so reports and steps name one node.', nodeId: id, file: e.key));
+            'Canvas id "$id" is also a canvas of $before: navigate and openModal name a screen by its canvas id, so a link to it '
+            'reaches one of them. Give each canvas of the site its own id (other node ids are per document and may repeat).',
+            nodeId: id, file: e.key));
       }
       owner[id] = e.key;
-      if (readMap(nodes[id])?['type'] == 'canvas') screens.add(id);
+      screens.add(id);
     }
   }
   for (final e in documents.entries) {
@@ -1299,7 +1305,8 @@ final class _Validator {
     if (m == null) {
       if (json is String) {
         r.add(Codes.invalidCondition, at,
-            'A predicate is an object: {"left": "\${x}", "op": "equalsTo", "right": "1"} or {"and"|"or": [...]}, not text.');
+            'A predicate is an object: {"left": "\${x}", "op": "equalsTo", "right": "1"} or {"and"|"or": [...]}, not text. '
+            'To test a formula, compare it with true: {"left": ${jsonEncode(json)}, "op": "isTrue"}.');
       } else {
         r.add(Codes.invalidCondition, at, 'A predicate is an object, got ${describe(json)}.');
       }
