@@ -830,6 +830,8 @@ class _Parser {
       t.skipSpace();
       if (t.done) break;
       final col = column + t.at;
+      // `Progress :=done/total`: a value binding written with a stray colon.
+      if (t.rest.startsWith(':=')) t.at++;
       if (t.peek == '"' && component) {
         // A component's strings fill its text parameters in order.
         final text = _interpolate(t.string());
@@ -1068,7 +1070,16 @@ class _Parser {
         if (raw.startsWith('=')) {
           bind[path] = _read(raw.substring(1) + (t.peek == ' ' ? '' : ''));
         } else {
-          put(path, _value(raw));
+          var v = _value(raw);
+          // A text parameter given a number (count:4) takes it as text.
+          if (v is num && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.string)) v = '$v';
+          if (v is String && v.contains(r'${') && !(type == 'text' && path == 'props.text')) {
+            // A string that reads data (value:"{streak} days") is bound:
+            // only a text node reads an expression as written.
+            bind[path] = v;
+          } else {
+            put(path, v);
+          }
         }
       }
     }
