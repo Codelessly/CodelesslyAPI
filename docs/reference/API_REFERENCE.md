@@ -790,7 +790,7 @@ section's anchor is its topic.
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9529 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2906 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12201 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12204 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7875 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6662 |
@@ -3709,7 +3709,7 @@ Flutter `SegmentedButton<String>`.
 
 Flutter `showDatePicker` button or field.
 
-An `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`yyyy-MM-dd`) that opens `showDatePicker`.
+A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -3723,7 +3723,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's. |
+| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
 | `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-timePicker"></a>
@@ -3731,7 +3731,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`
 
 Flutter `showTimePicker` button or field.
 
-An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`HH:mm`) that opens `showTimePicker`.
+A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -3744,7 +3744,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's. |
+| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
 | `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-dateTimeInput"></a>
@@ -3752,7 +3752,7 @@ An `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`
 
 Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.
 
-An outlined `InputDecorator` showing a date, time or both, that opens the pickers.
+A field (Flutter's `InputDecorator`) showing a date, time or both, that opens the pickers.
 
 - Children: none.
 - Decoration: box decoration (fills, strokes, radius, shadows, clip).
@@ -11475,8 +11475,8 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `dialog` | What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value). |
-| `none` | What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value). |
+| `dialog` | What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value). |
+| `none` | What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value). |
 
 <a id="enum-DecorationShape"></a>
 ### DecorationShape
