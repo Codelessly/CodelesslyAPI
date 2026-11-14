@@ -237,6 +237,18 @@ Column gap:8 scroll
     expect(stream.issues, isEmpty);
     expect(((a.document['screen']!.toJson()['actions'] as List).single as Map)['trigger'], {'type': 'timer', 'intervalMs': 500});
 
+    // A string that reads data on a named parameter is bound; a stray colon before = is read.
+    final c = _parse('''
+state streak=4
+state done=3
+Column
+  Button "Go" tooltip:"{streak} days"
+  Progress :=done/5
+''');
+    expect(c.issues, isEmpty);
+    expect((_node(c, 'filledButton1')['bind'] as Map)['props.tooltip'], r'${streak} days');
+    expect((_node(c, 'progressBar1')['bind'] as Map)['props.value'], r'${= done/5}');
+
     // What cannot be meant is said.
     final bad = _parse('''
 state rows=[{"n":1}]
