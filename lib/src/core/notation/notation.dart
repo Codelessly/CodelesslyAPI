@@ -815,6 +815,8 @@ class _Parser {
       if (spec.props.any((p) => p.key == key)) return 'props.$key';
       if (key == 'enabled' && spec.props.any((p) => p.key == 'isEnabled')) return 'props.isEnabled';
       if ((key == 'lines' || key == 'rows') && type == 'textField') return 'props.maxLines';
+      // `Input "Age" type:number`: the keyboard it opens.
+      if (key == 'type' && type == 'textField') return 'props.keyboardType';
       if ((key == 'selected' || key == 'checked') && (type == 'checkbox' || type == 'switch')) return 'props.value';
       if (_layoutKeys.contains(key)) return 'layout.$key';
       if (_decorationKeys.contains(key)) return 'decoration.$key';
@@ -854,7 +856,11 @@ class _Parser {
         // onChanged): what it fires when it is used.
         final event = component ? spec.events.firstOrNull : null;
         reactions.add({
-          'trigger': event != null ? {'type': 'event', 'event': event.key} : {'type': _valueProps.containsKey(type) ? 'changed' : 'click'},
+          'trigger': node.containsKey('dropTarget')
+              ? {'type': 'drop'}
+              : event != null
+                  ? {'type': 'event', 'event': event.key}
+                  : {'type': _valueProps.containsKey(type) ? 'changed' : 'click'},
           'actions': _actions(t.rest.substring(0, tail).trim(), col),
         });
         t.at += tail;
@@ -1010,6 +1016,27 @@ class _Parser {
             decoration['fills'] = [
               {'color': _value(raw)},
             ];
+          }
+          continue;
+        }
+        // `drag:todo(card.id)`: the node can be dragged, in a group, carrying
+        // a value. `drop:todo,doing -> …`: it takes drops from those groups,
+        // and the line's -> runs on a drop ({result.data} is what was carried).
+        if (key == 'drag') {
+          final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\((.+)\))?$').firstMatch(raw);
+          if (m == null) {
+            _issue(col, 'drag is written drag:group or drag:group(value): drag:todo(card.id).');
+          } else {
+            node['draggable'] = {'group': m[1], if (m[2] != null) 'data': _read(m[2]!.trim())};
+          }
+          continue;
+        }
+        if (key == 'drop') {
+          final groups = raw.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty).toList();
+          if (groups.isEmpty || groups.any((g) => !_identifier.hasMatch(g))) {
+            _issue(col, 'drop is written drop:group or drop:a,b with the groups it takes: drop:todo,doing -> done=append(done,result.data).');
+          } else {
+            node['dropTarget'] = {'accepts': groups};
           }
           continue;
         }

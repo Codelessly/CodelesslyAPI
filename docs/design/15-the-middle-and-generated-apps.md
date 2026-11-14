@@ -112,17 +112,14 @@ What this says:
 | `Box#cell` under `each cell in …` lost its id (it became `item`), so two such blocks collided and `--tap cell` found nothing | Sudoku | An id is kept as written |
 | No word for scrolling: a screen 6 px too tall needed a tail | Form builder | `Column scroll` |
 | Nothing said a text can take a color: dark boards drew dark text | Sudoku | The prompt says `color:` on a text, `fill:` on a box, and to lighten text on a dark fill |
-| The published `codelessly_api` 30.1.0 has no notation, so the SDK's tools did not compile from a fresh checkout until the agent pointed them at the API's master | All four ladder agents | See below |
+| Drag and drop needed JSON tails | Kanban (its second ask) | `drag:todo(card.id)` on a node, `drop:todo,doing -> …` on a target |
+| One line, `"primary": "primary"`, in a site's theme gave 109 errors in SSUI's components | Sudoku, full | A role that names itself is reported once, where it is written |
+| The render tool without its script engine said to add a package to an app | Sudoku, full | It also names the script that builds the engine for the tools |
+| The published `codelessly_api` 30.1.0 has no notation, so the SDK's tools did not compile from a fresh checkout until the agent pointed them at the API's master | All four ladder agents | `tool/notation/notation.sh` sets it up, or says in one line what is missing |
 
 Still open from the reports:
 
-- **Drag and drop words.** The kanban agent wrote `draggable` and `dropTarget` as tails, which worked first
-  time from the reference page; a word (`drag`, `drop ->`) is its second ask.
-- **A number keyboard on an input** (`type:number`), a validator on a dropdown (the full form builder's ask).
-- **SSUI under a site theme**: the full Sudoku met 109 `unknown_theme_name` errors because SSUI's components
-  name `primary` as a color while the base theme holds it as a role.
-- **The render tool without its script engine** says to add a package to an app; it should say how to build
-  the engine for the tool.
+- **A validator on a dropdown** (the full form builder's ask). An input's keyboard is now `type:number`.
 - **A raw `${…}` or a `0` drawn as text** is a visibly wrong screen the tool does not flag.
 - **Setup.** The agents' checkouts started on an old branch and Flutter was not where the prompt said; that is
   the test's environment, not the product, but the tools should fail with one clear line when the API they
