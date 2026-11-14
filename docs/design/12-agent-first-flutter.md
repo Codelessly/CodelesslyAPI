@@ -220,11 +220,11 @@ Measured, not planned. Recordings are in `CodelesslySDK/tool/stream/streams/live
 
 | Phase | State |
 |---|---|
-| A. No widgets | 16 core files still import Flutter's widget libraries (51 files in all this morning; the host adapter, where widgets belong, is counted apart). Every control and every input is a render object, the signature pad and the pagination controls included; the indicators and the typewriter no longer touch a widget library. What is left hangs on three seams: the app shell (Navigator, routes, modals, toasts, confirm), lists on `Scrollable`, and embeds (media, web view). Toasts and confirms were scoped and wait for the screen stack (design 11 §12). |
+| A. No widgets | Postponed by the owner (2026-11-14): the Flutter widgets still in use work and stay; one is ported only when it causes a problem. A render-object paging list was built and parked in history (SDK `71f41ea2`, taken out again by `7ca2cce3`). 16 core files still import Flutter's widget libraries (51 files in all this morning; the host adapter, where widgets belong, is counted apart). Every control and every input is a render object, the signature pad and the pagination controls included; the indicators and the typewriter no longer touch a widget library. What is left hangs on three seams: the app shell (Navigator, routes, modals, toasts, confirm), lists on `Scrollable`, and embeds (media, web view). Toasts and confirms were scoped and wait for the screen stack (design 11 §12). |
 | C. Levels | Tagged and validated at a level. Level 1 is audited by a test: every widget-catalog type has a size and draws with only its type written, except a page view and a table, which need a height. |
 | D. Compact notation | Built: parser, stream, prompt, printer with an exact round trip. 34 of 34 recorded cards expand cleanly with the current parser; 26 of 34 were valid on the model's first answer. |
 | E. Head to head with A2UI | Measured against A2UI v1.0 on the same briefs, models and renderer (design 13 §11), and the same A2UI answers drawn by A2UI's own Lit renderer (§11.1): it draws 20 of 34 as written and 29 after two keys are renamed; `parseA2ui` draws 34. Not compared: its Angular and Flutter GenUI renderers. |
-| F. Design systems | SSUI's looks are the notation's defaults, and `NotationOptions.fromTheme` takes them from any design system. 73 of 164 SSUI components are in the SDK (`design_systems/ssui/PARITY.md`). The template is `design_systems/tool/new_design_system.py`: a design system from a brand file of about ten lines (colors, radius, font, density, type scale). Two were written with it and render the same documents unchanged: Paper (square, warm) and Harbor (comfortable density, type a tenth larger). |
+| F. Design systems | SSUI's looks are the notation's defaults, and `NotationOptions.fromDesignSystem` takes them, and its components, from any design system. All 164 SSUI components are rebuilt in the SDK as 160 documents (`design_systems/ssui/PARITY.md`, which also lists where a rebuilt one is less than its source); a generated catalog page shows every one. The notation calls them by name (design 13 §12): `Stepper =seats`, `Panel "Billing"` with lines under it. The template is `design_systems/tool/new_design_system.py`; `paper` and `harbor` are regenerated from it with every batch. |
 | G. The complex end | All three produced by Claude Sonnet 5.5 from one paragraph each, with SSUI, and used through the render tool: |
 | | **Sudoku**: 27 s, one retry. A number is placed, conflicts are highlighted, the timer runs. |
 | | **Kanban with drag and drop**: a card dragged from To do is dropped on Done and the counts follow. |
@@ -248,3 +248,25 @@ kanban used arrows until asked for dragging by name. The app screen's table was 
 that fills a card whose body hugged fell back to its design height): fixed in the card, and the recording replays
 with every row.
 
+## 9. Verified by rendering and driving (2026-11-14, late)
+
+The full test suite is off at the owner's request, and runs of whole test folders are refused while it is. What
+follows was checked the other way: real documents put through the render tool, driven where they act, and looked at.
+
+| What | How | Result |
+|---|---|---|
+| Custom output with no design system | The 26 reference examples (decoration, custom paint, vectors, tables, stacks, forms, a carousel) and 6 example sites at phone and desktop sizes | 0 errors, 0 warnings on the examples; 0 errors on the sites |
+| Reactions and state | Counter tapped three times, a validated form typed into and sent (both ways), a carousel stepped, page navigation, a modal opened, a condition toggled, an accordion list opened | Each ends in the state it should |
+| Every node group | The 40 fixture samples (inputs, pickers, sliders, toggles, buttons, chips, tiles, charts, gauges, progress, paths, images, lists, grids, pages, ink and states) | All draw. Their reported errors are the fixtures' own extra keys; the one runtime error is the audio plugin, which the tool does not have |
+| Lists | A list paged by scrolling (12 a page, to its 42nd row), sticky section headers, a swipe that deletes with its reaction, a press-and-drag reorder | All four work |
+| Drag and drop | The generated kanban: a card dragged from To do to Doing | It moves; the counts follow |
+| Scripts and the complex end | The generated Sudoku (a cell chosen, a number placed, the conflict marked) and the form builder (two fields added) | Work as when first recorded |
+| A design system | Every SSUI component at each of its previews (225 tiles), and two screens generated in the notation with SSUI's components listed | 0 errors; both generations valid on the first answer |
+
+Found on the way, and fixed: a text field with `obscureText` drew its text in plain (Flutter's `RenderEditable` hides
+it only from screen readers; the field now draws the obscuring character).
+
+**Not verified here**, because they need a service or a device the render tool does not have, and their test files
+have not been run since the widget-removal work: cloud data and its paging, sign-in, payments and the paywall, audio
+and video players, web views, file pickers, and screen capture. They need either the test suite turned back on for
+`test/services`, `test/session`, `test/paywall`, `test/media` and `test/app`, or a run on a device.
