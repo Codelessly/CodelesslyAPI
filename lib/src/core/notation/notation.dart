@@ -1094,8 +1094,22 @@ class _Parser {
         if (component && positional.contains(key)) {
           _issue(col, 'The string on this line is already the $written\'s $key: write $key once.');
         }
-        if (raw.startsWith('=')) {
-          bind[path] = _read(raw.substring(1) + (t.peek == ' ' ? '' : ''));
+        final bound = raw.startsWith('=') ? raw.substring(1).trim() : null;
+        final dotted = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(\.[A-Za-z_][A-Za-z0-9_]*)+$').firstMatch(raw);
+        if (bound != null && bound.startsWith('"') && _literal(bound).$1 && _literal(bound).$2 is String) {
+          // value:="{s.jumps}": a text with a value in it, written as a binding.
+          final text = _interpolate(_literal(bound).$2! as String);
+          if (text.contains(r'${')) {
+            bind[path] = text;
+          } else {
+            put(path, text);
+          }
+        } else if (bound != null) {
+          bind[path] = _read(bound);
+        } else if (dotted != null && (variables.containsKey(dotted[1]) || dotted[1] == 'item')) {
+          // minutes:today.minutes: a field of declared state where a value
+          // goes is that value, not the words.
+          bind[path] = _read(raw);
         } else {
           var v = _value(raw);
           // A text parameter given a number (count:4) takes it as text.

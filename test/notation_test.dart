@@ -287,6 +287,11 @@ Column gap:8
     final vars = {for (final v in ((started.document['variables'] as Map)['screen'] as List)) (v as Map)['name']: v};
     expect(vars['left'], {'name': 'left', 'type': 'integer', 'value': 40});
     expect(vars['phase']!['value'], 'work');
+    // Forms a model wrote for a block: a field of state as a bare value, and a text written as a binding.
+    final lenient = _parse('state today={"minutes":8}\nstate n=3\nColumn\n  Button "Go" tooltip:today.minutes\n  Button "Go" tooltip:="{n} left"\n');
+    expect(lenient.issues, isEmpty);
+    expect((_node(lenient, 'filledButton1')['bind'] as Map)['props.tooltip'], r'${today.minutes}');
+    expect((_node(lenient, 'filledButton2')['bind'] as Map)['props.tooltip'], r'${n} left');
     final bad = _parse('Column\n  Card drag:"a b"\n  Card drop:1x -> x=1\n');
     expect(bad.issues.map((i) => i.message), [contains('drag is written'), contains('drop is written')]);
   });
