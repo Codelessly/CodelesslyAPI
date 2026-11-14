@@ -123,15 +123,19 @@ String _tokens(ThemeTokens t) {
     lines.add('- **Text styles** (`"style": "${t.textStyles.keys.first}"`, or `{"from": "${t.textStyles.keys.first}", '
         '"color": ...}`): ${styles.join(', ')}.');
   }
-  void scale(String key, String label, Map<String, Object> values, String unit) {
+  // A step is read in a binding, never written as a value: the field (a
+  // number) takes the binding's result. Shown as the binding to write, as
+  // models wrote `"radius": "\${theme.radii.panel}"` from the bare form.
+  void scale(String key, String label, Map<String, Object> values, String unit, {String? field}) {
     if (values.isEmpty) return;
-    lines.add('- **$label** (`\${theme.$key.${values.keys.first}}` in a binding): '
+    final read = '\${theme.$key.${values.keys.first}}';
+    lines.add('- **$label** (${field == null ? '`$read` in a binding' : 'bound, not written: `"bind": {"$field": "$read"}`'}): '
         '${[for (final e in values.entries) '`${e.key}` ${e.value is double ? _num(e.value as double) : e.value}$unit'].join(', ')}.');
   }
 
-  scale('spacing', 'Spacing', t.spacing, '');
-  scale('radii', 'Radii', t.radii, '');
-  scale('sizes', 'Sizes', t.sizes, '');
+  scale('spacing', 'Spacing', t.spacing, '', field: 'layout.padding');
+  scale('radii', 'Radii', t.radii, '', field: 'decoration.radius');
+  scale('sizes', 'Sizes', t.sizes, '', field: 'layout.height');
   if (t.shadows.isNotEmpty) {
     lines.add('- **Shadows** (`"bind": {"decoration.effects": "\${theme.shadows.${t.shadows.keys.first}}"}`): '
         '${t.shadows.keys.map((n) => '`$n`').join(', ')}.');
