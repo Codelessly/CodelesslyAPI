@@ -797,7 +797,7 @@ section's anchor is its topic.
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6662 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5286 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
-| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3719 |
+| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3768 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7160 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2308 |
@@ -8453,6 +8453,10 @@ A `slot` node in the definition is replaced by what the call passes: the call's 
 slot named `children` (the default name; declare `"children": "list"`), or the call's `slots[name]` for a named
 slot (declare it in `widget.slots`). With nothing passed, the slot shows its own children. What is passed belongs
 to the caller: it is stored in the page and reads the page's variables.
+
+Inside the definition, `${slots.<name>}` is true while the call fills that slot, and `${slots.children}` while
+it passes children. Hide what only frames a slot when the slot is empty: a footer with a rule and padding takes
+`"bind": {"visible": "${slots.actions}"}`, so a call without actions has no empty strip.
 
 <a id="components-events"></a>
 ### Events

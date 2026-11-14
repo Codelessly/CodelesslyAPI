@@ -929,7 +929,7 @@
       "anchor": "page-components",
       "title": "Components and sections",
       "summary": "Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section.",
-      "words": 3719
+      "words": 3768
     },
     {
       "topic": "components-parameter-kinds",
@@ -1017,7 +1017,7 @@
       "anchor": "components-slots",
       "title": "Slots",
       "summary": "A `slot` node in the definition is replaced by what the call passes: the call's `children` for the slot named `children` (the default name; declare `\"children\": \"list\"`), or the call's `slots[name]` for a named slot (declare it in `widget.slots`).",
-      "words": 66
+      "words": 115
     },
     {
       "topic": "components-events",
