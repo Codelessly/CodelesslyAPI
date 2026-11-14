@@ -16,8 +16,8 @@
       "file": "layout.md",
       "anchor": "page-layout",
       "title": "Responsive layout",
-      "summary": "Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column).",
-      "words": 8938
+      "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
+      "words": 9311
     },
     {
       "topic": "layout-layout-fields",
@@ -74,6 +74,14 @@
       "title": "A capped band",
       "summary": "A full-width band with capped, centered content (CSS `max-width: 1200px; margin: 0 auto` inside a coloured band): the band fills the width and holds the background; its one child fills with `constraints.maxWidth`, centered by the band's `crossAxisAlignment` (`center`, the default).",
       "words": 342
+    },
+    {
+      "topic": "layout-page-gutter",
+      "file": "layout.md",
+      "anchor": "layout-page-gutter",
+      "title": "Page gutter",
+      "summary": "The most common layout defect is sections that start at different x (one band padded 24, the next 32, a third capped).",
+      "words": 374
     },
     {
       "topic": "layout-an-editorial-page-at-three-sizes",
@@ -329,7 +337,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 11322
+      "words": 11893
     },
     {
       "topic": "forms-triggers",
@@ -362,6 +370,22 @@
       "title": "Validation and an error state",
       "summary": "As Flutter's `TextFormField` and `Form`:",
       "words": 429
+    },
+    {
+      "topic": "forms-submitting-without-a-backend",
+      "file": "forms.md",
+      "anchor": "forms-submitting-without-a-backend",
+      "title": "Submitting without a backend",
+      "summary": "A site with no service to send to still has a whole submit flow: validate, show a sending state, keep the entry, confirm, and tell the app that hosts the page.",
+      "words": 346
+    },
+    {
+      "topic": "forms-loading-and-error-states-without-a-backend",
+      "file": "forms.md",
+      "anchor": "forms-loading-and-error-states-without-a-backend",
+      "title": "Loading and error states without a backend",
+      "summary": "The `status` variable above is the whole loading and error design: one value, a node per state bound to it (`\"visible\": \"${= status == 'sending'}\"`, a spinner and a line; `'error'`, a message over the form, which stays so the visitor can retry).",
+      "words": 115
     },
     {
       "topic": "forms-a-radio-group",

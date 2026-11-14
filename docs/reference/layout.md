@@ -5,9 +5,9 @@
 <a id="layout-when-to-use"></a>
 ## When to use
 
-Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
-modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that
-wrap, a row that becomes a column, overlap and bleed, a sticky header or column).
+Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing
+modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that
+wrap, a row turning into a column, a sticky header).
 
 <a id="layout-minimal-example"></a>
 ## Minimal example
@@ -740,6 +740,52 @@ Across a row or column, a child's width comes out as:
 |---|---|---|---|
 | `start`, `center`, `end` | the parent's inner width, at most its `maxWidth`, placed by the alignment | its content, at most `maxWidth` | `n`, clamped by its constraints |
 | `stretch` | the parent's inner width, at most its `maxWidth` (then at the start, or at its `align`) | its content, at the start | the parent's inner width, at most its `maxWidth` |
+
+<a id="layout-page-gutter"></a>
+### Page gutter
+
+The most common layout defect is sections that start at different x (one band padded 24, the next 32, a third
+capped). Give every section the same two layers, and they line up at every width:
+
+- the **band** (the section) fills the page width, holds its background, and has the page **gutter** as its side
+  padding: the same three values in every band, by the same media rules (16 on phones, 32 from 600, 64 from 1024);
+- its one **rail** child fills the band with `"constraints": {"maxWidth": 1200}`, centred (the band's default
+  `crossAxisAlignment`); the section's content goes inside the rail.
+
+At 390 every rail starts at 16, at 834 at 32, at 1440 at 120 ((1440 − 1200) / 2: the cap, not the gutter). Never pad
+the rail or a section's first child to move content: change the gutter in every band at once. A part meant to run
+to the edge (a photo strip) is a band with no rail ([overlap and bleed](#layout-overlap-and-bleed)).
+
+```json
+{
+  "schema": 3,
+  "roots": ["home"],
+  "nodes": {
+    "home": {"type": "canvas", "slots": {"body": "page"}, "layout": {"width": 1440, "height": 900},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "page": {"type": "column", "children": ["hero", "features"], "props": {"scrollable": true},
+      "layout": {"width": {"fill": 1440}, "height": {"fill": 900}}},
+    "hero": {"type": "column", "children": ["heroRail"],
+      "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": [16, 48, 16, 48]},
+      "decoration": {"fills": [{"color": "#FF0F172A"}]},
+      "media": [{"minWidth": 600, "patch": {"layout": {"padding": [32, 64, 32, 64]}}},
+                {"minWidth": 1024, "patch": {"layout": {"padding": [64, 96, 64, 96]}}}]},
+    "heroRail": {"type": "column", "children": ["heroTitle"],
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 60}, "constraints": {"maxWidth": 1200}}},
+    "heroTitle": {"type": "text", "layout": {"width": {"fill": 1200}, "height": {"hug": 40}},
+      "props": {"text": "Every section starts on one line", "style": {"fontSize": 32, "fontWeight": 700, "color": "#FFFFFFFF"}}},
+    "features": {"type": "column", "children": ["featuresRail"],
+      "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": [16, 48, 16, 48]},
+      "media": [{"minWidth": 600, "patch": {"layout": {"padding": [32, 64, 32, 64]}}},
+                {"minWidth": 1024, "patch": {"layout": {"padding": [64, 96, 64, 96]}}}]},
+    "featuresRail": {"type": "row", "children": ["f1"],
+      "layout": {"width": {"fill": 1200}, "height": {"hug": 120}, "constraints": {"maxWidth": 1200}},
+      "props": {"wrap": true, "spacing": 24, "runSpacing": 24}},
+    "f1": {"type": "text", "layout": {"width": {"fill": 400}, "height": {"hug": 48}, "basis": 300},
+      "props": {"text": "The band holds the colour and the gutter.", "style": {"fontSize": 16, "color": "#FF334155"}}}
+  }
+}
+```
 
 <a id="layout-an-editorial-page-at-three-sizes"></a>
 ### An editorial page at three sizes

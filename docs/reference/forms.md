@@ -1219,6 +1219,79 @@ that replaces the form:
 }
 ```
 
+<a id="forms-submitting-without-a-backend"></a>
+### Submitting without a backend
+
+A site with no service to send to still has a whole submit flow: validate, show a sending state, keep the entry,
+confirm, and tell the app that hosts the page. Here a `status` variable (`idle`, `sending`, `error`, `sent`) drives
+what shows; the `delay` stands in for the request; `setStorage` keeps every submission on the device (`insert` into
+the list `${storage.submissions}`); `emitEvent` hands it to the host app (`codelessly.events`, the same bus a
+real backend hook listens on); and the confirmation says plainly that nothing was sent. The success text is honest
+about it, so the page is a real offline form, not a mock-up.
+
+```json
+{
+  "schema": 3,
+  "roots": ["signup"],
+  "nodes": {
+    "signup": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 420},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["form", "sending", "failed", "sent"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 420}, "padding": 24}, "props": {"spacing": 12}},
+    "form": {"type": "column", "children": ["email", "send"], "form": true,
+      "layout": {"width": {"fill": 342}, "height": {"hug": 120}}, "props": {"spacing": 12},
+      "bind": {"visible": "${= status == 'idle' || status == 'error'}"}},
+    "email": {"type": "textField", "layout": {"width": {"fill": 342}, "height": {"hug": 56}},
+      "props": {"decoration": {"labelText": "Email"}, "keyboardType": "emailAddress",
+        "validator": "${= matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? '' : 'Enter an email like name@example.com.'}"},
+      "bind": {"props.initialValue": "${email}"},
+      "actions": [{"trigger": {"type": "changed"}, "actions": [{"type": "setVariable", "variable": "email", "value": "${result}"}]}]},
+    "send": {"type": "filledButton", "layout": {"width": {"fill": 342}, "height": 48}, "props": {"label": "Subscribe"},
+      "actions": [{"trigger": {"type": "click"}, "actions": [
+        {"type": "validate", "node": "form"},
+        {"type": "if", "condition": {"left": "${result}", "op": "isTrue"}, "then": [
+          {"type": "setVariable", "variable": "status", "value": "sending"},
+          {"type": "delay", "ms": 900},
+          {"type": "if", "condition": {"left": "${failNext}", "op": "isTrue"},
+            "then": [{"type": "setVariable", "variable": "status", "value": "error"}],
+            "else": [
+              {"type": "setStorage", "key": "submissions", "op": "insert", "valueType": "list",
+                "value": "${= {'email': email, 'at': now()}}"},
+              {"type": "emitEvent", "event": "signupSubmitted", "props": {"email": "${email}"}},
+              {"type": "setVariable", "variable": "status", "value": "sent"}]}]}]}]},
+    "sending": {"type": "row", "children": ["spinner", "sendingText"], "props": {"spacing": 10},
+      "layout": {"width": {"fill": 342}, "height": 32}, "bind": {"visible": "${= status == 'sending'}"}},
+    "spinner": {"type": "circularProgressIndicator", "layout": {"width": 24, "height": 24}},
+    "sendingText": {"type": "text", "layout": {"width": {"fill": 300}, "height": {"hug": 20}},
+      "props": {"text": "Sending…", "style": {"fontSize": 15, "color": "#FF334155"}}},
+    "failed": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+      "props": {"text": "We couldn't send that. Try again.", "style": {"fontSize": 15, "color": "#FFDC2626"}},
+      "bind": {"visible": "${= status == 'error'}"}},
+    "sent": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+      "props": {"text": "Saved on this device: ${email}. Nothing is sent.", "style": {"fontSize": 15, "color": "#FF166534"}},
+      "bind": {"visible": "${= status == 'sent'}"}}
+  },
+  "variables": {
+    "signup": [
+      {"name": "email", "type": "text", "value": ""},
+      {"name": "status", "type": "text", "value": "idle"},
+      {"name": "failNext", "type": "boolean", "value": false}
+    ]
+  }
+}
+```
+
+<a id="forms-loading-and-error-states-without-a-backend"></a>
+### Loading and error states without a backend
+
+The `status` variable above is the whole loading and error design: one value, a node per state bound to it
+(`"visible": "${= status == 'sending'}"`, a spinner and a line; `'error'`, a message over the form, which stays so
+the visitor can retry). `failNext` makes the next submit fail, so the error state is exercised by the page itself:
+a "simulate a failure" switch in a demo, or the render command's `--set failNext=true --type email=a@b.co --tap
+send`. Capture a state mid-flight with `--set 'status="sending"'` (the command settles past a short `delay`). For a
+list that loads, the same pattern drives its `loading` and `error` slots from a `status` a `load` reaction sets
+after a `delay`.
+
 <a id="forms-a-radio-group"></a>
 ### A radio group
 
