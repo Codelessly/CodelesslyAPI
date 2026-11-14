@@ -322,7 +322,7 @@ the SDK plays only that. JSON keeps the short form (round trip), as
 | `shimmer` | `motion.shimmer` | `repeat`; one track on `shimmer.position` 0 → 1; `previewAt: 0.5` (the band itself stays a paint effect, doc 03) |
 | `draw` | `strokePath.drawMs` | one track on the op's `trim` end, 0 → 1 |
 | `typewriter` | `typewriter` | one track on `props.maxVisible` (characters shown) |
-| `countUp` | text `countUp*` | one track on `props.text`'s number, from the previous value |
+| `countUp` | text `countUp*` | not a preset after all: a transition and a track on `props.text` (below, "After 30.1.0") |
 | `flip` | `flip` turning | one track on `motion.rotateY` 0 → 180, on a `Spring` |
 
 `typewriter`, `countUp` and `flip` keep their behavior or props for what is
@@ -506,8 +506,8 @@ and `physics/spring_simulation.dart`; the SDK's controller is tested against a r
 
 Kept readable and working exactly as before; each still has its own code in the SDK.
 
-- **`typewriter`, text `countUp`, `flip`'s turn**: their clocks are their own (the second
-  wave did doc 03's steps 1–3 first; their presets are the next step).
+- **`typewriter`, `flip`'s turn**: their clocks are their own (the second
+  wave did doc 03's steps 1–3 first; their presets are the next step). Text `countUp` moved after 30.1.0 (below).
 - **`progress` with a `spring`** reads the value directly; easing toward each new value is not built.
 - **Legacy binding paths set at run time** (`setValue` with `loops[0].phase` or `effectAnimations[1].playKey`):
   only a node's `bind` map is rewritten when it decodes.
@@ -527,6 +527,18 @@ Schema 3 (codelessly_api 30.0.0) moved every legacy reader of this document into
 set, add or subtract by one formula now sets at once, reported), `clock` (`trigger.clock`), the flat and
 legacy springs (`physics.flatSpring`, `draggable.legacy`, `track.legacy`), and the bound legacy paths in a
 node's `bind` (`loops[i].*`, `effectAnimations[i].*`, `motion.*`). The model decodes only the schema-3 shape.
-Still as above: `typewriter`, `countUp` and `flip` keep their own clocks (`strokePath.draw*` is an animation of the
+Still as above: `typewriter` and `flip` keep their own clocks (`strokePath.draw*` is an animation of the
 path op's `trimEnd` and a transition of it since the stroke path became a custom paint op: doc 01, "30.1.0"); legacy paths set
 at run time (`setValue` with `loops[0].phase`) are not rewritten (only stored documents are migrated).
+
+## After 30.1.0: a text's `countUp`
+
+A text's `countUp`, `countUpDuration`, `countUpCurve` and `countUpOnShow` were a second animation mechanism with
+its own clock. They are the general pieces now, not a preset: a number in a text prop counts in any track or
+transition (`AnimationTrack.lerpValue` with `text`, `NumberInText`: the number goes from the one shown to the new
+one, written as the text writes it), so the migration step `text.countUp` writes a transition of `props.text` with
+the count's timing and, with `countUpOnShow` (on by default), an animation `countUp` whose track counts
+`props.text` from 0 when the text shows. The SDK's `RenderCountUpParagraph` is gone; its frames are matched text
+for text (SDK test/migration/special_fields_test.dart). One case differs: a value that changes while the count from
+0 still plays carries on toward the new value on the same clock, where the count started again from the number
+shown.

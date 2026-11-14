@@ -204,3 +204,31 @@ rewritten, and the documents that use them render as before (pixel for pixel, bu
 screens' nodes with the tag. `flies: inPlace` flies the node in when it appears, from where the node with its tag
 was a moment ago (hidden, removed, a dropped drag copy, on a closing screen), on a spring without a `flight`.
 Heroes of the two kinds don't fly to each other.
+
+## After 30.1.0: the last special cases
+
+The 21 fields that were one look or one rule each are said with mechanisms the model already has, by steps at the
+end of `migrate2to3` (`steps_special.dart`). As in 30.1.0, a document marked `"schema": 3` that writes one is not
+rewritten on load: validation reports it as `unknown_prop` naming the form to write, and a `setValue` path into one
+is rewritten where it has a place (`props.displayFormat` → `props.format`, `props.highlightStart`/`End` →
+`props.runs[0].start`/`end`) and otherwise reported.
+
+| Removed | Written instead | Step |
+|---|---|---|
+| text `countUp`, `countUpDuration`, `countUpCurve`, `countUpOnShow` | `"transitions": [{"property": "props.text", "duration": d, "curve": c}]` and, with `countUpOnShow` (the default), `"animations": [{"id": "countUp", "duration": d, "curve": c, "tracks": [{"path": "props.text", "from": 0}]}]` | `text.countUp` |
+| slider `rulerTicks`, `rulerMajorEvery`, `rulerTickColor`, `rulerMinorTickColor` (and a `ruler` track's default ticks) | `customPaint.painter` ops `rulerBaseline` (a `line`) and `rulerTicks` (a `repeat` of `line`s, long ones `when` `index % every == 0`) | `slider.paint` |
+| slider `markerValue`, `markerColor`, `markerWidth`, `markerHeight` | a `rect` op `marker` in `painter` at `slider.trackRect.left + slider.trackRect.width * (value − slider.min) / (slider.max − slider.min)` | `slider.paint` |
+| slider `activeTrackStartOpacity` | an `rrect` op `activeTrackFade` over the active track: the inactive track's color from 1 − opacity to transparent | `slider.paint` |
+| slider `thumbGripColor` | a `rect` op `thumbGrip` in `foregroundPainter` at `slider.thumbCenter` | `slider.paint` |
+| slider `deriveOverlayColorFromThumb` | nothing: no renderer read it | `slider.paint` |
+| text field `highlightStart`, `highlightEnd`, `highlightStyle` | `"runs": [{"start": s, "end": e, "style": {...}}]` (bound ends: `props.runs` bound to a list formula) | `textField.runs` |
+| table `selectedRowEdgeColor`, `selectedRowEdgeWidth` | the `cell` template's `"states": {"selected": {"<cell>": {"decoration": {"strokes": [...], "strokeWidth": w, "strokeSides": "left"}}}}` with `"bind": {"selected": "${= item.rowIndex == (<selected row>) && item.columnIndex == 0}"}` | `tableView.rowEdge` |
+| date/time input `displayFormat` | `format` | `dateTimeInput.format` |
+
+A slider draws its own `customPaint` between its parts: `painter` over the track and under the thumb,
+`foregroundPainter` over the thumb, both in the slider's own frame, reading `size` and `slider` (`value`, `min`,
+`max`, `trackRect`, `thumbCenter`). Reported where the drawing differs: a marker or fade that made the slider draw a
+plain rounded track (its track is now its `trackShape`'s), a fade over an inactive track that is not one fixed,
+opaque color (not drawn), a table edge on a cell template that does not fill its cell (drawn on the cell's box), a
+date/time pattern that was a `formatDate` named style (`full`, `short`...). A `ruler` track in a schema-3 document
+no longer draws ticks of its own: add the ops above.

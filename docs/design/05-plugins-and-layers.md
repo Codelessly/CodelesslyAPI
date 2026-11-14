@@ -323,7 +323,7 @@ docs 01 and 02 exist:
 | toast and confirm looks | hosted | node trees; `confirm` already takes a `dialog` screen |
 | swipe deck | hosted | `dismissible` + bindings (doc 04 §3.8) |
 | transform handles | hosted | doc 04 §5 |
-| `activityIndicator`, loop and effect presets, `typewriter`, `countUp` | hosted | animation presets |
+| `activityIndicator`, loop and effect presets, `typewriter` | hosted | animation presets |
 | `particles` | hosted if a benchmark allows | a `frame` trigger and one `repeat`; hundreds of particles per frame through formulas is unproven. Native until measured |
 | `signature` | native for now | capture needs every pointer sample without a round trip through variables; display alone could be hosted |
 | `textField` and the other inputs, pickers | native | text input, Material |

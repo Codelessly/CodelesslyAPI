@@ -65,7 +65,7 @@ the nine reported nothing the API could not express.
 - **Gaps the nine builds named that are still open:** pointer position on hover, a clip mask, page-transition
   overlays, focus management (trap, return, skip links), URL history and query state in the browser, Web Share and
   announcements. Each needs a design pass against Flutter's API.
-- **The (b) and (d) fields of section 6**: the ranked lists there say which to rename or remove next.
+- **The (b) fields of section 6**: the ranked list there says which to rename next.
 - **The editor** still writes schema 2 and reads fields that have moved; its port follows the milestones.
 - **Fidelity to the web builds** is roughly 30 to 45 percent by reviewers' eyes. The causes found are defaults,
   imagery, fonts, layout guidance and tooling rather than the model, but that claim is only tested by the next
@@ -115,15 +115,20 @@ also overrule a name match whose meaning differs (`stack.fit`). The audit's "abo
 method, so the two numbers are not like for like: a name match is generous (a slider's colors match
 `SliderThemeData`'s), and the early figure counted fields that the cleanup has since removed.
 
-**Result: 61% of the 863 fields are Flutter's name and meaning; 78% of those that have a Flutter counterpart
-((a) / ((a) + (b))).** 162 fields (19%) have no counterpart and are general; 21 (2%) are special cases.
+**Result: 62% of the 853 fields are Flutter's name and meaning; 77% of those that have a Flutter counterpart
+((a) / ((a) + (b))).** 166 fields (19%) have no counterpart and are general; none is a special case any more (the 21
+that were are said with general mechanisms since 30.1.0, below). Re-measured after that change, the count also
+classifies ten fields added since the first measurement: the grid placement fields (`layout.columnSpan`, `rowSpan`,
+`columnStart`, `rowStart`, (c): CSS grid placement, which Flutter's grids lack) and `itemSnapping` on the six
+scrolling types ((b): Flutter's name, on its `CarouselView`); a text field's `runs` is (b)
+(`TextEditingController.buildTextSpan`).
 
 | Group | Fields | (a) | (b) | (c) | (d) | unclassified | (a) of all | (a) of Flutter concepts, (a)/((a)+(b)) |
 |---|---|---|---|---|---|---|---|---|
-| **All** | 863 | 530 | 150 | 162 | 21 | 0 | 61% | 78% |
-| Node types (47) | 692 | 446 | 120 | 105 | 21 | 0 | 64% | 79% |
-| Shared groups | 171 | 84 | 30 | 57 | 0 | 0 | 49% | 74% |
-| layout | 13 | 7 | 4 | 2 | 0 | 0 | 54% | 64% |
+| **All** | 853 | 530 | 157 | 166 | 0 | 0 | 62% | 77% |
+| Node types (47) | 678 | 446 | 127 | 105 | 0 | 0 | 66% | 78% |
+| Shared groups | 175 | 84 | 30 | 61 | 0 | 0 | 48% | 74% |
+| layout | 17 | 7 | 4 | 6 | 0 | 0 | 41% | 64% |
 | decoration | 13 | 3 | 9 | 1 | 0 | 0 | 23% | 25% |
 | textStyle | 18 | 16 | 2 | 0 | 0 | 0 | 89% | 89% |
 | motion | 14 | 4 | 8 | 2 | 0 | 0 | 29% | 33% |
@@ -135,29 +140,29 @@ method, so the two numbers are not like for like: a name match is generous (a sl
 | Node type | Flutter | Fields | (a) | (b) | (c) | (d) | (a) of all |
 |---|---|---|---|---|---|---|---|
 | `canvas` | `Scaffold` | 7 | 0 | 1 | 6 | 0 | 0% |
-| `stack` | `Stack` | 8 | 4 | 4 | 0 | 0 | 50% |
+| `stack` | `Stack` | 9 | 4 | 5 | 0 | 0 | 44% |
 | `box` | `Container` | 0 | 0 | 0 | 0 | 0 | – |
-| `row` | `Row` | 13 | 8 | 3 | 2 | 0 | 62% |
-| `column` | `Column` | 13 | 8 | 3 | 2 | 0 | 62% |
-| `flex` | `Flex` | 14 | 9 | 3 | 2 | 0 | 64% |
-| `text` | `Text` | 13 | 6 | 3 | 0 | 4 | 46% |
+| `row` | `Row` | 14 | 8 | 4 | 2 | 0 | 57% |
+| `column` | `Column` | 14 | 8 | 4 | 2 | 0 | 57% |
+| `flex` | `Flex` | 15 | 9 | 4 | 2 | 0 | 60% |
+| `text` | `Text` | 9 | 6 | 3 | 0 | 0 | 67% |
 | `icon` | `Icon` | 3 | 3 | 0 | 0 | 0 | 100% |
 | `spacer` | `Spacer` | 0 | 0 | 0 | 0 | 0 | – |
-| `listView` | `ListView` | 33 | 11 | 13 | 9 | 0 | 33% |
-| `gridView` | `GridView` | 22 | 14 | 2 | 6 | 0 | 64% |
+| `listView` | `ListView` | 34 | 11 | 14 | 9 | 0 | 32% |
+| `gridView` | `GridView` | 23 | 14 | 3 | 6 | 0 | 61% |
 | `pageView` | `PageView` | 17 | 11 | 3 | 3 | 0 | 65% |
 | `tabBar` | `TabBar` | 23 | 17 | 4 | 2 | 0 | 74% |
 | `expansionTile` | `ExpansionTile` | 19 | 17 | 2 | 0 | 0 | 89% |
-| `tableView` | `TableView` | 25 | 3 | 13 | 7 | 2 | 12% |
-| `textField` | `TextField` | 39 | 30 | 5 | 1 | 3 | 77% |
+| `tableView` | `TableView` | 23 | 3 | 13 | 7 | 0 | 13% |
+| `textField` | `TextField` | 37 | 30 | 6 | 1 | 0 | 81% |
 | `checkbox` | `Checkbox` | 13 | 10 | 3 | 0 | 0 | 77% |
 | `switch` | `Switch` | 25 | 10 | 5 | 10 | 0 | 40% |
 | `radio` | `Radio` | 13 | 11 | 2 | 0 | 0 | 85% |
-| `slider` | `Slider` | 54 | 23 | 5 | 15 | 11 | 43% |
+| `slider` | `Slider` | 43 | 23 | 5 | 15 | 0 | 53% |
 | `dropdown` | `DropdownButton` | 30 | 21 | 4 | 5 | 0 | 70% |
 | `datePicker` | `showDatePicker` | 9 | 5 | 3 | 1 | 0 | 56% |
 | `timePicker` | `showTimePicker` | 8 | 4 | 3 | 1 | 0 | 50% |
-| `dateTimeInput` | `InputDecorator` | 18 | 9 | 3 | 5 | 1 | 50% |
+| `dateTimeInput` | `InputDecorator` | 17 | 9 | 3 | 5 | 0 | 53% |
 | `segmentedButton` | `SegmentedButton` | 23 | 13 | 8 | 2 | 0 | 57% |
 | `elevatedButton` | `ElevatedButton` | 7 | 6 | 0 | 1 | 0 | 86% |
 | `filledButton` | `FilledButton` | 8 | 6 | 1 | 1 | 0 | 75% |
@@ -228,21 +233,28 @@ would be; uses counted in the corpus and the two repositories' documents):
     `Divider` fields, a page view's `animateToPage` timing, `tableView`'s span builders, hero builders as named
     looks, `canvas.blockBack` as `PopScope`): Flutter's concept has no field of that name to take; kept.
 
-**The (d) fields, all 21, with a recommendation:**
+**The (d) fields: none left.** The 21 that were special cases are each said with a mechanism the model already had,
+by one-way migration steps after 30.1.0 (`steps_special.dart`: `text.countUp`, `slider.paint`, `textField.runs`,
+`tableView.rowEdge`, `dateTimeInput.format`); a schema-3 document that still writes one is refused by validation,
+naming the form to write (CHANGELOG, "Unreleased", has the table). No document in the corpus or either repository
+used one (plotter_v2's editor trees set the ruler fields and a highlight style, hookline's a count-up, but those are
+the editor's build inputs, not documents the migration reads); the SDK's test/migration/special_fields_test.dart
+draws each migrated case against goldens taken with 30.1.0's renderer.
 
-- `text.countUp`, `countUpDuration`, `countUpCurve`, `countUpOnShow`: a number counting to its new value on its
-  own clock, a second animation mechanism. Make it a preset of `animate {variable, command: animateTo}` on the
-  bound variable (doc 02) and migrate the four fields to it.
-- `slider.rulerTicks`, `rulerMajorEvery`, `rulerTickColor`, `rulerMinorTickColor` (a ruler track),
-  `markerValue`, `markerColor`, `markerWidth`, `markerHeight` (a marker across the track),
-  `activeTrackStartOpacity` (a fading track) and `thumbGripColor` (grip lines): one look each. Draw them with the
-  slider node's `customPaint` (ops positioned by formulas of `value`, `min` and `max`) and remove the fields with a
-  migration step that writes those ops.
-- `slider.deriveOverlayColorFromThumb`: a rule for one look. Bind `overlayColor` to the same expression as
-  `thumbColor`, migrated, and remove it.
-- `textField.highlightStart`, `highlightEnd`, `highlightStyle`: one styled range of the typed text. Generalise to
-  `runs` (styled ranges, as a text node has) or remove.
-- `tableView.selectedRowEdgeColor`, `selectedRowEdgeWidth`: one look of the selected row. Express it as the
-  selected row's decoration (a `selected` state style) and remove.
-- `dateTimeInput.displayFormat`: an older name of `format`, read when `format` is unset (two spellings of one
-  thing). Migrate it to `format` and remove it.
+- `text.countUp` and its timing: a transition of `props.text` (a number in a text prop now counts in any track or
+  transition, written as the text writes it) and, for the count from 0 when it shows, an animation of it. The same
+  text in every frame.
+- `slider` ruler, marker, `activeTrackStartOpacity`, `thumbGripColor`: the slider's `customPaint`, which a slider
+  draws between its parts (the `painter` over the track and under the thumb, the `foregroundPainter` over the
+  thumb, reading `slider.value`, `min`, `max`, `trackRect` and `thumbCenter`): the general hook a control needed.
+  Identical, but the fade, drawn as the inactive colour laid over the active track, is within one level except at
+  the anti-aliased pixels of the track's rounded end; a marker or fade that made the slider draw a plain track
+  now leaves the track to its `trackShape` (reported).
+- `slider.deriveOverlayColorFromThumb`: no renderer read it, so binding `overlayColor` to the thumb's colour (the
+  proposal) would have changed what is drawn; it is dropped.
+- `textField.highlightStart`/`End`/`Style`: the field's `runs`, as a text's (Flutter's
+  `TextEditingController.buildTextSpan`).
+- `tableView.selectedRowEdgeColor`/`Width`: the cell template's `selected` state style (a left stroke) with
+  `selected` bound to the cell being first in the selected row: a row is not a node, so the style goes on the cell;
+  the same pixels when the template fills its cell and the table has no horizontal padding (else reported).
+- `dateTimeInput.displayFormat`: `format`.
