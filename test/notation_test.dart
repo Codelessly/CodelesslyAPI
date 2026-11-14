@@ -31,7 +31,7 @@ Column gap:12
     expect(_node(r, 'screen')['slots'], {'body': 'column1'});
     final column = _node(r, 'column1');
     expect(column['children'], ['slider1', 'textField1', 'switch1', 'filledButton1']);
-    expect((column['props'] as Map)['spacing'], 12);
+    expect(column['props'], {'spacing': 12, 'crossAxisAlignment': 'start'});
     final slider = _node(r, 'slider1');
     expect(slider['bind'], {'props.value': r'${volume}'});
     expect(slider['actions'], [
@@ -91,6 +91,8 @@ Card gap:12
     expect(banner['bind'], {'visible': r'${= decision!="pending"}'});
     expect((banner['props'] as Map)['text'], r'Decision: ${decision}');
     expect(_node(r, 'textButton1')['type'], 'textButton');
+    // Text with no variant is the body text: it has a colour.
+    expect(((_node(r, 'text2')['props'] as Map)['style'] as Map)['color'], '#FF374151');
     expect((_node(r, 'filledButton1')['actions'] as List).single['actions'], [
       {'type': 'setVariable', 'variable': 'decision', 'value': 'approved'},
       {'type': 'emitEvent', 'event': 'approved'},

@@ -1,5 +1,11 @@
 ## Unreleased
 
+- **The compact notation, first version** (`docs/design/13-compact-notation.md`): `parseNotation` in
+  `lib/src/core/notation/notation.dart` (internal, not exported yet) expands one node per line, nested by
+  indentation, to an ordinary document: short type names (`Input`, `Toggle`, `Button.ghost`, `Card`,
+  `Text.title`), a main string, `key:value` props, `=name` two-way bindings that declare their variable, `->`
+  actions, `state`, `if`, `{name}` in text and a `{…}` JSON tail. What it cannot read is reported by line.
+
 - **`label` on `checkbox`, `radio` and `switch`**: text beside the control (SSUI's; Flutter has the
   `*ListTile` widgets for it). Tapping it toggles and it names the control to a screen reader.
 
