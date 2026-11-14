@@ -1054,7 +1054,10 @@ final class _Validator {
       ];
       if (dropped.isNotEmpty) {
         r.add(Codes.decorationIgnored, at,
-            'A ${n.type} has no box decoration: ${dropped.join(', ')} ${dropped.length == 1 ? 'is' : 'are'} ignored (only blur effects apply). Put it in a box/row/column/stack with the decoration, or use the type\'s own style props.');
+            'A ${n.type} has no box decoration: ${dropped.join(', ')} ${dropped.length == 1 ? 'is' : 'are'} ignored (only blur effects apply). '
+            '${n.type == 'text' ? 'For a filled, rounded label (a badge, a callout), put the text in a row with the decoration and padding, the text hugging inside: '
+                '{"type": "row", "children": ["<text>"], "layout": {"width": {"hug": 80}, "height": {"hug": 28}, "padding": [10, 4, 10, 4]}, "decoration": {"fills": [...], "radius": 14}}; '
+                'a colour behind the letters only is props.style.backgroundColor.' : 'Put it in a box/row/column/stack with the decoration, or use the type\'s own style props.'}');
       }
     }
     for (final k in const ['fills', 'strokes', 'foregroundFills']) {

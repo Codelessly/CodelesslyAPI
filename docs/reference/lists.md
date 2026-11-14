@@ -168,6 +168,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `childAspectRatio` | double | `1` | ≥ 0.0001 | Each cell's width / height when no `mainAxisExtent` is set (Flutter's `childAspectRatio`): 1 makes square cells. |
 | `mainAxisExtent` | double | unset | ≥ 0 | Each cell's height (its length along the scrolling axis), in pixels, whatever its width; wins over `childAspectRatio`. A cell fills it: give the item `{"fill": n}` on that axis, not a fixed size. |
 | `shrinkWrapRows` | bool | `false` |  | Each row (column, scrolling horizontally) as long as its longest item instead of a fixed extent. |
+| `fillGaps` | bool | `false` |  | CSS `grid-auto-flow: dense`: items placed automatically fill the holes earlier spanning items left, instead of always following the item before. Explicitly placed items (`columnStart` and `rowStart`) stay where they are. |
 | `masonry` | bool | `false` |  | Natural-height items in independent lanes, placed by `masonryPlacement`. |
 | `masonryPlacement` | [MasonryPlacement](values.md#enum-MasonryPlacement) | `"cycle"` | `cycle`, `shortest` | A masonry grid's lane for each item: in turn, or the shortest. |
 | `pagination` | [Pagination](lists.md#type-Pagination) | unset |  | Loads the items page by page (see `ListViewProps.pagination`). |

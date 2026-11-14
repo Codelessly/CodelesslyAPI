@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 9311
+      "words": 9469
     },
     {
       "topic": "layout-layout-fields",
@@ -33,7 +33,7 @@
       "anchor": "layout-which-sizing-modes-each-parent-allows",
       "title": "Which sizing modes each parent allows",
       "summary": "From the parents' own rules; \"fill (with `basis`)\": a child of a wrapping row may fill its line's share when it sets `layout.basis`.",
-      "words": 286
+      "words": 309
     },
     {
       "topic": "layout-media-rules",
@@ -97,7 +97,7 @@
       "anchor": "layout-grid-spans-a-timetable",
       "title": "Grid spans; a timetable",
       "summary": "A `gridView` item spans and is placed as in CSS grid, through its own `layout` (the template's, bound per item from its data, and patched per size like any field):",
-      "words": 394
+      "words": 431
     },
     {
       "topic": "layout-cards-that-wrap",
@@ -137,7 +137,7 @@
       "anchor": "layout-scrolling",
       "title": "Scrolling",
       "summary": "A screen scrolls only if something in it scrolls.",
-      "words": 264
+      "words": 321
     },
     {
       "topic": "layout-scroll-progress",
@@ -449,7 +449,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 7618
+      "words": 7657
     },
     {
       "topic": "lists-triggers",

@@ -786,11 +786,11 @@ section's anchor is its topic.
 | Page | What it covers | Words |
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4813 |
-| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9311 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9469 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2902 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11893 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7657 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4238 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6575 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |
@@ -1027,7 +1027,7 @@ From the parents' own rules; "fill (with `basis`)": a child of a wrapping row ma
 Why a mode is not allowed, as the declarations say it:
 
 - Flexible only applies in a row or column, along its main axis.
-- A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.
+- A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line. Add the width it starts from and wraps at ("layout": {"width": {"fill": 300}, "basis": 240}), or give it a fixed or hug size.
 - The column scrolls: its content has no end to fill to.
 - The row scrolls: its content has no end to fill to.
 - Items in a list always fill across it.
@@ -1898,7 +1898,11 @@ its data, and patched per size like any field):
 | `columnStart`, `rowStart` | `grid-column-start`, `grid-row-start` | the first column and row, 1 the first; unset: the next free cell |
 
 Items with both starts are placed first, then those with only a row, then the rest in order, each in the next cells
-where it fits (CSS's auto-placement). Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
+where it fits (CSS's auto-placement); `"fillGaps": true` on the grid is CSS `grid-auto-flow: dense`, the rest taking
+the first cells they fit from the top (a hole a span left). **Explicit placement stays put when the data is
+filtered**: a session keeps its track's column and its slot's row, so filtering leaves those cells empty. For a
+filtered view that closes up, bind the starts only while showing everything (`"layout.columnStart": "${= track ==
+'all' ? item.track : null}"`): a null start is auto-placement. Rows are `mainAxisExtent` long (a time slot), or with `shrinkWrapRows` as long
 as their tallest item. A time-by-track timetable binds each session's track and slot to `columnStart` and
 `rowStart`, its length to `rowSpan`, and a session for every track to `columnSpan`; on a phone the bindings are only
 in a `minWidth` rule's patch, so the sessions fall back to one column in time order (a list), each naming its room:
@@ -2122,7 +2126,10 @@ true}` with `{"fill": n}` width and height. Without it, content past the bottom 
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
 giving one; `"axis": "horizontal"` moves only sideways scroll views), or one item of a list (`"item"`: its key or
 index): `{"type": "scrollTo", "node": "faq", "durationMs": 400}` from a sub-navigation link (the key is `node`, not
-`target`). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item
+`target`). Under a fixed or sticky header, `"offset": 88` (the header's height and a margin) lands the node that far
+below the top instead of under the header. A heading on another page: navigate with a param (`"params": {"anchor":
+"installation"}`) and scroll in that page's `load` reaction (`{"type": "scrollTo", "node": "${route.anchor}",
+"offset": 88, "when": {"left": "${route.anchor}", "op": "isNotEmpty"}}`). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item
 at the start `${result.index}`): store it for a header that condenses or a progress bar. Arrows, dots and snapping:
 [a carousel](#lists-a-carousel-pages-and-pagination).
 
@@ -4744,6 +4751,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `childAspectRatio` | double | `1` | ≥ 0.0001 | Each cell's width / height when no `mainAxisExtent` is set (Flutter's `childAspectRatio`): 1 makes square cells. |
 | `mainAxisExtent` | double | unset | ≥ 0 | Each cell's height (its length along the scrolling axis), in pixels, whatever its width; wins over `childAspectRatio`. A cell fills it: give the item `{"fill": n}` on that axis, not a fixed size. |
 | `shrinkWrapRows` | bool | `false` |  | Each row (column, scrolling horizontally) as long as its longest item instead of a fixed extent. |
+| `fillGaps` | bool | `false` |  | CSS `grid-auto-flow: dense`: items placed automatically fill the holes earlier spanning items left, instead of always following the item before. Explicitly placed items (`columnStart` and `rowStart`) stay where they are. |
 | `masonry` | bool | `false` |  | Natural-height items in independent lanes, placed by `masonryPlacement`. |
 | `masonryPlacement` | [MasonryPlacement](#enum-MasonryPlacement) | `"cycle"` | `cycle`, `shortest` | A masonry grid's lane for each item: in turn, or the shortest. |
 | `pagination` | [Pagination](#type-Pagination) | unset |  | Loads the items page by page (see `ListViewProps.pagination`). |
