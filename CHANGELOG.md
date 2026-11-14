@@ -20,6 +20,27 @@
   illustration section, with three validated examples (a photo card with a gradient scrim, an SVG illustration and
   a `path` mark, a `customPaint` scene); render.md's `--theme` and `font_missing`.
 
+- **Node ids are per document; only canvas ids are site-wide.** `duplicate_id` now reports a canvas id two
+  documents of a project share (`navigate` and `openModal` name screens by it, so a link reaches one of them), and
+  no longer every node id two pages share: a page's actions and conditions name its own nodes, a component's ids
+  are its own. The base says so.
+- **Did you mean, by meaning.** `nearest` (the `suggestion` of `unknown_action_key`, `invalid_enum` and the other
+  name checks) falls back to the name an author usually means when none is spelled close: `target` → `node`,
+  `content`/`value` → `text`, `append`/`push` → `add`, `if`/`predicate` → `condition`, `screen` → `to`. An `if`
+  whose `condition` is a formula string is told the predicate to write (`{"left": "${= ...}", "op": "isTrue"}`).
+- **Reference: a complete multi-page site** (components, "A complete multi-page site";
+  `tool/reference/examples/site/`, validated as one project by the reference test): the manifest first with every
+  page listed, a header and a footer shared by reference, route parameters with a default, storage restored on
+  load, a list kept per route under a key built from `${route.id}`, and a modal opened from a component. The base
+  says to list every page in `site.json` before writing pages that link to them.
+- **Reference: the names authors guessed wrong, in short examples where they look**: `scrollTo.node` (layout),
+  `downloadFile.fileName` and `text` (media), `copyToClipboard.text` (interaction), the `if` predicate (state),
+  `setStorage` ops (`add` appends, `insert` at an `index`) and keys per route (data). New patterns: scroll progress
+  (layout), entrances on scroll with `animations[].visibleFraction` versus the `reveal` behavior, which scrolls
+  (animation), pinning `now()` with the render command's `--now` (animation), spacing and radius scales (theme:
+  there are no such tokens; a project variable map). The render page covers `--drag`, `--navigate` with a query
+  string, `--now`, `--compare-map`, what a run keeps, and full-page captures of sticky nodes, modals and navigation.
+
 ## 30.1.0
 
 **One spelling for each concept; the schema stays 3.** Documents are still `"schema": 3` (`kSchemaVersion`), and

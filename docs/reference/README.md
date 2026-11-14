@@ -16,32 +16,32 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 
 | File | What it is | Words | ≈ tokens |
 |---|---|---|---|
-| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 5836 | 12033 |
-| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 5841 | 11223 |
-| [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4329 | 13392 |
-| [layout.md](layout.md) | Feature page. | 6920 | 12494 |
-| [theme.md](theme.md) | Feature page. | 2568 | 4404 |
+| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 5979 | 12329 |
+| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 5938 | 11397 |
+| [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4377 | 13513 |
+| [layout.md](layout.md) | Feature page. | 7037 | 12719 |
+| [theme.md](theme.md) | Feature page. | 2632 | 4521 |
 | [decoration.md](decoration.md) | Feature page. | 4097 | 7222 |
 | [forms.md](forms.md) | Feature page. | 10159 | 17098 |
 | [lists.md](lists.md) | Feature page. | 6101 | 10080 |
-| [navigation.md](navigation.md) | Feature page. | 4125 | 7356 |
-| [state.md](state.md) | Feature page. | 6352 | 11387 |
-| [interaction.md](interaction.md) | Feature page. | 5120 | 8442 |
-| [animation.md](animation.md) | Feature page. | 4483 | 7262 |
-| [components.md](components.md) | Feature page. | 2383 | 4317 |
+| [navigation.md](navigation.md) | Feature page. | 4166 | 7425 |
+| [state.md](state.md) | Feature page. | 6398 | 11485 |
+| [interaction.md](interaction.md) | Feature page. | 5162 | 8514 |
+| [animation.md](animation.md) | Feature page. | 4610 | 7488 |
+| [components.md](components.md) | Feature page. | 3706 | 7508 |
 | [charts.md](charts.md) | Feature page. | 6561 | 9767 |
-| [data.md](data.md) | Feature library page. | 2181 | 3525 |
+| [data.md](data.md) | Feature library page. | 2308 | 3758 |
 | [auth.md](auth.md) | Feature library page. | 468 | 993 |
 | [commerce.md](commerce.md) | Feature library page. | 439 | 911 |
-| [media.md](media.md) | Feature library page. | 1946 | 3019 |
+| [media.md](media.md) | Feature library page. | 1998 | 3119 |
 | [engage.md](engage.md) | Feature library page. | 311 | 636 |
 | [publish.md](publish.md) | Feature page. | 672 | 1237 |
 | [edit-ops.md](edit-ops.md) | Feature page. | 3297 | 5460 |
-| [render.md](render.md) | Feature page. | 2468 | 3791 |
+| [render.md](render.md) | Feature page. | 2881 | 4458 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13107 | 20561 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 93944 | 161353 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 71576 | 189684 |
-| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 9021 | 25766 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 96487 | 166743 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 71586 | 189696 |
+| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 9439 | 26677 |
 | [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 24600 | 102993 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1259 | 3789 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |

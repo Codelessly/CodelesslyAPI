@@ -44,7 +44,7 @@ void main() {
   test('every example document is valid, without warnings', () {
     final docs = [
       for (final f in Directory('$root/tool/reference/examples').listSync(recursive: true).whereType<File>())
-        if (f.path.endsWith('.json') && !f.path.contains('/sections/') && !f.path.contains('/theme/')) f,
+        if (f.path.endsWith('.json') && !f.path.contains('/sections/') && !f.path.contains('/theme/') && !f.path.contains('/site/')) f,
     ];
     expect(docs.length, greaterThan(20));
     for (final f in docs) {
@@ -55,23 +55,55 @@ void main() {
     Json t(String f) => jsonDecode(File('$root/tool/reference/examples/theme/$f').readAsStringSync()) as Json;
     final manifest = SiteManifest.fromJson(t('site.json'));
     expect(validateProject({'home.json': t('home.json')}, manifest: manifest).map((d) => '$d'), isEmpty);
+    // The complete site: its manifest's pages and components, as one project.
+    final site = '$root/tool/reference/examples/site';
+    final siteManifest = jsonDecode(File('$site/site.json').readAsStringSync()) as Json;
+    final files = {
+      for (final f in [...(siteManifest['pages'] as List), ...(siteManifest['components'] as List)])
+        f as String: jsonDecode(File('$site/$f').readAsStringSync()),
+    };
+    expect(files, hasLength(4));
+    expect(validateProject(files, manifest: SiteManifest.fromJson(siteManifest)).map((d) => '$d'), isEmpty);
   });
 
   test('every JSON block of every page parses, and every whole document in them is valid', () {
     var documents = 0, blocks = 0;
     for (final f in [...pageFiles, 'STARTER.md', 'RUNTIME_STARTER.md']) {
-      for (final m in RegExp(r'```json\n(.*?)\n```', dotAll: true).allMatches(read(f))) {
+      // Blocks labelled with a site's file name (`pages/home.json`:) are the
+      // files of one site, validated together against its site.json.
+      final site = <String, Object?>{};
+      Json? manifest;
+      for (final m in RegExp(r'(?:^`((?:site|pages/[^`]+|components/[^`]+)\.json)`(?:[^\n]|\n(?!\n))*?:\n\n)?```json\n(.*?)\n```', dotAll: true, multiLine: true)
+          .allMatches(read(f))) {
+        if (m[1] == null) continue;
+        blocks++;
+        final json = jsonDecode(m[2]!) as Json;
+        if (m[1] == 'site.json') {
+          manifest = json;
+        } else {
+          site[m[1]!] = json;
+        }
+      }
+      if (site.isNotEmpty) {
+        documents += site.length;
+        expect(site, hasLength(4), reason: '$f: the site example\'s pages and components');
+        expect(manifest, isNotNull, reason: '$f: a site\'s files without its site.json');
+        expect(validateProject(site, manifest: SiteManifest.fromJson(manifest)).map((d) => '$d'), isEmpty, reason: f);
+      }
+      for (final m in RegExp(r'(^`(?:site|pages/[^`]+|components/[^`]+)\.json`(?:[^\n]|\n(?!\n))*?:\n\n)?```json\n(.*?)\n```', dotAll: true, multiLine: true)
+          .allMatches(read(f))) {
+        if (m[1] != null) continue;
         blocks++;
         Object? json;
         try {
-          json = jsonDecode(m[1]!);
+          json = jsonDecode(m[2]!);
         } on FormatException {
-          json = jsonDecode('{${m[1]}}'); // a fragment: one or more keys of an object
+          json = jsonDecode('{${m[2]}}'); // a fragment: one or more keys of an object
         }
         // A site manifest (site.json) is not a layout document.
         if (json is Map && json['schema'] == kSchemaVersion && !json.containsKey('pages')) {
           documents++;
-          expect(validateDocument(json).map((d) => '$d'), isEmpty, reason: '$f: ${m[1]}');
+          expect(validateDocument(json).map((d) => '$d'), isEmpty, reason: '$f: ${m[2]}');
         }
       }
     }

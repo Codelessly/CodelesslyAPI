@@ -86,6 +86,9 @@ section's anchor is its topic.
 | Pass children into a component (slots); events out of it | @@components-slots |
 | The site manifest (`site.json`) | @@components-the-site-manifest |
 | Render one component alone | @@components-rendering-one-part |
+| A whole multi-page site: manifest first, shared header and footer, route parameters, storage, a modal | @@components-a-complete-multi-page-site |
+| A list kept per page or per item (a key built from `${route.id}`) | @@data-storage-on-the-device |
+| A reading-progress bar driven by the page's scroll | @@layout-scroll-progress |
 | A progress bar or ring bound to a value | @@charts-progress-from-state |
 | Bar, line and series charts | @@charts-charts-from-data |
 | Call an HTTP API and show the result | @@data-call-an-api-and-show-the-result |
