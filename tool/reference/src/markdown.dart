@@ -5,7 +5,8 @@
 // Template syntax:
 // * `{{name}}` a generated table or list (the fills below);
 // * `{{example:path}}` an example document (tool/reference/examples/<path>.json),
-//   verified by test/reference_test.dart;
+//   verified by test/reference_test.dart; `{{example-as-written:path}}` the
+//   same, as its file is laid out (one node per line);
 // * `[text](@anchor)` a link to the page that defines `anchor`, wherever it is;
 // * every `#`, `##` and `###` heading gets a stable anchor: `page-<page>` for
 //   the title, `<page>-<slug of the heading>` for the others, unless an
@@ -45,6 +46,7 @@ final class Renderer {
     // `\{{` is a literal `{{`.
     var text = File('$_templates/$name').readAsStringSync().replaceAll(r'\{{', '\u0000');
     text = text.replaceAllMapped(RegExp(r'\{\{example:([\w/-]+)\}\}'), (m) => '```json\n${example(m[1]!)}\n```');
+    text = text.replaceAllMapped(RegExp(r'\{\{example-as-written:([\w/-]+)\}\}'), (m) => '```json\n${exampleAsWritten(m[1]!)}\n```');
     text = text.replaceAllMapped(RegExp(r'\{\{(\w+)\}\}'), (m) {
       if (keep.contains(m[1])) return m[0]!;
       final f = fills[m[1]] ?? _fills[m[1]];
@@ -52,6 +54,14 @@ final class Renderer {
       return f();
     });
     return text.replaceAll('\u0000', '{{').trimRight();
+  }
+
+  /// Example [name] as its file is written (one node per line: compact
+  /// enough for a ui_docs section), after checking it is JSON.
+  String exampleAsWritten(String name) {
+    final text = File('$root/tool/reference/examples/$name.json').readAsStringSync().trimRight();
+    jsonDecode(text);
+    return text;
   }
 
   String example(String name) => prettyJson(jsonDecode(File('$root/tool/reference/examples/$name.json').readAsStringSync()));

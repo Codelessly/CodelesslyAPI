@@ -39,5 +39,6 @@ resolve, an item is on no page or two, a page lacks one of the six sections, or 
 1. Add a `PageDef` to `featurePages` in `tool/reference/src/areas.dart` and move the items it documents to it.
 2. Write `tool/reference/templates/pages/<id>.md` with the six `##` sections in order; put `\{{reference}}` under
    *Reference* and a small, complete example under *Minimal example* (`\{{example:<file>}}`, the JSON in
-   `tool/reference/examples`). Link to any section of any page with `[text](@anchor)`.
+   `tool/reference/examples`; `\{{example-as-written:<file>}}` keeps the file's own one-node-per-line layout, for an
+   example a ui_docs section must hold in 4,200 characters). Link to any section of any page with `[text](@anchor)`.
 3. Add the needs it answers to the task table in `templates/index.md`, then regenerate.

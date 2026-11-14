@@ -400,11 +400,11 @@ The props that matter most; each type's page lists all of them.
   'Required.' : ''}"`), a `form` around the fields and a `validate` action on send
   ([validation](#forms-validation-and-an-error-state)). Styling every control: [forms](#page-forms).
 - **Lists**: a `listView` or `gridView` repeats its **first child** once per item of its `data` binding:
-  `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. An item fills the list across (its
-  cross-axis size is `fill`). In a page that scrolls, give the list
-  `"scrollable": false` (a gridView: `"physics": "never"`). A grid of as many equal columns as fit:
+  `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. Items fill the list across. In a scrolling
+  page, give it `"scrollable": false` (a gridView: `"physics": "never"`). As many equal columns as fit:
   `minCrossAxisExtent` (CSS `repeat(auto-fit, minmax(280px, 1fr))`); equal-height cards: `"shrinkWrapRows": true`.
-  Nested lists, tables, pagination: [lists](#page-lists).
+  Nested lists, tables: [lists](#page-lists). Filters read the item through a lambda: `filter(rows, r => r.ok)`
+  ([more](#lists-filter-sort-and-page-a-list)).
 - **Icons**: `props.icon` is a Material icon name (`"arrow_forward"`, `"check_circle"`; `_outlined`, `_rounded`
   suffixes), with `color` and `size`.
 - **Images**: an image fill on a `box` (see Decoration). **Divider**: `divider` with `thickness` and `color`, or a
@@ -601,6 +601,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | A grid of cards from data, as many columns as fit; gaps between wrapped items | [lists-a-grid-of-cards](#lists-a-grid-of-cards) |
 | Nested lists; the outer item inside the inner list (`parent`) | [lists-nested-lists](#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists-a-table-from-one-template](#lists-a-table-from-one-template) |
+| Filter, sort, page a list | [lists-filter-sort-and-page-a-list](#lists-filter-sort-and-page-a-list) |
 | A weekly grid (days × habits) | [lists-a-weekly-grid](#lists-a-weekly-grid) |
 | A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | [lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
 | Several screens; a page's URL path | [navigation-screens](#navigation-screens) |
@@ -732,6 +733,7 @@ section's anchor is its topic.
 | A grid of cards from data, as many columns as fit; gaps between wrapped items | [lists.md#lists-a-grid-of-cards](#lists-a-grid-of-cards) |
 | Nested lists; the outer item inside the inner list (`parent`) | [lists.md#lists-nested-lists](#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists.md#lists-a-table-from-one-template](#lists-a-table-from-one-template) |
+| Filter, sort, page a list | [lists.md#lists-filter-sort-and-page-a-list](#lists-filter-sort-and-page-a-list) |
 | A weekly grid (days × habits) | [lists.md#lists-a-weekly-grid](#lists-a-weekly-grid) |
 | A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | [lists.md#lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
 | Several screens; a page's URL path | [navigation.md#navigation-screens](#navigation-screens) |
@@ -788,7 +790,7 @@ section's anchor is its topic.
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2852 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11322 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6884 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4201 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |
@@ -4984,6 +4986,63 @@ table written four times. For a column that stays while the others scroll sidewa
 `listView` of its own beside one horizontally scrolling block of the cell grids, rows the same height in both. A
 `tableView` is a data table with columns declared once (sorting, row taps).
 
+<a id="lists-filter-sort-and-page-a-list"></a>
+### Filter, sort and page a list
+
+Search, a status filter, sortable columns and pages are computed variables over the records, chained: `shown`
+filters and sorts them, `paged` is one page of it, and the list binds `${paged}`.
+
+- Inside `filter`, `sortBy`, `map` and `count` an item's field is read through the item, a lambda's parameter:
+  `filter(invoices, r => r.status == x)`. Written without it (`filter(invoices, status == x)`) the condition is
+  computed once, outside the list, and matches no item: the list is empty (`unknown_name` names the field).
+- "All" and an empty search match everything inside the lambda: `statusFilter == 'All' || r.status ==
+  statusFilter`; `contains(lower(r.cust), lower(search))` is true while `search` is empty.
+- `sortBy(list, key, 'desc')`: the key is a field name (a variable holding one works) or a lambda; the direction
+  is `'asc'` or `'desc'`, not 1 or -1.
+- Page after filtering and sorting; set `page` back to 0 when the search or filter changes. Counts read `shown`.
+
+```json
+{"schema": 3, "roots": ["home"],
+ "nodes": {
+  "home": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 360}, "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+  "col": {"type": "column", "children": ["tools", "head", "list", "pager"], "props": {"spacing": 8}, "layout": {"width": {"fill": 390}, "height": {"hug": 320}, "padding": 16}},
+  "tools": {"type": "row", "children": ["search", "pick"], "props": {"spacing": 8}, "layout": {"width": {"fill": 358}, "height": {"hug": 48}}},
+  "search": {"type": "textField", "props": {"decoration": {"hintText": "Search customer"}}, "bind": {"props.initialValue": "${search}"}, "layout": {"width": {"fill": 220}, "height": 48},
+    "actions": [{"trigger": {"type": "changed"}, "actions": [{"type": "setVariable", "variable": "search", "value": "${result}"}, {"type": "setVariable", "variable": "page", "value": "0"}]}]},
+  "pick": {"type": "dropdown", "props": {"items": ["All", "Paid", "Overdue"], "isExpanded": true}, "bind": {"props.value": "${statusFilter}"}, "layout": {"width": 130, "height": 48},
+    "actions": [{"trigger": {"type": "changed"}, "actions": [{"type": "setVariable", "variable": "statusFilter", "value": "${result}"}, {"type": "setVariable", "variable": "page", "value": "0"}]}]},
+  "head": {"type": "row", "children": ["hCust", "hAmt"], "layout": {"width": {"fill": 358}, "height": {"hug": 20}}},
+  "hCust": {"type": "text", "props": {"text": "Customer", "style": {"fontSize": 13, "color": "#FF6B7280"}}, "bind": {"props.text": "Customer${= sortKey == 'cust' ? (desc ? ' ↓' : ' ↑') : ''}"}, "layout": {"width": {"fill": 270}, "height": {"hug": 18}},
+    "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "desc", "value": "${= sortKey == 'cust' && !desc}"}, {"type": "setVariable", "variable": "sortKey", "value": "cust"}]}]},
+  "hAmt": {"type": "text", "props": {"text": "Amount", "style": {"fontSize": 13, "color": "#FF6B7280"}}, "bind": {"props.text": "Amount${= sortKey == 'amt' ? (desc ? ' ↓' : ' ↑') : ''}"}, "layout": {"width": {"hug": 80}, "height": {"hug": 18}},
+    "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "desc", "value": "${= sortKey == 'amt' && !desc}"}, {"type": "setVariable", "variable": "sortKey", "value": "amt"}]}]},
+  "list": {"type": "listView", "children": ["row"], "bind": {"data": "${paged}"}, "props": {"scrollable": false}, "layout": {"width": {"fill": 358}, "height": {"hug": 108}}},
+  "row": {"type": "text", "props": {"text": "${item.num}  ${item.cust}  ${item.status}  ${item.amt}", "style": {"fontSize": 15, "color": "#FF111827"}}, "layout": {"width": {"fill": 358}, "height": 36}},
+  "pager": {"type": "row", "children": ["count", "prev", "next"], "props": {"crossAxisAlignment": "center"}, "layout": {"width": {"fill": 358}, "height": {"hug": 40}}},
+  "count": {"type": "text", "props": {"text": "", "style": {"fontSize": 13, "color": "#FF6B7280"}}, "layout": {"width": {"fill": 198}, "height": {"hug": 18}},
+    "bind": {"props.text": "${= length(shown) == 0 ? 'No invoices match' : (page * 3 + 1) + '–' + min(page * 3 + 3, length(shown)) + ' of ' + length(shown)}"}},
+  "prev": {"type": "textButton", "props": {"label": "Prev"}, "layout": {"width": 80, "height": 40},
+    "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "page", "value": "${= max(0, page - 1)}"}]}]},
+  "next": {"type": "textButton", "props": {"label": "Next"}, "layout": {"width": 80, "height": 40},
+    "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "page", "value": "${= min(pages - 1, page + 1)}"}]}]}
+ },
+ "variables": {"home": [
+  {"name": "invoices", "type": "list", "value": [
+    {"num": "INV-1", "cust": "Acme", "amt": 1200, "status": "Paid"}, {"num": "INV-2", "cust": "Globex", "amt": 850, "status": "Overdue"},
+    {"num": "INV-3", "cust": "Initech", "amt": 430, "status": "Paid"}, {"num": "INV-4", "cust": "Hooli", "amt": 675, "status": "Overdue"},
+    {"num": "INV-5", "cust": "Wonka", "amt": 520, "status": "Paid"}]},
+  {"name": "search", "type": "text", "value": ""},
+  {"name": "statusFilter", "type": "text", "value": "All"},
+  {"name": "sortKey", "type": "text", "value": "num"},
+  {"name": "desc", "type": "boolean", "value": false},
+  {"name": "page", "type": "integer", "value": 0},
+  {"name": "shown", "type": "list", "formula": "sortBy(filter(invoices, r => (statusFilter == 'All' || r.status == statusFilter) && contains(lower(r.cust), lower(search))), sortKey, desc ? 'desc' : 'asc')"},
+  {"name": "paged", "type": "list", "formula": "slice(shown, page * 3, page * 3 + 3)"},
+  {"name": "pages", "type": "integer", "formula": "max(1, ceil(length(shown) / 3))"}
+ ]}
+}
+```
+
 <a id="lists-a-weekly-grid"></a>
 ### A weekly grid
 
@@ -5263,6 +5322,8 @@ The same pattern moves a horizontal timeline from its year buttons, or a feature
 ## Pitfalls
 
 - Only the first child is the template; other children are ignored.
+- A list function's condition reads the item through a lambda (`r => r.status == x`); written without one it is
+  computed once and the list comes out empty.
 - `item` and `index` are the innermost list's; the outer one is `parent`.
 - A list inside a scrolling page needs `"scrollable": false` (or `"physics": "never"`, which a `gridView` needs:
   it has no `scrollable`), or it takes its design height and scrolls inside itself.
