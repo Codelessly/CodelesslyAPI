@@ -368,6 +368,14 @@ class _Parser {
       ];
       layout.putIfAbsent('height', () => 160);
     }
+    // A column starts its children at the leading edge and a row centres
+    // them on its line (what a form and a toolbar want), unless written.
+    if (type == 'column') props.putIfAbsent('crossAxisAlignment', () => 'start');
+    if (type == 'row') props.putIfAbsent('crossAxisAlignment', () => 'center');
+    // Text with no variant is the body text, so it always has a colour.
+    if (type == 'text' && !props.containsKey('style')) {
+      if (options.textStyles['body'] case final Object body) props['style'] = body is Map ? _copy(body.cast<String, Object?>()) : body;
+    }
     final inRow = parent?.type == 'row';
     if (!layout.containsKey('width')) {
       final fills = !inRow && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
