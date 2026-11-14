@@ -33,7 +33,10 @@ scrolled to the middle first, and a tap that would land on another node is repor
 `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or
 screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--navigate <screen>`, `--wait <ms>`. A step
 may name a node by its `name` too. In a site, steps name nodes inside components by path (`--tap plans/card1/cta`)
-and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`). Ids are
+and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`); with no
+`#<n>` a step reaches the first copy in view. A tab, a segment or a navigation destination is tapped by its
+position (`--tap tabs@2`, the third, from zero) or, where it has one no node shares, by its own id or value
+(`--tap stay` for the tab `{"id": "stay"}`). A component's root may be named after its call (`nav/tabs`). Ids are
 per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
 an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
 component's). A step on a node hidden at one size (a media rule, a binding, another breakpoint's canvas; a

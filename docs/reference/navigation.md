@@ -125,9 +125,6 @@ Flutter `AppBar` (its toolbar height is the node height).
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
 
-For an opaque sticky sub-navigation, put the `tabBar` inside a sticky `column` or `box` with a fill. The wrapper
-paints over content that passes behind the tabs; a fill on the `tabBar` itself is ignored.
-
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `title` | String | `""` |  |  |
@@ -218,7 +215,7 @@ A `TabBar` over the selected child: one tab per child, titled by `titles`.
 <a id="node-tabBar"></a>
 ### `tabBar`
 
-Flutter `TabBar`.
+Flutter `TabBar`. It has no fill of its own: for an opaque sticky sub-navigation, put it inside a sticky `column` or `box` with a fill, which paints over what passes behind the tabs.
 
 Flutter `TabBar` (labels only; no pages).
 

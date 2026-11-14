@@ -431,7 +431,8 @@ abstract final class TabBarProps {
       labelStyle, unselectedLabelStyle, labelPadding, overlayColor, dividerColor, dividerHeight, tabAlignment,
       content, iconDirection, gap,
     ],
-    doc: 'Flutter `TabBar`.',
+    doc: 'Flutter `TabBar`. It has no fill of its own: for an opaque sticky sub-navigation, put it inside a sticky '
+        '`column` or `box` with a fill, which paints over what passes behind the tabs.',
   );
 }
 
