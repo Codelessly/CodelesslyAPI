@@ -1541,7 +1541,17 @@ class _Parser {
       _derived[m[1]!] = written;
       return;
     }
-    final value = _value(written);
+    var value = _value(written);
+    // A start taken from state already declared (`state left=today.work`):
+    // the value it has there, so the new state is its own and can change.
+    if (value is String && RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$').hasMatch(written)) {
+      final parts = written.split('.');
+      Object? from = variables[parts.first]?['value'];
+      for (final key in parts.skip(1)) {
+        from = from is Map ? from[key] : null;
+      }
+      if (from != null && variables.containsKey(parts.first)) value = jsonDecode(jsonEncode(from));
+    }
     variables[m[1]!] = {
       'name': m[1],
       'type': switch (value) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
