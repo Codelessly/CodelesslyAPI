@@ -359,6 +359,14 @@ documents) was scoped and found to depend on step 2: a toast outlives the screen
 modal's barrier, both of which are the Navigator's doing today, so the screen stack comes first and toasts,
 confirms and modals move onto its overlay with it.
 
+Later the same day: 42. Removed by deleting what had no callers (the Material field decoration left from before
+the text field was a render object, the freeform layout's widget wrappers), by moving a widget beside its only
+user (the hero paint widget, to the route flights), and by three ports: the drag track's keys onto the control
+focus system, the signature pad (`RenderSignaturePad`) and the pagination controls (`RenderPagination`, with the
+controls' menu for the page size and a semantics node per button). No input is a Flutter widget any more. What
+still builds widgets inside the tree: the table view (`two_dimensional_scrollables`), the data list, reorder and
+page view (all on `Scrollable`), and the media players.
+
 Gaps the workstreams left, folded into the steps above: a `popupMenu` node type on the menu; tile text and icon
 color props; write-back of a bound `expanded`; app-bar and navigation item reactions; the implied back button;
 selection handles and the copy and paste toolbar; an icon size written at its catalog default.
