@@ -44,7 +44,8 @@ section's anchor is its topic.
 | A star, sparkle or other mark the font does not have; a custom shape | [decoration.md#decoration-small-marks-and-shapes](decoration.md#decoration-small-marks-and-shapes) |
 | Style a text field (border, focus ring, fill, label, icons), a checkbox, a switch or a button, in one place | [forms.md#forms-styling-the-controls-in-one-place](forms.md#forms-styling-the-controls-in-one-place) |
 | A text field that shows a variable and writes it back (two-way) | [forms.md#forms-a-text-field-bound-to-a-variable-two-way](forms.md#forms-a-text-field-bound-to-a-variable-two-way) |
-| Validate input and show an error state | [forms.md#forms-validation-and-an-error-state](forms.md#forms-validation-and-an-error-state) |
+| Validate a form: per-field errors on blur or on send, the first error focused, a summary, a success state | [forms.md#forms-validation-and-an-error-state](forms.md#forms-validation-and-an-error-state) |
+| A radio group (one choice of several) | [forms.md#forms-a-radio-group](forms.md#forms-a-radio-group) |
 | A − / + stepper around a number field | [forms.md#forms-a-stepper-around-a-field](forms.md#forms-a-stepper-around-a-field) |
 | A search icon or a clear (×) button inside a text field | [forms.md#forms-a-clear-button-in-the-field](forms.md#forms-a-clear-button-in-the-field) |
 | A checkbox or switch with a label, toggled from the whole row | [forms.md#forms-a-labelled-checkbox-or-switch](forms.md#forms-a-labelled-checkbox-or-switch) |
@@ -104,11 +105,11 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](STARTER.md) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4306 |
+| [STARTER.md](STARTER.md) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4331 |
 | [layout.md](layout.md) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 6920 |
 | [theme.md](theme.md) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2092 |
 | [decoration.md](decoration.md) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3541 |
-| [forms.md](forms.md) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10534 |
+| [forms.md](forms.md) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11422 |
 | [lists.md](lists.md) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
 | [navigation.md](navigation.md) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
 | [state.md](state.md) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6355 |

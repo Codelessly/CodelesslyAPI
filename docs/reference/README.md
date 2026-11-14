@@ -16,13 +16,13 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 
 | File | What it is | Words | ≈ tokens |
 |---|---|---|---|
-| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 5643 | 11678 |
-| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 5750 | 11073 |
-| [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4341 | 13444 |
+| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 5691 | 11769 |
+| [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 5800 | 11157 |
+| [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4364 | 13487 |
 | [layout.md](layout.md) | Feature page. | 6920 | 12494 |
 | [theme.md](theme.md) | Feature page. | 2092 | 3597 |
 | [decoration.md](decoration.md) | Feature page. | 3541 | 6135 |
-| [forms.md](forms.md) | Feature page. | 10534 | 17779 |
+| [forms.md](forms.md) | Feature page. | 11422 | 19732 |
 | [lists.md](lists.md) | Feature page. | 6101 | 10080 |
 | [navigation.md](navigation.md) | Feature page. | 4125 | 7356 |
 | [state.md](state.md) | Feature page. | 6355 | 11409 |
@@ -39,9 +39,9 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [edit-ops.md](edit-ops.md) | Feature page. | 3297 | 5460 |
 | [render.md](render.md) | Feature page. | 2363 | 3626 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13248 | 20772 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 93204 | 160015 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 94163 | 162096 |
 | [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 71928 | 190426 |
-| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 8949 | 25648 |
+| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 8989 | 25753 |
 | [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 24684 | 103319 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1263 | 3803 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |

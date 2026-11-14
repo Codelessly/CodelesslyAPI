@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5643
+      "words": 5691
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5750
+      "words": 5800
     }
   },
   "topics": [
@@ -289,7 +289,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 10534
+      "words": 11422
     },
     {
       "topic": "forms-triggers",
@@ -305,7 +305,7 @@
       "anchor": "forms-styling-the-controls-in-one-place",
       "title": "Styling the controls, in one place",
       "summary": "Every colour there may be a theme colour's name; every text style may name a theme style.",
-      "words": 216
+      "words": 230
     },
     {
       "topic": "forms-a-text-field-bound-to-a-variable-two-way",
@@ -320,8 +320,16 @@
       "file": "forms.md",
       "anchor": "forms-validation-and-an-error-state",
       "title": "Validation and an error state",
-      "summary": "Keep the values in variables, set a `tried` flag on submit, and show errors from computed variables: bind `props.decoration.errorText` (the field turns to its `errorBorder` and shows the text) or a separate text's `visible`.",
-      "words": 166
+      "summary": "As Flutter's `TextFormField` and `Form`:",
+      "words": 407
+    },
+    {
+      "topic": "forms-a-radio-group",
+      "file": "forms.md",
+      "anchor": "forms-a-radio-group",
+      "title": "A radio group",
+      "summary": "Flutter's `RadioGroup`: give the node around the radios `\"radioGroup\": {\"groupValue\": ...}`, bind its `radioGroup.groupValue` to the variable that keeps the choice, and store `${result}` in its `changed` reaction.",
+      "words": 60
     },
     {
       "topic": "forms-a-stepper-around-a-field",
@@ -1444,9 +1452,14 @@
       "anchor": "forms-a-text-field-bound-to-a-variable-two-way"
     },
     {
-      "need": "Validate input and show an error state",
+      "need": "Validate a form: per-field errors on blur or on send, the first error focused, a summary, a success state",
       "file": "forms.md",
       "anchor": "forms-validation-and-an-error-state"
+    },
+    {
+      "need": "A radio group (one choice of several)",
+      "file": "forms.md",
+      "anchor": "forms-a-radio-group"
     },
     {
       "need": "A − / + stepper around a number field",
