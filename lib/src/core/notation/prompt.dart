@@ -31,7 +31,7 @@ LINE
 - key:value sets a prop by its name. Common keys: gap (space between children), pad (padding: one number or [left,top,right,bottom]), w, h (a number, fill or hug), fill (background colour #AARRGGBB), radius. Quote a value with spaces: hint:"you@example.com". Lists are JSON: items:["S","M","L"].
 - Words on a Row or Column: start, center, end, between (along it); top, middle, bottom, left, right, stretch (across it). grow on a child takes the remaining room. hidden hides a node.
 - =name binds a control's value to a variable both ways (the variable is created for you): Slider =volume, Toggle "Wi-Fi" =wifi, Input "Email" =email, Select =size items:["S","M","L"]. On other keys write key:=expression with no spaces: visible:=count>0.
-- -> runs on tap (on change, for a control): name=value sets a variable; emit eventName tells the app; toast "Saved"; link https://…; open id / close for a modal. Separate several with ;
+- -> runs on tap (on change, for a control): name=value sets a variable; emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal. Separate several with ;
 - state name=value on its own line (top level) declares a variable with a starting value.
 - if expression on its own line shows the lines indented under it only while it holds.
 - #id only when something else needs to name the node.
