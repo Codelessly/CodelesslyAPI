@@ -769,7 +769,7 @@
       "anchor": "page-interaction",
       "title": "Interaction: reactions, states and gestures",
       "summary": "What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics.",
-      "words": 5250
+      "words": 5286
     },
     {
       "topic": "interaction-trigger-fields",
@@ -793,7 +793,7 @@
       "anchor": "interaction-triggers",
       "title": "Triggers",
       "summary": "Written as `\"trigger\": {\"type\": \"<trigger>\", ...}` in a reaction ($1).",
-      "words": 405
+      "words": 410
     },
     {
       "topic": "interaction-reactions",
@@ -824,8 +824,8 @@
       "file": "interaction.md",
       "anchor": "interaction-drag-and-drop",
       "title": "Drag and drop",
-      "summary": "`draggable` (`{\"group\": \"card\", \"data\": \"${item.id}\"}`) lets the node be picked up; a `dropTarget` that `accepts` the group takes it, and its `drop` reaction reads the data as `${result}`.",
-      "words": 45
+      "summary": "`draggable` (`{\"group\": \"card\", \"data\": \"${item.id}\"}`) lets the node be picked up; a `dropTarget` that `accepts` the group takes it, and its `drop` reaction reads the data as `${result.data}` (`${result}` is the whole drag: `data`, `group`, `source`, `over`, `count`): `{\"type\": \"setVariable\", \"variable\": \"cards\", \"value\": \"${= map(cards, c => c.id == result.data ? {id: c.id, title: c.title, col: 'done'} : c)}\"}`.",
+      "words": 76
     },
     {
       "topic": "interaction-values-set-by-dragging-swiping-pinching",
@@ -1433,7 +1433,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13353
+      "words": 13358
     },
     {
       "topic": "values-value-types",

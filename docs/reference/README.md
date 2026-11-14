@@ -26,7 +26,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [lists.md](lists.md) | Feature page. | 7877 | 13950 |
 | [navigation.md](navigation.md) | Feature page. | 4269 | 7569 |
 | [state.md](state.md) | Feature page. | 6662 | 11912 |
-| [interaction.md](interaction.md) | Feature page. | 5250 | 8672 |
+| [interaction.md](interaction.md) | Feature page. | 5286 | 8739 |
 | [animation.md](animation.md) | Feature page. | 4769 | 7798 |
 | [components.md](components.md) | Feature page. | 3719 | 7528 |
 | [charts.md](charts.md) | Feature page. | 7160 | 10615 |
@@ -38,10 +38,10 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [publish.md](publish.md) | Feature page. | 672 | 1237 |
 | [edit-ops.md](edit-ops.md) | Feature page. | 3581 | 5855 |
 | [render.md](render.md) | Feature page. | 3081 | 4771 |
-| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13353 | 20901 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 106939 | 186548 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 74247 | 194182 |
-| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10216 | 28454 |
+| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13358 | 20911 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 106980 | 186624 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 74257 | 194201 |
+| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10247 | 28514 |
 | [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25171 | 105734 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1267 | 3814 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |

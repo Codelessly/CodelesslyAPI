@@ -74,7 +74,8 @@ Two labels in a row with a fill; each label's `selected` binds to the variable (
 ### Drag and drop
 
 `draggable` (`{"group": "card", "data": "${item.id}"}`) lets the node be picked up; a `dropTarget` that `accepts`
-the group takes it, and its `drop` reaction reads the data as `${result}`. Reordering a list: the list's `reorder`
+the group takes it, and its `drop` reaction reads the data as `${result.data}` (`${result}` is the whole drag: `data`,
+`group`, `source`, `over`, `count`): `{"type": "setVariable", "variable": "cards", "value": "${= map(cards, c => c.id == result.data ? {id: c.id, title: c.title, col: 'done'} : c)}"}`. Reordering a list: the list's `reorder`
 settings with a `reorderHandle` in the item, and the `reorder` trigger.
 
 ### Values set by dragging, swiping, pinching
