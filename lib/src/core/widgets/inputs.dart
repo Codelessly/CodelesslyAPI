@@ -523,7 +523,10 @@ abstract final class DropdownProps {
   static const elevation = PropDef<int>('elevation', IntCodec(min: 0), 8);
   static const borderRadius = PropDef<BorderRadius?>('borderRadius', InputCodecs.radius, null);
 
-  /// Draws Flutter's default underline (false: `SizedBox.shrink()`).
+  /// Draws the field's border: the theme's field shape (an outline of the
+  /// control radius, as an unstyled text field's) around the button, padded
+  /// 12 at the sides when the node sets no padding; false: no border
+  /// (`underline: SizedBox.shrink()`). Material's underline is never drawn.
   static const underline = PropDef<bool>('underline', Codecs.bool, true);
 
   /// The items come from the bound `data` list; [itemLabel] labels each
