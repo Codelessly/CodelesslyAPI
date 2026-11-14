@@ -59,6 +59,7 @@ section's anchor is its topic.
 | A grid of cards from data, as many columns as fit; gaps between wrapped items | [lists.md#lists-a-grid-of-cards](lists.md#lists-a-grid-of-cards) |
 | Nested lists; the outer item inside the inner list (`parent`) | [lists.md#lists-nested-lists](lists.md#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists.md#lists-a-table-from-one-template](lists.md#lists-a-table-from-one-template) |
+| Filter, sort, page a list | [lists.md#lists-filter-sort-and-page-a-list](lists.md#lists-filter-sort-and-page-a-list) |
 | A weekly grid (days × habits) | [lists.md#lists-a-weekly-grid](lists.md#lists-a-weekly-grid) |
 | A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | [lists.md#lists-a-carousel-pages-and-pagination](lists.md#lists-a-carousel-pages-and-pagination) |
 | Several screens; a page's URL path | [navigation.md#navigation-screens](navigation.md#navigation-screens) |
@@ -115,7 +116,7 @@ section's anchor is its topic.
 | [theme.md](theme.md) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2852 |
 | [decoration.md](decoration.md) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
 | [forms.md](forms.md) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11322 |
-| [lists.md](lists.md) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6884 |
+| [lists.md](lists.md) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
 | [navigation.md](navigation.md) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4201 |
 | [state.md](state.md) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
 | [interaction.md](interaction.md) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |

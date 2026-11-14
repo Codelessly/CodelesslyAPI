@@ -301,11 +301,11 @@ The props that matter most; each type's page lists all of them.
   'Required.' : ''}"`), a `form` around the fields and a `validate` action on send
   ([validation](@forms-validation-and-an-error-state)). Styling every control: [forms](@page-forms).
 - **Lists**: a `listView` or `gridView` repeats its **first child** once per item of its `data` binding:
-  `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. An item fills the list across (its
-  cross-axis size is `fill`). In a page that scrolls, give the list
-  `"scrollable": false` (a gridView: `"physics": "never"`). A grid of as many equal columns as fit:
+  `"bind": {"data": "${plans}"}`; inside, `${item.name}` and `${index}`. Items fill the list across. In a scrolling
+  page, give it `"scrollable": false` (a gridView: `"physics": "never"`). As many equal columns as fit:
   `minCrossAxisExtent` (CSS `repeat(auto-fit, minmax(280px, 1fr))`); equal-height cards: `"shrinkWrapRows": true`.
-  Nested lists, tables, pagination: [lists](@page-lists).
+  Nested lists, tables: [lists](@page-lists). Filters read the item through a lambda: `filter(rows, r => r.ok)`
+  ([more](@lists-filter-sort-and-page-a-list)).
 - **Icons**: `props.icon` is a Material icon name (`"arrow_forward"`, `"check_circle"`; `_outlined`, `_rounded`
   suffixes), with `color` and `size`.
 - **Images**: an image fill on a `box` (see Decoration). **Divider**: `divider` with `thickness` and `color`, or a

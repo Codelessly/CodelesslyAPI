@@ -77,6 +77,22 @@ table written four times. For a column that stays while the others scroll sidewa
 `listView` of its own beside one horizontally scrolling block of the cell grids, rows the same height in both. A
 `tableView` is a data table with columns declared once (sorting, row taps).
 
+### Filter, sort and page a list
+
+Search, a status filter, sortable columns and pages are computed variables over the records, chained: `shown`
+filters and sorts them, `paged` is one page of it, and the list binds `${paged}`.
+
+- Inside `filter`, `sortBy`, `map` and `count` an item's field is read through the item, a lambda's parameter:
+  `filter(invoices, r => r.status == x)`. Written without it (`filter(invoices, status == x)`) the condition is
+  computed once, outside the list, and matches no item: the list is empty (`unknown_name` names the field).
+- "All" and an empty search match everything inside the lambda: `statusFilter == 'All' || r.status ==
+  statusFilter`; `contains(lower(r.cust), lower(search))` is true while `search` is empty.
+- `sortBy(list, key, 'desc')`: the key is a field name (a variable holding one works) or a lambda; the direction
+  is `'asc'` or `'desc'`, not 1 or -1.
+- Page after filtering and sorting; set `page` back to 0 when the search or filter changes. Counts read `shown`.
+
+{{example-as-written:pages/table_filter}}
+
 ### A weekly grid
 
 Seven columns of days from data: a `gridView` with `"crossAxisCount": 7` bound to the days (`${= range(7)}`, or a
@@ -112,6 +128,8 @@ The same pattern moves a horizontal timeline from its year buttons, or a feature
 ## Pitfalls
 
 - Only the first child is the template; other children are ignored.
+- A list function's condition reads the item through a lambda (`r => r.status == x`); written without one it is
+  computed once and the list comes out empty.
 - `item` and `index` are the innermost list's; the outer one is `parent`.
 - A list inside a scrolling page needs `"scrollable": false` (or `"physics": "never"`, which a `gridView` needs:
   it has no `scrollable`), or it takes its design height and scrolls inside itself.

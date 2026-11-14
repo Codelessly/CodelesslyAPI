@@ -1,5 +1,20 @@
 ## Unreleased
 
+- A computed variable's `formula` is checked like a node's expressions (it was not checked at all): it must parse
+  and read only declared names, its `parameters` included. The edit layer checks the formulas of the variables a
+  `vars` op declares (`EditCheckInput.variables`, read by `strictEditCheck`; the diagnostic's message names the
+  variable).
+- An unknown name that is a field of a list variable's records (`filter(invoices, status == 'Paid')`, computed once
+  outside the list and matching no item: a recorded data table showed "No results" over twelve defined invoices)
+  gets a message that says so and the lambda to write (`filter(invoices, r => r.status == x)`), with
+  `r => r.status` as its suggestion.
+- `unresolvedReferences` (with `changedVariables`): once a stream has ended, the references accepted as warnings
+  while it ran ("it must exist when the stream ends") that are still unresolved, as errors. `streamReferenceCodes`
+  names the codes.
+- Reference: lists "Filter, sort and page a list" (search, a status filter, sortable headers and pages from chained
+  computed variables, with a validated example; the pitfalls: a condition without its item, "All" and an empty
+  search, `sortBy`'s `'asc'`/`'desc'`, resetting the page), a pitfall line, a line in the base and a row in the task
+  table. `{{example-as-written:path}}` puts an example in a page as its file is laid out (one node per line).
 - `strictEditCheck` passes its options' `theme` on to the validator (it dropped it): a session with a design system
   checks each op against the design system's tokens, so a theme color or text style name (`primaryBackground`,
   `sectionTitle`) is no longer rejected as `unknown_theme_name`.
