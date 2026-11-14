@@ -237,6 +237,25 @@ void main() {
       expect(r.errors.map((d) => '${d.op} ${d.code}'), ['5 unknown_theme_name']);
       expect(r.applied, [0, 1, 2, 3, 4]);
     });
+
+    test('an agent session with a design system may call its components (the trust profile allows them)', () async {
+      final ds = await _load();
+      final catalog = ds.catalogOver(Catalog.core);
+      final ops = [
+        {'op': 'roots', 'roots': ['c']},
+        {'op': 'set', 'id': 'c', 'node': {'type': 'canvas', 'slots': {'body': 'save'}, 'layout': {'width': 390, 'height': 100}}},
+        {'op': 'set', 'id': 'save', 'node': {'type': 'Button', 'props': {'label': 'Save'}, 'layout': {'width': 96, 'height': 28}}},
+      ];
+      final plain = applyOps(LayoutDocument(catalog: catalog), ops, catalog: catalog, profile: TrustProfile.agent);
+      expect(plain.errors.map((d) => d.code), ['capability_not_allowed']);
+      final profile = TrustProfile.agent.withComponents(ds.components);
+      final r = applyOps(LayoutDocument(catalog: catalog), ops, catalog: catalog, profile: profile);
+      expect(r.errors, isEmpty);
+      // The catalog an agent is described with keeps them too.
+      expect(profile.restrict(catalog).widgets.map((w) => w.type), containsAll(['Button', 'Toggle', 'text']));
+      // A profile that allows every type stays as it is.
+      expect(identical(TrustProfile.none.withComponents(ds.components), TrustProfile.none), isTrue);
+    });
   });
 
   group('the prompt generated from it', () {

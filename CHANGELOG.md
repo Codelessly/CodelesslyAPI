@@ -3,6 +3,9 @@
 - `strictEditCheck` passes its options' `theme` on to the validator (it dropped it): a session with a design system
   checks each op against the design system's tokens, so a theme color or text style name (`primaryBackground`,
   `sectionTitle`) is no longer rejected as `unknown_theme_name`.
+- `TrustProfile.withComponents(library)`: the profile with a component library's types allowed. A session given a
+  design system checks ops with it (the SDK's `UiSession(designSystem:)`): `TrustProfile.agent` lists the core's node
+  types only, so every call to a design system component was `capability_not_allowed`.
 
 ## 30.1.0
 
