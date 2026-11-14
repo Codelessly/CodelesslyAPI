@@ -328,4 +328,67 @@ Column gap:8
     final names = [for (final v in (r.document['variables'] as Map)['screen'] as List) (v as Map)['name']];
     expect(names, ['cart', 'mode'], reason: 'a formula is not a variable; a bare word is text');
   });
+  group('printed back', () {
+    Object? sorted(Object? v) => switch (v) {
+          final Map m => {for (final k in m.keys.map((k) => '$k').toList()..sort()) k: sorted(m[k])},
+          final List l => [for (final e in l) sorted(e)],
+          // 390 and 390.0 are one number in JSON.
+      final double d when d == d.roundToDouble() && d.abs() < 1e15 => d.toInt(),
+      _ => v,
+        };
+    void roundTrips(Map<String, Object?> doc, {bool words = true}) {
+      final text = printNotation(doc, catalog: standardCatalog);
+      final back = parseNotation(text, catalog: standardCatalog, options: notationOptionsFor(doc));
+      expect(back.issues, isEmpty, reason: text);
+      expect(jsonEncode(sorted(back.document)), jsonEncode(sorted(doc)), reason: text);
+      if (words) expect(text.split('\n').first, isNot(startsWith('document ')), reason: 'printed in the tree\'s words');
+    }
+
+    test('what the notation wrote prints back to the same document, one line a node', () {
+      final doc = _parse('''
+state decision="pending"
+Card gap:12
+  Text.title "Approve deletion?"
+  Row end gap:8
+    Button.ghost "Deny" -> decision="denied"
+    Button "Approve" -> decision="approved"; emit approved
+  Slider =volume
+  Input "Email" =email
+''').document;
+      roundTrips(doc);
+      final text = printNotation(doc, catalog: standardCatalog);
+      expect(text, contains('Text.title#text1 "Approve deletion?"'));
+      expect(text, contains('  Row#row1 gap:8 end'));
+    });
+
+    test('a document written by hand, with slots, another canvas id and a typed variable, round trips', () {
+      roundTrips({
+        'schema': 3,
+        'roots': ['home'],
+        'variables': {
+          'home': [
+            {'name': 'count', 'type': 'decimal', 'value': 2},
+          ],
+        },
+        'nodes': {
+          'home': {'type': 'canvas', 'slots': {'body': 'col'}, 'layout': {'width': 420, 'height': 800}, 'decoration': {'fills': [{'color': '#FF101010'}]}},
+          'col': {'type': 'column', 'children': ['tile', 'note'], 'layout': {'width': {'fill': 420}, 'height': {'fill': 800}, 'padding': 24}, 'props': {'spacing': 16}},
+          'tile': {'type': 'listTile', 'slots': {'title': 'tileTitle'}, 'layout': {'width': {'fill': 0}, 'height': {'hug': 0}}},
+          'tileTitle': {'type': 'text', 'props': {'text': r'Count ${count}'}, 'layout': {'width': {'hug': 0}, 'height': {'hug': 0}}},
+          'note': {'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'radius': 8}},
+        },
+      });
+    });
+
+    test('a document the words cannot carry is printed whole, and still round trips', () {
+      roundTrips({
+        'schema': 3,
+        'roots': ['s'],
+        'nodes': {
+          's': {'type': 'canvas', 'slots': {'body': 'a-b'}, 'layout': {'width': 390, 'height': 100}},
+          'a-b': {'type': 'text', 'props': {'text': 'dashed id'}, 'layout': {'width': {'hug': 0}, 'height': {'hug': 0}}},
+        },
+      }, words: false);
+    });
+  });
 }
