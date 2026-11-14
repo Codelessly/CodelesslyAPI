@@ -66,7 +66,7 @@ state qty=1
 Card gap:12
   Row between
     Text.heading "Espresso beans, 1 kg"
-    Text.strong "\\\$24"
+    Text.strong "\$24"
   Row gap:8
     Button.outline "-" -> qty=max(1,qty-1)
     Text.strong "{qty}"

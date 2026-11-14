@@ -235,7 +235,12 @@ class _Parser {
     final indent = raw.length - raw.trimLeft().length;
     final before = nodes.length;
     _lineAt(indent, raw.trim(), indent + 1);
-    _emit(nodes.length > before ? nodes.keys.last : null);
+    final added = nodes.keys.skip(before).toList();
+    if (added.isEmpty) {
+      _emit(null);
+    } else {
+      added.forEach(_emit);
+    }
   }
 
   /// The operations the line just read adds: the variables it introduced,
@@ -261,14 +266,25 @@ class _Parser {
         });
     }
     if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': screen, 'set': fresh});
+    ops.addAll(_patches);
+    _patches.clear();
     if (id == null) return;
     final node = {...nodes[id]!}..remove('children');
     final parent = _parentOf[id];
-    ops.add({'op': 'set', 'id': id, 'parent': parent ?? screen, if (parent == null) 'slot': 'body', 'node': node});
+    final slot = parent == null ? 'body' : _slotOf[id];
+    ops.add({'op': 'set', 'id': id, 'parent': parent ?? screen, if (slot != null) 'slot': slot, 'node': node..remove('slots')});
   }
 
   bool _canvas = false;
   final _parentOf = <String, String>{};
+  final _slotOf = <String, String>{};
+
+  /// Changes a line makes to a node already sent (a grid's row height).
+  final _patches = <Json>[];
+
+  /// Texts a line's strings stand for on a type whose text is a child: an
+  /// accordion's header, a list tile's title and subtitle.
+  final _texts = <String>[];
 
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
@@ -341,6 +357,8 @@ class _Parser {
     }
     final spec = catalog.widget(type);
     if (spec == null) {
+      // A sentence before the UI ("Here is the card:") is not a node.
+      if (_root == null && line.contains(' ') && !line.contains('"')) return;
       _issue(column, 'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).');
       return;
     }
@@ -375,6 +393,7 @@ class _Parser {
       if (key == 'visible' || key == 'opacity') return key;
       if (spec.props.any((p) => p.key == key)) return 'props.$key';
       if (key == 'enabled' && spec.props.any((p) => p.key == 'isEnabled')) return 'props.isEnabled';
+      if ((key == 'selected' || key == 'checked') && (type == 'checkbox' || type == 'switch')) return 'props.value';
       if (_layoutKeys.contains(key)) return 'layout.$key';
       if (_decorationKeys.contains(key)) return 'decoration.$key';
       return 'props.$key';
@@ -456,6 +475,7 @@ class _Parser {
         }
         final key = word.substring(0, colon);
         var raw = word.substring(colon + 1);
+        if (raw.startsWith('=')) raw = '$raw${t.expression()}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
         if (key == 'fill') {
@@ -511,9 +531,23 @@ class _Parser {
     if (type == 'text' && !props.containsKey('style')) {
       if (options.textStyles['body'] case final Object body) props['style'] = body is Map ? _copy(body.cast<String, Object?>()) : body;
     }
+    // A grid sizes its cells: a child's own height becomes the grid's row
+    // height (the first one written), and the child fills its cell.
+    if (parent?.type == 'gridView') {
+      final h = layout['height'];
+      final grid = nodes[parent!.id]!;
+      final gp = (grid['props'] as Json?) ?? (grid['props'] = <String, Object?>{});
+      if (h is num && !gp.containsKey('mainAxisExtent')) {
+        gp['mainAxisExtent'] = h;
+        _patches.add({'op': 'patch', 'id': parent.id, 'patch': {'props': {'mainAxisExtent': h}}});
+      }
+      layout['width'] = {'fill': 0};
+      layout['height'] = {'fill': 0};
+    }
     final inRow = parent?.type == 'row';
+    if (inRow && type == 'text' && !layout.containsKey('width')) layout['squeezable'] = true;
     if (!layout.containsKey('width')) {
-      final fills = !inRow && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
+      final fills = layout.containsKey('flex') || !inRow && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
       layout['width'] = _size(layout['width']);
@@ -544,10 +578,38 @@ class _Parser {
     } else {
       final p = nodes[parent.id]!;
       if (spec.type == 'canvas') return _issue(column, 'A canvas cannot be a child.');
-      ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
+      if (parent.type == 'listTile') {
+        final slots = (p['slots'] as Json?) ?? (p['slots'] = <String, Object?>{});
+        final slot = type == 'icon' && !slots.containsKey('leading') ? 'leading' : 'trailing';
+        slots[slot] = id;
+        _slotOf[id] = slot;
+      } else {
+        ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
+      }
       _parentOf[id] = parent.id;
     }
     _stack.add(_Open(indent, id, type, condition: null));
+    // Its strings as text nodes: an accordion's header is its first child, a
+    // list tile's are its title and subtitle.
+    final texts = [..._texts];
+    _texts.clear();
+    for (var i = 0; i < texts.length; i++) {
+      final tid = _id('text');
+      final style = options.textStyles[i == 0 ? 'strong' : 'muted'];
+      nodes[tid] = {
+        'type': 'text',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'text': texts[i], if (style != null) 'style': style is Map ? _copy(style.cast<String, Object?>()) : style},
+      };
+      _parentOf[tid] = id;
+      if (type == 'listTile') {
+        final slot = i == 0 ? 'title' : 'subtitle';
+        ((out['slots'] as Json?) ?? (out['slots'] = <String, Object?>{}))[slot] = tid;
+        _slotOf[tid] = slot;
+      } else {
+        ((out['children'] as List<Object?>?) ?? (out['children'] = <Object?>[])).add(tid);
+      }
+    }
   }
 
   /// The node's main string: a text's text, a button's label, a field's label.
@@ -556,6 +618,10 @@ class _Parser {
     if (type == 'textField') {
       final d = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
       d[d.containsKey('labelText') ? 'hintText' : 'labelText'] = text;
+      return;
+    }
+    if (type == 'accordion' || type == 'expansionTile' || type == 'listTile') {
+      _texts.add(text);
       return;
     }
     final key = _mainKey(type, spec);
@@ -665,7 +731,7 @@ class _Parser {
   }
 
   /// `{name}` in a string is a read: `${name}`.
-  String _interpolate(String s) => s.replaceAllMapped(RegExp(r'(?<!\$)\{([^{}]+)\}'), (m) => _read(m[1]!));
+  String _interpolate(String s) => s.replaceAll(r'\$', r'$').replaceAllMapped(RegExp(r'\{([^{}]+)\}'), (m) => _read(m[1]!));
 
   (bool, Object?) _literal(String raw) {
     if (raw == 'true') return (true, true);
@@ -795,6 +861,24 @@ class _Tokens {
     final start = at;
     while (!done && s[at] != ' ') {
       if (s[at] == '"' || ((s[at] == '[' || s[at] == '{') && at > start && s[at - 1] == ':')) break;
+      at++;
+    }
+    return s.substring(start, at);
+  }
+
+  /// The rest of an expression: to the next space outside quotes and
+  /// brackets (`to!=""&&len(subject)>0`).
+  String expression() {
+    final start = at;
+    var depth = 0, quoted = false;
+    while (!done) {
+      final c = s[at];
+      if (c == '"' && (at == 0 || s[at - 1] != r'\')) quoted = !quoted;
+      if (!quoted) {
+        if (c == '(' || c == '[') depth++;
+        if (c == ')' || c == ']') depth--;
+        if (c == ' ' && depth <= 0) break;
+      }
       at++;
     }
     return s.substring(start, at);
