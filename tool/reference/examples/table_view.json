@@ -1,0 +1,26 @@
+{
+  "schema": 3,
+  "roots": ["impact"],
+  "nodes": {
+    "impact": {"type": "canvas", "slots": {"body": "table"}, "layout": {"width": 390, "height": 260},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "table": {"type": "tableView", "slots": {"cell": "cell", "columnHeader": "head"},
+      "layout": {"width": {"fill": 390}, "height": {"fill": 260}},
+      "props": {"rowHeight": 40, "headerHeight": 40, "pinHeaderColumn": false, "fillWidth": true,
+        "columns": [{"key": "year", "label": "Year", "width": 80}, {"key": "trees", "label": "Trees", "width": 100},
+                    {"key": "survival", "label": "Survival", "width": 100}]},
+      "bind": {"data": "${years}"}},
+    "head": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.label}", "style": {"fontSize": 13, "fontWeight": 700, "color": "#FF334155"}}},
+    "cell": {"type": "text", "layout": {"width": {"fill": 100}, "height": {"fill": 40}, "padding": [12, 10, 12, 10]},
+      "props": {"text": "${item.value}", "style": {"fontSize": 14, "color": "#FF0F172A"}}}
+  },
+  "variables": {
+    "impact": [
+      {"name": "years", "type": "list", "value": [
+        {"year": "2023", "trees": "3,120", "survival": "94%"},
+        {"year": "2024", "trees": "4,480", "survival": "91%"},
+        {"year": "2025", "trees": "4,880", "survival": "87%"}]}
+    ]
+  }
+}

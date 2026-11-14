@@ -77,6 +77,15 @@ table written four times. For a column that stays while the others scroll sidewa
 `listView` of its own beside one horizontally scrolling block of the cell grids, rows the same height in both. A
 `tableView` is a data table with columns declared once (sorting, row taps).
 
+### A data table (tableView)
+
+The rows are **bound data** (`"bind": {"data": "${years}"}`, a list of records), never a `props.data`; the columns
+are `props.columns`, each a record field (`key`), its header (`label`) and its width. The `cell` slot is one template
+for every cell, reading `${item.value}` (also `${item.row}`, the whole record, and `${item.column}`); `columnHeader`
+reads `${item.label}`. `fillWidth` shares a wide screen's extra width between the columns:
+
+{{example-as-written:table_view}}
+
 ### Filter, sort and page a list
 
 Search, a status filter, sortable columns and pages are computed variables over the records, chained: `shown`

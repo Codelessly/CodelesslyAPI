@@ -267,6 +267,9 @@ void main() {
       expect(prompt, isNot(contains('Long prose.')));
       expect(prompt, contains('`radii.control`'.replaceAll('radii.', '')));
       expect(prompt, contains(r'${theme.spacing.2}'));
+      // A step is shown as the binding to write: models wrote the bare
+      // `${theme.radii.panel}` as a radius's value, which is rejected.
+      expect(prompt, contains(r'bound, not written: `"bind": {"decoration.radius": "${theme.radii.'));
       expect(prompt, contains('**`Button`**: A pressable label.'));
       expect(prompt, contains('{"type":"Button","props":{"label":"Save"}'));
       expect(prompt, contains('A form is a column of fields 12 apart.'));

@@ -186,8 +186,9 @@ final class NavigateAction extends CoreAction {
 
   final NavigationMode mode;
 
-  /// The destination: a screen (canvas) or layout id. Empty with [mode]
-  /// pop: just go back.
+  /// The destination: a screen (canvas) or layout id, or an expression that
+  /// gives one when the action runs (`${item.to}`). Empty with [mode] pop:
+  /// just go back.
   final String to;
 
   /// Values the destination reads as `${route.<name>}`; text values are

@@ -59,6 +59,7 @@ EditCheck strictEditCheck([ValidateOptions options = const ValidateOptions()]) =
         breakpoints: options.breakpoints,
         components: options.components,
         theme: options.theme,
+        level: options.level,
       );
       final out = <EditDiagnostic>[];
       for (final d in validateDocument(mini, options: o)) {

@@ -241,6 +241,12 @@ A document's sandboxed JavaScript (`scripts`), run by `runScript` or called from
 
 The functions a formula (`${= ...}`) can call, from the SDK's formula engine, grouped.
 
+Time zones are **UTC offsets**, not IANA names: `now('-06:00')`, `formatDate(now('+01:00'), 'HH:mm')`. The formula
+engine has no time zone database, so `now('America/Chicago')` is not a zone and daylight saving time is not applied.
+For a place that changes its clocks, pick the offset by date in the formula (Chicago, US rules: `now(month(now()) > 3
+&& month(now()) < 11 ? '-05:00' : '-06:00')`, exact except in the weeks of March and November when the clocks
+change), or have the host app pass the offset in (a variable it sets).
+
 <a id="state-text"></a>
 #### Text
 
@@ -621,6 +627,14 @@ formula string instead (`"when": "!item.future"`). `forEach` runs a chain per it
 {"type": "if", "condition": {"left": "${= contains(saved, trip.id)}", "op": "isTrue"},
  "then": [{"type": "setVariable", "variable": "saved", "op": "remove", "value": "${trip.id}"}],
  "else": [{"type": "setVariable", "variable": "saved", "op": "add", "value": "${trip.id}"}]}
+```
+
+One line of a list, from its own row of a list template (a cart's quantity stepper): `update` at the row's `index`
+with the row's record changed. `value` is one expression giving the new record (`set` changes one field), not an
+object written out:
+
+```json
+{"type": "setVariable", "variable": "cart", "op": "update", "index": "${index}", "value": "${= set(item, 'qty', item.qty + 1)}"}
 ```
 
 The condition is an object, never a formula string: a formula goes in `left` with `"op": "isTrue"`.

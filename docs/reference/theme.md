@@ -279,6 +279,9 @@ the families it ships in `site.json`, in the shape of a Flutter pubspec's `fonts
 
 - `family` is the name text styles use, whatever the file calls itself; each file has a `weight` (100–900, default
   400) and a `style` (`normal` or `italic`).
+- A **variable font** (one file with a `wght` axis, `RobotoSlab[wght].ttf`) is declared **once**, without a weight:
+  it draws every weight of its axis (Flutter sets the axis from `fontWeight`), and the render command counts each
+  of them as declared. Listing the same file again per weight is not needed.
 - Files are `.ttf`, `.otf` or `.woff` (an npm `@fontsource/<family>` package's `files/` folder has a `.woff` beside
   each `.woff2`). WOFF2 is not read (`font_format`); a declared file that is not there is `font_missing`.
 - The render command loads them with no flag, before the page shows; a published site loads them from its files.

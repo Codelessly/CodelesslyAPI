@@ -1598,6 +1598,14 @@
           "doc": "Each row (column, scrolling horizontally) as long as its longest item instead of a fixed extent."
         },
         {
+          "key": "fillGaps",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "CSS `grid-auto-flow: dense`: items placed automatically fill the holes earlier spanning items left, instead of always following the item before. Explicitly placed items (`columnStart` and `rowStart`) stay where they are."
+        },
+        {
           "key": "masonry",
           "type": "bool",
           "kind": "boolean",
@@ -4286,7 +4294,7 @@
       "docs": "forms.md#node-dropdown"
     },
     "datePicker": {
-      "doc": "Flutter `showDatePicker` button or field.\n\nAn `OutlinedButton` (or, with a decoration, a read-only field) showing a date (`yyyy-MM-dd`) that opens `showDatePicker`.",
+      "doc": "Flutter `showDatePicker` button or field.\n\nA field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).",
       "flutter": "showDatePicker",
       "children": "none",
       "slots": [],
@@ -4357,7 +4365,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's."
+          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: none."
         },
         {
           "key": "pickerTheme",
@@ -4371,7 +4379,7 @@
       "docs": "forms.md#node-datePicker"
     },
     "timePicker": {
-      "doc": "Flutter `showTimePicker` button or field.\n\nAn `OutlinedButton` (or, with a decoration, a read-only field) showing a time (`HH:mm`) that opens `showTimePicker`.",
+      "doc": "Flutter `showTimePicker` button or field.\n\nA field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).",
       "flutter": "showTimePicker",
       "children": "none",
       "slots": [],
@@ -4434,7 +4442,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's."
+          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: none."
         },
         {
           "key": "pickerTheme",
@@ -4448,7 +4456,7 @@
       "docs": "forms.md#node-timePicker"
     },
     "dateTimeInput": {
-      "doc": "Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.\n\nAn outlined `InputDecorator` showing a date, time or both, that opens the pickers.",
+      "doc": "Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.\n\nA field (Flutter's `InputDecorator`) showing a date, time or both, that opens the pickers.",
       "flutter": "InputDecorator",
       "children": "none",
       "slots": [],
@@ -11399,8 +11407,8 @@
         },
         "width": {
           "fixed": null,
-          "fill": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.",
-          "flexible": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line.",
+          "fill": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line. Add the width it starts from and wraps at (\"layout\": {\"width\": {\"fill\": 300}, \"basis\": 240}), or give it a fixed or hug size.",
+          "flexible": "A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line. Add the width it starts from and wraps at (\"layout\": {\"width\": {\"fill\": 300}, \"basis\": 240}), or give it a fixed or hug size.",
           "hug": null
         },
         "height": {
@@ -22305,11 +22313,11 @@
     "DateTimeInputPicker": [
       {
         "value": "dialog",
-        "doc": "What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value)."
+        "doc": "What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value)."
       },
       {
         "value": "none",
-        "doc": "What tapping a date/time input opens: Material's date and time dialogs, or nothing (its own click reactions show a picker the design builds, and set its value)."
+        "doc": "What tapping a date/time input opens: the date and time pickers, or nothing (its own click reactions show a picker the design builds, and set its value)."
       }
     ],
     "DecorationShape": [
@@ -25656,6 +25664,11 @@
     "undocumented": []
   },
   "diagnostics": [
+    {
+      "code": "above_level",
+      "severity": "error",
+      "meaning": "Something from a higher level of the vocabulary than the document is limited to (`ValidateOptions.level`): a node type, action, trigger, behavior, binding or expression."
+    },
     {
       "code": "invalid_document",
       "severity": "error",

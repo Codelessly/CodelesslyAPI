@@ -58,7 +58,7 @@ hero_flights,route_transition,presentation_route}.dart`). At the start of M3, 61
 | `Hero` flights | `render/hero.dart` marks already exist; the flight becomes an overlay entry of the root that paints the mark's picture between two screens | `runtime/actions/hero_flights.dart` → `render/` | planned (WS-J) |
 | tickers, `AnimationController` | already render-level: `Ticker` in `render/animations.dart`, `RenderMotion`; controls use the same (`ControlAnimation`) | `kit.dart` | exists |
 | `Scrollable`, `ScrollController`, `ListView` | already render-level: `RenderDesignScroll`, `render/view_scroll.dart`, `widgets/collections_layout.dart`'s item layouts; what is still a widget is the list's `Scrollable` (drag physics, scrollbars) | `widgets/collections*.dart` | exists / WS-K for the last `Scrollable` |
-| `EditableText` | a `RenderEditable` driven by a `TextInputClient` the control owns (section 3.2) | `render/controls/editable.dart` | planned (WS-A) |
+| `EditableText` | a `RenderEditable` driven by a `TextInputClient` the control owns (section 3.2) | `render/controls/editable.dart` | built (WS-A; handles and toolbar planned) |
 | platform views, video, web view | the **embed extension point**: an `EmbedFactory` registered by a feature layer; core never imports it (section 3.3) | `render/controls/embed.dart` | planned (WS-K) |
 
 ### 3.1 The root and its services
@@ -123,6 +123,15 @@ hit-testing of positions, and owns everything `EditableText` did around it:
 9. **Semantics**: `isTextField`, `value`, `textSelection`, `onSetText`, `onSetSelection`, `onCopy/Cut/Paste`,
    `isObscured`, `maxValueLength`, `currentValueLength`, `isMultiline`, `isReadOnly`.
 10. **Spell check** is deferred (section 9).
+
+**As built (WS-A).** `render/controls/field_frame.dart` (`RenderFieldFrame`, `FieldDecoration`: the SSUI field box
+that the dropdown shares), `editable.dart` (`FieldEditor`: items 1, 2, 5, 6, 7 and 8 above, with undo/redo as
+`FieldUndoHistory`) and `text_field.dart` (`RenderTextField`, the recipe; items 3 and 9). The runtime reaches a field
+through `TextFieldServices` (the `focus`/`editText` actions, forms). Not built yet: selection handles and the
+toolbar as overlay entries (item 4), showing the last obscured character on mobile, the floating cursor, and
+`DeltaTextInputClient` on web. Space and Enter are typed by the field itself (the focus scope would otherwise take
+them as activation and the platform would never see them), which an IME composing with those keys on desktop may
+notice.
 
 ### 3.3 What truly needs a widget or a texture
 
@@ -216,7 +225,7 @@ for; WS-L rewrites the component files as expansions and the gallery renders bot
 | D | `accordion`, `expansionTile`, `listTile` | `render/controls/{tile,expansion}.dart`; deletes `ExpansionTile` use in `widgets/collections_islands.dart`, `_listTile` in `widgets/material.dart` | M | the whole header is the tap target, chevron from tokens, slots laid out by the tree, keyboard, expand animation on the tree's ticker, semantics `isExpanded` |
 | E | `switch`, `checkbox`, `radio`, `slider` (+ range), `segmentedButton` | `render/controls/{toggles,slider,segmented}.dart`; deletes the islands in `widgets/inputs.dart`, `widgets/inputs_toggle.dart`, `widgets/slider_paint.dart` | L | value write-back (`changed`), drag and keys for the slider (arrows, Page, Home/End), no thumb shadow, `radioGroup`, toggled/checked semantics, SSUI Switch/Checkbox/Radio/Slider/SegmentedControl references |
 | F | `tabBar`, `tabs`, `navigationBar`, `bottomNavigationBar`, `appBar` | `render/controls/{tab_bar,navigation_bar,app_bar}.dart`; deletes `TabBar` in `collections_islands.dart`, `_navigationBar`, `_appBar`, the `Scaffold` in `widgets/material.dart` | M | selected indicator, keyboard arrows, labels centred, app bar slots via `render/layout/scaffold_slots.dart` |
-| G | `datePicker`, `timePicker`, `dateTimeInput` | `render/controls/{calendar,time_dial,pickers}.dart`; deletes `showDatePicker`/`showTimePicker` use in `widgets/inputs.dart` | L | picker as an overlay entry (popover on wide, sheet on narrow), keyboard navigation of the grid, locale first weekday, value write-back |
+| G | `datePicker`, `timePicker`, `dateTimeInput` | `render/controls/{calendar,time_dial,pickers,kit_pickers}.dart`, `widgets/picker_locale.dart` (intl names and the runtime clock, which render may not import); deletes `showDatePicker`/`showTimePicker` use in `widgets/inputs.dart` | built (`test/controls/pickers_test.dart`, `pickers_reference_test.dart`) | picker as an overlay entry (popover on wide, sheet on narrow), keyboard navigation of the grid, locale first weekday, value write-back |
 | H | dialogs, drawers, bottom sheets, toasts, tooltips beyond the behavior, `confirm` | `render/controls/{dialog,sheet,toast}.dart`; rewrites `runtime/actions/{ui,toast,confirm_dialog,feedback_theme}.dart` on overlay entries | L | barrier and dismiss, focus trapped in the dialog and returned on close, Escape, toast stacking and timing, SSUI Dialog reference |
 | I | `circularProgressIndicator`, `activityIndicator`, progress bars | `widgets/indicators.dart` (`_circularProgressIndicator`, `_activityIndicator`) to painters; drops `cupertino.dart` | S | spinner on the tree's ticker, indeterminate animation, no Cupertino import |
 | J | the app shell: screens, routes, modals, back, hero flights, page transitions | `render/controls/screens.dart`; rewrites `app/{codelessly_widget,presenter,page_transitions,overlay_screens,backdrop_screens,back_guard}.dart`, `runtime/actions/{hero_flights,route_transition,presentation_route,presentation_scope}.dart` | XL | navigate push/replace/pop/reset, URL sync on web (host-provided), modal over screen, system back, hero flight between screens, route transitions as before, all existing `test/actions/navigation_test.dart`, `modals_test.dart`, `app/routing_test.dart` green |
