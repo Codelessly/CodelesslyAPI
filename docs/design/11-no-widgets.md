@@ -195,9 +195,9 @@ for; WS-L rewrites the component files as expansions and the gallery renders bot
 
 **How the work avoids conflicts.** No workstream edits another's files. The shared touchpoints are pre-made:
 
-- `lib/src/render/controls/registry.dart` spreads one map per family (`buttonRecipes`, `textFieldRecipes`, ...),
-  each defined in that family's own file; `widgets/registry.dart` spreads `controlRecipes` **after** the island
-  maps, so a family's render-object recipe replaces the island recipe for its types by being added, not by editing
+- `lib/src/widgets/controls.dart` holds one map per family (`buttonRecipes` today; each family adds one line and a
+  map of its recipes, which live in `render/controls/<family>.dart`); `widgets/registry.dart` spreads
+  `controlRecipes` **after** the island maps, so a family's render-object recipe replaces the island recipe for its types by being added, not by editing
   `inputs.dart` or `material.dart`. The dead island code is deleted by the owner in a final commit that touches only
   their own functions (or by WS-K).
 - The kit (`kit.dart`), focus (`focus.dart`), overlay (`overlay.dart`) and tokens (`tokens.dart`) are owned by
@@ -209,7 +209,7 @@ for; WS-L rewrites the component files as expansions and the gallery renders bot
 
 | WS | Controls | Owns (new unless marked) | Size | Acceptance tests |
 |---|---|---|---|---|
-| 0 | kit, focus, overlay, tokens, root, **buttons** | `render/controls/{kit,focus,overlay,tokens,ssui_defaults.g,root,buttons,registry}.dart`, `tool/controls/bundle_ssui.dart`, `test/controls/{kit,focus,overlay,root,buttons}_test.dart` | done | section 8 |
+| 0 | kit, focus, overlay, tokens, root, **buttons** | `render/controls/{kit,focus,overlay,tokens,ssui_defaults.g,root,buttons}.dart`, `widgets/controls.dart`, `tool/controls/bundle_ssui.dart`, `test/controls/{root,direct_attach,buttons,ssui_reference,tokens}_test.dart` | done | section 10 |
 | A | `textField` (+ `signature` stays an island until A ends) | `render/controls/{editable,text_field,field_frame}.dart`, `test/controls/text_field_test.dart`; deletes `_TextFieldIsland` and its helpers in `widgets/inputs.dart` | XL (3–4 weeks) | typing, IME composition (a fake `TextInput` channel), selection by tap/drag/keys, handles and toolbar as overlay entries, clipboard, undo/redo, autofill group, obscure, `maxLength`, `submitted`/`changed`, `focus`/`editText` actions, label above (never floating), error text and red from tokens, label centred (guard), semantics, SSUI reference match |
 | B | `dropdown`, menus (`popupMenu` and the select list), the field frame shared with A | `render/controls/{dropdown,menu}.dart`; deletes `_DropdownIsland` | L | opens an overlay menu anchored under the field; keyboard (arrows, type-ahead, Enter, Escape); the value's label centred; no Material arrow or card; SSUI Select reference |
 | C | `chip`, `actionChip`, `choiceChip`, `filterChip`, `inputChip`, `badge` | `render/controls/chips.dart`; deletes `_chip`, `_ChipIsland`, `_ContentWidth` in `widgets/material.dart` | M | the check mark never resizes the chip (reserved), delete icon, selected via prop, label centred, SSUI Chip/Badge |
@@ -290,11 +290,22 @@ theme keep their colours.
 | `outlinedButton` | outline | transparent / `onSurface` | 1 px `primaryBorder` (`secondaryBorder` hovered) | |
 | `textButton` | ghost | transparent / `onSurface` | none | |
 | `iconButton` | IconButton ghost | transparent / `secondaryText` (`onSurface` hovered) | none | square of the height; icon 14 at 28 |
-| `floatingActionButton` | (none in SSUI) primary, floating | `primary` / `onPrimary` | none | `shadows.level3`; radius `radii.dialog` (12; small 8); regular 56, small 40, large 96, extended 56 high |
+| `floatingActionButton` | (none in SSUI) primary, floating | `primary` / `onPrimary` | none | `shadows.level3`; radius `radii.dialog` (12; small `radii.panel` 8; large 18); icon 24 (large 36); its box is its design size as before |
 
 States: hover and press are SSUI's overlays (`hoverOverlay`, `pressedOverlay`; on filled surfaces black 8 %/16 % in
-light, white 12 %/20 % in dark, as SSUI's buttons), focus is the 1.5 px `focusBorder` ring, disabled is 50 %
+light, white 12 %/20 % in dark, as SSUI's buttons), focus is the 1.5 px `focusBorder` ring drawn as a stroke outside
+the shape (SSUI's widget paints it as a spread shadow, which also tints a ghost button's inside), disabled is 50 %
 opacity, **selected** (a bound `selected`, as Flutter's `statesController`) is `activeTint` with `primary` ink on the
-non-filled kinds. Every `style` field and the node's `states` patches still apply over these. Size changes in the
-parity goldens and the before/after renders are listed in the SDK's CHANGELOG and
-`design_systems/ssui/examples/renders/m3/README.md`.
+non-filled kinds. Every `style` field and the node's `states` patches still apply over these; a node's own padding
+sets the horizontal padding and, when its vertical padding is larger than the step, the hugging height. Proof:
+`test/controls/ssui_reference_test.dart` rebuilds SSUI's reference page from zero-prop core nodes and matches it to
+0.06 % (light) and 0.04 % (dark) of the pixels; before/after renders are in
+`design_systems/ssui/examples/renders/m3`. Size changes in the parity goldens are listed in the SDK's CHANGELOG.
+
+**Where the first task stopped.** Built: the doc; the kit, focus scope and keyboard, semantics for buttons, the
+overlay layer with the tooltip, SSUI's tokens as data, the root with the adapter and the whole-app attach proven
+against the test view; all six button types; the ratchet (60 files). Not built: state transitions are instant (no
+150 ms ease yet), a Tab from the last render control does not reach an island (section 9), the root's metrics and
+screen stack, a `main()` with no widget. The button path's own files import no widget library, but
+`render/node_tree.dart` (which every recipe imports) still imports `widgets.dart` for the island hook
+(`NodeBuilder.island`); that goes with WS-K.
