@@ -1,5 +1,10 @@
 ## Unreleased
 
+- **An expression written where a plain value goes is bound, not rejected.** `"radius": "${theme.radii.panel}"`,
+  `"visible": "${step > 0}"`, a non-text prop: `applyOps` moves it into the node's `bind` under the field's path
+  and reports `expression_bound` (a note, with the binding written). A path already bound keeps its binding; text
+  props read expressions as written and are left alone. `strictEditCheck` passes `ValidateOptions.level` through.
+
 - **Levels of the vocabulary** (`docs/design/12-agent-first-flutter.md`). `lib/src/core/levels.dart` (internal,
   not exported) gives every node type, action, data source, behavior and trigger a level: core, widgets, state,
   design, full, features. `catalogAtLevel` cuts a catalog to a level, `levelOf` and `levelUses` read a document's,

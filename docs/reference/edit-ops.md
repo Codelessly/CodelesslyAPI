@@ -112,6 +112,7 @@ batch of ops; every change after it is a few more.
 | `unknown_variable` | no (a warning) | A vars op that sets (or removes) a variable the scope does not declare: declare it with a full variable object. |
 | `malformed_input` | no (a warning) | The tool input's JSON was not well formed at a character offset (a stray or missing brace or bracket, a trailing or missing comma, an op that began before the previous one closed): the decoder repaired it and read the ops around it. Write balanced JSON: one closing brace per opening brace. |
 | `misplaced_field` | no (a warning) | A node field ("bind", "props", "actions"...) written on a set op instead of inside its "node": it was moved into the node. |
+| `expression_bound` | no (a warning) | An expression written where a plain value goes ("radius": "${theme.radii.panel}", "visible": "${step > 0}"): it was moved into the node's "bind" under the field's path, which is where to write it. |
 | `start_over` | yes | A batch that rebuilds a UI that already exists (new roots, a new canvas) instead of patching it: fix the existing document with patch, set (same ids) and remove; never start over. |
 | `empty_button` | no (a warning) | A node that reacts to a tap but shows nothing (a box, row or column with no children): a button with no label. |
 | `dead_control` | no (a warning) | A button (a core button, or a component named ...Button with an onPressed event) with no reaction and not disabled: pressing it does nothing. |

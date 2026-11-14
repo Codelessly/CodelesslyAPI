@@ -805,7 +805,7 @@ section's anchor is its topic.
 | [media.md](#page-media) | The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images. | 1998 |
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
-| [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3542 |
+| [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3020 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13299 |
 
@@ -10360,6 +10360,7 @@ batch of ops; every change after it is a few more.
 | `unknown_variable` | no (a warning) | A vars op that sets (or removes) a variable the scope does not declare: declare it with a full variable object. |
 | `malformed_input` | no (a warning) | The tool input's JSON was not well formed at a character offset (a stray or missing brace or bracket, a trailing or missing comma, an op that began before the previous one closed): the decoder repaired it and read the ops around it. Write balanced JSON: one closing brace per opening brace. |
 | `misplaced_field` | no (a warning) | A node field ("bind", "props", "actions"...) written on a set op instead of inside its "node": it was moved into the node. |
+| `expression_bound` | no (a warning) | An expression written where a plain value goes ("radius": "${theme.radii.panel}", "visible": "${step > 0}"): it was moved into the node's "bind" under the field's path, which is where to write it. |
 | `start_over` | yes | A batch that rebuilds a UI that already exists (new roots, a new canvas) instead of patching it: fix the existing document with patch, set (same ids) and remove; never start over. |
 | `empty_button` | no (a warning) | A node that reacts to a tap but shows nothing (a box, row or column with no children): a button with no label. |
 | `dead_control` | no (a warning) | A button (a core button, or a component named ...Button with an onPressed event) with no reaction and not disabled: pressing it does nothing. |
