@@ -212,7 +212,13 @@ Card
     expect((accordion['children'] as List).length, 2, reason: 'its header text, then its content');
     final tile = _node(r, 'listTile1');
     expect((tile['slots'] as Map).keys.toSet(), {'leading', 'title', 'subtitle'});
-    expect((_node(r, 'gridView1')['props'] as Map)['crossAxisCount'], 3);
+    // A Grid of written children is rows of equal cells; the last row is filled out.
+    final grid = _node(r, 'grid1');
+    expect(grid['type'], 'column');
+    expect(grid['children'], ['grid1Row1']);
+    final row = _node(r, 'grid1Row1');
+    expect((row['children'] as List).length, 3, reason: 'one cell written, two empty cells to keep its width');
+    expect((_node(r, (row['children'] as List).first as String)['layout'] as Map)['flex'], 1);
     expect((_node(r, 'progressBar1')['props'] as Map)['value'], 0.4);
     expect((_node(r, 'checkbox1')['bind'] as Map)['props.value'], r'${= qty>1}');
   });

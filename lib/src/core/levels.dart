@@ -72,11 +72,12 @@ const Map<String, Level> widgetLevels = {
   'accordion': _w, 'expansionTile': _w, 'tabs': _w, 'tabBar': _w, 'appBar': _w, 'navigationBar': _w,
   'bottomNavigationBar': _w, 'modal': _w, 'circularProgressIndicator': _w, 'activityIndicator': _w,
   'progressBar': _w, 'pageView': _w, 'pagination': _w, 'tableView': _w,
+  // The two charts a summary card needs, each drawn from a list of values.
+  'barChart': _w, 'lineChart': _w,
   // Design systems: a component's variants and the place its caller fills.
   'variance': _d, 'slot': _d,
   // Full vocabulary: drawing, data pictures, media, embeds.
-  'path': _f, 'signature': _f, 'radialGauge': _f, 'gaugeMeter': _f, 'chart': _f, 'plotChart': _f, 'barChart': _f,
-  'lineChart': _f, 'barcode': _f, 'external': _f, 'video': _f, 'embeddedVideo': _f, 'audioPlayer': _f,
+  'path': _f, 'signature': _f, 'radialGauge': _f, 'gaugeMeter': _f, 'chart': _f, 'plotChart': _f, 'barcode': _f, 'external': _f, 'video': _f, 'embeddedVideo': _f, 'audioPlayer': _f,
   'webView': _f,
 };
 
