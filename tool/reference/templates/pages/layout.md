@@ -197,7 +197,10 @@ A screen scrolls only if something in it scrolls. Make the canvas's body column 
 true}` with `{"fill": n}` width and height. Without it, content past the bottom of the screen is cut off
 (`offscreen`). Inside a scrolling column, a child cannot `fill` the scrolling axis. Rows scroll sideways with
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
-giving one; `"axis": "horizontal"` moves only sideways scroll views).
+giving one; `"axis": "horizontal"` moves only sideways scroll views), or one item of a list (`"item"`: its key or
+index). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item at
+the start `${result.index}`): store it for a header that condenses or a progress bar. Arrows, dots and snapping:
+[a carousel](@lists-a-carousel-pages-and-pagination).
 
 {{example:scrolling}}
 

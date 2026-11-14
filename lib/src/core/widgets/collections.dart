@@ -15,6 +15,7 @@ import '../values/enums.dart';
 import '../values/geometry.dart';
 import '../values/text.dart';
 import 'collections_models.dart';
+import 'scroll.dart' show ScrollProps;
 
 export 'collections_models.dart';
 
@@ -110,9 +111,12 @@ abstract final class CollectionScrollProps {
   /// "paging", "loadRelated", "statusVariable"}`). Runtime only.
   static const query = PropDef<Json>('query', _json, {});
 
+  /// Comes to rest with an item at the start of the view.
+  static const itemSnapping = ScrollProps.itemSnapping;
+
   static const List<PropDef<Object?>> all = [
     scrollDirection, reverse, physics, alwaysScroll, primary, keyboardDismissBehavior, clipBehavior, //
-    itemCount, cacheExtent, query,
+    itemCount, cacheExtent, query, itemSnapping,
   ];
 }
 

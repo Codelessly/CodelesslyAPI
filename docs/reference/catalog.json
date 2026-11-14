@@ -286,6 +286,14 @@
           "doc": ""
         },
         {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
           "key": "fit",
           "type": "BoxFit",
           "kind": "enumeration",
@@ -477,6 +485,14 @@
           "doc": ""
         },
         {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
           "key": "fillViewport",
           "type": "bool",
           "kind": "boolean",
@@ -635,6 +651,14 @@
             "antiAliasWithSaveLayer"
           ],
           "doc": ""
+        },
+        {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
         },
         {
           "key": "fillViewport",
@@ -808,6 +832,14 @@
             "antiAliasWithSaveLayer"
           ],
           "doc": ""
+        },
+        {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
         },
         {
           "key": "fillViewport",
@@ -1169,6 +1201,14 @@
           "doc": "Where the items come from in a running app: a cloud query (`{\"collectionPath\", \"limit\", \"whereFilters\", \"orderByFilters\", \"paging\", \"loadRelated\", \"statusVariable\"}`). Runtime only."
         },
         {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
           "key": "scrollable",
           "type": "bool",
           "kind": "boolean",
@@ -1513,6 +1553,14 @@
           "default": {},
           "nullable": false,
           "doc": "Where the items come from in a running app: a cloud query (`{\"collectionPath\", \"limit\", \"whereFilters\", \"orderByFilters\", \"paging\", \"loadRelated\", \"statusVariable\"}`). Runtime only."
+        },
+        {
+          "key": "itemSnapping",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
         },
         {
           "key": "crossAxisCount",
@@ -12244,13 +12292,13 @@
       },
       {
         "type": "scroll",
-        "doc": "The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page).",
+        "doc": "The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show.",
         "group": "other",
         "docs": "layout.md#trigger-scroll"
       },
       {
         "type": "scrollEnd",
-        "doc": "",
+        "doc": "The node stopped scrolling; `${result}` as for `scroll`.",
         "group": "other",
         "docs": "layout.md#trigger-scrollEnd"
       },
@@ -24440,11 +24488,11 @@
       },
       {
         "value": "scroll",
-        "doc": "The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page)."
+        "doc": "The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show."
       },
       {
         "value": "scrollEnd",
-        "doc": ""
+        "doc": "The node stopped scrolling; `${result}` as for `scroll`."
       },
       {
         "value": "enterViewport",

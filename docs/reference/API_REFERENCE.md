@@ -576,7 +576,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | Nested lists; the outer item inside the inner list (`parent`) | [lists-nested-lists](#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists-a-table-from-one-template](#lists-a-table-from-one-template) |
 | A weekly grid (days × habits) | [lists-a-weekly-grid](#lists-a-weekly-grid) |
-| A carousel; long lists loaded in pages | [lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
+| A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | [lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
 | Several screens; a page's URL path | [navigation-screens](#navigation-screens) |
 | Go to a screen with parameters, and back | [navigation-going-to-a-screen-and-back](#navigation-going-to-a-screen-and-back) |
 | A dialog, a bottom sheet, a popover, a toast, a confirmation | [navigation-modals-and-toasts](#navigation-modals-and-toasts) |
@@ -703,7 +703,7 @@ section's anchor is its topic.
 | Nested lists; the outer item inside the inner list (`parent`) | [lists.md#lists-nested-lists](#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists.md#lists-a-table-from-one-template](#lists-a-table-from-one-template) |
 | A weekly grid (days × habits) | [lists.md#lists-a-weekly-grid](#lists-a-weekly-grid) |
-| A carousel; long lists loaded in pages | [lists.md#lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
+| A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | [lists.md#lists-a-carousel-pages-and-pagination](#lists-a-carousel-pages-and-pagination) |
 | Several screens; a page's URL path | [navigation.md#navigation-screens](#navigation-screens) |
 | Go to a screen with parameters, and back | [navigation.md#navigation-going-to-a-screen-and-back](#navigation-going-to-a-screen-and-back) |
 | A dialog, a bottom sheet, a popover, a toast, a confirmation | [navigation.md#navigation-modals-and-toasts](#navigation-modals-and-toasts) |
@@ -751,13 +751,13 @@ section's anchor is its topic.
 | Page | What it covers | Words |
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4408 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8585 |
+| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8827 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2092 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3541 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11422 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6111 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6857 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6395 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6468 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5179 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4483 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2383 |
@@ -770,7 +770,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2363 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13248 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13286 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -1079,6 +1079,7 @@ Flutter `Row`.
 | `physics` | [ScrollPhysicsType](#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-column"></a>
@@ -1106,6 +1107,7 @@ Flutter `Column`.
 | `physics` | [ScrollPhysicsType](#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-flex"></a>
@@ -1134,6 +1136,7 @@ Flutter `Flex`.
 | `physics` | [ScrollPhysicsType](#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-stack"></a>
@@ -1155,6 +1158,7 @@ A freeform container: children placed by `layout.x`/`layout.y` (Flutter `Stack` 
 | `physics` | [ScrollPhysicsType](#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fit` | [BoxFit](#enum-BoxFit) | unset | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | Scale the board (its design size) into the box: contain, cover, scaleDown... |
 | `fitAlignment` | [Alignment](#type-Alignment) | `[0,0]` |  | Where a `fit` board sits in its box. |
 
@@ -1281,8 +1285,8 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 
 | Trigger | When it fires |
 |---|---|
-| <a id="trigger-scroll"></a>`scroll` | The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page). |
-| <a id="trigger-scrollEnd"></a>`scrollEnd` |  |
+| <a id="trigger-scroll"></a>`scroll` | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show. |
+| <a id="trigger-scrollEnd"></a>`scrollEnd` | The node stopped scrolling; `${result}` as for `scroll`. |
 | <a id="trigger-enterViewport"></a>`enterViewport` | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | <a id="trigger-exitViewport"></a>`exitViewport` |  |
 
@@ -2034,7 +2038,10 @@ A screen scrolls only if something in it scrolls. Make the canvas's body column 
 true}` with `{"fill": n}` width and height. Without it, content past the bottom of the screen is cut off
 (`offscreen`). Inside a scrolling column, a child cannot `fill` the scrolling axis. Rows scroll sideways with
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
-giving one; `"axis": "horizontal"` moves only sideways scroll views).
+giving one; `"axis": "horizontal"` moves only sideways scroll views), or one item of a list (`"item"`: its key or
+index). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item at
+the start `${result.index}`): store it for a header that condenses or a progress bar. Arrows, dots and snapping:
+[a carousel](#lists-a-carousel-pages-and-pagination).
 
 ```json
 {
@@ -4314,6 +4321,7 @@ Flutter `ListView`: its first child repeated per item.
 | `itemCount` | int | unset |  | The number of items; null repeats the item without end (or one per value of the bound `data`). |
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `scrollable` | bool | `true` |  | False builds every item without a viewport when the count is known and the list hugs its items (or stretches them across a cross axis it hugs). |
 | `itemExtent` | double | unset | ≥ 0 | Each item's extent along the scroll direction. |
 | `separator` | [ListSeparator](#enum-ListSeparator) | `"none"` | `none`, `space`, `divider` |  |
@@ -4361,6 +4369,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `itemCount` | int | unset |  | The number of items; null repeats the item without end (or one per value of the bound `data`). |
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `crossAxisCount` | int | `2` | ≥ 1 | A fixed number of columns (of rows when the grid scrolls sideways). For as many columns as fit, use `minCrossAxisExtent` instead. |
 | `maxCrossAxisExtent` | double | unset | ≥ 0 |  |
 | `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
@@ -4827,6 +4836,188 @@ A tap on a day flips it in the habit's record (`setAt` and `set` build the new l
 A `pageView` shows one item (or child) per page and swipes between them (`viewportFraction` below 1 shows the
 neighbours' edges; `initialPage`). Long lists that load in pages: the list's `pagination` settings, with a
 `pagination` control or the `paginate` action to move between pages.
+
+A rail of cards with arrows, dots and a progress bar is a horizontal `listView` (or scrolling `row`):
+
+- `"itemSnapping": true` makes a drag or fling come to rest with a card at the start of the view (CSS
+  `scroll-snap-align: start`; Flutter's `PageView.pageSnapping`, for items).
+- Its `scroll` reaction gives `${result.index}` (the card at the start; the last at the end), `${result.count}`,
+  `${result.offset}` and `${result.fraction}` (0–1): store them in variables the controls bind.
+- An arrow is `{"type": "scrollTo", "node": "<item template>", "item": "${= current + 1}"}`: `item` is the key or
+  the index of the card to bring to the start (`alignment` 0; 0.5 centres it). A dot scrolls to its own `${index}`.
+  For a scrolling `row` of fixed children, name the child: `"node": "card${= current + 1}"`.
+
+The same pattern moves a horizontal timeline from its year buttons, or a featured-routes carousel from its dots:
+
+```json
+{
+  "schema": 3,
+  "roots": ["shop"],
+  "nodes": {
+    "shop": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 390, "height": 520},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["header", "rail", "footer"],
+      "layout": {"width": {"fill": 390}, "height": {"fill": 520}, "padding": [20, 24, 20, 24]},
+      "props": {"spacing": 16, "crossAxisAlignment": "start"}
+    },
+    "header": {
+      "type": "row",
+      "children": ["heading", "arrows"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 40}},
+      "props": {"mainAxisAlignment": "spaceBetween"}
+    },
+    "heading": {
+      "type": "text",
+      "layout": {"width": {"hug": 160}, "height": {"hug": 28}},
+      "props": {"text": "New arrivals", "style": {"fontSize": 22, "fontWeight": 700, "color": "#FF111827"}}
+    },
+    "arrows": {
+      "type": "row",
+      "children": ["prev", "next"],
+      "layout": {"width": {"hug": 96}, "height": 40},
+      "props": {"spacing": 8}
+    },
+    "prev": {
+      "type": "iconButton",
+      "layout": {"width": 40, "height": 40},
+      "props": {"icon": "chevron_left"},
+      "bind": {"props.enabled": "${= current > 0}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "scrollTo",
+              "node": "card",
+              "item": "${= current - 1}",
+              "axis": "horizontal",
+              "durationMs": 300
+            }
+          ]
+        }
+      ]
+    },
+    "next": {
+      "type": "iconButton",
+      "layout": {"width": 40, "height": 40},
+      "props": {"icon": "chevron_right"},
+      "bind": {"props.enabled": "${= current < length(products) - 1}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [
+            {
+              "type": "scrollTo",
+              "node": "card",
+              "item": "${= current + 1}",
+              "axis": "horizontal",
+              "durationMs": 300
+            }
+          ]
+        }
+      ]
+    },
+    "rail": {
+      "type": "listView",
+      "children": ["card"],
+      "layout": {"width": {"fill": 350}, "height": 300},
+      "props": {"scrollDirection": "horizontal", "spacing": 16, "itemSnapping": true},
+      "bind": {"data": "${products}"},
+      "actions": [
+        {
+          "trigger": {"type": "scroll"},
+          "actions": [
+            {"type": "setVariable", "variable": "current", "value": "${result.index}"},
+            {"type": "setVariable", "variable": "progress", "value": "${result.fraction}"}
+          ]
+        }
+      ]
+    },
+    "card": {
+      "type": "column",
+      "children": ["cardArt", "cardName", "cardPrice"],
+      "layout": {"width": 240, "height": {"fill": 300}},
+      "props": {"spacing": 6, "crossAxisAlignment": "start"}
+    },
+    "cardArt": {
+      "type": "box",
+      "layout": {"width": {"fill": 240}, "height": 220},
+      "decoration": {"fills": [{"color": "#FFE7E5E4"}], "radius": 8},
+      "bind": {"decoration.fills[0].color": "${item.color}"}
+    },
+    "cardName": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 20}},
+      "props": {"text": "${item.name}", "style": {"fontSize": 15, "fontWeight": 600, "color": "#FF111827"}}
+    },
+    "cardPrice": {
+      "type": "text",
+      "layout": {"width": {"fill": 240}, "height": {"hug": 20}},
+      "props": {"text": "$${item.price}", "style": {"fontSize": 14, "color": "#FF4B5563"}}
+    },
+    "footer": {
+      "type": "row",
+      "children": ["dots", "track"],
+      "layout": {"width": {"fill": 350}, "height": {"hug": 10}},
+      "props": {"spacing": 16}
+    },
+    "dots": {
+      "type": "listView",
+      "children": ["dot"],
+      "layout": {"width": {"hug": 90}, "height": 8},
+      "props": {"scrollDirection": "horizontal", "scrollable": false, "spacing": 6},
+      "bind": {"data": "${products}"}
+    },
+    "dot": {
+      "type": "box",
+      "layout": {"width": 8, "height": {"fill": 8}},
+      "decoration": {"fills": [{"color": "#FFD1D5DB"}], "shape": "circle"},
+      "bind": {"decoration.fills[0].color": "${= index == current ? '#FF111827' : '#FFD1D5DB'}"},
+      "actions": [
+        {
+          "trigger": {"type": "click"},
+          "actions": [{"type": "scrollTo", "node": "card", "item": "${index}", "axis": "horizontal", "durationMs": 300}]
+        }
+      ]
+    },
+    "track": {
+      "type": "stack",
+      "children": ["trackFill"],
+      "layout": {"width": {"fill": 200}, "height": 4},
+      "decoration": {"fills": [{"color": "#FFE5E7EB"}], "radius": 2}
+    },
+    "trackFill": {
+      "type": "box",
+      "layout": {"width": 0, "height": 4},
+      "decoration": {"fills": [{"color": "#FF111827"}], "radius": 2},
+      "bind": {"layout.widthFactor": "${progress}"}
+    }
+  },
+  "variables": {
+    "shop": [
+      {"name": "current", "type": "integer", "value": 0},
+      {"name": "progress", "type": "decimal", "value": 0},
+      {
+        "name": "products",
+        "type": "list",
+        "value": [
+          {"name": "Linen apron", "price": 48, "color": "#FFD6CFC4"},
+          {"name": "Moss bowl", "price": 36, "color": "#FFB7C4A1"},
+          {"name": "Oak board", "price": 72, "color": "#FFC9A27E"},
+          {"name": "Clay cup", "price": 22, "color": "#FFE3B5A4"},
+          {"name": "Wool throw", "price": 120, "color": "#FFA9B4C2"}
+        ]
+      }
+    ]
+  }
+}
+```
 
 <a id="lists-pitfalls"></a>
 ## Pitfalls
@@ -5507,7 +5698,11 @@ Types:
 `${= formula}` computes one: arithmetic (`+ - * / %`), comparisons (`== != < <= > >=`), `&&`, `||`, `!`,
 `cond ? a : b`, literals (`'text'`, `3.5`, `true`, `null`, lists `[1, 2]`), and lambdas for list functions
 (`x => x.price`). A text that is exactly one expression gives its value with its type; inside other text a number is
-printed without trailing zeros. Names an expression may start with, besides the variables: `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`, `form`.
+printed without trailing zeros. Names an expression may start with, besides the variables: `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`, `form`. The
+names a node gives the nodes inside it are read there only: `item`, `index`, `parent` in a list's item; `pageOffset`
+in a `pageView`'s page (its distance from the current page, for parallax; not the page's scroll); `form` inside a
+`form`; `track`, `sticky`, `view` and the like inside their node. A page's or a list's scroll position is its `scroll`
+reaction's `${result.offset}` (and `index`, `fraction`), stored in a variable that anything may bind.
 
 <a id="state-binding-paths"></a>
 ### Binding paths
@@ -11187,8 +11382,8 @@ Written as the value's name, a JSON string (`"center"`).
 | `frame` | Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks. |
 | `keyDown` | A key went down (or up) while the screen shows; `Trigger.key` limits it to one key or combination, `Trigger.when` to while a formula holds. `${result.key}`, `${result.shift}`, `${result.alt}`, `${result.meta}`. |
 | `keyUp` |  |
-| `scroll` | The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page). |
-| `scrollEnd` |  |
+| `scroll` | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show. |
+| `scrollEnd` | The node stopped scrolling; `${result}` as for `scroll`. |
 | `enterViewport` | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | `exitViewport` |  |
 | `dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
