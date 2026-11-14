@@ -159,7 +159,7 @@ abstract final class TextFieldProps {
   /// composed the text is drawn plain.
   static const runs = PropDef<List<TextRun>>('runs', Codecs.textRuns, []);
 
-  static const spec = WidgetSpec('textField', props: [
+  static const spec = WidgetSpec('textField', hugs: true, props: [
     initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, //
     textInputAction, textCapitalization, autocorrect, autofocus, enableInteractiveSelection, enabled, obscureText,
     obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength,
@@ -205,7 +205,7 @@ abstract final class CheckboxProps {
   /// reader. Empty: the bare control.
   static const label = PropDef<String>('label', Codecs.string, '');
 
-  static const spec = WidgetSpec('checkbox', props: [
+  static const spec = WidgetSpec('checkbox', hugs: true, props: [
     label, value, tristate, autofocus, checkColor, activeColor, hoverColor, focusColor, splashRadius, borderRadius, side, //
     activeSide, fillColor, compact,
   ], doc: 'Flutter `Checkbox`.');
@@ -286,7 +286,7 @@ abstract final class SwitchProps {
   /// reader. Empty: the bare control.
   static const label = PropDef<String>('label', Codecs.string, '');
 
-  static const spec = WidgetSpec('switch', props: [
+  static const spec = WidgetSpec('switch', hugs: true, props: [
     label, enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
     fillTrack, thumbShadows, thumbInset, activeThumbBorderColor, inactiveThumbBorderColor, thumbBorderWidth,
@@ -325,7 +325,7 @@ abstract final class RadioProps {
   /// reader. Empty: the bare control.
   static const label = PropDef<String>('label', Codecs.string, '');
 
-  static const spec = WidgetSpec('radio', props: [
+  static const spec = WidgetSpec('radio', hugs: true, props: [
     label, value, groupValue, toggleable, autofocus, activeColor, inactiveColor, hoverColor, focusColor, splashRadius, side, //
     innerRadius, backgroundColor, compact,
   ], doc: 'Flutter `Radio`.');
@@ -458,7 +458,7 @@ abstract final class SliderProps {
   static const selectableMin = PropDef<double?>('selectableMin', Codecs.double, null);
   static const selectableMax = PropDef<double?>('selectableMax', Codecs.double, null);
 
-  static const spec = WidgetSpec('slider', props: [
+  static const spec = WidgetSpec('slider', hugs: true, props: [
     value, min, max, divisions, label, labelFractionDigits, autofocus, secondaryTrackValue, padding, trackHeight, //
     activeTrackColor, inactiveTrackColor, secondaryActiveTrackColor, thumbColor, overlayColor, activeTickMarkColor,
     inactiveTickMarkColor, valueIndicatorColor, valueIndicatorTextStyle, showValueIndicator, valueIndicatorShape,
@@ -536,7 +536,7 @@ abstract final class DropdownProps {
   /// "checkColor", "checkSize"}`.
   static const menuStyle = PropDef<Json?>('menuStyle', InputCodecs.json, null);
 
-  static const spec = WidgetSpec('dropdown', props: [
+  static const spec = WidgetSpec('dropdown', hugs: true, props: [
     items, value, enabled, isDense, isExpanded, autofocus, enableFeedback, style, itemAlignment, selectedItemStyle, //
     alignment, hint, hintStyle, iconDisabledColor, iconEnabledColor, iconSize, icon, dropdownColor, focusColor,
     hoverColor, splashColor, elevation, borderRadius, underline, useDataSource, itemLabel, itemImage, itemImageSize,
@@ -579,7 +579,7 @@ abstract final class DatePickerProps {
   static const firstDate = PropDef<String?>('firstDate', Codecs.string, null);
   static const lastDate = PropDef<String?>('lastDate', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
-  static const spec = WidgetSpec('datePicker',
+  static const spec = WidgetSpec('datePicker', hugs: true,
       props: [value, firstDate, lastDate, enabled, ...PickerFieldProps.all], doc: 'Flutter `showDatePicker` button or field.');
 }
 
@@ -592,7 +592,7 @@ abstract final class TimePickerProps {
   /// The picker's dial and fields in 24-hour time (Flutter's
   /// `MediaQueryData.alwaysUse24HourFormat`, which the picker reads).
   static const alwaysUse24HourFormat = PropDef<bool>('alwaysUse24HourFormat', Codecs.bool, false);
-  static const spec = WidgetSpec('timePicker',
+  static const spec = WidgetSpec('timePicker', hugs: true,
       props: [value, enabled, alwaysUse24HourFormat, ...PickerFieldProps.all], doc: 'Flutter `showTimePicker` button or field.');
 }
 
@@ -648,7 +648,7 @@ abstract final class DateTimeInputProps {
   static const picker = PropDef<DateTimeInputPicker>(
       'picker', EnumCodec(DateTimeInputPicker.values), DateTimeInputPicker.dialog);
 
-  static const spec = WidgetSpec('dateTimeInput',
+  static const spec = WidgetSpec('dateTimeInput', hugs: true,
       props: [
         mode, value, labelText, firstDate, lastDate, min, max, enabled, format, style, hint, hintStyle, icon, bare,
         decoration, displayText, picker,
@@ -722,7 +722,7 @@ abstract final class SegmentedButtonProps {
   /// each segment fills in place.
   static const slidingThumb = PropDef<bool>('slidingThumb', Codecs.bool, false);
 
-  static const spec = WidgetSpec('segmentedButton', props: [
+  static const spec = WidgetSpec('segmentedButton', hugs: true, props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
     padding, segmentHeight, expanded, shrinkTapTarget, variant, trackPadding, selectedShadows, slidingThumb,
