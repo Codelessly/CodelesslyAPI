@@ -95,6 +95,7 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'List': (type: 'listView', node: {}),
   // A grid of the children written under it: rows of `cols` equal cells.
   'Grid': (type: 'column', node: {}),
+  'GridView': (type: 'column', node: {}),
   'Image': (type: 'box', node: {}),
   'Box': (type: 'column', node: {}),
   'Card': (type: 'column', node: {}),
@@ -374,13 +375,17 @@ class _Parser {
       // A list over the data, its item a column of the lines under it.
       final g = parent.grid;
       final listId = _id(g != null ? 'gridView' : 'listView'), itemId = '${listId}Item';
+      // In a row the copies go across, each at its own width.
+      final across = g == null && parent.type == 'row';
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
-        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
             ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
-            : {'scrollable': false},
+            : across
+                ? {'scrollable': false, 'scrollDirection': 'horizontal', 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0}
+                : {'scrollable': false, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0},
         'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
         'children': <Object?>[itemId],
       };
@@ -389,8 +394,8 @@ class _Parser {
       _parentOf[listId] = parent.id;
       nodes[itemId] = {
         'type': 'column',
-        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'crossAxisAlignment': 'start'},
+        'layout': across ? {'width': {'hug': 0}, 'height': {'fill': 0}} : {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'crossAxisAlignment': 'start', if (across) 'mainAxisAlignment': 'center'},
       };
       _parentOf[itemId] = listId;
       _stack.add(_Open(indent, itemId, 'column', each: each[1]));
@@ -445,8 +450,8 @@ class _Parser {
       decoration.addAll(_copy(readMap(options.card['decoration']) ?? const {}));
       layout.addAll(_copy(readMap(options.card['layout']) ?? const {}));
     }
-    final id = head[3] ?? _id(written == 'Grid' ? 'grid' : type);
-    final grid = written == 'Grid' ? _Grid(id) : null;
+    final id = head[3] ?? _id((written == 'Grid' || written == 'GridView') ? 'grid' : type);
+    final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
     if (grid != null) props['spacing'] = grid.gap;
     if (nodes.containsKey(id) || id == options.screen) {
       _issue(column, 'The id "$id" is used twice.');
