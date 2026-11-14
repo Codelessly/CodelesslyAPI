@@ -275,7 +275,48 @@ its default styles, in Chromium at 390 wide. The harness is `examples/stream_cha
 
 Not compared: A2UI's Angular and Flutter GenUI renderers, or its renderer with a host's own styles and Markdown.
 
-## 12. Open points
+## 12. A design system's components
+
+With a design system, the notation calls its components by their own names. The parser is given the design system's
+catalog and options (`ds.catalogOver(catalog)`, `NotationOptions.fromDesignSystem(ds)`), the prompt its list
+(`notationPrompt(designSystem: ds)`, narrowed with `only` when a chat needs a dozen and not all 160):
+
+```
+state seats=2
+state plan="Pro"
+Column gap:12 pad:16
+  Row gap:8 middle
+    Avatar name:"Ada Lovelace"
+    StatusBadge "Active" tone:success
+  Stepper =seats min:1 max:9
+  TabToggle options:["Free","Pro"] =plan
+  Panel "Billing" subtitle:"Plan and invoices"
+    Text.muted "You are on the {plan} plan with {seats} seats."
+  TrialBanner "7 days left in your trial" -> emit upgrade
+```
+
+- **The name.** A short name or a core type of that name comes first (`Button`, `Card`, `Slider`, `Badge` stay what
+  they were); any other name the catalog holds is the component. The prompt leaves the shadowed ones out of its list.
+- **Strings** fill the component's text parameters in order, at most two: its `label`, `title` or `text`, then its
+  `message`, `description` or the like. One string alone goes to the parameter the component requires
+  (`Banner "Saved."` is its message). A choice in place of a string (`ok ? "Approved" : "Denied"`) binds the same one.
+- **`=name`** is the variable the component keeps its value in (its `value` parameter, else its first variable
+  parameter); the variable is declared with the parameter's type.
+- **`->`** runs on the component's first event (`onPressed`, `onChanged`, `onSelected`).
+- **Size.** A call that writes none takes the component's own: as wide as its parent, as its content, or fixed, as
+  its definition's root says.
+- **What it does not take is said on the line**: `A StatusBadge has no "status". It takes: label, tone.`, and a
+  required parameter left out: `A ContextMenu needs items: write items:["a","b"].`
+
+In the prompt each component is one line, as it is called, with its purpose:
+`Stepper "label" =value min max step enabled -> onChanged : A number changed one step at a time.` A name ending in
+`!` must be given. SSUI's full list adds about 17,000 characters to the prompt.
+
+Measured on two briefs with Haiku and SSUI's full list (2026-11-14): both read with no notation issue and no
+validation error on the first turn; the approval card used `Dialog` and `Banner`, the dashboard `StatTile` and
+`SegmentedControl`, at 21 to 24 output tokens a node.
+
+## 13. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
   without a card would then have no `Card`). Proposed: from the design system, with SSUI's as the built-in.
