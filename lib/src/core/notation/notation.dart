@@ -149,6 +149,12 @@ const Map<String, (String, String)> badgeVariants = {
   'danger': ('#FFFEE2E2', '#FFB91C1C'),
 };
 
+/// Keys written on a Text that belong to its style.
+const _textStyleKeys = {
+  'color': 'color', 'size': 'fontSize', 'fontSize': 'fontSize', 'weight': 'fontWeight', 'fontWeight': 'fontWeight',
+  'bold': 'fontWeight', 'fontFamily': 'fontFamily', 'font': 'fontFamily', 'lineHeight': 'height',
+};
+
 const _layoutKeys = {'width', 'height', 'padding', 'margin', 'flex', 'aspectRatio', 'x', 'y', 'align', 'constraints', 'order', 'basis'};
 const _decorationKeys = {'radius', 'strokeWidth', 'fills', 'strokes', 'effects', 'clip', 'shape'};
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
@@ -286,6 +292,10 @@ class _Parser {
   /// accordion's header, a list tile's title and subtitle.
   final _texts = <String>[];
 
+  /// A label that reads state (`Button "Step {n}"`): bound, since only a
+  /// text node reads expressions as written.
+  final _labelBinds = <String, String>{};
+
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
     final screen = options.screen;
@@ -358,7 +368,7 @@ class _Parser {
     final spec = catalog.widget(type);
     if (spec == null) {
       // A sentence before the UI ("Here is the card:") is not a node.
-      if (_root == null && line.contains(' ') && !line.contains('"')) return;
+      if (_root == null && line.contains(' ')) return;
       _issue(column, 'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).');
       return;
     }
@@ -393,6 +403,7 @@ class _Parser {
       if (key == 'visible' || key == 'opacity') return key;
       if (spec.props.any((p) => p.key == key)) return 'props.$key';
       if (key == 'enabled' && spec.props.any((p) => p.key == 'isEnabled')) return 'props.isEnabled';
+      if ((key == 'lines' || key == 'rows') && type == 'textField') return 'props.maxLines';
       if ((key == 'selected' || key == 'checked') && (type == 'checkbox' || type == 'switch')) return 'props.value';
       if (_layoutKeys.contains(key)) return 'layout.$key';
       if (_decorationKeys.contains(key)) return 'decoration.$key';
@@ -423,7 +434,7 @@ class _Parser {
         break;
       } else if (t.peek == '=') {
         t.at++;
-        final expr = t.until(const [' -> ', ' {']).trim();
+        final expr = t.expression().trim();
         final value = _valueProps[type];
         if (value == null) {
           final shown = _shownValue[type] ?? _mainKey(type, spec);
@@ -431,15 +442,22 @@ class _Parser {
             _issue(col, 'A $written has no value to bind with =. Bind a prop: key:=expression.');
           } else {
             bind['props.$shown'] = _read(expr);
+            // A share shown from a name not declared yet starts at 0.
+            if (shown == 'value' && _identifier.hasMatch(expr) && !expr.contains('.')) {
+              variables.putIfAbsent(expr, () => {'name': expr, 'type': 'decimal', 'value': 0});
+            }
           }
         } else {
-          bind['props.${value.prop}'] = _read(expr);
+          // A segmented button's selection is a list: one name bound to it
+          // is its single choice.
+          final list = type == 'segmentedButton';
+          bind['props.${value.prop}'] = list ? _formula('[$expr]') : _read(expr);
           if (_identifier.hasMatch(expr)) {
             variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
             reactions.insert(0, {
               'trigger': {'type': 'changed'},
               'actions': [
-                {'type': 'setVariable', 'variable': expr, 'value': r'${result}'},
+                {'type': 'setVariable', 'variable': expr, 'value': list ? r'${result[0]}' : r'${result}'},
               ],
             });
           }
@@ -475,7 +493,7 @@ class _Parser {
         }
         final key = word.substring(0, colon);
         var raw = word.substring(colon + 1);
-        if (raw.startsWith('=')) raw = '$raw${t.expression()}';
+        if (raw.startsWith('=')) raw = '$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
         if (key == 'fill') {
@@ -488,6 +506,21 @@ class _Parser {
           }
           continue;
         }
+        if (type == 'text' && _textStyleKeys.containsKey(key)) {
+          final style = switch (props['style']) { final Map m => m.cast<String, Object?>(), _ => <String, Object?>{} };
+          final v = _value(raw);
+          style[_textStyleKeys[key]!] = key == 'bold' ? 700 : v;
+          props['style'] = style;
+          continue;
+        }
+        if (type == 'segmentedButton' && key == 'items') {
+          final items = _value(raw);
+          if (items is List) {
+            props['segments'] = [for (final i in items) {'value': '$i', 'label': '$i'}];
+            continue;
+          }
+        }
+        if (key == 'selected' && type == 'chip') type = 'choiceChip';
         if (key == 'hidden' && raw.startsWith('=')) {
           bind['visible'] = _formula('!(${raw.substring(1)})');
           continue;
@@ -531,19 +564,14 @@ class _Parser {
     if (type == 'text' && !props.containsKey('style')) {
       if (options.textStyles['body'] case final Object body) props['style'] = body is Map ? _copy(body.cast<String, Object?>()) : body;
     }
-    // A grid sizes its cells: a child's own height becomes the grid's row
-    // height (the first one written), and the child fills its cell.
+    // In a grid a child is as wide as its cell and as tall as it says (its
+    // row is as tall as its tallest child).
     if (parent?.type == 'gridView') {
-      final h = layout['height'];
-      final grid = nodes[parent!.id]!;
-      final gp = (grid['props'] as Json?) ?? (grid['props'] = <String, Object?>{});
-      if (h is num && !gp.containsKey('mainAxisExtent')) {
-        gp['mainAxisExtent'] = h;
-        _patches.add({'op': 'patch', 'id': parent.id, 'patch': {'props': {'mainAxisExtent': h}}});
-      }
       layout['width'] = {'fill': 0};
-      layout['height'] = {'fill': 0};
+      layout.putIfAbsent('height', () => {'hug': 0});
     }
+    // A grid's rows are as tall as their content unless a height is given.
+    if (type == 'gridView' && !props.containsKey('mainAxisExtent')) props.putIfAbsent('shrinkWrapRows', () => true);
     final inRow = parent?.type == 'row';
     if (inRow && type == 'text' && !layout.containsKey('width')) layout['squeezable'] = true;
     if (!layout.containsKey('width')) {
@@ -553,6 +581,8 @@ class _Parser {
       layout['width'] = _size(layout['width']);
     }
     layout['height'] = layout.containsKey('height') ? _size(layout['height']) : {'hug': 0};
+    bind.addAll(_labelBinds);
+    _labelBinds.clear();
     if (parent?.condition case final String c) {
       final own = bind['visible'];
       bind['visible'] = own is String ? _and(c, own) : c;
@@ -595,7 +625,8 @@ class _Parser {
     _texts.clear();
     for (var i = 0; i < texts.length; i++) {
       final tid = _id('text');
-      final style = options.textStyles[i == 0 ? 'strong' : 'muted'];
+      final container = type == 'column' || type == 'row' || type == 'stack';
+      final style = options.textStyles[container ? 'body' : i == 0 ? 'strong' : 'muted'];
       nodes[tid] = {
         'type': 'text',
         'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
@@ -620,13 +651,18 @@ class _Parser {
       d[d.containsKey('labelText') ? 'hintText' : 'labelText'] = text;
       return;
     }
-    if (type == 'accordion' || type == 'expansionTile' || type == 'listTile') {
+    // A string on a container is a text inside it.
+    if (const {'accordion', 'expansionTile', 'listTile', 'column', 'row', 'stack'}.contains(type)) {
       _texts.add(text);
       return;
     }
     final key = _mainKey(type, spec);
     if (key == null) {
       _issue(1, 'A $type has no text of its own.');
+      return;
+    }
+    if (key != 'icon' && type != 'text' && type != 'box' && text.contains(r'${')) {
+      _labelBinds['props.$key'] = text;
       return;
     }
     props[key] = key == 'icon' ? s : text;
@@ -665,7 +701,17 @@ class _Parser {
       if (set != null) {
         final v = set[2]!.trim();
         final literal = _literal(v);
-        out.add({'type': 'setVariable', 'variable': set[1], 'value': literal.$1 && literal.$2 is String ? _interpolate(literal.$2! as String) : _formula(v)});
+        // A bare word that names no variable is text (choice=basic).
+        final word = !literal.$1 && _identifier.hasMatch(v) && !v.contains('.') && !variables.containsKey(v) && !const {'result', 'item', 'index'}.contains(v);
+        out.add({
+          'type': 'setVariable',
+          'variable': set[1],
+          'value': word
+              ? v
+              : literal.$1 && literal.$2 is String
+                  ? _interpolate(literal.$2! as String)
+                  : _formula(v),
+        });
         if (!variables.containsKey(set[1])) {
           final start = literal.$1 ? literal.$2 : null;
           variables[set[1]!] = {
@@ -868,9 +914,9 @@ class _Tokens {
 
   /// The rest of an expression: to the next space outside quotes and
   /// brackets (`to!=""&&len(subject)>0`).
-  String expression() {
+  String expression({int opened = 0}) {
     final start = at;
-    var depth = 0, quoted = false;
+    var depth = opened, quoted = false;
     while (!done) {
       final c = s[at];
       if (c == '"' && (at == 0 || s[at - 1] != r'\')) quoted = !quoted;
