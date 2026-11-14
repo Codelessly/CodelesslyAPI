@@ -573,6 +573,12 @@ void main() {
       );
     });
 
+    test('a project component of a type its design system has replaces it: no duplicate', () {
+      final given = ComponentLibrary.of([LayoutDocument.fromJson(planCard(), catalog: standardCatalog)]);
+      final ds = validateProject({'PlanCard.json': planCard()}, options: ValidateOptions(components: given));
+      expect(coded(ds, Codes.duplicateComponent), isEmpty, reason: '$ds');
+    });
+
     test('a component that calls itself, directly or through another, is reported on each call node', () {
       Json comp(String type, String calls) => {
         'schema': 3,

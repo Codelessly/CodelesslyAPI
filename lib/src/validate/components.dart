@@ -77,13 +77,16 @@ part of 'validator.dart';
         '"$type" is already a node type of the catalog: name the component otherwise.',
       );
     }
+    // Two of the project's own files declaring one type is a mistake; a
+    // project's component of a type its design system (the given library)
+    // also has replaces that one, as the reference says.
     final before = fileOf[type];
-    if (before != null || (given?.definitions.containsKey(type) ?? false)) {
+    if (before != null) {
       add(
         Codes.duplicateComponent,
         e.key,
         '/widget/type',
-        'Component "$type" is also declared ${before == null ? 'by the project' : 'in $before'}: one definition per type.',
+        'Component "$type" is also declared in $before: one definition per type.',
       );
     }
     defs[type] = LayoutDocument.fromJson(m, catalog: standardCatalog);
