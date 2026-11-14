@@ -61,15 +61,17 @@ void main() {
     });
 
     test('a number in a text counts, written as the end writes it', () {
-      expect(AnimationTrack.lerpValue(0, r'$1,204.50', 0), r'$0.00');
-      expect(AnimationTrack.lerpValue(0, r'$1,204.50', 0.5), r'$602.25');
-      expect(AnimationTrack.lerpValue('87%', '91%', 0.5), '89%');
-      expect(AnimationTrack.lerpValue(r'$1,204.50', r'$1,204.50', 1), r'$1,204.50');
-      // A bare number written as text counts only as a text's value.
-      expect(AnimationTrack.lerpValue(0, '1204', 0.5), 602.0);
+      expect(AnimationTrack.lerpValue(0, r'$1,204.50', 0, text: true), r'$0.00');
+      expect(AnimationTrack.lerpValue(0, r'$1,204.50', 0.5, text: true), r'$602.25');
+      expect(AnimationTrack.lerpValue('87%', '91%', 0.5, text: true), '89%');
+      expect(AnimationTrack.lerpValue(r'$1,204.50', r'$1,204.50', 1, text: true), r'$1,204.50');
       expect(AnimationTrack.lerpValue(0, '1204', 0.5, text: true), '602');
+      // Not a text's value: as before (a number written as text is a
+      // number; a color is a color).
+      expect(AnimationTrack.lerpValue(0, '1204', 0.5), 602.0);
+      expect(AnimationTrack.lerpValue('#000000FF', '#FF0000FF', 0.5), isNot(isA<String>()));
       // No number in the end: switches at the end, as before.
-      expect(AnimationTrack.lerpValue(0, 'done', 0.5), 0);
+      expect(AnimationTrack.lerpValue(0, 'done', 0.5, text: true), 0);
       const track = AnimationTrack(path: 'props.text', from: 0);
       expect(track.valueAt(0.25, own: '-40 °C', text: true), '-10 °C');
     });
@@ -93,11 +95,14 @@ void main() {
     });
 
     test('a ruler with no ruler fields still gets its default ticks (20, every fifth long, black)', () {
-      final (n, _, _) = migrate({'type': 'slider', 'layout': {'width': 300, 'height': 40}, 'props': {'trackShape': 'ruler', 'rulerTicks': 20}});
+      final (n, _, _) = migrate({'type': 'slider', 'layout': {'width': 300, 'height': 40}, 'props': {'trackShape': 'ruler'}});
       final ticks = ((n['customPaint'] as Map)['painter'] as List)[1] as Map;
       expect(ticks['count'], r'${= 20 + 1}');
       expect(jsonEncode(ticks), contains('index % 5 == 0'));
       expect(jsonEncode(ticks), contains('#FF000000'));
+      // Once they are ops, the step leaves them.
+      final again = oneWay(doc3({'n': n}));
+      expect(((nodeOf(again, 'n')['customPaint'] as Map)['painter'] as List).length, 2);
     });
 
     test('a marker is a rect op at its value along the track rect; a bound value is read in the op', () {
