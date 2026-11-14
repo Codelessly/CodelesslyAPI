@@ -57,7 +57,7 @@ section's anchor is its topic.
 | Nested lists; the outer item inside the inner list (`parent`) | @@lists-nested-lists |
 | A comparison table from one row and one cell template | @@lists-a-table-from-one-template |
 | A weekly grid (days × habits) | @@lists-a-weekly-grid |
-| A carousel; long lists loaded in pages | @@lists-a-carousel-pages-and-pagination |
+| A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages | @@lists-a-carousel-pages-and-pagination |
 | Several screens; a page's URL path | @@navigation-screens |
 | Go to a screen with parameters, and back | @@navigation-going-to-a-screen-and-back |
 | A dialog, a bottom sheet, a popover, a toast, a confirmation | @@navigation-modals-and-toasts |

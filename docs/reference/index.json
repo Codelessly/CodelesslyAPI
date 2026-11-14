@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5819
+      "words": 5831
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5930
+      "words": 5942
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column).",
-      "words": 8585
+      "words": 8827
     },
     {
       "topic": "layout-layout-fields",
@@ -57,7 +57,7 @@
       "anchor": "layout-triggers",
       "title": "Triggers",
       "summary": "Written as `\"trigger\": {\"type\": \"<trigger>\", ...}` in a reaction ($1).",
-      "words": 92
+      "words": 130
     },
     {
       "topic": "layout-responsive-design",
@@ -129,7 +129,7 @@
       "anchor": "layout-scrolling",
       "title": "Scrolling",
       "summary": "A screen scrolls only if something in it scrolls.",
-      "words": 204
+      "words": 248
     },
     {
       "topic": "layout-a-sticky-header-or-column",
@@ -401,7 +401,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 6111
+      "words": 6857
     },
     {
       "topic": "lists-triggers",
@@ -465,7 +465,7 @@
       "anchor": "lists-a-carousel-pages-and-pagination",
       "title": "A carousel, pages and pagination",
       "summary": "A `pageView` shows one item (or child) per page and swipes between them (`viewportFraction` below 1 shows the neighbours' edges; `initialPage`).",
-      "words": 43
+      "words": 379
     },
     {
       "topic": "navigation",
@@ -537,7 +537,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6395
+      "words": 6468
     },
     {
       "topic": "state-variables",
@@ -553,7 +553,7 @@
       "anchor": "state-expressions",
       "title": "Expressions",
       "summary": "`${name}` or `${path}` reads a value: `${count}`, `${user.name}`, `${items[0].price}`, `${pal[item.kind]}`.",
-      "words": 108
+      "words": 181
     },
     {
       "topic": "state-binding-paths",
@@ -1281,7 +1281,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13248
+      "words": 13286
     },
     {
       "topic": "values-value-types",
@@ -1548,7 +1548,7 @@
       "anchor": "lists-a-weekly-grid"
     },
     {
-      "need": "A carousel; long lists loaded in pages",
+      "need": "A carousel with arrows, dots and progress; snapping to cards; scroll to an item; long lists loaded in pages",
       "file": "lists.md",
       "anchor": "lists-a-carousel-pages-and-pagination"
     },

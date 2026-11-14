@@ -20,5 +20,9 @@ abstract final class ScrollProps {
   /// How the scroll view clips its content.
   static const clipBehavior = PropDef<Clip>('clipBehavior', EnumCodec(Clip.values), Clip.hardEdge);
 
-  static const List<PropDef<Object?>> all = [scrollable, scrollDirection, reverse, physics, alwaysScroll, clipBehavior];
+  /// Comes to rest with a child at the start of the view.
+  static const itemSnapping = PropDef<bool>('itemSnapping', Codecs.bool, false,
+      doc: 'Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards.');
+
+  static const List<PropDef<Object?>> all = [scrollable, scrollDirection, reverse, physics, alwaysScroll, clipBehavior, itemSnapping];
 }

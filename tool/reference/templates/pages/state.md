@@ -32,7 +32,11 @@ Types:
 `${= formula}` computes one: arithmetic (`+ - * / %`), comparisons (`== != < <= > >=`), `&&`, `||`, `!`,
 `cond ? a : b`, literals (`'text'`, `3.5`, `true`, `null`, lists `[1, 2]`), and lambdas for list functions
 (`x => x.price`). A text that is exactly one expression gives its value with its type; inside other text a number is
-printed without trailing zeros. Names an expression may start with, besides the variables: {{scopes}}.
+printed without trailing zeros. Names an expression may start with, besides the variables: {{scopes}}. The
+names a node gives the nodes inside it are read there only: `item`, `index`, `parent` in a list's item; `pageOffset`
+in a `pageView`'s page (its distance from the current page, for parallax; not the page's scroll); `form` inside a
+`form`; `track`, `sticky`, `view` and the like inside their node. A page's or a list's scroll position is its `scroll`
+reaction's `${result.offset}` (and `index`, `fraction`), stored in a variable that anything may bind.
 
 ### Binding paths
 

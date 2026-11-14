@@ -118,10 +118,14 @@ enum TriggerType {
   keyDown,
   keyUp,
 
-  /// The node (a scrolling row, column or canvas) scrolled
-  /// (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came
-  /// near its end (load the next page).
+  /// The node (a scrolling row, column, list, grid or canvas) scrolled
+  /// (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1,
+  /// `${result.index}` the item at the start of the view (the last at the
+  /// end), `${result.count}` the items), or came near its end (load the next
+  /// page). Store what a carousel's arrows, dots or progress bar show.
   scroll,
+
+  /// The node stopped scrolling; `${result}` as for [scroll].
   scrollEnd,
 
   /// At least [Trigger.visibleFraction] of the node became visible (and

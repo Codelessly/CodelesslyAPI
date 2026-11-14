@@ -223,6 +223,7 @@ Flutter `Row`.
 | `physics` | [ScrollPhysicsType](values.md#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-column"></a>
@@ -250,6 +251,7 @@ Flutter `Column`.
 | `physics` | [ScrollPhysicsType](values.md#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-flex"></a>
@@ -278,6 +280,7 @@ Flutter `Flex`.
 | `physics` | [ScrollPhysicsType](values.md#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-stack"></a>
@@ -299,6 +302,7 @@ A freeform container: children placed by `layout.x`/`layout.y` (Flutter `Stack` 
 | `physics` | [ScrollPhysicsType](values.md#enum-ScrollPhysicsType) | `"platform"` | `platform`, `bouncing`, `clamping`, `never`, `rangeMaintaining` |  |
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
+| `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `fit` | [BoxFit](values.md#enum-BoxFit) | unset | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | Scale the board (its design size) into the box: contain, cover, scaleDown... |
 | `fitAlignment` | [Alignment](values.md#type-Alignment) | `[0,0]` |  | Where a `fit` board sits in its box. |
 
@@ -425,8 +429,8 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 
 | Trigger | When it fires |
 |---|---|
-| <a id="trigger-scroll"></a>`scroll` | The node (a scrolling row, column or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}`), or came near its end (load the next page). |
-| <a id="trigger-scrollEnd"></a>`scrollEnd` |  |
+| <a id="trigger-scroll"></a>`scroll` | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show. |
+| <a id="trigger-scrollEnd"></a>`scrollEnd` | The node stopped scrolling; `${result}` as for `scroll`. |
 | <a id="trigger-enterViewport"></a>`enterViewport` | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | <a id="trigger-exitViewport"></a>`exitViewport` |  |
 
@@ -1178,7 +1182,10 @@ A screen scrolls only if something in it scrolls. Make the canvas's body column 
 true}` with `{"fill": n}` width and height. Without it, content past the bottom of the screen is cut off
 (`offscreen`). Inside a scrolling column, a child cannot `fill` the scrolling axis. Rows scroll sideways with
 `"scrollable": true, "scrollDirection": "horizontal"`. `scrollTo` reveals a node (`"node"`: an id, or an expression
-giving one; `"axis": "horizontal"` moves only sideways scroll views).
+giving one; `"axis": "horizontal"` moves only sideways scroll views), or one item of a list (`"item"`: its key or
+index). A scrolling node's `scroll` reaction gives its position (`${result.offset}`, `${result.fraction}`, the item at
+the start `${result.index}`): store it for a header that condenses or a progress bar. Arrows, dots and snapping:
+[a carousel](lists.md#lists-a-carousel-pages-and-pagination).
 
 ```json
 {
