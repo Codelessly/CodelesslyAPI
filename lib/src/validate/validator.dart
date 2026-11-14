@@ -1136,6 +1136,11 @@ final class _Validator {
         _expression(e.value as String, p, locals: const {'value'});
         continue;
       }
+      // A slider's label reads its own value (`"${value}%"`).
+      if (n.type == 'slider' && e.key == 'label' && e.value is String) {
+        _expression(e.value as String, p, locals: const {'value'});
+        continue;
+      }
       _strings(e.value, p);
     }
   }
