@@ -618,9 +618,10 @@ class _Batch {
     }
     switch (op) {
       case SetOp():
-        _set(op);
+        _set(SetOp(op.id, _bindWritten(op.id, op.node, readString(op.node['type'])),
+            parent: op.parent, index: op.index, slot: op.slot, placeholders: op.placeholders));
       case PatchOp():
-        _patch(op);
+        _patch(PatchOp(op.id, _bindWritten(op.id, op.patch, nodes[op.id]?.type)));
       case MoveOp():
         _move(op);
       case RemoveOp():
@@ -632,6 +633,65 @@ class _Batch {
       case ScriptsOp():
         _scripts(op);
     }
+  }
+
+  /// [node] (a set's node or a patch) with each expression written where a
+  /// plain value goes moved into its `bind` under the field's path, each
+  /// reported (`expression_bound`). The fields: `visible`, `opacity`, a
+  /// layout field, the decoration's radius and stroke width, and a prop
+  /// whose declared kind is not text (text reads expressions as written).
+  /// A path already bound keeps its binding.
+  Json _bindWritten(String id, Json node, String? type) {
+    final moved = <String, String>{};
+    bool isExpression(Object? v) => v is String && v.contains(r'${');
+    Json? scan(String key, bool Function(String k) takes) {
+      final m = readMap(node[key]);
+      if (m == null) return null;
+      Json? out;
+      for (final e in m.entries) {
+        if (isExpression(e.value) && takes(e.key)) {
+          moved['$key.${e.key}'] = e.value as String;
+          (out ??= {...m}).remove(e.key);
+        }
+      }
+      return out;
+    }
+
+    final spec = type == null ? null : catalog.widget(type);
+    final layout = scan('layout', (_) => true);
+    final decoration = scan('decoration', const {'radius', 'strokeWidth'}.contains);
+    final props = spec == null
+        ? null
+        : scan('props', (k) {
+            for (final p in spec.props) {
+              if (p.key == k) return p.codec.type.kind != PropKind.string;
+            }
+            return false;
+          });
+    final top = <String>[for (final k in const ['visible', 'opacity']) if (isExpression(node[k])) k];
+    for (final k in top) {
+      moved[k] = node[k] as String;
+    }
+    if (moved.isEmpty) return node;
+    final bind = <String, Object?>{...?readMap(node['bind'])};
+    for (final e in moved.entries) {
+      bind.putIfAbsent(e.key, () => e.value);
+      _diags.add(EditDiagnostic.of(EditCodes.expressionBound, _op,
+          'The expression ${e.value} was written as the value of ${e.key}: it was moved to "bind": {"${e.key}": "${e.value}"}. '
+          'Write expressions in "bind"; the written field holds a plain value or is left out.',
+          path: editPointer(editPointer('/nodes', id), 'bind'), nodeId: id, suggestion: 'bind.${e.key}'));
+    }
+    return {
+      for (final e in node.entries)
+        if (!top.contains(e.key))
+          e.key: switch (e.key) {
+            'layout' => layout ?? e.value,
+            'decoration' => decoration ?? e.value,
+            'props' => props ?? e.value,
+            _ => e.value,
+          },
+      'bind': bind,
+    };
   }
 
   void _stale(String id, Iterable<String> paths) {

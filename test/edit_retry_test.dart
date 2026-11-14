@@ -102,9 +102,10 @@ void main() {
       expect(d.message, contains('Its props: label'));
       expect(d.suggestion, 'label');
     });
-    test('an expression written as a plain value says to bind it, with the binding to write (question_flow, dashboard, carousel)', () {
+    test('an expression written as a plain value is moved into the binding and reported, not rejected (question_flow, dashboard, carousel)', () {
       // Five recorded SSUI cards wrote a theme token or a condition where a
       // value goes: "radius": "${theme.radii.panel}", "visible": "${step > 0}".
+      // One rejected container blanked the whole card; the intent is plain.
       final r = _apply(_card(), [
         {
           'op': 'set',
@@ -120,15 +121,29 @@ void main() {
           'op': 'set',
           'id': 'back',
           'parent': 'wrap',
-          'node': {'type': 'text', 'visible': r'${step > 0}', 'props': {'text': 'Back'}},
+          'node': {'type': 'text', 'visible': r'${step > 0}', 'props': {'text': r'Step ${step}'}},
+        },
+        {
+          'op': 'set',
+          'id': 'vol',
+          'parent': 'wrap',
+          'node': {'type': 'slider', 'props': {'value': r'${volume}'}, 'bind': {'props.value': r'${kept}'}},
         },
       ]);
-      final radius = r.errors.firstWhere((d) => d.path == '/nodes/panel/decoration/radius');
-      expect(radius.code, 'wrong_type');
-      expect(radius.message, contains(r'"bind": {"decoration.radius": "${theme.radii.panel}"}'));
-      expect(radius.suggestion, 'bind.decoration.radius');
-      final visible = r.errors.firstWhere((d) => d.path == '/nodes/back/visible');
-      expect(visible.message, contains(r'"bind": {"visible": "${step > 0}"}'));
+      expect([for (final d in r.errors) if (d.code == 'wrong_type') d], isEmpty);
+      final notes = [for (final d in r.diagnostics) if (d.code == 'expression_bound') d];
+      expect(notes.map((d) => d.suggestion), ['bind.decoration.radius', 'bind.visible', 'bind.props.value']);
+      expect(notes.first.error, isFalse);
+      expect(notes.first.message, contains(r'"bind": {"decoration.radius": "${theme.radii.panel}"}'));
+      final panel = r.document['panel']!.toJson();
+      expect(panel['bind'], {'decoration.radius': r'${theme.radii.panel}'});
+      expect((panel['decoration'] as Map).containsKey('radius'), isFalse);
+      final back = r.document['back']!.toJson();
+      expect(back['bind'], {'visible': r'${step > 0}'});
+      // Text reads expressions as written: it stays.
+      expect((back['props'] as Map)['text'], r'Step ${step}');
+      // A path already bound keeps its binding.
+      expect(r.document['vol']!.toJson()['bind'], {'props.value': r'${kept}'});
     });
     test('replacing the root canvas with a column is rejected, with how to set its body (image_gallery@claude-haiku-5-5 retry)', () {
       // The retry wrote {"op": "set", "id": "gallery", "slot": "body", "node":

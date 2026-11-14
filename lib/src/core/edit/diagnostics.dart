@@ -72,6 +72,10 @@ abstract final class EditCodes {
   static const misplacedField = EditCode('misplaced_field',
       'A node field ("bind", "props", "actions"...) written on a set op instead of inside its "node": it was moved into the node.',
       error: false);
+  static const expressionBound = EditCode('expression_bound',
+      'An expression written where a plain value goes ("radius": "\${theme.radii.panel}", "visible": "\${step > 0}"): '
+          'it was moved into the node\'s "bind" under the field\'s path, which is where to write it.',
+      error: false);
   static const startOver = EditCode('start_over',
       'A batch that rebuilds a UI that already exists (new roots, a new canvas) instead of patching it: fix the '
           'existing document with patch, set (same ids) and remove; never start over.');
@@ -123,7 +127,7 @@ abstract final class EditCodes {
   static const List<EditCode> all = [
     invalidOp, missingField, wrongType, unknownId, structuralKeyInPatch, staleRev, wouldOrphan, multipleParents, cycle, //
     canvasAsChild, invalidParent, danglingChild, unreachableNode, pendingChild, capabilityNotAllowed, limitExceeded,
-    truncatedOp, invalidJson, invalidVariable, unknownVariable, malformedInput, misplacedField, startOver, emptyButton,
+    truncatedOp, invalidJson, invalidVariable, unknownVariable, malformedInput, misplacedField, expressionBound, startOver, emptyButton,
     deadControl, lowContrast, missingGlyph, noSize, emptyView, listEmpty, emptyLabel, expressionNotEvaluated, textNoColor, componentEmpty,
     invalidScript,
   ];
