@@ -180,6 +180,57 @@ final class ThemeTokens {
         _ => null,
       };
 
+  /// The roles (Flutter's `ColorScheme` names: [primary], [onPrimary],
+  /// [surface], [onSurface], [error], and [success], [warning]) as colours:
+  /// a role that names a theme colour (`"primary": "forest"`) is that
+  /// colour, through any chain of names, as any colour naming another is. A
+  /// role whose name the theme does not have is null. Controls and the
+  /// runtime read the roles through this. A role written inside [colors]
+  /// (`"colors": {"primary": ...}`) is not a role: validation reports it
+  /// (`theme_role_in_colors`).
+  ThemeTokens resolvedRoles() {
+    Color? r(Color? c) {
+      if (c == null || c.name == null) return c;
+      var at = c;
+      for (var i = 0; i < 8 && at.name != null; i++) {
+        final next = colors[at.name!] ?? _role(at.name!);
+        if (next == null) return null;
+        at = next;
+      }
+      return at.name == null ? at : null;
+    }
+
+    final roles = [primary, onPrimary, surface, onSurface, error, success, warning];
+    if (roles.every((c) => c == null || c.name == null)) return this;
+    return ThemeTokens(
+      primary: r(primary),
+      onPrimary: r(onPrimary),
+      surface: r(surface),
+      onSurface: r(onSurface),
+      error: r(error),
+      success: r(success),
+      warning: r(warning),
+      fontFamily: fontFamily,
+      titleFontFamily: titleFontFamily,
+      radius: radius,
+      buttonRadius: buttonRadius,
+      colors: colors,
+      textStyles: textStyles,
+      dark: dark,
+      media: media,
+      mode: mode,
+      spacing: spacing,
+      radii: radii,
+      sizes: sizes,
+      shadows: shadows,
+      durations: durations,
+      curves: curves,
+    );
+  }
+
+  /// The role names ([resolvedRoles]).
+  static const roleNames = ['primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'];
+
   /// Every name [color] reads.
   Iterable<String> get colorNames => {
         ...colors.keys,

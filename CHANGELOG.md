@@ -1,5 +1,18 @@
 ## Unreleased
 
+- Milestone 3 design: `docs/design/11-no-widgets.md` (the renderer as render objects with no `MaterialApp`,
+  `Navigator`, `Overlay` or widget per control; the control kit; SSUI as the default look; the split of the remaining
+  controls into parallel workstreams).
+- Theme roles: `ThemeTokens.resolvedRoles()` gives the roles (`primary`, `onPrimary`, `surface`, `onSurface`,
+  `error`, `success`, `warning`) as colours, a role that names a theme colour (`"primary": "forest"`) resolved
+  through any chain of names; such a role never reached controls before (they drew black or white). A role written
+  inside `colors` is a second spelling and is reported, `theme_role_in_colors` (warning), with the key to move.
+  `ThemeTokens.roleNames`. The STARTER's theme example declares `primary` and `onPrimary` by colour name.
+- Buttons (`filledButton`, `outlinedButton`, `textButton`, `elevatedButton`, `iconButton`, `floatingActionButton`)
+  take `autofocus` (Flutter's), and draw `WidgetState.selected` themselves: a bound `selected` on a button no longer
+  reports `state_no_effect`. `WidgetSpec.states` (catalog JSON `states`) lists the states a type's own look draws.
+  Their docs say what the default (SSUI) button is.
+
 - A computed variable's `formula` is checked like a node's expressions (it was not checked at all): it must parse
   and read only declared names, its `parameters` included. The edit layer checks the formulas of the variables a
   `vars` op declares (`EditCheckInput.variables`, read by `strictEditCheck`; the diagnostic's message names the

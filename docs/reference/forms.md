@@ -93,7 +93,7 @@ Every control's props, then the models that style them ([InputDecoration](#type-
 <a id="node-filledButton"></a>
 ### `filledButton`
 
-Flutter `FilledButton`.
+Flutter `FilledButton`: the primary action, filled with the theme's `primary`. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 `ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.
 
@@ -109,12 +109,13 @@ Flutter `FilledButton`.
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `tonal` | bool | `false` |  | `FilledButton.tonal`. |
 
 <a id="node-elevatedButton"></a>
 ### `elevatedButton`
 
-Flutter `ElevatedButton`.
+Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 `ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.
 
@@ -130,11 +131,12 @@ Flutter `ElevatedButton`.
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 
 <a id="node-outlinedButton"></a>
 ### `outlinedButton`
 
-Flutter `OutlinedButton`.
+Flutter `OutlinedButton`: a hairline border. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 `ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.
 
@@ -150,11 +152,12 @@ Flutter `OutlinedButton`.
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 
 <a id="node-textButton"></a>
 ### `textButton`
 
-Flutter `TextButton`.
+Flutter `TextButton`: no fill or border. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 `ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.
 
@@ -170,11 +173,12 @@ Flutter `TextButton`.
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 
 <a id="node-iconButton"></a>
 ### `iconButton`
 
-Flutter `IconButton`.
+Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. Give it a "tooltip" (the behavior) to name it.
 
 `IconButton`: an icon, styled by a `ButtonStyle`.
 
@@ -186,6 +190,7 @@ Flutter `IconButton`.
 | `icon` | [IconData](values.md#type-IconData) | `{}` |  | The icon shown: a Material icon name (`"close"`, `"menu"`). |
 | `enabled` | bool | `true` |  |  |
 | `style` | [ButtonStyle](forms.md#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`. |
+| `autofocus` | bool | `false` |  |  |
 
 <a id="node-floatingActionButton"></a>
 ### `floatingActionButton`
@@ -216,6 +221,7 @@ Flutter `FloatingActionButton`.
 | `extendedIconLabelSpacing` | double | unset |  |  |
 | `extendedPadding` | [EdgeInsets](values.md#type-EdgeInsets) | unset |  |  |
 | `location` | [FloatingActionButtonLocation](values.md#enum-FloatingActionButtonLocation) | `"endFloat"` |  | Where a screen's `Scaffold` places it. |
+| `autofocus` | bool | `false` |  |  |
 
 <a id="node-textField"></a>
 ### `textField`

@@ -102,6 +102,8 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
   "schema": 3,
   "pages": ["home.json"],
   "theme": {
+    "primary": "ember",
+    "onPrimary": "paper",
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
     "textStyles": {
       "body": {"fontSize": 16, "height": 1.5, "color": "ink"},
@@ -122,9 +124,8 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
 - Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 
 Controls (buttons, chips, fields, switches, pickers, tabs) take the colours and fonts their props leave unset
-from the theme's roles (`primary`, `onPrimary`, `surface`, `onSurface`, `error`, `fontFamily`, `buttonRadius`...).
-Without a theme they are neutral: ink on paper and the greys between. Nothing comes from Material's defaults or
-from the app the layout is shown in.
+from the theme's top-level **roles** (`ColorScheme` names: `primary`, `onPrimary`, `surface`, `onSurface`, `error`),
+which may name a colour but never sit in `colors`. Unstyled controls are SSUI's, never Material's.
 
 **Light and dark.** `"dark": {"colors": {...}}` in the theme gives the colours that differ in dark mode, and
 `"mode"` which one the site starts in (Flutter's `ThemeMode`: `system`, the default, follows the device; `light`;
@@ -785,15 +786,15 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4813 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4807 |
 | [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 8938 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2852 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2856 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11322 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 11630 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7618 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4201 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6514 |
-| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5221 |
+| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5250 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4610 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3706 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
@@ -805,7 +806,7 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2904 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2950 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13299 |
 
 <a id="index-a-z"></a>
@@ -2330,6 +2331,8 @@ A site manifest (`site.json`) with a theme: a palette and a type scale. The page
   "schema": 3,
   "pages": ["home.json"],
   "theme": {
+    "primary": "ember",
+    "onPrimary": "paper",
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
     "textStyles": {
       "body": {"fontSize": 16, "height": 1.5, "color": "ink"},
@@ -3236,7 +3239,7 @@ Every control's props, then the models that style them ([InputDecoration](#type-
 <a id="node-filledButton"></a>
 ### `filledButton`
 
-Flutter `FilledButton`.
+Flutter `FilledButton`: the primary action, filled with the theme's `primary`. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 `ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.
 
@@ -3252,12 +3255,13 @@ Flutter `FilledButton`.
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 | `tonal` | bool | `false` |  | `FilledButton.tonal`. |
 
 <a id="node-elevatedButton"></a>
 ### `elevatedButton`
 
-Flutter `ElevatedButton`.
+Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 `ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.
 
@@ -3273,11 +3277,12 @@ Flutter `ElevatedButton`.
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 
 <a id="node-outlinedButton"></a>
 ### `outlinedButton`
 
-Flutter `OutlinedButton`.
+Flutter `OutlinedButton`: a hairline border. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 `ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.
 
@@ -3293,11 +3298,12 @@ Flutter `OutlinedButton`.
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 
 <a id="node-textButton"></a>
 ### `textButton`
 
-Flutter `TextButton`.
+Flutter `TextButton`: no fill or border. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 `ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.
 
@@ -3313,11 +3319,12 @@ Flutter `TextButton`.
 | `spacing` | double | `8` | ≥ 0 | Space between the icon and the label. |
 | `enabled` | bool | `true` |  | False is a disabled button (`onPressed: null`). |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`. |
+| `autofocus` | bool | `false` |  | Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it. |
 
 <a id="node-iconButton"></a>
 ### `iconButton`
 
-Flutter `IconButton`.
+Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. Give it a "tooltip" (the behavior) to name it.
 
 `IconButton`: an icon, styled by a `ButtonStyle`.
 
@@ -3329,6 +3336,7 @@ Flutter `IconButton`.
 | `icon` | [IconData](#type-IconData) | `{}` |  | The icon shown: a Material icon name (`"close"`, `"menu"`). |
 | `enabled` | bool | `true` |  |  |
 | `style` | [ButtonStyle](#type-ButtonStyle) | `{}` |  | The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`. |
+| `autofocus` | bool | `false` |  |  |
 
 <a id="node-floatingActionButton"></a>
 ### `floatingActionButton`
@@ -3359,6 +3367,7 @@ Flutter `FloatingActionButton`.
 | `extendedIconLabelSpacing` | double | unset |  |  |
 | `extendedPadding` | [EdgeInsets](#type-EdgeInsets) | unset |  |  |
 | `location` | [FloatingActionButtonLocation](#enum-FloatingActionButtonLocation) | `"endFloat"` |  | Where a screen's `Scaffold` places it. |
+| `autofocus` | bool | `false` |  |  |
 
 <a id="node-textField"></a>
 ### `textField`
@@ -7084,9 +7093,10 @@ A node's `actions` is a list of **reactions**: a trigger and the chain of action
 `disabled` or `dragged`. Each state maps node ids (the node itself or nodes inside it) to a **patch**: partial node
 JSON merged over that node (objects merge, other values replace, `null` removes). `selected` and `disabled` follow
 bindings: `"bind": {"selected": "${= tab == 'pricing'}"}` puts the node in its `selected` state, as Flutter's
-`statesController` puts a button in `WidgetState.selected`: only the node's `states.selected` patch shows it, so a
-bound `selected` with none changes nothing (`state_no_effect`). A chip's own selection is its prop, `props.selected`.
-A selected outlined button (a filter or a delivery option):
+`statesController` puts a button in `WidgetState.selected`. Buttons draw it themselves (a tinted fill, the primary
+colour as ink: tabs and toggles made of buttons need nothing more); on other nodes only a `states.selected` patch
+shows it, so a bound `selected` with none changes nothing (`state_no_effect`). A chip's own selection is its prop,
+`props.selected`. A selected outlined button in a look of its own (a filter or a delivery option):
 
 ```json
 "bind": {"selected": "${= category == 'linen'}"},
@@ -10520,6 +10530,7 @@ From `package:codelessly_api/validate.dart`:
 | `media_overridden` | warning | A media rule patches a field the node also binds: the binding wins, so the patch never shows. |
 | `unknown_theme_name` | error | A color or text style names a color or text style the project's theme (the site manifest's "theme") does not have: it would show transparent or unstyled. |
 | `invalid_theme` | error | The site manifest's "theme" is not of the right shape: colors are "#AARRGGBB" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles. |
+| `theme_role_in_colors` | warning | A colour role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's "colors": roles are top-level keys of the theme, so controls never read it. Move it up ("primary": "#FF..." or "primary": "<a colour's name>"). |
 | `invalid_fonts` | error | The site manifest's "fonts" is not of the right shape: a list of {"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf", "weight": 400, "style": "normal"}]} (a pubspec's fonts: section). |
 | `font_format` | error | A declared font file is not .ttf, .otf or .woff: WOFF2 (Brotli-compressed) and font collections (.ttc) are not read. Use the .woff or .ttf of the same face. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |

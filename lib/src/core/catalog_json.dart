@@ -177,6 +177,7 @@ Json widgetSpecToJson(WidgetSpec spec) => {
   'props': [for (final p in spec.props) propDefToJson(p)],
   if (spec.childFields.isNotEmpty) 'childFields': [for (final p in spec.childFields) p.key],
   if (spec.events.isNotEmpty) 'events': [for (final e in spec.events) eventSpecToJson(e)],
+  if (spec.states.isNotEmpty) 'states': spec.states,
 };
 
 /// The JSON of [e]: `{"key", "payload": PropType, "doc"}`.
@@ -208,6 +209,7 @@ WidgetSpec? widgetSpecFromJson(Object? json) {
     decorated: readBool(m['decorated']) ?? false,
     doc: readString(m['doc']) ?? '',
     events: [...?readList(m['events'])?.map(eventSpecFromJson).nonNulls],
+    states: readStrings(m['states']),
   );
 }
 

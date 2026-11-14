@@ -11360,6 +11360,9 @@
                         ]
                       }
                     ]
+                  },
+                  "autofocus": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -11420,6 +11423,9 @@
                         ]
                       }
                     ]
+                  },
+                  "autofocus": {
+                    "type": "boolean"
                   },
                   "tonal": {
                     "type": "boolean"
@@ -11483,6 +11489,9 @@
                         ]
                       }
                     ]
+                  },
+                  "autofocus": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -11543,6 +11552,9 @@
                         ]
                       }
                     ]
+                  },
+                  "autofocus": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -11590,6 +11602,9 @@
                         ]
                       }
                     ]
+                  },
+                  "autofocus": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -11763,6 +11778,9 @@
                   },
                   "location": {
                     "$ref": "#/$defs/enum.FloatingActionButtonLocation"
+                  },
+                  "autofocus": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false

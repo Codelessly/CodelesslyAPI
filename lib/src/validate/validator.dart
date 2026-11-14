@@ -861,6 +861,8 @@ final class _Validator {
   void _selectedState(Node n, String at) {
     if (!n.bind.containsKey(BindPaths.selected)) return;
     if (n.behaviors.states.patches[WidgetState.selected]?.isNotEmpty ?? false) return;
+    // A type whose own look draws `selected` (a button).
+    if (n.spec?.states.contains(WidgetState.selected.name) ?? false) return;
     final chip = n.spec?.props.any((p) => p.key == 'selected') ?? false;
     r.add(Codes.stateNoEffect, pointer(pointer(at, 'bind'), BindPaths.selected),
         chip
@@ -1816,6 +1818,15 @@ List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints?
           }
           for (final c in colors.entries) {
             values.check(PropTypes.color, c.value, pointer(p, c.key));
+          }
+          for (final c in colors.entries) {
+            if (!ThemeTokens.roleNames.contains(c.key)) continue;
+            final top = patch ? null : m[c.key];
+            r.add(Codes.themeRoleInColors, pointer(p, c.key),
+                '"${c.key}" is a colour role (Flutter\'s ColorScheme): write it at the top of the theme, not in "colors", or controls do not use it. '
+                '${top == null ? 'Move it: "${c.key}": ${jsonEncode(c.value)}.' : 'The theme already has a top-level "${c.key}"; remove this one.'} '
+                'A role may name a colour: "${c.key}": "<colour name>".',
+                suggestion: c.key);
           }
         case 'textStyles':
           final styles = readMap(e.value);

@@ -5226,7 +5226,7 @@
       "docs": "forms.md#node-signature"
     },
     "elevatedButton": {
-      "doc": "Flutter `ElevatedButton`.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
+      "doc": "Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound \"selected\" shows a selected look.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
       "flutter": "ElevatedButton",
       "children": "none",
       "slots": [],
@@ -5304,12 +5304,20 @@
           "nullable": false,
           "object": "ButtonStyle",
           "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
+        },
+        {
+          "key": "autofocus",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it."
         }
       ],
       "docs": "forms.md#node-elevatedButton"
     },
     "filledButton": {
-      "doc": "Flutter `FilledButton`.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
+      "doc": "Flutter `FilledButton`: the primary action, filled with the theme's `primary`. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound \"selected\" shows a selected look.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
       "flutter": "FilledButton",
       "children": "none",
       "slots": [],
@@ -5389,6 +5397,14 @@
           "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
         },
         {
+          "key": "autofocus",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it."
+        },
+        {
           "key": "tonal",
           "type": "bool",
           "kind": "boolean",
@@ -5400,7 +5416,7 @@
       "docs": "forms.md#node-filledButton"
     },
     "textButton": {
-      "doc": "Flutter `TextButton`.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
+      "doc": "Flutter `TextButton`: no fill or border. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound \"selected\" shows a selected look.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
       "flutter": "TextButton",
       "children": "none",
       "slots": [],
@@ -5478,12 +5494,20 @@
           "nullable": false,
           "object": "ButtonStyle",
           "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
+        },
+        {
+          "key": "autofocus",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it."
         }
       ],
       "docs": "forms.md#node-textButton"
     },
     "outlinedButton": {
-      "doc": "Flutter `OutlinedButton`.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
+      "doc": "Flutter `OutlinedButton`: a hairline border. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound \"selected\" shows a selected look.\n\n`ElevatedButton`, `FilledButton`, `TextButton`, `OutlinedButton`: a label with an optional icon (their `.icon` constructors), styled by a `ButtonStyle`.",
       "flutter": "OutlinedButton",
       "children": "none",
       "slots": [],
@@ -5561,12 +5585,20 @@
           "nullable": false,
           "object": "ButtonStyle",
           "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon), `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`."
+        },
+        {
+          "key": "autofocus",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Takes keyboard focus when it appears (Flutter's `autofocus`): Enter or Space presses it."
         }
       ],
       "docs": "forms.md#node-outlinedButton"
     },
     "iconButton": {
-      "doc": "Flutter `IconButton`.\n\n`IconButton`: an icon, styled by a `ButtonStyle`.",
+      "doc": "Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text colour. Give it a \"tooltip\" (the behavior) to name it.\n\n`IconButton`: an icon, styled by a `ButtonStyle`.",
       "flutter": "IconButton",
       "children": "none",
       "slots": [],
@@ -5597,6 +5629,14 @@
           "nullable": false,
           "object": "ButtonStyle",
           "doc": "The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`."
+        },
+        {
+          "key": "autofocus",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
         }
       ],
       "docs": "forms.md#node-iconButton"
@@ -5754,6 +5794,14 @@
           "nullable": false,
           "enum": "FloatingActionButtonLocation",
           "doc": "Where a screen's `Scaffold` places it."
+        },
+        {
+          "key": "autofocus",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
         }
       ],
       "docs": "forms.md#node-floatingActionButton"
@@ -25842,6 +25890,11 @@
       "code": "invalid_theme",
       "severity": "error",
       "meaning": "The site manifest's \"theme\" is not of the right shape: colors are \"#AARRGGBB\" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles."
+    },
+    {
+      "code": "theme_role_in_colors",
+      "severity": "warning",
+      "meaning": "A colour role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's \"colors\": roles are top-level keys of the theme, so controls never read it. Move it up (\"primary\": \"#FF...\" or \"primary\": \"<a colour's name>\")."
     },
     {
       "code": "invalid_fonts",
