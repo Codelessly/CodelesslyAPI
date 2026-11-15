@@ -25,6 +25,8 @@ final List<MigrationStep> _legacyNodeSteps = [
   setVariableGlideStep,
   controlDragStep,
   clockTriggerStep,
+  fieldResultStep,
+  textMarkdownStep,
 ];
 
 /// The node steps that drop the deprecated one-app fields, after the
