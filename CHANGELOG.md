@@ -10,6 +10,14 @@
   `grow:=value` grows by a value. With a theme that names them: `sizes.ring` (a ring's stroke), text styles
   `gaugeValue` and `gaugeUnit`, and `colors.pageFill` (a neutral fill written on the page where the theme's
   own equals the page color).
+- **The compact notation, changed reading**: on a `Column`, `center` now centers its children side to side and
+  `middle` gathers them at its middle (it was the other way: `center` was along the column). A document expanded
+  from notation that wrote `Column center` comes out differently.
+- **The compact notation, more forms**: several top-level lines are a page's sections; `Avatar`; `Input …
+  password` and `multiline`; `LineChart labels:[…] series:[…]`, `AreaChart`, `Donut`; a `Stack` placed with
+  left, right, top, bottom; `Text … center`, `strike`; an `IconButton`'s `color:` and `size:`; `gradient:[…]`;
+  `maxw:`; `swipe:`; props guessed in a JSON tail are read as the notation's own keys or named at their line;
+  single quotes hold spaces in an expression; a row's fixed text widths become shares when they do not fit.
 - **A required component parameter set to its default value is kept.** `Props` dropped any value equal to the
   default, so a call that set a required parameter to it was stored without it and then reported
   `missing_prop`.

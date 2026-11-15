@@ -354,6 +354,24 @@ reordered by drag; a sparkline bound to state. Not checked: that the animations 
 a still), and levels 4 and 5 beyond these parts (custom paint, scripts, several pages, publishing), where the
 notation hands over to `ui_apply`.
 
+**Seven more areas, the same way** (forms, charts and tables, navigation, lists and gestures, media, full phone
+pages, full desktop pages; ten requests each; `natural-words/areas/`). The forms the model wrote that the
+notation or the renderer rejected were each given a reading: `center` across and `middle` down on every
+container (a `Column center` was read as its middle, 105 lines in the recorded answers); a page of several
+top-level sections; `Avatar`; `password` and `multiline` on an `Input`; `LineChart` with `series` and `labels`,
+`AreaChart`, `Donut`; guessed props in a JSON tail read as the key they are, or named at their line; a `Stack`
+placed with left, right, top, bottom; a `Text` aligned or struck through; an `IconButton`'s color and size;
+`gradient:`; single quotes holding spaces; a row's fixed widths as shares when they do not fit; `maxw:`. Over
+the 70 requests the notation's issues went from 15 to 9 and the renderer's errors from 51 to 18.
+
+One of these changes how existing notation expands, with or without a design system: `Column center` now centers
+the column's children side to side, where it gathered them at the column's middle. It is what every one of the
+105 recorded uses meant (an icon over its label, a centered figure), and the prompt's line was rewritten to say
+it. `Column middle` gathers them at the middle.
+
+Still asked for and not read: links and hover; a dialog, sheet or drawer as an element; a table as an element;
+chart legends and axes; a chart bound to state; reorder with a handle; pull to refresh; a map; shapes.
+
 ## 14. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
