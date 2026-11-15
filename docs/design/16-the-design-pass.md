@@ -260,6 +260,14 @@ that its results sit below the blocks. The causes, and the work that follows fro
 | The composer's plain card is thin (five to eight rows of text) | The composer's prompt, not the pass: ask for the facts a designed card of that kind carries. Untried |
 | The defaults are generic where the blocks are specific | The cycle below |
 
+**The pass with blocks, first result.** The six run 10 briefs were run again with `--blocks` (CodelesslySDK
+`examples/showcase/design-pass-runs/run10-with-blocks/`, three rounds allowed). All six were kept. The agent
+used a block in two of them, and only `ActionButton`; the rest it built from plain nodes as before. Beside run
+10's results the cards differ in detail (a dashed code panel, an icon on a button, a warning tinted) and not
+in kind: no card gained a composition a block would have. Telling the agent of the blocks and showing three as
+written is not enough. Untried: showing it pictures of the closest blocks; a block made for the request on
+demand; a composer that writes more of what a designed card carries.
+
 **The cycle** (each turn of it is one measured change):
 
 1. *Read the gap.* `examples/showcase/tool/pass_ops.py` counts what the pass changed again and again over the
