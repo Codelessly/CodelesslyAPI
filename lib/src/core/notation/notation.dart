@@ -516,6 +516,8 @@ class _Parser {
       return;
     }
     if (raw.trim().isEmpty || raw.trimLeft().startsWith('//')) return;
+    // An answer wrapped in a code fence: the fence is not notation.
+    if (raw.trimLeft().startsWith('```')) return;
     final indent = raw.length - raw.trimLeft().length;
     final before = nodes.length;
     // `Dots =page count:n`: a dot per page, the current one long and in the
@@ -716,8 +718,21 @@ class _Parser {
       if (j is Map) _documentPatch = mergePatch(_documentPatch ?? const {}, j.cast<String, Object?>(), keepNulls: true);
       return;
     }
+    // A property written after the actions (`-> step = 3 enabled:{valid}`)
+    // belongs to the node: it is read before the arrow.
+    final late = RegExp(r'^(.*?)(\s->\s.*?)((?:\s+(?:enabled|visible|selected|disabled|tone|icon):(?:=?\{[^{}]*\}|=\S+|"[^"]*"|[A-Za-z_][A-Za-z0-9_.]*))+)\s*$').firstMatch(line);
+    if (late != null) line = '${late[1]}${late[3]}${late[2]}';
     for (final d in _derived.entries) {
       if (!line.contains(d.key)) continue;
+      // A worked-out value follows the state by itself: an action that sets
+      // it too (`-> votes=…; total=total+1`) is dropped, not rewritten.
+      final arrow = line.indexOf(' -> ');
+      if (arrow >= 0) {
+        final k = RegExp.escape(d.key);
+        final actions = line.substring(arrow + 4).replaceAll(RegExp('(^|;)\\s*$k\\s*(?:[-+*/])?=(?!=)[^;]*'), '').replaceFirst(RegExp(r'^\s*;\s*'), '');
+        line = actions.trim().isEmpty ? line.substring(0, arrow) : '${line.substring(0, arrow)} -> $actions';
+        if (!line.contains(d.key)) continue;
+      }
       // A call on the name (`total.toFixed(2)`) is rewritten while it is
       // still a name: written out, it is a formula no call pattern follows.
       if (line.contains('${d.key}.')) {

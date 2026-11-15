@@ -1074,6 +1074,18 @@ Column gap:8
       expect(doc, contains(inner.substring(1, inner.length - 1)));
     });
 
+    test('a property after the actions, a fence around the answer, and an action that sets a worked-out value', () {
+      final r = _parse('```\nstate step=1\nstate ok=true\nstate tally=[1,2]\nstate total=sum(tally,x=>x)\nCard\n  Button "Go" -> step = 3 enabled:{ok}\n  Button "Vote" -> tally=append(tally,1); total=total+1; toast "Thanks"\n  Text "{total}"\n```\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      final nodes = (r.document['nodes']! as Map).cast<String, Object?>();
+      final go = jsonEncode(nodes['filledButton1']), vote = jsonEncode(nodes['filledButton2']);
+      expect(go, contains(r'"props.enabled":"${ok}"'));
+      expect(go, contains(r'"value":"${= 3}"'));
+      expect(vote, contains('append(tally,1)'));
+      expect(vote, contains('Thanks'));
+      expect(vote, isNot(contains('sum(tally')), reason: 'the total follows the tally; it is not set');
+    });
+
     test('key:={expression}', () {
       final r = _parse('state running=false\nstate done=1\nCard\n  Button "Go" enabled:={!running && done < 6}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
