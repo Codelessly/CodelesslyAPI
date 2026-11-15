@@ -32,6 +32,7 @@ String notationPrompt({
   DesignSystem? designSystem,
   Set<String>? only,
   bool natural = false,
+  bool wanted = false,
 }) {
   final c = catalog ?? Catalog.current;
   final componentLines = designSystem == null
@@ -72,7 +73,9 @@ ${brief.split('\n').map((l) => '  $l').join('\n')}
 
 COMPONENTS (${designSystem!.name}: ready-made, already styled; prefer one of these to building its look from boxes)
   Written like any node: Name "text" key:value =variable -> action. The quoted names are filled, in order, by the strings you write; a name ending in ! must be given (key:value). =variable is where the component keeps its value (created for you); -> runs when it is used (its first event). Lists are written ["a","b"]. A component with (children) takes lines indented under it.
-${componentLines.map((l) => '  $l').join('\n')}
+${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
+
+  When no component fits a part of the UI, build that part from the plain types under a line Wanted "Name" "what it shows and takes" (Wanted "PollResults" "each option with its share of the votes as a bar, the leader marked"). It is drawn as you wrote it, and a designed component of that name is made for later answers. Ask only for a part worth designing once and using again, never for what a listed component already does.''' : ''}
 ''';
   final short = {
     for (final e in notationTypes.entries)

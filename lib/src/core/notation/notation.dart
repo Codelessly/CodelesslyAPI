@@ -31,8 +31,31 @@ final class NotationIssue {
 }
 
 /// What [parseNotation] gives: the document and what it could not read.
+/// A component an answer asked for because none fitted a part of its UI:
+/// `Wanted "PollResults" "each option with its share of the votes"`, with the
+/// part built from plain parts under it. The part shows as written; a host
+/// may have the component designed and added for the answers that follow.
+final class WantedBlock {
+  const WantedBlock(this.name, this.purpose, this.node);
+
+  /// The name the component would be called by.
+  final String name;
+
+  /// What it shows, in the answer's words.
+  final String purpose;
+
+  /// The id of the node that stands in for it (a column of plain parts).
+  final String node;
+
+  @override
+  String toString() => 'WantedBlock($name: $purpose)';
+}
+
 final class NotationResult {
-  const NotationResult(this.document, this.issues);
+  const NotationResult(this.document, this.issues, {this.wanted = const []});
+
+  /// The components the text asked for ([WantedBlock]).
+  final List<WantedBlock> wanted;
 
   /// A schema-3 layout document.
   final Json document;
@@ -270,6 +293,9 @@ const Map<String, ({String type, Json node})> notationTypes = {
   // Pages swiped across, one at a time: the lines under it are its pages
   // (or, under an `each`, one page per element).
   'Pages': (type: 'pageView', node: {}),
+  // A part no component fits, built from plain parts under it; the line
+  // names the component wanted for it (see [WantedBlock]).
+  'Wanted': (type: 'column', node: {}),
 };
 
 /// `Button.<variant>`: the button type and props it stands for.
@@ -371,6 +397,9 @@ final class NotationStream {
   /// What could not be read so far.
   List<NotationIssue> get issues => List.unmodifiable(_parser.issues);
 
+  /// The components the answer asked for so far (`Wanted "Name" "what it shows"`).
+  List<WantedBlock> get wanted => List.unmodifiable(_parser.wanted);
+
   List<Json> add(String chunk) {
     _buffer.write(chunk);
     final text = _buffer.toString();
@@ -443,6 +472,7 @@ class _Parser {
   final nodes = <String, Json>{};
   final variables = <String, Json>{};
   final issues = <NotationIssue>[];
+  final wanted = <WantedBlock>[];
 
   /// The edit operations of the lines read so far, not yet taken ([take]).
   final ops = <Json>[];
@@ -609,7 +639,7 @@ class _Parser {
         ...nodes,
       },
       if (variables.isNotEmpty) 'variables': {screen: variables.values.toList()},
-    }), issues);
+    }), issues, wanted: List.unmodifiable(wanted));
   }
 
   void _issue(int column, String message) => issues.add(NotationIssue(_line, column, message));
@@ -1579,6 +1609,11 @@ class _Parser {
     // list tile's are its title and subtitle.
     final texts = [..._texts];
     _texts.clear();
+    if (written == 'Wanted') {
+      // Its strings are the request, not text to show.
+      if (texts.isNotEmpty) wanted.add(WantedBlock(texts.first, texts.length > 1 ? texts[1] : '', id));
+      texts.clear();
+    }
     try {
       _strings(texts, type, id, out);
     } finally {
