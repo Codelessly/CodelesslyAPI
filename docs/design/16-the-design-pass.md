@@ -1,6 +1,6 @@
 # 16. The design pass: fast first, then designed
 
-Status: proven on inline cards (2026-11-15); being measured on full pages. This document is the architecture
+Status: proven on inline cards and on full mobile and desktop pages (2026-11-15). This document is the architecture
 as it runs today, what each agent is given word for word, and three complete examples.
 
 ## 1. What it is
@@ -172,6 +172,31 @@ second). First answer: 18 to 53 seconds, median 29.6; 14 to 80 operations, media
 two faults the plain cards had: `itinerary` overflowed its column and `order_summary` had rows running
 together. It does not repair what the composer got wrong in content: `dashboard`'s four figures are empty
 before and after, and `image_gallery` shows only its title.
+
+### Full pages
+
+Three versions of each page were rendered and shown, unlabeled and in shuffled order, to two judges (Opus and
+Sonnet): the bundled SSUI look, the Cards designed defaults (plain parts in the Cards look, no pass), and the
+designed defaults with the design pass.
+
+| Set | Pages | Pass kept by the checks | Judged order | Typical scores (SSUI, designed, pass) |
+|---|---|---|---|---|
+| Mobile, 420 wide | 6 (four written by hand, two real generated app screens) | 6 of 6 | pass, designed, SSUI in 12 of 12 judgments | 3–5, 6–7, 8–9 |
+| Desktop, 1280 wide | 7 (five written by Sonnet from a one-paragraph brief, two by hand) | 4 of 7 | pass first in 14 of 14; designed second in 12 | 1–5, 5–7, 6–9 |
+
+What the desktop set showed:
+
+- **The three refusals were not the pass's faults.** Two were warnings at the 768-wide check, where a three-pane
+  desktop layout does not fit whatever its style; one was the composer's own missing properties on two blocks,
+  present before the pass. The check at a second width needs to be a width the layout is meant for.
+- **The pass repaired a layout fault** (the support inbox's list overflowed its pane with designed defaults and
+  does not after), which is why designed defaults ranked last on that page.
+- **The SSUI column is not a fair measure on three desktop screens** (CRM, analytics, billing): the composer was
+  given the Cards blocks and used them, and they do not exist without the design system, so those renders are
+  mostly empty.
+- **Content gaps stay**: the CRM's detail panel is empty in all three versions.
+- Desktop scores are lower than mobile for every version: the composer's desktop layouts are weaker (panes of
+  unequal height, a narrow sidebar's labels wrapping), and style does not fix structure.
 
 ## 7. What it costs
 
