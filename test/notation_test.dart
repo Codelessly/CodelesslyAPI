@@ -1052,6 +1052,19 @@ Column gap:8
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [["Price per person", pick==1 ? "£128" : "£84"],["Total", fixed(total, 2)]]}')));
     });
 
+    test('a quoted text in a formula reads its values', () {
+      final r = _parse('state n=4\nCard\n  Select =x items:=[["Serves","{n}"],["Each","\${fixed(n, 2)}"]]\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(jsonEncode(r.document), contains(jsonEncode(r'${= [["Serves",("" + (n))],["Each",("$" + (fixed(n, 2)))]]}')));
+    });
+
+    test('a list left open at the end of a line goes on over the next lines', () {
+      final r = _parse('state n=4\nCard\n  Select =x items:=[\n    "Chicken, "+round(800*n/4,0)+" g",\n    "Lemons, "+n\n  ]\n  Text "after"\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(jsonEncode(r.document), contains(jsonEncode(r'${= [ "Chicken, "+round(800*n/4,0)+" g", "Lemons, "+n ]}')));
+      expect(jsonEncode(r.document), contains('after'));
+    });
+
     test('key:={expression}', () {
       final r = _parse('state running=false\nstate done=1\nCard\n  Button "Go" enabled:={!running && done < 6}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');

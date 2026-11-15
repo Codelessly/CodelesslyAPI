@@ -499,6 +499,22 @@ class _Parser {
       _pending = raw;
       return;
     }
+    // A list or a call left open at the end of a line goes on over the
+    // next lines (items:=[ and one element a line), joined as one.
+    if (_open case final String open) {
+      final all = '$open ${raw.trim()}';
+      _openLines++;
+      if (_opened(all) > 0 && _openLines < 60) {
+        _open = all;
+        return;
+      }
+      _open = null;
+      raw = all;
+    } else if (RegExp(r'[\[(,]\s*$').hasMatch(raw) && _opened(raw) > 0 && !raw.trimLeft().startsWith('//')) {
+      _open = raw.trimRight();
+      _openLines = 0;
+      return;
+    }
     if (raw.trim().isEmpty || raw.trimLeft().startsWith('//')) return;
     final indent = raw.length - raw.trimLeft().length;
     final before = nodes.length;
@@ -535,6 +551,10 @@ class _Parser {
 
   /// A line begun and not yet closed (its JSON runs over several lines).
   String? _pending;
+
+  /// A line whose list or call is still open, and how many lines it took.
+  String? _open;
+  int _openLines = 0;
   static final _wholeJsonLine = RegExp(r'^\s*(?:node(?:#[A-Za-z_][A-Za-z0-9_]*)?|document)\s*\{');
 
   /// Whether the JSON that starts at the first `{` of [s] is still open.
@@ -1725,6 +1745,11 @@ class _Parser {
 
   /// The end of the text: what is still open closes.
   void finish() {
+    if (_open case final String open) {
+      // Read as far as it goes: the line says what is wrong with it.
+      _open = null;
+      line(open);
+    }
     if (_pending != null) {
       _issue(1, 'The JSON of a node or document line was never closed: one closing brace per opening brace.');
       _pending = null;
@@ -2090,7 +2115,18 @@ class _Parser {
     return _identifier.hasMatch(e) && _natural(e) == e ? '\${$e}' : _formula(e);
   }
 
-  String _formula(String expr) => '\${= ${_natural(expr)}}';
+  String _formula(String expr) => '\${= ${_natural(_textsRead(expr))}}';
+
+  /// A quoted text inside a formula that reads a value (`["Serves", "{n}"]`)
+  /// is its parts joined, as it is in a list that is not a formula. A
+  /// `fill` template keeps its braces.
+  String _textsRead(String expr) {
+    if (!expr.contains('{') || expr.contains('fill(')) return expr;
+    return expr.replaceAllMapped(RegExp(r'"((?:[^"\\]|\\.)*)"'), (m) {
+      final text = m[1]!;
+      return _brace.hasMatch(text) && !text.contains('"') ? _formulaSource(text) : m[0]!;
+    });
+  }
 
   static const _methods = {'filter', 'map', 'sum', 'count', 'find', 'any', 'all', 'sortBy', 'trim', 'upper', 'lower', 'contains', 'startsWith', 'join', 'reverse', 'first', 'last', 'slice', 'take', 'unique', 'indexOf'};
 
