@@ -643,6 +643,10 @@ Column gap:8
     final sums = _parse('state a=1\nColumn\n  BarChart values:[a+1,a*2,3]\n');
     expect(sums.issues, isEmpty);
     expect((_node(sums, 'barChart1')['bind'] as Map)['props.values'], r'${= [a+1,a*2,3]}');
+    // A value word after := is the value, not a variable of that name.
+    final off = _parse('Column\n  Button "Send" enabled:=false\n');
+    expect(off.issues, isEmpty);
+    expect(_problems(off.document), isEmpty);
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));
