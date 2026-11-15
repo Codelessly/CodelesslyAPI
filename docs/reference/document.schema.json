@@ -2760,7 +2760,11 @@
         "noRight",
         "noBottom",
         "noLeft",
-        "none"
+        "none",
+        "start",
+        "end",
+        "noStart",
+        "noEnd"
       ]
     },
     "enum.TabAlignment": {
