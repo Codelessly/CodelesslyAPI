@@ -1627,8 +1627,8 @@ Written as the value's name, a JSON string (`"center"`).
 | `swipeDown` |  |
 | `drag` | The node is dragged (every move); `dragEnd` when it's let go. |
 | `dragEnd` |  |
-| `wheel` | Wheel or trackpad scroll over the node; a pinch on it. |
-| `pinch` |  |
+| `wheel` | Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node). |
+| `pinch` | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |
 | `changed` | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
 | `changeEnd` | A slider was let go, with its final value. |
 | `submitted` | A text field was submitted from the keyboard. |

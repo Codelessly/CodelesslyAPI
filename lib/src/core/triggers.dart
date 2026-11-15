@@ -56,8 +56,16 @@ enum TriggerType {
   drag,
   dragEnd,
 
-  /// Wheel or trackpad scroll over the node; a pinch on it.
+  /// Wheel or trackpad scroll over the node (`${result.deltaX}`,
+  /// `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the
+  /// node).
   wheel,
+
+  /// A pinch on the node: two fingers on a touch screen, or a trackpad
+  /// (ctrl + wheel on the web). Each step fires it with `${result.scale}`,
+  /// the scale of that step (multiply a zoom by it), and the point it is
+  /// about, `${result.x}`, `${result.y}` in the node (between the fingers;
+  /// the pointer on a trackpad): zoom about it by keeping that point still.
   pinch,
 
   /// An input's value changed (typed text, a toggled checkbox, a slider
