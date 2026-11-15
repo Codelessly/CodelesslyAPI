@@ -449,3 +449,16 @@ the Firebase project and function the service runs in and who approves blocks.
 
 **Not in this plan**: removing the Flutter widgets still in use (owner, 2026-11-14); device farms and store
 releases.
+
+**Decided by the owner (2026-11-15, after this plan):**
+
+1. *Values (B).* The fast model is dropped: cards are composed by Sonnet-level models only. The measure is now
+   Sonnet's: 21 of 25 on the audited cases, against the target of 9 in 10. (For the record, the small model is
+   not unable: its first-state values were right 20 of 20 with a new block in run 8; it is cards that hold
+   state and change that it gets right about half the time.)
+2. *README.* No change to the README and no comparison in it. The comparison with A2UI was for positioning,
+   which is settled; the draft is removed from the SDK repository. Stage C's README item is closed without a
+   change.
+3. *The Editor.* Its port to schema 3 (stage D) starts now, on its branch.
+4. *The library's backend (E).* The Firebase project is `codelessly-editor`.
+
