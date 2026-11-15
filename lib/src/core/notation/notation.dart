@@ -1375,7 +1375,7 @@ class _Parser {
     // edge, so it would end in a hard cut: it fades out there instead.
     if ((type == 'row' && props['scrollable'] == true && props['scrollDirection'] == 'horizontal') ||
         (type == 'pageView' && props['viewportFraction'] != null)) {
-      props.putIfAbsent('edgeFade', () => 28);
+      props.putIfAbsent('edgeFade', () => 12);
     }
 
     final out = <String, Object?>{

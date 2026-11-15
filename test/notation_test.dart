@@ -627,7 +627,7 @@ Column gap:8
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
     final pages = _node(r, 'pageView1');
-    expect(pages['props'], {'viewportFraction': 0.86, 'scrollDirection': 'horizontal', 'padEnds': false, 'edgeFade': 28});
+    expect(pages['props'], {'viewportFraction': 0.86, 'scrollDirection': 'horizontal', 'padEnds': false, 'edgeFade': 12});
     expect(pages['bind'], {'props.initialPage': r'${i}', 'data': r'${shoes}'});
     expect(((pages['actions'] as List).single as Map)['actions'], [
       {'type': 'setVariable', 'variable': 'i', 'value': r'${result.index}'},
@@ -646,7 +646,7 @@ Column gap:8
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));
-    expect(_node(strip, 'row1')['props'], containsPair('edgeFade', 28));
+    expect(_node(strip, 'row1')['props'], containsPair('edgeFade', 12));
     // The dots: one per page, the current one long, a tap goes to its page.
     final dot = (r.document['nodes']! as Map).values.cast<Map>().firstWhere((n) => (n['bind'] as Map?)?['layout.width'] != null);
     expect((dot['bind'] as Map)['layout.width'], r'${= index==i?16:6}');
