@@ -7,6 +7,9 @@
   figure inside, `limit:`, `unit:`), `Ring`, `Sparkline`, `animate:<word>` (fade, slide-up, slide-left, scale,
   pop, bounce, shake, pulse, spin, shimmer) with `duration:`, `delay:` and `stagger:`, `swipe:left -> …`, a
   `Stack` that centers with `center middle`, a slider's `step:`, an `every` whose actions are on the next line.
+  `grow:=value` grows by a value. With a theme that names them: `sizes.ring` (a ring's stroke), text styles
+  `gaugeValue` and `gaugeUnit`, and `colors.pageFill` (a neutral fill written on the page where the theme's
+  own equals the page color).
 - **A required component parameter set to its default value is kept.** `Props` dropped any value equal to the
   default, so a call that set a required parameter to it was stored without it and then reported
   `missing_prop`.

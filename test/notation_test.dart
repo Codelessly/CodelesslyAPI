@@ -742,7 +742,7 @@ Card
     expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
     // A gauge is a stack under its id: a clean arc and the figure inside it.
     expect(_node(r, 'g')['type'], 'stack');
-    expect(_node(r, 'g')['layout'], {'width': 240, 'height': 163});
+    expect(_node(r, 'g')['layout'], {'width': {'fill': 0}, 'height': 164});
     expect(_node(r, 'g')['children'], ['gArc', 'gValue', 'gUnit']);
     final g = _node(r, 'gArc');
     expect(g['type'], 'radialGauge');
@@ -784,11 +784,43 @@ Card
     expect(validateDocument(m.document).where((d) => d.severity == Severity.error), isEmpty);
     expect((((m.document['nodes'] as Map)['screen'] as Map)['actions'] as List).single, containsPair('trigger', {'type': 'timer', 'intervalMs': 1000, 'when': r'${= n<5}'}));
     expect(_node(m, 'tip')['props'], containsPair('divisions', 6));
+    // A share of a row that follows a value grows (a segmented bar's parts).
+    final bar = parseNotation('state a=3\nRow h:12\n  Box#seg grow:=a fill:#FF4285F4', catalog: standardCatalog);
+    expect(bar.issues, isEmpty);
+    expect(_node(bar, 'seg')['layout'], containsPair('flex', 1));
+    expect((_node(bar, 'seg')['bind'] as Map)['layout.flex'], r'${a}');
     expect(((_node(m, 'todo')['actions'] as List).single as Map)['trigger'], {'type': 'swipeLeft'});
     expect((_node(m, 'todo')['bind'] as Map)['animations[0].delay'], r'${= index*60}');
     // A word it does not have is named with the ones it has; timing alone says where it goes.
     final bad = parseNotation('Text "x" animate:teleport\nText "y" duration:300', catalog: standardCatalog);
     expect(bad.issues.map((i) => i.message).join('\n'), allOf(contains('No animate:teleport'), contains('go with animate:')));
+  });
+
+  test('a theme may say what a neutral fill written on the page becomes, where it would vanish into the page', () {
+    final theme = {
+      'colors': {
+        'primaryText': '#FF111827', 'primaryBackground': '#FFFFFFFF', 'subtleFill': '#FFF3F4F6', 'page': '#FFF3F4F6',
+        'card': '#FFFFFFFF', 'pageFill': '#FFFFFFFF', 'primaryBorder': '#FFE5E7EB',
+      },
+      'textStyles': {'body': {'fontSize': 13, 'color': 'primaryText'}},
+    };
+    const text = '''
+Column
+  Box#onPage w:44 h:44 radius:22 fill:#FFF1F5F9
+  Card
+    Box#inCard w:44 h:44 radius:22 fill:#FFF1F5F9
+  Box#brand fill:#FF7C3AED
+''';
+    Object? fill(NotationResult r, String id) => ((_node(r, id)['decoration'] as Map)['fills'] as List).single;
+    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
+    expect(r.issues, isEmpty);
+    // On the page the gray would be the page's own color: the theme's fill for the page. In a card it is the neutral fill.
+    expect(fill(r, 'onPage'), {'color': 'pageFill'});
+    expect(fill(r, 'inCard'), {'color': 'subtleFill'});
+    expect(fill(r, 'brand'), {'color': '#FF7C3AED'});
+    // A theme without the name reads it as before.
+    final plain = {...theme, 'colors': {...(theme['colors']! as Map)}..remove('pageFill')};
+    expect(fill(parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(plain, named: true)), 'onPage'), {'color': 'subtleFill'});
   });
 
   test('a theme may give the title a larger style on a wide page', () {

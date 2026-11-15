@@ -83,6 +83,8 @@ final class NotationOptions {
     this.barChart = const {},
     this.progress = const {},
     this.cardGap,
+    this.pageFill,
+    this.ringStroke,
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -114,6 +116,8 @@ final class NotationOptions {
       barChart: base.barChart,
       progress: base.progress,
       cardGap: base.cardGap,
+      pageFill: base.pageFill,
+      ringStroke: base.ringStroke,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -223,6 +227,8 @@ final class NotationOptions {
         if (sizes['progress'] != null) 'height': sizes['progress'],
       },
       cardGap: spacing['cardGap'] is num ? spacing['cardGap'] as num : null,
+      ringStroke: sizes['ring'] is num ? sizes['ring'] as num : null,
+      pageFill: named && colors['pageFill'] != null && colors['page'] != null ? (page: 'page', fill: 'pageFill') : null,
       barChart: radii['bar'] == null
           ? const {}
           : {
@@ -307,6 +313,16 @@ final class NotationOptions {
   /// theme's `spacing.cardGap`. Null: none.
   final num? cardGap;
 
+  /// A neutral fill written on the page itself (not inside a card) that the
+  /// theme reads as a color equal to the page's would not show: it is
+  /// written as `fill` instead (a theme's `colors.pageFill`, with `page` the
+  /// page color's name). Null: as read.
+  final ({String page, String fill})? pageFill;
+
+  /// How thick a `Ring` is drawn: a theme's `sizes.ring`. Null: the
+  /// control's own.
+  final num? ringStroke;
+
   /// What a `Card` inside a card adds (a row of options, a tile in a grid
   /// of cards): smaller corners, no shadow. Null: the same as [card].
   final Json? tile;
@@ -385,7 +401,7 @@ const double _snapDistance = 40;
 /// resolved to values (a role or a name of another color followed).
 Map<String, String> _palette(Json colors, Json theme) {
   final out = <String, String>{};
-  for (final n in {..._fillColors, ..._strokeColors, ..._textColors, 'surface'}) {
+  for (final n in {..._fillColors, ..._strokeColors, ..._textColors, 'surface', 'page'}) {
     Object? c = colors[n] ?? theme[n];
     for (var i = 0; i < 8 && c is String && !c.startsWith('#'); i++) {
       c = colors[c] ?? theme[c];
@@ -1579,8 +1595,19 @@ class _Parser {
                   {'color': '#00000000'},
                 ]);
           } else {
+            var fill = _named(_value(raw), 'fill');
+            // On the page, a fill the theme reads as the page's own color
+            // would vanish: the theme's fill for the page instead.
+            if (options.pageFill case final look? when fill is String && written != 'Card') {
+              var inCard = false;
+              for (String? at = parent?.id; at != null && !inCard; at = _parentOf[at]) {
+                inCard = _cards.contains(at);
+              }
+              final value = options.palette[fill], pageValue = options.palette['page'];
+              if (!inCard && value != null && pageValue != null && value.toUpperCase() == pageValue.toUpperCase()) fill = look.fill;
+            }
             decoration['fills'] = [
-              {'color': _named(_value(raw), 'fill')},
+              {'color': fill},
             ];
           }
           continue;
@@ -1806,8 +1833,9 @@ class _Parser {
         props.putIfAbsent(e.key, () => e.value);
       }
       if (!props.containsKey('target') && !bind.containsKey('props.target')) props.putIfAbsent('showTarget', () => false);
-      layout.putIfAbsent('width', () => 240);
-      // Its arc leaves the bottom third of its circle open.
+      // As wide as what it is in, its arc centered; the arc leaves the
+      // bottom third of its circle open.
+      layout.putIfAbsent('width', () => {'fill': 0});
       layout.putIfAbsent('height', () => layout['width'] is num ? ((layout['width']! as num) * 0.68).round() : 164);
     }
     if (sliderStep != null && sliderStep > 0) {
@@ -1822,6 +1850,7 @@ class _Parser {
       // The rest of the circle shows as a quiet track.
       props.putIfAbsent('backgroundColor', () => options.track);
       props.putIfAbsent('strokeCap', () => 'round');
+      if (options.ringStroke case final num w) props.putIfAbsent('strokeWidth', () => w);
     }
     // A sparkline is a line chart with no axes, grid or room around it.
     if (written == 'Sparkline') {
@@ -1852,6 +1881,9 @@ class _Parser {
     } else if (timing != null) {
       _issue(column, 'duration:, delay: and stagger: go with animate: on the same line (animate:fade duration:400).');
     }
+    // `grow:=share` follows a value: it grows, by 1 until the value is read
+    // (a bar's segments sized by their amounts).
+    if (bind.containsKey('layout.flex')) layout.putIfAbsent('flex', () => 1);
     if (stackAlign != null) _stackAlign[id] = stackAlign;
     // In a stack that centers, a child with no place of its own is centered.
     if (parent != null && _stackAlign[parent.id] != null) {
@@ -2062,7 +2094,11 @@ class _Parser {
         // The figure is sized to its gauge.
         'props': {
           'text': value is num ? (value == value.roundToDouble() ? '${value.round()}' : '$value') : '',
-          'style': figure(body, {'fontSize': arcLayout['width'] is num ? ((arcLayout['width']! as num) / 6).clamp(18, 40).round() : 40, 'fontWeight': 700}),
+          // The theme's style for a gauge's figure (`gaugeValue`), else a
+          // heavy 44; smaller in a small gauge.
+          'style': arcLayout['width'] is num && (arcLayout['width']! as num) < 200
+              ? figure(body, {'fontSize': ((arcLayout['width']! as num) / 6).clamp(18, 40).round(), 'fontWeight': 700})
+              : options.textStyles['gaugeValue'] ?? figure(body, {'fontSize': 44, 'fontWeight': 700}),
         },
         if (bound != null) 'bind': {'props.text': bound},
       };
@@ -2070,7 +2106,7 @@ class _Parser {
         nodes['${id}Unit'] = {
           'type': 'text',
           'layout': {'width': {'hug': 0}, 'height': {'hug': 0}, 'x': {'align': 0}, 'y': {'align': 0.5}},
-          'props': {'text': gaugeUnit, 'style': figure(options.textStyles['muted'] ?? body, const {})},
+          'props': {'text': gaugeUnit, 'style': options.textStyles['gaugeUnit'] ?? figure(options.textStyles['muted'] ?? body, const {})},
         };
       }
       for (final child in ['${id}Arc', '${id}Value', '${id}Unit']) {
