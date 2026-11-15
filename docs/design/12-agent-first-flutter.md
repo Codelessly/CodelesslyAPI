@@ -395,7 +395,10 @@ Out of scope by the owner's decision: removing the Flutter widgets still in use.
    - *The service*: the design loop (`design_block.py` today) run where the Editor's functions run, asked for
      by a session that found no block, gated by the checks, writing a version in review; an SDK loader that
      reads a hosted design system, so `UiSession(designSystem:)` and `addBlock` take blocks from the library.
-   - *Stages*: (a) the Editor's audit and port to 31, which this needs (its SDK is a far older submodule);
+   - *Stages*: (a) the Editor's move to 31. Read 2026-11-15: the Editor's master already builds on 30.1.0 of
+     both packages, as submodules 249 (SDK) and 163 (API) commits behind today's, and none of the 44 SDK types
+     it names was moved by the trim, so this is an update of two submodules and whatever those commits changed
+     under it, not a port from an old major;
      (b) the Library page read-only over the files in the SDK repository, in the Editor's storyboard, to settle
      the screens before any backend; (c) storage on the managed-component methods; (d) the review queue;
      (e) the service; (f) the SDK's hosted loader.
