@@ -81,6 +81,8 @@ final class NotationOptions {
     this.tile,
     this.sectionRadius,
     this.barChart = const {},
+    this.progress = const {},
+    this.cardGap,
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -110,6 +112,8 @@ final class NotationOptions {
       tile: base.tile,
       sectionRadius: base.sectionRadius,
       barChart: base.barChart,
+      progress: base.progress,
+      cardGap: base.cardGap,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -207,6 +211,11 @@ final class NotationOptions {
       },
       cta: ctaHeight == null ? null : {'width': {'fill': 0}, 'height': ctaHeight},
       palette: named ? _palette(colors, theme) : const {},
+      progress: {
+        if (radii['progress'] != null) 'borderRadius': radii['progress'],
+        if (sizes['progress'] != null) 'height': sizes['progress'],
+      },
+      cardGap: spacing['cardGap'] is num ? spacing['cardGap'] as num : null,
       barChart: radii['bar'] == null
           ? const {}
           : {
@@ -281,6 +290,15 @@ final class NotationOptions {
   /// `maxBarWidth`, its labels' font and colors): a theme's `radii.bar`,
   /// `spacing.bar` and `sizes.bar`. Empty: the chart's own defaults.
   final Json barChart;
+
+  /// What a theme's looks give `Progress`: `borderRadius` (its
+  /// `radii.progress`) and `height` (its `sizes.progress`). Empty: a 2 px
+  /// corner at the bar's own height.
+  final Json progress;
+
+  /// The space between a `Card`'s children when it writes no `gap`: a
+  /// theme's `spacing.cardGap`. Null: none.
+  final num? cardGap;
 
   /// What a `Card` inside a card adds (a row of options, a tile in a grid
   /// of cards): smaller corners, no shadow. Null: the same as [card].
@@ -1659,8 +1677,11 @@ class _Parser {
     if (type == 'progressBar' && !props.containsKey('max')) {
       final v = props['value'];
       if (v is! num || v <= 1) props['max'] = 1;
-      props.putIfAbsent('borderRadius', () => 2);
+      props.putIfAbsent('borderRadius', () => options.progress['borderRadius'] ?? 2);
     }
+    if (type == 'progressBar' && options.progress['height'] != null) layout.putIfAbsent('height', () => options.progress['height']);
+    // A card that writes no gap takes the theme's.
+    if (written == 'Card' && options.cardGap != null) props.putIfAbsent('spacing', () => options.cardGap);
     if (type == 'progressBar') {
       props.putIfAbsent('color', () => options.accent);
       props.putIfAbsent('backgroundColor', () => options.track);
