@@ -1192,6 +1192,8 @@ class _Parser {
         } else if (!raw.startsWith('=') && raw.startsWith('(') && !_literal(raw).$1) {
           raw = '=$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
         }
+        // key:={running}: both marks at once.
+        if (raw.startsWith('={') && _bracedExpression(raw.substring(1))) raw = raw.substring(1);
         if (_bracedValue.hasMatch(raw) || _bracedExpression(raw)) {
           raw = '=${raw.substring(1, raw.length - 1).trim()}';
         } else if (!raw.startsWith('=') && key != 'drag' && key != 'drop' && _expressionStart.hasMatch(raw) && !_literal(raw).$1) {
@@ -1201,7 +1203,11 @@ class _Parser {
         // (votes:[a+1,b]): it is read as the formula it is.
         if (raw.startsWith('[') || raw.startsWith('{')) {
           try {
-            jsonDecode(raw);
+            // …and so is one whose texts read values
+            // (items:["Lemons, {2 * servings}"]): each such text is its
+            // parts joined.
+            final decoded = jsonDecode(raw);
+            if (_readsValues(decoded)) raw = '=${_formulaSource(decoded)}';
           } catch (_) {
             raw = '=$raw';
           }
@@ -1331,11 +1337,6 @@ class _Parser {
           bind[path] = _read(raw);
         } else {
           var v = _value(raw);
-          // A text inside a list is kept as written: {name} there would be
-          // drawn with its braces, so it is said here.
-          if (v is List && v.any((e) => e is String && RegExp(r'\{[^{}]+\}').hasMatch(e))) {
-            _issue(col, 'A text inside a list is not read for {…}. Write the list as a formula: $key:=[a, b] (join text with +, as "Round "+n).');
-          }
           // A text parameter given a number (count:4) takes it as text.
           if (v is num && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.string)) v = '$v';
           if (v is String && v.contains(r'${') && !(type == 'text' && path == 'props.text')) {
@@ -2011,6 +2012,40 @@ class _Parser {
 
   static final _operatorAhead = RegExp(r' +(==|!=|>=|<=|&&|\|\||[<>?+*/]|-(?!>)|and\b|or\b) *[A-Za-z0-9_("!\x27-]');
   static final _bracedValue = RegExp(r'^\{[^{}":,]+\}$');
+
+  static final _brace = RegExp(r'\{([^{}]+)\}');
+
+  static bool _readsValues(Object? json) => switch (json) {
+        String s => _brace.hasMatch(s),
+        List l => l.any(_readsValues),
+        Map m => m.values.any(_readsValues),
+        _ => false,
+      };
+
+  /// [json] as a formula, each text that reads values (`"{n} left"`) as its
+  /// parts joined (`(n) + " left"`).
+  String _formulaSource(Object? json) {
+    switch (json) {
+      case final String s when _brace.hasMatch(s):
+        final parts = <String>[];
+        var at = 0;
+        for (final m in _brace.allMatches(s)) {
+          if (m.start > at) parts.add(jsonEncode(s.substring(at, m.start)));
+          parts.add('(${_natural(m[1]!.trim())})');
+          at = m.end;
+        }
+        if (at < s.length) parts.add(jsonEncode(s.substring(at)));
+        // Text first, so the parts join as text whatever the values are.
+        if (!parts.first.startsWith('"')) parts.insert(0, '""');
+        return '(${parts.join(' + ')})';
+      case final List l:
+        return '[${l.map(_formulaSource).join(', ')}]';
+      case final Map m:
+        return '{${m.entries.map((e) => '${jsonEncode(e.key)}: ${_formulaSource(e.value)}').join(', ')}}';
+      default:
+        return jsonEncode(json);
+    }
+  }
 
   /// `{count > 0 and not done}` after a key: an expression in braces, not a
   /// map (`{"a": 1}`, `{a: 1}`), which names a key first.
