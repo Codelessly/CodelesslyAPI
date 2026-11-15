@@ -294,6 +294,53 @@ noise, so these changes are **not shown to help or to harm**; one judgment ranke
 on the product page. They stay for now; the judge needs more cases or repeated judgments before it can settle
 a change this small (`design-pass-runs/mobile-app-screens/judge-after-text-defaults.json`).
 
+**Cycles of 2026-11-15, second session.** Every figure below comes from one way of judging, which differs from the
+first session's: the versions of a UI being compared are shown *together*, unlabeled and shuffled, to the two
+judges (`examples/showcase/tool/ways.py pack`, then `tally`), so a judgment is a direct comparison. This settles
+changes the earlier way (each state judged in its own run, means compared) could not: the judges agree on small
+differences when they see them side by side. The judges and the design agent were Opus and Sonnet subagents of a
+Claude Code session, not `judge.py` or `style_pass.py`'s API call (no API key was at hand); the prompts are the
+same. Scores are therefore comparable within a table, not with the first session's. Records:
+`CodelesslySDK/examples/showcase/design-pass-runs/cycles/` and `mobile-app-screens/judge-text-styles.json`.
+
+| Change | Tried on | Judged against the defaults as they stood | Verdict |
+|---|---|---|---|
+| `strong`, `muted`, `caption` as the pass restyles them (committed last session, unjudged) | 8 app screens, two shuffles, 32 judgments | Above the old styles in 30 of 32; mean 6.78 against 6.22 (SSUI 4.81, the pass 8.66) | **Kept** |
+| A section card with no shadow (`shadows.section`), from run 10's "stacked cards read heavy" | 11 phone screens, 6 desktop screens, 34 judgments | Below in 33 of 34; phone mean 5.95 against 6.86 | **Not moved.** The judges read the flat cards as unfinished; the shadow stays |
+| A quiet button (outlined, tonal) alone on its line at its own size, full width only under a full-width one (`sizes.ctaQuiet`), from run 10's "a secondary button goes full width" | the same 17 screens | Below in 17 of 22 on phones (6.59 against 6.86), 6 to 6 on desktop | **Not moved.** A small button left-aligned at a card's foot reads orphaned |
+| `Text.title` and `Text.pageTitle` at 28 from 900 wide (`sizes.wide`, `textStyles.titleWide`), from run 10's "the 20 px title is small at 1280" | 6 desktop screens, 12 judgments | Above in 12 of 12; mean 7.42 against 6.33 | **Kept.** `NotationOptions.fromTheme` reads the two names; `expand.dart --width` |
+| The recorded pass over all three tried together | 8 app screens | Pixel-identical on 7 of 8 (the pass overwrites what the defaults set); the eighth showed the orphaned quiet button | The kept change (the wide title) does not touch a phone screen, so the pass there is unchanged |
+
+The two that were not moved were removed from the notation again; only the wide title is in
+`NotationOptions.fromTheme`. With no design system, and with SSUI, 52 notation files (the 30 recorded UIs with
+`ui.txt` and the 22 showcase cards) expand byte-identically before and after.
+
+**The pass with blocks** (`style_pass.py --blocks`; the agent is told every own block and shown the three
+closest as written). On run 10's six briefs, against run 10's own pass and against `--blocks` plus pictures of
+those three blocks (`--block-pictures`, pictures from `style_pass.py block-pictures`), 12 judgments:
+
+| Version | Mean score | Ranked above run 10's pass | Kept by the checks |
+|---|---|---|---|
+| Plain (the defaults) | 2.67 | 0 of 12 | |
+| Run 10's pass | 7.25 | | 6 of 6 |
+| `--blocks` | 8.08 | 9 of 12 | 5 of 6 |
+| `--blocks` and block pictures | 6.75 | 5 of 12 | 4 of 6 |
+
+What it showed. The only block the agent placed was `ActionButton` (once a `Media` scene): none of the 43 blocks
+shows a pickup code, a PIN or a water reading, so on briefs like these blocks mostly raise the bar the agent
+builds to from plain nodes rather than replace them. The three refusals and every squashed button had one cause:
+a block node has no size in the document, and the agent wrote `{"hug": 0}` or nothing where the block is 46 high.
+The brief now lists each block's own `layout` and says to write it (the next table is with that change). Pictures
+of the closest blocks did not help on average: where the run passed it ranked first on two of the phone screens,
+and it lost where the same size fault broke the buttons. The closest three are picked by shared words with the
+request, which is crude (a water alert was shown `PhotoGallery`).
+
+**In the SDK.** `DesignPass(blocks: [...])` tells the agent of those blocks the same way, and
+`DesignPass.changedMeaning(before, after, blocks: {...})` accepts a node that is gone when new block nodes carry
+what it said and did: each text and value as a block's prop, each data binding as a block's binding, each
+reaction's actions under a block's event. A block that drops a label, an action or a bound value is refused and
+named. A container that is removed with actions or data bindings of its own is now also refused.
+
 **Counted but not moved** (38 runs): a card's column stretching its children (35 runs; no visible change where
 children already fill); texts in rows held to one line with an ellipsis (about 30); a plain 13 px text made
 the meta line or a row title depending on its role (the notation cannot tell the role); figures given the
@@ -301,8 +348,9 @@ number styles (the notation cannot tell a string is a figure); the bottom naviga
 
 **From run 10's review of the defaults on pages** (`run10/designed-defaults/REPORT.md`): stacked section cards
 read heavy at radius 18 with a shadow each; a button alone on its line goes full width even when it is a
-secondary action; the 20 px page title is small at 1280; captions were faint (addressed by the caption change
-above, unjudged).
+secondary action; the 20 px page title is small at 1280; captions were faint. All four are settled in the table
+above: the title and the caption changes are kept, and the judges did not share the reviewer's view of the
+shadow or of the full-width secondary button.
 
 **From run 10's clean app** (`run10/clean-app/REPORT.md`): SDK master needs API master
 (`DesignSystem.withComponent`, `componentFiles`): both need a release before the pass and stored blocks can be
