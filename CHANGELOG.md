@@ -1,28 +1,38 @@
 ## 32.0.0
 
-Released with codelessly_sdk 32.0.0.
+Released with codelessly_sdk 32.0.0. Stored documents and the JSON format are unchanged; the one breaking change
+is in how the compact notation reads `Column center`.
 
-- **The compact notation**: with a theme that has `sizes.wide` and a `titleWide` text style,
-  `NotationOptions.fromTheme(width:)` at that width or wider gives `Text.title` and `Text.pageTitle` the wide
-  style (a page's title on a desktop). A theme without the two names is unchanged.
-- **The compact notation, the words a model writes unprompted**: `Gauge` and `Dial` (a round meter with its
-  figure inside, `limit:`, `unit:`), `Ring`, `Sparkline`, `animate:<word>` (fade, slide-up, slide-left, scale,
-  pop, bounce, shake, pulse, spin, shimmer) with `duration:`, `delay:` and `stagger:`, `swipe:left -> …`, a
-  `Stack` that centers with `center middle`, a slider's `step:`, an `every` whose actions are on the next line.
-  `grow:=value` grows by a value. With a theme that names them: `sizes.ring` (a ring's stroke), text styles
-  `gaugeValue` and `gaugeUnit`, and `colors.pageFill` (a neutral fill written on the page where the theme's
-  own equals the page color).
-- **The compact notation, changed reading**: on a `Column`, `center` now centers its children side to side and
-  `middle` gathers them at its middle (it was the other way: `center` was along the column). A document expanded
-  from notation that wrote `Column center` comes out differently.
-- **The compact notation, more forms**: several top-level lines are a page's sections; `Avatar`; `Input …
-  password` and `multiline`; `LineChart labels:[…] series:[…]`, `AreaChart`, `Donut`; a `Stack` placed with
-  left, right, top, bottom; `Text … center`, `strike`; an `IconButton`'s `color:` and `size:`; `gradient:[…]`;
-  `maxw:`; `swipe:`; props guessed in a JSON tail are read as the notation's own keys or named at their line;
-  single quotes hold spaces in an expression; a row's fixed text widths become shares when they do not fit.
-- **A required component parameter set to its default value is kept.** `Props` dropped any value equal to the
-  default, so a call that set a required parameter to it was stored without it and then reported
-  `missing_prop`.
+### Breaking
+
+- **Notation: `center` and `middle` on a `Column` swapped.** `center` now centers children side to side;
+  `middle` gathers them at the column's middle. Notation that wrote `Column center` expands differently.
+
+### Added
+
+- **Notation, meters and charts**: `Gauge` / `Dial` (`limit:`, `unit:`), `Ring`, `Sparkline`,
+  `LineChart labels:[…] series:[…]`, `AreaChart`, `Donut`.
+- **Notation, motion**: `animate:<word>` (fade, slide-up, slide-left, scale, pop, bounce, shake, pulse, spin,
+  shimmer) with `duration:`, `delay:`, `stagger:`; `swipe:left -> …`.
+- **Notation, layout**: several top-level lines are a page's sections, stacked; a `Stack` placed with `left`,
+  `right`, `top`, `bottom`, or centered with `center middle`; `maxw:`; `grow:=value`.
+- **Notation, parts and props**: `Avatar`; `Input … password` / `multiline`; a slider's `step:`;
+  `Text … center` / `strike`; an `IconButton`'s `color:` and `size:`; `gradient:[…]`; an `every` with its
+  actions on the next line.
+- **Theme names the notation uses when present**: `sizes.wide` with a `titleWide` text style (wide page titles
+  from `NotationOptions.fromTheme(width:)`), `sizes.ring`, text styles `gaugeValue` and `gaugeUnit`,
+  `colors.pageFill`. A theme without them is unchanged.
+
+### Changed
+
+- **Notation is more forgiving**: props guessed in a JSON tail are read as the notation's own keys, or reported
+  at their line; single quotes hold spaces in an expression; fixed text widths in a row become shares when they
+  do not fit.
+
+### Fixed
+
+- **A required component parameter set to its default value is kept.** `Props` dropped it, and the call then
+  reported `missing_prop`.
 
 ## 31.0.0
 
