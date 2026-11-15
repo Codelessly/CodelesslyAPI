@@ -715,7 +715,7 @@ class _Parser {
     final parent = _stack.isEmpty ? null : _stack.last;
     // A handler on a line of its own under its control (`onPressed: a = 1`).
     final handler = RegExp(r'^(on[A-Z][A-Za-z]*|tap|press|click|change)\s*:\s*(.+)$').firstMatch(line);
-    if (handler != null && parent != null && nodes[parent.id] != null) {
+    if (handler != null && parent != null && nodes[parent.id] != null && !(catalog.widget(nodes[parent.id]!['type']! as String)?.props.any((p) => p.key == handler[1]) ?? false)) {
       final target = nodes[parent.id]!;
       final type = target['type']! as String;
       final spec = catalog.widget(type);
@@ -1161,7 +1161,8 @@ class _Parser {
         if (key == 'if' || key == 'when' || key == 'show') key = 'visible';
         // A handler written as a key, as models write one unprompted:
         // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
-        if (_handlerKey.hasMatch(key)) {
+        // …unless the node has a parameter of that name (a quote's `change:1.84`).
+        if (_handlerKey.hasMatch(key) && !(spec?.props.any((p) => p.key == key) ?? false)) {
           t.at = from + colon + 1;
           t.skipSpace();
           final String body;
