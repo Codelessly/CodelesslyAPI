@@ -1,3 +1,11 @@
+## Unreleased
+
+- **`DropTarget.slotWhenRefused`** is back in schema 3 (default false): the list opens its slot for a drag
+  `acceptIf` refuses too, as Flutter's `DragTarget` hands its builder the rejected candidates (a kanban column at
+  its WIP limit shows where the card would land, styled as blocked). The migration writes it out where schema 2
+  left it at its default (true) with an `acceptIf` and a list slot, so such a document renders as before instead
+  of reporting a behavior change (sprint_kanban's columns relied on it).
+
 ## 32.0.0
 
 Released with codelessly_sdk 32.0.0. Stored documents and the JSON format are unchanged; the one breaking change

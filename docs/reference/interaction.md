@@ -189,6 +189,7 @@ Takes `DragSource`s of the groups it `accepts` (Flutter's `DragTarget`).
 | `slot` | [DropSlot](values.md#enum-DropSlot) | `"gap"` | `none`, `gap`, `node` |  |
 | `slotNodeId` | String | `""` |  |  |
 | `slotSize` | [DropSlotSize](values.md#enum-DropSlotSize) | `"dragged"` | `dragged`, `node`, `inGap` |  |
+| `slotWhenRefused` | bool | `false` |  | The list opens its slot for a drag acceptIf refuses too (styled by ${drag.accepted}): a full column shows where a card would land. |
 | `enabled` | bool | `true` |  |  |
 
 <a id="behavior-track"></a>
