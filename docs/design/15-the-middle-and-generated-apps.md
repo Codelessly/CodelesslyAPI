@@ -754,6 +754,28 @@ The design this points to, to be built as readings and then taught: `for` beside
 `value` beside `result`; assignment to a field of the loop's item, or of `list[i]`, rewritten to the list
 rebuilt. Each is measured by the values check before it is taught in the prompt.
 
+**Built as readings the same day, and measured on the three models' own unprompted cards** (the 24 answers of
+this section, expanded with the Cards blocks; "unread" is a line or word the notation reported):
+
+| | Small | Middle | Large |
+|---|---|---|---|
+| Unread lines, before | 97 | 46 | 9 |
+| Unread lines, after | 12 | 14 | 4 |
+| Cards read with nothing unread, after | 3 of 8 | 3 of 8 | 5 of 8 |
+
+Read now: `for … in`; `else` and `else if`; `let`, `derived` and, before the card, a bare `name = value`;
+`$name`; a handler as a key or on a line of its own (`onPressed:{…}`, `tap:"…"`, `onChanged: …`) with `value`
+for the control's new value; `if:` as a key; a value with no mark, with or without spaces; `and`, `or`, `not`;
+a call on a value (`rows.filter(…)`, `rows.length`, `n.toFixed(2)`, `tasks.add(x)`, `tasks.remove(x)`); a
+record of a list changed where it stands; `n += 1`, `n++`; a guarded step (`if (c) { a = 1 }`) as the
+assignment made while the condition holds; `every 1s while:{…} onTick:{…}`.
+
+This measures what is read, not what is right: no card of these eight briefs has been driven and checked yet.
+What is still unread is mostly an expression as a block's unnamed first value (`Progress (a - b) / c`), a second
+card written beside the first, and parameters the blocks do not have. None of these forms is taught in the
+prompt yet; the prompt still shows `=name`, `:=` and `->`. Whether to teach the natural forms in their place,
+and which spelling of each, is decided by the values check on all 35 briefs with the small model.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
