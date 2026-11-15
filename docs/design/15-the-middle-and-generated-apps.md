@@ -709,6 +709,51 @@ with a streamed answer means a name may be met before the line that gives it a v
 strings of a list; changes in place. These are the design work of track 1, to be settled against the values
 check (SDK `tool/values/check.py`: 7 of 10 with the small model before these readings, target 9).
 
+### 4.14 The harder concepts, asked of three models (2026-11-15)
+
+Eight briefs that need more than a value (a cart with a quantity a line, a to-do list, a three-step sign-up, a
+countdown, a tip split, a quiz with a score, a filtered and sorted table, counters under one limit; SDK
+`tool/values/advanced_briefs`), given to the small, the middle and the large model as subagents with the same
+stripped instructions and nothing else to read (`tool/values/elicitation_instructions.txt`; answers and each
+model's own notes in `2026-11-15-elicit-advanced/`). How many of each model's eight cards used a form:
+
+| Concept | Form | Small | Middle | Large | Today's notation |
+|---|---|---|---|---|---|
+| Repeated | `for x in list` | 5 | 3 | 4 | `each x in list` |
+| | `each x in list` | 0 | 0 | 0 | |
+| Shown sometimes | an `if` line | 0 | 8 | 8 | `if` line |
+| | `else` | 0 | 5 | 4 | none |
+| | an `if:` key on the node | 7 | 0 | 0 | none |
+| A tap | `onPressed: …` / `onChanged: …` | 0 | 8 | 8 | `-> …` |
+| | `tap:"…"` / `change:"…"` | 8 | 0 | 0 | |
+| The new value in a handler | `value` | 5 | 7 | 8 | `result` |
+| One record of a list | assign to it in place (`item.qty = …`, `list[i].qty = …`) | 3 | 1 | 3 | `updateWhere`, `setAt`, `with` |
+| | rebuild the list with map or filter | 2 | 2 | 2 | as written |
+
+Every model declared what the card remembers on a line of its own (`state x = v`, `state x = v`, `$x = v`) and
+what is worked out as another such line (`let`, `derived`, or the same `$x = expression`); every model wrote
+time as `every 1s` with a condition and the steps; none wrote `each`, `->` or `result`.
+
+What they agree on, against today's notation:
+
+1. **A handler is statements on the control**: assignments separated by `;`, the control's new value called
+   `value`. The three spell the key differently (`onPressed:`, `tap:`), which says the key should be the event's
+   own name with the obvious short ones accepted, not a mark.
+2. **`for … in`**, never `each`.
+3. **A record of a list is changed where it stands** inside the loop. Rebuilding the list is what the engine
+   needs; it is not what anyone writes first.
+4. **`else`** exists.
+5. **A worked-out value is a declaration**, with or without a word of its own.
+
+Their own notes name what stayed unnatural: nothing tells an expression from text in a block's parameter (the
+small model quoted expressions, the large braced them, the middle wrote them bare); two-way binding had to be a
+value plus a handler; list helpers and money formatting had to be invented (`sum`, `.sum`, `toFixed`, `money`).
+
+The design this points to, to be built as readings and then taught: `for` beside `each`; `else`; `let` and
+`derived` beside a `state` that holds a formula; `onPressed:`, `onChanged:`, `tap:`, `change:` beside `->`, with
+`value` beside `result`; assignment to a field of the loop's item, or of `list[i]`, rewritten to the list
+rebuilt. Each is measured by the values check before it is taught in the prompt.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
