@@ -1801,7 +1801,12 @@ class _Parser {
   static final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
 
   /// An expression as a binding reads it: a name, or a formula.
-  String _read(String expr) => _identifier.hasMatch(expr.trim()) ? '\${${expr.trim()}}' : _formula(expr.trim());
+  String _read(String expr) {
+    final e = expr.trim();
+    // A word that is a value, not a name (enabled:=false): the value.
+    if (const {'true', 'false', 'null'}.contains(e)) return _formula(e);
+    return _identifier.hasMatch(e) ? '\${$e}' : _formula(e);
+  }
 
   String _formula(String expr) => '\${= $expr}';
 
