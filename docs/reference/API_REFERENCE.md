@@ -215,8 +215,8 @@ only in a row or column that has some (a fill or fixed main size).
 <a id="base-padding-margin-constraints-a-capped-width"></a>
 ### Padding, margin, constraints, a capped width
 
-- `padding` is space inside the node's box, `margin` outside it: a number (all sides) or **four** numbers
-  `[left, top, right, bottom]` (two numbers are not read).
+- `padding` is space inside the node's box, `margin` outside it: a number (all sides), **four** numbers
+  `[left, top, right, bottom]` (two are not read), or `{"start","top","end","bottom"}` ([RTL](#layout-rtl)).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`. `aspectRatio`: width / height.
 - **A full-width band with capped, centered content** (CSS `max-width: 1200px; margin: 0 auto`): the band fills
   the width and holds the background; its one child fills with `"constraints": {"maxWidth": 1200}`, centered by the
@@ -787,8 +787,8 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4811 |
-| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9669 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4812 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9882 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2906 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12891 |
@@ -2215,6 +2215,26 @@ A comparison table with a **sticky first column** on phones is two parts side by
 labels, and a row of plan columns that scrolls sideways (made to scroll only on phones by a media rule on its
 `scrollable`); give each table row the same height in both. From data: [a table from one template](#lists-a-table-from-one-template).
 
+<a id="layout-rtl"></a>
+### RTL
+
+`textDirection` (`"ltr"` | `"rtl"`, Flutter's `Directionality`) on a node lays it and everything under it out in that
+direction; a node without one inherits the nearest above it (none: left to right). Bind it to mirror a screen for
+Arabic or Hebrew from one place: `"bind": {"textDirection": "${= uiLang == 'ar' ? 'rtl' : 'ltr'}"}` on the canvas
+body. Under right to left:
+
+- rows and wrapping rows run from the right; a column's `start` / `end` cross alignment is the right / left edge;
+- a text's `start` / `end` alignment (the default is `start`) is the right / left edge, and its lines lay out right to
+  left; `left` and `right` stay where they are;
+- padding and margin written `{"start": 16, "top": 8, "end": 4, "bottom": 8}` put the start on the right; the list
+  form `[left, top, right, bottom]` stays absolute;
+- a stack mirrors each child's `x` (its distance from the left becomes its distance from the right);
+- directional icons (`arrow_back`, `chevron_right`, `send`, `undo`... the Material icons Flutter declares with
+  `matchTextDirection`) mirror; other icons do not.
+
+A part that must keep its own direction inside a mirrored screen (a phrase in another script, a code) sets its own
+`textDirection`: `"bind": {"textDirection": "${= langRtl ? 'rtl' : 'ltr'}"}`.
+
 <a id="layout-a-canvas-per-breakpoint"></a>
 ### A canvas per breakpoint
 
@@ -2359,9 +2379,9 @@ one part of a screen. Older documents use this:
   negative margin does not overlap a neighbor (`layout_clamped`): translate with `motion`.
 - A media patch replaces a size of another mode: `{"hug": 200}` over `{"fill": 292}` is `{"hug": 200}`. A field
   both patched and bound shows the binding (`media_overridden`): bind in the rule instead.
-- `squeezeChildren` (default true) shrinks children that do not fit, as CSS flex items shrink; false is
-  Flutter's overflow (`layout_overflow`).
-- A `spacer` takes free space only in a row or column with room to spare.
+- `squeezeChildren` (default true) shrinks children that do not fit (CSS flex shrink); false is Flutter's
+  overflow (`layout_overflow`).
+- A `spacer` takes free space only in a row or column with room.
 - Without `basis`, children of a wrapping row keep their own size.
 - `${screen.width}` prints `390.0`; `${= screen.width}` prints `390`.
 

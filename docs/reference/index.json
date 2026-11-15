@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6198
+      "words": 6199
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6177
+      "words": 6180
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 9669
+      "words": 9882
     },
     {
       "topic": "layout-layout-fields",
@@ -154,6 +154,14 @@
       "title": "A sticky header or column",
       "summary": "A header that stays at the top while the page scrolls under it: the scrolling column's first child with `\"sticky\": {\"offset\": 0}` (CSS `position: sticky`); it is drawn above the content and is pushed on by the end of its parent.",
       "words": 198
+    },
+    {
+      "topic": "layout-rtl",
+      "file": "layout.md",
+      "anchor": "layout-rtl",
+      "title": "RTL",
+      "summary": "`textDirection` (`\"ltr\"` | `\"rtl\"`, Flutter's `Directionality`) on a node lays it and everything under it out in that direction; a node without one inherits the nearest above it (none: left to right).",
+      "words": 213
     },
     {
       "topic": "layout-a-canvas-per-breakpoint",
