@@ -991,7 +991,19 @@ class _Parser {
       final w = (n['layout'] as Map?)?['width'];
       total += w is num ? w : 0;
     }
-    if (total <= options.width - 24) return;
+    // On a page a row of columns sits in a pane narrower than the window
+    // (beside a sidebar, in a card): from half the window on it is a
+    // table's row, and its columns are shares of the place it has.
+    final limit = options.width >= 700 && fixed.length >= 3 ? options.width / 2 : options.width - 24;
+    if (total <= limit) return;
+    // …the cells that are rows or columns of their own (a name beside its
+    // picture) with the texts.
+    if (options.width >= 700) {
+      for (final (id, n) in children) {
+        final w = (n['layout'] as Map?)?['width'];
+        if (w is num && w >= 80 && (n['type'] == 'row' || n['type'] == 'column')) fixed.add((id, n, w));
+      }
+    }
     for (final (id, n, w) in fixed) {
       final layout = (n['layout']! as Map).cast<String, Object?>()
         ..['width'] = {'fill': 0}
@@ -1097,8 +1109,16 @@ class _Parser {
       _close(_stack.removeLast());
     }
     // Inside an `each x in …`, x is the document's `item`.
-    for (final open in _stack) {
-      if (open.each != null && open.each != 'item') line = _rename(line, open.each!);
+    // In an `each` inside an `each` (a board's cards in its columns), the
+    // inner one's x is `item` and the outer one's is the item around it.
+    final eaches = [
+      for (final open in _stack)
+        if (open.each != null) open.each!,
+    ];
+    for (var k = 0; k < eaches.length; k++) {
+      final around = eaches.length - 1 - k;
+      final to = around == 0 ? 'item' : '${'parent.' * (around - 1)}parent.item';
+      if (eaches[k] != to) line = _rename(line, eaches[k], to);
     }
     // The small model marks a name with `$` (`$total`, `"{money($total)}"`):
     // the name is the same without it. A price ("$24") and an interpolation
@@ -1737,6 +1757,9 @@ class _Parser {
             layout['width'] = {'fill': 0};
           } else if (word == 'open' && (type == 'accordion' || type == 'expansionTile')) {
             props[type == 'accordion' ? 'expanded' : 'initiallyExpanded'] = true;
+          } else if (word.startsWith('#') && RegExp(r'^#[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(word)) {
+            // An anchor written after the text (`Heading "Why" #why`): a name
+            // for a link to scroll to, which nothing here reads.
           } else if (word == 'hidden') {
             node['visible'] = false;
           } else if (word == 'sticky') {
@@ -3230,7 +3253,7 @@ class _Parser {
         // `track('x', {\n  plan: 'pro',\n})`) reads nothing: it runs over
         // lines, or is a record written key: value.
         final inner = s.substring(i + 1, end - 1);
-        final code = inner.contains('\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
+        final code = inner.contains('\n') || inner.contains(r'\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
         if (!code) out.add((i, end));
         i = end - 1;
       }
