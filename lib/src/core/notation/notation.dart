@@ -2099,6 +2099,10 @@ class _Parser {
   /// `name.trim()`, `rows.length`) as the function of that name. Text in
   /// quotes is left as it is.
   String _natural(String expr) {
+    // Minutes and seconds from seconds, under the names models reach for.
+    if (expr.contains('formatTime(') || expr.contains('formatSeconds(')) {
+      expr = expr.replaceAll(RegExp(r'\bformat(Time|Seconds)\('), 'duration(');
+    }
     if (!expr.contains(RegExp(r'\b(and|or|not)\b|\.[a-zA-Z]+\(|\.length\b'))) return expr;
     final out = StringBuffer();
     final parts = expr.split(RegExp(r'''(?=["'])|(?<=["'])'''));
