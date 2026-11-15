@@ -321,3 +321,28 @@ What has to be true before it is worth running, in order:
 
 Rows 2 to 5 are what round 5 will exercise that no earlier round could; row 7 is written last, from what they
 turn out to be.
+
+## 11. Status against the goal (2026-11-15)
+
+Each part of the direction in §1, as it stands. Evidence is in the section named.
+
+| Part | State | Where |
+|---|---|---|
+| The levels (0 Core to 5 Feature Layers) | Defined, tagged in the catalog, checked by the validator at a level, with a reference page and a test | §3, §8 C; `lib/src/core/levels.dart`, `docs/reference/levels.md`, `test/levels_test.dart` |
+| Removing Flutter's widgets | Stopped by the owner's decision: every control and input is a render object; the widgets still used (lists on `Scrollable`, the app shell, embeds) stay because they work | §8 A |
+| The compact notation with SSUI defaults | Shipped. Since §8: whole-node lines, timers, drag and drop, `Pages`, `Dots`, sideways scrolling with an edge fade, looks written as token names, a design system's composition brief in the prompt, readings of what a model writes on a block's line | design 13; design 15 §4.7, §4.8, §4.11 |
+| Head to head with A2UI | Run three ways on the same 17 briefs, and on eight held-out ones, and scored by an outside judge: ship score 1.94 for A2UI, 2.53 for generic parts, 3.88 for designed blocks with the larger model | design 15 §4.6, §4.8, §4.11 |
+| SSUI as a generic design-system template | The template builds Paper, Harbor, Skip and Cards from SSUI; a whole set was restyled by its token files alone, the block files unchanged | §8 F; design 15 §4.11 |
+| A custom-styled Sudoku, a drag-and-drop builder, a whole app screen from natural language | Each generated from one paragraph and driven | §8 G, §9 |
+| The SDK polish pass | Layer order enforced by a test, both suites green (855 and 1,914), benchmark recorded. Open: the public API trim and the README's opening (owner's decisions), device checks | §8 H |
+| New design at generation speed | Not reached. What exists: a block designed on demand by a strong model in minutes and then composed in seconds, shown on two blocks with no outside judge yet | design 15 §4.9 |
+
+What stands between this and "production ready", in order:
+
+1. Values with the small model: cards that are designed and wrong. A session now reports a value that came out as
+   nothing; a value that is merely the wrong number is not caught. The grammar for values and formulas is to be
+   redesigned, not patched (design 15 §4.10).
+2. Decisions only the owner can make: the public API trim (a breaking change to a released package), the README's
+   opening, whether the on-demand path becomes a product path, the Editor port.
+3. What cannot be checked here: devices, cloud data, sign-in, payments, media.
+4. Outside results still to come: standalone run 7 (the on-demand path), and runs 4 and 5 of the earlier set.
