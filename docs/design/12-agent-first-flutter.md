@@ -337,6 +337,14 @@ Each part of the direction in §1, as it stands. Evidence is in the section name
 | The SDK polish pass | Layer order enforced by a test, both suites green (855 and 1,914), benchmark recorded. Open: the public API trim and the README's opening (owner's decisions), device checks | §8 H |
 | New design at generation speed | Not reached. What exists: a block designed on demand by a strong model in minutes and then composed in seconds, shown on two blocks with no outside judge yet | design 15 §4.9 |
 
+The three end targets were checked again on 2026-11-15, after this session's changes to the notation, the
+renderer and sessions, by replaying their recorded final answers on today's code and driving them with the render
+tool: the Sudoku takes a number in an empty cell, marks its row, column and box, and its clock runs; the kanban's
+first To do card dragged onto Done moves and both counts follow; the app screen's scripted interaction changes it
+as before. No render exceptions in any of the four replays (the form builder too). The replay tool's generic
+script, which drags a fixed distance and taps the first key, reported the Sudoku and the kanban as unused: it
+missed, the UIs were not broken.
+
 What stands between this and "production ready", in order:
 
 1. Values with the small model: cards that are designed and wrong. A session now reports a value that came out as
