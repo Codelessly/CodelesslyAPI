@@ -253,6 +253,15 @@ void main() {
       d['roots'] = ['home', 'other'];
       expectOne(d, Codes.canvasAsChild);
     });
+    test('an expression written into an animation field is reported, with the binding to use', () {
+      final d = base();
+      node(d, 'box')['animations'] = [
+        {'id': 'pulse', 'preset': 'pulse', 'enabled': r'${= count > 0}'},
+      ];
+      final found = withCode(d, Codes.looseValue).where((x) => x.path.endsWith('/animations/0/enabled')).toList();
+      expect(found, hasLength(1));
+      expect(found.single.message, contains('animations.pulse.enabled'));
+    });
     test('a share of the main axis in a column is reported as ignored, the cross axis is not', () {
       final d = base();
       (node(d, 'box')['layout'] as Map)['heightFactor'] = 0.5;
