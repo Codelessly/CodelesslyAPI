@@ -31,6 +31,7 @@ String notationPrompt({
   NotationOptions options = const NotationOptions(),
   DesignSystem? designSystem,
   Set<String>? only,
+  bool natural = false,
 }) {
   final c = catalog ?? Catalog.current;
   final componentLines = designSystem == null
@@ -101,13 +102,13 @@ LINE
 - "text" is the node's main string: a Text's text, a Button's or Toggle's label, an Input's label (a second string is its hint), an Icon's name, an Image's URL. {name} inside a string shows a variable: "Total: {total}".
 - key:value sets a prop by its name. Common keys: gap (space between children), pad (padding: one number or [left,top,right,bottom]), w, h (a number, fill or hug), fill (background color #AARRGGBB), radius. Quote a value with spaces: hint:"you@example.com". Lists are JSON: items:["S","M","L"].
 - Words on a Row or Column: start, center, end, between (along it); top, middle, bottom, left, right, stretch (across it). grow on a child takes the remaining room. hidden hides a node.
-- =name binds a control's value to a variable both ways (the variable is created for you): Slider =volume, Toggle "Wi-Fi" =wifi, Input "Email" =email, Select =size items:["S","M","L"]. On other keys write key:=expression with no spaces: visible:=count>0.
-- -> runs on tap (on change, for a control): name=value sets a variable; emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal. Separate several with ;
+${natural ? '''- =name binds a control's value to a variable both ways (the variable is created for you): Slider =volume, Toggle "Wi-Fi" =wifi, Input "Email" =email, Select =size items:["S","M","L"]. On other keys a value that follows the state is an expression in braces: visible:{count > 0}, enabled:{name != "" and agreed}, selected:{tab == "all"}.''' : '''- =name binds a control's value to a variable both ways (the variable is created for you): Slider =volume, Toggle "Wi-Fi" =wifi, Input "Email" =email, Select =size items:["S","M","L"]. On other keys write key:=expression with no spaces: visible:=count>0.'''}
+${natural ? '''- -> runs on tap (on change, for a control) and holds statements as you would write them in code: count += 1; liked = !liked; step = valid ? 3 : 2; if (qty > 0) { qty -= 1 }. Also: emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal. Separate several with ;''' : '''- -> runs on tap (on change, for a control): name=value sets a variable; emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal. Separate several with ;'''}
 - drag:group(value) on a node lets it be dragged carrying a value; drop:groupA,groupB -> … on a node takes those drops, and its -> runs on a drop with result.data the value carried: Card drag:todo(card.id), then Column drop:todo -> done=append(done,result.data).
-- state name=value on its own line (top level) declares a variable with a starting value.
+${natural ? '''- state name=value on its own line (top level, before the card) declares a variable with a starting value: state qty=1, state liked=false, state lines=[{"name":"Milk","price":3.2,"qty":2}]. let name = expression on its own line names a value worked out from the state, kept up to date as the state changes: let subtotal = sum(map(lines, l => l.qty * l.price)); let total = subtotal + 4.99. Never work a total out yourself and write it as text: write the expression, so it follows the state.''' : '''- state name=value on its own line (top level) declares a variable with a starting value.'''}
 - every 1000 -> name=value on its own line (top level) runs as time passes (milliseconds, or 1s): a clock, a countdown. every 1s when running -> … runs only while the condition holds.
 - if expression on its own line shows the lines indented under it only while it holds.
-- each row in rows on its own line repeats the lines indented under it once per element of a list variable (state rows=[{"name":"Ada","age":36}]); inside, {row.name} reads the element, and a control bound to one of its fields (Input =row.name, Toggle =row.done) changes that element in the list.
+${natural ? '''- each row in rows on its own line repeats the lines indented under it once per element of a list variable; inside, {row.name} reads the element, a control bound to one of its fields (Input =row.name, Toggle =row.done) changes that element, and so does an action: -> row.qty += 1; -> row.done = !row.done; -> rows.remove(row). Outside it, -> rows.add({"name":"Eggs","qty":1}) adds one.''' : '''- each row in rows on its own line repeats the lines indented under it once per element of a list variable (state rows=[{"name":"Ada","age":36}]); inside, {row.name} reads the element, and a control bound to one of its fields (Input =row.name, Toggle =row.done) changes that element in the list.'''}
 - #id only when something else needs to name the node.
 - Beyond these words: a {…} at the end of a line is merged into that node as JSON ({"props": {"size": 18}}). A whole node the notation has no word for is written as node {"type": "…", …} on its own line (its JSON may run over several lines); lines indented under it are its children, written as usual.
 - Sizes are worked out: in a Column a child is as wide as the column and as tall as its content; in a Row a child is as big as its content. Do not write sizes unless the design needs one.
@@ -127,8 +128,8 @@ TYPES
 FORMULAS (in {…}, after = and := and in -> name=…)
   Operators: + - * / % == != < <= > >= && || ! and cond ? a : b. Text in "double quotes" or 'single'. Lists [1,2], fields a.b, items list[0].
   Only these functions exist: ${notationFunctions.join(', ')}.
-  Lists never change in place: set the variable to a new list (-> cart=append(cart,item); -> rows=updateWhere(rows,r=>r.id==row.id,r=>with(r,"qty",r.qty+1))).
-  An action is one of the forms above, never a condition: to choose, set a variable to a formula (-> step=valid?3:2). Chips have selected:=expression and enabled:=expression.
+${natural ? '''  A list or a record changes as in code (rows.add(x), rows.remove(row), row.qty += 1); for anything else set the variable to a new list (rows = filter(rows, r => r.qty > 0)). Money is "{fixed(total,2)}"; a count is "{length(rows)} items".''' : '''  Lists never change in place: set the variable to a new list (-> cart=append(cart,item); -> rows=updateWhere(rows,r=>r.id==row.id,r=>with(r,"qty",r.qty+1))).'''}
+${natural ? '''  Every value shown that depends on the state is written as an expression in {…} (or a let name), never as a number you worked out: after a tap it must show the new value. Chips have selected:{expression} and enabled:{expression}.''' : '''  An action is one of the forms above, never a condition: to choose, set a variable to a formula (-> step=valid?3:2). Chips have selected:=expression and enabled:=expression.'''}
 
 BEYOND THESE WORDS
   The full vocabulary has more. Write that part as a node {…} line or a {…} tail; its reference page says how (ask for the page with ui_docs when you have that tool):

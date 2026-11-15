@@ -995,4 +995,30 @@ Column gap:8
       expect(notationPrompt(), isNot(contains('COMPONENTS')));
     });
   });
+
+  group('worked-out values as models write them', () {
+    Map<String, Object?> nodesOf(String text) => (_parse(text).document['nodes']! as Map).cast<String, Object?>();
+    String textOf(Map<String, Object?> nodes, String id) => ((nodes[id]! as Map)['props']! as Map)['text']! as String;
+
+    test('a value that starts with quoted text is still a formula', () {
+      final nodes = nodesOf('state n=2\nlet label = "Total " + n * 3\nCard\n  Text "{label}"\n');
+      expect(textOf(nodes, 'text1'), r'${= ("Total " + n * 3)}');
+    });
+
+    test('quoted text holding an operator stays a value', () {
+      final r = _parse('state note="a + b"\nCard\n  Text "{note}"\n');
+      expect(jsonEncode(r.document['variables']), contains('"value":"a + b"'));
+    });
+
+    test('a call on a worked-out value', () {
+      final nodes = nodesOf('state a=2\nlet sub = a * 1.5\nCard\n  Text "{sub.toFixed(2)}"\n');
+      expect(textOf(nodes, 'text1'), r'${= fixed((a * 1.5),2)}');
+    });
+
+    test('a condition in braces with spaces, quotes and words', () {
+      final nodes = nodesOf('state code=""\nstate n=1\nCard\n  Text visible:{n > 0 and not (code == "")} "Promo"\n');
+      expect(jsonEncode(nodes['text1']), contains(jsonEncode(r'${= n > 0 && !(code == "")}')));
+    });
+
+  });
 }

@@ -667,7 +667,20 @@ class _Parser {
       return;
     }
     for (final d in _derived.entries) {
-      if (line.contains(d.key)) line = _rename(line, d.key, '(${d.value})');
+      if (!line.contains(d.key)) continue;
+      // A call on the name (`total.toFixed(2)`) is rewritten while it is
+      // still a name: written out, it is a formula no call pattern follows.
+      if (line.contains('${d.key}.')) {
+        final k = RegExp.escape(d.key);
+        line = line
+            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.toFixed\\((\\d+)\\)'), (m) => 'fixed(${d.key},${m[1]})')
+            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.length\\b(?!\\()'), (m) => 'length(${d.key})')
+            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.([a-zA-Z]+)\\((\\)?)'), (m) {
+          if (!_methods.contains(m[1])) return m[0]!;
+          return m[2] == ')' ? '${m[1]}(${d.key})' : '${m[1]}(${d.key},';
+        });
+      }
+      line = _rename(line, d.key, '(${d.value})');
     }
     final parent = _stack.isEmpty ? null : _stack.last;
     // A handler on a line of its own under its control (`onPressed: a = 1`).
@@ -1148,7 +1161,7 @@ class _Parser {
         } else if (!raw.startsWith('=') && raw.startsWith('(') && !_literal(raw).$1) {
           raw = '=$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
         }
-        if (_bracedValue.hasMatch(raw)) {
+        if (_bracedValue.hasMatch(raw) || _bracedExpression(raw)) {
           raw = '=${raw.substring(1, raw.length - 1).trim()}';
         } else if (!raw.startsWith('=') && key != 'drag' && key != 'drop' && _expressionStart.hasMatch(raw) && !_literal(raw).$1) {
           raw = '=$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
@@ -1770,7 +1783,9 @@ class _Parser {
     for (final d in _derived.entries) {
       if (written.contains(d.key)) written = _rename('x:=$written', d.key, '(${d.value})').substring(3);
     }
-    if (!_literal(written).$1 && RegExp(r'[(+*/?<>&|]').hasMatch(written) && !written.startsWith('"')) {
+    // Text in quotes is not an operator: `"a + b"` is a value, `"Total " + n` a formula.
+    final code = written.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
+    if (!_literal(written).$1 && RegExp(r'[(+*/?<>&|]').hasMatch(code)) {
       _derived[m[1]!] = written;
       return;
     }
@@ -1960,6 +1975,19 @@ class _Parser {
 
   static final _operatorAhead = RegExp(r' +(==|!=|>=|<=|&&|\|\||[<>?+*/]|-(?!>)|and\b|or\b) *[A-Za-z0-9_("!\x27-]');
   static final _bracedValue = RegExp(r'^\{[^{}":,]+\}$');
+
+  /// `{count > 0 and not done}` after a key: an expression in braces, not a
+  /// map (`{"a": 1}`, `{a: 1}`), which names a key first.
+  static bool _bracedExpression(String raw) {
+    if (!raw.startsWith('{') || !raw.endsWith('}') || raw.length < 3) return false;
+    if (RegExp(r'^\{\s*("[^"]*"|[A-Za-z_][A-Za-z0-9_]*)\s*:').hasMatch(raw)) return false;
+    try {
+      jsonDecode(raw);
+      return false;
+    } catch (_) {
+      return true;
+    }
+  }
   static final _expressionStart = RegExp(r'^(![A-Za-z_(]|[A-Za-z_][A-Za-z0-9_.\[\]]*(\(|==|!=|>=|<=|>|<|&&|\|\||\?|\+|\*))');
   static final _variablePath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*|\[[^\]\s]*\])*$');
   /// The condition of the last `if` (and its `else if`s) at each depth, for an `else`.
