@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 9529
+      "words": 9669
     },
     {
       "topic": "layout-layout-fields",
@@ -449,7 +449,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 7877
+      "words": 7904
     },
     {
       "topic": "lists-triggers",

@@ -330,6 +330,11 @@ abstract final class PageViewProps {
     PagePaintOrder.forward,
   );
 
+  /// The pages fade out over this many pixels at the edge the next page
+  /// shows at (with [viewportFraction] under 1), in place of a hard cut.
+  static const edgeFade = PropDef<double>('edgeFade', DoubleCodec(min: 0), 0,
+      doc: 'The next page showing at the edge fades out over this many pixels, not cut hard.');
+
   static const spec = WidgetSpec(
     'pageView',
     fillsWidth: true,
@@ -337,7 +342,7 @@ abstract final class PageViewProps {
       CollectionScrollProps.scrollDirection, CollectionScrollProps.reverse, CollectionScrollProps.physics, //
       CollectionScrollProps.alwaysScroll, CollectionScrollProps.clipBehavior, CollectionScrollProps.itemCount,
       pageSnapping, padEnds, keepPage, initialPage, viewportFraction, allowImplicitScrolling, animationDuration,
-      animationCurve, pageMotion, pageMotionBefore, paintOrder,
+      animationCurve, pageMotion, pageMotionBefore, paintOrder, edgeFade,
     ],
     children: ChildModel.list,
     childFits: cellChildFits,

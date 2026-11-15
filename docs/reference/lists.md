@@ -203,6 +203,7 @@ Flutter `PageView`: its first child repeated per page.
 | `pageMotion` | [Pose](values.md#type-Pose) | unset |  | A 3D look for the pages as they scroll (coverflow, cube, carousel): the motion a page has one page after the current one. The current page is at rest, pages between are interpolated by their distance (clamped to two pages) and pages before are mirrored (`translateX`, `shiftX`, `rotate`, `rotateY` and the alignment's x change sign). A `Pose`: a transform with an opacity and a blur. Null: flat pages. |
 | `pageMotionBefore` | [Pose](values.md#type-Pose) | unset |  | The motion a page has one page *before* the current one, when the two sides differ (a book: the page leaving turns over about the spine, `{shiftX: 1, rotateY: -100, alignment: [-1, 0]}`, while the next one lies still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance like `pageMotion` and not mirrored. Null: `pageMotion` mirrored. |
 | `paintOrder` | [PagePaintOrder](values.md#enum-PagePaintOrder) | `"forward"` | `forward`, `reverse` | Which pages draw on top where they overlap: `forward` (Flutter's order: later pages over earlier ones) or `reverse` (earlier pages on top, so a page turning away covers the one it reveals). Taps reach the page on top first. |
+| `edgeFade` | double | `0` | ≥ 0 | The next page showing at the edge fades out over this many pixels, not cut hard. |
 
 <a id="node-tableView"></a>
 ### `tableView`

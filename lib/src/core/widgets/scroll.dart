@@ -24,5 +24,11 @@ abstract final class ScrollProps {
   static const itemSnapping = PropDef<bool>('itemSnapping', Codecs.bool, false,
       doc: 'Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards.');
 
-  static const List<PropDef<Object?>> all = [scrollable, scrollDirection, reverse, physics, alwaysScroll, clipBehavior, itemSnapping];
+  /// Content that continues past an edge fades out over this many pixels
+  /// there, in place of a hard cut: at the end while there is more to
+  /// scroll to, at the start once it has scrolled. 0: none.
+  static const edgeFade = PropDef<double>('edgeFade', DoubleCodec(min: 0), 0,
+      doc: 'Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card.');
+
+  static const List<PropDef<Object?>> all = [scrollable, scrollDirection, reverse, physics, alwaysScroll, clipBehavior, itemSnapping, edgeFade];
 }
