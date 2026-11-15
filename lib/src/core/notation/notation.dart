@@ -1064,6 +1064,15 @@ class _Parser {
         if (raw.startsWith('=')) raw = '$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
+        // What models write for a value that follows state when nothing tells
+        // them how (tool/values in the SDK, fourteen answers): the name bare,
+        // the name or an expression in braces, or the expression as it is.
+        // None of them is text, which is written in quotes.
+        if (_bracedValue.hasMatch(raw)) {
+          raw = '=${raw.substring(1, raw.length - 1).trim()}';
+        } else if (!raw.startsWith('=') && key != 'drag' && key != 'drop' && _expressionStart.hasMatch(raw) && !_literal(raw).$1) {
+          raw = '=$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
+        }
         // A list or map that is not plain JSON holds expressions
         // (votes:[a+1,b]): it is read as the formula it is.
         if (raw.startsWith('[') || raw.startsWith('{')) {
@@ -1807,6 +1816,8 @@ class _Parser {
     return '$type$n';
   }
 
+  static final _bracedValue = RegExp(r'^\{[^{}":,]+\}$');
+  static final _expressionStart = RegExp(r'^(![A-Za-z_(]|[A-Za-z_][A-Za-z0-9_.\[\]]*(\(|==|!=|>=|<=|>|<|&&|\|\||\?|\+|\*))');
   static final _variablePath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*|\[[^\]\s]*\])*$');
   static final _dotsLine = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?\s+=([A-Za-z_][A-Za-z0-9_]*)\s+count:(\S+)(\s.*)?$');
   static final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
