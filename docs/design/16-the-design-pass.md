@@ -163,6 +163,16 @@ The first operation and the header's first node, as written:
 
 No text, binding, variable or action appears in any of the 23 operations.
 
+### All seventeen cards
+
+The pass was then run on every card of the plain-parts recording set (17 requests, Sonnet composer, Opus
+design agent, two rounds allowed). **17 of 17 passed the checks.** Eleven had nothing reported after the first
+answer; six needed the second round (one, `itinerary`, had 63 reports in its first round and none in its
+second). First answer: 18 to 53 seconds, median 29.6; 14 to 80 operations, median 38. The pass also removed
+two faults the plain cards had: `itinerary` overflowed its column and `order_summary` had rows running
+together. It does not repair what the composer got wrong in content: `dashboard`'s four figures are empty
+before and after, and `image_gallery` shows only its title.
+
 ## 7. What it costs
 
 Measured on the three cards above: 22 to 29 seconds and about 11,000 tokens in and 2,200 to 3,300 out for the
