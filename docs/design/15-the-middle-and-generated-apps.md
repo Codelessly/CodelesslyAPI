@@ -597,6 +597,14 @@ was found in this run.
 5. Completeness against the brief: the composition brief should say that a card shows every step the request
    names, and the showcase should drive each card's main interaction, not show a still.
 
+**Measured after the changes of §4.8 and §4.11** (SDK `2026-11-15-blocks-2`, the small model with blocks on the
+17 briefs, one run, against the morning's one run): retried 6 of 17 (was 11), answers ending with an error 0 (was
+3), 580 tokens out (was 849), 3.1 s (was 4.1 s), for about 1,060 more instruction tokens. What the six first
+answers got wrong: reading a field of a list's records as if it were a variable (one card, six times), a bare
+word on a block that no single parameter takes (three cards), a block's required title left out (two), and one
+each of five others. One run each way, so the size of the change is indicative, not established; whether the
+values on these cards are right has not been checked.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
