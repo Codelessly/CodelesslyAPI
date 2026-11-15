@@ -421,6 +421,36 @@ void main() {
       node(d, 'title')['bind'] = {'props.text': r'${size.width}'};
       expectOne(d, Codes.unknownName, path: '/nodes/title/bind/props.text');
     });
+    test('a custom paint repeat\'s own names (as, indexAs, count) are known inside its ops, and only there', () {
+      final d = base();
+      node(d, 'box')['customPaint'] = {
+        'painter': [
+          {
+            'op': 'repeat',
+            'count': 3,
+            'as': 'el',
+            'indexAs': 'k',
+            'ops': [
+              {'op': 'circle', 'c': [r'${el}', r'${count}'], 'radius': r'${k}', 'paint': '#FF000000'},
+              {
+                'op': 'repeat',
+                'each': r'${el}',
+                'ops': [
+                  {'op': 'line', 'p1': [r'${el.x}', r'${item}'], 'p2': [r'${index}', 0], 'paint': '#FF000000'},
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      expect(validateDocument(d), isEmpty);
+      // Outside the repeat the names mean nothing.
+      (node(d, 'box')['customPaint'] as Map)['painter'] = [
+        {'op': 'repeat', 'count': 2, 'as': 'el', 'ops': []},
+        {'op': 'circle', 'c': [r'${el}', 0], 'radius': 4, 'paint': '#FF000000'},
+      ];
+      expectOne(d, Codes.unknownName, path: '/nodes/box/customPaint/painter/1/c/0');
+    });
     test('a binding to a path that does not exist is reported with the right one (unknown_bind_path)', () {
       final d = base();
       node(d, 'title')['bind'] = {'props.txt': r'${count}'};

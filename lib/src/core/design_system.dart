@@ -198,7 +198,47 @@ final class DesignSystem {
     ];
   }
 
-  /// Reads a design system from its manifest's folder (or publish path):
+  /// This design system with [definition] (a component document) added, or
+  /// in place of the one of its type: in its library, and in the manifest's
+  /// list as `components/<Type>.json` when it was not listed. How a block
+  /// designed after the system was made (on demand, in a session) joins it.
+  DesignSystem withComponent(LayoutDocument definition) {
+    final type = definition.componentType;
+    if (type == null) throw ArgumentError('Not a component document: it needs a "widget" declaration.');
+    final listed = manifest.components.any((ref) => _stem(ref) == type);
+    return DesignSystem(
+      manifest: listed
+          ? manifest
+          : DesignSystemManifest.fromJson({
+              ...manifest.toJson(),
+              'components': [...manifest.components, componentRef(type)],
+            }),
+      design: design,
+      patterns: patterns,
+      components: ComponentLibrary({...components.definitions, ...ComponentLibrary.of([definition]).definitions}),
+    );
+  }
+
+  /// Where a component of [type] is kept, relative to the manifest.
+  static String componentRef(String type) => 'components/$type.json';
+
+  /// The files that store the component [type] in this design system's
+  /// folder, by reference relative to the manifest: its definition and the
+  /// manifest that lists it. A host writes them where it keeps the system
+  /// (a folder, a bucket); a system [load]ed from there afterwards has the
+  /// component. Null when it has no such component.
+  Map<String, String>? componentFiles(String type) {
+    final definition = components[type];
+    if (definition == null) return null;
+    const pretty = JsonEncoder.withIndent(' ');
+    final ref = manifest.components.firstWhere((r) => _stem(r) == type, orElse: () => componentRef(type));
+    return {
+      ref: '${pretty.convert(definition.toJson())}\n',
+      DesignSystemManifest.fileName: '${pretty.convert(withComponent(definition).manifest.toJson())}\n',
+    };
+  }
+
+
   /// [read] gives the text of a reference relative to it (null when there is
   /// none). The manifest is [DesignSystemManifest.fileName]; its documents
   /// and components are read by their references. [problems] collects

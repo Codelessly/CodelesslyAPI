@@ -1,6 +1,6 @@
 {
   "package": "codelessly_api",
-  "version": "31.0.0",
+  "version": "32.0.0",
   "schema": 3,
   "document": {
     "keys": [
@@ -303,6 +303,14 @@
           "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
         },
         {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
+        },
+        {
           "key": "fit",
           "type": "BoxFit",
           "kind": "enumeration",
@@ -511,6 +519,14 @@
           "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
         },
         {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
+        },
+        {
           "key": "fillViewport",
           "type": "bool",
           "kind": "boolean",
@@ -686,6 +702,14 @@
           "nullable": false,
           "min": 0.0,
           "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
+        },
+        {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
         },
         {
           "key": "fillViewport",
@@ -878,6 +902,14 @@
           "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
         },
         {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
+        },
+        {
           "key": "fillViewport",
           "type": "bool",
           "kind": "boolean",
@@ -993,6 +1025,14 @@
           "default": false,
           "nullable": false,
           "doc": "Shrinks the whole text to fit its width, keeping its lines (`FittedBox(fit: BoxFit.scaleDown)`)."
+        },
+        {
+          "key": "markdown",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": "Markdown look for the text (bold, italic, code, links, @mentions, lists); null shows the text as written."
         }
       ],
       "docs": "theme.md#node-text"
@@ -1209,6 +1249,14 @@
           "default": false,
           "nullable": false,
           "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
         },
         {
           "key": "scrollable",
@@ -1563,6 +1611,14 @@
           "default": false,
           "nullable": false,
           "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
         },
         {
           "key": "crossAxisCount",
@@ -12182,13 +12238,13 @@
       },
       {
         "type": "wheel",
-        "doc": "Wheel or trackpad scroll over the node; a pinch on it.",
+        "doc": "Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node).",
         "group": "pointer",
         "docs": "interaction.md#trigger-wheel"
       },
       {
         "type": "pinch",
-        "doc": "",
+        "doc": "A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still.",
         "group": "pointer",
         "docs": "interaction.md#trigger-pinch"
       },
@@ -16554,6 +16610,14 @@
             "inGap"
           ],
           "doc": ""
+        },
+        {
+          "key": "slotWhenRefused",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "The list opens its slot for a drag acceptIf refuses too (styled by ${drag.accepted}): a full column shows where a card would land."
         },
         {
           "key": "enabled",
@@ -24460,11 +24524,11 @@
       },
       {
         "value": "wheel",
-        "doc": "Wheel or trackpad scroll over the node; a pinch on it."
+        "doc": "Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node)."
       },
       {
         "value": "pinch",
-        "doc": ""
+        "doc": "A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still."
       },
       {
         "value": "changed",

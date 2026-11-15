@@ -121,6 +121,35 @@ void main() {
     });
   });
 
+  test('a component added later is stored: its file and the manifest that lists it, and the folder loads with it', () async {
+    final ds = await _load();
+    final chip = LayoutDocument.fromJson({
+      'schema': 3,
+      'id': 'Chip',
+      'roots': ['c'],
+      'widget': {'type': 'Chip', 'doc': 'A small label.', 'props': <Object?>[]},
+      'nodes': {
+        'c': {'type': 'box', 'layout': {'width': 40, 'height': 20}},
+      },
+    });
+    final grown = ds.withComponent(chip);
+    expect(ds.components['Chip'], isNull, reason: 'the original is unchanged');
+    expect(grown.components['Chip'], isNotNull);
+    expect(grown.manifest.components.last, 'components/Chip.json');
+    expect(grown.withComponent(chip).manifest.components.where((r) => r.endsWith('Chip.json')), hasLength(1));
+    final files = grown.componentFiles('Chip')!;
+    expect(files.keys, {'components/Chip.json', DesignSystemManifest.fileName});
+    expect(grown.componentFiles('Nothing'), isNull);
+    // What a host writes is what the next session loads.
+    final folder = {..._files, ...files};
+    final problems = <String>[];
+    final again = await DesignSystem.load((ref) async => folder[ref], problems: problems);
+    expect(problems, isEmpty);
+    expect(again.components['Chip']!.componentType, 'Chip');
+    expect(again.components['Button'], isNotNull);
+    expect(again.tokens.radii['control'], 7);
+  });
+
   test('a missing component file is reported, not thrown', () async {
     final problems = <String>[];
     final ds = await DesignSystem.load(

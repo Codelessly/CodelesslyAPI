@@ -715,7 +715,9 @@ final class Props {
     final typed = def.coerce(value);
     final next = {..._values};
     final defs = {..._defs};
-    if (typed == null || jsonEquality.equals(typed, def.defaultValue)) {
+    // A value equal to the default is not stored, but for a parameter the
+    // call must set: left out, the call would be missing it.
+    if (typed == null || !def.required && jsonEquality.equals(typed, def.defaultValue)) {
       next.remove(def.key);
       defs.remove(def.key);
     } else {
@@ -744,7 +746,7 @@ final class Props {
         continue;
       }
       final v = def.decode(e.value);
-      if (v != null && !jsonEquality.equals(v, def.defaultValue)) {
+      if (v != null && (def.required || !jsonEquality.equals(v, def.defaultValue))) {
         values[e.key] = v;
         defs[e.key] = def;
       }

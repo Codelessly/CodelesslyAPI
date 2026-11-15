@@ -3750,6 +3750,9 @@
         "slotSize": {
           "$ref": "#/$defs/enum.DropSlotSize"
         },
+        "slotWhenRefused": {
+          "type": "boolean"
+        },
         "enabled": {
           "type": "boolean"
         }
@@ -7635,6 +7638,9 @@
                     "type": "number",
                     "minimum": 0.0
                   },
+                  "dragEdgeScroll": {
+                    "type": "boolean"
+                  },
                   "fit": {
                     "anyOf": [
                       {
@@ -7742,6 +7748,9 @@
                     "type": "number",
                     "minimum": 0.0
                   },
+                  "dragEdgeScroll": {
+                    "type": "boolean"
+                  },
                   "fillViewport": {
                     "type": "boolean"
                   }
@@ -7812,6 +7821,9 @@
                   "edgeFade": {
                     "type": "number",
                     "minimum": 0.0
+                  },
+                  "dragEdgeScroll": {
+                    "type": "boolean"
                   },
                   "fillViewport": {
                     "type": "boolean"
@@ -7887,6 +7899,9 @@
                     "type": "number",
                     "minimum": 0.0
                   },
+                  "dragEdgeScroll": {
+                    "type": "boolean"
+                  },
                   "fillViewport": {
                     "type": "boolean"
                   }
@@ -7960,7 +7975,8 @@
                   },
                   "scaleDown": {
                     "type": "boolean"
-                  }
+                  },
+                  "markdown": {}
                 },
                 "additionalProperties": false
               },
@@ -8142,6 +8158,9 @@
                   },
                   "query": {},
                   "itemSnapping": {
+                    "type": "boolean"
+                  },
+                  "dragEdgeScroll": {
                     "type": "boolean"
                   },
                   "scrollable": {
@@ -8337,6 +8356,9 @@
                   },
                   "query": {},
                   "itemSnapping": {
+                    "type": "boolean"
+                  },
+                  "dragEdgeScroll": {
                     "type": "boolean"
                   },
                   "crossAxisCount": {

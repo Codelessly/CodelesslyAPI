@@ -1,5 +1,5 @@
 {
-  "version": "31.0.0",
+  "version": "32.0.0",
   "base": {
     "files": {
       "file": "STARTER.md",
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 9898
+      "words": 10034
     },
     {
       "topic": "layout-layout-fields",
@@ -177,7 +177,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 2906
+      "words": 2932
     },
     {
       "topic": "theme-theme-keys",
@@ -457,7 +457,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 7904
+      "words": 7972
     },
     {
       "topic": "lists-triggers",
@@ -777,7 +777,7 @@
       "anchor": "page-interaction",
       "title": "Interaction: reactions, states and gestures",
       "summary": "What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics.",
-      "words": 5286
+      "words": 5386
     },
     {
       "topic": "interaction-trigger-fields",
@@ -801,7 +801,7 @@
       "anchor": "interaction-triggers",
       "title": "Triggers",
       "summary": "Written as `\"trigger\": {\"type\": \"<trigger>\", ...}` in a reaction ($1).",
-      "words": 410
+      "words": 470
     },
     {
       "topic": "interaction-reactions",
@@ -1441,7 +1441,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13408
+      "words": 13476
     },
     {
       "topic": "values-value-types",

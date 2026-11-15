@@ -106,7 +106,7 @@ something is kept on the node as `legacy.<behavior>.<field>`, unread, and report
 | `orient: uprightFlip` (`uprightMirror`) | `upright`, and bind `motion.scaleX` to −1 while it heads left | lineworks_v2 |
 | a transition's `arc` | different curves on `motion.translateX` and `motion.translateY`, or a `motion.path` | lineup |
 | `dropTarget.fullIf` and the `dropFull` trigger | fold it into `acceptIf`; react to `dropRejected` | lamplight, seedbox |
-| `dropTarget.slotWhenRefused` | none: the slot opens for accepted drags only | mixtape |
+| `dropTarget.slotWhenRefused` left at schema 2's default (true) | `slotWhenRefused: true` written where an `acceptIf` and a list slot are set (schema 3's default is false) | mixtape, sprint_kanban |
 | `dropTarget.hoverDelay` and the `dragHover` trigger | `dragEnter` (with a timer for a delay) | none |
 | a snap's `projectVelocity: false` | none: a snap projects the fling | none |
 | `transformGesture.rotationSnap` | round the bound `rotationVariable` | none |
