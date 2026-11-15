@@ -1395,6 +1395,10 @@ Written as the value's name, a JSON string (`"center"`).
 | `noBottom` |  |
 | `noLeft` |  |
 | `none` | No side: Flutter's `Border()` (every side `BorderSide.none`), CSS `border-style: none`; for a stroke bound or patched off. |
+| `start` | The start side: Flutter's `BorderDirectional(start: ...)` (a sidebar's rule against the content, in a layout that can mirror). |
+| `end` | The end side: Flutter's `BorderDirectional(end: ...)`. |
+| `noStart` | Every side but the start. |
+| `noEnd` | Every side but the end. |
 
 <a id="enum-TabAlignment"></a>
 ### TabAlignment

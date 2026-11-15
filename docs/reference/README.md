@@ -38,11 +38,11 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [publish.md](publish.md) | Feature page. | 672 | 1237 |
 | [edit-ops.md](edit-ops.md) | Feature page. | 3581 | 5854 |
 | [render.md](render.md) | Feature page. | 3081 | 4771 |
-| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13358 | 20914 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 107410 | 187205 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 74444 | 194595 |
+| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13408 | 20986 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 107460 | 187277 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 74498 | 194713 |
 | [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10292 | 28598 |
-| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25206 | 105892 |
+| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25210 | 105909 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1267 | 3814 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |
 | [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2569 | 10937 |

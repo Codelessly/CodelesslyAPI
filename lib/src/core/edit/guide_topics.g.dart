@@ -450,7 +450,7 @@ const List<DocPage> docPages = [
     when: 'Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows\n(its fields) or an enum (its names). Link to one with `values.md#type-<Name>` or `values.md#enum-<Name>`. Models\nthat belong to a feature are on that feature\'s page (TextStyle on the theme page, InputDecoration on the forms\npage...); the [A–Z](index.md#index-a-z) finds any of them.',
     example: 'Value types are written in a compact form of their own; models are objects; enums are names:\n\n```json\n{"color": "#FF2563EB", "padding": [16, 8, 16, 8], "alignment": [0, -1], "fit": "cover"}\n```',
     pitfalls: '- Padding and margin are a number or four numbers; a list of two is not read.\n- An enum value is case sensitive.',
-    words: 13358,
+    words: 13408,
     items: [],
     sections: [
       DocSection('values-value-types', 'Value types', ''),

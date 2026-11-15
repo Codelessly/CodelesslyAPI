@@ -808,7 +808,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3081 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13358 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13408 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -12274,6 +12274,10 @@ Written as the value's name, a JSON string (`"center"`).
 | `noBottom` |  |
 | `noLeft` |  |
 | `none` | No side: Flutter's `Border()` (every side `BorderSide.none`), CSS `border-style: none`; for a stroke bound or patched off. |
+| `start` | The start side: Flutter's `BorderDirectional(start: ...)` (a sidebar's rule against the content, in a layout that can mirror). |
+| `end` | The end side: Flutter's `BorderDirectional(end: ...)`. |
+| `noStart` | Every side but the start. |
+| `noEnd` | Every side but the end. |
 
 <a id="enum-TabAlignment"></a>
 ### TabAlignment
