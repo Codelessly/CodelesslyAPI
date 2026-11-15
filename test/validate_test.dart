@@ -253,6 +253,18 @@ void main() {
       d['roots'] = ['home', 'other'];
       expectOne(d, Codes.canvasAsChild);
     });
+    test('a share of the main axis in a column is reported as ignored, the cross axis is not', () {
+      final d = base();
+      (node(d, 'box')['layout'] as Map)['heightFactor'] = 0.5;
+      expectOne(d, Codes.layoutFieldIgnored, path: '/nodes/box/layout/heightFactor');
+      final across = base();
+      (node(across, 'box')['layout'] as Map)['widthFactor'] = 0.5;
+      expect(withCode(across, Codes.layoutFieldIgnored), isEmpty);
+      final wrapping = base();
+      node(wrapping, 'col')['props'] = {'wrap': true};
+      (node(wrapping, 'box')['layout'] as Map)['heightFactor'] = 0.5;
+      expect(withCode(wrapping, Codes.layoutFieldIgnored).where((x) => x.path.endsWith('heightFactor')), isEmpty);
+    });
     test('a position outside a stack is reported as ignored (layout_field_ignored)', () {
       final d = base();
       (node(d, 'box')['layout'] as Map)['x'] = {'start': 4};
