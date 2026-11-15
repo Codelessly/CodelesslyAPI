@@ -647,6 +647,10 @@ Column gap:8
     final off = _parse('Column\n  Button "Send" enabled:=false\n');
     expect(off.issues, isEmpty);
     expect(_problems(off.document), isEmpty);
+    // A bare word that is a declared variable is the variable, not its name as text.
+    final named = _parse('state pick="b"\nstate rows=[{"n":1}]\nColumn\n  Select items:["a","b"] value:pick\n  each r in rows\n    Progress value:r.n\n  Text "x" color:pick\n');
+    expect(named.issues, isEmpty);
+    expect((_node(named, 'dropdown1')['bind'] as Map)['props.value'], r'${pick}');
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));

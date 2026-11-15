@@ -1073,6 +1073,16 @@ class _Parser {
             raw = '=$raw';
           }
         }
+        // A bare word that is a variable the answer declared (choice:pick),
+        // or a field read through the name an `each` gave (price:x.price),
+        // is that variable: text is written in quotes. A word that is one of
+        // the parameter's own values (tone:quiet) stays the word.
+        if (!raw.startsWith('=') && raw != 'fill' && raw != 'hug' && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
+          final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(raw)!;
+          final known = variables.containsKey(head) || _derived.containsKey(head) || _stack.any((o) => o.each == head);
+          final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
+          if (known && !ownValue) raw = '=$raw';
+        }
         if (grid != null && (key == 'cols' || key == 'columns')) {
           grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 12);
           continue;
@@ -1797,6 +1807,7 @@ class _Parser {
     return '$type$n';
   }
 
+  static final _variablePath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*|\[[^\]\s]*\])*$');
   static final _dotsLine = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?\s+=([A-Za-z_][A-Za-z0-9_]*)\s+count:(\S+)(\s.*)?$');
   static final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
 
