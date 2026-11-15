@@ -1046,6 +1046,12 @@ Column gap:8
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [("Lemons, " + (2 * n)), ("$" + (fixed(n, 2))), "plain"]}')));
     });
 
+    test('a list after := goes on past its spaces, quoted text included', () {
+      final r = _parse('state pick=1\nstate total=3\nCard\n  Select =x items:=[["Price per person", pick==1 ? "£128" : "£84"],["Total", fixed(total, 2)]]\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(jsonEncode(r.document), contains(jsonEncode(r'${= [["Price per person", pick==1 ? "£128" : "£84"],["Total", fixed(total, 2)]]}')));
+    });
+
     test('key:={expression}', () {
       final r = _parse('state running=false\nstate done=1\nCard\n  Button "Go" enabled:={!running && done < 6}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');

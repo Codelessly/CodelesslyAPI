@@ -1179,7 +1179,7 @@ class _Parser {
           continue;
         }
         var raw = word.substring(colon + 1);
-        if (raw.startsWith('=')) raw = '$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
+        if (raw.startsWith('=')) raw = '$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
         // What models write for a value that follows state when nothing tells
@@ -1188,16 +1188,16 @@ class _Parser {
         // None of them is text, which is written in quotes.
         if (!raw.startsWith('=') && !raw.startsWith('"') && raw.isNotEmpty && _operatorAhead.matchAsPrefix(t.s, t.at) != null) {
           // key:count > 0, max:standing + (6 - count): the expression goes on past the space.
-          raw = '=$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
+          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd)}';
         } else if (!raw.startsWith('=') && raw.startsWith('(') && !_literal(raw).$1) {
-          raw = '=$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
+          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd)}';
         }
         // key:={running}: both marks at once.
         if (raw.startsWith('={') && _bracedExpression(raw.substring(1))) raw = raw.substring(1);
         if (_bracedValue.hasMatch(raw) || _bracedExpression(raw)) {
           raw = '=${raw.substring(1, raw.length - 1).trim()}';
         } else if (!raw.startsWith('=') && key != 'drag' && key != 'drop' && _expressionStart.hasMatch(raw) && !_literal(raw).$1) {
-          raw = '=$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
+          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd)}';
         }
         // A list or map that is not plain JSON holds expressions
         // (votes:[a+1,b]): it is read as the formula it is.
@@ -2013,6 +2013,20 @@ class _Parser {
   static final _operatorAhead = RegExp(r' +(==|!=|>=|<=|&&|\|\||[<>?+*/]|-(?!>)|and\b|or\b) *[A-Za-z0-9_("!\x27-]');
   static final _bracedValue = RegExp(r'^\{[^{}":,]+\}$');
 
+  /// How many brackets [raw] leaves open (text in quotes aside): the value
+  /// goes on past a space until they close (`rows:=[["Total", money(n)]]`).
+  static int _opened(String raw) {
+    var depth = 0, quoted = false;
+    for (var i = 0; i < raw.length; i++) {
+      final c = raw[i];
+      if (c == '"' && (i == 0 || raw[i - 1] != r'\')) quoted = !quoted;
+      if (quoted) continue;
+      if (c == '(' || c == '[' || c == '{') depth++;
+      if (c == ')' || c == ']' || c == '}') depth--;
+    }
+    return depth;
+  }
+
   static final _brace = RegExp(r'\{([^{}]+)\}');
 
   static bool _readsValues(Object? json) => switch (json) {
@@ -2297,15 +2311,15 @@ class _Tokens {
 
   /// The rest of an expression: to the next space outside quotes and
   /// brackets (`to!=""&&len(subject)>0`).
-  String expression({int opened = 0}) {
+  String expression({int opened = 0, bool quoted = false}) {
     final start = at;
-    var depth = opened, quoted = false;
+    var depth = opened;
     while (!done) {
       final c = s[at];
       if (c == '"' && (at == 0 || s[at - 1] != r'\')) quoted = !quoted;
       if (!quoted) {
-        if (c == '(' || c == '[') depth++;
-        if (c == ')' || c == ']') depth--;
+        if (c == '(' || c == '[' || c == '{') depth++;
+        if (c == ')' || c == ']' || c == '}') depth--;
         if (c == ' ' && depth <= 0) {
           // An operator on either side of the space carries on
           // (`a!="" && b!=""`, `open ? "Hide" : "Show"`).
