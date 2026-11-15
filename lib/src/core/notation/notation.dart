@@ -186,6 +186,13 @@ final class NotationOptions {
     final textStyles = readMap(theme['textStyles']) ?? const {};
     final badgeStyle = textStyles['badge'] != null && radii['badge'] != null ? styles['badge'] : null;
     final ctaHeight = readDouble(sizes['cta']);
+    // On a wide canvas (`sizes.wide` and up) the title is the page's: the
+    // theme's `titleWide` style, when it has both, for `Text.title` and
+    // `Text.pageTitle` (a 20 px card title is small over a 1280 page).
+    if (readDouble(sizes['wide']) case final double wide when width >= wide && styles['titleWide'] != null) {
+      styles['title'] = styles['titleWide']!;
+      if (styles.containsKey('pageTitle')) styles['pageTitle'] = styles['titleWide']!;
+    }
     return NotationOptions(
       width: width,
       screen: screen,

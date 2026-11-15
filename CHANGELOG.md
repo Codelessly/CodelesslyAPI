@@ -1,3 +1,9 @@
+## Unreleased
+
+- **The compact notation**: with a theme that has `sizes.wide` and a `titleWide` text style,
+  `NotationOptions.fromTheme(width:)` at that width or wider gives `Text.title` and `Text.pageTitle` the wide
+  style (a page's title on a desktop). A theme without the two names is unchanged.
+
 ## 31.0.0
 
 Released with codelessly_sdk 31.0.0. Nothing a document written for 30.1.0 uses has changed.
