@@ -475,6 +475,11 @@ class _Parser {
     // `Dots =page count:n`: a dot per page, the current one long and in the
     // accent; a tap on a dot goes to its page. Written out as the three
     // lines it stands for.
+    // An answer that opens with `if` or `each` has several top-level parts
+    // and no root to hold them: they stack in a column of their own.
+    if (_root == null && indent == 0 && RegExp(r'^(if|each)\s').hasMatch(raw.trim())) {
+      _lineAt(-1, 'Column gap:12', 0);
+    }
     final dots = _dotsLine.firstMatch(raw.trim());
     if (dots != null) {
       String look(String c) => c.startsWith('#')
@@ -888,7 +893,14 @@ class _Parser {
       if (t.peek == '"' && component) {
         // A component's strings fill its text parameters in order.
         final text = _interpolate(t.string());
-        final key = strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull;
+        // Past the strings it is known by, a further string goes to its next
+        // text parameter not yet given, in the order they are declared
+        // (CartLine "Bananas" "1 kg" "$2.49": the price).
+        final key = strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull ??
+            spec.props
+                .where((p) => p.type.kind == PropKind.string && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}'))
+                .firstOrNull
+                ?.key;
         if (key == null) {
           _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key:"value".');
         } else if (text.contains(r'${')) {
@@ -1040,6 +1052,8 @@ class _Parser {
             node['visible'] = false;
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
+          } else if (component && _componentWord(word, spec, props, bind)) {
+            // Read as the parameter it can only be.
           } else {
             _issue(col, 'Unknown word "$word" on a $written. Props are written key:value.');
           }
@@ -1677,6 +1691,31 @@ class _Parser {
       'type': switch (value) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
       'value': value,
     };
+  }
+
+  /// A bare word on a component's line that can only mean one thing: the
+  /// value of its one enumerated parameter that has it (`ActionButton
+  /// "Cancel" quiet`: tone), or a parameter set with `=` where `:=` was
+  /// meant (`qty=count`).
+  bool _componentWord(String word, WidgetSpec spec, Json props, Json bind) {
+    final eq = word.indexOf('=');
+    if (eq > 0) {
+      final key = word.substring(0, eq);
+      if (!spec.props.any((p) => p.key == key)) return false;
+      final l = _literal(word.substring(eq + 1));
+      if (l.$1) {
+        props[key] = l.$2;
+      } else {
+        bind['props.$key'] = _read(word.substring(eq + 1));
+      }
+      return true;
+    }
+    final takers = spec.props
+        .where((p) => p.type.kind == PropKind.enumeration && p.type.values.contains(word) && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}'))
+        .toList();
+    if (takers.length != 1) return false;
+    props[takers.single.key] = word;
+    return true;
   }
 
   List<Json> _actions(String text, int column) {
