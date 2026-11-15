@@ -611,6 +611,22 @@ Card
     expect(((_node(r, 'row1')['decoration'] as Map)['fills'] as List).single, {'color': '#1A15803D'});
     expect((_node(r, 'barChart1')['props'] as Map)['color'], '#FF0F766E');
   });
+  test('a theme gives a progress bar its corner and height, and a card with no gap the theme\'s', () {
+    final options = NotationOptions.fromTheme({
+      'radii': {'progress': 999},
+      'sizes': {'progress': 8},
+      'spacing': {'cardGap': 12},
+    });
+    final r = parseNotation('Card#a\n  Progress#p value:0.4\nCard#b gap:4\n  Text "x"', options: options, catalog: standardCatalog);
+    expect((_node(r, 'p')['props'] as Map)['borderRadius'], 999);
+    expect((_node(r, 'p')['layout'] as Map)['height'], 8);
+    expect((_node(r, 'a')['props'] as Map)['spacing'], 12);
+    expect((_node(r, 'b')['props'] as Map)['spacing'], 4);
+    final plain = parseNotation('Card#a\n  Progress#p value:0.4', catalog: standardCatalog);
+    expect((_node(plain, 'p')['props'] as Map)['borderRadius'], 2);
+    expect((_node(plain, 'a')['props'] as Map).containsKey('spacing'), isFalse);
+  });
+
   test('a card\'s corner follows its place: the whole UI, a section of a page, a tile in a grid, a card in a card', () {
     final options = NotationOptions.fromTheme({
       'radii': {'card': 26, 'panel': 18, 'tile': 14},
