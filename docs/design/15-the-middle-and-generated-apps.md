@@ -605,6 +605,58 @@ word on a block that no single parameter takes (three cards), a block's required
 each of five others. One run each way, so the size of the change is indicative, not established; whether the
 values on these cards are right has not been checked.
 
+### 4.12 Standalone run 7: the on-demand path, tested by others (2026-11-15)
+
+Branches on the SDK: `codex/on-demand-block-design-trial`, `on-demand-model-comparison`,
+`codex/on-demand-poll-chat`; the judge and the run of the loop with a model reported to the owner.
+
+**A designer with only the brief** (an agent in the model's seat: the brief's text, the check, the four pictures;
+no source). Three blocks:
+
+| Block | First clean render | Would ship at | Rounds | Verdict |
+|---|---|---|---|---|
+| Habit streak | about 83 s | about 138 s | 2 | Close |
+| Bill split result | about 61 s | about 61 s | 1 | At the bar |
+| Support ticket timeline | about 125 s | about 187 s | 3 | Close |
+
+With §4.9 that is six blocks through the loop by two kinds of designer, each usable in one to three rounds and
+one to three minutes. "Close" both times meant a fixed count (seven days, three milestones), not a look below
+the set's. What the brief lacked: the brief said to write no sizes or radii of one's own while its three example
+blocks do; build log lines leaked into it; nothing on what to assume when the request leaves a rule open (week
+start, currency, how many steps).
+
+**The fast path with the new blocks** (ten requests, five for each of two on-demand blocks, both models; the
+card rendered, its main interaction driven, every value checked by the agent):
+
+| Model | Used the new block | Values right after the interaction | Retried | Render errors |
+|---|---|---|---|---|
+| Sonnet | 10 of 10 | 8 of 10 | 1 | 0 |
+| Haiku | 10 of 10 | 1 of 10 | 3 | 4 |
+
+A new block is picked up every time: the on-demand path's second half works. What fails is the small model's
+values, and the failures are the ones §4.10 names. The commonest: `choice:pick`, read as the text "pick" where
+the variable was meant (two cards); a vote that changes a count the results do not read; a header that says
+Paused after play; a function that does not exist (`formatTime`), `??`. None showed `NaN` or raw `${`: they are
+valid and wrong, and no check caught them.
+
+Changed on this evidence: a bare word that names a declared variable is that variable wherever a value is read
+(it already was in an action), which makes both `choice:pick` cards right when their recorded answers are read
+again. Not changed: a card's own logic being wrong.
+
+**The loop in a chat app** was built against an older checkout, so its code does not test today's SDK, but its
+finding was right at the time: nothing public let a running session gain a block. `UiSession.addBlock` now does
+(the next instructions list the block, the next answer calls it, the view on screen draws it; tested with the
+on-demand poll block).
+
+**A model left to draw a chart** ran out of output: the brief never said the engine has chart nodes. The brief
+now names every node type and carries the chart nodes in full; the same block then came out in 87 s on the
+engine's line chart.
+
+**Where the third way of working stands.** Shown by people other than its author: a missing block can be
+designed in minutes from a brief and its own renders, and the fast path then uses it every time. Not yet true:
+that the small model's cards are right; that a first request is served well while its block is made; that the
+loop runs inside a product. The larger model with on-demand blocks is the configuration that works today.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
