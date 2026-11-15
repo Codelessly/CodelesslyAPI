@@ -664,6 +664,16 @@ Column gap:8
     expect(_problems(natural.document), isEmpty);
     final shownIf = (natural.document['nodes']! as Map).values.cast<Map>().where((n) => n['type'] == 'text').map((n) => (n['bind'] as Map?)?['visible']).toList();
     expect(shownIf.take(2), [r'${= item.n > 0}', r'${= !(item.n > 0)}']);
+    // A handler as a key, quoted, braced, or on a line of its own; `value` is the control's new value.
+    final handled = _parse('state n = 0\nstate v = 3\nColumn\n  Button "Add" onPressed:{n = n + 1; v = 0}\n  Button "Sub" tap:"n = n - 1"\n  Slider onChanged:{v = value}\n  Button "Zero"\n    onPressed: n = 0\n');
+    expect(handled.issues, isEmpty, reason: '${handled.issues}');
+    expect(_problems(handled.document), isEmpty);
+    Map react(String id) => (_node(handled, id)['actions'] as List).single as Map;
+    expect(react('filledButton1')['trigger'], {'type': 'click'});
+    expect((react('filledButton1')['actions'] as List).map((a) => (a as Map)['variable']), ['n', 'v']);
+    expect(react('slider1')['trigger'], {'type': 'changed'});
+    expect(((react('slider1')['actions'] as List).single as Map)['value'], r'${= result}');
+    expect(((react('filledButton3')['actions'] as List).single as Map)['variable'], 'n');
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));

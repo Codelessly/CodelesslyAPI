@@ -657,6 +657,21 @@ class _Parser {
       if (line.contains(d.key)) line = _rename(line, d.key, '(${d.value})');
     }
     final parent = _stack.isEmpty ? null : _stack.last;
+    // A handler on a line of its own under its control (`onPressed: a = 1`).
+    final handler = RegExp(r'^(on[A-Z][A-Za-z]*|tap|press|click|change)\s*:\s*(.+)$').firstMatch(line);
+    if (handler != null && parent != null && nodes[parent.id] != null) {
+      final target = nodes[parent.id]!;
+      final type = target['type']! as String;
+      final spec = catalog.widget(type);
+      final isComponent = spec != null && type[0].toUpperCase() == type[0];
+      var body = handler[2]!.trim();
+      if (body.startsWith('{') && body.endsWith('}')) body = body.substring(1, body.length - 1);
+      final reaction = {'trigger': _handlerTrigger(handler[1]!, type, isComponent ? spec : null, target), 'actions': _actions(_statements(body), column)};
+      final actions = [...?(target['actions'] as List?), reaction];
+      target['actions'] = actions;
+      _patches.add({'op': 'patch', 'id': parent.id, 'patch': {'actions': actions}});
+      return;
+    }
     // `else` and `else if …` after an `if` at the same depth: shown while
     // none of the conditions before it holds.
     final otherwise = RegExp(r'^else(?:\s+if\s+(.+))?$').firstMatch(line);
@@ -1086,6 +1101,24 @@ class _Parser {
           continue;
         }
         final key = word.substring(0, colon);
+        // A handler written as a key, as models write one unprompted:
+        // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
+        if (_handlerKey.hasMatch(key)) {
+          t.at = from + colon + 1;
+          t.skipSpace();
+          final String body;
+          if (t.peek == '{') {
+            final braced = t.balanced();
+            body = braced.substring(1, braced.length - 1);
+          } else if (t.peek == '"') {
+            body = t.string();
+          } else {
+            body = t.rest;
+            t.at += t.rest.length;
+          }
+          reactions.add({'trigger': _handlerTrigger(key, type, component ? spec : null, node), 'actions': _actions(_statements(body), col)});
+          continue;
+        }
         var raw = word.substring(colon + 1);
         if (raw.startsWith('=')) raw = '$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
@@ -1762,6 +1795,26 @@ class _Parser {
     props[takers.single.key] = word;
     return true;
   }
+
+  static final _handlerKey = RegExp(r'^(on[A-Z][A-Za-z]*|tap|press|click|change)$');
+
+  /// What fires a handler named [key] on a node of [type]: a component's
+  /// event of that name (else its first), a control's change, a tap.
+  Json _handlerTrigger(String key, String type, WidgetSpec? component, Json node) {
+    if (node.containsKey('dropTarget')) return {'type': 'drop'};
+    if (component != null) {
+      final named = component.events.where((e) => e.key == key).firstOrNull ??
+          (key == 'change' || key == 'onChange' ? component.events.where((e) => e.key == 'onChanged').firstOrNull : null) ??
+          component.events.firstOrNull;
+      if (named != null) return {'type': 'event', 'event': named.key};
+    }
+    final changes = key == 'change' || key == 'onChange' || key == 'onChanged';
+    return {'type': changes || _valueProps.containsKey(type) && !key.contains('ress') && key != 'tap' && key != 'click' ? 'changed' : 'click'};
+  }
+
+  /// A handler's statements as the notation's actions: the control's new
+  /// value is `value` to a model and `result` to the engine.
+  String _statements(String body) => variables.containsKey('value') ? body : _rename(body, 'value', 'result');
 
   List<Json> _actions(String text, int column) {
     final out = <Json>[];
