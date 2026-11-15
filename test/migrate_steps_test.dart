@@ -62,6 +62,17 @@ void main() {
     'gesture.oneApp': {'pan': {'physics': {'snap': {'points': [[0, 0]], 'projectVelocity': false}}}, 'transformGesture': {'rotationSnap': 15}},
     'openModal.unread': {'actions': [{'trigger': {'type': 'click'}, 'actions': [{'type': 'openModal', 'to': 'm', 'fullHeight': true}]}]},
     'trigger.clock': {'actions': [{'trigger': {'type': 'clock', 'every': 500, 'runWhen': r'${on}'}, 'actions': <Object?>[]}]},
+    'trigger.fieldResult': {
+      'type': 'textField',
+      'actions': [
+        {'trigger': {'type': 'changed'}, 'actions': [{'type': 'setVariable', 'variable': 'w', 'value': r'${= result.word}'}]},
+      ],
+    },
+    'text.markdown': {
+      'type': 'text',
+      'props': {'text': '**a**'},
+      'v1': {'markdown': {'codeColor': '#FF000000'}},
+    },
   };
 
   final documentSamples = <String, Json>{
@@ -350,5 +361,46 @@ void main() {
       {'type': 'setVariable', 'variable': 't', 'value': r'n = ${n}'},
     ]);
     expect(report.behaviorChanges.single.step, 'action.setVariable.animateMs');
+  });
+
+  test('trigger.fieldResult: a text field\'s result map is its field; key reactions and other nodes keep result', () {
+    final (n, report) = migrated({
+      'type': 'textField',
+      'actions': [
+        {
+          'trigger': {'type': 'changed', 'when': r'${result.word != ""}'},
+          'actions': [
+            {'type': 'setVariable', 'variable': 'draft', 'value': r'${= merge(draft, {text: result.value})}'},
+            {'type': 'setVariable', 'variable': 'acWord', 'value': r'${= result.word}'},
+            {'type': 'setVariable', 'variable': 'sel', 'value': r'${= [result.cursor, result.selectionStart, result.selectionEnd]}'},
+            {'type': 'setVariable', 'variable': 'raw', 'value': r'${result}'},
+          ],
+        },
+        {'trigger': {'type': 'keyDown', 'key': 'Enter'}, 'actions': [{'type': 'setVariable', 'variable': 'k', 'value': r'${result.key}'}]},
+      ],
+    }, others: {
+      'b': {'type': 'box', 'layout': {}, 'actions': [{'trigger': {'type': 'changed'}, 'actions': [{'type': 'setVariable', 'variable': 'x', 'value': r'${result.value}'}]}]},
+    });
+    final reactions = (n['actions'] as List).cast<Map>();
+    expect(jsonEncode(reactions[0]), allOf(contains('field.word != '), contains('text: field.value'), contains('= field.word'),
+        contains('[field.cursor, field.selectionStart, field.selectionEnd]'), contains(r'${result}')));
+    expect(jsonEncode(reactions[0]), isNot(contains('result.')));
+    expect(jsonEncode(reactions[1]), contains(r'${result.key}'));
+    expect(report.rewrites.where((e) => e.step == 'trigger.fieldResult'), hasLength(1));
+  });
+
+  test('text.markdown: a text\'s Markdown look kept under v1 is its props.markdown', () {
+    final (n, report) = migrated({
+      'type': 'text',
+      'props': {'text': 'Our `id` is **on**'},
+      'v1': {'markdown': {'codeColor': '#FFE4B5F2', 'mentions': ['maya']}, 'createdTimestamp': 1},
+    });
+    expect((n['props'] as Map)['markdown'], {'codeColor': '#FFE4B5F2', 'mentions': ['maya']});
+    expect(n['v1'], {'createdTimestamp': 1});
+    expect(report.rewrites.where((e) => e.step == 'text.markdown'), hasLength(1));
+    final node = Node.fromJson({...n, 'id': 'n'});
+    expect(node!.prop(TextProps.markdown), {'codeColor': '#FFE4B5F2', 'mentions': ['maya']});
+    final (alone, _) = migrated({'type': 'text', 'props': {'text': 'a'}, 'v1': {'markdown': {'linkColor': '#FF0000FF'}}});
+    expect(alone.containsKey('v1'), isFalse);
   });
 }

@@ -993,6 +993,14 @@
           "default": false,
           "nullable": false,
           "doc": "Shrinks the whole text to fit its width, keeping its lines (`FittedBox(fit: BoxFit.scaleDown)`)."
+        },
+        {
+          "key": "markdown",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": "Markdown look for the text (bold, italic, code, links, @mentions, lists); null shows the text as written."
         }
       ],
       "docs": "theme.md#node-text"

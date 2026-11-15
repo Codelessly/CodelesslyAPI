@@ -1,3 +1,4 @@
+import '../json.dart';
 import '../props.dart';
 import '../values/enums.dart';
 import '../values/text.dart';
@@ -29,9 +30,21 @@ abstract final class TextProps {
   /// (`FittedBox(fit: BoxFit.scaleDown)`).
   static const scaleDown = PropDef<bool>('scaleDown', Codecs.bool, false);
 
+  /// Shows [text] as Markdown: paragraphs, `- ` and `1. ` list items,
+  /// `**bold**`, `_italic_`, `` `code` ``, links and `@mentions`, the
+  /// markers taken out. Null: the text as written. Its keys, all optional:
+  /// `codeColor`, `codeBackground`, `codeFontFamily` (a Google font, `JetBrains Mono` by default), `linkColor`,
+  /// `mentionColor`, `mentionBackground`, `mentions` (the names drawn as
+  /// mentions; empty: any `@name`), `bulletColor`, `paragraphGap` (the
+  /// height of a blank line between paragraphs, 6 by default),
+  /// `showMarkers` and `markerColor` (keep the markers, dimmed: what a text
+  /// field's `markdown` does while typing). [runs] are not applied with it.
+  static const markdown = PropDef<Json?>('markdown', Codecs.json, null,
+      doc: 'Markdown look for the text (bold, italic, code, links, @mentions, lists); null shows the text as written.');
+
   static const spec = WidgetSpec('text',
       props: [
-        text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, scaleDown,
+        text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, scaleDown, markdown,
       ],
       doc: 'Flutter `Text.rich`.');
 }

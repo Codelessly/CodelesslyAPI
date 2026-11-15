@@ -93,6 +93,7 @@ Flutter `Text.rich`.
 | `overflow` | [TextOverflow](values.md#enum-TextOverflow) | `"clip"` | `clip`, `fade`, `ellipsis`, `visible` | What shows where the text is cut by `maxLines` or the node's size (Flutter's `TextOverflow`): `clip`, `fade`, `ellipsis`, `visible`. |
 | `selectable` | bool | `false` |  | The user can select and copy the text (Flutter's `SelectableText`). |
 | `scaleDown` | bool | `false` |  | Shrinks the whole text to fit its width, keeping its lines (`FittedBox(fit: BoxFit.scaleDown)`). |
+| `markdown` | Object | unset |  | Markdown look for the text (bold, italic, code, links, @mentions, lists); null shows the text as written. |
 
 <a id="behavior-textDirection"></a>
 ### `textDirection` (behavior)

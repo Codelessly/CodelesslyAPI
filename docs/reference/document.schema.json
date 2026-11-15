@@ -7956,7 +7956,8 @@
                   },
                   "scaleDown": {
                     "type": "boolean"
-                  }
+                  },
+                  "markdown": {}
                 },
                 "additionalProperties": false
               },
