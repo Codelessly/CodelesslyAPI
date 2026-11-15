@@ -1004,6 +1004,23 @@ class _Parser {
         if (w is num && w >= 80 && (n['type'] == 'row' || n['type'] == 'column')) fixed.add((id, n, w));
       }
     }
+    // A cell that already grows (the name's column, written `grow`) is the
+    // widest: its share is counted in the same unit as the others' widths.
+    final widest = fixed.fold<num>(0, (m, f) => f.$3 > m ? f.$3 : m);
+    for (final (id, n) in children) {
+      final flex = (n['layout'] as Map?)?['flex'];
+      if (flex is num && flex > 0 && flex < 20 && n['type'] != 'spacer' && !fixed.any((f) => f.$1 == id)) {
+        final share = flex * widest * 1.5;
+        n['layout'] = (n['layout']! as Map).cast<String, Object?>()..['flex'] = share;
+        _patches.add({
+          'op': 'patch',
+          'id': id,
+          'patch': {
+            'layout': {'flex': share},
+          },
+        });
+      }
+    }
     for (final (id, n, w) in fixed) {
       final layout = (n['layout']! as Map).cast<String, Object?>()
         ..['width'] = {'fill': 0}
