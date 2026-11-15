@@ -685,7 +685,8 @@ Card gap:12
     expect((_node(plain, 'column1')['decoration'] as Map)['radius'], 8);
     expect((_node(plain, 'column4')['decoration'] as Map)['radius'], 8);
     expect((_node(plain, 'barChart1')['props'] as Map).containsKey('barRadius'), isFalse);
-    expect((_node(plain, 'big')['props'] as Map)['style'], {'fontSize': 24, 'fontWeight': 700});
+    expect((_node(plain, 'big')['props'] as Map)['style'], {'fontSize': 24, 'fontWeight': 700, 'color': '#FF111827'},
+        reason: 'a sized text keeps the body ink: with no color it shows nothing');
   });
 
   test('Pages: swiped pages bound to a variable, per element or per line, with a peek and dots', () {
