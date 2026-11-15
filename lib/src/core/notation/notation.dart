@@ -1356,6 +1356,37 @@ class _Parser {
       if (bind.isNotEmpty) 'bind': bind,
       if (reactions.isNotEmpty) 'actions': reactions,
     };
+    // What scrolls sideways inside a padded card cannot reach the card's
+    // edge, so it would end in a hard cut: a soft fade to what is behind it
+    // stands at its right edge instead, saying there is more.
+    if ((type == 'row' && props['scrollable'] == true && props['scrollDirection'] == 'horizontal') ||
+        (type == 'pageView' && props['viewportFraction'] != null)) {
+      Object? behind;
+      for (final o in _stack.reversed) {
+        final fills = (nodes[o.id]?['decoration'] as Map?)?['fills'];
+        if (fills is List && fills.isNotEmpty && fills.first is Map) {
+          behind = (fills.first as Map)['color'];
+          break;
+        }
+      }
+      behind ??= options.surface;
+      if (behind is String && !behind.contains(r'${')) {
+        final c = behind.startsWith('#')
+            ? "'$behind'"
+            : const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(behind)
+                ? 'theme.$behind'
+                : 'theme.colors.$behind';
+        out['customPaint'] = {
+          'foregroundPainter': [
+            {
+              'op': 'rect',
+              'rect': [r'${= size.width - 28}', 0, 28, r'${size.height}'],
+              'paint': "\${= {'shader': {'type': 'linear', 'begin': 'centerLeft', 'end': 'centerRight', 'stops': [{'position': 0, 'color': alpha($c, 0)}, {'position': 1, 'color': $c}]}}}",
+            },
+          ],
+        };
+      }
+    }
     _merge(out, node);
     // An expression written as a value in the tail ({"props": {"color": "${= …}"}})
     // is a binding: only a text's own text reads one as written.
