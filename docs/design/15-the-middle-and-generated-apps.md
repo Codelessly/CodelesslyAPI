@@ -435,6 +435,32 @@ line. The surface style tokens (flat or raised, blur, border weight) that blocks
 component files are still open. The offline recorder and the render tool still write values (their outputs are
 compared with earlier recordings); only the session path changed its default.
 
+### 4.8 The third arm, the held-out briefs, and the gap that remains (2026-11-15)
+
+**The third arm** (the 17 briefs composed from the Cards blocks; SDK `tool/stream/streams/live/2026-11-15-blocks-1`,
+sheets in `examples/showcase/renders/head-to-head/`). Medians: Sonnet 7,822 tokens in, 1,003 out, 5.9 s, no
+errors, 7 of 17 retried; Haiku 7,821 in, 849 out, 4.1 s, 3 with errors, 11 retried. Against A2UI (21,169 in,
+2,592 out, 17.1 s on Sonnet) and the notation with generic parts (2,379 in, 1,427 out, 8.9 s). The cards are
+designed; the caveat is that the blocks were designed for exactly these 17 briefs.
+
+**Held out.** Eight briefs the blocks never saw (recipe, now playing, poll, subscription, tracking, run summary,
+meeting slot, expenses; `examples/showcase/heldout/`), Sonnet, all three arms. With blocks: 7,978 in, 721 out,
+5.0 s, no errors, 3 retried. What the pictures show:
+
+- Where the blocks fit, the card is designed with nothing new built: run summary (21 block nodes, 3 generic),
+  tracking (11, 0), meeting slot (9, 0), recipe (12, 8).
+- Where none fits, the card is the generic one: poll used no block and now playing one (a picture), and both look
+  like the generic arm.
+
+So there are two modes that work (generic parts, fast and plain; designed blocks, fast and designed where a block
+exists) and the full API (designed by a strong model with renders to look at, in minutes to hours). The owner's
+reading stands: nothing yet lets a model produce a new good design at generation speed. Three candidates, none
+tested: (1) a design kit below the blocks (the surfaces, type roles, depth, drawn media and layout patterns the
+blocks are made of, as words the model composes freely); (2) a block designed on demand by a strong model when
+none fits, checked against a render, then kept, so the wait is paid once per kind of card; (3) a look at the
+render inside the fast path, with one revision. The test for each is these held-out briefs, starting with the two
+that failed.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
