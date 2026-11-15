@@ -776,6 +776,64 @@ card written beside the first, and parameters the blocks do not have. None of th
 prompt yet; the prompt still shows `=name`, `:=` and `->`. Whether to teach the natural forms in their place,
 and which spelling of each, is decided by the values check on all 35 briefs with the small model.
 
+### 4.15 Values with the small model, measured (2026-11-15)
+
+The check (`CodelesslySDK/tool/values/check.py`) renders an answer, drives it, and reads what is on screen. On the
+25 pinned briefs, with the Cards blocks:
+
+| Model, prompt | Right of 25 |
+|---|---|
+| Haiku, today's prompt | 8 |
+| Haiku, the natural variant (`notationPrompt(natural: true)`), before the parser reads below | 11 |
+| Haiku, the natural variant, after them (a second recording) | 10 |
+| Sonnet, today's prompt | 16 |
+
+Read with care: the cases were written strictly, and several of Sonnet's misses are the check asking for a
+wording ("3 lemons" where the card shows "Lemons, 3"). The cases are being audited so the number means values;
+until then the figures compare prompts, they do not say how often a card is right. One run to the next moves by
+a case or two on its own.
+
+What the runs did settle is what the small model writes that was not read. Each is now read, with a test:
+a worked-out value that starts with quoted text; a call on a worked-out name (`total.toFixed(2)`); a condition
+in braces with spaces and words; `key:={…}`; a text in a list that reads a value (`items:["Lemons, {2 * n}"]`,
+refused before); a list after `:=` with spaces in it; a parameter named `change` (read as a handler before);
+`formatTime(seconds)` (now `duration`, which existed and was not taught). The natural variant teaches statements
+after `->` (`qty += 1`, `row.done = !row.done`, `rows.remove(row)`), `let` for a worked-out value, and
+`key:{expression}`. It is not the default yet: the target is 9 of 10 and neither prompt is near it.
+
+### 4.16 Standalone run 8: nine outside trials of the on-demand path (2026-11-15)
+
+Nine agents, 31 blocks designed. The owner's reading of the designs: the quality is good. In numbers: one block
+takes two to four and a half minutes with Opus at up to three rounds, 65K to 145K tokens in; as designer Opus
+was usable 3 of 3, Sonnet 2 of 3, Haiku 0 of 3; a card composed with a new block had its first values right 20
+of 20. What was wrong, most hit first, and what became of it:
+
+| Finding | State |
+|---|---|
+| The check looks only at the first state: six hard blocks all passed and one was fully usable (a signature that will not clear, a hue label that does not follow the drag) | Open. The card is now also checked at 320 wide; an interaction script in the designer's answer is the next step |
+| The brief named every block `ChartSeries` | Fixed |
+| A parameter named `change` was read as a handler (a quote showing +$0.00) | Fixed |
+| The last round shipped though an earlier one was better | Fixed: the round with the fewest problems is kept, and a design with problems left exits as failed |
+| Problems counted twice with build output in them | Fixed |
+| A paint cannot read its node's size; an object-list parameter with no declared shape refuses every field | Open |
+| Replacing a card in a live session failed (`would_orphan`) | Fixed: `applyNotation(replace: true)`; guide 18 says so |
+| Generated blocks keep some fixed radii under a re-themed system | Open |
+
+### 4.17 On-demand blocks in a session (2026-11-15)
+
+The SDK has the loop: `notationInstructions(askForBlocks: true)` has the model name a block where none fits
+(`Wanted "Name" "what it shows"`, the part built from plain types under it); `UiSession.wantedBlocks` holds the
+requests; `OnDemandBlocks` takes each to a designer the host supplies, keeps a design only when it is a
+component of that name with no validation errors and no cycle and passes the host's check, adds it, and tells
+the host to store it; `applyNotation(replace: true)` swaps the card.
+
+Measured on the eight held-out briefs with both models: with the first wording nobody asked for anything (0 of
+16); with the instruction as a decision and an example, Sonnet asked once, rightly (the music player), and
+nobody asked wrongly. So the model's own request is precise and rare, and cannot be the only trigger. The
+second is the host's: `OnDemandBlocks.mostlyPlainParts` (at most a third of the card's parts are blocks, at
+least five are plain), a rule one outside run fitted to sixteen answers and that agreed with the eye on all of
+them; it is a starting point, not a measured rate.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
