@@ -75,11 +75,12 @@ COMPONENTS (${designSystem!.name}: ready-made, already styled; prefer one of the
   Written like any node: Name "text" key:value =variable -> action. The quoted names are filled, in order, by the strings you write; a name ending in ! must be given (key:value). =variable is where the component keeps its value (created for you); -> runs when it is used (its first event). Lists are written ["a","b"]. A component with (children) takes lines indented under it.
 ${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
 
-  A MISSING COMPONENT: first decide what the main piece of the request is (a poll's results, a music player, a boarding pass, a quote with its chart). If a listed component is made for that piece, use it. If none is, and you would have to assemble it from rows, texts and progress lines, write that piece under a line Wanted \"Name\" \"what it shows and takes\" with your assembly indented under it:
-    Wanted \"PollResults\" \"each option with its share of the votes as a bar, the leader and my choice marked\"
-      each o in options
-        ProgressLine \"{o.name}\" value:{o.share}
-  It is drawn exactly as you wrote it, and a designed component of that name is made for later answers. One Wanted at most per answer, and never for a piece a listed component already shows.''' : ''}
+  A MISSING COMPONENT: before writing, name the main reusable unit of the request (a poll's results, a voice note, a boarding pass, a month calendar, a quiz question with its grading). If a listed component represents that unit's data and its distinctive look or interaction, use it. If none does, write exactly one line Wanted \"PascalCaseName\" \"what it shows, the data it takes, what it does\" inside the card, and build the unit under it from the general parts (rows, texts, badges, options, charts, progress lines) as a stand-in:
+    ChatCard \"Team lunch\" \"Friday\"
+      Wanted \"PollResults\" \"each option with its share of the votes as a bar, the leader and my choice marked\"
+        each o in options
+          ProgressLine \"{o.name}\" value:{o.share}
+  That the general parts can draw it is not a reason to stay silent: the stand-in is shown now and a designed component of that name is made for later answers. Never ask for a unit a listed component already represents.''' : ''}
 ''';
   final short = {
     for (final e in notationTypes.entries)
