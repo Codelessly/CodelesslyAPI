@@ -658,6 +658,12 @@ Column gap:8
     expect((_node(plain, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= !voted}');
     expect((_node(plain, 'progressBar1')['bind'] as Map)['props.value'], r'${n}');
     expect((_node(plain, 'text1')['bind'] as Map)['visible'], r'${= n>1 && !voted}');
+    // for … in, else, let: what three models wrote unprompted.
+    final natural = _parse('state items = [{"n":1},{"n":0}]\nlet total = sum(items,i=>i.n)\nColumn\n  for it in items\n    if it.n > 0\n      Text "{it.n}"\n    else\n      Text "none"\n  Text "{total}"\n');
+    expect(natural.issues, isEmpty, reason: '${natural.issues}');
+    expect(_problems(natural.document), isEmpty);
+    final shownIf = (natural.document['nodes']! as Map).values.cast<Map>().where((n) => n['type'] == 'text').map((n) => (n['bind'] as Map?)?['visible']).toList();
+    expect(shownIf.take(2), [r'${= item.n > 0}', r'${= !(item.n > 0)}']);
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));

@@ -623,6 +623,12 @@ class _Parser {
     for (final open in _stack) {
       if (open.each != null && open.each != 'item') line = _rename(line, open.each!);
     }
+    // What models write unprompted for these (SDK tool/values, three models):
+    // `let` or `derived` for a worked-out value, `for x in list`, `else`.
+    final declared = RegExp(r'^(?:let|derived|const|var)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(line);
+    if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
+    final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
+    if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
@@ -651,12 +657,32 @@ class _Parser {
       if (line.contains(d.key)) line = _rename(line, d.key, '(${d.value})');
     }
     final parent = _stack.isEmpty ? null : _stack.last;
-    if (line.startsWith('if ')) {
-      if (parent == null) return _issue(column, 'An "if" needs a parent: indent it under a node.');
-      final own = _formula(line.substring(3).trim());
+    // `else` and `else if …` after an `if` at the same depth: shown while
+    // none of the conditions before it holds.
+    final otherwise = RegExp(r'^else(?:\s+if\s+(.+))?$').firstMatch(line);
+    if (otherwise != null) {
+      final before = _ifAt[indent];
+      if (parent == null || before == null) return _issue(column, 'An "else" follows an "if" at the same depth.');
+      String inner(String f) => f.substring(4, f.length - 1);
+      final not = _formula('!(${inner(before)})');
+      final own = otherwise[1] == null ? not : _and(not, _formula(otherwise[1]!.trim()));
+      if (otherwise[1] == null) {
+        _ifAt.remove(indent);
+      } else {
+        _ifAt[indent] = _formula('(${inner(before)}) || (${otherwise[1]!.trim()})');
+      }
       _stack.add(_Open(indent, parent.id, parent.type, condition: _and(parent.condition, own), grid: parent.grid));
       return;
     }
+    if (line.startsWith('if ')) {
+      if (parent == null) return _issue(column, 'An "if" needs a parent: indent it under a node.');
+      final own = _formula(line.substring(3).trim());
+      _ifAt[indent] = own;
+      _stack.add(_Open(indent, parent.id, parent.type, condition: _and(parent.condition, own), grid: parent.grid));
+      return;
+    }
+    // Anything else at this depth ends the chance of an `else`.
+    _ifAt.removeWhere((depth, _) => depth >= indent);
     // `each rows` and `List =rows` are `each row in rows`: the element is
     // read as `row` (or `item`).
     final bare = RegExp(r'^each\s+(\S+)$').firstMatch(line) ?? RegExp(r'^List\s+=(\S+)$').firstMatch(line);
@@ -1819,6 +1845,9 @@ class _Parser {
   static final _bracedValue = RegExp(r'^\{[^{}":,]+\}$');
   static final _expressionStart = RegExp(r'^(![A-Za-z_(]|[A-Za-z_][A-Za-z0-9_.\[\]]*(\(|==|!=|>=|<=|>|<|&&|\|\||\?|\+|\*))');
   static final _variablePath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*|\[[^\]\s]*\])*$');
+  /// The condition of the last `if` (and its `else if`s) at each depth, for an `else`.
+  final Map<int, String> _ifAt = {};
+
   static final _dotsLine = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?\s+=([A-Za-z_][A-Za-z0-9_]*)\s+count:(\S+)(\s.*)?$');
   static final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
 
