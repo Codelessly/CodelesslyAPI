@@ -611,6 +611,82 @@ Card
     expect(((_node(r, 'row1')['decoration'] as Map)['fills'] as List).single, {'color': '#1A15803D'});
     expect((_node(r, 'barChart1')['props'] as Map)['color'], '#FF0F766E');
   });
+  test('a theme may give plain parts a designed look: card, page, badge, a full-width button, colors read as its names', () {
+    final theme = {
+      'primary': '#FF2563EB',
+      'colors': {
+        'primaryText': '#FF111827', 'secondaryText': '#FF4B5563', 'primaryBackground': '#FFFFFFFF', 'subtleFill': '#FFF3F4F6',
+        'primaryBorder': '#FFE5E7EB', 'primaryTint': '#1A2563EB', 'card': '#FFFFFFFF', 'page': '#FFF3F4F6',
+      },
+      'textStyles': {'body': {'fontSize': 13, 'color': 'primaryText'}, 'badge': {'fontSize': 11, 'fontWeight': 500}},
+      'radii': {'panel': 18, 'card': 26, 'tile': 14, 'badge': 999, 'bar': 6},
+      'sizes': {'cta': 46, 'badge': 22},
+      'spacing': {'card': 18, 'badge': 9},
+      'shadows': {
+        'card': [{'type': 'dropShadow', 'color': '#14000000', 'offset': [0, 18], 'blurRadius': 40}],
+      },
+    };
+    const text = '''
+state on=false
+Card gap:12
+  Box fill:#FFF5F5F5 radius:8 pad:12
+    Text "Folder" color:#FF6B7280
+  Box fill:=on?"#FFEFF6FF":"#FFF5F5F5" border:#FF7C3AED
+    Text "Brand purple stays"
+  Badge.primary "New"
+  Row gap:8
+    Button.outline "Deny"
+    Button "Approve"
+  Button "Confirm"
+  Button.ghost "Later"
+  Card
+    Text "A tile"
+  BarChart values:[1,2]
+  Text#big "12" size:24 weight:700
+''';
+    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
+    expect(r.issues, isEmpty);
+    expect(validateDocument(r.document, options: ValidateOptions(theme: ThemeTokens.fromJson(theme))).where((d) => d.severity == Severity.error), isEmpty);
+    expect((_node(r, 'screen')['decoration'] as Map)['fills'], [{'color': 'page'}]);
+    final card = _node(r, 'column1');
+    expect((card['decoration'] as Map)['radius'], 26);
+    expect((card['decoration'] as Map)['fills'], [{'color': 'card'}]);
+    expect(((card['decoration'] as Map)['effects'] as List).single, containsPair('blurRadius', 40));
+    expect((card['layout'] as Map)['padding'], 18);
+    // A written gray is the theme's neutral fill and its text ink; a color
+    // the theme has nothing near (a brand purple) stays as written.
+    expect((_node(r, 'column2')['decoration'] as Map)['fills'], [{'color': 'subtleFill'}]);
+    expect(((_node(r, 'text1')['props'] as Map)['style'] as Map)['color'], 'secondaryText');
+    expect((_node(r, 'column3')['bind'] as Map)['decoration.fills[0].color'], r'${= on?theme.colors.primaryTint:theme.colors.subtleFill}');
+    expect((_node(r, 'column3')['decoration'] as Map)['strokes'], [{'color': '#FF7C3AED'}]);
+    final badge = _node(r, 'row1');
+    expect((badge['decoration'] as Map)['radius'], 999);
+    expect((badge['layout'] as Map)['height'], 22);
+    expect((badge['layout'] as Map)['padding'], [9, 0, 9, 0]);
+    expect((_node(r, (badge['children'] as List).single as String)['props'] as Map)['style'], {'from': 'badge', 'color': 'primary'});
+    // A button alone on its line in a column is as wide as it at the cta
+    // height; in a row, and a ghost, it is as big as its label.
+    expect(_node(r, 'filledButton2')['layout'], {'width': {'fill': 0}, 'height': 46});
+    expect((_node(r, 'filledButton1')['layout'] as Map)['width'], {'hug': 0});
+    expect((_node(r, 'textButton1')['layout'] as Map)['width'], {'hug': 0});
+    // A card in a card is a tile of it: smaller corners, no shadow.
+    expect((_node(r, 'column4')['decoration'] as Map)['radius'], 14);
+    expect((_node(r, 'column4')['decoration'] as Map).containsKey('effects'), isFalse);
+    expect((_node(r, 'barChart1')['props'] as Map)['barRadius'], 6);
+    // A text sized on its line keeps the theme's body (its ink and font).
+    expect((_node(r, 'big')['props'] as Map)['style'], {'from': 'body', 'fontSize': 24, 'fontWeight': 700});
+    // Without `named` nothing is read as a name; without these tokens (no
+    // design system) the look is the bundled one.
+    final literal = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme));
+    expect((_node(literal, 'column2')['decoration'] as Map)['fills'], [{'color': '#FFF5F5F5'}]);
+    final plain = parseNotation(text, catalog: standardCatalog);
+    expect((_node(plain, 'filledButton2')['layout'] as Map)['width'], {'hug': 0});
+    expect((_node(plain, 'row1')['decoration'] as Map)['radius'], 5);
+    expect((_node(plain, 'column1')['decoration'] as Map)['radius'], 8);
+    expect((_node(plain, 'column4')['decoration'] as Map)['radius'], 8);
+    expect((_node(plain, 'barChart1')['props'] as Map).containsKey('barRadius'), isFalse);
+    expect((_node(plain, 'big')['props'] as Map)['style'], {'fontSize': 24, 'fontWeight': 700});
+  });
 
   test('Pages: swiped pages bound to a variable, per element or per line, with a peek and dots', () {
     final r = _parse('''

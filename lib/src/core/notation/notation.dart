@@ -10,6 +10,7 @@
 // [parseNotation] expands it to an ordinary flat document; nothing after
 // that (validation, rendering, editing) knows the notation was used.
 import 'dart:convert';
+import 'dart:math' as math;
 
 import '../behaviors.dart' show mergePatch;
 import '../catalog.dart';
@@ -74,6 +75,11 @@ final class NotationOptions {
     this.accent = '#FF2563EB',
     this.track = '#FFE5E7EB',
     this.components = const {},
+    this.badge = defaultBadge,
+    this.cta,
+    this.palette = const {},
+    this.tile,
+    this.barChart = const {},
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -97,6 +103,11 @@ final class NotationOptions {
       surface: base.surface,
       accent: base.accent,
       track: base.track,
+      badge: base.badge,
+      cta: base.cta,
+      palette: base.palette,
+      tile: base.tile,
+      barChart: base.barChart,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -157,6 +168,18 @@ final class NotationOptions {
     (String, String, String) tone(String role, String inkName) =>
         (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
     final error = tone('error', 'error');
+    // A design system's own words for the look of plain parts, each read
+    // only when the theme has it (SSUI has none of them): `radii.card`,
+    // `shadows.card`, `spacing.card` and `colors.card` (a card), `colors
+    // .page` (what the UI is drawn on), `radii.badge` and `sizes.badge` (a
+    // badge), `sizes.cta` (a button alone on its line in a column, as wide
+    // as the column).
+    final radii = readMap(theme['radii']) ?? const {}, sizes = readMap(theme['sizes']) ?? const {};
+    final spacing = readMap(theme['spacing']) ?? const {}, shadows = readMap(theme['shadows']) ?? const {};
+    final cardShadow = shadows['card'];
+    final textStyles = readMap(theme['textStyles']) ?? const {};
+    final badgeStyle = textStyles['badge'] != null && radii['badge'] != null ? styles['badge'] : null;
+    final ctaHeight = readDouble(sizes['cta']);
     return NotationOptions(
       width: width,
       screen: screen,
@@ -164,15 +187,49 @@ final class NotationOptions {
       card: {
         'decoration': {
           'fills': [
-            {'color': color('primaryBackground', '#FFFFFFFF')},
+            {'color': color('card', color('primaryBackground', '#FFFFFFFF'))},
           ],
           'strokes': [
             {'color': color('primaryBorder', '#FFE5E7EB')},
           ],
-          'radius': readMap(theme['radii'])?['panel'] ?? theme['radius'] ?? 8,
+          'radius': radii['card'] ?? radii['panel'] ?? theme['radius'] ?? 8,
+          if (cardShadow is List && cardShadow.isNotEmpty) 'effects': jsonDecode(jsonEncode(cardShadow)),
         },
-        'layout': {'padding': 12},
+        'layout': {'padding': spacing['card'] ?? 12},
       },
+      badge: {
+        'radius': radii['badge'] ?? defaultBadge['radius'],
+        'height': sizes['badge'] ?? defaultBadge['height'],
+        'padding': switch (readDouble(spacing['badge'])) { final double x => [x, 0, x, 0], _ => defaultBadge['padding'] },
+        'style': ?badgeStyle,
+      },
+      cta: ctaHeight == null ? null : {'width': {'fill': 0}, 'height': ctaHeight},
+      palette: named ? _palette(colors, theme) : const {},
+      barChart: radii['bar'] == null
+          ? const {}
+          : {
+              'barRadius': radii['bar'],
+              if (spacing['bar'] != null) 'barGap': spacing['bar'],
+              if (sizes['bar'] != null) 'maxBarWidth': sizes['bar'],
+              if (theme['fontFamily'] is String) 'labelFontFamily': theme['fontFamily'],
+              'labelFontSize': 11,
+              'labelColor': color('secondaryText', ink),
+              'gridColor': color('primaryBorder', '#FFE5E7EB'),
+            },
+      tile: radii['tile'] == null
+          ? null
+          : {
+              'decoration': {
+                'fills': [
+                  {'color': color('card', color('primaryBackground', '#FFFFFFFF'))},
+                ],
+                'strokes': [
+                  {'color': color('primaryBorder', '#FFE5E7EB')},
+                ],
+                'radius': radii['tile'],
+              },
+              'layout': {'padding': spacing['tile'] ?? 12},
+            },
       badges: {
         'neutral': tone('neutral', 'secondaryText'),
         'primary': tone('primary', 'primary'),
@@ -182,7 +239,7 @@ final class NotationOptions {
         'error': error,
         'danger': error,
       },
-      surface: color('surface', color('primaryBackground', '#FFFFFFFF')),
+      surface: color('page', color('surface', color('primaryBackground', '#FFFFFFFF'))),
       accent: color('primary', '#FF2563EB'),
       track: color('track', '#FFE5E7EB'),
     );
@@ -216,6 +273,118 @@ final class NotationOptions {
   /// A design system's components by type, each with the width and height
   /// a call takes when it writes none (a number, `{fill: 0}` or `{hug: 0}`).
   final Map<String, ({Object width, Object height})> components;
+
+  /// What a `BarChart` takes unless the line says (`barRadius`, `barGap`,
+  /// `maxBarWidth`, its labels' font and colors): a theme's `radii.bar`,
+  /// `spacing.bar` and `sizes.bar`. Empty: the chart's own defaults.
+  final Json barChart;
+
+  /// What a `Card` inside a card adds (a row of options, a tile in a grid
+  /// of cards): smaller corners, no shadow. Null: the same as [card].
+  final Json? tile;
+
+  /// What `Badge` is: its `radius`, `height`, `padding` and, when given, the
+  /// `style` of its text (else 11, medium, in the tone's ink).
+  final Json badge;
+
+  /// The layout of a button alone on its line in a column (not a ghost or
+  /// icon button): as wide as the column at the design system's height for
+  /// its one thing to do. Null: it is as big as its label, as any control.
+  final Json? cta;
+
+  /// The theme's colors a written color is read as, by name → `#AARRGGBB`
+  /// ([NotationOptions.fromTheme] with `named`): `fill:#FFF5F5F5` on a
+  /// panel is the theme's nearest neutral fill, and so follows dark mode and
+  /// the theme. Empty: a written color stays as written.
+  final Map<String, String> palette;
+
+  /// The theme's name for [hex] written as a [kind] (`fill`, `stroke`,
+  /// `text`), when one of the [palette] is close to it; else null.
+  String? colorName(String hex, String kind) {
+    if (palette.isEmpty) return null;
+    final want = _argb(hex);
+    if (want == null || want >> 24 != 0xFF) return null;
+    final names = switch (kind) { 'text' => _textColors, 'stroke' => _strokeColors, _ => _fillColors };
+    final base = _argb(palette['primaryBackground'] ?? palette['surface'] ?? '#FFFFFFFF') ?? 0xFFFFFFFF;
+    String? best;
+    var bestD = double.infinity;
+    for (final n in names) {
+      final v = palette[n] == null ? null : _argb(palette[n]!);
+      if (v == null) continue;
+      final d = _distance(want, _over(v, base));
+      if (d < bestD - .5) {
+        bestD = d;
+        best = n;
+      }
+    }
+    return bestD <= _snapDistance ? best : null;
+  }
+}
+
+/// SSUI's badge: a 20-high pill-cornered row, 8 at its sides.
+const Json defaultBadge = {
+  'radius': 5,
+  'height': 20,
+  'padding': [8, 0, 8, 0],
+};
+
+/// The names a written color may be read as, by what it colors, in order of
+/// preference when two are as near (SSUI's role and neutral names).
+const _fillColors = [
+  'primaryBackground', 'subtleFill', 'secondaryBackground', 'tertiaryBackground', 'neutralFill', 'track',
+  'primaryTint', 'successTint', 'warningTint', 'errorTint', 'infoTint',
+  'primary', 'success', 'warning', 'error', 'info', 'primaryText',
+];
+const _strokeColors = [
+  'primaryBorder', 'secondaryBorder', 'primaryTintBorder', 'successTintBorder', 'warningTintBorder', 'errorTintBorder',
+  'infoTintBorder', 'primary', 'success', 'warning', 'error', 'info',
+];
+const _textColors = [
+  'primaryText', 'secondaryText', 'tertiaryText', 'onPrimary', 'primary', 'success', 'warning', 'error', 'info',
+];
+
+/// How far (redmean RGB) a written color may be from the theme's to be read
+/// as it: a gray for a gray, a blue for the blue, not a brand's own hue.
+const double _snapDistance = 40;
+
+/// The theme's colors [_fillColors], [_strokeColors] and [_textColors] name,
+/// resolved to values (a role or a name of another color followed).
+Map<String, String> _palette(Json colors, Json theme) {
+  final out = <String, String>{};
+  for (final n in {..._fillColors, ..._strokeColors, ..._textColors, 'surface'}) {
+    Object? c = colors[n] ?? theme[n];
+    for (var i = 0; i < 8 && c is String && !c.startsWith('#'); i++) {
+      c = colors[c] ?? theme[c];
+    }
+    if (c is String && _argb(c) != null) out[n] = c;
+  }
+  return out;
+}
+
+int? _argb(String hex) {
+  if (!hex.startsWith('#')) return null;
+  var h = hex.substring(1);
+  if (h.length == 6) h = 'FF$h';
+  if (h.length != 8) return null;
+  return int.tryParse(h, radix: 16);
+}
+
+/// [c] drawn over the opaque [base].
+int _over(int c, int base) {
+  final a = (c >> 24 & 0xFF) / 255;
+  int ch(int s) => ((c >> s & 0xFF) * a + (base >> s & 0xFF) * (1 - a)).round();
+  return 0xFF000000 | ch(16) << 16 | ch(8) << 8 | ch(0);
+}
+
+double _distance(int a, int b) {
+  final r1 = a >> 16 & 0xFF, g1 = a >> 8 & 0xFF, b1 = a & 0xFF;
+  final r2 = b >> 16 & 0xFF, g2 = b >> 8 & 0xFF, b2 = b & 0xFF;
+  final rm = (r1 + r2) / 2, dr = r1 - r2, dg = g1 - g2, db = b1 - b2;
+  // A tint is not a gray: near white, a light blue and a light gray are
+  // close in value, so how colored each is weighs as well.
+  final c1 = math.max(r1, math.max(g1, b1)) - math.min(r1, math.min(g1, b1));
+  final c2 = math.max(r2, math.max(g2, b2)) - math.min(r2, math.min(g2, b2));
+  return math.sqrt((2 + rm / 256) * dr * dr + 4 * dg * dg + (2 + (255 - rm) / 256) * db * db) / 3 + 1.5 * (c1 - c2).abs();
 }
 
 /// SSUI's text styles (design_systems/ssui/design_system.json, `theme
@@ -617,6 +786,9 @@ class _Parser {
 
   bool _canvas = false;
 
+  /// The nodes written as `Card`.
+  final _cards = <String>{};
+
   /// The `every` lines: timers on the canvas.
   final _timers = <Json>[];
   final _parentOf = <String, String>{};
@@ -939,6 +1111,7 @@ class _Parser {
         _issue(column + written.length + 1, 'No Badge.$variant. Variants: ${options.badges.keys.join(', ')}.');
       }
       final tone = v ?? options.badges['neutral'] ?? badgeVariants['neutral']!;
+      final look = options.badge;
       decoration.addAll({
         'fills': [
           {'color': tone.$1},
@@ -946,11 +1119,15 @@ class _Parser {
         'strokes': [
           {'color': tone.$2},
         ],
-        'radius': 5,
+        'radius': look['radius'] ?? 5,
       });
-      layout.addAll({'width': {'hug': 0}, 'height': 20, 'padding': [8, 0, 8, 0]});
+      layout.addAll({'width': {'hug': 0}, 'height': look['height'] ?? 20, 'padding': _copyValue(look['padding'] ?? const [8, 0, 8, 0])});
       props.addAll({'mainAxisAlignment': 'center', 'crossAxisAlignment': 'center'});
-      _textStyle = {'fontSize': 11, 'fontWeight': 500, 'color': tone.$3};
+      _textStyle = switch (look['style']) {
+        final Map m => {...m.cast<String, Object?>(), 'color': tone.$3},
+        final String name => {'from': name, 'color': tone.$3},
+        _ => {'fontSize': 11, 'fontWeight': 500, 'color': tone.$3},
+      };
     } else if (variant != null) {
       _issue(column + written.length + 1, 'A $written has no variants: write $written, with props as key:value.');
     }
@@ -964,11 +1141,18 @@ class _Parser {
     }
     if (component) strings = notationStrings(spec);
     if (written == 'Card') {
-      decoration.addAll(_copy(readMap(options.card['decoration']) ?? const {}));
-      layout.addAll(_copy(readMap(options.card['layout']) ?? const {}));
+      // In a card, a card is a tile of it.
+      var inCard = false;
+      for (String? at = parent?.id; at != null && !inCard; at = _parentOf[at]) {
+        inCard = _cards.contains(at);
+      }
+      final look = inCard ? options.tile ?? options.card : options.card;
+      decoration.addAll(_copy(readMap(look['decoration']) ?? const {}));
+      layout.addAll(_copy(readMap(look['layout']) ?? const {}));
     }
     final id = head[3] ?? _id((written == 'Grid' || written == 'GridView') ? 'grid' : type);
     final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
+    if (written == 'Card') _cards.add(id);
     if (grid != null) props['spacing'] = grid.gap;
     if (nodes.containsKey(id) || id == options.screen) {
       _issue(column, 'The id "$id" is used twice.');
@@ -1268,13 +1452,13 @@ class _Parser {
         }
         if (key == 'fill') {
           if (raw.startsWith('=')) {
-            bind['decoration.fills[0].color'] = _read(raw.substring(1));
+            bind['decoration.fills[0].color'] = _namedIn(_read(raw.substring(1)), 'fill');
             decoration.putIfAbsent('fills', () => [
                   {'color': '#00000000'},
                 ]);
           } else {
             decoration['fills'] = [
-              {'color': _value(raw)},
+              {'color': _named(_value(raw), 'fill')},
             ];
           }
           continue;
@@ -1303,13 +1487,13 @@ class _Parser {
         // A hairline round it: `border:#FFE5E7EB`, or one that follows data: `border:=on?"#FF2563EB":"#FFE5E7EB"`.
         if (key == 'border') {
           if (raw.startsWith('=')) {
-            bind['decoration.strokes[0].color'] = _read(raw.substring(1));
+            bind['decoration.strokes[0].color'] = _namedIn(_read(raw.substring(1)), 'stroke');
             decoration.putIfAbsent('strokes', () => [
                   {'color': '#00000000'},
                 ]);
           } else {
             decoration['strokes'] = [
-              {'color': _value(raw)},
+              {'color': _named(_value(raw), 'stroke')},
             ];
           }
           continue;
@@ -1317,11 +1501,19 @@ class _Parser {
         if (type == 'text' && _textStyleKeys.containsKey(key)) {
           // A style that follows data: `color:=due?"#FFDC2626":"#FF111827"`.
           if (raw.startsWith('=') && key != 'bold') {
-            bind['props.style.${_textStyleKeys[key]!}'] = _read(raw.substring(1));
+            final read = _read(raw.substring(1));
+            bind['props.style.${_textStyleKeys[key]!}'] = key == 'color' ? _namedIn(read, 'text') : read;
             continue;
           }
-          final style = switch (props['style']) { final Map m => m.cast<String, Object?>(), _ => <String, Object?>{} };
-          final v = _value(raw);
+          // Under a theme's looks a text sized or weighted on its line starts
+          // from the body style, so it keeps the theme's ink and font (the
+          // bundled looks leave it as written).
+          final body = identical(options.textStyles, defaultTextVariants) ? null : options.textStyles['body'];
+          final style = switch (props['style']) {
+            final Map m => m.cast<String, Object?>(),
+            _ => body is Map ? _copy(body.cast<String, Object?>()) : body is String ? <String, Object?>{'from': body} : <String, Object?>{},
+          };
+          final v = key == 'color' ? _named(_value(raw), 'text') : _value(raw);
           style[_textStyleKeys[key]!] = key == 'bold' ? 700 : v;
           props['style'] = style;
           continue;
@@ -1346,6 +1538,10 @@ class _Parser {
               put(path, _value(raw));
             }
           }
+          continue;
+        }
+        if (key == 'color' && type == 'icon' && !raw.startsWith('=')) {
+          props['color'] = _named(_value(raw), 'text');
           continue;
         }
         final path = pathOf(key);
@@ -1425,6 +1621,11 @@ class _Parser {
       layout.putIfAbsent('height', () => 140);
       // The design system's primary, unless a color is written.
       props.putIfAbsent(type == 'barChart' ? 'color' : 'lineColor', () => options.accent);
+      if (type == 'barChart') {
+        for (final e in options.barChart.entries) {
+          props.putIfAbsent(e.key, () => e.value);
+        }
+      }
       if (type == 'lineChart' && props['values'] is List) {
         final values = props.remove('values')! as List;
         props.remove('labels');
@@ -1468,6 +1669,20 @@ class _Parser {
       layout['width'] = {'fill': 0};
     }
     final inRow = !cell && parent?.type == 'row';
+    // A button alone on its line in a column is the card's one thing to
+    // do: as wide as the column, at the design system's height for it.
+    if (options.cta case final Json cta when parent != null && parent.type == 'column' && parent.grid == null && !cell) {
+      final p = nodes[parent.id];
+      final pw = (p?['layout'] as Map?)?['width'], pc = (p?['props'] as Map?)?['crossAxisAlignment'];
+      final hugs = pw is Map && pw.containsKey('hug') || pc == 'center' || pc == 'end';
+      final w = layout['width'];
+      final wide = w == null || w == 'fill' || w is Map && w.containsKey('fill');
+      if (!hugs && wide && !layout.containsKey('height') && const {'filledButton', 'outlinedButton', 'elevatedButton'}.contains(type)) {
+        for (final e in cta.entries) {
+          layout.putIfAbsent(e.key, () => _copyValue(e.value));
+        }
+      }
+    }
     if (inRow && type == 'text' && !layout.containsKey('width')) layout['squeezable'] = true;
     if (!layout.containsKey('width')) {
       // In a tile's slot (leading, trailing) a child is as wide as it is.
@@ -2332,6 +2547,23 @@ class _Parser {
   }
 
   Json _copy(Json m) => (jsonDecode(jsonEncode(m)) as Map).cast<String, Object?>();
+
+  Object? _copyValue(Object? v) => v == null ? null : jsonDecode(jsonEncode(v));
+
+  /// A color written as a value, as the theme's name for it when the
+  /// options read written colors so ([NotationOptions.palette]).
+  Object? _named(Object? v, String kind) => v is String && v.startsWith('#') ? (options.colorName(v, kind) ?? v) : v;
+
+  /// [formula] with each quoted color in it (`"#FF2563EB"`) read as the
+  /// theme's color of that name, when it has one near it.
+  String _namedIn(String formula, String kind) {
+    if (options.palette.isEmpty) return formula;
+    return formula.replaceAllMapped(RegExp(r'''(["'])(#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?)\1'''), (m) {
+      final n = options.colorName(m[2]!, kind);
+      if (n == null) return m[0]!;
+      return const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(n) ? 'theme.$n' : 'theme.colors.$n';
+    });
+  }
 
   void _merge(Json into, Json from) {
     for (final e in from.entries) {
