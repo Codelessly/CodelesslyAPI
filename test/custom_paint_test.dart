@@ -109,6 +109,21 @@ void main() {
       expect(Node.fromJson({'id': 'a', 'type': 'box'})!.behaviors.customPaint, isNull);
     });
 
+    test('a paragraph\'s style numbers may be expressions, kept apart from its static style and written back', () {
+      final json = {
+        'op': 'paragraph', 'text': r'${el.label}',
+        'style': {'fontFamily': 'Barlow Condensed', 'fontSize': r'${= clamp(ppf * 0.75, 9, 22)}', 'letterSpacing': 0.6, 'height': r'${= h}'},
+      };
+      final op = DrawOp.fromJson(json)! as ParagraphOp;
+      expect(op.style.fontFamily, 'Barlow Condensed');
+      expect(op.style.letterSpacing, 0.6);
+      expect(op.style.fontSize, isNull);
+      expect(op.styleExprs.keys, {'fontSize', 'height'});
+      expect(op.styleExprs['fontSize']!.source, r'${= clamp(ppf * 0.75, 9, 22)}');
+      expect(op.toJson(), json);
+      expect(DrawOp.fromJson(op.toJson()), op);
+    });
+
     test('every drawing operation reads as Flutter would call the canvas and writes back unchanged', () {
       final ops = [
         {'op': 'path', 'd': 'M0 0 L10 10 Z', 'fillType': 'evenOdd', 'trimEnd': 0.5, 'paint': '#FF000000'},

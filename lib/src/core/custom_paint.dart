@@ -894,10 +894,18 @@ final class ParagraphOp extends ShapeOp {
     this.maxWidth,
     this.textAlign = TextAlign.start,
     this.maxLines,
+    this.styleExprs = const {},
   });
 
   final String text;
   final TextStyle style;
+
+  /// [style]'s number fields given as expressions (`"fontSize": "\${= zoom * 12}"`),
+  /// by key: [styleExprKeys]. Worked out each time it paints, over [style].
+  final Map<String, Expr<double>> styleExprs;
+
+  /// The style fields that may be expressions.
+  static const styleExprKeys = {'fontSize', 'letterSpacing', 'wordSpacing', 'height'};
   final Expr<Vec>? offset;
   final Alignment anchor;
   final Expr<double>? maxWidth;
@@ -908,14 +916,27 @@ final class ParagraphOp extends ShapeOp {
   String get op => 'paragraph';
   static const keys = {'text', 'style', 'offset', 'anchor', 'maxWidth', 'textAlign', 'maxLines', ...ShapeOp._shapeKeys};
 
-  static ParagraphOp _read(Json m, _Common c) => ParagraphOp(
+  static ParagraphOp _read(Json m, _Common c) {
+    final raw = readMap(m['style']);
+    final exprs = <String, Expr<double>>{};
+    for (final k in styleExprKeys) {
+      final v = raw?[k];
+      if (v is String && v.contains(r'${')) {
+        if (_num(v) case final e?) exprs[k] = e;
+      }
+    }
+    return ParagraphOp._of(m, c, raw == null || exprs.isEmpty ? m['style'] : ({...raw}..removeWhere((k, _) => exprs.containsKey(k))), exprs);
+  }
+
+  static ParagraphOp _of(Json m, _Common c, Object? style, Map<String, Expr<double>> exprs) => ParagraphOp(
     id: c.id,
     when: c.when,
     extra: c.extra(keys),
     paint: readPaints(m['paint']),
     hit: readString(m['hit']),
     text: readString(m['text']) ?? (m['text'] is num ? '${m['text']}' : ''),
-    style: TextStyle.fromJson(m['style']),
+    style: TextStyle.fromJson(style),
+    styleExprs: exprs,
     offset: readExprVec(m['offset'], _point),
     anchor: Alignment.fromJson(m['anchor']) ?? Alignment.topLeft,
     maxWidth: _num(m['maxWidth']),
@@ -926,7 +947,12 @@ final class ParagraphOp extends ShapeOp {
   @override
   void _write(Json j) {
     put(j, 'text', text, '');
-    if (!style.isEmpty) j['style'] = style.toJson();
+    if (!style.isEmpty || styleExprs.isNotEmpty) {
+      j['style'] = {
+        if (!style.isEmpty) ...style.toJson(),
+        for (final e in styleExprs.entries) e.key: _numOut(e.value),
+      };
+    }
     _putVec(j, 'offset', offset);
     if (anchor != Alignment.topLeft) j['anchor'] = anchor.toJson();
     _putNum(j, 'maxWidth', maxWidth);
@@ -936,7 +962,7 @@ final class ParagraphOp extends ShapeOp {
   }
 
   @override
-  List<Object?> get _props => [paint, hit, text, style, offset, anchor, maxWidth, textAlign, maxLines];
+  List<Object?> get _props => [paint, hit, text, style, offset, anchor, maxWidth, textAlign, maxLines, styleExprs];
 
   ParagraphOp copyWith({
     String? id,
@@ -963,6 +989,7 @@ final class ParagraphOp extends ShapeOp {
     maxWidth: maxWidth ?? this.maxWidth,
     textAlign: textAlign ?? this.textAlign,
     maxLines: maxLines ?? this.maxLines,
+    styleExprs: styleExprs,
   );
 }
 
