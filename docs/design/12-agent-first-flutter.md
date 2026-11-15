@@ -376,6 +376,30 @@ Out of scope by the owner's decision: removing the Flutter widgets still in use.
 5. **The public API trim**, after the Editor's audit so nothing it needs goes: what only tests and internals use
    moves to a second library.
 
+6. **The block library as a service in CodelesslyEditor** (owner, 2026-11-15). The Editor becomes where a design
+   system's whole bundle is seen and grown: its tokens, DESIGN.md and PATTERNS.md, the brief a designer (a person
+   or a model) is given, its blocks, and the blocks generated on demand waiting for approval. Every approved block
+   joins the library, so it grows with use; Codelessly hosts it, and that is the business.
+   - *What the Editor already has* (read 2026-11-15, not yet built on): per-project component libraries
+     (`lib/editor/components.dart`, Firestore `component_libraries/{project}`), public components, and
+     Codelessly-managed components with immutable versions published through a Cloud Function
+     (`lib/editor/managed_components.dart`, `managed_components/{id}/versions/{n}`, `ManagedLibrarySection`). An
+     approved block is a managed component version; that is "the Editor's own methods".
+   - *What is new*: a design system as a stored thing (manifest, tokens, the two documents, the brief), not only
+     loose components; a block's state (generated, in review, approved, retired) and where it came from (the
+     request, the model, the rounds, the renders, the values check); a Library page; a review queue.
+   - *The Library page*, on the storyboard and DPP conventions: design systems; for one, its tokens, DESIGN.md,
+     PATTERNS.md and the designer's brief as they are sent; its blocks as a grid of previews, light and dark; a
+     block's page with its parameters as DPP controls and the cards that use it; the review queue with approve,
+     send back with a note, reject.
+   - *The service*: the design loop (`design_block.py` today) run where the Editor's functions run, asked for
+     by a session that found no block, gated by the checks, writing a version in review; an SDK loader that
+     reads a hosted design system, so `UiSession(designSystem:)` and `addBlock` take blocks from the library.
+   - *Stages*: (a) the Editor's audit and port to 31, which this needs (its SDK is a far older submodule);
+     (b) the Library page read-only over the files in the SDK repository, in the Editor's storyboard, to settle
+     the screens before any backend; (c) storage on the managed-component methods; (d) the review queue;
+     (e) the service; (f) the SDK's hosted loader.
+
 Decided by the owner (2026-11-15): the trim is done now and ships as version 31; the target for (1) is 9 of 10
 values right with the small model; accepted on-demand blocks go into a library that keeps growing and will be
 hosted by Codelessly (the business), stored through the Editor's own methods.

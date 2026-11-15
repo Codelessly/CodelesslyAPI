@@ -1,4 +1,19 @@
-## Unreleased
+## 31.0.0
+
+Released with codelessly_sdk 31.0.0. Nothing a document written for 30.1.0 uses has changed.
+
+- **The compact notation** (`package:codelessly_api/notation.dart`): `Pages =page` (swiped pages bound both
+  ways, `peek`), `Dots =page count:n`, `Row scroll` scrolls sideways, sideways scrollers fade at their edge, and a
+  value that follows state is read as a model writes it: the name bare (`choice:pick`), in braces, or the
+  expression with no mark (`enabled:!voted`); a list holding expressions is a formula; `true`, `false` and `null`
+  after `:=` are values. On a block's line, a bare word one enumerated parameter has, `key=value` and a further
+  string are read as the parameter they can only mean. `NotationOptions.fromTheme(named: true)` writes looks as the
+  theme's names.
+- **`notationPrompt`** carries a design system's composition brief (its PATTERNS.md "In brief").
+- **`edgeFade`** on scrolling containers and page views.
+- **Validation**: a project component replaces its design system's of the same type (it was reported as a
+  duplicate).
+
 
 - **The compact notation, first version** (`docs/design/13-compact-notation.md`): `parseNotation` in
   `lib/src/core/notation/notation.dart` (internal, not exported yet) expands one node per line, nested by
