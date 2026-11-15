@@ -1030,6 +1030,8 @@ class _Parser {
             layout['flex'] = 1;
           } else if (word == 'scroll' && (type == 'column' || type == 'row')) {
             props['scrollable'] = true;
+            // A row scrolls along itself: sideways.
+            if (type == 'row') props['scrollDirection'] = 'horizontal';
           } else if (word == 'fill') {
             layout['width'] = {'fill': 0};
           } else if (word == 'open' && (type == 'accordion' || type == 'expansionTile')) {
