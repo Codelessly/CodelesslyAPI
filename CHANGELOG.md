@@ -1,3 +1,55 @@
+## Unreleased
+
+- **`dragEdgeScroll`** (scrolling containers, lists, grids; default true): whether the view scrolls while a drag and
+  drop is held near its edges. Off for a strip that should stay put under a drag: sprint_kanban's phone column tabs,
+  where the strip scrolled the tab out from under the card it had just switched columns for.
+- **`DropTarget.slotWhenRefused`** is back in schema 3 (default false): the list opens its slot for a drag
+  `acceptIf` refuses too, as Flutter's `DragTarget` hands its builder the rejected candidates (a kanban column at
+  its WIP limit shows where the card would land, styled as blocked). The migration writes it out where schema 2
+  left it at its default (true) with an `acceptIf` and a list slot, so such a document renders as before instead
+  of reporting a behavior change (sprint_kanban's columns relied on it).
+
+## 32.0.0
+
+Released with codelessly_sdk 32.0.0. Stored documents and the JSON format are unchanged; the one breaking change
+is in how the compact notation reads `Column center`.
+
+### Breaking
+
+- **Notation: `center` and `middle` on a `Column` swapped.** `center` now centers children side to side;
+  `middle` gathers them at the column's middle. Notation that wrote `Column center` expands differently.
+
+### Added
+
+- **Notation, meters and charts**: `Gauge` / `Dial` (`limit:`, `unit:`), `Ring`, `Sparkline`,
+  `LineChart labels:[…] series:[…]`, `AreaChart`, `Donut`.
+- **Notation, motion**: `animate:<word>` (fade, slide-up, slide-left, scale, pop, bounce, shake, pulse, spin,
+  shimmer) with `duration:`, `delay:`, `stagger:`; `swipe:left -> …`.
+- **Notation, layout**: several top-level lines are a page's sections, stacked; a `Stack` placed with `left`,
+  `right`, `top`, `bottom`, or centered with `center middle`; `maxw:`; `grow:=value`.
+- **Notation, parts and props**: `Avatar`; `Input … password` / `multiline`; a slider's `step:`;
+  `Text … center` / `strike`; an `IconButton`'s `color:` and `size:`; `gradient:[…]`; an `every` with its
+  actions on the next line.
+- **`TextProps.markdown`**: a text shown as Markdown (bold, italic, code, links, @mentions, lists) with the
+  markers taken out. Same keys as `TextFieldProps.markdown`.
+- **Two schema 2 → 3 migration steps** for projects made before the v2 SDK: `text.markdown` moves a text's
+  Markdown look to `props.markdown`; `trigger.fieldResult` rewrites a text field reaction's `result.value`,
+  `result.word`, `result.cursor`, `result.selectionStart` and `result.selectionEnd` to `field.*`.
+- **Theme names the notation uses when present**: `sizes.wide` with a `titleWide` text style (wide page titles
+  from `NotationOptions.fromTheme(width:)`), `sizes.ring`, text styles `gaugeValue` and `gaugeUnit`,
+  `colors.pageFill`. A theme without them is unchanged.
+
+### Changed
+
+- **Notation is more forgiving**: props guessed in a JSON tail are read as the notation's own keys, or reported
+  at their line; single quotes hold spaces in an expression; fixed text widths in a row become shares when they
+  do not fit.
+
+### Fixed
+
+- **A required component parameter set to its default value is kept.** `Props` dropped it, and the call then
+  reported `missing_prop`.
+
 ## 31.0.0
 
 Released with codelessly_sdk 31.0.0. Nothing a document written for 30.1.0 uses has changed.

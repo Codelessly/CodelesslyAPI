@@ -611,6 +611,22 @@ Card
     expect(((_node(r, 'row1')['decoration'] as Map)['fills'] as List).single, {'color': '#1A15803D'});
     expect((_node(r, 'barChart1')['props'] as Map)['color'], '#FF0F766E');
   });
+  test('a theme gives a progress bar its corner and height, and a card with no gap the theme\'s', () {
+    final options = NotationOptions.fromTheme({
+      'radii': {'progress': 999},
+      'sizes': {'progress': 8},
+      'spacing': {'cardGap': 12},
+    });
+    final r = parseNotation('Column\n  Card#a\n    Progress#p 0.4\n  Card#b gap:4\n    Text "x"', options: options, catalog: standardCatalog);
+    expect((_node(r, 'p')['props'] as Map)['borderRadius'], 999);
+    expect((_node(r, 'p')['layout'] as Map)['height'], 8);
+    expect((_node(r, 'a')['props'] as Map)['spacing'], 12);
+    expect((_node(r, 'b')['props'] as Map)['spacing'], 4);
+    final plain = parseNotation('Card#a\n  Progress#p 0.4', catalog: standardCatalog);
+    expect((_node(plain, 'p')['props'] as Map)['borderRadius'], 2);
+    expect((_node(plain, 'a')['props'] as Map).containsKey('spacing'), isFalse);
+  });
+
   test('a card\'s corner follows its place: the whole UI, a section of a page, a tile in a grid, a card in a card', () {
     final options = NotationOptions.fromTheme({
       'radii': {'card': 26, 'panel': 18, 'tile': 14},
@@ -703,6 +719,247 @@ Card gap:12
         reason: 'a sized text keeps the body ink: with no color it shows nothing');
   });
 
+
+  test('the words a model reaches for: Gauge, Dial, Ring, Sparkline, animate, and a Stack that centers', () {
+    const text = '''
+state steps=7240
+state rows=[{"t":"a"},{"t":"b"}]
+Card
+  Gauge#g 72 min:0 max:180 limit:100 unit:"km/h"
+  Dial#d =steps
+  Stack#s center middle w:96 h:96
+    Ring#r =steps/10000 w:96
+    Text#pct "72%"
+  Sparkline#sp values:[3,4,3,6]
+  Text#t "Hello" animate:fadeIn duration:0.4s delay:200
+  each x in rows
+    Row#row animate:slide-up stagger:80
+      Text "{x.t}"
+  Button#b "Record" animate:pulse
+''';
+    final r = parseNotation(text, catalog: standardCatalog);
+    expect(r.issues, isEmpty);
+    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
+    // A gauge is a stack under its id: a clean arc and the figure inside it.
+    expect(_node(r, 'g')['type'], 'stack');
+    expect(_node(r, 'g')['layout'], {'width': {'fill': 0}, 'height': 164});
+    expect(_node(r, 'g')['children'], ['gArc', 'gValue', 'gUnit']);
+    final g = _node(r, 'gArc');
+    expect(g['type'], 'radialGauge');
+    expect(g['props'], containsPair('value', 72));
+    expect(g['props'], containsPair('target', 100));
+    expect(g['props'], containsPair('showNeedle', false));
+    expect((_node(r, 'gValue')['props'] as Map)['text'], '72');
+    expect((_node(r, 'gUnit')['props'] as Map)['text'], 'km/h');
+    // A gauge with no limit shows no target mark; one that follows a variable shows its value.
+    expect(_node(r, 'dArc')['props'], containsPair('showTarget', false));
+    expect((_node(r, 'dArc')['bind'] as Map)['props.value'], r'${steps}');
+    expect((_node(r, 'dValue')['bind'] as Map)['props.text'], r'${steps}');
+    // What is in a centering stack is centered, as wide as it is.
+    expect(_node(r, 'r')['type'], 'circularProgressIndicator');
+    expect(_node(r, 'pct')['layout'], {'x': {'align': 0}, 'y': {'align': 0}, 'width': {'hug': 0}, 'height': {'hug': 0}});
+    final sp = _node(r, 'sp');
+    expect(sp['type'], 'lineChart');
+    expect((sp['layout'] as Map)['height'], 32);
+    expect((sp['props'] as Map)['data'], hasLength(4));
+    expect(_node(r, 't')['animations'], [
+      {'id': 'a', 'preset': 'enter', 'params': {'from': {'opacity': 0}}, 'duration': 400, 'delay': 200},
+    ]);
+    expect((_node(r, 'row')['bind'] as Map)['animations[0].delay'], r'${= index*80}');
+    expect(((_node(r, 'b')['animations'] as List).single as Map)['preset'], 'pulse');
+    // As models also write them: the timer's actions on the next line, a slider's step, a swipe, a stagger on the each.
+    const more = '''
+state n=0
+state todos=[{"id":1,"t":"a"}]
+every 1s when n<5
+  -> n=n+1
+Card
+  Slider#tip =n min:0 max:30 step:5
+  each t in todos stagger:60
+    Row#todo swipe:left -> todos=removeWhere(todos,x=>x.id==t.id)
+      Text "{t.t}"
+''';
+    final m = parseNotation(more, catalog: standardCatalog);
+    expect(m.issues, isEmpty);
+    expect(validateDocument(m.document).where((d) => d.severity == Severity.error), isEmpty);
+    expect((((m.document['nodes'] as Map)['screen'] as Map)['actions'] as List).single, containsPair('trigger', {'type': 'timer', 'intervalMs': 1000, 'when': r'${= n<5}'}));
+    expect(_node(m, 'tip')['props'], containsPair('divisions', 6));
+    // A share of a row that follows a value grows (a segmented bar's parts).
+    final bar = parseNotation('state a=3\nRow h:12\n  Box#seg grow:=a fill:#FF4285F4', catalog: standardCatalog);
+    expect(bar.issues, isEmpty);
+    expect(_node(bar, 'seg')['layout'], containsPair('flex', 1));
+    expect((_node(bar, 'seg')['bind'] as Map)['layout.flex'], r'${a}');
+    expect(((_node(m, 'todo')['actions'] as List).single as Map)['trigger'], {'type': 'swipeLeft'});
+    expect((_node(m, 'todo')['bind'] as Map)['animations[0].delay'], r'${= index*60}');
+    // A word it does not have is named with the ones it has; timing alone says where it goes.
+    final bad = parseNotation('Text "x" animate:teleport\nText "y" duration:300', catalog: standardCatalog);
+    expect(bad.issues.map((i) => i.message).join('\n'), allOf(contains('No animate:teleport'), contains('go with animate:')));
+  });
+
+  test('several lines, an area, a donut; a guessed prop in a JSON tail is read or named at its line', () {
+    const text = '''
+state room="Living Room"
+Card
+  LineChart#lines labels:["W1","W2","W3"] series:[{"name":"Signups","values":[40,52,61]},{"name":"Churn","values":[8,6,9],"color":"#FFDC2626"}]
+  AreaChart#area values:[3,5,4] labels:["a","b","c"]
+  Donut#d values:[60,25,15] labels:["Rent","Food","Other"]
+  LineChart#plain values:[1,2,3]
+  Box#b fill:#FFEEEEEE {"props": {"margin": [0, 8, 0, 0], "borderWidth": 2, "hexagon": true}}
+  Input#msg "Message" {"props": {"multiline": true}}
+  IconButton#star "star" color:#FFFFC107 size:28
+  ChoiceChip#chip "Living Room" selected:=room=='Living Room' -> room="Living Room"
+  Text.small.muted#tm "38:20"
+  Box#hero h:120 gradient:["#FF7C3AED","#FFEC4899"]
+  Image#img "assets/a.png" fit:contain
+  IconButton#info "info" tooltip:"More"
+''';
+    final r = parseNotation(text, catalog: standardCatalog);
+    // The one prop nothing reads is named where it was written; the rest are read.
+    expect(r.issues.map((i) => i.message).toList(), [contains('has no "hexagon"')]);
+    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
+    final lines = _node(r, 'lines');
+    expect(lines['type'], 'chart');
+    expect(lines['props'], containsPair('chartType', 'line'));
+    expect(((lines['props'] as Map)['data'] as List).first, {'label': 'W1', 's0': 40, 's1': 8});
+    expect(((lines['props'] as Map)['series'] as List).map((s) => (s as Map)['name']), ['Signups', 'Churn']);
+    expect((((_node(r, 'area')['props'] as Map)['series'] as List).single as Map)['kind'], 'area');
+    final d = _node(r, 'd');
+    expect(d['props'], containsPair('chartType', 'donut'));
+    expect(((d['props'] as Map)['data'] as List).map((x) => (x as Map)['value']), [60, 25, 15]);
+    expect(_node(r, 'plain')['type'], 'lineChart');
+    expect((_node(r, 'b')['layout'] as Map)['margin'], [0, 8, 0, 0]);
+    expect((_node(r, 'b')['decoration'] as Map)['strokeWidth'], 2);
+    expect(_node(r, 'msg')['props'], containsPair('maxLines', 6));
+    expect((_node(r, 'star')['props'] as Map)['style'], {'iconColor': '#FFFFC107', 'iconSize': 28});
+    expect((_node(r, 'chip')['bind'] as Map)['props.selected'], contains("'Living Room'"));
+    expect(_node(r, 'tm')['type'], 'text');
+    expect((((_node(r, 'hero')['decoration'] as Map)['fills'] as List).single as Map)['stops'], hasLength(2));
+    expect(((((_node(r, 'img')['decoration'] as Map)['fills'] as List).single as Map)['image'] as Map)['fit'], 'contain');
+    expect(_node(r, 'info')['tooltip'], 'More');
+  });
+
+  test('a page written as several top-level sections stacks them in one column', () {
+    const text = '''
+state open=true
+Row#header pad:16
+  Text "Acme"
+Column#main pad:24
+  Text.title "Pricing"
+if open
+  Text#note "Shown"
+Row#footer
+  Text "Terms"
+''';
+    final r = parseNotation(text, catalog: standardCatalog);
+    expect(r.issues, isEmpty);
+    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
+    expect(((r.document['nodes'] as Map)['screen'] as Map)['slots'], {'body': 'pageRoot'});
+    expect(_node(r, 'pageRoot')['children'], ['header', 'main', 'note', 'footer']);
+    // Streamed, the column takes the body and the first section moves into it.
+    final stream = NotationStream(catalog: standardCatalog);
+    final ops = [...stream.add(text), ...stream.close()];
+    final at = ops.indexWhere((o) => o['op'] == 'set' && o['id'] == 'pageRoot');
+    expect(at, greaterThan(0));
+    expect(ops[at + 1], {'op': 'move', 'id': 'header', 'parent': 'pageRoot', 'index': 0});
+    expect(ops.where((o) => o['op'] == 'set' && o['id'] == 'pageRoot'), hasLength(1));
+    expect(ops.firstWhere((o) => o['id'] == 'main')['parent'], 'pageRoot');
+  });
+
+  test('the forms models write for placement, text, inputs and people', () {
+    const text = '''
+Column#page maxw:720
+  Column#tab center
+    Icon#ic "home"
+    Text#lbl "Home"
+  Column#mid middle h:200
+    Text "x"
+  Stack#st w:fill h:200 right bottom
+    Button#fab "+"
+  Text#t "Total" center
+  Text#old "\$40" strike
+  Input#pw "Password" type:password
+  Input#pw2 "Confirm" password
+  Input#note "Note" multiline
+  Avatar#av "Maya Reyes" size:48
+  Avatar#pic src:"assets/maya.png"
+''';
+    final r = parseNotation(text, catalog: standardCatalog);
+    expect(r.issues, isEmpty);
+    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
+    expect((_node(r, 'page')['layout'] as Map)['constraints'], {'maxWidth': 720});
+    // Column center: its children side by side centered, each as wide as it is (an icon over its label).
+    expect(_node(r, 'tab')['props'], containsPair('crossAxisAlignment', 'center'));
+    expect((_node(r, 'tab')['props'] as Map).containsKey('mainAxisAlignment'), isFalse);
+    expect((_node(r, 'ic')['layout'] as Map)['width'], {'hug': 0});
+    expect(_node(r, 'mid')['props'], containsPair('mainAxisAlignment', 'center'));
+    expect(_node(r, 'fab')['layout'], containsPair('x', {'align': 1}));
+    expect(_node(r, 'fab')['layout'], containsPair('y', {'align': 1}));
+    expect(_node(r, 't')['props'], containsPair('textAlign', 'center'));
+    expect(((_node(r, 'old')['props'] as Map)['style'] as Map)['decoration'], 'lineThrough');
+    expect(_node(r, 'pw')['props'], containsPair('obscureText', true));
+    expect((_node(r, 'pw')['props'] as Map).containsKey('keyboardType'), isFalse);
+    expect(_node(r, 'pw2')['props'], containsPair('obscureText', true));
+    expect(_node(r, 'note')['props'], containsPair('maxLines', 6));
+    final av = _node(r, 'av');
+    expect(av['layout'], containsPair('width', 48));
+    expect((av['decoration'] as Map)['radius'], 24);
+    expect((_node(r, 'avText')['props'] as Map)['text'], 'MR');
+    expect((((_node(r, 'pic')['decoration'] as Map)['fills'] as List).single as Map)['image'], containsPair('url', 'assets/maya.png'));
+  });
+
+  test('a theme may say what a neutral fill written on the page becomes, where it would vanish into the page', () {
+    final theme = {
+      'colors': {
+        'primaryText': '#FF111827', 'primaryBackground': '#FFFFFFFF', 'subtleFill': '#FFF3F4F6', 'page': '#FFF3F4F6',
+        'card': '#FFFFFFFF', 'pageFill': '#FFFFFFFF', 'primaryBorder': '#FFE5E7EB',
+      },
+      'textStyles': {'body': {'fontSize': 13, 'color': 'primaryText'}},
+    };
+    const text = '''
+Column
+  Box#onPage w:44 h:44 radius:22 fill:#FFF1F5F9
+  Card
+    Box#inCard w:44 h:44 radius:22 fill:#FFF1F5F9
+  Box#brand fill:#FF7C3AED
+''';
+    Object? fill(NotationResult r, String id) => ((_node(r, id)['decoration'] as Map)['fills'] as List).single;
+    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
+    expect(r.issues, isEmpty);
+    // On the page the gray would be the page's own color: the theme's fill for the page. In a card it is the neutral fill.
+    expect(fill(r, 'onPage'), {'color': 'pageFill'});
+    expect(fill(r, 'inCard'), {'color': 'subtleFill'});
+    expect(fill(r, 'brand'), {'color': '#FF7C3AED'});
+    // A theme without the name reads it as before.
+    final plain = {...theme, 'colors': {...(theme['colors']! as Map)}..remove('pageFill')};
+    expect(fill(parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(plain, named: true)), 'onPage'), {'color': 'subtleFill'});
+  });
+
+  test('a theme may give the title a larger style on a wide page', () {
+    final theme = {
+      'colors': {'primaryText': '#FF111827'},
+      'textStyles': {
+        'body': {'fontSize': 13, 'color': 'primaryText'},
+        'title': {'fontSize': 20, 'fontWeight': 700},
+        'pageTitle': {'fontSize': 20, 'fontWeight': 600},
+        'titleWide': {'fontSize': 28, 'fontWeight': 700},
+      },
+      'sizes': {'wide': 900},
+    };
+    const text = 'Column\n  Text.title "Inventory"\n  Text.pageTitle "Contacts"\n  Text.heading "Stock"';
+    Object? style(NotationResult r, String id) => (_node(r, id)['props'] as Map)['style'];
+    // At a phone's width the title is the title; from the theme's wide size up it is the wide title.
+    final narrow = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
+    expect(style(narrow, 'text1'), {'from': 'title', 'color': 'primaryText'});
+    expect(style(narrow, 'text2'), {'from': 'pageTitle', 'color': 'primaryText'});
+    final wide = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true, width: 1280));
+    expect(wide.issues, isEmpty);
+    expect(style(wide, 'text1'), {'from': 'titleWide', 'color': 'primaryText'});
+    expect(style(wide, 'text2'), {'from': 'titleWide', 'color': 'primaryText'});
+    expect(style(wide, 'text3'), style(narrow, 'text3'));
+    // A theme without the two names (SSUI) is unchanged at any width.
+    final plain = {...theme, 'sizes': <String, Object>{}};
+    expect(style(parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(plain, named: true, width: 1280)), 'text1'), {'from': 'title', 'color': 'primaryText'});
+  });
   test('Pages: swiped pages bound to a variable, per element or per line, with a peek and dots', () {
     final r = _parse('''
 state shoes=[{"name":"Aero"},{"name":"Trail"}]

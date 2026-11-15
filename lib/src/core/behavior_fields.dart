@@ -485,9 +485,11 @@ abstract final class DropTargetFields {
   static const slotNodeId = PropDef<String>('slotNodeId', Codecs.string, '');
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const slotSize = PropDef<DropSlotSize>('slotSize', EnumCodec(DropSlotSize.values), DropSlotSize.dragged);
+  static const slotWhenRefused = PropDef<bool>('slotWhenRefused', Codecs.bool, false,
+      doc: 'The list opens its slot for a drag acceptIf refuses too (styled by \${drag.accepted}): a full column shows where a card would land.');
 
   static const List<PropDef<Object?>> all = [
-    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, enabled, //
+    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, slotWhenRefused, enabled, //
   ];
 }
 

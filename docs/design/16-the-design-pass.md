@@ -182,7 +182,12 @@ designed defaults with the design pass.
 | Set | Pages | Pass kept by the checks | Judged order | Typical scores (SSUI, designed, pass) |
 |---|---|---|---|---|
 | Mobile, 420 wide | 6 (four written by hand, two real generated app screens) | 6 of 6 | pass, designed, SSUI in 12 of 12 judgments | 3–5, 6–7, 8–9 |
+| Mobile app screens, 390 wide | 8, each written by Sonnet from plain parts from a one-paragraph brief (fitness, banking, food order, habits, travel, chat settings, product, learning) | 7 of 8 | pass, designed, SSUI in 16 of 16 judgments | 4–5, 6–7, 7–9 |
 | Desktop, 1280 wide | 7 (five written by Sonnet from a one-paragraph brief, two by hand) | 4 of 7 | pass first in 14 of 14; designed second in 12 | 1–5, 5–7, 6–9 |
+
+The one refusal in the app-screen set was a balance figure three pixels short of its line height at 320 wide.
+The composer wrote those eight from plain parts only, so all three columns are the same notation and the SSUI
+column is a fair measure there.
 
 What the desktop set showed:
 
@@ -233,9 +238,187 @@ with the session's document as the nodes and the view's render as the picture.
 - **Designed defaults.** The plain parts' default look is being ported to the Cards language, so path 1 starts
   closer to the bar and the pass has less to do. The comparison to settle: SSUI defaults, designed defaults,
   designed defaults plus the pass, and blocks, on inline cards and on full pages.
-- **In the SDK.** The pass is a tool today. To come: the instructions built by the session
-  (`UiSession` gives the nodes and the design system; the brief is assembled in Dart), the checks of §5 as one
-  call, and the pass's result cached by request so a repeat costs nothing.
+- **In the SDK.** `DesignPass` (CodelesslySDK `lib/src/session/design_pass.dart`, guide 18) builds the
+  instructions from the session and its design system, applies an answer as one undo step, refuses one that is
+  rejected or that changes what the UI says or does, and takes a host's check for what the view shows. To come:
+  the pass's result cached by request, and the second-width check at a width the layout is meant for.
 - **The design agent's tier.** Opus is measured. Sonnet as the design agent, and one round against two, are
   not yet.
 - **Behavior after the pass.** The values check has not been run on restyled cards.
+
+## 10. Reconciling the defaults with the blocks and the pass (open, 2026-11-15)
+
+The order by quality, as the owner and the blind judges see it: designed blocks, then the design pass, then
+the designed defaults, then the bundled SSUI look. Standalone run 10 (branch `run10` of CodelesslySDK,
+`run10/design-pass/`) confirmed the pass is safe (six of six kept, no text, action or data binding changed) and
+that its results sit below the blocks. The causes, and the work that follows from each:
+
+| Cause | Work |
+|---|---|
+| The pass only restyles what the composer wrote; a block is a composition (a focal element, drawn detail, grouped facts) | Let the pass put a block in place of plain nodes that show the same thing. In the tool: `style_pass.py --blocks`. Not yet in `DesignPass` (its `changedMeaning` refuses a removed text node; it must accept one whose text a block's props now carry) |
+| The design agent was shown one block as a syntax sample | With `--blocks` it is given every own block's purpose, props and events and the three closest to the request as written. Pictures of those blocks are not yet shown |
+| The composer's plain card is thin (five to eight rows of text) | The composer's prompt, not the pass: ask for the facts a designed card of that kind carries. Untried |
+| The defaults are generic where the blocks are specific | The cycle below |
+
+**The pass with blocks, first result.** The six run 10 briefs were run again with `--blocks` (CodelesslySDK
+`examples/showcase/design-pass-runs/run10-with-blocks/`, three rounds allowed). All six were kept. The agent
+used a block in two of them, and only `ActionButton`; the rest it built from plain nodes as before. Beside run
+10's results the cards differ in detail (a dashed code panel, an icon on a button, a warning tinted) and not
+in kind: no card gained a composition a block would have. Telling the agent of the blocks and showing three as
+written is not enough. Untried: showing it pictures of the closest blocks; a block made for the request on
+demand; a composer that writes more of what a designed card carries.
+(Both are tried below: pictures in "The pass with blocks", and with each block's size in the brief the agent
+does place blocks where the request fits one.)
+
+**The cycle** (each turn of it is one measured change):
+
+1. *Read the gap.* `examples/showcase/tool/pass_ops.py` counts what the pass changed again and again over the
+   recorded passes (`examples/showcase/design-pass-runs/`: 17 inline cards, 6 mobile pages, 8 mobile app
+   screens, 7 desktop screens; each with the UI given, the operations kept and the request). `--styles` counts
+   text restyles. Beside it, read what the blocks do that plain parts do not (`design_systems/cards/DESIGN.md`,
+   `PATTERNS.md`, the block documents).
+2. *Move one thing.* A change that recurs and needs no node the composer did not write becomes a default: a
+   theme value the notation reads (`NotationOptions.fromTheme` in CodelesslyAPI `notation.dart`) or a token of
+   the design system (`design_systems/cards/tool/tokens.py`, mirrored in `design_system.json`; `build.py`
+   regenerates it and the showcase, which takes about fifteen minutes).
+3. *Measure.* Render the same UIs three ways (SSUI, designed defaults, defaults plus the pass) and judge them
+   blind (`examples/showcase/tool/judge.py`). A default stays when the designed-defaults score rises and
+   nothing else falls; the pass's remaining operations on those UIs should shrink.
+4. *Record* the change and the scores here.
+
+**Moved so far**: a card's corner by its place (26 alone, 18 as a section, 14 as a tile); a text sized on its
+line keeps the body ink; `Progress` as an 8 high pill (`radii.progress`, `sizes.progress`); a `Card` with no
+gap spaces its children by 12 (`spacing.cardGap`); the short words `strong` (as a row title), `muted` and
+`caption` (as the meta line: 12 to 12.5, medium weight). Judged on the eight app screens after the progress, gap
+and text style changes together (16 judgments, mean scores before and after): designed defaults 6.19 to 6.38,
+the pass 8.00 to 8.03, and SSUI, which did not change, 4.44 to 4.81. The rise is smaller than the judges' own
+noise, so these changes are **not shown to help or to harm**; one judgment ranked designed defaults below SSUI
+on the product page. They stay for now; the judge needs more cases or repeated judgments before it can settle
+a change this small (`design-pass-runs/mobile-app-screens/judge-after-text-defaults.json`).
+
+**Cycles of 2026-11-15, second session.** Every figure below comes from one way of judging, which differs from the
+first session's: the versions of a UI being compared are shown *together*, unlabeled and shuffled, to the two
+judges (`examples/showcase/tool/ways.py pack`, then `tally`), so a judgment is a direct comparison. This settles
+changes the earlier way (each state judged in its own run, means compared) could not: the judges agree on small
+differences when they see them side by side. The judges and the design agent were Opus and Sonnet subagents of a
+Claude Code session, not `judge.py` or `style_pass.py`'s API call (no API key was at hand); the prompts are the
+same. Scores are therefore comparable within a table, not with the first session's. Records:
+`CodelesslySDK/examples/showcase/design-pass-runs/cycles/` and `mobile-app-screens/judge-text-styles.json`.
+
+| Change | Tried on | Judged against the defaults as they stood | Verdict |
+|---|---|---|---|
+| `strong`, `muted`, `caption` as the pass restyles them (committed last session, unjudged) | 8 app screens, two shuffles, 32 judgments | Above the old styles in 30 of 32; mean 6.78 against 6.22 (SSUI 4.81, the pass 8.66) | **Kept** |
+| A section card with no shadow (`shadows.section`), from run 10's "stacked cards read heavy" | 11 phone screens, 6 desktop screens, 34 judgments | Below in 33 of 34; phone mean 5.95 against 6.86 | **Not moved.** The judges read the flat cards as unfinished; the shadow stays |
+| A quiet button (outlined, tonal) alone on its line at its own size, full width only under a full-width one (`sizes.ctaQuiet`), from run 10's "a secondary button goes full width" | the same 17 screens | Below in 17 of 22 on phones (6.59 against 6.86), 6 to 6 on desktop | **Not moved.** A small button left-aligned at a card's foot reads orphaned |
+| `Text.title` and `Text.pageTitle` at 28 from 900 wide (`sizes.wide`, `textStyles.titleWide`), from run 10's "the 20 px title is small at 1280" | 6 desktop screens, 12 judgments | Above in 12 of 12; mean 7.42 against 6.33 | **Kept.** `NotationOptions.fromTheme` reads the two names; `expand.dart --width` |
+| The recorded pass over all three tried together | 8 app screens | Pixel-identical on 7 of 8 (the pass overwrites what the defaults set); the eighth showed the orphaned quiet button | The kept change (the wide title) does not touch a phone screen, so the pass there is unchanged |
+
+The two that were not moved were removed from the notation again; only the wide title is in
+`NotationOptions.fromTheme`. With no design system, and with SSUI, 52 notation files (the 30 recorded UIs with
+`ui.txt` and the 22 showcase cards) expand byte-identically before and after.
+
+**The pass with blocks** (`style_pass.py --blocks`; the agent is told every own block and shown the three
+closest as written). On run 10's six briefs, against run 10's own pass and against `--blocks` plus pictures of
+those three blocks (`--block-pictures`, pictures from `style_pass.py block-pictures`), 12 judgments:
+
+| Version | Mean score | Ranked above run 10's pass | Kept by the checks |
+|---|---|---|---|
+| Plain (the defaults) | 2.67 | 0 of 12 | |
+| Run 10's pass | 7.25 | | 6 of 6 |
+| `--blocks` | 8.08 | 9 of 12 | 5 of 6 |
+| `--blocks` and block pictures | 6.75 | 5 of 12 | 4 of 6 |
+
+What it showed. The only block the agent placed was `ActionButton` (once a `Media` scene): none of the 43 blocks
+shows a pickup code, a PIN or a water reading, so on briefs like these blocks mostly raise the bar the agent
+builds to from plain nodes rather than replace them. The three refusals and every squashed button had one cause:
+a block node has no size in the document, and the agent wrote `{"hug": 0}` or nothing where the block is 46 high.
+The brief now lists each block's own `layout` and says to write it (the next table is with that change). Pictures
+of the closest blocks did not help on average: where the run passed it ranked first on two of the phone screens,
+and it lost where the same size fault broke the buttons. The closest three are picked by shared words with the
+request, which is crude (a water alert was shown `PhotoGallery`).
+
+**The 17 inline cards with blocks**, the brief now giving each block's size (`inline-cards-blocks/`). Each card
+was expanded afresh with today's notation and defaults and passed with `--blocks`; eight also with block
+pictures. Judged with the plain card and with the same request written with blocks (`examples/showcase/site`),
+34 judgments:
+
+| Version | Mean score | Above the plain card | Above the pass with blocks |
+|---|---|---|---|
+| Plain parts, Cards defaults | 4.65 | | 0 of 34 |
+| The pass with `--blocks` | 7.03 | 34 of 34 | |
+| Written with blocks | 8.97 | 34 of 34 | 34 of 34 |
+
+- **The agent now places real blocks**: `ChatCard`, `FlightOption` and `TotalBar` (flights); `DiffHunk`;
+  six `ChartCard`; `MapPanel` and `PlaceRow`; `ProgressLine` and `PlanStep`; `WeatherHours`, `WeatherDay`,
+  `WeatherGlyph`; `Paragraph`, `Details`, `Callout`, `Receipt` (approval); `Recommendation`; `Media`;
+  `ActionButton` in 9 cards. Four cards took no block (checkout, data table, gallery, itinerary).
+- **Kept by the checks: 17 of 17 with blocks, 6 of 8 with pictures too**, after two faults were fixed that had
+  refused six of them: a block's required parameter set to its default value was dropped when the document was
+  stored and then reported missing (`Props` now keeps a required one; codelessly_api), and a text the block
+  shows in pieces ("07:15" and "09:50" for the card's "07:15 → 09:50") counted as gone (the tool and
+  `changedMeaning` now accept every word of it being carried). The two still refused dropped a text ("H: 24°
+  L: 15°" became two chips; stop details a closed `ItineraryStop` does not show).
+- **Pictures of the closest blocks: no effect shown.** On the eight cards the version with pictures ranked above
+  the one without in 10 of 16 judgments (7.31 against 7.06); on run 10's briefs in 4 of 12. Together 14 to 14.
+- **The pass with blocks is still two points under the cards written with blocks.** What the judges name in the
+  written ones is content the plain card never had: a status pill and subtitle in the header, a drawn picture
+  for each product, a thumbnail strip, a closing bar with the total. That is the composer's side (the third
+  cause in the table at the top of this section), not the pass's.
+- The recorded passes of the first session are not in the table: those cards were expanded by an older notation
+  and carry its faults (values not read, an empty gallery), so beside a fresh expansion they score with the
+  plain card (4.62) for reasons that are not the pass's.
+
+**What `DesignPass` would say of these passes** (`cycles/designpass-meaning-over-block-passes.txt`): of the 37
+block passes recorded (25 inline, 12 of run 10), `changedMeaning` with blocks accepts 30. Without blocks it
+refuses 31, as it should. The seven it refuses with blocks are where a block takes the content in another form
+or takes over the interaction: `DiffHunk` (its lines as a list, its own Keep and Discard), the weather blocks
+(temperatures as numbers), `MapPanel` and `PlaceRow` (the list's binding), `CartLine` (its own quantity
+buttons), `Segments`. The tool's check reads the texts on screen and passes those; `DesignPass` compares
+documents and cannot see that a block draws the same thing. A host that renders can pass them with its own
+`check`; in the SDK they stay refused, which is the safe side.
+
+**In the SDK.** `DesignPass(blocks: [...])` tells the agent of those blocks the same way, and
+`DesignPass.changedMeaning(before, after, blocks: {...})` accepts a node that is gone when new block nodes carry
+what it said and did: each text and value as a block's prop, each data binding as a block's binding, each
+reaction's actions under a block's event. A block that drops a label, an action or a bound value is refused and
+named. A container that is removed with actions or data bindings of its own is now also refused.
+
+**Cycles of 2026-11-15, third session** (judged by `judge.py` with the API, versions shown together; records in
+`cycles/judge-gauge-ring-defaults.json`, `judge-prompt-draws.json`, `judge-page-fill.json`).
+
+A new part needs the same cycle before it is offered. `Gauge`, `Dial` and `Ring` were added to the notation
+(design 13 section 13) with the catalog's own look, and the owner judged the cards that used them worse than
+the cards the model had drawn by hand without them: the gauge was segmented with a needle, 240 wide at the left
+of its card, its figure smaller than the hero number the model used to write. The pass was run on four such
+cards and what it changed on the new parts was folded back:
+
+| What the pass did to the new part | Now the default |
+|---|---|
+| The gauge as wide as its card, its arc centered | `Gauge` fills its parent's width |
+| Its figure in `numberHero` at 44 to 52, its unit in `meta` | Theme text styles `gaugeValue` (46, heavy) and `gaugeUnit`; without them a heavy 44 |
+| The ring's stroke 10 to 12 on a quiet track, in the accent | Theme `sizes.ring` (11), the track color, round caps |
+
+Judged on those four cards (8 judgments): the new defaults above the first ones in 7 of 8 (5.56 against 4.88);
+the pass above both in 8 of 8 (8.0). The gap that is left is what the pass adds around the part (a tile panel,
+an icon tile in the header, a pill for the limit), not the part.
+
+| Change | Tried on | Result | Verdict |
+|---|---|---|---|
+| A neutral fill written on the page (not in a card) reads as `colors.pageFill` where the theme's neutral fill equals the page color and the shape vanished | The 8 app screens; 1 changes (banking's transaction icons) | Above in 4 of 4 | **Kept** |
+| The notation prompt with the new words, on requests that use none of them | 4 requests, 4 draws each, old prompt against new, paired | New above old in 17 of 32 (6.59 against 6.77): no shift. One request leaned old (storage meter, 6 to 2) | The cause was a gap, fixed: with the new prompt the model keeps amounts in state and writes `grow:=photos`, which did not grow, so the bar was gone |
+
+**Counted but not moved** (38 runs): a card's column stretching its children (35 runs; no visible change where
+children already fill); texts in rows held to one line with an ellipsis (about 30); a plain 13 px text made
+the meta line or a row title depending on its role (the notation cannot tell the role); figures given the
+number styles (the notation cannot tell a string is a figure); the bottom navigation given icons (structure).
+
+**From run 10's review of the defaults on pages** (`run10/designed-defaults/REPORT.md`): stacked section cards
+read heavy at radius 18 with a shadow each; a button alone on its line goes full width even when it is a
+secondary action; the 20 px page title is small at 1280; captions were faint. All four are settled in the table
+above: the title and the caption changes are kept, and the judges did not share the reviewer's view of the
+shadow or of the full-width secondary button.
+
+**From run 10's clean app** (`run10/clean-app/REPORT.md`): SDK master needs API master
+(`DesignSystem.withComponent`, `componentFiles`): both need a release before the pass and stored blocks can be
+used from pub.dev; guide 18 names a design system path a clean app does not have; a failed `store:` is
+swallowed; the guide's `ChatCard` reported a 10 px `content_overflows` in a mounted view.
