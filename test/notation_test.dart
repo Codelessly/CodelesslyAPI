@@ -796,6 +796,117 @@ Card
     expect(bad.issues.map((i) => i.message).join('\n'), allOf(contains('No animate:teleport'), contains('go with animate:')));
   });
 
+  test('several lines, an area, a donut; a guessed prop in a JSON tail is read or named at its line', () {
+    const text = '''
+state room="Living Room"
+Card
+  LineChart#lines labels:["W1","W2","W3"] series:[{"name":"Signups","values":[40,52,61]},{"name":"Churn","values":[8,6,9],"color":"#FFDC2626"}]
+  AreaChart#area values:[3,5,4] labels:["a","b","c"]
+  Donut#d values:[60,25,15] labels:["Rent","Food","Other"]
+  LineChart#plain values:[1,2,3]
+  Box#b fill:#FFEEEEEE {"props": {"margin": [0, 8, 0, 0], "borderWidth": 2, "hexagon": true}}
+  Input#msg "Message" {"props": {"multiline": true}}
+  IconButton#star "star" color:#FFFFC107 size:28
+  ChoiceChip#chip "Living Room" selected:=room=='Living Room' -> room="Living Room"
+  Text.small.muted#tm "38:20"
+  Box#hero h:120 gradient:["#FF7C3AED","#FFEC4899"]
+  Image#img "assets/a.png" fit:contain
+  IconButton#info "info" tooltip:"More"
+''';
+    final r = parseNotation(text, catalog: standardCatalog);
+    // The one prop nothing reads is named where it was written; the rest are read.
+    expect(r.issues.map((i) => i.message).toList(), [contains('has no "hexagon"')]);
+    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
+    final lines = _node(r, 'lines');
+    expect(lines['type'], 'chart');
+    expect(lines['props'], containsPair('chartType', 'line'));
+    expect(((lines['props'] as Map)['data'] as List).first, {'label': 'W1', 's0': 40, 's1': 8});
+    expect(((lines['props'] as Map)['series'] as List).map((s) => (s as Map)['name']), ['Signups', 'Churn']);
+    expect((((_node(r, 'area')['props'] as Map)['series'] as List).single as Map)['kind'], 'area');
+    final d = _node(r, 'd');
+    expect(d['props'], containsPair('chartType', 'donut'));
+    expect(((d['props'] as Map)['data'] as List).map((x) => (x as Map)['value']), [60, 25, 15]);
+    expect(_node(r, 'plain')['type'], 'lineChart');
+    expect((_node(r, 'b')['layout'] as Map)['margin'], [0, 8, 0, 0]);
+    expect((_node(r, 'b')['decoration'] as Map)['strokeWidth'], 2);
+    expect(_node(r, 'msg')['props'], containsPair('maxLines', 6));
+    expect((_node(r, 'star')['props'] as Map)['style'], {'iconColor': '#FFFFC107', 'iconSize': 28});
+    expect((_node(r, 'chip')['bind'] as Map)['props.selected'], contains("'Living Room'"));
+    expect(_node(r, 'tm')['type'], 'text');
+    expect((((_node(r, 'hero')['decoration'] as Map)['fills'] as List).single as Map)['stops'], hasLength(2));
+    expect(((((_node(r, 'img')['decoration'] as Map)['fills'] as List).single as Map)['image'] as Map)['fit'], 'contain');
+    expect(_node(r, 'info')['tooltip'], 'More');
+  });
+
+  test('a page written as several top-level sections stacks them in one column', () {
+    const text = '''
+state open=true
+Row#header pad:16
+  Text "Acme"
+Column#main pad:24
+  Text.title "Pricing"
+if open
+  Text#note "Shown"
+Row#footer
+  Text "Terms"
+''';
+    final r = parseNotation(text, catalog: standardCatalog);
+    expect(r.issues, isEmpty);
+    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
+    expect(((r.document['nodes'] as Map)['screen'] as Map)['slots'], {'body': 'pageRoot'});
+    expect(_node(r, 'pageRoot')['children'], ['header', 'main', 'note', 'footer']);
+    // Streamed, the column takes the body and the first section moves into it.
+    final stream = NotationStream(catalog: standardCatalog);
+    final ops = [...stream.add(text), ...stream.close()];
+    final at = ops.indexWhere((o) => o['op'] == 'set' && o['id'] == 'pageRoot');
+    expect(at, greaterThan(0));
+    expect(ops[at + 1], {'op': 'move', 'id': 'header', 'parent': 'pageRoot', 'index': 0});
+    expect(ops.where((o) => o['op'] == 'set' && o['id'] == 'pageRoot'), hasLength(1));
+    expect(ops.firstWhere((o) => o['id'] == 'main')['parent'], 'pageRoot');
+  });
+
+  test('the forms models write for placement, text, inputs and people', () {
+    const text = '''
+Column#page maxw:720
+  Column#tab center
+    Icon#ic "home"
+    Text#lbl "Home"
+  Column#mid middle h:200
+    Text "x"
+  Stack#st w:fill h:200 right bottom
+    Button#fab "+"
+  Text#t "Total" center
+  Text#old "\$40" strike
+  Input#pw "Password" type:password
+  Input#pw2 "Confirm" password
+  Input#note "Note" multiline
+  Avatar#av "Maya Reyes" size:48
+  Avatar#pic src:"assets/maya.png"
+''';
+    final r = parseNotation(text, catalog: standardCatalog);
+    expect(r.issues, isEmpty);
+    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
+    expect((_node(r, 'page')['layout'] as Map)['constraints'], {'maxWidth': 720});
+    // Column center: its children side by side centered, each as wide as it is (an icon over its label).
+    expect(_node(r, 'tab')['props'], containsPair('crossAxisAlignment', 'center'));
+    expect((_node(r, 'tab')['props'] as Map).containsKey('mainAxisAlignment'), isFalse);
+    expect((_node(r, 'ic')['layout'] as Map)['width'], {'hug': 0});
+    expect(_node(r, 'mid')['props'], containsPair('mainAxisAlignment', 'center'));
+    expect(_node(r, 'fab')['layout'], containsPair('x', {'align': 1}));
+    expect(_node(r, 'fab')['layout'], containsPair('y', {'align': 1}));
+    expect(_node(r, 't')['props'], containsPair('textAlign', 'center'));
+    expect(((_node(r, 'old')['props'] as Map)['style'] as Map)['decoration'], 'lineThrough');
+    expect(_node(r, 'pw')['props'], containsPair('obscureText', true));
+    expect((_node(r, 'pw')['props'] as Map).containsKey('keyboardType'), isFalse);
+    expect(_node(r, 'pw2')['props'], containsPair('obscureText', true));
+    expect(_node(r, 'note')['props'], containsPair('maxLines', 6));
+    final av = _node(r, 'av');
+    expect(av['layout'], containsPair('width', 48));
+    expect((av['decoration'] as Map)['radius'], 24);
+    expect((_node(r, 'avText')['props'] as Map)['text'], 'MR');
+    expect((((_node(r, 'pic')['decoration'] as Map)['fills'] as List).single as Map)['image'], containsPair('url', 'assets/maya.png'));
+  });
+
   test('a theme may say what a neutral fill written on the page becomes, where it would vanish into the page', () {
     final theme = {
       'colors': {

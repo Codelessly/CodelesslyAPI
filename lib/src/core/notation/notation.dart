@@ -508,6 +508,14 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'Dial': (type: 'radialGauge', node: {}),
   'Ring': (type: 'circularProgressIndicator', node: {}),
   'Sparkline': (type: 'lineChart', node: {}),
+  // Shares of a whole, and a line chart that fills under its line.
+  'Donut': (type: 'chart', node: {}),
+  'DonutChart': (type: 'chart', node: {}),
+  'PieChart': (type: 'chart', node: {}),
+  'Pie': (type: 'chart', node: {}),
+  'AreaChart': (type: 'lineChart', node: {}),
+  // A person as a round mark: their initials, or their picture.
+  'Avatar': (type: 'column', node: {}),
   'List': (type: 'column', node: {}),
   'Badge': (type: 'row', node: {}),
   // A grid of the children written under it: rows of `cols` equal cells.
@@ -549,6 +557,8 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'dropdown': (prop: 'value', type: 'text', start: ''),
   'radio': (prop: 'groupValue', type: 'text', start: ''),
   'segmentedButton': (prop: 'selected', type: 'text', start: ''),
+  'datePicker': (prop: 'value', type: 'text', start: ''),
+  'timePicker': (prop: 'value', type: 'text', start: ''),
   // The page shown, from 0: a swipe writes it, and setting it turns the page.
   'pageView': (prop: 'initialPage', type: 'decimal', start: 0),
 };
@@ -580,6 +590,13 @@ const Map<String, Map<String, List<String>>> _typeKeys = {
 
 /// What `=expr` binds on a type that shows a value but takes no input.
 const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
+
+/// The short names a design system's component of the same name replaces.
+const _softNames = {'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
+
+/// The colors of a chart's series or slices that write none, after the
+/// accent.
+const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
 
 /// `animate:<word>`: how a node arrives or keeps moving, as a model writes
 /// it, by the animation preset and params it stands for. An entrance plays
@@ -859,6 +876,7 @@ class _Parser {
   /// The operations the line just read adds: the variables it introduced,
   /// then its node under its parent (the first node under a new canvas).
   void _emit(String? id) {
+    if (id != null && _skipEmit.remove(id)) return;
     final screen = options.screen;
     final fresh = {
       for (final v in variables.values)
@@ -894,6 +912,72 @@ class _Parser {
 
   /// The nodes written as `Card`.
   final _cards = <String>{};
+
+  /// A row whose children's written widths add up to more than the canvas
+  /// is wide (a table's columns in a card): the widths become shares of the
+  /// row, so the columns keep their proportions and fit. A row that scrolls
+  /// keeps its widths.
+  void _fitRow(_Open open) {
+    final row = nodes[open.id];
+    if (open.type != 'row' || row == null || (row['props'] as Map?)?['scrollable'] == true) return;
+    final children = [
+      for (final c in (row['children'] as List? ?? const []))
+        if (nodes[c] case final Json n) (c as String, n),
+    ];
+    final fixed = [
+      for (final (id, n) in children)
+        if ((n['layout'] as Map?)?['width'] case final num w when w > 0 && n['type'] == 'text') (id, n, w),
+    ];
+    if (fixed.length < 2) return;
+    final gap = (row['props'] as Map?)?['spacing'];
+    num total = (gap is num ? gap : 0) * (children.length - 1);
+    for (final (_, n) in children) {
+      final w = (n['layout'] as Map?)?['width'];
+      total += w is num ? w : 0;
+    }
+    if (total <= options.width - 24) return;
+    for (final (id, n, w) in fixed) {
+      final layout = (n['layout']! as Map).cast<String, Object?>()
+        ..['width'] = {'fill': 0}
+        ..['flex'] = w;
+      n['layout'] = layout;
+      _patches.add({
+        'op': 'patch',
+        'id': id,
+        'patch': {
+          'layout': {'width': {'fill': 0}, 'flex': w},
+        },
+      });
+    }
+  }
+
+  /// The column that holds a page's top-level sections, once there is more
+  /// than one: made on the second, with the first moved into it. Later
+  /// top-level lines (an `if`, an `each`) find it as their parent.
+  String _pageColumn() {
+    const page = 'pageRoot';
+    if (_root == page) return page;
+    final first = _root!;
+    nodes[page] = {
+      'type': 'column',
+      'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+      'props': {'crossAxisAlignment': 'stretch'},
+      'children': <Object?>[first],
+    };
+    _parentOf[first] = page;
+    _root = page;
+    // Sent now, in this order: the column in the screen's body, then the
+    // first section moved into it.
+    final node = {...nodes[page]!}..remove('children');
+    ops
+      ..add({'op': 'set', 'id': page, 'parent': options.screen, 'slot': 'body', 'node': node})
+      ..add({'op': 'move', 'id': first, 'parent': page, 'index': 0});
+    _skipEmit.add(page);
+    _stack.insert(0, _Open(-1, page, 'column'));
+    return page;
+  }
+
+  final _skipEmit = <String>{};
 
   /// The stacks that center their children, by id: the words written
   /// (`center`, `middle`).
@@ -1066,6 +1150,10 @@ class _Parser {
       return;
     }
     if (line.startsWith('if ')) {
+      if (parent == null && _root != null) {
+        _pageColumn();
+        return _lineAt(indent, source, column);
+      }
       if (parent == null) return _issue(column, 'An "if" needs a parent: indent it under a node.');
       final own = _formula(line.substring(3).trim());
       _ifAt[indent] = own;
@@ -1087,6 +1175,10 @@ class _Parser {
     }
     final each = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (each != null) {
+      if (parent == null && _root != null) {
+        _pageColumn();
+        return _lineAt(indent, source, column);
+      }
       if (parent == null) return _issue(column, 'An "each" needs a parent: indent it under a node.');
       // Under Pages, one page per element: the page view repeats its page.
       if (parent.pages case final String pagesId) {
@@ -1191,16 +1283,23 @@ class _Parser {
       _stack.add(_Open(indent, id, type));
       return;
     }
+    // `Text.small.muted`: one variant is read, the first.
+    line = line.replaceFirstMapped(RegExp(r'^([A-Za-z][A-Za-z0-9]*\.[A-Za-z][A-Za-z0-9]*)(?:\.[A-Za-z][A-Za-z0-9]*)+'), (m) => m[1]!);
     final t = _Tokens(line);
     final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*))?').firstMatch(line);
     if (head == null) return _issue(column, 'A line starts with a node type: Column, Text "…", Button "…".');
     t.at = head.end;
     final written = head[1]!, variant = head[2];
-    final short = notationTypes[written];
+    // A design system's own Gauge, Ring, Sparkline or Avatar comes before the
+    // notation's.
+    final short = _softNames.contains(written) && catalog.widget(written) != null ? null : notationTypes[written];
     var type = short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
     // A design system's component, called by its own name (`StatusBadge`,
     // `Stepper`): a core type of that name, or a short name, comes first.
     final component = short == null && catalog.widget(type) == null && catalog.widget(written) != null;
+    // Whether the notation's own Gauge, Ring, Avatar… is what this line is
+    // (not a design system's component of that name).
+    final ours = short != null;
     if (component) type = written;
     // The text parameters a component's strings fill, and the ones filled so.
     var strings = const <String>[];
@@ -1214,6 +1313,10 @@ class _Parser {
     Map<String, int>? timing;
     num? sliderStep;
     String? swipe;
+    String? textLine;
+    num? avatarSize;
+    String? imageFit;
+    Json? buttonLook;
     String? gaugeUnit;
 
     if (written == 'Button' && variant != null) {
@@ -1380,7 +1483,49 @@ class _Parser {
       } else if (t.peek == '{') {
         final j = _json(t.rest);
         if (j is Map) {
-          _merge(node, j.cast<String, Object?>());
+          final tail = _copy(j.cast<String, Object?>());
+          // A guessed prop in the tail: read as the key it is in the
+          // notation (a layout or decoration key, a word), or dropped here
+          // with a note, where the line is, not at render.
+          if (readMap(tail['props']) case final Json guessed) {
+            final kept = <String, Object?>{};
+            for (final e in guessed.entries) {
+              final k = e.key, v = e.value;
+              if (spec.props.any((p) => p.key == k)) {
+                kept[k] = v;
+              } else if (_layoutKeys.contains(k) || k == 'top' || k == 'left') {
+                if (k == 'top' || k == 'left') {
+                  layout[k == 'top' ? 'y' : 'x'] = v;
+                } else {
+                  layout[k] = v;
+                }
+              } else if (k == 'radius' || k == 'opacity') {
+                if (k == 'radius') decoration['radius'] = v;
+                if (k == 'opacity') node['opacity'] = v;
+              } else if (k == 'fill' && v is String) {
+                decoration['fills'] = [
+                  {'color': _named(v, 'fill')},
+                ];
+              } else if (k == 'gradient' && _gradient(v) != null) {
+                decoration['fills'] = [_gradient(v)];
+              } else if (k == 'borderWidth' && v is num) {
+                decoration['strokeWidth'] = v;
+              } else if (type == 'lineChart' && const {'series', 'labels', 'values', 'area', 'fill'}.contains(k)) {
+                // Read below, with the line's own values and labels.
+                props[k] = v;
+              } else if (k == 'multiline' && type == 'textField') {
+                if (v == true) kept.addAll({'minLines': 3, 'maxLines': 6});
+              } else if (k == 'decoration' && type == 'text' && v is String) {
+                textLine = v;
+              } else if ((k == 'color' || k == 'size') && type.endsWith('Button')) {
+                (buttonLook ??= <String, Object?>{})[k == 'color' ? 'iconColor' : 'iconSize'] = k == 'color' ? _named(v, 'text') : v;
+              } else {
+                _issue(col, 'A $written has no "$k": left out. Its props are written key:value on the line.');
+              }
+            }
+            tail['props'] = kept;
+          }
+          _merge(node, tail);
         } else {
           _issue(col, 'The {…} tail is a JSON object merged into the node.');
         }
@@ -1481,10 +1626,29 @@ class _Parser {
             // `middle` (or with `center` alone).
             if (word == 'center') props['crossAxisAlignment'] = 'center';
             if (word == 'middle' || !line.contains(' middle')) props['mainAxisAlignment'] = 'center';
-          } else if (type == 'stack' && (word == 'center' || word == 'middle')) {
-            // A stack centers what is in it: across with `center`, down
-            // with `middle` (each child that says no place of its own).
+          } else if (type == 'stack' && const {'center', 'middle', 'left', 'right', 'top', 'bottom', 'start', 'end'}.contains(word)) {
+            // A stack places what is in it: across with `center`, `left`,
+            // `right`; down with `middle`, `top`, `bottom` (each child that
+            // says no place of its own).
             (stackAlign ??= <String>{}).add(word);
+          } else if (word == 'clip' && (type == 'column' || type == 'row' || type == 'stack')) {
+            // What is in it is cut at its (rounded) edge.
+            if (spec.props.any((p) => p.key == 'clipBehavior')) props['clipBehavior'] = 'antiAlias';
+          } else if (type == 'column' && (word == 'center' || word == 'middle')) {
+            // On every container `center` is across the page and `middle`
+            // down it, as models write them: a column's children centered
+            // side to side, or gathered at its middle.
+            if (word == 'center') props['crossAxisAlignment'] = 'center';
+            if (word == 'middle') props['mainAxisAlignment'] = 'center';
+          } else if (type == 'text' && const {'center', 'right', 'left'}.contains(word)) {
+            props['textAlign'] = word;
+          } else if (type == 'text' && (word == 'strike' || word == 'strikethrough' || word == 'underline')) {
+            textLine = word == 'underline' ? 'underline' : 'lineThrough';
+          } else if (type == 'textField' && word == 'password') {
+            props['obscureText'] = true;
+          } else if (type == 'textField' && word == 'multiline') {
+            props.putIfAbsent('minLines', () => 3);
+            props.putIfAbsent('maxLines', () => 6);
           } else if (_mainWords[word] case final String m when type == 'row' || type == 'column') {
             props['mainAxisAlignment'] = m;
           } else if (_crossWords[word] case final String c when type == 'row' || type == 'column') {
@@ -1536,7 +1700,7 @@ class _Parser {
           continue;
         }
         var raw = word.substring(colon + 1);
-        if (raw.startsWith('=')) raw = '$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd)}';
+        if (raw.startsWith('=')) raw = '$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
         // What models write for a value that follows state when nothing tells
@@ -1545,16 +1709,16 @@ class _Parser {
         // None of them is text, which is written in quotes.
         if (!raw.startsWith('=') && !raw.startsWith('"') && raw.isNotEmpty && _operatorAhead.matchAsPrefix(t.s, t.at) != null) {
           // key:count > 0, max:standing + (6 - count): the expression goes on past the space.
-          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd)}';
+          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
         } else if (!raw.startsWith('=') && raw.startsWith('(') && !_literal(raw).$1) {
-          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd)}';
+          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
         }
         // key:={running}: both marks at once.
         if (raw.startsWith('={') && _bracedExpression(raw.substring(1))) raw = raw.substring(1);
         if (_bracedValue.hasMatch(raw) || _bracedExpression(raw)) {
           raw = '=${raw.substring(1, raw.length - 1).trim()}';
         } else if (!raw.startsWith('=') && key != 'drag' && key != 'drop' && _expressionStart.hasMatch(raw) && !_literal(raw).$1) {
-          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd)}';
+          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
         }
         // A list or map that is not plain JSON holds expressions
         // (votes:[a+1,b]): it is read as the formula it is.
@@ -1641,6 +1805,56 @@ class _Parser {
           continue;
         }
         if (key == 'color' && type == 'lineChart') key = 'lineColor';
+        // A design system's Avatar sizes by name: a number is the nearest.
+        if (key == 'size' && component && written == 'Avatar' && num.tryParse(raw) != null) {
+          final n = num.parse(raw);
+          props['size'] = n <= 24 ? 'xs' : n <= 32 ? 'small' : n <= 44 ? 'medium' : 'large';
+          continue;
+        }
+        // gradient:["#FF7C3AED","#FFEC4899"]: a fill from the first color to the last, corner to corner.
+        if (key == 'gradient' && _gradient(_value(raw)) != null) {
+          decoration['fills'] = [_gradient(_value(raw))];
+          continue;
+        }
+        if (key == 'fit' && written == 'Image') {
+          imageFit = _literal(raw).$2?.toString() ?? raw;
+          continue;
+        }
+        if (key == 'password' && type == 'textField') key = 'obscureText';
+        // A fixed tooltip is the node's own; one that reads data is bound as before.
+        if (key == 'tooltip' && !spec.props.any((p) => p.key == 'tooltip') && raw.startsWith('"') && !raw.contains('{')) {
+          node['tooltip'] = _literal(raw).$2?.toString() ?? raw;
+          continue;
+        }
+        if (key == 'decoration' && type == 'text') {
+          textLine = _literal(raw).$2?.toString() ?? raw;
+          continue;
+        }
+        // An icon button's icon takes a color and a size through its style.
+        if ((key == 'color' || key == 'size') && type == 'iconButton') {
+          if (raw.startsWith('=')) {
+            bind['props.style.${key == 'color' ? 'iconColor' : 'iconSize'}'] = key == 'color' ? _namedIn(_read(raw.substring(1)), 'text') : _read(raw.substring(1));
+            (buttonLook ??= <String, Object?>{});
+          } else {
+            (buttonLook ??= <String, Object?>{})[key == 'color' ? 'iconColor' : 'iconSize'] = key == 'color' ? _named(_value(raw), 'text') : _value(raw);
+          }
+          continue;
+        }
+        if (type == 'datePicker' && (key == 'min' || key == 'max')) key = key == 'min' ? 'firstDate' : 'lastDate';
+        // A password field hides what is typed; it is not a keyboard.
+        if (key == 'type' && type == 'textField' && (raw == 'password' || raw == '"password"')) {
+          props['obscureText'] = true;
+          continue;
+        }
+        // The widest a node gets (a page's column of content): maxw:720.
+        if (const {'maxw', 'maxWidth', 'max-width', 'maxwidth'}.contains(key) && num.tryParse(raw) != null) {
+          layout['constraints'] = {...?readMap(layout['constraints']), 'maxWidth': num.parse(raw)};
+          continue;
+        }
+        if (key == 'size' && ours && written == 'Avatar' && num.tryParse(raw) != null) {
+          avatarSize = num.parse(raw);
+          continue;
+        }
         // A slider's step is how many equal steps its range has.
         if (key == 'step' && type == 'slider' && num.tryParse(raw) != null) {
           sliderStep = num.parse(raw);
@@ -1798,10 +2012,78 @@ class _Parser {
       final url = props.remove('text');
       decoration['fills'] = [
         {
-          'image': {'url': url ?? '', 'fit': 'cover'},
+          'image': {'url': url ?? '', 'fit': const {'cover', 'contain', 'fill', 'fitWidth', 'fitHeight', 'none', 'scaleDown'}.contains(imageFit) ? imageFit : 'cover'},
         },
       ];
       layout.putIfAbsent('height', () => 160);
+    }
+    // Shares of a whole: values:[…] labels:[…] colors:[…] as a donut (a pie
+    // is a thick one).
+    if (ours && const {'Donut', 'DonutChart', 'PieChart', 'Pie'}.contains(written)) {
+      final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
+      final palette = [options.accent, ..._chartColors];
+      props['chartType'] = 'donut';
+      if (values is List) {
+        props['data'] = [
+          for (var i = 0; i < values.length; i++)
+            {
+              'label': labels is List && i < labels.length ? '${labels[i]}' : '',
+              'value': values[i],
+              'color': colors is List && i < colors.length ? _named(colors[i], 'fill') : palette[i % palette.length],
+            },
+        ];
+      }
+      props['series'] = [
+        {'field': 'value', 'colorField': 'color'},
+      ];
+      props.putIfAbsent('donutThickness', () => written.startsWith('Pie') && props['donut'] != true ? 0.5 : 0.22);
+      props.remove('donut');
+      props.addAll({'showYAxis': false, 'showXAxis': false, 'gridLines': 0});
+      layout.putIfAbsent('width', () => 160);
+      layout.putIfAbsent('height', () => layout['width'] is num ? layout['width'] : 160);
+    }
+    // A line chart with named series, labels under it or a filled area is
+    // the series chart: one data row per label, one field per series.
+    final area = written == 'AreaChart' || props.remove('area') == true || props['fill'] == true && type == 'lineChart';
+    if (type == 'lineChart') props.remove('fill');
+    if (type == 'lineChart' && written != 'Sparkline' && (props['series'] is List || area || props['labels'] is List && props['values'] is List)) {
+      final labels = props.remove('labels');
+      final written0 = props.remove('series'), plain = props.remove('values');
+      final all = [
+        if (written0 is List)
+          for (final s in written0.map(readMap).nonNulls)
+            if (s['values'] ?? s['data'] case final List v) (name: '${s['name'] ?? s['label'] ?? ''}', values: v, color: s['color']),
+        if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove('lineColor')),
+      ];
+      if (all.isNotEmpty) {
+        final palette = [options.accent, ..._chartColors];
+        final rows = all.map((s) => s.values.length).reduce((a, b) => a > b ? a : b);
+        type = 'chart';
+        props
+          ..remove('lineColor')
+          ..addAll({
+            'chartType': 'line',
+            'data': [
+              for (var i = 0; i < rows; i++)
+                {
+                  'label': labels is List && i < labels.length ? '${labels[i]}' : '',
+                  for (var k = 0; k < all.length; k++)
+                    if (i < all[k].values.length) 's$k': all[k].values[i],
+                },
+            ],
+            'series': [
+              for (var k = 0; k < all.length; k++)
+                {
+                  'field': 's$k',
+                  if (all[k].name.isNotEmpty) 'name': all[k].name,
+                  'kind': area ? 'area' : 'line',
+                  'color': all[k].color is String ? _named(all[k].color, 'fill') : palette[k % palette.length],
+                  'curved': true,
+                },
+            ],
+          });
+        layout.putIfAbsent('height', () => 160);
+      }
     }
     // Charts: a height of their own, and a line chart's plain values as its
     // data points.
@@ -1820,6 +2102,41 @@ class _Parser {
         props['data'] = [for (var i = 0; i < values.length; i++) {'x': i, 'y': values[i]}];
         props['xField'] = 'x';
         props['yField'] = 'y';
+      }
+    }
+    if (buttonLook != null && buttonLook.isNotEmpty) {
+      props['style'] = {...?readMap(props['style']), ...buttonLook};
+    }
+    if (textLine != null && props['style'] is Map) {
+      props['style'] = {...(props['style']! as Map).cast<String, Object?>(), 'decoration': textLine};
+    } else if (textLine != null) {
+      props['style'] = {...?(options.textStyles['body'] is Map ? _copy((options.textStyles['body']! as Map).cast<String, Object?>()) : null), 'decoration': textLine};
+    }
+    // An avatar: a round mark, 40 across unless sized, its picture when its
+    // string is one, else the name's initials (added once it is stored).
+    String? avatarName;
+    if (ours && written == 'Avatar') {
+      final size = avatarSize ?? (layout['width'] is num ? layout['width']! as num : 40);
+      layout['width'] = size;
+      layout['height'] = size;
+      decoration.putIfAbsent('radius', () => size / 2);
+      // A container's string is held for a text under it: here it is the name.
+      final Object? shown = _texts.isNotEmpty ? '${_texts.first}' : props.remove('text');
+      _texts.clear();
+      final src = props.remove('src') ?? props.remove('url') ?? props.remove('image');
+      final picture = src ?? (shown is String && RegExp(r'^(https?:|assets/|data:|/)|\.(png|jpe?g|webp|svg)$').hasMatch(shown) ? shown : null);
+      if (picture != null) {
+        decoration['fills'] = [
+          {
+            'image': {'url': picture, 'fit': 'cover'},
+          },
+        ];
+      } else {
+        decoration.putIfAbsent('fills', () => [
+              {'color': _named('#FFE5E7EB', 'fill')},
+            ]);
+        avatarName = shown is String ? shown : '';
+        props.addAll({'mainAxisAlignment': 'center', 'crossAxisAlignment': 'center'});
       }
     }
     // A gauge: its scale's labels follow its range, a target shows only when
@@ -1844,7 +2161,7 @@ class _Parser {
       if (steps > 0 && steps <= 1000) props['divisions'] = steps;
     }
     // A ring is a round share, 64 across unless sized.
-    if (written == 'Ring') {
+    if (ours && written == 'Ring') {
       layout.putIfAbsent('width', () => 64);
       layout.putIfAbsent('height', () => layout['width']);
       // The rest of the circle shows as a quiet track.
@@ -1853,7 +2170,7 @@ class _Parser {
       if (options.ringStroke case final num w) props.putIfAbsent('strokeWidth', () => w);
     }
     // A sparkline is a line chart with no axes, grid or room around it.
-    if (written == 'Sparkline') {
+    if (ours && written == 'Sparkline') {
       layout['height'] = layout['height'] == 140 ? 32 : layout['height'];
       layout.putIfAbsent('width', () => 96);
       props.addAll({
@@ -1888,12 +2205,14 @@ class _Parser {
     // In a stack that centers, a child with no place of its own is centered.
     if (parent != null && _stackAlign[parent.id] != null) {
       final words = _stackAlign[parent.id]!;
-      if (words.contains('center')) {
-        layout.putIfAbsent('x', () => {'align': 0});
+      final across = words.contains('center') ? 0 : words.contains('right') || words.contains('end') ? 1 : words.contains('left') || words.contains('start') ? -1 : null;
+      final down = words.contains('middle') ? 0 : words.contains('bottom') ? 1 : words.contains('top') ? -1 : words.length == 1 && across == 0 ? 0 : null;
+      if (across != null) {
+        layout.putIfAbsent('x', () => {'align': across});
         // As wide as it is, or it would fill the stack and sit at its start.
         layout.putIfAbsent('width', () => {'hug': 0});
       }
-      if (words.contains('middle') || !words.contains('middle') && words.length == 1) layout.putIfAbsent('y', () => {'align': 0});
+      if (down != null) layout.putIfAbsent('y', () => {'align': down});
     }
     // A column starts its children at the leading edge and a row centers
     // them on its line (what a form and a toolbar want), unless written.
@@ -2074,6 +2393,24 @@ class _Parser {
       if (moved.isNotEmpty) out['bind'] = {...?(out['bind'] as Map?)?.cast<String, Object?>(), ...moved};
     }
     nodes[id] = out;
+    if (avatarName != null) {
+      // "Maya Reyes" is MR; a value read from state is shown as it is.
+      final reads = avatarName.contains(r'${') || avatarName.contains('{');
+      final words = avatarName.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+      final initials = reads || words.isEmpty ? avatarName : words.length == 1 ? words.first.substring(0, words.first.length.clamp(0, 2)).toUpperCase() : '${words.first[0]}${words.last[0]}'.toUpperCase();
+      final size = (out['layout'] as Map)['width'] as num;
+      final base = options.textStyles['strong'] ?? options.textStyles['body'];
+      nodes['${id}Text'] = {
+        'type': 'text',
+        'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+        'props': {
+          'text': initials,
+          'style': {...(base is Map ? _copy(base.cast<String, Object?>()) : const <String, Object?>{}), 'fontSize': (size * 0.38).roundToDouble(), 'fontWeight': 600},
+        },
+      };
+      out['children'] = ['${id}Text'];
+      _parentOf['${id}Text'] = id;
+    }
     if (type == 'radialGauge') {
       // A gauge is its arc with the figure it shows inside: a stack under
       // the line's id, so the id still names the whole.
@@ -2115,11 +2452,17 @@ class _Parser {
     }
     if (parent == null) {
       if (_root != null) {
-        _issue(column, 'A second root: the first line is the root, everything else is indented under it.');
+        // A page written as several top-level sections (a header, the
+        // content, a footer): they stack in a column that becomes the root.
         nodes.remove(id);
-        return;
+        final page = _pageColumn();
+        nodes[id] = out;
+        (nodes[page]!['children']! as List<Object?>).add(id);
+        _parentOf[id] = page;
+        _stack.add(_Open(indent, id, type, condition: null, grid: grid));
+      } else {
+        _root = id;
       }
-      _root = id;
     } else {
       final p = nodes[parent.id]!;
       if (spec.type == 'canvas') return _issue(column, 'A canvas cannot be a child.');
@@ -2264,6 +2607,7 @@ class _Parser {
   /// A grid ends: its last row is filled out with empty cells, so its cells
   /// are as wide as the rows above.
   void _close(_Open open) {
+    _fitRow(open);
     final g = open.grid;
     if (g == null || open.id != g.id || open.condition != null || g.row == null) return;
     while (g.inRow < g.cols) {
@@ -2828,6 +3172,23 @@ class _Parser {
     return rest.length;
   }
 
+  /// A gradient as models write it (a list of colors, or `{"colors": […],
+  /// "begin": "topLeft", "end": "bottomRight"}`), as a linear fill.
+  Json? _gradient(Object? v) {
+    final colors = v is List ? v : v is Map ? v['colors'] : null;
+    if (colors is! List || colors.length < 2 || colors.any((c) => c is! String)) return null;
+    const places = {'topLeft', 'topCenter', 'topRight', 'centerLeft', 'center', 'centerRight', 'bottomLeft', 'bottomCenter', 'bottomRight'};
+    final begin = v is Map && places.contains(v['begin']) ? v['begin'] : 'topLeft', end = v is Map && places.contains(v['end']) ? v['end'] : 'bottomRight';
+    return {
+      'type': 'linear',
+      'begin': begin,
+      'end': end,
+      'stops': [
+        for (var i = 0; i < colors.length; i++) {'position': i / (colors.length - 1), 'color': colors[i]},
+      ],
+    };
+  }
+
   bool _trailingJson(String s) {
     if (!s.trimRight().endsWith('}')) return false;
     try {
@@ -2963,13 +3324,16 @@ class _Tokens {
 
   /// The rest of an expression: to the next space outside quotes and
   /// brackets (`to!=""&&len(subject)>0`).
-  String expression({int opened = 0, bool quoted = false}) {
+  String expression({int opened = 0, bool quoted = false, bool single = false}) {
     final start = at;
     var depth = opened;
     while (!done) {
       final c = s[at];
-      if (c == '"' && (at == 0 || s[at - 1] != r'\')) quoted = !quoted;
-      if (!quoted) {
+      if (c == '"' && !single && (at == 0 || s[at - 1] != r'\')) quoted = !quoted;
+      // 'Living Room' in an expression is one value, its space included
+      // (an apostrophe inside a word, don't, is not a quote).
+      if (c == "'" && !quoted && (single || at == start || !RegExp(r'[A-Za-z0-9]').hasMatch(s[at - 1]))) single = !single;
+      if (!quoted && !single) {
         if (c == '(' || c == '[' || c == '{') depth++;
         if (c == ')' || c == ']' || c == '}') depth--;
         if (c == ' ' && depth <= 0) {
