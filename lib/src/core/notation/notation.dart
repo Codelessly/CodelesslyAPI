@@ -1182,7 +1182,7 @@ class _Parser {
         // A handler written as a key, as models write one unprompted:
         // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
         // …unless the node has a parameter of that name (a quote's `change:1.84`).
-        if (_handlerKey.hasMatch(key) && !(spec?.props.any((p) => p.key == key) ?? false)) {
+        if (_handlerKey.hasMatch(key) && !spec.props.any((p) => p.key == key)) {
           t.at = from + colon + 1;
           t.skipSpace();
           final String body;
@@ -2052,10 +2052,8 @@ class _Parser {
     return depth;
   }
 
-  static final _brace = RegExp(r'\{([^{}]+)\}');
-
   static bool _readsValues(Object? json) => switch (json) {
-        String s => _brace.hasMatch(s),
+        String s => _spans(s).isNotEmpty,
         List l => l.any(_readsValues),
         Map m => m.values.any(_readsValues),
         _ => false,
@@ -2065,13 +2063,13 @@ class _Parser {
   /// parts joined (`(n) + " left"`).
   String _formulaSource(Object? json) {
     switch (json) {
-      case final String s when _brace.hasMatch(s):
+      case final String s when _spans(s).isNotEmpty:
         final parts = <String>[];
         var at = 0;
-        for (final m in _brace.allMatches(s)) {
-          if (m.start > at) parts.add(jsonEncode(s.substring(at, m.start)));
-          parts.add('(${_natural(m[1]!.trim())})');
-          at = m.end;
+        for (final (start, end) in _spans(s)) {
+          if (start > at) parts.add(jsonEncode(s.substring(at, start)));
+          parts.add('(${_natural(s.substring(start + 1, end - 1).trim())})');
+          at = end;
         }
         if (at < s.length) parts.add(jsonEncode(s.substring(at)));
         // Text first, so the parts join as text whatever the values are.
@@ -2122,10 +2120,30 @@ class _Parser {
   /// `fill` template keeps its braces.
   String _textsRead(String expr) {
     if (!expr.contains('{') || expr.contains('fill(')) return expr;
-    return expr.replaceAllMapped(RegExp(r'"((?:[^"\\]|\\.)*)"'), (m) {
-      final text = m[1]!;
-      return _brace.hasMatch(text) && !text.contains('"') ? _formulaSource(text) : m[0]!;
-    });
+    final out = StringBuffer();
+    var i = 0;
+    while (i < expr.length) {
+      if (expr[i] != '"') {
+        out.write(expr[i++]);
+        continue;
+      }
+      // To the closing quote; a quote inside a {…} of the text is the formula's own.
+      var j = i + 1, depth = 0;
+      while (j < expr.length && (expr[j] != '"' || depth > 0)) {
+        if (expr[j] == '{') depth++;
+        if (expr[j] == '}' && depth > 0) depth--;
+        if (expr[j] == r'\') j++;
+        j++;
+      }
+      if (j >= expr.length) {
+        out.write(expr.substring(i));
+        break;
+      }
+      final text = expr.substring(i + 1, j);
+      out.write(_spans(text).isEmpty ? expr.substring(i, j + 1) : _formulaSource(text));
+      i = j + 1;
+    }
+    return out.toString();
   }
 
   static const _methods = {'filter', 'map', 'sum', 'count', 'find', 'any', 'all', 'sortBy', 'trim', 'upper', 'lower', 'contains', 'startsWith', 'join', 'reverse', 'first', 'last', 'slice', 'take', 'unique', 'indexOf'};
@@ -2180,7 +2198,45 @@ class _Parser {
   }
 
   /// `{name}` in a string is a read: `${name}`.
-  String _interpolate(String s) => s.replaceAll(r'\$', r'$').replaceAllMapped(RegExp(r'\{([^{}]+)\}'), (m) => _read(m[1]!));
+  String _interpolate(String s) {
+    s = s.replaceAll(r'\$', r'$');
+    final out = StringBuffer();
+    var at = 0;
+    for (final (start, end) in _spans(s)) {
+      out
+        ..write(s.substring(at, start))
+        ..write(_read(s.substring(start + 1, end - 1)));
+      at = end;
+    }
+    out.write(s.substring(at));
+    return out.toString();
+  }
+
+  /// The `{…}` of [s] that read a value, outermost only: a brace inside one
+  /// (a map written in a formula, `{find([{"id": 1}], …).name}`) belongs to
+  /// it. An empty or unclosed brace is text.
+  static List<(int, int)> _spans(String s) {
+    final out = <(int, int)>[];
+    for (var i = 0; i < s.length; i++) {
+      if (s[i] != '{') continue;
+      var depth = 0, quoted = false, end = -1;
+      for (var j = i; j < s.length; j++) {
+        final c = s[j];
+        if (c == '"' && s[j - 1] != r'\') quoted = !quoted;
+        if (quoted) continue;
+        if (c == '{') depth++;
+        if (c == '}' && --depth == 0) {
+          end = j + 1;
+          break;
+        }
+      }
+      if (end > i + 2) {
+        out.add((i, end));
+        i = end - 1;
+      }
+    }
+    return out;
+  }
 
   (bool, Object?) _literal(String raw) {
     if (raw == 'true') return (true, true);
