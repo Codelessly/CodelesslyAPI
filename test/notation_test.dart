@@ -639,6 +639,9 @@ Column gap:8
     expect((second['props'] as Map)['itemCount'], 2);
     final texts = (_node(r, 'pageView2Page')['children'] as List).cast<String>();
     expect([for (final t in texts) (_node(r, t)['bind'] as Map)['visible']], [r'${= index == 0}', r'${= index == 1}']);
+    // A row that scrolls goes sideways.
+    final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
+    expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));
     // The dots: one per page, the current one long, a tap goes to its page.
     final dot = (r.document['nodes']! as Map).values.cast<Map>().firstWhere((n) => (n['bind'] as Map?)?['layout.width'] != null);
     expect((dot['bind'] as Map)['layout.width'], r'${= index==i?16:6}');
