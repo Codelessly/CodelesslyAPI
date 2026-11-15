@@ -182,7 +182,12 @@ designed defaults with the design pass.
 | Set | Pages | Pass kept by the checks | Judged order | Typical scores (SSUI, designed, pass) |
 |---|---|---|---|---|
 | Mobile, 420 wide | 6 (four written by hand, two real generated app screens) | 6 of 6 | pass, designed, SSUI in 12 of 12 judgments | 3–5, 6–7, 8–9 |
+| Mobile app screens, 390 wide | 8, each written by Sonnet from plain parts from a one-paragraph brief (fitness, banking, food order, habits, travel, chat settings, product, learning) | 7 of 8 | pass, designed, SSUI in 16 of 16 judgments | 4–5, 6–7, 7–9 |
 | Desktop, 1280 wide | 7 (five written by Sonnet from a one-paragraph brief, two by hand) | 4 of 7 | pass first in 14 of 14; designed second in 12 | 1–5, 5–7, 6–9 |
+
+The one refusal in the app-screen set was a balance figure three pixels short of its line height at 320 wide.
+The composer wrote those eight from plain parts only, so all three columns are the same notation and the SSUI
+column is a fair measure there.
 
 What the desktop set showed:
 
@@ -233,9 +238,10 @@ with the session's document as the nodes and the view's render as the picture.
 - **Designed defaults.** The plain parts' default look is being ported to the Cards language, so path 1 starts
   closer to the bar and the pass has less to do. The comparison to settle: SSUI defaults, designed defaults,
   designed defaults plus the pass, and blocks, on inline cards and on full pages.
-- **In the SDK.** The pass is a tool today. To come: the instructions built by the session
-  (`UiSession` gives the nodes and the design system; the brief is assembled in Dart), the checks of §5 as one
-  call, and the pass's result cached by request so a repeat costs nothing.
+- **In the SDK.** `DesignPass` (CodelesslySDK `lib/src/session/design_pass.dart`, guide 18) builds the
+  instructions from the session and its design system, applies an answer as one undo step, refuses one that is
+  rejected or that changes what the UI says or does, and takes a host's check for what the view shows. To come:
+  the pass's result cached by request, and the second-width check at a width the layout is meant for.
 - **The design agent's tier.** Opus is measured. Sonnet as the design agent, and one round against two, are
   not yet.
 - **Behavior after the pass.** The values check has not been run on restyled cards.
