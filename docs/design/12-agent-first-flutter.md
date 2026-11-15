@@ -354,3 +354,27 @@ What stands between this and "production ready", in order:
    opening, whether the on-demand path becomes a product path, the Editor port.
 3. What cannot be checked here: devices, cloud data, sign-in, payments, media.
 4. Outside results still to come: standalone run 7 (the on-demand path), and runs 4 and 5 of the earlier set.
+
+## 12. The plan from here (proposed 2026-11-15, owner's scope)
+
+Out of scope by the owner's decision: removing the Flutter widgets still in use. In scope, in this order:
+
+1. **A natural notation for values and state, found with the small model.** An automatic correctness check
+   first (each brief with a scripted interaction and the values expected after it), then elicitation (what the
+   small model writes for variables, computed values, list updates and conditions when given almost no grammar),
+   then the three candidates of design 15 §4.10 tested on the recordings. Harder concepts named: derived state,
+   one record of a list updated, flows of several steps, timers. Measure: first answers valid and values right
+   on the 35 briefs (17, 8 held out, 10 on-demand). Baseline: 6 of 17 retried; 6 of 10 values right.
+2. **On-demand blocks as a product path.** Notice a missing block; serve the composed card now; design the block
+   in the background; keep it only if it passes (no problems, light and dark, the values check); add it to the
+   session and swap the card in place; store accepted blocks so the cost is paid once; the chat example runs the
+   loop live.
+3. **The README's opening**, drafted for the owner's edit: what this is, a ten-line example beside what it
+   draws, the levels, where to go next.
+4. **The Editor port**, audit first (what it uses of the API and SDK, what breaks on 30), then in stages on the
+   storyboard and DPP conventions.
+5. **The public API trim**, after the Editor's audit so nothing it needs goes: what only tests and internals use
+   moves to a second library.
+
+Open with the owner: the version the trim ships in; the target for (1) (proposed: 9 of 10 values right with the
+small model); where accepted on-demand blocks are stored.
