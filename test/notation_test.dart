@@ -1021,4 +1021,21 @@ Column gap:8
     });
 
   });
+
+  group('a component wanted where none fits', () {
+    test('the part is built as written and the request is recorded, not shown', () {
+      final r = _parse('Card\n  Wanted "PollResults" "each option with its share"\n    Text "Ramen 9"\n  Wanted "Gauge"\n    Text "72"\n');
+      expect(r.issues, isEmpty);
+      expect([for (final w in r.wanted) '${w.name}|${w.purpose}'], ['PollResults|each option with its share', 'Gauge|']);
+      final nodes = (r.document['nodes']! as Map).cast<String, Object?>();
+      expect((nodes[r.wanted.first.node]! as Map)['type'], 'column');
+      expect(jsonEncode(r.document), isNot(contains('each option with its share')));
+      expect(jsonEncode(r.document), contains('Ramen 9'));
+    });
+
+    test('the prompt teaches it only when asked to', () {
+      expect(notationPrompt(wanted: true), isNot(contains('Wanted "Name"')), reason: 'no design system, no components to want');
+    });
+
+  });
 }
