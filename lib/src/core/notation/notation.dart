@@ -18,6 +18,7 @@ import '../design_system.dart';
 import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
+import 'page_words.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -85,6 +86,10 @@ final class NotationOptions {
     this.cardGap,
     this.pageFill,
     this.ringStroke,
+    this.height = 800,
+    this.contentWidth = 1120,
+    this.selectedFill = '#FFE5E7EB',
+    this.line = '#FFE5E7EB',
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -118,6 +123,9 @@ final class NotationOptions {
       cardGap: base.cardGap,
       pageFill: base.pageFill,
       ringStroke: base.ringStroke,
+      contentWidth: base.contentWidth,
+      line: base.line,
+      selectedFill: base.selectedFill,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -228,6 +236,9 @@ final class NotationOptions {
       },
       cardGap: spacing['cardGap'] is num ? spacing['cardGap'] as num : null,
       ringStroke: sizes['ring'] is num ? sizes['ring'] as num : null,
+      contentWidth: readDouble(sizes['content']) ?? 1120,
+      line: color('line', color('primaryBorder', '#FFE5E7EB')),
+      selectedFill: color('activeTint', color('primaryTint', color('subtleFill', '#FFE5E7EB'))),
       pageFill: named && colors['pageFill'] != null && colors['page'] != null ? (page: 'page', fill: 'pageFill') : null,
       barChart: radii['bar'] == null
           ? const {}
@@ -322,6 +333,18 @@ final class NotationOptions {
   /// How thick a `Ring` is drawn: a theme's `sizes.ring`. Null: the
   /// control's own.
   final num? ringStroke;
+
+  /// The height of the window an app is drawn in (`App`, or a root written
+  /// `h:fill`): the canvas's design height.
+  final double height;
+
+  /// The widest a page section's content gets (`Section`, `Nav`, `Footer`):
+  /// a theme's `sizes.content`.
+  final double contentWidth;
+
+  /// The fill of a selected `NavItem` and the hairline of a pane's edge and
+  /// a bar's rule: a theme's `neutralFill` and `line`.
+  final String selectedFill, line;
 
   /// What a `Card` inside a card adds (a row of options, a tile in a grid
   /// of cards): smaller corners, no shadow. Null: the same as [card].
@@ -652,6 +675,10 @@ const _textStyleKeys = {
 
 const _layoutKeys = {'width', 'height', 'padding', 'margin', 'flex', 'aspectRatio', 'x', 'y', 'align', 'constraints', 'order', 'basis'};
 const _decorationKeys = {'radius', 'strokeWidth', 'fills', 'strokes', 'effects', 'clip', 'shape'};
+const _borderSides = {
+  'border-bottom': 'bottom', 'border-top': 'top', 'border-left': 'left', 'border-right': 'right', //
+  'borderBottom': 'bottom', 'borderTop': 'top', 'borderLeft': 'left', 'borderRight': 'right', 'border-b': 'bottom', 'border-t': 'top', 'border-l': 'left', 'border-r': 'right',
+};
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
 const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'bottom': 'end', 'right': 'end', 'stretch': 'stretch'};
 
@@ -833,7 +860,9 @@ class _Parser {
       _lineAt(indent + 2, 'each dot in range($count)', indent + 3);
       _lineAt(indent + 4, 'Box w:=index==$page?16:6 h:6 radius:3 fill:=index==$page?${look(options.accent)}:${look(options.track)} -> $page=index', indent + 5);
     } else {
-      _lineAt(indent, raw.trim(), indent + 1);
+      for (final l in _pages.rewrite(indent, raw.trim())) {
+        _lineAt(l.indent, l.text, l.indent + 1);
+      }
     }
     final added = nodes.keys.skip(before).toList();
     if (added.isEmpty) {
@@ -842,6 +871,24 @@ class _Parser {
       added.forEach(_emit);
     }
   }
+
+  /// The page words (Page, Section, Nav, App, Sidebar, Main…), written out
+  /// as the plain lines they stand for before a line is read.
+  late final _pages = PageWords(
+    contentWidth: options.contentWidth,
+    accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
+    selectedFill: options.selectedFill,
+    line: options.line,
+    textVariants: options.textStyles.keys.toSet(),
+    isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
+  );
+
+  /// Whether the UI is as tall as its window (an app's panes, a root
+  /// written `h:fill`): the canvas then has the window's height, where a
+  /// card or a website page is as tall as its content.
+  bool _windowed = false;
+
+  Object get _canvasHeight => _windowed ? {'fill': options.height} : {'hug': 0};
 
   /// A line begun and not yet closed (its JSON runs over several lines).
   String? _pending;
@@ -877,6 +924,15 @@ class _Parser {
   /// then its node under its parent (the first node under a new canvas).
   void _emit(String? id) {
     if (id != null && _skipEmit.remove(id)) return;
+    // The root as tall as what holds it: the window (an app's panes).
+    if (id != null && _parentOf[id] == null && !_windowed && id != 'pageRoot') {
+      final height = (nodes[id]?['layout'] as Map?)?['height'];
+      if (_pages.app || (height is Map && height.containsKey('fill'))) {
+        _windowed = true;
+        // The canvas may be there already (a `state` line came first).
+        if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'layout': {'height': _canvasHeight}}});
+      }
+    }
     final screen = options.screen;
     final fresh = {
       for (final v in variables.values)
@@ -892,7 +948,7 @@ class _Parser {
           'id': screen,
           'node': {
             'type': 'canvas',
-            'layout': {'width': options.width, 'height': {'hug': 0}},
+            'layout': {'width': options.width, 'height': _canvasHeight},
             'decoration': _surface,
             if (_timers.isNotEmpty) 'actions': [..._timers],
           },
@@ -1023,7 +1079,7 @@ class _Parser {
         screen: {
           'type': 'canvas',
           if (_root != null) 'slots': {'body': _root},
-          'layout': {'width': options.width, 'height': {'hug': 0}},
+          'layout': {'width': options.width, 'height': _canvasHeight},
           'decoration': _surface,
           if (_timers.isNotEmpty) 'actions': _timers,
         },
@@ -1649,6 +1705,21 @@ class _Parser {
           } else if (type == 'textField' && word == 'multiline') {
             props.putIfAbsent('minLines', () => 3);
             props.putIfAbsent('maxLines', () => 6);
+          } else if (type == 'row' && word == 'center' && const {'spaceBetween', 'spaceAround', 'spaceEvenly'}.contains(props['mainAxisAlignment'])) {
+            // `Row between center`: its ends apart, and what is in it level
+            // (the row is already spread: center can only be across it).
+            props['crossAxisAlignment'] = 'center';
+          } else if (type == 'row' && const {'between', 'around', 'evenly'}.contains(word) && props['mainAxisAlignment'] == 'center' && !props.containsKey('crossAxisAlignment')) {
+            // …and `Row center between`, the same.
+            props['mainAxisAlignment'] = _mainWords[word];
+            props['crossAxisAlignment'] = 'center';
+          } else if (type == 'text' && word == 'italic') {
+            final body = options.textStyles['body'];
+            final style = switch (props['style']) {
+              final Map m => m.cast<String, Object?>(),
+              _ => body is Map ? _copy(body.cast<String, Object?>()) : body is String ? <String, Object?>{'from': body} : <String, Object?>{},
+            };
+            props['style'] = style..['fontStyle'] = 'italic';
           } else if (_mainWords[word] case final String m when type == 'row' || type == 'column') {
             props['mainAxisAlignment'] = m;
           } else if (_crossWords[word] case final String c when type == 'row' || type == 'column') {
@@ -1668,6 +1739,10 @@ class _Parser {
             props[type == 'accordion' ? 'expanded' : 'initiallyExpanded'] = true;
           } else if (word == 'hidden') {
             node['visible'] = false;
+          } else if (word == 'sticky') {
+            // Stays in view while the page scrolls under it (a table of
+            // contents beside an article, an order summary).
+            node['sticky'] = {'offset': 16};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
           } else if (component && _componentWord(word, spec, props, bind)) {
@@ -1887,6 +1962,14 @@ class _Parser {
           continue;
         }
         // A hairline round it: `border:#FFE5E7EB`, or one that follows data: `border:=on?"#FF2563EB":"#FFE5E7EB"`.
+        // A hairline on one side: border-bottom:#FFE5E7EB (a bar's rule, a pane's edge).
+        if (_borderSides[key] case final String side when !raw.startsWith('=')) {
+          decoration['strokes'] = [
+            {'color': _named(_value(raw), 'stroke')},
+          ];
+          decoration['strokeSides'] = side;
+          continue;
+        }
         if (key == 'border') {
           if (raw.startsWith('=')) {
             bind['decoration.strokes[0].color'] = _namedIn(_read(raw.substring(1)), 'stroke');
@@ -2005,6 +2088,23 @@ class _Parser {
     // A component is as big as its own design says, unless the line does.
     if (component) {
       final own = options.components[type];
+      // In a row a component that is as wide as its place (a segmented
+      // choice in a toolbar) has no width to take: it shares the row.
+      final ownWidth = own?.width;
+      if (parent?.type == 'row' && parent?.grid == null && !layout.containsKey('width') && !layout.containsKey('flex') && ownWidth is Map && ownWidth.containsKey('fill')) {
+        final row = nodes[parent!.id];
+        final rowWidth = (row?['layout'] as Map?)?['width'];
+        // A row that is itself only as wide as its content gives it a width.
+        if (rowWidth is Map && rowWidth.containsKey('fill') || (row?['layout'] as Map?)?.containsKey('flex') == true) {
+          layout['flex'] = 1;
+        } else {
+          layout['width'] = 240;
+        }
+      }
+      // A call has no look of its own (its definition has): a radius, a
+      // fill or a border written on it is left out.
+      decoration.clear();
+      bind.removeWhere((k, _) => k.startsWith('decoration.'));
       layout.putIfAbsent('width', () => own?.width ?? {'hug': 0});
       layout.putIfAbsent('height', () => own?.height ?? {'hug': 0});
     }
@@ -2279,13 +2379,22 @@ class _Parser {
       final inHug = parent?.type == 'column' &&
           parent?.grid == null &&
           (parentWidth is Map && parentWidth.containsKey('hug') || parentCross == 'center' || parentCross == 'end');
-      final fills = layout.containsKey('flex') || !inRow && !inTile && !inHug && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
+      // A row that spreads its children (between, around, evenly) has to be
+      // as wide as its place to spread them over: in a centered column too.
+      final spread = type == 'row' && !inRow && !inTile && const {'spaceBetween', 'spaceAround', 'spaceEvenly'}.contains(props['mainAxisAlignment']);
+      // An icon is as big as it is: it does not stretch across a column.
+      final fills = layout.containsKey('flex') ||
+          spread ||
+          !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
       layout['width'] = _size(layout['width']);
     }
     // A page is as tall as its page view.
     layout['height'] = layout.containsKey('height') ? _size(layout['height']) : parent?.pages != null ? {'fill': 0} : {'hug': 0};
+    // A spacer that grows in a column takes the height left (what is under
+    // it sits at the column's foot).
+    if (type == 'spacer' && layout.containsKey('flex') && parent?.type == 'column' && !inRow) layout['height'] = {'fill': 0};
     // A size that follows data (w:=…, h:=…) is a fixed one whose number the
     // binding gives: left to hug or fill, the number would change nothing
     // and an empty box would stay at no size.
@@ -2636,6 +2745,9 @@ class _Parser {
       _pending = null;
     }
     final before = nodes.length;
+    for (final l in _pages.finish()) {
+      _lineAt(l.indent, l.text, l.indent + 1);
+    }
     while (_stack.isNotEmpty) {
       _close(_stack.removeLast());
     }
@@ -3114,7 +3226,12 @@ class _Parser {
         }
       }
       if (end > i + 2) {
-        out.add((i, end));
+        // A brace of a code sample shown as text (`import { Beacon } from …`,
+        // `track('x', {\n  plan: 'pro',\n})`) reads nothing: it runs over
+        // lines, or is a record written key: value.
+        final inner = s.substring(i + 1, end - 1);
+        final code = inner.contains('\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
+        if (!code) out.add((i, end));
         i = end - 1;
       }
     }
