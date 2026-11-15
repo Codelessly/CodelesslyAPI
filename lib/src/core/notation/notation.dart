@@ -623,6 +623,16 @@ class _Parser {
     for (final open in _stack) {
       if (open.each != null && open.each != 'item') line = _rename(line, open.each!);
     }
+    // The small model marks a name with `$` (`$total`, `"{money($total)}"`):
+    // the name is the same without it. A price ("$24") and an interpolation
+    // already written (`${…}`) keep their sign.
+    if (line.contains(r'$')) line = line.replaceAllMapped(RegExp(r'(?<!\\)\$(?=[A-Za-z_])'), (_) => '');
+    // …and declares what the card remembers as `name = value` on a line of
+    // its own, before the card.
+    if (_root == null && indent == 0) {
+      final bare = RegExp(r'^([a-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(line);
+      if (bare != null && !const {'state', 'let', 'derived', 'const', 'var'}.contains(bare[1])) line = 'state ${bare[1]}=${bare[2]}';
+    }
     // What models write unprompted for these (SDK tool/values, three models):
     // `let` or `derived` for a worked-out value, `for x in list`, `else`.
     final declared = RegExp(r'^(?:let|derived|const|var)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(line);
@@ -1103,7 +1113,9 @@ class _Parser {
           }
           continue;
         }
-        final key = word.substring(0, colon);
+        var key = word.substring(0, colon);
+        // `if:cond` on a node is the node shown while it holds.
+        if (key == 'if' || key == 'when' || key == 'show') key = 'visible';
         // A handler written as a key, as models write one unprompted:
         // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
         if (_handlerKey.hasMatch(key)) {
