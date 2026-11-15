@@ -478,6 +478,55 @@ position and on any background; the notation writes it by default for sideways s
 card a strip cannot reach the card's edge and a hard cut looks wrong. Cards has a sliding `Carousel`, strip and
 paged `PhotoGallery`, `PageDots`, `WideScroll`, and a `ComparisonTable` whose columns scroll under pinned labels.
 
+### 4.9 A block designed on demand (2026-11-15)
+
+Candidates (2) and (3) of §4.8 together, tried on the poll (SDK `examples/showcase/tool/design_block.py`,
+results in `examples/showcase/on-demand/poll/`). A strong model (Opus) is given the design system's principles,
+its theme names, three of its blocks as written and the notation, and asked for one new block at the full API
+plus a card that uses it. Both are validated and rendered, light and dark, the block alone from its own preview
+and the card; the pictures and every problem go back, and it revises.
+
+| Round | Model | Check and render | Problems reported |
+|---|---|---|---|
+| 1 | 48.8 s | 34.9 s | 0 |
+| 2 | 47.9 s | 35.3 s | 0 |
+| 3 | 45.7 s | 38.7 s | 0 |
+
+About 85 s to a first usable block, about 3 minutes for two rounds; roughly 27,000 tokens in and 5,900 out per
+round. Round 2 was visibly better than round 1 (a footer unreadable in dark was fixed, the rows tightened); round
+3 changed almost nothing. The block (`PollResults`: a share bar and percentage per option, the leader in the
+accent, the voter's choice marked, the total) is correct in light and dark. With it added to the set, the fast
+model (Sonnet, the same poll brief) wrote a four-line card that uses it in 2.3 s, and the card shows the results
+after a vote.
+
+What this shows, on one block: new design at the set's bar can be made without a person, in minutes, by a strong
+model that sees its own render; paid once, it is then composed at generation speed. What it does not show: more
+than one block; a judge other than me; a harder block (drawn media, a transport with motion); how often a round
+is needed; what happens when two requests want different blocks of the same name. An earlier run of the same
+harness showed the model only the card, where the block appears after a tap, so it revised something it had not
+seen: the block's own preview has to be in the loop.
+
+### 4.10 Formulas and variables: the grammar is not natural yet (owner's note, 2026-11-15)
+
+The owner's observation, which the record supports: models trip on how values, variables and formulas are
+written more than on anything else in the notation, and each time the answer has been to make the parser accept
+one more spelling. This session alone: a `{…}` inside a list literal's strings; a stray `:=`; a bare dotted path
+as a value; `key:="…{x}…"`; a number where a text parameter was wanted; a list holding expressions
+(`votes:[a+1,b]`), read as broken JSON until today; a control bound to a field of a repeated element; the
+recipe's scaled amounts reading 0. Tolerance has kept the error counts down, but it treats the symptom.
+
+The cause, as far as it is understood: the same idea is written five ways depending on where it stands (`{x}` in
+a string, `=name` on a control, `key:=expr` on a prop, `-> name=expr` in an action, `${…}` in a JSON tail), and a
+value is JSON in one position and a formula in the next with nothing on the page to tell which. A model has to
+know which mode it is in; a person would too.
+
+Not decided, and not to be patched further without a design: one way to write a value that is the same
+everywhere. The candidates worth testing against the recorded failures are (a) every value is an expression, with
+JSON literals as the constant case, so `:` and `:=` are one thing; (b) one interpolation mark used in strings,
+props and actions alike; (c) keep the forms and move all tolerance into one normalizing pass with a report of
+what it rewrote, so the cost of each spelling is measured. The measure is the retry rate on the 17 and the eight
+held-out briefs with the small model (11 of 17 retried with blocks today), not whether a parser test passes.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
