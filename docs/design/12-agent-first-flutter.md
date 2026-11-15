@@ -395,10 +395,18 @@ Out of scope by the owner's decision: removing the Flutter widgets still in use.
    - *The service*: the design loop (`design_block.py` today) run where the Editor's functions run, asked for
      by a session that found no block, gated by the checks, writing a version in review; an SDK loader that
      reads a hosted design system, so `UiSession(designSystem:)` and `addBlock` take blocks from the library.
-   - *Stages*: (a) the Editor's move to 31. Read 2026-11-15: the Editor's master already builds on 30.1.0 of
-     both packages, as submodules 249 (SDK) and 163 (API) commits behind today's, and none of the 44 SDK types
-     it names was moved by the trim, so this is an update of two submodules and whatever those commits changed
-     under it, not a port from an old major;
+   - *Stages*: (a) the Editor's move to 31. **Done 2026-11-15, and it found the Editor does not compile.**
+     Its branch `claude/epic-dirac-pn3a5s` now points at SDK d01833e0 and API 47eb2c82 (commit d4201a385; one
+     moved type in one test, and the preview's typing rewritten because a `textField` no longer holds an
+     `EditableText`). But the earlier reading here was wrong: the Editor has not compiled since its submodules
+     were moved past schema 3 without its code (commit 8315ce5f0). Before and after this move alike,
+     `dart analyze` reports 53 errors (members removed by schema 3: `Layout.rotation`, `BoxProps.path`,
+     `naturalLineHeight`, `TriggerFields.every`, and others) in `lib/` and in the properties and studio packages,
+     and of the root tests 149 pass and 113 fail, almost all because their file does not compile. So nothing
+     new can be built or run in the Editor until it is ported to schema 3: that port is now stage (a2), and
+     it comes before the Library page. Open from the move: shell shortcuts that ask whether someone is typing
+     by looking for a focused `EditableText` (the SDK now exports `isTyping()` for that), and four tests that
+     find `EditableText` in rendered content.
      (b) the Library page read-only over the files in the SDK repository, in the Editor's storyboard, to settle
      the screens before any backend; (c) storage on the managed-component methods; (d) the review queue;
      (e) the service; (f) the SDK's hosted loader.
