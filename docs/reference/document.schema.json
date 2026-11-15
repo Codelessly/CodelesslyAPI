@@ -7634,6 +7634,9 @@
                     "type": "number",
                     "minimum": 0.0
                   },
+                  "dragEdgeScroll": {
+                    "type": "boolean"
+                  },
                   "fit": {
                     "anyOf": [
                       {
@@ -7741,6 +7744,9 @@
                     "type": "number",
                     "minimum": 0.0
                   },
+                  "dragEdgeScroll": {
+                    "type": "boolean"
+                  },
                   "fillViewport": {
                     "type": "boolean"
                   }
@@ -7811,6 +7817,9 @@
                   "edgeFade": {
                     "type": "number",
                     "minimum": 0.0
+                  },
+                  "dragEdgeScroll": {
+                    "type": "boolean"
                   },
                   "fillViewport": {
                     "type": "boolean"
@@ -7885,6 +7894,9 @@
                   "edgeFade": {
                     "type": "number",
                     "minimum": 0.0
+                  },
+                  "dragEdgeScroll": {
+                    "type": "boolean"
                   },
                   "fillViewport": {
                     "type": "boolean"
@@ -8144,6 +8156,9 @@
                   "itemSnapping": {
                     "type": "boolean"
                   },
+                  "dragEdgeScroll": {
+                    "type": "boolean"
+                  },
                   "scrollable": {
                     "type": "boolean"
                   },
@@ -8337,6 +8352,9 @@
                   },
                   "query": {},
                   "itemSnapping": {
+                    "type": "boolean"
+                  },
+                  "dragEdgeScroll": {
                     "type": "boolean"
                   },
                   "crossAxisCount": {

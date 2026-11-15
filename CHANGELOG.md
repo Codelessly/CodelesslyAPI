@@ -1,5 +1,8 @@
 ## Unreleased
 
+- **`dragEdgeScroll`** (scrolling containers, lists, grids; default true): whether the view scrolls while a drag and
+  drop is held near its edges. Off for a strip that should stay put under a drag: sprint_kanban's phone column tabs,
+  where the strip scrolled the tab out from under the card it had just switched columns for.
 - **`DropTarget.slotWhenRefused`** is back in schema 3 (default false): the list opens its slot for a drag
   `acceptIf` refuses too, as Flutter's `DragTarget` hands its builder the rejected candidates (a kanban column at
   its WIP limit shows where the card would land, styled as blocked). The migration writes it out where schema 2

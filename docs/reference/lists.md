@@ -112,6 +112,7 @@ Flutter `ListView`: its first child repeated per item.
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `scrollable` | bool | `true` |  | False builds every item without a viewport when the count is known and the list hugs its items (or stretches them across a cross axis it hugs). |
 | `itemExtent` | double | unset | ≥ 0 | Each item's extent along the scroll direction. |
 | `separator` | [ListSeparator](values.md#enum-ListSeparator) | `"none"` | `none`, `space`, `divider` |  |
@@ -160,6 +161,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `crossAxisCount` | int | `2` | ≥ 1 | A fixed number of columns (of rows when the grid scrolls sideways). For as many columns as fit, use `minCrossAxisExtent` instead. |
 | `maxCrossAxisExtent` | double | unset | ≥ 0 |  |
 | `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
