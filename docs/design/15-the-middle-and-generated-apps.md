@@ -461,6 +461,23 @@ none fits, checked against a render, then kept, so the wait is paid once per kin
 render inside the fast path, with one revision. The test for each is these held-out briefs, starting with the two
 that failed.
 
+**First step on the gap (same day).** The model had been given the parts and nothing on how they go together; the
+Cards set had that written down (`PATTERNS.md`) and the prompt did not carry it. `notationPrompt` now includes a
+design system's "In brief" section and says to compose the general parts when none is named after the content.
+On the same eight briefs (`2026-11-15-heldout-blocks-2`; 8,850 tokens in, 716 out, 4.9 s, no errors, 2 retried):
+the poll went from 0 block nodes to 7 and is a designed card, now playing from 1 to 4, meeting slot from 9 to 13;
+generic nodes fell on six of the eight. One regression seen: the recipe's scaled amounts read 0. This is
+composition from general designed parts, not new design: a card with no fitting part still gets a designed frame,
+labels, options and actions, but nothing drawn for it (a poll's result bars, a player's transport). Candidates
+(1) to (3) above remain untested.
+
+**Sideways content** (owner request): the notation has `Pages =page` (the engine's page view, swiped, bound both
+ways, with `peek`), `Dots =page count:n`, and `Row scroll` now really scrolls sideways (it overflowed). A new
+`edgeFade` prop on scrolling containers and page views fades content out at an edge it continues past, by scroll
+position and on any background; the notation writes it by default for sideways scrollers, because inside a padded
+card a strip cannot reach the card's edge and a hard cut looks wrong. Cards has a sliding `Carousel`, strip and
+paged `PhotoGallery`, `PageDots`, `WideScroll`, and a `ComparisonTable` whose columns scroll under pinned labels.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
