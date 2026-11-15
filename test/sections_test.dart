@@ -382,6 +382,18 @@ void main() {
       expect(ds.single.suggestion, 'price');
     });
 
+    test('a required prop set to its default value is kept: read, set and written again, the call still has it', () {
+      final spec = widgetSpecFromJson(planCard()['widget'])!;
+      final price = spec.prop('price')!, popular = spec.prop('popular')!;
+      expect(price.required, isTrue);
+      final written = {'price': price.encode(price.defaultValue), 'popular': popular.encode(popular.defaultValue)};
+      final props = Props.fromJson(spec, written);
+      // The required one stays; the optional one equal to its default is not stored, as before.
+      expect(props.toJson(spec), {'price': written['price']});
+      expect(Props.empty.set(price, price.defaultValue).toJson(spec), {'price': written['price']});
+      expect(Props.empty.set(popular, popular.defaultValue).toJson(spec), isEmpty);
+    });
+
     test('a required prop given by a binding counts as set', () {
       final p = page();
       final call = (p['nodes'] as Map)['card1'] as Map;
