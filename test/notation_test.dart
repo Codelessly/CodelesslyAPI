@@ -1441,4 +1441,107 @@ Column gap:8
     });
 
   });
+  group('the page words', () {
+    Json nodes(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
+    Json node(NotationResult r, String id) => (nodes(r)[id]! as Map).cast<String, Object?>();
+
+    test('a website page: sections are full-width bands with their content in a centered column', () {
+      final r = parseNotation('''
+Page
+  Nav
+    Text.strong "Tidewater"
+    Button "Start free"
+  Section#hero narrow
+    Heading "Fill every room" level:1
+  Footer
+    Text "© 2026"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      final root = node(r, (node(r, 'screen')['slots']! as Map)['body'] as String);
+      expect(root['type'], 'column');
+      expect((root['props']! as Map)['scrollable'], true);
+      // A page is as tall as its content.
+      expect((node(r, 'screen')['layout']! as Map)['height'], {'hug': 0});
+      final hero = node(r, 'hero');
+      expect((hero['layout']! as Map)['width'], {'fill': 0});
+      expect((hero['props']! as Map)['crossAxisAlignment'], 'center');
+      final inner = node(r, (hero['children']! as List).single as String);
+      expect(jsonEncode(inner['layout']), contains('720'));
+      // The bar: one row, its ends apart, then a rule.
+      final kids = (root['children']! as List).cast<String>();
+      final bar = node(r, (node(r, kids[0])['children']! as List).single as String);
+      expect((bar['props']! as Map)['mainAxisAlignment'], 'spaceBetween');
+      expect(node(r, kids[1])['type'], 'divider');
+    });
+
+    test('an app window: panes as tall as the window, the canvas with the window\'s height', () {
+      final r = parseNotation('''
+state tab="orders"
+App
+  Sidebar#side
+    NavItem#orders "Orders" icon:"inbox" badge:"12" selected:=tab=="orders" -> tab="orders"
+    Spacer#push grow
+  Main#main
+    Nav#bar
+      Heading "Orders"
+    Row
+      Pane#detail w:260
+        Text "Details"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280, height: 720));
+      expect(r.issues, isEmpty);
+      expect((node(r, 'screen')['layout']! as Map)['height'], {'fill': 720});
+      expect((node(r, 'side')['layout']! as Map)['width'], 248);
+      expect((node(r, 'side')['layout']! as Map)['height'], {'fill': 0});
+      expect((node(r, 'side')['decoration']! as Map)['strokeSides'], 'right');
+      expect((node(r, 'main')['layout']! as Map)['flex'], 1);
+      expect((node(r, 'push')['layout']! as Map)['height'], {'fill': 0});
+      final item = node(r, 'orders');
+      expect(item['type'], 'row');
+      expect((item['bind']! as Map)['decoration.fills[0].color'], contains('tab=="orders"'));
+      expect((item['children']! as List).length, 3);
+      // A pane further in is a column of its row, not a pane of the window.
+      expect((node(r, 'detail')['layout']! as Map)['height'], {'hug': 0});
+      // In a window a bar is one row with its padding, not a band.
+      expect(node(r, 'bar')['type'], 'row');
+    });
+
+    test('a root written h:fill is a window too; a frame word inside a card is a plain row or column', () {
+      final windowed = parseNotation('Row h:fill\n  Text "a"', catalog: standardCatalog);
+      expect((node(windowed, 'screen')['layout']! as Map)['height'], {'fill': 800});
+      final card = parseNotation('Card\n  Header#h\n    Text "Title"\n  Section#s\n    Text "Body"', catalog: standardCatalog);
+      expect(card.issues, isEmpty);
+      expect(node(card, 'h')['type'], 'row');
+      expect((node(card, 's')['children']! as List).length, 1);
+    });
+
+    test('a spread row is level and as wide as its place; an icon keeps its size; a code sample\'s braces are text', () {
+      final r = parseNotation('''
+Column center
+  Row#r between center
+    Text "a"
+    Text "b"
+  Icon#i "sync"
+  Text#t "import { Beacon } from 'sdk'; track('x', {\\n  plan: 'pro',\\n})"
+  Text#u "Total: {total}"
+''', catalog: standardCatalog);
+      expect((node(r, 'r')['props']! as Map)['mainAxisAlignment'], 'spaceBetween');
+      expect((node(r, 'r')['props']! as Map)['crossAxisAlignment'], 'center');
+      expect((node(r, 'r')['layout']! as Map)['width'], {'fill': 0});
+      expect((node(r, 'i')['layout']! as Map)['width'], {'hug': 0});
+      expect((node(r, 't')['props']! as Map)['text'], contains('{ Beacon }'));
+      expect(jsonEncode(node(r, 'u')), contains(r'${'));
+    });
+
+    test('the prompt teaches the page words from a desktop width on', () {
+      expect(notationPrompt(catalog: standardCatalog), isNot(contains('PAGES')));
+      final wide = notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(wide, contains('PAGES'));
+      // Its two examples read without an issue.
+      final examples = wide.substring(wide.lastIndexOf('\n  Page\n'));
+      final page = examples.substring(0, examples.indexOf('\n  state tab')).split('\n').map((l) => l.startsWith('  ') ? l.substring(2) : l).join('\n');
+      final app = examples.substring(examples.indexOf('\n  state tab')).split('\n').map((l) => l.startsWith('  ') ? l.substring(2) : l).join('\n');
+      expect(parseNotation(page, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
+      expect(parseNotation(app, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
+    });
+  });
 }
