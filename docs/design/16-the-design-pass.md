@@ -279,8 +279,12 @@ that its results sit below the blocks. The causes, and the work that follows fro
 **Moved so far**: a card's corner by its place (26 alone, 18 as a section, 14 as a tile); a text sized on its
 line keeps the body ink; `Progress` as an 8 high pill (`radii.progress`, `sizes.progress`); a `Card` with no
 gap spaces its children by 12 (`spacing.cardGap`); the short words `strong` (as a row title), `muted` and
-`caption` (as the meta line: 12 to 12.5, medium weight). The last three are in the Cards tokens but **not yet
-judged**: the re-render of the eight app screens was running when this was written.
+`caption` (as the meta line: 12 to 12.5, medium weight). Judged on the eight app screens after the progress, gap
+and text style changes together (16 judgments, mean scores before and after): designed defaults 6.19 to 6.38,
+the pass 8.00 to 8.03, and SSUI, which did not change, 4.44 to 4.81. The rise is smaller than the judges' own
+noise, so these changes are **not shown to help or to harm**; one judgment ranked designed defaults below SSUI
+on the product page. They stay for now; the judge needs more cases or repeated judgments before it can settle
+a change this small (`design-pass-runs/mobile-app-screens/judge-after-text-defaults.json`).
 
 **Counted but not moved** (38 runs): a card's column stretching its children (35 runs; no visible change where
 children already fill); texts in rows held to one line with an ellipsis (about 30); a plain 13 px text made
