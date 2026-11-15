@@ -810,7 +810,7 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         'id': 'acme',
         'name': 'Acme',
         'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
-        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json'],
+        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json'],
       }),
       'components/StatusPill.json': jsonEncode(component('StatusPill', [
         {'key': 'label', 'type': string, 'default': 'Status', 'required': true},
@@ -836,6 +836,13 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         {'key': 'items', 'type': {'kind': 'list', 'flutter': 'List<String>', 'item': string}, 'default': <Object?>[]},
       ])),
     };
+    files['components/Pill.json'] = jsonEncode(component('Pill', [
+      {'key': 'label', 'type': string, 'default': '', 'required': true},
+      {'key': 'note', 'type': string, 'default': ''},
+      {'key': 'price', 'type': string, 'default': ''},
+      {'key': 'tone', 'type': {'kind': 'enumeration', 'flutter': 'String', 'values': ['primary', 'quiet', 'danger']}, 'default': 'primary'},
+      {'key': 'qty', 'type': number, 'default': 1},
+    ]));
     late DesignSystem ds;
     late Catalog catalog;
     setUp(() async {
@@ -846,6 +853,26 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
     });
     NotationResult parse(String text) =>
         Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+
+    test('what is written on a component line and can only mean one thing is read as that', () {
+      final r = parse('''
+state n=2
+if n>0
+  Pill "Bananas" "1 kg" "\$2.49" quiet qty=n
+if n==0
+  Text "Empty"
+''');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      final nodes = r.document['nodes']! as Map;
+      final node = nodes.values.cast<Map>().firstWhere((n) => n['type'] == 'Pill');
+      // A bare word that one enumerated parameter has; a further string in
+      // declared order; `=` where `:=` was meant.
+      expect(node['props'], containsPair('tone', 'quiet'));
+      expect(node['props'], containsPair('price', r'$2.49'));
+      expect((node['bind'] as Map)['props.qty'], r'${n}');
+      // Opening with `if`: the parts stack in a column of their own.
+      expect((nodes['column1'] as Map)['children'], hasLength(2));
+    });
 
     test('are called by name: the string is the label, =name the variable it keeps its value in, -> its first event', () {
       final r = parse('''
