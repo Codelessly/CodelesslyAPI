@@ -754,6 +754,19 @@ final class _Validator {
       r.add(Codes.layoutFieldIgnored, pointer(at, 'basis'),
           'layout.basis (CSS flex-basis) is read only when the parent ${parent.type} wraps ("wrap": true); in a ${parent.type} that does not wrap, size the child with width/height and flex.');
     }
+    // A share of the parent along a row's or column's main axis: the child
+    // has unbounded room there (Flutter's FractionallySizedBox asserts; a
+    // fill child's share is set by flex), so the factor does nothing. A
+    // wrapping row gives each child the line's width, where it works.
+    if (parent != null && (parent.type == 'row' || parent.type == 'column') && !parent.props.get(FlexProps.wrap)) {
+      final key = parent.type == 'row' ? 'widthFactor' : 'heightFactor';
+      if (m.containsKey(key)) {
+        r.add(Codes.layoutFieldIgnored, pointer(at, key),
+            'layout.$key is a share of the room the parent gives, and a ${parent.type} gives a child unbounded room along its '
+            'main axis, so it is ignored. Put the node in a stack (a bar\'s track) to size it as a share, or give it '
+            '{"fill": n} and a flex to share the ${parent.type}\'s free space.');
+      }
+    }
     for (final f in LayoutFields.parentData) {
       if (!m.containsKey(f.key) || reads.contains(f.key)) continue;
       final what = parent == null ? 'a root' : 'a child of a ${parent.type}';
