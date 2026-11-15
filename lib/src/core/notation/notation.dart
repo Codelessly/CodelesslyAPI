@@ -1050,6 +1050,15 @@ class _Parser {
         if (raw.startsWith('=')) raw = '$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
+        // A list or map that is not plain JSON holds expressions
+        // (votes:[a+1,b]): it is read as the formula it is.
+        if (raw.startsWith('[') || raw.startsWith('{')) {
+          try {
+            jsonDecode(raw);
+          } catch (_) {
+            raw = '=$raw';
+          }
+        }
         if (grid != null && (key == 'cols' || key == 'columns')) {
           grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 12);
           continue;
