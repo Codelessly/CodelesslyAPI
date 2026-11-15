@@ -651,6 +651,13 @@ Column gap:8
     final named = _parse('state pick="b"\nstate rows=[{"n":1}]\nColumn\n  Select items:["a","b"] value:pick\n  each r in rows\n    Progress value:r.n\n  Text "x" color:pick\n');
     expect(named.issues, isEmpty);
     expect((_node(named, 'dropdown1')['bind'] as Map)['props.value'], r'${pick}');
+    // A value that follows state, written without a mark: braces, an expression, a call.
+    final plain = _parse('state voted=false\nstate n=2\nColumn\n  Button "Vote" enabled:!voted\n  Progress value:{n}\n  Text "x" visible:n>1 && !voted\n  Text "y" hidden\n  Button "Go" enabled:n==2\n');
+    expect(plain.issues, isEmpty, reason: '${plain.issues}');
+    expect(_problems(plain.document), isEmpty);
+    expect((_node(plain, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= !voted}');
+    expect((_node(plain, 'progressBar1')['bind'] as Map)['props.value'], r'${n}');
+    expect((_node(plain, 'text1')['bind'] as Map)['visible'], r'${= n>1 && !voted}');
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));
