@@ -575,6 +575,15 @@ ones as meant. But the judge's broken values are formula mistakes that were *not
 valid and wrong. So the owner's note (§4.10) stands, with a sharper statement of where it bites: not in what
 fails to parse, but in what parses and computes the wrong thing.
 
+**Carousels, galleries and wide content by a newcomer** (`cards-notation`, the sixth run): four cards in 2 to 10
+lines each, 52 captures at 390 and 420 wide, light and dark, every render with no errors or warnings. Swipe,
+dots and count stayed in step in the product carousel and in the gallery's large view; the five-plan comparison
+scrolled its columns under fixed labels; the notation's own `Pages` with `PageDots` worked on one variable. What
+it noted: the peeking next item shows cut-off text (inherent to a peek); the comparison has no dots or count;
+dark captures show a white page under the dark card (the card's canvas is transparent and the capture's page is
+white: right for a chat that has its own background, wrong-looking in a capture). No engine or notation defect
+was found in this run.
+
 **What this changes in the order of work**
 
 1. Correctness of values with the small model comes first: it is what stands between a designed card and a
