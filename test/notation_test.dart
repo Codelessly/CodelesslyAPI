@@ -611,6 +611,20 @@ Card
     expect(((_node(r, 'row1')['decoration'] as Map)['fills'] as List).single, {'color': '#1A15803D'});
     expect((_node(r, 'barChart1')['props'] as Map)['color'], '#FF0F766E');
   });
+  test('a card\'s corner follows its place: the whole UI, a section of a page, a tile in a grid, a card in a card', () {
+    final options = NotationOptions.fromTheme({
+      'radii': {'card': 26, 'panel': 18, 'tile': 14},
+    });
+    final r = parseNotation('Card#solo\n  Card#inner\n    Text "a"', options: options, catalog: standardCatalog);
+    num radius(NotationResult r, String id) => (_node(r, id)['decoration'] as Map)['radius'] as num;
+    expect(radius(r, 'solo'), 26);
+    expect(radius(r, 'inner'), 14);
+    final page = parseNotation('Column\n  Card#section\n    Text "a"\n  Grid cols:2\n    Card#tile\n      Text "b"',
+        options: options, catalog: standardCatalog);
+    expect(radius(page, 'section'), 18);
+    expect(radius(page, 'tile'), 14);
+  });
+
   test('a theme may give plain parts a designed look: card, page, badge, a full-width button, colors read as its names', () {
     final theme = {
       'primary': '#FF2563EB',
