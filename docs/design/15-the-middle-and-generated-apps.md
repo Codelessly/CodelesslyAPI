@@ -801,6 +801,12 @@ refused before); a list after `:=` with spaces in it; a parameter named `change`
 after `->` (`qty += 1`, `row.done = !row.done`, `rows.remove(row)`), `let` for a worked-out value, and
 `key:{expression}`. It is not the default yet: the target is 9 of 10 and neither prompt is near it.
 
+**After the audit of the cases and the day's readings** (same recorded answers, expanded again by the notation
+as it is now, `CodelesslySDK/tool/values/reexpand.py`, so nothing varies but the reading): Sonnet 22 of 25;
+the small model 14 with today's prompt and 13, 14 and 11 on three recordings with the natural variant. The
+owner's decision on this (2026-11-15): cards are composed by Sonnet-level models only. The natural variant
+stays an option of `notationPrompt`; it did not measure better and is not the default.
+
 ### 4.16 Standalone run 8: nine outside trials of the on-demand path (2026-11-15)
 
 Nine agents, 31 blocks designed. The owner's reading of the designs: the quality is good. In numbers: one block
