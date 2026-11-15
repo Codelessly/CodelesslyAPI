@@ -267,6 +267,9 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'Image': (type: 'box', node: {}),
   'Box': (type: 'column', node: {}),
   'Card': (type: 'column', node: {}),
+  // Pages swiped across, one at a time: the lines under it are its pages
+  // (or, under an `each`, one page per element).
+  'Pages': (type: 'pageView', node: {}),
 };
 
 /// `Button.<variant>`: the button type and props it stands for.
@@ -294,6 +297,8 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'dropdown': (prop: 'value', type: 'text', start: ''),
   'radio': (prop: 'groupValue', type: 'text', start: ''),
   'segmentedButton': (prop: 'selected', type: 'text', start: ''),
+  // The page shown, from 0: a swipe writes it, and setting it turns the page.
+  'pageView': (prop: 'initialPage', type: 'decimal', start: 0),
 };
 
 const _shortKeys = {'gap': 'props.spacing', 'pad': 'layout.padding', 'w': 'layout.width', 'h': 'layout.height', 'grow': 'layout.flex'};
@@ -314,6 +319,10 @@ const Map<String, Map<String, List<String>>> _typeKeys = {
     'columns': ['props.crossAxisCount'],
     'gap': ['props.mainAxisSpacing', 'props.crossAxisSpacing'],
     'spacing': ['props.mainAxisSpacing', 'props.crossAxisSpacing'],
+  },
+  'pageView': {
+    // The share of the width one page takes: under 1, the next page shows at the edge.
+    'peek': ['props.viewportFraction'],
   },
 };
 
@@ -401,7 +410,11 @@ class _Grid {
 }
 
 class _Open {
-  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list});
+  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages});
+
+  /// A `Pages` above: [id] is its page (one template drawn per page), and
+  /// each line under it is a page of its own, shown at its position.
+  final String? pages;
 
   /// The list an `each` above repeats over, as written.
   final String? list;
@@ -459,7 +472,24 @@ class _Parser {
     if (raw.trim().isEmpty || raw.trimLeft().startsWith('//')) return;
     final indent = raw.length - raw.trimLeft().length;
     final before = nodes.length;
-    _lineAt(indent, raw.trim(), indent + 1);
+    // `Dots =page count:n`: a dot per page, the current one long and in the
+    // accent; a tap on a dot goes to its page. Written out as the three
+    // lines it stands for.
+    final dots = _dotsLine.firstMatch(raw.trim());
+    if (dots != null) {
+      String look(String c) => c.startsWith('#')
+          ? '"$c"'
+          : const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(c)
+              ? 'theme.$c'
+              : 'theme.colors.$c';
+      final page = dots[2]!, count = dots[3]!.startsWith('=') ? dots[3]!.substring(1) : dots[3]!;
+      variables.putIfAbsent(page, () => {'name': page, 'type': 'decimal', 'value': 0});
+      _lineAt(indent, 'Row${dots[1] ?? ''} gap:6 center middle h:16${dots[4] ?? ''}', indent + 1);
+      _lineAt(indent + 2, 'each dot in range($count)', indent + 3);
+      _lineAt(indent + 4, 'Box w:=index==$page?16:6 h:6 radius:3 fill:=index==$page?${look(options.accent)}:${look(options.track)} -> $page=index', indent + 5);
+    } else {
+      _lineAt(indent, raw.trim(), indent + 1);
+    }
     final added = nodes.keys.skip(before).toList();
     if (added.isEmpty) {
       _emit(null);
@@ -629,6 +659,16 @@ class _Parser {
     final each = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (each != null) {
       if (parent == null) return _issue(column, 'An "each" needs a parent: indent it under a node.');
+      // Under Pages, one page per element: the page view repeats its page.
+      if (parent.pages case final String pagesId) {
+        final data = {'data': _read(each[2]!.trim())};
+        final view = nodes[pagesId]!;
+        view['bind'] = {...?(view['bind'] as Map?)?.cast<String, Object?>(), ...data};
+        (view['props'] as Map?)?.remove('itemCount');
+        _patches.add({'op': 'patch', 'id': pagesId, 'patch': {'bind': data, 'props': {'itemCount': null}}});
+        _stack.add(_Open(indent, parent.id, 'column', each: each[1], list: each[2]!.trim(), pages: pagesId));
+        return;
+      }
       // A list over the data, its item a column of the lines under it.
       final g = parent.grid;
       final listId = _id(g != null ? 'gridView' : 'listView'), itemId = '${listId}Item';
@@ -946,7 +986,7 @@ class _Parser {
             reactions.insert(0, {
               'trigger': {'type': 'changed'},
               'actions': [
-                {'type': 'setVariable', 'variable': expr, 'value': list ? r'${result[0]}' : r'${result}'},
+                {'type': 'setVariable', 'variable': expr, 'value': list ? r'${result[0]}' : type == 'pageView' ? r'${result.index}' : r'${result}'},
               ],
             });
           }
@@ -1237,12 +1277,13 @@ class _Parser {
       final inHug = parent?.type == 'column' &&
           parent?.grid == null &&
           (parentWidth is Map && parentWidth.containsKey('hug') || parentCross == 'center' || parentCross == 'end');
-      final fills = layout.containsKey('flex') || !inRow && !inTile && !inHug && (!control || type == 'textField' || type == 'slider' || type == 'dropdown');
+      final fills = layout.containsKey('flex') || !inRow && !inTile && !inHug && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
       layout['width'] = _size(layout['width']);
     }
-    layout['height'] = layout.containsKey('height') ? _size(layout['height']) : {'hug': 0};
+    // A page is as tall as its page view.
+    layout['height'] = layout.containsKey('height') ? _size(layout['height']) : parent?.pages != null ? {'fill': 0} : {'hug': 0};
     // A size that follows data (w:=…, h:=…) is a fixed one whose number the
     // binding gives: left to hug or fill, the number would change nothing
     // and an empty box would stay at no size.
@@ -1293,6 +1334,16 @@ class _Parser {
     if (parent?.condition case final String c) {
       final own = bind['visible'];
       bind['visible'] = own is String ? _and(c, own) : c;
+    }
+    // A line under Pages is the page at its position: the page view draws
+    // its one page per position, and each line shows only at its own.
+    if (parent != null && parent.pages != null && parent.each == null && parent.condition == null) {
+      final at = (nodes[parent.id]?['children'] as List?)?.length ?? 0;
+      final shown = _formula('index == $at'), own = bind['visible'];
+      bind['visible'] = own is String ? _and(shown, own) : shown;
+      final view = nodes[parent.pages]!;
+      (view['props'] as Json? ?? (view['props'] = <String, Object?>{}))['itemCount'] = at + 1;
+      _patches.add({'op': 'patch', 'id': parent.pages, 'patch': {'props': {'itemCount': at + 1}}});
     }
 
     final out = <String, Object?>{
@@ -1358,7 +1409,28 @@ class _Parser {
       _parentOf[id] = parent.id;
       if (cell) _intoRow(parent.grid!, id);
     }
-    _stack.add(_Open(indent, id, type, condition: null, grid: grid));
+    if (type == 'pageView') {
+      // Its page: what the page view draws at each position.
+      final pageId = '${id}Page';
+      nodes[pageId] = {
+        'type': 'column',
+        'layout': {'width': {'fill': 0}, 'height': {'fill': 0}},
+        'props': {'crossAxisAlignment': 'stretch'},
+      };
+      ((out['children'] as List<Object?>?) ?? (out['children'] = <Object?>[])).add(pageId);
+      _parentOf[pageId] = id;
+      props.putIfAbsent('scrollDirection', () => 'horizontal');
+      // With the next page showing at the edge, the first sits at the start
+      // and the pages stand apart (gap, 8 unless written).
+      final gap = props.remove('spacing');
+      if (props['viewportFraction'] != null) {
+        props.putIfAbsent('padEnds', () => false);
+        nodes[pageId]!['layout'] = <String, Object?>{'width': {'fill': 0}, 'height': {'fill': 0}, 'padding': [0, 0, gap is num ? gap : 8, 0]};
+      }
+      _stack.add(_Open(indent, pageId, 'column', pages: id));
+    } else {
+      _stack.add(_Open(indent, id, type, condition: null, grid: grid));
+    }
     // Its strings as text nodes: an accordion's header is its first child, a
     // list tile's are its title and subtitle.
     final texts = [..._texts];
@@ -1668,6 +1740,7 @@ class _Parser {
     return '$type$n';
   }
 
+  static final _dotsLine = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?\s+=([A-Za-z_][A-Za-z0-9_]*)\s+count:(\S+)(\s.*)?$');
   static final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
 
   /// An expression as a binding reads it: a name, or a formula.
