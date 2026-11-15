@@ -294,6 +294,15 @@
           "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
         },
         {
+          "key": "edgeFade",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
+        },
+        {
           "key": "fit",
           "type": "BoxFit",
           "kind": "enumeration",
@@ -493,6 +502,15 @@
           "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
         },
         {
+          "key": "edgeFade",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
+        },
+        {
           "key": "fillViewport",
           "type": "bool",
           "kind": "boolean",
@@ -659,6 +677,15 @@
           "default": false,
           "nullable": false,
           "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
+          "key": "edgeFade",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
         },
         {
           "key": "fillViewport",
@@ -840,6 +867,15 @@
           "default": false,
           "nullable": false,
           "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
+          "key": "edgeFade",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
         },
         {
           "key": "fillViewport",
@@ -1820,6 +1856,15 @@
             "reverse"
           ],
           "doc": "Which pages draw on top where they overlap: `forward` (Flutter's order: later pages over earlier ones) or `reverse` (earlier pages on top, so a page turning away covers the one it reveals). Taps reach the page on top first."
+        },
+        {
+          "key": "edgeFade",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "The next page showing at the edge fades out over this many pixels, not cut hard."
         }
       ],
       "docs": "lists.md#node-pageView"

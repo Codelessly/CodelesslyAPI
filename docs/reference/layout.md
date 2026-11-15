@@ -224,6 +224,7 @@ Flutter `Row`.
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
+| `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-column"></a>
@@ -252,6 +253,7 @@ Flutter `Column`.
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
+| `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-flex"></a>
@@ -281,6 +283,7 @@ Flutter `Flex`.
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
+| `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-stack"></a>
@@ -303,6 +306,7 @@ A freeform container: children placed by `layout.x`/`layout.y` (Flutter `Stack` 
 | `alwaysScroll` | bool | `false` |  | Scrolls even when the content fits. |
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
+| `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
 | `fit` | [BoxFit](values.md#enum-BoxFit) | unset | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | Scale the board (its design size) into the box: contain, cover, scaleDown... |
 | `fitAlignment` | [Alignment](values.md#type-Alignment) | `[0,0]` |  | Where a `fit` board sits in its box. |
 

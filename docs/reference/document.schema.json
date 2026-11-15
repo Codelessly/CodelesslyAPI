@@ -7627,6 +7627,10 @@
                   "itemSnapping": {
                     "type": "boolean"
                   },
+                  "edgeFade": {
+                    "type": "number",
+                    "minimum": 0.0
+                  },
                   "fit": {
                     "anyOf": [
                       {
@@ -7730,6 +7734,10 @@
                   "itemSnapping": {
                     "type": "boolean"
                   },
+                  "edgeFade": {
+                    "type": "number",
+                    "minimum": 0.0
+                  },
                   "fillViewport": {
                     "type": "boolean"
                   }
@@ -7796,6 +7804,10 @@
                   },
                   "itemSnapping": {
                     "type": "boolean"
+                  },
+                  "edgeFade": {
+                    "type": "number",
+                    "minimum": 0.0
                   },
                   "fillViewport": {
                     "type": "boolean"
@@ -7866,6 +7878,10 @@
                   },
                   "itemSnapping": {
                     "type": "boolean"
+                  },
+                  "edgeFade": {
+                    "type": "number",
+                    "minimum": 0.0
                   },
                   "fillViewport": {
                     "type": "boolean"
@@ -8505,6 +8521,10 @@
                   },
                   "paintOrder": {
                     "$ref": "#/$defs/enum.PagePaintOrder"
+                  },
+                  "edgeFade": {
+                    "type": "number",
+                    "minimum": 0.0
                   }
                 },
                 "additionalProperties": false
