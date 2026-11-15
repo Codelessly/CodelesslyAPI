@@ -245,3 +245,54 @@ with the session's document as the nodes and the view's render as the picture.
 - **The design agent's tier.** Opus is measured. Sonnet as the design agent, and one round against two, are
   not yet.
 - **Behavior after the pass.** The values check has not been run on restyled cards.
+
+## 10. Reconciling the defaults with the blocks and the pass (open, 2026-11-15)
+
+The order by quality, as the owner and the blind judges see it: designed blocks, then the design pass, then
+the designed defaults, then the bundled SSUI look. Standalone run 10 (branch `run10` of CodelesslySDK,
+`run10/design-pass/`) confirmed the pass is safe (six of six kept, no text, action or data binding changed) and
+that its results sit below the blocks. The causes, and the work that follows from each:
+
+| Cause | Work |
+|---|---|
+| The pass only restyles what the composer wrote; a block is a composition (a focal element, drawn detail, grouped facts) | Let the pass put a block in place of plain nodes that show the same thing. In the tool: `style_pass.py --blocks`. Not yet in `DesignPass` (its `changedMeaning` refuses a removed text node; it must accept one whose text a block's props now carry) |
+| The design agent was shown one block as a syntax sample | With `--blocks` it is given every own block's purpose, props and events and the three closest to the request as written. Pictures of those blocks are not yet shown |
+| The composer's plain card is thin (five to eight rows of text) | The composer's prompt, not the pass: ask for the facts a designed card of that kind carries. Untried |
+| The defaults are generic where the blocks are specific | The cycle below |
+
+**The cycle** (each turn of it is one measured change):
+
+1. *Read the gap.* `examples/showcase/tool/pass_ops.py` counts what the pass changed again and again over the
+   recorded passes (`examples/showcase/design-pass-runs/`: 17 inline cards, 6 mobile pages, 8 mobile app
+   screens, 7 desktop screens; each with the UI given, the operations kept and the request). `--styles` counts
+   text restyles. Beside it, read what the blocks do that plain parts do not (`design_systems/cards/DESIGN.md`,
+   `PATTERNS.md`, the block documents).
+2. *Move one thing.* A change that recurs and needs no node the composer did not write becomes a default: a
+   theme value the notation reads (`NotationOptions.fromTheme` in CodelesslyAPI `notation.dart`) or a token of
+   the design system (`design_systems/cards/tool/tokens.py`, mirrored in `design_system.json`; `build.py`
+   regenerates it and the showcase, which takes about fifteen minutes).
+3. *Measure.* Render the same UIs three ways (SSUI, designed defaults, defaults plus the pass) and judge them
+   blind (`examples/showcase/tool/judge.py`). A default stays when the designed-defaults score rises and
+   nothing else falls; the pass's remaining operations on those UIs should shrink.
+4. *Record* the change and the scores here.
+
+**Moved so far**: a card's corner by its place (26 alone, 18 as a section, 14 as a tile); a text sized on its
+line keeps the body ink; `Progress` as an 8 high pill (`radii.progress`, `sizes.progress`); a `Card` with no
+gap spaces its children by 12 (`spacing.cardGap`); the short words `strong` (as a row title), `muted` and
+`caption` (as the meta line: 12 to 12.5, medium weight). The last three are in the Cards tokens but **not yet
+judged**: the re-render of the eight app screens was running when this was written.
+
+**Counted but not moved** (38 runs): a card's column stretching its children (35 runs; no visible change where
+children already fill); texts in rows held to one line with an ellipsis (about 30); a plain 13 px text made
+the meta line or a row title depending on its role (the notation cannot tell the role); figures given the
+number styles (the notation cannot tell a string is a figure); the bottom navigation given icons (structure).
+
+**From run 10's review of the defaults on pages** (`run10/designed-defaults/REPORT.md`): stacked section cards
+read heavy at radius 18 with a shadow each; a button alone on its line goes full width even when it is a
+secondary action; the 20 px page title is small at 1280; captions were faint (addressed by the caption change
+above, unjudged).
+
+**From run 10's clean app** (`run10/clean-app/REPORT.md`): SDK master needs API master
+(`DesignSystem.withComponent`, `componentFiles`): both need a release before the pass and stored blocks can be
+used from pub.dev; guide 18 names a design system path a clean app does not have; a failed `store:` is
+swallowed; the guide's `ChatCard` reported a 10 px `content_overflows` in a mounted view.
