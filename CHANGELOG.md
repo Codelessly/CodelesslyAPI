@@ -3,6 +3,10 @@
 - **The compact notation**: with a theme that has `sizes.wide` and a `titleWide` text style,
   `NotationOptions.fromTheme(width:)` at that width or wider gives `Text.title` and `Text.pageTitle` the wide
   style (a page's title on a desktop). A theme without the two names is unchanged.
+- **The compact notation, the words a model writes unprompted**: `Gauge` and `Dial` (a round meter with its
+  figure inside, `limit:`, `unit:`), `Ring`, `Sparkline`, `animate:<word>` (fade, slide-up, slide-left, scale,
+  pop, bounce, shake, pulse, spin, shimmer) with `duration:`, `delay:` and `stagger:`, `swipe:left -> …`, a
+  `Stack` that centers with `center middle`, a slider's `step:`, an `every` whose actions are on the next line.
 - **A required component parameter set to its default value is kept.** `Props` dropped any value equal to the
   default, so a call that set a required parameter to it was stored without it and then reported
   `missing_prop`.

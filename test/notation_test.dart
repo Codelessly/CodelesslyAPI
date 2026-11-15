@@ -720,6 +720,77 @@ Card gap:12
   });
 
 
+  test('the words a model reaches for: Gauge, Dial, Ring, Sparkline, animate, and a Stack that centers', () {
+    const text = '''
+state steps=7240
+state rows=[{"t":"a"},{"t":"b"}]
+Card
+  Gauge#g 72 min:0 max:180 limit:100 unit:"km/h"
+  Dial#d =steps
+  Stack#s center middle w:96 h:96
+    Ring#r =steps/10000 w:96
+    Text#pct "72%"
+  Sparkline#sp values:[3,4,3,6]
+  Text#t "Hello" animate:fadeIn duration:0.4s delay:200
+  each x in rows
+    Row#row animate:slide-up stagger:80
+      Text "{x.t}"
+  Button#b "Record" animate:pulse
+''';
+    final r = parseNotation(text, catalog: standardCatalog);
+    expect(r.issues, isEmpty);
+    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
+    // A gauge is a stack under its id: a clean arc and the figure inside it.
+    expect(_node(r, 'g')['type'], 'stack');
+    expect(_node(r, 'g')['layout'], {'width': 240, 'height': 163});
+    expect(_node(r, 'g')['children'], ['gArc', 'gValue', 'gUnit']);
+    final g = _node(r, 'gArc');
+    expect(g['type'], 'radialGauge');
+    expect(g['props'], containsPair('value', 72));
+    expect(g['props'], containsPair('target', 100));
+    expect(g['props'], containsPair('showNeedle', false));
+    expect((_node(r, 'gValue')['props'] as Map)['text'], '72');
+    expect((_node(r, 'gUnit')['props'] as Map)['text'], 'km/h');
+    // A gauge with no limit shows no target mark; one that follows a variable shows its value.
+    expect(_node(r, 'dArc')['props'], containsPair('showTarget', false));
+    expect((_node(r, 'dArc')['bind'] as Map)['props.value'], r'${steps}');
+    expect((_node(r, 'dValue')['bind'] as Map)['props.text'], r'${steps}');
+    // What is in a centering stack is centered, as wide as it is.
+    expect(_node(r, 'r')['type'], 'circularProgressIndicator');
+    expect(_node(r, 'pct')['layout'], {'x': {'align': 0}, 'y': {'align': 0}, 'width': {'hug': 0}, 'height': {'hug': 0}});
+    final sp = _node(r, 'sp');
+    expect(sp['type'], 'lineChart');
+    expect((sp['layout'] as Map)['height'], 32);
+    expect((sp['props'] as Map)['data'], hasLength(4));
+    expect(_node(r, 't')['animations'], [
+      {'id': 'a', 'preset': 'enter', 'params': {'from': {'opacity': 0}}, 'duration': 400, 'delay': 200},
+    ]);
+    expect((_node(r, 'row')['bind'] as Map)['animations[0].delay'], r'${= index*80}');
+    expect(((_node(r, 'b')['animations'] as List).single as Map)['preset'], 'pulse');
+    // As models also write them: the timer's actions on the next line, a slider's step, a swipe, a stagger on the each.
+    const more = '''
+state n=0
+state todos=[{"id":1,"t":"a"}]
+every 1s when n<5
+  -> n=n+1
+Card
+  Slider#tip =n min:0 max:30 step:5
+  each t in todos stagger:60
+    Row#todo swipe:left -> todos=removeWhere(todos,x=>x.id==t.id)
+      Text "{t.t}"
+''';
+    final m = parseNotation(more, catalog: standardCatalog);
+    expect(m.issues, isEmpty);
+    expect(validateDocument(m.document).where((d) => d.severity == Severity.error), isEmpty);
+    expect((((m.document['nodes'] as Map)['screen'] as Map)['actions'] as List).single, containsPair('trigger', {'type': 'timer', 'intervalMs': 1000, 'when': r'${= n<5}'}));
+    expect(_node(m, 'tip')['props'], containsPair('divisions', 6));
+    expect(((_node(m, 'todo')['actions'] as List).single as Map)['trigger'], {'type': 'swipeLeft'});
+    expect((_node(m, 'todo')['bind'] as Map)['animations[0].delay'], r'${= index*60}');
+    // A word it does not have is named with the ones it has; timing alone says where it goes.
+    final bad = parseNotation('Text "x" animate:teleport\nText "y" duration:300', catalog: standardCatalog);
+    expect(bad.issues.map((i) => i.message).join('\n'), allOf(contains('No animate:teleport'), contains('go with animate:')));
+  });
+
   test('a theme may give the title a larger style on a wide page', () {
     final theme = {
       'colors': {'primaryText': '#FF111827'},

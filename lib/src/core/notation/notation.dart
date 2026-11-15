@@ -485,6 +485,13 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'Select': (type: 'dropdown', node: {}),
   'Button': (type: 'filledButton', node: {}),
   'Progress': (type: 'progressBar', node: {}),
+  // The words a model reaches for unprompted for a round meter, a round
+  // share and a small trend line (design 16: asked with no vocabulary, it
+  // writes gauge, dial, ring, sparkline).
+  'Gauge': (type: 'radialGauge', node: {}),
+  'Dial': (type: 'radialGauge', node: {}),
+  'Ring': (type: 'circularProgressIndicator', node: {}),
+  'Sparkline': (type: 'lineChart', node: {}),
   'List': (type: 'column', node: {}),
   'Badge': (type: 'row', node: {}),
   // A grid of the children written under it: rows of `cols` equal cells.
@@ -556,7 +563,41 @@ const Map<String, Map<String, List<String>>> _typeKeys = {
 };
 
 /// What `=expr` binds on a type that shows a value but takes no input.
-const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'text': 'text'};
+const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
+
+/// `animate:<word>`: how a node arrives or keeps moving, as a model writes
+/// it, by the animation preset and params it stands for. An entrance plays
+/// once when the node appears (from a pose to the node's own); a loop keeps
+/// going; an effect plays once.
+const Map<String, Json> notationAnimations = {
+  'fade': {'preset': 'enter', 'params': {'from': {'opacity': 0}}},
+  'fade-up': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateY': 16}}},
+  'slide': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateY': 16}}},
+  'slide-up': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateY': 16}}},
+  'slide-down': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateY': -16}}},
+  'slide-left': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateX': 24}}},
+  'slide-right': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateX': -24}}},
+  'scale': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'scale': 0.9}}},
+  'zoom': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'scale': 0.9}}},
+  'pulse': {'preset': 'pulse', 'params': {'scaleFrom': 1, 'scaleTo': 1.06, 'opacityFrom': 1, 'opacityTo': 0.7}},
+  'spin': {'preset': 'spin'},
+  'bob': {'preset': 'bob'},
+  'sway': {'preset': 'sway'},
+  'pop': {'preset': 'pop', 'autoplay': true},
+  'bounce': {'preset': 'bounce', 'autoplay': true},
+  'shake': {'preset': 'shake', 'autoplay': true},
+  'wiggle': {'preset': 'wiggle', 'autoplay': true},
+  'flash': {'preset': 'flash', 'autoplay': true},
+  'shimmer': {'preset': 'shimmer'},
+};
+
+/// A time as a model writes it (`600`, `600ms`, `0.6s`), in milliseconds.
+int? _milliseconds(String raw) {
+  final m = RegExp(r'^(\d+(?:\.\d+)?)(ms|s)?$').firstMatch(raw.trim());
+  if (m == null) return null;
+  final n = double.parse(m[1]!);
+  return (m[2] == 's' ? n * 1000 : n).round();
+}
 
 /// `Badge.<tone>`: SSUI's badge tones (components/Badge.json) as fill,
 /// hairline and ink: a 10 % tint of the tone, its 28 % border, the tone.
@@ -686,7 +727,22 @@ class _Parser {
   int _line = 0;
 
   /// Reads one line (without its newline).
+  /// An `every …` line written with no `->`: its actions may follow on the
+  /// next line (`  -> n=n+1`), which a model writes as readily.
+  String? _everyOpen;
+
   void line(String raw) {
+    if (_everyOpen case final String open) {
+      _everyOpen = null;
+      if (raw.trimLeft().startsWith('->')) {
+        raw = '$open ${raw.trimLeft()}';
+      } else {
+        line('$open ->');
+      }
+    } else if (RegExp(r'^every\s+\S+').hasMatch(raw) && !raw.contains('->') && !raw.trimRight().endsWith(':') && !RegExp(r'\b(do|on[A-Z])').hasMatch(raw)) {
+      _everyOpen = raw.trimRight();
+      return;
+    }
     _line++;
     // A `node {…}` or `document {…}` whose JSON is not closed goes on over
     // the next lines, until it is.
@@ -822,6 +878,13 @@ class _Parser {
 
   /// The nodes written as `Card`.
   final _cards = <String>{};
+
+  /// The stacks that center their children, by id: the words written
+  /// (`center`, `middle`).
+  final _stackAlign = <String, Set<String>>{};
+
+  /// The `stagger:` an `each` line carried, for the row written under it.
+  int? _eachStagger;
 
   /// The `every` lines: timers on the canvas.
   final _timers = <Json>[];
@@ -999,6 +1062,13 @@ class _Parser {
     // read as `row` (or `item`).
     final bare = RegExp(r'^each\s+(\S+)$').firstMatch(line) ?? RegExp(r'^List\s+=(\S+)$').firstMatch(line);
     if (bare != null) line = 'each row in ${bare[1]}';
+    // `each a in list stagger:80`: the row under it arrives that much after
+    // the one before (its own animate:, or a fade up).
+    if (RegExp(r'^each\s.*\s(stagger:\S+)$').firstMatch(line.trimRight()) case final RegExpMatch m) {
+      line = line.trimRight();
+      _eachStagger = _milliseconds(m[1]!.substring(8));
+      line = line.substring(0, line.length - m[1]!.length).trimRight();
+    }
     final each = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (each != null) {
       if (parent == null) return _issue(column, 'An "each" needs a parent: indent it under a node.');
@@ -1122,6 +1192,13 @@ class _Parser {
     final node = <String, Object?>{};
     final props = <String, Object?>{}, layout = <String, Object?>{}, decoration = <String, Object?>{}, bind = <String, Object?>{};
     final reactions = <Json>[];
+    // `center` and `middle` on a Stack; `animate:` and its timing.
+    Set<String>? stackAlign;
+    Json? animation;
+    Map<String, int>? timing;
+    num? sliderStep;
+    String? swipe;
+    String? gaugeUnit;
 
     if (written == 'Button' && variant != null) {
       final v = buttonVariants[variant];
@@ -1280,7 +1357,7 @@ class _Parser {
               ? {'type': 'drop'}
               : event != null
                   ? {'type': 'event', 'event': event.key}
-                  : {'type': _valueProps.containsKey(type) ? 'changed' : 'click'},
+                  : {'type': swipe ?? (_valueProps.containsKey(type) ? 'changed' : 'click')},
           'actions': _actions(t.rest.substring(0, tail).trim(), col),
         });
         t.at += tail;
@@ -1388,6 +1465,10 @@ class _Parser {
             // `middle` (or with `center` alone).
             if (word == 'center') props['crossAxisAlignment'] = 'center';
             if (word == 'middle' || !line.contains(' middle')) props['mainAxisAlignment'] = 'center';
+          } else if (type == 'stack' && (word == 'center' || word == 'middle')) {
+            // A stack centers what is in it: across with `center`, down
+            // with `middle` (each child that says no place of its own).
+            (stackAlign ??= <String>{}).add(word);
           } else if (_mainWords[word] case final String m when type == 'row' || type == 'column') {
             props['mainAxisAlignment'] = m;
           } else if (_crossWords[word] case final String c when type == 'row' || type == 'column') {
@@ -1507,6 +1588,45 @@ class _Parser {
         // `drag:todo(card.id)`: the node can be dragged, in a group, carrying
         // a value. `drop:todo,doing -> …`: it takes drops from those groups,
         // and the line's -> runs on a drop ({result.data} is what was carried).
+        // `animate:fade` (slide-up, scale, pulse, spin, pop, shake, shimmer…)
+        // with `duration:` and `delay:` beside it, and `stagger:` under an
+        // `each` (each copy that much later than the one before).
+        if (key == 'animate' || key == 'animation' || key == 'enter') {
+          final name = _literal(raw).$2?.toString() ?? raw;
+          // fadeIn, fade-in, "fade in" and fade are one word.
+          final word = name.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]}-${m[2]}').toLowerCase().replaceAll(RegExp(r'[ _]'), '-');
+          final look = notationAnimations[word] ?? notationAnimations[word.replaceAll(RegExp(r'-(in|once|loop)$'), '')];
+          if (look == null) {
+            _issue(col, 'No animate:$raw. Written animate:${notationAnimations.keys.join(', ')}.');
+          } else {
+            animation = {'id': 'a', ..._copy(look)};
+          }
+          continue;
+        }
+        if ((key == 'duration' || key == 'delay' || key == 'stagger') && _milliseconds(raw) != null) {
+          (timing ??= <String, int>{})[key] = _milliseconds(raw)!;
+          continue;
+        }
+        if (key == 'limit' && type == 'radialGauge') key = 'target';
+        // What a gauge measures in, under its figure: unit:"km/h".
+        if ((key == 'unit' || key == 'label') && type == 'radialGauge') {
+          gaugeUnit = _literal(raw).$2?.toString() ?? raw;
+          continue;
+        }
+        if (key == 'color' && type == 'lineChart') key = 'lineColor';
+        // A slider's step is how many equal steps its range has.
+        if (key == 'step' && type == 'slider' && num.tryParse(raw) != null) {
+          sliderStep = num.parse(raw);
+          continue;
+        }
+        // `swipe:left -> …` runs the line's actions on that swipe.
+        if (key == 'swipe' && const {'left', 'right', 'up', 'down'}.contains(raw)) {
+          swipe = 'swipe${raw[0].toUpperCase()}${raw.substring(1)}';
+          for (final r in reactions) {
+            if (readMap(r['trigger'])?['type'] == 'click') r['trigger'] = {'type': swipe};
+          }
+          continue;
+        }
         if (key == 'drag') {
           final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\((.+)\))?$').firstMatch(raw);
           if (m == null) {
@@ -1674,6 +1794,74 @@ class _Parser {
         props['xField'] = 'x';
         props['yField'] = 'y';
       }
+    }
+    // A gauge: its scale's labels follow its range, a target shows only when
+    // one is written (`target:` or `limit:`), and it has a size of its own.
+    if (type == 'radialGauge') {
+      // One clean arc with the figure inside it: no scale numbers, ticks or
+      // needle unless written, the value arc in the accent.
+      props.putIfAbsent('labels', () => const <Object>[]);
+      if (!props.containsKey('zones')) props.putIfAbsent('colorByZone', () => false);
+      for (final e in const {'segments': 0, 'roundCaps': true, 'thickness': 16, 'majorTicks': 0, 'minorTicks': 0, 'showNeedle': false}.entries) {
+        props.putIfAbsent(e.key, () => e.value);
+      }
+      if (!props.containsKey('target') && !bind.containsKey('props.target')) props.putIfAbsent('showTarget', () => false);
+      layout.putIfAbsent('width', () => 240);
+      // Its arc leaves the bottom third of its circle open.
+      layout.putIfAbsent('height', () => layout['width'] is num ? ((layout['width']! as num) * 0.68).round() : 164);
+    }
+    if (sliderStep != null && sliderStep > 0) {
+      final min = props['min'] is num ? props['min'] as num : 0, max = props['max'] is num ? props['max'] as num : 1;
+      final steps = ((max - min) / sliderStep).round();
+      if (steps > 0 && steps <= 1000) props['divisions'] = steps;
+    }
+    // A ring is a round share, 64 across unless sized.
+    if (written == 'Ring') {
+      layout.putIfAbsent('width', () => 64);
+      layout.putIfAbsent('height', () => layout['width']);
+      // The rest of the circle shows as a quiet track.
+      props.putIfAbsent('backgroundColor', () => options.track);
+      props.putIfAbsent('strokeCap', () => 'round');
+    }
+    // A sparkline is a line chart with no axes, grid or room around it.
+    if (written == 'Sparkline') {
+      layout['height'] = layout['height'] == 140 ? 32 : layout['height'];
+      layout.putIfAbsent('width', () => 96);
+      props.addAll({
+        'plotPadding': [2, 4, 2, 4],
+        'smooth': true,
+        'gridColor': '#00000000',
+        'axisColor': '#00000000',
+        'zeroLineColor': '#00000000',
+        'axisLabelStyle': {'fontSize': 1, 'color': '#00000000'},
+      });
+    }
+    if (_eachStagger case final int step when type != 'listView') {
+      _eachStagger = null;
+      animation ??= {'id': 'a', ..._copy(notationAnimations['fade-up']!)};
+      (timing ??= <String, int>{}).putIfAbsent('stagger', () => step);
+    }
+    if (animation != null) {
+      if (timing?['duration'] case final int d) animation['duration'] = d;
+      if (timing?['delay'] case final int d) animation['delay'] = d;
+      node['animations'] = [animation];
+      // Under an `each`, each copy starts that much after the one before.
+      if (timing?['stagger'] case final int step) {
+        bind['animations[0].delay'] = '\${= index*$step${timing?['delay'] == null ? '' : '+${timing!['delay']}'}}';
+      }
+    } else if (timing != null) {
+      _issue(column, 'duration:, delay: and stagger: go with animate: on the same line (animate:fade duration:400).');
+    }
+    if (stackAlign != null) _stackAlign[id] = stackAlign;
+    // In a stack that centers, a child with no place of its own is centered.
+    if (parent != null && _stackAlign[parent.id] != null) {
+      final words = _stackAlign[parent.id]!;
+      if (words.contains('center')) {
+        layout.putIfAbsent('x', () => {'align': 0});
+        // As wide as it is, or it would fill the stack and sit at its start.
+        layout.putIfAbsent('width', () => {'hug': 0});
+      }
+      if (words.contains('middle') || !words.contains('middle') && words.length == 1) layout.putIfAbsent('y', () => {'align': 0});
     }
     // A column starts its children at the leading edge and a row centers
     // them on its line (what a form and a toolbar want), unless written.
@@ -1854,6 +2042,41 @@ class _Parser {
       if (moved.isNotEmpty) out['bind'] = {...?(out['bind'] as Map?)?.cast<String, Object?>(), ...moved};
     }
     nodes[id] = out;
+    if (type == 'radialGauge') {
+      // A gauge is its arc with the figure it shows inside: a stack under
+      // the line's id, so the id still names the whole.
+      final value = (out['props'] as Map?)?['value'], bound = (out['bind'] as Map?)?['props.value'];
+      final body = options.textStyles['body'];
+      Json figure(Object? base, Json over) => {...(base is Map ? _copy(base.cast<String, Object?>()) : const <String, Object?>{}), ...over};
+      final arcLayout = (out['layout']! as Map).cast<String, Object?>();
+      nodes[id] = {
+        'type': 'stack',
+        'layout': {...arcLayout},
+        if (out['visible'] != null) 'visible': out.remove('visible'),
+        'children': ['${id}Arc', '${id}Value', if (gaugeUnit != null) '${id}Unit'],
+      };
+      nodes['${id}Arc'] = out..['layout'] = {'width': {'fill': 0}, 'height': {'fill': 0}, 'x': 0, 'y': 0};
+      nodes['${id}Value'] = {
+        'type': 'text',
+        'layout': {'width': {'hug': 0}, 'height': {'hug': 0}, 'x': {'align': 0}, 'y': {'align': gaugeUnit == null ? 0.15 : 0.05}},
+        // The figure is sized to its gauge.
+        'props': {
+          'text': value is num ? (value == value.roundToDouble() ? '${value.round()}' : '$value') : '',
+          'style': figure(body, {'fontSize': arcLayout['width'] is num ? ((arcLayout['width']! as num) / 6).clamp(18, 40).round() : 40, 'fontWeight': 700}),
+        },
+        if (bound != null) 'bind': {'props.text': bound},
+      };
+      if (gaugeUnit != null) {
+        nodes['${id}Unit'] = {
+          'type': 'text',
+          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}, 'x': {'align': 0}, 'y': {'align': 0.5}},
+          'props': {'text': gaugeUnit, 'style': figure(options.textStyles['muted'] ?? body, const {})},
+        };
+      }
+      for (final child in ['${id}Arc', '${id}Value', '${id}Unit']) {
+        _parentOf[child] = id;
+      }
+    }
     if (parent == null) {
       if (_root != null) {
         _issue(column, 'A second root: the first line is the root, everything else is indented under it.');
@@ -2019,6 +2242,10 @@ class _Parser {
 
   /// The end of the text: what is still open closes.
   void finish() {
+    if (_everyOpen case final String open) {
+      _everyOpen = null;
+      line('$open ->');
+    }
     if (_open case final String open) {
       // Read as far as it goes: the line says what is wrong with it.
       _open = null;
@@ -2180,6 +2407,8 @@ class _Parser {
           component.events.firstOrNull;
       if (named != null) return {'type': 'event', 'event': named.key};
     }
+    final bare = key.startsWith('on') && key.length > 2 ? '${key[2].toLowerCase()}${key.substring(3)}' : key;
+    if (const {'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'longPress', 'doubleTap'}.contains(bare)) return {'type': bare};
     final changes = key == 'change' || key == 'onChange' || key == 'onChanged';
     return {'type': changes || _valueProps.containsKey(type) && !key.contains('ress') && key != 'tap' && key != 'click' ? 'changed' : 'click'};
   }
