@@ -267,6 +267,8 @@ used a block in two of them, and only `ActionButton`; the rest it built from pla
 in kind: no card gained a composition a block would have. Telling the agent of the blocks and showing three as
 written is not enough. Untried: showing it pictures of the closest blocks; a block made for the request on
 demand; a composer that writes more of what a designed card carries.
+(Both are tried below: pictures in "The pass with blocks", and with each block's size in the brief the agent
+does place blocks where the request fits one.)
 
 **The cycle** (each turn of it is one measured change):
 
@@ -334,6 +336,46 @@ The brief now lists each block's own `layout` and says to write it (the next tab
 of the closest blocks did not help on average: where the run passed it ranked first on two of the phone screens,
 and it lost where the same size fault broke the buttons. The closest three are picked by shared words with the
 request, which is crude (a water alert was shown `PhotoGallery`).
+
+**The 17 inline cards with blocks**, the brief now giving each block's size (`inline-cards-blocks/`). Each card
+was expanded afresh with today's notation and defaults and passed with `--blocks`; eight also with block
+pictures. Judged with the plain card and with the same request written with blocks (`examples/showcase/site`),
+34 judgments:
+
+| Version | Mean score | Above the plain card | Above the pass with blocks |
+|---|---|---|---|
+| Plain parts, Cards defaults | 4.65 | | 0 of 34 |
+| The pass with `--blocks` | 7.03 | 34 of 34 | |
+| Written with blocks | 8.97 | 34 of 34 | 34 of 34 |
+
+- **The agent now places real blocks**: `ChatCard`, `FlightOption` and `TotalBar` (flights); `DiffHunk`;
+  six `ChartCard`; `MapPanel` and `PlaceRow`; `ProgressLine` and `PlanStep`; `WeatherHours`, `WeatherDay`,
+  `WeatherGlyph`; `Paragraph`, `Details`, `Callout`, `Receipt` (approval); `Recommendation`; `Media`;
+  `ActionButton` in 9 cards. Four cards took no block (checkout, data table, gallery, itinerary).
+- **Kept by the checks: 17 of 17 with blocks, 6 of 8 with pictures too**, after two faults were fixed that had
+  refused six of them: a block's required parameter set to its default value was dropped when the document was
+  stored and then reported missing (`Props` now keeps a required one; codelessly_api), and a text the block
+  shows in pieces ("07:15" and "09:50" for the card's "07:15 → 09:50") counted as gone (the tool and
+  `changedMeaning` now accept every word of it being carried). The two still refused dropped a text ("H: 24°
+  L: 15°" became two chips; stop details a closed `ItineraryStop` does not show).
+- **Pictures of the closest blocks: no effect shown.** On the eight cards the version with pictures ranked above
+  the one without in 10 of 16 judgments (7.31 against 7.06); on run 10's briefs in 4 of 12. Together 14 to 14.
+- **The pass with blocks is still two points under the cards written with blocks.** What the judges name in the
+  written ones is content the plain card never had: a status pill and subtitle in the header, a drawn picture
+  for each product, a thumbnail strip, a closing bar with the total. That is the composer's side (the third
+  cause in the table at the top of this section), not the pass's.
+- The recorded passes of the first session are not in the table: those cards were expanded by an older notation
+  and carry its faults (values not read, an empty gallery), so beside a fresh expansion they score with the
+  plain card (4.62) for reasons that are not the pass's.
+
+**What `DesignPass` would say of these passes** (`cycles/designpass-meaning-over-block-passes.txt`): of the 37
+block passes recorded (25 inline, 12 of run 10), `changedMeaning` with blocks accepts 30. Without blocks it
+refuses 31, as it should. The seven it refuses with blocks are where a block takes the content in another form
+or takes over the interaction: `DiffHunk` (its lines as a list, its own Keep and Discard), the weather blocks
+(temperatures as numbers), `MapPanel` and `PlaceRow` (the list's binding), `CartLine` (its own quantity
+buttons), `Segments`. The tool's check reads the texts on screen and passes those; `DesignPass` compares
+documents and cannot see that a block draws the same thing. A host that renders can pass them with its own
+`check`; in the SDK they stay refused, which is the safe side.
 
 **In the SDK.** `DesignPass(blocks: [...])` tells the agent of those blocks the same way, and
 `DesignPass.changedMeaning(before, after, blocks: {...})` accepts a node that is gone when new block nodes carry
