@@ -292,7 +292,7 @@ Column gap:8
     expect(lenient.issues, isEmpty);
     expect((_node(lenient, 'filledButton1')['bind'] as Map)['props.tooltip'], r'${today.minutes}');
     expect((_node(lenient, 'filledButton2')['bind'] as Map)['props.tooltip'], r'${n} left');
-    expect(_parse('state n=1\nColumn\n  Select items:["Round {n}","B"]\n').issues.single.message, contains('inside a list is not read'));
+    expect(_parse('state n=1\nColumn\n  Select items:["Round {n}","B"]\n').issues, isEmpty, reason: 'a text in a list reads values');
     final bad = _parse('Column\n  Card drag:"a b"\n  Card drop:1x -> x=1\n');
     expect(bad.issues.map((i) => i.message), [contains('drag is written'), contains('drop is written')]);
   });
@@ -1035,6 +1035,21 @@ Column gap:8
 
     test('the prompt teaches it only when asked to', () {
       expect(notationPrompt(wanted: true), isNot(contains('Wanted "Name"')), reason: 'no design system, no components to want');
+    });
+
+  });
+
+  group('values inside lists, and both marks at once', () {
+    test('a text in a list that reads a value is its parts joined', () {
+      final r = _parse('state n=4\nCard\n  Select =pick items:["Lemons, {2 * n}","\${fixed(n, 2)}","plain"]\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(jsonEncode(r.document), contains(jsonEncode(r'${= [("Lemons, " + (2 * n)), ("$" + (fixed(n, 2))), "plain"]}')));
+    });
+
+    test('key:={expression}', () {
+      final r = _parse('state running=false\nstate done=1\nCard\n  Button "Go" enabled:={!running && done < 6}\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(jsonEncode(r.document), contains(jsonEncode(r'${= !running && done < 6}')));
     });
 
   });
