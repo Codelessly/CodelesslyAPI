@@ -79,6 +79,7 @@ final class NotationOptions {
     this.cta,
     this.palette = const {},
     this.tile,
+    this.sectionRadius,
     this.barChart = const {},
   });
 
@@ -107,6 +108,7 @@ final class NotationOptions {
       cta: base.cta,
       palette: base.palette,
       tile: base.tile,
+      sectionRadius: base.sectionRadius,
       barChart: base.barChart,
       components: {
         for (final c in designSystem.list)
@@ -216,6 +218,7 @@ final class NotationOptions {
               'labelColor': color('secondaryText', ink),
               'gridColor': color('primaryBorder', '#FFE5E7EB'),
             },
+      sectionRadius: radii['card'] != null && radii['panel'] is num ? radii['panel'] as num : null,
       tile: radii['tile'] == null
           ? null
           : {
@@ -282,6 +285,12 @@ final class NotationOptions {
   /// What a `Card` inside a card adds (a row of options, a tile in a grid
   /// of cards): smaller corners, no shadow. Null: the same as [card].
   final Json? tile;
+
+  /// The corner of a `Card` that is one section of a larger UI (a card on a
+  /// page, beside others): a theme's `radii.panel` when it also has
+  /// `radii.card`, which is then the corner of a card that is the whole UI
+  /// (one card in a chat). Null: the same as [card].
+  final num? sectionRadius;
 
   /// What `Badge` is: its `radius`, `height`, `padding` and, when given, the
   /// `style` of its text (else 11, medium, in the tone's ink).
@@ -1149,6 +1158,13 @@ class _Parser {
       final look = inCard ? options.tile ?? options.card : options.card;
       decoration.addAll(_copy(readMap(look['decoration']) ?? const {}));
       layout.addAll(_copy(readMap(look['layout']) ?? const {}));
+      // A card that is one section of a larger UI (not the UI itself, not
+      // in a card) takes the smaller section corner where the theme has one.
+      if (!inCard && parent != null && options.sectionRadius != null) {
+        // In a grid it is a tile among tiles: the tile's corner.
+        final tile = parent.grid == null ? null : readMap(options.tile?['decoration'])?['radius'];
+        decoration['radius'] = tile ?? options.sectionRadius;
+      }
     }
     final id = head[3] ?? _id((written == 'Grid' || written == 'GridView') ? 'grid' : type);
     final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
