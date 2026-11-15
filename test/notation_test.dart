@@ -612,6 +612,39 @@ Card
     expect((_node(r, 'barChart1')['props'] as Map)['color'], '#FF0F766E');
   });
 
+  test('Pages: swiped pages bound to a variable, per element or per line, with a peek and dots', () {
+    final r = _parse('''
+state shoes=[{"name":"Aero"},{"name":"Trail"}]
+Column gap:8
+  Pages =i h:120 peek:0.86
+    each s in shoes
+      Text "{s.name}"
+  Dots =i count:=length(shoes)
+  Pages =j h:90
+    Text "First"
+    Text "Second"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final pages = _node(r, 'pageView1');
+    expect(pages['props'], {'viewportFraction': 0.86, 'scrollDirection': 'horizontal', 'padEnds': false});
+    expect(pages['bind'], {'props.initialPage': r'${i}', 'data': r'${shoes}'});
+    expect(((pages['actions'] as List).single as Map)['actions'], [
+      {'type': 'setVariable', 'variable': 'i', 'value': r'${result.index}'},
+    ]);
+    expect((pages['layout'] as Map)['width'], {'fill': 0});
+    expect((_node(r, 'pageView1Page')['layout'] as Map)['padding'], [0, 0, 8, 0]);
+    // Lines under Pages are its pages: one per position, each shown at its own.
+    final second = _node(r, 'pageView2');
+    expect((second['props'] as Map)['itemCount'], 2);
+    final texts = (_node(r, 'pageView2Page')['children'] as List).cast<String>();
+    expect([for (final t in texts) (_node(r, t)['bind'] as Map)['visible']], [r'${= index == 0}', r'${= index == 1}']);
+    // The dots: one per page, the current one long, a tap goes to its page.
+    final dot = (r.document['nodes']! as Map).values.cast<Map>().firstWhere((n) => (n['bind'] as Map?)?['layout.width'] != null);
+    expect((dot['bind'] as Map)['layout.width'], r'${= index==i?16:6}');
+    expect((((dot['actions'] as List).single as Map)['actions'] as List).single, containsPair('variable', 'i'));
+  });
+
   test('named looks: the same lines name the theme\'s tokens, and resolve to each theme\'s own values', () {
     Json theme(String primary, String border, String text, double title) => {
           'primary': primary, 'surface': '#FFFFFCF7', 'success': '#FF15803D',
