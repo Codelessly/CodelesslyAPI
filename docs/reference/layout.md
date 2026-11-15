@@ -477,7 +477,7 @@ change what must change at a width. Use these, in this order:
 4. **A canvas per breakpoint**, only for screens that are genuinely different designs (below).
 
 Precedence: the node's own values, then its media rules, then an active interaction state's patch, then its
-bindings, then conditions.
+bindings, then conditions; a binding of a field the active state patches yields to the patch (which may bind).
 
 This page uses the four web patterns: a header whose links collapse to a menu icon below desktop, a 3 → 2 → 1 card
 grid from data (`minCrossAxisExtent`), a text-and-photo section that stacks with the photo first on phones (`basis`

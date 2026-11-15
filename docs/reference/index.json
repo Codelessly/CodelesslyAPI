@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 9882
+      "words": 9898
     },
     {
       "topic": "layout-layout-fields",
@@ -65,7 +65,7 @@
       "anchor": "layout-responsive-design",
       "title": "Responsive design",
       "summary": "Responsive layout works as on the web: flexbox and grid lay content out so it fits any width, and media queries change what must change at a width.",
-      "words": 436
+      "words": 442
     },
     {
       "topic": "layout-a-capped-band",
