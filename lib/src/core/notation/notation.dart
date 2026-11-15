@@ -1787,8 +1787,10 @@ class _Parser {
       } catch (_) {}
     }
     if (raw.startsWith('[') || raw.startsWith('{')) {
-      final j = _json(raw);
-      if (j != null) return (true, j);
+      // Not plain JSON: a list holding expressions, read as a formula.
+      try {
+        return (true, jsonDecode(raw));
+      } catch (_) {}
     }
     return (false, null);
   }
