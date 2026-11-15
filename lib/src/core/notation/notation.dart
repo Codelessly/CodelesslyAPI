@@ -632,6 +632,9 @@ class _Parser {
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
+    // As models write it: every 1s while:{running} onTick:{…}, every 1s when running: …
+    final tick = RegExp(r'^every\s+(\d+(?:\.\d+)?(?:ms|s)?)\s+(?:when|while)\s*:?\s*\{?(.+?)\}?\s*(?:->|on[A-Z][A-Za-z]*\s*:|do\s*:|:)\s*\{?(.+?)\}?$').firstMatch(line);
+    if (tick != null && !line.contains('->')) line = 'every ${tick[1]} when ${tick[2]} -> ${_statements(tick[3]!)}';
     final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s)?(?:\s+when\s+(.+?))?\s*->\s*(.+)$').firstMatch(line);
     if (every != null) {
       final ms = (double.parse(every[1]!) * (every[2] == 's' ? 1000 : 1)).round();
@@ -1127,6 +1130,12 @@ class _Parser {
         // them how (tool/values in the SDK, fourteen answers): the name bare,
         // the name or an expression in braces, or the expression as it is.
         // None of them is text, which is written in quotes.
+        if (!raw.startsWith('=') && !raw.startsWith('"') && raw.isNotEmpty && _operatorAhead.matchAsPrefix(t.s, t.at) != null) {
+          // key:count > 0, max:standing + (6 - count): the expression goes on past the space.
+          raw = '=$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
+        } else if (!raw.startsWith('=') && raw.startsWith('(') && !_literal(raw).$1) {
+          raw = '=$raw${t.expression(opened: '('.allMatches(raw).length - ')'.allMatches(raw).length)}';
+        }
         if (_bracedValue.hasMatch(raw)) {
           raw = '=${raw.substring(1, raw.length - 1).trim()}';
         } else if (!raw.startsWith('=') && key != 'drag' && key != 'drop' && _expressionStart.hasMatch(raw) && !_literal(raw).$1) {
@@ -1816,11 +1825,32 @@ class _Parser {
   /// value is `value` to a model and `result` to the engine.
   String _statements(String body) => variables.containsKey('value') ? body : _rename(body, 'value', 'result');
 
+  /// `if (cond) { a = 1; b = 2 }` in a handler, as the assignments it stands
+  /// for: each made only while the condition holds (`a = cond ? 1 : a`).
+  /// Actions that are not assignments are left as they are, unguarded.
+  String _guarded(String text) {
+    final m = RegExp(r'if\s*\((.+?)\)\s*\{([^{}]*)\}').firstMatch(text);
+    if (m == null) return text;
+    final cond = m[1]!.trim();
+    final steps = [
+      for (final step in _split(m[2]!, ';'))
+        if (step.trim().isNotEmpty)
+          switch (RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(_inPlace(step.trim()))) {
+            final RegExpMatch set => '${set[1]} = ($cond) ? (${set[2]}) : ${set[1]}',
+            _ => step.trim(),
+          },
+    ];
+    return _guarded('${text.substring(0, m.start)}${steps.join('; ')}${text.substring(m.end)}');
+  }
+
   /// A change written where the value stands, as the list rebuilt that the
   /// engine needs: `n += 1`, `n++`, a field of the repeated item
   /// (`item.qty = 2` under an each over a list variable) and a field of an
   /// element by its place (`rows[i].qty = 2`).
   String _inPlace(String a) {
+    // tasks.add(x), tasks.push(x), tasks.remove(x): the list with it, the list without it.
+    final call = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\.(add|push|append|remove)\((.+)\)$').firstMatch(a);
+    if (call != null) return '${call[1]} = ${call[2] == 'remove' ? 'without' : 'append'}(${call[1]},${call[3]})';
     var m = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*(\+\+|--)$').firstMatch(a);
     if (m != null) a = '${m[1]} = ${m[1]} ${m[2] == '++' ? '+' : '-'} 1';
     m = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])=\s*(.+)$').firstMatch(a);
@@ -1839,7 +1869,7 @@ class _Parser {
 
   List<Json> _actions(String text, int column) {
     final out = <Json>[];
-    for (final part in _split(text, ';')) {
+    for (final part in _split(_guarded(text), ';')) {
       final a = _inPlace(part.trim());
       if (a.isEmpty) continue;
       if (a.startsWith('{')) {
@@ -1916,6 +1946,7 @@ class _Parser {
     return '$type$n';
   }
 
+  static final _operatorAhead = RegExp(r' +(==|!=|>=|<=|&&|\|\||[<>?+*/]|-(?!>)|and\b|or\b) *[A-Za-z0-9_("!\x27-]');
   static final _bracedValue = RegExp(r'^\{[^{}":,]+\}$');
   static final _expressionStart = RegExp(r'^(![A-Za-z_(]|[A-Za-z_][A-Za-z0-9_.\[\]]*(\(|==|!=|>=|<=|>|<|&&|\|\||\?|\+|\*))');
   static final _variablePath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*|\[[^\]\s]*\])*$');
@@ -1930,10 +1961,52 @@ class _Parser {
     final e = expr.trim();
     // A word that is a value, not a name (enabled:=false): the value.
     if (const {'true', 'false', 'null'}.contains(e)) return _formula(e);
-    return _identifier.hasMatch(e) ? '\${$e}' : _formula(e);
+    // A name is read as it is; anything the formula language spells otherwise (rows.length) is a formula.
+    return _identifier.hasMatch(e) && _natural(e) == e ? '\${$e}' : _formula(e);
   }
 
-  String _formula(String expr) => '\${= $expr}';
+  String _formula(String expr) => '\${= ${_natural(expr)}}';
+
+  static const _methods = {'filter', 'map', 'sum', 'count', 'find', 'any', 'all', 'sortBy', 'trim', 'upper', 'lower', 'contains', 'startsWith', 'join', 'reverse', 'first', 'last', 'slice', 'take', 'unique', 'indexOf'};
+
+  /// An expression as models write one, as the formula language has it:
+  /// `and`, `or`, `not`; a call on a value (`rows.filter(…)`, `n.toFixed(2)`,
+  /// `name.trim()`, `rows.length`) as the function of that name. Text in
+  /// quotes is left as it is.
+  String _natural(String expr) {
+    if (!expr.contains(RegExp(r'\b(and|or|not)\b|\.[a-zA-Z]+\(|\.length\b'))) return expr;
+    final out = StringBuffer();
+    final parts = expr.split(RegExp(r'''(?=["'])|(?<=["'])'''));
+    var quote = '';
+    for (final part in parts) {
+      if (part == '"' || part == "'") {
+        if (quote.isEmpty) {
+          quote = part;
+        } else if (quote == part) {
+          quote = '';
+        }
+        out.write(part);
+        continue;
+      }
+      if (quote.isNotEmpty) {
+        out.write(part);
+        continue;
+      }
+      var code = part
+          .replaceAllMapped(RegExp(r'\band\b'), (_) => '&&')
+          .replaceAllMapped(RegExp(r'\bor\b'), (_) => '||')
+          .replaceAllMapped(RegExp(r'\bnot\s+'), (_) => '!');
+      code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.length\b(?!\()'), (m) => 'length(${m[1]})');
+      code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.toFixed\((\d+)\)'), (m) => 'fixed(${m[1]},${m[2]})');
+      code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.([a-zA-Z]+)\((\)?)'), (m) {
+        if (!_methods.contains(m[2])) return m[0]!;
+        return m[3] == ')' ? '${m[2]}(${m[1]})' : '${m[2]}(${m[1]},';
+      });
+      code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_]*\([^()]*\))\.length\b'), (m) => 'length(${m[1]})');
+      out.write(code);
+    }
+    return out.toString();
+  }
 
   String _and(String? a, String b) {
     if (a == null) return b;
@@ -2098,8 +2171,8 @@ class _Tokens {
     return -1;
   }
 
-  static final _opAhead = RegExp(r' +(&&|\|\||\?|:(?![=A-Za-z])|==|!=|>=|<=|[<>+*/%]|-(?!>))');
-  static final _opBehind = RegExp(r'(&&|\|\||\?|[^A-Za-z0-9_"\])]:|==|!=|>=|<=|[<>+*/%])$');
+  static final _opAhead = RegExp(r' +(&&|\|\||\?|:(?![=A-Za-z])|==|!=|>=|<=|[<>+*/%]|-(?!>)|(?:and|or)(?= ))');
+  static final _opBehind = RegExp(r'(&&|\|\||\?|[^A-Za-z0-9_"\])]:|==|!=|>=|<=|[<>+*/%]|(?:^| )(?:and|or|not))$');
 
   /// Up to the next space (a `key:"quoted value"` stops before its quote).
   String word() {

@@ -682,6 +682,15 @@ Column gap:8
     expect(acts[0], {'type': 'setVariable', 'variable': 'rows', 'value': r'${= setAt(rows,index,with(item,"q",item.q + (1)))}'});
     expect(acts[1], {'type': 'setVariable', 'variable': 'n', 'value': r'${= n + 1}'});
     expect(acts[2]['value'], r'${= setAt(rows,0,with(rows[0],"q",9))}');
+    // Expressions with spaces and no mark, word operators, calls on a value, a guarded step, the timer as models write it.
+    final spoken = _parse('state n = 2\nstate on = false\nstate rows = [{"q":1}]\nstate left = 5\nevery 1s while:{on} onTick:{left = left - 1; if (left == 0) { on = false }}\nColumn\n  Button "Go" enabled:n > 0 and not on onPressed:{rows.add({"q":2}); if (n > 1) { n = 0 }}\n  Text "{rows.length} rows, {rows.filter(r => r.q > 1).length} big"\n');
+    expect(spoken.issues, isEmpty, reason: '${spoken.issues}');
+    expect(_problems(spoken.document), isEmpty);
+    expect((_node(spoken, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= n > 0 && !on}');
+    final go = (((_node(spoken, 'filledButton1')['actions'] as List).single as Map)['actions'] as List).cast<Map>();
+    expect(go[0]['value'], r'${= append(rows,{"q":2})}');
+    expect(go[1]['value'], r'${= (n > 1) ? (0) : n}');
+    expect((_node(spoken, 'text1')['props'] as Map)['text'], r'${= length(rows)} rows, ${= length(filter(rows,r => r.q > 1))} big');
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));
