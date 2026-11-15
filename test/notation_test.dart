@@ -617,12 +617,12 @@ Card
       'sizes': {'progress': 8},
       'spacing': {'cardGap': 12},
     });
-    final r = parseNotation('Card#a\n  Progress#p value:0.4\nCard#b gap:4\n  Text "x"', options: options, catalog: standardCatalog);
+    final r = parseNotation('Column\n  Card#a\n    Progress#p 0.4\n  Card#b gap:4\n    Text "x"', options: options, catalog: standardCatalog);
     expect((_node(r, 'p')['props'] as Map)['borderRadius'], 999);
     expect((_node(r, 'p')['layout'] as Map)['height'], 8);
     expect((_node(r, 'a')['props'] as Map)['spacing'], 12);
     expect((_node(r, 'b')['props'] as Map)['spacing'], 4);
-    final plain = parseNotation('Card#a\n  Progress#p value:0.4', catalog: standardCatalog);
+    final plain = parseNotation('Card#a\n  Progress#p 0.4', catalog: standardCatalog);
     expect((_node(plain, 'p')['props'] as Map)['borderRadius'], 2);
     expect((_node(plain, 'a')['props'] as Map).containsKey('spacing'), isFalse);
   });
