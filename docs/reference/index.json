@@ -169,7 +169,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 2906
+      "words": 2932
     },
     {
       "topic": "theme-theme-keys",
