@@ -527,6 +527,67 @@ props and actions alike; (c) keep the forms and move all tolerance into one norm
 what it rewrote, so the cost of each spelling is measured. The measure is the retry rate on the 17 and the eight
 held-out briefs with the small model (11 of 17 retried with blocks today), not whether a parser test passes.
 
+### 4.11 Standalone runs, second set (2026-11-15), and what they change
+
+Five of six prompts ran (the carousel one started later). Branches on the SDK: `review/showcase-product-design`,
+`codex/cards-inline-trials`, `poll-result-block`, `cards-warm`, `chat-cards`.
+
+**The independent judge** (a product designer's scores of every cell of the head to head, 1 to 5 on "would you
+ship this as is"). Means, A2UI / generic parts / designed blocks:
+
+| Set | Rows | Ship | Blocks beat generic | Blocks at 4 or 5 |
+|---|---|---|---|---|
+| Sonnet, the 17 | 17 | 1.94 / 2.53 / 3.88 | 15 (2 ties) | 13 |
+| Haiku, the 17 | 17 | 1.47 / 2.06 / 2.71 | 11 (4 ties, 2 worse) | 4 |
+| Sonnet, held out | 8 | 2.50 / 2.88 / 3.38 | 4 (4 ties) | 5 |
+
+The judge's findings that matter: with the small model the designed cards often carry a broken value (a raw
+expression shown as a total, `$NaN`, an empty message body, overlapping forecast rows), so polish does not make
+them shippable; some designed cards leave out a step the brief asked for (free slots, the annual saving, the later
+steps of a checkout); a still picture cannot show that a control works. The held-out scores are from before the
+composition brief (§4.8) and the on-demand block (§4.9).
+
+**Five unseen cards written by hand from the blocks** (poll, music player, habit streak, split bill, support
+ticket): all rendered with no errors in 9 to 15 lines each, composed from the general blocks; what was missing
+was a poll results block and a player with album art, the same two the held-out run found. Dark captures show a
+white page under the dark card.
+
+**A block designed by a newcomer** (`PollResult`): done, at the set's bar, in light and dark, as 54 lines of the
+set's own block code. Together with §4.9 that is the same missing block made twice, by an agent with the
+repository and by a model with only a prompt and its renders.
+
+**A restyle by tokens only** (`cards_warm`: cream, terracotta, a serif for titles): the block, kit and art files
+are byte for byte the same as Cards; only the token and brand files changed, and all 22 cards took the look in
+light and dark. This is the separation of layout and look asked for in §4.2, shown on a whole set.
+
+**A chat app from the public API**: first card on screen 11 minutes 39 seconds after first reading the guide,
+cards painting a block at a time, events arriving. Six gaps, all in the guide and one in the SDK: nothing on
+`applyNotation` or `notationInstructions`; the answer's canvas is `screen` while the view defaults to `home`
+(a blank card until found); nothing on giving a session a design system or bundling one; a component that gains
+children while streaming did not repaint until the view was rebuilt (a bug to reproduce and fix); the guide's
+chat example is the older edit-operation path; and the published API package is older than the SDK branch.
+
+**What the retries were** (the first answers that needed a second try, across the blocks recordings, 106
+reported problems): several top-level parts with no root, or an answer restarted halfway; a bare word where a
+parameter was meant (`ActionButton "Cancel" quiet`); a third string on a block that names two; `key=value` for
+`key:=value`. Formula spellings were a small share of what was *reported*. The parser now reads the unambiguous
+ones as meant. But the judge's broken values are formula mistakes that were *not* reported, because they are
+valid and wrong. So the owner's note (§4.10) stands, with a sharper statement of where it bites: not in what
+fails to parse, but in what parses and computes the wrong thing.
+
+**What this changes in the order of work**
+
+1. Correctness of values with the small model comes first: it is what stands between a designed card and a
+   shippable one. The formula redesign of §4.10, and a check the host can run before showing a card (a value
+   that is `NaN`, empty, or still shows `{` or `$`), with one retry.
+2. The showcase uses the larger model for the designed column, and says so; the small model's column is shown as
+   it is.
+3. On-demand blocks: repeat on the player and three more, with the owner judging, then decide whether it is a
+   product path.
+4. The guide's chapter on streaming gets the notation path, and the repaint bug is fixed.
+5. Completeness against the brief: the composition brief should say that a card shows every step the request
+   names, and the showcase should drive each card's main interaction, not show a still.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
