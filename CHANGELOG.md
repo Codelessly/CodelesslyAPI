@@ -10,6 +10,20 @@ Released with codelessly_sdk 31.0.0. Nothing a document written for 30.1.0 uses 
   string are read as the parameter they can only mean. `NotationOptions.fromTheme(named: true)` writes looks as the
   theme's names.
 - **`notationPrompt`** carries a design system's composition brief (its PATTERNS.md "In brief").
+- **More of what models write is read** (each from a recorded answer, each with a test): a handler as a key
+  (`onPressed:{…}`, `tap:"…"`), statements after `->` as in code (`n += 1`, `row.done = !row.done`,
+  `rows.add(x)`, `rows.remove(row)`, `if (c) { a = 1 }`), `let name = expression` for a worked-out value, `for x in
+  list`, `else`, `and`/`or`/`not`, calls on a value (`total.toFixed(2)`, `rows.length`); a condition in braces
+  with spaces and quotes; `key:={…}`; a text inside a list or inside a formula that reads a value
+  (`items:["Lemons, {2 * n}"]`); a list written over several lines; a value in braces that holds its own braces;
+  a property written after the actions; a code fence around the answer; a parameter named like a handler
+  (`change:1.84`); `formatTime(seconds)` as `duration`. An action that sets a worked-out value is dropped (the
+  value follows the state by itself) instead of corrupting the line.
+- **`Wanted "Name" "what it shows"`**: a part no component fits, built from plain types under the line and shown
+  as written; the request is in `NotationResult.wanted` and `NotationStream.wanted` (`WantedBlock`).
+  `notationPrompt(wanted: true)` teaches it; `notationPrompt(natural: true)` is a variant that teaches values and
+  actions in the forms above (not the default: it did not measure better).
+- `duration(seconds)` and `concat(a, b)` are in the notation's list of functions.
 - **`edgeFade`** on scrolling containers and page views.
 - **Validation**: a project component replaces its design system's of the same type (it was reported as a
   duplicate).
