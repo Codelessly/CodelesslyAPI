@@ -461,4 +461,7 @@ releases.
    change.
 3. *The Editor.* Its port to schema 3 (stage D) starts now, on its branch.
 4. *The library's backend (E).* The Firebase project is `codelessly-editor`.
-
+5. *Version 31 (C).* Published by the owner on 2026-11-15: `codelessly_api` 31.0.0 and `codelessly_sdk` 31.0.0
+   are on pub.dev (the SDK package without `examples/` and `benchmark/`: 6 MB, no warnings), and an example
+   resolves both with no override. Open in C: CodelesslySite's merge, held until its three tests that read and
+   type into text fields pass on 31 (a field is a render object now; an agent is on it).
