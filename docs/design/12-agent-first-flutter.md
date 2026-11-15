@@ -414,3 +414,38 @@ Out of scope by the owner's decision: removing the Flutter widgets still in use.
 Decided by the owner (2026-11-15): the trim is done now and ships as version 31; the target for (1) is 9 of 10
 values right with the small model; accepted on-demand blocks go into a library that keeps growing and will be
 hosted by Codelessly (the business), stored through the Editor's own methods.
+
+## 13. The plan to completion (2026-11-15)
+
+What "complete" means here: the goal's own items, less the one the owner took out (removing the Flutter widgets
+still in use), plus the six tracks of §12.
+
+**Already done** (each with its evidence in §11, §12 or design 15): the levels; the compact notation with SSUI
+defaults; the head-to-head against A2UI on 17 briefs and 8 held out; SSUI as a design-system template with
+three more systems made from it; the three end targets (Sudoku, drag-and-drop builder, an app screen from a
+sentence); the layer order and the public API trim, as version 31; the Editor's submodules moved to 31.
+
+**Remaining, in order, each with the test that closes it:**
+
+| Stage | Work | Closed when |
+|---|---|---|
+| A. On-demand blocks, finished | The live example in master; a layout gate a host can run (a designed block is laid out at 320 and 420 and refused if it overflows: run 9 had two of three accepted blocks overflow in a real view); accepted blocks written into the design system's folder so the next session has them; the blocks of runs 8 and 9 that pass the present gate merged, by hand, without their copied folders | The example designs, checks, stores and swaps a block with no hand step, and a second session calls the stored block |
+| B. Values with the fast model | Make the check drive cards built from plain parts (half of run 9's misses were the check); one more round of readings from the classified misses; then measure both models once more on the same answers | A number that means values. Then the owner's call below |
+| C. Version 31 out | The README's opening (the draft, with the owner's three choices); a release web build and whatever devices are at hand; publish both packages; merge CodelesslySite | Both packages on pub.dev at 31 and the example app resolving without an override |
+| D. The Editor compiles | Port the Editor's code to schema 3 (53 analyzer errors from members schema 3 removed; 113 of 262 root tests do not compile), on its branch only | `dart analyze` with no errors, the root tests at or above their count before the breakage, the app running on desktop and web |
+| E. The block library in the Editor | In the order of §12 track 6: the Library page read-only over the repository's files; storage on the managed-component methods; the review queue; the design service; the SDK's hosted loader | A block designed on demand in a session appears in the Editor's queue, is approved there, and is called by a later session that loaded the hosted design system |
+
+**What the evidence says about B, before more work goes into it.** On the audited cases Sonnet is right on 21
+of 25 and Haiku on 10 to 14, whichever prompt it is given (three recordings with the natural prompt, two with
+today's, and an outside run that found the same). The readings added today remove parse failures; they have not
+moved Haiku's score, because most of its misses are wrong values, not unread notation. The target of 9 in 10
+with Haiku is not in reach by grammar alone. The options: (1) Sonnet composes cards that hold state and Haiku
+those that only show data, chosen by whether the request needs state; (2) Haiku composes and the values check
+runs on its answer, with one repair turn when it fails; (3) keep the target and keep working the grammar.
+
+**Decisions that are the owner's**: which of the three for B; the README's three choices (which story leads,
+naming A2UI, the picture); the go-ahead to publish 31 and to merge CodelesslySite; whether D starts now; for E,
+the Firebase project and function the service runs in and who approves blocks.
+
+**Not in this plan**: removing the Flutter widgets still in use (owner, 2026-11-14); device farms and store
+releases.
