@@ -325,7 +325,54 @@ Measured on two briefs with Haiku and SSUI's full list (2026-11-14): both read w
 validation error on the first turn; the approval card used `Dialog` and `Banner`, the dashboard `StatTile` and
 `SegmentedControl`, at 21 to 24 output tokens a node.
 
-## 13. Open points
+## 13. The words a model reaches for (2026-11-15)
+
+The notation's names were chosen from what models write. That was checked again above level 2: sixteen requests
+needing a gauge, a dial, a ring, a sparkline or motion were given to Sonnet with no vocabulary at all, then with
+the notation prompt (CodelesslySDK `examples/showcase/natural-words/`).
+
+| Asked for | Written with no vocabulary | Written with the notation as it stood | Now |
+|---|---|---|---|
+| A speedometer, a load, a score | `gauge … needle value:72`, `arc from:0 to:100`, `marker at:100` | Boxes in a row, or the bare number | `Gauge 72 min:0 max:180 limit:100 unit:"km/h"` (a clean arc, the figure inside; `Dial` is the same) |
+| A round share | `Ring value:7240 max:10000` | `CircularProgressIndicator` in a `Stack center middle` (rejected: a Stack took no such words) | `Ring 0.72`, and a `Stack` centers with `center middle` |
+| A small trend line | `Sparkline data:[…]` | `LineChart` at full height with axes | `Sparkline values:[…]` |
+| Fade, slide, pulse, shimmer | `animate:…`, `Animation type:fade-up trigger:on-appear duration:0.3s delay:0.2s` | Left out, or a timer changing a number | `animate:fade` (slide-up, slide-left, scale, pop, bounce, shake, pulse, spin, shimmer) with `duration:`, `delay:` |
+| Rows arriving one after another | `delay` rising per row | Left out | `stagger:80` on the row or on its `each` |
+| Swipe to delete | `swipe:left`, `onSwipe` | A guessed `{"interaction": …}` JSON, rejected at render | `swipe:left -> …` (also `onSwipeLeft`, `longPress`, `doubleTap` handlers) |
+| A slider in steps | `step:1` | `step:1`, rejected at render | `step:` is the slider's `divisions` |
+| A timer | `every 1s when running` with `->` on the next line | The same, rejected | Accepted |
+
+Each is one more line of the parser onto a part the catalog already had (`radialGauge`, the animation presets,
+the swipe triggers), and one line in the prompt (7,800 to 8,700 characters). With it, 16 of 16 answers expand
+and use the words where the request calls for them. Judged blind against the old answers: above in 20 of 32
+(6.47 against 5.81); the first look of `Gauge` (the catalog's segmented default with a needle) was worse than
+the number the model used to draw by hand, and was changed to an arc with the figure inside before that
+judging. 52 existing notation files expand byte-identically.
+
+Not covered yet, in the order the model asked for them: a number that counts up; a card that flips; a list
+reordered by drag; a sparkline bound to state. Not checked: that the animations play as written (the render is
+a still), and levels 4 and 5 beyond these parts (custom paint, scripts, several pages, publishing), where the
+notation hands over to `ui_apply`.
+
+**Seven more areas, the same way** (forms, charts and tables, navigation, lists and gestures, media, full phone
+pages, full desktop pages; ten requests each; `natural-words/areas/`). The forms the model wrote that the
+notation or the renderer rejected were each given a reading: `center` across and `middle` down on every
+container (a `Column center` was read as its middle, 105 lines in the recorded answers); a page of several
+top-level sections; `Avatar`; `password` and `multiline` on an `Input`; `LineChart` with `series` and `labels`,
+`AreaChart`, `Donut`; guessed props in a JSON tail read as the key they are, or named at their line; a `Stack`
+placed with left, right, top, bottom; a `Text` aligned or struck through; an `IconButton`'s color and size;
+`gradient:`; single quotes holding spaces; a row's fixed widths as shares when they do not fit; `maxw:`. Over
+the 70 requests the notation's issues went from 15 to 9 and the renderer's errors from 51 to 18.
+
+One of these changes how existing notation expands, with or without a design system: `Column center` now centers
+the column's children side to side, where it gathered them at the column's middle. It is what every one of the
+105 recorded uses meant (an icon over its label, a centered figure), and the prompt's line was rewritten to say
+it. `Column middle` gathers them at the middle.
+
+Still asked for and not read: links and hover; a dialog, sheet or drawer as an element; a table as an element;
+chart legends and axes; a chart bound to state; reorder with a handle; pull to refresh; a map; shapes.
+
+## 14. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
   without a card would then have no `Card`). Proposed: from the design system, with SSUI's as the built-in.

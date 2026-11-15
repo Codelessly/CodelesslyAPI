@@ -918,6 +918,7 @@ final class DropTarget extends _Value {
     this.slot = DropSlot.gap,
     this.slotNodeId = '',
     this.slotSize = DropSlotSize.dragged,
+    this.slotWhenRefused = false,
     this.enabled = true,
   });
 
@@ -935,6 +936,12 @@ final class DropTarget extends _Value {
   final String slotNodeId;
   final DropSlotSize slotSize;
 
+  /// Whether the list opens its slot for a drag [acceptIf] refuses too, as
+  /// Flutter's `DragTarget` hands its builder the rejected candidates: a
+  /// board shows where a card would land in a full column, styled as
+  /// blocked (`${drag.accepted}` is false). Off: only accepted drags open it.
+  final bool slotWhenRefused;
+
   final bool enabled;
 
   static DropTarget? fromJson(Object? json) {
@@ -949,6 +956,7 @@ final class DropTarget extends _Value {
       slot: r.e(DropSlot.values, 'slot', DropSlot.gap),
       slotNodeId: r.s('slotNodeId'),
       slotSize: r.e(DropSlotSize.values, 'slotSize', DropSlotSize.dragged),
+      slotWhenRefused: r.b('slotWhenRefused', false),
       enabled: _loose(m['enabled']) ?? true,
     );
   }
@@ -960,11 +968,12 @@ final class DropTarget extends _Value {
     ..e('slot', slot, DropSlot.gap)
     ..s('slotNodeId', slotNodeId)
     ..e('slotSize', slotSize, DropSlotSize.dragged)
+    ..b('slotWhenRefused', slotWhenRefused, false)
     ..b('enabled', enabled, true);
 
   @override
   List<Object?> get props => [
-    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, enabled, //
+    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, slotWhenRefused, enabled, //
   ];
 }
 

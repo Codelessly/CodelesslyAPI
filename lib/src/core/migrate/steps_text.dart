@@ -285,3 +285,27 @@ void _stripPatch(Json patch, String? type, String at, MigrationScope s) {
     }
   }, at: at);
 }
+
+/// A text's Markdown look, which the schema-2 conversion of the oldest
+/// projects kept under the node's `v1` key (it had no field for it), is the
+/// text's `props.markdown` (`TextProps.markdown`): the text shows as
+/// Markdown again. An empty `v1` is dropped.
+final textMarkdownStep = MigrationStep(
+  id: 'text.markdown',
+  description: 'a text\'s v1.markdown → props.markdown (TextProps.markdown)',
+  node: (node, s) {
+    if (!_isText(node)) return;
+    final kept = readMap(node['v1']);
+    final markdown = readMap(kept?['markdown']);
+    if (kept == null || markdown == null) return;
+    final props = readMap(node['props']) ?? <String, Object?>{};
+    final rest = {...kept}..remove('markdown');
+    if (!props.containsKey('markdown')) node['props'] = {...props, 'markdown': markdown};
+    if (rest.isEmpty) {
+      node.remove('v1');
+    } else {
+      node['v1'] = rest;
+    }
+    s.rewrite('/v1/markdown', markdown, markdown, 'A text\'s Markdown look kept under v1 is its props.markdown.');
+  },
+);

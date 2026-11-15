@@ -114,9 +114,12 @@ abstract final class CollectionScrollProps {
   /// Comes to rest with an item at the start of the view.
   static const itemSnapping = ScrollProps.itemSnapping;
 
+  /// Scrolls while a drag and drop is held near its edges.
+  static const dragEdgeScroll = ScrollProps.dragEdgeScroll;
+
   static const List<PropDef<Object?>> all = [
     scrollDirection, reverse, physics, alwaysScroll, primary, keyboardDismissBehavior, clipBehavior, //
-    itemCount, cacheExtent, query, itemSnapping,
+    itemCount, cacheExtent, query, itemSnapping, dragEdgeScroll,
   ];
 }
 
