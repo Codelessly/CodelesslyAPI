@@ -1441,6 +1441,19 @@ final class _Validator {
     }
     final animations = readList(raw['animations']) ?? const [];
     for (var i = 0; i < animations.length; i++) {
+      // An animation's own fields are values, not templates: `"enabled":
+      // "${= open}"` is read as the text, so the animation never follows
+      // `open`. Its binding path is animations.<id>.<field>.
+      if (readMap(animations[i]) case final Json a) {
+        final id = readString(a['id']) ?? '$i';
+        for (final e in a.entries) {
+          if (e.value is String && (e.value as String).contains(r'${') && e.key != 'id' && e.key != 'name') {
+            r.add(Codes.looseValue, '${pointer(pointer(at, 'animations'), '$i')}/${e.key}',
+                'An animation\'s ${e.key} is a value: the expression is read as text, not computed. Bind it instead: '
+                '"bind": {"animations.$id.${e.key}": "${e.value}"}.');
+          }
+        }
+      }
       final tracks = readList(readMap(animations[i])?['tracks']) ?? const [];
       for (var j = 0; j < tracks.length; j++) {
         check(readMap(tracks[j])?['path'], '${pointer(pointer(at, 'animations'), '$i')}/tracks/$j/path');
