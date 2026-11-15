@@ -23,7 +23,7 @@ import '../core/media.dart';
 import '../core/breakpoints.dart';
 import '../core/catalog.dart';
 import '../core/catalog_json.dart' show widgetSpecFromJson;
-import '../core/custom_paint.dart' show Expr;
+import '../core/custom_paint.dart' show DrawOp, Expr;
 import '../core/document.dart';
 import '../core/migrate/legacy_paths.dart' show movedPathHint, specialCaseProps;
 import '../core/scripts.dart';
@@ -1781,16 +1781,29 @@ final class _Validator {
   // --- expressions ------------------------------------------------------------
 
   /// Checks the expressions in every string of [json].
-  void _strings(Object? json, String at) {
+  ///
+  /// [locals] are names in scope there besides the variables and runtime
+  /// scopes: inside a custom paint `repeat` op's `ops`, the names it binds
+  /// for each round (`as`, default `item`; `indexAs`, default `index`; and
+  /// `count`), as the SDK's painter does.
+  void _strings(Object? json, String at, {Set<String> locals = const {}}) {
     if (json is String) {
-      if (json.contains(r'${')) _expression(json, at);
+      if (json.contains(r'${')) _expression(json, at, locals: locals);
     } else if (json is List) {
       for (var i = 0; i < json.length; i++) {
-        _strings(json[i], pointer(at, i));
+        _strings(json[i], pointer(at, i), locals: locals);
       }
     } else if (json is Map) {
+      final inner = DrawOp.opName(json['op']) == 'repeat'
+          ? {
+              ...locals,
+              json['as'] is String ? json['as'] as String : 'item',
+              json['indexAs'] is String ? json['indexAs'] as String : 'index',
+              'count',
+            }
+          : locals;
       for (final e in json.entries) {
-        _strings(e.value, pointer(at, '${e.key}'));
+        _strings(e.value, pointer(at, '${e.key}'), locals: e.key == 'ops' ? inner : locals);
       }
     }
   }

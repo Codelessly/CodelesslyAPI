@@ -202,3 +202,38 @@ final clockTriggerStep = MigrationStep(
     s.rewrite(at, old, m);
   }),
 );
+
+/// What a text field's reactions read about its text and cursor: schema 2
+/// gave them `${result}` as a map (`result.value`, `result.word`,
+/// `result.cursor`, `result.selectionStart`, `result.selectionEnd`); schema
+/// 3's `${result}` is the text, and those are `${field.value}`,
+/// `${field.word}`... Rewritten in a text field's reactions other than its
+/// key ones, whose `${result}` is the key.
+final fieldResultStep = MigrationStep(
+  id: 'trigger.fieldResult',
+  description: 'a text field\'s result.value / word / cursor / selectionStart / selectionEnd → field.*',
+  node: (node, s) {
+    if (node['type'] != 'textField') return;
+    final reactions = readList(node['actions']);
+    if (reactions == null) return;
+    for (var i = 0; i < reactions.length; i++) {
+      final r = readMap(reactions[i]);
+      final type = readMap(r?['trigger'])?['type'];
+      if (r == null || type == 'keyDown' || type == 'keyUp') continue;
+      final out = _fieldResults(r);
+      if (jsonEquality.equals(out, r)) continue;
+      reactions[i] = out;
+      s.rewrite('/actions/$i', r, out);
+    }
+    node['actions'] = reactions;
+  },
+);
+
+final RegExp _fieldResult = RegExp(r'\bresult\.(value|word|cursor|selectionStart|selectionEnd)\b');
+
+Object? _fieldResults(Object? json) => switch (json) {
+      final String t => t.replaceAllMapped(_fieldResult, (m) => 'field.${m[1]}'),
+      final List<Object?> l => [for (final x in l) _fieldResults(x)],
+      final Map<String, Object?> m => {for (final e in m.entries) e.key: _fieldResults(e.value)},
+      _ => json,
+    };
