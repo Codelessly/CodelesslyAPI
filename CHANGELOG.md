@@ -19,6 +19,11 @@ is in how the compact notation reads `Column center`.
 - **Notation, parts and props**: `Avatar`; `Input … password` / `multiline`; a slider's `step:`;
   `Text … center` / `strike`; an `IconButton`'s `color:` and `size:`; `gradient:[…]`; an `every` with its
   actions on the next line.
+- **`TextProps.markdown`**: a text shown as Markdown (bold, italic, code, links, @mentions, lists) with the
+  markers taken out. Same keys as `TextFieldProps.markdown`.
+- **Two schema 2 → 3 migration steps** for projects made before the v2 SDK: `text.markdown` moves a text's
+  Markdown look to `props.markdown`; `trigger.fieldResult` rewrites a text field reaction's `result.value`,
+  `result.word`, `result.cursor`, `result.selectionStart` and `result.selectionEnd` to `field.*`.
 - **Theme names the notation uses when present**: `sizes.wide` with a `titleWide` text style (wide page titles
   from `NotationOptions.fromTheme(width:)`), `sizes.ring`, text styles `gaugeValue` and `gaugeUnit`,
   `colors.pageFill`. A theme without them is unchanged.
