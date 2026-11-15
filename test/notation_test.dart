@@ -639,6 +639,10 @@ Column gap:8
     expect((second['props'] as Map)['itemCount'], 2);
     final texts = (_node(r, 'pageView2Page')['children'] as List).cast<String>();
     expect([for (final t in texts) (_node(r, t)['bind'] as Map)['visible']], [r'${= index == 0}', r'${= index == 1}']);
+    // A list holding expressions is a formula, not broken JSON.
+    final sums = _parse('state a=1\nColumn\n  BarChart values:[a+1,a*2,3]\n');
+    expect(sums.issues, isEmpty);
+    expect((_node(sums, 'barChart1')['bind'] as Map)['props.values'], r'\${= [a+1,a*2,3]}');
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));
