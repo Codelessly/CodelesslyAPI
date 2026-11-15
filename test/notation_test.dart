@@ -1065,6 +1065,15 @@ Column gap:8
       expect(jsonEncode(r.document), contains('after'));
     });
 
+    test('a value brace holds its own braces and quotes', () {
+      final r = _parse('state pick="b"\nlet sel = find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)\nCard\n  Text "Costs {sel.price}"\n  Select =x items:=[["Total","{money(sel.price,"\$",2)}"]]\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      final doc = jsonEncode(r.document);
+      expect(doc, contains(jsonEncode(r'Costs ${= (find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)).price}')));
+      final inner = jsonEncode(r'("" + (money((find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)).price,"$",2)))');
+      expect(doc, contains(inner.substring(1, inner.length - 1)));
+    });
+
     test('key:={expression}', () {
       final r = _parse('state running=false\nstate done=1\nCard\n  Button "Go" enabled:={!running && done < 6}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
