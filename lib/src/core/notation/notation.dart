@@ -1505,10 +1505,10 @@ class _Parser {
             bind['props.style.${_textStyleKeys[key]!}'] = key == 'color' ? _namedIn(read, 'text') : read;
             continue;
           }
-          // Under a theme's looks a text sized or weighted on its line starts
-          // from the body style, so it keeps the theme's ink and font (the
-          // bundled looks leave it as written).
-          final body = identical(options.textStyles, defaultTextVariants) ? null : options.textStyles['body'];
+          // A text sized or weighted on its line starts from the body style,
+          // so it keeps the ink and font (with none it would have no color
+          // and show nothing).
+          final body = options.textStyles['body'];
           final style = switch (props['style']) {
             final Map m => m.cast<String, Object?>(),
             _ => body is Map ? _copy(body.cast<String, Object?>()) : body is String ? <String, Object?>{'from': body} : <String, Object?>{},
