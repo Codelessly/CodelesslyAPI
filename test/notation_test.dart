@@ -719,6 +719,33 @@ Card gap:12
         reason: 'a sized text keeps the body ink: with no color it shows nothing');
   });
 
+
+  test('a theme may give the title a larger style on a wide page', () {
+    final theme = {
+      'colors': {'primaryText': '#FF111827'},
+      'textStyles': {
+        'body': {'fontSize': 13, 'color': 'primaryText'},
+        'title': {'fontSize': 20, 'fontWeight': 700},
+        'pageTitle': {'fontSize': 20, 'fontWeight': 600},
+        'titleWide': {'fontSize': 28, 'fontWeight': 700},
+      },
+      'sizes': {'wide': 900},
+    };
+    const text = 'Column\n  Text.title "Inventory"\n  Text.pageTitle "Contacts"\n  Text.heading "Stock"';
+    Object? style(NotationResult r, String id) => (_node(r, id)['props'] as Map)['style'];
+    // At a phone's width the title is the title; from the theme's wide size up it is the wide title.
+    final narrow = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
+    expect(style(narrow, 'text1'), {'from': 'title', 'color': 'primaryText'});
+    expect(style(narrow, 'text2'), {'from': 'pageTitle', 'color': 'primaryText'});
+    final wide = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true, width: 1280));
+    expect(wide.issues, isEmpty);
+    expect(style(wide, 'text1'), {'from': 'titleWide', 'color': 'primaryText'});
+    expect(style(wide, 'text2'), {'from': 'titleWide', 'color': 'primaryText'});
+    expect(style(wide, 'text3'), style(narrow, 'text3'));
+    // A theme without the two names (SSUI) is unchanged at any width.
+    final plain = {...theme, 'sizes': <String, Object>{}};
+    expect(style(parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(plain, named: true, width: 1280)), 'text1'), {'from': 'title', 'color': 'primaryText'});
+  });
   test('Pages: swiped pages bound to a variable, per element or per line, with a peek and dots', () {
     final r = _parse('''
 state shoes=[{"name":"Aero"},{"name":"Trail"}]
