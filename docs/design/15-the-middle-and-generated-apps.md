@@ -674,6 +674,41 @@ content, which no reading of the notation can repair: one poll does not add the 
 says Paused after play; one asked for sunset art and got a record; one added a progress line with a function
 that does not exist. Two players came without a card frame.
 
+### 4.13 What the small model writes when nothing tells it how (2026-11-15)
+
+The elicitation of design 12 §12 (SDK `tool/values/elicit.py`, answers in `2026-11-15-elicit-haiku`): fourteen
+briefs that need state, the notation's instructions with every rule and example about state, bindings, formulas,
+actions, conditions and repetition taken out (the blocks' descriptions too, which quoted them), and one sentence
+asking for those parts as reads most naturally. How many of the fourteen answers used each spelling:
+
+| | Spelling | Answers |
+|---|---|---|
+| A value from state | `key:name`, bare | 13 |
+| | `"…{expr}…"` inside a text | 11 |
+| | `key:expression`, no mark (`enabled:choice!=null`, `hidden:!voted`) | 5 |
+| | `key:{name}` | 4 |
+| | `=name`, `key:=expr` (today's forms) | 1, 0 |
+| State | declared at all | 2 (twelve simply use a name) |
+| A change | `x = value`, `x = !x` | 9 |
+| | in place (`n += 1`, `votes[i] += 1`) | 2 |
+| Shown only sometimes | `cond ? a : b` inside a value | 6 |
+| | a key (`hidden:`, `visible:`) | 4 |
+| | an `if` line | 1 |
+| Repeated | `each x in list` | 3 |
+
+The owner's reading is right and the form of the answer is plain: to the model a value is a value. It writes
+the name, or the expression, where the value goes, and reserves quotes for text; it does not declare state; it
+changes state by assigning. Today's notation asks it to choose between `:`, `:=` and `=name` by a rule about
+what kind of thing follows, which is the distinction it does not make. What it wrote for a tap had no pattern
+(the stripped instructions showed an event as `onPressed(event)`, which steered it), so that part is not
+evidence.
+
+Taken up at once, as readings the parser now makes: a bare name that is a declared variable; `key:{name}`;
+`key:expression` with no mark. Not yet: state that is never declared (a name used and never introduced), which
+with a streamed answer means a name may be met before the line that gives it a value; `{expr}` inside the
+strings of a list; changes in place. These are the design work of track 1, to be settled against the values
+check (SDK `tool/values/check.py`: 7 of 10 with the small model before these readings, target 9).
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).

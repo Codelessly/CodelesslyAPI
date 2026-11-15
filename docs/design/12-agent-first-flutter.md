@@ -376,5 +376,6 @@ Out of scope by the owner's decision: removing the Flutter widgets still in use.
 5. **The public API trim**, after the Editor's audit so nothing it needs goes: what only tests and internals use
    moves to a second library.
 
-Open with the owner: the version the trim ships in; the target for (1) (proposed: 9 of 10 values right with the
-small model); where accepted on-demand blocks are stored.
+Decided by the owner (2026-11-15): the trim is done now and ships as version 31; the target for (1) is 9 of 10
+values right with the small model; accepted on-demand blocks go into a library that keeps growing and will be
+hosted by Codelessly (the business), stored through the Editor's own methods.
