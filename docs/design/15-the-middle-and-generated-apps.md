@@ -657,6 +657,23 @@ designed in minutes from a brief and its own renders, and the fast path then use
 that the small model's cards are right; that a first request is served well while its block is made; that the
 loop runs inside a product. The larger model with on-demand blocks is the configuration that works today.
 
+**The same ten requests again, small model, after the changes** (SDK `2026-11-15-ondemand-haiku-2`, driven cards
+in `examples/showcase/on-demand/haiku-after/`; one run, judged by the author from the pictures, where the first
+count was an outside agent's, so the two are not the same measurement):
+
+| | Outside run | After |
+|---|---|---|
+| Used the new block | 10 of 10 | 9 of 10 (one poll built its own results) |
+| Retried | 3 | 2 |
+| Render errors | 4 | 2 (one card) |
+| Polls right after a vote (counts, shares, total, the voter's mark) | 0 of 5 | 4 of 5 |
+| Players right after play | 1 of 5 | 2 of 5 |
+
+The polls moved because the voter's choice is now the variable. What is still wrong is the card's own logic or
+content, which no reading of the notation can repair: one poll does not add the vote; one player's header still
+says Paused after play; one asked for sunset art and got a record; one added a progress line with a function
+that does not exist. Two players came without a card frame.
+
 ## 5. Order
 
 1. Part A rungs 3 and 4, the capability index and `ui_reference`, measured on the four briefs (§2.4).
