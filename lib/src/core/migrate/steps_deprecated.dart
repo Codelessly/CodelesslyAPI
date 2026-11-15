@@ -190,11 +190,13 @@ final transitionArcStep = MigrationStep(
   },
 );
 
-/// A drop target's `fullIf` (and the `dropFull` reactions it fired),
-/// `slotWhenRefused`, `hoverDelay` (and the `dragHover` reactions it timed).
+/// A drop target's `fullIf` (and the `dropFull` reactions it fired) and
+/// `hoverDelay` (and the `dragHover` reactions it timed); `slotWhenRefused`
+/// defaulted to true in schema 2 and to false in schema 3, so a target
+/// that relied on it gets it written out.
 final dropTargetOneAppStep = MigrationStep(
   id: 'dropTarget.oneApp',
-  description: 'drop target fullIf, slotWhenRefused, hoverDelay dropped',
+  description: 'drop target fullIf, hoverDelay dropped; slotWhenRefused written where schema 2 defaulted it on',
   node: (n, s) {
     final d = readMap(n['dropTarget']);
     final hovered = (readDouble(d?['hoverDelay']) ?? 0) > 0;
@@ -202,10 +204,17 @@ final dropTargetOneAppStep = MigrationStep(
       final acceptIf = readString(d['acceptIf'])?.trim() ?? '';
       final refusedSlot = !d.containsKey('slotWhenRefused') || readBool(d['slotWhenRefused']) != false;
       final hasSlot = (readString(d['listNodeId'])?.trim().isNotEmpty ?? false) && d['slot'] != 'none';
-      if (d.containsKey('slotWhenRefused')) s.rewrite('/dropTarget/slotWhenRefused', d.remove('slotWhenRefused'), null);
+      // Schema 3's default is off: keep schema 2's open slot for a refused
+      // drag where it could open one (a list and a condition that refuses).
+      final before = d['slotWhenRefused'];
       if (refusedSlot && acceptIf.isNotEmpty && hasSlot) {
-        s.behaviorChange('A drag acceptIf refuses no longer opens a slot in the list (the slot opens for accepted drags only).',
-            path: '/dropTarget/acceptIf', instead: 'Used by: mixtape (set it); any drop target with acceptIf and a list slot.');
+        d['slotWhenRefused'] = true;
+        if (before != true) {
+          s.rewrite('/dropTarget/slotWhenRefused', before, true,
+              'Schema 2 opened the list\'s slot for a refused drag by default; schema 3 does when slotWhenRefused says so.');
+        }
+      } else if (d.containsKey('slotWhenRefused')) {
+        s.rewrite('/dropTarget/slotWhenRefused', d.remove('slotWhenRefused'), null);
       }
       n['dropTarget'] = d;
     }
@@ -232,7 +241,10 @@ final dropTargetOneAppStep = MigrationStep(
               : 'React to dragEnter (with a timer reaction for a delay).');
       if (type == 'dropFull' || hovered) {
         s.behaviorChange('A `$type` reaction no longer fires.', path: '/actions/$i',
-            instead: type == 'dropFull' ? 'Used by: seedbox.' : 'No reference app (sprint_kanban set hoverDelayMs, which was never read).');
+            instead: type == 'dropFull'
+                ? 'Used by: seedbox.'
+                : 'Used by: sprint_kanban (a column tab switched to its column after 550 ms; dragEnter, a delay and '
+                    'a check that the drag is still over the tab do it).');
       }
     }
     if (actions.isEmpty) {

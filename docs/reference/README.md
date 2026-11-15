@@ -26,7 +26,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [lists.md](lists.md) | Feature page. | 7904 | 13979 |
 | [navigation.md](navigation.md) | Feature page. | 4269 | 7569 |
 | [state.md](state.md) | Feature page. | 6662 | 11912 |
-| [interaction.md](interaction.md) | Feature page. | 5286 | 8738 |
+| [interaction.md](interaction.md) | Feature page. | 5318 | 8782 |
 | [animation.md](animation.md) | Feature page. | 4769 | 7797 |
 | [components.md](components.md) | Feature page. | 3768 | 7607 |
 | [charts.md](charts.md) | Feature page. | 7160 | 10614 |
@@ -39,10 +39,10 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [edit-ops.md](edit-ops.md) | Feature page. | 3581 | 5854 |
 | [render.md](render.md) | Feature page. | 3081 | 4771 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13358 | 20914 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 107222 | 186905 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 74474 | 194666 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 107254 | 186948 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 74510 | 194746 |
 | [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10247 | 28507 |
-| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25208 | 105900 |
+| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25213 | 105917 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1267 | 3814 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |
 | [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2569 | 10937 |

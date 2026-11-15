@@ -3746,6 +3746,9 @@
         "slotSize": {
           "$ref": "#/$defs/enum.DropSlotSize"
         },
+        "slotWhenRefused": {
+          "type": "boolean"
+        },
         "enabled": {
           "type": "boolean"
         }
