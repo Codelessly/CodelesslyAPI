@@ -383,6 +383,30 @@ what it said and did: each text and value as a block's prop, each data binding a
 reaction's actions under a block's event. A block that drops a label, an action or a bound value is refused and
 named. A container that is removed with actions or data bindings of its own is now also refused.
 
+**Cycles of 2026-11-15, third session** (judged by `judge.py` with the API, versions shown together; records in
+`cycles/judge-gauge-ring-defaults.json`, `judge-prompt-draws.json`, `judge-page-fill.json`).
+
+A new part needs the same cycle before it is offered. `Gauge`, `Dial` and `Ring` were added to the notation
+(design 13 section 13) with the catalog's own look, and the owner judged the cards that used them worse than
+the cards the model had drawn by hand without them: the gauge was segmented with a needle, 240 wide at the left
+of its card, its figure smaller than the hero number the model used to write. The pass was run on four such
+cards and what it changed on the new parts was folded back:
+
+| What the pass did to the new part | Now the default |
+|---|---|
+| The gauge as wide as its card, its arc centered | `Gauge` fills its parent's width |
+| Its figure in `numberHero` at 44 to 52, its unit in `meta` | Theme text styles `gaugeValue` (46, heavy) and `gaugeUnit`; without them a heavy 44 |
+| The ring's stroke 10 to 12 on a quiet track, in the accent | Theme `sizes.ring` (11), the track color, round caps |
+
+Judged on those four cards (8 judgments): the new defaults above the first ones in 7 of 8 (5.56 against 4.88);
+the pass above both in 8 of 8 (8.0). The gap that is left is what the pass adds around the part (a tile panel,
+an icon tile in the header, a pill for the limit), not the part.
+
+| Change | Tried on | Result | Verdict |
+|---|---|---|---|
+| A neutral fill written on the page (not in a card) reads as `colors.pageFill` where the theme's neutral fill equals the page color and the shape vanished | The 8 app screens; 1 changes (banking's transaction icons) | Above in 4 of 4 | **Kept** |
+| The notation prompt with the new words, on requests that use none of them | 4 requests, 4 draws each, old prompt against new, paired | New above old in 17 of 32 (6.59 against 6.77): no shift. One request leaned old (storage meter, 6 to 2) | The cause was a gap, fixed: with the new prompt the model keeps amounts in state and writes `grow:=photos`, which did not grow, so the bar was gone |
+
 **Counted but not moved** (38 runs): a card's column stretching its children (35 runs; no visible change where
 children already fill); texts in rows held to one line with an ellipsis (about 30); a plain 13 px text made
 the meta line or a row title depending on its role (the notation cannot tell the role); figures given the
