@@ -1816,10 +1816,31 @@ class _Parser {
   /// value is `value` to a model and `result` to the engine.
   String _statements(String body) => variables.containsKey('value') ? body : _rename(body, 'value', 'result');
 
+  /// A change written where the value stands, as the list rebuilt that the
+  /// engine needs: `n += 1`, `n++`, a field of the repeated item
+  /// (`item.qty = 2` under an each over a list variable) and a field of an
+  /// element by its place (`rows[i].qty = 2`).
+  String _inPlace(String a) {
+    var m = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*(\+\+|--)$').firstMatch(a);
+    if (m != null) a = '${m[1]} = ${m[1]} ${m[2] == '++' ? '+' : '-'} 1';
+    m = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])=\s*(.+)$').firstMatch(a);
+    if (m != null) a = '${m[1]} = ${m[1]} ${m[2]} (${m[3]})';
+    final field = RegExp(r'^item\.([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
+    if (field != null) {
+      final over = _stack.reversed.where((o) => o.each != null).firstOrNull?.list;
+      if (over != null && _identifier.hasMatch(over) && !over.contains('.')) {
+        return '$over = setAt($over,index,with(item,"${field[1]}",${field[2]}))';
+      }
+    }
+    final at = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[([^\]]+)\]\.([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
+    if (at != null) return '${at[1]} = setAt(${at[1]},${at[2]},with(${at[1]}[${at[2]}],"${at[3]}",${at[4]}))';
+    return a;
+  }
+
   List<Json> _actions(String text, int column) {
     final out = <Json>[];
     for (final part in _split(text, ';')) {
-      final a = part.trim();
+      final a = _inPlace(part.trim());
       if (a.isEmpty) continue;
       if (a.startsWith('{')) {
         final j = _json(a);

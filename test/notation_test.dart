@@ -674,6 +674,14 @@ Column gap:8
     expect(react('slider1')['trigger'], {'type': 'changed'});
     expect(((react('slider1')['actions'] as List).single as Map)['value'], r'${= result}');
     expect(((react('filledButton3')['actions'] as List).single as Map)['variable'], 'n');
+    // A record of a list changed where it stands, and n += 1.
+    final placed = _parse('state rows = [{"q":1},{"q":2}]\nstate n = 0\nColumn\n  for r in rows\n    Button "+" onPressed:{r.q += 1; n++}\n  Button "first" onPressed:{rows[0].q = 9}\n');
+    expect(placed.issues, isEmpty, reason: '${placed.issues}');
+    expect(_problems(placed.document), isEmpty);
+    final acts = (placed.document['nodes']! as Map).values.cast<Map>().where((x) => x['actions'] != null).expand((x) => ((x['actions'] as List).single as Map)['actions'] as List).cast<Map>().toList();
+    expect(acts[0], {'type': 'setVariable', 'variable': 'rows', 'value': r'${= setAt(rows,index,with(item,"q",item.q + (1)))}'});
+    expect(acts[1], {'type': 'setVariable', 'variable': 'n', 'value': r'${= n + 1}'});
+    expect(acts[2]['value'], r'${= setAt(rows,0,with(rows[0],"q",9))}');
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));
