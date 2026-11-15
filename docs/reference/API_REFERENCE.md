@@ -795,7 +795,7 @@ section's anchor is its topic.
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7904 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4269 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6662 |
-| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5286 |
+| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5354 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3768 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
@@ -808,7 +808,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3081 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13358 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13426 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -7205,8 +7205,8 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 | <a id="trigger-swipeDown"></a>`swipeDown` |  |
 | <a id="trigger-drag"></a>`drag` | The node is dragged (every move); `dragEnd` when it's let go. |
 | <a id="trigger-dragEnd"></a>`dragEnd` |  |
-| <a id="trigger-wheel"></a>`wheel` | Wheel or trackpad scroll over the node; a pinch on it. |
-| <a id="trigger-pinch"></a>`pinch` |  |
+| <a id="trigger-wheel"></a>`wheel` | Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node). |
+| <a id="trigger-pinch"></a>`pinch` | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |
 | <a id="trigger-dragStart"></a>`dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag (what was dragged is `${result.data}`). A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
 | <a id="trigger-dragCancel"></a>`dragCancel` |  |
 | <a id="trigger-dragCompleted"></a>`dragCompleted` |  |
@@ -12486,8 +12486,8 @@ Written as the value's name, a JSON string (`"center"`).
 | `swipeDown` |  |
 | `drag` | The node is dragged (every move); `dragEnd` when it's let go. |
 | `dragEnd` |  |
-| `wheel` | Wheel or trackpad scroll over the node; a pinch on it. |
-| `pinch` |  |
+| `wheel` | Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node). |
+| `pinch` | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |
 | `changed` | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
 | `changeEnd` | A slider was let go, with its final value. |
 | `submitted` | A text field was submitted from the keyboard. |
