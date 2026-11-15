@@ -44,6 +44,27 @@ String notationPrompt({
                 c.widget('${component.type[0].toLowerCase()}${component.type.substring(1)}') == null)
               if (only == null || only.contains(component.type)) notationComponentLine(component),
         ];
+  // How the design system says its pieces go together: the "In brief"
+  // section of its patterns (PATTERNS.md), when it has one. Without it a
+  // model is given parts and no way of putting them together, and falls
+  // back to plain boxes for anything no part is named after.
+  String? brief;
+  if (designSystem != null) {
+    final from = RegExp(r'^## In brief[ \t]*$', multiLine: true).firstMatch(designSystem.patterns);
+    if (from != null) {
+      final rest = designSystem.patterns.substring(from.end);
+      final next = RegExp(r'^## ', multiLine: true).firstMatch(rest);
+      brief = (next == null ? rest : rest.substring(0, next.start)).trim();
+    }
+  }
+  final composing = brief == null || brief.isEmpty
+      ? ''
+      : '''
+
+PUTTING THEM TOGETHER (${designSystem!.name})
+  Build the whole answer from the components above; plain Row, Column, Text and Box are only the glue between them. When no component is named after what you are showing, compose it from the general ones (a frame, a section label, rows of details, options, a progress line, a stat, a picture, a callout, a closing action) rather than from boxes.
+${brief.split('\n').map((l) => '  $l').join('\n')}
+''';
   final components = componentLines.isEmpty
       ? ''
       : '''
@@ -141,7 +162,7 @@ Card gap:8
     ChoiceChip "Poor" -> choice="poor"
   if choice!=""
     Text.muted "Thanks, you chose {choice}."
-$components''';
+$components$composing''';
 }
 
 /// How [component] is called in the notation, on one line, with what it is
