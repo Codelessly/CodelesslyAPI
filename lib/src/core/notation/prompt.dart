@@ -131,6 +131,8 @@ TYPES
   Grid cols:3 gap:8 lays its children out in columns. Progress 0.6 (or Progress =done) shows a share from 0 to 1. Select and SegmentedButton take items:["A","B"]. Input takes type:number (or email, phone) for its keyboard. Icon "name" uses Material icon names (check, close, star, chevron_right).
   Pages =page h:160 shows the lines under it one at a time, swiped across (under it, each item in items gives one page per element); =page is the page shown, from 0, and setting it turns the page. peek:0.86 shows the edge of the next page (a carousel, a gallery). Dots =page count:4 draws its pagination dots (a tap goes to that page); "{page+1} of {length(items)}" is its count. Content wider than the card (a wide table, a strip of tiles) goes in Row scroll, which scrolls sideways.
   BarChart values:[3,5,4] labels:["Mon","Tue","Wed"] and LineChart values:[10,12,11,14] draw charts: never link to a chart image.
+  Gauge 72 min:0 max:180 limit:100 unit:"km/h" is a round meter with its figure inside (a speed, a load, a score; Gauge =speed follows a variable); Ring 0.72 a round share (Ring =steps/goal w:120; put it in a Stack center middle with a Text over it for the number inside); Sparkline values:[3,4,3,6] a small trend line in a row.
+  Motion is one word on any line: animate:fade (also slide-up, slide-left, scale, pop, bounce, shake, pulse, spin, shimmer) with duration:400 and delay:200 beside it; under an each, stagger:80 starts each row that much after the one before. swipe:left -> … on a row runs its actions on that swipe.
   Only Row, Column, Stack, Box, Card, Grid, List, Accordion and ListTile take children.
 
 FORMULAS (in {…}, after = and := and in -> name=…)
