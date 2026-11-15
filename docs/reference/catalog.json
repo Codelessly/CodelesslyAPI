@@ -303,6 +303,14 @@
           "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
         },
         {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
+        },
+        {
           "key": "fit",
           "type": "BoxFit",
           "kind": "enumeration",
@@ -511,6 +519,14 @@
           "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
         },
         {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
+        },
+        {
           "key": "fillViewport",
           "type": "bool",
           "kind": "boolean",
@@ -686,6 +702,14 @@
           "nullable": false,
           "min": 0.0,
           "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
+        },
+        {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
         },
         {
           "key": "fillViewport",
@@ -876,6 +900,14 @@
           "nullable": false,
           "min": 0.0,
           "doc": "Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card."
+        },
+        {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
         },
         {
           "key": "fillViewport",
@@ -1217,6 +1249,14 @@
           "default": false,
           "nullable": false,
           "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
         },
         {
           "key": "scrollable",
@@ -1571,6 +1611,14 @@
           "default": false,
           "nullable": false,
           "doc": "Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards."
+        },
+        {
+          "key": "dragEdgeScroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
         },
         {
           "key": "crossAxisCount",

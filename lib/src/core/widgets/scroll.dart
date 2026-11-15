@@ -30,5 +30,13 @@ abstract final class ScrollProps {
   static const edgeFade = PropDef<double>('edgeFade', DoubleCodec(min: 0), 0,
       doc: 'Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card.');
 
-  static const List<PropDef<Object?>> all = [scrollable, scrollDirection, reverse, physics, alwaysScroll, clipBehavior, itemSnapping, edgeFade];
+  /// Scrolls while a drag and drop is held near its edges (on by default):
+  /// off for a strip that should stay put under a drag, such as tabs a
+  /// dragged card switches between.
+  static const dragEdgeScroll = PropDef<bool>('dragEdgeScroll', Codecs.bool, true,
+      doc: 'Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto).');
+
+  static const List<PropDef<Object?>> all = [
+    scrollable, scrollDirection, reverse, physics, alwaysScroll, clipBehavior, itemSnapping, edgeFade, dragEdgeScroll, //
+  ];
 }
