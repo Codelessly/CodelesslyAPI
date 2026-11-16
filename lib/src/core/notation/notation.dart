@@ -3731,7 +3731,9 @@ class _Parser {
         case 'go':
           // A destination may be worked out (a SiteNav's link name as a
           // screen id: go replace(lower(result)," ","_")); a bare id is the id.
-          out.add({'type': 'navigate', 'to': arg.startsWith('"') || _identifier.hasMatch(s) ? s : _formula(s)});
+          // Screen slugs can contain hyphens: `go get-started` is a fixed
+          // destination, not subtraction of two variables.
+          out.add({'type': 'navigate', 'to': arg.startsWith('"') || RegExp(r'^[A-Za-z_][A-Za-z0-9_.-]*$').hasMatch(s) ? s : _formula(s)});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':

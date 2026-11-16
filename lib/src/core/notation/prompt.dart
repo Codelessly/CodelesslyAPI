@@ -105,6 +105,7 @@ ${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
       : '''
 
 PAGES (this UI is a whole window $w wide, not a card in a chat)
+  A fixed page id may contain a hyphen: `-> go get-started` opens that page; a worked-out destination uses an expression, such as `-> go replace(lower(result)," ","-")`.
   Start with a frame. It owns the widths, the margins and the scrolling, so write no window sizes (no w:$w, no h:fill on the root) and no page margins.
   A website page scrolls, and its bands stack:
     Page

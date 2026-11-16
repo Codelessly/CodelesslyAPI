@@ -1849,6 +1849,16 @@ Page
       expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
     });
 
+    test('a fixed hyphenated page id is a destination, not arithmetic', () {
+      final r = parseNotation('''
+Page
+  Nav
+    Link#start "Get started" -> go get-started
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(node(r, 'start')['actions']), contains('"to":"get-started"'));
+    });
+
     test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page
