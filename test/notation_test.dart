@@ -2267,7 +2267,20 @@ Menu#areaMenu
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(problems(r.document), isEmpty);
-      expect(open(r, 'thumb'), {'type': 'openModal', 'to': 'zoom', 'presentation': 'dialog', 'cover': true, 'barrierColor': '#E6000000'});
+      expect(open(r, 'thumb'), {
+        'type': 'openModal',
+        'to': 'zoom',
+        'presentation': 'dialog',
+        'cover': true,
+        'barrierColor': '#F2000000',
+        'routeTransition': {
+          'enter': {
+            'motion': {'opacity': 0, 'shiftY': 0.12},
+          },
+          'durationMs': 220,
+          'dismiss': {'direction': 'down', 'distance': 0.2},
+        },
+      });
       final box = node(r, (node(r, 'zoom')['slots']! as Map)['body']! as String);
       expect(jsonEncode(box['actions']), contains('closeModal'));
       expect(jsonEncode(nodesOf(r)), contains(r'"url":"${photo}","fit":"contain"'));
@@ -2288,13 +2301,138 @@ Menu#areaMenu
       expect(kinds(r, 'refresh'), ['showToast', 'closeModal']);
     });
 
+    test('a Lightbox zooms and pans its picture, and closes on the scrim, its button and a drag down', () {
+      final r = parseNotation('''
+state photo="a.png"
+Column
+  Image#thumb "a.png" w:120 h:80 -> open zoom
+Lightbox#zoom "{photo}" "The harbor at dusk" ratio:1.5
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      // What zooms is the picture's own box, kept over the window: a pinch and the wheel about the point,
+      // a double tap to 2x where it was tapped and back, a drag while zoomed.
+      final photo = node(r, 'zoomPhoto');
+      expect(photo['transformGesture'], {'target': 'node', 'pan': 'whenZoomed', 'minScale': 1, 'maxScale': 4, 'doubleTapScale': 2, 'wheel': 'zoom', 'bounds': 'cover'});
+      expect((photo['bind']! as Map)['layout.aspectRatio'], r'${= 1.5}');
+      expect(node(r, (photo['children']! as List).single as String)['decoration'], {
+        'fills': [
+          {
+            'image': {'url': r'${photo}', 'fit': 'contain'},
+          },
+        ],
+      });
+      // It keeps its zoom, which opens at rest; a tap on the scrim closes only then.
+      expect((r.document['variables']! as Map)['page_variables'], containsAll([
+        {'name': 'zoomZoom', 'type': 'decimal', 'value': 1.0},
+      ]));
+      final root = node(r, (node(r, 'zoom')['slots']! as Map)['body']! as String);
+      expect(root['actions'], [
+        {
+          'trigger': {'type': 'click', 'when': r'${= zoomZoom<=1.01}'},
+          'actions': [
+            {'type': 'closeModal'},
+          ],
+        },
+        {
+          'trigger': {'type': 'load'},
+          'actions': [
+            {'type': 'setVariable', 'variable': 'zoomZoom', 'value': r'${= 1}'},
+          ],
+        },
+      ]);
+      final reactions = (photo['actions']! as List).cast<Map>();
+      expect(reactions.first['trigger'], {'type': 'changed'});
+      // A tap on the picture leaves it open (its box is the picture: ratio:1.5).
+      expect(reactions.last['trigger'], {'type': 'click', 'when': r'${= (1.5) <= 0 && zoomZoom<=1.01}'});
+      expect(kinds(r, 'zoomClose'), ['closeModal']);
+      // A drag down takes it away under the finger; it covers the window.
+      final shown = open(r, 'thumb');
+      expect(shown['cover'], true);
+      expect((shown['routeTransition']! as Map)['dismiss'], {'direction': 'down', 'distance': 0.2});
+      // The max zoom is the line's; without a ratio the box is the picture's place and a tap there closes.
+      final loose = parseNotation('Column\n  Image#t "a.png" -> open z\nLightbox#z "a.png" max:6\n', catalog: standardCatalog, options: page);
+      expect(loose.issues, isEmpty);
+      expect(problems(loose.document), isEmpty);
+      expect((node(loose, 'zPhoto')['transformGesture']! as Map)['maxScale'], 6);
+      expect(((node(loose, 'zPhoto')['actions']! as List).last as Map)['trigger'], {'type': 'click', 'when': r'${= (0) <= 0 && zZoom<=1.01}'});
+    });
+
+    test('a Lightbox of a list is a gallery: paged by a swipe, arrows and keys, with a count and thumbnails', () {
+      final r = parseNotation('''
+state photos=[{"url":"a.png","caption":"A"},{"url":"b.png","caption":"B"}]
+Column
+  each p in photos
+    Image#thumb "{p.url}" w:120 h:80 -> at=index; open viewer
+Lightbox#viewer photos:=photos =at
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      expect(r.document['roots'], ['screen', 'viewer']);
+      // A page per picture, opened at the one tapped; another picture starts at rest.
+      final pages = node(r, 'viewerPages');
+      expect(pages['props'], {'scrollDirection': 'horizontal', 'animationDuration': 280});
+      expect(pages['bind'], {'props.initialPage': r'${at}', 'data': r'${photos}'});
+      expect(((pages['actions']! as List).single as Map)['actions'], [
+        {'type': 'setVariable', 'variable': 'at', 'value': r'${= result.index}'},
+        {'type': 'controlTransform', 'node': 'viewerPhoto', 'command': 'reset'},
+        {'type': 'setVariable', 'variable': 'viewerZoom', 'value': r'${= 1}'},
+      ]);
+      expect(kinds(r, 'thumb'), ['setVariable', 'openModal']);
+      // A record's picture: its url (or the element itself), in a box of its ratio when it has one.
+      final photo = node(r, 'viewerPhoto');
+      expect((photo['transformGesture']! as Map)['pan'], 'whenZoomed');
+      expect((photo['bind']! as Map)['layout.aspectRatio'], r'${= coalesce(item.ratio, 0)}');
+      expect(jsonEncode(node(r, (photo['children']! as List).single as String)), contains(r'"url":"${= coalesce(item.url,item.src,item.image,item)}","fit":"contain"'));
+      // The arrow keys and the arrows step it, within the list.
+      final root = node(r, (node(r, 'viewer')['slots']! as Map)['body']! as String);
+      final keys = [
+        for (final a in (root['actions']! as List).cast<Map>())
+          if ((a['trigger'] as Map)['type'] == 'keyDown') a,
+      ];
+      expect([for (final k in keys) (k['trigger'] as Map)['key']], ['ArrowRight', 'ArrowLeft']);
+      expect(keys.first['actions'], [
+        {'type': 'setVariable', 'variable': 'at', 'value': r'${= min(at+1,length(photos)-1)}'},
+      ]);
+      expect(((node(r, 'viewerNext')['actions']! as List).single as Map)['actions'], [
+        {'type': 'setVariable', 'variable': 'at', 'value': r'${= min(at+1,length(photos)-1)}'},
+      ]);
+      expect((node(r, 'viewerPrev')['bind']! as Map)['visible'], r'${= at>0&&viewerZoom<=1.01}');
+      // The count, and a thumbnail per picture that goes to it (its picture filling it).
+      final count = node(r, (node(r, 'viewerCount')['children']! as List).single as String);
+      expect((count['props']! as Map)['text'], r'${= clamp(at,0,max(0,length(photos)-1))+1} / ${= length(photos)}');
+      final thumb = node(r, 'viewerThumb');
+      expect(((thumb['actions']! as List).single as Map)['actions'], [
+        {'type': 'setVariable', 'variable': 'at', 'value': r'${= index}'},
+      ]);
+      expect(jsonEncode(node(r, (thumb['children']! as List).single as String)), contains('"fit":"cover"'));
+      // thumbs:false leaves the strip out; a list written out and no =name keep variables of their own.
+      final plain = parseNotation('Column\n  Button#b "Photos" -> open shots\nLightbox#shots photos:["a.png","b.png"] thumbs:false\n', catalog: standardCatalog, options: page);
+      expect(plain.issues, isEmpty);
+      expect(problems(plain.document), isEmpty);
+      expect(nodesOf(plain).containsKey('shotsThumbs'), isFalse);
+      expect((plain.document['variables']! as Map)['page_variables'], containsAll([
+        {'name': 'shotsPhotos', 'type': 'list', 'value': ['a.png', 'b.png']},
+        {'name': 'shotsAt', 'type': 'decimal', 'value': 0},
+      ]));
+      expect(node(plain, 'shotsPages')['bind'], {'props.initialPage': r'${shotsAt}', 'data': r'${shotsPhotos}'});
+      // The lines under it draw one picture (photo is the element), large and in its thumbnail.
+      final own = parseNotation('state swatches=[{"c":"#FF112233"}]\nColumn\n  Button#b "Colors" -> open sw\nLightbox#sw photos:=swatches\n  Box#chip w:fill h:fill fill:=photo.c\n',
+          catalog: standardCatalog, options: page);
+      expect(own.issues, isEmpty);
+      expect(problems(own.document), isEmpty);
+      expect(node(own, 'swPhoto')['children'], ['chip']);
+      expect((node(own, 'swThumb')['children']! as List).length, 1);
+    });
+
     test('the prompt teaches them from a desktop width on', () {
       final wide = notationPrompt(catalog: standardCatalog, options: page);
-      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu:rowMenu', '-> open signup']) {
+      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu:rowMenu', '-> open signup', 'Lightbox#shots photos:=photos =at']) {
         expect(wide, contains(word), reason: word);
       }
       final card = notationPrompt(catalog: standardCatalog);
       expect(card, isNot(contains('Dialog#')));
+      expect(card, isNot(contains('Lightbox')));
       expect(card, isNot(contains('OVER THE PAGE')));
     });
   });
