@@ -234,6 +234,14 @@ final class PageReflow {
         }
       }
     }
+    // A phone's bar is tighter: the brand, the buttons and the menu button on one line.
+    _add(id, reflowPhoneMax, {'props': {'spacing': 12}});
+    if (_parents[id] case final String band) {
+      final pad = _layout(nodes[band]!)['padding'];
+      if (pad is List && pad.length == 4 && pad.every((v) => v is num) && (pad[0] as num) > 16) {
+        _add(band, reflowPhoneMax, {'layout': {'padding': [16, pad[1], 16, pad[3]]}});
+      }
+    }
     if (links == 0) return;
     for (final k in hide) {
       _hide(k, links >= 6 ? reflowTabletMax : reflowPhoneMax);

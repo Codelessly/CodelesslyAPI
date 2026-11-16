@@ -956,6 +956,8 @@ class _Parser {
       for (final l in _pages.rewrite(indent, raw.trim())) {
         // A frame's line says which frame it is (Row~nav): kept for the reflow.
         final role = _roleMark.firstMatch(l.text);
+        // The menu a Nav opens on a phone keeps whether it is open.
+        if (l.text.contains('navMenu')) variables.putIfAbsent('navMenu', () => {'name': 'navMenu', 'type': 'boolean', 'value': false});
         _lastNode = null;
         _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
@@ -988,6 +990,7 @@ class _Parser {
     textVariants: options.textStyles.keys.toSet(),
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
     roles: true,
+    menu: options.reflow && options.width >= 700,
   );
 
   static final _roleMark = RegExp(r'^([A-Z][A-Za-z0-9]*)~([a-z]+)');
@@ -998,6 +1001,11 @@ class _Parser {
   String? _lastNode;
   final _roles = <String, String>{};
   final _gridRows = <String, _Grid>{};
+
+  /// The anchors (`#why` after a line) by name → the node, and the scroll
+  /// actions written, which name an anchor or an id.
+  final _anchors = <String, String>{};
+  final _scrolls = <Json>[];
 
   /// The names written `project name`: variables of the site, not of this screen.
   final _projectVariables = <String>{};
@@ -1938,7 +1946,8 @@ class _Parser {
             props[type == 'accordion' ? 'expanded' : 'initiallyExpanded'] = true;
           } else if (word.startsWith('#') && RegExp(r'^#[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(word)) {
             // An anchor written after the text (`Heading "Why" #why`): a name
-            // for a link to scroll to, which nothing here reads.
+            // for a `scroll why` to go to.
+            _anchors[word.substring(1)] = id;
           } else if (word == 'hidden') {
             node['visible'] = false;
           } else if (word == 'sticky') {
@@ -2135,6 +2144,11 @@ class _Parser {
         // Where a node shows, by the screen's width: hide:phone (not on a
         // phone), hide:tablet (not on a tablet or a phone), show:phone
         // (on a phone only), show:tablet (on a tablet and a phone only).
+        // sticky:0 stays at the very top (a header); the word alone keeps 16 above it.
+        if (key == 'sticky' && num.tryParse(raw) != null) {
+          node['sticky'] = {'offset': num.parse(raw)};
+          continue;
+        }
         if ((key == 'hide' || key == 'show') && sizeWord) {
           final Json? rule = switch ((key, raw)) {
             ('hide', 'phone' || 'mobile') => {'maxWidth': reflowPhoneMax},
@@ -3181,6 +3195,9 @@ class _Parser {
       _close(_stack.removeLast());
     }
     nodes.keys.skip(before).toList().forEach(_emit);
+    for (final scroll in _scrolls) {
+      if (_anchors[scroll['node']] case final String id) scroll['node'] = id;
+    }
     _ownLegends();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
@@ -3435,7 +3452,19 @@ class _Parser {
               'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
           });
         case 'open':
-          out.add({'type': 'openModal', 'modal': s});
+          out.add({'type': 'openModal', 'to': s});
+        case 'scroll':
+          // `scroll pricing`, `scroll to pricing`, `scroll #pricing`: the page
+          // moves to that part, named by its id or by an anchor (`#pricing`
+          // after a line, or id:pricing on it).
+          final target = s.replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim();
+          if (target.isEmpty) {
+            _issue(column, 'A scroll names where to: scroll pricing (the id of a line, or an anchor written #pricing after a line).');
+          } else {
+            final Json action = {'type': 'scrollTo', 'node': target, 'durationMs': 400, 'offset': 72};
+            _scrolls.add(action);
+            out.add(action);
+          }
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':
@@ -3447,7 +3476,7 @@ class _Parser {
         case 'link':
           out.add({'type': 'openLink', 'url': s});
         default:
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, link <url>, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, or JSON.');
       }
     }
     return out;
