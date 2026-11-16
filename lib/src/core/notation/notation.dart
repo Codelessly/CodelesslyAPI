@@ -2957,11 +2957,59 @@ class _Parser {
     while (_stack.isNotEmpty) {
       _close(_stack.removeLast());
     }
+    _reflowPage();
     nodes.keys.skip(before).toList().forEach(_emit);
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {
       ops.addAll(_patches);
       _patches.clear();
+    }
+  }
+
+  /// Add narrow layouts to a page without changing its authored width.
+  void _reflowPage() {
+    if (options.width < 1000 || (!_pages.app && !_pages.page)) return;
+    void rule(String id, Json patch, double width) {
+      final n = nodes[id]!;
+      final media = (n['media'] as List?)?.cast<Object?>() ?? <Object?>[];
+      media.add({'maxWidth': width, 'patch': patch});
+      n['media'] = media;
+      if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': {'media': media}});
+    }
+
+    if (_pages.app && _root != null) {
+      final root = _root!;
+      final shell = nodes[root];
+      final panes = (shell?['children'] as List?)?.cast<String>() ?? const <String>[];
+      if (panes.length >= 2) {
+        // The main pane is the growing pane. Fixed side panes are omitted at
+        // narrow widths; they no longer consume the main pane's space.
+        for (final pane in panes) {
+          final layout = nodes[pane]?['layout'] as Map?;
+          if (layout?['width'] is num) rule(pane, {'visible': false}, 900);
+        }
+      }
+    }
+
+    for (final entry in nodes.entries.toList()) {
+      final id = entry.key, n = entry.value;
+      if (n['type'] == 'gridView') {
+        rule(id, {'props': {'crossAxisCount': 2}}, 900);
+        rule(id, {'props': {'crossAxisCount': 1}}, 600);
+      }
+      if (n['type'] != 'row' || id == _root && _pages.app || (n['props'] as Map?)?['scrollable'] == true) continue;
+      rule(id, {'props': {'wrap': true, 'runSpacing': (n['props'] as Map?)?['spacing'] ?? 0}}, 900);
+      final children = (n['children'] as List?)?.cast<String>() ?? const <String>[];
+      final substantial = children.where((child) {
+        final c = nodes[child];
+        if (c == null) return false;
+        final layout = c['layout'] as Map?;
+        return layout?['flex'] != null && layout?['width'] is Map && (layout!['width'] as Map).containsKey('fill');
+      }).toList();
+      if (substantial.isEmpty) continue;
+      for (final child in substantial) {
+        rule(child, {'layout': {'basis': 280}}, 900);
+      }
     }
   }
 

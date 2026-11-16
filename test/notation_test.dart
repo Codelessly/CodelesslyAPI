@@ -20,6 +20,58 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  group('a page written once lays out on a tablet and a phone', () {
+    test('an app keeps its main pane and omits fixed side panes', () {
+      final r = parseNotation('''
+App
+  Sidebar
+    NavItem "Orders"
+  Main
+    Heading "Orders"
+  Pane w:320
+    Text "Details"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      final nodes = (r.document['nodes'] as Map).cast<String, Object?>();
+      final shell = nodes[(nodes['screen'] as Map)['slots']['body']] as Map;
+      final panes = (shell['children'] as List).map((id) => nodes[id] as Map).toList();
+      expect((shell['media'] as List?), isNull);
+      expect(panes[0]['media'], [{'maxWidth': 900.0, 'patch': {'visible': false}}]);
+      expect(panes[1]['media'], isNull);
+      expect(panes[2]['media'], [{'maxWidth': 900.0, 'patch': {'visible': false}}]);
+    });
+    test('rows wrap and repeated grids reduce columns without changing desktop', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row top
+      Column grow
+        Text "Picture"
+      Column grow
+        Text "Details"
+    Grid cols:3
+      each item in [1,2,3]
+        Card
+          Text "Piece"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      expect([
+        for (final d in Catalog.run(standardCatalog, () => validateDocument(r.document, options: const ValidateOptions(level: Level.design))))
+          if (d.severity != Severity.info) '${d.code.name}: ${d.message}',
+      ], isEmpty);
+      final nodes = (r.document['nodes'] as Map).cast<String, Object?>();
+      final rows = nodes.values.whereType<Map>().where((n) => n['type'] == 'row').toList();
+      final sideBySide = rows.firstWhere((n) => (n['children'] as List?)?.length == 2 &&
+          (n['children'] as List).every((id) => (nodes[id] as Map)['type'] == 'column'));
+      expect((sideBySide['props'] as Map)['wrap'], isNull);
+      expect(((sideBySide['media'] as List).first as Map)['patch'], {'props': {'wrap': true, 'runSpacing': 0}});
+      final columns = (sideBySide['children'] as List).map((id) => nodes[id] as Map);
+      expect(columns.every((n) => (n['media'] as List).any((m) => ((m as Map)['patch'] as Map)['layout']?['basis'] == 280)), isTrue);
+      final grid = nodes.values.whereType<Map>().firstWhere((n) => n['type'] == 'gridView');
+      expect((grid['props'] as Map)['crossAxisCount'], 3);
+      expect((grid['media'] as List).map((m) => (((m as Map)['patch'] as Map)['props'] as Map)['crossAxisCount']), [2, 1]);
+    });
+  });
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

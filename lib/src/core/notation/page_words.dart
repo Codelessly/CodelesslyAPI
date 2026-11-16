@@ -78,6 +78,7 @@ final class PageWords {
 
   /// Whether the page's root is an app window (as tall as the window).
   bool app = false;
+  bool page = false;
 
   static const _bars = {'Nav', 'Navbar', 'NavBar', 'TopBar', 'Topbar', 'Header', 'AppBar'};
   static const _sides = {'Sidebar', 'Aside', 'SideNav', 'Sidenav', 'Rail'};
@@ -129,6 +130,7 @@ final class PageWords {
       return out..addAll(_textBox(at, mark, parts));
     }
     if (word == 'Page' && indent == 0) {
+      page = true;
       open(frame: 'Page');
       final fill = parts.has('fill') || siteFill == null ? '' : ' fill:$siteFill';
       return out..add((indent: at, text: 'Column$mark w:fill scroll stretch$fill${parts.all}'));
