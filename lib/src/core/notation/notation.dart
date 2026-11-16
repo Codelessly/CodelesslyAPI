@@ -2547,6 +2547,14 @@ class _Parser {
     final control = _valueProps.containsKey(type) || type.endsWith('Button') || type.endsWith('Chip');
     if (component) {
       bool has(String k) => props.containsKey(k) || bind.containsKey('props.$k');
+      // A block with an optional boolean state should still toggle when its
+      // author leaves off =name. Give each call its own page variable.
+      for (final p in spec.props) {
+        if (p.required || has(p.key) || !p.type.isVariable || p.type.variableOf?.kind != PropKind.boolean) continue;
+        final local = '${id}_${p.key}';
+        props[p.key] = local;
+        variables.putIfAbsent(local, () => {'name': local, 'type': 'boolean', 'value': p.defaultValue is bool ? p.defaultValue : false});
+      }
       for (final p in spec.props) {
         if (!p.required || has(p.key)) continue;
         // One string, and the component needs another text than the one it

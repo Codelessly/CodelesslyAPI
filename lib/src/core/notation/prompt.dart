@@ -76,7 +76,7 @@ ${brief.split('\n').map((l) => '  $l').join('\n')}
       : '''
 
 COMPONENTS (${designSystem!.name}: ready-made, already styled; prefer one of these to building its look from boxes)
-  Written like any node: Name "text" key:value =variable -> action. The quoted names are filled, in order, by the strings you write; a name ending in ! must be given (key:value). =variable is where the component keeps its value (created for you); -> runs when it is used (its first event). Lists are written ["a","b"]. A component with (children) takes lines indented under it.
+  Written like any node: Name "text" key:value =variable -> action. The quoted names are filled, in order, by the strings you write; a name ending in ! must be given (key:value). =variable is where the component keeps its value (created for you); an optional boolean value also works without =name, kept separately for each call. -> runs when it is used (its first event). Lists are written ["a","b"]. A component with (children) takes lines indented under it.
 ${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
 
   A MISSING COMPONENT: before writing, name the main reusable unit of the request (a poll's results, a voice note, a boarding pass, a month calendar, a quiz question with its grading). If a listed component represents that unit's data and its distinctive look or interaction, use it. If none does, write exactly one line Wanted \"PascalCaseName\" \"what it shows, the data it takes, what it does\" inside the card, and build the unit under it from the general parts (rows, texts, badges, options, charts, progress lines) as a stand-in:

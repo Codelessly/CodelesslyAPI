@@ -1206,7 +1206,7 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         'id': 'acme',
         'name': 'Acme',
         'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
-        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json'],
+        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/Question.json'],
       }),
       'components/StatusPill.json': jsonEncode(component('StatusPill', [
         {'key': 'label', 'type': string, 'default': 'Status', 'required': true},
@@ -1231,6 +1231,10 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         {'key': 'message', 'type': string, 'default': '', 'required': true},
         {'key': 'items', 'type': {'kind': 'list', 'flutter': 'List<String>', 'item': string}, 'default': <Object?>[]},
       ])),
+      'components/Question.json': jsonEncode(component('Question', [
+        {'key': 'question', 'type': string, 'default': '', 'required': true},
+        {'key': 'open', 'type': {'kind': 'variable', 'flutter': 'bool', 'of': {'kind': 'boolean', 'flutter': 'bool'}}, 'default': false},
+      ])),
     };
     files['components/Pill.json'] = jsonEncode(component('Pill', [
       {'key': 'label', 'type': string, 'default': '', 'required': true},
@@ -1249,6 +1253,15 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
     });
     NotationResult parse(String text) =>
         Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+
+    test('optional boolean state is independent for each component call', () {
+      final r = parse('Question "First"\nQuestion "Second"');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 'Question1')['props'] as Map)['open'], 'Question1_open');
+      expect((_node(r, 'Question2')['props'] as Map)['open'], 'Question2_open');
+      final names = [for (final v in ((r.document['variables']! as Map)['screen']! as List)) (v as Map)['name']];
+      expect(names, containsAll(['Question1_open', 'Question2_open']));
+    });
 
     test('what is written on a component line and can only mean one thing is read as that', () {
       final r = parse('''
