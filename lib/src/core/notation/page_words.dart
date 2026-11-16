@@ -530,6 +530,7 @@ final class PageWords {
         ..add((indent: at + 2, text: 'Icon ${name ?? '"star"'} size:${_n((size / 2).roundToDouble())} color:$ink'));
     }
     if (word == 'Link' && !isComponent('Link')) {
+      final inPhoneMenu = parts.take('menu') != 'false';
       final href = parts.take('href') ?? parts.take('to') ?? parts.take('url');
       final label = parts.string();
       // href:"https://…" opens it; href:"#pricing" scrolls to that part of the page.
@@ -539,7 +540,7 @@ final class PageWords {
               : href != null && RegExp(r'^"?#[A-Za-z_]').hasMatch(href)
                   ? ' -> scroll ${href.replaceAll('"', '').substring(1)}'
                   : '');
-      if (bar != null && label != null && action.trim().startsWith('->')) bar.links.add((label: label, action: action.trim().substring(2).trim()));
+      if (bar != null && inPhoneMenu && label != null && action.trim().startsWith('->')) bar.links.add((label: label, action: action.trim().substring(2).trim()));
       open();
       // In a bar a link is a quiet button; in running content, text in the accent.
       if (parent?.frame == 'Nav' || _open.any((l) => l.frame == 'Nav')) {

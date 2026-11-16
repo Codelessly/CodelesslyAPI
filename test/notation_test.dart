@@ -1933,6 +1933,24 @@ Page
 ''', catalog: standardCatalog, options: page);
       expect(nodesOf(own).values.where((n) => (n! as Map)['type'] == 'iconButton'), hasLength(1));
       expect(jsonEncode(own.document), isNot(contains('navMenu')));
+
+      final separateAction = parseNotation('''
+Page
+  Nav
+    Row gap:4
+      Link "Docs" -> go docs
+      Link "API" -> go api
+    Row gap:8
+      Link "Search" menu:false -> open search
+      IconButton "dark_mode"
+''', catalog: standardCatalog, options: page);
+      expect(separateAction.issues, isEmpty);
+      final menuRows = [
+        for (final n in nodesOf(separateAction).values.cast<Map>())
+          if (n['type'] == 'row' && jsonEncode(n['actions'] ?? '').contains('"variable":"navMenu"')) n,
+      ];
+      expect(menuRows, hasLength(2));
+      expect(jsonEncode(separateAction.document), contains('"to":"search"'));
     });
 
     test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
