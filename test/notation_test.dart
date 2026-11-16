@@ -20,84 +20,6 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
-  group('a page written once lays out on a tablet and a phone', () {
-    test('show and hide phone keep the desktop tree', () {
-      final r = parseNotation('''
-Page
-  Nav
-    Link#links "Browse" hide:phone
-    Button#menu "Menu" show:phone
-    Link#tabletLinks "More" hide:tablet
-    Button#tabletMenu "More" show:tablet
-''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
-      expect(r.issues, isEmpty);
-      expect((_node(r, 'links')['media'] as List).single, {'maxWidth': 699, 'patch': {'visible': false}});
-      expect(_node(r, 'menu')['visible'], false);
-      expect((_node(r, 'menu')['media'] as List).single, {'maxWidth': 699, 'patch': {'visible': true}});
-      expect((_node(r, 'tabletLinks')['media'] as List).single['maxWidth'], 1023);
-      expect((_node(r, 'tabletMenu')['media'] as List).single['maxWidth'], 1023);
-      expect([for (final d in validateDocument(r.document, options: const ValidateOptions(level: Level.design))) if (d.severity != Severity.info) d.message], isEmpty);
-    });
-    test('grid cells keep order while columns fall', () {
-      final r = parseNotation('''
-Page
-  Section
-    Grid cols:3 gap:24
-      Card
-        Text "One"
-      Card
-        Text "Two"
-      Card
-        Text "Three"
-''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
-      expect(r.issues, isEmpty);
-      final grid = _node(r, 'grid1');
-      expect(grid['type'], 'column');
-      final row = _node(r, (grid['children'] as List).single as String);
-      expect(row['type'], 'flex');
-      expect((row['children'] as List).length, 3);
-      expect((row['props'] as Map)['direction'], 'horizontal');
-      expect((row['media'] as List).single['maxWidth'], 699);
-      expect([for (final d in validateDocument(r.document, options: const ValidateOptions(level: Level.design))) if (d.severity != Severity.info) d.message], isEmpty);
-    });
-
-    test('a row of sections becomes vertical on a phone', () {
-      final r = parseNotation('''
-Page
-  Section
-    Row gap:24
-      Column grow
-        Text "One"
-      Column grow
-        Text "Two"
-''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
-      expect(r.issues, isEmpty);
-      final row = (r.document['nodes'] as Map).values.cast<Map>().firstWhere((n) => n['type'] == 'flex');
-      expect((row['props'] as Map)['direction'], 'horizontal');
-      expect((row['media'] as List).single['maxWidth'], 699);
-      expect([for (final d in validateDocument(r.document, options: const ValidateOptions(level: Level.design))) if (d.severity != Severity.info) d.message], isEmpty);
-    });
-    test('a row of page cards and footer links can stack', () {
-      final r = parseNotation('''
-Page
-  Section
-    Row
-      Card
-        Text "A"
-      Card
-        Text "B"
-  Footer
-    Row between
-      Text "One"
-      Text "Two"
-      Text "Three"
-''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
-      expect(r.issues, isEmpty);
-      expect((r.document['nodes'] as Map).values.cast<Map>().where((n) => n['type'] == 'flex').length, 2);
-      expect([for (final d in validateDocument(r.document, options: const ValidateOptions(level: Level.design))) if (d.severity != Severity.info) d.message], isEmpty);
-    });
-  });
-
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12
@@ -1705,6 +1627,674 @@ Column center
       final app = examples.substring(examples.indexOf('\n  state tab')).split('\n').map((l) => l.startsWith('  ') ? l.substring(2) : l).join('\n');
       expect(parseNotation(page, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
       expect(parseNotation(app, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
+    });
+  });
+
+  group('a page written once lays out on a tablet and a phone', () {
+    const page = NotationOptions(width: 1280);
+    Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
+    Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
+    // The patch a node takes at a width, its rules merged in order.
+    Map<String, Object?> at(NotationResult r, String id, int width) {
+      var out = <String, Object?>{};
+      for (final rule in ((node(r, id)['media'] as List?) ?? const []).cast<Map>()) {
+        final max = rule['maxWidth'] as num?, min = rule['minWidth'] as num?;
+        if ((max == null || width <= max) && (min == null || width >= min)) {
+          out = mergePatch(out, (rule['patch']! as Map).cast<String, Object?>(), keepNulls: true);
+        }
+      }
+      return out;
+    }
+
+    test('a grid\'s rows wrap, each cell at a least width; nothing changes at the width it was written for', () {
+      final r = parseNotation('''
+Page
+  Section
+    Grid#plans cols:3 gap:24
+      Card#a
+        Text "One"
+      Card#b
+        Text "Two"
+      Card#c
+        Text "Three"
+      Card#d
+        Text "Four"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(at(r, 'plansRow1', 834)['props'], {'wrap': true, 'runSpacing': 24});
+      expect((at(r, 'a', 390)['layout']! as Map)['basis'], 220);
+      // The empty cells that fill out the last row are gone on a phone.
+      final filler = (node(r, 'plansRow2')['children']! as List).last as String;
+      expect(node(r, filler)['type'], 'spacer');
+      expect(at(r, filler, 390)['visible'], false);
+      expect(at(r, filler, 834)['visible'], isNull);
+      for (final id in nodesOf(r).keys) {
+        expect(at(r, id, 1280), isEmpty, reason: id);
+      }
+    });
+
+    test('a row of blocks wraps: the content keeps a column\'s width and a fixed rail takes the width on a phone', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row#split gap:32 top
+      Column#copy grow gap:12
+        Heading "Reserve a table"
+        Text "Open every day."
+        Row gap:8
+          Button "Book"
+          Button.outline "Menu"
+      Card#rail w:320
+        Text "Tonight"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((at(r, 'split', 834)['props']! as Map)['wrap'], true);
+      expect((at(r, 'copy', 834)['layout']! as Map)['basis'], 360);
+      expect(at(r, 'rail', 834), isEmpty);
+      expect(at(r, 'rail', 390)['layout'], {'width': {'fill': 0}, 'basis': 280, 'flex': 1});
+    });
+
+    test('any other row wraps before it overflows; what grows in it keeps its share', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row#bar gap:12 middle
+      Input#q "Search" grow
+      Spacer#gap grow
+      Button "Export"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((at(r, 'bar', 390)['props']! as Map)['wrap'], true);
+      expect((at(r, 'q', 390)['layout']! as Map)['basis'], 180);
+      expect((at(r, 'gap', 390)['layout']! as Map)['basis'], 0);
+    });
+
+    test('a table\'s row keeps the columns a phone has room for, from the first on', () {
+      final r = parseNotation('''
+Page
+  Section
+    Card pad:0
+      Row#head gap:16 pad:[20,12,20,12]
+        Text#name "Name" grow
+        Text#company "Company" w:160
+        Text#status "Status" w:90
+        Text#plan "Plan" w:90
+        Text#value "Value" w:110
+        Text#seen "Last seen" w:110
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(node(r, 'head')['media'], isNull);
+      expect(at(r, 'name', 390), isNot(contains('visible')));
+      expect(at(r, 'company', 390), isNot(contains('visible')));
+      expect(at(r, 'seen', 390)['visible'], false);
+      // On a tablet its columns are shares of the row, and the last ones go.
+      expect(at(r, 'company', 834)['visible'], isNull);
+      expect(at(r, 'seen', 834)['visible'], false);
+    });
+
+    test('an app shows its main pane on a phone; a bar hides its links; a section and a headline are smaller', () {
+      final app = parseNotation('''
+App
+  Sidebar#side
+    NavItem "Inbox" icon:"inbox" selected
+  Main#main
+    Text "Hello"
+  Pane#details w:300
+    Text "Details"
+''', catalog: standardCatalog, options: page);
+      expect(app.issues, isEmpty);
+      expect(at(app, 'side', 390)['visible'], false);
+      expect(at(app, 'side', 834)['visible'], isNull);
+      expect(at(app, 'details', 834)['visible'], false);
+      expect(at(app, 'main', 390), isEmpty);
+
+      final site = parseNotation('''
+Page
+  Nav
+    Brand "Tidewater" icon:"waves"
+    Row#links gap:4
+      Link "Features"
+      Link "Pricing"
+    Button "Start free"
+  Section#hero
+    Text#big "Fill every room" size:56 weight:800
+''', catalog: standardCatalog, options: page);
+      expect(site.issues, isEmpty);
+      expect(at(site, 'links', 390)['visible'], false);
+      expect(at(site, 'links', 834)['visible'], isNull);
+      expect(((at(site, 'big', 390)['props']! as Map)['style']! as Map)['fontSize'], 40);
+      expect((at(site, 'hero', 390)['layout']! as Map)['padding'], [20, 40, 20, 40]);
+    });
+
+    test('a donut written with labels has its legend beside it, and under it where the two do not fit', () {
+      const text = '''
+Page
+  Section
+    Card
+      Donut#mix values:[1370,560,380] labels:["Street trees","School shade","Pocket forests"] h:240
+      Donut#bare values:[3,1] labels:["Yes","No"] legend:false
+''';
+      final r = parseNotation(text, catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final mix = node(r, 'mix');
+      expect(mix['type'], 'row');
+      expect((mix['props']! as Map)['wrap'], true);
+      expect(mix['children'], ['mixChart', 'mixLegend']);
+      expect(node(r, 'mixChart')['layout'], {'height': 240, 'width': 240});
+      expect((node(r, 'mixLegend')['layout']! as Map)['basis'], 160);
+      expect((node(r, 'mixLabel0')['props']! as Map)['text'], 'Street trees');
+      expect((node(r, 'mixShare0')['props']! as Map)['text'], '59%');
+      expect(node(r, 'bare')['type'], 'chart');
+      // A page that writes the legend itself keeps its own.
+      final own = parseNotation('''
+Page
+  Section
+    Donut#mix values:[52,48] labels:["Online","Retail"]
+    Row between
+      Text.muted "Online"
+      Text.strong "52%"
+    Row between
+      Text.muted "Retail"
+      Text.strong "48%"
+''', catalog: standardCatalog, options: page);
+      expect(node(own, 'mix')['type'], 'chart');
+      expect(nodesOf(own).keys.where((k) => k.startsWith('mixLegend')), isEmpty);
+      // On a card it is the chart alone, as before.
+      final card = parseNotation('Column\n  Donut#mix values:[3,1] labels:["Yes","No"]\n', catalog: standardCatalog);
+      expect(node(card, 'mix')['type'], 'chart');
+    });
+
+    test('what the twenty sites met: a size word under an if, short columns side by side, controls with choices, a site\x27s variable, a page worked out', () {
+      final r = parseNotation('''
+state menu=false
+state kind="All"
+project cart=[]
+Page
+  Section
+    if menu
+      Column#links show:phone
+        Text "Docs"
+    Row#pair gap:32
+      Column#one grow
+        Heading "Fast"
+        Text "Builds in seconds."
+      Column#two grow
+        Heading "Small"
+        Text "No dependencies."
+    Row#who gap:12
+      Avatar "Maya Reyes"
+      Column#name grow
+        Text.strong "Maya Reyes"
+        Text.muted "Owner"
+    Row#filters gap:12
+      SegmentedButton#level =kind options:["All","Beginner","Intermediate","Advanced"] grow
+      Button#add "Add" -> cart=append(cart,"x"); go replace(lower(kind)," ","_")
+      Button#home "Home" -> go home
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      // Hidden from a tablet up whatever the condition says; on a phone the condition decides.
+      expect(at(r, 'links', 834), {'visible': false, 'bind': {'visible': null}});
+      expect(at(r, 'links', 390), isEmpty);
+      expect((node(r, 'links')['bind']! as Map)['visible'], isNotNull);
+      // Two short columns are blocks; a name beside its picture is a label.
+      expect((at(r, 'one', 390)['layout']! as Map)['basis'], 280);
+      expect((at(r, 'name', 390)['layout']! as Map)['basis'], 96);
+      // The site's variable is not declared on the screen, and is still read and set.
+      final declared = [for (final v in ((r.document['variables']! as Map)['screen']! as List)) (v as Map)['name']];
+      expect(declared, containsAll(['menu', 'kind']));
+      expect(declared, isNot(contains('cart')));
+      final add = jsonEncode(node(r, 'add')['actions']);
+      expect(add, contains('"variable":"cart"'));
+      expect(add, contains(r'"to":"${='));
+      expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
+    });
+
+    test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
+      final r = parseNotation('''
+Page
+  Nav#bar sticky
+    Brand "Tidewater" icon:"waves"
+    Row#links gap:4
+      Link "Features" href:"#features"
+      Link "Pricing" -> scroll pricing
+      Link "Docs" -> go docs
+    Button "Start free"
+  Section#features
+    Heading "Features"
+  Section
+    Heading#price "Pricing" #pricing
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(node(r, 'bar')['sticky'], {'offset': 0});
+      // The links go on a phone, and a menu button shows there only.
+      expect(at(r, 'links', 390)['visible'], false);
+      final button = nodesOf(r).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton');
+      expect(at(r, button.key, 390), isEmpty);
+      expect(at(r, button.key, 834)['visible'], false);
+      expect(jsonEncode((button.value! as Map)['actions']), contains('"variable":"navMenu"'));
+      final variables = ((r.document['variables']! as Map)['screen']! as List).cast<Map>();
+      expect(variables.firstWhere((v) => v['name'] == 'navMenu'), {'name': 'navMenu', 'type': 'boolean', 'value': false});
+      // Its menu repeats the links, each closing the menu and then doing what the link does.
+      final rows = [
+        for (final n in nodesOf(r).values.cast<Map>())
+          if (n['type'] == 'row' && jsonEncode(n['actions'] ?? '').contains('"variable":"navMenu"')) jsonEncode(n['actions']),
+      ];
+      expect(rows, hasLength(3));
+      expect(rows[0], contains('"type":"scrollTo","node":"features"'));
+      expect(rows[1], contains('"type":"scrollTo","node":"price"'));
+      expect(rows[2], contains('"type":"navigate","to":"docs"'));
+
+      // A date field's string is its label; a site's value is bound by a control with no copy on the screen.
+      final form = parseNotation('''
+project guests=2
+state when=""
+Page
+  Section
+    DatePicker#d "Arrival" =when
+    Select#g =guests items:[1,2,3]
+''', catalog: standardCatalog, options: page);
+      expect(form.issues, isEmpty);
+      expect(((node(form, 'd')['props']! as Map)['decoration']! as Map)['labelText'], 'Arrival');
+      expect(jsonEncode(node(form, 'g')['bind']), contains('guests'));
+      expect(jsonEncode(form.document['variables']), isNot(contains('guests')));
+
+      // A Nav that writes its own phone menu keeps it, and gets no second one.
+      final own = parseNotation('''
+Page
+  Nav
+    Row gap:4
+      Link "Docs" -> go docs
+    IconButton#mine "menu" show:phone -> open=!open
+''', catalog: standardCatalog, options: page);
+      expect(nodesOf(own).values.where((n) => (n! as Map)['type'] == 'iconButton'), hasLength(1));
+      expect(jsonEncode(own.document), isNot(contains('navMenu')));
+    });
+
+    test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
+      final r = parseNotation('''
+Page
+  Section
+    Button#menu "Menu" show:phone
+    Text#long "The long version" hide:phone
+    Text#wide "Desktop only" hide:tablet
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(at(r, 'menu', 390), isEmpty);
+      expect(at(r, 'menu', 834)['visible'], false);
+      expect(at(r, 'long', 390)['visible'], false);
+      expect(at(r, 'long', 834), isEmpty);
+      expect(at(r, 'wide', 834)['visible'], false);
+      expect(at(r, 'wide', 1280), isEmpty);
+
+      const text = '''
+Column
+  Grid cols:2
+    Card
+      Text "One"
+    Card
+      Text "Two"
+''';
+      for (final options in const [NotationOptions(), NotationOptions(width: 1280, reflow: false)]) {
+        final plain = parseNotation(text, catalog: standardCatalog, options: options);
+        expect(nodesOf(plain).values.where((n) => (n! as Map).containsKey('media')), isEmpty);
+      }
+    });
+  });
+
+  group('what is shown over a page', () {
+    const page = NotationOptions(width: 1280);
+    // Valid at any level: a page's media rules and a right click are past level 2.
+    List<String> problems(Map<String, Object?> doc) => [
+          for (final d in Catalog.run(standardCatalog, () => validateDocument(doc)))
+            if (d.severity != Severity.info) '${d.code.name} ${d.path}: ${d.message}',
+        ];
+    Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
+    Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
+    Map<String, Object?> open(NotationResult r, String id) =>
+        ((((node(r, id)['actions']! as List).first as Map)['actions']! as List).last as Map).cast<String, Object?>();
+    List<String> kinds(NotationResult r, String id) => [
+          for (final a in ((node(r, id)['actions']! as List).first as Map)['actions']! as List) (a as Map)['type']! as String,
+        ];
+
+    const text = '''
+state email=""
+state sort="Newest"
+Page
+  Section
+    Button#join "Join" -> open signup
+    Button#filter "Filters" -> open filters
+    Button#sortBy "Sort" -> open sortMenu
+    Button#what "What is this?" -> open tip
+    Button#bag "Cart" -> open cart
+    Text "Sorted by {sort}"
+
+Dialog#signup "Join the waitlist" "We write once." w:420
+  Input "Email" =email
+  Button#go "Join" -> joined=true; close
+  Button#again "More" -> open tip
+
+Sheet#filters "Filters"
+  Toggle "Only open rooms" =onlyOpen
+
+Menu#sortMenu end
+  MenuItem#newest "Newest" icon:"schedule" -> sort="Newest"
+  MenuItem#price "Price" -> sort="Price"; close
+  MenuItem#ask "Ask" -> open signup
+
+Popover#tip above
+  Text#tipText "Every room is cleaned between stays."
+  Button#ok "Got it" -> close
+
+Drawer#cart right w:340 "Your cart"
+  NavItem#orders "Orders" -> tab="orders"
+  Chip#gift "Gift wrap" -> gift=!gift
+''';
+
+    test('a Dialog, a Sheet, a Menu, a Popover and a Drawer are canvases of their own, opened as their kind says', () {
+      final r = parseNotation(text, catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      expect(r.document['roots'], ['screen', 'signup', 'filters', 'sortMenu', 'tip', 'cart']);
+      // The page is as it would be without them.
+      expect(node(r, 'screen')['layout'], {'width': 1280, 'height': {'hug': 0}});
+
+      // A dialog: a canvas its own width, as tall as its content, with its
+      // title, a close button and the line under the title.
+      final dialog = node(r, 'signup');
+      expect(dialog['type'], 'canvas');
+      expect(dialog['layout'], {'width': 420, 'height': {'hug': 0}});
+      expect((dialog['decoration']! as Map)['radius'], 16);
+      expect(open(r, 'join'), {'type': 'openModal', 'to': 'signup', 'presentation': 'dialog', 'insets': [16, 24, 16, 24]});
+      final texts = [
+        for (final n in nodesOf(r).values.cast<Map>())
+          if (n['type'] == 'text') (n['props'] as Map)['text'],
+      ];
+      expect(texts, containsAll(['Join the waitlist', 'We write once.']));
+      final closer = nodesOf(r).values.cast<Map>().firstWhere((n) => n['type'] == 'iconButton');
+      expect(jsonEncode(closer['actions']), contains('closeModal'));
+      // Its form sets a value of the page and closes: the values are the document's.
+      expect(kinds(r, 'go'), ['setVariable', 'closeModal']);
+      final variables = (r.document['variables']! as Map).cast<String, Object?>();
+      expect(variables.keys, ['page_variables']);
+      expect([for (final v in variables['page_variables']! as List) (v as Map)['name']], containsAll(['email', 'sort', 'joined', 'onlyOpen', 'tab']));
+
+      // A sheet rises from the bottom, no wider than written.
+      expect(open(r, 'filter'), {
+        'type': 'openModal', 'to': 'filters', 'presentation': 'bottomSheet', 'sheetWidth': 560, 'sheetRadius': 20, 'showDragHandle': true, 'maxHeightFactor': 0.9, //
+      });
+      expect(node(r, 'filters')['layout'], {'width': 560, 'height': {'hug': 0}});
+
+      // A menu sits by what opened it; each of its lines closes it after its actions.
+      expect(open(r, 'sortBy'), {'type': 'openModal', 'to': 'sortMenu', 'presentation': 'popover', 'anchor': 'trigger', 'placement': 'belowEnd', 'anchorGap': 6});
+      expect(node(r, 'sortMenu')['layout'], {'width': 220, 'height': {'hug': 0}});
+      expect(kinds(r, 'newest'), ['setVariable', 'closeModal']);
+      expect(kinds(r, 'price'), ['setVariable', 'closeModal']);
+      expect(kinds(r, 'ask'), ['openModal', 'closeModal']);
+      expect((((node(r, 'ask')['actions']! as List).first as Map)['actions']! as List).first, containsPair('presentation', 'dialog'));
+
+      // A popover is one too, and closes only where it says; an overlay opens another.
+      expect(open(r, 'what'), containsPair('placement', 'aboveStart'));
+      expect(kinds(r, 'ok'), ['closeModal']);
+      expect(open(r, 'again'), containsPair('presentation', 'popover'));
+
+      // A drawer: a panel as tall as the window at its side, over the page;
+      // a tap beside it closes it, and so does a NavItem (not a chip).
+      expect(open(r, 'bag'), {'type': 'openModal', 'to': 'cart', 'presentation': 'dialog', 'cover': true});
+      final drawer = node(r, 'cart');
+      expect((drawer['layout']! as Map)['height'], {'fill': 800});
+      final row = node(r, (drawer['slots']! as Map)['body']! as String);
+      expect(row['type'], 'row');
+      final sides = (row['children']! as List).cast<String>();
+      expect(kinds(r, sides.first), ['closeModal']);
+      expect((node(r, sides.last)['layout']! as Map)['width'], 340);
+      expect(kinds(r, 'orders'), ['setVariable', 'closeModal']);
+      expect(kinds(r, 'gift'), ['setVariable']);
+
+      // No node of an overlay takes the page's media rules.
+      expect(node(r, 'tipText').containsKey('media'), isFalse);
+    });
+
+    test('as it arrives: each overlay is a root, and what opened it is completed once it is written', () {
+      final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog, options: page));
+      var doc = LayoutDocument(catalog: standardCatalog);
+      for (var i = 0; i < text.length; i += 13) {
+        final ops = stream.add(text.substring(i, i + 13 > text.length ? text.length : i + 13));
+        if (ops.isEmpty) continue;
+        final a = applyOps(doc, {'ops': ops}, catalog: standardCatalog);
+        expect(a.errors, isEmpty, reason: '${a.errors}');
+        doc = a.document;
+      }
+      final last = stream.close();
+      if (last.isNotEmpty) doc = applyOps(doc, {'ops': last}, catalog: standardCatalog).document;
+      expect(stream.issues, isEmpty);
+      final whole = parseNotation(text, catalog: standardCatalog, options: page).document;
+      final streamed = doc.toJson();
+      expect(streamed['roots'], whole['roots']);
+      final nodes = (streamed['nodes']! as Map).cast<String, Object?>();
+      // (A document read back leaves out what is the default: a dialog's presentation.)
+      expect(jsonEncode((nodes['join']! as Map)['actions']), contains('"to":"signup","insets":[16,24,16,24]'));
+      expect(jsonEncode((nodes['filter']! as Map)['actions']), contains('"presentation":"bottomSheet"'));
+      expect(jsonEncode((nodes['sortBy']! as Map)['actions']), contains('"placement":"belowEnd"'));
+      expect((nodes['signup']! as Map)['layout'], {'width': 420, 'height': {'hug': 0}});
+      // The values moved from the page's canvas to the document.
+      final variables = (streamed['variables']! as Map).cast<String, Object?>();
+      expect(variables.keys.where((k) => (variables[k]! as List).isNotEmpty), ['page_variables']);
+      expect([for (final v in variables['page_variables']! as List) (v as Map)['name']], containsAll(['email', 'sort', 'joined']));
+    });
+
+    test('an overlay needs an id; a second of the same id is said; a card has them too', () {
+      // Indented, or with no id, the word is what it was: here, no node type.
+      final plain = parseNotation('Column\n  Dialog "Hello"\n', catalog: standardCatalog);
+      expect(plain.issues.single.message, contains('No node type "Dialog"'));
+      expect(plain.document['roots'], ['screen']);
+
+      final twice = parseNotation('Column#a\n  Text "One"\nMenu#a\n  Text "Two"\nMenu#m\n  Text "Three"\nMenu#m\n  Text "Four"\n', catalog: standardCatalog);
+      expect(twice.issues.map((i) => i.message), ['The id "a" is used twice.', 'The id "m" is used twice.']);
+      expect(twice.document['roots'], ['screen', 'm']);
+
+      final card = parseNotation('''
+Card
+  Button#more "More" -> open details
+Dialog#details "Details"
+  Text "The small print."
+''', catalog: standardCatalog);
+      expect(card.issues, isEmpty);
+      expect(problems(card.document), isEmpty);
+      expect(card.document['roots'], ['screen', 'details']);
+      expect(open(card, 'more'), containsPair('presentation', 'dialog'));
+      // With no overlay written, open names a canvas written elsewhere, as before.
+      final other = parseNotation('Button#b "Go" -> open elsewhere\n', catalog: standardCatalog);
+      expect(open(other, 'b'), {'type': 'openModal', 'to': 'elsewhere'});
+      expect(other.document['roots'], ['screen']);
+    });
+
+    test('a design system\'s own Dialog and MenuPopover are the frames; its Dialog called in a line is still its component', () async {
+      Map<String, Object?> component(String type, List<Object?> props, {List<Object?> events = const []}) => {
+            'schema': 3,
+            'id': type,
+            'roots': ['r'],
+            'widget': {'type': type, 'doc': 'What a $type is for. More.', 'props': props, 'events': events, 'children': 'list'},
+            'nodes': {
+              'r': {'type': 'column', 'layout': {'width': {'fill': 200}, 'height': {'hug': 28}}, 'children': ['c']},
+              'c': {'type': 'slot'},
+            },
+          };
+      const string = {'kind': 'string', 'flutter': 'String'};
+      final files = {
+        'design_system.json': jsonEncode({
+          'id': 'acme',
+          'name': 'Acme',
+          'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
+          'components': ['components/Dialog.json', 'components/MenuPopover.json'],
+        }),
+        'components/Dialog.json': jsonEncode(component('Dialog', [
+          {'key': 'title', 'type': string, 'default': '', 'required': true},
+        ], events: [
+          {'key': 'onClose'},
+        ])),
+        'components/MenuPopover.json': jsonEncode(component('MenuPopover', [
+          {'key': 'heading', 'type': string, 'default': ''},
+        ])),
+      };
+      final problems = <String>[];
+      final ds = await DesignSystem.load((ref) async => files[ref], problems: problems);
+      expect(problems, isEmpty);
+      final catalog = ds.catalogOver(standardCatalog);
+      final r = Catalog.run(catalog, () => parseNotation('''
+Column
+  Button#b "Delete" -> open sure
+  Button#m "More" -> open more
+  Dialog#inline "A frame in the page"
+    Text "Body"
+Dialog#sure "Delete it?"
+  Button "Delete" -> close
+Menu#more
+  Text "Rename" -> toast "Renamed"
+''', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+      expect(r.issues, isEmpty);
+      expect(r.document['roots'], ['screen', 'sure', 'more']);
+      expect(node(r, 'inline')['type'], 'Dialog');
+      // The canvas draws nothing: the component is the surface, and its close button closes.
+      final frame = node(r, (node(r, 'sure')['slots']! as Map)['body']! as String);
+      expect(frame['type'], 'Dialog');
+      expect((frame['props']! as Map)['title'], 'Delete it?');
+      expect(frame['actions'], [
+        {
+          'trigger': {'type': 'event', 'event': 'onClose'},
+          'actions': [
+            {'type': 'closeModal'},
+          ],
+        },
+      ]);
+      expect((node(r, 'sure')['decoration']! as Map)['fills'], [
+        {'color': '#00FFFFFF'},
+      ]);
+      expect(node(r, (node(r, 'more')['slots']! as Map)['body']! as String)['type'], 'MenuPopover');
+    });
+
+    test('an App\'s sidebar opens as a drawer from its top bar where the window hides it', () {
+      const app = '''
+state tab="orders"
+App
+  Sidebar#side
+    Brand "Harbor" icon:"anchor"
+    NavItem#overview "Overview" icon:"dashboard" selected:=tab=="overview" -> tab="overview"
+    NavItem#orders "Orders" selected:=tab=="orders" -> tab="orders"
+  Main
+    Nav#bar
+      Heading#title "Orders" level:1
+      Row#tools gap:8
+        Button "New order"
+    Column pad:24
+      Text "Content"
+''';
+      final r = parseNotation(app, catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      expect(r.document['roots'], ['screen', 'screenMenu']);
+      // A menu button first in the bar, on a phone only, opens the drawer.
+      final bar = (node(r, 'bar')['children']! as List).cast<String>();
+      expect(bar.sublist(1), ['title', 'tools']);
+      final button = node(r, bar.first);
+      expect(button['type'], 'iconButton');
+      expect(button['media'], [
+        {'minWidth': 700, 'patch': {'visible': false, 'bind': {'visible': null}}},
+      ]);
+      expect(open(r, bar.first), {'type': 'openModal', 'to': 'screenMenu', 'presentation': 'dialog', 'cover': true});
+      // There the title takes the room beside it, so the two sit together.
+      expect((node(r, 'title')['media']! as List).last, {
+        'maxWidth': 699,
+        'patch': {
+          'layout': {'width': {'fill': 0}, 'flex': 1, 'basis': 96},
+        },
+      });
+      // The drawer repeats the sidebar's lines, each closing it after its action.
+      final drawer = nodesOf(r).keys.skipWhile((k) => k != 'screenMenu').toList();
+      final items = [
+        for (final id in drawer)
+          if (jsonEncode(node(r, id)['actions'] ?? '').contains('"variable":"tab"')) kinds(r, id),
+      ];
+      expect(items, [
+        ['setVariable', 'closeModal'],
+        ['setVariable', 'closeModal'],
+      ]);
+      // The sidebar itself is as written.
+      expect(kinds(r, 'overview'), ['setVariable']);
+      expect((node(r, 'side')['layout']! as Map)['width'], 248);
+
+      // Two panes before the main one, over 420 wide: a tablet hides the sidebar too.
+      final two = parseNotation(app.replaceFirst('  Main', '  Pane w:320\n    Text "List"\n  Main'), catalog: standardCatalog, options: page);
+      final twoBar = (node(two, 'bar')['children']! as List).cast<String>();
+      expect((node(two, twoBar.first)['media']! as List).single, containsPair('minWidth', 1024));
+      expect(((node(two, 'title')['media']! as List).last as Map)['maxWidth'], 1023);
+
+      // A Main with no top bar gets a slim one for the button, where the sidebar is hidden.
+      final bare = parseNotation(app.replaceFirst('    Nav#bar\n      Heading#title "Orders" level:1\n      Row#tools gap:8\n        Button "New order"\n', ''), catalog: standardCatalog, options: page);
+      expect(bare.issues, isEmpty);
+      expect(bare.document['roots'], ['screen', 'screenMenu']);
+      final opener = nodesOf(bare).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton').key;
+      final holder = nodesOf(bare).values.cast<Map>().firstWhere((n) => (n['children'] as List? ?? const []).contains(opener));
+      expect((holder['media']! as List).last, {
+        'minWidth': 700,
+        'patch': {'visible': false, 'bind': {'visible': null}},
+      });
+
+      // With reflow off, or on a card, the app is as written.
+      for (final (source, options) in [
+        (app, const NotationOptions(width: 1280, reflow: false)),
+        (app, const NotationOptions()),
+      ]) {
+        final plain = parseNotation(source, catalog: standardCatalog, options: options);
+        expect(plain.document['roots'], ['screen']);
+        expect(nodesOf(plain).values.where((n) => (n! as Map)['type'] == 'iconButton'), isEmpty);
+        expect((plain.document['variables']! as Map).keys, ['screen']);
+      }
+    });
+
+    test('a Lightbox shows a picture large; menu: opens a Menu on a right click or a long press, at the pointer', () {
+      final r = parseNotation('''
+state photo="a.png"
+Column
+  Image#thumb "a.png" w:120 h:80 -> open zoom
+  Card#area menu:areaMenu
+    Text "Right-click me"
+  Row#file onRightClick:{sel="a"; open areaMenu} -> open areaMenu
+    Text "a.txt"
+Lightbox#zoom "{photo}" "The harbor at dusk"
+Menu#areaMenu
+  Text#refresh "Refresh" -> toast "Done"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      expect(open(r, 'thumb'), {'type': 'openModal', 'to': 'zoom', 'presentation': 'dialog', 'cover': true, 'barrierColor': '#E6000000'});
+      final box = node(r, (node(r, 'zoom')['slots']! as Map)['body']! as String);
+      expect(jsonEncode(box['actions']), contains('closeModal'));
+      expect(jsonEncode(nodesOf(r)), contains(r'"url":"${photo}","fit":"contain"'));
+      const menu = {'type': 'openModal', 'to': 'areaMenu', 'presentation': 'popover', 'anchor': 'pointer', 'placement': 'belowStart', 'anchorGap': 6};
+      expect(node(r, 'area')['actions'], [
+        {'trigger': {'type': 'secondaryClick'}, 'actions': [menu]},
+        {'trigger': {'type': 'longPress'}, 'actions': [menu]},
+      ]);
+      // A handler written out does the same after its own actions; a tap opens it by the row.
+      final file = (node(r, 'file')['actions']! as List).cast<Map>();
+      expect(file.firstWhere((a) => (a['trigger'] as Map)['type'] == 'secondaryClick')['actions'], [
+        {'type': 'setVariable', 'variable': 'sel', 'value': 'a'},
+        menu,
+      ]);
+      expect(file.firstWhere((a) => (a['trigger'] as Map)['type'] == 'click')['actions'], [
+        {...menu, 'anchor': 'trigger'},
+      ]);
+      expect(kinds(r, 'refresh'), ['showToast', 'closeModal']);
+    });
+
+    test('the prompt teaches them from a desktop width on', () {
+      final wide = notationPrompt(catalog: standardCatalog, options: page);
+      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu:rowMenu', '-> open signup']) {
+        expect(wide, contains(word), reason: word);
+      }
+      final card = notationPrompt(catalog: standardCatalog);
+      expect(card, isNot(contains('Dialog#')));
+      expect(card, isNot(contains('OVER THE PAGE')));
     });
   });
 }
