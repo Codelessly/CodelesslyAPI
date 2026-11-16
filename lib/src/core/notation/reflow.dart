@@ -392,9 +392,11 @@ final class PageReflow {
       for (final k in kids)
         k: ?_block(k),
     };
-    // Two short columns side by side are blocks; one beside a full block or
-    // alone is a label.
-    if (blocks.values.where((b) => b.light).length < 2) blocks.removeWhere((_, b) => b.light);
+    // A single short column is usually a label, but beside two full blocks
+    // it needs its own wrapping basis too (for example copy beside fields).
+    if (blocks.values.where((b) => b.light).length < 2 && blocks.values.where((b) => !b.light).length < 2) {
+      blocks.removeWhere((_, b) => b.light);
+    }
     if (blocks.length >= 2) {
       // The one block that grows beside fixed ones is the content beside its
       // rails: it keeps a column's width, and a rail goes under it sooner.

@@ -1849,6 +1849,25 @@ Page
       expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
     });
 
+    test('short copy beside two filling blocks gets a basis without changing desktop', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row#finder gap:20
+      Column#copy grow
+        Heading "Find a place"
+        Text "Begin with a city."
+      Card#origin grow
+        Text "Origin"
+      Card#days grow
+        Text "Days"
+      Button "Find"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((at(r, 'copy', 390)['layout']! as Map)['basis'], 240);
+      expect(at(r, 'copy', 1280), isEmpty);
+    });
+
     test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page
