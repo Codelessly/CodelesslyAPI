@@ -2099,6 +2099,64 @@ final class RadioGroupBehavior extends _Value {
   List<Object?> get props => [groupValue];
 }
 
+/// Which arrow keys move the focus inside a [FocusGroup].
+enum FocusGroupAxis {
+  /// Up and Down (a menu, a list, a sidebar).
+  vertical,
+
+  /// Left and Right (a tab bar, a toolbar, a segmented control).
+  horizontal,
+
+  /// All four arrows, in reading order (a grid of tiles).
+  both,
+}
+
+/// One Tab stop for everything focusable inside the node (a roving focus,
+/// as a menu, a tab list, a toolbar or a radio group has): Tab enters at
+/// the member focused last (else the one whose `selected` is bound true,
+/// else the first) and leaves to the next stop outside; the arrow keys of
+/// [axis] move the focus among the members in reading order, Home and End
+/// jump to the first and last, and with [typeAhead] a typed letter jumps to
+/// the next member whose text starts with it. Enter and Space press the
+/// focused member as anywhere. The members are the nodes inside it that
+/// take the focus: nodes with a `click` reaction and controls.
+/// `"focusGroup": true` is a vertical group that wraps.
+@immutable
+final class FocusGroup extends _Value {
+  const FocusGroup({this.axis = FocusGroupAxis.vertical, this.wrap = true, this.typeAhead = false});
+
+  /// The arrow keys that move the focus.
+  final FocusGroupAxis axis;
+
+  /// Whether an arrow past the last member goes to the first (and back).
+  final bool wrap;
+
+  /// Whether a typed letter jumps to the next member whose text starts
+  /// with it.
+  final bool typeAhead;
+
+  static FocusGroup? fromJson(Object? json) {
+    if (json == true) return const FocusGroup();
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return FocusGroup(
+      axis: r.e(FocusGroupAxis.values, 'axis', FocusGroupAxis.vertical),
+      wrap: r.b('wrap', true),
+      typeAhead: r.b('typeAhead', false),
+    );
+  }
+
+  Json toJson() => <String, Object?>{
+        if (axis != FocusGroupAxis.vertical) 'axis': axis.name,
+        if (!wrap) 'wrap': false,
+        if (typeAhead) 'typeAhead': true,
+      };
+
+  @override
+  List<Object?> get props => [axis, wrap, typeAhead];
+}
+
 /// Writes where the node is laid out, `{x, y, width, height, centerX,
 /// centerY}` in pixels, to a variable as layout changes: in the
 /// coordinates of the ancestor node [relativeTo] (empty: the screen),
@@ -2373,6 +2431,8 @@ final class Behaviors extends _Value {
     this.customPaint,
     this.form,
     this.radioGroup,
+    this.focusable = true,
+    this.focusGroup,
   });
 
   static const Behaviors none = Behaviors();
@@ -2475,13 +2535,25 @@ final class Behaviors extends _Value {
   /// Flutter's `RadioGroup`: the radios inside it share its value.
   final RadioGroupBehavior? radioGroup;
 
+  /// Whether the keyboard reaches the node when it has a `click` reaction:
+  /// it is a Tab stop, shows the theme's focus ring when the focus comes
+  /// from the keyboard, and Enter and Space run its click. False takes it
+  /// out of the focus order (a row whose only action is repeated by a
+  /// button inside it; a decorative hit area). A node with no click
+  /// reaction never takes the focus.
+  final bool focusable;
+
+  /// Makes everything focusable inside the node one Tab stop the arrow
+  /// keys move through ([FocusGroup]).
+  final FocusGroup? focusGroup;
+
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
     'motion', 'animations', 'transitions', 'shimmer', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
     'floating', 'hero', 'draggable', 'dropTarget', 'track', 'dismissible',
     'pan', 'reorderHandle', 'reveal', 'typewriter',
     'particles', 'textDirection', 'defaultTextStyle', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
-    'customPaint', 'form', 'radioGroup',
+    'customPaint', 'form', 'radioGroup', 'focusable', 'focusGroup',
   };
 
   bool get isNone => this == none;
@@ -2523,6 +2595,8 @@ final class Behaviors extends _Value {
       customPaint: CustomPaint.fromJson(m['customPaint']),
       form: FormBehavior.fromJson(m['form']),
       radioGroup: RadioGroupBehavior.fromJson(m['radioGroup']),
+      focusable: r.b('focusable', true),
+      focusGroup: FocusGroup.fromJson(m['focusGroup']),
     );
   }
 
@@ -2559,6 +2633,8 @@ final class Behaviors extends _Value {
     if (customPaint != null) j['customPaint'] = customPaint!.toJson();
     if (form != null) j['form'] = form!.toJson();
     if (radioGroup != null) j['radioGroup'] = radioGroup!.toJson();
+    j.b('focusable', focusable, true);
+    if (focusGroup != null) j['focusGroup'] = focusGroup!.toJson();
   }
 
   Behaviors copyWith({
@@ -2592,6 +2668,8 @@ final class Behaviors extends _Value {
     CustomPaint? customPaint,
     FormBehavior? form,
     RadioGroupBehavior? radioGroup,
+    bool? focusable,
+    FocusGroup? focusGroup,
   }) => Behaviors(
     motion: motion ?? this.motion,
     animations: animations ?? this.animations,
@@ -2623,6 +2701,8 @@ final class Behaviors extends _Value {
     customPaint: customPaint ?? this.customPaint,
     form: form ?? this.form,
     radioGroup: radioGroup ?? this.radioGroup,
+    focusable: focusable ?? this.focusable,
+    focusGroup: focusGroup ?? this.focusGroup,
   );
 
   @override
@@ -2630,6 +2710,6 @@ final class Behaviors extends _Value {
     motion, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
     draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, typewriter,
     particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
-    form, radioGroup,
+    form, radioGroup, focusable, focusGroup,
   ];
 }
