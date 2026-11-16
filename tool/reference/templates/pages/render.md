@@ -31,7 +31,9 @@ strictly, renders each screen with the SDK at each size, writes `shots/<screen>@
 In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is
 scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`,
 `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or
-screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--navigate <screen>`, `--wait <ms>`. A step
+screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>`
+(a mouse wheel over the node; `=ctrl+<dy>` with Control held), `--pinch <id>=<scale>` (two fingers spread to that
+many times as far apart), `--navigate <screen>`, `--wait <ms>`. A step
 may name a node by its `name` too. In a site, steps name nodes inside components by path (`--tap plans/card1/cta`)
 and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`); with no
 `#<n>` a step reaches the first copy in view. A tab, a segment or a navigation destination is tapped by its
