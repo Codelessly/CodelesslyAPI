@@ -1902,6 +1902,29 @@ Page
       expect(jsonEncode(node(r, 'homeName')), contains('item.name'));
     });
 
+    test('a bounded repeated List can follow its newest log line', () {
+      final r = parseNotation('''
+state lines=["started","built"]
+Page
+  Section
+    List =lines follow h:180
+      Text#logLine "{row}"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final list = (r.document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView');
+      expect(list['layout'], containsPair('height', 180.0));
+      expect(list['props'], containsPair('stickToEnd', true));
+      expect(list['props'], containsPair('scrollable', true));
+      expect(list['bind'], containsPair('data', r'${lines}'));
+      expect(jsonEncode(node(r, 'logLine')), contains('item'));
+      expect(notationPrompt(catalog: standardCatalog, options: page), contains('List =lines follow h:180'));
+      expect(notationPrompt(catalog: standardCatalog), isNot(contains('List =lines follow h:180')));
+      final card = _parse('state lines=["one"]\nColumn\n  List =lines follow h:180\n    Text "{row}"');
+      expect(card.issues, isEmpty);
+      expect((card.document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView')['props'],
+          containsPair('stickToEnd', true));
+    });
+
     test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page

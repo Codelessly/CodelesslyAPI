@@ -1721,6 +1721,15 @@ class _Parser {
     }
     // Anything else at this depth ends the chance of an `else`.
     _ifAt.removeWhere((depth, _) => depth >= indent);
+    // A bounded log or chat follows its newest item until its reader scrolls
+    // away. Keep this on the repeated list, rather than on its item template.
+    final follow = RegExp(r'\s+follow\s+h:(\d+(?:\.\d+)?)$').firstMatch(line);
+    final followsEnd = follow != null && (line.startsWith('each ') || line.startsWith('List ='));
+    final followHeight = followsEnd ? double.parse(follow[1]!) : null;
+    if (followsEnd) line = line.substring(0, follow.start);
+    if (!followsEnd && (line.startsWith('each ') || line.startsWith('List =')) && RegExp(r'\s+follow(?:\s|$)').hasMatch(line)) {
+      return _issue(column, 'A following list needs a bounded height: List =lines follow h:180.');
+    }
     // `each rows` and `List =rows` are `each row in rows`: the element is
     // read as `row` (or `item`).
     final bare = RegExp(r'^each\s+(\S+)$').firstMatch(line) ?? RegExp(r'^List\s+=(\S+)$').firstMatch(line);
@@ -1771,16 +1780,17 @@ class _Parser {
       }
       // In a row the copies go across, each at its own width.
       final across = g == null && parent.type == 'row';
+      if (followsEnd && (g != null || across)) return _issue(column, 'A following list goes down a Column, Card, or Section.');
       _acrossLists[itemId] = listId;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
-        'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
+        'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': followsEnd ? followHeight : {'hug': 0}},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
             ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
             : across
                 ? {'scrollable': false, 'scrollDirection': 'horizontal', 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0}
-                : {'scrollable': false, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0},
+                : {'scrollable': followsEnd, if (followsEnd) 'stickToEnd': true, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0},
         'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
         'children': <Object?>[itemId],
       };
