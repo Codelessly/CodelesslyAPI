@@ -1631,6 +1631,12 @@ Column center
   });
 
   group('a page written once lays out on a tablet and a phone', () {
+    test('a site navigation event can compute a page id from its link label', () {
+      final r = _parse('Page\n  Button "Go" -> go replace(lower(result)," ","_")\n');
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(jsonEncode(_node(r, 'filledButton1')), contains(jsonEncode(r'${= replace(lower(result)," ","_")}')));
+    });
     const page = NotationOptions(width: 1280);
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();

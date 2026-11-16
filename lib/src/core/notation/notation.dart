@@ -3422,7 +3422,9 @@ class _Parser {
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':
-          out.add({'type': 'navigate', 'to': s});
+          // A destination may be chosen from an event value, as with a
+          // SiteNav whose link names map to screen ids. Keep bare ids literal.
+          out.add({'type': 'navigate', 'to': arg.startsWith('"') || _identifier.hasMatch(s) ? s : _formula(s)});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':
