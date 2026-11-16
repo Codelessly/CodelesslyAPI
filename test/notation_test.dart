@@ -984,7 +984,8 @@ Column gap:8
     expect((_node(r, 'pageView1Page')['layout'] as Map)['padding'], [0, 0, 8, 0]);
     // Lines under Pages are its pages: one per position, each shown at its own.
     final second = _node(r, 'pageView2');
-    expect((second['props'] as Map)['itemCount'], 2);
+    // With no prop of its own on the line, it still pages sideways.
+    expect(second['props'], {'scrollDirection': 'horizontal', 'itemCount': 2});
     final texts = (_node(r, 'pageView2Page')['children'] as List).cast<String>();
     expect([for (final t in texts) (_node(r, t)['bind'] as Map)['visible']], [r'${= index == 0}', r'${= index == 1}']);
     // A list holding expressions is a formula, not broken JSON.

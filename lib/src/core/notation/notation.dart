@@ -3160,6 +3160,13 @@ class _Parser {
       ((out['children'] as List<Object?>?) ?? (out['children'] = <Object?>[])).add(pageId);
       _parentOf[pageId] = id;
       props.putIfAbsent('scrollDirection', () => 'horizontal');
+      // A line with no prop of its own has them now (what a {…} at its end
+      // gave it are its props then).
+      if (out['props'] case final Map<Object?, Object?> given) {
+        given.putIfAbsent('scrollDirection', () => 'horizontal');
+      } else {
+        out['props'] = props;
+      }
       // With the next page showing at the edge, the first sits at the start
       // and the pages stand apart (gap, 8 unless written).
       final gap = props.remove('spacing');
