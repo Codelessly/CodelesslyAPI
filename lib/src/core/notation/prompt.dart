@@ -125,7 +125,15 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
     Share a width with grow, or give the one fixed part a width (a rail: Column w:320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
     Equal cells are a Grid, not a Row of fixed-width boxes. A table's row is a Row whose cells have widths (Text "Status" w:90) and one cell that grows, its header written the same way.
     hide:phone leaves a node out on a phone, hide:tablet on a tablet and a phone; show:phone shows it on a phone only, show:tablet on a tablet and a phone only. Write no menu button for a Nav's links: it has one (a Nav with a show:phone line of its own keeps yours instead). They hold on a line under an if too: the condition counts only where the size shows the line.
-    A Row of two Columns that grow, each a heading and its text, stacks where they no longer fit; a Row of controls with choices (filters) wraps whole controls onto the next line.''' : ''}${pagesBrief == null || pagesBrief.isEmpty ? '' : '\n${pagesBrief.split('\n').map((l) => '  $l').join('\n')}'}
+    A Row of two Columns that grow, each a heading and its text, stacks where they no longer fit; a Row of controls with choices (filters) wraps whole controls onto the next line.''' : ''}
+
+  OVER THE PAGE (a dialog, a sheet, a drawer, a menu): write each after the page, at the margin, with an id, its content indented under it as on a card. -> open signup shows it, -> close closes it (so does a tap outside it). It reads and sets the page's values: a form in a dialog sets them and closes (-> saved=true; close).
+    Dialog#signup "Join the waitlist" "A line under the title"    a centered dialog with its title and a close button (w:480)
+    Sheet#filters "Filters"          rises from the bottom of the window: filters, options, a share sheet
+    Drawer#cart "Your cart" right    a panel as tall as the window at its side (the left unless right; w:300); a NavItem in it closes it
+    Menu#more                        a menu by the button that opened it (Menu#more end lines up their right edges; above opens upwards); its lines are MenuItem "Rename" icon:"edit" -> an action, and each closes the menu after it
+    Popover#tip                      a small panel by what opened it (a hint, a picker)
+  The menu of one row of a list: IconButton "more_vert" -> sel=row.id; open rowMenu, and the menu's lines read sel. Write no modal as a Stack or an if over the page.${pagesBrief == null || pagesBrief.isEmpty ? '' : '\n${pagesBrief.split('\n').map((l) => '  $l').join('\n')}'}
 
   Page
     Nav
@@ -133,7 +141,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
       Row gap:4
         Link "Features"
         Link "Pricing"
-      Button "Start free" -> emit start
+      Button "Start free" -> open signup
     Section
       Row gap:48
         Column grow gap:20
@@ -156,6 +164,9 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
       Row between
         Text.strong "Tidewater"
         Text.muted "© 2026 Tidewater"
+  Dialog#signup "Start free"
+    Input "Work email" =email
+    Button "Create account" -> emit start; close
 
   state tab="orders"
   App

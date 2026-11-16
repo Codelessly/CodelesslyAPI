@@ -390,7 +390,7 @@ is the same document as before plus rules that do not apply there.
 | a `Row` of two or more blocks (a card, a column of content, a picture, a component that fills, a fixed column 200 or wider) | wraps: a block that grows takes a least width (360 for the one beside fixed rails, else 280, 240 among three), a fixed one keeps its width on a tablet and takes the line on a phone |
 | any other `Row` | wraps before it overflows; what grows in it keeps its share of the line from a least width (a field 180, a component 160, a text 96) |
 | a table's row (three or more cells with widths) | its cells are shares of the row; it keeps the columns it has room for, from the first on (600 px on a tablet, 342 on a phone), and what is not a column (a checkbox, a menu button) |
-| `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420 |
+| `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420. |
 | `Nav` | a phone hides its links (a tablet too, from six on) and shows a menu button the bar adds itself, which opens the links in a column under the bar, each as written and closing the menu as it goes; a `Nav` with a `show:phone` line of its own keeps its own |
 | `Section`, `Footer` | 48 above and below on a tablet; 40, and a 20 gutter, on a phone |
 | a text 32 or larger | 0.86 of its size on a tablet (from 44), 0.72 on a phone (26 at least) |
@@ -415,9 +415,62 @@ menu (nearly every agent had written one by hand on every page); `Nav sticky`; `
 for a variable of the site; two short columns side by side as blocks; a control with choices keeps room for
 them.
 
-Not done: an `App`'s hidden sidebar has no menu to open it on a phone; a dialog, a sheet, a drawer and a popup
-menu have no words yet (the document has them: `openModal` with a presentation); a table drops columns where a
-designer might have made each row a card.
+Not done: an `App`'s hidden sidebar has no menu to open it on a phone; a table drops columns where a designer
+might have made each row a card.
+
+### 14.1 What is shown over a page: Dialog, Sheet, Drawer, Menu, Popover
+
+The document has modals (`openModal` shows another canvas as a dialog, a sheet, a popover), and the notation had
+`-> open <id>` for them, but a text was one canvas, so there was nothing to open. An overlay is now written in
+the same text, after the page, at the margin, with an id; the lines indented under it are its content:
+
+```
+state email=""
+Page
+  Section
+    Button "Join" -> open signup
+    IconButton "more_horiz" -> open more
+
+Dialog#signup "Join the waitlist" "We write once."
+  Input "Email" =email
+  Button "Join" -> joined=true; close
+
+Menu#more end
+  MenuItem "Share" icon:"share" -> toast "Shared"
+```
+
+Each block is a canvas of its own in the document (a root after the page's, named by its id), and `open <id>`
+takes how it is shown from the kind of block, wherever the `open` is written (before the block, after it, in
+another overlay):
+
+| Written | Canvas | `open` adds |
+|---|---|---|
+| `Dialog#id "Title" "Line under it"` (`Modal`) | 480 wide (`w:`), as tall as its content; a column `pad:24 gap:16` headed by the title and a close button | `presentation: dialog`, `insets: [16,24,16,24]` (it narrows to a phone) |
+| `Sheet#id "Title"` (`BottomSheet`) | 560 wide, headed the same | `presentation: bottomSheet`, `sheetWidth`, `sheetRadius: 20`, `showDragHandle`, `maxHeightFactor: 0.9`: across a phone's bottom edge, a centered 560 on a desktop |
+| `Drawer#id "Title"` (`right`, `w:300`) | the window's size, see-through: an `App` row of a `Sidebar` panel and a box beside it that closes on a tap | `presentation: dialog`, `cover: true` |
+| `Menu#id` (`Dropdown`; `end`, `above`, `center`, or `placement:`) | 220 wide, `pad:6 gap:2`, outlined | `presentation: popover`, `anchor: trigger`, `placement: belowStart`, `anchorGap: 6` |
+| `Popover#id` (`Popup`) | 320 wide, `pad:16 gap:12`, outlined | as a menu |
+
+- **Closing.** `close` closes the overlay it is written in; a tap outside closes any of them. Every line of a
+  `Menu` closes it after its own actions (`MenuItem "Price" -> sort="Price"` is `sort="Price"; close`), and so
+  does a `NavItem` or a `Link` in a `Drawer`; nothing else closes by itself. `open` waits for what it opened, so
+  a menu line that opens a dialog closes the menu when the dialog closes.
+- **Values.** A canvas's variables are its own (`variables` under its id), so a modal could not read the page's.
+  A text with an overlay declares its variables under `page_variables` instead (every canvas of the document):
+  the dialog's form sets the page's value and the page shows it. As it streams, the variables sent so far move
+  there when the first overlay arrives (`vars` remove, then set). A text with no overlay is as before.
+- **A design system's own frames.** Top level with an id is the only place a block is read; `Dialog` anywhere
+  else is still the design system's component. Where the design system has a `Dialog` or a `MenuPopover`, the
+  block's root is that component (its title, its close button, which closes) and the canvas draws nothing; else
+  the canvas is the surface (the card's fill, a corner, a shadow). `MenuItem` is the design system's, or the
+  plain row `NavItem` is.
+- **Laid out as a card.** An overlay is expanded as a narrow canvas of its own (its width, 640 at most for the
+  sizing rules), so a child is as wide as its column and nothing of the page's reflow touches it.
+- **A menu for one of many.** `-> sel=row.id; open rowMenu` on the row's button, and the menu's lines read `sel`.
+- An id is the canvas's, so it is one of a kind in the site, as a page's is.
+
+Not done: a drawer fades in as a dialog does (the document's `sideSheet` slides, but only from the right); an
+`open` cannot pass a value (`params`), so a row's menu goes through a variable.
 
 ## 15. Open points
 
