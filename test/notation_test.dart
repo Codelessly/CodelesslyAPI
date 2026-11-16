@@ -20,6 +20,19 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  group('a page written once lays out on a tablet and a phone', () {
+    test('a declared project variable is bound without a duplicate screen variable', () {
+      final r = parseNotation('''
+project version
+Page
+  Nav
+    Select items:["1.8.0","1.7.4"] value:=version -> version=result
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280, screen: 'home'));
+      expect(r.issues, isEmpty);
+      expect(r.document['variables'], isNull);
+      expect(jsonEncode(r.document['nodes']), contains(r'${version}'));
+    });
+  });
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

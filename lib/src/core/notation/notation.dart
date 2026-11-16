@@ -1180,6 +1180,7 @@ class _Parser {
   final _labelBinds = <String, String>{};
 
   Json? _documentPatch;
+  final _projectVariables = <String>{};
 
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
@@ -1200,7 +1201,8 @@ class _Parser {
         },
         ...nodes,
       },
-      if (variables.isNotEmpty) 'variables': {screen: variables.values.toList()},
+      if (variables.keys.any((name) => !_projectVariables.contains(name)))
+        'variables': {screen: [for (final entry in variables.entries) if (!_projectVariables.contains(entry.key)) entry.value]},
     }), issues, wanted: List.unmodifiable(wanted));
   }
 
@@ -1239,6 +1241,12 @@ class _Parser {
     if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
+    if (line.startsWith('project ')) {
+      final name = line.substring(8).trim();
+      if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(name)) return _issue(column, 'A project variable is written: project name. Declare it in site.json.');
+      _projectVariables.add(name);
+      return;
+    }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
