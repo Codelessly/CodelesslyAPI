@@ -1833,6 +1833,7 @@ Page
       SegmentedButton#level =kind options:["All","Beginner","Intermediate","Advanced"] grow
       Button#add "Add" -> cart=append(cart,"x"); go replace(lower(kind)," ","_")
       Button#home "Home" -> go home
+      Button#story "Story" -> go case-study
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       // Hidden from a tablet up whatever the condition says; on a phone the condition decides.
@@ -1846,6 +1847,9 @@ Page
       final declared = [for (final v in ((r.document['variables']! as Map)['screen']! as List)) (v as Map)['name']];
       expect(declared, containsAll(['menu', 'kind']));
       expect(declared, isNot(contains('cart')));
+      expect(((node(r, 'story')['actions']! as List).single as Map)['actions'], [
+        {'type': 'navigate', 'to': 'case-study'},
+      ]);
       final add = jsonEncode(node(r, 'add')['actions']);
       expect(add, contains('"variable":"cart"'));
       expect(add, contains(r'"to":"${='));
