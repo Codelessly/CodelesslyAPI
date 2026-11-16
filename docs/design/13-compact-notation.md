@@ -372,22 +372,120 @@ it. `Column middle` gathers them at the middle.
 Still asked for and not read: links and hover; a dialog, sheet or drawer as an element; a table as an element;
 chart legends and axes; a chart bound to state; reorder with a handle; pull to refresh; a map; shapes.
 
-## 14. Tablets and phones
+## 14. A page at other widths (2026-11-15)
 
-A `Page` or `App` is authored once at its desktop width. Its expanded nodes keep
-that layout at 1024 px and wider. Below 1024 px, grid rows and rows of flexible
-panels wrap; repeated grids use at most two columns. Below 600 px, repeated
-grids use one column and ordinary rows wrap. A flexible child of a wrapping
-row gets a basis so it can share a line or move to the next. These are media
-patches in the expanded document, generated from the page structure.
+A page is written once, for a desktop (`--width 1280`). The twenty sites of test 5 showed what that does on a
+phone: three cards squeezed across 390 px, a table's fixed columns past the edge, a sidebar beside its content,
+and a layout error for each. Over ten showcase pages, written with no thought for a phone: 74 render errors at
+390 wide and 52 at 834, none at 1440.
 
-Use `hide:phone` and `show:phone` to replace a wide navigation row with a
-menu button. The page must supply the menu's links and its open state. The
-same words accept `tablet` for widths through 1023 px. Put shared state in
-the site's manifest, then write `project name` before each page that uses it;
-bound controls will use the project variable without redeclaring it locally.
-Components with their own narrow layout, such as `Segments` and `SiteNav`,
-carry media rules in their component documents.
+The expander now adds the media rules that make a page fit (`reflow.dart`, `PageReflow`), from 700 wide on
+(`NotationOptions.reflow`, on by default; `expand --no-reflow` leaves the page as written). Every rule holds
+below a width (`maxWidth` 1023: a tablet and narrower; 699: a phone), so the page at the width it was written for
+is the same document as before plus rules that do not apply there.
+
+| Written | Narrower |
+|---|---|
+| `Grid cols:n` | its rows wrap; a cell takes a least width (300, 220, 260, 150 for 2, 3, 4, more columns), so three stay three on a tablet and four become two by two; one a line on a phone. A grid over data takes fewer columns (`crossAxisCount`) |
+| a `Row` of two or more blocks (a card, a column of content, a picture, a component that fills, a fixed column 200 or wider) | wraps: a block that grows takes a least width (360 for the one beside fixed rails, else 280, 240 among three), a fixed one keeps its width on a tablet and takes the line on a phone |
+| any other `Row` | wraps before it overflows; what grows in it keeps its share of the line from a least width (a field 180, a component 160, a text 96) |
+| a table's row (three or more cells with widths) | its cells are shares of the row; it keeps the columns it has room for, from the first on (600 px on a tablet, 342 on a phone), and what is not a column (a checkbox, a menu button) |
+| `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420. The `Sidebar` it hides opens as a drawer (14.2) |
+| `Nav` | a phone hides its links (a tablet too, from six on) and shows a menu button the bar adds itself, which opens the links in a column under the bar, each as written and closing the menu as it goes; a `Nav` with a `show:phone` line of its own keeps its own |
+| `Section`, `Footer` | 48 above and below on a tablet; 40, and a 20 gutter, on a phone |
+| a text 32 or larger | 0.86 of its size on a tablet (from 44), 0.72 on a phone (26 at least) |
+| a fixed width over 300 in a column | as wide as its place on a phone, at most its width |
+| `Donut` with `labels` | on a page it is a wrapping row of the chart and its legend (a line per share: its color, its label, its part of the whole): the legend sits beside the chart and goes under it where the two do not fit (`legend:false`: the chart alone; a page that writes the labels as texts of its own keeps its own legend) |
+
+`hide:phone`, `hide:tablet`, `show:phone` and `show:tablet` on a line say where it shows; they are written after
+the rules above, so they win.
+
+Rows wrap (`wrap` with `basis` on the children: CSS `flex-wrap` and `flex-basis`) where they could have turned
+into columns at a width: a wrapping row follows the room it has, so a row in a narrow pane stacks sooner than
+one across the page, and a child keeps its place in the tree. The rules are by the window's width only so that
+the desktop page cannot change.
+
+With the rules, the same ten pages: 0 errors at 390, 0 at 834, 0 at 1440. Seven of the test 5 sites (50 pages), re-expanded with no change to their notation: 130 errors at 390 down to 2, 8 at 834 down to 0, and 49 of the 50 desktop captures identical to the byte (the other gained its donut's legend). A design system's own blocks carry
+their rules themselves (Cards' `SiteNav` hides its links and its second action on a phone).
+
+From the twenty sites' follow-up runs (each on its own `dsl5/<site>` branch), what several met was folded in
+once: a size word holds on a line under an `if` (five agents fixed it separately); `Nav` builds its own phone
+menu (nearly every agent had written one by hand on every page); `Nav sticky`; `scroll <id>` and anchors
+(`#pricing` after a line, `id:pricing`, `href:"#pricing"`); `go` to a page worked out; `project name=value`
+for a variable of the site; two short columns side by side as blocks; a control with choices keeps room for
+them.
+
+Not done: a table drops columns where a designer might have made each row a card.
+
+### 14.1 What is shown over a page: Dialog, Sheet, Drawer, Menu, Popover, Lightbox
+
+The document has modals (`openModal` shows another canvas as a dialog, a sheet, a popover), and the notation had
+`-> open <id>` for them, but a text was one canvas, so there was nothing to open. An overlay is now written in
+the same text, after the page, at the margin, with an id; the lines indented under it are its content:
+
+```
+state email=""
+Page
+  Section
+    Button "Join" -> open signup
+    IconButton "more_horiz" -> open more
+
+Dialog#signup "Join the waitlist" "We write once."
+  Input "Email" =email
+  Button "Join" -> joined=true; close
+
+Menu#more end
+  MenuItem "Share" icon:"share" -> toast "Shared"
+```
+
+Each block is a canvas of its own in the document (a root after the page's, named by its id), and `open <id>`
+takes how it is shown from the kind of block, wherever the `open` is written (before the block, after it, in
+another overlay):
+
+| Written | Canvas | `open` adds |
+|---|---|---|
+| `Dialog#id "Title" "Line under it"` (`Modal`) | 480 wide (`w:`), as tall as its content; a column `pad:24 gap:16` headed by the title and a close button | `presentation: dialog`, `insets: [16,24,16,24]` (it narrows to a phone) |
+| `Sheet#id "Title"` (`BottomSheet`) | 560 wide, headed the same | `presentation: bottomSheet`, `sheetWidth`, `sheetRadius: 20`, `showDragHandle`, `maxHeightFactor: 0.9`: across a phone's bottom edge, a centered 560 on a desktop |
+| `Drawer#id "Title"` (`right`, `w:300`) | the window's size, see-through: an `App` row of a `Sidebar` panel and a box beside it that closes on a tap | `presentation: dialog`, `cover: true` |
+| `Menu#id` (`Dropdown`; `end`, `above`, `center`, or `placement:`) | 220 wide, `pad:6 gap:2`, outlined | `presentation: popover`, `anchor: trigger`, `placement: belowStart`, `anchorGap: 6` |
+| `Popover#id` (`Popup`) | 320 wide, `pad:16 gap:12`, outlined | as a menu |
+| `Lightbox#id "{photo}" "Caption"` | the window's size, see-through: the picture contained in it; a tap closes | `presentation: dialog`, `cover: true`, `barrierColor: #E6000000` |
+
+- **Closing.** `close` closes the overlay it is written in; a tap outside closes any of them. Every line of a
+  `Menu` closes it after its own actions (`MenuItem "Price" -> sort="Price"` is `sort="Price"; close`), and so
+  does a `NavItem` or a `Link` in a `Drawer`; nothing else closes by itself. `open` waits for what it opened, so
+  a menu line that opens a dialog closes the menu when the dialog closes.
+- **Values.** A canvas's variables are its own (`variables` under its id), so a modal could not read the page's.
+  A text with an overlay declares its variables under `page_variables` instead (every canvas of the document):
+  the dialog's form sets the page's value and the page shows it. As it streams, the variables sent so far move
+  there when the first overlay arrives (`vars` remove, then set). A text with no overlay is as before.
+- **A design system's own frames.** Top level with an id is the only place a block is read; `Dialog` anywhere
+  else is still the design system's component. Where the design system has a `Dialog` or a `MenuPopover`, the
+  block's root is that component (its title, its close button, which closes) and the canvas draws nothing; else
+  the canvas is the surface (the card's fill, a corner, a shadow). `MenuItem` is the design system's, or the
+  plain row `NavItem` is.
+- **Laid out as a card.** An overlay is expanded as a narrow canvas of its own (its width, 640 at most for the
+  sizing rules), so a child is as wide as its column and nothing of the page's reflow touches it.
+- **A menu for one of many.** `-> sel=row.id; open rowMenu` on the row's button, and the menu's lines read `sel`.
+  `menu:rowMenu` on any line opens that menu on a right click and on a long press, where the pointer is
+  (`anchor: pointer`); `onRightClick:{sel=row.id; open rowMenu}` does the same after setting what was clicked.
+- An id is the canvas's, so it is one of a kind in the site, as a page's is.
+
+### 14.2 An App's sidebar on a phone
+
+`App` hid its `Sidebar` on a phone and left no way to it. Where reflow is on, the first pane of an `App`, when it
+is a `Sidebar`, is kept as written, and at the end of the text it is written again as `Drawer#<screen>Menu`: the
+same lines with their ids left off and `close` after every action, so a tap on a `NavItem` picks the place and
+closes the drawer. The `Nav` of `Main` gets `IconButton "menu" show:phone -> open <screen>Menu` as its first
+child (`show:tablet` where a tablet hides the sidebar too: two panes before `Main`, over 420 wide), and where
+the button shows, what follows it (the title) takes the room beside it, so the button and the title sit
+together and the actions stay at the end. A `Main` with no `Nav` gets a slim bar holding the button, shown at
+those widths only. At the width it was written for the page has one more node, hidden, and its captures are
+the same to the byte.
+
+Not done: a drawer fades in as a dialog does (the document's `sideSheet` slides, but only from the right); an
+`open` cannot pass a value (`params`), so a row's menu goes through a variable; a `Sidebar` written after
+`Main`, or a component called with `items:`, gets no drawer.
 
 ## 15. Open points
 
