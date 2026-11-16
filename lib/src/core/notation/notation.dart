@@ -2472,7 +2472,7 @@ class _Parser {
     if (inRow && written == 'Card' && options.width >= 700) {
       final row = nodes[parent!.id];
       final cross = (row?['props'] as Map?)?['crossAxisAlignment'];
-      if (row != null && (cross == null || cross == 'center')) {
+      if (row != null && (cross == null || cross == 'center' || cross == 'start')) {
         const Json patch = {
           'props': {'crossAxisAlignment': 'stretch'},
         };
