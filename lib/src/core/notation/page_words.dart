@@ -48,6 +48,7 @@ final class PageWords {
     this.isFrame = _none,
     this.roles = false,
     this.menu = false,
+    this.sidebarMenu,
     this.surface = '#FFFFFFFF',
   });
 
@@ -93,8 +94,30 @@ final class PageWords {
   /// Nav that writes a `show:phone` or `show:tablet` line has its own.
   final bool menu;
 
+  /// The id of the drawer an app's `Sidebar` opens in where the window is
+  /// too narrow to show it (a phone): its lines are kept ([sidebar]) and the
+  /// top bar of `Main` gets a menu button, shown there only, that opens it.
+  /// Null: none.
+  final String? sidebarMenu;
+
   /// What a drawer's panel is drawn on when the theme names no pane fill.
   final String surface;
+
+  /// An app's `Sidebar` as written: what followed the word on its line and
+  /// the lines under it (each with its indent from the Sidebar's), and
+  /// whether a menu button was written for it.
+  String? sidebarRest;
+  final sidebar = <PageLine>[];
+  bool sidebarButton = false;
+  int? _sidebarAt;
+  int _panesBefore = 0;
+  double _widthBefore = 0;
+  bool _mainSeen = false;
+  int? _mainAt;
+
+  /// Where the sidebar's button shows: on a phone, and on a tablet too when
+  /// the window drops the first of two panes there.
+  String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 ? 'tablet' : 'phone';
 
   static final _overlayHead = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup)#([A-Za-z_][A-Za-z0-9_]*)(?=\s|$)');
 
@@ -260,6 +283,13 @@ final class PageWords {
     while (_open.isNotEmpty && _open.last.indent >= indent) {
       out.addAll(_closing(_open.removeLast()));
     }
+    if (_sidebarAt case final int from) {
+      if (indent > from) {
+        sidebar.add((indent: indent - from, text: text));
+      } else {
+        _sidebarAt = null;
+      }
+    }
     final bar = _open.where((l) => l.pageNav).lastOrNull;
     if (bar != null && RegExp(r'\sshow:(phone|tablet|mobile)(\s|$)').hasMatch(text)) bar.ownMenu = true;
     final parent = _open.lastOrNull;
@@ -280,6 +310,19 @@ final class PageWords {
       return l;
     }
 
+    // A Main with no top bar of its own gets a slim one where the sidebar is
+    // hidden, for the button that opens it.
+    if (_mainAt case final int from) {
+      _mainAt = null;
+      final bar = word != null && _bars.contains(word) && !isComponentCall(word, _Parts(rest));
+      if (indent > from && !bar && sidebarMenu != null && sidebarRest != null && !sidebarButton) {
+        sidebarButton = true;
+        out
+          ..add((indent: at, text: 'Row w:fill middle pad:[12,8,12,8] show:$_menuSize${paneFill == null ? '' : ' fill:$paneFill'}'))
+          ..add((indent: at + 2, text: 'IconButton "menu" -> open $sidebarMenu'))
+          ..add((indent: at, text: 'Divider show:$_menuSize'));
+      }
+    }
     // An `if` or an `each` is not a place of its own: what is under it is
     // where the line itself is.
     if (RegExp(r'^(if|each|for|else)\b').hasMatch(text)) {
@@ -341,7 +384,14 @@ final class PageWords {
         final pad = parts.take('pad') ?? '[24,14,24,14]';
         final fill = parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
         open(frame: 'Nav', after: 'Divider');
-        return out..add((indent: at, text: 'Row${_role('nav')}$mark w:fill between middle pad:$pad gap:$gap$fill${parts.all}'));
+        out.add((indent: at, text: 'Row${_role('nav')}$mark w:fill between middle pad:$pad gap:$gap$fill${parts.all}'));
+        // The sidebar a phone has no room for opens from a button here
+        // (a tablet too, where it drops the first of two panes).
+        if (sidebarMenu != null && sidebarRest != null && !sidebarButton && parent?.frame == 'Main') {
+          sidebarButton = true;
+          out.add((indent: at + 2, text: 'IconButton${_role('appmenu')} "menu" show:$_menuSize -> open $sidebarMenu'));
+        }
+        return out;
       }
       final width = parts.take('maxw') ?? _n(contentWidth);
       final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
@@ -357,9 +407,22 @@ final class PageWords {
       final gap = parts.take('gap') ?? '4';
       open(frame: framed ? 'Sidebar' : null);
       final fill = !framed || parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
+      if (framed && root == 'App' && indent > 0 && !_mainSeen) {
+        _panesBefore++;
+        _widthBefore += double.tryParse(width) ?? sidebarWidth;
+        // The first pane of the window is what a narrow one leaves out.
+        if (sidebarMenu != null && sidebarRest == null && _panesBefore == 1) {
+          sidebarRest = ' pad:$pad gap:$gap${parts.props}';
+          _sidebarAt = indent;
+        }
+      }
       return out..add((indent: at, text: 'Column${framed ? _role('sidebar') : ''}$mark w:$width${framed ? ' h:fill' : ''} pad:$pad gap:$gap$fill${parts.hasBorder ? '' : ' border-right:$line'}${parts.all}'));
     }
     if (word == 'Main' || word == 'Content') {
+      if (framed && root == 'App' && !_mainSeen) {
+        _mainSeen = true;
+        _mainAt = indent;
+      }
       open(frame: framed ? 'Main' : null);
       return out..add((indent: at, text: 'Column${framed ? _role('main') : ''}$mark grow${framed ? ' h:fill scroll' : ''}${parts.all}'));
     }
@@ -369,6 +432,10 @@ final class PageWords {
       final width = parts.take('w');
       parts.word('scroll');
       parts.word('grow');
+      if (framed && root == 'App' && !_mainSeen && width != null) {
+        _panesBefore++;
+        _widthBefore += double.tryParse(width) ?? 0;
+      }
       open(frame: framed ? 'Pane' : null);
       return out..add((indent: at, text: 'Column${framed ? _role('pane') : ''}$mark ${width == null ? 'grow' : 'w:$width'}${framed ? ' h:fill scroll' : ''}${parts.hasBorder || !framed ? '' : ' border-right:$line'}${parts.all}'));
     }
