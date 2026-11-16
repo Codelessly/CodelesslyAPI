@@ -1694,6 +1694,25 @@ Page
       expect(at(r, 'rail', 390)['layout'], {'width': {'fill': 0}, 'basis': 280, 'flex': 1});
     });
 
+    test('two short content columns stack instead of squeezing their copy', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row#split gap:48 top
+      Column#lead grow
+        Heading "A new direction"
+        Text "The challenge"
+      Column#body grow
+        Text "A visual language that stretches."
+        Text "Recognizable at a glance."
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((at(r, 'split', 390)['props']! as Map)['wrap'], true);
+      expect((at(r, 'lead', 390)['layout']! as Map)['basis'], 280);
+      expect((at(r, 'body', 390)['layout']! as Map)['basis'], 280);
+      expect(at(r, 'split', 1280), isEmpty);
+    });
+
     test('any other row wraps before it overflows; what grows in it keeps its share', () {
       final r = parseNotation('''
 Page
