@@ -1813,7 +1813,7 @@ Page
     Text#wide "Desktop only" hide:tablet
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect(at(r, 'menu', 390), isEmpty);
+      expect(at(r, 'menu', 390)['visible'], true);
       expect(at(r, 'menu', 834)['visible'], false);
       expect(at(r, 'long', 390)['visible'], false);
       expect(at(r, 'long', 834), isEmpty);
@@ -1849,7 +1849,7 @@ Page
       final actions = (node(r, 'next')['actions']! as List).first as Map;
       expect((actions['actions'] as List).map((a) => (a as Map)['type']), ['setVariable', 'navigate']);
       expect((at(r, 'menu', 834)['visible']), false);
-      expect(at(r, 'menu', 390)['visible'], isNull);
+      expect(at(r, 'menu', 390)['visible'], true);
     });
 
     test('show:phone also hides a conditional node above phone width', () {
@@ -1863,8 +1863,24 @@ Page
       expect(r.issues, isEmpty);
       expect((at(r, 'mobile', 834)['bind'] as Map)['visible'], isNull);
       expect(at(r, 'mobile', 834)['visible'], false);
-      expect(at(r, 'mobile', 390)['visible'], isNull);
+      expect(at(r, 'mobile', 390)['visible'], true);
       expect((node(r, 'mobile')['bind'] as Map)['visible'], isNotNull);
+    });
+
+    test('explicit phone menu survives Nav link hiding', () {
+      final r = parseNotation('''
+Page
+  Nav
+    Brand "Studio"
+    Row
+      Link "Projects" -> go projects
+      Link "Contact" -> go contact
+    Button#menu "Menu" show:phone
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(at(r, 'menu', 390)['visible'], true);
+      expect(at(r, 'menu', 834)['visible'], false);
+      expect(at(r, 'menu', 1280)['visible'], false);
     });
   });
 }

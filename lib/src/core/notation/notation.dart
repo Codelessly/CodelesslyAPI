@@ -2144,6 +2144,8 @@ class _Parser {
             node['media'] = [
               ...?(node['media'] as List?),
               {...rule, 'patch': {'visible': false}},
+              if (key == 'show' && raw != 'desktop')
+                {'maxWidth': raw == 'phone' || raw == 'mobile' ? reflowPhoneMax : reflowTabletMax, 'patch': {'visible': true}},
             ];
           }
           continue;
