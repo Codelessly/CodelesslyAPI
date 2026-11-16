@@ -1206,7 +1206,7 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         'id': 'acme',
         'name': 'Acme',
         'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
-        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json'],
+        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/NavActions.json'],
       }),
       'components/StatusPill.json': jsonEncode(component('StatusPill', [
         {'key': 'label', 'type': string, 'default': 'Status', 'required': true},
@@ -1220,6 +1220,12 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
       ], events: [
         {'key': 'onChanged', 'payload': number},
       ], width: 120)),
+      'components/NavActions.json': jsonEncode(component('NavActions', [
+        {'key': 'secondary', 'type': string, 'default': 'Sign in'},
+      ], events: [
+        {'key': 'onNavigate'},
+        {'key': 'onSecondary'},
+      ])),
       'components/Frame.json': jsonEncode(component('Frame', [
         {'key': 'title', 'type': string, 'default': ''},
       ], width: {'fill': 200}, children: 'list')),
@@ -1303,6 +1309,19 @@ Column gap:8
         ],
         isEmpty,
       );
+    });
+
+    test('a phone navigation secondary action can be wired on its own event line', () {
+      final r = parse('''
+Page
+  NavActions secondary:"Sign in" -> go home
+    onSecondary: go login
+''');
+      expect(r.issues, isEmpty);
+      final reactions = (_node(r, 'NavActions1')['actions'] as List).cast<Map>();
+      expect(reactions.map((a) => (a['trigger'] as Map)['event']), ['onNavigate', 'onSecondary']);
+      expect((reactions.last['actions'] as List).single, {'type': 'navigate', 'to': 'login'});
+      expect(notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds), contains('NavActions secondary -> onNavigate'));
     });
 
     test('a parameter a component does not have is named on its line, with what it takes', () {
