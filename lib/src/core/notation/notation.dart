@@ -671,6 +671,7 @@ List<String> notationStrings(WidgetSpec spec) {
 /// Short names: what an agent writes → the node type and what it implies.
 const Map<String, ({String type, Json node})> notationTypes = {
   'Input': (type: 'textField', node: {}),
+  'CodeInput': (type: 'textField', node: {}),
   'Toggle': (type: 'switch', node: {}),
   'Select': (type: 'dropdown', node: {}),
   'Button': (type: 'filledButton', node: {}),
@@ -2430,6 +2431,8 @@ class _Parser {
           continue;
         }
         if (key == 'password' && type == 'textField') key = 'obscureText';
+        if (written == 'CodeInput' && key == 'length') key = 'otpLength';
+        if (written == 'CodeInput' && key == 'digits') key = 'otpDigitsOnly';
         // A fixed tooltip is the node's own; one that reads data is bound as before.
         if (key == 'tooltip' && !spec.props.any((p) => p.key == 'tooltip') && raw.startsWith('"') && !raw.contains('{')) {
           node['tooltip'] = _literal(raw).$2?.toString() ?? raw;

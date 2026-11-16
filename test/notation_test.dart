@@ -20,6 +20,18 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  test('CodeInput describes one bound text field with a slot count and digit filter', () {
+    final r = _parse('CodeInput "Verification code" =code length:6 digits:true');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final field = _node(r, 'textField1');
+    expect(field['type'], 'textField');
+    expect((field['props'] as Map)['otpLength'], 6);
+    expect((field['props'] as Map)['otpDigitsOnly'], true);
+    expect(field['bind'], {'props.initialValue': r'${code}'});
+    expect(notationPrompt(catalog: standardCatalog), contains('CodeInput "Code"'));
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12
