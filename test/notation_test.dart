@@ -1833,5 +1833,20 @@ Column
         expect(nodesOf(plain).values.where((n) => (n! as Map).containsKey('media')), isEmpty);
       }
     });
+
+    test('show:phone still hides a conditional menu on wider screens', () {
+      final r = parseNotation('''
+state menu=false
+Page
+  if menu
+    Section show:phone
+      Link "Stations" -> go stations
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final section = nodesOf(r).values.firstWhere((n) => (n! as Map)['bind']?['visible'] == '\${= menu}')! as Map;
+      final wideRule = (section['media'] as List).cast<Map>().firstWhere((rule) => rule['minWidth'] == 700);
+      expect((wideRule['patch'] as Map)['visible'], false);
+      expect(((wideRule['patch'] as Map)['bind'] as Map)['visible'], isNull);
+    });
   });
 }
