@@ -1632,6 +1632,18 @@ Column center
 
   group('a page written once lays out on a tablet and a phone', () {
     const page = NotationOptions(width: 1280);
+    test('a page link can choose its destination from a component event', () {
+      final r = parseNotation('''
+Page
+  Section
+    Button "Open" -> go =result=="Pricing"?"pricing":"home"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final button = _node(r, 'filledButton1');
+      expect(((button['actions'] as List).single as Map)['actions'], [
+        {'type': 'navigate', 'to': r'${= result=="Pricing"?"pricing":"home"}'},
+      ]);
+    });
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
     // The patch a node takes at a width, its rules merged in order.

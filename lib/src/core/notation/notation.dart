@@ -3375,6 +3375,10 @@ class _Parser {
         if (j is Map) out.add(j.cast<String, Object?>());
         continue;
       }
+      if (a.startsWith('go =')) {
+        out.add({'type': 'navigate', 'to': _formula(a.substring(4).trim())});
+        continue;
+      }
       final set = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
       if (set != null) {
         final v = set[2]!.trim();
@@ -3422,7 +3426,7 @@ class _Parser {
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':
-          out.add({'type': 'navigate', 'to': s});
+          out.add({'type': 'navigate', 'to': s.startsWith('=') ? _formula(s.substring(1).trim()) : s});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':
