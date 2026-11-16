@@ -1525,12 +1525,17 @@ class _Parser {
     if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
+    // The old spelling must not silently create page-local state.
+    if (line.startsWith('shared state ')) {
+      _issue(column, 'A site variable is written: project name=value (shared state is obsolete).');
+      line = 'project ${line.substring(13)}';
+    }
     // `project cart=[]` (or `project cart`): a variable of the whole site
     // (site.json's `variables`), read and set here as any other, with no
     // copy of its own on this screen to hide it.
     if (line.startsWith('project ') && _root == null) {
       final rest = line.substring(8).trim();
-      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)s*(=|$)').firstMatch(rest)?.group(1);
+      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*(=|$)').firstMatch(rest)?.group(1);
       if (name == null) return _issue(column, 'A site\x27s variable is written: project name=value (the same name as in site.json\x27s variables).');
       _projectVariables.add(name);
       return _state(rest.contains('=') ? rest : '$name=""', column + 8);

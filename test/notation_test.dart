@@ -1804,6 +1804,12 @@ Page
       expect(node(card, 'mix')['type'], 'chart');
     });
 
+    test('obsolete shared state reports migration without shadowing site state', () {
+      final r = parseNotation('shared state project="Harbor House"\nPage\n  Heading "{project}"\n', catalog: standardCatalog, options: page);
+      expect(r.issues.map((i) => i.message), [contains('shared state is obsolete')]);
+      expect(jsonEncode(r.document['variables'] ?? {}), isNot(contains('"name":"project"')));
+    });
+
     test('what the twenty sites met: a size word under an if, short columns side by side, controls with choices, a site\x27s variable, a page worked out', () {
       final r = parseNotation('''
 state menu=false
