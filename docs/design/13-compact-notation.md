@@ -372,7 +372,24 @@ it. `Column middle` gathers them at the middle.
 Still asked for and not read: links and hover; a dialog, sheet or drawer as an element; a table as an element;
 chart legends and axes; a chart bound to state; reorder with a handle; pull to refresh; a map; shapes.
 
-## 14. Open points
+## 14. Tablets and phones
+
+A `Page` or `App` is authored once at its desktop width. Its expanded nodes keep
+that layout at 1024 px and wider. Below 1024 px, grid rows and rows of flexible
+panels wrap; repeated grids use at most two columns. Below 600 px, repeated
+grids use one column and ordinary rows wrap. A flexible child of a wrapping
+row gets a basis so it can share a line or move to the next. These are media
+patches in the expanded document, generated from the page structure.
+
+Use `hide:phone` and `show:phone` to replace a wide navigation row with a
+menu button. The page must supply the menu's links and its open state. The
+same words accept `tablet` for widths through 1023 px. Put shared state in
+the site's manifest, then write `project name` before each page that uses it;
+bound controls will use the project variable without redeclaring it locally.
+Components with their own narrow layout, such as `Segments` and `SiteNav`,
+carry media rules in their component documents.
+
+## 15. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
   without a card would then have no `Card`). Proposed: from the design system, with SSUI's as the built-in.
