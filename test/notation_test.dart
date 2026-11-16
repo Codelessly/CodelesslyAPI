@@ -1910,6 +1910,56 @@ Page
       expect(jsonEncode(own.document), isNot(contains('navMenu')));
     });
 
+    test('from the sites\' second round: the site\'s variables from its manifest, a size word beside a value of its name, a line that says where it shows, bleed, a compact band, a sticky bar\'s surface, a link\'s ink', () {
+      final theme = NotationOptions.fromTheme(const {
+        'colors': {'primary': '#FFFACC15', 'accentDeep': '#FF854D0E', 'pageFill': '#FFFFFFFF'},
+        'sizes': {'wide': 900},
+      }, width: 1280);
+      final options = NotationOptions(
+        width: 1280,
+        accent: theme.accent,
+        accentText: theme.accentText,
+        siteFill: theme.siteFill,
+        projectVariables: const {
+          'cart': {'name': 'cart', 'type': 'integer', 'value': 0},
+        },
+      );
+      final r = parseNotation('''
+state phone=""
+Page
+  Nav#bar sticky
+    Row gap:4
+      Link#docs "Docs" -> go docs
+      Link#call "Call us" show:phone -> go call
+  Section#wide bleed
+    Text "{cart} in the cart"
+    Button#add "Add" -> cart=cart+1
+    Input "Phone" =phone
+    Link#more "Read more" -> go more
+  Section#strip compact
+    Text "Trusted by many"
+''', catalog: standardCatalog, options: options);
+      expect(r.issues, isEmpty);
+      // The site's value is used by name and not declared on the screen.
+      final declared = [for (final v in ((r.document['variables'] as Map?)?['screen'] as List? ?? const [])) (v as Map)['name']];
+      expect(declared, contains('phone'));
+      expect(declared, isNot(contains('cart')));
+      expect(jsonEncode(node(r, 'add')['actions']), contains(r'${= cart+1}'));
+      // show:phone is the screen's size here, not the page's value called phone;
+      // and the link that says so shows on a phone, where the bar hides the others.
+      expect(node(r, 'call')['bind'], isNull);
+      expect(at(r, 'call', 390), isEmpty);
+      expect(at(r, 'call', 834)['visible'], false);
+      expect(at(r, 'docs', 390)['visible'], false);
+      // A bleed section's content runs edge to edge; a compact band stays the shorter one on a phone.
+      expect((node(r, 'wide')['layout']! as Map)['padding'], [0, 64, 0, 64]);
+      expect((at(r, 'strip', 390)['layout']! as Map)['padding'], [20, 24, 20, 24]);
+      // A sticky bar is drawn on the page's surface, and a link in text is in the accent's ink.
+      expect(node(r, 'bar')['sticky'], {'offset': 0});
+      expect(jsonEncode(node(r, 'bar')['decoration']), contains('#FFFFFFFF'));
+      expect(jsonEncode(node(r, 'more')['props']), contains('#FF854D0E'));
+    });
+
     test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
       final r = parseNotation('''
 Page

@@ -39,6 +39,7 @@ final class PageWords {
     this.siteFill,
     this.paneFill,
     this.accentName,
+    this.accentText,
     this.iconTile,
     this.accent = '#FF2563EB',
     this.selectedFill = '#FFE5E7EB',
@@ -67,6 +68,9 @@ final class PageWords {
 
   /// The accent as the theme names it (a selected item's ink); null: [accent].
   final String? accentName;
+
+  /// The accent as text on a light page (a link in running text); null: [accent].
+  final String? accentText;
 
   /// Colors, as the notation takes them (`#AARRGGBB`).
   final String accent, selectedFill, line;
@@ -375,7 +379,9 @@ final class PageWords {
       final g = _n(gutter);
       final tight = parts.word('compact') | parts.word('tight');
       final v = _n(tight ? (sectionPad / 2).roundToDouble() : sectionPad);
-      final pad = parts.take('pad') ?? (footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
+      // bleed: what is in it runs from edge to edge (a wide picture, a map).
+      final bleed = parts.word('bleed');
+      final pad = parts.take('pad') ?? (bleed ? '[0,$v,0,$v]' : footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
       // A tinted band: the page's alternate ground, ruled off above and below.
       final tint = parts.word('tint') | parts.word('alt') | parts.word('band') | parts.word('muted');
       final banded = tint && band != null && !parts.has('fill') ? ' fill:$band border-top:$line border-bottom:$line' : '';
@@ -385,7 +391,7 @@ final class PageWords {
       if (footer) out.add((indent: at, text: 'Divider'));
       return out
         ..add((indent: at, text: 'Column${_role('section')}$mark w:fill center pad:$pad$banded${parts.all}'))
-        ..add((indent: at + 2, text: 'Column w:fill maxw:$width gap:$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
+        ..add((indent: at + 2, text: 'Column w:fill${bleed ? '' : ' maxw:$width'} gap:$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
     }
     if (_bars.contains(word) && !isComponentCall(word, parts)) {
       if (!framed) {
@@ -408,7 +414,7 @@ final class PageWords {
       }
       final width = parts.take('maxw') ?? _n(contentWidth);
       final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
-      final sticky = parts.word('sticky') ? ' sticky:0' : '';
+      final sticky = parts.word('sticky') ? ' sticky:0${parts.has('fill') || siteFill == null ? '' : ' fill:$siteFill'}' : '';
       open(frame: 'Nav', shift: 2, after: 'Divider').pageNav = true;
       return out
         ..add((indent: at, text: 'Column$mark w:fill center pad:$pad$sticky${parts.all}'))
@@ -546,10 +552,10 @@ final class PageWords {
         return out..add((indent: at, text: 'Button.ghost$mark ${label ?? '""'}${parts.props}$action'));
       }
       if (_looks(parts)) {
-        final color = parts.has('color') ? '' : ' color:$accent';
+        final color = parts.has('color') ? '' : ' color:${accentText ?? accent}';
         return out..addAll(_textBox(at, mark, parts, text: '${label ?? '""'}$color', action: action));
       }
-      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color:$accent'}${parts.props}$action'));
+      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color:${accentText ?? accent}'}${parts.props}$action'));
     }
     if ((word == 'Heading' || word == 'Title' || RegExp(r'^H[1-4]$').hasMatch(word)) && !isComponent(word)) {
       final level = word.startsWith('H') && word.length == 2 ? int.parse(word.substring(1)) : int.tryParse(parts.take('level') ?? '') ?? 2;

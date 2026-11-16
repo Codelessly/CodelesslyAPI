@@ -104,6 +104,8 @@ final class NotationOptions {
     this.fieldText,
     this.reflow = true,
     this.displaySizes = const {},
+    this.projectVariables = const {},
+    this.accentText,
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -111,7 +113,7 @@ final class NotationOptions {
   /// (`StatusBadge "Paid"`, `Stepper =qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
   factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
-      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true}) {
+      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true, Map<String, Json> projectVariables = const {}}) {
     final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, reflow: reflow);
     Object size(SizeFit fit, double value) => switch (fit) {
           SizeFit.fill || SizeFit.flexible => {'fill': 0},
@@ -153,6 +155,8 @@ final class NotationOptions {
       fieldText: base.fieldText,
       reflow: base.reflow,
       displaySizes: base.displaySizes,
+      projectVariables: projectVariables,
+      accentText: base.accentText,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -299,6 +303,9 @@ final class NotationOptions {
       fieldLabel: isWide ? styles['fieldLabelWide'] : null,
       fieldText: isWide ? styles['inputTextWide'] : null,
       reflow: reflow,
+      // A link in running text: the accent where it is read as text on a
+      // light page (a bright accent is for fills).
+      accentText: colors['accentText'] != null ? color('accentText', '#FF1D4ED8') : colors['accentDeep'] != null ? color('accentDeep', '#FF1D4ED8') : null,
       displaySizes: {
         for (final e in textStyles.entries)
           if (readMap(e.value)?['fontSize'] case final num size when size >= 32) e.key: size,
@@ -466,6 +473,17 @@ final class NotationOptions {
   /// its grids take fewer columns, its headlines shrink. False: the page is
   /// written for its one width only.
   final bool reflow;
+
+  /// The variables of the whole site (site.json's `variables`), by name,
+  /// each as the manifest has it (`name`, `type`, `value`): a page reads
+  /// and sets them with no declaration and no copy of its own on the screen
+  /// (which would hide the site's). `project name=value` on a page does the
+  /// same for one name.
+  final Map<String, Json> projectVariables;
+
+  /// The accent as text on a light page (a link in running text): a theme's
+  /// `colors.accentText`, else its `accentDeep`. Null: the accent.
+  final String? accentText;
 
   /// The theme's text styles of a headline's size (32 and up), by name →
   /// font size: a text in one of them is smaller on a phone.
@@ -909,7 +927,15 @@ class _Parser {
         _declared = _host?._declared ?? {},
         _counts = _host?._counts ?? {},
         _derived = _host?._derived ?? {},
-        _projectVariables = _host?._projectVariables ?? {};
+        _projectVariables = _host?._projectVariables ?? {} {
+    // The site's variables (its manifest's): known here, and never declared on the screen.
+    if (_host == null) {
+      for (final e in options.projectVariables.entries) {
+        variables.putIfAbsent(e.key, () => {'name': e.key, 'type': e.value['type'] ?? 'text', 'value': e.value['value']});
+        _projectVariables.add(e.key);
+      }
+    }
+  }
   final Catalog catalog;
   final NotationOptions options;
 
@@ -1209,6 +1235,7 @@ class _Parser {
     paneFill: options.paneFill,
     iconTile: options.iconTile,
     accentName: options.accent,
+    accentText: options.accentText,
     accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
     selectedFill: options.selectedFill,
     line: options.line,
@@ -2180,9 +2207,9 @@ class _Parser {
         }
         var key = word.substring(0, colon);
         // `if:cond` on a node is the node shown while it holds.
-        // …but `show:phone` is where it shows (a screen's size), unless the
-        // UI has a value of that name.
-        final sizeWord = const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(colon + 1)) && !variables.containsKey(word.substring(colon + 1));
+        // …but `show:phone` is where it shows (a screen's size), even on a
+        // page with a value of that name (a form's phone field).
+        final sizeWord = (key == 'show' || key == 'hide') && const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(colon + 1));
         if (key == 'if' || key == 'when' || (key == 'show' && !sizeWord)) key = 'visible';
         // A handler written as a key, as models write one unprompted:
         // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
@@ -2255,7 +2282,7 @@ class _Parser {
         // or a field read through the name an `each` gave (price:x.price),
         // is that variable: text is written in quotes. A word that is one of
         // the parameter's own values (tone:quiet) stays the word.
-        if (!raw.startsWith('=') && raw != 'fill' && raw != 'hug' && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
+        if (!raw.startsWith('=') && raw != 'fill' && raw != 'hug' && !sizeWord && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
           final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(raw)!;
           final known = variables.containsKey(head) || _derived.containsKey(head) || _stack.any((o) => o.each == head);
           final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
