@@ -1659,6 +1659,7 @@ Column center
       expect(notationPrompt(catalog: standardCatalog), isNot(contains('PAGES')));
       final wide = notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280));
       expect(wide, contains('PAGES'));
+      expect(wide, contains('SwipeAction "Book" id:book side:end'));
       expect(wide, contains('"variables":[{"name":"cart","type":"list","value":[]}]'));
       // Its two examples read without an issue.
       final examples = wide.substring(wide.lastIndexOf('\n  Page\n'));
@@ -1668,6 +1669,61 @@ Column center
       expect(parseNotation(app, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
     });
   });
+
+    test(
+      'a repeated row can offer a swipe action with an item condition and a list reaction',
+      () {
+        final r = parseNotation(
+          '''
+state picked=""
+state classes=[{"name":"Lift","full":false},{"name":"Flow","full":true}]
+Page
+  Section
+    Column
+      each row in classes
+        SwipeAction "Book" id:book side:end when:!row.full -> picked=result.item.name
+        SwipeAction "Waitlist" id:wait side:start when:row.full -> picked=result.item.name
+        Text "{row.name}"
+''',
+          catalog: standardCatalog,
+          options: const NotationOptions(width: 1280),
+        );
+        expect(r.issues, isEmpty);
+        expect([
+          for (final d in Catalog.run(
+            standardCatalog,
+            () => validateDocument(
+              r.document,
+              options: const ValidateOptions(level: Level.full),
+            ),
+          ))
+            if (d.severity == Severity.error)
+              '${d.code.name} ${d.path}: ${d.message}',
+        ], isEmpty);
+        final nodes = (r.document['nodes']! as Map).cast<String, Object?>();
+        final list = (nodes['listView1']! as Map).cast<String, Object?>();
+        final swipe = ((list['props']! as Map)['swipeActions']! as Map);
+        expect(
+          (swipe['endActions'] as List).single,
+          containsPair('when', r'${= !item.full}'),
+        );
+        expect(
+          (swipe['startActions'] as List).single,
+          containsPair('when', r'${item.full}'),
+        );
+        expect((list['actions'] as List), hasLength(2));
+        expect((nodes['listView1Item']! as Map)['children'], isNotEmpty);
+        final card = parseNotation('''
+state rows=[{"name":"Lift"}]
+Column
+  each row in rows
+    SwipeAction "Book" side:end -> toast "Booked"
+    Text "{row.name}"
+''', catalog: standardCatalog);
+        expect(card.issues, isEmpty);
+        expect((((card.document['nodes'] as Map)['listView1'] as Map)['props'] as Map)['swipeActions'], isNotNull);
+      },
+    );
 
   group('a page written once lays out on a tablet and a phone', () {
     const page = NotationOptions(width: 1280);

@@ -1676,6 +1676,81 @@ class _Parser {
       line = _rename(line, d.key, '(${d.value})');
     }
     final parent = _stack.isEmpty ? null : _stack.last;
+    // A row's list owns its swipe actions. Keep the action beside the
+    // repeated row in the notation, but write the model's list property and
+    // reaction (whose result carries the row and the chosen action id).
+    if (line.startsWith('SwipeAction ')) {
+      final each = _stack.reversed.where((o) => o.each != null).firstOrNull;
+      final listId = each == null ? null : _parentOf[each.id];
+      final list = listId == null ? null : nodes[listId];
+      if (list == null || list['type'] != 'listView') {
+        return _issue(
+          column,
+          'A SwipeAction belongs under each row in a vertical list.',
+        );
+      }
+      final arrow = _outside(line, ' -> ');
+      final head = arrow < 0 ? line : line.substring(0, arrow);
+      final match = RegExp(r'^SwipeAction\s+"([^"]+)"(.*)$').firstMatch(head);
+      if (match == null)
+        return _issue(
+          column,
+          'Write SwipeAction "Book" id:book side:end -> bookingClass=result.item.name.',
+        );
+      final label = match[1]!;
+      final rest = match[2]!;
+      String? word(String key) =>
+          RegExp('(?:^|\\s)$key:([^\\s]+)').firstMatch(rest)?.group(1);
+      final side = word('side') ?? 'end';
+      if (side != 'start' && side != 'end')
+        return _issue(column, 'A SwipeAction side is start or end.');
+      final id =
+          word('id') ??
+          label.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');
+      if (!_identifier.hasMatch(id))
+        return _issue(column, 'A SwipeAction id is a name: id:book.');
+      final when = word('when');
+      final removes = word('removes') == 'true';
+      final props = (list['props'] as Map).cast<String, Object?>();
+      final swipes =
+          (props['swipeActions'] as Map?)?.cast<String, Object?>() ??
+          <String, Object?>{};
+      final key = side == 'start' ? 'startActions' : 'endActions';
+      final actions = [
+        ...?(swipes[key] as List?),
+        <String, Object?>{
+          'id': id,
+          'label': label,
+          'removes': removes,
+          'background': options.accent,
+          'foreground': '#FFFFFFFF',
+          if (when != null) 'when': _read(when),
+        },
+      ];
+      swipes[key] = actions;
+      if (removes) swipes['apply'] = 'variable';
+      props['swipeActions'] = swipes;
+      if (arrow >= 0) {
+        final reactions = (list['actions'] as List?) ?? <Object?>[];
+        reactions.add({
+          'trigger': {
+            'type': 'swipeAction',
+            'when': _formula('result.action=="$id"'),
+          },
+          'actions': _actions(_statements(line.substring(arrow + 4)), column),
+        });
+        list['actions'] = reactions;
+      }
+      _patches.add({
+        'op': 'patch',
+        'id': listId,
+        'patch': {
+          'props': {'swipeActions': swipes},
+          if (list['actions'] != null) 'actions': list['actions'],
+        },
+      });
+      return;
+    }
     // A handler on a line of its own under its control (`onPressed: a = 1`).
     final handler = RegExp(r'^(on[A-Z][A-Za-z]*|tap|press|click|change)\s*:\s*(.+)$').firstMatch(line);
     if (handler != null && parent != null && nodes[parent.id] != null && !(catalog.widget(nodes[parent.id]!['type']! as String)?.props.any((p) => p.key == handler[1]) ?? false)) {
