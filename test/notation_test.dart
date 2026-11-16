@@ -1770,12 +1770,15 @@ Page
     Button "Start free"
   Section#hero
     Text#big "Fill every room" size:56 weight:800
+  Section#strip compact
+    Text "Trusted by teams"
 ''', catalog: standardCatalog, options: page);
       expect(site.issues, isEmpty);
       expect(at(site, 'links', 390)['visible'], false);
       expect(at(site, 'links', 834)['visible'], isNull);
       expect(((at(site, 'big', 390)['props']! as Map)['style']! as Map)['fontSize'], 40);
       expect((at(site, 'hero', 390)['layout']! as Map)['padding'], [20, 40, 20, 40]);
+      expect((at(site, 'strip', 390)['layout']! as Map)['padding'], [20, 20, 20, 20]);
     });
 
     test('a donut written with labels has its legend beside it, and under it where the two do not fit', () {

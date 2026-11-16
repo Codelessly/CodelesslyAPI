@@ -234,7 +234,11 @@ final class PageReflow {
     if (pad is! List || pad.length != 4 || pad.any((v) => v is! num)) return;
     final p = pad.cast<num>();
     List<num> capped(num side, num band) => [math.min(p[0], side), math.min(p[1], band), math.min(p[2], side), math.min(p[3], band)];
-    final tablet = capped(p[0], 48), phone = capped(20, 40);
+    final tablet = capped(p[0], 48);
+    // A compact band already uses half the desktop section's vertical space.
+    // Keep that distinction on a phone instead of giving both bands 40 px.
+    final phoneBand = p[1] <= 48 && p[3] <= 48 ? 20 : 40;
+    final phone = capped(20, phoneBand);
     if (!jsonEquality.equals(tablet, p)) _add(id, reflowTabletMax, {'layout': {'padding': tablet}});
     if (!jsonEquality.equals(phone, p)) _add(id, reflowPhoneMax, {'layout': {'padding': phone}});
   }
