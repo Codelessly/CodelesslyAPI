@@ -119,13 +119,25 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
       Pane w:320             a further pane (a list beside its details, a details panel): Pane w:320 pad:16 gap:12
   NavItem "Orders" icon:"inbox" badge:"12" selected:=tab=="orders" -> tab="orders" is a line of a sidebar (or of a Nav). Link "Docs" is a link (href:"https://…", or -> an action). Brand "Harbor" icon:"anchor" is the product's mark and name (first in a Sidebar or a Nav). Heading "…" heads a section (level:1 a landing page's headline or an app's page title, level:3 the title of a card or a panel; the title of an article or a docs page is a plain Heading). Link is in the accent; a quiet link (a table of contents, a footer) is Text.muted "…" -> an action. IconTile "sync" is an icon on a small tinted tile (the mark of a feature, a stat, a row).
   A heading with #id is an anchor: Link "Install" -> scroll install scrolls it into view. Heading#install "Install" onEnterViewport:heading="Install" updates the active outline as the reader scrolls.
-  Side by side: Row gap:32 with grow on each child that shares the width (Column grow gap:12), or Grid cols:3 gap:24 for equal cells; Cards side by side are equally tall by themselves; write top on a Row of other things that differ in height. Row between spreads its children end to end. A rule on one side is border-bottom:#… (border-top, border-left, border-right).
+  Side by side: Row gap:32 with grow on each child that shares the width (Column grow gap:12), or Grid cols:3 gap:24 for equal cells; Cards side by side are equally tall by themselves; write top on a Row of other things that differ in height. Row between spreads its children end to end. Nav sticky keeps the bar at the top while the page scrolls; sticky on a rail (Column w:320 sticky) keeps an enrol panel or a table of contents in view while the page scrolls. A rule on one side is border-bottom:#… (border-top, border-left, border-right).
+  A block with more than one event takes the others on lines of their own under it: SiteNav … -> go replace(lower(result)," ","_") with onCta: go signup and onSecondary: go login indented under it. SiteNav … sticky keeps it at the top.
+  A value every page of the site shares (a cart, the signed-in name) is written project cart=[] before the page, in place of state, with the same name in site.json's variables: it is read and set like any other (Select =cart, -> cart=append(cart,item)) and keeps its value from page to page.
   Inside a frame everything is written as on a card: the components, Card, Text, the controls. A Card in a Grid is a tile of the page.${options.reflow ? '''
 
-  Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns, a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it), a Nav hides its links, sections and headlines get smaller. So that it can:
+  Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns, a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it) and opens its Sidebar as a drawer from a menu button it adds to Main's Nav, a Nav hides its links and opens them from a menu button it adds itself (each Link with its -> action or href, as written), sections and headlines get smaller. So that it can:
     Share a width with grow, or give the one fixed part a width (a rail: Column w:320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
     Equal cells are a Grid, not a Row of fixed-width boxes. A table's row is a Row whose cells have widths (Text "Status" w:90) and one cell that grows, its header written the same way.
-    hide:phone leaves a node out on a phone, hide:tablet on a tablet and a phone; show:phone shows it on a phone only, show:tablet on a tablet and a phone only (a menu button for the links a Nav hides: IconButton "menu" show:phone -> menu=!menu, then if menu a Column show:phone of the links).''' : ''}${pagesBrief == null || pagesBrief.isEmpty ? '' : '\n${pagesBrief.split('\n').map((l) => '  $l').join('\n')}'}
+    hide:phone leaves a node out on a phone, hide:tablet on a tablet and a phone; show:phone shows it on a phone only, show:tablet on a tablet and a phone only. Write no menu button for a Nav's links: it has one (a Nav with a show:phone line of its own keeps yours instead). They hold on a line under an if too: the condition counts only where the size shows the line.
+    A Row of two Columns that grow, each a heading and its text, stacks where they no longer fit; a Row of controls with choices (filters) wraps whole controls onto the next line.''' : ''}
+
+  OVER THE PAGE (a dialog, a sheet, a drawer, a menu): write each after the page, at the margin, with an id, its content indented under it as on a card. -> open signup shows it, -> close closes it (so does a tap outside it). It reads and sets the page's values: a form in a dialog sets them and closes (-> saved=true; close).
+    Dialog#signup "Join the waitlist" "A line under the title"    a centered dialog with its title and a close button (w:480)
+    Sheet#filters "Filters"          rises from the bottom of the window: filters, options, a share sheet
+    Drawer#cart "Your cart" right    a panel as tall as the window at its side (the left unless right; w:300); a NavItem in it closes it
+    Menu#more                        a menu by the button that opened it (Menu#more end lines up their right edges; above opens upwards); its lines are MenuItem "Rename" icon:"edit" -> an action, and each closes the menu after it
+    Popover#tip                      a small panel by what opened it (a hint, a picker)
+    Lightbox#zoom "{photo}"          a picture large over the page: Image "{p.url}" -> photo=p.url; open zoom
+  The menu of one row of a list: IconButton "more_vert" -> sel=row.id; open rowMenu, and the menu's lines read sel. menu:rowMenu on a line opens that Menu on a right click or a long press, where the pointer is. Write no modal as a Stack or an if over the page, and no drawer for an App's Sidebar.${pagesBrief == null || pagesBrief.isEmpty ? '' : '\n${pagesBrief.split('\n').map((l) => '  $l').join('\n')}'}
 
   Page
     Nav
@@ -133,7 +145,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
       Row gap:4
         Link "Features"
         Link "Pricing"
-      Button "Start free" -> emit start
+      Button "Start free" -> open signup
     Section
       Row gap:48
         Column grow gap:20
@@ -156,6 +168,9 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
       Row between
         Text.strong "Tidewater"
         Text.muted "© 2026 Tidewater"
+  Dialog#signup "Start free"
+    Input "Work email" =email
+    Button "Create account" -> emit start; close
 
   state tab="orders"
   App
@@ -204,7 +219,7 @@ LINE
 - key:value sets a prop by its name. Common keys: gap (space between children), pad (padding: one number or [left,top,right,bottom]), w, h (a number, fill or hug), fill (background color #AARRGGBB), radius. Quote a value with spaces: hint:"you@example.com". Lists are JSON: items:["S","M","L"].
 - Words on a Row, Column or Stack: center is across the page and middle down it, on all three (Column center centers its children side to side). Also start, end, between (along a Row or Column); top, bottom, left, right, stretch (across it). grow on a child takes the remaining room. hidden hides a node.
 ${natural ? '''- =name binds a control's value to a variable both ways (the variable is created for you): Slider =volume, Toggle "Wi-Fi" =wifi, Input "Email" =email, Select =size items:["S","M","L"]. On other keys a value that follows the state is an expression in braces: visible:{count > 0}, enabled:{name != "" and agreed}, selected:{tab == "all"}.''' : '''- =name binds a control's value to a variable both ways (the variable is created for you): Slider =volume, Toggle "Wi-Fi" =wifi, Input "Email" =email, Select =size items:["S","M","L"]. On other keys write key:=expression with no spaces: visible:=count>0.'''}
-${natural ? '''- -> runs on tap (on change, for a control) and holds statements as you would write them in code: count += 1; liked = !liked; step = valid ? 3 : 2; if (qty > 0) { qty -= 1 }. Also: emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal. Separate several with ;''' : '''- -> runs on tap (on change, for a control): name=value sets a variable; emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal. Separate several with ;'''}
+${natural ? '''- -> runs on tap (on change, for a control) and holds statements as you would write them in code: count += 1; liked = !liked; step = valid ? 3 : 2; if (qty > 0) { qty -= 1 }. Also: emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal${options.width >= notationPageWidth ? r'''; go screen opens a page of the site (go replace(lower(result)," ","_") works the page out, as from a SiteNav's link); scroll pricing moves the page to the line with that id, or to an anchor written after a line (Heading "Pricing" #pricing, or Section id:pricing); Link "Pricing" href:"#pricing" does the same''' : ''}. Separate several with ;''' : '''- -> runs on tap (on change, for a control): name=value sets a variable; emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal${options.width >= notationPageWidth ? r'''; go screen opens a page of the site (go replace(lower(result)," ","_") works the page out, as from a SiteNav's link); scroll pricing moves the page to the line with that id, or to an anchor written after a line (Heading "Pricing" #pricing, or Section id:pricing); Link "Pricing" href:"#pricing" does the same''' : ''}. Separate several with ;'''}
 - drag:group(value) on a node lets it be dragged carrying a value; drop:groupA,groupB -> … on a node takes those drops, and its -> runs on a drop with result.data the value carried: Card drag:todo(card.id), then Column drop:todo -> done=append(done,result.data).
 ${natural ? '''- state name=value on its own line (top level, before the card) declares a variable with a starting value: state qty=1, state liked=false, state lines=[{"name":"Milk","price":3.2,"qty":2}]. let name = expression on its own line names a value worked out from the state, kept up to date as the state changes: let subtotal = sum(map(lines, l => l.qty * l.price)); let total = subtotal + 4.99. Never work a total out yourself and write it as text: write the expression, so it follows the state.''' : '''- state name=value on its own line (top level) declares a variable with a starting value.'''}
 - project name binds site.json state across pages; open id [narrow] opens a canvas as a modal, close dismisses it.

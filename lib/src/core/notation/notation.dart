@@ -345,6 +345,46 @@ final class NotationOptions {
     );
   }
 
+  /// These looks for another canvas (an overlay's): its id and its width.
+  NotationOptions sized({required double width, required String screen}) => NotationOptions(
+        width: width,
+        screen: screen,
+        textStyles: textStyles,
+        card: card,
+        badges: badges,
+        surface: surface,
+        accent: accent,
+        track: track,
+        components: components,
+        badge: badge,
+        cta: cta,
+        palette: palette,
+        tile: tile,
+        sectionRadius: sectionRadius,
+        barChart: barChart,
+        progress: progress,
+        cardGap: cardGap,
+        pageFill: pageFill,
+        ringStroke: ringStroke,
+        height: height,
+        contentWidth: contentWidth,
+        selectedFill: selectedFill,
+        line: line,
+        narrowWidth: narrowWidth,
+        sidebarWidth: sidebarWidth,
+        sectionPad: sectionPad,
+        gutter: gutter,
+        band: band,
+        siteFill: siteFill,
+        paneFill: paneFill,
+        iconTile: iconTile,
+        controlHeight: controlHeight,
+        fieldLabel: fieldLabel,
+        fieldText: fieldText,
+        reflow: false,
+        displaySizes: displaySizes,
+      );
+
   /// The canvas's width.
   final double width;
 
@@ -862,21 +902,185 @@ class _Open {
 }
 
 class _Parser {
-  _Parser(this.catalog, this.options);
+  _Parser(this.catalog, this.options, [this._host, this._overlay])
+      : variables = _host?.variables ?? {},
+        issues = _host?.issues ?? [],
+        wanted = _host?.wanted ?? [],
+        _declared = _host?._declared ?? {},
+        _counts = _host?._counts ?? {},
+        _derived = _host?._derived ?? {},
+        _projectVariables = _host?._projectVariables ?? {};
   final Catalog catalog;
   final NotationOptions options;
 
+  /// For an overlay's canvas (a `Dialog#id` block and the like): the
+  /// parser of the page it is written after, whose state it shares (the
+  /// variables, the ids), and the block it is.
+  final _Parser? _host;
+  final Overlay? _overlay;
+
+  /// The overlays written so far, each a canvas of its own with its nodes,
+  /// and the one whose lines are being read.
+  final _overlays = <_Parser>[];
+  _Parser? _block;
+
+  /// Whether the block being read is left out (its id was taken).
+  bool _blockSkipped = false;
+
+  /// What `open <id>` adds for each overlay written (its presentation), and
+  /// the open actions written, to complete once their overlay is.
+  final _overlayActions = <String, Json>{};
+  final _opens = <Json>[];
+
+  /// The open actions a right click or a long press runs: a menu or a
+  /// popover they open sits where the pointer is, not by the node.
+  final _pointerOpens = Set<Json>.identity();
+
+  void _atPointer(Json action) {
+    if (action['type'] != 'openModal') return;
+    _top._pointerOpens.add(action);
+    if (action['presentation'] == 'popover') action['anchor'] = 'pointer';
+  }
+
+  _Parser get _top => _host ?? this;
+
+  /// The document's canvases: the page, then its overlays.
+  List<String> get _rootIds => [_top.options.screen, for (final o in _top._overlays) o.options.screen];
+
+  /// Where the variables are declared: on the page's canvas, or, once the
+  /// page has overlays, for every canvas of the document (an overlay reads
+  /// and sets the page's values).
+  String get _scope => _top._overlays.isEmpty ? options.screen : 'page_variables';
+
+  bool _taken(String id) {
+    final top = _top;
+    return [top, ...top._overlays].any((p) => p.nodes.containsKey(id) || p.options.screen == id);
+  }
+
+  /// Whether a line is still open over the next ones.
+  bool get _continues => _everyOpen != null || _pending != null || _open != null;
+
+  /// The canvas of this parser's nodes.
+  Json get _canvasNode {
+    final o = _overlay;
+    Json look() {
+      if (o == null) return _surface;
+      if (!o.surface) {
+        return {
+          'fills': [
+            {'color': '#00FFFFFF'},
+          ],
+        };
+      }
+      return {
+        'fills': _copyValue(readMap(options.card['decoration'])?['fills']) ?? _surface['fills'],
+        if (o.radius > 0) 'radius': o.radius,
+        if (o.outlined)
+          'strokes': [
+            {'color': options.line},
+          ],
+        'effects': [
+          {'type': 'dropShadow', 'color': '#24000000', 'offset': [0, 12], 'blurRadius': 32, 'spreadRadius': -6},
+        ],
+      };
+    }
+
+    return {
+      'type': 'canvas',
+      if (o != null) 'name': o.id,
+      if (_root != null) 'slots': {'body': _root},
+      'layout': {'width': o?.width ?? options.width, 'height': _canvasHeight},
+      'decoration': look(),
+      if (_timers.isNotEmpty) 'actions': [..._timers],
+    };
+  }
+
+  /// A top-level `Dialog#id`, `Sheet#id`, `Drawer#id`, `Menu#id`,
+  /// `Popover#id` or `Lightbox#id` line: the lines under it are a canvas of
+  /// their own, which `open <id>` shows over the page.
+  void _openBlock(Overlay o) {
+    if (_taken(o.id)) {
+      _issue(1, 'The id "${o.id}" is used twice.');
+      _blockSkipped = true;
+      return;
+    }
+    final first = _overlays.isEmpty;
+    // In it everything is laid out as on a card: a narrow canvas of its own.
+    final sub = _Parser(catalog, options.sized(width: o.width < 640 ? o.width : 640, screen: o.id), this, o);
+    _overlays.add(sub);
+    _overlayActions[o.id] = o.action;
+    for (final a in _opens) {
+      if (a['to'] == o.id) {
+        a.addAll(_copy(o.action));
+        if (_pointerOpens.contains(a)) _atPointer(a);
+      }
+    }
+    if (_canvas) {
+      // The variables become the document's, so the overlay reads and sets them.
+      final names = [
+        for (final n in _declared)
+          if (!_projectVariables.contains(n) && variables.containsKey(n)) n,
+      ];
+      if (first && names.isNotEmpty) {
+        ops
+          ..add({'op': 'vars', 'scope': options.screen, 'remove': names})
+          ..add({
+            'op': 'vars',
+            'scope': 'page_variables',
+            'set': {
+              for (final n in names) n: {'type': variables[n]!['type'], 'value': variables[n]!['value']},
+            },
+          });
+      }
+      // What opens it, written before it: now with how it is shown.
+      for (final p in [this, ..._overlays]) {
+        for (final e in p.nodes.entries) {
+          final actions = e.value['actions'];
+          if (actions != null && jsonEncode(actions).contains('"to":"${o.id}"')) {
+            ops.add({'op': 'patch', 'id': e.key, 'patch': {'actions': actions}});
+          }
+        }
+      }
+    }
+    _block = sub;
+    for (final l in o.head) {
+      _feed(l.indent - o.shift, l.text, closes: 'none');
+    }
+  }
+
+  /// A line of the block being read, [indent] in from its head.
+  void _feed(int indent, String text, {String? closes}) {
+    final sub = _block;
+    if (sub == null) return;
+    final o = sub._overlay!;
+    sub._line = _line - 1;
+    sub.line('${' ' * (indent + o.shift)}${PageWords.closing(text, closes ?? o.closes)}');
+    ops.addAll(sub.ops);
+    sub.ops.clear();
+  }
+
+  void _closeBlock() {
+    _blockSkipped = false;
+    final sub = _block;
+    if (sub == null) return;
+    for (final l in sub._overlay!.foot) {
+      _feed(l.indent - sub._overlay.shift, l.text, closes: 'none');
+    }
+    _block = null;
+    sub.finish();
+    ops.addAll(sub.ops);
+    sub.ops.clear();
+  }
+
   final nodes = <String, Json>{};
-  final variables = <String, Json>{};
-  /// Names supplied by the site manifest, not this screen.
-  final _projectVariables = <String>{};
-  final issues = <NotationIssue>[];
-  final wanted = <WantedBlock>[];
+  final Map<String, Json> variables;
+  final List<NotationIssue> issues;
+  final List<WantedBlock> wanted;
 
   /// The edit operations of the lines read so far, not yet taken ([take]).
   final ops = <Json>[];
-  final _declared = <String>{};
-  final _counts = <String, int>{};
+  final Set<String> _declared;
+  final Map<String, int> _counts;
   final _stack = <_Open>[];
   String? _root;
   int _line = 0;
@@ -887,6 +1091,25 @@ class _Parser {
   String? _everyOpen;
 
   void line(String raw) {
+    // The lines under an overlay's head are its canvas's; the next line at
+    // the margin ends it.
+    if (_host == null && !_continues) {
+      final indent = raw.length - raw.trimLeft().length;
+      final blank = raw.trim().isEmpty || raw.trimLeft().startsWith('//');
+      if ((_block != null || _blockSkipped) && (indent > 0 || blank || (_block?._continues ?? false))) {
+        _line++;
+        if (!blank || (_block?._continues ?? false)) _feed(indent, raw.trim());
+        return;
+      }
+      if (!blank && indent == 0) {
+        _closeBlock();
+        if (_pages.overlay(raw.trim()) case final Overlay o) {
+          _line++;
+          _openBlock(o);
+          return;
+        }
+      }
+    }
     if (_everyOpen case final String open) {
       _everyOpen = null;
       if (raw.trimLeft().startsWith('->')) {
@@ -958,6 +1181,8 @@ class _Parser {
       for (final l in _pages.rewrite(indent, raw.trim())) {
         // A frame's line says which frame it is (Row~nav): kept for the reflow.
         final role = _roleMark.firstMatch(l.text);
+        // The menu a Nav opens on a phone keeps whether it is open.
+        if (l.text.contains('navMenu')) variables.putIfAbsent('navMenu', () => {'name': 'navMenu', 'type': 'boolean', 'value': false});
         _lastNode = null;
         _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
@@ -989,7 +1214,11 @@ class _Parser {
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
+    isFrame: (name) => notationTypes[name] == null && catalog.widget(name)?.children == ChildModel.list,
     roles: true,
+    menu: options.reflow && options.width >= 700,
+    sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}Menu' : null,
+    surface: options.surface,
   );
 
   static final _roleMark = RegExp(r'^([A-Z][A-Za-z0-9]*)~([a-z]+)');
@@ -1000,6 +1229,14 @@ class _Parser {
   String? _lastNode;
   final _roles = <String, String>{};
   final _gridRows = <String, _Grid>{};
+
+  /// The anchors (`#why` after a line) by name → the node, and the scroll
+  /// actions written, which name an anchor or an id.
+  final _anchors = <String, String>{};
+  final _scrolls = <Json>[];
+
+  /// The names written `project name`: variables of the site, not of this screen.
+  final Set<String> _projectVariables;
   final _tableRows = <String>{};
 
   /// On a page, the media rules that lay it out on a tablet and a phone.
@@ -1084,25 +1321,16 @@ class _Parser {
     final screen = options.screen;
     final fresh = {
       for (final v in variables.values)
-        if (_declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
+        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
     };
     if (id == null && fresh.isEmpty) return;
     if (!_canvas) {
       _canvas = true;
       ops
-        ..add({'op': 'roots', 'roots': [screen]})
-        ..add({
-          'op': 'set',
-          'id': screen,
-          'node': {
-            'type': 'canvas',
-            'layout': {'width': _canvasWidth, 'height': _canvasHeight},
-            'decoration': _surface,
-            if (_timers.isNotEmpty) 'actions': [..._timers],
-          },
-        });
+        ..add({'op': 'roots', 'roots': _rootIds})
+        ..add({'op': 'set', 'id': screen, 'node': _canvasNode..remove('slots')});
     }
-    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': screen, 'set': fresh});
+    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': _scope, 'set': fresh});
     ops.addAll(_patches);
     _patches.clear();
     if (id == null) return;
@@ -1247,23 +1475,19 @@ class _Parser {
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
     finish();
-    final screen = options.screen;
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
     return NotationResult(patched({
       'schema': 3,
-      'roots': [screen],
+      'roots': _rootIds,
       'nodes': {
-        screen: {
-          'type': 'canvas',
-          if (_root != null) 'slots': {'body': _root},
-          'layout': {'width': _canvasWidth, 'height': _canvasHeight},
-          'decoration': _surface,
-          if (_timers.isNotEmpty) 'actions': _timers,
+        for (final p in [this, ..._overlays]) ...{
+          p.options.screen: p._canvasNode,
+          ...p.nodes,
         },
-        ...nodes,
       },
-      if (variables.isNotEmpty) 'variables': {screen: variables.values.toList()},
+      if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
+        'variables': {_scope: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
     }), issues, wanted: List.unmodifiable(wanted));
   }
 
@@ -1302,15 +1526,17 @@ class _Parser {
     if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
-    if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
-    if (line.startsWith('project ')) {
-      final name = line.substring(8).trim();
-      if (indent != 0 || !_identifier.hasMatch(name) || variables.containsKey(name)) {
-        return _issue(column, 'A project variable is declared at the top: project name. Give its starting value in site.json.');
-      }
+    // `project cart=[]` (or `project cart`): a variable of the whole site
+    // (site.json's `variables`), read and set here as any other, with no
+    // copy of its own on this screen to hide it.
+    if (line.startsWith('project ') && _root == null) {
+      final rest = line.substring(8).trim();
+      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\s*=\s*.+)?$').firstMatch(rest)?.group(1);
+      if (name == null) return _issue(column, 'A site\x27s variable is written: project name=value (the same name as in site.json\x27s variables).');
       _projectVariables.add(name);
       return;
     }
+    if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
     // As models write it: every 1s while:{running} onTick:{…}, every 1s when running: …
@@ -1514,7 +1740,7 @@ class _Parser {
       final out = _copy(j.cast<String, Object?>());
       final written = out.remove('id');
       final id = whole[1] ?? (written is String ? written : _id(type));
-      if (nodes.containsKey(id)) return _issue(column, 'There is already a node "$id": ids are unique.');
+      if (_taken(id)) return _issue(column, 'There is already a node "$id": ids are unique.');
       if (parent?.condition case final String c) {
         final bind = (out['bind'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
         final own = bind['visible'];
@@ -1642,7 +1868,7 @@ class _Parser {
     final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
     if (written == 'Card') _cards.add(id);
     if (grid != null) props['spacing'] = grid.gap;
-    if (nodes.containsKey(id) || id == options.screen) {
+    if (_taken(id)) {
       _issue(column, 'The id "$id" is used twice.');
       return;
     }
@@ -1935,13 +2161,15 @@ class _Parser {
             props[type == 'accordion' ? 'expanded' : 'initiallyExpanded'] = true;
           } else if (word.startsWith('#') && RegExp(r'^#[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(word)) {
             // An anchor written after the text (`Heading "Why" #why`): a name
-            // for a link to scroll to, which nothing here reads.
+            // for a `scroll why` to go to.
+            _anchors[word.substring(1)] = id;
           } else if (word == 'hidden') {
             node['visible'] = false;
           } else if (word == 'sticky') {
             // Stays in view while the page scrolls under it (a table of
             // contents beside an article, an order summary).
-            node['sticky'] = {'offset': 16};
+            // A bar across the top (SiteNav, a TopBar, a Header) stays at the very top.
+            node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header)$').hasMatch(written) ? 0 : 16};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
           } else if (component && _componentWord(word, spec, props, bind)) {
@@ -1973,10 +2201,24 @@ class _Parser {
             body = t.rest;
             t.at += t.rest.length;
           }
-          reactions.add({'trigger': _handlerTrigger(key, type, component ? spec : null, node), 'actions': _actions(_statements(body), col)});
+          final trigger = _handlerTrigger(key, type, component ? spec : null, node);
+          final actions = _actions(_statements(body), col);
+          // A menu opened by a right click or a long press sits where the pointer is.
+          if (trigger['type'] == 'secondaryClick' || trigger['type'] == 'longPress') actions.forEach(_atPointer);
+          reactions.add({'trigger': trigger, 'actions': actions});
           continue;
         }
         var raw = word.substring(colon + 1);
+        // `menu:rowMenu`: a right click, or a long press on a touch screen,
+        // opens that Menu where the pointer is (a context menu).
+        if (key == 'menu' && _identifier.hasMatch(raw) && !raw.contains('.') && !spec.props.any((p) => p.key == 'menu')) {
+          for (final trigger in const ['secondaryClick', 'longPress']) {
+            final actions = _actions('open $raw', col);
+            actions.forEach(_atPointer);
+            reactions.add({'trigger': {'type': trigger}, 'actions': actions});
+          }
+          continue;
+        }
         if (raw.startsWith('=')) raw = '$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
@@ -2132,6 +2374,11 @@ class _Parser {
         // Where a node shows, by the screen's width: hide:phone (not on a
         // phone), hide:tablet (not on a tablet or a phone), show:phone
         // (on a phone only), show:tablet (on a tablet and a phone only).
+        // sticky:0 stays at the very top (a header); the word alone keeps 16 above it.
+        if (key == 'sticky' && num.tryParse(raw) != null) {
+          node['sticky'] = {'offset': num.parse(raw)};
+          continue;
+        }
         if ((key == 'hide' || key == 'show') && sizeWord) {
           final Json? rule = switch ((key, raw)) {
             ('hide', 'phone' || 'mobile') => {'maxWidth': reflowPhoneMax},
@@ -2143,7 +2390,10 @@ class _Parser {
           if (rule != null) {
             node['media'] = [
               ...?(node['media'] as List?),
-              {...rule, 'patch': {'visible': false}},
+              // A line under an `if` binds visible, and a binding shows over
+              // a patched value: where the size hides the node, the binding is
+              // dropped, so the condition holds only where the node shows.
+              {...rule, 'patch': {'visible': false, 'bind': {'visible': null}}},
             ];
           }
           continue;
@@ -3138,6 +3388,8 @@ class _Parser {
 
   /// A grid ends: its last row is filled out with empty cells, so its cells
   /// are as wide as the rows above.
+  static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*');
+
   void _close(_Open open) {
     _fitRow(open);
     final g = open.grid;
@@ -3154,6 +3406,21 @@ class _Parser {
 
   /// The end of the text: what is still open closes.
   void finish() {
+    if (_host == null) {
+      _closeBlock();
+      // An app's sidebar, where the window has no room for it: a drawer the
+      // top bar's menu button opens, each of its lines closing it as it is used.
+      if (_pages.sidebarButton && _pages.sidebar.isNotEmpty && !_continues) {
+        if (_pages.overlay('Drawer#${_pages.sidebarMenu}${_pages.sidebarRest}') case final Overlay o) {
+          _openBlock(o);
+          for (final l in _pages.sidebar) {
+            // Its ids are the sidebar's own: the copy has none.
+            _feed(l.indent, l.text.replaceFirstMapped(_idMark, (m) => m[1]!), closes: 'all');
+          }
+          _closeBlock();
+        }
+      }
+    }
     if (_everyOpen case final String open) {
       _everyOpen = null;
       line('$open ->');
@@ -3175,6 +3442,9 @@ class _Parser {
       _close(_stack.removeLast());
     }
     nodes.keys.skip(before).toList().forEach(_emit);
+    for (final scroll in _scrolls) {
+      if (_anchors[scroll['node']] case final String id) scroll['node'] = id;
+    }
     _ownLegends();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
@@ -3187,6 +3457,16 @@ class _Parser {
   /// The node's main string: a text's text, a button's label, a field's label.
   void _main(String type, WidgetSpec spec, String s, Json props, Json decoration) {
     final text = _interpolate(s);
+    // A date or time field's string is its label, as a text field's is.
+    if (const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && spec.props.any((p) => p.key == 'decoration')) {
+      final d = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
+      if (text.contains(r'${')) {
+        _labelBinds['props.decoration.labelText'] = text;
+      } else {
+        d.putIfAbsent('labelText', () => text);
+      }
+      return;
+    }
     if (type == 'textField') {
       final d = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
       final key = d.containsKey('labelText') || _labelBinds.containsKey('props.decoration.labelText') ? 'hintText' : 'labelText';
@@ -3253,7 +3533,7 @@ class _Parser {
 
   /// State written as a formula (`state total=sum(cart,x=>x.price)`): not a
   /// variable but a name for the formula, written out where it is read.
-  final _derived = <String, String>{};
+  final Map<String, String> _derived;
 
   void _state(String rest, int column) {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
@@ -3327,6 +3607,7 @@ class _Parser {
     }
     final bare = key.startsWith('on') && key.length > 2 ? '${key[2].toLowerCase()}${key.substring(3)}' : key;
     if (const {'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'longPress', 'doubleTap', 'enterViewport', 'exitViewport', 'scroll', 'scrollEnd'}.contains(bare)) return {'type': bare};
+    if (const {'rightClick', 'secondaryClick', 'contextMenu'}.contains(bare)) return {'type': 'secondaryClick'};
     final changes = key == 'change' || key == 'onChange' || key == 'onChanged';
     return {'type': changes || _valueProps.containsKey(type) && !key.contains('ress') && key != 'tap' && key != 'click' ? 'changed' : 'click'};
   }
@@ -3430,26 +3711,35 @@ class _Parser {
               'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
           });
         case 'open':
-          final narrow = s.endsWith(' narrow');
-          final drawer = s.endsWith(' drawer');
-          out.add({
-            'type': 'openModal',
-            'to': narrow ? s.substring(0, s.length - 7) : drawer ? s.substring(0, s.length - 7) : s,
-            if (narrow || drawer) 'sheetWidth': narrow ? options.narrowWidth : options.sidebarWidth + options.gutter * 2,
-            if (drawer) 'presentation': 'sideSheet',
-          });
+          // An overlay written in this text (Dialog#id, Menu#id…) opens as
+          // its kind says; one written further down completes this then.
+          final Json action = {'type': 'openModal', 'to': s, ...?switch (_top._overlayActions[s]) { final Json a => _copy(a), _ => null }};
+          _top._opens.add(action);
+          out.add(action);
+        case 'scroll':
+          // `scroll pricing`, `scroll to pricing`, `scroll #pricing`: the page
+          // moves to that part, named by its id or by an anchor (`#pricing`
+          // after a line, or id:pricing on it).
+          final target = s.replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim();
+          if (target.isEmpty) {
+            _issue(column, 'A scroll names where to: scroll pricing (the id of a line, or an anchor written #pricing after a line).');
+          } else {
+            final Json action = {'type': 'scrollTo', 'node': target, 'durationMs': 400, 'offset': 72};
+            _scrolls.add(action);
+            out.add(action);
+          }
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':
-          out.add({'type': 'navigate', 'to': s});
-        case 'scroll':
-          out.add({'type': 'scrollTo', 'node': s});
+          // A destination may be worked out (a SiteNav's link name as a
+          // screen id: go replace(lower(result)," ","_")); a bare id is the id.
+          out.add({'type': 'navigate', 'to': arg.startsWith('"') || _identifier.hasMatch(s) ? s : _formula(s)});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':
           out.add({'type': 'openLink', 'url': s});
         default:
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, link <url>, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, or JSON.');
       }
     }
     return out;
