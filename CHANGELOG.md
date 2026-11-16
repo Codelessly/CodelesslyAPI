@@ -2,6 +2,12 @@
 
 ### Added
 
+- **The keyboard**: `focusable` (default true; false takes a node with a `click` reaction out of the focus order),
+  `focusGroup` (`{axis, wrap, typeAhead}` or `true`: what is focusable inside the node is one Tab stop the arrow
+  keys move through) and a canvas's `semanticLabel` (its name for assistive technology when it opens as an
+  overlay). The interaction and navigation references say what the keyboard does on press targets, groups and
+  overlays.
+
 - **Right to left**: padding and margin written `{"start", "top", "end", "bottom"}` are Flutter's
   `EdgeInsetsDirectional` (`EdgeInsets.fromSTEB`, `directional`, `resolve`); `strokeSides` gains `start`, `end`,
   `noStart`, `noEnd` (`BorderDirectional`). The layout reference has an RTL section (what `textDirection` mirrors).
@@ -40,6 +46,32 @@
   `colors.band`, `pageFill`, `card`, `iconTile`, `sizes.control`).
 - **`notationPrompt`** teaches the page words when `options.width` is `notationPageWidth` (700) or more, and
   adds the design system's "Pages in brief" (a section of its patterns) when it has one.
+- **Notation, a page at other widths**: a page written once for a desktop lays itself out on a tablet and a
+  phone. From 700 wide on the expander adds media rules below 1024 and below 700 (`PageReflow`, `reflow.dart`): a
+  `Grid`'s rows wrap, a `Row` of blocks wraps, any other row wraps before it overflows, a table's row keeps the
+  columns it has room for, an `App` shows its main pane, a `Nav` hides its links, sections and headlines are
+  smaller. The page at the width it was written for is unchanged. `NotationOptions.reflow` (default true) turns
+  it off. Design note 13, section 14.
+- **Notation**: `hide:phone`, `hide:tablet`, `show:phone`, `show:tablet` say where a line shows; they hold on a
+  line under an `if`, and a line that carries one is left out of the reflow's own hiding.
+- **Notation, overlays**: a dialog, a sheet, a drawer, a popup menu, a popover and a lightbox are written after
+  the page (`Dialog#id`, `Sheet#id`, `Drawer#id`, `Menu#id`, `Popover#id`, `Lightbox#id`) and opened with
+  `-> open <id>`, each a canvas of its own with the right presentation; their lines read and set the page's
+  values. `menu:<id>` opens a menu on a right click or a long press. An `App`'s `Sidebar` opens as a drawer on
+  a phone from a button added to `Main`'s top bar.
+- **Notation**: a website's `Nav` builds its own phone menu from its links (each as written; `menu:false` keeps
+  one out; a `Nav` with a `show:phone` line keeps its own); `Nav sticky` and `SiteNav … sticky` stay at the
+  very top (`sticky:0`), a `Nav` on the page's surface.
+- **Notation**: `scroll <id>` moves the page to a line, named by its id or by an anchor (`#pricing` after a line,
+  `id:pricing` on it); `Link "Pricing" href:"#pricing"` does the same. `go` takes a destination worked out
+  (`go replace(lower(result)," ","_")`); a page id may have hyphens.
+- **Notation, a site's variables**: `NotationOptions.projectVariables` (a site manifest's `variables`) and
+  `project name=value` on a page: read and set by name, with no copy declared on the screen to hide them.
+- **Notation**: `Section bleed` runs its content from edge to edge; a `Donut` written with `labels` draws them
+  as a legend beside it, under it where there is no room (`legend:false`: the chart alone; a page that writes
+  the labels itself keeps its own); a date or time field's string is its label, and on a page the field is as
+  tall as the fields beside it; `NotationOptions.accentText` (a theme's `accentText` or `accentDeep`) is a
+  link's ink in running text.
 
 ### Changed
 
@@ -51,6 +83,9 @@
 
 ### Fixed
 
+- **Notation**: `-> open <id>` wrote its canvas under a key the document does not read (`modal`; it is `to`).
+- **Notation**: a short loop name no longer rewrites a layout key of the same letter (`each h in homes` with
+  `h:120`); an unbound boolean state of a block gets a variable of its own.
 - **Notation**: a donut's first slice and a chart's first series were written as a theme name where a value is
   read, and did not draw; a donut given a height is as wide as it is tall. On a page: cards side by side in a
   row are equally tall; a field in a bar (or labelled "Search…") has its label as its hint; a `Badge` with a

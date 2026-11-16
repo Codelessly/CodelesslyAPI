@@ -7,7 +7,7 @@ behavior. This file is the **base**: read it in full first; it is enough to buil
 a page of its own in this folder, linked from here and listed in the [index](#base-index) at the end (the same
 index, with an A–Z of every name, is `index.md`). Open a page when you need what it covers; do not read the folder
 end to end. On a page, *Patterns* is usually what you need; *Reference* holds the generated tables to look one prop
-up. This describes `codelessly_api` 32.0.0; every example here is checked by a test.
+up. This describes `codelessly_api` 32.0.0; every example is checked by a test.
 
 <a id="base-the-model-in-one-table"></a>
 ## The model in one table
@@ -47,7 +47,7 @@ flat map:
 | `scripts` | The layout's scripts (JavaScript), a list of script objects. |
 | `breakpoints` | The project's breakpoints: `[{"id", "name", "minWidth", "width", "height"}]`; absent: the defaults. |
 
-The smallest useful document: a canvas whose `body` slot holds a column with two texts. Every key not written takes
+The smallest document: a canvas whose `body` slot holds a column with two texts. Every key not written takes
 its default.
 
 ```json
@@ -656,7 +656,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 - [lists.md](#page-lists): Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.
 - [navigation.md](#page-navigation): Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, confirm, openLink.
 - [state.md](#page-state): State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, callFunction, if, forEach, delay, runScript, retryFailed.
-- [interaction.md](#page-interaction): Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, controlTrack, controlDismissible, controlTransform, copyToClipboard, haptic.
+- [interaction.md](#page-interaction): Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, focusable, focusGroup, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, controlTrack, controlDismissible, controlTransform, copyToClipboard, haptic.
 - [animation.md](#page-animation): Animation and motion. Documents motion, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, viewProgress, timer, frame, animate.
 - [components.md](#page-components): Components and sections. Documents slot, external, placeholder, singlePlaceholder, event, componentEvent.
 - [design-systems.md](#page-design-systems): Design systems.
@@ -786,15 +786,15 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4811 |
-| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10034 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4809 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10076 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2932 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12891 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13024 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7972 |
-| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4269 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6662 |
-| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5386 |
+| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4632 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6664 |
+| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 6298 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3768 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
@@ -807,7 +807,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3081 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13476 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13528 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -824,7 +824,7 @@ Every declared name and the page that documents it.
 
 **E** · [`EdgeInsets`](#type-EdgeInsets) value type · [`editingComplete`](#trigger-editingComplete) trigger · [`editText`](#action-editText) action · [`EditTextOperation`](#enum-EditTextOperation) enum · [`Effect`](#type-Effect) model · [`EffectType`](#enum-EffectType) enum · [`elevatedButton`](#node-elevatedButton) node type · [`embeddedVideo`](#node-embeddedVideo) node type · [`EmbeddedVideoSource`](#enum-EmbeddedVideoSource) enum · [`emitEvent`](#action-emitEvent) action · [`endsWith`](#fn-endsWith) formula function · [`enterViewport`](#trigger-enterViewport) trigger · [`event`](#trigger-event) trigger · [`exitViewport`](#trigger-exitViewport) trigger · [`exp`](#fn-exp) formula function · [`expansionTile`](#node-expansionTile) node type · [`external`](#node-external) node type
 
-**F** · [`feetInches`](#fn-feetInches) formula function · [`fill`](#fn-fill) formula function · [`filledButton`](#node-filledButton) node type · [`filter`](#fn-filter) formula function · [`filterChip`](#node-filterChip) node type · [`find`](#fn-find) formula function · [`findIndex`](#fn-findIndex) formula function · [`first`](#fn-first) formula function · [`fixed`](#fn-fixed) formula function · [`flatMap`](#fn-flatMap) formula function · [`flatten`](#fn-flatten) formula function · [`flex`](#node-flex) node type · [`Flight`](#type-Flight) model · [`flip`](#behavior-flip) behavior · [`FlipAxis`](#enum-FlipAxis) enum · [`FlipCard`](#type-FlipCard) model · [`floating`](#behavior-floating) behavior · [`floatingActionButton`](#node-floatingActionButton) node type · [`FloatingActionButtonLocation`](#enum-FloatingActionButtonLocation) enum · [`FloatingActionButtonType`](#enum-FloatingActionButtonType) enum · [`FloatingLabelBehavior`](#enum-FloatingLabelBehavior) enum · [`floor`](#fn-floor) formula function · [`focus`](#action-focus) action · [`focusGained`](#trigger-focusGained) trigger · [`focusLost`](#trigger-focusLost) trigger · [`FontFeature`](#type-FontFeature) value type · [`FontStyle`](#enum-FontStyle) enum · [`FontWeight`](#type-FontWeight) value type · [`forEach`](#action-forEach) action · [`form`](#behavior-form) behavior · [`formatAmount`](#fn-formatAmount) formula function · [`formatCurrency`](#fn-formatCurrency) formula function · [`formatDate`](#fn-formatDate) formula function · [`formatDuration`](#fn-formatDuration) formula function · [`formatNumber`](#fn-formatNumber) formula function · [`formatPercent`](#fn-formatPercent) formula function · [`formatRelative`](#fn-formatRelative) formula function · [`FormBehavior`](#type-FormBehavior) model · [`FormService`](#enum-FormService) enum · [`frame`](#trigger-frame) trigger · [`fromCharCode`](#fn-fromCharCode) formula function
+**F** · [`feetInches`](#fn-feetInches) formula function · [`fill`](#fn-fill) formula function · [`filledButton`](#node-filledButton) node type · [`filter`](#fn-filter) formula function · [`filterChip`](#node-filterChip) node type · [`find`](#fn-find) formula function · [`findIndex`](#fn-findIndex) formula function · [`first`](#fn-first) formula function · [`fixed`](#fn-fixed) formula function · [`flatMap`](#fn-flatMap) formula function · [`flatten`](#fn-flatten) formula function · [`flex`](#node-flex) node type · [`Flight`](#type-Flight) model · [`flip`](#behavior-flip) behavior · [`FlipAxis`](#enum-FlipAxis) enum · [`FlipCard`](#type-FlipCard) model · [`floating`](#behavior-floating) behavior · [`floatingActionButton`](#node-floatingActionButton) node type · [`FloatingActionButtonLocation`](#enum-FloatingActionButtonLocation) enum · [`FloatingActionButtonType`](#enum-FloatingActionButtonType) enum · [`FloatingLabelBehavior`](#enum-FloatingLabelBehavior) enum · [`floor`](#fn-floor) formula function · [`focus`](#action-focus) action · [`focusable`](#behavior-focusable) behavior · [`focusGained`](#trigger-focusGained) trigger · [`FocusGroup`](#type-FocusGroup) model · [`focusGroup`](#behavior-focusGroup) behavior · [`FocusGroupAxis`](#enum-FocusGroupAxis) enum · [`focusLost`](#trigger-focusLost) trigger · [`FontFeature`](#type-FontFeature) value type · [`FontStyle`](#enum-FontStyle) enum · [`FontWeight`](#type-FontWeight) value type · [`forEach`](#action-forEach) action · [`form`](#behavior-form) behavior · [`formatAmount`](#fn-formatAmount) formula function · [`formatCurrency`](#fn-formatCurrency) formula function · [`formatDate`](#fn-formatDate) formula function · [`formatDuration`](#fn-formatDuration) formula function · [`formatNumber`](#fn-formatNumber) formula function · [`formatPercent`](#fn-formatPercent) formula function · [`formatRelative`](#fn-formatRelative) formula function · [`FormBehavior`](#type-FormBehavior) model · [`FormService`](#enum-FormService) enum · [`frame`](#trigger-frame) trigger · [`fromCharCode`](#fn-fromCharCode) formula function
 
 **G** · [`GaugeLimitStyle`](#enum-GaugeLimitStyle) enum · [`gaugeMeter`](#node-gaugeMeter) node type · [`GaugeShape`](#enum-GaugeShape) enum · [`GaugeZone`](#type-GaugeZone) model · [`GestureBounds`](#enum-GestureBounds) enum · [`GesturePhysics`](#type-GesturePhysics) model · [`GestureSnap`](#type-GestureSnap) model · [`get`](#fn-get) formula function · [`gridView`](#node-gridView) node type · [`groupBy`](#fn-groupBy) formula function
 
@@ -1090,6 +1090,7 @@ A screen (`Scaffold`): its `body` slot is the page content.
 | `breakpointMinWidth` | double | unset | ≥ 0 | Its own switch point. |
 | `overlay` | bool | `false` |  | Shown above every screen, outside navigation. |
 | `backdrop` | bool | `false` |  | Drawn beneath every screen, outside navigation. |
+| `semanticLabel` | String | `""` |  | Its name for assistive technology when it opens as an overlay (a dialog, a sheet, a menu). Empty: its first text, or for a menu the label of the control that opened it. |
 
 <a id="node-row"></a>
 ### `row`
@@ -3744,9 +3745,9 @@ Flutter `SegmentedButton<String>`.
 <a id="node-datePicker"></a>
 ### `datePicker`
 
-Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
+A date field that opens a calendar drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
-A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).
+A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar the renderer draws itself (no Material dialog), in the project's theme.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -3760,15 +3761,15 @@ A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calenda
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
-| `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
+| `helpText` | String | `""` |  | A title over the calendar or the time columns; empty: none. |
+| `pickerTheme` | Object | unset |  | Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-timePicker"></a>
 ### `timePicker`
 
-Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
+A time field that opens hour and minute columns drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
-A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).
+A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns the renderer draws itself (no Material dialog), in the project's theme.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -3777,12 +3778,12 @@ A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minut
 |---|---|---|---|---|
 | `value` | String | `""` |  |  |
 | `enabled` | bool | `true` |  |  |
-| `alwaysUse24HourFormat` | bool | `false` |  | The picker's dial and fields in 24-hour time (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the picker reads). |
+| `alwaysUse24HourFormat` | bool | `false` |  | The picker's columns in 24-hour time (hours and minutes, no AM/PM). |
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
-| `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
+| `helpText` | String | `""` |  | A title over the calendar or the time columns; empty: none. |
+| `pickerTheme` | Object | unset |  | Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-dateTimeInput"></a>
 ### `dateTimeInput`
@@ -6077,6 +6078,33 @@ reads it as empty: give the page a default (`coalesce(find(trips, 'id', route.id
 any screen; give it the size of the dialog. `{"type": "showToast", "message": "Saved", "style": "success"}` shows a
 short message; `confirm` asks yes or no and runs `actions` or `cancelActions`.
 
+<a id="navigation-overlays-and-the-keyboard"></a>
+### Overlays and the keyboard
+
+Every modal (`dialog`, `bottomSheet`, `sideSheet`, `popover`, `fullScreen`, `adaptive`) and the built-in
+`confirm` behaves as a dialog should, with nothing to write:
+
+- **The focus moves into it** as it opens. Opened from the keyboard (Enter or Space on the node that opens it), its
+  first focusable has the focus, with the ring: in a `focusGroup` (a menu) the item whose `selected` is bound true,
+  else the first. Opened by a pointer or a touch, the overlay itself holds the focus: nothing is ringed and no
+  on-screen keyboard opens, until a key is pressed (Tab goes to its first stop; in a menu an arrow starts at the
+  first item, End at the last).
+- **Tab and Shift+Tab stay inside** the top overlay; what is under it takes no key.
+- **Escape closes the top overlay**, as a press outside it does. `"barrierDismissible": false` on the action turns
+  both off (close it with a `closeModal`). A canvas whose `blockBack` holds stays open and runs its `backPressed`
+  reactions instead (ask "discard changes?" there).
+- **Closing gives the focus back** to the node that opened it: with the ring when the keyboard opened or closed the
+  overlay, else silently (the next Tab starts there). Overlays opened from overlays unwind: a menu item that opens
+  a dialog gets the focus back when the dialog closes, and when the menu is already gone, the menu's button does.
+- **It is named** for assistive technology as it opens: the modal canvas's `"props": {"semanticLabel": "Join the
+  waitlist"}`, else for a popover the label of the node that opened it (a menu is called what its button is), else
+  the first text it shows (a dialog's title).
+
+A popover that opens while a text field is being typed in (suggestions under a search field) leaves the focus in
+the field. A menu's items are nodes with a click reaction inside a node with `focusGroup`
+([interaction](#page-interaction)): Up and Down move through them, Home and End jump, a letter finds one, Enter and
+Space choose.
+
 <a id="navigation-a-mobile-menu-drawer"></a>
 ### A mobile menu (drawer)
 
@@ -6110,7 +6138,8 @@ between, and `floatingActionButton` sits 16 px from the right above the bottom b
 - A modal shows its canvas at its design size: give the modal canvas the dialog's size, not the screen's.
 - `${route.<param>}` exists only on the screen navigated to with `params`.
 - A canvas's `path` is a top-level key of the canvas node, not a prop.
-- Menus hidden behind `hovered` never open on touch screens.
+- Menus hidden behind `hovered` never open on touch screens, and never by keyboard: open them with a click.
+- A `"barrierDismissible": false` modal with no `closeModal` inside cannot be left.
 
 <a id="navigation-see-also"></a>
 ## See also
@@ -6282,7 +6311,7 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 - `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, `columnSpan`, `rowSpan`, `columnStart`, `rowStart`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type, and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`defaultTextStyle`](#behavior-defaultTextStyle), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint), [`form`](#behavior-form), [`radioGroup`](#behavior-radioGroup).
+- `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`defaultTextStyle`](#behavior-defaultTextStyle), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint), [`form`](#behavior-form), [`radioGroup`](#behavior-radioGroup), [`focusable`](#behavior-focusable), [`focusGroup`](#behavior-focusGroup).
 
 Named paths:
 
@@ -7010,6 +7039,31 @@ A node key (beside `layout` and `props`). Type: bool. Default: `false`.
 
 Lets pointer events through to what's under the node (Flutter's `IgnorePointer`).
 
+<a id="behavior-focusable"></a>
+### `focusable` (behavior)
+
+A node key (beside `layout` and `props`). Type: bool. Default: `true`.
+
+A node with a click reaction is a Tab stop: it shows the focus ring of the theme when the focus comes from the keyboard, and Enter and Space run its click. False takes it out of the focus order (its action is repeated by a control inside it). A node with no click reaction never takes the focus.
+
+<a id="behavior-focusGroup"></a>
+### `focusGroup` (behavior)
+
+A node key (beside `layout` and `props`). Type: [FocusGroup](#type-FocusGroup). Default: unset.
+
+Everything focusable inside is one Tab stop (a menu, a tab list, a toolbar): the arrow keys of its axis move the focus among the members, Home and End jump to the ends, typeAhead lets a letter jump to a member by its text. true: a vertical group that wraps.
+
+<a id="type-FocusGroup"></a>
+#### FocusGroup
+
+One Tab stop for everything focusable inside the node (a roving focus, as a menu, a tab list, a toolbar or a radio group has): Tab enters at the member focused last (else the one whose `selected` is bound true, else the first) and leaves to the next stop outside; the arrow keys of `axis` move the focus among the members in reading order, Home and End jump to the first and last, and with `typeAhead` a typed letter jumps to the next member whose text starts with it. Enter and Space press the focused member as anywhere. The members are the nodes inside it that take the focus: nodes with a `click` reaction and controls. `"focusGroup": true` is a vertical group that wraps.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `axis` | [FocusGroupAxis](#enum-FocusGroupAxis) | `"vertical"` | `vertical`, `horizontal`, `both` | The arrow keys that move the focus among the members: vertical (Up, Down), horizontal (Left, Right) or both. |
+| `wrap` | bool | `true` |  | An arrow past the last member goes to the first, and back. |
+| `typeAhead` | bool | `false` |  | A typed letter jumps to the next member whose text starts with it (a menu). |
+
 <a id="behavior-draggable"></a>
 ### `draggable` (behavior)
 
@@ -7372,6 +7426,48 @@ A canvas's `keyDown` reaction (`{"trigger": {"type": "keyDown", "key": "ArrowRig
 field has the focus: arrow keys between tabs are two reactions that set the tab variable
 (`${= (tabIndex + 1) % 4}`), Escape closing a menu is one.
 
+<a id="interaction-the-keyboard-tab-enter-space-and-the-focus-ring"></a>
+### The keyboard: Tab, Enter, Space and the focus ring
+
+Nothing to write: a node with a `click` reaction is a **Tab stop**, like the controls. Tab and Shift+Tab move the
+focus through the page in reading order (rows from the top, left to right in a row; a node around other stops comes
+before them), Enter and Space run the focused node's click, and the node shows the theme's focus ring (the
+`focusBorder` color, just outside its box, with its corner radius) while the focus is on it **from the keyboard**:
+a pointer or a touch never shows the ring. While it shows, the node is in its `focused` state, so a
+`states.focused` patch styles it further (a menu row's fill). A screen reader gets one focusable button named by the
+node's text, or by its `tooltip` when it has none (an icon).
+
+What is **not** a stop:
+
+- a node with no `click` reaction: `hover`, `longPress`, drags and the other triggers alone do not make one;
+- `"focusable": false` on the node: the document's opt-out, for a row whose only action a button inside it repeats;
+- a node that is `disabled` (a bound `disabled`), has `ignorePointer`, or sits inside a node that has: the labeled
+  checkbox row (`ignorePointer` on the checkbox) is one stop, the row;
+- a node that is not shown (`visible: false`, opacity 0), or whose every click reaction has a `when` that does not
+  hold now (it joins the order when one does);
+- a node that is itself a control: a text field or a button with a click reaction is one stop, the control.
+
+A node with a click **around** other stops (a card with a button in it) stays a stop: its own action must stay
+reachable. If that doubles what the button does, give the card `"focusable": false`.
+
+<a id="interaction-one-tab-stop-for-a-group-focusgroup"></a>
+### One Tab stop for a group: `focusGroup`
+
+A menu, a tab list, a toolbar or a list of options is one stop, and the arrow keys move inside it. Put
+`focusGroup` on the node around the items:
+
+```json
+"menu": {"type": "column", "focusGroup": {"typeAhead": true}, "children": ["open", "rename", "delete"]}
+```
+
+Tab enters the group at the item focused last (else the one whose `selected` is bound true, else the first) and
+leaves to the next stop outside it. The arrows of `axis` (`vertical`: Up and Down; `horizontal`: Left and Right,
+swapped under `textDirection: rtl`; `both`) move through the items that can take the focus, in reading order;
+`wrap` (default true) goes from the last to the first; Home and End jump to the ends; with `typeAhead` a typed
+letter jumps to the next item whose text starts with it (the same letter again goes on to the next). Enter and
+Space press the focused item as anywhere. The items are whatever takes the focus inside: nodes with a click
+reaction and controls; a control's own keys come first (a slider in a toolbar keeps its arrows).
+
 <a id="interaction-pitfalls"></a>
 ## Pitfalls
 
@@ -7381,6 +7477,10 @@ field has the focus: arrow keys between tabs are two reactions that set the tab 
 - An interaction state's patch loses to a binding of the same field (bindings come after states).
 - A misspelled trigger is `unknown_trigger`; a key it does not take is `unknown_trigger_key`.
 - `tap_no_reaction` (render command): a `--tap` step hit a node with no reaction.
+- Only a `click` reaction makes a node reachable by keyboard: an action that exists only on `hover`,
+  `longPress` or `doubleTap` has no key.
+- A focus ring that looks cut off: the node sits flush in a parent that clips. Give the parent padding (the ring
+  is 1.5 px outside the node), or style `states.focused` instead.
 
 <a id="interaction-see-also"></a>
 ## See also
@@ -11664,6 +11764,15 @@ Written as the value's name, a JSON string (`"center"`).
 | `never` | Flutter's `FloatingLabelBehavior`. |
 | `auto` | Flutter's `FloatingLabelBehavior`. |
 | `always` | Flutter's `FloatingLabelBehavior`. |
+
+<a id="enum-FocusGroupAxis"></a>
+### FocusGroupAxis
+
+| Value | Meaning |
+|---|---|
+| `vertical` | Up and Down (a menu, a list, a sidebar). |
+| `horizontal` | Left and Right (a tab bar, a toolbar, a segmented control). |
+| `both` | All four arrows, in reading order (a grid of tiles). |
 
 <a id="enum-FontStyle"></a>
 ### FontStyle
