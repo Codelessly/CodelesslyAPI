@@ -22,7 +22,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [layout.md](layout.md) | Feature page. | 10034 | 18466 |
 | [theme.md](theme.md) | Feature page. | 2932 | 5069 |
 | [decoration.md](decoration.md) | Feature page. | 4097 | 7218 |
-| [forms.md](forms.md) | Feature page. | 12891 | 22186 |
+| [forms.md](forms.md) | Feature page. | 13024 | 22361 |
 | [lists.md](lists.md) | Feature page. | 7972 | 14062 |
 | [navigation.md](navigation.md) | Feature page. | 4269 | 7569 |
 | [state.md](state.md) | Feature page. | 6662 | 11912 |
@@ -39,8 +39,8 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [edit-ops.md](edit-ops.md) | Feature page. | 3581 | 5854 |
 | [render.md](render.md) | Feature page. | 3081 | 4771 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 13476 | 21091 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 107873 | 187838 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 74926 | 195539 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 108006 | 188013 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 75055 | 195697 |
 | [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10292 | 28598 |
 | [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 25247 | 106080 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1267 | 3814 |
