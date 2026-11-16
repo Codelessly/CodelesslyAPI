@@ -74,6 +74,9 @@ final class PageReflow {
   }
 
   void _hide(String id, int max) {
+    // A line that says where it shows (show:phone, hide:tablet) is left to
+    // what it says: a link a Nav would hide, written show:phone, shows.
+    if (nodes[id]?['media'] != null) return;
     final bound = readMap(nodes[id]?['bind'])?.containsKey('visible') ?? false;
     _add(id, max, {
       'visible': false,
@@ -227,7 +230,8 @@ final class PageReflow {
       } else if (_type(kid) == 'row') {
         final inner = _kids(kid);
         final own = inner.where(link).length;
-        if (own >= 2 && own == inner.length) {
+        // …unless one of them says where it shows: then each goes by itself.
+        if (own >= 2 && own == inner.length && inner.every((k) => nodes[k]!['media'] == null)) {
           links += own;
           hide.add(k);
         } else if (own >= 2) {
@@ -272,11 +276,8 @@ final class PageReflow {
     if (pad is! List || pad.length != 4 || pad.any((v) => v is! num)) return;
     final p = pad.cast<num>();
     List<num> capped(num side, num band) => [math.min(p[0], side), math.min(p[1], band), math.min(p[2], side), math.min(p[3], band)];
-    final tablet = capped(p[0], 48);
-    // A compact band already uses half the desktop section's vertical space.
-    // Keep that distinction on a phone instead of giving both bands 40 px.
-    final phoneBand = p[1] <= 48 && p[3] <= 48 ? 20 : 40;
-    final phone = capped(20, phoneBand);
+    // A compact band has half a section's room above and below: on a phone too.
+    final tablet = capped(p[0], 48), phone = capped(20, p[1] <= 48 && p[3] <= 48 ? 24 : 40);
     if (!jsonEquality.equals(tablet, p)) _add(id, reflowTabletMax, {'layout': {'padding': tablet}});
     if (!jsonEquality.equals(phone, p)) _add(id, reflowPhoneMax, {'layout': {'padding': phone}});
   }

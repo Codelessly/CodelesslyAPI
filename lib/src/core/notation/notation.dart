@@ -104,6 +104,8 @@ final class NotationOptions {
     this.fieldText,
     this.reflow = true,
     this.displaySizes = const {},
+    this.projectVariables = const {},
+    this.accentText,
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -111,7 +113,7 @@ final class NotationOptions {
   /// (`StatusBadge "Paid"`, `Stepper =qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
   factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
-      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true}) {
+      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true, Map<String, Json> projectVariables = const {}}) {
     final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, reflow: reflow);
     Object size(SizeFit fit, double value) => switch (fit) {
           SizeFit.fill || SizeFit.flexible => {'fill': 0},
@@ -153,6 +155,8 @@ final class NotationOptions {
       fieldText: base.fieldText,
       reflow: base.reflow,
       displaySizes: base.displaySizes,
+      projectVariables: projectVariables,
+      accentText: base.accentText,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -299,6 +303,9 @@ final class NotationOptions {
       fieldLabel: isWide ? styles['fieldLabelWide'] : null,
       fieldText: isWide ? styles['inputTextWide'] : null,
       reflow: reflow,
+      // A link in running text: the accent where it is read as text on a
+      // light page (a bright accent is for fills).
+      accentText: colors['accentText'] != null ? color('accentText', '#FF1D4ED8') : colors['accentDeep'] != null ? color('accentDeep', '#FF1D4ED8') : null,
       displaySizes: {
         for (final e in textStyles.entries)
           if (readMap(e.value)?['fontSize'] case final num size when size >= 32) e.key: size,
@@ -466,6 +473,17 @@ final class NotationOptions {
   /// its grids take fewer columns, its headlines shrink. False: the page is
   /// written for its one width only.
   final bool reflow;
+
+  /// The variables of the whole site (site.json's `variables`), by name,
+  /// each as the manifest has it (`name`, `type`, `value`): a page reads
+  /// and sets them with no declaration and no copy of its own on the screen
+  /// (which would hide the site's). `project name=value` on a page does the
+  /// same for one name.
+  final Map<String, Json> projectVariables;
+
+  /// The accent as text on a light page (a link in running text): a theme's
+  /// `colors.accentText`, else its `accentDeep`. Null: the accent.
+  final String? accentText;
 
   /// The theme's text styles of a headline's size (32 and up), by name →
   /// font size: a text in one of them is smaller on a phone.
@@ -750,6 +768,13 @@ const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgre
 /// The short names a design system's component of the same name replaces.
 const _softNames = {'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
 
+/// The core types a design system's component of the same name replaces: a
+/// design system's own `Tabs` (a row of labels that keeps the open one in a
+/// variable, `Tabs =tab tabs:["Overview","Activity"]`) is what the line
+/// means, not the core `tabs` node (titles over children, which the
+/// notation does not teach).
+const notationComponentFirst = {'Tabs'};
+
 /// The colors of a chart's series or slices that write none, after the
 /// accent.
 const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
@@ -909,7 +934,15 @@ class _Parser {
         _declared = _host?._declared ?? {},
         _counts = _host?._counts ?? {},
         _derived = _host?._derived ?? {},
-        _projectVariables = _host?._projectVariables ?? {};
+        _projectVariables = _host?._projectVariables ?? {} {
+    // The site's variables (its manifest's): known here, and never declared on the screen.
+    if (_host == null) {
+      for (final e in options.projectVariables.entries) {
+        variables.putIfAbsent(e.key, () => {'name': e.key, 'type': e.value['type'] ?? 'text', 'value': e.value['value']});
+        _projectVariables.add(e.key);
+      }
+    }
+  }
   final Catalog catalog;
   final NotationOptions options;
 
@@ -1042,11 +1075,23 @@ class _Parser {
         }
       }
     }
+    // What it keeps (a lightbox's zoom, the picture it shows).
+    for (final e in o.variables.entries) {
+      final value = switch (e.value) {
+        final String s when s.startsWith('[') => _json(s) ?? const <Object?>[],
+        final v => v,
+      };
+      variables.putIfAbsent(e.key, () => {'name': e.key, 'type': value is List ? 'list' : value is num ? 'decimal' : 'text', 'value': value});
+    }
     _block = sub;
+    _blockLines.clear();
     for (final l in o.head) {
       _feed(l.indent - o.shift, l.text, closes: 'none');
     }
   }
+
+  /// The lines written under the block being read, each with its indent.
+  final _blockLines = <PageLine>[];
 
   /// A line of the block being read, [indent] in from its head.
   void _feed(int indent, String text, {String? closes}) {
@@ -1063,9 +1108,27 @@ class _Parser {
     _blockSkipped = false;
     final sub = _block;
     if (sub == null) return;
-    for (final l in sub._overlay!.foot) {
-      _feed(l.indent - sub._overlay.shift, l.text, closes: 'none');
+    final o = sub._overlay!;
+    // With nothing written under it, what it shows by itself.
+    final written = _blockLines.isEmpty ? o.empty : [..._blockLines];
+    if (_blockLines.isEmpty) {
+      for (final l in o.empty) {
+        _feed(l.indent, l.text, closes: 'none');
+      }
     }
+    for (final l in o.foot) {
+      if (l.text == Overlay.lines) {
+        // The lines written under it, read again here (without their ids;
+        // a picture fills its thumbnail).
+        final first = written.isEmpty ? 0 : written.map((w) => w.indent).reduce(math.min);
+        for (final w in written) {
+          _feed(l.indent - o.shift + w.indent - first, w.text.replaceFirstMapped(_idMark, (m) => m[1]!).replaceAll(' fit:contain', ' fit:cover'), closes: 'none');
+        }
+        continue;
+      }
+      _feed(l.indent - o.shift, l.text, closes: 'none');
+    }
+    _blockLines.clear();
     _block = null;
     sub.finish();
     ops.addAll(sub.ops);
@@ -1098,7 +1161,10 @@ class _Parser {
       final blank = raw.trim().isEmpty || raw.trimLeft().startsWith('//');
       if ((_block != null || _blockSkipped) && (indent > 0 || blank || (_block?._continues ?? false))) {
         _line++;
-        if (!blank || (_block?._continues ?? false)) _feed(indent, raw.trim());
+        if (!blank || (_block?._continues ?? false)) {
+          if (_block != null && !blank) _blockLines.add((indent: indent, text: raw.trim()));
+          _feed(indent, raw.trim());
+        }
         return;
       }
       if (!blank && indent == 0) {
@@ -1183,6 +1249,15 @@ class _Parser {
         final role = _roleMark.firstMatch(l.text);
         // The menu a Nav opens on a phone keeps whether it is open.
         if (l.text.contains('navMenu')) variables.putIfAbsent('navMenu', () => {'name': 'navMenu', 'type': 'boolean', 'value': false});
+        // What a gallery opens in the page's viewer: its photos and the one tapped.
+        if (_pages.viewerUsed) {
+          final viewer = _pages.viewer!;
+          variables.putIfAbsent('${viewer}Photos', () => {'name': '${viewer}Photos', 'type': 'list', 'value': const <Object?>[]});
+          variables.putIfAbsent('${viewer}At', () => {'name': '${viewer}At', 'type': 'decimal', 'value': 0});
+          for (final e in _pages.viewerLists.entries) {
+            variables.putIfAbsent(e.key, () => {'name': e.key, 'type': 'list', 'value': _json(e.value) ?? const <Object?>[]});
+          }
+        }
         _lastNode = null;
         _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
@@ -1209,6 +1284,7 @@ class _Parser {
     paneFill: options.paneFill,
     iconTile: options.iconTile,
     accentName: options.accent,
+    accentText: options.accentText,
     accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
     selectedFill: options.selectedFill,
     line: options.line,
@@ -1219,6 +1295,14 @@ class _Parser {
     menu: options.reflow && options.width >= 700,
     sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}Menu' : null,
     surface: options.surface,
+    viewer: _host == null && options.width >= 700 ? '${options.screen}Viewer' : null,
+    takesViewer: (name) {
+      if (notationTypes[name] != null) return false;
+      final spec = catalog.widget(name);
+      return spec != null &&
+          spec.props.any((p) => p.key == 'photos') &&
+          spec.props.any((p) => p.key == 'viewer' && p.type.kind == PropKind.enumeration && p.type.values.contains('overlay'));
+    },
   );
 
   static final _roleMark = RegExp(r'^([A-Z][A-Za-z0-9]*)~([a-z]+)');
@@ -1771,7 +1855,8 @@ class _Parser {
     var type = short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
     // A design system's component, called by its own name (`StatusBadge`,
     // `Stepper`): a core type of that name, or a short name, comes first.
-    final component = short == null && catalog.widget(type) == null && catalog.widget(written) != null;
+    final component =
+        short == null && (catalog.widget(type) == null || notationComponentFirst.contains(written)) && catalog.widget(written) != null;
     // Whether the notation's own Gauge, Ring, Avatar… is what this line is
     // (not a design system's component of that name).
     final ours = short != null;
@@ -2180,9 +2265,9 @@ class _Parser {
         }
         var key = word.substring(0, colon);
         // `if:cond` on a node is the node shown while it holds.
-        // …but `show:phone` is where it shows (a screen's size), unless the
-        // UI has a value of that name.
-        final sizeWord = const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(colon + 1)) && !variables.containsKey(word.substring(colon + 1));
+        // …but `show:phone` is where it shows (a screen's size), even on a
+        // page with a value of that name (a form's phone field).
+        final sizeWord = (key == 'show' || key == 'hide') && const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(colon + 1));
         if (key == 'if' || key == 'when' || (key == 'show' && !sizeWord)) key = 'visible';
         // A handler written as a key, as models write one unprompted:
         // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
@@ -2255,7 +2340,7 @@ class _Parser {
         // or a field read through the name an `each` gave (price:x.price),
         // is that variable: text is written in quotes. A word that is one of
         // the parameter's own values (tone:quiet) stays the word.
-        if (!raw.startsWith('=') && raw != 'fill' && raw != 'hug' && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
+        if (!raw.startsWith('=') && raw != 'fill' && raw != 'hug' && !sizeWord && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
           final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(raw)!;
           final known = variables.containsKey(head) || _derived.containsKey(head) || _stack.any((o) => o.each == head);
           final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
@@ -2547,6 +2632,14 @@ class _Parser {
     final control = _valueProps.containsKey(type) || type.endsWith('Button') || type.endsWith('Chip');
     if (component) {
       bool has(String k) => props.containsKey(k) || bind.containsKey('props.$k');
+      // A block with an optional boolean state should still toggle when its
+      // author leaves off =name. Give each call its own page variable.
+      for (final p in spec.props) {
+        if (p.required || has(p.key) || !p.type.isVariable || p.type.variableOf?.kind != PropKind.boolean) continue;
+        final local = '${id}_${p.key}';
+        props[p.key] = local;
+        variables.putIfAbsent(local, () => {'name': local, 'type': 'boolean', 'value': p.defaultValue is bool ? p.defaultValue : false});
+      }
       for (final p in spec.props) {
         if (!p.required || has(p.key)) continue;
         // One string, and the component needs another text than the one it
@@ -2886,6 +2979,10 @@ class _Parser {
         props['decoration'] = d;
       }
     }
+    // A date or time field is a field: as tall as the text field and the select beside it.
+    if (options.controlHeight != null && const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && !layout.containsKey('height')) {
+      layout['height'] = options.controlHeight;
+    }
     if (options.controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
       // A field's label sits above its box, inside its height (11.5 px
       // text and 6 px under it).
@@ -3160,6 +3257,13 @@ class _Parser {
       ((out['children'] as List<Object?>?) ?? (out['children'] = <Object?>[])).add(pageId);
       _parentOf[pageId] = id;
       props.putIfAbsent('scrollDirection', () => 'horizontal');
+      // A line with no prop of its own has them now (what a {…} at its end
+      // gave it are its props then).
+      if (out['props'] case final Map<Object?, Object?> given) {
+        given.putIfAbsent('scrollDirection', () => 'horizontal');
+      } else {
+        out['props'] = props;
+      }
       // With the next page showing at the edge, the first sits at the start
       // and the pages stand apart (gap, 8 unless written).
       final gap = props.remove('spacing');
@@ -3324,12 +3428,24 @@ class _Parser {
   /// [line] with the word [name] read as `item`, outside quoted text and
   /// inside `{…}` within it.
   String _rename(String line, String name, [String to = 'item']) {
+    // A short loop name may also be a layout key (`each h ... Text ... h:120`).
+    // A key followed by ':' is notation, not a reference to the item.
     final word = RegExp('(?<![A-Za-z0-9_.#])${RegExp.escape(name)}(?![A-Za-z0-9_])');
     final out = StringBuffer();
     var quoted = false, inner = false, depth = 0, start = 0;
     void flush(int end, bool code) {
       final part = line.substring(start, end);
-      out.write(code ? part.replaceAllMapped(word, (_) => to) : part);
+      out.write(code
+          ? part.replaceAllMapped(word, (m) {
+              // In `h:120` the `h` is a prop key. In `live ? h:4` it
+              // is still the loop value, despite the following colon.
+              final before = part.substring(0, m.start).trimRight();
+              final key = m.end < part.length && part[m.end] == ':' &&
+                  (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
+                  !before.endsWith('?');
+              return key ? m[0]! : to;
+            })
+          : part);
       start = end;
     }
 
@@ -3407,6 +3523,14 @@ class _Parser {
   void finish() {
     if (_host == null) {
       _closeBlock();
+      // The viewer a gallery of the page opens its photos in, over the window.
+      if (_pages.viewerUsed && !_continues && !_taken(_pages.viewer!)) {
+        final viewer = _pages.viewer!;
+        if (_pages.overlay('Lightbox#$viewer photos:=${viewer}Photos =${viewer}At') case final Overlay o) {
+          _openBlock(o);
+          _closeBlock();
+        }
+      }
       // An app's sidebar, where the window has no room for it: a drawer the
       // top bar's menu button opens, each of its lines closing it as it is used.
       if (_pages.sidebarButton && _pages.sidebar.isNotEmpty && !_continues) {
@@ -3730,9 +3854,11 @@ class _Parser {
           out.add({'type': 'closeModal'});
         case 'go':
           // A destination may be worked out (a SiteNav's link name as a
-          // screen id: go replace(lower(result)," ","_")); a bare screen
-          // slug, including a hyphenated one, is its literal id.
-          out.add({'type': 'navigate', 'to': arg.startsWith('"') || RegExp(r'^[A-Za-z][A-Za-z0-9_-]*$').hasMatch(s) ? s : _formula(s)});
+          // screen id: go replace(lower(result)," ","_")); a bare id is the id.
+          // A page's id may have hyphens (go get-started is that page, not a
+          // subtraction), and a destination already written ${= …} is whole.
+          final fixed = arg.startsWith('"') || _identifier.hasMatch(s) || RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(s) || (s.startsWith(r'${') && s.endsWith('}'));
+          out.add({'type': 'navigate', 'to': fixed ? s : _formula(s)});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':
