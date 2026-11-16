@@ -19,6 +19,7 @@ import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
 import 'page_words.dart';
+import 'reflow.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -1181,10 +1182,12 @@ class _Parser {
 
   Json? _documentPatch;
   final _projectVariables = <String>{};
+  final _gridRows = <String>{};
 
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
     finish();
+    if (_pages.page || _pages.app) reflowPage(nodes, gridRows: _gridRows, app: _pages.app);
     final screen = options.screen;
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
@@ -2915,6 +2918,7 @@ class _Parser {
         'props': {'spacing': g.gap, 'crossAxisAlignment': 'stretch'},
         'children': <Object?>[],
       };
+      _gridRows.add(rowId);
       nodes[id] = cellNode;
       (gridNode['children'] as List<Object?>).add(rowId);
       _parentOf[rowId] = g.id;

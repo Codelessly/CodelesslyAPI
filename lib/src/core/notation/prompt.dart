@@ -105,6 +105,7 @@ ${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
       : '''
 
 PAGES (this UI is a whole window $w wide, not a card in a chat)
+  Tablets and phones: write a page once at this width. The expander gives Grid fewer columns and lets rows wrap below desktop. Rows of flexible panels stack; ordinary rows wrap on phones. Keep controls and labels in the order a narrow reader should see them.
   For state shared by the site's pages, declare it in site.json and write `project name` before each page that uses it. A bound control may then read and set that name without creating a screen variable.
   Start with a frame. It owns the widths, the margins and the scrolling, so write no window sizes (no w:$w, no h:fill on the root) and no page margins.
   A website page scrolls, and its bands stack:

@@ -21,6 +21,36 @@ Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes']
 
 void main() {
   group('a page written once lays out on a tablet and a phone', () {
+    test('a grid row gains media rules while its wide layout stays intact', () {
+      final r = parseNotation('''
+Page
+  Section
+    Grid cols:3
+      Card
+        Text "A"
+      Card
+        Text "B"
+      Card
+        Text "C"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      final grid = _node(r, 'grid1');
+      final row = _node(r, (grid['children'] as List).first as String);
+      expect((row['props'] as Map)['wrap'], isNull);
+      expect((row['media'] as List).first, {'maxWidth': 1023, 'patch': {'props': {'wrap': true}}});
+    });
+    test('a search field in a wrapping row receives a phone basis', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row
+      Input "Search" =q grow
+      Button "Filter"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      final field = _node(r, 'textField1');
+      expect((field['media'] as List).first, {'maxWidth': 1023, 'patch': {'layout': {'basis': 240}}});
+    });
     test('a declared project variable is bound without a duplicate screen variable', () {
       final r = parseNotation('''
 project version
