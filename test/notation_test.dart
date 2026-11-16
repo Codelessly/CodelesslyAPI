@@ -2237,9 +2237,45 @@ App
       }
     });
 
+    test('a Lightbox shows a picture large; menu: opens a Menu on a right click or a long press, at the pointer', () {
+      final r = parseNotation('''
+state photo="a.png"
+Column
+  Image#thumb "a.png" w:120 h:80 -> open zoom
+  Card#area menu:areaMenu
+    Text "Right-click me"
+  Row#file onRightClick:{sel="a"; open areaMenu} -> open areaMenu
+    Text "a.txt"
+Lightbox#zoom "{photo}" "The harbor at dusk"
+Menu#areaMenu
+  Text#refresh "Refresh" -> toast "Done"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      expect(open(r, 'thumb'), {'type': 'openModal', 'to': 'zoom', 'presentation': 'dialog', 'cover': true, 'barrierColor': '#E6000000'});
+      final box = node(r, (node(r, 'zoom')['slots']! as Map)['body']! as String);
+      expect(jsonEncode(box['actions']), contains('closeModal'));
+      expect(jsonEncode(nodesOf(r)), contains(r'"url":"${photo}","fit":"contain"'));
+      const menu = {'type': 'openModal', 'to': 'areaMenu', 'presentation': 'popover', 'anchor': 'pointer', 'placement': 'belowStart', 'anchorGap': 6};
+      expect(node(r, 'area')['actions'], [
+        {'trigger': {'type': 'secondaryClick'}, 'actions': [menu]},
+        {'trigger': {'type': 'longPress'}, 'actions': [menu]},
+      ]);
+      // A handler written out does the same after its own actions; a tap opens it by the row.
+      final file = (node(r, 'file')['actions']! as List).cast<Map>();
+      expect(file.firstWhere((a) => (a['trigger'] as Map)['type'] == 'secondaryClick')['actions'], [
+        {'type': 'setVariable', 'variable': 'sel', 'value': 'a'},
+        menu,
+      ]);
+      expect(file.firstWhere((a) => (a['trigger'] as Map)['type'] == 'click')['actions'], [
+        {...menu, 'anchor': 'trigger'},
+      ]);
+      expect(kinds(r, 'refresh'), ['showToast', 'closeModal']);
+    });
+
     test('the prompt teaches them from a desktop width on', () {
       final wide = notationPrompt(catalog: standardCatalog, options: page);
-      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', '-> open signup']) {
+      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu:rowMenu', '-> open signup']) {
         expect(wide, contains(word), reason: word);
       }
       final card = notationPrompt(catalog: standardCatalog);

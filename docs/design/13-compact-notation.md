@@ -417,7 +417,7 @@ them.
 
 Not done: a table drops columns where a designer might have made each row a card.
 
-### 14.1 What is shown over a page: Dialog, Sheet, Drawer, Menu, Popover
+### 14.1 What is shown over a page: Dialog, Sheet, Drawer, Menu, Popover, Lightbox
 
 The document has modals (`openModal` shows another canvas as a dialog, a sheet, a popover), and the notation had
 `-> open <id>` for them, but a text was one canvas, so there was nothing to open. An overlay is now written in
@@ -449,6 +449,7 @@ another overlay):
 | `Drawer#id "Title"` (`right`, `w:300`) | the window's size, see-through: an `App` row of a `Sidebar` panel and a box beside it that closes on a tap | `presentation: dialog`, `cover: true` |
 | `Menu#id` (`Dropdown`; `end`, `above`, `center`, or `placement:`) | 220 wide, `pad:6 gap:2`, outlined | `presentation: popover`, `anchor: trigger`, `placement: belowStart`, `anchorGap: 6` |
 | `Popover#id` (`Popup`) | 320 wide, `pad:16 gap:12`, outlined | as a menu |
+| `Lightbox#id "{photo}" "Caption"` | the window's size, see-through: the picture contained in it; a tap closes | `presentation: dialog`, `cover: true`, `barrierColor: #E6000000` |
 
 - **Closing.** `close` closes the overlay it is written in; a tap outside closes any of them. Every line of a
   `Menu` closes it after its own actions (`MenuItem "Price" -> sort="Price"` is `sort="Price"; close`), and so
@@ -466,6 +467,8 @@ another overlay):
 - **Laid out as a card.** An overlay is expanded as a narrow canvas of its own (its width, 640 at most for the
   sizing rules), so a child is as wide as its column and nothing of the page's reflow touches it.
 - **A menu for one of many.** `-> sel=row.id; open rowMenu` on the row's button, and the menu's lines read `sel`.
+  `menu:rowMenu` on any line opens that menu on a right click and on a long press, where the pointer is
+  (`anchor: pointer`); `onRightClick:{sel=row.id; open rowMenu}` does the same after setting what was clicked.
 - An id is the canvas's, so it is one of a kind in the site, as a page's is.
 
 ### 14.2 An App's sidebar on a phone

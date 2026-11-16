@@ -932,6 +932,16 @@ class _Parser {
   final _overlayActions = <String, Json>{};
   final _opens = <Json>[];
 
+  /// The open actions a right click or a long press runs: a menu or a
+  /// popover they open sits where the pointer is, not by the node.
+  final _pointerOpens = Set<Json>.identity();
+
+  void _atPointer(Json action) {
+    if (action['type'] != 'openModal') return;
+    _top._pointerOpens.add(action);
+    if (action['presentation'] == 'popover') action['anchor'] = 'pointer';
+  }
+
   _Parser get _top => _host ?? this;
 
   /// The document's canvases: the page, then its overlays.
@@ -1000,7 +1010,10 @@ class _Parser {
     _overlays.add(sub);
     _overlayActions[o.id] = o.action;
     for (final a in _opens) {
-      if (a['to'] == o.id) a.addAll(_copy(o.action));
+      if (a['to'] == o.id) {
+        a.addAll(_copy(o.action));
+        if (_pointerOpens.contains(a)) _atPointer(a);
+      }
     }
     if (_canvas) {
       // The variables become the document's, so the overlay reads and sets them.
@@ -2186,10 +2199,24 @@ class _Parser {
             body = t.rest;
             t.at += t.rest.length;
           }
-          reactions.add({'trigger': _handlerTrigger(key, type, component ? spec : null, node), 'actions': _actions(_statements(body), col)});
+          final trigger = _handlerTrigger(key, type, component ? spec : null, node);
+          final actions = _actions(_statements(body), col);
+          // A menu opened by a right click or a long press sits where the pointer is.
+          if (trigger['type'] == 'secondaryClick' || trigger['type'] == 'longPress') actions.forEach(_atPointer);
+          reactions.add({'trigger': trigger, 'actions': actions});
           continue;
         }
         var raw = word.substring(colon + 1);
+        // `menu:rowMenu`: a right click, or a long press on a touch screen,
+        // opens that Menu where the pointer is (a context menu).
+        if (key == 'menu' && _identifier.hasMatch(raw) && !raw.contains('.') && !spec.props.any((p) => p.key == 'menu')) {
+          for (final trigger in const ['secondaryClick', 'longPress']) {
+            final actions = _actions('open $raw', col);
+            actions.forEach(_atPointer);
+            reactions.add({'trigger': {'type': trigger}, 'actions': actions});
+          }
+          continue;
+        }
         if (raw.startsWith('=')) raw = '$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
@@ -3567,6 +3594,7 @@ class _Parser {
     }
     final bare = key.startsWith('on') && key.length > 2 ? '${key[2].toLowerCase()}${key.substring(3)}' : key;
     if (const {'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'longPress', 'doubleTap'}.contains(bare)) return {'type': bare};
+    if (const {'rightClick', 'secondaryClick', 'contextMenu'}.contains(bare)) return {'type': 'secondaryClick'};
     final changes = key == 'change' || key == 'onChange' || key == 'onChanged';
     return {'type': changes || _valueProps.containsKey(type) && !key.contains('ress') && key != 'tap' && key != 'click' ? 'changed' : 'click'};
   }
