@@ -3326,7 +3326,7 @@ class _Parser {
       if (named != null) return {'type': 'event', 'event': named.key};
     }
     final bare = key.startsWith('on') && key.length > 2 ? '${key[2].toLowerCase()}${key.substring(3)}' : key;
-    if (const {'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'longPress', 'doubleTap'}.contains(bare)) return {'type': bare};
+    if (const {'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'longPress', 'doubleTap', 'enterViewport', 'exitViewport', 'scroll', 'scrollEnd'}.contains(bare)) return {'type': bare};
     final changes = key == 'change' || key == 'onChange' || key == 'onChanged';
     return {'type': changes || _valueProps.containsKey(type) && !key.contains('ress') && key != 'tap' && key != 'click' ? 'changed' : 'click'};
   }
@@ -3436,6 +3436,8 @@ class _Parser {
           out.add({'type': 'closeModal'});
         case 'go':
           out.add({'type': 'navigate', 'to': s});
+        case 'scroll':
+          out.add({'type': 'scrollTo', 'node': s});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':

@@ -1656,6 +1656,18 @@ Page
       expect(r.issues, isEmpty);
       expect((_node(r, 'screen')['layout'] as Map)['width'], page.narrowWidth);
     });
+    test('a docs outline can observe a heading and scroll to its anchor', () {
+      final r = parseNotation('''
+state heading="Install"
+Page
+  Section
+    Heading#install "Install" onEnterViewport:heading="Install"
+    Link "Install" -> scroll install
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(((_node(r, 'install')['actions'] as List).single as Map)['trigger'], {'type': 'enterViewport'});
+      expect(((_node(r, 'text1')['actions'] as List).single as Map)['actions'], [{'type': 'scrollTo', 'node': 'install'}]);
+    });
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
     // The patch a node takes at a width, its rules merged in order.
