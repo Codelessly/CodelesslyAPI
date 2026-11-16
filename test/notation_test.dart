@@ -1820,6 +1820,18 @@ Page
       expect(at(r, 'wide', 834)['visible'], false);
       expect(at(r, 'wide', 1280), isEmpty);
 
+      final conditional = parseNotation('''
+Page
+  if menuOpen
+    Column#mobileMenu show:phone
+      Link "Home" -> go home
+state menuOpen=false
+''', catalog: standardCatalog, options: page);
+      expect(conditional.issues, isEmpty);
+      expect(at(conditional, 'mobileMenu', 834)['visible'], false);
+      expect((at(conditional, 'mobileMenu', 834)['bind'] as Map)['visible'], null);
+      expect(at(conditional, 'mobileMenu', 390), isEmpty);
+
       const text = '''
 Column
   Grid cols:2

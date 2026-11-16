@@ -2771,6 +2771,19 @@ class _Parser {
       if (reactions.isNotEmpty) 'actions': reactions,
     };
     _merge(out, node);
+    // A size rule that hides a conditional node must suspend its visibility
+    // binding there; otherwise the binding wins and the node still appears.
+    if ((out['bind'] as Map?)?.containsKey('visible') ?? false) {
+      for (final rule in (out['media'] as List? ?? const [])) {
+        if (rule is Map && rule['patch'] is Map && (rule['patch'] as Map)['visible'] == false) {
+          final patch = (rule['patch'] as Map).cast<String, Object?>();
+          rule['patch'] = <String, Object?>{
+            ...patch,
+            'bind': {...?((patch['bind'] as Map?)?.cast<String, Object?>()), 'visible': null},
+          };
+        }
+      }
+    }
     // An expression written as a value in the tail ({"props": {"color": "${= …}"}})
     // is a binding: only a text's own text reads one as written.
     if (node.isNotEmpty) {
