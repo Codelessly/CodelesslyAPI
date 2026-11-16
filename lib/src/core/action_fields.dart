@@ -283,6 +283,12 @@ abstract final class ForEachFields {
   static const List<PropDef<Object?>> all = [items, actions];
 }
 
+/// [AnnounceAction].
+abstract final class AnnounceFields {
+  static const message = PropDef<String>('message', Codecs.string, '', doc: 'Text read by the screen reader without moving focus. Expressions are evaluated when run.');
+  static const List<PropDef<Object?>> all = [message];
+}
+
 /// [ShowToastAction].
 abstract final class ShowToastFields {
   static const message = PropDef<String>('message', Codecs.string, '', doc: 'An expression.');

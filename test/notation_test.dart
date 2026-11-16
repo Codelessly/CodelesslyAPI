@@ -20,6 +20,21 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  test('announce action and live text are written without JSON escapes', () {
+    final r = _parse('''
+state count=3
+Column
+  Text "{count} results" live:true
+  Button "Filter" -> announce "{count} results"
+''');
+    expect(r.issues, isEmpty);
+    final nodes = (r.document['nodes'] as Map).values.cast<Map>();
+    expect((nodes.firstWhere((n) => n['type'] == 'text')['props'] as Map)['live'], isTrue);
+    final button = nodes.firstWhere((n) => n['actions'] != null);
+    final action = (((button['actions'] as List).single as Map)['actions'] as List).single as Map;
+    expect(action, {'type': 'announce', 'message': r'${count} results'});
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

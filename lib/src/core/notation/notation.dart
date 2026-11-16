@@ -3861,10 +3861,12 @@ class _Parser {
           out.add({'type': 'navigate', 'to': fixed ? s : _formula(s)});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
+        case 'announce':
+          out.add({'type': 'announce', 'message': s});
         case 'link':
           out.add({'type': 'openLink', 'url': s});
         default:
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", announce "…", open <id>, close, go <screen>, scroll <id>, link <url>, or JSON.');
       }
     }
     return out;

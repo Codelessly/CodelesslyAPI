@@ -25,6 +25,8 @@ abstract final class TextProps {
   static const overflow = PropDef<TextOverflow>('overflow', EnumCodec(TextOverflow.values), TextOverflow.clip);
   /// The user can select and copy the text (Flutter's `SelectableText`).
   static const selectable = PropDef<bool>('selectable', Codecs.bool, false);
+  /// Announces changes to this text to a screen reader without moving focus.
+  static const live = PropDef<bool>('live', Codecs.bool, false);
 
   /// Shrinks the whole text to fit its width, keeping its lines
   /// (`FittedBox(fit: BoxFit.scaleDown)`).
@@ -44,7 +46,7 @@ abstract final class TextProps {
 
   static const spec = WidgetSpec('text',
       props: [
-        text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, scaleDown, markdown,
+        text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, live, scaleDown, markdown,
       ],
       // Unwritten, a text is as big as what it says (and wraps at its parent's width), as Flutter's Text is.
       hugs: true,

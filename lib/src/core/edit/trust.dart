@@ -78,7 +78,7 @@ final class TrustProfile {
   /// controls of drag tracks.
   static const Set<String> agentActions = {
     SetVariableAction.typeName, SetValueAction.typeName, SetVariantAction.typeName, NavigateAction.typeName, //
-    OpenModalAction.typeName, CloseModalAction.typeName, ShowToastAction.typeName, ConfirmAction.typeName,
+    OpenModalAction.typeName, CloseModalAction.typeName, ShowToastAction.typeName, AnnounceAction.typeName, ConfirmAction.typeName,
     IfAction.typeName, ForEachAction.typeName, DelayAction.typeName, FocusAction.typeName, ScrollToAction.typeName,
     AnimateAction.typeName, HapticAction.typeName, ComponentEventAction.typeName, RetryFailedAction.typeName,
     PaginateAction.typeName,
