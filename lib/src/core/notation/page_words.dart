@@ -119,10 +119,11 @@ final class PageWords {
   /// the window drops the first of two panes there.
   String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 ? 'tablet' : 'phone';
 
-  static final _overlayHead = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup)#([A-Za-z_][A-Za-z0-9_]*)(?=\s|$)');
+  static final _overlayHead = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#([A-Za-z_][A-Za-z0-9_]*)(?=\s|$)');
 
   /// The overlay a top-level line opens (`Dialog#signup "Join"`,
-  /// `Sheet#filters`, `Drawer#menu`, `Menu#more`, `Popover#tip`), or null: the lines under it are a canvas of their
+  /// `Sheet#filters`, `Drawer#menu`, `Menu#more`, `Popover#tip`,
+  /// `Lightbox#zoom`), or null: the lines under it are a canvas of their
   /// own, shown over the page by `-> open <id>`.
   Overlay? overlay(String text) {
     final head = _overlayHead.firstMatch(text);
@@ -217,7 +218,19 @@ final class PageWords {
           closes: menu ? 'all' : 'none',
         );
       default:
-        return null;
+        // A picture shown large over the page; a tap anywhere closes it.
+        return Overlay(
+          'lightbox',
+          id,
+          390,
+          const {'presentation': 'dialog', 'cover': true, 'barrierColor': '#E6000000'},
+          [
+            (indent: 0, text: 'Column w:fill h:fill center middle pad:24 gap:12${parts.props} -> close'),
+            if (title != null) (indent: 2, text: 'Image $title w:fill h:fill grow fit:contain'),
+            if (note != null) (indent: 2, text: 'Text $note color:#FFFFFFFF center'),
+          ],
+          surface: false,
+        );
     }
   }
 
@@ -693,12 +706,12 @@ final class PageWords {
 }
 
 /// A block written after the page that is shown over it: a dialog, a
-/// sheet, a drawer, a menu, a popover ([PageWords.overlay]).
+/// sheet, a drawer, a menu, a popover, a lightbox ([PageWords.overlay]).
 final class Overlay {
   const Overlay(this.kind, this.id, this.width, this.action, this.head,
       {this.shift = 0, this.foot = const [], this.surface = true, this.radius = 0, this.outlined = false, this.closes = 'none'});
 
-  /// `dialog`, `sheet`, `drawer`, `menu` or `popover`.
+  /// `dialog`, `sheet`, `drawer`, `menu`, `popover` or `lightbox`.
   final String kind;
 
   /// Its canvas's id: what `open` names.
