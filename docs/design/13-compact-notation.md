@@ -533,6 +533,12 @@ Lightbox#zoom "{cover}" "The harbor at dusk" ratio:1.5
   open, and it cannot be panned out of view. Without one the box is the whole place between the bars and the
   picture is contained in it: a tap there closes (it may be the scrim), and at a high zoom the bars beside a
   narrow picture can be panned into view. A design system's drawn `Media` scene is 3:2.
+- **A design system's gallery.** A component with `photos` and `viewer:"overlay"` among its parameters (Cards'
+  `PhotoGallery`) is given `viewer:"overlay"` on a page, and after its own actions its first event sets
+  `<screen>ViewerPhotos` and `<screen>ViewerAt` and opens `Lightbox#<screen>Viewer`, written once at the end of
+  the text as an App's drawer is: one viewer for every gallery of the page, also for one under an `each`. Its own
+  variable is 0 again once the viewer closes. On a card, with `layout:"pages"`, or with `viewer:` written, the
+  line is as written.
 
 Not done: the strip of thumbnails does not scroll to the picture in view; the arrows do not wrap round; a
 picture's proportions are not read from the picture.

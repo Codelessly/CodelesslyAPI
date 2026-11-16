@@ -1216,6 +1216,15 @@ class _Parser {
         final role = _roleMark.firstMatch(l.text);
         // The menu a Nav opens on a phone keeps whether it is open.
         if (l.text.contains('navMenu')) variables.putIfAbsent('navMenu', () => {'name': 'navMenu', 'type': 'boolean', 'value': false});
+        // What a gallery opens in the page's viewer: its photos and the one tapped.
+        if (_pages.viewerUsed) {
+          final viewer = _pages.viewer!;
+          variables.putIfAbsent('${viewer}Photos', () => {'name': '${viewer}Photos', 'type': 'list', 'value': const <Object?>[]});
+          variables.putIfAbsent('${viewer}At', () => {'name': '${viewer}At', 'type': 'decimal', 'value': 0});
+          for (final e in _pages.viewerLists.entries) {
+            variables.putIfAbsent(e.key, () => {'name': e.key, 'type': 'list', 'value': _json(e.value) ?? const <Object?>[]});
+          }
+        }
         _lastNode = null;
         _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
@@ -1252,6 +1261,14 @@ class _Parser {
     menu: options.reflow && options.width >= 700,
     sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}Menu' : null,
     surface: options.surface,
+    viewer: _host == null && options.width >= 700 ? '${options.screen}Viewer' : null,
+    takesViewer: (name) {
+      if (notationTypes[name] != null) return false;
+      final spec = catalog.widget(name);
+      return spec != null &&
+          spec.props.any((p) => p.key == 'photos') &&
+          spec.props.any((p) => p.key == 'viewer' && p.type.kind == PropKind.enumeration && p.type.values.contains('overlay'));
+    },
   );
 
   static final _roleMark = RegExp(r'^([A-Z][A-Za-z0-9]*)~([a-z]+)');
@@ -3447,6 +3464,14 @@ class _Parser {
   void finish() {
     if (_host == null) {
       _closeBlock();
+      // The viewer a gallery of the page opens its photos in, over the window.
+      if (_pages.viewerUsed && !_continues && !_taken(_pages.viewer!)) {
+        final viewer = _pages.viewer!;
+        if (_pages.overlay('Lightbox#$viewer photos:=${viewer}Photos =${viewer}At') case final Overlay o) {
+          _openBlock(o);
+          _closeBlock();
+        }
+      }
       // An app's sidebar, where the window has no room for it: a drawer the
       // top bar's menu button opens, each of its lines closing it as it is used.
       if (_pages.sidebarButton && _pages.sidebar.isNotEmpty && !_continues) {
