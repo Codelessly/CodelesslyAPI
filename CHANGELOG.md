@@ -56,6 +56,10 @@
   row are equally tall; a field in a bar (or labelled "Search…") has its label as its hint; a `Badge` with a
   width sits in a cell of that width; a `Text` with a rule, a fill or a corner is a box around the text; `id:x`,
   `sticky:true top:24` and an Avatar's `src:` are read as meant.
+- **Notation**: a see-through `fill:` on a `Card` sits over the card's own color (alone it let the card's
+  shadow show through); `'single-quoted'` text in a value ends at its closing quote; `Sparkline values:=row.trend`
+  draws from a record's list; a `color:` on a checkbox, switch or radio is its color when on; a text in a box of
+  a fixed height makes the box grow instead of overflowing.
 - **Notation**: the braces of a code sample shown as text (`import { Beacon } from …`) are text, not a value
   read.
 
