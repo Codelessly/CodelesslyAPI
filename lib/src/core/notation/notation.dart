@@ -2913,6 +2913,10 @@ class _Parser {
         props['decoration'] = d;
       }
     }
+    // A date or time field is a field: as tall as the text field and the select beside it.
+    if (options.controlHeight != null && const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && !layout.containsKey('height')) {
+      layout['height'] = options.controlHeight;
+    }
     if (options.controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
       // A field's label sits above its box, inside its height (11.5 px
       // text and 6 px under it).
