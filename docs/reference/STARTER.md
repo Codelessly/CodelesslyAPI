@@ -215,8 +215,8 @@ only in a row or column that has some (a fill or fixed main size).
 <a id="base-padding-margin-constraints-a-capped-width"></a>
 ### Padding, margin, constraints, a capped width
 
-- `padding` is space inside the node's box, `margin` outside it: a number (all sides) or **four** numbers
-  `[left, top, right, bottom]` (two numbers are not read).
+- `padding` is space inside the node's box, `margin` outside it: a number (all sides), **four** numbers
+  `[left, top, right, bottom]` (two are not read), or `{"start","top","end","bottom"}` ([RTL](layout.md#layout-rtl)).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`. `aspectRatio`: width / height.
 - **A full-width band with capped, centered content** (CSS `max-width: 1200px; margin: 0 auto`): the band fills
   the width and holds the background; its one child fills with `"constraints": {"maxWidth": 1200}`, centered by the

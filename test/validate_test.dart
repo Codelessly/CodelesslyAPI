@@ -253,6 +253,27 @@ void main() {
       d['roots'] = ['home', 'other'];
       expectOne(d, Codes.canvasAsChild);
     });
+    test('an expression written into an animation field is reported, with the binding to use', () {
+      final d = base();
+      node(d, 'box')['animations'] = [
+        {'id': 'pulse', 'preset': 'pulse', 'enabled': r'${= count > 0}'},
+      ];
+      final found = withCode(d, Codes.looseValue).where((x) => x.path.endsWith('/animations/0/enabled')).toList();
+      expect(found, hasLength(1));
+      expect(found.single.message, contains('animations.pulse.enabled'));
+    });
+    test('a share of the main axis in a column is reported as ignored, the cross axis is not', () {
+      final d = base();
+      (node(d, 'box')['layout'] as Map)['heightFactor'] = 0.5;
+      expectOne(d, Codes.layoutFieldIgnored, path: '/nodes/box/layout/heightFactor');
+      final across = base();
+      (node(across, 'box')['layout'] as Map)['widthFactor'] = 0.5;
+      expect(withCode(across, Codes.layoutFieldIgnored), isEmpty);
+      final wrapping = base();
+      node(wrapping, 'col')['props'] = {'wrap': true};
+      (node(wrapping, 'box')['layout'] as Map)['heightFactor'] = 0.5;
+      expect(withCode(wrapping, Codes.layoutFieldIgnored).where((x) => x.path.endsWith('heightFactor')), isEmpty);
+    });
     test('a position outside a stack is reported as ignored (layout_field_ignored)', () {
       final d = base();
       (node(d, 'box')['layout'] as Map)['x'] = {'start': 4};
@@ -399,6 +420,36 @@ void main() {
       expect(validateDocument(d), isEmpty);
       node(d, 'title')['bind'] = {'props.text': r'${size.width}'};
       expectOne(d, Codes.unknownName, path: '/nodes/title/bind/props.text');
+    });
+    test('a custom paint repeat\'s own names (as, indexAs, count) are known inside its ops, and only there', () {
+      final d = base();
+      node(d, 'box')['customPaint'] = {
+        'painter': [
+          {
+            'op': 'repeat',
+            'count': 3,
+            'as': 'el',
+            'indexAs': 'k',
+            'ops': [
+              {'op': 'circle', 'c': [r'${el}', r'${count}'], 'radius': r'${k}', 'paint': '#FF000000'},
+              {
+                'op': 'repeat',
+                'each': r'${el}',
+                'ops': [
+                  {'op': 'line', 'p1': [r'${el.x}', r'${item}'], 'p2': [r'${index}', 0], 'paint': '#FF000000'},
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      expect(validateDocument(d), isEmpty);
+      // Outside the repeat the names mean nothing.
+      (node(d, 'box')['customPaint'] as Map)['painter'] = [
+        {'op': 'repeat', 'count': 2, 'as': 'el', 'ops': []},
+        {'op': 'circle', 'c': [r'${el}', 0], 'radius': 4, 'paint': '#FF000000'},
+      ];
+      expectOne(d, Codes.unknownName, path: '/nodes/box/customPaint/painter/1/c/0');
     });
     test('a binding to a path that does not exist is reported with the right one (unknown_bind_path)', () {
       final d = base();

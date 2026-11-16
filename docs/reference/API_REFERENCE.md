@@ -215,8 +215,8 @@ only in a row or column that has some (a fill or fixed main size).
 <a id="base-padding-margin-constraints-a-capped-width"></a>
 ### Padding, margin, constraints, a capped width
 
-- `padding` is space inside the node's box, `margin` outside it: a number (all sides) or **four** numbers
-  `[left, top, right, bottom]` (two numbers are not read).
+- `padding` is space inside the node's box, `margin` outside it: a number (all sides), **four** numbers
+  `[left, top, right, bottom]` (two are not read), or `{"start","top","end","bottom"}` ([RTL](#layout-rtl)).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`. `aspectRatio`: width / height.
 - **A full-width band with capped, centered content** (CSS `max-width: 1200px; margin: 0 auto`): the band fills
   the width and holds the background; its one child fills with `"constraints": {"maxWidth": 1200}`, centered by the
@@ -787,15 +787,15 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4811 |
-| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 9669 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4812 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10034 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2932 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12891 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7904 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7972 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4269 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6662 |
-| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5286 |
+| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5386 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3768 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
@@ -808,7 +808,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3081 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13358 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13476 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -1119,6 +1119,7 @@ Flutter `Row`.
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-column"></a>
@@ -1148,6 +1149,7 @@ Flutter `Column`.
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-flex"></a>
@@ -1178,6 +1180,7 @@ Flutter `Flex`.
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-stack"></a>
@@ -1201,6 +1204,7 @@ A freeform container: children placed by `layout.x`/`layout.y` (Flutter `Stack` 
 | `clipBehavior` | [Clip](#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `fit` | [BoxFit](#enum-BoxFit) | unset | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | Scale the board (its design size) into the box: contain, cover, scaleDown... |
 | `fitAlignment` | [Alignment](#type-Alignment) | `[0,0]` |  | Where a `fit` board sits in its box. |
 
@@ -1371,7 +1375,7 @@ change what must change at a width. Use these, in this order:
 4. **A canvas per breakpoint**, only for screens that are genuinely different designs (below).
 
 Precedence: the node's own values, then its media rules, then an active interaction state's patch, then its
-bindings, then conditions.
+bindings, then conditions; a binding of a field the active state patches yields to the patch (which may bind).
 
 This page uses the four web patterns: a header whose links collapse to a menu icon below desktop, a 3 → 2 → 1 card
 grid from data (`minCrossAxisExtent`), a text-and-photo section that stacks with the photo first on phones (`basis`
@@ -2215,6 +2219,26 @@ A comparison table with a **sticky first column** on phones is two parts side by
 labels, and a row of plan columns that scrolls sideways (made to scroll only on phones by a media rule on its
 `scrollable`); give each table row the same height in both. From data: [a table from one template](#lists-a-table-from-one-template).
 
+<a id="layout-rtl"></a>
+### RTL
+
+`textDirection` (`"ltr"` | `"rtl"`, Flutter's `Directionality`) on a node lays it and everything under it out in that
+direction; a node without one inherits the nearest above it (none: left to right). Bind it to mirror a screen for
+Arabic or Hebrew from one place: `"bind": {"textDirection": "${= uiLang == 'ar' ? 'rtl' : 'ltr'}"}` on the canvas
+body. Under right to left:
+
+- rows and wrapping rows run from the right; a column's `start` / `end` cross alignment is the right / left edge;
+- a text's `start` / `end` alignment (the default is `start`) is the right / left edge, and its lines lay out right to
+  left; `left` and `right` stay where they are;
+- padding and margin written `{"start": 16, "top": 8, "end": 4, "bottom": 8}` put the start on the right; the list
+  form `[left, top, right, bottom]` stays absolute;
+- a stack mirrors each child's `x` (its distance from the left becomes its distance from the right);
+- directional icons (`arrow_back`, `chevron_right`, `send`, `undo`... the Material icons Flutter declares with
+  `matchTextDirection`) mirror; other icons do not.
+
+A part that must keep its own direction inside a mirrored screen (a phrase in another script, a code) sets its own
+`textDirection`: `"bind": {"textDirection": "${= langRtl ? 'rtl' : 'ltr'}"}`.
+
 <a id="layout-a-canvas-per-breakpoint"></a>
 ### A canvas per breakpoint
 
@@ -2359,9 +2383,9 @@ one part of a screen. Older documents use this:
   negative margin does not overlap a neighbor (`layout_clamped`): translate with `motion`.
 - A media patch replaces a size of another mode: `{"hug": 200}` over `{"fill": 292}` is `{"hug": 200}`. A field
   both patched and bound shows the binding (`media_overridden`): bind in the rule instead.
-- `squeezeChildren` (default true) shrinks children that do not fit, as CSS flex items shrink; false is
-  Flutter's overflow (`layout_overflow`).
-- A `spacer` takes free space only in a row or column with room to spare.
+- `squeezeChildren` (default true) shrinks children that do not fit (CSS flex shrink); false is Flutter's
+  overflow (`layout_overflow`).
+- A `spacer` takes free space only in a row or column with room.
 - Without `basis`, children of a wrapping row keep their own size.
 - `${screen.width}` prints `390.0`; `${= screen.width}` prints `390`.
 
@@ -4723,6 +4747,7 @@ Flutter `ListView`: its first child repeated per item.
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `scrollable` | bool | `true` |  | False builds every item without a viewport when the count is known and the list hugs its items (or stretches them across a cross axis it hugs). |
 | `itemExtent` | double | unset | ≥ 0 | Each item's extent along the scroll direction. |
 | `separator` | [ListSeparator](#enum-ListSeparator) | `"none"` | `none`, `space`, `divider` |  |
@@ -4771,6 +4796,7 @@ Flutter `GridView` with a fixed cross-axis count (`SliverGridDelegateWithFixedCr
 | `cacheExtent` | double | unset | ≥ 0 |  |
 | `query` | Object | `{}` |  | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `crossAxisCount` | int | `2` | ≥ 1 | A fixed number of columns (of rows when the grid scrolls sideways). For as many columns as fit, use `minCrossAxisExtent` instead. |
 | `maxCrossAxisExtent` | double | unset | ≥ 0 |  |
 | `minCrossAxisExtent` | double | unset | ≥ 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
@@ -7031,6 +7057,7 @@ Takes `DragSource`s of the groups it `accepts` (Flutter's `DragTarget`).
 | `slot` | [DropSlot](#enum-DropSlot) | `"gap"` | `none`, `gap`, `node` |  |
 | `slotNodeId` | String | `""` |  |  |
 | `slotSize` | [DropSlotSize](#enum-DropSlotSize) | `"dragged"` | `dragged`, `node`, `inGap` |  |
+| `slotWhenRefused` | bool | `false` |  | The list opens its slot for a drag acceptIf refuses too (styled by ${drag.accepted}): a full column shows where a card would land. |
 | `enabled` | bool | `true` |  |  |
 
 <a id="behavior-track"></a>
@@ -7206,8 +7233,8 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 | <a id="trigger-swipeDown"></a>`swipeDown` |  |
 | <a id="trigger-drag"></a>`drag` | The node is dragged (every move); `dragEnd` when it's let go. |
 | <a id="trigger-dragEnd"></a>`dragEnd` |  |
-| <a id="trigger-wheel"></a>`wheel` | Wheel or trackpad scroll over the node; a pinch on it. |
-| <a id="trigger-pinch"></a>`pinch` |  |
+| <a id="trigger-wheel"></a>`wheel` | Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node). |
+| <a id="trigger-pinch"></a>`pinch` | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |
 | <a id="trigger-dragStart"></a>`dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag (what was dragged is `${result.data}`). A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
 | <a id="trigger-dragCancel"></a>`dragCancel` |  |
 | <a id="trigger-dragCompleted"></a>`dragCompleted` |  |
@@ -12255,6 +12282,10 @@ Written as the value's name, a JSON string (`"center"`).
 | `noBottom` |  |
 | `noLeft` |  |
 | `none` | No side: Flutter's `Border()` (every side `BorderSide.none`), CSS `border-style: none`; for a stroke bound or patched off. |
+| `start` | The start side: Flutter's `BorderDirectional(start: ...)` (a sidebar's rule against the content, in a layout that can mirror). |
+| `end` | The end side: Flutter's `BorderDirectional(end: ...)`. |
+| `noStart` | Every side but the start. |
+| `noEnd` | Every side but the end. |
 
 <a id="enum-TabAlignment"></a>
 ### TabAlignment
@@ -12487,8 +12518,8 @@ Written as the value's name, a JSON string (`"center"`).
 | `swipeDown` |  |
 | `drag` | The node is dragged (every move); `dragEnd` when it's let go. |
 | `dragEnd` |  |
-| `wheel` | Wheel or trackpad scroll over the node; a pinch on it. |
-| `pinch` |  |
+| `wheel` | Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node). |
+| `pinch` | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |
 | `changed` | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
 | `changeEnd` | A slider was let go, with its final value. |
 | `submitted` | A text field was submitted from the keyboard. |

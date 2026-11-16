@@ -189,6 +189,7 @@ Takes `DragSource`s of the groups it `accepts` (Flutter's `DragTarget`).
 | `slot` | [DropSlot](values.md#enum-DropSlot) | `"gap"` | `none`, `gap`, `node` |  |
 | `slotNodeId` | String | `""` |  |  |
 | `slotSize` | [DropSlotSize](values.md#enum-DropSlotSize) | `"dragged"` | `dragged`, `node`, `inGap` |  |
+| `slotWhenRefused` | bool | `false` |  | The list opens its slot for a drag acceptIf refuses too (styled by ${drag.accepted}): a full column shows where a card would land. |
 | `enabled` | bool | `true` |  |  |
 
 <a id="behavior-track"></a>
@@ -364,8 +365,8 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 | <a id="trigger-swipeDown"></a>`swipeDown` |  |
 | <a id="trigger-drag"></a>`drag` | The node is dragged (every move); `dragEnd` when it's let go. |
 | <a id="trigger-dragEnd"></a>`dragEnd` |  |
-| <a id="trigger-wheel"></a>`wheel` | Wheel or trackpad scroll over the node; a pinch on it. |
-| <a id="trigger-pinch"></a>`pinch` |  |
+| <a id="trigger-wheel"></a>`wheel` | Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node). |
+| <a id="trigger-pinch"></a>`pinch` | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |
 | <a id="trigger-dragStart"></a>`dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag (what was dragged is `${result.data}`). A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
 | <a id="trigger-dragCancel"></a>`dragCancel` |  |
 | <a id="trigger-dragCompleted"></a>`dragCompleted` |  |
