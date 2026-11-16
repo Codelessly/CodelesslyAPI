@@ -4419,8 +4419,7 @@
       "docs": "forms.md#node-dropdown"
     },
     "datePicker": {
-      "doc": "Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).",
-      "flutter": "showDatePicker",
+      "doc": "A date field that opens a calendar drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar the renderer draws itself (no Material dialog), in the project's theme.",
       "children": "none",
       "slots": [],
       "decorated": false,
@@ -4490,7 +4489,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: none."
+          "doc": "A title over the calendar or the time columns; empty: none."
         },
         {
           "key": "pickerTheme",
@@ -4498,14 +4497,13 @@
           "kind": "json",
           "default": null,
           "nullable": true,
-          "doc": "The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
+          "doc": "Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
         }
       ],
       "docs": "forms.md#node-datePicker"
     },
     "timePicker": {
-      "doc": "Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).",
-      "flutter": "showTimePicker",
+      "doc": "A time field that opens hour and minute columns drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns the renderer draws itself (no Material dialog), in the project's theme.",
       "children": "none",
       "slots": [],
       "decorated": false,
@@ -4533,7 +4531,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "The picker's dial and fields in 24-hour time (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the picker reads)."
+          "doc": "The picker's columns in 24-hour time (hours and minutes, no AM/PM)."
         },
         {
           "key": "format",
@@ -4567,7 +4565,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: none."
+          "doc": "A title over the calendar or the time columns; empty: none."
         },
         {
           "key": "pickerTheme",
@@ -4575,7 +4573,7 @@
           "kind": "json",
           "default": null,
           "nullable": true,
-          "doc": "The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
+          "doc": "Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
         }
       ],
       "docs": "forms.md#node-timePicker"
