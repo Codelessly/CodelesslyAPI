@@ -47,7 +47,8 @@ String notationPrompt({
             // Card, Slider) stays that: listing the component of the same
             // name would teach parameters the line does not take.
             if (!notationTypes.containsKey(component.type) &&
-                c.widget('${component.type[0].toLowerCase()}${component.type.substring(1)}') == null)
+                (c.widget('${component.type[0].toLowerCase()}${component.type.substring(1)}') == null ||
+                    notationComponentFirst.contains(component.type)))
               if (only == null || only.contains(component.type)) notationComponentLine(component),
         ];
   // How the design system says its pieces go together: the "In brief"
@@ -235,7 +236,7 @@ TYPES
   Button variants: ${buttonVariants.keys.map((k) => 'Button.$k').join(', ')} (plain Button is primary)
   Badge variants: ${badgeVariants.keys.map((k) => 'Badge.$k').join(', ')}
   Card is a padded, bordered Column; Box is a Column you style (fill, radius, pad). Every control already has the design system's look: write no colors or sizes on controls. A Text takes color:#FF…, size:32 and weight:700 (a big number is Text "{n}" size:64); a Box or Card takes fill:#FF… (on a dark fill, give its texts a light color). A look can follow data: fill:=, border:= and color:= take an expression. Column scroll lets a tall screen scroll.
-  Grid cols:3 gap:8 lays its children out in columns. Progress 0.6 (or Progress =done) shows a share from 0 to 1. Select and SegmentedButton take items:["A","B"]. Input takes type:number (or email, phone) for its keyboard. Icon "name" uses Material icon names (check, close, star, chevron_right).
+  Grid cols:3 gap:8 lays its children out in columns. Progress 0.6 (or Progress =done) shows a share from 0 to 1. Select and SegmentedButton take items:["A","B"] (a SegmentedButton: two to four short options, never a page's tabs). Input takes type:number (or email, phone) for its keyboard. Icon "name" uses Material icon names (check, close, star, chevron_right).
   Pages =page h:160 shows the lines under it one at a time, swiped across (under it, each item in items gives one page per element); =page is the page shown, from 0, and setting it turns the page. peek:0.86 shows the edge of the next page (a carousel, a gallery). Dots =page count:4 draws its pagination dots (a tap goes to that page); "{page+1} of {length(items)}" is its count. Content wider than the card (a wide table, a strip of tiles) goes in Row scroll, which scrolls sideways.
   BarChart values:[3,5,4] labels:["Mon","Tue","Wed"] and LineChart values:[10,12,11,14] draw charts: never link to a chart image.
   LineChart labels:["W1","W2"] series:[{"name":"Signups","values":[40,52]},{"name":"Churn","values":[8,6]}] draws several lines (AreaChart fills under them); Donut values:[60,25,15] labels:["Rent","Food","Other"] shares of a whole.${options.width >= notationPageWidth ? ' On a page a Donut draws its labels as a legend beside it (under it where there is no room), each with its share: write no legend of your own (legend:false leaves it out).' : ''}

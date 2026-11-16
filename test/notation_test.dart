@@ -1206,7 +1206,7 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         'id': 'acme',
         'name': 'Acme',
         'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
-        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/Question.json'],
+        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/Question.json', 'components/Tabs.json'],
       }),
       'components/StatusPill.json': jsonEncode(component('StatusPill', [
         {'key': 'label', 'type': string, 'default': 'Status', 'required': true},
@@ -1243,6 +1243,12 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
       {'key': 'tone', 'type': {'kind': 'enumeration', 'flutter': 'String', 'values': ['primary', 'quiet', 'danger']}, 'default': 'primary'},
       {'key': 'qty', 'type': number, 'default': 1},
     ]));
+    files['components/Tabs.json'] = jsonEncode(component('Tabs', [
+      {'key': 'tabs', 'type': {'kind': 'list', 'flutter': 'List<String>', 'item': string}, 'default': <Object?>[], 'required': true},
+      {'key': 'value', 'type': {'kind': 'variable', 'flutter': 'String', 'of': string}, 'default': ''},
+    ], events: [
+      {'key': 'onChanged', 'payload': string},
+    ], width: {'fill': 200}));
     late DesignSystem ds;
     late Catalog catalog;
     setUp(() async {
@@ -1342,6 +1348,24 @@ Column gap:8
     test('a name the notation already reads as a core type stays that type', () {
       final r = parse('Button "Save"');
       expect(_node(r, 'filledButton1')['type'], 'filledButton');
+    });
+
+    test('a Tabs line means the Tabs of a design system that has one, not the core tabs node; without one it is the core node', () {
+      final r = parse('''
+state tab="A"
+Column
+  Tabs =tab tabs:["A","B"]
+  if tab=="A"
+    Text "First"
+''');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      final tabs = _node(r, 'Tabs1');
+      expect(tabs['type'], 'Tabs');
+      expect(tabs['props'], {'tabs': ['A', 'B'], 'value': 'tab'});
+      final prompt = notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds);
+      expect(prompt, contains('Tabs =value tabs! -> onChanged : What a Tabs is for.'));
+      final core = parseNotation('Tabs titles:["A","B"]');
+      expect((core.document['nodes']! as Map).values.cast<Map>().any((n) => n['type'] == 'tabs'), isTrue);
     });
 
     test('the prompt lists them as they are called, leaving out the names it reads as core types', () {
