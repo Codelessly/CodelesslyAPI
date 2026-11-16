@@ -20,6 +20,44 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  test('slider model retains star track and read-only properties', () {
+    final n = Node.fromJson({'type': 'slider', 'props': {'value': 4.5, 'max': 5,
+      'trackShape': 'stars', 'readOnly': true}})!;
+    expect(n.prop(SliderProps.trackShape), SliderTrackShape.stars);
+    expect(n.prop(SliderProps.readOnly), isTrue);
+    expect(n.toJson()['props'], containsPair('trackShape', 'stars'));
+  });
+
+  test('Rating component is a notation word with a bound score and half steps', () async {
+    final files = <String, String>{
+      'design_system.json': jsonEncode({'id': 'ratings', 'name': 'Ratings',
+        'components': ['components/Rating.json']}),
+      'components/Rating.json': jsonEncode({
+        'schema': 3, 'id': 'Rating', 'roots': ['stars'],
+        'widget': {'type': 'Rating', 'doc': 'Five stars as one rating control.', 'props': [
+          {'key': 'label', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': 'Rating', 'required': true},
+          {'key': 'value', 'type': {'kind': 'variable', 'of': {'kind': 'number', 'flutter': 'double'}}, 'default': ''},
+          {'key': 'half', 'type': {'kind': 'boolean', 'flutter': 'bool'}, 'default': false},
+        ]},
+        'nodes': {'stars': {'type': 'slider', 'layout': {'width': 200, 'height': 44},
+          'props': {'trackShape': 'stars', 'readOnly': false},
+          'bind': {'props.value': r'${props.value}'}}},
+      }),
+    };
+    final problems = <String>[];
+    final ds = await DesignSystem.load((ref) async => files[ref], problems: problems);
+    expect(problems, isEmpty);
+    final catalog = ds.catalogOver(standardCatalog);
+    final r = Catalog.run(catalog, () => parseNotation('state score=3\nRating "Your rating" =score half:true\n',
+        catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+    expect(r.issues, isEmpty);
+    final rating = (r.document['nodes'] as Map).values.whereType<Map>().firstWhere((n) => n['type'] == 'Rating');
+    expect(rating['props'], containsPair('half', true));
+    expect(rating['props'], containsPair('value', 'score'));
+    expect(notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds),
+        contains('Rating "label" =value half'));
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

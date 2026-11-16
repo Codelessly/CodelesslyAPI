@@ -78,7 +78,7 @@ ${brief.split('\n').map((l) => '  $l').join('\n')}
 
 COMPONENTS (${designSystem!.name}: ready-made, already styled; prefer one of these to building its look from boxes)
   Written like any node: Name "text" key:value =variable -> action. The quoted names are filled, in order, by the strings you write; a name ending in ! must be given (key:value). =variable is where the component keeps its value (created for you); an optional boolean value also works without =name, kept separately for each call. -> runs when it is used (its first event). Lists are written ["a","b"]. A component with (children) takes lines indented under it.
-${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
+${componentLines.map((l) => '  $l').join('\n')}${componentLines.any((l) => l.startsWith('Rating ')) ? '\n  Rating "Your rating" =score half:true lets one star control take pointer and arrow keys; Rating "Course score" score:4.7 readOnly:true shows a fixed score.' : ''}${wanted ? '''
 
   A MISSING COMPONENT: before writing, name the main reusable unit of the request (a poll's results, a voice note, a boarding pass, a month calendar, a quiz question with its grading). If a listed component represents that unit's data and its distinctive look or interaction, use it. If none does, write exactly one line Wanted \"PascalCaseName\" \"what it shows, the data it takes, what it does\" inside the card, and build the unit under it from the general parts (rows, texts, badges, options, charts, progress lines) as a stand-in:
     ChatCard \"Team lunch\" \"Friday\"
@@ -126,7 +126,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns, a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it) and opens its Sidebar as a drawer from a menu button it adds to Main's Nav, a Nav hides its links and opens them from a menu button it adds itself (each Link with its -> action or href, as written), sections and headlines get smaller. So that it can:
     Share a width with grow, or give the one fixed part a width (a rail: Column w:320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
     Equal cells are a Grid, not a Row of fixed-width boxes. A table's row is a Row whose cells have widths (Text "Status" w:90) and one cell that grows, its header written the same way.
-    hide:phone leaves a node out on a phone, hide:tablet on a tablet and a phone; show:phone shows it on a phone only, show:tablet on a tablet and a phone only. Write no menu button for a Nav's links: it has one, for the links it hides (Link "Search" menu:false -> open search is a link that stays in the bar and out of the menu; a Nav with a show:phone line of its own keeps yours instead). They hold on a line under an if too: the condition counts only where the size shows the line.
+    hide:phone leaves a node out on a phone, hide:tablet on a tablet and a phone; show:phone shows it on a phone only, show:tablet on a tablet and a phone only. Nav adds a menu for hidden links (Link "Search" menu:false -> open search stays in the bar; a Nav with a show:phone line keeps yours instead). Under if, count only where shown.
     A Row of two Columns that grow, each a heading and its text, stacks where they no longer fit; a Row of labeled Select columns keeps two filters across a phone, while other controls with choices wrap whole onto the next line.''' : ''}
 
   OVER THE PAGE (a dialog, a sheet, a drawer, a menu): write each after the page, at the margin, with an id, its content indented under it as on a card. -> open signup shows it, -> close closes it (so does a tap outside it). It reads and sets the page's values: a form in a dialog sets them and closes (-> saved=true; close).
@@ -251,7 +251,7 @@ ${natural ? '''  A list or a record changes as in code (rows.add(x), rows.remove
 ${natural ? '''  Every value shown that depends on the state is written as an expression in {…} (or a let name), never as a number you worked out: after a tap it must show the new value. Chips have selected:{expression} and enabled:{expression}.''' : '''  An action is one of the forms above, never a condition: to choose, set a variable to a formula (-> step=valid?3:2). Chips have selected:=expression and enabled:=expression.'''}
 
 BEYOND THESE WORDS
-  The full vocabulary has more. Write that part as a node {…} line or a {…} tail; its reference page says how (ask for the page with ui_docs when you have that tool):
+  For more, write a node {…} or a {…} tail (see ui_docs):
   custom drawing and shapes: decoration · motion and entrance animation: animation · swipe, long press, hover: interaction · several screens: navigation · tables, paged and reorderable lists: lists · validation: forms · scripts: state · video, audio, embeds: media · chart options: charts
 
 EXAMPLES
