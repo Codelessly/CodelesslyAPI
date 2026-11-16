@@ -116,6 +116,11 @@ abstract final class TextFieldProps {
   /// `Radius.circular(cursorRadius)`.
   static const cursorRadius = PropDef<double?>('cursorRadius', Codecs.positive, null);
   static const maxLength = PropDef<int?>('maxLength', OptionalIntCodec(), null);
+  /// Number of visual one-time-code slots (0: an ordinary text field).
+  /// The slots share this field's one value, focus and semantics.
+  static const otpLength = PropDef<int>('otpLength', IntCodec(min: 0), 0);
+  /// Keep only ASCII digits in a one-time code, including pasted text.
+  static const otpDigitsOnly = PropDef<bool>('otpDigitsOnly', Codecs.bool, false);
 
   /// 0: no limit (Flutter's `maxLines: null`).
   static const maxLines = PropDef<int>('maxLines', IntCodec(min: 0), 1);
@@ -162,7 +167,7 @@ abstract final class TextFieldProps {
   static const spec = WidgetSpec('textField', hugs: true, props: [
     initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, //
     textInputAction, textCapitalization, autocorrect, autofocus, enableInteractiveSelection, enabled, obscureText,
-    obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength,
+    obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength, otpLength, otpDigitsOnly,
     maxLines, minLines, expands, selectionHeightStyle, selectionWidthStyle, autofillHints, autovalidateMode,
     selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown, runs,
   ], doc: 'Flutter `TextField`. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');

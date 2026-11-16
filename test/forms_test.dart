@@ -20,6 +20,21 @@ Map<String, Object?> _doc(Map<String, Object?> extraNodes, {List<String> childre
     };
 
 void main() {
+  test('a one-time code is one text field with a slot count and optional digit filter', () {
+    final doc = _doc({
+      'email': {
+        'type': 'textField',
+        'layout': {'width': 320, 'height': 56},
+        'props': {'otpLength': 6, 'otpDigitsOnly': true, 'decoration': {'labelText': 'Verification code'}},
+      },
+    });
+    expect(validateDocument(doc), isEmpty);
+    final field = LayoutDocument.fromJson(doc)['email']!;
+    expect(field.prop(TextFieldProps.otpLength), 6);
+    expect(field.prop(TextFieldProps.otpDigitsOnly), isTrue);
+    expect(field.toJson()['props'], containsPair('otpLength', 6));
+  });
+
   test('a validator is an expression reading the field\'s text as value, and validates', () {
     final doc = _doc({
       'email': {
