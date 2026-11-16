@@ -3324,12 +3324,24 @@ class _Parser {
   /// [line] with the word [name] read as `item`, outside quoted text and
   /// inside `{…}` within it.
   String _rename(String line, String name, [String to = 'item']) {
+    // A short loop name may also be a layout key (`each h ... Text ... h:120`).
+    // A key followed by ':' is notation, not a reference to the item.
     final word = RegExp('(?<![A-Za-z0-9_.#])${RegExp.escape(name)}(?![A-Za-z0-9_])');
     final out = StringBuffer();
     var quoted = false, inner = false, depth = 0, start = 0;
     void flush(int end, bool code) {
       final part = line.substring(start, end);
-      out.write(code ? part.replaceAllMapped(word, (_) => to) : part);
+      out.write(code
+          ? part.replaceAllMapped(word, (m) {
+              // In `h:120` the `h` is a prop key. In `live ? h:4` it
+              // is still the loop value, despite the following colon.
+              final before = part.substring(0, m.start).trimRight();
+              final key = m.end < part.length && part[m.end] == ':' &&
+                  (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
+                  !before.endsWith('?');
+              return key ? m[0]! : to;
+            })
+          : part);
       start = end;
     }
 

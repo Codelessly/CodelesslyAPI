@@ -1849,6 +1849,21 @@ Page
       expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
     });
 
+    test('a short each alias leaves layout keys intact', () {
+      final r = parseNotation('''
+state homes=[{"name":"One"}]
+Page
+  Section
+    each h in homes
+      Card
+        Text#homeName "{h.name}" h:120
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(node(r, 'homeName')['layout'], containsPair('height', 120));
+      expect((node(r, 'homeName')['props'] as Map).containsKey('item'), isFalse);
+      expect(jsonEncode(node(r, 'homeName')), contains('item.name'));
+    });
+
     test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page
