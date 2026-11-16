@@ -228,6 +228,14 @@ final class PageWords {
     }
     // A badge with a width is a table's cell: the cell has the width, the
     // badge stays as big as its label.
+    // A badge's ink follows its tone: a color worked out from data is left out.
+    if (word == 'Badge' && !isComponent('Badge') && parts.bound('color')) {
+      parts.take('color');
+      if (!parts.has('w')) {
+        open();
+        return out..add((indent: at, text: 'Badge$mark${parts.all}'));
+      }
+    }
     if (word == 'Badge' && parts.has('w') && !isComponent('Badge')) {
       final width = parts.take('w')!;
       final grow = parts.word('grow') ? ' grow' : '';
@@ -345,6 +353,7 @@ final class PageWords {
 
   static final _idKey = RegExp(r'\s(?:id|anchor):[A-Za-z_][\w-]*(?=\s|$)');
   static final _stickyKey = RegExp(r'\ssticky:true(?:\s+top:\d+)?(?=\s|$)');
+  static final _bareValue = RegExp(r'^((?:Text|Avatar|Heading|Badge|Button)(?:[.#][\w.#]*)?)\s+([a-z_]\w*(?:\.[A-Za-z_]\w*)+)(?=\s|$)');
   static final _avatarSrc = RegExp(r'^(Avatar(?:#\w+)?)\s+(?:src|url|img):');
 
   /// A line with the keys a model reaches for by habit put as the notation
@@ -353,7 +362,7 @@ final class PageWords {
   /// `image:` (with the name it must have).
   static String _plain(String text) {
     if (text.contains("'")) text = _doubleQuoted(text);
-    if (!text.contains(':')) return text;
+    if (!text.contains(':') && !text.contains('.')) return text;
     final quoted = text.indexOf('"');
     var t = text;
     if (t.contains(' id:') || t.contains(' anchor:')) {
@@ -366,8 +375,15 @@ final class PageWords {
     }
     if (t.startsWith('Avatar')) {
       final m = _avatarSrc.firstMatch(t);
-      if (m != null) t = '${m[1]} "" image:${t.substring(m.end)}';
+      if (m != null) {
+        t = '${m[1]} "" image:${t.substring(m.end)}';
+      } else {
+        t = t.replaceFirstMapped(RegExp(r'\s(?:src|url|img):(?=")'), (_) => ' image:');
+      }
     }
+    // A value written bare where a text goes (Text.strong row.name) is that value shown.
+    final bare = _bareValue.firstMatch(t);
+    if (bare != null) t = '${bare[1]} "{${bare[2]}}"${t.substring(bare.end)}';
     return t;
   }
 
@@ -488,6 +504,9 @@ class _Parts {
   String? action;
 
   static final _key = RegExp(r'^([A-Za-z][A-Za-z0-9_-]*):');
+
+  /// Whether [key] is written with a value worked out (`key:=…`).
+  bool bound(String key) => _tokens.any((t) => t.startsWith('$key:='));
 
   bool has(String key) => _tokens.any((t) => _key.firstMatch(t)?[1] == key);
 
