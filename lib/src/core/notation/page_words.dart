@@ -154,12 +154,13 @@ final class PageWords {
         return out..add((indent: at, text: 'Column$mark w:fill${parts.has('gap') ? '' : ' gap:16'}${parts.all}'));
       }
       final footer = word == 'Footer';
+      final bleed = parts.word('bleed');
       final width = parts.take('maxw') ?? (parts.word('narrow') ? _n(narrowWidth) : _n(contentWidth));
       parts.word('wide');
       final g = _n(gutter);
       final tight = parts.word('compact') | parts.word('tight');
       final v = _n(tight ? (sectionPad / 2).roundToDouble() : sectionPad);
-      final pad = parts.take('pad') ?? (footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
+      final pad = parts.take('pad') ?? (bleed ? '[0,$v,0,$v]' : footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
       // A tinted band: the page's alternate ground, ruled off above and below.
       final tint = parts.word('tint') | parts.word('alt') | parts.word('band') | parts.word('muted');
       final banded = tint && band != null && !parts.has('fill') ? ' fill:$band border-top:$line border-bottom:$line' : '';
@@ -169,7 +170,7 @@ final class PageWords {
       if (footer) out.add((indent: at, text: 'Divider'));
       return out
         ..add((indent: at, text: 'Column${_role('section')}$mark w:fill center pad:$pad$banded${parts.all}'))
-        ..add((indent: at + 2, text: 'Column w:fill maxw:$width gap:$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
+        ..add((indent: at + 2, text: 'Column w:fill${bleed ? '' : ' maxw:$width'} gap:$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
     }
     if (_bars.contains(word) && !isComponentCall(word, parts)) {
       if (!framed) {

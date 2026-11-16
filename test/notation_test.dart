@@ -1680,6 +1680,19 @@ Page
       expect(((a['actions'] as List).first as Map)['variable'], 'project');
     });
 
+    test('a bleed section spans the page without its content cap', () {
+      final r = parseNotation('''
+Page
+  Section#image bleed
+    Image "assets/scene.png" h:500
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((node(r, 'image')['layout'] as Map)['padding'], [0, 64, 0, 64]);
+      final inner = (node(r, 'image')['children'] as List).single as String;
+      expect(((node(r, inner)['layout'] as Map)['constraints'] as Map?)?['maxWidth'], isNull);
+      expect(((at(r, 'image', 390)['layout'] as Map)['padding'] as List).first, 0);
+    });
+
     test('a grid\'s rows wrap, each cell at a least width; nothing changes at the width it was written for', () {
       final r = parseNotation('''
 Page

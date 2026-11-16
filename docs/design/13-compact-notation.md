@@ -374,6 +374,9 @@ chart legends and axes; a chart bound to state; reorder with a handle; pull to r
 
 ## 14. A page at other widths (2026-11-15)
 
+`Section bleed` omits the normal content-width cap and horizontal gutter for
+an edge-to-edge picture. It keeps the section's vertical spacing and reflow.
+
 A page is written once, for a desktop (`--width 1280`). The twenty sites of test 5 showed what that does on a
 phone: three cards squeezed across 390 px, a table's fixed columns past the edge, a sidebar beside its content,
 and a layout error for each. Over ten showcase pages, written with no thought for a phone: 74 render errors at

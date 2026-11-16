@@ -110,7 +110,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   A website page scrolls, and its bands stack:
     Page
       Nav                    the bar across the top; its children are spread end to end (the logo, a Row of links, a Row of actions)
-      Section                a full-width band; what is under it sits in a centered column ${options.contentWidth.round()} wide. Section narrow for reading text, Section tint for a tinted band (alternate plain and tinted bands down a page), Section compact for a short band (logos, a strip of figures), Section center to center what is in it
+      Section                a full-width band; what is under it sits in a centered column ${options.contentWidth.round()} wide. Section narrow for reading text, Section tint for a tinted band (alternate plain and tinted bands down a page), Section compact for a short band (logos, figures), Section center to center it, Section bleed for an edge-to-edge image
       Footer
   An app window is as tall as the window, and each pane scrolls by itself:
     App
