@@ -19,6 +19,7 @@ import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
 import 'page_words.dart';
+import 'reflow.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -1187,7 +1188,7 @@ class _Parser {
     final screen = options.screen;
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
-    return NotationResult(patched({
+    final document = patched({
       'schema': 3,
       'roots': [screen],
       'nodes': {
@@ -1201,7 +1202,9 @@ class _Parser {
         ...nodes,
       },
       if (variables.isNotEmpty) 'variables': {screen: variables.values.toList()},
-    }), issues, wanted: List.unmodifiable(wanted));
+    });
+    if (options.width >= 1024 && RegExp(r'^Page(\s|$)', multiLine: true).hasMatch(text)) reflowPage(document);
+    return NotationResult(document, issues, wanted: List.unmodifiable(wanted));
   }
 
   void _issue(int column, String message) => issues.add(NotationIssue(_line, column, message));

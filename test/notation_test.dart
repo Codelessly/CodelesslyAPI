@@ -20,6 +20,48 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  group('a page written once lays out on a tablet and a phone', () {
+    test('grid cells keep order while columns fall', () {
+      final r = parseNotation('''
+Page
+  Section
+    Grid cols:3 gap:24
+      Card
+        Text "One"
+      Card
+        Text "Two"
+      Card
+        Text "Three"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      final grid = _node(r, 'grid1');
+      expect(grid['type'], 'column');
+      final row = _node(r, (grid['children'] as List).single as String);
+      expect(row['type'], 'flex');
+      expect((row['children'] as List).length, 3);
+      expect((row['props'] as Map)['direction'], 'horizontal');
+      expect((row['media'] as List).single['maxWidth'], 699);
+      expect([for (final d in validateDocument(r.document, options: const ValidateOptions(level: Level.design))) if (d.severity != Severity.info) d.message], isEmpty);
+    });
+
+    test('a row of sections becomes vertical on a phone', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row gap:24
+      Column grow
+        Text "One"
+      Column grow
+        Text "Two"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      final row = (r.document['nodes'] as Map).values.cast<Map>().firstWhere((n) => n['type'] == 'flex');
+      expect((row['props'] as Map)['direction'], 'horizontal');
+      expect((row['media'] as List).single['maxWidth'], 699);
+      expect([for (final d in validateDocument(r.document, options: const ValidateOptions(level: Level.design))) if (d.severity != Severity.info) d.message], isEmpty);
+    });
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

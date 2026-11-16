@@ -372,7 +372,11 @@ it. `Column middle` gathers them at the middle.
 Still asked for and not read: links and hover; a dialog, sheet or drawer as an element; a table as an element;
 chart legends and axes; a chart bound to state; reorder with a handle; pull to refresh; a map; shapes.
 
-## 14. Open points
+## 14. Tablets and phones
+
+A desktop `Page` keeps its written layout at desktop width. The expander adds media rules to structural rows: a row of regions, including a `Grid` row, stacks at widths of 699 px or less. Its children fill the narrow column. Navigation and inline rows retain their horizontal layout. The current branch has no automatic two-column tablet grid; authors must review tablet captures and record remaining failures.
+
+## 15. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
   without a card would then have no `Card`). Proposed: from the design system, with SSUI's as the built-in.
