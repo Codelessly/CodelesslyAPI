@@ -1621,6 +1621,7 @@ Column center
       expect(notationPrompt(catalog: standardCatalog), isNot(contains('PAGES')));
       final wide = notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280));
       expect(wide, contains('PAGES'));
+      expect(wide, contains('"variables":[{"name":"cart","type":"list","value":[]}]'));
       // Its two examples read without an issue.
       final examples = wide.substring(wide.lastIndexOf('\n  Page\n'));
       final page = examples.substring(0, examples.indexOf('\n  state tab')).split('\n').map((l) => l.startsWith('  ') ? l.substring(2) : l).join('\n');
