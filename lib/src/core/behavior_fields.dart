@@ -62,6 +62,7 @@ const revealType = PropType.object('Reveal', revealFields);
 const stickyType = PropType.object('Sticky', stickyFields);
 const formType = PropType.object('FormBehavior', formFields);
 const radioGroupType = PropType.object('RadioGroupBehavior', radioGroupFields);
+const focusGroupType = PropType.object('FocusGroup', focusGroupFields);
 const viewProgressType = PropType.object('ViewProgress', viewProgressFields);
 const measureType = PropType.object('Measure', measureFields);
 const typewriterType = PropType.object('Typewriter', typewriterFields);
@@ -936,6 +937,19 @@ abstract final class RadioGroupFields {
 
 List<PropDef<Object?>> radioGroupFields() => RadioGroupFields.all;
 
+/// [FocusGroup]: one Tab stop the arrow keys move through.
+abstract final class FocusGroupFields {
+  static const axis = PropDef<FocusGroupAxis>('axis', EnumCodec(FocusGroupAxis.values), FocusGroupAxis.vertical,
+      doc: 'The arrow keys that move the focus among the members: vertical (Up, Down), horizontal (Left, Right) or both.');
+  static const wrap = PropDef<bool>('wrap', Codecs.bool, true,
+      doc: 'An arrow past the last member goes to the first, and back.');
+  static const typeAhead = PropDef<bool>('typeAhead', Codecs.bool, false,
+      doc: 'A typed letter jumps to the next member whose text starts with it (a menu).');
+  static const List<PropDef<Object?>> all = [axis, wrap, typeAhead];
+}
+
+List<PropDef<Object?>> focusGroupFields() => FocusGroupFields.all;
+
 abstract final class ViewProgressFields {
   static const mode = PropDef<ViewProgressMode>('mode', EnumCodec(ViewProgressMode.values), ViewProgressMode.travel);
 
@@ -1088,6 +1102,18 @@ abstract final class BehaviorFields {
       'radioGroup', ValueCodec(RadioGroupBehavior.fromJson, _out, radioGroupType), null,
       doc: 'Flutter\'s RadioGroup: the radios inside share its groupValue; choosing one runs its changed reactions.');
 
+  /// Whether the keyboard reaches a node with a click reaction.
+  static const focusable = PropDef<bool>('focusable', Codecs.bool, true,
+      doc: 'A node with a click reaction is a Tab stop: it shows the focus ring of the theme when the focus comes from the '
+          'keyboard, and Enter and Space run its click. False takes it out of the focus order (its action is repeated by a '
+          'control inside it). A node with no click reaction never takes the focus.');
+
+  /// One Tab stop the arrow keys move through.
+  static const focusGroup = PropDef<FocusGroup?>('focusGroup', ValueCodec(FocusGroup.fromJson, _out, focusGroupType), null,
+      doc: 'Everything focusable inside is one Tab stop (a menu, a tab list, a toolbar): the arrow keys of its axis move the '
+          'focus among the members, Home and End jump to the ends, typeAhead lets a letter jump to a member by its text. '
+          'true: a vertical group that wraps.');
+
   /// Flutter's `CustomPaint`: draw lists behind and over the content.
   static const customPaint = PropDef<CustomPaint?>(
     'customPaint',
@@ -1100,7 +1126,7 @@ abstract final class BehaviorFields {
     motion, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
     draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, typewriter,
     particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
-    form, radioGroup,
+    form, radioGroup, focusable, focusGroup,
   ];
 }
 

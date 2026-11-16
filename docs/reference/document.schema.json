@@ -2220,6 +2220,13 @@
         "always"
       ]
     },
+    "enum.FocusGroupAxis": {
+      "enum": [
+        "vertical",
+        "horizontal",
+        "both"
+      ]
+    },
     "enum.FontStyle": {
       "enum": [
         "normal",
@@ -3850,6 +3857,21 @@
         },
         "spring": {
           "$ref": "#/$defs/model.Spring"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.FocusGroup": {
+      "type": "object",
+      "properties": {
+        "axis": {
+          "$ref": "#/$defs/enum.FocusGroupAxis"
+        },
+        "wrap": {
+          "type": "boolean"
+        },
+        "typeAhead": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -7519,6 +7541,28 @@
               "type": "null"
             }
           ]
+        },
+        "focusable": {
+          "type": "boolean"
+        },
+        "focusGroup": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.FocusGroup"
+                },
+                {
+                  "type": [
+                    "boolean"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -7566,6 +7610,9 @@
                   },
                   "backdrop": {
                     "type": "boolean"
+                  },
+                  "semanticLabel": {
+                    "type": "string"
                   }
                 },
                 "additionalProperties": false

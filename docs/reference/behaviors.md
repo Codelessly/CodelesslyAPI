@@ -19,6 +19,8 @@ held is now here (the old links still land on the right line):
 - <a id="behavior-inkWell"></a>`inkWell`: [interaction.md#behavior-inkWell](interaction.md#behavior-inkWell)
 - <a id="behavior-tooltip"></a>`tooltip`: [interaction.md#behavior-tooltip](interaction.md#behavior-tooltip)
 - <a id="behavior-ignorePointer"></a>`ignorePointer`: [interaction.md#behavior-ignorePointer](interaction.md#behavior-ignorePointer)
+- <a id="behavior-focusable"></a>`focusable`: [interaction.md#behavior-focusable](interaction.md#behavior-focusable)
+- <a id="behavior-focusGroup"></a>`focusGroup`: [interaction.md#behavior-focusGroup](interaction.md#behavior-focusGroup)
 - <a id="behavior-draggable"></a>`draggable`: [interaction.md#behavior-draggable](interaction.md#behavior-draggable)
 - <a id="behavior-dropTarget"></a>`dropTarget`: [interaction.md#behavior-dropTarget](interaction.md#behavior-dropTarget)
 - <a id="behavior-track"></a>`track`: [interaction.md#behavior-track](interaction.md#behavior-track)
