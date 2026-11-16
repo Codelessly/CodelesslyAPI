@@ -3731,7 +3731,9 @@ class _Parser {
         case 'go':
           // A destination may be worked out (a SiteNav's link name as a
           // screen id: go replace(lower(result)," ","_")); a bare id is the id.
-          out.add({'type': 'navigate', 'to': arg.startsWith('"') || _identifier.hasMatch(s) ? s : _formula(s)});
+          // An already-interpolated destination from older notation is a
+          // complete expression, not an expression to wrap a second time.
+          out.add({'type': 'navigate', 'to': arg.startsWith('"') || _identifier.hasMatch(s) || (s.startsWith(r'${=') && s.endsWith('}')) ? s : _formula(s)});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':

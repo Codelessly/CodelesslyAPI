@@ -1804,6 +1804,13 @@ Page
       expect(node(card, 'mix')['type'], 'chart');
     });
 
+    test('a worked-out page written in the earlier interpolated form is not wrapped twice', () {
+      final r = parseNotation('Page\n  Section\n    Button#goButton "Home" -> go \${=lower(result)}\n', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final actions = ((node(r, 'goButton')['actions']! as List).first as Map)['actions'] as List;
+      expect((actions.first as Map)['to'], '\${=lower(result)}');
+    });
+
     test('what the twenty sites met: a size word under an if, short columns side by side, controls with choices, a site\x27s variable, a page worked out', () {
       final r = parseNotation('''
 state menu=false
