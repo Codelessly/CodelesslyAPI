@@ -2471,7 +2471,8 @@ class _Parser {
     // On a page, cards side by side are one row of panels: equally tall.
     if (inRow && written == 'Card' && options.width >= 700) {
       final row = nodes[parent!.id];
-      if (row != null && (row['props'] as Map?)?['crossAxisAlignment'] == null) {
+      final cross = (row?['props'] as Map?)?['crossAxisAlignment'];
+      if (row != null && (cross == null || cross == 'center')) {
         const Json patch = {
           'props': {'crossAxisAlignment': 'stretch'},
         };
