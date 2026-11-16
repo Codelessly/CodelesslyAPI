@@ -3301,7 +3301,7 @@ class _Parser {
     return true;
   }
 
-  static final _handlerKey = RegExp(r'^(on[A-Z][A-Za-z]*|tap|press|click|change)$');
+  static final _handlerKey = RegExp(r'^(on[A-Z][A-Za-z]*|tap|press|click|change|hover)$');
 
   /// What fires a handler named [key] on a node of [type]: a component's
   /// event of that name (else its first), a control's change, a tap.
@@ -3314,6 +3314,7 @@ class _Parser {
       if (named != null) return {'type': 'event', 'event': named.key};
     }
     final bare = key.startsWith('on') && key.length > 2 ? '${key[2].toLowerCase()}${key.substring(3)}' : key;
+    if (bare == 'hover') return {'type': 'cursorEnter'};
     if (const {'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'longPress', 'doubleTap'}.contains(bare)) return {'type': bare};
     final changes = key == 'change' || key == 'onChange' || key == 'onChanged';
     return {'type': changes || _valueProps.containsKey(type) && !key.contains('ress') && key != 'tap' && key != 'click' ? 'changed' : 'click'};
@@ -3422,7 +3423,29 @@ class _Parser {
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':
-          out.add({'type': 'navigate', 'to': s});
+          // A route may carry values without a JSON action tail. A value in
+          // quotes is literal; a braced value or a formula is read at tap time.
+          final transition = RegExp(r'\s+transition:(platform|none|fade|fadeUp|slideUp|slideLeft|scale)$').firstMatch(s);
+          final route = transition == null ? s : s.substring(0, transition.start);
+          final question = route.indexOf('?');
+          final target = question < 0 ? route : route.substring(0, question);
+          final query = question < 0 ? '' : route.substring(question + 1);
+          final params = <String, Object?>{};
+          for (final field in _split(query, '&')) {
+            if (field.isEmpty) continue;
+            final eq = field.indexOf('=');
+            if (eq < 1 || !_identifier.hasMatch(field.substring(0, eq))) {
+              _issue(column, 'A route parameter is name=value: go project?project="Good Noise".');
+              continue;
+            }
+            params[field.substring(0, eq)] = _valueOrRead(field.substring(eq + 1));
+          }
+          out.add({
+            'type': 'navigate',
+            'to': target == 'result' || target.contains('(') || target.startsWith('{') ? _read(target) : target,
+            if (params.isNotEmpty) 'params': params,
+            if (transition != null) 'transition': transition[1],
+          });
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':

@@ -1646,6 +1646,26 @@ Column center
       return out;
     }
 
+    test('hover previews and route values use words, with a page transition', () {
+      final r = parseNotation('''
+state preview="skyline"
+Page
+  Section
+    Text#project "Good Noise" hover:"preview=festival" -> go project?project="Good Noise" transition:fadeUp
+    Button#dynamic "Open" -> go lower(result)
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final reactions = (node(r, 'project')['actions']! as List).cast<Map>();
+      expect((reactions[0]['trigger'] as Map)['type'], 'cursorEnter');
+      expect((reactions[1]['trigger'] as Map)['type'], 'click');
+      final navigate = ((reactions[1]['actions'] as List).first as Map);
+      expect(navigate['to'], 'project');
+      expect(navigate['params'], {'project': 'Good Noise'});
+      expect(navigate['transition'], 'fadeUp');
+      final dynamic = ((node(r, 'dynamic')['actions']! as List).first as Map)['actions'] as List;
+      expect((dynamic.first as Map)['to'], contains('lower(result)'));
+    });
+
     test('a grid\'s rows wrap, each cell at a least width; nothing changes at the width it was written for', () {
       final r = parseNotation('''
 Page
