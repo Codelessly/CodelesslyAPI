@@ -779,6 +779,15 @@ Written as the value's name, a JSON string (`"center"`).
 | `auto` | Flutter's `FloatingLabelBehavior`. |
 | `always` | Flutter's `FloatingLabelBehavior`. |
 
+<a id="enum-FocusGroupAxis"></a>
+### FocusGroupAxis
+
+| Value | Meaning |
+|---|---|
+| `vertical` | Up and Down (a menu, a list, a sidebar). |
+| `horizontal` | Left and Right (a tab bar, a toolbar, a segmented control). |
+| `both` | All four arrows, in reading order (a grid of tiles). |
+
 <a id="enum-FontStyle"></a>
 ### FontStyle
 
