@@ -105,7 +105,7 @@ const Map<String, Level> actionLevels = {
 /// The level of each behavior (a node key beside `props`).
 const Map<String, Level> behaviorLevels = {
   'textDirection': _c, 'defaultTextStyle': _c, 'ignorePointer': _c,
-  'tooltip': _w, 'inkWell': _w, 'form': _w, 'radioGroup': _w,
+  'tooltip': _w, 'inkWell': _w, 'form': _w, 'radioGroup': _w, 'focusable': _w, 'focusGroup': _w,
   'states': _s,
   'motion': _f, 'animations': _f, 'transitions': _f, 'shimmer': _f, 'floating': _f, 'hero': _f, 'draggable': _f,
   'dropTarget': _f, 'track': _f, 'dismissible': _f, 'pan': _f, 'reorderHandle': _f, 'reveal': _f,

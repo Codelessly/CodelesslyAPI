@@ -14,27 +14,31 @@ const int kRepeatedSubtreeMinNodes = 3;
 /// `nodes` JSON) of at least [kRepeatedSubtreeMinNodes] nodes, the largest
 /// first: a group inside a repeat already reported is not reported again.
 List<Diagnostic> repeatedSubtrees(Json nodes) {
-  final shapes = <String, String>{};
+  final shapes = <String, int>{};
   final sizes = <String, int>{};
   final visiting = <String>{};
+  // Each distinct shape gets a number, and a parent's shape names its children's by theirs: a shape's text is its
+  // own node's size, not its subtree's (embedding the children's texts made them grow, re-escaped, at each level:
+  // seconds for a document of a few hundred nodes). Equal subtrees still get equal numbers.
+  final interned = <String, int>{};
 
   // A node's shape: its JSON without id and name, its children and slots by
   // their own shapes. Null inside a cycle or for a missing node (no hint).
-  String? shapeOf(String id) {
+  int? shapeOf(String id) {
     final done = shapes[id];
     if (done != null) return done;
     final n = readMap(nodes[id]);
     if (n == null || !visiting.add(id)) return null;
     try {
       var size = 1;
-      final children = <String>[];
+      final children = <int>[];
       for (final c in readList(n['children']) ?? const []) {
         final s = c is String ? shapeOf(c) : null;
         if (s == null) return null;
         children.add(s);
         size += sizes[c]!;
       }
-      final slots = <String, String>{};
+      final slots = <String, int>{};
       for (final e in (readMap(n['slots']) ?? const {}).entries) {
         final s = e.value is String ? shapeOf(e.value as String) : null;
         if (s == null) return null;
@@ -46,13 +50,14 @@ List<Diagnostic> repeatedSubtrees(Json nodes) {
           if (!const {'id', 'name', 'children', 'slots'}.contains(e.key)) e.key: e.value,
       };
       sizes[id] = size;
-      return shapes[id] = canonicalJson({'node': own, 'children': children, 'slots': slots});
+      final text = canonicalJson({'node': own, 'children': children, 'slots': slots});
+      return shapes[id] = interned.putIfAbsent(text, () => interned.length);
     } finally {
       visiting.remove(id);
     }
   }
 
-  final groups = <String, List<String>>{};
+  final groups = <int, List<String>>{};
   for (final id in nodes.keys) {
     final s = shapeOf(id);
     if (s == null || sizes[id]! < kRepeatedSubtreeMinNodes) continue;
