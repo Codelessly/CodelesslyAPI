@@ -1646,6 +1646,23 @@ Column center
       return out;
     }
 
+    test('a sticky rail stays sticky when the row reflows', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row#split gap:32 top
+      Column#body grow
+        Heading "Course syllabus"
+      Column#rail w:320 sticky
+        Card
+          Text "Enrol"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(node(r, 'rail')['sticky'], {'offset': 16});
+      expect((at(r, 'split', 390)['props']! as Map)['wrap'], true);
+      expect(at(r, 'rail', 1280), isEmpty);
+    });
+
     test('a grid\'s rows wrap, each cell at a least width; nothing changes at the width it was written for', () {
       final r = parseNotation('''
 Page
