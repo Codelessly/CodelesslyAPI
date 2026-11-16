@@ -20,6 +20,19 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  test('Text mark binds match runs without changing text', () {
+    final r = _parse('''
+state query="light"
+state title="keeper"
+Text.body "The {title} light" mark:query
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final text = _node(r, 'text1');
+    expect((text['bind'] as Map)['props.runs'], contains('matchRuns('));
+    expect((text['props'] as Map)['text'], contains('title'));
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

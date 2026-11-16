@@ -1874,6 +1874,8 @@ class _Parser {
     num? sliderStep;
     String? swipe;
     String? textLine;
+    String? markText;
+    String? markQuery;
     num? avatarSize;
     String? imageFit;
     Json? buttonLook;
@@ -2026,7 +2028,9 @@ class _Parser {
           positional.add(key);
         }
       } else if (t.peek == '"') {
-        _main(type, spec, t.string(), props, decoration);
+        final writtenText = t.string();
+        if (type == 'text') markText = writtenText;
+        _main(type, spec, writtenText, props, decoration);
       } else if (t.rest.startsWith('->')) {
         t.at += 2;
         final tail = _tail(t);
@@ -2544,6 +2548,10 @@ class _Parser {
           }
           continue;
         }
+        if (type == 'text' && key == 'mark') {
+          markQuery = raw.startsWith('=') ? raw.substring(1) : raw;
+          continue;
+        }
         if (type == 'text' && _textStyleKeys.containsKey(key)) {
           // A style that follows data: `color:=due?"#FFDC2626":"#FF111827"`.
           if (raw.startsWith('=') && key != 'bold') {
@@ -2625,6 +2633,11 @@ class _Parser {
           }
         }
       }
+    }
+
+    if (markQuery != null) {
+      final source = markText == null ? _formulaSource(props['text']) : _formulaSource(markText);
+      bind['props.runs'] = _formula('matchRuns($source, $markQuery)');
     }
 
     // Sizes not written: in a column a child fills the width and hugs its

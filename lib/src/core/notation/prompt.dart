@@ -14,7 +14,7 @@ const List<String> notationFunctions = [
   'length(x)', 'upper(t)', 'lower(t)', 'trim(t)', 'contains(textOrList,v)', 'startsWith(t,p)', 'replace(t,a,b)', 'join(list,sep)', //
   'round(n,d)', 'floor(n)', 'ceil(n)', 'abs(n)', 'min(a,b)', 'max(a,b)', 'clamp(n,lo,hi)', 'fixed(n,d)', 'money(n,"\$",2)',
   'sum(list,x=>n)', 'count(list,x=>cond)', 'filter(list,x=>cond)', 'find(list,x=>cond)', 'any(list,x=>cond)', 'all(list,x=>cond)',
-  'map(list,x=>v)', 'sortBy(list,x=>key)', 'sortByDesc(list,x=>key)', 'unique(list)', 'first(list)', 'last(list)', 'slice(list,a,b)',
+  'fuzzy(list,q,x=>text)', 'matchReason(text,q)', 'map(list,x=>v)', 'sortBy(list,x=>key)', 'sortByDesc(list,x=>key)', 'unique(list)', 'first(list)', 'last(list)', 'slice(list,a,b)',
   'take(list,n)', 'reverse(list)', 'range(n)', 'indexOf(list,v)', 'append(list,item)', 'without(list,item)', 'removeAt(list,i)',
   'setAt(list,i,item)', 'updateWhere(list,x=>cond,x=>new)', 'removeWhere(list,x=>cond)', 'with(map,key,v)', 'isEmpty(x)',
   'coalesce(v,fallback)', 'today()', 'formatDate(date,"MMM d")', 'duration(seconds)', 'concat(listA,listB)',
@@ -246,6 +246,7 @@ TYPES
 
 FORMULAS (in {…}, after = and := and in -> name=…)
   Operators: + - * / % == != < <= > >= && || ! and cond ? a : b. Text in "double quotes" or 'single'. Lists [1,2], fields a.b, items list[0].
+  Text "{item.title}" mark:q.
   Only these functions exist: ${notationFunctions.join(', ')}.
 ${natural ? '''  A list or a record changes as in code (rows.add(x), rows.remove(row), row.qty += 1); for anything else set the variable to a new list (rows = filter(rows, r => r.qty > 0)). Money is "{fixed(total,2)}"; a count is "{length(rows)} items"; minutes and seconds are "{duration(elapsed)}" (74 gives 1:14).''' : '''  Lists never change in place: set the variable to a new list (-> cart=append(cart,item); -> rows=updateWhere(rows,r=>r.id==row.id,r=>with(r,"qty",r.qty+1))).'''}
 ${natural ? '''  Every value shown that depends on the state is written as an expression in {…} (or a let name), never as a number you worked out: after a tap it must show the new value. Chips have selected:{expression} and enabled:{expression}.''' : '''  An action is one of the forms above, never a condition: to choose, set a variable to a formula (-> step=valid?3:2). Chips have selected:=expression and enabled:=expression.'''}

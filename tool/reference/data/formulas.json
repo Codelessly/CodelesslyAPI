@@ -257,6 +257,31 @@
       "example": "luminance(\"#FFFFFF\") → 1"
     },
     {
+      "name": "fuzzy",
+      "signature": "fuzzy(list, query, item => text)",
+      "example": "fuzzy(episodes, q, e => e.title)"
+    },
+    {
+      "name": "fuzzyScore",
+      "signature": "fuzzyScore(text, query)",
+      "example": "fuzzyScore(title, q) → 100"
+    },
+    {
+      "name": "matchRanges",
+      "signature": "matchRanges(text, query)",
+      "example": "matchRanges(title, q) → [[0, 5]]"
+    },
+    {
+      "name": "matchRuns",
+      "signature": "matchRuns(text, query)",
+      "example": "matchRuns(title, q) → text runs"
+    },
+    {
+      "name": "matchReason",
+      "signature": "matchReason(text, query)",
+      "example": "matchReason(title, q) → Exact phrase"
+    },
+    {
       "name": "filter",
       "signature": "filter(list, item => condition) or filter(list, field, value)",
       "example": "filter(tasks, t => contains(lower(t.title), lower(search)))"
