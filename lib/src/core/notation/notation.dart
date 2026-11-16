@@ -1972,13 +1972,17 @@ class _Parser {
                 kept[k] = v;
               } else if (_layoutKeys.contains(k) || k == 'top' || k == 'left') {
                 if (k == 'top' || k == 'left') {
-                  layout[k == 'top' ? 'y' : 'x'] = v;
+                  if (k != 'top' || guessed['sticky'] != true) layout[k == 'top' ? 'y' : 'x'] = v;
                 } else {
                   layout[k] = v;
                 }
               } else if (k == 'radius' || k == 'opacity') {
                 if (k == 'radius') decoration['radius'] = v;
                 if (k == 'opacity') node['opacity'] = v;
+              } else if (k == 'sticky' && v == true) {
+                // Keep older notation tails working after sticky became a word.
+                // A following top value is handled below, regardless of order.
+                node['sticky'] = {'offset': guessed['top'] is num ? guessed['top'] : 16};
               } else if (k == 'fill' && v is String) {
                 decoration['fills'] = [
                   {'color': _named(v, 'fill')},

@@ -1849,6 +1849,17 @@ Page
       expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
     });
 
+    test('an older sticky tail keeps its offset without moving the rail', () {
+      final r = parseNotation('''
+Page
+  Column#rail w:320 {"props":{"sticky":true,"top":24}}
+    Text "Contents"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(node(r, 'rail')['sticky'], {'offset': 24});
+      expect((node(r, 'rail')['layout'] as Map).containsKey('y'), false);
+    });
+
     test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page
