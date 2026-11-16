@@ -391,7 +391,7 @@ is the same document as before plus rules that do not apply there.
 | any other `Row` | wraps before it overflows; what grows in it keeps its share of the line from a least width (a field 180, a component 160, a text 96) |
 | a table's row (three or more cells with widths) | its cells are shares of the row; it keeps the columns it has room for, from the first on (600 px on a tablet, 342 on a phone), and what is not a column (a checkbox, a menu button) |
 | `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420 |
-| `Nav` | a phone hides its links (a tablet too, from six on) |
+| `Nav` | a phone hides its links (a tablet too, from six on) and shows a menu button the bar adds itself, which opens the links in a column under the bar, each as written and closing the menu as it goes; a `Nav` with a `show:phone` line of its own keeps its own |
 | `Section`, `Footer` | 48 above and below on a tablet; 40, and a 20 gutter, on a phone |
 | a text 32 or larger | 0.86 of its size on a tablet (from 44), 0.72 on a phone (26 at least) |
 | a fixed width over 300 in a column | as wide as its place on a phone, at most its width |
@@ -408,8 +408,16 @@ the desktop page cannot change.
 With the rules, the same ten pages: 0 errors at 390, 0 at 834, 0 at 1440. Seven of the test 5 sites (50 pages), re-expanded with no change to their notation: 130 errors at 390 down to 2, 8 at 834 down to 0, and 49 of the 50 desktop captures identical to the byte (the other gained its donut's legend). A design system's own blocks carry
 their rules themselves (Cards' `SiteNav` hides its links and its second action on a phone).
 
-Not done: a `Nav`'s hidden links and an `App`'s hidden sidebar have no menu to open them on a phone unless the
-page writes one (`show:phone`); a table drops columns where a designer might have made each row a card.
+From the twenty sites' follow-up runs (each on its own `dsl5/<site>` branch), what several met was folded in
+once: a size word holds on a line under an `if` (five agents fixed it separately); `Nav` builds its own phone
+menu (nearly every agent had written one by hand on every page); `Nav sticky`; `scroll <id>` and anchors
+(`#pricing` after a line, `id:pricing`, `href:"#pricing"`); `go` to a page worked out; `project name=value`
+for a variable of the site; two short columns side by side as blocks; a control with choices keeps room for
+them.
+
+Not done: an `App`'s hidden sidebar has no menu to open it on a phone; a dialog, a sheet, a drawer and a popup
+menu have no words yet (the document has them: `openModal` with a presentation); a table drops columns where a
+designer might have made each row a card.
 
 ## 15. Open points
 

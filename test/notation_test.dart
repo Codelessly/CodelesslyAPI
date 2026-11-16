@@ -1849,6 +1849,53 @@ Page
       expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
     });
 
+    test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
+      final r = parseNotation('''
+Page
+  Nav#bar sticky
+    Brand "Tidewater" icon:"waves"
+    Row#links gap:4
+      Link "Features" href:"#features"
+      Link "Pricing" -> scroll pricing
+      Link "Docs" -> go docs
+    Button "Start free"
+  Section#features
+    Heading "Features"
+  Section
+    Heading#price "Pricing" #pricing
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(node(r, 'bar')['sticky'], {'offset': 0});
+      // The links go on a phone, and a menu button shows there only.
+      expect(at(r, 'links', 390)['visible'], false);
+      final button = nodesOf(r).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton');
+      expect(at(r, button.key, 390), isEmpty);
+      expect(at(r, button.key, 834)['visible'], false);
+      expect(jsonEncode((button.value! as Map)['actions']), contains('"variable":"navMenu"'));
+      final variables = ((r.document['variables']! as Map)['screen']! as List).cast<Map>();
+      expect(variables.firstWhere((v) => v['name'] == 'navMenu'), {'name': 'navMenu', 'type': 'boolean', 'value': false});
+      // Its menu repeats the links, each closing the menu and then doing what the link does.
+      final rows = [
+        for (final n in nodesOf(r).values.cast<Map>())
+          if (n['type'] == 'row' && jsonEncode(n['actions'] ?? '').contains('"variable":"navMenu"')) jsonEncode(n['actions']),
+      ];
+      expect(rows, hasLength(3));
+      expect(rows[0], contains('"type":"scrollTo","node":"features"'));
+      expect(rows[1], contains('"type":"scrollTo","node":"price"'));
+      expect(rows[2], contains('"type":"navigate","to":"docs"'));
+
+      // A Nav that writes its own phone menu keeps it, and gets no second one.
+      final own = parseNotation('''
+Page
+  Nav
+    Row gap:4
+      Link "Docs" -> go docs
+    IconButton#mine "menu" show:phone -> open=!open
+''', catalog: standardCatalog, options: page);
+      expect(nodesOf(own).values.where((n) => (n! as Map)['type'] == 'iconButton'), hasLength(1));
+      expect(jsonEncode(own.document), isNot(contains('navMenu')));
+    });
+
     test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
       final r = parseNotation('''
 Page

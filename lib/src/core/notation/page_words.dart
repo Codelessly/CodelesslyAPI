@@ -46,6 +46,7 @@ final class PageWords {
     this.textVariants = const {},
     this.isComponent = _none,
     this.roles = false,
+    this.menu = false,
   });
 
   static bool _none(String _) => false;
@@ -80,6 +81,31 @@ final class PageWords {
   /// takes it off before the line is read.
   final bool roles;
 
+  /// Whether a website's `Nav` gets a menu for a phone: a button at its
+  /// end, shown where its links are not, that opens them in a column under
+  /// the bar (the links as written, each closing the menu as it goes). A
+  /// Nav that writes a `show:phone` or `show:tablet` line has its own.
+  final bool menu;
+
+  /// What closes a frame: a bar's menu for a phone, then its rule.
+  List<PageLine> _closing(_Line closed) {
+    final at = closed.indent + closed.before;
+    // From six links on, a tablet has no room for them either.
+    final size = closed.links.length >= 6 ? 'tablet' : 'phone';
+    return [
+      if (menu && closed.pageNav && closed.links.isNotEmpty && !closed.ownMenu) ...[
+        (indent: at + 4, text: 'IconButton "menu" show:$size -> navMenu=!navMenu'),
+        (indent: at + 2, text: 'if navMenu'),
+        (indent: at + 4, text: 'Column w:fill maxw:${_n(contentWidth)} show:$size gap:2 pad:[0,8,0,4]'),
+        for (final link in closed.links) ...[
+          (indent: at + 6, text: 'Row w:fill pad:[12,10,12,10] radius:8 middle -> navMenu=false; ${link.action}'),
+          (indent: at + 8, text: 'Text.strong ${link.label}'),
+        ],
+      ],
+      if (closed.after != null) (indent: at, text: closed.after!),
+    ];
+  }
+
   String _role(String name) => roles ? '~$name' : '';
 
   /// The lines open above the one being read.
@@ -99,9 +125,10 @@ final class PageWords {
     text = _plain(text);
     final out = <PageLine>[];
     while (_open.isNotEmpty && _open.last.indent >= indent) {
-      final closed = _open.removeLast();
-      if (closed.after != null) out.add((indent: closed.indent + closed.before, text: closed.after!));
+      out.addAll(_closing(_open.removeLast()));
     }
+    final bar = _open.where((l) => l.pageNav).lastOrNull;
+    if (bar != null && RegExp(r'\sshow:(phone|tablet|mobile)(\s|$)').hasMatch(text)) bar.ownMenu = true;
     final parent = _open.lastOrNull;
     // Where this line goes: under the lines its frames added.
     final shift = parent == null ? 0 : parent.before + parent.shift;
@@ -185,9 +212,10 @@ final class PageWords {
       }
       final width = parts.take('maxw') ?? _n(contentWidth);
       final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
-      open(frame: 'Nav', shift: 2, after: 'Divider');
+      final sticky = parts.word('sticky') ? ' sticky:0' : '';
+      open(frame: 'Nav', shift: 2, after: 'Divider').pageNav = true;
       return out
-        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad${parts.all}'))
+        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad$sticky${parts.all}'))
         ..add((indent: at + 2, text: 'Row${_role('nav')} w:fill maxw:$width between middle gap:$gap'));
     }
     if (_sides.contains(word) && !isComponentCall(word, parts)) {
@@ -291,7 +319,14 @@ final class PageWords {
     if (word == 'Link' && !isComponent('Link')) {
       final href = parts.take('href') ?? parts.take('to') ?? parts.take('url');
       final label = parts.string();
-      final action = parts.action ?? (href != null && RegExp(r'^"?https?://').hasMatch(href) ? ' -> link ${href.replaceAll('"', '')}' : '');
+      // href:"https://…" opens it; href:"#pricing" scrolls to that part of the page.
+      final action = parts.action ??
+          (href != null && RegExp(r'^"?https?://').hasMatch(href)
+              ? ' -> link ${href.replaceAll('"', '')}'
+              : href != null && RegExp(r'^"?#[A-Za-z_]').hasMatch(href)
+                  ? ' -> scroll ${href.replaceAll('"', '').substring(1)}'
+                  : '');
+      if (bar != null && label != null && action.trim().startsWith('->')) bar.links.add((label: label, action: action.trim().substring(2).trim()));
       open();
       // In a bar a link is a quiet button; in running content, text in the accent.
       if (parent?.frame == 'Nav' || _open.any((l) => l.frame == 'Nav')) {
@@ -354,8 +389,7 @@ final class PageWords {
   List<PageLine> finish() {
     final out = <PageLine>[];
     while (_open.isNotEmpty) {
-      final closed = _open.removeLast();
-      if (closed.after != null) out.add((indent: closed.indent + closed.before, text: closed.after!));
+      out.addAll(_closing(_open.removeLast()));
     }
     return out;
   }
@@ -376,7 +410,11 @@ final class PageWords {
     var t = text;
     if (t.contains(' id:') || t.contains(' anchor:')) {
       final m = _idKey.firstMatch(t);
-      if (m != null && (quoted < 0 || m.start < quoted || !_inString(t, m.start))) t = t.replaceRange(m.start, m.end, '');
+      // id:why is an anchor (a `scroll why` goes to it): written as #why.
+      if (m != null && (quoted < 0 || m.start < quoted || !_inString(t, m.start))) {
+        final name = t.substring(m.start, m.end).split(':').last;
+        t = t.replaceRange(m.start, m.end, RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(name) ? ' #$name' : '');
+      }
     }
     if (t.contains(' sticky:true')) {
       final m = _stickyKey.firstMatch(t);
@@ -469,6 +507,11 @@ class _Line {
 
   /// A line written after its children, at its own level.
   final String? after;
+
+  /// A website's Nav: the links written in it (for its phone menu), and
+  /// whether it writes a menu of its own.
+  bool pageNav = false, ownMenu = false;
+  final links = <({String label, String action})>[];
 }
 
 /// The words of a line after its type, taken apart: `key:value` pairs,
