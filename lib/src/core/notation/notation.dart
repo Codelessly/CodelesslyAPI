@@ -3429,7 +3429,7 @@ class _Parser {
               'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
           });
         case 'open':
-          out.add({'type': 'openModal', 'modal': s});
+          out.add({'type': 'openModal', 'to': s});
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':

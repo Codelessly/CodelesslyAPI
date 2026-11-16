@@ -1645,6 +1645,12 @@ Page
       expect(jsonEncode(r.document), contains('"variable":"version"'));
       expect(jsonEncode(r.document['variables']), isNot(contains('version')));
     });
+    test('open names the canvas in an openModal action', () {
+      final r = parseNotation('Page\n  Nav\n    Link "Search" -> open search\n', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final actions = (_node(r, 'textButton1')['actions'] as List).single as Map;
+      expect(actions['actions'], [{'type': 'openModal', 'to': 'search'}]);
+    });
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
     // The patch a node takes at a width, its rules merged in order.
