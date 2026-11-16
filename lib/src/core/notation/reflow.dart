@@ -11,7 +11,8 @@
 //   a table's row          its columns share the width; a phone keeps the
 //                          first, the widest and the last
 //   App                    a phone shows the main pane; a tablet drops the
-//                          panes after it
+//                          panes after it; the sidebar it hides opens as
+//                          a drawer from a button in the main pane's bar
 //   Nav                    a phone hides its links
 //   Section                less padding above and below
 //   a headline             smaller
@@ -118,24 +119,33 @@ final class PageReflow {
 
   /// A child that is a part of the page of its own (a card, a column of
   /// content, a picture, a list), not a control or a label of its row.
-  ({bool fixed, bool grows, num width})? _block(String id) {
+  ({bool fixed, bool grows, num width, bool light})? _block(String id) {
     final n = nodes[id]!;
     final type = _type(n);
     final component = isComponent(type);
     final container = _containers.contains(type) || component;
     final w = _fixedWidth(n);
-    if (w != null) return w >= 120 && (container || _isMedia(type)) ? (fixed: true, grows: false, width: w) : null;
+    if (w != null) return w >= 120 && (container || _isMedia(type)) ? (fixed: true, grows: false, width: w, light: false) : null;
     final grows = _fills(n);
-    if (cards.contains(id)) return (fixed: false, grows: grows, width: 0);
+    if (cards.contains(id)) return (fixed: false, grows: grows, width: 0, light: false);
     // A column as wide as its content with a list of things in it (a side
     // navigation written with no width) is a block at its own size.
-    if (!grows) return container && !component && _weight(id, 8) >= 8 ? (fixed: false, grows: false, width: 0) : null;
-    if (component) return fillsItsPlace(type) ? (fixed: false, grows: true, width: 0) : null;
-    if (_isMedia(type)) return (fixed: false, grows: true, width: 0);
-    // A heading and one supporting paragraph already make a content column.
-    // The generic text basis squeezes two such columns together on a phone.
-    if (container && _weight(id) >= 3) return (fixed: false, grows: true, width: 0);
+    if (!grows) return container && !component && _weight(id, 8) >= 8 ? (fixed: false, grows: false, width: 0, light: false) : null;
+    if (component) return fillsItsPlace(type) ? (fixed: false, grows: true, width: 0, light: false) : null;
+    if (_isMedia(type)) return (fixed: false, grows: true, width: 0, light: false);
+    if (container && _weight(id) >= 4) return (fixed: false, grows: true, width: 0, light: false);
+    // A heading and its paragraph: a column of content beside another such
+    // column, but a label's two lines beside a picture or a button.
+    if (container && _weight(id) == 3) return (fixed: false, grows: true, width: 0, light: true);
     return null;
+  }
+
+  /// A control with several choices (a segmented filter, chips) needs room
+  /// for them even when it fills its place: a row of such controls would
+  /// otherwise divide a tablet into cells too narrow for their labels.
+  num _choiceBasis(Json n, num basis) {
+    final options = _props(n)['options'];
+    return options is List && options.length >= 2 ? math.max(basis, math.min(400, options.length * 100)) : basis;
   }
 
   /// The media rules to add, by node id: the widest first, so a phone's
@@ -151,6 +161,8 @@ final class PageReflow {
           _nav(e.key, n);
         case 'section':
           _section(e.key, n);
+        case 'appmenu':
+          _appMenu(e.key, n);
       }
     }
     for (final e in nodes.entries) {
@@ -225,10 +237,34 @@ final class PageReflow {
         }
       }
     }
+    // A phone's bar is tighter: the brand, the buttons and the menu button on one line.
+    _add(id, reflowPhoneMax, {'props': {'spacing': 12}});
+    if (_parents[id] case final String band) {
+      final pad = _layout(nodes[band]!)['padding'];
+      if (pad is List && pad.length == 4 && pad.every((v) => v is num) && (pad[0] as num) > 16) {
+        _add(band, reflowPhoneMax, {'layout': {'padding': [16, pad[1], 16, pad[3]]}});
+      }
+    }
     if (links == 0) return;
     for (final k in hide) {
       _hide(k, links >= 6 ? reflowTabletMax : reflowPhoneMax);
     }
+  }
+
+  /// The button that opens an app's sidebar where the window hides it: what
+  /// follows it in the bar (the page's title) takes the room beside it there,
+  /// so the two sit together at the bar's start and the actions at its end.
+  void _appMenu(String id, Json n) {
+    final bar = _parents[id];
+    if (bar == null) return;
+    final kids = _kids(nodes[bar]!);
+    if (kids.length < 3 || kids.first != id) return;
+    final next = nodes[kids[1]]!;
+    if (_fixedWidth(next) != null || _fills(next)) return;
+    final from = (n['media'] as List? ?? const []).map((r) => r is Map ? r['minWidth'] : null).whereType<num>().firstOrNull;
+    _add(kids[1], from == null ? reflowPhoneMax : from.toInt() - 1, {
+      'layout': {'width': {'fill': 0}, 'flex': 1, 'basis': 96},
+    });
   }
 
   void _section(String id, Json n) {
@@ -356,6 +392,9 @@ final class PageReflow {
       for (final k in kids)
         k: ?_block(k),
     };
+    // Two short columns side by side are blocks; one beside a full block or
+    // alone is a label.
+    if (blocks.values.where((b) => b.light).length < 2) blocks.removeWhere((_, b) => b.light);
     if (blocks.length >= 2) {
       // The one block that grows beside fixed ones is the content beside its
       // rails: it keeps a column's width, and a rail goes under it sooner.
@@ -369,7 +408,7 @@ final class PageReflow {
           _add(e.key, reflowPhoneMax, {'layout': {'width': {'fill': 0}, 'basis': math.min(e.value.width, 280), 'flex': 1}});
           _handled.add(e.key);
         } else if (e.value.grows) {
-          _add(e.key, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'basis': basis, 'flex': switch (_layout(nodes[e.key]!)['flex']) { final num f when f > 0 => f, _ => 1 }}});
+          _add(e.key, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'basis': _choiceBasis(nodes[e.key]!, basis), 'flex': switch (_layout(nodes[e.key]!)['flex']) { final num f when f > 0 => f, _ => 1 }}});
         }
       }
       for (final k in kids) {
@@ -393,7 +432,7 @@ final class PageReflow {
         _handled.add(k);
       } else if (w == null && _fills(kid)) {
         // A block alone among labels and buttons still keeps a column's width.
-        final basis = type == 'spacer' ? 0 : blocks.containsKey(k) ? 280 : _fields.contains(type) ? 180 : isComponent(type) ? 160 : 96;
+        final basis = _choiceBasis(kid, type == 'spacer' ? 0 : blocks[k] != null && !blocks[k]!.light ? 280 : _fields.contains(type) ? 180 : isComponent(type) ? 160 : 96);
         _add(k, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'basis': basis, 'flex': switch (_layout(kid)['flex']) { final num f when f > 0 => f, _ => 1 }}});
       }
     }
