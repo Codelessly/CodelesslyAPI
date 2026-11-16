@@ -1273,7 +1273,6 @@ class _Parser {
   String get _accentValue => options.accent.startsWith('#') ? options.accent : options.palette[options.accent] ?? '#FF2563EB';
 
   Object get _canvasHeight => _windowed ? {'fill': options.height} : {'hug': 0};
-  double get _canvasWidth => _pages.modal ? options.narrowWidth : options.width;
 
   /// A line begun and not yet closed (its JSON runs over several lines).
   String? _pending;
