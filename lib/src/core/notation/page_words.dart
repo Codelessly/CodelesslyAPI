@@ -197,6 +197,8 @@ final class PageWords {
     final id = head[2]!;
     final parts = _Parts(text.substring(head.end));
     final width = double.tryParse(parts.take('w') ?? '');
+    final guard = parts.take('guard');
+    final stopsText = parts.take('stops');
     final title = parts.string(), note = parts.string();
     final heading = _variant(const ['heading', 'heading3', 'sectionTitle', 'strong']);
     // What heads a dialog or a sheet: its title, a close button, a line under it.
@@ -216,10 +218,10 @@ final class PageWords {
         if (isFrame('Dialog')) {
           return Overlay('dialog', id, width ?? 480, action, [
             (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.props}${parts.action ?? ' -> close'}'),
-          ], surface: false);
+          ], surface: false, guard: guard);
         }
         final pad = parts.take('pad') ?? '24', gap = parts.take('gap') ?? '16';
-        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w:fill pad:$pad gap:$gap${parts.all}'), ...titled()], radius: 16);
+        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w:fill pad:$pad gap:$gap${parts.all}'), ...titled()], radius: 16, guard: guard);
       case 'Sheet' || 'BottomSheet':
         final pad = parts.take('pad') ?? '[20,8,20,24]', gap = parts.take('gap') ?? '16';
         final w = width ?? 560;
@@ -227,8 +229,10 @@ final class PageWords {
           'sheet',
           id,
           w,
-          {'presentation': 'bottomSheet', 'sheetWidth': w, 'sheetRadius': 20, 'showDragHandle': true, 'maxHeightFactor': 0.9},
-          [(indent: 0, text: 'Column w:fill pad:$pad gap:$gap${parts.all}'), ...titled()],
+          {'presentation': 'bottomSheet', 'sheetWidth': w, 'sheetRadius': 20, 'showDragHandle': true, 'maxHeightFactor': 0.9,
+            if (stopsText != null) 'snapHeights': [for (final s in stopsText.replaceAll('[', '').replaceAll(']', '').split(',')) ?double.tryParse(s)]},
+          [(indent: 0, text: 'Column w:fill${stopsText == null ? '' : ' h:fill scroll'} pad:$pad gap:$gap${parts.all}'), ...titled()],
+          guard: guard,
         );
       case 'Drawer':
         // A panel as tall as the window at its side; a tap beside it closes it.
@@ -1055,7 +1059,7 @@ final class Overlay {
       this.outlined = false,
       this.closes = 'none',
       this.empty = const [],
-      this.variables = const {}});
+      this.variables = const {}, this.guard});
 
   /// In [foot], a line that stands for the lines written under the block
   /// (else [empty]), read again there: a gallery's picture in its thumbnails.
@@ -1068,6 +1072,8 @@ final class Overlay {
   /// name with the value each starts at; a text starting `[` is a list
   /// written out.
   final Map<String, Object?> variables;
+  /// A live expression that blocks outside press and back while true.
+  final String? guard;
 
   /// `dialog`, `sheet`, `drawer`, `menu`, `popover` or `lightbox`.
   final String kind;

@@ -2123,6 +2123,28 @@ Drawer#cart right w:340 "Your cart"
   Chip#gift "Gift wrap" -> gift=!gift
 ''';
 
+    test('a live overlay guard and sheet stops are words', () {
+      final r = parseNotation('''
+state name=""
+Page
+  Button#details "Details" -> open detailsSheet
+  Button#edit "Edit" -> open editDialog
+Sheet#detailsSheet "Your details" guard:=name!="" stops:[0.5,0.9]
+  Input "Name" =name
+  Button "Discard" -> name=""; close
+Dialog#editDialog "Edit" guard:=name!=""
+  Input "Name" =name
+  Button "Discard" -> name=""; close
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      expect((node(r, 'detailsSheet')['bind'] as Map)['props.blockBack'], r'${= name!=""}');
+      expect((node(r, 'editDialog')['bind'] as Map)['props.blockBack'], r'${= name!=""}');
+      expect(open(r, 'details'), containsPair('snapHeights', [0.5, 0.9]));
+      expect((node(r, 'detailsSheet')['layout'] as Map)['height'], {'fill': 0});
+      expect(open(r, 'edit'), isNot(contains('snapHeights')));
+    });
+
     test('a Dialog, a Sheet, a Menu, a Popover and a Drawer are canvases of their own, opened as their kind says', () {
       final r = parseNotation(text, catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
