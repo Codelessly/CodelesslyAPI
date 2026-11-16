@@ -4,6 +4,7 @@
 import 'package:meta/meta.dart';
 
 import '../core/json.dart';
+import '../core/suggest.dart';
 
 /// How bad a [Diagnostic] is.
 enum Severity {
@@ -259,82 +260,7 @@ final class Diagnostic {
 /// [path] extended by [key], escaped as a JSON pointer token.
 String pointer(String path, Object key) => '$path/${'$key'.replaceAll('~', '~0').replaceAll('/', '~1')}';
 
-/// Names authors write for another one, by what they mean: the key or value
-/// to suggest when no candidate is spelled close to the word.
-const Map<String, List<String>> _meantAs = {
-  'target': ['node', 'to'],
-  'element': ['node'],
-  'nodeid': ['node'],
-  'scrollto': ['node'],
-  'filename': ['fileName'],
-  'name': ['fileName', 'key'],
-  'file': ['fileName'],
-  'content': ['text', 'value'],
-  'contents': ['text', 'value'],
-  'data': ['text', 'value'],
-  'body': ['text'],
-  'value': ['text'],
-  'message': ['text'],
-  'append': ['add'],
-  'push': ['add'],
-  'prepend': ['insert'],
-  'delete': ['remove', 'removeAt'],
-  'pop': ['removeAt'],
-  'increment': ['add'],
-  'decrement': ['subtract'],
-  'screen': ['to'],
-  'destination': ['to'],
-  'route': ['to'],
-  'page': ['to'],
-  'predicate': ['condition'],
-  'if': ['condition'],
-  'test': ['condition'],
-  'variablename': ['variable'],
-  'storagekey': ['key'],
-};
-
-/// The candidate nearest to [word] (case-insensitive edit distance), else
-/// the one an author writing [word] usually means (`target` for `node`,
-/// `append` for `add`), or null when none is close.
-String? nearest(String word, Iterable<String> candidates) {
-  final spelled = _nearestSpelled(word, candidates);
-  if (spelled != null) return spelled;
-  for (final meant in _meantAs[word.toLowerCase()] ?? const <String>[]) {
-    if (candidates.contains(meant)) return meant;
-  }
-  return null;
-}
-
-String? _nearestSpelled(String word, Iterable<String> candidates) {
-  String? best;
-  var bestScore = 1 << 30;
-  final w = word.toLowerCase();
-  for (final c in candidates) {
-    final l = c.toLowerCase();
-    if (l == w) return c;
-    var d = _distance(w, l);
-    // A prefix or containment is close whatever its length.
-    if (w.length >= 3 && (l.startsWith(w) || w.startsWith(l) || l.contains(w))) d = d < 1 ? d : 1;
-    if (d < bestScore) {
-      bestScore = d;
-      best = c;
-    }
-  }
-  if (best == null) return null;
-  final limit = word.length <= 4 ? 1 : (word.length <= 8 ? 2 : 3);
-  return bestScore <= limit ? best : null;
-}
-
-int _distance(String a, String b) {
-  var prev = List<int>.generate(b.length + 1, (i) => i);
-  for (var i = 1; i <= a.length; i++) {
-    final cur = List<int>.filled(b.length + 1, 0);
-    cur[0] = i;
-    for (var j = 1; j <= b.length; j++) {
-      final cost = a[i - 1] == b[j - 1] ? 0 : 1;
-      cur[j] = [prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost].reduce((x, y) => x < y ? x : y);
-    }
-    prev = cur;
-  }
-  return prev[b.length];
-}
+/// The candidate an author writing [word] most likely meant (see
+/// [didYouMean]: the same name written another way, what the word means here,
+/// a near spelling, the same words reordered, a name's word), or null.
+String? nearest(String word, Iterable<String> candidates) => didYouMean(word, candidates);
