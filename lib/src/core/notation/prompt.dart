@@ -106,6 +106,7 @@ ${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
 
 PAGES (this UI is a whole window $w wide, not a card in a chat)
   Tablets and phones: write the page once for this desktop width. The expander makes page rows wrap at 900, grid lists use two columns at 900 and one at 600, and side-by-side growing columns wrap when they need 280 each. An App keeps its Main pane and omits fixed side panes at 900. Keep navigation links reachable when the bar wraps. A horizontally scrolling Row keeps scrolling.
+  Project state: `project cart=[]` reads a variable declared in site.json's `variables` and does not create a screen-local copy. Use it for a cart or another value that must survive navigation.
   Start with a frame. It owns the widths, the margins and the scrolling, so write no window sizes (no w:$w, no h:fill on the root) and no page margins.
   A website page scrolls, and its bands stack:
     Page

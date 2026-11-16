@@ -21,6 +21,21 @@ Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes']
 
 void main() {
   group('a page written once lays out on a tablet and a phone', () {
+    test('a project variable binds and changes without a local shadow', () {
+      final r = parseNotation('''
+project cart=[]
+Page
+  Section
+    Text "{length(cart)} pieces"
+    Button "Add" -> cart=append(cart,1)
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      expect(r.document['variables'], isNull);
+      final button = (r.document['nodes'] as Map).values.whereType<Map>().firstWhere((n) => n['type'] == 'filledButton');
+      expect(((button['actions'] as List).first as Map)['actions'], [
+        {'type': 'setVariable', 'variable': 'cart', 'value': r'${= append(cart,1)}'},
+      ]);
+    });
     test('an app keeps its main pane and omits fixed side panes', () {
       final r = parseNotation('''
 App

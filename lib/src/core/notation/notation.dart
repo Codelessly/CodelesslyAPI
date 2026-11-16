@@ -1022,7 +1022,7 @@ class _Parser {
     final screen = options.screen;
     final fresh = {
       for (final v in variables.values)
-        if (_declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
+        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
     };
     if (id == null && fresh.isEmpty) return;
     if (!_canvas) {
@@ -1200,7 +1200,8 @@ class _Parser {
         },
         ...nodes,
       },
-      if (variables.isNotEmpty) 'variables': {screen: variables.values.toList()},
+      if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
+        'variables': {screen: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
     }), issues, wanted: List.unmodifiable(wanted));
   }
 
@@ -1239,6 +1240,13 @@ class _Parser {
     if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
+    if (line.startsWith('project ')) {
+      final rest = line.substring(8).trim();
+      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=').firstMatch(rest)?.group(1);
+      if (name == null) return _issue(column, 'Project state is written: project name=value. Declare the same name in site.json variables.');
+      _projectVariables.add(name);
+      return _state(rest, column + 8);
+    }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
@@ -3083,6 +3091,7 @@ class _Parser {
   /// State written as a formula (`state total=sum(cart,x=>x.price)`): not a
   /// variable but a name for the formula, written out where it is read.
   final _derived = <String, String>{};
+  final _projectVariables = <String>{};
 
   void _state(String rest, int column) {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
