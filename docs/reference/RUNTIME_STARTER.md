@@ -63,7 +63,7 @@ flat map:
 | `scripts` | The layout's scripts (JavaScript), a list of script objects. |
 | `breakpoints` | The project's breakpoints: `[{"id", "name", "minWidth", "width", "height"}]`; absent: the defaults. |
 
-The smallest useful document: a canvas whose `body` slot holds a column with two texts. Every key not written takes
+The smallest document: a canvas whose `body` slot holds a column with two texts. Every key not written takes
 its default.
 
 ```json
@@ -615,7 +615,7 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 - "lists": Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.
 - "navigation": Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, confirm.
 - "state": State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, if, forEach, delay, retryFailed.
-- "interaction": Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, haptic.
+- "interaction": Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, focusable, focusGroup, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, haptic.
 - "animation": Animation and motion. Documents motion, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, viewProgress, timer, frame, animate.
 - "components": Components and sections. Documents slot, external, placeholder, singlePlaceholder, event, componentEvent.
 - "design-systems": Design systems.

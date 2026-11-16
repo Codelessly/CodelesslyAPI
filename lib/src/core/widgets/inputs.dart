@@ -561,39 +561,44 @@ abstract final class PickerFieldProps {
   /// A field's decoration (as a text field's); empty keeps the button.
   static const decoration = PropDef<InputDecoration>('decoration', InputCodecs.decoration, InputDecoration.empty);
 
-  /// The picker's title (`showDatePicker`'s `helpText`); empty: none.
+  /// A title over the calendar or the time columns; empty: none.
   static const helpText = PropDef<String>('helpText', Codecs.string, '');
 
-  /// The picker dialog's look: `{backgroundColor, accentColor, onAccentColor,
-  /// textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily,
-  /// headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style).
+  /// Unset (the default), the popup draws with the project's theme, light or
+  /// dark: `primary` for the selected day, today's ring and Done, `surface`,
+  /// `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`,
+  /// `fontFamily`. Set it only for a popup that differs from the theme:
+  /// `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor,
+  /// dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors
+  /// `#AARRGGBB`, `headlineStyle` a text style).
   static const pickerTheme = PropDef<Json?>('pickerTheme', InputCodecs.json, null);
 
   static const List<PropDef<Object?>> all = [format, style, decoration, helpText, pickerTheme];
 }
 
 /// A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a
-/// calendar (Flutter's `showDatePicker`).
+/// calendar the renderer draws itself (no Material dialog), in the project's
+/// theme.
 abstract final class DatePickerProps {
   static const value = PropDef<String>('value', Codecs.string, '');
   static const firstDate = PropDef<String?>('firstDate', Codecs.string, null);
   static const lastDate = PropDef<String?>('lastDate', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const spec = WidgetSpec('datePicker', hugs: true,
-      props: [value, firstDate, lastDate, enabled, ...PickerFieldProps.all], doc: 'Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
+      props: [value, firstDate, lastDate, enabled, ...PickerFieldProps.all], doc: 'A date field that opens a calendar drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
 }
 
 /// A field showing a time (`HH:mm`; empty shows its hint) that opens hour and
-/// minute columns (Flutter's `showTimePicker`).
+/// minute columns the renderer draws itself (no Material dialog), in the
+/// project's theme.
 abstract final class TimePickerProps {
   static const value = PropDef<String>('value', Codecs.string, '');
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
 
-  /// The picker's dial and fields in 24-hour time (Flutter's
-  /// `MediaQueryData.alwaysUse24HourFormat`, which the picker reads).
+  /// The picker's columns in 24-hour time (hours and minutes, no AM/PM).
   static const alwaysUse24HourFormat = PropDef<bool>('alwaysUse24HourFormat', Codecs.bool, false);
   static const spec = WidgetSpec('timePicker', hugs: true,
-      props: [value, enabled, alwaysUse24HourFormat, ...PickerFieldProps.all], doc: 'Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
+      props: [value, enabled, alwaysUse24HourFormat, ...PickerFieldProps.all], doc: 'A time field that opens hour and minute columns drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
 }
 
 /// What a date/time input picks.
