@@ -2089,6 +2089,31 @@ Column
           for (final a in ((node(r, id)['actions']! as List).first as Map)['actions']! as List) (a as Map)['type']! as String,
         ];
 
+    test('a preview link opens by pointer, press and keyboard with an arrow', () {
+      final r = parseNotation('''
+Page
+  Link#author "Mara Ellison" preview:bio
+Popover#bio hover arrow
+  Text "Senior correspondent"
+  Link "Read Mara's work" -> close
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      final reactions = (node(r, 'author')['actions'] as List).cast<Map>();
+      expect(reactions.map((r) => (r['trigger'] as Map)['type']), ['hover', 'click', 'cursorExit']);
+      final hover = ((reactions[0]['actions'] as List).first as Map).cast<String, Object?>();
+      final click = ((reactions[1]['actions'] as List).first as Map).cast<String, Object?>();
+      expect(hover, containsPair('hoverDelayMs', 350));
+      expect(hover, containsPair('popoverArrow', true));
+      expect(hover, containsPair('hoverCard', true));
+      expect(click.containsKey('hoverDelayMs'), isFalse);
+      final model = ActionDef.fromJson(hover, catalog: standardCatalog)! as OpenModalAction;
+      expect(model.popoverArrow, true);
+      expect(model.hoverCard, true);
+      expect(model.hoverDelayMs, 350);
+      expect(model.toJson(), containsPair('hoverCard', true));
+    });
+
     const text = '''
 state email=""
 state sort="Newest"

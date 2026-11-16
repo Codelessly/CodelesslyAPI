@@ -2292,6 +2292,25 @@ class _Parser {
           reactions.add({'trigger': trigger, 'actions': actions});
           continue;
         }
+        // A preview is a delayed hover action and an immediate press action.
+        // Both are ordinary openModal actions in the expanded document.
+        if (key == 'preview' && _identifier.hasMatch(word.substring(colon + 1)) && !spec.props.any((p) => p.key == 'preview')) {
+          final target = word.substring(colon + 1);
+          Json opening(int delay) {
+            final action = <String, Object?>{
+              'type': 'openModal', 'to': target,
+              ...?_top._overlayActions[target],
+              'hoverCard': true,
+              if (delay > 0) 'hoverDelayMs': delay,
+            };
+            _top._opens.add(action);
+            return action;
+          }
+          reactions.add({'trigger': {'type': 'hover'}, 'actions': [opening(350)]});
+          reactions.add({'trigger': {'type': 'click'}, 'actions': [opening(0)]});
+          reactions.add({'trigger': {'type': 'cursorExit'}, 'actions': <Object?>[]});
+          continue;
+        }
         var raw = word.substring(colon + 1);
         // `menu:rowMenu`: a right click, or a long press on a touch screen,
         // opens that Menu where the pointer is (a context menu).

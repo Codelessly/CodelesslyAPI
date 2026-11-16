@@ -310,6 +310,9 @@ final class OpenModalAction extends CoreAction {
     this.anchorGap = 4,
     this.anchorOffset = 0,
     this.anchorReserve = 0,
+    this.popoverArrow = false,
+    this.hoverCard = false,
+    this.hoverDelayMs = 0,
     this.anchorNode = '',
     this.anchorItem = '',
     this.insets = const [0, 0, 0, 0],
@@ -349,6 +352,15 @@ final class OpenModalAction extends CoreAction {
   /// the screen's bottom margin, it moves up so this much fits (a menu that
   /// may grow keeps its place). 0: placed by its own height.
   final double anchorReserve;
+
+  /// Draws a pointer from an anchored popover toward its trigger.
+  final bool popoverArrow;
+
+  /// An interactive, pass-through preview that can outlive the trigger hover.
+  final bool hoverCard;
+
+  /// Delay before a hover-triggered preview; zero for touch activation.
+  final int hoverDelayMs;
 
   /// With [ModalAnchor.node]: the node the popover sits by (its id; an
   /// expression may name it).
@@ -408,6 +420,9 @@ final class OpenModalAction extends CoreAction {
     anchorGap: _d(m, 'anchorGap', 4),
     anchorOffset: _d(m, 'anchorOffset', 0),
     anchorReserve: _d(m, 'anchorReserve', 0),
+    popoverArrow: _b(m, 'popoverArrow', false),
+    hoverCard: _b(m, 'hoverCard', false),
+    hoverDelayMs: _i(m, 'hoverDelayMs', 0),
     anchorNode: _s(m, 'anchorNode'),
     anchorItem: _s(m, 'anchorItem'),
     insets: _doubles(m['insets'], 4) ?? const [0, 0, 0, 0],
@@ -438,6 +453,9 @@ final class OpenModalAction extends CoreAction {
     if (anchorGap != 4) 'anchorGap': writeDouble(anchorGap),
     if (anchorOffset != 0) 'anchorOffset': writeDouble(anchorOffset),
     if (anchorReserve != 0) 'anchorReserve': writeDouble(anchorReserve),
+    if (popoverArrow) 'popoverArrow': true,
+    if (hoverCard) 'hoverCard': true,
+    if (hoverDelayMs != 0) 'hoverDelayMs': hoverDelayMs,
     if (anchorNode.isNotEmpty) 'anchorNode': anchorNode,
     if (anchorItem.isNotEmpty) 'anchorItem': anchorItem,
     if (insets.any((v) => v != 0)) 'insets': [for (final v in insets) writeDouble(v)],

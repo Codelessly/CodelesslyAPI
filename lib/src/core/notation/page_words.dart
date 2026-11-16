@@ -255,13 +255,20 @@ final class PageWords {
         );
       case 'Menu' || 'Dropdown' || 'Popover' || 'Popup':
         final menu = head[1] == 'Menu' || head[1] == 'Dropdown';
+        final arrow = parts.word('arrow');
+        final hover = parts.word('hover');
         final above = parts.word('above') | parts.word('up');
         final end = parts.word('end') | parts.word('right');
         final center = parts.word('center');
         parts.word('below');
         parts.word('start');
         final placement = parts.take('placement') ?? '${above ? 'above' : 'below'}${end ? 'End' : center ? 'Center' : 'Start'}';
-        final action = <String, Object?>{'presentation': 'popover', 'anchor': 'trigger', 'placement': placement, 'anchorGap': 6};
+        final action = <String, Object?>{
+          'presentation': 'popover', 'anchor': 'trigger', 'placement': placement,
+          'anchorGap': arrow ? 10 : 6,
+          if (arrow) 'popoverArrow': true,
+          if (hover) 'hoverCard': true,
+        };
         if (menu && isFrame('MenuPopover')) {
           return Overlay('menu', id, width ?? 228, action, [(indent: 0, text: 'MenuPopover${title == null ? '' : ' $title'}${parts.all}')], surface: false, closes: 'all');
         }

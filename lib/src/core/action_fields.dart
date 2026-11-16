@@ -199,6 +199,9 @@ abstract final class OpenModalFields {
   static const anchorOffset = PropDef<double>('anchorOffset', Codecs.double, 0);
   static const anchorReserve = PropDef<double>('anchorReserve', Codecs.double, 0,
       doc: 'Room a popover keeps below its top: when its top plus this would pass the screen\'s bottom margin, it moves up to fit it (a menu keeps its place as it grows). 0: by its own height.');
+  static const popoverArrow = PropDef<bool>('popoverArrow', Codecs.bool, false, doc: 'Draw an arrow from an anchored popover toward its trigger.');
+  static const hoverCard = PropDef<bool>('hoverCard', Codecs.bool, false, doc: 'Open as an interactive pointer-pass-through hover preview.');
+  static const hoverDelayMs = PropDef<int>('hoverDelayMs', Codecs.int, 0, doc: 'Milliseconds of rest before showing the preview.');
   static const anchorNode = PropDef<String>('anchorNode', Codecs.string, '',
       doc: 'Anchor "node": the node the popover sits by (an id; may be an expression).');
   static const anchorItem = PropDef<String>('anchorItem', Codecs.string, '',
@@ -218,7 +221,7 @@ abstract final class OpenModalFields {
       doc: 'A custom transition: entrance, the screen behind, barrier, drag to dismiss.');
   static const List<PropDef<Object?>> all = [
     to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showDragHandle, //
-    alignment, anchor, placement, anchorGap, anchorOffset, anchorReserve, anchorNode, anchorItem, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor,
+    alignment, anchor, placement, anchorGap, anchorOffset, anchorReserve, popoverArrow, hoverCard, hoverDelayMs, anchorNode, anchorItem, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor,
     cover, enterScale, routeTransition,
   ];
 }
