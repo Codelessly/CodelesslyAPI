@@ -984,7 +984,8 @@ Column gap:8
     expect((_node(r, 'pageView1Page')['layout'] as Map)['padding'], [0, 0, 8, 0]);
     // Lines under Pages are its pages: one per position, each shown at its own.
     final second = _node(r, 'pageView2');
-    expect((second['props'] as Map)['itemCount'], 2);
+    // With no prop of its own on the line, it still pages sideways.
+    expect(second['props'], {'scrollDirection': 'horizontal', 'itemCount': 2});
     final texts = (_node(r, 'pageView2Page')['children'] as List).cast<String>();
     expect([for (final t in texts) (_node(r, t)['bind'] as Map)['visible']], [r'${= index == 0}', r'${= index == 1}']);
     // A list holding expressions is a formula, not broken JSON.
@@ -1206,7 +1207,7 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         'id': 'acme',
         'name': 'Acme',
         'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
-        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json'],
+        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/Question.json', 'components/Tabs.json'],
       }),
       'components/StatusPill.json': jsonEncode(component('StatusPill', [
         {'key': 'label', 'type': string, 'default': 'Status', 'required': true},
@@ -1231,6 +1232,10 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         {'key': 'message', 'type': string, 'default': '', 'required': true},
         {'key': 'items', 'type': {'kind': 'list', 'flutter': 'List<String>', 'item': string}, 'default': <Object?>[]},
       ])),
+      'components/Question.json': jsonEncode(component('Question', [
+        {'key': 'question', 'type': string, 'default': '', 'required': true},
+        {'key': 'open', 'type': {'kind': 'variable', 'flutter': 'bool', 'of': {'kind': 'boolean', 'flutter': 'bool'}}, 'default': false},
+      ])),
     };
     files['components/Pill.json'] = jsonEncode(component('Pill', [
       {'key': 'label', 'type': string, 'default': '', 'required': true},
@@ -1239,6 +1244,12 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
       {'key': 'tone', 'type': {'kind': 'enumeration', 'flutter': 'String', 'values': ['primary', 'quiet', 'danger']}, 'default': 'primary'},
       {'key': 'qty', 'type': number, 'default': 1},
     ]));
+    files['components/Tabs.json'] = jsonEncode(component('Tabs', [
+      {'key': 'tabs', 'type': {'kind': 'list', 'flutter': 'List<String>', 'item': string}, 'default': <Object?>[], 'required': true},
+      {'key': 'value', 'type': {'kind': 'variable', 'flutter': 'String', 'of': string}, 'default': ''},
+    ], events: [
+      {'key': 'onChanged', 'payload': string},
+    ], width: {'fill': 200}));
     late DesignSystem ds;
     late Catalog catalog;
     setUp(() async {
@@ -1249,6 +1260,15 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
     });
     NotationResult parse(String text) =>
         Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+
+    test('optional boolean state is independent for each component call', () {
+      final r = parse('Question "First"\nQuestion "Second"');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 'Question1')['props'] as Map)['open'], 'Question1_open');
+      expect((_node(r, 'Question2')['props'] as Map)['open'], 'Question2_open');
+      final names = [for (final v in ((r.document['variables']! as Map)['screen']! as List)) (v as Map)['name']];
+      expect(names, containsAll(['Question1_open', 'Question2_open']));
+    });
 
     test('what is written on a component line and can only mean one thing is read as that', () {
       final r = parse('''
@@ -1329,6 +1349,24 @@ Column gap:8
     test('a name the notation already reads as a core type stays that type', () {
       final r = parse('Button "Save"');
       expect(_node(r, 'filledButton1')['type'], 'filledButton');
+    });
+
+    test('a Tabs line means the Tabs of a design system that has one, not the core tabs node; without one it is the core node', () {
+      final r = parse('''
+state tab="A"
+Column
+  Tabs =tab tabs:["A","B"]
+  if tab=="A"
+    Text "First"
+''');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      final tabs = _node(r, 'Tabs1');
+      expect(tabs['type'], 'Tabs');
+      expect(tabs['props'], {'tabs': ['A', 'B'], 'value': 'tab'});
+      final prompt = notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds);
+      expect(prompt, contains('Tabs =value tabs! -> onChanged : What a Tabs is for.'));
+      final core = parseNotation('Tabs titles:["A","B"]');
+      expect((core.document['nodes']! as Map).values.cast<Map>().any((n) => n['type'] == 'tabs'), isTrue);
     });
 
     test('the prompt lists them as they are called, leaving out the names it reads as core types', () {
@@ -1850,6 +1888,21 @@ Page
       expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
     });
 
+    test('a short each alias leaves layout keys intact', () {
+      final r = parseNotation('''
+state homes=[{"name":"One"}]
+Page
+  Section
+    each h in homes
+      Card
+        Text#homeName "{h.name}" h:120
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(node(r, 'homeName')['layout'], containsPair('height', 120));
+      expect((node(r, 'homeName')['props'] as Map).containsKey('item'), isFalse);
+      expect(jsonEncode(node(r, 'homeName')), contains('item.name'));
+    });
+
     test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page
@@ -1909,6 +1962,86 @@ Page
 ''', catalog: standardCatalog, options: page);
       expect(nodesOf(own).values.where((n) => (n! as Map)['type'] == 'iconButton'), hasLength(1));
       expect(jsonEncode(own.document), isNot(contains('navMenu')));
+    });
+
+    test('from the sites\' second round: the site\'s variables from its manifest, a size word beside a value of its name, a line that says where it shows, bleed, a compact band, a sticky bar\'s surface, a link\'s ink', () {
+      final theme = NotationOptions.fromTheme(const {
+        'colors': {'primary': '#FFFACC15', 'accentDeep': '#FF854D0E', 'pageFill': '#FFFFFFFF'},
+        'sizes': {'wide': 900},
+      }, width: 1280);
+      final options = NotationOptions(
+        width: 1280,
+        accent: theme.accent,
+        accentText: theme.accentText,
+        siteFill: theme.siteFill,
+        projectVariables: const {
+          'cart': {'name': 'cart', 'type': 'integer', 'value': 0},
+        },
+      );
+      final r = parseNotation('''
+state phone=""
+Page
+  Nav#bar sticky
+    Row gap:4
+      Link#docs "Docs" -> go docs
+      Link#call "Call us" show:phone -> go call
+  Section#wide bleed
+    Text "{cart} in the cart"
+    Button#add "Add" -> cart=cart+1
+    Input "Phone" =phone
+    Link#more "Read more" -> go more
+  Section#strip compact
+    Text "Trusted by many"
+''', catalog: standardCatalog, options: options);
+      expect(r.issues, isEmpty);
+      // The site's value is used by name and not declared on the screen.
+      final declared = [for (final v in ((r.document['variables'] as Map?)?['screen'] as List? ?? const [])) (v as Map)['name']];
+      expect(declared, contains('phone'));
+      expect(declared, isNot(contains('cart')));
+      expect(jsonEncode(node(r, 'add')['actions']), contains(r'${= cart+1}'));
+      // show:phone is the screen's size here, not the page's value called phone;
+      // and the link that says so shows on a phone, where the bar hides the others.
+      expect(node(r, 'call')['bind'], isNull);
+      expect(at(r, 'call', 390), isEmpty);
+      expect(at(r, 'call', 834)['visible'], false);
+      expect(at(r, 'docs', 390)['visible'], false);
+      // A bleed section's content runs edge to edge; a compact band stays the shorter one on a phone.
+      expect((node(r, 'wide')['layout']! as Map)['padding'], [0, 64, 0, 64]);
+      expect((at(r, 'strip', 390)['layout']! as Map)['padding'], [20, 24, 20, 24]);
+      // A sticky bar is drawn on the page's surface, and a link in text is in the accent's ink.
+      expect(node(r, 'bar')['sticky'], {'offset': 0});
+      expect(jsonEncode(node(r, 'bar')['decoration']), contains('#FFFFFFFF'));
+      expect(jsonEncode(node(r, 'more')['props']), contains('#FF854D0E'));
+    });
+
+    test('from the sites\' third round: a page id with a hyphen, a destination already worked out, the links a Nav\'s menu repeats', () {
+      final r = parseNotation('''
+Page
+  Nav
+    Brand "Relay"
+    Row gap:4
+      Link "Customers" -> go case-study
+      Link "Pricing" -> go pricing
+    Row gap:8
+      Link#search "Search" menu:false -> go search
+      Link#login "Log in" -> go \${= lower("Login")}
+      Button "Start" -> go replace(lower("Get Started")," ","-")
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final all = jsonEncode(r.document);
+      expect(all, contains('"to":"case-study"'));
+      expect(all, contains(r'"to":"${= lower(\"Login\")}"'));
+      expect(all, contains(r'"to":"${= replace('));
+      // The menu repeats the two links of the row the bar hides: not the one
+      // kept out of it, nor the lone link beside the button.
+      final rows = [
+        for (final n in nodesOf(r).values.cast<Map>())
+          if (n['type'] == 'row' && jsonEncode(n['actions'] ?? '').contains('"variable":"navMenu"')) jsonEncode(n['actions']),
+      ];
+      expect(rows, hasLength(2));
+      expect(rows.join(), isNot(contains('"to":"search"')));
+      final button = nodesOf(r).values.cast<Map>().firstWhere((n) => n['type'] == 'iconButton');
+      expect((button['layout']! as Map)['width'], 40);
     });
 
     test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
@@ -2267,7 +2400,20 @@ Menu#areaMenu
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(problems(r.document), isEmpty);
-      expect(open(r, 'thumb'), {'type': 'openModal', 'to': 'zoom', 'presentation': 'dialog', 'cover': true, 'barrierColor': '#E6000000'});
+      expect(open(r, 'thumb'), {
+        'type': 'openModal',
+        'to': 'zoom',
+        'presentation': 'dialog',
+        'cover': true,
+        'barrierColor': '#F2000000',
+        'routeTransition': {
+          'enter': {
+            'motion': {'opacity': 0, 'shiftY': 0.12},
+          },
+          'durationMs': 220,
+          'dismiss': {'direction': 'down', 'distance': 0.2},
+        },
+      });
       final box = node(r, (node(r, 'zoom')['slots']! as Map)['body']! as String);
       expect(jsonEncode(box['actions']), contains('closeModal'));
       expect(jsonEncode(nodesOf(r)), contains(r'"url":"${photo}","fit":"contain"'));
@@ -2288,13 +2434,211 @@ Menu#areaMenu
       expect(kinds(r, 'refresh'), ['showToast', 'closeModal']);
     });
 
+    test('a Lightbox zooms and pans its picture, and closes on the scrim, its button and a drag down', () {
+      final r = parseNotation('''
+state photo="a.png"
+Column
+  Image#thumb "a.png" w:120 h:80 -> open zoom
+Lightbox#zoom "{photo}" "The harbor at dusk" ratio:1.5
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      // What zooms is the picture's own box, kept over the window: a pinch and the wheel about the point,
+      // a double tap to 2x where it was tapped and back, a drag while zoomed.
+      final photo = node(r, 'zoomPhoto');
+      expect(photo['transformGesture'], {'target': 'node', 'pan': 'whenZoomed', 'minScale': 1, 'maxScale': 4, 'doubleTapScale': 2, 'wheel': 'zoom', 'bounds': 'cover'});
+      expect((photo['bind']! as Map)['layout.aspectRatio'], r'${= 1.5}');
+      expect(node(r, (photo['children']! as List).single as String)['decoration'], {
+        'fills': [
+          {
+            'image': {'url': r'${photo}', 'fit': 'contain'},
+          },
+        ],
+      });
+      // It keeps its zoom, which opens at rest; a tap on the scrim closes only then.
+      expect((r.document['variables']! as Map)['page_variables'], containsAll([
+        {'name': 'zoomZoom', 'type': 'decimal', 'value': 1.0},
+      ]));
+      final root = node(r, (node(r, 'zoom')['slots']! as Map)['body']! as String);
+      expect(root['actions'], [
+        {
+          'trigger': {'type': 'click', 'when': r'${= zoomZoom<=1.01}'},
+          'actions': [
+            {'type': 'closeModal'},
+          ],
+        },
+        {
+          'trigger': {'type': 'load'},
+          'actions': [
+            {'type': 'setVariable', 'variable': 'zoomZoom', 'value': r'${= 1}'},
+          ],
+        },
+      ]);
+      final reactions = (photo['actions']! as List).cast<Map>();
+      expect(reactions.first['trigger'], {'type': 'changed'});
+      // A tap on the picture leaves it open (its box is the picture: ratio:1.5).
+      expect(reactions.last['trigger'], {'type': 'click', 'when': r'${= (1.5) <= 0 && zoomZoom<=1.01}'});
+      expect(kinds(r, 'zoomClose'), ['closeModal']);
+      // A drag down takes it away under the finger; it covers the window.
+      final shown = open(r, 'thumb');
+      expect(shown['cover'], true);
+      expect((shown['routeTransition']! as Map)['dismiss'], {'direction': 'down', 'distance': 0.2});
+      // The max zoom is the line's; without a ratio the box is the picture's place and a tap there closes.
+      final loose = parseNotation('Column\n  Image#t "a.png" -> open z\nLightbox#z "a.png" max:6\n', catalog: standardCatalog, options: page);
+      expect(loose.issues, isEmpty);
+      expect(problems(loose.document), isEmpty);
+      expect((node(loose, 'zPhoto')['transformGesture']! as Map)['maxScale'], 6);
+      expect(((node(loose, 'zPhoto')['actions']! as List).last as Map)['trigger'], {'type': 'click', 'when': r'${= (0) <= 0 && zZoom<=1.01}'});
+    });
+
+    test('a Lightbox of a list is a gallery: paged by a swipe, arrows and keys, with a count and thumbnails', () {
+      final r = parseNotation('''
+state photos=[{"url":"a.png","caption":"A"},{"url":"b.png","caption":"B"}]
+Column
+  each p in photos
+    Image#thumb "{p.url}" w:120 h:80 -> at=index; open viewer
+Lightbox#viewer photos:=photos =at
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      expect(r.document['roots'], ['screen', 'viewer']);
+      // A page per picture, opened at the one tapped; another picture starts at rest.
+      final pages = node(r, 'viewerPages');
+      expect(pages['props'], {'scrollDirection': 'horizontal', 'animationDuration': 280});
+      expect(pages['bind'], {'props.initialPage': r'${at}', 'data': r'${photos}'});
+      expect(((pages['actions']! as List).single as Map)['actions'], [
+        {'type': 'setVariable', 'variable': 'at', 'value': r'${= result.index}'},
+        {'type': 'controlTransform', 'node': 'viewerPhoto', 'command': 'reset'},
+        {'type': 'setVariable', 'variable': 'viewerZoom', 'value': r'${= 1}'},
+      ]);
+      expect(kinds(r, 'thumb'), ['setVariable', 'openModal']);
+      // A record's picture: its url (or the element itself), in a box of its ratio when it has one.
+      final photo = node(r, 'viewerPhoto');
+      expect((photo['transformGesture']! as Map)['pan'], 'whenZoomed');
+      expect((photo['bind']! as Map)['layout.aspectRatio'], r'${= coalesce(item.ratio, 0)}');
+      expect(jsonEncode(node(r, (photo['children']! as List).single as String)), contains(r'"url":"${= coalesce(item.url,item.src,item.image,item)}","fit":"contain"'));
+      // The arrow keys and the arrows step it, within the list.
+      final root = node(r, (node(r, 'viewer')['slots']! as Map)['body']! as String);
+      final keys = [
+        for (final a in (root['actions']! as List).cast<Map>())
+          if ((a['trigger'] as Map)['type'] == 'keyDown') a,
+      ];
+      expect([for (final k in keys) (k['trigger'] as Map)['key']], ['ArrowRight', 'ArrowLeft']);
+      expect(keys.first['actions'], [
+        {'type': 'setVariable', 'variable': 'at', 'value': r'${= min(at+1,length(photos)-1)}'},
+      ]);
+      expect(((node(r, 'viewerNext')['actions']! as List).single as Map)['actions'], [
+        {'type': 'setVariable', 'variable': 'at', 'value': r'${= min(at+1,length(photos)-1)}'},
+      ]);
+      expect((node(r, 'viewerPrev')['bind']! as Map)['visible'], r'${= at>0&&viewerZoom<=1.01}');
+      // The count, and a thumbnail per picture that goes to it (its picture filling it).
+      final count = node(r, (node(r, 'viewerCount')['children']! as List).single as String);
+      expect((count['props']! as Map)['text'], r'${= clamp(at,0,max(0,length(photos)-1))+1} / ${= length(photos)}');
+      final thumb = node(r, 'viewerThumb');
+      expect(((thumb['actions']! as List).single as Map)['actions'], [
+        {'type': 'setVariable', 'variable': 'at', 'value': r'${= index}'},
+      ]);
+      expect(jsonEncode(node(r, (thumb['children']! as List).single as String)), contains('"fit":"cover"'));
+      // thumbs:false leaves the strip out; a list written out and no =name keep variables of their own.
+      final plain = parseNotation('Column\n  Button#b "Photos" -> open shots\nLightbox#shots photos:["a.png","b.png"] thumbs:false\n', catalog: standardCatalog, options: page);
+      expect(plain.issues, isEmpty);
+      expect(problems(plain.document), isEmpty);
+      expect(nodesOf(plain).containsKey('shotsThumbs'), isFalse);
+      expect((plain.document['variables']! as Map)['page_variables'], containsAll([
+        {'name': 'shotsPhotos', 'type': 'list', 'value': ['a.png', 'b.png']},
+        {'name': 'shotsAt', 'type': 'decimal', 'value': 0},
+      ]));
+      expect(node(plain, 'shotsPages')['bind'], {'props.initialPage': r'${shotsAt}', 'data': r'${shotsPhotos}'});
+      // The lines under it draw one picture (photo is the element), large and in its thumbnail.
+      final own = parseNotation('state swatches=[{"c":"#FF112233"}]\nColumn\n  Button#b "Colors" -> open sw\nLightbox#sw photos:=swatches\n  Box#chip w:fill h:fill fill:=photo.c\n',
+          catalog: standardCatalog, options: page);
+      expect(own.issues, isEmpty);
+      expect(problems(own.document), isEmpty);
+      expect(node(own, 'swPhoto')['children'], ['chip']);
+      expect((node(own, 'swThumb')['children']! as List).length, 1);
+    });
+
+    test('a design system\'s gallery opens its photos in the page\'s viewer, and on a card stays as written', () async {
+      const variable = {'kind': 'variable', 'of': {'kind': 'number', 'flutter': 'double'}};
+      final files = {
+        'design_system.json': jsonEncode({
+          'id': 'acme',
+          'name': 'Acme',
+          'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
+          'components': ['components/PhotoGallery.json'],
+        }),
+        'components/PhotoGallery.json': jsonEncode({
+          'schema': 3,
+          'id': 'PhotoGallery',
+          'roots': ['r'],
+          'widget': {
+            'type': 'PhotoGallery',
+            'doc': 'Photos in a grid. More.',
+            'props': [
+              {'key': 'value', 'type': variable, 'default': ''},
+              {'key': 'photos', 'type': {'kind': 'list', 'flutter': 'List<dynamic>', 'item': {'kind': 'json', 'flutter': 'dynamic'}}, 'default': <Object?>[], 'required': true},
+              {'key': 'viewer', 'type': {'kind': 'enumeration', 'flutter': 'String', 'values': ['inline', 'overlay']}, 'default': 'inline'},
+            ],
+            'events': [
+              {'key': 'onChanged'},
+            ],
+          },
+          'nodes': {
+            'r': {'type': 'column', 'layout': {'width': {'fill': 200}, 'height': {'hug': 28}}},
+          },
+        }),
+      };
+      final found = <String>[];
+      final ds = await DesignSystem.load((ref) async => files[ref], problems: found);
+      expect(found, isEmpty);
+      final catalog = ds.catalogOver(standardCatalog);
+      const text = '''
+state trips=[{"name":"Coast","photos":[{"url":"a.png"}]}]
+Page
+  Section
+    PhotoGallery#one =seen photos:[{"url":"a.png"},{"url":"b.png"}] -> emit looked
+    each t in trips
+      PhotoGallery#each photos:=t.photos
+''';
+      final r = Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds, width: 1280)));
+      expect(r.issues, isEmpty);
+      expect(r.document['roots'], ['screen', 'screenViewer']);
+      // Its own actions first, then the photos and the one tapped go to the viewer; its value is 0 again once closed.
+      final one = node(r, 'one');
+      expect((one['props']! as Map)['viewer'], 'overlay');
+      expect((one['bind']! as Map)['props.photos'], r'${screenViewerList1}');
+      expect([for (final a in ((one['actions']! as List).single as Map)['actions'] as List) (a as Map)['type']],
+          ['componentEvent', 'setVariable', 'setVariable', 'openModal', 'setVariable']);
+      final actions = (((one['actions']! as List).single as Map)['actions'] as List).cast<Map>();
+      expect(actions[1], {'type': 'setVariable', 'variable': 'screenViewerPhotos', 'value': r'${= screenViewerList1}'});
+      expect(actions[2], {'type': 'setVariable', 'variable': 'screenViewerAt', 'value': r'${= result-1}'});
+      expect(actions[3], containsPair('to', 'screenViewer'));
+      expect(actions[3], containsPair('cover', true));
+      expect(actions[4], {'type': 'setVariable', 'variable': 'seen', 'value': r'${= 0}'});
+      // In a list, the photos are the element's when it is tapped.
+      final each = (((node(r, 'each')['actions']! as List).single as Map)['actions'] as List).cast<Map>();
+      expect(each.first, {'type': 'setVariable', 'variable': 'screenViewerPhotos', 'value': r'${= item.photos}'});
+      // One viewer for the page's galleries, a gallery of what was last tapped.
+      expect(node(r, 'screenViewerPages')['bind'], {'props.initialPage': r'${screenViewerAt}', 'data': r'${screenViewerPhotos}'});
+      // On a card (and where the line says how it opens) it is the component as written.
+      final card = Catalog.run(catalog, () => parseNotation('Column\n  PhotoGallery#g =seen photos:[{"url":"a.png"}]\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+      expect(card.issues, isEmpty);
+      expect(card.document['roots'], ['screen']);
+      expect(node(card, 'g').containsKey('actions'), isFalse);
+      expect((node(card, 'g')['props']! as Map).containsKey('viewer'), isFalse);
+      final inline = Catalog.run(catalog,
+          () => parseNotation('Page\n  Section\n    PhotoGallery#g photos:[{"url":"a.png"}] viewer:"inline"\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds, width: 1280)));
+      expect(inline.document['roots'], ['screen']);
+    });
+
     test('the prompt teaches them from a desktop width on', () {
       final wide = notationPrompt(catalog: standardCatalog, options: page);
-      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu:rowMenu', '-> open signup']) {
+      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu:rowMenu', '-> open signup', 'Lightbox#shots photos:=photos =at']) {
         expect(wide, contains(word), reason: word);
       }
       final card = notationPrompt(catalog: standardCatalog);
       expect(card, isNot(contains('Dialog#')));
+      expect(card, isNot(contains('Lightbox')));
       expect(card, isNot(contains('OVER THE PAGE')));
     });
   });
