@@ -19,6 +19,7 @@ import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
 import 'page_words.dart';
+import 'reflow.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -101,6 +102,8 @@ final class NotationOptions {
     this.controlHeight,
     this.fieldLabel,
     this.fieldText,
+    this.reflow = true,
+    this.displaySizes = const {},
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -108,8 +111,8 @@ final class NotationOptions {
   /// (`StatusBadge "Paid"`, `Stepper =qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
   factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
-      {double width = 390, String screen = 'screen', bool named = false}) {
-    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named);
+      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true}) {
+    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, reflow: reflow);
     Object size(SizeFit fit, double value) => switch (fit) {
           SizeFit.fill || SizeFit.flexible => {'fill': 0},
           SizeFit.hug => {'hug': 0},
@@ -148,6 +151,8 @@ final class NotationOptions {
       controlHeight: base.controlHeight,
       fieldLabel: base.fieldLabel,
       fieldText: base.fieldText,
+      reflow: base.reflow,
+      displaySizes: base.displaySizes,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -168,7 +173,7 @@ final class NotationOptions {
   /// (another design system with the same names, dark mode, an edited
   /// token) with nothing rewritten. It needs that theme to render; what the
   /// theme has no name for is still written as a value.
-  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen', bool named = false}) {
+  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen', bool named = false, bool reflow = true}) {
     final colors = readMap(theme['colors']) ?? const {};
     String color(String name, String fallback) {
       Object? c = colors[name] ?? theme[name];
@@ -293,6 +298,11 @@ final class NotationOptions {
       controlHeight: readDouble(sizes['control']),
       fieldLabel: isWide ? styles['fieldLabelWide'] : null,
       fieldText: isWide ? styles['inputTextWide'] : null,
+      reflow: reflow,
+      displaySizes: {
+        for (final e in textStyles.entries)
+          if (readMap(e.value)?['fontSize'] case final num size when size >= 32) e.key: size,
+      },
       pageFill: named && colors['pageFill'] != null && colors['page'] != null ? (page: 'page', fill: 'pageFill') : null,
       barChart: radii['bar'] == null
           ? const {}
@@ -410,6 +420,16 @@ final class NotationOptions {
   /// The styles of a field's label and of its text on a page: a theme's
   /// `fieldLabelWide` and `inputTextWide`. Null: the control's own.
   final Object? fieldLabel, fieldText;
+
+  /// Whether a page (a canvas 700 wide or wider) is given the media rules
+  /// that lay it out on a tablet and a phone ([PageReflow]): its rows wrap,
+  /// its grids take fewer columns, its headlines shrink. False: the page is
+  /// written for its one width only.
+  final bool reflow;
+
+  /// The theme's text styles of a headline's size (32 and up), by name →
+  /// font size: a text in one of them is smaller on a phone.
+  final Map<String, num> displaySizes;
 
   /// The height of a button, a field and a select that write none: a
   /// theme's `sizes.control`. Null: the control's own (its compact step).
@@ -934,7 +954,11 @@ class _Parser {
       _lineAt(indent + 4, 'Box w:=index==$page?16:6 h:6 radius:3 fill:=index==$page?${look(options.accent)}:${look(options.track)} -> $page=index', indent + 5);
     } else {
       for (final l in _pages.rewrite(indent, raw.trim())) {
-        _lineAt(l.indent, l.text, l.indent + 1);
+        // A frame's line says which frame it is (Row~nav): kept for the reflow.
+        final role = _roleMark.firstMatch(l.text);
+        _lastNode = null;
+        _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
+        if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
       }
     }
     final added = nodes.keys.skip(before).toList();
@@ -963,7 +987,42 @@ class _Parser {
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
+    roles: true,
   );
+
+  static final _roleMark = RegExp(r'^([A-Z][A-Za-z0-9]*)~([a-z]+)');
+
+  /// The node the line just read made, and the frames among the nodes
+  /// (`app`, `nav`, `section`, `sidebar`, `main`, `pane`), a grid's rows
+  /// and the rows whose columns share their width: what [PageReflow] reads.
+  String? _lastNode;
+  final _roles = <String, String>{};
+  final _gridRows = <String, _Grid>{};
+  final _tableRows = <String>{};
+
+  /// On a page, the media rules that lay it out on a tablet and a phone.
+  void _reflow() {
+    if (!options.reflow || options.width < 700) return;
+    final rules = PageReflow(
+      nodes: nodes,
+      roles: _roles,
+      gridRows: {
+        for (final e in _gridRows.entries) e.key: (cols: e.value.cols, gap: e.value.gap),
+      },
+      cards: _cards,
+      tableRows: _tableRows,
+      displaySizes: options.displaySizes,
+      isComponent: (type) => type.isNotEmpty && type[0].toUpperCase() == type[0] && catalog.widget(type) != null,
+      fillsItsPlace: (type) => switch (options.components[type]?.width) { final Map m => m.containsKey('fill'), _ => false },
+    ).run();
+    for (final e in rules.entries) {
+      final node = nodes[e.key]!;
+      // The line's own rules (hide:phone) come after, so they win.
+      final media = [...e.value, ...?(node['media'] as List?)];
+      node['media'] = media;
+      if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
+    }
+  }
 
   /// Whether the UI is as tall as its window (an app's panes, a root
   /// written `h:fill`): the canvas then has the window's height, where a
@@ -1092,6 +1151,7 @@ class _Parser {
     }
     // A cell that already grows (the name's column, written `grow`) is the
     // widest: its share is counted in the same unit as the others' widths.
+    _tableRows.add(open.id);
     final widest = fixed.fold<num>(0, (m, f) => f.$3 > m ? f.$3 : m);
     for (final (id, n) in children) {
       final flex = (n['layout'] as Map?)?['flex'];
@@ -1497,6 +1557,7 @@ class _Parser {
     String? imageFit;
     Json? buttonLook;
     String? gaugeUnit;
+    List<({String label, Object? value, Object? color})>? donutKeys;
 
     if (written == 'Button' && variant != null) {
       final v = buttonVariants[variant];
@@ -1574,6 +1635,7 @@ class _Parser {
       _issue(column, 'The id "$id" is used twice.');
       return;
     }
+    _lastNode = id;
 
     void put(String path, Object? value) {
       final dot = path.indexOf('.');
@@ -1880,7 +1942,10 @@ class _Parser {
         }
         var key = word.substring(0, colon);
         // `if:cond` on a node is the node shown while it holds.
-        if (key == 'if' || key == 'when' || key == 'show') key = 'visible';
+        // …but `show:phone` is where it shows (a screen's size), unless the
+        // UI has a value of that name.
+        final sizeWord = const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(colon + 1)) && !variables.containsKey(word.substring(colon + 1));
+        if (key == 'if' || key == 'when' || (key == 'show' && !sizeWord)) key = 'visible';
         // A handler written as a key, as models write one unprompted:
         // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
         // …unless the node has a parameter of that name (a quote's `change:1.84`).
@@ -2051,6 +2116,25 @@ class _Parser {
         // A password field hides what is typed; it is not a keyboard.
         if (key == 'type' && type == 'textField' && (raw == 'password' || raw == '"password"')) {
           props['obscureText'] = true;
+          continue;
+        }
+        // Where a node shows, by the screen's width: hide:phone (not on a
+        // phone), hide:tablet (not on a tablet or a phone), show:phone
+        // (on a phone only), show:tablet (on a tablet and a phone only).
+        if ((key == 'hide' || key == 'show') && sizeWord) {
+          final Json? rule = switch ((key, raw)) {
+            ('hide', 'phone' || 'mobile') => {'maxWidth': reflowPhoneMax},
+            ('hide', 'tablet') || ('show', 'desktop') => {'maxWidth': reflowTabletMax},
+            ('show', 'phone' || 'mobile') => {'minWidth': reflowPhoneMax + 1},
+            ('show', 'tablet') || ('hide', 'desktop') => {'minWidth': reflowTabletMax + 1},
+            _ => null,
+          };
+          if (rule != null) {
+            node['media'] = [
+              ...?(node['media'] as List?),
+              {...rule, 'patch': {'visible': false}},
+            ];
+          }
           continue;
         }
         // The widest a node gets (a page's column of content): maxw:720.
@@ -2268,6 +2352,14 @@ class _Parser {
       props['series'] = [
         {'field': 'value', 'colorField': 'color'},
       ];
+      // On a page its labels are its legend, beside it (under it on a phone).
+      final legend = props.remove('legend');
+      if (options.width >= 700 && legend != false && values is List && labels is List && labels.any((l) => '$l'.isNotEmpty)) {
+        final data = (props['data']! as List).cast<Map>();
+        donutKeys = [
+          for (final d in data) (label: '${d['label']}', value: d['value'], color: d['color']),
+        ];
+      }
       props.putIfAbsent('donutThickness', () => written.startsWith('Pie') && props['donut'] != true ? 0.5 : 0.22);
       props.remove('donut');
       props.addAll({'showYAxis': false, 'showXAxis': false, 'gridLines': 0});
@@ -2708,6 +2800,7 @@ class _Parser {
       if (moved.isNotEmpty) out['bind'] = {...?(out['bind'] as Map?)?.cast<String, Object?>(), ...moved};
     }
     nodes[id] = out;
+    if (donutKeys != null) _donutLegend(id, out, donutKeys, inRow: parent?.type == 'row');
     if (avatarName != null) {
       // "Maya Reyes" is MR; a value read from state is shown as it is.
       final reads = avatarName.contains(r'${') || avatarName.contains('{');
@@ -2834,6 +2927,118 @@ class _Parser {
     }
   }
 
+  /// The donuts given a legend: each as it was written, and its labels.
+  final _donuts = <String, ({Json chart, List<String> labels})>{};
+
+  /// A page that writes a donut's legend itself (its labels are texts
+  /// elsewhere on the page) keeps its own: the chart is as it was written.
+  void _ownLegends() {
+    for (final e in _donuts.entries) {
+      final id = e.key;
+      final own = nodes.keys.where((k) => k != id && k.startsWith(id) && _under(k, id)).toSet();
+      final labels = {for (final l in e.value.labels) if (l.trim().isNotEmpty) l.trim().toLowerCase()};
+      final written = <String>{};
+      for (final n in nodes.entries) {
+        if (own.contains(n.key) || n.value['type'] != 'text') continue;
+        final text = (n.value['props'] as Map?)?['text'];
+        if (text is String && labels.contains(text.trim().toLowerCase())) written.add(text.trim().toLowerCase());
+      }
+      if (written.length < (labels.length < 2 ? labels.length : 2) || written.isEmpty) continue;
+      own
+        ..forEach(nodes.remove)
+        ..forEach(_parentOf.remove);
+      nodes[id]!
+        ..clear()
+        ..addAll(e.value.chart);
+      if (_canvas) {
+        ops
+          ..add({'op': 'remove', 'ids': ['${id}Chart', '${id}Legend']})
+          ..add({'op': 'set', 'id': id, 'node': {...nodes[id]!}});
+      }
+    }
+    _donuts.clear();
+  }
+
+  bool _under(String id, String ancestor) {
+    for (String? at = _parentOf[id]; at != null; at = _parentOf[at]) {
+      if (at == ancestor) return true;
+    }
+    return false;
+  }
+
+  /// A donut with its legend: the line's node becomes a row that wraps, of
+  /// the chart and a line per share (its color, its label, its part of the
+  /// whole). Where the two do not fit side by side the legend goes under.
+  void _donutLegend(String id, Json out, List<({String label, Object? value, Object? color})> keys, {required bool inRow}) {
+    final chart = <String, Object?>{...out};
+    _donuts[id] = (chart: {...out}, labels: [for (final k in keys) k.label]);
+    final layout = (chart['layout']! as Map).cast<String, Object?>();
+    final flex = layout.remove('flex');
+    final side = switch ((layout['width'], layout['height'])) { (final num w, _) => w, (_, final num h) => h, _ => 160 };
+    chart['layout'] = {...layout, 'width': side, 'height': layout['height'] is num ? layout['height'] : side};
+    final visible = (chart['bind'] as Map?)?['visible'];
+    if (visible != null) chart['bind'] = {...(chart['bind']! as Map).cast<String, Object?>()}..remove('visible');
+    out
+      ..clear()
+      ..addAll({
+        'type': 'row',
+        'layout': {'width': flex != null || !inRow ? {'fill': 0} : {'hug': 0}, 'height': {'hug': 0}, 'flex': ?flex},
+        'props': {'spacing': 24, 'runSpacing': 16, 'wrap': true, 'crossAxisAlignment': 'center'},
+        if (visible != null) 'bind': {'visible': visible},
+        'children': <Object?>['${id}Chart', '${id}Legend'],
+      });
+    Object? style(String name) => switch (options.textStyles[name] ?? options.textStyles['body']) { final Map m => _copy(m.cast<String, Object?>()), final other => other };
+    num total = 0;
+    for (final k in keys) {
+      total += k.value is num ? k.value! as num : 0;
+    }
+    nodes['${id}Chart'] = chart;
+    nodes['${id}Legend'] = {
+      'type': 'column',
+      'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'basis': 160, 'flex': 1, 'constraints': {'maxWidth': 320}},
+      'props': {'spacing': 10, 'crossAxisAlignment': 'stretch'},
+      'children': <Object?>[for (var i = 0; i < keys.length; i++) '${id}Key$i'],
+    };
+    _parentOf['${id}Chart'] = id;
+    _parentOf['${id}Legend'] = id;
+    for (var i = 0; i < keys.length; i++) {
+      final k = keys[i];
+      final share = total > 0 && k.value is num ? '${((k.value! as num) / total * 100).round()}%' : null;
+      nodes['${id}Key$i'] = {
+        'type': 'row',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'spacing': 10, 'crossAxisAlignment': 'center'},
+        'children': <Object?>['${id}Dot$i', '${id}Label$i', if (share != null) '${id}Share$i'],
+      };
+      nodes['${id}Dot$i'] = {
+        'type': 'column',
+        'layout': {'width': 10, 'height': 10},
+        'decoration': {
+          'fills': [
+            {'color': k.color},
+          ],
+          'radius': 5,
+        },
+      };
+      nodes['${id}Label$i'] = {
+        'type': 'text',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'flex': 1},
+        'props': {'text': k.label, 'style': ?style('muted')},
+      };
+      if (share != null) {
+        nodes['${id}Share$i'] = {
+          'type': 'text',
+          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+          'props': {'text': share, 'style': ?style('strong')},
+        };
+      }
+      _parentOf['${id}Key$i'] = '${id}Legend';
+      for (final part in ['Dot', 'Label', if (share != null) 'Share']) {
+        _parentOf['${id}$part$i'] = '${id}Key$i';
+      }
+    }
+  }
+
   void _strings(List<String> texts, String type, String id, Json out) {
     for (var i = 0; i < texts.length; i++) {
       final tid = _id('text');
@@ -2910,6 +3115,7 @@ class _Parser {
       nodes[id] = cellNode;
       (gridNode['children'] as List<Object?>).add(rowId);
       _parentOf[rowId] = g.id;
+      _gridRows[rowId] = g;
       g
         ..row = rowId
         ..inRow = 0;
@@ -2958,6 +3164,8 @@ class _Parser {
       _close(_stack.removeLast());
     }
     nodes.keys.skip(before).toList().forEach(_emit);
+    _ownLegends();
+    _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {
       ops.addAll(_patches);
