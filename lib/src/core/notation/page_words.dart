@@ -33,6 +33,13 @@ final class PageWords {
     this.contentWidth = 1120,
     this.narrowWidth = 720,
     this.sidebarWidth = 248,
+    this.sectionPad = 64,
+    this.gutter = 24,
+    this.band,
+    this.siteFill,
+    this.paneFill,
+    this.accentName,
+    this.iconTile,
     this.accent = '#FF2563EB',
     this.selectedFill = '#FFE5E7EB',
     this.line = '#FFE5E7EB',
@@ -45,6 +52,16 @@ final class PageWords {
   /// The widest a section's content gets, and a `narrow` section's.
   final double contentWidth, narrowWidth;
   final double sidebarWidth;
+
+  /// A section's padding above and below, and a page's side gutter.
+  final double sectionPad, gutter;
+
+  /// A tinted section's fill, what a website page is drawn on, and the fill
+  /// of an app's sidebar and top bar; null: none is written.
+  final String? band, siteFill, paneFill, iconTile;
+
+  /// The accent as the theme names it (a selected item's ink); null: [accent].
+  final String? accentName;
 
   /// Colors, as the notation takes them (`#AARRGGBB`).
   final String accent, selectedFill, line;
@@ -70,6 +87,7 @@ final class PageWords {
   /// The lines [text] at [indent] stands for: itself, moved under the frame
   /// it is in, or the plain lines of a page word.
   List<PageLine> rewrite(int indent, String text) {
+    text = _plain(text);
     final out = <PageLine>[];
     while (_open.isNotEmpty && _open.last.indent >= indent) {
       final closed = _open.removeLast();
@@ -104,9 +122,16 @@ final class PageWords {
       return out..add((indent: at, text: text));
     }
     final parts = _Parts(rest);
+    // A text with a look of its own (a rule at its side, a fill, a corner)
+    // is a box around the text: a text itself draws none.
+    if (word == 'Text' && _looks(parts)) {
+      open();
+      return out..addAll(_textBox(at, mark, parts));
+    }
     if (word == 'Page' && indent == 0) {
       open(frame: 'Page');
-      return out..add((indent: at, text: 'Column$mark w:fill scroll stretch${parts.all}'));
+      final fill = parts.has('fill') || siteFill == null ? '' : ' fill:$siteFill';
+      return out..add((indent: at, text: 'Column$mark w:fill scroll stretch$fill${parts.all}'));
     }
     if ((word == 'App' || word == 'AppShell' || word == 'Window') && indent == 0) {
       app = true;
@@ -122,13 +147,19 @@ final class PageWords {
       final footer = word == 'Footer';
       final width = parts.take('maxw') ?? (parts.word('narrow') ? _n(narrowWidth) : _n(contentWidth));
       parts.word('wide');
-      final pad = parts.take('pad') ?? (footer ? '[24,40,24,40]' : '[24,64,24,64]');
+      final g = _n(gutter);
+      final tight = parts.word('compact') | parts.word('tight');
+      final v = _n(tight ? (sectionPad / 2).roundToDouble() : sectionPad);
+      final pad = parts.take('pad') ?? (footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
+      // A tinted band: the page's alternate ground, ruled off above and below.
+      final tint = parts.word('tint') | parts.word('alt') | parts.word('band') | parts.word('muted');
+      final banded = tint && band != null && !parts.has('fill') ? ' fill:$band border-top:$line border-bottom:$line' : '';
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});
       open(frame: 'Section', shift: 2);
       if (footer) out.add((indent: at, text: 'Divider'));
       return out
-        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad${parts.all}'))
+        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad$banded${parts.all}'))
         ..add((indent: at + 2, text: 'Column w:fill maxw:$width gap:$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
     }
     if (_bars.contains(word) && !isComponentCall(word, parts)) {
@@ -139,11 +170,12 @@ final class PageWords {
       final gap = parts.take('gap') ?? '24';
       if (inApp) {
         final pad = parts.take('pad') ?? '[24,14,24,14]';
+        final fill = parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
         open(frame: 'Nav', after: 'Divider');
-        return out..add((indent: at, text: 'Row$mark w:fill between middle pad:$pad gap:$gap${parts.all}'));
+        return out..add((indent: at, text: 'Row$mark w:fill between middle pad:$pad gap:$gap$fill${parts.all}'));
       }
       final width = parts.take('maxw') ?? _n(contentWidth);
-      final pad = parts.take('pad') ?? '[24,16,24,16]';
+      final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
       open(frame: 'Nav', shift: 2, after: 'Divider');
       return out
         ..add((indent: at, text: 'Column$mark w:fill center pad:$pad${parts.all}'))
@@ -154,7 +186,8 @@ final class PageWords {
       final pad = parts.take('pad') ?? '[12,16,12,16]';
       final gap = parts.take('gap') ?? '4';
       open(frame: framed ? 'Sidebar' : null);
-      return out..add((indent: at, text: 'Column$mark w:$width${framed ? ' h:fill scroll' : ''} pad:$pad gap:$gap${parts.hasBorder ? '' : ' border-right:$line'}${parts.all}'));
+      final fill = !framed || parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
+      return out..add((indent: at, text: 'Column$mark w:$width${framed ? ' h:fill' : ''} pad:$pad gap:$gap$fill${parts.hasBorder ? '' : ' border-right:$line'}${parts.all}'));
     }
     if (word == 'Main' || word == 'Content') {
       open(frame: framed ? 'Main' : null);
@@ -175,6 +208,8 @@ final class PageWords {
       final selected = parts.take('selected') ?? parts.take('active');
       final on = parts.word('selected') | parts.word('active');
       final label = parts.string();
+      final ink = accentName ?? accent;
+      const quiet = '#FF4B5563';
       final fill = selected != null
           ? ' fill:=${_expr(selected)}?"$selectedFill":"#00000000"'
           : on
@@ -186,10 +221,29 @@ final class PageWords {
       return out
         ..add((indent: at, text: 'Row$mark ${across ? '' : 'w:fill '}gap:10 middle pad:[10,8,10,8] radius:8$fill${parts.all}'))
         ..addAll([
-          if (icon != null) (indent: at + 2, text: 'Icon $icon size:18'),
-          (indent: at + 2, text: 'Text ${label ?? '""'}${on ? ' weight:600' : ''}${across ? '' : ' grow'}'),
+          if (icon != null) (indent: at + 2, text: 'Icon $icon size:18${on ? ' color:$ink' : selected != null ? ' color:=${_expr(selected)}?"$ink":"$quiet"' : ' color:$quiet'}'),
+          (indent: at + 2, text: 'Text ${label ?? '""'} size:14 weight:${on ? 600 : 500}${on ? ' color:$ink' : selected != null ? ' color:=${_expr(selected)}?"$ink":"$quiet"' : ''}${across ? '' : ' grow'}'),
           if (badge != null) (indent: at + 2, text: 'Text.${_variant(const ['muted', 'caption', 'small']) ?? 'muted'} $badge'),
         ]);
+    }
+    // A field in a bar has no room for a label above it: its label is its hint.
+    if ((word == 'Input' || word == 'Search' || word == 'SearchField') && _open.any((l) => l.frame == 'Nav') && !isComponent(word)) {
+      if (!parts.has('hint')) {
+        final label = parts.string();
+        final hint = parts.string() ?? label ?? '"Search"';
+        open();
+        return out..add((indent: at, text: 'Input$mark "" $hint${parts.all}'));
+      }
+    }
+    if (word == 'IconTile' && !isComponent('IconTile')) {
+      final name = parts.string();
+      final size = double.tryParse(parts.take('size') ?? '') ?? 40;
+      final ink = parts.take('color') ?? accentName ?? accent;
+      final fill = parts.take('fill') ?? iconTile ?? selectedFill;
+      open();
+      return out
+        ..add((indent: at, text: 'Box$mark w:${_n(size)} h:${_n(size)} radius:${_n((size / 4).roundToDouble())} fill:$fill center middle${parts.all}'))
+        ..add((indent: at + 2, text: 'Icon ${name ?? '"star"'} size:${_n((size / 2).roundToDouble())} color:$ink'));
     }
     if (word == 'Link' && !isComponent('Link')) {
       final href = parts.take('href') ?? parts.take('to') ?? parts.take('url');
@@ -200,15 +254,29 @@ final class PageWords {
       if (parent?.frame == 'Nav' || _open.any((l) => l.frame == 'Nav')) {
         return out..add((indent: at, text: 'Button.ghost$mark ${label ?? '""'}${parts.props}$action'));
       }
+      if (_looks(parts)) {
+        final color = parts.has('color') ? '' : ' color:$accent';
+        return out..addAll(_textBox(at, mark, parts, text: '${label ?? '""'}$color', action: action));
+      }
       return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color:$accent'}${parts.props}$action'));
     }
     if ((word == 'Heading' || word == 'Title' || RegExp(r'^H[1-4]$').hasMatch(word)) && !isComponent(word)) {
       final level = word.startsWith('H') && word.length == 2 ? int.parse(word.substring(1)) : int.tryParse(parts.take('level') ?? '') ?? 2;
-      final variant = switch (level) {
-        1 => _variant(const ['heading1', 'pageTitle', 'title']),
-        2 => _variant(const ['heading2', 'title', 'sectionTitle']),
-        _ => _variant(const ['heading3', 'heading', 'cardTitle', 'strong']),
-      };
+      // A website's headline and section titles; an app's page title and
+      // the titles of its panels.
+      final variant = inApp
+          ? switch (level) {
+              // In a top bar the page's title is a bar's size.
+              1 when _open.any((l) => l.frame == 'Nav') => _variant(const ['heading3', 'heading', 'title']),
+              1 => _variant(const ['title', 'pageTitle', 'heading2']),
+              2 => _variant(const ['heading', 'sectionTitle', 'heading3']),
+              _ => _variant(const ['strong', 'heading']),
+            }
+          : switch (level) {
+              1 => _variant(const ['heading1', 'pageTitle', 'title']),
+              2 => _variant(const ['heading2', 'title', 'sectionTitle']),
+              _ => _variant(const ['heading3', 'heading', 'cardTitle', 'strong']),
+            };
       open();
       return out..add((indent: at, text: 'Text${variant == null ? '' : '.$variant'}${mark.startsWith('#') ? mark : ''}${parts.all}'));
     }
@@ -218,6 +286,25 @@ final class PageWords {
 
   /// A design system's own component of this name, when the line is
   /// written as it is called (`Sidebar items:[…]`, `TopBar title:"…"`).
+  /// Whether a text line writes a look of its own (a rule at a side, a
+  /// fill, a corner): a text itself draws none.
+  static bool _looks(_Parts parts) => (parts.hasBorder || parts.has('fill') || parts.has('radius')) && !parts.props.contains('{"');
+
+  /// A text with a look of its own, as a box around the text.
+  static List<PageLine> _textBox(int at, String mark, _Parts parts, {String text = '', String? action}) {
+    final look = [
+      for (final k in const ['fill', 'radius', 'border', 'border-left', 'border-right', 'border-top', 'border-bottom', 'w', 'maxw'])
+        if (parts.take(k) case final String v) '$k:$v',
+    ];
+    final filled = look.any((l) => l.startsWith('fill:'));
+    final pad = parts.take('pad') ?? (!filled && look.any((l) => l.startsWith('border-left')) ? '[12,2,0,2]' : '[8,3,8,3]');
+    final grow = parts.word('grow') ? ' grow' : '';
+    return [
+      (indent: at, text: 'Box${filled && !look.any((l) => l.startsWith('w:')) ? ' w:hug' : ''} ${look.join(' ')} pad:$pad$grow'),
+      (indent: at + 2, text: 'Text$mark${text.isEmpty ? '' : ' $text'}${parts.props}${action ?? parts.action ?? ''}'),
+    ];
+  }
+
   bool isComponentCall(String word, _Parts parts) => isComponent(word) && (parts.has('items') || parts.has('title') || parts.has('brand'));
 
   /// The lines that close what is still open (a bar's rule).
@@ -228,6 +315,45 @@ final class PageWords {
       if (closed.after != null) out.add((indent: closed.indent + closed.before, text: closed.after!));
     }
     return out;
+  }
+
+  static final _idKey = RegExp(r'\s(?:id|anchor):[A-Za-z_][\w-]*(?=\s|$)');
+  static final _stickyKey = RegExp(r'\ssticky:true(?:\s+top:\d+)?(?=\s|$)');
+  static final _avatarSrc = RegExp(r'^(Avatar(?:#\w+)?)\s+(?:src|url|img):');
+
+  /// A line with the keys a model reaches for by habit put as the notation
+  /// has them: `id:why` (an anchor; nothing reads it) left out,
+  /// `sticky:true top:24` as the word `sticky`, an Avatar's `src:` as its
+  /// `image:` (with the name it must have).
+  static String _plain(String text) {
+    if (!text.contains(':')) return text;
+    final quoted = text.indexOf('"');
+    var t = text;
+    if (t.contains(' id:') || t.contains(' anchor:')) {
+      final m = _idKey.firstMatch(t);
+      if (m != null && (quoted < 0 || m.start < quoted || !_inString(t, m.start))) t = t.replaceRange(m.start, m.end, '');
+    }
+    if (t.contains(' sticky:true')) {
+      final m = _stickyKey.firstMatch(t);
+      if (m != null && !_inString(t, m.start)) t = t.replaceRange(m.start, m.end, ' sticky');
+    }
+    if (t.startsWith('Avatar')) {
+      final m = _avatarSrc.firstMatch(t);
+      if (m != null) t = '${m[1]} "" image:${t.substring(m.end)}';
+    }
+    return t;
+  }
+
+  static bool _inString(String t, int at) {
+    var inside = false;
+    for (var i = 0; i < at; i++) {
+      if (t.codeUnitAt(i) == 0x5C) {
+        i++;
+      } else if (t[i] == '"') {
+        inside = !inside;
+      }
+    }
+    return inside;
   }
 
   String? _variant(List<String> names) => names.where(textVariants.contains).firstOrNull;

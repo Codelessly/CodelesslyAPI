@@ -90,6 +90,15 @@ final class NotationOptions {
     this.contentWidth = 1120,
     this.selectedFill = '#FFE5E7EB',
     this.line = '#FFE5E7EB',
+    this.narrowWidth = 720,
+    this.sidebarWidth = 248,
+    this.sectionPad = 64,
+    this.gutter = 24,
+    this.band,
+    this.siteFill,
+    this.paneFill,
+    this.iconTile,
+    this.controlHeight,
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -126,6 +135,15 @@ final class NotationOptions {
       contentWidth: base.contentWidth,
       line: base.line,
       selectedFill: base.selectedFill,
+      narrowWidth: base.narrowWidth,
+      sidebarWidth: base.sidebarWidth,
+      sectionPad: base.sectionPad,
+      gutter: base.gutter,
+      band: base.band,
+      siteFill: base.siteFill,
+      paneFill: base.paneFill,
+      iconTile: base.iconTile,
+      controlHeight: base.controlHeight,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -192,18 +210,39 @@ final class NotationOptions {
     // .page` (what the UI is drawn on), `radii.badge` and `sizes.badge` (a
     // badge), `sizes.cta` (a button alone on its line in a column, as wide
     // as the column).
-    final radii = readMap(theme['radii']) ?? const {}, sizes = readMap(theme['sizes']) ?? const {};
-    final spacing = readMap(theme['spacing']) ?? const {}, shadows = readMap(theme['shadows']) ?? const {};
+    //
+    // On a wide canvas (`sizes.wide` and up: a website page, an app window)
+    // a name ending in `Wide` takes the place of the name before it:
+    // `radii.cardWide` is the card's corner there, `textStyles.strongWide`
+    // is `Text.strong`. One theme then serves a chat card and a page, and a
+    // card keeps the card's looks wherever it is shown (it is written at
+    // its own width).
+    final wideFrom = readDouble(readMap(theme['sizes'])?['wide']);
+    final isWide = wideFrom != null && width >= wideFrom;
+    Json tier(String group) {
+      final m = readMap(theme[group]) ?? const <String, Object?>{};
+      if (!isWide) return m;
+      return {
+        ...m,
+        for (final e in m.entries)
+          if (e.key.length > 4 && e.key.endsWith('Wide')) e.key.substring(0, e.key.length - 4): e.value,
+      };
+    }
+
+    final radii = tier('radii'), sizes = tier('sizes');
+    final spacing = tier('spacing'), shadows = tier('shadows');
     final cardShadow = shadows['card'];
     final textStyles = readMap(theme['textStyles']) ?? const {};
     final badgeStyle = textStyles['badge'] != null && radii['badge'] != null ? styles['badge'] : null;
-    final ctaHeight = readDouble(sizes['cta']);
+    final ctaHeight = switch (readDouble(sizes['cta'])) { final double h when h > 0 => h, _ => null };
     // On a wide canvas (`sizes.wide` and up) the title is the page's: the
     // theme's `titleWide` style, when it has both, for `Text.title` and
     // `Text.pageTitle` (a 20 px card title is small over a 1280 page).
-    if (readDouble(sizes['wide']) case final double wide when width >= wide && styles['titleWide'] != null) {
-      styles['title'] = styles['titleWide']!;
-      if (styles.containsKey('pageTitle')) styles['pageTitle'] = styles['titleWide']!;
+    if (isWide) {
+      for (final name in styles.keys.toList()) {
+        if (name.length > 4 && name.endsWith('Wide')) styles[name.substring(0, name.length - 4)] = styles[name]!;
+      }
+      if (styles['titleWide'] != null && styles.containsKey('pageTitle')) styles['pageTitle'] = styles['titleWide']!;
     }
     return NotationOptions(
       width: width,
@@ -239,6 +278,15 @@ final class NotationOptions {
       contentWidth: readDouble(sizes['content']) ?? 1120,
       line: color('line', color('primaryBorder', '#FFE5E7EB')),
       selectedFill: color('activeTint', color('primaryTint', color('subtleFill', '#FFE5E7EB'))),
+      narrowWidth: readDouble(sizes['narrow']) ?? 720,
+      sidebarWidth: readDouble(sizes['sidebar']) ?? 248,
+      sectionPad: readDouble(spacing['section']) ?? 64,
+      gutter: readDouble(spacing['gutter']) ?? 24,
+      band: colors['band'] != null ? color('band', '#FFF8FAFC') : null,
+      siteFill: colors['pageFill'] != null ? color('pageFill', '#FFFFFFFF') : null,
+      paneFill: colors['card'] != null ? color('card', '#FFFFFFFF') : null,
+      iconTile: colors['iconTile'] != null ? color('iconTile', '#1A2563EB') : null,
+      controlHeight: readDouble(sizes['control']),
       pageFill: named && colors['pageFill'] != null && colors['page'] != null ? (page: 'page', fill: 'pageFill') : null,
       barChart: radii['bar'] == null
           ? const {}
@@ -341,6 +389,21 @@ final class NotationOptions {
   /// The widest a page section's content gets (`Section`, `Nav`, `Footer`):
   /// a theme's `sizes.content`.
   final double contentWidth;
+
+  /// The widths of a narrow section's content and of a sidebar, a
+  /// section's padding above and below, and a page's side gutter: a
+  /// theme's `sizes.narrow`, `sizes.sidebar`, `spacing.section` and
+  /// `spacing.gutter`.
+  final double narrowWidth, sidebarWidth, sectionPad, gutter;
+
+  /// A tinted section's fill (`Section tint`), what a website page is drawn
+  /// on, an app's sidebar and top bar, and the tile behind an icon: a
+  /// theme's `colors.band`, `pageFill`, `card` and `iconTile`. Null: none.
+  final String? band, siteFill, paneFill, iconTile;
+
+  /// The height of a button, a field and a select that write none: a
+  /// theme's `sizes.control`. Null: the control's own (its compact step).
+  final double? controlHeight;
 
   /// The fill of a selected `NavItem` and the hairline of a pane's edge and
   /// a bar's rule: a theme's `neutralFill` and `line`.
@@ -876,6 +939,15 @@ class _Parser {
   /// as the plain lines they stand for before a line is read.
   late final _pages = PageWords(
     contentWidth: options.contentWidth,
+    narrowWidth: options.narrowWidth,
+    sidebarWidth: options.sidebarWidth,
+    sectionPad: options.sectionPad,
+    gutter: options.gutter,
+    band: options.band,
+    siteFill: options.siteFill,
+    paneFill: options.paneFill,
+    iconTile: options.iconTile,
+    accentName: options.accent,
     accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
     selectedFill: options.selectedFill,
     line: options.line,
@@ -887,6 +959,10 @@ class _Parser {
   /// written `h:fill`): the canvas then has the window's height, where a
   /// card or a website page is as tall as its content.
   bool _windowed = false;
+
+  /// The accent as a value: a slice's or a series' color is data, where a
+  /// theme's name is not read.
+  String get _accentValue => options.accent.startsWith('#') ? options.accent : options.palette[options.accent] ?? '#FF2563EB';
 
   Object get _canvasHeight => _windowed ? {'fill': options.height} : {'hug': 0};
 
@@ -2161,7 +2237,7 @@ class _Parser {
     // is a thick one).
     if (ours && const {'Donut', 'DonutChart', 'PieChart', 'Pie'}.contains(written)) {
       final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
-      final palette = [options.accent, ..._chartColors];
+      final palette = [_accentValue, ..._chartColors];
       props['chartType'] = 'donut';
       if (values is List) {
         props['data'] = [
@@ -2179,7 +2255,7 @@ class _Parser {
       props.putIfAbsent('donutThickness', () => written.startsWith('Pie') && props['donut'] != true ? 0.5 : 0.22);
       props.remove('donut');
       props.addAll({'showYAxis': false, 'showXAxis': false, 'gridLines': 0});
-      layout.putIfAbsent('width', () => 160);
+      layout.putIfAbsent('width', () => layout['height'] is num ? layout['height'] : 160);
       layout.putIfAbsent('height', () => layout['width'] is num ? layout['width'] : 160);
     }
     // A line chart with named series, labels under it or a filled area is
@@ -2196,7 +2272,7 @@ class _Parser {
         if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove('lineColor')),
       ];
       if (all.isNotEmpty) {
-        final palette = [options.accent, ..._chartColors];
+        final palette = [_accentValue, ..._chartColors];
         final rows = all.map((s) => s.values.length).reduce((a, b) => a > b ? a : b);
         type = 'chart';
         props
@@ -2392,6 +2468,17 @@ class _Parser {
       layout['width'] = {'fill': 0};
     }
     final inRow = !cell && parent?.type == 'row';
+    // On a page, cards side by side are one row of panels: equally tall.
+    if (inRow && written == 'Card' && options.width >= 700) {
+      final row = nodes[parent!.id];
+      if (row != null && (row['props'] as Map?)?['crossAxisAlignment'] == null) {
+        const Json patch = {
+          'props': {'crossAxisAlignment': 'stretch'},
+        };
+        nodes[parent.id] = mergePatch(row, patch);
+        _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
+      }
+    }
     // A button alone on its line in a column is the card's one thing to
     // do: as wide as the column, at the design system's height for it.
     if (options.cta case final Json cta when parent != null && parent.type == 'column' && parent.grid == null && !cell) {
@@ -2404,6 +2491,28 @@ class _Parser {
         for (final e in cta.entries) {
           layout.putIfAbsent(e.key, () => _copyValue(e.value));
         }
+      }
+    }
+    // A control's step is its height (28 compact, 32 small, 36 medium, 44
+    // large): `size:large` on a button, else the design system's height
+    // for a control on this canvas (a theme's `sizes.control`; on a page
+    // its `sizes.controlWide`).
+    if (const {'filledButton', 'outlinedButton', 'elevatedButton', 'textButton'}.contains(type)) {
+      final step = switch (props.remove('size')) {
+        'xs' => 24.0,
+        'compact' => 28.0,
+        'small' || 'sm' => 32.0,
+        'medium' || 'md' => 36.0,
+        'large' || 'lg' => 44.0,
+        _ => options.controlHeight,
+      };
+      if (step != null && !layout.containsKey('height')) layout['height'] = step;
+    } else if (options.controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
+      // A field's label sits above its box, inside its height (11.5 px
+      // text and 6 px under it).
+      final label = type == 'textField' && switch ((props['decoration'] as Map?)?['labelText']) { final String l => l.isNotEmpty, _ => false };
+      if (!layout.containsKey('height') && props['maxLines'] == null && props['minLines'] == null) {
+        layout['height'] = options.controlHeight! + (label ? 20 : 0);
       }
     }
     if (inRow && type == 'text' && !layout.containsKey('width')) layout['squeezable'] = true;

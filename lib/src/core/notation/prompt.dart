@@ -88,6 +88,8 @@ ${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
 ''';
   // A window, not a card: the frames of a page, and how the design system
   // says its pages go together (the "Pages in brief" of its patterns).
+  final lead = options.textStyles.containsKey('lead') ? '.lead' : '.muted';
+  final eyebrow = options.textStyles.containsKey('eyebrow') ? 'Text.eyebrow "FEATURES"\n        ' : '';
   String? pagesBrief;
   if (designSystem != null) {
     final from = RegExp(r'^## Pages in brief[ \t]*$', multiLine: true).firstMatch(designSystem.patterns);
@@ -107,14 +109,14 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   A website page scrolls, and its bands stack:
     Page
       Nav                    the bar across the top; its children are spread end to end (the logo, a Row of links, a Row of actions)
-      Section                a full-width band; what is under it sits in a centered column ${options.contentWidth.round()} wide. Section narrow for reading text, Section fill:#… for a tinted band, Section center to center what is in it
+      Section                a full-width band; what is under it sits in a centered column ${options.contentWidth.round()} wide. Section narrow for reading text, Section tint for a tinted band (alternate plain and tinted bands down a page), Section compact for a short band (logos, a strip of figures), Section center to center what is in it
       Footer
   An app window is as tall as the window, and each pane scrolls by itself:
     App
       Sidebar                a fixed pane at the side (w:240): the name, NavItem lines, Spacer grow, then what sits at its foot
       Main                   the pane that takes the rest: a Nav (its top bar: the title, then a Row of actions) and under it a Column pad:24 gap:16 of content
       Pane w:320             a further pane (a list beside its details, a details panel): Pane w:320 pad:16 gap:12
-  NavItem "Orders" icon:"inbox" badge:"12" selected:=tab=="orders" -> tab="orders" is a line of a sidebar (or of a Nav). Link "Docs" is a link (href:"https://…", or -> an action). Heading "…" heads a section (level:1 the page's own title, level:3 a small one).
+  NavItem "Orders" icon:"inbox" badge:"12" selected:=tab=="orders" -> tab="orders" is a line of a sidebar (or of a Nav). Link "Docs" is a link (href:"https://…", or -> an action). Heading "…" heads a section (level:1 the page's own headline or an app's page title, level:3 the title of a card or a panel). IconTile "sync" is an icon on a small tinted tile (the mark of a feature, a stat, a row).
   Side by side: Row gap:32 with grow on each child that shares the width (Column grow gap:12), or Grid cols:3 gap:24 for equal cells; write top on a Row whose children differ in height. Row between spreads its children end to end. A rule on one side is border-bottom:#… (border-top, border-left, border-right).
   Inside a frame everything is written as on a card: the components, Card, Text, the controls. A Card in a Grid is a tile of the page.${pagesBrief == null || pagesBrief.isEmpty ? '' : '\n${pagesBrief.split('\n').map((l) => '  $l').join('\n')}'}
 
@@ -127,18 +129,21 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
       Button "Start free" -> emit start
     Section
       Row gap:48
-        Column grow gap:16
+        Column grow gap:20
           Heading "Fill every room" level:1
-          Text.muted "Calendar, channels and pricing in one place."
-          Button "Start free" -> emit start
+          Text$lead "Calendar, channels and pricing in one place."
+          Row gap:12
+            Button "Start free" size:large -> emit start
+            Button.outline "See how it works" size:large -> emit tour
         Card grow
           BarChart values:[14,18,16,21] labels:["Thu","Fri","Sat","Sun"] h:200
-    Section fill:#FFF3F4F6
-      Heading "Everything a small hotel needs"
+    Section tint
+      Column gap:12
+        ${eyebrow}Heading "Everything a small hotel needs"
       Grid cols:3 gap:24
-        Card gap:8
-          Icon "sync"
-          Text.strong "Channel sync"
+        Card gap:12
+          IconTile "sync"
+          Heading "Channel sync" level:3
           Text.muted "Availability stays in step."
     Footer
       Row between
