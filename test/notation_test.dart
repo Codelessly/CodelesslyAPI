@@ -1851,5 +1851,20 @@ Page
       expect((at(r, 'menu', 834)['visible']), false);
       expect(at(r, 'menu', 390)['visible'], isNull);
     });
+
+    test('show:phone also hides a conditional node above phone width', () {
+      final r = parseNotation('''
+state menu=false
+Page
+  if menu
+    Section#mobile show:phone
+      Link "Projects" -> go projects
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((at(r, 'mobile', 834)['bind'] as Map)['visible'], isNull);
+      expect(at(r, 'mobile', 834)['visible'], false);
+      expect(at(r, 'mobile', 390)['visible'], isNull);
+      expect((node(r, 'mobile')['bind'] as Map)['visible'], isNotNull);
+    });
   });
 }

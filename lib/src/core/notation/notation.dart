@@ -2755,6 +2755,17 @@ class _Parser {
       final own = bind['visible'];
       bind['visible'] = own is String ? _and(c, own) : c;
     }
+    // A width restriction must also turn off a conditional binding at the
+    // widths where the line is hidden; otherwise the binding wins.
+    if (bind.containsKey('visible') && node['media'] is List) {
+      node['media'] = [
+        for (final rule in node['media'] as List)
+          if (rule is Map && readMap(rule['patch'])?['visible'] == false)
+            {...rule, 'patch': {...readMap(rule['patch'])!, 'bind': {'visible': null}}}
+          else
+            rule,
+      ];
+    }
     // A line under Pages is the page at its position: the page view draws
     // its one page per position, and each line shows only at its own.
     if (parent != null && parent.pages != null && parent.each == null && parent.condition == null) {
