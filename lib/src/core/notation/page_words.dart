@@ -352,6 +352,7 @@ final class PageWords {
   /// `sticky:true top:24` as the word `sticky`, an Avatar's `src:` as its
   /// `image:` (with the name it must have).
   static String _plain(String text) {
+    if (text.contains("'")) text = _doubleQuoted(text);
     if (!text.contains(':')) return text;
     final quoted = text.indexOf('"');
     var t = text;
@@ -368,6 +369,41 @@ final class PageWords {
       if (m != null) t = '${m[1]} "" image:${t.substring(m.end)}';
     }
     return t;
+  }
+
+  /// 'single-quoted' text outside a string, as "double-quoted": a value
+  /// read after := ends at its closing quote, not at the line's last one.
+  static String _doubleQuoted(String t) {
+    final out = StringBuffer();
+    var inDouble = false;
+    for (var i = 0; i < t.length; i++) {
+      final c = t[i];
+      if (inDouble) {
+        out.write(c);
+        if (t.codeUnitAt(i) == 0x5C && i + 1 < t.length) {
+          out.write(t[++i]);
+        } else if (c == '"') {
+          inDouble = false;
+        }
+        continue;
+      }
+      if (c == '"') {
+        inDouble = true;
+        out.write(c);
+        continue;
+      }
+      if (c == "'") {
+        final end = t.indexOf("'", i + 1);
+        final before = i == 0 ? ' ' : t[i - 1];
+        if (end > i && !t.substring(i + 1, end).contains('"') && '=(,?:[!<>+&| '.contains(before)) {
+          out.write('"${t.substring(i + 1, end)}"');
+          i = end;
+          continue;
+        }
+      }
+      out.write(c);
+    }
+    return out.toString();
   }
 
   static bool _inString(String t, int at) {
