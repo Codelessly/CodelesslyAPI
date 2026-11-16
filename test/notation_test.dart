@@ -1940,7 +1940,8 @@ Page
       expect(node(r, 'bar')['sticky'], {'offset': 0});
       // The links go on a phone, and a menu button shows there only.
       expect(at(r, 'links', 390)['visible'], false);
-      final button = nodesOf(r).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton');
+      final button = nodesOf(r).entries.firstWhere((e) => jsonEncode((e.value! as Map)['actions'] ?? '').contains('"variable":"navMenu"') && (e.value! as Map)['type'] == 'outlinedButton');
+      expect(((button.value! as Map)['props'] as Map)['label'], 'Menu');
       expect(at(r, button.key, 390), isEmpty);
       expect(at(r, button.key, 834)['visible'], false);
       expect(jsonEncode((button.value! as Map)['actions']), contains('"variable":"navMenu"'));
