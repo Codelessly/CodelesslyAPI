@@ -169,9 +169,8 @@ Each axis has a **mode** and a **number**:
 
 The number is the **design size**: the size of a fixed node, and the size used where a mode cannot apply (a fill
 inside something that scrolls on that axis, or inside a parent that hugs that axis: `fill_fallback`). For `hug` and
-`fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. **A node without `width` or
-`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas`, a `spacer` and a
-control, which hugs.
+`fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. Unsized, a text, icon or
+control hugs (wrapping at its parent's width); **other nodes are 0 × 0** (`zero_size`), but a `canvas` or `spacer`.
 
 ### Rows, columns and flex
 
@@ -468,7 +467,7 @@ Breakpoints, sticky headers, scrolling, a canvas per breakpoint: responsive layo
 
 ## Rules that are easy to get wrong
 
-1. Every node needs `layout.width` and `layout.height`; without them it is 0 × 0.
+1. Boxes, rows, columns and stacks need `layout.width` and `layout.height`; without them they are 0 × 0.
 2. Every text needs a color; without one it is white.
 3. Padding and margin are a number or four numbers, never two.
 4. Colors are `#AARRGGBB`, `#RRGGBB` or a theme color's name; define the theme first and name its colors and
