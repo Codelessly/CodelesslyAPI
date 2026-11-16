@@ -384,6 +384,8 @@ abstract final class SliderProps {
   /// The current value, between `min` and `max`. Bind it to a variable and store the `changed` value in that
   /// variable.
   static const value = PropDef<double>('value', Codecs.double, 0);
+  /// A second thumb; when present, the slider selects from value to rangeEnd.
+  static const rangeEnd = PropDef<double?>('rangeEnd', Codecs.double, null);
   /// The value at the start of the track.
   static const min = PropDef<double>('min', Codecs.double, 0);
   /// The value at the end of the track.
@@ -459,7 +461,7 @@ abstract final class SliderProps {
   static const selectableMax = PropDef<double?>('selectableMax', Codecs.double, null);
 
   static const spec = WidgetSpec('slider', hugs: true, props: [
-    value, min, max, divisions, label, labelFractionDigits, autofocus, secondaryTrackValue, padding, trackHeight, //
+    value, rangeEnd, min, max, divisions, label, labelFractionDigits, autofocus, secondaryTrackValue, padding, trackHeight, //
     activeTrackColor, inactiveTrackColor, secondaryActiveTrackColor, thumbColor, overlayColor, activeTickMarkColor,
     inactiveTickMarkColor, valueIndicatorColor, valueIndicatorTextStyle, showValueIndicator, valueIndicatorShape,
     overlayRadius, trackShape, thumbShape, thumbRadius, thumbSize, thumbCornerRadius, thumbStrokeColor,

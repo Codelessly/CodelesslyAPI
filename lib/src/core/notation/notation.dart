@@ -2096,6 +2096,26 @@ class _Parser {
         t.at++;
         final expr = t.expression().trim();
         final value = _valueProps[type];
+        // A second slider binding makes one control with two ordered ends.
+        if (type == 'slider' && bind.containsKey('props.value') && !bind.containsKey('props.rangeEnd')) {
+          final first = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$').firstMatch('${bind['props.value']}')?.group(1);
+          if (first == null || !_identifier.hasMatch(expr) || expr.contains('.')) {
+            _issue(col, 'A range slider binds two variables: Slider =low =high min:0 max:100.');
+          } else {
+            bind['props.rangeEnd'] = _read(expr);
+            variables.putIfAbsent(expr, () => {'name': expr, 'type': 'decimal', 'value': 0});
+            reactions.removeWhere((r) => readMap(r['trigger'])?['type'] == 'changed' &&
+                (r['actions'] as List?)?.any((a) => readMap(a)?['type'] == 'setVariable' && readMap(a)?['variable'] == first) == true);
+            reactions.insert(0, {
+              'trigger': {'type': 'changed'},
+              'actions': [
+                {'type': 'setVariable', 'variable': first, 'value': r'${result.low}'},
+                {'type': 'setVariable', 'variable': expr, 'value': r'${result.high}'},
+              ],
+            });
+          }
+          continue;
+        }
         // A component keeps its value in the variable its parameter names.
         final held = !component
             ? null

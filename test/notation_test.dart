@@ -20,6 +20,27 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  test('a slider binds two ordered ends from one changed event', () {
+    final r = _parse('''
+state low=300000
+state high=1400000
+Column
+  Slider#price =low =high min:200000 max:2000000 label:"Price range"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final slider = _node(r, 'price');
+    expect(slider['type'], 'slider');
+    expect(slider['bind'], {'props.value': r'${low}', 'props.rangeEnd': r'${high}'});
+    expect(slider['actions'], [
+      {'trigger': {'type': 'changed'}, 'actions': [
+        {'type': 'setVariable', 'variable': 'low', 'value': r'${result.low}'},
+        {'type': 'setVariable', 'variable': 'high', 'value': r'${result.high}'},
+      ]},
+    ]);
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('Slider =low =high'));
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12
