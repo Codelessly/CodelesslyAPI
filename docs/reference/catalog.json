@@ -202,6 +202,14 @@
           "default": false,
           "nullable": false,
           "doc": "Drawn beneath every screen, outside navigation."
+        },
+        {
+          "key": "semanticLabel",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Its name for assistive technology when it opens as an overlay (a dialog, a sheet, a menu). Empty: its first text, or for a menu the label of the control that opened it."
         }
       ],
       "docs": "layout.md#node-canvas"
@@ -4419,8 +4427,7 @@
       "docs": "forms.md#node-dropdown"
     },
     "datePicker": {
-      "doc": "Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).",
-      "flutter": "showDatePicker",
+      "doc": "A date field that opens a calendar drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar the renderer draws itself (no Material dialog), in the project's theme.",
       "children": "none",
       "slots": [],
       "decorated": false,
@@ -4490,7 +4497,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: none."
+          "doc": "A title over the calendar or the time columns; empty: none."
         },
         {
           "key": "pickerTheme",
@@ -4498,14 +4505,13 @@
           "kind": "json",
           "default": null,
           "nullable": true,
-          "doc": "The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
+          "doc": "Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
         }
       ],
       "docs": "forms.md#node-datePicker"
     },
     "timePicker": {
-      "doc": "Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).",
-      "flutter": "showTimePicker",
+      "doc": "A time field that opens hour and minute columns drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.\n\nA field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns the renderer draws itself (no Material dialog), in the project's theme.",
       "children": "none",
       "slots": [],
       "decorated": false,
@@ -4533,7 +4539,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "The picker's dial and fields in 24-hour time (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the picker reads)."
+          "doc": "The picker's columns in 24-hour time (hours and minutes, no AM/PM)."
         },
         {
           "key": "format",
@@ -4567,7 +4573,7 @@
           "kind": "string",
           "default": "",
           "nullable": false,
-          "doc": "The picker's title (`showDatePicker`'s `helpText`); empty: none."
+          "doc": "A title over the calendar or the time columns; empty: none."
         },
         {
           "key": "pickerTheme",
@@ -4575,7 +4581,7 @@
           "kind": "json",
           "default": null,
           "nullable": true,
-          "doc": "The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
+          "doc": "Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style)."
         }
       ],
       "docs": "forms.md#node-timePicker"
@@ -12135,6 +12141,25 @@
         "object": "RadioGroupBehavior",
         "doc": "Flutter's RadioGroup: the radios inside share its groupValue; choosing one runs its changed reactions.",
         "docs": "forms.md#behavior-radioGroup"
+      },
+      {
+        "key": "focusable",
+        "type": "bool",
+        "kind": "boolean",
+        "default": true,
+        "nullable": false,
+        "doc": "A node with a click reaction is a Tab stop: it shows the focus ring of the theme when the focus comes from the keyboard, and Enter and Space run its click. False takes it out of the focus order (its action is repeated by a control inside it). A node with no click reaction never takes the focus.",
+        "docs": "interaction.md#behavior-focusable"
+      },
+      {
+        "key": "focusGroup",
+        "type": "FocusGroup",
+        "kind": "object",
+        "default": null,
+        "nullable": true,
+        "object": "FocusGroup",
+        "doc": "Everything focusable inside is one Tab stop (a menu, a tab list, a toolbar): the arrow keys of its axis move the focus among the members, Home and End jump to the ends, typeAhead lets a letter jump to a member by its text. true: a vertical group that wraps.",
+        "docs": "interaction.md#behavior-focusGroup"
       }
     ]
   },
@@ -16839,6 +16864,41 @@
           "nullable": false,
           "object": "Spring",
           "doc": "The spring it settles with after a drag."
+        }
+      ]
+    },
+    "FocusGroup": {
+      "doc": "One Tab stop for everything focusable inside the node (a roving focus, as a menu, a tab list, a toolbar or a radio group has): Tab enters at the member focused last (else the one whose `selected` is bound true, else the first) and leaves to the next stop outside; the arrow keys of `axis` move the focus among the members in reading order, Home and End jump to the first and last, and with `typeAhead` a typed letter jumps to the next member whose text starts with it. Enter and Space press the focused member as anywhere. The members are the nodes inside it that take the focus: nodes with a `click` reaction and controls. `\"focusGroup\": true` is a vertical group that wraps.",
+      "fields": [
+        {
+          "key": "axis",
+          "type": "FocusGroupAxis",
+          "kind": "enumeration",
+          "default": "vertical",
+          "nullable": false,
+          "enum": "FocusGroupAxis",
+          "values": [
+            "vertical",
+            "horizontal",
+            "both"
+          ],
+          "doc": "The arrow keys that move the focus among the members: vertical (Up, Down), horizontal (Left, Right) or both."
+        },
+        {
+          "key": "wrap",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "An arrow past the last member goes to the first, and back."
+        },
+        {
+          "key": "typeAhead",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "A typed letter jumps to the next member whose text starts with it (a menu)."
         }
       ]
     },
@@ -22751,6 +22811,20 @@
       {
         "value": "always",
         "doc": "Flutter's `FloatingLabelBehavior`."
+      }
+    ],
+    "FocusGroupAxis": [
+      {
+        "value": "vertical",
+        "doc": "Up and Down (a menu, a list, a sidebar)."
+      },
+      {
+        "value": "horizontal",
+        "doc": "Left and Right (a tab bar, a toolbar, a segmented control)."
+      },
+      {
+        "value": "both",
+        "doc": "All four arrows, in reading order (a grid of tiles)."
       }
     ],
     "FontStyle": [

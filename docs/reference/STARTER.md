@@ -7,7 +7,7 @@ behavior. This file is the **base**: read it in full first; it is enough to buil
 a page of its own in this folder, linked from here and listed in the [index](#base-index) at the end (the same
 index, with an A–Z of every name, is `index.md`). Open a page when you need what it covers; do not read the folder
 end to end. On a page, *Patterns* is usually what you need; *Reference* holds the generated tables to look one prop
-up. This describes `codelessly_api` 32.0.0; every example here is checked by a test.
+up. This describes `codelessly_api` 32.0.0; every example is checked by a test.
 
 <a id="base-the-model-in-one-table"></a>
 ## The model in one table
@@ -47,7 +47,7 @@ flat map:
 | `scripts` | The layout's scripts (JavaScript), a list of script objects. |
 | `breakpoints` | The project's breakpoints: `[{"id", "name", "minWidth", "width", "height"}]`; absent: the defaults. |
 
-The smallest useful document: a canvas whose `body` slot holds a column with two texts. Every key not written takes
+The smallest document: a canvas whose `body` slot holds a column with two texts. Every key not written takes
 its default.
 
 ```json
@@ -656,7 +656,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 - [lists.md](lists.md): Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.
 - [navigation.md](navigation.md): Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, confirm, openLink.
 - [state.md](state.md): State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, callFunction, if, forEach, delay, runScript, retryFailed.
-- [interaction.md](interaction.md): Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, controlTrack, controlDismissible, controlTransform, copyToClipboard, haptic.
+- [interaction.md](interaction.md): Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, focusable, focusGroup, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, controlTrack, controlDismissible, controlTransform, copyToClipboard, haptic.
 - [animation.md](animation.md): Animation and motion. Documents motion, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, viewProgress, timer, frame, animate.
 - [components.md](components.md): Components and sections. Documents slot, external, placeholder, singlePlaceholder, event, componentEvent.
 - [design-systems.md](design-systems.md): Design systems.
