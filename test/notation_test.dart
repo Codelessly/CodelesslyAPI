@@ -1910,6 +1910,14 @@ Page
       expect(jsonEncode(own.document), isNot(contains('navMenu')));
     });
 
+    test('a sticky website Nav paints an opaque surface behind scrolled content', () {
+      final r = parseNotation('Page\n  Nav#bar sticky\n    Brand "Example"\n',
+          catalog: standardCatalog, options: const NotationOptions(width: 1280, siteFill: 'pageFill'));
+      expect(r.issues, isEmpty);
+      expect(node(r, 'bar')['sticky'], {'offset': 0});
+      expect(((node(r, 'bar')['decoration'] as Map)['fills'] as List).first, {'color': 'pageFill'});
+    });
+
     test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
       final r = parseNotation('''
 Page

@@ -408,10 +408,13 @@ final class PageWords {
       }
       final width = parts.take('maxw') ?? _n(contentWidth);
       final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
-      final sticky = parts.word('sticky') ? ' sticky:0' : '';
+      final stickyNav = parts.word('sticky');
+      final sticky = stickyNav ? ' sticky:0' : '';
+      // A pinned bar must paint behind its controls while content scrolls.
+      final fill = stickyNav && !parts.has('fill') && siteFill != null ? ' fill:$siteFill' : '';
       open(frame: 'Nav', shift: 2, after: 'Divider').pageNav = true;
       return out
-        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad$sticky${parts.all}'))
+        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad$fill$sticky${parts.all}'))
         ..add((indent: at + 2, text: 'Row${_role('nav')} w:fill maxw:$width between middle gap:$gap'));
     }
     if (_sides.contains(word) && !isComponentCall(word, parts)) {
