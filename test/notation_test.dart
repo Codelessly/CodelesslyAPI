@@ -1646,10 +1646,15 @@ Page
       expect(jsonEncode(r.document['variables']), isNot(contains('version')));
     });
     test('open names the canvas in an openModal action', () {
-      final r = parseNotation('Page\n  Nav\n    Link "Search" -> open search\n', catalog: standardCatalog, options: page);
+      final r = parseNotation('Page\n  Nav\n    Link "Search" -> open search narrow\n', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       final actions = (_node(r, 'textButton1')['actions'] as List).single as Map;
-      expect(actions['actions'], [{'type': 'openModal', 'to': 'search'}]);
+      expect(actions['actions'], [{'type': 'openModal', 'to': 'search', 'sheetWidth': page.narrowWidth}]);
+    });
+    test('Modal uses the design system reading width as its canvas width', () {
+      final r = parseNotation('Modal\n  Section narrow\n    Heading "Find a page"\n', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((_node(r, 'screen')['layout'] as Map)['width'], page.narrowWidth);
     });
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();

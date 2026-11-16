@@ -1036,6 +1036,7 @@ class _Parser {
   String get _accentValue => options.accent.startsWith('#') ? options.accent : options.palette[options.accent] ?? '#FF2563EB';
 
   Object get _canvasHeight => _windowed ? {'fill': options.height} : {'hug': 0};
+  double get _canvasWidth => _pages.modal ? options.narrowWidth : options.width;
 
   /// A line begun and not yet closed (its JSON runs over several lines).
   String? _pending;
@@ -1095,7 +1096,7 @@ class _Parser {
           'id': screen,
           'node': {
             'type': 'canvas',
-            'layout': {'width': options.width, 'height': _canvasHeight},
+            'layout': {'width': _canvasWidth, 'height': _canvasHeight},
             'decoration': _surface,
             if (_timers.isNotEmpty) 'actions': [..._timers],
           },
@@ -1256,7 +1257,7 @@ class _Parser {
         screen: {
           'type': 'canvas',
           if (_root != null) 'slots': {'body': _root},
-          'layout': {'width': options.width, 'height': _canvasHeight},
+          'layout': {'width': _canvasWidth, 'height': _canvasHeight},
           'decoration': _surface,
           if (_timers.isNotEmpty) 'actions': _timers,
         },
@@ -3429,7 +3430,8 @@ class _Parser {
               'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
           });
         case 'open':
-          out.add({'type': 'openModal', 'to': s});
+          final narrow = s.endsWith(' narrow');
+          out.add({'type': 'openModal', 'to': narrow ? s.substring(0, s.length - 7) : s, if (narrow) 'sheetWidth': options.narrowWidth});
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':
