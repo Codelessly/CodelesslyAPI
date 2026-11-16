@@ -390,7 +390,7 @@ is the same document as before plus rules that do not apply there.
 | a `Row` of two or more blocks (a card, a column of content, a picture, a component that fills, a fixed column 200 or wider) | wraps: a block that grows takes a least width (360 for the one beside fixed rails, else 280, 240 among three), a fixed one keeps its width on a tablet and takes the line on a phone |
 | any other `Row` | wraps before it overflows; what grows in it keeps its share of the line from a least width (a field 180, a component 160, a text 96) |
 | a table's row (three or more cells with widths) | its cells are shares of the row; it keeps the columns it has room for, from the first on (600 px on a tablet, 342 on a phone), and what is not a column (a checkbox, a menu button) |
-| `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420. |
+| `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420. The `Sidebar` it hides opens as a drawer (14.2) |
 | `Nav` | a phone hides its links (a tablet too, from six on) and shows a menu button the bar adds itself, which opens the links in a column under the bar, each as written and closing the menu as it goes; a `Nav` with a `show:phone` line of its own keeps its own |
 | `Section`, `Footer` | 48 above and below on a tablet; 40, and a 20 gutter, on a phone |
 | a text 32 or larger | 0.86 of its size on a tablet (from 44), 0.72 on a phone (26 at least) |
@@ -415,8 +415,7 @@ menu (nearly every agent had written one by hand on every page); `Nav sticky`; `
 for a variable of the site; two short columns side by side as blocks; a control with choices keeps room for
 them.
 
-Not done: an `App`'s hidden sidebar has no menu to open it on a phone; a table drops columns where a designer
-might have made each row a card.
+Not done: a table drops columns where a designer might have made each row a card.
 
 ### 14.1 What is shown over a page: Dialog, Sheet, Drawer, Menu, Popover
 
@@ -469,8 +468,21 @@ another overlay):
 - **A menu for one of many.** `-> sel=row.id; open rowMenu` on the row's button, and the menu's lines read `sel`.
 - An id is the canvas's, so it is one of a kind in the site, as a page's is.
 
+### 14.2 An App's sidebar on a phone
+
+`App` hid its `Sidebar` on a phone and left no way to it. Where reflow is on, the first pane of an `App`, when it
+is a `Sidebar`, is kept as written, and at the end of the text it is written again as `Drawer#<screen>Menu`: the
+same lines with their ids left off and `close` after every action, so a tap on a `NavItem` picks the place and
+closes the drawer. The `Nav` of `Main` gets `IconButton "menu" show:phone -> open <screen>Menu` as its first
+child (`show:tablet` where a tablet hides the sidebar too: two panes before `Main`, over 420 wide), and where
+the button shows, what follows it (the title) takes the room beside it, so the button and the title sit
+together and the actions stay at the end. A `Main` with no `Nav` gets a slim bar holding the button, shown at
+those widths only. At the width it was written for the page has one more node, hidden, and its captures are
+the same to the byte.
+
 Not done: a drawer fades in as a dialog does (the document's `sideSheet` slides, but only from the right); an
-`open` cannot pass a value (`params`), so a row's menu goes through a variable.
+`open` cannot pass a value (`params`), so a row's menu goes through a variable; a `Sidebar` written after
+`Main`, or a component called with `items:`, gets no drawer.
 
 ## 15. Open points
 

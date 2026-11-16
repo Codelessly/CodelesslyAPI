@@ -2158,6 +2158,85 @@ Menu#more
       expect(node(r, (node(r, 'more')['slots']! as Map)['body']! as String)['type'], 'MenuPopover');
     });
 
+    test('an App\'s sidebar opens as a drawer from its top bar where the window hides it', () {
+      const app = '''
+state tab="orders"
+App
+  Sidebar#side
+    Brand "Harbor" icon:"anchor"
+    NavItem#overview "Overview" icon:"dashboard" selected:=tab=="overview" -> tab="overview"
+    NavItem#orders "Orders" selected:=tab=="orders" -> tab="orders"
+  Main
+    Nav#bar
+      Heading#title "Orders" level:1
+      Row#tools gap:8
+        Button "New order"
+    Column pad:24
+      Text "Content"
+''';
+      final r = parseNotation(app, catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(problems(r.document), isEmpty);
+      expect(r.document['roots'], ['screen', 'screenMenu']);
+      // A menu button first in the bar, on a phone only, opens the drawer.
+      final bar = (node(r, 'bar')['children']! as List).cast<String>();
+      expect(bar.sublist(1), ['title', 'tools']);
+      final button = node(r, bar.first);
+      expect(button['type'], 'iconButton');
+      expect(button['media'], [
+        {'minWidth': 700, 'patch': {'visible': false, 'bind': {'visible': null}}},
+      ]);
+      expect(open(r, bar.first), {'type': 'openModal', 'to': 'screenMenu', 'presentation': 'dialog', 'cover': true});
+      // There the title takes the room beside it, so the two sit together.
+      expect((node(r, 'title')['media']! as List).last, {
+        'maxWidth': 699,
+        'patch': {
+          'layout': {'width': {'fill': 0}, 'flex': 1, 'basis': 96},
+        },
+      });
+      // The drawer repeats the sidebar's lines, each closing it after its action.
+      final drawer = nodesOf(r).keys.skipWhile((k) => k != 'screenMenu').toList();
+      final items = [
+        for (final id in drawer)
+          if (jsonEncode(node(r, id)['actions'] ?? '').contains('"variable":"tab"')) kinds(r, id),
+      ];
+      expect(items, [
+        ['setVariable', 'closeModal'],
+        ['setVariable', 'closeModal'],
+      ]);
+      // The sidebar itself is as written.
+      expect(kinds(r, 'overview'), ['setVariable']);
+      expect((node(r, 'side')['layout']! as Map)['width'], 248);
+
+      // Two panes before the main one, over 420 wide: a tablet hides the sidebar too.
+      final two = parseNotation(app.replaceFirst('  Main', '  Pane w:320\n    Text "List"\n  Main'), catalog: standardCatalog, options: page);
+      final twoBar = (node(two, 'bar')['children']! as List).cast<String>();
+      expect((node(two, twoBar.first)['media']! as List).single, containsPair('minWidth', 1024));
+      expect(((node(two, 'title')['media']! as List).last as Map)['maxWidth'], 1023);
+
+      // A Main with no top bar gets a slim one for the button, where the sidebar is hidden.
+      final bare = parseNotation(app.replaceFirst('    Nav#bar\n      Heading#title "Orders" level:1\n      Row#tools gap:8\n        Button "New order"\n', ''), catalog: standardCatalog, options: page);
+      expect(bare.issues, isEmpty);
+      expect(bare.document['roots'], ['screen', 'screenMenu']);
+      final opener = nodesOf(bare).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton').key;
+      final holder = nodesOf(bare).values.cast<Map>().firstWhere((n) => (n['children'] as List? ?? const []).contains(opener));
+      expect((holder['media']! as List).last, {
+        'minWidth': 700,
+        'patch': {'visible': false, 'bind': {'visible': null}},
+      });
+
+      // With reflow off, or on a card, the app is as written.
+      for (final (source, options) in [
+        (app, const NotationOptions(width: 1280, reflow: false)),
+        (app, const NotationOptions()),
+      ]) {
+        final plain = parseNotation(source, catalog: standardCatalog, options: options);
+        expect(plain.document['roots'], ['screen']);
+        expect(nodesOf(plain).values.where((n) => (n! as Map)['type'] == 'iconButton'), isEmpty);
+        expect((plain.document['variables']! as Map).keys, ['screen']);
+      }
+    });
+
     test('the prompt teaches them from a desktop width on', () {
       final wide = notationPrompt(catalog: standardCatalog, options: page);
       for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', '-> open signup']) {

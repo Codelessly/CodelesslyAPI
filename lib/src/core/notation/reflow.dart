@@ -11,7 +11,8 @@
 //   a table's row          its columns share the width; a phone keeps the
 //                          first, the widest and the last
 //   App                    a phone shows the main pane; a tablet drops the
-//                          panes after it
+//                          panes after it; the sidebar it hides opens as
+//                          a drawer from a button in the main pane's bar
 //   Nav                    a phone hides its links
 //   Section                less padding above and below
 //   a headline             smaller
@@ -160,6 +161,8 @@ final class PageReflow {
           _nav(e.key, n);
         case 'section':
           _section(e.key, n);
+        case 'appmenu':
+          _appMenu(e.key, n);
       }
     }
     for (final e in nodes.entries) {
@@ -246,6 +249,22 @@ final class PageReflow {
     for (final k in hide) {
       _hide(k, links >= 6 ? reflowTabletMax : reflowPhoneMax);
     }
+  }
+
+  /// The button that opens an app's sidebar where the window hides it: what
+  /// follows it in the bar (the page's title) takes the room beside it there,
+  /// so the two sit together at the bar's start and the actions at its end.
+  void _appMenu(String id, Json n) {
+    final bar = _parents[id];
+    if (bar == null) return;
+    final kids = _kids(nodes[bar]!);
+    if (kids.length < 3 || kids.first != id) return;
+    final next = nodes[kids[1]]!;
+    if (_fixedWidth(next) != null || _fills(next)) return;
+    final from = (n['media'] as List? ?? const []).map((r) => r is Map ? r['minWidth'] : null).whereType<num>().firstOrNull;
+    _add(kids[1], from == null ? reflowPhoneMax : from.toInt() - 1, {
+      'layout': {'width': {'fill': 0}, 'flex': 1, 'basis': 96},
+    });
   }
 
   void _section(String id, Json n) {

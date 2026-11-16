@@ -1204,6 +1204,7 @@ class _Parser {
     isFrame: (name) => notationTypes[name] == null && catalog.widget(name)?.children == ChildModel.list,
     roles: true,
     menu: options.reflow && options.width >= 700,
+    sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}Menu' : null,
     surface: options.surface,
   );
 
@@ -3358,6 +3359,8 @@ class _Parser {
 
   /// A grid ends: its last row is filled out with empty cells, so its cells
   /// are as wide as the rows above.
+  static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*');
+
   void _close(_Open open) {
     _fitRow(open);
     final g = open.grid;
@@ -3376,6 +3379,18 @@ class _Parser {
   void finish() {
     if (_host == null) {
       _closeBlock();
+      // An app's sidebar, where the window has no room for it: a drawer the
+      // top bar's menu button opens, each of its lines closing it as it is used.
+      if (_pages.sidebarButton && _pages.sidebar.isNotEmpty && !_continues) {
+        if (_pages.overlay('Drawer#${_pages.sidebarMenu}${_pages.sidebarRest}') case final Overlay o) {
+          _openBlock(o);
+          for (final l in _pages.sidebar) {
+            // Its ids are the sidebar's own: the copy has none.
+            _feed(l.indent, l.text.replaceFirstMapped(_idMark, (m) => m[1]!), closes: 'all');
+          }
+          _closeBlock();
+        }
+      }
     }
     if (_everyOpen case final String open) {
       _everyOpen = null;
