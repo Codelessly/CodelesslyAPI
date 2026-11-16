@@ -73,6 +73,13 @@ final class PageReflow {
   }
 
   void _hide(String id, int max) {
+    // An explicit show:phone or show:tablet is the author's decision. Such a
+    // rule hides above its chosen width; reflow must not also hide below it.
+    final shownNarrow = (nodes[id]?['media'] as List? ?? const []).any((rule) =>
+        rule is Map &&
+        (rule['minWidth'] == reflowPhoneMax + 1 || rule['minWidth'] == reflowTabletMax + 1) &&
+        readMap(rule['patch'])?['visible'] == false);
+    if (shownNarrow) return;
     final bound = readMap(nodes[id]?['bind'])?.containsKey('visible') ?? false;
     _add(id, max, {
       'visible': false,
