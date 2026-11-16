@@ -106,6 +106,14 @@ final class PageReflow {
 
   bool _isMedia(String type) => type == 'image' || type == 'video' || type == 'map' || type == 'customPaint' || type.endsWith('Chart');
 
+  // A control with several choices needs room for its choices, even when its
+  // component fills its place. Otherwise a row of choice controls divides a
+  // tablet evenly into cells too narrow to show their labels.
+  num _choiceBasis(Json n, num basis) {
+    final options = _props(n)['options'];
+    return options is List && options.length >= 2 ? math.max(basis, math.min(400, options.length * 100)) : basis;
+  }
+
   /// How many nodes are under [id], itself included (up to [cap]).
   int _weight(String id, [int cap = 6]) {
     var n = 1;
@@ -367,7 +375,7 @@ final class PageReflow {
           _add(e.key, reflowPhoneMax, {'layout': {'width': {'fill': 0}, 'basis': math.min(e.value.width, 280), 'flex': 1}});
           _handled.add(e.key);
         } else if (e.value.grows) {
-          _add(e.key, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'basis': basis, 'flex': switch (_layout(nodes[e.key]!)['flex']) { final num f when f > 0 => f, _ => 1 }}});
+          _add(e.key, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'basis': _choiceBasis(nodes[e.key]!, basis), 'flex': switch (_layout(nodes[e.key]!)['flex']) { final num f when f > 0 => f, _ => 1 }}});
         }
       }
       for (final k in kids) {
@@ -391,7 +399,7 @@ final class PageReflow {
         _handled.add(k);
       } else if (w == null && _fills(kid)) {
         // A block alone among labels and buttons still keeps a column's width.
-        final basis = type == 'spacer' ? 0 : blocks.containsKey(k) ? 280 : _fields.contains(type) ? 180 : isComponent(type) ? 160 : 96;
+        final basis = _choiceBasis(kid, type == 'spacer' ? 0 : blocks.containsKey(k) ? 280 : _fields.contains(type) ? 180 : isComponent(type) ? 160 : 96);
         _add(k, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'basis': basis, 'flex': switch (_layout(kid)['flex']) { final num f when f > 0 => f, _ => 1 }}});
       }
     }

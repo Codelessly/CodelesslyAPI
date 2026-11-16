@@ -7,6 +7,7 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/levels.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/src/core/notation/prompt.dart' show notationFunctions, notationPrompt;
+import 'package:codelessly_api/src/core/notation/reflow.dart' show PageReflow;
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
@@ -1645,6 +1646,24 @@ Column center
       }
       return out;
     }
+
+    test('a row of choice components gives each option enough room before wrapping', () {
+      final rules = PageReflow(
+        nodes: {
+          'filters': {'type': 'row', 'children': ['discipline', 'level', 'coach'], 'props': {'spacing': 12}, 'layout': {'height': {'hug': 0}}},
+          'discipline': {'type': 'ChoiceControl', 'props': {'options': ['All', 'Strength', 'Yoga']}, 'layout': {'width': {'fill': 0}}},
+          'level': {'type': 'ChoiceControl', 'props': {'options': ['All', 'Beginner', 'Intermediate']}, 'layout': {'width': {'fill': 0}}},
+          'coach': {'type': 'ChoiceControl', 'props': {'options': ['All', 'A', 'B', 'C']}, 'layout': {'width': {'fill': 0}}},
+        },
+        isComponent: (type) => type == 'ChoiceControl',
+        fillsItsPlace: (type) => type == 'ChoiceControl',
+      ).run();
+      expect(((rules['filters']!.first['patch'] as Map)['props'] as Map)['wrap'], true);
+      expect(((rules['discipline']!.first['patch'] as Map)['layout'] as Map)['basis'], 300);
+      expect(((rules['level']!.first['patch'] as Map)['layout'] as Map)['basis'], 300);
+      expect(((rules['coach']!.first['patch'] as Map)['layout'] as Map)['basis'], 400);
+      expect(rules['filters']!.every((rule) => (rule['maxWidth'] as num) < 1280), true);
+    });
 
     test('a grid\'s rows wrap, each cell at a least width; nothing changes at the width it was written for', () {
       final r = parseNotation('''
