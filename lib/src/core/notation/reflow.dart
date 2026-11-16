@@ -40,6 +40,7 @@ void reflowPage(Json document) {
                       ((n['layout'] as Map?)?['width'] is num &&
                           ((n['layout'] as Map)['width'] as num) >= 160))) ||
               n['type'] == 'gridView' ||
+              (n['type'] is String && (n['type'] as String).endsWith('Card')) ||
               const {
                 'Segments',
                 'PricingPlan',
@@ -48,7 +49,10 @@ void reflowPage(Json document) {
               }.contains(n['type']),
         )
         .length;
-    if (large < 1) continue;
+    final footerLinks = ids.length >= 3 &&
+        props['mainAxisAlignment'] == 'spaceBetween' &&
+        kids.every((n) => n['type'] == 'text' || n['type'] == 'textButton');
+    if (large < 1 && !footerLinks) continue;
     // Navigation rows keep their horizontal bar and scrolling link strip.
     if (ids.any(
       (child) => children(node(child) ?? const {}).any(

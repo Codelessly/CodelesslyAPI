@@ -60,6 +60,25 @@ Page
       expect((row['media'] as List).single['maxWidth'], 699);
       expect([for (final d in validateDocument(r.document, options: const ValidateOptions(level: Level.design))) if (d.severity != Severity.info) d.message], isEmpty);
     });
+    test('a row of page cards and footer links can stack', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row
+      Card
+        Text "A"
+      Card
+        Text "B"
+  Footer
+    Row between
+      Text "One"
+      Text "Two"
+      Text "Three"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      expect((r.document['nodes'] as Map).values.cast<Map>().where((n) => n['type'] == 'flex').length, 2);
+      expect([for (final d in validateDocument(r.document, options: const ValidateOptions(level: Level.design))) if (d.severity != Severity.info) d.message], isEmpty);
+    });
   });
 
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
