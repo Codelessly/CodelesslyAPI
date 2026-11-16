@@ -6,7 +6,7 @@ behavior. This file is the **base**: read it in full first; it is enough to buil
 a page of its own in this folder, linked from here and listed in the [index](#base-index) at the end (the same
 index, with an A–Z of every name, is `index.md`). Open a page when you need what it covers; do not read the folder
 end to end. On a page, *Patterns* is usually what you need; *Reference* holds the generated tables to look one prop
-up. This describes `codelessly_api` {{version}}; every example here is checked by a test.
+up. This describes `codelessly_api` {{version}}; every example is checked by a test.
 <!-- end -->
 <!-- if runtime noScripts -->
 You build and edit user interfaces by calling the ui_apply tool with edit ops. A UI is a Codelessly document: a
@@ -95,7 +95,7 @@ flat map:
 
 {{documentKeys}}
 
-The smallest useful document: a canvas whose `body` slot holds a column with two texts. Every key not written takes
+The smallest document: a canvas whose `body` slot holds a column with two texts. Every key not written takes
 its default.
 
 {{example:minimal}}

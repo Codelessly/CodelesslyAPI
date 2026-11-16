@@ -143,6 +143,31 @@ A node key (beside `layout` and `props`). Type: bool. Default: `false`.
 
 Lets pointer events through to what's under the node (Flutter's `IgnorePointer`).
 
+<a id="behavior-focusable"></a>
+### `focusable` (behavior)
+
+A node key (beside `layout` and `props`). Type: bool. Default: `true`.
+
+A node with a click reaction is a Tab stop: it shows the focus ring of the theme when the focus comes from the keyboard, and Enter and Space run its click. False takes it out of the focus order (its action is repeated by a control inside it). A node with no click reaction never takes the focus.
+
+<a id="behavior-focusGroup"></a>
+### `focusGroup` (behavior)
+
+A node key (beside `layout` and `props`). Type: [FocusGroup](interaction.md#type-FocusGroup). Default: unset.
+
+Everything focusable inside is one Tab stop (a menu, a tab list, a toolbar): the arrow keys of its axis move the focus among the members, Home and End jump to the ends, typeAhead lets a letter jump to a member by its text. true: a vertical group that wraps.
+
+<a id="type-FocusGroup"></a>
+#### FocusGroup
+
+One Tab stop for everything focusable inside the node (a roving focus, as a menu, a tab list, a toolbar or a radio group has): Tab enters at the member focused last (else the one whose `selected` is bound true, else the first) and leaves to the next stop outside; the arrow keys of `axis` move the focus among the members in reading order, Home and End jump to the first and last, and with `typeAhead` a typed letter jumps to the next member whose text starts with it. Enter and Space press the focused member as anywhere. The members are the nodes inside it that take the focus: nodes with a `click` reaction and controls. `"focusGroup": true` is a vertical group that wraps.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `axis` | [FocusGroupAxis](values.md#enum-FocusGroupAxis) | `"vertical"` | `vertical`, `horizontal`, `both` | The arrow keys that move the focus among the members: vertical (Up, Down), horizontal (Left, Right) or both. |
+| `wrap` | bool | `true` |  | An arrow past the last member goes to the first, and back. |
+| `typeAhead` | bool | `false` |  | A typed letter jumps to the next member whose text starts with it (a menu). |
+
 <a id="behavior-draggable"></a>
 ### `draggable` (behavior)
 
@@ -505,6 +530,48 @@ A canvas's `keyDown` reaction (`{"trigger": {"type": "keyDown", "key": "ArrowRig
 field has the focus: arrow keys between tabs are two reactions that set the tab variable
 (`${= (tabIndex + 1) % 4}`), Escape closing a menu is one.
 
+<a id="interaction-the-keyboard-tab-enter-space-and-the-focus-ring"></a>
+### The keyboard: Tab, Enter, Space and the focus ring
+
+Nothing to write: a node with a `click` reaction is a **Tab stop**, like the controls. Tab and Shift+Tab move the
+focus through the page in reading order (rows from the top, left to right in a row; a node around other stops comes
+before them), Enter and Space run the focused node's click, and the node shows the theme's focus ring (the
+`focusBorder` color, just outside its box, with its corner radius) while the focus is on it **from the keyboard**:
+a pointer or a touch never shows the ring. While it shows, the node is in its `focused` state, so a
+`states.focused` patch styles it further (a menu row's fill). A screen reader gets one focusable button named by the
+node's text, or by its `tooltip` when it has none (an icon).
+
+What is **not** a stop:
+
+- a node with no `click` reaction: `hover`, `longPress`, drags and the other triggers alone do not make one;
+- `"focusable": false` on the node: the document's opt-out, for a row whose only action a button inside it repeats;
+- a node that is `disabled` (a bound `disabled`), has `ignorePointer`, or sits inside a node that has: the labeled
+  checkbox row (`ignorePointer` on the checkbox) is one stop, the row;
+- a node that is not shown (`visible: false`, opacity 0), or whose every click reaction has a `when` that does not
+  hold now (it joins the order when one does);
+- a node that is itself a control: a text field or a button with a click reaction is one stop, the control.
+
+A node with a click **around** other stops (a card with a button in it) stays a stop: its own action must stay
+reachable. If that doubles what the button does, give the card `"focusable": false`.
+
+<a id="interaction-one-tab-stop-for-a-group-focusgroup"></a>
+### One Tab stop for a group: `focusGroup`
+
+A menu, a tab list, a toolbar or a list of options is one stop, and the arrow keys move inside it. Put
+`focusGroup` on the node around the items:
+
+```json
+"menu": {"type": "column", "focusGroup": {"typeAhead": true}, "children": ["open", "rename", "delete"]}
+```
+
+Tab enters the group at the item focused last (else the one whose `selected` is bound true, else the first) and
+leaves to the next stop outside it. The arrows of `axis` (`vertical`: Up and Down; `horizontal`: Left and Right,
+swapped under `textDirection: rtl`; `both`) move through the items that can take the focus, in reading order;
+`wrap` (default true) goes from the last to the first; Home and End jump to the ends; with `typeAhead` a typed
+letter jumps to the next item whose text starts with it (the same letter again goes on to the next). Enter and
+Space press the focused item as anywhere. The items are whatever takes the focus inside: nodes with a click
+reaction and controls; a control's own keys come first (a slider in a toolbar keeps its arrows).
+
 <a id="interaction-pitfalls"></a>
 ## Pitfalls
 
@@ -514,6 +581,10 @@ field has the focus: arrow keys between tabs are two reactions that set the tab 
 - An interaction state's patch loses to a binding of the same field (bindings come after states).
 - A misspelled trigger is `unknown_trigger`; a key it does not take is `unknown_trigger_key`.
 - `tap_no_reaction` (render command): a `--tap` step hit a node with no reaction.
+- Only a `click` reaction makes a node reachable by keyboard: an action that exists only on `hover`,
+  `longPress` or `doubleTap` has no key.
+- A focus ring that looks cut off: the node sits flush in a parent that clips. Give the parent padding (the ring
+  is 1.5 px outside the node), or style `states.focused` instead.
 
 <a id="interaction-see-also"></a>
 ## See also
