@@ -2744,6 +2744,18 @@ class _Parser {
       final own = bind['visible'];
       bind['visible'] = own is String ? _and(c, own) : c;
     }
+    // A size-only hide must win over a condition such as `if menu`.
+    // Otherwise the binding restores visibility and the renderer reports
+    // media_overridden for the documented `if menu … show:phone` pattern.
+    if (bind.containsKey('visible') && node['media'] is List) {
+      node['media'] = [
+        for (final rule in node['media'] as List)
+          if (rule is Map && readMap(rule['patch'])?['visible'] == false)
+            mergePatch(rule.cast<String, Object?>(), {'patch': {'bind': {'visible': null}}}, keepNulls: true)
+          else
+            rule,
+      ];
+    }
     // A line under Pages is the page at its position: the page view draws
     // its one page per position, and each line shows only at its own.
     if (parent != null && parent.pages != null && parent.each == null && parent.condition == null) {

@@ -1820,6 +1820,20 @@ Page
       expect(at(r, 'wide', 834)['visible'], false);
       expect(at(r, 'wide', 1280), isEmpty);
 
+      final conditional = parseNotation('''
+state menu=false
+Page
+  if menu
+    Section#mobileMenu show:phone
+      Link "Menu"
+''', catalog: standardCatalog, options: page);
+      expect(conditional.issues, isEmpty);
+      final mobile = node(conditional, 'mobileMenu');
+      expect((mobile['bind'] as Map)['visible'], contains('menu'));
+      final sizeRule = (mobile['media'] as List).cast<Map>().singleWhere((m) => m['minWidth'] == 700);
+      expect((sizeRule['patch'] as Map)['visible'], false);
+      expect(((sizeRule['patch'] as Map)['bind'] as Map)['visible'], isNull);
+
       const text = '''
 Column
   Grid cols:2
