@@ -2,6 +2,17 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('number fields retain bounds and a positive step', () {
+    final n = Node.fromJson({
+      'type': 'textField',
+      'props': {'keyboardType': 'number', 'min': 1, 'max': 12, 'step': 2, 'semanticLabel': 'Quantity'},
+    }, id: 'quantity')!;
+    expect(n.prop(TextFieldProps.min), 1);
+    expect(n.prop(TextFieldProps.max), 12);
+    expect(n.prop(TextFieldProps.step), 2);
+    expect(n.prop(TextFieldProps.semanticLabel), 'Quantity');
+    expect(Node.fromJson(n.toJson(), id: 'quantity'), n);
+  });
 
   test('an error text bound to yes or no shows an error without a message, or none', () {
     const c = ErrorTextCodec();

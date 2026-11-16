@@ -282,6 +282,10 @@ Column gap:8
     expect(target['dropTarget'], {'accepts': ['todo', 'doing']});
     expect(((target['actions'] as List).single as Map)['trigger'], {'type': 'drop'});
     expect((_node(_parse('Column\n  Input "Age" type:number\n'), 'textField1')['props'] as Map)['keyboardType'], 'number');
+    final number = _node(_parse('Column\n  Input "Quantity" =qty type:number min:1 max:12 step:2\n'), 'textField1');
+    expect(number['props'], containsPair('min', 1));
+    expect(number['props'], containsPair('max', 12));
+    expect(number['props'], containsPair('step', 2));
     // A state started from state already declared is that value, and its own.
     final started = _parse('state today={"work":40,"rest":20}\nstate left=today.work\nstate phase=work\nColumn\n  Text "{left}"\n');
     final vars = {for (final v in ((started.document['variables'] as Map)['screen'] as List)) (v as Map)['name']: v};

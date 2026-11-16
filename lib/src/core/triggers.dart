@@ -271,9 +271,9 @@ final class Trigger {
   /// Viewport triggers: the visible share (0–1) that counts as in view.
   final double visibleFraction;
 
-  /// [TriggerType.keyDown]: also fire while the key is held and the
-  /// keyboard repeats it (`${result.repeat}` is true for those), as text
-  /// fields and games do for arrows and backspace.
+  /// [TriggerType.keyDown]: also fire on repeated key-down events. On a
+  /// click, repeat the click after [holdMs] while the pointer stays down,
+  /// every [intervalMs] milliseconds. A short tap still clicks once.
   final bool repeat;
   /// [TriggerType.enterViewport]: how long (ms) the node stays in view
   /// before it fires; leaving sooner doesn't fire it. 0: at once.
