@@ -868,6 +868,7 @@ class _Parser {
 
   final nodes = <String, Json>{};
   final variables = <String, Json>{};
+  final _projectVariables = <String>{};
   final issues = <NotationIssue>[];
   final wanted = <WantedBlock>[];
 
@@ -1081,7 +1082,7 @@ class _Parser {
     final screen = options.screen;
     final fresh = {
       for (final v in variables.values)
-        if (_declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
+        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
     };
     if (id == null && fresh.isEmpty) return;
     if (!_canvas) {
@@ -1260,7 +1261,8 @@ class _Parser {
         },
         ...nodes,
       },
-      if (variables.isNotEmpty) 'variables': {screen: variables.values.toList()},
+      if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
+        'variables': {screen: [for (final v in variables.values) if (!_projectVariables.contains(v['name'])) v]},
     }), issues, wanted: List.unmodifiable(wanted));
   }
 
@@ -1300,6 +1302,7 @@ class _Parser {
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
+    if (line.startsWith('project ')) return _state(line.substring(8).trim(), column + 8, project: true);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
     // As models write it: every 1s while:{running} onTick:{…}, every 1s when running: …
@@ -3244,7 +3247,7 @@ class _Parser {
   /// variable but a name for the formula, written out where it is read.
   final _derived = <String, String>{};
 
-  void _state(String rest, int column) {
+  void _state(String rest, int column, {bool project = false}) {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
     var written = m[2]!.trim();
@@ -3274,6 +3277,7 @@ class _Parser {
       'type': switch (value) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
       'value': value,
     };
+    if (project) _projectVariables.add(m[1]!);
   }
 
   /// A bare word on a component's line that can only mean one thing: the

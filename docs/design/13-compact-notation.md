@@ -84,6 +84,8 @@ Type[.variant][#id] ["text"] [key:value ...] [=binding] [-> action; action]
   bindings; no new node).
 - **State**: a line `state name=value` at the top declares a variable with a starting value. A variable that
   is only bound to a control needs no declaration; its type and start come from the control.
+- **Project state**: `project name=value` reads a variable declared with the same name and starting value in
+  `site.json`; it emits no page variable, so actions and controls use the shared value across pages.
 - **Escape hatch**: `{...}` at the end of a line is merged into the node as JSON, for anything the notation
   has no word for. Using it is allowed and counted; a key that needs it often gets a word.
 - **Time**: `every 1s -> seconds=seconds-1` on its own line runs as time passes (milliseconds, or `1s`);

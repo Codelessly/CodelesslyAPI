@@ -1634,6 +1634,20 @@ Column center
     const page = NotationOptions(width: 1280);
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
+
+    test('a project variable is known to the notation without shadowing site state', () {
+      final r = parseNotation('''
+project trip=[]
+Page
+  Section
+    Text "{length(trip)} stops"
+    Button "Add" -> trip=append(trip,"Zurich")
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(r.document.containsKey('variables'), isFalse);
+      expect(jsonEncode(r.document), contains('append(trip'));
+      expect((node(r, 'text1')['props']! as Map)['text'], contains('trip'));
+    });
     // The patch a node takes at a width, its rules merged in order.
     Map<String, Object?> at(NotationResult r, String id, int width) {
       var out = <String, Object?>{};
