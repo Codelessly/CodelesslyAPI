@@ -45,7 +45,11 @@ final class PageWords {
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
     this.isComponent = _none,
+    this.isFrame = _none,
     this.roles = false,
+    this.menu = false,
+    this.sidebarMenu,
+    this.surface = '#FFFFFFFF',
   });
 
   static bool _none(String _) => false;
@@ -74,11 +78,202 @@ final class PageWords {
   /// with `items:` is that component, not a pane).
   final bool Function(String name) isComponent;
 
+  /// Whether a design system's component of this name takes children (its
+  /// `Dialog` frames a dialog's content).
+  final bool Function(String name) isFrame;
+
   /// Whether a frame's line says which frame it is, after its type
   /// (`Row~nav`, `Column~section`, `Row~app`, `Column~sidebar`, `Column~main`,
   /// `Column~pane`): what lays a page out at other widths reads it, and
   /// takes it off before the line is read.
   final bool roles;
+
+  /// Whether a website's `Nav` gets a menu for a phone: a button at its
+  /// end, shown where its links are not, that opens them in a column under
+  /// the bar (the links as written, each closing the menu as it goes). A
+  /// Nav that writes a `show:phone` or `show:tablet` line has its own.
+  final bool menu;
+
+  /// The id of the drawer an app's `Sidebar` opens in where the window is
+  /// too narrow to show it (a phone): its lines are kept ([sidebar]) and the
+  /// top bar of `Main` gets a menu button, shown there only, that opens it.
+  /// Null: none.
+  final String? sidebarMenu;
+
+  /// What a drawer's panel is drawn on when the theme names no pane fill.
+  final String surface;
+
+  /// An app's `Sidebar` as written: what followed the word on its line and
+  /// the lines under it (each with its indent from the Sidebar's), and
+  /// whether a menu button was written for it.
+  String? sidebarRest;
+  final sidebar = <PageLine>[];
+  bool sidebarButton = false;
+  int? _sidebarAt;
+  int _panesBefore = 0;
+  double _widthBefore = 0;
+  bool _mainSeen = false;
+  int? _mainAt;
+
+  /// Where the sidebar's button shows: on a phone, and on a tablet too when
+  /// the window drops the first of two panes there.
+  String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 ? 'tablet' : 'phone';
+
+  static final _overlayHead = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#([A-Za-z_][A-Za-z0-9_]*)(?=\s|$)');
+
+  /// The overlay a top-level line opens (`Dialog#signup "Join"`,
+  /// `Sheet#filters`, `Drawer#menu`, `Menu#more`, `Popover#tip`,
+  /// `Lightbox#zoom`), or null: the lines under it are a canvas of their
+  /// own, shown over the page by `-> open <id>`.
+  Overlay? overlay(String text) {
+    final head = _overlayHead.firstMatch(text);
+    if (head == null) return null;
+    // A design system's component of the word's name that is no frame (a
+    // Menu called with its items) is that component, as anywhere.
+    if (isComponent(head[1]!) && !isFrame(head[1]!)) return null;
+    final id = head[2]!;
+    final parts = _Parts(text.substring(head.end));
+    final width = double.tryParse(parts.take('w') ?? '');
+    final title = parts.string(), note = parts.string();
+    final heading = _variant(const ['heading', 'heading3', 'sectionTitle', 'strong']);
+    // What heads a dialog or a sheet: its title, a close button, a line under it.
+    List<PageLine> titled() => [
+          if (title != null) (indent: 2, text: 'Row w:fill between middle gap:12'),
+          if (title != null) (indent: 4, text: 'Text${heading == null ? '' : '.$heading'} $title grow'),
+          if (title != null) (indent: 4, text: 'IconButton "close" -> close'),
+          if (note != null) (indent: 2, text: 'Text${textVariants.contains('muted') ? '.muted' : ''} $note'),
+        ];
+    switch (head[1]!) {
+      case 'Dialog' || 'Modal':
+        const action = <String, Object?>{
+          'presentation': 'dialog',
+          'insets': [16, 24, 16, 24],
+        };
+        // A design system's own dialog frame (its title, its close button) is the dialog.
+        if (isFrame('Dialog')) {
+          return Overlay('dialog', id, width ?? 480, action, [
+            (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.props}${parts.action ?? ' -> close'}'),
+          ], surface: false);
+        }
+        final pad = parts.take('pad') ?? '24', gap = parts.take('gap') ?? '16';
+        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w:fill pad:$pad gap:$gap${parts.all}'), ...titled()], radius: 16);
+      case 'Sheet' || 'BottomSheet':
+        final pad = parts.take('pad') ?? '[20,8,20,24]', gap = parts.take('gap') ?? '16';
+        final w = width ?? 560;
+        return Overlay(
+          'sheet',
+          id,
+          w,
+          {'presentation': 'bottomSheet', 'sheetWidth': w, 'sheetRadius': 20, 'showDragHandle': true, 'maxHeightFactor': 0.9},
+          [(indent: 0, text: 'Column w:fill pad:$pad gap:$gap${parts.all}'), ...titled()],
+        );
+      case 'Drawer':
+        // A panel as tall as the window at its side; a tap beside it closes it.
+        final right = parts.word('right') | parts.word('end');
+        parts.word('left');
+        final w = width ?? 300;
+        final pad = parts.take('pad') ?? '[16,20,16,16]', gap = parts.take('gap') ?? '12';
+        const beside = (indent: 2, text: 'Box grow h:fill -> close');
+        return Overlay(
+          'drawer',
+          id,
+          390,
+          const {'presentation': 'dialog', 'cover': true},
+          [
+            (indent: 0, text: 'App'),
+            if (right) beside,
+            (indent: 2, text: 'Sidebar w:${_n(w)} pad:$pad gap:$gap${parts.has('fill') || paneFill != null ? '' : ' fill:$surface'}${parts.all}'),
+            if (title != null) (indent: 4, text: 'Text${heading == null ? '' : '.$heading'} $title'),
+          ],
+          shift: 2,
+          foot: [if (!right) beside],
+          surface: false,
+          closes: 'nav',
+        );
+      case 'Menu' || 'Dropdown' || 'Popover' || 'Popup':
+        final menu = head[1] == 'Menu' || head[1] == 'Dropdown';
+        final above = parts.word('above') | parts.word('up');
+        final end = parts.word('end') | parts.word('right');
+        final center = parts.word('center');
+        parts.word('below');
+        parts.word('start');
+        final placement = parts.take('placement') ?? '${above ? 'above' : 'below'}${end ? 'End' : center ? 'Center' : 'Start'}';
+        final action = <String, Object?>{'presentation': 'popover', 'anchor': 'trigger', 'placement': placement, 'anchorGap': 6};
+        if (menu && isFrame('MenuPopover')) {
+          return Overlay('menu', id, width ?? 228, action, [(indent: 0, text: 'MenuPopover${title == null ? '' : ' $title'}${parts.all}')], surface: false, closes: 'all');
+        }
+        final pad = parts.take('pad') ?? (menu ? '6' : '16'), gap = parts.take('gap') ?? (menu ? '2' : '12');
+        return Overlay(
+          menu ? 'menu' : 'popover',
+          id,
+          width ?? (menu ? 220 : 320),
+          action,
+          [
+            (indent: 0, text: 'Column w:fill pad:$pad gap:$gap${parts.all}'),
+            if (title != null) (indent: 2, text: 'Text${textVariants.contains('caption') ? '.caption' : ''} $title${menu ? ' pad:[8,6,8,2]' : ''}'),
+            if (note != null) (indent: 2, text: 'Text${textVariants.contains('muted') ? '.muted' : ''} $note'),
+          ],
+          radius: 12,
+          outlined: true,
+          closes: menu ? 'all' : 'none',
+        );
+      default:
+        // A picture shown large over the page; a tap anywhere closes it.
+        return Overlay(
+          'lightbox',
+          id,
+          390,
+          const {'presentation': 'dialog', 'cover': true, 'barrierColor': '#E6000000'},
+          [
+            (indent: 0, text: 'Column w:fill h:fill center middle pad:24 gap:12${parts.props} -> close'),
+            if (title != null) (indent: 2, text: 'Image $title w:fill h:fill grow fit:contain'),
+            if (note != null) (indent: 2, text: 'Text $note color:#FFFFFFFF center'),
+          ],
+          surface: false,
+        );
+    }
+  }
+
+  /// [text], a line written under an overlay that closes as its lines are
+  /// used ([Overlay.closes]), with `close` after its actions.
+  static String closing(String text, String closes) {
+    if (closes == 'none') return text;
+    final t = text.trimLeft();
+    if (closes == 'nav' && !RegExp(r'^(NavItem|NavLink|SidebarItem|MenuItem|Link)\b').hasMatch(t)) return text;
+    var arrow = -1;
+    for (var i = 0; i + 1 < text.length; i++) {
+      if (text.startsWith('->', i) && !_inString(text, i)) {
+        arrow = i;
+        break;
+      }
+    }
+    if (arrow < 0) return text;
+    final actions = text.substring(arrow + 2);
+    if (RegExp(r'(^|;)\s*close\s*(;|$)').hasMatch(actions)) return text;
+    // A {…} merged into the node at the end of the line stays last.
+    final tail = RegExp(r'\s\{"[\s\S]*\}\s*$').firstMatch(actions);
+    if (tail != null) return '${text.substring(0, arrow + 2)}${actions.substring(0, tail.start).trimRight()}; close${actions.substring(tail.start)}';
+    return '${text.trimRight()}; close';
+  }
+
+  /// What closes a frame: a bar's menu for a phone, then its rule.
+  List<PageLine> _closing(_Line closed) {
+    final at = closed.indent + closed.before;
+    // From six links on, a tablet has no room for them either.
+    final size = closed.links.length >= 6 ? 'tablet' : 'phone';
+    return [
+      if (menu && closed.pageNav && closed.links.isNotEmpty && !closed.ownMenu) ...[
+        (indent: at + 4, text: 'IconButton "menu" show:$size -> navMenu=!navMenu'),
+        (indent: at + 2, text: 'if navMenu'),
+        (indent: at + 4, text: 'Column w:fill maxw:${_n(contentWidth)} show:$size gap:2 pad:[0,8,0,4]'),
+        for (final link in closed.links) ...[
+          (indent: at + 6, text: 'Row w:fill pad:[12,10,12,10] radius:8 middle -> navMenu=false; ${link.action}'),
+          (indent: at + 8, text: 'Text.strong ${link.label}'),
+        ],
+      ],
+      if (closed.after != null) (indent: at, text: closed.after!),
+    ];
+  }
 
   String _role(String name) => roles ? '~$name' : '';
 
@@ -99,9 +294,17 @@ final class PageWords {
     text = _plain(text);
     final out = <PageLine>[];
     while (_open.isNotEmpty && _open.last.indent >= indent) {
-      final closed = _open.removeLast();
-      if (closed.after != null) out.add((indent: closed.indent + closed.before, text: closed.after!));
+      out.addAll(_closing(_open.removeLast()));
     }
+    if (_sidebarAt case final int from) {
+      if (indent > from) {
+        sidebar.add((indent: indent - from, text: text));
+      } else {
+        _sidebarAt = null;
+      }
+    }
+    final bar = _open.where((l) => l.pageNav).lastOrNull;
+    if (bar != null && RegExp(r'\sshow:(phone|tablet|mobile)(\s|$)').hasMatch(text)) bar.ownMenu = true;
     final parent = _open.lastOrNull;
     // Where this line goes: under the lines its frames added.
     final shift = parent == null ? 0 : parent.before + parent.shift;
@@ -120,6 +323,19 @@ final class PageWords {
       return l;
     }
 
+    // A Main with no top bar of its own gets a slim one where the sidebar is
+    // hidden, for the button that opens it.
+    if (_mainAt case final int from) {
+      _mainAt = null;
+      final bar = word != null && _bars.contains(word) && !isComponentCall(word, _Parts(rest));
+      if (indent > from && !bar && sidebarMenu != null && sidebarRest != null && !sidebarButton) {
+        sidebarButton = true;
+        out
+          ..add((indent: at, text: 'Row w:fill middle pad:[12,8,12,8] show:$_menuSize${paneFill == null ? '' : ' fill:$paneFill'}'))
+          ..add((indent: at + 2, text: 'IconButton "menu" -> open $sidebarMenu'))
+          ..add((indent: at, text: 'Divider show:$_menuSize'));
+      }
+    }
     // An `if` or an `each` is not a place of its own: what is under it is
     // where the line itself is.
     if (RegExp(r'^(if|each|for|else)\b').hasMatch(text)) {
@@ -181,13 +397,21 @@ final class PageWords {
         final pad = parts.take('pad') ?? '[24,14,24,14]';
         final fill = parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
         open(frame: 'Nav', after: 'Divider');
-        return out..add((indent: at, text: 'Row${_role('nav')}$mark w:fill between middle pad:$pad gap:$gap$fill${parts.all}'));
+        out.add((indent: at, text: 'Row${_role('nav')}$mark w:fill between middle pad:$pad gap:$gap$fill${parts.all}'));
+        // The sidebar a phone has no room for opens from a button here
+        // (a tablet too, where it drops the first of two panes).
+        if (sidebarMenu != null && sidebarRest != null && !sidebarButton && parent?.frame == 'Main') {
+          sidebarButton = true;
+          out.add((indent: at + 2, text: 'IconButton${_role('appmenu')} "menu" show:$_menuSize -> open $sidebarMenu'));
+        }
+        return out;
       }
       final width = parts.take('maxw') ?? _n(contentWidth);
       final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
-      open(frame: 'Nav', shift: 2, after: 'Divider');
+      final sticky = parts.word('sticky') ? ' sticky:0' : '';
+      open(frame: 'Nav', shift: 2, after: 'Divider').pageNav = true;
       return out
-        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad${parts.all}'))
+        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad$sticky${parts.all}'))
         ..add((indent: at + 2, text: 'Row${_role('nav')} w:fill maxw:$width between middle gap:$gap'));
     }
     if (_sides.contains(word) && !isComponentCall(word, parts)) {
@@ -196,9 +420,22 @@ final class PageWords {
       final gap = parts.take('gap') ?? '4';
       open(frame: framed ? 'Sidebar' : null);
       final fill = !framed || parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
+      if (framed && root == 'App' && indent > 0 && !_mainSeen) {
+        _panesBefore++;
+        _widthBefore += double.tryParse(width) ?? sidebarWidth;
+        // The first pane of the window is what a narrow one leaves out.
+        if (sidebarMenu != null && sidebarRest == null && _panesBefore == 1) {
+          sidebarRest = ' pad:$pad gap:$gap${parts.props}';
+          _sidebarAt = indent;
+        }
+      }
       return out..add((indent: at, text: 'Column${framed ? _role('sidebar') : ''}$mark w:$width${framed ? ' h:fill' : ''} pad:$pad gap:$gap$fill${parts.hasBorder ? '' : ' border-right:$line'}${parts.all}'));
     }
     if (word == 'Main' || word == 'Content') {
+      if (framed && root == 'App' && !_mainSeen) {
+        _mainSeen = true;
+        _mainAt = indent;
+      }
       open(frame: framed ? 'Main' : null);
       return out..add((indent: at, text: 'Column${framed ? _role('main') : ''}$mark grow${framed ? ' h:fill scroll' : ''}${parts.all}'));
     }
@@ -208,6 +445,10 @@ final class PageWords {
       final width = parts.take('w');
       parts.word('scroll');
       parts.word('grow');
+      if (framed && root == 'App' && !_mainSeen && width != null) {
+        _panesBefore++;
+        _widthBefore += double.tryParse(width) ?? 0;
+      }
       open(frame: framed ? 'Pane' : null);
       return out..add((indent: at, text: 'Column${framed ? _role('pane') : ''}$mark ${width == null ? 'grow' : 'w:$width'}${framed ? ' h:fill scroll' : ''}${parts.hasBorder || !framed ? '' : ' border-right:$line'}${parts.all}'));
     }
@@ -291,7 +532,14 @@ final class PageWords {
     if (word == 'Link' && !isComponent('Link')) {
       final href = parts.take('href') ?? parts.take('to') ?? parts.take('url');
       final label = parts.string();
-      final action = parts.action ?? (href != null && RegExp(r'^"?https?://').hasMatch(href) ? ' -> link ${href.replaceAll('"', '')}' : '');
+      // href:"https://…" opens it; href:"#pricing" scrolls to that part of the page.
+      final action = parts.action ??
+          (href != null && RegExp(r'^"?https?://').hasMatch(href)
+              ? ' -> link ${href.replaceAll('"', '')}'
+              : href != null && RegExp(r'^"?#[A-Za-z_]').hasMatch(href)
+                  ? ' -> scroll ${href.replaceAll('"', '').substring(1)}'
+                  : '');
+      if (bar != null && label != null && action.trim().startsWith('->')) bar.links.add((label: label, action: action.trim().substring(2).trim()));
       open();
       // In a bar a link is a quiet button; in running content, text in the accent.
       if (parent?.frame == 'Nav' || _open.any((l) => l.frame == 'Nav')) {
@@ -354,8 +602,7 @@ final class PageWords {
   List<PageLine> finish() {
     final out = <PageLine>[];
     while (_open.isNotEmpty) {
-      final closed = _open.removeLast();
-      if (closed.after != null) out.add((indent: closed.indent + closed.before, text: closed.after!));
+      out.addAll(_closing(_open.removeLast()));
     }
     return out;
   }
@@ -376,7 +623,11 @@ final class PageWords {
     var t = text;
     if (t.contains(' id:') || t.contains(' anchor:')) {
       final m = _idKey.firstMatch(t);
-      if (m != null && (quoted < 0 || m.start < quoted || !_inString(t, m.start))) t = t.replaceRange(m.start, m.end, '');
+      // id:why is an anchor (a `scroll why` goes to it): written as #why.
+      if (m != null && (quoted < 0 || m.start < quoted || !_inString(t, m.start))) {
+        final name = t.substring(m.start, m.end).split(':').last;
+        t = t.replaceRange(m.start, m.end, RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(name) ? ' #$name' : '');
+      }
     }
     if (t.contains(' sticky:true')) {
       final m = _stickyKey.firstMatch(t);
@@ -454,6 +705,40 @@ final class PageWords {
   }
 }
 
+/// A block written after the page that is shown over it: a dialog, a
+/// sheet, a drawer, a menu, a popover, a lightbox ([PageWords.overlay]).
+final class Overlay {
+  const Overlay(this.kind, this.id, this.width, this.action, this.head,
+      {this.shift = 0, this.foot = const [], this.surface = true, this.radius = 0, this.outlined = false, this.closes = 'none'});
+
+  /// `dialog`, `sheet`, `drawer`, `menu`, `popover` or `lightbox`.
+  final String kind;
+
+  /// Its canvas's id: what `open` names.
+  final String id;
+
+  /// Its canvas's width.
+  final double width;
+
+  /// What an `open <id>` says besides its canvas: the presentation, where
+  /// it sits.
+  final Map<String, Object?> action;
+
+  /// The plain lines it starts with (its root first) and ends with, and how
+  /// much further in the lines written under it are.
+  final List<PageLine> head, foot;
+  final int shift;
+
+  /// Whether its canvas draws the surface (a fill, with [radius] corners and,
+  /// when [outlined], a hairline and a shadow); false: what is in it does.
+  final bool surface, outlined;
+  final num radius;
+
+  /// Which of its lines close it after their actions: `all` (a menu's
+  /// items), `nav` (a drawer's NavItems and Links) or `none`.
+  final String closes;
+}
+
 class _Line {
   _Line(this.indent, this.frame, {required this.before, this.shift = 0, this.after});
 
@@ -469,6 +754,11 @@ class _Line {
 
   /// A line written after its children, at its own level.
   final String? after;
+
+  /// A website's Nav: the links written in it (for its phone menu), and
+  /// whether it writes a menu of its own.
+  bool pageNav = false, ownMenu = false;
+  final links = <({String label, String action})>[];
 }
 
 /// The words of a line after its type, taken apart: `key:value` pairs,
