@@ -185,9 +185,11 @@ final class PageWords {
       }
       final width = parts.take('maxw') ?? _n(contentWidth);
       final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
+      final sticky = parts.word('sticky');
+      final fill = sticky && !parts.has('fill') && siteFill != null ? ' fill:$siteFill' : '';
       open(frame: 'Nav', shift: 2, after: 'Divider');
       return out
-        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad${parts.all}'))
+        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad$fill${sticky ? ' sticky:0' : ''}${parts.all}'))
         ..add((indent: at + 2, text: 'Row${_role('nav')} w:fill maxw:$width between middle gap:$gap'));
     }
     if (_sides.contains(word) && !isComponentCall(word, parts)) {

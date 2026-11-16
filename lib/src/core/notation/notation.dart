@@ -2137,6 +2137,10 @@ class _Parser {
           }
           continue;
         }
+        if (key == 'sticky' && num.tryParse(raw) != null) {
+          node['sticky'] = {'offset': num.parse(raw)};
+          continue;
+        }
         // The widest a node gets (a page's column of content): maxw:720.
         if (const {'maxw', 'maxWidth', 'max-width', 'maxwidth'}.contains(key) && num.tryParse(raw) != null) {
           layout['constraints'] = {...?readMap(layout['constraints']), 'maxWidth': num.parse(raw)};

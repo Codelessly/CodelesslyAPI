@@ -1634,6 +1634,13 @@ Column center
     const page = NotationOptions(width: 1280);
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
+    test('a sticky website Nav carries an opaque page surface while it scrolls', () {
+      final r = parseNotation('Page\n  Nav#bar sticky\n    Brand "Example"\n',
+          catalog: standardCatalog, options: const NotationOptions(width: 1280, siteFill: 'pageFill'));
+      expect(r.issues, isEmpty);
+      expect(node(r, 'bar')['sticky'], {'offset': 0});
+      expect(((node(r, 'bar')['decoration'] as Map)['fills'] as List).first, {'color': 'pageFill'});
+    });
     // The patch a node takes at a width, its rules merged in order.
     Map<String, Object?> at(NotationResult r, String id, int width) {
       var out = <String, Object?>{};
