@@ -1206,7 +1206,7 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         'id': 'acme',
         'name': 'Acme',
         'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
-        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json'],
+        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/CallToAction.json'],
       }),
       'components/StatusPill.json': jsonEncode(component('StatusPill', [
         {'key': 'label', 'type': string, 'default': 'Status', 'required': true},
@@ -1231,6 +1231,10 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         {'key': 'message', 'type': string, 'default': '', 'required': true},
         {'key': 'items', 'type': {'kind': 'list', 'flutter': 'List<String>', 'item': string}, 'default': <Object?>[]},
       ])),
+      'components/CallToAction.json': jsonEncode(component('CallToAction', [
+        {'key': 'title', 'type': string, 'default': '', 'required': true},
+        {'key': 'tone', 'type': string, 'default': 'hero'},
+      ])),
     };
     files['components/Pill.json'] = jsonEncode(component('Pill', [
       {'key': 'label', 'type': string, 'default': '', 'required': true},
@@ -1249,6 +1253,19 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
     });
     NotationResult parse(String text) =>
         Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+
+    test('a closing band reads its optional accent tone without changing the default', () {
+      final r = parse('''
+Page
+  Section
+    CallToAction#default "Welcome"
+    CallToAction#branded "Grow together" tone:"accent"
+''');
+      expect(r.issues, isEmpty);
+      final nodes = r.document['nodes']! as Map;
+      expect((nodes['default'] as Map)['props'], isNot(contains('tone')));
+      expect((nodes['branded'] as Map)['props'], containsPair('tone', 'accent'));
+    });
 
     test('what is written on a component line and can only mean one thing is read as that', () {
       final r = parse('''
