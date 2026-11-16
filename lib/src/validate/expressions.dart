@@ -76,6 +76,6 @@ String? rootName(String path) => RegExp(r'^\s*([A-Za-z_$][A-Za-z0-9_$]*)').first
 /// a dismissible, a pan, a transform gesture, flip card, tilt, view progress,
 /// sticky header, form), scripts and speech.
 const Set<String> runtimeScopes = {
-  'data', 'route', 'storage', 'screen', 'theme', 'item', 'index', 'parent', 'result', 'loop', 'auth', //
+  'data', 'route', 'storage', 'screen', 'device', 'theme', 'item', 'index', 'parent', 'result', 'loop', 'auth', //
   'drag', 'perf', 'track', 'dismiss', 'pan', 'transform', 'flip', 'tilt', 'view', 'sticky', 'script', 'speech', 'pageOffset', 'form',
 };
