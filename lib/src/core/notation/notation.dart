@@ -868,6 +868,8 @@ class _Parser {
 
   final nodes = <String, Json>{};
   final variables = <String, Json>{};
+  /// Site variables are readable here but declared by the site manifest.
+  final _sharedVariables = <String>{};
   final issues = <NotationIssue>[];
   final wanted = <WantedBlock>[];
 
@@ -1081,6 +1083,7 @@ class _Parser {
     final screen = options.screen;
     final fresh = {
       for (final v in variables.values)
+        if (!_sharedVariables.contains(v['name']))
         if (_declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
     };
     if (id == null && fresh.isEmpty) return;
@@ -1260,7 +1263,8 @@ class _Parser {
         },
         ...nodes,
       },
-      if (variables.isNotEmpty) 'variables': {screen: variables.values.toList()},
+      if (variables.keys.any((name) => !_sharedVariables.contains(name)))
+        'variables': {screen: variables.values.where((v) => !_sharedVariables.contains(v['name'])).toList()},
     }), issues, wanted: List.unmodifiable(wanted));
   }
 
@@ -1299,6 +1303,13 @@ class _Parser {
     if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
+    if (indent == 0 && line.startsWith('shared state ')) {
+      final rest = line.substring(13).trim();
+      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=').firstMatch(rest)?[1];
+      if (name == null) return _issue(column, 'A shared state is written: shared state name=value.');
+      _sharedVariables.add(name);
+      return _state(rest, column + 13);
+    }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).

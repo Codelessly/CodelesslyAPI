@@ -1833,5 +1833,23 @@ Column
         expect(nodesOf(plain).values.where((n) => (n! as Map).containsKey('media')), isEmpty);
       }
     });
+
+    test('shared site state drives navigation without a duplicate page variable', () {
+      final r = parseNotation('''
+shared state project="Harbor House"
+Page
+  Nav
+    Link#next "Next project" -> project="Pine Courtyard"; go project
+    Button#menu "Menu" show:phone
+  Section
+    Heading#title "{project}"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((r.document['variables'] as Map?)?.toString(), isNot(contains('project')));
+      final actions = (node(r, 'next')['actions']! as List).first as Map;
+      expect((actions['actions'] as List).map((a) => (a as Map)['type']), ['setVariable', 'navigate']);
+      expect((at(r, 'menu', 834)['visible']), false);
+      expect(at(r, 'menu', 390)['visible'], isNull);
+    });
   });
 }
