@@ -345,6 +345,46 @@ final class NotationOptions {
     );
   }
 
+  /// These looks for another canvas (an overlay's): its id and its width.
+  NotationOptions sized({required double width, required String screen}) => NotationOptions(
+        width: width,
+        screen: screen,
+        textStyles: textStyles,
+        card: card,
+        badges: badges,
+        surface: surface,
+        accent: accent,
+        track: track,
+        components: components,
+        badge: badge,
+        cta: cta,
+        palette: palette,
+        tile: tile,
+        sectionRadius: sectionRadius,
+        barChart: barChart,
+        progress: progress,
+        cardGap: cardGap,
+        pageFill: pageFill,
+        ringStroke: ringStroke,
+        height: height,
+        contentWidth: contentWidth,
+        selectedFill: selectedFill,
+        line: line,
+        narrowWidth: narrowWidth,
+        sidebarWidth: sidebarWidth,
+        sectionPad: sectionPad,
+        gutter: gutter,
+        band: band,
+        siteFill: siteFill,
+        paneFill: paneFill,
+        iconTile: iconTile,
+        controlHeight: controlHeight,
+        fieldLabel: fieldLabel,
+        fieldText: fieldText,
+        reflow: false,
+        displaySizes: displaySizes,
+      );
+
   /// The canvas's width.
   final double width;
 
@@ -862,19 +902,172 @@ class _Open {
 }
 
 class _Parser {
-  _Parser(this.catalog, this.options);
+  _Parser(this.catalog, this.options, [this._host, this._overlay])
+      : variables = _host?.variables ?? {},
+        issues = _host?.issues ?? [],
+        wanted = _host?.wanted ?? [],
+        _declared = _host?._declared ?? {},
+        _counts = _host?._counts ?? {},
+        _derived = _host?._derived ?? {},
+        _projectVariables = _host?._projectVariables ?? {};
   final Catalog catalog;
   final NotationOptions options;
 
+  /// For an overlay's canvas (a `Dialog#id` block and the like): the
+  /// parser of the page it is written after, whose state it shares (the
+  /// variables, the ids), and the block it is.
+  final _Parser? _host;
+  final Overlay? _overlay;
+
+  /// The overlays written so far, each a canvas of its own with its nodes,
+  /// and the one whose lines are being read.
+  final _overlays = <_Parser>[];
+  _Parser? _block;
+
+  /// Whether the block being read is left out (its id was taken).
+  bool _blockSkipped = false;
+
+  /// What `open <id>` adds for each overlay written (its presentation), and
+  /// the open actions written, to complete once their overlay is.
+  final _overlayActions = <String, Json>{};
+  final _opens = <Json>[];
+
+  _Parser get _top => _host ?? this;
+
+  /// The document's canvases: the page, then its overlays.
+  List<String> get _rootIds => [_top.options.screen, for (final o in _top._overlays) o.options.screen];
+
+  /// Where the variables are declared: on the page's canvas, or, once the
+  /// page has overlays, for every canvas of the document (an overlay reads
+  /// and sets the page's values).
+  String get _scope => _top._overlays.isEmpty ? options.screen : 'page_variables';
+
+  bool _taken(String id) {
+    final top = _top;
+    return [top, ...top._overlays].any((p) => p.nodes.containsKey(id) || p.options.screen == id);
+  }
+
+  /// Whether a line is still open over the next ones.
+  bool get _continues => _everyOpen != null || _pending != null || _open != null;
+
+  /// The canvas of this parser's nodes.
+  Json get _canvasNode {
+    final o = _overlay;
+    Json look() {
+      if (o == null) return _surface;
+      if (!o.surface) {
+        return {
+          'fills': [
+            {'color': '#00FFFFFF'},
+          ],
+        };
+      }
+      return {
+        'fills': _copyValue(readMap(options.card['decoration'])?['fills']) ?? _surface['fills'],
+        if (o.radius > 0) 'radius': o.radius,
+        if (o.outlined)
+          'strokes': [
+            {'color': options.line},
+          ],
+        'effects': [
+          {'type': 'dropShadow', 'color': '#24000000', 'offset': [0, 12], 'blurRadius': 32, 'spreadRadius': -6},
+        ],
+      };
+    }
+
+    return {
+      'type': 'canvas',
+      if (o != null) 'name': o.id,
+      if (_root != null) 'slots': {'body': _root},
+      'layout': {'width': o?.width ?? options.width, 'height': _canvasHeight},
+      'decoration': look(),
+      if (_timers.isNotEmpty) 'actions': [..._timers],
+    };
+  }
+
+  /// A top-level `Dialog#id`, `Sheet#id`, `Drawer#id`, `Menu#id`,
+  /// `Popover#id` or `Lightbox#id` line: the lines under it are a canvas of
+  /// their own, which `open <id>` shows over the page.
+  void _openBlock(Overlay o) {
+    if (_taken(o.id)) {
+      _issue(1, 'The id "${o.id}" is used twice.');
+      _blockSkipped = true;
+      return;
+    }
+    final first = _overlays.isEmpty;
+    // In it everything is laid out as on a card: a narrow canvas of its own.
+    final sub = _Parser(catalog, options.sized(width: o.width < 640 ? o.width : 640, screen: o.id), this, o);
+    _overlays.add(sub);
+    _overlayActions[o.id] = o.action;
+    for (final a in _opens) {
+      if (a['to'] == o.id) a.addAll(_copy(o.action));
+    }
+    if (_canvas) {
+      // The variables become the document's, so the overlay reads and sets them.
+      final names = [
+        for (final n in _declared)
+          if (!_projectVariables.contains(n) && variables.containsKey(n)) n,
+      ];
+      if (first && names.isNotEmpty) {
+        ops
+          ..add({'op': 'vars', 'scope': options.screen, 'remove': names})
+          ..add({
+            'op': 'vars',
+            'scope': 'page_variables',
+            'set': {
+              for (final n in names) n: {'type': variables[n]!['type'], 'value': variables[n]!['value']},
+            },
+          });
+      }
+      // What opens it, written before it: now with how it is shown.
+      for (final p in [this, ..._overlays]) {
+        for (final e in p.nodes.entries) {
+          final actions = e.value['actions'];
+          if (actions != null && jsonEncode(actions).contains('"to":"${o.id}"')) {
+            ops.add({'op': 'patch', 'id': e.key, 'patch': {'actions': actions}});
+          }
+        }
+      }
+    }
+    _block = sub;
+    for (final l in o.head) {
+      _feed(l.indent - o.shift, l.text, closes: 'none');
+    }
+  }
+
+  /// A line of the block being read, [indent] in from its head.
+  void _feed(int indent, String text, {String? closes}) {
+    final sub = _block;
+    if (sub == null) return;
+    final o = sub._overlay!;
+    sub._line = _line - 1;
+    sub.line('${' ' * (indent + o.shift)}${PageWords.closing(text, closes ?? o.closes)}');
+    ops.addAll(sub.ops);
+    sub.ops.clear();
+  }
+
+  void _closeBlock() {
+    _blockSkipped = false;
+    final sub = _block;
+    if (sub == null) return;
+    for (final l in sub._overlay!.foot) {
+      _feed(l.indent - sub._overlay.shift, l.text, closes: 'none');
+    }
+    _block = null;
+    sub.finish();
+    ops.addAll(sub.ops);
+    sub.ops.clear();
+  }
+
   final nodes = <String, Json>{};
-  final variables = <String, Json>{};
-  final issues = <NotationIssue>[];
-  final wanted = <WantedBlock>[];
+  final Map<String, Json> variables;
+  final List<NotationIssue> issues;
+  final List<WantedBlock> wanted;
 
   /// The edit operations of the lines read so far, not yet taken ([take]).
   final ops = <Json>[];
-  final _declared = <String>{};
-  final _counts = <String, int>{};
+  final Set<String> _declared;
+  final Map<String, int> _counts;
   final _stack = <_Open>[];
   String? _root;
   int _line = 0;
@@ -885,6 +1078,25 @@ class _Parser {
   String? _everyOpen;
 
   void line(String raw) {
+    // The lines under an overlay's head are its canvas's; the next line at
+    // the margin ends it.
+    if (_host == null && !_continues) {
+      final indent = raw.length - raw.trimLeft().length;
+      final blank = raw.trim().isEmpty || raw.trimLeft().startsWith('//');
+      if ((_block != null || _blockSkipped) && (indent > 0 || blank || (_block?._continues ?? false))) {
+        _line++;
+        if (!blank || (_block?._continues ?? false)) _feed(indent, raw.trim());
+        return;
+      }
+      if (!blank && indent == 0) {
+        _closeBlock();
+        if (_pages.overlay(raw.trim()) case final Overlay o) {
+          _line++;
+          _openBlock(o);
+          return;
+        }
+      }
+    }
     if (_everyOpen case final String open) {
       _everyOpen = null;
       if (raw.trimLeft().startsWith('->')) {
@@ -989,8 +1201,10 @@ class _Parser {
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
+    isFrame: (name) => notationTypes[name] == null && catalog.widget(name)?.children == ChildModel.list,
     roles: true,
     menu: options.reflow && options.width >= 700,
+    surface: options.surface,
   );
 
   static final _roleMark = RegExp(r'^([A-Z][A-Za-z0-9]*)~([a-z]+)');
@@ -1008,7 +1222,7 @@ class _Parser {
   final _scrolls = <Json>[];
 
   /// The names written `project name`: variables of the site, not of this screen.
-  final _projectVariables = <String>{};
+  final Set<String> _projectVariables;
   final _tableRows = <String>{};
 
   /// On a page, the media rules that lay it out on a tablet and a phone.
@@ -1098,19 +1312,10 @@ class _Parser {
     if (!_canvas) {
       _canvas = true;
       ops
-        ..add({'op': 'roots', 'roots': [screen]})
-        ..add({
-          'op': 'set',
-          'id': screen,
-          'node': {
-            'type': 'canvas',
-            'layout': {'width': options.width, 'height': _canvasHeight},
-            'decoration': _surface,
-            if (_timers.isNotEmpty) 'actions': [..._timers],
-          },
-        });
+        ..add({'op': 'roots', 'roots': _rootIds})
+        ..add({'op': 'set', 'id': screen, 'node': _canvasNode..remove('slots')});
     }
-    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': screen, 'set': fresh});
+    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': _scope, 'set': fresh});
     ops.addAll(_patches);
     _patches.clear();
     if (id == null) return;
@@ -1255,24 +1460,19 @@ class _Parser {
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
     finish();
-    final screen = options.screen;
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
     return NotationResult(patched({
       'schema': 3,
-      'roots': [screen],
+      'roots': _rootIds,
       'nodes': {
-        screen: {
-          'type': 'canvas',
-          if (_root != null) 'slots': {'body': _root},
-          'layout': {'width': options.width, 'height': _canvasHeight},
-          'decoration': _surface,
-          if (_timers.isNotEmpty) 'actions': _timers,
+        for (final p in [this, ..._overlays]) ...{
+          p.options.screen: p._canvasNode,
+          ...p.nodes,
         },
-        ...nodes,
       },
       if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
-        'variables': {screen: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
+        'variables': {_scope: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
     }), issues, wanted: List.unmodifiable(wanted));
   }
 
@@ -1525,7 +1725,7 @@ class _Parser {
       final out = _copy(j.cast<String, Object?>());
       final written = out.remove('id');
       final id = whole[1] ?? (written is String ? written : _id(type));
-      if (nodes.containsKey(id)) return _issue(column, 'There is already a node "$id": ids are unique.');
+      if (_taken(id)) return _issue(column, 'There is already a node "$id": ids are unique.');
       if (parent?.condition case final String c) {
         final bind = (out['bind'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
         final own = bind['visible'];
@@ -1653,7 +1853,7 @@ class _Parser {
     final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
     if (written == 'Card') _cards.add(id);
     if (grid != null) props['spacing'] = grid.gap;
-    if (nodes.containsKey(id) || id == options.screen) {
+    if (_taken(id)) {
       _issue(column, 'The id "$id" is used twice.');
       return;
     }
@@ -3174,6 +3374,9 @@ class _Parser {
 
   /// The end of the text: what is still open closes.
   void finish() {
+    if (_host == null) {
+      _closeBlock();
+    }
     if (_everyOpen case final String open) {
       _everyOpen = null;
       line('$open ->');
@@ -3276,7 +3479,7 @@ class _Parser {
 
   /// State written as a formula (`state total=sum(cart,x=>x.price)`): not a
   /// variable but a name for the formula, written out where it is read.
-  final _derived = <String, String>{};
+  final Map<String, String> _derived;
 
   void _state(String rest, int column) {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
@@ -3452,7 +3655,11 @@ class _Parser {
               'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
           });
         case 'open':
-          out.add({'type': 'openModal', 'to': s});
+          // An overlay written in this text (Dialog#id, Menu#id…) opens as
+          // its kind says; one written further down completes this then.
+          final Json action = {'type': 'openModal', 'to': s, ...?switch (_top._overlayActions[s]) { final Json a => _copy(a), _ => null }};
+          _top._opens.add(action);
+          out.add(action);
         case 'scroll':
           // `scroll pricing`, `scroll to pricing`, `scroll #pricing`: the page
           // moves to that part, named by its id or by an anchor (`#pricing`
