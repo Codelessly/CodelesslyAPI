@@ -686,6 +686,12 @@ abstract final class TableViewProps {
   static const selectedRow = PropDef<int>('selectedRow', Codecs.int, -1);
   static const selectedRowColor = PropDef<Color?>('selectedRowColor', _optionalColor, null);
 
+  /// Headers can sort the bound rows by their column key. [sortColumn] is
+  /// the initial key (empty: keep data order); a header press changes it.
+  static const sortable = PropDef<bool>('sortable', Codecs.bool, false);
+  static const sortColumn = PropDef<String>('sortColumn', Codecs.string, '');
+  static const sortAscending = PropDef<bool>('sortAscending', Codecs.bool, true);
+
   /// The last column takes the width the columns leave over, so the ruled
   /// rows run to the table's edge.
   static const stretchLastColumn = PropDef<bool>('stretchLastColumn', Codecs.bool, false);
@@ -699,7 +705,8 @@ abstract final class TableViewProps {
       columns, rowCount, rowHeight, rowHeightKey, headerHeight, columnWidth, rowHeaderWidth, fillWidth, //
       pinHeaderRow, pinHeaderColumn,
       gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, horizontalPadding,
-      headerBorderColor, headerBorderWidth, rowHoverColor, selectedRow, selectedRowColor, stretchLastColumn,
+      headerBorderColor, headerBorderWidth, rowHoverColor, selectedRow, selectedRowColor, sortable, sortColumn, sortAscending,
+      stretchLastColumn,
     ],
     children: ChildModel.slots,
     slots: [cell, columnHeader, rowHeader, corner],
