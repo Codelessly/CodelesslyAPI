@@ -52,8 +52,16 @@ abstract final class CanvasProps {
   /// overlay (overlay wins).
   static const backdrop =
       PropDef<bool>('backdrop', Codecs.bool, false, doc: 'Drawn beneath every screen, outside navigation.');
+
+  /// What assistive technology calls the screen when it opens as an overlay
+  /// (a dialog's, a sheet's or a menu's name, announced as it opens).
+  /// Empty: the first text it shows; a popover with a group of items (a
+  /// menu) is named after the control that opened it.
+  static const semanticLabel = PropDef<String>('semanticLabel', Codecs.string, '',
+      doc: 'Its name for assistive technology when it opens as an overlay (a dialog, a sheet, a menu). Empty: its first '
+          'text, or for a menu the label of the control that opened it.');
   static const spec = WidgetSpec('canvas',
-      props: [scaleMode, blockBack, breakpoint, screen, breakpointMinWidth, overlay, backdrop], children: ChildModel.slots, slots: ['body', 'appBar', 'floatingActionButton', 'bottomNavigationBar'],
+      props: [scaleMode, blockBack, breakpoint, screen, breakpointMinWidth, overlay, backdrop, semanticLabel], children: ChildModel.slots, slots: ['body', 'appBar', 'floatingActionButton', 'bottomNavigationBar'],
       decorated: true, doc: 'Flutter `Scaffold`.');
 }
 

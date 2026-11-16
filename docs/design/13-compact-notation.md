@@ -449,7 +449,7 @@ another overlay):
 | `Drawer#id "Title"` (`right`, `w:300`) | the window's size, see-through: an `App` row of a `Sidebar` panel and a box beside it that closes on a tap | `presentation: dialog`, `cover: true` |
 | `Menu#id` (`Dropdown`; `end`, `above`, `center`, or `placement:`) | 220 wide, `pad:6 gap:2`, outlined | `presentation: popover`, `anchor: trigger`, `placement: belowStart`, `anchorGap: 6` |
 | `Popover#id` (`Popup`) | 320 wide, `pad:16 gap:12`, outlined | as a menu |
-| `Lightbox#id "{photo}" "Caption"` | the window's size, see-through: the picture contained in it; a tap closes | `presentation: dialog`, `cover: true`, `barrierColor: #E6000000` |
+| `Lightbox#id "{photo}" "Caption"` | the window's size, see-through: the picture contained in it, zoomed and panned; a list of them is a gallery (14.3) | `presentation: dialog`, `cover: true`, `barrierColor: #F2000000`, a `routeTransition` a drag down reverses |
 
 - **Closing.** `close` closes the overlay it is written in; a tap outside closes any of them. Every line of a
   `Menu` closes it after its own actions (`MenuItem "Price" -> sort="Price"` is `sort="Price"; close`), and so
@@ -486,6 +486,62 @@ the same to the byte.
 Not done: a drawer fades in as a dialog does (the document's `sideSheet` slides, but only from the right); an
 `open` cannot pass a value (`params`), so a row's menu goes through a variable; a `Sidebar` written after
 `Main`, or a component called with `items:`, gets no drawer.
+
+### 14.3 A picture large, and a gallery: what a Lightbox does
+
+A `Lightbox` was a picture contained in the window that a tap closed. It is now a viewer, built from what the
+document already has (`transformGesture`, `pageView`, `keyDown`, a route's `dismiss`), so every design system gets
+it and nothing is drawn by a control of its own:
+
+```
+state photos=[{"url":"a.jpg","caption":"The quay","ratio":1.5},{"url":"b.jpg","caption":"The tower","ratio":0.66}]
+Page
+  Section
+    Grid cols:4 gap:12
+      each p in photos
+        Image "{p.url}" h:160 radius:12 -> at=index; open shots
+    Image "{cover}" -> open zoom
+
+Lightbox#shots photos:=photos =at
+Lightbox#zoom "{cover}" "The harbor at dusk" ratio:1.5
+```
+
+| Written | What it is |
+|---|---|
+| `Lightbox#id "{photo}" "Caption"` | one picture, its caption in a pill at the foot |
+| `Lightbox#id photos:=list =at` (`images:`, `items:`) | a gallery: a page per element, opened at `at` (from 0, as `Pages =page`; without `=name` it keeps `<id>At`). An element is a URL, or a record with `url` (`src`, `image`), `caption` (`title`) and `ratio`. A list written out (`photos:["a.jpg","b.jpg"]`) is kept in `<id>Photos` |
+| `ratio:1.5` (or a record's `ratio`) | the picture's width over its height |
+| `thumbs:false`, `max:6` | no strip of thumbnails; the largest zoom (4) |
+| lines under a gallery | draw one picture (`photo` is the element) in place of the `Image`: a drawn scene, a chart. They are read again for the thumbnail |
+
+- **Zoom.** The picture's box has `transformGesture: {target: node, pan: whenZoomed, minScale: 1, maxScale: 4,
+  doubleTapScale: 2, wheel: zoom, bounds: cover}`: a pinch and the wheel (a trackpad's pinch) zoom about the point
+  under them, a double tap goes to 2x where it was tapped and back to 1x, a drag pans while it is zoomed, and the
+  picture is kept over its place: no gap shows where it is larger, and it stays centered where it is smaller. The
+  zoom is written to `<id>Zoom`, which shows as `2×` at the top and hides the caption, the arrows and the
+  thumbnails while it is over 1.
+- **Closing.** The close button, Escape, a tap on the scrim (only while the picture is at rest), and a drag down:
+  the open action carries `routeTransition: {enter: {motion: {opacity: 0, shiftY: 0.12}}, durationMs: 220, dismiss:
+  {direction: down, distance: 0.2}}`, so it fades in rising a little and a drag takes it back the same way under
+  the finger. While zoomed a drag pans instead (the zoom claims it first).
+- **A gallery.** A `pageView` bound to `at`: a swipe turns the page while the picture is at rest (zoomed, the
+  drag is the picture's), the round arrows at the sides (not on a phone) and the arrow keys step it within the
+  list, a thumbnail goes to its picture, and the count reads `3 / 8`. As the page turns the picture left behind
+  is reset (`controlTransform reset`) and `<id>Zoom` is 1 again.
+- **The picture's box.** A box with an image fill does not take its picture's proportions, and the document
+  cannot read them. With a `ratio` the box that zooms is the picture exactly: a tap on it leaves the viewer
+  open, and it cannot be panned out of view. Without one the box is the whole place between the bars and the
+  picture is contained in it: a tap there closes (it may be the scrim), and at a high zoom the bars beside a
+  narrow picture can be panned into view. A design system's drawn `Media` scene is 3:2.
+- **A design system's gallery.** A component with `photos` and `viewer:"overlay"` among its parameters (Cards'
+  `PhotoGallery`) is given `viewer:"overlay"` on a page, and after its own actions its first event sets
+  `<screen>ViewerPhotos` and `<screen>ViewerAt` and opens `Lightbox#<screen>Viewer`, written once at the end of
+  the text as an App's drawer is: one viewer for every gallery of the page, also for one under an `each`. Its own
+  variable is 0 again once the viewer closes. On a card, with `layout:"pages"`, or with `viewer:` written, the
+  line is as written.
+
+Not done: the strip of thumbnails does not scroll to the picture in view; the arrows do not wrap round; a
+picture's proportions are not read from the picture.
 
 ## 15. Open points
 
