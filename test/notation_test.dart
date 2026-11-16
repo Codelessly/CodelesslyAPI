@@ -1631,6 +1631,22 @@ Column center
   });
 
   group('a page written once lays out on a tablet and a phone', () {
+    test('a conditional menu hidden on desktop keeps its condition on a phone', () {
+      final r = parseNotation('''
+state menu=false
+Page
+  if menu
+    Section show:tablet
+      Link "Home" -> go home
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      final section = ((r.document['nodes'] as Map)['column2'] as Map);
+      expect(section['bind'], {'visible': r'${= menu}'});
+      final rules = section['media'] as List;
+      final desktop = rules.cast<Map>().firstWhere((rule) => rule['minWidth'] == 1024);
+      expect(desktop['patch'], {'visible': false, 'bind': {'visible': null}});
+    });
+
     test('project values can be set across pages without a duplicate page declaration', () {
       final r = parseNotation('''
 project pledgeAmount

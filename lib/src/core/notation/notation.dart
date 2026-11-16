@@ -1024,6 +1024,26 @@ class _Parser {
       node['media'] = media;
       if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
     }
+    // A conditional node can also be limited to a device size. At the
+    // excluded size its binding must be removed or it wins over visible:false.
+    for (final entry in nodes.entries) {
+      final node = entry.value;
+      if ((node['bind'] as Map?)?['visible'] == null) continue;
+      final media = node['media'] as List?;
+      if (media == null) continue;
+      var changed = false;
+      for (final rule in media) {
+        if (rule is! Map) continue;
+        final patch = rule['patch'];
+        if (patch is! Map || patch['visible'] != false) continue;
+        rule['patch'] = <String, Object?>{
+          ...patch.cast<String, Object?>(),
+          'bind': <String, Object?>{...?patch['bind'] as Map?, 'visible': null},
+        };
+        changed = true;
+      }
+      if (changed && _canvas) ops.add({'op': 'patch', 'id': entry.key, 'patch': {'media': media}});
+    }
   }
 
   /// Whether the UI is as tall as its window (an app's panes, a root
