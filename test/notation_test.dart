@@ -1960,6 +1960,36 @@ Page
       expect(jsonEncode(node(r, 'more')['props']), contains('#FF854D0E'));
     });
 
+    test('from the sites\' third round: a page id with a hyphen, a destination already worked out, the links a Nav\'s menu repeats', () {
+      final r = parseNotation('''
+Page
+  Nav
+    Brand "Relay"
+    Row gap:4
+      Link "Customers" -> go case-study
+      Link "Pricing" -> go pricing
+    Row gap:8
+      Link#search "Search" menu:false -> go search
+      Link#login "Log in" -> go \${= lower("Login")}
+      Button "Start" -> go replace(lower("Get Started")," ","-")
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final all = jsonEncode(r.document);
+      expect(all, contains('"to":"case-study"'));
+      expect(all, contains(r'"to":"${= lower(\"Login\")}"'));
+      expect(all, contains(r'"to":"${= replace('));
+      // The menu repeats the two links of the row the bar hides: not the one
+      // kept out of it, nor the lone link beside the button.
+      final rows = [
+        for (final n in nodesOf(r).values.cast<Map>())
+          if (n['type'] == 'row' && jsonEncode(n['actions'] ?? '').contains('"variable":"navMenu"')) jsonEncode(n['actions']),
+      ];
+      expect(rows, hasLength(2));
+      expect(rows.join(), isNot(contains('"to":"search"')));
+      final button = nodesOf(r).values.cast<Map>().firstWhere((n) => n['type'] == 'iconButton');
+      expect((button['layout']! as Map)['width'], 40);
+    });
+
     test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
       final r = parseNotation('''
 Page
