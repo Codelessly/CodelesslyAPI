@@ -1666,6 +1666,18 @@ Column center
       expect(parseNotation(page, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
       expect(parseNotation(app, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
     });
+
+    test('a page names an icon-only action with tooltip and teaches keyboard and touch access', () {
+      const source = 'Page\n  Section\n    IconButton#clear "filter_alt_off" tooltip:"Clear filters" -> type="All"\n';
+      final r = parseNotation(source, catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      expect(node(r, 'clear')['tooltip'], 'Clear filters');
+      final wide = notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(wide, contains('IconButton "filter_alt_off" tooltip:"Clear filters"'));
+      expect(wide, contains('keyboard focus or touch hold'));
+      expect(wide, contains('Escape hides it'));
+      expect(notationPrompt(catalog: standardCatalog), isNot(contains('Name every icon-only action')));
+    });
   });
 
   group('a page written once lays out on a tablet and a phone', () {
