@@ -8,6 +8,9 @@ abstract final class TextProps {
   /// The text shown. May hold expressions: `"Hello, ${user.name}"`.
   static const text = PropDef<String>('text', Codecs.string, '');
 
+  /// A key combination rendered with this platform's modifier names.
+  static const shortcut = PropDef<String>('shortcut', Codecs.string, '');
+
   /// Base style for the whole text.
   static const style = PropDef<TextStyle>('style', Codecs.textStyle, TextStyle.empty);
 
@@ -44,7 +47,7 @@ abstract final class TextProps {
 
   static const spec = WidgetSpec('text',
       props: [
-        text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, scaleDown, markdown,
+        text, shortcut, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, scaleDown, markdown,
       ],
       // Unwritten, a text is as big as what it says (and wraps at its parent's width), as Flutter's Text is.
       hugs: true,

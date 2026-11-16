@@ -2683,5 +2683,28 @@ Page
       expect(card, isNot(contains('Lightbox')));
       expect(card, isNot(contains('OVER THE PAGE')));
     });
+    test('a top-level key line writes a canvas shortcut and a platform hint stays on text', () {
+      final r = parseNotation('''
+key:"mod+k" -> open search
+Page
+  Section
+    Text#hint "Search" shortcut:"mod+k"
+Dialog#search "Search"
+  Input "Query"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      final canvas = node(r, 'screen');
+      expect(jsonEncode(canvas['actions']), contains('"key":"mod+k"'));
+      expect(jsonEncode(canvas['actions']), contains('"type":"openModal"'));
+      expect((node(r, 'hint')['props'] as Map)['shortcut'], 'mod+k');
+      final card = parseNotation('key:"mod+k" -> emit search\nColumn\n  Text#hint "Search" shortcut:"mod+k"\n',
+          catalog: standardCatalog);
+      expect(card.issues, isEmpty);
+      expect(jsonEncode(node(card, 'screen')['actions']), contains('"key":"mod+k"'));
+      expect((node(card, 'hint')['props'] as Map)['shortcut'], 'mod+k');
+      final bad = parseNotation('key:"mod+" -> open search\nPage\n',
+          catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(bad.issues, isNotEmpty);
+    });
   });
 }

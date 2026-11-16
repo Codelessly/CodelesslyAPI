@@ -18,6 +18,7 @@ import '../design_system.dart';
 import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
+import '../triggers.dart' show KeyCombo;
 import 'page_words.dart';
 import 'reflow.dart';
 
@@ -1024,7 +1025,7 @@ class _Parser {
       if (_root != null) 'slots': {'body': _root},
       'layout': {'width': o?.width ?? options.width, 'height': _canvasHeight},
       'decoration': look(),
-      if (_timers.isNotEmpty) 'actions': [..._timers],
+      if (_timers.isNotEmpty || _shortcuts.isNotEmpty) 'actions': [..._timers, ..._shortcuts],
     };
   }
 
@@ -1533,6 +1534,7 @@ class _Parser {
 
   /// The `every` lines: timers on the canvas.
   final _timers = <Json>[];
+  final _shortcuts = <Json>[];
   final _parentOf = <String, String>{};
   final _slotOf = <String, String>{};
 
@@ -1620,6 +1622,16 @@ class _Parser {
       return;
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
+    // A canvas shortcut works across the page, including while a field has focus.
+    if (indent == 0 && line.startsWith('key:')) {
+      final shortcut = RegExp(r'^key:"([^"]+)"\s*->\s*(.+)$').firstMatch(line);
+      if (shortcut == null || KeyCombo.tryParse(shortcut[1]) == null) {
+        return _issue(column, 'A shortcut is: key:"mod+k" -> open search.');
+      }
+      _shortcuts.add({'trigger': {'type': 'keyDown', 'key': shortcut[1]}, 'actions': _actions(shortcut[2]!.trim(), column)});
+      if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers, ..._shortcuts]}});
+      return;
+    }
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
     // As models write it: every 1s while:{running} onTick:{…}, every 1s when running: …
@@ -1633,7 +1645,7 @@ class _Parser {
         'trigger': {'type': 'timer', 'intervalMs': ms, if (every[3] != null) 'when': _formula(every[3]!.trim())},
         'actions': _actions(every[4]!.trim(), column),
       });
-      if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
+      if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers, ..._shortcuts]}});
       return;
     }
     if (line.startsWith('every ')) {
