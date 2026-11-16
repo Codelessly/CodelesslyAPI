@@ -735,6 +735,7 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'timePicker': (prop: 'value', type: 'text', start: ''),
   // The page shown, from 0: a swipe writes it, and setting it turns the page.
   'pageView': (prop: 'initialPage', type: 'decimal', start: 0),
+  'selectionList': (prop: 'variable', type: 'list', start: const <Object?>[]),
 };
 
 const _shortKeys = {'gap': 'props.spacing', 'pad': 'layout.padding', 'w': 'layout.width', 'h': 'layout.height', 'grow': 'layout.flex'};
@@ -2131,6 +2132,15 @@ class _Parser {
             }
           }
         } else {
+          if (type == 'selectionList') {
+            if (!_identifier.hasMatch(expr) || expr.contains('.')) {
+              _issue(col, 'A SelectionList keeps its choices in a list variable: write =name.');
+            } else {
+              props['variable'] = expr;
+              variables.putIfAbsent(expr, () => {'name': expr, 'type': 'list', 'value': <Object?>[]});
+            }
+            continue;
+          }
           // A segmented button's selection is a list: one name bound to it
           // is its single choice.
           final list = type == 'segmentedButton';

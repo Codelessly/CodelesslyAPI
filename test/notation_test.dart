@@ -1887,6 +1887,18 @@ Page
       expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
     });
 
+    test('SelectionList binds keyed choices to one list variable', () {
+      final r = parseNotation('''
+Page
+  SelectionList#choices =agenda label:"Agenda" items:[{"key":"a","label":"First"},{"key":"b","label":"Second"}] columns:2
+  Text "{length(agenda)} selected"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((node(r, 'choices')['props'] as Map)['variable'], 'agenda');
+      expect((node(r, 'choices')['props'] as Map)['columns'], 2);
+      expect(jsonEncode(r.document['variables']), contains('agenda'));
+    });
+
     test('an older sticky tail keeps its offset without moving the rail', () {
       final r = parseNotation('''
 Page
