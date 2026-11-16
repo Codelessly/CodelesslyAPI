@@ -225,6 +225,7 @@ Flutter `Row`.
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-column"></a>
@@ -254,6 +255,7 @@ Flutter `Column`.
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-flex"></a>
@@ -284,6 +286,7 @@ Flutter `Flex`.
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `fillViewport` | bool | `false` |  | A scrolling row/column's content is at least as long as its viewport (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`): alignment and expanded children use the whole viewport while it fits. Already so when it centers or spreads its children or has a flex child; this makes it so in every case. |
 
 <a id="node-stack"></a>
@@ -307,6 +310,7 @@ A freeform container: children placed by `layout.x`/`layout.y` (Flutter `Stack` 
 | `clipBehavior` | [Clip](values.md#enum-Clip) | `"hardEdge"` | `none`, `hardEdge`, `antiAlias`, `antiAliasWithSaveLayer` |  |
 | `itemSnapping` | bool | `false` |  | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `edgeFade` | double | `0` | ≥ 0 | Content that continues past an edge fades out over this many pixels there, not cut hard: a strip of cards inside a padded card. |
+| `dragEdgeScroll` | bool | `true` |  | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
 | `fit` | [BoxFit](values.md#enum-BoxFit) | unset | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | Scale the board (its design size) into the box: contain, cover, scaleDown... |
 | `fitAlignment` | [Alignment](values.md#type-Alignment) | `[0,0]` |  | Where a `fit` board sits in its box. |
 
@@ -477,7 +481,7 @@ change what must change at a width. Use these, in this order:
 4. **A canvas per breakpoint**, only for screens that are genuinely different designs (below).
 
 Precedence: the node's own values, then its media rules, then an active interaction state's patch, then its
-bindings, then conditions.
+bindings, then conditions; a binding of a field the active state patches yields to the patch (which may bind).
 
 This page uses the four web patterns: a header whose links collapse to a menu icon below desktop, a 3 → 2 → 1 card
 grid from data (`minCrossAxisExtent`), a text-and-photo section that stacks with the photo first on phones (`basis`
@@ -1321,6 +1325,26 @@ A comparison table with a **sticky first column** on phones is two parts side by
 labels, and a row of plan columns that scrolls sideways (made to scroll only on phones by a media rule on its
 `scrollable`); give each table row the same height in both. From data: [a table from one template](lists.md#lists-a-table-from-one-template).
 
+<a id="layout-rtl"></a>
+### RTL
+
+`textDirection` (`"ltr"` | `"rtl"`, Flutter's `Directionality`) on a node lays it and everything under it out in that
+direction; a node without one inherits the nearest above it (none: left to right). Bind it to mirror a screen for
+Arabic or Hebrew from one place: `"bind": {"textDirection": "${= uiLang == 'ar' ? 'rtl' : 'ltr'}"}` on the canvas
+body. Under right to left:
+
+- rows and wrapping rows run from the right; a column's `start` / `end` cross alignment is the right / left edge;
+- a text's `start` / `end` alignment (the default is `start`) is the right / left edge, and its lines lay out right to
+  left; `left` and `right` stay where they are;
+- padding and margin written `{"start": 16, "top": 8, "end": 4, "bottom": 8}` put the start on the right; the list
+  form `[left, top, right, bottom]` stays absolute;
+- a stack mirrors each child's `x` (its distance from the left becomes its distance from the right);
+- directional icons (`arrow_back`, `chevron_right`, `send`, `undo`... the Material icons Flutter declares with
+  `matchTextDirection`) mirror; other icons do not.
+
+A part that must keep its own direction inside a mirrored screen (a phrase in another script, a code) sets its own
+`textDirection`: `"bind": {"textDirection": "${= langRtl ? 'rtl' : 'ltr'}"}`.
+
 <a id="layout-a-canvas-per-breakpoint"></a>
 ### A canvas per breakpoint
 
@@ -1465,9 +1489,9 @@ one part of a screen. Older documents use this:
   negative margin does not overlap a neighbor (`layout_clamped`): translate with `motion`.
 - A media patch replaces a size of another mode: `{"hug": 200}` over `{"fill": 292}` is `{"hug": 200}`. A field
   both patched and bound shows the binding (`media_overridden`): bind in the rule instead.
-- `squeezeChildren` (default true) shrinks children that do not fit, as CSS flex items shrink; false is
-  Flutter's overflow (`layout_overflow`).
-- A `spacer` takes free space only in a row or column with room to spare.
+- `squeezeChildren` (default true) shrinks children that do not fit (CSS flex shrink); false is Flutter's
+  overflow (`layout_overflow`).
+- A `spacer` takes free space only in a row or column with room.
 - Without `basis`, children of a wrapping row keep their own size.
 - `${screen.width}` prints `390.0`; `${= screen.width}` prints `390`.
 

@@ -23,7 +23,7 @@ import '../core/media.dart';
 import '../core/breakpoints.dart';
 import '../core/catalog.dart';
 import '../core/catalog_json.dart' show widgetSpecFromJson;
-import '../core/custom_paint.dart' show Expr;
+import '../core/custom_paint.dart' show DrawOp, Expr;
 import '../core/document.dart';
 import '../core/migrate/legacy_paths.dart' show movedPathHint, specialCaseProps;
 import '../core/scripts.dart';
@@ -754,6 +754,19 @@ final class _Validator {
       r.add(Codes.layoutFieldIgnored, pointer(at, 'basis'),
           'layout.basis (CSS flex-basis) is read only when the parent ${parent.type} wraps ("wrap": true); in a ${parent.type} that does not wrap, size the child with width/height and flex.');
     }
+    // A share of the parent along a row's or column's main axis: the child
+    // has unbounded room there (Flutter's FractionallySizedBox asserts; a
+    // fill child's share is set by flex), so the factor does nothing. A
+    // wrapping row gives each child the line's width, where it works.
+    if (parent != null && (parent.type == 'row' || parent.type == 'column') && !parent.props.get(FlexProps.wrap)) {
+      final key = parent.type == 'row' ? 'widthFactor' : 'heightFactor';
+      if (m.containsKey(key)) {
+        r.add(Codes.layoutFieldIgnored, pointer(at, key),
+            'layout.$key is a share of the room the parent gives, and a ${parent.type} gives a child unbounded room along its '
+            'main axis, so it is ignored. Put the node in a stack (a bar\'s track) to size it as a share, or give it '
+            '{"fill": n} and a flex to share the ${parent.type}\'s free space.');
+      }
+    }
     for (final f in LayoutFields.parentData) {
       if (!m.containsKey(f.key) || reads.contains(f.key)) continue;
       final what = parent == null ? 'a root' : 'a child of a ${parent.type}';
@@ -1428,6 +1441,19 @@ final class _Validator {
     }
     final animations = readList(raw['animations']) ?? const [];
     for (var i = 0; i < animations.length; i++) {
+      // An animation's own fields are values, not templates: `"enabled":
+      // "${= open}"` is read as the text, so the animation never follows
+      // `open`. Its binding path is animations.<id>.<field>.
+      if (readMap(animations[i]) case final Json a) {
+        final id = readString(a['id']) ?? '$i';
+        for (final e in a.entries) {
+          if (e.value is String && (e.value as String).contains(r'${') && e.key != 'id' && e.key != 'name') {
+            r.add(Codes.looseValue, '${pointer(pointer(at, 'animations'), '$i')}/${e.key}',
+                'An animation\'s ${e.key} is a value: the expression is read as text, not computed. Bind it instead: '
+                '"bind": {"animations.$id.${e.key}": "${e.value}"}.');
+          }
+        }
+      }
       final tracks = readList(readMap(animations[i])?['tracks']) ?? const [];
       for (var j = 0; j < tracks.length; j++) {
         check(readMap(tracks[j])?['path'], '${pointer(pointer(at, 'animations'), '$i')}/tracks/$j/path');
@@ -1755,16 +1781,29 @@ final class _Validator {
   // --- expressions ------------------------------------------------------------
 
   /// Checks the expressions in every string of [json].
-  void _strings(Object? json, String at) {
+  ///
+  /// [locals] are names in scope there besides the variables and runtime
+  /// scopes: inside a custom paint `repeat` op's `ops`, the names it binds
+  /// for each round (`as`, default `item`; `indexAs`, default `index`; and
+  /// `count`), as the SDK's painter does.
+  void _strings(Object? json, String at, {Set<String> locals = const {}}) {
     if (json is String) {
-      if (json.contains(r'${')) _expression(json, at);
+      if (json.contains(r'${')) _expression(json, at, locals: locals);
     } else if (json is List) {
       for (var i = 0; i < json.length; i++) {
-        _strings(json[i], pointer(at, i));
+        _strings(json[i], pointer(at, i), locals: locals);
       }
     } else if (json is Map) {
+      final inner = DrawOp.opName(json['op']) == 'repeat'
+          ? {
+              ...locals,
+              json['as'] is String ? json['as'] as String : 'item',
+              json['indexAs'] is String ? json['indexAs'] as String : 'index',
+              'count',
+            }
+          : locals;
       for (final e in json.entries) {
-        _strings(e.value, pointer(at, '${e.key}'));
+        _strings(e.value, pointer(at, '${e.key}'), locals: e.key == 'ops' ? inner : locals);
       }
     }
   }

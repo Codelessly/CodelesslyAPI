@@ -9,7 +9,10 @@ import 'values/paint.dart';
 /// corners), one side, a pair of opposite sides (a ruled band), two sides
 /// meeting at a corner (`topRight`: the top and right sides, as a table's
 /// header corner), every side but one (`noTop`), or none, as Flutter's
-/// `Border` takes any of its sides.
+/// `Border` takes any of its sides. `start`, `end`, `noStart` and `noEnd`
+/// follow the text direction, as Flutter's `BorderDirectional`: the start
+/// side is the left under left to right and the right under right to left
+/// (see [resolve]).
 enum StrokeSides {
   all,
   left,
@@ -29,7 +32,34 @@ enum StrokeSides {
 
   /// No side: Flutter's `Border()` (every side `BorderSide.none`), CSS
   /// `border-style: none`; for a stroke bound or patched off.
-  none;
+  none,
+
+  /// The start side: Flutter's `BorderDirectional(start: ...)` (a sidebar's
+  /// rule against the content, in a layout that can mirror).
+  start,
+
+  /// The end side: Flutter's `BorderDirectional(end: ...)`.
+  end,
+
+  /// Every side but the start.
+  noStart,
+
+  /// Every side but the end.
+  noEnd;
+
+  /// Whether its sides follow the text direction ([resolve] places them).
+  bool get directional => this == start || this == end || this == noStart || this == noEnd;
+
+  /// The physical sides under a right-to-left ([rtl]) or left-to-right text
+  /// direction: [start] is [left] left to right and [right] right to left.
+  /// Physical values are themselves.
+  StrokeSides resolve({required bool rtl}) => switch (this) {
+        start => rtl ? right : left,
+        end => rtl ? left : right,
+        noStart => rtl ? noRight : noLeft,
+        noEnd => rtl ? noLeft : noRight,
+        _ => this,
+      };
 
   /// The sides it strokes, of `top`, `right`, `bottom` and `left`.
   Set<String> get sides => switch (this) {
@@ -49,6 +79,8 @@ enum StrokeSides {
         noBottom => const {'top', 'right', 'left'},
         noLeft => const {'top', 'right', 'bottom'},
         none => const {},
+        // Directional sides as left to right; a renderer resolves them first.
+        start || end || noStart || noEnd => resolve(rtl: false).sides,
       };
 }
 

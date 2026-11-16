@@ -2,6 +2,20 @@
 
 ### Added
 
+- **Right to left**: padding and margin written `{"start", "top", "end", "bottom"}` are Flutter's
+  `EdgeInsetsDirectional` (`EdgeInsets.fromSTEB`, `directional`, `resolve`); `strokeSides` gains `start`, `end`,
+  `noStart`, `noEnd` (`BorderDirectional`). The layout reference has an RTL section (what `textDirection` mirrors).
+- **Validation**: `widthFactor` in a row (`heightFactor` in a column) is reported as ignored (`layout_field_ignored`);
+  an expression written into an animation field is reported (`loose_value`) with the binding to write instead.
+- **Docs**: a binding of a field an active interaction state patches yields to the patch.
+- **`dragEdgeScroll`** (scrolling containers, lists, grids; default true): whether the view scrolls while a drag and
+  drop is held near its edges. Off for a strip that should stay put under a drag: sprint_kanban's phone column tabs,
+  where the strip scrolled the tab out from under the card it had just switched columns for.
+- **`DropTarget.slotWhenRefused`** is back in schema 3 (default false): the list opens its slot for a drag
+  `acceptIf` refuses too, as Flutter's `DragTarget` hands its builder the rejected candidates (a kanban column at
+  its WIP limit shows where the card would land, styled as blocked). The migration writes it out where schema 2
+  left it at its default (true) with an `acceptIf` and a list slot, so such a document renders as before instead
+  of reporting a behavior change (sprint_kanban's columns relied on it).
 - **Notation, the page words**: the frames of a desktop page, written out as plain lines before they are read.
   A website is `Page` with `Nav`, `Section` (a full-width band, its content in a centered column; `narrow`,
   `fill:`, `center`) and `Footer`. An app window is `App` with `Sidebar`, `Main` and `Pane w:320`, each as tall as

@@ -300,12 +300,22 @@ void main() {
     expect(report.unconvertible.single.instead, contains('track.value'));
   });
 
-  test('dropTarget.oneApp: a refused drag no longer opens the slot, said once', () {
+  test('dropTarget.oneApp: a refused drag still opens the slot (slotWhenRefused written out)', () {
     final (out, report) = migrated({
       'dropTarget': {'accepts': ['g'], 'acceptIf': r'${ok}', 'listNodeId': 'l'},
     });
-    expect(out['dropTarget'], {'accepts': ['g'], 'acceptIf': r'${ok}', 'listNodeId': 'l'});
-    expect(report.behaviorChanges.single.message, contains('acceptIf'));
+    expect(out['dropTarget'], {'accepts': ['g'], 'acceptIf': r'${ok}', 'listNodeId': 'l', 'slotWhenRefused': true});
+    expect(report.behaviorChanges, isEmpty);
+    // Off in schema 2, or with nothing to refuse or no list: schema 3's default.
+    for (final d in [
+      {'accepts': ['g'], 'acceptIf': r'${ok}', 'listNodeId': 'l', 'slotWhenRefused': false},
+      {'accepts': ['g'], 'listNodeId': 'l', 'slotWhenRefused': true},
+      {'accepts': ['g'], 'acceptIf': r'${ok}'},
+    ]) {
+      expect(migrated({'dropTarget': d}).$1['dropTarget'], isNot(contains('slotWhenRefused')));
+    }
+    expect(DropTarget.fromJson(out['dropTarget'])!.slotWhenRefused, isTrue);
+    expect(DropTarget.fromJson(out['dropTarget'])!.toJson()['slotWhenRefused'], isTrue);
   });
 
   test('a clock with a formula interval is a timer that validates (intervalMs takes an expression)', () {
