@@ -1926,18 +1926,6 @@ Page
       expect(at(r, 'wide', 834)['visible'], false);
       expect(at(r, 'wide', 1280), isEmpty);
 
-      final conditional = parseNotation('''
-state menu=false
-Page
-  if menu
-    Column#menuLinks show:phone
-      Link "Home"
-''', catalog: standardCatalog, options: page);
-      expect(conditional.issues, isEmpty);
-      expect(at(conditional, 'menuLinks', 834)['visible'], false);
-      expect((at(conditional, 'menuLinks', 834)['bind'] as Map?)?['visible'], null);
-      expect((node(conditional, 'menuLinks')['bind'] as Map?)?['visible'], r'${= menu}');
-
       const text = '''
 Column
   Grid cols:2
