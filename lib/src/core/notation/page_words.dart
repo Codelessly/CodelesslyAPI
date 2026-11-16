@@ -263,7 +263,7 @@ final class PageWords {
     final size = closed.links.length >= 6 ? 'tablet' : 'phone';
     return [
       if (menu && closed.pageNav && closed.links.isNotEmpty && !closed.ownMenu) ...[
-        (indent: at + 4, text: 'IconButton "menu" show:$size -> navMenu=!navMenu'),
+        (indent: at + 4, text: 'Button.tertiary "Menu" show:$size -> navMenu=!navMenu'),
         (indent: at + 2, text: 'if navMenu'),
         (indent: at + 4, text: 'Column w:fill maxw:${_n(contentWidth)} show:$size gap:2 pad:[0,8,0,4]'),
         for (final link in closed.links) ...[

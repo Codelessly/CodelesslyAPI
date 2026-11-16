@@ -1866,11 +1866,12 @@ Page
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(node(r, 'bar')['sticky'], {'offset': 0});
-      // The links go on a phone, and a menu button shows there only.
+      // The links go on a phone, and a full-size labeled menu button shows there only.
       expect(at(r, 'links', 390)['visible'], false);
-      final button = nodesOf(r).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton');
+      final button = nodesOf(r).entries.firstWhere((e) => jsonEncode((e.value! as Map)['actions'] ?? '').contains('"variable":"navMenu"') && (e.value! as Map)['type'] == 'filledButton');
       expect(at(r, button.key, 390), isEmpty);
       expect(at(r, button.key, 834)['visible'], false);
+      expect((button.value! as Map)['props'], containsPair('label', 'Menu'));
       expect(jsonEncode((button.value! as Map)['actions']), contains('"variable":"navMenu"'));
       final variables = ((r.document['variables']! as Map)['screen']! as List).cast<Map>();
       expect(variables.firstWhere((v) => v['name'] == 'navMenu'), {'name': 'navMenu', 'type': 'boolean', 'value': false});
