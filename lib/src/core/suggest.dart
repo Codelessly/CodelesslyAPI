@@ -40,11 +40,14 @@ String? didYouMean(String word, Iterable<String> candidates) {
   for (final c in list) {
     if (c == word) return c;
   }
+  // Each candidate normalized once, split into words at most once.
+  final norms = [for (final c in list) _norm(c)];
+  final split = List<List<String>?>.filled(list.length, null);
+  List<String> wordsOf(int i) => split[i] ??= _words(list[i]);
   String? viaOn;
-  for (final c in list) {
-    final n = _norm(c);
-    if (n == w) return c;
-    if (viaOn == null && bare != null && n == bare) viaOn = c;
+  for (var i = 0; i < list.length; i++) {
+    if (norms[i] == w) return list[i];
+    if (viaOn == null && bare != null && norms[i] == bare) viaOn = list[i];
   }
   if (viaOn != null) return viaOn;
 
@@ -62,14 +65,14 @@ String? didYouMean(String word, Iterable<String> candidates) {
   String? best;
   var bestD = limit + 1;
   var bestJw = -1.0;
-  for (final c in list) {
-    final n = _norm(c);
+  for (var i = 0; i < list.length; i++) {
+    final n = norms[i];
     if ((n.length - w.length).abs() > limit) continue;
     final d = damerau(w, n);
     if (d > limit) continue;
     final jw = jaroWinkler(w, n);
     if (d < bestD || (d == bestD && jw > bestJw)) {
-      best = c;
+      best = list[i];
       bestD = d;
       bestJw = jw;
     }
@@ -79,27 +82,27 @@ String? didYouMean(String word, Iterable<String> candidates) {
   // 4. The same words in another order.
   final words = _words(word)..sort();
   if (words.length > 1) {
-    for (final c in list) {
-      final cw = _words(c)..sort();
-      if (cw.length == words.length && _same(cw, words)) return c;
+    for (var i = 0; i < list.length; i++) {
+      final cw = wordsOf(i);
+      if (cw.length == words.length && _same([...cw]..sort(), words)) return list[i];
     }
   }
 
-  // 5. One of a name's words, or all of a name's words in the word.
+  // 5. One of a name's words, a name's words all in the word, or the word's words all in a name.
   if (w.length >= 3) {
     best = null;
     bestJw = -1;
     final wordSet = words.toSet();
-    for (final c in list) {
-      final cw = _words(c);
-      final n = _norm(c);
+    for (var i = 0; i < list.length; i++) {
+      final n = norms[i];
+      final cw = wordsOf(i);
       final hit = cw.contains(w) || (cw.length > 1 && wordSet.containsAll(cw)) ||
           (wordSet.length > 1 && cw.toSet().containsAll(wordSet)) || (n.length >= 3 && w.contains(n)) ||
           (w.length >= 4 && n.contains(w));
       if (!hit) continue;
       final jw = jaroWinkler(w, n);
       if (jw > bestJw) {
-        best = c;
+        best = list[i];
         bestJw = jw;
       }
     }
@@ -353,14 +356,17 @@ double jaroWinkler(String a, String b) {
   return jaro + prefix * 0.1 * (1 - jaro);
 }
 
-String _norm(String s) => s.toLowerCase().replaceAll(RegExp(r'[\s_\-]'), '');
+final _separators = RegExp(r'[\s_\-]+');
+final _wordPattern = RegExp(r'[A-Z]?[a-z0-9]+|[A-Z]+(?![a-z])');
+
+String _norm(String s) => s.toLowerCase().replaceAll(_separators, '');
 
 /// `ontap` → `tap`: event props are often written with an `on` prefix.
 String? _withoutOn(String n) => n.length > 3 && n.startsWith('on') ? n.substring(2) : null;
 
 /// `doubleTap`, `double_tap`, `double-tap` → [double, tap].
 List<String> _words(String s) => [
-      for (final m in RegExp(r'[A-Z]?[a-z0-9]+|[A-Z]+(?![a-z])').allMatches(s.replaceAll(RegExp(r'[_\-\s]+'), ' ')))
+      for (final m in _wordPattern.allMatches(s.replaceAll(_separators, ' ')))
         m.group(0)!.toLowerCase(),
     ];
 
