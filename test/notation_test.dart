@@ -20,6 +20,29 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  test('saved state emits persistence on a card and page', () {
+    for (final width in [390.0, 1280.0]) {
+      final r = parseNotation('state draft="" saved\n${width >= 960 ? 'Page\n  Section' : 'Card'}\n  Input "Draft" =draft',
+          catalog: standardCatalog, options: NotationOptions(width: width));
+      expect(r.issues, isEmpty);
+      expect((r.document['variables'] as Map).values.expand((v) => v as List).single, containsPair('persist', true));
+    }
+  });
+
+  test('saved project value requires a matching persisted manifest declaration', () {
+    const line = 'project savedIds=[] saved\nPage\n  Section\n    Text "Saved"';
+    final good = parseNotation(line, catalog: standardCatalog, options: const NotationOptions(width: 1280,
+        projectVariables: {'savedIds': {'name': 'savedIds', 'type': 'list', 'value': [], 'persist': true}}));
+    expect(good.issues, isEmpty);
+    expect(jsonEncode(good.document), isNot(contains('"name":"savedIds"')));
+    final stale = parseNotation(line, catalog: standardCatalog, options: const NotationOptions(width: 1280,
+        projectVariables: {'savedIds': {'name': 'savedIds', 'type': 'list', 'value': []}}));
+    expect(stale.issues.map((i) => i.message).join(), contains('"persist": true'));
+    final wrongType = parseNotation(line, catalog: standardCatalog, options: const NotationOptions(width: 1280,
+        projectVariables: {'savedIds': {'name': 'savedIds', 'type': 'map', 'value': {}, 'persist': true}}));
+    expect(wrongType.issues.map((i) => i.message).join(), contains('different type'));
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

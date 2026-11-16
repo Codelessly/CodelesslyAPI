@@ -1614,10 +1614,20 @@ class _Parser {
     // copy of its own on this screen to hide it.
     if (line.startsWith('project ') && _root == null) {
       final rest = line.substring(8).trim();
-      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)s*(=|$)').firstMatch(rest)?.group(1);
+      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*(=|$)').firstMatch(rest)?.group(1);
       if (name == null) return _issue(column, 'A site\x27s variable is written: project name=value (the same name as in site.json\x27s variables).');
       _projectVariables.add(name);
-      return _state(rest.contains('=') ? rest : '$name=""', column + 8);
+      final saved = rest.endsWith(' saved');
+      _state(rest.contains('=') ? rest : '$name=""', column + 8);
+      if (saved) {
+        final declared = options.projectVariables[name];
+        if (declared?['persist'] != true) {
+          _issue(column, 'project $name saved needs a site.json variable named "$name" with "persist": true.');
+        } else if (declared?['type'] != variables[name]?['type']) {
+          _issue(column, 'project $name saved has a different type in site.json; keep its declared type in step with the notation.');
+        }
+      }
+      return;
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
@@ -3659,6 +3669,8 @@ class _Parser {
   final Map<String, String> _derived;
 
   void _state(String rest, int column) {
+    final saved = rest.endsWith(' saved');
+    if (saved) rest = rest.substring(0, rest.length - 6).trimRight();
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
     var written = m[2]!.trim();
@@ -3669,6 +3681,7 @@ class _Parser {
     // Text in quotes is not an operator: `"a + b"` is a value, `"Total " + n` a formula.
     final code = written.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
     if (!_literal(written).$1 && RegExp(r'[(+*/?<>&|]').hasMatch(code)) {
+      if (saved) _issue(column, 'A computed value cannot be saved; save its inputs instead.');
       _derived[m[1]!] = written;
       return;
     }
@@ -3687,6 +3700,7 @@ class _Parser {
       'name': m[1],
       'type': switch (value) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
       'value': value,
+      if (saved) 'persist': true,
     };
   }
 
