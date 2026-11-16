@@ -790,7 +790,7 @@ section's anchor is its topic.
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10034 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2932 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 12891 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13024 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 7972 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4269 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6662 |
@@ -3744,9 +3744,9 @@ Flutter `SegmentedButton<String>`.
 <a id="node-datePicker"></a>
 ### `datePicker`
 
-Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
+A date field that opens a calendar drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
-A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).
+A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar the renderer draws itself (no Material dialog), in the project's theme.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -3760,15 +3760,15 @@ A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calenda
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
-| `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
+| `helpText` | String | `""` |  | A title over the calendar or the time columns; empty: none. |
+| `pickerTheme` | Object | unset |  | Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-timePicker"></a>
 ### `timePicker`
 
-Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
+A time field that opens hour and minute columns drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
-A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).
+A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns the renderer draws itself (no Material dialog), in the project's theme.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -3777,12 +3777,12 @@ A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minut
 |---|---|---|---|---|
 | `value` | String | `""` |  |  |
 | `enabled` | bool | `true` |  |  |
-| `alwaysUse24HourFormat` | bool | `false` |  | The picker's dial and fields in 24-hour time (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the picker reads). |
+| `alwaysUse24HourFormat` | bool | `false` |  | The picker's columns in 24-hour time (hours and minutes, no AM/PM). |
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
-| `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
+| `helpText` | String | `""` |  | A title over the calendar or the time columns; empty: none. |
+| `pickerTheme` | Object | unset |  | Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-dateTimeInput"></a>
 ### `dateTimeInput`
