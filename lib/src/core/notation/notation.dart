@@ -725,6 +725,7 @@ const Map<String, ({String type, Json props})> buttonVariants = {
 /// The prop a control's value lives in, and the variable type it implies.
 const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'slider': (prop: 'value', type: 'decimal', start: 0),
+  'splitter': (prop: 'value', type: 'decimal', start: 240),
   'switch': (prop: 'value', type: 'boolean', start: false),
   'checkbox': (prop: 'value', type: 'boolean', start: false),
   'textField': (prop: 'initialValue', type: 'text', start: ''),

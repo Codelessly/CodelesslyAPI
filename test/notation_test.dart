@@ -20,6 +20,50 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  test('a split pane binds its divider and leading width to one variable', () {
+    final r = _parse('''
+state paneWidth=360
+Page
+  Section
+    Row
+      Column w:=paneWidth
+        Text "Map"
+      Splitter =paneWidth min:0 max:800 step:16 collapseAt:48 label:"Resize map and stations"
+      Column grow
+        Text "Stations"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect(_node(r, 'column4')['bind'], {'layout.width': r'${paneWidth}'});
+    final splitter = _node(r, 'splitter1');
+    expect(splitter['bind'], {'props.value': r'${paneWidth}'});
+    expect((splitter['props'] as Map)['collapseAt'], 48);
+    expect((splitter['actions'] as List).single, {
+      'trigger': {'type': 'changed'},
+      'actions': [
+        {'type': 'setVariable', 'variable': 'paneWidth', 'value': r'${result}'},
+      ],
+    });
+  });
+
+  test('a vertical splitter binds a phone pane height', () {
+    final r = _parse('''
+state mapHeight=630
+Page
+  Section
+    Column
+      Column h:=mapHeight
+        Text "Map"
+      Splitter =mapHeight orientation:vertical min:0 max:900 label:"Resize map panel"
+      Column
+        Text "Stations"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect((_node(r, 'splitter1')['props'] as Map)['orientation'], 'vertical');
+    expect(_node(r, 'splitter1')['bind'], {'props.value': r'${mapHeight}'});
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

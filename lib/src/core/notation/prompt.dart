@@ -127,7 +127,8 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
     Share a width with grow, or give the one fixed part a width (a rail: Column w:320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
     Equal cells are a Grid, not a Row of fixed-width boxes. A table's row is a Row whose cells have widths (Text "Status" w:90) and one cell that grows, its header written the same way.
     hide:phone leaves a node out on a phone, hide:tablet on a tablet and a phone; show:phone shows it on a phone only, show:tablet on a tablet and a phone only. Write no menu button for a Nav's links: it has one, for the links it hides (Link "Search" menu:false -> open search is a link that stays in the bar and out of the menu; a Nav with a show:phone line of its own keeps yours instead). They hold on a line under an if too: the condition counts only where the size shows the line.
-    A Row of two Columns that grow, each a heading and its text, stacks where they no longer fit; a Row of controls with choices (filters) wraps whole controls onto the next line.''' : ''}
+  A Row of two Columns that grow, each a heading and its text, stacks where they no longer fit; a Row of controls with choices (filters) wraps whole controls onto the next line.
+  In a resizable two-pane Row, write Splitter =paneWidth min:0 max:800 step:16 label:"Resize panels" between the panes, and bind the first pane's w:=paneWidth. Arrows resize; Home and End collapse a pane. A project variable with persist:true in site.json keeps the width after a reload. When panes stack on a phone, a Splitter =paneHeight orientation:vertical can resize the first pane's height instead.''' : ''}
 
   OVER THE PAGE (a dialog, a sheet, a drawer, a menu): write each after the page, at the margin, with an id, its content indented under it as on a card. -> open signup shows it, -> close closes it (so does a tap outside it). It reads and sets the page's values: a form in a dialog sets them and closes (-> saved=true; close).
     Dialog#signup "Join the waitlist" "A line under the title"    a centered dialog with its title and a close button (w:480)
@@ -199,7 +200,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   // parse too, and are taught by the reference when a UI needs them.
   const taught = {
     'row', 'column', 'stack', 'text', 'icon', 'spacer', 'divider', 'listView', 'gridView', //
-    'filledButton', 'iconButton', 'textField', 'switch', 'checkbox', 'radio', 'slider', 'dropdown', 'segmentedButton',
+    'filledButton', 'iconButton', 'textField', 'switch', 'checkbox', 'radio', 'slider', 'splitter', 'dropdown', 'segmentedButton',
     'choiceChip', 'filterChip', 'chip', 'badge', 'progressBar', 'circularProgressIndicator', 'datePicker', 'timePicker',
     'accordion', 'listTile', 'barChart', 'lineChart',
   };
