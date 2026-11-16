@@ -259,14 +259,22 @@ final class PageWords {
   /// What closes a frame: a bar's menu for a phone, then its rule.
   List<PageLine> _closing(_Line closed) {
     final at = closed.indent + closed.before;
+    // A lone link beside the header's actions remains visible on a phone.
+    // Repeat only links that reflow hides: direct Nav links and links in a
+    // row with at least two links.
+    final groupSizes = <_Line?, int>{};
+    for (final link in closed.links) {
+      groupSizes[link.group] = (groupSizes[link.group] ?? 0) + 1;
+    }
+    final hiddenLinks = closed.links.where((link) => link.direct || (groupSizes[link.group] ?? 0) >= 2).toList();
     // From six links on, a tablet has no room for them either.
-    final size = closed.links.length >= 6 ? 'tablet' : 'phone';
+    final size = hiddenLinks.length >= 6 ? 'tablet' : 'phone';
     return [
-      if (menu && closed.pageNav && closed.links.isNotEmpty && !closed.ownMenu) ...[
+      if (menu && closed.pageNav && hiddenLinks.isNotEmpty && !closed.ownMenu) ...[
         (indent: at + 4, text: 'IconButton "menu" show:$size -> navMenu=!navMenu'),
         (indent: at + 2, text: 'if navMenu'),
         (indent: at + 4, text: 'Column w:fill maxw:${_n(contentWidth)} show:$size gap:2 pad:[0,8,0,4]'),
-        for (final link in closed.links) ...[
+        for (final link in hiddenLinks) ...[
           (indent: at + 6, text: 'Row w:fill pad:[12,10,12,10] radius:8 middle -> navMenu=false; ${link.action}'),
           (indent: at + 8, text: 'Text.strong ${link.label}'),
         ],
@@ -539,7 +547,9 @@ final class PageWords {
               : href != null && RegExp(r'^"?#[A-Za-z_]').hasMatch(href)
                   ? ' -> scroll ${href.replaceAll('"', '').substring(1)}'
                   : '');
-      if (bar != null && label != null && action.trim().startsWith('->')) bar.links.add((label: label, action: action.trim().substring(2).trim()));
+      if (bar != null && label != null && action.trim().startsWith('->')) {
+        bar.links.add((label: label, action: action.trim().substring(2).trim(), group: parent, direct: parent?.frame == 'Nav'));
+      }
       open();
       // In a bar a link is a quiet button; in running content, text in the accent.
       if (parent?.frame == 'Nav' || _open.any((l) => l.frame == 'Nav')) {
@@ -758,7 +768,7 @@ class _Line {
   /// A website's Nav: the links written in it (for its phone menu), and
   /// whether it writes a menu of its own.
   bool pageNav = false, ownMenu = false;
-  final links = <({String label, String action})>[];
+  final links = <({String label, String action, _Line? group, bool direct})>[];
 }
 
 /// The words of a line after its type, taken apart: `key:value` pairs,
