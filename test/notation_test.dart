@@ -1651,6 +1651,12 @@ Page
       final actions = (_node(r, 'textButton1')['actions'] as List).single as Map;
       expect(actions['actions'], [{'type': 'openModal', 'to': 'search', 'sheetWidth': page.narrowWidth}]);
     });
+    test('open drawer uses a side sheet sized from the page tier', () {
+      final r = parseNotation('Page\n  Nav\n    Link "Browse" -> open docs_menu drawer\n', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final actions = (_node(r, 'textButton1')['actions'] as List).single as Map;
+      expect(actions['actions'], [{'type': 'openModal', 'to': 'docs_menu', 'sheetWidth': page.sidebarWidth + page.gutter * 2, 'presentation': 'sideSheet'}]);
+    });
     test('Modal uses the design system reading width as its canvas width', () {
       final r = parseNotation('Modal\n  Section narrow\n    Heading "Find a page"\n', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);

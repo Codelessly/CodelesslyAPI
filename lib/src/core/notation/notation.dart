@@ -3431,7 +3431,13 @@ class _Parser {
           });
         case 'open':
           final narrow = s.endsWith(' narrow');
-          out.add({'type': 'openModal', 'to': narrow ? s.substring(0, s.length - 7) : s, if (narrow) 'sheetWidth': options.narrowWidth});
+          final drawer = s.endsWith(' drawer');
+          out.add({
+            'type': 'openModal',
+            'to': narrow ? s.substring(0, s.length - 7) : drawer ? s.substring(0, s.length - 7) : s,
+            if (narrow || drawer) 'sheetWidth': narrow ? options.narrowWidth : options.sidebarWidth + options.gutter * 2,
+            if (drawer) 'presentation': 'sideSheet',
+          });
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':
