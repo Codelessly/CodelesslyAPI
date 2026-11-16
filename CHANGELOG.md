@@ -2,6 +2,12 @@
 
 ### Added
 
+- **The keyboard**: `focusable` (default true; false takes a node with a `click` reaction out of the focus order),
+  `focusGroup` (`{axis, wrap, typeAhead}` or `true`: what is focusable inside the node is one Tab stop the arrow
+  keys move through) and a canvas's `semanticLabel` (its name for assistive technology when it opens as an
+  overlay). The interaction and navigation references say what the keyboard does on press targets, groups and
+  overlays.
+
 - **Right to left**: padding and margin written `{"start", "top", "end", "bottom"}` are Flutter's
   `EdgeInsetsDirectional` (`EdgeInsets.fromSTEB`, `directional`, `resolve`); `strokeSides` gains `start`, `end`,
   `noStart`, `noEnd` (`BorderDirectional`). The layout reference has an RTL section (what `textDirection` mirrors).
