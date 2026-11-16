@@ -67,59 +67,19 @@ final class NotationResult {
 
 /// How the notation expands.
 final class NotationOptions {
-  const NotationOptions({
-    this.width = 390,
-    this.screen = 'screen',
-    this.textStyles = defaultTextVariants,
-    this.card = defaultCard,
-    this.badges = badgeVariants,
-    this.surface = '#FFFFFFFF',
-    this.accent = '#FF2563EB',
-    this.track = '#FFE5E7EB',
-    this.components = const {},
-    this.badge = defaultBadge,
-    this.cta,
-    this.palette = const {},
-    this.tile,
-    this.sectionRadius,
-    this.barChart = const {},
-    this.progress = const {},
-    this.cardGap,
-    this.pageFill,
-    this.ringStroke,
-    this.height = 800,
-    this.contentWidth = 1120,
-    this.selectedFill = '#FFE5E7EB',
-    this.line = '#FFE5E7EB',
-    this.narrowWidth = 720,
-    this.sidebarWidth = 248,
-    this.sectionPad = 64,
-    this.gutter = 24,
-    this.band,
-    this.siteFill,
-    this.paneFill,
-    this.iconTile,
-    this.controlHeight,
-    this.fieldLabel,
-    this.fieldText,
-    this.reflow = true,
-    this.displaySizes = const {},
-    this.projectVariables = const {},
-    this.accentText,
-  });
+  const NotationOptions({this.width = 390, this.screen = 'screen', this.textStyles = defaultTextVariants, this.card = defaultCard, this.badges = badgeVariants, this.surface = '#FFFFFFFF', this.accent = '#FF2563EB', this.track = '#FFE5E7EB', this.components = const {}, this.badge = defaultBadge, this.cta, this.palette = const {}, this.tile, this.sectionRadius, this.barChart = const {}, this.progress = const {}, this.cardGap, this.pageFill, this.ringStroke, this.height = 800, this.contentWidth = 1120, this.selectedFill = '#FFE5E7EB', this.line = '#FFE5E7EB', this.narrowWidth = 720, this.sidebarWidth = 248, this.sectionPad = 64, this.gutter = 24, this.band, this.siteFill, this.paneFill, this.iconTile, this.controlHeight, this.fieldLabel, this.fieldText, this.reflow = true, this.displaySizes = const {}, this.projectVariables = const {}, this.accentText});
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
   /// tokens) and the sizes of its components, so a component called by name
   /// (`StatusBadge "Paid"`, `Stepper =qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
-  factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
-      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true, Map<String, Json> projectVariables = const {}}) {
+  factory NotationOptions.fromDesignSystem(DesignSystem designSystem, {double width = 390, String screen = 'screen', bool named = false, bool reflow = true, Map<String, Json> projectVariables = const {}}) {
     final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, reflow: reflow);
     Object size(SizeFit fit, double value) => switch (fit) {
-          SizeFit.fill || SizeFit.flexible => {'fill': 0},
-          SizeFit.hug => {'hug': 0},
-          _ => value,
-        };
+      SizeFit.fill || SizeFit.flexible => {'fill': 0},
+      SizeFit.hug => {'hug': 0},
+      _ => value,
+    };
     return NotationOptions(
       width: base.width,
       screen: base.screen,
@@ -159,8 +119,7 @@ final class NotationOptions {
       accentText: base.accentText,
       components: {
         for (final c in designSystem.list)
-          if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
-            c.type: (width: size(root.layout.width.fit, root.layout.width.value), height: size(root.layout.height.fit, root.layout.height.value)),
+          if (c.document.nodes[c.document.roots.firstOrNull] case final root?) c.type: (width: size(root.layout.width.fit, root.layout.width.value), height: size(root.layout.height.fit, root.layout.height.value)),
       },
     );
   }
@@ -203,7 +162,9 @@ final class NotationOptions {
             };
     }
     Object style(String name, Object fallback) => styles[name] ?? fallback;
-    Json body() => {...(style('body', const {'fontSize': 13}) as Map).cast<String, Object?>()};
+    Json body() => {
+      ...(style('body', const {'fontSize': 13}) as Map).cast<String, Object?>(),
+    };
     styles
       ..putIfAbsent('title', () => style('pageTitle', defaultTextVariants['title']!))
       ..putIfAbsent('heading', () => style('sectionTitle', defaultTextVariants['heading']!))
@@ -214,8 +175,7 @@ final class NotationOptions {
       ..putIfAbsent('body', () => body()..['color'] = ink)
       ..putIfAbsent('danger', () => body()..addAll({'fontWeight': 600, 'color': color('error', '#FFDC2626')}))
       ..putIfAbsent('success', () => body()..addAll({'fontWeight': 600, 'color': color('success', '#FF16A34A')}));
-    (String, String, String) tone(String role, String inkName) =>
-        (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
+    (String, String, String) tone(String role, String inkName) => (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
     final error = tone('error', 'error');
     // A design system's own words for the look of plain parts, each read
     // only when the theme has it (SSUI has none of them): `radii.card`,
@@ -247,7 +207,10 @@ final class NotationOptions {
     final cardShadow = shadows['card'];
     final textStyles = readMap(theme['textStyles']) ?? const {};
     final badgeStyle = textStyles['badge'] != null && radii['badge'] != null ? styles['badge'] : null;
-    final ctaHeight = switch (readDouble(sizes['cta'])) { final double h when h > 0 => h, _ => null };
+    final ctaHeight = switch (readDouble(sizes['cta'])) {
+      final double h when h > 0 => h,
+      _ => null,
+    };
     // On a wide canvas (`sizes.wide` and up) the title is the page's: the
     // theme's `titleWide` style, when it has both, for `Text.title` and
     // `Text.pageTitle` (a 20 px card title is small over a 1280 page).
@@ -277,15 +240,20 @@ final class NotationOptions {
       badge: {
         'radius': radii['badge'] ?? defaultBadge['radius'],
         'height': sizes['badge'] ?? defaultBadge['height'],
-        'padding': switch (readDouble(spacing['badge'])) { final double x => [x, 0, x, 0], _ => defaultBadge['padding'] },
+        'padding': switch (readDouble(spacing['badge'])) {
+          final double x => [x, 0, x, 0],
+          _ => defaultBadge['padding'],
+        },
         'style': ?badgeStyle,
       },
-      cta: ctaHeight == null ? null : {'width': {'fill': 0}, 'height': ctaHeight},
+      cta: ctaHeight == null
+          ? null
+          : {
+              'width': {'fill': 0},
+              'height': ctaHeight,
+            },
       palette: named ? _palette(colors, theme) : const {},
-      progress: {
-        if (radii['progress'] != null) 'borderRadius': radii['progress'],
-        if (sizes['progress'] != null) 'height': sizes['progress'],
-      },
+      progress: {if (radii['progress'] != null) 'borderRadius': radii['progress'], if (sizes['progress'] != null) 'height': sizes['progress']},
       cardGap: spacing['cardGap'] is num ? spacing['cardGap'] as num : null,
       ringStroke: sizes['ring'] is num ? sizes['ring'] as num : null,
       contentWidth: readDouble(sizes['content']) ?? 1120,
@@ -305,23 +273,17 @@ final class NotationOptions {
       reflow: reflow,
       // A link in running text: the accent where it is read as text on a
       // light page (a bright accent is for fills).
-      accentText: colors['accentText'] != null ? color('accentText', '#FF1D4ED8') : colors['accentDeep'] != null ? color('accentDeep', '#FF1D4ED8') : null,
+      accentText: colors['accentText'] != null
+          ? color('accentText', '#FF1D4ED8')
+          : colors['accentDeep'] != null
+          ? color('accentDeep', '#FF1D4ED8')
+          : null,
       displaySizes: {
         for (final e in textStyles.entries)
           if (readMap(e.value)?['fontSize'] case final num size when size >= 32) e.key: size,
       },
       pageFill: named && colors['pageFill'] != null && colors['page'] != null ? (page: 'page', fill: 'pageFill') : null,
-      barChart: radii['bar'] == null
-          ? const {}
-          : {
-              'barRadius': radii['bar'],
-              if (spacing['bar'] != null) 'barGap': spacing['bar'],
-              if (sizes['bar'] != null) 'maxBarWidth': sizes['bar'],
-              if (theme['fontFamily'] is String) 'labelFontFamily': theme['fontFamily'],
-              'labelFontSize': 11,
-              'labelColor': color('secondaryText', ink),
-              'gridColor': color('primaryBorder', '#FFE5E7EB'),
-            },
+      barChart: radii['bar'] == null ? const {} : {'barRadius': radii['bar'], if (spacing['bar'] != null) 'barGap': spacing['bar'], if (sizes['bar'] != null) 'maxBarWidth': sizes['bar'], if (theme['fontFamily'] is String) 'labelFontFamily': theme['fontFamily'], 'labelFontSize': 11, 'labelColor': color('secondaryText', ink), 'gridColor': color('primaryBorder', '#FFE5E7EB')},
       sectionRadius: radii['card'] != null && radii['panel'] is num ? radii['panel'] as num : null,
       tile: radii['tile'] == null
           ? null
@@ -337,15 +299,7 @@ final class NotationOptions {
               },
               'layout': {'padding': spacing['tile'] ?? 12},
             },
-      badges: {
-        'neutral': tone('neutral', 'secondaryText'),
-        'primary': tone('primary', 'primary'),
-        'info': tone('info', 'info'),
-        'success': tone('success', 'success'),
-        'warning': tone('warning', 'warning'),
-        'error': error,
-        'danger': error,
-      },
+      badges: {'neutral': tone('neutral', 'secondaryText'), 'primary': tone('primary', 'primary'), 'info': tone('info', 'info'), 'success': tone('success', 'success'), 'warning': tone('warning', 'warning'), 'error': error, 'danger': error},
       surface: color('page', color('surface', color('primaryBackground', '#FFFFFFFF'))),
       accent: color('primary', '#FF2563EB'),
       track: color('track', '#FFE5E7EB'),
@@ -353,44 +307,7 @@ final class NotationOptions {
   }
 
   /// These looks for another canvas (an overlay's): its id and its width.
-  NotationOptions sized({required double width, required String screen}) => NotationOptions(
-        width: width,
-        screen: screen,
-        textStyles: textStyles,
-        card: card,
-        badges: badges,
-        surface: surface,
-        accent: accent,
-        track: track,
-        components: components,
-        badge: badge,
-        cta: cta,
-        palette: palette,
-        tile: tile,
-        sectionRadius: sectionRadius,
-        barChart: barChart,
-        progress: progress,
-        cardGap: cardGap,
-        pageFill: pageFill,
-        ringStroke: ringStroke,
-        height: height,
-        contentWidth: contentWidth,
-        selectedFill: selectedFill,
-        line: line,
-        narrowWidth: narrowWidth,
-        sidebarWidth: sidebarWidth,
-        sectionPad: sectionPad,
-        gutter: gutter,
-        band: band,
-        siteFill: siteFill,
-        paneFill: paneFill,
-        iconTile: iconTile,
-        controlHeight: controlHeight,
-        fieldLabel: fieldLabel,
-        fieldText: fieldText,
-        reflow: false,
-        displaySizes: displaySizes,
-      );
+  NotationOptions sized({required double width, required String screen}) => NotationOptions(width: width, screen: screen, textStyles: textStyles, card: card, badges: badges, surface: surface, accent: accent, track: track, components: components, badge: badge, cta: cta, palette: palette, tile: tile, sectionRadius: sectionRadius, barChart: barChart, progress: progress, cardGap: cardGap, pageFill: pageFill, ringStroke: ringStroke, height: height, contentWidth: contentWidth, selectedFill: selectedFill, line: line, narrowWidth: narrowWidth, sidebarWidth: sidebarWidth, sectionPad: sectionPad, gutter: gutter, band: band, siteFill: siteFill, paneFill: paneFill, iconTile: iconTile, controlHeight: controlHeight, fieldLabel: fieldLabel, fieldText: fieldText, reflow: false, displaySizes: displaySizes);
 
   /// The canvas's width.
   final double width;
@@ -528,7 +445,11 @@ final class NotationOptions {
     if (palette.isEmpty) return null;
     final want = _argb(hex);
     if (want == null || want >> 24 != 0xFF) return null;
-    final names = switch (kind) { 'text' => _textColors, 'stroke' => _strokeColors, _ => _fillColors };
+    final names = switch (kind) {
+      'text' => _textColors,
+      'stroke' => _strokeColors,
+      _ => _fillColors,
+    };
     final base = _argb(palette['primaryBackground'] ?? palette['surface'] ?? '#FFFFFFFF') ?? 0xFFFFFFFF;
     String? best;
     var bestD = double.infinity;
@@ -554,18 +475,9 @@ const Json defaultBadge = {
 
 /// The names a written color may be read as, by what it colors, in order of
 /// preference when two are as near (SSUI's role and neutral names).
-const _fillColors = [
-  'primaryBackground', 'subtleFill', 'secondaryBackground', 'tertiaryBackground', 'neutralFill', 'track',
-  'primaryTint', 'successTint', 'warningTint', 'errorTint', 'infoTint',
-  'primary', 'success', 'warning', 'error', 'info', 'primaryText',
-];
-const _strokeColors = [
-  'primaryBorder', 'secondaryBorder', 'primaryTintBorder', 'successTintBorder', 'warningTintBorder', 'errorTintBorder',
-  'infoTintBorder', 'primary', 'success', 'warning', 'error', 'info',
-];
-const _textColors = [
-  'primaryText', 'secondaryText', 'tertiaryText', 'onPrimary', 'primary', 'success', 'warning', 'error', 'info',
-];
+const _fillColors = ['primaryBackground', 'subtleFill', 'secondaryBackground', 'tertiaryBackground', 'neutralFill', 'track', 'primaryTint', 'successTint', 'warningTint', 'errorTint', 'infoTint', 'primary', 'success', 'warning', 'error', 'info', 'primaryText'];
+const _strokeColors = ['primaryBorder', 'secondaryBorder', 'primaryTintBorder', 'successTintBorder', 'warningTintBorder', 'errorTintBorder', 'infoTintBorder', 'primary', 'success', 'warning', 'error', 'info'];
+const _textColors = ['primaryText', 'secondaryText', 'tertiaryText', 'onPrimary', 'primary', 'success', 'warning', 'error', 'info'];
 
 /// How far (redmean RGB) a written color may be from the theme's to be read
 /// as it: a gray for a gray, a blue for the blue, not a brand's own hue.
@@ -663,7 +575,10 @@ List<String> notationStrings(WidgetSpec spec) {
       if (spec.props.any((p) => p.key == k && text(p))) k,
   ];
   if (keys.isEmpty) {
-    keys.addAll([for (final p in spec.props) if (text(p) && p.required) p.key]);
+    keys.addAll([
+      for (final p in spec.props)
+        if (text(p) && p.required) p.key,
+    ]);
   }
   return keys.take(2).toList();
 }
@@ -701,6 +616,9 @@ const Map<String, ({String type, Json node})> notationTypes = {
   // Pages swiped across, one at a time: the lines under it are its pages
   // (or, under an `each`, one page per element).
   'Pages': (type: 'pageView', node: {}),
+  // A data table: bound rows, declared columns, and its standard cell and
+  // header templates supplied from the page's text styles.
+  'DataTable': (type: 'tableView', node: {}),
   // A part no component fits, built from plain parts under it; the line
   // names the component wanted for it (see [WantedBlock]).
   'Wanted': (type: 'column', node: {}),
@@ -735,9 +653,11 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'timePicker': (prop: 'value', type: 'text', start: ''),
   // The page shown, from 0: a swipe writes it, and setting it turns the page.
   'pageView': (prop: 'initialPage', type: 'decimal', start: 0),
+  'tableView': (prop: 'selectedRow', type: 'decimal', start: -1),
 };
 
 const _shortKeys = {'gap': 'props.spacing', 'pad': 'layout.padding', 'w': 'layout.width', 'h': 'layout.height', 'grow': 'layout.flex'};
+
 /// Keys a model reaches for that a type spells otherwise.
 const Map<String, Map<String, List<String>>> _typeKeys = {
   'textField': {
@@ -784,16 +704,64 @@ const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9C
 /// once when the node appears (from a pose to the node's own); a loop keeps
 /// going; an effect plays once.
 const Map<String, Json> notationAnimations = {
-  'fade': {'preset': 'enter', 'params': {'from': {'opacity': 0}}},
-  'fade-up': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateY': 16}}},
-  'slide': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateY': 16}}},
-  'slide-up': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateY': 16}}},
-  'slide-down': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateY': -16}}},
-  'slide-left': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateX': 24}}},
-  'slide-right': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'translateX': -24}}},
-  'scale': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'scale': 0.9}}},
-  'zoom': {'preset': 'enter', 'params': {'from': {'opacity': 0, 'scale': 0.9}}},
-  'pulse': {'preset': 'pulse', 'params': {'scaleFrom': 1, 'scaleTo': 1.06, 'opacityFrom': 1, 'opacityTo': 0.7}},
+  'fade': {
+    'preset': 'enter',
+    'params': {
+      'from': {'opacity': 0},
+    },
+  },
+  'fade-up': {
+    'preset': 'enter',
+    'params': {
+      'from': {'opacity': 0, 'translateY': 16},
+    },
+  },
+  'slide': {
+    'preset': 'enter',
+    'params': {
+      'from': {'opacity': 0, 'translateY': 16},
+    },
+  },
+  'slide-up': {
+    'preset': 'enter',
+    'params': {
+      'from': {'opacity': 0, 'translateY': 16},
+    },
+  },
+  'slide-down': {
+    'preset': 'enter',
+    'params': {
+      'from': {'opacity': 0, 'translateY': -16},
+    },
+  },
+  'slide-left': {
+    'preset': 'enter',
+    'params': {
+      'from': {'opacity': 0, 'translateX': 24},
+    },
+  },
+  'slide-right': {
+    'preset': 'enter',
+    'params': {
+      'from': {'opacity': 0, 'translateX': -24},
+    },
+  },
+  'scale': {
+    'preset': 'enter',
+    'params': {
+      'from': {'opacity': 0, 'scale': 0.9},
+    },
+  },
+  'zoom': {
+    'preset': 'enter',
+    'params': {
+      'from': {'opacity': 0, 'scale': 0.9},
+    },
+  },
+  'pulse': {
+    'preset': 'pulse',
+    'params': {'scaleFrom': 1, 'scaleTo': 1.06, 'opacityFrom': 1, 'opacityTo': 0.7},
+  },
   'spin': {'preset': 'spin'},
   'bob': {'preset': 'bob'},
   'sway': {'preset': 'sway'},
@@ -815,43 +783,40 @@ int? _milliseconds(String raw) {
 
 /// `Badge.<tone>`: SSUI's badge tones (components/Badge.json) as fill,
 /// hairline and ink: a 10 % tint of the tone, its 28 % border, the tone.
-const Map<String, (String, String, String)> badgeVariants = {
-  'neutral': ('#FFF3F4F6', '#FFE5E7EB', '#FF4B5563'),
-  'primary': ('#1A2563EB', '#472563EB', '#FF2563EB'),
-  'info': ('#1A0891B2', '#470891B2', '#FF0891B2'),
-  'success': ('#1A16A34A', '#4716A34A', '#FF16A34A'),
-  'warning': ('#1AEA580C', '#47EA580C', '#FFEA580C'),
-  'error': ('#1ADC2626', '#47DC2626', '#FFDC2626'),
-  'danger': ('#1ADC2626', '#47DC2626', '#FFDC2626'),
-};
+const Map<String, (String, String, String)> badgeVariants = {'neutral': ('#FFF3F4F6', '#FFE5E7EB', '#FF4B5563'), 'primary': ('#1A2563EB', '#472563EB', '#FF2563EB'), 'info': ('#1A0891B2', '#470891B2', '#FF0891B2'), 'success': ('#1A16A34A', '#4716A34A', '#FF16A34A'), 'warning': ('#1AEA580C', '#47EA580C', '#FFEA580C'), 'error': ('#1ADC2626', '#47DC2626', '#FFDC2626'), 'danger': ('#1ADC2626', '#47DC2626', '#FFDC2626')};
 
 /// Keys written on a Text that belong to its style.
-const _textStyleKeys = {
-  'color': 'color', 'size': 'fontSize', 'fontSize': 'fontSize', 'weight': 'fontWeight', 'fontWeight': 'fontWeight',
-  'bold': 'fontWeight', 'fontFamily': 'fontFamily', 'font': 'fontFamily', 'lineHeight': 'height',
-};
+const _textStyleKeys = {'color': 'color', 'size': 'fontSize', 'fontSize': 'fontSize', 'weight': 'fontWeight', 'fontWeight': 'fontWeight', 'bold': 'fontWeight', 'fontFamily': 'fontFamily', 'font': 'fontFamily', 'lineHeight': 'height'};
 
 const _layoutKeys = {'width', 'height', 'padding', 'margin', 'flex', 'aspectRatio', 'x', 'y', 'align', 'constraints', 'order', 'basis'};
 const _decorationKeys = {'radius', 'strokeWidth', 'fills', 'strokes', 'effects', 'clip', 'shape'};
 const _borderSides = {
-  'border-bottom': 'bottom', 'border-top': 'top', 'border-left': 'left', 'border-right': 'right', //
-  'borderBottom': 'bottom', 'borderTop': 'top', 'borderLeft': 'left', 'borderRight': 'right', 'border-b': 'bottom', 'border-t': 'top', 'border-l': 'left', 'border-r': 'right',
+  'border-bottom': 'bottom',
+  'border-top': 'top',
+  'border-left': 'left',
+  'border-right': 'right', //
+  'borderBottom': 'bottom',
+  'borderTop': 'top',
+  'borderLeft': 'left',
+  'borderRight': 'right',
+  'border-b': 'bottom',
+  'border-t': 'top',
+  'border-l': 'left',
+  'border-r': 'right',
 };
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
 const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'bottom': 'end', 'right': 'end', 'stretch': 'stretch'};
 
 /// [text] in the compact notation as a layout document. Never throws: what
 /// cannot be read is reported and skipped.
-NotationResult parseNotation(String text, {Catalog? catalog, NotationOptions options = const NotationOptions()}) =>
-    _Parser(catalog ?? Catalog.current, options).parse(text);
+NotationResult parseNotation(String text, {Catalog? catalog, NotationOptions options = const NotationOptions()}) => _Parser(catalog ?? Catalog.current, options).parse(text);
 
 /// The notation read as it arrives: [add] takes text in any chunks and
 /// returns the edit operations of the lines completed so far (a `set` per
 /// node under its parent, `vars` for the state a line introduced), ready
 /// for `applyOps`; [close] gives the last line's.
 final class NotationStream {
-  NotationStream({Catalog? catalog, NotationOptions options = const NotationOptions()})
-      : _parser = _Parser(catalog ?? Catalog.current, options);
+  NotationStream({Catalog? catalog, NotationOptions options = const NotationOptions()}) : _parser = _Parser(catalog ?? Catalog.current, options);
 
   final _Parser _parser;
   final _buffer = StringBuffer();
@@ -927,14 +892,7 @@ class _Open {
 }
 
 class _Parser {
-  _Parser(this.catalog, this.options, [this._host, this._overlay])
-      : variables = _host?.variables ?? {},
-        issues = _host?.issues ?? [],
-        wanted = _host?.wanted ?? [],
-        _declared = _host?._declared ?? {},
-        _counts = _host?._counts ?? {},
-        _derived = _host?._derived ?? {},
-        _projectVariables = _host?._projectVariables ?? {} {
+  _Parser(this.catalog, this.options, [this._host, this._overlay]) : variables = _host?.variables ?? {}, issues = _host?.issues ?? [], wanted = _host?.wanted ?? [], _declared = _host?._declared ?? {}, _counts = _host?._counts ?? {}, _derived = _host?._derived ?? {}, _projectVariables = _host?._projectVariables ?? {} {
     // The site's variables (its manifest's): known here, and never declared on the screen.
     if (_host == null) {
       for (final e in options.projectVariables.entries) {
@@ -1013,7 +971,13 @@ class _Parser {
             {'color': options.line},
           ],
         'effects': [
-          {'type': 'dropShadow', 'color': '#24000000', 'offset': [0, 12], 'blurRadius': 32, 'spreadRadius': -6},
+          {
+            'type': 'dropShadow',
+            'color': '#24000000',
+            'offset': [0, 12],
+            'blurRadius': 32,
+            'spreadRadius': -6,
+          },
         ],
       };
     }
@@ -1070,7 +1034,11 @@ class _Parser {
         for (final e in p.nodes.entries) {
           final actions = e.value['actions'];
           if (actions != null && jsonEncode(actions).contains('"to":"${o.id}"')) {
-            ops.add({'op': 'patch', 'id': e.key, 'patch': {'actions': actions}});
+            ops.add({
+              'op': 'patch',
+              'id': e.key,
+              'patch': {'actions': actions},
+            });
           }
         }
       }
@@ -1081,7 +1049,18 @@ class _Parser {
         final String s when s.startsWith('[') => _json(s) ?? const <Object?>[],
         final v => v,
       };
-      variables.putIfAbsent(e.key, () => {'name': e.key, 'type': value is List ? 'list' : value is num ? 'decimal' : 'text', 'value': value});
+      variables.putIfAbsent(
+        e.key,
+        () => {
+          'name': e.key,
+          'type': value is List
+              ? 'list'
+              : value is num
+              ? 'decimal'
+              : 'text',
+          'value': value,
+        },
+      );
     }
     _block = sub;
     _blockLines.clear();
@@ -1236,8 +1215,8 @@ class _Parser {
       String look(String c) => c.startsWith('#')
           ? '"$c"'
           : const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(c)
-              ? 'theme.$c'
-              : 'theme.colors.$c';
+          ? 'theme.$c'
+          : 'theme.colors.$c';
       final page = dots[2]!, count = dots[3]!.startsWith('=') ? dots[3]!.substring(1) : dots[3]!;
       variables.putIfAbsent(page, () => {'name': page, 'type': 'decimal', 'value': 0});
       _lineAt(indent, 'Row${dots[1] ?? ''} gap:6 center middle h:16${dots[4] ?? ''}', indent + 1);
@@ -1299,9 +1278,7 @@ class _Parser {
     takesViewer: (name) {
       if (notationTypes[name] != null) return false;
       final spec = catalog.widget(name);
-      return spec != null &&
-          spec.props.any((p) => p.key == 'photos') &&
-          spec.props.any((p) => p.key == 'viewer' && p.type.kind == PropKind.enumeration && p.type.values.contains('overlay'));
+      return spec != null && spec.props.any((p) => p.key == 'photos') && spec.props.any((p) => p.key == 'viewer' && p.type.kind == PropKind.enumeration && p.type.values.contains('overlay'));
     },
   );
 
@@ -1329,21 +1306,27 @@ class _Parser {
     final rules = PageReflow(
       nodes: nodes,
       roles: _roles,
-      gridRows: {
-        for (final e in _gridRows.entries) e.key: (cols: e.value.cols, gap: e.value.gap),
-      },
+      gridRows: {for (final e in _gridRows.entries) e.key: (cols: e.value.cols, gap: e.value.gap)},
       cards: _cards,
       tableRows: _tableRows,
       displaySizes: options.displaySizes,
       isComponent: (type) => type.isNotEmpty && type[0].toUpperCase() == type[0] && catalog.widget(type) != null,
-      fillsItsPlace: (type) => switch (options.components[type]?.width) { final Map m => m.containsKey('fill'), _ => false },
+      fillsItsPlace: (type) => switch (options.components[type]?.width) {
+        final Map m => m.containsKey('fill'),
+        _ => false,
+      },
     ).run();
     for (final e in rules.entries) {
       final node = nodes[e.key]!;
       // The line's own rules (hide:phone) come after, so they win.
       final media = [...e.value, ...?(node['media'] as List?)];
       node['media'] = media;
-      if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
+      if (_canvas)
+        ops.add({
+          'op': 'patch',
+          'id': e.key,
+          'patch': {'media': media},
+        });
     }
   }
 
@@ -1398,7 +1381,14 @@ class _Parser {
       if (_pages.app || (height is Map && height.containsKey('fill'))) {
         _windowed = true;
         // The canvas may be there already (a `state` line came first).
-        if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'layout': {'height': _canvasHeight}}});
+        if (_canvas)
+          _patches.add({
+            'op': 'patch',
+            'id': options.screen,
+            'patch': {
+              'layout': {'height': _canvasHeight},
+            },
+          });
       }
     }
     final screen = options.screen;
@@ -1490,7 +1480,10 @@ class _Parser {
         'op': 'patch',
         'id': id,
         'patch': {
-          'layout': {'width': {'fill': 0}, 'flex': w},
+          'layout': {
+            'width': {'fill': 0},
+            'flex': w,
+          },
         },
       });
     }
@@ -1505,7 +1498,10 @@ class _Parser {
     final first = _root!;
     nodes[page] = {
       'type': 'column',
-      'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+      'layout': {
+        'width': {'fill': 0},
+        'height': {'hug': 0},
+      },
       'props': {'crossAxisAlignment': 'stretch'},
       'children': <Object?>[first],
     };
@@ -1560,18 +1556,18 @@ class _Parser {
     finish();
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
-    return NotationResult(patched({
-      'schema': 3,
-      'roots': _rootIds,
-      'nodes': {
-        for (final p in [this, ..._overlays]) ...{
-          p.options.screen: p._canvasNode,
-          ...p.nodes,
+    return NotationResult(
+      patched({
+        'schema': 3,
+        'roots': _rootIds,
+        'nodes': {
+          for (final p in [this, ..._overlays]) ...{p.options.screen: p._canvasNode, ...p.nodes},
         },
-      },
-      if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
-        'variables': {_scope: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
-    }), issues, wanted: List.unmodifiable(wanted));
+        if (variables.values.any((v) => !_projectVariables.contains(v['name']))) 'variables': {_scope: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
+      }),
+      issues,
+      wanted: List.unmodifiable(wanted),
+    );
   }
 
   void _issue(int column, String message) => issues.add(NotationIssue(_line, column, message));
@@ -1633,7 +1629,14 @@ class _Parser {
         'trigger': {'type': 'timer', 'intervalMs': ms, if (every[3] != null) 'when': _formula(every[3]!.trim())},
         'actions': _actions(every[4]!.trim(), column),
       });
-      if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
+      if (_canvas)
+        _patches.add({
+          'op': 'patch',
+          'id': options.screen,
+          'patch': {
+            'actions': [..._timers],
+          },
+        });
       return;
     }
     if (line.startsWith('every ')) {
@@ -1665,10 +1668,7 @@ class _Parser {
       // still a name: written out, it is a formula no call pattern follows.
       if (line.contains('${d.key}.')) {
         final k = RegExp.escape(d.key);
-        line = line
-            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.toFixed\\((\\d+)\\)'), (m) => 'fixed(${d.key},${m[1]})')
-            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.length\\b(?!\\()'), (m) => 'length(${d.key})')
-            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.([a-zA-Z]+)\\((\\)?)'), (m) {
+        line = line.replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.toFixed\\((\\d+)\\)'), (m) => 'fixed(${d.key},${m[1]})').replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.length\\b(?!\\()'), (m) => 'length(${d.key})').replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.([a-zA-Z]+)\\((\\)?)'), (m) {
           if (!_methods.contains(m[1])) return m[0]!;
           return m[2] == ')' ? '${m[1]}(${d.key})' : '${m[1]}(${d.key},';
         });
@@ -1688,7 +1688,11 @@ class _Parser {
       final reaction = {'trigger': _handlerTrigger(handler[1]!, type, isComponent ? spec : null, target), 'actions': _actions(_statements(body), column)};
       final actions = [...?(target['actions'] as List?), reaction];
       target['actions'] = actions;
-      _patches.add({'op': 'patch', 'id': parent.id, 'patch': {'actions': actions}});
+      _patches.add({
+        'op': 'patch',
+        'id': parent.id,
+        'patch': {'actions': actions},
+      });
       return;
     }
     // `else` and `else if …` after an `if` at the same depth: shown while
@@ -1745,7 +1749,14 @@ class _Parser {
         final view = nodes[pagesId]!;
         view['bind'] = {...?(view['bind'] as Map?)?.cast<String, Object?>(), ...data};
         (view['props'] as Map?)?.remove('itemCount');
-        _patches.add({'op': 'patch', 'id': pagesId, 'patch': {'bind': data, 'props': {'itemCount': null}}});
+        _patches.add({
+          'op': 'patch',
+          'id': pagesId,
+          'patch': {
+            'bind': data,
+            'props': {'itemCount': null},
+          },
+        });
         _stack.add(_Open(indent, parent.id, 'column', each: each[1], list: each[2]!.trim(), pages: pagesId));
         return;
       }
@@ -1758,7 +1769,12 @@ class _Parser {
         final id = _id('listView');
         nodes[id] = {
           'type': 'listView',
-          'layout': {'width': {'fill': 0}, 'height': {'fill': 0}, 'x': 0, 'y': 0},
+          'layout': {
+            'width': {'fill': 0},
+            'height': {'fill': 0},
+            'x': 0,
+            'y': 0,
+          },
           'props': {'layout': 'stack'},
           'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
           'children': <Object?>[],
@@ -1774,13 +1790,16 @@ class _Parser {
       _acrossLists[itemId] = listId;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
-        'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
+        'layout': {
+          'width': across ? {'hug': 0} : {'fill': 0},
+          'height': {'hug': 0},
+        },
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
             ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
             : across
-                ? {'scrollable': false, 'scrollDirection': 'horizontal', 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0}
-                : {'scrollable': false, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0},
+            ? {'scrollable': false, 'scrollDirection': 'horizontal', 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0}
+            : {'scrollable': false, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0},
         'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
         'children': <Object?>[itemId],
       };
@@ -1789,7 +1808,15 @@ class _Parser {
       _parentOf[listId] = parent.id;
       nodes[itemId] = {
         'type': 'column',
-        'layout': across ? {'width': {'hug': 0}, 'height': {'fill': 0}} : {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'layout': across
+            ? {
+                'width': {'hug': 0},
+                'height': {'fill': 0},
+              }
+            : {
+                'width': {'fill': 0},
+                'height': {'hug': 0},
+              },
         'props': {'crossAxisAlignment': 'start', if (across) 'mainAxisAlignment': 'center'},
       };
       _parentOf[itemId] = listId;
@@ -1855,8 +1882,7 @@ class _Parser {
     var type = short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
     // A design system's component, called by its own name (`StatusBadge`,
     // `Stepper`): a core type of that name, or a short name, comes first.
-    final component =
-        short == null && (catalog.widget(type) == null || notationComponentFirst.contains(written)) && catalog.widget(written) != null;
+    final component = short == null && (catalog.widget(type) == null || notationComponentFirst.contains(written)) && catalog.widget(written) != null;
     // Whether the notation's own Gauge, Ring, Avatar… is what this line is
     // (not a design system's component of that name).
     final ours = short != null;
@@ -1912,7 +1938,11 @@ class _Parser {
         ],
         'radius': look['radius'] ?? 5,
       });
-      layout.addAll({'width': {'hug': 0}, 'height': look['height'] ?? 20, 'padding': _copyValue(look['padding'] ?? const [8, 0, 8, 0])});
+      layout.addAll({
+        'width': {'hug': 0},
+        'height': look['height'] ?? 20,
+        'padding': _copyValue(look['padding'] ?? const [8, 0, 8, 0]),
+      });
       props.addAll({'mainAxisAlignment': 'center', 'crossAxisAlignment': 'center'});
       _textStyle = switch (look['style']) {
         final Map m => {...m.cast<String, Object?>(), 'color': tone.$3},
@@ -2011,11 +2041,7 @@ class _Parser {
         // Past the strings it is known by, a further string goes to its next
         // text parameter not yet given, in the order they are declared
         // (CartLine "Bananas" "1 kg" "$2.49": the price).
-        final key = strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull ??
-            spec.props
-                .where((p) => p.type.kind == PropKind.string && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}'))
-                .firstOrNull
-                ?.key;
+        final key = strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull ?? spec.props.where((p) => p.type.kind == PropKind.string && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}')).firstOrNull?.key;
         if (key == null) {
           _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key:"value".');
         } else if (text.contains(r'${')) {
@@ -2036,9 +2062,11 @@ class _Parser {
         reactions.add({
           'trigger': node.containsKey('dropTarget')
               ? {'type': 'drop'}
+              : written == 'DataTable'
+              ? {'type': 'rowTap'}
               : event != null
-                  ? {'type': 'event', 'event': event.key}
-                  : {'type': swipe ?? (_valueProps.containsKey(type) ? 'changed' : 'click')},
+              ? {'type': 'event', 'event': event.key}
+              : {'type': swipe ?? (_valueProps.containsKey(type) ? 'changed' : 'click')},
           'actions': _actions(t.rest.substring(0, tail).trim(), col),
         });
         t.at += tail;
@@ -2097,9 +2125,7 @@ class _Parser {
         final expr = t.expression().trim();
         final value = _valueProps[type];
         // A component keeps its value in the variable its parameter names.
-        final held = !component
-            ? null
-            : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
+        final held = !component ? null : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
         if (held != null) {
           if (!_identifier.hasMatch(expr) || expr.contains('.')) {
             _issue(col, 'A $written keeps its ${held.key} in a variable: write =name.');
@@ -2153,20 +2179,36 @@ class _Parser {
           } else if (_identifier.hasMatch(expr)) {
             variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
             reactions.insert(0, {
-              'trigger': {'type': 'changed'},
+              'trigger': {'type': type == 'tableView' ? 'rowTap' : 'changed'},
               'actions': [
-                {'type': 'setVariable', 'variable': expr, 'value': list ? r'${result[0]}' : type == 'pageView' ? r'${result.index}' : r'${result}'},
+                {
+                  'type': 'setVariable',
+                  'variable': expr,
+                  'value': list
+                      ? r'${result[0]}'
+                      : type == 'pageView'
+                      ? r'${result.index}'
+                      : type == 'tableView'
+                      ? r'${result.rowIndex}'
+                      : r'${result}',
+                },
               ],
             });
+            if (type == 'tableView') {
+              reactions.add({
+                'trigger': {'type': 'sort'},
+                'actions': [
+                  {'type': 'setVariable', 'variable': expr, 'value': '-1'},
+                ],
+              });
+            }
           }
         }
       } else {
         // An expression where the string goes (`Button open ? "Hide" : "Show"`).
         final from = t.at;
         final bare = t.expression();
-        final shownKey = component
-            ? strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull
-            : _shownValue[type] ?? _mainKey(type, spec);
+        final shownKey = component ? strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull : _shownValue[type] ?? _mainKey(type, spec);
         if (component && shownKey != null && bare.contains(' ') && bare.contains('?') && !RegExp(r'^[A-Za-z]+:').hasMatch(bare)) {
           positional.add(shownKey);
         }
@@ -2223,7 +2265,12 @@ class _Parser {
             final body = options.textStyles['body'];
             final style = switch (props['style']) {
               final Map m => m.cast<String, Object?>(),
-              _ => body is Map ? _copy(body.cast<String, Object?>()) : body is String ? <String, Object?>{'from': body} : <String, Object?>{},
+              _ =>
+                body is Map
+                    ? _copy(body.cast<String, Object?>())
+                    : body is String
+                    ? <String, Object?>{'from': body}
+                    : <String, Object?>{},
             };
             props['style'] = style..['fontStyle'] = 'italic';
           } else if (_mainWords[word] case final String m when type == 'row' || type == 'column') {
@@ -2293,13 +2340,20 @@ class _Parser {
           continue;
         }
         var raw = word.substring(colon + 1);
+        if (written == 'DataTable' && key == 'rows') {
+          bind['data'] = _read(raw.startsWith('=') ? raw.substring(1) : raw);
+          continue;
+        }
         // `menu:rowMenu`: a right click, or a long press on a touch screen,
         // opens that Menu where the pointer is (a context menu).
         if (key == 'menu' && _identifier.hasMatch(raw) && !raw.contains('.') && !spec.props.any((p) => p.key == 'menu')) {
           for (final trigger in const ['secondaryClick', 'longPress']) {
             final actions = _actions('open $raw', col);
             actions.forEach(_atPointer);
-            reactions.add({'trigger': {'type': trigger}, 'actions': actions});
+            reactions.add({
+              'trigger': {'type': trigger},
+              'actions': actions,
+            });
           }
           continue;
         }
@@ -2358,9 +2412,12 @@ class _Parser {
         if (key == 'fill') {
           if (raw.startsWith('=')) {
             bind['decoration.fills[0].color'] = _namedIn(_read(raw.substring(1)), 'fill');
-            decoration.putIfAbsent('fills', () => [
-                  {'color': '#00000000'},
-                ]);
+            decoration.putIfAbsent(
+              'fills',
+              () => [
+                {'color': '#00000000'},
+              ],
+            );
           } else {
             var fill = _named(_value(raw), 'fill');
             // On the page, a fill the theme reads as the page's own color
@@ -2417,7 +2474,13 @@ class _Parser {
         // A design system's Avatar sizes by name: a number is the nearest.
         if (key == 'size' && component && written == 'Avatar' && num.tryParse(raw) != null) {
           final n = num.parse(raw);
-          props['size'] = n <= 24 ? 'xs' : n <= 32 ? 'small' : n <= 44 ? 'medium' : 'large';
+          props['size'] = n <= 24
+              ? 'xs'
+              : n <= 32
+              ? 'small'
+              : n <= 44
+              ? 'medium'
+              : 'large';
           continue;
         }
         // gradient:["#FF7C3AED","#FFEC4899"]: a fill from the first color to the last, corner to corner.
@@ -2477,7 +2540,13 @@ class _Parser {
               // A line under an `if` binds visible, and a binding shows over
               // a patched value: where the size hides the node, the binding is
               // dropped, so the condition holds only where the node shows.
-              {...rule, 'patch': {'visible': false, 'bind': {'visible': null}}},
+              {
+                ...rule,
+                'patch': {
+                  'visible': false,
+                  'bind': {'visible': null},
+                },
+              },
             ];
           }
           continue;
@@ -2534,9 +2603,12 @@ class _Parser {
         if (key == 'border') {
           if (raw.startsWith('=')) {
             bind['decoration.strokes[0].color'] = _namedIn(_read(raw.substring(1)), 'stroke');
-            decoration.putIfAbsent('strokes', () => [
-                  {'color': '#00000000'},
-                ]);
+            decoration.putIfAbsent(
+              'strokes',
+              () => [
+                {'color': '#00000000'},
+              ],
+            );
           } else {
             decoration['strokes'] = [
               {'color': _named(_value(raw), 'stroke')},
@@ -2557,7 +2629,12 @@ class _Parser {
           final body = options.textStyles['body'];
           final style = switch (props['style']) {
             final Map m => m.cast<String, Object?>(),
-            _ => body is Map ? _copy(body.cast<String, Object?>()) : body is String ? <String, Object?>{'from': body} : <String, Object?>{},
+            _ =>
+              body is Map
+                  ? _copy(body.cast<String, Object?>())
+                  : body is String
+                  ? <String, Object?>{'from': body}
+                  : <String, Object?>{},
           };
           final v = key == 'color' ? _named(_value(raw), 'text') : _value(raw);
           style[_textStyleKeys[key]!] = key == 'bold' ? 700 : v;
@@ -2567,7 +2644,9 @@ class _Parser {
         if (type == 'segmentedButton' && key == 'items') {
           final items = _value(raw);
           if (items is List) {
-            props['segments'] = [for (final i in items) {'value': '$i', 'label': '$i'}];
+            props['segments'] = [
+              for (final i in items) {'value': '$i', 'label': '$i'},
+            ];
             continue;
           }
         }
@@ -2651,7 +2730,16 @@ class _Parser {
           positional.remove(moved);
           continue;
         }
-        _issue(column, 'A $written needs ${p.key}: write ${p.key}:${p.type.isVariable ? 'name (a variable), or =name' : p.type.kind == PropKind.list ? '["a","b"]' : p.type.kind == PropKind.string ? '"…"' : 'value'}.');
+        _issue(
+          column,
+          'A $written needs ${p.key}: write ${p.key}:${p.type.isVariable
+              ? 'name (a variable), or =name'
+              : p.type.kind == PropKind.list
+              ? '["a","b"]'
+              : p.type.kind == PropKind.string
+              ? '"…"'
+              : 'value'}.',
+        );
       }
     }
     // A component is as big as its own design says, unless the line does.
@@ -2681,7 +2769,10 @@ class _Parser {
       final url = props.remove('text');
       decoration['fills'] = [
         {
-          'image': {'url': url ?? '', 'fit': const {'cover', 'contain', 'fill', 'fitWidth', 'fitHeight', 'none', 'scaleDown'}.contains(imageFit) ? imageFit : 'cover'},
+          'image': {
+            'url': url ?? '',
+            'fit': const {'cover', 'contain', 'fill', 'fitWidth', 'fitHeight', 'none', 'scaleDown'}.contains(imageFit) ? imageFit : 'cover',
+          },
         },
       ];
       layout.putIfAbsent('height', () => 160);
@@ -2694,12 +2785,7 @@ class _Parser {
       props['chartType'] = 'donut';
       if (values is List) {
         props['data'] = [
-          for (var i = 0; i < values.length; i++)
-            {
-              'label': labels is List && i < labels.length ? '${labels[i]}' : '',
-              'value': values[i],
-              'color': colors is List && i < colors.length ? _named(colors[i], 'fill') : palette[i % palette.length],
-            },
+          for (var i = 0; i < values.length; i++) {'label': labels is List && i < labels.length ? '${labels[i]}' : '', 'value': values[i], 'color': colors is List && i < colors.length ? _named(colors[i], 'fill') : palette[i % palette.length]},
         ];
       }
       props['series'] = [
@@ -2709,9 +2795,7 @@ class _Parser {
       final legend = props.remove('legend');
       if (options.width >= 700 && legend != false && values is List && labels is List && labels.any((l) => '$l'.isNotEmpty)) {
         final data = (props['data']! as List).cast<Map>();
-        donutKeys = [
-          for (final d in data) (label: '${d['label']}', value: d['value'], color: d['color']),
-        ];
+        donutKeys = [for (final d in data) (label: '${d['label']}', value: d['value'], color: d['color'])];
       }
       props.putIfAbsent('donutThickness', () => written.startsWith('Pie') && props['donut'] != true ? 0.5 : 0.22);
       props.remove('donut');
@@ -2749,14 +2833,7 @@ class _Parser {
                 },
             ],
             'series': [
-              for (var k = 0; k < all.length; k++)
-                {
-                  'field': 's$k',
-                  if (all[k].name.isNotEmpty) 'name': all[k].name,
-                  'kind': area ? 'area' : 'line',
-                  'color': all[k].color is String ? _named(all[k].color, 'fill') : palette[k % palette.length],
-                  'curved': true,
-                },
+              for (var k = 0; k < all.length; k++) {'field': 's$k', if (all[k].name.isNotEmpty) 'name': all[k].name, 'kind': area ? 'area' : 'line', 'color': all[k].color is String ? _named(all[k].color, 'fill') : palette[k % palette.length], 'curved': true},
             ],
           });
         layout.putIfAbsent('height', () => 160);
@@ -2776,7 +2853,9 @@ class _Parser {
       if (type == 'lineChart' && props['values'] is List) {
         final values = props.remove('values')! as List;
         props.remove('labels');
-        props['data'] = [for (var i = 0; i < values.length; i++) {'x': i, 'y': values[i]}];
+        props['data'] = [
+          for (var i = 0; i < values.length; i++) {'x': i, 'y': values[i]},
+        ];
         props['xField'] = 'x';
         props['yField'] = 'y';
       }
@@ -2809,9 +2888,12 @@ class _Parser {
           },
         ];
       } else {
-        decoration.putIfAbsent('fills', () => [
-              {'color': _named('#FFE5E7EB', 'fill')},
-            ]);
+        decoration.putIfAbsent(
+          'fills',
+          () => [
+            {'color': _named('#FFE5E7EB', 'fill')},
+          ],
+        );
         avatarName = shown is String ? shown : '';
         props.addAll({'mainAxisAlignment': 'center', 'crossAxisAlignment': 'center'});
       }
@@ -2882,8 +2964,22 @@ class _Parser {
     // In a stack that centers, a child with no place of its own is centered.
     if (parent != null && _stackAlign[parent.id] != null) {
       final words = _stackAlign[parent.id]!;
-      final across = words.contains('center') ? 0 : words.contains('right') || words.contains('end') ? 1 : words.contains('left') || words.contains('start') ? -1 : null;
-      final down = words.contains('middle') ? 0 : words.contains('bottom') ? 1 : words.contains('top') ? -1 : words.length == 1 && across == 0 ? 0 : null;
+      final across = words.contains('center')
+          ? 0
+          : words.contains('right') || words.contains('end')
+          ? 1
+          : words.contains('left') || words.contains('start')
+          ? -1
+          : null;
+      final down = words.contains('middle')
+          ? 0
+          : words.contains('bottom')
+          ? 1
+          : words.contains('top')
+          ? -1
+          : words.length == 1 && across == 0
+          ? 0
+          : null;
       if (across != null) {
         layout.putIfAbsent('x', () => {'align': across});
         // As wide as it is, or it would fill the stack and sit at its start.
@@ -2901,6 +2997,16 @@ class _Parser {
       final v = props['value'];
       if (v is! num || v <= 1) props['max'] = 1;
       props.putIfAbsent('borderRadius', () => options.progress['borderRadius'] ?? 2);
+    }
+    if (written == 'DataTable') {
+      props.putIfAbsent('rowHeight', () => 48);
+      props.putIfAbsent('headerHeight', () => 48);
+      props.putIfAbsent('fillWidth', () => true);
+      props.putIfAbsent('sortable', () => true);
+      props.putIfAbsent('gridLineColor', () => options.track);
+      layout.putIfAbsent('height', () => 320);
+      if (!bind.containsKey('data')) _issue(column, 'DataTable needs rows:=list, the records it displays.');
+      if (!props.containsKey('columns') && !bind.containsKey('props.columns')) _issue(column, 'DataTable needs columns:[{"key":"name","label":"Name"}].');
     }
     if (type == 'progressBar' && options.progress['height'] != null) layout.putIfAbsent('height', () => options.progress['height']);
     // A card that writes no gap takes the theme's.
@@ -2986,7 +3092,12 @@ class _Parser {
     if (options.controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
       // A field's label sits above its box, inside its height (11.5 px
       // text and 6 px under it).
-      final label = type == 'textField' && switch ((props['decoration'] as Map?)?['labelText']) { final String l => l.isNotEmpty, _ => false };
+      final label =
+          type == 'textField' &&
+          switch ((props['decoration'] as Map?)?['labelText']) {
+            final String l => l.isNotEmpty,
+            _ => false,
+          };
       if (!layout.containsKey('height') && props['maxLines'] == null && props['minLines'] == null) {
         layout['height'] = options.controlHeight! + (label ? (options.fieldLabel == null ? 20 : 23) : 0);
       }
@@ -3004,7 +3115,9 @@ class _Parser {
       final h = (box?['layout'] as Map?)?['height'];
       if (box != null && h is num && h > 0 && (box['props'] as Map?)?['scrollable'] != true) {
         final Json patch = {
-          'layout': {'height': {'hug': h}},
+          'layout': {
+            'height': {'hug': h},
+          },
         };
         nodes[parent.id] = mergePatch(box, patch);
         _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
@@ -3031,22 +3144,22 @@ class _Parser {
       // Nor in one that centers or ends its children: a child that filled
       // it would have nowhere to move.
       final parentCross = parent == null ? null : (nodes[parent.id]?['props'] as Map?)?['crossAxisAlignment'];
-      final inHug = parent?.type == 'column' &&
-          parent?.grid == null &&
-          (parentWidth is Map && parentWidth.containsKey('hug') || parentCross == 'center' || parentCross == 'end');
+      final inHug = parent?.type == 'column' && parent?.grid == null && (parentWidth is Map && parentWidth.containsKey('hug') || parentCross == 'center' || parentCross == 'end');
       // A row that spreads its children (between, around, evenly) has to be
       // as wide as its place to spread them over: in a centered column too.
       final spread = type == 'row' && !inRow && !inTile && const {'spaceBetween', 'spaceAround', 'spaceEvenly'}.contains(props['mainAxisAlignment']);
       // An icon is as big as it is: it does not stretch across a column.
-      final fills = layout.containsKey('flex') ||
-          spread ||
-          !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
+      final fills = layout.containsKey('flex') || spread || !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
       layout['width'] = _size(layout['width']);
     }
     // A page is as tall as its page view.
-    layout['height'] = layout.containsKey('height') ? _size(layout['height']) : parent?.pages != null ? {'fill': 0} : {'hug': 0};
+    layout['height'] = layout.containsKey('height')
+        ? _size(layout['height'])
+        : parent?.pages != null
+        ? {'fill': 0}
+        : {'hug': 0};
     // A spacer that grows in a column takes the height left (what is under
     // it sits at the column's foot).
     if (type == 'spacer' && layout.containsKey('flex') && parent?.type == 'column' && !inRow) layout['height'] = {'fill': 0};
@@ -3064,31 +3177,32 @@ class _Parser {
         final inner = data.startsWith(r'${=')
             ? data.substring(3, data.length - 1).trim()
             : data.startsWith(r'${')
-                ? data.substring(2, data.length - 1).trim()
-                : '[]';
+            ? data.substring(2, data.length - 1).trim()
+            : '[]';
         final Json listPatch = {
           'type': 'gridView',
-          'layout': {'width': {'hug': null, 'fill': 0}},
-          'props': {
-            'scrollable': null,
-            'scrollDirection': null,
-            'spacing': null,
-            'crossAxisCount': 1,
-            'crossAxisSpacing': (list['props'] as Map?)?['spacing'] ?? 0,
-            'shrinkWrapRows': true,
-            'physics': 'never',
+          'layout': {
+            'width': {'hug': null, 'fill': 0},
           },
+          'props': {'scrollable': null, 'scrollDirection': null, 'spacing': null, 'crossAxisCount': 1, 'crossAxisSpacing': (list['props'] as Map?)?['spacing'] ?? 0, 'shrinkWrapRows': true, 'physics': 'never'},
           'bind': {'props.crossAxisCount': '\${= max(1, length($inner))}'},
         };
         const Json itemPatch = {
-          'layout': {'width': {'hug': null, 'fill': 0}, 'height': {'fill': null, 'hug': 0}},
+          'layout': {
+            'width': {'hug': null, 'fill': 0},
+            'height': {'fill': null, 'hug': 0},
+          },
           'props': {'mainAxisAlignment': null, 'crossAxisAlignment': 'stretch'},
         };
         nodes[listId!] = mergePatch(list, listPatch);
         nodes[parent.id] = mergePatch(nodes[parent.id]!, itemPatch);
         // A patch cannot change a type: the list is set again, keeping its item.
         _patches
-          ..add({'op': 'set', 'id': listId, 'node': {...nodes[listId]!}})
+          ..add({
+            'op': 'set',
+            'id': listId,
+            'node': {...nodes[listId]!},
+          })
           ..add({'op': 'patch', 'id': parent.id, 'patch': itemPatch});
         layout
           ..remove('flex')
@@ -3109,24 +3223,22 @@ class _Parser {
       bind['visible'] = own is String ? _and(shown, own) : shown;
       final view = nodes[parent.pages]!;
       (view['props'] as Json? ?? (view['props'] = <String, Object?>{}))['itemCount'] = at + 1;
-      _patches.add({'op': 'patch', 'id': parent.pages, 'patch': {'props': {'itemCount': at + 1}}});
+      _patches.add({
+        'op': 'patch',
+        'id': parent.pages,
+        'patch': {
+          'props': {'itemCount': at + 1},
+        },
+      });
     }
 
     // What scrolls sideways inside a padded card cannot reach the card's
     // edge, so it would end in a hard cut: it fades out there instead.
-    if ((type == 'row' && props['scrollable'] == true && props['scrollDirection'] == 'horizontal') ||
-        (type == 'pageView' && props['viewportFraction'] != null)) {
+    if ((type == 'row' && props['scrollable'] == true && props['scrollDirection'] == 'horizontal') || (type == 'pageView' && props['viewportFraction'] != null)) {
       props.putIfAbsent('edgeFade', () => 12);
     }
 
-    final out = <String, Object?>{
-      'type': type,
-      'layout': layout,
-      if (props.isNotEmpty) 'props': props,
-      if (decoration.isNotEmpty) 'decoration': decoration,
-      if (bind.isNotEmpty) 'bind': bind,
-      if (reactions.isNotEmpty) 'actions': reactions,
-    };
+    final out = <String, Object?>{'type': type, 'layout': layout, if (props.isNotEmpty) 'props': props, if (decoration.isNotEmpty) 'decoration': decoration, if (bind.isNotEmpty) 'bind': bind, if (reactions.isNotEmpty) 'actions': reactions};
     _merge(out, node);
     // An expression written as a value in the tail ({"props": {"color": "${= …}"}})
     // is a binding: only a text's own text reads one as written.
@@ -3157,17 +3269,50 @@ class _Parser {
       if (moved.isNotEmpty) out['bind'] = {...?(out['bind'] as Map?)?.cast<String, Object?>(), ...moved};
     }
     nodes[id] = out;
+    if (written == 'DataTable') {
+      final cellId = '${id}Cell', headerId = '${id}Header';
+      out['slots'] = {'cell': cellId, 'columnHeader': headerId};
+      final body = options.textStyles['body'];
+      final strong = options.textStyles['strong'] ?? body;
+      nodes[cellId] = {
+        'type': 'text',
+        'layout': {
+          'width': {'fill': 0},
+          'height': {'hug': 0},
+          'padding': [12, 0, 12, 0],
+        },
+        'props': {'text': r'${item.value}', if (body != null) 'style': _copyValue(body)},
+      };
+      nodes[headerId] = {
+        'type': 'text',
+        'layout': {
+          'width': {'fill': 0},
+          'height': {'hug': 0},
+          'padding': [12, 0, 12, 0],
+        },
+        'props': {'text': r'${item.label}', if (strong != null) 'style': _copyValue(strong)},
+      };
+      _parentOf[cellId] = id;
+      _parentOf[headerId] = id;
+    }
     if (donutKeys != null) _donutLegend(id, out, donutKeys, inRow: parent?.type == 'row');
     if (avatarName != null) {
       // "Maya Reyes" is MR; a value read from state is shown as it is.
       final reads = avatarName.contains(r'${') || avatarName.contains('{');
       final words = avatarName.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
-      final initials = reads || words.isEmpty ? avatarName : words.length == 1 ? words.first.substring(0, words.first.length.clamp(0, 2)).toUpperCase() : '${words.first[0]}${words.last[0]}'.toUpperCase();
+      final initials = reads || words.isEmpty
+          ? avatarName
+          : words.length == 1
+          ? words.first.substring(0, words.first.length.clamp(0, 2)).toUpperCase()
+          : '${words.first[0]}${words.last[0]}'.toUpperCase();
       final size = (out['layout'] as Map)['width'] as num;
       final base = options.textStyles['strong'] ?? options.textStyles['body'];
       nodes['${id}Text'] = {
         'type': 'text',
-        'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+        'layout': {
+          'width': {'hug': 0},
+          'height': {'hug': 0},
+        },
         'props': {
           'text': initials,
           'style': {...(base is Map ? _copy(base.cast<String, Object?>()) : const <String, Object?>{}), 'fontSize': (size * 0.38).roundToDouble(), 'fontWeight': 600},
@@ -3189,25 +3334,39 @@ class _Parser {
         if (out['visible'] != null) 'visible': out.remove('visible'),
         'children': ['${id}Arc', '${id}Value', if (gaugeUnit != null) '${id}Unit'],
       };
-      nodes['${id}Arc'] = out..['layout'] = {'width': {'fill': 0}, 'height': {'fill': 0}, 'x': 0, 'y': 0};
+      nodes['${id}Arc'] = out
+        ..['layout'] = {
+          'width': {'fill': 0},
+          'height': {'fill': 0},
+          'x': 0,
+          'y': 0,
+        };
       nodes['${id}Value'] = {
         'type': 'text',
-        'layout': {'width': {'hug': 0}, 'height': {'hug': 0}, 'x': {'align': 0}, 'y': {'align': gaugeUnit == null ? 0.15 : 0.05}},
+        'layout': {
+          'width': {'hug': 0},
+          'height': {'hug': 0},
+          'x': {'align': 0},
+          'y': {'align': gaugeUnit == null ? 0.15 : 0.05},
+        },
         // The figure is sized to its gauge.
         'props': {
           'text': value is num ? (value == value.roundToDouble() ? '${value.round()}' : '$value') : '',
           // The theme's style for a gauge's figure (`gaugeValue`), else a
           // heavy 44; smaller in a small gauge.
-          'style': arcLayout['width'] is num && (arcLayout['width']! as num) < 200
-              ? figure(body, {'fontSize': ((arcLayout['width']! as num) / 6).clamp(18, 40).round(), 'fontWeight': 700})
-              : options.textStyles['gaugeValue'] ?? figure(body, {'fontSize': 44, 'fontWeight': 700}),
+          'style': arcLayout['width'] is num && (arcLayout['width']! as num) < 200 ? figure(body, {'fontSize': ((arcLayout['width']! as num) / 6).clamp(18, 40).round(), 'fontWeight': 700}) : options.textStyles['gaugeValue'] ?? figure(body, {'fontSize': 44, 'fontWeight': 700}),
         },
         if (bound != null) 'bind': {'props.text': bound},
       };
       if (gaugeUnit != null) {
         nodes['${id}Unit'] = {
           'type': 'text',
-          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}, 'x': {'align': 0}, 'y': {'align': 0.5}},
+          'layout': {
+            'width': {'hug': 0},
+            'height': {'hug': 0},
+            'x': {'align': 0},
+            'y': {'align': 0.5},
+          },
           'props': {'text': gaugeUnit, 'style': options.textStyles['gaugeUnit'] ?? figure(options.textStyles['muted'] ?? body, const {})},
         };
       }
@@ -3251,7 +3410,10 @@ class _Parser {
       final pageId = '${id}Page';
       nodes[pageId] = {
         'type': 'column',
-        'layout': {'width': {'fill': 0}, 'height': {'fill': 0}},
+        'layout': {
+          'width': {'fill': 0},
+          'height': {'fill': 0},
+        },
         'props': {'crossAxisAlignment': 'stretch'},
       };
       ((out['children'] as List<Object?>?) ?? (out['children'] = <Object?>[])).add(pageId);
@@ -3269,7 +3431,11 @@ class _Parser {
       final gap = props.remove('spacing');
       if (props['viewportFraction'] != null) {
         props.putIfAbsent('padEnds', () => false);
-        nodes[pageId]!['layout'] = <String, Object?>{'width': {'fill': 0}, 'height': {'fill': 0}, 'padding': [0, 0, gap is num ? gap : 8, 0]};
+        nodes[pageId]!['layout'] = <String, Object?>{
+          'width': {'fill': 0},
+          'height': {'fill': 0},
+          'padding': [0, 0, gap is num ? gap : 8, 0],
+        };
       }
       _stack.add(_Open(indent, pageId, 'column', pages: id));
     } else {
@@ -3300,7 +3466,10 @@ class _Parser {
     for (final e in _donuts.entries) {
       final id = e.key;
       final own = nodes.keys.where((k) => k != id && k.startsWith(id) && _under(k, id)).toSet();
-      final labels = {for (final l in e.value.labels) if (l.trim().isNotEmpty) l.trim().toLowerCase()};
+      final labels = {
+        for (final l in e.value.labels)
+          if (l.trim().isNotEmpty) l.trim().toLowerCase(),
+      };
       final written = <String>{};
       for (final n in nodes.entries) {
         if (own.contains(n.key) || n.value['type'] != 'text') continue;
@@ -3316,8 +3485,15 @@ class _Parser {
         ..addAll(e.value.chart);
       if (_canvas) {
         ops
-          ..add({'op': 'remove', 'ids': ['${id}Chart', '${id}Legend']})
-          ..add({'op': 'set', 'id': id, 'node': {...nodes[id]!}});
+          ..add({
+            'op': 'remove',
+            'ids': ['${id}Chart', '${id}Legend'],
+          })
+          ..add({
+            'op': 'set',
+            'id': id,
+            'node': {...nodes[id]!},
+          });
       }
     }
     _donuts.clear();
@@ -3338,7 +3514,11 @@ class _Parser {
     _donuts[id] = (chart: {...out}, labels: [for (final k in keys) k.label]);
     final layout = (chart['layout']! as Map).cast<String, Object?>();
     final flex = layout.remove('flex');
-    final side = switch ((layout['width'], layout['height'])) { (final num w, _) => w, (_, final num h) => h, _ => 160 };
+    final side = switch ((layout['width'], layout['height'])) {
+      (final num w, _) => w,
+      (_, final num h) => h,
+      _ => 160,
+    };
     chart['layout'] = {...layout, 'width': side, 'height': layout['height'] is num ? layout['height'] : side};
     final visible = (chart['bind'] as Map?)?['visible'];
     if (visible != null) chart['bind'] = {...(chart['bind']! as Map).cast<String, Object?>()}..remove('visible');
@@ -3346,12 +3526,19 @@ class _Parser {
       ..clear()
       ..addAll({
         'type': 'row',
-        'layout': {'width': flex != null || !inRow ? {'fill': 0} : {'hug': 0}, 'height': {'hug': 0}, 'flex': ?flex},
+        'layout': {
+          'width': flex != null || !inRow ? {'fill': 0} : {'hug': 0},
+          'height': {'hug': 0},
+          'flex': ?flex,
+        },
         'props': {'spacing': 24, 'runSpacing': 16, 'wrap': true, 'crossAxisAlignment': 'center'},
         if (visible != null) 'bind': {'visible': visible},
         'children': <Object?>['${id}Chart', '${id}Legend'],
       });
-    Object? style(String name) => switch (options.textStyles[name] ?? options.textStyles['body']) { final Map m => _copy(m.cast<String, Object?>()), final other => other };
+    Object? style(String name) => switch (options.textStyles[name] ?? options.textStyles['body']) {
+      final Map m => _copy(m.cast<String, Object?>()),
+      final other => other,
+    };
     num total = 0;
     for (final k in keys) {
       total += k.value is num ? k.value! as num : 0;
@@ -3359,7 +3546,13 @@ class _Parser {
     nodes['${id}Chart'] = chart;
     nodes['${id}Legend'] = {
       'type': 'column',
-      'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'basis': 160, 'flex': 1, 'constraints': {'maxWidth': 320}},
+      'layout': {
+        'width': {'fill': 0},
+        'height': {'hug': 0},
+        'basis': 160,
+        'flex': 1,
+        'constraints': {'maxWidth': 320},
+      },
       'props': {'spacing': 10, 'crossAxisAlignment': 'stretch'},
       'children': <Object?>[for (var i = 0; i < keys.length; i++) '${id}Key$i'],
     };
@@ -3370,7 +3563,10 @@ class _Parser {
       final share = total > 0 && k.value is num ? '${((k.value! as num) / total * 100).round()}%' : null;
       nodes['${id}Key$i'] = {
         'type': 'row',
-        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'layout': {
+          'width': {'fill': 0},
+          'height': {'hug': 0},
+        },
         'props': {'spacing': 10, 'crossAxisAlignment': 'center'},
         'children': <Object?>['${id}Dot$i', '${id}Label$i', if (share != null) '${id}Share$i'],
       };
@@ -3386,13 +3582,20 @@ class _Parser {
       };
       nodes['${id}Label$i'] = {
         'type': 'text',
-        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'flex': 1},
+        'layout': {
+          'width': {'fill': 0},
+          'height': {'hug': 0},
+          'flex': 1,
+        },
         'props': {'text': k.label, 'style': ?style('muted')},
       };
       if (share != null) {
         nodes['${id}Share$i'] = {
           'type': 'text',
-          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+          'layout': {
+            'width': {'hug': 0},
+            'height': {'hug': 0},
+          },
           'props': {'text': share, 'style': ?style('strong')},
         };
       }
@@ -3407,11 +3610,20 @@ class _Parser {
     for (var i = 0; i < texts.length; i++) {
       final tid = _id('text');
       final container = type == 'column' || type == 'row' || type == 'stack';
-      final style = _textStyle ?? options.textStyles[container ? 'body' : i == 0 ? 'strong' : 'muted'];
+      final style =
+          _textStyle ??
+          options.textStyles[container
+              ? 'body'
+              : i == 0
+              ? 'strong'
+              : 'muted'];
       nodes[tid] = {
         'type': 'text',
         // In a tile's slot a text is as wide as it is; an accordion's header fills it.
-        'layout': {'width': type == 'listTile' || _textStyle != null ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
+        'layout': {
+          'width': type == 'listTile' || _textStyle != null ? {'hug': 0} : {'fill': 0},
+          'height': {'hug': 0},
+        },
         'props': {'text': texts[i], if (style != null) 'style': style is Map ? _copy(style.cast<String, Object?>()) : style},
       };
       _parentOf[tid] = id;
@@ -3435,17 +3647,17 @@ class _Parser {
     var quoted = false, inner = false, depth = 0, start = 0;
     void flush(int end, bool code) {
       final part = line.substring(start, end);
-      out.write(code
-          ? part.replaceAllMapped(word, (m) {
-              // In `h:120` the `h` is a prop key. In `live ? h:4` it
-              // is still the loop value, despite the following colon.
-              final before = part.substring(0, m.start).trimRight();
-              final key = m.end < part.length && part[m.end] == ':' &&
-                  (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
-                  !before.endsWith('?');
-              return key ? m[0]! : to;
-            })
-          : part);
+      out.write(
+        code
+            ? part.replaceAllMapped(word, (m) {
+                // In `h:120` the `h` is a prop key. In `live ? h:4` it
+                // is still the loop value, despite the following colon.
+                final before = part.substring(0, m.start).trimRight();
+                final key = m.end < part.length && part[m.end] == ':' && (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) && !before.endsWith('?');
+                return key ? m[0]! : to;
+              })
+            : part,
+      );
       start = end;
     }
 
@@ -3484,7 +3696,10 @@ class _Parser {
       final cellNode = nodes.remove(id)!;
       nodes[rowId] = {
         'type': 'row',
-        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'layout': {
+          'width': {'fill': 0},
+          'height': {'hug': 0},
+        },
         'props': {'spacing': g.gap, 'crossAxisAlignment': 'stretch'},
         'children': <Object?>[],
       };
@@ -3511,7 +3726,14 @@ class _Parser {
     if (g == null || open.id != g.id || open.condition != null || g.row == null) return;
     while (g.inRow < g.cols) {
       final sid = _id('spacer');
-      nodes[sid] = {'type': 'spacer', 'layout': {'flex': 1, 'width': {'fill': 0}, 'height': {'hug': 0}}};
+      nodes[sid] = {
+        'type': 'spacer',
+        'layout': {
+          'flex': 1,
+          'width': {'fill': 0},
+          'height': {'hug': 0},
+        },
+      };
       (nodes[g.row]!['children'] as List<Object?>).add(sid);
       _parentOf[sid] = g.row!;
       g.inRow++;
@@ -3649,10 +3871,10 @@ class _Parser {
   /// What the UI is drawn on when its root is not a card: the surface, so
   /// its dark text is never on nothing.
   Json get _surface => {
-        'fills': [
-          {'color': options.surface},
-        ],
-      };
+    'fills': [
+      {'color': options.surface},
+    ],
+  };
 
   /// State written as a formula (`state total=sum(cart,x=>x.price)`): not a
   /// variable but a name for the formula, written out where it is read.
@@ -3685,7 +3907,14 @@ class _Parser {
     }
     variables[m[1]!] = {
       'name': m[1],
-      'type': switch (value) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
+      'type': switch (value) {
+        bool _ => 'boolean',
+        int _ => 'integer',
+        num _ => 'decimal',
+        List _ => 'list',
+        Map _ => 'map',
+        _ => 'text',
+      },
       'value': value,
     };
   }
@@ -3707,9 +3936,7 @@ class _Parser {
       }
       return true;
     }
-    final takers = spec.props
-        .where((p) => p.type.kind == PropKind.enumeration && p.type.values.contains(word) && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}'))
-        .toList();
+    final takers = spec.props.where((p) => p.type.kind == PropKind.enumeration && p.type.values.contains(word) && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}')).toList();
     if (takers.length != 1) return false;
     props[takers.single.key] = word;
     return true;
@@ -3722,11 +3949,11 @@ class _Parser {
   Json _handlerTrigger(String key, String type, WidgetSpec? component, Json node) {
     if (node.containsKey('dropTarget')) return {'type': 'drop'};
     if (component != null) {
-      final named = component.events.where((e) => e.key == key).firstOrNull ??
-          (key == 'change' || key == 'onChange' ? component.events.where((e) => e.key == 'onChanged').firstOrNull : null) ??
-          component.events.firstOrNull;
+      final named = component.events.where((e) => e.key == key).firstOrNull ?? (key == 'change' || key == 'onChange' ? component.events.where((e) => e.key == 'onChanged').firstOrNull : null) ?? component.events.firstOrNull;
       if (named != null) return {'type': 'event', 'event': named.key};
     }
+    if (type == 'tableView' && key == 'onSort') return {'type': 'sort'};
+    if (type == 'tableView' && key == 'onRowTap') return {'type': 'rowTap'};
     final bare = key.startsWith('on') && key.length > 2 ? '${key[2].toLowerCase()}${key.substring(3)}' : key;
     if (const {'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'longPress', 'doubleTap'}.contains(bare)) return {'type': bare};
     if (const {'rightClick', 'secondaryClick', 'contextMenu'}.contains(bare)) return {'type': 'secondaryClick'};
@@ -3802,15 +4029,24 @@ class _Parser {
           'value': word
               ? v
               : literal.$1 && literal.$2 is String
-                  ? _interpolate(literal.$2! as String)
-                  : _formula(v),
+              ? _interpolate(literal.$2! as String)
+              : _formula(v),
         });
         if (!variables.containsKey(set[1])) {
           final start = literal.$1 ? literal.$2 : null;
           variables[set[1]!] = {
             'name': set[1],
-            'type': switch (start) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', _ => 'text' },
-            'value': switch (start) { bool _ => false, num _ => 0, _ => '' },
+            'type': switch (start) {
+              bool _ => 'boolean',
+              int _ => 'integer',
+              num _ => 'decimal',
+              _ => 'text',
+            },
+            'value': switch (start) {
+              bool _ => false,
+              num _ => 0,
+              _ => '',
+            },
           };
         }
         continue;
@@ -3829,13 +4065,19 @@ class _Parser {
             'event': sp < 0 ? s : s.substring(0, sp),
             // Plain words after the event are its value as text
             // (`emit choose plan A`); anything else is read as a value.
-            if (value != null && value.isNotEmpty)
-              'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
+            if (value != null && value.isNotEmpty) 'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
           });
         case 'open':
           // An overlay written in this text (Dialog#id, Menu#id…) opens as
           // its kind says; one written further down completes this then.
-          final Json action = {'type': 'openModal', 'to': s, ...?switch (_top._overlayActions[s]) { final Json a => _copy(a), _ => null }};
+          final Json action = {
+            'type': 'openModal',
+            'to': s,
+            ...?switch (_top._overlayActions[s]) {
+              final Json a => _copy(a),
+              _ => null,
+            },
+          };
           _top._opens.add(action);
           out.add(action);
         case 'scroll':
@@ -3898,11 +4140,11 @@ class _Parser {
   }
 
   static bool _readsValues(Object? json) => switch (json) {
-        String s => _spans(s).isNotEmpty,
-        List l => l.any(_readsValues),
-        Map m => m.values.any(_readsValues),
-        _ => false,
-      };
+    String s => _spans(s).isNotEmpty,
+    List l => l.any(_readsValues),
+    Map m => m.values.any(_readsValues),
+    _ => false,
+  };
 
   /// [json] as a formula, each text that reads values (`"{n} left"`) as its
   /// parts joined (`(n) + " left"`).
@@ -3941,8 +4183,10 @@ class _Parser {
       return true;
     }
   }
+
   static final _expressionStart = RegExp(r'^(![A-Za-z_(]|[A-Za-z_][A-Za-z0-9_.\[\]]*(\(|==|!=|>=|<=|>|<|&&|\|\||\?|\+|\*))');
   static final _variablePath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*|\[[^\]\s]*\])*$');
+
   /// The condition of the last `if` (and its `else if`s) at each depth, for an `else`.
   final Map<int, String> _ifAt = {};
 
@@ -4020,10 +4264,7 @@ class _Parser {
         out.write(part);
         continue;
       }
-      var code = part
-          .replaceAllMapped(RegExp(r'\band\b'), (_) => '&&')
-          .replaceAllMapped(RegExp(r'\bor\b'), (_) => '||')
-          .replaceAllMapped(RegExp(r'\bnot\s+'), (_) => '!');
+      var code = part.replaceAllMapped(RegExp(r'\band\b'), (_) => '&&').replaceAllMapped(RegExp(r'\bor\b'), (_) => '||').replaceAllMapped(RegExp(r'\bnot\s+'), (_) => '!');
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.length\b(?!\()'), (m) => 'length(${m[1]})');
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.toFixed\((\d+)\)'), (m) => 'fixed(${m[1]},${m[2]})');
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.([a-zA-Z]+)\((\)?)'), (m) {
@@ -4116,7 +4357,11 @@ class _Parser {
 
   /// A size as the document writes it: a number is fixed; `fill` and `hug`
   /// are fits.
-  Object? _size(Object? v) => switch (v) { 'fill' => {'fill': 0}, 'hug' => {'hug': 0}, _ => v };
+  Object? _size(Object? v) => switch (v) {
+    'fill' => {'fill': 0},
+    'hug' => {'hug': 0},
+    _ => v,
+  };
 
   Object? _json(String s) {
     try {
@@ -4142,7 +4387,11 @@ class _Parser {
   /// A gradient as models write it (a list of colors, or `{"colors": […],
   /// "begin": "topLeft", "end": "bottomRight"}`), as a linear fill.
   Json? _gradient(Object? v) {
-    final colors = v is List ? v : v is Map ? v['colors'] : null;
+    final colors = v is List
+        ? v
+        : v is Map
+        ? v['colors']
+        : null;
     if (colors is! List || colors.length < 2 || colors.any((c) => c is! String)) return null;
     const places = {'topLeft', 'topCenter', 'topRight', 'centerLeft', 'center', 'centerRight', 'bottomLeft', 'bottomCenter', 'bottomRight'};
     final begin = v is Map && places.contains(v['begin']) ? v['begin'] : 'topLeft', end = v is Map && places.contains(v['end']) ? v['end'] : 'bottomRight';

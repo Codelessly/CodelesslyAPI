@@ -11,13 +11,53 @@ import 'notation.dart';
 /// The formula functions the prompt names (a subset of the engine's: the
 /// ones a card needs). `test/notation_test.dart` checks each exists.
 const List<String> notationFunctions = [
-  'length(x)', 'upper(t)', 'lower(t)', 'trim(t)', 'contains(textOrList,v)', 'startsWith(t,p)', 'replace(t,a,b)', 'join(list,sep)', //
-  'round(n,d)', 'floor(n)', 'ceil(n)', 'abs(n)', 'min(a,b)', 'max(a,b)', 'clamp(n,lo,hi)', 'fixed(n,d)', 'money(n,"\$",2)',
-  'sum(list,x=>n)', 'count(list,x=>cond)', 'filter(list,x=>cond)', 'find(list,x=>cond)', 'any(list,x=>cond)', 'all(list,x=>cond)',
-  'map(list,x=>v)', 'sortBy(list,x=>key)', 'sortByDesc(list,x=>key)', 'unique(list)', 'first(list)', 'last(list)', 'slice(list,a,b)',
-  'take(list,n)', 'reverse(list)', 'range(n)', 'indexOf(list,v)', 'append(list,item)', 'without(list,item)', 'removeAt(list,i)',
-  'setAt(list,i,item)', 'updateWhere(list,x=>cond,x=>new)', 'removeWhere(list,x=>cond)', 'with(map,key,v)', 'isEmpty(x)',
-  'coalesce(v,fallback)', 'today()', 'formatDate(date,"MMM d")', 'duration(seconds)', 'concat(listA,listB)',
+  'length(x)',
+  'upper(t)',
+  'lower(t)',
+  'trim(t)',
+  'contains(textOrList,v)',
+  'startsWith(t,p)',
+  'replace(t,a,b)',
+  'join(list,sep)', //
+  'round(n,d)',
+  'floor(n)',
+  'ceil(n)',
+  'abs(n)',
+  'min(a,b)',
+  'max(a,b)',
+  'clamp(n,lo,hi)',
+  'fixed(n,d)',
+  'money(n,"\$",2)',
+  'sum(list,x=>n)',
+  'count(list,x=>cond)',
+  'filter(list,x=>cond)',
+  'find(list,x=>cond)',
+  'any(list,x=>cond)',
+  'all(list,x=>cond)',
+  'map(list,x=>v)',
+  'sortBy(list,x=>key)',
+  'sortByDesc(list,x=>key)',
+  'unique(list)',
+  'first(list)',
+  'last(list)',
+  'slice(list,a,b)',
+  'take(list,n)',
+  'reverse(list)',
+  'range(n)',
+  'indexOf(list,v)',
+  'append(list,item)',
+  'without(list,item)',
+  'removeAt(list,i)',
+  'setAt(list,i,item)',
+  'updateWhere(list,x=>cond,x=>new)',
+  'removeWhere(list,x=>cond)',
+  'with(map,key,v)',
+  'isEmpty(x)',
+  'coalesce(v,fallback)',
+  'today()',
+  'formatDate(date,"MMM d")',
+  'duration(seconds)',
+  'concat(listA,listB)',
 ];
 
 /// From this canvas width on the prompt teaches the page words (`Page`,
@@ -30,14 +70,7 @@ const double notationPageWidth = 700;
 /// each, as they are called: the main string when it has one, `=name` when
 /// it keeps a value, its other parameters and what it is for. [only]
 /// narrows the list to those types (a chat that needs a dozen, not all).
-String notationPrompt({
-  Catalog? catalog,
-  NotationOptions options = const NotationOptions(),
-  DesignSystem? designSystem,
-  Set<String>? only,
-  bool natural = false,
-  bool wanted = false,
-}) {
+String notationPrompt({Catalog? catalog, NotationOptions options = const NotationOptions(), DesignSystem? designSystem, Set<String>? only, bool natural = false, bool wanted = false}) {
   final c = catalog ?? Catalog.current;
   final componentLines = designSystem == null
       ? const <String>[]
@@ -46,9 +79,7 @@ String notationPrompt({
             // A name the notation already reads as a core type (Button,
             // Card, Slider) stays that: listing the component of the same
             // name would teach parameters the line does not take.
-            if (!notationTypes.containsKey(component.type) &&
-                (c.widget('${component.type[0].toLowerCase()}${component.type.substring(1)}') == null ||
-                    notationComponentFirst.contains(component.type)))
+            if (!notationTypes.containsKey(component.type) && (c.widget('${component.type[0].toLowerCase()}${component.type.substring(1)}') == null || notationComponentFirst.contains(component.type)))
               if (only == null || only.contains(component.type)) notationComponentLine(component),
         ];
   // How the design system says its pieces go together: the "In brief"
@@ -122,6 +153,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   A block with more than one event takes the others on lines of their own under it: SiteNav … -> go replace(lower(result)," ","_") with onCta: go signup and onSecondary: go login indented under it. SiteNav … sticky keeps it at the top.
   A value every page of the site shares (a cart, the signed-in name) is declared once, in site.json's variables; a page expanded beside that site.json reads and sets it by name with no declaration (project cart=[] before the page says so on the page itself): it is read and set like any other (Select =cart, -> cart=append(cart,item)) and keeps its value from page to page.
   Inside a frame everything is written as on a card: the components, Card, Text, the controls. A Card in a Grid is a tile of the page.${options.reflow ? '''
+  DataTable#incidents rows:=incidents columns:[{"key":"name","label":"Incident"},{"key":"severity","label":"Severity"}] h:320 =selectedRow sorts when a header is pressed; Tab enters once, arrows move its row or header focus, Home/End jump, Enter/Space sort or select. onSort: and onRowTap: lines can use result.column, result.ascending, result.row and result.rowIndex. It scrolls columns on a phone.
 
   Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns, a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it) and opens its Sidebar as a drawer from a menu button it adds to Main's Nav, a Nav hides its links and opens them from a menu button it adds itself (each Link with its -> action or href, as written), sections and headlines get smaller. So that it can:
     Share a width with grow, or give the one fixed part a width (a rail: Column w:320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
@@ -198,15 +230,38 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   // The types worth naming in a small prompt: the rest of levels 0 and 1
   // parse too, and are taught by the reference when a UI needs them.
   const taught = {
-    'row', 'column', 'stack', 'text', 'icon', 'spacer', 'divider', 'listView', 'gridView', //
-    'filledButton', 'iconButton', 'textField', 'switch', 'checkbox', 'radio', 'slider', 'dropdown', 'segmentedButton',
-    'choiceChip', 'filterChip', 'chip', 'badge', 'progressBar', 'circularProgressIndicator', 'datePicker', 'timePicker',
+    'row',
+    'column',
+    'stack',
+    'text',
+    'icon',
+    'spacer',
+    'divider',
+    'listView',
+    'gridView', //
+    'filledButton',
+    'iconButton',
+    'textField',
+    'switch',
+    'checkbox',
+    'radio',
+    'slider',
+    'dropdown',
+    'segmentedButton',
+    'choiceChip',
+    'filterChip',
+    'chip',
+    'badge',
+    'progressBar',
+    'circularProgressIndicator',
+    'datePicker',
+    'timePicker',
     'accordion', 'listTile', 'barChart', 'lineChart',
   };
   List<String> ofLevel(Level l) => [
-        for (final w in c.widgets)
-          if (widgetLevels[w.type] == l && taught.contains(w.type)) written(w.type),
-      ];
+    for (final w in c.widgets)
+      if (widgetLevels[w.type] == l && taught.contains(w.type)) written(w.type),
+  ];
   final layout = [...ofLevel(Level.core), 'Box', 'Card', 'Image'];
   final controls = ofLevel(Level.widgets);
   return '''
@@ -291,19 +346,11 @@ $components$composing$pages''';
 String notationComponentLine(DesignSystemComponent component) {
   final spec = component.spec;
   final strings = notationStrings(spec);
-  final held = spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ??
-      spec.props.where((p) => p.type.isVariable).firstOrNull;
+  final held = spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
   final rest = [
     for (final p in spec.props)
       if (!strings.contains(p.key) && p.key != held?.key) p.required ? '${p.key}!' : p.key,
   ];
-  final parts = [
-    spec.type,
-    for (final k in strings) '"$k"',
-    if (held != null) '=${held.key}',
-    ...rest,
-    if (spec.events.isNotEmpty) '-> ${spec.events.first.key}',
-    if (spec.children == ChildModel.list) '(children)',
-  ];
+  final parts = [spec.type, for (final k in strings) '"$k"', if (held != null) '=${held.key}', ...rest, if (spec.events.isNotEmpty) '-> ${spec.events.first.key}', if (spec.children == ChildModel.list) '(children)'];
   return '${parts.join(' ')} : ${component.purpose}';
 }
