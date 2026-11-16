@@ -45,6 +45,7 @@ final class PageWords {
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
     this.isComponent = _none,
+    this.roles = false,
   });
 
   static bool _none(String _) => false;
@@ -72,6 +73,14 @@ final class PageWords {
   /// Whether a design system has a component of this name (its `Sidebar`
   /// with `items:` is that component, not a pane).
   final bool Function(String name) isComponent;
+
+  /// Whether a frame's line says which frame it is, after its type
+  /// (`Row~nav`, `Column~section`, `Row~app`, `Column~sidebar`, `Column~main`,
+  /// `Column~pane`): what lays a page out at other widths reads it, and
+  /// takes it off before the line is read.
+  final bool roles;
+
+  String _role(String name) => roles ? '~$name' : '';
 
   /// The lines open above the one being read.
   final _open = <_Line>[];
@@ -136,7 +145,7 @@ final class PageWords {
     if ((word == 'App' || word == 'AppShell' || word == 'Window') && indent == 0) {
       app = true;
       open(frame: 'App');
-      return out..add((indent: at, text: 'Row$mark w:fill h:fill stretch${parts.all}'));
+      return out..add((indent: at, text: 'Row${_role('app')}$mark w:fill h:fill stretch${parts.all}'));
     }
     final inApp = root == 'App' || (parent?.frame == 'Sidebar' || parent?.frame == 'Main' || parent?.frame == 'Pane');
     if (word == 'Section' || (word == 'Footer' && !inApp) || (word == 'Hero' && !isComponent('Hero'))) {
@@ -159,7 +168,7 @@ final class PageWords {
       open(frame: 'Section', shift: 2);
       if (footer) out.add((indent: at, text: 'Divider'));
       return out
-        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad$banded${parts.all}'))
+        ..add((indent: at, text: 'Column${_role('section')}$mark w:fill center pad:$pad$banded${parts.all}'))
         ..add((indent: at + 2, text: 'Column w:fill maxw:$width gap:$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
     }
     if (_bars.contains(word) && !isComponentCall(word, parts)) {
@@ -172,14 +181,14 @@ final class PageWords {
         final pad = parts.take('pad') ?? '[24,14,24,14]';
         final fill = parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
         open(frame: 'Nav', after: 'Divider');
-        return out..add((indent: at, text: 'Row$mark w:fill between middle pad:$pad gap:$gap$fill${parts.all}'));
+        return out..add((indent: at, text: 'Row${_role('nav')}$mark w:fill between middle pad:$pad gap:$gap$fill${parts.all}'));
       }
       final width = parts.take('maxw') ?? _n(contentWidth);
       final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
       open(frame: 'Nav', shift: 2, after: 'Divider');
       return out
         ..add((indent: at, text: 'Column$mark w:fill center pad:$pad${parts.all}'))
-        ..add((indent: at + 2, text: 'Row w:fill maxw:$width between middle gap:$gap'));
+        ..add((indent: at + 2, text: 'Row${_role('nav')} w:fill maxw:$width between middle gap:$gap'));
     }
     if (_sides.contains(word) && !isComponentCall(word, parts)) {
       final width = parts.take('w') ?? _n(sidebarWidth);
@@ -187,11 +196,11 @@ final class PageWords {
       final gap = parts.take('gap') ?? '4';
       open(frame: framed ? 'Sidebar' : null);
       final fill = !framed || parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
-      return out..add((indent: at, text: 'Column$mark w:$width${framed ? ' h:fill' : ''} pad:$pad gap:$gap$fill${parts.hasBorder ? '' : ' border-right:$line'}${parts.all}'));
+      return out..add((indent: at, text: 'Column${framed ? _role('sidebar') : ''}$mark w:$width${framed ? ' h:fill' : ''} pad:$pad gap:$gap$fill${parts.hasBorder ? '' : ' border-right:$line'}${parts.all}'));
     }
     if (word == 'Main' || word == 'Content') {
       open(frame: framed ? 'Main' : null);
-      return out..add((indent: at, text: 'Column$mark grow${framed ? ' h:fill scroll' : ''}${parts.all}'));
+      return out..add((indent: at, text: 'Column${framed ? _role('main') : ''}$mark grow${framed ? ' h:fill scroll' : ''}${parts.all}'));
     }
     if (word == 'Pane' || (word == 'Panel' && inApp && !isComponent('Panel'))) {
       // Among the panes of a window it is as tall as the window and scrolls;
@@ -200,7 +209,7 @@ final class PageWords {
       parts.word('scroll');
       parts.word('grow');
       open(frame: framed ? 'Pane' : null);
-      return out..add((indent: at, text: 'Column$mark ${width == null ? 'grow' : 'w:$width'}${framed ? ' h:fill scroll' : ''}${parts.hasBorder || !framed ? '' : ' border-right:$line'}${parts.all}'));
+      return out..add((indent: at, text: 'Column${framed ? _role('pane') : ''}$mark ${width == null ? 'grow' : 'w:$width'}${framed ? ' h:fill scroll' : ''}${parts.hasBorder || !framed ? '' : ' border-right:$line'}${parts.all}'));
     }
     if (_items.contains(word) && !isComponent(word)) {
       final icon = parts.take('icon');

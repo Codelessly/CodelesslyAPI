@@ -1629,4 +1629,209 @@ Column center
       expect(parseNotation(app, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
     });
   });
+
+  group('a page written once lays out on a tablet and a phone', () {
+    const page = NotationOptions(width: 1280);
+    Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
+    Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
+    // The patch a node takes at a width, its rules merged in order.
+    Map<String, Object?> at(NotationResult r, String id, int width) {
+      var out = <String, Object?>{};
+      for (final rule in ((node(r, id)['media'] as List?) ?? const []).cast<Map>()) {
+        final max = rule['maxWidth'] as num?, min = rule['minWidth'] as num?;
+        if ((max == null || width <= max) && (min == null || width >= min)) {
+          out = mergePatch(out, (rule['patch']! as Map).cast<String, Object?>(), keepNulls: true);
+        }
+      }
+      return out;
+    }
+
+    test('a grid\'s rows wrap, each cell at a least width; nothing changes at the width it was written for', () {
+      final r = parseNotation('''
+Page
+  Section
+    Grid#plans cols:3 gap:24
+      Card#a
+        Text "One"
+      Card#b
+        Text "Two"
+      Card#c
+        Text "Three"
+      Card#d
+        Text "Four"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(at(r, 'plansRow1', 834)['props'], {'wrap': true, 'runSpacing': 24});
+      expect((at(r, 'a', 390)['layout']! as Map)['basis'], 220);
+      // The empty cells that fill out the last row are gone on a phone.
+      final filler = (node(r, 'plansRow2')['children']! as List).last as String;
+      expect(node(r, filler)['type'], 'spacer');
+      expect(at(r, filler, 390)['visible'], false);
+      expect(at(r, filler, 834)['visible'], isNull);
+      for (final id in nodesOf(r).keys) {
+        expect(at(r, id, 1280), isEmpty, reason: id);
+      }
+    });
+
+    test('a row of blocks wraps: the content keeps a column\'s width and a fixed rail takes the width on a phone', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row#split gap:32 top
+      Column#copy grow gap:12
+        Heading "Reserve a table"
+        Text "Open every day."
+        Row gap:8
+          Button "Book"
+          Button.outline "Menu"
+      Card#rail w:320
+        Text "Tonight"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((at(r, 'split', 834)['props']! as Map)['wrap'], true);
+      expect((at(r, 'copy', 834)['layout']! as Map)['basis'], 360);
+      expect(at(r, 'rail', 834), isEmpty);
+      expect(at(r, 'rail', 390)['layout'], {'width': {'fill': 0}, 'basis': 280, 'flex': 1});
+    });
+
+    test('any other row wraps before it overflows; what grows in it keeps its share', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row#bar gap:12 middle
+      Input#q "Search" grow
+      Spacer#gap grow
+      Button "Export"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((at(r, 'bar', 390)['props']! as Map)['wrap'], true);
+      expect((at(r, 'q', 390)['layout']! as Map)['basis'], 180);
+      expect((at(r, 'gap', 390)['layout']! as Map)['basis'], 0);
+    });
+
+    test('a table\'s row keeps the columns a phone has room for, from the first on', () {
+      final r = parseNotation('''
+Page
+  Section
+    Card pad:0
+      Row#head gap:16 pad:[20,12,20,12]
+        Text#name "Name" grow
+        Text#company "Company" w:160
+        Text#status "Status" w:90
+        Text#plan "Plan" w:90
+        Text#value "Value" w:110
+        Text#seen "Last seen" w:110
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(node(r, 'head')['media'], isNull);
+      expect(at(r, 'name', 390), isNot(contains('visible')));
+      expect(at(r, 'company', 390), isNot(contains('visible')));
+      expect(at(r, 'seen', 390)['visible'], false);
+      // On a tablet its columns are shares of the row, and the last ones go.
+      expect(at(r, 'company', 834)['visible'], isNull);
+      expect(at(r, 'seen', 834)['visible'], false);
+    });
+
+    test('an app shows its main pane on a phone; a bar hides its links; a section and a headline are smaller', () {
+      final app = parseNotation('''
+App
+  Sidebar#side
+    NavItem "Inbox" icon:"inbox" selected
+  Main#main
+    Text "Hello"
+  Pane#details w:300
+    Text "Details"
+''', catalog: standardCatalog, options: page);
+      expect(app.issues, isEmpty);
+      expect(at(app, 'side', 390)['visible'], false);
+      expect(at(app, 'side', 834)['visible'], isNull);
+      expect(at(app, 'details', 834)['visible'], false);
+      expect(at(app, 'main', 390), isEmpty);
+
+      final site = parseNotation('''
+Page
+  Nav
+    Brand "Tidewater" icon:"waves"
+    Row#links gap:4
+      Link "Features"
+      Link "Pricing"
+    Button "Start free"
+  Section#hero
+    Text#big "Fill every room" size:56 weight:800
+''', catalog: standardCatalog, options: page);
+      expect(site.issues, isEmpty);
+      expect(at(site, 'links', 390)['visible'], false);
+      expect(at(site, 'links', 834)['visible'], isNull);
+      expect(((at(site, 'big', 390)['props']! as Map)['style']! as Map)['fontSize'], 40);
+      expect((at(site, 'hero', 390)['layout']! as Map)['padding'], [20, 40, 20, 40]);
+    });
+
+    test('a donut written with labels has its legend beside it, and under it where the two do not fit', () {
+      const text = '''
+Page
+  Section
+    Card
+      Donut#mix values:[1370,560,380] labels:["Street trees","School shade","Pocket forests"] h:240
+      Donut#bare values:[3,1] labels:["Yes","No"] legend:false
+''';
+      final r = parseNotation(text, catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final mix = node(r, 'mix');
+      expect(mix['type'], 'row');
+      expect((mix['props']! as Map)['wrap'], true);
+      expect(mix['children'], ['mixChart', 'mixLegend']);
+      expect(node(r, 'mixChart')['layout'], {'height': 240, 'width': 240});
+      expect((node(r, 'mixLegend')['layout']! as Map)['basis'], 160);
+      expect((node(r, 'mixLabel0')['props']! as Map)['text'], 'Street trees');
+      expect((node(r, 'mixShare0')['props']! as Map)['text'], '59%');
+      expect(node(r, 'bare')['type'], 'chart');
+      // A page that writes the legend itself keeps its own.
+      final own = parseNotation('''
+Page
+  Section
+    Donut#mix values:[52,48] labels:["Online","Retail"]
+    Row between
+      Text.muted "Online"
+      Text.strong "52%"
+    Row between
+      Text.muted "Retail"
+      Text.strong "48%"
+''', catalog: standardCatalog, options: page);
+      expect(node(own, 'mix')['type'], 'chart');
+      expect(nodesOf(own).keys.where((k) => k.startsWith('mixLegend')), isEmpty);
+      // On a card it is the chart alone, as before.
+      final card = parseNotation('Column\n  Donut#mix values:[3,1] labels:["Yes","No"]\n', catalog: standardCatalog);
+      expect(node(card, 'mix')['type'], 'chart');
+    });
+
+    test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
+      final r = parseNotation('''
+Page
+  Section
+    Button#menu "Menu" show:phone
+    Text#long "The long version" hide:phone
+    Text#wide "Desktop only" hide:tablet
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(at(r, 'menu', 390), isEmpty);
+      expect(at(r, 'menu', 834)['visible'], false);
+      expect(at(r, 'long', 390)['visible'], false);
+      expect(at(r, 'long', 834), isEmpty);
+      expect(at(r, 'wide', 834)['visible'], false);
+      expect(at(r, 'wide', 1280), isEmpty);
+
+      const text = '''
+Column
+  Grid cols:2
+    Card
+      Text "One"
+    Card
+      Text "Two"
+''';
+      for (final options in const [NotationOptions(), NotationOptions(width: 1280, reflow: false)]) {
+        final plain = parseNotation(text, catalog: standardCatalog, options: options);
+        expect(nodesOf(plain).values.where((n) => (n! as Map).containsKey('media')), isEmpty);
+      }
+    });
+  });
 }

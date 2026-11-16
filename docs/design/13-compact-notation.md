@@ -372,7 +372,46 @@ it. `Column middle` gathers them at the middle.
 Still asked for and not read: links and hover; a dialog, sheet or drawer as an element; a table as an element;
 chart legends and axes; a chart bound to state; reorder with a handle; pull to refresh; a map; shapes.
 
-## 14. Open points
+## 14. A page at other widths (2026-11-15)
+
+A page is written once, for a desktop (`--width 1280`). The twenty sites of test 5 showed what that does on a
+phone: three cards squeezed across 390 px, a table's fixed columns past the edge, a sidebar beside its content,
+and a layout error for each. Over ten showcase pages, written with no thought for a phone: 74 render errors at
+390 wide and 52 at 834, none at 1440.
+
+The expander now adds the media rules that make a page fit (`reflow.dart`, `PageReflow`), from 700 wide on
+(`NotationOptions.reflow`, on by default; `expand --no-reflow` leaves the page as written). Every rule holds
+below a width (`maxWidth` 1023: a tablet and narrower; 699: a phone), so the page at the width it was written for
+is the same document as before plus rules that do not apply there.
+
+| Written | Narrower |
+|---|---|
+| `Grid cols:n` | its rows wrap; a cell takes a least width (300, 220, 260, 150 for 2, 3, 4, more columns), so three stay three on a tablet and four become two by two; one a line on a phone. A grid over data takes fewer columns (`crossAxisCount`) |
+| a `Row` of two or more blocks (a card, a column of content, a picture, a component that fills, a fixed column 200 or wider) | wraps: a block that grows takes a least width (360 for the one beside fixed rails, else 280, 240 among three), a fixed one keeps its width on a tablet and takes the line on a phone |
+| any other `Row` | wraps before it overflows; what grows in it keeps its share of the line from a least width (a field 180, a component 160, a text 96) |
+| a table's row (three or more cells with widths) | its cells are shares of the row; it keeps the columns it has room for, from the first on (600 px on a tablet, 342 on a phone), and what is not a column (a checkbox, a menu button) |
+| `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420 |
+| `Nav` | a phone hides its links (a tablet too, from six on) |
+| `Section`, `Footer` | 48 above and below on a tablet; 40, and a 20 gutter, on a phone |
+| a text 32 or larger | 0.86 of its size on a tablet (from 44), 0.72 on a phone (26 at least) |
+| a fixed width over 300 in a column | as wide as its place on a phone, at most its width |
+| `Donut` with `labels` | on a page it is a wrapping row of the chart and its legend (a line per share: its color, its label, its part of the whole): the legend sits beside the chart and goes under it where the two do not fit (`legend:false`: the chart alone; a page that writes the labels as texts of its own keeps its own legend) |
+
+`hide:phone`, `hide:tablet`, `show:phone` and `show:tablet` on a line say where it shows; they are written after
+the rules above, so they win.
+
+Rows wrap (`wrap` with `basis` on the children: CSS `flex-wrap` and `flex-basis`) where they could have turned
+into columns at a width: a wrapping row follows the room it has, so a row in a narrow pane stacks sooner than
+one across the page, and a child keeps its place in the tree. The rules are by the window's width only so that
+the desktop page cannot change.
+
+With the rules, the same ten pages: 0 errors at 390, 0 at 834, 0 at 1440. Seven of the test 5 sites (50 pages), re-expanded with no change to their notation: 130 errors at 390 down to 2, 8 at 834 down to 0, and 49 of the 50 desktop captures identical to the byte (the other gained its donut's legend). A design system's own blocks carry
+their rules themselves (Cards' `SiteNav` hides its links and its second action on a phone).
+
+Not done: a `Nav`'s hidden links and an `App`'s hidden sidebar have no menu to open them on a phone unless the
+page writes one (`show:phone`); a table drops columns where a designer might have made each row a card.
+
+## 15. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
   without a card would then have no `Card`). Proposed: from the design system, with SSUI's as the built-in.
