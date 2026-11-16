@@ -768,6 +768,13 @@ const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgre
 /// The short names a design system's component of the same name replaces.
 const _softNames = {'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
 
+/// The core types a design system's component of the same name replaces: a
+/// design system's own `Tabs` (a row of labels that keeps the open one in a
+/// variable, `Tabs =tab tabs:["Overview","Activity"]`) is what the line
+/// means, not the core `tabs` node (titles over children, which the
+/// notation does not teach).
+const notationComponentFirst = {'Tabs'};
+
 /// The colors of a chart's series or slices that write none, after the
 /// accent.
 const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
@@ -1798,7 +1805,8 @@ class _Parser {
     var type = short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
     // A design system's component, called by its own name (`StatusBadge`,
     // `Stepper`): a core type of that name, or a short name, comes first.
-    final component = short == null && catalog.widget(type) == null && catalog.widget(written) != null;
+    final component =
+        short == null && (catalog.widget(type) == null || notationComponentFirst.contains(written)) && catalog.widget(written) != null;
     // Whether the notation's own Gauge, Ring, Avatar… is what this line is
     // (not a design system's component of that name).
     final ours = short != null;
