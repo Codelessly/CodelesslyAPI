@@ -511,6 +511,33 @@ reads it as empty: give the page a default (`coalesce(find(trips, 'id', route.id
 any screen; give it the size of the dialog. `{"type": "showToast", "message": "Saved", "style": "success"}` shows a
 short message; `confirm` asks yes or no and runs `actions` or `cancelActions`.
 
+<a id="navigation-overlays-and-the-keyboard"></a>
+### Overlays and the keyboard
+
+Every modal (`dialog`, `bottomSheet`, `sideSheet`, `popover`, `fullScreen`, `adaptive`) and the built-in
+`confirm` behaves as a dialog should, with nothing to write:
+
+- **The focus moves into it** as it opens. Opened from the keyboard (Enter or Space on the node that opens it), its
+  first focusable has the focus, with the ring: in a `focusGroup` (a menu) the item whose `selected` is bound true,
+  else the first. Opened by a pointer or a touch, the overlay itself holds the focus: nothing is ringed and no
+  on-screen keyboard opens, until a key is pressed (Tab goes to its first stop; in a menu an arrow starts at the
+  first item, End at the last).
+- **Tab and Shift+Tab stay inside** the top overlay; what is under it takes no key.
+- **Escape closes the top overlay**, as a press outside it does. `"barrierDismissible": false` on the action turns
+  both off (close it with a `closeModal`). A canvas whose `blockBack` holds stays open and runs its `backPressed`
+  reactions instead (ask "discard changes?" there).
+- **Closing gives the focus back** to the node that opened it: with the ring when the keyboard opened or closed the
+  overlay, else silently (the next Tab starts there). Overlays opened from overlays unwind: a menu item that opens
+  a dialog gets the focus back when the dialog closes, and when the menu is already gone, the menu's button does.
+- **It is named** for assistive technology as it opens: the modal canvas's `"props": {"semanticLabel": "Join the
+  waitlist"}`, else for a popover the label of the node that opened it (a menu is called what its button is), else
+  the first text it shows (a dialog's title).
+
+A popover that opens while a text field is being typed in (suggestions under a search field) leaves the focus in
+the field. A menu's items are nodes with a click reaction inside a node with `focusGroup`
+([interaction](interaction.md#page-interaction)): Up and Down move through them, Home and End jump, a letter finds one, Enter and
+Space choose.
+
 <a id="navigation-a-mobile-menu-drawer"></a>
 ### A mobile menu (drawer)
 
@@ -544,7 +571,8 @@ between, and `floatingActionButton` sits 16 px from the right above the bottom b
 - A modal shows its canvas at its design size: give the modal canvas the dialog's size, not the screen's.
 - `${route.<param>}` exists only on the screen navigated to with `params`.
 - A canvas's `path` is a top-level key of the canvas node, not a prop.
-- Menus hidden behind `hovered` never open on touch screens.
+- Menus hidden behind `hovered` never open on touch screens, and never by keyboard: open them with a click.
+- A `"barrierDismissible": false` modal with no `closeModal` inside cannot be left.
 
 <a id="navigation-see-also"></a>
 ## See also

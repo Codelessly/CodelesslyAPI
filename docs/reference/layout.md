@@ -197,6 +197,7 @@ A screen (`Scaffold`): its `body` slot is the page content.
 | `breakpointMinWidth` | double | unset | ≥ 0 | Its own switch point. |
 | `overlay` | bool | `false` |  | Shown above every screen, outside navigation. |
 | `backdrop` | bool | `false` |  | Drawn beneath every screen, outside navigation. |
+| `semanticLabel` | String | `""` |  | Its name for assistive technology when it opens as an overlay (a dialog, a sheet, a menu). Empty: its first text, or for a menu the label of the control that opened it. |
 
 <a id="node-row"></a>
 ### `row`

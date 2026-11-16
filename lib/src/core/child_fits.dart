@@ -61,7 +61,13 @@ String? flexChildFits(Node parent, SizeFit fit, bool horizontal) {
         'wraps at ("layout": {"width": {"fill": 300}, "basis": 240}), or give it a fixed or hug size.';
   }
   if ((fit == SizeFit.fill || fit == SizeFit.flexible) && _scrollsAlong(parent, horizontal)) {
-    return 'The ${parent.type} scrolls: its content has no end to fill to.';
+    // With `fillViewport` its content is at least as long as its viewport:
+    // a filling child shares the viewport while the content fits it, and is
+    // as long as its own content where the content scrolls (a strip of
+    // segments, equal while they fit).
+    if (fit == SizeFit.fill && parent.props.get(FlexProps.fillViewport)) return null;
+    return 'The ${parent.type} scrolls: its content has no end to fill to (with "fillViewport": true a filling child '
+        'shares the viewport while the content fits it).';
   }
   return null;
 }
