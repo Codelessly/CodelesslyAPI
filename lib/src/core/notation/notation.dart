@@ -106,7 +106,6 @@ final class NotationOptions {
     this.reflow = true,
     this.displaySizes = const {},
     this.projectVariables = const {},
-    this.accentText,
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -158,7 +157,6 @@ final class NotationOptions {
       reflow: base.reflow,
       displaySizes: base.displaySizes,
       projectVariables: projectVariables,
-      accentText: base.accentText,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -350,7 +348,6 @@ final class NotationOptions {
       },
       surface: color('page', color('surface', color('primaryBackground', '#FFFFFFFF'))),
       accent: color('primary', '#FF2563EB'),
-      accentText: color('accentText', color('accentDeep', '#FF1D4ED8')),
       track: color('track', '#FFE5E7EB'),
     );
   }
@@ -486,10 +483,6 @@ final class NotationOptions {
   /// (which would hide the site's). `project name=value` on a page does the
   /// same for one name.
   final Map<String, Json> projectVariables;
-
-  /// The accent as text on a light page (a link in running text): a theme's
-  /// `colors.accentText`, else its `accentDeep`. Null: the accent.
-  final String? accentText;
 
   /// The theme's text styles of a headline's size (32 and up), by name →
   /// font size: a text in one of them is smaller on a phone.

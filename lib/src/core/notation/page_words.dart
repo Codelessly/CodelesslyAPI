@@ -72,9 +72,6 @@ final class PageWords {
   final String? accentName;
   final String? accentText;
 
-  /// The accent as text on a light page (a link in running text); null: [accent].
-  final String? accentText;
-
   /// Colors, as the notation takes them (`#AARRGGBB`).
   final String accent, selectedFill, line;
 

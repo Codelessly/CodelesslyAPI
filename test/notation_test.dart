@@ -2131,8 +2131,8 @@ Page
       ];
       expect(rows, hasLength(2));
       expect(rows.join(), isNot(contains('"to":"search"')));
-      final button = nodesOf(r).values.cast<Map>().firstWhere((n) => n['type'] == 'iconButton');
-      expect((button['layout']! as Map)['width'], 40);
+      final button = nodesOf(r).values.cast<Map>().firstWhere((n) => n['type'] == 'outlinedButton');
+      expect((button['props']! as Map)['label'], 'Menu');
     });
 
     test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
