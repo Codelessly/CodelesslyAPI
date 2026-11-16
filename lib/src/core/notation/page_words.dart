@@ -50,6 +50,8 @@ final class PageWords {
     this.menu = false,
     this.sidebarMenu,
     this.surface = '#FFFFFFFF',
+    this.viewer,
+    this.takesViewer = _none,
   });
 
   static bool _none(String _) => false;
@@ -102,6 +104,63 @@ final class PageWords {
 
   /// What a drawer's panel is drawn on when the theme names no pane fill.
   final String surface;
+
+  /// The id of the lightbox a design system's gallery opens its photos in
+  /// on a page (a component [takesViewer] names: it has `photos` and
+  /// `viewer:"overlay"`), so its large view is over the window and not in
+  /// the page's flow. Its line is given `viewer:"overlay"` and, after its
+  /// own actions, sets `<id>Photos` and `<id>At` and opens the lightbox,
+  /// which is written once at the end of the text ([viewerUsed]). Null: a
+  /// gallery is left as written (a card).
+  final String? viewer;
+  final bool Function(String name) takesViewer;
+
+  /// Whether a gallery's line was given the viewer, and the lists written
+  /// out on such lines, by the name of the variable each was moved to.
+  bool viewerUsed = false;
+  final viewerLists = <String, String>{};
+
+  /// [text], a gallery's line, opening its photos in the page's viewer.
+  String _gallery(String text) {
+    final id = viewer;
+    final head = _head.firstMatch(text);
+    if (id == null || head == null || !takesViewer(head[1]!)) return text;
+    final parts = _Parts(text.substring(head.end));
+    // One photo at a time in place is paged where it is; a line that says
+    // how it opens is left as it is.
+    if (parts.has('viewer') || parts.value('layout')?.replaceAll('"', '') == 'pages' || parts.hasWord('pages')) return text;
+    final written = parts.value('photos');
+    if (written == null) return text;
+    var list = written.startsWith('=') ? written.substring(1) : written;
+    if (list.startsWith('{') && list.endsWith('}')) list = list.substring(1, list.length - 1);
+    if (list.startsWith('[')) {
+      // A list written out is kept once, for the gallery and the viewer.
+      final name = '${id}List${viewerLists.length + 1}';
+      viewerLists[name] = list;
+      text = text.replaceFirst('photos:$written', 'photos:=$name');
+      list = name;
+    }
+    viewerUsed = true;
+    final held = parts.binding();
+    final opened = '${id}Photos=$list; ${id}At=result-1; open $id${held == null ? '' : '; $held=0'}';
+    return withAction(text.replaceFirst(head[0]!, '${head[0]} viewer:"overlay"'), opened);
+  }
+
+  /// [text] with [action] after its own actions (a `{…}` merged into the
+  /// node at the end of the line stays last).
+  static String withAction(String text, String action) {
+    var arrow = -1;
+    for (var i = 0; i + 1 < text.length; i++) {
+      if (text.startsWith('->', i) && !_inString(text, i)) {
+        arrow = i;
+        break;
+      }
+    }
+    final tail = RegExp(r'\s\{"[\s\S]*\}\s*$').firstMatch(text);
+    final end = tail != null && !_inString(text, tail.start) ? tail.start : text.length;
+    final body = text.substring(0, end).trimRight();
+    return '$body${arrow < 0 ? ' ->' : ';'} $action${text.substring(end)}';
+  }
 
   /// An app's `Sidebar` as written: what followed the word on its line and
   /// the lines under it (each with its indent from the Sidebar's), and
@@ -549,7 +608,7 @@ final class PageWords {
   /// The lines [text] at [indent] stands for: itself, moved under the frame
   /// it is in, or the plain lines of a page word.
   List<PageLine> rewrite(int indent, String text) {
-    text = _plain(text);
+    text = _gallery(_plain(text));
     final out = <PageLine>[];
     while (_open.isNotEmpty && _open.last.indent >= indent) {
       out.addAll(_closing(_open.removeLast()));
@@ -1086,6 +1145,12 @@ class _Parts {
 
   bool has(String key) => _tokens.any((t) => _key.firstMatch(t)?[1] == key);
 
+  /// The value of `key:value`, left on the line.
+  String? value(String key) {
+    final i = _tokens.indexWhere((t) => _key.firstMatch(t)?[1] == key);
+    return i < 0 ? null : _tokens[i].substring(key.length + 1);
+  }
+
   /// Whether a border is written, on every side or on one.
   bool get hasBorder => _tokens.any((t) => _key.firstMatch(t)?[1]?.startsWith('border') ?? false);
 
@@ -1095,6 +1160,9 @@ class _Parts {
     if (i < 0) return null;
     return _tokens.removeAt(i).substring(key.length + 1);
   }
+
+  /// Whether the bare [word] is written.
+  bool hasWord(String word) => _tokens.contains(word);
 
   /// Whether the bare [word] was written; it is removed.
   bool word(String word) => _tokens.remove(word);

@@ -2425,6 +2425,79 @@ Lightbox#viewer photos:=photos =at
       expect((node(own, 'swThumb')['children']! as List).length, 1);
     });
 
+    test('a design system\'s gallery opens its photos in the page\'s viewer, and on a card stays as written', () async {
+      const variable = {'kind': 'variable', 'of': {'kind': 'number', 'flutter': 'double'}};
+      final files = {
+        'design_system.json': jsonEncode({
+          'id': 'acme',
+          'name': 'Acme',
+          'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
+          'components': ['components/PhotoGallery.json'],
+        }),
+        'components/PhotoGallery.json': jsonEncode({
+          'schema': 3,
+          'id': 'PhotoGallery',
+          'roots': ['r'],
+          'widget': {
+            'type': 'PhotoGallery',
+            'doc': 'Photos in a grid. More.',
+            'props': [
+              {'key': 'value', 'type': variable, 'default': ''},
+              {'key': 'photos', 'type': {'kind': 'list', 'flutter': 'List<dynamic>', 'item': {'kind': 'json', 'flutter': 'dynamic'}}, 'default': <Object?>[], 'required': true},
+              {'key': 'viewer', 'type': {'kind': 'enumeration', 'flutter': 'String', 'values': ['inline', 'overlay']}, 'default': 'inline'},
+            ],
+            'events': [
+              {'key': 'onChanged'},
+            ],
+          },
+          'nodes': {
+            'r': {'type': 'column', 'layout': {'width': {'fill': 200}, 'height': {'hug': 28}}},
+          },
+        }),
+      };
+      final found = <String>[];
+      final ds = await DesignSystem.load((ref) async => files[ref], problems: found);
+      expect(found, isEmpty);
+      final catalog = ds.catalogOver(standardCatalog);
+      const text = '''
+state trips=[{"name":"Coast","photos":[{"url":"a.png"}]}]
+Page
+  Section
+    PhotoGallery#one =seen photos:[{"url":"a.png"},{"url":"b.png"}] -> emit looked
+    each t in trips
+      PhotoGallery#each photos:=t.photos
+''';
+      final r = Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds, width: 1280)));
+      expect(r.issues, isEmpty);
+      expect(r.document['roots'], ['screen', 'screenViewer']);
+      // Its own actions first, then the photos and the one tapped go to the viewer; its value is 0 again once closed.
+      final one = node(r, 'one');
+      expect((one['props']! as Map)['viewer'], 'overlay');
+      expect((one['bind']! as Map)['props.photos'], r'${screenViewerList1}');
+      expect([for (final a in ((one['actions']! as List).single as Map)['actions'] as List) (a as Map)['type']],
+          ['componentEvent', 'setVariable', 'setVariable', 'openModal', 'setVariable']);
+      final actions = (((one['actions']! as List).single as Map)['actions'] as List).cast<Map>();
+      expect(actions[1], {'type': 'setVariable', 'variable': 'screenViewerPhotos', 'value': r'${= screenViewerList1}'});
+      expect(actions[2], {'type': 'setVariable', 'variable': 'screenViewerAt', 'value': r'${= result-1}'});
+      expect(actions[3], containsPair('to', 'screenViewer'));
+      expect(actions[3], containsPair('cover', true));
+      expect(actions[4], {'type': 'setVariable', 'variable': 'seen', 'value': r'${= 0}'});
+      // In a list, the photos are the element's when it is tapped.
+      final each = (((node(r, 'each')['actions']! as List).single as Map)['actions'] as List).cast<Map>();
+      expect(each.first, {'type': 'setVariable', 'variable': 'screenViewerPhotos', 'value': r'${= item.photos}'});
+      // One viewer for the page's galleries, a gallery of what was last tapped.
+      expect(node(r, 'screenViewerPages')['bind'], {'props.initialPage': r'${screenViewerAt}', 'data': r'${screenViewerPhotos}'});
+      // On a card (and where the line says how it opens) it is the component as written.
+      final card = Catalog.run(catalog, () => parseNotation('Column\n  PhotoGallery#g =seen photos:[{"url":"a.png"}]\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+      expect(card.issues, isEmpty);
+      expect(card.document['roots'], ['screen']);
+      expect(node(card, 'g').containsKey('actions'), isFalse);
+      expect((node(card, 'g')['props']! as Map).containsKey('viewer'), isFalse);
+      final inline = Catalog.run(catalog,
+          () => parseNotation('Page\n  Section\n    PhotoGallery#g photos:[{"url":"a.png"}] viewer:"inline"\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds, width: 1280)));
+      expect(inline.document['roots'], ['screen']);
+    });
+
     test('the prompt teaches them from a desktop width on', () {
       final wide = notationPrompt(catalog: standardCatalog, options: page);
       for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu:rowMenu', '-> open signup', 'Lightbox#shots photos:=photos =at']) {
