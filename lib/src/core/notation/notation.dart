@@ -2132,7 +2132,9 @@ class _Parser {
           if (rule != null) {
             node['media'] = [
               ...?(node['media'] as List?),
-              {...rule, 'patch': {'visible': false}},
+              // A size rule must also clear a conditional visibility binding;
+              // otherwise the binding wins and the node can show at this size.
+              {...rule, 'patch': {'visible': false, 'bind': {'visible': null}}},
             ];
           }
           continue;

@@ -1820,6 +1820,19 @@ Page
       expect(at(r, 'wide', 834)['visible'], false);
       expect(at(r, 'wide', 1280), isEmpty);
 
+      final conditional = parseNotation('''
+state menu=false
+Page
+  if menu
+    Section#mobileMenu show:phone
+      Link "Home"
+''', catalog: standardCatalog, options: page);
+      expect(conditional.issues, isEmpty);
+      expect(node(conditional, 'mobileMenu')['bind'], containsPair('visible', r'${= menu}'));
+      expect(at(conditional, 'mobileMenu', 390).containsKey('visible'), false);
+      expect(at(conditional, 'mobileMenu', 1280)['visible'], false);
+      expect((at(conditional, 'mobileMenu', 1280)['bind'] as Map)['visible'], isNull);
+
       const text = '''
 Column
   Grid cols:2
