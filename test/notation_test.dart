@@ -1634,7 +1634,7 @@ Column center
     const page = NotationOptions(width: 1280);
     test('a project variable bound on a page does not become screen state', () {
       final r = parseNotation('''
-project version
+project version="v2"
 Page
   Nav
     Select =version items:["v2", "v1"]
