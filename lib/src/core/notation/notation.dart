@@ -1953,7 +1953,8 @@ class _Parser {
           } else if (word == 'sticky') {
             // Stays in view while the page scrolls under it (a table of
             // contents beside an article, an order summary).
-            node['sticky'] = {'offset': 16};
+            // A bar across the top (SiteNav, a TopBar, a Header) stays at the very top.
+            node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header)$').hasMatch(written) ? 0 : 16};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
           } else if (component && _componentWord(word, spec, props, bind)) {
@@ -3210,6 +3211,16 @@ class _Parser {
   /// The node's main string: a text's text, a button's label, a field's label.
   void _main(String type, WidgetSpec spec, String s, Json props, Json decoration) {
     final text = _interpolate(s);
+    // A date or time field's string is its label, as a text field's is.
+    if (const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && spec.props.any((p) => p.key == 'decoration')) {
+      final d = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
+      if (text.contains(r'${')) {
+        _labelBinds['props.decoration.labelText'] = text;
+      } else {
+        d.putIfAbsent('labelText', () => text);
+      }
+      return;
+    }
     if (type == 'textField') {
       final d = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
       final key = d.containsKey('labelText') || _labelBinds.containsKey('props.decoration.labelText') ? 'hintText' : 'labelText';
