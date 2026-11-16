@@ -1658,6 +1658,32 @@ Page
       expect((node(r, 'duration')['props']! as Map)['text'], r"Duration ${= item['length']}");
     });
 
+    test('labeled Select filters keep two columns on a phone', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row#filters gap:16
+      Column#topic grow
+        Text.fieldLabel "TOPIC"
+        Select =topic items:["All","Research"]
+      Column#level grow
+        Text.fieldLabel "LEVEL"
+        Select =level items:["All","Beginner"]
+      Column#length grow
+        Text.fieldLabel "LENGTH"
+        Select =length items:["Any","Eight weeks"]
+      Column#sort grow
+        Text.fieldLabel "SORT"
+        Select =sort items:["Title","Price"]
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((at(r, 'filters', 390)['props']! as Map)['wrap'], true);
+      for (final id in ['topic', 'level', 'length', 'sort']) {
+        expect((at(r, id, 390)['layout']! as Map)['basis'], 160);
+        expect(at(r, id, 1280), isEmpty);
+      }
+    });
+
     test('a sticky rail stays sticky when the row reflows', () {
       final r = parseNotation('''
 Page

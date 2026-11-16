@@ -105,6 +105,15 @@ final class PageReflow {
   static const _containers = {'column', 'row', 'flex', 'stack', 'listView', 'gridView', 'pageView', 'tabs', 'accordion'};
   static const _fields = {'textField', 'dropdown', 'segmentedButton', 'datePicker', 'slider'};
 
+  // A label and a choice control make one compact filter. Several such
+  // columns can share a phone row without squeezing the controls themselves.
+  bool _labeledChoice(String id) {
+    final n = nodes[id]!;
+    if (_type(n) != 'column') return false;
+    final children = _kids(n);
+    return children.length == 2 && _type(nodes[children.first]!) == 'text' && _type(nodes[children.last]!) == 'dropdown';
+  }
+
   bool _isMedia(String type) => type == 'image' || type == 'video' || type == 'map' || type == 'customPaint' || type.endsWith('Chart');
 
   /// How many nodes are under [id], itself included (up to [cap]).
@@ -396,10 +405,11 @@ final class PageReflow {
     // alone is a label.
     if (blocks.values.where((b) => b.light).length < 2) blocks.removeWhere((_, b) => b.light);
     if (blocks.length >= 2) {
+      final compactChoices = blocks.length == kids.length && kids.length >= 2 && kids.every(_labeledChoice);
       // The one block that grows beside fixed ones is the content beside its
       // rails: it keeps a column's width, and a rail goes under it sooner.
       final growing = blocks.values.where((b) => b.grows).length;
-      final basis = growing == 1 && blocks.length >= 2 ? 360 : blocks.length >= 3 ? 240 : 280;
+      final basis = compactChoices ? 160 : growing == 1 && blocks.length >= 2 ? 360 : blocks.length >= 3 ? 240 : 280;
       _add(id, reflowTabletMax, {
         'props': {'wrap': true, 'runSpacing': spacing > 0 ? spacing : 16},
       });
