@@ -20,6 +20,26 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  test('confirm word guards nested actions and is taught in the prompt', () {
+    final r = _parse('''
+state step=3
+Column
+  Button#remove "Remove ticket" -> confirm "Remove this ticket?" then { step=1; toast "Removed" }
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final actions = (((_node(r, 'remove')['actions'] as List).single as Map)['actions'] as List);
+    expect(actions, [
+      {'type': 'confirm', 'title': 'Remove this ticket?', 'actions': [
+        {'type': 'setVariable', 'variable': 'step', 'value': r'${= 1}'},
+        {'type': 'showToast', 'message': 'Removed'},
+      ]}
+    ]);
+    expect(notationPrompt(), contains('confirm "Remove this ticket?" then step=1'));
+    final bad = _parse('Button "Remove" -> confirm "Remove this ticket?"');
+    expect(bad.issues.single.message, contains('after then'));
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

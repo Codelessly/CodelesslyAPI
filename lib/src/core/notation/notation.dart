@@ -3790,6 +3790,25 @@ class _Parser {
         if (j is Map) out.add(j.cast<String, Object?>());
         continue;
       }
+      if (a.startsWith('confirm ')) {
+        final tokens = _Tokens(a.substring('confirm '.length));
+        tokens.skipSpace();
+        if (tokens.peek != '"') {
+          _issue(column, 'A confirm needs a quoted question and actions: confirm "Remove it?" then { count=0 }.');
+          continue;
+        }
+        final title = tokens.string();
+        final tail = tokens.rest.trim();
+        if (!tail.startsWith('then ') || tail.substring(5).trim().isEmpty) {
+          _issue(column, 'A confirm needs actions after then: confirm "Remove it?" then { count=0 }.');
+          continue;
+        }
+        var yes = tail.substring(5).trim();
+        if (yes.startsWith('{') && yes.endsWith('}')) yes = yes.substring(1, yes.length - 1).trim();
+        final nested = _actions(yes, column);
+        if (nested.isNotEmpty) out.add({'type': 'confirm', 'title': _interpolate(title), 'actions': nested});
+        continue;
+      }
       final set = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
       if (set != null) {
         final v = set[2]!.trim();
@@ -3864,7 +3883,7 @@ class _Parser {
         case 'link':
           out.add({'type': 'openLink', 'url': s});
         default:
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, confirm "Question" then action, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, or JSON.');
       }
     }
     return out;
