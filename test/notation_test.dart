@@ -21,6 +21,23 @@ Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes']
 
 void main() {
   group('a page written once lays out on a tablet and a phone', () {
+    test('show and hide phone keep the desktop tree', () {
+      final r = parseNotation('''
+Page
+  Nav
+    Link#links "Browse" hide:phone
+    Button#menu "Menu" show:phone
+    Link#tabletLinks "More" hide:tablet
+    Button#tabletMenu "More" show:tablet
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      expect((_node(r, 'links')['media'] as List).single, {'maxWidth': 699, 'patch': {'visible': false}});
+      expect(_node(r, 'menu')['visible'], false);
+      expect((_node(r, 'menu')['media'] as List).single, {'maxWidth': 699, 'patch': {'visible': true}});
+      expect((_node(r, 'tabletLinks')['media'] as List).single['maxWidth'], 1023);
+      expect((_node(r, 'tabletMenu')['media'] as List).single['maxWidth'], 1023);
+      expect([for (final d in validateDocument(r.document, options: const ValidateOptions(level: Level.design))) if (d.severity != Severity.info) d.message], isEmpty);
+    });
     test('grid cells keep order while columns fall', () {
       final r = parseNotation('''
 Page

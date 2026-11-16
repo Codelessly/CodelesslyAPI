@@ -1883,7 +1883,7 @@ class _Parser {
         }
         var key = word.substring(0, colon);
         // `if:cond` on a node is the node shown while it holds.
-        if (key == 'if' || key == 'when' || key == 'show') key = 'visible';
+        if (key == 'if' || key == 'when' || (key == 'show' && word != 'show:phone' && word != 'show:tablet')) key = 'visible';
         // A handler written as a key, as models write one unprompted:
         // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
         // …unless the node has a parameter of that name (a quote's `change:1.84`).
@@ -1946,6 +1946,13 @@ class _Parser {
           final known = variables.containsKey(head) || _derived.containsKey(head) || _stack.any((o) => o.each == head);
           final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
           if (known && !ownValue) raw = '=$raw';
+        }
+        if ((key == 'show' || key == 'hide') && (raw == 'phone' || raw == 'tablet')) {
+          final maxWidth = raw == 'phone' ? 699 : 1023;
+          if (key == 'show') node['visible'] = false;
+          (node['media'] as List<Object?>? ?? (node['media'] = <Object?>[]) as List<Object?>)
+              .add({'maxWidth': maxWidth, 'patch': {'visible': key == 'show'}});
+          continue;
         }
         if (grid != null && (key == 'cols' || key == 'columns')) {
           grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 12);

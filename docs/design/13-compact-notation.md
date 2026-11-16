@@ -376,6 +376,8 @@ chart legends and axes; a chart bound to state; reorder with a handle; pull to r
 
 A desktop `Page` keeps its written layout at desktop width. The expander adds media rules to structural rows: a row of regions, including a `Grid` row, stacks at widths of 699 px or less. Its children fill the narrow column. Navigation and inline rows retain their horizontal layout. The current branch has no automatic two-column tablet grid; authors must review tablet captures and record remaining failures.
 
+`hide:phone` keeps a line at the written width and hides it below 700 px; `show:phone` does the inverse. The `tablet` forms use 1024 px instead. They apply to controls and containers, so a page can pair its desktop link row with a narrow-screen menu.
+
 ## 15. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
