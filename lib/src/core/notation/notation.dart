@@ -2132,7 +2132,7 @@ class _Parser {
           if (rule != null) {
             node['media'] = [
               ...?(node['media'] as List?),
-              {...rule, 'patch': {'visible': false}},
+              {...rule, 'patch': {'visible': false, 'bind': {'visible': null}}},
             ];
           }
           continue;
