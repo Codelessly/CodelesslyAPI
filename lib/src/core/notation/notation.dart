@@ -19,6 +19,7 @@ import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
 import 'page_words.dart';
+import 'reflow.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -101,6 +102,8 @@ final class NotationOptions {
     this.controlHeight,
     this.fieldLabel,
     this.fieldText,
+    this.reflow = true,
+    this.displaySizes = const {},
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -108,8 +111,8 @@ final class NotationOptions {
   /// (`StatusBadge "Paid"`, `Stepper =qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
   factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
-      {double width = 390, String screen = 'screen', bool named = false}) {
-    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named);
+      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true}) {
+    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, reflow: reflow);
     Object size(SizeFit fit, double value) => switch (fit) {
           SizeFit.fill || SizeFit.flexible => {'fill': 0},
           SizeFit.hug => {'hug': 0},
@@ -148,6 +151,8 @@ final class NotationOptions {
       controlHeight: base.controlHeight,
       fieldLabel: base.fieldLabel,
       fieldText: base.fieldText,
+      reflow: base.reflow,
+      displaySizes: base.displaySizes,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -168,7 +173,7 @@ final class NotationOptions {
   /// (another design system with the same names, dark mode, an edited
   /// token) with nothing rewritten. It needs that theme to render; what the
   /// theme has no name for is still written as a value.
-  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen', bool named = false}) {
+  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen', bool named = false, bool reflow = true}) {
     final colors = readMap(theme['colors']) ?? const {};
     String color(String name, String fallback) {
       Object? c = colors[name] ?? theme[name];
@@ -293,6 +298,11 @@ final class NotationOptions {
       controlHeight: readDouble(sizes['control']),
       fieldLabel: isWide ? styles['fieldLabelWide'] : null,
       fieldText: isWide ? styles['inputTextWide'] : null,
+      reflow: reflow,
+      displaySizes: {
+        for (final e in textStyles.entries)
+          if (readMap(e.value)?['fontSize'] case final num size when size >= 32) e.key: size,
+      },
       pageFill: named && colors['pageFill'] != null && colors['page'] != null ? (page: 'page', fill: 'pageFill') : null,
       barChart: radii['bar'] == null
           ? const {}
@@ -334,6 +344,46 @@ final class NotationOptions {
       track: color('track', '#FFE5E7EB'),
     );
   }
+
+  /// These looks for another canvas (an overlay's): its id and its width.
+  NotationOptions sized({required double width, required String screen}) => NotationOptions(
+        width: width,
+        screen: screen,
+        textStyles: textStyles,
+        card: card,
+        badges: badges,
+        surface: surface,
+        accent: accent,
+        track: track,
+        components: components,
+        badge: badge,
+        cta: cta,
+        palette: palette,
+        tile: tile,
+        sectionRadius: sectionRadius,
+        barChart: barChart,
+        progress: progress,
+        cardGap: cardGap,
+        pageFill: pageFill,
+        ringStroke: ringStroke,
+        height: height,
+        contentWidth: contentWidth,
+        selectedFill: selectedFill,
+        line: line,
+        narrowWidth: narrowWidth,
+        sidebarWidth: sidebarWidth,
+        sectionPad: sectionPad,
+        gutter: gutter,
+        band: band,
+        siteFill: siteFill,
+        paneFill: paneFill,
+        iconTile: iconTile,
+        controlHeight: controlHeight,
+        fieldLabel: fieldLabel,
+        fieldText: fieldText,
+        reflow: false,
+        displaySizes: displaySizes,
+      );
 
   /// The canvas's width.
   final double width;
@@ -410,6 +460,16 @@ final class NotationOptions {
   /// The styles of a field's label and of its text on a page: a theme's
   /// `fieldLabelWide` and `inputTextWide`. Null: the control's own.
   final Object? fieldLabel, fieldText;
+
+  /// Whether a page (a canvas 700 wide or wider) is given the media rules
+  /// that lay it out on a tablet and a phone ([PageReflow]): its rows wrap,
+  /// its grids take fewer columns, its headlines shrink. False: the page is
+  /// written for its one width only.
+  final bool reflow;
+
+  /// The theme's text styles of a headline's size (32 and up), by name →
+  /// font size: a text in one of them is smaller on a phone.
+  final Map<String, num> displaySizes;
 
   /// The height of a button, a field and a select that write none: a
   /// theme's `sizes.control`. Null: the control's own (its compact step).
@@ -842,19 +902,185 @@ class _Open {
 }
 
 class _Parser {
-  _Parser(this.catalog, this.options);
+  _Parser(this.catalog, this.options, [this._host, this._overlay])
+      : variables = _host?.variables ?? {},
+        issues = _host?.issues ?? [],
+        wanted = _host?.wanted ?? [],
+        _declared = _host?._declared ?? {},
+        _counts = _host?._counts ?? {},
+        _derived = _host?._derived ?? {},
+        _projectVariables = _host?._projectVariables ?? {};
   final Catalog catalog;
   final NotationOptions options;
 
+  /// For an overlay's canvas (a `Dialog#id` block and the like): the
+  /// parser of the page it is written after, whose state it shares (the
+  /// variables, the ids), and the block it is.
+  final _Parser? _host;
+  final Overlay? _overlay;
+
+  /// The overlays written so far, each a canvas of its own with its nodes,
+  /// and the one whose lines are being read.
+  final _overlays = <_Parser>[];
+  _Parser? _block;
+
+  /// Whether the block being read is left out (its id was taken).
+  bool _blockSkipped = false;
+
+  /// What `open <id>` adds for each overlay written (its presentation), and
+  /// the open actions written, to complete once their overlay is.
+  final _overlayActions = <String, Json>{};
+  final _opens = <Json>[];
+
+  /// The open actions a right click or a long press runs: a menu or a
+  /// popover they open sits where the pointer is, not by the node.
+  final _pointerOpens = Set<Json>.identity();
+
+  void _atPointer(Json action) {
+    if (action['type'] != 'openModal') return;
+    _top._pointerOpens.add(action);
+    if (action['presentation'] == 'popover') action['anchor'] = 'pointer';
+  }
+
+  _Parser get _top => _host ?? this;
+
+  /// The document's canvases: the page, then its overlays.
+  List<String> get _rootIds => [_top.options.screen, for (final o in _top._overlays) o.options.screen];
+
+  /// Where the variables are declared: on the page's canvas, or, once the
+  /// page has overlays, for every canvas of the document (an overlay reads
+  /// and sets the page's values).
+  String get _scope => _top._overlays.isEmpty ? options.screen : 'page_variables';
+
+  bool _taken(String id) {
+    final top = _top;
+    return [top, ...top._overlays].any((p) => p.nodes.containsKey(id) || p.options.screen == id);
+  }
+
+  /// Whether a line is still open over the next ones.
+  bool get _continues => _everyOpen != null || _pending != null || _open != null;
+
+  /// The canvas of this parser's nodes.
+  Json get _canvasNode {
+    final o = _overlay;
+    Json look() {
+      if (o == null) return _surface;
+      if (!o.surface) {
+        return {
+          'fills': [
+            {'color': '#00FFFFFF'},
+          ],
+        };
+      }
+      return {
+        'fills': _copyValue(readMap(options.card['decoration'])?['fills']) ?? _surface['fills'],
+        if (o.radius > 0) 'radius': o.radius,
+        if (o.outlined)
+          'strokes': [
+            {'color': options.line},
+          ],
+        'effects': [
+          {'type': 'dropShadow', 'color': '#24000000', 'offset': [0, 12], 'blurRadius': 32, 'spreadRadius': -6},
+        ],
+      };
+    }
+
+    return {
+      'type': 'canvas',
+      if (o != null) 'name': o.id,
+      if (_root != null) 'slots': {'body': _root},
+      'layout': {'width': o?.width ?? options.width, 'height': _canvasHeight},
+      'decoration': look(),
+      if (_timers.isNotEmpty) 'actions': [..._timers],
+    };
+  }
+
+  /// A top-level `Dialog#id`, `Sheet#id`, `Drawer#id`, `Menu#id`,
+  /// `Popover#id` or `Lightbox#id` line: the lines under it are a canvas of
+  /// their own, which `open <id>` shows over the page.
+  void _openBlock(Overlay o) {
+    if (_taken(o.id)) {
+      _issue(1, 'The id "${o.id}" is used twice.');
+      _blockSkipped = true;
+      return;
+    }
+    final first = _overlays.isEmpty;
+    // In it everything is laid out as on a card: a narrow canvas of its own.
+    final sub = _Parser(catalog, options.sized(width: o.width < 640 ? o.width : 640, screen: o.id), this, o);
+    _overlays.add(sub);
+    _overlayActions[o.id] = o.action;
+    for (final a in _opens) {
+      if (a['to'] == o.id) {
+        a.addAll(_copy(o.action));
+        if (_pointerOpens.contains(a)) _atPointer(a);
+      }
+    }
+    if (_canvas) {
+      // The variables become the document's, so the overlay reads and sets them.
+      final names = [
+        for (final n in _declared)
+          if (!_projectVariables.contains(n) && variables.containsKey(n)) n,
+      ];
+      if (first && names.isNotEmpty) {
+        ops
+          ..add({'op': 'vars', 'scope': options.screen, 'remove': names})
+          ..add({
+            'op': 'vars',
+            'scope': 'page_variables',
+            'set': {
+              for (final n in names) n: {'type': variables[n]!['type'], 'value': variables[n]!['value']},
+            },
+          });
+      }
+      // What opens it, written before it: now with how it is shown.
+      for (final p in [this, ..._overlays]) {
+        for (final e in p.nodes.entries) {
+          final actions = e.value['actions'];
+          if (actions != null && jsonEncode(actions).contains('"to":"${o.id}"')) {
+            ops.add({'op': 'patch', 'id': e.key, 'patch': {'actions': actions}});
+          }
+        }
+      }
+    }
+    _block = sub;
+    for (final l in o.head) {
+      _feed(l.indent - o.shift, l.text, closes: 'none');
+    }
+  }
+
+  /// A line of the block being read, [indent] in from its head.
+  void _feed(int indent, String text, {String? closes}) {
+    final sub = _block;
+    if (sub == null) return;
+    final o = sub._overlay!;
+    sub._line = _line - 1;
+    sub.line('${' ' * (indent + o.shift)}${PageWords.closing(text, closes ?? o.closes)}');
+    ops.addAll(sub.ops);
+    sub.ops.clear();
+  }
+
+  void _closeBlock() {
+    _blockSkipped = false;
+    final sub = _block;
+    if (sub == null) return;
+    for (final l in sub._overlay!.foot) {
+      _feed(l.indent - sub._overlay.shift, l.text, closes: 'none');
+    }
+    _block = null;
+    sub.finish();
+    ops.addAll(sub.ops);
+    sub.ops.clear();
+  }
+
   final nodes = <String, Json>{};
-  final variables = <String, Json>{};
-  final issues = <NotationIssue>[];
-  final wanted = <WantedBlock>[];
+  final Map<String, Json> variables;
+  final List<NotationIssue> issues;
+  final List<WantedBlock> wanted;
 
   /// The edit operations of the lines read so far, not yet taken ([take]).
   final ops = <Json>[];
-  final _declared = <String>{};
-  final _counts = <String, int>{};
+  final Set<String> _declared;
+  final Map<String, int> _counts;
   final _stack = <_Open>[];
   String? _root;
   int _line = 0;
@@ -865,6 +1091,25 @@ class _Parser {
   String? _everyOpen;
 
   void line(String raw) {
+    // The lines under an overlay's head are its canvas's; the next line at
+    // the margin ends it.
+    if (_host == null && !_continues) {
+      final indent = raw.length - raw.trimLeft().length;
+      final blank = raw.trim().isEmpty || raw.trimLeft().startsWith('//');
+      if ((_block != null || _blockSkipped) && (indent > 0 || blank || (_block?._continues ?? false))) {
+        _line++;
+        if (!blank || (_block?._continues ?? false)) _feed(indent, raw.trim());
+        return;
+      }
+      if (!blank && indent == 0) {
+        _closeBlock();
+        if (_pages.overlay(raw.trim()) case final Overlay o) {
+          _line++;
+          _openBlock(o);
+          return;
+        }
+      }
+    }
     if (_everyOpen case final String open) {
       _everyOpen = null;
       if (raw.trimLeft().startsWith('->')) {
@@ -934,7 +1179,13 @@ class _Parser {
       _lineAt(indent + 4, 'Box w:=index==$page?16:6 h:6 radius:3 fill:=index==$page?${look(options.accent)}:${look(options.track)} -> $page=index', indent + 5);
     } else {
       for (final l in _pages.rewrite(indent, raw.trim())) {
-        _lineAt(l.indent, l.text, l.indent + 1);
+        // A frame's line says which frame it is (Row~nav): kept for the reflow.
+        final role = _roleMark.firstMatch(l.text);
+        // The menu a Nav opens on a phone keeps whether it is open.
+        if (l.text.contains('navMenu')) variables.putIfAbsent('navMenu', () => {'name': 'navMenu', 'type': 'boolean', 'value': false});
+        _lastNode = null;
+        _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
+        if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
       }
     }
     final added = nodes.keys.skip(before).toList();
@@ -963,7 +1214,54 @@ class _Parser {
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
+    isFrame: (name) => notationTypes[name] == null && catalog.widget(name)?.children == ChildModel.list,
+    roles: true,
+    menu: options.reflow && options.width >= 700,
+    sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}Menu' : null,
+    surface: options.surface,
   );
+
+  static final _roleMark = RegExp(r'^([A-Z][A-Za-z0-9]*)~([a-z]+)');
+
+  /// The node the line just read made, and the frames among the nodes
+  /// (`app`, `nav`, `section`, `sidebar`, `main`, `pane`), a grid's rows
+  /// and the rows whose columns share their width: what [PageReflow] reads.
+  String? _lastNode;
+  final _roles = <String, String>{};
+  final _gridRows = <String, _Grid>{};
+
+  /// The anchors (`#why` after a line) by name → the node, and the scroll
+  /// actions written, which name an anchor or an id.
+  final _anchors = <String, String>{};
+  final _scrolls = <Json>[];
+
+  /// The names written `project name`: variables of the site, not of this screen.
+  final Set<String> _projectVariables;
+  final _tableRows = <String>{};
+
+  /// On a page, the media rules that lay it out on a tablet and a phone.
+  void _reflow() {
+    if (!options.reflow || options.width < 700) return;
+    final rules = PageReflow(
+      nodes: nodes,
+      roles: _roles,
+      gridRows: {
+        for (final e in _gridRows.entries) e.key: (cols: e.value.cols, gap: e.value.gap),
+      },
+      cards: _cards,
+      tableRows: _tableRows,
+      displaySizes: options.displaySizes,
+      isComponent: (type) => type.isNotEmpty && type[0].toUpperCase() == type[0] && catalog.widget(type) != null,
+      fillsItsPlace: (type) => switch (options.components[type]?.width) { final Map m => m.containsKey('fill'), _ => false },
+    ).run();
+    for (final e in rules.entries) {
+      final node = nodes[e.key]!;
+      // The line's own rules (hide:phone) come after, so they win.
+      final media = [...e.value, ...?(node['media'] as List?)];
+      node['media'] = media;
+      if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
+    }
+  }
 
   /// Whether the UI is as tall as its window (an app's panes, a root
   /// written `h:fill`): the canvas then has the window's height, where a
@@ -1028,19 +1326,10 @@ class _Parser {
     if (!_canvas) {
       _canvas = true;
       ops
-        ..add({'op': 'roots', 'roots': [screen]})
-        ..add({
-          'op': 'set',
-          'id': screen,
-          'node': {
-            'type': 'canvas',
-            'layout': {'width': options.width, 'height': _canvasHeight},
-            'decoration': _surface,
-            if (_timers.isNotEmpty) 'actions': [..._timers],
-          },
-        });
+        ..add({'op': 'roots', 'roots': _rootIds})
+        ..add({'op': 'set', 'id': screen, 'node': _canvasNode..remove('slots')});
     }
-    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': screen, 'set': fresh});
+    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': _scope, 'set': fresh});
     ops.addAll(_patches);
     _patches.clear();
     if (id == null) return;
@@ -1092,6 +1381,7 @@ class _Parser {
     }
     // A cell that already grows (the name's column, written `grow`) is the
     // widest: its share is counted in the same unit as the others' widths.
+    _tableRows.add(open.id);
     final widest = fixed.fold<num>(0, (m, f) => f.$3 > m ? f.$3 : m);
     for (final (id, n) in children) {
       final flex = (n['layout'] as Map?)?['flex'];
@@ -1184,24 +1474,19 @@ class _Parser {
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
     finish();
-    final screen = options.screen;
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
     return NotationResult(patched({
       'schema': 3,
-      'roots': [screen],
+      'roots': _rootIds,
       'nodes': {
-        screen: {
-          'type': 'canvas',
-          if (_root != null) 'slots': {'body': _root},
-          'layout': {'width': options.width, 'height': _canvasHeight},
-          'decoration': _surface,
-          if (_timers.isNotEmpty) 'actions': _timers,
+        for (final p in [this, ..._overlays]) ...{
+          p.options.screen: p._canvasNode,
+          ...p.nodes,
         },
-        ...nodes,
       },
       if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
-        'variables': {screen: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
+        'variables': {_scope: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
     }), issues, wanted: List.unmodifiable(wanted));
   }
 
@@ -1240,12 +1525,15 @@ class _Parser {
     if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
-    if (line.startsWith('project ')) {
+    // `project cart=[]` (or `project cart`): a variable of the whole site
+    // (site.json's `variables`), read and set here as any other, with no
+    // copy of its own on this screen to hide it.
+    if (line.startsWith('project ') && _root == null) {
       final rest = line.substring(8).trim();
-      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=').firstMatch(rest)?.group(1);
-      if (name == null) return _issue(column, 'Project state is written: project name=value. Declare the same name in site.json variables.');
+      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)s*(=|$)').firstMatch(rest)?.group(1);
+      if (name == null) return _issue(column, 'A site\x27s variable is written: project name=value (the same name as in site.json\x27s variables).');
       _projectVariables.add(name);
-      return _state(rest, column + 8);
+      return _state(rest.contains('=') ? rest : '$name=""', column + 8);
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
@@ -1451,7 +1739,7 @@ class _Parser {
       final out = _copy(j.cast<String, Object?>());
       final written = out.remove('id');
       final id = whole[1] ?? (written is String ? written : _id(type));
-      if (nodes.containsKey(id)) return _issue(column, 'There is already a node "$id": ids are unique.');
+      if (_taken(id)) return _issue(column, 'There is already a node "$id": ids are unique.');
       if (parent?.condition case final String c) {
         final bind = (out['bind'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
         final own = bind['visible'];
@@ -1505,6 +1793,7 @@ class _Parser {
     String? imageFit;
     Json? buttonLook;
     String? gaugeUnit;
+    List<({String label, Object? value, Object? color})>? donutKeys;
 
     if (written == 'Button' && variant != null) {
       final v = buttonVariants[variant];
@@ -1578,10 +1867,11 @@ class _Parser {
     final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
     if (written == 'Card') _cards.add(id);
     if (grid != null) props['spacing'] = grid.gap;
-    if (nodes.containsKey(id) || id == options.screen) {
+    if (_taken(id)) {
       _issue(column, 'The id "$id" is used twice.');
       return;
     }
+    _lastNode = id;
 
     void put(String path, Object? value) {
       final dot = path.indexOf('.');
@@ -1870,13 +2160,15 @@ class _Parser {
             props[type == 'accordion' ? 'expanded' : 'initiallyExpanded'] = true;
           } else if (word.startsWith('#') && RegExp(r'^#[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(word)) {
             // An anchor written after the text (`Heading "Why" #why`): a name
-            // for a link to scroll to, which nothing here reads.
+            // for a `scroll why` to go to.
+            _anchors[word.substring(1)] = id;
           } else if (word == 'hidden') {
             node['visible'] = false;
           } else if (word == 'sticky') {
             // Stays in view while the page scrolls under it (a table of
             // contents beside an article, an order summary).
-            node['sticky'] = {'offset': 16};
+            // A bar across the top (SiteNav, a TopBar, a Header) stays at the very top.
+            node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header)$').hasMatch(written) ? 0 : 16};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
           } else if (component && _componentWord(word, spec, props, bind)) {
@@ -1888,7 +2180,10 @@ class _Parser {
         }
         var key = word.substring(0, colon);
         // `if:cond` on a node is the node shown while it holds.
-        if (key == 'if' || key == 'when' || key == 'show') key = 'visible';
+        // …but `show:phone` is where it shows (a screen's size), unless the
+        // UI has a value of that name.
+        final sizeWord = const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(colon + 1)) && !variables.containsKey(word.substring(colon + 1));
+        if (key == 'if' || key == 'when' || (key == 'show' && !sizeWord)) key = 'visible';
         // A handler written as a key, as models write one unprompted:
         // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
         // …unless the node has a parameter of that name (a quote's `change:1.84`).
@@ -1905,10 +2200,24 @@ class _Parser {
             body = t.rest;
             t.at += t.rest.length;
           }
-          reactions.add({'trigger': _handlerTrigger(key, type, component ? spec : null, node), 'actions': _actions(_statements(body), col)});
+          final trigger = _handlerTrigger(key, type, component ? spec : null, node);
+          final actions = _actions(_statements(body), col);
+          // A menu opened by a right click or a long press sits where the pointer is.
+          if (trigger['type'] == 'secondaryClick' || trigger['type'] == 'longPress') actions.forEach(_atPointer);
+          reactions.add({'trigger': trigger, 'actions': actions});
           continue;
         }
         var raw = word.substring(colon + 1);
+        // `menu:rowMenu`: a right click, or a long press on a touch screen,
+        // opens that Menu where the pointer is (a context menu).
+        if (key == 'menu' && _identifier.hasMatch(raw) && !raw.contains('.') && !spec.props.any((p) => p.key == 'menu')) {
+          for (final trigger in const ['secondaryClick', 'longPress']) {
+            final actions = _actions('open $raw', col);
+            actions.forEach(_atPointer);
+            reactions.add({'trigger': {'type': trigger}, 'actions': actions});
+          }
+          continue;
+        }
         if (raw.startsWith('=')) raw = '$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
@@ -2059,6 +2368,33 @@ class _Parser {
         // A password field hides what is typed; it is not a keyboard.
         if (key == 'type' && type == 'textField' && (raw == 'password' || raw == '"password"')) {
           props['obscureText'] = true;
+          continue;
+        }
+        // Where a node shows, by the screen's width: hide:phone (not on a
+        // phone), hide:tablet (not on a tablet or a phone), show:phone
+        // (on a phone only), show:tablet (on a tablet and a phone only).
+        // sticky:0 stays at the very top (a header); the word alone keeps 16 above it.
+        if (key == 'sticky' && num.tryParse(raw) != null) {
+          node['sticky'] = {'offset': num.parse(raw)};
+          continue;
+        }
+        if ((key == 'hide' || key == 'show') && sizeWord) {
+          final Json? rule = switch ((key, raw)) {
+            ('hide', 'phone' || 'mobile') => {'maxWidth': reflowPhoneMax},
+            ('hide', 'tablet') || ('show', 'desktop') => {'maxWidth': reflowTabletMax},
+            ('show', 'phone' || 'mobile') => {'minWidth': reflowPhoneMax + 1},
+            ('show', 'tablet') || ('hide', 'desktop') => {'minWidth': reflowTabletMax + 1},
+            _ => null,
+          };
+          if (rule != null) {
+            node['media'] = [
+              ...?(node['media'] as List?),
+              // A line under an `if` binds visible, and a binding shows over
+              // a patched value: where the size hides the node, the binding is
+              // dropped, so the condition holds only where the node shows.
+              {...rule, 'patch': {'visible': false, 'bind': {'visible': null}}},
+            ];
+          }
           continue;
         }
         // The widest a node gets (a page's column of content): maxw:720.
@@ -2276,6 +2612,14 @@ class _Parser {
       props['series'] = [
         {'field': 'value', 'colorField': 'color'},
       ];
+      // On a page its labels are its legend, beside it (under it on a phone).
+      final legend = props.remove('legend');
+      if (options.width >= 700 && legend != false && values is List && labels is List && labels.any((l) => '$l'.isNotEmpty)) {
+        final data = (props['data']! as List).cast<Map>();
+        donutKeys = [
+          for (final d in data) (label: '${d['label']}', value: d['value'], color: d['color']),
+        ];
+      }
       props.putIfAbsent('donutThickness', () => written.startsWith('Pie') && props['donut'] != true ? 0.5 : 0.22);
       props.remove('donut');
       props.addAll({'showYAxis': false, 'showXAxis': false, 'gridLines': 0});
@@ -2716,6 +3060,7 @@ class _Parser {
       if (moved.isNotEmpty) out['bind'] = {...?(out['bind'] as Map?)?.cast<String, Object?>(), ...moved};
     }
     nodes[id] = out;
+    if (donutKeys != null) _donutLegend(id, out, donutKeys, inRow: parent?.type == 'row');
     if (avatarName != null) {
       // "Maya Reyes" is MR; a value read from state is shown as it is.
       final reads = avatarName.contains(r'${') || avatarName.contains('{');
@@ -2842,6 +3187,118 @@ class _Parser {
     }
   }
 
+  /// The donuts given a legend: each as it was written, and its labels.
+  final _donuts = <String, ({Json chart, List<String> labels})>{};
+
+  /// A page that writes a donut's legend itself (its labels are texts
+  /// elsewhere on the page) keeps its own: the chart is as it was written.
+  void _ownLegends() {
+    for (final e in _donuts.entries) {
+      final id = e.key;
+      final own = nodes.keys.where((k) => k != id && k.startsWith(id) && _under(k, id)).toSet();
+      final labels = {for (final l in e.value.labels) if (l.trim().isNotEmpty) l.trim().toLowerCase()};
+      final written = <String>{};
+      for (final n in nodes.entries) {
+        if (own.contains(n.key) || n.value['type'] != 'text') continue;
+        final text = (n.value['props'] as Map?)?['text'];
+        if (text is String && labels.contains(text.trim().toLowerCase())) written.add(text.trim().toLowerCase());
+      }
+      if (written.length < (labels.length < 2 ? labels.length : 2) || written.isEmpty) continue;
+      own
+        ..forEach(nodes.remove)
+        ..forEach(_parentOf.remove);
+      nodes[id]!
+        ..clear()
+        ..addAll(e.value.chart);
+      if (_canvas) {
+        ops
+          ..add({'op': 'remove', 'ids': ['${id}Chart', '${id}Legend']})
+          ..add({'op': 'set', 'id': id, 'node': {...nodes[id]!}});
+      }
+    }
+    _donuts.clear();
+  }
+
+  bool _under(String id, String ancestor) {
+    for (String? at = _parentOf[id]; at != null; at = _parentOf[at]) {
+      if (at == ancestor) return true;
+    }
+    return false;
+  }
+
+  /// A donut with its legend: the line's node becomes a row that wraps, of
+  /// the chart and a line per share (its color, its label, its part of the
+  /// whole). Where the two do not fit side by side the legend goes under.
+  void _donutLegend(String id, Json out, List<({String label, Object? value, Object? color})> keys, {required bool inRow}) {
+    final chart = <String, Object?>{...out};
+    _donuts[id] = (chart: {...out}, labels: [for (final k in keys) k.label]);
+    final layout = (chart['layout']! as Map).cast<String, Object?>();
+    final flex = layout.remove('flex');
+    final side = switch ((layout['width'], layout['height'])) { (final num w, _) => w, (_, final num h) => h, _ => 160 };
+    chart['layout'] = {...layout, 'width': side, 'height': layout['height'] is num ? layout['height'] : side};
+    final visible = (chart['bind'] as Map?)?['visible'];
+    if (visible != null) chart['bind'] = {...(chart['bind']! as Map).cast<String, Object?>()}..remove('visible');
+    out
+      ..clear()
+      ..addAll({
+        'type': 'row',
+        'layout': {'width': flex != null || !inRow ? {'fill': 0} : {'hug': 0}, 'height': {'hug': 0}, 'flex': ?flex},
+        'props': {'spacing': 24, 'runSpacing': 16, 'wrap': true, 'crossAxisAlignment': 'center'},
+        if (visible != null) 'bind': {'visible': visible},
+        'children': <Object?>['${id}Chart', '${id}Legend'],
+      });
+    Object? style(String name) => switch (options.textStyles[name] ?? options.textStyles['body']) { final Map m => _copy(m.cast<String, Object?>()), final other => other };
+    num total = 0;
+    for (final k in keys) {
+      total += k.value is num ? k.value! as num : 0;
+    }
+    nodes['${id}Chart'] = chart;
+    nodes['${id}Legend'] = {
+      'type': 'column',
+      'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'basis': 160, 'flex': 1, 'constraints': {'maxWidth': 320}},
+      'props': {'spacing': 10, 'crossAxisAlignment': 'stretch'},
+      'children': <Object?>[for (var i = 0; i < keys.length; i++) '${id}Key$i'],
+    };
+    _parentOf['${id}Chart'] = id;
+    _parentOf['${id}Legend'] = id;
+    for (var i = 0; i < keys.length; i++) {
+      final k = keys[i];
+      final share = total > 0 && k.value is num ? '${((k.value! as num) / total * 100).round()}%' : null;
+      nodes['${id}Key$i'] = {
+        'type': 'row',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'spacing': 10, 'crossAxisAlignment': 'center'},
+        'children': <Object?>['${id}Dot$i', '${id}Label$i', if (share != null) '${id}Share$i'],
+      };
+      nodes['${id}Dot$i'] = {
+        'type': 'column',
+        'layout': {'width': 10, 'height': 10},
+        'decoration': {
+          'fills': [
+            {'color': k.color},
+          ],
+          'radius': 5,
+        },
+      };
+      nodes['${id}Label$i'] = {
+        'type': 'text',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'flex': 1},
+        'props': {'text': k.label, 'style': ?style('muted')},
+      };
+      if (share != null) {
+        nodes['${id}Share$i'] = {
+          'type': 'text',
+          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+          'props': {'text': share, 'style': ?style('strong')},
+        };
+      }
+      _parentOf['${id}Key$i'] = '${id}Legend';
+      for (final part in ['Dot', 'Label', if (share != null) 'Share']) {
+        _parentOf['${id}$part$i'] = '${id}Key$i';
+      }
+    }
+  }
+
   void _strings(List<String> texts, String type, String id, Json out) {
     for (var i = 0; i < texts.length; i++) {
       final tid = _id('text');
@@ -2918,6 +3375,7 @@ class _Parser {
       nodes[id] = cellNode;
       (gridNode['children'] as List<Object?>).add(rowId);
       _parentOf[rowId] = g.id;
+      _gridRows[rowId] = g;
       g
         ..row = rowId
         ..inRow = 0;
@@ -2929,6 +3387,8 @@ class _Parser {
 
   /// A grid ends: its last row is filled out with empty cells, so its cells
   /// are as wide as the rows above.
+  static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*');
+
   void _close(_Open open) {
     _fitRow(open);
     final g = open.grid;
@@ -2945,6 +3405,21 @@ class _Parser {
 
   /// The end of the text: what is still open closes.
   void finish() {
+    if (_host == null) {
+      _closeBlock();
+      // An app's sidebar, where the window has no room for it: a drawer the
+      // top bar's menu button opens, each of its lines closing it as it is used.
+      if (_pages.sidebarButton && _pages.sidebar.isNotEmpty && !_continues) {
+        if (_pages.overlay('Drawer#${_pages.sidebarMenu}${_pages.sidebarRest}') case final Overlay o) {
+          _openBlock(o);
+          for (final l in _pages.sidebar) {
+            // Its ids are the sidebar's own: the copy has none.
+            _feed(l.indent, l.text.replaceFirstMapped(_idMark, (m) => m[1]!), closes: 'all');
+          }
+          _closeBlock();
+        }
+      }
+    }
     if (_everyOpen case final String open) {
       _everyOpen = null;
       line('$open ->');
@@ -2965,8 +3440,12 @@ class _Parser {
     while (_stack.isNotEmpty) {
       _close(_stack.removeLast());
     }
-    _reflowPage();
     nodes.keys.skip(before).toList().forEach(_emit);
+    for (final scroll in _scrolls) {
+      if (_anchors[scroll['node']] case final String id) scroll['node'] = id;
+    }
+    _ownLegends();
+    _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {
       ops.addAll(_patches);
@@ -2974,56 +3453,19 @@ class _Parser {
     }
   }
 
-  /// Add narrow layouts to a page without changing its authored width.
-  void _reflowPage() {
-    if (options.width < 1000 || (!_pages.app && !_pages.page)) return;
-    void rule(String id, Json patch, double width) {
-      final n = nodes[id]!;
-      final media = (n['media'] as List?)?.cast<Object?>() ?? <Object?>[];
-      media.add({'maxWidth': width, 'patch': patch});
-      n['media'] = media;
-      if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': {'media': media}});
-    }
-
-    if (_pages.app && _root != null) {
-      final root = _root!;
-      final shell = nodes[root];
-      final panes = (shell?['children'] as List?)?.cast<String>() ?? const <String>[];
-      if (panes.length >= 2) {
-        // The main pane is the growing pane. Fixed side panes are omitted at
-        // narrow widths; they no longer consume the main pane's space.
-        for (final pane in panes) {
-          final layout = nodes[pane]?['layout'] as Map?;
-          if (layout?['width'] is num) rule(pane, {'visible': false}, 900);
-        }
-      }
-    }
-
-    for (final entry in nodes.entries.toList()) {
-      final id = entry.key, n = entry.value;
-      if (n['type'] == 'gridView') {
-        rule(id, {'props': {'crossAxisCount': 2}}, 900);
-        rule(id, {'props': {'crossAxisCount': 1}}, 600);
-      }
-      if (n['type'] != 'row' || id == _root && _pages.app || (n['props'] as Map?)?['scrollable'] == true) continue;
-      rule(id, {'props': {'wrap': true, 'runSpacing': (n['props'] as Map?)?['spacing'] ?? 0}}, 900);
-      final children = (n['children'] as List?)?.cast<String>() ?? const <String>[];
-      final substantial = children.where((child) {
-        final c = nodes[child];
-        if (c == null) return false;
-        final layout = c['layout'] as Map?;
-        return layout?['flex'] != null && layout?['width'] is Map && (layout!['width'] as Map).containsKey('fill');
-      }).toList();
-      if (substantial.isEmpty) continue;
-      for (final child in substantial) {
-        rule(child, {'layout': {'basis': 280}}, 900);
-      }
-    }
-  }
-
   /// The node's main string: a text's text, a button's label, a field's label.
   void _main(String type, WidgetSpec spec, String s, Json props, Json decoration) {
     final text = _interpolate(s);
+    // A date or time field's string is its label, as a text field's is.
+    if (const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && spec.props.any((p) => p.key == 'decoration')) {
+      final d = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
+      if (text.contains(r'${')) {
+        _labelBinds['props.decoration.labelText'] = text;
+      } else {
+        d.putIfAbsent('labelText', () => text);
+      }
+      return;
+    }
     if (type == 'textField') {
       final d = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
       final key = d.containsKey('labelText') || _labelBinds.containsKey('props.decoration.labelText') ? 'hintText' : 'labelText';
@@ -3090,8 +3532,7 @@ class _Parser {
 
   /// State written as a formula (`state total=sum(cart,x=>x.price)`): not a
   /// variable but a name for the formula, written out where it is read.
-  final _derived = <String, String>{};
-  final _projectVariables = <String>{};
+  final Map<String, String> _derived;
 
   void _state(String rest, int column) {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
@@ -3164,6 +3605,7 @@ class _Parser {
     }
     final bare = key.startsWith('on') && key.length > 2 ? '${key[2].toLowerCase()}${key.substring(3)}' : key;
     if (const {'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'longPress', 'doubleTap'}.contains(bare)) return {'type': bare};
+    if (const {'rightClick', 'secondaryClick', 'contextMenu'}.contains(bare)) return {'type': 'secondaryClick'};
     final changes = key == 'change' || key == 'onChange' || key == 'onChanged';
     return {'type': changes || _valueProps.containsKey(type) && !key.contains('ress') && key != 'tap' && key != 'click' ? 'changed' : 'click'};
   }
@@ -3267,17 +3709,35 @@ class _Parser {
               'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
           });
         case 'open':
-          out.add({'type': 'openModal', 'modal': s});
+          // An overlay written in this text (Dialog#id, Menu#id…) opens as
+          // its kind says; one written further down completes this then.
+          final Json action = {'type': 'openModal', 'to': s, ...?switch (_top._overlayActions[s]) { final Json a => _copy(a), _ => null }};
+          _top._opens.add(action);
+          out.add(action);
+        case 'scroll':
+          // `scroll pricing`, `scroll to pricing`, `scroll #pricing`: the page
+          // moves to that part, named by its id or by an anchor (`#pricing`
+          // after a line, or id:pricing on it).
+          final target = s.replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim();
+          if (target.isEmpty) {
+            _issue(column, 'A scroll names where to: scroll pricing (the id of a line, or an anchor written #pricing after a line).');
+          } else {
+            final Json action = {'type': 'scrollTo', 'node': target, 'durationMs': 400, 'offset': 72};
+            _scrolls.add(action);
+            out.add(action);
+          }
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':
-          out.add({'type': 'navigate', 'to': s});
+          // A destination may be worked out (a SiteNav's link name as a
+          // screen id: go replace(lower(result)," ","_")); a bare id is the id.
+          out.add({'type': 'navigate', 'to': arg.startsWith('"') || _identifier.hasMatch(s) ? s : _formula(s)});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':
           out.add({'type': 'openLink', 'url': s});
         default:
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, link <url>, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, or JSON.');
       }
     }
     return out;
