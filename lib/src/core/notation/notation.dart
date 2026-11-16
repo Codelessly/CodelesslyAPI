@@ -1528,7 +1528,8 @@ class _Parser {
     // `project cart=[]` (or `project cart`): a variable of the whole site
     // (site.json's `variables`), read and set here as any other, with no
     // copy of its own on this screen to hide it.
-    if (line.startsWith('project ') && _root == null) {
+    if (line.startsWith('project ')) {
+      if (_root != null) return _issue(column, 'A project variable must be declared before Page or App: move this project line above the root.');
       final rest = line.substring(8).trim();
       final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)s*(=|$)').firstMatch(rest)?.group(1);
       if (name == null) return _issue(column, 'A site\x27s variable is written: project name=value (the same name as in site.json\x27s variables).');

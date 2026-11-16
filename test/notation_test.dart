@@ -1868,6 +1868,18 @@ Page
       expect(at(r, 'copy', 1280), isEmpty);
     });
 
+    test('a late project declaration reports its line instead of silently becoming local state', () {
+      final r = parseNotation('''
+Page
+  Section
+    Text "Hello"
+project trip=[]
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, hasLength(1));
+      expect(r.issues.single.line, 4);
+      expect(r.issues.single.message, contains('before Page or App'));
+    });
+
     test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page
