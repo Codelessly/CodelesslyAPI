@@ -76,7 +76,7 @@ const List<PageDef> featurePages = [
       triggers: ['valueChanged', 'actionError'],
       actions: ['setVariable', 'setValue', 'setVariant', 'callFunction', 'if', 'forEach', 'delay', 'runScript', 'retryFailed']),
   PageDef('interaction',
-      behaviors: ['states', 'inkWell', 'tooltip', 'ignorePointer', 'draggable', 'dropTarget', 'track', 'dismissible', 'pan', 'transformGesture'],
+      behaviors: ['states', 'inkWell', 'tooltip', 'ignorePointer', 'focusable', 'focusGroup', 'draggable', 'dropTarget', 'track', 'dismissible', 'pan', 'transformGesture'],
       triggers: [
         'click', 'doubleTap', 'longPress', 'hold', 'secondaryClick', 'pointerDown', 'pointerUp', 'hover', 'cursorEnter', //
         'cursorExit', 'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'drag', 'dragEnd', 'wheel', 'pinch', 'dragStart',
