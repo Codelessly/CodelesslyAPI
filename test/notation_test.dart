@@ -2270,6 +2270,9 @@ Menu#areaMenu
       final box = node(r, (node(r, 'zoom')['slots']! as Map)['body']! as String);
       expect(jsonEncode(box['actions']), contains('closeModal'));
       expect(jsonEncode(nodesOf(r)), contains(r'"url":"${photo}","fit":"contain"'));
+      expect(jsonEncode(nodesOf(r)), contains('"icon":"close"'));
+      final closeButton = nodesOf(r).values.cast<Map>().firstWhere((n) => jsonEncode(n['props']).contains('"icon":"close"'));
+      expect(jsonEncode(closeButton['actions']), contains('closeModal'));
       const menu = {'type': 'openModal', 'to': 'areaMenu', 'presentation': 'popover', 'anchor': 'pointer', 'placement': 'belowStart', 'anchorGap': 6};
       expect(node(r, 'area')['actions'], [
         {'trigger': {'type': 'secondaryClick'}, 'actions': [menu]},

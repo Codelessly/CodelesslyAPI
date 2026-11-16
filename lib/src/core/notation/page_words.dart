@@ -226,6 +226,8 @@ final class PageWords {
           const {'presentation': 'dialog', 'cover': true, 'barrierColor': '#E6000000'},
           [
             (indent: 0, text: 'Column w:fill h:fill center middle pad:24 gap:12${parts.props} -> close'),
+            (indent: 2, text: 'Row w:fill end'),
+            (indent: 4, text: 'IconButton "close" color:#FFFFFFFF -> close'),
             if (title != null) (indent: 2, text: 'Image $title w:fill h:fill grow fit:contain'),
             if (note != null) (indent: 2, text: 'Text $note color:#FFFFFFFF center'),
           ],
