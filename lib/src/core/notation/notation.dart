@@ -3762,7 +3762,10 @@ class _Parser {
         case 'go':
           // A destination may be worked out (a SiteNav's link name as a
           // screen id: go replace(lower(result)," ","_")); a bare id is the id.
-          out.add({'type': 'navigate', 'to': arg.startsWith('"') || _identifier.hasMatch(s) ? s : _formula(s)});
+          // A page's id may have hyphens (go get-started is that page, not a
+          // subtraction), and a destination already written ${= …} is whole.
+          final fixed = arg.startsWith('"') || _identifier.hasMatch(s) || RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(s) || (s.startsWith(r'${') && s.endsWith('}'));
+          out.add({'type': 'navigate', 'to': fixed ? s : _formula(s)});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':

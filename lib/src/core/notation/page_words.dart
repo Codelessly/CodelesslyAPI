@@ -263,14 +263,26 @@ final class PageWords {
   /// What closes a frame: a bar's menu for a phone, then its rule.
   List<PageLine> _closing(_Line closed) {
     final at = closed.indent + closed.before;
+    // It repeats the links the bar hides on a phone: the ones written
+    // straight under the Nav and the ones in a row of two or more. A lone
+    // link beside the bar's buttons stays where it is.
+    final inGroup = <_Line?, int>{};
+    for (final link in closed.links) {
+      inGroup[link.group] = (inGroup[link.group] ?? 0) + 1;
+    }
+    final links = [
+      for (final link in closed.links)
+        if (link.direct || (inGroup[link.group] ?? 0) >= 2) link,
+    ];
     // From six links on, a tablet has no room for them either.
-    final size = closed.links.length >= 6 ? 'tablet' : 'phone';
+    final size = links.length >= 6 ? 'tablet' : 'phone';
     return [
-      if (menu && closed.pageNav && closed.links.isNotEmpty && !closed.ownMenu) ...[
-        (indent: at + 4, text: 'IconButton "menu" show:$size -> navMenu=!navMenu'),
+      if (menu && closed.pageNav && links.isNotEmpty && !closed.ownMenu) ...[
+        // As big as the bar's buttons: a target a thumb finds.
+        (indent: at + 4, text: 'IconButton "menu" w:40 h:40 show:$size -> navMenu=!navMenu'),
         (indent: at + 2, text: 'if navMenu'),
         (indent: at + 4, text: 'Column w:fill maxw:${_n(contentWidth)} show:$size gap:2 pad:[0,8,0,4]'),
-        for (final link in closed.links) ...[
+        for (final link in links) ...[
           (indent: at + 6, text: 'Row w:fill pad:[12,10,12,10] radius:8 middle -> navMenu=false; ${link.action}'),
           (indent: at + 8, text: 'Text.strong ${link.label}'),
         ],
@@ -538,6 +550,8 @@ final class PageWords {
     if (word == 'Link' && !isComponent('Link')) {
       final href = parts.take('href') ?? parts.take('to') ?? parts.take('url');
       final label = parts.string();
+      // menu:false keeps a link out of the bar's phone menu (one that stays in view: Search).
+      final inMenu = parts.take('menu') != 'false';
       // href:"https://…" opens it; href:"#pricing" scrolls to that part of the page.
       final action = parts.action ??
           (href != null && RegExp(r'^"?https?://').hasMatch(href)
@@ -545,7 +559,9 @@ final class PageWords {
               : href != null && RegExp(r'^"?#[A-Za-z_]').hasMatch(href)
                   ? ' -> scroll ${href.replaceAll('"', '').substring(1)}'
                   : '');
-      if (bar != null && label != null && action.trim().startsWith('->')) bar.links.add((label: label, action: action.trim().substring(2).trim()));
+      if (bar != null && inMenu && label != null && action.trim().startsWith('->')) {
+        bar.links.add((label: label, action: action.trim().substring(2).trim(), group: parent, direct: parent?.frame == 'Nav'));
+      }
       open();
       // In a bar a link is a quiet button; in running content, text in the accent.
       if (parent?.frame == 'Nav' || _open.any((l) => l.frame == 'Nav')) {
@@ -764,7 +780,7 @@ class _Line {
   /// A website's Nav: the links written in it (for its phone menu), and
   /// whether it writes a menu of its own.
   bool pageNav = false, ownMenu = false;
-  final links = <({String label, String action})>[];
+  final links = <({String label, String action, _Line? group, bool direct})>[];
 }
 
 /// The words of a line after its type, taken apart: `key:value` pairs,
