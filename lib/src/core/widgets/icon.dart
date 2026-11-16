@@ -20,6 +20,6 @@ abstract final class IconProps {
       doc: 'Flutter `Icon.size`: the glyph\'s width and height. Unset, the glyph fills the node\'s box (contained, centered), '
           'as before. Set, the glyph is drawn at this size, centered in the node\'s box (at most the box), and a hugging axis '
           'of the node takes it (`{"hug": 24}` with `"size": 18` is 18 wide).');
-  static const spec = WidgetSpec('icon', props: [icon, color, size], doc: 'Flutter `Icon`.');
+  static const spec = WidgetSpec('icon', props: [icon, color, size], hugs: true, doc: 'Flutter `Icon`.');
 }
 

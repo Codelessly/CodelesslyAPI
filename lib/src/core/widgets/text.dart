@@ -46,5 +46,7 @@ abstract final class TextProps {
       props: [
         text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, scaleDown, markdown,
       ],
+      // Unwritten, a text is as big as what it says (and wraps at its parent's width), as Flutter's Text is.
+      hugs: true,
       doc: 'Flutter `Text.rich`.');
 }
