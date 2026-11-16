@@ -377,6 +377,8 @@
             "customPaint": {},
             "form": {},
             "radioGroup": {},
+            "focusable": {},
+            "focusGroup": {},
             "key": {},
             "component": {}
           },

@@ -509,9 +509,9 @@ Flutter `SegmentedButton<String>`.
 <a id="node-datePicker"></a>
 ### `datePicker`
 
-Flutter `showDatePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
+A date field that opens a calendar drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
-A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar (Flutter's `showDatePicker`).
+A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calendar the renderer draws itself (no Material dialog), in the project's theme.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -525,15 +525,15 @@ A field showing a date (`yyyy-MM-dd`; empty shows its hint) that opens a calenda
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](forms.md#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
-| `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
+| `helpText` | String | `""` |  | A title over the calendar or the time columns; empty: none. |
+| `pickerTheme` | Object | unset |  | Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-timePicker"></a>
 ### `timePicker`
 
-Flutter `showTimePicker` button or field. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
+A time field that opens hour and minute columns drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
-A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns (Flutter's `showTimePicker`).
+A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minute columns the renderer draws itself (no Material dialog), in the project's theme.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -542,12 +542,12 @@ A field showing a time (`HH:mm`; empty shows its hint) that opens hour and minut
 |---|---|---|---|---|
 | `value` | String | `""` |  |  |
 | `enabled` | bool | `true` |  |  |
-| `alwaysUse24HourFormat` | bool | `false` |  | The picker's dial and fields in 24-hour time (Flutter's `MediaQueryData.alwaysUse24HourFormat`, which the picker reads). |
+| `alwaysUse24HourFormat` | bool | `false` |  | The picker's columns in 24-hour time (hours and minutes, no AM/PM). |
 | `format` | String | `""` |  | How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`, `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`. |
 | `style` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `decoration` | [InputDecoration](forms.md#type-InputDecoration) | `{}` |  |  |
-| `helpText` | String | `""` |  | The picker's title (`showDatePicker`'s `helpText`); empty: none. |
-| `pickerTheme` | Object | unset |  | The picker dialog's look: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
+| `helpText` | String | `""` |  | A title over the calendar or the time columns; empty: none. |
+| `pickerTheme` | Object | unset |  | Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-dateTimeInput"></a>
 ### `dateTimeInput`
