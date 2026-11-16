@@ -1075,11 +1075,23 @@ class _Parser {
         }
       }
     }
+    // What it keeps (a lightbox's zoom, the picture it shows).
+    for (final e in o.variables.entries) {
+      final value = switch (e.value) {
+        final String s when s.startsWith('[') => _json(s) ?? const <Object?>[],
+        final v => v,
+      };
+      variables.putIfAbsent(e.key, () => {'name': e.key, 'type': value is List ? 'list' : value is num ? 'decimal' : 'text', 'value': value});
+    }
     _block = sub;
+    _blockLines.clear();
     for (final l in o.head) {
       _feed(l.indent - o.shift, l.text, closes: 'none');
     }
   }
+
+  /// The lines written under the block being read, each with its indent.
+  final _blockLines = <PageLine>[];
 
   /// A line of the block being read, [indent] in from its head.
   void _feed(int indent, String text, {String? closes}) {
@@ -1096,9 +1108,27 @@ class _Parser {
     _blockSkipped = false;
     final sub = _block;
     if (sub == null) return;
-    for (final l in sub._overlay!.foot) {
-      _feed(l.indent - sub._overlay.shift, l.text, closes: 'none');
+    final o = sub._overlay!;
+    // With nothing written under it, what it shows by itself.
+    final written = _blockLines.isEmpty ? o.empty : [..._blockLines];
+    if (_blockLines.isEmpty) {
+      for (final l in o.empty) {
+        _feed(l.indent, l.text, closes: 'none');
+      }
     }
+    for (final l in o.foot) {
+      if (l.text == Overlay.lines) {
+        // The lines written under it, read again here (without their ids;
+        // a picture fills its thumbnail).
+        final first = written.isEmpty ? 0 : written.map((w) => w.indent).reduce(math.min);
+        for (final w in written) {
+          _feed(l.indent - o.shift + w.indent - first, w.text.replaceFirstMapped(_idMark, (m) => m[1]!).replaceAll(' fit:contain', ' fit:cover'), closes: 'none');
+        }
+        continue;
+      }
+      _feed(l.indent - o.shift, l.text, closes: 'none');
+    }
+    _blockLines.clear();
     _block = null;
     sub.finish();
     ops.addAll(sub.ops);
@@ -1131,7 +1161,10 @@ class _Parser {
       final blank = raw.trim().isEmpty || raw.trimLeft().startsWith('//');
       if ((_block != null || _blockSkipped) && (indent > 0 || blank || (_block?._continues ?? false))) {
         _line++;
-        if (!blank || (_block?._continues ?? false)) _feed(indent, raw.trim());
+        if (!blank || (_block?._continues ?? false)) {
+          if (_block != null && !blank) _blockLines.add((indent: indent, text: raw.trim()));
+          _feed(indent, raw.trim());
+        }
         return;
       }
       if (!blank && indent == 0) {
@@ -1216,6 +1249,15 @@ class _Parser {
         final role = _roleMark.firstMatch(l.text);
         // The menu a Nav opens on a phone keeps whether it is open.
         if (l.text.contains('navMenu')) variables.putIfAbsent('navMenu', () => {'name': 'navMenu', 'type': 'boolean', 'value': false});
+        // What a gallery opens in the page's viewer: its photos and the one tapped.
+        if (_pages.viewerUsed) {
+          final viewer = _pages.viewer!;
+          variables.putIfAbsent('${viewer}Photos', () => {'name': '${viewer}Photos', 'type': 'list', 'value': const <Object?>[]});
+          variables.putIfAbsent('${viewer}At', () => {'name': '${viewer}At', 'type': 'decimal', 'value': 0});
+          for (final e in _pages.viewerLists.entries) {
+            variables.putIfAbsent(e.key, () => {'name': e.key, 'type': 'list', 'value': _json(e.value) ?? const <Object?>[]});
+          }
+        }
         _lastNode = null;
         _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
@@ -1253,6 +1295,14 @@ class _Parser {
     menu: options.reflow && options.width >= 700,
     sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}Menu' : null,
     surface: options.surface,
+    viewer: _host == null && options.width >= 700 ? '${options.screen}Viewer' : null,
+    takesViewer: (name) {
+      if (notationTypes[name] != null) return false;
+      final spec = catalog.widget(name);
+      return spec != null &&
+          spec.props.any((p) => p.key == 'photos') &&
+          spec.props.any((p) => p.key == 'viewer' && p.type.kind == PropKind.enumeration && p.type.values.contains('overlay'));
+    },
   );
 
   static final _roleMark = RegExp(r'^([A-Z][A-Za-z0-9]*)~([a-z]+)');
@@ -3207,6 +3257,13 @@ class _Parser {
       ((out['children'] as List<Object?>?) ?? (out['children'] = <Object?>[])).add(pageId);
       _parentOf[pageId] = id;
       props.putIfAbsent('scrollDirection', () => 'horizontal');
+      // A line with no prop of its own has them now (what a {…} at its end
+      // gave it are its props then).
+      if (out['props'] case final Map<Object?, Object?> given) {
+        given.putIfAbsent('scrollDirection', () => 'horizontal');
+      } else {
+        out['props'] = props;
+      }
       // With the next page showing at the edge, the first sits at the start
       // and the pages stand apart (gap, 8 unless written).
       final gap = props.remove('spacing');
@@ -3466,6 +3523,14 @@ class _Parser {
   void finish() {
     if (_host == null) {
       _closeBlock();
+      // The viewer a gallery of the page opens its photos in, over the window.
+      if (_pages.viewerUsed && !_continues && !_taken(_pages.viewer!)) {
+        final viewer = _pages.viewer!;
+        if (_pages.overlay('Lightbox#$viewer photos:=${viewer}Photos =${viewer}At') case final Overlay o) {
+          _openBlock(o);
+          _closeBlock();
+        }
+      }
       // An app's sidebar, where the window has no room for it: a drawer the
       // top bar's menu button opens, each of its lines closing it as it is used.
       if (_pages.sidebarButton && _pages.sidebar.isNotEmpty && !_continues) {
