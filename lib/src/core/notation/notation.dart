@@ -99,6 +99,8 @@ final class NotationOptions {
     this.paneFill,
     this.iconTile,
     this.controlHeight,
+    this.fieldLabel,
+    this.fieldText,
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -144,6 +146,8 @@ final class NotationOptions {
       paneFill: base.paneFill,
       iconTile: base.iconTile,
       controlHeight: base.controlHeight,
+      fieldLabel: base.fieldLabel,
+      fieldText: base.fieldText,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -287,6 +291,8 @@ final class NotationOptions {
       paneFill: colors['card'] != null ? color('card', '#FFFFFFFF') : null,
       iconTile: colors['iconTile'] != null ? color('iconTile', '#1A2563EB') : null,
       controlHeight: readDouble(sizes['control']),
+      fieldLabel: isWide ? styles['fieldLabelWide'] : null,
+      fieldText: isWide ? styles['inputTextWide'] : null,
       pageFill: named && colors['pageFill'] != null && colors['page'] != null ? (page: 'page', fill: 'pageFill') : null,
       barChart: radii['bar'] == null
           ? const {}
@@ -400,6 +406,10 @@ final class NotationOptions {
   /// on, an app's sidebar and top bar, and the tile behind an icon: a
   /// theme's `colors.band`, `pageFill`, `card` and `iconTile`. Null: none.
   final String? band, siteFill, paneFill, iconTile;
+
+  /// The styles of a field's label and of its text on a page: a theme's
+  /// `fieldLabelWide` and `inputTextWide`. Null: the control's own.
+  final Object? fieldLabel, fieldText;
 
   /// The height of a button, a field and a select that write none: a
   /// theme's `sizes.control`. Null: the control's own (its compact step).
@@ -2508,15 +2518,55 @@ class _Parser {
         _ => options.controlHeight,
       };
       if (step != null && !layout.containsKey('height')) layout['height'] = step;
-    } else if (options.controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
+    }
+    if (type == 'textField' || type == 'dropdown') {
+      Object? copy(Object? v) => v is Map ? _copy(v.cast<String, Object?>()) : v;
+      if (options.fieldText != null) props.putIfAbsent('style', () => copy(options.fieldText));
+      if (options.fieldLabel != null && type == 'textField' && props['decoration'] is Map) {
+        final d = (props['decoration']! as Map).cast<String, Object?>();
+        if (d['labelText'] is String && (d['labelText']! as String).isNotEmpty) d.putIfAbsent('labelStyle', () => copy(options.fieldLabel));
+        props['decoration'] = d;
+      }
+    }
+    if (options.controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
       // A field's label sits above its box, inside its height (11.5 px
       // text and 6 px under it).
       final label = type == 'textField' && switch ((props['decoration'] as Map?)?['labelText']) { final String l => l.isNotEmpty, _ => false };
       if (!layout.containsKey('height') && props['maxLines'] == null && props['minLines'] == null) {
-        layout['height'] = options.controlHeight! + (label ? 20 : 0);
+        layout['height'] = options.controlHeight! + (label ? (options.fieldLabel == null ? 20 : 23) : 0);
       }
     }
     if (inRow && type == 'text' && !layout.containsKey('width')) layout['squeezable'] = true;
+    // On a page a column beside an icon or a picture gives way too (a name
+    // and a note in a narrow tile), where it would push past the row's end.
+    if (inRow && type == 'column' && !layout.containsKey('width') && !layout.containsKey('flex') && options.width >= 700 && written != 'Card') {
+      layout['squeezable'] = true;
+    }
+    // A text in a box of a fixed height (an event's block, a tile): the
+    // height is the least it is, and it grows when the text takes more lines.
+    if (type == 'text' && parent != null && parent.type == 'column') {
+      final box = nodes[parent.id];
+      final h = (box?['layout'] as Map?)?['height'];
+      if (box != null && h is num && h > 0 && (box['props'] as Map?)?['scrollable'] != true) {
+        final Json patch = {
+          'layout': {'height': {'hug': h}},
+        };
+        nodes[parent.id] = mergePatch(box, patch);
+        _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
+      }
+    }
+    // A line chart's values that follow the state are its points worked out.
+    if (type == 'lineChart' && bind['props.values'] is String) {
+      var e = (bind.remove('props.values')! as String).trim();
+      if (e.startsWith(r'${') && e.endsWith('}')) e = e.substring(2, e.length - 1).trim();
+      if (e.startsWith('=')) e = e.substring(1).trim();
+      bind['props.data'] = '\${= map(range(length($e)), i => {"x": i, "y": ($e)[i]})}';
+      props.addAll({'xField': 'x', 'yField': 'y'});
+    }
+    // A toggle's color is the color it has when on.
+    if (const {'checkbox', 'switch', 'radio'}.contains(type) && props.containsKey('color')) {
+      props['activeColor'] = props.remove('color');
+    }
     if (!layout.containsKey('width')) {
       // In a tile's slot (leading, trailing) a child is as wide as it is.
       final inTile = parent?.type == 'listTile';
