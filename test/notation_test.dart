@@ -1841,6 +1841,16 @@ Page
       expect((sizeRule['patch'] as Map)['visible'], false);
       expect(((sizeRule['patch'] as Map)['bind'] as Map)['visible'], isNull);
 
+      final collision = parseNotation('''
+state phone=""
+Page
+  Nav
+    IconButton#menuButton "menu" show:phone
+''', catalog: standardCatalog, options: page);
+      expect(collision.issues, isEmpty);
+      expect(at(collision, 'menuButton', 1280)['visible'], false);
+      expect(node(collision, 'menuButton')['bind'], isNull);
+
       const text = '''
 Column
   Grid cols:2

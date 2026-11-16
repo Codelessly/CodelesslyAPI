@@ -1942,9 +1942,9 @@ class _Parser {
         }
         var key = word.substring(0, colon);
         // `if:cond` on a node is the node shown while it holds.
-        // …but `show:phone` is where it shows (a screen's size), unless the
-        // UI has a value of that name.
-        final sizeWord = const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(colon + 1)) && !variables.containsKey(word.substring(colon + 1));
+        // …but `show:phone` is always a screen size, even when the page has
+        // a variable of that name (such as a reservation's phone field).
+        final sizeWord = const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(colon + 1));
         if (key == 'if' || key == 'when' || (key == 'show' && !sizeWord)) key = 'visible';
         // A handler written as a key, as models write one unprompted:
         // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
@@ -2003,7 +2003,9 @@ class _Parser {
         // or a field read through the name an `each` gave (price:x.price),
         // is that variable: text is written in quotes. A word that is one of
         // the parameter's own values (tone:quiet) stays the word.
-        if (!raw.startsWith('=') && raw != 'fill' && raw != 'hug' && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
+        if (!raw.startsWith('=') && raw != 'fill' && raw != 'hug' &&
+            !((key == 'show' || key == 'hide') && const {'phone', 'mobile', 'tablet', 'desktop'}.contains(raw)) &&
+            _variablePath.hasMatch(raw) && !_literal(raw).$1) {
           final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(raw)!;
           final known = variables.containsKey(head) || _derived.containsKey(head) || _stack.any((o) => o.each == head);
           final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
