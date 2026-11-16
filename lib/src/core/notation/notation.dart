@@ -1971,7 +1971,13 @@ class _Parser {
               final value = options.palette[fill], pageValue = options.palette['page'];
               if (!inCard && value != null && pageValue != null && value.toUpperCase() == pageValue.toUpperCase()) fill = look.fill;
             }
+            // A see-through tint on a card sits over the card's own color:
+            // alone it would let the card's shadow show through it.
+            final raw8 = _value(raw);
+            final tint = written == 'Card' && raw8 is String && RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(raw8) && !raw8.toUpperCase().startsWith('#FF');
+            final under = ((options.card['decoration'] as Map?)?['fills'] as List?)?.firstOrNull;
             decoration['fills'] = [
+              if (tint && under is Map) {...under.cast<String, Object?>()},
               {'color': fill},
             ];
           }

@@ -1489,6 +1489,17 @@ Page
       expect((node(r, 'cards')['props']! as Map)['crossAxisAlignment'], 'stretch');
     });
 
+    test('a see-through fill on a card sits over the card, so its shadow does not show through', () {
+      final r = parseNotation('''
+Card#plan fill:#0F2563EB
+  Text "Team"
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      final fills = (node(r, 'plan')['decoration']! as Map)['fills']! as List;
+      expect(fills, hasLength(2));
+      expect((fills.last as Map)['color'], '#0F2563EB');
+    });
+
     test('the small parts of a page: Brand, IconTile, a search field in a bar, a badge with a width, a text with a rule', () {
       final r = parseNotation('''
 App
