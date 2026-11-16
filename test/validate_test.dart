@@ -285,6 +285,12 @@ void main() {
       (node(d, 'box')['layout'] as Map)['height'] = {'fill': 40};
       expectOne(d, Codes.fitNotAllowed, path: '/nodes/box/layout/height');
     });
+    test('with fillViewport a child may fill along the axis its row or column scrolls', () {
+      final d = base();
+      node(d, 'col')['props'] = {'scrollable': true, 'fillViewport': true};
+      (node(d, 'box')['layout'] as Map)['height'] = {'fill': 40};
+      expect(validateDocument(d).where((i) => i.code == Codes.fitNotAllowed), isEmpty);
+    });
     test('a grid\'s item extent is ignored when its rows shrink-wrap, and the allowed fits follow its rows (prop_ignored)', () {
       Map<String, Object?> grid(Map<String, Object?> props, Object? itemHeight) {
         final d = base();
