@@ -1042,11 +1042,23 @@ class _Parser {
         }
       }
     }
+    // What it keeps (a lightbox's zoom, the picture it shows).
+    for (final e in o.variables.entries) {
+      final value = switch (e.value) {
+        final String s when s.startsWith('[') => _json(s) ?? const <Object?>[],
+        final v => v,
+      };
+      variables.putIfAbsent(e.key, () => {'name': e.key, 'type': value is List ? 'list' : value is num ? 'decimal' : 'text', 'value': value});
+    }
     _block = sub;
+    _blockLines.clear();
     for (final l in o.head) {
       _feed(l.indent - o.shift, l.text, closes: 'none');
     }
   }
+
+  /// The lines written under the block being read, each with its indent.
+  final _blockLines = <PageLine>[];
 
   /// A line of the block being read, [indent] in from its head.
   void _feed(int indent, String text, {String? closes}) {
@@ -1063,9 +1075,27 @@ class _Parser {
     _blockSkipped = false;
     final sub = _block;
     if (sub == null) return;
-    for (final l in sub._overlay!.foot) {
-      _feed(l.indent - sub._overlay.shift, l.text, closes: 'none');
+    final o = sub._overlay!;
+    // With nothing written under it, what it shows by itself.
+    final written = _blockLines.isEmpty ? o.empty : [..._blockLines];
+    if (_blockLines.isEmpty) {
+      for (final l in o.empty) {
+        _feed(l.indent, l.text, closes: 'none');
+      }
     }
+    for (final l in o.foot) {
+      if (l.text == Overlay.lines) {
+        // The lines written under it, read again here (without their ids;
+        // a picture fills its thumbnail).
+        final first = written.isEmpty ? 0 : written.map((w) => w.indent).reduce(math.min);
+        for (final w in written) {
+          _feed(l.indent - o.shift + w.indent - first, w.text.replaceFirstMapped(_idMark, (m) => m[1]!).replaceAll(' fit:contain', ' fit:cover'), closes: 'none');
+        }
+        continue;
+      }
+      _feed(l.indent - o.shift, l.text, closes: 'none');
+    }
+    _blockLines.clear();
     _block = null;
     sub.finish();
     ops.addAll(sub.ops);
@@ -1098,7 +1128,10 @@ class _Parser {
       final blank = raw.trim().isEmpty || raw.trimLeft().startsWith('//');
       if ((_block != null || _blockSkipped) && (indent > 0 || blank || (_block?._continues ?? false))) {
         _line++;
-        if (!blank || (_block?._continues ?? false)) _feed(indent, raw.trim());
+        if (!blank || (_block?._continues ?? false)) {
+          if (_block != null && !blank) _blockLines.add((indent: indent, text: raw.trim()));
+          _feed(indent, raw.trim());
+        }
         return;
       }
       if (!blank && indent == 0) {

@@ -218,21 +218,279 @@ final class PageWords {
           closes: menu ? 'all' : 'none',
         );
       default:
-        // A picture shown large over the page; a tap anywhere closes it.
-        return Overlay(
-          'lightbox',
-          id,
-          390,
-          const {'presentation': 'dialog', 'cover': true, 'barrierColor': '#E6000000'},
-          [
-            (indent: 0, text: 'Column w:fill h:fill center middle pad:24 gap:12${parts.props} -> close'),
-            if (title != null) (indent: 2, text: 'Image $title w:fill h:fill grow fit:contain'),
-            if (note != null) (indent: 2, text: 'Text $note color:#FFFFFFFF center'),
-          ],
-          surface: false,
-        );
+        return _lightbox(id, parts, title, note);
     }
   }
+
+  /// A picture, or a list of them, shown large over the page
+  /// (`Lightbox#zoom "{photo}" "Caption"`, `Lightbox#zoom photos:=photos
+  /// =at`): the picture contained in the window on a dark scrim, zoomed by
+  /// a pinch, the wheel and a double tap (to 2x where it was tapped, and
+  /// back), panned while zoomed and kept inside the window; closed by its
+  /// button, Escape, a tap on the scrim and a drag down. A list is paged by
+  /// a swipe, the arrows and the arrow keys, with a count and a strip of
+  /// thumbnails; `=at` is the picture shown, from 0. The lines written under
+  /// a list draw one picture (`photo` is the element) in place of an Image
+  /// of its `url`.
+  Overlay _lightbox(String id, _Parts parts, String? title, String? note) {
+    final written = parts.take('photos') ?? parts.take('images') ?? parts.take('items');
+    final thumbs = (parts.take('thumbs') ?? 'true') != 'false';
+    final max = num.tryParse(parts.take('max') ?? '') ?? 4;
+    final zoom = '${id}Zoom';
+    final variables = <String, Object?>{zoom: 1.0};
+    final still = '$zoom<=1.01';
+    const white = '#FFFFFFFF', pill = '#8C000000', pillOver = '#BF000000';
+    String tail(Map<String, Object?> json) => ' ${_json(json)}';
+    Map<String, Object?> at(Map<String, Object?> x, Map<String, Object?> y) => {'x': x, 'y': y};
+    Map<String, Object?> fill(String color) => {
+          'fills': [
+            {'color': color},
+          ],
+        };
+    // The picture's place: the window, clear of the bars. What zooms is the
+    // picture's own box in it, kept over the window as a zoomed photo is
+    // (no gap where it is larger, centered where it is smaller). The box has
+    // the picture's proportions where they are known: `ratio:` on the line,
+    // a `ratio` in a record of the list, a design system's drawn scene.
+    final given = num.tryParse(parts.take('ratio') ?? '') ?? 0;
+    final scenes = written != null && isComponent('Media');
+    final ratio = written == null
+        ? '$given'
+        : 'coalesce(item.ratio, ${scenes ? 'coalesce(item.kind, "") != "" ? 1.5 : $given' : '$given'})';
+    // The picture shown (a list's), from 0: the line's variable, or its own.
+    final current = written == null ? null : (parts.binding() ?? '${id}At');
+    final below = written == null ? (note == null ? 64 : 80) : (thumbs ? 144 : 80);
+    List<PageLine> photo(int indent) => [
+          (
+            indent: indent,
+            text: 'Stack w:fill h:fill center middle pad:[72,64,72,$below]${tail({
+              'media': [
+                {
+                  'maxWidth': 699,
+                  'patch': {
+                    'layout': {
+                      'padding': [0, 64, 0, below],
+                    },
+                  },
+                },
+              ],
+            })}',
+          ),
+          (
+            indent: indent + 2,
+            text: 'Stack#${id}Photo w:fill h:fill center middle${tail({
+              'transformGesture': {'target': 'node', 'pan': 'whenZoomed', 'minScale': 1, 'maxScale': max, 'doubleTapScale': 2, 'wheel': 'zoom', 'bounds': 'cover'},
+              'bind': {'layout.aspectRatio': '\${= $ratio}'},
+              'actions': [
+                // The zoom of the picture in view (one left behind as the page
+                // turns settles unseen).
+                {
+                  'trigger': {'type': 'changed', if (current != null) 'when': '\${= index == $current}'},
+                  'actions': [
+                    {'type': 'setVariable', 'variable': zoom, 'value': r'${= round(result.scale, 2)}'},
+                  ],
+                },
+                // A tap on the picture itself leaves it open; where its box
+                // may be wider than the picture, a tap is one on the scrim.
+                {
+                  'trigger': {'type': 'click', 'when': '\${= ($ratio) <= 0 && $still}'},
+                  'actions': [
+                    {'type': 'closeModal'},
+                  ],
+                },
+              ],
+            })}',
+          ),
+        ];
+    PageLine round(String name, double size, String action, Map<String, Object?> place, {String? visible, bool wide = false}) => (
+          indent: 4,
+          text: 'Row#$id$name w:${_n(size)} h:${_n(size)} center middle radius:${_n(size / 2)}${visible == null ? '' : ' visible:=$visible'} -> $action${tail({
+            'layout': place,
+            'decoration': fill(pill),
+            'states': {
+              'hovered': {
+                '$id$name': {'decoration': fill(pillOver)},
+              },
+            },
+            if (wide)
+              'media': [
+                {
+                  'maxWidth': 699,
+                  'patch': {
+                    'visible': false,
+                    'bind': {'visible': null},
+                  },
+                },
+              ],
+          })}',
+        );
+    PageLine glyph(String name, double size) => (indent: 6, text: 'Icon "$name"${tail({'props': {'size': size, 'color': white}})}');
+    PageLine label(int indent, String text, {num size = 13, int weight = 500, String more = ''}) => (
+          indent: indent,
+          text: 'Text $text$more${tail({
+            'props': {
+              'style': {'color': white, 'fontSize': size, 'fontWeight': weight, 'height': 1.35},
+            },
+          })}',
+        );
+    Map<String, Object?> key(String name, List<Map<String, Object?>> actions, String when) => {
+          'trigger': {'type': 'keyDown', 'key': name, 'when': '\${= $when}'},
+          'actions': actions,
+        };
+    Map<String, Object?> set(String name, String value) => {'type': 'setVariable', 'variable': name, 'value': '\${= $value}'};
+    // A tap on the scrim closes it while the picture is at rest; a zoom left
+    // from the last time is forgotten as it opens.
+    List<Map<String, Object?>> rootActions([List<Map<String, Object?>> more = const []]) => [
+          {
+            'trigger': {'type': 'click', 'when': '\${= $still}'},
+            'actions': [
+              {'type': 'closeModal'},
+            ],
+          },
+          {
+            'trigger': {'type': 'load'},
+            'actions': [set(zoom, '1')],
+          },
+          ...more,
+        ];
+    const action = <String, Object?>{
+      'presentation': 'dialog',
+      'cover': true,
+      'barrierColor': '#F2000000',
+      // It fades in rising a little; a drag down takes it back the same
+      // way, under the finger, and closes it past a fifth of the window.
+      'routeTransition': {
+        'enter': {
+          'motion': {'opacity': 0, 'shiftY': 0.12},
+        },
+        'durationMs': 220,
+        'dismiss': {'direction': 'down', 'distance': 0.2},
+      },
+    };
+    final close = [round('Close', 40, 'close', at({'end': 16}, {'start': 16})), glyph('close', 20)];
+    final zoomed = <PageLine>[
+      (indent: 4, text: 'Row#${id}Scale w:hug pad:[12,6,12,6] radius:999 visible:=$zoom>1.01${tail({'layout': at({'align': 0}, {'start': 20}), 'decoration': fill(pill)})}'),
+      label(6, '"{round($zoom,1)}×"', weight: 600),
+    ];
+    if (written == null) {
+      return Overlay(
+        'lightbox',
+        id,
+        390,
+        action,
+        [
+          (indent: 0, text: 'Column w:fill h:fill center middle${parts.props}${tail({'actions': rootActions()})}'),
+          (indent: 2, text: 'Stack#${id}Stage w:fill h:fill grow'),
+          ...photo(4),
+          if (title != null) (indent: 8, text: 'Image $title w:fill h:fill fit:contain'),
+          if (note != null) (indent: 4, text: 'Row w:hug pad:[14,8,14,8] radius:12 visible:=$still${tail({'layout': at({'align': 0}, {'end': 20}), 'decoration': fill(pill)})}'),
+          if (note != null) label(6, note, size: 14, more: ' center'),
+          ...zoomed,
+          ...close,
+        ],
+        surface: false,
+        variables: variables,
+      );
+    }
+    // A list: written out (a variable of its own), or worked out.
+    var list = written.startsWith('=') ? written.substring(1) : written;
+    if (list.startsWith('{') && list.endsWith('}')) list = list.substring(1, list.length - 1);
+    if (list.startsWith('[')) {
+      variables['${id}Photos'] = list;
+      list = '${id}Photos';
+    }
+    final index = current!;
+    variables.putIfAbsent(index, () => 0);
+    final last = 'length($list)-1';
+    final shown = 'at($list,clamp($index,0,max(0,$last)))';
+    final caption = 'coalesce($shown.caption,$shown.title,"")';
+    return Overlay(
+      'lightbox',
+      id,
+      390,
+      action,
+      [
+        (
+          indent: 0,
+          text: 'Column w:fill h:fill center middle${parts.props}${tail({
+            'actions': rootActions([
+              key('ArrowRight', [set(index, 'min($index+1,$last)')], '$index<$last'),
+              key('ArrowLeft', [set(index, 'max($index-1,0)')], '$index>0'),
+            ]),
+          })}',
+        ),
+        (indent: 2, text: 'Stack#${id}Stage w:fill h:fill grow'),
+        (
+          indent: 4,
+          text: 'Pages#${id}Pages =$index w:fill h:fill${tail({
+            'props': {'animationDuration': 280},
+            // Another picture starts at rest.
+            'actions': [
+              {
+                'trigger': {'type': 'changed'},
+                'actions': [
+                  set(index, 'result.index'),
+                  {'type': 'controlTransform', 'node': '${id}Photo', 'command': 'reset'},
+                  set(zoom, '1'),
+                ],
+              },
+            ],
+          })}',
+        ),
+        (indent: 6, text: 'each photo in $list'),
+        ...photo(8),
+      ],
+      shift: 10,
+      empty: [
+        if (scenes)
+          (indent: 2, text: 'Media kind:=coalesce(photo.kind,"mountain") tone:=coalesce(photo.tone,"auto") w:fill h:fill visible:=coalesce(photo.kind,"")!=""${tail({'layout': {'aspectRatio': 1.5}})}'),
+        (indent: 2, text: 'Image "{coalesce(photo.url,photo.src,photo.image,photo)}" w:fill h:fill fit:contain${scenes ? ' visible:=coalesce(photo.kind,"")==""' : ''}'),
+      ],
+      foot: [
+        (indent: 4, text: 'Row#${id}Count w:hug pad:[12,6,12,6] radius:999${tail({'layout': at({'start': 16}, {'start': 20}), 'decoration': fill(pill)})}'),
+        label(6, '"{clamp($index,0,max(0,$last))+1} / {length($list)}"', weight: 600),
+        ...zoomed,
+        ...close,
+        round('Prev', 44, '$index=max($index-1,0)', at({'start': 16}, {'align': 0}), visible: '$index>0&&$still', wide: true),
+        glyph('chevron_left', 26),
+        round('Next', 44, '$index=min($index+1,$last)', at({'end': 16}, {'align': 0}), visible: '$index<$last&&$still', wide: true),
+        glyph('chevron_right', 26),
+        (
+          indent: 4,
+          text: 'Column#${id}Foot w:hug h:hug center gap:10 visible:=$still${tail({'layout': at({'align': 0}, {'end': 16})})}',
+        ),
+        (indent: 6, text: 'Row pad:[14,8,14,8] radius:12 visible:=$caption!=""${tail({'decoration': fill(pill)})}'),
+        label(8, '"{$caption}"', size: 14, more: ' center'),
+        if (thumbs) ...[
+          (indent: 6, text: 'Row#${id}Thumbs scroll gap:6 pad:6 radius:10 visible:=length($list)>1${tail({'decoration': fill(pill)})}'),
+          (indent: 8, text: 'each photo in $list'),
+          (
+            indent: 10,
+            text: 'Stack#${id}Thumb w:64 h:48 radius:6 -> $index=index${tail({
+              'decoration': {
+                'clip': 'antiAlias',
+                'strokes': [
+                  {'color': white},
+                ],
+                'strokeWidth': 2,
+              },
+              'bind': {'opacity': '\${= index == $index ? 1 : 0.6}', 'decoration.strokeWidth': '\${= index == $index ? 2 : 0}'},
+            })}',
+          ),
+          (indent: 12, text: Overlay.lines),
+        ],
+      ],
+      surface: false,
+      variables: variables,
+    );
+  }
+
+  static String _json(Object? v) => switch (v) {
+        final Map<Object?, Object?> m => '{${m.entries.map((e) => '"${e.key}":${_json(e.value)}').join(',')}}',
+        final List<Object?> l => '[${l.map(_json).join(',')}]',
+        final String s => '"${s.replaceAll(r'\', r'\\').replaceAll('"', r'\"')}"',
+        _ => '$v',
+      };
 
   /// [text], a line written under an overlay that closes as its lines are
   /// used ([Overlay.closes]), with `close` after its actions.
@@ -709,7 +967,26 @@ final class PageWords {
 /// sheet, a drawer, a menu, a popover, a lightbox ([PageWords.overlay]).
 final class Overlay {
   const Overlay(this.kind, this.id, this.width, this.action, this.head,
-      {this.shift = 0, this.foot = const [], this.surface = true, this.radius = 0, this.outlined = false, this.closes = 'none'});
+      {this.shift = 0,
+      this.foot = const [],
+      this.surface = true,
+      this.radius = 0,
+      this.outlined = false,
+      this.closes = 'none',
+      this.empty = const [],
+      this.variables = const {}});
+
+  /// In [foot], a line that stands for the lines written under the block
+  /// (else [empty]), read again there: a gallery's picture in its thumbnails.
+  static const lines = '@lines';
+
+  /// The lines read where none is written under the block.
+  final List<PageLine> empty;
+
+  /// The variables it keeps (a lightbox's zoom, the picture it shows), by
+  /// name with the value each starts at; a text starting `[` is a list
+  /// written out.
+  final Map<String, Object?> variables;
 
   /// `dialog`, `sheet`, `drawer`, `menu`, `popover` or `lightbox`.
   final String kind;
@@ -826,6 +1103,12 @@ class _Parts {
     final found = [for (final t in _tokens) if (words.contains(t)) t];
     _tokens.removeWhere(words.contains);
     return found;
+  }
+
+  /// The variable a line is bound to (`=at`), removed.
+  String? binding() {
+    final i = _tokens.indexWhere((t) => RegExp(r'^=[A-Za-z_][A-Za-z0-9_]*$').hasMatch(t));
+    return i < 0 ? null : _tokens.removeAt(i).substring(1);
   }
 
   /// The first string of the line, removed.

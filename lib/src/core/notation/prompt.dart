@@ -134,7 +134,8 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
     Drawer#cart "Your cart" right    a panel as tall as the window at its side (the left unless right; w:300); a NavItem in it closes it
     Menu#more                        a menu by the button that opened it (Menu#more end lines up their right edges; above opens upwards); its lines are MenuItem "Rename" icon:"edit" -> an action, and each closes the menu after it
     Popover#tip                      a small panel by what opened it (a hint, a picker)
-    Lightbox#zoom "{photo}"          a picture large over the page: Image "{p.url}" -> photo=p.url; open zoom
+    Lightbox#zoom "{photo}" "Caption"    a picture large over the page, which a pinch, the wheel or a double tap zooms: Image "{p.url}" -> photo=p.url; open zoom
+    Lightbox#shots photos:=photos =at    a gallery of them (each a URL, or a record with url and caption): swiped or stepped with its arrows, with a count and thumbnails, opened at the one tapped (under each p in photos: Image "{p.url}" -> at=index; open shots)
   The menu of one row of a list: IconButton "more_vert" -> sel=row.id; open rowMenu, and the menu's lines read sel. menu:rowMenu on a line opens that Menu on a right click or a long press, where the pointer is. Write no modal as a Stack or an if over the page, and no drawer for an App's Sidebar.${pagesBrief == null || pagesBrief.isEmpty ? '' : '\n${pagesBrief.split('\n').map((l) => '  $l').join('\n')}'}
 
   Page
