@@ -2155,7 +2155,9 @@ class _Parser {
           if (rule != null) {
             node['media'] = [
               ...?(node['media'] as List?),
-              {...rule, 'patch': {'visible': false}},
+              // A size rule deliberately overrides an `if`/`when` binding
+              // outside the requested range. Keep that binding in range.
+              {...rule, 'patch': {'visible': false, 'bind': {'visible': null}}},
             ];
           }
           continue;
