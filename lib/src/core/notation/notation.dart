@@ -75,6 +75,7 @@ final class NotationOptions {
     this.badges = badgeVariants,
     this.surface = '#FFFFFFFF',
     this.accent = '#FF2563EB',
+    this.accentText,
     this.track = '#FFE5E7EB',
     this.components = const {},
     this.badge = defaultBadge,
@@ -127,6 +128,7 @@ final class NotationOptions {
       badges: base.badges,
       surface: base.surface,
       accent: base.accent,
+      accentText: base.accentText,
       track: base.track,
       badge: base.badge,
       cta: base.cta,
@@ -343,6 +345,7 @@ final class NotationOptions {
       },
       surface: color('page', color('surface', color('primaryBackground', '#FFFFFFFF'))),
       accent: color('primary', '#FF2563EB'),
+      accentText: color('accentText', color('accentDeep', '#FF1D4ED8')),
       track: color('track', '#FFE5E7EB'),
     );
   }
@@ -372,6 +375,9 @@ final class NotationOptions {
   /// The color of what has none of its own (a chart's bars and line, a
   /// progress bar's fill).
   final String accent;
+
+  /// The accent where it is used as text on a light page.
+  final String? accentText;
 
   /// What a progress bar's fill runs along.
   final String track;
@@ -988,6 +994,7 @@ class _Parser {
     paneFill: options.paneFill,
     iconTile: options.iconTile,
     accentName: options.accent,
+    accentText: options.accentText,
     accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
     selectedFill: options.selectedFill,
     line: options.line,

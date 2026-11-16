@@ -1703,6 +1703,16 @@ Page
       expect(((node(r, 'work')['animations'] as List).single as Map)['visibleFraction'], 0.3);
     });
 
+    test('page links use the readable accent text role', () {
+      final r = parseNotation('''
+Page
+  Section
+    Link#contact "Contact" -> go contact
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280, accent: 'primary', accentText: 'accentText'));
+      expect(r.issues, isEmpty);
+      expect(((node(r, 'contact')['props'] as Map)['style'] as Map)['color'], 'accentText');
+    });
+
     test('a grid\'s rows wrap, each cell at a least width; nothing changes at the width it was written for', () {
       final r = parseNotation('''
 Page

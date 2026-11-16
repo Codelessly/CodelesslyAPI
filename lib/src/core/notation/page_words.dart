@@ -39,6 +39,7 @@ final class PageWords {
     this.siteFill,
     this.paneFill,
     this.accentName,
+    this.accentText,
     this.iconTile,
     this.accent = '#FF2563EB',
     this.selectedFill = '#FFE5E7EB',
@@ -63,6 +64,7 @@ final class PageWords {
 
   /// The accent as the theme names it (a selected item's ink); null: [accent].
   final String? accentName;
+  final String? accentText;
 
   /// Colors, as the notation takes them (`#AARRGGBB`).
   final String accent, selectedFill, line;
@@ -299,10 +301,10 @@ final class PageWords {
         return out..add((indent: at, text: 'Button.ghost$mark ${label ?? '""'}${parts.props}$action'));
       }
       if (_looks(parts)) {
-        final color = parts.has('color') ? '' : ' color:$accent';
+        final color = parts.has('color') ? '' : ' color:${accentText ?? accentName ?? accent}';
         return out..addAll(_textBox(at, mark, parts, text: '${label ?? '""'}$color', action: action));
       }
-      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color:$accent'}${parts.props}$action'));
+      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color:${accentText ?? accentName ?? accent}'}${parts.props}$action'));
     }
     if ((word == 'Heading' || word == 'Title' || RegExp(r'^H[1-4]$').hasMatch(word)) && !isComponent(word)) {
       final level = word.startsWith('H') && word.length == 2 ? int.parse(word.substring(1)) : int.tryParse(parts.take('level') ?? '') ?? 2;
