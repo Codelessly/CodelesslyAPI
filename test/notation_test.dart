@@ -1884,6 +1884,20 @@ Page
       expect(rows[1], contains('"type":"scrollTo","node":"price"'));
       expect(rows[2], contains('"type":"navigate","to":"docs"'));
 
+      // A date field's string is its label; a site's value is bound by a control with no copy on the screen.
+      final form = parseNotation('''
+project guests=2
+state when=""
+Page
+  Section
+    DatePicker#d "Arrival" =when
+    Select#g =guests items:[1,2,3]
+''', catalog: standardCatalog, options: page);
+      expect(form.issues, isEmpty);
+      expect(((node(form, 'd')['props']! as Map)['decoration']! as Map)['labelText'], 'Arrival');
+      expect(jsonEncode(node(form, 'g')['bind']), contains('guests'));
+      expect(jsonEncode(form.document['variables']), isNot(contains('guests')));
+
       // A Nav that writes its own phone menu keeps it, and gets no second one.
       final own = parseNotation('''
 Page
