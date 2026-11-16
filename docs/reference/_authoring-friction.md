@@ -12,7 +12,9 @@ command reports most of them. Nothing here was changed in the API.
    render command reports `text_no_color`; validation cannot (the color may come from a binding).
 2. **A node without `layout.width` / `layout.height` is fixed at 0 × 0.** `Layout` defaults to `AxisSize.fixed(0)`,
    so `{"type": "box", "decoration": {"fills": [{"color": "#FFFF0000"}]}}` draws nothing. Validation warns
-   (`zero_size`). A default of `hug` would make most hand-written nodes right.
+   (`zero_size`). A default of `hug` would make most hand-written nodes right. *Since 2026-11-16 a `text` and an
+   `icon` hug an unwritten axis, as controls already did (`WidgetSpec.hugs`); boxes and containers stay fixed at 0
+   (their content does not say a size). Stored documents are unchanged: `Layout.toJson` writes both sizes.*
 3. **An effect without `type` is dropped**, although `EffectFields.type` declares a default (`dropShadow`):
    `{"blurRadius": 16, "offset": [0, 4]}` is no shadow at all (`Effect.fromJson` returns null without a type).
    Validation reports it (`wrong_type`, "it needs \"type\"").
@@ -37,6 +39,15 @@ command reports most of them. Nothing here was changed in the API.
 10. **Two layers of escaping in formulas.** A formula's regular expression needs `\.` for a literal dot; in JSON
     that is written `"\\."`. I wrote `"\\\\."` (thinking of the formula's own string escapes), the formula saw
     `\\.` and the email check never passed; nothing reports it. I used `[.]` instead.
+10a. **`"trigger": "tap"` is not a trigger; `click` is** (on touch too). Models and people from Flutter, React and the
+    DOM write `tap`, `onTap`, `onPressed`, `onClick`. Until 2026-11-16 the suggestion was `doubleTap` (the old
+    matcher took containment as one edit); `didYouMean` (`lib/src/core/suggest.dart`) now suggests `click` for
+    these and knows other frameworks' names for triggers, node types and actions. `tap` is not accepted as an alias:
+    the API gives each concept one spelling.
+10b. **A canvas without a fill is transparent**: the host's background shows (black in a Flutter app with none,
+    the page's color in a browser), which is what an embedded layout needs and what a screen rarely wants. Kept as
+    the default; the render command reports it (`transparent_background`) when 2% or more of a capture has nothing
+    painted behind it.
 
 ## Declared but not (fully) implemented
 
