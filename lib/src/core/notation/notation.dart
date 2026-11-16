@@ -868,6 +868,8 @@ class _Parser {
 
   final nodes = <String, Json>{};
   final variables = <String, Json>{};
+  /// Names supplied by a multi-page site's manifest, not declared on this page.
+  final _projectVariables = <String>{};
   final issues = <NotationIssue>[];
   final wanted = <WantedBlock>[];
 
@@ -1300,6 +1302,14 @@ class _Parser {
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
+    if (line.startsWith('project ')) {
+      final name = line.substring(8).trim();
+      if (!_identifier.hasMatch(name) || name.contains('.')) {
+        return _issue(column + 8, 'A project variable is written: project name.');
+      }
+      _projectVariables.add(name);
+      return;
+    }
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
     // As models write it: every 1s while:{running} onTick:{…}, every 1s when running: …
@@ -3380,7 +3390,7 @@ class _Parser {
         final v = set[2]!.trim();
         final literal = _literal(v);
         // A bare word that names no variable is text (choice=basic).
-        final word = !literal.$1 && _identifier.hasMatch(v) && !v.contains('.') && !variables.containsKey(v) && !const {'result', 'item', 'index'}.contains(v);
+        final word = !literal.$1 && _identifier.hasMatch(v) && !v.contains('.') && !variables.containsKey(v) && !_projectVariables.contains(v) && !const {'result', 'item', 'index'}.contains(v);
         out.add({
           'type': 'setVariable',
           'variable': set[1],
@@ -3390,7 +3400,7 @@ class _Parser {
                   ? _interpolate(literal.$2! as String)
                   : _formula(v),
         });
-        if (!variables.containsKey(set[1])) {
+        if (!variables.containsKey(set[1]) && !_projectVariables.contains(set[1])) {
           final start = literal.$1 ? literal.$2 : null;
           variables[set[1]!] = {
             'name': set[1],

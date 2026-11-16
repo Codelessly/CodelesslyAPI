@@ -1631,6 +1631,21 @@ Column center
   });
 
   group('a page written once lays out on a tablet and a phone', () {
+    test('project values can be set across pages without a duplicate page declaration', () {
+      final r = parseNotation('''
+project pledgeAmount
+Page
+  Section
+    Button#confirm "Confirm" -> pledgeAmount=gift; go thanks
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      expect(r.document['variables'], isNull);
+      final button = ((r.document['nodes'] as Map)['confirm'] as Map);
+      final actions = ((button['actions'] as List).single as Map)['actions'] as List;
+      expect(actions.first, {'type': 'setVariable', 'variable': 'pledgeAmount', 'value': 'gift'});
+      expect(actions.last, {'type': 'navigate', 'to': 'thanks'});
+    });
+
     const page = NotationOptions(width: 1280);
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
