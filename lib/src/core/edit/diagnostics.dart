@@ -6,6 +6,7 @@
 import 'package:meta/meta.dart';
 
 import '../json.dart';
+import '../suggest.dart';
 
 /// One diagnostic code of the edit layer: its name, whether it rejects the
 /// op, and what it means.
@@ -220,38 +221,6 @@ final class EditDiagnostic {
 /// [path] extended by [key], escaped as a JSON pointer token.
 String editPointer(String path, Object key) => '$path/${'$key'.replaceAll('~', '~0').replaceAll('/', '~1')}';
 
-/// The candidate nearest to [word] (case-insensitive edit distance), or
-/// null when none is close.
-String? nearestName(String word, Iterable<String> candidates) {
-  String? best;
-  var bestScore = 1 << 30;
-  final w = word.toLowerCase();
-  for (final c in candidates) {
-    final l = c.toLowerCase();
-    if (l == w) return c;
-    var d = _distance(w, l);
-    if (w.length >= 3 && (l.startsWith(w) || w.startsWith(l) || l.contains(w))) d = d < 1 ? d : 1;
-    if (d < bestScore) {
-      bestScore = d;
-      best = c;
-    }
-  }
-  if (best == null) return null;
-  final limit = word.length <= 4 ? 1 : (word.length <= 8 ? 2 : 3);
-  return bestScore <= limit ? best : null;
-}
-
-int _distance(String a, String b) {
-  var prev = List<int>.generate(b.length + 1, (i) => i);
-  for (var i = 1; i <= a.length; i++) {
-    final cur = List<int>.filled(b.length + 1, 0);
-    cur[0] = i;
-    for (var j = 1; j <= b.length; j++) {
-      final cost = a[i - 1] == b[j - 1] ? 0 : 1;
-      final x = prev[j] + 1, y = cur[j - 1] + 1, z = prev[j - 1] + cost;
-      cur[j] = x < y ? (x < z ? x : z) : (y < z ? y : z);
-    }
-    prev = cur;
-  }
-  return prev[b.length];
-}
+/// The candidate an author writing [word] most likely meant ([didYouMean]),
+/// or null.
+String? nearestName(String word, Iterable<String> candidates) => didYouMean(word, candidates);
