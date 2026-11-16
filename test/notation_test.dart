@@ -20,6 +20,24 @@ List<String> _problems(Map<String, Object?> doc) => [
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
+  test('an inline Calendar binds both range ends and carries disabled days and prices', () {
+    final r = _parse('''
+state arrival="2026-11-20"
+state departure=""
+Column
+  Calendar#stay =arrival =departure disabledDates:["2026-11-21"] dayPrices:{"2026-11-20":"£225"}
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final cal = _node(r, 'stay');
+    expect(cal['type'], 'calendar');
+    expect(cal['bind'], {'props.start': r'${arrival}', 'props.end': r'${departure}'});
+    expect(jsonEncode(cal['actions']), contains(r'${result.start}'));
+    expect(jsonEncode(cal['actions']), contains(r'${result.end}'));
+    expect((cal['props'] as Map)['disabledDates'], ['2026-11-21']);
+    expect((cal['props'] as Map)['dayPrices'], {'2026-11-20': '£225'});
+  });
+
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
 Column gap:12

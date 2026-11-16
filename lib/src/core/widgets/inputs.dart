@@ -22,6 +22,7 @@ const List<WidgetSpec> inputsSpecs = [
   SliderProps.spec,
   DropdownProps.spec,
   DatePickerProps.spec,
+  CalendarProps.spec,
   TimePickerProps.spec,
   DateTimeInputProps.spec,
   SegmentedButtonProps.spec,
@@ -586,6 +587,24 @@ abstract final class DatePickerProps {
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const spec = WidgetSpec('datePicker', hugs: true,
       props: [value, firstDate, lastDate, enabled, ...PickerFieldProps.all], doc: 'A date field that opens a calendar drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
+}
+
+/// A month calendar in the page. A pick chooses the range's start, then its
+/// end; disabled dates cannot be crossed. The renderer uses the date picker's
+/// month grid, including its locale, keyboard movement and theme.
+abstract final class CalendarProps {
+  static const start = PropDef<String>('start', Codecs.string, '');
+  static const end = PropDef<String>('end', Codecs.string, '');
+  static const firstDate = PropDef<String?>('firstDate', Codecs.string, null);
+  static const lastDate = PropDef<String?>('lastDate', Codecs.string, null);
+  static const disabledDates = PropDef<List<String>>('disabledDates', InputCodecs.strings, []);
+  static const dayPrices = PropDef<Json?>('dayPrices', InputCodecs.json, null);
+  static const marks = PropDef<Json?>('marks', InputCodecs.json, null);
+  static const label = PropDef<String>('label', Codecs.string, 'Choose dates');
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+  static const spec = WidgetSpec('calendar', hugs: true,
+      props: [start, end, firstDate, lastDate, disabledDates, dayPrices, marks, label, enabled, PickerFieldProps.pickerTheme],
+      doc: 'An inline month calendar that picks a start and end date. Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}.');
 }
 
 /// A field showing a time (`HH:mm`; empty shows its hint) that opens hour and

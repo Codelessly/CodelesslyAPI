@@ -732,6 +732,7 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'radio': (prop: 'groupValue', type: 'text', start: ''),
   'segmentedButton': (prop: 'selected', type: 'text', start: ''),
   'datePicker': (prop: 'value', type: 'text', start: ''),
+  'calendar': (prop: 'start', type: 'text', start: ''),
   'timePicker': (prop: 'value', type: 'text', start: ''),
   // The page shown, from 0: a swipe writes it, and setting it turns the page.
   'pageView': (prop: 'initialPage', type: 'decimal', start: 0),
@@ -1999,6 +2000,7 @@ class _Parser {
       return 'props.$key';
     }
 
+    var calendarBindings = 0;
     while (true) {
       t.skipSpace();
       if (t.done) break;
@@ -2095,6 +2097,26 @@ class _Parser {
       } else if (t.peek == '=') {
         t.at++;
         final expr = t.expression().trim();
+        if (type == 'calendar') calendarBindings++;
+        if (type == 'calendar' && calendarBindings == 2) {
+          if (!_identifier.hasMatch(expr) || expr.contains('.')) {
+            _issue(col, 'A Calendar range ends in a variable: write =endDate.');
+          } else {
+            bind['props.end'] = _read(expr);
+            variables.putIfAbsent(expr, () => {'name': expr, 'type': 'text', 'value': ''});
+            reactions.insert(0, {
+              'trigger': {'type': 'changed'},
+              'actions': [
+                {'type': 'setVariable', 'variable': expr, 'value': r'${result.end}'},
+              ],
+            });
+          }
+          continue;
+        }
+        if (type == 'calendar' && calendarBindings > 2) {
+          _issue(col, 'A Calendar takes two range variables: =startDate =endDate.');
+          continue;
+        }
         final value = _valueProps[type];
         // A component keeps its value in the variable its parameter names.
         final held = !component
@@ -2155,7 +2177,7 @@ class _Parser {
             reactions.insert(0, {
               'trigger': {'type': 'changed'},
               'actions': [
-                {'type': 'setVariable', 'variable': expr, 'value': list ? r'${result[0]}' : type == 'pageView' ? r'${result.index}' : r'${result}'},
+                {'type': 'setVariable', 'variable': expr, 'value': list ? r'${result[0]}' : type == 'pageView' ? r'${result.index}' : type == 'calendar' ? r'${result.start}' : r'${result}'},
               ],
             });
           }
