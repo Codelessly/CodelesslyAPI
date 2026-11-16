@@ -1694,6 +1694,23 @@ Page
       expect(at(r, 'rail', 390)['layout'], {'width': {'fill': 0}, 'basis': 280, 'flex': 1});
     });
 
+    test('a short growing copy column gets a basis beside controls', () {
+      final r = parseNotation('''
+Page
+  Section
+    Row#search gap:20 middle
+      Column#copy grow
+        Heading "Find a journey"
+        Text "Start with a station."
+      Input#origin "Leaving from" grow
+      Button "Search"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((at(r, 'search', 390)['props']! as Map)['wrap'], true);
+      expect((at(r, 'copy', 390)['layout']! as Map)['basis'], 280);
+      expect(at(r, 'copy', 1280), isEmpty);
+    });
+
     test('any other row wraps before it overflows; what grows in it keeps its share', () {
       final r = parseNotation('''
 Page

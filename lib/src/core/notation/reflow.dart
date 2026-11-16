@@ -132,7 +132,9 @@ final class PageReflow {
     if (!grows) return container && !component && _weight(id, 8) >= 8 ? (fixed: false, grows: false, width: 0) : null;
     if (component) return fillsItsPlace(type) ? (fixed: false, grows: true, width: 0) : null;
     if (_isMedia(type)) return (fixed: false, grows: true, width: 0);
-    if (container && _weight(id) >= 4) return (fixed: false, grows: true, width: 0);
+    // A heading and its supporting text already form a content block beside
+    // controls. Give that column a basis when the row wraps, too.
+    if (container && _weight(id) >= 3) return (fixed: false, grows: true, width: 0);
     return null;
   }
 
