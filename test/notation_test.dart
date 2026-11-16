@@ -1646,6 +1646,18 @@ Column center
       return out;
     }
 
+    test('a record field named length can be read without turning into a count', () {
+      final r = parseNotation('''
+state courses=[{"title":"Interviewing","length":"8 weeks"}]
+Page
+  Section
+    each c in courses
+      Text#duration "Duration {c['length']}"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((node(r, 'duration')['props']! as Map)['text'], r"Duration ${= item['length']}");
+    });
+
     test('a sticky rail stays sticky when the row reflows', () {
       final r = parseNotation('''
 Page

@@ -243,7 +243,7 @@ TYPES
   Only Row, Column, Stack, Box, Card, Grid, List, Accordion and ListTile take children.
 
 FORMULAS (in {…}, after = and := and in -> name=…)
-  Operators: + - * / % == != < <= > >= && || ! and cond ? a : b. Text in "double quotes" or 'single'. Lists [1,2], fields a.b, items list[0].
+  Operators: + - * / % == != < <= > >= && || ! and cond ? a : b. Text in "double quotes" or 'single'. Lists [1,2], fields a.b, items list[0]. If a record has a field named length, read it as a["length"] (inside quoted text: {a['length']}); a.length means the count of items or characters.
   Only these functions exist: ${notationFunctions.join(', ')}.
 ${natural ? '''  A list or a record changes as in code (rows.add(x), rows.remove(row), row.qty += 1); for anything else set the variable to a new list (rows = filter(rows, r => r.qty > 0)). Money is "{fixed(total,2)}"; a count is "{length(rows)} items"; minutes and seconds are "{duration(elapsed)}" (74 gives 1:14).''' : '''  Lists never change in place: set the variable to a new list (-> cart=append(cart,item); -> rows=updateWhere(rows,r=>r.id==row.id,r=>with(r,"qty",r.qty+1))).'''}
 ${natural ? '''  Every value shown that depends on the state is written as an expression in {…} (or a let name), never as a number you worked out: after a tap it must show the new value. Chips have selected:{expression} and enabled:{expression}.''' : '''  An action is one of the forms above, never a condition: to choose, set a variable to a formula (-> step=valid?3:2). Chips have selected:=expression and enabled:=expression.'''}
