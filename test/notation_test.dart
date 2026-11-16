@@ -1445,6 +1445,80 @@ Column gap:8
     Json nodes(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Json node(NotationResult r, String id) => (nodes(r)[id]! as Map).cast<String, Object?>();
 
+    test("a theme's page tier: on a wide canvas a name ending in Wide takes the place of the name before it", () {
+      const theme = <String, Object?>{
+        'colors': {'primaryText': '#FF111827', 'card': '#FFFFFFFF', 'pageFill': '#FFFFFFFF', 'page': '#FFF3F4F6', 'band': '#FFF8FAFC'},
+        'textStyles': {
+          'strong': {'fontSize': 14.5, 'fontWeight': 600},
+          'strongWide': {'fontSize': 15, 'fontWeight': 600},
+        },
+        'radii': {'card': 26, 'cardWide': 16},
+        'spacing': {'card': 18, 'cardWide': 24, 'section': 88},
+        'sizes': {'wide': 900, 'cta': 46, 'ctaWide': 0, 'controlWide': 40},
+      };
+      final card = NotationOptions.fromTheme(theme), page = NotationOptions.fromTheme(theme, width: 1280);
+      expect((card.textStyles['strong']! as Map)['fontSize'], 14.5);
+      expect((page.textStyles['strong']! as Map)['fontSize'], 15);
+      expect((card.card['decoration']! as Map)['radius'], 26);
+      expect((page.card['decoration']! as Map)['radius'], 16);
+      expect((page.card['layout']! as Map)['padding'], 24);
+      // A card's one button is as wide as the card; a page's is as big as its label, at the page's height.
+      expect(card.cta, isNotNull);
+      expect(page.cta, isNull);
+      expect(card.controlHeight, isNull);
+      expect(page.controlHeight, 40);
+      expect(page.sectionPad, 88);
+
+      final r = parseNotation('''
+Page
+  Section#a tint
+    Button#go "Start"
+    Button#big "Start" size:large
+    Row#cards gap:16
+      Card grow
+        Text "a"
+      Card grow
+        Text "b"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect((node(r, 'go')['layout']! as Map)['height'], 40);
+      expect((node(r, 'big')['layout']! as Map)['height'], 44);
+      expect((node(r, 'big')['props']! as Map).containsKey('size'), isFalse);
+      // A tinted band is on the theme's band color; cards side by side are equally tall.
+      expect(jsonEncode(node(r, 'a')['decoration']), contains('FFF8FAFC'));
+      expect((node(r, 'cards')['props']! as Map)['crossAxisAlignment'], 'stretch');
+    });
+
+    test('the small parts of a page: Brand, IconTile, a search field in a bar, a badge with a width, a text with a rule', () {
+      final r = parseNotation('''
+App
+  Sidebar
+    Brand "Harbor" icon:"anchor"
+    NavItem#on "Orders" icon:"inbox" selected
+  Main
+    Nav
+      Heading "Orders" level:1
+      Input#q "Search orders" =q w:220
+    Column pad:24
+      IconTile#tile "sync"
+      Row
+        Badge.success#paid "Paid" w:120
+      Text#toc "Install" border-left:#FFE5E7EB id:install
+      Avatar#who src:"https://example.com/a.png" size:32
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      // The field's label is its hint.
+      final q = jsonEncode(node(r, 'q')['props']);
+      expect(q, contains('Search orders'));
+      expect(q, isNot(contains('labelText":"Search')));
+      // The tile is a box with the icon in it.
+      expect(node(r, 'tile')['children'], hasLength(1));
+      // The badge keeps its size in a cell 120 wide.
+      expect((node(r, 'paid')['layout']! as Map)['width'], isNot(120));
+      // The text sits in a box that carries the rule.
+      expect(node(r, 'toc')['decoration'], isNull);
+    });
+
     test('a website page: sections are full-width bands with their content in a centered column', () {
       final r = parseNotation('''
 Page

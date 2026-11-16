@@ -183,7 +183,7 @@ final class PageWords {
     }
     if (_sides.contains(word) && !isComponentCall(word, parts)) {
       final width = parts.take('w') ?? _n(sidebarWidth);
-      final pad = parts.take('pad') ?? '[12,16,12,16]';
+      final pad = parts.take('pad') ?? '[12,20,12,16]';
       final gap = parts.take('gap') ?? '4';
       open(frame: framed ? 'Sidebar' : null);
       final fill = !framed || parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
@@ -226,8 +226,34 @@ final class PageWords {
           if (badge != null) (indent: at + 2, text: 'Text.${_variant(const ['muted', 'caption', 'small']) ?? 'muted'} $badge'),
         ]);
     }
+    // A badge with a width is a table's cell: the cell has the width, the
+    // badge stays as big as its label.
+    if (word == 'Badge' && parts.has('w') && !isComponent('Badge')) {
+      final width = parts.take('w')!;
+      final grow = parts.word('grow') ? ' grow' : '';
+      open();
+      return out
+        ..add((indent: at, text: 'Row w:$width$grow'))
+        ..add((indent: at + 2, text: 'Badge$mark${parts.all}'));
+    }
+    // The product's mark and name, at the head of a sidebar or the start of a bar.
+    if ((word == 'Brand' || word == 'Logo') && !isComponent(word)) {
+      final icon = parts.take('icon');
+      final name = parts.string();
+      final side = parent?.frame == 'Sidebar';
+      open();
+      return out
+        ..add((indent: at, text: 'Row$mark gap:10 middle${side ? ' pad:[8,4,8,16]' : ''}${parts.all}'))
+        ..addAll([
+          if (icon != null) (indent: at + 2, text: 'Box w:28 h:28 radius:8 fill:$accent center middle'),
+          if (icon != null) (indent: at + 4, text: 'Icon $icon size:16 color:#FFFFFFFF'),
+          (indent: at + 2, text: 'Text ${name ?? '""'} size:17 weight:700'),
+        ]);
+    }
     // A field in a bar has no room for a label above it: its label is its hint.
-    if ((word == 'Input' || word == 'Search' || word == 'SearchField') && _open.any((l) => l.frame == 'Nav') && !isComponent(word)) {
+    if ((word == 'Input' || word == 'Search' || word == 'SearchField') &&
+        (_open.any((l) => l.frame == 'Nav') || RegExp(r'^\s*"(Search|Filter|Find)\b').hasMatch(rest)) &&
+        !isComponent(word)) {
       if (!parts.has('hint')) {
         final label = parts.string();
         final hint = parts.string() ?? label ?? '"Search"';

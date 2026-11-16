@@ -25,6 +25,19 @@
   view while the page scrolls; `Text … italic`.
 - **`NotationOptions.height`, `contentWidth`, `selectedFill`, `line`**: the window an app is drawn in, the
   widest a section's content gets (a theme's `sizes.content`), and the looks of a selected `NavItem` and a rule.
+- **Notation, a theme's page tier**: on a wide canvas (a theme's `sizes.wide` and up) a name ending in `Wide`
+  takes the place of the name before it (`textStyles.strongWide` is `Text.strong`, `radii.cardWide` a card's
+  corner, `spacing.cardWide` its padding, `shadows.cardWide`, `sizes.ctaWide`). One theme then serves a chat card
+  and a page with nothing switched: a card is written at its own width and keeps the card's looks.
+- **Notation**: a button's `size:` (`xs`, `compact`, `small`, `medium`, `large`) is its height; a theme's
+  `sizes.control` is the height of a button, a field and a select that write none. `Section tint` (a band on
+  the theme's `colors.band`) and `Section compact`; `IconTile "sync"`; `Brand "Harbor" icon:"anchor"`. A
+  selected `NavItem` has its label and icon in the accent. A website page is drawn on `colors.pageFill`, an
+  app's sidebar and top bar on `colors.card`. `Heading` in an app is the page's title (`level:1`), a panel's
+  (`level:3`).
+- **`NotationOptions`**: `narrowWidth`, `sidebarWidth`, `sectionPad`, `gutter`, `band`, `siteFill`, `paneFill`,
+  `iconTile`, `controlHeight` (a theme's `sizes.narrow`, `sizes.sidebar`, `spacing.section`, `spacing.gutter`,
+  `colors.band`, `pageFill`, `card`, `iconTile`, `sizes.control`).
 - **`notationPrompt`** teaches the page words when `options.width` is `notationPageWidth` (700) or more, and
   adds the design system's "Pages in brief" (a section of its patterns) when it has one.
 
@@ -38,6 +51,11 @@
 
 ### Fixed
 
+- **Notation**: a donut's first slice and a chart's first series were written as a theme name where a value is
+  read, and did not draw; a donut given a height is as wide as it is tall. On a page: cards side by side in a
+  row are equally tall; a field in a bar (or labelled "Search…") has its label as its hint; a `Badge` with a
+  width sits in a cell of that width; a `Text` with a rule, a fill or a corner is a box around the text; `id:x`,
+  `sticky:true top:24` and an Avatar's `src:` are read as meant.
 - **Notation**: the braces of a code sample shown as text (`import { Beacon } from …`) are text, not a value
   read.
 
