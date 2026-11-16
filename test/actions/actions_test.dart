@@ -75,6 +75,9 @@ void main() {
   });
 
   test('an adaptive modal is a sheet below the breakpoint it names', () {
+    final stops = ActionDef.fromJson({'type': 'openModal', 'to': 'details', 'presentation': 'bottomSheet', 'snapHeights': [0.5, 0.9]})!;
+    expect((stops as OpenModalAction).snapHeights, [0.5, 0.9]);
+    expect(ActionDef.fromJson(stops.toJson()), stops);
     const d = OpenModalAction(presentation: ModalPresentation.adaptive);
     expect(d.sheetBelowWidthIn(Breakpoints.defaults), 600, reason: 'empty: the second breakpoint');
     expect(const OpenModalAction(sheetBelow: 'desktop').sheetBelowWidthIn(Breakpoints.defaults), 1024);

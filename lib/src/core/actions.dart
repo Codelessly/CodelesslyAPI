@@ -317,6 +317,7 @@ final class OpenModalAction extends CoreAction {
     this.sheetRadius,
     this.sheetBelow = '',
     this.maxHeightFactor = 1,
+    this.snapHeights = const [],
     this.cover = false,
     this.enterScale = 1,
     this.routeTransition,
@@ -382,6 +383,9 @@ final class OpenModalAction extends CoreAction {
       breakpoints.byId(sheetBelow)?.minWidth ?? (breakpoints.length > 1 ? breakpoints.list[1].minWidth : 0);
   final double maxHeightFactor;
 
+  /// Optional bottom sheet stops as fractions of available screen height.
+  final List<double> snapHeights;
+
   /// A dialog that covers the screen (inside [insets]): its screen fills it
   /// and is laid out at that size, so its breakpoint and responsive layouts
   /// follow the device, as a screen navigated to does. Not a page route:
@@ -415,6 +419,7 @@ final class OpenModalAction extends CoreAction {
     sheetRadius: _dOrNull(m, 'sheetRadius'),
     sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
+    snapHeights: [...?readList(m['snapHeights'])?.map(readDouble).nonNulls],
     cover: _b(m, 'cover', false),
     enterScale: _d(m, 'enterScale', 1),
     routeTransition: RouteTransition.fromJson(m['routeTransition']),
@@ -445,6 +450,7 @@ final class OpenModalAction extends CoreAction {
     if (sheetRadius case final double r) 'sheetRadius': writeDouble(r),
     if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
+    if (snapHeights.isNotEmpty) 'snapHeights': [for (final h in snapHeights) writeDouble(h)],
     if (cover) 'cover': true,
     if (enterScale != 1) 'enterScale': writeDouble(enterScale),
     'routeTransition': ?routeTransition?.toJson(),

@@ -211,6 +211,8 @@ abstract final class OpenModalFields {
   static const sheetBelow = PropDef<String>('sheetBelow', Codecs.string, '',
       doc: 'Adaptive: a bottom sheet on breakpoints narrower than this one (a breakpoint id; empty: the second).');
   static const maxHeightFactor = PropDef<double>('maxHeightFactor', Codecs.double, 1);
+  static const snapHeights = PropDef<List<double>>('snapHeights', Codecs.doubles, [],
+      doc: 'Bottom sheet height stops as increasing fractions of available height, e.g. [0.5, 0.9].');
   static const cover = PropDef<bool>('cover', Codecs.bool, false,
       doc: 'A dialog that covers the screen: its screen fills it at the device size (its breakpoint follows the device).');
   static const enterScale = PropDef<double>('enterScale', Codecs.double, 1);
@@ -218,7 +220,7 @@ abstract final class OpenModalFields {
       doc: 'A custom transition: entrance, the screen behind, barrier, drag to dismiss.');
   static const List<PropDef<Object?>> all = [
     to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showDragHandle, //
-    alignment, anchor, placement, anchorGap, anchorOffset, anchorReserve, anchorNode, anchorItem, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor,
+    alignment, anchor, placement, anchorGap, anchorOffset, anchorReserve, anchorNode, anchorItem, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor, snapHeights,
     cover, enterScale, routeTransition,
   ];
 }
