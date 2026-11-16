@@ -1693,6 +1693,16 @@ Page
       expect(((at(r, 'image', 390)['layout'] as Map)['padding'] as List).first, 0);
     });
 
+    test('scroll reveal waits for its share of a section to enter view', () {
+      final r = parseNotation('''
+Page
+  Section#work animate:slide-up reveal:0.3 duration:500
+    Heading "Work"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(((node(r, 'work')['animations'] as List).single as Map)['visibleFraction'], 0.3);
+    });
+
     test('a grid\'s rows wrap, each cell at a least width; nothing changes at the width it was written for', () {
       final r = parseNotation('''
 Page

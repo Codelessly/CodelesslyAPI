@@ -1555,6 +1555,7 @@ class _Parser {
     // `center` and `middle` on a Stack; `animate:` and its timing.
     Set<String>? stackAlign;
     Json? animation;
+    num? revealFraction;
     Map<String, int>? timing;
     num? sliderStep;
     String? swipe;
@@ -2072,6 +2073,15 @@ class _Parser {
           }
           continue;
         }
+        if (key == 'reveal') {
+          final fraction = raw == 'scroll' ? 0.25 : num.tryParse(raw);
+          if (fraction == null || fraction < 0 || fraction > 1) {
+            _issue(col, 'reveal:scroll or reveal:0.3 waits until the node enters the viewport.');
+          } else {
+            revealFraction = fraction;
+          }
+          continue;
+        }
         if ((key == 'duration' || key == 'delay' || key == 'stagger') && _milliseconds(raw) != null) {
           (timing ??= <String, int>{})[key] = _milliseconds(raw)!;
           continue;
@@ -2520,6 +2530,7 @@ class _Parser {
     if (animation != null) {
       if (timing?['duration'] case final int d) animation['duration'] = d;
       if (timing?['delay'] case final int d) animation['delay'] = d;
+      if (revealFraction != null) animation['visibleFraction'] = revealFraction;
       node['animations'] = [animation];
       // Under an `each`, each copy starts that much after the one before.
       if (timing?['stagger'] case final int step) {
@@ -2527,6 +2538,8 @@ class _Parser {
       }
     } else if (timing != null) {
       _issue(column, 'duration:, delay: and stagger: go with animate: on the same line (animate:fade duration:400).');
+    } else if (revealFraction != null) {
+      _issue(column, 'reveal:scroll goes with animate: on the same line.');
     }
     // `grow:=share` follows a value: it grows, by 1 until the value is read
     // (a bar's segments sized by their amounts).
