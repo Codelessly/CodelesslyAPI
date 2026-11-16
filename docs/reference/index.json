@@ -7,7 +7,7 @@
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6179
+      "words": 6180
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 10034
+      "words": 10076
     },
     {
       "topic": "layout-layout-fields",
@@ -545,7 +545,7 @@
       "anchor": "page-navigation",
       "title": "Screens, navigation, modals and toasts",
       "summary": "Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions).",
-      "words": 4269
+      "words": 4632
     },
     {
       "topic": "navigation-triggers",
@@ -580,6 +580,14 @@
       "words": 74
     },
     {
+      "topic": "navigation-overlays-and-the-keyboard",
+      "file": "navigation.md",
+      "anchor": "navigation-overlays-and-the-keyboard",
+      "title": "Overlays and the keyboard",
+      "summary": "Every modal (`dialog`, `bottomSheet`, `sideSheet`, `popover`, `fullScreen`, `adaptive`) and the built-in `confirm` behaves as a dialog should, with nothing to write:",
+      "words": 335
+    },
+    {
       "topic": "navigation-a-mobile-menu-drawer",
       "file": "navigation.md",
       "anchor": "navigation-a-mobile-menu-drawer",
@@ -609,7 +617,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts.",
-      "words": 6662
+      "words": 6664
     },
     {
       "topic": "state-variables",
@@ -777,7 +785,7 @@
       "anchor": "page-interaction",
       "title": "Interaction: reactions, states and gestures",
       "summary": "What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics.",
-      "words": 5386
+      "words": 6298
     },
     {
       "topic": "interaction-trigger-fields",
@@ -858,6 +866,22 @@
       "title": "Keys",
       "summary": "A canvas's `keyDown` reaction (`{\"trigger\": {\"type\": \"keyDown\", \"key\": \"ArrowRight\"}, ...}`) runs while no text field has the focus: arrow keys between tabs are two reactions that set the tab variable (`${= (tabIndex + 1) % 4}`), Escape closing a menu is one.",
       "words": 42
+    },
+    {
+      "topic": "interaction-the-keyboard-tab-enter-space-and-the-focus-ring",
+      "file": "interaction.md",
+      "anchor": "interaction-the-keyboard-tab-enter-space-and-the-focus-ring",
+      "title": "The keyboard: Tab, Enter, Space and the focus ring",
+      "summary": "Nothing to write: a node with a `click` reaction is a **Tab stop**, like the controls.",
+      "words": 299
+    },
+    {
+      "topic": "interaction-one-tab-stop-for-a-group-focusgroup",
+      "file": "interaction.md",
+      "anchor": "interaction-one-tab-stop-for-a-group-focusgroup",
+      "title": "One Tab stop for a group: focusGroup",
+      "summary": "A menu, a tab list, a toolbar or a list of options is one stop, and the arrow keys move inside it.",
+      "words": 178
     },
     {
       "topic": "animation",
@@ -1441,7 +1465,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13476
+      "words": 13528
     },
     {
       "topic": "values-value-types",
@@ -2018,6 +2042,8 @@
       "inkWell": "interaction.md#behavior-inkWell",
       "tooltip": "interaction.md#behavior-tooltip",
       "ignorePointer": "interaction.md#behavior-ignorePointer",
+      "focusable": "interaction.md#behavior-focusable",
+      "focusGroup": "interaction.md#behavior-focusGroup",
       "draggable": "interaction.md#behavior-draggable",
       "dropTarget": "interaction.md#behavior-dropTarget",
       "track": "interaction.md#behavior-track",
@@ -2211,6 +2237,7 @@
       "CustomPaint": "decoration.md#type-CustomPaint",
       "FormBehavior": "forms.md#type-FormBehavior",
       "RadioGroupBehavior": "forms.md#type-RadioGroupBehavior",
+      "FocusGroup": "interaction.md#type-FocusGroup",
       "AnimationRepeat": "values.md#type-AnimationRepeat",
       "AnimationTrack": "values.md#type-AnimationTrack",
       "Flight": "values.md#type-Flight",
@@ -2276,6 +2303,7 @@
       "FloatingActionButtonLocation": "values.md#enum-FloatingActionButtonLocation",
       "FloatingActionButtonType": "values.md#enum-FloatingActionButtonType",
       "FloatingLabelBehavior": "values.md#enum-FloatingLabelBehavior",
+      "FocusGroupAxis": "values.md#enum-FocusGroupAxis",
       "FontStyle": "values.md#enum-FontStyle",
       "FormService": "values.md#enum-FormService",
       "GaugeLimitStyle": "values.md#enum-GaugeLimitStyle",
