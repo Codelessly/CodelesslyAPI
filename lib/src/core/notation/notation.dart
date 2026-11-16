@@ -868,6 +868,8 @@ class _Parser {
 
   final nodes = <String, Json>{};
   final variables = <String, Json>{};
+  /// Names supplied by the site manifest, not this screen.
+  final _projectVariables = <String>{};
   final issues = <NotationIssue>[];
   final wanted = <WantedBlock>[];
 
@@ -1300,6 +1302,14 @@ class _Parser {
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
+    if (line.startsWith('project ')) {
+      final name = line.substring(8).trim();
+      if (indent != 0 || !_identifier.hasMatch(name) || variables.containsKey(name)) {
+        return _issue(column, 'A project variable is declared at the top: project name. Give its starting value in site.json.');
+      }
+      _projectVariables.add(name);
+      return;
+    }
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
     // As models write it: every 1s while:{running} onTick:{…}, every 1s when running: …
@@ -1790,7 +1800,7 @@ class _Parser {
               PropKind.list => ('list', const <Object?>[] as Object),
               _ => ('text', '' as Object),
             };
-            variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
+            if (!_projectVariables.contains(expr)) variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
           }
         } else if (value == null) {
           final shown = _shownValue[type] ?? _mainKey(type, spec);
@@ -1802,7 +1812,7 @@ class _Parser {
             bind['props.$shown'] = _read(expr);
             // A share shown from a name not declared yet starts at 0.
             if (shown == 'value' && _identifier.hasMatch(expr) && !expr.contains('.')) {
-              variables.putIfAbsent(expr, () => {'name': expr, 'type': 'decimal', 'value': 0});
+              if (!_projectVariables.contains(expr)) variables.putIfAbsent(expr, () => {'name': expr, 'type': 'decimal', 'value': 0});
             }
           }
         } else {
@@ -1830,7 +1840,7 @@ class _Parser {
           } else if (expr.contains('.')) {
             _issue(col, 'A control is bound to a variable by its name (=name), or under an each to a field of its element (=row.name): "$expr" is neither.');
           } else if (_identifier.hasMatch(expr)) {
-            variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
+            if (!_projectVariables.contains(expr)) variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
             reactions.insert(0, {
               'trigger': {'type': 'changed'},
               'actions': [
@@ -3247,6 +3257,7 @@ class _Parser {
   void _state(String rest, int column) {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
+    if (_projectVariables.contains(m[1])) return _issue(column, '"${m[1]}" is already a project variable; give its starting value in site.json.');
     var written = m[2]!.trim();
     // One formula may read another (`state total=subtotal-discount`).
     for (final d in _derived.entries) {
@@ -3380,7 +3391,7 @@ class _Parser {
         final v = set[2]!.trim();
         final literal = _literal(v);
         // A bare word that names no variable is text (choice=basic).
-        final word = !literal.$1 && _identifier.hasMatch(v) && !v.contains('.') && !variables.containsKey(v) && !const {'result', 'item', 'index'}.contains(v);
+        final word = !literal.$1 && _identifier.hasMatch(v) && !v.contains('.') && !variables.containsKey(v) && !_projectVariables.contains(v) && !const {'result', 'item', 'index'}.contains(v);
         out.add({
           'type': 'setVariable',
           'variable': set[1],
@@ -3390,7 +3401,7 @@ class _Parser {
                   ? _interpolate(literal.$2! as String)
                   : _formula(v),
         });
-        if (!variables.containsKey(set[1])) {
+        if (!variables.containsKey(set[1]) && !_projectVariables.contains(set[1])) {
           final start = literal.$1 ? literal.$2 : null;
           variables[set[1]!] = {
             'name': set[1],

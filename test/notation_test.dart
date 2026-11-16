@@ -1632,6 +1632,19 @@ Column center
 
   group('a page written once lays out on a tablet and a phone', () {
     const page = NotationOptions(width: 1280);
+    test('a project variable bound on a page does not become screen state', () {
+      final r = parseNotation('''
+project version
+Page
+  Nav
+    Select =version items:["v2", "v1"]
+    Button "Use v1" -> version="v1"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(r.document), contains(r'${version}'));
+      expect(jsonEncode(r.document), contains('"variable":"version"'));
+      expect(jsonEncode(r.document['variables']), isNot(contains('version')));
+    });
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
     // The patch a node takes at a width, its rules merged in order.
