@@ -1733,6 +1733,9 @@ class _Parser {
       _eachStagger = _milliseconds(m[1]!.substring(8));
       line = line.substring(0, line.length - m[1]!.length).trimRight();
     }
+    // A named list can write its new order back to its variable.
+    final reordering = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+([A-Za-z_][A-Za-z0-9_]*)\s+reorder(?::([A-Za-z_][A-Za-z0-9_]*))?$').firstMatch(line);
+    if (reordering != null) line = 'each ${reordering[1]} in ${reordering[2]}';
     final each = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (each != null) {
       if (parent == null && _root != null) {
@@ -1740,6 +1743,12 @@ class _Parser {
         return _lineAt(indent, source, column);
       }
       if (parent == null) return _issue(column, 'An "each" needs a parent: indent it under a node.');
+      if (reordering != null && (parent.grid != null || parent.type == 'row' || parent.type == 'stack' || parent.pages != null)) {
+        return _issue(column, 'Reorder needs a vertical list: put each … reorder under a Column, not a Grid, Row, Stack or Pages.');
+      }
+      if (reordering != null && !variables.containsKey(reordering[2])) {
+        return _issue(column, 'Reorder writes to a named list variable: declare ${reordering[2]} with state or project before the page.');
+      }
       // Under Pages, one page per element: the page view repeats its page.
       if (parent.pages case final String pagesId) {
         final data = {'data': _read(each[2]!.trim())};
@@ -1775,13 +1784,16 @@ class _Parser {
       _acrossLists[itemId] = listId;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
+        if (reordering != null) 'focusGroup': {'axis': 'vertical', 'wrap': false},
         'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
             ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
             : across
                 ? {'scrollable': false, 'scrollDirection': 'horizontal', 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0}
-                : {'scrollable': false, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0},
+                : {'scrollable': false, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0,
+                    if (reordering != null) 'reorder': {'start': 'handle', 'keyboard': true, 'apply': 'variable',
+                      if (reordering[3] != null) 'group': reordering[3], 'listKey': reordering[2]}},
         'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
         'children': <Object?>[itemId],
       };
@@ -1853,7 +1865,7 @@ class _Parser {
     // A design system's own Gauge, Ring, Sparkline or Avatar comes before the
     // notation's.
     final short = _softNames.contains(written) && catalog.widget(written) != null ? null : notationTypes[written];
-    var type = short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
+    var type = written == 'Handle' ? 'iconButton' : short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
     // A design system's component, called by its own name (`StatusBadge`,
     // `Stepper`): a core type of that name, or a short name, comes first.
     final component =
@@ -1868,6 +1880,12 @@ class _Parser {
     final node = <String, Object?>{};
     final props = <String, Object?>{}, layout = <String, Object?>{}, decoration = <String, Object?>{}, bind = <String, Object?>{};
     final reactions = <Json>[];
+    if (written == 'Handle') {
+      props['icon'] = 'drag_indicator';
+      layout.addAll({'width': 44, 'height': 44});
+      node['tooltip'] = 'Reorder';
+      node['reorderHandle'] = true;
+    }
     // `center` and `middle` on a Stack; `animate:` and its timing.
     Set<String>? stackAlign;
     Json? animation;

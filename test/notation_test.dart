@@ -1933,6 +1933,50 @@ Page
       expect(jsonEncode(node(r, 'homeName')), contains('item.name'));
     });
 
+    test('a repeated list can reorder by its handle and write to its variable', () {
+      final r = parseNotation('''
+state trip=["Zurich","Tirano"]
+Page
+  Section
+    each stop in trip reorder
+      Row
+        Handle#grip
+        Text "{stop}"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final list = r.document['nodes'] as Map;
+      final repeating = list.values.cast<Map>().firstWhere((n) => n['type'] == 'listView');
+      expect((repeating['props'] as Map)['reorder'], containsPair('apply', 'variable'));
+      expect((repeating['props'] as Map)['reorder'], containsPair('keyboard', true));
+      expect(repeating['focusGroup'], containsPair('axis', 'vertical'));
+      expect(node(r, 'grip')['reorderHandle'], true);
+      expect(node(r, 'grip')['tooltip'], 'Reorder');
+    });
+
+    test('two repeated lists may share a reorder group', () {
+      final r = parseNotation('''
+state planned=["Bern"]
+state optional=["Basel"]
+Page
+  Section
+    Row
+      Column
+        each stop in planned reorder:trip
+          Row
+            Handle
+            Text "{stop}"
+      Column
+        each stop in optional reorder:trip
+          Row
+            Handle
+            Text "{stop}"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      final lists = (r.document['nodes'] as Map).values.cast<Map>().where((n) => n['type'] == 'listView');
+      expect(lists, hasLength(2));
+      expect(lists.every((n) => (n['props'] as Map)['reorder']['group'] == 'trip'), isTrue);
+    });
+
     test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page
