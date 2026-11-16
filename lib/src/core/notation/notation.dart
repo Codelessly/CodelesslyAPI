@@ -998,6 +998,9 @@ class _Parser {
   String? _lastNode;
   final _roles = <String, String>{};
   final _gridRows = <String, _Grid>{};
+
+  /// The names written `project name`: variables of the site, not of this screen.
+  final _projectVariables = <String>{};
   final _tableRows = <String>{};
 
   /// On a page, the media rules that lay it out on a tablet and a phone.
@@ -1081,7 +1084,7 @@ class _Parser {
     final screen = options.screen;
     final fresh = {
       for (final v in variables.values)
-        if (_declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
+        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
     };
     if (id == null && fresh.isEmpty) return;
     if (!_canvas) {
@@ -1260,7 +1263,8 @@ class _Parser {
         },
         ...nodes,
       },
-      if (variables.isNotEmpty) 'variables': {screen: variables.values.toList()},
+      if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
+        'variables': {screen: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
     }), issues, wanted: List.unmodifiable(wanted));
   }
 
@@ -1299,6 +1303,16 @@ class _Parser {
     if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
+    // `project cart=[]` (or `project cart`): a variable of the whole site
+    // (site.json's `variables`), read and set here as any other, with no
+    // copy of its own on this screen to hide it.
+    if (line.startsWith('project ') && _root == null) {
+      final rest = line.substring(8).trim();
+      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)s*(=|$)').firstMatch(rest)?.group(1);
+      if (name == null) return _issue(column, 'A site\x27s variable is written: project name=value (the same name as in site.json\x27s variables).');
+      _projectVariables.add(name);
+      return _state(rest.contains('=') ? rest : '$name=""', column + 8);
+    }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
     // the screen does as time passes (a timer on the canvas).
@@ -2132,7 +2146,10 @@ class _Parser {
           if (rule != null) {
             node['media'] = [
               ...?(node['media'] as List?),
-              {...rule, 'patch': {'visible': false}},
+              // A line under an `if` binds visible, and a binding shows over
+              // a patched value: where the size hides the node, the binding is
+              // dropped, so the condition holds only where the node shows.
+              {...rule, 'patch': {'visible': false, 'bind': {'visible': null}}},
             ];
           }
           continue;
@@ -3422,7 +3439,9 @@ class _Parser {
         case 'close':
           out.add({'type': 'closeModal'});
         case 'go':
-          out.add({'type': 'navigate', 'to': s});
+          // A destination may be worked out (a SiteNav's link name as a
+          // screen id: go replace(lower(result)," ","_")); a bare id is the id.
+          out.add({'type': 'navigate', 'to': arg.startsWith('"') || _identifier.hasMatch(s) ? s : _formula(s)});
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':
