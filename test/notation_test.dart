@@ -1666,6 +1666,20 @@ Page
       expect((dynamic.first as Map)['to'], contains('lower(result)'));
     });
 
+    test('an assignment to a manifest variable does not shadow it on the page', () {
+      final r = parseNotation('''
+Page
+  Section
+    Button#pick "Good Noise" -> project="Good Noise"; go project
+    Heading "{project}"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280, projectVariables: {'project'}));
+      expect(r.issues, isEmpty);
+      final scope = (r.document['variables'] as Map?) ?? const {};
+      expect(scope.toString(), isNot(contains("'name': project")));
+      final a = (((r.document['nodes'] as Map)['pick'] as Map)['actions'] as List).first as Map;
+      expect(((a['actions'] as List).first as Map)['variable'], 'project');
+    });
+
     test('a grid\'s rows wrap, each cell at a least width; nothing changes at the width it was written for', () {
       final r = parseNotation('''
 Page

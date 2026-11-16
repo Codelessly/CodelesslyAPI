@@ -104,6 +104,7 @@ final class NotationOptions {
     this.fieldText,
     this.reflow = true,
     this.displaySizes = const {},
+    this.projectVariables = const {},
   });
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -111,7 +112,7 @@ final class NotationOptions {
   /// (`StatusBadge "Paid"`, `Stepper =qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
   factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
-      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true}) {
+      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true, Set<String> projectVariables = const {}}) {
     final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, reflow: reflow);
     Object size(SizeFit fit, double value) => switch (fit) {
           SizeFit.fill || SizeFit.flexible => {'fill': 0},
@@ -153,6 +154,7 @@ final class NotationOptions {
       fieldText: base.fieldText,
       reflow: base.reflow,
       displaySizes: base.displaySizes,
+      projectVariables: projectVariables,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -353,6 +355,10 @@ final class NotationOptions {
 
   /// `Text.<variant>`: a style object, or a theme text style's name.
   final Map<String, Object> textStyles;
+
+  /// Names declared by the site's manifest, shared across its pages.
+  /// Assignments to them must not create a page-local declaration.
+  final Set<String> projectVariables;
 
   /// What `Card` adds to a column: decoration and padding.
   final Json card;
@@ -2005,7 +2011,7 @@ class _Parser {
         // the parameter's own values (tone:quiet) stays the word.
         if (!raw.startsWith('=') && raw != 'fill' && raw != 'hug' && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
           final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(raw)!;
-          final known = variables.containsKey(head) || _derived.containsKey(head) || _stack.any((o) => o.each == head);
+          final known = variables.containsKey(head) || options.projectVariables.contains(head) || _derived.containsKey(head) || _stack.any((o) => o.each == head);
           final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
           if (known && !ownValue) raw = '=$raw';
         }
@@ -3381,7 +3387,7 @@ class _Parser {
         final v = set[2]!.trim();
         final literal = _literal(v);
         // A bare word that names no variable is text (choice=basic).
-        final word = !literal.$1 && _identifier.hasMatch(v) && !v.contains('.') && !variables.containsKey(v) && !const {'result', 'item', 'index'}.contains(v);
+        final word = !literal.$1 && _identifier.hasMatch(v) && !v.contains('.') && !variables.containsKey(v) && !options.projectVariables.contains(v) && !const {'result', 'item', 'index'}.contains(v);
         out.add({
           'type': 'setVariable',
           'variable': set[1],
@@ -3391,7 +3397,7 @@ class _Parser {
                   ? _interpolate(literal.$2! as String)
                   : _formula(v),
         });
-        if (!variables.containsKey(set[1])) {
+        if (!variables.containsKey(set[1]) && !options.projectVariables.contains(set[1])) {
           final start = literal.$1 ? literal.$2 : null;
           variables[set[1]!] = {
             'name': set[1],

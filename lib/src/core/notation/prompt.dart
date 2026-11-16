@@ -106,6 +106,7 @@ ${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
 
 PAGES (this UI is a whole window $w wide, not a card in a chat)
   Start with a frame. It owns the widths, the margins and the scrolling, so write no window sizes (no w:$w, no h:fill on the root) and no page margins.
+  Project variables declared in site.json are shared across pages; an assignment to one does not create a page-local copy.
   A website page scrolls, and its bands stack:
     Page
       Nav                    the bar across the top; its children are spread end to end (the logo, a Row of links, a Row of actions)
