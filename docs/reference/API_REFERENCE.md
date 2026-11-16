@@ -189,9 +189,8 @@ Each axis has a **mode** and a **number**:
 
 The number is the **design size**: the size of a fixed node, and the size used where a mode cannot apply (a fill
 inside something that scrolls on that axis, or inside a parent that hugs that axis: `fill_fallback`). For `hug` and
-`fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. **A node without `width` or
-`height` is 0 × 0 and draws nothing** (`zero_size`); give every node both, except a `canvas`, a `spacer` and a
-control, which hugs.
+`fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. Unsized, a text, icon or
+control hugs (wrapping at its parent's width); **other nodes are 0 × 0** (`zero_size`), but a `canvas` or `spacer`.
 
 <a id="base-rows-columns-and-flex"></a>
 ### Rows, columns and flex
@@ -498,7 +497,7 @@ Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive lay
 <a id="base-rules-that-are-easy-to-get-wrong"></a>
 ## Rules that are easy to get wrong
 
-1. Every node needs `layout.width` and `layout.height`; without them it is 0 × 0.
+1. Boxes, rows, columns and stacks need `layout.width` and `layout.height`; without them they are 0 × 0.
 2. Every text needs a color; without one it is white.
 3. Padding and margin are a number or four numbers, never two.
 4. Colors are `#AARRGGBB`, `#RRGGBB` or a theme color's name; define the theme first and name its colors and
@@ -787,7 +786,7 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4812 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4811 |
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10034 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2932 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
