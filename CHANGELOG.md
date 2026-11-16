@@ -1,5 +1,7 @@
 ## Unreleased
 
+### Added
+
 - **Right to left**: padding and margin written `{"start", "top", "end", "bottom"}` are Flutter's
   `EdgeInsetsDirectional` (`EdgeInsets.fromSTEB`, `directional`, `resolve`); `strokeSides` gains `start`, `end`,
   `noStart`, `noEnd` (`BorderDirectional`). The layout reference has an RTL section (what `textDirection` mirrors).
@@ -14,6 +16,52 @@
   its WIP limit shows where the card would land, styled as blocked). The migration writes it out where schema 2
   left it at its default (true) with an `acceptIf` and a list slot, so such a document renders as before instead
   of reporting a behavior change (sprint_kanban's columns relied on it).
+- **Notation, the page words**: the frames of a desktop page, written out as plain lines before they are read.
+  A website is `Page` with `Nav`, `Section` (a full-width band, its content in a centered column; `narrow`,
+  `fill:`, `center`) and `Footer`. An app window is `App` with `Sidebar`, `Main` and `Pane w:320`, each as tall as
+  the window and scrolling by itself. Also `NavItem "Orders" icon:"inbox" badge:"12" selected:=… -> …`,
+  `Link "Docs"`, `Heading "…" level:1`. Inside a card the same words are a plain row or column.
+- **Notation**: `border-bottom:#…` (`-top`, `-left`, `-right`) is a rule on one side; `sticky` keeps a node in
+  view while the page scrolls; `Text … italic`.
+- **`NotationOptions.height`, `contentWidth`, `selectedFill`, `line`**: the window an app is drawn in, the
+  widest a section's content gets (a theme's `sizes.content`), and the looks of a selected `NavItem` and a rule.
+- **Notation, a theme's page tier**: on a wide canvas (a theme's `sizes.wide` and up) a name ending in `Wide`
+  takes the place of the name before it (`textStyles.strongWide` is `Text.strong`, `radii.cardWide` a card's
+  corner, `spacing.cardWide` its padding, `shadows.cardWide`, `sizes.ctaWide`). One theme then serves a chat card
+  and a page with nothing switched: a card is written at its own width and keeps the card's looks.
+- **Notation**: a button's `size:` (`xs`, `compact`, `small`, `medium`, `large`) is its height; a theme's
+  `sizes.control` is the height of a button, a field and a select that write none. `Section tint` (a band on
+  the theme's `colors.band`) and `Section compact`; `IconTile "sync"`; `Brand "Harbor" icon:"anchor"`. A
+  selected `NavItem` has its label and icon in the accent. A website page is drawn on `colors.pageFill`, an
+  app's sidebar and top bar on `colors.card`. `Heading` in an app is the page's title (`level:1`), a panel's
+  (`level:3`).
+- **`NotationOptions`**: `narrowWidth`, `sidebarWidth`, `sectionPad`, `gutter`, `band`, `siteFill`, `paneFill`,
+  `iconTile`, `controlHeight` (a theme's `sizes.narrow`, `sizes.sidebar`, `spacing.section`, `spacing.gutter`,
+  `colors.band`, `pageFill`, `card`, `iconTile`, `sizes.control`).
+- **`notationPrompt`** teaches the page words when `options.width` is `notationPageWidth` (700) or more, and
+  adds the design system's "Pages in brief" (a section of its patterns) when it has one.
+
+### Changed
+
+- **Notation**: a root written `h:fill` (and `App`) gives the canvas the window's height, where it was as tall
+  as its content. `Row between center` keeps its ends apart and levels its children (it was read as centered).
+  A row that spreads its children is as wide as its place, in a centered column too. An icon keeps its size in
+  a column. A `Spacer grow` in a column takes the height left. A design system's block in a row shares the
+  row's width where it filled it; a `radius`, `fill` or `border` written on a block is left out.
+
+### Fixed
+
+- **Notation**: a donut's first slice and a chart's first series were written as a theme name where a value is
+  read, and did not draw; a donut given a height is as wide as it is tall. On a page: cards side by side in a
+  row are equally tall; a field in a bar (or labelled "Search…") has its label as its hint; a `Badge` with a
+  width sits in a cell of that width; a `Text` with a rule, a fill or a corner is a box around the text; `id:x`,
+  `sticky:true top:24` and an Avatar's `src:` are read as meant.
+- **Notation**: a see-through `fill:` on a `Card` sits over the card's own color (alone it let the card's
+  shadow show through); `'single-quoted'` text in a value ends at its closing quote; `Sparkline values:=row.trend`
+  draws from a record's list; a `color:` on a checkbox, switch or radio is its color when on; a text in a box of
+  a fixed height makes the box grow instead of overflowing.
+- **Notation**: the braces of a code sample shown as text (`import { Beacon } from …`) are text, not a value
+  read.
 
 ## 32.0.0
 
