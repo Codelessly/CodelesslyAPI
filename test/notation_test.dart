@@ -1804,6 +1804,51 @@ Page
       expect(node(card, 'mix')['type'], 'chart');
     });
 
+    test('what the twenty sites met: a size word under an if, short columns side by side, controls with choices, a site\x27s variable, a page worked out', () {
+      final r = parseNotation('''
+state menu=false
+state kind="All"
+project cart=[]
+Page
+  Section
+    if menu
+      Column#links show:phone
+        Text "Docs"
+    Row#pair gap:32
+      Column#one grow
+        Heading "Fast"
+        Text "Builds in seconds."
+      Column#two grow
+        Heading "Small"
+        Text "No dependencies."
+    Row#who gap:12
+      Avatar "Maya Reyes"
+      Column#name grow
+        Text.strong "Maya Reyes"
+        Text.muted "Owner"
+    Row#filters gap:12
+      SegmentedButton#level =kind options:["All","Beginner","Intermediate","Advanced"] grow
+      Button#add "Add" -> cart=append(cart,"x"); go replace(lower(kind)," ","_")
+      Button#home "Home" -> go home
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      // Hidden from a tablet up whatever the condition says; on a phone the condition decides.
+      expect(at(r, 'links', 834), {'visible': false, 'bind': {'visible': null}});
+      expect(at(r, 'links', 390), isEmpty);
+      expect((node(r, 'links')['bind']! as Map)['visible'], isNotNull);
+      // Two short columns are blocks; a name beside its picture is a label.
+      expect((at(r, 'one', 390)['layout']! as Map)['basis'], 280);
+      expect((at(r, 'name', 390)['layout']! as Map)['basis'], 96);
+      // The site's variable is not declared on the screen, and is still read and set.
+      final declared = [for (final v in ((r.document['variables']! as Map)['screen']! as List)) (v as Map)['name']];
+      expect(declared, containsAll(['menu', 'kind']));
+      expect(declared, isNot(contains('cart')));
+      final add = jsonEncode(node(r, 'add')['actions']);
+      expect(add, contains('"variable":"cart"'));
+      expect(add, contains(r'"to":"${='));
+      expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
+    });
+
     test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
       final r = parseNotation('''
 Page
