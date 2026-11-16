@@ -21,6 +21,33 @@ Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes']
 
 void main() {
   group('a page written once lays out on a tablet and a phone', () {
+    test('show and hide words produce narrow visibility rules', () {
+      final r = parseNotation('''
+Page
+  Nav
+    Button#desktop "Links" hide:phone
+    Button#mobile "Menu" show:phone
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'desktop')['visible'], isNull);
+      expect((_node(r, 'desktop')['media'] as List).first, {'maxWidth': 599, 'patch': {'visible': false}});
+      expect(_node(r, 'mobile')['visible'], false);
+      expect((_node(r, 'mobile')['media'] as List).first, {'maxWidth': 599, 'patch': {'visible': true}});
+    });
+    test('show:phone combines with an if condition', () {
+      final r = parseNotation('''
+state menu=false
+Page
+  if menu
+    Section show:phone
+      Text "Menu"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      final section = _node(r, 'column2');
+      expect(section['visible'], false);
+      expect((section['bind'] as Map?)?['visible'], isNull);
+      expect(jsonEncode(section['media']), contains('menu'));
+    });
     test('a grid row gains media rules while its wide layout stays intact', () {
       final r = parseNotation('''
 Page

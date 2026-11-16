@@ -1187,6 +1187,20 @@ class _Parser {
   NotationResult parse(String text) {
     const LineSplitter().convert(text).forEach(line);
     finish();
+    for (final node in nodes.values) {
+      final bind = node['bind'] as Json?;
+      final media = node['media'] as List<Object?>?;
+      final condition = bind?['visible'];
+      if (condition == null || media == null || node['visible'] != false) continue;
+      for (final entry in media) {
+        if (entry is! Map || (entry['patch'] as Map?)?['visible'] != true) continue;
+        final patch = <String, Object?>{...(entry['patch'] as Map).cast<String, Object?>()};
+        patch.remove('visible');
+        patch['bind'] = {'visible': condition};
+        entry['patch'] = patch;
+        bind!.remove('visible');
+      }
+    }
     if (_pages.page || _pages.app) reflowPage(nodes, gridRows: _gridRows, app: _pages.app);
     final screen = options.screen;
     final patch = _documentPatch;
@@ -1890,6 +1904,15 @@ class _Parser {
           continue;
         }
         var key = word.substring(0, colon);
+        if ((key == 'show' || key == 'hide') && const {'phone', 'mobile', 'tablet'}.contains(word.substring(colon + 1))) {
+          final narrow = word.substring(colon + 1);
+          if (key == 'show') node['visible'] = false;
+          ((node['media'] as List<Object?>?) ?? (node['media'] = <Object?>[])).add({
+            'maxWidth': narrow == 'tablet' ? 1023 : 599,
+            'patch': {'visible': key == 'show'},
+          });
+          continue;
+        }
         // `if:cond` on a node is the node shown while it holds.
         if (key == 'if' || key == 'when' || key == 'show') key = 'visible';
         // A handler written as a key, as models write one unprompted:
