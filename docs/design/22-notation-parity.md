@@ -236,9 +236,9 @@ PropDef<Object?>? notationTextStyleProp(WidgetSpec spec);
 ```
 
 `notationKeyPath(notationKeyFor(P, T), T) == P` for every field of every node type: the walk in
-`keys_test.dart` checks it, and that the line written with it expands to the value at P, for 62 of the 69
-core types (six have no line that is the type alone: `box`, `gridView`, `badge`, `appBar`, `modal`,
-`radialGauge`). A value still goes through the notation's reading of it (`_value`: a quoted string, a number,
+`keys_test.dart` checks it, and that the line written with it expands to the value at P, for 63 of the 69
+core types (five have no line that is the type alone: `box`, `gridView`, `badge`, `appBar`, `modal`;
+`radialGauge` has been the node as written since 4.6). A value still goes through the notation's reading of it (`_value`: a quoted string, a number,
 a bare word, JSON), so the printer writes a string quoted and a list or map as JSON.
 
 ### 4.1 Fields: the forms of a node's line
@@ -267,23 +267,23 @@ What 2.1 and 2.5 leave to this family, settled (tests: `test/notation/fields_tes
   JSON for a map). A text in a row that may not shrink writes its width (`w=hug`): written without one, it is
   squeezable.
 - **A field whose value is a record or a list** with no word for each of its parts is written whole under its
-  own name, as its JSON: `style={…}` on a button, `decoration={…}` on an Input, `constraints={…}`, `fills=[…]`,
-  `strokes=[…]`, `effects=[…]`. `maxWidth=` alone is the constraints' word; `gradient=` a linear fill with even
-  stops. A text's fill is `fills=[…]`: `fill=` on a text makes a tag around it.
+  own name, as its JSON: `style={…}` on a button, `fills=[…]`, `strokes=[…]`, `effects=[…]`; where its parts
+  have keys they are written by them instead (4.7: `minHeight=40 maxWidth=720`, `hint=Search
+  decoration.isDense=true` on an Input). `gradient=` is a linear fill with even stops. (A text has no fill: it is
+  not decorated, 4.1 Keys.)
 - **A binding** is `key={expression}` (`{name}` reads `${name}`, `{formula}` reads `${= formula}`; `selected=`
   always reads a formula), and a prop bound to a text with values in it is `key="…{x}…"`. A value and a binding of
   the same field are both written, the value first (`fill=#FFE5E7EB fill={…}`, `radius=8 radius={…}`), except a
-  size, which a binding makes 0. A control's value kept in a declared variable, with the `changed` reaction that
-  stores it first, is `bind=name`; `printedBindReaction` tells the events' words which reaction that is.
-- **By name, once the parser reads every field (Keys).** Behind `notationFieldNames` (off until then; its tests
-  are skipped with "needs the Keys family"): a field of a text's style by its name (`letterSpacing=0.4`,
+  size, which a binding makes 0 unless a number is written beside it (4.7). A control's value kept in a declared
+  variable, with the `changed` reaction that stores it first, is `bind=name`, the events' word since the second
+  wave (4.7); `printedBindReaction` tells the events' words which reaction that is.
+- **By name (on since the Keys family landed: 4.7).** A field of a text's style by its name (`letterSpacing=0.4`,
   `from=eyebrow`); a layout field (`squeezable=true`, `columnSpan=2`, `minHeight=40`); a decoration field
   (`strokeSides=topBottom`, `dashPattern=[6,4]`, `strokeAlign=outside`, `blendMode=multiply`,
   `foregroundFills=[…]`); a node field or behavior, a record as its JSON (`inkWell={…}`, `states={…}`,
   `ignorePointer=true`); a field inside a prop by its path from the props (`decoration.isDense=true` on an
   Input); a prop whose name is a word of the notation by its full path (`props.animate=true`); a binding with no
-  key by the field's name (`columnSpan={…}`) or its full path (`motion.scale={…}`,
-  `decoration.effects[0].color={…}`).
+  key by the field's name (`columnSpan={…}`) or its path (`motion.scale={…}`, `effects[0].color={…}`).
 
 ### 4.1 Events and actions: the forms settled
 
@@ -479,6 +479,60 @@ A record block is the node's field whole: a `customPaint` line sets the node's `
 says; `animation` lines add to the node's `animations` after the one `animate=` gives, `transition` lines to
 its `transitions`.
 `printPaintSays` (print_paint.dart) names the fields these words say, for the line's other words to leave out.
+
+### 4.7 Fields, second pass: every field by its key
+
+Settled 2026-11-17 (tests: `test/notation/fields_p2_test.dart`, `fields_test.dart`).
+
+- **The rule.** After a line's own words (4.1), every field the line still gives other than the node has it is
+  written by the key `notationKeyFor` gives its path (2.5): props, layout, decoration, the node's own fields and
+  behaviors, bindings. A record or a list whose parts differ is written part by part by their paths
+  (`style.letterSpacing=0.4`, `fills[1].visible={…}`), else whole as its JSON; a key the line reads as a word of
+  its own falls back to the full path (`props.size=48`). The words are checked by reading the line under its
+  parent's line, all at once and then a field at a time, for a few rounds, and kept where the line is closer to the
+  node. `printNotation` then asks the fields once more where the print puts each line (under an `each`, in a grid,
+  in a page: `printFieldsRefine`, one call in the walk), against what the line reads as there. The fields of the
+  other families are left to them (`actions`, `media`, `states`, `animations`, `transitions`, `customPaint`, and
+  what `printPaintSays` names).
+- **`key=null`: a field the node has not.** The line gives it (a row's `crossAxisAlignment`, a slot's size, a
+  text style's `fontSize` from its variant), the node has none: `Row crossAxisAlignment=null`, `Slot w=null
+  h=null`, `Text "x" size=null from=caption`. The field is taken out once the line is read, whatever the line would
+  give it, and a section (`props`, `layout`, `decoration`) it leaves empty with it: a row with no props at all is
+  `Row crossAxisAlignment=null`.
+- **An expression is kept as written, its quotes too.** `key={…}` for a key that is no event, an `if` line's
+  condition and an `each` line's list are read as written: `visible={tone == 'quiet'}` is
+  `${= tone == 'quiet'}`, as a design system writes it. Single quotes are still read as double in actions (after
+  `on…=`) and in a value that is no expression (`text='Hi'`, `items=['a','b']`). A `
+` written in an expression
+  is read as written.
+- **`data={list}`**: what a list shows, bound by the binding's own path where the type has no prop `data`; a
+  list the walk does not make an `each` of is written so.
+- **`enabled={x}`** on what has no enabled of its own is its disabled state `${= !x}` for a name or a path,
+  `${= !(x)}` for more: so a document's `!props.enabled` is written `enabled={props.enabled}`.
+- **`type=Name`: a design system's component a word of the notation shadows.** `Button "Save" type=Button
+  variant=ghost` is the component `Button`, not the notation's button; `TopBar "…" type=TopBar` is no page word.
+  The key is the node's own `type` (2.1), written only with the name the line starts with, and only where the
+  line without it reads as another type; `node.type=Name` reads too. `Button` alone stays the notation's (design
+  13, section 12).
+- **What a word adds yields to what the line gives.** A box's theme look for `selected=` and `enabled=` is added
+  only where the line gives no `selected` (`disabled`) state of its own; a number written beside a bound size is
+  the size it starts at (`h=24 h={size}`, where a bound size alone is 0); a fill with its design size
+  (`w={"fill":140}`) stays in a grid's cell, where any other width is the cell's.
+- **`bind=name` is the events' word** (4.1 Events). A control's value kept in a variable, with the `changed`
+  reaction that stores it, is left by the fields to `print_events.dart`: the bound path is not written here, and
+  `printedBindReaction` names the reaction.
+- **The types a capital would make another word**: `box` (`Box` is a column), `gridView` (`GridView`, `Grid` the
+  grid of an `each`), `badge` (`Badge` a tinted pill row) are written by their catalog names, lowercase, and read
+  as exactly that type (`box w=40 h=40`, `gridView cols=3`, `badge`).
+
+Still without a word, and why: a column of a fixed height with a text in it (the parser makes it at least that
+high, `height: {hug: h}` and a `minHeight`, after the column's line is read: a column exactly that high needs a
+decision on that rule); a binding that is a formula of a bare name (`${= theme.colors.ink}`; `{name}` is
+`${name}`), `selected` bound to `${name}` (`selected=` always reads a formula), and `${a[0].b}` (braces read it
+as a formula); the disabled state of a control that has an `isEnabled` (`enabled=` is that prop); a binding the
+parser adds that the node has not (a page's `index == n` under `Pages`); an empty `props: {}`; a text's
+`decoration` (a text is not decorated, 4.1 Keys); and props or layout fields the catalog does not declare (a
+box's `path`, `layout.rotation`, a component parameter its declaration lacks).
 
 ## 5. What does not change
 
