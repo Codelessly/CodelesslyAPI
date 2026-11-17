@@ -2517,8 +2517,22 @@ class _Parser {
           ? null
           : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
       if (held != null) {
-        if (!_identifier.hasMatch(expr) || expr.contains('.')) {
-          _issue(col, 'A $written keeps its ${held.key} in a variable: write bind=name.');
+        if (_identifier.hasMatch(expr) && expr.contains('.')) {
+          // A field (`bind=draft.title`, `bind=i.done` under an each): the
+          // component's variable parameter is the field's path, which it
+          // reads and writes as it would a variable.
+          switch (_fieldWrite(expr, 'result')) {
+            case final String say:
+              _issue(col, say);
+            case (_, _, final String path):
+              if (path.startsWith('"') && !path.contains(' + ')) {
+                props[held.key] = jsonDecode(path);
+              } else {
+                bind['props.${held.key}'] = _formula(path);
+              }
+          }
+        } else if (!_identifier.hasMatch(expr)) {
+          _issue(col, 'A $written keeps its ${held.key} in a variable: write bind=name (or bind=record.field, bind=row.field under an each).');
         } else {
           props[held.key] = expr;
           final (kind, start) = switch (held.type.variableOf?.kind) {
@@ -2560,25 +2574,25 @@ class _Parser {
         // is its single choice.
         final list = type == 'segmentedButton';
         bind['props.${value.prop}'] = list ? _formula('[$expr]') : _read(expr);
-        final field = RegExp(r'^item\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(expr);
-        final over = _stack.reversed.where((o) => o.each != null).firstOrNull?.list;
-        if (field != null) {
-          // A control bound to a field of the repeated element
-          // (`Input bind=field.label` under `each field in fields`): it shows
-          // the field, and a change writes the element back into its list.
-          if (over != null && _identifier.hasMatch(over) && !over.contains('.')) {
-            final next = list ? 'result[0]' : 'result';
-            reactions.insert(0, {
-              'trigger': {'type': 'changed'},
-              'actions': [
-                {'type': 'setVariable', 'variable': over, 'value': _formula('setAt($over,index,with(item,"${field[1]}",$next))')},
-              ],
-            });
-          } else {
-            _issue(col, 'A control can be bound to a field of a repeated element only when the each is over a variable (each row in rows).');
+        if (_identifier.hasMatch(expr) && expr.contains('.')) {
+          // A control bound to a field: of a record variable
+          // (`Input bind=draft.title`), or of the repeated element
+          // (`Input bind=field.label` under `each field in fields`, also a
+          // list in the element around it): it shows the field, and a change
+          // writes the record, or the element back into its list.
+          switch (_fieldWrite(expr, list ? 'result[0]' : 'result')) {
+            case final String say:
+              _issue(col, say);
+            case (final String variable, final String next, _):
+              reactions.insert(0, {
+                'trigger': {'type': 'changed'},
+                'actions': [
+                  {'type': 'setVariable', 'variable': variable, 'value': _formula(next)},
+                ],
+              });
           }
-        } else if (expr.contains('.')) {
-          _issue(col, 'A control is bound to a variable by its name (bind=name), or under an each to a field of its element (bind=row.name): "$expr" is neither.');
+        } else if (expr.contains('.') || expr.contains('[')) {
+          _issue(col, 'A control is bound to a variable by its name (bind=name), to a field of a record variable (bind=draft.title), or under an each to a field of its element (bind=row.name): "$expr" is none of these.');
         } else if (_identifier.hasMatch(expr)) {
           variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
           reactions.insert(0, {
@@ -4691,6 +4705,97 @@ class _Parser {
       }
     }
     return -1;
+  }
+
+  /// Where a field a control is bound to lives, so that a change can be
+  /// written there: `draft.title` (a field of a record variable),
+  /// `item.done` (of the repeated element: `bind=i.done` under `each i in
+  /// items`), `parent.item.on` (of the element of the each around it), and
+  /// a field of an element of a list that is itself a field of the element
+  /// around it (`each s in e.sets` under `each e in workouts`). A list worked
+  /// out (`each d in filter(devices, …)`) is written through its variable
+  /// when its records have an `id`. Returns the variable written, the
+  /// formula of its new value with [value] at the field, and the path of
+  /// the field as a formula giving text (`"rows[" + index + "].done"`: what
+  /// a component's `variable` parameter is given). A String instead when
+  /// the field cannot be written: what to say.
+  Object _fieldWrite(String expr, String value) {
+    String withAt(String base, List<String> fields, String v) =>
+        fields.isEmpty ? v : 'with($base,"${fields.first}",${withAt('$base.${fields.first}', fields.sublist(1), v)})';
+    final parts = expr.split('.');
+    // A field of a record variable.
+    if (parts.first != 'item' && parts.first != 'parent') {
+      final root = parts.first;
+      if (!variables.containsKey(root) || _derived.containsKey(root)) {
+        return 'bind=$expr: "$root" is no variable of this page. Declare the record first (state $root={"${parts[1]}":""}), or bind a variable of its own (bind=${parts.last}).';
+      }
+      return (root, withAt(root, parts.sublist(1), value), jsonEncode(expr));
+    }
+    // A field of a repeated element: which each, counted from the innermost.
+    var up = 0, at = 0;
+    while (at < parts.length && parts[at] == 'parent') {
+      up++;
+      at++;
+    }
+    if (at >= parts.length || parts[at] != 'item' || at == parts.length - 1) return 'bind=$expr names no field of an element.';
+    final fields = parts.sublist(at + 1);
+    final eaches = [for (final o in _stack) if (o.each != null) o];
+    final n = eaches.length, target = n - 1 - up;
+    if (target < 0) return 'bind=$expr is written under no each.';
+    String elem(int k) => '${'parent.' * (n - 1 - k)}item';
+    String idx(int k) => '${'parent.' * (n - 1 - k)}index';
+    final written = '${eaches[target].each}.${fields.join('.')}';
+    // Down from the element to the list variable it is in.
+    final lists = <String>[]; // the field of the element around that holds the list, from the target outwards
+    var k = target;
+    String? root, rootIndex;
+    while (k >= 0) {
+      final list = eaches[k].list ?? '';
+      if (list.startsWith('item.') && k > 0 && RegExp(r'^item(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(list)) {
+        lists.add(list.substring(5));
+        k--;
+        continue;
+      }
+      if (_identifier.hasMatch(list) && !list.contains('.') && variables.containsKey(list) && !_derived.containsKey(list)) {
+        root = list;
+        rootIndex = idx(k);
+        break;
+      }
+      // Worked out: written through the variable it reads, by the record's id.
+      final reads = [
+        for (final m in RegExp(r'[A-Za-z_][A-Za-z0-9_]*').allMatches(list.replaceAll(RegExp(r'"[^"]*"'), '')))
+          if (variables[m[0]]?['value'] case final List<Object?> rows when rows.isNotEmpty && rows.every((r) => r is Map && r.containsKey('id'))) m[0]!,
+      ].toSet();
+      if (reads.length == 1) {
+        root = reads.single;
+        rootIndex = 'indexOf(map($root,x=>x.id),${elem(k)}.id)';
+        break;
+      }
+      final shown = eaches[target].list ?? '';
+      final read = [
+        for (final m in RegExp(r'[A-Za-z_][A-Za-z0-9_]*').allMatches(list.replaceAll(RegExp(r'"[^"]*"'), '')))
+          if (variables[m[0]]?['value'] is List) m[0]!,
+      ].toSet();
+      final l = read.length == 1 ? read.single : '<list>', e = eaches[target].each;
+      return 'bind=$written: the each repeats $shown, which is worked out, so a change has no list to be written to. '
+          'Repeat the list variable itself (each $e in $l, with an if for the ones to show), give its records an "id" field, '
+          'or write the change: value={$written} onChange={$l=updateWhere($l,x=>x.id==$e.id,x=>with(x,"${fields.first}",result))}.';
+    }
+    // The new element at each level, from the field outwards.
+    var next = withAt(elem(target), fields, value);
+    for (var j = 0; j < lists.length; j++) {
+      final level = target - j, around = level - 1;
+      final f = lists[j].split('.');
+      next = withAt(elem(around), f, 'setAt(${elem(around)}.${lists[j]},${idx(level)},$next)');
+    }
+    final base = target - lists.length;
+    final path = StringBuffer('"$root[" + $rootIndex + "]');
+    for (var j = lists.length - 1; j >= 0; j--) {
+      path.write('.${lists[j]}[" + ${idx(target - j)} + "]');
+    }
+    path.write('.${fields.join('.')}"');
+    assert(base >= 0);
+    return (root!, 'setAt($root,$rootIndex,$next)', path.toString());
   }
 
   /// A change written where the value stands, as the list rebuilt that the

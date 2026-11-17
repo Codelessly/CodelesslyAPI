@@ -293,5 +293,31 @@ void main() {
       final doc = r.document;
       expect(LayoutDocument.fromJson(doc, catalog: standardCatalog), isNotNull);
     });
+
+    test('binding to a field: of a record variable, of an element of a nested list, of a list worked out whose records have an id', () {
+      final r = _parse('state draft={"title":"","on":false}\n'
+          'state items=[{"id":1,"done":false,"sets":[{"w":5,"done":false}]}]\n'
+          'state devices=[{"id":"l1","room":"A","on":true}]\nstate room="A"\nColumn\n'
+          '  Input#t "Title" bind=draft.title\n'
+          '  each i in items\n    Toggle#i bind=i.done\n'
+          '    each s in i.sets\n      Checkbox#s bind=s.done\n'
+          '  each d in filter(devices,x=>x.room==room)\n    Toggle#d bind=d.on\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      String sets(String id) => '${((run(r, id).single! as Map))['variable']} = ${(run(r, id).single! as Map)['value']}';
+      expect(sets('t'), r'draft = ${= with(draft,"title",result)}');
+      expect((_node(r, 't')['bind'] as Map)['props.initialValue'], r'${draft.title}');
+      expect(sets('i'), r'items = ${= setAt(items,index,with(item,"done",result))}');
+      expect(sets('s'), r'items = ${= setAt(items,parent.index,with(parent.item,"sets",setAt(parent.item.sets,index,with(item,"done",result))))}');
+      expect(sets('d'), r'devices = ${= setAt(devices,indexOf(map(devices,x=>x.id),item.id),with(item,"on",result))}');
+      // What cannot be written says what to write.
+      expect(_said('state devices=[{"room":"A","on":true}]\nColumn\n  each d in filter(devices,x=>x.on)\n    Toggle bind=d.on\n'), [
+        'bind=d.on: the each repeats filter(devices,x=>x.on), which is worked out, so a change has no list to be written to. '
+            'Repeat the list variable itself (each d in devices, with an if for the ones to show), give its records an "id" field, '
+            'or write the change: value={d.on} onChange={devices=updateWhere(devices,x=>x.id==d.id,x=>with(x,"on",result))}.',
+      ]);
+      expect(_said('Column\n  Input bind=form.email\n'), [
+        'bind=form.email: "form" is no variable of this page. Declare the record first (state form={"email":""}), or bind a variable of its own (bind=email).',
+      ]);
+    });
   });
 }

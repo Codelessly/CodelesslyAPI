@@ -122,7 +122,13 @@ variable (`qty=qty+1`).
 - **Time**: `every 1s onTick={seconds=seconds-1}` on its own line runs as time passes (milliseconds, or `1s`);
   `every 1s when running onTick={…}` only while the condition holds. It is a timer on the canvas.
 - **A field of a repeated element**: under `each row in rows`, `Input bind=row.name` shows that field and writes
-  the element back into `rows` on a change. `Column scroll` scrolls.
+  the element back into `rows` on a change. `Column scroll` scrolls. So does a field of a record variable
+  (`Input bind=draft.title` sets `draft`), a field of an element of a list held by the element around it
+  (`Checkbox bind=s.done` under `each s in e.sets` under `each e in workouts`), and a field of an element of a
+  list worked out (`each d in filter(devices, …)`) when its records have an `id` (written into `devices` by it).
+  A design system's control is given the field's path for its variable parameter (`"rows[" + index +
+  "].done"`), which it reads and writes as a variable. A list worked out with no `id` is said, with the line
+  to write instead.
 - **A node written whole**: `node {"type": "…", …}` on its own line is a node exactly as the document holds
   it, for what the notation has no word for (a painted board, a positioned shape, a draggable list). Its JSON may
   run over several lines; `node#id {…}` names it. Nothing is added to it but its place in the tree and the

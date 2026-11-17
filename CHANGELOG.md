@@ -48,6 +48,13 @@
   again. `if (c) { … } else { … }` in actions, read before as assignments guarded one by one (its other actions
   ran unguarded), is now the same `if` action. A value chosen (`step = valid ? 3 : 2`) is still a formula. The
   card prompt teaches it in one clause in place of "an action is never a condition".
+- **The notation: binding to a field.** `bind=draft.title` on a control writes the field of the record variable
+  (`draft = with(draft,"title",result)`); under an `each`, `bind=s.done` writes the element back also when its
+  list is a field of the element around it (`each s in e.sets`), and when the list is worked out
+  (`each d in filter(devices, …)`) and its records have an `id`. A design system's block (ToggleRow, NumberInput,
+  TextArea…) takes the same: its variable parameter is given the field's path (`draft.title`,
+  `"rows[" + index + "].done"`), where it said `A NumberInput keeps its value in a variable: write bind=name.`
+  What cannot be written (a list worked out without ids, a record that is not declared) says what to write.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is

@@ -1135,6 +1135,31 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
     NotationResult parse(String text) =>
         Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
 
+    test('bound to a field: of a record variable, of the repeated element, of an element of a list in the element around it', () {
+      final r = parse('''
+state draft={"seats":1}
+state trips=[{"id":1,"legs":[{"seats":2}]}]
+Column
+  Counter#a bind=draft.seats
+  each t in trips
+    Counter#b bind=t.seats
+    each l in t.legs
+      Counter#c bind=l.seats
+  each n in range(3)
+    Counter#d bind=n.seats
+''');
+      // The component's variable parameter is the field's path: it reads
+      // and writes it as it would a variable.
+      expect((_node(r, 'a')['props'] as Map)['value'], 'draft.seats');
+      expect((_node(r, 'b')['bind'] as Map)['props.value'], r'${= "trips[" + index + "].seats"}');
+      expect((_node(r, 'c')['bind'] as Map)['props.value'], r'${= "trips[" + parent.index + "].legs[" + index + "].seats"}');
+      expect(r.issues.map((i) => i.message), [
+        'bind=n.seats: the each repeats range(3), which is worked out, so a change has no list to be written to. '
+            'Repeat the list variable itself (each n in <list>, with an if for the ones to show), give its records an "id" field, '
+            'or write the change: value={n.seats} onChange={<list>=updateWhere(<list>,x=>x.id==n.id,x=>with(x,"seats",result))}.',
+      ]);
+    });
+
     test('optional boolean state is independent for each component call', () {
       final r = parse('Question "First"\nQuestion "Second"');
       expect(r.issues, isEmpty);
