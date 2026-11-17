@@ -735,4 +735,154 @@ define Badge2 "label" tone="#FFDCFCE7"
       expect(jsonEncode(r.document), isNot(contains('dashPattern')));
     });
   });
+
+  group('what passed the tools and was wrong at run time (the vocabulary loop, Review 7, D31)', () {
+    String actions(NotationResult r, String id) => jsonEncode(_node(r, id)['actions']);
+
+    test('bind={bind}, bind=bind and bind=<the signature\'s name> all bind the variable the use names, a path too', () {
+      final r = parseNotation('''
+state email=""
+state s={"weight":"1"}
+state lo=10
+state hi=90
+Column
+  Field "Name" bind=email
+  Field2 "Weight" bind=s.weight
+  Field3 "Code" bind=email
+  Field
+  Range bind=lo bindEnd=hi
+define Field "label" bind
+  Input "{label}" bind={bind} grow
+define Field2 "label" bind=value
+  Column
+    Input#a "{label}" bind={bind}
+    Input#b "{label}" bind=value
+define Field3 "label"
+  Input "{label}" bind=bind
+define Range bind bindEnd
+  Slider bind={bind} bindEnd={bindEnd} min=0 max=100
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(_node(r, 'field1')['bind'], {'props.initialValue': r'${email}'});
+      expect(actions(r, 'field1'), contains('"variable":"email"'));
+      for (final id in ['a_field21', 'b_field21']) {
+        expect(_node(r, id)['bind'], {'props.initialValue': r'${s.weight}'}, reason: id);
+        expect(actions(r, id), contains(r'with(s,\"weight\",result)'), reason: id);
+      }
+      // A signature with no bind: a body that binds `bind` takes one.
+      expect(_node(r, 'field31')['bind'], {'props.initialValue': r'${email}'});
+      // A use with no bind= keeps its own.
+      expect(_node(r, 'field2')['bind'], {'props.initialValue': r'${bind_field2}'});
+      expect(_node(r, 'range1')['bind'], {'props.value': r'${lo}', 'props.rangeEnd': r'${hi}'});
+      expect(_vars(r).keys, unorderedEquals(['email', 's', 'lo', 'hi', 'bind_field2']));
+    });
+
+    test('bind= with an expression in a body is said against the definition', () {
+      final r = parseNotation('state a=1\nColumn\n  Calc bind=a\ndefine Calc bind\n  Input "c" bind={bind + 1}\n', catalog: standardCatalog, options: const NotationOptions().open());
+      expect(r.issues.map((i) => i.message).single, startsWith('page:5: bind= names the variable a control keeps its value in'));
+    });
+
+    test('a loop item of the body in drag=group(…) is the use\'s, braced or not', () {
+      final r = parseNotation('''
+state units=[{"id":"a"},{"id":"b"}]
+Column
+  Board items={units}
+define Board items=[]
+  Column gap=8
+    each unit in items
+      Card#u drag=dispatch(unit.id) pad=8
+        Text "{unit.id}"
+    each r in items
+      Card#v drag=booking({r.id}) pad=8
+        Text "{r.id}"
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(_node(r, 'u_board1')['draggable'], {'group': 'dispatch', 'data': r'${item.id}'});
+      expect(_node(r, 'v_board1')['draggable'], {'group': 'booking', 'data': r'${item.id}'});
+    });
+
+    test('an event forwarded with its result: onSubmitted is onSubmit, a result path read once, a choice of events with a branch not given', () {
+      final r = parseNotation('''
+state got=""
+state on=true
+Column
+  Search onSubmit={got=result}
+  Drop onDrop={got=result.data}
+  Pick on={on} onA={got="a"; on=false}
+  Pick on={on} onB={got="b"}
+define Search onSubmit
+  Input "Find" onSubmitted={onSubmit(result)}
+define Drop onDrop
+  Box h=40 drop=x onDrop={onDrop(result.data)}
+define Pick on=false onA onB
+  Button "Go" onTap={on ? onA : onB}
+''', catalog: standardCatalog, options: const NotationOptions().open());
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(actions(r, 'search1'), contains('{"trigger":{"type":"submitted"},"actions":[{"type":"setVariable","variable":"got","value":"\${= (result)}"}]}'));
+      expect(actions(r, 'drop1'), contains(r'"value":"${= (result.data)}"'));
+      final a = (_node(r, 'pick1')['actions'] as List).single['actions'].single as Map;
+      expect(a['type'], 'if');
+      expect(a['then'], hasLength(2));
+      expect(a['else'], anyOf(isNull, isEmpty));
+      final b = (_node(r, 'pick2')['actions'] as List).single['actions'].single as Map;
+      expect(b['then'], isEmpty);
+      expect((b['else'] as List).single, containsPair('variable', 'got'));
+    });
+
+    test('an event the body forwards and its signature does not name is the word\'s event', () {
+      final r = parseNotation('state got=""\nColumn\n  Pick onSelect={got=result}\ndefine Pick\n  Button "Go" onTap={onSelect("x")}\n', catalog: standardCatalog, options: const NotationOptions().open());
+      expect(r.issues, isEmpty);
+      expect(r.vocabulary.where((u) => u.kind == 'verb' || u.kind == 'event'), isEmpty);
+      expect(actions(r, 'pick1'), contains('"variable":"got"'));
+    });
+
+    test('an event a line does not have, in a body, is an issue that lists the events', () {
+      final r = parseNotation('Column\n  Search onSubmit={toast "x"}\ndefine Search onSubmit\n  Input "Find" onWobble={onSubmit}\n', catalog: standardCatalog, options: const NotationOptions().open());
+      expect(r.issues.map((i) => i.message).single, allOf(contains('"onWobble" is not an event the notation has here'), contains('onSubmit')));
+    });
+
+    test('a body that starts with if (and its else) or each is a Column holding them', () {
+      final r = parseNotation('''
+state done=false
+Column
+  Status done={done}
+  Status
+define Status done=false
+  if done
+    Text "Done"
+  else
+    Text "Open"
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(_node(r, 'status1')['type'], 'column');
+      expect((_node(r, 'status1')['children'] as List), hasLength(2));
+      expect(readPageDefinitions('define Status\n  else\n    Text "x"\n').problems.single.message, endsWith('write the lines indented under a Column.'));
+    });
+
+    test('an action in a body naming an id the body writes names the use\'s, written bare, #id or quoted, the root\'s too', () {
+      final r = parseNotation('''
+Column
+  Cell#cell
+  Cell
+define Cell
+  Column#box gap=4
+    Input#cellInput "x" onSubmit={focus #cellInput; scroll box}
+    Button "Edit" onTap={focus cellInput}
+    Button "Again" onTap={focus "cellInput"}
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      for (final (use, button) in [('cell', 'filledButton1'), ('cell1', 'filledButton3')]) {
+        final field = actions(r, 'cellInput_$use');
+        expect(field, contains('"node":"cellInput_$use"'));
+        expect(field, contains('"node":"$use"'));
+        expect(actions(r, button), contains('"node":"cellInput_$use"'));
+      }
+      expect(actions(r, 'filledButton2'), contains('"node":"cellInput_cell"'));
+    });
+  });
 }

@@ -1410,7 +1410,11 @@ class _Parser {
     // A definition is not an answer: a word in its lines we do not have is
     // an issue there, open or not.
     if (_from != null && at == null && kind != 'children' && kind != 'verb') {
-      if (kind != 'alias') _issue(column, '${on == null ? '' : '$on: '}"$word" is not a ${kind == 'type' ? 'type' : kind} the notation has.');
+      if (kind == 'event') {
+        _issue(column, '${on == null ? '' : '$on: '}"$word" is not an event the notation has here. Events: $_eventsTaught.');
+      } else if (kind != 'alias') {
+        _issue(column, '${on == null ? '' : '$on: '}"$word" is not a ${kind == 'type' ? 'type' : kind} the notation has.');
+      }
       return null;
     }
     if (!_useKeys.add('$line:$column:$kind:$word')) return null;
@@ -1808,8 +1812,13 @@ class _Parser {
       _lineAt(indent + 4, 'Box w={index==$page?16:6} h=6 radius=3 fill={index==$page?${look(options.accent)}:${look(options.track)}} onTap={$page=index}', indent + 5);
     } else {
       _from = null;
-      for (final (l, from) in _definedLines(indent, raw.trim())) {
+      for (var (l, from) in _definedLines(indent, raw.trim())) {
         _from = from;
+        // A line a defined word stands for reads the alias table as the
+        // page's lines do (`Input onSubmitted=` is onSubmit), unrecorded.
+        if (from != null) {
+          if (_aliased(l.text, l.indent + 1) case [final String one] when one != l.text) l = (indent: l.indent, text: one);
+        }
         // A frame's line says which frame it is (Row~nav): kept for the reflow.
         final role = _roleMark.firstMatch(l.text);
         // The menu a Nav opens on a phone keeps whether it is open.
@@ -3822,7 +3831,7 @@ class _Parser {
             continue;
           }
           if (trigger == null) {
-            _issue(col, 'A $written has no event "$key". Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.');
+            _issue(col, 'A $written has no event "$key". Events: $_eventsTaught.');
             continue;
           }
           final actions = _actions(keyBody, col);
@@ -4140,7 +4149,11 @@ class _Parser {
           if (m == null) {
             _issue(col, 'drag is written drag=group or drag=group(value): drag=todo(card.id).');
           } else {
-            node['draggable'] = {'group': m[1], if (m[2] != null) 'data': _read(m[2]!.trim())};
+            // `drag=booking({r.id})`: what it carries, braced as an expression
+            // is elsewhere, is that expression (a record `{"rid":…}` is kept).
+            var data = m[2]?.trim();
+            if (data != null && data.startsWith('{') && !data.startsWith('{"') && data.endsWith('}') && _opened(data.substring(0, data.length - 1)) == 1) data = data.substring(1, data.length - 1).trim();
+            node['draggable'] = {'group': m[1], if (data != null) 'data': _read(data)};
           }
           continue;
         }
@@ -7219,3 +7232,6 @@ class _Tokens {
     return s.substring(start, at);
   }
 }
+
+/// The events a line may give, as an issue lists them.
+const _eventsTaught = 'onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop';

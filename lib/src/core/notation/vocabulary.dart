@@ -350,8 +350,9 @@ final class NotationVocabulary {
     events: {
       // A universal event under its other name (docs/design/21).
       '*': {'onDelete': 'onRemove'},
-      // An Input submitted from the keyboard, and left after editing.
-      'Input': {'onEnter': 'onSubmit', 'onSaved': 'onBlur'},
+      // An Input submitted from the keyboard (Flutter's onSubmitted), and
+      // left after editing.
+      'Input': {'onEnter': 'onSubmit', 'onSubmitted': 'onSubmit', 'onSaved': 'onBlur'},
       // A day picked in a month.
       'Calendar': {'onSelect': 'onChange'},
     },

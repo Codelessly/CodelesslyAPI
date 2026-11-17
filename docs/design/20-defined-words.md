@@ -45,7 +45,8 @@ The signature reads:
 | `key!` | a parameter a use must give |
 | `key=true`, `key=false` | a flag: a bare `key` on a use is `key=true` |
 | `bind=name` | the variable the word keeps its value in: a use's `bind=x` names it; without one it is the word's own `state name` (section 4) |
-| `onEvent` | an event the word gives (`onTap`, `onPick`) |
+| `bind` | the same, the body calling it `bind`; a body that binds a control to `bind` (`bind={bind}`, `bind=bind`) has it whether or not the signature says so, and `bindEnd={bindEnd}` takes a use's `bindEnd=` |
+| `onEvent` | an event the word gives (`onTap`, `onPick`); an event the body forwards (`onTap={onPick(c)}`) is one too when the signature leaves it out |
 
 The body reads its parameters by name in braces, as a page reads a variable, and the use's values are put in
 where they are read, as written:
@@ -56,10 +57,18 @@ where they are read, as written:
 - `{… p …}` in an expression: the value as an expression (`{level*100}` is `{(p.water)*100}`, a string is
   `"…"`, a bare word is `"word"`, a variable name given to `bind` is the name).
 - `onTap={onPick}` in an event: the use's actions; `onTap={onPick(c)}`: those actions with `result` as `c`. An
-  event with nothing left is left out.
+  event with nothing left is left out. `onDrop={onDrop(result.data)}` with a use's `got=result.data` is
+  `got=(result.data)`: the use read the value as the body passes it, not its `.data` again. An event in a branch of
+  a choice (`{on ? onA : onB}`) is that branch: braced when its actions are several, `{}` when the use gave none.
+- `bind={p}`, `bind=p` (and `bindEnd=`): the variable or path the use gave (`email`, `s.weight`), written bare as
+  `bind=` takes it; the bound name of the signature, or `bind`, is the use's variable (else the word's own). A
+  `bind={…}` that is not a name or a path binds nothing and is an issue against the definition.
+- `drag=group(x)` (and `drag=group({x})`): what it carries is an expression of the body, so a loop item of the body
+  is the use's.
 - `if p`, `each x in p`: the statement's expression, the same.
 - A body written as `if visible` over its one node is that node with `visible={visible}`: models write a word that
-  can be hidden that way (the journal, Review 4, D21). `state` lines before the root are the word's own state.
+  can be hidden that way (the journal, Review 4, D21). A body whose first line is any other `if` (with its `else`)
+  or an `each` is a `Column` holding its lines. `state` lines before the root are the word's own state.
 - A use's `{expr}` where its first string goes (`Pill {status}`) is that string, `"{status}"`.
 - A use's value that is a path (`end=draft.end`) or a variable of the page or of an `each` around it (`bpm=bpm`) is
   read as `{draft.end}`, `{bpm}`: the value, not the word. Any other bare word is the word (`tone=quiet`).
@@ -150,10 +159,13 @@ What it costs, and the answers:
   signature names the variable the word keeps its value in: a use's `bind=x` puts the page's `x` there (and the
   body's own `state name` line is dropped); without it the word keeps its own.
 - **Ids.** A use's root is the use's `#id` (`ColorPicker#tint`), else `<word><n>` (`stickyNote1`); an id written in
-  a body (`Dialog#picker`, `scroll top`) is made the use's (`picker_colorPicker1`). The loop variables of a body's
-  `each` are made the use's too, so a use's `{item.name}` reads the page's row, not the body's.
+  a body (`Dialog#picker`, `scroll top`) is made the use's (`picker_colorPicker1`), and an action of the body that
+  names it (`focus picker`, `focus #picker`, `focus "picker"`) names the use's; an action that names the root's own
+  id names the use's root. The loop variables of a body's `each` are made the use's too, so a use's `{item.name}`
+  reads the page's row, not the body's. A use's own actions are the page's: the ids they name are the page's.
 - **Events out.** A use's event is actions; the body says when they run (`onTap={onPick}`) and what `result` is
-  (`onPick(c)`).
+  (`onPick(c)`). A line of a body reads the alias table as a page's line does (`Input onSubmitted=` is
+  `onSubmit`); an event a line does not have is an issue that lists the events, open or not.
 - **A definition using another.** Its body is expanded with the same definitions, its slots passing through the
   inner word's slot. A word that uses itself, directly or through others, is refused when the definitions are read
   (`StickyNote.txt:2: StickyNote uses itself (StickyNote > Pin > StickyNote): it is not read.`), and an expansion
@@ -364,6 +376,10 @@ The SDK's vocabulary tool lists what is left under "Named words used in a shape 
 - **Recorded words inside a use's actions** (an unknown verb in a use's `onPick={…}`) are the answer's, recorded as
   any; a word the body itself gets wrong (other than an action verb) is an issue against the definition, open or
   not.
+- **An event a body line does not have** is said only when a use gives that event: a use that does not leaves the
+  key out, and `checkDefinitions` gives none.
+- **`each` directly under `Row between`** is one list, so `between` spaces nothing; this is the parser's for any
+  row, not a definition's.
 - **`checkDefinitions` leaves strings out** of the use it checks (a string may be a colour or an icon name, which no
   sample text is): a body that reads a string as an icon must give one when it is empty (`Icon "{icon == null ?
   "circle" : icon}"`).

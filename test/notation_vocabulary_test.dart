@@ -387,7 +387,7 @@ Dialog#ask "Reset?" "Really."
       expect(NotationVocabulary.core.flags['state'], {'persist': 'saved', 'persisted': 'saved', 'persistent': 'saved'});
       expect(NotationVocabulary.core.events, {
         '*': {'onDelete': 'onRemove'},
-        'Input': {'onEnter': 'onSubmit', 'onSaved': 'onBlur'},
+        'Input': {'onEnter': 'onSubmit', 'onSubmitted': 'onSubmit', 'onSaved': 'onBlur'},
         'Calendar': {'onSelect': 'onChange'},
       });
       expect(NotationVocabulary.core.verbs, isEmpty);

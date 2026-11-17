@@ -291,7 +291,11 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
           problems.add('$file:$line: "$w" is not a name of a parameter.');
           continue;
         }
-        if (_event.hasMatch(w)) {
+        if (w == 'bind') {
+          // A bare `bind`: the body calls the variable it keeps its value
+          // in `bind` (`Input bind={bind}`).
+          bind = 'bind';
+        } else if (_event.hasMatch(w)) {
           events.add(w);
         } else {
           parameters[w] = null;
@@ -300,7 +304,26 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
         problems.add('$file:$line: a signature has no {…} at its end.');
     }
   }
-  final min = body.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
+  // A body that binds a control to `bind` (`Input bind={bind}`, `bind=bind`)
+  // keeps its value in the variable a use's bind= names, whether or not the
+  // signature says bind; `bindEnd={bindEnd}` likewise takes a use's bindEnd=.
+  bool binds(String key) => body.any((l) => RegExp('(^|\\s)$key=(\\{\\s*$key\\s*\\}|$key)(\\s|\$)').hasMatch(l.text));
+  if (bind == null && !parameters.containsKey('bind') && binds('bind')) bind = 'bind';
+  if (!parameters.containsKey('bindEnd') && binds('bindEnd')) parameters['bindEnd'] = null;
+  for (final l in body) {
+    // bind= names a variable: an expression there binds nothing.
+    for (final m in RegExp(r'(?:^|\s)(bind(?:End)?)=\{([^{}]*)\}').allMatches(l.text)) {
+      if (!RegExp(r'^\s*[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*\s*$').hasMatch(m[2]!)) {
+        problems.add('$file:${l.line}: ${m[1]}= names the variable a control keeps its value in (${m[1]}=${m[1]}, ${m[1]}=row.done), not an expression: {${m[2]!.trim()}} binds nothing.');
+      }
+    }
+    // An event the body forwards (`onTap={onSelect(c)}`) and the signature
+    // does not name is the word's event too: a use's onSelect= runs there.
+    for (final f in _forwarded(l.text)) {
+      if (!events.contains(f) && !parameters.containsKey(f)) events.add(f);
+    }
+  }
+  final min =body.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
   var lines = [for (final l in body) (indent: l.indent - min, text: l.text, line: l.line)];
   // `if visible` over the one node it stands for: that node, shown while
   // the condition holds.
@@ -323,12 +346,24 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
       ];
     }
   }
+  // A body that starts with a statement (`if done` and its `else`, `each
+  // row in rows`) stands for a Column holding its lines: a use is one node.
+  final firstRoot = lines.where((l) => l.indent == 0 && !_preamble(l.text)).firstOrNull;
+  if (firstRoot != null && const {'if', 'each', 'for'}.contains(LineParts.of(firstRoot.text)?.word)) {
+    final at = lines.indexOf(firstRoot);
+    lines = [
+      ...lines.sublist(0, at),
+      (indent: 0, text: 'Column', line: firstRoot.line),
+      for (final l in lines.sublist(at))
+        if (l.indent == 0 && _preamble(l.text)) l else (indent: l.indent + 2, text: l.text, line: l.line),
+    ];
+  }
   final roots = [
     for (final l in lines)
       if (l.indent == 0 && !_preamble(l.text)) l,
   ];
   if (roots.isEmpty || LineParts.of(roots.first.text) == null || const {'if', 'each', 'else', 'for', 'every', 'key', 'state', 'define'}.contains(LineParts.of(roots.first.text)!.word)) {
-    problems.add('$file:${roots.isEmpty ? line : roots.first.line}: the first line ${parts.word} stands for is a node (Column, Row, Card…), with the others under it.');
+    problems.add('$file:${roots.isEmpty ? line : roots.first.line}: the first line ${parts.word} stands for is a node (Column, Row, Card…), with the others under it: write the lines indented under a Column.');
     return null;
   }
   if (roots.length > 1) {
@@ -359,6 +394,19 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     bind: bind,
     body: lines,
   );
+}
+
+/// The events the actions on [text] forward: a name `on…` written where an
+/// action starts (`onTap={onPick(c)}`, `{on ? onA : onB}`, `{x=1; onDone}`).
+Iterable<String> _forwarded(String text) sync* {
+  for (final m in RegExp(r'(?<![A-Za-z0-9_])on[A-Z][A-Za-z0-9]*=\{').allMatches(text)) {
+    final open = m.end - 1, close = _braceEnd(text, open);
+    if (close - 1 <= open + 1) continue;
+    final inner = text.substring(open + 1, close - 1);
+    for (final f in RegExp(r'(?:^|[{;?:]|\bthen)\s*(on[A-Z][A-Za-z0-9]*)(?![A-Za-z0-9_=])').allMatches(inner)) {
+      yield f[1]!;
+    }
+  }
 }
 
 /// Whether a use's key=value (or event) [key] goes on its root when the
@@ -728,7 +776,8 @@ final class DefinedWords {
         case 'pair':
           final k = x.key!, v = x.value!;
           if (k == 'bind' && d.bind != null) {
-            bound = v;
+            // `bind=email`, `bind=s.weight`, `bind={email}`: the variable.
+            bound = v.startsWith('{') && v.endsWith('}') ? v.substring(1, v.length - 1).trim() : v;
           } else if (x.isEvent && d.events.contains(k)) {
             actions[k] = v.startsWith('{') && v.endsWith('}') ? v.substring(1, v.length - 1).trim() : v;
           } else if (d.parameters.containsKey(k) || d.strings.contains(k)) {
@@ -779,16 +828,26 @@ final class DefinedWords {
 
     // The names the body keeps of its own (its state, the items of its
     // loops, its ids) are made the use's.
+    // An id written in the body is made the use's (the root's is the use's
+    // own), and the body's actions that name it name the use's.
     final renamed = <String, String>{};
+    final ids = <String>{};
+    final bodyRoot = d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text));
     for (final l in d.body) {
       if (RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
-      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*#([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m? when l != d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text))) {
-        renamed[m[1]!] = '${m[1]}_$uid';
+      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*#([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) {
+        renamed[m[1]!] = identical(l, bodyRoot) ? uid : '${m[1]}_$uid';
+        ids.add(m[1]!);
       }
     }
-    if (d.bind != null) renamed[d.bind!] = bound ?? '${d.bind}_$uid';
-    final sub = _Substitution(d, values, actions, renamed);
+    if (d.bind != null) {
+      renamed[d.bind!] = bound ?? '${d.bind}_$uid';
+      // `bind={bind}` in a body whose signature names the variable otherwise
+      // (`bind=value`) is that variable too.
+      if (d.bind != 'bind' && !renamed.containsKey('bind') && !d.parameters.containsKey('bind')) renamed['bind'] = renamed[d.bind!]!;
+    }
+    final sub = _Substitution(d, values, actions, renamed, ids);
 
     // The body, with the use's values put in.
     final lines = <({int indent, String text, int line})>[];
@@ -985,8 +1044,12 @@ final class _Use {
 
 /// A use's values put into its definition's body.
 final class _Substitution {
-  _Substitution(this.d, this.values, this.actions, this.renamed);
+  _Substitution(this.d, this.values, this.actions, this.renamed, this.ids);
   final NotationDefinition d;
+
+  /// The ids written in the body (keys of [renamed]): an action may name one
+  /// as `#name` or `"name"` too.
+  final Set<String> ids;
 
   /// The use's values as written, by parameter (strings by their names).
   final Map<String, String?> values;
@@ -1047,7 +1110,14 @@ final class _Substitution {
       final c = text[i];
       if (c == '"' || c == "'") {
         final end = _stringEnd(text, i);
-        b.write(_string(text.substring(i, end)));
+        final s = text.substring(i, end);
+        // `focus "cellInput"`: an id of the body, named by an action.
+        final quoted = s.length > 2 ? s.substring(1, s.length - 1) : '';
+        if (ids.contains(quoted) && RegExp(r'\b(focus|scroll|open|close|toggle)\s*$').hasMatch(text.substring(0, i))) {
+          b.write('"${renamed[quoted]}"');
+        } else {
+          b.write(_string(s));
+        }
         i = end;
         continue;
       }
@@ -1059,7 +1129,9 @@ final class _Substitution {
       }
       if (c == '#') {
         final m = RegExp(r'#[A-Za-z0-9_]*').matchAsPrefix(text, i)!;
-        b.write(m[0]);
+        // `focus #cellInput`: an id of the body; `#FF2563EB` a colour.
+        final id = m[0]!.substring(1);
+        b.write(ids.contains(id) ? '#${renamed[id]}' : m[0]);
         i = m.end;
         continue;
       }
@@ -1139,7 +1211,19 @@ final class _Substitution {
       var given = actions[m[1]] ?? '';
       if (arg != null && given.isNotEmpty) {
         final value = '(${expression(arg)})';
-        given = given.replaceAllMapped(RegExp(r'(?<![.A-Za-z0-9_])result(?![A-Za-z0-9_])'), (_) => value);
+        // `onDrop(result.data)` with a use's `got=result.data`: the use read
+        // the value the body passes as it reads it, so it is that value, not
+        // its own `.data` again.
+        final path = RegExp(r'^\s*result(\.[A-Za-z_][A-Za-z0-9_]*)+\s*$').hasMatch(arg) ? arg.trim() : null;
+        if (path != null) given = given.replaceAll(RegExp('(?<![.A-Za-z0-9_])${RegExp.escape(path)}(?![A-Za-z0-9_])'), '\u0001');
+        given = given.replaceAllMapped(RegExp(r'(?<![.A-Za-z0-9_])result(?![A-Za-z0-9_])'), (_) => value).replaceAll('\u0001', value);
+      }
+      // An event in a branch of a choice (`on ? onA : onB`) is one branch:
+      // its actions braced when they are several, or none.
+      final before = inner.substring(0, m.start).trimRight();
+      final after = inner.substring(end).trimLeft();
+      if ((before.endsWith('?') || (before.endsWith(':') && !before.endsWith('::')) || after.startsWith(':')) && (given.trim().isEmpty || _actionList(given).length > 1)) {
+        given = '{$given}';
       }
       put.add(given);
       b
@@ -1188,7 +1272,12 @@ final class _Substitution {
         case 'pair':
           final k = x.key!, v = x.value!;
           final whole = v.startsWith('{') && v.endsWith('}') ? v.substring(1, v.length - 1).trim() : null;
-          if (x.isEvent && whole != null) {
+          if (k == 'bind' || k == 'bindEnd') {
+            // `bind={bind}`, `bind=value`, `bindEnd={end}`: the variable the
+            // use names, written as bind= takes it (a name or a path).
+            final target = _bindTarget(whole ?? v);
+            if (target != null) parts.add('$k=$target');
+          } else if (x.isEvent && whole != null) {
             final a = actionsOf(whole);
             if (a.isNotEmpty) parts.add('$k={$a}');
           } else if (whole != null && _identifier.hasMatch(whole) && renamed[whole] == null && _isParameter(whole)) {
@@ -1202,6 +1291,12 @@ final class _Substitution {
             parts.add('$k=${_string(v)}');
           } else if (v.startsWith('[')) {
             parts.add('$k=${expression(v)}');
+          } else if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*\(').firstMatch(v) case final call? when v.endsWith(')')) {
+            // `drag=dispatch(unit.id)`: what it carries is an expression of
+            // the body (`drag=booking({r.id})` the same, unbraced).
+            var arg = v.substring(call.end, v.length - 1).trim();
+            if (arg.startsWith('{') && !arg.startsWith('{"') && _braceEnd(arg, 0) == arg.length) arg = arg.substring(1, arg.length - 1).trim();
+            parts.add('$k=${call[0]}${expression(arg)})');
           } else if ((k.startsWith('bind') || k == 'menu') && renamed[v] != null) {
             parts.add('$k=${renamed[v]}');
           } else {
@@ -1228,6 +1323,22 @@ final class _Substitution {
     final to = id.isEmpty ? null : renamed[id.substring(1)];
     if (to != null) id = '#$to';
     return ['${p.word}${p.variant}$id', ...parts].join(' ');
+  }
+
+  /// What a body's `bind=` (or `bindEnd=`) [name] is, as bind= takes it: the
+  /// variable or path the use gave (`email`, `s.weight`), the use's own state,
+  /// the row of a loop (`row.done`) or the page's variable; null when it is a
+  /// parameter the use left empty (the key is left out).
+  String? _bindTarget(String name) {
+    final n = name.trim();
+    if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$').hasMatch(n)) return '{${expression(n)}}';
+    if (_identifier.hasMatch(n) && renamed[n] == null && _isParameter(n)) {
+      var v = _value(n);
+      if (v == null || v.isEmpty) return null;
+      if (v.startsWith('{') && v.endsWith('}')) v = v.substring(1, v.length - 1).trim();
+      return v;
+    }
+    return expression(n);
   }
 
   /// A statement's expression (`if p > 0`, `each x in p`), braced or not.

@@ -171,6 +171,10 @@ Column gap=8
 ''');
     expect(r.issues, isEmpty);
     expect(_node(r, 'card')['draggable'], {'group': 'todo', 'data': r'${item.id}'});
+    // What it carries written braced, as an expression is elsewhere: the same.
+    final braced = _parse('state todo=[{"id":"a"}]\nColumn\n  each card in todo\n    Card#card drag=todo({card.id})\n      Text "x"\n');
+    expect(braced.issues, isEmpty);
+    expect(_node(braced, 'card')['draggable'], {'group': 'todo', 'data': r'${item.id}'});
     final target = _node(r, 'doneCol');
     expect(target['dropTarget'], {'accepts': ['todo', 'doing']});
     expect(((target['actions'] as List).single as Map)['trigger'], {'type': 'drop'});
