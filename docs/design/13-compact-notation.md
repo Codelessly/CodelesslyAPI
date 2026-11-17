@@ -43,7 +43,8 @@ one second of the first token.**
    it is not the default for that type in that parent.
 3. **Defaults carry the look.** A control with nothing written is the design system's (SSUI's) control. Text
    takes a named style. Colors are theme names.
-4. **State is as short as layout.** A variable exists by being used. A binding is `=`, a reaction is `->`.
+4. **State is as short as layout.** A variable exists by being used. A binding is `bind=name`, a reaction is an
+   event with its actions in braces (`onTap={…}`).
 5. **Streams.** Every line is complete when its newline arrives, and can be drawn then: a parent is declared
    before its children, never closed before them.
 6. **Round trips.** Any document within levels 0 to 2 prints back as the notation, and parsing the print gives
@@ -51,11 +52,25 @@ one second of the first token.**
 
 ## 3. The grammar
 
+Rewritten 2026-11-16 to one rule per role, as the owner decided it after a test with two models
+([17-notation-grammar-audit.md](17-notation-grammar-audit.md) has the audit and the reasons;
+[18-notation-grammar-migration.md](18-notation-grammar-migration.md) what changed for a file written before).
 Indentation is nesting (two spaces). One node per line:
 
 ```
-Type[.variant][#id] ["text"] [key:value ...] [=binding] [-> action; action]
+Type[.variant][#id] ["text"] [key=value ...]
 ```
+
+Everything after the text is `key=value`, and three things are said with it:
+
+| Written | Says | Example |
+|---|---|---|
+| `key=value` | this node has this value | `gap=12 w=fill icon="waves" items=["A","B"]` |
+| `key={expression}` | the value is worked out from the state (the braces a text uses: `"Total: {total}"`) | `visible={count > 0}` |
+| `on…={actions}` | what happens: after an `on…` key the braces hold actions | `onTap={count=count+1; toast "Saved"}` |
+
+`=` is one "is" everywhere: a parameter's value, a variable's start (`state qty=1`), what an action makes a
+variable (`qty=qty+1`).
 
 - **Type**: a node type, capitalised (`Column`, `Text`, `Slider`). A few natural short names are accepted and
   expand to the full type in the document (`Input` → `textField`, `Toggle` → `switch`, `Button` → `filledButton`,
@@ -63,33 +78,48 @@ Type[.variant][#id] ["text"] [key:value ...] [=binding] [-> action; action]
   decoration and padding). The printer writes the short name where one exists.
 - **`.variant`**: a named look of that type from the design system (`Button.ghost`, `Text.title`,
   `Text.caption`, `Badge.success`). For text it is the theme text style.
-- **`#id`**: only when something refers to the node. Otherwise the expander generates one from the type and
-  position (`text3`), stable for a given tree.
+- **`#id`**: only when something refers to the node (`open id`, `scroll id`, an edit). Otherwise the expander
+  generates one from the type and position (`text3`), stable for a given tree. `id=name` on a line is an anchor
+  a `scroll name` goes to; the node keeps its own id.
 - **`"text"`**: the node's main string: a text's text, a button's or toggle's `label`, a field's label, an
   image's source. `{name}` inside it reads a variable (`"Total: {total}"`).
-- **`key:value`**: any prop, layout or decoration field by its own name, unquoted when it has no space
-  (`gap:12 pad:16 width:200 fill:surface radius:8 min:0 max:100 hint:"you@example.com"`). The short keys `gap`
-  (`spacing`), `pad` (`padding`), `fill` (the first fill's color) and `w`/`h` are accepted; every other key is
-  the document's own.
-- **Alignment words** stand alone: `start`, `center`, `end`, `between`, `stretch` on a row or column set its
-  main-axis alignment; `top`, `middle`, `bottom` (row) or `left`, `right` (column) its cross axis.
-- **`=expr`**: binds the node's value (`Slider =volume`, `Toggle "Wi-Fi" =wifi`, `Input "Email" =email`).
-  For a control this is two-way: the expander writes the binding and the `changed` reaction that stores it. A
-  key can be bound too: `visible:=step>0`, `text:=name`.
-- **`-> action`**: what a tap (or `changed`, for a control) does. `name=value` sets a variable,
-  `emit name` tells the host, `open id` / `close` a modal, `go screen` navigates, `toast "text"`. Several are
-  separated by `;`. Any other action is written as its JSON.
+- **`key=value`**: any prop, layout or decoration field by its own name, unquoted when it has no space
+  (`gap=12 pad=16 width=200 fill=surface radius=8 min=0 max=100 hint="you@example.com"`). A list is JSON
+  (`items=["S","M","L"]`). The short keys `gap` (`spacing`), `pad` (`padding`), `fill` (the first fill's color)
+  and `w`/`h` are accepted; every other key is the document's own. A bare word after `=` is that word
+  (`tone=quiet`), never a variable.
+- **`key={expression}`**: a value worked out from the state is the expression in braces, spaces and quotes
+  included (`visible={step > 0}`, `selected={tab == "all"}`, `fill={on ? "#FF2563EB" : "#FFE5E7EB"}`). A map as a
+  value names a key first (`{"a": 1}`) and is the JSON it is; a list worked out is `values={[a+1, b]}`.
+- **A bare word** is a flag (`sticky`, `scroll`, `hidden`, `password`: the key with the value true) or an
+  alignment word: `start`, `center`, `end`, `between`, `stretch` on a row or column set its main-axis alignment;
+  `top`, `middle`, `bottom` (row) or `left`, `right` (column) its cross axis. `grow` takes the room that is left.
+- **`bind=name`**: the variable a control keeps its value in (`Slider bind=volume`, `Toggle "Wi-Fi" bind=wifi`,
+  `Input "Email" bind=email`): a parameter like any other. It is two-way: the expander writes the binding and
+  the `changed` reaction that stores it, and declares the variable from the control's type. On what only shows
+  a value (`Progress`, `Gauge`, `Ring`) it follows the variable, or an expression: `Progress bind={done/total}`.
+- **`on…={actions}`**: what a node does. `onTap` is a tap on anything; `onChange` a control's change (`result` is
+  its new value); also `onLongPress`, `onDoubleTap`, `onRightClick`, `onSwipeLeft` (`Right`, `Up`, `Down`),
+  `onHover`, `onFocus`, `onBlur`, `onSubmit`, `onDrop`. A design system's block has its own
+  (`SiteNav … onNavigate={go {lower(result)}} onCta={go signup}`), and `onTap` on a block is its first one. An
+  event a plain node does not have is said. `menu=id` opens that Menu on a right click or a long press.
+- **Actions**, separated by `;`: `name=value` sets a variable, `emit name [value]` tells the host, `open id` /
+  `close` a modal, `go page` navigates, `scroll id`, `toast "text"`, `link url`. A verb's argument is the word
+  written (`go pricing` is that page); one that is worked out is in braces (`go {lower(result)}`). Any other
+  action is written as its JSON.
 - **Lists**: `each item in items` as a line; its children are the template (`Text "{item.name}"`).
 - **Conditions**: `if expr` as a line shows its children when the expression holds (it expands to `visible`
-  bindings; no new node).
+  bindings; no new node), `else` after it; `visible={expr}` on one line. `hide=phone` and `show=tablet` take a
+  size, never a condition (section 14).
 - **State**: a line `state name=value` at the top declares a variable with a starting value. A variable that
-  is only bound to a control needs no declaration; its type and start come from the control.
-- **Escape hatch**: `{...}` at the end of a line is merged into the node as JSON, for anything the notation
+  is only bound to a control needs no declaration; its type and start come from the control. `state
+  total=sum(cart,x=>x.price)` names a formula, written out where it is read.
+- **Escape hatch**: `{…}` at the end of a line is merged into the node as JSON, for anything the notation
   has no word for. Using it is allowed and counted; a key that needs it often gets a word.
-- **Time**: `every 1s -> seconds=seconds-1` on its own line runs as time passes (milliseconds, or `1s`);
-  `every 1s when running -> …` only while the condition holds. It is a timer on the canvas.
-- **A field of a repeated element**: under `each row in rows`, `Input =row.name` shows that field and writes the
-  element back into `rows` on a change. `Column scroll` scrolls.
+- **Time**: `every 1s onTick={seconds=seconds-1}` on its own line runs as time passes (milliseconds, or `1s`);
+  `every 1s when running onTick={…}` only while the condition holds. It is a timer on the canvas.
+- **A field of a repeated element**: under `each row in rows`, `Input bind=row.name` shows that field and writes
+  the element back into `rows` on a change. `Column scroll` scrolls.
 - **A node written whole**: `node {"type": "…", …}` on its own line is a node exactly as the document holds
   it, for what the notation has no word for (a painted board, a positioned shape, a draggable list). Its JSON may
   run over several lines; `node#id {…}` names it. Nothing is added to it but its place in the tree and the
@@ -99,39 +129,49 @@ Type[.variant][#id] ["text"] [key:value ...] [=binding] [-> action; action]
 Sizes not written follow one rule per parent: in a column a child fills the width and hugs its height; in a row
 a child hugs both, and `grow` makes it take the rest; a control hugs; the root fills the surface it is given.
 
+**The grammar before (to 32.x) is not read.** `key:value`, `=name`, `key:=expression`, `-> actions`, a handler on
+a line of its own, `swipe:left ->`, an expression written bare after a key or where the text goes, a block's
+enumerated value written as a bare word: each is an error on its line that says what to write (`A value is
+written with =, not a colon: gap=12.`). CodelesslySDK's `tool/notation/notation.sh migrate <file>` rewrites a file.
+**Read, though not taught** (what a model writes unprompted that is no second way to write a parameter, a
+binding, a computed value or a handler): `let` / `const` / `var name = …` and a bare `name = value` line for
+state, `for x in list` and `each list`, `else`, `n += 1`, `n++`, `rows.add(x)`, `if (c) { … }` inside actions,
+`$name`, single quotes in an expression, `"${…}"` in a text, `sticky=true`, a code fence around the answer, a
+guessed prop in a `{…}` tail, `onTap` on a block for its first event.
+
 ## 4. The approval card, both ways
 
 As recorded: 19 operations, 1,897 output tokens. In the notation:
 
 ```
 state decision="pending"
-Card gap:12
+Card gap=12
   Text.title "Approve deletion?"
-  Column gap:4
+  Column gap=4
     Text "Folder: Shared Drive / Archive 2019"
     Text "Files: 214 files, about 3.8 GB"
     Text.danger "These files will be permanently deleted. This cannot be undone."
   Text.caption "First files that will be deleted:"
-  Column fill:surface radius:6 gap:2 pad:8
+  Column fill=surface radius=6 gap=2 pad=8
     Text.small "budget_2019_q1.xlsx"
     Text.small "client_notes_old.docx"
     Text.small "site_photos_march.zip"
     Text.small "meeting_recording_04.mp4"
   if decision!="pending"
     Text.strong "Decision: {decision}"
-  Row end gap:8
-    Button.ghost "Deny" -> decision="denied"
-    Button.destructive "Approve" -> decision="approved"; emit approved
+  Row end gap=8
+    Button.ghost "Deny" onTap={decision="denied"}
+    Button.destructive "Approve" onTap={decision="approved"; emit approved}
 ```
 
 And the owner's example, complete: `Column` with four zero-prop controls.
 
 ```
-Column gap:12
-  Slider =volume
-  Input "Email" =email
-  Toggle "Notifications" =notify
-  Button "Save" -> emit save
+Column gap=12
+  Slider bind=volume
+  Input "Email" bind=email
+  Toggle "Notifications" bind=notify
+  Button "Save" onTap={emit save}
 ```
 
 ## 5. How it runs
@@ -174,14 +214,14 @@ by eye, and the share of lines that needed the `{...}` tail.
 ## 9. Build order
 
 1. The parser and expander for levels 0 and 1 with fixed defaults; the owner's four-control example renders.
-2. State: `=`, `->`, `state`, `{name}`, `if`, `each`.
+2. State: `=` and `->` (now `bind=name` and `onTap={…}`), `state`, `{name}`, `if`, `each`.
 3. The printer and the round-trip tests.
 4. The generated prompt, the session and chat-example wiring, line-and-column diagnostics.
 5. Record the 34 briefs in the notation and compare with the table in section 1.
 
 ## 10. Measured (2026-11-14)
 
-The first version is built (`lib/src/core/notation/`, `package:codelessly_api/notation.dart`): the parser, the
+The first version is built (`lib/src/core/notation/`, `package=codelessly_api/notation.dart`): the parser, the
 line-by-line stream, the generated prompt, `UiSession.applyNotation` in the SDK and a recorder in the chat example
 (`tool/record_notation.dart`). The 17 card briefs were recorded on Claude Haiku 5.5 and Sonnet 5.5 with the same
 settings as the `ui_apply` recordings (low effort, thinking off where the model allows it).
@@ -207,7 +247,7 @@ Validity went up by accepting what the models wrote, not by telling them more:
 | 3 (headers and tiles from strings, growing children, expressions with quotes, prices) | 28 of 34 | 31 of 34 |
 | Run 3's answers expanded again by the current parser (labels that read state, text style keys, segmented items, grid rows, parenthesised expressions) | | 33 of 34 |
 | 5 (the prompt lists the formula functions that exist: about 2,380 prompt tokens, median output 935, 5.4 s) | 26 of 34 | 31 of 34 |
-| Run 5's answers expanded again by the current parser (quotes inside `{…}`, expressions with spaces, an expression where the string goes, `List =rows`, `each rows`, a sentence after the UI) | | 34 of 34 |
+| Run 5's answers expanded again by the current parser (quotes inside `{…}`, expressions with spaces, an expression where the string goes, `each row in rows`, `each rows`, a sentence after the UI) | | 34 of 34 |
 
 The rule that came out of it: when two models independently write the same form and its meaning is not in
 doubt, the notation takes that form. `tool/reexpand_notation.dart` expands recorded answers again with the
@@ -293,15 +333,15 @@ catalog and options (`ds.catalogOver(catalog)`, `NotationOptions.fromDesignSyste
 ```
 state seats=2
 state plan="Pro"
-Column gap:12 pad:16
-  Row gap:8 middle
-    Avatar name:"Ada Lovelace"
-    StatusBadge "Active" tone:success
-  Stepper =seats min:1 max:9
-  TabToggle options:["Free","Pro"] =plan
-  Panel "Billing" subtitle:"Plan and invoices"
+Column gap=12 pad=16
+  Row gap=8 middle
+    Avatar name="Ada Lovelace"
+    StatusBadge "Active" tone=success
+  Stepper bind=seats min=1 max=9
+  TabToggle options=["Free","Pro"] bind=plan
+  Panel "Billing" subtitle="Plan and invoices"
     Text.muted "You are on the {plan} plan with {seats} seats."
-  TrialBanner "7 days left in your trial" -> emit upgrade
+  TrialBanner "7 days left in your trial" onUpgrade={emit upgrade}
 ```
 
 - **The name.** A short name or a core type of that name comes first (`Button`, `Card`, `Slider`, `Badge` stay what
@@ -309,16 +349,17 @@ Column gap:12 pad:16
 - **Strings** fill the component's text parameters in order, at most two: its `label`, `title` or `text`, then its
   `message`, `description` or the like. One string alone goes to the parameter the component requires
   (`Banner "Saved."` is its message). A choice in place of a string (`ok ? "Approved" : "Denied"`) binds the same one.
-- **`=name`** is the variable the component keeps its value in (its `value` parameter, else its first variable
+- **`bind=name`** is the variable the component keeps its value in (its `value` parameter, else its first variable
   parameter); the variable is declared with the parameter's type.
-- **`->`** runs on the component's first event (`onPressed`, `onChanged`, `onSelected`).
+- **Events** are written by their own names (`onPressed={…}`, `onChanged={…}`, `onSelected={…}`); `onTap={…}` is the
+  component's first.
 - **Size.** A call that writes none takes the component's own: as wide as its parent, as its content, or fixed, as
   its definition's root says.
 - **What it does not take is said on the line**: `A StatusBadge has no "status". It takes: label, tone.`, and a
-  required parameter left out: `A ContextMenu needs items: write items:["a","b"].`
+  required parameter left out: `A ContextMenu needs items= write items=["a","b"].`
 
 In the prompt each component is one line, as it is called, with its purpose:
-`Stepper "label" =value min max step enabled -> onChanged : A number changed one step at a time.` A name ending in
+`Stepper "label" bind=value min max step enabled onChanged : A number changed one step at a time.` A name ending in
 `!` must be given. SSUI's full list adds about 17,000 characters to the prompt.
 
 Measured on two briefs with Haiku and SSUI's full list (2026-11-14): both read with no notation issue and no
@@ -333,14 +374,14 @@ the notation prompt (CodelesslySDK `examples/showcase/natural-words/`).
 
 | Asked for | Written with no vocabulary | Written with the notation as it stood | Now |
 |---|---|---|---|
-| A speedometer, a load, a score | `gauge … needle value:72`, `arc from:0 to:100`, `marker at:100` | Boxes in a row, or the bare number | `Gauge 72 min:0 max:180 limit:100 unit:"km/h"` (a clean arc, the figure inside; `Dial` is the same) |
+| A speedometer, a load, a score | `gauge … needle value:72`, `arc from:0 to:100`, `marker at:100` | Boxes in a row, or the bare number | `Gauge 72 min=0 max=180 limit=100 unit="km/h"` (a clean arc, the figure inside; `Dial` is the same) |
 | A round share | `Ring value:7240 max:10000` | `CircularProgressIndicator` in a `Stack center middle` (rejected: a Stack took no such words) | `Ring 0.72`, and a `Stack` centers with `center middle` |
-| A small trend line | `Sparkline data:[…]` | `LineChart` at full height with axes | `Sparkline values:[…]` |
-| Fade, slide, pulse, shimmer | `animate:…`, `Animation type:fade-up trigger:on-appear duration:0.3s delay:0.2s` | Left out, or a timer changing a number | `animate:fade` (slide-up, slide-left, scale, pop, bounce, shake, pulse, spin, shimmer) with `duration:`, `delay:` |
-| Rows arriving one after another | `delay` rising per row | Left out | `stagger:80` on the row or on its `each` |
-| Swipe to delete | `swipe:left`, `onSwipe` | A guessed `{"interaction": …}` JSON, rejected at render | `swipe:left -> …` (also `onSwipeLeft`, `longPress`, `doubleTap` handlers) |
-| A slider in steps | `step:1` | `step:1`, rejected at render | `step:` is the slider's `divisions` |
-| A timer | `every 1s when running` with `->` on the next line | The same, rejected | Accepted |
+| A small trend line | `Sparkline data:[…]` | `LineChart` at full height with axes | `Sparkline values=[…]` |
+| Fade, slide, pulse, shimmer | `animate:…`, `Animation type:fade-up trigger:on-appear duration:0.3s delay:0.2s` | Left out, or a timer changing a number | `animate=fade` (slide-up, slide-left, scale, pop, bounce, shake, pulse, spin, shimmer) with `duration=`, `delay=` |
+| Rows arriving one after another | `delay` rising per row | Left out | `stagger=80` on the row or on its `each` |
+| Swipe to delete | `swipe:left`, `onSwipe` | A guessed `{"interaction": …}` JSON, rejected at render | `onSwipeLeft={…}` (also `onLongPress`, `onDoubleTap`) |
+| A slider in steps | `step:1` | `step:1`, rejected at render | `step=` is the slider's `divisions` |
+| A timer | `every 1s when running` with `->` on the next line | The same, rejected | `every 1s when running onTick={…}`, on one line |
 
 Each is one more line of the parser onto a part the catalog already had (`radialGauge`, the animation presets,
 the swipe triggers), and one line in the prompt (7,800 to 8,700 characters). With it, 16 of 16 answers expand
@@ -386,18 +427,18 @@ is the same document as before plus rules that do not apply there.
 
 | Written | Narrower |
 |---|---|
-| `Grid cols:n` | its rows wrap; a cell takes a least width (300, 220, 260, 150 for 2, 3, 4, more columns), so three stay three on a tablet and four become two by two; one a line on a phone. A grid over data takes fewer columns (`crossAxisCount`) |
+| `Grid cols=n` | its rows wrap; a cell takes a least width (300, 220, 260, 150 for 2, 3, 4, more columns), so three stay three on a tablet and four become two by two; one a line on a phone. A grid over data takes fewer columns (`crossAxisCount`) |
 | a `Row` of two or more blocks (a card, a column of content, a picture, a component that fills, a fixed column 200 or wider) | wraps: a block that grows takes a least width (360 for the one beside fixed rails, else 280, 240 among three), a fixed one keeps its width on a tablet and takes the line on a phone |
 | any other `Row` | wraps before it overflows; what grows in it keeps its share of the line from a least width (a field 180, a component 160, a text 96) |
 | a table's row (three or more cells with widths) | its cells are shares of the row; it keeps the columns it has room for, from the first on (600 px on a tablet, 342 on a phone), and what is not a column (a checkbox, a menu button) |
 | `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420. The `Sidebar` it hides opens as a drawer (14.2) |
-| `Nav` | a phone hides its links (a tablet too, from six on) and shows a menu button the bar adds itself, which opens the links in a column under the bar, each as written and closing the menu as it goes; a `Nav` with a `show:phone` line of its own keeps its own |
+| `Nav` | a phone hides its links (a tablet too, from six on) and shows a menu button the bar adds itself, which opens the links in a column under the bar, each as written and closing the menu as it goes; a `Nav` with a `show=phone` line of its own keeps its own |
 | `Section`, `Footer` | 48 above and below on a tablet; 40, and a 20 gutter, on a phone |
 | a text 32 or larger | 0.86 of its size on a tablet (from 44), 0.72 on a phone (26 at least) |
 | a fixed width over 300 in a column | as wide as its place on a phone, at most its width |
-| `Donut` with `labels` | on a page it is a wrapping row of the chart and its legend (a line per share: its color, its label, its part of the whole): the legend sits beside the chart and goes under it where the two do not fit (`legend:false`: the chart alone; a page that writes the labels as texts of its own keeps its own legend) |
+| `Donut` with `labels` | on a page it is a wrapping row of the chart and its legend (a line per share: its color, its label, its part of the whole): the legend sits beside the chart and goes under it where the two do not fit (`legend=false`: the chart alone; a page that writes the labels as texts of its own keeps its own legend) |
 
-`hide:phone`, `hide:tablet`, `show:phone` and `show:tablet` on a line say where it shows; they are written after
+`hide=phone`, `hide=tablet`, `show=phone` and `show=tablet` on a line say where it shows; they are written after
 the rules above, so they win.
 
 Rows wrap (`wrap` with `basis` on the children: CSS `flex-wrap` and `flex-basis`) where they could have turned
@@ -411,7 +452,7 @@ their rules themselves (Cards' `SiteNav` hides its links and its second action o
 From the twenty sites' follow-up runs (each on its own `dsl5/<site>` branch), what several met was folded in
 once: a size word holds on a line under an `if` (five agents fixed it separately); `Nav` builds its own phone
 menu (nearly every agent had written one by hand on every page); `Nav sticky`; `scroll <id>` and anchors
-(`#pricing` after a line, `id:pricing`, `href:"#pricing"`); `go` to a page worked out; `project name=value`
+(`#pricing` after a line, `id=pricing`, `href="#pricing"`); `go` to a page worked out; `project name=value`
 for a variable of the site; two short columns side by side as blocks; a control with choices keeps room for
 them.
 
@@ -420,22 +461,22 @@ Not done: a table drops columns where a designer might have made each row a card
 ### 14.1 What is shown over a page: Dialog, Sheet, Drawer, Menu, Popover, Lightbox
 
 The document has modals (`openModal` shows another canvas as a dialog, a sheet, a popover), and the notation had
-`-> open <id>` for them, but a text was one canvas, so there was nothing to open. An overlay is now written in
+` onTap={open <id>}` for them, but a text was one canvas, so there was nothing to open. An overlay is now written in
 the same text, after the page, at the margin, with an id; the lines indented under it are its content:
 
 ```
 state email=""
 Page
   Section
-    Button "Join" -> open signup
-    IconButton "more_horiz" -> open more
+    Button "Join" onTap={open signup}
+    IconButton "more_horiz" onTap={open more}
 
 Dialog#signup "Join the waitlist" "We write once."
-  Input "Email" =email
-  Button "Join" -> joined=true; close
+  Input "Email" bind=email
+  Button "Join" onTap={joined=true; close}
 
 Menu#more end
-  MenuItem "Share" icon:"share" -> toast "Shared"
+  MenuItem "Share" icon="share" onTap={toast "Shared"}
 ```
 
 Each block is a canvas of its own in the document (a root after the page's, named by its id), and `open <id>`
@@ -444,15 +485,15 @@ another overlay):
 
 | Written | Canvas | `open` adds |
 |---|---|---|
-| `Dialog#id "Title" "Line under it"` (`Modal`) | 480 wide (`w:`), as tall as its content; a column `pad:24 gap:16` headed by the title and a close button | `presentation: dialog`, `insets: [16,24,16,24]` (it narrows to a phone) |
+| `Dialog#id "Title" "Line under it"` (`Modal`) | 480 wide (`w:`), as tall as its content; a column `pad=24 gap=16` headed by the title and a close button | `presentation: dialog`, `insets: [16,24,16,24]` (it narrows to a phone) |
 | `Sheet#id "Title"` (`BottomSheet`) | 560 wide, headed the same | `presentation: bottomSheet`, `sheetWidth`, `sheetRadius: 20`, `showDragHandle`, `maxHeightFactor: 0.9`: across a phone's bottom edge, a centered 560 on a desktop |
-| `Drawer#id "Title"` (`right`, `w:300`) | the window's size, see-through: an `App` row of a `Sidebar` panel and a box beside it that closes on a tap | `presentation: dialog`, `cover: true` |
-| `Menu#id` (`Dropdown`; `end`, `above`, `center`, or `placement:`) | 220 wide, `pad:6 gap:2`, outlined | `presentation: popover`, `anchor: trigger`, `placement: belowStart`, `anchorGap: 6` |
-| `Popover#id` (`Popup`) | 320 wide, `pad:16 gap:12`, outlined | as a menu |
+| `Drawer#id "Title"` (`right`, `w=300`) | the window's size, see-through: an `App` row of a `Sidebar` panel and a box beside it that closes on a tap | `presentation: dialog`, `cover: true` |
+| `Menu#id` (`Dropdown`; `end`, `above`, `center`, or `placement:`) | 220 wide, `pad=6 gap=2`, outlined | `presentation: popover`, `anchor: trigger`, `placement: belowStart`, `anchorGap: 6` |
+| `Popover#id` (`Popup`) | 320 wide, `pad=16 gap=12`, outlined | as a menu |
 | `Lightbox#id "{photo}" "Caption"` | the window's size, see-through: the picture contained in it, zoomed and panned; a list of them is a gallery (14.3) | `presentation: dialog`, `cover: true`, `barrierColor: #F2000000`, a `routeTransition` a drag down reverses |
 
 - **Closing.** `close` closes the overlay it is written in; a tap outside closes any of them. Every line of a
-  `Menu` closes it after its own actions (`MenuItem "Price" -> sort="Price"` is `sort="Price"; close`), and so
+  `Menu` closes it after its own actions (`MenuItem "Price" onTap={sort="Price"}` is `sort="Price"; close`), and so
   does a `NavItem` or a `Link` in a `Drawer`; nothing else closes by itself. `open` waits for what it opened, so
   a menu line that opens a dialog closes the menu when the dialog closes.
 - **Values.** A canvas's variables are its own (`variables` under its id), so a modal could not read the page's.
@@ -466,9 +507,9 @@ another overlay):
   plain row `NavItem` is.
 - **Laid out as a card.** An overlay is expanded as a narrow canvas of its own (its width, 640 at most for the
   sizing rules), so a child is as wide as its column and nothing of the page's reflow touches it.
-- **A menu for one of many.** `-> sel=row.id; open rowMenu` on the row's button, and the menu's lines read `sel`.
-  `menu:rowMenu` on any line opens that menu on a right click and on a long press, where the pointer is
-  (`anchor: pointer`); `onRightClick:{sel=row.id; open rowMenu}` does the same after setting what was clicked.
+- **A menu for one of many.** ` onTap={sel=row.id; open rowMenu}` on the row's button, and the menu's lines read `sel`.
+  `menu=rowMenu` on any line opens that menu on a right click and on a long press, where the pointer is
+  (`anchor: pointer`); `onRightClick={sel=row.id; open rowMenu}` does the same after setting what was clicked.
 - An id is the canvas's, so it is one of a kind in the site, as a page's is.
 
 ### 14.2 An App's sidebar on a phone
@@ -476,8 +517,8 @@ another overlay):
 `App` hid its `Sidebar` on a phone and left no way to it. Where reflow is on, the first pane of an `App`, when it
 is a `Sidebar`, is kept as written, and at the end of the text it is written again as `Drawer#<screen>Menu`: the
 same lines with their ids left off and `close` after every action, so a tap on a `NavItem` picks the place and
-closes the drawer. The `Nav` of `Main` gets `IconButton "menu" show:phone -> open <screen>Menu` as its first
-child (`show:tablet` where a tablet hides the sidebar too: two panes before `Main`, over 420 wide), and where
+closes the drawer. The `Nav` of `Main` gets `IconButton "menu" show=phone onTap={open <screen>Menu}` as its first
+child (`show=tablet` where a tablet hides the sidebar too: two panes before `Main`, over 420 wide), and where
 the button shows, what follows it (the title) takes the room beside it, so the button and the title sit
 together and the actions stay at the end. A `Main` with no `Nav` gets a slim bar holding the button, shown at
 those widths only. At the width it was written for the page has one more node, hidden, and its captures are
@@ -497,21 +538,21 @@ it and nothing is drawn by a control of its own:
 state photos=[{"url":"a.jpg","caption":"The quay","ratio":1.5},{"url":"b.jpg","caption":"The tower","ratio":0.66}]
 Page
   Section
-    Grid cols:4 gap:12
+    Grid cols=4 gap=12
       each p in photos
-        Image "{p.url}" h:160 radius:12 -> at=index; open shots
-    Image "{cover}" -> open zoom
+        Image "{p.url}" h=160 radius=12 onTap={at=index; open shots}
+    Image "{cover}" onTap={open zoom}
 
-Lightbox#shots photos:=photos =at
-Lightbox#zoom "{cover}" "The harbor at dusk" ratio:1.5
+Lightbox#shots photos={photos} bind=at
+Lightbox#zoom "{cover}" "The harbor at dusk" ratio=1.5
 ```
 
 | Written | What it is |
 |---|---|
 | `Lightbox#id "{photo}" "Caption"` | one picture, its caption in a pill at the foot |
-| `Lightbox#id photos:=list =at` (`images:`, `items:`) | a gallery: a page per element, opened at `at` (from 0, as `Pages =page`; without `=name` it keeps `<id>At`). An element is a URL, or a record with `url` (`src`, `image`), `caption` (`title`) and `ratio`. A list written out (`photos:["a.jpg","b.jpg"]`) is kept in `<id>Photos` |
-| `ratio:1.5` (or a record's `ratio`) | the picture's width over its height |
-| `thumbs:false`, `max:6` | no strip of thumbnails; the largest zoom (4) |
+| `Lightbox#id photos={list} bind=at` (`images:`, `items:`) | a gallery: a page per element, opened at `at` (from 0, as `Pages bind=page`; without `bind=name` it keeps `<id>At`). An element is a URL, or a record with `url` (`src`, `image`), `caption` (`title`) and `ratio`. A list written out (`photos=["a.jpg","b.jpg"]`) is kept in `<id>Photos` |
+| `ratio=1.5` (or a record's `ratio`) | the picture's width over its height |
+| `thumbs=false`, `max=6` | no strip of thumbnails; the largest zoom (4) |
 | lines under a gallery | draw one picture (`photo` is the element) in place of the `Image`: a drawn scene, a chart. They are read again for the thumbnail |
 
 - **Zoom.** The picture's box has `transformGesture: {target: node, pan: whenZoomed, minScale: 1, maxScale: 4,
@@ -533,11 +574,11 @@ Lightbox#zoom "{cover}" "The harbor at dusk" ratio:1.5
   open, and it cannot be panned out of view. Without one the box is the whole place between the bars and the
   picture is contained in it: a tap there closes (it may be the scrim), and at a high zoom the bars beside a
   narrow picture can be panned into view. A design system's drawn `Media` scene is 3:2.
-- **A design system's gallery.** A component with `photos` and `viewer:"overlay"` among its parameters (Cards'
-  `PhotoGallery`) is given `viewer:"overlay"` on a page, and after its own actions its first event sets
+- **A design system's gallery.** A component with `photos` and `viewer="overlay"` among its parameters (Cards'
+  `PhotoGallery`) is given `viewer="overlay"` on a page, and after its own actions its first event sets
   `<screen>ViewerPhotos` and `<screen>ViewerAt` and opens `Lightbox#<screen>Viewer`, written once at the end of
   the text as an App's drawer is: one viewer for every gallery of the page, also for one under an `each`. Its own
-  variable is 0 again once the viewer closes. On a card, with `layout:"pages"`, or with `viewer:` written, the
+  variable is 0 again once the viewer closes. On a card, with `layout="pages"`, or with `viewer:` written, the
   line is as written.
 
 Not done: the strip of thumbnails does not scroll to the picture in view; the arrows do not wrap round; a
@@ -547,6 +588,6 @@ picture's proportions are not read from the picture.
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
   without a card would then have no `Card`). Proposed: from the design system, with SSUI's as the built-in.
-- Positional alignment words against `align:end`. Proposed: both parse, the printer writes the words.
+- Positional alignment words against `align=end`. Proposed: both parse, the printer writes the words.
 - Whether the root is always a column. Proposed: the first line is the root, whatever it is; the canvas around it
   is implied.

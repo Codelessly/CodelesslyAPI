@@ -1,11 +1,11 @@
 // The compact notation (docs/design/13-compact-notation.md): the form an
 // agent writes for levels 0 to 2. One node per line, nesting by indentation:
 //
-//   Column gap:12
-//     Slider =volume
-//     Input "Email" =email
-//     Toggle "Notifications" =notify
-//     Button "Save" -> emit save
+//   Column gap=12
+//     Slider bind=volume
+//     Input "Email" bind=email
+//     Toggle "Notifications" bind=notify
+//     Button "Save" onTap={emit save}
 //
 // [parseNotation] expands it to an ordinary flat document; nothing after
 // that (validation, rendering, editing) knows the notation was used.
@@ -110,7 +110,7 @@ final class NotationOptions {
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
   /// tokens) and the sizes of its components, so a component called by name
-  /// (`StatusBadge "Paid"`, `Stepper =qty`) is as big as its own design says:
+  /// (`StatusBadge "Paid"`, `Stepper bind=qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
   factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
       {double width = 390, String screen = 'screen', bool named = false, bool reflow = true, Map<String, Json> projectVariables = const {}}) {
@@ -446,7 +446,7 @@ final class NotationOptions {
   final num? ringStroke;
 
   /// The height of the window an app is drawn in (`App`, or a root written
-  /// `h:fill`): the canvas's design height.
+  /// `h=fill`): the canvas's design height.
   final double height;
 
   /// The widest a page section's content gets (`Section`, `Nav`, `Footer`):
@@ -517,7 +517,7 @@ final class NotationOptions {
   final Json? cta;
 
   /// The theme's colors a written color is read as, by name → `#AARRGGBB`
-  /// ([NotationOptions.fromTheme] with `named`): `fill:#FFF5F5F5` on a
+  /// ([NotationOptions.fromTheme] with `named`): `fill=#FFF5F5F5` on a
   /// panel is the theme's nearest neutral fill, and so follows dark mode and
   /// the theme. Empty: a written color stays as written.
   final Map<String, String> palette;
@@ -762,7 +762,7 @@ const Map<String, Map<String, List<String>>> _typeKeys = {
   },
 };
 
-/// What `=expr` binds on a type that shows a value but takes no input.
+/// What `bind=expr` binds on a type that shows a value but takes no input.
 const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
 
 /// The short names a design system's component of the same name replaces.
@@ -770,7 +770,7 @@ const _softNames = {'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'Do
 
 /// The core types a design system's component of the same name replaces: a
 /// design system's own `Tabs` (a row of labels that keeps the open one in a
-/// variable, `Tabs =tab tabs:["Overview","Activity"]`) is what the line
+/// variable, `Tabs bind=tab tabs=["Overview","Activity"]`) is what the line
 /// means, not the core `tabs` node (titles over children, which the
 /// notation does not teach).
 const notationComponentFirst = {'Tabs'};
@@ -991,7 +991,7 @@ class _Parser {
   }
 
   /// Whether a line is still open over the next ones.
-  bool get _continues => _everyOpen != null || _pending != null || _open != null;
+  bool get _continues => _pending != null || _open != null;
 
   /// The canvas of this parser's nodes.
   Json get _canvasNode {
@@ -1122,7 +1122,7 @@ class _Parser {
         // a picture fills its thumbnail).
         final first = written.isEmpty ? 0 : written.map((w) => w.indent).reduce(math.min);
         for (final w in written) {
-          _feed(l.indent - o.shift + w.indent - first, w.text.replaceFirstMapped(_idMark, (m) => m[1]!).replaceAll(' fit:contain', ' fit:cover'), closes: 'none');
+          _feed(l.indent - o.shift + w.indent - first, w.text.replaceFirstMapped(_idMark, (m) => m[1]!).replaceAll(' fit=contain', ' fit=cover'), closes: 'none');
         }
         continue;
       }
@@ -1149,10 +1149,6 @@ class _Parser {
   int _line = 0;
 
   /// Reads one line (without its newline).
-  /// An `every …` line written with no `->`: its actions may follow on the
-  /// next line (`  -> n=n+1`), which a model writes as readily.
-  String? _everyOpen;
-
   void line(String raw) {
     // The lines under an overlay's head are its canvas's; the next line at
     // the margin ends it.
@@ -1176,17 +1172,6 @@ class _Parser {
         }
       }
     }
-    if (_everyOpen case final String open) {
-      _everyOpen = null;
-      if (raw.trimLeft().startsWith('->')) {
-        raw = '$open ${raw.trimLeft()}';
-      } else {
-        line('$open ->');
-      }
-    } else if (RegExp(r'^every\s+\S+').hasMatch(raw) && !raw.contains('->') && !raw.trimRight().endsWith(':') && !RegExp(r'\b(do|on[A-Z])').hasMatch(raw)) {
-      _everyOpen = raw.trimRight();
-      return;
-    }
     _line++;
     // A `node {…}` or `document {…}` whose JSON is not closed goes on over
     // the next lines, until it is.
@@ -1203,7 +1188,7 @@ class _Parser {
       return;
     }
     // A list or a call left open at the end of a line goes on over the
-    // next lines (items:=[ and one element a line), joined as one.
+    // next lines (items=[ and one element a line), joined as one.
     if (_open case final String open) {
       final all = '$open ${raw.trim()}';
       _openLines++;
@@ -1223,13 +1208,13 @@ class _Parser {
     if (raw.trimLeft().startsWith('```')) return;
     final indent = raw.length - raw.trimLeft().length;
     final before = nodes.length;
-    // `Dots =page count:n`: a dot per page, the current one long and in the
+    // `Dots bind=page count=n`: a dot per page, the current one long and in the
     // accent; a tap on a dot goes to its page. Written out as the three
     // lines it stands for.
     // An answer that opens with `if` or `each` has several top-level parts
     // and no root to hold them: they stack in a column of their own.
     if (_root == null && indent == 0 && RegExp(r'^(if|each)\s').hasMatch(raw.trim())) {
-      _lineAt(-1, 'Column gap:12', 0);
+      _lineAt(-1, 'Column gap=12', 0);
     }
     final dots = _dotsLine.firstMatch(raw.trim());
     if (dots != null) {
@@ -1238,11 +1223,11 @@ class _Parser {
           : const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(c)
               ? 'theme.$c'
               : 'theme.colors.$c';
-      final page = dots[2]!, count = dots[3]!.startsWith('=') ? dots[3]!.substring(1) : dots[3]!;
+      final page = dots[2]!, count = dots[3]!.startsWith('{') ? dots[3]!.substring(1, dots[3]!.length - 1).trim() : dots[3]!;
       variables.putIfAbsent(page, () => {'name': page, 'type': 'decimal', 'value': 0});
-      _lineAt(indent, 'Row${dots[1] ?? ''} gap:6 center middle h:16${dots[4] ?? ''}', indent + 1);
+      _lineAt(indent, 'Row${dots[1] ?? ''} gap=6 center middle h=16${dots[4] ?? ''}', indent + 1);
       _lineAt(indent + 2, 'each dot in range($count)', indent + 3);
-      _lineAt(indent + 4, 'Box w:=index==$page?16:6 h:6 radius:3 fill:=index==$page?${look(options.accent)}:${look(options.track)} -> $page=index', indent + 5);
+      _lineAt(indent + 4, 'Box w={index==$page?16:6} h=6 radius=3 fill={index==$page?${look(options.accent)}:${look(options.track)}} onTap={$page=index}', indent + 5);
     } else {
       for (final l in _pages.rewrite(indent, raw.trim())) {
         // A frame's line says which frame it is (Row~nav): kept for the reflow.
@@ -1314,7 +1299,7 @@ class _Parser {
   final _roles = <String, String>{};
   final _gridRows = <String, _Grid>{};
 
-  /// The anchors (`#why` after a line) by name → the node, and the scroll
+  /// The anchors (`id=why` on a line) by name → the node, and the scroll
   /// actions written, which name an anchor or an id.
   final _anchors = <String, String>{};
   final _scrolls = <Json>[];
@@ -1340,7 +1325,7 @@ class _Parser {
     ).run();
     for (final e in rules.entries) {
       final node = nodes[e.key]!;
-      // The line's own rules (hide:phone) come after, so they win.
+      // The line's own rules (hide=phone) come after, so they win.
       final media = [...e.value, ...?(node['media'] as List?)];
       node['media'] = media;
       if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
@@ -1348,7 +1333,7 @@ class _Parser {
   }
 
   /// Whether the UI is as tall as its window (an app's panes, a root
-  /// written `h:fill`): the canvas then has the window's height, where a
+  /// written `h=fill`): the canvas then has the window's height, where a
   /// card or a website page is as tall as its content.
   bool _windowed = false;
 
@@ -1620,12 +1605,9 @@ class _Parser {
       return _state(rest.contains('=') ? rest : '$name=""', column + 8);
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
-    // `every 1000 -> elapsed=elapsed+1`, `every 1s when running -> …`: what
-    // the screen does as time passes (a timer on the canvas).
-    // As models write it: every 1s while:{running} onTick:{…}, every 1s when running: …
-    final tick = RegExp(r'^every\s+(\d+(?:\.\d+)?(?:ms|s)?)\s+(?:when|while)\s*:?\s*\{?(.+?)\}?\s*(?:->|on[A-Z][A-Za-z]*\s*:|do\s*:|:)\s*\{?(.+?)\}?$').firstMatch(line);
-    if (tick != null && !line.contains('->')) line = 'every ${tick[1]} when ${tick[2]} -> ${_statements(tick[3]!)}';
-    final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s)?(?:\s+when\s+(.+?))?\s*->\s*(.+)$').firstMatch(line);
+    // `every 1000 onTick={elapsed=elapsed+1}`, `every 1s when running
+    // onTick={…}`: what the screen does as time passes (a timer on the canvas).
+    final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s)?(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
     if (every != null) {
       final ms = (double.parse(every[1]!) * (every[2] == 's' ? 1000 : 1)).round();
       if (ms < 16) return _issue(column, 'An "every" runs at most once a frame: every 16 or more (milliseconds), or every 1s.');
@@ -1637,7 +1619,7 @@ class _Parser {
       return;
     }
     if (line.startsWith('every ')) {
-      return _issue(column, 'An "every" line is: every 1000 -> name=value (milliseconds, or 1s), optionally "every 1s when running -> …".');
+      return _issue(column, 'An "every" line is: every 1000 onTick={name=value} (milliseconds, or 1s), optionally "every 1s when running onTick={…}".');
     }
     // `document {…}`: a merge patch over the whole document, for what is
     // not a node of the tree (the printer's last line).
@@ -1646,21 +1628,12 @@ class _Parser {
       if (j is Map) _documentPatch = mergePatch(_documentPatch ?? const {}, j.cast<String, Object?>(), keepNulls: true);
       return;
     }
-    // A property written after the actions (`-> step = 3 enabled:{valid}`)
-    // belongs to the node: it is read before the arrow.
-    final late = RegExp(r'^(.*?)(\s->\s.*?)((?:\s+(?:enabled|visible|selected|disabled|tone|icon):(?:=?\{[^{}]*\}|=\S+|"[^"]*"|[A-Za-z_][A-Za-z0-9_.]*))+)\s*$').firstMatch(line);
-    if (late != null) line = '${late[1]}${late[3]}${late[2]}';
     for (final d in _derived.entries) {
       if (!line.contains(d.key)) continue;
       // A worked-out value follows the state by itself: an action that sets
-      // it too (`-> votes=…; total=total+1`) is dropped, not rewritten.
-      final arrow = line.indexOf(' -> ');
-      if (arrow >= 0) {
-        final k = RegExp.escape(d.key);
-        final actions = line.substring(arrow + 4).replaceAll(RegExp('(^|;)\\s*$k\\s*(?:[-+*/])?=(?!=)[^;]*'), '').replaceFirst(RegExp(r'^\s*;\s*'), '');
-        line = actions.trim().isEmpty ? line.substring(0, arrow) : '${line.substring(0, arrow)} -> $actions';
-        if (!line.contains(d.key)) continue;
-      }
+      // it too (`onTap={votes=…; total=total+1}`) is dropped, not rewritten.
+      line = _withoutSets(line, d.key);
+      if (!line.contains(d.key)) continue;
       // A call on the name (`total.toFixed(2)`) is rewritten while it is
       // still a name: written out, it is a formula no call pattern follows.
       if (line.contains('${d.key}.')) {
@@ -1676,20 +1649,9 @@ class _Parser {
       line = _rename(line, d.key, '(${d.value})');
     }
     final parent = _stack.isEmpty ? null : _stack.last;
-    // A handler on a line of its own under its control (`onPressed: a = 1`).
-    final handler = RegExp(r'^(on[A-Z][A-Za-z]*|tap|press|click|change)\s*:\s*(.+)$').firstMatch(line);
-    if (handler != null && parent != null && nodes[parent.id] != null && !(catalog.widget(nodes[parent.id]!['type']! as String)?.props.any((p) => p.key == handler[1]) ?? false)) {
-      final target = nodes[parent.id]!;
-      final type = target['type']! as String;
-      final spec = catalog.widget(type);
-      final isComponent = spec != null && type[0].toUpperCase() == type[0];
-      var body = handler[2]!.trim();
-      if (body.startsWith('{') && body.endsWith('}')) body = body.substring(1, body.length - 1);
-      final reaction = {'trigger': _handlerTrigger(handler[1]!, type, isComponent ? spec : null, target), 'actions': _actions(_statements(body), column)};
-      final actions = [...?(target['actions'] as List?), reaction];
-      target['actions'] = actions;
-      _patches.add({'op': 'patch', 'id': parent.id, 'patch': {'actions': actions}});
-      return;
+    // A handler is a key of its node, on the node's line.
+    if (RegExp(r'^on[A-Z][A-Za-z]*\s*[:=]').hasMatch(line)) {
+      return _issue(column, 'A handler is written on the line of its node, its actions in braces: Button "Save" onTap={saved=true}.');
     }
     // `else` and `else if …` after an `if` at the same depth: shown while
     // none of the conditions before it holds.
@@ -1721,13 +1683,13 @@ class _Parser {
     }
     // Anything else at this depth ends the chance of an `else`.
     _ifAt.removeWhere((depth, _) => depth >= indent);
-    // `each rows` and `List =rows` are `each row in rows`: the element is
-    // read as `row` (or `item`).
-    final bare = RegExp(r'^each\s+(\S+)$').firstMatch(line) ?? RegExp(r'^List\s+=(\S+)$').firstMatch(line);
+    // `each rows` is `each row in rows`: the element is read as `row` (or
+    // `item`).
+    final bare = RegExp(r'^each\s+(\S+)$').firstMatch(line);
     if (bare != null) line = 'each row in ${bare[1]}';
-    // `each a in list stagger:80`: the row under it arrives that much after
-    // the one before (its own animate:, or a fade up).
-    if (RegExp(r'^each\s.*\s(stagger:\S+)$').firstMatch(line.trimRight()) case final RegExpMatch m) {
+    // `each a in list stagger=80`: the row under it arrives that much after
+    // the one before (its own animate=, or a fade up).
+    if (RegExp(r'^each\s.*\s(stagger=\S+)$').firstMatch(line.trimRight()) case final RegExpMatch m) {
       line = line.trimRight();
       _eachStagger = _milliseconds(m[1]!.substring(8));
       line = line.substring(0, line.length - m[1]!.length).trimRight();
@@ -1795,14 +1757,6 @@ class _Parser {
       _parentOf[itemId] = listId;
       _stack.add(_Open(indent, itemId, 'column', each: each[1], list: each[2]!.trim()));
       return;
-    }
-    // Props written after the action (`-> size="7" selected:=size=="7"`)
-    // belong before it.
-    final arrow = _outside(line, ' -> ');
-    if (arrow >= 0) {
-      final after = line.substring(arrow + 4);
-      final late = RegExp(r' [a-z][A-Za-z]*:=').allMatches(after).where((m) => _outside(after.substring(0, m.start + 1), '"') < 0 || '"'.allMatches(after.substring(0, m.start)).length.isEven).firstOrNull;
-      if (late != null) line = '${line.substring(0, arrow)}${after.substring(late.start)} -> ${after.substring(0, late.start)}';
     }
     // `node {…}`: a node written whole, as the document holds it, for what
     // the notation has no words for (a painted board, a draggable list).
@@ -1872,7 +1826,6 @@ class _Parser {
     Json? animation;
     Map<String, int>? timing;
     num? sliderStep;
-    String? swipe;
     String? textLine;
     num? avatarSize;
     String? imageFit;
@@ -1920,11 +1873,11 @@ class _Parser {
         _ => {'fontSize': 11, 'fontWeight': 500, 'color': tone.$3},
       };
     } else if (variant != null) {
-      _issue(column + written.length + 1, 'A $written has no variants: write $written, with props as key:value.');
+      _issue(column + written.length + 1, 'A $written has no variants: write $written, with props as key=value.');
     }
     final spec = catalog.widget(type);
     if (spec == null) {
-      // A sentence before the UI ("Here is the card:") is not a node.
+      // A sentence before the UI ("Here is the card=") is not a node.
       // Nor is one after it ("Two limits remain: …").
       if ((_root == null || indent == 0) && line.contains(' ')) return;
       _issue(column, 'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).');
@@ -1986,7 +1939,7 @@ class _Parser {
       if (spec.props.any((p) => p.key == key)) return 'props.$key';
       if (key == 'enabled' && spec.props.any((p) => p.key == 'isEnabled')) return 'props.isEnabled';
       if ((key == 'lines' || key == 'rows') && type == 'textField') return 'props.maxLines';
-      // `Input "Age" type:number`: the keyboard it opens.
+      // `Input "Age" type=number`: the keyboard it opens.
       if (key == 'type' && type == 'textField') return 'props.keyboardType';
       if ((key == 'selected' || key == 'checked') && (type == 'checkbox' || type == 'switch')) return 'props.value';
       if (_layoutKeys.contains(key)) return 'layout.$key';
@@ -1999,12 +1952,81 @@ class _Parser {
       return 'props.$key';
     }
 
+    // `bind=name`: the variable a control keeps its value in, both ways;
+    // on what only shows a value, the variable (or `bind={expression}`) it
+    // follows.
+    void bindTo(String expr, int col) {
+      final value = _valueProps[type];
+      // A component keeps its value in the variable its parameter names.
+      final held = !component
+          ? null
+          : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
+      if (held != null) {
+        if (!_identifier.hasMatch(expr) || expr.contains('.')) {
+          _issue(col, 'A $written keeps its ${held.key} in a variable: write bind=name.');
+        } else {
+          props[held.key] = expr;
+          final (kind, start) = switch (held.type.variableOf?.kind) {
+            PropKind.number || PropKind.integer => ('decimal', 0 as Object),
+            PropKind.boolean => ('boolean', false as Object),
+            PropKind.list => ('list', const <Object?>[] as Object),
+            _ => ('text', '' as Object),
+          };
+          variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
+        }
+      } else if (value == null) {
+        final shown = _shownValue[type] ?? _mainKey(type, spec);
+        if (written == 'Badge') {
+          _texts.add(_read(expr));
+        } else if (shown == null) {
+          _issue(col, 'A $written has no value to bind. Give a prop its value: key={expression}.');
+        } else {
+          bind['props.$shown'] = _read(expr);
+          // A share shown from a name not declared yet starts at 0.
+          if (shown == 'value' && _identifier.hasMatch(expr) && !expr.contains('.')) {
+            variables.putIfAbsent(expr, () => {'name': expr, 'type': 'decimal', 'value': 0});
+          }
+        }
+      } else {
+        // A segmented button's selection is a list: one name bound to it
+        // is its single choice.
+        final list = type == 'segmentedButton';
+        bind['props.${value.prop}'] = list ? _formula('[$expr]') : _read(expr);
+        final field = RegExp(r'^item\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(expr);
+        final over = _stack.reversed.where((o) => o.each != null).firstOrNull?.list;
+        if (field != null) {
+          // A control bound to a field of the repeated element
+          // (`Input bind=field.label` under `each field in fields`): it shows
+          // the field, and a change writes the element back into its list.
+          if (over != null && _identifier.hasMatch(over) && !over.contains('.')) {
+            final next = list ? 'result[0]' : 'result';
+            reactions.insert(0, {
+              'trigger': {'type': 'changed'},
+              'actions': [
+                {'type': 'setVariable', 'variable': over, 'value': _formula('setAt($over,index,with(item,"${field[1]}",$next))')},
+              ],
+            });
+          } else {
+            _issue(col, 'A control can be bound to a field of a repeated element only when the each is over a variable (each row in rows).');
+          }
+        } else if (expr.contains('.')) {
+          _issue(col, 'A control is bound to a variable by its name (bind=name), or under an each to a field of its element (bind=row.name): "$expr" is neither.');
+        } else if (_identifier.hasMatch(expr)) {
+          variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
+          reactions.insert(0, {
+            'trigger': {'type': 'changed'},
+            'actions': [
+              {'type': 'setVariable', 'variable': expr, 'value': list ? r'${result[0]}' : type == 'pageView' ? r'${result.index}' : r'${result}'},
+            ],
+          });
+        }
+      }
+    }
+
     while (true) {
       t.skipSpace();
       if (t.done) break;
       final col = column + t.at;
-      // `Progress :=done/total`: a value binding written with a stray colon.
-      if (t.rest.startsWith(':=')) t.at++;
       if (t.peek == '"' && component) {
         // A component's strings fill its text parameters in order.
         final text = _interpolate(t.string());
@@ -2017,7 +2039,7 @@ class _Parser {
                 .firstOrNull
                 ?.key;
         if (key == null) {
-          _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key:"value".');
+          _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key="value".');
         } else if (text.contains(r'${')) {
           bind['props.$key'] = text;
           positional.add(key);
@@ -2027,21 +2049,6 @@ class _Parser {
         }
       } else if (t.peek == '"') {
         _main(type, spec, t.string(), props, decoration);
-      } else if (t.rest.startsWith('->')) {
-        t.at += 2;
-        final tail = _tail(t);
-        // A component's action runs on its first event (onPressed,
-        // onChanged): what it fires when it is used.
-        final event = component ? spec.events.firstOrNull : null;
-        reactions.add({
-          'trigger': node.containsKey('dropTarget')
-              ? {'type': 'drop'}
-              : event != null
-                  ? {'type': 'event', 'event': event.key}
-                  : {'type': swipe ?? (_valueProps.containsKey(type) ? 'changed' : 'click')},
-          'actions': _actions(t.rest.substring(0, tail).trim(), col),
-        });
-        t.at += tail;
       } else if (t.peek == '{') {
         final j = _json(t.rest);
         if (j is Map) {
@@ -2082,7 +2089,7 @@ class _Parser {
               } else if ((k == 'color' || k == 'size') && type.endsWith('Button')) {
                 (buttonLook ??= <String, Object?>{})[k == 'color' ? 'iconColor' : 'iconSize'] = k == 'color' ? _named(v, 'text') : v;
               } else {
-                _issue(col, 'A $written has no "$k": left out. Its props are written key:value on the line.');
+                _issue(col, 'A $written has no "$k": left out. Its props are written key=value on the line.');
               }
             }
             tail['props'] = kept;
@@ -2092,97 +2099,32 @@ class _Parser {
           _issue(col, 'The {…} tail is a JSON object merged into the node.');
         }
         break;
-      } else if (t.peek == '=') {
-        t.at++;
-        final expr = t.expression().trim();
-        final value = _valueProps[type];
-        // A component keeps its value in the variable its parameter names.
-        final held = !component
-            ? null
-            : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
-        if (held != null) {
-          if (!_identifier.hasMatch(expr) || expr.contains('.')) {
-            _issue(col, 'A $written keeps its ${held.key} in a variable: write =name.');
-          } else {
-            props[held.key] = expr;
-            final (kind, start) = switch (held.type.variableOf?.kind) {
-              PropKind.number || PropKind.integer => ('decimal', 0 as Object),
-              PropKind.boolean => ('boolean', false as Object),
-              PropKind.list => ('list', const <Object?>[] as Object),
-              _ => ('text', '' as Object),
-            };
-            variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
-          }
-        } else if (value == null) {
-          final shown = _shownValue[type] ?? _mainKey(type, spec);
-          if (written == 'Badge') {
-            _texts.add(_read(expr));
-          } else if (shown == null) {
-            _issue(col, 'A $written has no value to bind with =. Bind a prop: key:=expression.');
-          } else {
-            bind['props.$shown'] = _read(expr);
-            // A share shown from a name not declared yet starts at 0.
-            if (shown == 'value' && _identifier.hasMatch(expr) && !expr.contains('.')) {
-              variables.putIfAbsent(expr, () => {'name': expr, 'type': 'decimal', 'value': 0});
-            }
-          }
-        } else {
-          // A segmented button's selection is a list: one name bound to it
-          // is its single choice.
-          final list = type == 'segmentedButton';
-          bind['props.${value.prop}'] = list ? _formula('[$expr]') : _read(expr);
-          final field = RegExp(r'^item\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(expr);
-          final over = _stack.reversed.where((o) => o.each != null).firstOrNull?.list;
-          if (field != null) {
-            // A control bound to a field of the repeated element
-            // (`Input =field.label` under `each field in fields`): it shows
-            // the field, and a change writes the element back into its list.
-            if (over != null && _identifier.hasMatch(over) && !over.contains('.')) {
-              final next = list ? 'result[0]' : 'result';
-              reactions.insert(0, {
-                'trigger': {'type': 'changed'},
-                'actions': [
-                  {'type': 'setVariable', 'variable': over, 'value': _formula('setAt($over,index,with(item,"${field[1]}",$next))')},
-                ],
-              });
-            } else {
-              _issue(col, 'A control can be bound to a field of a repeated element only when the each is over a variable (each row in rows).');
-            }
-          } else if (expr.contains('.')) {
-            _issue(col, 'A control is bound to a variable by its name (=name), or under an each to a field of its element (=row.name): "$expr" is neither.');
-          } else if (_identifier.hasMatch(expr)) {
-            variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
-            reactions.insert(0, {
-              'trigger': {'type': 'changed'},
-              'actions': [
-                {'type': 'setVariable', 'variable': expr, 'value': list ? r'${result[0]}' : type == 'pageView' ? r'${result.index}' : r'${result}'},
-              ],
-            });
-          }
-        }
       } else {
-        // An expression where the string goes (`Button open ? "Hide" : "Show"`).
         final from = t.at;
-        final bare = t.expression();
-        final shownKey = component
-            ? strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull
-            : _shownValue[type] ?? _mainKey(type, spec);
-        if (component && shownKey != null && bare.contains(' ') && bare.contains('?') && !RegExp(r'^[A-Za-z]+:').hasMatch(bare)) {
-          positional.add(shownKey);
-        }
-        if (shownKey != null && bare.contains(' ') && bare.contains('?') && !RegExp(r'^[A-Za-z]+:').hasMatch(bare)) {
-          bind['props.$shownKey'] = _read(bare.trim());
-          continue;
-        }
-        t.at = from;
         final word = t.word();
         if (word.isEmpty) {
           _issue(col, 'Unexpected "${t.peek}".');
           t.at++;
           continue;
         }
-        final colon = word.indexOf(':');
-        if (colon < 0) {
+        // What the grammar does not have, said with what to write.
+        if (word.startsWith('->')) {
+          _issue(col, 'There is no arrow. What a node does is an event with its actions in braces: onTap={count=count+1} (onChange={…} on a control).');
+          break;
+        }
+        final eq = word.indexOf('=');
+        if (eq == 0) {
+          _issue(col, 'A value has a key: write bind=name for the variable a control keeps its value in, key={expression} for a value worked out.');
+          continue;
+        }
+        if (eq < 0) {
+          final colon = word.indexOf(':');
+          if (colon > 0 && RegExp(r'^[A-Za-z][A-Za-z0-9_-]*$').hasMatch(word.substring(0, colon))) {
+            _issue(col, 'A value is written with =, not a colon: ${word.substring(0, colon)}=${colon + 1 < word.length ? word.substring(colon + 1) : '…'}.');
+            if (word.endsWith(':') && t.peek == '"') t.string();
+            if (word.endsWith(':') && (t.peek == '[' || t.peek == '{')) t.balanced();
+            continue;
+          }
           if (written == 'Box' && (word == 'center' || word == 'middle')) {
             // A box centers what is in it: across with `center`, down with
             // `middle` (or with `center` alone).
@@ -2243,10 +2185,6 @@ class _Parser {
             layout['width'] = {'fill': 0};
           } else if (word == 'open' && (type == 'accordion' || type == 'expansionTile')) {
             props[type == 'accordion' ? 'expanded' : 'initiallyExpanded'] = true;
-          } else if (word.startsWith('#') && RegExp(r'^#[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(word)) {
-            // An anchor written after the text (`Heading "Why" #why`): a name
-            // for a `scroll why` to go to.
-            _anchors[word.substring(1)] = id;
           } else if (word == 'hidden') {
             node['visible'] = false;
           } else if (word == 'sticky') {
@@ -2256,44 +2194,80 @@ class _Parser {
             node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header)$').hasMatch(written) ? 0 : 16};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
-          } else if (component && _componentWord(word, spec, props, bind)) {
-            // Read as the parameter it can only be.
           } else {
-            _issue(col, 'Unknown word "$word" on a $written. Props are written key:value.');
+            _issue(col, 'Unknown word "$word" on a $written. Props are written key=value.');
           }
           continue;
         }
-        var key = word.substring(0, colon);
-        // `if:cond` on a node is the node shown while it holds.
-        // …but `show:phone` is where it shows (a screen's size), even on a
-        // page with a value of that name (a form's phone field).
-        final sizeWord = (key == 'show' || key == 'hide') && const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(colon + 1));
-        if (key == 'if' || key == 'when' || (key == 'show' && !sizeWord)) key = 'visible';
-        // A handler written as a key, as models write one unprompted:
-        // onPressed:{a = 1; b = 2}, tap:"n = n + 1", onChanged: qty = value.
-        // …unless the node has a parameter of that name (a quote's `change:1.84`).
+        var key = word.substring(0, eq);
+        // key={expression}, onTap={…}: the colon is not the grammar's.
+        if (key.contains(':')) {
+          final name = key.substring(0, key.indexOf(':'));
+          _issue(col, 'A value is written with =, not a colon: $name=… (a value worked out: $name={expression}).');
+          if (t.peek == '{' || t.peek == '[') t.balanced();
+          if (t.peek == '"') t.string();
+          continue;
+        }
+        if (key == 'swipe' && !spec.props.any((p) => p.key == 'swipe')) {
+          _issue(col, 'A swipe is an event: onSwipeLeft={…} (Right, Up, Down).');
+          continue;
+        }
+        // `show=phone` is where a node shows (a screen's size), never a
+        // condition, which is visible={…}.
+        final sizeWord = (key == 'show' || key == 'hide') && const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(eq + 1));
+        if ((key == 'show' || key == 'hide') && !sizeWord && !spec.props.any((p) => p.key == key)) {
+          _issue(col, '$key= takes a size (phone, tablet): a condition is written visible={condition}.');
+          if (t.peek == '{' || t.peek == '[') t.balanced();
+          if (t.peek == '"') t.string();
+          continue;
+        }
+        // What a node does: an event with its actions in braces
+        // (onTap={a=1; toast "Saved"}), unless the node has a parameter of
+        // that name.
         if (_handlerKey.hasMatch(key) && !spec.props.any((p) => p.key == key)) {
-          t.at = from + colon + 1;
-          t.skipSpace();
-          final String body;
-          if (t.peek == '{') {
-            final braced = t.balanced();
-            body = braced.substring(1, braced.length - 1);
-          } else if (t.peek == '"') {
-            body = t.string();
-          } else {
-            body = t.rest;
-            t.at += t.rest.length;
+          t.at = from + eq + 1;
+          if (t.peek != '{') {
+            _issue(col, 'An event\x27s actions are written in braces: $key={name=value; toast "Saved"}.');
+            if (t.peek == '"') {
+              t.string();
+            } else {
+              t.word();
+            }
+            continue;
           }
+          final braced = t.balanced();
+          final body = braced.substring(1, braced.endsWith('}') ? braced.length - 1 : braced.length);
           final trigger = _handlerTrigger(key, type, component ? spec : null, node);
-          final actions = _actions(_statements(body), col);
+          if (trigger == null) {
+            _issue(col, 'A $written has no event "$key". Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.');
+            continue;
+          }
+          final actions = _actions(body, col);
           // A menu opened by a right click or a long press sits where the pointer is.
           if (trigger['type'] == 'secondaryClick' || trigger['type'] == 'longPress') actions.forEach(_atPointer);
           reactions.add({'trigger': trigger, 'actions': actions});
           continue;
         }
-        var raw = word.substring(colon + 1);
-        // `menu:rowMenu`: a right click, or a long press on a touch screen,
+        var raw = word.substring(eq + 1);
+        if (key == 'bind' && !spec.props.any((p) => p.key == 'bind')) {
+          if (raw.isEmpty && t.peek == '{') {
+            final braced = t.balanced();
+            raw = braced.substring(1, braced.endsWith('}') ? braced.length - 1 : braced.length).trim();
+          }
+          if (raw.isEmpty) {
+            _issue(col, 'bind= names a variable: bind=name.');
+          } else {
+            bindTo(raw, col);
+          }
+          continue;
+        }
+        // `id=why`: a name a `scroll why` goes to (the node's own id is the
+        // one after its type, `Heading#why`).
+        if (key == 'id' && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(raw) && !spec.props.any((p) => p.key == 'id')) {
+          _anchors[raw] = id;
+          continue;
+        }
+        // `menu=rowMenu`: a right click, or a long press on a touch screen,
         // opens that Menu where the pointer is (a context menu).
         if (key == 'menu' && _identifier.hasMatch(raw) && !raw.contains('.') && !spec.props.any((p) => p.key == 'menu')) {
           for (final trigger in const ['secondaryClick', 'longPress']) {
@@ -2303,48 +2277,33 @@ class _Parser {
           }
           continue;
         }
-        if (raw.startsWith('=')) raw = '$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
-        // What models write for a value that follows state when nothing tells
-        // them how (tool/values in the SDK, fourteen answers): the name bare,
-        // the name or an expression in braces, or the expression as it is.
-        // None of them is text, which is written in quotes.
-        if (!raw.startsWith('=') && !raw.startsWith('"') && raw.isNotEmpty && _operatorAhead.matchAsPrefix(t.s, t.at) != null) {
-          // key:count > 0, max:standing + (6 - count): the expression goes on past the space.
-          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
-        } else if (!raw.startsWith('=') && raw.startsWith('(') && !_literal(raw).$1) {
-          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
-        }
-        // key:={running}: both marks at once.
-        if (raw.startsWith('={') && _bracedExpression(raw.substring(1))) raw = raw.substring(1);
+        // key={expression}: a value worked out from the state (from here on
+        // it is marked with a leading =). A map names a key first ({"a": 1})
+        // and is the JSON it is.
         if (_bracedValue.hasMatch(raw) || _bracedExpression(raw)) {
           raw = '=${raw.substring(1, raw.length - 1).trim()}';
-        } else if (!raw.startsWith('=') && key != 'drag' && key != 'drop' && _expressionStart.hasMatch(raw) && !_literal(raw).$1) {
-          raw = '=$raw${t.expression(opened: _opened(raw), quoted: '"'.allMatches(raw).length.isOdd, single: RegExp(r"(?<![A-Za-z0-9])'").allMatches(raw).length.isOdd)}';
-        }
-        // A list or map that is not plain JSON holds expressions
-        // (votes:[a+1,b]): it is read as the formula it is.
-        if (raw.startsWith('[') || raw.startsWith('{')) {
+        } else if (raw.startsWith('[') || raw.startsWith('{')) {
           try {
-            // …and so is one whose texts read values
-            // (items:["Lemons, {2 * servings}"]): each such text is its
-            // parts joined.
+            // A list whose texts read values (items=["Lemons, {2 * n}"]):
+            // each such text is its parts joined.
             final decoded = jsonDecode(raw);
             if (_readsValues(decoded)) raw = '=${_formulaSource(decoded)}';
           } catch (_) {
-            raw = '=$raw';
+            _issue(col, 'Not a list of values. One that is worked out is written in braces: $key={$raw}.');
+            continue;
           }
-        }
-        // A bare word that is a variable the answer declared (choice:pick),
-        // or a field read through the name an `each` gave (price:x.price),
-        // is that variable: text is written in quotes. A word that is one of
-        // the parameter's own values (tone:quiet) stays the word.
-        if (!raw.startsWith('=') && raw != 'fill' && raw != 'hug' && !sizeWord && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
+        } else if (raw != 'fill' && raw != 'hug' && !sizeWord && key != 'drag' && key != 'drop' && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
+          // A bare word is the word itself (tone=quiet). One that names a
+          // variable was meant as its value: said, not guessed.
           final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(raw)!;
-          final known = variables.containsKey(head) || _derived.containsKey(head) || _stack.any((o) => o.each == head);
+          final known = variables.containsKey(head) || _derived.containsKey(head) || head == 'item' && _stack.any((o) => o.each != null);
           final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
-          if (known && !ownValue) raw = '=$raw';
+          if (known && !ownValue) {
+            _issue(col, 'A value read from the state is written in braces: $key={$raw}.');
+            continue;
+          }
         }
         if (grid != null && (key == 'cols' || key == 'columns')) {
           grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 12);
@@ -2385,10 +2344,10 @@ class _Parser {
           }
           continue;
         }
-        // `drag:todo(card.id)`: the node can be dragged, in a group, carrying
-        // a value. `drop:todo,doing -> …`: it takes drops from those groups,
+        // `drag=todo(card.id)`: the node can be dragged, in a group, carrying
+        // a value. `drop=todo,doing onTap={…}`: it takes drops from those groups,
         // and the line's -> runs on a drop ({result.data} is what was carried).
-        // `animate:fade` (slide-up, scale, pulse, spin, pop, shake, shimmer…)
+        // `animate=fade` (slide-up, scale, pulse, spin, pop, shake, shimmer…)
         // with `duration:` and `delay:` beside it, and `stagger:` under an
         // `each` (each copy that much later than the one before).
         if (key == 'animate' || key == 'animation' || key == 'enter') {
@@ -2397,7 +2356,7 @@ class _Parser {
           final word = name.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]}-${m[2]}').toLowerCase().replaceAll(RegExp(r'[ _]'), '-');
           final look = notationAnimations[word] ?? notationAnimations[word.replaceAll(RegExp(r'-(in|once|loop)$'), '')];
           if (look == null) {
-            _issue(col, 'No animate:$raw. Written animate:${notationAnimations.keys.join(', ')}.');
+            _issue(col, 'No animate=$raw. Written animate=${notationAnimations.keys.join(', ')}.');
           } else {
             animation = {'id': 'a', ..._copy(look)};
           }
@@ -2408,7 +2367,7 @@ class _Parser {
           continue;
         }
         if (key == 'limit' && type == 'radialGauge') key = 'target';
-        // What a gauge measures in, under its figure: unit:"km/h".
+        // What a gauge measures in, under its figure: unit="km/h".
         if ((key == 'unit' || key == 'label') && type == 'radialGauge') {
           gaugeUnit = _literal(raw).$2?.toString() ?? raw;
           continue;
@@ -2420,7 +2379,7 @@ class _Parser {
           props['size'] = n <= 24 ? 'xs' : n <= 32 ? 'small' : n <= 44 ? 'medium' : 'large';
           continue;
         }
-        // gradient:["#FF7C3AED","#FFEC4899"]: a fill from the first color to the last, corner to corner.
+        // gradient=["#FF7C3AED","#FFEC4899"]: a fill from the first color to the last, corner to corner.
         if (key == 'gradient' && _gradient(_value(raw)) != null) {
           decoration['fills'] = [_gradient(_value(raw))];
           continue;
@@ -2455,10 +2414,10 @@ class _Parser {
           props['obscureText'] = true;
           continue;
         }
-        // Where a node shows, by the screen's width: hide:phone (not on a
-        // phone), hide:tablet (not on a tablet or a phone), show:phone
-        // (on a phone only), show:tablet (on a tablet and a phone only).
-        // sticky:0 stays at the very top (a header); the word alone keeps 16 above it.
+        // Where a node shows, by the screen's width: hide=phone (not on a
+        // phone), hide=tablet (not on a tablet or a phone), show=phone
+        // (on a phone only), show=tablet (on a tablet and a phone only).
+        // sticky=0 stays at the very top (a header); the word alone keeps 16 above it.
         if (key == 'sticky' && num.tryParse(raw) != null) {
           node['sticky'] = {'offset': num.parse(raw)};
           continue;
@@ -2482,7 +2441,7 @@ class _Parser {
           }
           continue;
         }
-        // The widest a node gets (a page's column of content): maxw:720.
+        // The widest a node gets (a page's column of content): maxw=720.
         if (const {'maxw', 'maxWidth', 'max-width', 'maxwidth'}.contains(key) && num.tryParse(raw) != null) {
           layout['constraints'] = {...?readMap(layout['constraints']), 'maxWidth': num.parse(raw)};
           continue;
@@ -2496,18 +2455,10 @@ class _Parser {
           sliderStep = num.parse(raw);
           continue;
         }
-        // `swipe:left -> …` runs the line's actions on that swipe.
-        if (key == 'swipe' && const {'left', 'right', 'up', 'down'}.contains(raw)) {
-          swipe = 'swipe${raw[0].toUpperCase()}${raw.substring(1)}';
-          for (final r in reactions) {
-            if (readMap(r['trigger'])?['type'] == 'click') r['trigger'] = {'type': swipe};
-          }
-          continue;
-        }
         if (key == 'drag') {
           final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\((.+)\))?$').firstMatch(raw);
           if (m == null) {
-            _issue(col, 'drag is written drag:group or drag:group(value): drag:todo(card.id).');
+            _issue(col, 'drag is written drag=group or drag=group(value): drag=todo(card.id).');
           } else {
             node['draggable'] = {'group': m[1], if (m[2] != null) 'data': _read(m[2]!.trim())};
           }
@@ -2516,14 +2467,14 @@ class _Parser {
         if (key == 'drop') {
           final groups = raw.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty).toList();
           if (groups.isEmpty || groups.any((g) => !_identifier.hasMatch(g))) {
-            _issue(col, 'drop is written drop:group or drop:a,b with the groups it takes: drop:todo,doing -> done=append(done,result.data).');
+            _issue(col, 'drop is written drop=group or drop=a,b with the groups it takes: drop=todo,doing onDrop={done=append(done,result.data)}.');
           } else {
             node['dropTarget'] = {'accepts': groups};
           }
           continue;
         }
-        // A hairline round it: `border:#FFE5E7EB`, or one that follows data: `border:=on?"#FF2563EB":"#FFE5E7EB"`.
-        // A hairline on one side: border-bottom:#FFE5E7EB (a bar's rule, a pane's edge).
+        // A hairline round it: `border=#FFE5E7EB`, or one that follows data: `border={on?"#FF2563EB":"#FFE5E7EB"}`.
+        // A hairline on one side: border-bottom=#FFE5E7EB (a bar's rule, a pane's edge).
         if (_borderSides[key] case final String side when !raw.startsWith('=')) {
           decoration['strokes'] = [
             {'color': _named(_value(raw), 'stroke')},
@@ -2545,7 +2496,7 @@ class _Parser {
           continue;
         }
         if (type == 'text' && _textStyleKeys.containsKey(key)) {
-          // A style that follows data: `color:=due?"#FFDC2626":"#FF111827"`.
+          // A style that follows data: `color={due?"#FFDC2626":"#FF111827"}`.
           if (raw.startsWith('=') && key != 'bold') {
             final read = _read(raw.substring(1));
             bind['props.style.${_textStyleKeys[key]!}'] = key == 'color' ? _namedIn(read, 'text') : read;
@@ -2599,7 +2550,7 @@ class _Parser {
         final bound = raw.startsWith('=') ? raw.substring(1).trim() : null;
         final dotted = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(\.[A-Za-z_][A-Za-z0-9_]*)+$').firstMatch(raw);
         if (bound != null && bound.startsWith('"') && _literal(bound).$1 && _literal(bound).$2 is String) {
-          // value:="{s.jumps}": a text with a value in it, written as a binding.
+          // value={"{s.jumps}"}: a text with a value in it, written in braces.
           final text = _interpolate(_literal(bound).$2! as String);
           if (text.contains(r'${')) {
             bind[path] = text;
@@ -2609,15 +2560,15 @@ class _Parser {
         } else if (bound != null) {
           bind[path] = _read(bound);
         } else if (dotted != null && (variables.containsKey(dotted[1]) || dotted[1] == 'item')) {
-          // minutes:today.minutes: a field of declared state where a value
+          // minutes=today.minutes: a field of declared state where a value
           // goes is that value, not the words.
           bind[path] = _read(raw);
         } else {
           var v = _value(raw);
-          // A text parameter given a number (count:4) takes it as text.
+          // A text parameter given a number (count=4) takes it as text.
           if (v is num && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.string)) v = '$v';
           if (v is String && v.contains(r'${') && !(type == 'text' && path == 'props.text')) {
-            // A string that reads data (value:"{streak} days") is bound:
+            // A string that reads data (value="{streak} days") is bound:
             // only a text node reads an expression as written.
             bind[path] = v;
           } else {
@@ -2633,7 +2584,7 @@ class _Parser {
     if (component) {
       bool has(String k) => props.containsKey(k) || bind.containsKey('props.$k');
       // A block with an optional boolean state should still toggle when its
-      // author leaves off =name. Give each call its own page variable.
+      // author leaves off bind=name. Give each call its own page variable.
       for (final p in spec.props) {
         if (p.required || has(p.key) || !p.type.isVariable || p.type.variableOf?.kind != PropKind.boolean) continue;
         final local = '${id}_${p.key}';
@@ -2651,7 +2602,7 @@ class _Parser {
           positional.remove(moved);
           continue;
         }
-        _issue(column, 'A $written needs ${p.key}: write ${p.key}:${p.type.isVariable ? 'name (a variable), or =name' : p.type.kind == PropKind.list ? '["a","b"]' : p.type.kind == PropKind.string ? '"…"' : 'value'}.');
+        _issue(column, 'A $written needs ${p.key}: write ${p.key}=${p.type.isVariable ? 'name (a variable), or bind=name' : p.type.kind == PropKind.list ? '["a","b"]' : p.type.kind == PropKind.string ? '"…"' : 'value'}.');
       }
     }
     // A component is as big as its own design says, unless the line does.
@@ -2686,7 +2637,7 @@ class _Parser {
       ];
       layout.putIfAbsent('height', () => 160);
     }
-    // Shares of a whole: values:[…] labels:[…] colors:[…] as a donut (a pie
+    // Shares of a whole: values=[…] labels=[…] colors=[…] as a donut (a pie
     // is a thick one).
     if (ours && const {'Donut', 'DonutChart', 'PieChart', 'Pie'}.contains(written)) {
       final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
@@ -2873,9 +2824,9 @@ class _Parser {
         bind['animations[0].delay'] = '\${= index*$step${timing?['delay'] == null ? '' : '+${timing!['delay']}'}}';
       }
     } else if (timing != null) {
-      _issue(column, 'duration:, delay: and stagger: go with animate: on the same line (animate:fade duration:400).');
+      _issue(column, 'duration=, delay= and stagger= go with animate= on the same line (animate=fade duration=400).');
     }
-    // `grow:=share` follows a value: it grows, by 1 until the value is read
+    // `grow={share}` follows a value: it grows, by 1 until the value is read
     // (a bar's segments sized by their amounts).
     if (bind.containsKey('layout.flex')) layout.putIfAbsent('flex', () => 1);
     if (stackAlign != null) _stackAlign[id] = stackAlign;
@@ -2956,7 +2907,7 @@ class _Parser {
       }
     }
     // A control's step is its height (28 compact, 32 small, 36 medium, 44
-    // large): `size:large` on a button, else the design system's height
+    // large): `size=large` on a button, else the design system's height
     // for a control on this canvas (a theme's `sizes.control`; on a page
     // its `sizes.controlWide`).
     if (const {'filledButton', 'outlinedButton', 'elevatedButton', 'textButton'}.contains(type)) {
@@ -3050,7 +3001,7 @@ class _Parser {
     // A spacer that grows in a column takes the height left (what is under
     // it sits at the column's foot).
     if (type == 'spacer' && layout.containsKey('flex') && parent?.type == 'column' && !inRow) layout['height'] = {'fill': 0};
-    // A size that follows data (w:=…, h:=…) is a fixed one whose number the
+    // A size that follows data (w={…}, h={…}) is a fixed one whose number the
     // binding gives: left to hug or fill, the number would change nothing
     // and an empty box would stay at no size.
     if (bind.containsKey('layout.width')) layout['width'] = 0;
@@ -3428,7 +3379,7 @@ class _Parser {
   /// [line] with the word [name] read as `item`, outside quoted text and
   /// inside `{…}` within it.
   String _rename(String line, String name, [String to = 'item']) {
-    // A short loop name may also be a layout key (`each h ... Text ... h:120`).
+    // A short loop name may also be a layout key (`each h ... Text ... h=120`).
     // A key followed by ':' is notation, not a reference to the item.
     final word = RegExp('(?<![A-Za-z0-9_.#])${RegExp.escape(name)}(?![A-Za-z0-9_])');
     final out = StringBuffer();
@@ -3437,10 +3388,10 @@ class _Parser {
       final part = line.substring(start, end);
       out.write(code
           ? part.replaceAllMapped(word, (m) {
-              // In `h:120` the `h` is a prop key. In `live ? h:4` it
+              // In `h=120` the `h` is a prop key. In `live ? h=4` it
               // is still the loop value, despite the following colon.
               final before = part.substring(0, m.start).trimRight();
-              final key = m.end < part.length && part[m.end] == ':' &&
+              final key = m.end < part.length && part[m.end] == '=' && !(m.end + 1 < part.length && part[m.end + 1] == '=') &&
                   (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
                   !before.endsWith('?');
               return key ? m[0]! : to;
@@ -3526,7 +3477,7 @@ class _Parser {
       // The viewer a gallery of the page opens its photos in, over the window.
       if (_pages.viewerUsed && !_continues && !_taken(_pages.viewer!)) {
         final viewer = _pages.viewer!;
-        if (_pages.overlay('Lightbox#$viewer photos:=${viewer}Photos =${viewer}At') case final Overlay o) {
+        if (_pages.overlay('Lightbox#$viewer photos={${viewer}Photos} bind=${viewer}At') case final Overlay o) {
           _openBlock(o);
           _closeBlock();
         }
@@ -3543,10 +3494,6 @@ class _Parser {
           _closeBlock();
         }
       }
-    }
-    if (_everyOpen case final String open) {
-      _everyOpen = null;
-      line('$open ->');
     }
     if (_open case final String open) {
       // Read as far as it goes: the line says what is wrong with it.
@@ -3664,7 +3611,7 @@ class _Parser {
     var written = m[2]!.trim();
     // One formula may read another (`state total=subtotal-discount`).
     for (final d in _derived.entries) {
-      if (written.contains(d.key)) written = _rename('x:=$written', d.key, '(${d.value})').substring(3);
+      if (written.contains(d.key)) written = _rename(' $written', d.key, '(${d.value})').substring(1);
     }
     // Text in quotes is not an operator: `"a + b"` is a value, `"Total " + n` a formula.
     final code = written.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
@@ -3690,53 +3637,57 @@ class _Parser {
     };
   }
 
-  /// A bare word on a component's line that can only mean one thing: the
-  /// value of its one enumerated parameter that has it (`ActionButton
-  /// "Cancel" quiet`: tone), or a parameter set with `=` where `:=` was
-  /// meant (`qty=count`).
-  bool _componentWord(String word, WidgetSpec spec, Json props, Json bind) {
-    final eq = word.indexOf('=');
-    if (eq > 0) {
-      final key = word.substring(0, eq);
-      if (!spec.props.any((p) => p.key == key)) return false;
-      final l = _literal(word.substring(eq + 1));
-      if (l.$1) {
-        props[key] = l.$2;
-      } else {
-        bind['props.$key'] = _read(word.substring(eq + 1));
-      }
-      return true;
-    }
-    final takers = spec.props
-        .where((p) => p.type.kind == PropKind.enumeration && p.type.values.contains(word) && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}'))
-        .toList();
-    if (takers.length != 1) return false;
-    props[takers.single.key] = word;
-    return true;
-  }
-
-  static final _handlerKey = RegExp(r'^(on[A-Z][A-Za-z]*|tap|press|click|change)$');
+  static final _handlerKey = RegExp(r'^on[A-Z][A-Za-z]*$');
 
   /// What fires a handler named [key] on a node of [type]: a component's
-  /// event of that name (else its first), a control's change, a tap.
-  Json _handlerTrigger(String key, String type, WidgetSpec? component, Json node) {
-    if (node.containsKey('dropTarget')) return {'type': 'drop'};
+  /// event of that name (else its first: onTap on a block is what it does
+  /// when it is used); on a plain node, the event the name says. Null when
+  /// a plain node has no such event.
+  Json? _handlerTrigger(String key, String type, WidgetSpec? component, Json node) {
+    if (key == 'onDrop') return {'type': 'drop'};
     if (component != null) {
       final named = component.events.where((e) => e.key == key).firstOrNull ??
-          (key == 'change' || key == 'onChange' ? component.events.where((e) => e.key == 'onChanged').firstOrNull : null) ??
+          (key == 'onChange' ? component.events.where((e) => e.key == 'onChanged').firstOrNull : null) ??
           component.events.firstOrNull;
       if (named != null) return {'type': 'event', 'event': named.key};
     }
-    final bare = key.startsWith('on') && key.length > 2 ? '${key[2].toLowerCase()}${key.substring(3)}' : key;
-    if (const {'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'longPress', 'doubleTap'}.contains(bare)) return {'type': bare};
-    if (const {'rightClick', 'secondaryClick', 'contextMenu'}.contains(bare)) return {'type': 'secondaryClick'};
-    final changes = key == 'change' || key == 'onChange' || key == 'onChanged';
-    return {'type': changes || _valueProps.containsKey(type) && !key.contains('ress') && key != 'tap' && key != 'click' ? 'changed' : 'click'};
+    return switch (key) {
+      'onTap' || 'onPress' || 'onPressed' || 'onClick' => {'type': 'click'},
+      'onChange' || 'onChanged' => {'type': 'changed'},
+      'onLongPress' => {'type': 'longPress'},
+      'onDoubleTap' => {'type': 'doubleTap'},
+      'onRightClick' || 'onSecondaryClick' || 'onContextMenu' => {'type': 'secondaryClick'},
+      'onSwipeLeft' => {'type': 'swipeLeft'},
+      'onSwipeRight' => {'type': 'swipeRight'},
+      'onSwipeUp' => {'type': 'swipeUp'},
+      'onSwipeDown' => {'type': 'swipeDown'},
+      'onHover' => {'type': 'cursorEnter'},
+      'onFocus' => {'type': 'focusGained'},
+      'onBlur' => {'type': 'focusLost'},
+      'onSubmit' => {'type': 'submitted'},
+      _ => null,
+    };
   }
 
-  /// A handler's statements as the notation's actions: the control's new
-  /// value is `value` to a model and `result` to the engine.
-  String _statements(String body) => variables.containsKey('value') ? body : _rename(body, 'value', 'result');
+  /// [line] without the assignments to [name] in its events' actions (and
+  /// without an event left with none).
+  String _withoutSets(String line, String name) {
+    final k = RegExp.escape(name);
+    final out = StringBuffer();
+    var at = 0;
+    for (final m in RegExp(r'(\s+)(on[A-Z][A-Za-z]*)=\{').allMatches(line)) {
+      if (m.start < at || _outside(line.substring(0, m.end), '"') >= 0 && '"'.allMatches(line.substring(0, m.start)).length.isOdd) continue;
+      final t = _Tokens(line)..at = m.end - 1;
+      final braced = t.balanced();
+      if (!braced.endsWith('}')) continue;
+      final actions = braced.substring(1, braced.length - 1).replaceAll(RegExp('(^|;)\\s*$k\\s*(?:[-+*/])?=(?!=)[^;]*'), '').replaceFirst(RegExp(r'^\s*;\s*'), '');
+      out.write(line.substring(at, m.start));
+      if (actions.trim().isNotEmpty) out.write('${m[1]}${m[2]}={$actions}');
+      at = t.at;
+    }
+    out.write(line.substring(at));
+    return out.toString();
+  }
 
   /// `if (cond) { a = 1; b = 2 }` in a handler, as the assignments it stands
   /// for: each made only while the condition holds (`a = cond ? 1 : a`).
@@ -3840,11 +3791,11 @@ class _Parser {
           out.add(action);
         case 'scroll':
           // `scroll pricing`, `scroll to pricing`, `scroll #pricing`: the page
-          // moves to that part, named by its id or by an anchor (`#pricing`
-          // after a line, or id:pricing on it).
+          // moves to that part, named by its id (`Section#pricing`) or by an
+          // anchor (`id=pricing` on a line).
           final target = s.replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim();
           if (target.isEmpty) {
-            _issue(column, 'A scroll names where to: scroll pricing (the id of a line, or an anchor written #pricing after a line).');
+            _issue(column, 'A scroll names where to: scroll pricing (the id of a line: Section#pricing, or id=pricing on it).');
           } else {
             final Json action = {'type': 'scrollTo', 'node': target, 'durationMs': 400, 'offset': 72};
             _scrolls.add(action);
@@ -3857,8 +3808,13 @@ class _Parser {
           // screen id: go replace(lower(result)," ","_")); a bare id is the id.
           // A page's id may have hyphens (go get-started is that page, not a
           // subtraction), and a destination already written ${= …} is whole.
+          final braced = s.startsWith('{') && s.endsWith('}') && s.length > 2;
           final fixed = arg.startsWith('"') || _identifier.hasMatch(s) || RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(s) || (s.startsWith(r'${') && s.endsWith('}'));
-          out.add({'type': 'navigate', 'to': fixed ? s : _formula(s)});
+          if (!braced && !fixed) {
+            _issue(column, 'A page that is worked out is written in braces: go {$s}. A bare word after go is the id of the page.');
+          } else {
+            out.add({'type': 'navigate', 'to': braced ? _formula(s.substring(1, s.length - 1).trim()) : s});
+          }
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
         case 'link':
@@ -3880,11 +3836,10 @@ class _Parser {
     return '$type$n';
   }
 
-  static final _operatorAhead = RegExp(r' +(==|!=|>=|<=|&&|\|\||[<>?+*/]|-(?!>)|and\b|or\b) *[A-Za-z0-9_("!\x27-]');
   static final _bracedValue = RegExp(r'^\{[^{}":,]+\}$');
 
   /// How many brackets [raw] leaves open (text in quotes aside): the value
-  /// goes on past a space until they close (`rows:=[["Total", money(n)]]`).
+  /// goes on past a space until they close (`rows={[["Total", money(n)]]}`).
   static int _opened(String raw) {
     var depth = 0, quoted = false;
     for (var i = 0; i < raw.length; i++) {
@@ -3941,18 +3896,17 @@ class _Parser {
       return true;
     }
   }
-  static final _expressionStart = RegExp(r'^(![A-Za-z_(]|[A-Za-z_][A-Za-z0-9_.\[\]]*(\(|==|!=|>=|<=|>|<|&&|\|\||\?|\+|\*))');
   static final _variablePath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*|\[[^\]\s]*\])*$');
   /// The condition of the last `if` (and its `else if`s) at each depth, for an `else`.
   final Map<int, String> _ifAt = {};
 
-  static final _dotsLine = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?\s+=([A-Za-z_][A-Za-z0-9_]*)\s+count:(\S+)(\s.*)?$');
+  static final _dotsLine = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?\s+bind=([A-Za-z_][A-Za-z0-9_]*)\s+count=(\{[^{}]*\}|\S+)(\s.*)?$');
   static final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
 
   /// An expression as a binding reads it: a name, or a formula.
   String _read(String expr) {
     final e = expr.trim();
-    // A word that is a value, not a name (enabled:=false): the value.
+    // A word that is a value, not a name (enabled={false}): the value.
     if (const {'true', 'false', 'null'}.contains(e)) return _formula(e);
     // A name is read as it is; anything the formula language spells otherwise (rows.length) is a formula.
     return _identifier.hasMatch(e) && _natural(e) == e ? '\${$e}' : _formula(e);
@@ -4127,18 +4081,6 @@ class _Parser {
     }
   }
 
-  /// Where a `{…}` tail starts in what is left ([t.rest].length when none).
-  int _tail(_Tokens t) {
-    final rest = t.rest;
-    var quoted = false;
-    for (var i = 0; i < rest.length; i++) {
-      final c = rest[i];
-      if (c == '"' && (i == 0 || rest[i - 1] != r'\')) quoted = !quoted;
-      if (!quoted && c == '{' && i > 0 && rest[i - 1] == ' ' && _trailingJson(rest.substring(i))) return i;
-    }
-    return rest.length;
-  }
-
   /// A gradient as models write it (a list of colors, or `{"colors": […],
   /// "begin": "topLeft", "end": "bottomRight"}`), as a linear fill.
   Json? _gradient(Object? v) {
@@ -4154,15 +4096,6 @@ class _Parser {
         for (var i = 0; i < colors.length; i++) {'position': i / (colors.length - 1), 'color': colors[i]},
       ],
     };
-  }
-
-  bool _trailingJson(String s) {
-    if (!s.trimRight().endsWith('}')) return false;
-    try {
-      return jsonDecode(s) is Map;
-    } catch (_) {
-      return false;
-    }
   }
 
   List<String> _split(String s, String sep) {
@@ -4276,50 +4209,11 @@ class _Tokens {
     return -1;
   }
 
-  static final _opAhead = RegExp(r' +(&&|\|\||\?|:(?![=A-Za-z])|==|!=|>=|<=|[<>+*/%]|-(?!>)|(?:and|or)(?= ))');
-  static final _opBehind = RegExp(r'(&&|\|\||\?|[^A-Za-z0-9_"\])]:|==|!=|>=|<=|[<>+*/%]|(?:^| )(?:and|or|not))$');
-
-  /// Up to the next space (a `key:"quoted value"` stops before its quote).
+  /// Up to the next space (a `key="quoted value"` stops before its quote).
   String word() {
     final start = at;
     while (!done && s[at] != ' ') {
-      if (s[at] == '"' || ((s[at] == '[' || s[at] == '{') && at > start && s[at - 1] == ':')) break;
-      at++;
-    }
-    return s.substring(start, at);
-  }
-
-  /// The rest of an expression: to the next space outside quotes and
-  /// brackets (`to!=""&&len(subject)>0`).
-  String expression({int opened = 0, bool quoted = false, bool single = false}) {
-    final start = at;
-    var depth = opened;
-    while (!done) {
-      final c = s[at];
-      if (c == '"' && !single && (at == 0 || s[at - 1] != r'\')) quoted = !quoted;
-      // 'Living Room' in an expression is one value, its space included
-      // (an apostrophe inside a word, don't, is not a quote).
-      if (c == "'" && !quoted && (single || at == start || !RegExp(r'[A-Za-z0-9]').hasMatch(s[at - 1]))) single = !single;
-      if (!quoted && !single) {
-        if (c == '(' || c == '[' || c == '{') depth++;
-        if (c == ')' || c == ']' || c == '}') depth--;
-        if (c == ' ' && depth <= 0) {
-          // An operator on either side of the space carries on
-          // (`a!="" && b!=""`, `open ? "Hide" : "Show"`).
-          final ahead = _opAhead.matchAsPrefix(s, at);
-          if (ahead != null) {
-            at = ahead.end;
-            continue;
-          }
-          if (at > start && (_opBehind.hasMatch(s.substring(start, at)) || s[at - 1] == ':' && s.substring(start, at).contains('?'))) {
-            while (!done && s[at] == ' ') {
-              at++;
-            }
-            continue;
-          }
-          break;
-        }
-      }
+      if (s[at] == '"' || ((s[at] == '[' || s[at] == '{') && at > start && s[at - 1] == '=')) break;
       at++;
     }
     return s.substring(start, at);

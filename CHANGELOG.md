@@ -1,5 +1,45 @@
 ## Unreleased
 
+### Breaking (33.0.0)
+
+- **The compact notation has a new grammar, and reads only it** (docs/design/17-notation-grammar-audit.md).
+  Everything after a node's text is `key=value`; a value worked out from the state is in braces, as inside a
+  text; a control's variable is `bind=name`; what a node does is an event with its actions in braces, and there
+  is no arrow.
+
+  | Before (to 32.x) | Now |
+  |---|---|
+  | `Column gap:12 pad:16` | `Column gap=12 pad=16` |
+  | `Input "Email" =email` | `Input "Email" bind=email` |
+  | `selected:=tab=="a"`, `enabled:count > 0` | `selected={tab=="a"}`, `enabled={count > 0}` |
+  | `Button "Save" -> saved=true; toast "Saved"` | `Button "Save" onTap={saved=true; toast "Saved"}` |
+  | `Slider =volume -> emit volume result` | `Slider bind=volume onChange={emit volume result}` |
+  | `SiteNav … -> go lower(result)` with `onCta: go signup` on a line under it | `SiteNav … onNavigate={go {lower(result)}} onCta={go signup}` |
+  | `swipe:left -> …`, `drop:todo -> …`, `every 1s -> …` | `onSwipeLeft={…}`, `drop=todo onDrop={…}`, `every 1s onTick={…}` |
+  | `show:menuOpen` | `visible={menuOpen}` (`show=phone` is a size) |
+  | `Heading "Why" #why`, `id:why` | `Heading "Why" id=why` |
+
+  It is a hard break: the old spellings are not read, and each is an error on its line that says what to write
+  (`A value is written with =, not a colon: gap=12.`, `There is no arrow. What a node does is an event with its
+  actions in braces: onTap={…}`). Also no longer read: an expression with no braces after a key or where the text
+  goes, a declared variable written bare after a key (said, with `key={name}`), a list holding expressions with
+  no braces, a block's enumerated value as a bare word, `tap:` / `press:` / `click:` / `change:` as events, an
+  event's actions in quotes, `value` for `result`, `List =rows`. Still read, though not taught: `let`, a bare
+  `name = value` line, `for x in`, `each list`, `else`, `+=`, `++`, `.add()`, `if (c) {…}` in actions, `$name`,
+  single quotes, `sticky=true`, `onPressed` / `onClick` / `onChanged` for `onTap` / `onChange`, `onTap` on a block
+  for its first event.
+
+  **To migrate a file: `tool/notation/notation.sh migrate <file.txt> --design-system <folder>` in CodelesslySDK**
+  (a one-off tool outside this package; docs/design/18-notation-grammar-migration.md is the note to hand to
+  whoever has files). Every notation file of the SDK and every page of the twenty sites expands, rewritten, to the
+  document it expanded to before.
+- New on a plain node: `onHover`, `onFocus`, `onBlur`, `onSubmit` (the engine's `cursorEnter`, `focusGained`,
+  `focusLost`, `submitted`); an `on…` it does not have is an error that lists the events. `id=name` on a line is
+  an anchor. A plain node's unknown `on…` used to run on its tap or change.
+- `notationPrompt` teaches the new grammar: 8,979 characters for a card (8,913 before), 17,736 for a page
+  (17,644). A design system's component line lists its events by name (`Stepper "label" bind=value min max
+  onChanged : …`). The printer writes `gap=12`, and the A2UI front end the new grammar.
+
 ### Added
 
 - **The keyboard**: `focusable` (default true; false takes a node with a `click` reaction out of the focus order),
@@ -24,10 +64,10 @@
   of reporting a behavior change (sprint_kanban's columns relied on it).
 - **Notation, the page words**: the frames of a desktop page, written out as plain lines before they are read.
   A website is `Page` with `Nav`, `Section` (a full-width band, its content in a centered column; `narrow`,
-  `fill:`, `center`) and `Footer`. An app window is `App` with `Sidebar`, `Main` and `Pane w:320`, each as tall as
-  the window and scrolling by itself. Also `NavItem "Orders" icon:"inbox" badge:"12" selected:=… -> …`,
-  `Link "Docs"`, `Heading "…" level:1`. Inside a card the same words are a plain row or column.
-- **Notation**: `border-bottom:#…` (`-top`, `-left`, `-right`) is a rule on one side; `sticky` keeps a node in
+  `fill:`, `center`) and `Footer`. An app window is `App` with `Sidebar`, `Main` and `Pane w=320`, each as tall as
+  the window and scrolling by itself. Also `NavItem "Orders" icon="inbox" badge="12" selected={…} onTap={…}`,
+  `Link "Docs"`, `Heading "…" level=1`. Inside a card the same words are a plain row or column.
+- **Notation**: `border-bottom=#…` (`-top`, `-left`, `-right`) is a rule on one side; `sticky` keeps a node in
   view while the page scrolls; `Text … italic`.
 - **`NotationOptions.height`, `contentWidth`, `selectedFill`, `line`**: the window an app is drawn in, the
   widest a section's content gets (a theme's `sizes.content`), and the looks of a selected `NavItem` and a rule.
@@ -37,10 +77,10 @@
   and a page with nothing switched: a card is written at its own width and keeps the card's looks.
 - **Notation**: a button's `size:` (`xs`, `compact`, `small`, `medium`, `large`) is its height; a theme's
   `sizes.control` is the height of a button, a field and a select that write none. `Section tint` (a band on
-  the theme's `colors.band`) and `Section compact`; `IconTile "sync"`; `Brand "Harbor" icon:"anchor"`. A
+  the theme's `colors.band`) and `Section compact`; `IconTile "sync"`; `Brand "Harbor" icon="anchor"`. A
   selected `NavItem` has its label and icon in the accent. A website page is drawn on `colors.pageFill`, an
-  app's sidebar and top bar on `colors.card`. `Heading` in an app is the page's title (`level:1`), a panel's
-  (`level:3`).
+  app's sidebar and top bar on `colors.card`. `Heading` in an app is the page's title (`level=1`), a panel's
+  (`level=3`).
 - **`NotationOptions`**: `narrowWidth`, `sidebarWidth`, `sectionPad`, `gutter`, `band`, `siteFill`, `paneFill`,
   `iconTile`, `controlHeight` (a theme's `sizes.narrow`, `sizes.sidebar`, `spacing.section`, `spacing.gutter`,
   `colors.band`, `pageFill`, `card`, `iconTile`, `sizes.control`).
@@ -52,30 +92,40 @@
   columns it has room for, an `App` shows its main pane, a `Nav` hides its links, sections and headlines are
   smaller. The page at the width it was written for is unchanged. `NotationOptions.reflow` (default true) turns
   it off. Design note 13, section 14.
-- **Notation**: `hide:phone`, `hide:tablet`, `show:phone`, `show:tablet` say where a line shows; they hold on a
+- **Notation**: `hide=phone`, `hide=tablet`, `show=phone`, `show=tablet` say where a line shows; they hold on a
   line under an `if`, and a line that carries one is left out of the reflow's own hiding.
 - **Notation, overlays**: a dialog, a sheet, a drawer, a popup menu, a popover and a lightbox are written after
   the page (`Dialog#id`, `Sheet#id`, `Drawer#id`, `Menu#id`, `Popover#id`, `Lightbox#id`) and opened with
-  `-> open <id>`, each a canvas of its own with the right presentation; their lines read and set the page's
-  values. `menu:<id>` opens a menu on a right click or a long press. An `App`'s `Sidebar` opens as a drawer on
+  ` onTap={open <id>}`, each a canvas of its own with the right presentation; their lines read and set the page's
+  values. `menu=<id>` opens a menu on a right click or a long press. An `App`'s `Sidebar` opens as a drawer on
   a phone from a button added to `Main`'s top bar.
-- **Notation**: a website's `Nav` builds its own phone menu from its links (each as written; `menu:false` keeps
-  one out; a `Nav` with a `show:phone` line keeps its own); `Nav sticky` and `SiteNav … sticky` stay at the
-  very top (`sticky:0`), a `Nav` on the page's surface.
-- **Notation**: `scroll <id>` moves the page to a line, named by its id or by an anchor (`#pricing` after a line,
-  `id:pricing` on it); `Link "Pricing" href:"#pricing"` does the same. `go` takes a destination worked out
-  (`go replace(lower(result)," ","_")`); a page id may have hyphens.
+- **Notation**: a website's `Nav` builds its own phone menu from its links (each as written; `menu=false` keeps
+  one out; a `Nav` with a `show=phone` line keeps its own); `Nav sticky` and `SiteNav … sticky` stay at the
+  very top (`sticky=0`), a `Nav` on the page's surface.
+- **Notation**: `scroll <id>` moves the page to a line, named by its id (`Section#pricing`) or by an anchor
+  (`id=pricing` on it); `Link "Pricing" href="#pricing"` does the same. `go` takes a destination worked out
+  (`go {replace(lower(result)," ","_")}`); a page id may have hyphens.
+- **Notation, a viewer**: `Lightbox#zoom "{photo}" "Caption"` shows a picture large over the page: a pinch and the
+  wheel zoom about the point, a double tap goes to 2x where it was tapped and back, a drag pans while zoomed, and
+  it closes by its button, Escape, a tap on the scrim and a drag down. `Lightbox#shots photos={photos} bind=at` is
+  a gallery: a page per picture opened at the one tapped, turned by a swipe, its arrows and the arrow keys, with a
+  count, the caption and a strip of thumbnails; `ratio=` (or a record's `ratio`) gives the picture's box its
+  proportions. On a page, a design system's gallery that takes `viewer="overlay"` (Cards' PhotoGallery) opens its
+  photos in a viewer the expander writes once. The reference has the render command's `--double-tap`, `--wheel`
+  and `--pinch` steps.
+- **Notation, tabs**: `Tabs bind=tab tabs=[…]` is the design system's own Tabs where it has one; the prompt keeps
+  a `SegmentedButton` to two to four short options, never a page's tabs.
 - **Notation, a site's variables**: `NotationOptions.projectVariables` (a site manifest's `variables`) and
   `project name=value` on a page: read and set by name, with no copy declared on the screen to hide them.
 - **Notation**: `Section bleed` runs its content from edge to edge; a `Donut` written with `labels` draws them
-  as a legend beside it, under it where there is no room (`legend:false`: the chart alone; a page that writes
+  as a legend beside it, under it where there is no room (`legend=false`: the chart alone; a page that writes
   the labels itself keeps its own); a date or time field's string is its label, and on a page the field is as
   tall as the fields beside it; `NotationOptions.accentText` (a theme's `accentText` or `accentDeep`) is a
   link's ink in running text.
 
 ### Changed
 
-- **Notation**: a root written `h:fill` (and `App`) gives the canvas the window's height, where it was as tall
+- **Notation**: a root written `h=fill` (and `App`) gives the canvas the window's height, where it was as tall
   as its content. `Row between center` keeps its ends apart and levels its children (it was read as centered).
   A row that spreads its children is as wide as its place, in a centered column too. An icon keeps its size in
   a column. A `Spacer grow` in a column takes the height left. A design system's block in a row shares the
@@ -83,16 +133,16 @@
 
 ### Fixed
 
-- **Notation**: `-> open <id>` wrote its canvas under a key the document does not read (`modal`; it is `to`).
+- **Notation**: ` onTap={open <id>}` wrote its canvas under a key the document does not read (`modal`; it is `to`).
 - **Notation**: a short loop name no longer rewrites a layout key of the same letter (`each h in homes` with
-  `h:120`); an unbound boolean state of a block gets a variable of its own.
+  `h=120`); an unbound boolean state of a block gets a variable of its own.
 - **Notation**: a donut's first slice and a chart's first series were written as a theme name where a value is
   read, and did not draw; a donut given a height is as wide as it is tall. On a page: cards side by side in a
   row are equally tall; a field in a bar (or labelled "Search…") has its label as its hint; a `Badge` with a
-  width sits in a cell of that width; a `Text` with a rule, a fill or a corner is a box around the text; `id:x`,
-  `sticky:true top:24` and an Avatar's `src:` are read as meant.
+  width sits in a cell of that width; a `Text` with a rule, a fill or a corner is a box around the text; `id=x`,
+  `sticky=true top=24` and an Avatar's `src:` are read as meant.
 - **Notation**: a see-through `fill:` on a `Card` sits over the card's own color (alone it let the card's
-  shadow show through); `'single-quoted'` text in a value ends at its closing quote; `Sparkline values:=row.trend`
+  shadow show through); `'single-quoted'` text in a value ends at its closing quote; `Sparkline values={row.trend}`
   draws from a record's list; a `color:` on a checkbox, switch or radio is its color when on; a text in a box of
   a fixed height makes the box grow instead of overflowing.
 - **Notation**: the braces of a code sample shown as text (`import { Beacon } from …`) are text, not a value

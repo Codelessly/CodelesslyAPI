@@ -5,7 +5,7 @@
 // sidebar beside its content. [PageReflow] reads the expanded nodes and gives
 // each one that would not fit the media rules that make it fit:
 //
-//   Grid cols:3            its rows wrap (cells take a least width)
+//   Grid cols=3            its rows wrap (cells take a least width)
 //   Row of blocks          wraps: a card beside a card, content beside a rail
 //   Row of controls        wraps on a phone (a search field, a select, buttons)
 //   a table's row          its columns share the width; a phone keeps the
@@ -74,8 +74,8 @@ final class PageReflow {
   }
 
   void _hide(String id, int max) {
-    // A line that says where it shows (show:phone, hide:tablet) is left to
-    // what it says: a link a Nav would hide, written show:phone, shows.
+    // A line that says where it shows (show=phone, hide=tablet) is left to
+    // what it says: a link a Nav would hide, written show=phone, shows.
     if (nodes[id]?['media'] != null) return;
     final bound = readMap(nodes[id]?['bind'])?.containsKey('visible') ?? false;
     _add(id, max, {

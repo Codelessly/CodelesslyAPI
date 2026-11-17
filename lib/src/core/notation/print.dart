@@ -131,23 +131,23 @@ String _line(String id, Json n) {
     _ => null,
   };
   if (main is String && main.isNotEmpty && !RegExp(r'[{}$\\"]').hasMatch(main) && !main.contains('\n')) b.write(' ${jsonEncode(main)}');
-  if ((type == 'row' || type == 'column') && props['spacing'] is num) b.write(' gap:${props['spacing']}');
+  if ((type == 'row' || type == 'column') && props['spacing'] is num) b.write(' gap=${props['spacing']}');
   if (type == 'row' || type == 'column') {
     const main = {'center': 'center', 'end': 'end', 'spaceBetween': 'between'};
     if (main[props['mainAxisAlignment']] case final String w) b.write(' $w');
   }
-  if (layout['padding'] is num) b.write(' pad:${layout['padding']}');
+  if (layout['padding'] is num) b.write(' pad=${layout['padding']}');
   final fills = decoration['fills'];
   if (fills is List && fills.length == 1 && fills.single is Map && (fills.single as Map).length == 1 && (fills.single as Map)['color'] is String) {
-    b.write(' fill:${(fills.single as Map)['color']}');
+    b.write(' fill=${(fills.single as Map)['color']}');
   }
   final strokes = decoration['strokes'];
   if (strokes is List && strokes.length == 1 && strokes.single is Map && (strokes.single as Map).length == 1 && (strokes.single as Map)['color'] is String) {
-    b.write(' border:${(strokes.single as Map)['color']}');
+    b.write(' border=${(strokes.single as Map)['color']}');
   }
-  if (decoration['radius'] is num) b.write(' radius:${decoration['radius']}');
-  if (layout['width'] is num) b.write(' w:${layout['width']}');
-  if (layout['height'] is num) b.write(' h:${layout['height']}');
+  if (decoration['radius'] is num) b.write(' radius=${decoration['radius']}');
+  if (layout['width'] is num) b.write(' w=${layout['width']}');
+  if (layout['height'] is num) b.write(' h=${layout['height']}');
   return b.toString();
 }
 
