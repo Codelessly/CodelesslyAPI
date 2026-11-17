@@ -282,6 +282,13 @@ final class NotationVocabulary {
       'MiniCalendar': TypeAlias(to: 'Calendar'),
       'CalendarMonth': TypeAlias(to: 'Calendar'),
       'MonthGrid': TypeAlias(to: 'Calendar'),
+      // The bar at the foot of an app's window (a now-playing bar, a
+      // composer, a basket): ours is `Footer` in Main (or `Row sticky bottom`).
+      'StickyBar': TypeAlias(to: 'Footer'),
+      'StickyFooter': TypeAlias(to: 'Footer'),
+      'BottomBar': TypeAlias(to: 'Footer'),
+      'FooterBar': TypeAlias(to: 'Footer'),
+      'BottomDock': TypeAlias(to: 'Footer'),
     },
     parameters: {
       '*': {

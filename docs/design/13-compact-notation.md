@@ -453,6 +453,7 @@ is the same document as before plus rules that do not apply there.
 | any other `Row` | wraps before it overflows; what grows in it keeps its share of the line from a least width (a field 180, a component 160, a text 96) |
 | a table's row (three or more cells with widths) | its cells are shares of the row; it keeps the columns it has room for, from the first on (600 px on a tablet, 342 on a phone), and what is not a column (a checkbox, a menu button) |
 | `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420. The `Sidebar` it hides opens as a drawer (14.2) |
+| `Footer` in `Main` (or in `App`, or `Row sticky bottom`; also read: `StickyBar`, `StickyFooter`, `BottomBar`, `FooterBar`, `BottomDock`) | a bar at the foot of `Main` at every width (a now-playing bar, a composer, a basket): `Main` stops scrolling as a whole, what else is in it scrolls in a column that takes the room above the bar. A `Footer` written in `App` goes to the foot of its `Main` |
 | `Nav` | a phone hides its links (a tablet too, from six on) and shows a menu button the bar adds itself, which opens the links in a column under the bar, each as written and closing the menu as it goes; a `Nav` with a `show=phone` line of its own keeps its own |
 | `Section`, `Footer` | 48 above and below on a tablet; 40, and a 20 gutter, on a phone |
 | a text 32 or larger | 0.86 of its size on a tablet (from 44), 0.72 on a phone (26 at least) |

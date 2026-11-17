@@ -12,6 +12,7 @@
 //   App                       an app window: panes side by side, as tall as the window
 //     Sidebar                 a fixed-width pane (navigation)
 //     Main                    the pane that takes the room left, and scrolls
+//       Footer                a bar at its foot, in view while the rest scrolls
 //       Nav                   its top bar
 //     Pane w=320              a further fixed-width pane (a list, details)
 //
@@ -760,6 +761,25 @@ final class PageWords {
       return out..add((indent: at, text: 'Row${_role('app')}$mark w=fill h=fill stretch${parts.all}'));
     }
     final inApp = root == 'App' || (parent?.frame == 'Sidebar' || parent?.frame == 'Main' || parent?.frame == 'Pane');
+    // The foot of an app's window: a bar that stays in view at the bottom of
+    // Main while what is above it scrolls (a now-playing bar, a composer, a
+    // basket). `Footer` in Main or in App; `Row sticky bottom` the same.
+    final foot = framed &&
+        root == 'App' &&
+        (parent?.frame == 'Main' || parent?.frame == 'App' || parent?.frame == 'Pane') &&
+        (word == 'Footer' || ((word == 'Row' || word == 'Column' || word == 'Card') && parts.hasWord('sticky') && parts.hasWord('bottom')));
+    if (foot) {
+      final row = word == 'Row';
+      parts.word('sticky');
+      parts.word('bottom');
+      parts.word('pinned');
+      final pad = parts.take('pad') ?? '[24,12,24,12]';
+      final gap = parts.take('gap') ?? '12';
+      final fill = parts.has('fill') ? '' : ' fill=${paneFill ?? surface}';
+      open(frame: 'Foot');
+      return out
+        ..add((indent: at, text: '${row ? 'Row' : 'Column'}${_role('foot')}$mark w=fill${row ? ' middle' : ''} pad=$pad gap=$gap$fill border-top=$line${parts.all}'));
+    }
     if (word == 'Section' || (word == 'Footer' && !inApp) || (word == 'Hero' && !isComponent('Hero'))) {
       if (!framed) {
         open();

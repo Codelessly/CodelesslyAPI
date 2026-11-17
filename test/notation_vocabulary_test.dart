@@ -338,6 +338,14 @@ Dialog#ask "Reset?" "Really."
       }
     });
 
+    test('StickyBar, StickyFooter, BottomBar, FooterBar and BottomDock are the Footer of an app\'s Main', () {
+      const page = 'App\n  Main\n    Column pad=24\n      Text "Albums"\n    {foot}\n      Text.strong "Night Drive"\n';
+      final ours = page.replaceFirst('{foot}', 'Footer');
+      for (final name in ['StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock']) {
+        _same(page.replaceFirst('{foot}', name), ours, word: name, to: 'Footer');
+      }
+    });
+
     test('disabled is enabled, the other way round', () {
       _same('state n=0\nColumn\n  Button "Send" disabled={n==0} onTap={n=1}\n', 'state n=0\nColumn\n  Button "Send" enabled={!(n==0)} onTap={n=1}\n', word: 'disabled', to: '!enabled');
       _same('Column\n  IconButton "send" disabled=true\n', 'Column\n  IconButton "send" enabled=false\n', word: 'disabled');
@@ -365,6 +373,7 @@ Dialog#ask "Reset?" "Really."
     test('every alias of the built-in table is one of the above', () {
       const tested = {
         'Shortcut', 'shortcut', 'computed', 'ConfirmDialog', 'RangeSlider', 'Highlight', 'HighlightText', 'MiniCalendar', 'CalendarMonth', 'MonthGrid', //
+        'StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock',
       };
       expect(NotationVocabulary.core.types.keys.toSet(), tested);
       expect(NotationVocabulary.core.types['RangeSlider']!.parameters.keys.toSet(), {'low', 'lo', 'bindLow', 'bindStart', 'start', 'high', 'hi', 'bindHigh', 'end'});

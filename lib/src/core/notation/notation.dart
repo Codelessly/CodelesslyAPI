@@ -1729,6 +1729,57 @@ class _Parser {
   final _tableRows = <String>{};
 
   /// On a page, the media rules that lay it out on a tablet and a phone.
+  /// The foot of an app's window (`Footer` in Main or App): Main stops
+  /// scrolling as a whole; what else is in it scrolls in a column that takes
+  /// the room above the foot, which stays in view at the bottom at every
+  /// width. A foot written in App goes to the foot of its Main.
+  void _feet() {
+    for (final foot in [
+      for (final e in _roles.entries)
+        if (e.value == 'foot') e.key,
+    ]) {
+      var main = _parentOf[foot];
+      if (main == null || nodes[foot] == null) continue;
+      if (_roles[main] == 'app') {
+        final app = main;
+        final into = ((nodes[app]!['children'] as List?) ?? const []).whereType<String>().where((k) => _roles[k] == 'main').firstOrNull;
+        if (into == null) continue;
+        (nodes[app]!['children'] as List).remove(foot);
+        ((nodes[into]!['children'] as List<Object?>?) ?? (nodes[into]!['children'] = <Object?>[])).add(foot);
+        _parentOf[foot] = into;
+        main = into;
+      }
+      if (_roles[main] != 'main' && _roles[main] != 'pane') continue;
+      final m = nodes[main]!;
+      final props = (m['props'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
+      if (props['scrollable'] != true) continue;
+      final kids = ((m['children'] as List?) ?? const []).whereType<String>().toList();
+      final rest = [for (final k in kids) if (k != foot) k];
+      final scroll = '${main}Scroll';
+      nodes[scroll] = {
+        'type': 'column',
+        'layout': {'width': {'fill': 0}, 'height': {'fill': 0}, 'flex': 1},
+        'props': {...props},
+        'children': rest,
+      };
+      for (final k in rest) {
+        _parentOf[k] = scroll;
+      }
+      _parentOf[scroll] = main;
+      props.remove('scrollable');
+      props['crossAxisAlignment'] = 'stretch';
+      m['props'] = props;
+      m['children'] = [scroll, foot];
+      if (_canvas) {
+        ops
+          ..add({'op': 'set', 'id': scroll, 'parent': main, 'index': 0, 'node': {...nodes[scroll]!}..remove('children')})
+          ..addAll([for (var i = 0; i < rest.length; i++) {'op': 'move', 'id': rest[i], 'parent': scroll, 'index': i}])
+          ..add({'op': 'move', 'id': foot, 'parent': main, 'index': 1})
+          ..add({'op': 'patch', 'id': main, 'patch': {'props': {'scrollable': null, 'crossAxisAlignment': 'stretch'}}});
+      }
+    }
+  }
+
   void _reflow() {
     if (!options.reflow || options.width < 700) return;
     final rules = PageReflow(
@@ -4565,6 +4616,7 @@ class _Parser {
       }
     }
     _ownLegends();
+    _feet();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {

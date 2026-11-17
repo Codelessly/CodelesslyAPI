@@ -404,6 +404,22 @@ void main() {
       expect(mediaOf('rows'), isEmpty);
     });
 
+    test('a bar at the foot of an app window: Footer in Main (or App, or Row sticky bottom) stays below what scrolls', () {
+      for (final foot in ['  Main\n    Column pad=24\n      Text "Albums"\n    Footer#bar\n', '  Main\n    Column pad=24\n      Text "Albums"\n  Footer#bar\n',
+        '  Main\n    Column pad=24\n      Text "Albums"\n    Row#bar sticky bottom\n']) {
+        final r = _parse('App\n  Sidebar\n    Text "Tunes"\n$foot      Text.strong "Night Drive"\n', width: 1280);
+        expect(r.issues, isEmpty, reason: '${r.issues}');
+        final nodes = r.document['nodes']! as Map;
+        final main = nodes.entries.firstWhere((e) => ((e.value as Map)['children'] as List?)?.contains('bar') ?? false);
+        final kids = (main.value as Map)['children'] as List;
+        expect(kids.last, 'bar', reason: foot);
+        expect(((main.value as Map)['props'] as Map)['scrollable'], isNull, reason: 'Main no longer scrolls as a whole');
+        final scroll = nodes[kids.first] as Map;
+        expect((scroll['props'] as Map)['scrollable'], true, reason: 'what is above the foot scrolls');
+        expect((scroll['layout'] as Map)['flex'], 1);
+      }
+    });
+
     test('a line meant for the page, written after the overlays, says where it went', () {
       const text = 'App\n  Main\n    Column\n      Text "Library"\n'
           'Menu#albumMenu\n  MenuItem "Add" icon="playlist_add" onTap={toast "Added"}\n'

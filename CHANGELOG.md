@@ -86,6 +86,11 @@
   a timetable), a grid of five or more small cells (at most three nodes, no card or component), and a grid
   written `keep` (`Grid cols=4 keep`) keep their columns and shrink their cells, where a phone made two columns
   (a month became a 15-row list). Other grids wrap as before.
+- **A bar pinned to the foot of an app window.** `Footer` as `Main`'s last line (or in `App`, or `Row sticky
+  bottom`) is a bar at the bottom of `Main` that stays in view at every width while what is above it scrolls
+  (a now-playing bar, a chat composer, a basket, sheet tabs); before, a Card written last in `Main` scrolled
+  away. The alias table reads `StickyBar`, `StickyFooter`, `BottomBar`, `FooterBar` and `BottomDock` as it. The
+  page prompt teaches it in one line, and that a Grid of 7 columns or written `keep` keeps them.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is
