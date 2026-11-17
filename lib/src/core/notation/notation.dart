@@ -5294,11 +5294,15 @@ class _Parser {
     }
     // Charts: a height of their own, and a line chart's plain values as its
     // data points.
+    // The type as the catalog spells it (`barChart`, `lineChart`, the
+    // printer's word for a document's chart) is the node as written: only
+    // the notation's words (BarChart, LineChart) add a height and colors.
+    final asWritten = written == type;
     if (type == 'barChart' || type == 'lineChart') {
-      layout.putIfAbsent('height', () => 140);
+      if (!asWritten) layout.putIfAbsent('height', () => 140);
       // The design system's primary, unless a color is written.
-      props.putIfAbsent(type == 'barChart' ? 'color' : 'lineColor', () => options.accent);
-      if (type == 'barChart') {
+      if (!asWritten) props.putIfAbsent(type == 'barChart' ? 'color' : 'lineColor', () => options.accent);
+      if (type == 'barChart' && !asWritten) {
         for (final e in options.barChart.entries) {
           props.putIfAbsent(e.key, () => e.value);
         }
@@ -5319,7 +5323,7 @@ class _Parser {
     if (type == 'barcode' && written == 'Barcode') props.putIfAbsent('symbology', () => 'code128');
     // It fills its box, so a box with no height of its own is given one: 80
     // for the bars, 160 square for a two-dimensional code.
-    if (type == 'barcode' && (layout['height'] == null || layout['height'] is Map)) {
+    if (type == 'barcode' && !asWritten && (layout['height'] == null || layout['height'] is Map)) {
       final square = const {'qrCode', 'aztec', 'dataMatrix'}.contains(props['symbology'] ?? 'qrCode');
       layout['height'] = square ? 160 : 80;
       if (square && (layout['width'] == null || (layout['width'] is Map && (layout['width'] as Map).containsKey('fill')))) layout['width'] = 160;
