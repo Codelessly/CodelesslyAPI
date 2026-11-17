@@ -220,11 +220,18 @@ Column#top gap=16
     track path=motion.translateY from=14 to=0
 ```
 
-**Charts.** A chart's fields are props, read and written by their own names (2.1): lists of records
-(`series`, `referenceLines`, `zones`, `markers`, `yLines`, `xLabels`) as JSON. What the notation says shorter
-is printed so: a `lineChart` whose `data` are the points `values=[…]` gives (`{"x": i, "y": v}` under `xField`
-`x` and `yField` `y`) prints as `values=[…]`; a donut the `Donut` word made prints as `Donut values=[…]
-labels=[…] colors=[…]`.
+**Charts.** A chart's fields are props, read and written by their own names (2.1). Its lists are JSON: the
+records (`series`, `referenceLines`, `xLabels`, `zones`, `markers`, `ranges`, `yLines`, a line chart's bands and
+ticks) and the values (`values`, `labels`, `colors`, `gridLabels`, `points`, `data`); the printer writes them, by
+those names, on the line of a `chart`, `barChart`, `lineChart`, `plotChart`, `radialGauge` or `gaugeMeter`.
+What the notation says shorter is printed so: a `lineChart` whose `data` are the points that `values=[…]` gives
+(`{"x": i, "y": v}` under `xField` `x` and `yField` `y`) prints as `values=[…]`, and as `values={list}` when
+they follow the state. `radialGauge`, the document's own type, is the node as written; `Gauge` and `Dial` are
+the notation's gauge (a stack of the arc and the figure inside it, a clean arc unless more is written).
+
+A record block is the node's field whole: a `customPaint` line sets the node's `customPaint` to what its block
+says, and `animation` lines add to the node's `animations` after the one `animate=` gives.
+`printPaintSays` (print_paint.dart) names the fields these words say, for the line's other words to leave out.
 
 ## 5. What does not change
 

@@ -596,4 +596,150 @@ void main() {
     expect(n['customPaint'], whole['customPaint']);
     expect(n['animations'], whole['animations']);
   });
+
+  test('a customPaint block is the node\'s custom paint whole', () {
+    final r = _parse('Column\n  box#n {"customPaint":{"fit":"cover","painter":[{"op":"rect"}]}}\n    customPaint viewBox=[4,4]\n      circle c=[2,2] radius=1');
+    expect(r.issues, isEmpty);
+    expect(_node(r.document, 'n')['customPaint'], {
+      'viewBox': [4, 4],
+      'painter': [
+        {'op': 'circle', 'c': [2, 2], 'radius': 1},
+      ],
+    });
+  });
+
+  group('charts', () {
+    /// [node] printed: its line, with none of [keys] in its `{…}` tail.
+    String chartLine(Json node, List<String> keys, {List<Object?> variables = const []}) {
+      final doc = {
+        'schema': 3,
+        'roots': ['screen'],
+        'nodes': {
+          'screen': {'type': 'canvas', 'slots': {'body': 'n'}, 'layout': {'width': 390}},
+          'n': node,
+        },
+        if (variables.isNotEmpty) 'variables': {'screen': variables},
+      };
+      final printed = Catalog.run(standardCatalog, () => printNotation(doc, catalog: standardCatalog));
+      expect(jsonEquality.equals(_node(_parse(printed).document, 'n'), node), isTrue, reason: printed);
+      final line = const LineSplitter().convert(printed).firstWhere((l) => l.contains('#n'));
+      final at = line.indexOf(' {"');
+      final tail = at < 0 ? '' : line.substring(at);
+      for (final k in keys) {
+        expect(tail.contains('"$k"'), isFalse, reason: line);
+      }
+      return line;
+    }
+
+    test('a line chart\'s points are the values= they were written as', () {
+      final r = _parse('Column\n  lineChart#n values=[1200,1650,1400] h=140');
+      expect(_node(r.document, 'n')['props'], containsPair('data', [
+        {'x': 0, 'y': 1200},
+        {'x': 1, 'y': 1650},
+        {'x': 2, 'y': 1400},
+      ]));
+      expect(chartLine(_node(r.document, 'n'), ['data', 'xField', 'yField']), contains('values=[1200,1650,1400]'));
+      // From the state: the points worked out.
+      final s = _parse('state ys=[1,2]\nColumn\n  lineChart#n values={ys}');
+      expect((_node(s.document, 'n')['bind'] as Map)['props.data'], r'${= map(range(length(ys)), i => {"x": i, "y": (ys)[i]})}');
+      expect(
+          chartLine(_node(s.document, 'n'), ['data', 'xField', 'yField', 'props.data'], variables: [
+            {'name': 'ys', 'type': 'list', 'value': [1, 2]},
+          ]),
+          contains('values={ys}'));
+    });
+
+    test('a chart\'s series, reference lines and axis labels (CodelesslySDK examples, revChart)', () {
+      final node = {
+        'type': 'chart',
+        'layout': {'width': {'fill': 584}, 'height': {'fill': 236}},
+        'props': {
+          'chartType': 'line',
+          'labelField': 'label',
+          'series': [
+            {'field': 'revenue', 'name': 'Revenue', 'kind': 'area', 'color': '#FF2563EB', 'curved': true, 'endDot': true, 'strokeWidth': 2.5, 'fillOpacity': 0.12},
+          ],
+          'referenceLines': [
+            {'value': 30, 'label': 'Goal', 'dashed': true},
+          ],
+          'xLabels': [
+            {'x': 0, 'label': 'Jan'},
+          ],
+          'minY': 20,
+          'maxY': 45,
+        },
+        'bind': {'props.data': r'${months}'},
+      };
+      final line = chartLine(node, ['series', 'referenceLines', 'xLabels']);
+      expect(line, contains('series=[{"field":"revenue","name":"Revenue","kind":"area","color":"#FF2563EB","curved":true,"endDot":true,"strokeWidth":2.5,"fillOpacity":0.12}]'));
+      expect(line, contains('referenceLines=[{"value":30,"label":"Goal","dashed":true}]'));
+      expect(line, contains('xLabels=[{"x":0,"label":"Jan"}]'));
+    });
+
+    test('a bar chart\'s values, labels, colors and grid labels', () {
+      final r = _parse('Column\n  barChart#n values=[320,540] labels=["Wk 1","Wk 2"] colors=["#FF000000","#FF111111"] gridLabels=["0","500"]');
+      expect(r.issues, isEmpty);
+      final line = chartLine(_node(r.document, 'n'), ['values', 'labels', 'colors', 'gridLabels']);
+      expect(line, contains('values=[320,540] labels=["Wk 1","Wk 2"] colors=["#FF000000","#FF111111"] gridLabels=["0","500"]'));
+    });
+
+    test('a plot chart\'s lists, a line chart\'s marks', () {
+      final plot = {
+        'type': 'plotChart',
+        'props': {
+          'points': [0, 1, 4, 9],
+          'ranges': [
+            {'from': 0, 'to': 1, 'label': 'low'},
+          ],
+          'markers': [
+            {'x': 2, 'label': 'peak', 'shape': 'ring'},
+          ],
+          'yLines': [
+            {'y': 5, 'dashed': true},
+          ],
+          'series': [
+            {'points': [1, 2, 3, 4], 'color': '#FF000000'},
+          ],
+        },
+      };
+      expect(chartLine(plot, ['points', 'ranges', 'markers', 'yLines', 'series']), contains('ranges=[{"from":0,"to":1,"label":"low"}]'));
+      final line = {
+        'type': 'lineChart',
+        'props': {
+          'data': [
+            {'t': 0, 'v': 1},
+          ],
+          'xField': 't',
+          'yField': 'v',
+          'bands': [
+            {'from': 0, 'to': 1},
+          ],
+          'referenceLines': [
+            {'y': 1},
+          ],
+          'markers': [
+            {'x': 0, 'label': 'a'},
+          ],
+        },
+      };
+      expect(chartLine(line, ['data', 'bands', 'referenceLines', 'markers']), contains('data=[{"t":0,"v":1}]'));
+    });
+
+    test('radialGauge is the node as written; Gauge is the notation\'s gauge', () {
+      final r = _parse('Column\n  radialGauge#n value=40 zones=[{"from":0,"to":50,"color":"#FF00FF00"}] labels=[0,50,100]\n  Gauge#g 72 unit="km/h"');
+      expect(r.issues, isEmpty);
+      final n = _node(r.document, 'n');
+      expect(n['type'], 'radialGauge');
+      expect(n['children'], isNull);
+      expect(n['props'], {
+        'value': 40,
+        'zones': [
+          {'from': 0, 'to': 50, 'color': '#FF00FF00'},
+        ],
+        'labels': [0, 50, 100],
+      });
+      expect(_node(r.document, 'g')['type'], 'stack');
+      expect(chartLine(n, ['zones', 'labels']), contains('zones=[{"from":0,"to":50,"color":"#FF00FF00"}] labels=[0,50,100]'));
+    });
+  });
 }
