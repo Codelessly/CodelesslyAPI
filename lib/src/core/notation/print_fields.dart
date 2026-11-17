@@ -215,7 +215,8 @@ String? _braced(String inner) {
   } else {
     e = _name.hasMatch(inner) ? inner : null;
   }
-  if (e == null || e.contains('\n') || e.contains(r'\n')) return null;
+  // (A `\n` written in it is read as written; a line break is no one line.)
+  if (e == null || e.contains('\n')) return null;
   if (RegExp(r'^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$').hasMatch(e)) return null;
   return e;
 }
@@ -234,7 +235,7 @@ String? _expression(Object? v) {
 String? _formulaOf(Object? v) {
   if (v is! String || !v.startsWith(r'${=') || _close(v, 1) != v.length - 1) return null;
   final e = v.substring(3, v.length - 1).trim();
-  if (e.isEmpty || e.contains('\n') || e.contains(r'\n')) return null;
+  if (e.isEmpty || e.contains('\n')) return null;
   return '{$e}';
 }
 
@@ -1162,9 +1163,15 @@ final class _NodeLine {
         for (final k in {...a.keys, ...b.keys}) {
           if (at.isEmpty && _unread.contains(k)) continue;
           final path = at.isEmpty ? '$k' : '$at.$k';
-          // A field there as null is not a field not there.
+          // A field there as null is not a field not there; a map on one
+          // side only is each of its fields.
           if (a.containsKey(k) != b.containsKey(k)) {
-            out.add(path);
+            final there = a.containsKey(k) ? a[k] : b[k];
+            if (there is Map && there.isNotEmpty) {
+              walk(a[k] ?? const {}, b[k] ?? const {}, path);
+            } else {
+              out.add(path);
+            }
           } else {
             walk(a[k], b[k], path);
           }
@@ -1243,9 +1250,18 @@ final class _NodeLine {
         parts.addAll(inner.first);
       }
     }
+    // The full path, which always reads, where the short key is a word the
+    // line reads otherwise (`props.size=48` on an Avatar).
+    final full = const {'props', 'layout', 'decoration'}.contains(path.split(RegExp(r'[.\[]')).first) ? path : 'node.$path';
+    final fullWord = full == key || notationKeyPath(full, type, catalog: c.catalog) != path
+        ? null
+        : want == null
+            ? '$full=null'
+            : switch (_value(want, _vars)) { final String v => '$full=$v', _ => null };
     return [
       if (split && parts.isNotEmpty) parts,
       if (whole != null) [whole],
+      if (fullWord != null) [fullWord],
     ];
   }
 
