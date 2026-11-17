@@ -5,10 +5,10 @@
 language grammar." Later the same day: "We can do breaking change for improvement. No backwards compatibility
 needed!"
 
-This note is the audit that pass started from (sections 1 to 4), the grammar it arrived at (5), and what was
-changed, kept and left alone (6 to 8). The design of the notation is [13-compact-notation.md](13-compact-notation.md);
-the note for those with files in the old grammar is [16-notation-grammar-migration.md](16-notation-grammar-migration.md).
-(Two other notes in this folder carry the numbers 15 and 16; these two are told apart by their names.)
+This note is the audit that pass started from (sections 1 to 4, of the grammar as it was), the grammar the
+owner then decided (5), what changed and what was removed (6, 7), and what is still read though not taught (8).
+The design of the notation is [13-compact-notation.md](13-compact-notation.md); the note for those with files in
+the old grammar is [18-notation-grammar-migration.md](18-notation-grammar-migration.md).
 
 ## 1. What was counted
 
@@ -138,96 +138,124 @@ By how much each would mislead someone reading a file for the first time, or a m
 
 ## 5. The grammar
 
-Four marks, each with one job, and nothing on a node's line that is not one of them.
+A first pass of this audit proposed keeping the colon and marking a binding `bind:name`. The owner then put the
+question to two models (26 runs; the material is with the owner) and decided otherwise, in these words: "= is
+natural AI grammar", "Use = and bind as you recommend", "Let's use {} instead of the arrow!", "I want no old
+legacy compatibility code". What the runs showed: shown no separator at all, 8 of 8 wrote `key=value` for a
+property and 8 of 8 `bind=name` for a control's value; all four Sonnet runs wrote events as `onTap` / `onChange` /
+`onBlur`, three with a braced body, and none wrote an arrow; given a grammar card, both models followed `=` and
+`:` grammars with no separator error. So reliability does not decide it; what is natural and consistent does. The
+count in section 2 that favoured the colon and `bind:` came from answers to a prompt that had already shown
+`key:value`.
 
 ```
-Type[.variant][#id] ["text"] [key:value ...] [-> action; action] [onEvent:{action; action} ...]
+Type[.variant][#id] ["text"] [key=value ...]
 ```
 
 | Role | Rule | Example |
 |---|---|---|
-| A value of the node | `key:value`, always a colon. A bare word is a flag (`sticky` is `sticky:true`) or a layout word. | `gap:12 w:fill icon:"waves" grow` |
-| A value worked out from the state | The expression in braces, wherever a value goes: after a key, and inside a text. | `visible:{count > 0}` · `"Total: {total}"` |
-| A control's value kept in a variable | `bind:name`: a key like any other, whose value is the variable. Both ways for a control; for what only shows a value (Progress, Gauge) it follows the variable, or `bind:{expression}`. | `Input "Email" bind:email` |
-| A variable | `=` assigns, as in code, and appears nowhere else: where it starts (`state`, `project`), and what an action makes it. | `state qty=1` · `-> qty=qty+1` |
-| What a node does | `-> actions` is its own event (a tap; a change, for a control; a component's first event). Any other event is `onEvent:{actions}`, a key whose value is code in braces, before or after the arrow. Actions are separated by `;`. | `-> go home onCta:{go signup}` |
-| An action | `name=value`, or a verb with its argument: `emit event [value]`, `go page`, `open id`, `close`, `scroll id`, `toast "…"`, `link url`. A verb's argument is the word written; one that is worked out is in braces. | `go pricing` · `go {lower(result)}` |
-| A condition | `if expr` on a line of its own, over the lines under it (`else` after it); `visible:{expr}` on one line. | `if step>0` |
-| A size | `hide:phone`, `show:tablet`: a size word, never a condition. | `Row hide:phone` |
+| A value of the node | `key=value`, always. A bare word is a flag (`sticky` is `sticky=true`) or a layout word. | `gap=12 w=fill icon="waves" items=["A","B"] hide=phone` |
+| A value worked out from the state | The expression in braces, after a key and inside a text. | `enabled={email != ""}` · `"Total: {total}"` |
+| A control's value kept in a variable | `bind=name`: a parameter like any other. Both ways for a control; on what only shows a value it follows the variable, or `bind={expression}`. | `Input "Email" bind=email` |
+| What a node does | An event parameter with its actions in braces. `onTap` is a tap; `onChange` a control's change; a block's events keep their own names. There is no arrow. | `onTap={sent=true; toast "Sent"}` · `onCta={go signup}` |
+| An action | `name=value`, or a verb with its argument: `emit event [value]`, `go page`, `open id`, `close`, `scroll id`, `toast "…"`, `link url`; several separated by `;`. A verb's argument is the word written; one worked out is in braces. | `go pricing` · `go {lower(result)}` |
+| A variable | `=` assigns: where it starts (`state`, `project`), and inside an action. The same "is" as a parameter's. | `state qty=1` · `qty=qty+1` |
+| Time | `every 1s [when condition] onTick={actions}` on a line of its own. | `every 1s onTick={t=t+1}` |
+| A condition | `if expr` on a line of its own, over the lines under it (`else` after it); `visible={expr}` on one line. | `if step>0` |
+| A size | `hide=phone`, `show=tablet`: a size word, never a condition. | `Row hide=phone` |
 | A loop | `each x in list` on a line of its own. | `each row in rows` |
-| A name | `#id` after the type. Everything that refers to a line uses it: `open`, `scroll`, `href:"#id"`, an edit. | `Section#pricing` |
+| A name | `#id` after the type: what `open`, `scroll` and an edit name. `id=name` on a line is an anchor a `scroll` goes to. | `Section#pricing` |
 | What the notation has no word for | `{…}` JSON at the end of a line; `node {…}` for a whole node. | `{"props":{"maxLines":2}}` |
 
-Held in the head: **a colon gives the node a value; braces mean "worked out"; `=` sets a variable; `->` and
-`onEvent:{…}` are what happens.**
+Held in the head: **everything after the text is `key=value`; braces hold an expression, or, after an `on…` key,
+actions.**
 
-This is the question [15-the-middle-and-generated-apps.md](15-the-middle-and-generated-apps.md) left open in its
-section 4.10 ("the same idea is written five ways depending on where it stands … not decided") and measured in
-4.13 and 4.15: of fourteen answers written by the small model with the rules about state taken out, one used
-`=name` and none `:=`; thirteen wrote the name bare after the key, four in braces; and the prompt variant that
-taught braces (`notationPrompt(natural: true)`) scored 11 and 10 of 25 on the values check against 8 for the
-prompt that taught `:=`. Braces are the one of the model's own forms that says where the expression ends and is
-never mistaken for a word; the bare forms are still read (section 8).
+Decided in this pass, for what the owner left open:
 
-Why these, and not others:
-
-- **The colon for every parameter** is what is already written 18,000 times against 1,300, what YAML, CSS and JSON
-  do, and what every no-vocabulary answer does.
-- **Braces for an expression** are JSX's (`selected={tab == "a"}`), a template string's, and the notation's own
-  inside a text; they are what models wrote unprompted (29 to 0), they end where they close, so an expression may
-  have spaces, and they are one rule where there were two.
-- **`bind:` for a binding** is Svelte's word and what 15 no-vocabulary answers wrote. It costs about one token
-  more than `=email` per control. `value:{email}` was considered and rejected: it reads as one-way (and is), and a
-  control's value prop has a different name on each control.
-- **`=` kept for state and actions**, not changed to a colon: `state qty=1` and `-> qty=qty+1` are statements, a
-  different thing from a parameter, and the form makes that visible. Inside an action the right side is already
-  code, so it takes no braces.
-- **`onEvent:{…}` for the other events** is `key:value` with code as the value, as in JSX; `->` stays as the short
-  form for the one event nearly every line has (5,650 uses).
+- **The event names.** On a plain node: `onTap` (also read: `onPress`, `onPressed`, `onClick`), `onChange`
+  (`onChanged`), `onLongPress`, `onDoubleTap`, `onRightClick`, `onSwipeLeft` / `Right` / `Up` / `Down`, `onHover`
+  (the cursor entering), `onFocus`, `onBlur`, `onSubmit`, `onDrop`. Any other `on…` on a plain node is an error
+  that lists these. On a block, its own events by name, and `onTap` (or a name it does not have) is its first
+  event: a page word that is also a block in one design system (`MenuItem`, `Hero`) is then written one way with
+  and without that design system.
+- **The value an event carries** is `result` (a slider's new value, the link a `SiteNav` reports), as it was.
+- **A worked-out argument** of an action is in braces (`go {expr}`); `emit event value` reads its value as before.
+- **`visible={expr}`** is the condition on one line; `show=` and `hide=` take sizes only, and say so otherwise.
+- **A timer's actions** are `onTick={…}`: an `every` line has an event like any other.
+- **A drop** is `drop=group onDrop={…}`.
+- **An anchor** is `id=name` (it was `#name` after the line, or `id:name`): a parameter, and what 204
+  no-vocabulary answers wrote but for the colon.
+- **A bare word after `=` is that word.** `tone=quiet` is the text "quiet". A word that names a declared variable
+  (`color=pick`) is said as an error with what to write (`color={pick}`), not guessed either way.
 
 ## 6. What changed
 
-| Was | Is | Why it is worth it |
-|---|---|---|
-| `=name`, `=expression` | `bind:name`, `bind:{expression}` | The owner's example: no parameter is marked with `=`. Every word after the type is now a text, a flag, `key:value` or a handler. |
-| `key:=expression` | `key:{expression}` | One mark for "worked out", the same as in a text; no "no spaces" rule; what models write unprompted. |
-| `onCta: actions` on a line of its own | `onCta:{actions}` on the node's line (after the arrow's actions, or before the arrow) | A handler is not a child. One place for what a node does. |
-| `swipe:left -> actions` | `onSwipeLeft:{actions}` | `->` means one thing on every line. |
-| `go expression` | `go {expression}` | The most reported stumble: a bare word is always a page, braces are always worked out. |
-| `show:condition` | `visible:{condition}` | `show:` has one meaning, a size. |
-| `List =rows` | `each row in rows` | It was `=` again. |
+| Was (to 32.x) | Is |
+|---|---|
+| `gap:12 icon:"mail"` | `gap=12 icon="mail"` |
+| `=name`, `=expression` | `bind=name`, `bind={expression}` |
+| `key:=expression`; an expression bare after a key | `key={expression}` |
+| `-> actions` | `onTap={actions}`; `onChange={actions}` on a control; a block's own event |
+| `onCta: actions` on a line of its own | `onCta={actions}` on the node's line |
+| `swipe:left -> actions` | `onSwipeLeft={actions}` |
+| `drop:todo -> actions` | `drop=todo onDrop={actions}` |
+| `every 1s -> actions` | `every 1s onTick={actions}` |
+| `go expression` | `go {expression}` |
+| `show:condition`, `if:condition`, `when:condition` | `visible={condition}` |
+| `Heading "Why" #why`, `id:why` | `Heading "Why" id=why` |
+| `Text.strong row.name`, `Button open ? "Hide" : "Show"` | `Text.strong "{row.name}"`, `Button "{open ? "Hide" : "Show"}"` |
+| `ActionButton "Cancel" quiet` (a block's enumerated value as a word) | `ActionButton "Cancel" tone=quiet` |
+| `List =rows` | `each row in rows` |
 
-Each old spelling is still read, so the card or page is drawn, and the parser says once per text what to write
-instead (`A binding is written bind:name, not =name: …`): an author or a model is told and fixes it, and
-`tool/notation/notation.sh expand` exits 1 until then. `formatNotation` (`notation.sh format <file>`) rewrites a
-file and changes nothing else.
+## 7. A hard break: what the parser no longer has
 
-One reading had to be chosen. `bind:` was until now an unknown prop on a core type (kept as `props.bind`, which
-nothing drew) and a rejected word on a component; it is now the binding. The eight no-vocabulary answers that wrote
-`bind:rating-label` and the like expand differently, and for the better.
+The parser reads the grammar of section 5 only. Removed, as code and not only from the prompt: the `->` branch
+and everything that worked around where it ended (props moved from behind the actions, a `{…}` tail found inside
+them, an `every` whose arrow was on the next line); the `=name` binding and the stray `:=`; the colon as a
+separator; the readings of an expression with no mark (`key:count > 0`, `key:(a+b)`, a declared variable written
+bare, a list holding expressions, an expression where the text goes, a bare path after `Text`); a handler on a
+line of its own, in quotes, or running to the end of the line; `tap:` / `press:` / `click:` / `change:` as event
+keys; `swipe:` as a key; `if:` / `when:` / `show:` as conditions; `#name` after a line and `id:` rewritten to it;
+a block's enumerated value as a bare word and `key=value` read as `key:=value`; `List =rows`; `value` as a second
+name for `result`. The lines the code writes itself (the page words, an overlay's frame, a Nav's phone menu, an
+App's drawer, the viewer, Dots, a gallery's wiring) are in the new grammar.
 
-## 7. What stays, and why
+An old line gets the ordinary error for what the grammar does not have, with what to write:
+`A value is written with =, not a colon: gap=12.`, `There is no arrow. What a node does is an event with its
+actions in braces: onTap={count=count+1} (onChange={…} on a control).`, `A value has a key: write bind=name …`,
+`A handler is written on the line of its node …`, `A value read from the state is written in braces: color={pick}.`
 
-- **`state name=value`, `project name=value`, `-> name=value`.** Assignment, consistently.
-- **`->`.** The notation's most used mark after the colon.
-- **The flag and alignment words.** `grow`, `sticky`, `center`: a bare word is a yes.
-- **`if` lines beside `visible:`.** Two jobs: a block of lines, and one line.
-- **`hide:phone` / `show:phone`.** A size is not a condition, and the form now says so: their values are size
-  words only.
-- **`items:` and `options:`.** A key is the parameter's own name; a Select reads both.
-- **`menu:id`.** A parameter (which menu a right click opens), not a handler.
-- **`emit event value`.** The value after the event is read as a value or an expression as before. Putting it in
-  braces was considered; nobody stumbled on it, and it is 582 lines.
-- **Strings in order** for a component's text parameters.
+Since the parser cannot read the old grammar, the converter does not lean on it: CodelesslySDK's
+`tool/notation/migrate.dart` (`notation.sh migrate`) carries its own copy of how the old parser split a line, and
+is to be deleted once the sites are migrated. Proved by expanding every notation file with the old packages and
+its rewritten copy with the new and comparing the documents to the byte (the numbers are in the changelog).
 
-## 8. Tolerance kept
+## 8. Read, though not taught
 
-The notation reads what a model writes unprompted (design 13, section 13). That stays wherever it is a near miss
-and not a second taught way. Read with nothing said, and not taught:
+What a model writes unprompted (design 13, section 13) that is no second way to write a parameter, a binding, a
+computed value or a handler:
 
-`if:` / `when:` as keys (23 no-vocabulary uses); a bare expression after a key (`enabled:count > 0`); a
-declared variable written bare (`choice:pick`); `key:={…}`; `id:name` and `#name` after a line as anchors (245
-no-vocabulary uses; making them the node's id would rename nodes in existing documents); `tap:"…"` and a handler's
-body written to the end of the line; `let`, `for x in`, `else`, `+=` and `.add()`; `"${…}"` in a text; a bare path
-where a text goes; a prop written after the actions, when it is in braces. `formatNotation` rewrites `if:` and
-`when:` to `visible:{…}` and leaves the rest as written.
+`let` / `derived` / `const` / `var name = …` and a bare `name = value` line for state; `for x in list` and
+`each list`; `else` and `else if`; `n += 1`, `n++`, `rows.add(x)` / `.remove(x)`, `if (c) { … }` inside actions; a
+field of the repeated element set where it stands (`row.qty = 2`); `$name`; single quotes in an expression;
+`"${…}"` in a text; `sticky=true`; `Text.small.muted` (the first variant); a code fence or a sentence around the
+answer; a guessed prop in a `{…}` tail read as the key it is; a list left open over several lines; `onPress`,
+`onPressed`, `onClick`, `onChanged` for `onTap` and `onChange`; `onTap` on a block for its first event.
+
+Not kept, because each was a second way: an expression with no braces, a variable with no braces, an event's
+actions with no braces, a block's value with no key, an anchor with no key.
+
+## 9. What does not work, or wants a model test
+
+- **`enabled=count > 0`** (no braces) is what models wrote most with no rules at all (design 15, 4.13: 13 of 14
+  the name bare, 5 an expression bare). It is now an error with the fix in the message, not a reading. Whether
+  models keep to braces under this prompt, and how often the error is met, wants measuring.
+- **`color=pick`** where `pick` is a variable is an error; where no such variable is declared it is the word
+  "pick". A model that forgets to declare state gets the word, silently.
+- **A prop a plain node does not have** (`swipe=left` aside, which is said) is still kept silently in `props` and
+  found only at validation, as before.
+- **`onHover`, `onFocus`, `onBlur`, `onSubmit`** are wired to the engine's `cursorEnter`, `focusGained`,
+  `focusLost` and `submitted` triggers and tested as documents; they were not driven in a render.
+- **`{…}` after a key is an expression unless it names a key first** (`{"a": 1}` is a map). An expression that
+  starts with a quoted text and a colon cannot be written; none is known.
+- The prompt's wording of events (`onTap={…}`, `onChange={…}` with `result`) has not been run on a model.
