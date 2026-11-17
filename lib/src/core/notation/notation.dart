@@ -2139,6 +2139,13 @@ class _Parser {
             _ => ('text', '' as Object),
           };
           variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
+          // Declared with a whole number (`state amount=0`), it is a number
+          // here, not an integer: a NumberInput step=0.01 gives it cents,
+          // which an integer variable would round away.
+          if (held.type.variableOf?.kind == PropKind.number && variables[expr]?['type'] == 'integer' && !_projectVariables.contains(expr)) {
+            variables[expr] = {...variables[expr]!, 'type': 'decimal'};
+            _declared.remove(expr); // declared again, as it is now
+          }
         }
       } else if (value == null) {
         final shown = _shownValue[type] ?? _mainKey(type, spec);

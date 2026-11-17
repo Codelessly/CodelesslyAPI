@@ -197,6 +197,10 @@
   and numbers were joined as text, with no diagnostic. `validateSiteVariables` reports each record that cannot be
   read (`invalid_variable`, with the shape to write). The notation's page prompt and the reference's "The site
   manifest" show the shape.
+- The notation: a variable declared with a whole number (`state amount=0`) and bound to a component's number
+  parameter (`NumberInput bind=amount step=0.01`) is declared `decimal`, not `integer`: an integer variable rounds
+  what is set, so typed cents and a 0.01 step were lost (25.50 was saved as 26, the arrows did nothing). A site's
+  variable (site.json) keeps the type it is declared with there.
 
 ## 32.0.0
 
