@@ -97,14 +97,24 @@
 - **Notation, overlays**: a dialog, a sheet, a drawer, a popup menu, a popover and a lightbox are written after
   the page (`Dialog#id`, `Sheet#id`, `Drawer#id`, `Menu#id`, `Popover#id`, `Lightbox#id`) and opened with
   ` onTap={open <id>}`, each a canvas of its own with the right presentation; their lines read and set the page's
-  values. `menu:<id>` opens a menu on a right click or a long press. An `App`'s `Sidebar` opens as a drawer on
+  values. `menu=<id>` opens a menu on a right click or a long press. An `App`'s `Sidebar` opens as a drawer on
   a phone from a button added to `Main`'s top bar.
 - **Notation**: a website's `Nav` builds its own phone menu from its links (each as written; `menu=false` keeps
   one out; a `Nav` with a `show=phone` line keeps its own); `Nav sticky` and `SiteNav … sticky` stay at the
   very top (`sticky=0`), a `Nav` on the page's surface.
-- **Notation**: `scroll <id>` moves the page to a line, named by its id or by an anchor (`#pricing` after a line,
-  `id=pricing` on it); `Link "Pricing" href="#pricing"` does the same. `go` takes a destination worked out
-  (`go replace(lower(result)," ","_")`); a page id may have hyphens.
+- **Notation**: `scroll <id>` moves the page to a line, named by its id (`Section#pricing`) or by an anchor
+  (`id=pricing` on it); `Link "Pricing" href="#pricing"` does the same. `go` takes a destination worked out
+  (`go {replace(lower(result)," ","_")}`); a page id may have hyphens.
+- **Notation, a viewer**: `Lightbox#zoom "{photo}" "Caption"` shows a picture large over the page: a pinch and the
+  wheel zoom about the point, a double tap goes to 2x where it was tapped and back, a drag pans while zoomed, and
+  it closes by its button, Escape, a tap on the scrim and a drag down. `Lightbox#shots photos={photos} bind=at` is
+  a gallery: a page per picture opened at the one tapped, turned by a swipe, its arrows and the arrow keys, with a
+  count, the caption and a strip of thumbnails; `ratio=` (or a record's `ratio`) gives the picture's box its
+  proportions. On a page, a design system's gallery that takes `viewer="overlay"` (Cards' PhotoGallery) opens its
+  photos in a viewer the expander writes once. The reference has the render command's `--double-tap`, `--wheel`
+  and `--pinch` steps.
+- **Notation, tabs**: `Tabs bind=tab tabs=[…]` is the design system's own Tabs where it has one; the prompt keeps
+  a `SegmentedButton` to two to four short options, never a page's tabs.
 - **Notation, a site's variables**: `NotationOptions.projectVariables` (a site manifest's `variables`) and
   `project name=value` on a page: read and set by name, with no copy declared on the screen to hide them.
 - **Notation**: `Section bleed` runs its content from edge to edge; a `Donut` written with `labels` draws them
