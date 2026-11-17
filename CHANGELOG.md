@@ -1,6 +1,8 @@
-## Unreleased
+## 33.0.0
 
-### Breaking (33.0.0)
+Released with codelessly_sdk 33.0.0.
+
+### Breaking
 
 - **The compact notation has a new grammar, and reads only it** (docs/design/17-notation-grammar-audit.md).
   Everything after a node's text is `key=value`; a value worked out from the state is in braces, as inside a
