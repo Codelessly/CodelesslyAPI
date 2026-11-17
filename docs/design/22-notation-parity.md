@@ -132,6 +132,100 @@ Each family owns its part of the parser and its printer file, measures itself wi
 | Document | typed variables, component heads, canvases | `print.dart` |
 | Paint, motion, charts | words for custom paint ops, animations, chart options | `print_paint.dart` |
 
+### 4.6 Paint, motion and charts: the forms
+
+Settled 2026-11-17 by that family. Custom paint and animations are ordered lists of records, so they are lines:
+each record one line, in the grammar's own shape (`word[#id] ["text"] key=value … [{…}]`), indented under the
+line that holds it. The parser reads these lines before any other reading of a line (an alias, a defined word,
+a node type), so an op named `text`, `path` or `image` is never a node.
+
+**Custom paint.** A `customPaint` line indented under the node that paints carries the behavior's own fields
+(`viewBox`, `fit`, `isComplex`, `willChange`; a true boolean is its bare word). The lines under it are the
+`painter`'s ops, in order, one op a line; a `foregroundPainter` line under it holds the ops drawn over the
+content, under it again. An op line is:
+
+- the op's API name (`path`, `line`, `rect`, `rrect`, `circle`, `oval`, `arc`, `points`, `paragraph`, `image`,
+  `group`, `repeat`: `DrawOpSpecs`), `#id` for its `id`;
+- a quoted string first: a `paragraph`'s `text`, an `image`'s `url`;
+- its fields by their own names (`DrawOpSpecs`' fields and `id`, `when`, `paint`, `hit`): `c=[12,12]`,
+  `radius=4`, `d="M0 0 L10 10"`, `when={item != 0}`;
+- its paint in two words: `fill=<color>` paints the shape, `stroke=<color>` strokes it, with the stroke's own
+  fields beside it by Flutter's names (`strokeWidth`, `strokeCap`, `strokeJoin`, `strokeMiterLimit`,
+  `dashPattern`, `scaleStroke`). `fill` alone is the paint as written (`fill=#FF22C55E` is `"paint": "#FF22C55E"`,
+  as the API writes a paint that is a color; `fill={pal[item]}` a paint worked out), `stroke` alone a stroking
+  paint, both the two paints in that order. `paint=` (the field's own name) is what they cannot say: a paint
+  object with a shader or a blend mode, paints in another order;
+- a `group`'s and a `repeat`'s `ops` are the lines under it;
+- a `{…}` tail at its end, merged into the op, as on a node's line.
+
+A value is written as on a node's line (2.1): a number, a bare word (an enum's name, a color, a theme color's
+name), a quoted string (`{name}` in it reads the state; `${…}` written in it stays as written), `{expression}`
+(`${name}` for a name, `${= …}` otherwise), JSON for a map, and a list as JSON or with expressions among its
+numbers (`c=[{60 + index * 34},48]`). An op the API does not have, a key its op does not take and a line under an
+op that takes none are said (a closed vocabulary): the op is kept as written.
+
+From the corpus (tool/reference/examples/paint_illustration.json; CodelesslySDK examples/prompt_app/polish/bar/
+home.json, `top_mark`; examples/showcase/desktop/native/site_landing.json, `hero_figure_hero_adult`):
+
+```
+box#scene w=fill h=212
+  customPaint viewBox=[320,200] fit=cover
+    rect rect=[0,0,320,200] fill=#FFE8F1F8
+    circle c=[236,62] radius=28 fill=#FFF4B740
+    repeat count=3
+      circle c=[{60 + index * 34},{48 + index * 6}] radius=3 fill=#FF5D6D7E
+    path d="M0 150 C60 100 120 110 170 140 C220 170 270 120 320 130 L320 200 L0 200 Z" fill=#FF7FB685
+    line p1=[40,196] p2=[280,196] stroke=#33FFFFFF strokeWidth=2
+
+box#top_mark w=30 h=30
+  customPaint viewBox=[28,28]
+    rrect rect=[0,0,28,28] radius=9 fill={{'shader': {'type': 'linear', 'begin': 'topLeft', 'end': 'bottomRight', 'stops': [{'position': 0, 'color': theme.colors.brandBright}, {'position': 1, 'color': theme.colors.brand}]}}}
+    path d="M7 17 C 7 5, 21 5, 21 17" stroke={theme.colors.accent} strokeWidth=2.6 strokeCap=round strokeJoin=round
+    circle c=[14,18.5] radius=2.6 fill={theme.colors.onBrand}
+
+box#hero_figure_hero_adult
+  customPaint viewBox=[240,240] fit=contain
+    group opacity=0.55
+      path d="M48 122 C 18 176, 66 232, 120 232 C 174 232, 222 176, 192 122" stroke={theme.colors.artRope} strokeWidth=3 strokeCap=round strokeJoin=round dashPattern=[1,9]
+    oval rect=[80,220,80,10] fill={theme.colors.artShadow}
+```
+
+And the guide's dial (docs/guide/07-custom-paint.md), with a foreground painter:
+
+```
+box w=200 h=200
+  customPaint viewBox=[200,200]
+    circle c=[100,100] radius=96 fill=#FF1C2833 stroke=#FF5D6D7E strokeWidth=3
+    repeat count={ticks}
+      group translate=[100,100] rotate={radians(index * 360 / count)}
+        line p1=[0,-90] p2=[0,{index % 5 == 0 ? -76 : -84}] stroke=#FFE8ECEE strokeWidth={index % 5 == 0 ? 3 : 1.5} strokeCap=round
+    foregroundPainter
+      group#needle translate=[100,100] rotate={radians(value * 6)}
+        line p1=[0,14] p2=[0,-80] stroke=#FFE74C3C strokeWidth=3 strokeCap=round
+```
+
+**Animations.** `animate=<word> duration=… delay=…` stays the way to write an animation one of its words
+stands for, and the printer writes it for a node whose `animations` are exactly that (`id` `a`). Every other
+animation is an `animation#<id>` line indented under its node, with `NodeAnimation`'s fields by their own names
+(`duration`, `delay`, `curve`, `repeat`, `autoplay`, `preset`, `params`, `spring`, `progress`, …), and its
+tracks the `track[#id]` lines under it with `AnimationTrack`'s fields by theirs (`path`, `node`, `variable`,
+`from`, `to`, `keyframes`, `wave`, `interval`, `curve`, `blend`, `interpolation`). Values as above
+(`repeat={"reverse": true}`, `from={start}`). The animations are in the order their lines are written, after
+the one `animate=` gives. From CodelesslySDK examples/prompt_app/polish/bar/home.json:
+
+```
+Column#top gap=16
+  animation#enter duration=520 delay=0 curve=easeOutCubic
+    track path=opacity from=0 to=1
+    track path=motion.translateY from=14 to=0
+```
+
+**Charts.** A chart's fields are props, read and written by their own names (2.1): lists of records
+(`series`, `referenceLines`, `zones`, `markers`, `yLines`, `xLabels`) as JSON. What the notation says shorter
+is printed so: a `lineChart` whose `data` are the points `values=[…]` gives (`{"x": i, "y": v}` under `xField`
+`x` and `yField` `y`) prints as `values=[…]`; a donut the `Donut` word made prints as `Donut values=[…]
+labels=[…] colors=[…]`.
+
 ## 5. What does not change
 
 The prompt teaches the grammar and the core (design 19). Parity is what the parser reads and the printer
