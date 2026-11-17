@@ -751,6 +751,12 @@ final class PageWords {
       return out..add((indent: at, text: text));
     }
     final parts = _Parts(rest);
+    // `TopBar "…" type=TopBar`: the design system's component, by its own
+    // name (design 22, 4.7), no page word.
+    if (isComponent(word) && parts.value('type') == word) {
+      open();
+      return out..add((indent: at, text: text));
+    }
     // A text with a look of its own (a rule at its side, a fill, a corner)
     // is a box around the text: a text itself draws none.
     if (word == 'Text' && _looks(parts)) {
