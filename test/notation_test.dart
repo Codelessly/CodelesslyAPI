@@ -3095,4 +3095,44 @@ Page
     expect(_pagePrompt(), contains('DataTable rows={orders} columns=[{"key":"name","label":"Customer"}'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('DataTable')));
   });
+
+  test('a button beside a field with a label over it sits level with the field, not with the label', () {
+    const text =
+        'Card\n'
+        '  Row#labelled gap=8\n'
+        '    Input "Add a step" bind=draft grow\n'
+        '    Button.outline "Add"\n'
+        '  Row#hinted gap=8\n'
+        '    Input hint="Search" bind=q grow\n'
+        '    Button "Go"\n'
+        '  Row#written gap=8 middle\n'
+        '    Input "Name" bind=n grow\n'
+        '    Button "Go"\n'
+        '  Row#fields gap=8\n'
+        '    Input "First" bind=a grow\n'
+        '    Input "Last" bind=b grow\n';
+    final r = _parse(text);
+    expect(r.issues, isEmpty);
+    String? cross(String id) => (_node(r, id)['props'] as Map?)?['crossAxisAlignment'] as String?;
+    // The label is over the field: on the row's foot the button and the field's box are level.
+    expect(cross('labelled'), 'end');
+    // No label over the field: the row's line is the field's.
+    expect(cross('hinted'), 'center');
+    // What is written is kept.
+    expect(cross('written'), 'center');
+    // Fields alone are the same height: nothing to set right.
+    expect(cross('fields'), 'center');
+    // As it streams, the row is set right once its children are read.
+    final stream = NotationStream(catalog: standardCatalog);
+    final ops = [...stream.add(text), ...stream.close()];
+    expect(
+      ops.where((o) => o['op'] == 'patch' && o['id'] == 'labelled').map((o) => o['patch']).toList(),
+      anyElement(
+        equals({
+          'props': {'crossAxisAlignment': 'end'},
+        }),
+      ),
+    );
+    expect(ops.where((o) => o['op'] == 'patch' && o['id'] == 'written'), isEmpty);
+  });
 }
