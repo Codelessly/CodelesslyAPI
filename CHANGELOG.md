@@ -8,6 +8,12 @@
   a definition whose signature is its props and events; a use is read as a named meaning only when it fits it
   better (a tie is the component). An unnamed definition of a component's word is still not read.
   `DefinedWords(component: …)`, `DefinedWords.meanings(word)`.
+- **The open prompt names a design system's words: the glossary** (docs/design/19-open-vocabulary.md section 2;
+  the vocabulary loop's Review 6, D29): `notationPrompt(open: true, designSystem: …)` adds, after the paragraph
+  asking for definitions, one line with the names of the design system's components and defined words the
+  prompt does not already teach, sorted, with no parameters, and the instruction to use a listed word as one would
+  expect and define only what is in neither list (`notationGlossaryLead`, `notationGlossary`). Without a design
+  system there is none; `glossary: false` leaves it out.
 - **The shapes answers gave words we have, read** (the vocabulary loop's Review 6, D30): `Text strike=true` is
   the flag, `strike={done}` a line through the text while it holds (16 lines in the corpora; `underline=` the
   same); `Barcode "29034 00718 4421"` encodes its string (it was an issue), as bars by default (`code128`; a QR code

@@ -7,6 +7,8 @@ import '../design_system.dart';
 import '../props.dart';
 import '../levels.dart';
 import 'notation.dart';
+import 'page_words.dart' show PageWords;
+import 'vocabulary.dart' show NotationVocabulary;
 
 /// The formula functions the prompt names (a subset of the engine's: the
 /// ones a card needs). `test/notation_test.dart` checks each exists.
@@ -43,13 +45,24 @@ String notationPrompt({
   bool wanted = false,
   bool open = false,
   bool define = true,
+  bool glossary = true,
 }) {
   // The open vocabulary (docs/design/19): the grammar and the core only.
   // No component is listed and no behaviour word taught; the model writes
   // the word it expects, and defines it after the last screen
   // ([notationDefinePreface]; docs/design/20). With [define] false, the
   // open prompt as the first corpus was written with: no definitions asked.
-  if (open) return _openPrompt(notationPrompt(catalog: catalog, options: options, natural: natural), define: define);
+  // With a design system, the open prompt names the words it has beyond the
+  // core (its components and the words it defines in the notation), one
+  // line, no parameters: a writer uses them rather than defining its own
+  // (the vocabulary loop's Review 6, D29). [glossary] false leaves it out.
+  if (open) {
+    final text = _openPrompt(notationPrompt(catalog: catalog, options: options, natural: natural), define: define);
+    final names = glossary && designSystem != null ? notationGlossary(designSystem, options.vocabulary, prompt: text) : const <String>[];
+    if (names.isEmpty) return text;
+    final at = define ? notationOpenPreface.length + notationDefinePreface.length : notationOpenPreface.length;
+    return '${text.substring(0, at)}${notationGlossaryLead(define: define)}\n${names.join(' ')}\n\n${text.substring(at)}';
+  }
   final c = catalog ?? Catalog.current;
   final componentLines = designSystem == null
       ? const <String>[]
@@ -348,6 +361,26 @@ define Group "title"
 Define each word once, however many screens use it, and none of the words taught below. A definition draws and does what the words taught below can; what they cannot (a camera, a real map, sound) it shows as a labelled box, with a // line above the definition that says so.
 
 ''';
+
+/// What the glossary of the open prompt says before the names (the wording
+/// of the glossary experiment, the vocabulary loop's Review 6).
+String notationGlossaryLead({bool define = true}) => define
+    ? 'These words already exist, beyond the ones taught below. Use one as you would expect it to work (its text, the parameters and events its name suggests) and do not define it; define only a word that is in neither list:'
+    : 'These words already exist, beyond the ones taught below. Use one as you would expect it to work (its text, the parameters and events its name suggests):';
+
+/// The names [designSystem] has beyond what the open [prompt] teaches: its
+/// components and the words [vocabulary] defines in the notation, sorted,
+/// leaving out a type of the notation, a page word and any name the prompt
+/// already writes (`Button`, `Card`, and the define examples' `StickyNote`).
+List<String> notationGlossary(DesignSystem designSystem, NotationVocabulary vocabulary, {required String prompt}) {
+  final names = {for (final c in designSystem.list) c.type, ...vocabulary.definitions.keys};
+  bool taught(String n) =>
+      notationTypes.containsKey(n) ||
+      PageWords.words.contains(n) ||
+      RegExp(r'^H[1-4]$').hasMatch(n) ||
+      RegExp('(?<![A-Za-z0-9_])${RegExp.escape(n)}(?![A-Za-z0-9_])').hasMatch(prompt);
+  return [for (final n in names) if (n.isNotEmpty && n[0] == n[0].toUpperCase() && !taught(n)) n]..sort();
+}
 
 /// The taught prompt without what is vocabulary: the `{…}` escape and the
 /// reference pages (an unknown word is written, not escaped to JSON), and

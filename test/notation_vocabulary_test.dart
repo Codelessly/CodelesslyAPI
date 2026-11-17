@@ -646,6 +646,47 @@ ${blocks.join('\n')}
       expect(prompt, isNot(contains('PUTTING THEM TOGETHER')));
     });
 
+    test('with a design system it names the words it has beyond the core, on one line (Review 6, D29)', () async {
+      Map<String, Object?> component(String type) => {
+            'schema': 3,
+            'id': type,
+            'roots': ['root'],
+            'widget': {'type': type, 'doc': 'A $type.', 'props': <Object?>[]},
+            'nodes': {
+              'root': {'type': 'column'},
+            },
+          };
+      final files = {
+        'design_system.json': jsonEncode({
+          'id': 'acme',
+          'name': 'Acme',
+          'components': ['components/Stepper.json', 'components/Button.json', 'components/Breadcrumb.json'],
+        }),
+        'components/Stepper.json': jsonEncode(component('Stepper')),
+        'components/Button.json': jsonEncode(component('Button')),
+        'components/Breadcrumb.json': jsonEncode(component('Breadcrumb')),
+      };
+      final ds = await DesignSystem.load((ref) async => files[ref]);
+      final catalog = ds.catalogOver(standardCatalog);
+      final options = NotationOptions.fromDesignSystem(ds, width: 1280).define({
+        'Timeline.txt': 'Timeline items=[]\n  Column\n    ...\n',
+        'StickyNote.txt': 'StickyNote "text"\n  Text "{text}"\n',
+      });
+      String prompt({bool define = true, bool glossary = true, bool withDs = true}) =>
+          Catalog.run(catalog, () => notationPrompt(catalog: catalog, options: options, designSystem: withDs ? ds : null, open: true, define: define, glossary: glossary));
+      final page = prompt();
+      // Button and StickyNote are taught (StickyNote in the define example).
+      expect(page, contains('${notationGlossaryLead()}\nBreadcrumb Stepper Timeline\n\n'));
+      expect(page, startsWith('$notationOpenPreface$notationDefinePreface${notationGlossaryLead()}'));
+      expect(page.length, prompt(glossary: false).length + notationGlossaryLead().length + 'Breadcrumb Stepper Timeline'.length + 3);
+      // Without a design system, or with glossary: false, there is none.
+      expect(prompt(withDs: false), isNot(contains(notationGlossaryLead())));
+      expect(prompt(glossary: false), isNot(contains('Breadcrumb')));
+      expect(prompt(glossary: false), prompt(withDs: false));
+      // Without definitions asked, the lead does not ask to define.
+      expect(prompt(define: false), contains('${notationGlossaryLead(define: false)}\nBreadcrumb Stepper StickyNote Timeline\n\n'));
+    });
+
     test('every example in it parses with nothing recorded: the core is all it uses', () {
       final prompt = open(390);
       final examples = prompt.substring(prompt.indexOf('EXAMPLES') + 9).trim().split(RegExp(r'\n\n+'));
