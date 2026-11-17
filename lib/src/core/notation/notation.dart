@@ -1839,6 +1839,9 @@ class _Parser {
     Json? animation;
     Map<String, int>? timing;
     num? sliderStep;
+    // `Slider bind=low bindEnd=high`: the variable of its second thumb.
+    String? sliderEnd;
+    int sliderEndColumn = 0;
     String? textLine;
     num? avatarSize;
     String? imageFit;
@@ -2271,6 +2274,11 @@ class _Parser {
           continue;
         }
         var raw = word.substring(eq + 1);
+        if (key == 'bindEnd' && type == 'slider') {
+          sliderEnd = raw;
+          sliderEndColumn = col;
+          continue;
+        }
         if (key == 'bind' && !spec.props.any((p) => p.key == 'bind')) {
           if (raw.isEmpty && t.peek == '{') {
             final braced = t.balanced();
@@ -2818,6 +2826,28 @@ class _Parser {
       // bottom third of its circle open.
       layout.putIfAbsent('width', () => {'fill': 0});
       layout.putIfAbsent('height', () => layout['width'] is num ? ((layout['width']! as num) * 0.68).round() : 164);
+    }
+    // A slider with two thumbs is one control: its value is the lower end,
+    // rangeEnd the upper, and one change gives both (result.low, result.high).
+    if (sliderEnd != null) {
+      final low = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$').firstMatch('${bind['props.value']}')?.group(1);
+      final high = sliderEnd;
+      if (low == null || !_identifier.hasMatch(high) || high.contains('.')) {
+        _issue(sliderEndColumn, 'A range is a slider with a variable for each end: Slider bind=low bindEnd=high min=0 max=100.');
+      } else {
+        bind['props.rangeEnd'] = _read(high);
+        variables.putIfAbsent(high, () => {'name': high, 'type': 'decimal', 'value': props['max'] is num ? props['max'] : 1});
+        reactions.removeWhere((r) =>
+            readMap(r['trigger'])?['type'] == 'changed' &&
+            (r['actions'] as List?)?.any((a) => readMap(a)?['type'] == 'setVariable' && readMap(a)?['variable'] == low) == true);
+        reactions.insert(0, {
+          'trigger': {'type': 'changed'},
+          'actions': [
+            {'type': 'setVariable', 'variable': low, 'value': r'${result.low}'},
+            {'type': 'setVariable', 'variable': high, 'value': r'${result.high}'},
+          ],
+        });
+      }
     }
     if (sliderStep != null && sliderStep > 0) {
       final min = props['min'] is num ? props['min'] as num : 0, max = props['max'] is num ? props['max'] as num : 1;

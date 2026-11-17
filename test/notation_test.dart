@@ -2452,4 +2452,37 @@ Column
     expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('CodeInput "Code" bind=code length=6 digits'));
     expect(notationPrompt(catalog: standardCatalog), allOf(contains(' Input,'), isNot(contains('CodeInput'))));
   });
+
+  test('bindEnd: a slider with a variable for each end is one control with two thumbs', () {
+    final r = _parse('''
+state low=300000
+Column
+  Slider#price bind=low bindEnd=high min=200000 max=2000000 step=25000 label="Price range"
+  Slider#other bindEnd=top bind=bottom max=10 onChange={emit moved}
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final slider = _node(r, 'price');
+    expect(slider['type'], 'slider');
+    expect(slider['bind'], {'props.value': r'${low}', 'props.rangeEnd': r'${high}'});
+    expect(slider['props'], containsPair('divisions', 72));
+    expect(slider['actions'], [
+      {
+        'trigger': {'type': 'changed'},
+        'actions': [
+          {'type': 'setVariable', 'variable': 'low', 'value': r'${result.low}'},
+          {'type': 'setVariable', 'variable': 'high', 'value': r'${result.high}'},
+        ],
+      },
+    ]);
+    // The upper end starts at the slider's max when the page declared no start.
+    final declared = {for (final v in (r.document['variables'] as Map).values.expand((v) => v as List)) (v as Map)['name']: v['value']};
+    expect(declared, {'low': 300000, 'high': 2000000, 'bottom': 0, 'top': 10});
+    // Written in either order, and its own onChange still runs.
+    final other = _node(r, 'other');
+    expect(other['bind'], {'props.value': r'${bottom}', 'props.rangeEnd': r'${top}'});
+    expect([for (final a in other['actions'] as List) ((a as Map)['actions'] as List).length], [2, 1]);
+    expect(_parse('Slider bindEnd=high').issues.single.message, contains('Slider bind=low bindEnd=high'));
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('Slider bind=low bindEnd=high'));
+  });
 }
