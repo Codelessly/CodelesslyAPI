@@ -13,9 +13,9 @@
 //     Sidebar                 a fixed-width pane (navigation)
 //     Main                    the pane that takes the room left, and scrolls
 //       Nav                   its top bar
-//     Pane w:320              a further fixed-width pane (a list, details)
+//     Pane w=320              a further fixed-width pane (a list, details)
 //
-// and three small parts: `NavItem "Orders" icon:"inbox" selected` (a line of
+// and three small parts: `NavItem "Orders" icon="inbox" selected` (a line of
 // a sidebar), `Link "Docs"` and `Heading "Title"`.
 //
 // Each is written out as the plain lines it stands for (a Column, a Row, a
@@ -97,7 +97,7 @@ final class PageWords {
   /// Whether a website's `Nav` gets a menu for a phone: a button at its
   /// end, shown where its links are not, that opens them in a column under
   /// the bar (the links as written, each closing the menu as it goes). A
-  /// Nav that writes a `show:phone` or `show:tablet` line has its own.
+  /// Nav that writes a `show=phone` or `show=tablet` line has its own.
   final bool menu;
 
   /// The id of the drawer an app's `Sidebar` opens in where the window is
@@ -111,8 +111,8 @@ final class PageWords {
 
   /// The id of the lightbox a design system's gallery opens its photos in
   /// on a page (a component [takesViewer] names: it has `photos` and
-  /// `viewer:"overlay"`), so its large view is over the window and not in
-  /// the page's flow. Its line is given `viewer:"overlay"` and, after its
+  /// `viewer="overlay"`), so its large view is over the window and not in
+  /// the page's flow. Its line is given `viewer="overlay"` and, after its
   /// own actions, sets `<id>Photos` and `<id>At` and opens the lightbox,
   /// which is written once at the end of the text ([viewerUsed]). Null: a
   /// gallery is left as written (a card).
@@ -135,35 +135,77 @@ final class PageWords {
     if (parts.has('viewer') || parts.value('layout')?.replaceAll('"', '') == 'pages' || parts.hasWord('pages')) return text;
     final written = parts.value('photos');
     if (written == null) return text;
-    var list = written.startsWith('=') ? written.substring(1) : written;
+    var list = written;
     if (list.startsWith('{') && list.endsWith('}')) list = list.substring(1, list.length - 1);
     if (list.startsWith('[')) {
       // A list written out is kept once, for the gallery and the viewer.
       final name = '${id}List${viewerLists.length + 1}';
       viewerLists[name] = list;
-      text = text.replaceFirst('photos:$written', 'photos:=$name');
+      text = text.replaceFirst('photos=$written', 'photos={$name}');
       list = name;
     }
     viewerUsed = true;
     final held = parts.binding();
     final opened = '${id}Photos=$list; ${id}At=result-1; open $id${held == null ? '' : '; $held=0'}';
-    return withAction(text.replaceFirst(head[0]!, '${head[0]} viewer:"overlay"'), opened);
+    return withAction(text.replaceFirst(head[0]!, '${head[0]} viewer="overlay"'), opened);
   }
 
-  /// [text] with [action] after its own actions (a `{…}` merged into the
-  /// node at the end of the line stays last).
-  static String withAction(String text, String action) {
-    var arrow = -1;
-    for (var i = 0; i + 1 < text.length; i++) {
-      if (text.startsWith('->', i) && !_inString(text, i)) {
-        arrow = i;
-        break;
+  /// Where the actions of what [text]'s node does are: inside the braces of
+  /// its onTap={…}, else of the first event written on the line (a control's
+  /// onChange, a block's own), or null when it has none.
+  static ({int start, int end})? _ownEvent(String text) {
+    ({int start, int end})? first;
+    for (final m in RegExp(r'\s(on[A-Z][A-Za-z]*)=\{').allMatches(text)) {
+      if (_inString(text, m.start)) continue;
+      var depth = 0, quoted = false, end = -1;
+      for (var i = m.end - 1; i < text.length; i++) {
+        final c = text[i];
+        if (c == '"' && text[i - 1] != r'\') quoted = !quoted;
+        if (quoted) continue;
+        if (c == '{' || c == '[') depth++;
+        if ((c == '}' || c == ']') && --depth == 0) {
+          end = i;
+          break;
+        }
       }
+      if (end < 0) continue;
+      final found = (start: m.end, end: end);
+      if (m[1] == 'onTap') return found;
+      first ??= found;
     }
-    final tail = RegExp(r'\s\{"[\s\S]*\}\s*$').firstMatch(text);
-    final end = tail != null && !_inString(text, tail.start) ? tail.start : text.length;
-    final body = text.substring(0, end).trimRight();
-    return '$body${arrow < 0 ? ' ->' : ';'} $action${text.substring(end)}';
+    return first;
+  }
+
+  /// Where the `{…}` merged into the node starts at the end of [text] (its
+  /// length when there is none).
+  static int _tailAt(String text) {
+    for (final m in RegExp(r'\s\{"').allMatches(text)) {
+      if (!_inString(text, m.start) && RegExp(r'\}\s*$').hasMatch(text) && _ownEventHolds(text, m.start) == false) return m.start;
+    }
+    return text.length;
+  }
+
+  /// Whether [at] is inside the braces of a value on [text] (an event's
+  /// actions, an expression).
+  static bool _ownEventHolds(String text, int at) {
+    var depth = 0, quoted = false;
+    for (var i = 0; i < at; i++) {
+      final c = text[i];
+      if (c == '"' && (i == 0 || text[i - 1] != r'\')) quoted = !quoted;
+      if (quoted) continue;
+      if (c == '{' || c == '[') depth++;
+      if (c == '}' || c == ']') depth--;
+    }
+    return depth > 0;
+  }
+
+  /// [text] with [action] after the actions of what its node does (a `{…}`
+  /// merged into the node at the end of the line stays last).
+  static String withAction(String text, String action) {
+    final own = _ownEvent(text);
+    if (own != null) return '${text.substring(0, own.end).trimRight()}; $action${text.substring(own.end)}';
+    final end = _tailAt(text);
+    return '${text.substring(0, end).trimRight()} onTap={$action}${text.substring(end)}';
   }
 
   /// An app's `Sidebar` as written: what followed the word on its line and
@@ -187,7 +229,7 @@ final class PageWords {
   /// The overlay a top-level line opens (`Dialog#signup "Join"`,
   /// `Sheet#filters`, `Drawer#menu`, `Menu#more`, `Popover#tip`,
   /// `Lightbox#zoom`), or null: the lines under it are a canvas of their
-  /// own, shown over the page by `-> open <id>`.
+  /// own, shown over the page by `open <id>`.
   Overlay? overlay(String text) {
     final head = _overlayHead.firstMatch(text);
     if (head == null) return null;
@@ -201,9 +243,9 @@ final class PageWords {
     final heading = _variant(const ['heading', 'heading3', 'sectionTitle', 'strong']);
     // What heads a dialog or a sheet: its title, a close button, a line under it.
     List<PageLine> titled() => [
-          if (title != null) (indent: 2, text: 'Row w:fill between middle gap:12'),
+          if (title != null) (indent: 2, text: 'Row w=fill between middle gap=12'),
           if (title != null) (indent: 4, text: 'Text${heading == null ? '' : '.$heading'} $title grow'),
-          if (title != null) (indent: 4, text: 'IconButton "close" -> close'),
+          if (title != null) (indent: 4, text: 'IconButton "close" onTap={close}'),
           if (note != null) (indent: 2, text: 'Text${textVariants.contains('muted') ? '.muted' : ''} $note'),
         ];
     switch (head[1]!) {
@@ -215,11 +257,11 @@ final class PageWords {
         // A design system's own dialog frame (its title, its close button) is the dialog.
         if (isFrame('Dialog')) {
           return Overlay('dialog', id, width ?? 480, action, [
-            (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.props}${parts.action ?? ' -> close'}'),
+            (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.hasEvent ? parts.props : '${parts.props} onTap={close}'}${parts.tail}'),
           ], surface: false);
         }
         final pad = parts.take('pad') ?? '24', gap = parts.take('gap') ?? '16';
-        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w:fill pad:$pad gap:$gap${parts.all}'), ...titled()], radius: 16);
+        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16);
       case 'Sheet' || 'BottomSheet':
         final pad = parts.take('pad') ?? '[20,8,20,24]', gap = parts.take('gap') ?? '16';
         final w = width ?? 560;
@@ -228,7 +270,7 @@ final class PageWords {
           id,
           w,
           {'presentation': 'bottomSheet', 'sheetWidth': w, 'sheetRadius': 20, 'showDragHandle': true, 'maxHeightFactor': 0.9},
-          [(indent: 0, text: 'Column w:fill pad:$pad gap:$gap${parts.all}'), ...titled()],
+          [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()],
         );
       case 'Drawer':
         // A panel as tall as the window at its side; a tap beside it closes it.
@@ -236,7 +278,7 @@ final class PageWords {
         parts.word('left');
         final w = width ?? 300;
         final pad = parts.take('pad') ?? '[16,20,16,16]', gap = parts.take('gap') ?? '12';
-        const beside = (indent: 2, text: 'Box grow h:fill -> close');
+        const beside = (indent: 2, text: 'Box grow h=fill onTap={close}');
         return Overlay(
           'drawer',
           id,
@@ -245,7 +287,7 @@ final class PageWords {
           [
             (indent: 0, text: 'App'),
             if (right) beside,
-            (indent: 2, text: 'Sidebar w:${_n(w)} pad:$pad gap:$gap${parts.has('fill') || paneFill != null ? '' : ' fill:$surface'}${parts.all}'),
+            (indent: 2, text: 'Sidebar w=${_n(w)} pad=$pad gap=$gap${parts.has('fill') || paneFill != null ? '' : ' fill=$surface'}${parts.all}'),
             if (title != null) (indent: 4, text: 'Text${heading == null ? '' : '.$heading'} $title'),
           ],
           shift: 2,
@@ -272,8 +314,8 @@ final class PageWords {
           width ?? (menu ? 220 : 320),
           action,
           [
-            (indent: 0, text: 'Column w:fill pad:$pad gap:$gap${parts.all}'),
-            if (title != null) (indent: 2, text: 'Text${textVariants.contains('caption') ? '.caption' : ''} $title${menu ? ' pad:[8,6,8,2]' : ''}'),
+            (indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'),
+            if (title != null) (indent: 2, text: 'Text${textVariants.contains('caption') ? '.caption' : ''} $title${menu ? ' pad=[8,6,8,2]' : ''}'),
             if (note != null) (indent: 2, text: 'Text${textVariants.contains('muted') ? '.muted' : ''} $note'),
           ],
           radius: 12,
@@ -286,13 +328,13 @@ final class PageWords {
   }
 
   /// A picture, or a list of them, shown large over the page
-  /// (`Lightbox#zoom "{photo}" "Caption"`, `Lightbox#zoom photos:=photos
-  /// =at`): the picture contained in the window on a dark scrim, zoomed by
+  /// (`Lightbox#zoom "{photo}" "Caption"`, `Lightbox#zoom
+  /// photos={photos} bind=at`): the picture contained in the window on a dark scrim, zoomed by
   /// a pinch, the wheel and a double tap (to 2x where it was tapped, and
   /// back), panned while zoomed and kept inside the window; closed by its
   /// button, Escape, a tap on the scrim and a drag down. A list is paged by
   /// a swipe, the arrows and the arrow keys, with a count and a strip of
-  /// thumbnails; `=at` is the picture shown, from 0. The lines written under
+  /// thumbnails; `bind=at` is the picture shown, from 0. The lines written under
   /// a list draw one picture (`photo` is the element) in place of an Image
   /// of its `url`.
   Overlay _lightbox(String id, _Parts parts, String? title, String? note) {
@@ -326,7 +368,7 @@ final class PageWords {
     List<PageLine> photo(int indent) => [
           (
             indent: indent,
-            text: 'Stack w:fill h:fill center middle pad:[72,64,72,$below]${tail({
+            text: 'Stack w=fill h=fill center middle pad=[72,64,72,$below]${tail({
               'media': [
                 {
                   'maxWidth': 699,
@@ -341,7 +383,7 @@ final class PageWords {
           ),
           (
             indent: indent + 2,
-            text: 'Stack#${id}Photo w:fill h:fill center middle${tail({
+            text: 'Stack#${id}Photo w=fill h=fill center middle${tail({
               'transformGesture': {'target': 'node', 'pan': 'whenZoomed', 'minScale': 1, 'maxScale': max, 'doubleTapScale': 2, 'wheel': 'zoom', 'bounds': 'cover'},
               'bind': {'layout.aspectRatio': '\${= $ratio}'},
               'actions': [
@@ -367,7 +409,7 @@ final class PageWords {
         ];
     PageLine round(String name, double size, String action, Map<String, Object?> place, {String? visible, bool wide = false}) => (
           indent: 4,
-          text: 'Row#$id$name w:${_n(size)} h:${_n(size)} center middle radius:${_n(size / 2)}${visible == null ? '' : ' visible:=$visible'} -> $action${tail({
+          text: 'Row#$id$name w=${_n(size)} h=${_n(size)} center middle radius=${_n(size / 2)}${visible == null ? '' : ' visible={$visible}'} onTap={$action}${tail({
             'layout': place,
             'decoration': fill(pill),
             'states': {
@@ -432,7 +474,7 @@ final class PageWords {
     };
     final close = [round('Close', 40, 'close', at({'end': 16}, {'start': 16})), glyph('close', 20)];
     final zoomed = <PageLine>[
-      (indent: 4, text: 'Row#${id}Scale w:hug pad:[12,6,12,6] radius:999 visible:=$zoom>1.01${tail({'layout': at({'align': 0}, {'start': 20}), 'decoration': fill(pill)})}'),
+      (indent: 4, text: 'Row#${id}Scale w=hug pad=[12,6,12,6] radius=999 visible={$zoom>1.01}${tail({'layout': at({'align': 0}, {'start': 20}), 'decoration': fill(pill)})}'),
       label(6, '"{round($zoom,1)}×"', weight: 600),
     ];
     if (written == null) {
@@ -442,11 +484,11 @@ final class PageWords {
         390,
         action,
         [
-          (indent: 0, text: 'Column w:fill h:fill center middle${parts.props}${tail({'actions': rootActions()})}'),
-          (indent: 2, text: 'Stack#${id}Stage w:fill h:fill grow'),
+          (indent: 0, text: 'Column w=fill h=fill center middle${parts.props}${tail({'actions': rootActions()})}'),
+          (indent: 2, text: 'Stack#${id}Stage w=fill h=fill grow'),
           ...photo(4),
-          if (title != null) (indent: 8, text: 'Image $title w:fill h:fill fit:contain'),
-          if (note != null) (indent: 4, text: 'Row w:hug pad:[14,8,14,8] radius:12 visible:=$still${tail({'layout': at({'align': 0}, {'end': 20}), 'decoration': fill(pill)})}'),
+          if (title != null) (indent: 8, text: 'Image $title w=fill h=fill fit=contain'),
+          if (note != null) (indent: 4, text: 'Row w=hug pad=[14,8,14,8] radius=12 visible={$still}${tail({'layout': at({'align': 0}, {'end': 20}), 'decoration': fill(pill)})}'),
           if (note != null) label(6, note, size: 14, more: ' center'),
           ...zoomed,
           ...close,
@@ -456,7 +498,7 @@ final class PageWords {
       );
     }
     // A list: written out (a variable of its own), or worked out.
-    var list = written.startsWith('=') ? written.substring(1) : written;
+    var list = written;
     if (list.startsWith('{') && list.endsWith('}')) list = list.substring(1, list.length - 1);
     if (list.startsWith('[')) {
       variables['${id}Photos'] = list;
@@ -475,17 +517,17 @@ final class PageWords {
       [
         (
           indent: 0,
-          text: 'Column w:fill h:fill center middle${parts.props}${tail({
+          text: 'Column w=fill h=fill center middle${parts.props}${tail({
             'actions': rootActions([
               key('ArrowRight', [set(index, 'min($index+1,$last)')], '$index<$last'),
               key('ArrowLeft', [set(index, 'max($index-1,0)')], '$index>0'),
             ]),
           })}',
         ),
-        (indent: 2, text: 'Stack#${id}Stage w:fill h:fill grow'),
+        (indent: 2, text: 'Stack#${id}Stage w=fill h=fill grow'),
         (
           indent: 4,
-          text: 'Pages#${id}Pages =$index w:fill h:fill${tail({
+          text: 'Pages#${id}Pages bind=$index w=fill h=fill${tail({
             'props': {'animationDuration': 280},
             // Another picture starts at rest.
             'actions': [
@@ -506,11 +548,11 @@ final class PageWords {
       shift: 10,
       empty: [
         if (scenes)
-          (indent: 2, text: 'Media kind:=coalesce(photo.kind,"mountain") tone:=coalesce(photo.tone,"auto") w:fill h:fill visible:=coalesce(photo.kind,"")!=""${tail({'layout': {'aspectRatio': 1.5}})}'),
-        (indent: 2, text: 'Image "{coalesce(photo.url,photo.src,photo.image,photo)}" w:fill h:fill fit:contain${scenes ? ' visible:=coalesce(photo.kind,"")==""' : ''}'),
+          (indent: 2, text: 'Media kind={coalesce(photo.kind,"mountain")} tone={coalesce(photo.tone,"auto")} w=fill h=fill visible={coalesce(photo.kind,"")!=""}${tail({'layout': {'aspectRatio': 1.5}})}'),
+        (indent: 2, text: 'Image "{coalesce(photo.url,photo.src,photo.image,photo)}" w=fill h=fill fit=contain${scenes ? ' visible={coalesce(photo.kind,"")==""}' : ''}'),
       ],
       foot: [
-        (indent: 4, text: 'Row#${id}Count w:hug pad:[12,6,12,6] radius:999${tail({'layout': at({'start': 16}, {'start': 20}), 'decoration': fill(pill)})}'),
+        (indent: 4, text: 'Row#${id}Count w=hug pad=[12,6,12,6] radius=999${tail({'layout': at({'start': 16}, {'start': 20}), 'decoration': fill(pill)})}'),
         label(6, '"{clamp($index,0,max(0,$last))+1} / {length($list)}"', weight: 600),
         ...zoomed,
         ...close,
@@ -520,16 +562,16 @@ final class PageWords {
         glyph('chevron_right', 26),
         (
           indent: 4,
-          text: 'Column#${id}Foot w:hug h:hug center gap:10 visible:=$still${tail({'layout': at({'align': 0}, {'end': 16})})}',
+          text: 'Column#${id}Foot w=hug h=hug center gap=10 visible={$still}${tail({'layout': at({'align': 0}, {'end': 16})})}',
         ),
-        (indent: 6, text: 'Row pad:[14,8,14,8] radius:12 visible:=$caption!=""${tail({'decoration': fill(pill)})}'),
+        (indent: 6, text: 'Row pad=[14,8,14,8] radius=12 visible={$caption!=""}${tail({'decoration': fill(pill)})}'),
         label(8, '"{$caption}"', size: 14, more: ' center'),
         if (thumbs) ...[
-          (indent: 6, text: 'Row#${id}Thumbs scroll gap:6 pad:6 radius:10 visible:=length($list)>1${tail({'decoration': fill(pill)})}'),
+          (indent: 6, text: 'Row#${id}Thumbs scroll gap=6 pad=6 radius=10 visible={length($list)>1}${tail({'decoration': fill(pill)})}'),
           (indent: 8, text: 'each photo in $list'),
           (
             indent: 10,
-            text: 'Stack#${id}Thumb w:64 h:48 radius:6 -> $index=index${tail({
+            text: 'Stack#${id}Thumb w=64 h=48 radius=6 onTap={$index=index}${tail({
               'decoration': {
                 'clip': 'antiAlias',
                 'strokes': [
@@ -561,20 +603,11 @@ final class PageWords {
     if (closes == 'none') return text;
     final t = text.trimLeft();
     if (closes == 'nav' && !RegExp(r'^(NavItem|NavLink|SidebarItem|MenuItem|Link)\b').hasMatch(t)) return text;
-    var arrow = -1;
-    for (var i = 0; i + 1 < text.length; i++) {
-      if (text.startsWith('->', i) && !_inString(text, i)) {
-        arrow = i;
-        break;
-      }
-    }
-    if (arrow < 0) return text;
-    final actions = text.substring(arrow + 2);
+    final own = _ownEvent(text);
+    if (own == null) return text;
+    final actions = text.substring(own.start, own.end);
     if (RegExp(r'(^|;)\s*close\s*(;|$)').hasMatch(actions)) return text;
-    // A {…} merged into the node at the end of the line stays last.
-    final tail = RegExp(r'\s\{"[\s\S]*\}\s*$').firstMatch(actions);
-    if (tail != null) return '${text.substring(0, arrow + 2)}${actions.substring(0, tail.start).trimRight()}; close${actions.substring(tail.start)}';
-    return '${text.trimRight()}; close';
+    return '${text.substring(0, own.end).trimRight()}; close${text.substring(own.end)}';
   }
 
   /// What closes a frame: a bar's menu for a phone, then its rule.
@@ -596,11 +629,11 @@ final class PageWords {
     return [
       if (menu && closed.pageNav && links.isNotEmpty && !closed.ownMenu) ...[
         // As big as the bar's buttons: a target a thumb finds.
-        (indent: at + 4, text: 'IconButton "menu" w:40 h:40 show:$size -> navMenu=!navMenu'),
+        (indent: at + 4, text: 'IconButton "menu" w=40 h=40 show=$size onTap={navMenu=!navMenu}'),
         (indent: at + 2, text: 'if navMenu'),
-        (indent: at + 4, text: 'Column w:fill maxw:${_n(contentWidth)} show:$size gap:2 pad:[0,8,0,4]'),
+        (indent: at + 4, text: 'Column w=fill maxw=${_n(contentWidth)} show=$size gap=2 pad=[0,8,0,4]'),
         for (final link in links) ...[
-          (indent: at + 6, text: 'Row w:fill pad:[12,10,12,10] radius:8 middle -> navMenu=false; ${link.action}'),
+          (indent: at + 6, text: 'Row w=fill pad=[12,10,12,10] radius=8 middle onTap={navMenu=false; ${link.action}}'),
           (indent: at + 8, text: 'Text.strong ${link.label}'),
         ],
       ],
@@ -664,9 +697,9 @@ final class PageWords {
       if (indent > from && !bar && sidebarMenu != null && sidebarRest != null && !sidebarButton) {
         sidebarButton = true;
         out
-          ..add((indent: at, text: 'Row w:fill middle pad:[12,8,12,8] show:$_menuSize${paneFill == null ? '' : ' fill:$paneFill'}'))
-          ..add((indent: at + 2, text: 'IconButton "menu" -> open $sidebarMenu'))
-          ..add((indent: at, text: 'Divider show:$_menuSize'));
+          ..add((indent: at, text: 'Row w=fill middle pad=[12,8,12,8] show=$_menuSize${paneFill == null ? '' : ' fill=$paneFill'}'))
+          ..add((indent: at + 2, text: 'IconButton "menu" onTap={open $sidebarMenu}'))
+          ..add((indent: at, text: 'Divider show=$_menuSize'));
       }
     }
     // An `if` or an `each` is not a place of its own: what is under it is
@@ -688,19 +721,19 @@ final class PageWords {
     }
     if (word == 'Page' && indent == 0) {
       open(frame: 'Page');
-      final fill = parts.has('fill') || siteFill == null ? '' : ' fill:$siteFill';
-      return out..add((indent: at, text: 'Column$mark w:fill scroll stretch$fill${parts.all}'));
+      final fill = parts.has('fill') || siteFill == null ? '' : ' fill=$siteFill';
+      return out..add((indent: at, text: 'Column$mark w=fill scroll stretch$fill${parts.all}'));
     }
     if ((word == 'App' || word == 'AppShell' || word == 'Window') && indent == 0) {
       app = true;
       open(frame: 'App');
-      return out..add((indent: at, text: 'Row${_role('app')}$mark w:fill h:fill stretch${parts.all}'));
+      return out..add((indent: at, text: 'Row${_role('app')}$mark w=fill h=fill stretch${parts.all}'));
     }
     final inApp = root == 'App' || (parent?.frame == 'Sidebar' || parent?.frame == 'Main' || parent?.frame == 'Pane');
     if (word == 'Section' || (word == 'Footer' && !inApp) || (word == 'Hero' && !isComponent('Hero'))) {
       if (!framed) {
         open();
-        return out..add((indent: at, text: 'Column$mark w:fill${parts.has('gap') ? '' : ' gap:16'}${parts.all}'));
+        return out..add((indent: at, text: 'Column$mark w=fill${parts.has('gap') ? '' : ' gap=16'}${parts.all}'));
       }
       final footer = word == 'Footer';
       final width = parts.take('maxw') ?? (parts.word('narrow') ? _n(narrowWidth) : _n(contentWidth));
@@ -713,58 +746,58 @@ final class PageWords {
       final pad = parts.take('pad') ?? (bleed ? '[0,$v,0,$v]' : footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
       // A tinted band: the page's alternate ground, ruled off above and below.
       final tint = parts.word('tint') | parts.word('alt') | parts.word('band') | parts.word('muted');
-      final banded = tint && band != null && !parts.has('fill') ? ' fill:$band border-top:$line border-bottom:$line' : '';
+      final banded = tint && band != null && !parts.has('fill') ? ' fill=$band border-top=$line border-bottom=$line' : '';
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});
       open(frame: 'Section', shift: 2);
       if (footer) out.add((indent: at, text: 'Divider'));
       return out
-        ..add((indent: at, text: 'Column${_role('section')}$mark w:fill center pad:$pad$banded${parts.all}'))
-        ..add((indent: at + 2, text: 'Column w:fill${bleed ? '' : ' maxw:$width'} gap:$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
+        ..add((indent: at, text: 'Column${_role('section')}$mark w=fill center pad=$pad$banded${parts.all}'))
+        ..add((indent: at + 2, text: 'Column w=fill${bleed ? '' : ' maxw=$width'} gap=$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
     }
     if (_bars.contains(word) && !isComponentCall(word, parts)) {
       if (!framed) {
         open();
-        return out..add((indent: at, text: 'Row$mark w:fill between middle${parts.has('gap') ? '' : ' gap:16'}${parts.all}'));
+        return out..add((indent: at, text: 'Row$mark w=fill between middle${parts.has('gap') ? '' : ' gap=16'}${parts.all}'));
       }
       final gap = parts.take('gap') ?? '24';
       if (inApp) {
         final pad = parts.take('pad') ?? '[24,14,24,14]';
-        final fill = parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
+        final fill = parts.has('fill') || paneFill == null ? '' : ' fill=$paneFill';
         open(frame: 'Nav', after: 'Divider');
-        out.add((indent: at, text: 'Row${_role('nav')}$mark w:fill between middle pad:$pad gap:$gap$fill${parts.all}'));
+        out.add((indent: at, text: 'Row${_role('nav')}$mark w=fill between middle pad=$pad gap=$gap$fill${parts.all}'));
         // The sidebar a phone has no room for opens from a button here
         // (a tablet too, where it drops the first of two panes).
         if (sidebarMenu != null && sidebarRest != null && !sidebarButton && parent?.frame == 'Main') {
           sidebarButton = true;
-          out.add((indent: at + 2, text: 'IconButton${_role('appmenu')} "menu" show:$_menuSize -> open $sidebarMenu'));
+          out.add((indent: at + 2, text: 'IconButton${_role('appmenu')} "menu" show=$_menuSize onTap={open $sidebarMenu}'));
         }
         return out;
       }
       final width = parts.take('maxw') ?? _n(contentWidth);
       final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
-      final sticky = parts.word('sticky') ? ' sticky:0${parts.has('fill') || siteFill == null ? '' : ' fill:$siteFill'}' : '';
+      final sticky = parts.word('sticky') ? ' sticky=0${parts.has('fill') || siteFill == null ? '' : ' fill=$siteFill'}' : '';
       open(frame: 'Nav', shift: 2, after: 'Divider').pageNav = true;
       return out
-        ..add((indent: at, text: 'Column$mark w:fill center pad:$pad$sticky${parts.all}'))
-        ..add((indent: at + 2, text: 'Row${_role('nav')} w:fill maxw:$width between middle gap:$gap'));
+        ..add((indent: at, text: 'Column$mark w=fill center pad=$pad$sticky${parts.all}'))
+        ..add((indent: at + 2, text: 'Row${_role('nav')} w=fill maxw=$width between middle gap=$gap'));
     }
     if (_sides.contains(word) && !isComponentCall(word, parts)) {
       final width = parts.take('w') ?? _n(sidebarWidth);
       final pad = parts.take('pad') ?? '[12,20,12,16]';
       final gap = parts.take('gap') ?? '4';
       open(frame: framed ? 'Sidebar' : null);
-      final fill = !framed || parts.has('fill') || paneFill == null ? '' : ' fill:$paneFill';
+      final fill = !framed || parts.has('fill') || paneFill == null ? '' : ' fill=$paneFill';
       if (framed && root == 'App' && indent > 0 && !_mainSeen) {
         _panesBefore++;
         _widthBefore += double.tryParse(width) ?? sidebarWidth;
         // The first pane of the window is what a narrow one leaves out.
         if (sidebarMenu != null && sidebarRest == null && _panesBefore == 1) {
-          sidebarRest = ' pad:$pad gap:$gap${parts.props}';
+          sidebarRest = ' pad=$pad gap=$gap${parts.props}';
           _sidebarAt = indent;
         }
       }
-      return out..add((indent: at, text: 'Column${framed ? _role('sidebar') : ''}$mark w:$width${framed ? ' h:fill' : ''} pad:$pad gap:$gap$fill${parts.hasBorder ? '' : ' border-right:$line'}${parts.all}'));
+      return out..add((indent: at, text: 'Column${framed ? _role('sidebar') : ''}$mark w=$width${framed ? ' h=fill' : ''} pad=$pad gap=$gap$fill${parts.hasBorder ? '' : ' border-right=$line'}${parts.all}'));
     }
     if (word == 'Main' || word == 'Content') {
       if (framed && root == 'App' && !_mainSeen) {
@@ -772,7 +805,7 @@ final class PageWords {
         _mainAt = indent;
       }
       open(frame: framed ? 'Main' : null);
-      return out..add((indent: at, text: 'Column${framed ? _role('main') : ''}$mark grow${framed ? ' h:fill scroll' : ''}${parts.all}'));
+      return out..add((indent: at, text: 'Column${framed ? _role('main') : ''}$mark grow${framed ? ' h=fill scroll' : ''}${parts.all}'));
     }
     if (word == 'Pane' || (word == 'Panel' && inApp && !isComponent('Panel'))) {
       // Among the panes of a window it is as tall as the window and scrolls;
@@ -785,7 +818,7 @@ final class PageWords {
         _widthBefore += double.tryParse(width) ?? 0;
       }
       open(frame: framed ? 'Pane' : null);
-      return out..add((indent: at, text: 'Column${framed ? _role('pane') : ''}$mark ${width == null ? 'grow' : 'w:$width'}${framed ? ' h:fill scroll' : ''}${parts.hasBorder || !framed ? '' : ' border-right:$line'}${parts.all}'));
+      return out..add((indent: at, text: 'Column${framed ? _role('pane') : ''}$mark ${width == null ? 'grow' : 'w=$width'}${framed ? ' h=fill scroll' : ''}${parts.hasBorder || !framed ? '' : ' border-right=$line'}${parts.all}'));
     }
     if (_items.contains(word) && !isComponent(word)) {
       final icon = parts.take('icon');
@@ -796,18 +829,18 @@ final class PageWords {
       final ink = accentName ?? accent;
       const quiet = '#FF4B5563';
       final fill = selected != null
-          ? ' fill:=${_expr(selected)}?"$selectedFill":"#00000000"'
+          ? ' fill={${_expr(selected)}?"$selectedFill":"#00000000"}'
           : on
-              ? ' fill:$selectedFill'
+              ? ' fill=$selectedFill'
               : '';
       // In a bar the items sit side by side; in a sidebar each takes the width.
       final across = parent?.frame == 'Nav';
       open();
       return out
-        ..add((indent: at, text: 'Row$mark ${across ? '' : 'w:fill '}gap:10 middle pad:[10,8,10,8] radius:8$fill${parts.all}'))
+        ..add((indent: at, text: 'Row$mark ${across ? '' : 'w=fill '}gap=10 middle pad=[10,8,10,8] radius=8$fill${parts.all}'))
         ..addAll([
-          if (icon != null) (indent: at + 2, text: 'Icon $icon size:18${on ? ' color:$ink' : selected != null ? ' color:=${_expr(selected)}?"$ink":"$quiet"' : ' color:$quiet'}'),
-          (indent: at + 2, text: 'Text ${label ?? '""'} size:14 weight:${on ? 600 : 500}${on ? ' color:$ink' : selected != null ? ' color:=${_expr(selected)}?"$ink":"$quiet"' : ''}${across ? '' : ' grow'}'),
+          if (icon != null) (indent: at + 2, text: 'Icon $icon size=18${on ? ' color=$ink' : selected != null ? ' color={${_expr(selected)}?"$ink":"$quiet"}' : ' color=$quiet'}'),
+          (indent: at + 2, text: 'Text ${label ?? '""'} size=14 weight=${on ? 600 : 500}${on ? ' color=$ink' : selected != null ? ' color={${_expr(selected)}?"$ink":"$quiet"}' : ''}${across ? '' : ' grow'}'),
           if (badge != null) (indent: at + 2, text: 'Text.${_variant(const ['muted', 'caption', 'small']) ?? 'muted'} $badge'),
         ]);
     }
@@ -826,7 +859,7 @@ final class PageWords {
       final grow = parts.word('grow') ? ' grow' : '';
       open();
       return out
-        ..add((indent: at, text: 'Row w:$width$grow'))
+        ..add((indent: at, text: 'Row w=$width$grow'))
         ..add((indent: at + 2, text: 'Badge$mark${parts.all}'));
     }
     // The product's mark and name, at the head of a sidebar or the start of a bar.
@@ -836,11 +869,11 @@ final class PageWords {
       final side = parent?.frame == 'Sidebar';
       open();
       return out
-        ..add((indent: at, text: 'Row$mark gap:10 middle${side ? ' pad:[8,4,8,16]' : ''}${parts.all}'))
+        ..add((indent: at, text: 'Row$mark gap=10 middle${side ? ' pad=[8,4,8,16]' : ''}${parts.all}'))
         ..addAll([
-          if (icon != null) (indent: at + 2, text: 'Box w:28 h:28 radius:8 fill:$accent center middle'),
-          if (icon != null) (indent: at + 4, text: 'Icon $icon size:16 color:#FFFFFFFF'),
-          (indent: at + 2, text: 'Text ${name ?? '""'} size:17 weight:700'),
+          if (icon != null) (indent: at + 2, text: 'Box w=28 h=28 radius=8 fill=$accent center middle'),
+          if (icon != null) (indent: at + 4, text: 'Icon $icon size=16 color=#FFFFFFFF'),
+          (indent: at + 2, text: 'Text ${name ?? '""'} size=17 weight=700'),
         ]);
     }
     // A field in a bar has no room for a label above it: its label is its hint.
@@ -861,23 +894,24 @@ final class PageWords {
       final fill = parts.take('fill') ?? iconTile ?? selectedFill;
       open();
       return out
-        ..add((indent: at, text: 'Box$mark w:${_n(size)} h:${_n(size)} radius:${_n((size / 4).roundToDouble())} fill:$fill center middle${parts.all}'))
-        ..add((indent: at + 2, text: 'Icon ${name ?? '"star"'} size:${_n((size / 2).roundToDouble())} color:$ink'));
+        ..add((indent: at, text: 'Box$mark w=${_n(size)} h=${_n(size)} radius=${_n((size / 4).roundToDouble())} fill=$fill center middle${parts.all}'))
+        ..add((indent: at + 2, text: 'Icon ${name ?? '"star"'} size=${_n((size / 2).roundToDouble())} color=$ink'));
     }
     if (word == 'Link' && !isComponent('Link')) {
       final href = parts.take('href') ?? parts.take('to') ?? parts.take('url');
       final label = parts.string();
-      // menu:false keeps a link out of the bar's phone menu (one that stays in view: Search).
+      // menu=false keeps a link out of the bar's phone menu (one that stays in view: Search).
       final inMenu = parts.take('menu') != 'false';
-      // href:"https://…" opens it; href:"#pricing" scrolls to that part of the page.
-      final action = parts.action ??
+      // href="https://…" opens it; href="#pricing" scrolls to that part of the page.
+      final does = parts.takeEvent() ??
           (href != null && RegExp(r'^"?https?://').hasMatch(href)
-              ? ' -> link ${href.replaceAll('"', '')}'
+              ? 'link ${href.replaceAll('"', '')}'
               : href != null && RegExp(r'^"?#[A-Za-z_]').hasMatch(href)
-                  ? ' -> scroll ${href.replaceAll('"', '').substring(1)}'
-                  : '');
-      if (bar != null && inMenu && label != null && action.trim().startsWith('->')) {
-        bar.links.add((label: label, action: action.trim().substring(2).trim(), group: parent, direct: parent?.frame == 'Nav'));
+                  ? 'scroll ${href.replaceAll('"', '').substring(1)}'
+                  : null);
+      final action = '${does == null ? '' : ' onTap={$does}'}${parts.tail}';
+      if (bar != null && inMenu && label != null && does != null) {
+        bar.links.add((label: label, action: does.trim(), group: parent, direct: parent?.frame == 'Nav'));
       }
       open();
       // In a bar a link is a quiet button; in running content, text in the accent.
@@ -885,10 +919,10 @@ final class PageWords {
         return out..add((indent: at, text: 'Button.ghost$mark ${label ?? '""'}${parts.props}$action'));
       }
       if (_looks(parts)) {
-        final color = parts.has('color') ? '' : ' color:${accentText ?? accent}';
+        final color = parts.has('color') ? '' : ' color=${accentText ?? accent}';
         return out..addAll(_textBox(at, mark, parts, text: '${label ?? '""'}$color', action: action));
       }
-      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color:${accentText ?? accent}'}${parts.props}$action'));
+      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color=${accentText ?? accent}'}${parts.props}$action'));
     }
     if ((word == 'Heading' || word == 'Title' || RegExp(r'^H[1-4]$').hasMatch(word)) && !isComponent(word)) {
       final level = word.startsWith('H') && word.length == 2 ? int.parse(word.substring(1)) : int.tryParse(parts.take('level') ?? '') ?? 2;
@@ -915,23 +949,23 @@ final class PageWords {
   }
 
   /// A design system's own component of this name, when the line is
-  /// written as it is called (`Sidebar items:[…]`, `TopBar title:"…"`).
+  /// written as it is called (`Sidebar items=[…]`, `TopBar title="…"`).
   /// Whether a text line writes a look of its own (a rule at a side, a
   /// fill, a corner): a text itself draws none.
-  static bool _looks(_Parts parts) => (parts.hasBorder || parts.has('fill') || parts.has('radius')) && !parts.props.contains('{"');
+  static bool _looks(_Parts parts) => (parts.hasBorder || parts.has('fill') || parts.has('radius')) && parts.tail.isEmpty && !parts.props.contains('{"');
 
   /// A text with a look of its own, as a box around the text.
   static List<PageLine> _textBox(int at, String mark, _Parts parts, {String text = '', String? action}) {
     final look = [
       for (final k in const ['fill', 'radius', 'border', 'border-left', 'border-right', 'border-top', 'border-bottom', 'w', 'maxw'])
-        if (parts.take(k) case final String v) '$k:$v',
+        if (parts.take(k) case final String v) '$k=$v',
     ];
-    final filled = look.any((l) => l.startsWith('fill:'));
+    final filled = look.any((l) => l.startsWith('fill='));
     final pad = parts.take('pad') ?? (!filled && look.any((l) => l.startsWith('border-left')) ? '[12,2,0,2]' : '[8,3,8,3]');
     final grow = parts.word('grow') ? ' grow' : '';
     return [
-      (indent: at, text: 'Box${filled && !look.any((l) => l.startsWith('w:')) ? ' w:hug' : ''} ${look.join(' ')} pad:$pad$grow'),
-      (indent: at + 2, text: 'Text$mark${text.isEmpty ? '' : ' $text'}${parts.props}${action ?? parts.action ?? ''}'),
+      (indent: at, text: 'Box${filled && !look.any((l) => l.startsWith('w=')) ? ' w=hug' : ''} ${look.join(' ')} pad=$pad$grow'),
+      (indent: at + 2, text: 'Text$mark${text.isEmpty ? '' : ' $text'}${parts.props}${action ?? parts.tail}'),
     ];
   }
 
@@ -946,48 +980,33 @@ final class PageWords {
     return out;
   }
 
-  static final _idKey = RegExp(r'\s(?:id|anchor):[A-Za-z_][\w-]*(?=\s|$)');
-  static final _stickyKey = RegExp(r'\ssticky:true(?:\s+top:\d+)?(?=\s|$)');
-  static final _bareValue = RegExp(r'^((?:Text|Avatar|Heading|Badge|Button)(?:[.#][\w.#]*)?)\s+([a-z_]\w*(?:\.[A-Za-z_]\w*)+)(?=\s|$)');
-  static final _avatarSrc = RegExp(r'^(Avatar(?:#\w+)?)\s+(?:src|url|img):');
+  static final _stickyKey = RegExp(r'\ssticky=true(?:\s+top=\d+)?(?=\s|$)');
+  static final _avatarSrc = RegExp(r'^(Avatar(?:#\w+)?)\s+(?:src|url|img)=');
 
   /// A line with the keys a model reaches for by habit put as the notation
-  /// has them: `id:why` (an anchor; nothing reads it) left out,
-  /// `sticky:true top:24` as the word `sticky`, an Avatar's `src:` as its
-  /// `image:` (with the name it must have).
+  /// has them: `sticky=true top=24` as the word `sticky`, an Avatar's `src=`
+  /// as its `image=` (with the name it must have).
   static String _plain(String text) {
     if (text.contains("'")) text = _doubleQuoted(text);
-    if (!text.contains(':') && !text.contains('.')) return text;
-    final quoted = text.indexOf('"');
+    if (!text.contains('=')) return text;
     var t = text;
-    if (t.contains(' id:') || t.contains(' anchor:')) {
-      final m = _idKey.firstMatch(t);
-      // id:why is an anchor (a `scroll why` goes to it): written as #why.
-      if (m != null && (quoted < 0 || m.start < quoted || !_inString(t, m.start))) {
-        final name = t.substring(m.start, m.end).split(':').last;
-        t = t.replaceRange(m.start, m.end, RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(name) ? ' #$name' : '');
-      }
-    }
-    if (t.contains(' sticky:true')) {
+    if (t.contains(' sticky=true')) {
       final m = _stickyKey.firstMatch(t);
       if (m != null && !_inString(t, m.start)) t = t.replaceRange(m.start, m.end, ' sticky');
     }
     if (t.startsWith('Avatar')) {
       final m = _avatarSrc.firstMatch(t);
       if (m != null) {
-        t = '${m[1]} "" image:${t.substring(m.end)}';
+        t = '${m[1]} "" image=${t.substring(m.end)}';
       } else {
-        t = t.replaceFirstMapped(RegExp(r'\s(?:src|url|img):(?=")'), (_) => ' image:');
+        t = t.replaceFirstMapped(RegExp(r'\s(?:src|url|img)=(?=")'), (_) => ' image=');
       }
     }
-    // A value written bare where a text goes (Text.strong row.name) is that value shown.
-    final bare = _bareValue.firstMatch(t);
-    if (bare != null) t = '${bare[1]} "{${bare[2]}}"${t.substring(bare.end)}';
     return t;
   }
 
   /// 'single-quoted' text outside a string, as "double-quoted": a value
-  /// read after := ends at its closing quote, not at the line's last one.
+  /// in an expression ends at its closing quote.
   static String _doubleQuoted(String t) {
     final out = StringBuffer();
     var inDouble = false;
@@ -1038,7 +1057,7 @@ final class PageWords {
   static String _n(double v) => v == v.roundToDouble() ? '${v.round()}' : '$v';
 
   static String _expr(String raw) {
-    var e = raw.startsWith('=') ? raw.substring(1) : raw;
+    var e = raw;
     if (e.startsWith('{') && e.endsWith('}')) e = e.substring(1, e.length - 1);
     return '(${e.replaceAll(' ', '')})';
   }
@@ -1119,8 +1138,9 @@ class _Line {
   final links = <({String label, String action, _Line? group, bool direct})>[];
 }
 
-/// The words of a line after its type, taken apart: `key:value` pairs,
-/// bare words, strings and the action, each where it was written.
+/// The words of a line after its type, taken apart: `key=value` pairs
+/// (events among them), bare words and strings, each where it was written,
+/// and the `{…}` merged into the node at its end.
 class _Parts {
   _Parts(String rest) {
     var i = 0;
@@ -1130,8 +1150,8 @@ class _Parts {
         i++;
         continue;
       }
-      if (s.startsWith('->', i)) {
-        action = ' ${s.substring(i).trimRight()}';
+      if (s[i] == '{') {
+        tail = ' ${s.substring(i).trimRight()}';
         break;
       }
       final from = i;
@@ -1158,16 +1178,30 @@ class _Parts {
   }
 
   final _tokens = <String>[];
-  String? action;
 
-  static final _key = RegExp(r'^([A-Za-z][A-Za-z0-9_-]*):');
+  /// The `{…}` merged into the node, with the space before it ('' when none).
+  String tail = '';
 
-  /// Whether [key] is written with a value worked out (`key:=…`).
-  bool bound(String key) => _tokens.any((t) => t.startsWith('$key:='));
+  static final _key = RegExp(r'^([A-Za-z][A-Za-z0-9_-]*)=');
+  static final _event = RegExp(r'^(on[A-Z][A-Za-z]*)=\{([\s\S]*)\}$');
+
+  /// Whether [key] is written with a value worked out (`key={…}`).
+  bool bound(String key) => _tokens.any((t) => t.startsWith('$key={') && !t.startsWith('$key={"'));
+
+  /// Whether the line says what its node does (an event).
+  bool get hasEvent => _tokens.any(_event.hasMatch);
+
+  /// The actions of what the node does (its onTap={…}, else the first event
+  /// written), removed.
+  String? takeEvent() {
+    var i = _tokens.indexWhere((t) => t.startsWith('onTap={') && _event.hasMatch(t));
+    if (i < 0) i = _tokens.indexWhere(_event.hasMatch);
+    return i < 0 ? null : _event.firstMatch(_tokens.removeAt(i))![2]!.trim();
+  }
 
   bool has(String key) => _tokens.any((t) => _key.firstMatch(t)?[1] == key);
 
-  /// The value of `key:value`, left on the line.
+  /// The value of `key=value`, left on the line.
   String? value(String key) {
     final i = _tokens.indexWhere((t) => _key.firstMatch(t)?[1] == key);
     return i < 0 ? null : _tokens[i].substring(key.length + 1);
@@ -1176,7 +1210,7 @@ class _Parts {
   /// Whether a border is written, on every side or on one.
   bool get hasBorder => _tokens.any((t) => _key.firstMatch(t)?[1]?.startsWith('border') ?? false);
 
-  /// The value of `key:value`, removed from the line.
+  /// The value of `key=value`, removed from the line.
   String? take(String key) {
     final i = _tokens.indexWhere((t) => _key.firstMatch(t)?[1] == key);
     if (i < 0) return null;
@@ -1195,10 +1229,10 @@ class _Parts {
     return found;
   }
 
-  /// The variable a line is bound to (`=at`), removed.
+  /// The variable a line is bound to (`bind=at`), removed.
   String? binding() {
-    final i = _tokens.indexWhere((t) => RegExp(r'^=[A-Za-z_][A-Za-z0-9_]*$').hasMatch(t));
-    return i < 0 ? null : _tokens.removeAt(i).substring(1);
+    final i = _tokens.indexWhere((t) => RegExp(r'^bind=[A-Za-z_][A-Za-z0-9_]*$').hasMatch(t));
+    return i < 0 ? null : _tokens.removeAt(i).substring(5);
   }
 
   /// The first string of the line, removed.
@@ -1207,9 +1241,9 @@ class _Parts {
     return i < 0 ? null : _tokens.removeAt(i);
   }
 
-  /// What is left, without the action.
+  /// What is left, without the `{…}` at the end.
   String get props => _tokens.isEmpty ? '' : ' ${_tokens.join(' ')}';
 
   /// What is left, as it was written.
-  String get all => '$props${action ?? ''}';
+  String get all => '$props$tail';
 }

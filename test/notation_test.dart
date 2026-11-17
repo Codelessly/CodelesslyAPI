@@ -22,11 +22,11 @@ Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes']
 void main() {
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
-Column gap:12
-  Slider =volume
-  Input "Email" =email
-  Toggle "Notifications" =notify
-  Button "Save" -> emit save
+Column gap=12
+  Slider bind=volume
+  Input "Email" bind=email
+  Toggle "Notifications" bind=notify
+  Button "Save" onTap={emit save}
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -65,23 +65,23 @@ Column gap:12
   test('the recorded approval card in the notation: about an eighth of the characters, the same structure, and it validates', () {
     const text = '''
 state decision="pending"
-Card gap:12
+Card gap=12
   Text.title "Approve deletion?"
-  Column gap:4
+  Column gap=4
     Text "Folder: Shared Drive / Archive 2019"
     Text "Files: 214 files, about 3.8 GB"
     Text.danger "These files will be permanently deleted. This cannot be undone."
   Text.caption "First files that will be deleted:"
-  Column fill:#FFF9FAFB radius:6 gap:2 pad:8
+  Column fill=#FFF9FAFB radius=6 gap=2 pad=8
     Text.small "budget_2019_q1.xlsx"
     Text.small "client_notes_old.docx"
     Text.small "site_photos_march.zip"
     Text.small "meeting_recording_04.mp4"
   if decision!="pending"
     Text.strong "Decision: {decision}"
-  Row end gap:8
-    Button.ghost "Deny" -> decision="denied"
-    Button.destructive "Approve" -> decision="approved"; emit approved
+  Row end gap=8
+    Button.ghost "Deny" onTap={decision="denied"}
+    Button.destructive "Approve" onTap={decision="approved"; emit approved}
 ''';
     final r = _parse(text);
     expect(r.issues, isEmpty);
@@ -116,7 +116,7 @@ Column
 
   test('a {…} tail is merged into the node as JSON, an id is kept when written, and sizes can be written', () {
     final r = _parse('''
-Row#bar between w:300 h:44
+Row#bar between w=300 h=44
   Text#name "Ada" grow
   Icon "close" {"props": {"size": 18}}
 ''');
@@ -130,7 +130,7 @@ Row#bar between w:300 h:44
   test('a node written whole: its JSON as given, over several lines, with notation lines under it, and the same when read as it arrives', () {
     const text = '''
 state open=true
-Column gap:8
+Column gap=8
   Text "Above"
   if open
     node#board {
@@ -138,11 +138,11 @@ Column gap:8
       "layout": {"width": {"fill": 0}, "height": 120},
       "decoration": {"fills": [{"color": "#FF111827"}], "radius": 8}
     }
-      Text "On the board" color:#FFFFFFFF
+      Text "On the board" color=#FFFFFFFF
       node {"type": "icon", "props": {"icon": "star", "size": 20}}
       node#odd {"type": "text",
         "props": {"text": "braces in a string { [ stay text"}}
-  Button "Below" -> open=!open
+  Button "Below" onTap={open=!open}
 ''';
     final r = _parse(text);
     expect(r.issues, isEmpty);
@@ -190,15 +190,15 @@ state seconds=30
 state running=true
 state fields=[{"label":"Name","required":false}]
 state cells=[{"v":1},{"v":2}]
-every 1s when running -> seconds=seconds-1
-Column gap:8 scroll
+every 1s when running onTick={seconds=seconds-1}
+Column gap=8 scroll
   Text "{seconds}"
-  Row gap:4
+  Row gap=4
     each cell in cells
-      Box#cell w:36 h:36 -> seconds=cell.v
+      Box#cell w=36 h=36 onTap={seconds=cell.v}
   each field in fields
-    Input "{field.label}" =field.label
-    Toggle "Required" =field.required
+    Input "{field.label}" bind=field.label
+    Toggle "Required" bind=field.required
 ''';
     final r = _parse(text);
     expect(r.issues, isEmpty);
@@ -228,7 +228,7 @@ Column gap:8 scroll
     // The same as it arrives, the every line last.
     final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
     var doc = LayoutDocument(catalog: standardCatalog);
-    for (final chunk in ['state n=0\nColumn\n  Text "{n}"\n', 'every 500 -> n=n+1']) {
+    for (final chunk in ['state n=0\nColumn\n  Text "{n}"\n', 'every 500 onTick={n=n+1}']) {
       final ops = stream.add(chunk);
       if (ops.isNotEmpty) doc = applyOps(doc, {'ops': ops}, catalog: standardCatalog).document;
     }
@@ -242,8 +242,8 @@ Column gap:8 scroll
 state streak=4
 state done=3
 Column
-  Button "Go" tooltip:"{streak} days"
-  Progress :=done/5
+  Button "Go" tooltip="{streak} days"
+  Progress bind={done/5}
 ''');
     expect(c.issues, isEmpty);
     expect((_node(c, 'filledButton1')['bind'] as Map)['props.tooltip'], r'${streak} days');
@@ -254,9 +254,9 @@ Column
 state rows=[{"n":1}]
 every soon -> x=1
 Column
-  Input "A" =form.name
+  Input "A" bind=form.name
   each row in filter(rows, r => r.n>0)
-    Input "B" =row.n
+    Input "B" bind=row.n
 ''');
     expect(bad.issues.map((i) => i.message), [
       contains('An "every" line is'),
@@ -265,15 +265,15 @@ Column
     ]);
   });
 
-  test('drag and drop in words: a dragged node carries a value in a group, a drop target takes groups and its -> runs on a drop', () {
+  test('drag and drop in words: a dragged node carries a value in a group, a drop target takes groups and its onDrop runs on a drop', () {
     final r = _parse('''
 state todo=[{"id":"a","title":"Sketch"}]
 state done=[]
-Column gap:8
+Column gap=8
   each card in todo
-    Card#card drag:todo(card.id)
+    Card#card drag=todo(card.id)
       Text "{card.title}"
-  Card#doneCol drop:todo,doing -> done=append(done,result.data)
+  Card#doneCol drop=todo,doing onDrop={done=append(done,result.data)}
     Text "Done {length(done)}"
 ''');
     expect(r.issues, isEmpty);
@@ -281,33 +281,33 @@ Column gap:8
     final target = _node(r, 'doneCol');
     expect(target['dropTarget'], {'accepts': ['todo', 'doing']});
     expect(((target['actions'] as List).single as Map)['trigger'], {'type': 'drop'});
-    expect((_node(_parse('Column\n  Input "Age" type:number\n'), 'textField1')['props'] as Map)['keyboardType'], 'number');
+    expect((_node(_parse('Column\n  Input "Age" type=number\n'), 'textField1')['props'] as Map)['keyboardType'], 'number');
     // A state started from state already declared is that value, and its own.
     final started = _parse('state today={"work":40,"rest":20}\nstate left=today.work\nstate phase=work\nColumn\n  Text "{left}"\n');
     final vars = {for (final v in ((started.document['variables'] as Map)['screen'] as List)) (v as Map)['name']: v};
     expect(vars['left'], {'name': 'left', 'type': 'integer', 'value': 40});
     expect(vars['phase']!['value'], 'work');
     // Forms a model wrote for a block: a field of state as a bare value, and a text written as a binding.
-    final lenient = _parse('state today={"minutes":8}\nstate n=3\nColumn\n  Button "Go" tooltip:today.minutes\n  Button "Go" tooltip:="{n} left"\n');
+    final lenient = _parse('state today={"minutes":8}\nstate n=3\nColumn\n  Button "Go" tooltip={today.minutes}\n  Button "Go" tooltip={"{n} left"}\n');
     expect(lenient.issues, isEmpty);
     expect((_node(lenient, 'filledButton1')['bind'] as Map)['props.tooltip'], r'${today.minutes}');
     expect((_node(lenient, 'filledButton2')['bind'] as Map)['props.tooltip'], r'${n} left');
-    expect(_parse('state n=1\nColumn\n  Select items:["Round {n}","B"]\n').issues, isEmpty, reason: 'a text in a list reads values');
-    final bad = _parse('Column\n  Card drag:"a b"\n  Card drop:1x -> x=1\n');
+    expect(_parse('state n=1\nColumn\n  Select items=["Round {n}","B"]\n').issues, isEmpty, reason: 'a text in a list reads values');
+    final bad = _parse('Column\n  Card drag="a b"\n  Card drop=1x onDrop={x=1}\n');
     expect(bad.issues.map((i) => i.message), [contains('drag is written'), contains('drop is written')]);
   });
 
   test('read as it arrives: each completed line gives its operations, and applying them builds the same document', () {
     const text = '''
 state decision="pending"
-Card gap:12
+Card gap=12
   Text.title "Approve?"
   if decision!="pending"
     Text "Decision: {decision}"
-  Row end gap:8
-    Button.ghost "Deny" -> decision="denied"
-    Button "Approve" -> decision="approved"
-  Slider =volume
+  Row end gap=8
+    Button.ghost "Deny" onTap={decision="denied"}
+    Button "Approve" onTap={decision="approved"}
+  Slider bind=volume
 ''';
     final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
     final perChunk = <int>[];
@@ -361,7 +361,7 @@ Card gap:12
 
   test('forms models reach for: prices and formulas in text, a growing column, conditions with quotes, headers and tiles', () {
     final r = _parse('''
-Here is the card:
+Here is the card=
 state qty=2
 state to=""
 Card
@@ -370,15 +370,15 @@ Card
     Text "A long label that must be able to shrink"
     Column grow
       Text "x"
-  Button "Send" enabled:=to!=""&&length(to)>3 -> emit send
+  Button "Send" enabled={to!=""&&length(to)>3} onTap={emit send}
   Accordion "Day 1"
     Text "Walk"
   ListTile "Bean There" "0.2 km"
     Icon "place"
-  Grid cols:3 gap:8
-    Box h:40 fill:#FFEEEEEE
+  Grid cols=3 gap=8
+    Box h=40 fill=#FFEEEEEE
   Progress 0.4
-  Checkbox "Done" checked:=qty>1
+  Checkbox "Done" checked={qty>1}
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -427,10 +427,10 @@ state to=""
 state plan="Free"
 Card
   Text "{range=="7 days" ? "\$18.4k" : "\$231k"} total"
-  Button.ghost open ? "Hide" : "Show" -> open=!open
-  Button "Send" enabled:=trim(to)!="" && length(to)>3 -> emit send
-  Select "Plan" items:["Free","Pro"] =plan
-  Input hint:"you@example.com" =to
+  Button.ghost "{open ? "Hide" : "Show"}" onTap={open=!open}
+  Button "Send" enabled={trim(to)!="" && length(to)>3} onTap={emit send}
+  Select "Plan" items=["Free","Pro"] bind=plan
+  Input hint="you@example.com" bind=to
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -445,12 +445,12 @@ Card
     final r = _parse('''
 state i=0
 Card
-  Row center gap:8
+  Row center gap=8
     each n in range(6)
-      Box w:10 h:10 radius:5 fill:=n==i?"#FF3366CC":"#FFCCCCCC" -> i=n
-  GridView cols:3 gap:8
+      Box w=10 h=10 radius=5 fill={n==i?"#FF3366CC":"#FFCCCCCC"} onTap={i=n}
+  GridView cols=3 gap=8
     each p in range(9)
-      Box h:40 fill:#FFEEEEEE
+      Box h=40 fill=#FFEEEEEE
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -484,8 +484,8 @@ Card
 state cart=[{"name":"Beans","price":24,"qty":1}]
 state subtotal=sum(cart,x=>x.price*x.qty)
 state mode=fast
-Column gap:8
-  List gap:4
+Column gap=8
+  List gap=4
     each row in cart
       Text "{row.name}"
   Text "Total {subtotal}"
@@ -517,18 +517,18 @@ Column gap:8
     test('what the notation wrote prints back to the same document, one line a node', () {
       final doc = _parse('''
 state decision="pending"
-Card gap:12
+Card gap=12
   Text.title "Approve deletion?"
-  Row end gap:8
-    Button.ghost "Deny" -> decision="denied"
-    Button "Approve" -> decision="approved"; emit approved
-  Slider =volume
-  Input "Email" =email
+  Row end gap=8
+    Button.ghost "Deny" onTap={decision="denied"}
+    Button "Approve" onTap={decision="approved"; emit approved}
+  Slider bind=volume
+  Input "Email" bind=email
 ''').document;
       roundTrips(doc);
       final text = printNotation(doc, catalog: standardCatalog);
       expect(text, contains('Text.title#text1 "Approve deletion?"'));
-      expect(text, contains('  Row#row1 gap:8 end'));
+      expect(text, contains('  Row#row1 gap=8 end'));
     });
 
     test('a document written by hand, with slots, another canvas id and a typed variable, round trips', () {
@@ -599,7 +599,7 @@ Card
   Text.sectionTitle "Billing"
   Text.muted "Next invoice on the 1st"
   Badge.success "Paid"
-  BarChart values:[1,2,3]
+  BarChart values=[1,2,3]
 ''', catalog: standardCatalog, options: options);
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -617,7 +617,7 @@ Card
       'sizes': {'progress': 8},
       'spacing': {'cardGap': 12},
     });
-    final r = parseNotation('Column\n  Card#a\n    Progress#p 0.4\n  Card#b gap:4\n    Text "x"', options: options, catalog: standardCatalog);
+    final r = parseNotation('Column\n  Card#a\n    Progress#p 0.4\n  Card#b gap=4\n    Text "x"', options: options, catalog: standardCatalog);
     expect((_node(r, 'p')['props'] as Map)['borderRadius'], 999);
     expect((_node(r, 'p')['layout'] as Map)['height'], 8);
     expect((_node(r, 'a')['props'] as Map)['spacing'], 12);
@@ -635,7 +635,7 @@ Card
     num radius(NotationResult r, String id) => (_node(r, id)['decoration'] as Map)['radius'] as num;
     expect(radius(r, 'solo'), 26);
     expect(radius(r, 'inner'), 14);
-    final page = parseNotation('Column\n  Card#section\n    Text "a"\n  Grid cols:2\n    Card#tile\n      Text "b"',
+    final page = parseNotation('Column\n  Card#section\n    Text "a"\n  Grid cols=2\n    Card#tile\n      Text "b"',
         options: options, catalog: standardCatalog);
     expect(radius(page, 'section'), 18);
     expect(radius(page, 'tile'), 14);
@@ -658,21 +658,21 @@ Card
     };
     const text = '''
 state on=false
-Card gap:12
-  Box fill:#FFF5F5F5 radius:8 pad:12
-    Text "Folder" color:#FF6B7280
-  Box fill:=on?"#FFEFF6FF":"#FFF5F5F5" border:#FF7C3AED
+Card gap=12
+  Box fill=#FFF5F5F5 radius=8 pad=12
+    Text "Folder" color=#FF6B7280
+  Box fill={on?"#FFEFF6FF":"#FFF5F5F5"} border=#FF7C3AED
     Text "Brand purple stays"
   Badge.primary "New"
-  Row gap:8
+  Row gap=8
     Button.outline "Deny"
     Button "Approve"
   Button "Confirm"
   Button.ghost "Later"
   Card
     Text "A tile"
-  BarChart values:[1,2]
-  Text#big "12" size:24 weight:700
+  BarChart values=[1,2]
+  Text#big "12" size=24 weight=700
 ''';
     final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
     expect(r.issues, isEmpty);
@@ -725,17 +725,17 @@ Card gap:12
 state steps=7240
 state rows=[{"t":"a"},{"t":"b"}]
 Card
-  Gauge#g 72 min:0 max:180 limit:100 unit:"km/h"
-  Dial#d =steps
-  Stack#s center middle w:96 h:96
-    Ring#r =steps/10000 w:96
+  Gauge#g 72 min=0 max=180 limit=100 unit="km/h"
+  Dial#d bind=steps
+  Stack#s center middle w=96 h=96
+    Ring#r bind={steps/10000} w=96
     Text#pct "72%"
-  Sparkline#sp values:[3,4,3,6]
-  Text#t "Hello" animate:fadeIn duration:0.4s delay:200
+  Sparkline#sp values=[3,4,3,6]
+  Text#t "Hello" animate=fadeIn duration=0.4s delay=200
   each x in rows
-    Row#row animate:slide-up stagger:80
+    Row#row animate=slide-up stagger=80
       Text "{x.t}"
-  Button#b "Record" animate:pulse
+  Button#b "Record" animate=pulse
 ''';
     final r = parseNotation(text, catalog: standardCatalog);
     expect(r.issues, isEmpty);
@@ -771,12 +771,11 @@ Card
     const more = '''
 state n=0
 state todos=[{"id":1,"t":"a"}]
-every 1s when n<5
-  -> n=n+1
+every 1s when n<5 onTick={n=n+1}
 Card
-  Slider#tip =n min:0 max:30 step:5
-  each t in todos stagger:60
-    Row#todo swipe:left -> todos=removeWhere(todos,x=>x.id==t.id)
+  Slider#tip bind=n min=0 max=30 step=5
+  each t in todos stagger=60
+    Row#todo onSwipeLeft={todos=removeWhere(todos,x=>x.id==t.id)}
       Text "{t.t}"
 ''';
     final m = parseNotation(more, catalog: standardCatalog);
@@ -785,33 +784,33 @@ Card
     expect((((m.document['nodes'] as Map)['screen'] as Map)['actions'] as List).single, containsPair('trigger', {'type': 'timer', 'intervalMs': 1000, 'when': r'${= n<5}'}));
     expect(_node(m, 'tip')['props'], containsPair('divisions', 6));
     // A share of a row that follows a value grows (a segmented bar's parts).
-    final bar = parseNotation('state a=3\nRow h:12\n  Box#seg grow:=a fill:#FF4285F4', catalog: standardCatalog);
+    final bar = parseNotation('state a=3\nRow h=12\n  Box#seg grow={a} fill=#FF4285F4', catalog: standardCatalog);
     expect(bar.issues, isEmpty);
     expect(_node(bar, 'seg')['layout'], containsPair('flex', 1));
     expect((_node(bar, 'seg')['bind'] as Map)['layout.flex'], r'${a}');
     expect(((_node(m, 'todo')['actions'] as List).single as Map)['trigger'], {'type': 'swipeLeft'});
     expect((_node(m, 'todo')['bind'] as Map)['animations[0].delay'], r'${= index*60}');
     // A word it does not have is named with the ones it has; timing alone says where it goes.
-    final bad = parseNotation('Text "x" animate:teleport\nText "y" duration:300', catalog: standardCatalog);
-    expect(bad.issues.map((i) => i.message).join('\n'), allOf(contains('No animate:teleport'), contains('go with animate:')));
+    final bad = parseNotation('Text "x" animate=teleport\nText "y" duration=300', catalog: standardCatalog);
+    expect(bad.issues.map((i) => i.message).join('\n'), allOf(contains('No animate=teleport'), contains('go with animate=')));
   });
 
   test('several lines, an area, a donut; a guessed prop in a JSON tail is read or named at its line', () {
     const text = '''
 state room="Living Room"
 Card
-  LineChart#lines labels:["W1","W2","W3"] series:[{"name":"Signups","values":[40,52,61]},{"name":"Churn","values":[8,6,9],"color":"#FFDC2626"}]
-  AreaChart#area values:[3,5,4] labels:["a","b","c"]
-  Donut#d values:[60,25,15] labels:["Rent","Food","Other"]
-  LineChart#plain values:[1,2,3]
-  Box#b fill:#FFEEEEEE {"props": {"margin": [0, 8, 0, 0], "borderWidth": 2, "hexagon": true}}
+  LineChart#lines labels=["W1","W2","W3"] series=[{"name":"Signups","values":[40,52,61]},{"name":"Churn","values":[8,6,9],"color":"#FFDC2626"}]
+  AreaChart#area values=[3,5,4] labels=["a","b","c"]
+  Donut#d values=[60,25,15] labels=["Rent","Food","Other"]
+  LineChart#plain values=[1,2,3]
+  Box#b fill=#FFEEEEEE {"props": {"margin": [0, 8, 0, 0], "borderWidth": 2, "hexagon": true}}
   Input#msg "Message" {"props": {"multiline": true}}
-  IconButton#star "star" color:#FFFFC107 size:28
-  ChoiceChip#chip "Living Room" selected:=room=='Living Room' -> room="Living Room"
+  IconButton#star "star" color=#FFFFC107 size=28
+  ChoiceChip#chip "Living Room" selected={room=='Living Room'} onTap={room="Living Room"}
   Text.small.muted#tm "38:20"
-  Box#hero h:120 gradient:["#FF7C3AED","#FFEC4899"]
-  Image#img "assets/a.png" fit:contain
-  IconButton#info "info" tooltip:"More"
+  Box#hero h=120 gradient=["#FF7C3AED","#FFEC4899"]
+  Image#img "assets/a.png" fit=contain
+  IconButton#info "info" tooltip="More"
 ''';
     final r = parseNotation(text, catalog: standardCatalog);
     // The one prop nothing reads is named where it was written; the rest are read.
@@ -841,9 +840,9 @@ Card
   test('a page written as several top-level sections stacks them in one column', () {
     const text = '''
 state open=true
-Row#header pad:16
+Row#header pad=16
   Text "Acme"
-Column#main pad:24
+Column#main pad=24
   Text.title "Pricing"
 if open
   Text#note "Shown"
@@ -867,21 +866,21 @@ Row#footer
 
   test('the forms models write for placement, text, inputs and people', () {
     const text = '''
-Column#page maxw:720
+Column#page maxw=720
   Column#tab center
     Icon#ic "home"
     Text#lbl "Home"
-  Column#mid middle h:200
+  Column#mid middle h=200
     Text "x"
-  Stack#st w:fill h:200 right bottom
+  Stack#st w=fill h=200 right bottom
     Button#fab "+"
   Text#t "Total" center
   Text#old "\$40" strike
-  Input#pw "Password" type:password
+  Input#pw "Password" type=password
   Input#pw2 "Confirm" password
   Input#note "Note" multiline
-  Avatar#av "Maya Reyes" size:48
-  Avatar#pic src:"assets/maya.png"
+  Avatar#av "Maya Reyes" size=48
+  Avatar#pic src="assets/maya.png"
 ''';
     final r = parseNotation(text, catalog: standardCatalog);
     expect(r.issues, isEmpty);
@@ -917,10 +916,10 @@ Column#page maxw:720
     };
     const text = '''
 Column
-  Box#onPage w:44 h:44 radius:22 fill:#FFF1F5F9
+  Box#onPage w=44 h=44 radius=22 fill=#FFF1F5F9
   Card
-    Box#inCard w:44 h:44 radius:22 fill:#FFF1F5F9
-  Box#brand fill:#FF7C3AED
+    Box#inCard w=44 h=44 radius=22 fill=#FFF1F5F9
+  Box#brand fill=#FF7C3AED
 ''';
     Object? fill(NotationResult r, String id) => ((_node(r, id)['decoration'] as Map)['fills'] as List).single;
     final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
@@ -963,12 +962,12 @@ Column
   test('Pages: swiped pages bound to a variable, per element or per line, with a peek and dots', () {
     final r = _parse('''
 state shoes=[{"name":"Aero"},{"name":"Trail"}]
-Column gap:8
-  Pages =i h:120 peek:0.86
+Column gap=8
+  Pages bind=i h=120 peek=0.86
     each s in shoes
       Text "{s.name}"
-  Dots =i count:=length(shoes)
-  Pages =j h:90
+  Dots bind=i count={length(shoes)}
+  Pages bind=j h=90
     Text "First"
     Text "Second"
 ''');
@@ -989,19 +988,19 @@ Column gap:8
     final texts = (_node(r, 'pageView2Page')['children'] as List).cast<String>();
     expect([for (final t in texts) (_node(r, t)['bind'] as Map)['visible']], [r'${= index == 0}', r'${= index == 1}']);
     // A list holding expressions is a formula, not broken JSON.
-    final sums = _parse('state a=1\nColumn\n  BarChart values:[a+1,a*2,3]\n');
+    final sums = _parse('state a=1\nColumn\n  BarChart values={[a+1,a*2,3]}\n');
     expect(sums.issues, isEmpty);
     expect((_node(sums, 'barChart1')['bind'] as Map)['props.values'], r'${= [a+1,a*2,3]}');
     // A value word after := is the value, not a variable of that name.
-    final off = _parse('Column\n  Button "Send" enabled:=false\n');
+    final off = _parse('Column\n  Button "Send" enabled={false}\n');
     expect(off.issues, isEmpty);
     expect(_problems(off.document), isEmpty);
     // A bare word that is a declared variable is the variable, not its name as text.
-    final named = _parse('state pick="b"\nstate rows=[{"n":1}]\nColumn\n  Select items:["a","b"] value:pick\n  each r in rows\n    Progress value:r.n\n  Text "x" color:pick\n');
+    final named = _parse('state pick="b"\nstate rows=[{"n":1}]\nColumn\n  Select items=["a","b"] value={pick}\n  each r in rows\n    Progress value={r.n}\n  Text "x" color={pick}\n');
     expect(named.issues, isEmpty);
     expect((_node(named, 'dropdown1')['bind'] as Map)['props.value'], r'${pick}');
     // A value that follows state, written without a mark: braces, an expression, a call.
-    final plain = _parse('state voted=false\nstate n=2\nColumn\n  Button "Vote" enabled:!voted\n  Progress value:{n}\n  Text "x" visible:n>1 && !voted\n  Text "y" hidden\n  Button "Go" enabled:n==2\n');
+    final plain = _parse('state voted=false\nstate n=2\nColumn\n  Button "Vote" enabled={!voted}\n  Progress value={n}\n  Text "x" visible={n>1 && !voted}\n  Text "y" hidden\n  Button "Go" enabled={n==2}\n');
     expect(plain.issues, isEmpty, reason: '${plain.issues}');
     expect(_problems(plain.document), isEmpty);
     expect((_node(plain, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= !voted}');
@@ -1014,7 +1013,7 @@ Column gap:8
     final shownIf = (natural.document['nodes']! as Map).values.cast<Map>().where((n) => n['type'] == 'text').map((n) => (n['bind'] as Map?)?['visible']).toList();
     expect(shownIf.take(2), [r'${= item.n > 0}', r'${= !(item.n > 0)}']);
     // A handler as a key, quoted, braced, or on a line of its own; `value` is the control's new value.
-    final handled = _parse('state n = 0\nstate v = 3\nColumn\n  Button "Add" onPressed:{n = n + 1; v = 0}\n  Button "Sub" tap:"n = n - 1"\n  Slider onChanged:{v = value}\n  Button "Zero"\n    onPressed: n = 0\n');
+    final handled = _parse('state n = 0\nstate v = 3\nColumn\n  Button "Add" onTap={n = n + 1; v = 0}\n  Button "Sub" onTap={n = n - 1}\n  Slider onChange={v = result}\n  Button "Zero" onTap={n = 0}\n');
     expect(handled.issues, isEmpty, reason: '${handled.issues}');
     expect(_problems(handled.document), isEmpty);
     Map react(String id) => (_node(handled, id)['actions'] as List).single as Map;
@@ -1024,7 +1023,7 @@ Column gap:8
     expect(((react('slider1')['actions'] as List).single as Map)['value'], r'${= result}');
     expect(((react('filledButton3')['actions'] as List).single as Map)['variable'], 'n');
     // A record of a list changed where it stands, and n += 1.
-    final placed = _parse('state rows = [{"q":1},{"q":2}]\nstate n = 0\nColumn\n  for r in rows\n    Button "+" onPressed:{r.q += 1; n++}\n  Button "first" onPressed:{rows[0].q = 9}\n');
+    final placed = _parse('state rows = [{"q":1},{"q":2}]\nstate n = 0\nColumn\n  for r in rows\n    Button "+" onTap={r.q += 1; n++}\n  Button "first" onTap={rows[0].q = 9}\n');
     expect(placed.issues, isEmpty, reason: '${placed.issues}');
     expect(_problems(placed.document), isEmpty);
     final acts = (placed.document['nodes']! as Map).values.cast<Map>().where((x) => x['actions'] != null).expand((x) => ((x['actions'] as List).single as Map)['actions'] as List).cast<Map>().toList();
@@ -1032,7 +1031,7 @@ Column gap:8
     expect(acts[1], {'type': 'setVariable', 'variable': 'n', 'value': r'${= n + 1}'});
     expect(acts[2]['value'], r'${= setAt(rows,0,with(rows[0],"q",9))}');
     // Expressions with spaces and no mark, word operators, calls on a value, a guarded step, the timer as models write it.
-    final spoken = _parse('state n = 2\nstate on = false\nstate rows = [{"q":1}]\nstate left = 5\nevery 1s while:{on} onTick:{left = left - 1; if (left == 0) { on = false }}\nColumn\n  Button "Go" enabled:n > 0 and not on onPressed:{rows.add({"q":2}); if (n > 1) { n = 0 }}\n  Text "{rows.length} rows, {rows.filter(r => r.q > 1).length} big"\n');
+    final spoken = _parse('state n = 2\nstate on = false\nstate rows = [{"q":1}]\nstate left = 5\nevery 1s when on onTick={left = left - 1; if (left == 0) { on = false }}\nColumn\n  Button "Go" enabled={n > 0 and not on} onTap={rows.add({"q":2}); if (n > 1) { n = 0 }}\n  Text "{rows.length} rows, {rows.filter(r => r.q > 1).length} big"\n');
     expect(spoken.issues, isEmpty, reason: '${spoken.issues}');
     expect(_problems(spoken.document), isEmpty);
     expect((_node(spoken, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= n > 0 && !on}');
@@ -1041,7 +1040,7 @@ Column gap:8
     expect(go[1]['value'], r'${= (n > 1) ? (0) : n}');
     expect((_node(spoken, 'text1')['props'] as Map)['text'], r'${= length(rows)} rows, ${= length(filter(rows,r => r.q > 1))} big');
     // A row that scrolls goes sideways.
-    final strip = _parse('Column\n  Row scroll gap:8\n    Box w:300 h:40\n    Box w:300 h:40\n');
+    final strip = _parse('Column\n  Row scroll gap=8\n    Box w=300 h=40\n    Box w=300 h=40\n');
     expect(_node(strip, 'row1')['props'], containsPair('scrollDirection', 'horizontal'));
     expect(_node(strip, 'row1')['props'], containsPair('edgeFade', 12));
     // The dots: one per page, the current one long, a tap goes to its page.
@@ -1065,7 +1064,7 @@ Card
   Text.muted "Next invoice on the 1st"
   Badge.success "Paid"
   Progress 0.4
-  BarChart values:[1,2,3]
+  BarChart values=[1,2,3]
 ''';
     final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(a, named: true));
     expect(r.issues, isEmpty);
@@ -1098,11 +1097,11 @@ Card
     final r = _parse('''
 state on=false
 state score=72
-Column gap:8
-  Row pad:8 border:=on?"#FF2563EB":"#FFE5E7EB" -> on=!on
+Column gap=8
+  Row pad=8 border={on?"#FF2563EB":"#FFE5E7EB"} onTap={on=!on}
     Icon "{on ? "expand_less" : "expand_more"}"
-    Text "{score}" color:=score>=80?"#FF16A34A":"#FFDC2626"
-  Progress =score/100 {"props": {"color": "\${= score>=80 ? '#FF16A34A' : '#FFDC2626'}"}}
+    Text "{score}" color={score>=80?"#FF16A34A":"#FFDC2626"}
+  Progress bind={score/100} {"props": {"color": "\${= score>=80 ? '#FF16A34A' : '#FFDC2626'}"}}
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -1121,10 +1120,10 @@ Column gap:8
     final r = _parse('''
 state levels=[6,14,22]
 state live=true
-Row gap:3 h:32
+Row gap=3 h=32
   each l in levels
-    Box w:3 h:=live?l:4 fill:#FF2563EB
-  Box w:=live?40:8 h:3 fill:#FF2563EB
+    Box w=3 h={live?l:4} fill=#FF2563EB
+  Box w={live?40:8} h=3 fill=#FF2563EB
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -1141,9 +1140,9 @@ Row gap:3 h:32
   test('copies across a row that grow share its width: a grid with a column per item, rows as tall as their content', () {
     final r = _parse('''
 state plans=[{"name":"Team"},{"name":"Pro"},{"name":"Enterprise"}]
-Row gap:8
+Row gap=8
   each p in plans
-    Column pad:10 grow
+    Column pad=10 grow
       Text "{p.name}"
 ''');
     expect(r.issues, isEmpty);
@@ -1156,10 +1155,10 @@ Row gap:8
     expect(_node(r, 'listView1Item')['layout'], {'width': {'fill': 0}, 'height': {'hug': 0}});
     expect((_node(r, 'column1')['layout'] as Map).containsKey('flex'), isFalse);
     // Without grow, the copies keep their own widths in a line.
-    final plain = _parse('Row gap:8\n  each p in [1,2]\n    Text "{p}"\n');
+    final plain = _parse('Row gap=8\n  each p in [1,2]\n    Text "{p}"\n');
     expect(_node(plain, 'listView1')['type'], 'listView');
     // Read as it arrives, the list sent as a line is patched into the grid.
-    const text = 'state plans=[{"name":"Team"},{"name":"Pro"}]\nRow gap:8\n  each p in plans\n    Column pad:10 grow\n      Text "{p.name}"\n';
+    const text = 'state plans=[{"name":"Team"},{"name":"Pro"}]\nRow gap=8\n  each p in plans\n    Column pad=10 grow\n      Text "{p.name}"\n';
     final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
     var doc = LayoutDocument(catalog: standardCatalog);
     for (final ops in [stream.add(text), stream.close()]) {
@@ -1270,19 +1269,19 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
       expect(names, containsAll(['Question1_open', 'Question2_open']));
     });
 
-    test('what is written on a component line and can only mean one thing is read as that', () {
+    test('a further string goes to the next text parameter; an enumerated value and a value worked out are key=value like any other', () {
       final r = parse('''
 state n=2
 if n>0
-  Pill "Bananas" "1 kg" "\$2.49" quiet qty=n
+  Pill "Bananas" "1 kg" "\$2.49" tone=quiet qty={n}
 if n==0
   Text "Empty"
 ''');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       final nodes = r.document['nodes']! as Map;
       final node = nodes.values.cast<Map>().firstWhere((n) => n['type'] == 'Pill');
-      // A bare word that one enumerated parameter has; a further string in
-      // declared order; `=` where `:=` was meant.
+      // A further string in declared order; a parameter's value by its key.
+      // (No word alone is a parameter's value: that is a flag.)
       expect(node['props'], containsPair('tone', 'quiet'));
       expect(node['props'], containsPair('price', r'$2.49'));
       expect((node['bind'] as Map)['props.qty'], r'${n}');
@@ -1290,11 +1289,11 @@ if n==0
       expect((nodes['column1'] as Map)['children'], hasLength(2));
     });
 
-    test('are called by name: the string is the label, =name the variable it keeps its value in, -> its first event', () {
+    test('are called by name: the string is the label, bind=name the variable it keeps its value in, its events by their names', () {
       final r = parse('''
-Column gap:8
-  StatusPill "Paid" tone:success -> emit open
-  Counter =seats max:5
+Column gap=8
+  StatusPill "Paid" tone=success onTap={emit open}
+  Counter bind=seats max=5
   Frame "Billing"
     Text "Inside"
 ''');
@@ -1326,7 +1325,7 @@ Column gap:8
     });
 
     test('a parameter a component does not have is named on its line, with what it takes', () {
-      final r = parse('StatusPill "Paid" status:success');
+      final r = parse('StatusPill "Paid" status=success');
       expect(r.issues.single.toString(), contains('A StatusPill has no "status". It takes: label, tone.'));
     });
 
@@ -1337,13 +1336,13 @@ Column gap:8
       final one = parse('Note "Saved."');
       expect(one.issues, isEmpty);
       expect(_node(one, 'Note1')['props'], {'message': 'Saved.'});
-      final chosen = parse('state ok=true\nNote ok ? "Approved" : "Denied"');
+      final chosen = parse('state ok=true\nNote "{ok ? "Approved" : "Denied"}"');
       expect(chosen.issues, isEmpty);
       expect((_node(chosen, 'Note1')['bind'] as Map).keys, ['props.message']);
-      final twice = parse('Note "Heads up" title:"Again" message:"m"');
+      final twice = parse('Note "Heads up" title="Again" message="m"');
       expect(twice.issues.single.toString(), contains("The string on this line is already the Note's title: write title once."));
-      final none = parse('Note items:["a"]');
-      expect(none.issues.single.toString(), contains('A Note needs message: write message:"…".'));
+      final none = parse('Note items=["a"]');
+      expect(none.issues.single.toString(), contains('A Note needs message: write message="…".'));
     });
 
     test('a name the notation already reads as a core type stays that type', () {
@@ -1355,7 +1354,7 @@ Column gap:8
       final r = parse('''
 state tab="A"
 Column
-  Tabs =tab tabs:["A","B"]
+  Tabs bind=tab tabs=["A","B"]
   if tab=="A"
     Text "First"
 ''');
@@ -1364,16 +1363,16 @@ Column
       expect(tabs['type'], 'Tabs');
       expect(tabs['props'], {'tabs': ['A', 'B'], 'value': 'tab'});
       final prompt = notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds);
-      expect(prompt, contains('Tabs =value tabs! -> onChanged : What a Tabs is for.'));
-      final core = parseNotation('Tabs titles:["A","B"]');
+      expect(prompt, contains('Tabs bind=value tabs! onChanged : What a Tabs is for.'));
+      final core = parseNotation('Tabs titles=["A","B"]');
       expect((core.document['nodes']! as Map).values.cast<Map>().any((n) => n['type'] == 'tabs'), isTrue);
     });
 
     test('the prompt lists them as they are called, leaving out the names it reads as core types', () {
       final prompt = notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds);
       expect(prompt, contains('COMPONENTS (Acme'));
-      expect(prompt, contains('StatusPill "label" tone -> onPressed : What a StatusPill is for.'));
-      expect(prompt, contains('Counter =value max -> onChanged : What a Counter is for.'));
+      expect(prompt, contains('StatusPill "label" tone onPressed : What a StatusPill is for.'));
+      expect(prompt, contains('Counter bind=value max onChanged : What a Counter is for.'));
       expect(prompt, contains('Note "title" "message" items : What a Note is for.'));
       expect(prompt, contains('Frame "title" (children) : What a Frame is for.'));
       expect(prompt, isNot(contains('Button "label" :')));
@@ -1402,7 +1401,7 @@ Column
     });
 
     test('a condition in braces with spaces, quotes and words', () {
-      final nodes = nodesOf('state code=""\nstate n=1\nCard\n  Text visible:{n > 0 and not (code == "")} "Promo"\n');
+      final nodes = nodesOf('state code=""\nstate n=1\nCard\n  Text visible={n > 0 and not (code == "")} "Promo"\n');
       expect(jsonEncode(nodes['text1']), contains(jsonEncode(r'${= n > 0 && !(code == "")}')));
     });
 
@@ -1425,34 +1424,34 @@ Column
 
   });
 
-  group('values inside lists, and both marks at once', () {
+  group('values inside lists', () {
     test('a text in a list that reads a value is its parts joined', () {
-      final r = _parse('state n=4\nCard\n  Select =pick items:["Lemons, {2 * n}","\${fixed(n, 2)}","plain"]\n');
+      final r = _parse('state n=4\nCard\n  Select bind=pick items=["Lemons, {2 * n}","\${fixed(n, 2)}","plain"]\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [("Lemons, " + (2 * n)), ("$" + (fixed(n, 2))), "plain"]}')));
     });
 
-    test('a list after := goes on past its spaces, quoted text included', () {
-      final r = _parse('state pick=1\nstate total=3\nCard\n  Select =x items:=[["Price per person", pick==1 ? "£128" : "£84"],["Total", fixed(total, 2)]]\n');
+    test('a list in braces holds its spaces, quoted text included', () {
+      final r = _parse('state pick=1\nstate total=3\nCard\n  Select bind=x items={[["Price per person", pick==1 ? "£128" : "£84"],["Total", fixed(total, 2)]]}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [["Price per person", pick==1 ? "£128" : "£84"],["Total", fixed(total, 2)]]}')));
     });
 
     test('a quoted text in a formula reads its values', () {
-      final r = _parse('state n=4\nCard\n  Select =x items:=[["Serves","{n}"],["Each","\${fixed(n, 2)}"]]\n');
+      final r = _parse('state n=4\nCard\n  Select bind=x items={[["Serves","{n}"],["Each","\${fixed(n, 2)}"]]}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [["Serves",("" + (n))],["Each",("$" + (fixed(n, 2)))]]}')));
     });
 
     test('a list left open at the end of a line goes on over the next lines', () {
-      final r = _parse('state n=4\nCard\n  Select =x items:=[\n    "Chicken, "+round(800*n/4,0)+" g",\n    "Lemons, "+n\n  ]\n  Text "after"\n');
+      final r = _parse('state n=4\nCard\n  Select bind=x items={[\n    "Chicken, "+round(800*n/4,0)+" g",\n    "Lemons, "+n\n  ]}\n  Text "after"\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [ "Chicken, "+round(800*n/4,0)+" g", "Lemons, "+n ]}')));
       expect(jsonEncode(r.document), contains('after'));
     });
 
     test('a value brace holds its own braces and quotes', () {
-      final r = _parse('state pick="b"\nlet sel = find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)\nCard\n  Text "Costs {sel.price}"\n  Select =x items:=[["Total","{money(sel.price,"\$",2)}"]]\n');
+      final r = _parse('state pick="b"\nlet sel = find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)\nCard\n  Text "Costs {sel.price}"\n  Select bind=x items={[["Total","{money(sel.price,"\$",2)}"]]}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       final doc = jsonEncode(r.document);
       expect(doc, contains(jsonEncode(r'Costs ${= (find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)).price}')));
@@ -1461,7 +1460,7 @@ Column
     });
 
     test('a property after the actions, a fence around the answer, and an action that sets a worked-out value', () {
-      final r = _parse('```\nstate step=1\nstate ok=true\nstate tally=[1,2]\nstate total=sum(tally,x=>x)\nCard\n  Button "Go" -> step = 3 enabled:{ok}\n  Button "Vote" -> tally=append(tally,1); total=total+1; toast "Thanks"\n  Text "{total}"\n```\n');
+      final r = _parse('```\nstate step=1\nstate ok=true\nstate tally=[1,2]\nstate total=sum(tally,x=>x)\nCard\n  Button "Go" enabled={ok} onTap={step = 3}\n  Button "Vote" onTap={tally=append(tally,1); total=total+1; toast "Thanks"}\n  Text "{total}"\n```\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       final nodes = (r.document['nodes']! as Map).cast<String, Object?>();
       final go = jsonEncode(nodes['filledButton1']), vote = jsonEncode(nodes['filledButton2']);
@@ -1472,8 +1471,8 @@ Column
       expect(vote, isNot(contains('sum(tally')), reason: 'the total follows the tally; it is not set');
     });
 
-    test('key:={expression}', () {
-      final r = _parse('state running=false\nstate done=1\nCard\n  Button "Go" enabled:={!running && done < 6}\n');
+    test('an expression in braces, with spaces and words', () {
+      final r = _parse('state running=false\nstate done=1\nCard\n  Button "Go" enabled={!running && done < 6}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= !running && done < 6}')));
     });
@@ -1511,8 +1510,8 @@ Column
 Page
   Section#a tint
     Button#go "Start"
-    Button#big "Start" size:large
-    Row#cards gap:16
+    Button#big "Start" size=large
+    Row#cards gap=16
       Card grow
         Text "a"
       Card grow
@@ -1529,7 +1528,7 @@ Page
 
     test('a see-through fill on a card sits over the card, so its shadow does not show through', () {
       final r = parseNotation('''
-Card#plan fill:#0F2563EB
+Card#plan fill=#0F2563EB
   Text "Team"
 ''', catalog: standardCatalog);
       expect(r.issues, isEmpty);
@@ -1542,18 +1541,18 @@ Card#plan fill:#0F2563EB
       final r = parseNotation('''
 App
   Sidebar
-    Brand "Harbor" icon:"anchor"
-    NavItem#on "Orders" icon:"inbox" selected
+    Brand "Harbor" icon="anchor"
+    NavItem#on "Orders" icon="inbox" selected
   Main
     Nav
-      Heading "Orders" level:1
-      Input#q "Search orders" =q w:220
-    Column pad:24
+      Heading "Orders" level=1
+      Input#q "Search orders" bind=q w=220
+    Column pad=24
       IconTile#tile "sync"
       Row
-        Badge.success#paid "Paid" w:120
-      Text#toc "Install" border-left:#FFE5E7EB id:install
-      Avatar#who src:"https://example.com/a.png" size:32
+        Badge.success#paid "Paid" w=120
+      Text#toc "Install" border-left=#FFE5E7EB id=install
+      Avatar#who src="https://example.com/a.png" size=32
 ''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
       expect(r.issues, isEmpty);
       // The field's label is its hint.
@@ -1575,7 +1574,7 @@ Page
     Text.strong "Tidewater"
     Button "Start free"
   Section#hero narrow
-    Heading "Fill every room" level:1
+    Heading "Fill every room" level=1
   Footer
     Text "© 2026"
 ''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
@@ -1602,13 +1601,13 @@ Page
 state tab="orders"
 App
   Sidebar#side
-    NavItem#orders "Orders" icon:"inbox" badge:"12" selected:=tab=="orders" -> tab="orders"
+    NavItem#orders "Orders" icon="inbox" badge="12" selected={tab=="orders"} onTap={tab="orders"}
     Spacer#push grow
   Main#main
     Nav#bar
       Heading "Orders"
     Row
-      Pane#detail w:260
+      Pane#detail w=260
         Text "Details"
 ''', catalog: standardCatalog, options: const NotationOptions(width: 1280, height: 720));
       expect(r.issues, isEmpty);
@@ -1629,7 +1628,7 @@ App
     });
 
     test('a root written h:fill is a window too; a frame word inside a card is a plain row or column', () {
-      final windowed = parseNotation('Row h:fill\n  Text "a"', catalog: standardCatalog);
+      final windowed = parseNotation('Row h=fill\n  Text "a"', catalog: standardCatalog);
       expect((node(windowed, 'screen')['layout']! as Map)['height'], {'fill': 800});
       final card = parseNotation('Card\n  Header#h\n    Text "Title"\n  Section#s\n    Text "Body"', catalog: standardCatalog);
       expect(card.issues, isEmpty);
@@ -1688,7 +1687,7 @@ Column center
       final r = parseNotation('''
 Page
   Section
-    Grid#plans cols:3 gap:24
+    Grid#plans cols=3 gap=24
       Card#a
         Text "One"
       Card#b
@@ -1715,14 +1714,14 @@ Page
       final r = parseNotation('''
 Page
   Section
-    Row#split gap:32 top
-      Column#copy grow gap:12
+    Row#split gap=32 top
+      Column#copy grow gap=12
         Heading "Reserve a table"
         Text "Open every day."
-        Row gap:8
+        Row gap=8
           Button "Book"
           Button.outline "Menu"
-      Card#rail w:320
+      Card#rail w=320
         Text "Tonight"
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
@@ -1736,7 +1735,7 @@ Page
       final r = parseNotation('''
 Page
   Section
-    Row#bar gap:12 middle
+    Row#bar gap=12 middle
       Input#q "Search" grow
       Spacer#gap grow
       Button "Export"
@@ -1751,14 +1750,14 @@ Page
       final r = parseNotation('''
 Page
   Section
-    Card pad:0
-      Row#head gap:16 pad:[20,12,20,12]
+    Card pad=0
+      Row#head gap=16 pad=[20,12,20,12]
         Text#name "Name" grow
-        Text#company "Company" w:160
-        Text#status "Status" w:90
-        Text#plan "Plan" w:90
-        Text#value "Value" w:110
-        Text#seen "Last seen" w:110
+        Text#company "Company" w=160
+        Text#status "Status" w=90
+        Text#plan "Plan" w=90
+        Text#value "Value" w=110
+        Text#seen "Last seen" w=110
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(node(r, 'head')['media'], isNull);
@@ -1774,10 +1773,10 @@ Page
       final app = parseNotation('''
 App
   Sidebar#side
-    NavItem "Inbox" icon:"inbox" selected
+    NavItem "Inbox" icon="inbox" selected
   Main#main
     Text "Hello"
-  Pane#details w:300
+  Pane#details w=300
     Text "Details"
 ''', catalog: standardCatalog, options: page);
       expect(app.issues, isEmpty);
@@ -1789,13 +1788,13 @@ App
       final site = parseNotation('''
 Page
   Nav
-    Brand "Tidewater" icon:"waves"
-    Row#links gap:4
+    Brand "Tidewater" icon="waves"
+    Row#links gap=4
       Link "Features"
       Link "Pricing"
     Button "Start free"
   Section#hero
-    Text#big "Fill every room" size:56 weight:800
+    Text#big "Fill every room" size=56 weight=800
 ''', catalog: standardCatalog, options: page);
       expect(site.issues, isEmpty);
       expect(at(site, 'links', 390)['visible'], false);
@@ -1809,8 +1808,8 @@ Page
 Page
   Section
     Card
-      Donut#mix values:[1370,560,380] labels:["Street trees","School shade","Pocket forests"] h:240
-      Donut#bare values:[3,1] labels:["Yes","No"] legend:false
+      Donut#mix values=[1370,560,380] labels=["Street trees","School shade","Pocket forests"] h=240
+      Donut#bare values=[3,1] labels=["Yes","No"] legend=false
 ''';
       final r = parseNotation(text, catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
@@ -1827,7 +1826,7 @@ Page
       final own = parseNotation('''
 Page
   Section
-    Donut#mix values:[52,48] labels:["Online","Retail"]
+    Donut#mix values=[52,48] labels=["Online","Retail"]
     Row between
       Text.muted "Online"
       Text.strong "52%"
@@ -1838,7 +1837,7 @@ Page
       expect(node(own, 'mix')['type'], 'chart');
       expect(nodesOf(own).keys.where((k) => k.startsWith('mixLegend')), isEmpty);
       // On a card it is the chart alone, as before.
-      final card = parseNotation('Column\n  Donut#mix values:[3,1] labels:["Yes","No"]\n', catalog: standardCatalog);
+      final card = parseNotation('Column\n  Donut#mix values=[3,1] labels=["Yes","No"]\n', catalog: standardCatalog);
       expect(node(card, 'mix')['type'], 'chart');
     });
 
@@ -1850,24 +1849,24 @@ project cart=[]
 Page
   Section
     if menu
-      Column#links show:phone
+      Column#links show=phone
         Text "Docs"
-    Row#pair gap:32
+    Row#pair gap=32
       Column#one grow
         Heading "Fast"
         Text "Builds in seconds."
       Column#two grow
         Heading "Small"
         Text "No dependencies."
-    Row#who gap:12
+    Row#who gap=12
       Avatar "Maya Reyes"
       Column#name grow
         Text.strong "Maya Reyes"
         Text.muted "Owner"
-    Row#filters gap:12
-      SegmentedButton#level =kind options:["All","Beginner","Intermediate","Advanced"] grow
-      Button#add "Add" -> cart=append(cart,"x"); go replace(lower(kind)," ","_")
-      Button#home "Home" -> go home
+    Row#filters gap=12
+      SegmentedButton#level bind=kind options=["All","Beginner","Intermediate","Advanced"] grow
+      Button#add "Add" onTap={cart=append(cart,"x"); go {replace(lower(kind)," ","_")}}
+      Button#home "Home" onTap={go home}
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       // Hidden from a tablet up whatever the condition says; on a phone the condition decides.
@@ -1894,7 +1893,7 @@ Page
   Section
     each h in homes
       Card
-        Text#homeName "{h.name}" h:120
+        Text#homeName "{h.name}" h=120
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(node(r, 'homeName')['layout'], containsPair('height', 120));
@@ -1906,16 +1905,16 @@ Page
       final r = parseNotation('''
 Page
   Nav#bar sticky
-    Brand "Tidewater" icon:"waves"
-    Row#links gap:4
-      Link "Features" href:"#features"
-      Link "Pricing" -> scroll pricing
-      Link "Docs" -> go docs
+    Brand "Tidewater" icon="waves"
+    Row#links gap=4
+      Link "Features" href="#features"
+      Link "Pricing" onTap={scroll pricing}
+      Link "Docs" onTap={go docs}
     Button "Start free"
   Section#features
     Heading "Features"
   Section
-    Heading#price "Pricing" #pricing
+    Heading#price "Pricing" id=pricing
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(node(r, 'bar')['sticky'], {'offset': 0});
@@ -1943,8 +1942,8 @@ project guests=2
 state when=""
 Page
   Section
-    DatePicker#d "Arrival" =when
-    Select#g =guests items:[1,2,3]
+    DatePicker#d "Arrival" bind=when
+    Select#g bind=guests items=[1,2,3]
 ''', catalog: standardCatalog, options: page);
       expect(form.issues, isEmpty);
       expect(((node(form, 'd')['props']! as Map)['decoration']! as Map)['labelText'], 'Arrival');
@@ -1955,9 +1954,9 @@ Page
       final own = parseNotation('''
 Page
   Nav
-    Row gap:4
-      Link "Docs" -> go docs
-    IconButton#mine "menu" show:phone -> open=!open
+    Row gap=4
+      Link "Docs" onTap={go docs}
+    IconButton#mine "menu" show=phone onTap={open=!open}
 ''', catalog: standardCatalog, options: page);
       expect(nodesOf(own).values.where((n) => (n! as Map)['type'] == 'iconButton'), hasLength(1));
       expect(jsonEncode(own.document), isNot(contains('navMenu')));
@@ -1981,14 +1980,14 @@ Page
 state phone=""
 Page
   Nav#bar sticky
-    Row gap:4
-      Link#docs "Docs" -> go docs
-      Link#call "Call us" show:phone -> go call
+    Row gap=4
+      Link#docs "Docs" onTap={go docs}
+      Link#call "Call us" show=phone onTap={go call}
   Section#wide bleed
     Text "{cart} in the cart"
-    Button#add "Add" -> cart=cart+1
-    Input "Phone" =phone
-    Link#more "Read more" -> go more
+    Button#add "Add" onTap={cart=cart+1}
+    Input "Phone" bind=phone
+    Link#more "Read more" onTap={go more}
   Section#strip compact
     Text "Trusted by many"
 ''', catalog: standardCatalog, options: options);
@@ -2018,13 +2017,13 @@ Page
 Page
   Nav
     Brand "Relay"
-    Row gap:4
-      Link "Customers" -> go case-study
-      Link "Pricing" -> go pricing
-    Row gap:8
-      Link#search "Search" menu:false -> go search
-      Link#login "Log in" -> go \${= lower("Login")}
-      Button "Start" -> go replace(lower("Get Started")," ","-")
+    Row gap=4
+      Link "Customers" onTap={go case-study}
+      Link "Pricing" onTap={go pricing}
+    Row gap=8
+      Link#search "Search" menu=false onTap={go search}
+      Link#login "Log in" onTap={go \${= lower("Login")}}
+      Button "Start" onTap={go {replace(lower("Get Started")," ","-")}}
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       final all = jsonEncode(r.document);
@@ -2043,13 +2042,13 @@ Page
       expect((button['layout']! as Map)['width'], 40);
     });
 
-    test('hide: and show: say where a node shows; a card, or a page with reflow off, takes no rules', () {
+    test('hide= and show= say where a node shows; a card, or a page with reflow off, takes no rules', () {
       final r = parseNotation('''
 Page
   Section
-    Button#menu "Menu" show:phone
-    Text#long "The long version" hide:phone
-    Text#wide "Desktop only" hide:tablet
+    Button#menu "Menu" show=phone
+    Text#long "The long version" hide=phone
+    Text#wide "Desktop only" hide=tablet
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(at(r, 'menu', 390), isEmpty);
@@ -2061,7 +2060,7 @@ Page
 
       const text = '''
 Column
-  Grid cols:2
+  Grid cols=2
     Card
       Text "One"
     Card
@@ -2094,33 +2093,33 @@ state email=""
 state sort="Newest"
 Page
   Section
-    Button#join "Join" -> open signup
-    Button#filter "Filters" -> open filters
-    Button#sortBy "Sort" -> open sortMenu
-    Button#what "What is this?" -> open tip
-    Button#bag "Cart" -> open cart
+    Button#join "Join" onTap={open signup}
+    Button#filter "Filters" onTap={open filters}
+    Button#sortBy "Sort" onTap={open sortMenu}
+    Button#what "What is this?" onTap={open tip}
+    Button#bag "Cart" onTap={open cart}
     Text "Sorted by {sort}"
 
-Dialog#signup "Join the waitlist" "We write once." w:420
-  Input "Email" =email
-  Button#go "Join" -> joined=true; close
-  Button#again "More" -> open tip
+Dialog#signup "Join the waitlist" "We write once." w=420
+  Input "Email" bind=email
+  Button#go "Join" onTap={joined=true; close}
+  Button#again "More" onTap={open tip}
 
 Sheet#filters "Filters"
-  Toggle "Only open rooms" =onlyOpen
+  Toggle "Only open rooms" bind=onlyOpen
 
 Menu#sortMenu end
-  MenuItem#newest "Newest" icon:"schedule" -> sort="Newest"
-  MenuItem#price "Price" -> sort="Price"; close
-  MenuItem#ask "Ask" -> open signup
+  MenuItem#newest "Newest" icon="schedule" onTap={sort="Newest"}
+  MenuItem#price "Price" onTap={sort="Price"; close}
+  MenuItem#ask "Ask" onTap={open signup}
 
 Popover#tip above
   Text#tipText "Every room is cleaned between stays."
-  Button#ok "Got it" -> close
+  Button#ok "Got it" onTap={close}
 
-Drawer#cart right w:340 "Your cart"
-  NavItem#orders "Orders" -> tab="orders"
-  Chip#gift "Gift wrap" -> gift=!gift
+Drawer#cart right w=340 "Your cart"
+  NavItem#orders "Orders" onTap={tab="orders"}
+  Chip#gift "Gift wrap" onTap={gift=!gift}
 ''';
 
     test('a Dialog, a Sheet, a Menu, a Popover and a Drawer are canvases of their own, opened as their kind says', () {
@@ -2227,7 +2226,7 @@ Drawer#cart right w:340 "Your cart"
 
       final card = parseNotation('''
 Card
-  Button#more "More" -> open details
+  Button#more "More" onTap={open details}
 Dialog#details "Details"
   Text "The small print."
 ''', catalog: standardCatalog);
@@ -2236,7 +2235,7 @@ Dialog#details "Details"
       expect(card.document['roots'], ['screen', 'details']);
       expect(open(card, 'more'), containsPair('presentation', 'dialog'));
       // With no overlay written, open names a canvas written elsewhere, as before.
-      final other = parseNotation('Button#b "Go" -> open elsewhere\n', catalog: standardCatalog);
+      final other = parseNotation('Button#b "Go" onTap={open elsewhere}\n', catalog: standardCatalog);
       expect(open(other, 'b'), {'type': 'openModal', 'to': 'elsewhere'});
       expect(other.document['roots'], ['screen']);
     });
@@ -2275,14 +2274,14 @@ Dialog#details "Details"
       final catalog = ds.catalogOver(standardCatalog);
       final r = Catalog.run(catalog, () => parseNotation('''
 Column
-  Button#b "Delete" -> open sure
-  Button#m "More" -> open more
+  Button#b "Delete" onTap={open sure}
+  Button#m "More" onTap={open more}
   Dialog#inline "A frame in the page"
     Text "Body"
 Dialog#sure "Delete it?"
-  Button "Delete" -> close
+  Button "Delete" onTap={close}
 Menu#more
-  Text "Rename" -> toast "Renamed"
+  Text "Rename" onTap={toast "Renamed"}
 ''', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
       expect(r.issues, isEmpty);
       expect(r.document['roots'], ['screen', 'sure', 'more']);
@@ -2310,15 +2309,15 @@ Menu#more
 state tab="orders"
 App
   Sidebar#side
-    Brand "Harbor" icon:"anchor"
-    NavItem#overview "Overview" icon:"dashboard" selected:=tab=="overview" -> tab="overview"
-    NavItem#orders "Orders" selected:=tab=="orders" -> tab="orders"
+    Brand "Harbor" icon="anchor"
+    NavItem#overview "Overview" icon="dashboard" selected={tab=="overview"} onTap={tab="overview"}
+    NavItem#orders "Orders" selected={tab=="orders"} onTap={tab="orders"}
   Main
     Nav#bar
-      Heading#title "Orders" level:1
-      Row#tools gap:8
+      Heading#title "Orders" level=1
+      Row#tools gap=8
         Button "New order"
-    Column pad:24
+    Column pad=24
       Text "Content"
 ''';
       final r = parseNotation(app, catalog: standardCatalog, options: page);
@@ -2356,13 +2355,13 @@ App
       expect((node(r, 'side')['layout']! as Map)['width'], 248);
 
       // Two panes before the main one, over 420 wide: a tablet hides the sidebar too.
-      final two = parseNotation(app.replaceFirst('  Main', '  Pane w:320\n    Text "List"\n  Main'), catalog: standardCatalog, options: page);
+      final two = parseNotation(app.replaceFirst('  Main', '  Pane w=320\n    Text "List"\n  Main'), catalog: standardCatalog, options: page);
       final twoBar = (node(two, 'bar')['children']! as List).cast<String>();
       expect((node(two, twoBar.first)['media']! as List).single, containsPair('minWidth', 1024));
       expect(((node(two, 'title')['media']! as List).last as Map)['maxWidth'], 1023);
 
       // A Main with no top bar gets a slim one for the button, where the sidebar is hidden.
-      final bare = parseNotation(app.replaceFirst('    Nav#bar\n      Heading#title "Orders" level:1\n      Row#tools gap:8\n        Button "New order"\n', ''), catalog: standardCatalog, options: page);
+      final bare = parseNotation(app.replaceFirst('    Nav#bar\n      Heading#title "Orders" level=1\n      Row#tools gap=8\n        Button "New order"\n', ''), catalog: standardCatalog, options: page);
       expect(bare.issues, isEmpty);
       expect(bare.document['roots'], ['screen', 'screenMenu']);
       final opener = nodesOf(bare).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton').key;
@@ -2388,14 +2387,14 @@ App
       final r = parseNotation('''
 state photo="a.png"
 Column
-  Image#thumb "a.png" w:120 h:80 -> open zoom
-  Card#area menu:areaMenu
+  Image#thumb "a.png" w=120 h=80 onTap={open zoom}
+  Card#area menu=areaMenu
     Text "Right-click me"
-  Row#file onRightClick:{sel="a"; open areaMenu} -> open areaMenu
+  Row#file onRightClick={sel="a"; open areaMenu} onTap={open areaMenu}
     Text "a.txt"
 Lightbox#zoom "{photo}" "The harbor at dusk"
 Menu#areaMenu
-  Text#refresh "Refresh" -> toast "Done"
+  Text#refresh "Refresh" onTap={toast "Done"}
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(problems(r.document), isEmpty);
@@ -2437,8 +2436,8 @@ Menu#areaMenu
       final r = parseNotation('''
 state photo="a.png"
 Column
-  Image#thumb "a.png" w:120 h:80 -> open zoom
-Lightbox#zoom "{photo}" "The harbor at dusk" ratio:1.5
+  Image#thumb "a.png" w=120 h=80 onTap={open zoom}
+Lightbox#zoom "{photo}" "The harbor at dusk" ratio=1.5
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(problems(r.document), isEmpty);
@@ -2483,7 +2482,7 @@ Lightbox#zoom "{photo}" "The harbor at dusk" ratio:1.5
       expect(shown['cover'], true);
       expect((shown['routeTransition']! as Map)['dismiss'], {'direction': 'down', 'distance': 0.2});
       // The max zoom is the line's; without a ratio the box is the picture's place and a tap there closes.
-      final loose = parseNotation('Column\n  Image#t "a.png" -> open z\nLightbox#z "a.png" max:6\n', catalog: standardCatalog, options: page);
+      final loose = parseNotation('Column\n  Image#t "a.png" onTap={open z}\nLightbox#z "a.png" max=6\n', catalog: standardCatalog, options: page);
       expect(loose.issues, isEmpty);
       expect(problems(loose.document), isEmpty);
       expect((node(loose, 'zPhoto')['transformGesture']! as Map)['maxScale'], 6);
@@ -2495,8 +2494,8 @@ Lightbox#zoom "{photo}" "The harbor at dusk" ratio:1.5
 state photos=[{"url":"a.png","caption":"A"},{"url":"b.png","caption":"B"}]
 Column
   each p in photos
-    Image#thumb "{p.url}" w:120 h:80 -> at=index; open viewer
-Lightbox#viewer photos:=photos =at
+    Image#thumb "{p.url}" w=120 h=80 onTap={at=index; open viewer}
+Lightbox#viewer photos={photos} bind=at
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(problems(r.document), isEmpty);
@@ -2539,7 +2538,7 @@ Lightbox#viewer photos:=photos =at
       ]);
       expect(jsonEncode(node(r, (thumb['children']! as List).single as String)), contains('"fit":"cover"'));
       // thumbs:false leaves the strip out; a list written out and no =name keep variables of their own.
-      final plain = parseNotation('Column\n  Button#b "Photos" -> open shots\nLightbox#shots photos:["a.png","b.png"] thumbs:false\n', catalog: standardCatalog, options: page);
+      final plain = parseNotation('Column\n  Button#b "Photos" onTap={open shots}\nLightbox#shots photos=["a.png","b.png"] thumbs=false\n', catalog: standardCatalog, options: page);
       expect(plain.issues, isEmpty);
       expect(problems(plain.document), isEmpty);
       expect(nodesOf(plain).containsKey('shotsThumbs'), isFalse);
@@ -2549,7 +2548,7 @@ Lightbox#viewer photos:=photos =at
       ]));
       expect(node(plain, 'shotsPages')['bind'], {'props.initialPage': r'${shotsAt}', 'data': r'${shotsPhotos}'});
       // The lines under it draw one picture (photo is the element), large and in its thumbnail.
-      final own = parseNotation('state swatches=[{"c":"#FF112233"}]\nColumn\n  Button#b "Colors" -> open sw\nLightbox#sw photos:=swatches\n  Box#chip w:fill h:fill fill:=photo.c\n',
+      final own = parseNotation('state swatches=[{"c":"#FF112233"}]\nColumn\n  Button#b "Colors" onTap={open sw}\nLightbox#sw photos={swatches}\n  Box#chip w=fill h=fill fill={photo.c}\n',
           catalog: standardCatalog, options: page);
       expect(own.issues, isEmpty);
       expect(problems(own.document), isEmpty);
@@ -2595,9 +2594,9 @@ Lightbox#viewer photos:=photos =at
 state trips=[{"name":"Coast","photos":[{"url":"a.png"}]}]
 Page
   Section
-    PhotoGallery#one =seen photos:[{"url":"a.png"},{"url":"b.png"}] -> emit looked
+    PhotoGallery#one bind=seen photos=[{"url":"a.png"},{"url":"b.png"}] onTap={emit looked}
     each t in trips
-      PhotoGallery#each photos:=t.photos
+      PhotoGallery#each photos={t.photos}
 ''';
       final r = Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds, width: 1280)));
       expect(r.issues, isEmpty);
@@ -2620,19 +2619,19 @@ Page
       // One viewer for the page's galleries, a gallery of what was last tapped.
       expect(node(r, 'screenViewerPages')['bind'], {'props.initialPage': r'${screenViewerAt}', 'data': r'${screenViewerPhotos}'});
       // On a card (and where the line says how it opens) it is the component as written.
-      final card = Catalog.run(catalog, () => parseNotation('Column\n  PhotoGallery#g =seen photos:[{"url":"a.png"}]\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+      final card = Catalog.run(catalog, () => parseNotation('Column\n  PhotoGallery#g bind=seen photos=[{"url":"a.png"}]\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
       expect(card.issues, isEmpty);
       expect(card.document['roots'], ['screen']);
       expect(node(card, 'g').containsKey('actions'), isFalse);
       expect((node(card, 'g')['props']! as Map).containsKey('viewer'), isFalse);
       final inline = Catalog.run(catalog,
-          () => parseNotation('Page\n  Section\n    PhotoGallery#g photos:[{"url":"a.png"}] viewer:"inline"\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds, width: 1280)));
+          () => parseNotation('Page\n  Section\n    PhotoGallery#g photos=[{"url":"a.png"}] viewer="inline"\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds, width: 1280)));
       expect(inline.document['roots'], ['screen']);
     });
 
     test('the prompt teaches them from a desktop width on', () {
       final wide = notationPrompt(catalog: standardCatalog, options: page);
-      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu:rowMenu', '-> open signup', 'Lightbox#shots photos:=photos =at']) {
+      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu=rowMenu', 'onTap={open signup}', 'Lightbox#shots photos={photos} bind=at']) {
         expect(wide, contains(word), reason: word);
       }
       final card = notationPrompt(catalog: standardCatalog);

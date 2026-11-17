@@ -228,12 +228,12 @@ class _Surface {
     return path == null ? null : _name(path, item: item);
   }
 
-  /// ` =name` for a control's value: two ways to a plain variable; an item's
+  /// ` bind=name` for a control's value: two ways to a plain variable; an item's
   /// field or a list's element is shown, not written back.
   String _valueOf(Object? v, {required bool item}) {
     final b = _bindingOf(v, item: item);
     if (b == null) return '';
-    return RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(b) ? ' =$b' : ' =($b)';
+    return RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(b) ? ' bind=$b' : ' bind={($b)}';
   }
 
   void _write(Json c, int depth, List<String> out, Set<String> seen, {required bool item}) {
@@ -242,7 +242,7 @@ class _Surface {
     final pad = '  ' * depth;
     // A weight is a share of the row: 1 is `grow`, another number its flex.
     final weight = c['weight'];
-    final grow = weight is! num || weight <= 0 ? '' : (weight == 1 ? ' grow' : ' grow:${weight == weight.roundToDouble() ? weight.round() : weight}');
+    final grow = weight is! num || weight <= 0 ? '' : (weight == 1 ? ' grow' : ' grow=${weight == weight.roundToDouble() ? weight.round() : weight}');
     void line(String s) => out.add('$pad$s$grow');
     void child(Object? id, int d, {bool? inItem}) {
       final next = id is String ? components[id] : null;
@@ -294,23 +294,23 @@ class _Surface {
       case 'Image':
         final h = switch (c['variant']) { 'icon' => 24, 'avatar' => 40, 'smallFeature' => 80, 'largeFeature' => 220, 'header' => 180, _ => 140 };
         final small = c['variant'] == 'icon' || c['variant'] == 'avatar';
-        line('Image ${_quoted(c['url'], item: item)} h:$h${small ? ' w:$h radius:${h ~/ 2}' : ' radius:8'}');
+        line('Image ${_quoted(c['url'], item: item)} h=$h${small ? ' w=$h radius=${h ~/ 2}' : ' radius=8'}');
       case 'Icon':
         final name = c['name'];
         final snake = name is String ? name.replaceAllMapped(RegExp('[A-Z]'), (m) => '_${m[0]!.toLowerCase()}') : 'circle';
         line('Icon "$snake"');
       case 'Row':
-        out.add('${pad}Row gap:8$grow${flex(c, row: true)}');
+        out.add('${pad}Row gap=8$grow${flex(c, row: true)}');
         children(c['children'], depth + 1);
       case 'Column':
-        out.add('${pad}Column gap:8$grow${flex(c, row: false)}');
+        out.add('${pad}Column gap=8$grow${flex(c, row: false)}');
         children(c['children'], depth + 1);
       case 'List':
         final across = c['direction'] == 'horizontal';
-        out.add('$pad${across ? 'Row' : 'Column'} gap:8$grow');
+        out.add('$pad${across ? 'Row' : 'Column'} gap=8$grow');
         children(c['children'], depth + 1);
       case 'Card':
-        out.add('${pad}Card gap:8$grow');
+        out.add('${pad}Card gap=8$grow');
         child(c['child'], depth + 1);
       case 'Divider':
         line('Divider');
@@ -339,15 +339,15 @@ class _Surface {
         if (readMap(c['action'])?['functionCall'] != null) notes.add('Button "$cid": a function call action is not run.');
         out.add('${pad}Button$variant ${jsonEncode(text)}$grow$tail');
       case 'TextField':
-        final extra = switch (c['variant']) { 'longText' => ' lines:4', 'obscured' => ' obscureText:true', 'number' => ' keyboardType:number', _ => '' };
-        final hint = c['placeholder'] == null ? '' : ' hint:${_quoted(c['placeholder'], item: item)}';
+        final extra = switch (c['variant']) { 'longText' => ' lines=4', 'obscured' => ' obscureText=true', 'number' => ' keyboardType=number', _ => '' };
+        final hint = c['placeholder'] == null ? '' : ' hint=${_quoted(c['placeholder'], item: item)}';
         line('Input ${_quoted(c['label'], item: item)}$hint$extra${_valueOf(c['value'], item: item)}');
       case 'CheckBox':
         line('Checkbox ${_quoted(c['label'], item: item)}${_valueOf(c['value'], item: item)}');
       case 'Slider':
         if (c['label'] != null) out.add('${pad}Text.small ${_quoted(c['label'], item: item)}');
         final bound = _bindingOf(c['value'], item: item);
-        line('Slider min:${c['min'] ?? 0} max:${c['max'] ?? 100}${bound == null ? (c['value'] is num ? ' ${c['value']}' : '') : _valueOf(c['value'], item: item)}');
+        line('Slider min=${c['min'] ?? 0} max=${c['max'] ?? 100}${bound == null ? (c['value'] is num ? ' ${c['value']}' : '') : _valueOf(c['value'], item: item)}');
       case 'ChoicePicker':
         final options = [for (final o in readList(c['options']) ?? const []) if (o is Map) o];
         final labels = [for (final o in options) _text(o['label'], item: item)];
@@ -358,16 +358,16 @@ class _Surface {
             out.add('${pad}Checkbox ${jsonEncode(l)}');
           }
         } else if (labels.length <= 4 && labels.every((l) => l.length <= 14) && labels.join().length <= 36) {
-          line('SegmentedButton items:${jsonEncode(labels)}${_valueOf(c['value'], item: item)}');
+          line('SegmentedButton items=${jsonEncode(labels)}${_valueOf(c['value'], item: item)}');
         } else if (labels.length <= 6) {
           // Options that are sentences: one under another, each with its radio, as A2UI's own renderers draw them.
-          out.add('${pad}Column gap:6$grow');
+          out.add('${pad}Column gap=6$grow');
           for (var i = 0; i < labels.length; i++) {
             final value = options[i]['value'] ?? labels[i];
-            out.add('$pad  Radio ${jsonEncode(labels[i])} fill value:${jsonEncode('$value')}${_valueOf(c['value'], item: item)}');
+            out.add('$pad  Radio ${jsonEncode(labels[i])} fill value=${jsonEncode('$value')}${_valueOf(c['value'], item: item)}');
           }
         } else {
-          line('Select items:${jsonEncode(labels)}${_valueOf(c['value'], item: item)}');
+          line('Select items=${jsonEncode(labels)}${_valueOf(c['value'], item: item)}');
         }
       case 'DateTimeInput':
         if (c['label'] != null) out.add('${pad}Text.small ${_quoted(c['label'], item: item)}');
@@ -375,7 +375,7 @@ class _Surface {
         line('${time ? 'TimePicker' : 'DatePicker'}${_valueOf(c['value'], item: item)}');
       case 'Tabs':
         notes.add('Tabs "$cid": each tab is laid out in place, its title above its content.');
-        out.add('${pad}Column gap:12$grow');
+        out.add('${pad}Column gap=12$grow');
         for (final t in readList(c['tabs']) ?? const []) {
           if (t is! Map) continue;
           out.add('$pad  Text.strong ${_quoted(t['title'], item: item)}');
@@ -386,7 +386,7 @@ class _Surface {
         child(c['trigger'], depth);
       case 'Video' || 'AudioPlayer':
         notes.add('${c['component']} "$cid" is drawn as a placeholder.');
-        line('Box h:${c['component'] == 'Video' ? 160 : 44} fill:#FFE5E7EB radius:8');
+        line('Box h=${c['component'] == 'Video' ? 160 : 44} fill=#FFE5E7EB radius=8');
       case final other:
         notes.add('No component "$other" ("$cid"): left out.');
     }
