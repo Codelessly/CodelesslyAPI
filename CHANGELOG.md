@@ -2,6 +2,15 @@
 
 ### Added
 
+- **A definition anywhere in a text holds for the whole text** (docs/design/20-defined-words.md section 7; the
+  vocabulary loop's Review 4, D20): `define Word …` may come after its uses (models write their definitions after
+  the last screen); `parseNotation` reads them all before the first line, the overlays after the page included. A
+  `//` line directly above is its purpose. A page's own definition of a word the design system defines wins on
+  that page, and the use's record says so (`VocabularyUse.of`: `page, over StickyNote.txt`).
+  `parseNotation(…, definitions: text)` takes the definitions of more text (an answer's other screens);
+  `readPageDefinitions(text)` reads them. `NotationStream` reads a definition from where it is written on, and
+  says so when a use came before it.
+
 - **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
   parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own
   grammar, one file per word (`StickyNote.txt`) or `define Word …` in a page. A use is written out as those lines

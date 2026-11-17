@@ -929,13 +929,24 @@ const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'botto
 
 /// [text] in the compact notation as a layout document. Never throws: what
 /// cannot be read is reported and skipped.
-NotationResult parseNotation(String text, {Catalog? catalog, NotationOptions options = const NotationOptions()}) =>
-    _Parser(catalog ?? Catalog.current, options).parse(text);
+///
+/// A word [text] defines (`define Word …` at the margin) holds for the whole
+/// text, before or after its uses (docs/design/20-defined-words.md section
+/// 7). [definitions] is more text whose `define` blocks hold here too, as the
+/// text's own (an answer's other screens): what is wrong in them is said where
+/// they are read, not here.
+NotationResult parseNotation(String text, {Catalog? catalog, NotationOptions options = const NotationOptions(), String? definitions}) =>
+    _Parser(catalog ?? Catalog.current, options).parse(text, definitions: definitions);
 
 /// The notation read as it arrives: [add] takes text in any chunks and
 /// returns the edit operations of the lines completed so far (a `set` per
 /// node under its parent, `vars` for the state a line introduced), ready
 /// for `applyOps`; [close] gives the last line's.
+///
+/// A line is sent once, so a word defined in the text (`define Word …`) holds
+/// from where its definition is written on: a use above it was read without
+/// it, and the definition says so. [parseNotation] reads a text's definitions
+/// before its first line.
 final class NotationStream {
   NotationStream({Catalog? catalog, NotationOptions options = const NotationOptions()})
       : _parser = _Parser(catalog ?? Catalog.current, options);
@@ -1329,7 +1340,12 @@ class _Parser {
     ours: _ownType,
     // One count for the page and its overlays: a use's id is the page's.
     counts: identical(_top, this) ? null : _top._defined.counts,
-    used: (d, parts, node, column) => _use('definition', parts.word, column, to: d.label, node: node, parts: parts),
+    // The page's own words hold in its overlays too.
+    page: identical(_top, this) ? null : _top._defined.page,
+    // A page's own definition of a word the design system defines too is
+    // the one read there: the record says so (`of`).
+    used: (d, parts, node, column) => _use('definition', parts.word, column,
+        to: d.label, node: node, parts: parts, of: d.file == 'page' && options.vocabulary.definitions[d.word] != null ? 'page, over ${options.vocabulary.definitions[d.word]!.first.file}' : null),
     slot: (d, word, column) => _use('definition', word, column, to: '${d.label} slot'),
   );
   String? _from;
@@ -1337,7 +1353,7 @@ class _Parser {
   /// The lines a line of the text stands for once the defined words are
   /// written out, each with where it is written.
   Iterable<(PageLine, String?)> _definedLines(int indent, String text) sync* {
-    for (final d in _defined.rewrite(indent, text)) {
+    for (final d in _defined.rewrite(indent, text, line: _line)) {
       for (final l in _pages.rewrite(d.indent, d.text)) {
         yield (l, d.from);
       }
@@ -1378,6 +1394,7 @@ class _Parser {
         on: on,
         value: value,
         to: to,
+        of: of,
         node: node,
         path: _srcPath,
         texts: [
@@ -2084,7 +2101,19 @@ class _Parser {
   /// inside the page is then what that open shows.
   final _openedIds = <String>{};
 
-  NotationResult parse(String text) {
+  NotationResult parse(String text, {String? definitions}) {
+    // The words the text defines hold from its first line, wherever they are
+    // written (an answer writes them after its last screen).
+    final others = options.vocabulary.definitions;
+    if (definitions != null) {
+      final more = readPageDefinitions(definitions, others: others);
+      _defined.preread(more.words);
+    }
+    final own = readPageDefinitions(text, others: others);
+    _defined.preread(own.words, signatures: own.signatures);
+    for (final p in own.problems) {
+      issues.add(NotationIssue(p.line, 1, p.message));
+    }
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     const LineSplitter().convert(text).forEach(line);
     finish();

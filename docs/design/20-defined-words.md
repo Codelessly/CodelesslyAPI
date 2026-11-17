@@ -192,8 +192,20 @@ is not open.
 
 - `NotationOptions.define({'StickyNote.txt': text, …})` (and `NotationVocabulary.define`): definitions by file
   name, read and kept on the options' vocabulary. `readDefinitions` gives them with their problems.
-- In a page: `define Word …` at the margin, with the body under it, defines the word for the rest of the text
-  (the same form as a file's signature, with `define` before it). It must come before its first use.
+- In a page: `define Word …` at the margin, with the body under it, defines the word for the whole text (the same
+  form as a file's signature, with `define` before it), written before or after its uses: models asked to define
+  the words they invent write the definitions after the last screen (the journal, Review 4, D20). A `//` line
+  directly above it is its purpose. `parseNotation` reads every `define` of the text before its first line, so a
+  definition holds from the top, in the overlays written after the page too; what is wrong in one is an issue on
+  its own line, once. A word defined twice is the later definition, unless both name their meaning (`#name`). A
+  page's own definition of a word the design system also defines is the one read on that page, and its use's
+  record says so (`of: "page, over StickyNote.txt"`). `parseNotation(…, definitions: text)` reads the `define`
+  blocks of more text as the page's own (an answer's other screens: the SDK's `notation.sh vocabulary` gives each
+  screen its whole answer), their problems said where they are written. `readPageDefinitions` gives them.
+- Read as it arrives (`NotationStream`), a text cannot apply a definition to a line already sent: a definition
+  holds from where it is written on, a use above it was read without it (it stands in with the open vocabulary,
+  is an issue without), and the definition says so (`page:40: Knob is used on line 12, before this definition.
+  …`). A stream that wants its words whole writes its definitions first, or is read again whole at its end.
 - A design system's folder may hold `vocabulary/*.txt`; the SDK's `notation.sh expand`, `vocabulary` and `prompt`
   load them with the design system.
 - The prompt with the open vocabulary does not list them: that is the point (the model writes the word it expects,

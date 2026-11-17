@@ -115,6 +115,63 @@ final class NotationDefinition {
   return (words: words, problems: problems);
 }
 
+/// The words a text (a page, or an answer of several screens) defines with
+/// `define Word …` at the margin, wherever they are written: a definition
+/// holds for the whole text, before or after its uses. A `//` line directly
+/// above a `define` is its purpose. A word defined twice is the later
+/// definition, unless both name their meaning (`define Timeline#route`), when
+/// the word has both. A word that uses itself, through these or [others]
+/// (the design system's), is left out. What is wrong is in `problems`, each
+/// with the 1-based line of [text] it is on; `signatures` are every `define`
+/// line read, as written without `define` (what [DefinedWords.preread] skips).
+({Map<String, List<NotationDefinition>> words, List<({int line, String message})> problems, Set<String> signatures}) readPageDefinitions(String text,
+    {Map<String, List<NotationDefinition>> others = const {}}) {
+  final words = <String, List<NotationDefinition>>{};
+  final problems = <({int line, String message})>[];
+  final signatures = <String>{};
+  final lines = text.split(RegExp(r'\r?\n'));
+  for (var i = 0; i < lines.length; i++) {
+    final raw = lines[i];
+    if (!raw.startsWith('define ')) continue;
+    // Its purpose: the `//` lines at the margin directly above it.
+    final doc = <String>[];
+    for (var k = i - 1; k >= 0 && lines[k].startsWith('//'); k--) {
+      doc.insert(0, lines[k].substring(2).trim());
+    }
+    final head = i;
+    signatures.add(raw.trim().substring(7).trim());
+    final body = <({int indent, String text, int line})>[];
+    while (i + 1 < lines.length) {
+      final next = lines[i + 1];
+      final nt = next.trim();
+      if (nt.isNotEmpty && next.length - next.trimLeft().length == 0) break;
+      i++;
+      if (nt.isEmpty || nt.startsWith('//')) continue;
+      body.add((indent: next.length - next.trimLeft().length, text: nt, line: i + 1));
+    }
+    final said = <String>[];
+    final d = definitionOf('page', head + 1, raw.trim(), body, doc.join(' '), said);
+    for (final p in said) {
+      problems.add((line: int.tryParse(RegExp(r'^page:(\d+):').firstMatch(p)?[1] ?? '') ?? head + 1, message: p));
+    }
+    if (d == null) continue;
+    final had = words[d.word];
+    if (had != null && d.name != null && had.every((h) => h.name != null && h.name != d.name)) {
+      had.add(d);
+    } else {
+      words[d.word] = [d];
+    }
+  }
+  for (final w in words.keys.toList()) {
+    final path = _cycle(w, {...others, ...words}, [w]);
+    if (path != null) {
+      final d = words.remove(w)!.first;
+      problems.add((line: d.line, message: '${d.at(d.line)}: $w uses itself (${path.join(' > ')}): it is not read.'));
+    }
+  }
+  return (words: words, problems: problems, signatures: signatures);
+}
+
 /// The way [word] reaches itself through the words its bodies use, or null.
 List<String>? _cycle(String word, Map<String, List<NotationDefinition>> words, List<String> path) {
   for (final d in words[path.last] ?? const <NotationDefinition>[]) {
@@ -317,7 +374,9 @@ final class DefinedWords {
     Map<String, int>? counts,
     this.context,
     this.within = const [],
-  }) : counts = counts ?? {};
+    Map<String, List<NotationDefinition>>? page,
+  })  : counts = counts ?? {},
+        page = page ?? {};
 
   /// The definitions by word.
   final Map<String, List<NotationDefinition>> definitions;
@@ -346,7 +405,10 @@ final class DefinedWords {
 
   /// Whether [word] is a defined word here (a definition, or a `define` read
   /// in the text so far).
-  bool has(String word) => _all.containsKey(word) && !(ours?.call(word) ?? false);
+  bool has(String word) => (page.containsKey(word) || definitions.containsKey(word)) && !(ours?.call(word) ?? false);
+
+  /// The meanings of [word] here: the page's own, else the definitions'.
+  List<NotationDefinition>? _of(String word) => page[word] ?? definitions[word];
 
   /// Inside a definition's body: where it is written (`StickyNote.txt:3`).
   /// What is wrong there is an issue that says so, whatever [open] is.
@@ -365,15 +427,35 @@ final class DefinedWords {
   final _definingBody = <({int indent, String text, int line})>[];
   int _line = 0;
 
-  final _added = <String, List<NotationDefinition>>{};
-  Map<String, List<NotationDefinition>> get _all => _added.isEmpty ? definitions : {...definitions, ..._added};
+  /// The words the text itself defines (`define Word …`), over [definitions]:
+  /// a page's own definition of a word the design system defines wins there.
+  /// Shared with the overlays written after the page.
+  final Map<String, List<NotationDefinition>> page;
+
+  /// The signatures read before the text was ([preread]): when the reader
+  /// reaches one, its lines are skipped and it is not read again.
+  final _preread = <String>{};
+
+  /// The first line each word was met on while it was no defined word (a
+  /// definition that comes after it, read as the text arrives, is too late
+  /// for it).
+  final _metBefore = <String, int>{};
+
+  /// [words] (from [readPageDefinitions] of the whole text, or of the other
+  /// screens of an answer) as the text's own, from its first line.
+  void preread(Map<String, List<NotationDefinition>> words, {Iterable<String> signatures = const []}) {
+    page.addAll(words);
+    _preread.addAll(signatures);
+  }
+
+  Map<String, List<NotationDefinition>> get _all => page.isEmpty ? definitions : {...definitions, ...page};
 
   void _issue(int column, String message) => issue?.call(column, context == null ? message : '$context: $message');
 
   /// The lines [text] at [indent] stands for. [from] is where it is written
   /// when it is not the page's own line.
-  List<DefinedLine> rewrite(int indent, String text, {String? from}) {
-    _line++;
+  List<DefinedLine> rewrite(int indent, String text, {String? from, int? line}) {
+    _line = line ?? _line + 1;
     // A `define` in the page: its lines are the definition's, not the page's.
     if (_defining case final d?) {
       if (indent > d.indent) {
@@ -386,7 +468,11 @@ final class DefinedWords {
       _defining = (line: _line, signature: text, indent: indent);
       return const [];
     }
-    if (_all.isEmpty && _uses.isEmpty) return [(indent: indent, text: text, from: from)];
+    if (context == null) {
+      final w = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(text);
+      if (w != null && !has(w)) _metBefore.putIfAbsent(w, () => _line);
+    }
+    if (definitions.isEmpty && page.isEmpty && _uses.isEmpty) return [(indent: indent, text: text, from: from)];
     final out = <DefinedLine>[];
     while (_uses.isNotEmpty && _uses.last.indent >= indent) {
       out.addAll(_uses.removeLast().close());
@@ -399,7 +485,7 @@ final class DefinedWords {
       text = placed.text;
     }
     final parts = LineParts.of(text);
-    final defs = parts == null || _statements.contains(parts.word) || !has(parts.word) ? null : _all[parts.word];
+    final defs = parts == null || _statements.contains(parts.word) || !has(parts.word) ? null : _of(parts.word);
     if (defs != null && defs.isNotEmpty) {
       out.addAll(_openUse(at, indent, text, parts!, defs));
       return out;
@@ -421,6 +507,11 @@ final class DefinedWords {
   void _endDefine() {
     final d = _defining!;
     _defining = null;
+    // Read with the whole text before it was read: its lines are skipped.
+    if (_preread.contains(d.signature.substring(7).trim())) {
+      _definingBody.clear();
+      return;
+    }
     final problems = <String>[];
     final def = definitionOf('page', d.line, d.signature, [..._definingBody], '', problems);
     _definingBody.clear();
@@ -433,7 +524,13 @@ final class DefinedWords {
       if (cycle != null) {
         issue?.call(1, 'page:${d.line}: ${def.word} uses itself (${cycle.join(' > ')}): it is not read.');
       } else {
-        _added[def.word] = [def];
+        // Read as the text arrives (NotationStream), a definition holds from
+        // where it is written: a use above it was read without it.
+        if (_metBefore[def.word] case final int at) {
+          issue?.call(1,
+              'page:${d.line}: ${def.word} is used on line $at, before this definition. Read as it arrives, a text applies a definition from where it is written on, so that use was read without it (it stands in, or is an issue). Read the whole text at once (parseNotation), or define a word before its first use.');
+        }
+        page[def.word] = [def];
       }
     }
   }

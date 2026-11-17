@@ -368,6 +368,74 @@ Column
     expect(_node(r, 'text1')['props'], containsPair('text', 'New'));
   });
 
+  group('a definition anywhere in a text holds for the whole text', () {
+    const before = '''
+// A small rounded label.
+define Badge2 "label" tone="#FFDCFCE7"
+  Row pad=[8,2,8,2] radius=999 fill={tone}
+    Text.caption "{label}"
+Column
+  Badge2 "New"
+''';
+    const after = '''
+Column
+  Badge2 "New"
+
+// A small rounded label.
+define Badge2 "label" tone="#FFDCFCE7"
+  Row pad=[8,2,8,2] radius=999 fill={tone}
+    Text.caption "{label}"
+''';
+
+    test('written after its use, it is read as if written before, open or closed', () {
+      for (final o in [const NotationOptions(), const NotationOptions().open()]) {
+        final a = parseNotation(after, catalog: standardCatalog, options: o), b = parseNotation(before, catalog: standardCatalog, options: o);
+        expect(a.issues, isEmpty);
+        expect(jsonEncode(a.document), jsonEncode(b.document));
+        expect(_uses(a, 'definition').single.line, 2);
+        expect(a.vocabulary.where((u) => u.kind == 'type'), isEmpty);
+      }
+    });
+
+    test('its purpose is the // line above it; what is wrong is said on its own line, once', () {
+      expect(readPageDefinitions(after).words['Badge2']!.single.doc, 'A small rounded label.');
+      final r = parseNotation('Column\n  Text "a"\ndefine Broken\nText "b"\n', catalog: standardCatalog);
+      expect(r.issues.map((i) => '${i.line}: ${i.message}'), ['3: page:3: Broken stands for no lines: write them indented under its signature.']);
+    });
+
+    test('an overlay written after the page reads the page\'s words, and an answer\'s other screens can give them', () {
+      final r = parseNotation('Column\n  Button "Open" onTap={open d}\nDialog#d\n  Badge2 "In the dialog"\n$after', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(r.document), contains('In the dialog'));
+      final other = parseNotation('Column\n  Badge2 "On another screen"\n', catalog: standardCatalog, definitions: after);
+      expect(other.issues, isEmpty);
+      expect(_uses(other, 'definition').single.to, 'Badge2');
+    });
+
+    test('a page\'s own definition of a word the design system defines wins there, and the record says so', () {
+      final r = parseNotation('Column\n  StickyNote "mine"\ndefine StickyNote "text"\n  Row\n    Text "page: {text}"\n', catalog: standardCatalog, options: _open);
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(r.document), contains('page: mine'));
+      expect(_uses(r, 'definition').single.of, 'page, over StickyNote.txt');
+      // Without one, the design system's, and no `of`.
+      expect(_uses(_parse('Column\n  StickyNote "x"\n', _open), 'definition').single.of, isNull);
+    });
+
+    test('read as it arrives, a definition holds from where it is written, and a use above it is said', () {
+      final s = NotationStream(catalog: standardCatalog);
+      s.add(after);
+      s.close();
+      expect(s.issues.map((i) => i.message), [
+        'No node type "Badge2". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).',
+        startsWith('page:5: Badge2 is used on line 2, before this definition. Read as it arrives'),
+      ]);
+      final t = NotationStream(catalog: standardCatalog);
+      t.add(before);
+      t.close();
+      expect(t.issues, isEmpty);
+    });
+  });
+
   group('a stand-in with nothing to draw shows what is missing', () {
     const page = NotationOptions(width: 1280);
     test('a quiet dashed box with its word (and its first string value), as big as its w and h say', () {

@@ -28,7 +28,10 @@ final class VocabularyUse {
     this.flags = const [],
     this.events = const {},
     List<String>? children,
-  }) : children = children ?? [];
+    String? of,
+  }) : children = children ?? [] {
+    _of = of;
+  }
 
   /// `type` (a line's first word), `parameter` (a key=value), `flag` (a
   /// bare word), `event` (an on… key), `verb` (an action's first word),
@@ -75,8 +78,9 @@ final class VocabularyUse {
   final List<String> children;
 
   /// An alias: the kind of word it is (`type`, `parameter`, `flag`,
-  /// `event`, `verb`, `line`).
-  String? get of => kind == 'alias' ? _of : null;
+  /// `event`, `verb`, `line`). A definition: `page, over <file>` when the
+  /// page's own definition was read over one the design system has.
+  String? get of => kind == 'alias' || kind == 'definition' ? _of : null;
   String? _of;
 
   Json toJson() => {
