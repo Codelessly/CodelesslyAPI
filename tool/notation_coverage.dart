@@ -15,6 +15,7 @@ import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
+import 'package:codelessly_api/src/core/notation/keys.dart' show notationKeyPath;
 
 const _families = {
   'props': 'props',
@@ -60,19 +61,48 @@ void main(List<String> args) {
     }
   }
   files.sort((a, b) => a.path.compareTo(b.path));
-  var catalog = standardCatalog;
+  // A component declared differently in two design systems (a ChartCard of
+  // each) is, for a document, the declaration nearest to it on disk: the
+  // one of its own design system.
+  final declared = <String, Map<String, String>>{}; // type → declaration's JSON → its file
   if (withComponents) {
-    final declared = <String, Object?>{};
     for (final file in files) {
       try {
         final json = jsonDecode(file.readAsStringSync());
         final widget = json is Map ? json['widget'] : null;
-        if (widget is Map && widget['type'] is String) declared.putIfAbsent(widget['type'] as String, () => widget);
+        if (widget is Map && widget['type'] is String) {
+          (declared[widget['type'] as String] ??= {}).putIfAbsent(jsonEncode(widget), () => file.path);
+        }
       } on Object {
         continue;
       }
     }
-    catalog = standardCatalog + Catalog.fromJson({'id': 'corpus', 'widgets': [...declared.values]});
+  }
+  final shared = [
+    for (final e in declared.entries) jsonDecode(e.value.keys.first),
+  ];
+  final base = withComponents ? standardCatalog + Catalog.fromJson({'id': 'corpus', 'widgets': shared}) : standardCatalog;
+  final catalogs = <String, Catalog>{};
+  Catalog catalogFor(String path) {
+    final own = <Object?>[];
+    final key = StringBuffer();
+    for (final e in declared.entries) {
+      if (e.value.length < 2) continue;
+      int common(String a) {
+        var i = 0;
+        while (i < a.length && i < path.length && a[i] == path[i]) {
+          i++;
+        }
+        return i;
+      }
+
+      final nearest = e.value.entries.reduce((a, b) => common(b.value) > common(a.value) ? b : a);
+      if (nearest.key == e.value.keys.first) continue;
+      own.add(jsonDecode(nearest.key));
+      key.write('${nearest.value};');
+    }
+    if (own.isEmpty) return base;
+    return catalogs['$key'] ??= base + Catalog.fromJson({'id': 'nearest', 'widgets': own});
   }
 
   final paths = <String, _Path>{};
@@ -82,6 +112,11 @@ void main(List<String> args) {
   final wholeExample = <String, String>{};
   final shapes = <String, int>{}; // what the walk wrote: each, if, else, component, state lines
   var documents = 0, whole = 0, failed = 0, nodes = 0, tailed = 0, tailChars = 0, chars = 0;
+  // Record lines (paint ops, animations and their tracks, transitions);
+  // node lines with no tail, no JSON value and no dotted path.
+  var records = 0, inWords = 0;
+  final saidAs = <String, int>{}; // a node line's fields, by how each is said
+  final keyCache = <String, String>{};
 
   for (final file in files) {
     final Object? json;
@@ -92,13 +127,15 @@ void main(List<String> args) {
     }
     if (json is! Map<String, Object?> || json['nodes'] is! Map || json['roots'] is! List) continue;
     final String text;
+    final catalog = catalogFor(file.path);
     try {
-      text = printNotation(json, catalog: catalog, whole: (said) {
-        // The reason, without the line it was found on.
-        final why = said.split(' — ').first;
-        wholeWhy[why] = (wholeWhy[why] ?? 0) + 1;
-        wholeExample.putIfAbsent(why, () => file.path);
-      });
+      final doc = json;
+      text = Catalog.run(catalog, () => printNotation(doc, catalog: catalog, whole: (said) {
+            // The reason, without the line it was found on.
+            final why = said.split(' — ').first;
+            wholeWhy[why] = (wholeWhy[why] ?? 0) + 1;
+            wholeExample.putIfAbsent(why, () => file.path);
+          }));
     } on Object {
       failed++;
       continue;
@@ -107,13 +144,27 @@ void main(List<String> args) {
     chars += text.length;
     final all = text.split('\n');
     if (all.length == 1 && all.single.startsWith('document ')) whole++;
+    // The indent of an open block of record lines (a customPaint, an
+    // animation, a transition): the lines under it are its records.
+    int? recordAt;
     for (final line in all) {
       final trimmed = line.trimLeft();
+      final indent = line.length - trimmed.length;
+      if (recordAt != null && indent > recordAt) {
+        records++;
+        continue;
+      }
+      recordAt = null;
+      if (_recordHead.hasMatch(trimmed)) {
+        recordAt = indent;
+        records++;
+        continue;
+      }
       // The walk's own lines (design 22, the document family): counted by
       // their word, not as nodes.
       // (A node of type slot, `slot {…}`, is a node.)
-      final m = RegExp(r'^(state|canvas|each|if|else|component|param|event|slot|preview|every|key)(?=\s+[^\s{]|$)|^(Canvas)#').firstMatch(trimmed);
-      final statement = m == null ? null : m[1] ?? m[2];
+      final m = RegExp(r'^(state|canvas|each|if|else|component|param|event|slot|preview|every|key)(?=\s+[^\s{]|$)|^(Canvas)#|^(document)\s+[a-z]+=').firstMatch(trimmed);
+      final statement = m == null ? null : m[1] ?? m[2] ?? m[3];
       if (statement != null) {
         shapes[statement] = (shapes[statement] ?? 0) + 1;
         continue;
@@ -136,6 +187,12 @@ void main(List<String> args) {
       final word = RegExp(r'^[A-Za-z][A-Za-z0-9.]*').stringMatch(trimmed) ?? '?';
       if (word.isNotEmpty && word[0].toLowerCase() == word[0]) wordless[word] = (wordless[word] ?? 0) + 1;
       final at = _tailStart(trimmed);
+      // How each field of the line is said.
+      final said = _said(at < 0 ? trimmed : trimmed.substring(0, at), catalog, keyCache);
+      for (final s in said) {
+        saidAs[s] = (saidAs[s] ?? 0) + 1;
+      }
+      if (at < 0 && !said.contains('json') && !said.contains('path')) inWords++;
       if (at < 0) continue;
       final tail = _tail(trimmed.substring(at));
       if (tail == null) continue;
@@ -177,7 +234,27 @@ void main(List<String> args) {
     ..writeln('| Node lines with a `{…}` tail | $tailed (${_pct(tailed, nodes)}) |')
     ..writeln('| Characters in tails | $tailChars of $chars (${_pct(tailChars, chars)}) |')
     ..writeln('| Distinct tail paths | ${paths.length} |')
+    ..writeln('| Node lines in words (no tail, no JSON value, no dotted path) | $inWords (${_pct(inWords, nodes)}) |')
+    ..writeln('| Record lines (paint ops, animations, tracks, transitions), not counted as nodes | $records |')
     ..writeln();
+  final saidTotal = saidAs.values.fold<int>(0, (a, b) => a + b);
+  md
+    ..writeln('## How a node line says its fields')
+    ..writeln()
+    ..writeln('| Said as | Fields | Share |')
+    ..writeln('|---|---:|---:|');
+  for (final k in const ['word', 'name', 'path', 'json', 'event', 'media']) {
+    final what = switch (k) {
+      'word' => 'a word of the notation (`gap=`, `fill=`, a flag)',
+      'name' => "the field's own name (`letterSpacing=`)",
+      'path' => 'a dotted path (`props.style.height=`)',
+      'json' => 'JSON as a value (`style={…}`, `effects=[{…}]`)',
+      'event' => 'an event (`onTap={…}`)',
+      _ => 'a media rule (`phone.pad=`)',
+    };
+    md.writeln('| $what | ${saidAs[k] ?? 0} | ${_pct(saidAs[k] ?? 0, saidTotal)} |');
+  }
+  md.writeln();
   if (wholeWhy.isNotEmpty) {
     final list = wholeWhy.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     md
@@ -241,6 +318,9 @@ void main(List<String> args) {
     'whole': whole,
     'nodes': nodes,
     'tailed': tailed,
+    'inWords': inWords,
+    'records': records,
+    'said': saidAs,
     'tailChars': tailChars,
     'chars': chars,
     'wordless': wordless,
@@ -256,6 +336,102 @@ void main(List<String> args) {
   }));
   stdout.writeln('$documents documents, $nodes node lines, $tailed with a tail (${_pct(tailed, nodes)}), ${paths.length} distinct paths, '
       '$whole printed whole as data, $failed failed. Wrote $out/COVERAGE.md');
+}
+
+/// The first word of a block of record lines (design 22, 4.6).
+final _recordHead = RegExp(r'^(customPaint|animation|transition)(?=[\s#{]|$)');
+
+final _mediaKey = RegExp(r'^(phone|mobile|tablet|desktop|portrait|landscape|(min|max)([0-9]+|[A-Z][A-Za-z0-9]*))\.');
+
+/// How each field of a node line (its words, without its tail) is said:
+/// `word` (a word of the notation: `gap=`, `fill=`, a flag, an alignment),
+/// `name` (the field's own name, `letterSpacing=`), `path` (a dotted path,
+/// `props.style.height=`), `json` (a record or a list of records written as
+/// JSON), `event` (an `on…=`), `media` (a rule, `phone.pad=`).
+List<String> _said(String line, Catalog catalog, Map<String, String> cache) {
+  final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(\.[A-Za-z0-9]+)?(#[A-Za-z0-9_-]+)?').firstMatch(line);
+  if (head == null) return const [];
+  final written = head[1]!;
+  var type = notationTypes[written]?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
+  if (catalog.widget(type) == null) type = written;
+  final out = <String>[];
+  var i = head.end;
+  int skip(int from) {
+    // A value or a string: quoted, bracketed (balanced, quotes inside), or to a space.
+    if (from >= line.length) return from;
+    final open = line[from];
+    if (open == '"') {
+      for (var k = from + 1; k < line.length; k++) {
+        if (line[k] == r'\') {
+          k++;
+        } else if (line[k] == '"') {
+          return k + 1;
+        }
+      }
+      return line.length;
+    }
+    if (open == '{' || open == '[' || open == '(') {
+      var depth = 0;
+      var quoted = false;
+      for (var k = from; k < line.length; k++) {
+        final c = line[k];
+        if (quoted) {
+          if (c == r'\') {
+            k++;
+          } else if (c == '"') {
+            quoted = false;
+          }
+          continue;
+        }
+        if (c == '"') quoted = true;
+        if (c == '{' || c == '[' || c == '(') depth++;
+        if ((c == '}' || c == ']' || c == ')') && --depth == 0) return k + 1;
+      }
+      return line.length;
+    }
+    final space = line.indexOf(' ', from);
+    return space < 0 ? line.length : space;
+  }
+
+  while (i < line.length) {
+    if (line[i] == ' ') {
+      i++;
+      continue;
+    }
+    if (line[i] == '"' || line[i] == '{') {
+      i = skip(i); // the main text, or a value where the text goes
+      continue;
+    }
+    var k = i;
+    while (k < line.length && line[k] != ' ' && line[k] != '=' && line[k] != '(') {
+      k++;
+    }
+    final key = line.substring(i, k);
+    if (k < line.length && line[k] == '(') k = skip(k);
+    if (k >= line.length || line[k] != '=') {
+      out.add('word');
+      i = k;
+      continue;
+    }
+    final valueEnd = skip(k + 1);
+    final value = line.substring(k + 1, valueEnd);
+    i = valueEnd;
+    if (RegExp(r'^on[A-Z]').hasMatch(key)) {
+      out.add('event');
+    } else if (_mediaKey.hasMatch(key)) {
+      out.add('media');
+    } else if (value.startsWith('{"') || (value.startsWith('[') && value.contains('{"'))) {
+      out.add('json');
+    } else if (key.contains('.')) {
+      out.add('path');
+    } else {
+      out.add(cache['$type $key'] ??= () {
+        final path = notationKeyPath(key, type, catalog: catalog);
+        return path != null && path.split('.').last == key ? 'name' : 'word';
+      }());
+    }
+  }
+  return out;
 }
 
 String _pct(int a, int b) => b == 0 ? '0%' : '${(100 * a / b).toStringAsFixed(1)}%';
