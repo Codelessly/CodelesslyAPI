@@ -302,3 +302,32 @@ What it says:
 - The 54 types left are listed by side in [note 20](20-defined-words.md) section 9: about 20 could be definitions,
   the rest need a gesture, a drawing primitive, a position or a scroll position.
 
+## 12. Self-defining answers (2026-11-17: the loop's Reviews 3 and 4, D16 to D22)
+
+The open prompt now asks for every invented word to be defined after the last screen (section 7; [note
+20](20-defined-words.md) section 7 for how a definition anywhere in a text holds for all of it). Counted with
+`notation.sh vocabulary … --design-system design_systems/cards`, with no hoisting:
+
+| twenty self-defining answers (`corpus-define/d01`) | words | resolved | lines that stand in | grammar issues | does not validate |
+|---|---|---|---|---|---|
+| before, read as written (a definition held only after it, one screen at a time) | 724 | 406 (56.1%) | 91 | 121 | 26 |
+| before, each answer's definitions copied to every screen (`hoist.py`) | 724 | 695 (96.0%) | 4 | 141 | 30 |
+| after (D16, D17, D20, D21), read as written | 724 | 702 (97.0%) | 1 | 20 | 21 |
+
+The twenty that remain: a definition's own body using what the notation lacks (14: a `CrosswordGrid` body's
+flags, events and actions, a `VitalsTrend`'s parameter on a chart line, `animate={…}` worked out, a `ChatBubble`
+parameter), a choice whose branch is two actions unbraced (2), an `if` choice with an assignment in a branch (1),
+`Progress "{…}"` (1), `Sparkline values=[p.maxAlt/2,…]` (1), a `Canvas` written as a child (1). Two `open`s of
+overlays never written open placeholder sheets.
+
+| the 313 answers of the first corpus (open prompt, no definitions) | words | resolved | lines that stand in | grammar issues | does not validate |
+|---|---|---|---|---|---|
+| before | 5,199 | 1,640 (31.5%) | 908 | 766 | 458 |
+| after | 5,199 | 1,646 (31.7%) | 908 | 315 | 444 |
+
+What fell: an `open` of no overlay 265 to 2 (about 230 of them were the tool's own: an app's sidebar drawer took
+the screen's id, which has hyphens in the tool, so its menu button's `open` was lost; 33 are overlays the answers
+never wrote, now placeholder sheets), an expression where the text goes or a JSON tail 87 to 7, a Badge's tone or
+an id-less variant from data 27 to 0, `show=`/`hide=` with a condition 30 to 0, a drag value 26 to 0, and lines
+broken by those (`Unknown word` on a Card, Chip, Panel, Row) 27 to 0. The resolved share barely moves: the first
+corpus has no definitions, and the universal words (D7) are on another branch.
