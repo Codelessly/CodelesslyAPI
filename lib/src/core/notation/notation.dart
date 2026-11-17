@@ -2524,6 +2524,20 @@ class _Parser {
   Json? _widget;
   final _previews = <Json>[];
 
+  /// What a `canvas` line says of the screen, merged over its canvas.
+  Json? _canvasPatch;
+
+  /// Each line's `{…}` tail by its node: merged again once the whole text
+  /// is read ([parse]), so that what later lines add does not undo it.
+  final _lineTails = <String, Json>{};
+
+  /// [tail] without the values worked out (`${…}`), which the line binds
+  /// rather than holds: what is merged again.
+  static Json _settled(Json tail) => {
+        for (final e in tail.entries)
+          if (e.value is! String || !(e.value as String).contains(r'${')) e.key: e.value is Map ? _settled((e.value as Map).cast<String, Object?>()) : e.value,
+      };
+
   static final _componentPart = RegExp(r'^(param|event|slot|preview)\s+(.*)$');
 
   /// Reads [raw] when it is a component's head or a line of it (a
@@ -2531,6 +2545,39 @@ class _Parser {
   bool _componentLine(String raw) {
     if (_host != null || _root != null) return false;
     final indent = raw.length - raw.trimLeft().length, text = raw.trim();
+    // `canvas "Trip" path="/trip" h=844 fill=paper`: the screen's own fields
+    // (its name, path, size and fill; any other by its path from the canvas,
+    // `props.blockBack=true`), above the tree.
+    if (indent == 0 && RegExp(r'^canvas(\s|$)').hasMatch(text)) {
+      final patch = <String, Object?>{};
+      for (final w in _headWords(text.substring(6))) {
+        final path = switch (w.key) {
+          '"' => 'name',
+          'w' => 'layout.width',
+          'h' => 'layout.height',
+          'fill' => 'decoration.fills',
+          final k => k,
+        };
+        final value = w.key == 'fill' && w.value is String
+            ? [
+                {'color': w.value},
+              ]
+            : w.value;
+        if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$').hasMatch(path)) {
+          _issue(1, 'A canvas line takes its name in quotes and key=value: canvas "Home" path="/" h=844 fill=surface.');
+          continue;
+        }
+        var at = patch;
+        final keys = path.split('.');
+        for (final k in keys.take(keys.length - 1)) {
+          final next = at[k];
+          at = next is Json ? next : (at[k] = <String, Object?>{});
+        }
+        at[keys.last] = value;
+      }
+      _canvasPatch = mergePatch(_canvasPatch ?? const {}, patch, keepNulls: true);
+      return true;
+    }
     if (indent == 0 && RegExp(r'^component(\s|$)').hasMatch(text)) {
       final words = _headWords(text.substring(9));
       final name = words.isEmpty ? null : words.first;
@@ -2727,6 +2774,11 @@ class _Parser {
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     const LineSplitter().convert(text).forEach(line);
     finish();
+    for (final p in [this, ..._overlays]) {
+      for (final e in p._lineTails.entries) {
+        if (p.nodes[e.key] case final Json node) _merge(node, _settled(e.value));
+      }
+    }
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
     // A component's document: its declaration, its previews and its tree,
@@ -2748,7 +2800,7 @@ class _Parser {
       'roots': _rootIds,
       'nodes': {
         for (final p in [this, ..._overlays]) ...{
-          p.options.screen: p._canvasNode,
+          p.options.screen: p._canvasPatch == null ? p._canvasNode : mergePatch(p._canvasNode, p._canvasPatch!),
           ...p.nodes,
         },
       },
@@ -3813,6 +3865,9 @@ class _Parser {
             tail['props'] = kept;
           }
           _merge(node, tail);
+          // The tail is the last word on the node: merged again once the text
+          // is read, over what later lines add (a parent's sizes, its alignment).
+          (_lineTails[id] ??= <String, Object?>{}).addAll(_copy(tail));
         } else {
           _issue(col, 'The {…} tail is a JSON object merged into the node.');
         }

@@ -13,7 +13,7 @@
 // last `document {…}` line.
 import 'dart:convert';
 
-import '../behaviors.dart' show diffPatch;
+import '../behaviors.dart' show diffPatch, mergePatch;
 import '../catalog.dart';
 import '../json.dart';
 import 'declared.dart';
@@ -148,11 +148,57 @@ final class _Printer {
       if (vars != null && vars[screen] == null && vars['page_variables'] != null) scope = 'page_variables';
     }
     _lines.addAll(_stateLines(scope));
+    _canvasAt = _lines.length;
+    _screen = first['type'] == 'canvas' ? screen : null;
     if (!_walk(root, 0)) return null;
     for (final l in printCanvasEvents(document, context)) {
       _lines.add(_Line(0, l));
     }
     return _readBack();
+  }
+
+  // --- the canvas --------------------------------------------------------
+
+  /// The screen's canvas, and where its `canvas` line goes (after the
+  /// state lines).
+  String? _screen;
+  int _canvasAt = 0;
+
+  /// `canvas "Trip" path="/trip" h=844 fill=paper`: what [patch] (the
+  /// canvas as the document has it, over what the parser gives) says, its
+  /// name in quotes, `w`, `h` and `fill` for its size and plain fill, any
+  /// other field by its path from the canvas. Its events are the events
+  /// family's ([printCanvasEvents]); a key that is no plain path is left to
+  /// the document line.
+  static String? _canvasLine(Json? patch) {
+    if (patch == null) return null;
+    final words = <String>[];
+    final name = patch['name'];
+    if (name is String) words.add(jsonEncode(name));
+    void add(String path, Object? value) {
+      final key = switch (path) { 'layout.width' => 'w', 'layout.height' => 'h', _ => path };
+      if (path == 'decoration.fills' && value is List && value.length == 1 && value.single is Map && (value.single as Map).length == 1 && (value.single as Map)['color'] is String) {
+        words.add('fill=${(value.single as Map)['color']}');
+        return;
+      }
+      words.add('$key=${jsonEncode(value)}');
+    }
+
+    void walk(Json m, String at) {
+      for (final e in m.entries) {
+        final path = at.isEmpty ? e.key : '$at.${e.key}';
+        if (!_printable.hasMatch(e.key) || (at.isEmpty && (e.key == 'name' && name is String || e.key == 'actions' || e.key == 'type' || e.key == 'slots'))) continue;
+        final v = e.value;
+        if (v is Map && v.isNotEmpty) {
+          walk(v.cast<String, Object?>(), path);
+        } else {
+          add(path, v);
+        }
+      }
+    }
+
+    walk(patch, '');
+    return words.isEmpty ? null : 'canvas ${words.join(' ')}';
   }
 
   // --- state -------------------------------------------------------------
@@ -432,7 +478,47 @@ final class _Printer {
         why = 'an each that does not read back';
         return null;
       }
-      final second = _parse(text(tails, null));
+      // A tail can change how the lines after it read (a parent's alignment,
+      // its children's sizes, the canvas's height): read again, and add to
+      // the tails, and to the `canvas` line, what still differs, until
+      // nothing does.
+      final patches = {for (final e in tails.entries) e.key: jsonDecode(e.value.substring(1)) as Json};
+      Json? canvas;
+      var second = first;
+      for (var round = 0; round < 5; round++) {
+        final got = readMap(second['nodes']) ?? const {};
+        var changed = false;
+        if (round > 0) {
+          for (final l in _lines) {
+            final id = l.id, now = id == null ? null : readMap(got[id]);
+            if (id == null || now == null) continue;
+            final d = diffPatch(now, readMap(nodes[id])!);
+            if (d == null) continue;
+            patches[id] = mergePatch(patches[id] ?? const {}, d, keepNulls: true);
+            tails[id] = ' ${jsonEncode(patches[id])}';
+            changed = true;
+          }
+        }
+        // What the screen's canvas has that the parser does not give it.
+        if (_screen case final String screen) {
+          final want = readMap(nodes[screen]), now = readMap(got[screen]);
+          final d = want == null || now == null ? null : diffPatch(now, want);
+          final next = d == null ? canvas : mergePatch(canvas ?? const {}, d, keepNulls: true);
+          final before = canvas == null ? null : _canvasLine(canvas);
+          final line = next == null ? null : _canvasLine(next);
+          if (line != null && line != before) {
+            if (before == null) {
+              _lines.insert(_canvasAt, _Line(0, line));
+            } else {
+              _lines[_canvasAt] = _Line(0, line);
+            }
+            canvas = next;
+            changed = true;
+          }
+        }
+        if (!changed && round > 0) break;
+        second = _parse(text(tails, null));
+      }
       final rest = diffPatch(second, document);
       final out = text(tails, rest == null ? null : 'document ${jsonEncode(rest)}');
       if (jsonEncode(_sorted(_parse(out))) == jsonEncode(_sorted(document))) return out;

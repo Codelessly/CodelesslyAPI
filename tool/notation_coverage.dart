@@ -111,7 +111,7 @@ void main(List<String> args) {
       final trimmed = line.trimLeft();
       // The walk's own lines (design 22, the document family): counted by
       // their word, not as nodes.
-      final statement = RegExp(r'^(state|each|if|else|component|param|event|slot|preview|every|key)(?=\s|$)').firstMatch(trimmed)?[1];
+      final statement = RegExp(r'^(state|canvas|each|if|else|component|param|event|slot|preview|every|key)(?=\s|$)').firstMatch(trimmed)?[1];
       if (statement != null) {
         shapes[statement] = (shapes[statement] ?? 0) + 1;
         continue;
