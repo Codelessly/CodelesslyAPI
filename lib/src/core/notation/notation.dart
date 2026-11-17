@@ -5106,7 +5106,9 @@ class _Parser {
 
   /// A size as the document writes it: a number is fixed; `fill` and `hug`
   /// are fits.
-  Object? _size(Object? v) => switch (v) { 'fill' => {'fill': 0}, 'hug' => {'hug': 0}, _ => v };
+  // Not a switch: dart2wasm (Flutter 3.50) traps with "illegal cast" on a
+  // switch over string constants when the value is not a string (a number).
+  Object? _size(Object? v) => v == 'fill' ? {'fill': 0} : v == 'hug' ? {'hug': 0} : v;
 
   Object? _json(String s) {
     try {
