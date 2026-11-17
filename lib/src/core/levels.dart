@@ -117,7 +117,7 @@ const Map<String, Level> behaviorLevels = {
 const Map<String, Level> triggerLevels = {
   'click': _c,
   'changed': _w, 'changeEnd': _w, 'submitted': _w, 'deleted': _w, 'editingComplete': _w, 'focusGained': _w, 'focusLost': _w,
-  'rowTap': _w,
+  'rowTap': _w, 'sort': _w,
   'load': _s, 'valueChanged': _s, 'backPressed': _s, 'actionError': _s, 'refresh': _s, 'doubleTap': _s,
   'longPress': _s, 'imageLoading': _s, 'imageLoaded': _s, 'imageError': _s,
   // A clock or a countdown is state changing as time passes: three of the

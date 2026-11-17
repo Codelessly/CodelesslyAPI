@@ -187,6 +187,11 @@ enum TriggerType {
   /// `${result.columnIndex}`.
   rowTap,
 
+  /// A table header was activated by pointer or keyboard: `${result.column}`
+  /// is its key, `${result.columnIndex}` its index, and
+  /// `${result.ascending}` the new direction.
+  sort,
+
   /// On the current canvas: a failed action chain or cloud subscription.
   /// `${result.error}` is `{type, message, action, nodeId}` (no stack or
   /// raw service objects). A failure in this reaction reports to the host

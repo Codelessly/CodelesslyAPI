@@ -672,6 +672,9 @@ List<String> notationStrings(WidgetSpec spec) {
 /// Short names: what an agent writes → the node type and what it implies.
 const Map<String, ({String type, Json node})> notationTypes = {
   'Input': (type: 'textField', node: {}),
+  // A table of records: rows={list} and columns=[{"key":…,"label":…}], sorted
+  // from its headers, a row chosen by a tap or by keys.
+  'DataTable': (type: 'tableView', node: {}),
   // What a row of a reordered list is dragged by (each row in rows reorder).
   'Handle': (type: 'iconButton', node: {}),
   // A one-time code: one field drawn as boxes (CodeInput bind=code length=6 digits).
@@ -731,6 +734,8 @@ const Map<String, ({String type, Json props})> buttonVariants = {
 const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'slider': (prop: 'value', type: 'decimal', start: 0),
   'calendar': (prop: 'start', type: 'text', start: ''),
+  // A table's chosen row, by its place in the rows shown (-1: none).
+  'tableView': (prop: 'selectedRow', type: 'integer', start: -1),
   'splitter': (prop: 'value', type: 'decimal', start: 240),
   'switch': (prop: 'value', type: 'boolean', start: false),
   'checkbox': (prop: 'value', type: 'boolean', start: false),
@@ -773,7 +778,7 @@ const Map<String, Map<String, List<String>>> _typeKeys = {
 const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
 
 /// The short names a design system's component of the same name replaces.
-const _softNames = {'CodeInput', 'Handle', 'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
+const _softNames = {'CodeInput', 'DataTable', 'Handle', 'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
 
 /// The core types a design system's component of the same name replaces: a
 /// design system's own `Tabs` (a row of labels that keeps the open one in a
@@ -2197,7 +2202,9 @@ class _Parser {
                         ? r'${result.index}'
                         : type == 'calendar'
                             ? r'${result.start}'
-                            : r'${result}',
+                            : type == 'tableView'
+                                ? r'${result.rowIndex}'
+                                : r'${result}',
               },
             ],
           });
@@ -2750,6 +2757,15 @@ class _Parser {
           }
         }
         if (key == 'selected' && type == 'chip') type = 'choiceChip';
+        // A DataTable's records: rows={list}.
+        if (ours && written == 'DataTable' && key == 'rows') {
+          if (!raw.startsWith('=')) {
+            _issue(col, 'The rows of a table are read from the state, so they are in braces: rows={orders}.');
+          } else {
+            bind['data'] = _identifier.hasMatch(raw.substring(1)) ? _read(raw.substring(1)) : _formula(raw.substring(1));
+          }
+          continue;
+        }
         if (key == 'hidden' && raw.startsWith('=')) {
           bind['visible'] = _formula('!(${raw.substring(1)})');
           continue;
@@ -3146,6 +3162,34 @@ class _Parser {
       if (v is! num || v <= 1) props['max'] = 1;
       props.putIfAbsent('borderRadius', () => options.progress['borderRadius'] ?? 2);
     }
+    // A DataTable is a table of the theme: rows and headers a finger can
+    // press, as wide as its place, sorted from its headers, 320 tall unless
+    // it says (it scrolls in that).
+    if (ours && written == 'DataTable') {
+      props.putIfAbsent('rowHeight', () => 48);
+      props.putIfAbsent('headerHeight', () => 48);
+      props.putIfAbsent('fillWidth', () => true);
+      props.putIfAbsent('sortable', () => true);
+      props.putIfAbsent('gridLineColor', () => options.track);
+      layout.putIfAbsent('height', () => 320);
+      if (!bind.containsKey('data') || (!props.containsKey('columns') && !bind.containsKey('props.columns'))) {
+        _issue(column, 'A DataTable shows records in columns: DataTable rows={orders} columns=[{"key":"name","label":"Name"},{"key":"total","label":"Total"}].');
+      }
+      // A row chosen is a place in the order shown: a new order clears it.
+      for (final r in reactions.toList()) {
+        final sets = readMap(r['trigger'])?['type'] == 'changed'
+            ? (r['actions'] as List?)?.map(readMap).nonNulls.where((a) => a['type'] == 'setVariable' && a['value'] == r'${result.rowIndex}').firstOrNull
+            : null;
+        if (sets == null) continue;
+        r['trigger'] = {'type': 'rowTap'};
+        reactions.add({
+          'trigger': {'type': 'sort'},
+          'actions': [
+            {'type': 'setVariable', 'variable': sets['variable'], 'value': _formula('-1')},
+          ],
+        });
+      }
+    }
     if (type == 'progressBar' && options.progress['height'] != null) layout.putIfAbsent('height', () => options.progress['height']);
     // A card that writes no gap takes the theme's.
     if (written == 'Card' && options.cardGap != null) props.putIfAbsent('spacing', () => options.cardGap);
@@ -3401,6 +3445,23 @@ class _Parser {
       if (moved.isNotEmpty) out['bind'] = {...?(out['bind'] as Map?)?.cast<String, Object?>(), ...moved};
     }
     nodes[id] = out;
+    // A DataTable's cell and header are texts of the theme (item.value, item.label).
+    if (ours && written == 'DataTable') {
+      final body = options.textStyles['body'], strong = options.textStyles['strong'] ?? body;
+      Json text(String read, Object? style) => {
+            'type': 'text',
+            'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'padding': [12, 0, 12, 0]},
+            'props': {'text': read, if (style != null) 'style': _copyValue(style)},
+          };
+      final slots = (out['slots'] as Json?) ?? (out['slots'] = <String, Object?>{});
+      for (final (slot, child, node) in [('cell', '${id}Cell', text(r'${item.value}', body)), ('columnHeader', '${id}Header', text(r'${item.label}', strong))]) {
+        if (slots.containsKey(slot)) continue;
+        nodes[child] = node;
+        slots[slot] = child;
+        _parentOf[child] = id;
+        _slotOf[child] = slot;
+      }
+    }
     if (donutKeys != null) _donutLegend(id, out, donutKeys, inRow: parent?.type == 'row');
     if (avatarName != null) {
       // "Maya Reyes" is MR; a value read from state is shown as it is.
@@ -3944,6 +4005,10 @@ class _Parser {
   /// a plain node has no such event.
   Json? _handlerTrigger(String key, String type, WidgetSpec? component, Json node) {
     if (key == 'onDrop') return {'type': 'drop'};
+    // A table: a header pressed (result.column, result.ascending) and a row
+    // chosen (result.row, result.rowIndex).
+    if (type == 'tableView' && key == 'onSort') return {'type': 'sort'};
+    if (type == 'tableView' && (key == 'onRowTap' || key == 'onTap')) return {'type': 'rowTap'};
     if (component != null) {
       final named = component.events.where((e) => e.key == key).firstOrNull ??
           (key == 'onChange' ? component.events.where((e) => e.key == 'onChanged').firstOrNull : null) ??

@@ -2984,4 +2984,59 @@ Column
     expect(_pagePrompt(), contains('Calendar bind=arrival bindEnd=departure disabledDates=["2026-11-24"] marks={"2026-11-20":"£225"}'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('Calendar')));
   });
+
+  test('DataTable: records in columns, sorted from a header, a row chosen into a variable, its events by name', () {
+    final r = _parsePage('''
+state incidents=[{"name":"Northstar","count":3}]
+Page
+  Section
+    DataTable#incidents rows={incidents} columns=[{"key":"name","label":"Customer"},{"key":"count","label":"Incidents"}] bind=picked onSort={emit sorted result.column} onRowTap={emit opened result.row}
+    DataTable#open rows={filter(incidents,x=>x.count>1)} columns=[{"key":"name","label":"Customer"}] h=200 sortable=false
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    final table = _node(r, 'incidents');
+    expect(table['type'], 'tableView');
+    expect(table['bind'], {'data': r'${incidents}', 'props.selectedRow': r'${picked}'});
+    expect(table['props'], allOf(containsPair('sortable', true), containsPair('rowHeight', 48), containsPair('headerHeight', 48), containsPair('fillWidth', true)));
+    expect((table['props'] as Map)['columns'], [
+      {'key': 'name', 'label': 'Customer'},
+      {'key': 'count', 'label': 'Incidents'},
+    ]);
+    expect((table['layout'] as Map)['height'], 320);
+    expect(table['slots'], {'cell': 'incidentsCell', 'columnHeader': 'incidentsHeader'});
+    expect(_node(r, 'incidentsCell')['props'], containsPair('text', r'${item.value}'));
+    expect(_node(r, 'incidentsHeader')['props'], containsPair('text', r'${item.label}'));
+    // The row chosen is kept on a tap and cleared by a new order; then the line's own events.
+    final reactions = (table['actions'] as List).cast<Map>();
+    expect([for (final a in reactions) (a['trigger'] as Map)['type']], ['rowTap', 'sort', 'rowTap', 'sort']);
+    expect(reactions[0]['actions'], [
+      {'type': 'setVariable', 'variable': 'picked', 'value': r'${result.rowIndex}'},
+    ]);
+    expect(reactions[3]['actions'], [
+      {'type': 'setVariable', 'variable': 'picked', 'value': r'${= -1}'},
+    ]);
+    expect((r.document['variables'] as Map).values.expand((v) => v as List).singleWhere((v) => (v as Map)['name'] == 'picked'), {'name': 'picked', 'type': 'integer', 'value': -1});
+    // What the line says wins, and rows may be worked out.
+    final open = _node(r, 'open');
+    expect(open['props'], containsPair('sortable', false));
+    expect((open['layout'] as Map)['height'], 200);
+    expect((open['bind'] as Map)['data'], r'${= filter(incidents,x=>x.count>1)}');
+    expect(open, isNot(contains('actions')));
+    // The model: sortable headers and the sort trigger.
+    final props = Props.fromJson(TableViewProps.spec, {'sortable': true, 'sortColumn': 'name', 'sortAscending': false});
+    expect((props.get(TableViewProps.sortable), props.get(TableViewProps.sortColumn), props.get(TableViewProps.sortAscending)), (true, 'name', false));
+    expect(Trigger.fromJson({'type': 'sort'})?.type, TriggerType.sort);
+    // As it arrives, the templates come with their slots.
+    final stream = NotationStream(catalog: standardCatalog);
+    final ops = [...stream.add('state rows=[]\nColumn\n  DataTable#t rows={rows} columns=[{"key":"a","label":"A"}]\n'), ...stream.close()];
+    expect([
+      for (final o in ops)
+        if (o['op'] == 'set' && o['slot'] != null && o['parent'] == 't') o['slot'],
+    ], ['cell', 'columnHeader']);
+    expect(_parsePage('Page\n  DataTable columns=[{"key":"a","label":"A"}]').issues.single.message, contains('DataTable rows={orders} columns=['));
+    expect(_parsePage('state rows=[]\nPage\n  DataTable rows=rows columns=[{"key":"a","label":"A"}]').issues.first.message, contains('written in braces: rows={rows}'));
+    expect(_pagePrompt(), contains('DataTable rows={orders} columns=[{"key":"name","label":"Customer"}'));
+    expect(notationPrompt(catalog: standardCatalog), isNot(contains('DataTable')));
+  });
 }

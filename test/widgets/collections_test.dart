@@ -18,6 +18,14 @@ void main() {
       expect((c.key, c.label, c.width), ('a', '', 80));
       expect(Props.fromJson(TableViewProps.spec, {'columns': [{'key': 'a'}, 'b']}).get(TableViewProps.columns).length, 2);
     });
+
+    test('a table declares sortable headers and their initial order', () {
+      final props = Props.fromJson(TableViewProps.spec, {'sortable': true, 'sortColumn': 'name', 'sortAscending': false});
+      expect(props.get(TableViewProps.sortable), isTrue);
+      expect(props.get(TableViewProps.sortColumn), 'name');
+      expect(props.get(TableViewProps.sortAscending), isFalse);
+      expect(Trigger.fromJson({'type': 'sort'})?.type, TriggerType.sort);
+    });
   });
 
   group('text and values', () {
