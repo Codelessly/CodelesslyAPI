@@ -115,6 +115,10 @@ class _Surface {
   final notes = <String>[];
   final _bound = <String>{};
 
+  /// The variables a control is bound to (`@name`), each with what it
+  /// starts at when the data model gives it no value.
+  final _controlled = <String, Object?>{};
+
   bool owns(Object? surface, String? wanted) => id == null || surface == null || surface == (wanted ?? id);
 
   void add(Object? component) {
@@ -167,12 +171,15 @@ class _Surface {
   String notation() {
     notes.clear();
     _bound.clear();
+    _controlled.clear();
     final body = <String>[];
     final root = components['root'] ?? (components.isEmpty ? null : components.values.first);
     if (root != null) _write(root, 0, body, {}, item: false);
     // State: every scalar or list of the model, under the name its path
-    // gives; a binding to a path with no value yet declares itself.
+    // gives; a control bound to a path with no value yet declares it with
+    // the control's empty value.
     final state = <String>[];
+    final declared = <String>{};
     void walk(Object? value, List<String> path) {
       if (value is Map && path.length < 6) {
         for (final e in value.entries) {
@@ -181,10 +188,15 @@ class _Surface {
         return;
       }
       if (path.isEmpty) return;
-      state.add('state ${_name('/${path.join('/')}')}=${jsonEncode(value)}');
+      final name = _name('/${path.join('/')}');
+      declared.add(name);
+      state.add('state $name=${jsonEncode(value)}');
     }
 
     walk(data, const []);
+    for (final e in _controlled.entries) {
+      if (declared.add(e.key)) state.add('state ${e.key}=${jsonEncode(e.value)}');
+    }
     return [...state, ...body].join('\n');
   }
 
@@ -228,12 +240,14 @@ class _Surface {
     return path == null ? null : _name(path, item: item);
   }
 
-  /// ` bind=name` for a control's value: two ways to a plain variable; an item's
-  /// field or a list's element is shown, not written back.
-  String _valueOf(Object? v, {required bool item}) {
+  /// ` @name` for a control's value: two ways to a plain variable; an item's
+  /// field or a list's element is shown (` value={…}`), not written back.
+  String _valueOf(Object? v, {required bool item, Object? empty = ''}) {
     final b = _bindingOf(v, item: item);
     if (b == null) return '';
-    return RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(b) ? ' bind=$b' : ' bind={($b)}';
+    if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(b)) return ' value={$b}';
+    _controlled.putIfAbsent(b, () => empty);
+    return ' @$b';
   }
 
   void _write(Json c, int depth, List<String> out, Set<String> seen, {required bool item}) {
@@ -343,11 +357,11 @@ class _Surface {
         final hint = c['placeholder'] == null ? '' : ' hint=${_quoted(c['placeholder'], item: item)}';
         line('Input ${_quoted(c['label'], item: item)}$hint$extra${_valueOf(c['value'], item: item)}');
       case 'CheckBox':
-        line('Checkbox ${_quoted(c['label'], item: item)}${_valueOf(c['value'], item: item)}');
+        line('Checkbox ${_quoted(c['label'], item: item)}${_valueOf(c['value'], item: item, empty: false)}');
       case 'Slider':
         if (c['label'] != null) out.add('${pad}Text.small ${_quoted(c['label'], item: item)}');
         final bound = _bindingOf(c['value'], item: item);
-        line('Slider min=${c['min'] ?? 0} max=${c['max'] ?? 100}${bound == null ? (c['value'] is num ? ' ${c['value']}' : '') : _valueOf(c['value'], item: item)}');
+        line('Slider min=${c['min'] ?? 0} max=${c['max'] ?? 100}${bound == null ? (c['value'] is num ? ' ${c['value']}' : '') : _valueOf(c['value'], item: item, empty: c['min'] ?? 0)}');
       case 'ChoicePicker':
         final options = [for (final o in readList(c['options']) ?? const []) if (o is Map) o];
         final labels = [for (final o in options) _text(o['label'], item: item)];

@@ -367,12 +367,12 @@ final class PageWords {
 
   /// A picture, or a list of them, shown large over the page
   /// (`Lightbox#zoom "{photo}" "Caption"`, `Lightbox#zoom
-  /// photos={photos} bind=at`): the picture contained in the window on a dark scrim, zoomed by
+  /// photos={photos} @at`): the picture contained in the window on a dark scrim, zoomed by
   /// a pinch, the wheel and a double tap (to 2x where it was tapped, and
   /// back), panned while zoomed and kept inside the window; closed by its
   /// button, Escape, a tap on the scrim and a drag down. A list is paged by
   /// a swipe, the arrows and the arrow keys, with a count and a strip of
-  /// thumbnails; `bind=at` is the picture shown, from 0. The lines written under
+  /// thumbnails; `@at` is the picture shown, from 0. The lines written under
   /// a list draw one picture (`photo` is the element) in place of an Image
   /// of its `url`.
   Overlay _lightbox(String id, _Parts parts, String? title, String? note) {
@@ -565,7 +565,7 @@ final class PageWords {
         (indent: 2, text: 'Stack#${id}Stage w=fill h=fill grow'),
         (
           indent: 4,
-          text: 'Pages#${id}Pages bind=$index w=fill h=fill${tail({
+          text: 'Pages#${id}Pages @$index w=fill h=fill${tail({
             'props': {'animationDuration': 280},
             // Another picture starts at rest.
             'actions': [
@@ -1308,10 +1308,12 @@ class _Parts {
     return found;
   }
 
-  /// The variable a line is bound to (`bind=at`), removed.
+  /// The variable a line is bound to (`@at`, `value=@at`), removed.
   String? binding() {
-    final i = _tokens.indexWhere((t) => RegExp(r'^bind=[A-Za-z_][A-Za-z0-9_]*$').hasMatch(t));
-    return i < 0 ? null : _tokens.removeAt(i).substring(5);
+    final i = _tokens.indexWhere((t) => RegExp(r'^(value=)?@[A-Za-z_][A-Za-z0-9_]*$').hasMatch(t));
+    if (i < 0) return null;
+    final t = _tokens.removeAt(i);
+    return t.substring(t.indexOf('@') + 1);
   }
 
   /// The first string of the line, removed.

@@ -144,7 +144,7 @@ state total=4
 state share=0
 Column
   Button "+" onTap={zoom=zoom*1.25; progress=progress+0.1; n=n+1; share=done/total}
-  Slider bind=volume
+  Slider @volume
   Text "{zoom} {progress} {n} {share}"
 ''');
     expect(r.issues, isEmpty);
@@ -158,24 +158,27 @@ Column
     test('on a line no each is directly under it is said, with where it goes', () {
       final r = _parse('''
 state cards=[{"id":1,"t":"A"}]
+state picked=[]
+state other=[]
 Column
   Column
     each c in cards
-      Card selectable bind=picked drag=todo(c.id)
+      Card selectable selected=@picked drag=todo(c.id)
         Text "{c.t}"
-  Row selectable bind=other
+  Row selectable selected=@other
     Text "x"
 ''');
       expect(r.issues.map((i) => '${i.line}: ${i.message}'), [
-        startsWith('5: selectable chooses among the rows an each repeats'),
         startsWith('7: selectable chooses among the rows an each repeats'),
+        startsWith('9: selectable chooses among the rows an each repeats'),
       ]);
     });
 
     test('a row that takes its own tap chooses itself with it, then does what it does', () {
       final r = _parse('''
 state cards=[{"id":1,"t":"A"},{"id":2,"t":"B"}]
-Column selectable bind=picked
+state picked=[]
+Column selectable selected=@picked
   each c in cards
     Card#card onTap={toast "{c.t}"}
       Text "{c.t}"
@@ -193,7 +196,7 @@ Column selectable bind=picked
   test('a state named as the runtime names what every expression reads is said; a site\'s variable a control binds is the site\'s', () {
     final r = _parse('state script="x"\nColumn\n  Text "{script}"\n');
     expect(r.issues.map((i) => i.message), [startsWith('script is a name the runtime gives every expression')]);
-    final site = _parse('Column\n  Select bind=moveTo items=["a","b"]\n  Button "B" onTap={moveTo="b"}\n',
+    final site = _parse('Column\n  Select @moveTo items=["a","b"]\n  Button "B" onTap={moveTo="b"}\n',
         const NotationOptions(projectVariables: {
           'moveTo': {'type': 'text', 'value': ''},
         }));
@@ -202,7 +205,7 @@ Column selectable bind=picked
   });
 
   test('size={…} on a text field is the size of its text', () {
-    final r = _parse('state fs=14\nColumn\n  Input "Note" multiline bind=note size={fs}\n');
+    final r = _parse('state fs=14\nstate note=""\nColumn\n  Input "Note" multiline @note size={fs}\n');
     expect(r.issues, isEmpty);
     expect(jsonEncode(_node(r, 'textField1')['bind']), contains(r'"props.style.fontSize":"${fs}"'));
   });

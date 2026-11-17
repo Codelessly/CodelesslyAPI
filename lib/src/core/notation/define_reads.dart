@@ -8,8 +8,8 @@
 // Read from the lines as written, as the expansion reads them
 // (define.dart's _Substitution): a name counts where the expansion would put
 // the use's value in, in braces, in a string's braces, in a list, in a
-// statement's expression; a variable in `bind=` and `menu=`; an event where an
-// action names it.
+// statement's expression; a variable bound with `@` (`@value`, `open=@open`)
+// and named by `menu=`; an event where an action names it.
 import 'define.dart';
 import 'vocabulary.dart';
 
@@ -19,8 +19,8 @@ final class DefinitionReads {
 
   final NotationDefinition definition;
 
-  /// Its strings, parameters and `bind` that its lines never read, in
-  /// signature order.
+  /// Its strings, parameters and `@value` that its lines never read nor
+  /// bind, in signature order.
   final List<String> unread;
 
   /// Its events that no action of its lines runs.
@@ -64,16 +64,17 @@ DefinitionReads definitionReads(NotationDefinition definition) {
     d,
     [
       for (final n in [...d.strings, ...d.parameters.keys, ?d.bind])
-        if (!used.contains(n) && !(n == d.bind && scan.bound.contains(n))) n,
+        if (!used.contains(n) && !scan.bound.contains(n)) n,
     ],
     [for (final e in d.events) if (!scan.fired.contains(e)) e],
     {
       for (final n in used)
         if (!own.contains(n) && !scan.declared.contains(n) && !d.events.contains(n) && !_given.contains(n)) n,
-      // A variable bound by name is the definition's own only when it is its
-      // bind or declared in it: a parameter's name there binds the page's.
+      // A variable bound with @ is the definition's own when the signature
+      // names it (`@value`, `open=@`, a parameter a use may bind) or the
+      // lines declare it; any other is the page's.
       for (final n in scan.bound)
-        if (n != d.bind && !scan.declared.contains(n) && !_given.contains(n)) n,
+        if (!own.contains(n) && !scan.declared.contains(n) && !_given.contains(n)) n,
     }.toList()
       ..sort(),
   );
@@ -119,7 +120,9 @@ final class _Scan {
           _string(x.raw);
         case 'pair':
           final k = x.key!, v = x.value!;
-          if (v.startsWith('{') && v.endsWith('}')) {
+          if (v.startsWith('@')) {
+            _mark(v);
+          } else if (v.startsWith('{') && v.endsWith('}')) {
             final inner = v.substring(1, v.length - 1);
             if (x.isEvent) {
               actions(inner);
@@ -130,9 +133,11 @@ final class _Scan {
             expression(v);
           } else if (v.startsWith('"')) {
             _string(v);
-          } else if ((k.startsWith('bind') || k == 'menu') && _identifierOnly.hasMatch(v)) {
+          } else if (k == 'menu' && _identifierOnly.hasMatch(v)) {
             bound.add(v);
           }
+        case 'word' when x.raw.startsWith('@'):
+          _mark(x.raw);
         case 'tail' when x.raw.startsWith('{"'):
           expression(x.raw);
         case 'tail':
@@ -144,6 +149,12 @@ final class _Scan {
           if (rest.isNotEmpty) line('X $rest');
       }
     }
+  }
+
+  /// `@name`, `@row.done`: the variable bound (the head of its path).
+  void _mark(String written) {
+    final head = _name.matchAsPrefix(written, 1)?[0];
+    if (head != null) bound.add(head);
   }
 
   /// A string's `{…}`.

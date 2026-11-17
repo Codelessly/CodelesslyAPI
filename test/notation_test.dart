@@ -36,10 +36,13 @@ Map<String, Object?> _lastAction(NotationResult r, String id) =>
 void main() {
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
+state volume=0
+state email=""
+state notify=false
 Column gap=12
-  Slider bind=volume
-  Input "Email" bind=email
-  Toggle "Notifications" bind=notify
+  Slider @volume
+  Input "Email" @email
+  Toggle "Notifications" @notify
   Button "Save" onTap={emit save}
 ''');
     expect(r.issues, isEmpty);
@@ -198,6 +201,7 @@ Column gap=8
   test('read as it arrives: each completed line gives its operations, and applying them builds the same document', () {
     const text = '''
 state decision="pending"
+state volume=0
 Card gap=12
   Text.title "Approve?"
   if decision!="pending"
@@ -205,7 +209,7 @@ Card gap=12
   Row end gap=8
     Button.ghost "Deny" onTap={decision="denied"}
     Button "Approve" onTap={decision="approved"}
-  Slider bind=volume
+  Slider @volume
 ''';
     final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
     final perChunk = <int>[];
@@ -393,13 +397,15 @@ Column gap=8
     test('what the notation wrote prints back to the same document, one line a node', () {
       final doc = _parse('''
 state decision="pending"
+state volume=0
+state email=""
 Card gap=12
   Text.title "Approve deletion?"
   Row end gap=8
     Button.ghost "Deny" onTap={decision="denied"}
     Button "Approve" onTap={decision="approved"; emit approved}
-  Slider bind=volume
-  Input "Email" bind=email
+  Slider @volume
+  Input "Email" @email
 ''').document;
       roundTrips(doc);
       final text = printNotation(doc, catalog: standardCatalog);
@@ -602,9 +608,9 @@ state steps=7240
 state rows=[{"t":"a"},{"t":"b"}]
 Card
   Gauge#g 72 min=0 max=180 limit=100 unit="km/h"
-  Dial#d bind=steps
+  Dial#d value={steps}
   Stack#s center middle w=96 h=96
-    Ring#r bind={steps/10000} w=96
+    Ring#r value={steps/10000} w=96
     Text#pct "72%"
   Sparkline#sp values=[3,4,3,6]
   Text#t "Hello" animate=fadeIn duration=0.4s delay=200
@@ -649,7 +655,7 @@ state n=0
 state todos=[{"id":1,"t":"a"}]
 every 1s when n<5 onTick={n=n+1}
 Card
-  Slider#tip bind=n min=0 max=30 step=5
+  Slider#tip @n min=0 max=30 step=5
   each t in todos stagger=60
     Row#todo onSwipeLeft={todos=removeWhere(todos,x=>x.id==t.id)}
       Text "{t.t}"
@@ -838,12 +844,14 @@ Column
   test('Pages: swiped pages bound to a variable, per element or per line, with a peek and dots', () {
     final r = _parse('''
 state shoes=[{"name":"Aero"},{"name":"Trail"}]
+state i=0
+state j=0
 Column gap=8
-  Pages bind=i h=120 peek=0.86
+  Pages @i h=120 peek=0.86
     each s in shoes
       Text "{s.name}"
-  Dots bind=i count={length(shoes)}
-  Pages bind=j h=90
+  Dots @i count={length(shoes)}
+  Pages @j h=90
     Text "First"
     Text "Second"
 ''');
@@ -981,7 +989,7 @@ Column gap=8
   Row pad=8 border={on?"#FF2563EB":"#FFE5E7EB"} onTap={on=!on}
     Icon "{on ? "expand_less" : "expand_more"}"
     Text "{score}" color={score>=80?"#FF16A34A":"#FFDC2626"}
-  Progress bind={score/100} {"props": {"color": "\${= score>=80 ? '#FF16A34A' : '#FFDC2626'}"}}
+  Progress value={score/100} {"props": {"color": "\${= score>=80 ? '#FF16A34A' : '#FFDC2626'}"}}
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -1162,13 +1170,13 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
 state draft={"seats":1}
 state trips=[{"id":1,"legs":[{"seats":2}]}]
 Column
-  Counter#a bind=draft.seats
+  Counter#a @draft.seats
   each t in trips
-    Counter#b bind=t.seats
+    Counter#b @t.seats
     each l in t.legs
-      Counter#c bind=l.seats
+      Counter#c @l.seats
   each n in range(3)
-    Counter#d bind=n.seats
+    Counter#d @n.seats
 ''');
       // The component's variable parameter is the field's path: it reads
       // and writes it as it would a variable.
@@ -1176,14 +1184,14 @@ Column
       expect((_node(r, 'b')['bind'] as Map)['props.value'], r'${= "trips[" + index + "].seats"}');
       expect((_node(r, 'c')['bind'] as Map)['props.value'], r'${= "trips[" + parent.index + "].legs[" + index + "].seats"}');
       expect(r.issues.map((i) => i.message), [
-        'bind=n.seats: the each repeats range(3), which is worked out, so a change has no list to be written to. '
+        '@n.seats: the each repeats range(3), which is worked out, so a change has no list to be written to. '
             'Repeat the list variable itself (each n in <list>, with an if for the ones to show), give its records an "id" field, '
             'or write the change: value={n.seats} onChange={<list>=updateWhere(<list>,x=>x.id==n.id,x=>with(x,"seats",result))}.',
       ]);
     });
 
     test('a list of texts given numbers takes them as texts (numeric choices, a tree\'s depths)', () {
-      final r = parse('Tabs#t tabs=[1,2,3] bind=tab\n');
+      final r = parse('state tab=""\nTabs#t tabs=[1,2,3] @tab\n');
       expect(r.issues, isEmpty);
       expect((_node(r, 't')['props'] as Map)['tabs'], ['1', '2', '3']);
     });
@@ -1245,11 +1253,12 @@ if n==0
       expect((nodes['column1'] as Map)['children'], hasLength(2));
     });
 
-    test('are called by name: the string is the label, bind=name the variable it keeps its value in, its events by their names', () {
+    test('are called by name: the string is the label, @name the variable it keeps its value in, its events by their names', () {
       final r = parse('''
+state seats=0
 Column gap=8
   StatusPill "Paid" tone=success onTap={emit open}
-  Counter bind=seats max=5
+  Counter @seats max=5
   Frame "Billing"
     Text "Inside"
 ''');
@@ -1310,7 +1319,7 @@ Column gap=8
       final r = parse('''
 state tab="A"
 Column
-  Tabs bind=tab tabs=["A","B"]
+  Tabs @tab tabs=["A","B"]
   if tab=="A"
     Text "First"
 ''');
@@ -1319,7 +1328,7 @@ Column
       expect(tabs['type'], 'Tabs');
       expect(tabs['props'], {'tabs': ['A', 'B'], 'value': 'tab'});
       final prompt = notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds);
-      expect(prompt, contains('Tabs bind=value tabs! onChanged : What a Tabs is for.'));
+      expect(prompt, contains('Tabs @value tabs! onChanged : What a Tabs is for.'));
       final core = parseNotation('Tabs titles=["A","B"]');
       expect((core.document['nodes']! as Map).values.cast<Map>().any((n) => n['type'] == 'tabs'), isTrue);
     });
@@ -1328,7 +1337,7 @@ Column
       final prompt = notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds);
       expect(prompt, contains('COMPONENTS (Acme'));
       expect(prompt, contains('StatusPill "label" tone onPressed : What a StatusPill is for.'));
-      expect(prompt, contains('Counter bind=value max onChanged : What a Counter is for.'));
+      expect(prompt, contains('Counter @value max onChanged : What a Counter is for.'));
       expect(prompt, contains('Note "title" "message" items : What a Note is for.'));
       expect(prompt, contains('Frame "title" (children) : What a Frame is for.'));
       expect(prompt, isNot(contains('Button "label" :')));
@@ -1378,32 +1387,32 @@ Column
 
   group('values inside lists', () {
     test('a text in a list that reads a value is its parts joined', () {
-      final r = _parse('state n=4\nCard\n  Select bind=pick items=["Lemons, {2 * n}","\${fixed(n, 2)}","plain"]\n');
+      final r = _parse('state n=4\nstate pick=""\nCard\n  Select @pick items=["Lemons, {2 * n}","\${fixed(n, 2)}","plain"]\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [("Lemons, " + (2 * n)), ("$" + (fixed(n, 2))), "plain"]}')));
     });
 
     test('a list in braces holds its spaces, quoted text included', () {
-      final r = _parse('state pick=1\nstate total=3\nCard\n  Select bind=x items={[["Price per person", pick==1 ? "£128" : "£84"],["Total", fixed(total, 2)]]}\n');
+      final r = _parse('state pick=1\nstate total=3\nstate x=""\nCard\n  Select @x items={[["Price per person", pick==1 ? "£128" : "£84"],["Total", fixed(total, 2)]]}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [["Price per person", pick==1 ? "£128" : "£84"],["Total", fixed(total, 2)]]}')));
     });
 
     test('a quoted text in a formula reads its values', () {
-      final r = _parse('state n=4\nCard\n  Select bind=x items={[["Serves","{n}"],["Each","\${fixed(n, 2)}"]]}\n');
+      final r = _parse('state n=4\nstate x=""\nCard\n  Select @x items={[["Serves","{n}"],["Each","\${fixed(n, 2)}"]]}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [["Serves",("" + (n))],["Each",("$" + (fixed(n, 2)))]]}')));
     });
 
     test('a list left open at the end of a line goes on over the next lines', () {
-      final r = _parse('state n=4\nCard\n  Select bind=x items={[\n    "Chicken, "+round(800*n/4,0)+" g",\n    "Lemons, "+n\n  ]}\n  Text "after"\n');
+      final r = _parse('state n=4\nstate x=""\nCard\n  Select @x items={[\n    "Chicken, "+round(800*n/4,0)+" g",\n    "Lemons, "+n\n  ]}\n  Text "after"\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(r.document), contains(jsonEncode(r'${= [ "Chicken, "+round(800*n/4,0)+" g", "Lemons, "+n ]}')));
       expect(jsonEncode(r.document), contains('after'));
     });
 
     test('a value brace holds its own braces and quotes', () {
-      final r = _parse('state pick="b"\nlet sel = find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)\nCard\n  Text "Costs {sel.price}"\n  Select bind=x items={[["Total","{money(sel.price,"\$",2)}"]]}\n');
+      final r = _parse('state pick="b"\nlet sel = find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)\nstate x=""\nCard\n  Text "Costs {sel.price}"\n  Select @x items={[["Total","{money(sel.price,"\$",2)}"]]}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       final doc = jsonEncode(r.document);
       expect(doc, contains(jsonEncode(r'Costs ${= (find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)).price}')));
@@ -1491,6 +1500,7 @@ Card#plan fill=#0F2563EB
 
     test('the small parts of a page: Brand, IconTile, a search field in a bar, a badge with a width, a text with a rule', () {
       final r = parseNotation('''
+state q=""
 App
   Sidebar
     Brand "Harbor" icon="anchor"
@@ -1498,7 +1508,7 @@ App
   Main
     Nav
       Heading "Orders" level=1
-      Input#q "Search orders" bind=q w=220
+      Input#q "Search orders" @q w=220
     Column pad=24
       IconTile#tile "sync"
       Row
@@ -1611,7 +1621,7 @@ Column center
       final wide = notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280));
       expect(wide, contains('PAGES'));
       // Its two examples read without an issue.
-      final examples = wide.substring(wide.lastIndexOf('\n  Page\n'));
+      final examples = wide.substring(wide.lastIndexOf('\n  state email=""\n  Page\n'));
       final page = examples.substring(0, examples.indexOf('\n  state tab')).split('\n').map((l) => l.startsWith('  ') ? l.substring(2) : l).join('\n');
       final app = examples.substring(examples.indexOf('\n  state tab')).split('\n').map((l) => l.startsWith('  ') ? l.substring(2) : l).join('\n');
       expect(parseNotation(page, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
@@ -1879,8 +1889,8 @@ project guests=2
 state when=""
 Page
   Section
-    DatePicker#d "Arrival" bind=when
-    Select#g bind=guests items=[1,2,3]
+    DatePicker#d "Arrival" @when
+    Select#g @guests items=[1,2,3]
 ''', catalog: standardCatalog, options: page);
       expect(form.issues, isEmpty);
       expect(((node(form, 'd')['props']! as Map)['decoration']! as Map)['labelText'], 'Arrival');
@@ -2090,7 +2100,7 @@ App
 $between      Column#detail grow h=fill scroll pad=24
         Heading "{find(msgs,x=>x.id==sel).subject}" level=2
 ''';
-      final r = parseNotation(inbox('      Splitter#grip bind=listW min=220 max=480\n'), catalog: standardCatalog, options: page);
+      final r = parseNotation(inbox('      Splitter#grip @listW min=220 max=480\n'), catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(_problemsAtAnyLevel(r.document), isEmpty);
       // A tablet keeps the sidebar (248), so the two need 248 + 290 + 360 and more: under that, by turns.
@@ -2180,7 +2190,7 @@ App
   Main
     Row
       Column#form w=360 gap=12
-        Input "Name" bind=name
+        Input "Name" @name
         Button "Save" onTap={toast "Saved"}
       Column#preview grow
         Text "{name}"
@@ -2256,7 +2266,7 @@ App
   Main
     Row
       Column#form w=360 gap=12
-        Input "Name" bind=name
+        Input "Name" @name
       Column#preview grow
         Text "{name}"
 ''', catalog: standardCatalog, options: page);
@@ -2294,19 +2304,21 @@ App
 
     test('the buttons a dialog or a sheet ends with: equal shares on a phone, at the right with room', () {
       const app = '''
+state to=""
+state unread=false
 Page
   Section
     Button "Compose" onTap={open compose}
     Button "Filters" onTap={open filters}
 
 Dialog#compose "New message"
-  Input "To" bind=to
+  Input "To" @to
   Row gap=8
     Button.outline#closeIt "Close" onTap={close}
     Button#send "Send" onTap={close}
 
 Sheet#filters "Filters"
-  Toggle "Unread only" bind=unread
+  Toggle "Unread only" @unread
   Button.outline#reset "Reset" onTap={close}
   Button#apply "Apply" onTap={close}
 ''';
@@ -2359,6 +2371,7 @@ Sheet#filters "Filters"
     const text = '''
 state email=""
 state sort="Newest"
+state onlyOpen=false
 Page
   Section
     Button#join "Join" onTap={open signup}
@@ -2369,12 +2382,12 @@ Page
     Text "Sorted by {sort}"
 
 Dialog#signup "Join the waitlist" "We write once." w=420
-  Input "Email" bind=email
+  Input "Email" @email
   Button#go "Join" onTap={joined=true; close}
   Button#again "More" onTap={open tip}
 
 Sheet#filters "Filters"
-  Toggle "Only open rooms" bind=onlyOpen
+  Toggle "Only open rooms" @onlyOpen
 
 Menu#sortMenu end
   MenuItem#newest "Newest" icon="schedule" onTap={sort="Newest"}
@@ -2760,10 +2773,11 @@ Lightbox#zoom "{photo}" "The harbor at dusk" ratio=1.5
     test('a Lightbox of a list is a gallery: paged by a swipe, arrows and keys, with a count and thumbnails', () {
       final r = parseNotation('''
 state photos=[{"url":"a.png","caption":"A"},{"url":"b.png","caption":"B"}]
+state at=0
 Column
   each p in photos
     Image#thumb "{p.url}" w=120 h=80 onTap={at=index; open viewer}
-Lightbox#viewer photos={photos} bind=at
+Lightbox#viewer photos={photos} @at
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(problems(r.document), isEmpty);
@@ -2860,9 +2874,10 @@ Lightbox#viewer photos={photos} bind=at
       final catalog = ds.catalogOver(standardCatalog);
       const text = '''
 state trips=[{"name":"Coast","photos":[{"url":"a.png"}]}]
+state seen=0
 Page
   Section
-    PhotoGallery#one bind=seen photos=[{"url":"a.png"},{"url":"b.png"}] onTap={emit looked}
+    PhotoGallery#one @seen photos=[{"url":"a.png"},{"url":"b.png"}] onTap={emit looked}
     each t in trips
       PhotoGallery#each photos={t.photos}
 ''';
@@ -2887,7 +2902,7 @@ Page
       // One viewer for the page's galleries, a gallery of what was last tapped.
       expect(node(r, 'screenViewerPages')['bind'], {'props.initialPage': r'${screenViewerAt}', 'data': r'${screenViewerPhotos}'});
       // On a card (and where the line says how it opens) it is the component as written.
-      final card = Catalog.run(catalog, () => parseNotation('Column\n  PhotoGallery#g bind=seen photos=[{"url":"a.png"}]\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+      final card = Catalog.run(catalog, () => parseNotation('state seen=0\nColumn\n  PhotoGallery#g @seen photos=[{"url":"a.png"}]\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
       expect(card.issues, isEmpty);
       expect(card.document['roots'], ['screen']);
       expect(node(card, 'g').containsKey('actions'), isFalse);
@@ -2899,7 +2914,7 @@ Page
 
     test('the prompt teaches them from a desktop width on', () {
       final wide = notationPrompt(catalog: standardCatalog, options: page);
-      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu=rowMenu', 'onTap={open signup}', 'Lightbox#shots photos={photos} bind=at']) {
+      for (final word in ['Dialog#signup', 'Sheet#', 'Drawer#', 'Menu#', 'Popover#', 'Lightbox#', 'menu=rowMenu', 'onTap={open signup}', 'Lightbox#shots photos={photos} @at']) {
         expect(wide, contains(word), reason: word);
       }
       final card = notationPrompt(catalog: standardCatalog);
@@ -2981,7 +2996,7 @@ Column
 
   test('saved: a state kept on the device, on a card, on a page and as it arrives; a site\x27s variable says so in site.json', () {
     for (final width in [390.0, 1280.0]) {
-      final r = parseNotation('state draft="" saved\nstate n=1\n${width >= 700 ? 'Page\n  Section\n    Input "Draft" bind=draft' : 'Card\n  Input "Draft" bind=draft'}',
+      final r = parseNotation('state draft="" saved\nstate n=1\n${width >= 700 ? 'Page\n  Section\n    Input "Draft" @draft' : 'Card\n  Input "Draft" @draft'}',
           catalog: standardCatalog, options: NotationOptions(width: width));
       expect(r.issues, isEmpty);
       if (width < 700) expect(_problems(r.document), isEmpty);
@@ -2993,7 +3008,7 @@ Column
     expect(((_parse('state note="not saved"\nText "{note}"').document['variables'] as Map).values.single as List).single, isNot(contains('persist')));
     // As it arrives, the declaration carries it.
     final stream = NotationStream(catalog: standardCatalog);
-    final ops = [...stream.add('state draft="" saved\nColumn\n  Input "Draft" bind=draft\n'), ...stream.close()];
+    final ops = [...stream.add('state draft="" saved\nColumn\n  Input "Draft" @draft\n'), ...stream.close()];
     expect(ops.firstWhere((o) => o['op'] == 'vars')['set'], {
       'draft': {'type': 'text', 'value': '', 'persist': true},
     });
@@ -3011,10 +3026,13 @@ Column
 
   test('CodeInput: a one-time code is one bound text field with a number of boxes', () {
     final r = _parse('''
+state code=""
+state pin=""
+state other=""
 Column
-  CodeInput#otp "Verification code" bind=code length=6 digits
-  CodeInput#pin bind=pin length=4 digits=false
-  CodeInput#six bind=other
+  CodeInput#otp "Verification code" @code length=6 digits
+  CodeInput#pin @pin length=4 digits=false
+  CodeInput#six @other
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -3027,17 +3045,20 @@ Column
     expect(_node(r, 'pin')['props'], allOf(containsPair('otpLength', 4), containsPair('otpDigitsOnly', false)));
     expect(_node(r, 'six')['props'], containsPair('otpLength', 6));
     // An Input has no such words.
-    expect(_parse('Input "Code" bind=code digits').issues.single.message, contains('Unknown word "digits"'));
-    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('CodeInput "Code" bind=code length=6 digits'));
+    expect(_parse('state code=""\nInput "Code" @code digits').issues.single.message, contains('Unknown word "digits"'));
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('CodeInput "Code" @code length=6 digits'));
     expect(notationPrompt(catalog: standardCatalog), allOf(contains(' Input,'), isNot(contains('CodeInput'))));
   });
 
-  test('bindEnd: a slider with a variable for each end is one control with two thumbs', () {
+  test('@low @high: a slider with a variable for each end is one control with two thumbs', () {
     final r = _parse('''
 state low=300000
+state high=2000000
+state bottom=0
+state top=10
 Column
-  Slider#price bind=low bindEnd=high min=200000 max=2000000 step=25000 label="Price range"
-  Slider#other bindEnd=top bind=bottom max=10 onChange={emit moved}
+  Slider#price @low @high min=200000 max=2000000 step=25000 label="Price range"
+  Slider#other @bottom @top max=10 onChange={emit moved}
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -3061,8 +3082,8 @@ Column
     final other = _node(r, 'other');
     expect(other['bind'], {'props.value': r'${bottom}', 'props.rangeEnd': r'${top}'});
     expect([for (final a in other['actions'] as List) ((a as Map)['actions'] as List).length], [2, 1]);
-    expect(_parse('Slider bindEnd=high').issues.single.message, contains('Slider bind=low bindEnd=high'));
-    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('Slider bind=low bindEnd=high'));
+    expect(_parse('Slider high=@high').issues.single.message, contains('Slider @low @high'));
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('Slider @low @high'));
   });
 
   test('follow: an each with a height opens at its end and follows what is added', () {
@@ -3109,7 +3130,7 @@ App
       each m in msgs follow grow
         Text "{m}"
       Row#composer gap=8
-        Input "Message" bind=draft grow
+        Input "Message" @draft grow
         Button "Send" onTap={msgs=append(msgs,draft); draft=""}
 ''');
     expect(r.issues, isEmpty);
@@ -3177,17 +3198,18 @@ Column
   test('guard and stops: an overlay that stays open while its form has input, a sheet with heights it rests at', () {
     final r = _parsePage('''
 state name=""
+state email=""
 Page
   Section
     Button#details "Details" onTap={open detailsSheet}
     Button#edit "Edit" onTap={open editDialog}
     Button#plain "Filters" onTap={open filters}
 Sheet#detailsSheet "Your details" guard={name != "" || email != ""} stops=[0.5,0.9]
-  Input "Name" bind=name
-  Input "Email" bind=email
+  Input "Name" @name
+  Input "Email" @email
   Button "Discard" onTap={name=""; close}
 Dialog#editDialog "Edit" guard={name!=""}
-  Input "Name" bind=name
+  Input "Name" @name
 Sheet#filters "Filters"
   Text "None"
 ''');
@@ -3212,7 +3234,7 @@ Page
   Section
     Button#edit "Edit" onTap={open editDialog}
 Dialog#editDialog "Edit" guard={name!=""} guardText="Discard changes?" onDiscard={name=""}
-  Input "Name" bind=name
+  Input "Name" @name
 Sheet#notes "Notes" guard={name!=""} guardText=Discard?
   Text "Notes"
 ''');
@@ -3247,18 +3269,19 @@ Sheet#notes "Notes" guard={name!=""} guardText=Discard?
   test('Splitter: a divider between two panes keeps the first pane\x27s size in a variable', () {
     final r = _parsePage('''
 state paneWidth=360
+state mapHeight=240
 Page
   Section
     Row
       Column#map w={paneWidth}
         Text "Map"
-      Splitter#grip bind=paneWidth min=0 max=800 step=16 collapseAt=48 label="Resize map and stations"
+      Splitter#grip @paneWidth min=0 max=800 step=16 collapseAt=48 label="Resize map and stations"
       Column grow
         Text "Stations"
     Column
       Column#top h={mapHeight}
         Text "Map"
-      Splitter#bar bind=mapHeight orientation=vertical max=900
+      Splitter#bar @mapHeight orientation=vertical max=900
 ''');
     expect(r.issues, isEmpty);
     expect(_problemsAtAnyLevel(r.document), isEmpty);
@@ -3277,7 +3300,7 @@ Page
     expect(_node(r, 'bar')['bind'], {'props.value': r'${mapHeight}'});
     // A height not declared starts at the control's own start.
     expect((r.document['variables'] as Map).values.expand((v) => v as List).singleWhere((v) => (v as Map)['name'] == 'mapHeight'), containsPair('value', 240));
-    expect(_pagePrompt(), contains('Splitter bind=paneW min=200 max=640'));
+    expect(_pagePrompt(), contains('Splitter @paneW min=200 max=640'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('Splitter')));
   });
 
@@ -3291,7 +3314,7 @@ Page
     expect(n.prop(SliderProps.readOnly), isTrue);
     expect(n.toJson()['props'], allOf(containsPair('trackShape', 'stars'), containsPair('readOnly', true)));
     // With no design system it is the slider written with its own keys.
-    final plain = _parse('Slider#stars bind=score max=5 step=0.5 trackShape=stars');
+    final plain = _parse('state score=0\nSlider#stars @score max=5 step=0.5 trackShape=stars');
     expect(plain.issues, isEmpty);
     expect(_problems(plain.document), isEmpty);
     expect(_node(plain, 'stars')['props'], allOf(containsPair('trackShape', 'stars'), containsPair('divisions', 10)));
@@ -3333,12 +3356,12 @@ Page
     final catalog = ds.catalogOver(standardCatalog);
     final r = Catalog.run(
         catalog,
-        () => parseNotation('state mine=3\nColumn\n  Rating#own "Your rating" bind=mine half\n  Rating#shown "Course score" score=4.5 readOnly\n',
+        () => parseNotation('state mine=3\nColumn\n  Rating#own "Your rating" @mine half\n  Rating#shown "Course score" score=4.5 readOnly\n',
             catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
     expect(r.issues, isEmpty);
     expect(_node(r, 'own')['props'], {'label': 'Your rating', 'value': 'mine', 'half': true});
     expect(_node(r, 'shown')['props'], {'label': 'Course score', 'score': 4.5, 'readOnly': true});
-    expect(notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds), contains('Rating "label" bind=value score half readOnly'));
+    expect(notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds), contains('Rating "label" @value score half readOnly'));
   });
 
   test('tooltip: an icon-only button is named by it, and the page prompt says so', () {
@@ -3385,13 +3408,14 @@ Popover#tip
 
   test('key and shortcut: a shortcut of the whole screen on a line of its own, and its hint on a text', () {
     final r = _parsePage('''
+state q=""
 key mod+k onPress={open search}
 key "alt+shift+o" onPress={count=count+1; toast "Counted"}
 Page
   Section
     Text#hint "Search" shortcut="mod+k"
 Dialog#search "Search"
-  Input "Query" bind=q
+  Input "Query" @q
 ''');
     expect(r.issues, isEmpty);
     expect(_problemsAtAnyLevel(r.document), isEmpty);
@@ -3575,7 +3599,7 @@ Column
   });
 
   test('a number field steps: Input type=number takes min, max and step', () {
-    final r = _parse('Column\n  Input#qty "Quantity" bind=qty type=number min=1 max=12 step=2\n  Input#plain "Name" bind=name\n');
+    final r = _parse('state qty=""\nstate name=""\nColumn\n  Input#qty "Quantity" @qty type=number min=1 max=12 step=2\n  Input#plain "Name" @name\n');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
     final qty = _node(r, 'qty');
@@ -3588,15 +3612,17 @@ Column
       'props': {'keyboardType': 'number', 'min': 1, 'max': 12, 'step': 2, 'semanticLabel': 'Quantity'},
     }, id: 'quantity')!;
     expect((n.prop(TextFieldProps.min), n.prop(TextFieldProps.max), n.prop(TextFieldProps.step), n.prop(TextFieldProps.semanticLabel)), (1, 12, 2, 'Quantity'));
-    expect(_pagePrompt(), contains('Input "Qty" bind=qty type=number min=1 max=12 step=1'));
+    expect(_pagePrompt(), contains('Input "Qty" @qty type=number min=1 max=12 step=1'));
   });
 
-  test('Calendar: a month in the page; bind and bindEnd are the ends of a range, with disabled days and marks', () {
+  test('Calendar: a month in the page; @start @end are the ends of a range, with disabled days and marks', () {
     final r = _parse('''
 state arrival="2026-11-20"
+state departure=""
+state day=""
 Column
-  Calendar#stay bind=arrival bindEnd=departure disabledDates=["2026-11-21"] marks={"2026-11-24":"Sold"} dayPrices={"2026-11-20":"£225"} label="Your stay"
-  Calendar#one bind=day firstDate="2026-11-01"
+  Calendar#stay @arrival @departure disabledDates=["2026-11-21"] marks={"2026-11-24":"Sold"} dayPrices={"2026-11-20":"£225"} label="Your stay"
+  Calendar#one @day firstDate="2026-11-01"
 ''');
     expect(r.issues, isEmpty);
     expect(_problems(r.document), isEmpty);
@@ -3627,23 +3653,24 @@ Column
       {'type': 'setVariable', 'variable': 'day', 'value': r'${result}'},
     ]);
     // Marks worked out, from a map or from a list of days or records.
-    final marked = _parse('state day=""\nstate events=[{"date":"2026-11-18","title":"Gym"}]\nColumn\n  Calendar#m bind=day marks={events}\n  Calendar#n bind=day marks=["2026-11-03"]\n');
+    final marked = _parse('state day=""\nstate events=[{"date":"2026-11-18","title":"Gym"}]\nColumn\n  Calendar#m @day marks={events}\n  Calendar#n @day marks=["2026-11-03"]\n');
     expect(marked.issues, isEmpty);
     expect(_problems(marked.document), isEmpty);
     expect(_node(marked, 'm')['bind'], containsPair('props.marks', r'${events}'));
     final declared = {for (final v in (r.document['variables'] as Map).values.expand((v) => v as List)) (v as Map)['name']: v['value']};
     expect(declared, {'arrival': '2026-11-20', 'departure': '', 'day': ''});
-    expect(_parse('Calendar bindEnd=departure').issues.single.message, contains('Calendar bind=arrival bindEnd=departure'));
-    expect(_pagePrompt(), contains('Calendar bind=arrival bindEnd=departure disabledDates=["2026-11-24"] marks={"2026-11-20":"£225"}'));
+    expect(_parse('Calendar end=@departure').issues.single.message, contains('Calendar @arrival @departure'));
+    expect(_pagePrompt(), contains('Calendar @arrival @departure disabledDates=["2026-11-24"] marks={"2026-11-20":"£225"}'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('Calendar')));
   });
 
   test('DataTable: records in columns, sorted from a header, a row chosen into a variable, its events by name', () {
     final r = _parsePage('''
 state incidents=[{"name":"Northstar","count":3}]
+state picked=-1
 Page
   Section
-    DataTable#incidents rows={incidents} columns=[{"key":"name","label":"Customer"},{"key":"count","label":"Incidents"}] bind=picked onSort={emit sorted result.column} onRowTap={emit opened result.row}
+    DataTable#incidents rows={incidents} columns=[{"key":"name","label":"Customer"},{"key":"count","label":"Incidents"}] @picked onSort={emit sorted result.column} onRowTap={emit opened result.row}
     DataTable#open rows={filter(incidents,x=>x.count>1)} columns=[{"key":"name","label":"Customer"}] h=200 sortable=false
 ''');
     expect(r.issues, isEmpty);

@@ -1,3 +1,21 @@
+## 34.0.0
+
+### Breaking
+
+- **Notation**: a variable is bound with `@` (design note 13, section 3.1). `@name` is the variable itself, read
+  and written: bare on a line it is the control's value (`Slider @heat min=14 max=24`, `value=@heat` the same), any
+  other property is named (`selected=@picked` on a selectable list, `direction=@dir` on a block, `low=@a high=@b`
+  on a slider with two thumbs, written bare as `@a @b`). One bare mark a line, two on a range; a mark on a line that
+  binds nothing, or a second one, is an issue that says what the line binds. A bound variable is declared (a
+  `state` line, a site's variable, a loop's item, a definition's parameter): one nothing declares is an issue that
+  gives the `state` line to add. `bind=`, `bind={…}`, `bindEnd=` are not read: each line that writes them is one
+  issue that shows it in the new form (`notationBindForm`, `notationBindRewrite`). A block's variable parameter is
+  always `key=@name`. A definition's signature declares the value a use binds as `@value` (`@value=1` with its
+  start) and a further one as `name=@`; a use binds them with `@x`, `value=@x`, `name=@x`; a plain parameter a use
+  binds (`value=1`, `Counter @n`) is that variable both ways. The prompts, the printer (`@name` on a control) and
+  the A2UI front end write the new form. The `RangeSlider` alias takes `@low @high` or `low=@ high=@`; its other
+  names for the ends are gone. CodelesslySDK's `tool/notation/notation.sh migrate` rewrites files.
+
 ## 33.1.1
 
 Released with codelessly_sdk 33.1.1.

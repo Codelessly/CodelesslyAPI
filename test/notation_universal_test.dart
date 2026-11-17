@@ -96,9 +96,10 @@ Column
       final r = _clean('''
 state on=false
 state pick=""
+state v=0
 Column
-  Toggle bind=on color=#FF16A34A
-  Slider bind=v color=#FF16A34A
+  Toggle @on color=#FF16A34A
+  Slider @v color=#FF16A34A
   Button "Go" color=#FF16A34A
   Button.outline "Go" color=#FF16A34A
   Button "Go" fill=#FFFACC15 color=#FF4C1D95
@@ -152,7 +153,7 @@ Column
     });
 
     test('is not universal on a container or a toggle: left out and recorded', () {
-      final r = _open('state on=false\nColumn size=large\n  Toggle bind=on size=large\n');
+      final r = _open('state on=false\nColumn size=large\n  Toggle @on size=large\n');
       expect(_unknown(r), {'parameter Column.size', 'parameter Toggle.size'});
     });
   });
@@ -180,12 +181,13 @@ Column
     test('on a box or a text: the disabled state, no pointer and half strength; on a control its own enabled', () {
       final r = _clean('''
 state busy=true
+state v=0
 Column
   Card disabled
     Text "Off"
   Text "Dim" disabled={busy}
   Button "Save" disabled={busy}
-  Slider bind=v disabled
+  Slider @v disabled
 ''');
       expect(_bind(r, 'column2')['disabled'], r'${= true}');
       expect((_node(r, 'column2')['states'] as Map)['disabled'], {
@@ -203,7 +205,7 @@ Column
 
   group('readonly, required, tooltip', () {
     test('readonly: an input\'s own; another control takes no input; not universal on a box', () {
-      final r = _open('state on=false\nColumn\n  Input "Name" readonly\n  Toggle bind=on readonly\n  Column readonly\n');
+      final r = _open('state on=false\nColumn\n  Input "Name" readonly\n  Toggle @on readonly\n  Column readonly\n');
       expect(_props(r, 'textField1')['readOnly'], isTrue);
       expect(_node(r, 'switch1')['ignorePointer'], isTrue);
       // (written readonly, read as readOnly: the alias table's other name)
@@ -212,7 +214,7 @@ Column
     });
 
     test('required: the label marked; an input checks it is not empty', () {
-      final r = _clean('state ok=false\nColumn\n  Input "Name" bind=name required\n  Checkbox "Agree" bind=ok required\n');
+      final r = _clean('state ok=false\nstate name=""\nColumn\n  Input "Name" @name required\n  Checkbox "Agree" @ok required\n');
       final field = _props(r, 'textField1');
       expect((field['decoration'] as Map)['labelText'], 'Name *');
       expect(field['validator'], contains('Required'));
@@ -259,8 +261,8 @@ Column
       expect(_unknown(r), {'flag Grid.reorder'});
     });
 
-    test('selectable: a tap selects alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all; kept in bind', () {
-      final r = _clean('${items}state q=""\nColumn selectable bind=sel onSelect={q="n {length(result)}"}\n  each it in items\n    Text "{it.name}"\n');
+    test('selectable: a tap selects alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all; kept in selected=@list', () {
+      final r = _clean('state sel=[]\n${items}state q=""\nColumn selectable selected=@sel onSelect={q="n {length(result)}"}\n  each it in items\n    Text "{it.name}"\n');
       final vars = {for (final v in ((r.document['variables'] as Map)['screen'] as List)) (v as Map)['name']: v};
       expect(vars['sel'], {'name': 'sel', 'type': 'list', 'value': <Object?>[]});
       expect(vars['selAnchor']?['value'], -1);
@@ -279,12 +281,12 @@ Column
       final all = _actions(r, 'listView1').single;
       expect(all['trigger'], {'type': 'keyDown', 'key': 'mod+a'});
       expect(_node(r, 'listView1')['focusGroup'], {'axis': 'vertical', 'wrap': false});
-      expect(_universal(r), {'Column.selectable', 'Column.bind', 'Column.onSelect'});
+      expect(_universal(r), {'Column.selectable', 'Column.selected', 'Column.onSelect'});
     });
 
     test('a list word with no each under it is left out and recorded; its variable is still the page\'s', () {
-      final r = _open('Column selectable bind=sel\n  Text "{length(sel)}"\n');
-      expect(_unknown(r), {'flag Column.selectable', 'parameter Column.bind'});
+      final r = _open('state sel=[]\nColumn selectable selected=@sel\n  Text "{length(sel)}"\n');
+      expect(_unknown(r), {'flag Column.selectable', 'parameter Column.selected'});
       expect(_problems(r.document), isEmpty);
     });
 
@@ -305,12 +307,13 @@ Column
   group('the same word on four kinds of line', () {
     test('color, disabled and tooltip on a box, a text, an icon and a control', () {
       final r = _clean('''
+state on=false
 Column
   Row color=#FF2563EB disabled tooltip="Box"
     Text "in"
   Text "t" color=#FF2563EB disabled tooltip="Text"
   Icon "star" color=#FF2563EB disabled tooltip="Icon"
-  Toggle bind=on color=#FF2563EB disabled tooltip="Toggle"
+  Toggle @on color=#FF2563EB disabled tooltip="Toggle"
 ''');
       expect((_props(r, 'text1')['style'] as Map)['color'], '#FF2563EB');
       expect((_props(r, 'text2')['style'] as Map)['color'], '#FF2563EB');
@@ -328,7 +331,7 @@ Column
 
   group('a stand-in honours the universal words (D6)', () {
     test('what it applies is recorded universal; what it leaves out is in its record only', () {
-      final r = _open('state on=false\nColumn\n  SeatMap "Hall" h=200 fill=#FFF3F4F6 color=#FF2563EB selected={on} onTap={on=!on} onChange={on=true} bind=seat zoom=2 x=4\n');
+      final r = _open('state on=false\nstate seat=""\nColumn\n  SeatMap "Hall" h=200 fill=#FFF3F4F6 color=#FF2563EB selected={on} onTap={on=!on} onChange={on=true} @seat zoom=2 x=4\n');
       expect(_universal(r), {'SeatMap.h', 'SeatMap.fill', 'SeatMap.color', 'SeatMap.selected', 'SeatMap.onTap'});
       // Its text takes its ink.
       expect((_props(r, 'text1')['style'] as Map)['color'], '#FF2563EB');
@@ -362,12 +365,14 @@ define Note "text" fill=#FFFDE68A
       final r = _clean('''
 state q=""
 state draft=""
+state code=""
+state w=""
 Column
-  Input "Search" bind=q clearable
-  Input "Code" bind=code maxlength=5 caps center
-  Input "Note" bind=draft multiline autogrow
-  Input "Title" bind=q value={draft}
-  Input "Weight" bind=w prefix="~" suffix="kg"
+  Input "Search" @q clearable
+  Input "Code" @code maxlength=5 caps center
+  Input "Note" @draft multiline autogrow
+  Input "Title" @q value={draft}
+  Input "Weight" @w prefix="~" suffix="kg"
 ''');
       final search = _props(r, 'textField1');
       final x = (search['decoration'] as Map)['suffixIcon'] as Map;
@@ -385,7 +390,7 @@ Column
     });
 
     test('its events: onEnter is onSubmit, onSaved is onBlur, onKeyDown a key in the field (key is result.key)', () {
-      final r = _clean('state q=""\nstate i=0\nColumn\n  Input "a" bind=q onEnter={i=1} onSaved={i=2} onKeyDown={i=key=="ArrowDown" ? 3 : 4}\n');
+      final r = _clean('state q=""\nstate i=0\nColumn\n  Input "a" @q onEnter={i=1} onSaved={i=2} onKeyDown={i=key=="ArrowDown" ? 3 : 4}\n');
       final triggers = [for (final a in _actions(r, 'textField1')) (a['trigger'] as Map)['type']];
       expect(triggers, containsAll(['submitted', 'focusLost', 'keyDown']));
       final key = _actions(r, 'textField1').firstWhere((a) => (a['trigger'] as Map)['type'] == 'keyDown');
@@ -393,7 +398,7 @@ Column
     });
 
     test('fuzzy is a recorded no-op that says where fuzzy matching goes', () {
-      final r = _open('state q=""\nColumn\n  Input "Find" bind=q fuzzy\n');
+      final r = _open('state q=""\nColumn\n  Input "Find" @q fuzzy\n');
       expect(r.issues.single.message, contains('filter(items, x => fuzzy(x.name, q))'));
       expect(_unknown(r), {'flag Input.fuzzy'});
     });

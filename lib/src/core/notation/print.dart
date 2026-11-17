@@ -108,6 +108,9 @@ const _words = {
   'divider': 'Divider',
 };
 
+/// The prop each printed control keeps its value in.
+const _valueProps = {'textField': 'initialValue', 'switch': 'value', 'checkbox': 'value', 'slider': 'value', 'dropdown': 'value'};
+
 String _line(String id, Json n) {
   final type = '${n['type']}';
   final props = readMap(n['props']) ?? const {};
@@ -131,6 +134,19 @@ String _line(String id, Json n) {
     _ => null,
   };
   if (main is String && main.isNotEmpty && !RegExp(r'[{}$\\"]').hasMatch(main) && !main.contains('\n')) b.write(' ${jsonEncode(main)}');
+  // The variable a control keeps its value in, both ways: `@name`, when the
+  // node shows it and a change writes it.
+  if (_valueProps[type] case final String prop) {
+    final shown = readMap(n['bind'])?['props.$prop'];
+    final match = shown is String ? RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$').firstMatch(shown) : null;
+    final name = match?[1];
+    final written = (n['actions'] as List?)?.any((r) =>
+            r is Map &&
+            readMap(r['trigger'])?['type'] == 'changed' &&
+            ((r['actions'] as List?)?.any((a) => a is Map && a['type'] == 'setVariable' && a['variable'] == name) ?? false)) ??
+        false;
+    if (name != null && written) b.write(' @$name');
+  }
   if ((type == 'row' || type == 'column') && props['spacing'] is num) b.write(' gap=${props['spacing']}');
   if (type == 'row' || type == 'column') {
     const main = {'center': 'center', 'end': 'end', 'spaceBetween': 'between'};

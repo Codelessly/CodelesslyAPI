@@ -45,10 +45,11 @@ void main() {
   group('an unknown word is recorded, each kind with where it is and what it was given', () {
     const text = '''
 state q=""
+state chosen=[]
 App
   Main
     Column gap=8
-      SeatMap#plan "Hall A" rows={seats} selectable multi bind=chosen onTap={q="x"} onChange={q="y"; haptic}
+      SeatMap#plan "Hall A" rows={seats} selectable multi selected=@chosen onTap={q="x"} onChange={q="y"; haptic}
         Text "Stage"
         if q!=""
           Legend "Chosen"
@@ -65,13 +66,13 @@ App
 
     test('a type: the word, its line and column, the words it is under, its strings, parameters, flags, events and the lines under it', () {
       final seat = _uses(r, 'type').firstWhere((u) => u.word == 'SeatMap');
-      expect(seat.line, 5);
+      expect(seat.line, 6);
       expect(seat.column, 7);
       expect(seat.path, ['App', 'Main', 'Column']);
       expect(seat.node, 'plan');
       expect(seat.source, startsWith('SeatMap#plan "Hall A" rows={seats}'));
       expect(seat.texts, ['Hall A']);
-      expect(seat.parameters, {'rows': '{seats}', 'bind': 'chosen'});
+      expect(seat.parameters, {'rows': '{seats}', 'selected': '@chosen'});
       expect(seat.flags, ['selectable', 'multi']);
       expect(seat.events.keys, ['onTap', 'onChange']);
       expect(seat.events['onChange'], '{q="y"; haptic}');
@@ -86,9 +87,9 @@ App
 
     test('a parameter, a flag and an event on a word we have: left out of the document, recorded with the type and the value', () {
       final p = _uses(r, 'parameter').single;
-      expect((p.word, p.on, p.value, p.line), ('tooltip2', 'Button', '"x"', 9));
+      expect((p.word, p.on, p.value, p.line), ('tooltip2', 'Button', '"x"', 10));
       final f = _uses(r, 'flag').single;
-      expect((f.word, f.on, f.line), ('wobble', 'Button', 9));
+      expect((f.word, f.on, f.line), ('wobble', 'Button', 10));
       final e = _uses(r, 'event').single;
       expect((e.word, e.on, e.value), ('onFling', 'Button', '{vibrate plan; q="z"}'));
       expect(e.path, ['App', 'Main', 'Column']);
@@ -112,7 +113,7 @@ App
 
     test('a variant: recorded, and the plain type is drawn', () {
       final v = _uses(r, 'variant').single;
-      expect((v.word, v.on, v.line), ('Button.danger', 'Button', 10));
+      expect((v.word, v.on, v.line), ('Button.danger', 'Button', 11));
       expect(_node(r, 'filledButton2')['props'], {'label': 'Delete'});
     });
 
@@ -159,7 +160,7 @@ Column gap=12
     });
 
     test('what it would keep a value in is still a variable of the page', () {
-      final r = _open('Column\n  ColorPicker bind=tint\n  Text "{tint}"\n');
+      final r = _open('state tint=""\nColumn\n  ColorPicker @tint\n  Text "{tint}"\n');
       expect(r.issues, isEmpty);
       expect(_problems(r.document), isEmpty);
       expect(jsonEncode(r.document['variables']), contains('"name":"tint"'));
@@ -191,7 +192,7 @@ CommandPalette#palette "Commands" placeholder="Type a command"
     });
 
     test('lines under a word we have that takes none are drawn after it, and recorded', () {
-      final r = _open('Column\n  Slider bind=v\n    Text "under a slider"\n  Text "last"\n');
+      final r = _open('state v=0\nColumn\n  Slider @v\n    Text "under a slider"\n  Text "last"\n');
       expect(r.issues, isEmpty);
       expect(_problems(r.document), isEmpty);
       expect(_node(r, 'column1')['children'], ['slider1', 'text1', 'text2']);
@@ -308,17 +309,13 @@ Dialog#ask "Reset?" "Really."
     });
 
     test('RangeSlider is a Slider when it names a variable for each end; bound to one list it is not ours', () {
-      const ours = 'Column\n  Slider bind=low bindEnd=high min=0 max=100\n';
-      _same('Column\n  RangeSlider bind=low bindEnd=high min=0 max=100\n', ours, word: 'RangeSlider', to: 'Slider');
-      _same('Column\n  RangeSlider low=low high=high min=0 max=100\n', ours, word: 'RangeSlider');
-      _same('Column\n  RangeSlider lo=low hi=high min=0 max=100\n', ours, word: 'lo', to: 'bind');
-      _same('Column\n  RangeSlider bindStart=low bindEnd=high min=0 max=100\n', ours, word: 'bindStart');
-      _same('Column\n  RangeSlider start=low end=high min=0 max=100\n', ours, word: 'end', to: 'bindEnd');
-      _same('Column\n  RangeSlider bindLow=low bindHigh=high min=0 max=100\n', ours, word: 'bindHigh');
-      final one = _open('state range=[0,10]\nColumn\n  RangeSlider bind=range min=0 max=100\n');
+      const ours = 'state low=0\nstate high=100\nColumn\n  Slider @low @high min=0 max=100\n';
+      _same('state low=0\nstate high=100\nColumn\n  RangeSlider @low @high min=0 max=100\n', ours, word: 'RangeSlider', to: 'Slider');
+      _same('state low=0\nstate high=100\nColumn\n  RangeSlider low=@low high=@high min=0 max=100\n', ours, word: 'RangeSlider', to: 'Slider');
+      final one = _open('state range=[0,10]\nColumn\n  RangeSlider @range min=0 max=100\n');
       expect(_uses(one, 'alias'), isEmpty);
       expect(_uses(one, 'type').single.word, 'RangeSlider');
-      expect(_closed('Column\n  RangeSlider bind=range\n').issues.single.message, contains('No node type "RangeSlider"'));
+      expect(_closed('state range=0\nColumn\n  RangeSlider @range\n').issues.single.message, contains('No node type "RangeSlider"'));
     });
 
     test('Highlight and HighlightText are a Text with what matched marked', () {
@@ -331,7 +328,7 @@ Dialog#ask "Reset?" "Really."
 
     test('MiniCalendar, CalendarMonth and MonthGrid are a Calendar', () {
       for (final name in ['MiniCalendar', 'CalendarMonth', 'MonthGrid']) {
-        _same('Column\n  $name bind=day\n', 'Column\n  Calendar bind=day\n', word: name, to: 'Calendar');
+        _same('state day=""\nColumn\n  $name @day\n', 'state day=""\nColumn\n  Calendar @day\n', word: name, to: 'Calendar');
       }
     });
 
@@ -347,7 +344,7 @@ Dialog#ask "Reset?" "Really."
       _same('state n=0\nColumn\n  Button "Send" disabled={n==0} onTap={n=1}\n', 'state n=0\nColumn\n  Button "Send" enabled={!(n==0)} onTap={n=1}\n', word: 'disabled', to: '!enabled');
       _same('Column\n  IconButton "send" disabled=true\n', 'Column\n  IconButton "send" enabled=false\n', word: 'disabled');
       _same('Column\n  Button "Send" disabled\n', 'Column\n  Button "Send" enabled=false\n', word: 'disabled', to: 'enabled=false');
-      _same('Column\n  Input "Name" bind=name disabled\n', 'Column\n  Input "Name" bind=name enabled=false\n', word: 'disabled');
+      _same('state name=""\nColumn\n  Input "Name" @name disabled\n', 'state name=""\nColumn\n  Input "Name" @name enabled=false\n', word: 'disabled');
       final r = _closed('state n=0\nColumn\n  Button "Send" disabled={n==0}\n');
       expect(_node(r, 'filledButton1')['bind'], {'props.enabled': r'${= !(n==0)}'});
     });
@@ -359,7 +356,7 @@ Dialog#ask "Reset?" "Really."
     });
 
     test('persist after a state is saved (it was read into the value)', () {
-      _same('state draft="" persist\nColumn\n  Input "Note" bind=draft\n', 'state draft="" saved\nColumn\n  Input "Note" bind=draft\n', word: 'persist', to: 'saved');
+      _same('state draft="" persist\nColumn\n  Input "Note" @draft\n', 'state draft="" saved\nColumn\n  Input "Note" @draft\n', word: 'persist', to: 'saved');
       _same('state n=20 persisted\nColumn\n  Text "{n}"\n', 'state n=20 saved\nColumn\n  Text "{n}"\n', word: 'persisted');
       _same('state n=20 persistent\nColumn\n  Text "{n}"\n', 'state n=20 saved\nColumn\n  Text "{n}"\n', word: 'persistent');
       _same('project cart=[] persist\nColumn\n  Text "{length(cart)}"\n', 'project cart=[] saved\nColumn\n  Text "{length(cart)}"\n', word: 'persist');
@@ -373,7 +370,8 @@ Dialog#ask "Reset?" "Really."
         'StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock', 'QRCode', 'QrCode',
       };
       expect(NotationVocabulary.core.types.keys.toSet(), tested);
-      expect(NotationVocabulary.core.types['RangeSlider']!.parameters.keys.toSet(), {'low', 'lo', 'bindLow', 'bindStart', 'start', 'high', 'hi', 'bindHigh', 'end'});
+      expect(NotationVocabulary.core.types['RangeSlider']!.parameters, isEmpty);
+      expect(NotationVocabulary.core.types['RangeSlider']!.requires, ['low', 'high']);
       // The universal words' other names and an Input's (docs/design/21) are
       // tested in notation_universal_test.dart.
       expect(NotationVocabulary.core.parameters, {
@@ -400,7 +398,7 @@ Dialog#ask "Reset?" "Really."
         'types': {'Slider': 'Progress', 'Card': 'Column'},
         'parameters': {'Slider': {'min': 'max'}},
       });
-      const text = 'Card\n  Slider bind=v min=2 max=9\n';
+      const text = 'state v=2\nCard\n  Slider @v min=2 max=9\n';
       final a = _closed(text, options: _page.open(openVocabulary: false, vocabulary: table)), b = _closed(text);
       expect(jsonEncode(a.document), jsonEncode(b.document));
       expect(a.vocabulary, isEmpty);
@@ -433,7 +431,7 @@ Dialog#ask "Reset?" "Really."
         expect(_uses(a, 'alias'), isNotEmpty, reason: alias);
       }
 
-      same('Column\n  TextArea "Notes" bind=notes placeholder="Anything"\n', 'Column\n  Input "Notes" bind=notes hint="Anything" multiline\n');
+      same('state notes=""\nColumn\n  TextArea "Notes" @notes placeholder="Anything"\n', 'state notes=""\nColumn\n  Input "Notes" @notes hint="Anything" multiline\n');
       same('Column\n  Tag "New"\n', 'Column\n  Chip "New"\n');
       same('Column\n  Text "Hi" tint=#FF112233 crossed\n', 'Column\n  Text "Hi" color=#FF112233 strike\n');
       same('state n=0\nColumn\n  Text "Hi" invisible={n>0}\n', 'state n=0\nColumn\n  Text "Hi" visible={!(n>0)}\n');
@@ -445,7 +443,7 @@ Dialog#ask "Reset?" "Really."
       same('Column\n  Button "Go" disabled\n', 'Column\n  Button "Go" enabled=false\n');
       final again = NotationVocabulary.fromJson((jsonDecode(jsonEncode(table.toJson())) as Map).cast<String, Object?>());
       expect(jsonEncode(again.toJson()), jsonEncode(table.toJson()));
-      expect(again.types['RangeSlider']!.requires, ['bind', 'bindEnd']);
+      expect(again.types['RangeSlider']!.requires, ['low', 'high']);
       expect(again.types['Shortcut']!.line, 'shortcut');
       // With no table at all nothing is an alias.
       final none = _closed('Column\n  Button "Go" disabled\n', options: _page.open(openVocabulary: false, vocabulary: NotationVocabulary.none));
@@ -490,10 +488,10 @@ Dialog#ask "Reset?" "Really."
     test('a type alias renames the parameters of the word it is read as (as it always could)', () {
       final table = NotationVocabulary.fromJson({
         'types': {
-          'Fader': {'to': 'Slider', 'parameters': {'level': 'bind', 'top': 'max'}},
+          'Fader': {'to': 'Slider', 'parameters': {'level': 'value', 'top': 'max'}},
         },
       });
-      same(table, 'state vol=3\nColumn\n  Fader level=vol top=10\n', 'state vol=3\nColumn\n  Slider bind=vol max=10\n');
+      same(table, 'state vol=3\nColumn\n  Fader level=@vol top=10\n', 'state vol=3\nColumn\n  Slider @vol max=10\n');
     });
 
     test('the main string read as a named parameter: on a defined word that takes none, and by a type alias of its own', () {
@@ -557,7 +555,7 @@ Dialog#ask "Reset?" "Really."
         expect(r.issues.map((i) => '$i'), isEmpty);
         expect((_node(r, 'progressBar1')['bind'] as Map)['props.value'], r'${= done/4}');
         expect((_node(r, 'progressBar1')['layout'] as Map)['flex'], 1);
-        expect(jsonEncode(r.document), jsonEncode(parseNotation('state done=1\nColumn\n  Progress bind={done/4} grow\n  Ring bind={done/4}\n', catalog: standardCatalog, options: options).document));
+        expect(jsonEncode(r.document), jsonEncode(parseNotation('state done=1\nColumn\n  Progress value={done/4} grow\n  Ring value={done/4}\n', catalog: standardCatalog, options: options).document));
       }
       // A JSON tail is still a JSON tail.
       final tail = _closed('Column\n  Progress 0.5 {"opacity": 0.5}\n');
@@ -577,11 +575,12 @@ Dialog#ask "Reset?" "Really."
 
     test('an overlay written inside the page is still over the page, and the page goes on after it', () {
       final r = _closed('''
+state name=""
 Page
   Section
     Button "Edit" onTap={open edit}
   Dialog#edit "Edit"
-    Input "Name" bind=name
+    Input "Name" @name
   Section
     Text "After the dialog"
 ''');
@@ -675,12 +674,12 @@ Page
       expect(page, contains('The vocabulary is open.'));
       expect(page, contains('The grammar is not open: every line follows it exactly.'));
       // The grammar and the core are as the taught prompt has them.
-      for (final kept in ['LINE\n  Type[.variant][#id] ["text"] [key=value ...]', '- bind=name keeps', '- if expression on its own line', '- each row in rows', 'TYPES', 'FORMULAS', 'EXAMPLES', 'PAGES (this UI', 'OVER THE PAGE', 'Dialog#signup', 'Tablets and phones']) {
+      for (final kept in ['LINE\n  Type[.variant][#id] ["text"] [key=value ...]', '- @name is the variable itself', '- if expression on its own line', '- each row in rows', 'TYPES', 'FORMULAS', 'EXAMPLES', 'PAGES (this UI', 'OVER THE PAGE', 'Dialog#signup', 'Tablets and phones']) {
         expect(page, contains(kept), reason: kept);
         expect(taught(1280), contains(kept), reason: kept);
       }
       // No behaviour word, no escape to JSON, no reference pages.
-      for (final left in ['Also, on a page', 'CodeInput', 'SwipeAction', 'DataTable', 'Splitter', 'Calendar bind', 'bindEnd', 'reorder', 'key mod+k', 'fuzzy(', 'BEYOND THESE WORDS', 'node {', 'ui_docs', 'confirm "', 'announce "']) {
+      for (final left in ['Also, on a page', 'CodeInput', 'SwipeAction', 'DataTable', 'Splitter', 'Calendar @arrival', 'Slider @low @high', 'reorder', 'key mod+k', 'fuzzy(', 'BEYOND THESE WORDS', 'node {', 'ui_docs', 'confirm "', 'announce "']) {
         expect(page, isNot(contains(left)), reason: left);
         expect(taught(1280), contains(left), reason: 'the taught prompt has "$left"');
       }
@@ -715,7 +714,7 @@ Page
 state tint=""
 Column gap=12
   StickyNote "Buy milk" onTap={toast "note"}
-  ColorPicker bind=tint onPick={toast "{result}"}
+  ColorPicker @tint onPick={toast "{result}"}
   Group "Notes"
     Text "Inside the panel"
 ${blocks.join('\n')}
@@ -751,7 +750,7 @@ ${blocks.join('\n')}
           'roots': ['row'],
           'widget': {
             'type': 'Counter',
-            'doc': 'A number raised and lowered with minus and plus (a party size, a count): Counter "Guests" bind=party.',
+            'doc': 'A number raised and lowered with minus and plus (a party size, a count): Counter "Guests" value={party.}',
             'props': [
               {'key': 'label', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': '', 'required': true},
               {'key': 'value', 'type': {'kind': 'variable', 'of': {'kind': 'number', 'flutter': 'double'}}, 'default': ''},
@@ -774,15 +773,15 @@ ${blocks.join('\n')}
       final ds = await DesignSystem.load((ref) async => files[ref]);
       final catalog = ds.catalogOver(standardCatalog);
       final options = NotationOptions.fromDesignSystem(ds, width: 1280).define({
-        'Timeline.txt': '// A list of dated entries down a rail: each a date, a title and a note.\nTimeline.vertical#events items=[] bind=at selected onPick\n  Column\n    ...\n'
+        'Timeline.txt': '// A list of dated entries down a rail: each a date, a title and a note.\nTimeline.vertical#events items=[] @at selected onPick\n  Column\n    ...\n'
             '// A clip editor\'s timeline.\nTimeline#tracks zoom=1 tracks=[] onZoom\n  Column\n    ...Head\n    ...\n',
       });
       String prompt({bool define = true, bool signatures = true}) =>
           Catalog.run(catalog, () => notationPrompt(catalog: catalog, options: options, designSystem: ds, open: true, define: define, signatures: signatures));
       final page = prompt();
       expect(page, contains('${notationSignaturesLead('Acme')}\n'
-          '  Counter "label" bind max=8 tone=quiet|loud compact=false marks=[] hint ink=#… onChange : number raised and lowered\n'
-          '  Timeline.vertical bind items=[] selected onPick ... : list of dated entries down a rail\n'
+          '  Counter "label" @value max=8 tone=quiet|loud compact=false marks=[] hint ink=#… onChange : number raised and lowered\n'
+          '  Timeline.vertical @at items=[] selected onPick ... : list of dated entries down a rail\n'
           '  Timeline zoom=1 tracks=[] onZoom ...Head ... : clip editor\'s timeline\n'));
       expect(page, endsWith('clip editor\'s timeline\n'));
       // It replaces the names on one line, which signatures: false gives.

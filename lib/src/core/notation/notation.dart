@@ -2,9 +2,9 @@
 // agent writes for levels 0 to 2. One node per line, nesting by indentation:
 //
 //   Column gap=12
-//     Slider bind=volume
-//     Input "Email" bind=email
-//     Toggle "Notifications" bind=notify
+//     Slider @volume
+//     Input "Email" @email
+//     Toggle "Notifications" @notify
 //     Button "Save" onTap={emit save}
 //
 // [parseNotation] expands it to an ordinary flat document; nothing after
@@ -19,6 +19,7 @@ import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
 import '../triggers.dart' show KeyCombo;
+import 'bind_form.dart';
 import 'define.dart';
 import 'page_words.dart';
 import 'reflow.dart';
@@ -185,7 +186,7 @@ final class NotationOptions {
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
   /// tokens) and the sizes of its components, so a component called by name
-  /// (`StatusBadge "Paid"`, `Stepper bind=qty`) is as big as its own design says:
+  /// (`StatusBadge "Paid"`, `Stepper @qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
   factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
       {double width = 390, String screen = 'screen', bool named = false, bool reflow = true, Map<String, Json> projectVariables = const {}}) {
@@ -847,7 +848,7 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'DataTable': (type: 'tableView', node: {}),
   // What a row of a reordered list is dragged by (each row in rows reorder).
   'Handle': (type: 'iconButton', node: {}),
-  // A one-time code: one field drawn as boxes (CodeInput bind=code length=6 digits).
+  // A one-time code: one field drawn as boxes (CodeInput @code length=6 digits).
   'CodeInput': (type: 'textField', node: {}),
   'Toggle': (type: 'switch', node: {}),
   'Select': (type: 'dropdown', node: {}),
@@ -944,15 +945,34 @@ const Map<String, Map<String, List<String>>> _typeKeys = {
   },
 };
 
-/// What `bind=expr` binds on a type that shows a value but takes no input.
+/// What a value worked out (`Progress {done/total}`) is shown as on a type
+/// that shows a value but takes no input.
 const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
 
 /// The short names a design system's component of the same name replaces.
 const _softNames = {'CodeInput', 'DataTable', 'Handle', 'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
 
+/// What a line starting with [written] is, as its bindings read it: the
+/// node type, and the design system's component when it is one.
+({String type, WidgetSpec? component}) notationLineType(String written, Catalog catalog) {
+  final short = _softNames.contains(written) && catalog.widget(written) != null ? null : notationTypes[written];
+  final type = short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
+  final component = short == null && (catalog.widget(type) == null || notationComponentFirst.contains(written)) && catalog.widget(written) != null;
+  return component ? (type: written, component: catalog.widget(written)) : (type: type, component: null);
+}
+
+/// The value a variable bound to the value of a node of [type] starts at
+/// (a slider's 0, a toggle's false, a field's ""), or null when that type
+/// keeps no value.
+Object? notationValueStart(String type) => _valueProps.containsKey(type) ? (_valueProps[type]!.start ?? '') : null;
+
+/// Whether a node of [type] shows a value and keeps none (a progress bar, a
+/// gauge, a text).
+bool notationShowsValue(String type) => _shownValue.containsKey(type);
+
 /// The core types a design system's component of the same name replaces: a
 /// design system's own `Tabs` (a row of labels that keeps the open one in a
-/// variable, `Tabs bind=tab tabs=["Overview","Activity"]`) is what the line
+/// variable, `Tabs @tab tabs=["Overview","Activity"]`) is what the line
 /// means, not the core `tabs` node (titles over children, which the
 /// notation does not teach).
 const notationComponentFirst = {'Tabs'};
@@ -1361,6 +1381,8 @@ class _Parser {
         final String s when s.startsWith('[') => _json(s) ?? const <Object?>[],
         final v => v,
       };
+      // Its own (`shotsAt`, `shotsZoom`); a name the line gave is the page's.
+      if (e.key.startsWith(o.id)) _top._internal.add(e.key);
       variables.putIfAbsent(e.key, () => {'name': e.key, 'type': value is List ? 'list' : value is num ? 'decimal' : 'text', 'value': value});
     }
     _block = sub;
@@ -1474,6 +1496,12 @@ class _Parser {
     // The page's own words hold in its overlays too.
     page: identical(_top, this) ? null : _top._defined.page,
     variable: (name) => variables.containsKey(name) || _stack.any((o) => o.each == name),
+    internal: (name) => _top._internal.add(name),
+    bindsVariable: (name, column, start) => _bindsVariable(name, column, () {
+      if (start == null) return '';
+      final v = _value(start.trim());
+      return v is String && v.contains(r'${') ? '' : v;
+    }),
     // A page's own definition of a word the design system defines too is
     // the one read there: the record says so (`of`).
     // A primitive's use (`primitive Word …`) is recorded as one: it stands
@@ -1588,7 +1616,7 @@ class _Parser {
       RegExp(r'^H[1-4]$').hasMatch(word);
 
   /// The names the design system's component [word] takes (its props, its
-  /// events, `bind` when it keeps a value, `onChange` for its `onChanged`);
+  /// events, `@` when it keeps a value, `onChange` for its `onChanged`);
   /// null when [word] is no component, or is a type of the notation or the
   /// page words.
   Set<String>? _componentNames(String word) {
@@ -1599,7 +1627,7 @@ class _Parser {
     return {
       for (final p in spec.props) p.key,
       for (final e in spec.events) e.key,
-      if (spec.props.any((p) => p.type.isVariable)) 'bind',
+      if (spec.props.any((p) => p.type.isVariable)) '@',
       if (spec.events.any((e) => e.key == 'onChanged')) 'onChange',
     };
   }
@@ -1640,7 +1668,7 @@ class _Parser {
     // variable for each end is our Slider).
     if (_defined.has(written)) {
       final alias = table.types[written];
-      final holds = alias != null && alias.to != null && alias.requires.isNotEmpty && alias.requires.every((k) => parts.parts.any((p) => p.kind == 'pair' && (alias.parameters[p.key] ?? p.key) == k));
+      final holds = alias != null && alias.to != null && alias.requires.isNotEmpty && alias.holdsOn(parts);
       if (!holds) return [_definedAliased(text, parts, column)];
     }
     if (!_ownType(written)) {
@@ -1653,7 +1681,7 @@ class _Parser {
         return lines;
       }
       if (alias.to == null || !_knowsType(alias.to!)) return [text];
-      if (alias.requires.any((k) => !parts.parts.any((p) => p.kind == 'pair' && (alias.parameters[p.key] ?? p.key) == k))) return [text];
+      if (!alias.holdsOn(parts)) return [text];
       parts.word = alias.to!;
       // `"to": "Button.primary"`: its variant, unless the line writes one.
       if (alias.variant != null && parts.variant.isEmpty) parts.variant = '.${alias.variant}';
@@ -1740,7 +1768,7 @@ class _Parser {
     final word = parts.word;
     final params = table.parameters[word], events = table.events[word], flags = table.flags[word];
     final names = {
-      for (final d in _defined.meanings(word)) ...[...d.parameters.keys, ...d.events, ...d.strings, if (d.bind != null) 'bind'],
+      for (final d in _defined.meanings(word)) ...[...d.parameters.keys, ...d.events, ...d.strings, if (d.bind != null) ...['@', d.bind!]],
     };
     var changed = false;
     // The line's first string read as a named parameter (`"$text": "title"`),
@@ -1957,7 +1985,7 @@ class _Parser {
     if (_aliased(raw.trim(), indent + 1) case [final String one] when one != raw.trim()) {
       raw = '${' ' * indent}$one';
     }
-    // `Dots bind=page count=n`: a dot per page, the current one long and in the
+    // `Dots @page count=n`: a dot per page, the current one long and in the
     // accent; a tap on a dot goes to its page. Written out as the three
     // lines it stands for.
     // An answer that opens with `if` or `each` has several top-level parts
@@ -1965,16 +1993,19 @@ class _Parser {
     if (_root == null && indent == 0 && RegExp(r'^(if|each)\s').hasMatch(raw.trim())) {
       _lineAt(-1, 'Column gap=12', 0);
     }
-    final dots = _dotsLine.firstMatch(raw.trim());
-    if (dots != null) {
+    final dots = _dotsOf(raw.trim());
+    if (dots == null && RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?\s.*\bbind=').hasMatch(raw.trim())) {
+      _issue(indent + 1, 'A variable is bound with @: @name is the control\'s value, key=@name another property. Write: ${notationBindForm(raw.trim(), catalog: catalog)}');
+    } else if (dots != null) {
       String look(String c) => c.startsWith('#')
           ? '"$c"'
           : const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(c)
               ? 'theme.$c'
               : 'theme.colors.$c';
-      final page = dots[2]!, count = dots[3]!.startsWith('{') ? dots[3]!.substring(1, dots[3]!.length - 1).trim() : dots[3]!;
+      final page = dots.page, count = dots.count.startsWith('{') ? dots.count.substring(1, dots.count.length - 1).trim() : dots.count;
+      _bindsVariable(page, indent + 1 + raw.trim().indexOf('@'), () => 0);
       variables.putIfAbsent(page, () => {'name': page, 'type': 'decimal', 'value': 0});
-      _lineAt(indent, 'Row${dots[1] ?? ''} gap=6 center middle h=16${dots[4] ?? ''}', indent + 1);
+      _lineAt(indent, 'Row${dots.id} gap=6 center middle h=16${dots.rest}', indent + 1);
       _lineAt(indent + 2, 'each dot in range($count)', indent + 3);
       _lineAt(indent + 4, 'Box w={index==$page?16:6} h=6 radius=3 fill={index==$page?${look(options.accent)}:${look(options.track)}} onTap={$page=index}', indent + 5);
     } else {
@@ -3099,11 +3130,11 @@ class _Parser {
           final read = switch (e.key) {
             'reorder' || 'handle' || 'onReorder' => listReorder,
             'selectable' || 'onSelect' => listSelect,
-            'bind' => listSelect || listReorder,
+            'selected' => listSelect || listReorder,
             _ => false,
           };
           final event = e.key.startsWith('on');
-          final of = event ? 'event' : (e.key == 'bind' || e.value.value != 'true' ? 'parameter' : 'flag');
+          final of = event ? 'event' : (e.key == 'selected' || e.value.value != 'true' ? 'parameter' : 'flag');
           if (read || !lw.standIn) _use(read ? 'universal' : of, e.key, e.value.column, on: lw.on, of: of, value: read ? null : (event ? '{${e.value.value}}' : null), at: lw);
         }
       }
@@ -3164,7 +3195,8 @@ class _Parser {
       // (its id, else the element itself).
       String? selection;
       if (listSelect) {
-        final sel = selection = lw!.value('bind') ?? '${parent.id}Selected';
+        final sel = selection = lw!.value('selected') ?? '${parent.id}Selected';
+        if (lw.value('selected') == null) _top._internal.add(sel);
         variables.putIfAbsent(sel, () => {'name': sel, 'type': 'list', 'value': const <Object?>[]});
         final onSelect = lw.value('onSelect');
         final then = onSelect == null || onSelect.trim().isEmpty ? '' : '; ${_rename(onSelect, 'result', sel)}';
@@ -3304,7 +3336,7 @@ class _Parser {
     String? markText, markQuery;
     var selectedState = false;
     num? sliderStep;
-    // `Slider bind=low bindEnd=high`: the variable of its second thumb (and
+    // `Slider @low @high`: the variable of its second thumb (and
     // of the last day of a Calendar's range).
     String? sliderEnd;
     int sliderEndColumn = 0;
@@ -3504,18 +3536,19 @@ class _Parser {
       return 'props.$key';
     }
 
-    // `bind=name`: the variable a control keeps its value in, both ways;
-    // on what only shows a value, the variable (or `bind={expression}`) it
-    // follows.
-    void bindTo(String expr, int col) {
+    // `@name`: the variable a control keeps its value in, both ways ([param]:
+    // a design system's block's other variable, `direction=@dir`). A shown
+    // value worked out (`Progress {done/total}`) is followed, one way.
+    void bindTo(String expr, int col, [PropDef<Object?>? param]) {
       final value = _valueProps[type];
       // A component keeps its value in the variable its parameter names.
-      final held = !component
-          ? null
-          : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
+      final held = param ??
+          (!component
+              ? null
+              : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull);
       if (held != null) {
         if (_identifier.hasMatch(expr) && expr.contains('.')) {
-          // A field (`bind=draft.title`, `bind=i.done` under an each): the
+          // A field (`@draft.title`, `@i.done` under an each): the
           // component's variable parameter is the field's path, which it
           // reads and writes as it would a variable.
           switch (_fieldWrite(expr, 'result')) {
@@ -3529,7 +3562,7 @@ class _Parser {
               }
           }
         } else if (!_identifier.hasMatch(expr)) {
-          _issue(col, 'A $written keeps its ${held.key} in a variable: write bind=name (or bind=record.field, bind=row.field under an each).');
+          _issue(col, 'A $written keeps its ${held.key} in a variable: write ${held.key == 'value' || param == null ? '@name' : '${held.key}=@name'} (or @record.field, @row.field under an each).');
         } else {
           props[held.key] = expr;
           final (kind, start) = switch (held.type.variableOf?.kind) {
@@ -3538,6 +3571,7 @@ class _Parser {
             PropKind.list => ('list', const <Object?>[] as Object),
             _ => ('text', '' as Object),
           };
+          _bindsVariable(expr, col, () => start);
           if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
           // Declared with a whole number (`state amount=0`), it is a number
@@ -3548,25 +3582,12 @@ class _Parser {
             _declared.remove(expr); // declared again, as it is now
           }
         }
-      } else if (standIn) {
-        // What a stand-in would keep its value in is still a variable of the
-        // page: what reads it elsewhere reads its starting value.
-        if (_identifier.hasMatch(expr) && !expr.contains('.')) {
-          variables.putIfAbsent(expr, () => {'name': expr, 'type': 'text', 'value': ''});
-        }
       } else if (value == null) {
         final shown = _shownValue[type] ?? _mainKey(type, spec);
         if (written == 'Badge') {
           _texts.add(_read(expr));
-        } else if (shown == null && open) {
-          // A value this type does not keep: recorded, and the variable is
-          // still the page's (what reads it reads its starting value).
-          _use('parameter', 'bind', col, on: _srcWord ?? written, value: expr);
-          if (_identifier.hasMatch(expr) && !expr.contains('.')) {
-            variables.putIfAbsent(expr, () => {'name': expr, 'type': 'text', 'value': ''});
-          }
         } else if (shown == null) {
-          _issue(col, 'A $written has no value to bind. Give a prop its value: key={expression}.');
+          _issue(col, 'A $written has no value to show. Give a prop its value: key={expression}.');
         } else {
           bind['props.$shown'] = _read(expr);
           // A share shown from a name not declared yet starts at 0.
@@ -3581,8 +3602,8 @@ class _Parser {
         bind['props.${value.prop}'] = list ? _formula('[$expr]') : _read(expr);
         if (_identifier.hasMatch(expr) && expr.contains('.')) {
           // A control bound to a field: of a record variable
-          // (`Input bind=draft.title`), or of the repeated element
-          // (`Input bind=field.label` under `each field in fields`, also a
+          // (`Input @draft.title`), or of the repeated element
+          // (`Input @field.label` under `each field in fields`, also a
           // list in the element around it): it shows the field, and a change
           // writes the record, or the element back into its list.
           switch (_fieldWrite(expr, list ? 'result[0]' : 'result')) {
@@ -3597,8 +3618,8 @@ class _Parser {
               });
           }
         } else if (expr.contains('.') || expr.contains('[')) {
-          // `bind=colAll[r]` (an entry of a list or a map variable) and
-          // `bind=find(clips,c=>c.id==sel).name` (a field of the record a
+          // `@colAll[r]` (an entry of a list or a map variable) and
+          // `@find(clips,c=>c.id==sel).name` (a field of the record a
           // find picks): shown as read, and a change writes it back.
           final next = list ? 'result[0]' : 'result';
           final entry = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[(.+)\]$').firstMatch(expr);
@@ -3615,7 +3636,7 @@ class _Parser {
             write = null;
           }
           if (write == null) {
-            _issue(col, 'A control is bound to a variable by its name (bind=name), to a field of a record variable (bind=draft.title), or under an each to a field of its element (bind=row.name): "$expr" is none of these. '
+            _issue(col, 'A control is bound to a variable by its name (@name), to a field of a record variable (@draft.title), or under an each to a field of its element (@row.name): "$expr" is none of these. '
                 'Show it and write the change yourself: value={$expr} onChange={<list>=updateWhere(<list>,x=>x.id==…,x=>with(x,"<field>",result))}.');
           } else {
             final eq = write.indexOf(' = ');
@@ -3627,6 +3648,7 @@ class _Parser {
             });
           }
         } else if (_identifier.hasMatch(expr)) {
+          _bindsVariable(expr, col, () => type == 'slider' && props['min'] is num ? props['min'] : value.start);
           if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
           // `state volume=50` under a Slider: the slider's value has decimals.
@@ -3643,13 +3665,122 @@ class _Parser {
                         ? r'${result.index}'
                         : type == 'tableView'
                             ? r'${result.rowIndex}'
-                            // (A Calendar with bind alone is one day: its
-                            // result is that day.)
+                            // (A Calendar with one variable is one day:
+                            // its result is that day.)
                             : r'${result}',
               },
             ],
           });
         }
+      }
+    }
+
+    // `@name`, the variable itself (read and written): bare, the line's
+    // value; `key=@name`, the property it names (a range's ends, a list's
+    // selection, a block's other variables). One bare mark a line, but for
+    // a control with two ends (`Slider @low @high`, `Calendar @from @to`).
+    final range = !component && (type == 'slider' || type == 'calendar');
+    final ends = type == 'calendar' ? const ('start', 'end') : const ('low', 'high');
+    final mainParam = !component
+        ? null
+        : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
+    var bareMarks = 0, legacySaid = false;
+    String? valueMark;
+    // What this line can bind, as it is written.
+    String binds() {
+      final can = <String>[
+        if (_valueProps.containsKey(type) && !component) 'its value (@name)',
+        if (range && type == 'slider') 'a range (@low @high, or low=@low high=@high)',
+        if (range && type == 'calendar') 'a range of days (@start @end, or start=@start end=@end)',
+        if (mainParam != null) 'its ${mainParam.key} (@name)',
+        for (final p in spec.props)
+          if (component && p.type.isVariable && !identical(p, mainParam)) '${p.key}=@name',
+        if (listLine) 'the rows chosen (selected=@name)',
+      ];
+      return can.isEmpty ? 'binds nothing' : 'binds ${can.join(', ')}';
+    }
+
+    void mark(String? named, String expr, int col) {
+      if (expr.isEmpty || expr.startsWith('{') || expr.startsWith('"')) {
+        _issue(col, '@ is followed by the variable\'s name: @name (a field: @draft.title). A value worked out is shown with value={expression}.');
+        return;
+      }
+      // Which property: the line's value, a range's other end, a list's
+      // selection, or a block's variable of that name.
+      final String role;
+      if (named == null) {
+        bareMarks++;
+        if (bareMarks == 1) {
+          role = 'value';
+        } else if (bareMarks == 2 && range) {
+          role = 'end';
+        } else {
+          _issue(col, 'One @name a line is its value${range ? ', two a range (@low @high)' : ''}: name any other (key=@name). A $written ${binds()}.');
+          return;
+        }
+      } else if (named == 'value' || (range && named == ends.$1) || (mainParam != null && named == mainParam.key)) {
+        role = 'value';
+      } else if (range && named == ends.$2) {
+        role = 'end';
+      } else if (listLine && named == 'selected') {
+        role = 'selected';
+      } else if (component && spec.props.any((p) => p.key == named && p.type.isVariable)) {
+        role = named;
+      } else if (standIn) {
+        role = named;
+      } else {
+        _issue(col, 'A $written has no "$named" to bind: it ${binds()}.');
+        return;
+      }
+      if (role == 'value') {
+        if (valueMark != null) {
+          _issue(col, 'The $written\'s value is bound once: it is @$valueMark already.');
+          return;
+        }
+        valueMark = expr;
+      }
+      // A stand-in keeps nothing: the variable is still the page's, and what
+      // reads it reads its starting value.
+      if (standIn) {
+        dropped.add(named ?? '@$expr');
+        if (_identifier.hasMatch(expr) && !expr.contains('.')) {
+          _bindsVariable(expr, col, () => '');
+          variables.putIfAbsent(expr, () => {'name': expr, 'type': 'text', 'value': ''});
+        }
+        return;
+      }
+      switch (role) {
+        case 'end':
+          if (valueMark == null) {
+            _issue(col, 'A range binds both ends: ${type == 'calendar' ? 'Calendar @arrival @departure' : 'Slider @low @high min=0 max=100'}.');
+            return;
+          }
+          sliderEnd = expr;
+          sliderEndColumn = col;
+        case 'selected':
+          if (!_identifier.hasMatch(expr) || expr.contains('.')) {
+            _issue(col, 'The rows chosen are kept in a list variable: selected=@picked (state picked=[]).');
+            return;
+          }
+          listWords['selected'] = (value: expr, column: col);
+          _bindsVariable(expr, col, () => const <Object?>[]);
+        case 'value' when _valueProps.containsKey(type) || mainParam != null:
+          bindTo(expr, col);
+        case 'value':
+          // A line that only shows a value, or has none.
+          if (open && _shownValue[type] == null && written != 'Badge') {
+            _use('parameter', '@', col, on: _srcWord ?? written, value: '@$expr');
+            if (_identifier.hasMatch(expr) && !expr.contains('.')) {
+              _bindsVariable(expr, col, () => '');
+              variables.putIfAbsent(expr, () => {'name': expr, 'type': 'text', 'value': ''});
+            }
+          } else if (_shownValue[type] != null || written == 'Badge') {
+            _issue(col, 'A $written shows a value and keeps none: ${type == 'text' || written == 'Badge' ? '$written "{$expr}"' : 'value={$expr}'}.');
+          } else {
+            _issue(col, 'A $written ${binds()}${listLine || !boxLine ? '' : ' (selectable on it: selected=@name)'}.');
+          }
+        default:
+          bindTo(expr, col, spec.props.firstWhere((p) => p.key == role));
       }
     }
 
@@ -3822,8 +3953,12 @@ class _Parser {
           break;
         }
         final eq = word.indexOf('=');
+        if (word.startsWith('@')) {
+          mark(null, word.substring(1), col);
+          continue;
+        }
         if (eq == 0) {
-          _issue(col, 'A value has a key: write bind=name for the variable a control keeps its value in, key={expression} for a value worked out.');
+          _issue(col, 'A value has a key: write @name for the variable a control keeps its value in, key={expression} for a value worked out.');
           continue;
         }
         if (eq < 0) {
@@ -4061,27 +4196,26 @@ class _Parser {
           continue;
         }
         var raw = word.substring(eq + 1);
-        if (key == 'bindEnd' && (type == 'slider' || type == 'calendar')) {
-          sliderEnd = raw;
-          sliderEndColumn = col;
+        if (raw.startsWith('@')) {
+          mark(key, raw.substring(1), col);
           continue;
         }
-        if (key == 'bind' && !spec.props.any((p) => p.key == 'bind')) {
-          if (raw.isEmpty && t.peek == '{') {
-            final braced = t.balanced();
-            raw = braced.substring(1, braced.endsWith('}') ? braced.length - 1 : braced.length).trim();
-          }
-          if (raw.isEmpty) {
-            _issue(col, 'bind= names a variable: bind=name.');
-          } else if (listLine && _identifier.hasMatch(raw) && !raw.contains('.')) {
-            // On a list that is selected from (or reordered): the variable
-            // its selection is kept in (docs/design/21 section 4.1).
-            listWords['bind'] = (value: raw, column: col);
-          } else {
-            bindTo(raw, col);
-            // A stand-in declares the variable and keeps nothing in it.
-            if (standIn) dropped.add('bind');
-          }
+        // `bind=` is no key: a variable is `@name`. Said with the line in
+        // the form the notation reads.
+        if (RegExp(r'^bind([A-Z][A-Za-z]*)?$').hasMatch(key) && !spec.props.any((p) => p.key == key)) {
+          if (raw.isEmpty && (t.peek == '{' || t.peek == '[')) t.balanced();
+          if (raw.isEmpty && t.peek == '"') t.string();
+          if (standIn) dropped.add(key);
+          final shownLine = _src.contains('bind') ? _src : line.trim();
+          if (!legacySaid) _issue(col, 'A variable is bound with @: @name is the control\'s value, key=@name another property. Write: ${notationBindForm(shownLine, catalog: catalog)}');
+          legacySaid = true;
+          continue;
+        }
+        // A block's variable is named with @ (`direction=@dir`): a bare name
+        // there keeps nothing. A value, or one worked out in braces, is
+        // shown, one way (`Rating value=4.6`).
+        if (component && spec.props.any((p) => p.key == key && p.type.isVariable) && _variablePath.hasMatch(raw) && !const {'true', 'false', 'null'}.contains(raw)) {
+          _issue(col, 'A $written keeps its $key in a variable: write $key=@$raw${identical(spec.props.firstWhere((p) => p.key == key), mainParam) ? ' (or @$raw)' : ''}; $key={$raw} shows its value, one way.');
           continue;
         }
         // `id=why`: a name a `scroll why` goes to (the node's own id is the
@@ -4175,7 +4309,7 @@ class _Parser {
           final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
           // A key whose value is always a word (a field's type, an icon's
           // name) keeps it, whatever a variable is called:
-          // Input "Email" type=email bind=email.
+          // Input "Email" type=email @email.
           const wordKeys = {'type', 'icon', 'align', 'weight', 'tone', 'variant'};
           if (known && !ownValue && !wordKeys.contains(key)) {
             _issue(col, 'A value read from the state is written in braces: $key={$raw}.');
@@ -4769,11 +4903,6 @@ class _Parser {
         final path = pathOf(key);
         if (unknownKey) {
           unknownKeys.add((key: key, value: _written(word, eq, raw), column: col));
-          // What a stand-in would keep a value in (bindStart=from) is still
-          // a variable of the page.
-          if (standIn && key.startsWith('bind') && _identifier.hasMatch(raw) && !raw.contains('.')) {
-            variables.putIfAbsent(raw, () => {'name': raw, 'type': 'text', 'value': ''});
-          }
         }
         // A string on the line already went to this parameter: saying it
         // twice would silently drop one.
@@ -4856,11 +4985,12 @@ class _Parser {
     if (component) {
       bool has(String k) => props.containsKey(k) || bind.containsKey('props.$k');
       // A block with an optional boolean state should still toggle when its
-      // author leaves off bind=name. Give each call its own page variable.
+      // author binds no variable to it. Give each call its own page variable.
       for (final p in spec.props) {
         if (p.required || has(p.key) || !p.type.isVariable || p.type.variableOf?.kind != PropKind.boolean) continue;
         final local = '${id}_${p.key}';
         props[p.key] = local;
+        _top._internal.add(local);
         variables.putIfAbsent(local, () => {'name': local, 'type': 'boolean', 'value': p.defaultValue is bool ? p.defaultValue : false});
       }
       for (final p in spec.props) {
@@ -4889,6 +5019,7 @@ class _Parser {
           if (p.type.isVariable) {
             final local = '${id}_${p.key}';
             props[p.key] = local;
+            _top._internal.add(local);
             variables.putIfAbsent(local, () => {
                   'name': local,
                   'type': switch (kind) { PropKind.number || PropKind.integer => 'decimal', PropKind.boolean => 'boolean', PropKind.list => 'list', _ => 'text' },
@@ -4900,7 +5031,7 @@ class _Parser {
           _use('missing', p.key, column, on: _srcWord ?? written);
           continue;
         }
-        _issue(column, 'A $written needs ${p.key}: write ${p.key}=${p.type.isVariable ? 'name (a variable), or bind=name' : p.type.kind == PropKind.list ? '["a","b"]' : p.type.kind == PropKind.string ? '"…"' : 'value'}.');
+        _issue(column, 'A $written needs ${p.key}: write ${p.type.isVariable ? '${identical(p, mainParam) ? '@name, or ' : ''}${p.key}=@name (a variable, declared with state)' : '${p.key}=${p.type.kind == PropKind.list ? '["a","b"]' : p.type.kind == PropKind.string ? '"…"' : 'value'}'}.');
       }
     }
     // A component is as big as its own design says, unless the line does.
@@ -5131,17 +5262,18 @@ class _Parser {
       layout.putIfAbsent('width', () => {'fill': 0});
       layout.putIfAbsent('height', () => layout['width'] is num ? ((layout['width']! as num) * 0.68).round() : 164);
     }
-    // A Calendar's range: bind= is its first day, bindEnd= its last, and one
-    // change gives both (result.start, result.end), as yyyy-MM-dd. Without
-    // bindEnd it picks one day, and its change gives that day.
+    // A Calendar's range: its first @ is its first day, the second its
+    // last, and one change gives both (result.start, result.end), as
+    // yyyy-MM-dd. With one it picks one day, and its change gives that day.
     if (sliderEnd == null && type == 'calendar') props.putIfAbsent('range', () => false);
     if (sliderEnd != null && type == 'calendar') {
       final start = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$').firstMatch('${bind['props.start']}')?.group(1);
-      final end = sliderEnd;
+      final end = sliderEnd!;
       if (start == null || !_identifier.hasMatch(end) || end.contains('.')) {
-        _issue(sliderEndColumn, 'A range of days is a Calendar with a variable for each end: Calendar bind=arrival bindEnd=departure.');
+        _issue(sliderEndColumn, 'A range of days is a Calendar with a variable for each end: Calendar @arrival @departure.');
       } else {
         bind['props.end'] = _read(end);
+        _bindsVariable(end, sliderEndColumn, () => '');
         variables.putIfAbsent(end, () => {'name': end, 'type': 'text', 'value': ''});
         reactions.removeWhere((r) =>
             readMap(r['trigger'])?['type'] == 'changed' &&
@@ -5160,11 +5292,12 @@ class _Parser {
     // rangeEnd the upper, and one change gives both (result.low, result.high).
     if (sliderEnd != null) {
       final low = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$').firstMatch('${bind['props.value']}')?.group(1);
-      final high = sliderEnd;
+      final high = sliderEnd!;
       if (low == null || !_identifier.hasMatch(high) || high.contains('.')) {
-        _issue(sliderEndColumn, 'A range is a slider with a variable for each end: Slider bind=low bindEnd=high min=0 max=100.');
+        _issue(sliderEndColumn, 'A range is a slider with a variable for each end: Slider @low @high min=0 max=100.');
       } else {
         bind['props.rangeEnd'] = _read(high);
+        _bindsVariable(high, sliderEndColumn, () => props['max'] is num ? props['max'] : 1);
         variables.putIfAbsent(high, () => {'name': high, 'type': 'decimal', 'value': props['max'] is num ? props['max'] : 1});
         reactions.removeWhere((r) =>
             readMap(r['trigger'])?['type'] == 'changed' &&
@@ -5428,8 +5561,8 @@ class _Parser {
         };
       }
       if (d.isNotEmpty) props['decoration'] = d;
-      // value= beside bind=: the text it starts with; the variable it is
-      // bound to is still the one a change writes.
+      // value="…" or value={…} beside @name: the text it starts with; the
+      // variable it is bound to is still the one a change writes.
       if (inputValue case final String v) {
         if (v.startsWith('=') && !(v.substring(1).trim().startsWith('"') && _literal(v.substring(1).trim()).$2 is String)) {
           bind['props.initialValue'] = _read(v.substring(1).trim());
@@ -6128,7 +6261,7 @@ class _Parser {
   final _removeAt = <String, List<Json>>{};
 
   /// A list's universal words by the id of the line they are on (reorder,
-  /// selectable, handle, bind, onReorder, onSelect, each with its column),
+  /// selectable, handle, selected, onReorder, onSelect, each with its column),
   /// with the line's place to record them by: read by the `each` under it.
   final _listUniversal = <String, _ListWords>{};
 
@@ -6300,18 +6433,18 @@ class _Parser {
     // recorded as unknown (docs/design/21 section 4.1).
     if ((open.each == null && open.condition == null ? _listUniversal.remove(open.id) : null) case final _ListWords lw when !lw.applied) {
       // The variable it names is still the page's (what reads it validates).
-      if (lw.value('bind') case final String v) variables.putIfAbsent(v, () => {'name': v, 'type': 'text', 'value': ''});
+      if (lw.value('selected') case final String v) variables.putIfAbsent(v, () => {'name': v, 'type': 'list', 'value': const <Object?>[]});
       // selectable chooses among the copies an each makes, and there is none
       // here (a row of its own, a card under the each): said where it is.
       if (lw.words['selectable'] case (:final column, value: _) when !lw.standIn && !_top._quiet) {
         issues.add(NotationIssue(lw.line, column,
-            'selectable chooses among the rows an each repeats: write it on the Column (Card, Section) the each is directly under, with bind=name for the selection: Column selectable bind=picked, then each m in members under it.'));
+            'selectable chooses among the rows an each repeats: write it on the Column (Card, Section) the each is directly under, with selected=@name for the selection: Column selectable selected=@picked, then each m in members under it.'));
       }
       // A stand-in's words are in its own record.
       if (options.openVocabulary && !lw.standIn) {
         for (final e in lw.words.entries) {
           final event = e.key.startsWith('on');
-          final of = event ? 'event' : (e.key == 'bind' || e.value.value != 'true' ? 'parameter' : 'flag');
+          final of = event ? 'event' : (e.key == 'selected' || e.value.value != 'true' ? 'parameter' : 'flag');
           _use(of, e.key, e.value.column, on: lw.on, value: of == 'flag' ? null : (event ? '{${e.value.value}}' : e.value.value), at: lw);
         }
       }
@@ -6336,7 +6469,7 @@ class _Parser {
       // The viewer a gallery of the page opens its photos in, over the window.
       if (_pages.viewerUsed && !_continues && !_taken(_pages.viewer!)) {
         final viewer = _pages.viewer!;
-        if (_pages.overlay('Lightbox#$viewer photos={${viewer}Photos} bind=${viewer}At') case final Overlay o) {
+        if (_pages.overlay('Lightbox#$viewer photos={${viewer}Photos} @${viewer}At') case final Overlay o) {
           _openBlock(o);
           _closeBlock();
         }
@@ -6469,6 +6602,15 @@ class _Parser {
                     '${written.isEmpty ? 'This page has none: write a Dialog with that id after the page, at the margin, with its lines under it.' : 'Over this page: ${written.map((w) => '"$w"').join(', ')}.'}'
                 : 'No line of this page has the id "$id" for a scroll to go to (Section#$id, or id=$id on a line): the action is left out.'));
       }
+    }
+    // A variable bound with `@name` is declared: what no state line, site
+    // variable or loop gave is said where it is first bound.
+    if (_host == null) {
+      for (final e in _unstated.entries) {
+        issues.add(NotationIssue(e.value.line, e.value.column,
+            '@${e.key} binds a variable nothing declares: add state ${e.key}=${jsonEncode(e.value.start())} at the top of the screen (a variable is declared before it is bound).'));
+      }
+      _unstated.clear();
     }
     _ownLegends();
     _feet();
@@ -6604,6 +6746,9 @@ class _Parser {
     if (saved) rest = rest.substring(0, rest.length - 6).trimRight();
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
+    // Declared, even where it is refused below: what binds it is said once.
+    _top._stated.add(m[1]!);
+    _top._unstated.remove(m[1]);
     if (m[1] == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');
     // A name the runtime gives every expression of the screen (`script`,
     // `route`, `data`): a state of that name would be read as the
@@ -6789,7 +6934,7 @@ class _Parser {
 
   /// Where a field a control is bound to lives, so that a change can be
   /// written there: `draft.title` (a field of a record variable),
-  /// `item.done` (of the repeated element: `bind=i.done` under `each i in
+  /// `item.done` (of the repeated element: `@i.done` under `each i in
   /// items`), `parent.item.on` (of the element of the each around it), and
   /// a field of an element of a list that is itself a field of the element
   /// around it (`each s in e.sets` under `each e in workouts`). A list worked
@@ -6807,7 +6952,7 @@ class _Parser {
     if (parts.first != 'item' && parts.first != 'parent') {
       final root = parts.first;
       if (!variables.containsKey(root) || _derived.containsKey(root)) {
-        return 'bind=$expr: "$root" is no variable of this page. Declare the record first (state $root={"${parts[1]}":""}), or bind a variable of its own (bind=${parts.last}).';
+        return '@$expr: "$root" is no variable of this page. Declare the record first (state $root={"${parts[1]}":""}), or bind a variable of its own (@${parts.last}).';
       }
       return (root, withAt(root, parts.sublist(1), value), jsonEncode(expr));
     }
@@ -6817,11 +6962,11 @@ class _Parser {
       up++;
       at++;
     }
-    if (at >= parts.length || parts[at] != 'item' || at == parts.length - 1) return 'bind=$expr names no field of an element.';
+    if (at >= parts.length || parts[at] != 'item' || at == parts.length - 1) return '@$expr names no field of an element.';
     final fields = parts.sublist(at + 1);
     final eaches = [for (final o in _stack) if (o.each != null) o];
     final n = eaches.length, target = n - 1 - up;
-    if (target < 0) return 'bind=$expr is written under no each.';
+    if (target < 0) return '@$expr is written under no each.';
     String elem(int k) => '${'parent.' * (n - 1 - k)}item';
     String idx(int k) => '${'parent.' * (n - 1 - k)}index';
     final written = '${eaches[target].each}.${fields.join('.')}';
@@ -6857,7 +7002,7 @@ class _Parser {
           if (variables[m[0]]?['value'] is List) m[0]!,
       ].toSet();
       final l = read.length == 1 ? read.single : '<list>', e = eaches[target].each;
-      return 'bind=$written: the each repeats $shown, which is worked out, so a change has no list to be written to. '
+      return '@$written: the each repeats $shown, which is worked out, so a change has no list to be written to. '
           'Repeat the list variable itself (each $e in $l, with an if for the ones to show), give its records an "id" field, '
           'or write the change: value={$written} onChange={$l=updateWhere($l,x=>x.id==$e.id,x=>with(x,"${fields.first}",result))}.';
     }
@@ -7293,6 +7438,31 @@ class _Parser {
   /// bound to them says otherwise.
   final Set<String> _guessed = {};
 
+  /// The names a `state` (or `project`) line declares.
+  final Set<String> _stated = {};
+
+  /// The names the notation makes itself for a word it writes out (an
+  /// overlay's own state, a block's own boolean, a list's own selection):
+  /// bound without a state line of the writer's.
+  final Set<String> _internal = {};
+
+  /// The variables a line binds (`@name`) that nothing declares yet, each
+  /// with where it is first bound and the value it would start at (worked
+  /// out once its line is read): said at the end, when no state line came.
+  final Map<String, ({int line, int column, Object? Function() start})> _unstated = {};
+
+  /// [name], bound by `@name` at [column] of this line, is a variable the
+  /// writer declares: a state line, the site's variable, a loop's item, or a
+  /// name the notation made itself. [start] is the value a state line for it
+  /// would give, what the control starts at.
+  void _bindsVariable(String name, int column, Object? Function() start) {
+    final top = _top;
+    if (top._quiet || name == 'item' || name.startsWith('parent.')) return;
+    if (top._stated.contains(name) || top._internal.contains(name) || _projectVariables.contains(name) || options.projectVariables.containsKey(name)) return;
+    if (_stack.any((o) => o.each == name)) return;
+    top._unstated.putIfAbsent(name, () => (line: _line, column: column, start: start));
+  }
+
   /// Tells apart the unknown verbs of one event (they share its column).
   int _verbAt = 0;
 
@@ -7411,7 +7581,20 @@ class _Parser {
   /// The condition of the last `if` (and its `else if`s) at each depth, for an `else`.
   final Map<int, String> _ifAt = {};
 
-  static final _dotsLine = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?\s+bind=([A-Za-z_][A-Za-z0-9_]*)\s+count=(\{[^{}]*\}|\S+)(\s.*)?$');
+  /// `Dots @page count=n` (in any order, `value=@page` the same): its id,
+  /// its page's variable, its count and the rest of the line, or null.
+  static ({String id, String page, String count, String rest})? _dotsOf(String line) {
+    final head = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?(?=\s|$)').firstMatch(line);
+    if (head == null) return null;
+    var rest = line.substring(head.end);
+    final page = RegExp(r'\s(?:value=)?@([A-Za-z_][A-Za-z0-9_]*)(?=\s|$)').firstMatch(rest);
+    if (page == null) return null;
+    rest = rest.replaceRange(page.start, page.end, '');
+    final count = RegExp(r'\scount=(\{[^{}]*\}|\S+)').firstMatch(rest);
+    if (count == null) return null;
+    rest = rest.replaceRange(count.start, count.end, '');
+    return (id: head[1] ?? '', page: page[1]!, count: count[1]!, rest: rest.trimRight());
+  }
   static final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
 
   /// An expression as a binding reads it: a name, or a formula.

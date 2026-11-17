@@ -185,8 +185,16 @@ final class TypeAlias {
 
   /// The keys the line has to have, once its own names are read, for the
   /// alias to hold (a RangeSlider is our Slider only with a variable for each
-  /// end); without them the word is left as it was written.
+  /// end); without them the word is left as it was written. A bare `@name`
+  /// on the line stands for the next key not written (`RangeSlider @lo @hi`
+  /// has its low and its high).
   final List<String> requires;
+
+  /// Whether [parts] has what [requires] names.
+  bool holdsOn(LineParts parts) {
+    final missing = requires.where((k) => !parts.parts.any((p) => p.kind == 'pair' && (parameters[p.key] ?? p.key) == k)).length;
+    return missing <= parts.parts.where((p) => p.kind == 'word' && p.raw.startsWith('@')).length;
+  }
 
   /// Words added to the line, flags and fixed parameters (`selected` on a
   /// chip that is always on; `size=lg selected`). A key or a flag the line
@@ -215,7 +223,7 @@ final class TypeAlias {
 /// the tools):
 ///
 ///     {
-///       "types":      {"RangeSlider": {"to": "Slider", "parameters": {"low": "bind", "high": "bindEnd"}},
+///       "types":      {"RangeSlider": {"to": "Slider", "requires": ["low", "high"], "parameters": {"from": "low", "to": "high"}},
 ///                      "Shortcut": {"line": "shortcut"}},
 ///       "parameters": {"*": {"disabled": "!enabled"}, "ListTile": {"subtitle": "$text"}},
 ///       "flags":      {"*": {"disabled": "enabled=false"}},
@@ -321,13 +329,11 @@ final class NotationVocabulary {
       // A question with a yes and a no, over the page: a Dialog with its two
       // buttons.
       'ConfirmDialog': TypeAlias(line: 'confirmDialog'),
-      // A slider with two thumbs: ours when the line names a variable for
-      // each end. (Most answers bind one list variable, which ours does not
-      // take: those stay unknown.)
-      'RangeSlider': TypeAlias(to: 'Slider', requires: ['bind', 'bindEnd'], parameters: {
-        'low': 'bind', 'lo': 'bind', 'bindLow': 'bind', 'bindStart': 'bind', 'start': 'bind', //
-        'high': 'bindEnd', 'hi': 'bindEnd', 'bindHigh': 'bindEnd', 'end': 'bindEnd',
-      }),
+      // A slider with two thumbs: ours when the line binds a variable for
+      // each end (`RangeSlider @lo @hi`, `low=@lo high=@hi`). (Most answers
+      // bind one list variable, which ours does not take: those stay
+      // unknown.)
+      'RangeSlider': TypeAlias(to: 'Slider', requires: ['low', 'high']),
       // A text with what matched a search marked in it.
       'Highlight': TypeAlias(to: 'Text', parameters: {'match': 'mark', 'query': 'mark'}),
       'HighlightText': TypeAlias(to: 'Text', parameters: {'match': 'mark', 'query': 'mark'}),

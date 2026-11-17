@@ -19,7 +19,7 @@ StickyNote "text" fill=#FFFDE68A w=180 selected=false onTap
 ''';
 
 const _flip = '''
-FlipCard bind=flipped h=240 onTap
+FlipCard @flipped h=240 onTap
   state flipped=false
   Stack w=fill h={h} onTap={flipped=!flipped; onTap}
     Column w=fill h=fill visible={!flipped}
@@ -29,7 +29,7 @@ FlipCard bind=flipped h=240 onTap
 ''';
 
 const _picker = '''
-ColorPicker bind=color swatches=["#FF111827","#FFDC2626"] onPick
+ColorPicker @color swatches=["#FF111827","#FFDC2626"] onPick
   state color=""
   Row gap=8
     each swatch in swatches
@@ -69,7 +69,7 @@ Timeline.vertical#events
     ...
 
 // A route's stops.
-Timeline.vertical#route bind=at position
+Timeline.vertical#route @at position
   state at=0
   Column w=fill gap=10
     Text.caption "At {position}"
@@ -277,7 +277,7 @@ Column
   });
 
   group('state, events and ids of a word', () {
-    test('its state is the use\'s own; bind= puts the page\'s variable there instead', () {
+    test('its state is the use\'s own; @name puts the page\'s variable there instead', () {
       final r = _parse('''
 state shown=false
 Column
@@ -287,7 +287,7 @@ Column
   FlipCard#two
     Front
       Text "2"
-  FlipCard bind=shown
+  FlipCard @shown
     Front
       Text "3"
 ''');
@@ -371,7 +371,7 @@ Column
 
     const steps = '''
 // Where one is in named steps: the steps, the current one lit; a tap picks one.
-Stepper#steps steps=[] bind=step current done=[] onPick
+Stepper#steps steps=[] @step current done=[] onPick
   state step=0
   Row gap=8
     each s in steps
@@ -384,8 +384,8 @@ Stepper#steps steps=[] bind=step current done=[] onPick
 state qty=1
 state at=0
 Column
-  Stepper#qty "Guests" bind=qty min=1 max=8 onChange={toast "{result}"}
-  Stepper steps=["Cart","Pay","Done"] bind=at onPick={toast "{result}"}
+  Stepper#qty "Guests" @qty min=1 max=8 onChange={toast "{result}"}
+  Stepper steps=["Cart","Pay","Done"] @at onPick={toast "{result}"}
   Stepper steps=["A","B"] current={at}
 ''', catalog: catalog, options: options));
       expect(r.issues, isEmpty);
@@ -407,7 +407,7 @@ Column
       // renaming every line; the design system's named meanings go with it.
       final (catalog, options) = await stepper({'Stepper.txt': steps});
       final p = Catalog.run(
-          catalog, () => parseNotation('state at=0\nColumn\n  Stepper steps=["A","B"] bind=at\ndefine Stepper steps=[] bind=step\n  Text "the page\'s {length(steps)}"\n', catalog: catalog, options: options));
+          catalog, () => parseNotation('state at=0\nColumn\n  Stepper steps=["A","B"] @at\ndefine Stepper steps=[] @step\n  Text "the page\'s {length(steps)}"\n', catalog: catalog, options: options));
       expect(p.issues, isEmpty);
       final uses = _uses(p, 'definition');
       expect([for (final u in uses) u.to], ['Stepper']);
@@ -439,7 +439,7 @@ Column
       final r = Catalog.run(catalog, () => parseNotation('''
 state at=0
 Column
-  Stepper items=["A","B"] bind=at onSelect={toast "{result}"}
+  Stepper items=["A","B"] @at onSelect={toast "{result}"}
 ''', catalog: catalog, options: options));
       expect(r.issues, isEmpty);
       expect([for (final u in _uses(r, 'definition')) u.to], ['Stepper#steps']);
@@ -454,14 +454,16 @@ Column
   });
 
   group('what the first corpus wrote with words Cards now defines (Review 5, D25)', () {
-    test('bind= to a variable the page never declared declares it, with the word\'s default', () {
-      final r = _parse('Column\n  ColorPicker bind=tint\n', _open);
+    test('a use binds the page\'s variable; one the page never declared is said, with the state line to add', () {
+      final r = _parse('state tint=""\nColumn\n  ColorPicker @tint\n', _open);
       expect(r.issues, isEmpty);
       expect(_vars(r), {'tint': ''});
       expect(_problems(r.document), isEmpty);
       // Declared by the page: the page's.
-      final own = _parse('state tint="#FF2563EB"\nColumn\n  ColorPicker bind=tint\n', _open);
+      final own = _parse('state tint="#FF2563EB"\nColumn\n  ColorPicker @tint\n', _open);
       expect(_vars(own), {'tint': '#FF2563EB'});
+      final none = _parse('Column\n  ColorPicker @tint\n', _open);
+      expect(none.issues.single.message, contains('add state tint='));
     });
 
     test('a record written as JSON given to a parameter is that record in an expression', () {
@@ -755,28 +757,26 @@ define Badge2 "label" tone="#FFDCFCE7"
   group('what passed the tools and was wrong at run time (the vocabulary loop, Review 7, D31)', () {
     String actions(NotationResult r, String id) => jsonEncode(_node(r, id)['actions']);
 
-    test('bind={bind}, bind=bind and bind=<the signature\'s name> all bind the variable the use names, a path too', () {
+    test('@value, value=@ and a path bind the variable the use names; name=@ a further one; a use that binds none keeps its own', () {
       final r = parseNotation('''
 state email=""
 state s={"weight":"1"}
 state lo=10
 state hi=90
 Column
-  Field "Name" bind=email
-  Field2 "Weight" bind=s.weight
-  Field3 "Code" bind=email
+  Field "Name" @email
+  Field2 "Weight" @s.weight
+  Field "Code" value=@email
   Field
-  Range bind=lo bindEnd=hi
-define Field "label" bind
-  Input "{label}" bind={bind} grow
-define Field2 "label" bind=value
+  Range @lo end=@hi
+define Field "label" @value
+  Input "{label}" @value grow
+define Field2 "label" @value
   Column
-    Input#a "{label}" bind={bind}
-    Input#b "{label}" bind=value
-define Field3 "label"
-  Input "{label}" bind=bind
-define Range bind bindEnd
-  Slider bind={bind} bindEnd={bindEnd} min=0 max=100
+    Input#a "{label}" @value
+    Input#b "{label}" value=@value
+define Range @low end=@
+  Slider @low @end min=0 max=100
 ''', catalog: standardCatalog);
       expect(r.issues, isEmpty);
       expect(_problems(r.document), isEmpty);
@@ -786,17 +786,17 @@ define Range bind bindEnd
         expect(_node(r, id)['bind'], {'props.initialValue': r'${s.weight}'}, reason: id);
         expect(actions(r, id), contains(r'with(s,\"weight\",result)'), reason: id);
       }
-      // A signature with no bind: a body that binds `bind` takes one.
-      expect(_node(r, 'field31')['bind'], {'props.initialValue': r'${email}'});
-      // A use with no bind= keeps its own.
-      expect(_node(r, 'field2')['bind'], {'props.initialValue': r'${bind_field2}'});
+      expect(_node(r, 'field2')['bind'], {'props.initialValue': r'${email}'});
+      // A use that binds none keeps its own.
+      expect(_node(r, 'field3')['bind'], {'props.initialValue': r'${value_field3}'});
       expect(_node(r, 'range1')['bind'], {'props.value': r'${lo}', 'props.rangeEnd': r'${hi}'});
-      expect(_vars(r).keys, unorderedEquals(['email', 's', 'lo', 'hi', 'bind_field2']));
+      expect(_vars(r).keys, unorderedEquals(['email', 's', 'lo', 'hi', 'value_field3']));
     });
 
-    test('bind= with an expression in a body is said against the definition', () {
-      final r = parseNotation('state a=1\nColumn\n  Calc bind=a\ndefine Calc bind\n  Input "c" bind={bind + 1}\n', catalog: standardCatalog, options: const NotationOptions().open());
-      expect(r.issues.map((i) => i.message).single, startsWith('page:5: bind= names the variable a control keeps its value in'));
+    test('bind= in a body is said against the definition, with the line as it is written now', () {
+      final r = parseNotation('state a=1\nColumn\n  Calc @a\ndefine Calc @value\n  Input "c" bind={value + 1}\n', catalog: standardCatalog, options: const NotationOptions().open());
+      final said = r.issues.map((i) => i.message).toList();
+      expect(said, contains(allOf(startsWith('page:5: a variable is bound with @'), endsWith('Write: Input "c" value={value + 1}'))));
     });
 
     test('a loop item of the body in drag=group(…) is the use\'s, braced or not', () {
@@ -963,21 +963,24 @@ primitive Scope trace=[] onCursor
       expect(reads('define Tag "label" "note"\n  Text "{label}"\n').warnings.single, contains('names "note" and never reads it: a use\'s string does nothing.'));
     });
 
-    test('a name read from outside: a variable of the page, and bind= of a name that is not the word\'s own', () {
+    test('a name read from outside: a variable of the page, and @ of a name that is not the word\'s own', () {
       // periodic-table's PeriodicTable reads the page's elements.
       final table = reads('define PeriodicTable selected="H" onSelect\n  Grid cols=18\n    each e in elements\n      Button "{e.symbol}" selected={e.symbol == selected} onTap={onSelect(e.symbol)}\n');
       expect([table.unread, table.unfired, table.outside], [<String>[], <String>[], ['elements']]);
       expect(table.warnings.single, 'page:1: PeriodicTable reads elements, which is neither its own nor declared in it: it works only on a page that has that variable.');
-      // bind=red where red is a parameter binds the page's red; bind={bind} reads a variable called bind.
-      final mixer = reads('define Mixer red=0 onRed\n  Slider bind=red onChange={onRed(result)}\n');
-      expect([mixer.unread, mixer.outside], [['red'], ['red']]);
-      final picker = reads('define ClubPicker bind=club clubs=[] onChange\n  Row\n    each item in clubs\n      Chip "{item}" selected={item==bind} onTap={bind=item; onChange(item)}\n');
+      // @red where red is a parameter binds the use's variable (its own, or
+      // the one the use binds); {bind} reads a variable called bind.
+      final mixer = reads('define Mixer red=0 onRed\n  Slider @red onChange={onRed(result)}\n');
+      expect([mixer.unread, mixer.outside], [<String>[], <String>[]]);
+      final fader = reads('define Fader onLevel\n  Slider @level onChange={onLevel(result)}\n');
+      expect(fader.outside, ['level']);
+      final picker = reads('define ClubPicker @club clubs=[] onChange\n  Row\n    each item in clubs\n      Chip "{item}" selected={item==bind} onTap={bind=item; onChange(item)}\n');
       expect([picker.unread, picker.outside], [['club'], ['bind']]);
     });
 
     test('what is read: braces, strings, lists, statements, a value where the text goes, slots, choices, actions with arguments', () {
       final d = reads('''
-define Everything "title" bind=value items=[] max=10 size=4 tint=#FFFFFFFF on=true label="" step=1 note="" onPick onClear onDone
+define Everything "title" @value items=[] max=10 size=4 tint=#FFFFFFFF on=true label="" step=1 note="" onPick onClear onDone
   state open=false
   every 1s when on onTick={value=value+step}
   Column gap={size} fill={tint}
@@ -985,7 +988,7 @@ define Everything "title" bind=value items=[] max=10 size=4 tint=#FFFFFFFF on=tr
     Ring {value / max} w=40
     each it in items
       Chip "{it}" onTap={open ? onPick(it) : onClear}
-    Slider bind=value
+    Slider @value
     Row pad=[size,0,size,0]
     ...Foot w={size}
     Button "Go" onTap={confirm "Done with {label}?" then {onDone; toast "{note}"}}
