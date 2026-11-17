@@ -377,14 +377,21 @@ Dialog#ask "Reset?" "Really."
       };
       expect(NotationVocabulary.core.types.keys.toSet(), tested);
       expect(NotationVocabulary.core.types['RangeSlider']!.parameters.keys.toSet(), {'low', 'lo', 'bindLow', 'bindStart', 'start', 'high', 'hi', 'bindHigh', 'end'});
+      // The universal words' other names and an Input's (docs/design/21) are
+      // tested in notation_universal_test.dart.
       expect(NotationVocabulary.core.parameters, {
-        '*': {'disabled': '!enabled'},
+        '*': {'disabled': '!enabled', 'readonly': 'readOnly'},
         'ListTile': {'subtitle': r'$text', 'title': r'$text'},
+        'Input': {'maxlength': 'maxLength', 'maxChars': 'maxLength', 'rows': 'lines'},
       });
-      expect(NotationVocabulary.core.flags.keys.toSet(), {'*', 'state', 'project'});
-      expect(NotationVocabulary.core.flags['*'], {'disabled': 'enabled=false'});
+      expect(NotationVocabulary.core.flags.keys.toSet(), {'*', 'Input', 'state', 'project'});
+      expect(NotationVocabulary.core.flags['*'], {'disabled': 'enabled=false', 'readonly': 'readOnly', 'sortable': 'reorder', 'reorderable': 'reorder'});
       expect(NotationVocabulary.core.flags['state'], {'persist': 'saved', 'persisted': 'saved', 'persistent': 'saved'});
-      expect(NotationVocabulary.core.events, isEmpty);
+      expect(NotationVocabulary.core.events, {
+        '*': {'onDelete': 'onRemove'},
+        'Input': {'onEnter': 'onSubmit', 'onSaved': 'onBlur'},
+        'Calendar': {'onSelect': 'onChange'},
+      });
       expect(NotationVocabulary.core.verbs, isEmpty);
     });
 

@@ -7,6 +7,11 @@ every word used, known or not (section 6.1, D1); a word can be defined in the no
 ([20-defined-words.md](20-defined-words.md), D2); a stand-in with nothing to draw shows what is missing (section 9,
 D3). The numbers are in section 11.
 
+Extended again after the second review (Review 2, D6 to D9): words every line understands are one table and one
+implementation, and a stand-in's words it honours count as resolved
+([21-universal-words.md](21-universal-words.md)); the tool's resolutions gain `universal` (section 6.1). The numbers
+are in section 12.
+
 ## 1. Why
 
 The prompt has been teaching every word: each component, each behaviour. That does not scale. The card prompt is at its 9,000-character budget, the page prompt is 20,650 characters, and with the Cards components listed it is 73,270.
@@ -163,7 +168,7 @@ functions):
 |---|---|---|
 | `type` | a line's first word | core, component, alias, definition, unknown |
 | `text` | a string written on a type, by position (`Button.text1`) | as its type (unknown on an unknown type) |
-| `parameter`, `flag`, `event` | a key=value, a bare word (layout words too), an `on…` key, per type | unknown when the parser recorded it, alias when it read it as another, else as its type |
+| `parameter`, `flag`, `event` | a key=value, a bare word (layout words too), an `on…` key, per type | unknown when the parser recorded it, alias when it read it as another, universal when it read it as a universal word (note 21; on a stand-in, a word it honoured), else as its type |
 | `variant` | the word after a type's dot, per type | unknown when recorded, else as its type |
 | `verb` | an action's first word (`name=value` is `set`) | unknown when recorded, alias, else core |
 | `function` | a name a formula calls | core when the engine has it, else unknown |
@@ -296,3 +301,33 @@ What it says:
 - The 54 types left are listed by side in [note 20](20-defined-words.md) section 9: about 20 could be definitions,
   the rest need a gesture, a drawing primitive, a position or a scroll position.
 
+## 12. The third count (2026-11-17: universal words, D6 to D9)
+
+The three batches (`corpus/2026-11-16-sonnet`, `b01`, `b02`: 40 answers, 169 screens, 7,427 lines), expanded 1,280
+wide with Cards, its aliases and its 40 definitions (unchanged), before and after note 21:
+
+| | words | resolved | unknown parameters, flags, events | on a type we do not have | grammar issues | does not validate |
+|---|---|---|---|---|---|---|
+| before (33.0.0) | 1,687 | 927 (54.9%) | 444, 98, 89 | 269, 39, 56 | 145 | 93 |
+| after | 1,676 | 1,042 (62.2%) | 365, 69, 69 | 205, 23, 43 | 153 | 93 |
+
+By resolution after: core 625, component 106, alias 32, definition 175, universal 104, unknown 634. The words are 11
+fewer because a bare number in the text position (`CountUp 39`, `Badge 3`) is counted as a text, not as a flag of
+its digits.
+
+What it says:
+
+- *The resolved share is 62.2%*: over 60%, not well over. Universal words resolved 104 words, about half of them the
+  grammar's own words on stand-ins (D6: `h` on 23 types, `w`, `fill`, `gap`, `onTap`) and half the universal words
+  of note 21 (`color` on 11 types, `size`, `icon`, `selected`, `removable`, the list's words). The new aliases (the
+  Input's names, `readonly`, `onDelete`, `sortable`) resolved 9 more.
+- *What is still unknown on a type we do not have is not universal*: `bind` (30 types), `items` (11), `max`, `from`,
+  `to`, `labels`: each is the word's own meaning, which only a definition gives it. They go when the type is
+  defined (D10), not here.
+- *`Input` went from 27 unknown words to 15* (D8); what is left are one-answer words (`debounce`, `newlineKey`,
+  `pattern`, `suggestions`, `highlight`) and `fuzzy`, which says where it belongs.
+- *Grammar issues rose by 8*: every one is the new issue on `Input … fuzzy` (D8 asked for it). Without it the count
+  is the same as before; no document that validated stopped validating.
+- The ten showcase pages and the behaviours expand to the same documents as before; of 631 notation files in
+  `examples/`, one (an old-grammar answer with `TextField … required`) now marks its labels instead of saying
+  "Unknown word".

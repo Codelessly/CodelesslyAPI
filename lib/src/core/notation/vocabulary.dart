@@ -76,7 +76,8 @@ final class VocabularyUse {
 
   /// An alias: the kind of word it is (`type`, `parameter`, `flag`,
   /// `event`, `verb`, `line`).
-  String? get of => kind == 'alias' ? _of : null;
+  /// A universal word (docs/design/21): `parameter`, `flag` or `event`.
+  String? get of => kind == 'alias' || kind == 'universal' ? _of : null;
   String? _of;
 
   Json toJson() => {
@@ -117,6 +118,24 @@ VocabularyUse aliasUse({
   List<String> path = const [],
 }) =>
     VocabularyUse(kind: 'alias', word: word, to: to, source: source, line: line, column: column, on: on, value: value, path: path).._of = of;
+
+/// A universal word applied where the type has no word of that name, or
+/// honoured by a stand-in (docs/design/21), of kind [of].
+VocabularyUse universalUse({
+  required String of,
+  required String word,
+  required String source,
+  required int line,
+  required int column,
+  String? on,
+  String? value,
+  List<String> path = const [],
+}) =>
+    VocabularyUse(kind: 'universal', word: word, source: source, line: line, column: column, on: on, value: value, path: path).._of = of;
+
+/// The kind of the universal word [word] when nothing else says: an event,
+/// else a key=value.
+String universalKindOf(String word) => RegExp(r'^on[A-Z]').hasMatch(word) ? 'event' : 'parameter';
 
 /// A type read as another: `RangeSlider` is a `Slider`, with its own names
 /// for that type's parameters.
@@ -308,12 +327,26 @@ final class NotationVocabulary {
       '*': {
         // We teach enabled=; 12 of 20 apps wrote its opposite on a Button.
         'disabled': '!enabled',
+        // The universal words' other names (docs/design/21).
+        'readonly': 'readOnly',
       },
+      // Input (docs/design/21 section 7): the text field's own words under
+      // the names answers wrote.
+      'Input': {'maxlength': 'maxLength', 'maxChars': 'maxLength', 'rows': 'lines'},
       // A ListTile's second string is its subtitle (10 of 20 apps named it).
       'ListTile': {'subtitle': r'$text', 'title': r'$text'},
     },
+    events: {
+      // A universal event under its other name (docs/design/21).
+      '*': {'onDelete': 'onRemove'},
+      // An Input submitted from the keyboard, and left after editing.
+      'Input': {'onEnter': 'onSubmit', 'onSaved': 'onBlur'},
+      // A day picked in a month.
+      'Calendar': {'onSelect': 'onChange'},
+    },
     flags: {
-      '*': {'disabled': 'enabled=false'},
+      '*': {'disabled': 'enabled=false', 'readonly': 'readOnly', 'sortable': 'reorder', 'reorderable': 'reorder'},
+      'Input': {'uppercase': 'caps', 'allcaps': 'caps'},
       // A value kept on the device: ours is `state draft="" saved` (12 of 20
       // apps wrote persist, which was read into the value).
       'state': {'persist': 'saved', 'persisted': 'saved', 'persistent': 'saved'},
