@@ -482,6 +482,28 @@ void main() {
       expect(mediaOf('rows'), isEmpty);
     });
 
+    test('a board keeps its columns on a phone, written on a page or in a defined word: a keypad of 3, a crossword of 13 (Review 5, D26)', () {
+      final r = parseNotation(
+          'Page\n  Section\n'
+          '    Grid#pad cols=3 gap=8\n      each d in ["1","2","3","4","5","6","7","8","9","C","0","<"]\n        Button.outline "{d}" onTap={v=v+d}\n'
+          '    Crossword#cw\n'
+          '    Grid#photos cols=3 gap=8\n      each d in range(6)\n        Card\n          Text "{d}"\n'
+          'define Crossword\n  Grid#board cols=13 gap=1 w=520\n    each i in range(169)\n      Square i={i}\n'
+          'define Square i=0\n  Stack h=40 fill=#FFFFFFFF onTap={cur=i}\n    if i < 13\n      Text "{i}" size=9\n    Text "A" size=22\n    Icon "close" size=12\n',
+          catalog: standardCatalog,
+          options: const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      final nodes = r.document['nodes']! as Map;
+      List<Object?> mediaOf(String grid) => [
+            ...?((nodes[grid] as Map)['media'] as List?),
+            for (final c in (nodes[grid] as Map)['children'] as List) ...?((nodes[c] as Map)['media'] as List?),
+          ];
+      final board = nodes.entries.firstWhere((e) => (e.value as Map)['type'] == 'gridView' && ((e.value as Map)['props'] as Map)['crossAxisCount'] == 13);
+      expect(mediaOf('pad'), isEmpty);
+      expect(mediaOf(board.key as String), isEmpty);
+      expect(jsonEncode(mediaOf('photos')), contains('"crossAxisCount":1'));
+    });
+
     test('a bar at the foot of an app window: Footer in Main (or App, or Row sticky bottom) stays below what scrolls', () {
       for (final foot in ['  Main\n    Column pad=24\n      Text "Albums"\n    Footer#bar\n', '  Main\n    Column pad=24\n      Text "Albums"\n  Footer#bar\n',
         '  Main\n    Column pad=24\n      Text "Albums"\n    Row#bar sticky bottom\n']) {

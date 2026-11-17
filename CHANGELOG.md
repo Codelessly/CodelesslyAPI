@@ -14,6 +14,12 @@
   prompt does not already teach, sorted, with no parameters, and the instruction to use a listed word as one would
   expect and define only what is in neither list (`notationGlossaryLead`, `notationGlossary`). Without a design
   system there is none; `glossary: false` leaves it out.
+- **A board keeps its columns on a phone** (docs/design/13-compact-notation.md section 14; the vocabulary loop's
+  Review 5, D26): a grid of one repeated cell, written on a page or in a defined word's lines, keeps its columns
+  when the cell is a small key from three columns on (a keypad of 3 by 4 was one column on a phone) or, from five,
+  a small cell or a square of at most 64 with no card or component in it (a crossword's 13 columns became two).
+  The node the notation wraps each copy of an `each` in no longer counts against a small cell. A `Grid` takes up
+  to 24 columns (it was 12: a 13 by 13 crossword had 12).
 - **The shapes answers gave words we have, read** (the vocabulary loop's Review 6, D30): `Text strike=true` is
   the flag, `strike={done}` a line through the text while it holds (16 lines in the corpora; `underline=` the
   same); `Barcode "29034 00718 4421"` encodes its string (it was an issue), as bars by default (`code128`; a QR code

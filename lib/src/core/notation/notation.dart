@@ -3613,7 +3613,7 @@ class _Parser {
           }
         }
         if (grid != null && (key == 'cols' || key == 'columns')) {
-          grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 12);
+          grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 24);
           continue;
         }
         if (grid != null && (key == 'gap' || key == 'spacing')) {

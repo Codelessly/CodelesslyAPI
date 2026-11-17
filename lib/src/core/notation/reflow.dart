@@ -7,7 +7,9 @@
 //
 //   Grid cols=3            its rows wrap (cells take a least width); a
 //                          grid of 7 columns (a week), of 5 or more small
-//                          cells, or written keep, keeps its columns
+//                          cells, or written keep, keeps its columns;
+//                          a repeated cell that is a key (3+ columns)
+//                          or a square of 64 or less (5+) is a board
 //   Row of blocks          wraps: a card beside a card, content beside a rail
 //   Row of controls        wraps on a phone (a search field, a select, buttons)
 //   a table's row          its columns share the width; a phone keeps the
@@ -295,10 +297,43 @@ final class PageReflow {
   /// (the days of a week: a month, a streak, a timetable), written `keep`,
   /// or five or more cells that are small (a number, a dot, an icon: at
   /// most three nodes each, no card and no component). Its cells shrink.
-  bool _keeps(String id, int cols, List<String> cells) {
+  ///
+  /// A grid of one cell repeated ([repeated]: an `each`, written on a page
+  /// or in a defined word's lines) is a board when its cell is a key, a
+  /// square or a small thing: of three or more columns, a cell that is
+  /// pressed (a button, or what has a tap) and small (a keypad, 3 by 4); of
+  /// five or more, a small cell or one of a fixed side of at most 64 with no
+  /// card or component in it (a crossword's square, a seat). The node the
+  /// notation wraps each copy in is not the cell's.
+  bool _keeps(String id, int cols, List<String> cells, {bool repeated = false}) {
     if (keepColumns.contains(id) || cols == 7) return true;
-    if (cols < 5 || cells.isEmpty) return false;
+    if (cells.isEmpty) return false;
+    if (repeated && cells.length == 1) {
+      final cell = _cellOf(cells.single);
+      final n = nodes[cell];
+      if (n == null) return false;
+      final small = _small(cell, 3) >= 0;
+      final pressed = _type(n).endsWith('Button') || (n['actions'] is List && (n['actions'] as List).isNotEmpty);
+      if (cols >= 3 && small && pressed) return true;
+      if (cols < 5) return false;
+      if (small) return true;
+      num? side(Object? v) => v is num ? v : null;
+      final w = side(_layout(n)['width']), h = side(_layout(n)['height']);
+      return ((w != null && w <= 64) || (h != null && h <= 64)) && _small(cell, 12) >= 0;
+    }
+    if (cols < 5) return false;
     return cells.every((c) => _small(c, 3) >= 0);
+  }
+
+  /// The cell of a repeated grid: the node the notation wraps each copy in
+  /// (a column with one child and nothing of its own to draw) is passed.
+  String _cellOf(String id) {
+    final n = nodes[id];
+    if (n == null || _type(n) != 'column') return id;
+    final kids = _kids(n);
+    final fills = readMap(n['decoration'])?['fills'];
+    if (kids.length != 1 || (fills is List && fills.isNotEmpty) || n['actions'] != null) return id;
+    return kids.single;
   }
 
   /// How many nodes [id] has left of [budget] (-1: too many, or a card or a
@@ -333,7 +368,7 @@ final class PageReflow {
     final cols = _props(n)['crossAxisCount'];
     if (cols is! num || cols < 2 || (readMap(n['bind'])?.containsKey('props.crossAxisCount') ?? false)) return;
     if (_props(n)['minCrossAxisExtent'] != null) return;
-    if (_keeps(id, cols.toInt(), _kids(n))) return;
+    if (_keeps(id, cols.toInt(), _kids(n), repeated: true)) return;
     final tablet = cols >= 6 ? 3 : cols >= 4 ? 2 : cols;
     if (tablet != cols) _add(id, reflowTabletMax, {'props': {'crossAxisCount': tablet}});
     _add(id, reflowPhoneMax, {'props': {'crossAxisCount': cols >= 5 ? 2 : 1}});
