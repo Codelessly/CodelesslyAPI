@@ -39,7 +39,7 @@ void main() {
         // A print the parser says something about is a printer bug, listed in _tails.md.
         if (b.unchecked) continue;
         blocks++;
-        final problem = notationBlockProblem(b.text, width: b.width, define: true, catalog: b.components ? notationComponentsCatalog(root) : null);
+        final problem = notationBlockProblem(b.text, width: b.width, expands: true, catalog: b.components ? notationComponentsCatalog(root) : null);
         if (problem != null) problems.add('${e.key}:${b.line}: $problem');
       }
     }
@@ -51,7 +51,7 @@ void main() {
     final problems = <String>[];
     for (final e in pages.entries) {
       for (final b in notationBlocks(e.value)) {
-        if (b.define || b.unchecked) continue;
+        if (b.expands || b.unchecked) continue;
         final problem = notationBlockProblem(b.text, width: b.width, catalog: b.components ? notationComponentsCatalog(root) : null);
         if (problem != null) problems.add('${e.key}:${b.line}: ${b.text}\n$problem');
       }

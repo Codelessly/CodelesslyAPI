@@ -138,22 +138,25 @@ String withoutIds(String text) =>
     text.split('\n').map((l) => l.replaceFirstMapped(RegExp(r'^(\s*[A-Za-z][A-Za-z0-9.]*)#[A-Za-z_][A-Za-z0-9_-]*'), (m) => m[1]!)).join('\n');
 
 /// What is wrong with the notation [block]: an issue of the parse (in the
-/// closed vocabulary), or, unless [define], a print that is not [block]
+/// closed vocabulary), or, unless [expands], a print that is not [block]
 /// (ids aside). Null: it reads, and prints back as written.
-String? notationBlockProblem(String block, {double width = 390, bool define = false, api.Catalog? catalog}) {
+String? notationBlockProblem(String block, {double width = 390, bool expands = false, api.Catalog? catalog}) {
   final cat = catalog ?? notationCatalog;
   final r = parseNotation(block, catalog: cat, options: notationBlockOptions(width: width));
   if (r.issues.isNotEmpty) return r.issues.map((i) => 'line ${i.line}: ${i.message}').join('; ');
-  if (define) return null;
+  if (expands) return null;
   final printed = printNotation(r.document, catalog: cat);
   if (withoutIds(printed) == withoutIds(block)) return null;
   return 'prints back as:\n$printed';
 }
 
-/// A fenced ```notation block of a page: its text, its info (`width=1280`,
-/// `define`, `components`, `unchecked`: a print that does not read without
-/// an issue, a printer bug listed in `_tails.md`) and the line it starts on.
-typedef NotationBlock = ({String text, double width, bool define, bool components, bool unchecked, int line});
+/// A fenced ```notation block of a page: its text, its info and the line
+/// it starts on. The info: `width=1280` (its canvas); `expands` (written as
+/// a writer would, with words the printer writes otherwise: checked to read
+/// with no issue, and followed on the page by its print); `components` (it
+/// calls a component the examples declare); `unchecked` (a print the parser
+/// says something about: a printer bug, listed in `_tails.md`).
+typedef NotationBlock = ({String text, double width, bool expands, bool components, bool unchecked, int line});
 
 /// Every ```notation block of [page].
 List<NotationBlock> notationBlocks(String page) {
@@ -164,7 +167,7 @@ List<NotationBlock> notationBlocks(String page) {
     out.add((
       text: m[2]!,
       width: width,
-      define: info.contains('define'),
+      expands: info.contains('expands'),
       components: info.contains('components'),
       unchecked: info.contains('unchecked'),
       line: '\n'.allMatches(page.substring(0, m.start)).length + 1,
@@ -264,7 +267,9 @@ final class _NotationReference {
       out[kind] = {
         for (final e in assignment[kind]!.entries)
           e.key: switch (kind) {
-            ItemKind.trigger || ItemKind.action => 'events',
+            ItemKind.trigger => 'events',
+            // A feature layer's actions are on its page, the others on events.md.
+            ItemKind.action => featurePages.any((p) => p.id == e.value && p.library != null) ? ids[e.value] ?? 'events' : 'events',
             ItemKind.function => 'state',
             ItemKind.behavior => _movedBehaviors[e.key] ?? ids[e.value] ?? 'values',
             _ => ids[e.value] ?? 'values',
@@ -289,16 +294,22 @@ final class _NotationReference {
     final path = '$_templates/$name';
     var text = readLf(path).replaceAll(r'\{{', '\u0000');
     for (final b in notationBlocks(text)) {
-      final problem = notationBlockProblem(b.text, width: b.width, define: b.define, catalog: b.components ? notationComponentsCatalog(root) : null);
+      final problem = notationBlockProblem(b.text, width: b.width, expands: b.expands, catalog: b.components ? notationComponentsCatalog(root) : null);
       if (problem != null) {
         throw StateError('tool/reference/templates/notation/$name:${b.line}: this notation block does not read back as written: $problem');
       }
     }
-    // A define block is followed by what it expands to.
-    text = text.replaceAllMapped(RegExp(r'^```notation([^\n]*\bdefine\b[^\n]*)\n(.*?)\n```$', multiLine: true, dotAll: true), (m) {
+    // A block written as a writer would is followed by its print.
+    text = text.replaceAllMapped(RegExp(r'^```notation([^\n]*\bexpands\b[^\n]*)\n(.*?)\n```$', multiLine: true, dotAll: true), (m) {
       final width = double.tryParse(RegExp(r'width=(\d+)').firstMatch(m[1]!)?[1] ?? '') ?? 390;
-      final doc = parseNotation(m[2]!, catalog: c, options: notationBlockOptions(width: width)).document;
-      return '${m[0]}\n\nIt expands to:\n\n${_fence(printNotation(doc, catalog: c), width)}';
+      final components = m[1]!.contains('components');
+      final cat = components ? notationComponentsCatalog(root) : c;
+      final doc = parseNotation(m[2]!, catalog: cat, options: notationBlockOptions(width: width)).document;
+      final title = '$name, the block of line ${'\n'.allMatches(text.substring(0, m.start)).length + 1}';
+      final printed = _settle(printNotation(doc, catalog: cat), cat, width, title);
+      final issues = parseNotation(printed, catalog: cat, options: notationBlockOptions(width: width)).issues;
+      if (issues.isNotEmpty) _unreadTemplates.add((title: title, issues: [for (final i in issues) 'line ${i.line}: ${i.message}']));
+      return '${m[0]}\n\nIt reads as:\n\n${_fence(printed, width, components: components, unchecked: issues.isNotEmpty)}';
     });
     text = text.replaceAllMapped(RegExp(r'\{\{(\w+)\}\}'), (m) {
       final f = fills[m[1]];
@@ -362,9 +373,12 @@ final class _NotationReference {
           'integer' => 'whole number',
           'number' => 'number',
           'string' => 'text',
-          'enumeration' => values != null && values.length <= 8 ? values.map((v) => '`$v`').join(' ') : _link(ItemKind.enumeration, name, name),
-          'value' => _link(ItemKind.valueType, name, name),
-          'object' => _link(ItemKind.model, name, name),
+          'enumeration' => values != null && values.length <= 8
+              ? values.map((v) => '`$v`').join(' ')
+              : (catalog['enums'] as Map).containsKey(name) ? _link(ItemKind.enumeration, name, name) : '`$name`',
+          // A draw op's own types (DrawPaint) are described by their op.
+          'value' => (catalog['valueTypes'] as Map).containsKey(name) ? _link(ItemKind.valueType, name, name) : '`$name`',
+          'object' => (catalog['objectTypes'] as Map).containsKey(name) ? _link(ItemKind.model, name, name) : '`$name`',
           'json' => 'JSON',
           _ => name,
         };
@@ -612,6 +626,19 @@ final class _NotationReference {
       for (final def in featurePages)
         if (p.json.contains(def.id)) ...[...def.actions, if (def.library case final lib?) for (final a in lib.actions) a.type],
     ];
+    final own = [for (final a in actions) if (placed[ItemKind.action]![a] == p.id) a];
+    if (own.isNotEmpty) {
+      b
+        ..writeln('<a id="${p.id}-actions"></a>')
+        ..writeln('## Actions')
+        ..writeln()
+        ..writeln('Written in an event as their type and fields by name, as on [events.md](events.md#events-actions).')
+        ..writeln();
+      for (final a in own) {
+        b.write(_actionSection(a));
+      }
+    }
+    actions.removeWhere(own.contains);
     if (triggers.isNotEmpty || actions.isNotEmpty) {
       b
         ..writeln('<a id="${p.id}-events-and-actions"></a>')
@@ -693,13 +720,17 @@ final class _NotationReference {
 
   final List<KeptJson> _kept = [];
 
+  /// The prints of the templates' `expands` blocks that the parser says
+  /// something about: printer bugs.
+  final List<({String title, List<String> issues})> _unreadTemplates = [];
+
   /// Examples whose print printed again is another text: printer bugs.
   final List<({String title, String first, String then})> _unsettled = [];
 
   List<NotationExample> _examples() {
     final out = <NotationExample>[];
     final pageOf = {for (final p in notationPages) for (final j in p.json) j: p.id};
-    final seen = <String>{};
+    final seen = <String>{}, titles = <String>{};
     void file(String name, String page, String jsonPage) {
       if (!seen.add(name)) return;
       final raw = jsonDecode(readLf('$root/tool/reference/examples/$name.json'));
@@ -726,14 +757,20 @@ final class _NotationReference {
       final jsonFile = e.key == 'base' ? 'STARTER.md' : '${e.key}.md';
       for (final m in RegExp(r'^```json\n(.*?)\n```$', multiLine: true, dotAll: true).allMatches(text)) {
         final line = '\n'.allMatches(text.substring(0, m.start)).length + 1;
-        final title = '$jsonFile, line $line';
-        final source = '[$jsonFile](../$jsonFile) (its template, line $line)';
+        final source = '[$jsonFile](../$jsonFile) (the block at line $line of its template, ${e.value})';
         Object? value;
         try {
           value = jsonDecode(m[1]!);
         } on FormatException {
           value = jsonDecode('{${m[1]}}');
         }
+        // Titled by what it holds: its type, or its first keys.
+        final what = value is Map && value['type'] is String ? '${value['type']}' : value is Map ? value.keys.take(2).join(', ') : 'a value';
+        var title = '$jsonFile: $what';
+        for (var n = 2; titles.contains(title); n++) {
+          title = '$jsonFile: $what ($n)';
+        }
+        titles.add(title);
         final wrapped = _wrap(value);
         if (wrapped == null) {
           _kept.add((title: title, source: source, page: page, json: m[1]!, why: _whyNotDocument(value)));
@@ -766,18 +803,7 @@ final class _NotationReference {
     final cat = components ? notationComponentsCatalog(root) : c;
     final canvas = (doc['nodes'] as Map)[(doc['roots'] as List?)?.firstOrNull];
     final width = canvas is Map && canvas['type'] == 'canvas' ? notationOptionsFor(doc).width : 390.0;
-    // The print, read back as a block is and printed again until it is
-    // what it prints as (a print that is not is listed in _tails.md).
-    var text = printNotation(doc, catalog: cat);
-    var settled = false;
-    for (var i = 0; i < 4 && !settled; i++) {
-      final again = printNotation(parseNotation(text, catalog: cat, options: notationBlockOptions(width: width)).document, catalog: cat);
-      settled = withoutIds(again) == withoutIds(text);
-      if (!settled) {
-        _unsettled.add((title: title, first: text, then: again));
-        text = again;
-      }
-    }
+    final text = _settle(printNotation(doc, catalog: cat), cat, width, title);
     final issues = parseNotation(text, catalog: cat, options: notationBlockOptions(width: width)).issues;
     final e = NotationExample(title, source, page, text, width, note: note, components: components,
         issues: [for (final i in issues) 'line ${i.line}: ${i.message}']);
@@ -944,6 +970,18 @@ final class _NotationReference {
     return -1;
   }
 
+  /// [text] (a print), read back as a block is and printed again until it
+  /// is what it prints as; a print that is not is listed in _tails.md.
+  String _settle(String text, api.Catalog cat, double width, String title) {
+    for (var i = 0; i < 4; i++) {
+      final again = printNotation(parseNotation(text, catalog: cat, options: notationBlockOptions(width: width)).document, catalog: cat);
+      if (withoutIds(again) == withoutIds(text)) break;
+      _unsettled.add((title: title, first: text, then: again));
+      text = again;
+    }
+    return text;
+  }
+
   static String _clip(String s) => s.length > 120 ? '${s.substring(0, 117)}…' : s;
 
   static void _flatten(Object? v, String at, Set<String> out) {
@@ -1006,7 +1044,7 @@ final class _NotationReference {
       }
     }
     final unread = examples.where((e) => e.issues.isNotEmpty).toList();
-    if (unread.isNotEmpty) {
+    if (unread.isNotEmpty || _unreadTemplates.isNotEmpty) {
       b
         ..writeln('## Prints that do not read without an issue')
         ..writeln()
@@ -1015,6 +1053,9 @@ final class _NotationReference {
         ..writeln();
       for (final e in unread) {
         b.writeln('- **${e.title}** ([${e.page}.md](${e.page}.md#${e.page}-example-${Renderer.slug(e.title)})): ${e.issues.map((i) => '`$i`').join('; ')}');
+      }
+      for (final t in _unreadTemplates) {
+        b.writeln('- **${t.title}** (the print after it): ${t.issues.map((i) => '`$i`').join('; ')}');
       }
       b.writeln();
     }
@@ -1054,10 +1095,10 @@ final class _NotationReference {
     'decorationKeys': () => _fieldTable((catalog['decoration']['fields'] as List).cast<Json>(), (f) => _keyCell('decoration.${f['key']}', 'box'), level: '0'),
     'nodeKeys': () => _fieldTable((catalog['node']['fields'] as List).cast<Json>(), (f) => _keyCell('${f['key']}', 'box'), level: '0'),
     'universal': _universal,
-    'textVariants': () => Renderer.table(['Word', 'Size', 'Weight', 'Color'], [
+    'textVariants': () => [
           for (final e in defaultTextVariants.entries)
-            ['`Text.${e.key}`', '${(e.value as Map)['fontSize'] ?? ''}', '${(e.value as Map)['fontWeight'] ?? ''}', '`${(e.value as Map)['color'] ?? ''}`'],
-        ]),
+            '`Text.${e.key}` (${[(e.value as Map)['fontSize'], ?(e.value as Map)['fontWeight'], ?(e.value as Map)['fontFamily'], if ((e.value as Map)['color'] != '#FF111827') (e.value as Map)['color']].join(' ')})',
+        ].join(', '),
     'buttonVariants': () => [for (final e in buttonVariants.entries) '`Button.${e.key}` (`${e.value.type}`${e.value.props.isEmpty ? '' : ', ${jsonEncode(e.value.props)}'})'].join(', '),
     'badgeVariants': () => [for (final k in badgeVariants.keys) '`Badge.$k`'].join(', '),
     'typeWords': _typeWordsByLevel,
@@ -1101,19 +1142,26 @@ final class _NotationReference {
 
   static String _capital(String s) => s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
 
-  String _universal() => Renderer.table(['Word', 'Written', 'Means'], [
-        for (final e in notationUniversal.entries)
-          if (e.value.of == null)
-            [
-              '`${e.key}`',
-              switch (e.value.kind) {
-                UniversalKind.flag => 'bare',
-                UniversalKind.event => '`${e.key}={…}`',
-                UniversalKind.parameter => '`${e.key}=…`',
-              },
-              '${e.value.meaning}${e.value.on.isEmpty ? '' : ' (on ${e.value.on.join(', ')})'}',
-            ],
-      ]);
+  /// The universal words, written as each is written; words in a row with
+  /// one meaning share a row (`border-top`, `border-bottom`…).
+  String _universal() {
+    final rows = <(List<String>, String)>[];
+    for (final e in notationUniversal.entries) {
+      if (e.value.of != null) continue;
+      final written = switch (e.value.kind) {
+        UniversalKind.flag => '`${e.key}`',
+        UniversalKind.event => '`${e.key}={…}`',
+        UniversalKind.parameter => '`${e.key}=…`',
+      };
+      final means = '${e.value.meaning}${e.value.on.isEmpty ? '' : ' (on: ${e.value.on.join(', ')})'}';
+      if (rows.isNotEmpty && rows.last.$2 == means) {
+        rows.last.$1.add(written);
+      } else {
+        rows.add(([written], means));
+      }
+    }
+    return Renderer.table(['Write', 'Means'], [for (final (w, m) in rows) [w.join(' '), m]]);
+  }
 
   String _typeWordsByLevel() {
     final b = StringBuffer();
@@ -1160,15 +1208,20 @@ final class _NotationReference {
           ],
       ]);
 
-  String _actions() {
+  /// The actions on events.md (a feature layer's are on its page).
+  String _actions() => [
+        for (final type in (catalog['actions']['types'] as Map).keys)
+          if (placed[ItemKind.action]![type] == 'events') _actionSection('$type'),
+      ].join().trimRight();
+
+  String _actionSection(String type) {
     final verbs = <String, List<String>>{};
     for (final (s, types) in _verbTypes) {
       if (types.length == 1) (verbs[types.single] ??= []).add('`$s`');
     }
     final b = StringBuffer();
-    for (final e in (catalog['actions']['types'] as Map).entries) {
-      final type = e.key as String;
-      final a = e.value as Json;
+    {
+      final a = (catalog['actions']['types'] as Map)[type] as Json;
       final fields = (a['fields'] as List).cast<Json>();
       b
         ..writeln('<a id="${ItemKind.action.anchor(type)}"></a>')
@@ -1183,7 +1236,7 @@ final class _NotationReference {
         ..writeln(_fieldTable(fields, (f) => '`${f['key']}`'))
         ..writeln();
     }
-    return b.toString().trimRight();
+    return b.toString();
   }
 
   String _functionNames() {
@@ -1305,7 +1358,10 @@ final class _NotationReference {
   }
 
   /// A page's "Open it when" line (`Open it when …` in its template).
-  static String _when(String page) => RegExp(r'Open it when ([^\n]*)').firstMatch(page)?[1] ?? '';
+  static String _when(String page) {
+    final flat = page.replaceAll(RegExp(r'\n(?!\n)'), ' ');
+    return RegExp(r'Open it when (.*?\.)(?=\s|$)').firstMatch(flat)?[1] ?? '';
+  }
 
   static int _wordCount(String text) => RegExp(r'\S+').allMatches(text).length;
 

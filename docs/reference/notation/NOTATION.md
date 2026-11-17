@@ -2,31 +2,346 @@
 <a id="page-notation"></a>
 # The notation
 
-Core.
+The compact notation writes a Codelessly document one node per line. It says everything the JSON document says,
+in fewer words, and expands to that same document. Read this page in full; it ends with the list of the other
+pages, which you open when a UI needs what they hold.
+
+<a id="notation-a-line"></a>
+## A line
+
+```
+Type[.variant][#id] ["text"] [key=value ...] [on<Event>={actions} ...]
+```
+
+- **Indentation** (two spaces) puts a line under another: its child.
+- **`Type`** is a word ([Words](#notation-words)); `.variant` picks a look (`Text.title`, `Button.outline`).
+- **`#id`** names the node, only where something else names it (an action, an overlay, a scroll target). An id the
+  parser would give the line anyway is not written.
+- **`"text"`** is the node's main string: a Text's text, a Button's label, an Input's label, an Icon's name, an
+  Image's URL. A second string is the Input's hint. `{name}` inside a string shows a value: `"Total: {total}"`.
+- **`key=value`** sets a field. The key is a short word (`gap`, `pad`, `w`, `h`, `fill`, `radius`) or the field's own
+  name in the API (`letterSpacing`, `squeezable`, `crossAxisCount`). A field inside a record is a dotted key
+  (`pan.axis=horizontal`, `fills[0].color=#FF2563EB`); the full path from the node always reads too (`layout.x=10`,
+  `props.style.height=1.2`). Each word page gives every key of its words.
+- **Values**: a number (`12`, `0.5`), a bare word (an enum's value `center`, a color `#FF2563EB`, `true`), a quoted
+  string (`"Two words"`), JSON for a list or a map (`items=["S","M","L"]`), or `{expression}` for a value that
+  follows the state (`visible={count > 0}`). Colors are `#AARRGGBB`. The docs of the keys quote the JSON's
+  expressions: `${name}` there is `{name}` here, and `${= formula}` is `{formula}`.
+- **`on<Event>={actions}`** runs actions on an event, `;` between them.
+- **A bare word** after the text is a flag: `grow`, `hidden`, `scroll`, `center`.
+
+```notation
+state count=0
+Column gap=12 pad=16
+  Text.title "Counter"
+  Text "Clicked {count} times"
+  Row gap=8
+    Button.outline "-" onTap={count=max(0,count-1)}
+    Button "+" onTap={count=count+1}
+```
+
+What no word says yet can be written as JSON: a `{…}` at the end of a line is merged into that node
+(`Text "x" {"props":{"maxLines":2}}`), and `node {"type":"…", …}` is a whole node. You should rarely need either:
+every field of the API has a key.
+
+<a id="notation-words"></a>
+## Words
+
+A line's word is its node type. These are the words, by [level](levels.md); each links to its keys.
+
+- **0. Core:** [`Stack`](layout.md#node-stack), [`box`](layout.md#node-box), [`Row`](layout.md#node-row), [`Column`](layout.md#node-column), [`Flex`](layout.md#node-flex), [`Text`](theme.md#node-text), [`Icon`](decoration.md#node-icon), [`Spacer`](layout.md#node-spacer), [`ListView`](lists.md#node-listView), [`gridView`](lists.md#node-gridView), [`Divider`](layout.md#node-divider), [`VerticalDivider`](layout.md#node-verticalDivider), [`Placeholder`](components.md#node-placeholder), [`SinglePlaceholder`](components.md#node-singlePlaceholder)
+- **1. Widget catalog:** [`Pages`](lists.md#node-pageView), [`Tabs`](navigation.md#node-tabs), [`TabBar`](navigation.md#node-tabBar), [`Accordion`](navigation.md#node-accordion), [`ExpansionTile`](navigation.md#node-expansionTile), [`Pagination`](lists.md#node-pagination), [`TableView`](lists.md#node-tableView), [`Input`](forms.md#node-textField), [`Checkbox`](forms.md#node-checkbox), [`Toggle`](forms.md#node-switch), [`Radio`](forms.md#node-radio), [`Slider`](forms.md#node-slider), [`Splitter`](forms.md#node-splitter), [`Select`](forms.md#node-dropdown), [`DatePicker`](forms.md#node-datePicker), [`Calendar`](forms.md#node-calendar), [`TimePicker`](forms.md#node-timePicker), [`DateTimeInput`](forms.md#node-dateTimeInput), [`SegmentedButton`](forms.md#node-segmentedButton), [`Button.elevated`](forms.md#node-elevatedButton), [`Button`](forms.md#node-filledButton), [`Button.ghost`](forms.md#node-textButton), [`Button.outline`](forms.md#node-outlinedButton), [`IconButton`](forms.md#node-iconButton), [`FloatingActionButton`](forms.md#node-floatingActionButton), [`Chip`](forms.md#node-chip), [`ActionChip`](forms.md#node-actionChip), [`ChoiceChip`](forms.md#node-choiceChip), [`FilterChip`](forms.md#node-filterChip), [`InputChip`](forms.md#node-inputChip), [`badge`](charts.md#node-badge), [`ListTile`](lists.md#node-listTile), [`appBar`](navigation.md#node-appBar), [`NavigationBar`](navigation.md#node-navigationBar), [`BottomNavigationBar`](navigation.md#node-bottomNavigationBar), [`Modal`](navigation.md#node-modal), [`CircularProgressIndicator`](charts.md#node-circularProgressIndicator), [`ActivityIndicator`](charts.md#node-activityIndicator), [`Progress`](charts.md#node-progressBar), [`BarChart`](charts.md#node-barChart), [`LineChart`](charts.md#node-lineChart)
+- **3. Design systems:** [`Variance`](layout.md#node-variance), [`Slot`](components.md#node-slot)
+- **4. Full vocabulary:** [`Signature`](forms.md#node-signature), [`RadialGauge`](charts.md#node-radialGauge), [`GaugeMeter`](charts.md#node-gaugeMeter), [`Chart`](charts.md#node-chart), [`PlotChart`](charts.md#node-plotChart), [`barcode`](charts.md#node-barcode), [`Path`](decoration.md#node-path), [`External`](components.md#node-external), [`Video`](media.md#node-video), [`EmbeddedVideo`](media.md#node-embeddedVideo), [`AudioPlayer`](media.md#node-audioPlayer), [`WebView`](media.md#node-webView)
+
+Words that stand for a type with more set:
+
+```notation expands
+Column gap=8
+  Card gap=8
+    Text.strong "A card: a padded, bordered column"
+  Box pad=12 fill=#FFF3F4F6 radius=8
+    Text "A box: a column you style"
+  Input "Email" "you@example.com"
+```
+
+It reads as:
+
+```notation
+Column gap=8
+  Column gap=8 pad=12 fill=#FFFFFFFF border=#FFE5E7EB radius=8
+    Text.strong "A card: a padded, bordered column"
+  Column pad=12 fill=#FFF3F4F6 radius=8
+    Text "A box: a column you style"
+  Input "Email" hint="you@example.com"
+```
+
+- Text looks: `Text.pageTitle` (20 600), `Text.heading1` (30 700), `Text.heading2` (24 700), `Text.heading3` (18 600), `Text.sectionTitle` (14 600), `Text.panelTitle` (12 600), `Text.body` (13), `Text.bodySecondary` (12 #FF4B5563), `Text.fieldLabel` (11.5 600 #FF4B5563), `Text.caption` (11 #FF9CA3AF), `Text.mono` (12 monospace), `Text.title` (20 600), `Text.heading` (14 600), `Text.strong` (13 600), `Text.small` (12 #FF4B5563), `Text.muted` (13 #FF4B5563), `Text.danger` (13 600 #FFDC2626), `Text.success` (13 600 #FF16A34A)
+- Button looks: `Button.primary` (`filledButton`), `Button.secondary` (`filledButton`, {"tonal":true}), `Button.tertiary` (`filledButton`, {"tonal":true}), `Button.outline` (`outlinedButton`), `Button.ghost` (`textButton`), `Button.elevated` (`elevatedButton`), `Button.destructive` (`filledButton`, {"style":{"backgroundColor":"#FFDC2626","foregroundColor":"#FFFFFFFF"}}). Plain `Button` is primary.
+- Badge looks: `Badge.neutral`, `Badge.primary`, `Badge.info`, `Badge.success`, `Badge.warning`, `Badge.error`, `Badge.danger`.
+- `Grid cols=3 gap=8` lays the lines under it in columns; `List` is a column of rows; `Image "url"` a picture;
+  `Avatar "Maya Reyes"` a round mark with initials; `Pages` a swiped row of pages.
+- Page frames and overlays (`App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Brand`, `Content`, `Dialog`, `Dots`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Heading`, `Hero`, `IconTile`, `Lightbox`, `Link`, `Logo`, `Main`, `Menu`, `MenuItem`, `Modal`, `Nav`, `NavBar`, `NavItem`, `NavLink`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `SidebarItem`, `Sidenav`, `SwipeAction`, `Title`, `TopBar`, `Topbar`, `Wanted`, `Window`) are on [navigation.md](navigation.md).
+
+<a id="notation-words-every-line-takes"></a>
+## Words every line takes
+
+| Write | Means |
+|---|---|
+| `w=…` | its width: a number, fill or hug |
+| `h=…` | its height |
+| `grow` | takes the room left along its row or column |
+| `pad=…` | the room inside its edge |
+| `gap=…` | the room between what is in it |
+| `fill=…` | its background colour (a bare fill: as wide as its place) |
+| `radius=…` | its corners |
+| `border=…` | a hairline round it |
+| `border-top=…` `border-bottom=…` `border-left=…` `border-right=…` | a hairline on that side |
+| `maxw=…` | the widest it gets |
+| `scroll` | scrolls what is in it |
+| `sticky` | stays in view while the page scrolls under it |
+| `animate=…` | how it arrives or keeps moving |
+| `duration=…` | with animate: how long |
+| `delay=…` | with animate: how long before |
+| `stagger=…` | with animate under an each: each copy that much later |
+| `center` | centred across |
+| `middle` | centred down |
+| `start` | at the start |
+| `end` | at the end |
+| `between` | its ends apart |
+| `around` | spread with room around each |
+| `evenly` | spread evenly |
+| `top` | at the top |
+| `bottom` | at the bottom |
+| `left` | at the left |
+| `right` | at the right |
+| `stretch` | what is in it as wide as it |
+| `visible=…` | shown while it holds |
+| `hidden` | not shown (hidden={cond}: while it holds) |
+| `hide=…` | not shown at that size (hide=phone) |
+| `show=…` | shown only at that size (show=phone) |
+| `id=…` | a name a scroll goes to |
+| `drag=…` | dragged, in a group, carrying a value |
+| `drop=…` | takes drops from those groups |
+| `menu=…` | that Menu on a right click or a long press |
+| `preview=…` | that Popover as a hover card |
+| `tooltip=…` | shown on hover, focus or a touch hold; names an icon-only button |
+| `selected=…` | its selected state: the theme's selected look, announced selected |
+| `onTap={…}` | a tap or click (Enter or Space when focused) |
+| `onLongPress={…}` | a long press |
+| `onDoubleTap={…}` | a double tap |
+| `onRightClick={…}` | a right click |
+| `onHover={…}` | the pointer comes over it |
+| `onDrop={…}` | something dragged is dropped on it |
+| `onSwipeLeft={…}` `onSwipeRight={…}` `onSwipeUp={…}` `onSwipeDown={…}` | a swipe |
+| `color=…` | its main ink: a text's or an icon's colour, a control's accent, on a container the ink of what is written in it (on: container, text, icon, control) |
+| `size=…` | small, medium or large: a step of the theme's scale (a number where the type takes one) (on: text, icon, control) |
+| `icon=…` | a leading icon on what has a label (on: icon, control) |
+| `enabled=…` | false (or disabled): takes no input, drawn as disabled |
+| `readonly` | shows its value and takes no input (on: control) |
+| `required` | its label marked, and an input checks it is not empty (on: control) |
+| `autofocus` | has the keyboard's focus when the page opens (on: control) |
+| `reorder` | its rows are dragged (or moved by Alt and the arrows) into a new order (on: container) |
+| `handle` | with reorder: its rows are dragged by their Handle (on: container) |
+| `onReorder={…}` | after a move: result is the list in its new order (on: container) |
+| `selectable` | its rows are chosen: a tap alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all; kept in bind=list (on: container) |
+| `onSelect={…}` | after the selection changes: result is the selection (on: container) |
+| `removable` | a small x that fires onRemove |
+| `onRemove={…}` | its x was pressed (or Delete on a chip) |
+
+<a id="notation-sizes-and-alignment"></a>
+## Sizes and alignment
+
+A size is worked out: in a Column a child is as wide as the column and as tall as its content; in a Row a child is as
+big as its content. Write a size only where the design needs one.
+
+- `w`, `h`: a number (fixed), `fill` (the room the parent gives), `hug` (the content's size). `grow` on a child of a
+  Row or Column takes the room left (shared by every child with `grow`).
+- `pad`: one number, or `[left,top,right,bottom]`. `gap`: the room between children. `margin` as `pad`.
+- `maxWidth=720` (also `minWidth`, `minHeight`, `maxHeight`) bounds a size.
+- On a Row, Column or Stack: `center` is across the page and `middle` down it. Along a Row or Column: `start`,
+  `end`, `between`, `around`, `evenly`. Across it: `top`, `bottom`, `left`, `right`, `stretch`.
+- `scroll` makes a Column scroll (a Row: sideways).
+
+```notation
+Row gap=8
+  Column w=120 h=40 fill=#FFE5E7EB
+  Column h=40 grow fill=#FFDBEAFE
+```
+
+```notation
+Row gap=8 between
+  Text.strong "Total"
+  Text "$24"
+```
+
+Every layout key is on [layout.md](layout.md).
+
+<a id="notation-state"></a>
+## State
+
+`state name=value` at the margin, before the tree, declares a variable; its type is its value's. A type the value
+does not say is written after a colon: `state price:decimal=0`. A value worked out from others is a formula
+variable, kept up to date: `state total:decimal={price * qty}`. `saved` keeps a value on the device across reloads.
+Types: `integer`, `text`, `decimal`, `boolean`, `color`, `list`, `map`, `image`, `choice`.
+
+- `{name}` in a string, and `key={expression}` on any key, follow the state.
+- `bind=name` keeps a control's value in a variable, both ways: `Slider bind=volume`, `Input "Email" bind=email`.
+- An action sets a variable: `onTap={count=count+1}`.
+
+```notation
+state price=2.5
+state qty=1
+state total:decimal={price * qty}
+Column gap=8
+  Text "Total: {total}"
+  Slider bind=qty
+```
+
+<a id="notation-formulas"></a>
+## Formulas
+
+Inside `{…}`: `+ - * / %`, `== != < <= > >=`, `&& || !`, `cond ? a : b`; text in `"double"` or `'single'`
+quotes; lists `[1,2]`, fields `a.b`, items `list[0]`; a function of one argument `x => x.price`. Lists never change
+in place: set the variable to a new list (`cart=append(cart,item)`). The functions, by group (each with its
+signature on [state.md](state.md#state-functions)):
+
+- **Text:** `left` `right` `upper` `lower` `trim` `contains` `startsWith` `endsWith` `padLeft` `padRight` `substring` `replace` `regexReplace` `titleCase` `split` `matches` `slug` `charCode` `fromCharCode` `codeUnits` `join` `pad` `text` `runs` `interpolate` `textDirection` `textDirectionOf` `plural` `pluralCategory`
+- **Numbers and math:** `round` `floor` `ceil` `abs` `min` `max` `sqrt` `pow` `exp` `ln` `log` `sign` `hypot` `sin` `cos` `tan` `asin` `acos` `atan` `atan2` `pi` `radians` `degrees` `clamp` `distance` `number` `random` `fill` `fixed` `feetInches` `thousands` `seconds` `duration`
+- **Money and number formatting:** `money` `currency` `parseAmount` `formatAmount` `currencySymbol` `currencyDecimals` `formatNumber` `formatCurrency` `formatPercent`
+- **Lists:** `sum` `count` `length` `filter` `where` `find` `any` `all` `map` `sortBy` `sortByDesc` `findIndex` `fuzzy` `fuzzyScore` `matchRanges` `matchRuns` `matchReason` `groupBy` `unique` `without` `concat` `first` `last` `slice` `take` `skip` `reverse` `range` `indexOf` `flatten` `compact` `append` `prepend` `setAt` `insertAt` `removeAt` `move` `moveItems` `updateWhere` `removeWhere` `minBy` `maxBy` `pick` `flatMap` `at` `isEmpty` `isNotEmpty` `toMap`
+- **Objects:** `object` `obj` `merge` `set` `keys` `values` `get` `unset` `with` `newId`
+- **Dates and time:** `now` `nowMs` `today` `wallTime` `parseDate` `formatDate` `addSeconds` `diffSeconds` `formatDuration` `addMinutes` `addHours` `addDays` `addMonths` `diffMinutes` `diffHours` `diffDays` `timeAgo` `formatRelative` `isToday` `isPast` `isFuture` `isSameDay` `isBefore` `isAfter` `year` `month` `day` `hour` `minute` `second` `weekday` `daysInMonth`
+- **Colors:** `luminance` `mix` `alpha` `lerpColor`
+- **Logic:** `if` `coalesce`
+
+<a id="notation-events-and-actions"></a>
+## Events and actions
+
+`on<Event>={actions}` on any line. Inside the braces, `result` is what the event carries (a control's new value,
+where a tap landed). The events of the core and the controls:
+
+| Event | Fires |
+|---|---|
+| [`onTap`](events.md#trigger-click) | A tap (a click with a mouse). `${result}` holds where it landed (`x`, `y` in the node, `globalX`, `globalY`) and the modifier keys held (`meta`, `shift`, `alt`). |
+| [`onChange`](events.md#trigger-changed) | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
+| [`onChangeEnd`](events.md#trigger-changeEnd) | A slider was let go, with its final value. |
+| [`onSubmit`](events.md#trigger-submitted) | A text field was submitted from the keyboard. |
+| [`onDeleted`](events.md#trigger-deleted) | An input chip's delete icon was tapped, or Delete or Backspace pressed on it (Flutter's `onDeleted`). |
+| [`onEditingComplete`](events.md#trigger-editingComplete) | A text field lost focus after editing. |
+| [`onFocus`](events.md#trigger-focusGained) | A text field gained or lost focus. |
+| [`onBlur`](events.md#trigger-focusLost) |  |
+| [`onRowTap`](events.md#trigger-rowTap) | A table view's body row was tapped: `${result.row}` (the row's data), `${result.rowIndex}`, `${result.column}` (the tapped column's key), `${result.columnIndex}`. |
+| [`onSort`](events.md#trigger-sort) | A table header was activated by pointer or keyboard: `${result.column}` is its key, `${result.columnIndex}` its index, and `${result.ascending}` the new direction. |
+
+Every other trigger is `on` and its name with a capital (`onDragEnd`, `onScroll`, `onEnterViewport`); a trigger's
+fields go in parentheses before the `=`: `onKeyDown(key=Enter)={…}`. All are on [events.md](events.md).
+
+Actions, `;` between them. The verbs:
+
+| Write | Action |
+|---|---|
+| `count=count+1` | [`setVariable`](events.md#action-setVariable) |
+| `emit save` | [`componentEvent`](events.md#action-componentEvent) |
+| `toast "Saved"` | [`showToast`](events.md#action-showToast) |
+| `open signup` | [`openModal`](events.md#action-openModal) |
+| `close` | [`closeModal`](events.md#action-closeModal) |
+| `go home` | [`navigate`](events.md#action-navigate) |
+| `scroll pricing` | [`scrollTo`](events.md#action-scrollTo) |
+| `link https://example.com` | [`openLink`](events.md#action-openLink) |
+| `announce "3 results"` | [`announce`](events.md#action-announce) |
+| `confirm "Remove it?" then {close}` | [`confirm`](events.md#action-confirm) |
+| `focus email` | [`focus`](events.md#action-focus) |
+| `blur` | [`focus`](events.md#action-focus) |
+| `copy "{link}"` | [`copyToClipboard`](events.md#action-copyToClipboard) then [`showToast`](events.md#action-showToast) |
+| `ok ? close : toast "Fill it in"` | [`if`](events.md#action-if) |
+
+Any other action is its type and its fields by name: `animate node=hero command=forward`,
+`scrollTo node=faq alignment=0`. Every action type and its fields are on [events.md](events.md).
+
+```notation
+Column w=40 h=40 onKeyDown(key=Enter)={emit go} onLongPress={toast "Held"}
+```
+
+A screen's timers and shortcuts are lines of their own, after the tree:
+
+```notation
+state count=0
+Text "{count}"
+every 1s onTick={count=count+1}
+key mod+k onPress={count=0}
+```
+
+<a id="notation-lists-and-conditions"></a>
+## Lists and conditions
+
+`each item in list` repeats the lines under it once per element; inside, `{item.name}` reads the element and
+`index` its place. `if expression` shows the lines under it while it holds; `else` after it, the others.
+
+```notation
+state rows=[{"name":"Ada","done":false},{"name":"Lin","done":true}]
+state tab="all"
+Column gap=8
+  each item in rows
+    Text "{item.name}"
+  if tab == "all"
+    Text "Everything"
+  else
+    Text "Some"
+```
+
+A control bound to a field of the element changes that element: `Checkbox bind=row.done` under `each row in
+rows`. Tables, grids, paging and reordering are on [lists.md](lists.md).
+
+<a id="notation-pages-at-other-widths"></a>
+## Pages at other widths
+
+Write the page once, for its width. A key with a condition before it holds only at that size:
+`phone.pad=16`, `tablet.gap=8`, `max899.hidden`. `hide=phone` leaves a node out on a phone; `show=phone` shows it
+only there.
+
+| Condition | Holds | Also written |
+|---|---|---|
+| `phone` | up to 699 px | `hide=phone` |
+| `tablet` | up to 1023 px | `hide=tablet` |
+| `desktop` | from 1024 px | `hide=desktop` |
+
+```notation
+Column pad=48 phone.pad=16
+  Text "Wide" phone.size=14 hide=tablet
+```
+
+Bounds in pixels (`min700`, `max899`), breakpoints (`minTablet`), orientation (`portrait`) and combined conditions
+are on [responsive.md](responsive.md).
+
+<a id="notation-the-references"></a>
+## The references
+
+Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md](index.md).
 
 | Page | What is in it | Open it when | Words |
 |---|---|---|---|
-| [layout.md](layout.md) | Stub. | stub. | 3977 |
-| [theme.md](theme.md) | Stub. | stub. | 1119 |
-| [decoration.md](decoration.md) | Stub. | stub. | 2183 |
-| [paint.md](paint.md) | Stub. | stub. | 192 |
-| [forms.md](forms.md) | Stub. | stub. | 11344 |
-| [lists.md](lists.md) | Stub. | stub. | 5416 |
-| [state.md](state.md) | Stub. | stub. | 3103 |
-| [events.md](events.md) | Stub. | stub. | 7345 |
-| [interaction.md](interaction.md) | Stub. | stub. | 3041 |
-| [animation.md](animation.md) | Stub. | stub. | 2670 |
-| [charts.md](charts.md) | Stub. | stub. | 7325 |
-| [responsive.md](responsive.md) | Stub. | stub. | 26 |
-| [navigation.md](navigation.md) | Stub. | stub. | 2200 |
-| [components.md](components.md) | Stub. | stub. | 1352 |
-| [design-systems.md](design-systems.md) | Stub. | stub. | 188 |
-| [document.md](document.md) | Stub. | stub. | 407 |
-| [values.md](values.md) | Stub. | stub. | 13307 |
-| [data.md](data.md) | Stub. | stub. | 117 |
-| [auth.md](auth.md) | Stub. | stub. | 132 |
-| [commerce.md](commerce.md) | Stub. | stub. | 107 |
-| [media.md](media.md) | Stub. | stub. | 1066 |
-| [engage.md](engage.md) | Stub. | stub. | 94 |
+| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 4814 |
+| [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1281 |
+| [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`. | 2612 |
+| [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 1775 |
+| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and `bind`. | 11617 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 5673 |
+| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 3350 |
+| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | a UI reacts to more than a tap and a change, or an action needs a field the verbs do not say. | 5436 |
+| [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | a line reacts to the pointer beyond a tap, or is dragged, dropped or swiped. | 3171 |
+| [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | a line moves, fades, springs or follows a value over time. | 3548 |
+| [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | a UI shows numbers as a picture. | 7486 |
+| [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | a page must work on a phone, a tablet and a desktop, or a line looks different while hovered or pressed. | 368 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 2648 |
+| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 1592 |
+| [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 391 |
+| [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 742 |
+| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 13442 |
+| [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | a UI loads or saves data beyond its own state. | 1657 |
+| [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | a UI has accounts. | 283 |
+| [commerce.md](commerce.md) | The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link). | a UI sells something. | 300 |
+| [media.md](media.md) | The media layer: video, embedded video, audio, web views, reading text aloud, sounds, printing, screenshots, downloads and preloading images. | a UI plays or embeds media. | 1820 |
+| [engage.md](engage.md) | The engagement layer: app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `{usage}` counters they read. | a UI fires an app event. | 247 |
 | [levels.md](levels.md) | The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md). | you are given a level, or a trust profile, to write within. | 541 |
 | [index.md](index.md) | Every word, event, action and function, A to Z, and the page it is on. | you look a name up. |  |

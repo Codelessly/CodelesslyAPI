@@ -1,6 +1,28 @@
-# theme
+# Text and theme
 
-Stub. Open it when stub.
+Text, its looks and its style keys, the theme's names for colors and styles, and text direction. Open it when a text
+needs a size, weight, font, line height or a theme color, or the page has a dark mode.
+
+## Text
+
+`Text "…"` is body text; a look is a variant (`Text.title`, `Text.muted`; the list is in
+[NOTATION.md](NOTATION.md#notation-words)). `size`, `weight` and `color` set its style; any other field of its
+style is a key by its own name (`letterSpacing`, `fontFamily`, `height` for the line height, `decoration`).
+`{name}` in the text shows a value.
+
+```notation
+Column gap=4
+  Text.heading2 "Hello" size=32 color=#FF2563EB
+  Text "Two lines at most" maxLines=2 overflow=ellipsis
+  Text.title "In the theme's primary" color=primary
+```
+
+A theme color or text style is written by its name (`color=primary`, `color=onSurface`): the document's theme
+gives it. The theme itself is in the site's files ([design-systems.md](design-systems.md)).
+
+```notation
+Button "Dark mode" onTap={setThemeMode mode=dark}
+```
 
 {{reference}}
 

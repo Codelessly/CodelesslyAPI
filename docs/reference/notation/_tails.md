@@ -3,7 +3,7 @@
 
 The work list for notation parity (docs/design/22-notation-parity.md). Each example of the JSON reference is printed with `printNotation`; a line that keeps part of its node in a `{…}` tail, a `node {…}` line and a `document {…}` line are listed here, with the paths the JSON holds. The reference is complete when this list is empty.
 
-63 examples; 46 with a tail; 128 lines with one; 67 distinct paths; 2 prints that do not read without an issue; 7 that print again differently.
+63 examples; 46 with a tail; 128 lines with one; 67 distinct paths; 2 prints that do not read without an issue; 8 that print again differently.
 
 ## Paths, most lines first
 
@@ -86,13 +86,13 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | 2 | `Row#row gap=24 center pad=24 w={"fill":5…` | `props.crossAxisAlignment` |
 | 5 | `box#outlined w=140 h=120 border=#FF2563E…` | `decoration.dashPattern` |
 
-### STARTER.md, line 317 ([document.md](document.md#document-example-starter-md-line-317))
+### STARTER.md: variables ([document.md](document.md#document-example-starter-md-variables))
 
 | Line | Starts | Paths |
 |---|---|---|
 | 6 | `document` | `variables.*[].formula`, `variables.*[].name`, `variables.*[].parameters`, `variables.*[].type`, `variables.*[].value`, `variables.*[].value[].monthly`, `variables.*[].value[].name` |
 
-### STARTER.md, line 337 ([document.md](document.md#document-example-starter-md-line-337))
+### STARTER.md: bind ([document.md](document.md#document-example-starter-md-bind))
 
 | Line | Starts | Paths |
 |---|---|---|
@@ -170,7 +170,7 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | 4 | `Column#stacked gap=12 w={"fill":342} h={…` | `props.crossAxisAlignment` |
 | 7 | `Row#sideBySide gap=12 w={"fill":342} h={…` | `props.crossAxisAlignment` |
 
-### layout.md, line 188 ([layout.md](layout.md#layout-example-layout-md-line-188))
+### layout.md: split ([layout.md](layout.md#layout-example-layout-md-split))
 
 | Line | Starts | Paths |
 |---|---|---|
@@ -226,7 +226,7 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | 13 | `Text#sent "Saved on this device: {email}…` | `bind.visible` |
 | 14 | `document` | `nodes.*.props.validator` |
 
-### forms.md, line 117 ([forms.md](forms.md#forms-example-forms-md-line-117))
+### forms.md: search ([forms.md](forms.md#forms-example-forms-md-search))
 
 | Line | Starts | Paths |
 |---|---|---|
@@ -277,7 +277,7 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | 18 | `box#dot w=8 h={"fill":8} fill=#FFD1D5DB …` | `bind.decoration.fills[0].color` |
 | 20 | `box#trackFill w=0 h=4 fill=#FF111827 rad…` | `bind.layout.widthFactor` |
 
-### lists.md, line 56 ([lists.md](lists.md#lists-example-lists-md-line-56))
+### lists.md: sections, section ([lists.md](lists.md#lists-example-lists-md-sections-section))
 
 | Line | Starts | Paths |
 |---|---|---|
@@ -312,13 +312,13 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | 2 | `Column#col middle w={"fill":390} h={"fil…` | `props.crossAxisAlignment` |
 | 3 | `Row#cta pad=[20,12,20,12] w={"hug":160} …` | `props`, `states.hovered.cta.decoration.fills[].color`, `states.hovered.ctaLabel.props.text`, `states.pressed.cta.opacity` |
 
-### interaction.md, line 58 ([interaction.md](interaction.md#interaction-example-interaction-md-line-58))
+### interaction.md: bind, states ([interaction.md](interaction.md#interaction-example-interaction-md-bind-states))
 
 | Line | Starts | Paths |
 |---|---|---|
 | 1 | `Text#example` | `bind.selected`, `states.selected.linen.props.style.backgroundColor`, `states.selected.linen.props.style.foregroundColor` |
 
-### interaction.md, line 129 ([interaction.md](interaction.md#interaction-example-interaction-md-line-129))
+### interaction.md: menu ([interaction.md](interaction.md#interaction-example-interaction-md-menu))
 
 | Line | Starts | Paths |
 |---|---|---|
@@ -331,7 +331,7 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | 3 | `Row#row gap=12 pad=24 w={"fill":390} h={…` | `props.crossAxisAlignment` |
 | 4 | `box#check w=32 h=32 fill=#FFE5E7EB radiu…` | `bind.decoration.fills[0].color`, `bind.motion.scale` |
 
-### animation.md, line 76 ([animation.md](animation.md#animation-example-animation-md-line-76))
+### animation.md: variables, actions ([animation.md](animation.md#animation-example-animation-md-variables-actions))
 
 | Line | Starts | Paths |
 |---|---|---|
@@ -372,7 +372,7 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | 13 | `box#packBox w=20 h=20 fill=#FFFFFFFF bor…` | `bind.decoration.fills[0].color` |
 | 15 | `Footer#footer w={"fill":390} h=64` | `props`, `type` |
 
-### components.md, line 13 ([components.md](components.md#components-example-components-md-line-13))
+### components.md: schema, id ([components.md](components.md#components-example-components-md-schema-id))
 
 | Line | Starts | Paths |
 |---|---|---|
@@ -441,8 +441,9 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 
 Printer bugs: the print gives the document back, but the parser says something reading it. Each block is marked `unchecked` on its page.
 
-- **STARTER.md, line 317** ([document.md](document.md#document-example-starter-md-line-317)): `line 3: A variable's type is one of integer, text, decimal, boolean, color, list, map, image, choice: state price:decimal=0.`
+- **STARTER.md: variables** ([document.md](document.md#document-example-starter-md-variables)): `line 3: A variable's type is one of integer, text, decimal, boolean, color, list, map, image, choice: state price:decimal=0.`
 - **sections/pages/home.json** ([components.md](components.md#components-example-sections-pages-home-json)): `line 5: A Chip has no "selected": left out. Its props are written key=value on the line.`; `line 6: A Chip takes no lines under it (it has no children and no slot): write this line after it, at its own indent.`
+- **lists.md, the block of line 43** (the print after it): `line 3: The id "pageView1Page" is used twice. Give this line an id of its own.`
 
 ## Prints that print again differently
 
@@ -464,6 +465,8 @@ Each example is shown as its print printed again (the same document): the printe
   - line 5: `Text#head "{item.label}" weight=700 color=#FF334155 pad=[12,10,12,10] w={"fill":100} h={"fill":40}` then `Text#head "{item.label}" color=#FF334155 weight=700 pad=[12,10,12,10] w={"fill":100} h={"fill":40}`
 - **sections/pages/home.json**
   - line 10: `document {"id":"home","nodes":{"design":{"props":{"selected":"tag"}}}}` then `document {"nodes":{"design":{"props":{"selected":"tag"}}},"id":"home"}`
+- **navigation.md, the block of line 40**
+  - line 9: `Button "Close" maxWidth=240 onTap={close} max479.grow max479.w={"fill":0,"hug":null} max479.maxWidth=null` then `Button "Close" maxWidth=240 onTap={close} max479.maxWidth=null max479.w={"fill":0,"hug":null} max479.grow`
 
 ## Kept as JSON (not a layout document)
 
@@ -472,12 +475,12 @@ These blocks are JSON in both references; they are not part of the work list.
 | Block | Page | Why |
 |---|---|---|
 | theme/site.json | document.md | It is a site's manifest (`site.json`), not a page. |
-| theme.md, line 130 | theme.md | It is a site's manifest (`site.json`), not a page. |
+| theme.md: schema, pages | theme.md | It is a site's manifest (`site.json`), not a page. |
 | site/site.json | components.md | It is a site's manifest (`site.json`), not a page. |
-| components.md, line 43 | components.md | It is a map of values, not a document. |
-| components.md, line 74 | components.md | It is a site's manifest (`site.json`), not a page. |
-| components.md, line 84 | components.md | It is a site's manifest (`site.json`), not a page. |
-| design-systems.md, line 14 | design-systems.md | It is a design system's manifest, not a page. |
-| design-systems.md, line 27 | design-systems.md | It is a site's manifest (`site.json`), not a page. |
-| values.md, line 14 | values.md | It is a map of values, not a document. |
+| components.md: nodes | components.md | It is a map of values, not a document. |
+| components.md: schema, pages | components.md | It is a site's manifest (`site.json`), not a page. |
+| components.md: schema, pages (2) | components.md | It is a site's manifest (`site.json`), not a page. |
+| design-systems.md: id, name | design-systems.md | It is a design system's manifest, not a page. |
+| design-systems.md: schema, pages | design-systems.md | It is a site's manifest (`site.json`), not a page. |
+| values.md: color, padding | values.md | It is a map of values, not a document. |
 | sections/site.json | components.md | It is a site's manifest (`site.json`), not a page. |

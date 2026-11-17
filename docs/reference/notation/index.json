@@ -2,7 +2,7 @@
   "version": "33.1.1",
   "base": {
     "file": "NOTATION.md",
-    "words": 295
+    "words": 3548
   },
   "topics": [
     {
@@ -10,16 +10,114 @@
       "file": "NOTATION.md",
       "anchor": "page-notation",
       "title": "The notation",
-      "summary": "Core.",
-      "words": 295
+      "summary": "The compact notation writes a Codelessly document one node per line.",
+      "words": 3548
+    },
+    {
+      "topic": "notation-a-line",
+      "file": "NOTATION.md",
+      "anchor": "notation-a-line",
+      "title": "A line",
+      "words": 314
+    },
+    {
+      "topic": "notation-words",
+      "file": "NOTATION.md",
+      "anchor": "notation-words",
+      "title": "Words",
+      "words": 355
+    },
+    {
+      "topic": "notation-words-every-line-takes",
+      "file": "NOTATION.md",
+      "anchor": "notation-words-every-line-takes",
+      "title": "Words every line takes",
+      "words": 687
+    },
+    {
+      "topic": "notation-sizes-and-alignment",
+      "file": "NOTATION.md",
+      "anchor": "notation-sizes-and-alignment",
+      "title": "Sizes and alignment",
+      "words": 169
+    },
+    {
+      "topic": "notation-state",
+      "file": "NOTATION.md",
+      "anchor": "notation-state",
+      "title": "State",
+      "words": 120
+    },
+    {
+      "topic": "notation-formulas",
+      "file": "NOTATION.md",
+      "anchor": "notation-formulas",
+      "title": "Formulas",
+      "words": 254
+    },
+    {
+      "topic": "notation-events-and-actions",
+      "file": "NOTATION.md",
+      "anchor": "notation-events-and-actions",
+      "title": "Events and actions",
+      "words": 409
+    },
+    {
+      "topic": "notation-lists-and-conditions",
+      "file": "NOTATION.md",
+      "anchor": "notation-lists-and-conditions",
+      "title": "Lists and conditions",
+      "words": 86
+    },
+    {
+      "topic": "notation-pages-at-other-widths",
+      "file": "NOTATION.md",
+      "anchor": "notation-pages-at-other-widths",
+      "title": "Pages at other widths",
+      "words": 97
+    },
+    {
+      "topic": "notation-the-references",
+      "file": "NOTATION.md",
+      "anchor": "notation-the-references",
+      "title": "The references",
+      "words": 930
     },
     {
       "topic": "layout",
       "file": "layout.md",
       "anchor": "page-layout",
-      "title": "layout",
-      "summary": "Stub.",
-      "words": 3977
+      "title": "Layout",
+      "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
+      "words": 4814
+    },
+    {
+      "topic": "layout-sizes",
+      "file": "layout.md",
+      "anchor": "layout-sizes",
+      "title": "Sizes",
+      "words": 97
+    },
+    {
+      "topic": "layout-place",
+      "file": "layout.md",
+      "anchor": "layout-place",
+      "title": "Place",
+      "words": 68
+    },
+    {
+      "topic": "layout-scrolling",
+      "file": "layout.md",
+      "anchor": "layout-scrolling",
+      "title": "Scrolling",
+      "words": 38
+    },
+    {
+      "topic": "layout-keys-every-line-takes",
+      "file": "layout.md",
+      "anchor": "layout-keys-every-line-takes",
+      "title": "Keys every line takes",
+      "words": 576
     },
     {
       "topic": "layout-words",
@@ -47,15 +145,22 @@
       "file": "layout.md",
       "anchor": "layout-examples",
       "title": "Examples",
-      "words": 918
+      "words": 926
     },
     {
       "topic": "theme",
       "file": "theme.md",
       "anchor": "page-theme",
-      "title": "theme",
-      "summary": "Stub.",
-      "words": 1119
+      "title": "Text and theme",
+      "summary": "Text, its looks and its style keys, the theme's names for colors and styles, and text direction.",
+      "words": 1281
+    },
+    {
+      "topic": "theme-text",
+      "file": "theme.md",
+      "anchor": "theme-text",
+      "title": "Text",
+      "words": 107
     },
     {
       "topic": "theme-words",
@@ -90,15 +195,36 @@
       "file": "theme.md",
       "anchor": "theme-examples",
       "title": "Examples",
-      "words": 209
+      "words": 223
     },
     {
       "topic": "decoration",
       "file": "decoration.md",
       "anchor": "page-decoration",
-      "title": "decoration",
-      "summary": "Stub.",
-      "words": 2183
+      "title": "Decoration",
+      "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
+      "words": 2612
+    },
+    {
+      "topic": "decoration-fills-borders-and-corners",
+      "file": "decoration.md",
+      "anchor": "decoration-fills-borders-and-corners",
+      "title": "Fills, borders and corners",
+      "words": 75
+    },
+    {
+      "topic": "decoration-pictures-and-icons",
+      "file": "decoration.md",
+      "anchor": "decoration-pictures-and-icons",
+      "title": "Pictures and icons",
+      "words": 35
+    },
+    {
+      "topic": "decoration-keys-every-decorated-line-takes",
+      "file": "decoration.md",
+      "anchor": "decoration-keys-every-decorated-line-takes",
+      "title": "Keys every decorated line takes",
+      "words": 278
     },
     {
       "topic": "decoration-words",
@@ -126,15 +252,36 @@
       "file": "decoration.md",
       "anchor": "decoration-examples",
       "title": "Examples",
-      "words": 277
+      "words": 281
     },
     {
       "topic": "paint",
       "file": "paint.md",
       "anchor": "page-paint",
-      "title": "paint",
-      "summary": "Stub.",
-      "words": 192
+      "title": "Custom paint",
+      "summary": "Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines.",
+      "words": 1775
+    },
+    {
+      "topic": "paint-the-lines",
+      "file": "paint.md",
+      "anchor": "paint-the-lines",
+      "title": "The lines",
+      "words": 154
+    },
+    {
+      "topic": "paint-the-painter-s-keys",
+      "file": "paint.md",
+      "anchor": "paint-the-painter-s-keys",
+      "title": "The painter's keys",
+      "words": 88
+    },
+    {
+      "topic": "paint-the-ops",
+      "file": "paint.md",
+      "anchor": "paint-the-ops",
+      "title": "The ops",
+      "words": 1289
     },
     {
       "topic": "paint-behaviors",
@@ -147,9 +294,23 @@
       "topic": "forms",
       "file": "forms.md",
       "anchor": "page-forms",
-      "title": "forms",
-      "summary": "Stub.",
-      "words": 11344
+      "title": "Controls and forms",
+      "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
+      "words": 11617
+    },
+    {
+      "topic": "forms-a-control-and-its-value",
+      "file": "forms.md",
+      "anchor": "forms-a-control-and-its-value",
+      "title": "A control and its value",
+      "words": 145
+    },
+    {
+      "topic": "forms-validation",
+      "file": "forms.md",
+      "anchor": "forms-validation",
+      "title": "Validation",
+      "words": 82
     },
     {
       "topic": "forms-words",
@@ -184,15 +345,22 @@
       "file": "forms.md",
       "anchor": "forms-examples",
       "title": "Examples",
-      "words": 557
+      "words": 566
     },
     {
       "topic": "lists",
       "file": "lists.md",
       "anchor": "page-lists",
-      "title": "lists",
-      "summary": "Stub.",
-      "words": 5416
+      "title": "Lists and data",
+      "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
+      "words": 5673
+    },
+    {
+      "topic": "lists-a-list-over-data",
+      "file": "lists.md",
+      "anchor": "lists-a-list-over-data",
+      "title": "A list over data",
+      "words": 216
     },
     {
       "topic": "lists-words",
@@ -227,15 +395,43 @@
       "file": "lists.md",
       "anchor": "lists-examples",
       "title": "Examples",
-      "words": 609
+      "words": 614
     },
     {
       "topic": "state",
       "file": "state.md",
       "anchor": "page-state",
-      "title": "state",
-      "summary": "Stub.",
-      "words": 3103
+      "title": "State and formulas",
+      "summary": "Variables, formula variables and functions, bindings, and every formula function.",
+      "words": 3350
+    },
+    {
+      "topic": "state-variables",
+      "file": "state.md",
+      "anchor": "state-variables",
+      "title": "Variables",
+      "words": 86
+    },
+    {
+      "topic": "state-bindings",
+      "file": "state.md",
+      "anchor": "state-bindings",
+      "title": "Bindings",
+      "words": 58
+    },
+    {
+      "topic": "state-changing-state",
+      "file": "state.md",
+      "anchor": "state-changing-state",
+      "title": "Changing state",
+      "words": 44
+    },
+    {
+      "topic": "state-functions",
+      "file": "state.md",
+      "anchor": "state-functions",
+      "title": "Functions",
+      "words": 2750
     },
     {
       "topic": "state-events-and-actions",
@@ -249,23 +445,51 @@
       "file": "state.md",
       "anchor": "state-examples",
       "title": "Examples",
-      "words": 3045
+      "words": 312
     },
     {
       "topic": "events",
       "file": "events.md",
       "anchor": "page-events",
-      "title": "events",
-      "summary": "Stub.",
-      "words": 7345
+      "title": "Events and actions",
+      "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
+      "words": 5436
+    },
+    {
+      "topic": "events-an-event",
+      "file": "events.md",
+      "anchor": "events-an-event",
+      "title": "An event",
+      "words": 1749
+    },
+    {
+      "topic": "events-actions",
+      "file": "events.md",
+      "anchor": "events-actions",
+      "title": "Actions",
+      "words": 3610
     },
     {
       "topic": "interaction",
       "file": "interaction.md",
       "anchor": "page-interaction",
-      "title": "interaction",
-      "summary": "Stub.",
-      "words": 3041
+      "title": "Interaction",
+      "summary": "Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches.",
+      "words": 3171
+    },
+    {
+      "topic": "interaction-drag-and-drop",
+      "file": "interaction.md",
+      "anchor": "interaction-drag-and-drop",
+      "title": "Drag and drop",
+      "words": 56
+    },
+    {
+      "topic": "interaction-looks-by-state",
+      "file": "interaction.md",
+      "anchor": "interaction-looks-by-state",
+      "title": "Looks by state",
+      "words": 27
     },
     {
       "topic": "interaction-behaviors",
@@ -286,15 +510,36 @@
       "file": "interaction.md",
       "anchor": "interaction-examples",
       "title": "Examples",
-      "words": 109
+      "words": 118
     },
     {
       "topic": "animation",
       "file": "animation.md",
       "anchor": "page-animation",
-      "title": "animation",
-      "summary": "Stub.",
-      "words": 2670
+      "title": "Motion",
+      "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
+      "words": 3548
+    },
+    {
+      "topic": "animation-the-animate-words",
+      "file": "animation.md",
+      "anchor": "animation-the-animate-words",
+      "title": "The animate words",
+      "words": 167
+    },
+    {
+      "topic": "animation-animation-lines",
+      "file": "animation.md",
+      "anchor": "animation-animation-lines",
+      "title": "Animation lines",
+      "words": 544
+    },
+    {
+      "topic": "animation-transitions",
+      "file": "animation.md",
+      "anchor": "animation-transitions",
+      "title": "Transitions",
+      "words": 118
     },
     {
       "topic": "animation-behaviors",
@@ -322,15 +567,22 @@
       "file": "animation.md",
       "anchor": "animation-examples",
       "title": "Examples",
-      "words": 150
+      "words": 159
     },
     {
       "topic": "charts",
       "file": "charts.md",
       "anchor": "page-charts",
-      "title": "charts",
-      "summary": "Stub.",
-      "words": 7325
+      "title": "Charts and indicators",
+      "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
+      "words": 7486
+    },
+    {
+      "topic": "charts-writing-a-chart",
+      "file": "charts.md",
+      "anchor": "charts-writing-a-chart",
+      "title": "Writing a chart",
+      "words": 133
     },
     {
       "topic": "charts-words",
@@ -357,17 +609,59 @@
       "topic": "responsive",
       "file": "responsive.md",
       "anchor": "page-responsive",
-      "title": "responsive",
-      "summary": "Stub.",
-      "words": 26
+      "title": "Responsive",
+      "summary": "A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states.",
+      "words": 368
+    },
+    {
+      "topic": "responsive-keys-at-other-widths",
+      "file": "responsive.md",
+      "anchor": "responsive-keys-at-other-widths",
+      "title": "Keys at other widths",
+      "words": 209
+    },
+    {
+      "topic": "responsive-breakpoints",
+      "file": "responsive.md",
+      "anchor": "responsive-breakpoints",
+      "title": "Breakpoints",
+      "words": 44
+    },
+    {
+      "topic": "responsive-states",
+      "file": "responsive.md",
+      "anchor": "responsive-states",
+      "title": "States",
+      "words": 36
     },
     {
       "topic": "navigation",
       "file": "navigation.md",
       "anchor": "page-navigation",
-      "title": "navigation",
-      "summary": "Stub.",
-      "words": 2200
+      "title": "Navigation and overlays",
+      "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
+      "words": 2648
+    },
+    {
+      "topic": "navigation-page-frames",
+      "file": "navigation.md",
+      "anchor": "navigation-page-frames",
+      "title": "Page frames",
+      "words": 211
+    },
+    {
+      "topic": "navigation-over-the-page",
+      "file": "navigation.md",
+      "anchor": "navigation-over-the-page",
+      "title": "Over the page",
+      "words": 140
+    },
+    {
+      "topic": "navigation-screens",
+      "file": "navigation.md",
+      "anchor": "navigation-screens",
+      "title": "Screens",
+      "words": 45
     },
     {
       "topic": "navigation-words",
@@ -401,9 +695,23 @@
       "topic": "components",
       "file": "components.md",
       "anchor": "page-components",
-      "title": "components",
-      "summary": "Stub.",
-      "words": 1352
+      "title": "Components",
+      "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
+      "words": 1592
+    },
+    {
+      "topic": "components-calling-one",
+      "file": "components.md",
+      "anchor": "components-calling-one",
+      "title": "Calling one",
+      "words": 36
+    },
+    {
+      "topic": "components-writing-one",
+      "file": "components.md",
+      "anchor": "components-writing-one",
+      "title": "Writing one",
+      "words": 142
     },
     {
       "topic": "components-words",
@@ -424,45 +732,94 @@
       "file": "components.md",
       "anchor": "components-examples",
       "title": "Examples",
-      "words": 956
+      "words": 976
     },
     {
       "topic": "design-systems",
       "file": "design-systems.md",
       "anchor": "page-design-systems",
-      "title": "design-systems",
-      "summary": "Stub.",
-      "words": 188
+      "title": "Design systems",
+      "summary": "A design system's components and words, and words defined in the text (`define`).",
+      "words": 391
+    },
+    {
+      "topic": "design-systems-a-design-system",
+      "file": "design-systems.md",
+      "anchor": "design-systems-a-design-system",
+      "title": "A design system",
+      "words": 48
+    },
+    {
+      "topic": "design-systems-defined-words",
+      "file": "design-systems.md",
+      "anchor": "design-systems-defined-words",
+      "title": "Defined words",
+      "words": 104
     },
     {
       "topic": "design-systems-examples",
       "file": "design-systems.md",
       "anchor": "design-systems-examples",
       "title": "Examples",
-      "words": 158
+      "words": 168
     },
     {
       "topic": "document",
       "file": "document.md",
       "anchor": "page-document",
-      "title": "document",
-      "summary": "Stub.",
-      "words": 407
+      "title": "The document",
+      "summary": "What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples.",
+      "words": 742
+    },
+    {
+      "topic": "document-the-order-of-a-document",
+      "file": "document.md",
+      "anchor": "document-the-order-of-a-document",
+      "title": "The order of a document",
+      "words": 162
+    },
+    {
+      "topic": "document-fields-of-every-node",
+      "file": "document.md",
+      "anchor": "document-fields-of-every-node",
+      "title": "Fields of every node",
+      "words": 97
     },
     {
       "topic": "document-examples",
       "file": "document.md",
       "anchor": "document-examples",
       "title": "Examples",
-      "words": 377
+      "words": 389
     },
     {
       "topic": "values",
       "file": "values.md",
       "anchor": "page-values",
-      "title": "values",
-      "summary": "Stub.",
-      "words": 13307
+      "title": "Values",
+      "summary": "How each value type and enum is written, and the records no other page shows.",
+      "words": 13442
+    },
+    {
+      "topic": "values-writing-a-value",
+      "file": "values.md",
+      "anchor": "values-writing-a-value",
+      "title": "Writing a value",
+      "words": 71
+    },
+    {
+      "topic": "values-value-types",
+      "file": "values.md",
+      "anchor": "values-value-types",
+      "title": "Value types",
+      "words": 331
+    },
+    {
+      "topic": "values-enums",
+      "file": "values.md",
+      "anchor": "values-enums",
+      "title": "Enums",
+      "words": 10589
     },
     {
       "topic": "values-records",
@@ -476,22 +833,22 @@
       "file": "values.md",
       "anchor": "values-examples",
       "title": "Examples",
-      "words": 10980
+      "words": 74
     },
     {
       "topic": "data",
       "file": "data.md",
       "anchor": "page-data",
-      "title": "data",
-      "summary": "Stub.",
-      "words": 117
+      "title": "Data (feature layer)",
+      "summary": "The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission.",
+      "words": 1657
     },
     {
-      "topic": "data-events-and-actions",
+      "topic": "data-actions",
       "file": "data.md",
-      "anchor": "data-events-and-actions",
-      "title": "Events and actions",
-      "words": 18
+      "anchor": "data-actions",
+      "title": "Actions",
+      "words": 1519
     },
     {
       "topic": "data-examples",
@@ -504,16 +861,16 @@
       "topic": "auth",
       "file": "auth.md",
       "anchor": "page-auth",
-      "title": "auth",
-      "summary": "Stub.",
-      "words": 132
+      "title": "Accounts (feature layer)",
+      "summary": "The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in.",
+      "words": 283
     },
     {
-      "topic": "auth-events-and-actions",
+      "topic": "auth-actions",
       "file": "auth.md",
-      "anchor": "auth-events-and-actions",
-      "title": "Events and actions",
-      "words": 10
+      "anchor": "auth-actions",
+      "title": "Actions",
+      "words": 122
     },
     {
       "topic": "auth-examples",
@@ -526,16 +883,16 @@
       "topic": "commerce",
       "file": "commerce.md",
       "anchor": "page-commerce",
-      "title": "commerce",
-      "summary": "Stub.",
-      "words": 107
+      "title": "Commerce (feature layer)",
+      "summary": "The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link).",
+      "words": 300
     },
     {
-      "topic": "commerce-events-and-actions",
+      "topic": "commerce-actions",
       "file": "commerce.md",
-      "anchor": "commerce-events-and-actions",
-      "title": "Events and actions",
-      "words": 10
+      "anchor": "commerce-actions",
+      "title": "Actions",
+      "words": 170
     },
     {
       "topic": "commerce-examples",
@@ -548,9 +905,9 @@
       "topic": "media",
       "file": "media.md",
       "anchor": "page-media",
-      "title": "media",
-      "summary": "Stub.",
-      "words": 1066
+      "title": "Media (feature layer)",
+      "summary": "The media layer: video, embedded video, audio, web views, reading text aloud, sounds, printing, screenshots, downloads and preloading images.",
+      "words": 1820
     },
     {
       "topic": "media-words",
@@ -560,11 +917,11 @@
       "words": 949
     },
     {
-      "topic": "media-events-and-actions",
+      "topic": "media-actions",
       "file": "media.md",
-      "anchor": "media-events-and-actions",
-      "title": "Events and actions",
-      "words": 15
+      "anchor": "media-actions",
+      "title": "Actions",
+      "words": 731
     },
     {
       "topic": "media-examples",
@@ -577,16 +934,16 @@
       "topic": "engage",
       "file": "engage.md",
       "anchor": "page-engage",
-      "title": "engage",
-      "summary": "Stub.",
-      "words": 94
+      "title": "Engagement (feature layer)",
+      "summary": "The engagement layer: app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `{usage}` counters they read.",
+      "words": 247
     },
     {
-      "topic": "engage-events-and-actions",
+      "topic": "engage-actions",
       "file": "engage.md",
-      "anchor": "engage-events-and-actions",
-      "title": "Events and actions",
-      "words": 10
+      "anchor": "engage-actions",
+      "title": "Actions",
+      "words": 115
     },
     {
       "topic": "engage-examples",
@@ -845,24 +1202,24 @@
       "haptic": "events.md#action-haptic",
       "animate": "events.md#action-animate",
       "componentEvent": "events.md#action-componentEvent",
-      "callApi": "events.md#action-callApi",
-      "setStorage": "events.md#action-setStorage",
-      "cloudDocuments": "events.md#action-cloudDocuments",
-      "loadCloudData": "events.md#action-loadCloudData",
-      "reloadCloudData": "events.md#action-reloadCloudData",
-      "cloudFiles": "events.md#action-cloudFiles",
-      "cloudData": "events.md#action-cloudData",
-      "cloudBatch": "events.md#action-cloudBatch",
-      "submitForm": "events.md#action-submitForm",
-      "auth": "events.md#action-auth",
-      "paywall": "events.md#action-paywall",
-      "print": "events.md#action-print",
-      "preloadImages": "events.md#action-preloadImages",
-      "speak": "events.md#action-speak",
-      "playSound": "events.md#action-playSound",
-      "captureScreenshot": "events.md#action-captureScreenshot",
-      "downloadFile": "events.md#action-downloadFile",
-      "emitEvent": "events.md#action-emitEvent"
+      "callApi": "data.md#action-callApi",
+      "setStorage": "data.md#action-setStorage",
+      "cloudDocuments": "data.md#action-cloudDocuments",
+      "loadCloudData": "data.md#action-loadCloudData",
+      "reloadCloudData": "data.md#action-reloadCloudData",
+      "cloudFiles": "data.md#action-cloudFiles",
+      "cloudData": "data.md#action-cloudData",
+      "cloudBatch": "data.md#action-cloudBatch",
+      "submitForm": "data.md#action-submitForm",
+      "auth": "auth.md#action-auth",
+      "paywall": "commerce.md#action-paywall",
+      "print": "media.md#action-print",
+      "preloadImages": "media.md#action-preloadImages",
+      "speak": "media.md#action-speak",
+      "playSound": "media.md#action-playSound",
+      "captureScreenshot": "media.md#action-captureScreenshot",
+      "downloadFile": "media.md#action-downloadFile",
+      "emitEvent": "engage.md#action-emitEvent"
     },
     "valueType": {
       "Alignment": "values.md#type-Alignment",
