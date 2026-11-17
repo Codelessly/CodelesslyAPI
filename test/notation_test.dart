@@ -2485,4 +2485,31 @@ Column
     expect(_parse('Slider bindEnd=high').issues.single.message, contains('Slider bind=low bindEnd=high'));
     expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('Slider bind=low bindEnd=high'));
   });
+
+  test('follow: an each with a height opens at its end and follows what is added', () {
+    final r = _parse('''
+state lines=["started","built"]
+Column
+  each line in lines follow h=180
+    Text#logLine "{line}"
+''');
+    expect(r.issues, isEmpty);
+    // In any order with an each's other words.
+    expect(_parse('state lines=[]\nColumn\n  each line in lines h=180 stagger=40 follow\n    Text "{line}"').issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final list = (r.document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView');
+    expect(list['layout'], containsPair('height', 180));
+    expect(list['props'], allOf(containsPair('stickToEnd', true), containsPair('scrollable', true)));
+    expect(list['bind'], containsPair('data', r'${lines}'));
+    expect(jsonEncode(_node(r, 'logLine')), contains('item'));
+    // Without it an each is as before.
+    final plain = (_parse('state lines=[]\nColumn\n  each line in lines\n    Text "{line}"').document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView');
+    expect(plain['props'], allOf(containsPair('scrollable', false), isNot(contains('stickToEnd'))));
+    expect((plain['layout'] as Map)['height'], {'hug': 0});
+    for (final bad in ['Column\n  each line in lines follow\n    Text "{line}"', 'Row\n  each line in lines follow h=180\n    Text "{line}"']) {
+      expect(_parse('state lines=[]\n$bad').issues.first.message, contains('A list that follows its end'), reason: bad);
+    }
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('each line in lines follow h=180'));
+    expect(notationPrompt(catalog: standardCatalog), isNot(contains('follow h=180')));
+  });
 }

@@ -1702,10 +1702,24 @@ class _Parser {
     if (bare != null) line = 'each row in ${bare[1]}';
     // `each a in list stagger=80`: the row under it arrives that much after
     // the one before (its own animate=, or a fade up).
-    if (RegExp(r'^each\s.*\s(stagger=\S+)$').firstMatch(line.trimRight()) case final RegExpMatch m) {
+    // …and the other words an each takes after its list, in any order:
+    // `follow h=180` (a log or a chat: as tall as h, open at its end and
+    // following what is added there until the reader scrolls away).
+    final eachWords = <String, String>{};
+    if (line.startsWith('each ')) {
       line = line.trimRight();
-      _eachStagger = _milliseconds(m[1]!.substring(8));
-      line = line.substring(0, line.length - m[1]!.length).trimRight();
+      final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow)$');
+      for (var m = trailing.firstMatch(line); m != null; m = trailing.firstMatch(line)) {
+        final word = m[1]!, eq = word.indexOf('=');
+        eachWords[eq < 0 ? word : word.substring(0, eq)] = eq < 0 ? '' : word.substring(eq + 1);
+        line = line.substring(0, m.start).trimRight();
+      }
+      if (eachWords['stagger'] case final String s) _eachStagger = _milliseconds(s);
+    }
+    final follows = eachWords.containsKey('follow');
+    final eachHeight = num.tryParse(eachWords['h'] ?? '');
+    if (follows != (eachHeight != null)) {
+      return _issue(column, 'A list that follows its end has a height to scroll in: each line in lines follow h=180.');
     }
     final each = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (each != null) {
@@ -1746,16 +1760,17 @@ class _Parser {
       }
       // In a row the copies go across, each at its own width.
       final across = g == null && parent.type == 'row';
+      if (follows && (g != null || across)) return _issue(column, 'A list that follows its end runs down a Column, a Card or a Section, not across a Row or in a Grid.');
       _acrossLists[itemId] = listId;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
-        'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
+        'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': follows ? eachHeight : {'hug': 0}},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
             ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
             : across
                 ? {'scrollable': false, 'scrollDirection': 'horizontal', 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0}
-                : {'scrollable': false, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0},
+                : {'scrollable': follows, if (follows) 'stickToEnd': true, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0},
         'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
         'children': <Object?>[itemId],
       };
