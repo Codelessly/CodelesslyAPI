@@ -67,6 +67,10 @@
   of an `if`/`else` it says why a document cannot hold both and what to write; an overlay with the page's own id
   says to give it one of its own. An id written from the data (`Row#row-{row.id}`) is its fixed part (`row`): a
   node has one id however many copies an `each` makes of it.
+- **A component's own variables reserve none of a site's names.** `validateProject` reported a project variable
+  (site.json) named like a variable inside a design system's definition (`selected` in Cards' CommandPalette,
+  `query` in its Combobox) as `duplicate_variable`, in sites that never used the component. A definition's
+  variables are its instance's; only a page's are checked against the project's.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is
