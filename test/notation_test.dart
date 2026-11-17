@@ -2768,4 +2768,41 @@ Popover#tip
     expect(model.toJson(), allOf(containsPair('hoverCard', true), containsPair('popoverArrow', true), containsPair('hoverDelayMs', 350)));
     expect(_pagePrompt(), allOf(contains('Popover#bio arrow'), contains('Link "About Mara" preview=bio')));
   });
+
+  test('key and shortcut: a shortcut of the whole screen on a line of its own, and its hint on a text', () {
+    final r = _parsePage('''
+key mod+k onPress={open search}
+key "alt+shift+o" onPress={count=count+1; toast "Counted"}
+Page
+  Section
+    Text#hint "Search" shortcut="mod+k"
+Dialog#search "Search"
+  Input "Query" bind=q
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    final reactions = (_node(r, 'screen')['actions'] as List).cast<Map>();
+    expect(reactions.map((a) => a['trigger']), [
+      {'type': 'keyDown', 'key': 'mod+k'},
+      {'type': 'keyDown', 'key': 'alt+shift+o'},
+    ]);
+    expect(((reactions[0]['actions'] as List).single as Map), allOf(containsPair('type', 'openModal'), containsPair('to', 'search'), containsPair('presentation', 'dialog')));
+    expect([for (final a in reactions[1]['actions'] as List) (a as Map)['type']], ['setVariable', 'showToast']);
+    expect(_node(r, 'hint')['props'], allOf(containsPair('text', 'Search'), containsPair('shortcut', 'mod+k')));
+    // On a card too, beside a timer.
+    final card = _parse('every 1s onTick={t=t+1}\nkey mod+enter onPress={emit send}\nColumn\n  Text "{t}"\n');
+    expect(card.issues, isEmpty);
+    // (A key reaction is past level 2, where a card's vocabulary ends: valid, and counted as such.)
+    expect(_problemsAtAnyLevel(card.document), isEmpty);
+    expect([for (final a in _node(card, 'screen')['actions'] as List) ((a as Map)['trigger'] as Map)['type']], ['timer', 'keyDown']);
+    // As it arrives the canvas gets it.
+    final stream = NotationStream(catalog: standardCatalog);
+    final ops = [...stream.add('Column\n  Text "Hi"\nkey mod+k onPress={emit search}\n'), ...stream.close()];
+    expect(jsonEncode(ops), contains('"key":"mod+k"'));
+    for (final bad in ['key mod+ onPress={open search}', 'key:"mod+k" -> open search', 'key hyper+k onPress={emit x}']) {
+      expect(_parsePage('$bad\nPage\n').issues.first.message, contains('key mod+k onPress={open search}'), reason: bad);
+    }
+    expect(_pagePrompt(), allOf(contains('key mod+k onPress={open search}'), contains('shortcut="mod+k"')));
+    expect(notationPrompt(catalog: standardCatalog), isNot(contains('shortcut=')));
+  });
 }

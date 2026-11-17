@@ -18,6 +18,7 @@ import '../design_system.dart';
 import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
+import '../triggers.dart' show KeyCombo;
 import 'page_words.dart';
 import 'reflow.dart';
 
@@ -1632,6 +1633,21 @@ class _Parser {
       });
       if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
       return;
+    }
+    // `key mod+k onPress={open search}`: a shortcut of the whole screen (a
+    // keyDown reaction on the canvas). mod is Ctrl, or ⌘ on a Mac; a
+    // combination with it or with alt runs while a field is typed in too.
+    final shortcut = RegExp(r'^key\s+"?([^"\s]+)"?\s+onPress=\{(.+)\}\s*$').firstMatch(line);
+    if (shortcut != null && KeyCombo.tryParse(shortcut[1]) != null && !shortcut[1]!.endsWith('+')) {
+      _timers.add({
+        'trigger': {'type': 'keyDown', 'key': shortcut[1]},
+        'actions': _actions(shortcut[2]!.trim(), column),
+      });
+      if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
+      return;
+    }
+    if (RegExp(r'^key[\s:]').hasMatch(line)) {
+      return _issue(column, 'A shortcut is a line of its own: key mod+k onPress={open search} (mod, alt, shift and a key, joined by +).');
     }
     if (line.startsWith('every ')) {
       return _issue(column, 'An "every" line is: every 1000 onTick={name=value} (milliseconds, or 1s), optionally "every 1s when running onTick={…}".');

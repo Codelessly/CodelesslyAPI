@@ -94,7 +94,10 @@ swipes a node away (a list item; the `swipeAction` trigger). `pan` makes a node 
 
 A canvas's `keyDown` reaction (`{"trigger": {"type": "keyDown", "key": "ArrowRight"}, ...}`) runs while no text
 field has the focus: arrow keys between tabs are two reactions that set the tab variable
-(`${= (tabIndex + 1) % 4}`), Escape closing a menu is one.
+(`${= (tabIndex + 1) % 4}`), Escape closing a menu is one. A combination with Ctrl/Cmd or Alt (`"key": "Mod+K"`)
+also runs while a field has the focus; a plain letter stays with the field. In the notation it is a line of its
+own, `key mod+k onPress={open search}`, and `Text "Search" shortcut="mod+k"` shows the combination as the
+platform writes it (Ctrl K, ⌘K).
 
 ### The keyboard: Tab, Enter, Space and the focus ring
 
