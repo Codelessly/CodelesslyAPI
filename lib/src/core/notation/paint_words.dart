@@ -221,7 +221,7 @@ extension _PaintWords on _Parser {
     final op = <String, Object?>{'op': word};
     if (spec == null) {
       final near = didYouMean(word, [for (final s in DrawOpSpecs.all) s.op]);
-      _issue(column, 'No op "$word"${near == null ? '' : ': did you mean $near?'} An op is one of ${DrawOpSpecs.all.map((s) => s.op).join(', ')}.');
+      _paintSay('type', word, column, 'No op "$word"${near == null ? '' : ': did you mean $near?'} An op is one of ${DrawOpSpecs.all.map((s) => s.op).join(', ')}.', on: 'customPaint');
     }
     final fields = <PropDef<Object?>>[...DrawOpCommonFields.all, ...?spec?.fields];
     final keys = {for (final f in fields) f.key: f};
@@ -252,7 +252,7 @@ extension _PaintWords on _Parser {
           } else if (paints && p.raw == 'scaleStroke') {
             strokeFields[p.raw] = true;
           } else {
-            _paintUnknown(word, p.raw, keys.keys, col);
+            _paintUnknown(word, p.raw, keys.keys, col, kind: 'flag');
           }
         case 'pair':
           final key = p.key!, value = _paintValue(p.value!, col);
@@ -267,7 +267,7 @@ extension _PaintWords on _Parser {
           } else if (keys.containsKey(key) || spec == null) {
             op[key] = value;
           } else {
-            _paintUnknown(word, key, keys.keys, col);
+            _paintUnknown(word, key, keys.keys, col, value: p.value);
             op[key] = value;
           }
         case 'tail':
@@ -286,9 +286,19 @@ extension _PaintWords on _Parser {
     return op;
   }
 
-  void _paintUnknown(String on, String key, Iterable<String> keys, int column) {
+  void _paintUnknown(String on, String key, Iterable<String> keys, int column, {String kind = 'parameter', String? value}) {
     final near = didYouMean(key, [...keys, 'fill', 'stroke', ...notationStrokeWords]);
-    _issue(column, 'A $on has no "$key"${near == null ? '' : ': did you mean $near?'} It takes ${[...keys, 'fill', 'stroke'].join(', ')}.');
+    _paintSay(kind, key, column, 'A $on has no "$key"${near == null ? '' : ': did you mean $near?'} It takes ${[...keys, 'fill', 'stroke'].join(', ')}.', on: on, value: value);
+  }
+
+  /// A word the record does not take: said, or with the open vocabulary
+  /// recorded (design 19).
+  void _paintSay(String kind, String word, int column, String message, {required String on, String? value}) {
+    if (options.openVocabulary) {
+      _use(kind, word, column, on: on, value: value);
+    } else {
+      _issue(column, message);
+    }
   }
 
   /// A head or a track: `[head][#id] key=value … [{…}]`, its keys the
@@ -319,13 +329,13 @@ extension _PaintWords on _Parser {
             out[p.raw] = true;
           } else {
             final near = didYouMean(p.raw, keys.keys);
-            _issue(col, 'A $head has no flag "${p.raw}"${near == null ? '' : ': did you mean $near?'}');
+            _paintSay('flag', p.raw, col, 'A $head has no flag "${p.raw}"${near == null ? '' : ': did you mean $near?'}', on: head);
           }
         case 'pair':
           final key = p.key!;
           if (!keys.containsKey(key)) {
             final near = didYouMean(key, keys.keys);
-            _issue(col, 'A $head has no "$key"${near == null ? '' : ': did you mean $near?'} It takes ${keys.keys.join(', ')}.');
+            _paintSay('parameter', key, col, 'A $head has no "$key"${near == null ? '' : ': did you mean $near?'} It takes ${keys.keys.join(', ')}.', on: head, value: p.value);
           }
           out[key] = _paintValue(p.value!, col);
         case 'tail':

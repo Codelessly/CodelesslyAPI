@@ -261,7 +261,8 @@ void main() {
       final n = _roundTrip('customPaint\n'
           '  rect rect=[0,0,48,48] paint={"shader":{"type":"radial","stops":[{"position":0.35,"color":"#FFF3E7B8"},{"position":1,"color":"#FFD9C27A"}]}}\n'
           '  rect rect=[0,0,48,48] paint=[{"color":"#FF000000","style":"stroke","strokeWidth":1},"#FFFFFFFF"]\n'
-          '  rect rect=[0,0,48,48] paint={"color":"#FF000000","blendMode":"multiply"}');
+          '  rect rect=[0,0,48,48] paint={"color":"#FF000000","blendMode":"multiply"}\n'
+          '  rect rect=[0,0,48,48] paint={"id":"bg","color":"#FF000000","isAntiAlias":false,"style":"fill"}');
       expect((_painter(n)[0]! as Map)['paint'], isA<Map>());
       expect(((_painter(n)[1]! as Map)['paint'] as List).last, '#FFFFFFFF');
     });
@@ -289,7 +290,7 @@ void main() {
 
     test('an animation and its tracks, every field by its own name', () {
       final n = _roundTrip('animation#enter duration=700 reverseDuration=300 delay=40 curve=easeOutCubic repeat={"reverse":true,"count":3} autoplay '
-          'playKey={step} paused=false phase=0.25 spring={"duration":450,"bounce":0.3} alignment=center previewAt=0.5 ramp=100 visibleFraction=0.3 enabled={on}\n'
+          'playKey={step} paused=false phase=0.25 spring={"duration":450,"bounce":0.3} alignment=center previewAt=0.5 ramp=100 visibleFraction=0.3 enabled={on} progress={view.progress}\n'
           '  track#drop path=motion.translateY from=-260 curve=easeOutCubic\n'
           '  track#fade path=opacity from=0 to=1 interval=[0,0.33] curve=easeOut blend=multiply\n'
           '  track node=label variable=x keyframes=[{"at":0,"value":0},{"at":1,"value":1,"curve":"easeIn"}] wave=[{"cycles":2}] interpolation=monotoneCubic',
@@ -569,6 +570,19 @@ void main() {
       expect(said('Column\n  box\n    animation#a duraton=300'), [contains('did you mean duration?')]);
     });
 
+    test('with the open vocabulary, a word a record does not take is recorded', () {
+      final r = Catalog.run(
+          standardCatalog,
+          () => parseNotation('Column\n  box#n\n    customPaint\n      circel c=[1,1]\n      circle c=[1,1] radus=4\n    animation#a duraton=300',
+              catalog: standardCatalog, options: const NotationOptions().open()));
+      expect(r.issues, isEmpty);
+      expect([for (final u in r.vocabulary) '${u.kind} ${u.word} ${u.on}'], ['type circel customPaint', 'parameter radus circle', 'parameter duraton animation']);
+      expect(_painter(_node(r.document, 'n')), [
+        {'op': 'circel', 'c': [1, 1]},
+        {'op': 'circle', 'c': [1, 1], 'radus': 4},
+      ]);
+    });
+
     test('a line after the block is the node\'s child again; an op named like a node type is an op', () {
       final r = _parse('Column\n  Column#n\n    customPaint\n      path d="M0 0 L1 1" fill=#FF000000\n      paragraph "x"\n    Text "under the column"');
       expect(r.issues, isEmpty);
@@ -720,9 +734,21 @@ void main() {
           'markers': [
             {'x': 0, 'label': 'a'},
           ],
+          'yTicks': [
+            {'y': 0, 'label': '0'},
+          ],
+          'xTicks': [
+            {'x': 0, 'label': 'Mon'},
+          ],
+          'areaBands': [
+            {'from': 0, 'to': 1},
+          ],
+          'verticalLines': [
+            {'x': 0},
+          ],
         },
       };
-      expect(chartLine(line, ['data', 'bands', 'referenceLines', 'markers']), contains('data=[{"t":0,"v":1}]'));
+      expect(chartLine(line, ['data', 'bands', 'referenceLines', 'markers', 'yTicks', 'xTicks', 'areaBands', 'verticalLines']), contains('data=[{"t":0,"v":1}]'));
     });
 
     test('radialGauge is the node as written; Gauge is the notation\'s gauge', () {
