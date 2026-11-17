@@ -132,6 +132,50 @@ Each family owns its part of the parser and its printer file, measures itself wi
 | Document | typed variables, component heads, canvases | `print.dart` |
 | Paint, motion, charts | words for custom paint ops, animations, chart options | `print_paint.dart` |
 
+### 4.1 Fields: the forms of a node's line
+
+What 2.1 and 2.5 leave to this family, settled (tests: `test/notation/fields_test.dart`):
+
+- **The parser is the table.** The printer asks the parser, by reading short lines once per catalog, which word a
+  type takes, what a line gives with nothing written, and whether `key=value` reads back as that prop; it keeps
+  no second table of either.
+- **Order.** `Type[.variant]#id "main"`, the type's own words (`gap`, the alignment words, `scroll`, `clip`, a
+  text's or a field's style words, an Input's `hint=` `helper=` `error=` `icon=` `prefix=` `password`), then
+  layout (`pad`, `w`, `h`, `grow`, `margin`, `x`, `y`, `align`, `order`, `basis`, `aspectRatio`, `maxWidth` or
+  `constraints`), decoration (`fill`/`gradient`/`fills`, `border`/`border-<side>`/`strokes`, `strokeWidth`,
+  `radius`, `effects`, `clip`, `shape`), the other props by name, the node's own fields (`hidden`, `opacity`,
+  `tooltip`, `sticky`, `readOnly`, `drag`, `drop`), bindings, `bind=name`; then events, media, paint.
+- **A type's word.** Its one short name that says no more than the type's own word, with every prop and a line
+  under it and with the line's own words (`Input`, `Toggle`, `Select`, `Button`, `Progress`; not `AreaChart`,
+  which fills under a line chart's series); else a button's look that says no more (`Button.outline`,
+  `Button.ghost`, `Button.elevated`); else the type capitalised (`ListView`); else the type as the catalog spells
+  it, where the capital is another word (`box`, `gridView`, `badge`, `barcode`). A look with props of its own is
+  written where the node has them (`Button.secondary`, `Button.destructive`). A text is the named style it is
+  the fewest words away from (`Text.title color=…`), the later name of two of one style (`title`, not
+  `pageTitle`).
+- **A size** is written where it is not what the parent gives (design 13, section 3): `fill` and `hug` for a fit,
+  the number for a fixed size, and the size's own JSON for a fit that keeps a design size (`w={"fill":390}`, 2.1's
+  JSON for a map). A text in a row that may not shrink writes its width (`w=hug`): written without one, it is
+  squeezable.
+- **A field whose value is a record or a list** with no word for each of its parts is written whole under its
+  own name, as its JSON: `style={…}` on a button, `decoration={…}` on an Input, `constraints={…}`, `fills=[…]`,
+  `strokes=[…]`, `effects=[…]`. `maxWidth=` alone is the constraints' word; `gradient=` a linear fill with even
+  stops. A text's fill is `fills=[…]`: `fill=` on a text makes a tag around it.
+- **A binding** is `key={expression}` (`{name}` reads `${name}`, `{formula}` reads `${= formula}`; `selected=`
+  always reads a formula), and a prop bound to a text with values in it is `key="…{x}…"`. A value and a binding of
+  the same field are both written, the value first (`fill=#FFE5E7EB fill={…}`, `radius=8 radius={…}`), except a
+  size, which a binding makes 0. A control's value kept in a declared variable, with the `changed` reaction that
+  stores it first, is `bind=name`; `printedBindReaction` tells the events' words which reaction that is.
+- **By name, once the parser reads every field (Keys).** Behind `notationFieldNames` (off until then; its tests
+  are skipped with "needs the Keys family"): a field of a text's style by its name (`letterSpacing=0.4`,
+  `from=eyebrow`); a layout field (`squeezable=true`, `columnSpan=2`, `minHeight=40`); a decoration field
+  (`strokeSides=topBottom`, `dashPattern=[6,4]`, `strokeAlign=outside`, `blendMode=multiply`,
+  `foregroundFills=[…]`); a node field or behavior, a record as its JSON (`inkWell={…}`, `states={…}`,
+  `ignorePointer=true`); a field inside a prop by its path from the props (`decoration.isDense=true` on an
+  Input); a prop whose name is a word of the notation by its full path (`props.animate=true`); a binding with no
+  key by the field's name (`columnSpan={…}`) or its full path (`motion.scale={…}`,
+  `decoration.effects[0].color={…}`).
+
 ## 5. What does not change
 
 The prompt teaches the grammar and the core (design 19). Parity is what the parser reads and the printer
