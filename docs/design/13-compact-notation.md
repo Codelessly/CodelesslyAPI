@@ -86,7 +86,11 @@ variable (`qty=qty+1`).
   (`Row#row-{row.id}`) is its fixed part (`row`), since every copy an `each` makes is the one node. An id given
   twice names the line that has it; the two branches of an `if`/`else` cannot share one (the document holds
   one node per id), and that is said with what to write instead. What the expander names itself (an `App`'s
-  sidebar drawer, `<screen>_sidebar`) takes no name an author would write.
+  sidebar drawer, `<screen>_sidebar`) takes no name an author would write. An id is one word of letters, digits
+  and `_`, as a variable's name is (a list's selection, a drawer's state and the like are named after it):
+  `Dialog#live-image` is said once, at the id, and read as `live_image` there and in the `open`, `scroll` and
+  `focus` that name it, so one hyphen is one issue and not a page of them. (A screen's id, which only `go` and
+  links name, may have hyphens: `go case-study`.)
 - **`"text"`**: the node's main string: a text's text, a button's or toggle's `label`, a field's label, an
   image's source. `{name}` inside it reads a variable (`"Total: {total}"`).
 - **`key=value`**: any prop, layout or decoration field by its own name, unquoted when it has no space
@@ -113,7 +117,10 @@ variable (`qty=qty+1`).
   `close` a modal, `go page` navigates, `scroll id`, `toast "text"`, `link url`, `focus id` (the caret in that
   field; `blur` takes it away), `copy text` (`copy link`, `copy "{link}"`: to the clipboard). A verb's argument is the word
   written (`go pricing` is that page); one that is worked out is in braces (`go {lower(result)}`); a bare
-  name the state has (`go result`, `go tab`, `go item.slug`) is the page it holds, as in braces. Any other
+  name the state has (`go result`, `go tab`, `go item.slug`) is the page it holds, as in braces, unless it names
+  one of the app's screens (`NotationOptions.screens`, `notationScreen`: its id, written with `_` or capitals, or
+  the one screen its words make, `go cook` for "Cook mode"): that is the screen, whatever a variable of the same
+  name holds (`go recipes` beside a list called recipes). Any other
   action is written as its JSON. A choice between actions is `cond ? action(s) : action(s)` (`onTap={dirty ?
   open leave : go members}`): each branch one action or a braced list `{a; b}`, either may be empty (`done ?
   close :`), a branch may choose again; it is an `if` action. A value chosen is a formula: `step = valid ? 3 : 2`
@@ -125,11 +132,25 @@ variable (`qty=qty+1`).
   size, never a condition (section 14).
 - **State**: a line `state name=value` at the top declares a variable with a starting value. A variable that
   is only bound to a control needs no declaration; its type and start come from the control. `state
-  total=sum(cart,x=>x.price)` names a formula, written out where it is read.
+  total=sum(cart,x=>x.price)` names a formula, written out where it is read. A whole number starts an integer,
+  which rounds what it is given; once an action may give it a fraction (`zoom=zoom*1.25`, `share=done/total`, a
+  decimal variable) or a control that writes decimals is bound to it (a Slider), it is declared a decimal. A
+  state named as the runtime names what every expression of a screen reads (`script`, `route`, `data`, `drag`)
+  would never be read as itself: that is said, with the name to write. A variable a line implies (`Select
+  bind=moveTo`) that the site's variables already declare is the site's, never a second copy.
 - **Escape hatch**: `{…}` at the end of a line is merged into the node as JSON, for anything the notation
   has no word for. Using it is allowed and counted; a key that needs it often gets a word.
 - **Time**: `every 1s onTick={seconds=seconds-1}` on its own line runs as time passes (milliseconds, or `1s`);
   `every 1s when running onTick={…}` only while the condition holds. It is a timer on the canvas.
+- **Keys**: `key mod+k onPress={…}` on its own line is a shortcut of the screen (a `keyDown` reaction on the
+  canvas). Its key is named as a key event names it: a character, or Enter, Escape, Space, Tab, Backspace,
+  Delete, Home, End, PageUp, PageDown, an arrow, F1 to F12; the names writers give them are read as those keys
+  (`left` is ArrowLeft, `alt+right` alt+ArrowRight, `del` Delete), and a name no key has (`key foo`) is said,
+  since it would never fire. `shortcut="mod+b"` on a line that is tapped (`Button "Bold" shortcut="mod+b"
+  onTap={…}`, a block's tap event) is that key line with the line's tap actions, and the line's tooltip names
+  the key (`Ctrl+B`; one text on every platform, so mod is said as Ctrl, where a Text's own `shortcut=` hint
+  follows the platform). On a line with no tap, or under an `each` (one key cannot press every copy), it is
+  said, pointing to `key`.
 - **A field of a repeated element**: under `each row in rows`, `Input bind=row.name` shows that field and writes
   the element back into `rows` on a change. `Column scroll` scrolls. So does a field of a record variable
   (`Input bind=draft.title` sets `draft`), a field of an element of a list held by the element around it

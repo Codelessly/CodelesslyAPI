@@ -366,6 +366,28 @@ final class NotationVocabulary {
   );
 }
 
+/// Names that say one thing, each read as another of its set where a word
+/// takes that one and not the name written: a StatCard's `description` is
+/// its note, a TimelineItem's `note` its detail, a field's `placeholder` its
+/// hint (and `hint` its placeholder). Models reach for any of them.
+const List<Set<String>> parameterSynonyms = [
+  {'description', 'detail', 'note'},
+  {'placeholder', 'hint'},
+];
+
+/// The name of [key]'s set ([parameterSynonyms]) that a word takes
+/// ([takes]), when it takes exactly one of them and not [key] itself; else
+/// null.
+String? parameterKin(String key, bool Function(String) takes) {
+  if (takes(key)) return null;
+  for (final kin in parameterSynonyms) {
+    if (!kin.contains(key)) continue;
+    final taken = [for (final k in kin) if (k != key && takes(k)) k];
+    return taken.length == 1 ? taken.single : null;
+  }
+  return null;
+}
+
 /// One part of a line after its head: a string, a key=value, a bare word
 /// or the `{…}` at its end.
 final class LinePart {

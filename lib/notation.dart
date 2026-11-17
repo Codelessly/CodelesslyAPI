@@ -11,6 +11,7 @@ export 'src/core/notation/notation.dart'
         WantedBlock,
         buttonVariants,
         defaultTextVariants,
+        notationScreen,
         notationTypes,
         parseNotation;
 export 'src/core/notation/define.dart' show DefinedLine, DefinedWords, NotationDefinition, checkDefinitions, definitionLines, readDefinitions, readPageDefinitions;

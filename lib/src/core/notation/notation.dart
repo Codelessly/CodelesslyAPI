@@ -118,6 +118,7 @@ final class NotationOptions {
     this.accentText,
     this.openVocabulary = false,
     this.vocabulary = NotationVocabulary.core,
+    this.screens = const {},
   });
 
   /// These options with an open vocabulary (or not), and with [vocabulary]
@@ -130,7 +131,15 @@ final class NotationOptions {
   /// [vocabulary]. A defined word is a word we have, open or not.
   NotationOptions define(Map<String, String> texts) => _copy(openVocabulary: openVocabulary, vocabulary: vocabulary.define(texts));
 
-  NotationOptions _copy({double? width, String? screen, bool? reflow, required bool openVocabulary, required NotationVocabulary vocabulary}) => NotationOptions(
+  /// These options with [screens] as the ids of the app's screens.
+  NotationOptions withScreens(Iterable<String> screens) => _copy(openVocabulary: openVocabulary, vocabulary: vocabulary, screens: {...screens});
+
+  /// The ids of the app's screens (a site's pages): a bare word after `go`
+  /// that names one ([notationScreen]) is that screen, even where a variable
+  /// has the same name. Empty when the page is expanded alone.
+  final Set<String> screens;
+
+  NotationOptions _copy({double? width, String? screen, bool? reflow, required bool openVocabulary, required NotationVocabulary vocabulary, Set<String>? screens}) => NotationOptions(
         width: width ?? this.width,
         screen: screen ?? this.screen,
         textStyles: textStyles,
@@ -171,6 +180,7 @@ final class NotationOptions {
         accentText: accentText,
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
+        screens: screens ?? this.screens,
       );
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -621,6 +631,90 @@ final class NotationOptions {
     return bestD <= _snapDistance ? best : null;
   }
 }
+
+/// The screen of [screens] (ids, `cook-mode`) that [word] after a `go`
+/// names: its id, its id written with underscores or capitals
+/// (`go cook_mode`), or the one screen whose id starts with it or holds all
+/// its words (`go cook`); null when none or several do.
+String? notationScreen(String word, Iterable<String> screens) {
+  if (screens.isEmpty || !RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(word)) return null;
+  final ids = screens.toList();
+  if (ids.contains(word)) return word;
+  final t = word.replaceAll('_', '-').toLowerCase();
+  if (ids.contains(t)) return t;
+  final words = t.split('-');
+  final near = ids.where((p) => p.startsWith('$t-') || words.every(p.split('-').contains)).toList();
+  return near.length == 1 ? near.first : null;
+}
+
+/// The keys a key event names beyond a single character, as a shortcut's
+/// key is compared with them ([KeyCombo.normalizeKey]: lower case, no
+/// spaces; `esc`, `return` and `spacebar` are read as theirs).
+const Set<String> _runtimeKeys = {
+  'enter', 'return', 'escape', 'esc', 'space', 'spacebar', 'tab', 'backspace', 'delete', 'insert', 'home', 'end', 'pageup', 'pagedown', //
+  'arrowup', 'arrowdown', 'arrowleft', 'arrowright',
+  'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12',
+};
+
+/// The names a writer gives keys that no key event has, by the key's own
+/// (`left` is ArrowLeft).
+const Map<String, String> _keyNames = {
+  'left': 'ArrowLeft', 'right': 'ArrowRight', 'up': 'ArrowUp', 'down': 'ArrowDown', //
+  'del': 'Delete', 'bksp': 'Backspace', 'ins': 'Insert', 'pgup': 'PageUp', 'pgdn': 'PageDown',
+  'plus': '+', 'minus': '-', 'equal': '=', 'comma': ',', 'period': '.', 'slash': '/', 'question': '?',
+};
+
+/// [combo] (`alt+right`, `mod+k`, `Esc`) with its key as a key event names
+/// it (`alt+ArrowRight`; a key it names already is kept as written) and its
+/// modifiers as written; null when its key is no key (one of
+/// [_runtimeKeys], [_keyNames] or a single character) or a modifier is
+/// unknown.
+String? notationKey(String combo) {
+  if (combo == '+' || KeyCombo.tryParse(combo) == null) return combo == '+' ? '+' : null;
+  final plus = combo.endsWith('++');
+  final at = plus ? combo.length - 1 : combo.lastIndexOf('+');
+  final mods = at <= 0 ? '' : combo.substring(0, plus ? at : at + 1);
+  final key = plus ? '+' : combo.substring(at + 1);
+  final lower = key.replaceAll(' ', '').toLowerCase();
+  if (_runtimeKeys.contains(lower) || key.runes.length == 1) return combo;
+  final named = _keyNames[lower];
+  return named == null ? null : '$mods$named';
+}
+
+/// [combo] (as [notationKey] gives it) as a tooltip says it: `mod+b` is
+/// Ctrl+B, `cmd+k` ⌘K, `alt+ArrowRight` Alt+→. A tooltip is one text on
+/// every platform, so mod is said as Ctrl.
+String _keyHint(String combo) {
+  final plus = combo.endsWith('++');
+  final at = plus ? combo.length - 1 : combo.lastIndexOf('+');
+  final key = plus ? '+' : combo.substring(at + 1);
+  final mods = [
+    for (final m in (at <= 0 ? '' : combo.substring(0, at)).split('+'))
+      if (m.isNotEmpty)
+        switch (m.toLowerCase()) {
+          'cmd' || 'command' || 'meta' => '⌘',
+          'mod' || 'ctrl' || 'control' => 'Ctrl',
+          'alt' || 'option' => 'Alt',
+          'shift' => 'Shift',
+          final o => o,
+        },
+  ];
+  final name = switch (key.toLowerCase()) {
+    'arrowup' => '↑',
+    'arrowdown' => '↓',
+    'arrowleft' => '←',
+    'arrowright' => '→',
+    'esc' || 'escape' => 'Esc',
+    final k when k.length == 1 => k.toUpperCase(),
+    _ => '${key[0].toUpperCase()}${key.substring(1)}',
+  };
+  return [...mods, name].join(mods.contains('⌘') ? '' : '+');
+}
+
+/// What is said of a shortcut whose key is no key.
+String _noKey(String combo) =>
+    'No key "$combo". A shortcut names one key, after mod, ctrl, cmd, alt or shift joined by +: a letter, a digit or a character (?, /), '
+    'or Enter, Escape (esc), Space, Tab, Backspace, Delete (del), left, right, up, down, Home, End, PageUp, PageDown, F1 to F12: key mod+k, key alt+left.';
 
 /// SSUI's badge: a 20-high pill-cornered row, 8 at its sides.
 const Json defaultBadge = {
@@ -1558,8 +1652,17 @@ class _Parser {
       final col = column + (p.at < 0 ? 0 : p.at);
       if (p.kind == 'pair') {
         final key = p.key!;
-        final to = own[key] ?? (known(key) ? null : of(p.isEvent ? table.events : table.parameters, key));
+        var to = own[key] ??
+            (known(key) ? null : of(p.isEvent ? table.events : table.parameters, key) ?? (p.isEvent || spec == null ? null : parameterKin(key, known)));
         if (to == null || to == key) continue;
+        // An alias to a choice (StatusBadge status → tone) holds for one of
+        // its values; another, on a line with no string, is the line's text
+        // (StatusBadge status="Open" is the badge that says Open).
+        final choice = spec?.props.where((x) => x.key == to && x.type.kind == PropKind.enumeration).firstOrNull;
+        final written = p.value!.startsWith('{') ? null : p.value!.replaceAll('"', '');
+        if (choice != null && written != null && !choice.type.values.contains(written) && !parts.parts.any((x) => x.kind == 'string')) to = r'$text';
+        // Never two of one name: the line's own is kept.
+        if (!to.startsWith(r'$') && !to.startsWith('!') && parts.parts.any((x) => x.kind == 'pair' && x.key == to)) continue;
         _use('alias', key, col, of: p.isEvent ? 'event' : 'parameter', to: to, on: type, value: p.value);
         changed = true;
         if (to == r'$text') {
@@ -1591,7 +1694,6 @@ class _Parser {
     final table = options.vocabulary;
     final word = parts.word;
     final params = table.parameters[word], events = table.events[word], flags = table.flags[word];
-    if (params == null && events == null && flags == null) return text;
     final names = {
       for (final d in _defined.meanings(word)) ...[...d.parameters.keys, ...d.events, ...d.strings, if (d.bind != null) 'bind'],
     };
@@ -1600,7 +1702,7 @@ class _Parser {
       final p = parts.parts[i];
       final col = column + (p.at < 0 ? 0 : p.at);
       if (p.kind == 'pair' && !names.contains(p.key)) {
-        final to = (p.isEvent ? events : params)?[p.key];
+        final to = (p.isEvent ? events : params)?[p.key] ?? (p.isEvent ? null : parameterKin(p.key!, names.contains));
         if (to == null || to == p.key) continue;
         // Never two of one name: the line's own is kept.
         if (parts.parts.any((x) => x.kind == 'pair' && x.key == to)) continue;
@@ -1668,6 +1770,20 @@ class _Parser {
 
   /// Reads one line (without its newline).
   void line(String raw) {
+    // `Dialog#live-image`: an id is one word, as a variable's name is (a
+    // list's selection, a drawer's state are named after it). Said once,
+    // here; the id is read with _ for each hyphen, as `open live-image` is,
+    // so the rest of the line and what opens it still read.
+    if (_host == null) {
+      raw = raw.replaceFirstMapped(RegExp(r'^(\s*[A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)+)(?=\s|$)'), (m) {
+        final one = m[2]!.replaceAll('-', '_');
+        if (!_quiet) {
+          issues.add(NotationIssue(_line + 1, m[1]!.length + 1,
+              'An id is one word of letters, digits and _: #$one, not #${m[2]} (a hyphen is not part of a name). Open, scroll to or focus it by that name.'));
+        }
+        return '${m[1]}#$one';
+      });
+    }
     // The lines under an overlay's head are its canvas's; the next line at
     // the margin ends it.
     if (_host == null && !_continues) {
@@ -2541,6 +2657,26 @@ class _Parser {
     }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
   }
 
+  /// The row in [block]'s slot (a ListRow's trailing, a SectionHeader's
+  /// actions) that the lines under it go in, side by side: made the first
+  /// time.
+  String _slotRow(_Open block) {
+    final slot = const ['trailing', 'actions', 'action', 'end'].firstWhere(block.slots.contains, orElse: () => block.slots.first);
+    return block.slotRow ??= () {
+      final id = '${block.id}${slot[0].toUpperCase()}${slot.substring(1)}';
+      nodes[id] = {
+        'type': 'row',
+        'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+        'props': {'spacing': 8, 'crossAxisAlignment': 'center'},
+        'children': <Object?>[],
+      };
+      ((nodes[block.id]!['slots'] as Json?) ?? (nodes[block.id]!['slots'] = <String, Object?>{}))[slot] = id;
+      _parentOf[id] = block.id;
+      _slotOf[id] = slot;
+      return id;
+    }();
+  }
+
   void _issue(int column, String message) {
     // A line read again (an overlay's foot, a sidebar's copy in its drawer) said what was wrong the first time.
     if (_top._quiet) return;
@@ -2637,8 +2773,12 @@ class _Parser {
     // combination with it or with alt runs while a field is typed in too.
     final shortcut = RegExp(r'^key\s+"?([^"\s]+)"?(?:\s+when\s+(.+?))?\s+onPress=\{(.+)\}\s*$').firstMatch(line);
     if (shortcut != null && KeyCombo.tryParse(shortcut[1]) != null && !shortcut[1]!.endsWith('+')) {
+      // The key by the name the keyboard gives it (`left` is ArrowLeft); a
+      // name no key has would never fire.
+      final combo = notationKey(shortcut[1]!);
+      if (combo == null) return _issue(column + 4, _noKey(shortcut[1]!));
       _timers.add({
-        'trigger': {'type': 'keyDown', 'key': shortcut[1], if (shortcut[2] != null) 'when': _formula(shortcut[2]!.trim())},
+        'trigger': {'type': 'keyDown', 'key': combo, if (shortcut[2] != null) 'when': _formula(shortcut[2]!.trim())},
         'actions': _actions(shortcut[3]!.trim(), column),
       });
       if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
@@ -2683,21 +2823,7 @@ class _Parser {
     // the slot, side by side in a row of their own.
     if (parent != null && parent.slots.isNotEmpty && nodes[parent.id] != null) {
       final block = parent;
-      final slot = const ['trailing', 'actions', 'action', 'end'].firstWhere(block.slots.contains, orElse: () => block.slots.first);
-      final row = block.slotRow ??= () {
-        final id = '${block.id}${slot[0].toUpperCase()}${slot.substring(1)}';
-        nodes[id] = {
-          'type': 'row',
-          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
-          'props': {'spacing': 8, 'crossAxisAlignment': 'center'},
-          'children': <Object?>[],
-        };
-        ((nodes[block.id]!['slots'] as Json?) ?? (nodes[block.id]!['slots'] = <String, Object?>{}))[slot] = id;
-        _parentOf[id] = block.id;
-        _slotOf[id] = slot;
-        return id;
-      }();
-      parent = _Open(block.indent, row, 'row', condition: block.condition);
+      parent = _Open(block.indent, _slotRow(block), 'row', condition: block.condition);
     } else if (!options.openVocabulary && parent != null && parent.leaf && parent.written != null && catalog.widget(parent.written!) != null && nodes[parent.id] != null) {
       // A block that takes nothing under it: said, and the line is drawn
       // after it, where it would otherwise be lost.
@@ -3005,15 +3131,16 @@ class _Parser {
         const key = 'coalesce(item.id, item)';
         final onSelect = lw!.value('onSelect');
         final then = onSelect == null || onSelect.trim().isEmpty ? '' : '; ${_rename(onSelect, 'result', sel)}';
+        final choose = _selectTaps[itemId] = _actions(
+            '$sel = (result.shift && $anchor >= 0 ? map(slice($rows, min($anchor, index), max($anchor, index) + 1), x => coalesce(x.id, x)) : '
+            '(result.meta ? (contains($sel, $key) ? without($sel, $key) : append($sel, $key)) : [$key])); '
+            '$anchor = (result.shift && $anchor >= 0 ? $anchor : index); announce "{length($sel)} selected"$then',
+            column);
         nodes[itemId]!
           ..['actions'] = [
             {
               'trigger': {'type': 'click'},
-              'actions': _actions(
-                  '$sel = (result.shift && $anchor >= 0 ? map(slice($rows, min($anchor, index), max($anchor, index) + 1), x => coalesce(x.id, x)) : '
-                  '(result.meta ? (contains($sel, $key) ? without($sel, $key) : append($sel, $key)) : [$key])); '
-                  '$anchor = (result.shift && $anchor >= 0 ? $anchor : index); announce "{length($sel)} selected"$then',
-                  column),
+              'actions': choose,
             },
           ]
           ..['bind'] = {'selected': _formula('contains($sel, $key)')}
@@ -3129,6 +3256,8 @@ class _Parser {
     var wroteColor = false;
     String? chipColor, fieldInk, fieldSize, listIcon, inputValue, removeActions;
     var disabledBy = '', required = false, clearable = false;
+    ({String combo, int column})? lineShortcut;
+    ({String? label, String? actions})? slotAction;
 
     // With an open vocabulary a word that is not a type stands in: a column
     // of its texts and of the lines under it, recorded with what it was
@@ -3252,6 +3381,13 @@ class _Parser {
     final boxLine = !component && const {'column', 'row', 'stack'}.contains(type);
     final controlLine = !component &&
         (_valueProps.containsKey(type) || type.endsWith('Button') || type.endsWith('Chip') || type == 'chip' || type == 'progressBar' || type == 'circularProgressIndicator');
+    // A design system's block with a slot and no x of its own (a ListRow's
+    // trailing): removable and onRemove put one at the end of the slot.
+    final slotted = component &&
+        spec.children == ChildModel.none &&
+        spec.slots.isNotEmpty &&
+        !spec.props.any((p) => p.key == 'removable') &&
+        !spec.events.any((e) => e.key == 'onRemove');
     // A list's universal words (reorder, selectable and their events, a
     // handle, the selection's variable), read by the `each` under the line.
     final pre = LineParts.of(line);
@@ -3427,6 +3563,8 @@ class _Parser {
         } else if (_identifier.hasMatch(expr)) {
           if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
+          // `state volume=50` under a Slider: the slider's value has decimals.
+          if (value.type == 'decimal') _widen(expr, null);
           reactions.insert(0, {
             'trigger': {'type': 'changed'},
             'actions': [
@@ -3717,10 +3855,25 @@ class _Parser {
             // contents beside an article, an order summary).
             // A bar across the top (SiteNav, a TopBar, a Header) stays at the very top.
             node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header)$').hasMatch(written) ? 0 : 16};
+          } else if (word == 'disabled' && component && spec.props.any((p) => p.key == 'disabled' && p.type.kind == PropKind.list)) {
+            // `ChoiceChips disabled`: off as a whole (its own disabled lists the options that are off).
+            bind['disabled'] = _formula('true');
+            disabledBy = 'true';
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
           } else if (!component && universalFlag(word, col)) {
             // A universal word (docs/design/21), or an Input's own (section 7).
+          } else if (word == 'removable' && slotted) {
+            // A block with a slot and no x of its own (a ListRow): one at the
+            // end of its slot.
+            removeActions ??= '';
+            universal.add((word: word, column: col, of: 'flag'));
+          } else if (word == 'clearable' && component && spec.events.any((e) => e.key == 'onClear')) {
+            // A block with a clear of its own (a SearchBar's x) is clearable.
+            universal.add((word: word, column: col, of: 'flag'));
+          } else if (word == 'live' && !standIn) {
+            // Read out as it changes: a Text's (and a block's that takes live).
+            _issue(col, 'live is a Text\x27s: the Text whose words change is read out when they do. Put it on that Text (Text "{status}" live), or say the change with announce "…" in the action that makes it.');
           } else if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(word)) {
             // Text plan.name: a value shown as text is in a string.
             // The line's x was read as `item`: say it by the name written.
@@ -3794,7 +3947,13 @@ class _Parser {
             listWords[key] = (value: body, column: col);
             continue;
           }
-          if (!component && key == 'onRemove' && (boxLine || type == 'listTile' || type.endsWith('Chip') || type == 'chip')) {
+          // `SectionHeader "Files" action="View all" onAction={go files}`: a
+          // block with a slot and no action of its own: a quiet button in it.
+          if (key == 'onAction' && slotted && !spec.events.any((e) => e.key == 'onAction')) {
+            slotAction = (label: slotAction?.label, actions: body);
+            continue;
+          }
+          if (key == 'onRemove' && (slotted || (!component && (boxLine || type == 'listTile' || type.endsWith('Chip') || type == 'chip')))) {
             removeActions = body;
             universal.add((word: key, column: col, of: 'event'));
             continue;
@@ -4227,6 +4386,47 @@ class _Parser {
               {'color': _named(_value(raw), 'stroke')},
             ];
           }
+          continue;
+        }
+        // …and its label (`action={…}`: what it does).
+        if (key == 'action' && slotted && !spec.props.any((p) => p.key == 'action')) {
+          if (raw.startsWith('=')) {
+            slotAction = (label: slotAction?.label, actions: raw.substring(1).trim());
+          } else {
+            slotAction = (label: _literal(raw).$2?.toString() ?? raw, actions: slotAction?.actions);
+          }
+          continue;
+        }
+        // `Button "Bold" shortcut="mod+b" onTap={…}`: the key does what a tap
+        // does (read when the line ends). A Text's own shortcut= is its hint.
+        if (key == 'shortcut' && !spec.props.any((p) => p.key == 'shortcut')) {
+          final written = _literal(raw).$2?.toString() ?? raw;
+          final combo = raw.startsWith('=') ? null : notationKey(written.replaceAll(' ', ''));
+          if (combo == null) {
+            _issue(col, _noKey(written));
+          } else {
+            lineShortcut = (combo: combo, column: col);
+          }
+          continue;
+        }
+        // `ChoiceChips disabled={full}`: a block whose own disabled is a list
+        // (the options that are off), given a condition, is off as a whole:
+        // the node's disabled state, as enabled={!full} is on a control.
+        if (key == 'disabled' && component && spec.props.any((p) => p.key == 'disabled' && p.type.kind == PropKind.list)) {
+          final cond = raw.startsWith('=') ? raw.substring(1).trim() : raw;
+          final list = cond.startsWith('[') ||
+              variables[cond]?['type'] == 'list' ||
+              RegExp(r'^(filter|map|slice|take|append|without|unique|sortBy|sortByDesc|concat|reverse|range|split)\(').hasMatch(cond);
+          if (!list) {
+            bind['disabled'] = _formula(cond);
+            disabledBy = cond;
+            continue;
+          }
+        }
+        // `Input "Note" multiline size={fontSize}`: a size worked out is the
+        // size of the field's text.
+        if (type == 'textField' && key == 'size' && raw.startsWith('=') && !spec.props.any((p) => p.key == 'size')) {
+          bind['props.style.fontSize'] = _read(raw.substring(1).trim());
           continue;
         }
         // `Input "Code" font="JetBrains Mono" weight=600 fontSize=18`: the
@@ -5288,6 +5488,24 @@ class _Parser {
       props.putIfAbsent('edgeFade', () => 12);
     }
 
+    // `shortcut="mod+b"` on a line that is tapped: a key of the screen (as a
+    // `key` line is) runs what its tap runs, and its tooltip names the key.
+    if (lineShortcut case (:final combo, :final column)) {
+      final tap = component ? _handlerTrigger('onTap', type, spec, node) : const {'type': 'click'};
+      final reaction = reactions.where((r) => jsonEncode(r['trigger']) == jsonEncode(tap)).firstOrNull;
+      if (reaction == null || _stack.any((o) => o.each != null)) {
+        _issue(column,
+            'shortcut= presses a line that is tapped, once on the screen: give it onTap={…} (not under an each), or write the key as a line of its own: key $combo onPress={…}.');
+      } else {
+        _timers.add({
+          'trigger': {'type': 'keyDown', 'key': combo},
+          'actions': _copyValue(reaction['actions']),
+        });
+        if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
+        node.putIfAbsent('tooltip', () => _keyHint(combo));
+      }
+    }
+
     final out = <String, Object?>{
       'type': type,
       'layout': layout,
@@ -5390,6 +5608,9 @@ class _Parser {
     // A removable line that is not a chip: a small x at its end, added when
     // it closes.
     if (removeActions case final String actions) _removeAt[id] = actions.trim().isEmpty ? <Json>[] : _actions(actions, column);
+    if (slotAction case (:final label, :final actions)) {
+      _slotActions[id] = (label: label == null ? 'More' : _interpolate(label), actions: actions == null || actions.trim().isEmpty ? <Json>[] : _actions(actions, column));
+    }
     // A list's universal words, read by the each under it.
     if (listWords.isNotEmpty) _listUniversal[id] = _ListWords(listWords, _line, _src, _srcWord ?? written, _srcPath, standIn: standIn);
     for (final u in universal) {
@@ -5883,6 +6104,11 @@ class _Parser {
       }
       slots['trailing'] = id;
       _slotOf[id] = 'trailing';
+    } else if (open.slots.isNotEmpty) {
+      // A block with a slot (a ListRow's trailing): the x after what is in it.
+      final row = _slotRow(open);
+      (nodes[row]!['children'] as List).add(id);
+      _parentOf[id] = row;
     } else {
       ((node['children'] as List?) ?? (node['children'] = <Object?>[]) as List).add(id);
     }
@@ -5892,14 +6118,88 @@ class _Parser {
   /// are as wide as the rows above.
   static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*');
 
+  /// The actions a tap on a selectable list's row runs (it chooses the row),
+  /// by the id of the row's copy.
+  final _selectTaps = <String, List<Json>>{};
+
+  /// A selectable list's row that takes the tap itself (an onTap of its own;
+  /// a block that fires an event when tapped: a TableRow, a ListRow) would
+  /// never pass it to the copy around it: the row's own tap chooses it too,
+  /// before what it does.
+  void _selectThrough(String itemId) {
+    final choose = _selectTaps.remove(itemId);
+    final children = (nodes[itemId]?['children'] as List?) ?? const [];
+    if (choose == null || children.length != 1) return;
+    final childId = children.single as String;
+    final child = nodes[childId];
+    final type = child?['type'];
+    if (child == null || type is! String || type.isEmpty) return;
+    final spec = catalog.widget(type);
+    final reactions = ((child['actions'] as List?) ?? const []).cast<Object?>();
+    final Json? trigger = type[0] != type[0].toLowerCase() && spec != null && spec.events.isNotEmpty
+        ? _handlerTrigger('onTap', type, spec, child)
+        : reactions.any((r) => r is Map && r['trigger'] is Map && (r['trigger'] as Map)['type'] == 'click')
+            ? const {'type': 'click'}
+            : null;
+    // A block's event is its tap only by name (not a Rating's onChanged).
+    if (trigger == null || (trigger['type'] == 'event' && !RegExp(r'^on(Tap|Press|Pressed|Click|Select|Selected|Open)$').hasMatch('${trigger['event']}'))) return;
+    final own = reactions.whereType<Map>().where((r) => jsonEncode(r['trigger']) == jsonEncode(trigger)).firstOrNull;
+    final next = <Object?>[
+      for (final r in reactions)
+        if (r is Map && identical(r, own))
+          <String, Object?>{...r.cast<String, Object?>(), 'actions': [..._copyValue(choose) as List, ...(r['actions'] as List? ?? const [])]}
+        else
+          r,
+      if (own == null) <String, Object?>{'trigger': trigger, 'actions': _copyValue(choose)},
+    ];
+    child['actions'] = next;
+    _patches.add({'op': 'patch', 'id': childId, 'patch': {'actions': next}});
+  }
+
+  /// The action of a block with a slot and no action of its own, by node id:
+  /// its label and what it does (a quiet button put in the slot when the
+  /// block closes).
+  final _slotActions = <String, ({String label, List<Json> actions})>{};
+
+  /// A block's action ([_slotActions]): a ghost button at the end of its
+  /// slot, before a removable line's x.
+  void _slotAction(_Open open) {
+    final action = _slotActions.remove(open.id);
+    if (action == null || open.slots.isEmpty || nodes[open.id] == null) return;
+    final look = buttonVariants['ghost'] ?? buttonVariants.values.first;
+    final id = _id(look.type);
+    final label = action.label;
+    nodes[id] = {
+      'type': look.type,
+      'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+      'props': {..._copy(look.props), if (!label.contains(r'${')) 'label': label},
+      if (label.contains(r'${')) 'bind': {'props.label': label},
+      if (action.actions.isNotEmpty)
+        'actions': [
+          {'trigger': {'type': 'click'}, 'actions': action.actions},
+        ],
+    };
+    final row = _slotRow(open);
+    (nodes[row]!['children'] as List).add(id);
+    _parentOf[id] = row;
+  }
+
   void _close(_Open open) {
     _placeholder(open);
+    _slotAction(open);
     _removable(open);
+    if (open.each != null) _selectThrough(open.id);
     // A list's universal words no each under the line read: left out, and
     // recorded as unknown (docs/design/21 section 4.1).
     if ((open.each == null && open.condition == null ? _listUniversal.remove(open.id) : null) case final _ListWords lw when !lw.applied) {
       // The variable it names is still the page's (what reads it validates).
       if (lw.value('bind') case final String v) variables.putIfAbsent(v, () => {'name': v, 'type': 'text', 'value': ''});
+      // selectable chooses among the copies an each makes, and there is none
+      // here (a row of its own, a card under the each): said where it is.
+      if (lw.words['selectable'] case (:final column, value: _) when !lw.standIn && !_top._quiet) {
+        issues.add(NotationIssue(lw.line, column,
+            'selectable chooses among the rows an each repeats: write it on the Column (Card, Section) the each is directly under, with bind=name for the selection: Column selectable bind=picked, then each m in members under it.'));
+      }
       // A stand-in's words are in its own record.
       if (options.openVocabulary && !lw.standIn) {
         for (final e in lw.words.entries) {
@@ -5982,7 +6282,12 @@ class _Parser {
     }
     nodes.keys.skip(before).toList().forEach(_emit);
     for (final scroll in _scrolls) {
-      if (_anchors[scroll['node']] case final String id) scroll['node'] = id;
+      if (_anchors[scroll['node']] case final String id) {
+        scroll['node'] = id;
+      } else if (scroll['node'] case final String n when n.contains('-') && nodes.containsKey(n.replaceAll('-', '_'))) {
+        // `scroll pricing-plans` to `Section#pricing-plans`, read as pricing_plans.
+        scroll['node'] = n.replaceAll('-', '_');
+      }
     }
     // With an open vocabulary the page renders whatever it names: an
     // `open <id>` of nothing written over this page, and a `scroll <id>` to
@@ -6159,9 +6464,29 @@ class _Parser {
         ],
       };
 
+  /// A whole-number variable (`state zoom=1`, an integer) that [expression]
+  /// may set to a fraction (`zoom*1.25`, `done/total`, a decimal variable)
+  /// is a decimal from here on: an integer would round what is written.
+  /// A null [expression]: a control that writes decimals is bound to it.
+  void _widen(String name, String? expression) {
+    final v = variables[name];
+    if (v == null || v['type'] != 'integer' || _projectVariables.contains(name)) return;
+    final code = expression?.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
+    final fraction = code == null ||
+        RegExp(r'(?<![A-Za-z0-9_.])\d*\.\d+|/').hasMatch(code) ||
+        RegExp(r'[A-Za-z_][A-Za-z0-9_]*').allMatches(code).any((m) => variables[m[0]]?['type'] == 'decimal');
+    if (!fraction) return;
+    variables[name] = {...v, 'type': 'decimal'};
+    _declared.remove(name); // declared again, as it is now
+  }
+
   /// State written as a formula (`state total=sum(cart,x=>x.price)`): not a
   /// variable but a name for the formula, written out where it is read.
   final Map<String, String> _derived;
+
+  /// The runtime's names every expression of a screen reads, wherever it is
+  /// (of the validator's runtimeScopes, those no node gives).
+  static const _screenScopes = {'data', 'route', 'storage', 'screen', 'theme', 'auth', 'drag', 'perf', 'script', 'speech'};
 
   void _state(String rest, int column) {
     // `state draft="" saved`: its value is kept on the device and is there
@@ -6173,6 +6498,13 @@ class _Parser {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
     if (m[1] == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');
+    // A name the runtime gives every expression of the screen (`script`,
+    // `route`, `data`): a state of that name would be read as the
+    // runtime's, never as itself. (The names a node gives what is in it,
+    // item, view, form…, are its own there only.)
+    if (_screenScopes.contains(m[1])) {
+      return _issue(column, '${m[1]} is a name the runtime gives every expression (${_screenScopes.join(', ')}): name the state otherwise (state ${m[1]}Text=…).');
+    }
     var written = m[2]!.trim();
     // `state shown={filter(rows,r=>r.open)}`: a formula in braces, as an
     // expression is written everywhere else, is that formula (a map names
@@ -6515,6 +6847,7 @@ class _Parser {
         final literal = _literal(v);
         // A bare word that names no variable is text (choice=basic).
         final word = !literal.$1 && _identifier.hasMatch(v) && !v.contains('.') && !variables.containsKey(v) && !const {'result', 'item', 'index'}.contains(v);
+        if (!word) _widen(set[1]!, v);
         out.add({
           'type': 'setVariable',
           'variable': set[1],
@@ -6560,6 +6893,9 @@ class _Parser {
         case 'open':
           // An overlay written in this text (Dialog#id, Menu#id…) opens as
           // its kind says; one written further down completes this then.
+          // `open live-image`: the id `Dialog#live-image` was read as (an id
+          // has no hyphen: said once, where it is written).
+          if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(-[A-Za-z0-9_]+)+$').hasMatch(s)) s = s.replaceAll('-', '_');
           final Json action = {'type': 'openModal', 'to': s, ...?switch (_top._overlayActions[s]) { final Json a => _copy(a), _ => null }};
           _top._opens.add(action);
           _top._actionLines[action] = _line;
@@ -6585,6 +6921,14 @@ class _Parser {
           // A page's id may have hyphens (go get-started is that page, not a
           // subtraction), and a destination already written ${= …} is whole.
           var braced = s.startsWith('{') && s.endsWith('}') && s.length > 2;
+          // A bare word that names one of the app's screens is that screen,
+          // whatever the state holds under the same name (`go recipes` with
+          // a list called recipes).
+          final screen = braced || arg.startsWith('"') ? null : notationScreen(s, options.screens);
+          if (screen != null) {
+            out.add({'type': 'navigate', 'to': screen});
+            continue;
+          }
           // `go result` (a Tabs' or a SiteNav's choice), `go tab`, `go item.slug`:
           // a name the state has is the page it holds, as go {result} says.
           final root = s.split('.').first;
@@ -6612,7 +6956,8 @@ class _Parser {
         case 'focus' || 'blur' || 'unfocus':
           // `focus search` puts the caret in that field (its id), `focus`
           // or `blur` alone takes it away.
-          final target = s.replaceFirst(RegExp(r'^#'), '').trim();
+          // (`focus note-title`: the id `Input#note-title` was read as.)
+          final target = s.replaceFirst(RegExp(r'^#'), '').trim().replaceAll('-', '_');
           if (verb != 'focus' || target.isEmpty) {
             out.add({'type': 'focus', 'unfocus': true});
           } else if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(target)) {

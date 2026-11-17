@@ -109,6 +109,11 @@ A name is never an alias of a word we have: a table that names `Slider` or `Card
 
 Every alias used is recorded (kind `alias`, with `of` the kind of word and `to` what it was read as), so we see which names models prefer.
 
+Two rules hold for every type without a table entry each (the standalone runs of review 7 converged on them):
+
+- **Names that say one thing** (`parameterSynonyms` in `vocabulary.dart`): `description`, `detail` and `note`; `placeholder` and `hint`. A line's parameter of one of these sets that its type (a component, a core type, a defined word's signature) does not take is read as the one of the set the type does take, when it takes exactly one (`StatCard description="…"` is its `note`, `TimelineItem note="…"` its `detail`, `InputField hint="…"` its `placeholder`). A line that already has that name keeps its own, as with every alias.
+- **An alias to a choice holds for its values**: `StatusBadge status="success"` is `tone=success` (Cards' table); a status no tone has, on a line with no string (`StatusBadge status="Open"`), is the line's text, as `$text` reads it.
+
 ### The table seeded from the first corpus
 
 Each line was checked against what the parser accepts, and `test/notation_vocabulary_test.dart` expands every one beside our own spelling to the same document.
@@ -126,6 +131,16 @@ Each line was checked against what the parser accepts, and `test/notation_vocabu
 | `RangeSlider low=a high=b` (`lo`/`hi`, `bindLow`/`bindHigh`, `bindStart`, `start`/`end`) | `Slider bind=a bindEnd=b` | 1, 1 |
 
 In Cards' `vocabulary.json`: `Tabs items=[…]` is `tabs=[…]` (2 apps, 5 uses) and `Rating … readonly` is `readOnly` (2, 3).
+After review 7 also `StatusBadge status=` (its `tone`), `StatusDot color=` (its `status`) and `ReorderableList
+items={list}` (`bind=list`: the list it reorders is a variable, so a list worked out, `items={find(…).columns}`,
+is said, where before it showed no rows). Cards' `Legend` has a second meaning, `Legend#entry "Free" color=…` (a
+key's entry: a square and its label). Looked at and left: `label` on Cards' ProgressBar (it has no text; its
+ProgressLine does) and `status` on ConnectionStatus (its own parameter already).
+
+The SDK's corpus tool reads a file's screens under `### name` lines; `state` lines and overlays written before the
+first heading, with no line of a page, are every screen's (a `state` with a literal value as the app's `project`
+variable), not a screen of their own. Each screen is expanded knowing the ids of the others, so `go recipes` is
+the Recipes screen beside a list called `recipes` (note 13, section 3).
 
 `persist` was the largest silent loss: `state perDay=20 persist` read `20 persist` as a text value.
 
