@@ -213,7 +213,7 @@ final class _StatesPlan {
     for (final e in patch.entries) {
       final words = e.key == 'name'
           ? _nameWords(e.value, reader, props)
-          : printPatchWords({e.key: e.value}, reader, type) ?? _drag(e.key, node[e.key], reader, type) ?? _whole(e.key, node[e.key], reader);
+          : printPatchWords({e.key: e.value}, reader, type) ?? _drag(e.key, node[e.key], reader, type) ?? _whole(e.key, node[e.key], reader) ?? _some(e.key, e.value, reader, type);
       if (words != null) out.addAll(words);
     }
     return out;
@@ -253,6 +253,21 @@ final class _StatesPlan {
     final words = [lead, ...more];
     final got = reader.patch(words).patch;
     return got != null && jsonEquality.equals(got[key], v) ? words : null;
+  }
+
+  /// The fields of a record that have words, when not all of them do (a
+  /// drop target's `accepts`, not its worked-out `key`): the rest stays in
+  /// the line's `{…}` tail.
+  List<String>? _some(String key, Object? v, MediaLineReader reader, String type) {
+    if (v is! Map) return null;
+    final out = <String>[];
+    for (final e in v.entries) {
+      final words = printPatchWords({
+        key: {'${e.key}': e.value},
+      }, reader, type);
+      if (words != null) out.addAll(words);
+    }
+    return out.isEmpty ? null : out;
   }
 
   /// A record whole, as its JSON (`inkWell={…}`), when no word of each of
