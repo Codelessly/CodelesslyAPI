@@ -25,7 +25,7 @@ import 'reflow.dart';
 import 'universal.dart';
 import 'vocabulary.dart';
 // Paint, motion and charts (design 22, 4.6): paint_words.dart.
-import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields;
+import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields, TransitionFields;
 import '../custom_paint.dart' show DrawOp;
 import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields, DrawOpSpecs;
 import '../suggest.dart' show didYouMean;

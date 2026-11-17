@@ -319,6 +319,25 @@ void main() {
       ]);
     });
 
+    test('a transition: how a change of a property animates, one a line', () {
+      final n = _roundTrip('transition property=opacity duration=200 delay=50 curve=easeOut\n'
+          'transition property=motion spring={"duration":450,"bounce":0.3}\n'
+          'transition property=props.text duration=800 keyframes=[{"at":0.5,"value":0.2}] interpolation=monotoneCubic');
+      expect(n['transitions'], [
+        {'property': 'opacity', 'duration': 200, 'delay': 50, 'curve': 'easeOut'},
+        {'property': 'motion', 'spring': {'duration': 450, 'bounce': 0.3}},
+        {
+          'property': 'props.text',
+          'duration': 800,
+          'keyframes': [
+            {'at': 0.5, 'value': 0.2},
+          ],
+          'interpolation': 'monotoneCubic',
+        },
+      ]);
+      expect([for (final i in _parse('Column\n  box\n    transition property=opacity\n      track path=x').issues) i.message], [contains('Nothing goes under this line')]);
+    });
+
     test('a preset with its params, and an animation after animate=', () {
       final n = _roundTrip('animation#halo preset=pulse params={"scaleTo":1.4,"opacityTo":0} duration=1600\n'
           'animation#year duration=60000 repeat={}',

@@ -220,6 +220,10 @@ Column#top gap=16
     track path=motion.translateY from=14 to=0
 ```
 
+A node's `transitions` (how a change of a property animates) are `transition` lines under it in the same way,
+one a line, with `Transition`'s fields by their own names: `transition property=opacity duration=200
+curve=easeOut`. (`motion` is one record, not a list: its fields are dotted paths, 2.1.)
+
 **Charts.** A chart's fields are props, read and written by their own names (2.1). Its lists are JSON: the
 records (`series`, `referenceLines`, `xLabels`, `zones`, `markers`, `ranges`, `yLines`, a line chart's bands and
 ticks) and the values (`values`, `labels`, `colors`, `gridLabels`, `points`, `data`); the printer writes them, by
@@ -230,7 +234,8 @@ they follow the state. `radialGauge`, the document's own type, is the node as wr
 the notation's gauge (a stack of the arc and the figure inside it, a clean arc unless more is written).
 
 A record block is the node's field whole: a `customPaint` line sets the node's `customPaint` to what its block
-says, and `animation` lines add to the node's `animations` after the one `animate=` gives.
+says; `animation` lines add to the node's `animations` after the one `animate=` gives, `transition` lines to
+its `transitions`.
 `printPaintSays` (print_paint.dart) names the fields these words say, for the line's other words to leave out.
 
 ## 5. What does not change

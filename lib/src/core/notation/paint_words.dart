@@ -1,6 +1,6 @@
 // The lines of the notation that are not nodes but a node's ordered records
 // (docs/design/22-notation-parity.md, 4.6): a `customPaint` and its draw ops,
-// an `animation` and its tracks, each record one line in the grammar's own
+// an `animation` and its tracks, a `transition`, each record one line in the grammar's own
 // shape, indented under the line that holds it.
 //
 //   box#mark w=30 h=30
@@ -39,11 +39,12 @@ final _paintFrames = Expando<List<_PaintFrame>>();
 const notationStrokeWords = {'strokeWidth', 'strokeCap', 'strokeJoin', 'strokeMiterLimit', 'dashPattern', 'scaleStroke'};
 
 /// The first words of the lines [_PaintWords] reads at a node's child depth.
-final _paintHead = RegExp(r'^(customPaint|animation)(?=[\s#{]|$)');
+final _paintHead = RegExp(r'^(customPaint|animation|transition)(?=[\s#{]|$)');
 
 /// What the record line [text] reads as, for the printer's check of a line
 /// it writes (print_paint.dart): an op (`kind` `op`), the `customPaint` head,
-/// an `animation` head or a `track`. [issues] gets what is said about it.
+/// an `animation` head, a `track` or a `transition`. [issues] gets what is
+/// said about it.
 Json? readPaintRecord(
   String kind,
   String text, {
@@ -58,6 +59,7 @@ Json? readPaintRecord(
     'op' => p._paintOp(text, 1),
     'customPaint' => p._paintRecord(text, 1, CustomPaintFields.all, head: 'customPaint'),
     'animation' => p._paintRecord(text, 1, NodeAnimationFields.all, head: 'animation'),
+    'transition' => p._paintRecord(text, 1, TransitionFields.all, head: 'transition'),
     'track' => p._paintRecord(text, 1, AnimationTrackFields.all, head: 'track'),
     _ => null,
   };
@@ -105,16 +107,17 @@ extension _PaintWords on _Parser {
       frames.add(_PaintFrame(indent, open.id, 'customPaint', paint));
       _paintChanged(open.id, 'customPaint');
     } else {
-      final animation = _paintRecord(text, column, NodeAnimationFields.all, head: 'animation');
-      if (animation == null) {
+      // An animation (its tracks under it) or a transition: one more of the node's.
+      final animation = head[1] == 'animation';
+      final key = animation ? 'animations' : 'transitions';
+      final record = _paintRecord(text, column, animation ? NodeAnimationFields.all : TransitionFields.all, head: head[1]!);
+      if (record == null) {
         frames.add(_PaintFrame(indent, open.id, 'skip', {}));
         return true;
       }
-      final list = (node['animations'] as List?)?.toList() ?? <Object?>[];
-      list.add(animation);
-      node['animations'] = list;
-      frames.add(_PaintFrame(indent, open.id, 'animation', animation));
-      _paintChanged(open.id, 'animations');
+      node[key] = [...?(node[key] as List?), record];
+      frames.add(_PaintFrame(indent, open.id, animation ? 'animation' : 'none', record));
+      _paintChanged(open.id, key);
     }
     return true;
   }

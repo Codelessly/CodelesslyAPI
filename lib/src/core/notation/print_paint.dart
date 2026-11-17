@@ -15,7 +15,7 @@
 // `{…}` tail.
 import 'dart:convert';
 
-import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields;
+import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields, TransitionFields;
 import '../custom_paint.dart' show DrawOp;
 import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields, DrawOpSpecs;
 import '../json.dart';
@@ -28,8 +28,8 @@ import 'print_fields.dart';
 /// in the line's `{…}` tail).
 List<String> printPaint(String id, Json node, PrintContext context) => _printed(id, node, context).words;
 
-/// The record lines under node [id]'s line (its `customPaint` and its
-/// `animation`s), each on a line of its own indented under a node at
+/// The record lines under node [id]'s line (its `customPaint`, its
+/// `animation`s and its `transition`s), each on a line of its own indented under a node at
 /// [depth]: empty, or each line with the newline before it.
 String printPaintLines(String id, Json node, PrintContext context, int depth) {
   final lines = _printed(id, node, context).lines;
@@ -98,6 +98,20 @@ final class _Printer {
         words.addAll(preset ?? const []);
         lines.addAll(more);
         says.add('animations');
+      }
+    }
+    final transitions = readList(node['transitions']);
+    if (transitions != null && transitions.isNotEmpty) {
+      final more = <String>[];
+      for (final t in transitions) {
+        final m = readMap(t);
+        final line = m == null ? null : _record('transition', m, TransitionFields.all);
+        if (line == null) break;
+        more.add(line);
+      }
+      if (more.length == transitions.length && _same(_expand('', more)?['transitions'], transitions)) {
+        lines.addAll(more);
+        says.add('transitions');
       }
     }
     final points = _chart(node);
