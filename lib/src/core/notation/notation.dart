@@ -26,6 +26,12 @@ import 'page_words.dart';
 import 'reflow.dart';
 import 'universal.dart';
 import 'vocabulary.dart';
+// Events and actions (design 22 sections 2.2, 2.3).
+import '../action_fields.dart' show ActionCommonFields, TriggerFields;
+import '../suggest.dart' show didYouMean;
+import '../triggers.dart' show TriggerType;
+
+part 'notation_events.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -3627,7 +3633,10 @@ class _Parser {
         break;
       } else {
         final from = t.at;
-        final word = t.word();
+        // `onKeyDown(key=Enter)={…}`: an event with its trigger's fields.
+        final withFields = _Events.withFields(t.s, t.at);
+        final word = withFields == null ? t.word() : '${withFields.$1}=';
+        if (withFields != null) t.at = withFields.$3;
         // Where the strings go: before any key=value or bare word.
         final textPosition = !afterKey;
         afterKey = true;
@@ -3800,7 +3809,7 @@ class _Parser {
         // (onTap={a=1; toast "Saved"}), unless the node has a parameter of
         // that name.
         if (_handlerKey.hasMatch(key) && !spec.props.any((p) => p.key == key)) {
-          t.at = from + eq + 1;
+          if (withFields == null) t.at = from + eq + 1;
           if (t.peek != '{') {
             _issue(col, 'An event\x27s actions are written in braces: $key={name=value; toast "Saved"}.');
             if (t.peek == '"') {
@@ -3846,9 +3855,10 @@ class _Parser {
             continue;
           }
           if (trigger == null) {
-            _issue(col, 'A $written has no event "$key". Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.');
+            _issue(col, _Events.noEvent(written, key, component ? spec : null));
             continue;
           }
+          if (withFields != null) triggerFields(trigger, withFields.$2, col);
           final actions = _actions(keyBody, col);
           // A menu opened by a right click or a long press sits where the pointer is.
           if (trigger['type'] == 'secondaryClick' || trigger['type'] == 'longPress') actions.forEach(_atPointer);
@@ -6299,23 +6309,15 @@ class _Parser {
     if (component != null) {
       final named = component.events.where((e) => e.key == key).firstOrNull ??
           (key == 'onChange' ? component.events.where((e) => e.key == 'onChanged').firstOrNull : null) ??
-          component.events.firstOrNull;
+          // A trigger of the catalog under its own name (onEnterViewport) is
+          // that trigger; the names a line read before are the block's first event.
+          (_blockEventNames.contains(key) || notationEventTrigger(key) == null ? component.events.firstOrNull : null);
       if (named != null) return {'type': 'event', 'event': named.key};
     }
-    return switch (key) {
-      'onTap' || 'onPress' || 'onPressed' || 'onClick' => {'type': 'click'},
-      'onChange' || 'onChanged' => {'type': 'changed'},
-      'onLongPress' => {'type': 'longPress'},
-      'onDoubleTap' => {'type': 'doubleTap'},
-      'onRightClick' || 'onSecondaryClick' || 'onContextMenu' => {'type': 'secondaryClick'},
-      'onSwipeLeft' => {'type': 'swipeLeft'},
-      'onSwipeRight' => {'type': 'swipeRight'},
-      'onSwipeUp' => {'type': 'swipeUp'},
-      'onSwipeDown' => {'type': 'swipeDown'},
-      'onHover' => {'type': 'cursorEnter'},
-      'onFocus' => {'type': 'focusGained'},
-      'onBlur' => {'type': 'focusLost'},
-      'onSubmit' => {'type': 'submitted'},
+    // Every trigger of the catalog, by the notation's name for it
+    // (notationEventNames) or its own with a capital (design 22 section 2.2).
+    return switch (notationEventTrigger(key)) {
+      final String type => {'type': type},
       _ => null,
     };
   }
@@ -6326,7 +6328,7 @@ class _Parser {
     final k = RegExp.escape(name);
     final out = StringBuffer();
     var at = 0;
-    for (final m in RegExp(r'(\s+)(on[A-Z][A-Za-z]*)=\{').allMatches(line)) {
+    for (final m in RegExp(r'(\s+)(on[A-Z][A-Za-z]*(?:\([^()]*\))?)=\{').allMatches(line)) {
       if (m.start < at || _outside(line.substring(0, m.end), '"') >= 0 && '"'.allMatches(line.substring(0, m.start)).length.isOdd) continue;
       final t = _Tokens(line)..at = m.end - 1;
       final braced = t.balanced();
@@ -6376,7 +6378,7 @@ class _Parser {
       return (cond, yes, unwrap(tail.substring(orElse.end)));
     }
     if (RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])?=(?!=)').hasMatch(a)) return null;
-    if (RegExp(r'^(emit|open|scroll|close|go|toast|announce|link|confirm|focus|copy)\b').hasMatch(a) || a.startsWith('{')) return null;
+    if (RegExp(r'^(emit|open|scroll|close|go|toast|announce|link|confirm|focus|copy)\b').hasMatch(a) || a.startsWith('{') || startsTyped(a)) return null;
     // The first ? at the top level (not ?. or ??), then the : that closes it
     // (a ? inside the branch opens a choice of its own).
     var depth = 0, quoted = false, question = -1, nested = 0;
@@ -6570,6 +6572,11 @@ class _Parser {
         if (j is Map) out.add(j.cast<String, Object?>());
         continue;
       }
+      // An action of the catalog by its type and fields (design 22 section 2.3).
+      if (typedAction(a, column) case final Json typed) {
+        out.add(typed);
+        continue;
+      }
       // `confirm "Remove it?" then {rows=[]; toast "Removed"}`: the actions
       // after `then` run only when the question is answered yes.
       if (a.startsWith('confirm ') || a == 'confirm') {
@@ -6726,7 +6733,9 @@ class _Parser {
               continue;
             }
           }
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, focus <id>, copy "…", a choice cond ? actions : actions, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, focus <id>, copy "…", a choice cond ? actions : actions, '
+              'any action of the catalog by its type and fields (animate node=hero command=forward), or JSON'
+              '${switch (didYouMean(verb, [..._verbs, 'confirm', for (final s in catalog.actions) s.type])) { final String n => '. Did you mean "$n"?', _ => '.' }}');
       }
     }
     return out;

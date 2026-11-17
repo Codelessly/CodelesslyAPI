@@ -15,6 +15,7 @@ import '../behaviors.dart' show diffPatch;
 import '../catalog.dart';
 import '../json.dart';
 import 'notation.dart';
+import 'print_events.dart' show printCanvasEvents;
 import 'print_fields.dart';
 
 /// [document] in the notation. Parse it back with [notationOptionsFor].
@@ -54,6 +55,7 @@ String printNotation(Json document, {required Catalog catalog}) {
   if (rootId != null) walk(rootId, 0, {screen});
   String text(Map<String, String> tails, String? last) => [
         ...state,
+        ...printCanvasEvents(document, context),
         for (final id in ids) '${'  ' * depth[id]!}${sugar[id]}${tails[id] ?? ''}',
         ?last,
       ].join('\n');

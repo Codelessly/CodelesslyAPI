@@ -1,0 +1,204 @@
+// Events and actions in the notation (docs/design/22-notation-parity.md
+// sections 2.2 and 2.3): `on<Trigger>(field=value, …)={actions}` for every
+// trigger type of the catalog, and every action type of the catalog by its
+// type name and its fields (`animate node=hero preset=fadeIn`), beside the
+// verbs the notation has (`toast`, `go`, `open`…), which _Parser._actions reads.
+part of 'notation.dart';
+
+/// The event name the notation has for a trigger type, where it is not `on`
+/// and the type's name with a capital (`click` is `onTap`). Every other
+/// trigger of the catalog is written under its own name: `onEnterViewport`,
+/// `onKeyDown`, `onDragEnd`. `hover` (the pointer moving over a node) is
+/// `onHoverMove`, since `onHover` was the pointer coming over it
+/// (`cursorEnter`) before the catalog's names were read.
+const Map<String, String> notationEventNames = {
+  'click': 'onTap',
+  'changed': 'onChange',
+  'secondaryClick': 'onRightClick',
+  'cursorEnter': 'onHover',
+  'hover': 'onHoverMove',
+  'focusGained': 'onFocus',
+  'focusLost': 'onBlur',
+  'submitted': 'onSubmit',
+};
+
+/// Names read for a trigger that the notation does not write (what models
+/// and other frameworks call them).
+const Map<String, String> _eventAliases = {
+  'onPress': 'click',
+  'onPressed': 'click',
+  'onContextMenu': 'secondaryClick',
+};
+
+/// The names a node line read before the catalog's (design 13 section 3): on
+/// a design system's block each of these is what the block does (its first
+/// event) when it has no event of that name.
+const Set<String> _blockEventNames = {
+  'onTap', 'onPress', 'onPressed', 'onClick', 'onChange', 'onChanged', 'onLongPress', 'onDoubleTap', 'onRightClick', //
+  'onSecondaryClick', 'onContextMenu', 'onSwipeLeft', 'onSwipeRight', 'onSwipeUp', 'onSwipeDown', 'onHover', 'onFocus',
+  'onBlur', 'onSubmit', 'onDrop',
+};
+
+String _capital(String s) => s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
+
+/// The event the notation writes for trigger type [trigger] (`onTap` for
+/// `click`, `onEnterViewport` for `enterViewport`).
+String notationEventName(String trigger) => notationEventNames[trigger] ?? 'on${_capital(trigger)}';
+
+/// The trigger types an event is written for on a node: every one of the
+/// catalog's but `event`, a design system block's own (written by its name).
+Iterable<String> get _eventTriggers => TriggerType.values.where((t) => t != TriggerType.event).map((t) => t.name);
+
+/// The trigger type event [key] names (`onTap` → `click`, `onScroll` →
+/// `scroll`, `onClick` → `click`), or null when it names none.
+String? notationEventTrigger(String key) {
+  for (final e in notationEventNames.entries) {
+    if (e.value == key) return e.key;
+  }
+  if (_eventAliases[key] case final String t) return t;
+  for (final t in _eventTriggers) {
+    if ('on${_capital(t)}' == key) return t;
+  }
+  return null;
+}
+
+extension _Events on _Parser {
+  /// What is said of event [key] that a line of [written] does not have:
+  /// the events, and the nearest name.
+  static String noEvent(String written, String key, WidgetSpec? component) {
+    final names = [...?component?.events.map((e) => e.key), for (final t in _eventTriggers) notationEventName(t)];
+    return 'A $written has no event "$key". Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), '
+        'onHover, onFocus, onBlur, onSubmit, onDrop, and every other trigger by its name (onScroll, onEnterViewport, onKeyDown(key=Enter))'
+        '${switch (didYouMean(key, names)) { final String n => '. Did you mean "$n"?', _ => '.' }}';
+  }
+
+  /// `onKeyDown(key=Enter, repeat=true)=` at [at] of [s]: the event's name,
+  /// its fields as written and where its value starts (after the `=`). Null
+  /// when no event with fields starts there.
+  static (String, String, int)? withFields(String s, int at) {
+    final m = RegExp(r'on[A-Z][A-Za-z]*\(').matchAsPrefix(s, at);
+    if (m == null) return null;
+    final close = _Parser._closing(s, m.end - 1);
+    if (close < 0 || close + 1 >= s.length || s[close + 1] != '=') return null;
+    return (s.substring(at, m.end - 1), s.substring(m.end, close), close + 2);
+  }
+
+  /// The trigger fields written in an event's parentheses, set on
+  /// [trigger]; a field the trigger does not have is said.
+  void triggerFields(Json trigger, String written, int column) {
+    final known = [for (final f in TriggerFields.all) if (f.key != 'type') f.key];
+    for (final (key, raw) in _pairs(written, column, 'A trigger\x27s fields are written by name in its parentheses: onKeyDown(key=Enter, repeat=true)={…}.', commas: true)) {
+      if (!known.contains(key)) {
+        _issue(column, 'A trigger has no field "$key"${_nearest(key, known)} Its fields: ${known.join(', ')}.');
+        continue;
+      }
+      trigger[key] = _fieldValue(raw, column);
+    }
+  }
+
+  /// [a] as an action of the catalog written by its type name and its fields
+  /// (`animate node=hero preset=fadeIn durationMs=300`, `retryFailed`). Null
+  /// when [a] does not start with an action type, or starts with a verb of
+  /// the notation that is one too (`focus search`, `announce "Saved"`) and
+  /// no field follows.
+  Json? typedAction(String a, int column) {
+    final name = RegExp(r'^[a-z][A-Za-z0-9]*(?=\s|$)').stringMatch(a);
+    if (name == null) return null;
+    final spec = catalog.action(name);
+    if (spec == null) return null;
+    final rest = a.substring(name.length).trim();
+    final named = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)=(?!=)').firstMatch(rest);
+    if (rest.isNotEmpty && named == null) return null;
+    if ((_Parser._verbs.contains(name) || name == 'confirm') && (named == null || _actionFields(spec).every((f) => f != named[1]))) return null;
+    final out = <String, Object?>{'type': spec.type};
+    final fields = _actionFields(spec);
+    final usage = 'An action is its type and its fields by name: ${_example(spec)}.';
+    for (final (key, raw) in _pairs(rest, column, usage)) {
+      if (!fields.contains(key)) {
+        _issue(column, 'A ${spec.type} action has no field "$key"${_nearest(key, fields)} Its fields: ${fields.join(', ')}.');
+        continue;
+      }
+      out[key] = _fieldValue(raw, column, chain: spec.nested.contains(key));
+    }
+    _top._actionLines[out] = _line;
+    return out;
+  }
+
+  /// Whether [a] starts with an action type's name and a field of it (not a
+  /// choice to read as `cond ? a : b`).
+  bool startsTyped(String a) {
+    final m = RegExp(r'^([a-z][A-Za-z0-9]*)\s+([A-Za-z_][A-Za-z0-9_]*)=(?!=)').firstMatch(a);
+    final spec = m == null ? null : catalog.action(m[1]!);
+    return spec != null && _actionFields(spec).contains(m![2]);
+  }
+
+  /// The fields an action of [spec] is written with: its own, then the ones
+  /// every action has.
+  List<String> _actionFields(ActionSpec spec) => [for (final f in spec.fields) f.key, for (final f in ActionCommonFields.all) f.key];
+
+  String _example(ActionSpec spec) => [
+        spec.type,
+        for (final f in spec.fields.take(2)) '${f.key}=…',
+      ].join(' ');
+
+  String _nearest(String word, Iterable<String> names) => switch (didYouMean(word, names)) {
+        final String n => '. Did you mean "$n"?',
+        _ => '.',
+      };
+
+  /// The `key=value` pairs of [text], each value as written: a number, a bare
+  /// word, a quoted string, braces or brackets. Separated by spaces (and
+  /// [commas] in a trigger's parentheses). What is not a pair is said with
+  /// [usage] and the rest skipped.
+  List<(String, String)> _pairs(String text, int column, String usage, {bool commas = false}) {
+    final out = <(String, String)>[];
+    final t = _Tokens(text);
+    while (true) {
+      while (!t.done && (t.peek == ' ' || commas && t.peek == ',')) {
+        t.at++;
+      }
+      if (t.done) break;
+      final key = RegExp(r'([A-Za-z_][A-Za-z0-9_]*)=').matchAsPrefix(text, t.at);
+      if (key == null) {
+        _issue(column, usage);
+        break;
+      }
+      t.at = key.end;
+      final start = t.at;
+      if (t.peek == '"') {
+        t.string();
+      } else if (t.peek == '{' || t.peek == '[') {
+        t.balanced();
+      } else {
+        while (!t.done && t.peek != ' ' && !(commas && t.peek == ',')) {
+          t.at++;
+        }
+      }
+      out.add((key[1]!, text.substring(start, t.at > text.length ? text.length : t.at)));
+    }
+    return out;
+  }
+
+  /// A field's value as written: a number, `true`, `false`, `null`; a bare
+  /// word (that word); a quoted string, whose `{name}` reads a value; braces,
+  /// a value worked out (`{count + 1}`) or, holding a key first, JSON
+  /// (`{"left": …}`); brackets, JSON for a list. A field that holds actions
+  /// ([chain]: `then`, `onError`) takes them in braces (`then={a=1; close}`).
+  Object? _fieldValue(String raw, int column, {bool chain = false}) {
+    if (chain && raw.startsWith('{') && !raw.startsWith('{"')) {
+      return _actions(raw.substring(1, raw.endsWith('}') ? raw.length - 1 : raw.length), column);
+    }
+    if (raw.startsWith('"')) return _interpolate(_Tokens(raw).string());
+    if (raw.startsWith('{') && _Parser._bracedExpression(raw)) return _read(raw.substring(1, raw.length - 1));
+    if (raw.startsWith('{') || raw.startsWith('[')) {
+      try {
+        return jsonDecode(raw);
+      } catch (_) {
+        _issue(column, 'Not valid JSON: $raw (a value worked out is written in braces: field={a + b}).');
+        return null;
+      }
+    }
+    final literal = _literal(raw);
+    return literal.$1 ? literal.$2 : raw;
+  }
+}
