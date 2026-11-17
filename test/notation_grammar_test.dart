@@ -23,6 +23,61 @@ List<String> _triggers(NotationResult r, String id) => [for (final a in _actions
 List<String> _said(String text, {double width = 390}) => [for (final i in _parse(text, width: width).issues) i.message];
 
 void main() {
+  group('what self-defining answers wrote (the vocabulary loop, Review 4, D21)', () {
+    test('an expression where the text or the icon goes is that value', () {
+      final r = _parse('state playing=false\nstate ratio=5\nColumn\n'
+          '  Icon#i {playing ? "pause" : "play_arrow"}\n'
+          '  IconButton#b {playing ? "pause" : "play_arrow"} tooltip="Play" onTap={playing=!playing}\n'
+          '  Text#t {ratio >= 4.5 ? "Pass" : "Fail"}\n'
+          '  Text#j "x" {"props":{"maxLines":2}}\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect((_node(r, 'i')['bind'] as Map)['props.icon'], r'${= playing ? "pause" : "play_arrow"}');
+      expect((_node(r, 'b')['bind'] as Map)['props.icon'], r'${= playing ? "pause" : "play_arrow"}');
+      expect(_triggers(r, 'b'), ['click']);
+      expect((_node(r, 't')['props'] as Map)['text'], r'${= ratio >= 4.5 ? "Pass" : "Fail"}');
+      // A JSON object after the text is still the tail it was.
+      expect((_node(r, 'j')['props'] as Map)['maxLines'], 2);
+      // The same as the string with the expression in it.
+      final quoted = _parse('state playing=false\nColumn\n  Icon#i "{playing ? "pause" : "play_arrow"}"\n');
+      expect(jsonEncode(_node(quoted, 'i')), jsonEncode(_node(r, 'i')));
+    });
+
+    test('a Badge\'s tone worked out from the state: variant={…}, or Badge.{…}', () {
+      final a = _parse('state ratio=5\nColumn\n  Badge#a {ratio >= 4.5 ? "Pass" : "Fail"} variant={ratio >= 4.5 ? "success" : "error"}\n');
+      final b = _parse('state ratio=5\nColumn\n  Badge.{ratio >= 4.5 ? "success" : "error"}#a {ratio >= 4.5 ? "Pass" : "Fail"}\n');
+      for (final r in [a]) {
+        expect(r.issues, isEmpty, reason: '${r.issues}');
+        final bind = _node(r, 'a')['bind'] as Map;
+        expect(bind['decoration.fills[0].color'], allOf(contains('== "success" ? "#1A16A34A"'), contains('== "error" ? "#1ADC2626"')));
+        expect(bind['decoration.strokes[0].color'], contains('"#4716A34A"'));
+        expect((_node(r, 'text1')['bind'] as Map)['props.style.color'], contains('"#FF16A34A"'));
+      }
+      expect(b.issues, isNotEmpty, reason: 'Badge.{…}#id: the id goes before the braces');
+      final c = _parse('state ratio=5\nColumn\n  Badge.{ratio >= 4.5 ? "success" : "error"} "Pass"\n');
+      expect(c.issues, isEmpty, reason: '${c.issues}');
+      expect((_node(c, 'row1')['bind'] as Map)['decoration.fills[0].color'], contains('== "success"'));
+    });
+
+    test('a drag value written as a string or a record, and a group written as a string', () {
+      final r = _parse('Column\n  Card#a drag=part("battery") gap=2\n    Text "Battery"\n  Card#b drag=meal({"rid":3, "name":"Soup"})\n  Card#c drag="battery"\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(_node(r, 'a')['draggable'], {'group': 'part', 'data': r'${= "battery"}'});
+      expect((_node(r, 'b')['draggable'] as Map)['group'], 'meal');
+      expect((_node(r, 'b')['draggable'] as Map)['data'], contains('"rid":3'));
+      expect(_node(r, 'c')['draggable'], {'group': 'battery'});
+      expect((_node(r, 'a')['layout'] as Map?)?['padding'], isNotNull);
+    });
+
+    test('hide={…} and show={…} are visible; hide=phone is still the size', () {
+      final r = _parse('state on=false\nColumn\n  Text#a "a" hide={!on}\n  Text#b "b" show={on}\n  Text#c "c" hide=phone\n', width: 1280);
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(_node(r, 'a')['bind'], {'visible': r'${= !(!on)}'});
+      expect(_node(r, 'b')['bind'], {'visible': r'${= on}'});
+      expect(_node(r, 'c')['media'], isNotNull);
+      expect(_node(r, 'c')['bind'], isNull);
+    });
+  });
+
   group('one rule per role', () {
     test('a parameter is key=value: a word, a number, a text, a list; a bare word is a flag or a layout word', () {
       final r = _parse('Column gap=12 pad=16\n  Input "Email" hint="you@example.com" w=240\n  Select items=["S","M","L"]\n  Row#bar between grow\n');
@@ -225,9 +280,10 @@ void main() {
       expect(_said('Column\n  Button "Go" onWhatever={toast "x"}\n').single, startsWith('A Button has no event "onWhatever". Events: onTap, onChange'));
     });
 
-    test('swipe:left, show:condition, an every with an arrow, go with a bare expression', () {
+    test('swipe:left, show with a word that is no size, an every with an arrow, go with a bare expression', () {
       expect(_said('Column\n  Row swipe=left onTap={toast "x"}\n'), isNotEmpty);
-      expect(_said('state open=false\nPage\n  Section\n    Text "x" show={open}\n', width: 1280).single, 'show= takes a size (phone, tablet): a condition is written visible={condition}.');
+      // show={open} is a condition (visible), below; a bare word is a size or nothing.
+      expect(_said('state open=false\nPage\n  Section\n    Text "x" show=open\n', width: 1280).single, 'show= takes a size (phone, tablet): a condition is written visible={condition}.');
       expect(_said('state t=0\nevery 1s -> t=t+1\nColumn\n').single, startsWith('An "every" line is: every 1000 onTick={name=value}'));
       expect(_said('state k="a"\nColumn\n  Button "Go" onTap={go lower(k)}\n').single, 'A page that is worked out is written in braces: go {lower(k)}. A bare word after go is the id of the page.');
     });

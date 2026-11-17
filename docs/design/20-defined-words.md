@@ -58,6 +58,9 @@ where they are read, as written:
 - `onTap={onPick}` in an event: the use's actions; `onTap={onPick(c)}`: those actions with `result` as `c`. An
   event with nothing left is left out.
 - `if p`, `each x in p`: the statement's expression, the same.
+- A body written as `if visible` over its one node is that node with `visible={visible}`: models write a word that
+  can be hidden that way (the journal, Review 4, D21). `state` lines before the root are the word's own state.
+- A use's `{expr}` where its first string goes (`Pill {status}`) is that string, `"{status}"`.
 
 What a use writes that the signature does not name: the words the grammar gives every line (`#id`, `w`, `h`,
 `grow`, `pad`, `gap`, `fill`, `radius`, `border`, `center`, `scroll`, `sticky`, `animate`, `drag`, `drop`, `menu`,

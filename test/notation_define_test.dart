@@ -368,6 +368,39 @@ Column
     expect(_node(r, 'text1')['props'], containsPair('text', 'New'));
   });
 
+  group('what self-defining answers wrote (the vocabulary loop, Review 4, D21)', () {
+    test('state lines before the root are the word\'s own state; an if over the one node it stands for shows it while it holds', () {
+      final r = parseNotation('''
+Column
+  Meter level=40
+  Guide steer=3 visible=false
+define Meter level=0
+  state peak=0
+  state held=false
+  Column gap=4 onTap={peak=level; held=!held}
+    Box w={level} h=6
+define Guide visible=true steer=0
+  if visible
+    Column gap=4
+      Box w={steer} h=4
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(_vars(r).keys, unorderedEquals(['peak_meter1', 'held_meter1']));
+      expect(_node(r, 'guide1')['visible'], isFalse);
+      expect(_node(r, 'guide1')['type'], 'column');
+    });
+
+    test('an expression where a use\'s first string goes is that string', () {
+      final r = parseNotation('state s="ok"\nColumn\n  Pill {s} color=#FF000000\ndefine Pill "text" color=#FF111111\n  Row pad=4 fill={color}\n    Text "{text}"\n', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'text1')['props'], containsPair('text', r'${s}'));
+      expect((_node(r, 'pill1')['decoration'] as Map)['fills'], [
+        {'color': '#FF000000'},
+      ]);
+    });
+  });
+
   group('a definition anywhere in a text holds for the whole text', () {
     const before = '''
 // A small rounded label.

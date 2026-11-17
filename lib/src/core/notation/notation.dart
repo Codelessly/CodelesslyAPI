@@ -1684,6 +1684,13 @@ class _Parser {
     if (raw.trimLeft().startsWith('```')) return;
     final indent = raw.length - raw.trimLeft().length;
     var before = nodes.length;
+    // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
+    // the state is the line's variant={…}.
+    if (RegExp(r'^[A-Z][A-Za-z0-9]*\.\{').firstMatch(raw.trimLeft()) case final m?) {
+      final t = raw.trim();
+      final braced = (_Tokens(t)..at = m.end - 1).balanced();
+      raw = '${' ' * indent}${t.substring(0, m.end - 2)} ${t.substring(m.end - 1 + braced.length).trim()} variant=$braced'.trimRight();
+    }
     _track(indent, raw.trim());
     // A name read as a word the notation has (the alias table). A word that
     // is several lines is one only at the margin (an overlay's head, above).
@@ -2089,6 +2096,9 @@ class _Parser {
 
   /// The style of the line's own strings, when its type sets one (a badge).
   Json? _textStyle;
+
+  /// A Badge's ink when its tone is worked out from the state (a formula).
+  String? _textColor;
 
   /// A label that reads state (`Button "Step {n}"`): bound, since only a
   /// text node reads expressions as written.
@@ -2908,13 +2918,26 @@ class _Parser {
       }
     }
 
+    var given = 0;
     while (true) {
       t.skipSpace();
       if (t.done) break;
       final col = column + t.at;
-      if (t.peek == '"' && component) {
+      // `Icon {playing ? "pause" : "play_arrow"}`, `Badge {ok ? "Pass" :
+      // "Fail"}`: an expression where the text goes (before any string, on a
+      // word we have) is that value, as "{…}" would be.
+      String? valued;
+      if (t.peek == '{' && given == 0 && !standIn && _positional(t, type, standIn) == null) {
+        final braced = (_Tokens(t.s)..at = t.at).balanced();
+        if (braced.endsWith('}') && _bracedExpression(braced)) {
+          valued = braced;
+          t.at += braced.length;
+        }
+      }
+      if (valued != null || t.peek == '"') given++;
+      if ((valued != null || t.peek == '"') && component) {
         // A component's strings fill its text parameters in order.
-        final text = _interpolate(t.string());
+        final text = _interpolate(valued ?? t.string());
         // Past the strings it is known by, a further string goes to its next
         // text parameter not yet given, in the order they are declared
         // (CartLine "Bananas" "1 kg" "$2.49": the price).
@@ -2932,8 +2955,8 @@ class _Parser {
           props[key] = text;
           positional.add(key);
         }
-      } else if (t.peek == '"') {
-        final text = t.string();
+      } else if (valued != null || t.peek == '"') {
+        final text = valued ?? t.string();
         if (type == 'text') markText ??= text;
         _main(type, spec, text, props, decoration);
       } else if (t.peek == '{' && _positional(t, type, standIn) != null) {
@@ -3129,6 +3152,16 @@ class _Parser {
         // `show=phone` is where a node shows (a screen's size), never a
         // condition, which is visible={…}.
         final sizeWord = (key == 'show' || key == 'hide') && const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(eq + 1));
+        // `hide={!running}`, `show={open}`: a condition, which is what
+        // visible= says (hide the opposite). Models write them often.
+        if ((key == 'show' || key == 'hide') && !sizeWord && !spec.props.any((p) => p.key == key) && word.length == eq + 1 && t.peek == '{') {
+          final braced = t.balanced();
+          final cond = braced.substring(1, braced.endsWith('}') ? braced.length - 1 : braced.length).trim();
+          if (cond.isNotEmpty) {
+            bind['visible'] = _formula(key == 'hide' ? '!($cond)' : cond);
+            continue;
+          }
+        }
         if ((key == 'show' || key == 'hide') && !sizeWord && !spec.props.any((p) => p.key == key)) {
           _issue(col, '$key= takes a size (phone, tablet): a condition is written visible={condition}.');
           if (t.peek == '{' || t.peek == '[') t.balanced();
@@ -3440,6 +3473,23 @@ class _Parser {
           continue;
         }
         if (key == 'drag') {
+          // `drag=part("battery")`, `drag=meal({"rid":r.id})`: the value is
+          // a string or a record, read to its closing parenthesis.
+          if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*\(').hasMatch(raw) && _opened(raw) > 0) {
+            var depth = _opened(raw), quoted = false;
+            final start = t.at;
+            while (!t.done && depth > 0) {
+              final c = t.s[t.at];
+              if (c == '"' && t.s[t.at - 1] != r'\') quoted = !quoted;
+              if (!quoted && '([{'.contains(c)) depth++;
+              if (!quoted && ')]}'.contains(c)) depth--;
+              t.at++;
+            }
+            raw += t.s.substring(start, t.at);
+          }
+          // `drag="battery"`: the group alone, quoted.
+          if (raw.isEmpty && t.peek == '"') raw = t.string();
+          if (RegExp(r'^"[A-Za-z_][A-Za-z0-9_]*"$').hasMatch(raw)) raw = raw.substring(1, raw.length - 1);
           final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\((.+)\))?$').firstMatch(raw);
           if (m == null) {
             _issue(col, 'drag is written drag=group or drag=group(value): drag=todo(card.id).');
@@ -3514,6 +3564,24 @@ class _Parser {
           } else {
             bind['data'] = _identifier.hasMatch(raw.substring(1)) ? _read(raw.substring(1)) : _formula(raw.substring(1));
           }
+          continue;
+        }
+        // `Badge "Pass" variant={ok ? "success" : "error"}` (or `Badge.{…}`):
+        // the tone worked out from the state; its fill, hairline and ink
+        // follow it.
+        if (key == 'variant' && written == 'Badge' && raw.startsWith('=') && !spec.props.any((p) => p.key == 'variant')) {
+          final e = raw.substring(1).trim();
+          String tone(String Function((String, String, String) t) part) {
+            var f = '"${part(options.badges['neutral'] ?? badgeVariants['neutral']!)}"';
+            for (final v in options.badges.entries.toList().reversed) {
+              f = '($e) == "${v.key}" ? "${part(v.value)}" : ($f)';
+            }
+            return _formula(f);
+          }
+
+          bind['decoration.fills[0].color'] = tone((t) => t.$1);
+          bind['decoration.strokes[0].color'] = tone((t) => t.$2);
+          _textColor = tone((t) => t.$3);
           continue;
         }
         if (key == 'hidden' && raw.startsWith('=')) {
@@ -4452,6 +4520,7 @@ class _Parser {
       _strings(texts, type, id, out);
     } finally {
       _textStyle = null;
+      _textColor = null;
     }
   }
 
@@ -4577,6 +4646,7 @@ class _Parser {
         // In a tile's slot a text is as wide as it is; an accordion's header fills it.
         'layout': {'width': type == 'listTile' || _textStyle != null ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
         'props': {'text': texts[i], if (style != null) 'style': style is Map ? _copy(style.cast<String, Object?>()) : style},
+        if (_textColor != null) 'bind': {'props.style.color': _textColor},
       };
       _parentOf[tid] = id;
       if (type == 'listTile') {

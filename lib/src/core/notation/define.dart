@@ -300,7 +300,28 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     }
   }
   final min = body.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
-  final lines = [for (final l in body) (indent: l.indent - min, text: l.text, line: l.line)];
+  var lines = [for (final l in body) (indent: l.indent - min, text: l.text, line: l.line)];
+  // `if visible` over the one node it stands for: that node, shown while
+  // the condition holds.
+  final top = [for (final l in lines) if (l.indent == 0 && !_preamble(l.text)) l];
+  final cond = top.length == 1 ? (RegExp(r'^if\s+(.+)$').firstMatch(top.single.text)?[1])?.trim() : null;
+  if (cond != null) {
+    final at = lines.indexOf(top.single);
+    final under = lines.sublist(at + 1);
+    final step = under.isEmpty ? 0 : under.first.indent;
+    if (step > 0 && under.where((l) => l.indent == step).length == 1 && under.every((l) => l.indent >= step)) {
+      final c = cond.startsWith('{') && cond.endsWith('}') ? cond.substring(1, cond.length - 1).trim() : cond;
+      final rootLine = LineParts.of(under.first.text);
+      final own = rootLine?.pair('visible')?.value;
+      final shown = own == null ? '{$c}' : '{($c) && (${own.startsWith('{') && own.endsWith('}') ? own.substring(1, own.length - 1) : own})}';
+      final root = DefinedWords._merged(under.first.text, [LinePart.pair('visible', shown)]);
+      lines = [
+        ...lines.sublist(0, at),
+        (indent: 0, text: root, line: under.first.line),
+        for (final l in under.skip(1)) (indent: l.indent - step, text: l.text, line: l.line),
+      ];
+    }
+  }
   final roots = [
     for (final l in lines)
       if (l.indent == 0 && !_preamble(l.text)) l,
@@ -602,7 +623,17 @@ final class DefinedWords {
     final root = <LinePart>[];
     String? bound;
     var strings = 0;
-    for (final x in p.parts) {
+    // `Pill {status}`: an expression where the first string goes, before any
+    // string, is that string ("{status}"); the line goes on after it.
+    final given = [...p.parts];
+    final first = given.indexWhere((x) => x.kind == 'string' || x.kind == 'tail');
+    if (first >= 0 && given[first].kind == 'tail' && d.strings.isNotEmpty && !given[first].raw.startsWith('{"')) {
+      final raw = given[first].raw;
+      final close = _braceEnd(raw, 0);
+      final rest = LineParts.of('X ${raw.substring(close).trim()}');
+      given.replaceRange(first, first + 1, [LinePart.string('"${raw.substring(0, close)}"'), ...?rest?.parts]);
+    }
+    for (final x in given) {
       switch (x.kind) {
         case 'string':
           if (strings < d.strings.length) {

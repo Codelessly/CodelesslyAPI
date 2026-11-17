@@ -16,6 +16,18 @@
   expands with its defaults and validates (a test). `define: false` gives the open prompt as the first corpus was
   written with. 19,804 characters for a page (18,388 without), 10,508 for a card (9,092); the taught prompts are
   unchanged.
+- **What self-defining answers wrote, read** (Review 4, D21), open or closed:
+  - an expression where the text or the icon goes is that value: `Icon {playing ? "pause" : "play_arrow"}`,
+    `IconButton {…}`, `Text {…}`, as `"{…}"` would be (a JSON object there is still the tail it was); on a defined
+    word, its first string (`Pill {status}`);
+  - a Badge's tone worked out from the state: `Badge "Pass" variant={ok ? "success" : "error"}`, and `Badge.{…}`,
+    bind its fill, hairline and ink;
+  - a drag value written as a string or a record, `drag=part("battery")`, `drag=meal({"rid":r.id})`, and a group in
+    quotes, `drag="battery"`;
+  - `hide={cond}` and `show={cond}` are `visible` (`hide` the opposite); `hide=phone` and `show=tablet` are still the
+    sizes. Models wrote them 26 times in the two corpora; until now `show={…}` was an error on purpose;
+  - a definition whose body is `if cond` over its one node is that node shown while `cond` holds; state lines before
+    the root are, as before, the word's own state.
 
 - **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
   parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own
