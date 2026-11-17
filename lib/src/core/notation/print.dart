@@ -71,7 +71,7 @@ enum _Plan { full, ids, plain }
 final class _Line {
   _Line(this.indent, this.text, [this.id]);
   final int indent;
-  final String text;
+  String text;
   final String? id;
 }
 
@@ -147,21 +147,34 @@ final class _Printer {
       if (vars != null && vars[screen] == null && vars['page_variables'] != null) scope = 'page_variables';
     }
     _lines.addAll(_stateLines(scope));
-    _canvasAt = _lines.length;
-    _screen = first['type'] == 'canvas' ? screen : null;
+    _canvases.clear();
+    if (first['type'] == 'canvas') {
+      final line = _Line(0, '');
+      _canvases[screen] = (line: line, head: 'canvas');
+      _lines.add(line);
+    }
     if (!_walk(root, 0)) return null;
     for (final l in printCanvasEvents(document, context)) {
       _lines.add(_Line(0, l));
+    }
+    // Every other canvas: a `Canvas#id` block, its tree under it.
+    for (final other in roots.skip(1)) {
+      final n = readMap(nodes[other]);
+      final body = readString(readMap(n?['slots'])?['body']);
+      if (n?['type'] != 'canvas' || body == null || !_idForm.hasMatch(other) || _seen.contains(body)) continue;
+      final line = _Line(0, 'Canvas#$other');
+      _canvases[other] = (line: line, head: 'Canvas#$other');
+      _lines.add(line);
+      if (!_walk(body, 1)) return null;
     }
     return _readBack();
   }
 
   // --- the canvas --------------------------------------------------------
 
-  /// The screen's canvas, and where its `canvas` line goes (after the
-  /// state lines).
-  String? _screen;
-  int _canvasAt = 0;
+  /// Each canvas printed, by id: its line (`canvas …` above the page's
+  /// tree, empty while it says nothing; `Canvas#id …` heading another's).
+  final _canvases = <String, ({_Line line, String head})>{};
 
   /// `canvas "Trip" path="/trip" h=844 fill=paper`: what [patch] (the
   /// canvas as the document has it, over what the parser gives) says, its
@@ -197,7 +210,7 @@ final class _Printer {
     }
 
     walk(patch, '');
-    return words.isEmpty ? null : 'canvas ${words.join(' ')}';
+    return words.isEmpty ? null : words.join(' ');
   }
 
   // --- state -------------------------------------------------------------
@@ -444,7 +457,8 @@ final class _Printer {
 
   String? _readBack() {
     String text(Map<String, String> tails, String? last) => [
-          for (final l in _lines) '${'  ' * l.indent}${l.text}${l.id == null ? '' : tails[l.id] ?? ''}',
+          for (final l in _lines)
+            if (l.text.isNotEmpty) '${'  ' * l.indent}${l.text}${l.id == null ? '' : tails[l.id] ?? ''}',
           ?last,
         ].join('\n');
     try {
@@ -482,7 +496,7 @@ final class _Printer {
       // the tails, and to the `canvas` line, what still differs, until
       // nothing does.
       final patches = {for (final e in tails.entries) e.key: jsonDecode(e.value.substring(1)) as Json};
-      Json? canvas;
+      final canvas = <String, Json>{};
       var second = first;
       for (var round = 0; round < 5; round++) {
         final got = readMap(second['nodes']) ?? const {};
@@ -498,20 +512,17 @@ final class _Printer {
             changed = true;
           }
         }
-        // What the screen's canvas has that the parser does not give it.
-        if (_screen case final String screen) {
-          final want = readMap(nodes[screen]), now = readMap(got[screen]);
+        // What each canvas has that the parser does not give it.
+        for (final e in _canvases.entries) {
+          final want = readMap(nodes[e.key]), now = readMap(got[e.key]);
           final d = want == null || now == null ? null : diffPatch(now, want);
-          final next = d == null ? canvas : mergePatch(canvas ?? const {}, d, keepNulls: true);
-          final before = canvas == null ? null : _canvasLine(canvas);
-          final line = next == null ? null : _canvasLine(next);
-          if (line != null && line != before) {
-            if (before == null) {
-              _lines.insert(_canvasAt, _Line(0, line));
-            } else {
-              _lines[_canvasAt] = _Line(0, line);
-            }
-            canvas = next;
+          if (d == null) continue;
+          final next = mergePatch(canvas[e.key] ?? const {}, d, keepNulls: true);
+          final words = _canvasLine(next);
+          final line = words == null ? (e.value.head == 'canvas' ? '' : e.value.head) : '${e.value.head} $words';
+          if (line != e.value.line.text) {
+            e.value.line.text = line;
+            canvas[e.key] = next;
             changed = true;
           }
         }

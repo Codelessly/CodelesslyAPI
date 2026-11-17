@@ -1177,7 +1177,7 @@ class _Parser {
   Json get _canvasNode {
     final o = _overlay;
     Json look() {
-      if (o == null) return _surface;
+      if (o == null || o.kind == 'canvas') return _surface;
       if (!o.surface) {
         return {
           'fills': [
@@ -1200,7 +1200,7 @@ class _Parser {
 
     return {
       'type': 'canvas',
-      if (o != null) 'name': o.id,
+      if (o != null && o.kind != 'canvas') 'name': o.id,
       if (_root != null) 'slots': {'body': _root},
       'layout': {'width': o?.width ?? options.width, 'height': o?.action.containsKey('snapHeights') == true ? {'fill': 0} : _canvasHeight},
       if (o?.guard case final String guard)
@@ -1732,6 +1732,7 @@ class _Parser {
         if (_pages.overlay(head) case final Overlay o) {
           final word = _srcWord;
           _openBlock(o);
+          if (o.kind == 'canvas') _block?._canvasPatch = _canvasWords(head.replaceFirst(RegExp(r'^\S+'), ''));
           _blockIndent = indent;
           _blockHead = head.split(RegExp(r'\s')).first;
           _blockPrev = 0;
@@ -2556,33 +2557,7 @@ class _Parser {
       return true;
     }
     if (indent == 0 && RegExp(r'^canvas(\s|$)').hasMatch(text)) {
-      final patch = <String, Object?>{};
-      for (final w in _headWords(text.substring(6))) {
-        final path = switch (w.key) {
-          '"' => 'name',
-          'w' => 'layout.width',
-          'h' => 'layout.height',
-          'fill' => 'decoration.fills',
-          final k => k,
-        };
-        final value = w.key == 'fill' && w.value is String
-            ? [
-                {'color': w.value},
-              ]
-            : w.value;
-        if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$').hasMatch(path)) {
-          _issue(1, 'A canvas line takes its name in quotes and key=value: canvas "Home" path="/" h=844 fill=surface.');
-          continue;
-        }
-        var at = patch;
-        final keys = path.split('.');
-        for (final k in keys.take(keys.length - 1)) {
-          final next = at[k];
-          at = next is Json ? next : (at[k] = <String, Object?>{});
-        }
-        at[keys.last] = value;
-      }
-      _canvasPatch = mergePatch(_canvasPatch ?? const {}, patch, keepNulls: true);
+      _canvasPatch = mergePatch(_canvasPatch ?? const {}, _canvasWords(text.substring(6)), keepNulls: true);
       return true;
     }
     if (indent == 0 && RegExp(r'^component(\s|$)').hasMatch(text)) {
@@ -2682,6 +2657,39 @@ class _Parser {
     return true;
   }
 
+
+  /// What a canvas line's words (after `canvas`, or a `Canvas#id` block's
+  /// head) say of its canvas, as a merge patch: its name in quotes, `w`,
+  /// `h`, `fill`, any other field by its path from the canvas.
+  Json _canvasWords(String text) {
+    final patch = <String, Object?>{};
+    for (final w in _headWords(text)) {
+      final path = switch (w.key) {
+        '"' => 'name',
+        'w' => 'layout.width',
+        'h' => 'layout.height',
+        'fill' => 'decoration.fills',
+        final k => k,
+      };
+      final value = w.key == 'fill' && w.value is String
+          ? [
+              {'color': w.value},
+            ]
+          : w.value;
+      if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$').hasMatch(path)) {
+        _issue(1, 'A canvas line takes its name in quotes and key=value: canvas "Home" path="/" h=844 fill=surface.');
+        continue;
+      }
+      var at = patch;
+      final keys = path.split('.');
+      for (final k in keys.take(keys.length - 1)) {
+        final next = at[k];
+        at = next is Json ? next : (at[k] = <String, Object?>{});
+      }
+      at[keys.last] = value;
+    }
+    return patch;
+  }
   /// The words of a component's head line: `key=value` (the value JSON, or
   /// a bare word as text), a bare `key` (value null) and a string (key `"`).
   static List<({String key, Object? value})> _headWords(String text) {

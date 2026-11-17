@@ -232,6 +232,13 @@ final class PageWords {
   /// `Lightbox#zoom`), or null: the lines under it are a canvas of their
   /// own, shown over the page by `open <id>`.
   Overlay? overlay(String text) {
+    // `Canvas#about "About" path="about"`: another canvas of the document
+    // (a page, or what an open shows as written), its lines its tree.
+    final canvas = RegExp(r'^Canvas#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)(?=\s|$)').firstMatch(text);
+    if (canvas != null) {
+      final width = double.tryParse(RegExp(r'\sw=(\d+(?:\.\d+)?)(?=\s|$)').firstMatch(text)?[1] ?? '');
+      return Overlay('canvas', canvas[1]!, width ?? 390, const {}, const []);
+    }
     final head = _overlayHead.firstMatch(text);
     if (head == null) return null;
     // A design system's component of the word's name that is no frame (a
