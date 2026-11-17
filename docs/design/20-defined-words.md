@@ -72,7 +72,10 @@ What a use writes that the signature does not name: the words the grammar gives 
 `visible`, `hide`, `show`, `hidden`, `maxw`, `tooltip`, the `border-…` sides, `duration`, `delay` and `stagger`
 with an `animate`, the alignment words, and the pointer events `onTap`, `onLongPress`, `onDoubleTap`,
 `onRightClick`, `onHover`, `onDrop`, the swipes) go on the body's first line (the root), replacing what it writes
-for that key; an event joins the root's own. Anything else is a word the definition does not have: with the open
+for that key; an event joins the root's own. Since note 21 these are the words of `notationUniversal`, and the
+universal words (`color`, `size`, `icon`, `disabled`, `removable` with `onRemove`, and on a container root whose use
+says `reorder` or `selectable` the list's words) go on the root too when the root is a kind of line that takes them
+(recorded `universal`). Anything else is a word the definition does not have: with the open
 vocabulary recorded as a parameter, flag or event of that word, left out; without it an issue that says what the
 word takes (`A StickyNote has no "x". It takes: text, fill, w, h, selected, onTap, onDoubleTap.`).
 
@@ -276,7 +279,8 @@ not its drag selection), `Autocomplete`, `CommandList`, `FuzzySearch` (an Input 
 - *Device or time*: `CameraFrame`, `Sound`, `Announce` (said when a value changes; ours is an action), `TypingText`
   (each character marked as it is typed).
 - *The grammar*: `Footnote 1` and `CountUp 39` give a bare number where the text goes; a signature names strings
-  only, so the number is an unknown flag. A signature could name one positional value; not done.
+  only, so the number is an unknown flag. Closed since (note 21 section 8): a bare number fills the next string of
+  the signature, else its parameter `value`, and is the number itself in the body's expressions.
 
 ## 10. What is not done, and what it costs
 

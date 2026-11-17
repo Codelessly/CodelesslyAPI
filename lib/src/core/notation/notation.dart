@@ -22,6 +22,7 @@ import '../triggers.dart' show KeyCombo;
 import 'define.dart';
 import 'page_words.dart';
 import 'reflow.dart';
+import 'universal.dart';
 import 'vocabulary.dart';
 
 /// A problem in the notation's text: where and what.
@@ -1016,6 +1017,23 @@ class _Src {
   VocabularyUse? use;
 }
 
+/// A list's universal words (docs/design/21 section 4.1), written on the
+/// line whose lines come from an `each`: each word with its value (an
+/// event's actions) and column, and the line they are on, to record them by
+/// once the `each` under it reads them (or does not).
+class _ListWords {
+  _ListWords(this.words, this.line, this.source, this.on, this.path, {this.standIn = false});
+  final Map<String, ({String value, int column})> words;
+  final int line;
+  final String source, on;
+  final List<String> path;
+
+  /// Written on a stand-in: what it does not read stays in its record.
+  final bool standIn;
+  bool applied = false;
+  String? value(String word) => words[word]?.value;
+}
+
 class _Open {
   _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written});
 
@@ -1378,32 +1396,39 @@ class _Parser {
     String? of,
     String? node,
     LineParts? parts,
+    _ListWords? at,
   }) {
     if (_top._quiet) return null;
+    final line = at?.line ?? _line, source = at?.source ?? _src, path = at?.path ?? _srcPath;
+    // A universal word (docs/design/21) is recorded only with the open
+    // vocabulary, and in a defined word's lines by the use that gave it.
+    if (kind == 'universal' && (!options.openVocabulary || (_from != null && at == null))) return null;
     // A definition is not an answer: a word in its lines we do not have is
     // an issue there, open or not.
-    if (_from != null && kind != 'children' && kind != 'verb') {
+    if (_from != null && at == null && kind != 'children' && kind != 'verb') {
       if (kind != 'alias') _issue(column, '${on == null ? '' : '$on: '}"$word" is not a ${kind == 'type' ? 'type' : kind} the notation has.');
       return null;
     }
-    if (!_useKeys.add('$_line:$column:$kind:$word')) return null;
+    if (!_useKeys.add('$line:$column:$kind:$word')) return null;
     final VocabularyUse use;
     if (kind == 'alias') {
-      use = aliasUse(of: of ?? 'type', word: word, to: to ?? '', source: _src, line: _line, column: column, on: on, value: value, path: _srcPath);
+      use = aliasUse(of: of ?? 'type', word: word, to: to ?? '', source: source, line: line, column: column, on: on, value: value, path: path);
+    } else if (kind == 'universal') {
+      use = universalUse(of: of ?? universalKindOf(word), word: word, source: source, line: line, column: column, on: on, value: value, path: path);
     } else {
       final all = parts?.parts ?? const <LinePart>[];
       use = VocabularyUse(
         kind: kind,
         word: word,
-        source: _src,
-        line: _line,
+        source: source,
+        line: line,
         column: column,
         on: on,
         value: value,
         to: to,
         of: of,
         node: node,
-        path: _srcPath,
+        path: path,
         texts: [
           for (final p in all)
             if (p.kind == 'string') p.raw.length > 1 ? p.raw.substring(1, p.raw.endsWith('"') ? p.raw.length - 1 : p.raw.length) : '',
@@ -2507,9 +2532,33 @@ class _Parser {
       if (follows && (g != null || across)) return _issue(column, 'A list that follows its end runs down a Column, a Card or a Section, not across a Row or in a Grid.');
       final listName = each[2]!.trim();
       if (reorders && (g != null || across)) return _issue(column, 'A list that is reordered runs down a Column, a Card or a Section, not across a Row or in a Grid.');
-      if (reorders && !(_identifier.hasMatch(listName) && !listName.contains('.') && variables.containsKey(listName))) {
+      final isVariable = _identifier.hasMatch(listName) && !listName.contains('.') && variables.containsKey(listName);
+      if (reorders && !isVariable) {
         return _issue(column, 'reorder writes the new order to a list variable: declare it (state $listName=[…]) and repeat it by name (each row in $listName reorder).');
       }
+      // The universal words of the line the list is under (docs/design/21
+      // section 4.1): reorder, selectable, their events, a handle.
+      final lw = _listUniversal[parent.id];
+      var listReorder = false, listSelect = false;
+      if (lw != null && !lw.applied) {
+        lw.applied = true;
+        // A list is reordered down a column, written to its variable (or,
+        // over a formula, stored by its onReorder).
+        listReorder = !reorders && lw.words.containsKey('reorder') && g == null && !across && (isVariable || lw.words.containsKey('onReorder'));
+        listSelect = lw.words.containsKey('selectable');
+        for (final e in lw.words.entries) {
+          final read = switch (e.key) {
+            'reorder' || 'handle' || 'onReorder' => listReorder,
+            'selectable' || 'onSelect' => listSelect,
+            'bind' => listSelect || listReorder,
+            _ => false,
+          };
+          final event = e.key.startsWith('on');
+          final of = event ? 'event' : (e.key == 'bind' || e.value.value != 'true' ? 'parameter' : 'flag');
+          if (read || !lw.standIn) _use(read ? 'universal' : of, e.key, e.value.column, on: lw.on, of: of, value: read ? null : (event ? '{${e.value.value}}' : null), at: lw);
+        }
+      }
+      final reorderNow = reorders || listReorder;
       _acrossLists[itemId] = listId;
       if (g != null) _gridLists[listId] = g.id;
       // `Row gap=8 wrap` over an each: the copies wrap onto further lines,
@@ -2519,8 +2568,9 @@ class _Parser {
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
         'layout': {'width': across && !wraps ? {'hug': 0} : {'fill': 0}, 'height': follows ? eachHeight : {'hug': 0}},
-        // Its handles are one stop of the page: arrows go from row to row.
-        if (reorders) 'focusGroup': {'axis': 'vertical', 'wrap': false},
+        // Its handles are one stop of the page: arrows go from row to row
+        // (and so are the rows of a list that is selected from).
+        if (reorderNow || listSelect) 'focusGroup': {'axis': g != null ? 'both' : across ? 'horizontal' : 'vertical', 'wrap': false},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
             ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
@@ -2535,17 +2585,42 @@ class _Parser {
                     'scrollable': follows,
                     if (follows) 'stickToEnd': true,
                     'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0,
-                    if (reorders)
+                    if (reorderNow)
                       'reorder': {
-                        'start': 'handle',
+                        // A universal reorder with no handle: a long press
+                        // anywhere on the row picks it up.
+                        'start': listReorder && !lw!.words.containsKey('handle') ? 'longPress' : 'handle',
                         'keyboard': true,
-                        'apply': 'variable',
+                        'apply': isVariable ? 'variable' : 'none',
                         if (reorderGroup.isNotEmpty) ...{'group': reorderGroup, 'listKey': listName},
                       },
                   },
         'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
         'children': <Object?>[itemId],
       };
+      final listActions = <Json>[];
+      // onReorder={…}: after a move, `result` the list in its new order (the
+      // variable, already written; else the formula's list moved), and
+      // result.from, result.to, result.item as the list gives them.
+      if ((listReorder ? lw!.value('onReorder') : null) case final String body) {
+        final moved = isVariable ? listName : 'move($listName, result.from, result.to)';
+        final read = body.replaceAllMapped(RegExp(r'(?<![A-Za-z0-9_.])result(?![A-Za-z0-9_])(?!\s*\.\s*(?:from|to|item|fromList|toList)\b)'), (_) => '($moved)');
+        listActions.add({'trigger': {'type': 'reorder'}, 'actions': _actions(read, column)});
+      }
+      // selectable: the selection kept in a list variable, by each row's key
+      // (its id, else the element itself).
+      String? selection;
+      if (listSelect) {
+        final sel = selection = lw!.value('bind') ?? '${parent.id}Selected';
+        variables.putIfAbsent(sel, () => {'name': sel, 'type': 'list', 'value': const <Object?>[]});
+        final onSelect = lw.value('onSelect');
+        final then = onSelect == null || onSelect.trim().isEmpty ? '' : '; ${_rename(onSelect, 'result', sel)}';
+        listActions.add({
+          'trigger': {'type': 'keyDown', 'key': 'mod+a'},
+          'actions': _actions('$sel = map($listName, x => coalesce(x.id, x)); announce "{length($sel)} selected"$then', column),
+        });
+      }
+      if (listActions.isNotEmpty) nodes[listId]!['actions'] = listActions;
       final p = nodes[parent.id]!;
       ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(listId);
       _parentOf[listId] = parent.id;
@@ -2554,6 +2629,40 @@ class _Parser {
         'layout': across ? {'width': {'hug': 0}, 'height': wraps ? {'hug': 0} : {'fill': 0}} : {'width': {'fill': 0}, 'height': {'hug': 0}},
         'props': {'crossAxisAlignment': 'start', if (across) 'mainAxisAlignment': 'center'},
       };
+      if (selection case final String sel) {
+        // A tap selects the row alone, Ctrl or Cmd adds or removes it, Shift
+        // takes the range from the last row chosen (Space and Enter on a
+        // focused row the same); each change is announced, then onSelect.
+        final anchor = '${sel}Anchor';
+        variables.putIfAbsent(anchor, () => {'name': anchor, 'type': 'decimal', 'value': -1});
+        final rows = _rename(listName, 'item', 'parent.item');
+        const key = 'coalesce(item.id, item)';
+        final onSelect = lw!.value('onSelect');
+        final then = onSelect == null || onSelect.trim().isEmpty ? '' : '; ${_rename(onSelect, 'result', sel)}';
+        nodes[itemId]!
+          ..['actions'] = [
+            {
+              'trigger': {'type': 'click'},
+              'actions': _actions(
+                  '$sel = (result.shift && $anchor >= 0 ? map(slice($rows, min($anchor, index), max($anchor, index) + 1), x => coalesce(x.id, x)) : '
+                  '(result.meta ? (contains($sel, $key) ? without($sel, $key) : append($sel, $key)) : [$key])); '
+                  '$anchor = (result.shift && $anchor >= 0 ? $anchor : index); announce "{length($sel)} selected"$then',
+                  column),
+            },
+          ]
+          ..['bind'] = {'selected': _formula('contains($sel, $key)')}
+          ..['states'] = {
+            'selected': {
+              itemId: {
+                'decoration': {
+                  'fills': [
+                    {'color': options.selectedFill},
+                  ],
+                },
+              },
+            },
+          };
+      }
       _parentOf[itemId] = listId;
       _stack.add(_Open(indent, itemId, 'column', each: each[1], list: each[2]!.trim()));
       return;
@@ -2646,6 +2755,14 @@ class _Parser {
     Json? buttonLook;
     String? gaugeUnit;
     List<({String label, Object? value, Object? color})>? donutKeys;
+    // Universal words (docs/design/21-universal-words.md) this line applied
+    // where its type has no word of that name (recorded once it is read),
+    // and what a stand-in left out (the rest of its words it honours).
+    final universal = <({String word, int column, String of})>[];
+    final dropped = <String>{};
+    var wroteColor = false;
+    String? chipColor, fieldInk, fieldSize, listIcon, inputValue, removeActions;
+    var disabledBy = '', required = false, clearable = false;
 
     // With an open vocabulary a word that is not a type stands in: a column
     // of its texts and of the lines under it, recorded with what it was
@@ -2757,6 +2874,16 @@ class _Parser {
         _bareStandIns[id] = named == null ? written : '$written · ${named.value!.substring(1, named.value!.length - 1)}';
       }
     }
+    // The kinds of line a universal word reads differently on (a box: a
+    // container, a stand-in, a defined word's root; a control).
+    final boxLine = !component && const {'column', 'row', 'stack'}.contains(type);
+    final controlLine = !component &&
+        (_valueProps.containsKey(type) || type.endsWith('Button') || type.endsWith('Chip') || type == 'chip' || type == 'progressBar' || type == 'circularProgressIndicator');
+    // A list's universal words (reorder, selectable and their events, a
+    // handle, the selection's variable), read by the `each` under the line.
+    final pre = LineParts.of(line);
+    final listLine = boxLine && pre != null && const ['reorder', 'sortable', 'reorderable', 'selectable'].any(pre.has);
+    final listWords = <String, ({String value, int column})>{};
 
     void put(String path, Object? value) {
       final dot = path.indexOf('.');
@@ -2950,6 +3077,79 @@ class _Parser {
     }
 
     var given = 0;
+    var afterKey = false;
+    // A component's strings fill its text parameters in order.
+    void componentString(String raw, int col) {
+      final text = _interpolate(raw);
+      // Past the strings it is known by, a further string goes to its next
+      // text parameter not yet given, in the order they are declared
+      // (CartLine "Bananas" "1 kg" "$2.49": the price).
+      final key = strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull ??
+          spec.props
+              .where((p) => p.type.kind == PropKind.string && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}'))
+              .firstOrNull
+              ?.key;
+      if (key == null) {
+        _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key="value".');
+      } else if (text.contains(r'${')) {
+        bind['props.$key'] = text;
+        positional.add(key);
+      } else {
+        props[key] = text;
+        positional.add(key);
+      }
+    }
+
+    // A universal flag (docs/design/21) on a line whose type has no word of
+    // that name, written bare or `=true` ([value]): whether it was read.
+    // An Input's own words (section 7) are read here too.
+    bool universalFlag(String word, int col, {String value = 'true', String of = 'flag'}) {
+      final w = const {'sortable': 'reorder', 'reorderable': 'reorder', 'readonly': 'readOnly'}[word] ?? word;
+      void used() => universal.add((word: word, column: col, of: of));
+      switch (w) {
+        case 'reorder' || 'selectable' when listLine:
+          listWords[w] = (value: value, column: col);
+          return true;
+        case 'handle' when listLine:
+          listWords['handle'] = (value: value, column: col);
+          return true;
+        case 'removable' when value == 'true' && (boxLine || type == 'listTile' || type.endsWith('Chip') || type == 'chip'):
+          removeActions ??= '';
+          used();
+          return true;
+        case 'readOnly' when controlLine && value == 'true':
+          // A control with no read-only of its own shows its value and
+          // takes no input: no pointer, no focus.
+          node['ignorePointer'] = true;
+          used();
+          return true;
+        case 'required' when value == 'true' && const {'textField', 'checkbox', 'switch'}.contains(type):
+          required = true;
+          used();
+          return true;
+      }
+      if (type != 'textField' || value != 'true') return false;
+      switch (w) {
+        case 'clearable':
+          clearable = true;
+        case 'autogrow':
+          // From one line to six (or to its lines=).
+          props['minLines'] = 1;
+          props.putIfAbsent('maxLines', () => 6);
+        case 'caps':
+          props['textCapitalization'] = 'characters';
+        case 'center' || 'right':
+          props['textAlign'] = w;
+        case 'fuzzy':
+          // Fuzzy matching is the filtered list's: on the field it is nothing.
+          _issue(col, 'fuzzy belongs to the list that is filtered, not to the field: filter(items, x => fuzzy(x.name, q)). It does nothing on an Input.');
+          if (open) _use(of == 'parameter' ? 'parameter' : 'flag', word, col, on: _srcWord ?? written, value: of == 'parameter' ? value : null);
+        default:
+          return false;
+      }
+      return true;
+    }
+
     while (true) {
       t.skipSpace();
       if (t.done) break;
@@ -2967,25 +3167,7 @@ class _Parser {
       }
       if (valued != null || t.peek == '"') given++;
       if ((valued != null || t.peek == '"') && component) {
-        // A component's strings fill its text parameters in order.
-        final text = _interpolate(valued ?? t.string());
-        // Past the strings it is known by, a further string goes to its next
-        // text parameter not yet given, in the order they are declared
-        // (CartLine "Bananas" "1 kg" "$2.49": the price).
-        final key = strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull ??
-            spec.props
-                .where((p) => p.type.kind == PropKind.string && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}'))
-                .firstOrNull
-                ?.key;
-        if (key == null) {
-          _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key="value".');
-        } else if (text.contains(r'${')) {
-          bind['props.$key'] = text;
-          positional.add(key);
-        } else {
-          props[key] = text;
-          positional.add(key);
-        }
+        componentString(valued ?? t.string(), col);
       } else if (valued != null || t.peek == '"') {
         final text = valued ?? t.string();
         if (type == 'text') markText ??= text;
@@ -3049,6 +3231,9 @@ class _Parser {
       } else {
         final from = t.at;
         final word = t.word();
+        // Where the strings go: before any key=value or bare word.
+        final textPosition = !afterKey;
+        afterKey = true;
         if (word.isEmpty) {
           _issue(col, 'Unexpected "${t.peek}".');
           t.at++;
@@ -3130,6 +3315,18 @@ class _Parser {
           } else if (num.tryParse(word) != null && (_valueProps[type]?.type == 'decimal' || _shownValue[type] == 'value')) {
             // A bare number on a slider or a progress bar is its value.
             props['value'] = num.parse(word);
+          } else if (textPosition && num.tryParse(word) != null && component && spec.props.any((p) => p.key == 'value' && !p.type.isVariable && (p.type.kind == PropKind.number || p.type.kind == PropKind.integer))) {
+            // …and on a component whose value is a number (docs/design/21 §8).
+            props['value'] = num.parse(word);
+          } else if (textPosition && num.tryParse(word) != null && (component || standIn || _textAt(type, written))) {
+            // A bare number where the text goes is the text (`Footnote 1`,
+            // `CountUp 39`, `Badge 3`): docs/design/21 section 8.
+            if (component) {
+              componentString(word, col);
+            } else {
+              if (type == 'text') markText ??= word;
+              _main(type, spec, word, props, decoration);
+            }
           } else if (word == 'grow') {
             layout['flex'] = 1;
           } else if (word == 'scroll' && (type == 'column' || type == 'row')) {
@@ -3149,6 +3346,8 @@ class _Parser {
             node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header)$').hasMatch(written) ? 0 : 16};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
+          } else if (!component && universalFlag(word, col)) {
+            // A universal word (docs/design/21), or an Input's own (section 7).
           } else if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(word)) {
             // Text plan.name: a value shown as text is in a string.
             // The line's x was read as `item`: say it by the name written.
@@ -3157,6 +3356,7 @@ class _Parser {
             _issue(col, 'A value shown as text is written in a string: "{$shown}".');
           } else if (standIn) {
             // Whatever a stand-in was given is in its record.
+            dropped.add(word);
           } else if (open && RegExp(r'^[A-Za-z][A-Za-z0-9_-]*$').hasMatch(word)) {
             // A flag the type does not have: left out, and recorded (a
             // stand-in's are in its own record).
@@ -3215,7 +3415,25 @@ class _Parser {
           }
           final braced = t.balanced();
           final body = braced.substring(1, braced.endsWith('}') ? braced.length - 1 : braced.length);
+          // A list's events (docs/design/21): read by the each under it; a
+          // removable line's (or chip's) x.
+          if (!component && (key == 'onReorder' || key == 'onSelect') && listLine) {
+            listWords[key] = (value: body, column: col);
+            continue;
+          }
+          if (!component && key == 'onRemove' && (boxLine || type == 'listTile' || type.endsWith('Chip') || type == 'chip')) {
+            removeActions = body;
+            universal.add((word: key, column: col, of: 'event'));
+            continue;
+          }
           var trigger = _handlerTrigger(key, type, component ? spec : null, node);
+          // A key pressed in the field (result.key, also read as a bare
+          // `key`; Enter is onSubmit).
+          var keyBody = body;
+          if (key == 'onKeyDown' && type == 'textField') {
+            trigger = {'type': 'keyDown'};
+            keyBody = _rename(body, 'key', 'result.key');
+          }
           // A stand-in is tapped, pressed, swiped and dropped on: what it
           // would say of its own value (onChange, onSubmit) it cannot.
           if (standIn && !const {'click', 'longPress', 'doubleTap', 'secondaryClick', 'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'cursorEnter', 'drop'}.contains(trigger?['type'])) {
@@ -3227,13 +3445,14 @@ class _Parser {
             // left out.
             _actions(body, col);
             if (!standIn) _use('event', key, col, on: _srcWord ?? written, value: braced);
+            if (standIn) dropped.add(key);
             continue;
           }
           if (trigger == null) {
             _issue(col, 'A $written has no event "$key". Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.');
             continue;
           }
-          final actions = _actions(body, col);
+          final actions = _actions(keyBody, col);
           // A menu opened by a right click or a long press sits where the pointer is.
           if (trigger['type'] == 'secondaryClick' || trigger['type'] == 'longPress') actions.forEach(_atPointer);
           reactions.add({'trigger': trigger, 'actions': actions});
@@ -3252,8 +3471,14 @@ class _Parser {
           }
           if (raw.isEmpty) {
             _issue(col, 'bind= names a variable: bind=name.');
+          } else if (listLine && _identifier.hasMatch(raw) && !raw.contains('.')) {
+            // On a list that is selected from (or reordered): the variable
+            // its selection is kept in (docs/design/21 section 4.1).
+            listWords['bind'] = (value: raw, column: col);
           } else {
             bindTo(raw, col);
+            // A stand-in declares the variable and keeps nothing in it.
+            if (standIn) dropped.add('bind');
           }
           continue;
         }
@@ -3630,6 +3855,143 @@ class _Parser {
           props['style'] = style;
           continue;
         }
+        // The universal words (docs/design/21) where the type has no word of
+        // that name, and an Input's own (section 7).
+        // The step of a scale a size word names (xs, small, medium, large, xl).
+        final sizeStep = key == 'size' ? const {'xs': 0, 'small': 1, 'sm': 1, 'medium': 2, 'md': 2, 'large': 3, 'lg': 3, 'xl': 4}[_literal(raw).$2?.toString() ?? raw] : null;
+        // A size word where the type's own size is a number is still the
+        // universal step (Icon "star" size=small).
+        final ownNumber = sizeStep != null && spec.props.any((p) => p.key == 'size' && (p.type.kind == PropKind.number || p.type.kind == PropKind.integer));
+        if (!component && (!spec.props.any((p) => p.key == key) || ownNumber)) {
+          final bound = raw.startsWith('=') ? raw.substring(1).trim() : null;
+          final named = _literal(raw).$2?.toString() ?? raw;
+          final step = sizeStep;
+          void colorAt(List<String> paths, String kind) {
+            for (final p in paths) {
+              if (bound != null) {
+                bind[p] = _namedIn(_read(bound), kind);
+              } else {
+                put(p, _named(_value(raw), kind));
+              }
+            }
+          }
+
+          // Whether the word was read here, and whether as a universal word
+          // (recorded) rather than an Input's own or the grammar's.
+          var handled = true, used = true;
+          if (key == 'color') wroteColor = true;
+          switch (key) {
+            case 'reorder' || 'sortable' || 'reorderable' || 'selectable' || 'removable' || 'readOnly' || 'required' || 'clearable' || 'autogrow' || 'caps' || 'fuzzy' when raw == 'true':
+              if (universalFlag(key, col, value: raw, of: 'parameter')) continue;
+              handled = false;
+            case 'handle' when listLine:
+              listWords['handle'] = (value: named, column: col);
+              continue;
+            case 'color' when boxLine:
+              // A container's colour is the ink of what is written in it.
+              _ink[id] = raw;
+            case 'color' when type == 'switch':
+              colorAt(['props.activeTrackColor'], 'fill');
+            case 'color' when type == 'radio':
+              colorAt(['props.activeColor'], 'fill');
+            case 'color' when type == 'slider':
+              colorAt(['props.activeTrackColor', 'props.thumbColor'], 'fill');
+            case 'color' when type.endsWith('Chip') || type == 'chip':
+              chipColor = raw;
+            case 'color' when type == 'textField' || type == 'dropdown':
+              fieldInk = raw;
+            case 'color' when const {'filledButton', 'elevatedButton', 'outlinedButton', 'textButton'}.contains(type):
+              // A filled button's colour is its fill, unless the line gives
+              // it one: then, as on an outline or ghost button, its label's.
+              final filled = (type == 'filledButton' || type == 'elevatedButton') && !RegExp(r'(^|\s)fill=').hasMatch(line);
+              final at = filled ? 'backgroundColor' : 'foregroundColor';
+              if (bound != null) {
+                bind['props.style.$at'] = _namedIn(_read(bound), filled ? 'fill' : 'text');
+                (buttonLook ??= <String, Object?>{});
+              } else {
+                (buttonLook ??= <String, Object?>{})[at] = _named(_value(raw), filled ? 'fill' : 'text');
+              }
+            case 'size' when step != null && type == 'text':
+              // The theme's text sizes: caption, small, body, title, and half again.
+              num? of(String name) => readMap(options.textStyles[name])?['fontSize'] as num? ?? readMap(defaultTextVariants[name])?['fontSize'] as num?;
+              final title = of('title') ?? 20;
+              final size = [of('caption') ?? 11, of('small') ?? 12, of('body') ?? 13, title, (title * 1.5).round()][step];
+              final body = options.textStyles['body'];
+              final style = switch (props['style']) {
+                final Map m => m.cast<String, Object?>(),
+                _ => body is Map ? _copy(body.cast<String, Object?>()) : body is String ? <String, Object?>{'from': body} : <String, Object?>{},
+              };
+              props['style'] = style..['fontSize'] = size;
+            case 'size' when step != null && type == 'icon':
+              props['size'] = const [14, 16, 20, 28, 36][step];
+            case 'size' when ours && written == 'Ring' && (step != null || num.tryParse(raw) != null):
+              final across = step == null ? num.parse(raw) : const [32, 48, 64, 96, 128][step];
+              layout['width'] = across;
+              layout['height'] = across;
+            case 'size' when step != null && ours && written == 'Avatar':
+              avatarSize = const [24, 32, 40, 56, 72][step];
+            case 'size' when step != null && type == 'progressBar':
+              layout['height'] = const [3, 4, 8, 12, 16][step];
+            case 'size' when step != null && type == 'slider':
+              props['trackHeight'] = const [2, 2, 4, 6, 8][step];
+              props['thumbRadius'] = const [5, 6, 8, 10, 12][step];
+            case 'size' when step != null && (type.endsWith('Chip') || type == 'chip'):
+              layout['height'] = const [20, 24, 28, 32, 36][step];
+            case 'size' when (type == 'textField' || type == 'dropdown') && (step != null || named == 'compact' || (type == 'textField' && num.tryParse(raw) != null)):
+              // A field's height is a step of the control scale; a number is
+              // the size of its text.
+              fieldSize = named;
+            case 'icon' when type.endsWith('Chip') || type == 'chip':
+              // A chip's leading icon is its avatar.
+              if (bound != null) {
+                bind['props.avatar'] = _read(bound);
+                props['avatar'] = 'circle';
+              } else {
+                props['avatar'] = named;
+              }
+            case 'icon' when type == 'listTile':
+              listIcon = raw;
+            case 'enabled' when !spec.props.any((p) => p.key == 'isEnabled'):
+              // No enabled of its own: the node's disabled state (it takes no
+              // input; a box is drawn at half strength, below).
+              final off = bound != null ? '!($bound)' : raw == 'false' ? 'true' : raw == 'true' ? null : '!($raw)';
+              if (off != null) {
+                bind['disabled'] = _formula(off);
+                disabledBy = off;
+              }
+            case 'tooltip' when bound != null || (raw.startsWith('"') && raw.contains('{')):
+              // A tooltip that reads data is the node's own, as written.
+              node['tooltip'] = bound == null
+                  ? _interpolate(_literal(raw).$2?.toString() ?? raw)
+                  : bound.startsWith('"') && _literal(bound).$2 is String
+                      ? _interpolate(_literal(bound).$2! as String)
+                      : _read(bound);
+              used = false;
+            case 'value' when type == 'textField':
+              inputValue = raw;
+              used = false;
+            case 'prefix' || 'suffix' when type == 'textField':
+              final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
+              if (bound != null) {
+                bind['props.decoration.${key}Text'] = _read(bound);
+              } else {
+                field['${key}Text'] = named;
+              }
+              field['affixesAlwaysVisible'] = true;
+              used = false;
+            case 'caps' when type == 'textField':
+              final cap = switch (named) { 'words' => 'words', 'sentences' => 'sentences', 'none' || 'false' => 'none', _ => 'characters' };
+              props['textCapitalization'] = cap;
+              used = false;
+            default:
+              // Not universal on this line: read as before, below.
+              handled = false;
+          }
+          if (handled) {
+            if (used) universal.add((word: key, column: col, of: 'parameter'));
+            continue;
+          }
+        }
         if (type == 'text' && _textStyleKeys.containsKey(key)) {
           // A style that follows data: `color={due?"#FFDC2626":"#FF111827"}`.
           if (raw.startsWith('=') && key != 'bold') {
@@ -3980,6 +4342,40 @@ class _Parser {
         props['yField'] = 'y';
       }
     }
+    // Universal words read once the line is (docs/design/21): a chip's
+    // colour (a choice's selected tint, else its label's and icon's ink), a
+    // removable chip (an input chip, its x the event), an icon's ink from
+    // the container it is in.
+    final chip = type.endsWith('Chip') || type == 'chip';
+    if (chip && chipColor != null) {
+      final c = chipColor;
+      final bound = c.startsWith('=') ? c.substring(1).trim() : null;
+      final paths = type == 'choiceChip' || type == 'filterChip' ? const ['props.selectedColor'] : const ['props.labelStyle.color', 'props.avatarColor'];
+      for (final p in paths) {
+        if (bound != null) {
+          bind[p] = _namedIn(_read(bound), 'text');
+        } else {
+          put(p, _named(_value(c), 'text'));
+        }
+      }
+    }
+    if (chip && removeActions != null) {
+      type = 'inputChip';
+      reactions.add({'trigger': {'type': 'deleted'}, 'actions': _actions(removeActions!, column)});
+      removeActions = null;
+    }
+    if (!wroteColor && (type == 'icon' || type == 'iconButton')) {
+      if (_inkAbove(parent?.id) case final String ink) {
+        final path = type == 'icon' ? 'props.color' : 'props.style.iconColor';
+        if (ink.startsWith('=')) {
+          bind[path] = _namedIn(_read(ink.substring(1).trim()), 'text');
+        } else if (type == 'icon') {
+          props['color'] = _named(_value(ink), 'text');
+        } else {
+          (buttonLook ??= <String, Object?>{})['iconColor'] = _named(_value(ink), 'text');
+        }
+      }
+    }
     if (buttonLook != null && buttonLook.isNotEmpty) {
       props['style'] = {...?readMap(props['style']), ...buttonLook};
     }
@@ -4194,6 +4590,21 @@ class _Parser {
     if (type == 'text' && !props.containsKey('style')) {
       if (options.textStyles['body'] case final Object body) props['style'] = body is Map ? _copy(body.cast<String, Object?>()) : body;
     }
+    // A text that sets no colour takes the ink of the container it is in.
+    if (type == 'text' && !wroteColor) {
+      if (_inkAbove(parent?.id) case final String ink) {
+        if (ink.startsWith('=')) {
+          bind['props.style.color'] = _namedIn(_read(ink.substring(1).trim()), 'text');
+        } else {
+          final style = switch (props['style']) {
+            final Map m => m.cast<String, Object?>(),
+            final String name => <String, Object?>{'from': name},
+            _ => <String, Object?>{},
+          };
+          props['style'] = style..['color'] = _named(_value(ink), 'text');
+        }
+      }
+    }
     // In a grid a child is as wide as its cell and as tall as it says (its
     // row is as tall as its tallest child).
     if (parent?.type == 'gridView') {
@@ -4257,6 +4668,81 @@ class _Parser {
         if (d['labelText'] is String && (d['labelText']! as String).isNotEmpty) d.putIfAbsent('labelStyle', () => copy(options.fieldLabel));
         props['decoration'] = d;
       }
+      // A field's universal words (docs/design/21): its ink and its size.
+      Json style() => switch (props['style']) {
+            final Map m => m.cast<String, Object?>(),
+            final String name => <String, Object?>{'from': name},
+            _ => <String, Object?>{},
+          };
+      if (fieldInk case final String ink) {
+        if (ink.startsWith('=')) {
+          bind['props.style.color'] = _namedIn(_read(ink.substring(1).trim()), 'text');
+        } else {
+          props['style'] = style()..['color'] = _named(_value(ink), 'text');
+        }
+      }
+      if (fieldSize case final String size) {
+        final n = num.tryParse(size);
+        if (n != null) {
+          props['style'] = style()..['fontSize'] = n;
+        } else if (!layout.containsKey('height') && props['maxLines'] == null && props['minLines'] == null) {
+          final h = const {'xs': 24, 'compact': 28, 'small': 32, 'sm': 32, 'medium': 36, 'md': 36, 'large': 44, 'lg': 44, 'xl': 52}[size]!;
+          final label = type == 'textField' && switch ((props['decoration'] as Map?)?['labelText']) { final String l => l.isNotEmpty, _ => false };
+          layout['height'] = h + (label ? (options.fieldLabel == null ? 20 : 23) : 0);
+        }
+      }
+    }
+    // An Input's own words (docs/design/21 section 7) and `required`.
+    if (type == 'textField') {
+      final d = (props['decoration'] as Json?) ?? <String, Object?>{};
+      if (required) {
+        // Its label is marked, and it checks it is not empty when the focus
+        // leaves it (and with the rest of its form).
+        if (d['labelText'] case final String l when l.isNotEmpty && !l.endsWith('*')) {
+          d['labelText'] = '$l *';
+        } else if (_labelBinds['props.decoration.labelText'] case final String l) {
+          _labelBinds['props.decoration.labelText'] = '$l *';
+        }
+        props.putIfAbsent('validator', () => r'${= trim(value) == "" ? "Required" : ""}');
+        props.putIfAbsent('autovalidateMode', () => 'onUnfocus');
+      }
+      if (clearable) {
+        // A x after the text that clears it (its variable follows, as typing).
+        d['suffixIcon'] = {
+          'icon': 'close',
+          'size': 16,
+          'actions': [
+            {
+              'trigger': {'type': 'click'},
+              'actions': [
+                {'type': 'editText', 'node': id, 'operation': 'clear'},
+              ],
+            },
+          ],
+        };
+      }
+      if (d.isNotEmpty) props['decoration'] = d;
+      // value= beside bind=: the text it starts with; the variable it is
+      // bound to is still the one a change writes.
+      if (inputValue case final String v) {
+        if (v.startsWith('=') && !(v.substring(1).trim().startsWith('"') && _literal(v.substring(1).trim()).$2 is String)) {
+          bind['props.initialValue'] = _read(v.substring(1).trim());
+        } else {
+          final written = v.startsWith('=') ? v.substring(1).trim() : v;
+          final text = _literal(written).$2?.toString() ?? written;
+          if (text.contains('{') && _interpolate(text).contains(r'${')) {
+            bind['props.initialValue'] = _interpolate(text);
+          } else {
+            // A fixed text it starts with: shown over the variable's.
+            bind.remove('props.initialValue');
+            props['initialValue'] = text;
+          }
+        }
+      }
+    }
+    // A required checkbox or toggle: its label is marked.
+    if (required && (type == 'checkbox' || type == 'switch')) {
+      if (props['label'] case final String l when l.isNotEmpty && !l.endsWith('*')) props['label'] = '$l *';
     }
     // A date or time field is a field: as tall as the text field and the select beside it.
     if (options.controlHeight != null && const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && !layout.containsKey('height')) {
@@ -4267,7 +4753,8 @@ class _Parser {
       // text and 6 px under it).
       final label = type == 'textField' && switch ((props['decoration'] as Map?)?['labelText']) { final String l => l.isNotEmpty, _ => false };
       if (!layout.containsKey('height') && props['maxLines'] == null && props['minLines'] == null) {
-        layout['height'] = options.controlHeight! + (label ? (options.fieldLabel == null ? 20 : 23) : 0);
+        // A field that counts its characters (maxLength) has its counter under it.
+        layout['height'] = options.controlHeight! + (label ? (options.fieldLabel == null ? 20 : 23) : 0) + (type == 'textField' && props['maxLength'] is int ? 18 : 0);
       }
     }
     if (inRow && type == 'text' && !layout.containsKey('width')) layout['squeezable'] = true;
@@ -4454,6 +4941,7 @@ class _Parser {
         if (p is Map && p.isEmpty) out.remove('props');
         if (b is Map && b.isEmpty) out.remove('bind');
         if (!standIn) _use('parameter', u.key, u.column, on: _srcWord ?? written, value: u.value);
+        if (standIn) dropped.add(u.key);
       }
     }
     // Selected (`Row … selected={…}`): a box is drawn in the theme's
@@ -4471,7 +4959,60 @@ class _Parser {
         },
       };
     }
+    // Disabled where the type has no enabled of its own (docs/design/21): a
+    // box, a text, an icon takes no pointer and no focus, and everything in
+    // it with it, drawn at half strength while its disabled binding holds (a
+    // control draws its own disabled look from the same binding).
+    if (disabledBy.isNotEmpty && !controlLine) {
+      out['states'] = {
+        ...?readMap(out['states']),
+        'disabled': {
+          id: {'opacity': 0.5, 'ignorePointer': true},
+        },
+      };
+    }
     nodes[id] = out;
+    // A list tile's leading icon (icon= on a ListTile).
+    if (listIcon case final String icon when type == 'listTile') {
+      final slots = (out['slots'] as Json?) ?? (out['slots'] = <String, Object?>{});
+      if (!slots.containsKey('leading')) {
+        final iconId = _taken('${id}Icon') ? _id('icon') : '${id}Icon';
+        nodes[iconId] = {
+          'type': 'icon',
+          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+          'props': {'icon': icon.startsWith('=') ? 'circle' : _literal(icon).$2?.toString() ?? icon, 'size': 20},
+          if (icon.startsWith('=')) 'bind': {'props.icon': _read(icon.substring(1).trim())},
+        };
+        slots['leading'] = iconId;
+        _parentOf[iconId] = id;
+        _slotOf[iconId] = 'leading';
+      }
+    }
+    // A removable line that is not a chip: a small x at its end, added when
+    // it closes.
+    if (removeActions case final String actions) _removeAt[id] = actions.trim().isEmpty ? <Json>[] : _actions(actions, column);
+    // A list's universal words, read by the each under it.
+    if (listWords.isNotEmpty) _listUniversal[id] = _ListWords(listWords, _line, _src, _srcWord ?? written, _srcPath, standIn: standIn);
+    for (final u in universal) {
+      _use('universal', u.word, u.column, on: _srcWord ?? written, of: u.of);
+    }
+    // A stand-in honours the words every line understands (docs/design/21
+    // section 5): each it did not leave out is recorded as universal.
+    if (standIn && open) {
+      final parts = LineParts.of(_src.startsWith(written) ? _src : line);
+      final at = {for (final i in issues) if (i.line == _line) i.column};
+      for (final p in parts?.parts ?? const <LinePart>[]) {
+        if (p.kind != 'pair' && p.kind != 'word') continue;
+        final w = p.kind == 'pair' ? p.key! : p.raw;
+        final c = column + (p.at < 0 ? 0 : p.at);
+        if (dropped.contains(w) || at.contains(c) || num.tryParse(w) != null) continue;
+        if (const {'duration', 'delay', 'stagger'}.contains(w) && animation == null) continue;
+        if (listWords.containsKey(w)) continue;
+        // Only a word every line understands, or one of the column it is.
+        if (!isUniversal(w) && !spec.props.any((x) => x.key == w)) continue;
+        _use('universal', w, c, on: written, of: p.kind == 'word' ? 'flag' : p.isEvent ? 'event' : 'parameter');
+      }
+    }
     // A DataTable's cell and header are texts of the theme (item.value, item.label).
     if (ours && written == 'DataTable') {
       final body = options.textStyles['body'], strong = options.textStyles['strong'] ?? body;
@@ -4746,12 +5287,19 @@ class _Parser {
       final tid = _id('text');
       final container = type == 'column' || type == 'row' || type == 'stack';
       final style = _textStyle ?? options.textStyles[container ? 'body' : i == 0 ? 'strong' : 'muted'];
+      // A container's ink (color=, docs/design/21) is its texts'.
+      final ink = container ? _inkAbove(id) : null;
+      final bound = ink != null && ink.startsWith('=');
+      Object? styled = style is Map ? _copy(style.cast<String, Object?>()) : style;
+      if (ink != null && !bound) {
+        styled = {...switch (styled) { final Map m => m.cast<String, Object?>(), final String name => {'from': name}, _ => const <String, Object?>{} }, 'color': _named(_value(ink), 'text')};
+      }
       nodes[tid] = {
         'type': 'text',
         // In a tile's slot a text is as wide as it is; an accordion's header fills it.
         'layout': {'width': type == 'listTile' || _textStyle != null ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'text': texts[i], if (style != null) 'style': style is Map ? _copy(style.cast<String, Object?>()) : style},
-        if (_textColor != null) 'bind': {'props.style.color': _textColor},
+        'props': {'text': texts[i], if (styled != null) 'style': styled},
+        if (bound || _textColor != null) 'bind': {'props.style.color': _textColor ?? _namedIn(_read(ink!.substring(1).trim()), 'text')},
       };
       _parentOf[tid] = id;
       if (type == 'listTile') {
@@ -4844,6 +5392,28 @@ class _Parser {
   /// each with its label (the word, and its first string value).
   final _bareStandIns = <String, String>{};
 
+  /// The ink a container's `color=` gives the texts and icons written in it
+  /// that set none (docs/design/21), by node id, as written.
+  final _ink = <String, String>{};
+
+  /// The removable lines that are not chips, by node id: the actions their
+  /// x runs (added at their end when they close).
+  final _removeAt = <String, List<Json>>{};
+
+  /// A list's universal words by the id of the line they are on (reorder,
+  /// selectable, handle, bind, onReorder, onSelect, each with its column),
+  /// with the line's place to record them by: read by the `each` under it.
+  final _listUniversal = <String, _ListWords>{};
+
+  /// The ink of the nearest container around [id] (itself included) that
+  /// gave one with `color=`, as written.
+  String? _inkAbove(String? id) {
+    for (String? at = id; at != null; at = _parentOf[at]) {
+      if (_ink[at] case final String ink) return ink;
+    }
+    return null;
+  }
+
   /// A stand-in that ends with nothing to draw (no text, no lines under it,
   /// no fill or border of its own) shows a quiet dashed box with its label,
   /// as big as its w and h say: the page reads as unfinished, not broken
@@ -4882,12 +5452,64 @@ class _Parser {
     _parentOf[id] = open.id;
   }
 
+  /// A removable line that is not a chip (docs/design/21 section 4.1) ends:
+  /// a small x button, named Remove, at its end (a tile's trailing), runs
+  /// its onRemove.
+  void _removable(_Open open) {
+    if (open.each != null || open.condition != null) return;
+    final actions = _removeAt.remove(open.id);
+    final node = nodes[open.id];
+    if (actions == null || node == null) return;
+    final id = _taken('${open.id}Remove') ? _id('iconButton') : '${open.id}Remove';
+    nodes[id] = {
+      'type': 'iconButton',
+      'layout': {'width': 28, 'height': 28},
+      'props': {
+        'icon': 'close',
+        'style': {'iconSize': 16},
+      },
+      'tooltip': 'Remove',
+      if (actions.isNotEmpty)
+        'actions': [
+          {'trigger': {'type': 'click'}, 'actions': actions},
+        ],
+    };
+    _parentOf[id] = open.id;
+    if (node['type'] == 'listTile') {
+      final slots = (node['slots'] as Json?) ?? (node['slots'] = <String, Object?>{});
+      if (slots.containsKey('trailing')) {
+        nodes.remove(id);
+        _parentOf.remove(id);
+        return;
+      }
+      slots['trailing'] = id;
+      _slotOf[id] = 'trailing';
+    } else {
+      ((node['children'] as List?) ?? (node['children'] = <Object?>[]) as List).add(id);
+    }
+  }
+
   /// A grid ends: its last row is filled out with empty cells, so its cells
   /// are as wide as the rows above.
   static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*');
 
   void _close(_Open open) {
     _placeholder(open);
+    _removable(open);
+    // A list's universal words no each under the line read: left out, and
+    // recorded as unknown (docs/design/21 section 4.1).
+    if ((open.each == null && open.condition == null ? _listUniversal.remove(open.id) : null) case final _ListWords lw when !lw.applied) {
+      // The variable it names is still the page's (what reads it validates).
+      if (lw.value('bind') case final String v) variables.putIfAbsent(v, () => {'name': v, 'type': 'text', 'value': ''});
+      // A stand-in's words are in its own record.
+      if (options.openVocabulary && !lw.standIn) {
+        for (final e in lw.words.entries) {
+          final event = e.key.startsWith('on');
+          final of = event ? 'event' : (e.key == 'bind' || e.value.value != 'true' ? 'parameter' : 'flag');
+          _use(of, e.key, e.value.column, on: lw.on, value: of == 'flag' ? null : (event ? '{${e.value.value}}' : e.value.value), at: lw);
+        }
+      }
+    }
     _fitRow(open);
     final g = open.grid;
     if (g == null || open.id != g.id || open.condition != null || g.row == null) return;
@@ -5093,6 +5715,17 @@ class _Parser {
     }
     props[key] = key == 'icon' ? s : text;
   }
+
+  /// Whether a line of [type] (written [written]) has a text where a bare
+  /// number may stand for it (docs/design/21 section 8): a text, a box, a
+  /// button, a chip, a tile; not a grid (`Grid 3` is no text), an icon or a
+  /// field.
+  static bool _textAt(String type, String written) =>
+      type == 'text' ||
+      (const {'column', 'row', 'stack', 'listTile', 'accordion', 'expansionTile'}.contains(type) && written != 'Grid' && written != 'GridView') ||
+      (type.endsWith('Button') && type != 'iconButton') ||
+      type.endsWith('Chip') ||
+      type == 'chip';
 
   String? _mainKey(String type, WidgetSpec spec) {
     if (type == 'box') return 'text';

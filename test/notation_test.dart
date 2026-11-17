@@ -183,8 +183,9 @@ Column gap=8
     // Forms a model wrote for a block: a field of state as a bare value, and a text written as a binding.
     final lenient = _parse('state today={"minutes":8}\nstate n=3\nColumn\n  Button "Go" tooltip={today.minutes}\n  Button "Go" tooltip={"{n} left"}\n');
     expect(lenient.issues, isEmpty);
-    expect((_node(lenient, 'filledButton1')['bind'] as Map)['props.tooltip'], r'${today.minutes}');
-    expect((_node(lenient, 'filledButton2')['bind'] as Map)['props.tooltip'], r'${n} left');
+    // A tooltip that reads data is the node's own, as a fixed one is (docs/design/21).
+    expect(_node(lenient, 'filledButton1')['tooltip'], r'${today.minutes}');
+    expect(_node(lenient, 'filledButton2')['tooltip'], r'${n} left');
     expect(_parse('state n=1\nColumn\n  Select items=["Round {n}","B"]\n').issues, isEmpty, reason: 'a text in a list reads values');
     final bad = _parse('Column\n  Card drag="a b"\n  Card drop=1x onDrop={x=1}\n');
     expect(bad.issues.map((i) => i.message), [contains('drag is written'), contains('drop is written')]);

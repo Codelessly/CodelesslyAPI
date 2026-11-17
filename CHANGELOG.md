@@ -56,6 +56,36 @@
   the menu button's `open` was left out.
 - A line read a second time (an overlay's foot, an app sidebar's copy in its drawer) no longer says its issues again.
 
+- **Universal words** (docs/design/21-universal-words.md; the vocabulary loop's Review 2, D6 and D7): a parameter, flag
+  or event that means the same on every line, in one table (`notationUniversal`, `universal.dart`: the grammar's own
+  words and the new ones) and read once where a line is read, so core types, a design system's components (where the
+  component has no word of that name) and defined words (without naming it) all have them. `color` is a text's or an
+  icon's ink, a control's accent (a toggle's track, a slider's track and thumb, a radio's fill, a choice chip's
+  selected tint), a plain chip's or a field's ink, a filled button's fill (its label's colour when the line gives a
+  `fill=`), and on a container the ink of the texts and icons written in it that set none (nearer wins); `size=xs|
+  small|medium|large|xl` is a step of the theme's scale on a text (caption, small, body, title), an icon, a Ring, an
+  Avatar, a bar, a slider, a chip and a field (a number on an Input is its text's size); `icon=` is a chip's avatar
+  and a ListTile's leading icon; `disabled` (`enabled={!…}`) on a line with no `enabled` of its own is its `disabled`
+  binding (a box: `states.disabled` with no pointer and half strength); `readonly` on a control with no read-only of
+  its own takes no input (`ignorePointer`); `required` marks a field's, a checkbox's or a toggle's label and makes an
+  Input check it is not empty (`validator`, `autovalidateMode: onUnfocus`); a tooltip that reads data is the node's
+  own on any line. On the line over an `each`: `reorder` (`sortable`, `reorderable`) reorders that list (by a long
+  press, or its Handle with `handle`), `onReorder` has `result` the new order; `selectable` with `bind=list` and
+  `onSelect` keeps a selection (a tap alone, Ctrl or Cmd adds, Shift a range, Space and Enter likewise, Ctrl or Cmd A
+  all, the rows a focus group, each row selected and announced); `removable` with `onRemove` (`onDelete`) makes a
+  chip an input chip and puts a Remove x at the end of a box. With the open vocabulary each use is recorded (kind
+  `universal`, `of` its kind); a stand-in's words it honours are recorded so (D6), what it leaves out stays in its
+  record.
+- **Input's words** (docs/design/21 section 7, D8): `clearable` (a x that clears it), `maxlength`/`maxChars`
+  (`maxLength`, the field taller for its counter), `caps` and `caps=words|sentences`, `autogrow`, `rows=` (`lines=`),
+  `center` and `right`, `value=` beside `bind=`, `prefix=` and `suffix=` (always shown), `onEnter` (`onSubmit`),
+  `onSaved` (`onBlur`), `onKeyDown` (a key in the field, `key` read as `result.key`); `fuzzy` on an Input is a
+  recorded no-op with an issue that says fuzzy matching belongs to the filtered list. `Calendar onSelect` is
+  `onChange`.
+- **A bare number where the text goes** (D9): `Badge 3`, `Text 2026`, `CountUp 39` (a stand-in), a component's first
+  text parameter (or its numeric `value`), before any key=value on the line; on a defined word the next string of
+  its signature, else its parameter `value` (the number itself in the body's expressions), which closes note 20's
+  grammar gap. A number after a key, and a bare word naming a value (`Text plan.name`), are what they were.
 - **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
   parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own
   grammar, one file per word (`StickyNote.txt`) or `define Word …` in a page. A use is written out as those lines

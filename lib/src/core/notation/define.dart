@@ -14,6 +14,7 @@
 // is plain lines, read as if the page had written them.
 import '../catalog.dart' show Catalog;
 import 'notation.dart';
+import 'universal.dart';
 import 'vocabulary.dart';
 
 /// One definition of a word: its signature and the lines it stands for.
@@ -360,17 +361,21 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
   );
 }
 
-/// The key=value words the grammar gives every line: a use's are put on its
-/// root when the definition does not name them.
-const definedPassThrough = {
-  'w', 'h', 'width', 'height', 'grow', 'pad', 'padding', 'gap', 'fill', 'radius', 'border', 'sticky', 'animate', 'duration', 'delay', 'stagger', //
-  'drag', 'drop', 'menu', 'id', 'visible', 'hide', 'show', 'hidden', 'maxw', 'tooltip',
-  'border-top', 'border-bottom', 'border-left', 'border-right',
-  'onTap', 'onLongPress', 'onDoubleTap', 'onRightClick', 'onHover', 'onDrop', 'onSwipeLeft', 'onSwipeRight', 'onSwipeUp', 'onSwipeDown',
-};
+/// Whether a use's key=value (or event) [key] goes on its root when the
+/// definition does not name it: a word every line understands
+/// (docs/design/21-universal-words.md, [notationUniversal]).
+bool definedPassThrough(String key, [String? value]) {
+  final u = notationUniversal[key];
+  if (u == null) return false;
+  if (u.kind != UniversalKind.flag) return true;
+  // A flag written key=value: the grammar's that take one (grow=1,
+  // sticky=0, hidden={…}); a universal flag set to true or worked out.
+  if (u.grammar) return const {'grow', 'sticky', 'hidden'}.contains(key);
+  return value == 'true' || (value?.startsWith('{') ?? false);
+}
 
-/// The bare words the grammar gives every line: a use's go on its root.
-const definedPassThroughWords = {'grow', 'center', 'scroll', 'sticky', 'hidden', 'start', 'end', 'between', 'stretch', 'middle', 'top', 'bottom', 'left', 'right'};
+/// Whether a use's bare word goes on its root: a universal flag.
+bool definedPassThroughWord(String word) => notationUniversal[word]?.kind == UniversalKind.flag;
 
 const _statements = {'if', 'each', 'else', 'for', 'every', 'key', 'state', 'project', 'node', 'document', 'let', 'const', 'var', 'derived', 'computed'};
 
@@ -586,7 +591,7 @@ final class DefinedWords {
       for (final g in given) {
         if (names.contains(g)) {
           score += 20;
-        } else if (!definedPassThrough.contains(g) && !definedPassThroughWords.contains(g)) {
+        } else if (!definedPassThrough(g) && !definedPassThroughWord(g)) {
           score -= 10;
         }
       }
@@ -632,6 +637,35 @@ final class DefinedWords {
     final values = <String, String?>{};
     final actions = <String, String>{};
     final root = <LinePart>[];
+    // A universal word (note 21) the signature does not name: the root's,
+    // when it is universal on the kind of line the root is (a container, a
+    // text, an icon, a control; a list's words only on a container whose
+    // use says reorder or selectable); else a word the definition does not
+    // have.
+    final rootText = d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text), orElse: () => d.body.first).text;
+    final rootWord = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(rootText) ?? '';
+    final rootKind = _all.containsKey(rootWord)
+        ? ''
+        : const {'Column', 'Row', 'Stack', 'Box', 'Card', 'Grid', 'List'}.contains(rootWord)
+            ? 'container'
+            : const {'Text', 'Heading', 'Link'}.contains(rootWord)
+                ? 'text'
+                : const {'Icon', 'IconButton'}.contains(rootWord)
+                    ? 'icon'
+                    : 'control';
+    final listUse = const ['reorder', 'sortable', 'reorderable', 'selectable'].any(p.has);
+    bool universal(LinePart x) {
+      final word = x.kind == 'pair' ? x.key! : x.raw;
+      final u = notationUniversal[word];
+      if (u != null && !u.grammar) {
+        final list = const {'reorder', 'sortable', 'reorderable', 'selectable', 'handle', 'onReorder', 'onSelect'}.contains(word);
+        if (rootKind.isNotEmpty && ((list && (!listUse || rootKind != 'container')) || (u.on.isNotEmpty && !u.on.contains(rootKind)))) return false;
+        if (open && context == null) record?.call('universal', word, d.word, x.kind == 'pair' ? x.value : null, col(x));
+      }
+      root.add(x);
+      return true;
+    }
+
     String? bound;
     var strings = 0;
     // `Pill {status}`: an expression where the first string goes, before any
@@ -665,16 +699,26 @@ final class DefinedWords {
             final path = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(v) ||
                 (_identifier.hasMatch(v) && v != 'true' && v != 'false' && v != 'null' && (variable?.call(v) ?? false));
             values[k] = path ? '{$v}' : v;
-          } else if (definedPassThrough.contains(k) && (!const {'duration', 'delay', 'stagger'}.contains(k) || p.pair('animate') != null)) {
-            root.add(x);
+          } else if (definedPassThrough(k, v) && (!const {'duration', 'delay', 'stagger'}.contains(k) || p.pair('animate') != null) && universal(x)) {
+            // On its root.
           } else {
             unknown(x.isEvent ? 'event' : 'parameter', k, v, col(x), 'A ${d.word} has no "$k". It takes: ${takes()}.');
           }
         case 'word':
           if (d.parameters.containsKey(x.raw)) {
             values[x.raw] = 'true';
-          } else if (definedPassThroughWords.contains(x.raw)) {
-            root.add(x);
+          } else if (definedPassThroughWord(x.raw) && universal(x)) {
+            // On its root.
+          } else if (num.tryParse(x.raw) != null && (strings < d.strings.length || (d.parameters.containsKey('value') && !values.containsKey('value')))) {
+            // A bare number where the text goes (`CountUp 39`): the next
+            // string, else the parameter named value; the number itself
+            // where the body reads it in an expression, its digits in a text.
+            if (strings < d.strings.length) {
+              values[d.strings[strings]] = x.raw;
+              strings++;
+            } else {
+              values['value'] = x.raw;
+            }
           } else {
             unknown('flag', x.raw, null, col(x), 'A ${d.word} has no "${x.raw}". It takes: ${takes()}.');
           }
