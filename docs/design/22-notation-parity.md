@@ -188,6 +188,7 @@ Not said yet: a node in a slot of a node that is no component (a `listTile`'s ti
 under a node in its children); a component call whose type the catalog does not have (the parser reads no such
 line, and a `node {…}` line refuses an unknown type); the document's own `id` and `schema` where they are not
 the parser's.
+
 ## 5. What does not change
 
 The prompt teaches the grammar and the core (design 19). Parity is what the parser reads and the printer
