@@ -16,6 +16,7 @@ import '../catalog.dart';
 import '../json.dart';
 import 'notation.dart';
 import 'print_fields.dart';
+import 'print_paint.dart' show printPaintLines;
 
 /// [document] in the notation. Parse it back with [notationOptionsFor].
 String printNotation(Json document, {required Catalog catalog}) {
@@ -54,7 +55,7 @@ String printNotation(Json document, {required Catalog catalog}) {
   if (rootId != null) walk(rootId, 0, {screen});
   String text(Map<String, String> tails, String? last) => [
         ...state,
-        for (final id in ids) '${'  ' * depth[id]!}${sugar[id]}${tails[id] ?? ''}',
+        for (final id in ids) '${'  ' * depth[id]!}${sugar[id]}${tails[id] ?? ''}${printPaintLines(id, readMap(nodes[id])!, context, depth[id]!)}',
         ?last,
       ].join('\n');
 
