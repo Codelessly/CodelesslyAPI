@@ -18,6 +18,9 @@
   tablet keeps the panes side by side where they fit at their least; at the width the page was written for,
   nothing changes. A tap that only opens a menu, ticks a box or toggles a star does not count, and a pane
   written `hide=phone` or `show=…` is left as written.
+- **Notation prompt**: the page prompt's "Tablets and phones" paragraph says that a list beside its detail shows
+  one at a time on a phone, with a back button, and that its rows are an `each` whose tap selects
+  (`onTap={sel=m.id}`).
 
 ## 33.1.0
 
