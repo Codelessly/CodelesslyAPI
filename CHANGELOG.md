@@ -42,6 +42,42 @@
 
 ### Added
 
+- **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
+  a small core, the model writes any word it expects, and the parser records the ones we do not have.
+  - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is
+    not an error: it stands in as a column of its strings and of the lines under it, with its id, its layout words,
+    `visible`, and what a pointer does to it; at the margin after the page, with an id, it stands in as a Dialog.
+    An unknown parameter, flag, event, action verb or variant, and a value of another kind than a parameter takes,
+    are left out of the document. A component called without something it needs is given an empty value; lines
+    under a word that takes none are drawn after it; an `open` of nothing over the page and a `scroll` to no line
+    of it are left out, with an issue. The grammar is not open: what does not follow it is still an issue.
+  - `NotationResult.vocabulary` (and `NotationStream.vocabulary`): a `VocabularyUse` for each such word, with its
+    kind (`type`, `parameter`, `flag`, `event`, `verb`, `variant`, `missing`, `children`, `alias`), the word, the
+    type it is on, its value as written, the whole line, line and column, the words it is under, and for a type its
+    strings, parameters, flags, events and the first words of the lines under it.
+  - **Aliases**: `NotationOptions.vocabulary`, a `NotationVocabulary` (`fromJson`, `toJson`, `merge`;
+    `NotationVocabulary.core` by default, `.none` for none). A name for a word we have is read as that word, with
+    the vocabulary open or closed, and each use is recorded. A type (with its own names for the target's
+    parameters, words to add, and the keys it requires), a parameter for one type or all (another key, the key
+    negated, or a string of the line), a flag, an event, a verb, and three lines of another shape. Built in, from
+    the first corpus: `Shortcut "ctrl+k" onPress={…}` and `shortcut key=t …` (the `key` line), `state x=1 persist`
+    (`saved`), `disabled={x}` and `disabled` (`enabled`), `ListTile … subtitle="…"` (its second string),
+    `computed x={…}`, `ConfirmDialog#id "…" onConfirm={…}`, `Highlight` / `HighlightText` with `match=` / `query=`
+    (`Text … mark=`), `MiniCalendar` / `CalendarMonth` / `MonthGrid` (`Calendar`), `RangeSlider low=a high=b`
+    (`Slider bind=a bindEnd=b`). A word the notation already has is never an alias.
+  - `notationPrompt(open: true)`: the open preface, the grammar and the core; no component list, no behaviour
+    words, no JSON escape. 18,151 characters for a page 1280 wide, where the taught page prompt is 20,651 (73,270
+    with Cards' components). The taught prompts are unchanged (the card prompt is 8,979 characters).
+  - `NotationOptions.open({openVocabulary, vocabulary})` gives the same options with these two set.
+- **`key escape when editing onPress={…}`**: a shortcut that runs only while a condition holds (the trigger's
+  `when`), as `every 1s when running` does.
+- **`Progress {done/total}`** (also `Ring`, `Gauge`, `Slider`): an expression where the bare number goes is the
+  value it follows, as `bind={…}` is. It was a "not valid JSON" error.
+- **An overlay written inside the page** (`Dialog#edit` indented under a pane; also Sheet, Drawer, Menu, Popover,
+  Lightbox) is over the page, its lines the ones under it, and the page goes on after it. It was an unknown type.
+  With a design system that has its own Dialog, a `Dialog#id` in a line is still that component unless an `open`
+  names its id.
+
 - **Nineteen behaviours a page can now write** (folded from the `dsl5/*` branches, each in the 33.0.0 grammar; the
   page prompt teaches them, the card prompt is unchanged at 8,979 characters, the page prompt is 20,580):
   - `confirm "Remove it?" then {rows=[]; close}` in an event's actions: the document's `confirm`, its actions run
@@ -176,6 +212,13 @@
 
 ### Fixed
 
+- **Notation**: `Input "Email" type=email`, which the prompt teaches, wrote a keyboard the document does not have
+  (`email`; it is `emailAddress`). Also read: `tel`, `numeric`, `decimal`, `search`, `date`, `time`, `address`.
+- **Notation**: `state shown={filter(rows,r=>r.open)}` kept the braces in the formula, so every value that read
+  `shown` failed to parse. A formula in braces is that formula (a map, `{"a": 1}`, is still a map).
+- **Notation**: a color in a formula written as it is after a key (`fill={late ? #FFFECACA : #FFFFFFFF}`) is the
+  text it is; the formula did not parse.
+- **Notation**: `grow=true` wrote `true` where the document takes a number; it is `grow` (`grow=false`: nothing).
 - **Notation**: ` onTap={open <id>}` wrote its canvas under a key the document does not read (`modal`; it is `to`).
 - **Notation**: a short loop name no longer rewrites a layout key of the same letter (`each h in homes` with
   `h=120`); an unbound boolean state of a block gets a variable of its own.
