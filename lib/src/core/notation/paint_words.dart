@@ -100,10 +100,9 @@ extension _PaintWords on _Parser {
         frames.add(_PaintFrame(indent, open.id, 'skip', {}));
         return true;
       }
-      final into = readMap(node['customPaint']) ?? <String, Object?>{};
-      into.addAll(paint);
-      node['customPaint'] = into;
-      frames.add(_PaintFrame(indent, open.id, 'customPaint', into));
+      // The block is the node's custom paint, whole.
+      node['customPaint'] = paint;
+      frames.add(_PaintFrame(indent, open.id, 'customPaint', paint));
       _paintChanged(open.id, 'customPaint');
     } else {
       final animation = _paintRecord(text, column, NodeAnimationFields.all, head: 'animation');
