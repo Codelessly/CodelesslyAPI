@@ -56,6 +56,11 @@ void main() {
     expect(validateDocument(base()), isEmpty);
   });
 
+  test('every diagnostic code has a test here', () {
+    // Keep this list in step with Codes.all.
+    expect(Codes.all.length, 75); // above_level: test/levels_test.dart; invalid_fonts, font_format: test/site_look_test.dart; invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
+  });
+
   test('a behavior written inside props says where it goes (test 4: tooltip on an icon button)', () {
     final d = validateDocument(base()
       ..['nodes'] = {

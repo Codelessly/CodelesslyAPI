@@ -1418,6 +1418,10 @@ Column
       expect(jsonEncode(r.document), contains('Ramen 9'));
     });
 
+    test('the prompt teaches it only when asked to', () {
+      expect(notationPrompt(wanted: true), isNot(contains('Wanted "Name"')), reason: 'no design system, no components to want');
+    });
+
   });
 
   group('values inside lists', () {

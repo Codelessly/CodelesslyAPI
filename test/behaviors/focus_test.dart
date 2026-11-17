@@ -39,4 +39,17 @@ void main() {
     expect(canvas.props.get(CanvasProps.semanticLabel), 'Join the waitlist');
     expect(Node.fromJson({'type': 'canvas'}, id: 'c')!.props.get(CanvasProps.semanticLabel), '');
   });
+
+  test('strict validation knows the keys', () {
+    final doc = LayoutDocument.fromJson({
+      'roots': ['c'],
+      'nodes': {
+        'c': {'type': 'canvas', 'slots': {'body': 'menu'}, 'props': {'semanticLabel': 'Sort'}},
+        'menu': {'type': 'column', 'focusGroup': {'typeAhead': true}, 'children': ['row']},
+        'row': {'type': 'box', 'focusable': false},
+      },
+    });
+    expect(doc['menu']!.behaviors.focusGroup!.typeAhead, isTrue);
+    expect(doc['row']!.behaviors.focusable, isFalse);
+  });
 }

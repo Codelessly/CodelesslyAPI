@@ -78,6 +78,11 @@ void main() {
       expect(CloudQueryDef.fromJson({'limit': 0}).limit, isNull);
     });
 
+    test('sorts its operators into equality, range and list kinds as Firestore does', () {
+      expect(WhereOperator.notEqual.isInequality, isTrue);
+      expect(WhereOperator.inArray.isEquality, isTrue);
+      expect(WhereOperator.lessThan.symbol, '<');
+    });
   });
 
   group('data rules', () {

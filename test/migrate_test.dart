@@ -64,6 +64,11 @@ void main() {
       expect(migrate2to3({'roots': [], 'nodes': {}})['schema'], 3);
     });
 
+    test('migrating a schema-3 document is a no-op (the same object)', () {
+      final d = {'schema': 3, 'roots': <String>[], 'nodes': <String, Object?>{}};
+      expect(identical(migrate2to3(d), d), isTrue);
+    });
+
     test('the input is never changed', () {
       final d = doc2({'box': {'type': 'box', 'layout': {}}});
       final before = jsonEncode(d);
