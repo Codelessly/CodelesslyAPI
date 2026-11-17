@@ -1064,12 +1064,25 @@ final class PageWords {
   }
 
   /// 'single-quoted' text outside a string, as "double-quoted": a value
-  /// in an expression ends at its closing quote.
+  /// in an expression ends at its closing quote. An expression is kept as
+  /// written, its quotes too (docs/design/22, 4.7): a value worked out
+  /// (`key={…}` for a key that is no event), the condition of an `if` line
+  /// and the list of an `each` line.
   static String _doubleQuoted(String t) {
+    if (RegExp(r'^\s*(if|else\s+if|each)\s').hasMatch(t)) return t;
     final out = StringBuffer();
     var inDouble = false;
     for (var i = 0; i < t.length; i++) {
       final c = t[i];
+      if (!inDouble && c == '{' && i > 0 && t[i - 1] == '=') {
+        final key = RegExp(r'[^\s]*$').stringMatch(t.substring(0, i - 1)) ?? '';
+        final end = key.startsWith(RegExp('on[A-Z]')) ? -1 : _braceEnd(t, i);
+        if (end > i) {
+          out.write(t.substring(i, end + 1));
+          i = end;
+          continue;
+        }
+      }
       if (inDouble) {
         out.write(c);
         if (t.codeUnitAt(i) == 0x5C && i + 1 < t.length) {
@@ -1096,6 +1109,32 @@ final class PageWords {
       out.write(c);
     }
     return out.toString();
+  }
+
+  /// Where the `{` at [open] of [t] closes, either kind of quote paired;
+  /// -1: never.
+  static int _braceEnd(String t, int open) {
+    var depth = 0;
+    String? quote;
+    for (var i = open; i < t.length; i++) {
+      final c = t[i];
+      if (quote != null) {
+        if (t.codeUnitAt(i) == 0x5C) {
+          i++;
+        } else if (c == quote) {
+          quote = null;
+        }
+        continue;
+      }
+      if (c == '"' || c == "'") {
+        quote = c;
+      } else if (c == '{') {
+        depth++;
+      } else if (c == '}' && --depth == 0) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   static bool _inString(String t, int at) {

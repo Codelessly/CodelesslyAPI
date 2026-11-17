@@ -944,6 +944,25 @@ void _setPath(Json root, String path, Object? value) {
   }
 }
 
+/// [root] without the field at [path] where it is null (`key=null`): the
+/// maps it was in taken out with it when nothing else is left in them. A
+/// path through a list's element is left as it is.
+void _removePath(Json root, String path) {
+  if (path.contains('[')) return;
+  final parts = path.split('.');
+  final maps = <Map>[root];
+  for (final p in parts.take(parts.length - 1)) {
+    final next = maps.last[p];
+    if (next is! Map) return;
+    maps.add(next);
+  }
+  if (!maps.last.containsKey(parts.last) || maps.last[parts.last] != null) return;
+  maps.last.remove(parts.last);
+  for (var i = maps.length - 1; i > 0 && maps[i].isEmpty; i--) {
+    maps[i - 1].remove(parts[i - 1]);
+  }
+}
+
 /// A time as a model writes it (`600`, `600ms`, `0.6s`), in milliseconds.
 int? _milliseconds(String raw) {
   final m = RegExp(r'^(\d+(?:\.\d+)?)(ms|s)?$').firstMatch(raw.trim());
@@ -3624,7 +3643,11 @@ class _Parser {
     // A path of the node (`props.style.height`, `layout.constraints.maxWidth`,
     // `pan.axis`, `decoration.fills[0].color`) given its value, the maps and
     // lists on the way made as needed.
+    // The paths written `key=null`: the field is not there (design 22, 4.7),
+    // whatever the line would give it, taken out once the line is read.
+    final nulled = <String>[];
     void put(String path, Object? value) {
+      if (value == null) nulled.add(path);
       final dot = path.indexOf('.');
       final where = dot < 0 ? '' : path.substring(0, dot);
       final Json root = switch (where) { 'props' => props, 'layout' => layout, 'decoration' => decoration, _ => node };
@@ -4770,6 +4793,7 @@ class _Parser {
           final v = key == 'color' ? _named(_value(raw), 'text') : _value(raw);
           style[_textStyleKeys[key]!] = key == 'bold' ? 700 : v;
           props['style'] = style;
+          if (v == null && key != 'bold') nulled.add('props.style.${_textStyleKeys[key]!}');
           continue;
         }
         if (type == 'segmentedButton' && key == 'items') {
@@ -4831,6 +4855,13 @@ class _Parser {
         }
         if (key == 'color' && type == 'icon' && !raw.startsWith('=')) {
           props['color'] = _named(_value(raw), 'text');
+          continue;
+        }
+        // `data={…}` and `disabled={…}`: what a list shows and when a node is
+        // disabled, bound by the binding's own path (design 22, 4.7) where
+        // the type has no prop of that name.
+        if ((key == 'data' || key == 'disabled') && raw.startsWith('=') && spec.prop(key) == null) {
+          bind[key] = _read(raw.substring(1).trim());
           continue;
         }
         final path = pathOf(key);
@@ -5706,10 +5737,17 @@ class _Parser {
         (type == 'pageView' && props['viewportFraction'] != null)) {
       props.putIfAbsent('edgeFade', () => 12);
     }
+    for (final path in nulled) {
+      final dot = path.indexOf('.');
+      final where = dot < 0 ? '' : path.substring(0, dot);
+      final Json root = switch (where) { 'props' => props, 'layout' => layout, 'decoration' => decoration, _ => node };
+      _removePath(root, root == node ? path : path.substring(dot + 1));
+    }
+    final emptied = nulled.any((p) => p.startsWith('layout.')) && layout.isEmpty;
 
     final out = <String, Object?>{
       'type': type,
-      'layout': layout,
+      if (!emptied) 'layout': layout,
       if (props.isNotEmpty) 'props': props,
       if (decoration.isNotEmpty) 'decoration': decoration,
       if (bind.isNotEmpty) 'bind': bind,
