@@ -549,7 +549,8 @@ on a type with a prop `name` (a component's parameter), `node.name=`. Every beha
 (`inkWell`, `focusable`, `motion`, `focusGroup`, `form`, `radioGroup`, `reorderHandle`, `floating`, a drag
 source's or a drop target's other fields) is written by the keys' names (2.1, `keys.dart`): one word per field
 (`inkWell.hoverColor=hoverOverlay`, `motion.rotate=90`, `focusable=false`, `form.autovalidateMode=onUnfocus`), a
-record whole as its JSON only where no word of each field reads back. A drag source whose `data` is worked out is
+record whole as its JSON only where no word of each field reads back (else the fields that have words, the rest
+in the tail). A drag source whose `data` is worked out is
 `drag=card(item.id)` with its other fields after it (`draggable.start=auto`): a key's value with `{…}` in it binds
 the field. `print_states.dart` writes these (`printStatesKeys`); the fields' own loop leaves them to it.
 
