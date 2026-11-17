@@ -36,7 +36,7 @@ The signature reads:
 
 | written | is |
 |---|---|
-| `Word` | the word (capitalised; never a core type, a short name, a page word or a component of the design system in use) |
+| `Word` | the word (capitalised; never a core type, a short name or a page word; a component of the design system in use only as a named meaning, `Stepper#steps`: section 5) |
 | `Word.a.b` | the variants a use may write (`Timeline.vertical`); the body reads the one written as `{variant}` |
 | `Word#name` | the name of this meaning, when one word has several (section 5) |
 | `"text"` | a string, by its name; a use fills the strings in order, or by name (`text="…"`) |
@@ -183,6 +183,31 @@ the use's line is read (section 3). The record says which meaning was read (`to:
 
 An alias whose `requires` a line meets is still read before a definition of the same name: `RangeSlider low=a
 high=b` is our `Slider bind=a bindEnd=b` (the built-in alias), `RangeSlider bind=range` is Cards' definition.
+
+**A component's word with a second meaning.** `Stepper` is, in eight self-defining answers, two things: the number
+control (five answers: `bind=value min= max= step= onChange`), which Cards' `Stepper` component already is, and a
+steps indicator (three: `steps=[] bind=step`, `current=`, `done=[]`, `onPick`/`onSelect`). A component cannot be
+redefined (its word is the design system's, section 6), and the second meaning is not a reason to rename the first.
+So a definition may give a component's word a further meaning when it names that meaning:
+
+```
+Stepper#steps steps=[] bind=step current done=[] orientation="horizontal" onPick
+  …
+```
+
+The component is the word's first meaning, scored as a definition whose signature is the component's props and
+events (with `bind` when it keeps a value, and `onChange` for its `onChanged`). A use is read as the named meaning
+that fits it best only when that meaning fits it better than the component; on a tie it is the component. So
+`Stepper bind=qty min=1 max=8 onChange={…}` is the component, as it was, and `Stepper steps=["Cart","Pay"]
+current={at}` is `Stepper#steps`. A definition of a component's word that names no meaning is not read: the
+unnamed meaning of a component's word is the component. The core's words and the page words take no second
+meaning (a `Text#strike` would change what every page means by `Text`).
+
+The alias table reaches a defined word too: the parameters, events and flags it lists for that word (`"parameters":
+{"Timeline": {"events": "items", "steps": "items", "current": "selected"}}`) are read as the names its definitions
+take, before its meaning is chosen. A name one of its meanings takes is its own (`zoom` on `Timeline#tracks` is not
+aliased), and only the word's own entry is read: `*` is for the words of the notation. This is how a harvested
+signature (the journal, Review 5) takes the other names writers gave the same parameter.
 
 ## 6. Resolved as a word we have
 

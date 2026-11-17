@@ -397,6 +397,7 @@ final class DefinedWords {
     this.used,
     this.slot,
     this.ours,
+    this.component,
     Map<String, int>? counts,
     this.context,
     this.within = const [],
@@ -430,6 +431,13 @@ final class DefinedWords {
   /// page word, a component): never a defined word's.
   final bool Function(String word)? ours;
 
+  /// The names a component of the design system takes (its props, its
+  /// events, `bind` when it keeps a value), when [word] is one; null when it
+  /// is not. A component's word may take further meanings from definitions
+  /// that name theirs (`Stepper#steps`): a use is read as one of them only
+  /// when it fits it better than the component (docs/design/20 section 5).
+  final Set<String>? Function(String word)? component;
+
   /// Whether [name] is a variable of the page (its state, or the item of an
   /// `each` around the line): a use's `bpm=bpm` gives the value, not a word.
   final bool Function(String name)? variable;
@@ -437,6 +445,14 @@ final class DefinedWords {
   /// Whether [word] is a defined word here (a definition, or a `define` read
   /// in the text so far).
   bool has(String word) => (page.containsKey(word) || definitions.containsKey(word)) && !(ours?.call(word) ?? false);
+
+  /// The meanings of [word] a use may be read with: all of a defined word's,
+  /// or the named ones a component's word has (empty: none).
+  List<NotationDefinition> meanings(String word) {
+    if (has(word)) return _of(word) ?? const [];
+    if (component?.call(word) == null) return const [];
+    return [for (final d in _of(word) ?? const <NotationDefinition>[]) if (d.name != null) d];
+  }
 
   /// The meanings of [word] here: the page's own, else the definitions'.
   List<NotationDefinition>? _of(String word) => page[word] ?? definitions[word];
@@ -522,7 +538,17 @@ final class DefinedWords {
       text = '${m[1]}${m[2]}${RegExp(r'^[A-Za-z_]').hasMatch(fixed) ? '#$fixed' : ''}${text.substring(m.end)}';
     }
     final parts = LineParts.of(text);
-    final defs = parts == null || _statements.contains(parts.word) || !has(parts.word) ? null : _of(parts.word);
+    var defs = parts == null || _statements.contains(parts.word) || !has(parts.word) ? null : _of(parts.word);
+    // A component's word with named meanings defined (`Stepper#steps`): one
+    // of them when the use fits it better than the component's own names.
+    if (parts != null && defs == null && !_statements.contains(parts.word)) {
+      final named = meanings(parts.word);
+      if (named.isNotEmpty) {
+        final best = _choose(named, parts);
+        final takes = component!(parts.word)!;
+        if (_score(best, parts) > _scoreOf(takes, const [], const [], parts)) defs = [best];
+      }
+    }
     if (defs != null && defs.isNotEmpty) {
       out.addAll(_openUse(at, indent, text, parts!, defs));
       return out;
@@ -578,35 +604,44 @@ final class DefinedWords {
   /// the one that names the fewest things it was not given; then the first.
   NotationDefinition _choose(List<NotationDefinition> defs, LineParts p) {
     if (defs.length == 1) return defs.first;
-    final given = <String>{
-      for (final x in p.parts)
-        if (x.kind == 'pair') x.key! else if (x.kind == 'word') x.raw,
-    };
-    final variants = [for (final v in p.variant.split('.')) if (v.isNotEmpty) v];
     NotationDefinition? best;
     var bestScore = -1 << 30;
     for (final d in defs) {
-      final names = {...d.parameters.keys, ...d.events, ...d.strings, if (d.bind != null) 'bind'};
-      var score = d.required.every(given.contains) ? 0 : -100000;
-      for (final g in given) {
-        if (names.contains(g)) {
-          score += 20;
-        } else if (!definedPassThrough(g) && !definedPassThroughWord(g)) {
-          score -= 10;
-        }
-      }
-      for (final v in variants) {
-        score += d.variants.contains(v) ? 10 : -10;
-      }
-      // Of meanings that fit as well, the one that asks least of what was
-      // not given (a bare Timeline is the plainest).
-      score -= names.where((n) => !given.contains(n)).length;
+      final score = _score(d, p);
       if (score > bestScore) {
         best = d;
         bestScore = score;
       }
     }
     return best!;
+  }
+
+  /// How well the use [p] fits [d] (higher: better).
+  static int _score(NotationDefinition d, LineParts p) =>
+      _scoreOf({...d.parameters.keys, ...d.events, ...d.strings, if (d.bind != null) 'bind'}, d.required, d.variants, p);
+
+  /// How well the use [p] fits a meaning that takes [names], needs
+  /// [required] and has [variants]: 20 for each word given that it names,
+  /// less 10 for each it does not (the words every line has aside), 10 for
+  /// each variant written that it has, less 10 for each it has not; less one
+  /// for each name not given (of meanings that fit as well, the plainest).
+  static int _scoreOf(Set<String> names, Iterable<String> required, Iterable<String> variants, LineParts p) {
+    final given = <String>{
+      for (final x in p.parts)
+        if (x.kind == 'pair') x.key! else if (x.kind == 'word') x.raw,
+    };
+    var score = required.every(given.contains) ? 0 : -100000;
+    for (final g in given) {
+      if (names.contains(g)) {
+        score += 20;
+      } else if (!definedPassThrough(g) && !definedPassThroughWord(g)) {
+        score -= 10;
+      }
+    }
+    for (final v in [for (final v in p.variant.split('.')) if (v.isNotEmpty) v]) {
+      score += variants.contains(v) ? 10 : -10;
+    }
+    return score - names.where((n) => !given.contains(n)).length;
   }
 
   List<DefinedLine> _openUse(int at, int indent, String text, LineParts p, List<NotationDefinition> defs) {
@@ -766,7 +801,7 @@ final class DefinedWords {
       lines.add((indent: l.indent, text: t, line: l.line));
     }
     // Its words expanded in turn, with the same definitions.
-    final inner = DefinedWords(_all, open: open, issue: issue, ours: ours, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable);
+    final inner = DefinedWords(_all, open: open, issue: issue, ours: ours, component: component, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable);
     final expanded = <DefinedLine>[];
     for (final l in lines) {
       expanded.addAll(inner.rewrite(l.indent, l.text, from: d.at(l.line)));

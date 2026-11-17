@@ -2,6 +2,15 @@
 
 ### Added
 
+- **A component's word may take a second meaning from a definition** (docs/design/20-defined-words.md section 5;
+  the vocabulary loop's Review 5, D25): a definition named `Stepper#steps` gives Cards' `Stepper` (the number
+  control) the steps indicator the answers also meant by it. The component is the word's first meaning, scored like
+  a definition whose signature is its props and events; a use is read as a named meaning only when it fits it
+  better (a tie is the component). An unnamed definition of a component's word is still not read.
+  `DefinedWords(component: …)`, `DefinedWords.meanings(word)`.
+- **The alias table reaches a defined word**: a word's own entries in `parameters`, `events` and `flags`
+  (`"Timeline": {"events": "items"}`) are read as the names its definitions take, before its meaning is chosen; a
+  name one of its meanings takes is its own. Recorded as aliases.
 - **A definition anywhere in a text holds for the whole text** (docs/design/20-defined-words.md section 7; the
   vocabulary loop's Review 4, D20): `define Word …` may come after its uses (models write their definitions after
   the last screen); `parseNotation` reads them all before the first line, the overlays after the page included. A

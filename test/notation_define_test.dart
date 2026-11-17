@@ -333,6 +333,103 @@ Column
     });
   });
 
+  group('a component\'s word with a meaning defined (the vocabulary loop, Review 5, D25)', () {
+    // A design system with one component, Stepper: the number control.
+    Future<(Catalog, NotationOptions)> stepper(Map<String, String> defs, {NotationVocabulary aliases = NotationVocabulary.none}) async {
+      final files = <String, String>{
+        'design_system.json': jsonEncode({'id': 'steppers', 'name': 'Steppers', 'components': ['components/Stepper.json']}),
+        'components/Stepper.json': jsonEncode({
+          'schema': 3,
+          'id': 'Stepper',
+          'roots': ['row'],
+          'widget': {
+            'type': 'Stepper',
+            'doc': 'A number changed one step at a time.',
+            'props': [
+              {'key': 'value', 'type': {'kind': 'variable', 'of': {'kind': 'number', 'flutter': 'double'}}, 'default': ''},
+              {'key': 'min', 'type': {'kind': 'number', 'flutter': 'double'}, 'default': 0},
+              {'key': 'max', 'type': {'kind': 'number', 'flutter': 'double'}, 'default': 100},
+              {'key': 'step', 'type': {'kind': 'number', 'flutter': 'double'}, 'default': 1},
+              {'key': 'label', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': ''},
+            ],
+            'events': [
+              {'key': 'onChanged', 'payload': {'kind': 'number', 'flutter': 'double'}},
+            ],
+          },
+          'nodes': {
+            'row': {'type': 'row', 'children': ['text']},
+            'text': {'type': 'text', 'props': {'text': r'${props.label}'}},
+          },
+        }),
+      };
+      final problems = <String>[];
+      final ds = await DesignSystem.load((ref) async => files[ref], problems: problems);
+      expect(problems, isEmpty);
+      final base = NotationOptions.fromDesignSystem(ds);
+      return (ds.catalogOver(standardCatalog), base.open(openVocabulary: false, vocabulary: aliases.merge(NotationVocabulary(definitions: readDefinitions(defs).words))));
+    }
+
+    const steps = '''
+// Where one is in named steps: the steps, the current one lit; a tap picks one.
+Stepper#steps steps=[] bind=step current done=[] onPick
+  state step=0
+  Row gap=8
+    each s in steps
+      Text "{s}" weight={index == coalesce(current, step) ? 700 : 400} onTap={step=index; onPick(index)}
+''';
+
+    test('the component is the word; a use that fits the named meaning better is that meaning', () async {
+      final (catalog, options) = await stepper({'Stepper.txt': steps});
+      final r = Catalog.run(catalog, () => parseNotation('''
+state qty=1
+state at=0
+Column
+  Stepper#qty "Guests" bind=qty min=1 max=8 onChange={toast "{result}"}
+  Stepper steps=["Cart","Pay","Done"] bind=at onPick={toast "{result}"}
+  Stepper steps=["A","B"] current={at}
+''', catalog: catalog, options: options));
+      expect(r.issues, isEmpty);
+      expect([for (final u in _uses(r, 'definition')) u.to], ['Stepper#steps', 'Stepper#steps']);
+      // The first is the component, as it was.
+      expect(_node(r, 'qty')['type'], 'Stepper');
+      expect(jsonEncode(r.document), allOf(contains('Cart'), contains('coalesce((at), step_stepper2)')));
+    });
+
+    test('a definition of a component\'s word that names no meaning is not read', () async {
+      final (catalog, options) = await stepper({'Stepper.txt': 'Stepper steps=[]\n  Text "never"\n'});
+      final r = Catalog.run(catalog, () => parseNotation('Column\n  Stepper steps=["A"]\n', catalog: catalog, options: options));
+      expect(_uses(r, 'definition'), isEmpty);
+      expect(jsonEncode(r.document), isNot(contains('never')));
+    });
+
+    test('the alias table names a defined word\'s parameters and events under the names answers wrote', () async {
+      final aliases = NotationVocabulary.fromJson({
+        'parameters': {
+          'Stepper': {'items': 'steps'},
+          'Timeline': {'events': 'items', 'steps': 'items', 'zoom': 'never'},
+        },
+        'events': {
+          'Stepper': {'onSelect': 'onPick'},
+        },
+      });
+      final (catalog, options) = await stepper({'Stepper.txt': steps}, aliases: aliases);
+      final r = Catalog.run(catalog, () => parseNotation('''
+state at=0
+Column
+  Stepper items=["A","B"] bind=at onSelect={toast "{result}"}
+''', catalog: catalog, options: options));
+      expect(r.issues, isEmpty);
+      expect([for (final u in _uses(r, 'definition')) u.to], ['Stepper#steps']);
+      expect([for (final u in r.vocabulary) if (u.kind == 'alias') '${u.word}>${u.to}'], ['items>steps', 'onSelect>onPick']);
+      expect(jsonEncode(r.document), contains('showToast'));
+      // A defined word: the name one of its meanings takes is its own (zoom).
+      final t = parseNotation('state z=1\nColumn\n  Timeline zoom={z}\n  Timeline.vertical events=[1]\n',
+          catalog: standardCatalog, options: _closed.open(openVocabulary: false, vocabulary: _closed.vocabulary.merge(aliases)));
+      expect([for (final u in t.vocabulary) if (u.kind == 'alias') '${u.word}>${u.to}'], ['events>items']);
+      expect([for (final u in _uses(t, 'definition')) u.to], ['Timeline#tracks', 'Timeline#events']);
+    });
+  });
+
   group('a definition\'s errors are said against it', () {
     test('checkDefinitions expands each with its defaults: a line it gets wrong is its file and line', () {
       final v = const NotationVocabulary().define({

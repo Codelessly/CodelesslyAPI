@@ -1362,6 +1362,7 @@ class _Parser {
     record: (kind, word, on, value, column) => _use(kind, word, column, on: on, value: value),
     issue: _issue,
     ours: _ownType,
+    component: _componentNames,
     // One count for the page and its overlays: a use's id is the page's.
     counts: identical(_top, this) ? null : _top._defined.counts,
     // The page's own words hold in its overlays too.
@@ -1464,6 +1465,23 @@ class _Parser {
       PageWords.words.contains(word) ||
       RegExp(r'^H[1-4]$').hasMatch(word);
 
+  /// The names the design system's component [word] takes (its props, its
+  /// events, `bind` when it keeps a value, `onChange` for its `onChanged`);
+  /// null when [word] is no component, or is a type of the notation or the
+  /// page words.
+  Set<String>? _componentNames(String word) {
+    if (notationTypes.containsKey(word) || PageWords.words.contains(word) || RegExp(r'^H[1-4]$').hasMatch(word)) return null;
+    if (catalog.widget('${word[0].toLowerCase()}${word.substring(1)}') != null) return null;
+    final spec = catalog.widget(word);
+    if (spec == null) return null;
+    return {
+      for (final p in spec.props) p.key,
+      for (final e in spec.events) e.key,
+      if (spec.props.any((p) => p.type.isVariable)) 'bind',
+      if (spec.events.any((e) => e.key == 'onChanged')) 'onChange',
+    };
+  }
+
   /// The spec a line starting with [written] is read with (null: a page
   /// word, or none).
   WidgetSpec? _specOf(String written) {
@@ -1501,7 +1519,7 @@ class _Parser {
     if (_defined.has(written)) {
       final alias = table.types[written];
       final holds = alias != null && alias.to != null && alias.requires.isNotEmpty && alias.requires.every((k) => parts.parts.any((p) => p.kind == 'pair' && (alias.parameters[p.key] ?? p.key) == k));
-      if (!holds) return [text];
+      if (!holds) return [_definedAliased(text, parts, column)];
     }
     if (!_ownType(written)) {
       final alias = table.types[written];
@@ -1559,6 +1577,42 @@ class _Parser {
       }
     }
     return [changed ? parts.toString() : text];
+  }
+
+  /// [text], a use of a defined word, with the parameters, events and flags
+  /// the alias table names for that word (`"parameters": {"Timeline":
+  /// {"events": "items"}}`) read as the names its definitions take; a name
+  /// one of its meanings takes is its own. Each is recorded. Only the word's
+  /// own entries are read (`*` is for the words of the notation).
+  String _definedAliased(String text, LineParts parts, int column) {
+    final table = options.vocabulary;
+    final word = parts.word;
+    final params = table.parameters[word], events = table.events[word], flags = table.flags[word];
+    if (params == null && events == null && flags == null) return text;
+    final names = {
+      for (final d in _defined.meanings(word)) ...[...d.parameters.keys, ...d.events, ...d.strings, if (d.bind != null) 'bind'],
+    };
+    var changed = false;
+    for (var i = 0; i < parts.parts.length; i++) {
+      final p = parts.parts[i];
+      final col = column + (p.at < 0 ? 0 : p.at);
+      if (p.kind == 'pair' && !names.contains(p.key)) {
+        final to = (p.isEvent ? events : params)?[p.key];
+        if (to == null || to == p.key) continue;
+        // Never two of one name: the line's own is kept.
+        if (parts.parts.any((x) => x.kind == 'pair' && x.key == to)) continue;
+        _use('alias', p.key!, col, of: p.isEvent ? 'event' : 'parameter', to: to, on: word, value: p.value);
+        changed = true;
+        parts.parts[i] = LinePart.pair(to, p.value!);
+      } else if (p.kind == 'word' && !names.contains(p.raw)) {
+        final to = flags?[p.raw];
+        if (to == null || to == p.raw) continue;
+        _use('alias', p.raw, col, of: 'flag', to: to, on: word);
+        changed = true;
+        parts.parts[i] = LinePart.word(to);
+      }
+    }
+    return changed ? parts.toString() : text;
   }
 
   /// The line each `open` and `scroll` action was written on.
