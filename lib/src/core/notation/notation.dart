@@ -2323,7 +2323,7 @@ class _Parser {
   /// A line whose list or call is still open, and how many lines it took.
   String? _open;
   int _openLines = 0;
-  static final _wholeJsonLine = RegExp(r'^\s*(?:node(?:#[A-Za-z_][A-Za-z0-9_]*)?|document)\s*\{');
+  static final _wholeJsonLine = RegExp(r'^\s*(?:node(?:#[A-Za-z_][A-Za-z0-9_-]*)?|document)\s*\{');
 
   /// Whether the JSON that starts at the first `{` of [s] is still open.
   static bool _jsonOpen(String s) {
@@ -2524,8 +2524,10 @@ class _Parser {
   Json? _widget;
   final _previews = <Json>[];
 
-  /// What a `canvas` line says of the screen, merged over its canvas.
+  /// What a `canvas` line says of the screen, merged over its canvas; with
+  /// `canvas none`, a document with no canvas (its root the first line).
   Json? _canvasPatch;
+  bool _noCanvas = false;
 
   /// Each line's `{…}` tail by its node: merged again once the whole text
   /// is read ([parse]), so that what later lines add does not undo it.
@@ -2548,6 +2550,11 @@ class _Parser {
     // `canvas "Trip" path="/trip" h=844 fill=paper`: the screen's own fields
     // (its name, path, size and fill; any other by its path from the canvas,
     // `props.blockBack=true`), above the tree.
+    if (indent == 0 && RegExp(r'^canvas\s+none$').hasMatch(text)) {
+      // `canvas none`: the document has no canvas; its root is the first line.
+      _noCanvas = true;
+      return true;
+    }
     if (indent == 0 && RegExp(r'^canvas(\s|$)').hasMatch(text)) {
       final patch = <String, Object?>{};
       for (final w in _headWords(text.substring(6))) {
@@ -2781,15 +2788,16 @@ class _Parser {
     }
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
-    // A component's document: its declaration, its previews and its tree,
-    // no canvas; its variables are its root's.
-    if (_widget case final Json widget) {
+    // A component's document (or a tree with `canvas none`): its declaration,
+    // its previews and its tree, no canvas; its variables are its root's.
+    if (_widget != null || _noCanvas) {
+      final widget = _widget;
       final own = variables.values.where((v) => !_projectVariables.contains(v['name'])).toList();
       return NotationResult(patched({
         'schema': 3,
-        'id': widget['type'],
+        'id': ?widget?['type'],
         'roots': [?_root],
-        'widget': widget,
+        'widget': ?widget,
         if (_previews.isNotEmpty) 'previews': _previews,
         'nodes': {...nodes},
         if (own.isNotEmpty) 'variables': {_root ?? options.screen: own},
@@ -3305,7 +3313,7 @@ class _Parser {
     // the notation has no words for (a painted board, a draggable list).
     // Nothing is added to it but its place; the lines under it are its
     // children, in the notation or as nodes again.
-    final whole = RegExp(r'^node(?:#([A-Za-z_][A-Za-z0-9_]*))?\s*(\{[\s\S]*)$').firstMatch(line);
+    final whole = RegExp(r'^node(?:#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*))?\s*(\{[\s\S]*)$').firstMatch(line);
     if (whole != null) {
       final j = _json(whole[2]!);
       if (j == null) return;
@@ -3349,7 +3357,7 @@ class _Parser {
       return fixed == null || _taken(fixed) ? m[1]! : '${m[1]}#$fixed';
     });
     final t = _Tokens(line);
-    final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*))?').firstMatch(line);
+    final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*))?').firstMatch(line);
     if (head == null) return _issue(column, 'A line starts with a node type: Column, Text "…", Button "…".');
     t.at = head.end;
     final written = head[1]!, variant = head[2];
@@ -5706,7 +5714,7 @@ class _Parser {
       final reads = avatarName.contains(r'${') || avatarName.contains('{');
       final words = avatarName.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
       final initials = reads || words.isEmpty ? avatarName : words.length == 1 ? words.first.substring(0, words.first.length.clamp(0, 2)).toUpperCase() : '${words.first[0]}${words.last[0]}'.toUpperCase();
-      final size = (out['layout'] as Map)['width'] as num;
+      final size = switch ((out['layout'] as Map)['width']) { final num w => w, _ => avatarSize ?? 40 };
       final base = options.textStyles['strong'] ?? options.textStyles['body'];
       nodes['${id}Text'] = {
         'type': 'text',

@@ -103,6 +103,8 @@ final class _Printer {
   /// The lists not to print as `each` (they did not read back as one).
   final _noEach = <String>{};
 
+  // An id the parser reads after `#`: a name, its parts joined by `-` (`m-logo`).
+  static final _idForm = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(-[A-Za-z0-9_]+)*$');
   static final _printable = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
   String? run() {
@@ -131,11 +133,8 @@ final class _Printer {
     }
     if (first['type'] != 'canvas') {
       // A component: its head, then its tree, the root its first line.
-      if (readMap(document['widget']) == null) {
-        why = 'the root is not a canvas';
-        return null;
-      }
-      _lines.addAll(_componentHead());
+      // With no declaration, a tree with no canvas: `canvas none`.
+      _lines.addAll(readMap(document['widget']) == null ? [_Line(0, 'canvas none')] : _componentHead());
       root = screen;
     } else {
       final body = readString(readMap(first['slots'])?['body']);
@@ -299,7 +298,7 @@ final class _Printer {
       why = 'a node reached twice';
       return false;
     }
-    if (!_printable.hasMatch(id)) {
+    if (!_idForm.hasMatch(id)) {
       why = 'an id the printer refuses';
       return false;
     }
@@ -524,8 +523,8 @@ final class _Printer {
       if (jsonEncode(_sorted(_parse(out))) == jsonEncode(_sorted(document))) return out;
       why = 'the print does not read back';
       return null;
-    } on Object catch (e) {
-      why = 'the parser fails (${e.runtimeType})';
+    } on Object catch (e, st) {
+      why = 'the parser fails (${e.runtimeType}) — $e ${st.toString().split('\n').take(3).join(' | ')}';
       return null;
     }
   }
