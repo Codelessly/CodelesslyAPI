@@ -106,7 +106,10 @@ variable (`qty=qty+1`).
 - **Actions**, separated by `;`: `name=value` sets a variable, `emit name [value]` tells the host, `open id` /
   `close` a modal, `go page` navigates, `scroll id`, `toast "text"`, `link url`. A verb's argument is the word
   written (`go pricing` is that page); one that is worked out is in braces (`go {lower(result)}`). Any other
-  action is written as its JSON.
+  action is written as its JSON. A choice between actions is `cond ? action(s) : action(s)` (`onTap={dirty ?
+  open leave : go members}`): each branch one action or a braced list `{a; b}`, either may be empty (`done ?
+  close :`), a branch may choose again; it is an `if` action. A value chosen is a formula: `step = valid ? 3 : 2`
+  sets `step`.
 - **Lists**: `each item in items` as a line; its children are the template (`Text "{item.name}"`).
 - **Conditions**: `if expr` as a line shows its children when the expression holds (it expands to `visible`
   bindings; no new node), `else` after it; `visible={expr}` on one line. `hide=phone` and `show=tablet` take a
@@ -135,7 +138,7 @@ enumerated value written as a bare word: each is an error on its line that says 
 written with =, not a colon: gap=12.`). CodelesslySDK's `tool/notation/notation.sh migrate <file>` rewrites a file.
 **Read, though not taught** (what a model writes unprompted that is no second way to write a parameter, a
 binding, a computed value or a handler): `let` / `const` / `var name = …` and a bare `name = value` line for
-state, `for x in list` and `each list`, `else`, `n += 1`, `n++`, `rows.add(x)`, `if (c) { … }` inside actions,
+state, `for x in list` and `each list`, `else`, `n += 1`, `n++`, `rows.add(x)`, `if (c) { … } else { … }` inside actions (the same `if` action as `c ? … : …`),
 `$name`, single quotes in an expression, `"${…}"` in a text, `sticky=true`, a code fence around the answer, a
 guessed prop in a `{…}` tail, `onTap` on a block for its first event.
 

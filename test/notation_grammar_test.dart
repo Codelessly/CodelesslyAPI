@@ -251,4 +251,47 @@ void main() {
       expect(jsonEncode(_node(r, 'b')['actions']), contains('append(rows,{'));
     });
   });
+
+  // Where the notation was narrower than the grammar suggests: lines eighteen
+  // agents wrote building apps, and the open-vocabulary corpus
+  // (CodelesslySDK/tool/vocabulary/corpus/2026-11-16-sonnet), now read.
+  group('the natural line works', () {
+    List<Object?> run(NotationResult r, String id) => ((_actions(r, id).single! as Map)['actions'] as List<Object?>);
+
+    test('a choice between actions: cond ? action(s) : action(s), a branch empty or braced, nested once; if (c) {…} else {…} is the same', () {
+      final r = _parse('state dirty=false\nstate pendingRemove=""\nstate n=0\nColumn\n'
+          '  Button#a "A" onTap={dirty ? open leave : close}\n'
+          '  Button#b "B" onTap={n=n+1; pendingRemove==""?close:open leave}\n'
+          '  Button#c "C" onTap={dirty ? close :}\n'
+          '  Button#d "D" onTap={dirty ? {n=1; toast "x"} : n > 2 ? close : toast "y"}\n'
+          '  Button#e "E" onTap={if (n > 1) { n = 0; toast "reset" } else { n += 1 }}\n'
+          '  Button#f "F" onTap={n > 1 ? {n = 0; toast "reset"} : n += 1}\n'
+          '  Button#g "G" onTap={n = dirty ? 3 : 2}\n'
+          '  Button#h "H" onTap={n > 1 ? (n = 0; toast "reset") : n += 1}\n'
+          '  Button#i "I" onTap={dirty ? close : null}\n'
+          'Dialog#leave "Leave?"\n  Text "Unsaved changes"\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(run(r, 'a'), [
+        {
+          'type': 'if',
+          'condition': {'left': r'${= dirty}', 'op': 'isTrue'},
+          'then': [(run(r, 'b')[1]! as Map)['else'][0]],
+          'else': [{'type': 'closeModal'}],
+        },
+      ]);
+      expect((run(r, 'a').single! as Map)['then'], [containsPair('to', 'leave')]);
+      expect(run(r, 'b').first, containsPair('type', 'setVariable'));
+      expect(run(r, 'b')[1], containsPair('condition', {'left': r'${= pendingRemove==""}', 'op': 'isTrue'}));
+      expect(run(r, 'c').single, {'type': 'if', 'condition': {'left': r'${= dirty}', 'op': 'isTrue'}, 'then': [{'type': 'closeModal'}]});
+      final d = run(r, 'd').single! as Map;
+      expect(d['then'], hasLength(2));
+      expect((d['else'] as List).single, containsPair('type', 'if'));
+      expect(run(r, 'e'), run(r, 'f'), reason: 'if (c) {…} else {…} is the same choice');
+      expect(run(r, 'h'), run(r, 'f'), reason: 'a branch in parentheses, as code writes it');
+      expect(run(r, 'i'), run(r, 'c'), reason: 'null is no action');
+      expect(run(r, 'g').single, {'type': 'setVariable', 'variable': 'n', 'value': r'${= dirty ? 3 : 2}'}, reason: 'a value chosen is a formula');
+      final doc = r.document;
+      expect(LayoutDocument.fromJson(doc, catalog: standardCatalog), isNotNull);
+    });
+  });
 }

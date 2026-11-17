@@ -908,7 +908,11 @@ Column gap=8
     expect((_node(spoken, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= n > 0 && !on}');
     final go = (((_node(spoken, 'filledButton1')['actions'] as List).single as Map)['actions'] as List).cast<Map>();
     expect(go[0]['value'], r'${= append(rows,{"q":2})}');
-    expect(go[1]['value'], r'${= (n > 1) ? (0) : n}');
+    expect(go[1], {
+      'type': 'if',
+      'condition': {'left': r'${= n > 1}', 'op': 'isTrue'},
+      'then': [{'type': 'setVariable', 'variable': 'n', 'value': r'${= 0}'}],
+    });
     expect((_node(spoken, 'text1')['props'] as Map)['text'], r'${= length(rows)} rows, ${= length(filter(rows,r => r.q > 1))} big');
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap=8\n    Box w=300 h=40\n    Box w=300 h=40\n');

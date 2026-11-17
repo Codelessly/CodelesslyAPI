@@ -42,6 +42,12 @@
 
 ### Added
 
+- **The notation: a choice between actions.** Inside an event, `cond ? action(s) : action(s)` is an `if` action
+  (`onTap={dirty ? open leave : go members}`, `onChanged={…; pendingRemove=="" ? close : open removeConfirm}`);
+  each branch is one action or a braced list, either may be empty (`done ? close :`), and a branch may choose
+  again. `if (c) { … } else { … }` in actions, read before as assignments guarded one by one (its other actions
+  ran unguarded), is now the same `if` action. A value chosen (`step = valid ? 3 : 2`) is still a formula. The
+  card prompt teaches it in one clause in place of "an action is never a condition".
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is

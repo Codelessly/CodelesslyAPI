@@ -273,7 +273,7 @@ FORMULAS (in {…} and in an action's name=…)
   Operators: + - * / % == != < <= > >= && || ! and cond ? a : b. Text in "double quotes" or 'single'. Lists [1,2], fields a.b, items list[0].
   Only these functions exist: ${[...notationFunctions, if (options.width >= notationPageWidth) ...notationPageFunctions].join(', ')}.
 ${natural ? '''  A list or a record changes as in code (rows.add(x), rows.remove(row), row.qty += 1); for anything else set the variable to a new list (rows = filter(rows, r => r.qty > 0)). Money is "{fixed(total,2)}"; a count is "{length(rows)} items"; minutes and seconds are "{duration(elapsed)}" (74 gives 1:14).''' : '''  Lists never change in place: set the variable to a new list (cart=append(cart,item); rows=updateWhere(rows,r=>r.id==row.id,r=>with(r,"qty",r.qty+1))).'''}
-${natural ? '''  Every value shown that depends on the state is written as an expression in {…} (or a let name), never as a number you worked out: after a tap it must show the new value.''' : '''  An action is one of the forms above, never a condition: to choose, set a variable to a formula (step=valid?3:2).'''}
+${natural ? '''  Every value shown that depends on the state is written as an expression in {…} (or a let name), never as a number you worked out: after a tap it must show the new value.''' : '''  To choose between actions: onTap={ok ? close : toast "Fill it in"} (a branch may be {a; b}, or empty).'''}
 
 BEYOND THESE WORDS
   The full vocabulary has more. Write that part as a node {…} line or a {…} tail; its reference page says how (ask for the page with ui_docs when you have that tool):

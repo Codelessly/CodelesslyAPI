@@ -4396,7 +4396,11 @@ class _Parser {
         if (actions is! List) return;
         actions.removeWhere(orphan);
         for (final a in actions) {
-          if (a is Map) prune(a['actions']);
+          if (a is Map) {
+            prune(a['actions']);
+            prune(a['then']);
+            prune(a['else']);
+          }
         }
       }
 
@@ -4604,22 +4608,89 @@ class _Parser {
     return out.toString();
   }
 
-  /// `if (cond) { a = 1; b = 2 }` in a handler, as the assignments it stands
-  /// for: each made only while the condition holds (`a = cond ? 1 : a`).
-  /// Actions that are not assignments are left as they are, unguarded.
-  String _guarded(String text) {
-    final m = RegExp(r'if\s*\((.+?)\)\s*\{([^{}]*)\}').firstMatch(text);
-    if (m == null) return text;
-    final cond = m[1]!.trim();
-    final steps = [
-      for (final step in _split(m[2]!, ';'))
-        if (step.trim().isNotEmpty)
-          switch (RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(_inPlace(step.trim()))) {
-            final RegExpMatch set => '${set[1]} = ($cond) ? (${set[2]}) : ${set[1]}',
-            _ => step.trim(),
-          },
-    ];
-    return _guarded('${text.substring(0, m.start)}${steps.join('; ')}${text.substring(m.end)}');
+  /// A choice between actions, as its condition and its two branches (each
+  /// the text of its actions, a braced list unwrapped, either may be empty):
+  /// `dirty ? open leave : go members`, `done ? close :`,
+  /// `ok ? {saved=true; close} : toast "Fix the form"`, and the same written
+  /// as code, `if (c) { … } else { … }` (an `else if` is the else branch).
+  /// Null when [a] is no choice: an assignment whose value is a formula
+  /// (`step = valid ? 3 : 2`), a verb's argument (`toast a ? "x" : "y"`), a
+  /// `?` inside quotes or brackets.
+  (String, String, String)? _choice(String a) {
+    String unwrap(String s) {
+      s = s.trim();
+      // `{a; b}`, `(a; b)` as code writes it; `null` is no action.
+      if ((s.startsWith('{') && s.endsWith('}') || s.startsWith('(') && s.endsWith(')')) && _closing(s, 0) == s.length - 1) {
+        return s.substring(1, s.length - 1).trim();
+      }
+      return s == 'null' ? '' : s;
+    }
+
+    // if (cond) { … } [else { … } | else if …]
+    final code = RegExp(r'^if\s*\(').firstMatch(a);
+    if (code != null) {
+      final close = _closing(a, code.end - 1);
+      if (close < 0) return null;
+      final cond = a.substring(code.end, close).trim();
+      final rest = a.substring(close + 1).trim();
+      if (!rest.startsWith('{')) return null;
+      final end = _closing(rest, 0);
+      if (end < 0) return null;
+      final yes = rest.substring(1, end).trim();
+      final tail = rest.substring(end + 1).trim();
+      if (tail.isEmpty) return (cond, yes, '');
+      final orElse = RegExp(r'^else\b\s*').firstMatch(tail);
+      if (orElse == null) return null;
+      return (cond, yes, unwrap(tail.substring(orElse.end)));
+    }
+    if (RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])?=(?!=)').hasMatch(a)) return null;
+    if (RegExp(r'^(emit|open|scroll|close|go|toast|announce|link|confirm)\b').hasMatch(a) || a.startsWith('{')) return null;
+    // The first ? at the top level (not ?. or ??), then the : that closes it
+    // (a ? inside the branch opens a choice of its own).
+    var depth = 0, quoted = false, question = -1, nested = 0;
+    for (var i = 0; i < a.length; i++) {
+      final c = a[i];
+      if (c == '"' && (i == 0 || a[i - 1] != r'\')) quoted = !quoted;
+      if (quoted) continue;
+      if (c == '{' || c == '[' || c == '(') depth++;
+      if (c == '}' || c == ']' || c == ')') depth--;
+      if (depth != 0) continue;
+      if (c == '?') {
+        final next = i + 1 < a.length ? a[i + 1] : '', before = i > 0 ? a[i - 1] : '';
+        if (next == '.' || next == '?' || before == '?') continue;
+        if (question < 0) {
+          question = i;
+        } else {
+          nested++;
+        }
+      } else if (c == ':' && question >= 0) {
+        if (nested > 0) {
+          nested--;
+          continue;
+        }
+        final cond = a.substring(0, question).trim();
+        if (cond.isEmpty) return null;
+        return (cond, unwrap(a.substring(question + 1, i)), unwrap(a.substring(i + 1)));
+      }
+    }
+    return null;
+  }
+
+  /// Where the bracket at [open] of [s] closes (text in quotes aside); -1
+  /// when it does not.
+  static int _closing(String s, int open) {
+    var depth = 0, quoted = false;
+    for (var i = open; i < s.length; i++) {
+      final c = s[i];
+      if (c == '"' && (i == 0 || s[i - 1] != r'\')) quoted = !quoted;
+      if (quoted) continue;
+      if (c == '{' || c == '[' || c == '(') depth++;
+      if (c == '}' || c == ']' || c == ')') {
+        depth--;
+        if (depth == 0) return i;
+      }
+    }
+    return -1;
   }
 
   /// A change written where the value stands, as the list rebuilt that the
@@ -4648,7 +4719,20 @@ class _Parser {
 
   List<Json> _actions(String text, int column) {
     final out = <Json>[];
-    for (final part in _split(_guarded(text), ';')) {
+    for (final part in _split(text, ';')) {
+      // A choice between actions: an `if` action, its branches read as
+      // actions are (`dirty ? open leave : go members`).
+      if (_choice(part.trim()) case (final cond, final yes, final no)) {
+        final then = _actions(yes, column), orElse = _actions(no, column);
+        if (then.isEmpty && orElse.isEmpty) continue;
+        out.add({
+          'type': 'if',
+          'condition': {'left': _formula(cond), 'op': 'isTrue'},
+          'then': then,
+          if (orElse.isNotEmpty) 'else': orElse,
+        });
+        continue;
+      }
       final a = _inPlace(part.trim());
       if (a.isEmpty) continue;
       if (a.startsWith('{')) {
