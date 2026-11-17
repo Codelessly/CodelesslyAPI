@@ -103,15 +103,19 @@ final class _Printer {
   /// The lists not to print as `each` (they did not read back as one).
   final _noEach = <String>{};
 
+  /// The nodes whose id is written though the parser would give it (the
+  /// line read otherwise without it), and those left out this time.
+  final _keepId = <String>{}, _dropped = <String>{};
+
   // An id the parser reads after `#`: a name, its parts joined by `-` (`m-logo`).
   static final _idForm = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(-[A-Za-z0-9_]+)*$');
   static final _printable = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
   String? run() {
-    for (var attempt = 0; attempt < 8; attempt++) {
-      final before = _noEach.length;
+    for (var attempt = 0; attempt < 24; attempt++) {
+      final before = _noEach.length + _keepId.length;
       final out = _once();
-      if (out != null || _noEach.length == before) return out;
+      if (out != null || _noEach.length + _keepId.length == before) return out;
     }
     return null;
   }
@@ -121,6 +125,7 @@ final class _Printer {
     _seen.clear();
     _counts.clear();
     _structure.clear();
+    _dropped.clear();
     why = null;
     final roots = readStrings(document['roots']);
     final screen = roots.isEmpty ? 'screen' : roots.first;
@@ -324,12 +329,13 @@ final class _Printer {
 
   /// [text] without `#id` when the parser gives the line that id anyway.
   String _withoutId(String text, String id, String type) {
-    if (plan != _Plan.full) return text;
+    if (plan != _Plan.full || _keepId.contains(id)) return text;
     final key = type == 'grid' || text.startsWith('Grid') ? 'grid' : type;
     if (id != '$key${(_counts[key] ?? 0) + 1}') return text;
     final mark = RegExp('^([A-Za-z][A-Za-z0-9.]*)#${RegExp.escape(id)}(?=\\s|\$)');
     if (!mark.hasMatch(text)) return text;
     _counts[key] = (_counts[key] ?? 0) + 1;
+    _dropped.add(id);
     return text.replaceFirstMapped(mark, (m) => m[1]!);
   }
 
@@ -471,6 +477,12 @@ final class _Printer {
         if (id == null) continue;
         final got = readMap(parsed[id]);
         if (got == null) {
+          // Read without its id it is something else (a page word): with it.
+          if (_dropped.contains(id)) {
+            _keepId.add(id);
+            why = 'a line read otherwise without its id';
+            return null;
+          }
           final type = '${readMap(nodes[id])!['type']}';
           why = catalog.widget(type) == null
               ? 'a type the catalog does not have (a component of a design system not given) — $type'
