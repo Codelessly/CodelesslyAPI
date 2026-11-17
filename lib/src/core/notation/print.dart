@@ -15,6 +15,7 @@ import '../behaviors.dart' show diffPatch;
 import '../catalog.dart';
 import '../json.dart';
 import 'notation.dart';
+import 'print_fields.dart';
 
 /// [document] in the notation. Parse it back with [notationOptionsFor].
 String printNotation(Json document, {required Catalog catalog}) {
@@ -31,6 +32,7 @@ String printNotation(Json document, {required Catalog catalog}) {
   final ids = <String>[], sugar = <String, String>{}, depth = <String, int>{};
   final printable = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
   var whole = rootId == null;
+  final context = PrintContext(document: document, catalog: catalog, options: options);
 
   void walk(String id, int d, Set<String> seen) {
     final n = readMap(nodes[id]);
@@ -40,7 +42,7 @@ String printNotation(Json document, {required Catalog catalog}) {
     }
     ids.add(id);
     depth[id] = d;
-    sugar[id] = _line(id, n);
+    sugar[id] = printNodeLine(id, n, context);
     for (final c in readStrings(n['children'])) {
       walk(c, d + 1, seen);
     }
@@ -90,65 +92,6 @@ NotationOptions notationOptionsFor(Json document) {
   final screen = roots.isEmpty ? 'screen' : roots.first;
   final width = readMap(readMap(readMap(document['nodes'])?[screen])?['layout'])?['width'];
   return NotationOptions(screen: screen, width: width is num ? width.toDouble() : 390);
-}
-
-const _words = {
-  'text': 'Text',
-  'column': 'Column',
-  'row': 'Row',
-  'textField': 'Input',
-  'switch': 'Toggle',
-  'dropdown': 'Select',
-  'filledButton': 'Button',
-  'outlinedButton': 'Button.outline',
-  'textButton': 'Button.ghost',
-  'slider': 'Slider',
-  'checkbox': 'Checkbox',
-  'icon': 'Icon',
-  'divider': 'Divider',
-};
-
-String _line(String id, Json n) {
-  final type = '${n['type']}';
-  final props = readMap(n['props']) ?? const {};
-  final layout = readMap(n['layout']) ?? const {};
-  final decoration = readMap(n['decoration']) ?? const {};
-  var word = _words[type] ?? type;
-  // A text in one of the named looks is that variant.
-  if (type == 'text' && props['style'] is Map) {
-    for (final v in defaultTextVariants.entries) {
-      if (v.key != 'body' && jsonEncode(v.value) == jsonEncode(props['style'])) word = 'Text.${v.key}';
-    }
-  }
-  final b = StringBuffer(word)..write('#$id');
-  // The main string, when it reads back as written: plain text with no
-  // braces, quotes or dollars to mistake.
-  final main = switch (type) {
-    'text' => props['text'],
-    'filledButton' || 'outlinedButton' || 'textButton' || 'checkbox' || 'switch' => props['label'],
-    'icon' => props['icon'],
-    'textField' => readMap(props['decoration'])?['labelText'],
-    _ => null,
-  };
-  if (main is String && main.isNotEmpty && !RegExp(r'[{}$\\"]').hasMatch(main) && !main.contains('\n')) b.write(' ${jsonEncode(main)}');
-  if ((type == 'row' || type == 'column') && props['spacing'] is num) b.write(' gap=${props['spacing']}');
-  if (type == 'row' || type == 'column') {
-    const main = {'center': 'center', 'end': 'end', 'spaceBetween': 'between'};
-    if (main[props['mainAxisAlignment']] case final String w) b.write(' $w');
-  }
-  if (layout['padding'] is num) b.write(' pad=${layout['padding']}');
-  final fills = decoration['fills'];
-  if (fills is List && fills.length == 1 && fills.single is Map && (fills.single as Map).length == 1 && (fills.single as Map)['color'] is String) {
-    b.write(' fill=${(fills.single as Map)['color']}');
-  }
-  final strokes = decoration['strokes'];
-  if (strokes is List && strokes.length == 1 && strokes.single is Map && (strokes.single as Map).length == 1 && (strokes.single as Map)['color'] is String) {
-    b.write(' border=${(strokes.single as Map)['color']}');
-  }
-  if (decoration['radius'] is num) b.write(' radius=${decoration['radius']}');
-  if (layout['width'] is num) b.write(' w=${layout['width']}');
-  if (layout['height'] is num) b.write(' h=${layout['height']}');
-  return b.toString();
 }
 
 Object? _sorted(Object? v) => switch (v) {
