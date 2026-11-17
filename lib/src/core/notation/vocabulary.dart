@@ -505,6 +505,9 @@ final class LineParts {
         if (c == '=' && key == null && i > start && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(text.substring(start, i))) {
           key = text.substring(start, i);
           i++;
+          // `x=@0.5`, `x=@"text"`, `x=@[0, 100]`: a signature's bound
+          // parameter with its default, read whole.
+          if (i + 1 < n && text[i] == '@' && (text[i + 1] == '"' || text[i + 1] == '{' || text[i + 1] == '[')) i++;
           if (i < n && text[i] == '"') {
             i = closeOfString(i);
             break;
@@ -514,6 +517,11 @@ final class LineParts {
             break;
           }
           continue;
+        }
+        // `@value=[0, 100]`: a signature's value with its default, read whole.
+        if (c == '=' && key == null && text[start] == '@' && i + 1 < n && (text[i + 1] == '{' || text[i + 1] == '[')) {
+          i = closeOfBalanced(i + 1);
+          break;
         }
         if (c == '"' && key == null) break;
         i++;

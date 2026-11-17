@@ -11,10 +11,13 @@
   gives the `state` line to add. `bind=`, `bind={…}`, `bindEnd=` are not read: each line that writes them is one
   issue that shows it in the new form (`notationBindForm`, `notationBindRewrite`). A block's variable parameter is
   always `key=@name`. A definition's signature declares the value a use binds as `@value` (`@value=1` with its
-  start) and a further one as `name=@`; a use binds them with `@x`, `value=@x`, `name=@x`; a plain parameter a use
+  start) and a further one as `name=@` (`name=@0.5` with its start); a use binds them with `@x`, `value=@x`, `name=@x`; a plain parameter a use
   binds (`value=1`, `Counter @n`) is that variable both ways. The prompts, the printer (`@name` on a control) and
   the A2UI front end write the new form. The `RangeSlider` alias takes `@low @high` or `low=@ high=@`; its other
   names for the ends are gone. CodelesslySDK's `tool/notation/notation.sh migrate` rewrites files.
+  `notationBindRewrite` rewrites only what 33 read as a binding (a value in braces on any key but `bind=` is left:
+  it was shown, one way), lists only the variables it turned into `@name`, and leaves a binding of a name no state
+  line can declare (`notationRefusedState`: `theme`, `device`…) as written, in its `refused`.
 
 ## 33.1.1
 

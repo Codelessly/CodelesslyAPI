@@ -327,8 +327,13 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
           // `open=@`: a variable a use binds by name.
           bindables.add(p.key!);
           parameters[p.key!] = null;
+        } else if (p.value!.startsWith('@') && notationIsLiteral(p.value!.substring(1))) {
+          // `x=@0.5`: a variable a use binds by name, and what a use that
+          // binds none starts at.
+          bindables.add(p.key!);
+          parameters[p.key!] = p.value!.substring(1);
         } else if (p.value!.startsWith('@')) {
-          problems.add('$file:$line: ${p.key}=${p.value}: a signature names what a use binds, not a variable: ${p.key}=@ (its start is the body\'s state ${p.key}=…).');
+          problems.add('$file:$line: ${p.key}=${p.value}: a signature names what a use binds, not a variable: ${p.key}=@, or ${p.key}=@0 with its start (else its start is the body\'s state ${p.key}=…).');
         } else {
           parameters[p.key!] = p.value;
         }
@@ -800,7 +805,7 @@ final class DefinedWords {
     String takes() => [
           ...d.strings.map((s) => '"$s"'),
           if (d.bind != null) '@${d.bind}',
-          for (final k in d.parameters.keys) d.bindables.contains(k) ? '$k=@' : k,
+          for (final k in d.parameters.keys) d.bindables.contains(k) ? '$k=@${d.parameters[k] ?? ''}' : k,
           ...d.events,
         ].join(', ');
     // What a use may bind: its value (`@name`), and the variables it names.

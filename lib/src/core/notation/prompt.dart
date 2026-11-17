@@ -482,7 +482,7 @@ String notationGlossaryDefinitionLine(NotationDefinition d) {
     for (final s in d.strings) '"$s"',
     if (d.bind != null) '@${d.bind}${shown(d.bindDefault)}',
     for (final e in d.parameters.entries)
-      d.bindables.contains(e.key) ? '${e.key}=@' : (d.required.contains(e.key) ? '${e.key}!' : '${e.key}${shown(e.value)}'),
+      d.bindables.contains(e.key) ? '${e.key}=@${shown(e.value).replaceFirst('=', '')}' : (d.required.contains(e.key) ? '${e.key}!' : '${e.key}${shown(e.value)}'),
     ...d.events,
     for (final s in d.slots) '...$s',
   ];
