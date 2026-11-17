@@ -1951,6 +1951,103 @@ class _Parser {
     }
   }
 
+  /// A button a dialog or a sheet ends with, not an icon's.
+  bool _actionButton(String id) {
+    final type = nodes[id]?['type'];
+    return type is String &&
+        (type == 'ActionButton' || type.endsWith('Button') && type != 'iconButton' && type != 'segmentedButton' && type != 'floatingActionButton');
+  }
+
+  /// The buttons a dialog or a sheet ends with are its actions. On a phone
+  /// they fill its width in equal shares; with room, they sit at its right,
+  /// each no wider than [_actionMax]. Written as a row of buttons, or as
+  /// buttons one under another (then they are put in a row).
+  static const num _actionMax = 240;
+
+  void _endButtons() {
+    final kind = _overlay?.kind;
+    if (kind != 'dialog' && kind != 'sheet') return;
+    final body = _root == null ? null : nodes[_root];
+    final kids = [...?(body?['children'] as List?)?.whereType<String>()];
+    if (body == null || kids.isEmpty) return;
+    String row;
+    List<String> buttons;
+    final last = nodes[kids.last];
+    final lastKids = [...?(last?['children'] as List?)?.whereType<String>()];
+    if (last?['type'] == 'row' && lastKids.isNotEmpty && lastKids.every(_actionButton)) {
+      final props = readMap(last!['props']) ?? const {};
+      if (props['scrollable'] == true || props['wrap'] == true) return;
+      row = kids.last;
+      buttons = lastKids;
+    } else {
+      // Buttons written one under another at the end.
+      var from = kids.length;
+      while (from > 0 && _actionButton(kids[from - 1])) {
+        from--;
+      }
+      buttons = kids.sublist(from);
+      if (buttons.isEmpty) return;
+      row = '${_root}Actions';
+      if (nodes.containsKey(row)) return;
+      nodes[row] = {
+        'type': 'row',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'spacing': 8, 'crossAxisAlignment': 'center'},
+        'children': [...buttons],
+      };
+      body['children'] = [...kids.sublist(0, from), row];
+      for (final b in buttons) {
+        _parentOf[b] = row;
+      }
+      _parentOf[row] = _root!;
+      if (_canvas) {
+        ops
+          ..add({'op': 'set', 'id': row, 'parent': _root, 'index': from, 'node': {...nodes[row]!}..remove('children')})
+          ..addAll([for (var i = 0; i < buttons.length; i++) {'op': 'move', 'id': buttons[i], 'parent': row, 'index': i}]);
+      }
+    }
+    void patch(String id, Json change) {
+      nodes[id] = mergePatch(nodes[id]!, change);
+      if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': change});
+    }
+
+    // The row is as wide as the overlay.
+    final rowProps = readMap(nodes[row]!['props']) ?? const {};
+    final align = rowProps['mainAxisAlignment'];
+    // As a patch: fill takes hug's place (a merge would keep both).
+    const share = {'flex': 1, 'width': {'fill': 0, 'hug': null}};
+    if (_top.options.width < 700) {
+      // A phone's own canvas: equal shares at once.
+      patch(row, {'layout': {'width': {'fill': 0}}});
+      for (final b in buttons) {
+        patch(b, {'layout': share});
+      }
+      return;
+    }
+    patch(row, {
+      'layout': {'width': {'fill': 0}},
+      // At the right, unless the line says where (between, center).
+      if (align == null || align == 'start') 'props': {'mainAxisAlignment': 'end'},
+    });
+    for (final b in buttons) {
+      final node = nodes[b]!;
+      if (node['media'] != null) continue;
+      final layout = readMap(node['layout']) ?? const {};
+      final fixed = layout['width'] is num;
+      patch(b, {
+        if (!fixed && readMap(layout['constraints'])?['maxWidth'] == null) 'layout': {'constraints': {'maxWidth': _actionMax}},
+        'media': [
+          {
+            // An overlay's rules are read at its own width: narrower than
+            // it was written is a phone, where it gives way to the window.
+            'maxWidth': math.min(reflowPhoneMax, _overlay!.width - 1),
+            'patch': {'layout': {...share, 'constraints': {'maxWidth': null}}},
+          },
+        ],
+      });
+    }
+  }
+
   void _reflow() {
     if (!options.reflow || options.width < 700) return;
     final rules = PageReflow(
@@ -5789,6 +5886,7 @@ class _Parser {
     }
     _ownLegends();
     _feet();
+    _endButtons();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {

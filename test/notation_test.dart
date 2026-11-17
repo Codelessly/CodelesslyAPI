@@ -1941,6 +1941,70 @@ Column
           for (final a in ((node(r, id)['actions']! as List).first as Map)['actions']! as List) (a as Map)['type']! as String,
         ];
 
+    test('the buttons a dialog or a sheet ends with: equal shares on a phone, at the right with room', () {
+      const app = '''
+Page
+  Section
+    Button "Compose" onTap={open compose}
+    Button "Filters" onTap={open filters}
+
+Dialog#compose "New message"
+  Input "To" bind=to
+  Row gap=8
+    Button.outline#closeIt "Close" onTap={close}
+    Button#send "Send" onTap={close}
+
+Sheet#filters "Filters"
+  Toggle "Unread only" bind=unread
+  Button.outline#reset "Reset" onTap={close}
+  Button#apply "Apply" onTap={close}
+''';
+      Map<String, Object?> layout(NotationResult r, String id) => (node(r, id)['layout']! as Map).cast<String, Object?>();
+      String rowOf(NotationResult r, String button) =>
+          nodesOf(r).entries.firstWhere((e) => ((e.value as Map)['children'] as List?)?.contains(button) ?? false).key;
+
+      // A page: at the right, each no wider than 240; on a phone (the overlay narrower than it was written), equal shares.
+      final r = Catalog.run(standardCatalog, () => parseNotation(app, catalog: standardCatalog, options: page));
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(problems(r.document), isEmpty);
+      for (final id in ['closeIt', 'send', 'reset', 'apply']) {
+        expect(layout(r, id)['width'], {'hug': 0}, reason: id);
+        expect((layout(r, id)['constraints']! as Map)['maxWidth'], 240, reason: id);
+        final rule = ((node(r, id)['media']! as List).single as Map);
+        expect(rule['maxWidth'], lessThan(700), reason: id);
+        expect(((rule['patch'] as Map)['layout'] as Map)['flex'], 1, reason: id);
+        expect((((rule['patch'] as Map)['layout'] as Map)['width'] as Map)['fill'], 0, reason: id);
+      }
+      final written = node(r, rowOf(r, 'send'));
+      expect((written['props']! as Map)['mainAxisAlignment'], 'end');
+      // Buttons written one under another are put in one row, in their order.
+      final made = node(r, rowOf(r, 'apply'));
+      expect(made['type'], 'row');
+      expect(made['children'], ['reset', 'apply']);
+      expect((made['props']! as Map)['mainAxisAlignment'], 'end');
+
+      // A row that says where its buttons go keeps it.
+      final between = Catalog.run(standardCatalog, () => parseNotation(app.replaceFirst('Row gap=8', 'Row gap=8 between'), catalog: standardCatalog, options: page));
+      expect((node(between, rowOf(between, 'send'))['props']! as Map)['mainAxisAlignment'], 'spaceBetween');
+
+      // A card (a phone's own canvas): equal shares at once, no rule.
+      final card = Catalog.run(standardCatalog, () => parseNotation(app.replaceFirst('Page\n  Section', 'Column\n  Column'), catalog: standardCatalog));
+      for (final id in ['closeIt', 'send', 'reset', 'apply']) {
+        expect(layout(card, id)['flex'], 1, reason: id);
+        expect(layout(card, id)['width'], {'fill': 0}, reason: id);
+        expect(node(card, id)['media'], isNull, reason: id);
+      }
+      expect(problems(card.document), isEmpty);
+
+      // Buttons that are not at the end, and an icon's button, are left as written.
+      final mid = Catalog.run(
+          standardCatalog,
+          () => parseNotation('Page\n  Section\n    Button "Go" onTap={open d}\n\nDialog#d "Pick"\n  Button#first "One" onTap={close}\n  Text "or"\n  IconButton#ic "close" onTap={close}\n',
+              catalog: standardCatalog, options: page));
+      expect(layout(mid, 'first')['constraints'], isNull);
+      expect(node(mid, 'first')['media'], isNull);
+    });
+
     const text = '''
 state email=""
 state sort="Newest"

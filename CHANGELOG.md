@@ -1,3 +1,12 @@
+## Unreleased
+
+### Changed
+
+- **Notation**: the buttons a `Dialog` or a `Sheet` ends with are its actions. On a phone they fill its width in
+  equal shares; with room they sit at its right, each no wider than 240. Written as a row of buttons, or as
+  buttons one under another (then they are put in one row). A row that says where its buttons go (`between`,
+  `center`) keeps that with room.
+
 ## 33.1.0
 
 Released with codelessly_sdk 33.1.0.
