@@ -180,8 +180,10 @@ void main() {
     // ignore: avoid_print
     print('base: files form ${words(files)} words, ${files.length} characters (≈ ${(files.length / 3.5).round()} tokens); '
         'runtime form ${words(runtime)} words, ${runtime.length} characters (≈ ${(runtime.length / 3.5).round()} tokens)');
-    expect(words(files), lessThan(6200));
-    expect(words(runtime), lessThan(6200));
+    // 6,207 with the three node types, the action and the trigger the twenty
+    // behaviours added to its lists (6,195 before them).
+    expect(words(files), lessThan(6250));
+    expect(words(runtime), lessThan(6250));
     // The forms share every section but their envelopes.
     List<String> headings(String s) => [for (final m in RegExp(r'^## (.+)$', multiLine: true).allMatches(s)) m[1]!];
     final shared = headings(files).toSet().intersection(headings(runtime).toSet());
