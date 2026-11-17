@@ -6,8 +6,11 @@
 // gives with nothing written and whether `key=value` reads back as that prop
 // are found by reading short lines ([_Probes]), not kept here a second time.
 // The sizes a line is given by its parent follow the parser's one rule per
-// parent (design 13, section 3), read from the document. What the words leave
-// unsaid or say wrongly, printNotation adds as the line's `{…}` tail.
+// parent (design 13, section 3), read from the document. Every field the
+// words leave different is then written by its key (keys.dart: the shortest
+// key that means its path, design 22 section 2.1), checked by reading the
+// line under its parent's. What is still unsaid or said wrongly, printNotation
+// adds as the line's `{…}` tail.
 import 'dart:convert';
 
 import '../behavior_fields.dart' show BehaviorFields;
@@ -15,37 +18,23 @@ import '../behaviors.dart' show diffPatch;
 import '../catalog.dart';
 import '../json.dart';
 import '../props.dart';
-import '../value_fields.dart' show DecorationFields, LayoutFields, NodeFields;
+import '../value_fields.dart' show NodeFields;
+import 'keys.dart';
 import 'notation.dart';
 import 'print_events.dart';
 import 'print_media.dart';
 import 'print_paint.dart';
 import 'print_states.dart';
 
-/// Whether a node's line also writes, by the field's own name or its dotted
-/// path (docs/design/22, section 2.1), the fields the parser has no word for
-/// yet: a text's `letterSpacing=` and `from=`, `squeezable=`, `columnSpan=`,
-/// `strokeSides=`, `dashPattern=`, a behavior (`inkWell={…}`, `states={…}`),
-/// a binding of any path (`motion.scale={…}`).
-///
-/// Off until the parser reads every catalog field by name (the Keys family
-/// of design 22): until then such a word would be read as an unknown prop,
-/// and the field is left to the line's `{…}` tail. Turned on, the tests in
-/// test/notation/fields_test.dart marked "needs the Keys family" run.
-const bool notationFieldNames = false;
-
 /// What a line is printed with: the whole document (a node's parent, its
 /// variables), the catalog its types come from and the options the print is
 /// parsed back with.
 final class PrintContext {
-  PrintContext({required this.document, required this.catalog, required this.options, this.fieldNames = notationFieldNames});
+  PrintContext({required this.document, required this.catalog, required this.options});
 
   final Json document;
   final Catalog catalog;
   final NotationOptions options;
-
-  /// [notationFieldNames] for this print.
-  final bool fieldNames;
 
   Json get nodes => readMap(document['nodes']) ?? const {};
 
@@ -78,6 +67,18 @@ final class PrintContext {
 
   late final _Probes _probes = _Probes.of(catalog, options);
   final Map<String, _NodeLine> _lines = {};
+
+  /// The key that means [path] on [type] (keys.dart's shortest), or null
+  /// when none reads back as it.
+  String? _keyFor(String path, String type) {
+    final at = '$type\u0000$path', keys = _probes.keys;
+    if (keys.containsKey(at)) return keys[at];
+    final key = notationKeyFor(path, type, catalog: catalog);
+    return keys[at] = notationKeyPath(key, type, catalog: catalog) == path ? key : null;
+  }
+
+  /// The parent of node [id] by its id, as the document holds it.
+  String? _parentId(String id) => _parents[id];
 
   _NodeLine _line(String id, Json n) => _lines[id] ??= (_NodeLine(id, n, this)..write());
 }
@@ -187,32 +188,7 @@ String? _braced(String inner) {
 String? _expression(Object? v) {
   if (v is! String || !v.startsWith(r'${') || _close(v, 1) != v.length - 1) return null;
   final e = _braced(v.substring(2, v.length - 1));
-  return e == null || _requoted('{$e}') ? null : '{$e}';
-}
-
-/// Whether the line reads [written] with a 'single-quoted' text in it as
-/// "double-quoted" (page_words.dart reads one so after `=`, `(`, `,`, an
-/// operator or a space), so it never reads back as written.
-bool _requoted(String written) {
-  var inDouble = false;
-  for (var i = 0; i < written.length; i++) {
-    final c = written[i];
-    if (inDouble) {
-      if (c == r'\') {
-        i++;
-      } else if (c == '"') {
-        inDouble = false;
-      }
-      continue;
-    }
-    if (c == '"') {
-      inDouble = true;
-    } else if (c == "'") {
-      final end = written.indexOf("'", i + 1);
-      if (end > i && !written.substring(i + 1, end).contains('"') && '=(,?:[!<>+&| '.contains(written[i - 1])) return true;
-    }
-  }
-  return false;
+  return e == null ? null : '{$e}';
 }
 
 /// A binding's value as a key that always reads a formula writes it
@@ -220,7 +196,7 @@ bool _requoted(String written) {
 String? _formulaOf(Object? v) {
   if (v is! String || !v.startsWith(r'${=') || _close(v, 1) != v.length - 1) return null;
   final e = v.substring(3, v.length - 1).trim();
-  if (e.isEmpty || e.contains('\n') || _requoted('{$e}')) return null;
+  if (e.isEmpty || e.contains('\n') || e.contains(r'\n')) return null;
   return '{$e}';
 }
 
@@ -279,6 +255,9 @@ final class _Probes {
       (_all[catalog] ??= {})[options.width] ??= _Probes(catalog, NotationOptions(width: options.width));
 
   final _read = <String, ({Json? node, Json document, bool clean})>{};
+
+  /// [PrintContext._keyFor], by type and path.
+  final keys = <String, String?>{};
 
   /// [text] read: its root node, the whole document, and whether it read
   /// with no issue.
@@ -445,10 +424,6 @@ const _mainWords = {'start': 'start', 'end': 'end', 'spaceBetween': 'between', '
 const _places = {'topLeft', 'topCenter', 'topRight', 'centerLeft', 'center', 'centerRight', 'bottomLeft', 'bottomCenter', 'bottomRight'};
 const _buttons = {'filledButton', 'outlinedButton', 'textButton', 'elevatedButton'};
 
-/// The node keys other families write (events, media, paint and motion) or
-/// that are the tree itself.
-const _notFields = {'type', 'id', 'children', 'slots', 'layout', 'decoration', 'props', 'bind', 'actions', 'media', 'animations', 'transitions', 'customPaint'};
-
 /// One node's line: its head (type word and variant) and its words.
 final class _NodeLine {
   _NodeLine(this.id, this.n, this.c)
@@ -484,7 +459,6 @@ final class _NodeLine {
   ({String name, int index, String path})? twoWay;
 
   _Probes get _probes => c._probes;
-  bool get _names => c.fieldNames;
   Set<String> get _vars => c.variableNames;
   Json get _probeProps => readMap(probe['props']) ?? const {};
   bool _hasProp(String key) => spec?.props.any((p) => p.key == key) ?? false;
@@ -503,21 +477,21 @@ final class _NodeLine {
       _style.clear();
       _writeAs(own);
     }
+    _residual();
   }
 
   void _writeAs(String head) {
     this.head = head;
     probe = _probes.node(head);
+    // A control's value kept in a variable (`bind=name`) is the events'
+    // words (design 22, 4.3): its binding is left to them.
     twoWay = _twoWay();
     if (twoWay case final t?) doneBind.add(t.path);
     _main();
     _typeWords();
     _layout();
     _decoration();
-    _props();
     _nodeFields();
-    _bindings();
-    if (twoWay case final t?) words.add('bind=${t.name}');
   }
 
   // --- the head --------------------------------------------------------------
@@ -583,9 +557,9 @@ final class _NodeLine {
         out.add('italic');
       } else if (text && k == 'decoration' && v is String) {
         out.add(switch (v) { 'underline' => 'underline', 'lineThrough' => 'strike', _ => 'decoration=$v' });
-      } else if (_names && _value(v, _vars) != null) {
+      } else if (_value(v, _vars) case final String value when _keyFor('props.style.$k') != null) {
         // A field of the text's style by its own name (design 22, 2.1).
-        out.add('$k=${_value(v, _vars)}');
+        out.add('${_keyFor('props.style.$k')}=$value');
       } else {
         return null;
       }
@@ -664,8 +638,6 @@ final class _NodeLine {
     final holder = nested ? readMap(props[key.substring(0, key.indexOf('.'))]) : props;
     final leaf = nested ? key.substring(key.indexOf('.') + 1) : key;
     final fixed = holder?[leaf];
-    // An Input whose decoration has more than its words say is written whole.
-    if (type == 'textField' && _fieldDecorationWhole()) return;
     final reads = type == 'text' || type == 'box';
     if (fixed is String && (reads || !fixed.contains(r'${'))) {
       final q = _quoted(fixed);
@@ -765,11 +737,6 @@ final class _NodeLine {
     }
     final d = readMap(props['decoration']);
     if (d == null) return;
-    if (_fieldDecorationWhole()) {
-      if (_json(d) case final String j) words.add('decoration=$j');
-      doneProps.add('decoration');
-      return;
-    }
     for (final e in _fieldDecoration.entries) {
       if (e.key == 'labelText' && doneProps.contains('decoration.labelText')) continue;
       if (d[e.key] case final String v when !v.contains(r'${')) {
@@ -786,27 +753,7 @@ final class _NodeLine {
         }
       }
     }
-    if (_names) {
-      for (final e in d.entries) {
-        if (_fieldDecorationSaid(e.key, d)) continue;
-        if (_value(e.value, _vars) case final String w) words.add('decoration.${e.key}=$w');
-      }
-    }
-    doneProps.add('decoration');
-  }
-
-  /// Whether an Input's decoration field [key] has a word of its own.
-  bool _fieldDecorationSaid(String key, Json d) =>
-      _fieldDecoration.containsKey(key) ||
-      (key == 'prefixIcon' && readMap(d['prefixIcon'])?['size'] == 18 && readMap(d['prefixIcon'])!.length == 2) ||
-      ((key == 'prefixText' || key == 'suffixText' || key == 'affixesAlwaysVisible') && d['affixesAlwaysVisible'] == true);
-
-  /// Whether an Input's decoration is written whole, as its JSON: it has a
-  /// field no word says, and fields are not written by name.
-  bool _fieldDecorationWhole() {
-    final d = readMap(props['decoration']);
-    if (d == null || _names) return false;
-    return d.keys.any((k) => !_fieldDecorationSaid(k, d));
+    // Its other fields are written by name (`decoration.isDense=true`).
   }
 
   void _button() {
@@ -854,25 +801,12 @@ final class _NodeLine {
       if (_value(layout[k], _vars) case final String w) words.add('$k=$w');
     }
     if (readMap(layout['constraints']) case final Json box when box.isNotEmpty) {
-      if (box.length == 1 && box['maxWidth'] is num) {
-        words.add('maxWidth=${jsonEncode(box['maxWidth'])}');
-      } else if (_names) {
-        // Each limit by its own name (design 22, 2.1).
-        for (final e in box.entries) {
-          if (_value(e.value, _vars) case final String w) words.add('${e.key}=$w');
-        }
-      } else if (_json(box) case final String j) {
-        words.add('constraints=$j');
+      // Each limit by its own name (`maxWidth=720`, design 22, 2.1).
+      for (final e in box.entries) {
+        if (e.value is num && notationKeyPath(e.key, type, catalog: c.catalog) == 'layout.constraints.${e.key}') words.add('${e.key}=${jsonEncode(e.value)}');
       }
     }
-    if (_names) {
-      // The rest of the layout's fields by their own names.
-      const said = {'width', 'height', 'padding', 'flex', 'margin', 'x', 'y', 'align', 'order', 'basis', 'aspectRatio', 'constraints', 'squeezable'};
-      for (final f in LayoutFields.all) {
-        if (said.contains(f.key) || !layout.containsKey(f.key)) continue;
-        if (_value(layout[f.key], _vars) case final String w) words.add('${f.key}=$w');
-      }
-    }
+    // The rest of the layout's fields are written by name (`columnSpan=2`).
   }
 
   /// `w=` and `h=`, where the size is not the one the line gets from its
@@ -904,21 +838,16 @@ final class _NodeLine {
     // A text in a row, and on a page a column in a row, may shrink when no
     // width is written: one that may not says its width.
     final squeezes = inRow && (type == 'text' || (type == 'column' && !flex && c.options.width >= 700 && head != 'Card'));
-    var wroteWidth = false;
     if (!inGrid && !bind.containsKey('layout.width') && layout['width'] != null) {
       final w = layout['width'];
       if (!_equal(w, width) || (squeezes && layout['squeezable'] != true)) {
-        if (_sizeWord(w) case final String s) {
-          words.add('w=$s');
-          wroteWidth = true;
-        }
+        if (_sizeWord(w) case final String s) words.add('w=$s');
       }
     }
     if (!spacer && !bind.containsKey('layout.height') && layout['height'] != null && !_equal(layout['height'], height)) {
       if (_sizeWord(layout['height']) case final String s) words.add('h=$s');
     }
-    final given = squeezes && !wroteWidth ? true : null;
-    if (layout['squeezable'] != given && _names && layout['squeezable'] is bool) words.add('squeezable=${layout['squeezable']}');
+    // `squeezable` otherwise is written by name.
   }
 
   // --- decoration ------------------------------------------------------------
@@ -949,13 +878,11 @@ final class _NodeLine {
     final strokes = decoration['strokes'];
     final boundStroke = _expression(bind['decoration.strokes[0].color']);
     final sides = decoration['strokeSides'];
-    var sided = false;
     if (strokes is List && strokes.isNotEmpty) {
       final single = strokes.length == 1 ? readMap(strokes.single) : null;
       if (single != null && single.length == 1 && single['color'] is String && _says('border')) {
         if (const {'top', 'bottom', 'left', 'right'}.contains(sides) && boundStroke == null) {
           if (_value(single['color'], _vars) case final String w) words.add('border-$sides=$w');
-          sided = true;
         } else if (!(boundStroke != null && single['color'] == '#00000000')) {
           if (_value(single['color'], _vars) case final String w) words.add('border=$w');
         }
@@ -978,13 +905,7 @@ final class _NodeLine {
       if (!decoration.containsKey(k)) continue;
       if (_value(decoration[k], _vars) case final String w) words.add('$k=$w');
     }
-    if (_names) {
-      const said = {'fills', 'strokes', 'strokeWidth', 'radius', 'effects', 'clip', 'shape'};
-      for (final f in DecorationFields.all) {
-        if (said.contains(f.key) || !decoration.containsKey(f.key) || (f.key == 'strokeSides' && sided)) continue;
-        if (_value(decoration[f.key], _vars) case final String w) words.add('${f.key}=$w');
-      }
-    }
+    // The other decoration fields are written by name (`strokeSides=topBottom`).
   }
 
   /// Whether `fill=` (`border=`) on this line is its first fill's (its
@@ -1011,33 +932,6 @@ final class _NodeLine {
     }
     if (fill['begin'] == 'topLeft' && fill['end'] == 'bottomRight') return _json(colors);
     return _json({'colors': colors, 'begin': fill['begin'], 'end': fill['end']});
-  }
-
-  // --- props by their own names ---------------------------------------------
-
-  void _props() {
-    // What the line gives with its flags written (a row that scrolls fades
-    // at its ends).
-    final flags = [for (final w in words) if (!w.contains('=') && !w.startsWith('"')) w];
-    final given = flags.isEmpty ? _probeProps : readMap(_probes.node('$head ${flags.join(' ')}')['props']) ?? const {};
-    for (final e in props.entries) {
-      final k = e.key, v = e.value;
-      if (doneProps.contains(k) || !_hasProp(k)) continue;
-      if (given.containsKey(k) && _equal(v, given[k])) continue;
-      if (v is String && v.contains(r'${') && type != 'text') continue;
-      final w = _value(v, _vars);
-      if (w == null) continue;
-      // `gap` is a list's spacing as it is a column's (a grid's gap is both
-      // of its spacings).
-      final key = k == 'spacing' && type != 'gridView' ? 'gap' : k;
-      final kind = switch (v) { String() => _bare.hasMatch(w) ? 'word' : 'string', _ => v.runtimeType.toString() };
-      if (_probes.says(head, '$key=$w', '$k=$kind', (node) => _equal(readMap(node['props'])?[k], v) && readMap(node['bind'])?['props.$k'] == null)) {
-        words.add('$key=$w');
-      } else if (_names) {
-        // Its name is a word of the notation's (`animate=`): the full path.
-        words.add('props.$k=$w');
-      }
-    }
   }
 
   // --- the node's own fields and its behaviors ------------------------------
@@ -1076,103 +970,233 @@ final class _NodeLine {
         doneNode.add('dropTarget');
       }
     }
-    if (!_names) return;
-    // Every other field of the node and its behaviors by its own name.
+    // Every other field of the node and its behaviors is written by name.
+  }
+
+  // --- every other field, by its key -----------------------------------------
+
+  /// The node keys the other families write (events, media, states, paint and
+  /// motion) or that are the tree itself: no field of this line's.
+  static const _others = {'type', 'id', 'children', 'slots', 'actions', 'media', 'states', 'animations', 'transitions', 'customPaint'};
+
+  /// …and of those, the keys a line's read is not compared on (what this
+  /// line's words never give: its lines under it, its events, its rules).
+  static const _unread = {'children', 'slots', 'actions', 'media', 'animations', 'transitions', 'customPaint'};
+
+  /// The key that means [path] on this line's type, or null.
+  String? _keyFor(String path) => c._keyFor(path, type);
+
+  /// Every field the words written so far leave other than the document has
+  /// it, written by its key (design 22, 2.1 and 2.5): `crossAxisAlignment=null`
+  /// for one the line gives that the node has not, `squeezable=true`,
+  /// `strokeSides=topBottom`, `style.letterSpacing=0.4`, `visible={…}`. Each
+  /// is checked by reading the line under its parent's: a word that changes
+  /// anything else is not written.
+  void _residual() {
+    final parent = _parentLine();
+    final said = printPaintSays(id, n, c);
+    // The bindings first: a size bound is 0 whatever is written before it.
+    for (final binds in [true, false]) {
+      _settle(parent, (got) => _candidates(got, said, binds: binds));
+    }
+  }
+
+  /// [_residual]'s one round: the [candidates] for what the line read under
+  /// [parent] still differs in, written where they settle it.
+  void _settle(String? parent, List<({String target, List<List<String>> forms})> Function(Json got) candidates) {
+    Json? read(List<String> extra) => _readUnder(parent, [...words, ...extra]);
+    final first = read(const []);
+    if (first == null) return;
+    var differ = _differ(first);
+    if (differ.isEmpty) return;
+    final slots = candidates(first);
+    if (slots.isEmpty) return;
+    bool settles(Set<String> after, String target) => !after.any((p) => _under(p, target));
+    // All at once: each slot's first form.
+    final all = [for (final s in slots) ...s.forms.first];
+    final got = read(all);
+    if (got != null) {
+      final after = _differ(got);
+      if (after.difference(differ).isEmpty && slots.every((s) => settles(after, s.target))) {
+        words.addAll(all);
+        return;
+      }
+    }
+    // Else one field at a time, each form in turn.
+    final kept = <String>[];
+    for (final s in slots) {
+      for (final form in s.forms) {
+        final got = read([...kept, ...form]);
+        if (got == null) continue;
+        final after = _differ(got);
+        if (after.difference(differ).isEmpty && after.length < differ.length) {
+          kept.addAll(form);
+          differ = after;
+          break;
+        }
+      }
+    }
+    words.addAll(kept);
+  }
+
+  /// Whether the leaf [path] is [target] or inside it.
+  static bool _under(String path, String target) =>
+      path == target || (path.startsWith(target) && (path[target.length] == '.' || path[target.length] == '['));
+
+  /// The parent's line as its words write it (`Row#bar gap=8 middle`), what
+  /// this line is read under; null for the root of a page or a component.
+  String? _parentLine() {
+    final pid = c._parentId(id);
+    final p = pid == null ? null : readMap(c.nodes[pid]);
+    if (pid == null || p == null || p['type'] == 'canvas') return null;
+    final line = c._line(pid, p);
+    return ['${line.head}#$pid', ...line.words].join(' ');
+  }
+
+  /// This line with [written] read under [parent] (or alone): the node it
+  /// gives, or null when the line does not read as this node.
+  Json? _readUnder(String? parent, List<String> written) {
+    final self = ['$head#$id', ...written].join(' ');
+    try {
+      final r = parseNotation(parent == null ? self : '$parent\n  $self', catalog: c.catalog, options: c.options);
+      return readMap(readMap(r.document['nodes'])?[id]);
+    } on Object {
+      return null;
+    }
+  }
+
+  /// The leaves (`props.style.color`, `bind.visible`, `layout.width`) where
+  /// [got] is not the document's node.
+  Set<String> _differ(Json got) {
+    final out = <String>{};
+    void walk(Object? a, Object? b, String at) {
+      if (a is Map && b is Map) {
+        for (final k in {...a.keys, ...b.keys}) {
+          if (at.isEmpty && _unread.contains(k)) continue;
+          final path = at.isEmpty ? '$k' : '$at.$k';
+          // A field there as null is not a field not there.
+          if (a.containsKey(k) != b.containsKey(k)) {
+            out.add(path);
+          } else {
+            walk(a[k], b[k], path);
+          }
+        }
+      } else if (!_equal(a, b)) {
+        out.add(at);
+      }
+    }
+
+    walk(got, n, '');
+    return out;
+  }
+
+  /// What may write each field this line's read leaves other than the node
+  /// has it: per field, its forms in the order they are tried (its parts by
+  /// their keys, then the whole value).
+  List<({String target, List<List<String>> forms})> _candidates(Json got, Set<String> said, {required bool binds}) {
+    final out = <({String target, List<List<String>> forms})>[];
+    if (binds) {
+      final given = readMap(got['bind']) ?? const {};
+      for (final e in bind.entries) {
+        final path = e.key;
+        if (path == twoWay?.path || said.contains('bind.$path') || _equal(given[path], e.value)) continue;
+        final forms = [
+          for (final w in _bindWords(path, e.value)) [w],
+        ];
+        if (forms.isNotEmpty) out.add((target: 'bind.$path', forms: forms));
+      }
+      return out;
+    }
+    for (final section in const ['layout', 'decoration', 'props']) {
+      final g = readMap(got[section]) ?? const {}, w = readMap(n[section]) ?? const {};
+      for (final k in {...g.keys, ...w.keys}) {
+        final path = '$section.$k';
+        if (said.contains(path) || said.contains(section)) continue;
+        final forms = _forms(path, g[k], w[k]);
+        if (forms.isNotEmpty) out.add((target: path, forms: forms));
+      }
+    }
     for (final f in [...NodeFields.all, ...BehaviorFields.all]) {
       final k = f.key;
-      if (doneNode.contains(k) || _notFields.contains(k) || !n.containsKey(k) || _equal(n[k], probe[k])) continue;
-      if (_value(n[k], _vars) case final String w) words.add('$k=$w');
+      if (_others.contains(k) || said.contains(k)) continue;
+      final forms = _forms(k, got[k], n[k]);
+      if (forms.isNotEmpty) out.add((target: k, forms: forms));
     }
+    return out;
   }
 
-  // --- bindings --------------------------------------------------------------
-
-  void _bindings() {
-    for (final e in bind.entries) {
-      final path = e.key, v = e.value;
-      if (doneBind.contains(path)) continue;
-      // `selected={…}` is always a formula (`{done}` is `${= done}`).
-      final exp = path == 'selected' ? _formulaOf(v) : _expression(v);
-      final key = _bindKey(path, v);
-      if (key == null) continue;
-      final written = exp ?? (v is String && _templates(path, key, v) ? _quoted(v) : null);
-      if (written != null) words.add('$key=$written');
+  /// The forms that write [want] at [path] where the line gives [got]:
+  /// `key=null` for a field the node has not; a record's or a list's parts
+  /// that differ by their own keys (`style.letterSpacing=0.4`,
+  /// `fills[0].color=…`), then the whole (`style={…}`); a value by its key.
+  List<List<String>> _forms(String path, Object? got, Object? want) {
+    if (_equal(got, want)) return const [];
+    final key = _keyFor(path);
+    final whole = key == null
+        ? null
+        : want == null
+            ? '$key=null'
+            : switch (_value(want, _vars)) { final String v => '$key=$v', _ => null };
+    final declared = notationKey(path, type, catalog: c.catalog)?.type;
+    final parts = <String>[];
+    var split = false;
+    if (want is Map && got is Map && declared != null && declared.kind == PropKind.object && declared.fields.isNotEmpty) {
+      split = true;
+      for (final k in {...got.keys, ...want.keys}) {
+        final inner = _forms('$path.$k', got[k], want[k]);
+        if (inner.isEmpty) continue;
+        parts.addAll(inner.first);
+      }
+    } else if (want is List && got is List && want.length == got.length && declared?.kind == PropKind.list) {
+      split = true;
+      for (var i = 0; i < want.length; i++) {
+        final inner = _forms('$path[$i]', got[i], want[i]);
+        if (inner.isEmpty) continue;
+        parts.addAll(inner.first);
+      }
     }
+    return [
+      if (split && parts.isNotEmpty) parts,
+      if (whole != null) [whole],
+    ];
   }
 
-  /// Whether [v], bound to [path], is a text with values in it that
-  /// `key="…{x}…"` binds: a prop's, where the parser binds such a text,
-  /// and text around its values (a value alone is `key={…}`).
-  bool _templates(String path, String key, String v) {
-    if (!path.startsWith('props.') || path.startsWith('props.style.') || (type == 'text' && path == 'props.text')) return false;
-    if (v.startsWith(r'${') && _close(v, 1) == v.length - 1) return false;
-    const probe = r'${__b} x';
-    return _probes.says(head, '$key="{__b} x"', 'text:$path', (node) => readMap(node['bind'])?[path] == probe);
+  /// The words that bind [path] to [v]: `key={expression}`, `key="…{x}…"`
+  /// for a text with values in it; `selected={…}` always reads a formula.
+  List<String> _bindWords(String path, Object? v) {
+    final key = _bindKey(path);
+    if (key == null || v is! String) return const [];
+    final expression = path == 'selected' ? _formulaOf(v) : _expression(v);
+    final text = _quoted(v);
+    return [
+      if (expression != null) '$key=$expression',
+      if (text != null && text != '"$expression"') '$key=$text',
+    ];
   }
 
   /// The key that binds [path] (`fill` for the first fill's color, `color`
-  /// for a text's style's, a prop by its name); null for one with none.
-  String? _bindKey(String path, Object? v) {
+  /// for a text's style's, `data` for a list's data, a field by its key);
+  /// null for one with none.
+  String? _bindKey(String path) {
     switch (path) {
-      case 'visible' || 'opacity':
-        return path;
       case 'data' || 'disabled':
-        return null; // an each (print.dart), and the inverse of enabled=
+        return path;
       case 'selected':
-        if (_hasProp('selected') || const {'chip', 'checkbox', 'switch'}.contains(type)) return null;
-        // On a box, `selected=` also draws it in the theme's selected fill.
-        final box = const {'row', 'column', 'stack'}.contains(type);
-        final fillsBound = bind.keys.any((k) => k.startsWith('decoration.fills'));
-        final look = {
-          id: {
-            'decoration': {
-              'fills': [
-                {'color': c.options.selectedFill},
-              ],
-            },
-          },
-        };
-        // …in place of every state look the node has.
-        return !box || fillsBound || _equal(n['states'], {'selected': look}) ? 'selected' : null;
-      case 'layout.width':
-        return 'w';
-      case 'layout.height':
-        return 'h';
-      case 'layout.padding':
-        return 'pad';
-      case 'layout.flex':
-        return 'grow';
-      case 'layout.x' || 'layout.y' || 'layout.margin':
-        return path.substring(7);
-      case 'decoration.radius' || 'decoration.strokeWidth' || 'decoration.effects':
-        return path.substring(11);
+        return _hasProp('selected') || const {'chip', 'checkbox', 'switch'}.contains(type) ? null : 'selected';
     }
-    if (path.startsWith('props.')) {
-      final p = path.substring(6);
-      if (p.startsWith('style.') && !p.substring(6).contains('.')) {
-        final f = p.substring(6);
-        if (type == 'text' && _textWords[f] != null) return _textWords[f];
-        if (type == 'textField' && _fieldBound[f] != null) return _fieldBound[f];
-        if ((type == 'filledButton' || type == 'elevatedButton') && f == 'backgroundColor') return 'color';
-        if ((type == 'outlinedButton' || type == 'textButton') && f == 'foregroundColor') return 'color';
-        if (type == 'iconButton' && (f == 'iconColor' || f == 'iconSize')) return f == 'iconColor' ? 'color' : 'size';
-      }
-      if (type == 'textField' && p.startsWith('decoration.') && _fieldDecoration[p.substring(11)] != null) return _fieldDecoration[p.substring(11)];
-      if (!p.contains('.') && !p.contains('[') && _hasProp(p)) {
-        final key = p == 'spacing' && type != 'gridView' ? 'gap' : p;
-        const probeV = r'${__b}';
-        if (_probes.says(head, '$key={__b}', 'bind:$p', (node) => readMap(node['bind'])?[path] == probeV)) return key;
-        return null;
-      }
-      // A field inside a prop, by its path from the props (design 22, 2.1).
-      return _names ? p : null;
+    if (path.startsWith('props.style.') && !path.substring(12).contains('.')) {
+      final f = path.substring(12);
+      if (type == 'text' && _textWords[f] != null) return _textWords[f];
+      if (type == 'textField' && _fieldBound[f] != null) return _fieldBound[f];
+      if ((type == 'filledButton' || type == 'elevatedButton') && f == 'backgroundColor') return 'color';
+      if ((type == 'outlinedButton' || type == 'textButton') && f == 'foregroundColor') return 'color';
+      if (type == 'iconButton' && (f == 'iconColor' || f == 'iconSize')) return f == 'iconColor' ? 'color' : 'size';
     }
-    if (!_names) return null;
-    // Any other path: a layout or decoration field by its own name, else
-    // the whole path (design 22, 2.1).
-    final at = path.indexOf('.');
-    final rest = at < 0 ? path : path.substring(at + 1);
-    if ((path.startsWith('layout.') || path.startsWith('decoration.')) && _name.hasMatch(rest) && !rest.contains('.')) return rest;
-    return path;
+    if (path == 'decoration.fills[0].color') return 'fill';
+    if (path == 'decoration.strokes[0].color') return 'border';
+    // A word of the notation that sets more where it is written as a value
+    // binds its one path (`strokeWidth={…}`).
+    if (path == 'decoration.strokeWidth') return 'strokeWidth';
+    return _keyFor(path);
   }
 }
