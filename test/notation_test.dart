@@ -1033,6 +1033,13 @@ Row gap=8
     // Without grow, the copies keep their own widths in a line.
     final plain = _parse('Row gap=8\n  each p in [1,2]\n    Text "{p}"\n');
     expect(_node(plain, 'listView1')['type'], 'listView');
+    // A wrapping row over an each: the list wraps, filling the row, and the
+    // row does not (it would keep the list at no width).
+    final wrapping = _parse('Row gap=8 wrap\n  each p in [1,2]\n    Text "{p}"\n');
+    expect(_node(wrapping, 'listView1')['layout'], {'width': {'fill': 0}, 'height': {'hug': 0}});
+    expect(_node(wrapping, 'listView1')['props'], containsPair('wrap', true));
+    expect(_node(wrapping, 'row1')['props'], isNot(contains('wrap')));
+    expect(_problems(wrapping.document), isEmpty);
     // Read as it arrives, the list sent as a line is patched into the grid.
     const text = 'state plans=[{"name":"Team"},{"name":"Pro"}]\nRow gap=8\n  each p in plans\n    Column pad=10 grow\n      Text "{p.name}"\n';
     final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));

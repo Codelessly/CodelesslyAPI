@@ -2931,6 +2931,16 @@ class _Parser {
       // as the row's own children would.
       final rowProps = nodes[parent.id]?['props'] as Map?;
       final wraps = across && rowProps?['wrap'] == true;
+      // The list does the wrapping and fills the row's width: a wrapping row
+      // keeps each child at its own size along a line, which leaves a list
+      // that is to fill it no width at all.
+      if (wraps) {
+        const Json patch = {
+          'props': {'wrap': null, 'runSpacing': null},
+        };
+        nodes[parent.id] = mergePatch(nodes[parent.id]!, patch);
+        _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
+      }
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
         'layout': {'width': across && !wraps ? {'hug': 0} : {'fill': 0}, 'height': follows ? eachHeight : {'hug': 0}},
