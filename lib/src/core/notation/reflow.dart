@@ -17,6 +17,8 @@
 //   App                    a phone shows the main pane; a tablet drops the
 //                          panes after it; the sidebar it hides opens as
 //                          a drawer from a button in the main pane's bar
+//   a list beside its detail  a phone shows one pane at a time ([ListDetail]):
+//                          the list, the detail a row's tap opens, back
 //   Nav                    a phone hides its links
 //   Section                less padding above and below
 //   a headline             smaller
@@ -32,6 +34,29 @@ import '../json.dart';
 /// The widest a phone is and the widest a tablet is, as the rules count them.
 const int reflowPhoneMax = 699, reflowTabletMax = 1023;
 
+/// A list beside its detail, which a phone shows one at a time: [levels]
+/// from the first (a list of folders, if there is one) to the detail, each
+/// shown alone while the page's state ([PageReflow.listDetailState]) holds
+/// its index, at screens up to [below] wide (wider, side by side, as
+/// written). It starts at [start], the list of the detail.
+final class ListDetail {
+  const ListDetail({required this.levels, required this.opens, required this.below, required this.app});
+
+  final List<String> levels;
+
+  /// The taps that select a row of a level, which then show the next level:
+  /// the node, the index of its reaction, and the level they show.
+  final List<({String node, int reaction, int level})> opens;
+
+  /// The widest screen that shows one level at a time.
+  final int below;
+
+  /// Whether the levels are the panes of an `App` (else the two sides of a row).
+  final bool app;
+
+  int get start => levels.length - 2;
+}
+
 /// Works out the media rules of a page's nodes ([run]).
 final class PageReflow {
   PageReflow({
@@ -44,9 +69,22 @@ final class PageReflow {
     this.displaySizes = const {},
     this.isComponent = _no,
     this.fillsItsPlace = _no,
+    this.listDetailState,
+    this.variableStart = _none,
   });
 
   static bool _no(String _) => false;
+  static Object? _none(String _) => null;
+
+  /// The value a page variable starts at.
+  final Object? Function(String name) variableStart;
+
+  /// The page variable that says which level of a list beside its detail a
+  /// phone shows ([ListDetail]); null: such panes are left as written.
+  final String? listDetailState;
+
+  /// The list beside its detail the page has, once [run] found it.
+  ListDetail? listDetail;
 
   /// The page's nodes by id, each with its `children`.
   final Map<String, Json> nodes;
@@ -162,6 +200,8 @@ final class PageReflow {
   /// The media rules to add, by node id: the widest first, so a phone's
   /// rule wins over a tablet's.
   Map<String, List<Json>> run() {
+    final found = listDetailState == null ? null : _findListDetail();
+    _levels = {...?found?.levels};
     for (final e in roles.entries) {
       final n = nodes[e.key];
       if (n == null) continue;
@@ -176,6 +216,7 @@ final class PageReflow {
           _appMenu(e.key, n);
       }
     }
+    if (found != null) _listDetailRules(found);
     for (final e in nodes.entries) {
       final id = e.key, n = e.value;
       final type = _type(n);
@@ -219,9 +260,301 @@ final class PageReflow {
       taken += _fixedWidth(nodes[k]!)!;
     }
     // Two panes before the main one (a sidebar and a list): a tablet keeps the nearer.
-    if (before.length >= 2 && taken > 420) _hide(before.first, reflowTabletMax);
+    if (before.length >= 2 && taken > 420 && !_levels.contains(before.first)) _hide(before.first, reflowTabletMax);
+    // A list beside its detail shows on a phone by turns ([ListDetail]).
     for (final k in before) {
-      _hide(k, reflowPhoneMax);
+      if (!_levels.contains(k)) _hide(k, reflowPhoneMax);
+    }
+  }
+
+  // A list beside its detail.
+
+  /// The panes of the list beside its detail the page has ([ListDetail.levels]).
+  Set<String> _levels = const {};
+
+  /// The least width a detail is shown at beside its list.
+  static const num _detailLeast = 360;
+
+  /// What reads a page's values in a node: the names in its expressions.
+  static final _identifier = RegExp(r'(?<![.\w$])([A-Za-z_]\w*)');
+  static final _quoted = RegExp(r'"(?:[^"\\]|\\.)*"' r"|'(?:[^'\\]|\\.)*'");
+
+  /// The names the expressions (`${= …}`, `${name}`) in [v] read.
+  static Set<String> _names(Object? v, [Set<String>? into]) {
+    final out = into ?? <String>{};
+    if (v is String) {
+      for (var at = v.indexOf(r'${'); at >= 0; at = v.indexOf(r'${', at)) {
+        var depth = 0, end = at + 1;
+        for (; end < v.length; end++) {
+          if (v[end] == '{') depth++;
+          if (v[end] == '}' && --depth == 0) break;
+        }
+        final body = v.substring(at + 2, math.min(end, v.length)).replaceAll(_quoted, '');
+        out.addAll(_identifier.allMatches(body).map((m) => m[1]!));
+        at = end;
+      }
+    } else if (v is Map) {
+      for (final e in v.entries) {
+        if (e.key != 'children') _names(e.value, out);
+      }
+    } else if (v is List) {
+      for (final e in v) {
+        _names(e, out);
+      }
+    }
+    return out;
+  }
+
+  /// A node's children and the nodes in its slots (a tile's trailing).
+  List<String> _inside(Json n) => [
+        ..._kids(n),
+        for (final s in (readMap(n['slots']) ?? const {}).values)
+          if (s is String && nodes.containsKey(s)) s,
+      ];
+
+  /// The names read under [id], itself included ([actions]: in what its
+  /// reactions do too), and the names the lists under it are drawn from.
+  ({Set<String> all, Set<String> data}) _reads(String id, {bool actions = true}) {
+    final all = <String>{}, data = <String>{};
+    void walk(String k) {
+      final n = nodes[k];
+      if (n == null) return;
+      for (final e in n.entries) {
+        if (e.key == 'children' || e.key == 'slots' || (!actions && e.key == 'actions')) continue;
+        _names(e.value, all);
+      }
+      _names(readMap(n['bind'])?['data'], data);
+      _inside(n).forEach(walk);
+    }
+
+    walk(id);
+    return (all: all, data: data);
+  }
+
+  /// What a row of a list is not: a control of its own, or a button.
+  static const _notARow = {'checkbox', 'switch', 'radio', 'textField', 'slider', 'dropdown', 'segmentedButton', 'chip', 'filterChip', 'choiceChip'};
+
+  /// A component's events that are its tap.
+  static const _tapEvents = {'onTap', 'onPressed', 'onPress', 'onClick', 'onSelect', 'onSelected', 'onOpen'};
+
+  /// The taps in [pane] that select what [next] shows: a tap reaction of a
+  /// row (not a button or a control of its own) that sets a page value and
+  /// opens nothing over the page nor goes to another. Under an `each`, the
+  /// value is read from the row's item (`sel=m.id`), is not the list the
+  /// rows are drawn from (a star a tap toggles), and [next] or the pane
+  /// reads it (the open row marked); elsewhere (a NavItem written line by
+  /// line) it is a text or a number [next] reads. A value that reads itself
+  /// (a toggle, a selection a tap adds to) is not a choice of one.
+  List<({String node, int reaction})> _selects(String pane, String next) {
+    final shown = _reads(next).all;
+    final own = _reads(pane, actions: false);
+    final out = <({String node, int reaction})>[];
+    void walk(String id, String? list) {
+      final n = nodes[id];
+      if (n == null) return;
+      final type = _type(n);
+      final rows = readMap(n['bind'])?['data'] != null ? id : list;
+      final reactions = n['actions'];
+      if (reactions is List && !_notARow.contains(type) && !type.endsWith('Button')) {
+        for (var i = 0; i < reactions.length; i++) {
+          final r = readMap(reactions[i]);
+          final trigger = readMap(r?['trigger']);
+          if (trigger == null || !(trigger['type'] == 'click' || (trigger['type'] == 'event' && _tapEvents.contains(trigger['event'])))) continue;
+          final actions = readList(r!['actions']) ?? const [];
+          if (actions.any((a) => a is Map && const {'navigate', 'openModal', 'openLink'}.contains(a['type']))) continue;
+          final picks = actions.any((a) {
+            if (a is! Map || a['type'] != 'setVariable') return false;
+            final name = a['variable'], value = a['value'];
+            if (name is! String || name == listDetailState || own.data.contains(name)) return false;
+            final reads = _names(value);
+            if (reads.contains(name)) return false;
+            if (rows != null) {
+              return (reads.contains('item') || reads.contains('index')) && (shown.contains(name) || own.all.contains(name));
+            }
+            // A text or a number (`${= 2}`); true and false read as names.
+            return (value is num || (value is String && reads.isEmpty && value != 'true' && value != 'false')) && shown.contains(name);
+          });
+          if (picks) {
+            out.add((node: id, reaction: i));
+            break;
+          }
+        }
+      }
+      for (final k in _inside(n)) {
+        walk(k, rows);
+      }
+    }
+
+    walk(pane, null);
+    return out;
+  }
+
+  /// Whether a node says itself where it shows (show=phone, a bound
+  /// visibility): the writer laid it out by size, so it is left as written.
+  bool _placesItself(String id) {
+    final n = nodes[id]!;
+    if (readMap(n['bind'])?.containsKey('visible') ?? false) return true;
+    return (n['media'] as List? ?? const []).any((r) {
+      final p = readMap(readMap(r)?['patch']);
+      return p != null && (p.containsKey('visible') || (readMap(p['bind'])?.containsKey('visible') ?? false));
+    });
+  }
+
+  /// A pane's width: as written, or the value it is bound to starts at (a
+  /// list a splitter sizes, `w={listW}`).
+  num _paneWidth(Json n) {
+    if (_fixedWidth(n) case final num w) return w;
+    final bound = readMap(n['bind'])?['layout.width'];
+    final match = bound is String ? RegExp(r'^\$\{\s*([A-Za-z_]\w*)\s*\}$').firstMatch(bound) : null;
+    final name = match?[1];
+    return switch (name == null ? null : variableStart(name)) { final num w when w > 0 => w, _ => 300 };
+  }
+
+  /// The page's list beside its detail: in an `App`, `Main` and the `Pane`s
+  /// just before it, each selecting what the next shows; else, in an app,
+  /// a row of a column of a fixed width (at least 200) that selects what the
+  /// one that grows beside it shows (a `Splitter` between them).
+  ListDetail? _findListDetail() {
+    final apps = [
+      for (final e in roles.entries)
+        if (e.value == 'app' && nodes.containsKey(e.key)) e.key,
+    ];
+    if (apps.isEmpty) return null;
+    for (final app in apps) {
+      final kids = _kids(nodes[app]!);
+      final main = kids.indexWhere((k) => roles[k] == 'main');
+      if (main < 0 || _placesItself(kids[main])) continue;
+      final levels = [kids[main]];
+      final taps = <List<({String node, int reaction})>>[];
+      for (var i = main - 1; i >= 0; i--) {
+        final k = kids[i];
+        if (roles[k] != 'pane' || _fixedWidth(nodes[k]!) == null || _placesItself(k)) break;
+        final s = _selects(k, levels.first);
+        if (s.isEmpty) break;
+        levels.insert(0, k);
+        taps.insert(0, s);
+      }
+      if (levels.length < 2) continue;
+      num need = _detailLeast;
+      for (final k in levels.take(levels.length - 1)) {
+        need += _paneWidth(nodes[k]!);
+      }
+      // What a tablet keeps beside them (a sidebar, where there is room for one).
+      for (final k in kids.take(main)) {
+        if (!levels.contains(k) && _fixedWidth(nodes[k]!) != null && !_hiddenAtTablet(k, app)) need += _fixedWidth(nodes[k]!)!;
+      }
+      return _listDetail(levels, taps, need, app: true);
+    }
+    for (final e in nodes.entries) {
+      final n = e.value;
+      if (_type(n) != 'row' || roles[e.key] == 'app' || _props(n)['wrap'] == true || _props(n)['scrollable'] == true) continue;
+      final kids = _kids(n);
+      final sides = [
+        for (final k in kids)
+          if (!const {'splitter', 'divider', 'verticalDivider'}.contains(_type(nodes[k]!))) k,
+      ];
+      if (sides.length != 2) continue;
+      final list = nodes[sides.first]!, detail = nodes[sides.last]!;
+      final boundWidth = readMap(list['bind'])?.containsKey('layout.width') ?? false;
+      if (!_containers.contains(_type(list)) || !_containers.contains(_type(detail))) continue;
+      if ((_fixedWidth(list) == null && !boundWidth) || _paneWidth(list) < 200) continue;
+      if (_fixedWidth(detail) != null || !_fills(detail)) continue;
+      if (_placesItself(sides.first) || _placesItself(sides.last)) continue;
+      final s = _selects(sides.first, sides.last);
+      if (s.isEmpty) continue;
+      // Its sides, what stands between them and what is beside the row
+      // (a sidebar a tablet keeps, the padding around it).
+      num need = _detailLeast + _paneWidth(list) + _spacing(n) * (kids.length - 1);
+      for (final k in kids) {
+        if (!sides.contains(k)) need += _fixedWidth(nodes[k]!) ?? 8;
+      }
+      for (var (child, p) = (e.key, _parents[e.key]); p != null; child = p, p = _parents[p]) {
+        final parent = nodes[p]!;
+        need += _sidesPadding(parent);
+        if (_type(parent) != 'row') continue;
+        for (final k in _kids(parent)) {
+          if (k != child && _rules[k]?[reflowTabletMax]?['visible'] != false && !_hiddenAtTablet(k, p)) need += _fixedWidth(nodes[k]!) ?? 0;
+        }
+      }
+      _rowSplit = e.key;
+      return _listDetail(sides, [s], need, app: false);
+    }
+    return null;
+  }
+
+  /// The row a list and its detail share, when they are not an app's panes.
+  String? _rowSplit;
+
+  num _spacing(Json n) => switch (_props(n)['spacing']) { final num s => s, _ => 0 };
+
+  num _sidesPadding(Json n) => switch (_layout(n)['padding']) {
+        final num p => p * 2,
+        final List p when p.length == 4 && p[0] is num && p[2] is num => (p[0] as num) + (p[2] as num),
+        _ => 0,
+      };
+
+  /// Whether an app's pane [k] is one a tablet hides, as [_app] decides it.
+  bool _hiddenAtTablet(String k, String parent) {
+    if (roles[parent] != 'app') return false;
+    final kids = _kids(nodes[parent]!);
+    final main = kids.indexWhere((x) => roles[x] == 'main');
+    final at = kids.indexOf(k);
+    if (main < 0 || at < 0) return false;
+    if (at > main) return _fixedWidth(nodes[k]!) != null;
+    final before = [
+      for (var i = 0; i < main; i++)
+        if (_fixedWidth(nodes[kids[i]]!) != null) kids[i],
+    ];
+    num taken = 0;
+    for (final b in before) {
+      taken += _fixedWidth(nodes[b]!)!;
+    }
+    return before.length >= 2 && taken > 420 && before.first == k;
+  }
+
+  ListDetail _listDetail(List<String> levels, List<List<({String node, int reaction})>> taps, num need, {required bool app}) => ListDetail(
+        levels: levels,
+        opens: [
+          for (var i = 0; i < taps.length; i++)
+            for (final t in taps[i]) (node: t.node, reaction: t.reaction, level: i + 1),
+        ],
+        below: (need - 1).clamp(reflowPhoneMax, reflowTabletMax).floor(),
+        app: app,
+      );
+
+  /// Where one level shows at a time, each fills the room the frame gives
+  /// it, while the page's state holds its index; a splitter between them goes.
+  void _listDetailRules(ListDetail ld) {
+    listDetail = ld;
+    final state = listDetailState!;
+    for (var i = 0; i < ld.levels.length; i++) {
+      final id = ld.levels[i];
+      final n = nodes[id]!;
+      final last = i == ld.levels.length - 1;
+      final boundWidth = readMap(n['bind'])?.containsKey('layout.width') ?? false;
+      // A pane's rule at its side has nothing beside it to rule off there.
+      final ruled = readMap(n['decoration'])?['strokeSides'] == 'right';
+      _add(id, ld.below, {
+        if (!last) 'layout': {'width': {'fill': 0}, 'flex': 1},
+        if (!last && ruled) 'decoration': {'strokes': <Object?>[]},
+        'bind': {
+          'visible': '\${= $state==$i}',
+          if (boundWidth && !last) 'layout.width': null,
+          // The animation the notation gives a pane with none of its own
+          // plays as the pane takes another's place.
+          if (n['animations'] == null) ...{
+            'animations[0].enabled': r'${= true}',
+            'animations[0].playKey': '\${= $state==$i ? "shown" : ""}',
+          },
+        },
+      });
+      _handled.add(id);
+    }
+    if (_rowSplit case final String row) {
+      _handled.add(row);
+      for (final k in _kids(nodes[row]!)) {
+        if (!ld.levels.contains(k)) _hide(k, ld.below);
+      }
     }
   }
 

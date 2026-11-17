@@ -1924,6 +1924,353 @@ Column
         expect(nodesOf(plain).values.where((n) => (n! as Map).containsKey('media')), isEmpty);
       }
     });
+
+    // A list beside its detail: a phone shows one at a time.
+    const messages = '''
+state sel=1
+state msgs=[{"id":1,"from":"Ines","subject":"Roadmap"},{"id":2,"from":"Tomas","subject":"Lunch"}]
+''';
+    List<Map<String, Object?>> variablesOf(NotationResult r) => [
+          for (final scope in ((r.document['variables'] as Map?) ?? const {}).values)
+            for (final v in scope as List) (v as Map).cast<String, Object?>(),
+        ];
+    List<Object?> actionsOf(NotationResult r, String id, [int reaction = 0]) =>
+        ((node(r, id)['actions']! as List)[reaction] as Map)['actions']! as List;
+    // The node a reaction's last action sets the pane state to.
+    Object? opens(NotationResult r, String id) => (actionsOf(r, id).last! as Map)['value'];
+    // The pane's animation, on where one pane shows at a time, played as it shows.
+    Map<String, Object?> motion(int i) => {
+          'animations[0].enabled': r'${= true}',
+          'animations[0].playKey': '\${= screen_pane==$i ? "shown" : ""}',
+        };
+    String childOf(NotationResult r, String parent, int i) => (node(r, parent)['children']! as List)[i]! as String;
+
+    test('a list beside its detail: a phone shows the list, a tap on a row its detail, and back the list again', () {
+      final r = parseNotation('''
+$messages
+App
+  Sidebar#side
+    Brand "Postbox" icon="mail"
+    NavItem "Inbox" icon="inbox" selected
+  Pane#list w=320 pad=0 gap=0
+    each m in msgs
+      Row#msg pad=[16,12,16,12] fill={sel==m.id?"#142563EB":"#00000000"} onTap={sel=m.id}
+        Text.strong "{m.from}"
+  Main#detail
+    Nav#bar
+      Heading#title "{find(msgs,x=>x.id==sel).subject}" level=1
+      Button "Reply"
+    Column pad=24
+      Text "{find(msgs,x=>x.id==sel).from}"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(_problemsAtAnyLevel(r.document), isEmpty);
+      // The state: which pane a phone shows, named after the screen, starting at the list.
+      expect(variablesOf(r).where((v) => v['name'] == 'screen_pane').single, {'name': 'screen_pane', 'type': 'integer', 'value': 0});
+      // Each pane fills the window while the state says it shows; both stay on a tablet.
+      expect(at(r, 'list', 390), {
+        'layout': {'width': {'fill': 0}, 'flex': 1},
+        'bind': {'visible': r'${= screen_pane==0}', ...motion(0)},
+        'decoration': {'strokes': <Object?>[]},
+      });
+      expect(at(r, 'detail', 390), {
+        'bind': {'visible': r'${= screen_pane==1}', ...motion(1)},
+      });
+      expect(at(r, 'list', 834), isEmpty);
+      expect(at(r, 'detail', 834), isEmpty);
+      expect(at(r, 'side', 390)['visible'], false);
+      // A tap on a row selects it, then shows the detail: the same reaction Enter and Space run.
+      expect(actionsOf(r, 'msg'), [
+        {'type': 'setVariable', 'variable': 'sel', 'value': r'${= item.id}'},
+        {'type': 'setVariable', 'variable': 'screen_pane', 'value': r'${= 1}'},
+      ]);
+      // The detail's bar starts with a back button, shown where one pane shows at a time.
+      final back = childOf(r, 'bar', 0);
+      expect(node(r, back)['type'], 'iconButton');
+      expect(node(r, back)['tooltip'], 'Back');
+      expect((node(r, back)['props']! as Map)['icon'], 'arrow_back');
+      expect(node(r, back)['visible'], false);
+      expect(at(r, back, 390)['visible'], true);
+      expect(at(r, back, 834), isEmpty);
+      expect(actionsOf(r, back), [
+        {'type': 'setVariable', 'variable': 'screen_pane', 'value': r'${= 0}'},
+      ]);
+      // The sidebar's menu button there gives way to it; the list opens the drawer instead.
+      final menu = childOf(r, 'bar', 1);
+      expect(at(r, menu, 390)['visible'], false);
+      final listBar = childOf(r, 'list', 0);
+      expect(at(r, listBar, 390)['visible'], true);
+      expect(at(r, listBar, 834), isEmpty);
+      final listMenu = childOf(r, listBar, 0);
+      expect(node(r, listMenu)['tooltip'], 'Menu');
+      expect(actionsOf(r, listMenu), actionsOf(r, menu));
+      // Escape and the system back show the list again, where one pane shows at a time.
+      final canvas = node(r, 'screen');
+      const when = r'${= screen_pane>0 && screen.width<=699}';
+      expect(canvas['actions'], [
+        {
+          'trigger': {'type': 'keyDown', 'key': 'Escape', 'when': when},
+          'actions': [
+            {'type': 'setVariable', 'variable': 'screen_pane', 'value': r'${= screen_pane-1}'},
+          ],
+        },
+        {
+          'trigger': {'type': 'backPressed'},
+          'actions': [
+            {'type': 'setVariable', 'variable': 'screen_pane', 'value': r'${= screen_pane-1}'},
+          ],
+        },
+      ]);
+      expect(canvas['bind'], {'props.blockBack': when});
+      // At the width it was written for, nothing changes.
+      for (final id in nodesOf(r).keys.where((id) => !jsonEncode(node(r, id)['media'] ?? '').contains('minWidth'))) {
+        expect(at(r, id, 1280), isEmpty, reason: id);
+      }
+
+      // As it arrives, the same document.
+      const text = '''
+$messages
+App
+  Sidebar#side
+    NavItem "Inbox" icon="inbox" selected
+  Pane#list w=320
+    each m in msgs
+      Row#msg onTap={sel=m.id}
+        Text.strong "{m.from}"
+  Main#detail
+    Nav#bar
+      Heading "{find(msgs,x=>x.id==sel).subject}" level=1
+    Footer
+      Button "Reply"
+''';
+      final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog, options: page));
+      var doc = LayoutDocument(catalog: standardCatalog);
+      for (var i = 0; i < text.length; i += 17) {
+        final ops = stream.add(text.substring(i, i + 17 > text.length ? text.length : i + 17));
+        if (ops.isEmpty) continue;
+        final a = applyOps(doc, {'ops': ops}, catalog: standardCatalog);
+        expect(a.errors, isEmpty, reason: '${a.errors}');
+        doc = a.document;
+      }
+      final last = stream.close();
+      final a = applyOps(doc, {'ops': last}, catalog: standardCatalog);
+      expect(a.errors, isEmpty, reason: '${a.errors}');
+      final whole = parseNotation(text, catalog: standardCatalog, options: page).document;
+      final streamed = a.document.toJson();
+      final wholeNodes = (whole['nodes']! as Map).cast<String, Object?>(), streamedNodes = (streamed['nodes']! as Map).cast<String, Object?>();
+      expect(streamedNodes.keys.toSet(), wholeNodes.keys.toSet());
+      for (final id in ['screen', 'list', 'detail', 'msg', 'bar', 'screen_paneBar0', 'screen_paneBack1']) {
+        final s = (streamedNodes[id]! as Map), w = (wholeNodes[id]! as Map);
+        for (final key in ['children', 'media', 'actions', 'bind', 'visible']) {
+          expect(jsonEncode(s[key]), jsonEncode(w[key]), reason: '$id $key');
+        }
+      }
+      expect(jsonEncode(streamed['variables']), contains('"screen_pane"'));
+    });
+
+    test('a list beside its detail in a row: a column of a fixed width, a splitter, and the column that grows', () {
+      String inbox(String between) => '''
+$messages
+state listW=290
+App
+  Sidebar#side
+    NavItem "Inbox" icon="inbox" selected
+  Main
+    Nav
+      Heading "Inbox" level=1
+    Row#split
+      Column#list w={listW} h=fill scroll
+        each m in msgs
+          Row#msg pad=[16,12,16,12] onTap={sel=m.id}
+            Text.strong "{m.from}"
+$between      Column#detail grow h=fill scroll pad=24
+        Heading "{find(msgs,x=>x.id==sel).subject}" level=2
+''';
+      final r = parseNotation(inbox('      Splitter#grip bind=listW min=220 max=480\n'), catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(_problemsAtAnyLevel(r.document), isEmpty);
+      // A tablet keeps the sidebar (248), so the two need 248 + 290 + 360 and more: under that, by turns.
+      final below = ((node(r, 'list')['media']! as List).single as Map)['maxWidth']! as int;
+      expect(below, inInclusiveRange(900, 920));
+      expect(at(r, 'list', 834), {
+        'layout': {'width': {'fill': 0}, 'flex': 1},
+        'bind': {'visible': r'${= screen_pane==0}', ...motion(0), 'layout.width': null},
+      });
+      expect(at(r, 'detail', 834), {
+        'bind': {'visible': r'${= screen_pane==1}', ...motion(1)},
+      });
+      expect(at(r, 'grip', 834)['visible'], false);
+      expect(at(r, 'split', 834), isEmpty, reason: 'the row does not wrap');
+      expect(at(r, 'list', 1023), isEmpty);
+      expect(opens(r, 'msg'), r'${= 1}');
+      // The detail has no bar of its own: the back button is in one of its own, first.
+      final bar = childOf(r, 'detail', 0);
+      expect(node(r, bar)['type'], 'row');
+      expect(at(r, bar, 834)['visible'], true);
+      expect(at(r, bar, 1023), isEmpty);
+      expect(node(r, childOf(r, bar, 0))['tooltip'], 'Back');
+      for (final id in nodesOf(r).keys.where((id) => !jsonEncode(node(r, id)['media'] ?? '').contains('minWidth'))) {
+        expect(at(r, id, 1280), isEmpty, reason: id);
+      }
+
+      // No splitter: a column of a fixed width beside the one that grows.
+      final fixed = parseNotation(inbox('').replaceFirst('w={listW}', 'w=300'), catalog: standardCatalog, options: page);
+      expect(fixed.issues, isEmpty);
+      expect(at(fixed, 'list', 390), {
+        'layout': {'width': {'fill': 0}, 'flex': 1},
+        'bind': {'visible': r'${= screen_pane==0}', ...motion(0)},
+      });
+      expect(at(fixed, 'detail', 390)['bind'], {'visible': r'${= screen_pane==1}', ...motion(1)});
+      expect(opens(fixed, 'msg'), r'${= 1}');
+    });
+
+    test('three levels: folders, the list of a folder and the message; the list first, folders behind its back button', () {
+      final r = parseNotation('''
+state folder="inbox"
+$messages
+App
+  Sidebar#side
+    NavItem "Settings" icon="settings"
+  Pane#folders w=220
+    NavItem#inbox "Inbox" selected={folder=="inbox"} onTap={folder="inbox"}
+    NavItem#sent "Sent" selected={folder=="sent"} onTap={folder="sent"}
+  Pane#list w=320
+    each m in filter(msgs,x=>folder=="inbox" || x.id==2)
+      Row#msg onTap={sel=m.id}
+        Text.strong "{m.from}"
+  Main#detail
+    Nav#bar
+      Heading "{find(msgs,x=>x.id==sel).subject}" level=1
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(_problemsAtAnyLevel(r.document), isEmpty);
+      expect(variablesOf(r).where((v) => v['name'] == 'screen_pane').single['value'], 1);
+      for (final (i, id) in const [(0, 'folders'), (1, 'list'), (2, 'detail')]) {
+        expect((at(r, id, 390)['bind']! as Map)['visible'], '\${= screen_pane==$i}');
+      }
+      // 220 + 320 + 360 do not fit a tablet: there too, one at a time.
+      expect(at(r, 'list', 834)['bind'], isNotNull);
+      expect(opens(r, 'inbox'), r'${= 1}');
+      expect(opens(r, 'msg'), r'${= 2}');
+      // The list's bar: the drawer's button and a back button to the folders.
+      final listBar = childOf(r, 'list', 0);
+      expect([for (final k in node(r, listBar)['children']! as List) node(r, k! as String)['tooltip']], ['Menu', 'Back']);
+      expect(actionsOf(r, childOf(r, listBar, 1)).single, {'type': 'setVariable', 'variable': 'screen_pane', 'value': r'${= 0}'});
+      final foldersBar = childOf(r, 'folders', 0);
+      expect([for (final k in node(r, foldersBar)['children']! as List) node(r, k! as String)['tooltip']], ['Menu']);
+      expect(actionsOf(r, childOf(r, 'bar', 0)).single, {'type': 'setVariable', 'variable': 'screen_pane', 'value': r'${= 1}'});
+      // A sidebar written alone (no pane before Main) is the drawer it always was.
+      for (final id in nodesOf(r).keys.where((id) => !jsonEncode(node(r, id)['media'] ?? '').contains('minWidth'))) {
+        expect(at(r, id, 1280), isEmpty, reason: id);
+      }
+    });
+
+    test('two panes that are not a list and its detail keep what they did', () {
+      bool listDetail(NotationResult r) => variablesOf(r).any((v) => v['name'] == 'screen_pane') || jsonEncode(r.document).contains('blockBack');
+      for (final (what, text) in [
+        (
+          'a form beside its preview',
+          '''
+state name=""
+App
+  Main
+    Row
+      Column#form w=360 gap=12
+        Input "Name" bind=name
+        Button "Save" onTap={toast "Saved"}
+      Column#preview grow
+        Text "{name}"
+''',
+        ),
+        (
+          'a chat beside its members, which a tap does not choose',
+          '''
+state members=[{"name":"Ines"},{"name":"Tomas"}]
+App
+  Sidebar
+    NavItem "General" selected
+  Pane#members w=260
+    each p in members
+      Row onTap={toast "Hello"}
+        Text "{p.name}"
+  Main
+    Text "The chat"
+''',
+        ),
+        (
+          'an editor beside its inspector, chosen by buttons',
+          '''
+state tool="pen"
+App
+  Pane#tools w=220
+    Button "Pen" onTap={tool="pen"}
+    Button "Eraser" onTap={tool="eraser"}
+  Main
+    Text "Drawing with {tool}"
+''',
+        ),
+        (
+          'a row whose tap stars it, ticks it or opens its menu',
+          '''
+$messages
+state picked=[]
+App
+  Pane#list w=320
+    each m in msgs
+      Row gap=8
+        Checkbox checked={contains(picked,m.id)} onChange={picked=result?append(picked,m.id):without(picked,m.id)}
+        Text "{m.from}" onTap={msgs=updateWhere(msgs,x=>x.id==m.id,x=>with(x,"starred",true))}
+        IconButton "more_vert" onTap={sel=m.id; open rowMenu}
+  Main
+    Text "{find(msgs,x=>x.id==sel).subject}"
+Menu#rowMenu
+  MenuItem "Delete"
+''',
+        ),
+        (
+          'a list that says itself where it shows',
+          '''
+$messages
+App
+  Pane#list w=320 hide=phone
+    each m in msgs
+      Row onTap={sel=m.id}
+        Text "{m.from}"
+  Main
+    Text "{find(msgs,x=>x.id==sel).subject}"
+''',
+        ),
+      ]) {
+        final r = parseNotation(text, catalog: standardCatalog, options: page);
+        expect(r.issues, isEmpty, reason: what);
+        expect(listDetail(r), isFalse, reason: what);
+      }
+      // The form and its preview wrap, as any row of blocks does.
+      final form = parseNotation('''
+state name=""
+App
+  Main
+    Row
+      Column#form w=360 gap=12
+        Input "Name" bind=name
+      Column#preview grow
+        Text "{name}"
+''', catalog: standardCatalog, options: page);
+      expect((at(form, 'form', 390)['layout']! as Map)['flex'], 1);
+      expect(at(form, 'form', 390)['bind'], isNull);
+      // A page with no such panes is as it was, at every width (no state, no back, no actions).
+      final plain = parseNotation('''
+App
+  Sidebar
+    NavItem "Inbox" selected
+  Main
+    Nav
+      Heading "Inbox" level=1
+    Text "Hello"
+''', catalog: standardCatalog, options: page);
+      expect(listDetail(plain), isFalse);
+      expect(node(plain, 'screen').containsKey('actions'), isFalse);
+    });
   });
 
   group('what is shown over a page', () {

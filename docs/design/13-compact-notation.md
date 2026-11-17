@@ -454,7 +454,7 @@ is the same document as before plus rules that do not apply there.
 | a `Row` of two or more blocks (a card, a column of content, a picture, a component that fills, a fixed column 200 or wider) | wraps: a block that grows takes a least width (360 for the one beside fixed rails, else 280, 240 among three), a fixed one keeps its width on a tablet and takes the line on a phone |
 | any other `Row` | wraps before it overflows; what grows in it keeps its share of the line from a least width (a field 180, a component 160, a text 96) |
 | a table's row (three or more cells with widths) | its cells are shares of the row; it keeps the columns it has room for, from the first on (600 px on a tablet, 342 on a phone), and what is not a column (a checkbox, a menu button) |
-| `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420. The `Sidebar` it hides opens as a drawer (14.2) |
+| `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420. The `Sidebar` it hides opens as a drawer (14.2); a list beside its detail shows one at a time (14.4) |
 | `Footer` in `Main` (or in `App`, or `Row sticky bottom`; also read: `StickyBar`, `StickyFooter`, `BottomBar`, `FooterBar`, `BottomDock`) | a bar at the foot of `Main` at every width (a now-playing bar, a composer, a basket): `Main` stops scrolling as a whole, what else is in it scrolls in a column that takes the room above the bar. A `Footer` written in `App` goes to the foot of its `Main` |
 | `Nav` | a phone hides its links (a tablet too, from six on) and shows a menu button the bar adds itself, which opens the links in a column under the bar, each as written and closing the menu as it goes; a `Nav` with a `show=phone` line of its own keeps its own |
 | `Section`, `Footer` | 48 above and below on a tablet; 40, and a 20 gutter, on a phone |
@@ -607,6 +607,82 @@ Lightbox#zoom "{cover}" "The harbor at dusk" ratio=1.5
 
 Not done: the strip of thumbnails does not scroll to the picture in view; the arrows do not wrap round; a
 picture's proportions are not read from the picture.
+
+### 14.4 A list beside its detail on a phone (2026-11-17)
+
+An agent's mail app ("Postbox": a sidebar, a message list 290 wide, a `Splitter`, the open message) showed at
+390 wide the list at the top, still 290 wide with the splitter's grip beside it, and the message under it on the
+same scrolling screen; a notes app with `Sidebar`, two `Pane`s and `Main` showed only `Main`, with no way to
+either pane. Written as the page words have it, the three shapes did worse: `App` > `Sidebar`, `Pane` (the list),
+`Main` (the message) showed `Main` alone at 390; a `Row` in `Main` of a list column (`w={listW}` with a
+`Splitter`, or `w=300`) beside a column that grows showed nothing but the grip at 834 and 390 (the row wrapped,
+and its columns are as tall as a scrolling pane). A phone shows such panes one at a time: the list, the detail a
+tap on a row opens, a way back to the list where it was. The expander now writes that, as data the document has
+(a variable, bindings in media rules, reactions), with no widget of its own.
+
+**Which pane is which** (`PageReflow._findListDetail`, reflow on, 700 wide or more, the page only):
+
+- In an `App`: the detail is `Main`; the list is the `Pane` of a fixed width just before it, when a row in it
+  selects (below). Before that, another `Pane` whose rows select what the list shows is a level too (folders, a
+  folder's messages, a message): a chain of every such `Pane` between the `Sidebar` and `Main`. A `Sidebar` is
+  never a level: it is the drawer (14.2). Panes after `Main` are hidden on a tablet and a phone as before.
+- Else, in an `App` page, a `Row` of a container of a fixed width (at least 200, or bound: `w={listW}`, read at the
+  variable's start) and one that grows, with only a `Splitter` or a `Divider` between, when a row of the first
+  selects what the second shows.
+- One chain a page: the app's panes first, else the first such row. A level that says itself where it shows
+  (`show=phone`, `hide=phone`, a bound `visible`) leaves the panes as written: that is how a writer refuses it.
+  No new word: the rule below was reliable on every shape tried, and `hide=phone` already says "not this".
+
+**A row that selects** (`_selects`): a tap reaction (`click`, or a component's `onTap`, `onPressed`, `onSelect`…)
+on a node in the pane that is not a button nor a control of its own (a checkbox, a switch, a field, a chip),
+which opens nothing over the page and goes to no other (`open`, `go`, a link), and sets a page value that is not
+one the pane's lists are drawn from (a star a tap toggles in `msgs`) and does not read itself (a toggle, a
+selection a tap adds to). Under an `each`, the value is read from the row's item or index (`sel=m.id`), and the
+next pane or the list itself reads it (the open row marked: the showcase inbox's detail is written out and reads
+nothing, but its rows are marked `selected={open==c.id}`). A line not under an `each` (a `NavItem` written line
+by line) selects with a text or a number the next pane reads (`folder="inbox"`, not `editing=true`).
+
+**What is written**:
+
+- The state `<screen>_pane` (an integer, not saved; named after the screen as its drawer is; `_` added until no
+  page or project variable has the name), starting at the list: the last level before the detail.
+- Each level, up to a width (`below`): `bind.visible` `${= <screen>_pane==i}`; a pane before the detail fills
+  its place (`width: {fill: 0}, flex: 1`, a bound width dropped, its rule at the side dropped). A `Splitter` or
+  `Divider` between them is hidden; the row does not wrap. `below` is 699, or, when a tablet keeps the two side
+  by side only from a wider screen, that width less one (at most 1023): the fixed panes a tablet keeps beside
+  them (a sidebar where there is room for it), the list's width, what stands between, the padding around and
+  360 for the detail. The row shapes in an app with a 248 sidebar: 907; the `Pane` shape and the showcase inbox:
+  699 and 719, so a tablet keeps both side by side.
+- Each selecting reaction ends with `setVariable <screen>_pane = <next level>`, after the row's own actions; Enter
+  and Space on the focused row run the same reaction.
+- A back button (`IconButton "arrow_back"`, `tooltip: Back`, which names it, shown up to `below`) first in each
+  later level's top bar: `Main`'s `Nav` (the sidebar's menu button there is hidden up to `below`, and the
+  title takes the room beside it), else a row of its own first in the level. It sets the state to the level
+  before.
+- Each `Pane` level of an app gets, in that row, the button that opens the sidebar's drawer (`tooltip: Menu`,
+  the same action as `Main`'s), shown where the sidebar is hidden and one pane shows at a time: the list is
+  the whole screen, so `Main`'s bar is not there to hold it.
+- On the canvas: `keyDown` `Escape` and `backPressed`, each `<screen>_pane = <screen>_pane - 1`, the first
+  `when`, and the canvas's `blockBack` bound, to `${= <screen>_pane>0 && screen.width<=below}`: the system back
+  of a published app shows the level before while there is one, and leaves the screen from the first. (A
+  `UiSession` has no system back; Escape works there.)
+- A motion: each level with no animation of its own gets an `enter` animation (a fade; the detail also from 32
+  to the right), `enabled: false`, bound on (`animations[0].enabled`) and replayed (`animations[0].playKey`
+  `${= <screen>_pane==i ? "shown" : ""}`) up to `below` only. Off at the width it was written for, so that page
+  draws as before. (`autoplay: false` would have held the pane at its first pose, invisible, on a desktop.)
+
+Desktop is unchanged: the rules hold up to `below`, the new nodes are hidden there, and the ten showcase pages
+draw the same to the byte at 1440x900 (their documents are the same too, but the inbox's). The streamed
+operations write the same document (the variable, nodes inserted with `set`, the reactions and the canvas
+patched). The hidden list keeps its box (a media rule collapses it), so it is where it was left on the way back.
+
+Not done, and wrong: a list whose rows select with a button (`Button "Open" onTap={sel=m.id}`) is not found, nor
+a detail written before its list, nor two chains on one page (a folder `Pane` and a message list in a row in
+`Main`: the app's panes win). A detail with nothing selected opens anyway (no empty state is written). A row
+whose tap both selects and opens a dialog is refused whole. A tablet between 700 and `below` shows one pane at a
+time with the sidebar beside it, rather than giving the sidebar up for the two panes. The two corpus apps of
+this shape (`mail-client`, `notes-app`, 2026-11-16) wrote their own phone logic (a `pane` variable, `show=` on
+each pane, a `phone` name the notation does not have) and are left as written.
 
 ## 15. Open points
 

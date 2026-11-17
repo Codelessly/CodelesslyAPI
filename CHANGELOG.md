@@ -6,6 +6,18 @@
   equal shares; with room they sit at its right, each no wider than 240. Written as a row of buttons, or as
   buttons one under another (then they are put in one row). A row that says where its buttons go (`between`,
   `center`) keeps that with room.
+- **Notation**: a list beside its detail shows one pane at a time on a phone (design note 13, section 14.4). An
+  `App`'s `Pane` before `Main`, or a column of a fixed width beside one that grows in a `Row` (a `Splitter`
+  between them goes), whose rows select what the other side shows (a tap under an `each` that sets a value from
+  the row's item: `onTap={sel=m.id}`) is the list; a `Pane` before it whose rows choose what it lists is a level
+  too (folders, messages, a message). The expander adds the state `<screen>_pane` (starting at the list), media
+  rules that show the level it holds and fill the screen with it, the step to the next level after each
+  selecting tap's own actions (Enter and Space run it too), a back button at the top left of each later level
+  (in `Main`'s `Nav`, else in a row of its own), the sidebar's drawer button on each pane of an app, Escape and
+  the system back (`backPressed`, a bound `blockBack`), and a fade (and the detail's slide) as a pane shows. A
+  tablet keeps the panes side by side where they fit at their least; at the width the page was written for,
+  nothing changes. A tap that only opens a menu, ticks a box or toggles a star does not count, and a pane
+  written `hide=phone` or `show=…` is left as written.
 
 ## 33.1.0
 

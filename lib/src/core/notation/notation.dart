@@ -1191,7 +1191,10 @@ class _Parser {
       if (o != null) 'name': o.id,
       if (_root != null) 'slots': {'body': _root},
       'layout': {'width': o?.width ?? options.width, 'height': o?.action.containsKey('snapHeights') == true ? {'fill': 0} : _canvasHeight},
-      if (o?.guard case final String guard) 'bind': {'props.blockBack': _formula(guard)},
+      if (o?.guard case final String guard)
+        'bind': {'props.blockBack': _formula(guard)}
+      else if (o == null && _blockBack != null)
+        'bind': {'props.blockBack': _blockBack},
       'decoration': look(),
       if (_timers.isNotEmpty) 'actions': [..._timers],
     };
@@ -2050,7 +2053,7 @@ class _Parser {
 
   void _reflow() {
     if (!options.reflow || options.width < 700) return;
-    final rules = PageReflow(
+    final reflow = PageReflow(
       nodes: nodes,
       roles: _roles,
       gridRows: {
@@ -2068,13 +2071,225 @@ class _Parser {
       displaySizes: options.displaySizes,
       isComponent: (type) => type.isNotEmpty && type[0].toUpperCase() == type[0] && catalog.widget(type) != null,
       fillsItsPlace: (type) => switch (options.components[type]?.width) { final Map m => m.containsKey('fill'), _ => false },
-    ).run();
+      listDetailState: _host == null ? _listDetailName : null,
+      variableStart: (name) => variables[name]?['value'],
+    );
+    final rules = reflow.run();
     for (final e in rules.entries) {
       final node = nodes[e.key]!;
       // The line's own rules (hide=phone) come after, so they win.
       final media = [...e.value, ...?(node['media'] as List?)];
       node['media'] = media;
       if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
+    }
+    if (reflow.listDetail case final ListDetail ld) _listDetail(ld);
+  }
+
+  /// The page's state that says which pane of a list beside its detail a
+  /// phone shows ([ListDetail]): named after the screen, as its sidebar's
+  /// drawer is, so that no name an author writes is it.
+  late final String _listDetailName = () {
+    var name = '${options.screen.replaceAll('-', '_')}_pane';
+    while (variables.containsKey(name) || _projectVariables.contains(name)) {
+      name = '${name}_';
+    }
+    return name;
+  }();
+
+  /// What a phone's back does where a list beside its detail shows its
+  /// detail: the canvas's `blockBack`.
+  String? _blockBack;
+
+  /// A list beside its detail on a phone ([ListDetail], whose media rules
+  /// [PageReflow] wrote): the state that says which pane shows, starting at
+  /// the list; a tap that selects a row shows the next pane (after the row's
+  /// own actions, the same reaction a key press on it runs); a back button at
+  /// the top left of each later pane (in its top bar, else in a bar of its
+  /// own), Escape and the system back show the one before. The panes of an
+  /// app's window before Main also get the button that opens the sidebar's
+  /// drawer, which Main's bar holds and the list hides.
+  void _listDetail(ListDetail ld) {
+    final state = _listDetailName;
+    final below = ld.below;
+    void patch(String id, Json change) {
+      nodes[id] = mergePatch(nodes[id]!, change);
+      if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': change});
+    }
+
+    void addRule(String id, Json rule) => patch(id, {'media': [...?(nodes[id]!['media'] as List?), rule]});
+
+    void put(String id, Json node, String parent, int index) {
+      nodes[id] = node;
+      _parentOf[id] = parent;
+      final kids = [...?(nodes[parent]!['children'] as List?)]..insert(index, id);
+      nodes[parent]!['children'] = kids;
+      if (_canvas) ops.add({'op': 'set', 'id': id, 'parent': parent, 'index': index, 'node': {...node}..remove('children')});
+    }
+
+    String fresh(String base, String type) => _taken(base) ? _id(type) : base;
+
+    variables[state] = {'name': state, 'type': 'integer', 'value': ld.start};
+    if (_canvas && _declared.add(state)) {
+      ops.add({
+        'op': 'vars',
+        'scope': _scope,
+        'set': {
+          state: {'type': 'integer', 'value': ld.start},
+        },
+      });
+    }
+    // A selecting tap shows the next pane, after the row's own actions.
+    for (final o in ld.opens) {
+      final reactions = [...(nodes[o.node]!['actions'] as List)];
+      final r = (reactions[o.reaction] as Map).cast<String, Object?>();
+      reactions[o.reaction] = {
+        ...r,
+        'actions': [
+          ...?(r['actions'] as List?),
+          {'type': 'setVariable', 'variable': state, 'value': '\${= ${o.level}}'},
+        ],
+      };
+      nodes[o.node]!['actions'] = reactions;
+      if (_canvas) ops.add({'op': 'patch', 'id': o.node, 'patch': {'actions': reactions}});
+    }
+    // The button that opens the app's sidebar as a drawer, where it shows.
+    final drawer = _pages.sidebarButton ? _pages.sidebarMenu : null;
+    String? opener;
+    for (final e in nodes.entries) {
+      if (drawer != null && e.value['type'] == 'iconButton' && jsonEncode(e.value['actions'] ?? const []).contains('"to":"$drawer"')) {
+        opener = e.key;
+        break;
+      }
+    }
+    final menuMax = switch ((opener == null ? null : nodes[opener]!['media'] as List?)?.whereType<Map>().map((r) => r['minWidth']).whereType<num>().firstOrNull) {
+      final num from => from.toInt() - 1,
+      _ => reflowPhoneMax,
+    };
+    final shown = {'visible': true};
+    for (var i = 0; i < ld.levels.length; i++) {
+      final level = ld.levels[i];
+      final isMain = _roles[level] == 'main';
+      // A pane that shows in another's place fades in (the detail also slides
+      // in from the side it opens on), where one shows at a time: an enter
+      // animation, off where the panes stand side by side, that plays again
+      // as its key turns ([PageReflow] binds both).
+      if (nodes[level]!['animations'] == null) {
+        final last = i == ld.levels.length - 1;
+        patch(level, {
+          'animations': [
+            {
+              'id': 'pane',
+              'preset': 'enter',
+              'params': {
+                'from': {'opacity': 0, if (last) 'translateX': 32},
+              },
+              'enabled': false,
+              'duration': 220,
+            },
+          ],
+        });
+      }
+      Json button(String icon, String tooltip, List<Object?> actions, int max) => {
+            'type': 'iconButton',
+            'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+            'props': {'icon': icon},
+            'tooltip': tooltip,
+            'visible': false,
+            'media': [
+              {'maxWidth': max, 'patch': shown},
+            ],
+            'actions': [
+              {'trigger': {'type': 'click'}, 'actions': actions},
+            ],
+          };
+      final back = i == 0
+          ? null
+          : button('arrow_back', 'Back', [
+              {'type': 'setVariable', 'variable': state, 'value': '\${= ${i - 1}}'},
+            ], below);
+      final menu = ld.app && !isMain && opener != null
+          ? button('menu', 'Menu', [...(readMap((nodes[opener]!['actions'] as List).first)!['actions'] as List)], math.min(below, menuMax))
+          : null;
+      // The pane's own top bar: Main's Nav, or the slim bar made for the
+      // sidebar's button where Main has none.
+      String? bar;
+      if (isMain) {
+        var holder = level;
+        final first = (nodes[level]!['children'] as List?)?.firstOrNull;
+        if (first == '${level}Scroll') holder = first as String;
+        final top = (nodes[holder]!['children'] as List?)?.firstOrNull as String?;
+        if (top != null && (_roles[top] == 'nav' || (opener != null && (nodes[top]!['children'] as List?)?.contains(opener) == true))) bar = top;
+      }
+      if (bar != null) {
+        if (back != null) {
+          put(fresh('${state}Back$i', 'iconButton'), back, bar, 0);
+          // The title beside it takes the room there, as beside the sidebar's button.
+          final kids = (nodes[bar]!['children'] as List).cast<String>();
+          final title = kids.skip(1).where((k) => k != opener).firstOrNull;
+          if (title != null) {
+            final layout = readMap(nodes[title]!['layout']) ?? const {};
+            if (layout['width'] is! num && layout['flex'] == null) {
+              addRule(title, {
+                'maxWidth': below,
+                'patch': {'layout': {'width': {'fill': 0}, 'flex': 1, 'basis': 96}},
+              });
+            }
+          }
+          // The slim bar shows where the back button does.
+          if (_roles[bar] != 'nav') addRule(bar, {'maxWidth': below, 'patch': shown});
+        }
+        // Where the detail is a pane of its own, its list opens the drawer.
+        if (opener != null && (nodes[bar]!['children'] as List).contains(opener) && i > 0) addRule(opener, {'maxWidth': below, 'patch': {'visible': false}});
+        continue;
+      }
+      if (back == null && menu == null) continue;
+      final barId = fresh('${state}Bar$i', 'row');
+      put(
+          barId,
+          {
+            'type': 'row',
+            'layout': {
+              'width': {'fill': 0},
+              'height': {'hug': 0},
+              'padding': ld.app ? [8, 8, 8, 8] : [0, 0, 0, 8],
+            },
+            'props': {'spacing': 4, 'crossAxisAlignment': 'center'},
+            if (ld.app)
+              'decoration': {
+                'strokes': [
+                  {'color': options.line},
+                ],
+                'strokeSides': 'bottom',
+              },
+            'visible': false,
+            'media': [
+              {'maxWidth': back != null ? below : math.min(below, menuMax), 'patch': shown},
+            ],
+            'children': <Object?>[],
+          },
+          level,
+          0);
+      if (menu != null) put(fresh('${state}Menu$i', 'iconButton'), menu, barId, 0);
+      if (back != null) put(fresh('${state}Back$i', 'iconButton'), back, barId, menu == null ? 0 : 1);
+    }
+    // Escape and the system back show the pane before, where one shows at a time.
+    final when = '\${= $state>0 && screen.width<=$below}';
+    final previous = [
+      {'type': 'setVariable', 'variable': state, 'value': '\${= $state-1}'},
+    ];
+    _timers
+      ..add({'trigger': {'type': 'keyDown', 'key': 'Escape', 'when': when}, 'actions': previous})
+      ..add({'trigger': {'type': 'backPressed'}, 'actions': previous});
+    _blockBack = when;
+    if (_canvas) {
+      _patches.add({
+        'op': 'patch',
+        'id': options.screen,
+        'patch': {
+          'actions': [..._timers],
+          'bind': {'props.blockBack': when},
+        },
+      });
     }
   }
 
