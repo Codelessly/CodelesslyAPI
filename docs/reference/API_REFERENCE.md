@@ -8139,6 +8139,18 @@ bare name in every page and component (a page or component variable of the same 
 
 Without `components`, the files under `components/` are the site's components.
 
+`variables` is that list, or an object by name. A variable that names no `type` has its value's: `[]` is a list,
+`{}` a map, `3` an integer, `2.5` a decimal, `true` a boolean, anything else text.
+
+```json
+{"schema": 3, "pages": ["pages/home.json"],
+ "variables": {"cart": [], "plan": "pro", "draft": {"value": "", "persist": true}}}
+```
+
+By name, an object with `value` (or `formula`) and only a variable's keys (`type`, `value`, `persist`...) is the
+variable's record; any other object is a map the variable holds. A record that cannot be read is
+`invalid_variable` and is not declared.
+
 <a id="components-validation-codes"></a>
 ### Validation codes
 
@@ -10979,6 +10991,7 @@ From `package:codelessly_api/validate.dart`:
 | `unknown_theme_name` | error | A color or text style names a color or text style the project's theme (the site manifest's "theme") does not have: it would show transparent or unstyled. |
 | `invalid_theme` | error | The site manifest's "theme" is not of the right shape: colors are "#AARRGGBB" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles. |
 | `theme_role_in_colors` | warning | A color role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's "colors": roles are top-level keys of the theme, so controls never read it. Move it up ("primary": "#FF..." or "primary": "<a color's name>"). |
+| `site_key_ignored` | warning | A key of the site manifest (site.json) that nothing reads. A theme key written beside "theme" (primary, colors, dark...) belongs inside it: "theme": {"primary": "#FF...", "colors": {...}}. |
 | `invalid_fonts` | error | The site manifest's "fonts" is not of the right shape: a list of {"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf", "weight": 400, "style": "normal"}]} (a pubspec's fonts: section). |
 | `font_format` | error | A declared font file is not .ttf, .otf or .woff: WOFF2 (Brotli-compressed) and font collections (.ttc) are not read. Use the .woff or .ttf of the same face. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |

@@ -259,6 +259,9 @@
   the labels itself keeps its own); a date or time field's string is its label, and on a page the field is as
   tall as the fields beside it; `NotationOptions.accentText` (a theme's `accentText` or `accentDeep`) is a
   link's ink in running text.
+- `validateSiteManifest`: a key of `site.json` that nothing reads is a `site_key_ignored` warning; a theme key
+  written beside `"theme"` (`"primary"`, `"colors"`, `"dark"`…) says to write it inside `"theme"` (it was ignored
+  without a word).
 
 ### Changed
 
@@ -291,6 +294,25 @@
   a fixed height makes the box grow instead of overflowing.
 - **Notation**: the braces of a code sample shown as text (`import { Beacon } from …`) are text, not a value
   read.
+- A site manifest's `variables` is read in the forms it is written: the list of records, or an object by name
+  (`{"cart": [], "plan": "pro", "draft": {"value": "", "persist": true}}`: a name and its value, or a record without
+  its name; `Variable.declarationsFromJson`). A variable that names no `type`, in a manifest or a document, has its
+  value's (`VariableType.of`: `[]` a list, `3` an integer, `true` a boolean); it was text, so a list started empty
+  and numbers were joined as text, with no diagnostic. `validateSiteVariables` reports each record that cannot be
+  read (`invalid_variable`, with the shape to write). The notation's page prompt and the reference's "The site
+  manifest" show the shape.
+- The notation: a variable declared with a whole number (`state amount=0`) and bound to a component's number
+  parameter (`NumberInput bind=amount step=0.01`) is declared `decimal`, not `integer`: an integer variable rounds
+  what is set, so typed cents and a 0.01 step were lost (25.50 was saved as 26, the arrows did nothing). A site's
+  variable (site.json) keeps the type it is declared with there.
+- A site's theme over a design system's tokens (`DesignSystem.themeUnder`, the new `ThemeTokens.withSiteTheme`):
+  what the design system makes from its accent follows the site's. A site that gives its own `primary` (or
+  `colors.accent` where the accent is the primary) gets every color that is the design system's primary at some
+  opacity (a selected row's tint, the focus ring, tinted borders) at that opacity of its own, the `info` color and
+  its tints, and each shade named after the accent (`accentDeep`, `accentBright`) in its hue; in dark, with no
+  `dark.primary` of its own, a primary made from its light one (it stayed the design system's blue) and the same for
+  the dark colors. A site's `fontFamily` re-families the design system's text styles of its default family. A color
+  or style the site names itself stays the site's.
 
 ## 32.0.0
 

@@ -365,7 +365,7 @@ final class _Validator {
             r.add(Codes.unknownField, pointer(p, k), 'A variable has no "$k". It takes: ${known.join(', ')}.', suggestion: nearest(k, known));
           }
         }
-        final typeName = v['type'] ?? 'text';
+        final typeName = v['type'] ?? VariableType.of(v['value']).name;
         final type = VariableType.values.where((t) => t.name == typeName).firstOrNull;
         if (type == null) {
           r.add(Codes.invalidEnum, pointer(p, 'type'),
@@ -2046,6 +2046,87 @@ List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints?
   }
 
   body(m, at, patch: false);
+  return r.out;
+}
+
+/// Checks a site manifest's own keys: one it does not read is a warning. A
+/// theme key written at the top (`"primary"`, `"colors"`, `"dark"`...) says
+/// where it goes: nothing reads it there, so the site keeps the design
+/// system's colors without a word.
+List<Diagnostic> validateSiteManifest(Object? json) {
+  final r = Reporter();
+  final m = readMap(json);
+  if (m == null) return r.out;
+  // What a site may say about itself, for people.
+  const others = {'id', 'name', 'title', 'description'};
+  for (final k in m.keys) {
+    if (SiteManifest.keys.contains(k) || others.contains(k) || k.startsWith('_') || k.startsWith(r'$')) continue;
+    if (themeKeys.contains(k)) {
+      final example = m[k] is String ? '"${m[k]}"' : (k == 'colors' || k == 'dark' || k == 'textStyles' ? '{...}' : '...');
+      r.add(Codes.siteKeyIgnored, pointer('', k),
+          '"$k" is a key of the theme: at the top of site.json nothing reads it. Write it inside "theme": {"theme": {"$k": $example}}.');
+    } else {
+      r.add(Codes.siteKeyIgnored, pointer('', k), 'site.json has no "$k": nothing reads it. Its keys: ${SiteManifest.keys.join(', ')}.',
+          suggestion: nearest(k, SiteManifest.keys));
+    }
+  }
+  return r.out;
+}
+
+/// Checks a site manifest's `variables` (at [at]): a list of records
+/// (`[{"name": "cart", "type": "list", "value": []}]`) or an object of name
+/// to value (`{"cart": [], "plan": "pro"}`, a value that is `{"value": ...,
+/// "type"?, "persist"?}` being a record). Each record that cannot be read,
+/// and so is not declared, is one error saying what it should be.
+List<Diagnostic> validateSiteVariables(Object? json, {String at = '/variables'}) {
+  final r = Reporter();
+  if (json == null) return r.out;
+  const shape = '[{"name": "cart", "value": []}, {"name": "plan", "value": "pro"}] or {"cart": [], "plan": "pro"}';
+  final names = <String>{};
+  void record(String p, String? name, Json v) {
+    if (name == null || name.isEmpty) {
+      r.add(Codes.invalidVariable, p, 'A variable needs a "name": {"name": "cart", "value": []}. It is not declared.');
+      return;
+    }
+    if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(name)) {
+      r.add(Codes.invalidVariable, p, '"$name" is not a name expressions can read: use letters, digits and _, not starting with a digit.');
+    }
+    if (!names.add(name)) r.add(Codes.duplicateVariable, p, 'Project variable "$name" is declared twice.');
+    for (final k in v.keys) {
+      if (k != 'name' && !Variable.keys.contains(k)) {
+        r.add(Codes.unknownField, pointer(p, k), 'A variable has no "$k". It takes: ${Variable.keys.join(', ')}.', suggestion: nearest(k, Variable.keys));
+      }
+    }
+    final typeName = v['type'] ?? VariableType.of(v['value']).name;
+    final type = VariableType.values.where((t) => t.name == typeName).firstOrNull;
+    if (type == null) {
+      r.add(Codes.invalidEnum, pointer(p, 'type'),
+          '${describe(typeName)} is not a variable type. Allowed: ${VariableType.values.map((t) => t.name).join(', ')} (or leave "type" out: it is read from the value).',
+          suggestion: typeName is String ? nearest(typeName, VariableType.values.map((t) => t.name)) : null);
+    } else if (v['value'] != null && type.coerce(v['value']) == null) {
+      r.add(Codes.invalidVariable, pointer(p, 'value'),
+          'Project variable "$name" is declared ${type.name} and cannot hold ${describe(v['value'])}: it starts empty. Write a ${type.name} value, or leave "type" out.');
+    }
+  }
+
+  if (json is List) {
+    for (var i = 0; i < json.length; i++) {
+      final p = pointer(at, i);
+      final v = readMap(json[i]);
+      if (v == null) {
+        r.add(Codes.invalidVariable, p, 'A project variable is an object {"name": "cart", "value": []}, got ${describe(json[i])}. It is not declared.');
+        continue;
+      }
+      record(p, readString(v['name']), v);
+    }
+  } else if (readMap(json) case final Json m) {
+    for (final e in m.entries) {
+      final p = pointer(at, e.key);
+      record(p, e.key, Variable.isRecord(e.value) ? readMap(e.value)! : {'value': e.value});
+    }
+  } else {
+    r.add(Codes.invalidVariable, at, '"variables" is $shape, got ${describe(json)}. No project variable is declared.');
+  }
   return r.out;
 }
 

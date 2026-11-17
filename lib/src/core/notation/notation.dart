@@ -2702,6 +2702,13 @@ class _Parser {
           };
           if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
+          // Declared with a whole number (`state amount=0`), it is a number
+          // here, not an integer: a NumberInput step=0.01 gives it cents,
+          // which an integer variable would round away.
+          if (held.type.variableOf?.kind == PropKind.number && variables[expr]?['type'] == 'integer' && !_projectVariables.contains(expr)) {
+            variables[expr] = {...variables[expr]!, 'type': 'decimal'};
+            _declared.remove(expr); // declared again, as it is now
+          }
         }
       } else if (standIn) {
         // What a stand-in would keep its value in is still a variable of the
@@ -5633,7 +5640,9 @@ class _Parser {
 
   /// A size as the document writes it: a number is fixed; `fill` and `hug`
   /// are fits.
-  Object? _size(Object? v) => switch (v) { 'fill' => {'fill': 0}, 'hug' => {'hug': 0}, _ => v };
+  // Not a switch: dart2wasm (Flutter 3.50) traps with "illegal cast" on a
+  // switch over string constants when the value is not a string (a number).
+  Object? _size(Object? v) => v == 'fill' ? {'fill': 0} : v == 'hug' ? {'hug': 0} : v;
 
   Object? _json(String s) {
     try {
