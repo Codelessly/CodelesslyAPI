@@ -3808,6 +3808,7 @@ class _Parser {
 
     var given = 0;
     var afterKey = false;
+    final keysWritten = <String>{};
     // A component's strings fill its text parameters in order.
     void componentString(String raw, int col) {
       final text = _interpolate(raw);
@@ -4116,6 +4117,9 @@ class _Parser {
           continue;
         }
         var key = word.substring(0, eq);
+        // A key written twice (`Progress value={x} value=0.5`): one of the
+        // two is lost, whichever it is.
+        if (!keysWritten.add(key)) _issue(col, '$key= is written twice on this line: one of them is lost. Write it once.');
         if (written == 'CodeInput' && (key == 'length' || key == 'digits')) key = key == 'length' ? 'otpLength' : 'otpDigitsOnly';
         // key={expression}, onTap={…}: the colon is not the grammar's.
         if (key.contains(':')) {

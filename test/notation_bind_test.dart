@@ -276,6 +276,11 @@ Column selectable selected=@picked
       ]);
     });
 
+    test('a key written twice on a line is said', () {
+      final r = _parse('state x=0.2\nColumn\n  Progress value={x} value=0.5\n  Text "a" size=12 size=14');
+      expect(_messages(r), [contains('value= is written twice'), contains('size= is written twice')]);
+    });
+
     test('a state line after the line that binds it declares it too', () {
       final r = _parse('Column\n  Toggle "On" @on\nstate on=true');
       expect(r.issues.where((i) => i.message.contains('declare')), isEmpty);
@@ -489,6 +494,10 @@ define Label "text"
         'define Crop bindX=0.5 bindY=0.5': ('define Crop x=@0.5 y=@0.5', {}),
         'define Pick bindItems=[] bindOn=true': ('define Pick items=@[] on=@true', {}),
         'define Crop bindX={x}': ('define Crop x=@', {}),
+        // A display with a value= of its own showed that: the bind is dropped
+        // (two value= would lose one).
+        'Progress bind=x value=0.5': ('Progress value=0.5', {}),
+        'Progress bind={0} value={done/total}': ('Progress value={done/total}', {}),
       };
       for (final e in cases.entries) {
         final got = notationBindRewrite(e.key);

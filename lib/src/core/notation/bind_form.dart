@@ -175,7 +175,8 @@ NotationBindRewrite notationBindRewrite(String line, {Catalog? catalog}) {
       }
       if (v.startsWith('{') && !_path.hasMatch(inner) && !_found.hasMatch(inner)) {
         // An expression bound (in braces): a value shown, one way.
-        if (rest == null) replace(p, 'value={$inner}');
+        // (Beside a value= of the line's own, that value: two would lose one.)
+        if (rest == null) replace(p, parts.pair('value') != null ? '' : 'value={$inner}');
         continue;
       }
       // Anything else written bare is the variable as it was written (a
@@ -186,7 +187,15 @@ NotationBindRewrite notationBindRewrite(String line, {Catalog? catalog}) {
       final isStart = rest == null || const {'Start', 'Low', 'Lo', 'From', 'Value'}.contains(rest);
       if (shows && rest == null) {
         final string = word == 'Badge' || type == 'text';
-        replace(p, string && parts.strings.isEmpty ? '"{$inner}"' : 'value={$inner}');
+        if (string && parts.strings.isEmpty) {
+          replace(p, '"{$inner}"');
+        } else if (parts.pair('value') != null) {
+          // `Progress bind=x value=0.5`: 33 showed the value written; a
+          // second value= would lose one of them.
+          replace(p, '');
+        } else {
+          replace(p, 'value={$inner}');
+        }
         continue;
       }
       if (reserved(inner)) continue;
