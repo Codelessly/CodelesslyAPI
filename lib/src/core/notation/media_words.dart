@@ -111,10 +111,14 @@ String? mediaConditionWords(Json rule) {
 /// field whose value has several forms (a size, a position) or a text style
 /// from another named style is written whole, where a merge would mix two
 /// forms; a field [changed] lacks is null. [props] are the node type's
-/// declarations. Null when nothing differs.
-Json? mediaPatchBetween(Json base, Json changed, List<PropDef<Object?>> props) {
+/// declarations. Null when nothing differs. [keys] are the node keys a
+/// patch may hold, [MediaRule.patchKeys] unless given (a state's patch:
+/// docs/design/22, "States").
+Json? mediaPatchBetween(Json base, Json changed, List<PropDef<Object?>> props, {bool Function(String key)? keys}) {
   final out = <String, Object?>{};
-  for (final k in MediaRule.patchKeys) {
+  final patches = keys ?? MediaRule.patchKeys.contains;
+  for (final k in {...MediaRule.patchKeys, ...base.keys, ...changed.keys}) {
+    if (!patches(k)) continue;
     final fields = switch (k) {
       'layout' => LayoutFields.all,
       'decoration' => DecorationFields.all,
@@ -129,9 +133,10 @@ Json? mediaPatchBetween(Json base, Json changed, List<PropDef<Object?>> props) {
 
 /// The keys other than a rule's that differ between [base] and [changed]
 /// (what a rule's words said that a rule cannot hold: an event, a child).
-List<String> mediaOtherChanges(Json base, Json changed) => [
+/// [keys] as [mediaPatchBetween] takes them.
+List<String> mediaOtherChanges(Json base, Json changed, {bool Function(String key)? keys}) => [
       for (final k in {...base.keys, ...changed.keys})
-        if (!MediaRule.patchKeys.contains(k) && k != 'media' && !jsonEquality.equals(base[k], changed[k])) k,
+        if (!(keys ?? MediaRule.patchKeys.contains)(k) && k != 'media' && !jsonEquality.equals(base[k], changed[k])) k,
     ];
 
 const _same = Object();
@@ -271,8 +276,14 @@ Json _copyMap(Json m) => {for (final e in m.entries) e.key: e.value is Map ? _co
 /// printer checks its words with: [line] (its words without its rules and
 /// its `{…}` tail) read alone under its parent's kind, with and without a
 /// rule's words, by [parse].
+///
+/// A node's states (docs/design/22, "States") are worked out by the same
+/// reader: [keys] are then the node keys a state's patch may hold, [rule]
+/// says what is read (`A hovered state`), and [dropBindings] is false (a
+/// state's patch shows over the node's bindings by itself).
 final class MediaLineReader {
-  MediaLineReader(this.parse, {required this.line, required this.parentType, required this.props, required this.bound});
+  MediaLineReader(this.parse,
+      {required this.line, required this.parentType, required this.props, required this.bound, this.keys, this.rule = 'A media rule', this.dropBindings = true});
 
   /// Reads a text in the notation, with no rules of its own lines read.
   final NotationResult Function(String text) parse;
@@ -282,6 +293,12 @@ final class MediaLineReader {
   /// The line's type's props, and the fields its node binds.
   final List<PropDef<Object?>> props;
   final Iterable<String> bound;
+
+  /// The node keys a patch may hold ([MediaRule.patchKeys] when null), what
+  /// is read, and whether a value written drops the line's binding of it.
+  final bool Function(String key)? keys;
+  final String rule;
+  final bool dropBindings;
 
   late final NotationResult _without = parse(mediaLineText(parentType, line));
   late final String _head = RegExp(r'^[A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?').stringMatch(line) ?? line;
@@ -295,19 +312,28 @@ final class MediaLineReader {
     final withWords = parse(mediaLineText(parentType, line, words));
     final a = mediaLineNode(_without.document), b = mediaLineNode(withWords.document);
     if (a == null || b == null) {
-      return (patch: null, issues: ['The line cannot be read alone, so its rules cannot be: write them as its media in the {…} tail.']);
+      return (
+        patch: null,
+        issues: [
+          keys == null
+              ? 'The line cannot be read alone, so its rules cannot be: write them as its media in the {…} tail.'
+              : 'The line cannot be read alone, so its states cannot be: write them as its states in the {…} tail.',
+        ],
+      );
     }
     // What the words said wrong is said where the rule is.
     final before = [for (final x in _without.issues) x.message];
     for (final x in withWords.issues) {
       if (!before.remove(x.message)) issues.add(x.message);
     }
-    final other = mediaOtherChanges(a, b);
-    if (other.isNotEmpty) issues.add('A media rule changes ${MediaRule.patchKeys.join(', ')}: not ${other.join(', ')}.');
-    var patch = mediaPatchBetween(a, b, props) ?? <String, Object?>{};
+    final other = mediaOtherChanges(a, b, keys: keys);
+    if (other.isNotEmpty) {
+      issues.add(keys == null ? 'A media rule changes ${MediaRule.patchKeys.join(', ')}: not ${other.join(', ')}.' : '$rule changes fields of the node: not its ${other.join(', ')}.');
+    }
+    var patch = mediaPatchBetween(a, b, props, keys: keys) ?? <String, Object?>{};
     if (_headAlone case final Json alone) {
       final b2 = mediaLineNode(parse(mediaLineText(parentType, _head, words)).document);
-      final more = b2 == null ? null : mediaPatchBetween(alone, b2, props);
+      final more = b2 == null ? null : mediaPatchBetween(alone, b2, props, keys: keys);
       if (more != null) patch = mediaWithAlone(patch, more, b, bound);
     }
     // A field the rule binds shows its binding: the value a binding word
@@ -316,7 +342,7 @@ final class MediaLineReader {
       if (e.value != null && '${e.key}'.contains('.')) patch = _removed(patch, '${e.key}'.split('.'));
     }
     if (patch.isEmpty) return (patch: null, issues: issues);
-    return (patch: mediaDropBindings(patch, bound), issues: issues);
+    return (patch: dropBindings ? mediaDropBindings(patch, bound) : patch, issues: issues);
   }
 }
 

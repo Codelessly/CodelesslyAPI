@@ -47,7 +47,7 @@ List<String> printMedia(String id, Json node, PrintContext context) {
     final condition = mediaConditionWords(rule);
     // Two rules in a row with one condition would read as one.
     if (condition == null || condition == last) return const [];
-    final words = _patchWords(readMap(rule['patch']) ?? const {}, reader, type);
+    final words = printPatchWords(readMap(rule['patch']) ?? const {}, reader, type);
     if (words == null) return const [];
     out.addAll([for (final w in words) '$condition.$w']);
     last = condition;
@@ -63,8 +63,10 @@ Map<String, String> _parentTypes(Json nodes) => {
           for (final c in [...readStrings(n['children']), ...(readMap(n['slots']) ?? const {}).values.whereType<String>()]) c: '${n['type']}',
     };
 
-/// Words that give [patch] on the line [reader] reads, or null.
-List<String>? _patchWords(Json patch, MediaLineReader reader, String type) {
+/// Words that give [patch] on the line [reader] reads, or null: for each
+/// field of it, the first word that gives that field and nothing [patch]
+/// does not have. A media rule's words, and a state's (print_states.dart).
+List<String>? printPatchWords(Json patch, MediaLineReader reader, String type) {
   if (patch.isEmpty) return null;
   final want = _flat(patch);
   final chosen = <String>[];
@@ -126,8 +128,8 @@ List<({List<String> path, Object? value})> _leaves(Json patch) {
   }
 
   // In one order whatever the patch's: props, layout, decoration, visible,
-  // opacity, motion, bindings.
-  for (final k in MediaRule.patchKeys) {
+  // opacity, motion, bindings; then any other field (a state's patch).
+  for (final k in {...MediaRule.patchKeys, ...patch.keys}) {
     if (!patch.containsKey(k)) continue;
     if (k == 'bind') {
       for (final b in (readMap(patch[k]) ?? const {}).entries) {
