@@ -16,5 +16,5 @@ export 'src/core/notation/notation.dart'
 export 'src/core/notation/define.dart' show DefinedLine, DefinedWords, NotationDefinition, checkDefinitions, definitionLines, readDefinitions, readPageDefinitions;
 export 'src/core/notation/vocabulary.dart' show LinePart, LineParts, NotationVocabulary, TypeAlias, VocabularyUse;
 export 'src/core/notation/print.dart' show notationOptionsFor, printNotation;
-export 'src/core/notation/prompt.dart' show notationPrompt;
+export 'src/core/notation/prompt.dart' show notationDefinePreface, notationPrompt;
 export 'src/core/a2ui/a2ui.dart' show A2uiResult, a2uiToDocument, parseA2ui;

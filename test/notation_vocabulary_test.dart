@@ -5,7 +5,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
-import 'package:codelessly_api/src/core/notation/prompt.dart' show notationOpenPreface, notationPrompt;
+import 'package:codelessly_api/src/core/notation/prompt.dart' show notationDefinePreface, notationOpenPreface, notationPrompt;
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
@@ -539,6 +539,7 @@ Page
   group('the open prompt', () {
     String taught(double width) => notationPrompt(catalog: standardCatalog, options: NotationOptions(width: width));
     String open(double width) => notationPrompt(catalog: standardCatalog, options: NotationOptions(width: width), open: true);
+    String plain(double width) => notationPrompt(catalog: standardCatalog, options: NotationOptions(width: width), open: true, define: false);
 
     test('says the vocabulary is open and the grammar is not, and teaches the grammar and the core only', () {
       final page = open(1280);
@@ -558,10 +559,43 @@ Page
     });
 
     test('is smaller than the taught page prompt; the taught prompts are as they were', () {
-      expect(open(1280).length, lessThan(taught(1280).length - 2000));
-      expect(open(1280).length, lessThan(18500), reason: 'about 4,500 tokens');
+      expect(plain(1280).length, lessThan(taught(1280).length - 2000));
+      expect(plain(1280).length, lessThan(18500), reason: 'about 4,500 tokens');
+      expect(open(1280).length, plain(1280).length + notationDefinePreface.length);
       expect(taught(390).length, lessThan(9000));
-      expect(open(390).length, lessThan(taught(390).length + notationOpenPreface.length));
+      expect(plain(390).length, lessThan(taught(390).length + notationOpenPreface.length));
+    });
+
+    test('asks for a definition of every word it invents, after the last screen; without define, as the first corpus was asked', () {
+      final page = open(1280);
+      expect(page, startsWith('$notationOpenPreface$notationDefinePreface'));
+      expect(page, contains('define after the last screen'));
+      expect(plain(1280), startsWith(notationOpenPreface));
+      expect(plain(1280), isNot(contains('define')));
+      expect(page.substring(notationOpenPreface.length + notationDefinePreface.length), plain(1280).substring(notationOpenPreface.length));
+    });
+
+    test('each definition in it is read, expands with its defaults and validates; a page using them has no issue', () {
+      final blocks = [for (final b in notationDefinePreface.split(RegExp(r'\n\n+'))) if (b.startsWith('define ')) b];
+      expect(blocks, hasLength(3));
+      final read = readPageDefinitions(blocks.join('\n'));
+      expect(read.problems, isEmpty);
+      expect(read.words.keys, ['StickyNote', 'ColorPicker', 'Group']);
+      expect(checkDefinitions(NotationVocabulary(definitions: read.words), catalog: standardCatalog, validate: _problems), isEmpty);
+      for (final o in [const NotationOptions(), const NotationOptions().open()]) {
+        final r = parseNotation('''
+state tint=""
+Column gap=12
+  StickyNote "Buy milk" onTap={toast "note"}
+  ColorPicker bind=tint onPick={toast "{result}"}
+  Group "Notes"
+    Text "Inside the panel"
+${blocks.join('\n')}
+''', catalog: standardCatalog, options: o);
+        expect(r.issues, isEmpty);
+        expect(_problems(r.document), isEmpty);
+        expect(r.vocabulary.where((u) => u.kind != 'definition'), isEmpty);
+      }
     });
 
     test('lists no component of a design system', () async {

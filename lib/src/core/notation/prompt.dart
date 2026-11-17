@@ -42,11 +42,14 @@ String notationPrompt({
   bool natural = false,
   bool wanted = false,
   bool open = false,
+  bool define = true,
 }) {
   // The open vocabulary (docs/design/19): the grammar and the core only.
   // No component is listed and no behaviour word taught; the model writes
-  // the word it expects, and the parser records it.
-  if (open) return _openPrompt(notationPrompt(catalog: catalog, options: options, natural: natural));
+  // the word it expects, and defines it after the last screen
+  // ([notationDefinePreface]; docs/design/20). With [define] false, the
+  // open prompt as the first corpus was written with: no definitions asked.
+  if (open) return _openPrompt(notationPrompt(catalog: catalog, options: options, natural: natural), define: define);
   final c = catalog ?? Catalog.current;
   final componentLines = designSystem == null
       ? const <String>[]
@@ -320,12 +323,38 @@ The vocabulary is open. Whenever the UI needs a part or a behaviour the core has
 
 ''';
 
+/// What the open prompt asks after [notationOpenPreface]: every word the
+/// answer invents, defined in the notation after its last screen
+/// (docs/design/20-defined-words.md; the vocabulary loop's Review 4, D19).
+/// Each example expands with no issue (a test reads them from here).
+const String notationDefinePreface = '''
+Every word you use that is not taught below, define after the last screen, so the answer is complete in itself. A definition is written in this notation: at the margin, `define` and the word as a line would use it, each value its default; under it, indented, the lines it stands for, built from the words taught below and your other defined words. Those lines read the word's strings and parameters by name in braces. An event the word gives is the actions of the line that fires it: onTap={onPick}, or onTap={onPick(value)} to pass value as result. `...` on a line of its own is where the lines written under a use go. For example:
+
+define StickyNote "text" fill=#FFFDE68A w=180 h=140 onTap
+  Column w={w} h={h} pad=14 gap=6 fill={fill} radius=4 onTap={onTap}
+    Text "{text}"
+
+define ColorPicker bind=color swatches=["#FF111827","#FFDC2626","#FF2563EB"] size=28 onPick
+  state color=""
+  Row gap=8 middle
+    each swatch in swatches
+      Box w={size} h={size} radius={size/2} fill={swatch} border={swatch == color ? 2 : 0} onTap={color=swatch; onPick(swatch)}
+
+define Group "title"
+  Card gap=8 pad=16
+    Text.strong "{title}"
+    ...
+
+Define each word once, however many screens use it, and none of the words taught below. A definition draws and does what the words taught below can; what they cannot (a camera, a real map, sound) it shows as a labelled box, with a // line above the definition that says so.
+
+''';
+
 /// The taught prompt without what is vocabulary: the `{…}` escape and the
 /// reference pages (an unknown word is written, not escaped to JSON), and
 /// the behaviour words of a page (a shortcut, a range, a calendar, a table,
 /// a reordered list, swipe actions: each is a word a model reaches for by
 /// some name, which the alias table maps).
-String _openPrompt(String taught) {
+String _openPrompt(String taught, {bool define = true}) {
   final out = <String>[];
   var behaviours = false, beyond = false;
   for (final line in taught.split('\n')) {
@@ -359,7 +388,7 @@ String _openPrompt(String taught) {
         .replaceFirst('; Popover#bio arrow points at it', '')
         .replaceFirst(', ${notationPageFunctions.join(', ')}', ''));
   }
-  return '$notationOpenPreface${out.join('\n')}';
+  return '$notationOpenPreface${define ? notationDefinePreface : ''}${out.join('\n')}';
 }
 
 /// How [component] is called in the notation, on one line, with what it is

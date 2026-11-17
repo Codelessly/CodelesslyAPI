@@ -177,7 +177,13 @@ issues, what does not validate) are as they were. `tool/vocabulary/count.py` cou
 
 ## 7. The loop
 
-1. `notation.sh prompt --open` is the prompt: the open preface, the grammar, the core.
+1. `notation.sh prompt --open` is the prompt: the open preface, the grammar, the core; and, since the loop's Review
+   4 (D19), a paragraph that asks the model to define every word it invents, after its last screen, in the notation
+   itself, with three examples (`notationDefinePreface`; [note 20](20-defined-words.md)). Twenty answers written
+   that way resolved 96% of their words against 54% for the same briefs without it, and invented fewer. The
+   prompt is 19,804 characters for a page (18,388 without the paragraph) and 10,508 for a card (9,092).
+   `notationPrompt(open: true, define: false)` (`prompt --open --no-define`) is the prompt the first corpus was
+   written with, character for character.
 2. Briefs are run against it; the answers are a corpus (`tool/vocabulary/corpus/<date>-<model>/`).
 3. `notation.sh vocabulary <corpus>` expands every screen with the vocabulary open and writes `vocabulary.json` and `VOCABULARY.md`: every word with how many files reached for it and how it resolved (core, component, alias, unknown), its parameters, events and example lines, names that share a part side by side, the parameters, flags, events, verbs and functions we do not have, the grammar issues by message, and what does not validate.
 4. For each word many files reached for: if we have it under another name and the shapes match, a line in the alias table and a test; if we do not, it is built (its record says what to take and what goes under it); if models agree on a shape ours does not have, ours changes.

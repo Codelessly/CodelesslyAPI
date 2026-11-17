@@ -10,6 +10,12 @@
   `parseNotation(…, definitions: text)` takes the definitions of more text (an answer's other screens);
   `readPageDefinitions(text)` reads them. `NotationStream` reads a definition from where it is written on, and
   says so when a use came before it.
+- **The open prompt asks for every invented word to be defined** (the vocabulary loop's Review 4, D19):
+  `notationPrompt(open: true)` carries a paragraph and three examples (`notationDefinePreface`) asking the model to
+  define each word it uses that is not taught, after its last screen, in the notation itself. Each example is read,
+  expands with its defaults and validates (a test). `define: false` gives the open prompt as the first corpus was
+  written with. 19,804 characters for a page (18,388 without), 10,508 for a card (9,092); the taught prompts are
+  unchanged.
 
 - **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
   parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own
