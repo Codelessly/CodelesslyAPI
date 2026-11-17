@@ -61,6 +61,11 @@ where they are read, as written:
 - A body written as `if visible` over its one node is that node with `visible={visible}`: models write a word that
   can be hidden that way (the journal, Review 4, D21). `state` lines before the root are the word's own state.
 - A use's `{expr}` where its first string goes (`Pill {status}`) is that string, `"{status}"`.
+- A use's value that is a path (`end=draft.end`) or a variable of the page or of an `each` around it (`bpm=bpm`) is
+  read as `{draft.end}`, `{bpm}`: the value, not the word. Any other bare word is the word (`tone=quiet`).
+- A use's id from data (`Track#{tr.id}`, `Track#lane-{tr.id}`) is its fixed part (`lane`), or none.
+- `each x in p reorder` in a body, with `p` given as a list worked out (not a variable), is shown in order: there is
+  no variable to write a new order to.
 
 What a use writes that the signature does not name: the words the grammar gives every line (`#id`, `w`, `h`,
 `grow`, `pad`, `gap`, `fill`, `radius`, `border`, `center`, `scroll`, `sticky`, `animate`, `drag`, `drop`, `menu`,

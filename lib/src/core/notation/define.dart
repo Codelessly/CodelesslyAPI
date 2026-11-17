@@ -396,6 +396,7 @@ final class DefinedWords {
     this.context,
     this.within = const [],
     Map<String, List<NotationDefinition>>? page,
+    this.variable,
   })  : counts = counts ?? {},
         page = page ?? {};
 
@@ -423,6 +424,10 @@ final class DefinedWords {
   /// The words that are the notation's own (a core type, a catalog type, a
   /// page word, a component): never a defined word's.
   final bool Function(String word)? ours;
+
+  /// Whether [name] is a variable of the page (its state, or the item of an
+  /// `each` around the line): a use's `bpm=bpm` gives the value, not a word.
+  final bool Function(String name)? variable;
 
   /// Whether [word] is a defined word here (a definition, or a `define` read
   /// in the text so far).
@@ -504,6 +509,12 @@ final class DefinedWords {
       if (placed == null) return out;
       at = placed.at;
       text = placed.text;
+    }
+    // `Track#{tr.id} name=…`, `Track#track-{tr.id}`: an id from data is its
+    // fixed part, as on any line (none when it has none).
+    if (RegExp(r'^([A-Z][A-Za-z0-9]*)((?:\.[A-Za-z][A-Za-z0-9]*)*)#([A-Za-z0-9_-]*)\{[^{}]*\}[A-Za-z0-9_-]*(?=\s|$)').firstMatch(text) case final m? when has(m[1]!)) {
+      final fixed = m[3]!.replaceAll(RegExp(r'[-_]+$'), '');
+      text = '${m[1]}${m[2]}${RegExp(r'^[A-Za-z_]').hasMatch(fixed) ? '#$fixed' : ''}${text.substring(m.end)}';
     }
     final parts = LineParts.of(text);
     final defs = parts == null || _statements.contains(parts.word) || !has(parts.word) ? null : _of(parts.word);
@@ -649,7 +660,11 @@ final class DefinedWords {
           } else if (x.isEvent && d.events.contains(k)) {
             actions[k] = v.startsWith('{') && v.endsWith('}') ? v.substring(1, v.length - 1).trim() : v;
           } else if (d.parameters.containsKey(k) || d.strings.contains(k)) {
-            values[k] = v;
+            // `end=draft.end`, `bpm=bpm`: a path, or a variable of the page,
+            // given to a plain parameter is the value it reads.
+            final path = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(v) ||
+                (_identifier.hasMatch(v) && v != 'true' && v != 'false' && v != 'null' && (variable?.call(v) ?? false));
+            values[k] = path ? '{$v}' : v;
           } else if (definedPassThrough.contains(k) && (!const {'duration', 'delay', 'stagger'}.contains(k) || p.pair('animate') != null)) {
             root.add(x);
           } else {
@@ -707,7 +722,7 @@ final class DefinedWords {
       lines.add((indent: l.indent, text: t, line: l.line));
     }
     // Its words expanded in turn, with the same definitions.
-    final inner = DefinedWords(_all, open: open, issue: issue, ours: ours, counts: counts, context: d.at(d.line), within: [...within, d.label]);
+    final inner = DefinedWords(_all, open: open, issue: issue, ours: ours, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable);
     final expanded = <DefinedLine>[];
     for (final l in lines) {
       expanded.addAll(inner.rewrite(l.indent, l.text, from: d.at(l.line)));
@@ -1064,8 +1079,13 @@ final class _Substitution {
       return 'state ${renamed[m[1]!] ?? m[1]}=${expression(m[2]!.trim())}';
     }
     if (RegExp(r'^(if|else if)\s+(.*)$').firstMatch(text) case final m?) return '${m[1]} ${_braced(m[2]!)}';
-    if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.*)$').firstMatch(text) case final m?) {
-      return 'each ${renamed[m[1]!] ?? m[1]} in ${_braced(m[2]!)}';
+    if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.*?)(\s+reorder(?:=\S+)?)?$').firstMatch(text) case final m?) {
+      var list = _braced(m[2]!);
+      if (RegExp(r'^\(([A-Za-z_][A-Za-z0-9_]*)\)$').firstMatch(list) case final p?) list = p[1]!;
+      // `each it in items reorder` with items a list worked out (a filter):
+      // there is no variable to write the order to, so it is shown in order.
+      final reorder = m[3] != null && _identifier.hasMatch(list) ? m[3]! : '';
+      return 'each ${renamed[m[1]!] ?? m[1]} in $list$reorder';
     }
     if (RegExp(r'^(every|key)\s+(.*?)\s+(on[A-Z][A-Za-z0-9]*)=\{(.*)\}\s*$').firstMatch(text) case final m?) {
       return '${m[1]} ${expression(m[2]!)} ${m[3]}={${actionsOf(m[4]!)}}';

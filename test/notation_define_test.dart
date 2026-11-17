@@ -401,6 +401,90 @@ define Guide visible=true steer=0
     });
   });
 
+  group('what got in the definer\'s way (the vocabulary loop, Review 3, D16)', () {
+    NotationResult read(String text) => parseNotation(text, catalog: standardCatalog, options: const NotationOptions().open());
+
+    test('a tinted block of a given height keeps it with a text in it; a fixed-height Box, Row and Column are that high', () {
+      final r = read('Column\n  Tile\ndefine Tile "label"\n  Column w=120 h=200 fill=#FFEEEEEE\n    Text "{label}"\n');
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      final layout = _node(r, 'tile1')['layout'] as Map;
+      expect(layout['height'], {'hug': 200});
+      expect(layout['constraints'], {'minHeight': 200});
+    });
+
+    test('Row wrap over an each wraps its copies', () {
+      final r = read('state tags=["a","b","c"]\nColumn w=200\n  Tags items={tags}\ndefine Tags items=[]\n  Row gap=8 wrap\n    each t in items\n      Chip "{t}"\n');
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      final list = _node(r, 'listView1');
+      expect(list['props'], containsPair('wrap', true));
+      expect(list['props'], containsPair('runSpacing', 8));
+      expect((list['layout'] as Map)['width'], {'fill': 0});
+    });
+
+    test('Word#{expr}: an id from data is its fixed part, as on any line', () {
+      final r = read('state tracks=[{"id":"t1","name":"Kick"}]\nColumn\n  each tr in tracks\n    Track#{tr.id} name="{tr.name}"\n    Track#lane-{tr.id} name="{tr.name}"\ndefine Track name=""\n  Row\n    Text "{name}"\n');
+      expect(r.issues, isEmpty);
+      expect(r.vocabulary.where((u) => u.kind == 'type'), isEmpty);
+      expect(_uses(r, 'definition').map((u) => u.node), ['track1', 'lane']);
+    });
+
+    test('a path, or a variable of the page, given to a plain parameter is the value it reads', () {
+      final r = read('state draft={"start":1,"end":5}\nstate bpm=90\nColumn\n  Span start=draft.start end=draft.end\n  Tempo bpm=bpm\n  Tempo bpm=fast\ndefine Span start=0 end=0\n  Text "{end - start} days"\ndefine Tempo bpm=120\n  Text "{bpm} bpm"\n');
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(_node(r, 'span1')['props'], containsPair('text', r'${= (draft.end) - (draft.start)} days'));
+      expect(_node(r, 'tempo1')['props'], containsPair('text', r'${bpm} bpm'));
+      // A word that is no variable is the word.
+      expect(_node(r, 'tempo2')['props'], containsPair('text', 'fast bpm'));
+    });
+
+    test('a choice between actions takes a use\'s events, given or not', () {
+      final r = read('state ok=true\nColumn\n  Try onOk={toast "good"} onError={toast "bad"}\n  Try onError={toast "only bad"}\ndefine Try onError onOk\n  Button "Go" onTap={ok ? onOk : onError}\n');
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      final both = jsonEncode(_node(r, 'try1')['actions']), one = jsonEncode(_node(r, 'try2')['actions']);
+      expect(both, allOf(contains('"good"'), contains('"bad"'), contains('"type":"if"')));
+      expect(one, allOf(contains('"only bad"'), contains('"then":[]')));
+    });
+
+    test('every {expression}: a timer whose interval is worked out', () {
+      final r = read('state bpm=120\nColumn\n  Metro bpm={bpm}\ndefine Metro bpm=120\n  state beat=0\n  every {60000/bpm} onTick={beat=beat+1}\n  Text "{beat}"\n');
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(jsonEncode(r.document), contains(r'"intervalMs":"${= 60000/(bpm)}"'));
+    });
+
+    test('each … reorder over a list the use works out is shown in order (no variable to write the order to)', () {
+      final r = read('state rows=[{"n":"a"},{"n":"b"}]\nColumn\n  Sortable items={filter(rows, r => r.n != "")}\n  Sortable items={rows}\ndefine Sortable items=[]\n  Column\n    each it in items reorder\n      Text "{it.n}"\n');
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(jsonEncode(_node(r, 'listView1')['props']), isNot(contains('reorder')));
+      expect(jsonEncode(_node(r, 'listView2')['props']), contains('reorder'));
+    });
+
+    test('a border\'s width and colour together, as models write them', () {
+      final r = read('Column\n  Ring2 on=true\ndefine Ring2 on=false\n  Column gap=4\n    Box#a w=40 h=40 border=2 borderColor=#FF2563EB\n    Box#b w=40 h=40 border="#FF2563EB 2"\n    Box#c w=40 h=40 border-width=3 border=#FF2563EB\n    Box#d w=40 h=40 border={on ? 2 : 0} stroke=#FF2563EB\n    Box#e w=40 h=40 border=1\n');
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      Map<String, Object?> deco(String id) => (_node(r, '${id}_ring21')['decoration'] as Map).cast();
+      for (final (id, w) in [('a', 2), ('b', 2), ('c', 3)]) {
+        expect(deco(id), {'strokes': [{'color': '#FF2563EB'}], 'strokeWidth': w}, reason: id);
+      }
+      expect(deco('d')['strokes'], [{'color': '#FF2563EB'}]);
+      expect((_node(r, 'd_ring21')['bind'] as Map)['decoration.strokeWidth'], r'${= true ? 2 : 0}');
+      expect(deco('e'), {'strokes': [{'color': const NotationOptions().line}], 'strokeWidth': 1});
+    });
+
+    test('a font and a weight on an Input', () {
+      final r = read('Column\n  Field2\ndefine Field2\n  Input "Code" font="JetBrains Mono" weight=600 fontSize=18\n');
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect((_node(r, 'field21')['props'] as Map)['style'], {'fontFamily': 'JetBrains Mono', 'fontWeight': 600, 'fontSize': 18});
+    });
+  });
+
   group('a definition anywhere in a text holds for the whole text', () {
     const before = '''
 // A small rounded label.

@@ -918,6 +918,12 @@ const _textStyleKeys = {
   'bold': 'fontWeight', 'fontFamily': 'fontFamily', 'font': 'fontFamily', 'lineHeight': 'height',
 };
 
+/// Keys written on an Input that belong to the style of its typed text.
+const _fieldStyleKeys = {
+  'font': 'fontFamily', 'fontFamily': 'fontFamily', 'fontSize': 'fontSize', 'textSize': 'fontSize', //
+  'weight': 'fontWeight', 'fontWeight': 'fontWeight', 'letterSpacing': 'letterSpacing', 'lineHeight': 'height',
+};
+
 const _layoutKeys = {'width', 'height', 'padding', 'margin', 'flex', 'aspectRatio', 'x', 'y', 'align', 'constraints', 'order', 'basis'};
 const _decorationKeys = {'radius', 'strokeWidth', 'fills', 'strokes', 'effects', 'clip', 'shape'};
 const _borderSides = {
@@ -1342,6 +1348,7 @@ class _Parser {
     counts: identical(_top, this) ? null : _top._defined.counts,
     // The page's own words hold in its overlays too.
     page: identical(_top, this) ? null : _top._defined.page,
+    variable: (name) => variables.containsKey(name) || _stack.any((o) => o.each == name),
     // A page's own definition of a word the design system defines too is
     // the one read there: the record says so (`of`).
     used: (d, parts, node, column) => _use('definition', parts.word, column,
@@ -2208,6 +2215,17 @@ class _Parser {
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 onTick={elapsed=elapsed+1}`, `every 1s when running
     // onTick={…}`: what the screen does as time passes (a timer on the canvas).
+    // `every {60000/bpm} onTick={…}`: an interval worked out, in milliseconds
+    // (a metronome at its tempo).
+    final everyExpr = RegExp(r'^every\s+\{([^{}]+)\}(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
+    if (everyExpr != null) {
+      _timers.add({
+        'trigger': {'type': 'timer', 'intervalMs': _formula(everyExpr[1]!.trim()), if (everyExpr[2] != null) 'when': _formula(everyExpr[2]!.trim())},
+        'actions': _actions(everyExpr[3]!.trim(), column),
+      });
+      if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
+      return;
+    }
     final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s)?(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
     if (every != null) {
       final ms = (double.parse(every[1]!) * (every[2] == 's' ? 1000 : 1)).round();
@@ -2490,16 +2508,25 @@ class _Parser {
       }
       _acrossLists[itemId] = listId;
       if (g != null) _gridLists[listId] = g.id;
+      // `Row gap=8 wrap` over an each: the copies wrap onto further lines,
+      // as the row's own children would.
+      final rowProps = nodes[parent.id]?['props'] as Map?;
+      final wraps = across && rowProps?['wrap'] == true;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
-        'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': follows ? eachHeight : {'hug': 0}},
+        'layout': {'width': across && !wraps ? {'hug': 0} : {'fill': 0}, 'height': follows ? eachHeight : {'hug': 0}},
         // Its handles are one stop of the page: arrows go from row to row.
         if (reorders) 'focusGroup': {'axis': 'vertical', 'wrap': false},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
             ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
             : across
-                ? {'scrollable': false, 'scrollDirection': 'horizontal', 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0}
+                ? {
+                    'scrollable': false,
+                    'scrollDirection': 'horizontal',
+                    'spacing': rowProps?['spacing'] ?? 0,
+                    if (wraps) ...{'wrap': true, 'wrapSpacing': rowProps?['spacing'] ?? 0, 'runSpacing': rowProps?['runSpacing'] ?? rowProps?['spacing'] ?? 0},
+                  }
                 : {
                     'scrollable': follows,
                     if (follows) 'stickToEnd': true,
@@ -2520,7 +2547,7 @@ class _Parser {
       _parentOf[listId] = parent.id;
       nodes[itemId] = {
         'type': 'column',
-        'layout': across ? {'width': {'hug': 0}, 'height': {'fill': 0}} : {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'layout': across ? {'width': {'hug': 0}, 'height': wraps ? {'hug': 0} : {'fill': 0}} : {'width': {'fill': 0}, 'height': {'hug': 0}},
         'props': {'crossAxisAlignment': 'start', if (across) 'mainAxisAlignment': 'center'},
       };
       _parentOf[itemId] = listId;
@@ -3516,6 +3543,60 @@ class _Parser {
           decoration['strokeSides'] = side;
           continue;
         }
+        // A border's width and colour, together or apart: `border=2` (the
+        // theme's line, 2 wide), `border="#FF2563EB 2"`, `border=2
+        // borderColor=accent`, `border={on ? 2 : 0}`, and the names models
+        // write for each (border-width, strokeWidth, border-color, stroke).
+        final borderPart = key == 'border'
+            ? 'border'
+            : const {'borderWidth', 'border-width', 'strokeWidth', 'borderSize'}.contains(key)
+                ? 'width'
+                : const {'borderColor', 'border-color', 'strokeColor', 'stroke'}.contains(key)
+                    ? 'color'
+                    : null;
+        if (borderPart != null && !spec.props.any((p) => p.key == key)) {
+          if (raw.isEmpty && t.peek == '"') raw = '"${t.string()}"';
+          List<Object?> strokes() => (decoration['strokes'] as List<Object?>?) ?? (decoration['strokes'] = [<String, Object?>{'color': options.line}]);
+          void width(String w) {
+            strokes();
+            if (w.startsWith('=')) {
+              bind['decoration.strokeWidth'] = _read(w.substring(1));
+            } else if (num.tryParse(w) case final num n) {
+              decoration['strokeWidth'] = n;
+            }
+          }
+
+          void color(String c) {
+            final had = decoration['strokes'] != null;
+            final s = strokes();
+            if (c.startsWith('=')) {
+              bind['decoration.strokes[0].color'] = _namedIn(_read(c.substring(1)), 'stroke');
+              if (!had) s[0] = {'color': '#00000000'};
+            } else {
+              s[0] = {'color': _named(_value(c), 'stroke')};
+            }
+          }
+
+          if (borderPart == 'width') {
+            width(raw);
+          } else if (borderPart == 'color') {
+            color(raw);
+          } else if (num.tryParse(raw) != null) {
+            width(raw);
+          } else if (raw.startsWith('=') && RegExp(r'^=\s*(-?\d+(\.\d+)?|.*\?\s*-?\d+(\.\d+)?\s*:\s*-?\d+(\.\d+)?)\s*$').hasMatch(raw)) {
+            // `border={selected ? 2 : 0}`: a width worked out.
+            width(raw);
+          } else if (!raw.startsWith('=') && RegExp(r'^"?\s*\S+\s+\S+\s*"?$').hasMatch(raw.trim()) && raw.trim().split(RegExp(r'\s+')).any((w) => num.tryParse(w.replaceAll('"', '')) != null)) {
+            // `border="#FF2563EB 2"`, `border="2 accent"`.
+            final words = raw.replaceAll('"', '').trim().split(RegExp(r'\s+'));
+            final w = words.firstWhere((w) => num.tryParse(w) != null);
+            color(words.firstWhere((x) => x != w));
+            width(w);
+          } else {
+            color(raw);
+          }
+          continue;
+        }
         if (key == 'border') {
           if (raw.startsWith('=')) {
             bind['decoration.strokes[0].color'] = _namedIn(_read(raw.substring(1)), 'stroke');
@@ -3527,6 +3608,22 @@ class _Parser {
               {'color': _named(_value(raw), 'stroke')},
             ];
           }
+          continue;
+        }
+        // `Input "Code" font="JetBrains Mono" weight=600 fontSize=18`: the
+        // field's typed text, over the field's own style.
+        if (type == 'textField' && _fieldStyleKeys[key] != null && !spec.props.any((p) => p.key == key)) {
+          if (raw.startsWith('=')) {
+            bind['props.style.${_fieldStyleKeys[key]!}'] = _read(raw.substring(1));
+            continue;
+          }
+          final own = options.fieldText;
+          final style = switch (props['style']) {
+            final Map m => m.cast<String, Object?>(),
+            _ => own is Map ? _copy(own.cast<String, Object?>()) : own is String ? <String, Object?>{'from': own} : <String, Object?>{},
+          };
+          style[_fieldStyleKeys[key]!] = _value(raw);
+          props['style'] = style;
           continue;
         }
         if (type == 'text' && _textStyleKeys.containsKey(key)) {
@@ -4181,8 +4278,12 @@ class _Parser {
       final box = nodes[parent.id];
       final h = (box?['layout'] as Map?)?['height'];
       if (box != null && h is num && h > 0 && (box['props'] as Map?)?['scrollable'] != true) {
+        // At least that high: a tinted block of a given height keeps it.
         final Json patch = {
-          'layout': {'height': {'hug': h}},
+          'layout': {
+            'height': {'hug': h},
+            'constraints': {'minHeight': h},
+          },
         };
         nodes[parent.id] = mergePatch(box, patch);
         _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});

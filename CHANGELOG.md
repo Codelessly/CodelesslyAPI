@@ -28,6 +28,24 @@
     sizes. Models wrote them 26 times in the two corpora; until now `show={…}` was an error on purpose;
   - a definition whose body is `if cond` over its one node is that node shown while `cond` holds; state lines before
     the root are, as before, the word's own state.
+- **What got in the definer's way** (Review 3, D16; the Sonnet agent that wrote thirty definitions named them):
+  - a text in a block of a given height (`Column h=200 fill=…`, `Box w=28 h=28 radius=14` with a number in it) keeps
+    that height: `{"hug": h}` gains `constraints.minHeight: h` (it still grows when the text takes more lines, as its
+    comment always said). The hug value alone is a fallback, so such a block was drawn at its text's height. 131
+    nodes of 19 example files change this way (in the ten showcase pages: site_docs's three step circles);
+  - `Row gap=8 wrap` over an `each` wraps its copies (the list gets `wrap`, `wrapSpacing`, `runSpacing`);
+  - `Word#{tr.id}` and `Word#lane-{tr.id}` on a defined word: an id from data is its fixed part, as on any line;
+  - a path (`end=draft.end`) or a variable of the page (`bpm=bpm`) given to a definition's plain parameter is the
+    value it reads, not the text "draft.end";
+  - `every {60000/bpm} onTick={…}`: a timer whose interval is worked out (`intervalMs` a formula);
+  - `each it in items reorder` in a definition, given a list worked out (`items={filter(…)}`): shown in order, with
+    no variable to write the order to, instead of an issue;
+  - a border's width and colour: `border=2` (the theme's line, 2 wide), `border="#FF2563EB 2"`, `border=2
+    borderColor=…`, `border={on ? 2 : 0}` (a width worked out), and `border-width`, `borderWidth`, `strokeWidth`,
+    `border-color`, `borderColor`, `strokeColor`, `stroke`. `border=2` wrote the number as a colour;
+  - an Input's typed text styled: `font`, `fontFamily`, `fontSize`, `weight`, `fontWeight`, `letterSpacing`,
+    `lineHeight`;
+  - a choice between actions already took a use's events, given or not (`ok ? onOk : onError`): now tested.
 
 - **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
   parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own
