@@ -451,6 +451,8 @@ Column
         'Broken.txt': 'Broken "label"\n  Column\n    Text "{label}" wobble=3\n    Bogus "x"\n',
       });
       expect(checkDefinitions(v, catalog: standardCatalog), [
+        // A key the type has no name for is said (docs/design/22 section 2.1).
+        'Broken.txt:3: A Text has no "wobble": left out.',
         'Broken.txt:4: No node type "Bogus". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).',
       ]);
     });
