@@ -1096,6 +1096,9 @@ class _Grid {
   _Grid(this.id);
   final String id;
   int cols = 2;
+
+  /// `cols={…}`: the column count worked out from the state (a formula).
+  String? colsFormula;
   num gap = 8;
   String? row;
   int inRow = 0;
@@ -3114,6 +3117,16 @@ class _Parser {
       // as the row's own children would.
       final rowProps = nodes[parent.id]?['props'] as Map?;
       final wraps = across && rowProps?['wrap'] == true;
+      // The list does the wrapping and fills the row's width: a wrapping row
+      // keeps each child at its own size along a line, which leaves a list
+      // that is to fill it no width at all.
+      if (wraps) {
+        const Json patch = {
+          'props': {'wrap': null, 'runSpacing': null},
+        };
+        nodes[parent.id] = mergePatch(nodes[parent.id]!, patch);
+        _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
+      }
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
         'layout': {
@@ -3148,7 +3161,11 @@ class _Parser {
                         if (reorderGroup.isNotEmpty) ...{'group': reorderGroup, 'listKey': listName},
                       },
                   },
-        'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
+        'bind': {
+          'data': _read(each[2]!.trim()),
+          if (parent.condition != null) 'visible': parent.condition,
+          if (g?.colsFormula case final String cols) 'props.crossAxisCount': cols,
+        },
         'children': <Object?>[itemId],
       };
       final listActions = <Json>[];
@@ -4183,7 +4200,13 @@ class _Parser {
           }
         }
         if (grid != null && (key == 'cols' || key == 'columns')) {
-          grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 24);
+          // `cols={gridSize}`: worked out, for the cells an each repeats (cells
+          // written one by one are laid in rows here, at the default).
+          if (raw.startsWith('=')) {
+            grid.colsFormula = _formula('max(1, round(${raw.substring(1)}))');
+          } else {
+            grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 24);
+          }
           continue;
         }
         if (grid != null && (key == 'gap' || key == 'spacing')) {
