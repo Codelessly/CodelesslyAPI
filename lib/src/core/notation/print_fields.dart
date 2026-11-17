@@ -184,19 +184,32 @@ String? _braced(String inner) {
 /// `{formula}`; null when it is a text with values in it (or reads back
 /// otherwise).
 String? _expression(Object? v) {
-  if (v is! String || !v.startsWith(r'${') || _close(v, 1) != v.length - 1 || _singleQuoted(v)) return null;
+  if (v is! String || !v.startsWith(r'${') || _close(v, 1) != v.length - 1) return null;
   final e = _braced(v.substring(2, v.length - 1));
-  return e == null ? null : '{$e}';
+  return e == null || _requoted('{$e}') ? null : '{$e}';
 }
 
-/// Whether [v] has a 'single-quoted' text outside a double-quoted one: in
-/// braces after a key it is read as "double-quoted" (page_words.dart), so
-/// it never reads back as written.
-bool _singleQuoted(String v) {
-  var quoted = false;
-  for (var i = 0; i < v.length; i++) {
-    if (v[i] == '"' && (i == 0 || v[i - 1] != r'\')) quoted = !quoted;
-    if (!quoted && v[i] == "'") return true;
+/// Whether the line reads [written] with a 'single-quoted' text in it as
+/// "double-quoted" (page_words.dart reads one so after `=`, `(`, `,`, an
+/// operator or a space), so it never reads back as written.
+bool _requoted(String written) {
+  var inDouble = false;
+  for (var i = 0; i < written.length; i++) {
+    final c = written[i];
+    if (inDouble) {
+      if (c == r'\') {
+        i++;
+      } else if (c == '"') {
+        inDouble = false;
+      }
+      continue;
+    }
+    if (c == '"') {
+      inDouble = true;
+    } else if (c == "'") {
+      final end = written.indexOf("'", i + 1);
+      if (end > i && !written.substring(i + 1, end).contains('"') && '=(,?:[!<>+&| '.contains(written[i - 1])) return true;
+    }
   }
   return false;
 }
@@ -204,9 +217,9 @@ bool _singleQuoted(String v) {
 /// A binding's value as a key that always reads a formula writes it
 /// (`selected={done}` is `${= done}`); null for any other value.
 String? _formulaOf(Object? v) {
-  if (v is! String || !v.startsWith(r'${=') || _close(v, 1) != v.length - 1 || _singleQuoted(v)) return null;
+  if (v is! String || !v.startsWith(r'${=') || _close(v, 1) != v.length - 1) return null;
   final e = v.substring(3, v.length - 1).trim();
-  if (e.isEmpty || e.contains('\n')) return null;
+  if (e.isEmpty || e.contains('\n') || _requoted('{$e}')) return null;
   return '{$e}';
 }
 
@@ -276,8 +289,19 @@ final class _Probes {
         return (node: readMap(nodes[body]), document: r.document, clean: r.issues.isEmpty);
       }();
 
-  /// The root node [text] gives.
-  Json node(String text) => read(text).node ?? const {};
+  final _lines = <String, ({Json? node, bool clean})>{};
+
+  /// [text] read as a line in a column (where most lines are): its node,
+  /// and whether it read with no issue.
+  ({Json? node, bool clean}) line(String text) => _lines[text] ??= () {
+        final r = read('Column\n  $text');
+        final nodes = readMap(r.document['nodes']) ?? const {};
+        final first = readStrings(r.node?['children']).firstOrNull;
+        return (node: readMap(nodes[first]), clean: r.clean);
+      }();
+
+  /// The node a line of [text] gives in a column.
+  Json node(String text) => line(text).node ?? const {};
 
   final _words = <String, String>{};
 
@@ -287,46 +311,93 @@ final class _Probes {
   /// capitalised (`ListView`), else as the catalog spells it (`box`, which
   /// `Box` is not).
   String word(String type) => _words[type] ??= () {
-        String? own;
-        for (final w in ['${type[0].toUpperCase()}${type.substring(1)}', type]) {
-          final r = read(w);
-          if (r.clean && r.node?['type'] == type) {
-            own = w;
-            break;
-          }
-        }
-        if (own == null) return type;
+        final own = this.own(type);
+        if (own == type && !read(type).clean) return type;
         final plain = [
           for (final e in notationTypes.entries)
-            if (e.value.type == type && _same(e.key, own)) e.key,
+            if (e.value.type == type && _plain(e.key, own, type)) e.key,
         ];
         if (plain.length == 1) return plain.single;
-        if (type[0].toLowerCase() == type[0] && own != 'Button') {
+        if (type[0].toLowerCase() == type[0]) {
           for (final v in buttonVariants.entries) {
-            if (v.value.type == type && v.value.props.isEmpty && _same('Button.${v.key}', own)) return 'Button.${v.key}';
+            if (v.value.type == type && v.value.props.isEmpty && _plain('Button.${v.key}', own, type)) return 'Button.${v.key}';
           }
         }
         return own;
       }();
 
-  /// Whether [a] and [b] read the same, alone and with a line under them.
+  final _own = <String, String>{};
+
+  /// A type's own word: its name capitalised when that reads as it does
+  /// (`ListView`; `Barcode` is the bars, `Box` a column), else its name.
+  String own(String type) => _own[type] ??= () {
+        final r = read(type);
+        if (!r.clean || r.node?['type'] != type) return type;
+        final cap = '${type[0].toUpperCase()}${type.substring(1)}';
+        return _same(cap, type) ? cap : type;
+      }();
+
+  /// Whether a line of [a] and one of [b], each with [rest] after it, read
+  /// the same (not kept: each node's line is its own).
+  bool sameLine(String a, String b, String rest) {
+    Object? read(String head) {
+      final r = parseNotation('Column\n  $head $rest', catalog: catalog, options: options);
+      return r.issues.isEmpty ? _sorted(r.document) : null;
+    }
+
+    final x = read(a);
+    return x != null && jsonEncode(x) == jsonEncode(read(b));
+  }
+
+  /// Whether [a] and [b] read the same, alone and in a column.
   bool _same(String a, String b) {
-    for (final under in ['', '\n  Text "a"']) {
-      final x = read('$a$under'), y = read('$b$under');
-      if (x.clean != y.clean || !x.clean && under.isEmpty) return false;
-      if (jsonEncode(_sorted(x.document)) != jsonEncode(_sorted(y.document))) return false;
+    for (final before in ['', 'Column\n  ']) {
+      final x = read('$before$a'), y = read('$before$b');
+      if (!x.clean || !y.clean || jsonEncode(_sorted(x.document)) != jsonEncode(_sorted(y.document))) return false;
+    }
+    return true;
+  }
+
+  /// Whether the short name [short] says no more than [own], the type's own
+  /// word: alone, in a column, with a line under it and with each of the
+  /// type's props written (`AreaChart values=[…]` is a filled chart,
+  /// `Pages` makes its lines pages).
+  bool _plain(String short, String own, String type) {
+    if (!_same(short, own)) return false;
+    final spec = catalog.widget(type);
+    final tries = [
+      '\n    Text "a"',
+      // A chart's points as the notation writes them.
+      ' values=[1,2]',
+      for (final p in spec?.props ?? const <PropDef<Object?>>[])
+        for (final v in switch (p.type.kind) {
+          PropKind.number || PropKind.integer => ['2'],
+          PropKind.boolean => ['true'],
+          PropKind.string => ['"a"'],
+          // A list of values, and one of records (a chart's series).
+          PropKind.list => ['[1,2]', '[{"name":"a","values":[1,2]}]'],
+          PropKind.enumeration when p.type.values.isNotEmpty => [p.type.values.first],
+          _ => const <String>[],
+        })
+          ' ${p.key}=$v',
+    ];
+    for (final t in tries) {
+      final x = read('Column\n  $short$t'), y = read('Column\n  $own$t');
+      if (x.clean != y.clean) return false;
+      if (x.clean && jsonEncode(_sorted(x.document)) != jsonEncode(_sorted(y.document))) return false;
     }
     return true;
   }
 
   final _says = <String, bool>{};
 
-  /// Whether `[head] [written]` reads back with no issue and as [check]
+  /// Whether `[head] [written]` reads back with no issue, as a node of the
+  /// head's type (a text with a fill is a tag around it) and as [check]
   /// says, asked once per [tag].
   bool says(String head, String written, String tag, bool Function(Json node) check) =>
       _says['$head\u0000$tag'] ??= () {
-        final r = read('$head $written');
-        return r.clean && r.node != null && check(r.node!);
+        final r = line('$head $written');
+        return r.clean && r.node != null && r.node!['type'] == node(head)['type'] && check(r.node!);
       }();
 }
 
@@ -418,7 +489,23 @@ final class _NodeLine {
   bool _hasProp(String key) => spec?.props.any((p) => p.key == key) ?? false;
 
   void write() {
-    head = _head();
+    _writeAs(_head());
+    // A short name says no more than the type's own word with nothing
+    // written; with this line's words it may (`AreaChart` fills under a
+    // line chart's series): then the own word.
+    final own = _probes.own(type);
+    if (head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.join(' '))) {
+      words.clear();
+      doneProps.clear();
+      doneBind.clear();
+      doneNode.clear();
+      _style.clear();
+      _writeAs(own);
+    }
+  }
+
+  void _writeAs(String head) {
+    this.head = head;
     probe = _probes.node(head);
     twoWay = _twoWay();
     if (twoWay case final t?) doneBind.add(t.path);
@@ -524,7 +611,7 @@ final class _NodeLine {
   ({String name, int index, String path})? _twoWay() {
     final actions = readList(n['actions']);
     if (actions == null || actions.isEmpty || _hasProp('bind')) return null;
-    final r = _probes.read('$head bind=__v');
+    final r = _probes.line('$head bind=__v');
     final pb = readMap(r.node?['bind']);
     final pa = readList(r.node?['actions']);
     if (!r.clean || pb == null || pb.length != 1 || pa == null || pa.isEmpty) return null;
@@ -926,10 +1013,14 @@ final class _NodeLine {
   // --- props by their own names ---------------------------------------------
 
   void _props() {
+    // What the line gives with its flags written (a row that scrolls fades
+    // at its ends).
+    final flags = [for (final w in words) if (!w.contains('=') && !w.startsWith('"')) w];
+    final given = flags.isEmpty ? _probeProps : readMap(_probes.node('$head ${flags.join(' ')}')['props']) ?? const {};
     for (final e in props.entries) {
       final k = e.key, v = e.value;
       if (doneProps.contains(k) || !_hasProp(k)) continue;
-      if (_probeProps.containsKey(k) && _equal(v, _probeProps[k])) continue;
+      if (given.containsKey(k) && _equal(v, given[k])) continue;
       if (v is String && v.contains(r'${') && type != 'text') continue;
       final w = _value(v, _vars);
       if (w == null) continue;
