@@ -20,6 +20,7 @@ const List<WidgetSpec> inputsSpecs = [
   SwitchProps.spec,
   RadioProps.spec,
   SliderProps.spec,
+  SplitterProps.spec,
   DropdownProps.spec,
   DatePickerProps.spec,
   TimePickerProps.spec,
@@ -483,6 +484,19 @@ abstract final class SliderProps {
   ], doc: 'Flutter `Slider`.');
 }
 
+
+/// A pane divider. Its value is the leading pane's width in logical pixels.
+abstract final class SplitterProps {
+  static const value = PropDef<double>('value', Codecs.double, 240);
+  static const min = PropDef<double>('min', Codecs.double, 0);
+  static const max = PropDef<double>('max', Codecs.double, 800);
+  static const step = PropDef<double>('step', Codecs.positive, 16);
+  static const collapseAt = PropDef<double>('collapseAt', Codecs.double, 48);
+  static const orientation = PropDef<Axis>('orientation', EnumCodec(Axis.values), Axis.horizontal);
+  static const label = PropDef<String>('label', Codecs.string, 'Resize panels');
+  static const spec = WidgetSpec('splitter', hugs: true, props: [value, min, max, step, collapseAt, orientation, label],
+      doc: 'Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.');
+}
 
 // --- dropdown -----------------------------------------------------------------
 

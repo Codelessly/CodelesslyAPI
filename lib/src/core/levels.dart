@@ -66,7 +66,7 @@ const Map<String, Level> widgetLevels = {
   'listView': _c, 'gridView': _c, 'divider': _c, 'verticalDivider': _c, 'placeholder': _c, 'singlePlaceholder': _c,
   // Widget catalog: controls and the containers people operate.
   'elevatedButton': _w, 'filledButton': _w, 'textButton': _w, 'outlinedButton': _w, 'iconButton': _w,
-  'floatingActionButton': _w, 'textField': _w, 'checkbox': _w, 'switch': _w, 'radio': _w, 'slider': _w,
+  'floatingActionButton': _w, 'textField': _w, 'checkbox': _w, 'switch': _w, 'radio': _w, 'slider': _w, 'splitter': _w,
   'dropdown': _w, 'datePicker': _w, 'timePicker': _w, 'dateTimeInput': _w, 'segmentedButton': _w, 'chip': _w,
   'actionChip': _w, 'choiceChip': _w, 'filterChip': _w, 'inputChip': _w, 'badge': _w, 'listTile': _w,
   'accordion': _w, 'expansionTile': _w, 'tabs': _w, 'tabBar': _w, 'appBar': _w, 'navigationBar': _w,

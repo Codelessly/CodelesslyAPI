@@ -2602,4 +2602,41 @@ Sheet#filters "Filters"
     expect((_node(r, 'filters')['layout'] as Map)['height'], isNot({'fill': 0}));
     expect(_pagePrompt(), allOf(contains('stops=[0.5,0.9]'), contains('Dialog#edit "Edit" guard={name!=""}')));
   });
+
+  test('Splitter: a divider between two panes keeps the first pane\x27s size in a variable', () {
+    final r = _parsePage('''
+state paneWidth=360
+Page
+  Section
+    Row
+      Column#map w={paneWidth}
+        Text "Map"
+      Splitter#grip bind=paneWidth min=0 max=800 step=16 collapseAt=48 label="Resize map and stations"
+      Column grow
+        Text "Stations"
+    Column
+      Column#top h={mapHeight}
+        Text "Map"
+      Splitter#bar bind=mapHeight orientation=vertical max=900
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    expect((_node(r, 'map')['bind'] as Map)['layout.width'], r'${paneWidth}');
+    final grip = _node(r, 'grip');
+    expect(grip['type'], 'splitter');
+    expect(grip['bind'], {'props.value': r'${paneWidth}'});
+    expect(grip['props'], allOf(containsPair('collapseAt', 48), containsPair('max', 800), containsPair('label', 'Resize map and stations')));
+    expect((grip['actions'] as List).single, {
+      'trigger': {'type': 'changed'},
+      'actions': [
+        {'type': 'setVariable', 'variable': 'paneWidth', 'value': r'${result}'},
+      ],
+    });
+    expect(_node(r, 'bar')['props'], containsPair('orientation', 'vertical'));
+    expect(_node(r, 'bar')['bind'], {'props.value': r'${mapHeight}'});
+    // A height not declared starts at the control's own start.
+    expect((r.document['variables'] as Map).values.expand((v) => v as List).singleWhere((v) => (v as Map)['name'] == 'mapHeight'), containsPair('value', 240));
+    expect(_pagePrompt(), contains('Splitter bind=paneW min=200 max=640'));
+    expect(notationPrompt(catalog: standardCatalog), isNot(contains('Splitter')));
+  });
 }
