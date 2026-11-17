@@ -1080,7 +1080,7 @@ final class _NodeLine {
     // Every other field of the node and its behaviors by its own name.
     for (final f in [...NodeFields.all, ...BehaviorFields.all]) {
       final k = f.key;
-      if (doneNode.contains(k) || _notFields.contains(k) || !n.containsKey(k) || _equal(n[k], probe[k])) continue;
+      if (doneNode.contains(k) || _notFields.contains(k) || printStatesKeys.contains(k) || !n.containsKey(k) || _equal(n[k], probe[k])) continue;
       if (_value(n[k], _vars) case final String w) words.add('$k=$w');
     }
   }
@@ -1133,7 +1133,7 @@ final class _NodeLine {
           },
         };
         // …in place of every state look the node has.
-        return !box || fillsBound || _equal(n['states'], {'selected': look}) ? 'selected' : null;
+        return !box || fillsBound || _equal(n['states'], {'selected': look}) || printStatesSelected(n) ? 'selected' : null;
       case 'layout.width':
         return 'w';
       case 'layout.height':
