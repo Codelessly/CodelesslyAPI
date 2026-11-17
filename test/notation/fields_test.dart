@@ -1,6 +1,8 @@
 // A node's line (print_fields.dart): every word the printer writes is
 // written, expanded, checked in the document, printed, and read back as the
 // same line (docs/design/22-notation-parity.md, section 3).
+import 'dart:convert';
+
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/src/core/notation/print_fields.dart';
@@ -257,6 +259,40 @@ void main() {
     ]);
   });
 
+  test('every prop of every node type (a number, a flag, a text, a choice) is written with no tail', () {
+    // Named as a word of the notation's: gap (a spacing) and animate (an
+    // animation). By their full path once the parser reads one (Keys).
+    bool word(String key) => key == 'gap' || key == 'animate';
+    // Defaults the parser gives from another prop (a progress bar's max from
+    // its value, a grid's row height from mainAxisExtent).
+    const coupled = {'progressBar.value', 'progressBar.max', 'gridView.mainAxisExtent'};
+    var said = 0;
+    for (final w in standardCatalog.widgets) {
+      final t = w.type;
+      if (const {'canvas', 'pageView', 'radialGauge'}.contains(t) || t[0].toUpperCase() == t[0]) continue;
+      final base = _expand('Column\n  $t');
+      final id = readMap(base['nodes'])!.entries.firstWhere((e) => readMap(e.value)?['type'] == t).key;
+      for (final p in w.props) {
+        final Object? v = switch (p.type.kind) {
+          PropKind.number || PropKind.integer => 3,
+          PropKind.boolean => p.defaultValue != true,
+          PropKind.string => 'abc',
+          PropKind.enumeration when p.type.values.length > 1 => p.type.values.firstWhere((x) => x != p.defaultValue),
+          _ => null,
+        };
+        if (v == null || word(p.key) || coupled.contains('$t.${p.key}')) continue;
+        final doc = readMap(jsonDecode(jsonEncode(base)))!;
+        final n = readMap(readMap(doc['nodes'])![id])!;
+        n['props'] = {...?readMap(n['props']), p.key: v};
+        readMap(doc['nodes'])![id] = n;
+        final line = printNotation(doc, catalog: standardCatalog).split('\n').firstWhere((l) => l.contains('#$id'));
+        expect(line, isNot(contains('{"')), reason: '$t.${p.key}=$v');
+        said++;
+      }
+    }
+    expect(said, greaterThan(700));
+  });
+
   group('an Input\'s words', () {
     _cases('', [
       ('Column\n  Input "Email" hint="you@example.com"', 'textField', 'props.decoration.hintText', 'you@example.com'),
@@ -369,6 +405,9 @@ void main() {
     final cases = <(Json, String)>[
       ({'type': 'text', 'layout': {'width': {'fill': 0}, 'height': {'hug': 0}}, 'props': {'text': 'x', 'style': {'fontSize': 13, 'color': '#FF111827', 'letterSpacing': 0.4}}}, 'letterSpacing=0.4'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40, 'columnSpan': 2}}, 'columnSpan=2'),
+      ({'type': 'box', 'layout': {'width': 40, 'height': 40, 'rowSpan': 2, 'columnStart': 1, 'rowStart': 3}}, 'rowSpan=2 columnStart=1 rowStart=3'),
+      ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'strokes': [{'color': '#FF000000'}], 'strokeCap': 'round'}}, 'strokeCap=round'),
+      ({'type': 'tabBar', 'layout': {'width': {'fill': 0}, 'height': {'hug': 0}}, 'props': {'gap': 3}}, 'props.gap=3'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'strokes': [{'color': '#FF000000'}], 'strokeSides': 'topBottom'}}, 'strokeSides=topBottom'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'strokes': [{'color': '#FF000000'}], 'dashPattern': [6, 4]}}, 'dashPattern=[6,4]'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'strokes': [{'color': '#FF000000'}], 'strokeAlign': 'outside'}}, 'strokeAlign=outside'),
