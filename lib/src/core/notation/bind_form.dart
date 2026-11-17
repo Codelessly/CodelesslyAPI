@@ -149,7 +149,7 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
       // Anything else written bare is the variable as it was written (a
       // found record's field, `find(clips,c=>c.id==sel).name`); a quoted
       // value is no variable, and is left as it is.
-      if (v.startsWith('"') || v.startsWith('[')) continue;
+      if (v.startsWith('"') || v.startsWith('[') || '('.allMatches(v).length != ')'.allMatches(v).length) continue;
       final isEnd = rest != null && const {'End', 'High', 'Hi', 'To'}.contains(rest);
       final isStart = rest == null || const {'Start', 'Low', 'Lo', 'From', 'Value'}.contains(rest);
       if (shows && rest == null) {
@@ -161,6 +161,10 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
       } else if (range && isEnd) {
         end = p;
         endName = inner;
+      } else if (isStart && (range || rest == null) && main != null) {
+        // A second one (in prose, two lines run together): bare as well.
+        replace(p, '@$inner');
+        bindName(inner, '');
       } else if (isStart && (range || rest == null)) {
         main = p;
         mainName = inner;
