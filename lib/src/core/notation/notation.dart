@@ -1556,7 +1556,7 @@ class _Parser {
       _use('alias', last![1]!, column + last.start + 1, of: 'flag', to: to, on: parts.word);
       return ['${text.substring(0, last.start)} $to'];
     }
-    const statements = {'if', 'each', 'else', 'for', 'node', 'document', 'every', 'key', 'let', 'derived', 'const', 'var'};
+    const statements = {'if', 'each', 'else', 'for', 'node', 'document', 'every', 'key', 'on', 'let', 'derived', 'const', 'var'};
     if (statements.contains(parts.word)) return [text];
     final written = parts.word;
     var changed = false;
@@ -3004,6 +3004,7 @@ class _Parser {
       if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
       return;
     }
+    if (canvasEventLine(line, column)) return; // `on load={…}` (notation_events.dart)
     if (RegExp(r'^key[\s:]').hasMatch(line)) {
       return _issue(column, 'A shortcut is a line of its own: key mod+k onPress={open search} (mod, alt, shift and a key, joined by +).');
     }
