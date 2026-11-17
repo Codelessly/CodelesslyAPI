@@ -214,6 +214,11 @@ final class Catalog {
     };
   }
 
+  /// [defs] as the catalog writes fields (key, type, kind, default, doc):
+  /// for declarations the catalog does not walk (a draw op's fields).
+  List<Json> fieldsOf(List<PropDef<Object?>> defs, {required String area, Iterable<String> prefer = const []}) =>
+      _fields(defs, area: area, prefer: prefer);
+
   List<Json> _fields(List<PropDef<Object?>> defs,
       {required String area, Iterable<String> prefer = const [], Iterable<String> models = const []}) {
     return [
