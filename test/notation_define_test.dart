@@ -673,7 +673,7 @@ define Badge2 "label" tone="#FFDCFCE7"
   group('a stand-in with nothing to draw shows what is missing', () {
     const page = NotationOptions(width: 1280);
     test('a quiet dashed box with its word (and its first string value), as big as its w and h say', () {
-      final r = parseNotation('Column\n  QRCode value={code} size=120\n  Map h=260 start="Saffron"\n', catalog: standardCatalog, options: page.open());
+      final r = parseNotation('Column\n  Minimap value={code} size=120\n  Map h=260 start="Saffron"\n', catalog: standardCatalog, options: page.open());
       expect(_problems(r.document), isEmpty);
       final qr = _node(r, 'column2');
       expect((qr['decoration'] as Map)['dashPattern'], [4, 3]);
@@ -681,7 +681,7 @@ define Badge2 "label" tone="#FFDCFCE7"
         {'color': page.line},
       ]);
       expect(((qr['layout'] as Map)['constraints'] as Map)['minHeight'], 40);
-      expect(_node(r, 'column2Label')['props'], containsPair('text', 'QRCode'));
+      expect(_node(r, 'column2Label')['props'], containsPair('text', 'Minimap'));
       expect(_node(r, 'column3Label')['props'], containsPair('text', 'Map · Saffron'));
       expect(((_node(r, 'column3')['layout'] as Map)['constraints'] as Map)['minHeight'], 260);
     });
@@ -703,7 +703,7 @@ define Badge2 "label" tone="#FFDCFCE7"
     });
 
     test('with the vocabulary closed nothing stands in', () {
-      final r = parseNotation('Column\n  QRCode value={code}\n', catalog: standardCatalog, options: page);
+      final r = parseNotation('Column\n  Minimap value={code}\n', catalog: standardCatalog, options: page);
       expect(r.issues, isNotEmpty);
       expect(jsonEncode(r.document), isNot(contains('dashPattern')));
     });

@@ -326,6 +326,10 @@ final class NotationVocabulary {
       'BottomBar': TypeAlias(to: 'Footer'),
       'FooterBar': TypeAlias(to: 'Footer'),
       'BottomDock': TypeAlias(to: 'Footer'),
+      // A QR code (the primitives list's QRCode, review 3): our Barcode, as a
+      // QR code.
+      'QRCode': TypeAlias(to: 'Barcode', add: 'symbology=qrCode'),
+      'QrCode': TypeAlias(to: 'Barcode', add: 'symbology=qrCode'),
     },
     parameters: {
       '*': {
@@ -339,6 +343,9 @@ final class NotationVocabulary {
       'Input': {'maxlength': 'maxLength', 'maxChars': 'maxLength', 'rows': 'lines'},
       // A ListTile's second string is its subtitle (10 of 20 apps named it).
       'ListTile': {'subtitle': r'$text', 'title': r'$text'},
+      // What a barcode encodes, and how (three self-defining answers named
+      // it value or code: the vocabulary loop's Review 5).
+      'Barcode': {'value': 'data', 'code': 'data', 'format': 'symbology', 'type': 'symbology'},
     },
     events: {
       // A universal event under its other name (docs/design/21).

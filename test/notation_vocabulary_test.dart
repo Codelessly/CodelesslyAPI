@@ -370,7 +370,7 @@ Dialog#ask "Reset?" "Really."
     test('every alias of the built-in table is one of the above', () {
       const tested = {
         'Shortcut', 'shortcut', 'computed', 'ConfirmDialog', 'RangeSlider', 'Highlight', 'HighlightText', 'MiniCalendar', 'CalendarMonth', 'MonthGrid', //
-        'StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock',
+        'StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock', 'QRCode', 'QrCode',
       };
       expect(NotationVocabulary.core.types.keys.toSet(), tested);
       expect(NotationVocabulary.core.types['RangeSlider']!.parameters.keys.toSet(), {'low', 'lo', 'bindLow', 'bindStart', 'start', 'high', 'hi', 'bindHigh', 'end'});
@@ -380,6 +380,7 @@ Dialog#ask "Reset?" "Really."
         '*': {'disabled': '!enabled', 'readonly': 'readOnly'},
         'ListTile': {'subtitle': r'$text', 'title': r'$text'},
         'Input': {'maxlength': 'maxLength', 'maxChars': 'maxLength', 'rows': 'lines'},
+        'Barcode': {'value': 'data', 'code': 'data', 'format': 'symbology', 'type': 'symbology'},
       });
       expect(NotationVocabulary.core.flags.keys.toSet(), {'*', 'Input', 'state', 'project'});
       expect(NotationVocabulary.core.flags['*'], {'disabled': 'enabled=false', 'readonly': 'readOnly', 'sortable': 'reorder', 'reorderable': 'reorder'});
@@ -537,6 +538,33 @@ Page
       expect(_problems(r.document), isEmpty);
       expect((_node(r, 'text1')['layout'] as Map)['flex'], 1);
       expect((_node(r, 'text2')['layout'] as Map).containsKey('flex'), isFalse);
+    });
+  });
+
+  group('the shapes the glossary\'s answers wrote on core words (the vocabulary loop, Review 6, D30)', () {
+    test('Text strike=true is the flag; strike={cond} a line through while it holds; strike=false nothing', () {
+      for (final read in [_open, _closed]) {
+        final r = read('state done=false\nColumn\n  Text#a "11:35" strike=true\n  Text#b "Milk" strike={done}\n  Text#c "Eggs" strike=false\n');
+        expect(r.issues, isEmpty);
+        expect(r.vocabulary.where((u) => u.kind != 'universal'), isEmpty);
+        expect(_problems(r.document), isEmpty);
+        expect((_node(r, 'a')['props'] as Map)['style'], containsPair('decoration', 'lineThrough'));
+        expect(_node(r, 'b')['bind'], {'props.style.decoration': r'${= (done) ? "lineThrough" : "none"}'});
+        expect((_node(r, 'c')['props'] as Map)['style'], isNot(contains('decoration')));
+      }
+    });
+
+    test('Barcode "…" encodes its text as bars; value=, code= and format= are its own words; QRCode is one as a QR code', () {
+      for (final read in [_open, _closed]) {
+        final r = read('Column\n  Barcode#a "29034 00718 4421" w=260\n  Barcode#b value="X1" format=ean13 h=96\n  QRCode#c value="https://example.com"\n');
+        expect(r.issues, isEmpty);
+        expect(_problems(r.document), isEmpty);
+        expect(_node(r, 'a')['props'], {'data': '29034 00718 4421', 'symbology': 'code128'});
+        expect((_node(r, 'a')['layout'] as Map)['height'], 80);
+        expect(_node(r, 'b')['props'], {'data': 'X1', 'symbology': 'ean13'});
+        expect(_node(r, 'c')['props'], {'data': 'https://example.com', 'symbology': 'qrCode'});
+        expect(_node(r, 'c')['layout'], {'height': 160, 'width': 160});
+      }
     });
   });
 

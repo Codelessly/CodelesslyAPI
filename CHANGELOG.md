@@ -8,6 +8,13 @@
   a definition whose signature is its props and events; a use is read as a named meaning only when it fits it
   better (a tie is the component). An unnamed definition of a component's word is still not read.
   `DefinedWords(component: …)`, `DefinedWords.meanings(word)`.
+- **The shapes answers gave words we have, read** (the vocabulary loop's Review 6, D30): `Text strike=true` is
+  the flag, `strike={done}` a line through the text while it holds (16 lines in the corpora; `underline=` the
+  same); `Barcode "29034 00718 4421"` encodes its string (it was an issue), as bars by default (`code128`; a QR code
+  is `symbology=qrCode`), 80 high when no height is given (160 square for a two-dimensional code); `value=`,
+  `code=`, `format=` and `type=` are its `data` and `symbology`; `QRCode` is a `Barcode` as a QR code. A design
+  system component's variant that is a value of one of its choices is that value: `Banner.warning` is `Banner
+  tone=warning`.
 - **The alias table reaches a defined word**: a word's own entries in `parameters`, `events` and `flags`
   (`"Timeline": {"events": "items"}`) are read as the names its definitions take, before its meaning is chosen; a
   name one of its meanings takes is its own. Recorded as aliases.

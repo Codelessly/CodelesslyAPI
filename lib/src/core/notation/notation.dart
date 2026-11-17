@@ -2871,6 +2871,13 @@ class _Parser {
         final String name => {'from': name, 'color': tone.$3},
         _ => {'fontSize': 11, 'fontWeight': 500, 'color': tone.$3},
       };
+    } else if (variant != null &&
+        component &&
+        catalog.widget(written)!.props.where((p) => p.type.kind == PropKind.enumeration && p.type.values.contains(variant)).firstOrNull != null) {
+      // `Banner.warning`: a component's variant that is a value of one of its
+      // choices (its tone) is that value, as `tone=warning` would be.
+      final p = catalog.widget(written)!.props.firstWhere((p) => p.type.kind == PropKind.enumeration && p.type.values.contains(variant));
+      props[p.key] = variant;
     } else if (variant != null && open) {
       // A stand-in's variant is part of its own record (its line).
       if (!standIn) _use('variant', '$written.$variant', column + written.length + 1, on: written);
@@ -3712,6 +3719,23 @@ class _Parser {
           textLine = _literal(raw).$2?.toString() ?? raw;
           continue;
         }
+        // `strike=true`, `strike={done}` (16 lines in the corpora): the flag,
+        // or a line through the text while the condition holds.
+        if (type == 'text' && (key == 'strike' || key == 'strikethrough' || key == 'underline')) {
+          final on = key == 'underline' ? 'underline' : 'lineThrough';
+          if (raw.startsWith('=')) {
+            props['style'] ??= switch (options.textStyles['body']) {
+              final Map m => _copy(m.cast<String, Object?>()),
+              final String name => <String, Object?>{'from': name},
+              _ => <String, Object?>{},
+            };
+            final cond = raw.substring(1);
+            bind['props.style.decoration'] = _formula('($cond) ? "$on" : "none"');
+          } else if (_literal(raw).$2 == true) {
+            textLine = on;
+          }
+          continue;
+        }
         // An icon button's icon takes a color and a size through its style.
         if ((key == 'color' || key == 'size') && type == 'iconButton') {
           if (raw.startsWith('=')) {
@@ -4400,6 +4424,15 @@ class _Parser {
     // colour (a choice's selected tint, else its label's and icon's ink), a
     // removable chip (an input chip, its x the event), an icon's ink from
     // the container it is in.
+    // A Barcode is the bars (a QR code is QRCode, or symbology=qrCode).
+    if (type == 'barcode' && written == 'Barcode') props.putIfAbsent('symbology', () => 'code128');
+    // It fills its box, so a box with no height of its own is given one: 80
+    // for the bars, 160 square for a two-dimensional code.
+    if (type == 'barcode' && (layout['height'] == null || layout['height'] is Map)) {
+      final square = const {'qrCode', 'aztec', 'dataMatrix'}.contains(props['symbology'] ?? 'qrCode');
+      layout['height'] = square ? 160 : 80;
+      if (square && (layout['width'] == null || (layout['width'] is Map && (layout['width'] as Map).containsKey('fill')))) layout['width'] = 160;
+    }
     final chip = type.endsWith('Chip') || type == 'chip';
     if (chip && chipColor != null) {
       final c = chipColor;
@@ -5784,6 +5817,8 @@ class _Parser {
   String? _mainKey(String type, WidgetSpec spec) {
     if (type == 'box') return 'text';
     if (type == 'dropdown') return 'hint';
+    // `Barcode "29034 00718 4421"`: what it encodes.
+    if (type == 'barcode') return 'data';
     // A component's main string: its label, title or text, else its first
     // text parameter.
     if (type[0].toUpperCase() == type[0]) return notationStrings(spec).firstOrNull;
