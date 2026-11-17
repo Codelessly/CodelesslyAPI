@@ -180,7 +180,7 @@ void main() {
     // ignore: avoid_print
     print('base: files form ${words(files)} words, ${files.length} characters (≈ ${(files.length / 3.5).round()} tokens); '
         'runtime form ${words(runtime)} words, ${runtime.length} characters (≈ ${(runtime.length / 3.5).round()} tokens)');
-    // 6,207 with the three node types, the action and the trigger the twenty
+    // Past 6,200 with the two node types, the action and the trigger the folded
     // behaviours added to its lists (6,195 before them).
     expect(words(files), lessThan(6250));
     expect(words(runtime), lessThan(6250));

@@ -2728,33 +2728,6 @@ Page
     expect(notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds), contains('Rating "label" bind=value score half readOnly'));
   });
 
-  test('SelectionList: several chosen from a list or grid, their keys kept in a list variable', () {
-    final r = _parsePage('''
-Page
-  Section
-    SelectionList#choices bind=agenda label="Agenda" items=[{"key":"a","label":"First"},{"key":"b","label":"Second"}] columns=2
-    Text "{length(agenda)} selected"
-''');
-    expect(r.issues, isEmpty);
-    expect(_problemsAtAnyLevel(r.document), isEmpty);
-    final choices = _node(r, 'choices');
-    expect(choices['type'], 'selectionList');
-    expect(choices['props'], {
-      'variable': 'agenda',
-      'label': 'Agenda',
-      'items': [
-        {'key': 'a', 'label': 'First'},
-        {'key': 'b', 'label': 'Second'},
-      ],
-      'columns': 2,
-    });
-    expect(choices, isNot(contains('bind')));
-    expect((r.document['variables'] as Map).values.expand((v) => v as List).single, {'name': 'agenda', 'type': 'list', 'value': []});
-    expect(_parsePage('Page\n  SelectionList bind=row.picked items=[]').issues.single.message, contains('write bind=name'));
-    expect(_pagePrompt(), contains('SelectionList bind=picked items=[{"key":"a","label":"Opening"}'));
-    expect(notationPrompt(catalog: standardCatalog), isNot(contains('SelectionList')));
-  });
-
   test('tooltip: an icon-only button is named by it, and the page prompt says so', () {
     final r = _parsePage('Page\n  Section\n    IconButton#clear "filter_alt_off" tooltip="Clear filters" onTap={type="All"}\n    Text#plain "Pinned" tooltip="Pinned by you"\n');
     expect(r.issues, isEmpty);

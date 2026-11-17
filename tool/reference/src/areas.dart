@@ -62,7 +62,7 @@ const List<PageDef> featurePages = [
       actions: ['editText', 'focus', 'validate'],
       models: ['InputDecoration', 'InputBorder', 'InputIcon', 'ButtonStyle', 'ShapeBorder', 'ButtonSegment', 'IconAction']),
   PageDef('lists',
-      nodes: ['listView', 'gridView', 'pageView', 'tableView', 'selectionList', 'listTile', 'pagination'],
+      nodes: ['listView', 'gridView', 'pageView', 'tableView', 'listTile', 'pagination'],
       behaviors: ['reorderHandle'],
       triggers: ['reorder', 'refresh', 'swipeAction', 'rowTap', 'sort'],
       actions: ['paginate'],

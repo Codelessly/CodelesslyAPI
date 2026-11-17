@@ -2122,17 +2122,6 @@ class _Parser {
     // on what only shows a value, the variable (or `bind={expression}`) it
     // follows.
     void bindTo(String expr, int col) {
-      // A SelectionList keeps its choices (their keys) in a list variable it
-      // reads and writes by name.
-      if (type == 'selectionList') {
-        if (!_identifier.hasMatch(expr) || expr.contains('.')) {
-          _issue(col, 'A SelectionList keeps its choices in a list variable: write bind=name.');
-        } else {
-          props['variable'] = expr;
-          variables.putIfAbsent(expr, () => {'name': expr, 'type': 'list', 'value': <Object?>[]});
-        }
-        return;
-      }
       final value = _valueProps[type];
       // A component keeps its value in the variable its parameter names.
       final held = !component

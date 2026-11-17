@@ -26,20 +26,6 @@ const _radius = Codecs.radius;
 const _json = Codecs.json;
 const _jsonList = Codecs.jsonList;
 const _optionalDouble = Codecs.optionalDouble;
-
-/// A list or grid whose keyed choices are kept in one list variable.
-/// The renderer owns range selection, modifier keys, and accessible state.
-abstract final class SelectionListProps {
-  static const variable = PropDef<String>('variable', Codecs.string, '');
-  static const label = PropDef<String>('label', Codecs.string, 'Selection');
-  static const items = PropDef<List<Json>>('items', Codecs.jsonList, []);
-  static const columns = PropDef<int>('columns', IntCodec(min: 1), 1);
-  static const spec = WidgetSpec('selectionList',
-      props: [variable, label, items, columns],
-      fillsWidth: true,
-      hugs: true,
-      doc: 'A keyboard and pointer multi-select list or grid; items have key and label.');
-}
 const _optionalPositive = Codecs.optionalPositive;
 
 /// Which pages of a page view draw on top where they overlap.
@@ -732,7 +718,6 @@ abstract final class TableViewProps {
 }
 
 const List<WidgetSpec> collectionsSpecs = [
-  SelectionListProps.spec,
   ListViewProps.spec,
   GridViewProps.spec,
   PageViewProps.spec,

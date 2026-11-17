@@ -42,8 +42,8 @@
 
 ### Added
 
-- **Twenty behaviours a page can now write** (folded from the `dsl5/*` branches, each in the 33.0.0 grammar; the
-  page prompt teaches them, the card prompt is unchanged at 8,979 characters, the page prompt is 20,779):
+- **Nineteen behaviours a page can now write** (folded from the `dsl5/*` branches, each in the 33.0.0 grammar; the
+  page prompt teaches them, the card prompt is unchanged at 8,979 characters, the page prompt is 20,580):
   - `confirm "Remove it?" then {rows=[]; close}` in an event's actions: the document's `confirm`, its actions run
     only on a yes.
   - `state draft="" saved` declares the variable with `persist`; `project cart=[] saved` checks that site.json's
@@ -64,8 +64,6 @@
     `label`): a divider between two panes, its value the first pane's size (`Column w={paneW}`).
   - A slider's `trackShape: stars` and `readOnly`: a rating (Cards' block: `Rating "Your rating" bind=score half`,
     `Rating "Score" score=4.5 readOnly`).
-  - A new control, `selectionList` (`SelectionList bind=picked items=[{"key":"a","label":"Opening"}] columns=2`):
-    several chosen from a list or grid, their keys in a list variable.
   - The page prompt says to name an icon-only button with `tooltip="Clear filters"`.
   - `openModal` gains `hoverCard`, `hoverDelayMs` and `popoverArrow`: `Link "About Mara" preview=bio` opens that
     Popover as a hover card, `Popover#bio arrow` points at its opener.

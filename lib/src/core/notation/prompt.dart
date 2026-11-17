@@ -134,7 +134,6 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
     Slider bind=low bindEnd=high min=0 max=100: a range, one slider with two thumbs.
     Calendar bind=arrival bindEnd=departure disabledDates=["2026-11-24"] marks={"2026-11-20":"£225"}: a month in the page for a range of days (yyyy-MM-dd; bind alone: one day); a disabled day is not picked or crossed, a mark is a short text under its day.
     DataTable rows={orders} columns=[{"key":"name","label":"Customer"},{"key":"total","label":"Total"}] bind=row: a table whose headers sort and whose rows are chosen (row: the chosen one's place, -1 none); onSort={…} reads result.column, onRowTap={…} result.row.
-    SelectionList bind=picked items=[{"key":"a","label":"Opening"},{"key":"b","label":"Workshop"}] columns=2: several chosen from a list or grid (Shift a range, Ctrl+A all); picked holds their keys.
     Splitter bind=paneW min=200 max=640: a divider dragged between two panes of a Row, the first Column w={paneW} (orientation=vertical: of a Column, its height).
     each r in fuzzy(rows,q,x=>x.title): a search, the rows whose text matches q, best first; Text "{r.title}" mark={q} marks what matched.
     each stop in trip reorder: a list put in order by hand; a Handle in each row is its grip (dragged, or Alt+arrows) and trip holds the order. Lists with one reorder=group pass rows between them.
