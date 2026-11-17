@@ -852,6 +852,24 @@ final class DelayAction extends CoreAction {
 
 // --- feedback -----------------------------------------------------------------------
 
+/// Reads a message through the accessibility service without showing UI or moving focus.
+final class AnnounceAction extends CoreAction {
+  const AnnounceAction({required this.message, super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'announce';
+  @override
+  String get type => typeName;
+
+  final String message;
+
+  static AnnounceAction _fromJson(Json m, _Common c) => AnnounceAction(
+    message: _s(m, 'message'), enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when,
+  );
+
+  @override
+  Json get _fields => {'message': message};
+}
+
 /// A toast's look.
 enum ToastStyle { neutral, info, success, warning, error }
 
@@ -1807,6 +1825,7 @@ const List<ActionSpec> coreActionSpecs = [
   ActionSpec(CallFunctionAction.typeName, label: 'Call function', fields: CallFunctionFields.all, decode: CallFunctionAction._fromJson),
   ActionSpec(IfAction.typeName, label: 'If', fields: IfFields.all, decode: IfAction._fromJson, nested: ['then', 'else']),
   ActionSpec(ForEachAction.typeName, label: 'For each', fields: ForEachFields.all, decode: ForEachAction._fromJson, nested: ['actions']),
+  ActionSpec(AnnounceAction.typeName, label: 'Announce', fields: AnnounceFields.all, decode: AnnounceAction._fromJson),
   ActionSpec(ShowToastAction.typeName, label: 'Show toast', fields: ShowToastFields.all, decode: ShowToastAction._fromJson, nested: ['actions']),
   ActionSpec(ConfirmAction.typeName, label: 'Confirm', fields: ConfirmFields.all, decode: ConfirmAction._fromJson, nested: ['actions', 'cancelActions']),
   ActionSpec(DelayAction.typeName, label: 'Delay', fields: DelayFields.all, decode: DelayAction._fromJson),

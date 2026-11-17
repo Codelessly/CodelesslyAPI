@@ -2536,4 +2536,25 @@ Column
     expect(page, allOf(contains('fuzzy(list,query,x=>text)'), contains('mark={q}')));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('fuzzy')));
   });
+
+  test('announce and live: a text said to a screen reader by an action, and a text that says its changes', () {
+    final r = _parse('''
+state count=3
+Column
+  Text#results "{count} results" live
+  Text#quiet "{count} results"
+  Button#filter "Filter" onTap={count=count-1; announce "{count} results"}
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect(_node(r, 'results')['props'], containsPair('live', true));
+    expect(_node(r, 'quiet')['props'], isNot(contains('live')));
+    expect((((_node(r, 'filter')['actions'] as List).single as Map)['actions'] as List).last, {'type': 'announce', 'message': r'${count} results'});
+    // The document model reads and writes both.
+    final action = ActionDef.fromJson({'type': 'announce', 'message': r'${count} results'});
+    expect(action, isA<AnnounceAction>());
+    expect(action!.toJson(), {'type': 'announce', 'message': r'${count} results'});
+    expect(_parse('Button "Go" onTap={announce}').issues.single.message, contains('announce "3 results"'));
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), allOf(contains('announce "{n} results"'), contains('Text "{n} results" live')));
+  });
 }

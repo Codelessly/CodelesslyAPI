@@ -3930,10 +3930,17 @@ class _Parser {
           }
         case 'toast':
           out.add({'type': 'showToast', 'message': s});
+        case 'announce':
+          // Said to a screen reader; nothing is shown and the focus stays.
+          if (s.isEmpty) {
+            _issue(column, 'An announce says a text to a screen reader: announce "3 results".');
+          } else {
+            out.add({'type': 'announce', 'message': s});
+          }
         case 'link':
           out.add({'type': 'openLink', 'url': s});
         default:
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, confirm "Question" then {actions}, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, or JSON.');
       }
     }
     return out;

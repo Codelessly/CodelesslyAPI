@@ -27,6 +27,7 @@ final samples = <Json>[
   {'type': 'downloadFile', 'fileName': 'rota.csv', 'text': r'${csv}', 'mimeType': 'text/csv'},
   {'type': 'preloadImages', 'urls': r'${= map(story.pages, p => p.layers.sky)}', 'progressVariable': 'loaded'},
   {'type': 'showToast', 'message': 'Saved', 'title': 'Done', 'style': 'success', 'actionLabel': 'Undo', 'actions': [{'type': 'delay', 'ms': 1}], 'look': {'radius': 8}},
+  {'type': 'announce', 'message': r'${count} results'},
   {'type': 'confirm', 'title': 'Delete?', 'destructive': true, 'actions': [{'type': 'delay', 'ms': 1}], 'cancelActions': [{'type': 'delay', 'ms': 2}], 'dialog': 'd'},
   {'type': 'delay', 'ms': 900, 'duration': r'${= slow ? 4000 : 900}'},
   {'type': 'cloudData', 'operation': 'query', 'collection': 'tasks', 'whereFilters': [{'field': 'done', 'operator': 'equal', 'value': 'false'}], 'limit': 3, 'resultVariable': 'r'},
