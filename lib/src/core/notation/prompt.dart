@@ -20,6 +20,10 @@ const List<String> notationFunctions = [
   'coalesce(v,fallback)', 'today()', 'formatDate(date,"MMM d")', 'duration(seconds)', 'concat(listA,listB)',
 ];
 
+/// The functions only the page prompt names (the card prompt has no room):
+/// a search over a list.
+const List<String> notationPageFunctions = ['fuzzy(list,query,x=>text)'];
+
 /// From this canvas width on the prompt teaches the page words (`Page`,
 /// `Section`, `App`, `Sidebar`…): a window, not a card.
 const double notationPageWidth = 700;
@@ -121,7 +125,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   Side by side: Row gap=32 with grow on each child that shares the width (Column grow gap=12), or Grid cols=3 gap=24 for equal cells; Cards side by side are equally tall by themselves; write top on a Row of other things that differ in height. Row between spreads its children end to end. Section bleed runs what is in it from edge to edge (a wide picture, a map). Nav sticky keeps the bar at the top while the page scrolls; sticky on a rail (Column w=320 sticky) keeps an enrol panel or a table of contents in view while the page scrolls. A rule on one side is border-bottom=#… (border-top, border-left, border-right).
   A block's events are on its line, each by its name: SiteNav … onNavigate={go {replace(lower(result)," ","_")}} onCta={go signup} onSecondary={go login}. SiteNav … sticky keeps it at the top.
   A value every page of the site shares (a cart, the signed-in name) is declared once, in site.json's variables; a page expanded beside that site.json reads and sets it by name with no declaration (project cart=[] before the page says so on the page itself): it is read and set like any other (Select bind=cart, onTap={cart=append(cart,item)}) and keeps its value from page to page. state draft="" saved keeps a value on the device, across reloads (project cart=[] saved, with "persist": true on it in site.json).
-  Inside a frame everything is written as on a card: the components, Card, Text, the controls. A Card in a Grid is a tile of the page. CodeInput "Code" bind=code length=6 digits is a one-time code: one field drawn as boxes. Slider bind=low bindEnd=high min=0 max=100 is a range: one slider with two thumbs. each line in lines follow h=180 is a log or a chat: it scrolls in that height, opens at its end and follows what is added.${options.reflow ? '''
+  Inside a frame everything is written as on a card: the components, Card, Text, the controls. A Card in a Grid is a tile of the page. CodeInput "Code" bind=code length=6 digits is a one-time code: one field drawn as boxes. Slider bind=low bindEnd=high min=0 max=100 is a range: one slider with two thumbs. each r in fuzzy(rows,q,x=>x.title) is a search (the rows whose text matches q, best first, near spellings too) and Text "{r.title}" mark={q} marks what matched. each line in lines follow h=180 is a log or a chat: it scrolls in that height, opens at its end and follows what is added.${options.reflow ? '''
 
   Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns, a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it) and opens its Sidebar as a drawer from a menu button it adds to Main's Nav, a Nav hides its links and opens them from a menu button it adds itself (each Link with its onTap or href, as written), sections and headlines get smaller. So that it can:
     Share a width with grow, or give the one fixed part a width (a rail: Column w=320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
@@ -247,7 +251,7 @@ TYPES
 
 FORMULAS (in {…} and in an action's name=…)
   Operators: + - * / % == != < <= > >= && || ! and cond ? a : b. Text in "double quotes" or 'single'. Lists [1,2], fields a.b, items list[0].
-  Only these functions exist: ${notationFunctions.join(', ')}.
+  Only these functions exist: ${[...notationFunctions, if (options.width >= notationPageWidth) ...notationPageFunctions].join(', ')}.
 ${natural ? '''  A list or a record changes as in code (rows.add(x), rows.remove(row), row.qty += 1); for anything else set the variable to a new list (rows = filter(rows, r => r.qty > 0)). Money is "{fixed(total,2)}"; a count is "{length(rows)} items"; minutes and seconds are "{duration(elapsed)}" (74 gives 1:14).''' : '''  Lists never change in place: set the variable to a new list (cart=append(cart,item); rows=updateWhere(rows,r=>r.id==row.id,r=>with(r,"qty",r.qty+1))).'''}
 ${natural ? '''  Every value shown that depends on the state is written as an expression in {…} (or a let name), never as a number you worked out: after a tap it must show the new value.''' : '''  An action is one of the forms above, never a condition: to choose, set a variable to a formula (step=valid?3:2).'''}
 

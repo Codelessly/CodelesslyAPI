@@ -1853,6 +1853,8 @@ class _Parser {
     Set<String>? stackAlign;
     Json? animation;
     Map<String, int>? timing;
+    // `Text "{row.title}" mark={q}`: the text as written, and what to mark in it.
+    String? markText, markQuery;
     num? sliderStep;
     // `Slider bind=low bindEnd=high`: the variable of its second thumb.
     String? sliderEnd;
@@ -2079,7 +2081,9 @@ class _Parser {
           positional.add(key);
         }
       } else if (t.peek == '"') {
-        _main(type, spec, t.string(), props, decoration);
+        final text = t.string();
+        if (type == 'text') markText ??= text;
+        _main(type, spec, text, props, decoration);
       } else if (t.peek == '{') {
         final j = _json(t.rest);
         if (j is Map) {
@@ -2443,6 +2447,10 @@ class _Parser {
           node['tooltip'] = _literal(raw).$2?.toString() ?? raw;
           continue;
         }
+        if (key == 'mark' && type == 'text') {
+          markQuery = raw.startsWith('=') ? raw.substring(1) : raw;
+          continue;
+        }
         if (key == 'decoration' && type == 'text') {
           textLine = _literal(raw).$2?.toString() ?? raw;
           continue;
@@ -2685,6 +2693,9 @@ class _Parser {
       layout.putIfAbsent('width', () => own?.width ?? {'hug': 0});
       layout.putIfAbsent('height', () => own?.height ?? {'hug': 0});
     }
+    // The parts of a text that match a search are drawn marked: runs over
+    // the text, which itself stays whole (and is read whole).
+    if (markQuery != null && markText != null) bind['props.runs'] = _formula('matchRuns(${_formulaSource(markText)}, $markQuery)');
     // A code field with no length written has six boxes.
     if (ours && written == 'CodeInput' && !bind.containsKey('props.otpLength')) props.putIfAbsent('otpLength', () => 6);
     if (written == 'Image') {

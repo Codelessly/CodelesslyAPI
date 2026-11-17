@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/levels.dart';
 import 'package:codelessly_api/notation.dart';
-import 'package:codelessly_api/src/core/notation/prompt.dart' show notationFunctions, notationPrompt;
+import 'package:codelessly_api/src/core/notation/prompt.dart' show notationFunctions, notationPageFunctions, notationPrompt;
 import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
@@ -220,7 +220,7 @@ Card gap=12
     expect(prompt.length, lessThan(9000), reason: 'about 2,200 tokens');
     // Every function it names is one the engine has.
     final engine = {for (final f in (jsonDecode(File('tool/reference/data/formulas.json').readAsStringSync()) as Map)['functions'] as List) (f as Map)['name']};
-    for (final f in notationFunctions) {
+    for (final f in [...notationFunctions, ...notationPageFunctions]) {
       expect(engine, contains(f.split('(').first), reason: f);
     }
     final examples = prompt.substring(prompt.indexOf('EXAMPLES') + 9).trim().split(RegExp(r'\n\n+'));
@@ -2511,5 +2511,29 @@ Column
     }
     expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('each line in lines follow h=180'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('follow h=180')));
+  });
+
+  test('mark: the parts of a text that match a search are runs over it; fuzzy is taught on a page', () {
+    final r = _parse('''
+state q="light"
+state rows=[{"title":"The keeper of the light"}]
+Column
+  Text#plain "The keeper" mark={q}
+  Text#fixed "The keeper" mark="keep"
+  each row in fuzzy(rows,q,x=>x.title)
+    Text#title "Episode: {row.title}" mark={q}
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect(_node(r, 'plain')['props'], containsPair('text', 'The keeper'));
+    expect(_node(r, 'plain')['bind'], {'props.runs': r'${= matchRuns("The keeper", q)}'});
+    expect(_node(r, 'fixed')['bind'], {'props.runs': r'${= matchRuns("The keeper", "keep")}'});
+    final title = _node(r, 'title');
+    expect((title['bind'] as Map)['props.runs'], r'${= matchRuns(("Episode: " + (item.title)), q)}');
+    expect(jsonEncode(title), contains('item.title'));
+    expect((r.document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView')['bind'], containsPair('data', r'${= fuzzy(rows,q,x=>x.title)}'));
+    final page = notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280));
+    expect(page, allOf(contains('fuzzy(list,query,x=>text)'), contains('mark={q}')));
+    expect(notationPrompt(catalog: standardCatalog), isNot(contains('fuzzy')));
   });
 }
