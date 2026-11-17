@@ -485,6 +485,26 @@ define Guide visible=true steer=0
     });
   });
 
+  group('an open of an overlay that was never written (Review 3, D17)', () {
+    const text = 'Column\n  Button "Add" onTap={open addRecipe}\n  Button "Again" onTap={open addRecipe}\n';
+    test('with the vocabulary open: a quiet sheet titled with the id opens, recorded as a wanted overlay, not an issue', () {
+      final r = parseNotation(text, catalog: standardCatalog, options: const NotationOptions(width: 1280).open());
+      expect(r.issues, isEmpty);
+      expect(_problems(r.document), isEmpty);
+      expect(r.document['roots'], ['screen', 'addRecipe']);
+      expect(jsonEncode(r.document), allOf(contains('"text":"Add recipe"'), contains('"text":"Not written yet."'), contains('"to":"addRecipe","presentation":"bottomSheet"')));
+      final wanted = _uses(r, 'overlay').single;
+      expect((wanted.word, wanted.line, wanted.node), ('addRecipe', 2, 'addRecipe'));
+    });
+
+    test('with it closed, nothing is made: the open is what does not validate, as before', () {
+      final r = parseNotation(text, catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.document['roots'], ['screen']);
+      expect(_problems(r.document), everyElement(startsWith('unknown_screen')));
+      expect(r.vocabulary, isEmpty);
+    });
+  });
+
   group('a definition anywhere in a text holds for the whole text', () {
     const before = '''
 // A small rounded label.

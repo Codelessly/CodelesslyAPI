@@ -1785,9 +1785,9 @@ class _Parser {
     menu: options.reflow && options.width >= 700,
     // Named so that no id an author writes (`Menu#albumMenu` on the album
     // page) is the drawer's.
-    sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}_sidebar' : null,
+    sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen.replaceAll('-', '_')}_sidebar' : null,
     surface: options.surface,
-    viewer: _host == null && options.width >= 700 ? '${options.screen}Viewer' : null,
+    viewer: _host == null && options.width >= 700 ? '${options.screen.replaceAll('-', '_')}Viewer' : null,
     takesViewer: (name) {
       if (notationTypes[name] != null) return false;
       final spec = catalog.widget(name);
@@ -4963,6 +4963,31 @@ class _Parser {
     // `open <id>` of nothing written over this page, and a `scroll <id>` to
     // no line of it, are left out, and said where they are written.
     if (_host == null && options.openVocabulary) {
+      // An `open` of an overlay the answer never wrote (asked for a few
+      // screens, models write the button and leave the dialog out): a quiet
+      // sheet titled with its id opens, and it is recorded as a wanted
+      // overlay (kind `overlay`), not an issue.
+      final have = {for (final o in _overlays) o.options.screen};
+      final unwritten = <String, int>{};
+      for (final a in _opens) {
+        final to = a['to'];
+        if (to is String && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(to) && !have.contains(to) && !_taken(to)) {
+          unwritten.putIfAbsent(to, () => _actionLines[a] ?? _line);
+        }
+      }
+      for (final e in unwritten.entries) {
+        if (_pages.overlay('Sheet#${e.key} "${_humanised(e.key)}"') case final Overlay o) {
+          _openBlock(o);
+          _quiet = true;
+          _feed(2, 'Text.muted "Not written yet."');
+          _blockLines.add((indent: 2, text: 'Text.muted "Not written yet."'));
+          _closeBlock();
+          _quiet = false;
+          if (_overlays.any((p) => p.options.screen == e.key)) {
+            vocabulary.add(VocabularyUse(kind: 'overlay', word: e.key, source: 'open ${e.key}', line: e.value, column: 1, node: e.key));
+          }
+        }
+      }
       final canvases = {for (final o in _overlays) o.options.screen};
       // What the author wrote over the page (not the drawer or viewer made for it).
       final written = [
@@ -5650,6 +5675,17 @@ class _Parser {
   Object? _valueOrRead(String raw) {
     final l = _literal(raw);
     return l.$1 ? l.$2 : _read(raw);
+  }
+
+  /// An id as words for a title: `rowMenu`, `add-recipe`, `new_project` are
+  /// "Row menu", "Add recipe", "New project".
+  static String _humanised(String id) {
+    final words = id
+        .replaceAllMapped(RegExp(r'([a-z0-9])([A-Z])'), (m) => '${m[1]} ${m[2]}')
+        .replaceAll(RegExp(r'[-_]+'), ' ')
+        .trim()
+        .toLowerCase();
+    return words.isEmpty ? id : '${words[0].toUpperCase()}${words.substring(1)}';
   }
 
   String _id(String type) {

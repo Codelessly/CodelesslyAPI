@@ -46,6 +46,14 @@
   - an Input's typed text styled: `font`, `fontFamily`, `fontSize`, `weight`, `fontWeight`, `letterSpacing`,
     `lineHeight`;
   - a choice between actions already took a use's events, given or not (`ok ? onOk : onError`): now tested.
+- **An `open` of an overlay that was never written** (Review 3, D17; a third of the first corpus's grammar issues,
+  256 of 766): with the open vocabulary it opens a quiet placeholder sheet titled with the id (`open addRecipe`: a
+  Sheet "Add recipe" that says "Not written yet.") and is recorded as a wanted overlay (`VocabularyUse` kind
+  `overlay`, its line the first `open`), not an issue. With the vocabulary closed nothing is made, as before. An id
+  with a hyphen is not an overlay's, so `open add-recipe` is still the issue it was.
+- The drawer an app's sidebar becomes on a narrow window, and a gallery's viewer, take the screen's id with its
+  hyphens as underscores (`decks_and_mixer_sidebar`): a screen id with a hyphen gave an id no overlay can have, and
+  the menu button's `open` was left out.
 
 - **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
   parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own

@@ -65,7 +65,7 @@ With `openVocabulary`:
 - **An unknown variant** draws the plain type.
 - **A component called without something it needs** (`Rating value=4.6` where Cards' Rating needs a label) is given an empty value of the right kind, so the page validates, and the gap is recorded (kind `missing`): the answer's idea of the word is not the component's.
 - **Lines under a word we have that takes none** (`Stepper` with `Step` lines under it) are drawn after it, under the node around it (kind `children`).
-- **`open <id>` of nothing over the page, and `scroll <id>` to no line of it** are left out, with an issue on the line that wrote them. These are not vocabulary; they are left out so that the page validates.
+- **`open <id>` of nothing over the page** opens a quiet placeholder sheet titled with the id, humanised (`open addRecipe`: a Sheet "Add recipe" with "Not written yet."), recorded as a wanted overlay (kind `overlay`, its line the first `open` of it), not an issue: asked for a few screens, models write the button and leave the dialog out (256 of the first corpus's 766 grammar issues; the loop's Review 3, D17). An id with a hyphen cannot be an overlay's and is still left out with an issue. **`scroll <id>` to no line of the page** is left out, with an issue on the line that wrote it.
 
 The document carries nothing private to this feature. The stand-in is an ordinary column; which node it is is said in the record (`node`), outside the document, exactly as a `Wanted` block is marked today (`WantedBlock.node`).
 
@@ -135,7 +135,7 @@ What was looked at and not made an alias, because the shapes do not match:
 
 | field | |
 |---|---|
-| `kind` | `type`, `parameter`, `flag`, `event`, `verb`, `variant`, `missing`, `children`, `alias`, or `definition` (a use of a defined word: `to` the meaning read, `node` its root; recorded open or closed) |
+| `kind` | `type`, `parameter`, `flag`, `event`, `verb`, `variant`, `missing`, `children`, `alias`, `definition` (a use of a defined word: `to` the meaning read, `node` its root, `of` "page, over <file>" when the page's own definition was read over the design system's; recorded open or closed), or `overlay` (an `open` of an overlay the text never wrote: `node` the placeholder sheet) |
 | `word` | as written (`SeatMap`, `tooltip`, `onSeek`, `haptic`, `Button.danger`) |
 | `on` | the type whose line it is on (not for a type) |
 | `value` | as written (`{row.name}`, `"Archive"`); a verb's argument |

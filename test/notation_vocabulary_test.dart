@@ -207,19 +207,16 @@ CommandPalette#palette "Commands" placeholder="Type a command"
       expect((use.word, use.on, use.value), ('live', 'Text', 'polite'));
     });
 
-    test('an open of nothing over the page, and a scroll to no line of it, are left out and said on their line', () {
+    test('an open of nothing over the page opens a placeholder sheet (recorded as a wanted overlay); a scroll to no line of it is left out and said', () {
       final r = _open('Page\n  Section\n    Button "A" onTap={open nothing; toast "x"}\n    Button "B" onTap={scroll nowhere}\n');
       expect(_problems(r.document), isEmpty);
       expect(r.issues.map((i) => '$i'), [
-        startsWith('line 3:1: Nothing over this page has the id "nothing" for an open to show'),
         startsWith('line 4:1: No line of this page has the id "nowhere" for a scroll to go to'),
       ]);
-      expect((_node(r, 'filledButton1')['actions'] as List).single, {
-        'trigger': {'type': 'click'},
-        'actions': [
-          {'type': 'showToast', 'message': 'x'},
-        ],
-      });
+      expect(_uses(r, 'overlay').single.word, 'nothing');
+      final actions = ((_node(r, 'filledButton1')['actions'] as List).single as Map)['actions'] as List;
+      expect([for (final a in actions) (a as Map)['type']], ['openModal', 'showToast']);
+      expect(jsonEncode(r.document), contains('"text":"Nothing"'));
     });
   });
 

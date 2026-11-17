@@ -423,10 +423,13 @@ void main() {
           options: const NotationOptions(projectVariables: {'cart': {'type': 'list', 'value': []}})));
       expect(declared.issues, isEmpty);
       expect(jsonEncode(declared.document['variables'] ?? {}), isNot(contains('cart')), reason: 'the site\'s, with no copy on the screen');
-      // An open of an overlay this page does not have names the ones it has.
+      // An open of an overlay this page does not have opens a placeholder
+      // sheet with the vocabulary open (Review 3, D17), beside the ones it has.
       final open = Catalog.run(standardCatalog, () => parseNotation('Column\n  Button "Role" onTap={open roleDialog}\nMenu#more\n  MenuItem "Edit"\n',
           catalog: standardCatalog, options: const NotationOptions().open()));
-      expect(open.issues.single.message, endsWith('the action is left out. Over this page: "more".'));
+      expect(open.issues, isEmpty);
+      expect(open.document['roots'], ['screen', 'more', 'roleDialog']);
+      expect([for (final u in open.vocabulary) if (u.kind == 'overlay') u.word], ['roleDialog']);
     });
 
     test('a field written where it stands, an entry of a list or a map, a field of the record a find picks', () {
