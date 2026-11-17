@@ -790,7 +790,7 @@ section's anchor is its topic.
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10353 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2971 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13600 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13664 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 8049 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4759 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6732 |
@@ -3696,7 +3696,7 @@ A pane divider. Its value is the leading pane's width in logical pixels.
 <a id="node-calendar"></a>
 ### `calendar`
 
-An inline month calendar that picks a start and end date. Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}.
+An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}, or with range false the day picked.
 
 A month calendar in the page. A pick chooses the range's start, then its end; disabled dates cannot be crossed. The renderer uses the date picker's month grid, including its locale, keyboard movement and theme.
 
@@ -3707,11 +3707,12 @@ A month calendar in the page. A pick chooses the range's start, then its end; di
 |---|---|---|---|---|
 | `start` | String | `""` |  |  |
 | `end` | String | `""` |  |  |
+| `range` | bool | `true` |  | Whether it picks a range (a start, then an end) or one day. |
 | `firstDate` | String | unset |  |  |
 | `lastDate` | String | unset |  |  |
 | `disabledDates` | List<String> | `[]` |  |  |
 | `dayPrices` | Object | unset |  |  |
-| `marks` | Object | unset |  |  |
+| `marks` | Object | unset |  | A short text under days: a map by yyyy-MM-dd, or a list of days (a dot under each) or of records `{date, label}` (a list worked out from data). |
 | `label` | String | `"Choose dates"` |  |  |
 | `enabled` | bool | `true` |  |  |
 | `pickerTheme` | Object | unset |  | Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
