@@ -400,6 +400,13 @@ Column
       final r = Catalog.run(catalog, () => parseNotation('Column\n  Stepper steps=["A"]\n', catalog: catalog, options: options));
       expect(_uses(r, 'definition'), isEmpty);
       expect(jsonEncode(r.document), isNot(contains('never')));
+      // Nor does a page's own: and it does not hide the named meaning the
+      // design system gives the word (tax-form in corpus-define/d02).
+      final (catalog2, options2) = await stepper({'Stepper.txt': steps});
+      final p = Catalog.run(
+          catalog2, () => parseNotation('state at=0\nColumn\n  Stepper steps=["A","B"] bind=at\ndefine Stepper steps=[] bind=step\n  Text "the page\'s"\n', catalog: catalog2, options: options2));
+      expect([for (final u in _uses(p, 'definition')) u.to], ['Stepper#steps']);
+      expect(jsonEncode(p.document), isNot(contains("the page's")));
     });
 
     test('the alias table names a defined word\'s parameters and events under the names answers wrote', () async {

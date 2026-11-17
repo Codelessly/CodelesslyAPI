@@ -451,7 +451,10 @@ final class DefinedWords {
   List<NotationDefinition> meanings(String word) {
     if (has(word)) return _of(word) ?? const [];
     if (component?.call(word) == null) return const [];
-    return [for (final d in _of(word) ?? const <NotationDefinition>[]) if (d.name != null) d];
+    // A page's own unnamed definition of a component's word is not read, and does
+    // not hide the design system's named meanings of it.
+    final named = [for (final d in page[word] ?? const <NotationDefinition>[]) if (d.name != null) d];
+    return named.isNotEmpty ? named : [for (final d in definitions[word] ?? const <NotationDefinition>[]) if (d.name != null) d];
   }
 
   /// The meanings of [word] here: the page's own, else the definitions'.
