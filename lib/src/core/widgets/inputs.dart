@@ -97,6 +97,13 @@ abstract final class TextFieldProps {
 
   /// A number keyboard with a sign key (`TextInputType.numberWithOptions(signed: true)`).
   static const keyboardSigned = PropDef<bool>('keyboardSigned', Codecs.bool, false);
+  /// Bounds and increment for a number field. Up/Down step by [step], Page
+  /// Up/Down by ten steps, and Home/End reach the bounds when supplied.
+  static const min = PropDef<double?>('min', Codecs.optionalDouble, null);
+  static const max = PropDef<double?>('max', Codecs.optionalDouble, null);
+  static const step = PropDef<double>('step', DoubleCodec(min: 0.000001), 1);
+  /// An accessible name when the visible label is drawn by a parent block.
+  static const semanticLabel = PropDef<String>('semanticLabel', Codecs.string, '');
   static const textInputAction =
       PropDef<TextInputAction?>('textInputAction', EnumCodec(TextInputAction.values), null);
   static const textCapitalization =
@@ -170,7 +177,7 @@ abstract final class TextFieldProps {
   static const runs = PropDef<List<TextRun>>('runs', Codecs.textRuns, []);
 
   static const spec = WidgetSpec('textField', hugs: true, props: [
-    initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, //
+    initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, min, max, step, semanticLabel, //
     textInputAction, textCapitalization, autocorrect, autofocus, enableInteractiveSelection, enabled, obscureText,
     obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength, otpLength, otpDigitsOnly,
     maxLines, minLines, expands, selectionHeightStyle, selectionWidthStyle, autofillHints, autovalidateMode,

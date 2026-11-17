@@ -2927,4 +2927,21 @@ Column
     expect(_pagePrompt(), contains('SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name}'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('SwipeAction')));
   });
+
+  test('a number field steps: Input type=number takes min, max and step', () {
+    final r = _parse('Column\n  Input#qty "Quantity" bind=qty type=number min=1 max=12 step=2\n  Input#plain "Name" bind=name\n');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final qty = _node(r, 'qty');
+    expect(qty['props'], allOf(containsPair('keyboardType', 'number'), containsPair('min', 1), containsPair('max', 12), containsPair('step', 2)));
+    expect(qty['bind'], {'props.initialValue': r'${qty}'});
+    expect(_node(r, 'plain')['props'], allOf(isNot(contains('min')), isNot(contains('step'))));
+    // The document model keeps them, with a name for a field whose label is drawn beside it.
+    final n = Node.fromJson({
+      'type': 'textField',
+      'props': {'keyboardType': 'number', 'min': 1, 'max': 12, 'step': 2, 'semanticLabel': 'Quantity'},
+    }, id: 'quantity')!;
+    expect((n.prop(TextFieldProps.min), n.prop(TextFieldProps.max), n.prop(TextFieldProps.step), n.prop(TextFieldProps.semanticLabel)), (1, 12, 2, 'Quantity'));
+    expect(_pagePrompt(), contains('Input "Qty" bind=qty type=number min=1 max=12 step=1'));
+  });
 }
