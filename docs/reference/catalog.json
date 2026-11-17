@@ -26544,6 +26544,11 @@
       "meaning": "A color role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's \"colors\": roles are top-level keys of the theme, so controls never read it. Move it up (\"primary\": \"#FF...\" or \"primary\": \"<a color's name>\")."
     },
     {
+      "code": "site_key_ignored",
+      "severity": "warning",
+      "meaning": "A key of the site manifest (site.json) that nothing reads. A theme key written beside \"theme\" (primary, colors, dark...) belongs inside it: \"theme\": {\"primary\": \"#FF...\", \"colors\": {...}}."
+    },
+    {
       "code": "invalid_fonts",
       "severity": "error",
       "meaning": "The site manifest's \"fonts\" is not of the right shape: a list of {\"family\": \"Inter\", \"fonts\": [{\"asset\": \"fonts/Inter-Regular.ttf\", \"weight\": 400, \"style\": \"normal\"}]} (a pubspec's fonts: section)."
