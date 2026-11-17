@@ -30,10 +30,15 @@ import 'universal.dart';
 import 'vocabulary.dart';
 // Events and actions (design 22 sections 2.2, 2.3).
 import '../action_fields.dart' show ActionCommonFields, TriggerFields;
-import '../suggest.dart' show didYouMean;
 import '../triggers.dart' show TriggerType;
 
+// Paint, motion and charts (design 22, 4.6): paint_words.dart.
+import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields, TransitionFields;
+import '../custom_paint.dart' show DrawOp;
+import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields, DrawOpSpecs;
+
 part 'notation_events.dart';
+part 'paint_words.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -1853,6 +1858,7 @@ class _Parser {
     if (raw.trimLeft().startsWith('```')) return;
     if (_componentLine(raw)) return;
     final indent = raw.length - raw.trimLeft().length;
+    if (_paintLine(indent, raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
     var before = nodes.length;
     // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
     // the state is the line's variant={…}.
@@ -2901,6 +2907,7 @@ class _Parser {
   }
 
   void _lineAt(int indent, String source, int column) {
+    if (_paintLine(indent, source)) return; // a defined word's custom paint or animation (paint_words.dart)
     var line = source;
     while (_stack.isNotEmpty && _stack.last.indent >= indent) {
       _close(_stack.removeLast());
@@ -4355,7 +4362,7 @@ class _Parser {
         }
         if (key == 'limit' && type == 'radialGauge') key = 'target';
         // What a gauge measures in, under its figure: unit="km/h".
-        if ((key == 'unit' || key == 'label') && type == 'radialGauge') {
+        if ((key == 'unit' || key == 'label') && type == 'radialGauge' && ours) {
           gaugeUnit = _literal(raw).$2?.toString() ?? raw;
           continue;
         }
@@ -5222,7 +5229,9 @@ class _Parser {
     }
     // A gauge: its scale's labels follow its range, a target shows only when
     // one is written (`target:` or `limit:`), and it has a size of its own.
-    if (type == 'radialGauge') {
+    // The document's own radialGauge (the printer's word for one) is the
+    // node as written (design 22, 4.6).
+    if (type == 'radialGauge' && ours) {
       // One clean arc with the figure inside it: no scale numbers, ticks or
       // needle unless written, the value arc in the accent.
       props.putIfAbsent('labels', () => const <Object>[]);
@@ -5869,7 +5878,7 @@ class _Parser {
       out['children'] = ['${id}Text'];
       _parentOf['${id}Text'] = id;
     }
-    if (type == 'radialGauge') {
+    if (type == 'radialGauge' && ours) {
       // A gauge is its arc with the figure it shows inside: a stack under
       // the line's id, so the id still names the whole.
       final value = (out['props'] as Map?)?['value'], bound = (out['bind'] as Map?)?['props.value'];

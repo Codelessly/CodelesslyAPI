@@ -20,6 +20,7 @@ import 'declared.dart';
 import 'notation.dart';
 import 'print_events.dart' show printCanvasEvents;
 import 'print_fields.dart';
+import 'print_paint.dart' show printPaintLines;
 
 /// [document] in the notation. Parse it back with [notationOptionsFor].
 ///
@@ -327,6 +328,12 @@ final class _Printer {
     // Under an `if`, the line's own `visible` is the if's.
     if (condition != null) text = text.replaceFirst(' visible={$condition}', '');
     _lines.add(_Line(depth, _withoutId(text, id, '${n['type']}'), id));
+    // Its ordered records (paint ops, animations, transitions): lines of
+    // their own under it, before its children.
+    for (final record in printPaintLines(id, n, context, depth).split('
+')) {
+      if (record.trim().isNotEmpty) _lines.add(_Line(0, record));
+    }
     return _under(n, depth + 1);
   }
 
