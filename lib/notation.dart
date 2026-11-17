@@ -13,6 +13,7 @@ export 'src/core/notation/notation.dart'
         defaultTextVariants,
         notationTypes,
         parseNotation;
+export 'src/core/notation/define.dart' show DefinedLine, DefinedWords, NotationDefinition, checkDefinitions, definitionLines, readDefinitions;
 export 'src/core/notation/vocabulary.dart' show LinePart, LineParts, NotationVocabulary, TypeAlias, VocabularyUse;
 export 'src/core/notation/print.dart' show notationOptionsFor, printNotation;
 export 'src/core/notation/prompt.dart' show notationPrompt;

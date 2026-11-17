@@ -6,6 +6,7 @@
 // The grammar is not open: a line is still `Type[.variant][#id] ["text"]
 // [key=value ...]`. Only the words are.
 import '../json.dart';
+import 'define.dart' show NotationDefinition, readDefinitions;
 
 /// One use of a word the notation has no meaning for (or an alias of one it
 /// has): what was written, where, and enough of its line to map the word to
@@ -197,6 +198,7 @@ final class NotationVocabulary {
     this.flags = const {},
     this.events = const {},
     this.verbs = const {},
+    this.definitions = const {},
   });
 
   factory NotationVocabulary.fromJson(Json json) {
@@ -225,6 +227,12 @@ final class NotationVocabulary {
   final Map<String, Map<String, String>> parameters, flags, events;
   final Map<String, String> verbs;
 
+  /// The words defined in the notation itself, by word
+  /// (docs/design/20-defined-words.md): each is a word we have. Several for
+  /// one word are its meanings, the one a use fits best read.
+  final Map<String, List<NotationDefinition>> definitions;
+
+  /// No aliases ([definitions] aside).
   bool get isEmpty => types.isEmpty && parameters.isEmpty && flags.isEmpty && events.isEmpty && verbs.isEmpty;
 
   /// This table with [other]'s entries added; where both name a word,
@@ -239,8 +247,14 @@ final class NotationVocabulary {
       flags: both(flags, other.flags),
       events: both(events, other.events),
       verbs: {...verbs, ...other.verbs},
+      definitions: {...definitions, ...other.definitions},
     );
   }
+
+  /// This table with the words defined in [texts] (each a file's text by its
+  /// name: `StickyNote.txt`) over its own; what could not be read is left out
+  /// ([readDefinitions] says what).
+  NotationVocabulary define(Map<String, String> texts) => merge(NotationVocabulary(definitions: readDefinitions(texts).words));
 
   Json toJson() => {
         'types': {for (final e in types.entries) e.key: e.value.toJson()},

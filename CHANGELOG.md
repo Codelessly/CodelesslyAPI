@@ -42,6 +42,27 @@
 
 ### Added
 
+- **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
+  parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own
+  grammar, one file per word (`StickyNote.txt`) or `define Word …` in a page. A use is written out as those lines
+  before it is read (a macro): the use's values where the body reads them by name in braces, its words of every
+  line (`w`, `grow`, `visible`, `onTap`…) on the body's first line, its lines where the body has `...` (or
+  `...Front` for the lines under a `Front` line; `... each reorder` adds `reorder` to an `each` in the slot), the
+  body's state, loop items and ids made the use's own, its events where the body names them (`onPick(c)`: with
+  `result` as `c`). One word may have several meanings (`Timeline#tracks`, `Timeline.vertical#route`): a use is read
+  with the one that fits what it gives. A word that uses itself is refused. A core type, a catalog type, a page
+  word or a component is never a definition's. Open or closed, a defined word is a word we have; each use is
+  recorded (`VocabularyUse` kind `definition`, `to` the meaning, `node` its root id); what it gives that the
+  definition does not take is recorded with the vocabulary open, an issue without. A definition's own errors are
+  said against its file and line.
+  - `NotationOptions.define(texts)`, `NotationVocabulary.define(texts)` and `.definitions`; `readDefinitions`,
+    `checkDefinitions` (each definition expanded with its defaults, with an optional document validator),
+    `definitionLines` (the signatures, for a taught prompt), `NotationDefinition`, `DefinedWords`.
+- **A stand-in with nothing to draw shows what is missing**: with the open vocabulary, an unknown word with no text,
+  no lines under it and no fill or border of its own is a quiet dashed box with its word (and its first string
+  value), at least 40 high or as big as its `w` and `h` say, in the theme's line and caption colours. A page with a
+  word we lack reads as unfinished, not broken. Nothing else changes; with the vocabulary closed nothing stands in.
+
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is

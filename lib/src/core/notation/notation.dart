@@ -19,6 +19,7 @@ import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
 import '../triggers.dart' show KeyCombo;
+import 'define.dart';
 import 'page_words.dart';
 import 'reflow.dart';
 import 'vocabulary.dart';
@@ -122,6 +123,11 @@ final class NotationOptions {
   /// as the alias table when given.
   NotationOptions open({bool openVocabulary = true, NotationVocabulary? vocabulary}) =>
       _copy(openVocabulary: openVocabulary, vocabulary: vocabulary ?? this.vocabulary);
+
+  /// These options with the words defined in [texts] (each a file's text by
+  /// its name, `StickyNote.txt`; docs/design/20-defined-words.md) added to
+  /// [vocabulary]. A defined word is a word we have, open or not.
+  NotationOptions define(Map<String, String> texts) => _copy(openVocabulary: openVocabulary, vocabulary: vocabulary.define(texts));
 
   NotationOptions _copy({double? width, String? screen, bool? reflow, required bool openVocabulary, required NotationVocabulary vocabulary}) => NotationOptions(
         width: width ?? this.width,
@@ -1280,6 +1286,32 @@ class _Parser {
     _srcWord = plain ? null : word;
   }
 
+  /// The words defined in the notation (docs/design/20-defined-words.md),
+  /// written out as the lines they stand for before a line is read; and,
+  /// while those lines are read, where they are written (`StickyNote.txt:3`).
+  late final DefinedWords _defined = DefinedWords(
+    options.vocabulary.definitions,
+    open: options.openVocabulary,
+    record: (kind, word, on, value, column) => _use(kind, word, column, on: on, value: value),
+    issue: _issue,
+    ours: _ownType,
+    // One count for the page and its overlays: a use's id is the page's.
+    counts: identical(_top, this) ? null : _top._defined.counts,
+    used: (d, parts, node, column) => _use('definition', parts.word, column, to: d.label, node: node, parts: parts),
+    slot: (d, word, column) => _use('definition', word, column, to: '${d.label} slot'),
+  );
+  String? _from;
+
+  /// The lines a line of the text stands for once the defined words are
+  /// written out, each with where it is written.
+  Iterable<(PageLine, String?)> _definedLines(int indent, String text) sync* {
+    for (final d in _defined.rewrite(indent, text)) {
+      for (final l in _pages.rewrite(d.indent, d.text)) {
+        yield (l, d.from);
+      }
+    }
+  }
+
   /// Records a use of a word outside the notation (once for a place).
   VocabularyUse? _use(
     String kind,
@@ -1293,6 +1325,12 @@ class _Parser {
     LineParts? parts,
   }) {
     if (_top._quiet) return null;
+    // A definition is not an answer: a word in its lines we do not have is
+    // an issue there, open or not.
+    if (_from != null && kind != 'children' && kind != 'verb') {
+      if (kind != 'alias') _issue(column, '${on == null ? '' : '$on: '}"$word" is not a ${kind == 'type' ? 'type' : kind} the notation has.');
+      return null;
+    }
     if (!_useKeys.add('$_line:$column:$kind:$word')) return null;
     final VocabularyUse use;
     if (kind == 'alias') {
@@ -1307,6 +1345,7 @@ class _Parser {
         column: column,
         on: on,
         value: value,
+        to: to,
         node: node,
         path: _srcPath,
         texts: [
@@ -1331,8 +1370,13 @@ class _Parser {
     return use;
   }
 
-  /// Whether [word] is a type the notation, the catalog or the page words have.
-  bool _knowsType(String word) =>
+  /// Whether [word] is a type the notation, the catalog or the page words
+  /// have, or a word defined in the notation.
+  bool _knowsType(String word) => _ownType(word) || _defined.has(word);
+
+  /// Whether [word] is a type of the notation itself, the catalog or the
+  /// page words: no definition changes what such a word means.
+  bool _ownType(String word) =>
       notationTypes.containsKey(word) ||
       catalog.widget('${word[0].toLowerCase()}${word.substring(1)}') != null ||
       catalog.widget(word) != null ||
@@ -1370,7 +1414,15 @@ class _Parser {
     if (statements.contains(parts.word)) return [text];
     final written = parts.word;
     var changed = false;
-    if (!_knowsType(written)) {
+    // A defined word (docs/design/20) reads its own parameters, unless an alias that names
+    // what it requires reads this line as a word we have (RangeSlider with a
+    // variable for each end is our Slider).
+    if (_defined.has(written)) {
+      final alias = table.types[written];
+      final holds = alias != null && alias.to != null && alias.requires.isNotEmpty && alias.requires.every((k) => parts.parts.any((p) => p.kind == 'pair' && (alias.parameters[p.key] ?? p.key) == k));
+      if (!holds) return [text];
+    }
+    if (!_ownType(written)) {
       final alias = table.types[written];
       if (alias == null) return [text];
       if (alias.line != null) {
@@ -1563,7 +1615,7 @@ class _Parser {
     // An answer wrapped in a code fence: the fence is not notation.
     if (raw.trimLeft().startsWith('```')) return;
     final indent = raw.length - raw.trimLeft().length;
-    final before = nodes.length;
+    var before = nodes.length;
     _track(indent, raw.trim());
     // A name read as a word the notation has (the alias table). A word that
     // is several lines is one only at the margin (an overlay's head, above).
@@ -1591,7 +1643,9 @@ class _Parser {
       _lineAt(indent + 2, 'each dot in range($count)', indent + 3);
       _lineAt(indent + 4, 'Box w={index==$page?16:6} h=6 radius=3 fill={index==$page?${look(options.accent)}:${look(options.track)}} onTap={$page=index}', indent + 5);
     } else {
-      for (final l in _pages.rewrite(indent, raw.trim())) {
+      _from = null;
+      for (final (l, from) in _definedLines(indent, raw.trim())) {
+        _from = from;
         // A frame's line says which frame it is (Row~nav): kept for the reflow.
         final role = _roleMark.firstMatch(l.text);
         // The menu a Nav opens on a phone keeps whether it is open.
@@ -1608,7 +1662,14 @@ class _Parser {
         _lastNode = null;
         _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
+        // The lines a defined word stands for: each line's nodes are sent
+        // before the next line's, which may patch them.
+        if (from != null && nodes.length > before) {
+          nodes.keys.skip(before).toList().forEach(_emit);
+          before = nodes.length;
+        }
       }
+      _from = null;
     }
     final added = nodes.keys.skip(before).toList();
     if (added.isEmpty) {
@@ -1927,7 +1988,7 @@ class _Parser {
     }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
   }
 
-  void _issue(int column, String message) => issues.add(NotationIssue(_line, column, message));
+  void _issue(int column, String message) => issues.add(NotationIssue(_line, column, _from == null || message.startsWith('$_from:') ? message : '$_from: $message'));
 
   void _lineAt(int indent, String source, int column) {
     var line = source;
@@ -2459,8 +2520,13 @@ class _Parser {
     }
     _lastNode = id;
     if (standIn) {
-      final use = _use('type', written, column, node: id, parts: LineParts.of(_src.startsWith(written) ? _src : line));
+      final parts = LineParts.of(_src.startsWith(written) ? _src : line);
+      final use = _use('type', written, column, node: id, parts: parts);
       if (_srcStack.isNotEmpty && _srcWord == written) _srcStack.last.use = use;
+      if (parts != null && parts.strings.isEmpty) {
+        final named = parts.parts.where((p) => p.kind == 'pair' && !p.isEvent && p.value!.startsWith('"') && !p.value!.contains('{')).firstOrNull;
+        _bareStandIns[id] = named == null ? written : '$written · ${named.value!.substring(1, named.value!.length - 1)}';
+      }
     }
 
     void put(String path, Object? value) {
@@ -4312,11 +4378,54 @@ class _Parser {
     g.inRow++;
   }
 
+  /// The stand-ins written so far that may have nothing to draw, by node id,
+  /// each with its label (the word, and its first string value).
+  final _bareStandIns = <String, String>{};
+
+  /// A stand-in that ends with nothing to draw (no text, no lines under it,
+  /// no fill or border of its own) shows a quiet dashed box with its label,
+  /// as big as its w and h say: the page reads as unfinished, not broken
+  /// (docs/design/19-open-vocabulary.md section 9).
+  void _placeholder(_Open open) {
+    final label = _bareStandIns.remove(open.id);
+    final node = nodes[open.id];
+    if (label == null || node == null || (node['children'] as List?)?.isNotEmpty == true) return;
+    final deco = readMap(node['decoration']) ?? const {};
+    if ((deco['fills'] as List?)?.isNotEmpty == true || (deco['strokes'] as List?)?.isNotEmpty == true) return;
+    final layout = readMap(node['layout']) ?? const {};
+    final patch = <String, Object?>{
+      'decoration': {
+        'strokes': [
+          {'color': options.line},
+        ],
+        'dashPattern': [4, 3],
+        if (deco['radius'] == null) 'radius': 6,
+      },
+      'layout': {
+        if (layout['padding'] == null) 'padding': 8,
+        if (layout['height'] is! num && readMap(layout['constraints'])?['minHeight'] == null) 'constraints': {...?readMap(layout['constraints']), 'minHeight': 40},
+      },
+      'props': {'mainAxisAlignment': 'center', 'crossAxisAlignment': 'center'},
+    };
+    nodes[open.id] = mergePatch(node, patch);
+    _patches.add({'op': 'patch', 'id': open.id, 'patch': patch});
+    final id = _taken('${open.id}Label') ? _id('text') : '${open.id}Label';
+    final style = options.textStyles['caption'] ?? options.textStyles['muted'];
+    nodes[id] = {
+      'type': 'text',
+      'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+      'props': {'text': label, 'maxLines': 1, 'overflow': 'ellipsis', if (style != null) 'style': _copyValue(style)},
+    };
+    ((nodes[open.id]!['children'] as List?) ?? (nodes[open.id]!['children'] = <Object?>[]) as List).add(id);
+    _parentOf[id] = open.id;
+  }
+
   /// A grid ends: its last row is filled out with empty cells, so its cells
   /// are as wide as the rows above.
   static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*');
 
   void _close(_Open open) {
+    _placeholder(open);
     _fitRow(open);
     final g = open.grid;
     if (g == null || open.id != g.id || open.condition != null || g.row == null) return;
@@ -4366,6 +4475,21 @@ class _Parser {
       _issue(1, 'The JSON of a node or document line was never closed: one closing brace per opening brace.');
       _pending = null;
     }
+    // What a defined word still has to write (the rest of its lines), each
+    // line's nodes sent before the next line's.
+    _from = null;
+    for (final d in _defined.finish()) {
+      _from = d.from;
+      for (final l in _pages.rewrite(d.indent, d.text)) {
+        final role = _roleMark.firstMatch(l.text);
+        _lastNode = null;
+        final mark = nodes.length;
+        _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
+        if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
+        nodes.keys.skip(mark).toList().forEach(_emit);
+      }
+    }
+    _from = null;
     final before = nodes.length;
     for (final l in _pages.finish()) {
       _lineAt(l.indent, l.text, l.indent + 1);

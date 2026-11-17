@@ -2,6 +2,11 @@
 
 2026-11-16. Built in `lib/src/core/notation/{notation,vocabulary,prompt}.dart`; tests in `test/notation_vocabulary_test.dart`; the tools and the first corpus are in the SDK (`tool/notation/vocabulary.dart`, `tool/vocabulary/corpus/2026-11-16-sonnet/`).
 
+Extended 2026-11-17 after the loop's first review (SDK `tool/vocabulary/JOURNAL.md`, Review 1): the tool records
+every word used, known or not (section 6.1, D1); a word can be defined in the notation itself, as data
+([20-defined-words.md](20-defined-words.md), D2); a stand-in with nothing to draw shows what is missing (section 9,
+D3). The numbers are in section 11.
+
 ## 1. Why
 
 The prompt has been teaching every word: each component, each behaviour. That does not scale. The card prompt is at its 9,000-character budget, the page prompt is 20,650 characters, and with the Cards components listed it is 73,270.
@@ -40,7 +45,10 @@ For each line, in this order:
 
 1. **A word we have** (a core type, a short name of `notationTypes`, a catalog type, a design system's component, a page word) is read as it always was. Nothing below can change what such a word means.
 2. **An alias** (section 5): a name in the alias table for a word we have is rewritten to that word, in the text, before the line is read. This holds with the vocabulary open or closed, and is never an issue.
-3. **Unknown**, with `NotationOptions.openVocabulary`: the word stands in or is left out (section 4), and is recorded (section 6). Without `openVocabulary` (the default) it is the issue it always was, and nothing about a document changes.
+3. **A defined word** ([note 20](20-defined-words.md)): a word a definition gives (a design system's
+   `vocabulary/*.txt`, `NotationOptions.define`, or `define` in the text) is written out as the lines it stands for,
+   open or closed. An alias whose `requires` the line meets is read before it.
+4. **Unknown**, with `NotationOptions.openVocabulary`: the word stands in or is left out (section 4), and is recorded (section 6). Without `openVocabulary` (the default) it is the issue it always was, and nothing about a document changes.
 
 ## 4. The stand-in
 
@@ -127,7 +135,7 @@ What was looked at and not made an alias, because the shapes do not match:
 
 | field | |
 |---|---|
-| `kind` | `type`, `parameter`, `flag`, `event`, `verb`, `variant`, `missing`, `children`, or `alias` |
+| `kind` | `type`, `parameter`, `flag`, `event`, `verb`, `variant`, `missing`, `children`, `alias`, or `definition` (a use of a defined word: `to` the meaning read, `node` its root; recorded open or closed) |
 | `word` | as written (`SeatMap`, `tooltip`, `onSeek`, `haptic`, `Button.danger`) |
 | `on` | the type whose line it is on (not for a type) |
 | `value` | as written (`{row.name}`, `"Archive"`); a verb's argument |
@@ -141,6 +149,31 @@ What was looked at and not made an alias, because the shapes do not match:
 Unknown words are recorded only with `openVocabulary`; aliases always. A stand-in's own parameters, flags and events are in its record, not recorded again one by one.
 
 Formula functions we do not have (`fuzzyMatch`, `startOfWeek`, `moveItem`) are not recorded by the parser, which does not know the engine's functions. The SDK tool counts them from the formulas that do not parse.
+
+### 6.1 Every word, known or not (the tool)
+
+The parser records only what it did not know, so that recording costs nothing with the vocabulary closed and a
+document is the same with it open. The corpus has to hold every word an answer used, with how it resolved, or it
+cannot say what share we read nor how a known word is really used. So the SDK tool
+(`tool/notation/vocabulary_words.dart`) reads each answer's own lines and resolves every word on them with the
+parser's record of that line (unknown, alias, definition) and what it has (Cards' components, the formula engine's
+functions):
+
+| kind | each | resolved as |
+|---|---|---|
+| `type` | a line's first word | core, component, alias, definition, unknown |
+| `text` | a string written on a type, by position (`Button.text1`) | as its type (unknown on an unknown type) |
+| `parameter`, `flag`, `event` | a key=value, a bare word (layout words too), an `on…` key, per type | unknown when the parser recorded it, alias when it read it as another, else as its type |
+| `variant` | the word after a type's dot, per type | unknown when recorded, else as its type |
+| `verb` | an action's first word (`name=value` is `set`) | unknown when recorded, alias, else core |
+| `function` | a name a formula calls | core when the engine has it, else unknown |
+| `statement` | `state`, `if`, `each`, `key`, `every`, `project`… | core, or alias (`computed`, `shortcut`) |
+
+`vocabulary.json` holds them as `words` (each with `files`, `uses`, and `how` when its uses resolved differently)
+and `summary`; `VOCABULARY.md` opens with the table of kinds by resolution and lists, for each word we have, what
+the answers gave it, with what it does not take marked and what a component or a defined word takes that no answer
+wrote. Its other sections (the unknown types, parameters, flags, events, verbs, functions, variants, the grammar
+issues, what does not validate) are as they were. `tool/vocabulary/count.py` counts `words`.
 
 ## 7. The loop
 
@@ -189,12 +222,50 @@ Rendered: all 105 screens at 1440x900 and 390x844 (242 pictures with their overl
 
 Looked at: a stand-in that carries text or wraps lines we have reads well. A food menu whose `Dish` art is a tinted box is a good page; a chat whose `ChatBubble`, `DateDivider` and `TypingIndicator` are plain lines of text is readable and looks like nothing. A stand-in that *is* the screen leaves a hole: the seat map of a booking page is an empty bar, a clip editor's timeline is a blank panel, a chat's `Composer` is not there at all. Nothing on the page says a part is missing.
 
-So the stand-in keeps the loop running (every page expands, validates as a document, renders, and every word is counted), and it is not something to show a user. A stand-in with no text and no lines under it should probably draw a quiet labelled box with its name; that is not built.
+So the stand-in keeps the loop running (every page expands, validates as a document, renders, and every word is counted), and it is not something to show a user.
+
+**A stand-in with nothing to draw shows what is missing** (built 2026-11-17): an unknown word that ends with no text,
+no lines under it and no fill or border of its own is drawn as a quiet dashed box (the theme's `line`, a radius of
+6, a padding of 8) with its word in the caption style, centred, and its first string value after it when it has one
+(`Map · Saffron & Salt`); at least 40 high, or as big as its `w` and `h` say. Its label is the node `<id>Label`. The
+look uses only what the document has (a stroke with a `dashPattern`, a text), so it follows the theme as the rest of
+the page does (named, in light and dark). One with a text, lines under it, or a fill of its own (`ScrollProgress h=3
+fill=…`) is as it was. With the vocabulary closed nothing stands in.
 
 ## 10. Not done
 
 - The parser does not record unknown formula functions (section 6).
 - The stand-in is always a column, also where the word is clearly a row.
+- A word several answers wrote as a composition of what we have is better defined than built: [note 20](20-defined-words.md).
 - The lines under a stand-in cannot read what it would have given them (`item`, `day`): those formulas fail at render.
 - The open prompt is the taught prompt with the behaviour words, the JSON escape and the component list taken out, 18,151 characters for a page against 20,651 (and against 73,270 with Cards' components listed). Its core is still wide (charts, gauges, motion, the lightbox); how small the core should be is the next thing to measure.
 - One model, one run. The alias table should be read against a second model before it grows.
+
+## 11. The second count (2026-11-17: every word, and the first definitions)
+
+The first two batches (`corpus/2026-11-16-sonnet`, `corpus/b01`: 30 answers, 136 screens, 5,943 lines that start
+with a word), expanded 1,280 wide with Cards and its aliases.
+
+| | words | resolved | unknown types | lines that stand in | grammar issues | does not validate |
+|---|---|---|---|---|---|---|
+| the old count (unknown words only) | 517 | 117 (22.6%) | 99 | 222 (3.7%) | 199 | 76 |
+| every word, no definitions | 1,580 | 723 (45.8%) | 96 | 222 (3.7%) | 199 | 76 |
+| every word, with Cards' definitions | 1,580 | 900 (57.0%) | 54 | 99 (1.7%) | 199 | 77 |
+
+Every word, with the definitions, by kind (core, component, alias, definition, unknown): types 187 (69, 16, 6, 42,
+54), texts 88 (40, 12, 0, 22, 14), parameters 784 (254, 50, 11, 83, 386), flags 193 (83, 7, 3, 5, 95), events 173
+(52, 15, 0, 24, 82), variants 36 (27, 0, 0, 1, 8), verbs 52 (24, 0, 0, 0, 28), functions 59 (46, 0, 0, 0, 13),
+statements 8 (6, 0, 2, 0, 0).
+
+What it says:
+
+- *The corpus is three times the size the old count said*, and most of the growth is known words: 601 core and 100
+  component words were used and never counted. The resolved share is 45.8% before any definition, not 22.6%.
+- *Parameters are the unknown mass*: 386 of the 680 unknown words are a parameter, most on a word we have (`size=`,
+  `selected=`, `leading=`) or on a stand-in. That is D4's order (parameters by reach first).
+- *Definitions moved types and lines*: 45 of the 99 unknown types are now definitions; the lines that stand in fell
+  from 222 to 99. The grammar issues are unchanged; one answer now fails to validate once more, because Cards'
+  `WordCloud` reads the `words` variable the answer never declared (the stand-in read nothing).
+- The 54 types left are listed by side in [note 20](20-defined-words.md) section 9: about 20 could be definitions,
+  the rest need a gesture, a drawing primitive, a position or a scroll position.
+
