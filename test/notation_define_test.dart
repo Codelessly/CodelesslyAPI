@@ -18,7 +18,7 @@ StickyNote "text" fill=#FFFDE68A w=180 selected=false onTap
 ''';
 
 const _flip = '''
-FlipCard bind=flipped h=240 onTap
+FlipCard @flipped h=240 onTap
   state flipped=false
   Stack w=fill h={h} onTap={flipped=!flipped; onTap}
     Column w=fill h=fill visible={!flipped}
@@ -28,7 +28,7 @@ FlipCard bind=flipped h=240 onTap
 ''';
 
 const _picker = '''
-ColorPicker bind=color swatches=["#FF111827","#FFDC2626"] onPick
+ColorPicker @color swatches=["#FF111827","#FFDC2626"] onPick
   state color=""
   Row gap=8
     each swatch in swatches
@@ -68,7 +68,7 @@ Timeline.vertical#events
     ...
 
 // A route's stops.
-Timeline.vertical#route bind=at position
+Timeline.vertical#route @at position
   state at=0
   Column w=fill gap=10
     Text.caption "At {position}"
@@ -269,7 +269,7 @@ Column
   });
 
   group('state, events and ids of a word', () {
-    test('its state is the use\'s own; bind= puts the page\'s variable there instead', () {
+    test('its state is the use\'s own; @name puts the page\'s variable there instead', () {
       final r = _parse('''
 state shown=false
 Column
@@ -279,7 +279,7 @@ Column
   FlipCard#two
     Front
       Text "2"
-  FlipCard bind=shown
+  FlipCard @shown
     Front
       Text "3"
 ''');
@@ -360,7 +360,7 @@ Column
 
     const steps = '''
 // Where one is in named steps: the steps, the current one lit; a tap picks one.
-Stepper#steps steps=[] bind=step current done=[] onPick
+Stepper#steps steps=[] @step current done=[] onPick
   state step=0
   Row gap=8
     each s in steps
@@ -373,8 +373,8 @@ Stepper#steps steps=[] bind=step current done=[] onPick
 state qty=1
 state at=0
 Column
-  Stepper#qty "Guests" bind=qty min=1 max=8 onChange={toast "{result}"}
-  Stepper steps=["Cart","Pay","Done"] bind=at onPick={toast "{result}"}
+  Stepper#qty "Guests" @qty min=1 max=8 onChange={toast "{result}"}
+  Stepper steps=["Cart","Pay","Done"] @at onPick={toast "{result}"}
   Stepper steps=["A","B"] current={at}
 ''', catalog: catalog, options: options));
       expect(r.issues, isEmpty);
@@ -384,18 +384,34 @@ Column
       expect(jsonEncode(r.document), allOf(contains('Cart'), contains('coalesce((at), step_stepper2)')));
     });
 
-    test('a definition of a component\'s word that names no meaning is not read', () async {
+    test('a design system\'s definition of a component\'s word that names no meaning is not read', () async {
       final (catalog, options) = await stepper({'Stepper.txt': 'Stepper steps=[]\n  Text "never"\n'});
       final r = Catalog.run(catalog, () => parseNotation('Column\n  Stepper steps=["A"]\n', catalog: catalog, options: options));
       expect(_uses(r, 'definition'), isEmpty);
       expect(jsonEncode(r.document), isNot(contains('never')));
-      // Nor does a page's own: and it does not hide the named meaning the
-      // design system gives the word (tax-form in corpus-define/d02).
-      final (catalog2, options2) = await stepper({'Stepper.txt': steps});
+    });
+
+    test('a page\'s own definition of a component\'s word replaces it on that page (the vocabulary loop, Review 7, D38)', () async {
+      // An answer that needs the word in another shape defines it rather than
+      // renaming every line; the design system's named meanings go with it.
+      final (catalog, options) = await stepper({'Stepper.txt': steps});
       final p = Catalog.run(
-          catalog2, () => parseNotation('state at=0\nColumn\n  Stepper steps=["A","B"] bind=at\ndefine Stepper steps=[] bind=step\n  Text "the page\'s"\n', catalog: catalog2, options: options2));
-      expect([for (final u in _uses(p, 'definition')) u.to], ['Stepper#steps']);
-      expect(jsonEncode(p.document), isNot(contains("the page's")));
+          catalog, () => parseNotation('state at=0\nColumn\n  Stepper steps=["A","B"] @at\ndefine Stepper steps=[] @step\n  Text "the page\'s {length(steps)}"\n', catalog: catalog, options: options));
+      expect(p.issues, isEmpty);
+      final uses = _uses(p, 'definition');
+      expect([for (final u in uses) u.to], ['Stepper']);
+      expect(uses.single.of, 'page, over Stepper.txt');
+      expect(jsonEncode(p.document), contains("the page's"));
+      // Over a component no definition names: the record says so.
+      final (catalog2, options2) = await stepper(const {});
+      final q = Catalog.run(catalog2, () => parseNotation('Column\n  Stepper "Guests" max=4\ndefine Stepper "label" max=8\n  Text "{label} up to {max}"\n', catalog: catalog2, options: options2));
+      expect(q.issues, isEmpty);
+      expect(_uses(q, 'definition').single.of, 'page, over the Stepper component');
+      expect(jsonEncode(q.document), contains('Guests up to 4'));
+      // The core's words are never replaced: a page's Button is the Button.
+      final b = Catalog.run(catalog2, () => parseNotation('Column\n  Button "Go"\ndefine Button "label"\n  Text "not a button"\n', catalog: catalog2, options: options2));
+      expect(_uses(b, 'definition'), isEmpty);
+      expect(jsonEncode(b.document), isNot(contains('not a button')));
     });
 
     test('the alias table names a defined word\'s parameters and events under the names answers wrote', () async {
@@ -412,7 +428,7 @@ Column
       final r = Catalog.run(catalog, () => parseNotation('''
 state at=0
 Column
-  Stepper items=["A","B"] bind=at onSelect={toast "{result}"}
+  Stepper items=["A","B"] @at onSelect={toast "{result}"}
 ''', catalog: catalog, options: options));
       expect(r.issues, isEmpty);
       expect([for (final u in _uses(r, 'definition')) u.to], ['Stepper#steps']);
@@ -427,13 +443,15 @@ Column
   });
 
   group('what the first corpus wrote with words Cards now defines (Review 5, D25)', () {
-    test('bind= to a variable the page never declared declares it, with the word\'s default', () {
-      final r = _parse('Column\n  ColorPicker bind=tint\n', _open);
+    test('a use binds the page\'s variable; one the page never declared is said, with the state line to add', () {
+      final r = _parse('state tint=""\nColumn\n  ColorPicker @tint\n', _open);
       expect(r.issues, isEmpty);
       expect(_vars(r), {'tint': ''});
       // Declared by the page: the page's.
-      final own = _parse('state tint="#FF2563EB"\nColumn\n  ColorPicker bind=tint\n', _open);
+      final own = _parse('state tint="#FF2563EB"\nColumn\n  ColorPicker @tint\n', _open);
       expect(_vars(own), {'tint': '#FF2563EB'});
+      final none = _parse('Column\n  ColorPicker @tint\n', _open);
+      expect(none.issues.single.message, contains('add state tint='));
     });
 
     test('a record written as JSON given to a parameter is that record in an expression', () {
@@ -707,6 +725,247 @@ define Badge2 "label" tone="#FFDCFCE7"
       final r = parseNotation('Column\n  Minimap value={code}\n', catalog: standardCatalog, options: page);
       expect(r.issues, isNotEmpty);
       expect(jsonEncode(r.document), isNot(contains('dashPattern')));
+    });
+  });
+
+  group('what passed the tools and was wrong at run time (the vocabulary loop, Review 7, D31)', () {
+    String actions(NotationResult r, String id) => jsonEncode(_node(r, id)['actions']);
+
+    test('@value, value=@ and a path bind the variable the use names; name=@ a further one; a use that binds none keeps its own', () {
+      final r = parseNotation('''
+state email=""
+state s={"weight":"1"}
+state lo=10
+state hi=90
+Column
+  Field "Name" @email
+  Field2 "Weight" @s.weight
+  Field "Code" value=@email
+  Field
+  Range @lo end=@hi
+define Field "label" @value
+  Input "{label}" @value grow
+define Field2 "label" @value
+  Column
+    Input#a "{label}" @value
+    Input#b "{label}" value=@value
+define Range @low end=@
+  Slider @low @end min=0 max=100
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'field1')['bind'], {'props.initialValue': r'${email}'});
+      expect(actions(r, 'field1'), contains('"variable":"email"'));
+      for (final id in ['a_field21', 'b_field21']) {
+        expect(_node(r, id)['bind'], {'props.initialValue': r'${s.weight}'}, reason: id);
+        expect(actions(r, id), contains(r'with(s,\"weight\",result)'), reason: id);
+      }
+      expect(_node(r, 'field2')['bind'], {'props.initialValue': r'${email}'});
+      // A use that binds none keeps its own.
+      expect(_node(r, 'field3')['bind'], {'props.initialValue': r'${value_field3}'});
+      expect(_node(r, 'range1')['bind'], {'props.value': r'${lo}', 'props.rangeEnd': r'${hi}'});
+      expect(_vars(r).keys, unorderedEquals(['email', 's', 'lo', 'hi', 'value_field3']));
+    });
+
+    test('bind= in a body is said against the definition, with the line as it is written now', () {
+      final r = parseNotation('state a=1\nColumn\n  Calc @a\ndefine Calc @value\n  Input "c" bind={value + 1}\n', catalog: standardCatalog, options: const NotationOptions().open());
+      final said = r.issues.map((i) => i.message).toList();
+      expect(said, contains(allOf(startsWith('page:5: a variable is bound with @'), endsWith('Write: Input "c" value={value + 1}'))));
+    });
+
+    test('a loop item of the body in drag=group(…) is the use\'s, braced or not', () {
+      final r = parseNotation('''
+state units=[{"id":"a"},{"id":"b"}]
+Column
+  Board items={units}
+define Board items=[]
+  Column gap=8
+    each unit in items
+      Card#u drag=dispatch(unit.id) pad=8
+        Text "{unit.id}"
+    each r in items
+      Card#v drag=booking({r.id}) pad=8
+        Text "{r.id}"
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'u_board1')['draggable'], {'group': 'dispatch', 'data': r'${item.id}'});
+      expect(_node(r, 'v_board1')['draggable'], {'group': 'booking', 'data': r'${item.id}'});
+    });
+
+    test('an event forwarded with its result: onSubmitted is onSubmit, a result path read once, a choice of events with a branch not given', () {
+      final r = parseNotation('''
+state got=""
+state on=true
+Column
+  Search onSubmit={got=result}
+  Drop onDrop={got=result.data}
+  Pick on={on} onA={got="a"; on=false}
+  Pick on={on} onB={got="b"}
+define Search onSubmit
+  Input "Find" onSubmitted={onSubmit(result)}
+define Drop onDrop
+  Box h=40 drop=x onDrop={onDrop(result.data)}
+define Pick on=false onA onB
+  Button "Go" onTap={on ? onA : onB}
+''', catalog: standardCatalog, options: const NotationOptions().open());
+      expect(r.issues, isEmpty);
+      expect(actions(r, 'search1'), contains('{"trigger":{"type":"submitted"},"actions":[{"type":"setVariable","variable":"got","value":"\${= (result)}"}]}'));
+      expect(actions(r, 'drop1'), contains(r'"value":"${= (result.data)}"'));
+      final a = (_node(r, 'pick1')['actions'] as List).single['actions'].single as Map;
+      expect(a['type'], 'if');
+      expect(a['then'], hasLength(2));
+      expect(a['else'], anyOf(isNull, isEmpty));
+      final b = (_node(r, 'pick2')['actions'] as List).single['actions'].single as Map;
+      expect(b['then'], isEmpty);
+      expect((b['else'] as List).single, containsPair('variable', 'got'));
+    });
+
+    test('an event the body forwards and its signature does not name is the word\'s event', () {
+      final r = parseNotation('state got=""\nColumn\n  Pick onSelect={got=result}\ndefine Pick\n  Button "Go" onTap={onSelect("x")}\n', catalog: standardCatalog, options: const NotationOptions().open());
+      expect(r.issues, isEmpty);
+      expect(r.vocabulary.where((u) => u.kind == 'verb' || u.kind == 'event'), isEmpty);
+      expect(actions(r, 'pick1'), contains('"variable":"got"'));
+    });
+
+    test('an event a line does not have, in a body, is an issue that lists the events', () {
+      final r = parseNotation('Column\n  Search onSubmit={toast "x"}\ndefine Search onSubmit\n  Input "Find" onWobble={onSubmit}\n', catalog: standardCatalog, options: const NotationOptions().open());
+      expect(r.issues.map((i) => i.message).single, allOf(contains('"onWobble" is not an event the notation has here'), contains('onSubmit')));
+    });
+
+    test('a body that starts with if (and its else) or each is a Column holding them', () {
+      final r = parseNotation('''
+state done=false
+Column
+  Status done={done}
+  Status
+define Status done=false
+  if done
+    Text "Done"
+  else
+    Text "Open"
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'status1')['type'], 'column');
+      expect((_node(r, 'status1')['children'] as List), hasLength(2));
+      expect(readPageDefinitions('define Status\n  else\n    Text "x"\n').problems.single.message, endsWith('write the lines indented under a Column.'));
+    });
+
+    test('an action in a body naming an id the body writes names the use\'s, written bare, #id or quoted, the root\'s too', () {
+      final r = parseNotation('''
+Column
+  Cell#cell
+  Cell
+define Cell
+  Column#box gap=4
+    Input#cellInput "x" onSubmit={focus #cellInput; scroll box}
+    Button "Edit" onTap={focus cellInput}
+    Button "Again" onTap={focus "cellInput"}
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      for (final (use, button) in [('cell', 'filledButton1'), ('cell1', 'filledButton3')]) {
+        final field = actions(r, 'cellInput_$use');
+        expect(field, contains('"node":"cellInput_$use"'));
+        expect(field, contains('"node":"$use"'));
+        expect(actions(r, button), contains('"node":"cellInput_$use"'));
+      }
+      expect(actions(r, 'filledButton2'), contains('"node":"cellInput_cell"'));
+    });
+  });
+
+  group('primitive: a word declared for what no line can express (the vocabulary loop, Review 7, D32)', () {
+    const text = '''
+state at="kitchen"
+Column
+  FloorPlan "Level 2" rooms=["kitchen","hall"] h=240 onPick={at=result}
+    Text "under it"
+  Scope trace=[1,2,3] onCursor={toast "c"}
+
+// A plan drawn from rooms and placed items, dragged: no line draws one.
+primitive FloorPlan "name" rooms=[] h=360 onPick onPlace
+// A trace of samples on a grid.
+primitive Scope trace=[] onCursor
+  Box w=fill h=120 fill=#FF0B1220 radius=8
+    Text.caption "Scope · {length(trace)} samples" color=#FF34D399
+''';
+
+    test('its uses stand in, recorded as primitive: with no lines its own, a labelled box holding the lines under a use', () {
+      for (final o in [const NotationOptions(width: 1280), const NotationOptions(width: 1280).open()]) {
+        final r = parseNotation(text, catalog: standardCatalog, options: o);
+        expect(r.issues, isEmpty);
+        expect([for (final u in r.vocabulary) '${u.kind} ${u.word} ${u.to}'], ['primitive FloorPlan FloorPlan', 'primitive Scope Scope']);
+        final plan = _node(r, 'floorPlan1');
+        expect(plan['type'], 'column');
+        expect((plan['layout'] as Map)['height'], {'hug': 240});
+        expect(jsonEncode(r.document), allOf(contains('"text":"FloorPlan: Level 2"'), contains('"text":"under it"'), contains('Scope · ')));
+      }
+      final d = readPageDefinitions(text).words;
+      expect(d['FloorPlan']!.single.primitive, isTrue);
+      expect(d['FloorPlan']!.single.doc, 'A plan drawn from rooms and placed items, dragged: no line draws one.');
+      expect(d['Scope']!.single.body.first.text, startsWith('Box w=fill h=120'));
+      // A file of a design system may declare one too.
+      expect(readDefinitions({'Map.txt': 'primitive MapView center=[0,0] onSelect\n'}).words['MapView']!.single.primitive, isTrue);
+    });
+
+    test('read as it arrives, a declaration\'s lines are its own, as a define\'s are', () {
+      final s = NotationStream(catalog: standardCatalog, options: const NotationOptions().open());
+      s.add('primitive Gauge2 value=0\nColumn\n  Gauge2 value=3\n');
+      s.close();
+      expect(s.issues, isEmpty);
+      expect([for (final u in s.vocabulary) u.kind], ['primitive']);
+    });
+  });
+
+  group('what a definition\'s lines leave unused and read from outside (the vocabulary loop, Review 7, D32)', () {
+    DefinitionReads reads(String text) => definitionReads(readPageDefinitions(text).words.values.single.single);
+
+    test('a parameter never read, an event never run: the cases the standalone runs wrote', () {
+      // lighting-cue-stack's GoKey, tv-streaming-remote's RemoteFrame, comic-layout's SpeechBubble.
+      final go = reads('define GoKey "label" shortcut="space" onTap\n  Button "{label}" onTap={onTap}\n');
+      expect([go.unread, go.unfired, go.outside], [['shortcut'], <String>[], <String>[]]);
+      expect(go.warnings.single, 'page:1: GoKey names shortcut and never reads it: a use\'s shortcut= does nothing.');
+      final frame = reads('define RemoteFrame gap=16 onArrowUp onArrowDown onEnter\n  Column gap={gap}\n    ...\n');
+      expect(frame.unfired, ['onArrowUp', 'onArrowDown', 'onEnter']);
+      expect(frame.warnings.first, 'page:1: RemoteFrame names onArrowUp and never runs it: a use\'s onArrowUp={…} never runs.');
+      final bubble = reads('define SpeechBubble "text" tail="left" onTailDrag\n  Box pad=8\n    Text "{text}"\n');
+      expect([bubble.unread, bubble.unfired], [['tail'], ['onTailDrag']]);
+      // A string never read.
+      expect(reads('define Tag "label" "note"\n  Text "{label}"\n').warnings.single, contains('names "note" and never reads it: a use\'s string does nothing.'));
+    });
+
+    test('a name read from outside: a variable of the page, and @ of a name that is not the word\'s own', () {
+      // periodic-table's PeriodicTable reads the page's elements.
+      final table = reads('define PeriodicTable selected="H" onSelect\n  Grid cols=18\n    each e in elements\n      Button "{e.symbol}" selected={e.symbol == selected} onTap={onSelect(e.symbol)}\n');
+      expect([table.unread, table.unfired, table.outside], [<String>[], <String>[], ['elements']]);
+      expect(table.warnings.single, 'page:1: PeriodicTable reads elements, which is neither its own nor declared in it: it works only on a page that has that variable.');
+      // @red where red is a parameter binds the use's variable (its own, or
+      // the one the use binds); {bind} reads a variable called bind.
+      final mixer = reads('define Mixer red=0 onRed\n  Slider @red onChange={onRed(result)}\n');
+      expect([mixer.unread, mixer.outside], [<String>[], <String>[]]);
+      final fader = reads('define Fader onLevel\n  Slider @level onChange={onLevel(result)}\n');
+      expect(fader.outside, ['level']);
+      final picker = reads('define ClubPicker @club clubs=[] onChange\n  Row\n    each item in clubs\n      Chip "{item}" selected={item==bind} onTap={bind=item; onChange(item)}\n');
+      expect([picker.unread, picker.outside], [['club'], ['bind']]);
+    });
+
+    test('what is read: braces, strings, lists, statements, a value where the text goes, slots, choices, actions with arguments', () {
+      final d = reads('''
+define Everything "title" @value items=[] max=10 size=4 tint=#FFFFFFFF on=true label="" step=1 note="" onPick onClear onDone
+  state open=false
+  every 1s when on onTick={value=value+step}
+  Column gap={size} fill={tint}
+    Text "{title}"
+    Ring {value / max} w=40
+    each it in items
+      Chip "{it}" onTap={open ? onPick(it) : onClear}
+    Slider @value
+    Row pad=[size,0,size,0]
+    ...Foot w={size}
+    Button "Go" onTap={confirm "Done with {label}?" then {onDone; toast "{note}"}}
+''');
+      expect([d.unread, d.unfired, d.outside], [<String>[], <String>[], <String>[]]);
+      // Ids, pages and keys named by actions are not variables.
+      expect(reads('define Nav2 onGo\n  Button "x" onTap={open sheet; go home; focus search; emit picked 3; onGo}\n').isEmpty, isTrue);
+      // A primitive leaves its signature unused by design.
+      expect(reads('primitive Map2 center=[0,0] onSelect\n').isEmpty, isTrue);
     });
   });
 }

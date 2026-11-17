@@ -43,8 +43,8 @@ one second of the first token.**
    it is not the default for that type in that parent.
 3. **Defaults carry the look.** A control with nothing written is the design system's (SSUI's) control. Text
    takes a named style. Colors are theme names.
-4. **State is as short as layout.** A variable exists by being used. A binding is `bind=name`, a reaction is an
-   event with its actions in braces (`onTap={…}`).
+4. **State is as short as layout.** A variable is one line (`state volume=50`); a binding is `@volume` on the
+   control, a reaction an event with its actions in braces (`onTap={…}`).
 5. **Streams.** Every line is complete when its newline arrives, and can be drawn then: a parent is declared
    before its children, never closed before them.
 6. **Round trips.** Any document within levels 0 to 2 prints back as the notation, and parsing the print gives
@@ -86,7 +86,11 @@ variable (`qty=qty+1`).
   (`Row#row-{row.id}`) is its fixed part (`row`), since every copy an `each` makes is the one node. An id given
   twice names the line that has it; the two branches of an `if`/`else` cannot share one (the document holds
   one node per id), and that is said with what to write instead. What the expander names itself (an `App`'s
-  sidebar drawer, `<screen>_sidebar`) takes no name an author would write.
+  sidebar drawer, `<screen>_sidebar`) takes no name an author would write. An id is one word of letters, digits
+  and `_`, as a variable's name is (a list's selection, a drawer's state and the like are named after it):
+  `Dialog#live-image` is said once, at the id, and read as `live_image` there and in the `open`, `scroll` and
+  `focus` that name it, so one hyphen is one issue and not a page of them. (A screen's id, which only `go` and
+  links name, may have hyphens: `go case-study`.)
 - **`"text"`**: the node's main string: a text's text, a button's or toggle's `label`, a field's label, an
   image's source. `{name}` inside it reads a variable (`"Total: {total}"`).
 - **`key=value`**: any prop, layout or decoration field by its own name, unquoted when it has no space
@@ -100,10 +104,10 @@ variable (`qty=qty+1`).
 - **A bare word** is a flag (`sticky`, `scroll`, `hidden`, `password`: the key with the value true) or an
   alignment word: `start`, `center`, `end`, `between`, `stretch` on a row or column set its main-axis alignment;
   `top`, `middle`, `bottom` (row) or `left`, `right` (column) its cross axis. `grow` takes the room that is left.
-- **`bind=name`**: the variable a control keeps its value in (`Slider bind=volume`, `Toggle "Wi-Fi" bind=wifi`,
-  `Input "Email" bind=email`): a parameter like any other. It is two-way: the expander writes the binding and
-  the `changed` reaction that stores it, and declares the variable from the control's type. On what only shows
-  a value (`Progress`, `Gauge`, `Ring`) it follows the variable, or an expression: `Progress bind={done/total}`.
+- **`@name`**: the variable itself, read and written, as `{name}` is its value now. Bare on a line it is the
+  control's value (`Slider @volume`, `Toggle "Wi-Fi" @wifi`, `Input "Email" @email`); any other property is
+  bound by its name (`selected=@picked`). It is two-way: the expander writes the binding and the `changed`
+  reaction that stores it. Section 3.1 has every place a line binds.
 - **`on…={actions}`**: what a node does. `onTap` is a tap on anything; `onChange` a control's change (`result` is
   its new value); also `onLongPress`, `onDoubleTap`, `onRightClick`, `onSwipeLeft` (`Right`, `Up`, `Down`),
   `onHover`, `onFocus`, `onBlur`, `onSubmit`, `onDrop`. A design system's block has its own
@@ -113,7 +117,10 @@ variable (`qty=qty+1`).
   `close` a modal, `go page` navigates, `scroll id`, `toast "text"`, `link url`, `focus id` (the caret in that
   field; `blur` takes it away), `copy text` (`copy link`, `copy "{link}"`: to the clipboard). A verb's argument is the word
   written (`go pricing` is that page); one that is worked out is in braces (`go {lower(result)}`); a bare
-  name the state has (`go result`, `go tab`, `go item.slug`) is the page it holds, as in braces. Any other
+  name the state has (`go result`, `go tab`, `go item.slug`) is the page it holds, as in braces, unless it names
+  one of the app's screens (`NotationOptions.screens`, `notationScreen`: its id, written with `_` or capitals, or
+  the one screen its words make, `go cook` for "Cook mode"): that is the screen, whatever a variable of the same
+  name holds (`go recipes` beside a list called recipes). Any other
   action is written as its JSON. A choice between actions is `cond ? action(s) : action(s)` (`onTap={dirty ?
   open leave : go members}`): each branch one action or a braced list `{a; b}`, either may be empty (`done ?
   close :`), a branch may choose again; it is an `if` action. A value chosen is a formula: `step = valid ? 3 : 2`
@@ -123,17 +130,31 @@ variable (`qty=qty+1`).
   bindings; no new node), `else` after it; `visible={expr}` on one line. `selected={expr}` on a line whose
   type has no selected value is the node's selected state (a box takes the theme's selected fill). `hide=phone` and `show=tablet` take a
   size, never a condition (section 14).
-- **State**: a line `state name=value` at the top declares a variable with a starting value. A variable that
-  is only bound to a control needs no declaration; its type and start come from the control. `state
-  total=sum(cart,x=>x.price)` names a formula, written out where it is read.
+- **State**: a line `state name=value` at the top declares a variable with a starting value. A variable a
+  line binds is declared like any other (section 3.1). `state
+  total=sum(cart,x=>x.price)` names a formula, written out where it is read. A whole number starts an integer,
+  which rounds what it is given; once an action may give it a fraction (`zoom=zoom*1.25`, `share=done/total`, a
+  decimal variable) or a control that writes decimals is bound to it (a Slider), it is declared a decimal. A
+  state named as the runtime names what every expression of a screen reads (`script`, `route`, `data`, `drag`)
+  would never be read as itself: that is said, with the name to write. A variable a line binds (`Select
+  @moveTo`) that the site's variables declare is the site's, never a second copy.
 - **Escape hatch**: `{…}` at the end of a line is merged into the node as JSON, for anything the notation
   has no word for. Using it is allowed and counted; a key that needs it often gets a word.
 - **Time**: `every 1s onTick={seconds=seconds-1}` on its own line runs as time passes (milliseconds, or `1s`);
   `every 1s when running onTick={…}` only while the condition holds. It is a timer on the canvas.
-- **A field of a repeated element**: under `each row in rows`, `Input bind=row.name` shows that field and writes
+- **Keys**: `key mod+k onPress={…}` on its own line is a shortcut of the screen (a `keyDown` reaction on the
+  canvas). Its key is named as a key event names it: a character, or Enter, Escape, Space, Tab, Backspace,
+  Delete, Home, End, PageUp, PageDown, an arrow, F1 to F12; the names writers give them are read as those keys
+  (`left` is ArrowLeft, `alt+right` alt+ArrowRight, `del` Delete), and a name no key has (`key foo`) is said,
+  since it would never fire. `shortcut="mod+b"` on a line that is tapped (`Button "Bold" shortcut="mod+b"
+  onTap={…}`, a block's tap event) is that key line with the line's tap actions, and the line's tooltip names
+  the key (`Ctrl+B`; one text on every platform, so mod is said as Ctrl, where a Text's own `shortcut=` hint
+  follows the platform). On a line with no tap, or under an `each` (one key cannot press every copy), it is
+  said, pointing to `key`.
+- **A field of a repeated element**: under `each row in rows`, `Input @row.name` shows that field and writes
   the element back into `rows` on a change. `Column scroll` scrolls. So does a field of a record variable
-  (`Input bind=draft.title` sets `draft`), a field of an element of a list held by the element around it
-  (`Checkbox bind=s.done` under `each s in e.sets` under `each e in workouts`), and a field of an element of a
+  (`Input @draft.title` sets `draft`), a field of an element of a list held by the element around it
+  (`Checkbox @s.done` under `each s in e.sets` under `each e in workouts`), and a field of an element of a
   list worked out (`each d in filter(devices, …)`) when its records have an `id` (written into `devices` by it).
   A design system's control is given the field's path for its variable parameter (`"rows[" + index +
   "].done"`), which it reads and writes as a variable. A list worked out with no `id` is said, with the line
@@ -156,6 +177,69 @@ binding, a computed value or a handler): `let` / `const` / `var name = …` and 
 state, `for x in list` and `each list`, `else`, `n += 1`, `n++`, `rows.add(x)`, `if (c) { … } else { … }` inside actions (the same `if` action as `c ? … : …`),
 `$name`, single quotes in an expression, `"${…}"` in a text, `sticky=true`, a code fence around the answer, a
 guessed prop in a `{…}` tail, `onTap` on a block for its first event.
+
+### 3.1 Binding
+
+`@name` is the variable itself, read and written; `{name}` is its value now. Five rules:
+
+1. **Bare, it is the line's value.** `@name` anywhere after the text binds the property every control calls its
+   value: an Input's text, a Toggle's or a Checkbox's on and off, a Slider's number, a Select's, a
+   SegmentedButton's or a Radio's choice, the page a `Pages` shows, the day a `Calendar` holds, a design system's
+   block's `value` (else its first variable parameter). `value=@name` says the same. `value={expression}` is the
+   one-way form: shown, never written back (on an Input, beside `@name`, the text it starts with).
+2. **Any other property is named:** `key=@name` (`selected=@picked` on a selectable list, `direction=@dir` on a
+   block whose second variable is its direction).
+3. **One bare mark a line**, but for a control with two ends, which takes them in order: `Slider @low @high`
+   (named: `low=@a high=@b`), `Calendar @arrival @departure` (named: `start=@a end=@b`). A second bare mark
+   anywhere else is an issue whose message lists what that line can bind (`One @name a line is its value: name
+   any other (key=@name). A Toggle binds its value (@name).`).
+4. **A mark binds something.** On a line that binds nothing the issue says what it can bind, or that it binds
+   nothing: `A Progress shows a value and keeps none: value={done}.`, `A Row binds nothing.`, `A Slider has no
+   "tone" to bind: it binds its value (@name), a range (@low @high, or low=@low high=@high).`
+5. **A bound variable is declared**: by a `state` line (anywhere on the screen, before or after the line that
+   binds it), a site's variable (`project`, or the site's `variables`), a loop's item (`@row.done`), or a
+   definition's parameter. One that nothing declares is an issue at the line that first binds it, with the line
+   to add and the control's empty value: `@volume binds a variable nothing declares: add state volume=0 at the
+   top of the screen.` The variables the notation makes itself for a word it writes out (an overlay's open
+   picture and zoom, a block's own boolean, a list's own selection, a definition's use that binds nothing) are
+   its own and need none.
+
+`bind=` is no key. A line that writes it (`bind=x`, `bind={x}`, `bindEnd=x`, any `bindStart=` and the like) is
+one issue that shows the line in this form: `A variable is bound with @: @name is the control's value,
+key=@name another property. Write: Slider @heat min=14 max=24`. The rewrite is
+`notationBindForm`/`notationBindRewrite` (`bind_form.dart`), which CodelesslySDK's `tool/notation/notation.sh
+migrate` applies to files.
+
+Every place a line binds a variable:
+
+| Line | Property | Written | Empty value (the state line the issue gives) |
+|---|---|---|---|
+| `Input`, `CodeInput`, a block `TextArea` | its text | `@t` | `""` |
+| `Toggle`, `Checkbox` | on or off | `@on` | `false` |
+| `Slider` (also a block `Rating`, `NumberInput`, `Stepper`) | its number | `@n` | its `min`, else `0` |
+| `Slider` with two thumbs | its low and high ends | `@lo @hi`, `low=@lo high=@hi` | `min` or `0`; `max` or `1` |
+| `RangeSlider` (read as `Slider`) | the same | `@lo @hi`, `low=@lo high=@hi` | the same |
+| `Select`, `Radio`, `SegmentedButton` (a block `Tabs`) | the choice | `@c` | `""` |
+| `DatePicker`, `TimePicker` | the date or time | `@d` | `""` |
+| `Calendar` | the day picked | `@day` | `""` |
+| `Calendar` over a range | its first and last day | `@a @b`, `start=@a end=@b` | `""`, `""` |
+| `Pages` | the page shown (from 0; setting it turns the page) | `@page` | `0` |
+| `Dots` | the page its dots mark | `Dots @page count=4` | `0` |
+| `Lightbox#id photos={list}` | the picture shown (without: its own `<id>At`) | `@at` | `0` |
+| `DataTable` | the row chosen (its place, -1 none) | `@row` | `-1` |
+| `Splitter` | the first pane's size | `@paneW` | `240` |
+| a list line (`Column`, `Card`, a stand-in) with `selectable` | the rows chosen | `selected=@picked` | `[]` |
+| a design system's block | its value: `value`, else its first variable parameter (a `Radio` block's `group`) | `@v`, `value=@v`, `group=@v` | by the parameter's kind: `0`, `false`, `[]`, `""` |
+| a design system's block | each further variable parameter (`SortMenu`'s `direction`, `TableHeader`'s `desc`) | `direction=@dir` | by its kind |
+| a word the notation does not have (open vocabulary) | what it would keep, recorded | `@x`, `start=@from` | `""` |
+| a defined word | its `@value` (or a plain `value=`) and each `name=@` | `Stepper "Servings" @n`, `value=@n`, `open=@shown` | its default, else its state line |
+| any of these, a field | a loop item's or a record's field, an entry, a found record's field | `@row.done`, `@draft.title`, `@colAll[r]`, `@find(clips,c=>c.id==sel).name` | (declared by the loop or the record) |
+
+What binds nothing: a line that only shows a value (`Progress`, `Ring`, `Gauge`: `value={done}`, or `Progress
+{done/total}` where the number goes; `Text` and `Badge`: `"{x}"`). Neither do a Sheet's `stops` (heights), a
+Dialog's `guard={…}` (a condition), its being open (`open id`, `close`) or a DataTable's sort (`onSort={…}`).
+A block's variable parameter named bare (`direction=dir`) is an issue that gives `direction=@dir`; a value
+(`Rating value=4.6`) or one worked out (`direction={dir}`) is shown, one way.
 
 ## 4. The approval card, both ways
 
@@ -185,10 +269,13 @@ Card gap=12
 And the owner's example, complete: `Column` with four zero-prop controls.
 
 ```
+state volume=50
+state email=""
+state notify=true
 Column gap=12
-  Slider bind=volume
-  Input "Email" bind=email
-  Toggle "Notifications" bind=notify
+  Slider @volume
+  Input "Email" @email
+  Toggle "Notifications" @notify
   Button "Save" onTap={emit save}
 ```
 
@@ -232,7 +319,7 @@ by eye, and the share of lines that needed the `{...}` tail.
 ## 9. Build order
 
 1. The parser and expander for levels 0 and 1 with fixed defaults; the owner's four-control example renders.
-2. State: `=` and `->` (now `bind=name` and `onTap={…}`), `state`, `{name}`, `if`, `each`.
+2. State: `@name` and `onTap={…}`, `state`, `{name}`, `if`, `each`.
 3. The printer and the round-trip tests.
 4. The generated prompt, the session and chat-example wiring, line-and-column diagnostics.
 5. Record the 34 briefs in the notation and compare with the table in section 1.
@@ -355,8 +442,8 @@ Column gap=12 pad=16
   Row gap=8 middle
     Avatar name="Ada Lovelace"
     StatusBadge "Active" tone=success
-  Stepper bind=seats min=1 max=9
-  TabToggle options=["Free","Pro"] bind=plan
+  Stepper @seats min=1 max=9
+  TabToggle options=["Free","Pro"] @plan
   Panel "Billing" subtitle="Plan and invoices"
     Text.muted "You are on the {plan} plan with {seats} seats."
   TrialBanner "7 days left in your trial" onUpgrade={emit upgrade}
@@ -367,8 +454,9 @@ Column gap=12 pad=16
 - **Strings** fill the component's text parameters in order, at most two: its `label`, `title` or `text`, then its
   `message`, `description` or the like. One string alone goes to the parameter the component requires
   (`Banner "Saved."` is its message). A choice in place of a string (`ok ? "Approved" : "Denied"`) binds the same one.
-- **`bind=name`** is the variable the component keeps its value in (its `value` parameter, else its first variable
-  parameter); the variable is declared with the parameter's type.
+- **`@name`** is the variable the component keeps its value in (its `value` parameter, else its first variable
+  parameter; `value=@name` and that parameter's own name say the same); any other variable parameter is named
+  (`direction=@dir`). Each is declared with a `state` line (section 3.1).
 - **Events** are written by their own names (`onPressed={…}`, `onChanged={…}`, `onSelected={…}`); `onTap={…}` is the
   component's first.
 - **Size.** A call that writes none takes the component's own: as wide as its parent, as its content, or fixed, as
@@ -382,7 +470,8 @@ Column gap=12 pad=16
   and no slot): write this line after it, at its own indent.`) and drawn after it.
 
 In the prompt each component is one line, as it is called, with its purpose:
-`Stepper "label" bind=value min max step enabled onChanged : A number changed one step at a time.` A name ending in
+`Stepper "label" @value min max step enabled onChanged : A number changed one step at a time.` (a further variable
+parameter is `name=@`). A name ending in
 `!` must be given. SSUI's full list adds about 17,000 characters to the prompt.
 
 Measured on two briefs with Haiku and SSUI's full list (2026-11-14): both read with no notation issue and no
@@ -496,7 +585,7 @@ Page
     IconButton "more_horiz" onTap={open more}
 
 Dialog#signup "Join the waitlist" "We write once."
-  Input "Email" bind=email
+  Input "Email" @email
   Button "Join" onTap={joined=true; close}
 
 Menu#more end
@@ -567,14 +656,14 @@ Page
         Image "{p.url}" h=160 radius=12 onTap={at=index; open shots}
     Image "{cover}" onTap={open zoom}
 
-Lightbox#shots photos={photos} bind=at
+Lightbox#shots photos={photos} @at
 Lightbox#zoom "{cover}" "The harbor at dusk" ratio=1.5
 ```
 
 | Written | What it is |
 |---|---|
 | `Lightbox#id "{photo}" "Caption"` | one picture, its caption in a pill at the foot |
-| `Lightbox#id photos={list} bind=at` (`images:`, `items:`) | a gallery: a page per element, opened at `at` (from 0, as `Pages bind=page`; without `bind=name` it keeps `<id>At`). An element is a URL, or a record with `url` (`src`, `image`), `caption` (`title`) and `ratio`. A list written out (`photos=["a.jpg","b.jpg"]`) is kept in `<id>Photos` |
+| `Lightbox#id photos={list} @at` (`images:`, `items:`) | a gallery: a page per element, opened at `at` (from 0, as `Pages @page`; without `@name` it keeps `<id>At`). An element is a URL, or a record with `url` (`src`, `image`), `caption` (`title`) and `ratio`. A list written out (`photos=["a.jpg","b.jpg"]`) is kept in `<id>Photos` |
 | `ratio=1.5` (or a record's `ratio`) | the picture's width over its height |
 | `thumbs=false`, `max=6` | no strip of thumbnails; the largest zoom (4) |
 | lines under a gallery | draw one picture (`photo` is the element) in place of the `Image`: a drawn scene, a chart. They are read again for the thumbnail |
@@ -683,6 +772,84 @@ whose tap both selects and opens a dialog is refused whole. A tablet between 700
 time with the sidebar beside it, rather than giving the sidebar up for the two panes. The two corpus apps of
 this shape (`mail-client`, `notes-app`, 2026-11-16) wrote their own phone logic (a `pane` variable, `show=` on
 each pane, a `phone` name the notation does not have) and are left as written.
+
+### 14.5 The words' next parameters (2026-11-17)
+
+Nineteen apps written with the words of 33.1.0 each reached for a parameter the word did not have. Each is a
+parameter of the word as it is already written, read where the word is read.
+
+**`confirm`** (16 apps). Between the question and `then`: a second quoted text, the detail under the question;
+`ok="Delete"` and `cancel="Keep"`, the buttons' words (a word worked out in braces: `ok={n > 1 ? "Delete all" :
+"Delete"}`); `danger` (or `destructive`), the yes button in the error color. After `then {…}`, `else {…}` is
+what a no does (Cancel, Escape, a tap outside). They are the confirm action's `message`, `confirmLabel`,
+`cancelLabel`, `destructive` and `cancelActions`, which the document already had.
+
+```
+Button "Delete" onTap={confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {clips=[]} else {toast "Kept"}}
+```
+
+A word between the question and `then` that is none of these, a third quoted text, or anything after `then {…}`
+but `else {…}` is an issue that shows the whole form. The built-in dialog the action shows:
+
+- **The keyboard, one rule.** The focus starts on the yes, so Enter answers what was asked; when it is `danger`
+  it starts on Cancel, so Enter does no harm. Enter and Space press the focused button, Tab moves between the
+  two, Escape cancels. (It started on Cancel always; four apps read Enter as "did nothing" or "cancelled".)
+- **Its buttons** are as a `Dialog`'s end buttons in the notation (`_endButtons`): on a phone (below the
+  breakpoint an adaptive modal turns into a sheet at) they share the dialog's width equally; with room they sit
+  at its end, each no wider than 240 (a long word wraps). A look that places them (`expandButtons`,
+  `stackButtons`, `buttonsAlignment`) is kept.
+- **Asked from a menu's line** (a `Menu`, or a menu opened by `menu=`), the menu is out of sight while the
+  question is (its route offstage, not closed: the line's chain, the actions after `then` and the `close` the
+  menu adds run in it), then closes as the line says. It stayed painted behind the dialog in four apps.
+- **For the render command** the two buttons are `confirmOk` and `confirmCancel`: `--tap confirmOk`, in
+  `--dump-layout` with their text, and named in "Where the focus is".
+
+**`key … when={…}`** (9 apps). `key j when={!editing} onPress={…}`: the shortcut acts only while the expression
+holds (the keyDown reaction's `when`). `when={…}` stands before or after `onPress`; `when expression` before it
+reads as before. A plain key (no `mod`, no `alt`) never acts while a text field has the focus: checked with the
+render command, `--focus field --key j` leaves the page's `j` alone. A `key` line under a `Dialog#id` (or any
+overlay) is that overlay's canvas's reaction: it acts only while the overlay is open. A page's own shortcut
+still acts while a dialog is open over it (left as it is).
+
+**A row's menu reads the row** (4 apps). Under `each c in clips`, `menu=rowMenu` on a line sets a page value of
+the loop's name to the row's item before the menu opens (`c = item`, and the outer loops' names to theirs), so
+the menu's lines read the row that was pressed as they would in the row: `MenuItem "Copy" onTap={copy
+"{c.name}"}`. In the row `c` is still its item; the page value is declared from the list's first element.
+`onRightClick` and `onLongPress` on the same line run in the same reaction before the menu opens, whichever is
+written first (`menu=headerMenu onLongPress={header=c}` left `header` empty: the reaction that opened the menu
+ran first and waited for it). An `IconButton … onTap={open rowMenu}` is unchanged (`sel=row.id` before it).
+
+**`fuzzy(list, query, item => text, tolerance, "keep")`** (6 apps). A number after the text is how many letters a
+word of the query may be off by (by default 1 for a word of 3 or 4 letters, 2 for a longer one; 0 none); `"keep"`
+keeps the list's own order instead of the best first; either or both, in either order. A word of the query also
+matches across the text's words written together (`adamens` in "Ada Mensah", each word's part marked).
+`fuzzyScore`, `matchRanges`, `matchRuns` and `matchReason` take the tolerance as a third argument. `mark={q}`
+marks what `fuzzy` matched: both read the same matcher (`matchRuns` is `FuzzyMatch.find`, as `fuzzy` is), so a
+close spelling is marked whole and a phrase found as written is marked alone; under an `each` over
+`fuzzy(list, q, …, 3)` a `mark={q}` takes the 3 as well. Cards' `ListRow` (title, subtitle), `ConversationRow`
+(name, subject, preview), `PostCard` (title, excerpt) and `CommandPalette` (each command) take `mark=` and draw
+their texts' runs with it.
+
+**`Calendar`** (2 apps). With one variable (`@day`) it picks one day: each pick replaces the last, its change
+gives the day (`result`, yyyy-MM-dd) and the variable holds it; the calendar's `range` prop is false. With two
+(`@arrival @departure`, `start=@a end=@b`) it is a range. Its words for a screen reader are neutral: "start", "end", "choose the
+start" (they said check-in and check-out). `marks` takes a list worked out (`marks={events}`): a day (a dot
+under it), or a record with `date` (`day`) and `label` (`title`, `text`); a map as before. A list was refused
+as the wrong type.
+
+**`guardText`** (4 apps). `Dialog#edit "Edit" guard={dirty} guardText="Discard changes?" onDiscard={draft=""}`:
+while the guard holds, what would close the overlay (Escape, a tap outside, back), which the guard blocks and
+which then runs the canvas's `backPressed` reactions, asks that question (`ok="Discard"`, `cancel="Keep
+editing"`, `danger`), and a yes runs `onDiscard` and closes. On a `Sheet` too. Without `guardText` a guard is
+as before. Four apps had written a Discard button and its reset by hand.
+
+**`follow grow`** (2 apps). `each m in msgs follow grow`: the list takes the room its column leaves (a chat over
+its composer) instead of a fixed `h=`. Each column it is in takes the height left to it, up to the first that
+scrolls (an `App`'s `Main`), which then no longer scrolls: one scroll, the list's, and the composer beside the
+list stays in view. `follow h=180 grow`, or `grow` without `follow`, is an issue.
+
+Not done: `mark=` on a block does not take a `fuzzy`'s tolerance; a menu opened by `onTap={open rowMenu}` from a
+row's button does not set the loop's name (it goes through `sel=row.id` as before).
 
 ## 15. Open points
 

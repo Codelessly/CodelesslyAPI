@@ -12,6 +12,76 @@
   `strictEditCheck`, `Codes` and the rest of the library) is gone. `applyOps` checks ops with `catalogCheck`, as
   before by default; the reference no longer has the validation codes table, and `catalog.json` no `diagnostics`.
 
+## 34.0.0
+
+Released with codelessly_sdk 34.0.0.
+
+### Breaking
+
+- **Notation**: a variable is bound with `@` (design note 13, section 3.1). `@name` is the variable itself, read
+  and written: bare on a line it is the control's value (`Slider @heat min=14 max=24`, `value=@heat` the same), any
+  other property is named (`selected=@picked` on a selectable list, `direction=@dir` on a block, `low=@a high=@b`
+  on a slider with two thumbs, written bare as `@a @b`). One bare mark a line, two on a range; a mark on a line that
+  binds nothing, or a second one, is an issue that says what the line binds. A bound variable is declared (a
+  `state` line, a site's variable, a loop's item, a definition's parameter): one nothing declares is an issue that
+  gives the `state` line to add. `bind=`, `bind={…}`, `bindEnd=` are not read: each line that writes them is one
+  issue that shows it in the new form (`notationBindForm`, `notationBindRewrite`). A block's variable parameter is
+  always `key=@name`. A definition's signature declares the value a use binds as `@value` (`@value=1` with its
+  start) and a further one as `name=@` (`name=@0.5` with its start); a use binds them with `@x`, `value=@x`, `name=@x`; a plain parameter a use
+  binds (`value=1`, `Counter @n`) is that variable both ways. The prompts, the printer (`@name` on a control) and
+  the A2UI front end write the new form. The `RangeSlider` alias takes `@low @high` or `low=@ high=@`; its other
+  names for the ends are gone. CodelesslySDK's `tool/notation/notation.sh migrate` rewrites files.
+  `notationBindRewrite` rewrites only what 33 read as a binding (a value in braces on any key but `bind=` is left:
+  it was shown, one way), lists only the variables it turned into `@name`, and leaves a binding of a name no state
+  line can declare (`notationRefusedState`: `theme`, `device`…) as written, in its `refused`.
+
+### Added
+
+- **Notation**: `confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" cancel="Keep" danger then {…} else
+  {…}`: a detail under the question, the buttons' words, a destructive yes, and what a no runs.
+- **Notation**: `key j when={!editing} onPress={…}` acts only while its condition holds; a `key` line under a
+  `Dialog#id` is that dialog's. Key names are the keyboard's or the plain ones (`left`, `del`, `pgup`); a name no key
+  has is an issue. `Button "B" shortcut="mod+b"` presses the button.
+- **Notation**: a menu opened from a row (`menu=rowMenu` under an `each`) reads the pressed row by its loop name;
+  the row's own `onLongPress` or `onRightClick` runs first, wherever it is written.
+- **Notation**: `fuzzy(list, q, x=>x.name, 3, "keep")` takes how many letters off a word may be and keeps the list's
+  order; letters typed across words match (`adamens` finds "Ada Mensah").
+- **Notation**: `Calendar @day` is one day (`range: false` on the calendar's props; `@a @b` is a range), and
+  `marks` takes a list of days or of `{date, label}` records.
+- **Notation**: `guardText="Discard changes?" onDiscard={…}` on a guarded `Dialog` or `Sheet` asks before closing;
+  `each m in msgs follow grow` takes the room over a composer.
+- **Notation**: a definition's `primitive Word …` declares what no line can express (counted as a stand-in, never as
+  resolved); `definitionReads` reports a parameter or an event a definition names and never uses, and a variable
+  it reads that is not its own.
+- **Notation**: an alias carries a variant and fixed parameters (`{"to": "Button.primary", "add": "size=large"}`)
+  and maps the first string to a parameter (`$text`); a page's own `define` replaces a design system's component
+  of that name; `description`/`detail`/`note` and `placeholder`/`hint` are read for one another where a word has
+  exactly one of them.
+- **Notation**: the open prompt's glossary prints each word's signature (`notationGlossaryLines`); names alone
+  with `signatures: false`.
+
+### Changed
+
+- **Notation**: a bare `go name` that names a screen is that screen, whatever variable shares the name
+  (`NotationOptions.screens`, `notationScreen`); `go {expr}` is worked out.
+- **Notation**: an id is one word of letters, digits and `_`: a hyphen is one issue at the id, which is read with
+  `_` there and where it is opened.
+- **Notation**: a whole-number state becomes a decimal once an action may give it a fraction (`zoom=zoom*1.25`) or
+  a slider that writes fractions is bound to it; one bound to a slider between whole numbers stays whole.
+- **Notation**: `state` lines and overlays written before the first `###` belong to every screen; a state named
+  after a runtime scope (`theme`, `route`, `drag`…) is an issue; a key written twice on a line is an issue.
+- **Notation**: `selectable` on a list whose rows take a tap of their own (a `TableRow`, a card with `onTap`)
+  chooses the row first; on a line with no `each` under it it is an issue. `removable` and `action=` are read on
+  a block with a slot; `disabled={cond}` on a block whose `disabled` is a list turns the whole block off.
+- **Notation**: in a definition, a use's variable reaches the controls in its lines, a loop's item reaches
+  `drag=group(item.id)`, an event forwards with its arguments, a body that starts with `if` or `each` is put in a
+  Column, and an id written in the lines is the instance's in its actions.
+
+### Fixed
+
+- **Notation**: an `each` in a wrapping row had no width (a `ColorPicker` drew nothing); `Grid cols={n}` read a
+  computed number as 2; a row that holds a reorder `Handle` wrapped it onto its own line on a phone.
+
 ## 33.1.1
 
 Released with codelessly_sdk 33.1.1.

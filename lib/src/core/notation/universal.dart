@@ -113,7 +113,7 @@ const Map<String, UniversalWord> notationUniversal = {
   'handle': UniversalWord(UniversalKind.flag, 'with reorder: its rows are dragged by their Handle', on: {'container'}),
   'onReorder': UniversalWord(UniversalKind.event, 'after a move: result is the list in its new order', on: {'container'}),
   'selectable': UniversalWord(UniversalKind.flag,
-      'its rows are chosen: a tap alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all; kept in bind=list',
+      'its rows are chosen: a tap alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all; kept in selected=@list',
       on: {'container'}),
   'onSelect': UniversalWord(UniversalKind.event, 'after the selection changes: result is the selection', on: {'container'}),
   'removable': UniversalWord(UniversalKind.flag, 'a small x that fires onRemove'),
