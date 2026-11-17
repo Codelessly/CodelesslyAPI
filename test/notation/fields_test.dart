@@ -415,9 +415,8 @@ void main() {
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'strokes': [{'color': '#FF000000'}], 'strokeAlign': 'outside'}}, 'strokeAlign=outside'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'blendMode': 'multiply'}}, 'blendMode=multiply'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40, 'constraints': {'minHeight': 40, 'maxWidth': 720}}}, 'minHeight=40 maxWidth=720'),
-      ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'ignorePointer': true}, 'ignorePointer=true'),
-      ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'floating': true}, 'floating=true'),
-      ({'type': 'row', 'layout': {'width': {'fill': 0}, 'height': {'hug': 0}}, 'props': {'crossAxisAlignment': 'center'}, 'inkWell': {'hoverColor': '#14000000'}}, 'inkWell={"hoverColor":"#14000000"}'),
+      // A behavior (ignorePointer, floating, inkWell…) is the states family's,
+      // written by the keys' names with or without fieldNames: states_test.dart.
       ({'type': 'progressBar', 'layout': {'width': {'fill': 0}, 'height': {'hug': 0}}, 'props': {'max': 1, 'borderRadius': 2, 'color': '#FF2563EB', 'backgroundColor': '#FFE5E7EB', 'animate': true}}, 'props.animate=true'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'bind': {'motion.scale': r'${= on ? 1.1 : 1}'}}, 'motion.scale={on ? 1.1 : 1}'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'bind': {'layout.columnSpan': r'${span}'}}, 'columnSpan={span}'),
