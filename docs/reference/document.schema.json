@@ -149,6 +149,7 @@
             "callFunction",
             "if",
             "forEach",
+            "announce",
             "showToast",
             "confirm",
             "delay",
@@ -317,6 +318,15 @@
               "anchorReserve": {
                 "type": "number"
               },
+              "popoverArrow": {
+                "type": "boolean"
+              },
+              "hoverCard": {
+                "type": "boolean"
+              },
+              "hoverDelayMs": {
+                "type": "integer"
+              },
               "anchorNode": {
                 "type": "string"
               },
@@ -354,6 +364,12 @@
               },
               "maxHeightFactor": {
                 "type": "number"
+              },
+              "snapHeights": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
               },
               "cover": {
                 "type": "boolean"
@@ -546,6 +562,22 @@
                 "items": {
                   "$ref": "#/$defs/action"
                 }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "announce"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "message": {
+                "type": "string"
               }
             }
           }
@@ -2704,7 +2736,8 @@
         "rectangle",
         "roundedRectangle",
         "gapped",
-        "ruler"
+        "ruler",
+        "stars"
       ]
     },
     "enum.SliderValueIndicatorShape": {
@@ -3041,6 +3074,7 @@
         "refresh",
         "swipeAction",
         "rowTap",
+        "sort",
         "actionError",
         "event"
       ]
@@ -7065,6 +7099,7 @@
             "icon",
             "spacer",
             "variance",
+            "selectionList",
             "listView",
             "gridView",
             "pageView",
@@ -7079,8 +7114,10 @@
             "switch",
             "radio",
             "slider",
+            "splitter",
             "dropdown",
             "datePicker",
+            "calendar",
             "timePicker",
             "dateTimeInput",
             "segmentedButton",
@@ -7978,6 +8015,9 @@
                   "text": {
                     "type": "string"
                   },
+                  "shortcut": {
+                    "type": "string"
+                  },
                   "style": {
                     "anyOf": [
                       {
@@ -8018,6 +8058,9 @@
                     "$ref": "#/$defs/enum.TextOverflow"
                   },
                   "selectable": {
+                    "type": "boolean"
+                  },
+                  "live": {
                     "type": "boolean"
                   },
                   "scaleDown": {
@@ -8140,6 +8183,47 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "selectionList"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "variable": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "columns": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "children": {
+                "type": "array",
+                "maxItems": 0
               },
               "slots": {
                 "type": "object",
@@ -9336,6 +9420,15 @@
                       }
                     ]
                   },
+                  "sortable": {
+                    "type": "boolean"
+                  },
+                  "sortColumn": {
+                    "type": "string"
+                  },
+                  "sortAscending": {
+                    "type": "boolean"
+                  },
                   "stretchLastColumn": {
                     "type": "boolean"
                   }
@@ -9429,6 +9522,33 @@
                   "keyboardSigned": {
                     "type": "boolean"
                   },
+                  "min": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "max": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "step": {
+                    "type": "number",
+                    "minimum": 0.000001
+                  },
+                  "semanticLabel": {
+                    "type": "string"
+                  },
                   "textInputAction": {
                     "anyOf": [
                       {
@@ -9518,6 +9638,13 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "otpLength": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "otpDigitsOnly": {
+                    "type": "boolean"
                   },
                   "maxLines": {
                     "type": "integer",
@@ -10110,6 +10237,16 @@
                   "value": {
                     "type": "number"
                   },
+                  "rangeEnd": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "min": {
                     "type": "number"
                   },
@@ -10141,6 +10278,9 @@
                     "minimum": 0
                   },
                   "autofocus": {
+                    "type": "boolean"
+                  },
+                  "readOnly": {
                     "type": "boolean"
                   },
                   "secondaryTrackValue": {
@@ -10418,6 +10558,55 @@
                         "type": "null"
                       }
                     ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "children": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "splitter"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "min": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  },
+                  "step": {
+                    "type": "number",
+                    "minimum": 0.0
+                  },
+                  "collapseAt": {
+                    "type": "number"
+                  },
+                  "orientation": {
+                    "$ref": "#/$defs/enum.Axis"
+                  },
+                  "label": {
+                    "type": "string"
                   }
                 },
                 "additionalProperties": false
@@ -10728,6 +10917,74 @@
                   },
                   "helpText": {
                     "type": "string"
+                  },
+                  "pickerTheme": {}
+                },
+                "additionalProperties": false
+              },
+              "children": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "calendar"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "string"
+                  },
+                  "end": {
+                    "type": "string"
+                  },
+                  "firstDate": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "lastDate": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "disabledDates": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "dayPrices": {},
+                  "marks": {},
+                  "label": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "boolean"
                   },
                   "pickerTheme": {}
                 },
@@ -16542,6 +16799,7 @@
             "refresh",
             "swipeAction",
             "rowTap",
+            "sort",
             "actionError",
             "event"
           ]

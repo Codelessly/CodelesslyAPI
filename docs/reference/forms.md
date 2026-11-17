@@ -248,6 +248,10 @@ Flutter `TextField` (a `TextFormField` when it validates).
 | `keyboardType` | [TextInputType](values.md#enum-TextInputType) | `"text"` |  | The on-screen keyboard to show (Flutter's `TextInputType`): `text`, `number`, `emailAddress`, `phone`, `url`, `multiline`... |
 | `keyboardDecimal` | bool | `false` |  | A number keyboard with a decimal point (`TextInputType.numberWithOptions(decimal: true)`). |
 | `keyboardSigned` | bool | `false` |  | A number keyboard with a sign key (`TextInputType.numberWithOptions(signed: true)`). |
+| `min` | double | unset |  | Bounds and increment for a number field. Up/Down step by `step`, Page Up/Down by ten steps, and Home/End reach the bounds when supplied. |
+| `max` | double | unset |  |  |
+| `step` | double | `1` | ≥ 0.000001 |  |
+| `semanticLabel` | String | `""` |  | An accessible name when the visible label is drawn by a parent block. |
 | `textInputAction` | [TextInputAction](values.md#enum-TextInputAction) | unset |  |  |
 | `textCapitalization` | [TextCapitalization](values.md#enum-TextCapitalization) | `"none"` | `none`, `words`, `sentences`, `characters` |  |
 | `autocorrect` | bool | `true` |  |  |
@@ -263,6 +267,8 @@ Flutter `TextField` (a `TextFormField` when it validates).
 | `cursorWidth` | double | `2` | ≥ 0 |  |
 | `cursorRadius` | double | unset | ≥ 0 | `Radius.circular(cursorRadius)`. |
 | `maxLength` | int | unset |  |  |
+| `otpLength` | int | `0` | ≥ 0 | A one-time code: the number of boxes the field is drawn as, one per character (0: an ordinary field). It stays one field: one value, one Tab stop, one semantics node; typing, paste and Backspace as in any. |
+| `otpDigitsOnly` | bool | `false` |  | With `otpLength`: only the digits 0 to 9 are kept, typed or pasted, and the keyboard is the number pad. |
 | `maxLines` | int | `1` | ≥ 0 | 0: no limit (Flutter's `maxLines: null`). |
 | `minLines` | int | unset |  |  |
 | `expands` | bool | `false` |  |  |
@@ -384,12 +390,14 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `value` | double | `0` |  | The current value, between `min` and `max`. Bind it to a variable and store the `changed` value in that variable. |
+| `rangeEnd` | double | unset |  | A second thumb: with it the slider is a range from `value` (its lower end) to `rangeEnd`, and a `changed` gives both (`result.low`, `result.high`). The ends never cross. Null: one thumb. |
 | `min` | double | `0` |  | The value at the start of the track. |
 | `max` | double | `1` |  | The value at the end of the track. |
 | `divisions` | int | unset |  | Snaps to this many equal steps between `min` and `max`. Null: continuous. |
 | `label` | String | unset |  | The value indicator's text; `${value}` is the value. |
 | `labelFractionDigits` | int | `0` | ≥ 0 | Decimals of `${value}` in `label`. |
 | `autofocus` | bool | `false` |  |  |
+| `readOnly` | bool | `false` |  | Shows the value without accepting pointer, keyboard or semantics changes. |
 | `secondaryTrackValue` | double | unset |  |  |
 | `padding` | [EdgeInsets](values.md#type-EdgeInsets) | unset |  |  |
 | `trackHeight` | double | unset | ≥ 0 |  |
@@ -405,7 +413,7 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `showValueIndicator` | [ShowValueIndicator](values.md#enum-ShowValueIndicator) | unset | `onlyForDiscrete`, `onlyForContinuous`, `onDrag`, `alwaysVisible`, `never` |  |
 | `valueIndicatorShape` | [SliderValueIndicatorShape](values.md#enum-SliderValueIndicatorShape) | unset | `rectangle`, `paddle`, `drop`, `roundedRectangle` |  |
 | `overlayRadius` | double | unset | ≥ 0 | `RoundSliderOverlayShape(overlayRadius)`. |
-| `trackShape` | [SliderTrackShape](values.md#enum-SliderTrackShape) | unset | `rectangle`, `roundedRectangle`, `gapped`, `ruler` |  |
+| `trackShape` | [SliderTrackShape](values.md#enum-SliderTrackShape) | unset | `rectangle`, `roundedRectangle`, `gapped`, `ruler`, `stars` |  |
 | `thumbShape` | [SliderThumbShape](values.md#enum-SliderThumbShape) | `"circle"` | `circle`, `roundedRect`, `rectangle`, `pointer` |  |
 | `thumbRadius` | double | `10` | ≥ 0 | A circle thumb's radius. |
 | `thumbSize` | [Offset](values.md#type-Offset) | `[20,20]` |  | A rectangular thumb's size, `[width, height]` (along a horizontal track). |
@@ -426,6 +434,49 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `fillFromEnd` | bool | `false` |  | The active track runs from the thumb to the end. |
 | `selectableMin` | double | unset |  | The part of the track the thumb can be dragged within. |
 | `selectableMax` | double | unset |  |  |
+
+<a id="node-splitter"></a>
+### `splitter`
+
+Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.
+
+A pane divider. Its value is the leading pane's width in logical pixels.
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `value` | double | `240` |  |  |
+| `min` | double | `0` |  |  |
+| `max` | double | `800` |  |  |
+| `step` | double | `16` | ≥ 0 |  |
+| `collapseAt` | double | `48` |  |  |
+| `orientation` | [Axis](values.md#enum-Axis) | `"horizontal"` | `horizontal`, `vertical` |  |
+| `label` | String | `"Resize panels"` |  |  |
+
+<a id="node-calendar"></a>
+### `calendar`
+
+An inline month calendar that picks a start and end date. Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}.
+
+A month calendar in the page. A pick chooses the range's start, then its end; disabled dates cannot be crossed. The renderer uses the date picker's month grid, including its locale, keyboard movement and theme.
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `start` | String | `""` |  |  |
+| `end` | String | `""` |  |  |
+| `firstDate` | String | unset |  |  |
+| `lastDate` | String | unset |  |  |
+| `disabledDates` | List<String> | `[]` |  |  |
+| `dayPrices` | Object | unset |  |  |
+| `marks` | Object | unset |  |  |
+| `label` | String | `"Choose dates"` |  |  |
+| `enabled` | bool | `true` |  |  |
+| `pickerTheme` | Object | unset |  | Unset (the default), the popup draws with the project's theme, light or dark: `primary` for the selected day, today's ring and Done, `surface`, `onSurface`, `colors.primaryBorder`, `radii.control` and `radii.inner`, `fontFamily`. Set it only for a popup that differs from the theme: `{backgroundColor, accentColor, onAccentColor, textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily, headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style). |
 
 <a id="node-dropdown"></a>
 ### `dropdown`

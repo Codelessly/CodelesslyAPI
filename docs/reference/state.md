@@ -102,7 +102,7 @@ Types:
 `${= formula}` computes one: arithmetic (`+ - * / %`), comparisons (`== != < <= > >=`), `&&`, `||`, `!`,
 `cond ? a : b`, literals (`'text'`, `3.5`, `true`, `null`, lists `[1, 2]`), and lambdas for list functions
 (`x => x.price`). A text that is exactly one expression gives its value with its type; inside other text a number is
-printed without trailing zeros. Names an expression may start with, besides the variables: `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`, `form`. The
+printed without trailing zeros. Names an expression may start with, besides the variables: `data`, `route`, `storage`, `screen`, `device`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`, `form`. The
 names a node gives the nodes inside it are read there only: `item`, `index`, `parent` in a list's item; `pageOffset`
 in a `pageView`'s page (its distance from the current page, for parallax; not the page's scroll); `form` inside a
 `form`; `track`, `sticky`, `view` and the like inside their node. A page's or a list's scroll position is its `scroll`
@@ -359,6 +359,11 @@ change), or have the host app pass the offset in (a variable it sets).
 | <a id="fn-sortByDesc"></a>`sortByDesc` | `sortByDesc(list, field or item => key, more keys…)` | `sortByDesc(records, "year")` |
 | <a id="fn-findIndex"></a>`findIndex` | `findIndex(list, item => condition) or findIndex(list, field, value)` | `findIndex(records, r => r.id == selectedId) → 2 (-1 when none)` |
 | `findIndex` | `findIndex(list, item => condition) or findIndex(list, field, value)` | `findIndex(tasks, "id", id) → 2 (-1 when missing)` |
+| <a id="fn-fuzzy"></a>`fuzzy` | `fuzzy(list, query, item => text)` | `fuzzy(episodes, q, e => e.title)` |
+| <a id="fn-fuzzyScore"></a>`fuzzyScore` | `fuzzyScore(text, query)` | `fuzzyScore(title, q) → 100` |
+| <a id="fn-matchRanges"></a>`matchRanges` | `matchRanges(text, query)` | `matchRanges(title, q) → [[0, 5]]` |
+| <a id="fn-matchRuns"></a>`matchRuns` | `matchRuns(text, query)` | `matchRuns(title, q) → text runs` |
+| <a id="fn-matchReason"></a>`matchReason` | `matchReason(text, query)` | `matchReason(title, q) → Exact phrase` |
 | <a id="fn-groupBy"></a>`groupBy` | `groupBy(list, field or item => key) → [{key, items, count}]` | `groupBy(txns, "date") → one entry per day, in order of first appearance` |
 | <a id="fn-unique"></a>`unique` | `unique(list, field or item => key)` | `unique(tags) or unique(tasks, "category")` |
 | <a id="fn-without"></a>`without` | `without(list, other or item) or without(map, keys)` | `without(held, 64) or without(task, ["draft", "tmp"])` |

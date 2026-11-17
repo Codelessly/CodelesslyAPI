@@ -26,6 +26,7 @@ held is now here (the old links still land on the right line):
 - <a id="trigger-refresh"></a>`refresh`: [lists.md#trigger-refresh](lists.md#trigger-refresh)
 - <a id="trigger-swipeAction"></a>`swipeAction`: [lists.md#trigger-swipeAction](lists.md#trigger-swipeAction)
 - <a id="trigger-rowTap"></a>`rowTap`: [lists.md#trigger-rowTap](lists.md#trigger-rowTap)
+- <a id="trigger-sort"></a>`sort`: [lists.md#trigger-sort](lists.md#trigger-sort)
 - <a id="trigger-load"></a>`load`: [navigation.md#trigger-load](navigation.md#trigger-load)
 - <a id="trigger-backPressed"></a>`backPressed`: [navigation.md#trigger-backPressed](navigation.md#trigger-backPressed)
 - <a id="trigger-valueChanged"></a>`valueChanged`: [state.md#trigger-valueChanged](state.md#trigger-valueChanged)

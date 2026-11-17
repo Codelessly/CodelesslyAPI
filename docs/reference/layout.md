@@ -136,8 +136,8 @@ Why a mode is not allowed, as the declarations say it:
 
 - Flexible only applies in a row or column, along its main axis.
 - A wrapping row lays its children out in runs: they keep their own size along it, unless they set layout.basis (CSS flex-basis): then a filling child grows to share its line. Add the width it starts from and wraps at ("layout": {"width": {"fill": 300}, "basis": 240}), or give it a fixed or hug size.
-- The column scrolls: its content has no end to fill to.
-- The row scrolls: its content has no end to fill to.
+- The column scrolls: its content has no end to fill to (with "fillViewport": true a filling child shares the viewport while the content fits it).
+- The row scrolls: its content has no end to fill to (with "fillViewport": true a filling child shares the viewport while the content fits it).
 - Items in a list always fill across it.
 - A list is unbounded along its scroll axis: items cannot fill it. Set an item extent.
 - The list gives every item its item extent: they fill it.

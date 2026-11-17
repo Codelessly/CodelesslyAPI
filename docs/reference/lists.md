@@ -241,7 +241,27 @@ Flutter's `TableView` (two_dimensional_scrollables): a table that scrolls on bot
 | `rowHoverColor` | [Color](values.md#type-Color) | unset |  | A body row's background while the pointer is over it. |
 | `selectedRow` | int | `-1` |  | The selected body row (bind it), -1 for none: drawn in `selectedRowColor`. More of its look (an edge at its start) is the `cell` template's `selected` state style, with `selected` bound to `${= item.rowIndex == <the selected row>}`. |
 | `selectedRowColor` | [Color](values.md#type-Color) | unset |  |  |
+| `sortable` | bool | `false` |  | Headers can sort the bound rows by their column key. `sortColumn` is the initial key (empty: keep data order); a header press changes it. |
+| `sortColumn` | String | `""` |  |  |
+| `sortAscending` | bool | `true` |  |  |
 | `stretchLastColumn` | bool | `false` |  | The last column takes the width the columns leave over, so the ruled rows run to the table's edge. |
+
+<a id="node-selectionList"></a>
+### `selectionList`
+
+A keyboard and pointer multi-select list or grid; items have key and label.
+
+A list or grid whose keyed choices are kept in one list variable. The renderer owns range selection, modifier keys, and accessible state.
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `variable` | String | `""` |  |  |
+| `label` | String | `"Selection"` |  |  |
+| `items` | List<Object> | `[]` |  |  |
+| `columns` | int | `1` | ≥ 1 |  |
 
 <a id="node-listTile"></a>
 ### `listTile`
@@ -336,6 +356,7 @@ Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger field
 | <a id="trigger-refresh"></a>`refresh` | A list or grid was pulled past its start to refresh (its `pullToRefresh`, or its pagination's); its pagination reloads its first page too. A list with this reaction can always be pulled. |
 | <a id="trigger-swipeAction"></a>`swipeAction` | A swipe action of a list item ran (the list's `swipeActions`): `${result.action}`, `${result.label}`, `${result.item}`, `${result.index}`. |
 | <a id="trigger-rowTap"></a>`rowTap` | A table view's body row was tapped: `${result.row}` (the row's data), `${result.rowIndex}`, `${result.column}` (the tapped column's key), `${result.columnIndex}`. |
+| <a id="trigger-sort"></a>`sort` | A table header was activated by pointer or keyboard: `${result.column}` is its key, `${result.columnIndex}` its index, and `${result.ascending}` the new direction. |
 
 <a id="action-paginate"></a>
 ### `paginate` (action): Paginate

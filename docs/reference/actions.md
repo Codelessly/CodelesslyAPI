@@ -16,6 +16,7 @@ held is now here (the old links still land on the right line):
 - <a id="action-openModal"></a>`openModal`: [navigation.md#action-openModal](navigation.md#action-openModal)
 - <a id="action-closeModal"></a>`closeModal`: [navigation.md#action-closeModal](navigation.md#action-closeModal)
 - <a id="action-showToast"></a>`showToast`: [navigation.md#action-showToast](navigation.md#action-showToast)
+- <a id="action-announce"></a>`announce`: [navigation.md#action-announce](navigation.md#action-announce)
 - <a id="action-confirm"></a>`confirm`: [navigation.md#action-confirm](navigation.md#action-confirm)
 - <a id="action-openLink"></a>`openLink`: [navigation.md#action-openLink](navigation.md#action-openLink)
 - <a id="action-setVariable"></a>`setVariable`: [state.md#action-setVariable](state.md#action-setVariable)

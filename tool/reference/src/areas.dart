@@ -54,7 +54,7 @@ const List<PageDef> featurePages = [
   PageDef('forms',
       nodes: [
         'filledButton', 'elevatedButton', 'outlinedButton', 'textButton', 'iconButton', 'floatingActionButton', //
-        'textField', 'checkbox', 'switch', 'radio', 'slider', 'dropdown', 'segmentedButton', 'datePicker', 'timePicker',
+        'textField', 'checkbox', 'switch', 'radio', 'slider', 'splitter', 'calendar', 'dropdown', 'segmentedButton', 'datePicker', 'timePicker',
         'dateTimeInput', 'signature', 'chip', 'actionChip', 'choiceChip', 'filterChip', 'inputChip',
       ],
       behaviors: ['form', 'radioGroup'],
@@ -62,15 +62,15 @@ const List<PageDef> featurePages = [
       actions: ['editText', 'focus', 'validate'],
       models: ['InputDecoration', 'InputBorder', 'InputIcon', 'ButtonStyle', 'ShapeBorder', 'ButtonSegment', 'IconAction']),
   PageDef('lists',
-      nodes: ['listView', 'gridView', 'pageView', 'tableView', 'listTile', 'pagination'],
+      nodes: ['listView', 'gridView', 'pageView', 'tableView', 'selectionList', 'listTile', 'pagination'],
       behaviors: ['reorderHandle'],
-      triggers: ['reorder', 'refresh', 'swipeAction', 'rowTap'],
+      triggers: ['reorder', 'refresh', 'swipeAction', 'rowTap', 'sort'],
       actions: ['paginate'],
       models: ['Pagination', 'ListSections', 'ListReorder', 'SwipeAction', 'SwipeActions', 'TableColumn']),
   PageDef('navigation',
       nodes: ['appBar', 'navigationBar', 'bottomNavigationBar', 'tabs', 'tabBar', 'accordion', 'expansionTile', 'modal'],
       triggers: ['load', 'backPressed'],
-      actions: ['navigate', 'openModal', 'closeModal', 'showToast', 'confirm', 'openLink'],
+      actions: ['navigate', 'openModal', 'closeModal', 'showToast', 'announce', 'confirm', 'openLink'],
       models: ['NavigationDestination', 'RouteTransition', 'RouteDismiss']),
   PageDef('state',
       triggers: ['valueChanged', 'actionError'],
@@ -133,6 +133,7 @@ const Map<String, List<String>> formulaGroups = {
   ],
   'Lists': [
     'sum', 'count', 'length', 'filter', 'where', 'find', 'any', 'all', 'map', 'sortBy', 'sortByDesc', 'findIndex', //
+    'fuzzy', 'fuzzyScore', 'matchRanges', 'matchRuns', 'matchReason',
     'groupBy', 'unique', 'without', 'concat', 'first', 'last', 'slice', 'take', 'skip', 'reverse', 'range', 'indexOf',
     'flatten', 'compact', 'append', 'prepend', 'setAt', 'insertAt', 'removeAt', 'move', 'moveItems', 'updateWhere',
     'removeWhere', 'minBy', 'maxBy', 'pick', 'flatMap', 'at', 'isEmpty', 'isNotEmpty', 'toMap',

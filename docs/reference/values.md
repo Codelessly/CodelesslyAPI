@@ -1339,6 +1339,7 @@ Written as the value's name, a JSON string (`"center"`).
 | `roundedRectangle` |  |
 | `gapped` |  |
 | `ruler` | A ruler: a strip in the inactive track color, and the active color filled from zero (or the minimum) to the value under it. It spans the slider's whole width. Its ticks are drawn with the node's `customPaint` (the `painter` draws over the track: `size` is the slider's box). |
+| `stars` | Five (or another max count) stars, filled to the selected value. |
 
 <a id="enum-SliderValueIndicatorShape"></a>
 ### SliderValueIndicatorShape
@@ -1674,6 +1675,7 @@ Written as the value's name, a JSON string (`"center"`).
 | `refresh` | A list or grid was pulled past its start to refresh (its `pullToRefresh`, or its pagination's); its pagination reloads its first page too. A list with this reaction can always be pulled. |
 | `swipeAction` | A swipe action of a list item ran (the list's `swipeActions`): `${result.action}`, `${result.label}`, `${result.item}`, `${result.index}`. |
 | `rowTap` | A table view's body row was tapped: `${result.row}` (the row's data), `${result.rowIndex}`, `${result.column}` (the tapped column's key), `${result.columnIndex}`. |
+| `sort` | A table header was activated by pointer or keyboard: `${result.column}` is its key, `${result.columnIndex}` its index, and `${result.ascending}` the new direction. |
 | `actionError` | On the current canvas: a failed action chain or cloud subscription. `${result.error}` is `{type, message, action, nodeId}` (no stack or raw service objects). A failure in this reaction reports to the host without recursively firing another actionError reaction. |
 | `event` | On a component call: the component fired its event `Trigger.event` (a `componentEvent` action inside its definition); `${result}` is the event's payload. Flutter: the callback passed to a widget's `onChanged`-style parameter. The handler runs in the caller's scope. |
 

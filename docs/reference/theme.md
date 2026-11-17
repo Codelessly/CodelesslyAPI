@@ -85,6 +85,7 @@ Flutter `Text.rich`.
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `text` | String | `""` |  | The text shown. May hold expressions: `"Hello, ${user.name}"`. |
+| `shortcut` | String | `""` |  | A key combination rendered with this platform's modifier names. |
 | `style` | [TextStyle](theme.md#type-TextStyle) | `{}` |  | Base style for the whole text. |
 | `runs` | List<[TextRun](theme.md#type-TextRun)> | `[]` |  | Styled ranges over `text`, merged over `style`. |
 | `textAlign` | [TextAlign](values.md#enum-TextAlign) | `"start"` | `left`, `right`, `center`, `justify`, `start`, `end` | How lines are aligned inside the node's width (Flutter's `TextAlign`). |
@@ -92,6 +93,7 @@ Flutter `Text.rich`.
 | `maxLines` | int | unset |  | At most this many lines; the rest is cut as `overflow` says. Null: no limit. |
 | `overflow` | [TextOverflow](values.md#enum-TextOverflow) | `"clip"` | `clip`, `fade`, `ellipsis`, `visible` | What shows where the text is cut by `maxLines` or the node's size (Flutter's `TextOverflow`): `clip`, `fade`, `ellipsis`, `visible`. |
 | `selectable` | bool | `false` |  | The user can select and copy the text (Flutter's `SelectableText`). |
+| `live` | bool | `false` |  | Announces changes to this text to a screen reader without moving focus. |
 | `scaleDown` | bool | `false` |  | Shrinks the whole text to fit its width, keeping its lines (`FittedBox(fit: BoxFit.scaleDown)`). |
 | `markdown` | Object | unset |  | Markdown look for the text (bold, italic, code, links, @mentions, lists); null shows the text as written. |
 

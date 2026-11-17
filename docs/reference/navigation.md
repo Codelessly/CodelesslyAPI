@@ -355,6 +355,9 @@ Shows a screen (canvas) as a modal: a dialog, a sheet, a popover. The `CloseModa
 | `anchorGap` | double | `4` |  |  |
 | `anchorOffset` | double | `0` |  |  |
 | `anchorReserve` | double | `0` |  | Room a popover keeps below its top: when its top plus this would pass the screen's bottom margin, it moves up to fit it (a menu keeps its place as it grows). 0: by its own height. |
+| `popoverArrow` | bool | `false` |  | Draw an arrow from an anchored popover toward its trigger. |
+| `hoverCard` | bool | `false` |  | Open as an interactive pointer-pass-through hover preview. |
+| `hoverDelayMs` | int | `0` |  | Milliseconds of rest before showing the preview. |
 | `anchorNode` | String | `""` |  | Anchor "node": the node the popover sits by (an id; may be an expression). |
 | `anchorItem` | String | `""` |  | Anchor "node", for a node a list repeats: the item whose copy it sits by (its id or key, or its index). |
 | `insets` | List<double> | `[0,0,0,0]` |  | Space kept around a dialog: left, top, right, bottom. |
@@ -362,6 +365,7 @@ Shows a screen (canvas) as a modal: a dialog, a sheet, a popover. The `CloseModa
 | `sheetRadius` | double | unset |  | A bottom sheet's top corner radius; the sheet clips the screen to it (null: the default). |
 | `sheetBelow` | String | `""` |  | Adaptive: a bottom sheet on breakpoints narrower than this one (a breakpoint id; empty: the second). |
 | `maxHeightFactor` | double | `1` |  |  |
+| `snapHeights` | List<double> | `[]` |  | Bottom sheet height stops as increasing fractions of available height, e.g. [0.5, 0.9]. |
 | `cover` | bool | `false` |  | A dialog that covers the screen: its screen fills it at the device size (its breakpoint follows the device). |
 | `enterScale` | double | `1` |  |  |
 | `routeTransition` | [RouteTransition](navigation.md#type-RouteTransition) | unset |  | A custom transition: entrance, the screen behind, barrier, drag to dismiss. |
@@ -393,6 +397,15 @@ Shows a short message (a snackbar). Its button (`actionLabel`) runs `actions` on
 | `icon` | Object | unset |  | An icon glyph's JSON. |
 | `look` | Object | unset |  | Cosmetics, JSON: colors, radius, border, shadows, padding, widths, text styles, offsets, alignment; the button's actionBackgroundColor, actionBorder, actionCornerRadius, actionShadows; iconShadows; rotation (degrees), enterCurve, enterOffset (a share of its height). |
 | `variables` | Object | unset |  | Style values bound to expressions, by style key. |
+
+<a id="action-announce"></a>
+### `announce` (action): Announce
+
+Reads a message through the accessibility service without showing UI or moving focus.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `message` | String | `""` |  | Text read by the screen reader without moving focus. Expressions are evaluated when run. |
 
 <a id="action-confirm"></a>
 ### `confirm` (action): Confirm
