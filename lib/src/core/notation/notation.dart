@@ -1311,6 +1311,15 @@ class _Parser {
     final first = _overlays.isEmpty;
     // In it everything is laid out as on a card: a narrow canvas of its own.
     final sub = _Parser(catalog, options.sized(width: o.width < 640 ? o.width : 640, screen: o.id), this, o);
+    // A guarded overlay with a question: what would close it (blocked while
+    // the guard holds, it runs the canvas's back reactions) asks it first.
+    if (o.guard != null && o.guardText != null) {
+      final discard = o.onDiscard == null || o.onDiscard!.isEmpty ? '' : '${o.onDiscard}; ';
+      sub._timers.add({
+        'trigger': {'type': 'backPressed'},
+        'actions': sub._actions('confirm ${o.guardText} ok="Discard" cancel="Keep editing" danger then {${discard}close}', 1),
+      });
+    }
     _overlays.add(sub);
     _overlayActions[o.id] = o.action;
     for (final a in _opens) {
@@ -2822,16 +2831,10 @@ class _Parser {
     // `key mod+k onPress={open search}`: a shortcut of the whole screen (a
     // keyDown reaction on the canvas). mod is Ctrl, or ⌘ on a Mac; a
     // combination with it or with alt runs while a field is typed in too.
-    final shortcut = RegExp(r'^key\s+"?([^"\s]+)"?(?:\s+when\s+(.+?))?\s+onPress=\{(.+)\}\s*$').firstMatch(line);
-    if (shortcut != null && KeyCombo.tryParse(shortcut[1]) != null && !shortcut[1]!.endsWith('+')) {
-      // The key by the name the keyboard gives it (`left` is ArrowLeft); a
-      // name no key has would never fire.
-      final combo = notationKey(shortcut[1]!);
-      if (combo == null) return _issue(column + 4, _noKey(shortcut[1]!));
-      _timers.add({
-        'trigger': {'type': 'keyDown', 'key': combo, if (shortcut[2] != null) 'when': _formula(shortcut[2]!.trim())},
-        'actions': _actions(shortcut[3]!.trim(), column),
-      });
+    // `when={expression}` (in either place, or `when expression` before
+    // onPress) makes it act only while the expression holds.
+    if (_shortcut(line, column) case final Json reaction) {
+      if (reaction.isNotEmpty) _timers.add(reaction);
       if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
       return;
     }
@@ -3011,11 +3014,13 @@ class _Parser {
     // the one before (its own animate=, or a fade up).
     // …and the other words an each takes after its list, in any order:
     // `follow h=180` (a log or a chat: as tall as h, open at its end and
-    // following what is added there until the reader scrolls away).
+    // following what is added there until the reader scrolls away);
+    // `follow grow`: as tall as the room its column leaves (a chat over its
+    // composer).
     final eachWords = <String, String>{};
     if (line.startsWith('each ')) {
       line = line.trimRight();
-      final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$');
+      final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$');
       for (var m = trailing.firstMatch(line); m != null; m = trailing.firstMatch(line)) {
         final word = m[1]!, eq = word.indexOf('=');
         eachWords[eq < 0 ? word : word.substring(0, eq)] = eq < 0 ? '' : word.substring(eq + 1);
@@ -3030,8 +3035,9 @@ class _Parser {
     final reorderGroup = eachWords['reorder'] ?? '';
     final follows = eachWords.containsKey('follow');
     final eachHeight = num.tryParse(eachWords['h'] ?? '');
-    if (follows != (eachHeight != null)) {
-      return _issue(column, 'A list that follows its end has a height to scroll in: each line in lines follow h=180.');
+    final eachGrows = eachWords.containsKey('grow');
+    if (follows != (eachHeight != null || eachGrows) || eachHeight != null && eachGrows) {
+      return _issue(column, 'A list that follows its end has a height to scroll in: each line in lines follow h=180, or follow grow to take the room its column leaves (a chat over its composer).');
     }
     final each = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (each != null) {
@@ -3110,7 +3116,11 @@ class _Parser {
       final wraps = across && rowProps?['wrap'] == true;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
-        'layout': {'width': across && !wraps ? {'hug': 0} : {'fill': 0}, 'height': follows ? eachHeight : {'hug': 0}},
+        'layout': {
+          'width': across && !wraps ? {'hug': 0} : {'fill': 0},
+          'height': eachGrows ? {'fill': 0} : follows ? eachHeight : {'hug': 0},
+          if (eachGrows) 'flex': 1,
+        },
         // Its handles are one stop of the page: arrows go from row to row
         // (and so are the rows of a list that is selected from).
         if (reorderNow || listSelect) 'focusGroup': {'axis': g != null ? 'both' : across ? 'horizontal' : 'vertical', 'wrap': false},
@@ -3167,6 +3177,7 @@ class _Parser {
       final p = nodes[parent.id]!;
       ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(listId);
       _parentOf[listId] = parent.id;
+      if (eachGrows) _growToPane(parent.id);
       nodes[itemId] = {
         'type': 'column',
         'layout': across ? {'width': {'hug': 0}, 'height': wraps ? {'hug': 0} : {'fill': 0}} : {'width': {'fill': 0}, 'height': {'hug': 0}},
@@ -3281,6 +3292,10 @@ class _Parser {
     final node = <String, Object?>{};
     final props = <String, Object?>{}, layout = <String, Object?>{}, decoration = <String, Object?>{}, bind = <String, Object?>{};
     final reactions = <Json>[];
+    // The reactions `menu=` gave the line, by trigger: what the line's own
+    // onRightClick or onLongPress does runs in the same reaction before the
+    // menu opens, whichever is written first.
+    final menuReactions = <String, Json>{};
     // `center` and `middle` on a Stack; `animate:` and its timing.
     Set<String>? stackAlign;
     Json? animation;
@@ -3626,11 +3641,11 @@ class _Parser {
                     ? r'${result[0]}'
                     : type == 'pageView'
                         ? r'${result.index}'
-                        : type == 'calendar'
-                            ? r'${result.start}'
-                            : type == 'tableView'
-                                ? r'${result.rowIndex}'
-                                : r'${result}',
+                        : type == 'tableView'
+                            ? r'${result.rowIndex}'
+                            // (A Calendar with bind alone is one day: its
+                            // result is that day.)
+                            : r'${result}',
               },
             ],
           });
@@ -4038,6 +4053,10 @@ class _Parser {
           final actions = _actions(keyBody, col);
           // A menu opened by a right click or a long press sits where the pointer is.
           if (trigger['type'] == 'secondaryClick' || trigger['type'] == 'longPress') actions.forEach(_atPointer);
+          if (menuReactions[trigger['type']] case final Json menu when trigger.length == 1) {
+            menu['actions'] = [...actions, ...(menu['actions'] as List)];
+            continue;
+          }
           reactions.add({'trigger': trigger, 'actions': actions});
           continue;
         }
@@ -4073,11 +4092,40 @@ class _Parser {
         }
         // `menu=rowMenu`: a right click, or a long press on a touch screen,
         // opens that Menu where the pointer is (a context menu).
+        // Under an each, the menu's lines read the pressed row by the loop's
+        // name (`MenuItem "Copy" onTap={copy "{c.name}"}` for `each c in
+        // clips`): a page variable of that name is set to the row's item
+        // before the menu opens (in the row its name is still the item).
         if (key == 'menu' && _identifier.hasMatch(raw) && !raw.contains('.') && !spec.props.any((p) => p.key == 'menu')) {
+          final eaches = [for (final o in _stack) if (o.each != null) o.each!];
+          final pressed = <Json>[
+            for (var k = 0; k < eaches.length; k++)
+              {'type': 'setVariable', 'variable': eaches[k], 'value': '\${= ${'parent.' * (eaches.length - 1 - k)}item}'},
+          ];
+          for (var k = 0; k < eaches.length; k++) {
+            final name = eaches[k];
+            if (variables.containsKey(name)) continue;
+            final start = _sample('${'parent.' * (eaches.length - 1 - k)}item');
+            variables[name] = {
+              'name': name,
+              'type': switch (start) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
+              'value': switch (start) { bool _ => false, num _ => 0, List _ => <Object?>[], Map _ => <String, Object?>{}, _ => '' },
+            };
+            if (start == null) _top._guessed.add(name);
+          }
           for (final trigger in const ['secondaryClick', 'longPress']) {
             final actions = _actions('open $raw', col);
             actions.forEach(_atPointer);
-            reactions.add({'trigger': {'type': trigger}, 'actions': actions});
+            // An onRightClick or onLongPress written before it runs first.
+            final own = reactions.where((r) => (r['trigger'] as Map).length == 1 && (r['trigger'] as Map)['type'] == trigger).firstOrNull;
+            if (own != null) {
+              own['actions'] = [...(own['actions'] as List), ...pressed, ...actions];
+              menuReactions[trigger] = own;
+            } else {
+              final Json reaction = {'trigger': {'type': trigger}, 'actions': [...pressed, ...actions]};
+              reactions.add(reaction);
+              menuReactions[trigger] = reaction;
+            }
           }
           continue;
         }
@@ -4880,7 +4928,9 @@ class _Parser {
     }
     // The parts of a text that match a search are drawn marked: runs over
     // the text, which itself stays whole (and is read whole).
-    if (markQuery != null && markText != null) bind['props.runs'] = _formula('matchRuns(${_formulaSource(markText)}, $markQuery)');
+    if (markQuery != null && markText != null) {
+      bind['props.runs'] = _formula('matchRuns(${_formulaSource(markText)}, $markQuery${_markTolerance(markQuery)})');
+    }
     // A code field with no length written has six boxes.
     if (ours && written == 'CodeInput' && !bind.containsKey('props.otpLength')) props.putIfAbsent('otpLength', () => 6);
     if (written == 'Image') {
@@ -5082,7 +5132,9 @@ class _Parser {
       layout.putIfAbsent('height', () => layout['width'] is num ? ((layout['width']! as num) * 0.68).round() : 164);
     }
     // A Calendar's range: bind= is its first day, bindEnd= its last, and one
-    // change gives both (result.start, result.end), as yyyy-MM-dd.
+    // change gives both (result.start, result.end), as yyyy-MM-dd. Without
+    // bindEnd it picks one day, and its change gives that day.
+    if (sliderEnd == null && type == 'calendar') props.putIfAbsent('range', () => false);
     if (sliderEnd != null && type == 'calendar') {
       final start = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$').firstMatch('${bind['props.start']}')?.group(1);
       final end = sliderEnd;
@@ -6857,6 +6909,181 @@ class _Parser {
     return a;
   }
 
+  /// A list that follows its end and grows (`each m in msgs follow grow`)
+  /// scrolls itself in the room its column leaves: each column it is in,
+  /// from [id] up, takes the height left to it, up to the first that
+  /// scrolls (an App's Main), which then stops scrolling (one scroll, the
+  /// list's, and what is beside the list, a composer, stays in view) or one
+  /// of a fixed height.
+  void _growToPane(String id) {
+    void patch(String at, Json change) {
+      nodes[at] = mergePatch(nodes[at]!, change);
+      if (_canvas) ops.add({'op': 'patch', 'id': at, 'patch': change});
+    }
+
+    for (String? at = id; at != null; at = _parentOf[at]) {
+      final node = nodes[at];
+      if (node == null || node['type'] != 'column') return;
+      final props = readMap(node['props']) ?? const {};
+      final layout = readMap(node['layout']) ?? const {};
+      if (props['scrollable'] == true) {
+        patch(at, {'props': {'scrollable': false}});
+        return;
+      }
+      if (layout['height'] is num) return;
+      final up = _parentOf[at];
+      if (up == null || nodes[up]?['type'] != 'column') return;
+      if (readMap(layout['height'])?.containsKey('fill') != true) {
+        patch(at, {'layout': {'height': {'fill': 0, 'hug': null}, 'flex': 1}});
+      }
+    }
+  }
+
+  /// `, 3` when the each around a `mark={q}` repeats `fuzzy(list, q, x =>
+  /// text, 3)`: what is marked is what that search matched, with the
+  /// misspelling it allowed; '' otherwise.
+  String _markTolerance(String query) {
+    for (final open in _stack.reversed) {
+      final list = open.list;
+      if (open.each == null || list == null) continue;
+      final call = RegExp(r'^fuzzy\((.*)\)$').firstMatch(list.trim());
+      if (call == null) return '';
+      final args = _split(call[1]!, ',').map((a) => a.trim()).toList();
+      if (args.length < 4 || args[1] != query.trim()) return '';
+      final tolerance = args.skip(3).where((a) => num.tryParse(a) != null).firstOrNull;
+      return tolerance == null ? '' : ', $tolerance';
+    }
+    return '';
+  }
+
+  /// `key mod+k onPress={open search}`, `key j when={!editing} onPress={…}`
+  /// (`when={…}` before or after onPress, or `when expression` before it):
+  /// the canvas's keyDown reaction; null when the line is not one.
+  Json? _shortcut(String line, int column) {
+    final head = RegExp(r'^key\s+"?([^"\s]+)"?\s+').firstMatch(line);
+    final combo = head?[1];
+    if (head == null || KeyCombo.tryParse(combo) == null || combo!.endsWith('+')) return null;
+    final tokens = _Tokens(line.substring(head.end));
+    String? when, press;
+    while (true) {
+      tokens.skipSpace();
+      if (tokens.done) break;
+      final word = tokens.word();
+      if ((word == 'when=' || word == 'onPress=') && tokens.peek == '{') {
+        final braced = tokens.balanced();
+        if (!braced.endsWith('}')) return null;
+        final inner = braced.substring(1, braced.length - 1).trim();
+        if (word == 'when=') {
+          when = inner;
+        } else {
+          press = inner;
+        }
+      } else if (word == 'when' && when == null) {
+        // `when running onPress={…}`: the expression up to onPress.
+        when = tokens.until([' onPress={']).trim();
+      } else {
+        return null;
+      }
+    }
+    if (press == null) return null;
+    // The key by the name the keyboard gives it (`left` is ArrowLeft); a
+    // name no key has would never fire: an issue, and no reaction.
+    final key = notationKey(combo);
+    if (key == null) {
+      _issue(column + 4, _noKey(combo));
+      return const {};
+    }
+    return {
+      'trigger': {'type': 'keyDown', 'key': key, if (when != null && when.isNotEmpty) 'when': _formula(when)},
+      'actions': _actions(press, column),
+    };
+  }
+
+  /// `confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger
+  /// then {clips=[]} else {toast "Kept"}`: the actions after `then` run when
+  /// the question is answered yes, those after `else` when it is not. Between
+  /// the question and `then`: a second quoted text (the detail under it),
+  /// `ok=` and `cancel=` (the buttons' words) and `danger` (the yes button in
+  /// the error color, and the focus starting on Cancel).
+  Json? _confirm(String a, int column) {
+    const usage = 'A confirm is a quoted question and what a yes does: confirm "Remove it?" then {count=0; toast "Removed"} '
+        '(confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" cancel="Keep" danger then {clips=[]} else {toast "Kept"}).';
+    final tokens = _Tokens(a.substring('confirm'.length))..skipSpace();
+    final title = tokens.peek == '"' ? tokens.string() : null;
+    if (title == null) {
+      _issue(column, usage);
+      return null;
+    }
+    String? message, ok, cancel;
+    var danger = false;
+    while (true) {
+      tokens.skipSpace();
+      if (tokens.done) break;
+      if (tokens.peek == '"') {
+        if (message != null) {
+          _issue(column, 'A confirm has a question and one line of detail under it; name the buttons with ok="…" and cancel="…". $usage');
+          return null;
+        }
+        message = tokens.string();
+        continue;
+      }
+      if (tokens.rest.startsWith('then') && (tokens.rest.length == 4 || const {' ', '{'}.contains(tokens.rest[4]))) break;
+      final word = tokens.word();
+      final eq = word.indexOf('=');
+      final key = eq < 0 ? word : word.substring(0, eq);
+      String value() {
+        if (eq + 1 < word.length) return word.substring(eq + 1);
+        // A word worked out: ok={n > 1 ? "Delete all" : "Delete"}.
+        return tokens.peek == '"' ? tokens.string() : tokens.peek == '{' ? tokens.balanced() : '';
+      }
+
+      switch (key) {
+        case 'danger' || 'destructive' when eq < 0:
+          danger = true;
+        case 'ok' || 'yes' when eq > 0:
+          ok = value();
+        case 'cancel' || 'no' when eq > 0:
+          cancel = value();
+        default:
+          _issue(column, 'A confirm takes a detail line, ok="…", cancel="…" and danger before then; "$word" is not one of them. $usage');
+          return null;
+      }
+    }
+    var tail = tokens.rest.trim();
+    if (!tail.startsWith('then') || tail.substring(4).trim().isEmpty) {
+      _issue(column, usage);
+      return null;
+    }
+    tail = tail.substring(4).trim();
+    var yes = tail, no = '';
+    if (tail.startsWith('{')) {
+      final close = _Tokens(tail)._closeOf(0);
+      if (close > 0) {
+        yes = tail.substring(1, close).trim();
+        final after = tail.substring(close + 1).trim();
+        if (after.startsWith('else')) {
+          no = after.substring(4).trim();
+          if (no.startsWith('{') && no.endsWith('}')) no = no.substring(1, no.length - 1).trim();
+        } else if (after.isNotEmpty) {
+          _issue(column, 'After a confirm\'s then {…} comes else {…} (what a no does) or nothing; "$after" is neither.');
+          return null;
+        }
+      }
+    }
+    final then = _actions(yes, column), orElse = no.isEmpty ? const <Json>[] : _actions(no, column);
+    if (then.isEmpty && orElse.isEmpty) return null;
+    return {
+      'type': 'confirm',
+      'title': _interpolate(title),
+      if (message != null && message.isNotEmpty) 'message': _interpolate(message),
+      if (ok != null && ok.isNotEmpty) 'confirmLabel': _interpolate(ok),
+      if (cancel != null && cancel.isNotEmpty) 'cancelLabel': _interpolate(cancel),
+      if (danger) 'destructive': true,
+      'actions': then,
+      if (orElse.isNotEmpty) 'cancelActions': orElse,
+    };
+  }
+
   List<Json> _actions(String text, int column) {
     final out = <Json>[];
     for (final part in _split(text, ';')) {
@@ -6880,20 +7107,8 @@ class _Parser {
         if (j is Map) out.add(j.cast<String, Object?>());
         continue;
       }
-      // `confirm "Remove it?" then {rows=[]; toast "Removed"}`: the actions
-      // after `then` run only when the question is answered yes.
       if (a.startsWith('confirm ') || a == 'confirm') {
-        final tokens = _Tokens(a.substring('confirm'.length))..skipSpace();
-        final title = tokens.peek == '"' ? tokens.string() : null;
-        final tail = tokens.rest.trim();
-        if (title == null || !tail.startsWith('then') || tail.substring(4).trim().isEmpty) {
-          _issue(column, 'A confirm is a quoted question and what a yes does: confirm "Remove it?" then {count=0; toast "Removed"}.');
-          continue;
-        }
-        var yes = tail.substring(4).trim();
-        if (yes.startsWith('{') && yes.endsWith('}')) yes = yes.substring(1, yes.length - 1).trim();
-        final nested = _actions(yes, column);
-        if (nested.isNotEmpty) out.add({'type': 'confirm', 'title': _interpolate(title), 'actions': nested});
+        if (_confirm(a, column) case final Json c) out.add(c);
         continue;
       }
       final set = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
