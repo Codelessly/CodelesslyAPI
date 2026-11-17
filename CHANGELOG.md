@@ -54,6 +54,7 @@
 - The drawer an app's sidebar becomes on a narrow window, and a gallery's viewer, take the screen's id with its
   hyphens as underscores (`decks_and_mixer_sidebar`): a screen id with a hyphen gave an id no overlay can have, and
   the menu button's `open` was left out.
+- A line read a second time (an overlay's foot, an app sidebar's copy in its drawer) no longer says its issues again.
 
 - **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
   parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own

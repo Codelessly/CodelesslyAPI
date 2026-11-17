@@ -2150,7 +2150,11 @@ class _Parser {
     }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
   }
 
-  void _issue(int column, String message) => issues.add(NotationIssue(_line, column, _from == null || message.startsWith('$_from:') ? message : '$_from: $message'));
+  void _issue(int column, String message) {
+    // A line read again (an overlay's foot, a sidebar's copy in its drawer) said what was wrong the first time.
+    if (_top._quiet) return;
+    issues.add(NotationIssue(_line, column, _from == null || message.startsWith('$_from:') ? message : '$_from: $message'));
+  }
 
   void _lineAt(int indent, String source, int column) {
     var line = source;
