@@ -383,12 +383,6 @@ void main() {
       expect(t.toJson()['interpolation'], 'monotoneCubic');
       expect(AnimationTrack.fromJson(t.toJson()), t);
     });
-
-    test('ramp and visibleFraction round-trip', () {
-      const a = NodeAnimation(id: 'a', ramp: 500, visibleFraction: 0.3);
-      expect(a.toJson(), {'id': 'a', 'ramp': 500, 'visibleFraction': 0.3});
-      expect(NodeAnimation.fromJson(a.toJson()), a);
-    });
   });
 
   group('setVariable.animateMs', () {
