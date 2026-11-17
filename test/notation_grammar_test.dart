@@ -195,6 +195,9 @@ void main() {
 
     test('a declared variable written bare is said, not guessed; a word that names none is the word', () {
       expect(_said('state pick="a"\nColumn\n  Text "x" color=pick\n').single, 'A value read from the state is written in braces: color={pick}.');
+      // A field's type is a word, whatever its variable is called.
+      expect(_said('Column\n  Input "Email" type=email bind=email\n'), isEmpty);
+      expect(_said('state plans=[{"name":"A"}]\nColumn\n  each plan in plans\n    Text plan.name\n').single, 'A value shown as text is written in a string: "{plan.name}".');
       expect(_said('Column\n  Text "x" color=primary\n'), isEmpty);
     });
 

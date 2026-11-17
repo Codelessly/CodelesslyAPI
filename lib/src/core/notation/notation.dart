@@ -2194,6 +2194,12 @@ class _Parser {
             node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header)$').hasMatch(written) ? 0 : 16};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
+          } else if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(word)) {
+            // Text plan.name: a value shown as text is in a string.
+            // The line's x was read as `item`: say it by the name written.
+            final x = _stack.reversed.where((o) => o.each != null).firstOrNull?.each;
+            final shown = x != null && word.startsWith('item.') ? '$x${word.substring(4)}' : word;
+            _issue(col, 'A value shown as text is written in a string: "{$shown}".');
           } else {
             _issue(col, 'Unknown word "$word" on a $written. Props are written key=value.');
           }
@@ -2300,7 +2306,11 @@ class _Parser {
           final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(raw)!;
           final known = variables.containsKey(head) || _derived.containsKey(head) || head == 'item' && _stack.any((o) => o.each != null);
           final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
-          if (known && !ownValue) {
+          // A key whose value is always a word (a field's type, an icon's
+          // name) keeps it, whatever a variable is called:
+          // Input "Email" type=email bind=email.
+          const wordKeys = {'type', 'icon', 'align', 'weight', 'tone', 'variant'};
+          if (known && !ownValue && !wordKeys.contains(key)) {
             _issue(col, 'A value read from the state is written in braces: $key={$raw}.');
             continue;
           }
