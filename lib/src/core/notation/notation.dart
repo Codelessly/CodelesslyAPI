@@ -994,7 +994,18 @@ class _Src {
 }
 
 class _Open {
-  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false});
+  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written});
+
+  /// A design system's block that takes no children but has slots (a
+  /// ListRow's trailing, a SectionHeader's actions): the lines under it go
+  /// in the first, side by side.
+  final List<String> slots;
+
+  /// The type as the line wrote it (a block's name), for what is said.
+  final String? written;
+
+  /// The row a slot's lines go in, once the first of them is written.
+  String? slotRow;
 
   /// A node that takes no lines under it (a Slider, a component without
   /// children): with an open vocabulary what is written under it goes to
@@ -1438,6 +1449,11 @@ class _Parser {
   /// margin): its lines are the ones further in.
   int _blockIndent = 0;
 
+  /// The overlay being read (`Menu#albumMenu`) and the indent of its last
+  /// line, to say where a line indented past it went.
+  String _blockHead = '';
+  int _blockPrev = 0;
+
   /// While lines already read are read again (an overlay's, drawn again in
   /// its foot; a sidebar's, in its drawer): nothing is recorded twice.
   bool _quiet = false;
@@ -1481,6 +1497,18 @@ class _Parser {
       if ((_block != null || _blockSkipped) && (indent > _blockIndent || blank || (_block?._continues ?? false))) {
         _line++;
         if (!blank || (_block?._continues ?? false)) {
+          // A line indented two levels past the one before it, in an
+          // overlay, was most likely meant for the page above (a Card for
+          // Main, written after the overlays): it goes in the overlay, and
+          // where it went is said.
+          if (_block != null && !blank && !(_block?._continues ?? false)) {
+            final rel = indent - _blockIndent;
+            if (rel > _blockPrev + 2 && _blockPrev > 0) {
+              _issue(rel + _blockIndent + 1,
+                  'This line is indented $rel inside $_blockHead, two levels past the line before it ($_blockPrev), so it went into $_blockHead, under that line. A line meant for the page is written before the overlays, at its place in the page.');
+            }
+            _blockPrev = rel;
+          }
           if (_block != null && !blank) _blockLines.add((indent: indent - _blockIndent, text: raw.trim()));
           _feed(indent - _blockIndent, raw.trim());
         }
@@ -1514,6 +1542,8 @@ class _Parser {
           final word = _srcWord;
           _openBlock(o);
           _blockIndent = indent;
+          _blockHead = head.split(RegExp(r'\s')).first;
+          _blockPrev = 0;
           _block?._srcStack.add(_Src(-1000, word)..use = standIn);
           if (_block != null) _blockFoot.addAll(lines.skip(1));
           // The page's own lines go on after it, under what they were under.
@@ -2043,6 +2073,32 @@ class _Parser {
       line = _rename(line, d.key, '(${d.value})');
     }
     var parent = _stack.isEmpty ? null : _stack.last;
+    // Lines under a block that takes none but has a slot (a ListRow's
+    // trailing, a SectionHeader's or an EmptyState's actions): they go in
+    // the slot, side by side in a row of their own.
+    if (parent != null && parent.slots.isNotEmpty && nodes[parent.id] != null) {
+      final block = parent;
+      final slot = const ['trailing', 'actions', 'action', 'end'].firstWhere(block.slots.contains, orElse: () => block.slots.first);
+      final row = block.slotRow ??= () {
+        final id = '${block.id}${slot[0].toUpperCase()}${slot.substring(1)}';
+        nodes[id] = {
+          'type': 'row',
+          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+          'props': {'spacing': 8, 'crossAxisAlignment': 'center'},
+          'children': <Object?>[],
+        };
+        ((nodes[block.id]!['slots'] as Json?) ?? (nodes[block.id]!['slots'] = <String, Object?>{}))[slot] = id;
+        _parentOf[id] = block.id;
+        _slotOf[id] = slot;
+        return id;
+      }();
+      parent = _Open(block.indent, row, 'row', condition: block.condition);
+    } else if (!options.openVocabulary && parent != null && parent.leaf && parent.written != null && catalog.widget(parent.written!) != null && nodes[parent.id] != null) {
+      // A block that takes nothing under it: said, and the line is drawn
+      // after it, where it would otherwise be lost.
+      _issue(column, 'A ${parent.written} takes no lines under it (it has no children and no slot): write this line after it, at its own indent.');
+      parent = _stack.reversed.where((o) => !o.leaf).firstOrNull;
+    }
     if (options.openVocabulary && parent != null && parent.leaf) {
       // Lines under a word that takes none: recorded, and drawn after it.
       _use('children', _srcPath.lastOrNull ?? parent.type, column, value: _srcWord);
@@ -4098,7 +4154,12 @@ class _Parser {
       }
       _stack.add(_Open(indent, pageId, 'column', pages: id));
     } else {
-      _stack.add(_Open(indent, id, type, condition: null, grid: grid, leaf: spec.children == ChildModel.none && parent != null));
+      _stack.add(_Open(indent, id, type,
+          condition: null,
+          grid: grid,
+          leaf: spec.children == ChildModel.none && parent != null,
+          slots: component && spec.children == ChildModel.none ? spec.slots : const [],
+          written: written));
     }
     // Its strings as text nodes: an accordion's header is its first child, a
     // list tile's are its title and subtitle.

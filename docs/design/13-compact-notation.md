@@ -366,6 +366,11 @@ Column gap=12 pad=16
   its definition's root says.
 - **What it does not take is said on the line**: `A StatusBadge has no "status". It takes: label, tone.`, and a
   required parameter left out: `A ContextMenu needs items= write items=["a","b"].`
+- **Lines under it.** A component with children takes them. One that takes none but has slots (a `ListRow`'s
+  `trailing`, a `SectionHeader`'s or an `EmptyState`'s `actions`) puts the lines indented under it in its slot
+  (`trailing`, else `actions`, else the first), side by side in a row of their own; its prompt line says
+  `(lines: actions)`. Under any other, a line is said (`A StatusBadge takes no lines under it (it has no children
+  and no slot): write this line after it, at its own indent.`) and drawn after it.
 
 In the prompt each component is one line, as it is called, with its purpose:
 `Stepper "label" bind=value min max step enabled onChanged : A number changed one step at a time.` A name ending in

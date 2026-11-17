@@ -55,6 +55,12 @@
   TextArea…) takes the same: its variable parameter is given the field's path (`draft.title`,
   `"rows[" + index + "].done"`), where it said `A NumberInput keeps its value in a variable: write bind=name.`
   What cannot be written (a list worked out without ids, a record that is not declared) says what to write.
+- **The notation: lines under a block that takes none.** Under a design system's block with a slot and no
+  children (`ListRow`'s trailing, `SectionHeader`, `PaneToolbar`, `EmptyState`'s actions) the indented lines go in
+  the slot, side by side; the component's prompt line says `(lines: actions)`. Under one with neither, the line
+  is an issue that says so and is drawn after it (the renderer reported `children_not_allowed` and the expander
+  nothing). A line indented two levels past the one before it inside an overlay (a page's Card written after
+  the overlays) says it went into that overlay.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is

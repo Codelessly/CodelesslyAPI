@@ -315,8 +315,19 @@ void main() {
             'Repeat the list variable itself (each d in devices, with an if for the ones to show), give its records an "id" field, '
             'or write the change: value={d.on} onChange={devices=updateWhere(devices,x=>x.id==d.id,x=>with(x,"on",result))}.',
       ]);
+      expect(_said('Column\n  Input bind=form.email\n').length, 1);
       expect(_said('Column\n  Input bind=form.email\n'), [
         'bind=form.email: "form" is no variable of this page. Declare the record first (state form={"email":""}), or bind a variable of its own (bind=email).',
+      ]);
+    });
+
+    test('a line meant for the page, written after the overlays, says where it went', () {
+      const text = 'App\n  Main\n    Column\n      Text "Library"\n'
+          'Menu#albumMenu\n  MenuItem "Add" icon="playlist_add" onTap={toast "Added"}\n'
+          '      Card gap=8\n        Text "Now playing"\n';
+      expect([for (final i in _parse(text, width: 1280).issues) '${i.line}: ${i.message}'], [
+        '7: This line is indented 6 inside Menu#albumMenu, two levels past the line before it (2), so it went into Menu#albumMenu, under that line. '
+            'A line meant for the page is written before the overlays, at its place in the page.',
       ]);
     });
   });

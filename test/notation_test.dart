@@ -1081,7 +1081,7 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         'id': 'acme',
         'name': 'Acme',
         'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
-        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/Question.json', 'components/Tabs.json'],
+        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/Question.json', 'components/Tabs.json', 'components/ListHead.json'],
       }),
       'components/StatusPill.json': jsonEncode(component('StatusPill', [
         {'key': 'label', 'type': string, 'default': 'Status', 'required': true},
@@ -1124,6 +1124,23 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
     ], events: [
       {'key': 'onChanged', 'payload': string},
     ], width: {'fill': 200}));
+    files['components/ListHead.json'] = jsonEncode({
+      ...component('ListHead', [
+        {'key': 'title', 'type': string, 'default': '', 'required': true},
+      ], width: {'fill': 200}),
+      'widget': {
+        'type': 'ListHead',
+        'doc': 'A title over a list, with actions at its end.',
+        'props': [
+          {'key': 'title', 'type': string, 'default': '', 'required': true},
+        ],
+        'slots': ['actions'],
+      },
+      'nodes': {
+        'r': {'type': 'row', 'layout': {'width': {'fill': 200}, 'height': 28}, 'children': ['a']},
+        'a': {'type': 'slot', 'props': {'name': 'actions'}},
+      },
+    });
     late DesignSystem ds;
     late Catalog catalog;
     setUp(() async {
@@ -1158,6 +1175,34 @@ Column
             'Repeat the list variable itself (each n in <list>, with an if for the ones to show), give its records an "id" field, '
             'or write the change: value={n.seats} onChange={<list>=updateWhere(<list>,x=>x.id==n.id,x=>with(x,"seats",result))}.',
       ]);
+    });
+
+    test('lines under a block that takes none: in its slot when it has one, else said and drawn after it', () {
+      final r = parse('''
+Column
+  ListHead#h "Members"
+    Button "Invite"
+    Button "Export"
+  StatusPill#p "Paid"
+    Text "Inside"
+''');
+      expect(r.issues.map((i) => '${i.line}: ${i.message}'), [
+        '6: A StatusPill takes no lines under it (it has no children and no slot): write this line after it, at its own indent.',
+      ]);
+      final header = _node(r, 'h');
+      expect(header['slots'], {'actions': 'hActions'});
+      expect(header['children'], isNull);
+      expect(_node(r, 'hActions')['children'], hasLength(2));
+      expect(_node(r, 'p')['children'], isNull);
+      expect(_node(r, 'column1')['children'], ['h', 'p', 'text1']);
+      expect(
+        [
+          for (final d in Catalog.run(catalog, () => validateDocument(r.document, options: ValidateOptions(components: ds.components, theme: ds.tokens))))
+            if (d.severity == Severity.error) '${d.code.name} ${d.path}',
+        ],
+        isEmpty,
+      );
+      expect(Catalog.run(catalog, () => notationPrompt(catalog: catalog, designSystem: ds)), contains('ListHead "title" (lines: actions) : '));
     });
 
     test('optional boolean state is independent for each component call', () {
