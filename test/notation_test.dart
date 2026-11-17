@@ -2854,4 +2854,49 @@ Page
     expect(_pagePrompt(), allOf(contains('each stop in trip reorder'), contains('a Handle on each row'), contains('reorder=group')));
     expect(notationPrompt(catalog: standardCatalog), allOf(isNot(contains(' reorder ')), isNot(contains('Handle')), contains('IconButton')));
   });
+
+  test('SwipeAction: an action behind a swiped row, written under the each and kept by its list', () {
+    final r = _parse('''
+state picked=""
+state classes=[{"name":"Lift","full":false},{"name":"Flow","full":true}]
+Column
+  each row in classes
+    SwipeAction "Book" id=book side=end when={!row.full} onTap={picked=result.item.name; toast "Booked"}
+    SwipeAction "Join waitlist" side=start when={row.full} icon="schedule" onTap={picked=result.item.name}
+    SwipeAction "Remove" removes
+    Text "{row.name}"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    final list = (r.document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView');
+    final swipes = (list['props'] as Map)['swipeActions'] as Map;
+    expect(swipes['endActions'], [
+      {'id': 'book', 'label': 'Book', 'removes': false, 'background': '#FF2563EB', 'foreground': '#FFFFFFFF', 'when': r'${= !item.full}'},
+      {'id': 'remove', 'label': 'Remove', 'removes': true, 'background': '#FF2563EB', 'foreground': '#FFFFFFFF'},
+    ]);
+    expect(swipes['startActions'], [
+      {'id': 'join_waitlist', 'label': 'Join waitlist', 'icon': 'schedule', 'removes': false, 'background': '#FF2563EB', 'foreground': '#FFFFFFFF', 'when': r'${= item.full}'},
+    ]);
+    // Only an action that removes its row changes the list's variable.
+    expect(swipes['apply'], 'variable');
+    final reactions = (list['actions'] as List).cast<Map>();
+    expect(reactions.map((a) => a['trigger']), [
+      {'type': 'swipeAction', 'when': r'${= result.action=="book"}'},
+      {'type': 'swipeAction', 'when': r'${= result.action=="join_waitlist"}'},
+    ]);
+    expect([for (final a in reactions.first['actions'] as List) (a as Map)['type']], ['setVariable', 'showToast']);
+    expect((reactions.first['actions'] as List).first, {'type': 'setVariable', 'variable': 'picked', 'value': r'${= result.item.name}'});
+    // The row itself is only the lines that draw it.
+    expect((r.document['nodes'] as Map).values.cast<Map>().where((n) => n['type'] == 'text'), hasLength(1));
+    // As it arrives, the list is patched with its actions.
+    final stream = NotationStream(catalog: standardCatalog);
+    final ops = [...stream.add('state rows=[]\nColumn\n  each row in rows\n    SwipeAction "Book" onTap={emit book}\n    Text "{row}"\n'), ...stream.close()];
+    expect(jsonEncode(ops), allOf(contains('"swipeActions"'), contains('"swipeAction"')));
+    // Where it cannot be, and what it cannot say.
+    expect(_parse('Column\n  SwipeAction "Book" onTap={emit book}').issues.single.message, contains('goes under an each'));
+    expect(_parse('state rows=[]\nColumn\n  each row in rows\n    SwipeAction "Book" side=left\n    Text "x"').issues.single.message, contains('side=start or end'));
+    expect(_parse('state rows=[]\nColumn\n  each row in rows\n    SwipeAction "Book" when=row.full\n    Text "x"').issues.single.message, contains('when={!row.full}'));
+    expect(_pagePrompt(), contains('SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name}'));
+    expect(notationPrompt(catalog: standardCatalog), isNot(contains('SwipeAction')));
+  });
 }

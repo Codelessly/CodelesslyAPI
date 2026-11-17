@@ -1682,6 +1682,89 @@ class _Parser {
       line = _rename(line, d.key, '(${d.value})');
     }
     final parent = _stack.isEmpty ? null : _stack.last;
+    // `SwipeAction "Book" side=end when={!row.full} onTap={…}` under an
+    // each: an action behind the swiped row. It is written beside the row
+    // and kept by the row's list (its swipeActions, and a swipeAction
+    // reaction whose result has the row: result.item, result.index).
+    if (RegExp(r'^SwipeAction(\s|$)').hasMatch(line) && catalog.widget('SwipeAction') == null) {
+      const usage = 'A swipe action is written: SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name} (side=start or end, id=name, icon="…", removes).';
+      final each = _stack.reversed.where((o) => o.each != null).firstOrNull;
+      final listId = each == null ? null : _parentOf[each.id];
+      final list = listId == null ? null : nodes[listId];
+      if (list == null || list['type'] != 'listView' || (list['props'] as Map?)?['scrollDirection'] == 'horizontal') {
+        return _issue(column, 'A SwipeAction goes under an each that runs down a Column: the rows of that list are swiped.');
+      }
+      final t = _Tokens(line)..at = 'SwipeAction'.length;
+      t.skipSpace();
+      if (t.peek != '"') return _issue(column, usage);
+      final label = _interpolate(t.string());
+      final words = <String, String>{};
+      String? body;
+      while (true) {
+        t.skipSpace();
+        if (t.done) break;
+        final word = t.word();
+        final eq = word.indexOf('=');
+        if (word.isEmpty || (eq < 0 && word != 'removes')) return _issue(column + t.at, usage);
+        final key = eq < 0 ? word : word.substring(0, eq);
+        var value = eq < 0 ? 'true' : word.substring(eq + 1);
+        if (value.isEmpty && t.peek == '"') value = t.string();
+        if (value.isEmpty && t.peek == '{') {
+          final braced = t.balanced();
+          value = '{${braced.substring(1, braced.endsWith('}') ? braced.length - 1 : braced.length).trim()}}';
+        }
+        if (key == 'onTap' || key == 'onSwipe') {
+          if (!value.startsWith('{')) return _issue(column, usage);
+          body = value.substring(1, value.length - 1);
+        } else if (const {'id', 'side', 'when', 'icon', 'removes'}.contains(key)) {
+          words[key] = value;
+        } else {
+          return _issue(column, usage);
+        }
+      }
+      final side = words['side'] ?? 'end';
+      final id = words['id'] ?? label.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');
+      if ((side != 'start' && side != 'end') || !_identifier.hasMatch(id)) return _issue(column, usage);
+      final when = words['when'];
+      if (when != null && !when.startsWith('{')) return _issue(column, 'A condition is worked out, so it is in braces: when={!row.full}.');
+      final removes = words['removes'] == 'true';
+      final props = (list['props'] as Map).cast<String, Object?>();
+      final swipes = (props['swipeActions'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
+      final key = side == 'start' ? 'startActions' : 'endActions';
+      swipes[key] = [
+        ...?(swipes[key] as List?),
+        <String, Object?>{
+          'id': id,
+          'label': label,
+          if (words['icon'] case final String icon) 'icon': icon,
+          'removes': removes,
+          'background': options.accent,
+          'foreground': '#FFFFFFFF',
+          if (when != null) 'when': _formula(when.substring(1, when.length - 1)),
+        },
+      ];
+      // An action that removes its row takes it out of the list's variable.
+      if (removes) swipes['apply'] = 'variable';
+      props['swipeActions'] = swipes;
+      list['props'] = props;
+      if (body != null) {
+        final reactions = (list['actions'] as List?) ?? <Object?>[];
+        reactions.add({
+          'trigger': {'type': 'swipeAction', 'when': _formula('result.action=="$id"')},
+          'actions': _actions(body, column),
+        });
+        list['actions'] = reactions;
+      }
+      _patches.add({
+        'op': 'patch',
+        'id': listId,
+        'patch': {
+          'props': {'swipeActions': swipes},
+          if (list['actions'] != null) 'actions': list['actions'],
+        },
+      });
+      return;
+    }
     // A handler is a key of its node, on the node's line.
     if (RegExp(r'^on[A-Z][A-Za-z]*\s*[:=]').hasMatch(line)) {
       return _issue(column, 'A handler is written on the line of its node, its actions in braces: Button "Save" onTap={saved=true}.');
