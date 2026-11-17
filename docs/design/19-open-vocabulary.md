@@ -268,25 +268,30 @@ fill=…`) is as it was. With the vocabulary closed nothing stands in.
 The first two batches (`corpus/2026-11-16-sonnet`, `corpus/b01`: 30 answers, 136 screens, 5,943 lines that start
 with a word), expanded 1,280 wide with Cards and its aliases.
 
+With the parser of 33.0.0 (the fixes of section 8 in):
+
 | | words | resolved | unknown types | lines that stand in | grammar issues | does not validate |
 |---|---|---|---|---|---|---|
-| the old count (unknown words only) | 517 | 117 (22.6%) | 99 | 222 (3.7%) | 199 | 76 |
-| every word, no definitions | 1,580 | 723 (45.8%) | 96 | 222 (3.7%) | 199 | 76 |
-| every word, with Cards' definitions | 1,580 | 900 (57.0%) | 54 | 99 (1.7%) | 199 | 77 |
+| the old count (unknown words only) | 508 | 119 (23.4%) | 98 | 220 (3.7%) | 131 | 82 |
+| every word, no definitions | 1,580 | 737 (46.6%) | 96 | 220 (3.7%) | 131 | 82 |
+| every word, with Cards' definitions | 1,580 | 911 (57.7%) | 54 | 99 (1.7%) | 131 | 83 |
 
-Every word, with the definitions, by kind (core, component, alias, definition, unknown): types 187 (69, 16, 6, 42,
-54), texts 88 (40, 12, 0, 22, 14), parameters 784 (254, 50, 11, 83, 386), flags 193 (83, 7, 3, 5, 95), events 173
-(52, 15, 0, 24, 82), variants 36 (27, 0, 0, 1, 8), verbs 52 (24, 0, 0, 0, 28), functions 59 (46, 0, 0, 0, 13),
+(At the journal's Review 1, before section 8's fixes, the old count was 517 words, 99 unknown types, 199 grammar
+issues and 76 that did not validate.)
+
+Every word, with the definitions, by kind (core, component, alias, definition, unknown): types 187 (69, 16, 7, 41,
+54), texts 88 (40, 12, 0, 22, 14), parameters 784 (257, 53, 11, 82, 381), flags 193 (84, 7, 3, 4, 95), events 173
+(52, 15, 0, 24, 82), variants 36 (27, 0, 0, 1, 8), verbs 52 (30, 0, 0, 0, 22), functions 59 (46, 0, 0, 0, 13),
 statements 8 (6, 0, 2, 0, 0).
 
 What it says:
 
-- *The corpus is three times the size the old count said*, and most of the growth is known words: 601 core and 100
-  component words were used and never counted. The resolved share is 45.8% before any definition, not 22.6%.
-- *Parameters are the unknown mass*: 386 of the 680 unknown words are a parameter, most on a word we have (`size=`,
+- *The corpus is three times the size the old count said*, and most of the growth is known words: 611 core and 103
+  component words were used and never counted. The resolved share is 46.6% before any definition, not 23.4%.
+- *Parameters are the unknown mass*: 381 of the 669 unknown words are a parameter, most on a word we have (`size=`,
   `selected=`, `leading=`) or on a stand-in. That is D4's order (parameters by reach first).
-- *Definitions moved types and lines*: 45 of the 99 unknown types are now definitions; the lines that stand in fell
-  from 222 to 99. The grammar issues are unchanged; one answer now fails to validate once more, because Cards'
+- *Definitions moved types and lines*: 44 of the 98 unknown types are now definitions; the lines that stand in fell
+  from 220 to 99. The grammar issues are unchanged; one answer now fails to validate once more, because Cards'
   `WordCloud` reads the `words` variable the answer never declared (the stand-in read nothing).
 - The 54 types left are listed by side in [note 20](20-defined-words.md) section 9: about 20 could be definitions,
   the rest need a gesture, a drawing primitive, a position or a scroll position.

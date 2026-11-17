@@ -179,7 +179,8 @@ A defined word is a word we have. It resolves after the core, the catalog, the p
 components (none of which a definition can change: such a definition is not read, and said), and before an alias.
 With the vocabulary open or closed it reads the same; its use is recorded always, as an alias is (kind
 `definition`, `to` the definition's name, `node` the use's root id), and the tool counts it as `resolved:
-definition`.
+definition`. A slot's line under a use (`Front`) is recorded the same way, with `to` `FlipCard slot`: it is a word
+of the definition, not a type.
 
 A definition's own errors are said against the definition: a line of a body the notation cannot read is an issue
 on the use's line whose message starts with the definition's file and line (`StickyNote.txt:3: …`), and
@@ -219,17 +220,18 @@ Section 9 lists, for the corpus, which side each unknown word falls on.
 
 ## 9. The corpus's unknown words, by side
 
-The first definitions are Cards' (`design_systems/cards/vocabulary/`, 41 files, 47 meanings), written as data
+The first definitions are Cards' (`design_systems/cards/vocabulary/`, 40 files, 46 meanings), written as data
 only, for the words the first two batches reached for (30 answers, 136 screens): `StickyNote`, `ColorSwatch`,
 `ColorPicker` (which uses `ColorSwatch`), `AttachmentTile`, `QuoteBlock`, `Kbd`, `PullQuote`, `Pill`, `Toast`,
 `Dot`, `Poster`, `AlbumCover`, `WaterDrop`, `LiveRegion`, `DateDivider`, `TypingIndicator`, `ChatBubble`,
-`Composer`, `CommandItem` (which uses `Kbd`), `Group`, `SelectionBar`, `StickyBar`, `NowPlayingBar`, `Figure`,
+`Composer`, `CommandItem` (which uses `Kbd`), `Group`, `SelectionBar`, `NowPlayingBar`, `Figure`,
 `ChapterRail`, `ChapterRailItem`, `SwipeRow`, `FlipCard` (`Front`, `Back`), `AvatarStack`, `Legend`, `WordCloud`,
 `Heatmap`, `Countdown` (`#seconds`, `#clock`), `ToggleButton`, `RangeSlider bind=range` (over `Slider bind bindEnd`),
 `ReorderList` (over `each … reorder`), `Table` (`#lists`, `#records`, `#rows`), `Timeline` (`#tracks`, `#events`,
 `#route`), `TimelineItem`, `TimelineStop`, `Step` (`#story`, `#progress`).
 
-Of the 99 types no word resolved before, 45 are now definitions and 54 are not. Of those 54:
+Of the 98 types no word resolved before (with 33.0.0's parser and aliases; `StickyBar` is now an alias of
+`Footer`, so it is not defined here), 44 are now definitions and 54 are not. Of those 54:
 
 **Could be definitions, not written yet** (compositions of what the notation has): `PhotoGrid` (a Grid of Images;
 not its drag selection), `Autocomplete`, `CommandList`, `FuzzySearch` (an Input and `fuzzy`), `DateRangePicker`
