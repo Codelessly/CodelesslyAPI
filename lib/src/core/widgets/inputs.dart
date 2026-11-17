@@ -639,12 +639,17 @@ abstract final class CalendarProps {
   static const lastDate = PropDef<String?>('lastDate', Codecs.string, null);
   static const disabledDates = PropDef<List<String>>('disabledDates', InputCodecs.strings, []);
   static const dayPrices = PropDef<Json?>('dayPrices', InputCodecs.json, null);
-  static const marks = PropDef<Json?>('marks', InputCodecs.json, null);
+  /// A short text under days: a map by yyyy-MM-dd, or a list of days (a dot
+  /// under each) or of records `{date, label}` (a list worked out from data).
+  static const marks = PropDef<Object?>('marks', InputCodecs.any, null);
   static const label = PropDef<String>('label', Codecs.string, 'Choose dates');
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
+  /// Whether it picks a range (a start, then an end) or one day.
+  static const range = PropDef<bool>('range', Codecs.bool, true);
   static const spec = WidgetSpec('calendar', hugs: true,
-      props: [start, end, firstDate, lastDate, disabledDates, dayPrices, marks, label, enabled, PickerFieldProps.pickerTheme],
-      doc: 'An inline month calendar that picks a start and end date. Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}.');
+      props: [start, end, range, firstDate, lastDate, disabledDates, dayPrices, marks, label, enabled, PickerFieldProps.pickerTheme],
+      doc: 'An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}, or with range false the day picked.');
 }
 
 /// A field showing a time (`HH:mm`; empty shows its hint) that opens hour and

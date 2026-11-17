@@ -2930,10 +2930,49 @@ Column
     expect(one['actions'], [
       {'type': 'setVariable', 'variable': 'step', 'value': r'${= 0}'},
     ]);
-    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('confirm "Remove it?" then {rows=[]; close}'));
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {'));
     for (final bad in ['Button "Remove" onTap={confirm "Remove this ticket?"}', 'Button "Remove" onTap={confirm then step=1}']) {
       expect(_parse(bad).issues.single.message, contains('confirm "Remove it?" then {'), reason: bad);
     }
+  });
+
+  test('confirm: a detail under the question, the buttons\x27 words, danger, and else for a no', () {
+    final r = _parse('''
+state clips=["a","b"]
+state log=""
+Column
+  Button#del "Delete" onTap={confirm "Delete {length(clips)} clips?" "They cannot be restored." ok="Delete" cancel="Keep" danger then {clips=[]} else {log="kept"}}
+  Button#save "Save" onTap={confirm "Save?" ok={length(clips) > 1 ? "Save all" : "Save"} then{log="saved"}}
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect(((_node(r, 'del')['actions'] as List).single as Map)['actions'], [
+      {
+        'type': 'confirm',
+        'title': r'Delete ${= length(clips)} clips?',
+        'message': 'They cannot be restored.',
+        'confirmLabel': 'Delete',
+        'cancelLabel': 'Keep',
+        'destructive': true,
+        'actions': [
+          {'type': 'setVariable', 'variable': 'clips', 'value': r'${= []}'},
+        ],
+        'cancelActions': [
+          {'type': 'setVariable', 'variable': 'log', 'value': 'kept'},
+        ],
+      },
+    ]);
+    final save = (((_node(r, 'save')['actions'] as List).single as Map)['actions'] as List).single as Map;
+    expect(save['confirmLabel'], r'${= length(clips) > 1 ? "Save all" : "Save"}');
+    expect(save, isNot(contains('destructive')));
+    for (final (bad, says) in [
+      ('Button "X" onTap={confirm "Delete?" sure then {log="x"}}', '"sure" is not one of them'),
+      ('Button "X" onTap={confirm "Delete?" "One." "Two." then {log="x"}}', 'one line of detail'),
+      ('Button "X" onTap={confirm "Delete?" then {log="x"} otherwise {log="y"}}', 'else {'),
+    ]) {
+      expect(_parse('state log=""\n$bad').issues.single.message, contains(says), reason: bad);
+    }
+    expect(_pagePrompt(), contains('ok="Delete" danger then {clips=[]} else {'));
   });
 
   test('saved: a state kept on the device, on a card, on a page and as it arrives; a site\x27s variable says so in site.json', () {
@@ -3042,11 +3081,44 @@ Column
     final plain = (_parse('state lines=[]\nColumn\n  each line in lines\n    Text "{line}"').document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView');
     expect(plain['props'], allOf(containsPair('scrollable', false), isNot(contains('stickToEnd'))));
     expect((plain['layout'] as Map)['height'], {'hug': 0});
-    for (final bad in ['Column\n  each line in lines follow\n    Text "{line}"', 'Row\n  each line in lines follow h=180\n    Text "{line}"']) {
+    for (final bad in [
+      'Column\n  each line in lines follow\n    Text "{line}"',
+      'Row\n  each line in lines follow h=180\n    Text "{line}"',
+      'Column\n  each line in lines follow h=180 grow\n    Text "{line}"',
+      'Column\n  each line in lines grow\n    Text "{line}"',
+    ]) {
       expect(_parse('state lines=[]\n$bad').issues.first.message, contains('A list that follows its end'), reason: bad);
     }
     expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('each line in lines follow h=180'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('follow h=180')));
+  });
+
+  test('follow grow: a chat takes the room over its composer, and the pane it is in stops scrolling', () {
+    final r = _parsePage('''
+state msgs=["Hi","Hello"]
+state draft=""
+App
+  Main
+    Nav
+      Text "General"
+    Column#thread gap=12
+      each m in msgs follow grow
+        Text "{m}"
+      Row#composer gap=8
+        Input "Message" bind=draft grow
+        Button "Send" onTap={msgs=append(msgs,draft); draft=""}
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    final nodes = (r.document['nodes'] as Map).cast<String, Map>();
+    final list = nodes.values.singleWhere((n) => n['type'] == 'listView');
+    expect(list['layout'], {'width': {'fill': 0}, 'height': {'fill': 0}, 'flex': 1});
+    expect(list['props'], allOf(containsPair('stickToEnd', true), containsPair('scrollable', true)));
+    // The column it is in takes the height left; the pane above it no longer scrolls.
+    expect(_node(r, 'thread')['layout'], allOf(containsPair('height', {'fill': 0}), containsPair('flex', 1)));
+    final scrolling = [for (final n in nodes.values) if ((n['props'] as Map?)?['scrollable'] == true) n['type']];
+    expect(scrolling, ['listView']);
+    expect(_pagePrompt(), contains('follow grow'));
   });
 
   test('mark: the parts of a text that match a search are runs over it; fuzzy is taught on a page', () {
@@ -3068,6 +3140,10 @@ Column
     expect((title['bind'] as Map)['props.runs'], r'${= matchRuns(("Episode: " + (item.title)), q)}');
     expect(jsonEncode(title), contains('item.title'));
     expect((r.document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView')['bind'], containsPair('data', r'${= fuzzy(rows,q,x=>x.title)}'));
+    // Under a search with a tolerance, a mark of its query marks what it matched.
+    final loose = _parse('state q=""\nstate rows=[]\nColumn\n  each row in fuzzy(rows, q, x=>x.title, 3, "keep")\n    Text#t "{row.title}" mark={q}\n    Text#u "{row.title}" mark={other}\n');
+    expect((_node(loose, 't')['bind'] as Map)['props.runs'], r'${= matchRuns(("" + (item.title)), q, 3)}');
+    expect((_node(loose, 'u')['bind'] as Map)['props.runs'], r'${= matchRuns(("" + (item.title)), other)}');
     final page = notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280));
     expect(page, allOf(contains('fuzzy(list,query,x=>text)'), contains('mark={q}')));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('fuzzy')));
@@ -3123,6 +3199,45 @@ Sheet#filters "Filters"
     expect(_node(r, 'filters'), isNot(contains('bind')));
     expect((_node(r, 'filters')['layout'] as Map)['height'], isNot({'fill': 0}));
     expect(_pagePrompt(), allOf(contains('stops=[0.5,0.9]'), contains('Dialog#edit "Edit" guard={name!=""}')));
+  });
+
+  test('guardText: what would close a guarded overlay asks first, and a yes discards and closes', () {
+    final r = _parsePage('''
+state name=""
+Page
+  Section
+    Button#edit "Edit" onTap={open editDialog}
+Dialog#editDialog "Edit" guard={name!=""} guardText="Discard changes?" onDiscard={name=""}
+  Input "Name" bind=name
+Sheet#notes "Notes" guard={name!=""} guardText=Discard?
+  Text "Notes"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    final dialog = _node(r, 'editDialog');
+    expect(dialog['bind'], {'props.blockBack': r'${= name!=""}'});
+    expect(dialog['actions'], [
+      {
+        'trigger': {'type': 'backPressed'},
+        'actions': [
+          {
+            'type': 'confirm',
+            'title': 'Discard changes?',
+            'confirmLabel': 'Discard',
+            'cancelLabel': 'Keep editing',
+            'destructive': true,
+            'actions': [
+              {'type': 'setVariable', 'variable': 'name', 'value': ''},
+              {'type': 'closeModal'},
+            ],
+          },
+        ],
+      },
+    ]);
+    expect(jsonEncode(_node(r, 'notes')['actions']), allOf(contains('"title":"Discard?"'), isNot(contains('setVariable'))));
+    // The words are taken off the line: the column under it has none of them.
+    expect(jsonEncode(r.document), isNot(contains('guardText')));
+    expect(_pagePrompt(), contains('guardText="Discard changes?"'));
   });
 
   test('Splitter: a divider between two panes keeps the first pane\x27s size in a variable', () {
@@ -3301,6 +3416,66 @@ Dialog#search "Search"
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('shortcut=')));
   });
 
+  test('menu under an each: the menu\x27s lines read the pressed row by its loop name; onLongPress runs first wherever written', () {
+    final r = _parsePage('''
+state clips=[{"id":"a","name":"Alpha"},{"id":"b","name":"Beta"}]
+state copied=""
+state header=""
+Page
+  Section
+    each c in clips
+      Row#row menu=rowMenu onLongPress={header=c.name}
+        Text "{c.name}"
+      Row#other onLongPress={header=c.name} menu=rowMenu
+        Text "{c.name}"
+Menu#rowMenu
+  MenuItem "Copy" onTap={copied=c.name}
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    for (final id in ['row', 'other']) {
+      final reactions = {for (final a in (_node(r, id)['actions'] as List).cast<Map>()) (a['trigger'] as Map)['type']: a['actions'] as List};
+      expect(reactions.keys, unorderedEquals(['secondaryClick', 'longPress']), reason: id);
+      // One long press: the line's own actions, the row pressed, then the menu.
+      expect([for (final a in reactions['longPress']!) (a as Map)['type'] == 'setVariable' ? 'set ${a['variable']}=${a['value']}' : a['type']],
+          [r'set header=${= item.name}', r'set c=${= item}', 'openModal'],
+          reason: id);
+      expect([for (final a in reactions['secondaryClick']!) (a as Map)['type']], ['setVariable', 'openModal'], reason: id);
+    }
+    // A page variable of the loop's name, which the menu reads; in the row it is still the item.
+    final declared = {for (final v in (r.document['variables'] as Map).values.expand((v) => v as List)) (v as Map)['name']: v['type']};
+    expect(declared, containsPair('c', 'map'));
+    expect(jsonEncode(r.document['nodes']), contains(r'${= c.name}'));
+  });
+
+  test('key when: a shortcut that acts only while its condition holds; one written in an overlay is that overlay\x27s', () {
+    final r = _parsePage('''
+state editing=false
+state n=0
+key j when={!editing} onPress={n=n+1}
+key k onPress={n=n-1} when={n > 0}
+key l when n < 5 onPress={n=n+2}
+Page
+  Section
+    Text "{n}"
+Dialog#help "Help"
+  key x onPress={close}
+  Text "Press x"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    expect([for (final a in _node(r, 'screen')['actions'] as List) (a as Map)['trigger']], [
+      {'type': 'keyDown', 'key': 'j', 'when': r'${= !editing}'},
+      {'type': 'keyDown', 'key': 'k', 'when': r'${= n > 0}'},
+      {'type': 'keyDown', 'key': 'l', 'when': r'${= n < 5}'},
+    ]);
+    expect([for (final a in _node(r, 'help')['actions'] as List) (a as Map)['trigger']], [
+      {'type': 'keyDown', 'key': 'x'},
+    ]);
+    expect(_parsePage('key j when={x}\nPage\n').issues.first.message, contains('key mod+k onPress={open search}'));
+    expect(_pagePrompt(), contains('when={!editing}'));
+  });
+
   test('reorder and Handle: a list put in order by its rows\x27 handles, written to its variable; two lists of one group', () {
     final r = _parsePage('''
 state trip=["Zurich","Tirano"]
@@ -3439,12 +3614,19 @@ Column
       'dayPrices': {'2026-11-20': '£225'},
       'label': 'Your stay',
     });
-    // One variable: one day.
+    // One variable: one day, and its change is that day.
     final one = _node(r, 'one');
     expect(one['bind'], {'props.start': r'${day}'});
+    expect(one['props'], containsPair('range', false));
+    expect(cal['props'], isNot(contains('range')));
     expect(((one['actions'] as List).single as Map)['actions'], [
-      {'type': 'setVariable', 'variable': 'day', 'value': r'${result.start}'},
+      {'type': 'setVariable', 'variable': 'day', 'value': r'${result}'},
     ]);
+    // Marks worked out, from a map or from a list of days or records.
+    final marked = _parse('state day=""\nstate events=[{"date":"2026-11-18","title":"Gym"}]\nColumn\n  Calendar#m bind=day marks={events}\n  Calendar#n bind=day marks=["2026-11-03"]\n');
+    expect(marked.issues, isEmpty);
+    expect(_problems(marked.document), isEmpty);
+    expect(_node(marked, 'm')['bind'], containsPair('props.marks', r'${events}'));
     final declared = {for (final v in (r.document['variables'] as Map).values.expand((v) => v as List)) (v as Map)['name']: v['value']};
     expect(declared, {'arrival': '2026-11-20', 'departure': '', 'day': ''});
     expect(_parse('Calendar bindEnd=departure').issues.single.message, contains('Calendar bind=arrival bindEnd=departure'));

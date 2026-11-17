@@ -247,6 +247,18 @@ final class PageWords {
       final String g when g.startsWith('{') && g.endsWith('}') && g.length > 2 => g.substring(1, g.length - 1).trim(),
       final g => g,
     };
+    // `guardText="Discard changes?"`: what Escape, a tap outside and back do
+    // while the guard holds: ask that, and on a yes run `onDiscard={…}` and
+    // close.
+    final guardText = switch (parts.take('guardText')) {
+      final String t when t.startsWith('"') => t,
+      final String t when t.isNotEmpty => '"$t"',
+      _ => null,
+    };
+    final discard = switch (parts.take('onDiscard')) {
+      final String d when d.startsWith('{') && d.endsWith('}') => d.substring(1, d.length - 1).trim(),
+      _ => null,
+    };
     final stops = [
       for (final s in (parts.take('stops') ?? '').replaceAll(RegExp(r'[\[\]\s]'), '').split(','))
         if (double.tryParse(s) case final double h when h > 0 && h <= 1) h,
@@ -270,10 +282,10 @@ final class PageWords {
         if (isFrame('Dialog')) {
           return Overlay('dialog', id, width ?? 480, action, [
             (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.hasEvent ? parts.props : '${parts.props} onTap={close}'}${parts.tail}'),
-          ], surface: false, guard: guard);
+          ], surface: false, guard: guard, guardText: guardText, onDiscard: discard);
         }
         final pad = parts.take('pad') ?? '24', gap = parts.take('gap') ?? '16';
-        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16, guard: guard);
+        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16, guard: guard, guardText: guardText, onDiscard: discard);
       case 'Sheet' || 'BottomSheet':
         final pad = parts.take('pad') ?? '[20,8,20,24]', gap = parts.take('gap') ?? '16';
         final w = width ?? 560;
@@ -285,6 +297,8 @@ final class PageWords {
           // A sheet with stops is as tall as its stop, and scrolls in it.
           [(indent: 0, text: 'Column w=fill${stops.isEmpty ? '' : ' h=fill scroll'} pad=$pad gap=$gap${parts.all}'), ...titled()],
           guard: guard,
+          guardText: guardText,
+          onDiscard: discard,
         );
       case 'Drawer':
         // A panel as tall as the window at its side; a tap beside it closes it.
@@ -1125,11 +1139,21 @@ final class Overlay {
       this.closes = 'none',
       this.empty = const [],
       this.variables = const {},
-      this.guard});
+      this.guard,
+      this.guardText,
+      this.onDiscard});
 
   /// The condition, as written, while which a tap outside, Escape and back
   /// do not close it (`guard={name != ""}`); null: they always do.
   final String? guard;
+
+  /// While [guard] holds, what a tap outside, Escape and back ask, quoted
+  /// (`guardText="Discard changes?"`): a yes runs [onDiscard] and closes it.
+  /// Null: they do nothing.
+  final String? guardText;
+
+  /// The actions a yes to [guardText] runs before it closes (`draft=""`).
+  final String? onDiscard;
 
   /// In [foot], a line that stands for the lines written under the block
   /// (else [empty]), read again there: a gallery's picture in its thumbnails.

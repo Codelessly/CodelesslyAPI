@@ -684,6 +684,84 @@ time with the sidebar beside it, rather than giving the sidebar up for the two p
 this shape (`mail-client`, `notes-app`, 2026-11-16) wrote their own phone logic (a `pane` variable, `show=` on
 each pane, a `phone` name the notation does not have) and are left as written.
 
+### 14.5 The words' next parameters (2026-11-17)
+
+Nineteen apps written with the words of 33.1.0 each reached for a parameter the word did not have. Each is a
+parameter of the word as it is already written, read where the word is read.
+
+**`confirm`** (16 apps). Between the question and `then`: a second quoted text, the detail under the question;
+`ok="Delete"` and `cancel="Keep"`, the buttons' words (a word worked out in braces: `ok={n > 1 ? "Delete all" :
+"Delete"}`); `danger` (or `destructive`), the yes button in the error color. After `then {…}`, `else {…}` is
+what a no does (Cancel, Escape, a tap outside). They are the confirm action's `message`, `confirmLabel`,
+`cancelLabel`, `destructive` and `cancelActions`, which the document already had.
+
+```
+Button "Delete" onTap={confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {clips=[]} else {toast "Kept"}}
+```
+
+A word between the question and `then` that is none of these, a third quoted text, or anything after `then {…}`
+but `else {…}` is an issue that shows the whole form. The built-in dialog the action shows:
+
+- **The keyboard, one rule.** The focus starts on the yes, so Enter answers what was asked; when it is `danger`
+  it starts on Cancel, so Enter does no harm. Enter and Space press the focused button, Tab moves between the
+  two, Escape cancels. (It started on Cancel always; four apps read Enter as "did nothing" or "cancelled".)
+- **Its buttons** are as a `Dialog`'s end buttons in the notation (`_endButtons`): on a phone (below the
+  breakpoint an adaptive modal turns into a sheet at) they share the dialog's width equally; with room they sit
+  at its end, each no wider than 240 (a long word wraps). A look that places them (`expandButtons`,
+  `stackButtons`, `buttonsAlignment`) is kept.
+- **Asked from a menu's line** (a `Menu`, or a menu opened by `menu=`), the menu is out of sight while the
+  question is (its route offstage, not closed: the line's chain, the actions after `then` and the `close` the
+  menu adds run in it), then closes as the line says. It stayed painted behind the dialog in four apps.
+- **For the render command** the two buttons are `confirmOk` and `confirmCancel`: `--tap confirmOk`, in
+  `--dump-layout` with their text, and named in "Where the focus is".
+
+**`key … when={…}`** (9 apps). `key j when={!editing} onPress={…}`: the shortcut acts only while the expression
+holds (the keyDown reaction's `when`). `when={…}` stands before or after `onPress`; `when expression` before it
+reads as before. A plain key (no `mod`, no `alt`) never acts while a text field has the focus: checked with the
+render command, `--focus field --key j` leaves the page's `j` alone. A `key` line under a `Dialog#id` (or any
+overlay) is that overlay's canvas's reaction: it acts only while the overlay is open. A page's own shortcut
+still acts while a dialog is open over it (left as it is).
+
+**A row's menu reads the row** (4 apps). Under `each c in clips`, `menu=rowMenu` on a line sets a page value of
+the loop's name to the row's item before the menu opens (`c = item`, and the outer loops' names to theirs), so
+the menu's lines read the row that was pressed as they would in the row: `MenuItem "Copy" onTap={copy
+"{c.name}"}`. In the row `c` is still its item; the page value is declared from the list's first element.
+`onRightClick` and `onLongPress` on the same line run in the same reaction before the menu opens, whichever is
+written first (`menu=headerMenu onLongPress={header=c}` left `header` empty: the reaction that opened the menu
+ran first and waited for it). An `IconButton … onTap={open rowMenu}` is unchanged (`sel=row.id` before it).
+
+**`fuzzy(list, query, item => text, tolerance, "keep")`** (6 apps). A number after the text is how many letters a
+word of the query may be off by (by default 1 for a word of 3 or 4 letters, 2 for a longer one; 0 none); `"keep"`
+keeps the list's own order instead of the best first; either or both, in either order. A word of the query also
+matches across the text's words written together (`adamens` in "Ada Mensah", each word's part marked).
+`fuzzyScore`, `matchRanges`, `matchRuns` and `matchReason` take the tolerance as a third argument. `mark={q}`
+marks what `fuzzy` matched: both read the same matcher (`matchRuns` is `FuzzyMatch.find`, as `fuzzy` is), so a
+close spelling is marked whole and a phrase found as written is marked alone; under an `each` over
+`fuzzy(list, q, …, 3)` a `mark={q}` takes the 3 as well. Cards' `ListRow` (title, subtitle), `ConversationRow`
+(name, subject, preview), `PostCard` (title, excerpt) and `CommandPalette` (each command) take `mark=` and draw
+their texts' runs with it.
+
+**`Calendar`** (2 apps). With `bind` alone it picks one day: each pick replaces the last, its change gives the
+day (`result`, yyyy-MM-dd) and the variable holds it; the calendar's `range` prop is false. With `bind` and
+`bindEnd` it is a range as before. Its words for a screen reader are neutral: "start", "end", "choose the
+start" (they said check-in and check-out). `marks` takes a list worked out (`marks={events}`): a day (a dot
+under it), or a record with `date` (`day`) and `label` (`title`, `text`); a map as before. A list was refused
+as the wrong type.
+
+**`guardText`** (4 apps). `Dialog#edit "Edit" guard={dirty} guardText="Discard changes?" onDiscard={draft=""}`:
+while the guard holds, what would close the overlay (Escape, a tap outside, back), which the guard blocks and
+which then runs the canvas's `backPressed` reactions, asks that question (`ok="Discard"`, `cancel="Keep
+editing"`, `danger`), and a yes runs `onDiscard` and closes. On a `Sheet` too. Without `guardText` a guard is
+as before. Four apps had written a Discard button and its reset by hand.
+
+**`follow grow`** (2 apps). `each m in msgs follow grow`: the list takes the room its column leaves (a chat over
+its composer) instead of a fixed `h=`. Each column it is in takes the height left to it, up to the first that
+scrolls (an `App`'s `Main`), which then no longer scrolls: one scroll, the list's, and the composer beside the
+list stays in view. `follow h=180 grow`, or `grow` without `follow`, is an issue.
+
+Not done: `mark=` on a block does not take a `fuzzy`'s tolerance; a menu opened by `onTap={open rowMenu}` from a
+row's button does not set the loop's name (it goes through `sel=row.id` as before).
+
 ## 15. Open points
 
 - Whether `Card` and the text variants are fixed words or come only from the design system (a design system
