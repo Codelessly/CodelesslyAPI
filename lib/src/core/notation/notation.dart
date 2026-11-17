@@ -22,6 +22,7 @@ import '../suggest.dart' show didYouMean;
 import '../triggers.dart' show KeyCombo;
 import 'define.dart';
 import 'keys.dart';
+import 'media_words.dart';
 import 'page_words.dart';
 import 'reflow.dart';
 import 'universal.dart';
@@ -1674,6 +1675,46 @@ class _Parser {
   /// its foot; a sidebar's, in its drawer): nothing is recorded twice.
   bool _quiet = false;
 
+  /// A line read alone to work out its media rules' patches
+  /// ([_mediaRules]): its own rules are not read again.
+  bool _mediaLine = false;
+
+  /// Line [base]'s media rules (docs/design/22 section 2.4): `hide=`/`show=`
+  /// as they are, and each run of words with one condition (`phone.pad=16
+  /// phone.gap=8`) a rule whose patch is what those words change on the line,
+  /// read alone with and without them. A value written for a field [bound]
+  /// binds is shown there: the binding is dropped where the rule holds.
+  List<Json> _mediaRules(List<({Json condition, String? word, int column})> words, String base, String? parentType, String type, Iterable<String> bound) {
+    final rules = <Json>[];
+    final props = catalog.widget(type)?.props ?? const [];
+    final reader = MediaLineReader(
+      (text) => (_Parser(catalog, options._copy(reflow: false, openVocabulary: options.openVocabulary, vocabulary: options.vocabulary)).._mediaLine = true).parse(text),
+      line: base,
+      parentType: parentType,
+      props: props,
+      bound: bound,
+    );
+    for (var i = 0; i < words.length;) {
+      final w = words[i];
+      if (w.word == null) {
+        rules.add(_copy(w.condition));
+        i++;
+        continue;
+      }
+      // A run: the words after it with the same condition are the same rule.
+      final run = <String>[];
+      while (i < words.length && words[i].word != null && jsonEquality.equals(words[i].condition, w.condition)) {
+        run.add(words[i++].word!);
+      }
+      final read = reader.patch(run);
+      for (final m in read.issues) {
+        _issue(w.column, m);
+      }
+      if (read.patch case final Json patch) rules.add({...w.condition, 'patch': patch});
+    }
+    return rules;
+  }
+
   /// Whether [text] (indented, with an id) is the head of an overlay: a
   /// word the page layer reads as one, itself or through an alias.
   bool _overlayInside(String text) {
@@ -2114,8 +2155,10 @@ class _Parser {
     final rules = reflow.run();
     for (final e in rules.entries) {
       final node = nodes[e.key]!;
-      // The line's own rules (hide=phone) come after, so they win.
-      final media = [...e.value, ...?(node['media'] as List?)];
+      // The line's own rules (hide=phone) come after, so they win; one it
+      // already says (a print read again) is not added twice.
+      final own = (node['media'] as List?) ?? const [];
+      final media = [...e.value.where((r) => !own.any((o) => jsonEquality.equals(o, r))), ...own];
       node['media'] = media;
       if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
     }
@@ -3163,6 +3206,9 @@ class _Parser {
     // and what a stand-in left out (the rest of its words it honours).
     final universal = <({String word, int column, String of})>[];
     final dropped = <String>{};
+    // The line's media rules in the order written: `phone.pad=16` (a
+    // condition and a word), `hide=phone` (a rule as it is, no word).
+    final mediaWords = <({Json condition, String? word, int column})>[];
     var wroteColor = false;
     String? chipColor, fieldInk, fieldSize, listIcon, inputValue, removeActions;
     var disabledBy = '', required = false, clearable = false;
@@ -3651,6 +3697,18 @@ class _Parser {
           break;
         }
         final eq = word.indexOf('=');
+        // `phone.pad=16`, `max899.hidden`: the line's value at other widths
+        // (docs/design/22 section 2.4), unless the type has a prop of that name.
+        if (mediaCondition(eq < 0 ? word : word.substring(0, eq)) case final m? when !spec.props.any((p) => p.key == word.substring(0, m.length - 1).split('.').first)) {
+          if (eq == word.length - 1 && t.peek == '"') t.string();
+          if (eq == word.length - 1 && (t.peek == '{' || t.peek == '[')) t.balanced();
+          if (m.problem != null) {
+            _issue(col, m.problem!);
+          } else if (!_mediaLine) {
+            mediaWords.add((condition: m.condition, word: t.s.substring(from + m.length, t.at), column: col));
+          }
+          continue;
+        }
         if (eq == 0) {
           _issue(col, 'A value has a key: write bind=name for the variable a control keeps its value in, key={expression} for a value worked out.');
           continue;
@@ -4127,15 +4185,10 @@ class _Parser {
             ('show', 'tablet') || ('hide', 'desktop') => {'minWidth': reflowTabletMax + 1},
             _ => null,
           };
-          if (rule != null) {
-            node['media'] = [
-              ...?(node['media'] as List?),
-              // A line under an `if` binds visible, and a binding shows over
-              // a patched value: where the size hides the node, the binding is
-              // dropped, so the condition holds only where the node shows.
-              {...rule, 'patch': {'visible': false, 'bind': {'visible': null}}},
-            ];
-          }
+          // A line under an `if` binds visible, and a binding shows over
+          // a patched value: where the size hides the node, the binding is
+          // dropped, so the condition holds only where the node shows.
+          if (rule != null && !_mediaLine) mediaWords.add((condition: {...rule, 'patch': {'visible': false, 'bind': {'visible': null}}}, word: null, column: col));
           continue;
         }
         // The widest a node gets (a page's column of content): maxw=720.
@@ -5456,6 +5509,11 @@ class _Parser {
           id: {'opacity': 0.5, 'ignorePointer': true},
         },
       };
+    }
+    // Its media rules, unless its {…} tail gave them (t.at: where the words end).
+    if (mediaWords.isNotEmpty && !node.containsKey('media') && !t.rest.contains('"media"')) {
+      final rules = _mediaRules(mediaWords, t.s.substring(0, t.at).trimRight(), parent?.type, type, readMap(out['bind'])?.keys ?? const []);
+      if (rules.isNotEmpty) out['media'] = rules;
     }
     nodes[id] = out;
     // A list tile's leading icon (icon= on a ListTile).

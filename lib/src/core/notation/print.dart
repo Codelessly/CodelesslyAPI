@@ -93,7 +93,7 @@ NotationOptions notationOptionsFor(Json document) {
   final roots = readStrings(document['roots']);
   final screen = roots.isEmpty ? 'screen' : roots.first;
   final width = readMap(readMap(readMap(document['nodes'])?[screen])?['layout'])?['width'];
-  return NotationOptions(screen: screen, width: width is num ? width.toDouble() : 390);
+  return NotationOptions(screen: screen, width: width is num ? width.toDouble() : 390, reflow: false);
 }
 
 Object? _sorted(Object? v) => switch (v) {
