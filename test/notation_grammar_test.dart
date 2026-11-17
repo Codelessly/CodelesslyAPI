@@ -370,7 +370,22 @@ void main() {
       // An open of an overlay this page does not have names the ones it has.
       final open = Catalog.run(standardCatalog, () => parseNotation('Column\n  Button "Role" onTap={open roleDialog}\nMenu#more\n  MenuItem "Edit"\n',
           catalog: standardCatalog, options: const NotationOptions().open()));
-      expect(open.issues.single.message, endsWith('the action is left out. Over this page: more.'));
+      expect(open.issues.single.message, endsWith('the action is left out. Over this page: "more".'));
+    });
+
+    test('a field written where it stands, an entry of a list or a map, a field of the record a find picks', () {
+      final r = _parse('state devices=[{"id":"a","room":"A","pos":0}]\nstate room="A"\nstate clips=[{"id":1,"name":"x"}]\nstate sel=[1]\n'
+          'state colAll={"Owner":true}\nstate draft={"title":"a"}\nColumn\n'
+          '  each d in filter(devices,x=>x.room==room)\n    Button#d "Close" onTap={d.pos=0}\n'
+          '  Input#n "Name" bind=find(clips,c=>c.id==first(sel)).name\n'
+          '  each r in ["Owner"]\n    Checkbox#c bind=colAll[r]\n'
+          '  Button#t "Clear" onTap={draft.title=""}\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      String sets(String id) => '${((run(r, id).single! as Map))['variable']} = ${(run(r, id).single! as Map)['value']}';
+      expect(sets('d'), r'devices = ${= setAt(devices,indexOf(map(devices,x=>x.id),item.id),with(item,"pos",(0)))}');
+      expect(sets('n'), r'clips = ${= updateWhere(clips,c=>c.id==first(sel),c=>with(c,"name",result))}');
+      expect(sets('c'), r'colAll = ${= with(colAll,item,result)}');
+      expect(sets('t'), r'draft = ${= with(draft,"title",(""))}');
     });
 
     test('a variable an action makes takes its kind from the state it reads, or from the control bound to it later', () {

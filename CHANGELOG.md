@@ -55,6 +55,9 @@
   TextArea…) takes the same: its variable parameter is given the field's path (`draft.title`,
   `"rows[" + index + "].done"`), where it said `A NumberInput keeps its value in a variable: write bind=name.`
   What cannot be written (a list worked out without ids, a record that is not declared) says what to write.
+  The same holds for an action that sets a field where it stands (`d.pos=0` under an each over a list worked
+  out, `draft.title=""`), and a control reads and writes `bind=colAll[r]` (an entry of a list or a map
+  variable) and `bind=find(clips,c=>c.id==sel).name` (a field of the record a find picks).
 - **The notation: lines under a block that takes none.** Under a design system's block with a slot and no
   children (`ListRow`'s trailing, `SectionHeader`, `PaneToolbar`, `EmptyState`'s actions) the indented lines go in
   the slot, side by side; the component's prompt line says `(lines: actions)`. Under one with neither, the line

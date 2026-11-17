@@ -2752,7 +2752,34 @@ class _Parser {
               });
           }
         } else if (expr.contains('.') || expr.contains('[')) {
-          _issue(col, 'A control is bound to a variable by its name (bind=name), to a field of a record variable (bind=draft.title), or under an each to a field of its element (bind=row.name): "$expr" is none of these.');
+          // `bind=colAll[r]` (an entry of a list or a map variable) and
+          // `bind=find(clips,c=>c.id==sel).name` (a field of the record a
+          // find picks): shown as read, and a change writes it back.
+          final next = list ? 'result[0]' : 'result';
+          final entry = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[(.+)\]$').firstMatch(expr);
+          final found = RegExp(r'^find\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*=>\s*(.+)\)\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(expr);
+          final String? write;
+          if (entry != null && variables.containsKey(entry[1]) && _closing(expr, entry[1]!.length) == expr.length - 1) {
+            final v = entry[1]!;
+            write = variables[v]!['value'] is Map ? '$v = with($v,${entry[2]},$next)' : '$v = setAt($v,${entry[2]},$next)';
+          } else if (found != null && variables[found[1]]?['value'] is List) {
+            final (l, x) = (found[1]!, found[2]!);
+            write = '$l = updateWhere($l,$x=>${found[3]},$x=>with($x,"${found[4]}",$next))';
+          } else {
+            write = null;
+          }
+          if (write == null) {
+            _issue(col, 'A control is bound to a variable by its name (bind=name), to a field of a record variable (bind=draft.title), or under an each to a field of its element (bind=row.name): "$expr" is none of these. '
+                'Show it and write the change yourself: value={$expr} onChange={<list>=updateWhere(<list>,x=>x.id==…,x=>with(x,"<field>",result))}.');
+          } else {
+            final eq = write.indexOf(' = ');
+            reactions.insert(0, {
+              'trigger': {'type': 'changed'},
+              'actions': [
+                {'type': 'setVariable', 'variable': write.substring(0, eq), 'value': _formula(write.substring(eq + 3))},
+              ],
+            });
+          }
         } else if (_identifier.hasMatch(expr)) {
           if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
@@ -4645,7 +4672,7 @@ class _Parser {
             1,
             e.key.startsWith('open')
                 ? 'Nothing over this page has the id "$id" for an open to show (a Dialog, Sheet, Drawer, Menu or Popover with that id, written after the page at the margin): the action is left out. '
-                    '${written.isEmpty ? 'This page has none: write Dialog#$id "…" after the page, at the margin, with its lines under it.' : 'Over this page: ${written.join(', ')}.'}'
+                    '${written.isEmpty ? 'This page has none: write Dialog#$id "…" after the page, at the margin, with its lines under it.' : 'Over this page: ${written.map((w) => '"$w"').join(', ')}.'}'
                 : 'No line of this page has the id "$id" for a scroll to go to (Section#$id, or id=$id on a line): the action is left out.'));
       }
     }
@@ -5032,6 +5059,13 @@ class _Parser {
       if (over != null && _identifier.hasMatch(over) && !over.contains('.')) {
         return '$over = setAt($over,index,with(item,"${field[1]}",${field[2]}))';
       }
+    }
+    // A field of an element written where it stands (`d.pos = 0` under an
+    // each over a list worked out, a nested list's element, a record
+    // variable's field: `draft.title = ""`): the variable it is in, rebuilt.
+    final path = RegExp(r'^((?:parent\.)*item(?:\.[A-Za-z_][A-Za-z0-9_]*)+|[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+)\s*=(?!=)\s*(.+)$').firstMatch(a);
+    if (path != null && (path[1]!.startsWith('item.') || path[1]!.startsWith('parent.') || variables.containsKey(path[1]!.split('.').first))) {
+      if (_fieldWrite(path[1]!, '(${path[2]})') case (final String variable, final String next, _)) return '$variable = $next';
     }
     final at = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[([^\]]+)\]\.([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
     if (at != null) return '${at[1]} = setAt(${at[1]},${at[2]},with(${at[1]}[${at[2]}],"${at[3]}",${at[4]}))';
