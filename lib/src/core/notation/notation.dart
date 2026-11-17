@@ -730,6 +730,7 @@ const Map<String, ({String type, Json props})> buttonVariants = {
 /// The prop a control's value lives in, and the variable type it implies.
 const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'slider': (prop: 'value', type: 'decimal', start: 0),
+  'calendar': (prop: 'start', type: 'text', start: ''),
   'splitter': (prop: 'value', type: 'decimal', start: 240),
   'switch': (prop: 'value', type: 'boolean', start: false),
   'checkbox': (prop: 'value', type: 'boolean', start: false),
@@ -1982,7 +1983,8 @@ class _Parser {
     // `Text "{row.title}" mark={q}`: the text as written, and what to mark in it.
     String? markText, markQuery;
     num? sliderStep;
-    // `Slider bind=low bindEnd=high`: the variable of its second thumb.
+    // `Slider bind=low bindEnd=high`: the variable of its second thumb (and
+    // of the last day of a Calendar's range).
     String? sliderEnd;
     int sliderEndColumn = 0;
     String? textLine;
@@ -2186,7 +2188,17 @@ class _Parser {
           reactions.insert(0, {
             'trigger': {'type': 'changed'},
             'actions': [
-              {'type': 'setVariable', 'variable': expr, 'value': list ? r'${result[0]}' : type == 'pageView' ? r'${result.index}' : r'${result}'},
+              {
+                'type': 'setVariable',
+                'variable': expr,
+                'value': list
+                    ? r'${result[0]}'
+                    : type == 'pageView'
+                        ? r'${result.index}'
+                        : type == 'calendar'
+                            ? r'${result.start}'
+                            : r'${result}',
+              },
             ],
           });
         }
@@ -2430,7 +2442,7 @@ class _Parser {
           continue;
         }
         var raw = word.substring(eq + 1);
-        if (key == 'bindEnd' && type == 'slider') {
+        if (key == 'bindEnd' && (type == 'slider' || type == 'calendar')) {
           sliderEnd = raw;
           sliderEndColumn = col;
           continue;
@@ -3018,6 +3030,29 @@ class _Parser {
       // bottom third of its circle open.
       layout.putIfAbsent('width', () => {'fill': 0});
       layout.putIfAbsent('height', () => layout['width'] is num ? ((layout['width']! as num) * 0.68).round() : 164);
+    }
+    // A Calendar's range: bind= is its first day, bindEnd= its last, and one
+    // change gives both (result.start, result.end), as yyyy-MM-dd.
+    if (sliderEnd != null && type == 'calendar') {
+      final start = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$').firstMatch('${bind['props.start']}')?.group(1);
+      final end = sliderEnd;
+      if (start == null || !_identifier.hasMatch(end) || end.contains('.')) {
+        _issue(sliderEndColumn, 'A range of days is a Calendar with a variable for each end: Calendar bind=arrival bindEnd=departure.');
+      } else {
+        bind['props.end'] = _read(end);
+        variables.putIfAbsent(end, () => {'name': end, 'type': 'text', 'value': ''});
+        reactions.removeWhere((r) =>
+            readMap(r['trigger'])?['type'] == 'changed' &&
+            (r['actions'] as List?)?.any((a) => readMap(a)?['type'] == 'setVariable' && readMap(a)?['variable'] == start) == true);
+        reactions.insert(0, {
+          'trigger': {'type': 'changed'},
+          'actions': [
+            {'type': 'setVariable', 'variable': start, 'value': r'${result.start}'},
+            {'type': 'setVariable', 'variable': end, 'value': r'${result.end}'},
+          ],
+        });
+      }
+      sliderEnd = null;
     }
     // A slider with two thumbs is one control: its value is the lower end,
     // rangeEnd the upper, and one change gives both (result.low, result.high).

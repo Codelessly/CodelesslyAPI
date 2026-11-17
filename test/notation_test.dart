@@ -2944,4 +2944,44 @@ Column
     expect((n.prop(TextFieldProps.min), n.prop(TextFieldProps.max), n.prop(TextFieldProps.step), n.prop(TextFieldProps.semanticLabel)), (1, 12, 2, 'Quantity'));
     expect(_pagePrompt(), contains('Input "Qty" bind=qty type=number min=1 max=12 step=1'));
   });
+
+  test('Calendar: a month in the page; bind and bindEnd are the ends of a range, with disabled days and marks', () {
+    final r = _parse('''
+state arrival="2026-11-20"
+Column
+  Calendar#stay bind=arrival bindEnd=departure disabledDates=["2026-11-21"] marks={"2026-11-24":"Sold"} dayPrices={"2026-11-20":"£225"} label="Your stay"
+  Calendar#one bind=day firstDate="2026-11-01"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final cal = _node(r, 'stay');
+    expect(cal['type'], 'calendar');
+    expect(cal['bind'], {'props.start': r'${arrival}', 'props.end': r'${departure}'});
+    expect(cal['actions'], [
+      {
+        'trigger': {'type': 'changed'},
+        'actions': [
+          {'type': 'setVariable', 'variable': 'arrival', 'value': r'${result.start}'},
+          {'type': 'setVariable', 'variable': 'departure', 'value': r'${result.end}'},
+        ],
+      },
+    ]);
+    expect(cal['props'], {
+      'disabledDates': ['2026-11-21'],
+      'marks': {'2026-11-24': 'Sold'},
+      'dayPrices': {'2026-11-20': '£225'},
+      'label': 'Your stay',
+    });
+    // One variable: one day.
+    final one = _node(r, 'one');
+    expect(one['bind'], {'props.start': r'${day}'});
+    expect(((one['actions'] as List).single as Map)['actions'], [
+      {'type': 'setVariable', 'variable': 'day', 'value': r'${result.start}'},
+    ]);
+    final declared = {for (final v in (r.document['variables'] as Map).values.expand((v) => v as List)) (v as Map)['name']: v['value']};
+    expect(declared, {'arrival': '2026-11-20', 'departure': '', 'day': ''});
+    expect(_parse('Calendar bindEnd=departure').issues.single.message, contains('Calendar bind=arrival bindEnd=departure'));
+    expect(_pagePrompt(), contains('Calendar bind=arrival bindEnd=departure disabledDates=["2026-11-24"] marks={"2026-11-20":"£225"}'));
+    expect(notationPrompt(catalog: standardCatalog), isNot(contains('Calendar')));
+  });
 }
