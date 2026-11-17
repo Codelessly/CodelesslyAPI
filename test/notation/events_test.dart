@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/src/core/notation/notation.dart' show notationEventName, notationEventTrigger;
-import 'package:codelessly_api/src/core/notation/print_events.dart' show printCanvasEvents, printEvents;
+import 'package:codelessly_api/src/core/notation/print_events.dart' show printCanvasEvents, printEvents, printNormalized;
 import 'package:codelessly_api/src/core/notation/print_fields.dart' show PrintContext;
 import 'package:test/test.dart';
 
@@ -31,6 +31,50 @@ String _roundTrip(String text) {
   expect(jsonEncode(back.document), jsonEncode(r.document));
   return printed;
 }
+
+/// [text] read with [catalog], printed and read back: the print, which has
+/// no `{…}` tail and no `document` line.
+String _roundTripWith(String text, Catalog catalog) {
+  final r = parseNotation(text, catalog: catalog);
+  expect(r.issues, isEmpty, reason: text);
+  final printed = printNotation(r.document, catalog: catalog);
+  expect(printed, isNot(contains(' {"')), reason: printed);
+  expect(printed, isNot(contains('document ')), reason: printed);
+  final back = parseNotation(printed, catalog: catalog, options: notationOptionsFor(r.document));
+  expect(back.issues, isEmpty, reason: printed);
+  expect(jsonEncode(back.document), jsonEncode(r.document));
+  return printed;
+}
+
+/// The standard catalog and two design system blocks: a row that is tapped
+/// (`onPressed`, `onAction`) and a toggle that keeps its value in the
+/// variable its `value` parameter names.
+final _blocks = standardCatalog +
+    Catalog.fromJson({
+      'id': 'blocks',
+      'widgets': [
+        {
+          'type': 'SessionRow',
+          'props': [
+            {'key': 'title', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': 'Intervals', 'required': true},
+          ],
+          'events': [
+            {'key': 'onPressed'},
+            {'key': 'onAction'},
+          ],
+        },
+        {
+          'type': 'ToggleRow',
+          'props': [
+            {'key': 'label', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': 'Watch', 'required': true},
+            {'key': 'value', 'type': {'kind': 'variable', 'of': {'kind': 'boolean', 'flutter': 'bool'}}, 'default': ''},
+          ],
+          'events': [
+            {'key': 'onChanged', 'payload': {'kind': 'boolean', 'flutter': 'bool'}},
+          ],
+        },
+      ],
+    });
 
 /// A value for a field of kind [f], written as the printer writes it.
 String _sample(PropDef<Object?> f) => switch (f.type.kind) {
@@ -216,6 +260,159 @@ void main() {
       expect(printCanvasEvents(r.document, context), ['every 1s when on onTick={t=t+1}', 'every {1000/2} onTick={t=t-1}', 'key mod+k onPress={open search}']);
       final printed = _roundTrip(text);
       expect(printed, isNot(contains('document')));
+    });
+  });
+  group('the second pass (design 22, 4.1)', () {
+    test('bind= is printed for every two-way binding: a name, a field of a record, a field of the element under an each', () {
+      const text = 'state rows=[{"id":1,"name":"a","on":true}]\nstate draft={"title":""}\nstate vol=0.5\n'
+          'Column\n'
+          '  each item in rows\n'
+          '    Input bind=item.name onSubmit={toast "x"}\n'
+          '    Checkbox bind=item.on\n'
+          '  Input#d bind=draft.title\n'
+          '  Slider#s bind=vol onChange={toast "moved"}\n'
+          '  Select#sel items=["a","b"] bind=pick';
+      final printed = _roundTrip(text);
+      for (final line in text.split('\n').skip(5)) {
+        expect(printed, contains(line.trim()));
+      }
+    });
+
+    test('bind= on a design system control is its variable parameter, by name and under an each, and its events are its own', () {
+      const text = 'state public=true\nstate dirty=false\nstate rows=[{"id":1,"on":true}]\n'
+          'Column\n'
+          '  ToggleRow#tr "Public profile" bind=public onChanged={dirty=true}\n'
+          '  each item in rows\n'
+          '    ToggleRow "Row" bind=item.on';
+      final r = parseNotation(text, catalog: _blocks);
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'tr')['props'], containsPair('value', 'public'));
+      final printed = _roundTripWith(text, _blocks);
+      expect(printed, contains('ToggleRow#tr "Public profile" bind=public onChanged={dirty=true}'));
+      expect(printed, contains('ToggleRow "Row" bind=item.on'));
+    });
+
+    test('a block\x27s events by their own names, on a block called without what it requires too', () {
+      const text = 'state n=0\nColumn\n  SessionRow#a onPressed={emit open_session n} onAction={n=n+1}\n  SessionRow#b onTap={go home}';
+      final r = parseNotation(text, catalog: _blocks);
+      // (A block called without its title is said, and still printed.)
+      expect(r.issues.map((i) => i.message), everyElement(startsWith('A SessionRow needs title')));
+      expect((_reactions(r, 'b').single as Map)['trigger'], {'type': 'event', 'event': 'onPressed'});
+      final printed = printNotation(r.document, catalog: _blocks);
+      expect(printed, contains('SessionRow#a onPressed={emit open_session n} onAction={n=n+1}'));
+      // onTap on a block is its first event: printed by that event's own name.
+      expect(printed, contains('SessionRow#b onPressed={go home}'));
+      expect(printed, isNot(contains(' {"')));
+    });
+
+    test('a component raises its events with emit, in its own tree', () {
+      const text = 'component Pill\n  param label="Active"\n  event onPressed\n  event onChanged:String\nRow#pill onTap={emit onPressed; emit onChanged "x"}\n  Text "Active"';
+      final printed = _roundTrip(text);
+      expect(printed, contains('Row#pill onTap={emit onPressed; emit onChanged "x"}'));
+    });
+
+    test('a trigger written as its type alone reads as the same trigger, and prints as one', () {
+      final doc = parseNotation('state n=0\nBox#b onTap={n=n+1} onScroll={n=0}', catalog: standardCatalog).document;
+      final nodes = doc['nodes']! as Map;
+      final b = (nodes['b']! as Map).cast<String, Object?>();
+      final reactions = [
+        for (final r in b['actions']! as List) {...(r as Map).cast<String, Object?>(), 'trigger': (r['trigger'] as Map)['type']},
+      ];
+      final asString = {
+        ...doc,
+        'nodes': {...nodes, 'b': {...b, 'actions': reactions}},
+      };
+      expect([for (final r in reactions) r['trigger']], ['click', 'scroll']);
+      expect(jsonEncode(printNormalized(asString, standardCatalog)), jsonEncode(doc));
+      expect(identical(printNormalized(doc, standardCatalog), doc), isTrue);
+      final printed = printNotation(asString, catalog: standardCatalog);
+      expect(printed, contains('onTap={n=n+1} onScroll={n=0}'));
+      expect(printed, isNot(contains('{"')));
+    });
+
+    test('a condition\x27s operand given as a number or a boolean is its text', () {
+      final doc = <String, Object?>{
+        'nodes': {
+          'b': {
+            'type': 'box',
+            'actions': [
+              {
+                'trigger': {'type': 'click'},
+                'actions': [
+                  {
+                    'type': 'navigate',
+                    'to': 'home',
+                    'when': {'left': 3, 'op': 'equalsTo', 'right': true},
+                  },
+                  {
+                    'type': 'if',
+                    'condition': {
+                      'and': [
+                        {'left': 1, 'op': 'isTrue'},
+                      ],
+                    },
+                    'then': [
+                      {
+                        'type': 'navigate',
+                        'to': 'x',
+                        'when': {'left': 2.5, 'op': 'isTrue'},
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+      final n = printNormalized(doc, standardCatalog);
+      final actions = ((((n['nodes']! as Map)['b'] as Map)['actions'] as List).single as Map)['actions'] as List;
+      expect((actions[0] as Map)['when'], {'left': '3', 'op': 'equalsTo', 'right': 'true'});
+      expect(((actions[1] as Map)['condition'] as Map)['and'], [
+        {'left': '1', 'op': 'isTrue'},
+      ]);
+      expect((((actions[1] as Map)['then'] as List).single as Map)['when'], {'left': '2.5', 'op': 'isTrue'});
+    });
+
+    test('the screen\x27s other reactions are lines: on load={…}, a trigger\x27s fields in parentheses', () {
+      const text = 'state saved=[]\nstate t=0\n'
+          'on load={saved=coalesce(storage.saved, []); scroll top}\n'
+          'on backPressed(when={t > 0})={t=t-1}\n'
+          'every 1s onTick={t=t+1}\n'
+          'on keyDown(key=Escape, repeat=true)={t=0}\n'
+          'Box#top';
+      final r = _parse(text);
+      expect(r.issues, isEmpty);
+      expect([for (final x in _reactions(r, 'screen')) (x as Map)['trigger']], [
+        {'type': 'load'},
+        {'type': 'backPressed', 'when': r'${= t > 0}'},
+        {'type': 'timer', 'intervalMs': 1000},
+        {'type': 'keyDown', 'key': 'Escape', 'repeat': true},
+      ]);
+      final printed = _roundTrip(text);
+      for (final line in text.split('\n').skip(2).take(4)) {
+        expect(printed, contains(line));
+      }
+      expect(printed, isNot(contains('document')));
+    });
+
+    test('an on line with a trigger the screen does not have, or written wrong, is said', () {
+      final r = _parse('on lod={x=1}\non load {x=1}\nBox');
+      expect(r.issues.map((i) => i.message), [
+        startsWith('The screen has no trigger "lod". Did you mean "load"?'),
+        startsWith('A reaction of the screen is a line of its own: on load={…}'),
+      ]);
+    });
+
+    test('a formula that is only a name, in a field: a quoted string keeps \${…} as written', () {
+      const line = r'Box#b onTap={setVariable variable=x value="${= ready}" op=toggle} onScroll(when="${= ready}")={x=true}';
+      const text = 'state ready=true\nstate x=false\n$line';
+      final r = _parse(text);
+      expect(r.issues, isEmpty);
+      final reactions = _reactions(r, 'b');
+      expect(((reactions[0] as Map)['actions'] as List).single, {'type': 'setVariable', 'variable': 'x', 'value': r'${= ready}', 'op': 'toggle'});
+      expect((reactions[1] as Map)['trigger'], {'type': 'scroll', 'when': r'${= ready}'});
+      expect(_roundTrip(text).split('\n').last, 'Column#b ${line.substring('Box#b '.length)}');
     });
   });
 }

@@ -18,7 +18,7 @@ import '../catalog.dart';
 import '../json.dart';
 import 'declared.dart';
 import 'notation.dart';
-import 'print_events.dart' show printCanvasEvents;
+import 'print_events.dart' show printCanvasEvents, printNormalized;
 import 'print_fields.dart';
 import 'print_paint.dart' show printPaintLines;
 
@@ -27,6 +27,7 @@ import 'print_paint.dart' show printPaintLines;
 /// [whole], when given, is told why a document had to be printed whole as
 /// data (a single `document {…}` line): the measure's breakdown.
 String printNotation(Json document, {required Catalog catalog, void Function(String why)? whole}) {
+  document = printNormalized(document, catalog); // one spelling of what the API reads in two (print_events.dart)
   final options = notationOptionsFor(document);
   final context = PrintContext(document: document, catalog: catalog, options: options);
   String? why;

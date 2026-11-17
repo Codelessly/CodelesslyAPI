@@ -10,7 +10,9 @@
 // word is written only where it gives the same action back.
 import 'dart:convert';
 
+import '../catalog.dart';
 import '../json.dart';
+import '../triggers.dart' show TriggerType;
 import 'notation.dart';
 import 'print_fields.dart';
 
@@ -23,11 +25,12 @@ List<String> printEvents(String id, Json node, PrintContext context) {
   final reactions = readList(node['actions']);
   if (reactions == null || reactions.isEmpty) return const [];
   final p = _Printer.of(context);
+  final bound = printedBindReaction(id, node, context);
   final out = <String>[];
   for (var i = 0; i < reactions.length; i++) {
     final r = readMap(reactions[i]);
     if (r == null) return const [];
-    if (i == 0 && _bindReaction(r, node)) continue;
+    if (i == bound) continue;
     final word = p.reaction(r, '${node['type']}');
     if (word == null) return const [];
     out.add(word);
@@ -53,18 +56,81 @@ List<String> printCanvasEvents(Json document, PrintContext context) {
   return out;
 }
 
-/// Whether [r], the first reaction of [node], is the one `bind=name` writes:
-/// a change stored in the variable the node shows.
-bool _bindReaction(Json r, Json node) {
-  final trigger = readMap(r['trigger']);
-  final actions = readList(r['actions']);
-  if (trigger == null || trigger.length != 1 || trigger['type'] != 'changed') return false;
-  if (actions == null || actions.length != 1) return false;
-  final set = readMap(actions.single);
-  final variable = set?['variable'];
-  if (set?['type'] != 'setVariable' || variable is! String) return false;
-  final bind = readMap(node['bind']) ?? const {};
-  return bind.entries.any((e) => e.key.startsWith('props.') && e.value is String && RegExp('\\b${RegExp.escape(variable)}\\b').hasMatch(e.value! as String));
+/// `bind=` for node [id] written with [head] (design 13 section 3): what it
+/// binds (`name` in `bind=name`: a variable, a field of a record variable or
+/// of the repeated element, `item.done`), the path it binds (a binding, or
+/// a design system control's variable parameter, `props.value`), and the
+/// index of the reaction it writes in the node's `actions` (-1: none, as on
+/// a design system's control). Null when no `bind=` gives exactly the
+/// node's binding and its first reaction; the line's fields and events then
+/// say them as they are. Found by reading `bind=` on the line in the place
+/// the node has (under its `each`), so it is written only where it reads
+/// back as the node.
+({String name, int index, String path})? printBind(String id, Json node, String head, PrintContext context) => _Printer.of(context).bind(id, node, head);
+
+/// [document] with what the API reads in two spellings in one of them, the
+/// one the parser writes: a reaction's trigger given as its type alone
+/// (`"trigger": "click"`) is `{"type": "click"}`, and an operand of a
+/// condition given as a number or a boolean (`"right": 3`) is its text
+/// (`"3"`), which is how `ConditionOperand` reads it. The notation states
+/// meaning, and the two spellings mean the same, so printNotation reads a
+/// document in this form before it prints it and compares the print with it.
+/// [document] itself when it has neither.
+Json printNormalized(Json document, Catalog catalog) {
+  final nodes = readMap(document['nodes']);
+  if (nodes == null) return document;
+  var changed = false;
+
+  // A condition: its operands as text, its parts the same.
+  Object? condition(Object? c) {
+    final m = readMap(c);
+    if (m == null) return c;
+    return {
+      for (final e in m.entries)
+        e.key: switch (e.key) {
+          'left' || 'right' when e.value is num || e.value is bool => (changed = true, '${e.value}').$2,
+          'and' || 'or' when e.value is List => [for (final p in e.value! as List) condition(p)],
+          _ => e.value,
+        },
+    };
+  }
+
+  // An action: its `when`, an `if`'s condition, and the actions it holds.
+  Object? action(Object? a) {
+    final m = readMap(a);
+    if (m == null) return a;
+    final nested = catalog.action('${m['type']}')?.nested ?? const <String>[];
+    return {
+      for (final e in m.entries)
+        e.key: e.key == 'when' || (e.key == 'condition' && m['type'] == 'if')
+            ? condition(e.value)
+            : nested.contains(e.key) && e.value is List
+                ? [for (final x in e.value! as List) action(x)]
+                : e.value,
+    };
+  }
+
+  Object? reaction(Object? r) {
+    final m = readMap(r);
+    if (m == null) return r;
+    return {
+      for (final e in m.entries)
+        e.key: switch (e.key) {
+          'trigger' when e.value is String => (changed = true, {'type': e.value}).$2,
+          'actions' when e.value is List => [for (final a in e.value! as List) action(a)],
+          _ => e.value,
+        },
+    };
+  }
+
+  final out = {
+    for (final e in nodes.entries)
+      e.key: switch (readMap(e.value)) {
+        final Json n when n['actions'] is List => {...n, 'actions': [for (final r in n['actions']! as List) reaction(r)]},
+        _ => e.value,
+      },
+  };
+  return changed ? {...document, 'nodes': out} : document;
 }
 
 /// What prints a document's events: its state, and the parses that check
@@ -87,18 +153,132 @@ final class _Printer {
   late final String _variables;
   final _parsed = <String, Json?>{};
 
-  /// [lines] after the state, parsed; null when the parse says anything
-  /// is wrong or declares a variable the document does not have.
-  Json? _parse(String lines) => _parsed.putIfAbsent(lines, () {
+  /// [lines] after the state, parsed: the document and what the parse says.
+  ({Json document, List<String> said}) _read(String lines) => _reads.putIfAbsent(lines, () {
         final r = parseNotation(_state.isEmpty ? lines : '$_state\n$lines', catalog: context.catalog, options: context.options);
-        if (r.issues.isNotEmpty) return null;
-        return r.document;
+        return (document: r.document, said: [for (final i in r.issues) i.message]);
+      });
+  final _reads = <String, ({Json document, List<String> said})>{};
+
+  /// [lines] after the state, parsed; null when the parse says anything
+  /// is wrong.
+  Json? _parse(String lines) => _parsed.putIfAbsent(lines, () {
+        final r = _read(lines);
+        return r.said.isEmpty ? r.document : null;
       });
 
+  /// [lines] parsed, null when the parse says anything is wrong or declares
+  /// a variable the document does not have.
   Json? _probe(String lines) {
     final d = _parse(lines);
     if (d == null || jsonEncode(d['variables']) != _variables) return null;
     return d;
+  }
+
+  /// `[head] [word]` parsed, where [head] alone may already say something
+  /// or declare a variable (a design system's block called without a
+  /// parameter it requires, or with its variable parameter's own): the
+  /// document, when [word] adds nothing to what is said or declared.
+  Json? _probeWith(String head, String word) {
+    final r = _read('$head $word'), alone = _read(head);
+    if (!_sameSaid(r.said, alone.said) || jsonEncode(r.document['variables']) != jsonEncode(alone.document['variables'])) return null;
+    return r.document;
+  }
+
+  static bool _sameSaid(List<String> a, List<String> b) => a.length == b.length && [for (var i = 0; i < a.length; i++) a[i] == b[i]].every((x) => x);
+
+  // --- bind= ------------------------------------------------------------------
+
+  /// Each node's parent, by its children and slots.
+  late final Map<String, String> _parents = {
+    for (final e in context.nodes.entries)
+      if (readMap(e.value) case final Json n) ...{
+        for (final c in readStrings(n['children'])) c: e.key,
+        for (final c in (readMap(n['slots']) ?? const {}).values)
+          if (c is String) c: e.key,
+      },
+  };
+
+  /// The lines node [id]'s line is read under so that `item` is the
+  /// element of the list it repeats in (`Column`, `each item in rows`), and
+  /// the line's indent; empty when it is in no list, null when it is in a
+  /// list in a list (whose element the print names otherwise).
+  ({String lines, String indent})? _around(String id) {
+    String? list;
+    final seen = <String>{};
+    for (var at = _parents[id]; at != null && seen.add(at); at = _parents[at]) {
+      final n = readMap(context.nodes[at]);
+      final data = readMap(n?['bind'])?['data'];
+      if ((n?['type'] != 'listView' && n?['type'] != 'gridView') || data is! String) continue;
+      if (list != null) return null;
+      final name = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_.]*)\}$').firstMatch(data)?[1];
+      list = name ?? (data.startsWith(r'${= ') && data.endsWith('}') && !data.contains('\n') ? data.substring(4, data.length - 1).trim() : null);
+      if (list == null) return null;
+    }
+    return list == null ? (lines: '', indent: '') : (lines: 'Column\n  each item in $list\n', indent: '    ');
+  }
+
+  /// The node `p` of [lines] read, and what the read says.
+  ({Json? node, Json document, List<String> said}) _line(String lines) {
+    final r = _read(lines);
+    return (node: readMap(readMap(r.document['nodes'])?['p']), document: r.document, said: r.said);
+  }
+
+  ({String name, int index, String path})? bind(String id, Json node, String head) {
+    final spec = context.catalog.widget('${node['type']}');
+    if (spec == null || spec.props.any((p) => p.key == 'bind')) return null;
+    final props = readMap(node['props']) ?? const {}, bound = readMap(node['bind']) ?? const {};
+    final reactions = readList(node['actions']) ?? const [];
+    // What `bind=` writes on this line, learnt from a name no document has.
+    final learnt = _line('$head#p bind=__v').node;
+    if (learnt == null) return null;
+    String? path, template;
+    for (final e in (readMap(learnt['bind']) ?? const {}).entries) {
+      if ('${e.value}'.contains('__v')) (path, template) = (e.key, '${e.value}');
+    }
+    for (final e in (readMap(learnt['props']) ?? const {}).entries) {
+      if (e.value == '__v') path = 'props.${e.key}';
+    }
+    if (path == null) return null;
+    // What it would be written with, from what the node holds there.
+    final candidates = <String>[];
+    final value = bound[path];
+    if (template != null && value is String && template.indexOf('__v') == template.lastIndexOf('__v')) {
+      final at = template.indexOf('__v');
+      final before = template.substring(0, at), after = template.substring(at + 3);
+      if (value.length > before.length + after.length && value.startsWith(before) && value.endsWith(after)) {
+        candidates.add(value.substring(before.length, value.length - after.length));
+      }
+    } else if (template == null) {
+      // A design system control's variable parameter: the variable's name or
+      // a field's path (`"draft.title"`), or a field of the repeated element
+      // (`"rows[" + index + "].done"`).
+      final key = path.substring('props.'.length);
+      if (props[key] case final String v) candidates.add(v);
+      if (value is String) {
+        final m = RegExp(r'^\$\{= "[A-Za-z_][A-Za-z0-9_.]*\[" \+ index \+ "\]\.([A-Za-z_][A-Za-z0-9_]*)"\}$').firstMatch(value);
+        if (m != null) candidates.add('item.${m[1]}');
+      }
+    }
+    final around = _around(id);
+    if (around == null) return null;
+    final alone = _line('${around.lines}${around.indent}$head#p');
+    for (final e in candidates) {
+      if (!RegExp(r'^[^\s{}"=]+$').hasMatch(e)) continue;
+      final got = _line('${around.lines}${around.indent}$head#p bind=$e');
+      final n = got.node;
+      if (n == null || !_sameSaid(got.said, alone.said) || jsonEncode(got.document['variables']) != _variables) continue;
+      final key = path.substring(path.indexOf('.') + 1);
+      final same = template == null
+          ? jsonEquality.equals(readMap(n['props'])?[key], props[key]) && jsonEquality.equals(readMap(n['bind'])?[path], bound[path])
+          : jsonEquality.equals(readMap(n['bind'])?[path], value);
+      if (!same) continue;
+      final wrote = readList(n['actions']) ?? const [];
+      // (What only shows a value is written as that value, `value={done/total}`, by the line's fields.)
+      if (wrote.isEmpty) return template == null ? (name: e, index: -1, path: path) : null;
+      if (wrote.length == 1 && reactions.isNotEmpty && jsonEquality.equals(wrote.single, reactions.first)) return (name: e, index: 0, path: path);
+    }
+    return null;
   }
 
   /// The actions [text] gives, as the events of a box.
@@ -126,7 +306,7 @@ final class _Printer {
     final word = '$head={$body}';
     // Checked on a line of the node's type (its events are its own), else on a box.
     for (final t in [type, 'Box']) {
-      final d = _probe('$t#p $word');
+      final d = _probeWith('$t#p', word);
       if (d == null) continue;
       final got = readList(readMap(readMap(d['nodes'])?['p'])?['actions']);
       return got != null && got.isNotEmpty && jsonEquality.equals(got.last, r) ? word : null;
@@ -145,15 +325,38 @@ final class _Printer {
     } else {
       name = notationEventName(kind);
     }
+    return switch (_fields(trigger, kind)) {
+      final String fields => '$name$fields',
+      _ => null,
+    };
+  }
+
+  /// A trigger's fields in parentheses (`(key=Enter, repeat=true)`), empty
+  /// when it has none; null when one has no words.
+  String? _fields(Json trigger, String kind) {
     final fields = <String>[];
     for (final e in trigger.entries) {
       if (e.key == 'type' || kind == 'event' && e.key == 'event') continue;
-      final w = _values(e.value).where((w) => !w.contains(',') || w.startsWith('"') || w.startsWith('{') || w.startsWith('[')).firstOrNull;
+      final w = _triggerField(e.key, e.value);
       if (w == null) return null;
       fields.add('${e.key}=$w');
     }
-    return fields.isEmpty ? name : '$name(${fields.join(', ')})';
+    return fields.isEmpty ? '' : '(${fields.join(', ')})';
   }
+
+  final _fieldWords = <String, String?>{};
+
+  /// The first way of writing [value] that reads back as trigger field
+  /// [key] (the fields are every trigger's: read on a tap).
+  String? _triggerField(String key, Object? value) => _fieldWords.putIfAbsent('$key\u0000${jsonEncode(value)}', () {
+        for (final w in _values(value)) {
+          if (w.contains(',') && !w.startsWith('"') && !w.startsWith('{') && !w.startsWith('[')) continue;
+          final d = _probe('Box#p onTap($key=$w)={}');
+          final r = readList(readMap(readMap(d?['nodes'])?['p'])?['actions']);
+          if (r != null && r.length == 1 && jsonEquality.equals(readMap(readMap(r.single)?['trigger'])?[key], value)) return w;
+        }
+        return null;
+      });
 
   /// [actions] as the notation's words, `;` between them; null when one has none.
   String? sequence(List<Object?> actions) {
@@ -306,7 +509,8 @@ final class _Printer {
         if (_whole(v) case final String e) '{$e}',
         if (v.startsWith(r'${= ') && v.endsWith('}') && _spans(v).length == 1) '{${v.substring(4, v.length - 1)}}',
         if (_quoted(v) case final String q) q,
-        if (!v.contains('{')) jsonEncode(v),
+        // As written, which a text holding `${` is read as (`"${= ready}"`).
+        if (!v.contains('{') || v.contains(r'${')) jsonEncode(v),
       ];
     }
     return [jsonEncode(v)];
@@ -381,32 +585,32 @@ final class _Printer {
     if (r == null || r.keys.any((k) => k != 'trigger' && k != 'actions')) return null;
     final trigger = readMap(r['trigger']);
     final body = sequence(readList(r['actions']) ?? const []);
-    if (trigger == null || body == null) return null;
+    final kind = trigger?['type'];
+    if (trigger == null || body == null || kind is! String) return null;
     final when = trigger['when'];
-    String? condition;
-    if (when != null) {
-      condition = when is String ? _formula(when) : null;
-      if (condition == null) return null;
+    final condition = when == null ? '' : (when is String && _formula(when) != null ? ' when ${_formula(when)}' : null);
+    final lines = <String>[];
+    if (condition != null && kind == 'timer' && trigger.keys.every(const {'type', 'intervalMs', 'when'}.contains)) {
+      final every = switch (trigger['intervalMs'] ?? 1000) {
+        final int n when n % 1000 == 0 && n > 0 => '${n ~/ 1000}s',
+        final int n => '$n',
+        final String f when _formula(f) != null => '{${_formula(f)}}',
+        _ => null,
+      };
+      if (every != null) lines.add('every $every$condition onTick={$body}');
     }
-    final String line;
-    switch (trigger['type']) {
-      case 'timer' when trigger.keys.every(const {'type', 'intervalMs', 'when'}.contains):
-        final ms = trigger['intervalMs'] ?? 1000;
-        final every = switch (ms) {
-          final int n when n % 1000 == 0 && n > 0 => '${n ~/ 1000}s',
-          final int n => '$n',
-          final String f when _formula(f) != null => '{${_formula(f)}}',
-          _ => null,
-        };
-        if (every == null) return null;
-        line = 'every $every${condition == null ? '' : ' when $condition'} onTick={$body}';
-      case 'keyDown' when trigger.keys.every(const {'type', 'key', 'when'}.contains) && trigger['key'] is String && RegExp(r'^[^\s"]+$').hasMatch(trigger['key']! as String):
-        line = 'key ${trigger['key']}${condition == null ? '' : ' when $condition'} onPress={$body}';
-      default:
-        return null;
+    if (condition != null && kind == 'keyDown' && trigger.keys.every(const {'type', 'key', 'when'}.contains) && trigger['key'] is String && RegExp(r'^[^\s"]+$').hasMatch(trigger['key']! as String)) {
+      lines.add('key ${trigger['key']}$condition onPress={$body}');
     }
-    final d = _probe('$line\nBox#p');
-    final got = readList(readMap(readMap(d?['nodes'])?[context.options.screen])?['actions']);
-    return got != null && got.length == 1 && jsonEquality.equals(got.single, r) ? line : null;
+    // Any trigger: `on load={…}`, its fields in parentheses.
+    if (kind != 'event' && TriggerType.values.any((t) => t.name == kind)) {
+      if (_fields(trigger, kind) case final String fields) lines.add('on $kind$fields={$body}');
+    }
+    for (final line in lines) {
+      final d = _probe('$line\nBox#p');
+      final got = readList(readMap(readMap(d?['nodes'])?[context.options.screen])?['actions']);
+      if (got != null && got.length == 1 && jsonEquality.equals(got.single, r)) return line;
+    }
+    return null;
   }
 }

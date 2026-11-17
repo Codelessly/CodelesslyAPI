@@ -495,7 +495,8 @@ final class _NodeLine {
     // written; with this line's words it may (`AreaChart` fills under a
     // line chart's series): then the own word.
     final own = _probes.own(type);
-    if (head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.join(' '))) {
+    // (`bind=` is left out: under an each or of a record's field it reads only where the line is.)
+    if (head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.where((w) => !w.startsWith('bind=')).join(' '))) {
       words.clear();
       doneProps.clear();
       doneBind.clear();
@@ -508,8 +509,8 @@ final class _NodeLine {
   void _writeAs(String head) {
     this.head = head;
     probe = _probes.node(head);
-    twoWay = _twoWay();
-    if (twoWay case final t?) doneBind.add(t.path);
+    twoWay = _twoWay() ?? printBind(id, n, head, c);
+    if (twoWay case final t?) bind.containsKey(t.path) ? doneBind.add(t.path) : doneProps.add(t.path.substring('props.'.length));
     _main();
     _typeWords();
     _layout();
