@@ -685,9 +685,46 @@ final class _Printer {
         if (!changed && round > 0) break;
         second = _parse(text(tails, null));
       }
+      // A line's media rules in its tail because its words, read with no tail,
+      // gave other rules (a rule that hides a node whose `visible` the tail
+      // binds drops that binding): with the tail, the words may say them.
+      final ruled = [
+        for (final e in patches.entries)
+          if (e.value.containsKey('media') && RegExp(r'\s(hide|show)=|\s[A-Za-z0-9]+\.[A-Za-z]').hasMatch(_lines.firstWhere((l) => l.id == e.key).text)) e.key,
+      ];
+      final unpruned = {...tails}, unprunedSecond = second;
+      if (ruled.isNotEmpty) {
+        final trial = {...tails};
+        for (final id in ruled) {
+          final p = {...patches[id]!}..remove('media');
+          if (p.isEmpty) {
+            trial.remove(id);
+          } else {
+            trial[id] = ' ${jsonEncode(p)}';
+          }
+        }
+        final got = readMap(_parse(text(trial, null))['nodes']) ?? const {};
+        final kept = [
+          for (final id in ruled)
+            if (diffPatch(readMap(got[id]) ?? const {}, readMap(nodes[id])!) == null) id,
+        ];
+        for (final id in kept) {
+          if (trial.containsKey(id)) {
+            tails[id] = trial[id]!;
+          } else {
+            tails.remove(id);
+          }
+        }
+        if (kept.isNotEmpty) second = _parse(text(tails, null));
+      }
       final rest = diffPatch(second, document);
       final out = text(tails, rest == null ? null : 'document ${jsonEncode(rest)}');
       if (jsonEncode(_sorted(_parse(out))) == jsonEncode(_sorted(document))) return out;
+      if (ruled.isNotEmpty) {
+        final rest = diffPatch(unprunedSecond, document);
+        final out = text(unpruned, rest == null ? null : 'document ${jsonEncode(rest)}');
+        if (jsonEncode(_sorted(_parse(out))) == jsonEncode(_sorted(document))) return out;
+      }
       why = 'the print does not read back';
       return null;
     } on Object catch (e, st) {
