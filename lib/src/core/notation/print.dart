@@ -404,7 +404,7 @@ final class _Printer {
   /// `each item in list`: a listView of one column, `<id>Item`, whose
   /// children are the lines under the `each`.
   bool _each(String id, Json n, int depth, String? condition) {
-    if (plan != _Plan.full || _noEach.contains(id) || n['type'] != 'listView') return false;
+    if (plan != _Plan.full || _noEach.contains(id) || (n['type'] != 'listView' && n['type'] != 'gridView')) return false;
     final bind = readMap(n['bind']) ?? const {};
     final data = bind['data'];
     final props = readMap(n['props']) ?? const {};
@@ -415,10 +415,13 @@ final class _Printer {
     if (kids.length != 1 || kids.single != item || itemNode?['type'] != 'column' || itemNode?['slots'] != null) return false;
     if (n['slots'] != null || _seen.contains(id) || _seen.contains(item)) return false;
     final bare = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_.]*)\}$').firstMatch(data)?[1];
-    final list = bare ??(data.startsWith(r'${= ') && data.endsWith('}') && !data.contains('\n') ? data.substring(4, data.length - 1).trim() : null);
+    final list = bare ?? (data.startsWith(r'${= ') && data.endsWith('}') && !data.contains('\n') ? data.substring(4, data.length - 1).trim() : null);
     if (list == null) return false;
-    if (id != 'listView${(_counts['listView'] ?? 0) + 1}') return false;
-    _counts['listView'] = (_counts['listView'] ?? 0) + 1;
+    // A gridView is the each of a Grid line: the line it is under says so.
+    final kind = '${n['type']}';
+    if (kind == 'gridView' && !(_lines.lastWhere((l) => l.indent < depth && l.id != null, orElse: () => _Line(0, '')).text.startsWith('Grid'))) return false;
+    if (id != '$kind${(_counts[kind] ?? 0) + 1}') return false;
+    _counts[kind] = (_counts[kind] ?? 0) + 1;
     _seen
       ..add(id)
       ..add(item);
@@ -446,7 +449,7 @@ final class _Printer {
       for (final c in readStrings(n['children'])) {
         final cn = readMap(nodes[c]);
         if (cn == null) continue;
-        if (cn['type'] == 'listView' && readMap(cn['bind'])?['data'] != null) return true;
+        if ((cn['type'] == 'listView' || cn['type'] == 'gridView') && readMap(cn['bind'])?['data'] != null) return true;
         if (nested(cn, depth + 1)) return true;
       }
       return false;
