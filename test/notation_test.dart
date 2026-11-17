@@ -19,6 +19,20 @@ List<String> _problems(Map<String, Object?> doc) => [
 
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
+/// A page 1280 wide (what the page prompt is for), and what does not validate
+/// in it at any level (a page's media rules are past level 2).
+const _pageOptions = NotationOptions(width: 1280);
+NotationResult _parsePage(String text) => parseNotation(text, catalog: standardCatalog, options: _pageOptions);
+String _pagePrompt() => notationPrompt(catalog: standardCatalog, options: _pageOptions);
+List<String> _problemsAtAnyLevel(Map<String, Object?> doc) => [
+      for (final d in Catalog.run(standardCatalog, () => validateDocument(doc)))
+        if (d.severity != Severity.info) '${d.code.name} ${d.path}: ${d.message}',
+    ];
+
+/// The last action of the first reaction of node [id] (what its tap opens).
+Map<String, Object?> _lastAction(NotationResult r, String id) =>
+    ((((_node(r, id)['actions']! as List).first as Map)['actions']! as List).last as Map).cast<String, Object?>();
+
 void main() {
   test('the four-control column: each control is its type with nothing styled, bound two ways to a variable it declares', () {
     final r = _parse('''
@@ -2556,5 +2570,36 @@ Column
     expect(action!.toJson(), {'type': 'announce', 'message': r'${count} results'});
     expect(_parse('Button "Go" onTap={announce}').issues.single.message, contains('announce "3 results"'));
     expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), allOf(contains('announce "{n} results"'), contains('Text "{n} results" live')));
+  });
+
+  test('guard and stops: an overlay that stays open while its form has input, a sheet with heights it rests at', () {
+    final r = _parsePage('''
+state name=""
+Page
+  Section
+    Button#details "Details" onTap={open detailsSheet}
+    Button#edit "Edit" onTap={open editDialog}
+    Button#plain "Filters" onTap={open filters}
+Sheet#detailsSheet "Your details" guard={name != "" || email != ""} stops=[0.5,0.9]
+  Input "Name" bind=name
+  Input "Email" bind=email
+  Button "Discard" onTap={name=""; close}
+Dialog#editDialog "Edit" guard={name!=""}
+  Input "Name" bind=name
+Sheet#filters "Filters"
+  Text "None"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    expect(_node(r, 'detailsSheet')['bind'], {'props.blockBack': r'${= name != "" || email != ""}'});
+    expect(_node(r, 'editDialog')['bind'], {'props.blockBack': r'${= name!=""}'});
+    expect(_lastAction(r, 'details'), containsPair('snapHeights', [0.5, 0.9]));
+    expect((_node(r, 'detailsSheet')['layout'] as Map)['height'], {'fill': 0});
+    // Without the words a sheet and a dialog are as before.
+    expect(_lastAction(r, 'edit'), isNot(contains('snapHeights')));
+    expect(_lastAction(r, 'plain'), isNot(contains('snapHeights')));
+    expect(_node(r, 'filters'), isNot(contains('bind')));
+    expect((_node(r, 'filters')['layout'] as Map)['height'], isNot({'fill': 0}));
+    expect(_pagePrompt(), allOf(contains('stops=[0.5,0.9]'), contains('Dialog#edit "Edit" guard={name!=""}')));
   });
 }

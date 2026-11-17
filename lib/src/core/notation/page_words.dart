@@ -239,6 +239,17 @@ final class PageWords {
     final id = head[2]!;
     final parts = _Parts(text.substring(head.end));
     final width = double.tryParse(parts.take('w') ?? '');
+    // `guard={expression}`: while it holds, a tap outside, Escape and back do
+    // not close it (a form with something typed); `stops=[0.5,0.9]`: the
+    // heights a sheet rests at, as shares of the window.
+    final guard = switch (parts.take('guard')) {
+      final String g when g.startsWith('{') && g.endsWith('}') && g.length > 2 => g.substring(1, g.length - 1).trim(),
+      final g => g,
+    };
+    final stops = [
+      for (final s in (parts.take('stops') ?? '').replaceAll(RegExp(r'[\[\]\s]'), '').split(','))
+        if (double.tryParse(s) case final double h when h > 0 && h <= 1) h,
+    ];
     final title = parts.string(), note = parts.string();
     final heading = _variant(const ['heading', 'heading3', 'sectionTitle', 'strong']);
     // What heads a dialog or a sheet: its title, a close button, a line under it.
@@ -258,10 +269,10 @@ final class PageWords {
         if (isFrame('Dialog')) {
           return Overlay('dialog', id, width ?? 480, action, [
             (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.hasEvent ? parts.props : '${parts.props} onTap={close}'}${parts.tail}'),
-          ], surface: false);
+          ], surface: false, guard: guard);
         }
         final pad = parts.take('pad') ?? '24', gap = parts.take('gap') ?? '16';
-        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16);
+        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16, guard: guard);
       case 'Sheet' || 'BottomSheet':
         final pad = parts.take('pad') ?? '[20,8,20,24]', gap = parts.take('gap') ?? '16';
         final w = width ?? 560;
@@ -269,8 +280,10 @@ final class PageWords {
           'sheet',
           id,
           w,
-          {'presentation': 'bottomSheet', 'sheetWidth': w, 'sheetRadius': 20, 'showDragHandle': true, 'maxHeightFactor': 0.9},
-          [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()],
+          {'presentation': 'bottomSheet', 'sheetWidth': w, 'sheetRadius': 20, 'showDragHandle': true, 'maxHeightFactor': 0.9, if (stops.isNotEmpty) 'snapHeights': stops},
+          // A sheet with stops is as tall as its stop, and scrolls in it.
+          [(indent: 0, text: 'Column w=fill${stops.isEmpty ? '' : ' h=fill scroll'} pad=$pad gap=$gap${parts.all}'), ...titled()],
+          guard: guard,
         );
       case 'Drawer':
         // A panel as tall as the window at its side; a tap beside it closes it.
@@ -1074,7 +1087,12 @@ final class Overlay {
       this.outlined = false,
       this.closes = 'none',
       this.empty = const [],
-      this.variables = const {}});
+      this.variables = const {},
+      this.guard});
+
+  /// The condition, as written, while which a tap outside, Escape and back
+  /// do not close it (`guard={name != ""}`); null: they always do.
+  final String? guard;
 
   /// In [foot], a line that stands for the lines written under the block
   /// (else [empty]), read again there: a gallery's picture in its thumbnails.

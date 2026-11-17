@@ -46,7 +46,8 @@ Object? _sample(String type, PropDef<Object?> def) {
   final codec = def.codec;
   if (identical(codec, Codecs.any)) return _anySample(type, def.key);
   if (identical(codec, Codecs.optionalColor) || identical(codec, Codecs.color)) return '#FF112233';
-  if (identical(codec, Codecs.doubles)) return [for (final _ in def.defaultValue! as List) 0.5];
+  // A list with no fixed length (a sheet's stops) has one sample value.
+  if (identical(codec, Codecs.doubles)) return (def.defaultValue! as List).isEmpty ? [0.5] : [for (final _ in def.defaultValue! as List) 0.5];
   if (identical(codec, Codecs.strings)) return ['x'];
   if (identical(codec, routeTransitionCodec)) {
     return {

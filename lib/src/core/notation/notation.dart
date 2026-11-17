@@ -1024,7 +1024,8 @@ class _Parser {
       'type': 'canvas',
       if (o != null) 'name': o.id,
       if (_root != null) 'slots': {'body': _root},
-      'layout': {'width': o?.width ?? options.width, 'height': _canvasHeight},
+      'layout': {'width': o?.width ?? options.width, 'height': o?.action.containsKey('snapHeights') == true ? {'fill': 0} : _canvasHeight},
+      if (o?.guard case final String guard) 'bind': {'props.blockBack': _formula(guard)},
       'decoration': look(),
       if (_timers.isNotEmpty) 'actions': [..._timers],
     };

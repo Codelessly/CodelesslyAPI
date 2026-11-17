@@ -135,7 +135,8 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
 
   OVER THE PAGE (a dialog, a sheet, a drawer, a menu): write each after the page, at the margin, with an id, its content indented under it as on a card. onTap={open signup} shows it, close closes it (so does a tap outside it). It reads and sets the page's values: a form in a dialog sets them and closes (onTap={saved=true; close}).
     Dialog#signup "Join the waitlist" "A line under the title"    a centered dialog with its title and a close button (w=480)
-    Sheet#filters "Filters"          rises from the bottom of the window: filters, options, a share sheet
+    Sheet#filters "Filters"          rises from the bottom of the window: filters, options, a share sheet (stops=[0.5,0.9] are heights it rests at, dragged between)
+    Dialog#edit "Edit" guard={name!=""}    guard on a Dialog or a Sheet: while it holds, a tap outside and Escape do not close it (give it a Discard button)
     Drawer#cart "Your cart" right    a panel as tall as the window at its side (the left unless right; w=300); a NavItem in it closes it
     Menu#more                        a menu by the button that opened it (Menu#more end lines up their right edges; above opens upwards); its lines are MenuItem "Rename" icon="edit" onTap={an action}, and each closes the menu after it
     Popover#tip                      a small panel by what opened it (a hint, a picker)
