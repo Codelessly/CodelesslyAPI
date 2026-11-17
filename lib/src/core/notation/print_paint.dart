@@ -38,7 +38,12 @@ String printPaintLines(String id, Json node, PrintContext context, int depth) {
   return [for (final l in lines) '\n$pad$l'].join();
 }
 
-typedef _Printed = ({List<String> words, List<String> lines});
+/// The fields of [node] that [printPaint] and [printPaintLines] say
+/// (`customPaint`, `animations`, `props.series`, `props.data`…): what a
+/// node's other words leave to them.
+Set<String> printPaintSays(String id, Json node, PrintContext context) => _printed(id, node, context).says;
+
+typedef _Printed = ({List<String> words, List<String> lines, Set<String> says});
 
 final _memo = Expando<Map<String, _Printed>>();
 
@@ -65,10 +70,14 @@ final class _Printer {
   _Printed _node(Json node) {
     final words = <String>[];
     final lines = <String>[];
+    final says = <String>{};
     final paint = readMap(node['customPaint']);
     if (paint != null) {
       final block = _customPaint(paint);
-      if (block != null && _same(_expand('', block)?['customPaint'], paint)) lines.addAll(block);
+      if (block != null && _same(_expand('', block)?['customPaint'], paint)) {
+        lines.addAll(block);
+        says.add('customPaint');
+      }
     }
     final animations = readList(node['animations']);
     if (animations != null && animations.isNotEmpty) {
@@ -88,18 +97,83 @@ final class _Printer {
       if (ok && _same(_expand(head, more)?['animations'], animations)) {
         words.addAll(preset ?? const []);
         lines.addAll(more);
+        says.add('animations');
       }
     }
-    return (words: words, lines: lines);
+    final points = _chart(node);
+    if (points.isNotEmpty) says.addAll(const {'props.data', 'props.xField', 'props.yField', 'bind.props.data'});
+    final lists = _chartLists(node, skip: points.isEmpty ? const {} : const {'data'});
+    for (final w in [...points, ...lists]) {
+      words.add(w);
+      says.add('props.${w.substring(0, w.indexOf('='))}');
+    }
+    return (words: words, lines: lines, says: says);
   }
 
-  /// The node a line with [head] after its type and [lines] under it reads
-  /// as, with this document's variables; null when anything is said of it.
-  Json? _expand(String head, List<String> lines) {
+  // --- charts -------------------------------------------------------------------
+
+  /// The chart types whose lists (series, reference lines, axis labels and
+  /// ticks, zones, markers, values) are written here.
+  static const _charts = {'chart', 'barChart', 'lineChart', 'plotChart', 'radialGauge', 'gaugeMeter'};
+
+  /// A chart's list props by their own names, as JSON (`series=[{…}]`,
+  /// `referenceLines=[…]`), each read back before it is written.
+  List<String> _chartLists(Json node, {required Set<String> skip}) {
+    final type = node['type'];
+    if (type is! String || !_charts.contains(type)) return const [];
+    final props = readMap(node['props']) ?? const {};
+    final out = <String>[];
+    for (final p in context.catalog.widget(type)?.props ?? const <PropDef<Object?>>[]) {
+      final v = props[p.key];
+      if (p.type.kind != PropKind.list || v is! List || skip.contains(p.key)) continue;
+      final word = '${p.key}=${jsonEncode(v)}';
+      if (_same(readMap(_expand(' $word', const [], type: type)?['props'])?[p.key], v)) out.add(word);
+    }
+    return out;
+  }
+
+  /// A line chart's points as the `values=[…]` (or `values={…}`) they were
+  /// written as: `{"x": i, "y": v}` under `xField` x and `yField` y.
+  List<String> _chart(Json node) {
+    if (node['type'] != 'lineChart') return const [];
+    final props = readMap(node['props']) ?? const {};
+    if (props['xField'] != 'x' || props['yField'] != 'y') return const [];
+    final bind = readMap(node['bind']) ?? const {};
+    String? word;
+    final data = readList(props['data']);
+    final bound = bind['props.data'];
+    if (data != null && data.isNotEmpty && !bind.containsKey('props.data')) {
+      final ys = <Object?>[];
+      for (var i = 0; i < data.length; i++) {
+        final d = readMap(data[i]);
+        if (d == null || d.length != 2 || d['x'] != i || d['y'] is! num) return const [];
+        ys.add(d['y']);
+      }
+      word = 'values=${jsonEncode(ys)}';
+    } else if (bound is String) {
+      final m = RegExp(r'^\$\{= map\(range\(length\((.+)\)\), i => \{"x": i, "y": \((.+)\)\[i\]\}\)\}$').firstMatch(bound);
+      if (m == null || m[1] != m[2]) return const [];
+      word = 'values={${m[1]}}';
+    }
+    if (word == null) return const [];
+    final got = _expand(' $word', const [], type: 'lineChart');
+    final gotProps = readMap(got?['props']) ?? const {};
+    final ok = got != null &&
+        _same(gotProps['data'], props['data']) &&
+        gotProps['xField'] == 'x' &&
+        gotProps['yField'] == 'y' &&
+        _same(readMap(got['bind'])?['props.data'], bind['props.data']);
+    return ok ? [word] : const [];
+  }
+
+  /// The node a line of [type] with [head] after it and [lines] under it
+  /// reads as, with this document's variables; null when anything is said
+  /// of it.
+  Json? _expand(String head, List<String> lines, {String type = 'Column'}) {
     final text = [
       for (final v in _screenVariables)
         if (v is Map && v['name'] is String) 'state ${v['name']}=${jsonEncode(v['value'])}',
-      'Column#paint_check$head',
+      '$type#paint_check$head',
       for (final l in lines) '  $l',
     ].join('\n');
     try {
