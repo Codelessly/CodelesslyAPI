@@ -99,7 +99,8 @@ App
 
     test('an action verb: recorded with its argument and the type whose event it is in', () {
       final verbs = _uses(r, 'verb');
-      expect([for (final v in verbs) (v.word, v.on, v.value)], [('haptic', 'SeatMap', ''), ('vibrate', 'Button', 'plan'), ('share', 'Button', 'q')]);
+      // `haptic` is an action of the catalog (design 22 section 2.3): read, not recorded.
+      expect([for (final v in verbs) (v.word, v.on, v.value)], [('vibrate', 'Button', 'plan'), ('share', 'Button', 'q')]);
     });
 
     test('a variant: recorded, and the plain type is drawn', () {
