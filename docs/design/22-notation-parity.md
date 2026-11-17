@@ -132,6 +132,38 @@ Each family owns its part of the parser and its printer file, measures itself wi
 | Document | typed variables, component heads, canvases | `print.dart` |
 | Paint, motion, charts | words for custom paint ops, animations, chart options | `print_paint.dart` |
 
+### 4.1 Events and actions: the forms settled
+
+- **An event's name.** The notation's own names stay: `onTap` (`click`), `onChange` (`changed`), `onRightClick`
+  (`secondaryClick`), `onHover` (`cursorEnter`), `onFocus`, `onBlur`, `onSubmit`. Every other trigger is `on` and
+  its catalog name with a capital (`onLongPress`, `onDrop`, `onDragEnd`, `onEnterViewport`, `onKeyDown`, `onTimer`,
+  `onLoad`, `onRowTap`), read from `TriggerType` at run time. `hover` (the pointer moving over the node) is
+  `onHoverMove`, since `onHover` was taken. The catalog's own name where the notation has another (`onClick`,
+  `onChanged`, `onCursorEnter`, `onFocusGained`) still reads, and is never printed. One table holds the names
+  (`notationEventNames`, `notation_events.dart`); the parser and the printer both read it.
+- **Which node takes which trigger.** The catalog says no more than that a trigger is a node's: every trigger
+  reads on every line. `onEvent` is no event: a block's events are written by their own names, as before; on a
+  block, a trigger name the notation did not have before section 2.2 is that trigger, and the names it had are
+  the block's first event when it has none of that name.
+- **A trigger's fields** are written in parentheses by name, separated by commas: `onKeyDown(key=Shift+Enter,
+  repeat=true)={…}`, `onEnterViewport(visibleFraction=0.5, onceKey={item.id})={…}`. The fields are the
+  catalog's (`TriggerFields`), shared by every trigger. (There is no `onKey` and no `shift` field: the example in
+  2.2 is `onKeyDown(key=Shift+Enter)`.)
+- **A field's value**, of a trigger or an action: a number, `true`, `false`, `null`; a bare word (that text); a
+  quoted string, whose `{name}` reads a value as a verb's string does; `{expression}`, as after a key (a name is
+  `${name}`, anything else `${= …}`); `{"key": …}` and `[…]`, JSON. A field that holds actions (the catalog's
+  nested chains: `then`, `else`, `actions`, `onSuccess`, `onError`, `cancelActions`) takes them in braces:
+  `runScript script=check onError={toast "Failed"; ok=false}`. Every action type also takes the fields every action
+  has: `enabled`, `nonBlocking`, `when` (JSON). A formula that is only a name (`${= ready}`) has no word of its own
+  (`{ready}` is `${ready}`): an action holding one prints in another form, or as JSON.
+- **A verb that is also an action type** (`focus`, `announce`, `confirm`) is the action type when a field of it
+  follows (`focus node=email selectAll=true`), else the verb (`focus email`).
+- **The printer** tries, for each action, the verbs, the choice (for an `if` whose condition is `isTrue` of a
+  formula), the type and its fields, then JSON, and writes the first that parses back to the same action; a
+  node's events are written all or none. The canvas's timers and shortcuts are its `every` and `key` lines
+  (`printCanvasEvents`); a canvas's other triggers (`load`, `backPressed`) have no line yet (the Document family's
+  canvases).
+
 ## 5. What does not change
 
 The prompt teaches the grammar and the core (design 19). Parity is what the parser reads and the printer
