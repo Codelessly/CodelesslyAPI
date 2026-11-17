@@ -2399,4 +2399,34 @@ Column
       expect(_parse(bad).issues.single.message, contains('confirm "Remove it?" then {'), reason: bad);
     }
   });
+
+  test('saved: a state kept on the device, on a card, on a page and as it arrives; a site\x27s variable says so in site.json', () {
+    for (final width in [390.0, 1280.0]) {
+      final r = parseNotation('state draft="" saved\nstate n=1\n${width >= 700 ? 'Page\n  Section\n    Input "Draft" bind=draft' : 'Card\n  Input "Draft" bind=draft'}',
+          catalog: standardCatalog, options: NotationOptions(width: width));
+      expect(r.issues, isEmpty);
+      if (width < 700) expect(_problems(r.document), isEmpty);
+      final declared = {for (final v in (r.document['variables'] as Map).values.expand((v) => v as List)) (v as Map)['name']: v};
+      expect(declared['draft'], {'name': 'draft', 'type': 'text', 'value': '', 'persist': true});
+      expect(declared['n'], isNot(contains('persist')));
+    }
+    // A text that ends with the word is a text.
+    expect(((_parse('state note="not saved"\nText "{note}"').document['variables'] as Map).values.single as List).single, isNot(contains('persist')));
+    // As it arrives, the declaration carries it.
+    final stream = NotationStream(catalog: standardCatalog);
+    final ops = [...stream.add('state draft="" saved\nColumn\n  Input "Draft" bind=draft\n'), ...stream.close()];
+    expect(ops.firstWhere((o) => o['op'] == 'vars')['set'], {
+      'draft': {'type': 'text', 'value': '', 'persist': true},
+    });
+    // A site's variable lives in site.json, which has to keep it.
+    const line = 'project savedIds=[] saved\nPage\n  Section\n    Text "Saved"';
+    NotationResult site(Map<String, Object?> declared) =>
+        parseNotation(line, catalog: standardCatalog, options: NotationOptions(width: 1280, projectVariables: {'savedIds': declared}));
+    final good = site({'name': 'savedIds', 'type': 'list', 'value': [], 'persist': true});
+    expect(good.issues, isEmpty);
+    expect(jsonEncode(good.document), isNot(contains('"name":"savedIds"')));
+    expect(site({'name': 'savedIds', 'type': 'list', 'value': []}).issues.single.message, contains('"persist": true'));
+    expect(site({'name': 'savedIds', 'type': 'map', 'value': {}, 'persist': true}).issues.single.message, contains('as map, this line as list'));
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('state draft="" saved'));
+  });
 }

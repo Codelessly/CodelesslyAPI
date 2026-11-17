@@ -1389,7 +1389,7 @@ class _Parser {
     final screen = options.screen;
     final fresh = {
       for (final v in variables.values)
-        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value']},
+        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value'], if (v['persist'] == true) 'persist': true},
     };
     if (id == null && fresh.isEmpty) return;
     if (!_canvas) {
@@ -1599,10 +1599,21 @@ class _Parser {
     // copy of its own on this screen to hide it.
     if (line.startsWith('project ') && _root == null) {
       final rest = line.substring(8).trim();
-      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)s*(=|$)').firstMatch(rest)?.group(1);
+      final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*(=|$)').firstMatch(rest)?.group(1);
       if (name == null) return _issue(column, 'A site\x27s variable is written: project name=value (the same name as in site.json\x27s variables).');
       _projectVariables.add(name);
-      return _state(rest.contains('=') ? rest : '$name=""', column + 8);
+      _state(rest.contains('=') ? rest : '$name=""', column + 8);
+      // `project cart=[] saved`: kept on the device. The site's manifest is
+      // where a site's variable is declared, so it has to say so too.
+      if (rest.endsWith(' saved') && options.projectVariables[name] != null) {
+        final declared = options.projectVariables[name]!;
+        if (declared['persist'] != true) {
+          _issue(column, 'project $name saved: site.json\x27s variable "$name" has to say "persist": true for it to be kept.');
+        } else if (variables[name] != null && declared['type'] != variables[name]!['type']) {
+          _issue(column, 'project $name saved: site.json declares "$name" as ${declared['type']}, this line as ${variables[name]!['type']}.');
+        }
+      }
+      return;
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
     // `every 1000 onTick={elapsed=elapsed+1}`, `every 1s when running
@@ -3624,6 +3635,10 @@ class _Parser {
   final Map<String, String> _derived;
 
   void _state(String rest, int column) {
+    // `state draft="" saved`: its value is kept on the device and is there
+    // again after a reload (Variable.persist).
+    final saved = rest.endsWith(' saved');
+    if (saved) rest = rest.substring(0, rest.length - 6).trimRight();
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
     var written = m[2]!.trim();
@@ -3652,6 +3667,7 @@ class _Parser {
       'name': m[1],
       'type': switch (value) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
       'value': value,
+      if (saved) 'persist': true,
     };
   }
 
