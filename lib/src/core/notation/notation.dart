@@ -21,6 +21,7 @@ import '../props.dart';
 import '../triggers.dart' show KeyCombo;
 import 'page_words.dart';
 import 'reflow.dart';
+import 'vocabulary.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -56,7 +57,13 @@ final class WantedBlock {
 }
 
 final class NotationResult {
-  const NotationResult(this.document, this.issues, {this.wanted = const []});
+  const NotationResult(this.document, this.issues, {this.wanted = const [], this.vocabulary = const []});
+
+  /// The words the text used that the notation has no meaning for, and the
+  /// aliases it used ([VocabularyUse]; docs/design/19-open-vocabulary.md).
+  /// Unknown words are here only with [NotationOptions.openVocabulary]
+  /// (without it each is an issue); aliases always.
+  final List<VocabularyUse> vocabulary;
 
   /// The components the text asked for ([WantedBlock]).
   final List<WantedBlock> wanted;
@@ -107,7 +114,57 @@ final class NotationOptions {
     this.displaySizes = const {},
     this.projectVariables = const {},
     this.accentText,
+    this.openVocabulary = false,
+    this.vocabulary = NotationVocabulary.core,
   });
+
+  /// These options with an open vocabulary (or not), and with [vocabulary]
+  /// as the alias table when given.
+  NotationOptions open({bool openVocabulary = true, NotationVocabulary? vocabulary}) =>
+      _copy(openVocabulary: openVocabulary, vocabulary: vocabulary ?? this.vocabulary);
+
+  NotationOptions _copy({double? width, String? screen, bool? reflow, required bool openVocabulary, required NotationVocabulary vocabulary}) => NotationOptions(
+        width: width ?? this.width,
+        screen: screen ?? this.screen,
+        textStyles: textStyles,
+        card: card,
+        badges: badges,
+        surface: surface,
+        accent: accent,
+        track: track,
+        components: components,
+        badge: badge,
+        cta: cta,
+        palette: palette,
+        tile: tile,
+        sectionRadius: sectionRadius,
+        barChart: barChart,
+        progress: progress,
+        cardGap: cardGap,
+        pageFill: pageFill,
+        ringStroke: ringStroke,
+        height: height,
+        contentWidth: contentWidth,
+        selectedFill: selectedFill,
+        line: line,
+        narrowWidth: narrowWidth,
+        sidebarWidth: sidebarWidth,
+        sectionPad: sectionPad,
+        gutter: gutter,
+        band: band,
+        siteFill: siteFill,
+        paneFill: paneFill,
+        iconTile: iconTile,
+        controlHeight: controlHeight,
+        fieldLabel: fieldLabel,
+        fieldText: fieldText,
+        reflow: reflow ?? this.reflow,
+        displaySizes: displaySizes,
+        projectVariables: projectVariables,
+        accentText: accentText,
+        openVocabulary: openVocabulary,
+        vocabulary: vocabulary,
+      );
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
   /// tokens) and the sizes of its components, so a component called by name
@@ -391,6 +448,8 @@ final class NotationOptions {
         fieldText: fieldText,
         reflow: false,
         displaySizes: displaySizes,
+        openVocabulary: openVocabulary,
+        vocabulary: vocabulary,
       );
 
   /// The canvas's width.
@@ -481,6 +540,16 @@ final class NotationOptions {
   /// (which would hide the site's). `project name=value` on a page does the
   /// same for one name.
   final Map<String, Json> projectVariables;
+
+  /// Whether a word the notation does not have is recorded and stands in
+  /// (a type as a column of its texts and children; a parameter, a flag, an
+  /// event or an action verb left out of the document), not refused. The
+  /// grammar is not open: a line that does not follow it is still an issue.
+  final bool openVocabulary;
+
+  /// The names read as a word the notation has (the alias table). It holds
+  /// with or without [openVocabulary].
+  final NotationVocabulary vocabulary;
 
   /// The accent as text on a light page (a link in running text): a theme's
   /// `colors.accentText`, else its `accentDeep`. Null: the accent.
@@ -874,6 +943,9 @@ final class NotationStream {
   /// The components the answer asked for so far (`Wanted "Name" "what it shows"`).
   List<WantedBlock> get wanted => List.unmodifiable(_parser.wanted);
 
+  /// The words outside the notation used so far, and the aliases ([NotationResult.vocabulary]).
+  List<VocabularyUse> get vocabulary => List.unmodifiable(_parser.vocabulary);
+
   List<Json> add(String chunk) {
     _buffer.write(chunk);
     final text = _buffer.toString();
@@ -912,8 +984,22 @@ class _Grid {
   int rows = 0;
 }
 
+/// A line as written: its indentation, its first word (null for an `if` or
+/// an `each`) and, when the word stands in, its record.
+class _Src {
+  _Src(this.indent, this.word);
+  final int indent;
+  final String? word;
+  VocabularyUse? use;
+}
+
 class _Open {
-  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages});
+  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false});
+
+  /// A node that takes no lines under it (a Slider, a component without
+  /// children): with an open vocabulary what is written under it goes to
+  /// the node around it.
+  final bool leaf;
 
   /// A `Pages` above: [id] is its page (one template drawn per page), and
   /// each line under it is a page of its own, shown at its position.
@@ -943,6 +1029,8 @@ class _Parser {
       : variables = _host?.variables ?? {},
         issues = _host?.issues ?? [],
         wanted = _host?.wanted ?? [],
+        vocabulary = _host?.vocabulary ?? [],
+        _useKeys = _host?._useKeys ?? {},
         _declared = _host?._declared ?? {},
         _counts = _host?._counts ?? {},
         _derived = _host?._derived ?? {},
@@ -1129,6 +1217,13 @@ class _Parser {
         _feed(l.indent, l.text, closes: 'none');
       }
     }
+    for (final l in _blockFoot) {
+      final t = l.trimLeft();
+      _feed(l.length - t.length, t);
+    }
+    _blockFoot.clear();
+    _blockIndent = 0;
+    _quiet = true;
     for (final l in o.foot) {
       if (l.text == Overlay.lines) {
         // The lines written under it, read again here (without their ids;
@@ -1141,6 +1236,7 @@ class _Parser {
       }
       _feed(l.indent - o.shift, l.text, closes: 'none');
     }
+    _quiet = false;
     _blockLines.clear();
     _block = null;
     sub.finish();
@@ -1152,6 +1248,220 @@ class _Parser {
   final Map<String, Json> variables;
   final List<NotationIssue> issues;
   final List<WantedBlock> wanted;
+
+  /// The words outside the notation, and the aliases, used so far
+  /// ([NotationResult.vocabulary]); [_useKeys] keeps a line read twice (an
+  /// overlay's, drawn again in its foot) from being recorded twice.
+  final List<VocabularyUse> vocabulary;
+  final Set<String> _useKeys;
+
+  /// The line being read, as written (without its indentation) and its
+  /// first word; the lines it is under, by their indentation.
+  String _src = '';
+  String? _srcWord;
+  final _srcStack = <_Src>[];
+
+  /// The words of the lines the one being read is under, outermost first.
+  List<String> get _srcPath => [
+        for (final e in _srcStack)
+          if (e.word != null && !identical(e, _srcStack.last)) e.word!,
+      ];
+
+  void _track(int indent, String text) {
+    while (_srcStack.isNotEmpty && _srcStack.last.indent >= indent) {
+      _srcStack.removeLast();
+    }
+    final word = RegExp(r'^[A-Za-z][A-Za-z0-9]*').stringMatch(text);
+    final plain = word == null || const {'if', 'each', 'else', 'for'}.contains(word);
+    final above = _srcStack.reversed.where((e) => e.word != null).firstOrNull;
+    if (!plain && above?.use != null && _useKeys.add('child:$_line:${above!.use!.line}:$word')) above.use!.children.add(word);
+    _srcStack.add(_Src(indent, plain ? null : word));
+    _src = text;
+    _srcWord = plain ? null : word;
+  }
+
+  /// Records a use of a word outside the notation (once for a place).
+  VocabularyUse? _use(
+    String kind,
+    String word,
+    int column, {
+    String? on,
+    String? value,
+    String? to,
+    String? of,
+    String? node,
+    LineParts? parts,
+  }) {
+    if (_top._quiet) return null;
+    if (!_useKeys.add('$_line:$column:$kind:$word')) return null;
+    final VocabularyUse use;
+    if (kind == 'alias') {
+      use = aliasUse(of: of ?? 'type', word: word, to: to ?? '', source: _src, line: _line, column: column, on: on, value: value, path: _srcPath);
+    } else {
+      final all = parts?.parts ?? const <LinePart>[];
+      use = VocabularyUse(
+        kind: kind,
+        word: word,
+        source: _src,
+        line: _line,
+        column: column,
+        on: on,
+        value: value,
+        node: node,
+        path: _srcPath,
+        texts: [
+          for (final p in all)
+            if (p.kind == 'string') p.raw.length > 1 ? p.raw.substring(1, p.raw.endsWith('"') ? p.raw.length - 1 : p.raw.length) : '',
+        ],
+        parameters: {
+          for (final p in all)
+            if (p.kind == 'pair' && !p.isEvent) p.key!: p.value!,
+        },
+        flags: [
+          for (final p in all)
+            if (p.kind == 'word') p.raw,
+        ],
+        events: {
+          for (final p in all)
+            if (p.isEvent) p.key!: p.value!,
+        },
+      );
+    }
+    vocabulary.add(use);
+    return use;
+  }
+
+  /// Whether [word] is a type the notation, the catalog or the page words have.
+  bool _knowsType(String word) =>
+      notationTypes.containsKey(word) ||
+      catalog.widget('${word[0].toLowerCase()}${word.substring(1)}') != null ||
+      catalog.widget(word) != null ||
+      PageWords.words.contains(word) ||
+      RegExp(r'^H[1-4]$').hasMatch(word);
+
+  /// The spec a line starting with [written] is read with (null: a page
+  /// word, or none).
+  WidgetSpec? _specOf(String written) {
+    final short = _softNames.contains(written) && catalog.widget(written) != null ? null : notationTypes[written];
+    final type = short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
+    final component = short == null && (catalog.widget(type) == null || notationComponentFirst.contains(written)) && catalog.widget(written) != null;
+    return catalog.widget(component ? written : type);
+  }
+
+  /// [text] (one line, no indentation) with the aliases in it read as what
+  /// they stand for ([NotationOptions.vocabulary]); each is recorded. A
+  /// word the notation already has is never an alias. Several lines when
+  /// the word is a line of another shape that takes more than one.
+  List<String> _aliased(String text, int column) {
+    final table = options.vocabulary;
+    if (table.isEmpty) return [text];
+    final parts = LineParts.of(text);
+    if (parts == null) return [text];
+    // `state draft="" persist`: a word after a state's value that is ours
+    // under another name (saved).
+    if (parts.word == 'state' || parts.word == 'project') {
+      final last = RegExp(r'\s([A-Za-z][A-Za-z0-9]*)$').firstMatch(text);
+      final to = last == null ? null : table.flags[parts.word]?[last[1]];
+      if (to == null || !text.contains('=')) return [text];
+      _use('alias', last![1]!, column + last.start + 1, of: 'flag', to: to, on: parts.word);
+      return ['${text.substring(0, last.start)} $to'];
+    }
+    const statements = {'if', 'each', 'else', 'for', 'node', 'document', 'every', 'key', 'let', 'derived', 'const', 'var'};
+    if (statements.contains(parts.word)) return [text];
+    final written = parts.word;
+    var changed = false;
+    if (!_knowsType(written)) {
+      final alias = table.types[written];
+      if (alias == null) return [text];
+      if (alias.line != null) {
+        final lines = lineRewrites[alias.line]?.call(parts, text);
+        if (lines == null || lines.isEmpty) return [text];
+        _use('alias', written, column, of: 'line', to: lines.first);
+        return lines;
+      }
+      if (alias.to == null || !_knowsType(alias.to!)) return [text];
+      if (alias.requires.any((k) => !parts.parts.any((p) => p.kind == 'pair' && (alias.parameters[p.key] ?? p.key) == k))) return [text];
+      parts.word = alias.to!;
+      changed = true;
+      _use('alias', written, column, of: 'type', to: alias.to);
+      if (alias.add != null) {
+        final tail = parts.parts.indexWhere((p) => p.kind == 'tail');
+        parts.parts.insert(tail < 0 ? parts.parts.length : tail, LinePart.word(alias.add!));
+      }
+    } else if (written[0] != written[0].toUpperCase()) {
+      return [text];
+    }
+    final type = parts.word;
+    final own = changed ? table.types[written]!.parameters : const <String, String>{};
+    final spec = _specOf(type);
+    bool known(String key) => spec != null && (spec.props.any((p) => p.key == key) || spec.events.any((e) => e.key == key));
+    String? of(Map<String, Map<String, String>> names, String key) {
+      final own = names[type], all = names['*'];
+      return (own == null ? null : own[key]) ?? (all == null ? null : all[key]);
+    }
+    for (var i = 0; i < parts.parts.length; i++) {
+      final p = parts.parts[i];
+      final col = column + (p.at < 0 ? 0 : p.at);
+      if (p.kind == 'pair') {
+        final key = p.key!;
+        final to = own[key] ?? (known(key) ? null : of(p.isEvent ? table.events : table.parameters, key));
+        if (to == null || to == key) continue;
+        _use('alias', key, col, of: p.isEvent ? 'event' : 'parameter', to: to, on: type, value: p.value);
+        changed = true;
+        if (to == r'$text') {
+          final at = parts.parts.lastIndexWhere((x) => x.kind == 'string');
+          parts.parts.removeAt(i);
+          parts.parts.insert(at < 0 ? 0 : (at < i ? at + 1 : at), LinePart.string(asLineString(p.value!)));
+        } else if (to.startsWith('!')) {
+          parts.parts[i] = LinePart.pair(to.substring(1), negatedValue(p.value!));
+        } else {
+          parts.parts[i] = LinePart.pair(to, p.value!);
+        }
+      } else if (p.kind == 'word') {
+        final to = own[p.raw] ?? (known(p.raw) ? null : of(table.flags, p.raw));
+        if (to == null || to == p.raw) continue;
+        _use('alias', p.raw, col, of: 'flag', to: to, on: type);
+        changed = true;
+        parts.parts[i] = LinePart.word(to);
+      }
+    }
+    return [changed ? parts.toString() : text];
+  }
+
+  /// The line each `open` and `scroll` action was written on.
+  final _actionLines = Map<Json, int>.identity();
+
+  /// The lines an alias adds after an overlay's own (a ConfirmDialog's buttons).
+  final _blockFoot = <String>[];
+
+  /// How far in the head of the overlay being read is written (0: at the
+  /// margin): its lines are the ones further in.
+  int _blockIndent = 0;
+
+  /// While lines already read are read again (an overlay's, drawn again in
+  /// its foot; a sidebar's, in its drawer): nothing is recorded twice.
+  bool _quiet = false;
+
+  /// Whether [text] (indented, with an id) is the head of an overlay: a
+  /// word the page layer reads as one, itself or through an alias.
+  bool _overlayInside(String text) {
+    final word = RegExp(r'^[A-Za-z][A-Za-z0-9]*').stringMatch(text)!;
+    const overlays = {'Dialog', 'Modal', 'Sheet', 'BottomSheet', 'Drawer', 'Menu', 'Popover', 'Popup', 'Lightbox'};
+    // A design system's own Dialog called in a line is its component,
+    // unless an `open` already names its id: then it is what that shows.
+    if (overlays.contains(word)) {
+      final id = RegExp(r'#([A-Za-z_][A-Za-z0-9_]*)').firstMatch(text)?[1];
+      final ours = catalog.widget(word) == null && catalog.widget('${word[0].toLowerCase()}${word.substring(1)}') == null;
+      return ours || _opens.any((a) => a['to'] == id) || _openedIds.contains(id);
+    }
+    if (_knowsType(word)) return false;
+    final alias = options.vocabulary.types[word];
+    if (alias == null) return false;
+    if (alias.to != null) return overlays.contains(alias.to);
+    final parts = LineParts.of(text);
+    final lines = parts == null ? null : lineRewrites[alias.line]?.call(parts, text);
+    return lines != null && lines.isNotEmpty && overlays.contains(RegExp(r'^[A-Za-z][A-Za-z0-9]*').stringMatch(lines.first));
+  }
 
   /// The edit operations of the lines read so far, not yet taken ([take]).
   final ops = <Json>[];
@@ -1168,21 +1478,54 @@ class _Parser {
     if (_host == null && !_continues) {
       final indent = raw.length - raw.trimLeft().length;
       final blank = raw.trim().isEmpty || raw.trimLeft().startsWith('//');
-      if ((_block != null || _blockSkipped) && (indent > 0 || blank || (_block?._continues ?? false))) {
+      if ((_block != null || _blockSkipped) && (indent > _blockIndent || blank || (_block?._continues ?? false))) {
         _line++;
         if (!blank || (_block?._continues ?? false)) {
-          if (_block != null && !blank) _blockLines.add((indent: indent, text: raw.trim()));
-          _feed(indent, raw.trim());
+          if (_block != null && !blank) _blockLines.add((indent: indent - _blockIndent, text: raw.trim()));
+          _feed(indent - _blockIndent, raw.trim());
         }
         return;
       }
-      if (!blank && indent == 0) {
+      // An overlay written inside the page (a Dialog#id indented under a
+      // pane): it is still over the page, its lines the ones indented under
+      // it, and the page goes on after them.
+      if (!blank && (_block != null || _blockSkipped)) _closeBlock();
+      final inside = !blank && indent > 0 && _root != null && RegExp(r'^[A-Za-z][A-Za-z0-9]*#[A-Za-z_]').hasMatch(raw.trimLeft()) && _overlayInside(raw.trim());
+      if (!blank && (indent == 0 || inside)) {
         _closeBlock();
-        if (_pages.overlay(raw.trim()) case final Overlay o) {
-          _line++;
+        _line++;
+        final above = [..._srcStack];
+        _track(indent, raw.trim());
+        var head = raw.trim();
+        final lines = _aliased(head, indent + 1);
+        // An unknown word at the margin with an id, after the page: what is
+        // written there is over the page, so it stands in as a dialog.
+        VocabularyUse? standIn;
+        if (options.openVocabulary && _root != null && lines.length == 1 && lines.first == head) {
+          final parts = LineParts.of(head);
+          if (parts != null && parts.id.isNotEmpty && parts.word[0] == parts.word[0].toUpperCase() && !_knowsType(parts.word)) {
+            standIn = _use('type', parts.word, 1, node: parts.id.substring(1), parts: parts);
+            _srcStack.last.use = standIn;
+            head = ['Dialog${parts.id}', ...parts.strings.take(2).map((s) => s.raw)].join(' ');
+          }
+        }
+        if (standIn == null) head = lines.first;
+        if (_pages.overlay(head) case final Overlay o) {
+          final word = _srcWord;
           _openBlock(o);
+          _blockIndent = indent;
+          _block?._srcStack.add(_Src(-1000, word)..use = standIn);
+          if (_block != null) _blockFoot.addAll(lines.skip(1));
+          // The page's own lines go on after it, under what they were under.
+          if (inside) {
+            _srcStack
+              ..clear()
+              ..addAll(above);
+          }
           return;
         }
+        _srcStack.removeLast();
+        _line--;
       }
     }
     _line++;
@@ -1221,6 +1564,12 @@ class _Parser {
     if (raw.trimLeft().startsWith('```')) return;
     final indent = raw.length - raw.trimLeft().length;
     final before = nodes.length;
+    _track(indent, raw.trim());
+    // A name read as a word the notation has (the alias table). A word that
+    // is several lines is one only at the margin (an overlay's head, above).
+    if (_aliased(raw.trim(), indent + 1) case [final String one] when one != raw.trim()) {
+      raw = '${' ' * indent}$one';
+    }
     // `Dots bind=page count=n`: a dot per page, the current one long and in the
     // accent; a tap on a dot goes to its page. Written out as the three
     // lines it stands for.
@@ -1553,7 +1902,13 @@ class _Parser {
 
   Json? _documentPatch;
 
+  /// The ids the whole text opens (`open edit`), known before its lines are
+  /// read when it is read at once: a design system's Dialog#edit written
+  /// inside the page is then what that open shows.
+  final _openedIds = <String>{};
+
   NotationResult parse(String text) {
+    _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     const LineSplitter().convert(text).forEach(line);
     finish();
     final patch = _documentPatch;
@@ -1569,7 +1924,7 @@ class _Parser {
       },
       if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
         'variables': {_scope: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
-    }), issues, wanted: List.unmodifiable(wanted));
+    }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
   }
 
   void _issue(int column, String message) => issues.add(NotationIssue(_line, column, message));
@@ -1645,11 +2000,11 @@ class _Parser {
     // `key mod+k onPress={open search}`: a shortcut of the whole screen (a
     // keyDown reaction on the canvas). mod is Ctrl, or ⌘ on a Mac; a
     // combination with it or with alt runs while a field is typed in too.
-    final shortcut = RegExp(r'^key\s+"?([^"\s]+)"?\s+onPress=\{(.+)\}\s*$').firstMatch(line);
+    final shortcut = RegExp(r'^key\s+"?([^"\s]+)"?(?:\s+when\s+(.+?))?\s+onPress=\{(.+)\}\s*$').firstMatch(line);
     if (shortcut != null && KeyCombo.tryParse(shortcut[1]) != null && !shortcut[1]!.endsWith('+')) {
       _timers.add({
-        'trigger': {'type': 'keyDown', 'key': shortcut[1]},
-        'actions': _actions(shortcut[2]!.trim(), column),
+        'trigger': {'type': 'keyDown', 'key': shortcut[1], if (shortcut[2] != null) 'when': _formula(shortcut[2]!.trim())},
+        'actions': _actions(shortcut[3]!.trim(), column),
       });
       if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
       return;
@@ -1687,7 +2042,12 @@ class _Parser {
       }
       line = _rename(line, d.key, '(${d.value})');
     }
-    final parent = _stack.isEmpty ? null : _stack.last;
+    var parent = _stack.isEmpty ? null : _stack.last;
+    if (options.openVocabulary && parent != null && parent.leaf) {
+      // Lines under a word that takes none: recorded, and drawn after it.
+      _use('children', _srcPath.lastOrNull ?? parent.type, column, value: _srcWord);
+      parent = _stack.reversed.where((o) => !o.leaf).firstOrNull;
+    }
     // `SwipeAction "Book" side=end when={!row.full} onTap={…}` under an
     // each: an action behind the swiped row. It is written beside the row
     // and kept by the row's list (its swipeActions, and a swipeAction
@@ -1999,9 +2359,19 @@ class _Parser {
     String? gaugeUnit;
     List<({String label, Object? value, Object? color})>? donutKeys;
 
+    // With an open vocabulary a word that is not a type stands in: a column
+    // of its texts and of the lines under it, recorded with what it was
+    // given. A sentence around the UI is not a word.
+    final open = options.openVocabulary;
+    final standIn = open &&
+        catalog.widget(type) == null &&
+        written[0] == written[0].toUpperCase() &&
+        ((_root != null && indent > 0) || _nodeLike(line));
     if (written == 'Button' && variant != null) {
       final v = buttonVariants[variant];
-      if (v == null) {
+      if (v == null && open) {
+        _use('variant', 'Button.$variant', column + written.length + 1, on: written);
+      } else if (v == null) {
         _issue(column + written.length + 1, 'No Button.$variant. Variants: ${buttonVariants.keys.join(', ')}.');
       } else {
         type = v.type;
@@ -2009,7 +2379,9 @@ class _Parser {
       }
     } else if (type == 'text' && variant != null) {
       final style = options.textStyles[variant];
-      if (style == null) {
+      if (style == null && open) {
+        _use('variant', 'Text.$variant', column + written.length + 1, on: written);
+      } else if (style == null) {
         _issue(column + written.length + 1, 'No Text.$variant. Variants: ${options.textStyles.keys.join(', ')}.');
       } else {
         props['style'] = style is Map ? _copy(style.cast<String, Object?>()) : style;
@@ -2017,7 +2389,9 @@ class _Parser {
     } else if (written == 'Badge') {
       // SSUI's badge: a tinted pill-cornered row 20 high around its text.
       final v = options.badges[variant ?? 'neutral'];
-      if (v == null) {
+      if (v == null && open) {
+        _use('variant', 'Badge.$variant', column + written.length + 1, on: written);
+      } else if (v == null) {
         _issue(column + written.length + 1, 'No Badge.$variant. Variants: ${options.badges.keys.join(', ')}.');
       }
       final tone = v ?? options.badges['neutral'] ?? badgeVariants['neutral']!;
@@ -2038,17 +2412,25 @@ class _Parser {
         final String name => {'from': name, 'color': tone.$3},
         _ => {'fontSize': 11, 'fontWeight': 500, 'color': tone.$3},
       };
+    } else if (variant != null && open) {
+      // A stand-in's variant is part of its own record (its line).
+      if (!standIn) _use('variant', '$written.$variant', column + written.length + 1, on: written);
     } else if (variant != null) {
       _issue(column + written.length + 1, 'A $written has no variants: write $written, with props as key=value.');
     }
-    final spec = catalog.widget(type);
-    if (spec == null) {
+    if (standIn) type = 'column';
+    final found = catalog.widget(type);
+    if (found == null) {
       // A sentence before the UI ("Here is the card=") is not a node.
       // Nor is one after it ("Two limits remain: …").
       if ((_root == null || indent == 0) && line.contains(' ')) return;
       _issue(column, 'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).');
       return;
     }
+    final spec = found;
+    // The keys of this line that are not the type's, each with its value as
+    // written: left out of the document once the line is read, and recorded.
+    final unknownKeys = <({String key, String value, int column})>[];
     if (component) strings = notationStrings(spec);
     if (written == 'Card') {
       // In a card, a card is a tile of it.
@@ -2076,6 +2458,10 @@ class _Parser {
       return;
     }
     _lastNode = id;
+    if (standIn) {
+      final use = _use('type', written, column, node: id, parts: LineParts.of(_src.startsWith(written) ? _src : line));
+      if (_srcStack.isNotEmpty && _srcWord == written) _srcStack.last.use = use;
+    }
 
     void put(String path, Object? value) {
       final dot = path.indexOf('.');
@@ -2098,7 +2484,9 @@ class _Parser {
       }
     }
 
+    var unknownKey = false;
     String pathOf(String key) {
+      unknownKey = false;
       final short = _shortKeys[key];
       if (short != null) return short;
       if (key == 'visible' || key == 'opacity') return key;
@@ -2106,15 +2494,16 @@ class _Parser {
       if (key == 'enabled' && spec.props.any((p) => p.key == 'isEnabled')) return 'props.isEnabled';
       if ((key == 'lines' || key == 'rows') && type == 'textField') return 'props.maxLines';
       // `Input "Age" type=number`: the keyboard it opens.
-      if (key == 'type' && type == 'textField') return 'props.keyboardType';
+      if (key == 'type' && type == 'textField' && !spec.props.any((p) => p.key == 'type')) return 'props.keyboardType';
       if ((key == 'selected' || key == 'checked') && (type == 'checkbox' || type == 'switch')) return 'props.value';
       if (_layoutKeys.contains(key)) return 'layout.$key';
       if (_decorationKeys.contains(key)) return 'decoration.$key';
       // A component takes only what it declares: say so here, where the
       // line is, with what it does take.
-      if (component) {
+      if (component && !open) {
         _issue(column, 'A $written has no "$key". It takes: ${spec.props.map((p) => p.key).join(', ')}.');
       }
+      unknownKey = true;
       return 'props.$key';
     }
 
@@ -2147,10 +2536,23 @@ class _Parser {
             _declared.remove(expr); // declared again, as it is now
           }
         }
+      } else if (standIn) {
+        // What a stand-in would keep its value in is still a variable of the
+        // page: what reads it elsewhere reads its starting value.
+        if (_identifier.hasMatch(expr) && !expr.contains('.')) {
+          variables.putIfAbsent(expr, () => {'name': expr, 'type': 'text', 'value': ''});
+        }
       } else if (value == null) {
         final shown = _shownValue[type] ?? _mainKey(type, spec);
         if (written == 'Badge') {
           _texts.add(_read(expr));
+        } else if (shown == null && open) {
+          // A value this type does not keep: recorded, and the variable is
+          // still the page's (what reads it reads its starting value).
+          _use('parameter', 'bind', col, on: _srcWord ?? written, value: expr);
+          if (_identifier.hasMatch(expr) && !expr.contains('.')) {
+            variables.putIfAbsent(expr, () => {'name': expr, 'type': 'text', 'value': ''});
+          }
         } else if (shown == null) {
           _issue(col, 'A $written has no value to bind. Give a prop its value: key={expression}.');
         } else {
@@ -2236,6 +2638,12 @@ class _Parser {
         final text = t.string();
         if (type == 'text') markText ??= text;
         _main(type, spec, text, props, decoration);
+      } else if (t.peek == '{' && _positional(t, type, standIn) != null) {
+        // `Progress {done/total}`: a share worked out, written where its
+        // number goes (Progress 0.6). On a stand-in it is in its record.
+        final braced = _positional(t, type, standIn)!;
+        if (!standIn) bindTo(braced.substring(1, braced.length - 1).trim(), col);
+        t.at += braced.length;
       } else if (t.peek == '{') {
         final j = _json(t.rest);
         if (j is Map) {
@@ -2389,6 +2797,12 @@ class _Parser {
             final x = _stack.reversed.where((o) => o.each != null).firstOrNull?.each;
             final shown = x != null && word.startsWith('item.') ? '$x${word.substring(4)}' : word;
             _issue(col, 'A value shown as text is written in a string: "{$shown}".');
+          } else if (standIn) {
+            // Whatever a stand-in was given is in its record.
+          } else if (open && RegExp(r'^[A-Za-z][A-Za-z0-9_-]*$').hasMatch(word)) {
+            // A flag the type does not have: left out, and recorded (a
+            // stand-in's are in its own record).
+            if (!standIn) _use('flag', word, col, on: _srcWord ?? written);
           } else {
             _issue(col, 'Unknown word "$word" on a $written. Props are written key=value.');
           }
@@ -2433,7 +2847,20 @@ class _Parser {
           }
           final braced = t.balanced();
           final body = braced.substring(1, braced.endsWith('}') ? braced.length - 1 : braced.length);
-          final trigger = _handlerTrigger(key, type, component ? spec : null, node);
+          var trigger = _handlerTrigger(key, type, component ? spec : null, node);
+          // A stand-in is tapped, pressed, swiped and dropped on: what it
+          // would say of its own value (onChange, onSubmit) it cannot.
+          if (standIn && !const {'click', 'longPress', 'doubleTap', 'secondaryClick', 'swipeLeft', 'swipeRight', 'swipeUp', 'swipeDown', 'cursorEnter', 'drop'}.contains(trigger?['type'])) {
+            trigger = null;
+          }
+          if (trigger == null && open) {
+            // An event the type does not have: its actions are read (the
+            // variables they set are the page's, their verbs recorded) and
+            // left out.
+            _actions(body, col);
+            if (!standIn) _use('event', key, col, on: _srcWord ?? written, value: braced);
+            continue;
+          }
           if (trigger == null) {
             _issue(col, 'A $written has no event "$key". Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.');
             continue;
@@ -2634,6 +3061,11 @@ class _Parser {
             bind['props.style.${key == 'color' ? 'iconColor' : 'iconSize'}'] = key == 'color' ? _namedIn(_read(raw.substring(1)), 'text') : _read(raw.substring(1));
             (buttonLook ??= <String, Object?>{});
           } else {
+            if (open && key == 'size' && _value(raw) is! num) {
+              // size=large: a size that is not a number is not ours.
+              _use('parameter', key, col, on: _srcWord ?? written, value: raw);
+              continue;
+            }
             (buttonLook ??= <String, Object?>{})[key == 'color' ? 'iconColor' : 'iconSize'] = key == 'color' ? _named(_value(raw), 'text') : _value(raw);
           }
           continue;
@@ -2789,6 +3221,14 @@ class _Parser {
           continue;
         }
         final path = pathOf(key);
+        if (unknownKey) {
+          unknownKeys.add((key: key, value: _written(word, eq, raw), column: col));
+          // What a stand-in would keep a value in (bindStart=from) is still
+          // a variable of the page.
+          if (standIn && key.startsWith('bind') && _identifier.hasMatch(raw) && !raw.contains('.')) {
+            variables.putIfAbsent(raw, () => {'name': raw, 'type': 'text', 'value': ''});
+          }
+        }
         // A string on the line already went to this parameter: saying it
         // twice would silently drop one.
         if (component && positional.contains(key)) {
@@ -2812,8 +3252,35 @@ class _Parser {
           bind[path] = _read(raw);
         } else {
           var v = _value(raw);
+          // `Input "Email" type=email`: the keyboards by the names a model
+          // writes for them (the document's are Flutter's).
+          if (path == 'props.keyboardType' && v is String) v = _keyboards[v.toLowerCase()] ?? v;
+          // grow=true is grow.
+          if (path == 'layout.flex' && v is bool) {
+            if (v) layout['flex'] = 1;
+            continue;
+          }
           // A text parameter given a number (count=4) takes it as text.
           if (v is num && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.string)) v = '$v';
+          // With an open vocabulary a value of another kind than the
+          // parameter takes (live=polite where it is true or false,
+          // size=large where it is a number) is not ours: left out, recorded.
+          if (open && path == 'props.$key' && !(v is String && v.contains(r'${'))) {
+            final def = spec.props.where((p) => p.key == key).firstOrNull;
+            final wrong = def != null &&
+                !def.type.isVariable &&
+                switch (def.type.kind) {
+                  PropKind.boolean => v is! bool,
+                  PropKind.number || PropKind.integer => v is! num,
+                  PropKind.enumeration => v is String && !def.type.values.contains(v),
+                  PropKind.list => v is! List,
+                  _ => false,
+                };
+            if (wrong) {
+              if (!standIn) _use('parameter', key, col, on: _srcWord ?? written, value: _written(word, eq, raw));
+              continue;
+            }
+          }
           if (v is String && v.contains(r'${') && !(type == 'text' && path == 'props.text')) {
             // A string that reads data (value="{streak} days") is bound:
             // only a text node reads an expression as written.
@@ -2855,6 +3322,32 @@ class _Parser {
           if (props.containsKey(moved)) props[p.key] = props.remove(moved);
           if (bind.containsKey('props.$moved')) bind['props.${p.key}'] = bind.remove('props.$moved');
           positional.remove(moved);
+          continue;
+        }
+        if (open) {
+          // The line calls the component without something it needs: it is
+          // given an empty one, so the page still renders, and recorded
+          // (the answer's idea of this word is not the component's).
+          final kind = p.type.isVariable ? p.type.variableOf?.kind : p.type.kind;
+          final Object empty = switch (kind) {
+            PropKind.number || PropKind.integer => 0,
+            PropKind.boolean => false,
+            PropKind.list => const <Object?>[],
+
+            _ => '',
+          };
+          if (p.type.isVariable) {
+            final local = '${id}_${p.key}';
+            props[p.key] = local;
+            variables.putIfAbsent(local, () => {
+                  'name': local,
+                  'type': switch (kind) { PropKind.number || PropKind.integer => 'decimal', PropKind.boolean => 'boolean', PropKind.list => 'list', _ => 'text' },
+                  'value': empty,
+                });
+          } else {
+            props[p.key] = empty;
+          }
+          _use('missing', p.key, column, on: _srcWord ?? written);
           continue;
         }
         _issue(column, 'A $written needs ${p.key}: write ${p.key}=${p.type.isVariable ? 'name (a variable), or bind=name' : p.type.kind == PropKind.list ? '["a","b"]' : p.type.kind == PropKind.string ? '"…"' : 'value'}.');
@@ -3119,6 +3612,13 @@ class _Parser {
       _eachStagger = null;
       animation ??= {'id': 'a', ..._copy(notationAnimations['fade-up']!)};
       (timing ??= <String, int>{}).putIfAbsent('stagger', () => step);
+    }
+    if (standIn && animation == null) timing = null;
+    // A stand-in's height is the room its word asked for (a map, a
+    // waveform): the least it is, and it grows with what is written in it.
+    if (standIn && layout['height'] is num && props['scrollable'] != true) {
+      layout['constraints'] = {...?readMap(layout['constraints']), 'minHeight': layout['height']};
+      layout['height'] = {'hug': 0};
     }
     if (animation != null) {
       if (timing?['duration'] case final int d) animation['duration'] = d;
@@ -3440,6 +3940,23 @@ class _Parser {
       }
       if (moved.isNotEmpty) out['bind'] = {...?(out['bind'] as Map?)?.cast<String, Object?>(), ...moved};
     }
+    // With an open vocabulary, what the line gave that its type does not
+    // take is left out of the document and recorded (what a word of the
+    // notation read for itself, a Donut's legend, is no longer here).
+    if (open && unknownKeys.isNotEmpty) {
+      final takes = catalog.widget('${out['type']}');
+      for (final u in unknownKeys) {
+        if (takes != null && takes.props.any((p) => p.key == u.key)) continue;
+        final p = out['props'], b = out['bind'];
+        final given = (p is Map && p.containsKey(u.key)) || (b is Map && b.containsKey('props.${u.key}'));
+        if (!given) continue;
+        if (p is Map) p.remove(u.key);
+        if (b is Map) b.remove('props.${u.key}');
+        if (p is Map && p.isEmpty) out.remove('props');
+        if (b is Map && b.isEmpty) out.remove('bind');
+        if (!standIn) _use('parameter', u.key, u.column, on: _srcWord ?? written, value: u.value);
+      }
+    }
     nodes[id] = out;
     // A DataTable's cell and header are texts of the theme (item.value, item.label).
     if (ours && written == 'DataTable') {
@@ -3574,7 +4091,7 @@ class _Parser {
       }
       _stack.add(_Open(indent, pageId, 'column', pages: id));
     } else {
-      _stack.add(_Open(indent, id, type, condition: null, grid: grid));
+      _stack.add(_Open(indent, id, type, condition: null, grid: grid, leaf: spec.children == ChildModel.none && parent != null));
     }
     // Its strings as text nodes: an accordion's header is its first child, a
     // list tile's are its title and subtitle.
@@ -3837,11 +4354,13 @@ class _Parser {
       if (_pages.sidebarButton && _pages.sidebar.isNotEmpty && !_continues) {
         if (_pages.overlay('Drawer#${_pages.sidebarMenu}${_pages.sidebarRest}') case final Overlay o) {
           _openBlock(o);
+          _quiet = true;
           for (final l in _pages.sidebar) {
             // Its ids are the sidebar's own: the copy has none.
             _feed(l.indent, l.text.replaceFirstMapped(_idMark, (m) => m[1]!), closes: 'all');
           }
           _closeBlock();
+          _quiet = false;
         }
       }
     }
@@ -3864,6 +4383,45 @@ class _Parser {
     nodes.keys.skip(before).toList().forEach(_emit);
     for (final scroll in _scrolls) {
       if (_anchors[scroll['node']] case final String id) scroll['node'] = id;
+    }
+    // With an open vocabulary the page renders whatever it names: an
+    // `open <id>` of nothing written over this page, and a `scroll <id>` to
+    // no line of it, are left out, and said where they are written.
+    if (_host == null && options.openVocabulary) {
+      final canvases = {for (final o in _overlays) o.options.screen};
+      final missing = <String, int>{};
+      bool orphan(Object? a) {
+        if (a is! Map) return false;
+        final to = switch (a['type']) { 'openModal' => a['to'], 'scrollTo' => a['node'], _ => null };
+        if (to is! String || to.contains(r'${')) return false;
+        if (a['type'] == 'openModal' ? canvases.contains(to) : _taken(to)) return false;
+        missing.putIfAbsent('${a['type'] == 'openModal' ? 'open' : 'scroll'} $to', () => _actionLines[a] ?? _line);
+        return true;
+      }
+
+      void prune(Object? actions) {
+        if (actions is! List) return;
+        actions.removeWhere(orphan);
+        for (final a in actions) {
+          if (a is Map) prune(a['actions']);
+        }
+      }
+
+      for (final p in [this, ..._overlays]) {
+        prune(p._timers);
+        for (final n in p.nodes.values) {
+          prune(n['actions']);
+        }
+      }
+      for (final e in missing.entries) {
+        final id = e.key.substring(e.key.indexOf(' ') + 1);
+        issues.add(NotationIssue(
+            e.value,
+            1,
+            e.key.startsWith('open')
+                ? 'Nothing over this page has the id "$id" for an open to show (a Dialog, Sheet, Drawer, Menu or Popover with that id, written after the page at the margin): the action is left out.'
+                : 'No line of this page has the id "$id" for a scroll to go to (Section#$id, or id=$id on a line): the action is left out.'));
+      }
     }
     _ownLegends();
     _reflow();
@@ -3964,6 +4522,10 @@ class _Parser {
     if (m == null) return _issue(column, 'State is written: state name=value.');
     if (m[1] == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');
     var written = m[2]!.trim();
+    // `state shown={filter(rows,r=>r.open)}`: a formula in braces, as an
+    // expression is written everywhere else, is that formula (a map names
+    // a key first: {"a": 1}).
+    if (_bracedExpression(written)) written = written.substring(1, written.length - 1).trim();
     // One formula may read another (`state total=subtotal-discount`).
     for (final d in _derived.entries) {
       if (written.contains(d.key)) written = _rename(' $written', d.key, '(${d.value})').substring(1);
@@ -4164,6 +4726,7 @@ class _Parser {
           // its kind says; one written further down completes this then.
           final Json action = {'type': 'openModal', 'to': s, ...?switch (_top._overlayActions[s]) { final Json a => _copy(a), _ => null }};
           _top._opens.add(action);
+          _top._actionLines[action] = _line;
           out.add(action);
         case 'scroll':
           // `scroll pricing`, `scroll to pricing`, `scroll #pricing`: the page
@@ -4175,6 +4738,7 @@ class _Parser {
           } else {
             final Json action = {'type': 'scrollTo', 'node': target, 'durationMs': 400, 'offset': 72};
             _scrolls.add(action);
+            _top._actionLines[action] = _line;
             out.add(action);
           }
         case 'close':
@@ -4203,10 +4767,77 @@ class _Parser {
         case 'link':
           out.add({'type': 'openLink', 'url': s});
         default:
+          // A verb under another name (the alias table), then, with an open
+          // vocabulary, a verb the notation does not have: left out, recorded.
+          final name = RegExp(r'^[a-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*(?=[\s(]|$)').stringMatch(a);
+          if (name != null) {
+            final rest = a.substring(name.length).trim();
+            if (options.vocabulary.verbs[name] case final String to when _verbs.contains(to)) {
+              _use('alias', name, column, of: 'verb', to: to, on: _srcWord, value: rest);
+              final inner = rest.startsWith('(') && rest.endsWith(')') ? rest.substring(1, rest.length - 1) : rest;
+              out.addAll(_actions('$to $inner'.trim(), column));
+              continue;
+            }
+            if (options.openVocabulary) {
+              _use('verb', name, column + (_verbAt++), on: _srcWord, value: rest);
+              continue;
+            }
+          }
           _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, or JSON.');
       }
     }
     return out;
+  }
+
+  static const _verbs = {'emit', 'open', 'scroll', 'close', 'go', 'toast', 'announce', 'link'};
+
+  /// `type=` on an Input, as written → the keyboard the document names.
+  static const _keyboards = {
+    'email': 'emailAddress',
+    'tel': 'phone',
+    'telephone': 'phone',
+    'numeric': 'number',
+    'decimal': 'number',
+    'integer': 'number',
+    'int': 'number',
+    'search': 'webSearch',
+    'date': 'datetime',
+    'time': 'datetime',
+    'address': 'streetAddress',
+    'textarea': 'multiline',
+  };
+
+  /// Tells apart the unknown verbs of one event (they share its column).
+  int _verbAt = 0;
+
+  /// A key's value as it was written: the word's own, or what followed it
+  /// (a string, a list, an expression: [read] has those marked with `=`).
+  String _written(String word, int eq, String read) {
+    final own = word.substring(eq + 1);
+    if (own.isNotEmpty) return own;
+    return read.startsWith('=') ? '{${read.substring(1)}}' : read;
+  }
+
+  /// Whether [line], at the margin, reads as a node of an unknown word and
+  /// not as a sentence: it has an id, a string or a key=value, and ends as a
+  /// line does.
+  bool _nodeLike(String line) {
+    final parts = LineParts.of(line);
+    if (parts == null) return false;
+    if (RegExp(r'[.:;!?,]$').hasMatch(line.trimRight()) && !line.trimRight().endsWith('"')) return false;
+    final words = parts.parts.where((p) => p.kind == 'word').length;
+    if (parts.parts.isEmpty) return parts.id.isNotEmpty || _root != null;
+    return words < 3 && (parts.id.isNotEmpty || parts.parts.any((p) => p.kind != 'word'));
+  }
+
+  /// The `{expression}` at the cursor of a line whose type shows a number
+  /// (Progress, Ring, Gauge, Slider), or of a stand-in: a value where the
+  /// number goes, not the JSON merged into a node. Null otherwise.
+  String? _positional(_Tokens t, String type, bool standIn) {
+    if (!standIn && _valueProps[type]?.type != 'decimal' && _shownValue[type] != 'value') return null;
+    final braced = (_Tokens(t.s)..at = t.at).balanced();
+    if (braced.length < 3 || !braced.endsWith('}')) return null;
+    return _bracedValue.hasMatch(braced) || _bracedExpression(braced) ? braced : null;
   }
 
   Object? _valueOrRead(String raw) {
@@ -4295,7 +4926,36 @@ class _Parser {
     return _identifier.hasMatch(e) && _natural(e) == e ? '\${$e}' : _formula(e);
   }
 
-  String _formula(String expr) => '\${= ${_natural(_textsRead(expr))}}';
+  String _formula(String expr) => '\${= ${_natural(_textsRead(_colors(expr)))}}';
+
+  /// A color written in a formula as it is written after a key
+  /// (`fill={late ? #FFFECACA : #FFFFFFFF}`): the text it is.
+  String _colors(String expr) {
+    if (!expr.contains('#')) return expr;
+    final color = RegExp(r'#(?:[0-9A-Fa-f]{8}|[0-9A-Fa-f]{6})(?![0-9A-Za-z_])');
+    final out = StringBuffer();
+    var quote = '';
+    for (var i = 0; i < expr.length; i++) {
+      final c = expr[i];
+      if (quote.isNotEmpty) {
+        out.write(c);
+        if (c == quote && expr[i - 1] != r'\') quote = '';
+        continue;
+      }
+      if (c == '"' || c == "'") {
+        quote = c;
+      } else if (c == '#') {
+        final m = color.matchAsPrefix(expr, i);
+        if (m != null) {
+          out.write('"${m[0]}"');
+          i = m.end - 1;
+          continue;
+        }
+      }
+      out.write(c);
+    }
+    return out.toString();
+  }
 
   /// A quoted text inside a formula that reads a value (`["Serves", "{n}"]`)
   /// is its parts joined, as it is in a list that is not a formula. A
@@ -4453,7 +5113,9 @@ class _Parser {
 
   /// A size as the document writes it: a number is fixed; `fill` and `hug`
   /// are fits.
-  Object? _size(Object? v) => switch (v) { 'fill' => {'fill': 0}, 'hug' => {'hug': 0}, _ => v };
+  // Not a switch: dart2wasm (Flutter 3.50) traps with "illegal cast" on a
+  // switch over string constants when the value is not a string (a number).
+  Object? _size(Object? v) => v == 'fill' ? {'fill': 0} : v == 'hug' ? {'hug': 0} : v;
 
   Object? _json(String s) {
     try {

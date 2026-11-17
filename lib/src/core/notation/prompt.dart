@@ -41,7 +41,12 @@ String notationPrompt({
   Set<String>? only,
   bool natural = false,
   bool wanted = false,
+  bool open = false,
 }) {
+  // The open vocabulary (docs/design/19): the grammar and the core only.
+  // No component is listed and no behaviour word taught; the model writes
+  // the word it expects, and the parser records it.
+  if (open) return _openPrompt(notationPrompt(catalog: catalog, options: options, natural: natural));
   final c = catalog ?? Catalog.current;
   final componentLines = designSystem == null
       ? const <String>[]
@@ -303,6 +308,57 @@ Card gap=8
   if choice!=""
     Text.muted "Thanks, you chose {choice}."
 $components$composing$pages''';
+}
+
+/// What opens the open-vocabulary prompt: the vocabulary is open, the
+/// grammar is not.
+const String notationOpenPreface = '''
+You write a user interface in a compact notation. What follows teaches its GRAMMAR and its CORE words (layout, text, the basic controls, state, events, conditions, loops, pages and overlays). The core is small on purpose.
+
+The vocabulary is open. Whenever the UI needs a part or a behaviour the core has no word for, write the word you would expect to exist, as if it existed: a capitalised type with the text, key=value parameters, on… events and children you would expect it to take (a chat bubble, a seat map, a timeline, a waveform, a table, a rating), or the action you would expect in an event (copy, focus). Choose the name and the parameters that read most naturally and that another model would most likely choose too. Do not build such a part out of boxes and do not explain it; do not hold back from a word because it is not listed. The grammar is not open: every line follows it exactly.
+
+''';
+
+/// The taught prompt without what is vocabulary: the `{…}` escape and the
+/// reference pages (an unknown word is written, not escaped to JSON), and
+/// the behaviour words of a page (a shortcut, a range, a calendar, a table,
+/// a reordered list, swipe actions: each is a word a model reaches for by
+/// some name, which the alias table maps).
+String _openPrompt(String taught) {
+  final out = <String>[];
+  var behaviours = false, beyond = false;
+  for (final line in taught.split('\n')) {
+    final l = line.trimRight();
+    // The behaviour words: the block under "Also, on a page:".
+    if (l.startsWith('  Also, on a page:')) {
+      behaviours = true;
+      continue;
+    }
+    if (behaviours && l.startsWith('    ')) continue;
+    behaviours = false;
+    // The reference pages beyond the notation, to the blank line after them.
+    if (l == 'BEYOND THESE WORDS') {
+      beyond = true;
+      continue;
+    }
+    if (beyond) {
+      beyond = l.isNotEmpty;
+      continue;
+    }
+    if (l.startsWith('- Beyond these words:') ||
+        l.startsWith('  key mod+k onPress=') ||
+        l.startsWith('  device.hover is true') ||
+        l.startsWith('    Dialog#edit "Edit" guard=') ||
+        l.startsWith('    Link "About Mara" preview=')) {
+      continue;
+    }
+    out.add(line
+        .replaceFirst('; confirm "Remove it?" then {rows=[]; close} asks first; announce "{n} results" tells a screen reader (Text "{n} results" live: each change)', '')
+        .replaceFirst(' (stops=[0.5,0.9]: heights it rests at)', '')
+        .replaceFirst('; Popover#bio arrow points at it', '')
+        .replaceFirst(', ${notationPageFunctions.join(', ')}', ''));
+  }
+  return '$notationOpenPreface${out.join('\n')}';
 }
 
 /// How [component] is called in the notation, on one line, with what it is

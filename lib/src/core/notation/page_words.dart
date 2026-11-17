@@ -672,6 +672,13 @@ final class PageWords {
   /// Whether the page's root is an app window (as tall as the window).
   bool app = false;
 
+  /// Every word this layer reads (a frame, a bar, a pane, an overlay, a
+  /// line of a bar): none of them is an unknown word, or an alias.
+  static const words = {
+    'Page', 'App', 'AppShell', 'Window', 'Section', 'Footer', 'Hero', 'Main', 'Content', 'Pane', 'Panel', 'Brand', 'Logo', 'IconTile', 'Link', 'Heading', 'Title', //
+    'Dialog', 'Modal', 'Sheet', 'BottomSheet', 'Drawer', 'Menu', 'Dropdown', 'Popover', 'Popup', 'Lightbox', 'Dots', 'SwipeAction', 'Wanted',
+    ..._bars, ..._sides, ..._items,
+  };
   static const _bars = {'Nav', 'Navbar', 'NavBar', 'TopBar', 'Topbar', 'Header', 'AppBar'};
   static const _sides = {'Sidebar', 'Aside', 'SideNav', 'Sidenav', 'Rail'};
   static const _items = {'NavItem', 'NavLink', 'SidebarItem', 'MenuItem'};
