@@ -2159,43 +2159,6 @@ class _Parser {
   /// The nodes written as `Card`.
   final _cards = <String>{};
 
-  /// The rows centered because nothing was written of their cross axis.
-  final _centeredByDefault = <String>{};
-
-  /// A field with its label over it, beside a control with none (a button
-  /// after an input): centered on the row's line, the button sits level with
-  /// the label and the field together, half a label too high. The row's
-  /// children are set on its foot instead, so the button is level with the
-  /// field's box. A row whose alignment was written keeps it, and so does
-  /// one whose field has a line under it (a helper or an error), which a
-  /// foot would misplace.
-  void _alignLabelled(_Open open) {
-    final row = nodes[open.id];
-    if (open.type != 'row' || row == null || !_centeredByDefault.contains(open.id)) return;
-    var labelled = 0, plain = 0;
-    for (final c in (row['children'] as List? ?? const [])) {
-      final n = nodes[c];
-      if (n == null || n['type'] == 'spacer') continue;
-      final decoration = (n['props'] as Map?)?['decoration'];
-      final label = decoration is Map ? decoration['labelText'] : null;
-      if (label is String && label.isNotEmpty) {
-        if (decoration is Map && (decoration['helperText'] != null || decoration['errorText'] != null)) return;
-        labelled++;
-      } else {
-        plain++;
-      }
-    }
-    if (labelled == 0 || plain == 0) return;
-    row['props'] = ((row['props'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{})..['crossAxisAlignment'] = 'end';
-    _patches.add({
-      'op': 'patch',
-      'id': open.id,
-      'patch': {
-        'props': {'crossAxisAlignment': 'end'},
-      },
-    });
-  }
-
   /// A row whose children's written widths add up to more than the canvas
   /// is wide (a table's columns in a card): the widths become shares of the
   /// row, so the columns keep their proportions and fit. A row that scrolls
@@ -4762,10 +4725,7 @@ class _Parser {
     // A column starts its children at the leading edge and a row centers
     // them on its line (what a form and a toolbar want), unless written.
     if (type == 'column') props.putIfAbsent('crossAxisAlignment', () => 'start');
-    if (type == 'row' && !props.containsKey('crossAxisAlignment')) {
-      props['crossAxisAlignment'] = 'center';
-      _centeredByDefault.add(id);
-    }
+    if (type == 'row') props.putIfAbsent('crossAxisAlignment', () => 'center');
     // Progress is written as a share (`Progress 0.4`, `Progress =step/3`):
     // the bar is full at 1, unless a larger number or a max is written.
     if (type == 'progressBar' && !props.containsKey('max')) {
@@ -5735,7 +5695,6 @@ class _Parser {
       }
     }
     _fitRow(open);
-    _alignLabelled(open);
     final g = open.grid;
     if (g == null || open.id != g.id || open.condition != null || g.row == null) return;
     while (g.inRow < g.cols) {
