@@ -156,12 +156,12 @@ Formula functions we do not have (`fuzzyMatch`, `startOfWeek`, `moveItem`) are n
 
 | | core | component | alias | unknown (stand-in) | distinct unknown words |
 |---|---|---|---|---|---|
-| before any alias | 3,814 (81.9%) | 541 (11.6%) | 0 | 302 (6.5%) | 83 |
-| with the seeded table | 3,784 (81.3%) | 541 (11.6%) | 145 (3.1%) | 187 (4.0%) | 76 |
+| before any alias | 3,814 (81.9%) | 541 (11.6%) | 0 | 302 (6.5%) | 86 |
+| with the seeded table | 3,784 (81.3%) | 541 (11.6%) | 145 (3.1%) | 187 (4.0%) | 80 |
 
 326 alias uses in all (the lines above count only a line whose first word is an alias; `disabled`, `subtitle` and `persist` are on lines whose first word we have).
 
-Left unknown: 76 types (184 uses), 158 parameters on words we have (306 uses), 50 flags (96), 28 events (40), 28 verbs (65), 8 variants (21), 15 formula functions (33).
+Left unknown: 80 types (191 uses; a few are words an alias reads in one shape and not in another, `RangeSlider`, `Shortcut` with several keys in one string), 158 parameters on words we have (306 uses), 50 flags (96), 28 events (40), 28 verbs (65), 8 variants (21), 15 formula functions (33).
 
 What the corpus showed the grammar should read, fixed in the parser with tests (each holds with the vocabulary closed too; none changes a document that was valid):
 
