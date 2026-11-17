@@ -1033,6 +1033,11 @@ Row gap=8
     // Without grow, the copies keep their own widths in a line.
     final plain = _parse('Row gap=8\n  each p in [1,2]\n    Text "{p}"\n');
     expect(_node(plain, 'listView1')['type'], 'listView');
+    // A grid whose column count is worked out: bound, not the default 2.
+    final sized = _parse('state gridSize=3\nstate photos=["a","b","c"]\nGrid cols={gridSize}\n  each p in photos\n    Text "{p}"\n');
+    expect(sized.issues, isEmpty, reason: '${sized.issues}');
+    expect((_node(sized, 'gridView1')['bind'] as Map)['props.crossAxisCount'], r'${= max(1, round(gridSize))}');
+    expect(_problems(sized.document), isEmpty);
     // A wrapping row over an each: the list wraps, filling the row, and the
     // row does not (it would keep the list at no width).
     final wrapping = _parse('Row gap=8 wrap\n  each p in [1,2]\n    Text "{p}"\n');

@@ -1002,6 +1002,9 @@ class _Grid {
   _Grid(this.id);
   final String id;
   int cols = 2;
+
+  /// `cols={…}`: the column count worked out from the state (a formula).
+  String? colsFormula;
   num gap = 8;
   String? row;
   int inRow = 0;
@@ -2971,7 +2974,11 @@ class _Parser {
                         if (reorderGroup.isNotEmpty) ...{'group': reorderGroup, 'listKey': listName},
                       },
                   },
-        'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
+        'bind': {
+          'data': _read(each[2]!.trim()),
+          if (parent.condition != null) 'visible': parent.condition,
+          if (g?.colsFormula case final String cols) 'props.crossAxisCount': cols,
+        },
         'children': <Object?>[itemId],
       };
       final listActions = <Json>[];
@@ -3935,7 +3942,13 @@ class _Parser {
           }
         }
         if (grid != null && (key == 'cols' || key == 'columns')) {
-          grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 24);
+          // `cols={gridSize}`: worked out, for the cells an each repeats (cells
+          // written one by one are laid in rows here, at the default).
+          if (raw.startsWith('=')) {
+            grid.colsFormula = _formula('max(1, round(${raw.substring(1)}))');
+          } else {
+            grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 24);
+          }
           continue;
         }
         if (grid != null && (key == 'gap' || key == 'spacing')) {
