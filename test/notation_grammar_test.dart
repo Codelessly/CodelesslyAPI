@@ -1,5 +1,5 @@
 // The notation's grammar, one rule per role
-// (docs/design/17-notation-grammar.md): a parameter is key=value, a value
+// (docs/design/17-notation-grammar-audit.md): a parameter is key=value, a value
 // worked out is in braces, a control's variable is bind=name, what a node
 // does is an event with its actions in braces. The grammar it replaced
 // (key:value, =name, key:=expression, -> actions) is not read: each of its
