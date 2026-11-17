@@ -18,8 +18,10 @@ import '../design_system.dart';
 import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
+import '../suggest.dart' show didYouMean;
 import '../triggers.dart' show KeyCombo;
 import 'define.dart';
+import 'keys.dart';
 import 'page_words.dart';
 import 'reflow.dart';
 import 'universal.dart';
@@ -836,30 +838,9 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'pageView': (prop: 'initialPage', type: 'decimal', start: 0),
 };
 
-const _shortKeys = {'gap': 'props.spacing', 'pad': 'layout.padding', 'w': 'layout.width', 'h': 'layout.height', 'grow': 'layout.flex'};
+const _shortKeys = notationShortKeys;
 /// Keys a model reaches for that a type spells otherwise.
-const Map<String, Map<String, List<String>>> _typeKeys = {
-  'textField': {
-    'hint': ['props.decoration.hintText'],
-    'placeholder': ['props.decoration.hintText'],
-    'label': ['props.decoration.labelText'],
-    'helper': ['props.decoration.helperText'],
-    'error': ['props.decoration.errorText'],
-  },
-  'dropdown': {
-    'placeholder': ['props.hint'],
-  },
-  'gridView': {
-    'cols': ['props.crossAxisCount'],
-    'columns': ['props.crossAxisCount'],
-    'gap': ['props.mainAxisSpacing', 'props.crossAxisSpacing'],
-    'spacing': ['props.mainAxisSpacing', 'props.crossAxisSpacing'],
-  },
-  'pageView': {
-    // The share of the width one page takes: under 1, the next page shows at the edge.
-    'peek': ['props.viewportFraction'],
-  },
-};
+const _typeKeys = notationTypeKeys;
 
 /// What `bind=expr` binds on a type that shows a value but takes no input.
 const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
@@ -904,6 +885,52 @@ const Map<String, Json> notationAnimations = {
   'shimmer': {'preset': 'shimmer'},
 };
 
+/// [root] with [value] at [path] (`style.height`, `fills[0].color`): the maps
+/// and lists on the way made, or copied where they were another value.
+void _setPath(Json root, String path, Object? value) {
+  final segments = [
+    for (final s in path.split('.'))
+      (name: RegExp(r'^[^\[]*').stringMatch(s)!, indices: [for (final m in RegExp(r'\[(\d+)\]').allMatches(s)) int.parse(m[1]!)]),
+  ];
+  Object? container = root;
+  for (var i = 0; i < segments.length; i++) {
+    final (:name, :indices) = segments[i];
+    final last = i == segments.length - 1;
+    // The steps of this segment: its name in a map, then its indices.
+    final steps = <Object>[name, ...indices];
+    for (var j = 0; j < steps.length; j++) {
+      final step = steps[j];
+      final end = last && j == steps.length - 1;
+      final nextIsIndex = j + 1 < steps.length;
+      Object? fresh() => nextIsIndex ? <Object?>[] : <String, Object?>{};
+      if (step is String) {
+        final m = container as Map;
+        if (end) {
+          m[step] = value;
+          return;
+        }
+        var next = m[step];
+        if (nextIsIndex ? next is! List : next is! Map) next = m[step] = fresh();
+        if (next is Map && next is! Map<String, Object?>) next = m[step] = next.cast<String, Object?>();
+        container = next;
+      } else {
+        final l = container as List;
+        final at = step as int;
+        while (l.length <= at) {
+          l.add(<String, Object?>{});
+        }
+        if (end) {
+          l[at] = value;
+          return;
+        }
+        var next = l[at];
+        if (nextIsIndex ? next is! List : next is! Map) next = l[at] = fresh();
+        container = next;
+      }
+    }
+  }
+}
+
 /// A time as a model writes it (`600`, `600ms`, `0.6s`), in milliseconds.
 int? _milliseconds(String raw) {
   final m = RegExp(r'^(\d+(?:\.\d+)?)(ms|s)?$').firstMatch(raw.trim());
@@ -925,19 +952,12 @@ const Map<String, (String, String, String)> badgeVariants = {
 };
 
 /// Keys written on a Text that belong to its style.
-const _textStyleKeys = {
-  'color': 'color', 'size': 'fontSize', 'fontSize': 'fontSize', 'weight': 'fontWeight', 'fontWeight': 'fontWeight',
-  'bold': 'fontWeight', 'fontFamily': 'fontFamily', 'font': 'fontFamily', 'lineHeight': 'height',
-};
+const _textStyleKeys = notationTextStyleKeys;
 
 /// Keys written on an Input that belong to the style of its typed text.
-const _fieldStyleKeys = {
-  'font': 'fontFamily', 'fontFamily': 'fontFamily', 'fontSize': 'fontSize', 'textSize': 'fontSize', //
-  'weight': 'fontWeight', 'fontWeight': 'fontWeight', 'letterSpacing': 'letterSpacing', 'lineHeight': 'height',
-};
+const _fieldStyleKeys = notationFieldStyleKeys;
 
 const _layoutKeys = {'width', 'height', 'padding', 'margin', 'flex', 'aspectRatio', 'x', 'y', 'align', 'constraints', 'order', 'basis'};
-const _decorationKeys = {'radius', 'strokeWidth', 'fills', 'strokes', 'effects', 'clip', 'shape'};
 const _borderSides = {
   'border-bottom': 'bottom', 'border-top': 'top', 'border-left': 'left', 'border-right': 'right', //
   'borderBottom': 'bottom', 'borderTop': 'top', 'borderLeft': 'left', 'borderRight': 'right', 'border-b': 'bottom', 'border-t': 'top', 'border-l': 'left', 'border-r': 'right',
@@ -3269,45 +3289,38 @@ class _Parser {
     final listLine = boxLine && pre != null && const ['reorder', 'sortable', 'reorderable', 'selectable'].any(pre.has);
     final listWords = <String, ({String value, int column})>{};
 
+    // A path of the node (`props.style.height`, `layout.constraints.maxWidth`,
+    // `pan.axis`, `decoration.fills[0].color`) given its value, the maps and
+    // lists on the way made as needed.
     void put(String path, Object? value) {
       final dot = path.indexOf('.');
-      final where = dot < 0 ? '' : path.substring(0, dot), key = dot < 0 ? path : path.substring(dot + 1);
-      switch (where) {
-        case 'props':
-          final sub = key.indexOf('.');
-          if (sub < 0) {
-            props[key] = value;
-          } else {
-            final inner = (props[key.substring(0, sub)] as Json?) ?? (props[key.substring(0, sub)] = <String, Object?>{});
-            inner[key.substring(sub + 1)] = value;
-          }
-        case 'layout':
-          layout[key] = value;
-        case 'decoration':
-          decoration[key] = value;
-        default:
-          node[key] = value;
-      }
+      final where = dot < 0 ? '' : path.substring(0, dot);
+      final Json root = switch (where) { 'props' => props, 'layout' => layout, 'decoration' => decoration, _ => node };
+      _setPath(root, root == node ? path : path.substring(dot + 1), value);
     }
 
+    // The key as the catalog reads it (docs/design/22 section 2.1, keys.dart):
+    // the path it sets and what is declared there. A key that is none of the
+    // type's names is `unknownKey` (said, or recorded, once the line is read).
     var unknownKey = false;
+    PropType? keyType;
+    PropDef<Object?>? keyDef;
     String pathOf(String key) {
       unknownKey = false;
+      keyType = null;
+      keyDef = null;
+      // `gap` where there is no spacing (a Text) is no word of that line.
       final short = _shortKeys[key];
-      if (short != null) return short;
-      if (key == 'visible' || key == 'opacity') return key;
-      if (spec.props.any((p) => p.key == key)) return 'props.$key';
+      if (short != null && notationKey(key, type, catalog: catalog) != null) return short;
       if (key == 'enabled' && spec.props.any((p) => p.key == 'isEnabled')) return 'props.isEnabled';
       if ((key == 'lines' || key == 'rows') && type == 'textField') return 'props.maxLines';
       // `Input "Age" type=number`: the keyboard it opens.
       if (key == 'type' && type == 'textField' && !spec.props.any((p) => p.key == 'type')) return 'props.keyboardType';
       if ((key == 'selected' || key == 'checked') && (type == 'checkbox' || type == 'switch')) return 'props.value';
-      if (_layoutKeys.contains(key)) return 'layout.$key';
-      if (_decorationKeys.contains(key)) return 'decoration.$key';
-      // A component takes only what it declares: say so here, where the
-      // line is, with what it does take.
-      if (component && !open) {
-        _issue(column, 'A $written has no "$key". It takes: ${spec.props.map((p) => p.key).join(', ')}.');
+      if (resolveNotationField(key, type, catalog: catalog)?.key case final found?) {
+        keyType = found.type;
+        keyDef = found.def;
+        return found.path;
       }
       unknownKey = true;
       return 'props.$key';
@@ -4475,6 +4488,17 @@ class _Parser {
           continue;
         }
         final path = pathOf(key);
+        if (unknownKey && !_identifier.hasMatch(key) || unknownKey && key.contains('.')) {
+          // A path that is none of the type's (`pan.axs`, `props.colour`):
+          // said, with the nearest, or recorded.
+          if (open) {
+            if (!standIn) _use('parameter', key, col, on: _srcWord ?? written, value: _written(word, eq, raw));
+            if (standIn) dropped.add(key);
+          } else {
+            _issue(col, _noKey(written, key, type));
+          }
+          continue;
+        }
         if (unknownKey) {
           unknownKeys.add((key: key, value: _written(word, eq, raw), column: col));
           // What a stand-in would keep a value in (bindStart=from) is still
@@ -4498,6 +4522,10 @@ class _Parser {
           } else {
             put(path, text);
           }
+        } else if (bound != null && path == 'tooltip') {
+          // A tooltip reads its data itself: one worked out is its own, as
+          // `tooltip={…}` is (docs/design/21).
+          node['tooltip'] = _read(bound);
         } else if (bound != null) {
           bind[path] = _read(bound);
         } else if (dotted != null && (variables.containsKey(dotted[1]) || dotted[1] == 'item')) {
@@ -4523,14 +4551,13 @@ class _Parser {
           // With an open vocabulary a value of another kind than the
           // parameter takes (live=polite where it is true or false,
           // size=large where it is a number) is not ours: left out, recorded.
-          if (open && path == 'props.$key' && !(v is String && v.contains(r'${'))) {
-            final def = spec.props.where((p) => p.key == key).firstOrNull;
-            final wrong = def != null &&
-                !def.type.isVariable &&
-                switch (def.type.kind) {
+          final declared = unknownKey ? null : keyType;
+          if (open && declared != null && !(v is String && v.contains(r'${'))) {
+            final wrong = !declared.isVariable &&
+                switch (declared.kind) {
                   PropKind.boolean => v is! bool,
                   PropKind.number || PropKind.integer => v is! num,
-                  PropKind.enumeration => v is String && !def.type.values.contains(v),
+                  PropKind.enumeration => v is String && !declared.values.contains(v),
                   PropKind.list => v is! List,
                   _ => false,
                 };
@@ -4538,6 +4565,39 @@ class _Parser {
               if (!standIn) _use('parameter', key, col, on: _srcWord ?? written, value: _written(word, eq, raw));
               continue;
             }
+          }
+          // A word that is none of its enum's values: said, with the nearest
+          // (docs/design/22 section 2.1).
+          if (!open && declared != null && declared.kind == PropKind.enumeration && v is String && !v.contains(r'${') && !declared.values.contains(v)) {
+            final near = didYouMean(v, declared.values);
+            _issue(col, 'A $written\'s $key is one of ${declared.values.join(', ')}: not "$v"${near == null ? '' : ' (did you mean $key=$near?)'}.');
+            continue;
+          }
+          // A record (a behavior, a style) given a word it cannot read as one
+          // (`pan=horizontal`): said, with its fields.
+          if (declared != null && declared.kind == PropKind.object && declared.fields.isNotEmpty && v is! Map && !(v is String && v.contains(r'${')) && keyDef?.decode(v) == null) {
+            if (open) {
+              if (!standIn) _use('parameter', key, col, on: _srcWord ?? written, value: _written(word, eq, raw));
+            } else {
+              final fields = declared.fields.map((f) => f.key);
+              _issue(col, 'A $written\'s $key is a ${declared.name}: write its fields, $key.${fields.first}=… (${fields.join(', ')}), or $key={"${fields.first}": …}.');
+            }
+            continue;
+          }
+          // A field of the style of the text it shows starts from the style
+          // its words start from (the body's, an Input's own).
+          if (notationTextStyleProp(spec) case final style? when path.startsWith('props.${style.key}.') && props[style.key] is! Map) {
+            final base = style.key != 'style'
+                ? null
+                : type == 'text'
+                    ? options.textStyles['body']
+                    : type == 'textField'
+                        ? options.fieldText
+                        : null;
+            props[style.key] = switch (props[style.key]) {
+              final String name => <String, Object?>{'from': name},
+              _ => base is Map ? _copy(base.cast<String, Object?>()) : base is String ? <String, Object?>{'from': base} : <String, Object?>{},
+            };
           }
           if (v is String && v.contains(r'${') && !(type == 'text' && path == 'props.text')) {
             // A string that reads data (value="{streak} days") is bound:
@@ -5339,7 +5399,9 @@ class _Parser {
     // With an open vocabulary, what the line gave that its type does not
     // take is left out of the document and recorded (what a word of the
     // notation read for itself, a Donut's legend, is no longer here).
-    if (open && unknownKeys.isNotEmpty) {
+    // With a closed one it is said, with the nearest name (docs/design/22
+    // section 2.1): never a prop nothing reads.
+    if (unknownKeys.isNotEmpty) {
       final takes = catalog.widget('${out['type']}');
       for (final u in unknownKeys) {
         if (takes != null && takes.props.any((p) => p.key == u.key)) continue;
@@ -5350,6 +5412,10 @@ class _Parser {
         if (b is Map) b.remove('props.${u.key}');
         if (p is Map && p.isEmpty) out.remove('props');
         if (b is Map && b.isEmpty) out.remove('bind');
+        if (!open) {
+          _issue(u.column, _noKey(written, u.key, '${out['type']}', component: component, takes: spec));
+          continue;
+        }
         if (!standIn) _use('parameter', u.key, u.column, on: _srcWord ?? written, value: u.value);
         if (standIn) dropped.add(u.key);
       }
@@ -6691,6 +6757,15 @@ class _Parser {
 
   /// Tells apart the unknown verbs of one event (they share its column).
   int _verbAt = 0;
+
+  /// A key a line of [written] (document type [type]) has no name for, said
+  /// with the nearest name the catalog has there; a design system's
+  /// component with what it takes.
+  String _noKey(String written, String key, String type, {bool component = false, WidgetSpec? takes}) {
+    if (component && takes != null) return 'A $written has no "$key". It takes: ${takes.props.map((p) => p.key).join(', ')}.';
+    final near = notationKeyNearest(key, type, catalog: catalog);
+    return 'A $written has no "$key"${near == null ? '' : ' (did you mean $near?)'}: left out.';
+  }
 
   /// A key's value as it was written: the word's own, or what followed it
   /// (a string, a list, an expression: [read] has those marked with `=`).
