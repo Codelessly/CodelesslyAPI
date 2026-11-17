@@ -244,9 +244,12 @@ is not open.
   …`). A stream that wants its words whole writes its definitions first, or is read again whole at its end.
 - A design system's folder may hold `vocabulary/*.txt`; the SDK's `notation.sh expand`, `vocabulary` and `prompt`
   load them with the design system.
-- The prompt with the open vocabulary does not list them: that is the point (the model writes the word it expects,
-  and a definition gives it a meaning). `notation.sh prompt` in the taught mode lists their signature lines and
-  purposes, as it lists components.
+- The prompt with the open vocabulary does not teach them: the model writes the word it expects, and a definition
+  gives it a meaning. Since the loop's Review 6 (D29) it names them, with the design system's components, on one
+  line and with no parameters (the glossary, [note 19](19-open-vocabulary.md) section 2), so a writer uses ours
+  rather than defining its own; a name promises only the shape the name suggests, which is why the named words
+  took the harvested shapes first (section 10). `notation.sh prompt` in the taught mode lists their signature
+  lines and purposes, as it lists components.
 
 ## 8. What a definition cannot do
 
@@ -307,7 +310,49 @@ not its drag selection), `Autocomplete`, `CommandList`, `FuzzySearch` (an Input 
   only, so the number is an unknown flag. Closed since (note 21 section 8): a bare number fills the next string of
   the signature, else its parameter `value`, and is the number itself in the body's expressions.
 
-## 10. What is not done, and what it costs
+## 10. Promoted from the harvest (the loop's Reviews 5 and 6, D25 and D30)
+
+The self-defining corpora (`corpus-define/d01`, `d02`: 111 answers) defined the same words again and again, and
+mostly agreed. Where three or more answers defined a word, or a word Cards or the core already had, ours took the
+shape the writers agreed on, and the other names they used are aliases (`vocabulary.json`, which reaches a
+defined word since this review, section 5):
+
+| word | signature now | aliases |
+|---|---|---|
+| `Timeline#events` (first: a bare `Timeline` is it) | `Timeline.vertical#events items=[] bind=at selected onPick`: records with a date or time, a title, a note | `events`, `steps`, `entries` → `items`; `current` → `selected`; `onSelect` → `onPick` |
+| `Timeline#tracks`, `#route` | as they were, with `tracks=[]` and `stops=[]` named in the signature | |
+| `Stepper` | the component (the number control: `bind=value min max step label onChanged`, `onChange`) and `Stepper#steps steps=[] bind=step current done=[] orientation="horizontal" onPick` | `items` → `steps`; `onSelect` → `onPick` |
+| `Countdown#timer` (new meaning) | `"label" seconds=0 warnAt=0 format="m:ss" onWarn onEnd` | `warnBelow`, `warn` → `warnAt`; `onDone`, `onFinish`, `onComplete` → `onEnd` |
+| `Rating` (component, repaired) | `"label" bind=value score max=5 half readOnly onChanged`; the label optional | `readonly`; `StarRating` is `Rating` |
+| `ChatBubble` | `"text" mine=false role sender time grouped=false` (role="user" is mine) | `from`, `author` → `sender` |
+| `Barcode` (core) | `Barcode "text"`, bars by default, 80 high | `value`, `code` → `data`; `format`, `type` → `symbology`; `QRCode` |
+| `Banner` (component, repaired) | `"title" "message" tone icon action dismissible onDismiss onAction`; `Banner.warning` is `tone=warning` | `actionLabel` → `action`; `text` → `message` |
+| `Breadcrumb` (component) | `items! showHomeIcon onNavigate` | `crumbs`, `path` → `items`; `onPick`, `onSelect` → `onNavigate`; `Breadcrumbs` |
+
+And where the writers' own definitions were labelled boxes because the thing needs a primitive (section 8), Cards
+has a stand-in in the agreed signature: a quiet placeholder that shows its label and what it was given, with its
+events declared so an answer's actions are read, and a `//` line that says what it does not do. When the primitive
+is built, the word is already agreed:
+
+| word | signature | what it shows | aliases |
+|---|---|---|---|
+| `MapView` | `center=[0,0] zoom=12 pins=[] bind=picked h=320 onSelect` | centre, zoom, the pins as chips | `markers`, `places`, `locations`, `apps` → `pins`; `onPick`, `onPin` → `onSelect`; `Map` |
+| `RouteMap` | `stops=[] current progress=0 h=240 onPick` | how far along, the stops numbered | `points`, `route` → `stops`; `onPin`, `onSelect` → `onPick` |
+| `FloorPlan` | `"name" rooms=[] pins=[] bind=picked selected placing=false h=360 onPick onPlace` | rooms as tiles, pins as chips | `items`, `markers` → `pins`; `onSelect` → `onPick` |
+| `SignaturePad` | `"hint" bind=signature h=160 onChange` | a framed area; a tap marks it signed | `onSign` → `onChange`; `Signature` |
+| `CameraView` | `"hint" source="camera" h=320 onCapture` | a dark frame, its source, a shutter | `onShutter`, `onTake` → `onCapture`; `Camera` |
+| `PhotoPicker` | `"label" bind=photo onPick` | a framed area; "Photo attached" once bound | |
+| `Waveform` | `values=[] position=0 cues=[] h=48 onSeek` | a bar per value, coloured to the position | `peaks`, `samples`, `bars` → `values`; `progress` → `position`; `marks`, `markers` → `cues` |
+
+Review 6's glossary experiment (`corpus-define/d03`) showed the other side: a name given without a signature is
+used in the shape the writer expects. Those shapes were taken too (D30): `TimelineItem date= done= current=`,
+`AttachmentTile "name" "size" progress=` (and its close button with `onRemove` alone), `FlightProgress value=`, a
+`FileUploader`'s `accept=` (a text or a list, said in its hint) and `multiple`, and aliases for a component's list
+under the name answers gave it (`ChipTabs items=`, `ChoiceChips`, `SegmentedControl`, `Combobox`,
+`StepIndicator items=`, `StatusBadge status=`, `StatCard caption=`, `ImageUpload accept=`, `CodeBlock lang= copy`).
+The SDK's vocabulary tool lists what is left under "Named words used in a shape we do not take".
+
+## 11. What is not done, and what it costs
 
 - **Whether a use has lines under it** does not choose a meaning (section 5).
 - **State under an `each`** is one variable for every row (section 4).

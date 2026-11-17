@@ -369,3 +369,30 @@ never wrote, now placeholder sheets), an expression where the text goes or a JSO
 an id-less variant from data 27 to 0, `show=`/`hide=` with a condition 30 to 0, a drag value 26 to 0, and lines
 broken by those (`Unknown word` on a Card, Chip, Panel, Row) 27 to 0. The resolved share barely moves: the first
 corpus has no definitions, and the universal words (D7) are on another branch.
+
+## 14. Shapes behind the names (2026-11-17: the loop's Reviews 5 and 6, D25, D26, D29, D30)
+
+The harvest of the self-defining answers became Cards' words ([note 20](20-defined-words.md) section 10: their
+signatures, the aliases, the stand-ins for what needs a primitive), the shapes the glossary experiment's answers
+wrote were taken, and the glossary went into the open prompt (section 2). Counted again with no new answer:
+
+| | words | resolved | unknown words | grammar issues | does not validate |
+|---|---|---|---|---|---|
+| `corpus-define/d03` (17, written with the glossary), before | 645 | 605 (93.8%) | 40 | 45 | 39 |
+| after | 645 | 631 (97.8%) | 14 | 42 | 39 |
+| `d01` + `d02` (111 self-defining), before | 2,470 | 2,383 (96.5%) | 87 | 167 (126 in definitions) | 100 |
+| after | 2,470 | 2,395 (97.0%) | 75 | 159 (121) | 100 |
+| the first corpus (313), before | 5,154 | 2,091 (40.6%) | 3,063 | 318 | 445 |
+| after | 5,154 | 2,154 (41.8%) | 3,000 | 311 | 445 |
+
+In d01 and d02, 71 of the 418 words answers defined (29 of 363 distinct) are now Cards' (52 before): 49 of them
+are page definitions that shadow one of Cards' (a page's own definition wins on its page), 22 a Cards component
+(the component wins). That is what the glossary removes: d03's seventeen answers, given the names, define 4 words that are now ours (`FloorPlan` and `SignaturePad`, named only since this change, and `StatCard`).
+
+What d03 still leaves unknown (14): four of `FileMetadataCard`'s fields written as parameters (it takes lists of
+labels and values), `FileTree items= expanded=`, `Breadcrumb current=`, `Combobox addable=`, `StepIndicator
+bind=`, `DateRangePicker bind=`, `StatCard tone=`, `BarChart onSelect`, and one invented `StatusPill`. The tool's
+section "Named words used in a shape we do not take" lists them.
+
+The prompt with Cards' glossary: 24,206 characters for a page at 1280 (20,542 without), 14,874 for a card at 390
+(11,202 without); the glossary line names 284 words in 3,664 characters.

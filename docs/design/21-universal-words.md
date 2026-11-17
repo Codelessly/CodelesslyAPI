@@ -42,7 +42,9 @@ root by it (it replaces note 20's `definedPassThrough`), and the SDK's counting 
 
 1. **A type's own word of that name.** `Avatar size=large` on a design system whose Avatar takes `size` is that
    component's; `Rating readOnly`; a Chip of Cards with `icon`; a Select's `icon` (its arrow). A definition that names
-   the word in its signature has it as its own.
+   the word in its signature has it as its own: Cards' `Timeline#events` names `selected` (the index of the entry
+   lit, as writers wrote it, `current=` aliased to it), so on a Timeline `selected` is that index, not the root's
+   selected state; a Banner's `icon` (since D30) is its glyph.
 2. **An alias** that reads it as one of the type's own (`disabled` is `enabled={!…}` on a type with `enabled`;
    `readonly` is `readOnly` on a text field and a slider).
 3. **The universal meaning**, below.
