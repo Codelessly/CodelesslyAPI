@@ -12,7 +12,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
-import '../behaviors.dart' show mergePatch;
+import '../behaviors.dart' show diffPatch, mergePatch;
 import '../catalog.dart';
 import '../design_system.dart';
 import '../layout.dart' show SizeFit;
@@ -1031,8 +1031,52 @@ final class NotationStream {
     _buffer.clear();
     if (rest.isNotEmpty) _parser.line(rest);
     _parser.finish();
+    // What the end of the text does (design 22, 4.7): each line's tail merged
+    // again over what later lines added, the nodes a tail took away, the
+    // canvas lines' words; sent as patches and removals.
+    final removed = <String>[];
+    final patched = <String, Json>{};
+    _result = _parser._end(changed: (p, id, before) {
+      final now = p.nodes[id];
+      if (now == null) {
+        removed.add(id);
+        return;
+      }
+      final d = diffPatch(before ?? const {}, now);
+      if (d == null) return;
+      for (final k in const ['children', 'slots', 'type', 'id']) {
+        d.remove(k);
+      }
+      if (d.isNotEmpty) patched[id] = d;
+    });
+    for (final p in [_parser, ..._parser._overlays]) {
+      final c = p._canvasPatch;
+      if (c == null) continue;
+      final d = {...c}..remove('slots')..remove('type');
+      if (d.isNotEmpty) patched[p.options.screen] = mergePatch(patched[p.options.screen] ?? const {}, d, keepNulls: true);
+    }
+    // A `document {…}` line's nodes: patched, or taken away.
+    for (final e in (readMap(_parser._documentPatch?['nodes']) ?? const {}).entries) {
+      if (e.value == null) {
+        removed.add(e.key);
+      } else if (readMap(e.value) case final Json d) {
+        final p = {...d}..removeWhere((k, _) => const {'children', 'slots', 'type', 'id'}.contains(k));
+        if (p.isNotEmpty) patched[e.key] = mergePatch(patched[e.key] ?? const {}, p, keepNulls: true);
+      }
+    }
+    for (final e in patched.entries) {
+      _parser.ops.add({'op': 'patch', 'id': e.key, 'patch': e.value});
+    }
+    if (removed.isNotEmpty) _parser.ops.add({'op': 'remove', 'ids': removed});
     return _take();
   }
+
+  NotationResult? _result;
+
+  /// After [close]: what parseNotation gives for the whole text, for what
+  /// no operation carries (the document's `id`, `schema`, a component's
+  /// declaration and previews, a `document {…}` line).
+  NotationResult? get result => _result;
 
   List<Json> _take() {
     final out = [..._parser.ops];
@@ -2442,23 +2486,47 @@ class _Parser {
       }
     }
     final screen = options.screen;
+    // A component's tree (or one under `canvas none`) has no canvas: its
+    // root is the document's root, and nothing is sent before it.
+    final bare = _top._widget != null || _top._noCanvas;
+    if (bare && !_canvas && (id == null || _parentOf[id] != null)) return;
     final fresh = {
       for (final v in variables.values)
-        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value'], if (v['persist'] == true) 'persist': true},
+        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String))
+          v['name']! as String: {
+            for (final e in v.entries)
+              if (e.key != 'name') e.key: e.value,
+          },
     };
     if (id == null && fresh.isEmpty) return;
-    if (!_canvas) {
+    if (bare && !_canvas) {
+      // The root, then the roots, then what is kept on it.
       _canvas = true;
       ops
-        ..add({'op': 'roots', 'roots': _rootIds})
-        ..add({'op': 'set', 'id': screen, 'node': _canvasNode..remove('slots')});
+        ..add({'op': 'set', 'id': id, 'node': {...nodes[id!]!}..remove('children')..remove('slots')})
+        ..add({'op': 'roots', 'roots': [id]});
+      if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': _documentWords['scope'] as String? ?? id, 'set': fresh});
+      ops.addAll(_patches);
+      _patches.clear();
+      return;
     }
-    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': _scope, 'set': fresh});
+    if (!_canvas) {
+      _canvas = true;
+      final canvas = _canvasNode..remove('slots');
+      ops
+        ..add({'op': 'roots', 'roots': _rootIds})
+        ..add({'op': 'set', 'id': screen, 'node': _canvasPatch == null ? canvas : mergePatch(canvas, {..._canvasPatch!}..remove('slots'))});
+    }
+    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': bare ? _documentWords['scope'] as String? ?? _root ?? screen : _scope, 'set': fresh});
     ops.addAll(_patches);
     _patches.clear();
     if (id == null) return;
     final node = {...nodes[id]!}..remove('children');
     final parent = _parentOf[id];
+    if (bare && parent == null) {
+      ops.add({'op': 'set', 'id': id, 'node': node..remove('slots')});
+      return;
+    }
     final slot = parent == null ? 'body' : _slotOf[id];
     ops.add({'op': 'set', 'id': id, 'parent': parent ?? screen, if (slot != null) 'slot': slot, 'node': node..remove('slots')});
   }
@@ -2968,11 +3036,27 @@ class _Parser {
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     const LineSplitter().convert(text).forEach(line);
     finish();
+    return _end();
+  }
+
+  /// The end of the text, read whole or as it arrived ([NotationStream]):
+  /// each line's tail merged again, the nodes a tail took away left out,
+  /// and the document. [changed], when given, is told each node of a
+  /// parser that this changed (its id, the node before, or null for one
+  /// left out), so that a stream can send it.
+  NotationResult _end({void Function(_Parser p, String id, Json? before)? changed}) {
     for (final p in [this, ..._overlays]) {
+      final before = changed == null ? null : {for (final e in p.nodes.entries) e.key: _copy(e.value)};
       for (final e in p._lineTails.entries) {
         if (p.nodes[e.key] case final Json node) _merge(node, _settled(e.value));
       }
       p._dropOrphans();
+      if (before != null) {
+        for (final e in before.entries) {
+          final now = p.nodes[e.key];
+          if (now == null || jsonEncode(now) != jsonEncode(e.value)) changed!(p, e.key, e.value);
+        }
+      }
     }
     final patch = _documentPatch;
     final words = {
