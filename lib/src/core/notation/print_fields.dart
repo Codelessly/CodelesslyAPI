@@ -20,6 +20,7 @@ import 'notation.dart';
 import 'print_events.dart';
 import 'print_media.dart';
 import 'print_paint.dart';
+import 'print_states.dart';
 
 /// Whether a node's line also writes, by the field's own name or its dotted
 /// path (docs/design/22, section 2.1), the fields the parser has no word for
@@ -93,7 +94,7 @@ String printNodeLine(String id, Json n, PrintContext context) {
   for (final w in line.words) {
     b.write(' $w');
   }
-  for (final words in [printEvents(id, n, context), printMedia(id, n, context), printPaint(id, n, context)]) {
+  for (final words in [printStates(id, n, context), printEvents(id, n, context), printMedia(id, n, context), printPaint(id, n, context)]) {
     for (final w in words) {
       b.write(' $w');
     }
