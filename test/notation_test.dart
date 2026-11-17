@@ -1045,6 +1045,18 @@ Row gap=8
     // Without grow, the copies keep their own widths in a line.
     final plain = _parse('Row gap=8\n  each p in [1,2]\n    Text "{p}"\n');
     expect(_node(plain, 'listView1')['type'], 'listView');
+    // A grid whose column count is worked out: bound, not the default 2.
+    final sized = _parse('state gridSize=3\nstate photos=["a","b","c"]\nGrid cols={gridSize}\n  each p in photos\n    Text "{p}"\n');
+    expect(sized.issues, isEmpty, reason: '${sized.issues}');
+    expect((_node(sized, 'gridView1')['bind'] as Map)['props.crossAxisCount'], r'${= max(1, round(gridSize))}');
+    expect(_problems(sized.document), isEmpty);
+    // A wrapping row over an each: the list wraps, filling the row, and the
+    // row does not (it would keep the list at no width).
+    final wrapping = _parse('Row gap=8 wrap\n  each p in [1,2]\n    Text "{p}"\n');
+    expect(_node(wrapping, 'listView1')['layout'], {'width': {'fill': 0}, 'height': {'hug': 0}});
+    expect(_node(wrapping, 'listView1')['props'], containsPair('wrap', true));
+    expect(_node(wrapping, 'row1')['props'], isNot(contains('wrap')));
+    expect(_problems(wrapping.document), isEmpty);
     // Read as it arrives, the list sent as a line is patched into the grid.
     const text = 'state plans=[{"name":"Team"},{"name":"Pro"}]\nRow gap=8\n  each p in plans\n    Column pad=10 grow\n      Text "{p.name}"\n';
     final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
@@ -1706,6 +1718,27 @@ Page
       expect((at(r, 'bar', 390)['props']! as Map)['wrap'], true);
       expect((at(r, 'q', 390)['layout']! as Map)['basis'], 180);
       expect((at(r, 'gap', 390)['layout']! as Map)['basis'], 0);
+    });
+
+    test('a list row with a reorder Handle keeps its grip beside what it moves', () {
+      final r = parseNotation('''
+state steps=["Warm up", "Run"]
+Page
+  Section
+    Column gap=8
+      each s in steps reorder
+        Row#line gap=8 middle
+          Handle#grip
+          Column#body grow
+            Text "{s}"
+            Row gap=8
+              Input "Minutes" grow
+              Input "Pace" grow
+          IconButton "more_vert"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(at(r, 'line', 390), isEmpty);
+      expect(at(r, 'body', 390), isEmpty);
     });
 
     test('a table\'s row keeps the columns a phone has room for, from the first on', () {
