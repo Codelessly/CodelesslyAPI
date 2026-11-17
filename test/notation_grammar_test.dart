@@ -373,6 +373,15 @@ void main() {
       expect(open.issues.single.message, endsWith('the action is left out. Over this page: more.'));
     });
 
+    test('a variable an action makes takes its kind from the state it reads, or from the control bound to it later', () {
+      final r = _parse('state clips=[{"id":1,"start":2.5,"done":[true],"on":false}]\nColumn\n'
+          '  each c in clips\n    Button "Edit" onTap={x=c.start; completed=c.done; flag=c.on; other=c.missing}\n'
+          '  Slider bind=other\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      final kinds = {for (final v in (r.document['variables']! as Map)['screen']! as List) (v as Map)['name']: v['type']};
+      expect(kinds, {'clips': 'list', 'x': 'decimal', 'completed': 'list', 'flag': 'boolean', 'other': 'decimal'});
+    });
+
     test('a line meant for the page, written after the overlays, says where it went', () {
       const text = 'App\n  Main\n    Column\n      Text "Library"\n'
           'Menu#albumMenu\n  MenuItem "Add" icon="playlist_add" onTap={toast "Added"}\n'

@@ -2635,6 +2635,7 @@ class _Parser {
             PropKind.list => ('list', const <Object?>[] as Object),
             _ => ('text', '' as Object),
           };
+          if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
         }
       } else if (standIn) {
@@ -2688,6 +2689,7 @@ class _Parser {
         } else if (expr.contains('.') || expr.contains('[')) {
           _issue(col, 'A control is bound to a variable by its name (bind=name), to a field of a record variable (bind=draft.title), or under an each to a field of its element (bind=row.name): "$expr" is none of these.');
         } else if (_identifier.hasMatch(expr)) {
+          if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
           reactions.insert(0, {
             'trigger': {'type': 'changed'},
@@ -3363,6 +3365,10 @@ class _Parser {
           }
           // A text parameter given a number (count=4) takes it as text.
           if (v is num && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.string)) v = '$v';
+          // …and a list of texts given numbers (options=[1,2,3], depths=[0,1]) takes them as texts.
+          if (v is List && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.list && p.type.item?.kind == PropKind.string)) {
+            v = [for (final e in v) e is num || e is bool ? '$e' : e];
+          }
           // With an open vocabulary a value of another kind than the
           // parameter takes (live=polite where it is true or false,
           // size=large where it is a number) is not ours: left out, recorded.
@@ -4982,12 +4988,18 @@ class _Parser {
                   : _formula(v),
         });
         if (!variables.containsKey(set[1])) {
-          final start = literal.$1 ? literal.$2 : null;
+          // Its kind from the value: written (n=1), or read from the state
+          // declared (`start=c.start` under an each over clips whose start
+          // is a number, `completed=c.done` a list).
+          var start = literal.$1 ? literal.$2 : null;
+          final known = start != null || (!word && _variablePath.hasMatch(v) && (start = _sample(v)) != null);
           variables[set[1]!] = {
             'name': set[1],
-            'type': switch (start) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', _ => 'text' },
-            'value': switch (start) { bool _ => false, num _ => 0, _ => '' },
+            'type': switch (start) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
+            'value': switch (start) { bool _ => false, num _ => 0, List _ => <Object?>[], Map _ => <String, Object?>{}, _ => '' },
           };
+          // Unknown: a control bound to it later gives it its kind.
+          if (!known) _top._guessed.add(set[1]!);
         }
         continue;
       }
@@ -5100,6 +5112,11 @@ class _Parser {
     'address': 'streetAddress',
     'textarea': 'multiline',
   };
+
+  /// Variables an action made before anything said their kind (`x=c.start`
+  /// with nothing declared to read it from): taken as text, until a control
+  /// bound to them says otherwise.
+  final Set<String> _guessed = {};
 
   /// Tells apart the unknown verbs of one event (they share its column).
   int _verbAt = 0;

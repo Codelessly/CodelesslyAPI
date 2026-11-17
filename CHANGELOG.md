@@ -77,6 +77,11 @@
   the state has) navigate to the page the value holds, as `go {result}` (`Tabs … onChanged={go result}` went to
   a page called "result"). With an open vocabulary, an `open` of no overlay of the page names the ones it has.
   `clip.length` of a record with a `length` field is the field, not the record's size.
+- **The notation infers a variable's kind from the state declared.** A variable an action makes takes the kind of
+  what it reads (`x=c.start` under an each over clips whose `start` is a number is a decimal, `completed=c.done` a
+  list), where it was text and the renderer said `wrong_type`; one that cannot be known takes the kind of a
+  control bound to it later (a `NumberInput`, a `Slider`). A design system's parameter that is a list of texts
+  given numbers (`ChoiceChips options=[1,2,3]`, `Tree depths=[0,1]`) takes them as texts.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is

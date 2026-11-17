@@ -1177,6 +1177,12 @@ Column
       ]);
     });
 
+    test('a list of texts given numbers takes them as texts (numeric choices, a tree\'s depths)', () {
+      final r = parse('Tabs#t tabs=[1,2,3] bind=tab\n');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 't')['props'] as Map)['tabs'], ['1', '2', '3']);
+    });
+
     test('lines under a block that takes none: in its slot when it has one, else said and drawn after it', () {
       final r = parse('''
 Column
