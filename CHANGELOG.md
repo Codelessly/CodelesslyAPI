@@ -42,6 +42,49 @@
 
 ### Added
 
+- **Twenty behaviours a page can now write** (folded from the `dsl5/*` branches, each in the 33.0.0 grammar; the
+  page prompt teaches them, the card prompt is unchanged at 8,979 characters, the page prompt is 20,779):
+  - `confirm "Remove it?" then {rows=[]; close}` in an event's actions: the document's `confirm`, its actions run
+    only on a yes.
+  - `state draft="" saved` declares the variable with `persist`; `project cart=[] saved` checks that site.json's
+    variable says `"persist": true` and has the same type.
+  - `CodeInput "Code" bind=code length=6 digits`: a text field's new `otpLength` and `otpDigitsOnly` (a one-time
+    code: one field drawn as boxes).
+  - `Slider bind=low bindEnd=high min=0 max=100`: a slider's new `rangeEnd`, a second thumb; a `changed` gives
+    `result.low` and `result.high`.
+  - `each line in lines follow h=180`: a list that scrolls in that height, opens at its end and follows what is
+    added (`stickToEnd`). An each's trailing words (`stagger=`, `follow`, `h=`, `reorder`) are read in any order.
+  - `Text "{r.title}" mark={q}` binds the text's runs to `matchRuns(text, q)`; the formula table gains `fuzzy`,
+    `fuzzyScore`, `matchRanges`, `matchRuns`, `matchReason` (`each r in fuzzy(rows,q,x=>x.title)`).
+  - A new action, `announce` (`onTap={announce "{n} results"}`: said to a screen reader, nothing shown), and a
+    text's `live` (`Text "{n} results" live`).
+  - `Dialog#edit "Edit" guard={name!=""}` binds the overlay canvas's `blockBack`; `Sheet#filters stops=[0.5,0.9]`
+    writes `openModal`'s new `snapHeights`.
+  - A new control, `splitter` (`Splitter bind=paneW min=200 max=640`, with `step`, `collapseAt`, `orientation`,
+    `label`): a divider between two panes, its value the first pane's size (`Column w={paneW}`).
+  - A slider's `trackShape: stars` and `readOnly`: a rating (Cards' block: `Rating "Your rating" bind=score half`,
+    `Rating "Score" score=4.5 readOnly`).
+  - A new control, `selectionList` (`SelectionList bind=picked items=[{"key":"a","label":"Opening"}] columns=2`):
+    several chosen from a list or grid, their keys in a list variable.
+  - The page prompt says to name an icon-only button with `tooltip="Clear filters"`.
+  - `openModal` gains `hoverCard`, `hoverDelayMs` and `popoverArrow`: `Link "About Mara" preview=bio` opens that
+    Popover as a hover card, `Popover#bio arrow` points at its opener.
+  - `key mod+k onPress={open search}` on a line of its own is a canvas `keyDown` reaction; a text's new `shortcut`
+    (`Text "Search" shortcut="mod+k"`) shows the combination as the platform writes it.
+  - `each stop in trip reorder` (and `reorder=group` between lists) with `Handle`, a row's grip: the list's
+    `reorder` by handle and keyboard, applied to its variable, its handles one `focusGroup`.
+  - `SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name}` under an each: the list's
+    `swipeActions` and a `swipeAction` reaction (`removes` takes the row out of its variable).
+  - `device.hover` and `device.pointer` are read-only values (`if !device.hover`); a variable named `device` is
+    refused.
+  - A text field's `min`, `max`, `step` (`Input "Qty" bind=qty type=number min=1 max=12 step=1`) and
+    `semanticLabel`; a click trigger's `repeat`, `holdMs`, `intervalMs` also mean a click repeated while held.
+  - A new control, `calendar` (`Calendar bind=arrival bindEnd=departure disabledDates=["2026-11-24"]
+    marks={"2026-11-20":"£225"}`): a month in the page with a range, `firstDate`, `lastDate`, `dayPrices`,
+    `label`; a `changed` gives `{start, end}`.
+  - `tableView` gains `sortable`, `sortColumn`, `sortAscending` and a `sort` trigger; the notation's `DataTable
+    rows={orders} columns=[{"key":"name","label":"Customer"}] bind=row onSort={…} onRowTap={…}` is that table
+    with the theme's texts, the chosen row's place in `row`.
 - **The keyboard**: `focusable` (default true; false takes a node with a `click` reaction out of the focus order),
   `focusGroup` (`{axis, wrap, typeAhead}` or `true`: what is focusable inside the node is one Tab stop the arrow
   keys move through) and a canvas's `semanticLabel` (its name for assistive technology when it opens as an
