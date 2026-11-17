@@ -13,6 +13,12 @@ import 'vocabulary.dart';
 /// would start at (the control's natural empty value).
 typedef NotationBound = ({String name, Object? start});
 
+/// What [notationBindRewrite] gives: the line, the variables its rewritten
+/// bindings bind, and the names it left as written because the runtime
+/// reserves them (`theme`, `device`: no state line can declare them, so
+/// they are renamed by hand).
+typedef NotationBindRewrite = ({String line, List<NotationBound> bound, List<String> refused});
+
 /// [line] with its bindings in the form the notation reads ([line] itself
 /// when it has none to rewrite).
 String notationBindForm(String line, {Catalog? catalog}) => notationBindRewrite(line, catalog: catalog).line;
@@ -29,15 +35,32 @@ final _name = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 /// written back as a variable is.
 final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
 
+/// Whether [v], a signature's default, is a value as written (a number,
+/// true, false, null, a string in quotes, a list or a map): what `x=@0.5`
+/// takes after its `@`.
+bool notationIsLiteral(String v) =>
+    num.tryParse(v) != null ||
+    const {'true', 'false', 'null'}.contains(v) ||
+    (v.length > 1 && v.startsWith('"') && v.endsWith('"')) ||
+    (v.startsWith('[') && v.endsWith(']')) ||
+    (v.startsWith('{"') && v.endsWith('}'));
+
 /// [line] (one line, its indentation and what follows it kept as they are)
-/// with its bindings rewritten, and the plain variables it binds (those it
-/// already writes with `@` too). A
-/// signature (`define Word …`, `primitive Word …`) names the variable the
-/// body keeps its value in: `bind=value` is `@value`, and binds nothing of
-/// the page's.
-({String line, List<NotationBound> bound}) notationBindRewrite(String line, {Catalog? catalog}) {
-  final none = (line: line, bound: const <NotationBound>[]);
-  if (!line.contains('bind') && !line.contains('=') && !line.contains('@')) return none;
+/// with the bindings codelessly_api 33 read rewritten, and the plain
+/// variables those bind (a mark already written `@name` is the line's as it
+/// is: neither rewritten nor listed). Only what 33 read as a binding is
+/// rewritten: `bind=` and `bindEnd=` (a name, a path, or one in braces), a
+/// block's variable parameter given a bare name (`direction=dir`), a
+/// RangeSlider's ends given bare names. A value in braces anywhere else
+/// (`value={s}`, `lo={lo}`) was shown, one way, and is left as written.
+///
+/// A signature (`define Word …`, `primitive Word …`) names the variable the
+/// body keeps its value in: `bind=value` is `@value` (`@value=0` when the
+/// signature gives `value=0` too), `bindX=0.5` a further variable with its
+/// default, `x=@0.5`; it binds nothing of the page's.
+NotationBindRewrite notationBindRewrite(String line, {Catalog? catalog}) {
+  final none = (line: line, bound: const <NotationBound>[], refused: const <String>[]);
+  if (!line.contains('bind') && !line.contains('=')) return none;
   final c = catalog ?? Catalog.current;
   final indent = line.length - line.trimLeft().length;
   final trimmed = line.substring(indent).trimRight();
@@ -53,7 +76,9 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
   final dataId = RegExp(r'^[A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*(#\S+)').firstMatch(body);
   final parts = LineParts.of(body) ??
       (dataId == null ? null : LineParts.of(body.replaceRange(dataId.end - dataId[1]!.length, dataId.end, '#${'x' * (dataId[1]!.length - 1)}')));
-  if (parts == null || const {'state', 'project', 'let', 'each', 'for', 'if', 'else', 'every', 'key', 'node', 'document'}.contains(parts.word)) return none;
+  // A node line starts with its word, capitalised: a line of prose (`a
+  // sentence that writes bind=x`) is no line of the notation.
+  if (parts == null || !RegExp(r'^[A-Z]').hasMatch(parts.word) || const {'state', 'project', 'let', 'each', 'for', 'if', 'else', 'every', 'key', 'node', 'document'}.contains(parts.word)) return none;
   final word = parts.word;
   final read = notationLineType(word, c);
   final type = _rangeWords[word] ?? read.type;
@@ -67,6 +92,8 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
   final mainParam = variables.where((p) => p.key == 'value').firstOrNull ?? variables.firstOrNull;
   num? number(String key) => num.tryParse(parts.pair(key)?.value ?? '');
 
+  // A block's variable starts at its kind's empty value (its declared
+  // default is the name of a variable, not a value: there is none to take).
   Object? startOf(PropDef<Object?> p) => switch (p.type.variableOf?.kind) {
         PropKind.number || PropKind.integer => 0,
         PropKind.boolean => false,
@@ -83,9 +110,23 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
 
   final edits = <({int start, int end, String text})>[];
   final bound = <NotationBound>[];
+  final refused = <String>[];
   void bindName(String name, Object? start) {
     if (signature == null && _name.hasMatch(name) && !bound.any((b) => b.name == name)) bound.add((name: name, start: start));
   }
+
+  // A name no state line can declare (`theme`, `device`: the runtime's):
+  // bound as `@theme` it would need one, so the binding is left as written,
+  // for a rename by hand.
+  bool reserved(String name) {
+    if (signature != null || !_name.hasMatch(name) || !notationRefusedState(name)) return false;
+    if (!refused.contains(name)) refused.add(name);
+    return true;
+  }
+
+  // `bind=` binds the line's value: a block's value parameter beside it is
+  // left as written.
+  final bindsValue = parts.parts.any((p) => p.kind == 'pair' && p.key == 'bind');
 
   // The part [p] replaced by [text] (removed, with the space before it,
   // when [text] is empty).
@@ -102,28 +143,6 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
 
   LinePart? main, end;
   String? mainName, endName;
-  // The marks already in the form read now: their variables are bound too.
-  var marks = 0;
-  for (final p in parts.parts) {
-    if (p.kind == 'word' && p.raw.startsWith('@')) {
-      final name = p.raw.substring(1);
-      bindName(name, ++marks == 2 && range ? (type == 'slider' ? (number('max') ?? 1) : '') : valueStart());
-    } else if (p.kind == 'pair' && p.value!.startsWith('@')) {
-      final key = p.key!, name = p.value!.substring(1);
-      final param = variables.where((x) => x.key == key).firstOrNull;
-      bindName(
-          name,
-          param != null
-              ? startOf(param)
-              : key == 'selected' && list
-                  ? const <Object?>[]
-                  : range && key == ends.$2
-                      ? (type == 'slider' ? (number('max') ?? 1) : '')
-                      : key == 'value' || (range && key == ends.$1)
-                          ? valueStart()
-                          : '');
-    }
-  }
   for (final p in parts.parts) {
     if (p.kind == 'word' && p.raw == 'bind' && signature != null) {
       replace(p, '@bind');
@@ -138,7 +157,20 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
     if (bindKey != null && !(component?.props.any((x) => x.key == key) ?? false)) {
       final rest = bindKey[1];
       if (signature != null) {
-        replace(p, rest == null ? '@$inner' : '${rest[0].toLowerCase()}${rest.substring(1)}=@');
+        if (rest == null) {
+          // `value=0 bind=value`: one bound value, with its default.
+          final given = parts.parts.where((x) => x.kind == 'pair' && !x.isEvent && x.key == inner && !x.value!.startsWith('@')).firstOrNull;
+          if (given != null) {
+            replace(given, '@$inner=${given.value}');
+            replace(p, '');
+          } else {
+            replace(p, '@$inner');
+          }
+        } else {
+          // `bindX=0.5`: a further variable a use binds by name, with its
+          // default.
+          replace(p, '${rest[0].toLowerCase()}${rest.substring(1)}=@${notationIsLiteral(inner) ? inner : ''}');
+        }
         continue;
       }
       if (v.startsWith('{') && !_path.hasMatch(inner) && !_found.hasMatch(inner)) {
@@ -155,9 +187,18 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
       if (shows && rest == null) {
         final string = word == 'Badge' || type == 'text';
         replace(p, string && parts.strings.isEmpty ? '"{$inner}"' : 'value={$inner}');
-      } else if (list && rest == null) {
-        replace(p, 'selected=@$inner');
-        bindName(inner, const <Object?>[]);
+        continue;
+      }
+      if (reserved(inner)) continue;
+      if (list && rest == null) {
+        if (parts.has('selectable')) {
+          replace(p, 'selected=@$inner');
+          bindName(inner, const <Object?>[]);
+        } else {
+          // A list that is reordered and not selected from kept nothing in
+          // its bind=: the new order is written to the list its each repeats.
+          replace(p, '');
+        }
       } else if (range && isEnd) {
         end = p;
         endName = inner;
@@ -177,8 +218,9 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
       continue;
     }
     if (signature != null) continue;
-    // A slider with two thumbs written with its ends' names.
-    if (word == 'RangeSlider' && _path.hasMatch(inner)) {
+    // A slider with two thumbs written with its ends' names (bare: in braces
+    // they were values shown).
+    if (word == 'RangeSlider' && v == inner && _path.hasMatch(inner) && !reserved(inner)) {
       if (const {'low', 'lo', 'start', 'from'}.contains(key)) {
         main = p;
         mainName = inner;
@@ -190,9 +232,15 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
         continue;
       }
     }
-    // A block's variable, written by its name or in braces.
+    // A block's variable, written by its name (in braces it is a value
+    // shown, one way; beside bind= the value is bind='s).
     final param = variables.where((x) => x.key == key).firstOrNull;
-    if (param != null && _path.hasMatch(inner) && !const {'true', 'false', 'null'}.contains(inner)) {
+    if (param != null &&
+        v == inner &&
+        _path.hasMatch(inner) &&
+        !const {'true', 'false', 'null'}.contains(inner) &&
+        !(bindsValue && identical(param, mainParam)) &&
+        !reserved(inner)) {
       replace(p, '$key=@$inner');
       bindName(inner, startOf(param));
     }
@@ -209,11 +257,11 @@ final _found = RegExp(r'^find\(\S*\)\.[A-Za-z_][A-Za-z0-9_]*$');
   }
   if (mainName != null) bindName(mainName, valueStart());
   if (endName != null) bindName(endName, type == 'slider' ? (number('max') ?? 1) : '');
-  if (edits.isEmpty) return (line: line, bound: bound);
+  if (edits.isEmpty) return (line: line, bound: bound, refused: refused);
   edits.sort((a, b) => b.start.compareTo(a.start));
   var out = body;
   for (final e in edits) {
     out = out.replaceRange(e.start, e.end, e.text);
   }
-  return (line: '${line.substring(0, indent)}$prefix$out$after', bound: bound);
+  return (line: '${line.substring(0, indent)}$prefix$out$after', bound: bound, refused: refused);
 }

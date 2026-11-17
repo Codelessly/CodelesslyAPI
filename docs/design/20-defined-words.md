@@ -47,6 +47,7 @@ The signature reads:
 | `key=true`, `key=false` | a flag: a bare `key` on a use is `key=true` |
 | `@value`, `@value=1`, `@value="text"` | the value the word keeps, which a use's bare `@x` (or `value=@x`) binds, both ways; the default is what a use that binds none starts at (it then keeps its own). Any name: `@color` |
 | `open=@` | a further variable the word keeps, which a use binds by name (`open=@shown`); a use that binds none keeps its own, started by the body's `state open=false` |
+| `x=@0.5`, `label=@"text"`, `range=@[0, 100]` | the same, with its default after the `@`: a use that binds none keeps its own, started there; a page variable a use binds and nothing declares is said with that start (`add state cx=0.5`). What follows the `@` is a value as written (a number, `true`, `false`, `null`, a string in quotes, a list, a map), never a name: `x=@other` is an issue. 33's `bindX=0.5` is this (the migrate tool writes `x=@0.5`, and the body's `bindX` as `x`) |
 | `onEvent` | an event the word gives (`onTap`, `onPick`); an event the body forwards (`onTap={onPick(c)}`) is one too when the signature leaves it out |
 
 The body reads its parameters by name in braces, as a page reads a variable, and the use's values are put in

@@ -966,6 +966,11 @@ const _softNames = {'CodeInput', 'DataTable', 'Handle', 'Gauge', 'Dial', 'Ring',
 /// keeps no value.
 Object? notationValueStart(String type) => _valueProps.containsKey(type) ? (_valueProps[type]!.start ?? '') : null;
 
+/// Whether a `state` line naming [name] is refused: `device` (read-only
+/// input) and the names the runtime gives every expression of a screen
+/// (`theme`, `data`, `route`…).
+bool notationRefusedState(String name) => name == 'device' || _Parser._screenScopes.contains(name);
+
 /// Whether a node of [type] shows a value and keeps none (a progress bar, a
 /// gauge, a text).
 bool notationShowsValue(String type) => _shownValue.containsKey(type);

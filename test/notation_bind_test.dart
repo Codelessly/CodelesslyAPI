@@ -64,6 +64,61 @@ Future<Catalog> _withSortMenu() async {
   return ds.catalogOver(standardCatalog);
 }
 
+/// Blocks whose variables have defaults: a rating (its value starts at 3), a
+/// stepper (a number), with the sort menu and the choice.
+Future<Catalog> _withRating() async {
+  Map<String, Object?> component(String type, List<Object?> props) => {
+        'schema': 3,
+        'id': type,
+        'roots': ['r'],
+        'widget': {'type': type, 'doc': 'What a $type is for.', 'props': props},
+        'nodes': {
+          'r': {'type': 'column', 'layout': {'width': 100, 'height': 28}},
+        },
+      };
+  const number = {'kind': 'number', 'flutter': 'double'};
+  const string = {'kind': 'string', 'flutter': 'String'};
+  const variable = {'kind': 'variable', 'flutter': 'double', 'of': number};
+  const variableText = {'kind': 'variable', 'flutter': 'String', 'of': string};
+  final files = {
+    'design_system.json': jsonEncode({
+      'id': 'acme',
+      'name': 'Acme',
+      'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
+      'components': ['components/Rating.json', 'components/Stepper.json', 'components/SortMenu.json', 'components/Choice.json'],
+    }),
+    'components/Rating.json': jsonEncode(component('Rating', [
+      {'key': 'value', 'type': variable, 'default': 3},
+      {'key': 'max', 'type': number, 'default': 5},
+      {'key': 'readonly', 'type': {'kind': 'boolean', 'flutter': 'bool'}, 'default': false},
+      {'key': 'bindLabel', 'type': string, 'default': ''},
+      {
+        'key': 'pinned',
+        'type': {
+          'kind': 'variable',
+          'flutter': 'bool',
+          'of': {'kind': 'boolean', 'flutter': 'bool'},
+        },
+        'default': true,
+      },
+    ])),
+    'components/Stepper.json': jsonEncode(component('Stepper', [
+      {'key': 'value', 'type': variable, 'default': 0},
+      {'key': 'steps', 'type': {'kind': 'list', 'flutter': 'List<String>', 'item': string}, 'default': <Object?>[]},
+    ])),
+    'components/SortMenu.json': jsonEncode(component('SortMenu', [
+      {'key': 'value', 'type': variableText, 'default': ''},
+      {'key': 'direction', 'type': variableText, 'default': ''},
+    ])),
+    'components/Choice.json': jsonEncode(component('Choice', [
+      {'key': 'group', 'type': variableText, 'default': ''},
+      {'key': 'label', 'type': string, 'default': ''},
+    ])),
+  };
+  final ds = await DesignSystem.load((ref) async => files[ref]);
+  return ds.catalogOver(standardCatalog);
+}
+
 void main() {
   group('bare: the line\'s value', () {
     test('@name binds a control\'s value both ways, as value=@name does', () {
@@ -320,6 +375,43 @@ define Level "label" level=5
       expect(_writes(bound, 'level1'), ['bass']);
     });
 
+    test('name=@0.5 in the signature: a variable a use binds by name, with what a use that binds none starts at', () {
+      const crop = '''
+define Crop "label" x=@0.5 y=@0.25
+  Column
+    Text "{label}: {x}, {y}"
+    Slider @x min=0 max=1
+    Button "Center" onTap={x=0.5; y=0.5}
+''';
+      final d = readPageDefinitions(crop).words['Crop']!.single;
+      expect(d.bindables, {'x', 'y'});
+      expect(d.parameters, {'x': '0.5', 'y': '0.25'});
+      // Unbound: its own variables, started at the defaults.
+      final own = _parse('Column\n  Crop "A"\n$crop');
+      expect(own.issues, isEmpty);
+      final vars = ((own.document['variables'] as Map).values.first as List).cast<Map>();
+      expect(vars.where((v) => (v['name'] as String).startsWith('x_')).single['value'], 0.5);
+      expect(vars.where((v) => (v['name'] as String).startsWith('y_')).single['value'], 0.25);
+      // Bound: the page's, both ways.
+      final bound = _parse('state cx=0.1\nstate cy=0.2\nColumn\n  Crop "A" x=@cx y=@cy\n$crop');
+      expect(bound.issues, isEmpty);
+      expect(_writes(bound, 'slider1'), ['cx']);
+      // Bound to a variable nothing declares: the state line said starts at
+      // the default.
+      final undeclared = _parse('Column\n  Crop "A" x=@cx\n$crop');
+      expect(_messages(undeclared), contains(contains('add state cx=0.5')));
+    });
+
+    test('a default after @ is read whole: a string, a list', () {
+      final d = readPageDefinitions('define Tags @value=[0, 100] label=@"a b"\n  Text "{label} {value}"\n').words['Tags']!.single;
+      expect(d.bindDefault, '[0, 100]');
+      expect(d.parameters['label'], '"a b"');
+      expect(d.bindables, {'label'});
+      // A name after @ is no default: said.
+      final bad = readPageDefinitions('define Bad x=@other\n  Text "{x}"\n');
+      expect(bad.problems.map((p) => p.message).join('\n'), contains('x=@0 with its start'));
+    });
+
     test('primitive signatures take the same forms', () {
       final r = _parse('state v=0\nColumn\n  Knob @v\n// A knob turned round.\nprimitive Knob @value=0\n');
       expect(r.issues, isEmpty);
@@ -384,7 +476,19 @@ define Label "text"
         'Thing bindStart=from': ('Thing start=@from', {'from': ''}),
         'define Stepper "label" bind=value min max': ('define Stepper "label" @value min max', {}),
         'Text "bind=x is old" size=12': ('Text "bind=x is old" size=12', {}),
-        'Slider @heat': ('Slider @heat', {'heat': 0}),
+        // A mark already written is the line's: not rewritten, not listed (a
+        // state line is the rewrite's only for what it rewrote).
+        'Slider @heat': ('Slider @heat', {}),
+        'Column selectable reorder bind=picked': ('Column selectable reorder selected=@picked', {'picked': <Object?>[]}),
+        // A list reordered (not selected from) kept nothing in its bind=: the
+        // order goes to the list its each repeats.
+        'Column reorder bind=xs onReorder={xs=result}': ('Column reorder onReorder={xs=result}', {}),
+        'Column sortable gap=8 bind=xs': ('Column sortable gap=8', {}),
+        'define Bar "label" value=0 bind=value': ('define Bar "label" @value=0', {}),
+        'define Bar "label" bind=value value="x" onChange': ('define Bar "label" @value="x" onChange', {}),
+        'define Crop bindX=0.5 bindY=0.5': ('define Crop x=@0.5 y=@0.5', {}),
+        'define Pick bindItems=[] bindOn=true': ('define Pick items=@[] on=@true', {}),
+        'define Crop bindX={x}': ('define Crop x=@', {}),
       };
       for (final e in cases.entries) {
         final got = notationBindRewrite(e.key);
@@ -396,9 +500,100 @@ define Label "text"
     test('a block\'s variables, from its catalog', () async {
       final catalog = await _withSortMenu();
       expect(notationBindForm('SortMenu bind=sort direction=dir options=["a"]', catalog: catalog), 'SortMenu @sort direction=@dir options=["a"]');
-      expect(notationBindForm('SortMenu direction={dir}', catalog: catalog), 'SortMenu direction=@dir');
       expect(notationBindForm('Choice "A" group=pick', catalog: catalog), 'Choice "A" group=@pick');
       expect(notationBindForm('Choice "A" bind=pick', catalog: catalog), 'Choice "A" @pick');
+    });
+
+    test('a block\'s variables start at their kinds\' empty values (a variable parameter declares no value)', () async {
+      final catalog = await _withRating();
+      final got = notationBindRewrite('Rating bind=score pinned=keep', catalog: catalog);
+      expect(got.line, 'Rating @score pinned=@keep');
+      expect({for (final b in got.bound) b.name: b.start}, {'score': 0, 'keep': false});
+    });
+
+    // Each heuristic of the rewrite, on a line it must leave as it is.
+    group('left as written', () {
+      test('a value in braces was shown, one way, in 33: on every key', () async {
+        final catalog = await _withRating();
+        for (final line in [
+          'Rating value={s} readonly',
+          'Rating value={photos[at].myRating} max=5',
+          'SortMenu direction={dir}',
+          'Choice "A" group={pick}',
+          'RangeSlider lo={lo} hi={hi} min=0 max=9',
+          'RangeSlider low={a} high={b}',
+          'Stepper.progress steps=["A","B"] value={step}',
+        ]) {
+          final got = notationBindRewrite(line, catalog: catalog);
+          expect(got.line, line, reason: line);
+          expect(got.bound, isEmpty, reason: line);
+        }
+        // Beside bind=, the block's value parameter is bind='s: left too.
+        expect(notationBindForm('Rating bind=myRating max=5 value={photos[at].myRating}', catalog: catalog), 'Rating @myRating max=5 value={photos[at].myRating}');
+        expect(notationBindForm('Rating bind=myRating value=other', catalog: catalog), 'Rating @myRating value=other');
+      });
+
+      test('what is no variable: numbers, words of the language, strings, lists, unbalanced parentheses', () async {
+        final catalog = await _withRating();
+        for (final line in [
+          'Rating value=4.6',
+          'Rating value=true',
+          'Rating value=null',
+          'RangeSlider low=4 high=9',
+          'RangeSlider from="a" to="b"',
+          'Slider bind="volume"',
+          'Slider bind=[1,2]',
+          'Thing bind=f(a',
+          'Thing bindStart="x"',
+        ]) {
+          expect(notationBindForm(line, catalog: catalog), line, reason: line);
+        }
+      });
+
+      test('what is no binding: statements, events, strings, keys that only start with bind', () {
+        for (final line in [
+          'state bind=3',
+          'each bind in rows',
+          'if bind=="x"',
+          'let bindX=4',
+          'Button "Go" onTap={bindX=1}',
+          'Text "bind=x is old"',
+          'Box bindings=3',
+          'Text "{bindEnd}"',
+          'Box w={bindWidth}',
+          'Progress value={done}',
+          'Slider @heat min=0',
+          'Calendar @a @b',
+          'Column selectable selected=@picked',
+          'define Bar value=0',
+          'define Panel "title" open=@',
+          'define Knob @value=0',
+          '// Slider bind=x',
+          'a sentence that writes bind=x',
+        ]) {
+          final got = notationBindRewrite(line);
+          expect(got.line, line, reason: line);
+          expect(got.bound, isEmpty, reason: line);
+        }
+      });
+
+      test('a name the runtime reserves is left, and said', () {
+        for (final line in ['SegmentedButton items=["Light","Dark"] bind=theme', 'Select items=["a","b"] bind=device', 'Slider bind=data']) {
+          final got = notationBindRewrite(line);
+          expect(got.line, line, reason: line);
+          expect(got.bound, isEmpty, reason: line);
+          expect(got.refused, hasLength(1), reason: line);
+        }
+        // A field of one is no state line: rewritten.
+        expect(notationBindForm('Input bind=theme.name'), 'Input @theme.name');
+        // A signature's names are the definition's own.
+        expect(notationBindRewrite('define Pick bind=theme').refused, isEmpty);
+      });
+
+      test('a component\'s own key that starts with bind is its own', () async {
+        final catalog = await _withRating();
+        expect(notationBindForm('Rating bindLabel=x', catalog: catalog), 'Rating bindLabel=x');
+      });
     });
 
     test('what it rewrites expands with no issue once its variables are declared', () {

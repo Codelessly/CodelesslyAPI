@@ -11,10 +11,11 @@ export 'src/core/notation/notation.dart'
         WantedBlock,
         buttonVariants,
         defaultTextVariants,
+        notationRefusedState,
         notationScreen,
         notationTypes,
         parseNotation;
-export 'src/core/notation/bind_form.dart' show NotationBound, notationBindForm, notationBindRewrite;
+export 'src/core/notation/bind_form.dart' show NotationBindRewrite, NotationBound, notationBindForm, notationBindRewrite, notationIsLiteral;
 export 'src/core/notation/define.dart' show DefinedLine, DefinedWords, NotationDefinition, checkDefinitions, definitionLines, readDefinitions, readPageDefinitions;
 export 'src/core/notation/define_reads.dart' show DefinitionReads, definitionReads;
 export 'src/core/notation/vocabulary.dart' show LinePart, LineParts, NotationVocabulary, TypeAlias, VocabularyUse;
