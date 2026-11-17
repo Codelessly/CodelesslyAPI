@@ -278,6 +278,25 @@ void main() {
       }
     });
 
+    test('bind= on every control of the catalog, by a name and under an each, is printed with the control\x27s other events', () {
+      final controls = <String>[];
+      for (final w in standardCatalog.widgets) {
+        final word = '${w.type[0].toUpperCase()}${w.type.substring(1)}';
+        for (final (bind, text) in [
+          ('bind=v', 'Column\n  $word#x bind=v onFocus={toast "x"}'),
+          ('bind=item.f', 'state rows=[{"id":1,"f":1}]\nColumn\n  each item in rows\n    $word#x bind=item.f onFocus={toast "x"}'),
+        ]) {
+          final r = _parse(text);
+          // A control: bind= writes the change it stores, before onFocus.
+          if (r.issues.isNotEmpty || (_node(r, 'x')['actions'] as List?)?.length != 2) continue;
+          controls.add(w.type);
+          final line = printNotation(r.document, catalog: standardCatalog).split('\n').firstWhere((l) => l.contains('#x'));
+          expect(line, allOf(contains(' $bind onFocus={toast "x"}'), isNot(contains('{"'))), reason: w.type);
+        }
+      }
+      expect(controls.toSet(), containsAll(['textField', 'checkbox', 'switch', 'slider', 'dropdown', 'radio', 'segmentedButton', 'datePicker']));
+    });
+
     test('bind= on a design system control is its variable parameter, by name and under an each, and its events are its own', () {
       const text = 'state public=true\nstate dirty=false\nstate rows=[{"id":1,"on":true}]\n'
           'Column\n'
