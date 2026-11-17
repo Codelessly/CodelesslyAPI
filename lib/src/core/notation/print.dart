@@ -330,8 +330,7 @@ final class _Printer {
     _lines.add(_Line(depth, _withoutId(text, id, '${n['type']}'), id));
     // Its ordered records (paint ops, animations, transitions): lines of
     // their own under it, before its children.
-    for (final record in printPaintLines(id, n, context, depth).split('
-')) {
+    for (final record in printPaintLines(id, n, context, depth).split('\n')) {
       if (record.trim().isNotEmpty) _lines.add(_Line(0, record));
     }
     return _under(n, depth + 1);
