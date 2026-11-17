@@ -2639,4 +2639,64 @@ Page
     expect(_pagePrompt(), contains('Splitter bind=paneW min=200 max=640'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('Splitter')));
   });
+
+  test('Rating: stars are a slider (trackShape stars, readOnly), and a design system\x27s Rating is called by its name', () async {
+    // The document model: one control, drawn as stars, that may only show its value.
+    final n = Node.fromJson({
+      'type': 'slider',
+      'props': {'value': 4.5, 'max': 5, 'trackShape': 'stars', 'readOnly': true},
+    })!;
+    expect(n.prop(SliderProps.trackShape), SliderTrackShape.stars);
+    expect(n.prop(SliderProps.readOnly), isTrue);
+    expect(n.toJson()['props'], allOf(containsPair('trackShape', 'stars'), containsPair('readOnly', true)));
+    // With no design system it is the slider written with its own keys.
+    final plain = _parse('Slider#stars bind=score max=5 step=0.5 trackShape=stars');
+    expect(plain.issues, isEmpty);
+    expect(_problems(plain.document), isEmpty);
+    expect(_node(plain, 'stars')['props'], allOf(containsPair('trackShape', 'stars'), containsPair('divisions', 10)));
+    // A design system's block of that name (Cards has one) is the word.
+    final files = <String, String>{
+      'design_system.json': jsonEncode({
+        'id': 'ratings',
+        'name': 'Ratings',
+        'components': ['components/Rating.json'],
+      }),
+      'components/Rating.json': jsonEncode({
+        'schema': 3,
+        'id': 'Rating',
+        'roots': ['stars'],
+        'widget': {
+          'type': 'Rating',
+          'doc': 'Five stars as one rating control.',
+          'props': [
+            {'key': 'label', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': 'Rating', 'required': true},
+            {'key': 'value', 'type': {'kind': 'variable', 'of': {'kind': 'number', 'flutter': 'double'}}, 'default': ''},
+            {'key': 'score', 'type': {'kind': 'number', 'flutter': 'double'}, 'default': 0},
+            {'key': 'half', 'type': {'kind': 'boolean', 'flutter': 'bool'}, 'default': false},
+            {'key': 'readOnly', 'type': {'kind': 'boolean', 'flutter': 'bool'}, 'default': false},
+          ],
+        },
+        'nodes': {
+          'stars': {
+            'type': 'slider',
+            'layout': {'width': 200, 'height': 44},
+            'props': {'trackShape': 'stars', 'max': 5},
+            'bind': {'props.value': r'${props.value}', 'props.readOnly': r'${props.readOnly}'},
+          },
+        },
+      }),
+    };
+    final problems = <String>[];
+    final ds = await DesignSystem.load((ref) async => files[ref], problems: problems);
+    expect(problems, isEmpty);
+    final catalog = ds.catalogOver(standardCatalog);
+    final r = Catalog.run(
+        catalog,
+        () => parseNotation('state mine=3\nColumn\n  Rating#own "Your rating" bind=mine half\n  Rating#shown "Course score" score=4.5 readOnly\n',
+            catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+    expect(r.issues, isEmpty);
+    expect(_node(r, 'own')['props'], {'label': 'Your rating', 'value': 'mine', 'half': true});
+    expect(_node(r, 'shown')['props'], {'label': 'Course score', 'score': 4.5, 'readOnly': true});
+    expect(notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds), contains('Rating "label" bind=value score half readOnly'));
+  });
 }

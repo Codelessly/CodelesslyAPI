@@ -375,6 +375,9 @@ enum SliderTrackShape {
   /// `customPaint` (the `painter` draws over the track: `size` is the
   /// slider's box).
   ruler,
+
+  /// Five (or another max count) stars, filled to the selected value.
+  stars,
 }
 
 /// The value indicator (`SliderThemeData.valueIndicatorShape`).
@@ -412,6 +415,8 @@ abstract final class SliderProps {
   /// Decimals of `${value}` in [label].
   static const labelFractionDigits = PropDef<int>('labelFractionDigits', IntCodec(min: 0), 0);
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
+  /// Shows the value without accepting pointer, keyboard or semantics changes.
+  static const readOnly = PropDef<bool>('readOnly', Codecs.bool, false);
   static const secondaryTrackValue = PropDef<double?>('secondaryTrackValue', Codecs.double, null);
   static const padding = PropDef<EdgeInsets?>('padding', Codecs.insets, null);
 
@@ -474,7 +479,7 @@ abstract final class SliderProps {
   static const selectableMax = PropDef<double?>('selectableMax', Codecs.double, null);
 
   static const spec = WidgetSpec('slider', hugs: true, props: [
-    value, rangeEnd, min, max, divisions, label, labelFractionDigits, autofocus, secondaryTrackValue, padding, trackHeight, //
+    value, rangeEnd, min, max, divisions, label, labelFractionDigits, autofocus, readOnly, secondaryTrackValue, padding, trackHeight, //
     activeTrackColor, inactiveTrackColor, secondaryActiveTrackColor, thumbColor, overlayColor, activeTickMarkColor,
     inactiveTickMarkColor, valueIndicatorColor, valueIndicatorTextStyle, showValueIndicator, valueIndicatorShape,
     overlayRadius, trackShape, thumbShape, thumbRadius, thumbSize, thumbCornerRadius, thumbStrokeColor,
