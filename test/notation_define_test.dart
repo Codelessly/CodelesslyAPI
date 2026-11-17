@@ -430,6 +430,26 @@ Column
     });
   });
 
+  group('what the first corpus wrote with words Cards now defines (Review 5, D25)', () {
+    test('bind= to a variable the page never declared declares it, with the word\'s default', () {
+      final r = _parse('Column\n  ColorPicker bind=tint\n', _open);
+      expect(r.issues, isEmpty);
+      expect(_vars(r), {'tint': ''});
+      expect(_problems(r.document), isEmpty);
+      // Declared by the page: the page's.
+      final own = _parse('state tint="#FF2563EB"\nColumn\n  ColorPicker bind=tint\n', _open);
+      expect(_vars(own), {'tint': '#FF2563EB'});
+    });
+
+    test('a record written as JSON given to a parameter is that record in an expression', () {
+      final v = const NotationVocabulary().define({'Pin.txt': 'Pin at\n  Text "{at.lat}, {at.lng}"\n'});
+      final r = parseNotation('Column\n  Pin at={"lat":44.9,"lng":-93.1}\n', catalog: standardCatalog, options: const NotationOptions().open(vocabulary: v));
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(r.document), contains(r'{\"lat\":44.9,\"lng\":-93.1}.lat'));
+      expect(_problems(r.document), isEmpty);
+    });
+  });
+
   group('a definition\'s errors are said against it', () {
     test('checkDefinitions expands each with its defaults: a line it gets wrong is its file and line', () {
       final v = const NotationVocabulary().define({

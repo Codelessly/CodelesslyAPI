@@ -27,6 +27,10 @@
   `code=`, `format=` and `type=` are its `data` and `symbology`; `QRCode` is a `Barcode` as a QR code. A design
   system component's variant that is a value of one of its choices is that value: `Banner.warning` is `Banner
   tone=warning`.
+- **A defined word used as the first corpus wrote it** (Review 5, D25): a use's `bind=x` of a variable the page
+  never declared declares it with the word's default (it was left undeclared: `SignaturePad bind=signature`
+  did not validate); a record written as JSON given to a parameter (`center={"lat":44.9,"lng":-93.1}`) is that
+  record in the body's expressions (it was read as an expression in braces, and did not parse).
 - **The alias table reaches a defined word**: a word's own entries in `parameters`, `events` and `flags`
   (`"Timeline": {"events": "items"}`) are read as the names its definitions take, before its meaning is chosen; a
   name one of its meanings takes is its own. Recorded as aliases.

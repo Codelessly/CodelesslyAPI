@@ -791,7 +791,10 @@ final class DefinedWords {
     final lines = <({int indent, String text, int line})>[];
     var rooted = false;
     for (final l in d.body) {
-      if (bound != null && RegExp('^state\\s+${d.bind}\\s*=').hasMatch(l.text)) continue;
+      // A use's bind=x is the page's x: the body's own state line is dropped,
+      // unless the page has no x (an answer that binds a variable it never
+      // declared), when it declares it, with the word's default.
+      if (bound != null && RegExp('^state\\s+${d.bind}\\s*=').hasMatch(l.text) && (!_identifier.hasMatch(bound) || (variable?.call(bound) ?? true))) continue;
       var t = sub.line(l.text);
       if (t == null) continue;
       if (!rooted && l.indent == 0 && !_preamble(l.text)) {
@@ -1000,6 +1003,9 @@ final class _Substitution {
   String _expression(String n) {
     final v = _value(n);
     if (v == null || v.isEmpty) return 'null';
+    // A record written as JSON (`center={"lat":44.9,"lng":-93.1}`) is that
+    // record, not an expression in braces.
+    if (RegExp(r'^\{\s*"').hasMatch(v) && v.endsWith('}')) return v;
     if (v.startsWith('{') && v.endsWith('}')) return '(${v.substring(1, v.length - 1).trim()})';
     if (v.startsWith('"')) {
       if (!v.contains('{')) return v;
