@@ -345,6 +345,34 @@ void main() {
       ]);
     });
 
+    test('lines that did nothing: project on a page alone, go to a name the state has, open of no overlay, .length of a record with a length', () {
+      final r = _parse('project cart=[]\nstate view="home"\nstate clips=[{"id":1,"length":9,"name":"a"}]\nColumn\n'
+          '  Text#t "{cart.length} items"\n'
+          '  Button#b "B" onTap={go view}\n'
+          '  Select#s bind=view items=["home","result"] onChange={go result}\n'
+          '  each c in clips\n    Text#c "{c.length}s, {c.name.length} letters"\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      // Expanded alone, the page declares the project's variable itself.
+      expect(((r.document['variables']! as Map)['screen']! as List).map((v) => (v as Map)['name']), contains('cart'));
+      expect(run(r, 'b').single, {'type': 'navigate', 'to': r'${= view}'});
+      expect((_actions(r, 's').last! as Map)['actions'], [
+        {'type': 'navigate', 'to': r'${= result}'},
+      ]);
+      expect((_node(r, 'c')['props'] as Map)['text'], r'${item.length}s, ${= length(item.name)} letters');
+      // With the site's variables, a name they lack is said.
+      final site = Catalog.run(standardCatalog, () => parseNotation('project cart=[]\nColumn\n  Text "{length(cart)}"\n', catalog: standardCatalog,
+          options: const NotationOptions(projectVariables: {'user': {'type': 'text', 'value': ''}})));
+      expect(site.issues.single.message, startsWith('project cart: site.json\'s variables have no "cart"'));
+      final declared = Catalog.run(standardCatalog, () => parseNotation('project cart=[]\nColumn\n  Text "{length(cart)}"\n', catalog: standardCatalog,
+          options: const NotationOptions(projectVariables: {'cart': {'type': 'list', 'value': []}})));
+      expect(declared.issues, isEmpty);
+      expect(jsonEncode(declared.document['variables'] ?? {}), isNot(contains('cart')), reason: 'the site\'s, with no copy on the screen');
+      // An open of an overlay this page does not have names the ones it has.
+      final open = Catalog.run(standardCatalog, () => parseNotation('Column\n  Button "Role" onTap={open roleDialog}\nMenu#more\n  MenuItem "Edit"\n',
+          catalog: standardCatalog, options: const NotationOptions().open()));
+      expect(open.issues.single.message, endsWith('the action is left out. Over this page: more.'));
+    });
+
     test('a line meant for the page, written after the overlays, says where it went', () {
       const text = 'App\n  Main\n    Column\n      Text "Library"\n'
           'Menu#albumMenu\n  MenuItem "Add" icon="playlist_add" onTap={toast "Added"}\n'

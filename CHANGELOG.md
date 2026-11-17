@@ -71,6 +71,12 @@
   (site.json) named like a variable inside a design system's definition (`selected` in Cards' CommandPalette,
   `query` in its Combobox) as `duplicate_variable`, in sites that never used the component. A definition's
   variables are its instance's; only a page's are checked against the project's.
+- **The notation: lines that were accepted and did nothing.** `project cart=[]` on a page expanded alone declares
+  `cart` on the page (it declared nothing, and every read of it failed at render); beside site.json it is the
+  site's as before, and a name the site's variables lack is said. `go result`, `go tab`, `go item.slug` (a name
+  the state has) navigate to the page the value holds, as `go {result}` (`Tabs … onChanged={go result}` went to
+  a page called "result"). With an open vocabulary, an `open` of no overlay of the page names the ones it has.
+  `clip.length` of a record with a `length` field is the field, not the record's size.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is

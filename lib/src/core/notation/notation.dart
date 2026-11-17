@@ -2022,7 +2022,13 @@ class _Parser {
       final rest = line.substring(8).trim();
       final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*(=|$)').firstMatch(rest)?.group(1);
       if (name == null) return _issue(column, 'A site\x27s variable is written: project name=value (the same name as in site.json\x27s variables).');
-      _projectVariables.add(name);
+      // Expanded with the site's variables, a name they lack is said; alone,
+      // the page declares it itself, so that what reads it works.
+      if (options.projectVariables.containsKey(name)) {
+        _projectVariables.add(name);
+      } else if (options.projectVariables.isNotEmpty) {
+        _issue(column, 'project $name: site.json\x27s variables have no "$name": add it there ({"name": "$name", "type": …, "value": …}). Until then it is this page\x27s own.');
+      }
       _state(rest.contains('=') ? rest : '$name=""', column + 8);
       // `project cart=[] saved`: kept on the device. The site's manifest is
       // where a site's variable is declared, so it has to say so too.
@@ -4489,6 +4495,11 @@ class _Parser {
     // no line of it, are left out, and said where they are written.
     if (_host == null && options.openVocabulary) {
       final canvases = {for (final o in _overlays) o.options.screen};
+      // What the author wrote over the page (not the drawer or viewer made for it).
+      final written = [
+        for (final c in canvases)
+          if (c != _pages.sidebarMenu && c != _pages.viewer) c,
+      ];
       final missing = <String, int>{};
       bool orphan(Object? a) {
         if (a is! Map) return false;
@@ -4523,7 +4534,8 @@ class _Parser {
             e.value,
             1,
             e.key.startsWith('open')
-                ? 'Nothing over this page has the id "$id" for an open to show (a Dialog, Sheet, Drawer, Menu or Popover with that id, written after the page at the margin): the action is left out.'
+                ? 'Nothing over this page has the id "$id" for an open to show (a Dialog, Sheet, Drawer, Menu or Popover with that id, written after the page at the margin): the action is left out. '
+                    '${written.isEmpty ? 'This page has none: write Dialog#$id "…" after the page, at the margin, with its lines under it.' : 'Over this page: ${written.join(', ')}.'}'
                 : 'No line of this page has the id "$id" for a scroll to go to (Section#$id, or id=$id on a line): the action is left out.'));
       }
     }
@@ -4981,7 +4993,7 @@ class _Parser {
       }
       final space = a.indexOf(' ');
       final verb = space < 0 ? a : a.substring(0, space), arg = space < 0 ? '' : a.substring(space + 1).trim();
-      final s = arg.startsWith('"') ? _interpolate(_Tokens(arg).string()) : arg;
+      var s = arg.startsWith('"') ? _interpolate(_Tokens(arg).string()) : arg;
       switch (verb) {
         case 'emit':
           // The core's "tell the host": outside a component it reaches the
@@ -5023,7 +5035,14 @@ class _Parser {
           // screen id: go replace(lower(result)," ","_")); a bare id is the id.
           // A page's id may have hyphens (go get-started is that page, not a
           // subtraction), and a destination already written ${= …} is whole.
-          final braced = s.startsWith('{') && s.endsWith('}') && s.length > 2;
+          var braced = s.startsWith('{') && s.endsWith('}') && s.length > 2;
+          // `go result` (a Tabs' or a SiteNav's choice), `go tab`, `go item.slug`:
+          // a name the state has is the page it holds, as go {result} says.
+          final root = s.split('.').first;
+          if (!braced && _identifier.hasMatch(s) && (const {'result', 'item', 'parent', 'index'}.contains(root) || variables.containsKey(root))) {
+            s = '{$s}';
+            braced = true;
+          }
           final fixed = arg.startsWith('"') || _identifier.hasMatch(s) || RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(s) || (s.startsWith(r'${') && s.endsWith('}'));
           if (!braced && !fixed) {
             _issue(column, 'A page that is worked out is written in braces: go {$s}. A bare word after go is the id of the page.');
@@ -5296,7 +5315,9 @@ class _Parser {
           .replaceAllMapped(RegExp(r'\band\b'), (_) => '&&')
           .replaceAllMapped(RegExp(r'\bor\b'), (_) => '||')
           .replaceAllMapped(RegExp(r'\bnot\s+'), (_) => '!');
-      code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.length\b(?!\()'), (m) => 'length(${m[1]})');
+      // `clip.length` of a record that has a length field is the field.
+      code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.length\b(?!\()'),
+          (m) => switch (_sample(m[1]!)) { final Map<Object?, Object?> r when r.containsKey('length') => m[0]!, _ => 'length(${m[1]})' });
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.toFixed\((\d+)\)'), (m) => 'fixed(${m[1]},${m[2]})');
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.([a-zA-Z]+)\((\)?)'), (m) {
         if (!_methods.contains(m[2])) return m[0]!;
@@ -5306,6 +5327,48 @@ class _Parser {
       out.write(code);
     }
     return out.toString();
+  }
+
+  /// A value like the one [path] reads, from the state declared: a
+  /// variable's start, the first element of the list an `each` repeats
+  /// (`item`, `parent.item`), and fields of those. Null when it is not
+  /// known.
+  Object? _sample(String path) {
+    final parts = path.replaceAll(RegExp(r'\[[^\]]*\]'), '.0').split('.').where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return null;
+    Object? first(Object? v) => v is List ? (v.isEmpty ? null : v.first) : v;
+    Object? element(int up) {
+      final eaches = [for (final o in _stack) if (o.each != null) o];
+      final k = eaches.length - 1 - up;
+      if (k < 0) return null;
+      final list = eaches[k].list ?? '';
+      if (variables[list]?['value'] case final List<Object?> rows) return first(rows);
+      if (list.startsWith('item.')) return first(_sampleIn(element(up + 1), list.substring(5).split('.')));
+      // Worked out from one list (filtered, sorted): its elements.
+      final lists = {
+        for (final m in RegExp(r'[A-Za-z_][A-Za-z0-9_]*').allMatches(list.replaceAll(RegExp(r'"[^"]*"'), '')))
+          if (variables[m[0]]?['value'] is List) m[0]!,
+      };
+      return lists.length == 1 ? first(variables[lists.single]!['value']) : null;
+    }
+
+    var up = 0, at = 0;
+    while (at < parts.length && parts[at] == 'parent') {
+      up++;
+      at++;
+    }
+    if (at < parts.length && parts[at] == 'item') return _sampleIn(element(up), parts.sublist(at + 1));
+    if (up > 0) return null;
+    return _sampleIn(variables[parts.first]?['value'], parts.sublist(1));
+  }
+
+  static Object? _sampleIn(Object? v, List<String> keys) {
+    for (final k in keys) {
+      if (v is List) v = v.isEmpty ? null : v.first;
+      if (int.tryParse(k) != null) continue;
+      v = v is Map ? v[k] : null;
+    }
+    return v;
   }
 
   String _and(String? a, String b) {

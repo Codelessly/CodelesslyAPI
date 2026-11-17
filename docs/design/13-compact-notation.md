@@ -80,7 +80,9 @@ variable (`qty=qty+1`).
   `Text.caption`, `Badge.success`). For text it is the theme text style.
 - **`#id`**: only when something refers to the node (`open id`, `scroll id`, an edit). Otherwise the expander
   generates one from the type and position (`text3`), stable for a given tree. `id=name` on a line is an anchor
-  a `scroll name` goes to; the node keeps its own id. An id is a fixed name: one written from the data
+  a `scroll name` goes to; the node keeps its own id. (`project name=value` is a variable of the site: beside
+  site.json it is the site's, with no copy on the page; a page expanded alone declares it itself; a name the
+  site's variables lack is said.) An id is a fixed name: one written from the data
   (`Row#row-{row.id}`) is its fixed part (`row`), since every copy an `each` makes is the one node. An id given
   twice names the line that has it; the two branches of an `if`/`else` cannot share one (the document holds
   one node per id), and that is said with what to write instead. What the expander names itself (an `App`'s
@@ -109,7 +111,8 @@ variable (`qty=qty+1`).
   event a plain node does not have is said. `menu=id` opens that Menu on a right click or a long press.
 - **Actions**, separated by `;`: `name=value` sets a variable, `emit name [value]` tells the host, `open id` /
   `close` a modal, `go page` navigates, `scroll id`, `toast "text"`, `link url`. A verb's argument is the word
-  written (`go pricing` is that page); one that is worked out is in braces (`go {lower(result)}`). Any other
+  written (`go pricing` is that page); one that is worked out is in braces (`go {lower(result)}`); a bare
+  name the state has (`go result`, `go tab`, `go item.slug`) is the page it holds, as in braces. Any other
   action is written as its JSON. A choice between actions is `cond ? action(s) : action(s)` (`onTap={dirty ?
   open leave : go members}`): each branch one action or a braced list `{a; b}`, either may be empty (`done ?
   close :`), a branch may choose again; it is an `if` action. A value chosen is a formula: `step = valid ? 3 : 2`
