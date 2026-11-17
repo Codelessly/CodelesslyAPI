@@ -672,6 +672,8 @@ List<String> notationStrings(WidgetSpec spec) {
 /// Short names: what an agent writes → the node type and what it implies.
 const Map<String, ({String type, Json node})> notationTypes = {
   'Input': (type: 'textField', node: {}),
+  // What a row of a reordered list is dragged by (each row in rows reorder).
+  'Handle': (type: 'iconButton', node: {}),
   // A one-time code: one field drawn as boxes (CodeInput bind=code length=6 digits).
   'CodeInput': (type: 'textField', node: {}),
   'Toggle': (type: 'switch', node: {}),
@@ -770,7 +772,7 @@ const Map<String, Map<String, List<String>>> _typeKeys = {
 const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
 
 /// The short names a design system's component of the same name replaces.
-const _softNames = {'CodeInput', 'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
+const _softNames = {'CodeInput', 'Handle', 'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
 
 /// The core types a design system's component of the same name replaces: a
 /// design system's own `Tabs` (a row of labels that keeps the open one in a
@@ -1726,7 +1728,7 @@ class _Parser {
     final eachWords = <String, String>{};
     if (line.startsWith('each ')) {
       line = line.trimRight();
-      final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow)$');
+      final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$');
       for (var m = trailing.firstMatch(line); m != null; m = trailing.firstMatch(line)) {
         final word = m[1]!, eq = word.indexOf('=');
         eachWords[eq < 0 ? word : word.substring(0, eq)] = eq < 0 ? '' : word.substring(eq + 1);
@@ -1734,6 +1736,11 @@ class _Parser {
       }
       if (eachWords['stagger'] case final String s) _eachStagger = _milliseconds(s);
     }
+    // `reorder`: the rows are dragged by their Handle (or moved by keys from
+    // it) and the new order is written to the list's variable; lists that
+    // say the same `reorder=group` also pass rows to each other.
+    final reorders = eachWords.containsKey('reorder');
+    final reorderGroup = eachWords['reorder'] ?? '';
     final follows = eachWords.containsKey('follow');
     final eachHeight = num.tryParse(eachWords['h'] ?? '');
     if (follows != (eachHeight != null)) {
@@ -1779,16 +1786,34 @@ class _Parser {
       // In a row the copies go across, each at its own width.
       final across = g == null && parent.type == 'row';
       if (follows && (g != null || across)) return _issue(column, 'A list that follows its end runs down a Column, a Card or a Section, not across a Row or in a Grid.');
+      final listName = each[2]!.trim();
+      if (reorders && (g != null || across)) return _issue(column, 'A list that is reordered runs down a Column, a Card or a Section, not across a Row or in a Grid.');
+      if (reorders && !(_identifier.hasMatch(listName) && !listName.contains('.') && variables.containsKey(listName))) {
+        return _issue(column, 'reorder writes the new order to a list variable: declare it (state $listName=[…]) and repeat it by name (each row in $listName reorder).');
+      }
       _acrossLists[itemId] = listId;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
         'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': follows ? eachHeight : {'hug': 0}},
+        // Its handles are one stop of the page: arrows go from row to row.
+        if (reorders) 'focusGroup': {'axis': 'vertical', 'wrap': false},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
             ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
             : across
                 ? {'scrollable': false, 'scrollDirection': 'horizontal', 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0}
-                : {'scrollable': follows, if (follows) 'stickToEnd': true, 'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0},
+                : {
+                    'scrollable': follows,
+                    if (follows) 'stickToEnd': true,
+                    'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0,
+                    if (reorders)
+                      'reorder': {
+                        'start': 'handle',
+                        'keyboard': true,
+                        'apply': 'variable',
+                        if (reorderGroup.isNotEmpty) ...{'group': reorderGroup, 'listKey': listName},
+                      },
+                  },
         'bind': {'data': _read(each[2]!.trim()), if (parent.condition != null) 'visible': parent.condition},
         'children': <Object?>[itemId],
       };
@@ -2693,6 +2718,14 @@ class _Parser {
       }
     }
 
+    // A Handle is a 44 px grip, named for a screen reader, that its list is
+    // reordered by.
+    if (ours && written == 'Handle') {
+      props['icon'] = 'drag_indicator';
+      layout.addAll({'width': 44, 'height': 44});
+      node['tooltip'] = 'Reorder';
+      node['reorderHandle'] = true;
+    }
     // Sizes not written: in a column a child fills the width and hugs its
     // height; in a row it hugs both; a control hugs.
     final control = _valueProps.containsKey(type) || type.endsWith('Button') || type.endsWith('Chip');

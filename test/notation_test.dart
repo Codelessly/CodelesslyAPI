@@ -2805,4 +2805,53 @@ Dialog#search "Search"
     expect(_pagePrompt(), allOf(contains('key mod+k onPress={open search}'), contains('shortcut="mod+k"')));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('shortcut=')));
   });
+
+  test('reorder and Handle: a list put in order by its rows\x27 handles, written to its variable; two lists of one group', () {
+    final r = _parsePage('''
+state trip=["Zurich","Tirano"]
+state planned=["Bern"]
+state optional=["Basel"]
+Page
+  Section
+    each stop in trip reorder
+      Row
+        Handle#grip
+        Text "{stop}"
+    Row
+      Column
+        each stop in planned reorder=journey
+          Row
+            Handle
+            Text "{stop}"
+      Column
+        each stop in optional reorder=journey stagger=40
+          Row
+            Handle
+            Text "{stop}"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    final lists = (r.document['nodes'] as Map).values.cast<Map>().where((n) => n['type'] == 'listView').toList();
+    expect(lists, hasLength(3));
+    expect((lists[0]['props'] as Map)['reorder'], {'start': 'handle', 'keyboard': true, 'apply': 'variable'});
+    expect(lists[0]['focusGroup'], {'axis': 'vertical', 'wrap': false});
+    expect(lists[0]['bind'], containsPair('data', r'${trip}'));
+    expect((lists[1]['props'] as Map)['reorder'], {'start': 'handle', 'keyboard': true, 'apply': 'variable', 'group': 'journey', 'listKey': 'planned'});
+    expect((lists[2]['props'] as Map)['reorder'], containsPair('listKey', 'optional'));
+    final grip = _node(r, 'grip');
+    expect(grip['type'], 'iconButton');
+    expect(grip['props'], containsPair('icon', 'drag_indicator'));
+    expect(grip['layout'], allOf(containsPair('width', 44), containsPair('height', 44)));
+    expect(grip['reorderHandle'], true);
+    expect(grip['tooltip'], 'Reorder');
+    // An each without the word is as before.
+    final plain = (_parse('state rows=[]\nColumn\n  each row in rows\n    Text "{row}"').document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView');
+    expect(plain, isNot(contains('focusGroup')));
+    expect(plain['props'], isNot(contains('reorder')));
+    // What cannot be reordered says why.
+    expect(_parsePage('state rows=[]\nPage\n  Section\n    each row in filter(rows,r=>r.on) reorder\n      Text "{row}"').issues.first.message, contains('reorder writes the new order to a list variable'));
+    expect(_parsePage('state rows=[]\nPage\n  Section\n    Row\n      each row in rows reorder\n        Text "{row}"').issues.first.message, contains('runs down a Column'));
+    expect(_pagePrompt(), allOf(contains('each stop in trip reorder'), contains('a Handle on each row'), contains('reorder=group')));
+    expect(notationPrompt(catalog: standardCatalog), allOf(isNot(contains(' reorder ')), isNot(contains('Handle')), contains('IconButton')));
+  });
 }
