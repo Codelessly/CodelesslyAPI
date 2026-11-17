@@ -165,6 +165,9 @@
   the labels itself keeps its own); a date or time field's string is its label, and on a page the field is as
   tall as the fields beside it; `NotationOptions.accentText` (a theme's `accentText` or `accentDeep`) is a
   link's ink in running text.
+- `validateSiteManifest`: a key of `site.json` that nothing reads is a `site_key_ignored` warning; a theme key
+  written beside `"theme"` (`"primary"`, `"colors"`, `"dark"`…) says to write it inside `"theme"` (it was ignored
+  without a word).
 
 ### Changed
 
@@ -201,6 +204,14 @@
   parameter (`NumberInput bind=amount step=0.01`) is declared `decimal`, not `integer`: an integer variable rounds
   what is set, so typed cents and a 0.01 step were lost (25.50 was saved as 26, the arrows did nothing). A site's
   variable (site.json) keeps the type it is declared with there.
+- A site's theme over a design system's tokens (`DesignSystem.themeUnder`, the new `ThemeTokens.withSiteTheme`):
+  what the design system makes from its accent follows the site's. A site that gives its own `primary` (or
+  `colors.accent` where the accent is the primary) gets every color that is the design system's primary at some
+  opacity (a selected row's tint, the focus ring, tinted borders) at that opacity of its own, the `info` color and
+  its tints, and each shade named after the accent (`accentDeep`, `accentBright`) in its hue; in dark, with no
+  `dark.primary` of its own, a primary made from its light one (it stayed the design system's blue) and the same for
+  the dark colors. A site's `fontFamily` re-families the design system's text styles of its default family. A color
+  or style the site names itself stays the site's.
 
 ## 32.0.0
 

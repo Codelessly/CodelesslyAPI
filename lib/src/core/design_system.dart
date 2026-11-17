@@ -171,8 +171,10 @@ final class DesignSystem {
   ThemeTokens get tokens => manifest.theme;
 
   /// The theme of a site that uses it: [site]'s own theme merged over its
-  /// tokens (the site's colors, styles and scales win, key by key).
-  ThemeTokens themeUnder(ThemeTokens site) => tokens.mergedWith(site);
+  /// tokens (the site's colors, styles and scales win, key by key), and what
+  /// the tokens make from their accent made from the site's
+  /// ([ThemeTokens.withSiteTheme]).
+  ThemeTokens themeUnder(ThemeTokens site) => tokens.withSiteTheme(site);
 
   /// The component library of a site that uses it: its components and
   /// [site]'s (the site's own of a type wins).

@@ -2049,6 +2049,30 @@ List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints?
   return r.out;
 }
 
+/// Checks a site manifest's own keys: one it does not read is a warning. A
+/// theme key written at the top (`"primary"`, `"colors"`, `"dark"`...) says
+/// where it goes: nothing reads it there, so the site keeps the design
+/// system's colors without a word.
+List<Diagnostic> validateSiteManifest(Object? json) {
+  final r = Reporter();
+  final m = readMap(json);
+  if (m == null) return r.out;
+  // What a site may say about itself, for people.
+  const others = {'id', 'name', 'title', 'description'};
+  for (final k in m.keys) {
+    if (SiteManifest.keys.contains(k) || others.contains(k) || k.startsWith('_') || k.startsWith(r'$')) continue;
+    if (themeKeys.contains(k)) {
+      final example = m[k] is String ? '"${m[k]}"' : (k == 'colors' || k == 'dark' || k == 'textStyles' ? '{...}' : '...');
+      r.add(Codes.siteKeyIgnored, pointer('', k),
+          '"$k" is a key of the theme: at the top of site.json nothing reads it. Write it inside "theme": {"theme": {"$k": $example}}.');
+    } else {
+      r.add(Codes.siteKeyIgnored, pointer('', k), 'site.json has no "$k": nothing reads it. Its keys: ${SiteManifest.keys.join(', ')}.',
+          suggestion: nearest(k, SiteManifest.keys));
+    }
+  }
+  return r.out;
+}
+
 /// Checks a site manifest's `variables` (at [at]): a list of records
 /// (`[{"name": "cart", "type": "list", "value": []}]`) or an object of name
 /// to value (`{"cart": [], "plan": "pro"}`, a value that is `{"value": ...,

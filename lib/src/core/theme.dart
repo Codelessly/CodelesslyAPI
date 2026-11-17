@@ -157,6 +157,129 @@ final class ThemeTokens {
     return fromJson(mergePatch(toJson(), over.toJson()));
   }
 
+  /// These tokens (a design system's) with a site's theme over them
+  /// ([mergedWith]), and what the design system makes from its accent made
+  /// from the site's instead. A site that gives its own `primary` (or, where
+  /// the design system's `accent` is its primary, its own `colors.accent`)
+  /// and nothing else gets:
+  ///
+  /// * every color of the design system that is its primary at some opacity
+  ///   (a selected row's tint, the focus ring, a tinted border) as the
+  ///   site's primary at that opacity;
+  /// * the `info` color and its tints (an information banner), which wear
+  ///   the accent of a re-branded site;
+  /// * each shade of the accent it does not name (a color of the accent's
+  ///   hue named after it: `accentDeep`, `accentBright`) in the site's hue,
+  ///   at the lightness the design system gives it;
+  /// * in [dark], when the site gives no `dark.primary`, a primary made from
+  ///   its light one (a little lighter, as an accent is on a dark surface),
+  ///   and the same three for the dark colors.
+  ///
+  /// A color the site names itself, light or dark, is the site's. A site
+  /// that gives its own `fontFamily` gets the design system's text styles
+  /// of its default family in that family.
+  ThemeTokens withSiteTheme(ThemeTokens site) {
+    var merged = mergedWith(site);
+    if (site.isEmpty || isEmpty) return merged;
+    // The site's own font: every text style of the design system written in
+    // its default family is in the site's (a style the site re-families
+    // itself keeps what it says). The same for the title family.
+    final families = {
+      if (fontFamily != null && site.fontFamily != null && site.fontFamily != fontFamily) fontFamily!: site.fontFamily!,
+      if (titleFontFamily != null && site.titleFontFamily != null && site.titleFontFamily != titleFontFamily)
+        titleFontFamily!: site.titleFontFamily!,
+    };
+    if (families.isNotEmpty) {
+      final styles = <String, Object?>{
+        for (final e in textStyles.entries)
+          if (families[e.value.fontFamily] case final String family when site.textStyles[e.key]?.fontFamily == null) e.key: {'fontFamily': family},
+      };
+      if (styles.isNotEmpty) merged = fromJson(mergePatch(merged.toJson(), {'textStyles': styles}));
+    }
+    final from = color('primary');
+    final accentIsPrimary = from != null && color('accent')?.value == from.value;
+    final named = site.primary != null ? 'primary' : (accentIsPrimary && site.colors.containsKey('accent') ? 'accent' : null);
+    if (from == null || named == null) return merged;
+    final to = merged.color(named);
+    if (to == null || _rgb(to) == _rgb(from)) return merged;
+
+    // The names of the accent: `primary`, and each color that is it
+    // (`accent`). A color named after one (`accentDeep`, `accentBright`) is
+    // a shade of it.
+    final roots = {'primary', for (final e in colors.entries) if (e.value.name == null && e.value.value == from.value) e.key};
+    bool shadeName(String name) => roots.any((r) => name.length > r.length && name.startsWith(r));
+
+    Map<String, Object?> follow(Map<String, Color> base, Color was, Color now, Set<String> given, {required bool dark}) {
+      final info = given.contains('info') || site.colors.containsKey('info') ? null : base['info'];
+      final out = <String, Object?>{};
+      for (final e in base.entries) {
+        final c = e.value;
+        if (c.name != null || given.contains(e.key)) continue;
+        if (_rgb(c) == _rgb(was) || (info != null && info.name == null && _rgb(c) == _rgb(info))) {
+          out[e.key] = Color((c.alpha << 24) | _rgb(now)).toJson();
+        } else if ((shadeName(e.key) || (dark && site.colors.containsKey(e.key))) && _sameFamily(c, was)) {
+          out[e.key] = _rehued(c, now).toJson();
+        }
+      }
+      return out;
+    }
+
+    final patch = <String, Object?>{
+      if (site.primary == null) 'primary': to.toJson(),
+      'colors': follow(colors, from, to, site.colors.keys.toSet(), dark: false),
+    };
+    final d = dark;
+    if (d != null && !d.isEmpty) {
+      final wasDark = forBrightness(dark: true).color('primary') ?? from;
+      final siteDark = site.dark;
+      final nowDark = siteDark?.primary != null
+          ? (merged.forBrightness(dark: true).color('primary') ?? to)
+          : Color(0xFF000000 | _mix(_rgb(to), 0xFFFFFF, .15));
+      patch['dark'] = {
+        if (siteDark?.primary == null) 'primary': nowDark.toJson(),
+        'colors': follow(d.colors, wasDark, nowDark, {...?siteDark?.colors.keys}, dark: true),
+      };
+    }
+    return fromJson(mergePatch(merged.toJson(), patch));
+  }
+
+  static int _rgb(Color c) => c.value & 0xFFFFFF;
+
+  static int _mix(int a, int b, double t) {
+    int ch(int shift) => (((a >> shift) & 0xff) + (((b >> shift) & 0xff) - ((a >> shift) & 0xff)) * t).round().clamp(0, 255);
+    return (ch(16) << 16) | (ch(8) << 8) | ch(0);
+  }
+
+  /// Hue (degrees), saturation and lightness of [c].
+  static (double, double, double) _hsl(Color c) {
+    final r = c.red / 255, g = c.green / 255, b = c.blue / 255;
+    final max = [r, g, b].reduce((a, b) => a > b ? a : b), min = [r, g, b].reduce((a, b) => a < b ? a : b);
+    final l = (max + min) / 2, delta = max - min;
+    if (delta == 0) return (0, 0, l);
+    final s = delta / (1 - (2 * l - 1).abs());
+    final h = max == r ? ((g - b) / delta) % 6 : (max == g ? (b - r) / delta + 2 : (r - g) / delta + 4);
+    return ((h * 60 + 360) % 360, s, l);
+  }
+
+  /// Whether [c] is a shade of [accent]: a color (not a gray) of its hue.
+  static bool _sameFamily(Color c, Color accent) {
+    final (h, s, _) = _hsl(c);
+    final (ah, accentS, _) = _hsl(accent);
+    if (s < .2 || accentS < .2) return false;
+    final d = (h - ah).abs();
+    return (d > 180 ? 360 - d : d) <= 20;
+  }
+
+  /// [c] in [accent]'s hue and saturation, at its own lightness and opacity.
+  static Color _rehued(Color c, Color accent) {
+    final (_, _, l) = _hsl(c);
+    final (h, s, _) = _hsl(accent);
+    final k = (1 - (2 * l - 1).abs()) * s, x = k * (1 - ((h / 60) % 2 - 1).abs()), m = l - k / 2;
+    final (r, g, b) = switch (h ~/ 60) { 0 => (k, x, 0.0), 1 => (x, k, 0.0), 2 => (0.0, k, x), 3 => (0.0, x, k), 4 => (x, 0.0, k), _ => (k, 0.0, x) };
+    int ch(double v) => ((v + m) * 255).round().clamp(0, 255);
+    return Color.fromARGB(c.alpha, ch(r), ch(g), ch(b));
+  }
+
   static const ThemeTokens none = ThemeTokens();
 
   /// The color named [name]: a key of [colors], else a role (`primary`,
