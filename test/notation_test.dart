@@ -1701,6 +1701,27 @@ Page
       expect((at(r, 'gap', 390)['layout']! as Map)['basis'], 0);
     });
 
+    test('a list row with a reorder Handle keeps its grip beside what it moves', () {
+      final r = parseNotation('''
+state steps=["Warm up", "Run"]
+Page
+  Section
+    Column gap=8
+      each s in steps reorder
+        Row#line gap=8 middle
+          Handle#grip
+          Column#body grow
+            Text "{s}"
+            Row gap=8
+              Input "Minutes" grow
+              Input "Pace" grow
+          IconButton "more_vert"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(at(r, 'line', 390), isEmpty);
+      expect(at(r, 'body', 390), isEmpty);
+    });
+
     test('a table\'s row keeps the columns a phone has room for, from the first on', () {
       final r = parseNotation('''
 Page

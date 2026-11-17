@@ -792,6 +792,9 @@ final class PageReflow {
   void _row(String id, Json n) {
     final kids = _kids(n);
     if (kids.length < 2) return;
+    // A row with a reorder Handle is a list's row: its grip stays beside
+    // what it moves (what grows in it narrows), never alone on a line.
+    if (kids.any((k) => nodes[k]?['reorderHandle'] == true)) return;
     final spacing = switch (_props(n)['spacing']) { final num s => s, _ => 0 };
     final blocks = {
       for (final k in kids)
