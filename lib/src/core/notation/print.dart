@@ -480,8 +480,9 @@ final class _Printer {
           ?last,
         ].join('\n');
     try {
-      // What the words did not say, per node.
-      final first = _parse(text(const {}, null));
+      // What the words did not say, per node (after the fields' words for
+      // what a line still differs in where it is: print_fields.dart).
+      final first = printFieldsRefine(_parse(text(const {}, null)), [for (final l in _lines) if (l.id != null) (id: l.id!, get: () => l.text, set: (String t) => l.text = t)], () => _parse(text(const {}, null)), context);
       final parsed = readMap(first['nodes']) ?? const {};
       final tails = <String, String>{};
       for (final l in _lines) {

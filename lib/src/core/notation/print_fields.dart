@@ -109,6 +109,44 @@ String printNodeLine(String id, Json n, PrintContext context) {
 /// the line writes no `bind=`. The events' words leave that reaction out.
 int? printedBindReaction(String id, Json n, PrintContext context) => context._line(id, n).twoWay?.index;
 
+/// The print's lines (each node's [id], its text to [get] and [set]) after
+/// the words for what each still differs in where it is: [parsed] is the
+/// print read, [read] reads it again. A line written alone is read under
+/// its parent's ([printNodeLine]); where the print puts it (under an `each`,
+/// in a grid, in a page) it may read otherwise. Each line's fields are
+/// written by their keys again against what it gives there, and kept where
+/// its node is closer to the document's. Returns the print read last.
+Json printFieldsRefine(Json parsed, List<({String id, String Function() get, void Function(String) set})> lines, Json Function() read, PrintContext context) {
+  for (var round = 0; round < 3; round++) {
+    final got = readMap(parsed['nodes']) ?? const {};
+    final before = <int, String>{};
+    for (var i = 0; i < lines.length; i++) {
+      final l = lines[i], want = readMap(context.nodes[l.id]), now = readMap(got[l.id]);
+      if (want == null || now == null) continue;
+      final more = context._line(l.id, want)._more(now, l.get());
+      if (more.isEmpty) continue;
+      before[i] = l.get();
+      l.set('${l.get()} ${more.join(' ')}');
+    }
+    if (before.isEmpty) break;
+    final next = read();
+    final after = readMap(next['nodes']) ?? const {};
+    var kept = 0;
+    for (final e in before.entries) {
+      final l = lines[e.key], line = context._lines[l.id]!;
+      final now = readMap(after[l.id]);
+      if (now != null && _NodeLine._better(line._score(now), line._score(readMap(got[l.id])!))) {
+        kept++;
+      } else {
+        l.set(e.value);
+      }
+    }
+    if (kept == 0) break;
+    parsed = kept == before.length ? next : read();
+  }
+  return parsed;
+}
+
 /// A size as `w=`/`h=` write it: a number, `fill` or `hug`, or the size's
 /// own JSON when it carries a design size (`{"fill":390}`).
 String? _sizeWord(Object? v) {
@@ -463,13 +501,25 @@ final class _NodeLine {
   Json get _probeProps => readMap(probe['props']) ?? const {};
   bool _hasProp(String key) => spec?.props.any((p) => p.key == key) ?? false;
 
+  /// Whether the line names its type (`Button "Save" type=Button`): a design
+  /// system's component whose name a word of the notation has too.
+  bool _typed = false;
+
+  /// The head as the parser is asked about it (with `type=` when [_typed]).
+  String get _asked => _typed ? '$head type=$type' : head;
+
   void write() {
-    _writeAs(_head());
+    var first = _head();
+    if (type[0] != type[0].toLowerCase() && _probes.node(first)['type'] != type && _probes.node('$type type=$type')['type'] == type) {
+      _typed = true;
+      first = type;
+    }
+    _writeAs(first);
     // A short name says no more than the type's own word with nothing
     // written; with this line's words it may (`AreaChart` fills under a
     // line chart's series): then the own word.
     final own = _probes.own(type);
-    if (head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.join(' '))) {
+    if (!_typed && head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.join(' '))) {
       words.clear();
       doneProps.clear();
       doneBind.clear();
@@ -482,12 +532,13 @@ final class _NodeLine {
 
   void _writeAs(String head) {
     this.head = head;
-    probe = _probes.node(head);
+    probe = _probes.node(_asked);
     // A control's value kept in a variable (`bind=name`) is the events'
     // words (design 22, 4.3): its binding is left to them.
     twoWay = _twoWay();
     if (twoWay case final t?) doneBind.add(t.path);
     _main();
+    if (_typed) words.add('type=$type');
     _typeWords();
     _layout();
     _decoration();
@@ -586,7 +637,7 @@ final class _NodeLine {
   ({String name, int index, String path})? _twoWay() {
     final actions = readList(n['actions']);
     if (actions == null || actions.isEmpty || _hasProp('bind')) return null;
-    final r = _probes.line('$head bind=__v');
+    final r = _probes.line('$_asked bind=__v');
     final pb = readMap(r.node?['bind']);
     final pa = readList(r.node?['actions']);
     if (!r.clean || pb == null || pb.length != 1 || pa == null || pa.isEmpty) return null;
@@ -838,13 +889,15 @@ final class _NodeLine {
     // A text in a row, and on a page a column in a row, may shrink when no
     // width is written: one that may not says its width.
     final squeezes = inRow && (type == 'text' || (type == 'column' && !flex && c.options.width >= 700 && head != 'Card'));
-    if (!inGrid && !bind.containsKey('layout.width') && layout['width'] != null) {
+    // A size bound is 0 unless a number is written beside it (`h=24 h={…}`).
+    bool free(String k) => !bind.containsKey('layout.$k') || (layout[k] is num && layout[k] != 0);
+    if (!inGrid && free('width') && layout['width'] != null) {
       final w = layout['width'];
       if (!_equal(w, width) || (squeezes && layout['squeezable'] != true)) {
         if (_sizeWord(w) case final String s) words.add('w=$s');
       }
     }
-    if (!spacer && !bind.containsKey('layout.height') && layout['height'] != null && !_equal(layout['height'], height)) {
+    if (!spacer && free('height') && layout['height'] != null && !_equal(layout['height'], height)) {
       if (_sizeWord(layout['height']) case final String s) words.add('h=$s');
     }
     // `squeezable` otherwise is written by name.
@@ -912,7 +965,7 @@ final class _NodeLine {
   /// border's) color: on a text it is not (a text with a fill is a tag).
   bool _says(String word) {
     final at = word == 'fill' ? 'fills' : 'strokes';
-    return _probes.says(head, '${type == 'text' ? '"a" ' : ''}$word=#FF0A0B0C', word, (node) => _equal(readMap(node['decoration'])?[at], [
+    return _probes.says(_asked, '${type == 'text' ? '"a" ' : ''}$word=#FF0A0B0C', word, (node) => _equal(readMap(node['decoration'])?[at], [
           {'color': '#FF0A0B0C'},
         ]));
   }
@@ -950,7 +1003,7 @@ final class _NodeLine {
       doneNode.add('sticky');
     }
     if (n['ignorePointer'] == true && probe['ignorePointer'] != true) {
-      if (_probes.says(head, 'readOnly', 'readOnly', (node) => node['ignorePointer'] == true && diffPatch(probe, node)?.keys.join() == 'ignorePointer')) {
+      if (_probes.says(_asked, 'readOnly', 'readOnly', (node) => node['ignorePointer'] == true && diffPatch(probe, node)?.keys.join() == 'ignorePointer')) {
         words.add('readOnly');
         doneNode.add('ignorePointer');
       }
@@ -990,8 +1043,8 @@ final class _NodeLine {
   /// it, written by its key (design 22, 2.1 and 2.5): `crossAxisAlignment=null`
   /// for one the line gives that the node has not, `squeezable=true`,
   /// `strokeSides=topBottom`, `style.letterSpacing=0.4`, `visible={…}`. Each
-  /// is checked by reading the line under its parent's: a word that changes
-  /// anything else is not written.
+  /// is checked by reading the line under its parent's, and kept where it
+  /// leaves fewer fields other than the node has them.
   void _residual() {
     final parent = _parentLine();
     final said = printPaintSays(id, n, c);
@@ -1001,47 +1054,79 @@ final class _NodeLine {
     }
   }
 
-  /// [_residual]'s one round: the [candidates] for what the line read under
-  /// [parent] still differs in, written where they settle it.
+  /// [_residual]'s one pass: the [candidates] for what the line read under
+  /// [parent] still differs in, all at once or one field at a time, again
+  /// while that settles more (a word may make the line give a field the
+  /// node has not: the next round writes it out).
   void _settle(String? parent, List<({String target, List<List<String>> forms})> Function(Json got) candidates) {
     Json? read(List<String> extra) => _readUnder(parent, [...words, ...extra]);
-    final first = read(const []);
-    if (first == null) return;
-    var differ = _differ(first);
-    if (differ.isEmpty) return;
-    final slots = candidates(first);
-    if (slots.isEmpty) return;
-    bool settles(Set<String> after, String target) => !after.any((p) => _under(p, target));
-    // All at once: each slot's first form.
-    final all = [for (final s in slots) ...s.forms.first];
-    final got = read(all);
-    if (got != null) {
-      final after = _differ(got);
-      if (after.difference(differ).isEmpty && slots.every((s) => settles(after, s.target))) {
-        words.addAll(all);
-        return;
+    var got = read(const []);
+    if (got == null) return;
+    var kept = <String>[];
+    var score = _score(got);
+    for (var round = 0; round < 4 && score.fields.isNotEmpty; round++) {
+      final slots = candidates(got!);
+      if (slots.isEmpty) break;
+      var progressed = false;
+      final all = [...kept, for (final s in slots) ...s.forms.first];
+      final both = read(all);
+      if (both != null && _better(_score(both), score)) {
+        kept = all;
+        got = both;
+        score = _score(both);
+        continue;
       }
-    }
-    // Else one field at a time, each form in turn.
-    final kept = <String>[];
-    for (final s in slots) {
-      for (final form in s.forms) {
-        final got = read([...kept, ...form]);
-        if (got == null) continue;
-        final after = _differ(got);
-        if (after.difference(differ).isEmpty && after.length < differ.length) {
-          kept.addAll(form);
-          differ = after;
+      for (final s in slots) {
+        for (final form in s.forms) {
+          final next = read([...kept, ...form]);
+          if (next == null || !_better(_score(next), score)) continue;
+          kept = [...kept, ...form];
+          got = next;
+          score = _score(next);
+          progressed = true;
           break;
         }
       }
+      if (!progressed) break;
     }
     words.addAll(kept);
   }
 
-  /// Whether the leaf [path] is [target] or inside it.
-  static bool _under(String path, String target) =>
-      path == target || (path.startsWith(target) && (path[target.length] == '.' || path[target.length] == '['));
+  /// What [got] differs from the node in: the fields (`props.style`,
+  /// `bind.visible`, `states.hovered.row`) and the number of leaves.
+  ({Set<String> fields, int leaves}) _score(Json got) {
+    final leaves = _differ(got);
+    String field(String leaf) {
+      final parts = leaf.split('.');
+      final take = switch (parts.first) { 'props' || 'layout' || 'decoration' => 2, 'states' => 3, _ => 1 };
+      if (parts.first == 'bind') return leaf;
+      return parts.take(take).join('.').replaceFirst(RegExp(r'\[.*$'), '');
+    }
+
+    return (fields: {for (final l in leaves) field(l)}, leaves: leaves.length);
+  }
+
+  /// Whether [a] is closer to the node than [b]: fewer fields other, or no
+  /// field more and fewer leaves.
+  static bool _better(({Set<String> fields, int leaves}) a, ({Set<String> fields, int leaves}) b) =>
+      a.fields.length < b.fields.length || (a.fields.difference(b.fields).isEmpty && a.leaves < b.leaves);
+
+  /// The words for what [got] (this line read where the print puts it,
+  /// [text] as written there) still differs in: each field's first form,
+  /// none already on the line; a field its binding sets is the binding's.
+  List<String> _more(Json got, String text) {
+    final said = printPaintSays(id, n, c);
+    final binds = _candidates(got, said, binds: true);
+    final fields = [
+      for (final s in _candidates(got, said, binds: false))
+        if (!binds.any((b) => b.target == 'bind.${s.target}')) s,
+    ];
+    return [
+      for (final s in [...binds, ...fields])
+        for (final w in s.forms.first)
+          if (!text.contains(' $w')) w,
+    ];
+  }
 
   /// The parent's line as its words write it (`Row#bar gap=8 middle`), what
   /// this line is read under; null for the root of a page or a component.
@@ -1056,7 +1141,10 @@ final class _NodeLine {
   /// This line with [written] read under [parent] (or alone): the node it
   /// gives, or null when the line does not read as this node.
   Json? _readUnder(String? parent, List<String> written) {
-    final self = ['$head#$id', ...written].join(' ');
+    // Its states as they are (the states' words are another family's): what
+    // a word adds to them is seen.
+    final states = n['states'] == null ? null : jsonEncode({'states': n['states']});
+    final self = ['$head#$id', ...written, ?states].join(' ');
     try {
       final r = parseNotation(parent == null ? self : '$parent\n  $self', catalog: c.catalog, options: c.options);
       return readMap(readMap(r.document['nodes'])?[id]);
@@ -1164,6 +1252,13 @@ final class _NodeLine {
   /// The words that bind [path] to [v]: `key={expression}`, `key="…{x}…"`
   /// for a text with values in it; `selected={…}` always reads a formula.
   List<String> _bindWords(String path, Object? v) {
+    if (path == 'disabled') {
+      // `enabled={x}` is disabled `${= !x}` (`!(x)` for more than a name).
+      final e = v is String && v.startsWith(r'${= !') && _close(v, 1) == v.length - 1 ? v.substring(5, v.length - 1).trim() : null;
+      if (e == null) return const [];
+      final inner = e.startsWith('(') && e.endsWith(')') && _close(e.replaceAll('(', '{').replaceAll(')', '}'), 0) == e.length - 1 ? e.substring(1, e.length - 1) : e;
+      return [if (!inner.contains('\n')) 'enabled={$inner}'];
+    }
     final key = _bindKey(path);
     if (key == null || v is! String) return const [];
     final expression = path == 'selected' ? _formulaOf(v) : _expression(v);
@@ -1179,7 +1274,7 @@ final class _NodeLine {
   /// null for one with none.
   String? _bindKey(String path) {
     switch (path) {
-      case 'data' || 'disabled':
+      case 'data':
         return path;
       case 'selected':
         return _hasProp('selected') || const {'chip', 'checkbox', 'switch'}.contains(type) ? null : 'selected';
