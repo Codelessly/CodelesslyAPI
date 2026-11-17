@@ -13,7 +13,10 @@ abstract final class FlexProps {
       'mainAxisAlignment', EnumCodec(MainAxisAlignment.values), MainAxisAlignment.start);
   /// How the children are placed across the main axis, Flutter's `CrossAxisAlignment`. The default `center` centers
   /// them: write `start` for left-aligned (or top-aligned) content, `stretch` to make every child as wide (or tall)
-  /// as the node.
+  /// as the node. A row places its children by their control boxes, as a web page lines up form controls: a field's
+  /// label hangs above the line and its helper or error below it, so a button, a text or an icon beside the field
+  /// is centered on (`start`: level with the top of, `end`: the foot of, `stretch`: as tall as) the field's box, with
+  /// nothing to write. A column of a label text, one field and captions under it lines up the same way.
   static const crossAxisAlignment = PropDef<CrossAxisAlignment>(
       'crossAxisAlignment', EnumCodec(CrossAxisAlignment.values), CrossAxisAlignment.center);
 
