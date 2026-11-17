@@ -1195,7 +1195,8 @@ class _Parser {
   /// Where the variables are declared: on the page's canvas, or, once the
   /// page has overlays, for every canvas of the document (an overlay reads
   /// and sets the page's values).
-  String get _scope => _top._overlays.isEmpty ? options.screen : 'page_variables';
+  /// `document scope=page_variables` says which.
+  String get _scope => _top._documentWords['scope'] as String? ?? (_top._overlays.isEmpty ? options.screen : 'page_variables');
 
   bool _taken(String id) {
     final top = _top;
@@ -2593,6 +2594,11 @@ class _Parser {
 
   Json? _documentPatch;
 
+  /// What a `document id="checkout" schema=2 scope=page_variables` line
+  /// says: the document's own `id` and `schema`, and the scope its `state`
+  /// lines are kept in (docs/design/22 section 4.7).
+  final _documentWords = <String, Object?>{};
+
   /// A design system's component (`component Name "doc"` above its tree,
   /// docs/design/22 section 4.5): its declaration (the document's `widget`)
   /// and its previews. The document is then the tree alone: its root is the
@@ -2733,6 +2739,64 @@ class _Parser {
   }
 
 
+  /// The nodes a line's words made under it (a Badge's text) that its
+  /// `{…}` tail took out of its `children` or `slots`: no line holds them,
+  /// so they are not in the document.
+  void _dropOrphans() {
+    final tailed = {
+      for (final e in _lineTails.entries)
+        if (e.value.containsKey('children') || e.value.containsKey('slots')) e.key,
+    };
+    if (tailed.isEmpty) return;
+    final held = <String>{
+      for (final n in nodes.values) ...[
+        ...readStrings(n['children']),
+        for (final s in (readMap(n['slots']) ?? const {}).values)
+          if (s is String) s,
+      ],
+    };
+    var gone = [
+      for (final id in nodes.keys)
+        if (!held.contains(id) && tailed.contains(_parentOf[id])) id,
+    ];
+    while (gone.isNotEmpty) {
+      final next = <String>[];
+      for (final id in gone) {
+        if (held.contains(id)) continue;
+        final n = nodes.remove(id);
+        if (n == null) continue;
+        next.addAll(readStrings(n['children']));
+        next.addAll([
+          for (final s in (readMap(n['slots']) ?? const {}).values)
+            if (s is String) s,
+        ]);
+      }
+      gone = next;
+    }
+  }
+
+  /// The words of a `document` line (after `document`): `id="…"`,
+  /// `schema=<n>`, `scope=<canvas id or page_variables>`. False when the
+  /// line is not one (its first word is no key of it).
+  bool _documentLine(String text, int column) {
+    final words = _headWords(text);
+    if (words.isEmpty || !const {'id', 'schema', 'scope'}.contains(words.first.key)) return false;
+    for (final w in words) {
+      final ok = switch (w.key) {
+        'id' => w.value is String,
+        'schema' => w.value is int,
+        'scope' => w.value is String && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(w.value! as String),
+        _ => false,
+      };
+      if (ok) {
+        _top._documentWords[w.key] = w.value;
+      } else {
+        _issue(column, 'A document line takes the document\x27s id="…", schema=3 and scope= (where its state is kept: a canvas id, or page_variables): not "${w.key}${w.value == null ? '' : '=${w.value}'}".');
+      }
+    }
+    return true;
+  }
+
   /// What a canvas line's words (after `canvas`, or a `Canvas#id` block's
   /// head) say of its canvas, as a merge patch: its name in quotes, `w`,
   /// `h`, `fill`, any other field by its path from the canvas.
@@ -2868,9 +2932,17 @@ class _Parser {
       for (final e in p._lineTails.entries) {
         if (p.nodes[e.key] case final Json node) _merge(node, _settled(e.value));
       }
+      p._dropOrphans();
     }
     final patch = _documentPatch;
-    Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
+    final words = {
+      for (final k in const ['id', 'schema'])
+        if (_documentWords.containsKey(k)) k: _documentWords[k],
+    };
+    Json patched(Json d) {
+      final out = words.isEmpty ? d : mergePatch(d, words);
+      return patch == null ? out : mergePatch(out, patch);
+    }
     // A component's document (or a tree with `canvas none`): its declaration,
     // its previews and its tree, no canvas; its variables are its root's.
     if (_widget != null || _noCanvas) {
@@ -2883,7 +2955,7 @@ class _Parser {
         'widget': ?widget,
         if (_previews.isNotEmpty) 'previews': _previews,
         'nodes': {...nodes},
-        if (own.isNotEmpty) 'variables': {_root ?? options.screen: own},
+        if (own.isNotEmpty) 'variables': {_documentWords['scope'] as String? ?? _root ?? options.screen: own},
       }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
     }
     return NotationResult(patched({
@@ -3016,6 +3088,12 @@ class _Parser {
       final j = _json(line.substring(9));
       if (j is Map) _documentPatch = mergePatch(_documentPatch ?? const {}, j.cast<String, Object?>(), keepNulls: true);
       return;
+    }
+    // `document id="checkout" schema=2 scope=page_variables`: the document's
+    // own id and schema, and where its state lines are kept (a canvas id, or
+    // page_variables for every canvas of the page).
+    if (indent == 0 && RegExp(r'^document\s+[A-Za-z]+=').hasMatch(line)) {
+      if (_documentLine(line.substring(9), column + 9)) return;
     }
     for (final d in _derived.entries) {
       if (!line.contains(d.key)) continue;
@@ -3916,9 +3994,12 @@ class _Parser {
           // with a note, where the line is, not at render.
           if (readMap(tail['props']) case final Json guessed) {
             final kept = <String, Object?>{};
+            // A tail that gives the node another type gives its props too.
+            final own = tail['type'] is String ? catalog.widget(tail['type']! as String) ?? spec : spec;
             for (final e in guessed.entries) {
               final k = e.key, v = e.value;
-              if (spec.props.any((p) => p.key == k)) {
+              // null takes away what the line's words gave.
+              if (v == null || own.props.any((p) => p.key == k)) {
                 kept[k] = v;
               } else if (_layoutKeys.contains(k) || k == 'top' || k == 'left') {
                 if (k == 'top' || k == 'left') {
@@ -4968,7 +5049,13 @@ class _Parser {
     // height; in a row it hugs both; a control hugs.
     final control = _valueProps.containsKey(type) || type.endsWith('Button') || type.endsWith('Chip');
     if (component) {
-      bool has(String k) => props.containsKey(k) || bind.containsKey('props.$k');
+      // A parameter the line's `{…}` tail gives (a value, a binding, or none)
+      // is given too.
+      bool has(String k) =>
+          props.containsKey(k) ||
+          bind.containsKey('props.$k') ||
+          readMap(node['props'])?.containsKey(k) == true ||
+          readMap(node['bind'])?.containsKey('props.$k') == true;
       // A block with an optional boolean state should still toggle when its
       // author leaves off bind=name. Give each call its own page variable.
       for (final p in spec.props) {

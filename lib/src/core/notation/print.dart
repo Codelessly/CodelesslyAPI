@@ -149,9 +149,19 @@ final class _Printer {
         return null;
       }
       root = body;
-      final vars = readMap(document['variables']);
-      if (vars != null && vars[screen] == null && vars['page_variables'] != null) scope = 'page_variables';
     }
+    // Where the parser keeps the state lines: the page's canvas, or with
+    // other canvases or overlays every canvas's (`page_variables`); a
+    // component's on its root. The document's one scope, where it has one.
+    final fallback = first['type'] == 'canvas' && roots.length > 1 ? 'page_variables' : screen;
+    final vars = readMap(document['variables']);
+    if (vars != null && vars.length == 1) {
+      scope = vars.keys.single;
+    } else if (vars != null && vars[screen] == null && vars['page_variables'] != null) {
+      scope = 'page_variables';
+    }
+    final head = _documentWords(scope: scope != fallback && vars?[scope] != null ? scope : null);
+    if (head != null) _lines.add(_Line(0, head));
     _lines.addAll(_stateLines(scope));
     _canvases.clear();
     if (first['type'] == 'canvas') {
@@ -220,6 +230,23 @@ final class _Printer {
     int rank(String w) => switch (w.split('=').first) { 'path' => 1, 'w' => 2, 'h' => 3, 'fill' => 4, _ when w.startsWith('"') => 0, _ => 5 };
     final order = [for (var i = 0; i < words.length; i++) i]..sort((a, b) => rank(words[a]) != rank(words[b]) ? rank(words[a]) - rank(words[b]) : a - b);
     return words.isEmpty ? null : [for (final i in order) words[i]].join(' ');
+  }
+
+  // --- the document's own fields ------------------------------------------
+
+  /// `document id="checkout" schema=2 scope=page_variables`: the document's
+  /// id where the parser gives another (a page has none, a component's is
+  /// its name), a schema other than 3, and the scope of its state lines
+  /// where the parser would keep them elsewhere ([scope]).
+  String? _documentWords({String? scope}) {
+    final words = <String>[];
+    final id = document['id'];
+    final given = readMap(document['widget'])?['type'];
+    if (id is String && id != given) words.add('id=${jsonEncode(id)}');
+    final schema = document['schema'];
+    if (schema is int && schema != 3) words.add('schema=$schema');
+    if (scope != null && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(scope)) words.add('scope=$scope');
+    return words.isEmpty ? null : 'document ${words.join(' ')}';
   }
 
   // --- state -------------------------------------------------------------
