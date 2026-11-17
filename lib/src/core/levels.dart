@@ -71,7 +71,7 @@ const Map<String, Level> widgetLevels = {
   'actionChip': _w, 'choiceChip': _w, 'filterChip': _w, 'inputChip': _w, 'badge': _w, 'listTile': _w,
   'accordion': _w, 'expansionTile': _w, 'tabs': _w, 'tabBar': _w, 'appBar': _w, 'navigationBar': _w,
   'bottomNavigationBar': _w, 'modal': _w, 'circularProgressIndicator': _w, 'activityIndicator': _w,
-  'progressBar': _w, 'pageView': _w, 'pagination': _w, 'tableView': _w,
+  'progressBar': _w, 'pageView': _w, 'pagination': _w, 'tableView': _w, 'selectionList': _w,
   // The two charts a summary card needs, each drawn from a list of values.
   'barChart': _w, 'lineChart': _w,
   // Design systems: a component's variants and the place its caller fills.
