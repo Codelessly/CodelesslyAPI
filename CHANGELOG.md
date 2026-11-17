@@ -1,7 +1,32 @@
 ## Unreleased
 
+### Breaking
+
+- **The notation's grammar has one rule per role** (docs/design/15-notation-grammar-audit.md). On a node's line
+  the colon is the only separator; a value worked out from the state is in braces, as inside a text; `=` only
+  assigns a variable (`state`, `->`); a handler is `->` or `onEvent:{actions}`.
+
+  | Before | Now |
+  |---|---|
+  | `Input "Email" =email` | `Input "Email" bind:email` |
+  | `selected:=tab=="a"` | `selected:{tab == "a"}` |
+  | `onCta: go signup` on a line of its own | `… -> go home onCta:{go signup}` on the node's line |
+  | `swipe:left -> …` | `onSwipeLeft:{…}` |
+  | `-> go lower(result)` | `-> go {lower(result)}` |
+  | `show:menuOpen` | `visible:{menuOpen}` (`show:phone` is a size, and stays) |
+
+  A text in the old spellings is still drawn, and each old spelling is named once in `NotationResult.issues` with
+  what to write, so `tool/notation/notation.sh expand` exits 1 until the file is rewritten. To migrate a file:
+  `tool/notation/notation.sh format <file.txt>` in CodelesslySDK (`formatNotation(text)` in
+  `package:codelessly_api/notation.dart`), which rewrites these and changes nothing else; the document a file
+  expands to is the same. docs/design/16-notation-grammar-migration.md is the note to hand to whoever has files.
+  The prompt (`notationPrompt`) teaches only the new forms: 8,988 characters for a card (8,949 before). `bind:`
+  on a line is now the binding (it was kept as an unknown prop named `bind`). The A2UI front end writes the new
+  forms.
+
 ### Added
 
+- **`formatNotation`**: a text in the notation, rewritten to the canonical grammar (above).
 - **The keyboard**: `focusable` (default true; false takes a node with a `click` reaction out of the focus order),
   `focusGroup` (`{axis, wrap, typeAhead}` or `true`: what is focusable inside the node is one Tab stop the arrow
   keys move through) and a canvas's `semanticLabel` (its name for assistive technology when it opens as an
@@ -25,7 +50,7 @@
 - **Notation, the page words**: the frames of a desktop page, written out as plain lines before they are read.
   A website is `Page` with `Nav`, `Section` (a full-width band, its content in a centered column; `narrow`,
   `fill:`, `center`) and `Footer`. An app window is `App` with `Sidebar`, `Main` and `Pane w:320`, each as tall as
-  the window and scrolling by itself. Also `NavItem "Orders" icon:"inbox" badge:"12" selected:=… -> …`,
+  the window and scrolling by itself. Also `NavItem "Orders" icon:"inbox" badge:"12" selected:{…} -> …`,
   `Link "Docs"`, `Heading "…" level:1`. Inside a card the same words are a plain row or column.
 - **Notation**: `border-bottom:#…` (`-top`, `-left`, `-right`) is a rule on one side; `sticky` keeps a node in
   view while the page scrolls; `Text … italic`.
@@ -92,7 +117,7 @@
   width sits in a cell of that width; a `Text` with a rule, a fill or a corner is a box around the text; `id:x`,
   `sticky:true top:24` and an Avatar's `src:` are read as meant.
 - **Notation**: a see-through `fill:` on a `Card` sits over the card's own color (alone it let the card's
-  shadow show through); `'single-quoted'` text in a value ends at its closing quote; `Sparkline values:=row.trend`
+  shadow show through); `'single-quoted'` text in a value ends at its closing quote; `Sparkline values:{row.trend}`
   draws from a record's list; a `color:` on a checkbox, switch or radio is its color when on; a text in a box of
   a fixed height makes the box grow instead of overflowing.
 - **Notation**: the braces of a code sample shown as text (`import { Beacon } from …`) are text, not a value
