@@ -67,7 +67,7 @@ Column
       ]);
     });
 
-    test("a typed formula keeps its single quotes; a type the document has not is said", () {
+    test('a typed formula keeps its single quotes; a type the document has not is said', () {
       final doc = _roundTrip('''
 state status:text={coalesce(find(rows, 'id', sel), 'none')}
 Column
