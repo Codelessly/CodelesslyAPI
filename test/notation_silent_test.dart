@@ -151,6 +151,18 @@ Column
     final v = _variables(r);
     expect({for (final k in ['zoom', 'progress', 'n', 'volume', 'share']) k: v[k]!['type']},
         {'zoom': 'decimal', 'progress': 'decimal', 'n': 'integer', 'volume': 'decimal', 'share': 'decimal'});
+    // A slider between whole numbers in whole steps keeps a whole-number
+    // state whole (a text reading it shows 66); one whose ends have a
+    // fraction writes fractions.
+    final s = _parse('''
+state volume=40
+state zoom=1
+Column
+  Slider @volume min=0 max=100
+  Slider @zoom min=0.5 max=3
+''');
+    expect(s.issues, isEmpty);
+    expect({for (final k in ['volume', 'zoom']) k: _variables(s)[k]!['type']}, {'volume': 'integer', 'zoom': 'decimal'});
     expect(v['zoom']!['value'], 1);
   });
 

@@ -712,6 +712,53 @@ String _keyHint(String combo) {
   return [...mods, name].join(mods.contains('⌘') ? '' : '+');
 }
 
+/// Whether [expr], given where a block takes a list, reads as a condition
+/// (true or false) and not as a list: a name of a variable that is no list,
+/// a negation, or a comparison or a joining of conditions outside any
+/// parentheses. A list written out, a call (`filter(…)`, also as a computed
+/// state puts it, in parentheses) and a list variable are lists.
+bool _readsAsCondition(String expr, Map<String, Json> variables) {
+  var e = expr.trim();
+  // The parentheses a computed state is read in.
+  while (e.startsWith('(') && e.endsWith(')')) {
+    var depth = 0, wraps = true;
+    for (var i = 0; i < e.length - 1; i++) {
+      if (e[i] == '(') depth++;
+      if (e[i] == ')') depth--;
+      if (depth == 0) {
+        wraps = false;
+        break;
+      }
+    }
+    if (!wraps) break;
+    e = e.substring(1, e.length - 1).trim();
+  }
+  if (e.startsWith('[')) return false;
+  if (e == 'true' || e == 'false' || e.startsWith('!')) return true;
+  if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(e)) return variables[e]?['type'] != 'list';
+  var depth = 0;
+  String? quote;
+  for (var i = 0; i < e.length; i++) {
+    final c = e[i];
+    if (quote != null) {
+      if (c == quote) quote = null;
+      continue;
+    }
+    if (c == '"' || c == "'") {
+      quote = c;
+    } else if (c == '(' || c == '[' || c == '{') {
+      depth++;
+    } else if (c == ')' || c == ']' || c == '}') {
+      depth--;
+    } else if (depth == 0) {
+      final two = i + 1 < e.length ? e.substring(i, i + 2) : '';
+      if (two == '==' || two == '!=' || two == '&&' || two == '||' || two == '<=' || two == '>=') return true;
+      if ((c == '<' || c == '>') && two != '=>') return true;
+    }
+  }
+  return false;
+}
+
 /// What is said of a shortcut whose key is no key.
 String _noKey(String combo) =>
     'No key "$combo". A shortcut names one key, after mod, ctrl, cmd, alt or shift joined by +: a letter, a digit or a character (?, /), '
@@ -3372,6 +3419,8 @@ class _Parser {
     String? chipColor, fieldInk, fieldSize, listIcon, inputValue, removeActions;
     var disabledBy = '', required = false, clearable = false;
     ({String combo, int column})? lineShortcut;
+    // The variable a control that may write fractions is bound to.
+    String? decimalBound;
     ({String? label, String? actions})? slotAction;
 
     // With an open vocabulary a word that is not a type stands in: a column
@@ -3668,8 +3717,8 @@ class _Parser {
           _bindsVariable(expr, col, () => type == 'slider' && props['min'] is num ? props['min'] : value.start);
           if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
-          // `state volume=50` under a Slider: the slider's value has decimals.
-          if (value.type == 'decimal') _widen(expr, null);
+          // Whether it writes fractions is known once its ends are read.
+          if (value.type == 'decimal') decimalBound = expr;
           reactions.insert(0, {
             'trigger': {'type': 'changed'},
             'actions': [
@@ -4674,10 +4723,7 @@ class _Parser {
         // the node's disabled state, as enabled={!full} is on a control.
         if (key == 'disabled' && component && spec.props.any((p) => p.key == 'disabled' && p.type.kind == PropKind.list)) {
           final cond = raw.startsWith('=') ? raw.substring(1).trim() : raw;
-          final list = cond.startsWith('[') ||
-              variables[cond]?['type'] == 'list' ||
-              RegExp(r'^(filter|map|slice|take|append|without|unique|sortBy|sortByDesc|concat|reverse|range|split)\(').hasMatch(cond);
-          if (!list) {
+          if (_readsAsCondition(cond, variables)) {
             bind['disabled'] = _formula(cond);
             disabledBy = cond;
             continue;
@@ -5753,6 +5799,20 @@ class _Parser {
 
     // `shortcut="mod+b"` on a line that is tapped: a key of the screen (as a
     // `key` line is) runs what its tap runs, and its tooltip names the key.
+    // `state zoom=1` under `Slider @zoom min=0.5 max=3`, or under a Slider
+    // with no ends of its own (0 to 1): the control writes fractions. One
+    // between whole numbers in whole steps (`state volume=40`, `Slider
+    // @volume min=0 max=100`) keeps the whole number its state began as, so
+    // a text reading it shows 66.
+    if (decimalBound case final String bound) {
+      bool whole(Object? v) => v is num && v == v.roundToDouble();
+      final lo = props['min'], hi = props['max'], step = props['step'], parts = props['divisions'];
+      final wholeSteps = whole(lo) &&
+          whole(hi) &&
+          (step == null || whole(step)) &&
+          (parts == null || (parts is num && parts > 0 && whole(((hi! as num) - (lo! as num)) / parts)));
+      if (!wholeSteps) _widen(bound, null);
+    }
     if (lineShortcut case (:final combo, :final column)) {
       final tap = component ? _handlerTrigger('onTap', type, spec, node) : const {'type': 'click'};
       final reaction = reactions.where((r) => jsonEncode(r['trigger']) == jsonEncode(tap)).firstOrNull;
