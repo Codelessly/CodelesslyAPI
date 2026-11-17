@@ -2,7 +2,7 @@
 // corpus in the notation (printNotation) and counts what ends up in a line's
 // `{…}` tail or on the last `document {…}` line instead of in words.
 //
-//   dart run tool/notation_coverage.dart <dir or file.json>... [--out <dir>]
+//   dart run tool/notation_coverage.dart <dir or file.json>... [--out <dir>] [--components]
 //
 // The print round-trips by construction, so a tail is exactly what the words
 // did not say. Each tail key is counted as a path with list indices folded
@@ -39,9 +39,13 @@ class _Path {
 void main(List<String> args) {
   final outAt = args.indexOf('--out');
   final out = outAt >= 0 ? args[outAt + 1] : '.';
+  // --components: the catalog also has every component the corpus declares
+  // (a design system's component documents, by their `widget`), so a page
+  // that calls one is printed with the catalog it was made with.
+  final withComponents = args.contains('--components');
   final inputs = [
     for (var i = 0; i < args.length; i++)
-      if (i != outAt && i != outAt + 1) args[i],
+      if (i != outAt && i != outAt + 1 && args[i] != '--components') args[i],
   ];
   if (inputs.isEmpty) {
     stderr.writeln('usage: notation_coverage.dart <dir or file.json>... [--out <dir>]');
@@ -56,10 +60,27 @@ void main(List<String> args) {
     }
   }
   files.sort((a, b) => a.path.compareTo(b.path));
+  var catalog = standardCatalog;
+  if (withComponents) {
+    final declared = <String, Object?>{};
+    for (final file in files) {
+      try {
+        final json = jsonDecode(file.readAsStringSync());
+        final widget = json is Map ? json['widget'] : null;
+        if (widget is Map && widget['type'] is String) declared.putIfAbsent(widget['type'] as String, () => widget);
+      } on Object {
+        continue;
+      }
+    }
+    catalog = standardCatalog + Catalog.fromJson({'id': 'corpus', 'widgets': [...declared.values]});
+  }
 
   final paths = <String, _Path>{};
   final documentPaths = <String, _Path>{};
   final wordless = <String, int>{}; // node types printed under their catalog name
+  final wholeWhy = <String, int>{}; // why a document printed whole, by reason
+  final wholeExample = <String, String>{};
+  final shapes = <String, int>{}; // what the walk wrote: each, if, else, component, state lines
   var documents = 0, whole = 0, failed = 0, nodes = 0, tailed = 0, tailChars = 0, chars = 0;
 
   for (final file in files) {
@@ -72,7 +93,12 @@ void main(List<String> args) {
     if (json is! Map<String, Object?> || json['nodes'] is! Map || json['roots'] is! List) continue;
     final String text;
     try {
-      text = printNotation(json, catalog: standardCatalog);
+      text = printNotation(json, catalog: catalog, whole: (said) {
+        // The reason, without the line it was found on.
+        final why = said.split(' — ').first;
+        wholeWhy[why] = (wholeWhy[why] ?? 0) + 1;
+        wholeExample.putIfAbsent(why, () => file.path);
+      });
     } on Object {
       failed++;
       continue;
@@ -83,13 +109,21 @@ void main(List<String> args) {
     if (all.length == 1 && all.single.startsWith('document ')) whole++;
     for (final line in all) {
       final trimmed = line.trimLeft();
-      if (trimmed.startsWith('state ')) continue;
+      // The walk's own lines (design 22, the document family): counted by
+      // their word, not as nodes.
+      final statement = RegExp(r'^(state|each|if|else|component|param|event|slot|preview|every|key)(?=\s|$)').firstMatch(trimmed)?[1];
+      if (statement != null) {
+        shapes[statement] = (shapes[statement] ?? 0) + 1;
+        continue;
+      }
       if (trimmed.startsWith('document ')) {
         final rest = _tail(trimmed.substring('document '.length));
         if (rest != null) {
           tailChars += trimmed.length;
-          final seen = <String>{};
-          _flatten(rest, '', seen, <String, String>{});
+          final flat = <String>{};
+          _flatten(rest, '', flat, <String, String>{});
+          // A node or a variables' scope by its id is one path for every id.
+          final seen = {for (final p in flat) p.replaceFirstMapped(RegExp(r'^(nodes|variables)\.[^.\[]+'), (m) => '${m[1]}.*')};
           for (final p in seen) {
             (documentPaths[p] ??= _Path()).nodes++;
           }
@@ -142,6 +176,26 @@ void main(List<String> args) {
     ..writeln('| Characters in tails | $tailChars of $chars (${_pct(tailChars, chars)}) |')
     ..writeln('| Distinct tail paths | ${paths.length} |')
     ..writeln();
+  if (wholeWhy.isNotEmpty) {
+    final list = wholeWhy.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    md
+      ..writeln('## Why a document printed whole')
+      ..writeln()
+      ..writeln('| Reason | Documents | Example |')
+      ..writeln('|---|---:|---|');
+    for (final e in list) {
+      md.writeln('| ${e.key} | ${e.value} | `${wholeExample[e.key]}` |');
+    }
+    md.writeln();
+  }
+  if (shapes.isNotEmpty) {
+    final list = shapes.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    md
+      ..writeln("## The walk's own lines (state, each, if, a component's head…)")
+      ..writeln()
+      ..writeln(list.map((e) => '`${e.key}` ${e.value}').join(', '))
+      ..writeln();
+  }
   if (wordless.isNotEmpty) {
     final list = wordless.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     md
@@ -188,6 +242,8 @@ void main(List<String> args) {
     'tailChars': tailChars,
     'chars': chars,
     'wordless': wordless,
+    'wholeWhy': wholeWhy,
+    'lines': shapes,
     'families': {
       for (final family in families)
         family: {
