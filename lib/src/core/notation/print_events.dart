@@ -260,8 +260,8 @@ final class _Printer {
         if (m != null) candidates.add('item.${m[1]}');
       }
     }
-    final around = _around(id);
-    if (around == null) return null;
+    // (In a list in a list, read alone: a variable's or a record's field.)
+    final around = _around(id) ?? (lines: '', indent: '');
     final alone = _line('${around.lines}${around.indent}$head#p');
     for (final e in candidates) {
       if (!RegExp(r'^[^\s{}"=]+$').hasMatch(e)) continue;
