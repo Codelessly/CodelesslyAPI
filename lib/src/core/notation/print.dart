@@ -112,18 +112,15 @@ final class _Printer {
   /// under them read back into other slots, or into their children).
   final _slotLines = <String>{};
 
-  /// Placeholder for the each family of retries (see [_each]).
-  final _eachWords = <String>{};
-
   // An id the parser reads after `#`: a name, its parts joined by `-` (`m-logo`).
   static final _idForm = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(-[A-Za-z0-9_]+)*$');
   static final _printable = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
   String? run() {
     for (var attempt = 0; attempt < 24; attempt++) {
-      final before = _noEach.length + _keepId.length + _slotLines.length + _eachWords.length;
+      final before = _noEach.length + _keepId.length + _slotLines.length;
       final out = _once();
-      if (out != null || _noEach.length + _keepId.length + _slotLines.length + _eachWords.length == before) return out;
+      if (out != null || _noEach.length + _keepId.length + _slotLines.length == before) return out;
     }
     return null;
   }
@@ -134,6 +131,7 @@ final class _Printer {
     _counts.clear();
     _structure.clear();
     _dropped.clear();
+    _handEach.clear();
     why = null;
     final roots = readStrings(document['roots']);
     final screen = roots.isEmpty ? 'screen' : roots.first;
@@ -383,7 +381,51 @@ final class _Printer {
     for (final record in printPaintLines(id, n, context, depth).split('\n')) {
       if (record.trim().isNotEmpty) _lines.add(_Line(0, record));
     }
+    // A list of its own line repeating its one child over data: the child
+    // under `each item in list` (design 22, 4.7).
+    if (_handList(id, n) case final ({String list, String template}) each) {
+      _handEach.add(id);
+      _lines.add(_Line(depth + 1, 'each ${_eachName(n)} in ${each.list}${_staggerWord(each.template)}'));
+      return _child(each.template, depth + 2);
+    }
     return _under(n, depth + 1, id);
+  }
+
+  /// The lists printed as their own line with an `each` under it.
+  final _handEach = <String>{};
+
+  /// What `each` says of list [id] written as its own line: the list its
+  /// data is, and its one child, the template; null when it is not one
+  /// (not a listView or gridView, no data, other children, slots).
+  ({String list, String template})? _handList(String id, Json n) {
+    if (plan != _Plan.full || _noEach.contains(id) || (n['type'] != 'listView' && n['type'] != 'gridView')) return null;
+    if (n['slots'] != null || readMap(n['props'])?['layout'] != null) return null;
+    final kids = readStrings(n['children']);
+    final data = readMap(n['bind'])?['data'];
+    if (kids.length != 1 || data is! String) return null;
+    final list = _eachList(data);
+    return list == null ? null : (list: list, template: kids.single);
+  }
+
+  /// The list an `each` line names for the data binding [data]: a name or
+  /// a path (`${rows}`), or a formula (`${= filter(…)}`).
+  static String? _eachList(String data) {
+    final bare = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_.]*)\}$').firstMatch(data)?[1];
+    return bare ?? (data.startsWith(r'${= ') && data.endsWith('}') && !data.contains('\n') ? data.substring(4, data.length - 1).trim() : null);
+  }
+
+  /// ` stagger=80` when node [id], the first line under an `each`, starts
+  /// each copy that much after the one before (`animations[0].delay` bound
+  /// to `index*80`, plus its own delay).
+  String _staggerWord(String id) {
+    final n = readMap(nodes[id]);
+    final delay = readMap(n?['bind'])?['animations[0].delay'];
+    if (delay is! String || readList(n?['animations'])?.isEmpty != false) return '';
+    final m = RegExp(r'^\$\{= index\*([0-9]+)(?:\+([0-9]+))?\}$').firstMatch(delay);
+    if (m == null) return '';
+    final own = readMap(readList(n!['animations'])!.first)?['delay'];
+    if (m[2] != null && own != int.parse(m[2]!)) return '';
+    return ' stagger=${m[1]}';
   }
 
   /// [text] without `#id` when the parser gives the line that id anyway.
@@ -501,6 +543,8 @@ final class _Printer {
     // outer one's `parent.item`, so an outer each names its element with a
     // word its lines do not use.
     final name = _eachName(itemNode!);
+    final first = readStrings(itemNode['children']).firstOrNull;
+    if (first != null) words.write(_staggerWord(first));
     _lines.add(_Line(depth, 'each $name in $list$words'));
     return _under(itemNode, depth + 1);
   }
@@ -574,6 +618,18 @@ final class _Printer {
                   !jsonEquality.equals(readMap(parsed[id])!['slots'], readMap(nodes[id])!['slots']))
             id,
       ];
+      // A list printed with an `each` under its line reads back with its
+      // data and its one child, or is printed as nodes.
+      final unread = [
+        for (final id in _handEach)
+          if (readMap(parsed[id]) case final got?)
+            if (!jsonEquality.equals(got['children'], readMap(nodes[id])!['children']) || readMap(got['bind'])?['data'] != readMap(readMap(nodes[id])!['bind'])?['data']) id,
+      ];
+      if (unread.isNotEmpty) {
+        _noEach.addAll(unread);
+        why = 'an each that does not read back';
+        return null;
+      }
       if (slotted.isNotEmpty) {
         _slotLines.addAll(slotted);
         why = 'slots that do not read back';

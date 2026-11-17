@@ -3365,6 +3365,25 @@ class _Parser {
         _stack.add(_Open(indent, parent.id, 'column', each: each[1], list: each[2]!.trim(), pages: pagesId));
         return;
       }
+      // Under a ListView or GridView line of its own, the list is that one:
+      // it repeats over the data, and the line under the `each` is its
+      // template (its first child), as a page view's page is under Pages.
+      final listNode = nodes[parent.id];
+      if (parent.grid == null &&
+          parent.condition == null &&
+          parent.each == null &&
+          parent.slot == null &&
+          (parent.type == 'listView' || parent.type == 'gridView') &&
+          listNode != null &&
+          readStrings(listNode['children']).isEmpty &&
+          readMap(listNode['bind'])?['data'] == null &&
+          eachWords.keys.every((k) => k == 'stagger')) {
+        final data = {'data': _read(each[2]!.trim())};
+        listNode['bind'] = {...?readMap(listNode['bind']), ...data};
+        _patches.add({'op': 'patch', 'id': parent.id, 'patch': {'bind': data}});
+        _stack.add(_Open(indent, parent.id, parent.type, each: each[1], list: each[2]!.trim()));
+        return;
+      }
       // A list over the data, its item a column of the lines under it.
       final g = parent.grid;
       final listId = _id(g != null ? 'gridView' : 'listView'), itemId = '${listId}Item';
