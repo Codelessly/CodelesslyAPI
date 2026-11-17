@@ -117,6 +117,15 @@ abstract final class TextFieldProps {
   static const cursorRadius = PropDef<double?>('cursorRadius', Codecs.positive, null);
   static const maxLength = PropDef<int?>('maxLength', OptionalIntCodec(), null);
 
+  /// A one-time code: the number of boxes the field is drawn as, one per
+  /// character (0: an ordinary field). It stays one field: one value, one
+  /// Tab stop, one semantics node; typing, paste and Backspace as in any.
+  static const otpLength = PropDef<int>('otpLength', IntCodec(min: 0), 0);
+
+  /// With [otpLength]: only the digits 0 to 9 are kept, typed or pasted, and
+  /// the keyboard is the number pad.
+  static const otpDigitsOnly = PropDef<bool>('otpDigitsOnly', Codecs.bool, false);
+
   /// 0: no limit (Flutter's `maxLines: null`).
   static const maxLines = PropDef<int>('maxLines', IntCodec(min: 0), 1);
   static const minLines = PropDef<int?>('minLines', OptionalIntCodec(), null);
@@ -162,7 +171,7 @@ abstract final class TextFieldProps {
   static const spec = WidgetSpec('textField', hugs: true, props: [
     initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, //
     textInputAction, textCapitalization, autocorrect, autofocus, enableInteractiveSelection, enabled, obscureText,
-    obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength,
+    obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength, otpLength, otpDigitsOnly,
     maxLines, minLines, expands, selectionHeightStyle, selectionWidthStyle, autofillHints, autovalidateMode,
     selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown, runs,
   ], doc: 'Flutter `TextField`. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');

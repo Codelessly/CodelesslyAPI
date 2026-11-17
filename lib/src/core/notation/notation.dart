@@ -671,6 +671,8 @@ List<String> notationStrings(WidgetSpec spec) {
 /// Short names: what an agent writes → the node type and what it implies.
 const Map<String, ({String type, Json node})> notationTypes = {
   'Input': (type: 'textField', node: {}),
+  // A one-time code: one field drawn as boxes (CodeInput bind=code length=6 digits).
+  'CodeInput': (type: 'textField', node: {}),
   'Toggle': (type: 'switch', node: {}),
   'Select': (type: 'dropdown', node: {}),
   'Button': (type: 'filledButton', node: {}),
@@ -766,7 +768,7 @@ const Map<String, Map<String, List<String>>> _typeKeys = {
 const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
 
 /// The short names a design system's component of the same name replaces.
-const _softNames = {'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
+const _softNames = {'CodeInput', 'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
 
 /// The core types a design system's component of the same name replaces: a
 /// design system's own `Tabs` (a row of labels that keeps the open one in a
@@ -2159,6 +2161,8 @@ class _Parser {
             props['textAlign'] = word;
           } else if (type == 'text' && (word == 'strike' || word == 'strikethrough' || word == 'underline')) {
             textLine = word == 'underline' ? 'underline' : 'lineThrough';
+          } else if (written == 'CodeInput' && word == 'digits') {
+            props['otpDigitsOnly'] = true;
           } else if (type == 'textField' && word == 'password') {
             props['obscureText'] = true;
           } else if (type == 'textField' && word == 'multiline') {
@@ -2217,6 +2221,7 @@ class _Parser {
           continue;
         }
         var key = word.substring(0, eq);
+        if (written == 'CodeInput' && (key == 'length' || key == 'digits')) key = key == 'length' ? 'otpLength' : 'otpDigitsOnly';
         // key={expression}, onTap={…}: the colon is not the grammar's.
         if (key.contains(':')) {
           final name = key.substring(0, key.indexOf(':'));
@@ -2657,6 +2662,8 @@ class _Parser {
       layout.putIfAbsent('width', () => own?.width ?? {'hug': 0});
       layout.putIfAbsent('height', () => own?.height ?? {'hug': 0});
     }
+    // A code field with no length written has six boxes.
+    if (ours && written == 'CodeInput' && !bind.containsKey('props.otpLength')) props.putIfAbsent('otpLength', () => 6);
     if (written == 'Image') {
       final url = props.remove('text');
       decoration['fills'] = [

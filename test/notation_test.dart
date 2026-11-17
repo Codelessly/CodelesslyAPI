@@ -2429,4 +2429,27 @@ Column
     expect(site({'name': 'savedIds', 'type': 'map', 'value': {}, 'persist': true}).issues.single.message, contains('as map, this line as list'));
     expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('state draft="" saved'));
   });
+
+  test('CodeInput: a one-time code is one bound text field with a number of boxes', () {
+    final r = _parse('''
+Column
+  CodeInput#otp "Verification code" bind=code length=6 digits
+  CodeInput#pin bind=pin length=4 digits=false
+  CodeInput#six bind=other
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    final otp = _node(r, 'otp');
+    expect(otp['type'], 'textField');
+    expect(otp['props'], containsPair('otpLength', 6));
+    expect(otp['props'], containsPair('otpDigitsOnly', true));
+    expect(((otp['props'] as Map)['decoration'] as Map)['labelText'], 'Verification code');
+    expect(otp['bind'], {'props.initialValue': r'${code}'});
+    expect(_node(r, 'pin')['props'], allOf(containsPair('otpLength', 4), containsPair('otpDigitsOnly', false)));
+    expect(_node(r, 'six')['props'], containsPair('otpLength', 6));
+    // An Input has no such words.
+    expect(_parse('Input "Code" bind=code digits').issues.single.message, contains('Unknown word "digits"'));
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('CodeInput "Code" bind=code length=6 digits'));
+    expect(notationPrompt(catalog: standardCatalog), allOf(contains(' Input,'), isNot(contains('CodeInput'))));
+  });
 }

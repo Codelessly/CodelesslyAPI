@@ -121,7 +121,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   Side by side: Row gap=32 with grow on each child that shares the width (Column grow gap=12), or Grid cols=3 gap=24 for equal cells; Cards side by side are equally tall by themselves; write top on a Row of other things that differ in height. Row between spreads its children end to end. Section bleed runs what is in it from edge to edge (a wide picture, a map). Nav sticky keeps the bar at the top while the page scrolls; sticky on a rail (Column w=320 sticky) keeps an enrol panel or a table of contents in view while the page scrolls. A rule on one side is border-bottom=#… (border-top, border-left, border-right).
   A block's events are on its line, each by its name: SiteNav … onNavigate={go {replace(lower(result)," ","_")}} onCta={go signup} onSecondary={go login}. SiteNav … sticky keeps it at the top.
   A value every page of the site shares (a cart, the signed-in name) is declared once, in site.json's variables; a page expanded beside that site.json reads and sets it by name with no declaration (project cart=[] before the page says so on the page itself): it is read and set like any other (Select bind=cart, onTap={cart=append(cart,item)}) and keeps its value from page to page. state draft="" saved keeps a value on the device, across reloads (project cart=[] saved, with "persist": true on it in site.json).
-  Inside a frame everything is written as on a card: the components, Card, Text, the controls. A Card in a Grid is a tile of the page.${options.reflow ? '''
+  Inside a frame everything is written as on a card: the components, Card, Text, the controls. A Card in a Grid is a tile of the page. CodeInput "Code" bind=code length=6 digits is a one-time code: one field drawn as boxes.${options.reflow ? '''
 
   Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns, a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it) and opens its Sidebar as a drawer from a menu button it adds to Main's Nav, a Nav hides its links and opens them from a menu button it adds itself (each Link with its onTap or href, as written), sections and headlines get smaller. So that it can:
     Share a width with grow, or give the one fixed part a width (a rail: Column w=320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
@@ -192,7 +192,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
 ''';
   final short = {
     for (final e in notationTypes.entries)
-      if (e.key != 'Card' && e.key != 'Image') e.value.type: e.key,
+      if (e.key != 'Card' && e.key != 'Image' && e.key != 'CodeInput') e.value.type: e.key,
   };
   String written(String type) => short[type] ?? '${type[0].toUpperCase()}${type.substring(1)}';
   // The types worth naming in a small prompt: the rest of levels 0 and 1
