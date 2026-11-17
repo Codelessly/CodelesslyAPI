@@ -82,6 +82,10 @@
   list), where it was text and the renderer said `wrong_type`; one that cannot be known takes the kind of a
   control bound to it later (a `NumberInput`, a `Slider`). A design system's parameter that is a list of texts
   given numbers (`ChoiceChips options=[1,2,3]`, `Tree depths=[0,1]`) takes them as texts.
+- **A Grid whose columns mean something keeps them on a tablet and a phone.** `Grid cols=7` (a month, a streak,
+  a timetable), a grid of five or more small cells (at most three nodes, no card or component), and a grid
+  written `keep` (`Grid cols=4 keep`) keep their columns and shrink their cells, where a phone made two columns
+  (a month became a 15-row list). Other grids wrap as before.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is

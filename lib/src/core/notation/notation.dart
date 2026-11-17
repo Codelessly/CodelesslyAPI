@@ -1714,6 +1714,11 @@ class _Parser {
   final _roles = <String, String>{};
   final _gridRows = <String, _Grid>{};
 
+  /// The Grids written `keep`, and the list each `each` under a Grid became
+  /// (its id → the grid's).
+  final _keepColumns = <String>{};
+  final _gridLists = <String, String>{};
+
   /// The anchors (`id=why` on a line) by name → the node, and the scroll
   /// actions written, which name an anchor or an id.
   final _anchors = <String, String>{};
@@ -1731,6 +1736,13 @@ class _Parser {
       roles: _roles,
       gridRows: {
         for (final e in _gridRows.entries) e.key: (cols: e.value.cols, gap: e.value.gap),
+      },
+      // A Grid written `keep`: its rows (lines under it) and its list (an each).
+      keepColumns: {
+        for (final e in _gridRows.entries)
+          if (_keepColumns.contains(e.value.id)) e.key,
+        for (final e in _gridLists.entries)
+          if (_keepColumns.contains(e.value)) e.key,
       },
       cards: _cards,
       tableRows: _tableRows,
@@ -2326,6 +2338,7 @@ class _Parser {
         return _issue(column, 'reorder writes the new order to a list variable: declare it (state $listName=[…]) and repeat it by name (each row in $listName reorder).');
       }
       _acrossLists[itemId] = listId;
+      if (g != null) _gridLists[listId] = g.id;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
         'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': follows ? eachHeight : {'hug': 0}},
@@ -2821,6 +2834,12 @@ class _Parser {
             _issue(col, 'A value is written with =, not a colon: ${word.substring(0, colon)}=${colon + 1 < word.length ? word.substring(colon + 1) : '…'}.');
             if (word.endsWith(':') && t.peek == '"') t.string();
             if (word.endsWith(':') && (t.peek == '[' || t.peek == '{')) t.balanced();
+            continue;
+          }
+          // `Grid cols=7 keep`: its columns hold at every width (a phone
+          // shrinks the cells, it does not stack them).
+          if (grid != null && word == 'keep') {
+            _keepColumns.add(grid.id);
             continue;
           }
           if (written == 'Box' && (word == 'center' || word == 'middle')) {

@@ -382,6 +382,28 @@ void main() {
       expect(kinds, {'clips': 'list', 'x': 'decimal', 'completed': 'list', 'flag': 'boolean', 'other': 'decimal'});
     });
 
+    test('a Grid whose columns mean something keeps them on a phone: seven, five or more small cells, or keep', () {
+      final r = _parse('Page\n  Section\n'
+          '    Grid#week cols=7 gap=4\n      each d in range(35)\n        Card\n          Text "{d+1}"\n'
+          '    Grid#dots cols=5 gap=4\n      each d in range(10)\n        Text "{d}"\n'
+          '    Grid#kept cols=4 keep\n      each d in range(8)\n        Card\n          Text "{d}"\n'
+          '    Grid#tiles cols=3 gap=24\n      each d in range(6)\n        Card\n          Text "{d}"\n'
+          '    Grid#rows cols=7\n      Text "M"\n      Text "T"\n      Text "W"\n      Text "T"\n      Text "F"\n      Text "S"\n      Text "S"\n',
+          width: 1280);
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      List<Object?> mediaOf(String grid) {
+        final nodes = r.document['nodes']! as Map;
+        final list = (nodes[grid] as Map)['children'] as List;
+        return [for (final c in list) ...?((nodes[c] as Map)['media'] as List?)];
+      }
+
+      expect(mediaOf('week'), isEmpty);
+      expect(mediaOf('dots'), isEmpty);
+      expect(mediaOf('kept'), isEmpty);
+      expect(jsonEncode(mediaOf('tiles')), contains('"crossAxisCount":1'));
+      expect(mediaOf('rows'), isEmpty);
+    });
+
     test('a line meant for the page, written after the overlays, says where it went', () {
       const text = 'App\n  Main\n    Column\n      Text "Library"\n'
           'Menu#albumMenu\n  MenuItem "Add" icon="playlist_add" onTap={toast "Added"}\n'
