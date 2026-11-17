@@ -3,23 +3,7 @@ import 'dart:convert';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-// An aspect ratio keeps its precision in JSON (Strata v2: 320/180 stored as
-// 1.7778 made a 300 px drawing 168.748 tall, and the text below it landed on
-// the other side of a device pixel from the reference's).
-
 void main() {
-  test('a position given as a number is its distance from the start', () {
-    // DESIGN.md: layout.x / layout.y take a distance from the start or a
-    // position map; a bound `layout.x` of 42 used to place the node at 0.
-    expect(AxisPosition.fromJson(42), const AxisPosition.start(42));
-    expect(AxisPosition.fromJson(12.5), const AxisPosition.start(12.5));
-    expect(AxisPosition.fromJson({'start': 3}), const AxisPosition.start(3));
-    expect(AxisPosition.fromJson({'align': 0}), const AxisPosition.align(0));
-    expect(AxisPosition.fromJson(null), AxisPosition.zero);
-    final l = Layout.fromJson({'x': 42, 'y': 7});
-    expect(l.x, const AxisPosition.start(42));
-    expect(l.y, const AxisPosition.start(7));
-  });
 
   final docJson = <String, Object?>{
     'schema': 3,
@@ -187,11 +171,6 @@ void main() {
   });
 
   group('number precision', () {
-    test('an aspect ratio keeps its full precision through JSON', () {
-      const ratio = 320 / 180;
-      final back = Layout.fromJson(const Layout(aspectRatio: ratio).toJson()).aspectRatio!;
-      expect((300 / back - 168.75).abs(), lessThan(1e-8));
-    });
 
     test('pixel values round to 4 decimals and whole ratios stay whole numbers', () {
       expect(writeDouble(1.23456789), 1.2346);

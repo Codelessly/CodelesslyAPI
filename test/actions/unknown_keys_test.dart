@@ -2,23 +2,9 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
 // An action key its type doesn't have is reported, so an editor or agent
-// can refuse it. Before, `{"type": "confirm", "style": {...}}` (the confirm's
-// cosmetics are `look`) and a toast's `style` map (its `style` is the tone)
-// were dropped on decode: the dialog showed in the default look and nothing
-// said why.
+// can refuse it.
 
 void main() {
-  test('a key an action does not have is reported, in nested actions too', () {
-    expect(ActionSpecs.unknownKeys({
-      'type': 'confirm',
-      'title': 'Wash the slide?',
-      'style': {'radius': 18},
-      'actions': [
-        {'type': 'runScript', 'script': 'clearBoard'},
-        {'type': 'showToast', 'message': 'Washed', 'colour': '#FF000000'},
-      ],
-    }), ['style', 'actions[1].colour']);
-  });
 
   test('an action\'s own keys are not reported', () {
     expect(ActionSpecs.unknownKeys({

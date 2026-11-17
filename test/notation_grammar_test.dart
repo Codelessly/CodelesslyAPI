@@ -197,6 +197,13 @@ void main() {
       expect(_said('state pick="a"\nColumn\n  Text "x" color=pick\n').single, 'A value read from the state is written in braces: color={pick}.');
       // A field's type is a word, whatever its variable is called.
       expect(_said('Column\n  Input "Email" type=email bind=email\n'), isEmpty);
+      // A field's icon is the icon inside it, before the text, written or worked out.
+      final icons = _parse('state kind="mail"\nColumn\n  Input "Search" icon="search" bind=q\n  Input "To" icon={kind} bind=to\n');
+      expect(icons.issues, isEmpty, reason: '${icons.issues}');
+      final search = (_node(icons, 'textField1')['props'] as Map);
+      expect((search['decoration'] as Map)['prefixIcon'], {'icon': 'search', 'size': 18});
+      expect(search.containsKey('icon'), isFalse);
+      expect((_node(icons, 'textField2')['bind'] as Map)['props.decoration.prefixIcon.icon'], r'${kind}');
       expect(_said('state plans=[{"name":"A"}]\nColumn\n  each plan in plans\n    Text plan.name\n').single, 'A value shown as text is written in a string: "{plan.name}".');
       expect(_said('Column\n  Text "x" color=primary\n'), isEmpty);
     });

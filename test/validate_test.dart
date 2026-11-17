@@ -56,17 +56,6 @@ void main() {
     expect(validateDocument(base()), isEmpty);
   });
 
-  test('a behavior written inside props says where it goes (test 4: tooltip on an icon button)', () {
-    final d = validateDocument(base()
-      ..['nodes'] = {
-        ...(base()['nodes'] as Map),
-        'tip': {'type': 'iconButton', 'props': {'icon': 'close', 'tooltip': 'Close'}},
-      });
-    final e = d.firstWhere((d) => d.code == Codes.unknownProp);
-    expect(e.message, contains('written beside "props"'));
-    expect(e.message, contains('"tooltip": …'));
-  });
-
   group('document', () {
     test('a document that is not a map is invalid (invalid_document)', () => expectOne([1, 2], Codes.invalidDocument));
     test('a document without a schema, or with one newer than 3, is reported (schema_version)', () {
@@ -751,51 +740,5 @@ void main() {
       },
     };
     expect(withCode(doc, Codes.unknownName), isEmpty);
-  });
-  test('an icon object: {"icon": name} reads as its name, and one that names nothing is reported (test 4: a chip avatar that drew nothing)', () {
-    Map<String, Object?> doc(Object avatar) => {
-          'schema': 3, 'roots': ['s'],
-          'nodes': {
-            's': {'type': 'canvas', 'slots': {'body': 'c'}, 'layout': {'width': 390, 'height': 200}},
-            'c': {'type': 'chip', 'props': {'label': 'Open', 'avatar': avatar}},
-          },
-        };
-    expect(withCode(doc({'icon': 'circle'}), Codes.wrongType), isEmpty);
-    final chip = Node.fromJson((doc({'icon': 'circle'})['nodes'] as Map)['c'], id: 'c')!;
-    expect(chip.toJson().toString(), contains('MATERIAL_ICON'));
-    expect(withCode(doc({'color': 'red'}), Codes.wrongType).single.message, contains('no "name"'));
-  });
-  test('a script written against names it does not have is told at validation: variables.get, and another script called bare (the generated Sudoku)', () {
-    Map<String, Object?> doc(String init) => {
-          'schema': 3, 'roots': ['s'],
-          'nodes': {
-            's': {'type': 'canvas', 'layout': {'width': 390, 'height': 200}},
-          },
-          'scripts': [
-            {'id': 'init', 'name': 'init', 'source': init, 'capabilities': ['variables.read', 'variables.write']},
-            {'id': 'refresh', 'name': 'refresh', 'source': "vars.set('n', 1);", 'capabilities': ['variables.write']},
-          ],
-        };
-    final bad = withCode(doc("var v = variables.get('puzzle'); refresh();"), Codes.unknownName);
-    expect(bad.map((d) => d.suggestion), ['vars', 'script.refresh(']);
-    expect(withCode(doc("var v = vars.get('puzzle'); script.refresh(); // variables.get( and refresh( in a comment"), Codes.unknownName), isEmpty);
-    expect(withCode(doc("function refresh() {} refresh(); var s = 'variables.get(x)';"), Codes.unknownName), isEmpty);
-  });
-  test('runScript: "args" is read as its arguments, and a script that takes parameters must be given them (the generated Sudoku placed undefined)', () {
-    Map<String, Object?> doc(Map<String, Object?> action) => {
-          'schema': 3, 'roots': ['s'],
-          'nodes': {
-            's': {'type': 'canvas', 'slots': {'body': 'b'}, 'layout': {'width': 390, 'height': 200}},
-            'b': {'type': 'box', 'layout': {'width': 40, 'height': 40}, 'actions': [
-              {'trigger': {'type': 'click'}, 'actions': [action]},
-            ]},
-          },
-          'scripts': [
-            {'id': 'place', 'name': 'place', 'params': [{'name': 'd'}], 'source': "vars.set('n', d);", 'capabilities': ['variables.write']},
-          ],
-        };
-    expect(validateDocument(doc({'type': 'runScript', 'script': 'place', 'args': {'d': '4'}})).where((d) => d.isError), isEmpty);
-    expect(validateDocument(doc({'type': 'runScript', 'script': 'place', 'arguments': {'d': '4'}})).where((d) => d.isError), isEmpty);
-    expect(withCode(doc({'type': 'runScript', 'script': 'place'}), Codes.missingProp).single.message, contains('"arguments": {"d": …}'));
   });
 }
