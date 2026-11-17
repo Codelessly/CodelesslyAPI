@@ -420,6 +420,40 @@ void main() {
       }
     });
 
+    test('selected={…} on any line is its selected state; size words on an IconButton; focus and copy', () {
+      final r = _parse('state sel=1\nstate shuffle=false\nstate link="https://x.org"\nColumn\n'
+          '  Row#row gap=8 selected={sel==1}\n    Text "Row"\n'
+          '  IconButton#shuffle "shuffle" selected={shuffle} size=large onTap={shuffle=!shuffle}\n'
+          '  Input#search "Search" bind=q\n'
+          '  Button#f "Find" onTap={focus search}\n'
+          '  Button#c "Copy" onTap={copy link}\n'
+          '  Button#c2 "Copy" onTap={copy "{link}?ref=1"}\n'
+          '  Button#b "Done" onTap={blur}\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(_node(r, 'row')['bind'], {'selected': r'${= sel==1}'});
+      expect(_node(r, 'row')['states'], {
+        'selected': {
+          'row': {
+            'decoration': {
+              'fills': [
+                {'color': const NotationOptions().selectedFill},
+              ],
+            },
+          },
+        },
+      });
+      expect((_node(r, 'shuffle')['bind'] as Map)['selected'], r'${= shuffle}');
+      expect(jsonEncode(_node(r, 'shuffle')['props']), contains('"iconSize":28'));
+      expect(run(r, 'f'), [
+        {'type': 'focus', 'node': 'search'},
+      ]);
+      expect(run(r, 'c').first, {'type': 'copyToClipboard', 'text': r'${link}'});
+      expect(run(r, 'c2').first, {'type': 'copyToClipboard', 'text': r'${link}?ref=1'});
+      expect(run(r, 'b'), [
+        {'type': 'focus', 'unfocus': true},
+      ]);
+    });
+
     test('a line meant for the page, written after the overlays, says where it went', () {
       const text = 'App\n  Main\n    Column\n      Text "Library"\n'
           'Menu#albumMenu\n  MenuItem "Add" icon="playlist_add" onTap={toast "Added"}\n'

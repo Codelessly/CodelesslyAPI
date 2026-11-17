@@ -91,6 +91,11 @@
   (a now-playing bar, a chat composer, a basket, sheet tabs); before, a Card written last in `Main` scrolled
   away. The alias table reads `StickyBar`, `StickyFooter`, `BottomBar`, `FooterBar` and `BottomDock` as it. The
   page prompt teaches it in one line, and that a Grid of 7 columns or written `keep` keeps them.
+- **The notation: `selected`, `size`, `focus` and `copy`.** `selected={…}` on a line whose type has no selected
+  value (a `Row` of a list, an `IconButton`, a `Button`) is the node's selected state (`bind.selected`); a row,
+  column or box is drawn in the theme's selected fill while it holds. `size=small|medium|large` on an `IconButton`
+  is its icon's size (a Button's was read already). Actions `focus search` (the caret in that field), `blur`, and
+  `copy link` / `copy "{link}"` (to the clipboard, with a toast); the page prompt names them.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is

@@ -2503,6 +2503,7 @@ class _Parser {
     Map<String, int>? timing;
     // `Text "{row.title}" mark={q}`: the text as written, and what to mark in it.
     String? markText, markQuery;
+    var selectedState = false;
     num? sliderStep;
     // `Slider bind=low bindEnd=high`: the variable of its second thumb (and
     // of the last day of a Calendar's range).
@@ -3215,6 +3216,16 @@ class _Parser {
           continue;
         }
         if (key == 'password' && type == 'textField') key = 'obscureText';
+        // `selected={…}` where the type has no selected value (a row of a
+        // list, an IconButton, a Button): the node's selected state, which
+        // its look follows as it does a hover (a box: the theme's selected
+        // fill).
+        if (key == 'selected' && !component && !const {'chip', 'checkbox', 'switch'}.contains(type) && !spec.props.any((p) => p.key == 'selected')) {
+          final e = raw.startsWith('=') ? raw.substring(1) : raw;
+          bind['selected'] = _formula(e.startsWith('{') && e.endsWith('}') ? e.substring(1, e.length - 1) : e);
+          selectedState = true;
+          continue;
+        }
         // A fixed tooltip is the node's own; one that reads data is bound as before.
         if (key == 'tooltip' && !spec.props.any((p) => p.key == 'tooltip') && raw.startsWith('"') && !raw.contains('{')) {
           node['tooltip'] = _literal(raw).$2?.toString() ?? raw;
@@ -3234,6 +3245,14 @@ class _Parser {
             bind['props.style.${key == 'color' ? 'iconColor' : 'iconSize'}'] = key == 'color' ? _namedIn(_read(raw.substring(1)), 'text') : _read(raw.substring(1));
             (buttonLook ??= <String, Object?>{});
           } else {
+            // size=small | medium | large: the icon's size by name.
+            if (key == 'size') {
+              final named = switch (_literal(raw).$2?.toString() ?? raw) { 'xs' => 14, 'small' || 'sm' => 16, 'medium' || 'md' => 20, 'large' || 'lg' => 28, _ => null };
+              if (named != null) {
+                (buttonLook ??= <String, Object?>{})['iconSize'] = named;
+                continue;
+              }
+            }
             if (open && key == 'size' && _value(raw) is! num) {
               // size=large: a size that is not a number is not ours.
               _use('parameter', key, col, on: _srcWord ?? written, value: raw);
@@ -4134,6 +4153,21 @@ class _Parser {
         if (!standIn) _use('parameter', u.key, u.column, on: _srcWord ?? written, value: u.value);
       }
     }
+    // Selected (`Row … selected={…}`): a box is drawn in the theme's
+    // selected fill while it holds, as a NavItem is.
+    if (selectedState && const {'row', 'column', 'stack'}.contains(type) && !(readMap(out['bind'])?.keys.any((k) => k.startsWith('decoration.fills')) ?? false)) {
+      out['states'] = {
+        'selected': {
+          id: {
+            'decoration': {
+              'fills': [
+                {'color': options.selectedFill},
+              ],
+            },
+          },
+        },
+      };
+    }
     nodes[id] = out;
     // A DataTable's cell and header are texts of the theme (item.value, item.label).
     if (ours && written == 'DataTable') {
@@ -4840,7 +4874,7 @@ class _Parser {
       return (cond, yes, unwrap(tail.substring(orElse.end)));
     }
     if (RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])?=(?!=)').hasMatch(a)) return null;
-    if (RegExp(r'^(emit|open|scroll|close|go|toast|announce|link|confirm)\b').hasMatch(a) || a.startsWith('{')) return null;
+    if (RegExp(r'^(emit|open|scroll|close|go|toast|announce|link|confirm|focus|copy)\b').hasMatch(a) || a.startsWith('{')) return null;
     // The first ? at the top level (not ?. or ??), then the : that closes it
     // (a ? inside the branch opens a choice of its own).
     var depth = 0, quoted = false, question = -1, nested = 0;
@@ -5143,6 +5177,29 @@ class _Parser {
           }
         case 'link':
           out.add({'type': 'openLink', 'url': s});
+        case 'focus' || 'blur' || 'unfocus':
+          // `focus search` puts the caret in that field (its id), `focus`
+          // or `blur` alone takes it away.
+          final target = s.replaceFirst(RegExp(r'^#'), '').trim();
+          if (verb != 'focus' || target.isEmpty) {
+            out.add({'type': 'focus', 'unfocus': true});
+          } else if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(target)) {
+            _issue(column, 'A focus names the field by its id: focus search (Input#search "Search" …).');
+          } else {
+            out.add({'type': 'focus', 'node': target});
+          }
+        case 'copy':
+          // `copy "{link}"`, `copy link`, `copy {code}`: that text to the clipboard.
+          if (arg.isEmpty) {
+            _issue(column, 'A copy says what to copy: copy "{link}" or copy link.');
+          } else {
+            final braced = arg.startsWith('{') && arg.endsWith('}');
+            out.add({
+              'type': 'copyToClipboard',
+              'text': arg.startsWith('"') ? s : _read(braced ? arg.substring(1, arg.length - 1) : arg),
+            });
+            out.add({'type': 'showToast', 'message': 'Copied'});
+          }
         default:
           // A verb under another name (the alias table), then, with an open
           // vocabulary, a verb the notation does not have: left out, recorded.
@@ -5160,13 +5217,13 @@ class _Parser {
               continue;
             }
           }
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, focus <id>, copy "…", a choice cond ? actions : actions, or JSON.');
       }
     }
     return out;
   }
 
-  static const _verbs = {'emit', 'open', 'scroll', 'close', 'go', 'toast', 'announce', 'link'};
+  static const _verbs = {'emit', 'open', 'scroll', 'close', 'go', 'toast', 'announce', 'link', 'focus', 'copy'};
 
   /// `type=` on an Input, as written → the keyboard the document names.
   static const _keyboards = {

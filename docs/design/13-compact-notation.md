@@ -110,7 +110,8 @@ variable (`qty=qty+1`).
   (`SiteNav … onNavigate={go {lower(result)}} onCta={go signup}`), and `onTap` on a block is its first one. An
   event a plain node does not have is said. `menu=id` opens that Menu on a right click or a long press.
 - **Actions**, separated by `;`: `name=value` sets a variable, `emit name [value]` tells the host, `open id` /
-  `close` a modal, `go page` navigates, `scroll id`, `toast "text"`, `link url`. A verb's argument is the word
+  `close` a modal, `go page` navigates, `scroll id`, `toast "text"`, `link url`, `focus id` (the caret in that
+  field; `blur` takes it away), `copy text` (`copy link`, `copy "{link}"`: to the clipboard). A verb's argument is the word
   written (`go pricing` is that page); one that is worked out is in braces (`go {lower(result)}`); a bare
   name the state has (`go result`, `go tab`, `go item.slug`) is the page it holds, as in braces. Any other
   action is written as its JSON. A choice between actions is `cond ? action(s) : action(s)` (`onTap={dirty ?
@@ -119,7 +120,8 @@ variable (`qty=qty+1`).
   sets `step`.
 - **Lists**: `each item in items` as a line; its children are the template (`Text "{item.name}"`).
 - **Conditions**: `if expr` as a line shows its children when the expression holds (it expands to `visible`
-  bindings; no new node), `else` after it; `visible={expr}` on one line. `hide=phone` and `show=tablet` take a
+  bindings; no new node), `else` after it; `visible={expr}` on one line. `selected={expr}` on a line whose
+  type has no selected value is the node's selected state (a box takes the theme's selected fill). `hide=phone` and `show=tablet` take a
   size, never a condition (section 14).
 - **State**: a line `state name=value` at the top declares a variable with a starting value. A variable that
   is only bound to a control needs no declaration; its type and start come from the control. `state
