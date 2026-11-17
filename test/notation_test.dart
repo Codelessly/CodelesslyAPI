@@ -2762,7 +2762,7 @@ Page
     expect(_node(r, 'clear')['tooltip'], 'Clear filters');
     expect(_node(r, 'clear')['props'], containsPair('icon', 'filter_alt_off'));
     expect(_node(r, 'plain')['tooltip'], 'Pinned by you');
-    expect(_pagePrompt(), contains('IconButton "filter_alt_off" tooltip="Clear filters" (its hint on hover, keyboard focus or a touch hold'));
+    expect(_pagePrompt(), contains('IconButton "filter_alt_off" tooltip="Clear filters" (shown on hover, focus or a touch hold)'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('tooltip=')));
   });
 
@@ -2879,7 +2879,7 @@ Page
     // What cannot be reordered says why.
     expect(_parsePage('state rows=[]\nPage\n  Section\n    each row in filter(rows,r=>r.on) reorder\n      Text "{row}"').issues.first.message, contains('reorder writes the new order to a list variable'));
     expect(_parsePage('state rows=[]\nPage\n  Section\n    Row\n      each row in rows reorder\n        Text "{row}"').issues.first.message, contains('runs down a Column'));
-    expect(_pagePrompt(), allOf(contains('each stop in trip reorder'), contains('a Handle on each row'), contains('reorder=group')));
+    expect(_pagePrompt(), allOf(contains('each stop in trip reorder'), contains('a Handle in each row'), contains('reorder=group')));
     expect(notationPrompt(catalog: standardCatalog), allOf(isNot(contains(' reorder ')), isNot(contains('Handle')), contains('IconButton')));
   });
 
