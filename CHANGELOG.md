@@ -79,7 +79,8 @@
   site's as before, and a name the site's variables lack is said. `go result`, `go tab`, `go item.slug` (a name
   the state has) navigate to the page the value holds, as `go {result}` (`Tabs … onChanged={go result}` went to
   a page called "result"). With an open vocabulary, an `open` of no overlay of the page names the ones it has.
-  `clip.length` of a record with a `length` field is the field, not the record's size.
+  `clip.length` of a record with a `length` field is the field, not the record's size. `state clips=[…]
+  saved=true` (or `persist=true`) is the saved flag, where it was read into the value as text.
 - **The notation infers a variable's kind from the state declared.** A variable an action makes takes the kind of
   what it reads (`x=c.start` under an each over clips whose `start` is a number is a decimal, `completed=c.done` a
   list), where it was text and the renderer said `wrong_type`; one that cannot be known takes the kind of a

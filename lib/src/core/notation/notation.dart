@@ -2762,7 +2762,7 @@ class _Parser {
           if (entry != null && variables.containsKey(entry[1]) && _closing(expr, entry[1]!.length) == expr.length - 1) {
             final v = entry[1]!;
             write = variables[v]!['value'] is Map ? '$v = with($v,${entry[2]},$next)' : '$v = setAt($v,${entry[2]},$next)';
-          } else if (found != null && (variables[found[1]] == null || variables[found[1]]!['value'] is List)) {
+          } else if (found != null && variables[found[1]]?['value'] is! Map) {
             // (A list another page declares is the site's: written the same way.)
             final (l, x) = (found[1]!, found[2]!);
             write = '$l = updateWhere($l,$x=>${found[3]},$x=>with($x,"${found[4]}",$next))';
@@ -4771,6 +4771,8 @@ class _Parser {
   void _state(String rest, int column) {
     // `state draft="" saved`: its value is kept on the device and is there
     // again after a reload (Variable.persist).
+    // (`saved=true` and `persist=true` say the same as a key.)
+    rest = rest.replaceFirst(RegExp(r'\s+(saved|persist|persisted)=true$'), ' saved');
     final saved = rest.endsWith(' saved');
     if (saved) rest = rest.substring(0, rest.length - 6).trimRight();
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);

@@ -386,6 +386,10 @@ void main() {
       expect(sets('n'), r'clips = ${= updateWhere(clips,c=>c.id==first(sel),c=>with(c,"name",result))}');
       expect(sets('c'), r'colAll = ${= with(colAll,item,result)}');
       expect(sets('t'), r'draft = ${= with(draft,"title",(""))}');
+      // `saved=true` after a state is the saved flag, not part of its value.
+      final kept = _parse('state clips=[{"id":1}] saved=true\nColumn\n  Text "{length(clips)}"\n');
+      expect(kept.issues, isEmpty);
+      expect(((kept.document['variables']! as Map)['screen']! as List).single, {'name': 'clips', 'type': 'list', 'value': [{'id': 1}], 'persist': true});
     });
 
     test('a variable an action makes takes its kind from the state it reads, or from the control bound to it later', () {
