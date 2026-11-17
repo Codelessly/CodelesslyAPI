@@ -190,6 +190,13 @@
   a fixed height makes the box grow instead of overflowing.
 - **Notation**: the braces of a code sample shown as text (`import { Beacon } from …`) are text, not a value
   read.
+- A site manifest's `variables` is read in the forms it is written: the list of records, or an object by name
+  (`{"cart": [], "plan": "pro", "draft": {"value": "", "persist": true}}`: a name and its value, or a record without
+  its name; `Variable.declarationsFromJson`). A variable that names no `type`, in a manifest or a document, has its
+  value's (`VariableType.of`: `[]` a list, `3` an integer, `true` a boolean); it was text, so a list started empty
+  and numbers were joined as text, with no diagnostic. `validateSiteVariables` reports each record that cannot be
+  read (`invalid_variable`, with the shape to write). The notation's page prompt and the reference's "The site
+  manifest" show the shape.
 
 ## 32.0.0
 
