@@ -18,7 +18,7 @@ import '../catalog.dart';
 import '../json.dart';
 import 'declared.dart';
 import 'notation.dart';
-import 'print_events.dart' show printCanvasEvents;
+import 'print_events.dart' show printCanvasEvents, printCanvasReaction;
 import 'print_fields.dart';
 import 'print_paint.dart' show printPaintLines;
 
@@ -164,13 +164,26 @@ final class _Printer {
     if (head != null) _lines.add(_Line(0, head));
     _lines.addAll(_stateLines(scope));
     _canvases.clear();
+    // What the screen does that is neither a timer nor a shortcut (`onLoad`,
+    // `onBackPressed`): words of its canvas line, before its `every` and
+    // `key` lines.
+    var said = 0;
+    final events = StringBuffer();
     if (first['type'] == 'canvas') {
-      final line = _Line(0, '');
+      for (final r in readList(first['actions']) ?? const []) {
+        final type = readMap(readMap(r)?['trigger'])?['type'];
+        final word = type == 'timer' || type == 'keyDown' || readMap(r) == null ? null : printCanvasReaction(readMap(r)!, context);
+        if (word == null) break;
+        events.write(' $word');
+        said++;
+      }
+      _canvasEvents = '$events';
+      final line = _Line(0, _canvasEvents.isEmpty ? '' : 'canvas$_canvasEvents');
       _canvases[screen] = (line: line, head: 'canvas');
       _lines.add(line);
     }
     if (!_walk(root, 0)) return null;
-    for (final l in printCanvasEvents(document, context)) {
+    for (final l in printCanvasEvents(document, context, from: said)) {
       _lines.add(_Line(0, l));
     }
     // Every other canvas: a `Canvas#id` block, its tree under it.
@@ -191,6 +204,9 @@ final class _Printer {
   /// Each canvas printed, by id: its line (`canvas …` above the page's
   /// tree, empty while it says nothing; `Canvas#id …` heading another's).
   final _canvases = <String, ({_Line line, String head})>{};
+
+  /// The page canvas's reactions said on its line (` onLoad={…}`).
+  String _canvasEvents = '';
 
   /// `canvas "Trip" path="/trip" h=844 fill=paper`: what [patch] (the
   /// canvas as the document has it, over what the parser gives) says, its
@@ -570,7 +586,8 @@ final class _Printer {
           if (d == null) continue;
           final next = mergePatch(canvas[e.key] ?? const {}, d, keepNulls: true);
           final words = _canvasLine(next);
-          final line = words == null ? (e.value.head == 'canvas' ? '' : e.value.head) : '${e.value.head} $words';
+          final more = e.value.head == 'canvas' ? _canvasEvents : '';
+          final line = words == null ? (e.value.head == 'canvas' && more.isEmpty ? '' : '${e.value.head}$more') : '${e.value.head} $words$more';
           if (line != e.value.line.text) {
             e.value.line.text = line;
             canvas[e.key] = next;

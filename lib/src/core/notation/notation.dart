@@ -2803,6 +2803,18 @@ class _Parser {
   Json _canvasWords(String text) {
     final patch = <String, Object?>{};
     for (final w in _headWords(text)) {
+      // `onLoad={go home}`, `onBackPressed={…}`: what the screen does, a
+      // reaction of the canvas, before its `every` and `key` lines.
+      final trigger = w.key.startsWith('on') ? notationEventTrigger(w.key) : null;
+      if (trigger != null && w.value is String && (w.value! as String).startsWith('{') && (w.value! as String).endsWith('}')) {
+        final body = (w.value! as String);
+        _timers.add({
+          'trigger': {'type': trigger},
+          'actions': _actions(body.substring(1, body.length - 1).trim(), 1),
+        });
+        if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
+        continue;
+      }
       final path = switch (w.key) {
         '"' => 'name',
         'w' => 'layout.width',
