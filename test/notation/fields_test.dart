@@ -256,6 +256,8 @@ void main() {
       ('Column\n  Checkbox "Agree" value=true', 'checkbox', 'props.value', true),
       ('Column\n  gridView crossAxisCount=3', 'gridView', 'props.crossAxisCount', 3),
       ('Column\n  Text "x" style=caption', 'text', 'props.style', 'caption'),
+      // A prop bound to a text with values in it.
+      ('state k=""\nColumn\n  Text "x" shortcut="Ctrl+{k}"', 'text', 'bind.props.shortcut', r'Ctrl+${k}'),
     ]);
   });
 

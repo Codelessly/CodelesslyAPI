@@ -897,7 +897,9 @@ final class _NodeLine {
     } else {
       width = probeW;
     }
-    final height = type == 'spacer' && flex && ptype == 'column' ? const {'fill': 0} : probeH ?? const {'hug': 0};
+    // A spacer that grows in a column takes the height left, whatever is written.
+    final spacer = type == 'spacer' && flex && ptype == 'column';
+    final height = spacer ? const {'fill': 0} : probeH ?? const {'hug': 0};
     // A text in a row, and on a page a column in a row, may shrink when no
     // width is written: one that may not says its width.
     final squeezes = inRow && (type == 'text' || (type == 'column' && !flex && c.options.width >= 700 && head != 'Card'));
@@ -911,7 +913,7 @@ final class _NodeLine {
         }
       }
     }
-    if (!bind.containsKey('layout.height') && layout['height'] != null && !_equal(layout['height'], height)) {
+    if (!spacer && !bind.containsKey('layout.height') && layout['height'] != null && !_equal(layout['height'], height)) {
       if (_sizeWord(layout['height']) case final String s) words.add('h=$s');
     }
     final given = squeezes && !wroteWidth ? true : null;
@@ -1092,14 +1094,20 @@ final class _NodeLine {
       final exp = path == 'selected' ? _formulaOf(v) : _expression(v);
       final key = _bindKey(path, v);
       if (key == null) continue;
-      final written = exp ?? (v is String && _templates(path) ? _quoted(v) : null);
+      final written = exp ?? (v is String && _templates(path, key, v) ? _quoted(v) : null);
       if (written != null) words.add('$key=$written');
     }
   }
 
-  /// Whether a text with values in it (`"{n} left"`) bound to [path] reads
-  /// back as that binding: a prop's, where the parser binds such a text.
-  bool _templates(String path) => path.startsWith('props.') && !path.startsWith('props.style.') && !(type == 'text' && path == 'props.text');
+  /// Whether [v], bound to [path], is a text with values in it that
+  /// `key="…{x}…"` binds: a prop's, where the parser binds such a text,
+  /// and text around its values (a value alone is `key={…}`).
+  bool _templates(String path, String key, String v) {
+    if (!path.startsWith('props.') || path.startsWith('props.style.') || (type == 'text' && path == 'props.text')) return false;
+    if (v.startsWith(r'${') && _close(v, 1) == v.length - 1) return false;
+    const probe = r'${__b} x';
+    return _probes.says(head, '$key="{__b} x"', 'text:$path', (node) => readMap(node['bind'])?[path] == probe);
+  }
 
   /// The key that binds [path] (`fill` for the first fill's color, `color`
   /// for a text's style's, a prop by its name); null for one with none.
