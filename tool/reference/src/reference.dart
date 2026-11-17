@@ -430,8 +430,7 @@ String _levels(Renderer r) {
     ..writeln()
     ..writeln('A level is a closed set: a document written with one level\'s vocabulary uses nothing from a higher one, '
         'and each level adds to the ones below. Start at the lowest level that does the job; the document format is '
-        'the same at every level, so nothing is rewritten when a UI needs more. Validation can be limited to a level '
-        '(`above_level` names what is over it).')
+        'the same at every level, so nothing is rewritten when a UI needs more.')
     ..writeln();
   for (final level in Level.values) {
     b

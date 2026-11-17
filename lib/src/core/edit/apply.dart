@@ -1,7 +1,7 @@
 // Applying edit operations to a layout document: each op is applied, its
 // structure checked (one parent, no cycle, nothing orphaned), its nodes
-// checked by an [EditCheck] (the strict validator restricted to what the op
-// touched, or the core's catalog check) and by the trust profile; a
+// checked by an [EditCheck] (the core's catalog check, on what the op
+// touched) and by the trust profile; a
 // rejected op leaves the document as it was. The result carries the new
 // document, per-op diagnostics, the inverse ops and the revision.
 //
@@ -61,14 +61,12 @@ final class EditCheckInput {
 
   /// Whether the document is still being built (a stream): a reference to a
   /// node, screen or variable that has not arrived yet is a warning, not an
-  /// error ([endOfStream] and a whole-document validation report what never
-  /// came).
+  /// error ([endOfStream] reports what never came).
   final bool incomplete;
 }
 
 /// Checks the nodes an op touched; errors reject the op. [catalogCheck] is
-/// the core's; `strictEditCheck` (package:codelessly_api/validate.dart) runs
-/// the strict validator on them.
+/// the core's.
 typedef EditCheck = List<EditDiagnostic> Function(EditCheckInput input);
 
 /// The revision of every field changed through ops, and by whom: what

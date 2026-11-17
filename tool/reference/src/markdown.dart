@@ -16,7 +16,7 @@ import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart'
     show Catalog, EditCodes, EditOp, Json, LayoutDocument, TrustProfile, applyOps, opsFromDocument, uiTools;
-import 'package:codelessly_api/validate.dart' show valueForms;
+import 'document_data.dart' show valueForms;
 
 import 'areas.dart';
 import 'introspect.dart';
@@ -427,9 +427,6 @@ final class Renderer {
           '',
           'Fields holding nested action chains (a list of actions): ${[for (final k in catalog['actions']['nestedChainKeys'] as List) '`$k`'].join(', ')}.',
         ].join('\n'),
-    'diagnosticCodes': () => table(['Code', 'Severity', 'Meaning'], [
-          for (final d in catalog['diagnostics'] as List) ['`${d['code']}`', '${d['severity']}', '${d['meaning']}'],
-        ]),
     'editOps': () => table(['Op', 'Fields', 'Means', 'Example'], [
           for (final o in EditOp.specs)
             [

@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/src/core/notation/prompt.dart' show notationDefinePreface, notationOpenPreface, notationPrompt;
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 const _page = NotationOptions(width: 1280);
@@ -14,11 +13,6 @@ final _openPage = _page.open();
 
 NotationResult _open(String text, {NotationOptions? options}) => parseNotation(text, catalog: standardCatalog, options: options ?? _openPage);
 NotationResult _closed(String text, {NotationOptions options = _page}) => parseNotation(text, catalog: standardCatalog, options: options);
-
-List<String> _problems(Map<String, Object?> doc) => [
-      for (final d in Catalog.run(standardCatalog, () => validateDocument(doc)))
-        if (d.severity == Severity.error) '${d.code.name} ${d.path}: ${d.message}',
-    ];
 
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
@@ -33,7 +27,6 @@ void _same(String alias, String ours, {required String word, String? to}) {
     expect(a.issues.map((i) => '$i'), isEmpty, reason: '$alias ($where)');
     expect(b.issues.map((i) => '$i'), isEmpty, reason: '$ours ($where)');
     expect(jsonEncode(a.document), jsonEncode(b.document), reason: '$alias is not $ours ($where)');
-    expect(_problems(a.document), isEmpty, reason: '$alias ($where)');
     final used = _uses(a, 'alias').where((u) => u.word == word).toList();
     expect(used, isNotEmpty, reason: '$alias: no alias use of $word recorded ($where)');
     if (to != null) expect(used.first.to, to, reason: alias);
@@ -58,9 +51,8 @@ App
     late NotationResult r;
     setUp(() => r = _open(text));
 
-    test('nothing is an issue, and the document validates', () {
+    test('nothing is an issue', () {
       expect(r.issues.map((i) => '$i'), isEmpty);
-      expect(_problems(r.document), isEmpty);
     });
 
     test('a type: the word, its line and column, the words it is under, its strings, parameters, flags, events and the lines under it', () {
@@ -138,7 +130,6 @@ Column gap=12
   Text "after {n}"
 ''');
       expect(r.issues.map((i) => '$i'), isEmpty);
-      expect(_problems(r.document), isEmpty);
       final wave = _node(r, 'wave');
       expect(wave['type'], 'column');
       expect((wave['layout'] as Map)['width'], 320);
@@ -161,7 +152,6 @@ Column gap=12
     test('what it would keep a value in is still a variable of the page', () {
       final r = _open('Column\n  ColorPicker bind=tint\n  Text "{tint}"\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(jsonEncode(r.document['variables']), contains('"name":"tint"'));
     });
 
@@ -174,7 +164,6 @@ CommandPalette#palette "Commands" placeholder="Type a command"
   Text "Rename"
 ''');
       expect(r.issues.map((i) => '$i'), isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(r.document['roots'], ['screen', 'palette']);
       final use = _uses(r, 'type').single;
       expect((use.word, use.node), ('CommandPalette', 'palette'));
@@ -193,7 +182,6 @@ CommandPalette#palette "Commands" placeholder="Type a command"
     test('lines under a word we have that takes none are drawn after it, and recorded', () {
       final r = _open('Column\n  Slider bind=v\n    Text "under a slider"\n  Text "last"\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(_node(r, 'column1')['children'], ['slider1', 'text1', 'text2']);
       final use = _uses(r, 'children').single;
       expect((use.word, use.value), ('Slider', 'Text'));
@@ -202,14 +190,12 @@ CommandPalette#palette "Commands" placeholder="Type a command"
     test('a value of another kind than a parameter takes is left out and recorded', () {
       final r = _open('Column\n  Text "Saved" live=polite\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       final use = _uses(r, 'parameter').single;
       expect((use.word, use.on, use.value), ('live', 'Text', 'polite'));
     });
 
     test('an open of nothing over the page opens a placeholder sheet (recorded as a wanted overlay); a scroll to no line of it is left out and said', () {
       final r = _open('Page\n  Section\n    Button "A" onTap={open nothing; toast "x"}\n    Button "B" onTap={scroll nowhere}\n');
-      expect(_problems(r.document), isEmpty);
       expect(r.issues.map((i) => '$i'), [
         startsWith('line 4:1: No line of this page has the id "nowhere" for a scroll to go to'),
       ]);
@@ -474,7 +460,6 @@ Dialog#ask "Reset?" "Really."
       for (final (written, keyboard) in [('email', 'emailAddress'), ('phone', 'phone'), ('tel', 'phone'), ('number', 'number'), ('url', 'url')]) {
         final r = _closed('Column\n  Input "Field" type=$written\n');
         expect(r.issues, isEmpty);
-        expect(_problems(r.document), isEmpty, reason: written);
         expect((_node(r, 'textField1')['props'] as Map)['keyboardType'], keyboard);
       }
     });
@@ -490,7 +475,6 @@ Page
     Text "After the dialog"
 ''');
       expect(r.issues.map((i) => '$i'), isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(r.document['roots'], ['screen', 'edit']);
       // The page has its two sections, the second after the dialog's lines;
       // the dialog has its field; the button opens it as a dialog.
@@ -535,7 +519,6 @@ Page
 
     test('grow=true is grow', () {
       final r = _closed('Row\n  Text "a" grow=true\n  Text "b" grow=false\n');
-      expect(_problems(r.document), isEmpty);
       expect((_node(r, 'text1')['layout'] as Map)['flex'], 1);
       expect((_node(r, 'text2')['layout'] as Map).containsKey('flex'), isFalse);
     });
@@ -547,7 +530,6 @@ Page
         final r = read('state done=false\nColumn\n  Text#a "11:35" strike=true\n  Text#b "Milk" strike={done}\n  Text#c "Eggs" strike=false\n');
         expect(r.issues, isEmpty);
         expect(r.vocabulary.where((u) => u.kind != 'universal'), isEmpty);
-        expect(_problems(r.document), isEmpty);
         expect((_node(r, 'a')['props'] as Map)['style'], containsPair('decoration', 'lineThrough'));
         expect(_node(r, 'b')['bind'], {'props.style.decoration': r'${= (done) ? "lineThrough" : "none"}'});
         expect((_node(r, 'c')['props'] as Map)['style'], isNot(contains('decoration')));
@@ -558,7 +540,6 @@ Page
       for (final read in [_open, _closed]) {
         final r = read('Column\n  Barcode#a "29034 00718 4421" w=260\n  Barcode#b value="X1" format=ean13 h=96\n  QRCode#c value="https://example.com"\n');
         expect(r.issues, isEmpty);
-        expect(_problems(r.document), isEmpty);
         expect(_node(r, 'a')['props'], {'data': '29034 00718 4421', 'symbology': 'code128'});
         expect((_node(r, 'a')['layout'] as Map)['height'], 80);
         expect(_node(r, 'b')['props'], {'data': 'X1', 'symbology': 'ean13'});
@@ -607,13 +588,13 @@ Page
       expect(page.substring(notationOpenPreface.length + notationDefinePreface.length), plain(1280).substring(notationOpenPreface.length));
     });
 
-    test('each definition in it is read, expands with its defaults and validates; a page using them has no issue', () {
+    test('each definition in it is read, expands with its defaults; a page using them has no issue', () {
       final blocks = [for (final b in notationDefinePreface.split(RegExp(r'\n\n+'))) if (b.startsWith('define ')) b];
       expect(blocks, hasLength(3));
       final read = readPageDefinitions(blocks.join('\n'));
       expect(read.problems, isEmpty);
       expect(read.words.keys, ['StickyNote', 'ColorPicker', 'Group']);
-      expect(checkDefinitions(NotationVocabulary(definitions: read.words), catalog: standardCatalog, validate: _problems), isEmpty);
+      expect(checkDefinitions(NotationVocabulary(definitions: read.words), catalog: standardCatalog), isEmpty);
       for (final o in [const NotationOptions(), const NotationOptions().open()]) {
         final r = parseNotation('''
 state tint=""
@@ -625,7 +606,6 @@ Column gap=12
 ${blocks.join('\n')}
 ''', catalog: standardCatalog, options: o);
         expect(r.issues, isEmpty);
-        expect(_problems(r.document), isEmpty);
         expect(r.vocabulary.where((u) => u.kind != 'definition'), isEmpty);
       }
     });

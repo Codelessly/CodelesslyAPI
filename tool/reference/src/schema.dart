@@ -5,8 +5,8 @@
 // its type name, a hero as its tag...) are found by asking each codec.
 import 'package:codelessly_api/codelessly_api.dart';
 
-/// What the schema cannot check, which validation does (said in its
-/// description and in the reference).
+/// What the schema cannot check (said in its description and in the
+/// reference).
 const schemaLimits = [
   'references between nodes (children, slots and roots that name no node, a node with two parents, cycles, unreachable nodes)',
   'layout fields that only some parents read (x/y outside a stack, flex/align outside a row or column) and sizing modes a parent cannot honor',
@@ -123,7 +123,6 @@ final class SchemaBuilder {
       'title': 'Codelessly layout document (schema 2)',
       'description': 'Generated from the codelessly_api declarations. It rejects unknown node types, unknown keys, '
           'wrong value types and enum values, and numbers out of bounds. It cannot check: ${schemaLimits.join('; ')}. '
-          'Run validateDocument (package:codelessly_api/validate.dart) or tool/render/render.sh for those. '
           'It is stricter than the decoders where they read loosely: a number written as text, a color without "#".',
       'type': 'object',
       'properties': {

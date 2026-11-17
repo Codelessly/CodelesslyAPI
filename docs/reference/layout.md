@@ -474,8 +474,7 @@ change what must change at a width. Use these, in this order:
 2. **Media rules** for what must change at a width: direction, order, visibility, type size, padding. A rule's
    `patch` is merged over the node (objects merge, `null` removes a key), except that a value with several forms is
    **replaced**, as CSS replaces a declaration: `{"width": {"hug": 200}}` over `{"fill": 292}` is `{"hug": 200}`.
-   Rules apply in order, a later one winning (the cascade). Validation checks every patched value and judges sizes
-   at each range of widths with the rules that hold there.
+   Rules apply in order, a later one winning (the cascade).
 3. **Bindings on `${screen}`** for values computed from the size: `"bind": {"layout.width": "${= min(screen.width -
    32, 760)}"}`. `${screen}` has `width`, `height`, `breakpoint`, `is.<name>`, `atLeast.<name>`
    (`${= screen.atLeast.tablet ? 3 : 1}`). Nothing can check such a formula's result: prefer media rules.
@@ -1485,11 +1484,11 @@ one part of a screen. Older documents use this:
 
 - `fill` takes all the room it is given: cap it with `constraints.maxWidth`. Where its parent gives no room on that
   axis (it hugs it, or scrolls), a fill is its design number (`fill_fallback`, naming the parent).
-- `x`/`y` mean nothing under a row or column, `flex`/`align` nothing under a stack (`layout_field_ignored`).
-- A stack that hugs its children grows to hold them, so there a negative offset is 0 (`layout_clamped`). A
-  negative margin does not overlap a neighbor (`layout_clamped`): translate with `motion`.
+- `x`/`y` mean nothing under a row or column, `flex`/`align` nothing under a stack.
+- A stack that hugs its children grows to hold them, so there a negative offset is 0. A
+  negative margin does not overlap a neighbor: translate with `motion`.
 - A media patch replaces a size of another mode: `{"hug": 200}` over `{"fill": 292}` is `{"hug": 200}`. A field
-  both patched and bound shows the binding (`media_overridden`): bind in the rule instead.
+  both patched and bound shows the binding: bind in the rule instead.
 - `squeezeChildren` (default true) shrinks children that do not fit (CSS flex shrink); false is Flutter's
   overflow (`layout_overflow`).
 - A `spacer` takes free space only in a row or column with room.

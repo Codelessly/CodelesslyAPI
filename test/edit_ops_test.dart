@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 LayoutDocument _page(String name) =>
@@ -274,12 +273,11 @@ void main() {
         expect((ops[1] as SetOp).id, page.roots.first);
         var doc = LayoutDocument(catalog: standardCatalog);
         for (final op in ops) {
-          final r = applyOps(doc, [op], catalog: standardCatalog, check: strictEditCheck(), incomplete: true);
+          final r = applyOps(doc, [op], catalog: standardCatalog, incomplete: true);
           expect(r.errors, isEmpty, reason: '$name ${op.toJson()}');
           doc = r.document;
         }
         expect(endOfStream(doc), isEmpty, reason: name);
-        expect(validateEdited(doc).where((d) => d.isError), isEmpty, reason: name);
         for (final id in page.nodes.keys) {
           expect(doc[id], page[id], reason: '$name $id');
         }
@@ -290,23 +288,6 @@ void main() {
             };
         expect(byName(doc), byName(page), reason: name);
       }
-    });
-  });
-
-  group('strict checking', () {
-    test('strict checking validates what an operation touched and reports codes with suggestions', () {
-      final base = applyOps(_empty, _small(), catalog: Catalog.core).document;
-      final r = applyOps(base, [
-        const PatchOp('a', {'decoration': {'fill': []}}),
-        const PatchOp('a', {'props': {'style': {'fontWeight': 'heavy'}}}),
-        const PatchOp('a', {'layout': {'x': 10}}),
-      ], catalog: Catalog.core, check: strictEditCheck());
-      expect(r.errors.map((d) => d.code), contains('unknown_decoration_key'));
-      expect(r.errors.first.suggestion, 'fills');
-      expect(r.rejected, containsAll([0, 1]));
-      // A placement field its parent (a column) does not read: a warning.
-      expect(r.applied, contains(2));
-      expect(r.warnings.map((d) => d.code), contains('layout_field_ignored'));
     });
   });
 
@@ -371,7 +352,7 @@ void main() {
     final minimal = LayoutDocument.fromJson(jsonDecode(File('tool/reference/examples/minimal.json').readAsStringSync()), catalog: Catalog.core);
     var doc = LayoutDocument(catalog: Catalog.core);
     for (final b in blocks.where((b) => !b.rejected)) {
-      final r = applyOps(doc, b.json, catalog: Catalog.core, check: strictEditCheck(), profile: TrustProfile.agent);
+      final r = applyOps(doc, b.json, catalog: Catalog.core, profile: TrustProfile.agent);
       expect(r.errors, isEmpty, reason: '${b.json}');
       doc = r.document;
       if (identical(b, blocks.first)) {
@@ -382,7 +363,6 @@ void main() {
     }
     expect(doc['page']!.children, ['cta', 'title']);
     expect(endOfStream(doc), isEmpty);
-    expect(validateEdited(doc).where((d) => d.isError), isEmpty);
     // The rejected example's result is what applyOps gives (it is generated).
     expect(blocks.where((b) => b.rejected), hasLength(1));
   });

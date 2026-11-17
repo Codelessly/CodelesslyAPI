@@ -8,7 +8,7 @@
 //     Button "Save" onTap={emit save}
 //
 // [parseNotation] expands it to an ordinary flat document; nothing after
-// that (validation, rendering, editing) knows the notation was used.
+// that (rendering, editing) knows the notation was used.
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -90,6 +90,7 @@ final class NotationOptions {
     this.badge = defaultBadge,
     this.cta,
     this.palette = const {},
+    this.nearestColors = false,
     this.tile,
     this.sectionRadius,
     this.barChart = const {},
@@ -143,6 +144,7 @@ final class NotationOptions {
         badge: badge,
         cta: cta,
         palette: palette,
+        nearestColors: nearestColors,
         tile: tile,
         sectionRadius: sectionRadius,
         barChart: barChart,
@@ -178,8 +180,8 @@ final class NotationOptions {
   /// (`StatusBadge "Paid"`, `Stepper bind=qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
   factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
-      {double width = 390, String screen = 'screen', bool named = false, bool reflow = true, Map<String, Json> projectVariables = const {}}) {
-    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, reflow: reflow);
+      {double width = 390, String screen = 'screen', bool named = false, bool nearestColors = false, bool reflow = true, Map<String, Json> projectVariables = const {}}) {
+    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, nearestColors: nearestColors, reflow: reflow);
     Object size(SizeFit fit, double value) => switch (fit) {
           SizeFit.fill || SizeFit.flexible => {'fill': 0},
           SizeFit.hug => {'hug': 0},
@@ -197,6 +199,7 @@ final class NotationOptions {
       badge: base.badge,
       cta: base.cta,
       palette: base.palette,
+      nearestColors: base.nearestColors,
       tile: base.tile,
       sectionRadius: base.sectionRadius,
       barChart: base.barChart,
@@ -242,7 +245,7 @@ final class NotationOptions {
   /// (another design system with the same names, dark mode, an edited
   /// token) with nothing rewritten. It needs that theme to render; what the
   /// theme has no name for is still written as a value.
-  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen', bool named = false, bool reflow = true}) {
+  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen', bool named = false, bool nearestColors = false, bool reflow = true}) {
     final colors = readMap(theme['colors']) ?? const {};
     String color(String name, String fallback) {
       Object? c = colors[name] ?? theme[name];
@@ -347,6 +350,7 @@ final class NotationOptions {
       },
       cta: ctaHeight == null ? null : {'width': {'fill': 0}, 'height': ctaHeight},
       palette: named ? _palette(colors, theme) : const {},
+      nearestColors: named && nearestColors,
       progress: {
         if (radii['progress'] != null) 'borderRadius': radii['progress'],
         if (sizes['progress'] != null) 'height': sizes['progress'],
@@ -431,6 +435,7 @@ final class NotationOptions {
         badge: badge,
         cta: cta,
         palette: palette,
+        nearestColors: nearestColors,
         tile: tile,
         sectionRadius: sectionRadius,
         barChart: barChart,
@@ -593,16 +598,22 @@ final class NotationOptions {
   /// its one thing to do. Null: it is as big as its label, as any control.
   final Json? cta;
 
-  /// The theme's colors a written color is read as, by name → `#AARRGGBB`
-  /// ([NotationOptions.fromTheme] with `named`): `fill=#FFF5F5F5` on a
-  /// panel is the theme's nearest neutral fill, and so follows dark mode and
-  /// the theme. Empty: a written color stays as written.
+  /// The theme's colors by name → `#AARRGGBB` ([NotationOptions.fromTheme]
+  /// with `named`). Empty: the theme's looks are written as values.
   final Map<String, String> palette;
+
+  /// Whether a color the notation writes is read as the theme's nearest
+  /// color of the [palette] (`fill=#FFF5F5F5` on a panel is the theme's
+  /// nearest neutral fill, and so follows dark mode and the theme). Off by
+  /// default: a written color stays as written, so a design with a palette
+  /// of its own (a dark workspace on a light theme) keeps its panels apart.
+  /// The looks the notation itself adds are named either way, with `named`.
+  final bool nearestColors;
 
   /// The theme's name for [hex] written as a [kind] (`fill`, `stroke`,
   /// `text`), when one of the [palette] is close to it; else null.
   String? colorName(String hex, String kind) {
-    if (palette.isEmpty) return null;
+    if (!nearestColors || palette.isEmpty) return null;
     final want = _argb(hex);
     if (want == null || want >> 24 != 0xFF) return null;
     final names = switch (kind) { 'text' => _textColors, 'stroke' => _strokeColors, _ => _fillColors };
@@ -7098,7 +7109,7 @@ class _Parser {
   /// [formula] with each quoted color in it (`"#FF2563EB"`) read as the
   /// theme's color of that name, when it has one near it.
   String _namedIn(String formula, String kind) {
-    if (options.palette.isEmpty) return formula;
+    if (!options.nearestColors || options.palette.isEmpty) return formula;
     return formula.replaceAllMapped(RegExp(r'''(["'])(#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?)\1'''), (m) {
       final n = options.colorName(m[2]!, kind);
       if (n == null) return m[0]!;

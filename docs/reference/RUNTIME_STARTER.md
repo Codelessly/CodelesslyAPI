@@ -113,7 +113,6 @@ name per kind of text (display, title, body, label, eyebrow...).
   "body", "fontSize": 32}`). A text names its style: `"style": "title"`; to change a few fields of it,
   `"style": {"from": "title", "color": "ember"}`.
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"`.
-- Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 - The theme belongs to the app: use the names it gives you; without one, write each color and style in full.
 
 Controls (buttons, chips, fields, switches, pickers, tabs) take the colors and fonts their props leave unset
@@ -170,7 +169,7 @@ Each axis has a **mode** and a **number**:
 The number is the **design size**: the size of a fixed node, and the size used where a mode cannot apply (a fill
 inside something that scrolls on that axis, or inside a parent that hugs that axis: `fill_fallback`). For `hug` and
 `fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. Unsized, a text, icon or
-control hugs (wrapping at its parent's width); **other nodes are 0 × 0** (`zero_size`), but a `canvas` or `spacer`.
+control hugs (wrapping at its parent's width); **other nodes are 0 × 0**, but a `canvas` or `spacer`.
 
 ### Rows, columns and flex
 
@@ -206,7 +205,7 @@ only in a row or column that has some (a fill or fixed main size).
 A `stack` places each child by its `layout.x` and `layout.y`: `16` or `{"start": 16}` from the left/top,
 `{"end": 16}` from the right/bottom, `{"start": 16, "end": 16}` stretched between, `{"align": 0}` aligned (-1 start,
 0 center, 1 end). Later children paint on top. `x`/`y` mean nothing under a row or column, `flex`/`align` nothing
-under a stack (`layout_field_ignored`).
+under a stack.
 
 ```json
 {
@@ -436,7 +435,7 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
   "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
   to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `setValue`, `setVariant`, `setVariable`, `if`, `forEach`, `announce`, `showToast`, `confirm`, `delay`, `focus`, `scrollTo`, `animate`, `haptic`, `paginate`, `componentEvent`.
-- Keys are exact; validation names the one meant: `{"type": "scrollTo", "node": "faq"}`, `{"type":
+- Keys are exact (a misspelled one is dropped): `{"type": "scrollTo", "node": "faq"}`, `{"type":
   "copyToClipboard", "text": "${address}"}`, `{"type": "downloadFile", "fileName": "trip.txt", "text": "${brief}"}`;
   a list appends with `"op": "add"` (`insert` takes an `index`).
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
@@ -461,7 +460,7 @@ navigation (ui_docs "navigation").
    over it; later rules win (the cascade). Write for phones, add `minWidth` rules (mobile first).
 5. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
    `layout.order`; hidden: `"visible": false`.
-6. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
+6. A field both patched and bound shows the binding: put the binding in the rule's patch.
 
 Breakpoints, sticky headers, scrolling, a canvas per breakpoint: responsive layout (ui_docs "layout").
 
@@ -604,7 +603,7 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 | Keep a value on the device | "data-storage-on-the-device" |
 | Show the signed-in user | "auth-show-the-signed-in-user" |
 | Capture the states (after a tap, typing, an open menu) with the render command | "render-capturing-states" |
-| Every validation and render code | "render-validation-codes" |
+| Every render code | "render-render-codes" |
 | Build and edit with ops; streaming; the retry protocol | "edit-ops-the-ops" |
 | How one value type is written (color, alignment, insets) | "values-colors-and-alignments" |
 

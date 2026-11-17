@@ -1,9 +1,7 @@
 // The levels of the vocabulary (docs/design/12-agent-first-flutter.md §3):
-// every declared thing has a level, a catalog cut to a level is closed, and
-// the validator reports what a document uses above the level it is given.
+// every declared thing has a level, and a catalog cut to a level is closed.
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/levels.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -74,24 +72,5 @@ void main() {
       'col': {'type': 'column', 'children': <String>[], 'animations': [{'preset': 'fadeIn'}]},
     });
     expect(levelOf(moving), Level.full);
-  });
-
-  test('validation at a level reports each thing above it, with where and which level (above_level)', () {
-    final card = doc({
-      'col': {'type': 'column', 'children': ['s']},
-      's': {
-        'type': 'slider',
-        'actions': [
-          {'trigger': {'type': 'changed'}, 'actions': [{'type': 'setVariable', 'variable': 'v', 'value': r'${result}'}]},
-        ],
-      },
-    });
-    List<Diagnostic> above(Level l) =>
-        [for (final d in validateDocument(card, options: ValidateOptions(level: l))) if (d.code == Codes.aboveLevel) d];
-    expect(above(Level.state), isEmpty);
-    final atWidgets = above(Level.widgets);
-    expect(atWidgets.map((d) => d.path), ['/nodes/s/actions/0/actions/0', '/nodes/s/actions/0/actions/0/value']);
-    expect(atWidgets.first.message, contains('action setVariable is level 2 (State and behavior)'));
-    expect(above(Level.core).map((d) => d.path), contains('/nodes/s/type'));
   });
 }

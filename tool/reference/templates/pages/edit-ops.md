@@ -46,7 +46,7 @@ node's contents to the system prompt: the **base** in its runtime form, `runtime
 `baseDocument` from the same generated segments, with the runtime envelope (answering rules, the ops, two examples
 that apply cleanly) in place of the file envelope (the render command, sites as files), and its tables restricted
 to what the trust profile allows. `ui_read {"types": [...]}` describes any other allowed type on demand
-(`describeTypes`), and validation does the rest.
+(`describeTypes`), and the per-op check does the rest.
 
 The base ends with the index of the third tool, `ui_docs {"topic": ...}` (`uiTools(catalog, compact: true, docs:
 true)`). `docsTopic` answers with these pages: a page's *When to use*, minimal example and pitfalls, and the list of
@@ -155,8 +155,8 @@ renderer adds `missing_glyph` and `no_size` (the SDK's `UiSession.renderDiagnost
 * A `set` of an id that exists replaces the node (the result says which ids it created). Replacing a node that had
   children it no longer lists is `would_orphan`: keep them, move or remove them first, or patch instead.
 * Each op is checked on its own, against what it touched: its structure (one parent, no cycle, no canvas as a child,
-  a parent that takes children there), the trust profile, and the nodes' fields (the strict validator of
-  [render](@page-render) on the nodes the op created or changed, their parents and children). A rejected op changes nothing; the others
+  a parent that takes children there), the trust profile, and the nodes' fields (`catalogCheck`: types, keys and
+  values against the catalog's declarations, on the nodes the op created or changed, their parents and children). A rejected op changes nothing; the others
   apply (with `"atomic": true`, all or none).
 * A batch may carry `"baseRev"`, the revision the author read: a patch of a field, or a set of a node, that another
   author changed since is `stale_rev`, with the current value. Every applied batch has inverse ops: applied

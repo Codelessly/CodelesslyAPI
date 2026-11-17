@@ -4,7 +4,6 @@
 // (section 8).
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 const _page = NotationOptions(width: 1280);
@@ -18,11 +17,6 @@ Map<String, Object?> _props(NotationResult r, String id) => ((_node(r, id)['prop
 Map<String, Object?> _bind(NotationResult r, String id) => ((_node(r, id)['bind'] as Map?) ?? const {}).cast<String, Object?>();
 List<Map<String, Object?>> _actions(NotationResult r, String id) => [for (final a in (_node(r, id)['actions'] as List?) ?? const []) (a as Map).cast<String, Object?>()];
 
-List<String> _problems(Map<String, Object?> doc) => [
-      for (final d in Catalog.run(standardCatalog, () => validateDocument(doc)))
-        if (d.severity == Severity.error) '${d.code.name} ${d.path}: ${d.message}',
-    ];
-
 /// The universal uses recorded, as `On.word`.
 Set<String> _universal(NotationResult r) => {for (final u in r.vocabulary) if (u.kind == 'universal') '${u.on}.${u.word}'};
 
@@ -32,11 +26,10 @@ Set<String> _unknown(NotationResult r) => {
         if (const {'parameter', 'flag', 'event'}.contains(u.kind)) '${u.kind} ${u.on}.${u.word}',
     };
 
-/// [text] read open and closed: no issue, a valid document, the same both ways.
+/// [text] read open and closed: no issue, the same both ways.
 NotationResult _clean(String text) {
   final open = _open(text), closed = _closed(text);
   expect(open.issues.map((i) => '$i'), isEmpty, reason: text);
-  expect(_problems(open.document), isEmpty, reason: text);
   expect(open.document, closed.document, reason: 'the open vocabulary changes no document: $text');
   return open;
 }
@@ -285,7 +278,6 @@ Column
     test('a list word with no each under it is left out and recorded; its variable is still the page\'s', () {
       final r = _open('Column selectable bind=sel\n  Text "{length(sel)}"\n');
       expect(_unknown(r), {'flag Column.selectable', 'parameter Column.bind'});
-      expect(_problems(r.document), isEmpty);
     });
 
     test('removable: a chip is an input chip whose x fires onRemove (onDelete); a row gets an x at its end', () {

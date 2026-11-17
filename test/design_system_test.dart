@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 /// A small design system as files: a manifest, its two documents and one
@@ -199,74 +198,6 @@ void main() {
   });
 
   group('validation', () {
-    test('a theme\'s scales must be numbers, shadows lists of effects and curves Flutter\'s', () {
-      final problems = validateTheme({
-        'spacing': {'md': 'big'},
-        'curves': {'standard': 'bouncy'},
-        'shadows': {'level1': 'soft'},
-      });
-      expect(problems.map((d) => d.path), containsAll(['/theme/spacing/md', '/theme/curves/standard', '/theme/shadows/level1']));
-    });
-
-    test('a binding naming a scale step the theme does not have is unknown_theme_name, with the nearest', () async {
-      final ds = await _load();
-      final page = {
-        'schema': 3,
-        'roots': ['c'],
-        'nodes': {
-          'c': {'type': 'canvas', 'slots': {'body': 'col'}, 'layout': {'width': 390, 'height': 844}},
-          'col': {
-            'type': 'column',
-            'layout': {'width': {'fill': 390}, 'height': {'fill': 844}},
-            'bind': {'layout.padding': r'${theme.spacing.3}', 'props.spacing': r'${theme.spacing.4}'},
-          },
-        },
-      };
-      final d = validateDocument(page, options: ValidateOptions(theme: ds.tokens, components: ds.components));
-      final unknown = d.where((x) => x.code.name == 'unknown_theme_name').toList();
-      expect(unknown, hasLength(1));
-      expect(unknown.single.message, contains('"4"'));
-    });
-
-    test('a call to a design system component is checked against its declaration', () async {
-      final ds = await _load();
-      final page = {
-        'schema': 3,
-        'roots': ['c'],
-        'nodes': {
-          'c': {'type': 'canvas', 'slots': {'body': 'ok'}, 'layout': {'width': 390, 'height': 844}},
-          'ok': {'type': 'Button', 'props': {'variant': 'loud'}, 'layout': {'width': 96, 'height': 28}},
-        },
-      };
-      final d = validateDocument(page, options: ValidateOptions(theme: ds.tokens, components: ds.components));
-      expect(d.map((x) => x.code.name), containsAll(['missing_prop', 'invalid_enum']));
-    });
-
-    test('the strict edit check of a session with a design system knows its tokens and its components', () async {
-      final ds = await _load();
-      final check = strictEditCheck(ValidateOptions(theme: ds.tokens, components: ds.components));
-      final catalog = ds.catalogOver(Catalog.core);
-      final r = applyOps(LayoutDocument(catalog: catalog), [
-        {'op': 'roots', 'roots': ['c']},
-        {'op': 'set', 'id': 'c', 'node': {'type': 'canvas', 'slots': {'body': 'col'}, 'layout': {'width': 390, 'height': {'hug': 200}}}},
-        {
-          'op': 'set',
-          'id': 'col',
-          'node': {
-            'type': 'column',
-            'children': ['save', 'title'],
-            'layout': {'width': {'fill': 390}, 'height': {'hug': 200}},
-            'decoration': {'fills': [{'color': 'border'}]},
-          },
-        },
-        {'op': 'set', 'id': 'save', 'node': {'type': 'Button', 'props': {'label': 'Save'}, 'layout': {'width': 96, 'height': 28}}},
-        {'op': 'set', 'id': 'title', 'node': {'type': 'text', 'props': {'text': 'Hi', 'style': 'body'}, 'layout': {'width': 40, 'height': 16}}},
-        {'op': 'set', 'id': 'bad', 'node': {'type': 'text', 'props': {'text': 'No', 'style': {'color': 'nope'}}}, 'parent': 'col'},
-      ], catalog: catalog, check: check);
-      expect(r.errors.map((d) => '${d.op} ${d.code}'), ['5 unknown_theme_name']);
-      expect(r.applied, [0, 1, 2, 3, 4]);
-    });
-
     test('an agent session with a design system may call its components (the trust profile allows them)', () async {
       final ds = await _load();
       final catalog = ds.catalogOver(Catalog.core);
@@ -317,42 +248,5 @@ void main() {
       // Everything else is the reference, as before.
       expect(docsTopic('forms', designSystem: ds), docsTopic('forms'));
     });
-  });
-
-  test('inside a definition, slots.<name> says whether the call fills that slot; a page has no such scope', () {
-    List<String> errors(Map<String, Object?> doc) => [
-          for (final d in Catalog.run(standardCatalog, () => validateDocument(doc)))
-            if (d.severity == Severity.error) '${d.code.name} ${d.path}',
-        ];
-    Map<String, Object?> foot(String id) => {
-          'type': 'row',
-          'children': id == 'r' ? ['s'] : <String>[],
-          'layout': {'width': {'fill': 100}, 'height': {'hug': 20}},
-          'bind': {'visible': r'${slots.actions}'},
-        };
-    expect(
-      errors({
-        'schema': 3,
-        'id': 'Frame',
-        'roots': ['r'],
-        'widget': {'type': 'Frame', 'slots': ['actions'], 'props': <Object?>[]},
-        'nodes': {
-          'r': foot('r'),
-          's': {'type': 'slot', 'props': {'name': 'actions'}},
-        },
-      }),
-      isEmpty,
-    );
-    expect(
-      errors({
-        'schema': 3,
-        'roots': ['page'],
-        'nodes': {
-          'page': {'type': 'canvas', 'slots': {'body': 'f'}, 'layout': {'width': 300, 'height': 200}},
-          'f': foot('f'),
-        },
-      }),
-      contains('unknown_name /nodes/f/bind/visible'),
-    );
   });
 }

@@ -1,6 +1,6 @@
 // The catalog: what a document may contain. Node types (WidgetSpec), action
 // types (ActionSpec), data sources and formula functions, each declared once
-// with its fields, so decoding, encoding, an editor's panels, validation and
+// with its fields, so decoding, encoding, an editor's panels, the edit check and
 // the catalog export all read the same declaration (DESIGN.md §8).
 //
 // A Catalog is an immutable value passed to decoding; it is composed (`+`,
@@ -215,7 +215,7 @@ final class ActionCommon {
 typedef ActionDecoder = ActionDef Function(Json json, ActionCommon common);
 
 /// The declaration of one action type: what a `WidgetSpec` is to a node.
-/// Its [fields] generate an editor's panel and validate; [decode] makes the
+/// Its [fields] generate an editor's panel; [decode] makes the
 /// typed action. Without [decode] (a type declared as data, by a hosted or
 /// native plugin manifest) the action decodes as a [DeclaredAction] holding
 /// its fields as [Props].

@@ -347,18 +347,9 @@ and callbacks, and a `build` that places them.
   (`plans/card1/cta`).
 * **A site** (`SiteManifest`, `site.json`): its pages, its components and
   its project variables (read by bare name everywhere; a page or component
-  variable of the same name is `duplicate_variable`).
+  variable does not take the same name).
 * **No overrides**: an instance changes only what its definition declares
   as parameters and slots.
-
-`validateProject` checks the definitions as a library (`invalid_component`,
-`component_id_mismatch`, `duplicate_component`, `component_cycle`, found
-transitively) and every call against its declaration (`unknown_component`,
-`unknown_prop`, `wrong_type`, `missing_prop`, `unknown_slot`,
-`children_not_allowed`, `unknown_event`, `call_field_not_allowed`, a
-`variable` parameter's variable), and each definition against itself
-(`unknown_name` for a page variable it reads, an undeclared slot or event,
-`root_placement_bound`).
 
 The SDK renders an instance as ordinary boxes in the screen's render tree,
 one per definition node per instance, from a `ComponentRegistry`

@@ -6,11 +6,10 @@
 import 'dart:convert';
 
 import 'package:codelessly_api/core.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 EditResult _apply(LayoutDocument doc, Object ops, {bool protectRoots = false}) => applyOps(doc, ops,
-    catalog: Catalog.core, profile: TrustProfile.agent, check: strictEditCheck(), incomplete: true, protectRoots: protectRoots);
+    catalog: Catalog.core, profile: TrustProfile.agent, incomplete: true, protectRoots: protectRoots);
 
 LayoutDocument _card() => _apply(LayoutDocument(catalog: Catalog.core), {
       'ops': [

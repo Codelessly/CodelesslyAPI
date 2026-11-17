@@ -18,7 +18,7 @@
 //
 // Each writes what the old field drew where it can, and reports a behavior
 // change where it can't. A schema-3 document that still has one of the
-// fields is refused by validation, naming the form to write.
+// fields is read as it is: the field is not read.
 import '../json.dart';
 import '../values/color.dart';
 import 'legacy_read.dart';

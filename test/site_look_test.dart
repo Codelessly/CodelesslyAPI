@@ -2,7 +2,6 @@
 // ThemeMode, set by a setThemeMode action), the fonts it ships beside
 // site.json (a pubspec's fonts: section) and how they publish.
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -26,19 +25,6 @@ void main() {
       expect(ThemeMode.tryParse('night'), isNull);
     });
 
-    test('a theme mode that is not system, light or dark is reported with the nearest one', () {
-      final d = validateTheme({'mode': 'darkk'});
-      expect(d.single.code.name, 'invalid_theme');
-      expect(d.single.suggestion, 'dark');
-      expect(validateTheme({'mode': 'light'}), isEmpty);
-    });
-
-    test('a mode inside the dark colors is reported: the mode belongs to the whole theme', () {
-      final d = validateTheme({'dark': {'mode': 'dark'}});
-      expect(d.single.code.name, 'invalid_theme');
-      expect(d.single.path, '/theme/dark/mode');
-    });
-
     test('setThemeMode reads its mode as an expression and persists unless told not to', () {
       final a = ActionDef.fromJson({'type': 'setThemeMode', 'mode': r"${= theme.isDark ? 'light' : 'dark'}"});
       expect(a, isA<SetThemeModeAction>());
@@ -48,26 +34,6 @@ void main() {
       final once = ActionDef.fromJson({'type': 'setThemeMode', 'mode': 'light', 'persist': false})! as SetThemeModeAction;
       expect(once.persist, isFalse);
       expect(once.toJson(), {'type': 'setThemeMode', 'mode': 'light', 'persist': false});
-    });
-
-    test('a page whose button sets the theme mode validates, and a misspelt key is named', () {
-      Json page(Json action) => {
-            'schema': 3,
-            'roots': ['home'],
-            'nodes': {
-              'home': {'type': 'canvas', 'slots': {'body': 'toggle'}, 'layout': {'width': 390, 'height': 844}},
-              'toggle': {
-                'type': 'box',
-                'layout': {'width': 44, 'height': 44},
-                'actions': [
-                  {'trigger': {'type': 'click'}, 'actions': [action]},
-                ],
-              },
-            },
-          };
-      expect(validateDocument(page({'type': 'setThemeMode', 'mode': 'dark'})).where((d) => d.isError), isEmpty);
-      final bad = validateDocument(page({'type': 'setThemeMode', 'themeMode': 'dark'}));
-      expect(bad.map((d) => d.code.name), contains('unknown_action_key'));
     });
   });
 
@@ -97,7 +63,6 @@ void main() {
       ]);
       expect(site.extra.containsKey('fonts'), isFalse);
       expect(SiteManifest.fromJson(site.toJson()).fonts, site.fonts);
-      expect(validateSiteFonts(manifest['fonts']), isEmpty);
     });
 
     test('declared fonts publish one font per file, read from the site by relative path', () {
@@ -108,36 +73,6 @@ void main() {
       expect(const PublishFont(id: 'x', family: 'X', url: 'https://cdn.example.com/x.ttf').isSiteFile, isFalse);
     });
 
-    test('a WOFF2 file is reported as not read, naming the .woff or .ttf to use instead', () {
-      final d = validateSiteFonts([
-        {
-          'family': 'Inter',
-          'fonts': [
-            {'asset': 'fonts/inter-latin-400.woff2'},
-          ],
-        },
-      ]);
-      expect(d.single.code.name, 'font_format');
-      expect(d.single.path, '/fonts/0/fonts/0/asset');
-      expect(d.single.message, contains('WOFF2'));
-      expect(d.single.message, contains('.woff or .ttf'));
-    });
-
-    test('a family without files, a bad weight and an unknown key are each reported', () {
-      final d = validateSiteFonts([
-        {'family': 'Inter'},
-        {
-          'family': 'Lora',
-          'fonts': [
-            {'asset': 'fonts/Lora.ttf', 'weight': 450, 'syle': 'italic'},
-          ],
-        },
-        {'fonts': []},
-      ]);
-      expect(d.map((x) => x.path), containsAll(['/fonts/0/fonts', '/fonts/1/fonts/0/weight', '/fonts/1/fonts/0/syle', '/fonts/2']));
-      expect(d.firstWhere((x) => x.path.endsWith('syle')).suggestion, 'style');
-    });
-
     test('a font named by URL or absolute path is not a file beside the site', () {
       expect(isRelativeAssetPath('fonts/a.ttf'), isTrue);
       expect(isRelativeAssetPath('./images/hero.jpg'), isTrue);
@@ -145,14 +80,6 @@ void main() {
       expect(isRelativeAssetPath('data:image/png;base64,AAAA'), isFalse);
       expect(isRelativeAssetPath('/abs/a.png'), isFalse);
       expect(isRelativeAssetPath(r'images/${id}.jpg'), isFalse);
-      expect(validateSiteFonts([
-        {
-          'family': 'X',
-          'fonts': [
-            {'asset': 'https://x.com/x.ttf'},
-          ],
-        },
-      ]).single.code.name, 'invalid_fonts');
     });
   });
 }

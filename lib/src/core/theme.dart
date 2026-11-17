@@ -309,8 +309,8 @@ final class ThemeTokens {
   /// color, through any chain of names, as any color naming another is. A
   /// role whose name the theme does not have is null. Controls and the
   /// runtime read the roles through this. A role written inside [colors]
-  /// (`"colors": {"primary": ...}`) is not a role: validation reports it
-  /// (`theme_role_in_colors`).
+  /// (`"colors": {"primary": ...}`) is not a role: it is a
+  /// color of that name.
   ThemeTokens resolvedRoles() {
     Color? r(Color? c) {
       if (c == null || c.name == null) return c;

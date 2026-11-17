@@ -511,7 +511,7 @@ op per color.
 - Colors are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
 - A `path` node without a `viewBox` is drawn in its box's own pixels from the top left and is not clipped to the
   box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
-- Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
+- Decoration on a type that draws no box (a `text`, a `listView`) is ignored: wrap it.
 - `clip` is needed for children to follow rounded corners.
 - A child's fill covers its parent's inside border: pad the parent, stroke outside, or move the border to the child.
 

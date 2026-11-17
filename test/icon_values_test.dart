@@ -2,7 +2,6 @@
 // props.icon and an input's InputIcon both read a Material icon name, the
 // typed object, and an untyped {"name": ...}.
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -15,22 +14,5 @@ void main() {
     expect(InputIcon.fromJson({'icon': {'name': 'search'}})!.icon, material);
     expect(Node.fromJson({'type': 'icon', 'props': {'icon': {'name': 'menu', 'style': 'rounded'}}}, id: 'i')!.prop(IconProps.icon),
         {'type': 'MATERIAL_ICON', 'name': 'menu', 'style': 'rounded'});
-  });
-  test('a text field\'s prefixIcon as a name validates', () {
-    final d = {
-      'schema': 3,
-      'roots': ['c'],
-      'nodes': {
-        'c': {'type': 'canvas', 'layout': {'width': 390, 'height': 844}, 'slots': {'body': 'f'}},
-        'f': {
-          'type': 'textField',
-          'layout': {'width': {'fill': 390}, 'height': 48},
-          'props': {
-            'decoration': {'prefixIcon': {'icon': 'search', 'size': 18}},
-          },
-        },
-      },
-    };
-    expect(validateDocument(d), isEmpty);
   });
 }

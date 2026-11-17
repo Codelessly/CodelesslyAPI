@@ -28,11 +28,11 @@ links (`index.md#guide-...`) land on a table in `index.md` that says where each 
 - which page documents what: `tool/reference/src/areas.dart` (every node type, behavior, trigger, action, model,
   enum, value type and formula function is on exactly one page; the generator fails otherwise);
 - the prose: `tool/reference/templates` (`base.md`, `index.md`, `pages/<page>.md`, this file);
-- the examples: `tool/reference/examples` (every one is validated by `test/reference_test.dart`).
+- the examples: `tool/reference/examples` (every one is checked by `test/reference_test.dart`).
 
 It also writes `lib/src/core/edit/guide_topics.g.dart`, the base's segments and the pages' sections the package
 serves at run time. `test/reference_test.dart` fails when anything here is stale, a link or anchor does not
-resolve, an item is on no page or two, a page lacks one of the six sections, or an example does not validate.
+resolve, an item is on no page or two, a page lacks one of the six sections, or a JSON block does not parse.
 
 ## Adding a page
 

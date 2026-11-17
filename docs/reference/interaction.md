@@ -470,8 +470,7 @@ A node's `actions` is a list of **reactions**: a trigger and the chain of action
 - Every action also takes `enabled`, `nonBlocking` and `when` (run only while a predicate holds:
   `{"left": "${count}", "op": "greaterThan", "right": "5"}`; the ops are in [Conditions](state.md#state-conditions)). A
   trigger's own `when` is a formula string.
-- Write each action's fields flat in the action object; a misspelled key is dropped by the runtime and reported by
-  validation (`unknown_action_key`).
+- Write each action's fields flat in the action object; a misspelled key is dropped.
 
 <a id="interaction-hover-press-and-other-states"></a>
 ### Hover, press and other states
@@ -482,7 +481,7 @@ JSON merged over that node (objects merge, other values replace, `null` removes)
 bindings: `"bind": {"selected": "${= tab == 'pricing'}"}` puts the node in its `selected` state, as Flutter's
 `statesController` puts a button in `WidgetState.selected`. Buttons draw it themselves (a tinted fill, the primary
 color as ink: tabs and toggles made of buttons need nothing more); on other nodes only a `states.selected` patch
-shows it, so a bound `selected` with none changes nothing (`state_no_effect`). A chip's own selection is its prop,
+shows it, so a bound `selected` with none changes nothing. A chip's own selection is its prop,
 `props.selected`. A selected outlined button in a look of its own (a filter or a delivery option):
 
 ```json
@@ -582,7 +581,7 @@ reaction and controls; a control's own keys come first (a slider in a toolbar ke
 - The innermost tappable node takes the tap; `ignorePointer` lets it through.
 - A state patch names node ids inside the node; patching a node outside it does nothing.
 - An interaction state's patch loses to a binding of the same field (bindings come after states).
-- A misspelled trigger is `unknown_trigger`; a key it does not take is `unknown_trigger_key`.
+- A misspelled trigger never fires; a key a trigger does not take is ignored.
 - `tap_no_reaction` (render command): a `--tap` step hit a node with no reaction.
 - Only a `click` reaction makes a node reachable by keyboard: an action that exists only on `hover`,
   `longPress` or `doubleTap` has no key.

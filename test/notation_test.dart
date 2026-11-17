@@ -1,33 +1,21 @@
 // The compact notation (docs/design/13-compact-notation.md): what an agent
-// writes for levels 0 to 2 expands to an ordinary document that validates.
+// writes for levels 0 to 2 expands to an ordinary document.
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/src/core/levels.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/src/core/notation/prompt.dart' show notationFunctions, notationPageFunctions, notationPrompt;
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 NotationResult _parse(String text) => parseNotation(text, catalog: standardCatalog);
 
-List<String> _problems(Map<String, Object?> doc) => [
-      for (final d in Catalog.run(standardCatalog, () => validateDocument(doc, options: const ValidateOptions(level: Level.state))))
-        if (d.severity != Severity.info) '${d.code.name} ${d.path}: ${d.message}',
-    ];
-
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
-/// A page 1280 wide (what the page prompt is for), and what does not validate
-/// in it at any level (a page's media rules are past level 2).
+/// A page 1280 wide (what the page prompt is for).
 const _pageOptions = NotationOptions(width: 1280);
 NotationResult _parsePage(String text) => parseNotation(text, catalog: standardCatalog, options: _pageOptions);
 String _pagePrompt() => notationPrompt(catalog: standardCatalog, options: _pageOptions);
-List<String> _problemsAtAnyLevel(Map<String, Object?> doc) => [
-      for (final d in Catalog.run(standardCatalog, () => validateDocument(doc)))
-        if (d.severity != Severity.info) '${d.code.name} ${d.path}: ${d.message}',
-    ];
 
 /// The last action of the first reaction of node [id] (what its tap opens).
 Map<String, Object?> _lastAction(NotationResult r, String id) =>
@@ -43,7 +31,6 @@ Column gap=12
   Button "Save" onTap={emit save}
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect(_node(r, 'screen')['slots'], {'body': 'column1'});
     final column = _node(r, 'column1');
     expect(column['children'], ['slider1', 'textField1', 'switch1', 'filledButton1']);
@@ -95,7 +82,6 @@ Row#bar between w=300 h=44
   Icon "close" {"props": {"size": 18}}
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect(_node(r, 'bar')['layout'], {'width': 300, 'height': 44});
     expect((_node(r, 'name')['layout'] as Map)['flex'], 1);
     expect(_node(r, 'icon1')['props'], {'icon': 'close', 'size': 18});
@@ -227,10 +213,9 @@ Card gap=12
       expect(jsonDecode(jsonEncode(doc[id as String]!.toJson())), jsonDecode(jsonEncode(LayoutDocument.fromJson(whole, catalog: standardCatalog)[id]!.toJson())),
           reason: 'node $id');
     }
-    expect(_problems(built), isEmpty);
   });
 
-  test('the prompt is small, and every example in it parses and validates', () {
+  test('the prompt is small, and every example in it parses', () {
     final prompt = Catalog.run(standardCatalog, () => notationPrompt(catalog: standardCatalog));
     expect(prompt.length, lessThan(9000), reason: 'about 2,200 tokens');
     // Every function it names is one the engine has.
@@ -243,7 +228,6 @@ Card gap=12
     for (final e in examples) {
       final r = _parse(e);
       expect(r.issues, isEmpty, reason: e);
-      expect(_problems(r.document), isEmpty, reason: e);
     }
     // Every type it names parses.
     final types = RegExp(r'(?:Layout and content|Controls): (.+)').allMatches(prompt).expand((m) => m[1]!.split(', '));
@@ -275,7 +259,6 @@ Card
   Checkbox "Done" checked={qty>1}
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect((_node(r, 'text1')['props'] as Map)['text'], r'Total $${= qty*12} for ${qty} items');
     expect((_node(r, 'text2')['layout'] as Map)['squeezable'], true);
     expect((_node(r, 'column2')['layout'] as Map)['width'], {'fill': 0});
@@ -304,7 +287,6 @@ Card
       Text "{p.age} years, people: {length(people)}"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final list = _node(r, 'listView1');
     expect(list['bind'], {'data': r'${people}'});
     expect(list['children'], ['listView1Item']);
@@ -325,7 +307,6 @@ Card
       Box h=40 fill=#FFEEEEEE
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final dots = _node(r, 'listView1');
     expect((dots['props'] as Map)['scrollDirection'], 'horizontal');
     expect((dots['props'] as Map)['spacing'], 8);
@@ -346,7 +327,6 @@ Card
     Text "Rest"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect((_node(r, 'text2')['layout'] as Map)['width'], {'hug': 0});
     expect((_node(r, 'accordion1')['props'] as Map)['expanded'], false);
     expect((_node(r, 'accordion2')['props'] as Map)['expanded'], true);
@@ -363,7 +343,6 @@ Column gap=8
   Text "Total {subtotal}"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect((_node(r, 'screen')['decoration'] as Map)['fills'], isNotEmpty);
     expect(_node(r, 'column2')['children'], ['listView1'], reason: 'the List is a column holding the repeated list');
     expect((_node(r, 'text2')['props'] as Map)['text'], r'Total ${= (sum(cart,x=>x.price*x.qty))}');
@@ -443,7 +422,6 @@ Card
   Badge "{count} open"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect((_node(r, 'text1')['props'] as Map)['style'], {'fontSize': 14, 'fontWeight': 600, 'color': '#FF111827'});
     expect((_node(r, 'text2')['props'] as Map)['style'], {'fontSize': 11, 'color': '#FF9CA3AF'});
     expect((_node(r, 'column1')['layout'] as Map)['padding'], 12);
@@ -474,7 +452,6 @@ Card
   BarChart values=[1,2,3]
 ''', catalog: standardCatalog, options: options);
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect((_node(r, 'screen')['decoration'] as Map)['fills'], [{'color': '#FFFFFCF7'}]);
     expect(((_node(r, 'column1')['decoration'] as Map)['strokes'] as List).single, {'color': '#FFE4E1DC'});
     expect((_node(r, 'column1')['decoration'] as Map)['radius'], 3);
@@ -546,9 +523,8 @@ Card gap=12
   BarChart values=[1,2]
   Text#big "12" size=24 weight=700
 ''';
-    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
+    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true, nearestColors: true));
     expect(r.issues, isEmpty);
-    expect(validateDocument(r.document, options: ValidateOptions(theme: ThemeTokens.fromJson(theme))).where((d) => d.severity == Severity.error), isEmpty);
     expect((_node(r, 'screen')['decoration'] as Map)['fills'], [{'color': 'page'}]);
     final card = _node(r, 'column1');
     expect((card['decoration'] as Map)['radius'], 26);
@@ -611,7 +587,6 @@ Card
 ''';
     final r = parseNotation(text, catalog: standardCatalog);
     expect(r.issues, isEmpty);
-    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
     // A gauge is a stack under its id: a clean arc and the figure inside it.
     expect(_node(r, 'g')['type'], 'stack');
     expect(_node(r, 'g')['layout'], {'width': {'fill': 0}, 'height': 164});
@@ -652,7 +627,6 @@ Card
 ''';
     final m = parseNotation(more, catalog: standardCatalog);
     expect(m.issues, isEmpty);
-    expect(validateDocument(m.document).where((d) => d.severity == Severity.error), isEmpty);
     expect((((m.document['nodes'] as Map)['screen'] as Map)['actions'] as List).single, containsPair('trigger', {'type': 'timer', 'intervalMs': 1000, 'when': r'${= n<5}'}));
     expect(_node(m, 'tip')['props'], containsPair('divisions', 6));
     // A share of a row that follows a value grows (a segmented bar's parts).
@@ -687,7 +661,6 @@ Card
     final r = parseNotation(text, catalog: standardCatalog);
     // The one prop nothing reads is named where it was written; the rest are read.
     expect(r.issues.map((i) => i.message).toList(), [contains('has no "hexagon"')]);
-    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
     final lines = _node(r, 'lines');
     expect(lines['type'], 'chart');
     expect(lines['props'], containsPair('chartType', 'line'));
@@ -723,7 +696,6 @@ Row#footer
 ''';
     final r = parseNotation(text, catalog: standardCatalog);
     expect(r.issues, isEmpty);
-    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
     expect(((r.document['nodes'] as Map)['screen'] as Map)['slots'], {'body': 'pageRoot'});
     expect(_node(r, 'pageRoot')['children'], ['header', 'main', 'note', 'footer']);
     // Streamed, the column takes the body and the first section moves into it.
@@ -756,7 +728,6 @@ Column#page maxw=720
 ''';
     final r = parseNotation(text, catalog: standardCatalog);
     expect(r.issues, isEmpty);
-    expect(validateDocument(r.document).where((d) => d.severity == Severity.error), isEmpty);
     expect((_node(r, 'page')['layout'] as Map)['constraints'], {'maxWidth': 720});
     // Column center: its children side by side centered, each as wide as it is (an icon over its label).
     expect(_node(r, 'tab')['props'], containsPair('crossAxisAlignment', 'center'));
@@ -794,7 +765,7 @@ Column
   Box#brand fill=#FF7C3AED
 ''';
     Object? fill(NotationResult r, String id) => ((_node(r, id)['decoration'] as Map)['fills'] as List).single;
-    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
+    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true, nearestColors: true));
     expect(r.issues, isEmpty);
     // On the page the gray would be the page's own color: the theme's fill for the page. In a card it is the neutral fill.
     expect(fill(r, 'onPage'), {'color': 'pageFill'});
@@ -802,7 +773,7 @@ Column
     expect(fill(r, 'brand'), {'color': '#FF7C3AED'});
     // A theme without the name reads it as before.
     final plain = {...theme, 'colors': {...(theme['colors']! as Map)}..remove('pageFill')};
-    expect(fill(parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(plain, named: true)), 'onPage'), {'color': 'subtleFill'});
+    expect(fill(parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(plain, named: true, nearestColors: true)), 'onPage'), {'color': 'subtleFill'});
   });
 
   test('a theme may give the title a larger style on a wide page', () {
@@ -844,7 +815,6 @@ Column gap=8
     Text "Second"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final pages = _node(r, 'pageView1');
     expect(pages['props'], {'viewportFraction': 0.86, 'scrollDirection': 'horizontal', 'padEnds': false, 'edgeFade': 12});
     expect(pages['bind'], {'props.initialPage': r'${i}', 'data': r'${shoes}'});
@@ -866,7 +836,6 @@ Column gap=8
     // A value word after := is the value, not a variable of that name.
     final off = _parse('Column\n  Button "Send" enabled={false}\n');
     expect(off.issues, isEmpty);
-    expect(_problems(off.document), isEmpty);
     // A bare word that is a declared variable is the variable, not its name as text.
     final named = _parse('state pick="b"\nstate rows=[{"n":1}]\nColumn\n  Select items=["a","b"] value={pick}\n  each r in rows\n    Progress value={r.n}\n  Text "x" color={pick}\n');
     expect(named.issues, isEmpty);
@@ -874,20 +843,17 @@ Column gap=8
     // A value that follows state, written without a mark: braces, an expression, a call.
     final plain = _parse('state voted=false\nstate n=2\nColumn\n  Button "Vote" enabled={!voted}\n  Progress value={n}\n  Text "x" visible={n>1 && !voted}\n  Text "y" hidden\n  Button "Go" enabled={n==2}\n');
     expect(plain.issues, isEmpty, reason: '${plain.issues}');
-    expect(_problems(plain.document), isEmpty);
     expect((_node(plain, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= !voted}');
     expect((_node(plain, 'progressBar1')['bind'] as Map)['props.value'], r'${n}');
     expect((_node(plain, 'text1')['bind'] as Map)['visible'], r'${= n>1 && !voted}');
     // for … in, else, let: what three models wrote unprompted.
     final natural = _parse('state items = [{"n":1},{"n":0}]\nlet total = sum(items,i=>i.n)\nColumn\n  for it in items\n    if it.n > 0\n      Text "{it.n}"\n    else\n      Text "none"\n  Text "{total}"\n');
     expect(natural.issues, isEmpty, reason: '${natural.issues}');
-    expect(_problems(natural.document), isEmpty);
     final shownIf = (natural.document['nodes']! as Map).values.cast<Map>().where((n) => n['type'] == 'text').map((n) => (n['bind'] as Map?)?['visible']).toList();
     expect(shownIf.take(2), [r'${= item.n > 0}', r'${= !(item.n > 0)}']);
     // A handler as a key, quoted, braced, or on a line of its own; `value` is the control's new value.
     final handled = _parse('state n = 0\nstate v = 3\nColumn\n  Button "Add" onTap={n = n + 1; v = 0}\n  Button "Sub" onTap={n = n - 1}\n  Slider onChange={v = result}\n  Button "Zero" onTap={n = 0}\n');
     expect(handled.issues, isEmpty, reason: '${handled.issues}');
-    expect(_problems(handled.document), isEmpty);
     Map react(String id) => (_node(handled, id)['actions'] as List).single as Map;
     expect(react('filledButton1')['trigger'], {'type': 'click'});
     expect((react('filledButton1')['actions'] as List).map((a) => (a as Map)['variable']), ['n', 'v']);
@@ -897,7 +863,6 @@ Column gap=8
     // A record of a list changed where it stands, and n += 1.
     final placed = _parse('state rows = [{"q":1},{"q":2}]\nstate n = 0\nColumn\n  for r in rows\n    Button "+" onTap={r.q += 1; n++}\n  Button "first" onTap={rows[0].q = 9}\n');
     expect(placed.issues, isEmpty, reason: '${placed.issues}');
-    expect(_problems(placed.document), isEmpty);
     final acts = (placed.document['nodes']! as Map).values.cast<Map>().where((x) => x['actions'] != null).expand((x) => ((x['actions'] as List).single as Map)['actions'] as List).cast<Map>().toList();
     expect(acts[0], {'type': 'setVariable', 'variable': 'rows', 'value': r'${= setAt(rows,index,with(item,"q",item.q + (1)))}'});
     expect(acts[1], {'type': 'setVariable', 'variable': 'n', 'value': r'${= n + 1}'});
@@ -905,7 +870,6 @@ Column gap=8
     // Expressions with spaces and no mark, word operators, calls on a value, a guarded step, the timer as models write it.
     final spoken = _parse('state n = 2\nstate on = false\nstate rows = [{"q":1}]\nstate left = 5\nevery 1s when on onTick={left = left - 1; if (left == 0) { on = false }}\nColumn\n  Button "Go" enabled={n > 0 and not on} onTap={rows.add({"q":2}); if (n > 1) { n = 0 }}\n  Text "{rows.length} rows, {rows.filter(r => r.q > 1).length} big"\n');
     expect(spoken.issues, isEmpty, reason: '${spoken.issues}');
-    expect(_problems(spoken.document), isEmpty);
     expect((_node(spoken, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= n > 0 && !on}');
     final go = (((_node(spoken, 'filledButton1')['actions'] as List).single as Map)['actions'] as List).cast<Map>();
     expect(go[0]['value'], r'${= append(rows,{"q":2})}');
@@ -947,7 +911,6 @@ Card
     expect((_node(r, 'text1')['props'] as Map)['style'], {'from': 'sectionTitle'});
     expect(((_node(r, 'column1')['decoration'] as Map)['strokes'] as List).single, {'color': 'primaryBorder'});
     expect((_node(r, 'barChart1')['props'] as Map)['color'], 'primary');
-    expect(validateDocument(r.document, options: ValidateOptions(theme: ThemeTokens.fromJson(a))).where((d) => d.severity == Severity.error), isEmpty);
     // Written once, it is each theme's: the values are those the same lines
     // give when expanded with that theme's values written out.
     for (final t in [a, b]) {
@@ -980,7 +943,6 @@ Column gap=8
   Progress bind={score/100} {"props": {"color": "\${= score>=80 ? '#FF16A34A' : '#FFDC2626'}"}}
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final row = _node(r, 'row1');
     expect((row['bind'] as Map)['decoration.strokes[0].color'], r'${= on?"#FF2563EB":"#FFE5E7EB"}');
     expect((row['decoration'] as Map)['strokes'], [{'color': '#00000000'}]);
@@ -1002,7 +964,6 @@ Row gap=3 h=32
   Box w={live?40:8} h=3 fill=#FF2563EB
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final bars = (r.document['nodes'] as Map).values.cast<Map>().where((n) => (n['bind'] as Map?)?.containsKey('layout.height') ?? false).toList();
     expect(bars, hasLength(1));
     expect((bars.single['layout'] as Map)['height'], 0);
@@ -1022,7 +983,6 @@ Row gap=8
       Text "{p.name}"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final list = _node(r, 'listView1');
     expect(list['type'], 'gridView');
     expect(list['layout'], {'width': {'fill': 0}, 'height': {'hug': 0}});
@@ -1049,7 +1009,6 @@ Row gap=8
     expect((built['props'] as Map)['shrinkWrapRows'], true);
     expect(built['children'], ['listView1Item']);
     expect(((doc.toJson()['nodes'] as Map)['listView1Item'] as Map)['children'], ['column1']);
-    expect(_problems(doc.toJson()), isEmpty);
   });
 
   test('a derived value is read inside a text that quotes other texts', () {
@@ -1059,7 +1018,6 @@ state total=a*2
 Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect((_node(r, 'text1')['props'] as Map)['text'], contains('(a*2)>=5'));
     expect((_node(r, 'text1')['props'] as Map)['text'], isNot(contains('total')));
   });
@@ -1202,13 +1160,6 @@ Column
       expect(_node(r, 'hActions')['children'], hasLength(2));
       expect(_node(r, 'p')['children'], isNull);
       expect(_node(r, 'column1')['children'], ['h', 'p', 'text1']);
-      expect(
-        [
-          for (final d in Catalog.run(catalog, () => validateDocument(r.document, options: ValidateOptions(components: ds.components, theme: ds.tokens))))
-            if (d.severity == Severity.error) '${d.code.name} ${d.path}',
-        ],
-        isEmpty,
-      );
       expect(Catalog.run(catalog, () => notationPrompt(catalog: catalog, designSystem: ds)), contains('ListHead "title" (lines: actions) : '));
     });
 
@@ -1267,13 +1218,6 @@ Column gap=8
       final frame = _node(r, 'Frame1');
       expect((frame['layout'] as Map)['width'], {'fill': 0});
       expect(frame['children'], hasLength(1));
-      expect(
-        [
-          for (final d in Catalog.run(catalog, () => validateDocument(r.document, options: ValidateOptions(components: ds.components, theme: ds.tokens))))
-            if (d.severity == Severity.error) '${d.code.name} ${d.path}',
-        ],
-        isEmpty,
-      );
     });
 
     test('a parameter a component does not have is named on its line, with what it takes', () {
@@ -1813,21 +1757,11 @@ Page
     Text "Pointer: {device.pointer}"
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect([
-        for (final d in Catalog.run(standardCatalog, () => validateDocument(r.document, options: const ValidateOptions(level: Level.design))))
-          if (d.severity == Severity.error) '${d.code.name} ${d.path}',
-      ], isEmpty);
       expect(jsonEncode(r.document), contains('device.hover'));
       expect(jsonEncode(r.document), contains('device.pointer'));
       expect(jsonEncode(r.document['variables']), isNot(contains('device')));
       final bad = parseNotation('state device={"hover":true}\nPage\n  Text "No"', catalog: standardCatalog, options: page);
       expect(bad.issues.single.toString(), contains('read-only'));
-      final shadowed = {
-        ...r.document,
-        'variables': {'screen': [{'name': 'device', 'type': 'map', 'value': {'hover': true}}]},
-      };
-      expect(Catalog.run(standardCatalog, () => validateDocument(shadowed, options: const ValidateOptions(level: Level.design)))
-          .any((d) => d.code == Codes.invalidVariable && d.path.endsWith('/name')), isTrue);
       expect(notationPrompt(catalog: standardCatalog, options: page), contains('device.hover'));
       expect(notationPrompt(catalog: standardCatalog), isNot(contains('device.hover')));
     });
@@ -1964,7 +1898,6 @@ App
       Text "{find(msgs,x=>x.id==sel).from}"
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect(_problemsAtAnyLevel(r.document), isEmpty);
       // The state: which pane a phone shows, named after the screen, starting at the list.
       expect(variablesOf(r).where((v) => v['name'] == 'screen_pane').single, {'name': 'screen_pane', 'type': 'integer', 'value': 0});
       // Each pane fills the window while the state says it shows; both stay on a tablet.
@@ -2088,7 +2021,6 @@ $between      Column#detail grow h=fill scroll pad=24
 ''';
       final r = parseNotation(inbox('      Splitter#grip bind=listW min=220 max=480\n'), catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect(_problemsAtAnyLevel(r.document), isEmpty);
       // A tablet keeps the sidebar (248), so the two need 248 + 290 + 360 and more: under that, by turns.
       final below = ((node(r, 'list')['media']! as List).single as Map)['maxWidth']! as int;
       expect(below, inInclusiveRange(900, 920));
@@ -2143,7 +2075,6 @@ App
       Heading "{find(msgs,x=>x.id==sel).subject}" level=1
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect(_problemsAtAnyLevel(r.document), isEmpty);
       expect(variablesOf(r).where((v) => v['name'] == 'screen_pane').single['value'], 1);
       for (final (i, id) in const [(0, 'folders'), (1, 'list'), (2, 'detail')]) {
         expect((at(r, id, 390)['bind']! as Map)['visible'], '\${= screen_pane==$i}');
@@ -2275,11 +2206,6 @@ App
 
   group('what is shown over a page', () {
     const page = NotationOptions(width: 1280);
-    // Valid at any level: a page's media rules and a right click are past level 2.
-    List<String> problems(Map<String, Object?> doc) => [
-          for (final d in Catalog.run(standardCatalog, () => validateDocument(doc)))
-            if (d.severity != Severity.info) '${d.code.name} ${d.path}: ${d.message}',
-        ];
     Map<String, Object?> nodesOf(NotationResult r) => (r.document['nodes']! as Map).cast<String, Object?>();
     Map<String, Object?> node(NotationResult r, String id) => (nodesOf(r)[id]! as Map).cast<String, Object?>();
     Map<String, Object?> open(NotationResult r, String id) =>
@@ -2313,7 +2239,6 @@ Sheet#filters "Filters"
       // A page: at the right, each no wider than 240; on a phone (the overlay narrower than it was written), equal shares.
       final r = Catalog.run(standardCatalog, () => parseNotation(app, catalog: standardCatalog, options: page));
       expect(r.issues, isEmpty, reason: '${r.issues}');
-      expect(problems(r.document), isEmpty);
       for (final id in ['closeIt', 'send', 'reset', 'apply']) {
         expect(layout(r, id)['width'], {'hug': 0}, reason: id);
         expect((layout(r, id)['constraints']! as Map)['maxWidth'], 240, reason: id);
@@ -2341,7 +2266,6 @@ Sheet#filters "Filters"
         expect(layout(card, id)['width'], {'fill': 0}, reason: id);
         expect(node(card, id)['media'], isNull, reason: id);
       }
-      expect(problems(card.document), isEmpty);
 
       // Buttons that are not at the end, and an icon's button, are left as written.
       final mid = Catalog.run(
@@ -2389,7 +2313,6 @@ Drawer#cart right w=340 "Your cart"
     test('a Dialog, a Sheet, a Menu, a Popover and a Drawer are canvases of their own, opened as their kind says', () {
       final r = parseNotation(text, catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect(problems(r.document), isEmpty);
       expect(r.document['roots'], ['screen', 'signup', 'filters', 'sortMenu', 'tip', 'cart']);
       // The page is as it would be without them.
       expect(node(r, 'screen')['layout'], {'width': 1280, 'height': {'hug': 0}});
@@ -2495,7 +2418,6 @@ Dialog#details "Details"
   Text "The small print."
 ''', catalog: standardCatalog);
       expect(card.issues, isEmpty);
-      expect(problems(card.document), isEmpty);
       expect(card.document['roots'], ['screen', 'details']);
       expect(open(card, 'more'), containsPair('presentation', 'dialog'));
       // With no overlay written, open names a canvas written elsewhere, as before.
@@ -2586,7 +2508,6 @@ App
 ''';
       final r = parseNotation(app, catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect(problems(r.document), isEmpty);
       expect(r.document['roots'], ['screen', 'screen_sidebar']);
       // A menu button first in the bar, on a phone only, opens the drawer.
       final bar = (node(r, 'bar')['children']! as List).cast<String>();
@@ -2661,7 +2582,6 @@ Menu#areaMenu
   Text#refresh "Refresh" onTap={toast "Done"}
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect(problems(r.document), isEmpty);
       expect(open(r, 'thumb'), {
         'type': 'openModal',
         'to': 'zoom',
@@ -2704,7 +2624,6 @@ Column
 Lightbox#zoom "{photo}" "The harbor at dusk" ratio=1.5
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect(problems(r.document), isEmpty);
       // What zooms is the picture's own box, kept over the window: a pinch and the wheel about the point,
       // a double tap to 2x where it was tapped and back, a drag while zoomed.
       final photo = node(r, 'zoomPhoto');
@@ -2748,7 +2667,6 @@ Lightbox#zoom "{photo}" "The harbor at dusk" ratio=1.5
       // The max zoom is the line's; without a ratio the box is the picture's place and a tap there closes.
       final loose = parseNotation('Column\n  Image#t "a.png" onTap={open z}\nLightbox#z "a.png" max=6\n', catalog: standardCatalog, options: page);
       expect(loose.issues, isEmpty);
-      expect(problems(loose.document), isEmpty);
       expect((node(loose, 'zPhoto')['transformGesture']! as Map)['maxScale'], 6);
       expect(((node(loose, 'zPhoto')['actions']! as List).last as Map)['trigger'], {'type': 'click', 'when': r'${= (0) <= 0 && zZoom<=1.01}'});
     });
@@ -2762,7 +2680,6 @@ Column
 Lightbox#viewer photos={photos} bind=at
 ''', catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
-      expect(problems(r.document), isEmpty);
       expect(r.document['roots'], ['screen', 'viewer']);
       // A page per picture, opened at the one tapped; another picture starts at rest.
       final pages = node(r, 'viewerPages');
@@ -2804,7 +2721,6 @@ Lightbox#viewer photos={photos} bind=at
       // thumbs:false leaves the strip out; a list written out and no =name keep variables of their own.
       final plain = parseNotation('Column\n  Button#b "Photos" onTap={open shots}\nLightbox#shots photos=["a.png","b.png"] thumbs=false\n', catalog: standardCatalog, options: page);
       expect(plain.issues, isEmpty);
-      expect(problems(plain.document), isEmpty);
       expect(nodesOf(plain).containsKey('shotsThumbs'), isFalse);
       expect((plain.document['variables']! as Map)['page_variables'], containsAll([
         {'name': 'shotsPhotos', 'type': 'list', 'value': ['a.png', 'b.png']},
@@ -2815,7 +2731,6 @@ Lightbox#viewer photos={photos} bind=at
       final own = parseNotation('state swatches=[{"c":"#FF112233"}]\nColumn\n  Button#b "Colors" onTap={open sw}\nLightbox#sw photos={swatches}\n  Box#chip w=fill h=fill fill={photo.c}\n',
           catalog: standardCatalog, options: page);
       expect(own.issues, isEmpty);
-      expect(problems(own.document), isEmpty);
       expect(node(own, 'swPhoto')['children'], ['chip']);
       expect((node(own, 'swThumb')['children']! as List).length, 1);
     });
@@ -2913,7 +2828,6 @@ Column
   Button#one "Reset" onTap={confirm "Reset {step} steps?" then step=0}
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect(((_node(r, 'remove')['actions'] as List).single as Map)['actions'], [
       {
         'type': 'confirm',
@@ -2941,7 +2855,6 @@ Column
       final r = parseNotation('state draft="" saved\nstate n=1\n${width >= 700 ? 'Page\n  Section\n    Input "Draft" bind=draft' : 'Card\n  Input "Draft" bind=draft'}',
           catalog: standardCatalog, options: NotationOptions(width: width));
       expect(r.issues, isEmpty);
-      if (width < 700) expect(_problems(r.document), isEmpty);
       final declared = {for (final v in (r.document['variables'] as Map).values.expand((v) => v as List)) (v as Map)['name']: v};
       expect(declared['draft'], {'name': 'draft', 'type': 'text', 'value': '', 'persist': true});
       expect(declared['n'], isNot(contains('persist')));
@@ -2974,7 +2887,6 @@ Column
   CodeInput#six bind=other
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final otp = _node(r, 'otp');
     expect(otp['type'], 'textField');
     expect(otp['props'], containsPair('otpLength', 6));
@@ -2997,7 +2909,6 @@ Column
   Slider#other bindEnd=top bind=bottom max=10 onChange={emit moved}
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final slider = _node(r, 'price');
     expect(slider['type'], 'slider');
     expect(slider['bind'], {'props.value': r'${low}', 'props.rangeEnd': r'${high}'});
@@ -3032,7 +2943,6 @@ Column
     expect(r.issues, isEmpty);
     // In any order with an each's other words.
     expect(_parse('state lines=[]\nColumn\n  each line in lines h=180 stagger=40 follow\n    Text "{line}"').issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final list = (r.document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView');
     expect(list['layout'], containsPair('height', 180));
     expect(list['props'], allOf(containsPair('stickToEnd', true), containsPair('scrollable', true)));
@@ -3060,7 +2970,6 @@ Column
     Text#title "Episode: {row.title}" mark={q}
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect(_node(r, 'plain')['props'], containsPair('text', 'The keeper'));
     expect(_node(r, 'plain')['bind'], {'props.runs': r'${= matchRuns("The keeper", q)}'});
     expect(_node(r, 'fixed')['bind'], {'props.runs': r'${= matchRuns("The keeper", "keep")}'});
@@ -3082,7 +2991,6 @@ Column
   Button#filter "Filter" onTap={count=count-1; announce "{count} results"}
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     expect(_node(r, 'results')['props'], containsPair('live', true));
     expect(_node(r, 'quiet')['props'], isNot(contains('live')));
     expect((((_node(r, 'filter')['actions'] as List).single as Map)['actions'] as List).last, {'type': 'announce', 'message': r'${count} results'});
@@ -3112,7 +3020,6 @@ Sheet#filters "Filters"
   Text "None"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problemsAtAnyLevel(r.document), isEmpty);
     expect(_node(r, 'detailsSheet')['bind'], {'props.blockBack': r'${= name != "" || email != ""}'});
     expect(_node(r, 'editDialog')['bind'], {'props.blockBack': r'${= name!=""}'});
     expect(_lastAction(r, 'details'), containsPair('snapHeights', [0.5, 0.9]));
@@ -3142,7 +3049,6 @@ Page
       Splitter#bar bind=mapHeight orientation=vertical max=900
 ''');
     expect(r.issues, isEmpty);
-    expect(_problemsAtAnyLevel(r.document), isEmpty);
     expect((_node(r, 'map')['bind'] as Map)['layout.width'], r'${paneWidth}');
     final grip = _node(r, 'grip');
     expect(grip['type'], 'splitter');
@@ -3174,7 +3080,6 @@ Page
     // With no design system it is the slider written with its own keys.
     final plain = _parse('Slider#stars bind=score max=5 step=0.5 trackShape=stars');
     expect(plain.issues, isEmpty);
-    expect(_problems(plain.document), isEmpty);
     expect(_node(plain, 'stars')['props'], allOf(containsPair('trackShape', 'stars'), containsPair('divisions', 10)));
     // A design system's block of that name (Cards has one) is the word.
     final files = <String, String>{
@@ -3225,7 +3130,6 @@ Page
   test('tooltip: an icon-only button is named by it, and the page prompt says so', () {
     final r = _parsePage('Page\n  Section\n    IconButton#clear "filter_alt_off" tooltip="Clear filters" onTap={type="All"}\n    Text#plain "Pinned" tooltip="Pinned by you"\n');
     expect(r.issues, isEmpty);
-    expect(_problemsAtAnyLevel(r.document), isEmpty);
     expect(_node(r, 'clear')['tooltip'], 'Clear filters');
     expect(_node(r, 'clear')['props'], containsPair('icon', 'filter_alt_off'));
     expect(_node(r, 'plain')['tooltip'], 'Pinned by you');
@@ -3246,7 +3150,6 @@ Popover#tip
   Text "A hint"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problemsAtAnyLevel(r.document), isEmpty);
     final reactions = (_node(r, 'author')['actions'] as List).cast<Map>();
     expect(reactions.map((r) => (r['trigger'] as Map)['type']), ['hover', 'click', 'cursorExit']);
     final hover = ((reactions[0]['actions'] as List).single as Map).cast<String, Object?>();
@@ -3275,7 +3178,6 @@ Dialog#search "Search"
   Input "Query" bind=q
 ''');
     expect(r.issues, isEmpty);
-    expect(_problemsAtAnyLevel(r.document), isEmpty);
     final reactions = (_node(r, 'screen')['actions'] as List).cast<Map>();
     expect(reactions.map((a) => a['trigger']), [
       {'type': 'keyDown', 'key': 'mod+k'},
@@ -3288,7 +3190,6 @@ Dialog#search "Search"
     final card = _parse('every 1s onTick={t=t+1}\nkey mod+enter onPress={emit send}\nColumn\n  Text "{t}"\n');
     expect(card.issues, isEmpty);
     // (A key reaction is past level 2, where a card's vocabulary ends: valid, and counted as such.)
-    expect(_problemsAtAnyLevel(card.document), isEmpty);
     expect([for (final a in _node(card, 'screen')['actions'] as List) ((a as Map)['trigger'] as Map)['type']], ['timer', 'keyDown']);
     // As it arrives the canvas gets it.
     final stream = NotationStream(catalog: standardCatalog);
@@ -3325,7 +3226,6 @@ Page
             Text "{stop}"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problemsAtAnyLevel(r.document), isEmpty);
     final lists = (r.document['nodes'] as Map).values.cast<Map>().where((n) => n['type'] == 'listView').toList();
     expect(lists, hasLength(3));
     expect((lists[0]['props'] as Map)['reorder'], {'start': 'handle', 'keyboard': true, 'apply': 'variable'});
@@ -3362,7 +3262,6 @@ Column
     Text "{row.name}"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problemsAtAnyLevel(r.document), isEmpty);
     final list = (r.document['nodes'] as Map).values.cast<Map>().singleWhere((n) => n['type'] == 'listView');
     final swipes = (list['props'] as Map)['swipeActions'] as Map;
     expect(swipes['endActions'], [
@@ -3398,7 +3297,6 @@ Column
   test('a number field steps: Input type=number takes min, max and step', () {
     final r = _parse('Column\n  Input#qty "Quantity" bind=qty type=number min=1 max=12 step=2\n  Input#plain "Name" bind=name\n');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final qty = _node(r, 'qty');
     expect(qty['props'], allOf(containsPair('keyboardType', 'number'), containsPair('min', 1), containsPair('max', 12), containsPair('step', 2)));
     expect(qty['bind'], {'props.initialValue': r'${qty}'});
@@ -3420,7 +3318,6 @@ Column
   Calendar#one bind=day firstDate="2026-11-01"
 ''');
     expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
     final cal = _node(r, 'stay');
     expect(cal['type'], 'calendar');
     expect(cal['bind'], {'props.start': r'${arrival}', 'props.end': r'${departure}'});
@@ -3461,7 +3358,6 @@ Page
     DataTable#open rows={filter(incidents,x=>x.count>1)} columns=[{"key":"name","label":"Customer"}] h=200 sortable=false
 ''');
     expect(r.issues, isEmpty);
-    expect(_problemsAtAnyLevel(r.document), isEmpty);
     final table = _node(r, 'incidents');
     expect(table['type'], 'tableView');
     expect(table['bind'], {'data': r'${incidents}', 'props.selectedRow': r'${picked}'});

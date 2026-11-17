@@ -1434,7 +1434,7 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 - An input does nothing with its value until a `changed` reaction stores it, or its value prop is bound.
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.
-- Every action key is written flat in the action; a misspelled one is dropped (`unknown_action_key`).
+- Every action key is written flat in the action; a misspelled one is dropped.
 - A `validator` reads the field's text as `value`, not the variable the field is bound to; it goes in `props`, not
   `bind`.
 - With `autovalidateMode` `disabled` (the default) a validator shows nothing until its form is validated: give the

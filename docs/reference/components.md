@@ -69,14 +69,14 @@ must set. The kinds: `boolean` (`bool`), `integer` (`int`), `number` (`double`),
 `enumeration` (with `values`), `value` (a value type: `{"kind": "value", "flutter": "Color"}`, also `EdgeInsets`,
 `Alignment`, `IconData`...), `list` (with `item`), `object` (a model: `TextStyle`, `Paint`), `json` (any data: a
 record, `{"kind": "json", "flutter": "Map<String, dynamic>"}`) and `variable` (with `of`, below). Inside, read them as `${props.<key>}`. A call sets them as any node's props: a literal in `props`, an
-expression in `bind` (`"props.label": "${item.name}"`). Validation checks every call against the declaration:
-unknown keys, wrong types and bounds, missing required ones, children and slots the component does not take.
+expression in `bind` (`"props.label": "${item.name}"`). A call takes what the declaration has: its keys, with
+their types and bounds, every required one, and only the children and slots the component takes.
 
 <a id="components-the-site-manifest"></a>
 ### The site manifest
 
 A directory with a `site.json` is a site: its pages, its components and its project variables, read by
-bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).
+bare name in every page and component (do not give a page or component variable the same name).
 
 ```json
 {"schema": 3, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
@@ -95,16 +95,12 @@ Without `components`, the files under `components/` are the site's components.
 
 By name, an object with `value` (or `formula`) and only a variable's keys (`type`, `value`, `persist`...) is the
 variable's record; any other object is a map the variable holds. A record that cannot be read is
-`invalid_variable` and is not declared.
+not declared.
 
-<a id="components-validation-codes"></a>
-### Validation codes
+<a id="components-render-codes"></a>
+### Render codes
 
-`unknown_component` (a call to a type no definition declares),
-`duplicate_component`, `component_cycle` (a component calling itself, directly or through others),
-`component_id_mismatch` (the file is not named after its type), `invalid_component`, `missing_prop`,
-`unknown_event`, `call_field_not_allowed`, `slot_outside_component`, `root_placement_bound`. The render command
-adds `component_missing` (a call rendered without its definition: an empty box of its size).
+The render command reports `component_missing` (a call rendered without its definition: an empty box of its size).
 
 <a id="node-slot"></a>
 ### `slot`
@@ -693,10 +689,9 @@ is an empty box of its size until it arrives (`component_missing` in the app's e
 - A slot inside a list of the definition shows what the call passes once per item, built in the caller's scope:
   it reads the caller's variables, not the item. To show the item, make it a parameter of a component the list
   calls.
-- A call has no `decoration` and no `layout.padding` (`call_field_not_allowed`): style the definition's root.
-- The file is named after the type (`component_id_mismatch`).
-- `repeated_subtree` (an INFO) means the same subtree of three or more nodes is written several times over: make
-  it a component or a list template.
+- A call has no `decoration` and no `layout.padding`: style the definition's root.
+- The file is named after the type.
+- The same subtree of three or more nodes written several times over: make it a component or a list template.
 
 <a id="components-see-also"></a>
 ## See also

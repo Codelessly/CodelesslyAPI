@@ -249,8 +249,7 @@ final class Variable {
   /// A list of records, or a map of name to value (or to a record without
   /// its name: an object whose keys are all a record's and that has
   /// `value` or `formula`). A record that names no type has its value's
-  /// ([VariableType.of]). What can't be read is left out
-  /// (`validateSiteVariables` says which and why).
+  /// ([VariableType.of]). What can't be read is left out.
   static List<Variable> declarationsFromJson(Object? json) {
     if (json is List) return listFromJson(json);
     final m = readMap(json);

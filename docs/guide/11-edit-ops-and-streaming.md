@@ -3,7 +3,7 @@
 A layout is a flat, id-addressed document, so changing it is a small set of checked operations on ids. The same six
 ops build a UI (a model's first answer), edit it (every answer after), and stream: a model's `ui_apply` tool call
 arrives as text deltas, and each op applies the moment it is complete. All of it is in the core library
-(`package:codelessly_api/core.dart`); the strict per-op check is in `package:codelessly_api/validate.dart`. The
+(`package:codelessly_api/core.dart`). The
 reference has the op table, the codes and the tool schemas: [§20 of the guide](../reference/index.md#guide-edit).
 
 | Here | Flutter / the web |
@@ -18,7 +18,6 @@ reference has the op table, the codes and the tool schemas: [§20 of the guide](
 
 ```dart
 import 'package:codelessly_api/core.dart';
-import 'package:codelessly_api/validate.dart' show strictEditCheck;
 
 var doc = LayoutDocument(catalog: Catalog.core);
 final result = applyOps(doc, {
@@ -29,7 +28,7 @@ final result = applyOps(doc, {
     {'op': 'set', 'id': 'title', 'node': {'type': 'text', 'layout': {'width': {'hug': 80}, 'height': {'hug': 24}},
         'props': {'text': 'Hello', 'style': {'fontSize': 20, 'color': '#FF111827'}}}},
   ],
-}, catalog: Catalog.core, check: strictEditCheck(), profile: TrustProfile.agent);
+}, catalog: Catalog.core, profile: TrustProfile.agent);
 
 result.applied;        // [0, 1, 2, 3]: indices of the ops that applied
 result.diagnostics;    // per op: code, path, message, expected, suggestion
@@ -45,9 +44,8 @@ read; what cannot be read is a diagnostic with the op's index). Each op is appli
 * **structure**: one parent per node, no cycle, no canvas as a child, a parent that takes children there, no
   node left without a parent by a `set` that replaces its parent;
 * **the trust profile** ([`TrustProfile`](#the-trust-profile));
-* **its nodes**, by an `EditCheck`: `catalogCheck` (the default, core only: types, keys and values against the
-  catalog's declarations) or `strictEditCheck()` (the strict validator of chapter 4, run on the nodes the op touched,
-  their parents and children, the rest of the document as stubs: a few nodes per op, not the page).
+* **its nodes**, by an `EditCheck`: `catalogCheck` (the default: types, keys and values against the catalog's
+  declarations, on the nodes the op touched), or a function of your own.
 
 An op with an error changes nothing; the rest apply, or with `atomic: true` none does. Warnings are reported and
 the op applies.
@@ -83,7 +81,7 @@ an op that is not JSON, or not an op, is reported with its index and the stream 
 
 While a document streams in it is incomplete by nature. With `incomplete: true` a child listed before its node
 arrives is pending (`EditResult.pending`), and a reference to a node, screen or variable that has not arrived yet
-is a warning, not an error; `endOfStream` (and `validateEdited` for the whole document) report what never came.
+is a warning, not an error; `endOfStream` reports what never came.
 
 `opsFromDocument(document)` writes a document as the ops that build it top-down, the order a model is asked to
 stream in: roots, each canvas and its state variables, then each section complete before the next, a large data

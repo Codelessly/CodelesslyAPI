@@ -30,7 +30,7 @@ String? stateTargetId(String target, {required String ownId, required String own
 
 /// `states.<state>.self` and `states.<state>.@<key>` → the node's id: the
 /// patch runs (it never did; reported as a behavior change). A target
-/// that names no node by any spelling is left for validation to report.
+/// that names no node by any spelling is left as written.
 final stateTargetsStep = MigrationStep(
   id: 'states.target',
   description: 'a state patch targeting `self` or `@<key>` → the node id it means',

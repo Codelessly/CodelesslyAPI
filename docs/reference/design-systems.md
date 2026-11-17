@@ -66,10 +66,9 @@ A published design system is one bundle, `{"manifest": {...}, "design": "...", "
   style, a scale step). Named colors and text styles, light and dark, work as in [the theme](theme.md#page-theme).
 - **Scales.** `${theme.spacing.3}`, `${theme.radii.panel}`, `${theme.sizes.compact}`, `${theme.shadows.level3}` and
   `${theme.durations.fast}` are read in bindings: `"bind": {"layout.padding": "${theme.spacing.3}",
-  "decoration.radius": "${theme.radii.panel}"}`. Validation reports a name the theme does not have
-  (`unknown_theme_name`).
+  "decoration.radius": "${theme.radii.panel}"}`. A name the theme does not have names nothing.
 - **Components.** Called by type as the site's own (`{"type": "Button", "props": {"label": "Save"}}`); a site
-  component of the same type wins. Calls are checked against their declarations (`missing_prop`, `unknown_event`).
+  component of the same type wins.
 - **Nothing from the app.** The app the site runs in lends no color, font or shape; without a design system the
   controls are neutral (ink on paper, small radii).
 
@@ -98,7 +97,7 @@ parameters and a call, the patterns in brief, and no rows for the base controls 
 - A call has no `decoration`: style the definition, or add a parameter (`variant`, `size`).
 - A color written in full (`"#FF2563EB"`) does not follow dark mode: name it.
 - A scale step is read through a binding, not written where a number goes (`"padding": "md"` is not a number).
-- `replaces` hides base controls from the prompt only; documents that use them still validate and render.
+- `replaces` hides base controls from the prompt only; documents that use them still render.
 
 <a id="design-systems-see-also"></a>
 ## See also

@@ -4,7 +4,6 @@
 import 'dart:convert';
 
 import 'package:codelessly_api/core.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 /// Tokens estimated at 3.5 characters each (no tokenizer here).
@@ -20,7 +19,7 @@ void main() {
 
   test('the examples apply with no error, warning or lint, and the edit applies to the build', () {
     var r = applyOps(LayoutDocument(catalog: Catalog.core), starterBuildExample,
-        catalog: Catalog.core, profile: TrustProfile.agent, check: strictEditCheck(), incomplete: true, protectRoots: true);
+        catalog: Catalog.core, profile: TrustProfile.agent, incomplete: true, protectRoots: true);
     expect(r.diagnostics, isEmpty, reason: '${r.diagnostics}');
     expect(endOfStream(r.document), isEmpty);
     expect(uiLints(r.document), isEmpty);
@@ -28,13 +27,13 @@ void main() {
     final d = OpStreamDecoder();
     var doc = LayoutDocument(catalog: Catalog.core);
     for (final s in d.add(jsonEncode(starterBuildExample))) {
-      final one = applyOps(doc, [s.op], catalog: Catalog.core, profile: TrustProfile.agent, check: strictEditCheck(), incomplete: true);
+      final one = applyOps(doc, [s.op], catalog: Catalog.core, profile: TrustProfile.agent, incomplete: true);
       expect(one.errors, isEmpty);
       doc = one.document;
     }
     expect(d.close().diagnostics, isEmpty);
     r = applyOps(r.document, starterEditExample,
-        catalog: Catalog.core, profile: TrustProfile.agent, check: strictEditCheck(), protectRoots: true);
+        catalog: Catalog.core, profile: TrustProfile.agent, protectRoots: true);
     expect(r.diagnostics, isEmpty, reason: '${r.diagnostics}');
     expect(r.document['card']!.children, ['head', 'list', 'note', 'go']);
   });

@@ -1,9 +1,8 @@
 // The levels of the vocabulary (docs/design/12-agent-first-flutter.md §3).
 // A level is a closed set: a document written with level N's vocabulary
 // uses nothing from a higher one, and each level adds to the ones below,
-// never respelling them. An agent is granted a level; the validator can
-// check at one (`ValidateOptions.level`), and the reference is generated
-// per level.
+// never respelling them. An agent is granted a level, and the reference is
+// generated per level.
 //
 // The assignment lives here, in one table per kind, not on each
 // declaration: it is a statement about the whole vocabulary, read and
@@ -160,7 +159,7 @@ final class LevelUse {
 /// Everything in [document] (a layout document's JSON) above [above], in
 /// document order; with [above] null, everything that has a level. A type,
 /// action or trigger the tables do not know has no level and is not
-/// listed (unknown types are the validator's to report).
+/// listed.
 List<LevelUse> levelUses(Object? document, {Level? above}) {
   final out = <LevelUse>[];
   void use(Level? level, String path, String what, [String? node]) {

@@ -2,11 +2,7 @@
 // (`"color": "ember"`, `"style": "title"`, `{"from": "title", ...}`), keeps
 // the names through a decode and encode, and resolves them against the
 // theme (its media rules and dark colors included).
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 ThemeTokens theme([Json extra = const {}]) => ThemeTokens.fromJson({
@@ -147,40 +143,6 @@ void main() {
     final m = SiteManifest.fromJson({'theme': theme().toJson()});
     expect(m.theme.textStyle('title')!.fontSize, 32);
     expect(SiteManifest.fromJson(m.toJson()).theme, m.theme);
-  });
-
-  test('validation reports unknown names with suggestions, and accepts known ones', () {
-    final page = doc().toJson();
-    final nodes = page['nodes'] as Map;
-    (nodes['t2'] as Map)['props'] = {'text': 'B', 'style': {'from': 'bdy', 'color': 'embr'}};
-    final ds = validateProject({'p.json': page}, manifest: SiteManifest.fromJson({'theme': theme().toJson()}));
-    final names = [for (final d in ds) if (d.code == Codes.unknownThemeName) (d.path, d.suggestion)];
-    expect(names, [('/nodes/t2/props/style/from', 'body'), ('/nodes/t2/props/style/color', 'ember')]);
-    // Without a theme, a name is reported (it would draw transparent).
-    final none = validateProject({'p.json': doc().toJson()});
-    expect(none.where((d) => d.code == Codes.unknownThemeName), isNotEmpty);
-  });
-
-  test('the theme itself is checked', () {
-    final ds = validateTheme({
-      'colors': {'ink': '#FF111111', 'bad': 'nope', 'short': '#FFF'},
-      'textStyles': {'body': {'from': 'missing', 'fontSize': 'big'}, 'x': 3},
-      'media': [{'minWidth': 1024, 'patch': {'textStyles': {'body': {'fontSize': 20}}}}, {'patch': {}}],
-      'colours': {},
-    });
-    expect([for (final d in ds) d.path], unorderedEquals([
-      '/theme/colors/bad', '/theme/colors/short', '/theme/textStyles/body/from', '/theme/textStyles/body/fontSize',
-      '/theme/textStyles/x', '/theme/media/1', '/theme/colours',
-    ]));
-  });
-
-  test('the guide\'s theme example is a valid site', () {
-    const dir = 'tool/reference/examples/theme';
-    final manifest = jsonDecode(File('$dir/site.json').readAsStringSync());
-    expect(validateTheme((manifest as Map)['theme']), isEmpty);
-    final ds = validateProject({'home.json': jsonDecode(File('$dir/home.json').readAsStringSync())},
-        manifest: SiteManifest.fromJson(manifest));
-    expect(ds.map((d) => '$d'), isEmpty);
   });
 
   test('a role that names a theme color resolves to that color, in light and dark, through a chain of names', () {

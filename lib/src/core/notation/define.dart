@@ -1316,12 +1316,10 @@ int _braceEnd(String text, int open) {
 
 /// Each definition expanded once with its defaults (and a line in each
 /// slot), as the parser reads it with the vocabulary closed: what is wrong,
-/// each as `file:line: message`. With [validate] (the document's problems,
-/// each a message) what does not validate is said too, against the
-/// definition's signature. A design system's folder is checked with this
+/// each as `file:line: message`. A design system's folder is checked with this
 /// before a page uses it.
 List<String> checkDefinitions(NotationVocabulary vocabulary,
-    {required Catalog catalog, NotationOptions options = const NotationOptions(), List<String> Function(Map<String, Object?> document)? validate}) {
+    {required Catalog catalog, NotationOptions options = const NotationOptions()}) {
   final out = <String>[];
   for (final defs in vocabulary.definitions.values) {
     for (final d in defs) {
@@ -1355,9 +1353,6 @@ List<String> checkDefinitions(NotationVocabulary vocabulary,
       for (final i in r.issues) {
         final m = RegExp(r'^([^\s:]+:\d+): (.*)$').firstMatch(i.message);
         out.add(m != null ? '${m[1]}: ${m[2]}' : '${d.at(d.line)}: ${i.message}');
-      }
-      for (final p in validate?.call(r.document) ?? const <String>[]) {
-        out.add('${d.at(d.line)}: ${d.label}: $p');
       }
     }
   }

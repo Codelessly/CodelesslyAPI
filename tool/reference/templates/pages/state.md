@@ -170,7 +170,7 @@ the UI updates through what binds to them. A script cannot draw or touch nodes. 
 - Per-breakpoint canvases have separate variables: shared state lives in `page_variables`.
 - A function variable named like a formula function is never called (the built-in wins).
 - Formula syntax errors and unknown names in formulas are reported by the render command (the SDK parses them).
-- A misspelled binding path is `unknown_bind_path`; a name nothing declares is `unknown_name`.
+- A misspelled binding path sets nothing.
 
 ## See also
 

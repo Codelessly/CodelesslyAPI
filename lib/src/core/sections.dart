@@ -237,7 +237,7 @@ const Set<String> callLayoutKeys = {
 };
 
 /// The node fields a call may not carry: the inside belongs to the
-/// definition (`call_field_not_allowed`).
+/// definition.
 const Set<String> callForbiddenKeys = {'decoration'};
 
 /// The instance's root as shown at its call ([root] and [call] each as
@@ -392,7 +392,7 @@ final class Site {
 /// [value] (JSON) as text with every object's keys sorted, no whitespace,
 /// and a whole double written as an integer (`1.0` → `1`): one text for one
 /// value, whatever order a store kept its keys in. What a published
-/// component's digest is over, and how validation compares subtrees.
+/// component's digest is over.
 String canonicalJson(Object? value) {
   final out = StringBuffer();
   void write(Object? v) {

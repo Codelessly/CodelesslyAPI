@@ -7,7 +7,6 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 const _sticky = '''
@@ -100,11 +99,6 @@ NotationResult _parse(String text, [NotationOptions? options]) => parseNotation(
 
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
-List<String> _problems(Map<String, Object?> doc) => [
-      for (final d in Catalog.run(standardCatalog, () => validateDocument(doc)))
-        if (d.severity == Severity.error) '${d.code.name} ${d.path}: ${d.message}',
-    ];
-
 List<VocabularyUse> _uses(NotationResult r, String kind) => [for (final u in r.vocabulary) if (u.kind == kind) u];
 
 Map<String, Object?> _vars(NotationResult r) => {
@@ -166,7 +160,6 @@ Column gap=12
     test('the values put in where the body reads them: alone, in a string, in an expression; the root takes the use\'s id', () {
       final r = _parse(page);
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       final first = _node(r, 'stickyNote1');
       expect(first['type'], 'column');
       expect((first['decoration'] as Map)['fills'], [
@@ -249,7 +242,6 @@ Column
       Text "A"
 ''');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       final faces = _node(r, 'flipCard1')['children'] as List;
       expect(faces, hasLength(2));
       final front = _node(r, faces[0] as String)['children'] as List;
@@ -292,7 +284,6 @@ Column
       Text "3"
 ''');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(_vars(r).keys, unorderedEquals(['shown', 'flipped_flipCard1', 'flipped_two']));
       expect(jsonEncode(_node(r, 'flipCard2')['actions']), contains('"variable":"shown"'));
     });
@@ -300,7 +291,6 @@ Column
     test('an event out: the use\'s actions where the body names it, result as the body says; an event in an expression is whether it was given', () {
       final r = _parse('Column\n  ColorPicker onPick={toast "{result}"}\n  Tile "a.pdf" onDownload={toast "saved"}\n  Tile "b.pdf"\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       final swatch = jsonEncode(_node(r, 'swatch1')['actions']);
       expect(swatch, contains('"variable":"color_colorPicker1"'));
       expect(swatch, contains(r'"message":"${= (item)}"'));
@@ -327,7 +317,6 @@ Column
     Text "a bare one is the plainest"
 ''', _open);
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect([for (final u in _uses(r, 'definition')) u.to], ['Timeline#tracks', 'Timeline#events', 'Timeline#route', 'Timeline#events']);
       expect(jsonEncode(r.document), contains(r'"value":"${= ((z) * 2)}"'));
     });
@@ -442,7 +431,6 @@ Column
       final r = _parse('Column\n  ColorPicker bind=tint\n', _open);
       expect(r.issues, isEmpty);
       expect(_vars(r), {'tint': ''});
-      expect(_problems(r.document), isEmpty);
       // Declared by the page: the page's.
       final own = _parse('state tint="#FF2563EB"\nColumn\n  ColorPicker bind=tint\n', _open);
       expect(_vars(own), {'tint': '#FF2563EB'});
@@ -453,7 +441,6 @@ Column
       final r = parseNotation('Column\n  Pin at={"lat":44.9,"lng":-93.1}\n', catalog: standardCatalog, options: const NotationOptions().open(vocabulary: v));
       expect(r.issues, isEmpty);
       expect(jsonEncode(r.document), contains(r'{\"lat\":44.9,\"lng\":-93.1}.lat'));
-      expect(_problems(r.document), isEmpty);
     });
   });
 
@@ -463,9 +450,8 @@ Column
         'Good.txt': _group,
         'Broken.txt': 'Broken "label"\n  Column\n    Text "{label}" wobble=3\n    Bogus "x"\n',
       });
-      expect(checkDefinitions(v, catalog: standardCatalog, validate: _problems), [
+      expect(checkDefinitions(v, catalog: standardCatalog), [
         'Broken.txt:4: No node type "Bogus". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).',
-        startsWith('Broken.txt:1: Broken: unknown_prop /nodes/text1/props/wobble'),
       ]);
     });
 
@@ -509,7 +495,6 @@ define Guide visible=true steer=0
       Box w={steer} h=4
 ''', catalog: standardCatalog);
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(_vars(r).keys, unorderedEquals(['peak_meter1', 'held_meter1']));
       expect(_node(r, 'guide1')['visible'], isFalse);
       expect(_node(r, 'guide1')['type'], 'column');
@@ -531,7 +516,6 @@ define Guide visible=true steer=0
     test('a tinted block of a given height keeps it with a text in it; a fixed-height Box, Row and Column are that high', () {
       final r = read('Column\n  Tile\ndefine Tile "label"\n  Column w=120 h=200 fill=#FFEEEEEE\n    Text "{label}"\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       final layout = _node(r, 'tile1')['layout'] as Map;
       expect(layout['height'], {'hug': 200});
       expect(layout['constraints'], {'minHeight': 200});
@@ -540,7 +524,6 @@ define Guide visible=true steer=0
     test('Row wrap over an each wraps its copies', () {
       final r = read('state tags=["a","b","c"]\nColumn w=200\n  Tags items={tags}\ndefine Tags items=[]\n  Row gap=8 wrap\n    each t in items\n      Chip "{t}"\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       final list = _node(r, 'listView1');
       expect(list['props'], containsPair('wrap', true));
       expect(list['props'], containsPair('runSpacing', 8));
@@ -557,7 +540,6 @@ define Guide visible=true steer=0
     test('a path, or a variable of the page, given to a plain parameter is the value it reads', () {
       final r = read('state draft={"start":1,"end":5}\nstate bpm=90\nColumn\n  Span start=draft.start end=draft.end\n  Tempo bpm=bpm\n  Tempo bpm=fast\ndefine Span start=0 end=0\n  Text "{end - start} days"\ndefine Tempo bpm=120\n  Text "{bpm} bpm"\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(_node(r, 'span1')['props'], containsPair('text', r'${= (draft.end) - (draft.start)} days'));
       expect(_node(r, 'tempo1')['props'], containsPair('text', r'${bpm} bpm'));
       // A word that is no variable is the word.
@@ -567,7 +549,6 @@ define Guide visible=true steer=0
     test('a choice between actions takes a use\'s events, given or not', () {
       final r = read('state ok=true\nColumn\n  Try onOk={toast "good"} onError={toast "bad"}\n  Try onError={toast "only bad"}\ndefine Try onError onOk\n  Button "Go" onTap={ok ? onOk : onError}\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       final both = jsonEncode(_node(r, 'try1')['actions']), one = jsonEncode(_node(r, 'try2')['actions']);
       expect(both, allOf(contains('"good"'), contains('"bad"'), contains('"type":"if"')));
       expect(one, allOf(contains('"only bad"'), contains('"then":[]')));
@@ -576,14 +557,12 @@ define Guide visible=true steer=0
     test('every {expression}: a timer whose interval is worked out', () {
       final r = read('state bpm=120\nColumn\n  Metro bpm={bpm}\ndefine Metro bpm=120\n  state beat=0\n  every {60000/bpm} onTick={beat=beat+1}\n  Text "{beat}"\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(jsonEncode(r.document), contains(r'"intervalMs":"${= 60000/(bpm)}"'));
     });
 
     test('each … reorder over a list the use works out is shown in order (no variable to write the order to)', () {
       final r = read('state rows=[{"n":"a"},{"n":"b"}]\nColumn\n  Sortable items={filter(rows, r => r.n != "")}\n  Sortable items={rows}\ndefine Sortable items=[]\n  Column\n    each it in items reorder\n      Text "{it.n}"\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(jsonEncode(_node(r, 'listView1')['props']), isNot(contains('reorder')));
       expect(jsonEncode(_node(r, 'listView2')['props']), contains('reorder'));
     });
@@ -591,7 +570,6 @@ define Guide visible=true steer=0
     test('a border\'s width and colour together, as models write them', () {
       final r = read('Column\n  Ring2 on=true\ndefine Ring2 on=false\n  Column gap=4\n    Box#a w=40 h=40 border=2 borderColor=#FF2563EB\n    Box#b w=40 h=40 border="#FF2563EB 2"\n    Box#c w=40 h=40 border-width=3 border=#FF2563EB\n    Box#d w=40 h=40 border={on ? 2 : 0} stroke=#FF2563EB\n    Box#e w=40 h=40 border=1\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       Map<String, Object?> deco(String id) => (_node(r, '${id}_ring21')['decoration'] as Map).cast();
       for (final (id, w) in [('a', 2), ('b', 2), ('c', 3)]) {
         expect(deco(id), {'strokes': [{'color': '#FF2563EB'}], 'strokeWidth': w}, reason: id);
@@ -604,7 +582,6 @@ define Guide visible=true steer=0
     test('a font and a weight on an Input', () {
       final r = read('Column\n  Field2\ndefine Field2\n  Input "Code" font="JetBrains Mono" weight=600 fontSize=18\n');
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect((_node(r, 'field21')['props'] as Map)['style'], {'fontFamily': 'JetBrains Mono', 'fontWeight': 600, 'fontSize': 18});
     });
   });
@@ -614,17 +591,15 @@ define Guide visible=true steer=0
     test('with the vocabulary open: a quiet sheet titled with the id opens, recorded as a wanted overlay, not an issue', () {
       final r = parseNotation(text, catalog: standardCatalog, options: const NotationOptions(width: 1280).open());
       expect(r.issues, isEmpty);
-      expect(_problems(r.document), isEmpty);
       expect(r.document['roots'], ['screen', 'addRecipe']);
       expect(jsonEncode(r.document), allOf(contains('"text":"Add recipe"'), contains('"text":"Not written yet."'), contains('"to":"addRecipe","presentation":"bottomSheet"')));
       final wanted = _uses(r, 'overlay').single;
       expect((wanted.word, wanted.line, wanted.node), ('addRecipe', 2, 'addRecipe'));
     });
 
-    test('with it closed, nothing is made: the open is what does not validate, as before', () {
+    test('with it closed, nothing is made', () {
       final r = parseNotation(text, catalog: standardCatalog, options: const NotationOptions(width: 1280));
       expect(r.document['roots'], ['screen']);
-      expect(_problems(r.document), everyElement(startsWith('unknown_screen')));
       expect(r.vocabulary, isEmpty);
     });
   });
@@ -701,7 +676,6 @@ define Badge2 "label" tone="#FFDCFCE7"
     const page = NotationOptions(width: 1280);
     test('a quiet dashed box with its word (and its first string value), as big as its w and h say', () {
       final r = parseNotation('Column\n  Minimap value={code} size=120\n  Map h=260 start="Saffron"\n', catalog: standardCatalog, options: page.open());
-      expect(_problems(r.document), isEmpty);
       final qr = _node(r, 'column2');
       expect((qr['decoration'] as Map)['dashPattern'], [4, 3]);
       expect((qr['decoration'] as Map)['strokes'], [

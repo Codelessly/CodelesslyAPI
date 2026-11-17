@@ -1,7 +1,7 @@
 // What applying edit operations reports: per op, a code, where (a JSON
 // pointer into the document), a message, what was expected and a
 // suggestion. The codes of the edit layer are declared here; a check run
-// on what an op touched (the strict validator, or the core's catalog check)
+// on what an op touched (the core's catalog check)
 // reports its own codes through the same type.
 import 'package:meta/meta.dart';
 
@@ -28,8 +28,8 @@ final class EditCode {
 }
 
 /// The codes the edit layer itself reports. A check of the nodes an op
-/// touched adds the validator's codes (`unknown_prop`, `wrong_type`,
-/// `invalid_enum`...), listed with strict validation.
+/// touched (`catalogCheck`) adds its own (`unknown_node_type`,
+/// `unknown_prop`, `wrong_type`...).
 abstract final class EditCodes {
   static const invalidOp = EditCode('invalid_op', 'An op that is not an object, or names no known "op" (set, patch, move, remove, vars, roots, scripts).');
   static const missingField = EditCode('missing_field', 'An op without a field it needs ("id", "node", "patch", "parent", "ids", "scope", "roots").');

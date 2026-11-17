@@ -1,7 +1,6 @@
 // Media rules (a node's fields by screen size, as CSS media queries), the
 // flex node, and the CSS flex-item fields (order, basis).
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 Json doc(Json nodes) => {
@@ -12,8 +11,6 @@ Json doc(Json nodes) => {
         ...nodes,
       },
     };
-
-List<String> codesOf(Json d) => [for (final x in validateDocument(d)) '${x.code.name} ${x.path}'];
 
 void main() {
   final bps = Breakpoints.defaults; // mobile 0, tablet 600, desktop 1024
@@ -79,7 +76,7 @@ void main() {
     expect(const Layout().toJson().containsKey('order'), isFalse);
   });
 
-  group('validation', () {
+  group('a patch', () {
     Json base(Object? media, {Json? b}) => doc({
           'f': {
             'type': 'flex',
@@ -93,67 +90,15 @@ void main() {
           'b': b ?? {'type': 'box', 'layout': {'width': 10, 'height': 10}},
         });
 
-    test('a clean rule validates', () {
-      expect(codesOf(base([
-        {'maxWidth': 'mobile', 'patch': {'props': {'direction': 'vertical'}, 'layout': {'padding': 8}}},
-        {'minWidth': 600, 'maxWidth': 1023, 'orientation': 'landscape', 'patch': {'visible': false}},
-      ])), isEmpty);
-    });
-
-    test('values in a patch are type-checked as the node\'s own', () {
-      expect(codesOf(base([
-        {'maxWidth': 600, 'patch': {'props': {'direction': 'sideways', 'spacng': 3}}},
-      ])), containsAll([
-        'invalid_enum /nodes/f/media/0/patch/props/direction',
-        'unknown_prop /nodes/f/media/0/patch/props/spacng',
-      ]));
-    });
-
-    test('conditions, names, keys, ranges, bindings', () {
-      final c = codesOf(base([
-        {'patch': {'props': {}}},
-        {'minWidth': 'phone', 'patch': {}},
-        {'smallerThan': 'desktop', 'patch': {}},
-        {'maxWidth': 600, 'patch': {'bind': {}, 'children': ['b', 'a']}},
-        {'maxWidth': 600, 'patch': {'props': {'spacing': 2}}},
-        {'minWidth': 'desktop', 'maxWidth': 'mobile', 'patch': {}},
-        'x',
-      ]));
-      expect(c, containsAll([
-        'invalid_media /nodes/f/media/0',
-        'unknown_breakpoint /nodes/f/media/1/minWidth',
-        'invalid_media /nodes/f/media/2/smallerThan',
-        'invalid_media /nodes/f/media/3/patch/children',
-        'media_overridden /nodes/f/media/4/patch',
-        'invalid_media /nodes/f/media/5',
-        'invalid_media /nodes/f/media/6',
-      ]));
-    });
-
     test('a patch may bind at its sizes only, drop a binding, and move what is painted (motion)', () {
       Json withVisible(List<Object?> media) {
         final d = base(media);
         ((d['nodes'] as Map)['f'] as Map)['bind'] = {'visible': r'${= !open}'};
         return d;
       }
-      // The rule sets visible, which the node binds: the binding wins, and
-      // the warning names both ways out.
-      final over = validateDocument(withVisible([
-        {'minWidth': 600, 'patch': {'visible': true}},
-      ]));
-      expect([for (final d in over) d.code.name], ['media_overridden']);
-      expect(over.single.message, contains('"bind": {"visible": null}'));
-      // Dropping the binding at those sizes, or binding only there: clean.
-      expect(codesOf(withVisible([
-        {'minWidth': 600, 'patch': {'visible': true, 'bind': {'visible': null}}},
-      ])), isEmpty);
       final d = base([
         {'maxWidth': 599, 'patch': {'bind': {'visible': r'${= !open}'}, 'motion': {'translateY': -36}}},
       ]);
-      expect(codesOf(d), isEmpty);
-      expect(codesOf(base([
-        {'maxWidth': 599, 'patch': {'bind': {'visibel': r'${= 1}'}, 'motion': {'translateY': 'up'}}},
-      ])), containsAll(['unknown_bind_path /nodes/f/media/0/patch/bind/visibel', 'wrong_type /nodes/f/media/0/patch/motion/translateY']));
       // On a screen the patch's binding and transform apply.
       final n = Node.fromJson((d['nodes'] as Map)['f'], id: 'f')!;
       final narrow = n.atScreen(390, 844, bps);
@@ -164,20 +109,6 @@ void main() {
         {'minWidth': 600, 'patch': {'visible': true, 'bind': {'visible': null}}},
       ])['nodes'] as Map)['f'] as Map?)}, id: 'f')!.atScreen(1440, 900, bps);
       expect((dropped.visible, dropped.bind.containsKey('visible')), (true, false));
-    });
-
-    test('a filling child with a basis in a wrapping flex is allowed; basis without wrap is ignored', () {
-      Map f(Json d) => (d['nodes'] as Map)['f'] as Map;
-      Json noMedia(Json d) {
-        f(d).remove('media');
-        return d;
-      }
-      expect(codesOf(noMedia(base(null, b: {'type': 'box', 'layout': {'width': {'fill': 10}, 'height': 10, 'basis': 280}}))), isEmpty);
-      expect(codesOf(noMedia(base(null, b: {'type': 'box', 'layout': {'width': {'fill': 10}, 'height': 10}}))),
-          ['fit_not_allowed /nodes/b/layout/width']);
-      final d = noMedia(base(null, b: {'type': 'box', 'layout': {'width': 10, 'height': 10, 'basis': 280}}));
-      f(d)['props'] = {};
-      expect(codesOf(d), ['layout_field_ignored /nodes/b/layout/basis']);
     });
   });
 
@@ -221,91 +152,6 @@ void main() {
       // the later form too.
       expect(mergeNodePatch({'layout': {'width': {'fill': 1}}}, {'layout': {'width': {'hug': 2}}}, keepNulls: true),
           {'layout': {'width': {'hug': 2}}});
-    });
-
-    test('validation accepts the mode change and the documented null, and judges the patched size', () {
-      final d = doc({
-        'f': {'type': 'column', 'children': ['b'], 'layout': {'width': {'fill': 390}, 'height': {'hug': 60}}, 'props': {'crossAxisAlignment': 'start'}},
-        'b': {
-          'type': 'row',
-          'layout': {'width': {'fill': 292}, 'height': 52},
-          'media': [
-            {'minWidth': 'tablet', 'patch': {'layout': {'width': {'fill': null, 'hug': 200}}}},
-            {'minWidth': 'desktop', 'patch': {'layout': {'width': {'hug': 232}, 'margin': null}, 'opacity': null}},
-          ],
-        },
-      });
-      expect(codesOf(d), isEmpty);
-    });
-  });
-
-  group('fits are judged at each screen width, with the media rules that hold there', () {
-    // A comparison table: its row of plan columns scrolls sideways on phones
-    // only; the columns are fixed there and fill from tablet up.
-    Json table({bool baseScrolls = true}) => doc({
-          'f': {'type': 'column', 'children': ['plans'], 'layout': {'width': {'fill': 390}, 'height': {'hug': 60}}},
-          'plans': {
-            'type': 'row',
-            'children': ['p1'],
-            'layout': {'width': {'fill': 390}, 'height': {'hug': 60}},
-            'props': {'scrollable': baseScrolls, 'scrollDirection': 'horizontal'},
-            'media': [
-              {'minWidth': 'tablet', 'patch': {'props': {'scrollable': !baseScrolls}}},
-            ],
-          },
-          'p1': {
-            'type': 'column',
-            'layout': {'width': 128, 'height': {'hug': 40}},
-            'media': [
-              {'minWidth': 'tablet', 'patch': {'layout': {'width': {'fill': 220}}}},
-            ],
-          },
-        });
-
-    test('a child patch is checked against the parent as patched at the same widths', () {
-      expect(codesOf(table()), isEmpty, reason: 'the row stops scrolling where the column starts to fill');
-    });
-
-    test('a true finding names the widths where it holds, at the value in effect', () {
-      final d = table(baseScrolls: false);
-      // Now the row scrolls from tablet up, where the column fills.
-      final found = validateDocument(d).where((x) => x.code == Codes.fitNotAllowed).toList();
-      expect(found.map((x) => x.path), ['/nodes/p1/media/0/patch/layout/width']);
-      expect(found.single.message, contains('at screen widths from 600 px'));
-      // A base value replaced at every width it is wrong is not reported.
-      final e = table(baseScrolls: false);
-      ((e['nodes'] as Map)['p1'] as Map)['layout'] = {'width': {'fill': 128}, 'height': {'hug': 40}};
-      ((e['nodes'] as Map)['p1'] as Map)['media'] = [
-        {'maxWidth': 599, 'patch': {'layout': {'width': 128}}},
-      ];
-      ((e['nodes'] as Map)['plans'] as Map)['props'] = {'scrollable': false, 'scrollDirection': 'horizontal'};
-      ((e['nodes'] as Map)['plans'] as Map)['media'] = [
-        {'maxWidth': 599, 'patch': {'props': {'scrollable': true}}},
-      ];
-      expect(codesOf(e), isEmpty);
-    });
-
-    test('flexible follows a flex whose direction changes: reported only where it is across', () {
-      final d = doc({
-        'f': {
-          'type': 'flex',
-          'children': ['b'],
-          'layout': {'width': {'fill': 390}, 'height': {'hug': 60}},
-          'props': {'direction': 'vertical'},
-          'media': [
-            {'minWidth': 'tablet', 'patch': {'props': {'direction': 'horizontal'}}},
-          ],
-        },
-        'b': {'type': 'box', 'layout': {'width': {'flexible': 300}, 'height': 40}},
-      });
-      final found = validateDocument(d).where((x) => x.code == Codes.fitNotAllowed).toList();
-      expect(found.map((x) => x.path), ['/nodes/b/layout/width']);
-      expect(found.single.message, contains('at screen widths up to 599 px'));
-      final e = Map<String, Object?>.from(d);
-      ((e['nodes'] as Map)['b'] as Map)['media'] = [
-        {'maxWidth': 'mobile', 'patch': {'layout': {'width': {'fill': 300}}}},
-      ];
-      expect(codesOf(e), isEmpty, reason: 'flexible in a flex where it is the main axis, as in a row');
     });
   });
 }

@@ -44,7 +44,7 @@ every item is stretched to it, whether it hugs or fills its height. Make the ite
 decoration): a card *inside* a hugging item column keeps its own height, and a card that fills the item's height
 there takes its design number (`fill_fallback`). A banner above one card goes inside the card, with a top margin on
 the others to line them up. A card's button pinned to its bottom: a `spacer` (or a `fill` height child) between the
-content and the button inside the stretched card. `shrinkWrapRows` wins over `mainAxisExtent` (`prop_ignored`); for
+content and the button inside the stretched card. `shrinkWrapRows` wins over `mainAxisExtent`; for
 rows at least n tall, give the item `"constraints": {"minHeight": n}`.
 
 ### Nested lists
@@ -93,7 +93,7 @@ filters and sorts them, `paged` is one page of it, and the list binds `${paged}`
 
 - Inside `filter`, `sortBy`, `map` and `count` an item's field is read through the item, a lambda's parameter:
   `filter(invoices, r => r.status == x)`. Written without it (`filter(invoices, status == x)`) the condition is
-  computed once, outside the list, and matches no item: the list is empty (`unknown_name` names the field).
+  computed once, outside the list, and matches no item: the list is empty.
 - "All" and an empty search match everything inside the lambda: `statusFilter == 'All' || r.status ==
   statusFilter`; `contains(lower(r.cust), lower(search))` is true while `search` is empty.
 - `sortBy(list, key, 'desc')`: the key is a field name (a variable holding one works) or a lambda; the direction
@@ -108,7 +108,7 @@ Seven columns of days from data: a `gridView` with `"crossAxisCount": 7` bound t
 computed list of `{day, done}` records), each cell a box whose fill is bound to the item. Rows of habits × days: a
 `listView` of habits whose item holds a label and that 7-column grid bound to `${item.days}`; in a cell, `${parent}`
 is the habit and `${index}` the day. A grid sizes its cells: set the cell height with `mainAxisExtent` and give
-the cell `fill` on both axes (a fixed size is `fit_not_allowed`).
+the cell `fill` on both axes.
 
 A tap on a day flips it in the habit's record (`setAt` and `set` build the new list); the label counts the checks:
 
@@ -143,8 +143,8 @@ The same pattern moves a horizontal timeline from its year buttons, or a feature
 - A list inside a scrolling page needs `"scrollable": false` (or `"physics": "never"`, which a `gridView` needs:
   it has no `scrollable`), or it takes its design height and scrolls inside itself.
 - A wrapping `listView` runs along its `scrollDirection`: with the default `vertical` it flows top to bottom into
-  columns (`vertical_wrap`).
-- Decoration on a `listView` or `gridView` is ignored (`decoration_ignored`): put the list inside a column that has
+  columns.
+- Decoration on a `listView` or `gridView` is ignored: put the list inside a column that has
   it.
 - A `fill` height inside a hugging grid item is its design number (`fill_fallback`).
 - A slot inside a list of a component shows what the call passes in every item, built in the caller's scope: it

@@ -1,7 +1,6 @@
 // A grid item's span and start (CSS grid-column: span n, grid-column-start)
 // are layout fields a gridView reads.
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 Map<String, Object?> _doc(String parentType, Map<String, Object?> itemLayout) => {
@@ -32,19 +31,12 @@ void main() {
     expect((bad.columnSpan, bad.columnStart), (1, null));
   });
 
-  test('a gridView reads its items\' spans; anywhere else they are reported as ignored', () {
-    expect(validateDocument(_doc('gridView', {'columnSpan': 2, 'rowStart': 1})), isEmpty);
-    final ignored = validateDocument(_doc('column', {'columnSpan': 2})).where((d) => d.code == Codes.layoutFieldIgnored);
-    expect(ignored.map((d) => d.path), ['/nodes/item/layout/columnSpan']);
-  });
-
   test('a span is bindable per item and patchable at a size', () {
     final doc = _doc('gridView', {});
     final item = (doc['nodes'] as Map)['item'] as Map<String, Object?>;
     item['media'] = [
       {'minWidth': 1024, 'patch': {'bind': {'layout.columnSpan': r'${= index == 0 ? 2 : 1}'}}},
     ];
-    expect(validateDocument(doc), isEmpty);
     final n = LayoutDocument.fromJson(doc)['item']!;
     expect(BindPaths.apply(n, 'layout.columnSpan', 2).layout.columnSpan, 2);
   });

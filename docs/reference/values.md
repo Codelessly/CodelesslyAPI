@@ -22,8 +22,7 @@ Value types are written in a compact form of their own; models are objects; enum
 <a id="values-reference"></a>
 ## Reference
 
-Decoding is lenient and never fails: a value it cannot read becomes the field's default, which is why validation
-reports it.
+Decoding is lenient and never fails: a value it cannot read becomes the field's default.
 
 <a id="values-value-types"></a>
 ### Value types
@@ -123,7 +122,7 @@ JSON: [width, height].
 <a id="values-models"></a>
 ### Models
 
-Objects with declared fields. Keys not listed are reported by validation (`unknown_field`).
+Objects with declared fields. Keys not listed are not read.
 
 <a id="type-AnimationRepeat"></a>
 ### AnimationRepeat

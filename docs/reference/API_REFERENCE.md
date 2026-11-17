@@ -121,7 +121,6 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
   "body", "fontSize": 32}`). A text names its style: `"style": "title"`; to change a few fields of it,
   `"style": {"from": "title", "color": "ember"}`.
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"`.
-- Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 
 Controls (buttons, chips, fields, switches, pickers, tabs) take the colors and fonts their props leave unset
 from the theme's top-level **roles** (`ColorScheme` names: `primary`, `onPrimary`, `surface`, `onSurface`, `error`),
@@ -190,7 +189,7 @@ Each axis has a **mode** and a **number**:
 The number is the **design size**: the size of a fixed node, and the size used where a mode cannot apply (a fill
 inside something that scrolls on that axis, or inside a parent that hugs that axis: `fill_fallback`). For `hug` and
 `fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. Unsized, a text, icon or
-control hugs (wrapping at its parent's width); **other nodes are 0 × 0** (`zero_size`), but a `canvas` or `spacer`.
+control hugs (wrapping at its parent's width); **other nodes are 0 × 0**, but a `canvas` or `spacer`.
 
 <a id="base-rows-columns-and-flex"></a>
 ### Rows, columns and flex
@@ -229,7 +228,7 @@ only in a row or column that has some (a fill or fixed main size).
 A `stack` places each child by its `layout.x` and `layout.y`: `16` or `{"start": 16}` from the left/top,
 `{"end": 16}` from the right/bottom, `{"start": 16, "end": 16}` stretched between, `{"align": 0}` aligned (-1 start,
 0 center, 1 end). Later children paint on top. `x`/`y` mean nothing under a row or column, `flex`/`align` nothing
-under a stack (`layout_field_ignored`).
+under a stack.
 
 ```json
 {
@@ -464,7 +463,7 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
   "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
   to the host app). Action types here: `navigate`, `openModal`, `closeModal`, `retryFailed`, `openLink`, `setValue`, `setVariant`, `setVariable`, `callFunction`, `if`, `forEach`, `announce`, `showToast`, `confirm`, `delay`, `copyToClipboard`, `setThemeMode`, `editText`, `focus`, `validate`, `controlTrack`, `controlDismissible`, `controlTransform`, `scrollTo`, `animate`, `haptic`, `runScript`, `paginate`, `componentEvent`, `callApi`, `setStorage`, `cloudDocuments`, `loadCloudData`, `reloadCloudData`, `cloudFiles`, `cloudData`, `cloudBatch`, `submitForm`, `auth`, `paywall`, `print`, `preloadImages`, `speak`, `playSound`, `captureScreenshot`, `downloadFile`, `emitEvent`.
-- Keys are exact; validation names the one meant: `{"type": "scrollTo", "node": "faq"}`, `{"type":
+- Keys are exact (a misspelled one is dropped): `{"type": "scrollTo", "node": "faq"}`, `{"type":
   "copyToClipboard", "text": "${address}"}`, `{"type": "downloadFile", "fileName": "trip.txt", "text": "${brief}"}`;
   a list appends with `"op": "add"` (`insert` takes an `index`).
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
@@ -490,7 +489,7 @@ Hover and pressed styles (`states`), drag, gestures: [interaction](#page-interac
    over it; later rules win (the cascade). Write for phones, add `minWidth` rules (mobile first).
 5. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
    `layout.order`; hidden: `"visible": false`.
-6. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
+6. A field both patched and bound shows the binding: put the binding in the rule's patch.
 
 Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive layout](#page-layout).
 
@@ -523,13 +522,13 @@ that has not been checked. Run the render command from the SDK repository:
 tool/render/render.sh site/ --out shots/ --sizes 390x844,834x1112,1440x900 --full-page
 ```
 
-It validates every document strictly, renders each screen at each size (`shots/<screen>@<w>x<h>.png`,
+It renders each screen at each size (`shots/<screen>@<w>x<h>.png`,
 `shots/diagnostics.json`) and prints one line per problem: a code, the JSON pointer
 (`/nodes/hero-title/props/style/fontSize`) and what to do. It exits 1 on errors. Steps before the capture:
 `--tap <id>` (`<id>#<n>` for the n-th list item), `--hover`, `--focus`, `--type <id>=<text>`,
 `--set <variable>=<json>`, `--scroll <id>=<px>`, `--drag <id>=<dx>,<dy>`, `--navigate <canvas>?<param>=<value>`,
 `--label <name>`. Look at the
-screenshots: validation cannot tell you a page is ugly. Every option and diagnostic code: [render](#page-render).
+screenshots: a diagnostic cannot tell you a page is ugly. Every option and render code: [render](#page-render).
 
 <a id="base-sites-and-components-as-files"></a>
 ## Sites and components as files
@@ -645,7 +644,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 | Keep a value on the device | [data-storage-on-the-device](#data-storage-on-the-device) |
 | Show the signed-in user | [auth-show-the-signed-in-user](#auth-show-the-signed-in-user) |
 | Capture the states (after a tap, typing, an open menu) with the render command | [render-capturing-states](#render-capturing-states) |
-| Every validation and render code | [render-validation-codes](#render-validation-codes) |
+| Every render code | [render-render-codes](#render-render-codes) |
 | Build and edit with ops; streaming; the retry protocol | [edit-ops-the-ops](#edit-ops-the-ops) |
 | How one value type is written (color, alignment, insets) | [values-colors-and-alignments](#values-colors-and-alignments) |
 
@@ -777,7 +776,7 @@ section's anchor is its topic.
 | Keep a value on the device | [data.md#data-storage-on-the-device](#data-storage-on-the-device) |
 | Show the signed-in user | [auth.md#auth-show-the-signed-in-user](#auth-show-the-signed-in-user) |
 | Capture the states (after a tap, typing, an open menu) with the render command | [render.md#render-capturing-states](#render-capturing-states) |
-| Every validation and render code | [render.md#render-validation-codes](#render-validation-codes) |
+| Every render code | [render.md#render-render-codes](#render-render-codes) |
 | Build and edit with ops; streaming; the retry protocol | [edit-ops.md#edit-ops-the-ops](#edit-ops-the-ops) |
 | How one value type is written (color, alignment, insets) | [values.md#values-colors-and-alignments](#values-colors-and-alignments) |
 
@@ -786,18 +785,18 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4809 |
-| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10353 |
-| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2971 |
-| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4097 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13600 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 8049 |
-| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4759 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6732 |
-| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 6350 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4788 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10330 |
+| [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2963 |
+| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4096 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13599 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 8037 |
+| [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4754 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6726 |
+| [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 6342 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
-| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3862 |
-| [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 839 |
+| [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3820 |
+| [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 828 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7160 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2308 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 470 |
@@ -805,9 +804,9 @@ section's anchor is its topic.
 | [media.md](#page-media) | The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images. | 1998 |
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
-| [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3581 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 3140 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13568 |
+| [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3587 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1365 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13560 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -1367,8 +1366,7 @@ change what must change at a width. Use these, in this order:
 2. **Media rules** for what must change at a width: direction, order, visibility, type size, padding. A rule's
    `patch` is merged over the node (objects merge, `null` removes a key), except that a value with several forms is
    **replaced**, as CSS replaces a declaration: `{"width": {"hug": 200}}` over `{"fill": 292}` is `{"hug": 200}`.
-   Rules apply in order, a later one winning (the cascade). Validation checks every patched value and judges sizes
-   at each range of widths with the rules that hold there.
+   Rules apply in order, a later one winning (the cascade).
 3. **Bindings on `${screen}`** for values computed from the size: `"bind": {"layout.width": "${= min(screen.width -
    32, 760)}"}`. `${screen}` has `width`, `height`, `breakpoint`, `is.<name>`, `atLeast.<name>`
    (`${= screen.atLeast.tablet ? 3 : 1}`). Nothing can check such a formula's result: prefer media rules.
@@ -2378,11 +2376,11 @@ one part of a screen. Older documents use this:
 
 - `fill` takes all the room it is given: cap it with `constraints.maxWidth`. Where its parent gives no room on that
   axis (it hugs it, or scrolls), a fill is its design number (`fill_fallback`, naming the parent).
-- `x`/`y` mean nothing under a row or column, `flex`/`align` nothing under a stack (`layout_field_ignored`).
-- A stack that hugs its children grows to hold them, so there a negative offset is 0 (`layout_clamped`). A
-  negative margin does not overlap a neighbor (`layout_clamped`): translate with `motion`.
+- `x`/`y` mean nothing under a row or column, `flex`/`align` nothing under a stack.
+- A stack that hugs its children grows to hold them, so there a negative offset is 0. A
+  negative margin does not overlap a neighbor: translate with `motion`.
 - A media patch replaces a size of another mode: `{"hug": 200}` over `{"fill": 292}` is `{"hug": 200}`. A field
-  both patched and bound shows the binding (`media_overridden`): bind in the rule instead.
+  both patched and bound shows the binding: bind in the rule instead.
 - `squeezeChildren` (default true) shrinks children that do not fit (CSS flex shrink); false is Flutter's
   overflow (`layout_overflow`).
 - A `spacer` takes free space only in a row or column with room.
@@ -2598,8 +2596,8 @@ The theme names its scales as it names colors: `"spacing": {"1": 4, "2": 8, "3":
 "panel": 8}`, `"sizes": {"compact": 28, "large": 44}`, `"shadows": {"level3": [{"type": "dropShadow", ...}]}` (with
 `dark` shadows of their own), `"durations": {"fast": 150}` (milliseconds) and `"curves": {"standard": "easeInOut"}`.
 A node reads a step in a binding, `"bind": {"layout.padding": "${theme.spacing.3}", "decoration.radius":
-"${theme.radii.panel}", "decoration.effects": "${theme.shadows.level3}"}`; a name the theme does not have is
-`unknown_theme_name`. A [design system](#page-design-systems) brings a whole set of them. The theme's `radius` and
+"${theme.radii.panel}", "decoration.effects": "${theme.shadows.level3}"}`; a name the theme does not have
+names nothing. A [design system](#page-design-systems) brings a whole set of them. The theme's `radius` and
 `buttonRadius` shape the controls (dialogs and fields, buttons and chips); without them controls take small radii
 of their own (6 and 8).
 
@@ -2685,7 +2683,7 @@ the families it ships in `site.json`, in the shape of a Flutter pubspec's `fonts
   it draws every weight of its axis (Flutter sets the axis from `fontWeight`), and the render command counts each
   of them as declared. Listing the same file again per weight is not needed.
 - Files are `.ttf`, `.otf` or `.woff` (an npm `@fontsource/<family>` package's `files/` folder has a `.woff` beside
-  each `.woff2`). WOFF2 is not read (`font_format`); a declared file that is not there is `font_missing`.
+  each `.woff2`). WOFF2 is not read; a declared file that is not there is `font_missing`.
 - The render command loads them with no flag, before the page shows; a published site loads them from its files.
 - A family a text style names that no file provides is `font_fallback`, naming the nodes that use it: declare it,
   or pass `--fonts <dir>` (`--fonts system` for the system's fonts). A family nobody declared is fetched by name
@@ -2697,8 +2695,7 @@ Characters the font has no glyph for draw as empty boxes (`missing_glyph`): use 
 ## Pitfalls
 
 - A text without a color is white (`text_no_color` when rendered): set it in the style or the named style.
-- A name the theme does not have is `unknown_theme_name` (with the nearest name); a theme of the wrong shape is
-  `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
+- A name the theme does not have names nothing: write one the theme has. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
   "theme": {...}}`.
 - A theme color's name is not read from a formula: bind `${theme.colors.ember}`.
 - Run offsets count characters, `\n` as one.
@@ -3224,7 +3221,7 @@ op per color.
 - Colors are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
 - A `path` node without a `viewBox` is drawn in its box's own pixels from the top left and is not clipped to the
   box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
-- Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
+- Decoration on a type that draws no box (a `text`, a `listView`) is ignored: wrap it.
 - `clip` is needed for children to follow rounded corners.
 - A child's fill covers its parent's inside border: pad the parent, stroke outside, or move the border to the child.
 
@@ -4672,7 +4669,7 @@ close. The render command types with `--type <id>=<text>` (it replaces the text)
 - An input does nothing with its value until a `changed` reaction stores it, or its value prop is bound.
 - `${result}` in a `changed` chain is the new value until an action that gives a value replaces it; `setVariable`
   does not.
-- Every action key is written flat in the action; a misspelled one is dropped (`unknown_action_key`).
+- Every action key is written flat in the action; a misspelled one is dropped.
 - A `validator` reads the field's text as `value`, not the variable the field is bound to; it goes in `props`, not
   `bind`.
 - With `autovalidateMode` `disabled` (the default) a validator shows nothing until its form is validated: give the
@@ -5193,7 +5190,7 @@ every item is stretched to it, whether it hugs or fills its height. Make the ite
 decoration): a card *inside* a hugging item column keeps its own height, and a card that fills the item's height
 there takes its design number (`fill_fallback`). A banner above one card goes inside the card, with a top margin on
 the others to line them up. A card's button pinned to its bottom: a `spacer` (or a `fill` height child) between the
-content and the button inside the stretched card. `shrinkWrapRows` wins over `mainAxisExtent` (`prop_ignored`); for
+content and the button inside the stretched card. `shrinkWrapRows` wins over `mainAxisExtent`; for
 rows at least n tall, give the item `"constraints": {"minHeight": n}`.
 
 <a id="lists-nested-lists"></a>
@@ -5273,7 +5270,7 @@ filters and sorts them, `paged` is one page of it, and the list binds `${paged}`
 
 - Inside `filter`, `sortBy`, `map` and `count` an item's field is read through the item, a lambda's parameter:
   `filter(invoices, r => r.status == x)`. Written without it (`filter(invoices, status == x)`) the condition is
-  computed once, outside the list, and matches no item: the list is empty (`unknown_name` names the field).
+  computed once, outside the list, and matches no item: the list is empty.
 - "All" and an empty search match everything inside the lambda: `statusFilter == 'All' || r.status ==
   statusFilter`; `contains(lower(r.cust), lower(search))` is true while `search` is empty.
 - `sortBy(list, key, 'desc')`: the key is a field name (a variable holding one works) or a lambda; the direction
@@ -5329,7 +5326,7 @@ Seven columns of days from data: a `gridView` with `"crossAxisCount": 7` bound t
 computed list of `{day, done}` records), each cell a box whose fill is bound to the item. Rows of habits × days: a
 `listView` of habits whose item holds a label and that 7-column grid bound to `${item.days}`; in a cell, `${parent}`
 is the habit and `${index}` the day. A grid sizes its cells: set the cell height with `mainAxisExtent` and give
-the cell `fill` on both axes (a fixed size is `fit_not_allowed`).
+the cell `fill` on both axes.
 
 A tap on a day flips it in the habit's record (`setAt` and `set` build the new list); the label counts the checks:
 
@@ -5607,8 +5604,8 @@ The same pattern moves a horizontal timeline from its year buttons, or a feature
 - A list inside a scrolling page needs `"scrollable": false` (or `"physics": "never"`, which a `gridView` needs:
   it has no `scrollable`), or it takes its design height and scrolls inside itself.
 - A wrapping `listView` runs along its `scrollDirection`: with the default `vertical` it flows top to bottom into
-  columns (`vertical_wrap`).
-- Decoration on a `listView` or `gridView` is ignored (`decoration_ignored`): put the list inside a column that has
+  columns.
+- Decoration on a `listView` or `gridView` is ignored: put the list inside a column that has
   it.
 - A `fill` height inside a hugging grid item is its design number (`fill_fallback`).
 - A slot inside a list of a component shows what the call passes in every item, built in the caller's scope: it
@@ -6133,7 +6130,7 @@ screen.
 `{"type": "navigate", "to": "<canvas id>"}` pushes the screen; `"mode": "pop"` goes back; `"replace"` and `"reset"`
 replace the history. For a screen with a canvas per breakpoint, name any of them. `to` may be built by a binding
 (`"to": "${item.to}"` in a list of search results, each record naming its page's canvas id): it is the screen it names
-when the action runs (validation checks only literal names). `"params": {"id": "${item.id}"}`
+when the action runs. `"params": {"id": "${item.id}"}`
 passes values the destination reads as `${route.id}`. A link to the screen's path with a query string passes the same
 (`trip?id=coast`), and so does the render command's `--navigate trip?id=coast`. A screen opened without the param
 reads it as empty: give the page a default (`coalesce(find(trips, 'id', route.id), first(trips))`).
@@ -6959,7 +6956,7 @@ the UI updates through what binds to them. A script cannot draw or touch nodes. 
 - Per-breakpoint canvases have separate variables: shared state lives in `page_variables`.
 - A function variable named like a formula function is never called (the built-in wins).
 - Formula syntax errors and unknown names in formulas are reported by the render command (the SDK parses them).
-- A misspelled binding path is `unknown_bind_path`; a name nothing declares is `unknown_name`.
+- A misspelled binding path sets nothing.
 
 <a id="state-see-also"></a>
 ## See also
@@ -7441,8 +7438,7 @@ A node's `actions` is a list of **reactions**: a trigger and the chain of action
 - Every action also takes `enabled`, `nonBlocking` and `when` (run only while a predicate holds:
   `{"left": "${count}", "op": "greaterThan", "right": "5"}`; the ops are in [Conditions](#state-conditions)). A
   trigger's own `when` is a formula string.
-- Write each action's fields flat in the action object; a misspelled key is dropped by the runtime and reported by
-  validation (`unknown_action_key`).
+- Write each action's fields flat in the action object; a misspelled key is dropped.
 
 <a id="interaction-hover-press-and-other-states"></a>
 ### Hover, press and other states
@@ -7453,7 +7449,7 @@ JSON merged over that node (objects merge, other values replace, `null` removes)
 bindings: `"bind": {"selected": "${= tab == 'pricing'}"}` puts the node in its `selected` state, as Flutter's
 `statesController` puts a button in `WidgetState.selected`. Buttons draw it themselves (a tinted fill, the primary
 color as ink: tabs and toggles made of buttons need nothing more); on other nodes only a `states.selected` patch
-shows it, so a bound `selected` with none changes nothing (`state_no_effect`). A chip's own selection is its prop,
+shows it, so a bound `selected` with none changes nothing. A chip's own selection is its prop,
 `props.selected`. A selected outlined button in a look of its own (a filter or a delivery option):
 
 ```json
@@ -7553,7 +7549,7 @@ reaction and controls; a control's own keys come first (a slider in a toolbar ke
 - The innermost tappable node takes the tap; `ignorePointer` lets it through.
 - A state patch names node ids inside the node; patching a node outside it does nothing.
 - An interaction state's patch loses to a binding of the same field (bindings come after states).
-- A misspelled trigger is `unknown_trigger`; a key it does not take is `unknown_trigger_key`.
+- A misspelled trigger never fires; a key a trigger does not take is ignored.
 - `tap_no_reaction` (render command): a `--tap` step hit a node with no reaction.
 - Only a `click` reaction makes a node reachable by keyboard: an action that exists only on `hover`,
   `longPress` or `doubleTap` has no key.
@@ -8123,14 +8119,14 @@ must set. The kinds: `boolean` (`bool`), `integer` (`int`), `number` (`double`),
 `enumeration` (with `values`), `value` (a value type: `{"kind": "value", "flutter": "Color"}`, also `EdgeInsets`,
 `Alignment`, `IconData`...), `list` (with `item`), `object` (a model: `TextStyle`, `Paint`), `json` (any data: a
 record, `{"kind": "json", "flutter": "Map<String, dynamic>"}`) and `variable` (with `of`, below). Inside, read them as `${props.<key>}`. A call sets them as any node's props: a literal in `props`, an
-expression in `bind` (`"props.label": "${item.name}"`). Validation checks every call against the declaration:
-unknown keys, wrong types and bounds, missing required ones, children and slots the component does not take.
+expression in `bind` (`"props.label": "${item.name}"`). A call takes what the declaration has: its keys, with
+their types and bounds, every required one, and only the children and slots the component takes.
 
 <a id="components-the-site-manifest"></a>
 ### The site manifest
 
 A directory with a `site.json` is a site: its pages, its components and its project variables, read by
-bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).
+bare name in every page and component (do not give a page or component variable the same name).
 
 ```json
 {"schema": 3, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
@@ -8149,16 +8145,12 @@ Without `components`, the files under `components/` are the site's components.
 
 By name, an object with `value` (or `formula`) and only a variable's keys (`type`, `value`, `persist`...) is the
 variable's record; any other object is a map the variable holds. A record that cannot be read is
-`invalid_variable` and is not declared.
+not declared.
 
-<a id="components-validation-codes"></a>
-### Validation codes
+<a id="components-render-codes"></a>
+### Render codes
 
-`unknown_component` (a call to a type no definition declares),
-`duplicate_component`, `component_cycle` (a component calling itself, directly or through others),
-`component_id_mismatch` (the file is not named after its type), `invalid_component`, `missing_prop`,
-`unknown_event`, `call_field_not_allowed`, `slot_outside_component`, `root_placement_bound`. The render command
-adds `component_missing` (a call rendered without its definition: an empty box of its size).
+The render command reports `component_missing` (a call rendered without its definition: an empty box of its size).
 
 <a id="node-slot"></a>
 ### `slot`
@@ -8747,10 +8739,9 @@ is an empty box of its size until it arrives (`component_missing` in the app's e
 - A slot inside a list of the definition shows what the call passes once per item, built in the caller's scope:
   it reads the caller's variables, not the item. To show the item, make it a parameter of a component the list
   calls.
-- A call has no `decoration` and no `layout.padding` (`call_field_not_allowed`): style the definition's root.
-- The file is named after the type (`component_id_mismatch`).
-- `repeated_subtree` (an INFO) means the same subtree of three or more nodes is written several times over: make
-  it a component or a list template.
+- A call has no `decoration` and no `layout.padding`: style the definition's root.
+- The file is named after the type.
+- The same subtree of three or more nodes written several times over: make it a component or a list template.
 
 <a id="components-see-also"></a>
 ## See also
@@ -8828,10 +8819,9 @@ A published design system is one bundle, `{"manifest": {...}, "design": "...", "
   style, a scale step). Named colors and text styles, light and dark, work as in [the theme](#page-theme).
 - **Scales.** `${theme.spacing.3}`, `${theme.radii.panel}`, `${theme.sizes.compact}`, `${theme.shadows.level3}` and
   `${theme.durations.fast}` are read in bindings: `"bind": {"layout.padding": "${theme.spacing.3}",
-  "decoration.radius": "${theme.radii.panel}"}`. Validation reports a name the theme does not have
-  (`unknown_theme_name`).
+  "decoration.radius": "${theme.radii.panel}"}`. A name the theme does not have names nothing.
 - **Components.** Called by type as the site's own (`{"type": "Button", "props": {"label": "Save"}}`); a site
-  component of the same type wins. Calls are checked against their declarations (`missing_prop`, `unknown_event`).
+  component of the same type wins.
 - **Nothing from the app.** The app the site runs in lends no color, font or shape; without a design system the
   controls are neutral (ink on paper, small radii).
 
@@ -8860,7 +8850,7 @@ parameters and a call, the patterns in brief, and no rows for the base controls 
 - A call has no `decoration`: style the definition, or add a parameter (`variant`, `size`).
 - A color written in full (`"#FF2563EB"`) does not follow dark mode: name it.
 - A scale step is read through a binding, not written where a number goes (`"padding": "md"` is not a number).
-- `replaces` hides base controls from the prompt only; documents that use them still validate and render.
+- `replaces` hides base controls from the prompt only; documents that use them still render.
 
 <a id="design-systems-see-also"></a>
 ## See also
@@ -10647,7 +10637,7 @@ node's contents to the system prompt: the **base** in its runtime form, `runtime
 `baseDocument` from the same generated segments, with the runtime envelope (answering rules, the ops, two examples
 that apply cleanly) in place of the file envelope (the render command, sites as files), and its tables restricted
 to what the trust profile allows. `ui_read {"types": [...]}` describes any other allowed type on demand
-(`describeTypes`), and validation does the rest.
+(`describeTypes`), and the per-op check does the rest.
 
 The base ends with the index of the third tool, `ui_docs {"topic": ...}` (`uiTools(catalog, compact: true, docs:
 true)`). `docsTopic` answers with these pages: a page's *When to use*, minimal example and pitfalls, and the list of
@@ -10807,8 +10797,8 @@ renderer adds `missing_glyph` and `no_size` (the SDK's `UiSession.renderDiagnost
 * A `set` of an id that exists replaces the node (the result says which ids it created). Replacing a node that had
   children it no longer lists is `would_orphan`: keep them, move or remove them first, or patch instead.
 * Each op is checked on its own, against what it touched: its structure (one parent, no cycle, no canvas as a child,
-  a parent that takes children there), the trust profile, and the nodes' fields (the strict validator of
-  [render](#page-render) on the nodes the op created or changed, their parents and children). A rejected op changes nothing; the others
+  a parent that takes children there), the trust profile, and the nodes' fields (`catalogCheck`: types, keys and
+  values against the catalog's declarations, on the nodes the op created or changed, their parents and children). A rejected op changes nothing; the others
   apply (with `"atomic": true`, all or none).
 * A batch may carry `"baseRev"`, the revision the author read: a patch of a field, or a set of a node, that another
   author changed since is `stale_rev`, with the current value. Every applied batch has inverse ops: applied
@@ -10829,7 +10819,7 @@ command](#page-render).
 <a id="render-when-to-use"></a>
 ## When to use
 
-Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after
+Checking a document or a site before trusting it: screenshots at each size, the states after
 taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. The
 command lives in the SDK repository (`tool/render/render.sh`; its README has every option).
 
@@ -10884,8 +10874,8 @@ tool/render/render.sh home.json --out shots/ --sizes 390x844,834x1112,1440x900 -
 ### What it does
 
 Decoding is lenient: a misspelled key, a value of the wrong shape or an unknown enum value is silently ignored or
-replaced by its default. Never trust a document that has not been checked. The command validates every document
-strictly, renders each screen with the SDK at each size, writes `shots/<screen>@<w>x<h>.png` and
+replaced by its default. Never trust a document that has not been checked. The command
+renders each screen with the SDK at each size, writes `shots/<screen>@<w>x<h>.png` and
 `shots/diagnostics.json`, and prints one line per problem with a code, the JSON pointer of the value
 (`/nodes/hero-title/props/style/fontSize`) or the node, and what to do. It exits 1 when there are errors.
 
@@ -10925,94 +10915,10 @@ the capture is the window where the steps left the page. `--theme light|dark` st
 `--fonts <dir>` adds other font files (`--fonts system`: the system's). `--component <Type>` and
 `--components-all` render components alone.
 
-<a id="render-validation-codes"></a>
-### Validation codes
-
-From `package:codelessly_api/validate.dart`:
-
-| Code | Severity | Meaning |
-|---|---|---|
-| `above_level` | error | Something from a higher level of the vocabulary than the document is limited to (`ValidateOptions.level`): a node type, action, trigger, behavior, binding or expression. |
-| `invalid_document` | error | The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list). |
-| `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3). |
-| `schema_outdated` | info | A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
-| `legacy_value` | warning | A `legacy.<name>` key the migration kept: a value that had no current form and is no longer read. |
-| `unknown_document_key` | error | A top-level key of the document that nothing reads. |
-| `dangling_root` | error | A root id that names no node. |
-| `root_not_canvas` | warning | A root that is not a canvas: it is never shown as a screen. |
-| `no_roots` | error | The document has no roots, so nothing is shown. |
-| `invalid_node` | error | A node that is not an object or has no "type": decoding drops it. |
-| `unknown_node_type` | error | A node type no declaration knows: it renders as an empty box. |
-| `unknown_node_key` | error | A key on a node that is neither a node field nor a behavior: it is kept but does nothing. |
-| `unknown_prop` | error | A key in "props" that the node type does not declare: it does nothing. |
-| `unknown_layout_key` | error | A key in "layout" that layout does not read. |
-| `unknown_decoration_key` | error | A key in "decoration" that decoration does not read. |
-| `unknown_field` | error | A key inside a value (a paint, a text style, a behavior model...) that its type does not read. |
-| `wrong_type` | error | A value of the wrong JSON type or shape: decoding ignores it and uses the default. |
-| `loose_value` | warning | A value of another JSON type that decoding converts (the text "12" for a number): write the type itself. |
-| `invalid_enum` | error | A value that is not one of the allowed names: decoding uses the default. |
-| `out_of_range` | error | A number outside its declared bounds: decoding clamps it. |
-| `decoration_ignored` | warning | Fills, strokes, radius or shadows on a type without a box decoration: only blur effects are kept. |
-| `dangling_child` | error | A child id that names no node. |
-| `dangling_slot` | error | A slot whose id names no node. |
-| `multiple_parents` | error | A node listed as a child (or slot) of more than one parent, or twice in one parent. |
-| `cycle` | error | A node that contains itself. |
-| `unreachable_node` | warning | A node no root reaches: it is never shown. |
-| `unknown_slot` | error | A slot name the node type does not have. |
-| `children_not_allowed` | error | A "children" list on a type that takes none (or takes slots only): they are never shown. |
-| `slots_not_allowed` | error | A "slots" map on a type that has no slots. |
-| `canvas_as_child` | error | A canvas used as the child of another node: canvases are screens, only roots. |
-| `layout_field_ignored` | warning | A layout field the node's parent does not read (x/y outside a stack, flex/align outside a row or column). |
-| `fit_not_allowed` | warning | A width or height mode the parent cannot honor (fill along a scrolling axis, flexible outside a row/column). |
-| `zero_size` | warning | A fixed width or height of 0 (often a missing "width"/"height"): the node is invisible. |
-| `vertical_wrap` | warning | A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side. |
-| `layout_clamped` | warning | A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks). |
-| `prop_ignored` | warning | A prop that has no effect with another the node sets (a grid's mainAxisExtent while shrinkWrapRows sizes its rows): one of them is ignored. |
-| `state_no_effect` | warning | A bound "selected" with no "states.selected" style: the node is selected, but nothing changes how it looks. |
-| `unknown_bind_path` | error | A "bind" key that names no bindable field of the node. |
-| `reserved_bind_path` | warning | A binding path that is kept but not applied yet. |
-| `expression_syntax` | error | A "${" that is not closed, or an empty ${}. |
-| `unknown_name` | error | An expression reads a name that is neither a declared variable nor a scope the runtime provides. |
-| `unknown_trigger` | error | A reaction whose trigger type is unknown or missing: the reaction is dropped. |
-| `unknown_trigger_key` | error | A key of a trigger that triggers do not read. |
-| `unknown_action_type` | error | An action type no declaration knows: the runtime skips it. |
-| `unknown_action_key` | error | A key of an action that its type does not read. |
-| `unknown_target_node` | error | An action or condition names a node id that is not in the document. |
-| `unknown_screen` | error | A navigate or openModal names a screen (canvas or layout id) that does not exist. |
-| `unknown_variable` | error | An action or trigger names a variable that is not declared. |
-| `invalid_reaction` | error | A reaction or action that is not an object, or an action list that is not a list. |
-| `invalid_variable` | error | A variable without a name, with an unknown type, or whose value its type cannot hold. |
-| `duplicate_variable` | error | Two variables of the same name in one scope. |
-| `unknown_scope` | error | Variables or conditions keyed by an id that is not a canvas of the document (nor page_variables). |
-| `invalid_condition` | error | A condition, branch, predicate or set entry of the wrong shape. |
-| `unknown_breakpoint` | error | A canvas, variant or media rule names a breakpoint the project does not define. |
-| `invalid_media` | error | A "media" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size. |
-| `media_overridden` | warning | A media rule patches a field the node also binds: the binding wins, so the patch never shows. |
-| `unknown_theme_name` | error | A color or text style names a color or text style the project's theme (the site manifest's "theme") does not have: it would show transparent or unstyled. |
-| `invalid_theme` | error | The site manifest's "theme" is not of the right shape: colors are "#AARRGGBB" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles. |
-| `theme_role_in_colors` | warning | A color role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's "colors": roles are top-level keys of the theme, so controls never read it. Move it up ("primary": "#FF..." or "primary": "<a color's name>"). |
-| `site_key_ignored` | warning | A key of the site manifest (site.json) that nothing reads. A theme key written beside "theme" (primary, colors, dark...) belongs inside it: "theme": {"primary": "#FF...", "colors": {...}}. |
-| `invalid_fonts` | error | The site manifest's "fonts" is not of the right shape: a list of {"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf", "weight": 400, "style": "normal"}]} (a pubspec's fonts: section). |
-| `font_format` | error | A declared font file is not .ttf, .otf or .woff: WOFF2 (Brotli-compressed) and font collections (.ttc) are not read. Use the .woff or .ttf of the same face. |
-| `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
-| `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
-| `duplicate_id` | warning | The same canvas id in two documents of one project: navigate and openModal name a screen by its canvas id, so a link reaches one of them. Other node ids are per document and may repeat. |
-| `unknown_component` | error | A call names a component type (UpperCamelCase) that no definition of the project declares: it renders as an empty box of its size. |
-| `duplicate_component` | error | Two definitions declare the same component type, or a component type is also a catalog type: there is no shadowing. |
-| `component_cycle` | error | A component calls itself, directly or through other components: it can never finish rendering. |
-| `component_id_mismatch` | error | A component document whose file name (or "id") is not its widget type: a file holds the component it is named after. |
-| `invalid_component` | error | A component document of the wrong shape: a "widget" without a type, a type that is not UpperCamelCase, or not exactly one root. |
-| `missing_prop` | error | A call does not set a parameter the component declares as required. |
-| `unknown_event` | error | An event reaction (or a componentEvent action) names an event the component does not declare, or sits on a node that is not a component call. |
-| `call_field_not_allowed` | error | A field on a call that belongs to the definition (decoration, layout.padding): the call gives size and placement only. |
-| `slot_outside_component` | warning | A slot node in a document that is not a component: nothing fills it, its own children show. |
-| `root_placement_bound` | warning | A component root binds its size or placement: the call sizes and places the root, so the binding is dropped. |
-| `repeated_subtree` | info | A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once. |
-
 <a id="render-render-codes"></a>
 ### Render codes
 
-The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
+The render step reports what rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
@@ -11030,7 +10936,7 @@ the render command.
 <a id="render-a-loop-that-converges"></a>
 ### A loop that converges
 
-Validate and render after each section, read the diagnostics, then look at the PNGs next to the target: validation
+Render after each section, read the diagnostics, then look at the PNGs next to the target: a diagnostic
 cannot tell you that a page is ugly. Fix by the JSON pointer each line gives. Capture each state with its own
 `--label` so the files do not overwrite each other.
 
@@ -11101,8 +11007,7 @@ Value types are written in a compact form of their own; models are objects; enum
 <a id="values-reference"></a>
 ## Reference
 
-Decoding is lenient and never fails: a value it cannot read becomes the field's default, which is why validation
-reports it.
+Decoding is lenient and never fails: a value it cannot read becomes the field's default.
 
 <a id="values-value-types"></a>
 ### Value types
@@ -11202,7 +11107,7 @@ JSON: [width, height].
 <a id="values-models"></a>
 ### Models
 
-Objects with declared fields. Keys not listed are reported by validation (`unknown_field`).
+Objects with declared fields. Keys not listed are not read.
 
 <a id="type-AnimationRepeat"></a>
 ### AnimationRepeat

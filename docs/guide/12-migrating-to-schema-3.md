@@ -30,10 +30,6 @@ final json = migrate2to3(schema2Json, report: report); // pure: the input is not
 for (final e in report.unconvertible) print('$e\n  instead: ${e.instead}');
 ```
 
-* **Validation:** `validateDocument` reads 2 and 3. A schema-2 document gets a `schema_outdated` note (info, not
-  a warning) and the other diagnostics are of the migrated document. A value the migration had to keep (see
-  below) is a `legacy_value` warning.
-
 ## The report
 
 `MigrationReport` lists, per document, every rewrite (step id, node, JSON pointer, old → new), every value that
@@ -82,8 +78,8 @@ document renders the same; a schema-3 document written new gets Flutter's behavi
 
 A `setValue`'s `values[].path` is not migrated: it is read against the node it targets when it runs, which may be
 in another document, a component or a list item. A schema-2 path there (`motion.originX`, `loops[0].duration`,
-`drag.track.min`, `props.style.naturalHeight`...) is refused where it is used: the validator reports it as
-`unknown_bind_path` with the schema-3 path to write, and at run time the SDK sets nothing for it and says so once
+`drag.track.min`, `props.style.naturalHeight`...) is refused where it is used:
+at run time the SDK sets nothing for it and says so once
 (`Codelessly: setValue on <node>: "<path>" is a schema-2 path, which schema 3 does not read (nothing set); write
 ...`); the other values of the action still apply. `schema2PathHint(path)` gives the schema-3 spelling. None of
 the corpus's documents names one.
@@ -120,8 +116,7 @@ values were resolved from but its map keys were not), so those patches matched n
 corpus, 1131 patches in 9 documents, every one naming the node its states are on. Step `states.target` rewrites
 `self` to the node's id and `@<key>` to the id of the node with that key (the node itself first, else the one node
 with it), and reports a behavior change: the hover, press and selection styles now apply. A target that names no
-node by any spelling stays and validation reports it. In a schema-3 document `self` and `@<key>` are refused
-(`unknown_target_node`) with the id to write.
+node by any spelling stays. In a schema-3 document `self` and `@<key>` are not read: write the node's id.
 
 ## 30.1.0: one spelling for each concept
 
@@ -139,9 +134,8 @@ each, under Flutter's name:
 
 **Schema-2 documents** reach the one spelling through `migrate2to3`, whose last steps are these (in memory, when
 read, as above). **A document marked `"schema": 3` is read as it is**: one written with 30.0.0's spellings must
-be updated once. Validation reports each earlier spelling as an error naming the one to write (`unknown_node_key`,
-`unknown_layout_key`, `unknown_prop`, `unknown_field`, `unknown_bind_path` for a binding, transition, track,
-`setValue` or condition path, `wrong_type` for a look written as `hero.flight`); the SDK sets nothing for a moved
+be updated once. An earlier spelling is not read there (`catalogCheck` rejects an edit op that writes one:
+`unknown_node_key`, `unknown_layout_key`, `unknown_prop`); the SDK sets nothing for a moved
 path set at run time and says so once (`movedPathHint`). What was rewritten:
 
 | 30.0.0 | 30.1.0 | Step |
@@ -209,7 +203,7 @@ Heroes of the two kinds don't fly to each other.
 
 The 21 fields that were one look or one rule each are said with mechanisms the model already has, by steps at the
 end of `migrate2to3` (`steps_special.dart`). As in 30.1.0, a document marked `"schema": 3` that writes one is not
-rewritten on load: validation reports it as `unknown_prop` naming the form to write, and a `setValue` path into one
+rewritten on load: the field is not read, and a `setValue` path into one
 is rewritten where it has a place (`props.displayFormat` → `props.format`, `props.highlightStart`/`End` →
 `props.runs[0].start`/`end`) and otherwise reported.
 

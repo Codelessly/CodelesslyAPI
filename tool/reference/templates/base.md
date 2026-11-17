@@ -123,7 +123,6 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
   "body", "fontSize": 32}`). A text names its style: `"style": "title"`; to change a few fields of it,
   `"style": {"from": "title", "color": "ember"}`.
 - In a binding a name is not read: bind the value, `"${theme.colors.ember}"`.
-- Validation reports a name the theme does not have (`unknown_theme_name`, with the nearest name).
 <!-- if runtime noDesignSystem -->
 - The theme belongs to the app: use the names it gives you; without one, write each color and style in full.
 <!-- end -->
@@ -203,7 +202,7 @@ Each axis has a **mode** and a **number**:
 The number is the **design size**: the size of a fixed node, and the size used where a mode cannot apply (a fill
 inside something that scrolls on that axis, or inside a parent that hugs that axis: `fill_fallback`). For `hug` and
 `fill` it does not limit the size: cap a fill with `"constraints": {"maxWidth": 760}`. Unsized, a text, icon or
-control hugs (wrapping at its parent's width); **other nodes are 0 × 0** (`zero_size`), but a `canvas` or `spacer`.
+control hugs (wrapping at its parent's width); **other nodes are 0 × 0**, but a `canvas` or `spacer`.
 
 ### Rows, columns and flex
 
@@ -239,7 +238,7 @@ only in a row or column that has some (a fill or fixed main size).
 A `stack` places each child by its `layout.x` and `layout.y`: `16` or `{"start": 16}` from the left/top,
 `{"end": 16}` from the right/bottom, `{"start": 16, "end": 16}` stretched between, `{"align": 0}` aligned (-1 start,
 0 center, 1 end). Later children paint on top. `x`/`y` mean nothing under a row or column, `flex`/`align` nothing
-under a stack (`layout_field_ignored`).
+under a stack.
 
 {{example:stack}}
 
@@ -361,7 +360,7 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
   "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
   to the host app). Action types here: {{actionTypes}}.
-- Keys are exact; validation names the one meant: `{"type": "scrollTo", "node": "faq"}`, `{"type":
+- Keys are exact (a misspelled one is dropped): `{"type": "scrollTo", "node": "faq"}`, `{"type":
   "copyToClipboard", "text": "${address}"}`, `{"type": "downloadFile", "fileName": "trip.txt", "text": "${brief}"}`;
   a list appends with `"op": "add"` (`insert` takes an `index`).
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
@@ -386,7 +385,7 @@ Hover and pressed styles (`states`), drag, gestures: [interaction](@page-interac
    over it; later rules win (the cascade). Write for phones, add `minWidth` rules (mobile first).
 5. A row that becomes a column: a `flex` with a rule patching `"direction": "vertical"`; another order: patch
    `layout.order`; hidden: `"visible": false`.
-6. A field both patched and bound shows the binding (`media_overridden`): put the binding in the rule's patch.
+6. A field both patched and bound shows the binding: put the binding in the rule's patch.
 
 Breakpoints, sticky headers, scrolling, a canvas per breakpoint: [responsive layout](@page-layout).
 
@@ -418,13 +417,13 @@ that has not been checked. Run the render command from the SDK repository:
 tool/render/render.sh site/ --out shots/ --sizes 390x844,834x1112,1440x900 --full-page
 ```
 
-It validates every document strictly, renders each screen at each size (`shots/<screen>@<w>x<h>.png`,
+It renders each screen at each size (`shots/<screen>@<w>x<h>.png`,
 `shots/diagnostics.json`) and prints one line per problem: a code, the JSON pointer
 (`/nodes/hero-title/props/style/fontSize`) and what to do. It exits 1 on errors. Steps before the capture:
 `--tap <id>` (`<id>#<n>` for the n-th list item), `--hover`, `--focus`, `--type <id>=<text>`,
 `--set <variable>=<json>`, `--scroll <id>=<px>`, `--drag <id>=<dx>,<dy>`, `--navigate <canvas>?<param>=<value>`,
 `--label <name>`. Look at the
-screenshots: validation cannot tell you a page is ugly. Every option and diagnostic code: [render](@page-render).
+screenshots: a diagnostic cannot tell you a page is ugly. Every option and render code: [render](@page-render).
 
 ## Sites and components as files
 

@@ -1,12 +1,11 @@
 // Sections and components by reference: the definition document, the call,
 // the slot node, the event trigger, componentEvent, the variable parameter,
-// the site manifest, cycles, and every diagnostic of a call or a definition.
+// the site manifest and cycles.
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/catalog_json.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 Json planCard() => {
@@ -159,12 +158,6 @@ Json page({Json? call, Map<String, Object?> extraNodes = const {}}) => {
     ...extraNodes,
   },
 };
-
-/// The diagnostics of a project of [docs] (file name → JSON), by code name.
-List<Diagnostic> project(Map<String, Object?> docs, {SiteManifest? manifest}) =>
-    validateProject(docs, manifest: manifest);
-
-List<Diagnostic> coded(List<Diagnostic> ds, DiagnosticCode code) => ds.where((d) => d.code == code).toList();
 
 void main() {
   group('the component model', () {
@@ -345,43 +338,6 @@ void main() {
   });
 
   group('validation', () {
-    Map<String, Object?> docs({Json? card, Json? p}) => {
-      'PlanCard.json': card ?? planCard(),
-      'pricing.json': p ?? page(),
-    };
-
-    test('a valid definition and call report nothing', () {
-      expect(project(docs()).map((d) => '$d'), isEmpty);
-    });
-
-    test('a call of a component that does not exist is reported on the call node (unknown_component)', () {
-      final ds = coded(project({'pricing.json': page()}), Codes.unknownComponent);
-      expect(ds.single.nodeId, 'card1');
-      expect(ds.single.path, '/nodes/card1/type');
-      final typo = coded(
-        project(
-          docs(
-            p: page(
-              call: {
-                'type': 'PlanCrad',
-                'layout': {'width': 10, 'height': 10},
-              },
-            ),
-          ),
-        ),
-        Codes.unknownComponent,
-      );
-      expect(typo.single.suggestion, 'PlanCard');
-    });
-
-    test('a call without a required prop is reported, suggesting the prop (missing_prop)', () {
-      final p = page();
-      ((p['nodes'] as Map)['card1'] as Map)['props'] = {'popular': true, 'annual': 'annual'};
-      final ds = coded(project(docs(p: p)), Codes.missingProp);
-      expect(ds.single.nodeId, 'card1');
-      expect(ds.single.suggestion, 'price');
-    });
-
     test('a required prop set to its default value is kept: read, set and written again, the call still has it', () {
       final spec = widgetSpecFromJson(planCard()['widget'])!;
       final price = spec.prop('price')!, popular = spec.prop('popular')!;
@@ -393,277 +349,11 @@ void main() {
       expect(Props.empty.set(price, price.defaultValue).toJson(spec), {'price': written['price']});
       expect(Props.empty.set(popular, popular.defaultValue).toJson(spec), isEmpty);
     });
-
-    test('a required prop given by a binding counts as set', () {
-      final p = page();
-      final call = (p['nodes'] as Map)['card1'] as Map;
-      call['props'] = {'annual': 'annual'};
-      (call['bind'] as Map)['props.price'] = r'${count}';
-      expect(coded(project(docs(p: p)), Codes.missingProp), isEmpty);
-    });
-
-    test('a call\'s props are checked for unknown names, wrong types and out-of-range values', () {
-      final p = page();
-      ((p['nodes'] as Map)['card1'] as Map)['props'] = {
-        'price': -3,
-        'popularr': true,
-        'popular': 'yes',
-        'annual': 'annual',
-      };
-      final ds = project(docs(p: p));
-      printOnFailure('$ds');
-      expect(coded(ds, Codes.unknownProp).single.suggestion, 'popular');
-      expect(coded(ds, Codes.outOfRange), isNotEmpty);
-      expect(coded(ds, Codes.wrongType).map((d) => d.path), contains('/nodes/card1/props/popular'));
-    });
-
-    test('a variable parameter names a variable of a compatible type', () {
-      Json withAnnual(Object v) {
-        final p = page();
-        ((p['nodes'] as Map)['card1'] as Map)['props'] = {'price': 1, 'annual': v};
-        return p;
-      }
-
-      expect(coded(project(docs(p: withAnnual('anual'))), Codes.unknownVariable).single.suggestion, 'annual');
-      expect(coded(project(docs(p: withAnnual('count'))), Codes.wrongType).single.path, '/nodes/card1/props/annual');
-      expect(coded(project(docs(p: withAnnual(r'${annual}'))), Codes.wrongType), isNotEmpty);
-    });
-
-    test('a call fills only the slots its component declares, and takes no children', () {
-      final p = page();
-      final call = (p['nodes'] as Map)['card1'] as Map;
-      call['slots'] = {'fotter': 'note'};
-      final ds = project(docs(p: p));
-      expect(coded(ds, Codes.unknownSlot).single.suggestion, 'footer');
-      call
-        ..remove('slots')
-        ..['children'] = ['note'];
-      expect(coded(project(docs(p: p)), Codes.childrenNotAllowed).single.nodeId, 'card1');
-    });
-
-    test('reactions to undeclared component events are reported (unknown_event)', () {
-      final p = page();
-      final call = (p['nodes'] as Map)['card1'] as Map;
-      ((call['actions'] as List).single as Map)['trigger'] = {'type': 'event', 'event': 'onChose'};
-      ((p['nodes'] as Map)['note'] as Map)['actions'] = [
-        {
-          'trigger': {'type': 'event', 'event': 'onChoose'},
-          'actions': [],
-        },
-      ];
-      final ds = coded(project(docs(p: p)), Codes.unknownEvent);
-      expect(ds.map((d) => d.nodeId), containsAll(['card1', 'note']));
-      expect(ds.firstWhere((d) => d.nodeId == 'card1').suggestion, 'onChoose');
-
-      final card = planCard();
-      final chain = (((card['nodes'] as Map)['cta'] as Map)['actions'] as List).single['actions'] as List;
-      (chain[1] as Map)['event'] = 'onPick';
-      expect(coded(project(docs(card: card)), Codes.unknownEvent).single.file, 'PlanCard.json');
-      // A componentEvent outside a component.
-      final p2 = page(
-        extraNodes: {
-          'b': {
-            'type': 'box',
-            'layout': {'width': 1, 'height': 1},
-            'actions': [
-              {
-                'trigger': {'type': 'click'},
-                'actions': [
-                  {'type': 'componentEvent', 'event': 'x'},
-                ],
-              },
-            ],
-          },
-        },
-      );
-      // A top-level componentEvent (in a document that is not a component)
-      // is an event to the document's host: a generated UI's session, which
-      // sends it to the agent. Not reported; one without an event name is.
-      expect(coded(project(docs(p: p2)), Codes.unknownEvent), isEmpty);
-      final b = (p2['nodes'] as Map)['b'] as Map;
-      (((b['actions'] as List).single as Map)['actions'] as List)[0] = {'type': 'componentEvent'};
-      expect(coded(project(docs(p: p2)), Codes.unknownEvent).single.nodeId, 'b');
-    });
-
-    test('a call may not set decoration or padding, which belong to the component (call_field_not_allowed)', () {
-      final p = page();
-      final call = (p['nodes'] as Map)['card1'] as Map;
-      call['decoration'] = {
-        'fills': [
-          {'color': '#FF000000'},
-        ],
-      };
-      (call['layout'] as Map)['padding'] = 8;
-      expect(
-        coded(project(docs(p: p)), Codes.callFieldNotAllowed).map((d) => d.path),
-        containsAll(['/nodes/card1/decoration', '/nodes/card1/layout/padding']),
-      );
-    });
-
-    test('a slot outside a component, or one the component does not declare, is reported', () {
-      final p = page(
-        extraNodes: {
-          's': {
-            'type': 'slot',
-            'layout': {'width': 1, 'height': 1},
-          },
-        },
-      );
-      expect(coded(project(docs(p: p)), Codes.slotOutsideComponent).single.nodeId, 's');
-      final card = planCard();
-      (((card['nodes'] as Map)['foot'] as Map)['props'] as Map)['name'] = 'fooster';
-      final ds = coded(project(docs(card: card)), Codes.unknownSlot);
-      expect(ds.single.suggestion, 'footer');
-      expect(ds.single.file, 'PlanCard.json');
-    });
-
-    test('a slot has no box of its own: no size needed', () {
-      final card = planCard();
-      ((card['nodes'] as Map)['foot'] as Map).remove('layout');
-      expect(project(docs(card: card)), isEmpty);
-    });
-
-    test('a component root whose placement is bound is reported (root_placement_bound)', () {
-      final card = planCard();
-      (((card['nodes'] as Map)['card'] as Map)['bind'] as Map)['layout.width'] = r'${= props.price}';
-      expect(coded(project(docs(card: card)), Codes.rootPlacementBound).single.nodeId, 'card');
-    });
-
-    test('a definition reads props and its own variables, not the page\'s', () {
-      final card = planCard();
-      ((card['nodes'] as Map)['name'] as Map)['props'] = {'text': r'${count} ${props.plan.name} ${hovered}'};
-      final ds = coded(project(docs(card: card)), Codes.unknownName);
-      expect(ds.single.message, contains('"count"'));
-    });
-
-    test('a component whose id differs from its file, is malformed or is declared twice is reported', () {
-      expect(coded(project({'Card.json': planCard()}), Codes.componentIdMismatch).single.suggestion, 'Card');
-      expect(
-        coded(
-          project({
-            'PlanCard.json': {...planCard(), 'id': 'Plan'},
-          }),
-          Codes.componentIdMismatch,
-        ).single.path,
-        '/id',
-      );
-      final lower = planCard()..['widget'] = {...(planCard()['widget'] as Map), 'type': 'planCard'};
-      expect(coded(project({'planCard.json': lower}), Codes.invalidComponent).single.suggestion, 'PlanCard');
-      expect(
-        coded(
-          project({
-            'PlanCard.json': {
-              ...planCard(),
-              'roots': ['card', 'name'],
-            },
-          }),
-          Codes.invalidComponent,
-        ),
-        isNotEmpty,
-      );
-      expect(
-        coded(
-          project({
-            'PlanCard.json': {
-              ...planCard(),
-              'widget': {'doc': 'no type'},
-            },
-          }),
-          Codes.invalidComponent,
-        ),
-        isNotEmpty,
-      );
-      expect(
-        coded(project({'PlanCard.json': planCard(), 'b/PlanCard.json': planCard()}), Codes.duplicateComponent),
-        isNotEmpty,
-      );
-      final row = planCard()..['widget'] = {...(planCard()['widget'] as Map), 'type': 'Row'};
-      expect(
-        coded(project({'Row.json': row}), Codes.duplicateComponent),
-        isEmpty,
-        reason: 'Row is not a core type (row is)',
-      );
-    });
-
-    test('a project component of a type its design system has replaces it: no duplicate', () {
-      final given = ComponentLibrary.of([LayoutDocument.fromJson(planCard(), catalog: standardCatalog)]);
-      final ds = validateProject({'PlanCard.json': planCard()}, options: ValidateOptions(components: given));
-      expect(coded(ds, Codes.duplicateComponent), isEmpty, reason: '$ds');
-    });
-
-    test('a component that calls itself, directly or through another, is reported on each call node', () {
-      Json comp(String type, String calls) => {
-        'schema': 3,
-        'roots': ['r'],
-        'widget': {'type': type},
-        'nodes': {
-          'r': {
-            'type': 'column',
-            'children': ['c'],
-            'layout': {'width': 10, 'height': 10},
-          },
-          'c': {
-            'type': calls,
-            'layout': {'width': 10, 'height': 10},
-          },
-        },
-      };
-      final ds = coded(
-        project({'A.json': comp('A', 'B'), 'B.json': comp('B', 'A'), 'C.json': comp('C', 'C')}),
-        Codes.componentCycle,
-      );
-      expect(ds.map((d) => '${d.file}:${d.nodeId}'), unorderedEquals(['A.json:c', 'B.json:c', 'C.json:c']));
-      expect(ds.first.message, contains('A → B → A'));
-    });
-
-    test('project variables can be read everywhere and may not share a name with a document\'s', () {
-      final manifest = SiteManifest.fromJson({
-        'variables': [
-          {'name': 'count', 'type': 'integer', 'value': 0},
-          {'name': 'site', 'type': 'map', 'value': {}},
-        ],
-      });
-      final card = planCard();
-      ((card['nodes'] as Map)['name'] as Map)['props'] = {'text': r'${site.name}'};
-      final ds = project(docs(card: card), manifest: manifest);
-      expect(coded(ds, Codes.duplicateVariable).single.file, 'pricing.json');
-      expect(coded(ds, Codes.unknownName), isEmpty);
-    });
-
-    test('a component\'s own variables reserve none of the site\'s names (CommandPalette\'s selected, Combobox\'s query)', () {
-      final manifest = SiteManifest.fromJson({
-        'variables': [
-          {'name': 'selected', 'type': 'list', 'value': []},
-        ],
-      });
-      final card = planCard();
-      card['variables'] = {
-        'card': [
-          {'name': 'selected', 'type': 'integer', 'value': 0},
-        ],
-      };
-      expect(coded(project(docs(card: card), manifest: manifest), Codes.duplicateVariable), isEmpty);
-    });
-
-    test('ids are local to a component: the same id in a page and a definition is fine', () {
-      final p = page(
-        extraNodes: {
-          'cta': {
-            'type': 'box',
-            'layout': {'width': 1, 'height': 1},
-          },
-        },
-      );
-      expect(coded(project(docs(p: p)), Codes.duplicateId), isEmpty);
-    });
   });
 
-  test('the guide\'s example site (tool/reference/examples/sections) is valid, and is the guide\'s', () {
+  test('the guide\'s example site (tool/reference/examples/sections) is the guide\'s', () {
     const base = 'tool/reference/examples/sections';
     Json read(String f) => jsonDecode(File('$base/$f').readAsStringSync()) as Json;
-    final manifest = SiteManifest.fromJson(read('site.json'));
-    final docs = {for (final f in ['pages/home.json', ...manifest.components]) f: read(f)};
-    expect(validateProject(docs, manifest: manifest).map((d) => '$d'), isEmpty);
     final section = File('docs/reference/components.md').readAsStringSync();
     final blocks = RegExp(r'```json\n(.*?)\n```', dotAll: true).allMatches(section).map((m) => m[1]!).toList();
     expect(jsonDecode(blocks[0]), read('components/Chip.json'));

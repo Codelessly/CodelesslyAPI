@@ -5,7 +5,7 @@
 <a id="render-when-to-use"></a>
 ## When to use
 
-Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after
+Checking a document or a site before trusting it: screenshots at each size, the states after
 taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. The
 command lives in the SDK repository (`tool/render/render.sh`; its README has every option).
 
@@ -60,8 +60,8 @@ tool/render/render.sh home.json --out shots/ --sizes 390x844,834x1112,1440x900 -
 ### What it does
 
 Decoding is lenient: a misspelled key, a value of the wrong shape or an unknown enum value is silently ignored or
-replaced by its default. Never trust a document that has not been checked. The command validates every document
-strictly, renders each screen with the SDK at each size, writes `shots/<screen>@<w>x<h>.png` and
+replaced by its default. Never trust a document that has not been checked. The command
+renders each screen with the SDK at each size, writes `shots/<screen>@<w>x<h>.png` and
 `shots/diagnostics.json`, and prints one line per problem with a code, the JSON pointer of the value
 (`/nodes/hero-title/props/style/fontSize`) or the node, and what to do. It exits 1 when there are errors.
 
@@ -101,94 +101,10 @@ the capture is the window where the steps left the page. `--theme light|dark` st
 `--fonts <dir>` adds other font files (`--fonts system`: the system's). `--component <Type>` and
 `--components-all` render components alone.
 
-<a id="render-validation-codes"></a>
-### Validation codes
-
-From `package:codelessly_api/validate.dart`:
-
-| Code | Severity | Meaning |
-|---|---|---|
-| `above_level` | error | Something from a higher level of the vocabulary than the document is limited to (`ValidateOptions.level`): a node type, action, trigger, behavior, binding or expression. |
-| `invalid_document` | error | The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list). |
-| `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3). |
-| `schema_outdated` | info | A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
-| `legacy_value` | warning | A `legacy.<name>` key the migration kept: a value that had no current form and is no longer read. |
-| `unknown_document_key` | error | A top-level key of the document that nothing reads. |
-| `dangling_root` | error | A root id that names no node. |
-| `root_not_canvas` | warning | A root that is not a canvas: it is never shown as a screen. |
-| `no_roots` | error | The document has no roots, so nothing is shown. |
-| `invalid_node` | error | A node that is not an object or has no "type": decoding drops it. |
-| `unknown_node_type` | error | A node type no declaration knows: it renders as an empty box. |
-| `unknown_node_key` | error | A key on a node that is neither a node field nor a behavior: it is kept but does nothing. |
-| `unknown_prop` | error | A key in "props" that the node type does not declare: it does nothing. |
-| `unknown_layout_key` | error | A key in "layout" that layout does not read. |
-| `unknown_decoration_key` | error | A key in "decoration" that decoration does not read. |
-| `unknown_field` | error | A key inside a value (a paint, a text style, a behavior model...) that its type does not read. |
-| `wrong_type` | error | A value of the wrong JSON type or shape: decoding ignores it and uses the default. |
-| `loose_value` | warning | A value of another JSON type that decoding converts (the text "12" for a number): write the type itself. |
-| `invalid_enum` | error | A value that is not one of the allowed names: decoding uses the default. |
-| `out_of_range` | error | A number outside its declared bounds: decoding clamps it. |
-| `decoration_ignored` | warning | Fills, strokes, radius or shadows on a type without a box decoration: only blur effects are kept. |
-| `dangling_child` | error | A child id that names no node. |
-| `dangling_slot` | error | A slot whose id names no node. |
-| `multiple_parents` | error | A node listed as a child (or slot) of more than one parent, or twice in one parent. |
-| `cycle` | error | A node that contains itself. |
-| `unreachable_node` | warning | A node no root reaches: it is never shown. |
-| `unknown_slot` | error | A slot name the node type does not have. |
-| `children_not_allowed` | error | A "children" list on a type that takes none (or takes slots only): they are never shown. |
-| `slots_not_allowed` | error | A "slots" map on a type that has no slots. |
-| `canvas_as_child` | error | A canvas used as the child of another node: canvases are screens, only roots. |
-| `layout_field_ignored` | warning | A layout field the node's parent does not read (x/y outside a stack, flex/align outside a row or column). |
-| `fit_not_allowed` | warning | A width or height mode the parent cannot honor (fill along a scrolling axis, flexible outside a row/column). |
-| `zero_size` | warning | A fixed width or height of 0 (often a missing "width"/"height"): the node is invisible. |
-| `vertical_wrap` | warning | A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side. |
-| `layout_clamped` | warning | A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks). |
-| `prop_ignored` | warning | A prop that has no effect with another the node sets (a grid's mainAxisExtent while shrinkWrapRows sizes its rows): one of them is ignored. |
-| `state_no_effect` | warning | A bound "selected" with no "states.selected" style: the node is selected, but nothing changes how it looks. |
-| `unknown_bind_path` | error | A "bind" key that names no bindable field of the node. |
-| `reserved_bind_path` | warning | A binding path that is kept but not applied yet. |
-| `expression_syntax` | error | A "${" that is not closed, or an empty ${}. |
-| `unknown_name` | error | An expression reads a name that is neither a declared variable nor a scope the runtime provides. |
-| `unknown_trigger` | error | A reaction whose trigger type is unknown or missing: the reaction is dropped. |
-| `unknown_trigger_key` | error | A key of a trigger that triggers do not read. |
-| `unknown_action_type` | error | An action type no declaration knows: the runtime skips it. |
-| `unknown_action_key` | error | A key of an action that its type does not read. |
-| `unknown_target_node` | error | An action or condition names a node id that is not in the document. |
-| `unknown_screen` | error | A navigate or openModal names a screen (canvas or layout id) that does not exist. |
-| `unknown_variable` | error | An action or trigger names a variable that is not declared. |
-| `invalid_reaction` | error | A reaction or action that is not an object, or an action list that is not a list. |
-| `invalid_variable` | error | A variable without a name, with an unknown type, or whose value its type cannot hold. |
-| `duplicate_variable` | error | Two variables of the same name in one scope. |
-| `unknown_scope` | error | Variables or conditions keyed by an id that is not a canvas of the document (nor page_variables). |
-| `invalid_condition` | error | A condition, branch, predicate or set entry of the wrong shape. |
-| `unknown_breakpoint` | error | A canvas, variant or media rule names a breakpoint the project does not define. |
-| `invalid_media` | error | A "media" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size. |
-| `media_overridden` | warning | A media rule patches a field the node also binds: the binding wins, so the patch never shows. |
-| `unknown_theme_name` | error | A color or text style names a color or text style the project's theme (the site manifest's "theme") does not have: it would show transparent or unstyled. |
-| `invalid_theme` | error | The site manifest's "theme" is not of the right shape: colors are "#AARRGGBB" (or another color's name), text styles are TextStyle objects, media rules patch colors and textStyles. |
-| `theme_role_in_colors` | warning | A color role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's "colors": roles are top-level keys of the theme, so controls never read it. Move it up ("primary": "#FF..." or "primary": "<a color's name>"). |
-| `site_key_ignored` | warning | A key of the site manifest (site.json) that nothing reads. A theme key written beside "theme" (primary, colors, dark...) belongs inside it: "theme": {"primary": "#FF...", "colors": {...}}. |
-| `invalid_fonts` | error | The site manifest's "fonts" is not of the right shape: a list of {"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf", "weight": 400, "style": "normal"}]} (a pubspec's fonts: section). |
-| `font_format` | error | A declared font file is not .ttf, .otf or .woff: WOFF2 (Brotli-compressed) and font collections (.ttc) are not read. Use the .woff or .ttf of the same face. |
-| `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
-| `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
-| `duplicate_id` | warning | The same canvas id in two documents of one project: navigate and openModal name a screen by its canvas id, so a link reaches one of them. Other node ids are per document and may repeat. |
-| `unknown_component` | error | A call names a component type (UpperCamelCase) that no definition of the project declares: it renders as an empty box of its size. |
-| `duplicate_component` | error | Two definitions declare the same component type, or a component type is also a catalog type: there is no shadowing. |
-| `component_cycle` | error | A component calls itself, directly or through other components: it can never finish rendering. |
-| `component_id_mismatch` | error | A component document whose file name (or "id") is not its widget type: a file holds the component it is named after. |
-| `invalid_component` | error | A component document of the wrong shape: a "widget" without a type, a type that is not UpperCamelCase, or not exactly one root. |
-| `missing_prop` | error | A call does not set a parameter the component declares as required. |
-| `unknown_event` | error | An event reaction (or a componentEvent action) names an event the component does not declare, or sits on a node that is not a component call. |
-| `call_field_not_allowed` | error | A field on a call that belongs to the definition (decoration, layout.padding): the call gives size and placement only. |
-| `slot_outside_component` | warning | A slot node in a document that is not a component: nothing fills it, its own children show. |
-| `root_placement_bound` | warning | A component root binds its size or placement: the call sizes and places the root, so the binding is dropped. |
-| `repeated_subtree` | info | A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once. |
-
 <a id="render-render-codes"></a>
 ### Render codes
 
-The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
+The render step reports what rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
@@ -206,7 +122,7 @@ the render command.
 <a id="render-a-loop-that-converges"></a>
 ### A loop that converges
 
-Validate and render after each section, read the diagnostics, then look at the PNGs next to the target: validation
+Render after each section, read the diagnostics, then look at the PNGs next to the target: a diagnostic
 cannot tell you that a page is ugly. Fix by the JSON pointer each line gives. Capture each state with its own
 `--label` so the files do not overwrite each other.
 

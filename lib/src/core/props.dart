@@ -537,7 +537,7 @@ final class PropDef<T> {
   final String doc;
 
   /// A component parameter the call must set (Flutter's `required`): a call
-  /// without it is `missing_prop`. The core's own props are never required.
+  /// sets it. The core's own props are never required.
   final bool required;
 
   T? decode(Object? json) => codec.decode(json);
@@ -638,7 +638,7 @@ final class WidgetSpec {
 
   /// A control (a button, a chip, a spinner): a node of it that gives no
   /// `layout.width` or `layout.height` hugs its content on that axis (the
-  /// default control's size) instead of being 0 (`zero_size`).
+  /// default control's size) instead of being 0.
   final bool hugs;
 
   PropDef<Object?>? prop(String key) {

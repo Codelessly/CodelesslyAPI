@@ -2,7 +2,7 @@
 
 ## When to use
 
-Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after
+Checking a document or a site before trusting it: screenshots at each size, the states after
 taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. The
 command lives in the SDK repository (`tool/render/render.sh`; its README has every option).
 
@@ -21,8 +21,8 @@ tool/render/render.sh home.json --out shots/ --sizes 390x844,834x1112,1440x900 -
 ### What it does
 
 Decoding is lenient: a misspelled key, a value of the wrong shape or an unknown enum value is silently ignored or
-replaced by its default. Never trust a document that has not been checked. The command validates every document
-strictly, renders each screen with the SDK at each size, writes `shots/<screen>@<w>x<h>.png` and
+replaced by its default. Never trust a document that has not been checked. The command
+renders each screen with the SDK at each size, writes `shots/<screen>@<w>x<h>.png` and
 `shots/diagnostics.json`, and prints one line per problem with a code, the JSON pointer of the value
 (`/nodes/hero-title/props/style/fontSize`) or the node, and what to do. It exits 1 when there are errors.
 
@@ -61,15 +61,9 @@ the capture is the window where the steps left the page. `--theme light|dark` st
 `--fonts <dir>` adds other font files (`--fonts system`: the system's). `--component <Type>` and
 `--components-all` render components alone.
 
-### Validation codes
-
-From `package:codelessly_api/validate.dart`:
-
-{{diagnosticCodes}}
-
 ### Render codes
 
-The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
+The render step reports what rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
@@ -85,7 +79,7 @@ the render command.
 
 ### A loop that converges
 
-Validate and render after each section, read the diagnostics, then look at the PNGs next to the target: validation
+Render after each section, read the diagnostics, then look at the PNGs next to the target: a diagnostic
 cannot tell you that a page is ugly. Fix by the JSON pointer each line gives. Capture each state with its own
 `--label` so the files do not overwrite each other.
 

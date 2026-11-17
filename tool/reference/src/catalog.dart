@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
+import 'document_data.dart';
 
 import 'introspect.dart';
 
@@ -177,9 +177,6 @@ final class Catalog {
       'objectTypes': {for (final k in (objectTypes.keys.toList()..sort())) k: objectTypes[k]},
       'enums': enumsJson,
       'formulas': formulas,
-      'diagnostics': [
-        for (final c in Codes.all) {'code': c.name, 'severity': c.severity.name, 'meaning': c.meaning},
-      ],
     };
   }
 
@@ -334,5 +331,5 @@ final class Catalog {
   }
 }
 
-/// The nested chain keys (validator's), public for the catalog.
+/// The keys of an action that hold nested action chains.
 const nestedChainKeysPublic = {'then', 'else', 'actions', 'onSuccess', 'onError', 'cancelActions'};

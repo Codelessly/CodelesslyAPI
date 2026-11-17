@@ -80,7 +80,7 @@ final class ThemeRefs {
     final from = readString(own['from'])?.trim();
     if (from == null || from.isEmpty) return fields;
     final base = _style(from);
-    if (base == null) return fields; // an unknown name stays (validation reports it)
+    if (base == null) return fields; // an unknown name stays
     final merged = base.merge(TextStyle.fromJson(fields)).toJson();
     // The resolved style keeps the name it starts from: a patch naming
     // another style replaces it as a whole (mergeNodePatch).

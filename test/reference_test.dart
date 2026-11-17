@@ -1,7 +1,7 @@
 // The committed reference (docs/reference) is what the generator makes of
 // the declarations today; its links and anchors resolve; every declared
 // item is documented on exactly one page; every page has the same six
-// sections; every JSON example in it is valid; the base is within its size.
+// sections; every JSON example in it parses; the base is within its size.
 @TestOn('vm')
 library;
 
@@ -9,7 +9,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 import '../tool/reference/src/areas.dart';
@@ -41,36 +40,11 @@ void main() {
     expect(lingering, isEmpty, reason: 'Files the generator no longer writes');
   });
 
-  test('every example document is valid, without warnings', () {
-    final docs = [
-      for (final f in Directory('$root/tool/reference/examples').listSync(recursive: true).whereType<File>())
-        if (f.path.endsWith('.json') && !f.path.contains('/sections/') && !f.path.contains('/theme/') && !f.path.contains('/site/')) f,
-    ];
-    expect(docs.length, greaterThan(20));
-    for (final f in docs) {
-      final diagnostics = validateDocument(jsonDecode(f.readAsStringSync()));
-      expect(diagnostics.map((d) => '$d'), isEmpty, reason: f.path);
-    }
-    // The theme example is a site: its page names the manifest's theme.
-    Json t(String f) => jsonDecode(File('$root/tool/reference/examples/theme/$f').readAsStringSync()) as Json;
-    final manifest = SiteManifest.fromJson(t('site.json'));
-    expect(validateProject({'home.json': t('home.json')}, manifest: manifest).map((d) => '$d'), isEmpty);
-    // The complete site: its manifest's pages and components, as one project.
-    final site = '$root/tool/reference/examples/site';
-    final siteManifest = jsonDecode(File('$site/site.json').readAsStringSync()) as Json;
-    final files = {
-      for (final f in [...(siteManifest['pages'] as List), ...(siteManifest['components'] as List)])
-        f as String: jsonDecode(File('$site/$f').readAsStringSync()),
-    };
-    expect(files, hasLength(4));
-    expect(validateProject(files, manifest: SiteManifest.fromJson(siteManifest)).map((d) => '$d'), isEmpty);
-  });
-
-  test('every JSON block of every page parses, and every whole document in them is valid', () {
+  test('every JSON block of every page parses', () {
     var documents = 0, blocks = 0;
     for (final f in [...pageFiles, 'STARTER.md', 'RUNTIME_STARTER.md']) {
       // Blocks labeled with a site's file name (`pages/home.json`:) are the
-      // files of one site, validated together against its site.json.
+      // files of one site, with its site.json.
       final site = <String, Object?>{};
       Json? manifest;
       for (final m in RegExp(r'(?:^`((?:site|pages/[^`]+|components/[^`]+)\.json)`(?:[^\n]|\n(?!\n))*?:\n\n)?```json\n(.*?)\n```', dotAll: true, multiLine: true)
@@ -88,7 +62,6 @@ void main() {
         documents += site.length;
         expect(site, hasLength(4), reason: '$f: the site example\'s pages and components');
         expect(manifest, isNotNull, reason: '$f: a site\'s files without its site.json');
-        expect(validateProject(site, manifest: SiteManifest.fromJson(manifest)).map((d) => '$d'), isEmpty, reason: f);
       }
       for (final m in RegExp(r'(^`(?:site|pages/[^`]+|components/[^`]+)\.json`(?:[^\n]|\n(?!\n))*?:\n\n)?```json\n(.*?)\n```', dotAll: true, multiLine: true)
           .allMatches(read(f))) {
@@ -103,7 +76,6 @@ void main() {
         // A site manifest (site.json) is not a layout document.
         if (json is Map && json['schema'] == kSchemaVersion && !json.containsKey('pages')) {
           documents++;
-          expect(validateDocument(json).map((d) => '$d'), isEmpty, reason: '$f: ${m[2]}');
         }
       }
     }
@@ -212,9 +184,8 @@ void main() {
     }
   });
 
-  test('the catalog lists every diagnostic code and every node type', () {
+  test('the catalog lists every node type', () {
     final catalog = jsonDecode(read('catalog.json')) as Map;
-    expect((catalog['diagnostics'] as List).length, Codes.all.length);
     expect((catalog['nodeTypes'] as Map).length, greaterThan(60));
   });
 }

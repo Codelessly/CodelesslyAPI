@@ -1,8 +1,6 @@
 // A site's theme over a design system's tokens: what the design system
-// makes from its accent follows the site's accent, light and dark; and a
-// theme key written beside "theme" in site.json is reported.
+// makes from its accent follows the site's accent, light and dark.
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 final _base = ThemeTokens.fromJson({
@@ -137,30 +135,5 @@ void main() {
     expect(t.textStyles['caption']!.fontFamily, 'Karla', reason: 'the one the site gives the style');
     expect(t.textStyles['number']!.fontFamily, 'Fraunces', reason: 'another family is changed by naming the style');
     expect(t.textStyles['code']!.fontFamily, 'JetBrains Mono');
-  });
-
-  group('validateSiteManifest', () {
-    test('a theme key beside "theme" says where it goes', () {
-      final ds = validateSiteManifest({
-        'schema': 3,
-        'pages': ['home.json'],
-        'designSystem': '../cards',
-        'primary': '#FFB45309',
-        'colors': {'accent': '#FFB45309'},
-        'theme': {'primary': '#FFB45309'},
-      });
-      expect(ds.map((d) => '${d.code.name} ${d.severity.name} ${d.path}'), ['site_key_ignored warning /primary', 'site_key_ignored warning /colors']);
-      expect(ds.first.message, contains('"theme": {"primary": "#FFB45309"}'));
-    });
-
-    test('a key nothing reads is named, with the nearest one', () {
-      final d = validateSiteManifest({'schema': 3, 'page': ['home.json'], 'name': 'Shop'}).single;
-      expect(d.path, '/page');
-      expect(d.suggestion, 'pages');
-    });
-
-    test('a manifest of its own keys is clean', () {
-      expect(validateSiteManifest({'schema': 3, 'pages': [], 'components': [], 'variables': {}, 'theme': {}, 'fonts': [], 'breakpoints': []}), isEmpty);
-    });
   });
 }

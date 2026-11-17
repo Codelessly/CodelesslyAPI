@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6205
+      "words": 6182
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6187
+      "words": 6167
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 10353
+      "words": 10330
     },
     {
       "topic": "layout-layout-fields",
@@ -65,7 +65,7 @@
       "anchor": "layout-responsive-design",
       "title": "Responsive design",
       "summary": "Responsive layout works as on the web: flexbox and grid lay content out so it fits any width, and media queries change what must change at a width.",
-      "words": 442
+      "words": 433
     },
     {
       "topic": "layout-a-capped-band",
@@ -177,7 +177,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 2971
+      "words": 2963
     },
     {
       "topic": "theme-theme-keys",
@@ -249,7 +249,7 @@
       "anchor": "theme-fonts",
       "title": "Fonts",
       "summary": "`style.fontFamily` names a family (`\"Inter\"`), with `fontWeight` and `fontStyle` choosing the file.",
-      "words": 260
+      "words": 259
     },
     {
       "topic": "decoration",
@@ -257,7 +257,7 @@
       "anchor": "page-decoration",
       "title": "Decoration, images, icons and drawing",
       "summary": "What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing.",
-      "words": 4097
+      "words": 4096
     },
     {
       "topic": "decoration-decoration-fields",
@@ -345,7 +345,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 13600
+      "words": 13599
     },
     {
       "topic": "forms-triggers",
@@ -457,7 +457,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 8049
+      "words": 8037
     },
     {
       "topic": "lists-triggers",
@@ -489,7 +489,7 @@
       "anchor": "lists-equal-height-cards",
       "title": "Equal-height cards",
       "summary": "In a `gridView` with `\"shrinkWrapRows\": true` (CSS grid's auto rows) each row is as tall as its tallest item, and every item is stretched to it, whether it hugs or fills its height.",
-      "words": 129
+      "words": 128
     },
     {
       "topic": "lists-nested-lists",
@@ -521,7 +521,7 @@
       "anchor": "lists-filter-sort-and-page-a-list",
       "title": "Filter, sort and page a list",
       "summary": "Search, a status filter, sortable columns and pages are computed variables over the records, chained: `shown` filters and sorts them, `paged` is one page of it, and the list binds `${paged}`.",
-      "words": 390
+      "words": 386
     },
     {
       "topic": "lists-a-weekly-grid",
@@ -529,7 +529,7 @@
       "anchor": "lists-a-weekly-grid",
       "title": "A weekly grid",
       "summary": "Seven columns of days from data: a `gridView` with `\"crossAxisCount\": 7` bound to the days (`${= range(7)}`, or a computed list of `{day, done}` records), each cell a box whose fill is bound to the item.",
-      "words": 339
+      "words": 334
     },
     {
       "topic": "lists-a-carousel-pages-and-pagination",
@@ -545,7 +545,7 @@
       "anchor": "page-navigation",
       "title": "Screens, navigation, modals and toasts",
       "summary": "Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions).",
-      "words": 4759
+      "words": 4754
     },
     {
       "topic": "navigation-triggers",
@@ -569,7 +569,7 @@
       "anchor": "navigation-going-to-a-screen-and-back",
       "title": "Going to a screen and back",
       "summary": "`{\"type\": \"navigate\", \"to\": \"<canvas id>\"}` pushes the screen; `\"mode\": \"pop\"` goes back; `\"replace\"` and `\"reset\"` replace the history.",
-      "words": 124
+      "words": 119
     },
     {
       "topic": "navigation-modals-and-toasts",
@@ -617,7 +617,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts.",
-      "words": 6732
+      "words": 6726
     },
     {
       "topic": "state-variables",
@@ -785,7 +785,7 @@
       "anchor": "page-interaction",
       "title": "Interaction: reactions, states and gestures",
       "summary": "What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics.",
-      "words": 6350
+      "words": 6342
     },
     {
       "topic": "interaction-trigger-fields",
@@ -817,7 +817,7 @@
       "anchor": "interaction-reactions",
       "title": "Reactions",
       "summary": "A node's `actions` is a list of **reactions**: a trigger and the chain of actions it runs, in order.",
-      "words": 194
+      "words": 186
     },
     {
       "topic": "interaction-hover-press-and-other-states",
@@ -825,7 +825,7 @@
       "anchor": "interaction-hover-press-and-other-states",
       "title": "Hover, press and other states",
       "summary": "`states` on a node changes it and its descendants while it is `hovered`, `pressed`, `focused`, `selected`, `disabled` or `dragged`.",
-      "words": 177
+      "words": 176
     },
     {
       "topic": "interaction-a-segmented-toggle-monthly-annual",
@@ -961,7 +961,7 @@
       "anchor": "page-components",
       "title": "Components and sections",
       "summary": "Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section.",
-      "words": 3862
+      "words": 3820
     },
     {
       "topic": "components-parameter-kinds",
@@ -969,23 +969,23 @@
       "anchor": "components-parameter-kinds",
       "title": "Parameter kinds",
       "summary": "Declared in `widget.props` as the catalog declares any prop: `key`, `type` (`kind` and the Flutter type; `min`, `max`, enum `values`, list `item`), `default`, `doc`, and `\"required\": true` for one a call must set.",
-      "words": 128
+      "words": 130
     },
     {
       "topic": "components-the-site-manifest",
       "file": "components.md",
       "anchor": "components-the-site-manifest",
       "title": "The site manifest",
-      "summary": "A directory with a `site.json` is a site: its pages, its components and its project variables, read by bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).",
-      "words": 158
+      "summary": "A directory with a `site.json` is a site: its pages, its components and its project variables, read by bare name in every page and component (do not give a page or component variable the same name).",
+      "words": 155
     },
     {
-      "topic": "components-validation-codes",
+      "topic": "components-render-codes",
       "file": "components.md",
-      "anchor": "components-validation-codes",
-      "title": "Validation codes",
-      "summary": "`unknown_component` (a call to a type no definition declares), `duplicate_component`, `component_cycle` (a component calling itself, directly or through others), `component_id_mismatch` (the file is not named after its type), `invalid_component`, `missing_prop`, `unknown_event`, `call_field_not_allowed`, `slot_outside_component`, `root_placement_bound`.",
-      "words": 51
+      "anchor": "components-render-codes",
+      "title": "Render codes",
+      "summary": "The render command reports `component_missing` (a call rendered without its definition: an empty box of its size).",
+      "words": 17
     },
     {
       "topic": "components-triggers",
@@ -1105,7 +1105,7 @@
       "anchor": "page-design-systems",
       "title": "Design systems",
       "summary": "Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns.",
-      "words": 839
+      "words": 828
     },
     {
       "topic": "design-systems-the-manifest",
@@ -1121,7 +1121,7 @@
       "anchor": "design-systems-what-a-site-gets-from-it",
       "title": "What a site gets from it",
       "summary": "- **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a color, a   style, a scale step).",
-      "words": 126
+      "words": 117
     },
     {
       "topic": "design-systems-writing-one",
@@ -1329,7 +1329,7 @@
       "anchor": "page-edit-ops",
       "title": "Edit ops and streaming",
       "summary": "Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use.",
-      "words": 3581
+      "words": 3587
     },
     {
       "topic": "edit-ops-the-ops",
@@ -1353,7 +1353,7 @@
       "anchor": "edit-ops-the-tools",
       "title": "The tools",
       "summary": "`outline(document)` is one row per node, `[id, type, label, depth, {what is bound, states, triggers}]`, a sixth to a seventh of the document's size (the two m05 pages: 6.7 KB for 147 nodes against 47.6 KB, 8.3 KB for 196 nodes against 55.4 KB).",
-      "words": 494
+      "words": 496
     },
     {
       "topic": "edit-ops-the-trust-profile",
@@ -1392,8 +1392,8 @@
       "file": "render.md",
       "anchor": "page-render",
       "title": "The render command: checking your work",
-      "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 3140
+      "summary": "Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
+      "words": 1365
     },
     {
       "topic": "render-what-it-does",
@@ -1401,7 +1401,7 @@
       "anchor": "render-what-it-does",
       "title": "What it does",
       "summary": "Decoding is lenient: a misspelled key, a value of the wrong shape or an unknown enum value is silently ignored or replaced by its default.",
-      "words": 83
+      "words": 79
     },
     {
       "topic": "render-steps-before-the-capture",
@@ -1412,28 +1412,20 @@
       "words": 535
     },
     {
-      "topic": "render-validation-codes",
-      "file": "render.md",
-      "anchor": "render-validation-codes",
-      "title": "Validation codes",
-      "summary": "From `package:codelessly_api/validate.dart`:",
-      "words": 590
-    },
-    {
       "topic": "render-render-codes",
       "file": "render.md",
       "anchor": "render-render-codes",
       "title": "Render codes",
-      "summary": "The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `page_not_written`.",
-      "words": 103
+      "summary": "The render step reports what rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `page_not_written`.",
+      "words": 102
     },
     {
       "topic": "render-a-loop-that-converges",
       "file": "render.md",
       "anchor": "render-a-loop-that-converges",
       "title": "A loop that converges",
-      "summary": "Validate and render after each section, read the diagnostics, then look at the PNGs next to the target: validation cannot tell you that a page is ugly.",
-      "words": 50
+      "summary": "Render after each section, read the diagnostics, then look at the PNGs next to the target: a diagnostic cannot tell you that a page is ugly.",
+      "words": 49
     },
     {
       "topic": "render-capturing-states",
@@ -1465,7 +1457,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13568
+      "words": 13560
     },
     {
       "topic": "values-value-types",
@@ -1481,7 +1473,7 @@
       "anchor": "values-models",
       "title": "Models",
       "summary": "Objects with declared fields.",
-      "words": 12
+      "words": 10
     },
     {
       "topic": "values-enums",
@@ -1942,9 +1934,9 @@
       "anchor": "render-capturing-states"
     },
     {
-      "need": "Every validation and render code",
+      "need": "Every render code",
       "file": "render.md",
-      "anchor": "render-validation-codes"
+      "anchor": "render-render-codes"
     },
     {
       "need": "Build and edit with ops; streaming; the retry protocol",

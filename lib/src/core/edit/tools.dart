@@ -139,7 +139,7 @@ const String uiApplyCompactDescription =
 
 /// The compact `ui_apply` input schema: the op envelope, strictly (op names,
 /// field names and kinds from [EditOp.specs]); a node is any object, its
-/// contents described by the starter and checked by validation.
+/// contents described by the starter and checked per op (`EditCheck`).
 Json uiApplyCompactInputSchema() {
   final fields = <String, EditOpField>{};
   for (final s in EditOp.specs) {

@@ -2,7 +2,7 @@
 // read from the document alone: a tappable box that shows nothing (a button
 // without a label), text drawn in its background's color. Warnings in the
 // edit layer's diagnostic shape, so a host returns them in the same tool
-// result as validation and the model fixes them on its retry. A renderer
+// result as the ops' own diagnostics and the model fixes them on its retry. A renderer
 // adds what only layout and fonts can tell ([EditCodes.missingGlyph],
 // [EditCodes.noSize]).
 import 'dart:math' as math;

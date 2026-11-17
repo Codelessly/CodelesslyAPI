@@ -1,20 +1,16 @@
 // The schema-3 migration over a corpus of schema-2 documents: every document
-// migrates without throwing, validates with no new errors, and re-encodes
-// stably (migrate → encode → decode → encode is a fixed point); the
-// aggregated MigrationReport is written as Markdown.
+// migrates without throwing and re-encodes stably (migrate → encode →
+// decode → encode is a fixed point); the aggregated MigrationReport is
+// written as Markdown.
 //
-//   dart run tool/migration_corpus.dart <file|dir>... [--baseline-errors errors.json] [--markdown out.md] [--strip prefix]
+//   dart run tool/migration_corpus.dart <file|dir>... [--markdown out.md] [--strip prefix]
 //
-// --baseline-errors: per document (`file#pointer`), the error codes and
-// counts the schema-2 validator reported (written by the same walk with the
-// previous release); a code whose count grows is a new error. --strip
-// removes a prefix from the file names in the report.
+// --strip removes a prefix from the file names in the report.
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/migrate/steps_spellings.dart' show spellingMigrationSteps;
-import 'package:codelessly_api/validate.dart';
 
 void main(List<String> args) {
   String? option(String name) {
@@ -22,13 +18,11 @@ void main(List<String> args) {
     return i >= 0 && i + 1 < args.length ? args[i + 1] : null;
   }
 
-  final options = {'--baseline-errors', '--markdown', '--strip'};
+  final options = {'--markdown', '--strip'};
   final inputs = [
     for (var i = 0; i < args.length; i++)
       if (!args[i].startsWith('--') && (i == 0 || !options.contains(args[i - 1]))) args[i],
   ];
-  final baselinePath = option('--baseline-errors');
-  final baseline = baselinePath == null ? null : (jsonDecode(File(baselinePath).readAsStringSync()) as Map).cast<String, Object?>();
   final strip = option('--strip') ?? '';
   final files = <File>[
     for (final p in inputs)
@@ -44,7 +38,6 @@ void main(List<String> args) {
   // The size of the schema-2 documents, encoded compactly, before and after.
   var bytesBefore = 0, bytesAfter = 0;
   final failures = <String>[];
-  final newErrors = <String>[];
   for (final f in files) {
     Object? json;
     try {
@@ -80,16 +73,6 @@ void main(List<String> args) {
         final e1 = LayoutDocument.fromJson(out, catalog: standardCatalog).toJson();
         final e2 = LayoutDocument.fromJson(e1, catalog: standardCatalog).toJson();
         if (jsonEncode(e1) != jsonEncode(e2)) failures.add('$key: re-encoding is not a fixed point');
-        // No new errors.
-        final counts = <String, int>{};
-        for (final d in validateDocument(out)) {
-          if (d.isError) counts[d.code.name] = (counts[d.code.name] ?? 0) + 1;
-        }
-        final before = (readMap(baseline?[key]) ?? const <String, Object?>{});
-        for (final e in counts.entries) {
-          final was = readInt(before[e.key]) ?? 0;
-          if (e.value > was) newErrors.add('$key: ${e.key} ${e.value} (was $was)');
-        }
         return;
       }
       if (v is Map) {
@@ -116,7 +99,6 @@ void main(List<String> args) {
       '(${growth >= 0 ? '+' : ''}${growth.toStringAsFixed(2)}%)';
   stdout.writeln(bytes);
   stdout.writeln('failures: ${failures.length}${failures.isEmpty ? '' : '\n  ${failures.join('\n  ')}'}');
-  stdout.writeln('new errors: ${newErrors.length}${newErrors.isEmpty ? '' : '\n  ${newErrors.join('\n  ')}'}');
   final markdown = option('--markdown');
   if (markdown != null) {
     final body = migrationReportMarkdown(report, title: 'Schema 2 → 3: the migration over the corpus');
@@ -124,9 +106,8 @@ void main(List<String> args) {
         '- $documents documents in ${files.length} files ($migrated schema 2) migrated without throwing.\n'
         '- Migrating each result again changed nothing; migrate → encode → decode → encode was a fixed point for '
         '${failures.isEmpty ? 'every one' : 'all but ${failures.length}'}.\n'
-        '- New validation errors against the schema-2 validator: ${newErrors.length}.\n'
         '- ${bytes[0].toUpperCase()}${bytes.substring(1)}.\n'
-        '${[...failures, ...newErrors].map((e) => '  - $e\n').join()}');
+        '${failures.map((e) => '  - $e\n').join()}');
   }
   if (failures.isNotEmpty) exitCode = 1;
 }

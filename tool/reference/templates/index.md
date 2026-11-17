@@ -99,7 +99,7 @@ section's anchor is its topic.
 | Keep a value on the device | @@data-storage-on-the-device |
 | Show the signed-in user | @@auth-show-the-signed-in-user |
 | Capture the states (after a tap, typing, an open menu) with the render command | @@render-capturing-states |
-| Every validation and render code | @@render-validation-codes |
+| Every render code | @@render-render-codes |
 | Build and edit with ops; streaming; the retry protocol | @@edit-ops-the-ops |
 | How one value type is written (color, alignment, insets) | @@values-colors-and-alignments |
 

@@ -1,3 +1,17 @@
+## Unreleased
+
+### Changed
+
+- **Notation**: `NotationOptions.fromTheme`/`fromDesignSystem` take `nearestColors` (default false); with `named`
+  a color the notation writes now stays as written unless `nearestColors: true` (before, `named` also read it as
+  the theme's nearest color).
+
+### Removed
+
+- **The strict validator** (`package:codelessly_api/validate.dart`: `validateDocument`, `validateProject`,
+  `strictEditCheck`, `Codes` and the rest of the library) is gone. `applyOps` checks ops with `catalogCheck`, as
+  before by default; the reference no longer has the validation codes table, and `catalog.json` no `diagnostics`.
+
 ## 33.1.1
 
 Released with codelessly_sdk 33.1.1.

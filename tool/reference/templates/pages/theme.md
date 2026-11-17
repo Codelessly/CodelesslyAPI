@@ -66,8 +66,8 @@ The theme names its scales as it names colors: `"spacing": {"1": 4, "2": 8, "3":
 "panel": 8}`, `"sizes": {"compact": 28, "large": 44}`, `"shadows": {"level3": [{"type": "dropShadow", ...}]}` (with
 `dark` shadows of their own), `"durations": {"fast": 150}` (milliseconds) and `"curves": {"standard": "easeInOut"}`.
 A node reads a step in a binding, `"bind": {"layout.padding": "${theme.spacing.3}", "decoration.radius":
-"${theme.radii.panel}", "decoration.effects": "${theme.shadows.level3}"}`; a name the theme does not have is
-`unknown_theme_name`. A [design system](@page-design-systems) brings a whole set of them. The theme's `radius` and
+"${theme.radii.panel}", "decoration.effects": "${theme.shadows.level3}"}`; a name the theme does not have
+names nothing. A [design system](@page-design-systems) brings a whole set of them. The theme's `radius` and
 `buttonRadius` shape the controls (dialogs and fields, buttons and chips); without them controls take small radii
 of their own (6 and 8).
 
@@ -148,7 +148,7 @@ the families it ships in `site.json`, in the shape of a Flutter pubspec's `fonts
   it draws every weight of its axis (Flutter sets the axis from `fontWeight`), and the render command counts each
   of them as declared. Listing the same file again per weight is not needed.
 - Files are `.ttf`, `.otf` or `.woff` (an npm `@fontsource/<family>` package's `files/` folder has a `.woff` beside
-  each `.woff2`). WOFF2 is not read (`font_format`); a declared file that is not there is `font_missing`.
+  each `.woff2`). WOFF2 is not read; a declared file that is not there is `font_missing`.
 - The render command loads them with no flag, before the page shows; a published site loads them from its files.
 - A family a text style names that no file provides is `font_fallback`, naming the nodes that use it: declare it,
   or pass `--fonts <dir>` (`--fonts system` for the system's fonts). A family nobody declared is fetched by name
@@ -159,8 +159,7 @@ Characters the font has no glyph for draw as empty boxes (`missing_glyph`): use 
 ## Pitfalls
 
 - A text without a color is white (`text_no_color` when rendered): set it in the style or the named style.
-- A name the theme does not have is `unknown_theme_name` (with the nearest name); a theme of the wrong shape is
-  `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
+- A name the theme does not have names nothing: write one the theme has. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
   "theme": {...}}`.
 - A theme color's name is not read from a formula: bind `${theme.colors.ember}`.
 - Run offsets count characters, `\n` as one.

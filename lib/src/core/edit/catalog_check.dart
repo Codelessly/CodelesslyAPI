@@ -1,10 +1,8 @@
 // The core's check of the nodes an op touched, against a catalog's
 // declarations alone: node types, node keys, props (keys and values),
 // layout and decoration keys, children and slots, action types. It needs no
-// feature library and no validator, so a core-only build (a renderer with
-// the core catalog) can check agent ops. `strictEditCheck`
-// (package:codelessly_api/validate.dart) runs the full strict validator
-// instead.
+// feature library, so a core-only build (a renderer with the core catalog)
+// can check agent ops.
 import '../behaviors.dart';
 import '../catalog.dart';
 import '../json.dart';
@@ -19,7 +17,7 @@ import 'edit_ops.dart' show editNodeKeys;
 /// An [EditCheck] over [EditCheckInput.catalog]'s declarations: unknown
 /// node types, node keys, props, layout and decoration keys and action
 /// types; prop values a declaration cannot read; children or slots a type
-/// does not take. Codes as strict validation's.
+/// does not take.
 List<EditDiagnostic> catalogCheck(EditCheckInput input) {
   final out = <EditDiagnostic>[];
   final catalog = input.catalog;
