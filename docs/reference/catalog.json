@@ -1146,51 +1146,6 @@
       ],
       "docs": "layout.md#node-variance"
     },
-    "selectionList": {
-      "doc": "A keyboard and pointer multi-select list or grid; items have key and label.\n\nA list or grid whose keyed choices are kept in one list variable. The renderer owns range selection, modifier keys, and accessible state.",
-      "children": "none",
-      "slots": [],
-      "decorated": false,
-      "childFields": [],
-      "props": [
-        {
-          "key": "variable",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "label",
-          "type": "String",
-          "kind": "string",
-          "default": "Selection",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "items",
-          "type": "List<Object>",
-          "kind": "list",
-          "default": [],
-          "nullable": false,
-          "item": "Object",
-          "itemKind": "json",
-          "doc": ""
-        },
-        {
-          "key": "columns",
-          "type": "int",
-          "kind": "integer",
-          "default": 1,
-          "nullable": false,
-          "min": 1,
-          "doc": ""
-        }
-      ],
-      "docs": "lists.md#node-selectionList"
-    },
     "listView": {
       "doc": "Flutter `ListView`; the first child is the item.\n\nFlutter `ListView`: its first child repeated per item.",
       "flutter": "ListView",

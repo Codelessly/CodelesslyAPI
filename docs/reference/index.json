@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6207
+      "words": 6205
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6189
+      "words": 6187
     }
   },
   "topics": [
@@ -457,7 +457,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 8151
+      "words": 8049
     },
     {
       "topic": "lists-triggers",
@@ -2000,7 +2000,6 @@
       "gridView": "lists.md#node-gridView",
       "pageView": "lists.md#node-pageView",
       "tableView": "lists.md#node-tableView",
-      "selectionList": "lists.md#node-selectionList",
       "listTile": "lists.md#node-listTile",
       "pagination": "lists.md#node-pagination",
       "appBar": "navigation.md#node-appBar",

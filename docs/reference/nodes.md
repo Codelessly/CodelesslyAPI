@@ -47,7 +47,6 @@ held is now here (the old links still land on the right line):
 - <a id="node-gridView"></a>`gridView`: [lists.md#node-gridView](lists.md#node-gridView)
 - <a id="node-pageView"></a>`pageView`: [lists.md#node-pageView](lists.md#node-pageView)
 - <a id="node-tableView"></a>`tableView`: [lists.md#node-tableView](lists.md#node-tableView)
-- <a id="node-selectionList"></a>`selectionList`: [lists.md#node-selectionList](lists.md#node-selectionList)
 - <a id="node-listTile"></a>`listTile`: [lists.md#node-listTile](lists.md#node-listTile)
 - <a id="node-pagination"></a>`pagination`: [lists.md#node-pagination](lists.md#node-pagination)
 - <a id="node-appBar"></a>`appBar`: [navigation.md#node-appBar](navigation.md#node-appBar)

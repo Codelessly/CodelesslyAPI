@@ -246,23 +246,6 @@ Flutter's `TableView` (two_dimensional_scrollables): a table that scrolls on bot
 | `sortAscending` | bool | `true` |  |  |
 | `stretchLastColumn` | bool | `false` |  | The last column takes the width the columns leave over, so the ruled rows run to the table's edge. |
 
-<a id="node-selectionList"></a>
-### `selectionList`
-
-A keyboard and pointer multi-select list or grid; items have key and label.
-
-A list or grid whose keyed choices are kept in one list variable. The renderer owns range selection, modifier keys, and accessible state.
-
-- Children: none.
-- Decoration: none: only blur effects in `decoration.effects` apply.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `variable` | String | `""` |  |  |
-| `label` | String | `"Selection"` |  |  |
-| `items` | List<Object> | `[]` |  |  |
-| `columns` | int | `1` | ≥ 1 |  |
-
 <a id="node-listTile"></a>
 ### `listTile`
 

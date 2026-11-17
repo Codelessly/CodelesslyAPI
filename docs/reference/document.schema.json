@@ -7099,7 +7099,6 @@
             "icon",
             "spacer",
             "variance",
-            "selectionList",
             "listView",
             "gridView",
             "pageView",
@@ -8183,47 +8182,6 @@
                   }
                 },
                 "additionalProperties": false
-              },
-              "slots": {
-                "type": "object",
-                "maxProperties": 0
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "selectionList"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "props": {
-                "type": "object",
-                "properties": {
-                  "variable": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  },
-                  "items": {
-                    "type": "array",
-                    "items": {}
-                  },
-                  "columns": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "additionalProperties": false
-              },
-              "children": {
-                "type": "array",
-                "maxItems": 0
               },
               "slots": {
                 "type": "object",
