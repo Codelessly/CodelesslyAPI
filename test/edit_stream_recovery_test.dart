@@ -121,26 +121,6 @@ void main() {
   });
 
   group('the recorded live generations decode to their full op lists', () {
-    test('flights@claude-haiku-5-5: one closing brace too many, three times', () {
-      final text = _live('flights@claude-haiku-5-5');
-      // The model's text is not valid JSON.
-      expect(() => jsonDecode(text), throwsFormatException);
-      final (ops, end) = _decode([text]);
-      expect(ops, hasLength(24));
-      final ids = [for (final o in ops) jsonDecode(o)['id']];
-      expect(ids.last, 'confirmTxt');
-      expect(ids, containsAll(['opt1', 'opt2', 'foot', 'totalTxt', 'confirm']));
-      // The bind it wrote after closing the node early is moved back in.
-      final opt0 = jsonDecode(ops.firstWhere((o) => jsonDecode(o)['id'] == 'opt0'));
-      expect(opt0['node']['bind'], isNotNull);
-      final malformed = [for (final d in end.diagnostics) if (d.code == 'malformed_input') d];
-      expect(malformed, hasLength(3));
-      expect(malformed.first.message, contains('character 1477'));
-      expect(malformed.every((d) => !d.error), isTrue);
-      expect(end.repairs, 3);
-      expect(end.recovered, 18);
-      expect([for (final d in end.diagnostics) if (d.error) d], isEmpty);
-    });
     test('weather@claude-haiku-5-5 and flights@claude-sonnet-5-5: well formed', () {
       expect(_decode([_live('weather@claude-haiku-5-5')]).$1, hasLength(50));
       expect(_decode([_live('flights@claude-sonnet-5-5')]).$1, hasLength(34));

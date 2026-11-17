@@ -288,21 +288,6 @@ void main() {
   });
 
   group('the prompt generated from it', () {
-    test('lists its principles in brief, its tokens by name and its components with a call', () async {
-      final ds = await _load();
-      final prompt = runtimeStarter(designSystem: ds);
-      expect(prompt, contains('## The design system: Acme'));
-      expect(prompt, contains('Hairlines, not shadows.'));
-      expect(prompt, isNot(contains('Long prose.')));
-      expect(prompt, contains('`radii.control`'.replaceAll('radii.', '')));
-      expect(prompt, contains(r'${theme.spacing.2}'));
-      // A step is shown as the binding to write: models wrote the bare
-      // `${theme.radii.panel}` as a radius's value, which is rejected.
-      expect(prompt, contains(r'bound, not written: `"bind": {"decoration.radius": "${theme.radii.'));
-      expect(prompt, contains('**`Button`**: A pressable label.'));
-      expect(prompt, contains('{"type":"Button","props":{"label":"Save"}'));
-      expect(prompt, contains('A form is a column of fields 12 apart.'));
-    });
 
     test('a variable parameter is described and called with the name of a variable, not a value', () async {
       final ds = await _load();

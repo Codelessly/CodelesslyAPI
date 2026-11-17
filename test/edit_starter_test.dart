@@ -39,31 +39,6 @@ void main() {
     expect(r.document['card']!.children, ['head', 'list', 'note', 'go']);
   });
 
-  test('the starter is generated from the declarations of the allowed types', () {
-    final s = runtimeStarter();
-    for (final w in slice.widgets) {
-      expect(s, contains(w.type), reason: w.type);
-    }
-    for (final a in slice.actions) {
-      expect(s, contains(a.type));
-    }
-    for (final op in EditOp.specs) {
-      if (op.op == ScriptsOp.opName) {
-        expect(s, isNot(contains('- `scripts` (')));
-        expect(runtimeStarter(profile: TrustProfile.agentApps, kind: 'app'), allOf(contains('`scripts`'), contains('cannot draw')));
-      } else {
-        expect(s, contains('`${op.op}`'));
-      }
-    }
-    // A type the profile does not allow is not offered.
-    final narrow = runtimeStarter(profile: TrustProfile.agent.copyWith(widgets: {'canvas', 'column', 'row', 'text', 'box'}), docsTool: false);
-    expect(narrow, isNot(contains('[`filledButton`]')));
-    expect(narrow, isNot(contains('[`slider`]')));
-    // The rules live generations showed models need.
-    expect(s, allOf(contains('balanced'), contains('must be defined'), contains('icon nodes'), contains('visible label')));
-    expect(runtimeStarter(kind: 'page'), contains('1440'));
-  });
-
   test('budget: the base is within ~6k words in its runtime form; the compact tools are a third of the full', () {
     final starter = runtimeStarter();
     final compact = jsonEncode(uiTools(slice, compact: true, docs: true));

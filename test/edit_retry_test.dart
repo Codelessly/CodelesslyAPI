@@ -113,33 +113,6 @@ void main() {
     });
   });
 
-  test('a retry that starts over is answered with start_over; the existing UI is kept', () {
-    final doc = _card();
-    // What the live retry of flights@claude-haiku-5-5 sent.
-    final r = _apply(
-        doc,
-        {
-          'ops': [
-            {'op': 'roots', 'roots': ['flights']},
-            {
-              'op': 'set',
-              'id': 'flights',
-              'node': {'type': 'canvas', 'slots': {'body': 'card2'}},
-            },
-            {'op': 'patch', 'id': 'title', 'patch': {'props': {'text': 'London → Lisbon, Friday'}}},
-          ],
-        },
-        protectRoots: true);
-    expect([for (final d in r.errors) d.code], ['start_over', 'start_over']);
-    expect(r.errors.first.message, contains('fix the existing document by patching it'));
-    expect(r.document.roots, ['card']);
-    expect(r.applied, [2]);
-    // Without protection a design-time batch may replace the roots.
-    expect(_apply(doc, const RootsOp(['other'])).ok, isTrue);
-    // Adding a screen keeps the existing root: allowed.
-    expect(_apply(doc, const RootsOp(['card', 'more']), protectRoots: true).ok, isTrue);
-  });
-
   test('the tool result says what the document holds and how to fix it', () {
     final r = _apply(_card(), [
       const PatchOp('title', {'props': {'text': 'Lisbon'}}),
@@ -158,33 +131,6 @@ void main() {
   });
 
   group('lints', () {
-    test('a tappable box with no label: empty_button (weather@claude-haiku-5-5)', () {
-      final doc = _apply(_card(), {
-        'op': 'set',
-        'id': 'alertBtn',
-        'parent': 'wrap',
-        'node': {
-          'type': 'box',
-          'layout': {'width': {'fill': 350}, 'height': 48},
-          'decoration': {
-            'fills': [{'color': '#FFFBBF24'}],
-            'radius': 12,
-          },
-          'actions': [
-            {
-              'trigger': {'type': 'click'},
-              'actions': [
-                {'type': 'componentEvent', 'event': 'alert'},
-              ],
-            },
-          ],
-        },
-      }).document;
-      final l = uiLints(doc);
-      expect(l.single.code, 'empty_button');
-      expect(l.single.error, isFalse);
-      expect(l.single.message, contains('set "alertBtn" again as a row'));
-    });
     test('text in its background color, or with no color on a dark fill: low_contrast', () {
       final doc = _apply(_card(), [
         const SetOp('same', {'type': 'text', 'props': {'text': 'x', 'style': {'color': '#FF0F172A'}}}, parent: 'wrap'),

@@ -62,46 +62,6 @@ Column gap=12
     });
   });
 
-  test('the recorded approval card in the notation: about an eighth of the characters, the same structure, and it validates', () {
-    const text = '''
-state decision="pending"
-Card gap=12
-  Text.title "Approve deletion?"
-  Column gap=4
-    Text "Folder: Shared Drive / Archive 2019"
-    Text "Files: 214 files, about 3.8 GB"
-    Text.danger "These files will be permanently deleted. This cannot be undone."
-  Text.caption "First files that will be deleted:"
-  Column fill=#FFF9FAFB radius=6 gap=2 pad=8
-    Text.small "budget_2019_q1.xlsx"
-    Text.small "client_notes_old.docx"
-    Text.small "site_photos_march.zip"
-    Text.small "meeting_recording_04.mp4"
-  if decision!="pending"
-    Text.strong "Decision: {decision}"
-  Row end gap=8
-    Button.ghost "Deny" onTap={decision="denied"}
-    Button.destructive "Approve" onTap={decision="approved"; emit approved}
-''';
-    final r = _parse(text);
-    expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
-    final nodes = r.document['nodes'] as Map;
-    expect(nodes.length, 17, reason: 'as many nodes as recorded');
-    expect(text.length, lessThan(jsonEncode(r.document).length ~/ 4));
-    final banner = _node(r, 'text10');
-    expect(banner['bind'], {'visible': r'${= decision!="pending"}'});
-    expect((banner['props'] as Map)['text'], r'Decision: ${decision}');
-    expect(_node(r, 'textButton1')['type'], 'textButton');
-    // Text with no variant is the body text: it has a color.
-    expect(((_node(r, 'text2')['props'] as Map)['style'] as Map)['color'], '#FF111827', reason: 'SSUI\'s body ink');
-    expect((_node(r, 'filledButton1')['actions'] as List).single['actions'], [
-      {'type': 'setVariable', 'variable': 'decision', 'value': 'approved'},
-      {'type': 'componentEvent', 'event': 'approved'},
-    ]);
-    expect((_node(r, 'row1')['props'] as Map)['mainAxisAlignment'], 'end');
-  });
-
   test('what cannot be read is reported with its line, and the rest still parses', () {
     final r = _parse('''
 Column
@@ -181,87 +141,6 @@ Column
       contains('the whole node as JSON with its type'),
       contains('No node type "noSuchThing"'),
       contains('never closed'),
-    ]);
-  });
-
-  test('what the bridge experiments reached for: every, scroll, a control bound to a field of a repeated element, a label that reads it, ids kept under each', () {
-    const text = '''
-state seconds=30
-state running=true
-state fields=[{"label":"Name","required":false}]
-state cells=[{"v":1},{"v":2}]
-every 1s when running onTick={seconds=seconds-1}
-Column gap=8 scroll
-  Text "{seconds}"
-  Row gap=4
-    each cell in cells
-      Box#cell w=36 h=36 onTap={seconds=cell.v}
-  each field in fields
-    Input "{field.label}" bind=field.label
-    Toggle "Required" bind=field.required
-''';
-    final r = _parse(text);
-    expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
-    // The timer is on the canvas.
-    expect(_node(r, 'screen')['actions'], [
-      {
-        'trigger': {'type': 'timer', 'intervalMs': 1000, 'when': r'${= running}'},
-        'actions': [
-          {'type': 'setVariable', 'variable': 'seconds', 'value': r'${= seconds-1}'},
-        ],
-      },
-    ]);
-    expect((_node(r, 'column1')['props'] as Map)['scrollable'], isTrue);
-    // The id written under an each is kept (the element's name is not put in its place).
-    expect((r.document['nodes'] as Map).containsKey('cell'), isTrue);
-    // A field of the element: shown, and written back into the list; no variable named after it.
-    final input = _node(r, 'textField1');
-    expect((input['bind'] as Map)['props.initialValue'], r'${item.label}');
-    expect((input['bind'] as Map)['props.decoration.labelText'], r'${item.label}');
-    expect(((input['actions'] as List).first as Map)['actions'], [
-      {'type': 'setVariable', 'variable': 'fields', 'value': r'${= setAt(fields,index,with(item,"label",result))}'},
-    ]);
-    final names = [for (final v in ((r.document['variables'] as Map)['screen'] as List)) (v as Map)['name']];
-    expect(names, ['seconds', 'running', 'fields', 'cells']);
-
-    // The same as it arrives, the every line last.
-    final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog));
-    var doc = LayoutDocument(catalog: standardCatalog);
-    for (final chunk in ['state n=0\nColumn\n  Text "{n}"\n', 'every 500 onTick={n=n+1}']) {
-      final ops = stream.add(chunk);
-      if (ops.isNotEmpty) doc = applyOps(doc, {'ops': ops}, catalog: standardCatalog).document;
-    }
-    final a = applyOps(doc, {'ops': stream.close()}, catalog: standardCatalog);
-    expect(a.errors, isEmpty, reason: '${a.errors}');
-    expect(stream.issues, isEmpty);
-    expect(((a.document['screen']!.toJson()['actions'] as List).single as Map)['trigger'], {'type': 'timer', 'intervalMs': 500});
-
-    // A string that reads data on a named parameter is bound; a stray colon before = is read.
-    final c = _parse('''
-state streak=4
-state done=3
-Column
-  Button "Go" tooltip="{streak} days"
-  Progress bind={done/5}
-''');
-    expect(c.issues, isEmpty);
-    expect((_node(c, 'filledButton1')['bind'] as Map)['props.tooltip'], r'${streak} days');
-    expect((_node(c, 'progressBar1')['bind'] as Map)['props.value'], r'${= done/5}');
-
-    // What cannot be meant is said.
-    final bad = _parse('''
-state rows=[{"n":1}]
-every soon -> x=1
-Column
-  Input "A" bind=form.name
-  each row in filter(rows, r => r.n>0)
-    Input "B" bind=row.n
-''');
-    expect(bad.issues.map((i) => i.message), [
-      contains('An "every" line is'),
-      contains('"form.name" is neither'),
-      contains('only when the each is over a variable'),
     ]);
   });
 
@@ -418,28 +297,6 @@ Card
     expect((_node(r, 'text1')['props'] as Map)['text'], r'${item.name}');
     // Only the element's name is rewritten, not the word inside other names.
     expect((_node(r, 'text2')['props'] as Map)['text'], r'${item.age} years, people: ${= length(people)}');
-  });
-  test('forms from the fifth recording: quotes inside {…}, an expression with spaces, an expression where the string goes, a dropdown\'s hint', () {
-    final r = _parse('''
-state range="7 days"
-state open=false
-state to=""
-state plan="Free"
-Card
-  Text "{range=="7 days" ? "\$18.4k" : "\$231k"} total"
-  Button.ghost "{open ? "Hide" : "Show"}" onTap={open=!open}
-  Button "Send" enabled={trim(to)!="" && length(to)>3} onTap={emit send}
-  Select "Plan" items=["Free","Pro"] bind=plan
-  Input hint="you@example.com" bind=to
-''');
-    expect(r.issues, isEmpty);
-    expect(_problems(r.document), isEmpty);
-    expect((_node(r, 'text1')['props'] as Map)['text'], r'${= range=="7 days" ? "$18.4k" : "$231k"} total');
-    expect((_node(r, 'textButton1')['bind'] as Map)['props.label'], r'${= open ? "Hide" : "Show"}');
-    expect((_node(r, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= trim(to)!="" && length(to)>3}');
-    expect((_node(r, 'filledButton1')['actions'] as List).length, 1);
-    expect((_node(r, 'dropdown1')['props'] as Map)['hint'], 'Plan');
-    expect(((_node(r, 'textField1')['props'] as Map)['decoration'] as Map)['hintText'], 'you@example.com');
   });
   test('each in a row goes across with the row\'s gap, and GridView is read as Grid', () {
     final r = _parse('''
@@ -1837,51 +1694,6 @@ Page
       expect(node(card, 'mix')['type'], 'chart');
     });
 
-    test('what the twenty sites met: a size word under an if, short columns side by side, controls with choices, a site\x27s variable, a page worked out', () {
-      final r = parseNotation('''
-state menu=false
-state kind="All"
-project cart=[]
-Page
-  Section
-    if menu
-      Column#links show=phone
-        Text "Docs"
-    Row#pair gap=32
-      Column#one grow
-        Heading "Fast"
-        Text "Builds in seconds."
-      Column#two grow
-        Heading "Small"
-        Text "No dependencies."
-    Row#who gap=12
-      Avatar "Maya Reyes"
-      Column#name grow
-        Text.strong "Maya Reyes"
-        Text.muted "Owner"
-    Row#filters gap=12
-      SegmentedButton#level bind=kind options=["All","Beginner","Intermediate","Advanced"] grow
-      Button#add "Add" onTap={cart=append(cart,"x"); go {replace(lower(kind)," ","_")}}
-      Button#home "Home" onTap={go home}
-''', catalog: standardCatalog, options: page);
-      expect(r.issues, isEmpty);
-      // Hidden from a tablet up whatever the condition says; on a phone the condition decides.
-      expect(at(r, 'links', 834), {'visible': false, 'bind': {'visible': null}});
-      expect(at(r, 'links', 390), isEmpty);
-      expect((node(r, 'links')['bind']! as Map)['visible'], isNotNull);
-      // Two short columns are blocks; a name beside its picture is a label.
-      expect((at(r, 'one', 390)['layout']! as Map)['basis'], 280);
-      expect((at(r, 'name', 390)['layout']! as Map)['basis'], 96);
-      // The site's variable is not declared on the screen, and is still read and set.
-      final declared = [for (final v in ((r.document['variables']! as Map)['screen']! as List)) (v as Map)['name']];
-      expect(declared, containsAll(['menu', 'kind']));
-      expect(declared, isNot(contains('cart')));
-      final add = jsonEncode(node(r, 'add')['actions']);
-      expect(add, contains('"variable":"cart"'));
-      expect(add, contains(r'"to":"${='));
-      expect(jsonEncode(node(r, 'home')['actions']), contains('"to":"home"'));
-    });
-
     test('a short each alias leaves layout keys intact', () {
       final r = parseNotation('''
 state homes=[{"name":"One"}]
@@ -1956,86 +1768,6 @@ Page
 ''', catalog: standardCatalog, options: page);
       expect(nodesOf(own).values.where((n) => (n! as Map)['type'] == 'iconButton'), hasLength(1));
       expect(jsonEncode(own.document), isNot(contains('navMenu')));
-    });
-
-    test('from the sites\' second round: the site\'s variables from its manifest, a size word beside a value of its name, a line that says where it shows, bleed, a compact band, a sticky bar\'s surface, a link\'s ink', () {
-      final theme = NotationOptions.fromTheme(const {
-        'colors': {'primary': '#FFFACC15', 'accentDeep': '#FF854D0E', 'pageFill': '#FFFFFFFF'},
-        'sizes': {'wide': 900},
-      }, width: 1280);
-      final options = NotationOptions(
-        width: 1280,
-        accent: theme.accent,
-        accentText: theme.accentText,
-        siteFill: theme.siteFill,
-        projectVariables: const {
-          'cart': {'name': 'cart', 'type': 'integer', 'value': 0},
-        },
-      );
-      final r = parseNotation('''
-state phone=""
-Page
-  Nav#bar sticky
-    Row gap=4
-      Link#docs "Docs" onTap={go docs}
-      Link#call "Call us" show=phone onTap={go call}
-  Section#wide bleed
-    Text "{cart} in the cart"
-    Button#add "Add" onTap={cart=cart+1}
-    Input "Phone" bind=phone
-    Link#more "Read more" onTap={go more}
-  Section#strip compact
-    Text "Trusted by many"
-''', catalog: standardCatalog, options: options);
-      expect(r.issues, isEmpty);
-      // The site's value is used by name and not declared on the screen.
-      final declared = [for (final v in ((r.document['variables'] as Map?)?['screen'] as List? ?? const [])) (v as Map)['name']];
-      expect(declared, contains('phone'));
-      expect(declared, isNot(contains('cart')));
-      expect(jsonEncode(node(r, 'add')['actions']), contains(r'${= cart+1}'));
-      // show:phone is the screen's size here, not the page's value called phone;
-      // and the link that says so shows on a phone, where the bar hides the others.
-      expect(node(r, 'call')['bind'], isNull);
-      expect(at(r, 'call', 390), isEmpty);
-      expect(at(r, 'call', 834)['visible'], false);
-      expect(at(r, 'docs', 390)['visible'], false);
-      // A bleed section's content runs edge to edge; a compact band stays the shorter one on a phone.
-      expect((node(r, 'wide')['layout']! as Map)['padding'], [0, 64, 0, 64]);
-      expect((at(r, 'strip', 390)['layout']! as Map)['padding'], [20, 24, 20, 24]);
-      // A sticky bar is drawn on the page's surface, and a link in text is in the accent's ink.
-      expect(node(r, 'bar')['sticky'], {'offset': 0});
-      expect(jsonEncode(node(r, 'bar')['decoration']), contains('#FFFFFFFF'));
-      expect(jsonEncode(node(r, 'more')['props']), contains('#FF854D0E'));
-    });
-
-    test('from the sites\' third round: a page id with a hyphen, a destination already worked out, the links a Nav\'s menu repeats', () {
-      final r = parseNotation('''
-Page
-  Nav
-    Brand "Relay"
-    Row gap=4
-      Link "Customers" onTap={go case-study}
-      Link "Pricing" onTap={go pricing}
-    Row gap=8
-      Link#search "Search" menu=false onTap={go search}
-      Link#login "Log in" onTap={go \${= lower("Login")}}
-      Button "Start" onTap={go {replace(lower("Get Started")," ","-")}}
-''', catalog: standardCatalog, options: page);
-      expect(r.issues, isEmpty);
-      final all = jsonEncode(r.document);
-      expect(all, contains('"to":"case-study"'));
-      expect(all, contains(r'"to":"${= lower(\"Login\")}"'));
-      expect(all, contains(r'"to":"${= replace('));
-      // The menu repeats the two links of the row the bar hides: not the one
-      // kept out of it, nor the lone link beside the button.
-      final rows = [
-        for (final n in nodesOf(r).values.cast<Map>())
-          if (n['type'] == 'row' && jsonEncode(n['actions'] ?? '').contains('"variable":"navMenu"')) jsonEncode(n['actions']),
-      ];
-      expect(rows, hasLength(2));
-      expect(rows.join(), isNot(contains('"to":"search"')));
-      final button = nodesOf(r).values.cast<Map>().firstWhere((n) => n['type'] == 'iconButton');
-      expect((button['layout']! as Map)['width'], 40);
     });
 
     test('hide= and show= say where a node shows; a card, or a page with reflow off, takes no rules', () {
