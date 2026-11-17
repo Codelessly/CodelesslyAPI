@@ -2726,4 +2726,15 @@ Page
     expect(_pagePrompt(), contains('SelectionList bind=picked items=[{"key":"a","label":"Opening"}'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('SelectionList')));
   });
+
+  test('tooltip: an icon-only button is named by it, and the page prompt says so', () {
+    final r = _parsePage('Page\n  Section\n    IconButton#clear "filter_alt_off" tooltip="Clear filters" onTap={type="All"}\n    Text#plain "Pinned" tooltip="Pinned by you"\n');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    expect(_node(r, 'clear')['tooltip'], 'Clear filters');
+    expect(_node(r, 'clear')['props'], containsPair('icon', 'filter_alt_off'));
+    expect(_node(r, 'plain')['tooltip'], 'Pinned by you');
+    expect(_pagePrompt(), contains('IconButton "filter_alt_off" tooltip="Clear filters" (its hint on hover, keyboard focus or a touch hold'));
+    expect(notationPrompt(catalog: standardCatalog), isNot(contains('tooltip=')));
+  });
 }
