@@ -10,7 +10,18 @@ import '../json.dart';
 /// Flutter's names (`String`, `bool`, `double`, `int`, `List<String>`,
 /// `ValueNotifier<double>` for a variable parameter), or an enum's values
 /// joined by `|` (`small|medium|large`). Null for no such word.
+///
+/// A type no name says (`int` held as a number, a record's fields, a
+/// `dynamic` item) is its JSON: `param count:{"kind":"number","flutter":"int"}=0`.
 Json? notationTypeJson(String word) {
+  if (word.startsWith('{')) {
+    try {
+      final j = jsonDecode(word);
+      return j is Map ? j.cast<String, Object?>() : null;
+    } on FormatException {
+      return null;
+    }
+  }
   final list = RegExp(r'^List<(.+)>$').firstMatch(word);
   if (list != null) {
     final item = notationTypeJson(list[1]!);
@@ -36,17 +47,21 @@ Json? notationTypeJson(String word) {
 
 final _enumValue = RegExp(r'^[A-Za-z0-9_.\-]+$');
 
-/// The word for [type] ([notationTypeJson] of it gives it back exactly);
-/// null when no word does.
+/// The word for [type] ([notationTypeJson] of it gives it back exactly):
+/// Flutter's name, else its JSON. Null for no type.
 String? notationTypeWord(Json? type) {
   if (type == null) return null;
+  return _typeName(type) ?? jsonEncode(type);
+}
+
+String? _typeName(Json type) {
   final word = switch (type['kind']) {
     'string' => 'String',
     'boolean' => 'bool',
     'number' => 'double',
     'integer' => 'int',
-    'list' => switch (notationTypeWord(readMap(type['item']))) { final String w => 'List<$w>', _ => null },
-    'variable' => switch (notationTypeWord(readMap(type['of']))) { final String w => 'ValueNotifier<$w>', _ => null },
+    'list' => switch (_typeName(readMap(type['item']) ?? const {})) { final String w => 'List<$w>', _ => null },
+    'variable' => switch (_typeName(readMap(type['of']) ?? const {})) { final String w => 'ValueNotifier<$w>', _ => null },
     'enumeration' => readStrings(type['values']).join('|'),
     _ => null,
   };

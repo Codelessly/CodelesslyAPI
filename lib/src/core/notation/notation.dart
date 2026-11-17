@@ -1079,7 +1079,11 @@ class _ListWords {
 }
 
 class _Open {
-  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written});
+  _Open(this.indent, this.id, this.type,
+      {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written, this.slot});
+
+  /// A `slot name` line under node [id]: the line under it goes in that slot.
+  final String? slot;
 
   /// A design system's block that takes no children but has slots (a
   /// ListRow's trailing, a SectionHeader's actions): the lines under it go
@@ -2669,7 +2673,7 @@ class _Parser {
       case 'param':
         // `param title="Action" required doc="The title."`, `param size:small|medium|large=medium`.
         final first = words.firstOrNull;
-        final head = first == null ? null : RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?::(\S+))?$').firstMatch(first.key);
+        final head = first == null ? null : RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?::(.+))?$').firstMatch(first.key);
         if (head == null) {
           _issue(indent + 1, 'A parameter is written: param name=default, its type after a colon where the default does not say it (param count:int=3), then required and doc="…".');
           return true;
@@ -2689,7 +2693,7 @@ class _Parser {
         add('props', p);
       case 'event':
         final first = words.firstOrNull;
-        final head = first == null || first.value != null ? null : RegExp(r'^(on[A-Z][A-Za-z0-9_]*)(?::(\S+))?$').firstMatch(first.key);
+        final head = first == null || first.value != null ? null : RegExp(r'^(on[A-Z][A-Za-z0-9_]*)(?::(.+))?$').firstMatch(first.key);
         if (head == null) {
           _issue(indent + 1, 'An event is written: event onName, with what it passes after a colon (event onChanged:String) and doc="…".');
           return true;
@@ -2738,6 +2742,26 @@ class _Parser {
     return true;
   }
 
+
+  /// Node [id], written under `slot <name>` ([frame]), in that slot of the
+  /// node above; a second line under it is said and drawn as a child.
+  void _intoSlot(_Open frame, String id, int column) {
+    final p = nodes[frame.id]!;
+    final slots = (p['slots'] as Json?) ?? (p['slots'] = <String, Object?>{});
+    final name = frame.slot!;
+    if (frame.slotRow != null) {
+      _issue(column, 'A slot holds one node: put the lines of "slot $name" in a Row or a Column.');
+      ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
+    } else {
+      // What the node's own words put there (a ListTile's title text) gives
+      // way to the line written.
+      if (slots[name] case final String made when made != id && _parentOf[made] == frame.id) nodes.remove(made);
+      slots[name] = id;
+      _slotOf[id] = name;
+      frame.slotRow = id;
+    }
+    _parentOf[id] = frame.id;
+  }
 
   /// The nodes a line's words made under it (a Badge's text) that its
   /// `{…}` tail took out of its `children` or `slots`: no line holds them,
@@ -2901,9 +2925,13 @@ class _Parser {
         continue;
       }
       // A key runs to `=` or a space (a type after its colon may hold `<…>`
-      // and `|`).
+      // and `|`, or be JSON: `count:{"kind": "number", "flutter": "int"}`).
       var k = i;
       while (k < text.length && text[k] != ' ' && text[k] != '=') {
+        if (text[k] == '{' && k > i && text[k - 1] == ':') {
+          k = end(k);
+          continue;
+        }
         k++;
       }
       final key = text.substring(i, k);
@@ -3126,6 +3154,20 @@ class _Parser {
         });
       }
       line = _rename(line, d.key, '(${d.value})');
+    }
+    // `slot title` under a node: the line under it is the node's child in that
+    // slot (a ListTile's title, a badge's child, a block's actions), as a
+    // component's head names its slots with `slot name`.
+    final slotLine = RegExp(r'^slot\s+([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(line);
+    if (slotLine != null && _stack.isNotEmpty && _stack.last.slot == null && nodes[_stack.last.id] != null) {
+      final holder = _stack.last;
+      final type = '${nodes[holder.id]!['type']}';
+      final names = catalog.widget(type)?.slots ?? const <String>[];
+      if (!names.contains(slotLine[1])) {
+        return _issue(column, names.isEmpty ? 'A ${holder.written ?? type} has no slots.' : 'A ${holder.written ?? type} has no slot "${slotLine[1]}". Its slots: ${names.join(', ')}.');
+      }
+      _stack.add(_Open(indent, holder.id, holder.type, condition: holder.condition, slot: slotLine[1]));
+      return;
     }
     var parent = _stack.isEmpty ? null : _stack.last;
     // Lines under a block that takes none but has a slot (a ListRow's
@@ -3512,6 +3554,8 @@ class _Parser {
       if (parent == null) {
         if (_root != null) return _issue(column, 'A second root: the first line is the root, everything else is indented under it.');
         _root = id;
+      } else if (parent.slot != null) {
+        _intoSlot(parent, id, column);
       } else {
         final p = nodes[parent.id]!;
         ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
@@ -6032,7 +6076,9 @@ class _Parser {
     } else {
       final p = nodes[parent.id]!;
       if (spec.type == 'canvas') return _issue(column, 'A canvas cannot be a child.');
-      if (parent.type == 'listTile') {
+      if (parent.slot != null) {
+        _intoSlot(parent, id, column);
+      } else if (parent.type == 'listTile') {
         final slots = (p['slots'] as Json?) ?? (p['slots'] = <String, Object?>{});
         final slot = type == 'icon' && !slots.containsKey('leading') ? 'leading' : 'trailing';
         slots[slot] = id;

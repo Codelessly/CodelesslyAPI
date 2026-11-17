@@ -108,15 +108,22 @@ final class _Printer {
   /// line read otherwise without it), and those left out this time.
   final _keepId = <String>{}, _dropped = <String>{};
 
+  /// The nodes whose slots are written as `slot name` lines (their lines
+  /// under them read back into other slots, or into their children).
+  final _slotLines = <String>{};
+
+  /// Placeholder for the each family of retries (see [_each]).
+  final _eachWords = <String>{};
+
   // An id the parser reads after `#`: a name, its parts joined by `-` (`m-logo`).
   static final _idForm = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(-[A-Za-z0-9_]+)*$');
   static final _printable = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
   String? run() {
     for (var attempt = 0; attempt < 24; attempt++) {
-      final before = _noEach.length + _keepId.length;
+      final before = _noEach.length + _keepId.length + _slotLines.length + _eachWords.length;
       final out = _once();
-      if (out != null || _noEach.length + _keepId.length == before) return out;
+      if (out != null || _noEach.length + _keepId.length + _slotLines.length + _eachWords.length == before) return out;
     }
     return null;
   }
@@ -376,7 +383,7 @@ final class _Printer {
     for (final record in printPaintLines(id, n, context, depth).split('\n')) {
       if (record.trim().isNotEmpty) _lines.add(_Line(0, record));
     }
-    return _under(n, depth + 1);
+    return _under(n, depth + 1, id);
   }
 
   /// [text] without `#id` when the parser gives the line that id anyway.
@@ -394,7 +401,7 @@ final class _Printer {
   /// The lines under a node: its children, sibling lines that share a
   /// condition under an `if` (and `else`), a list over data as `each`; then
   /// its slots.
-  bool _under(Json n, int depth) {
+  bool _under(Json n, int depth, [String? id]) {
     final kids = readStrings(n['children']);
     for (var i = 0; i < kids.length;) {
       final cond = _condition(kids[i]);
@@ -426,8 +433,17 @@ final class _Printer {
       if (!_child(kids[i], depth)) return false;
       i++;
     }
-    for (final c in (readMap(n['slots']) ?? const {}).values) {
-      if (c is String && !_walk(c, depth)) return false;
+    final slots = readMap(n['slots']) ?? const {};
+    final named = id != null && _slotLines.contains(id);
+    for (final e in slots.entries) {
+      final c = e.value;
+      if (c is! String) continue;
+      if (named && _printable.hasMatch(e.key)) {
+        _lines.add(_Line(depth, 'slot ${e.key}'));
+        if (!_walk(c, depth + 1)) return false;
+      } else if (!_walk(c, depth)) {
+        return false;
+      }
     }
     return true;
   }
@@ -546,6 +562,22 @@ final class _Printer {
         }
         final patch = diffPatch(got, readMap(nodes[id])!);
         if (patch != null) tails[id] = ' ${jsonEncode(patch)}';
+      }
+      // A node whose slots do not read back from the lines under it: its
+      // slots written as `slot name` lines.
+      final slotted = [
+        for (final l in _lines)
+          if (l.id case final String id
+              when !_slotLines.contains(id) &&
+                  readMap(readMap(nodes[id])?['slots'])?.isNotEmpty == true &&
+                  readMap(parsed[id]) != null &&
+                  !jsonEquality.equals(readMap(parsed[id])!['slots'], readMap(nodes[id])!['slots']))
+            id,
+      ];
+      if (slotted.isNotEmpty) {
+        _slotLines.addAll(slotted);
+        why = 'slots that do not read back';
+        return null;
       }
       // A list printed as `each` reads back as it is, or is printed as nodes.
       for (final id in _structure) {
