@@ -6,9 +6,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
-import 'package:codelessly_api/src/core/behavior_fields.dart' show BehaviorFields;
 import 'package:codelessly_api/src/core/notation/keys.dart';
-import 'package:codelessly_api/src/core/value_fields.dart' show DecorationFields, LayoutFields, NodeFields;
 import 'package:test/test.dart';
 
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
@@ -79,12 +77,12 @@ String _head(String type) => '${type[0].toUpperCase()}${type.substring(1)}';
       }
       return null;
     case PropKind.json:
-      return null;
+      return ('{"walked":1}', {'walked': 1});
   }
 }
 
 void main() {
-  final catalog = standardCatalog;
+  const catalog = standardCatalog;
 
   /// [line] expanded (closed vocabulary): its node `n`, with no issue.
   Map<String, Object?> read(String line) {

@@ -132,6 +132,70 @@ Each family owns its part of the parser and its printer file, measures itself wi
 | Document | typed variables, component heads, canvases | `print.dart` |
 | Paint, motion, charts | words for custom paint ops, animations, chart options | `print_paint.dart` |
 
+### 4.1 Keys (settled 2026-11-17)
+
+What 2.1 left to this family, as the parser now reads it (`lib/src/core/notation/keys.dart`,
+`test/notation/keys_test.dart`):
+
+- **Where a type shows text** is the catalog's: its prop `style` when that is a `TextStyle`, else its one
+  `TextStyle` prop (a chip's `labelStyle`, a badge's `textStyle`); a type with several (a tab bar, a chart) has
+  none. A field of it set on a line starts from the style the line's words start from (a Text's body style, an
+  Input's own), as `size=` does. So `height=1.2` on a Text or an Input is its line height; `h=` is its height.
+- **Decoration fields are a key only where the catalog says the type is `decorated`**; elsewhere only `effects`
+  (the blurs an undecorated node keeps). `Text radius=4` is said, not dropped at decode.
+- **The bounds of the constraints** (`minWidth`, `maxWidth`, `minHeight`, `maxHeight`) are layout fields by their
+  own names: `maxWidth=720` is `layout.constraints.maxWidth`. `constraints.maxWidth=720` reads too.
+- **A field of the node itself** has no section in the document, so its full path is `node.` before it: where a
+  prop of the type has the same name (a chip's own `tooltip`), `node.tooltip="…"` is the node's. Elsewhere the
+  bare name is the shortest key.
+- **An element of a list** is `[n]` in a key, as in a binding path: `fills[0].color="#FF2563EB"`,
+  `effects[0].blurRadius=8`.
+- **A full path that names a section the type has a prop of** (`decoration.counterText` on an Input) reads as the
+  section first and the prop second: `decoration.` on an Input is its `InputDecoration`.
+- **`key={expression}` binds the path** the key resolved to, for every key. The one exception is a tooltip,
+  which reads its data itself (design 21): `tooltip={…}` and `node.tooltip={…}` are the node's own tooltip.
+- **Values.** A word for an enum field that is none of its values is said with the nearest (`A Text's textAlign
+  is one of left, right, center, justify, start, end: not "centre" (did you mean textAlign=center?)`). A field
+  that is a record (a `Pan`, a `DropTarget`) given a word it cannot read as one is said with its fields
+  (`pan=horizontal` → `write its fields, pan.enabled=… (enabled, axis, …), or pan={"enabled": …}`). In the
+  open vocabulary both are recorded words instead, as a wrong kind of value was.
+- **The unknown key** is said where it was written: `A Column has no "rotate": left out.`, with `(did you mean
+  squeezable?)` when `suggest.dart` finds one among the names the type has (its props, its text style's
+  fields, the layout, decoration, node and behavior fields, the short words that mean something on it); a
+  dotted one at the segment that is wrong (`pan.axs` → `pan.axis`). A design system's component keeps its
+  message (`A StatusPill has no "status". It takes: label, tone.`). A key the notation's own words read later
+  (a Donut's `values`, a chart's `series`) is not said.
+
+**For the printer.** `keys.dart` exports, all pure, `catalog` defaulting to `Catalog.current` and `type` the
+document's node type (`text`, `textField`, a component's name):
+
+```dart
+/// The path key K sets on a node of type T (`props.style.height`, `layout.constraints.maxWidth`, `pan.axis`,
+/// `decoration.fills[0].color`, `tooltip`), or null: no name of T, or a word of the notation that sets
+/// no one path (`fill`, `border`, `animate`, `color` on a box, `gap` on a Grid).
+String? notationKeyPath(String key, String type, {Catalog? catalog});
+
+/// The same, with what the catalog declares there (`type`, `def`).
+NotationKey? notationKey(String key, String type, {Catalog? catalog});
+
+/// The shortest key that means path P on T: the notation's short word, else the field's own name, else the
+/// path from its field up, else the full path (`node.` before a node field).
+String notationKeyFor(String path, String type, {Catalog? catalog});
+
+/// The nearest name to an unknown key on T, as the issue says it; and every name a key may start with on T.
+String? notationKeyNearest(String key, String type, {Catalog? catalog});
+List<String> notationKeyNames(String type, {Catalog? catalog});
+
+/// The prop of a type that is the style of the text it shows, or null.
+PropDef<Object?>? notationTextStyleProp(WidgetSpec spec);
+```
+
+`notationKeyPath(notationKeyFor(P, T), T) == P` for every field of every node type: the walk in
+`keys_test.dart` checks it, and that the line written with it expands to the value at P, for 62 of the 69
+core types (six have no line that is the type alone: `box`, `gridView`, `badge`, `appBar`, `modal`,
+`radialGauge`). A value still goes through the notation's reading of it (`_value`: a quoted string, a number,
+a bare word, JSON), so the printer writes a string quoted and a list or map as JSON.
+
 ## 5. What does not change
 
 The prompt teaches the grammar and the core (design 19). Parity is what the parser reads and the printer
