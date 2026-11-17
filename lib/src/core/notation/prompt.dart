@@ -6,6 +6,7 @@ import '../catalog.dart';
 import '../design_system.dart';
 import '../props.dart';
 import '../levels.dart';
+import 'define.dart' show NotationDefinition;
 import 'notation.dart';
 import 'page_words.dart' show PageWords;
 import 'vocabulary.dart' show NotationVocabulary;
@@ -46,18 +47,28 @@ String notationPrompt({
   bool open = false,
   bool define = true,
   bool glossary = true,
+  bool signatures = true,
 }) {
   // The open vocabulary (docs/design/19): the grammar and the core only.
   // No component is listed and no behaviour word taught; the model writes
   // the word it expects, and defines it after the last screen
   // ([notationDefinePreface]; docs/design/20). With [define] false, the
   // open prompt as the first corpus was written with: no definitions asked.
-  // With a design system, the open prompt names the words it has beyond the
-  // core (its components and the words it defines in the notation), one
-  // line, no parameters: a writer uses them rather than defining its own
-  // (the vocabulary loop's Review 6, D29). [glossary] false leaves it out.
+  // With a design system, the open prompt lists the words it has beyond the
+  // core (its components and the words it defines in the notation), a
+  // writer uses them rather than defining its own (the vocabulary loop's
+  // Review 6, D29): with [signatures], one line each as a line uses it, in
+  // a last section (Review 7, D33: a writer maps to no word whose shape it
+  // cannot see); without, their names on one line after the define
+  // paragraph, as the glossary experiment's answers were written.
+  // [glossary] false leaves it out.
   if (open) {
     final text = _openPrompt(notationPrompt(catalog: catalog, options: options, natural: natural), define: define);
+    if (glossary && signatures && designSystem != null) {
+      final lines = notationGlossaryLines(designSystem, options.vocabulary, prompt: text);
+      if (lines.isEmpty) return text;
+      return '${text.trimRight()}\n${notationSignaturesLead(designSystem.name, define: define)}\n${lines.map((l) => '  $l').join('\n')}\n';
+    }
     final names = glossary && designSystem != null ? notationGlossary(designSystem, options.vocabulary, prompt: text) : const <String>[];
     if (names.isEmpty) return text;
     final at = define ? notationOpenPreface.length + notationDefinePreface.length : notationOpenPreface.length;
@@ -142,7 +153,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
       Sidebar                a fixed pane at the side (w=240): the name, NavItem lines, Spacer grow, then what sits at its foot
       Main                   the pane that takes the rest: a Nav (its top bar: the title, then a Row of actions) and under it a Column pad=24 gap=16 of content
       Pane w=320             a further pane (a list beside its details, a details panel): Pane w=320 pad=16 gap=12
-    Footer as Main's last line is a bar at its foot that stays in view while Main scrolls (a player, a composer, a basket).
+    Footer directly under Main, as its last line, is a bar at its foot that stays in view while Main scrolls (a player, a composer, a basket).
   NavItem "Orders" icon="inbox" badge="12" selected={tab=="orders"} onTap={tab="orders"} is a line of a sidebar (or of a Nav). Link "Docs" is a link (href="https://…", or onTap={an action}). Brand "Harbor" icon="anchor" is the product's mark and name (first in a Sidebar or a Nav). Heading "…" heads a section (level=1 a landing page's headline or an app's page title, level=3 the title of a card or a panel; the title of an article or a docs page is a plain Heading). Link is in the accent; a quiet link (a table of contents, a footer) is Text.muted "…" onTap={an action}. IconTile "sync" is an icon on a small tinted tile (the mark of a feature, a stat, a row). An icon-only button is named by its tooltip: IconButton "filter_alt_off" tooltip="Clear filters" (shown on hover, focus or a touch hold).
   Side by side: Row gap=32 with grow on each child that shares the width (Column grow gap=12), or Grid cols=3 gap=24 for equal cells; Cards side by side are equally tall by themselves; write top on a Row of other things that differ in height. Row between spreads its children end to end. Section bleed runs what is in it from edge to edge (a wide picture, a map). Nav sticky keeps the bar at the top while the page scrolls; sticky on a rail (Column w=320 sticky) keeps an enrol panel or a table of contents in view while the page scrolls. A rule on one side is border-bottom=#… (border-top, border-left, border-right).
   A block's events are on its line, each by its name: SiteNav … onNavigate={go {replace(lower(result)," ","_")}} onCta={go signup} onSecondary={go login}. SiteNav … sticky keeps it at the top.
@@ -284,7 +295,7 @@ TYPES
   LineChart labels=["W1","W2"] series=[{"name":"Signups","values":[40,52]},{"name":"Churn","values":[8,6]}] draws several lines (AreaChart fills under them); Donut values=[60,25,15] labels=["Rent","Food","Other"] shares of a whole.${options.width >= notationPageWidth ? ' On a page a Donut draws its labels as a legend beside it (under it where there is no room), each with its share: write no legend of your own (legend=false leaves it out).' : ''}
   Gauge 72 min=0 max=180 limit=100 unit="km/h" is a round meter with its figure inside (Gauge bind=speed follows a variable); Ring 0.72 a round share (in a Stack center middle with a Text over it for the number inside); Sparkline values=[3,4,3,6] a small trend line.
   Motion is a word on any line: animate=fade (slide-up, slide-left, scale, pop, shake, pulse, spin, shimmer) with duration=400 delay=200; under an each, stagger=80. onSwipeLeft={…} runs on that swipe. Avatar "Maya Reyes" size=40 is a round mark with initials (Avatar src="…" a picture). Input "Password" password hides it; Input "Note" multiline is a text area. Text "…" center aligns it, strike crosses it out. maxw=720 keeps a page's content from stretching.
-  Only Row, Column, Stack, Box, Card, Grid, List, Accordion and ListTile take children.
+  Only Row, Column, Stack, Box, Card, Grid, List, Pages, Accordion and ListTile take children.
 
 FORMULAS (in {…} and in an action's name=…)
   Operators: + - * / % == != < <= > >= && || ! and cond ? a : b. Text in "double quotes" or 'single'. Lists [1,2], fields a.b, items list[0].
@@ -358,7 +369,7 @@ define Group "title"
     Text.strong "{title}"
     ...
 
-Define each word once, however many screens use it, and none of the words taught below. A definition draws and does what the words taught below can; what they cannot (a camera, a real map, sound) it shows as a labelled box, with a // line above the definition that says so.
+Define each word once, however many screens use it, and none of the words taught below. A definition draws and does what the words taught below can, and reads every parameter and runs every event it names. What they cannot express (a camera, a real map, sound, a surface things are dragged about on), declare with `primitive` in place of `define`: the same signature, a // line above it saying what it does, and under it nothing (a labelled box stands in) or the lines of how it looks meanwhile.
 
 ''';
 
@@ -380,6 +391,125 @@ List<String> notationGlossary(DesignSystem designSystem, NotationVocabulary voca
       RegExp(r'^H[1-4]$').hasMatch(n) ||
       RegExp('(?<![A-Za-z0-9_])${RegExp.escape(n)}(?![A-Za-z0-9_])').hasMatch(prompt);
   return [for (final n in names) if (n.isNotEmpty && n[0] == n[0].toUpperCase() && !taught(n)) n]..sort();
+}
+
+/// What the glossary of signatures says before its lines (the open prompt's
+/// last section, [notationPrompt] with `signatures`).
+String notationSignaturesLead(String name, {bool define = true}) => '''
+
+WORDS THAT ALREADY EXIST ($name, beyond the ones taught above)
+  One line each, as a line uses it: its strings in quotes, bind when it keeps a value, its parameters (=a default where it tells the kind: a number, true or false, a list [], a record {}, a colour #…, one of a|b; ! must be given), its events, ... when it takes lines under it (...Front: under a Front line), and after the colon what it is. Use one as it is written here${define ? ' and do not define it. When you need one in another shape, define your own word under its name or another rather than bend the line: your definition replaces it in your answer (the words taught above cannot be replaced)' : ''}.''';
+
+/// The lines of the open prompt's glossary of signatures: for each word
+/// [designSystem] has beyond what the open [prompt] teaches (the names
+/// [notationGlossary] gives), one line as a line uses it, with what it is for
+/// in a few words ([notationGlossaryComponentLine],
+/// [notationGlossaryDefinitionLine]). A word defined with several meanings has
+/// a line for each; a component's word, a line for the component and one for
+/// each meaning a definition names (`Stepper#steps`).
+List<String> notationGlossaryLines(DesignSystem designSystem, NotationVocabulary vocabulary, {required String prompt}) {
+  final components = {for (final c in designSystem.list) c.type: c};
+  return [
+    for (final n in notationGlossary(designSystem, vocabulary, prompt: prompt)) ...[
+      if (components[n] case final c?) notationGlossaryComponentLine(c),
+      for (final d in vocabulary.definitions[n] ?? const <NotationDefinition>[])
+        if (!components.containsKey(n) || d.name != null) notationGlossaryDefinitionLine(d),
+    ],
+  ];
+}
+
+/// [component] as the glossary of signatures lists it: `Counter "label"
+/// "detail" bind min max step=1 icon onChange : number raised and lowered
+/// with minus and plus`.
+String notationGlossaryComponentLine(DesignSystemComponent component) {
+  final spec = component.spec;
+  final strings = notationStrings(spec);
+  final held = spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
+  String kind(PropDef<Object?> p) {
+    final v = p.defaultValue;
+    switch (p.type.kind) {
+      case PropKind.boolean:
+        return '=${v == true}';
+      case PropKind.integer || PropKind.number:
+        return v is num ? '=${v == v.roundToDouble() ? v.round() : v}' : '';
+      case PropKind.enumeration:
+        final values = p.type.values;
+        return values.length <= 4 && values.join('|').length <= 30 ? '=${values.join('|')}' : (v is String && v.isNotEmpty ? '=$v' : '');
+      case PropKind.list:
+        return '=[]';
+      case PropKind.object || PropKind.json:
+        return v is List ? '=[]' : (v is Map ? '={}' : '');
+      case PropKind.value:
+        return p.type.name == 'Color' ? '=#…' : '';
+      case PropKind.string:
+        return '';
+    }
+  }
+
+  final parts = [
+    spec.type,
+    for (final k in strings) '"$k"',
+    if (held != null) 'bind',
+    for (final p in spec.props)
+      if (!strings.contains(p.key) && p.key != held?.key && !p.type.isVariable) p.required ? '${p.key}!' : '${p.key}${kind(p)}',
+    for (final e in spec.events) e.key == 'onChanged' ? 'onChange' : e.key,
+    if (spec.children == ChildModel.list || spec.slots.isNotEmpty) '...',
+  ];
+  return '${parts.join(' ')} : ${_gist(component.purpose)}';
+}
+
+/// [d] as the glossary of signatures lists it: its signature with its
+/// defaults shortened to their kind (`fill=#…`, `items=[]`; a text's is left
+/// out), its slots and what its `//` line says it is, in a few words.
+String notationGlossaryDefinitionLine(NotationDefinition d) {
+  String shown(String? v) {
+    if (v == null) return '';
+    if (v == 'true' || v == 'false' || RegExp(r'^-?\d+(\.\d+)?$').hasMatch(v)) return '=$v';
+    if (v.startsWith('[')) return '=[]';
+    if (RegExp(r'^\{\s*"').hasMatch(v)) return '={}';
+    if (v.startsWith('#')) return '=#…';
+    return '';
+  }
+
+  final parts = [
+    '${d.word}${d.variants.map((v) => '.$v').join()}',
+    for (final s in d.strings) '"$s"',
+    if (d.bind != null) 'bind',
+    for (final e in d.parameters.entries) d.required.contains(e.key) ? '${e.key}!' : '${e.key}${shown(e.value)}',
+    ...d.events,
+    for (final s in d.slots) '...$s',
+  ];
+  return d.doc.isEmpty ? parts.join(' ') : '${parts.join(' ')} : ${_gist(d.doc)}';
+}
+
+/// What a word is for, in about five words: the head of [text]'s first
+/// sentence, up to its first clause that says enough, at most seven words,
+/// without its article and without a word left hanging (`of`, `a`).
+String _gist(String text) {
+  var s = text.trim();
+  final end = RegExp(r'[.!?](\s|$)').firstMatch(s);
+  if (end != null) s = s.substring(0, end.start);
+  s = s.replaceFirst(RegExp(r'^(A|An|The) '), '');
+  int words(String t) => t.trim().split(RegExp(r'\s+')).length;
+  for (final cut in const [': ', '; ', ' (', ' — ', ', ', ' with ']) {
+    if (words(s) <= 7) break;
+    final i = s.indexOf(cut);
+    if (i > 0 && words(s.substring(0, i)) >= (cut == ': ' ? 2 : 3)) s = s.substring(0, i);
+  }
+  var w = s.trim().split(RegExp(r'\s+'));
+  const articles = {'a', 'an', 'the'};
+  if (w.length > 7) {
+    w = w.take(7).toList();
+    // Cut mid-phrase (`as a small`): to before its article.
+    final article = w.lastIndexWhere((x) => articles.contains(x.toLowerCase()));
+    if (article >= w.length - 2 && article > 1) w = w.take(article).toList();
+  }
+  const hanging = {...articles, 'of', 'to', 'for', 'as', 'in', 'on', 'with', 'and', 'or', 'at', 'by', 'from', 'is', 'that', 'which', 'its', 'their', 'one', 'two'};
+  while (w.length > 2 && hanging.contains(w.last.toLowerCase())) {
+    w.removeLast();
+  }
+  s = w.join(' ').replaceAll(RegExp(r'[,:;(]+$'), '');
+  return s.isEmpty ? s : '${s[0].toLowerCase()}${s.substring(1)}';
 }
 
 /// The taught prompt without what is vocabulary: the `{…}` escape and the
@@ -413,6 +543,15 @@ String _openPrompt(String taught, {bool define = true}) {
         l.startsWith('  device.hover is true') ||
         l.startsWith('    Dialog#edit "Edit" guard=') ||
         l.startsWith('    Link "About Mara" preview=')) {
+      continue;
+    }
+    // What the standalone runs lost rounds to (the vocabulary loop, Review
+    // 7): an id written again on a copy for another size, and state and
+    // overlays outside their screen's ### line.
+    if (l == '- #id only when something else names the node.') {
+      out
+        ..add('- #id only when something else names the node; each id once in the answer, copies for other sizes included.')
+        ..add('- Several screens: each starts at a ### line, with its own state lines and overlays under it, before the next ###.');
       continue;
     }
     out.add(line
