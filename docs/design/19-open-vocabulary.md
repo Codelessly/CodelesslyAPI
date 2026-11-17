@@ -47,13 +47,13 @@ A design system's components and the behaviour words the taught prompt lists (`k
 **Signatures, not names** (Review 7, D33). Twenty standalone runs, given the names, would not map to a word whose shape they could not see, and every "right word, wrong shape" rename came from that (`MapView`, `FloorPlan`, `CanvasShell`, `Track`, `Timeline`, `StatusBadge`, `Poster`, `SectionHeader`, `Counter`, `NumberInput`, `InlineStat`). So by default the glossary is the open prompt's last section, `WORDS THAT ALREADY EXIST`, one line per word as a line uses it, derived from the components' specs and the definitions (`notationGlossaryLines`, `notationGlossaryComponentLine`, `notationGlossaryDefinitionLine`, under `notationSignaturesLead`):
 
 ```
-  Counter "label" "detail" bind min=1 max=8 step=1 icon onChange : number raised and lowered
-  FloorPlan "name" bind rooms=[] pins=[] selected placing=false h=360 onPick onPlace ... : floor plan
+  Counter "label" "detail" @value min=1 max=8 step=1 icon onChange : number raised and lowered
+  FloorPlan "name" @picked rooms=[] pins=[] selected placing=false h=360 onPick onPlace ... : floor plan
   StatusBadge "label" tone=neutral : run or sync state
-  Timeline.vertical bind items=[] selected onPick ... : list of dated entries down a rail
+  Timeline.vertical @at items=[] selected onPick ... : list of dated entries down a rail
 ```
 
-Its main strings in quotes; `bind` when it keeps a value; each parameter, with `=` and what tells its kind where that disambiguates (a number's or a flag's default, `[]`, `{}`, `#…` for a colour, `a|b|c` for up to four choices; `!` when it must be given; a text's default is left out); its events (`onChange` for a component's `onChanged`); `...` when it takes lines under it (`...Front ...Back` for named slots); after the colon what its description says it is, in at most seven words. A word with several meanings has a line for each. The lead says to use a word as written, and that a word needed in another shape is defined (a page's own definition replaces a component or a defined word there, [note 20](20-defined-words.md) section 6) rather than bent. `signatures: false` (`--glossary=names`) gives the names on one line as before, which reproduces the prompt of d03; `tool/vocabulary/batch.sh prepare` writes the prompt with the glossary (`GLOSSARY=names` for the names).
+Its main strings in quotes; `@value` when it keeps a value (the name its signature gives it: `@at`), `key=@` for a further variable it keeps; each parameter, with `=` and what tells its kind where that disambiguates (a number's or a flag's default, `[]`, `{}`, `#…` for a colour, `a|b|c` for up to four choices; `!` when it must be given; a text's default is left out); its events (`onChange` for a component's `onChanged`); `...` when it takes lines under it (`...Front ...Back` for named slots); after the colon what its description says it is, in at most seven words. A word with several meanings has a line for each. The lead says to use a word as written, and that a word needed in another shape is defined (a page's own definition replaces a component or a defined word there, [note 20](20-defined-words.md) section 6) rather than bent. `signatures: false` (`--glossary=names`) gives the names on one line as before, which reproduces the prompt of d03; `tool/vocabulary/batch.sh prepare` writes the prompt with the glossary (`GLOSSARY=names` for the names).
 
 Sizes with Cards (characters; about four to a token):
 
@@ -83,7 +83,7 @@ For each line, in this order:
 With `openVocabulary`:
 
 - **An unknown type** becomes a plain `column` node holding its strings as Text nodes and the lines under it as its children. Its id is kept (`SeatMap#plan` is node `plan`). A height it is given (`h=360`) is the least it is (`constraints.minHeight`), so the room its word asked for is kept and it still grows with what is written in it. The layout and look words the grammar gives every line still work on it (`w`, `h`, `grow`, `pad`, `gap`, `fill`, `radius`, `center`, `scroll`, `sticky`, `animate`, `border`, `drag`, `drop`, `menu`, `id`), as do `visible`, `hide`, `show`, `hidden`, and the events of a pointer (`onTap`, `onLongPress`, `onDoubleTap`, `onRightClick`, the swipes, `onHover`, `onDrop`). What only its own meaning could give is left out: its other parameters, its flags, its other events (`onChange`, `onSeek`).
-  - `bind=name` (and any `bind…=name`) declares the variable, as text starting empty, so that what reads it elsewhere on the page still validates.
+  - `@name` (and any `key=@name`) binds a variable of the page, declared like any a line binds (an issue says the `state` line to add), so that what reads it elsewhere on the page still validates; nothing keeps a value in it.
   - A `{expression}` written where a value goes (`CountUp {n}`) is skipped.
   - At the margin, after the page, with an id (`CommandPalette#palette "Commands"`), it stands in as a **Dialog** with that id: what is written there is over the page, and `open palette` must have something to show.
   - A sentence around the UI (`Here is the card:`) is still not a word: at the margin an unknown word stands in only when its line has an id, a string or a key=value, at most two bare words, and does not end in punctuation.
@@ -108,7 +108,7 @@ Many names, one meaning. The table is `NotationOptions.vocabulary` (a `NotationV
 ```json
 {
   "types": {
-    "RangeSlider": {"to": "Slider", "requires": ["bind", "bindEnd"], "parameters": {"low": "bind", "high": "bindEnd"}},
+    "RangeSlider": {"to": "Slider", "requires": ["low", "high"]},
     "HighlightText": {"to": "Text", "parameters": {"query": "mark"}},
     "TextArea": {"to": "Input", "add": "multiline"},
     "Shortcut": {"line": "shortcut"}
@@ -120,7 +120,7 @@ Many names, one meaning. The table is `NotationOptions.vocabulary` (a `NotationV
 }
 ```
 
-- **A type** is read as another (`to`), with its own names for that type's parameters, flags and events (`parameters`), words added to the line (`add`), and the keys the line must have for the alias to hold (`requires`). `to` may name a variant (`"GoKey": {"to": "Button.primary", "add": "size=large"}`: `GoKey "Go"` is `Button.primary "Go" size=large`), read unless the line writes a variant of its own; `add` may hold several words and fixed parameters, each added unless the line writes that key or word itself (`GoKey "Go" size=small` keeps its own size). Its own `parameters` may read the line's first string as a named parameter (`"Score": {"to": "Counter", "parameters": {"$text": "label"}}`: `Score "Putts"` is `Counter label="Putts"`).
+- **A type** is read as another (`to`), with its own names for that type's parameters, flags and events (`parameters`), words added to the line (`add`), and the keys the line must have for the alias to hold (`requires`; a bare `@name` stands for the next one not written, so `RangeSlider @lo @hi` has its low and its high). `to` may name a variant (`"GoKey": {"to": "Button.primary", "add": "size=large"}`: `GoKey "Go"` is `Button.primary "Go" size=large`), read unless the line writes a variant of its own; `add` may hold several words and fixed parameters, each added unless the line writes that key or word itself (`GoKey "Go" size=small` keeps its own size). Its own `parameters` may read the line's first string as a named parameter (`"Score": {"to": "Counter", "parameters": {"$text": "label"}}`: `Score "Putts"` is `Counter label="Putts"`).
 - **A parameter**, for one type or for all (`*`), is read as another key (`enabled`), as that key with its value negated (`!enabled`: `disabled={x}` is `enabled={!(x)}`, `disabled=true` is `enabled=false`), or as a further string of the line (`$text`: `ListTile "Ada" subtitle="Engineer"` is `ListTile "Ada" "Engineer"`). The other way round, the key `$text` reads the line's first string as the parameter it names, on a component that takes no string or a defined word none of whose meanings does (`"parameters": {"Legend": {"$text": "title"}}`: `Legend "Key"` is `Legend title="Key"`); on a word that takes a string the string is its own.
 - **A flag** is read as the words given (`disabled` is `enabled=false`). The entries under `state` and `project` are the word after a state's value.
 - **An event** is read as another event; **a verb** as another verb.
@@ -149,11 +149,11 @@ Each line was checked against what the parser accepts, and `test/notation_vocabu
 | `ConfirmDialog#id "Title" "Message" onConfirm={…}` | `Dialog#id` with its two buttons | 1, 4 |
 | `Highlight "…" match={q}`, `HighlightText "…" query={q}` | `Text "…" mark={q}` | 2, 4 |
 | `MiniCalendar`, `CalendarMonth`, `MonthGrid` | `Calendar` | 2, 5 |
-| `RangeSlider low=a high=b` (`lo`/`hi`, `bindLow`/`bindHigh`, `bindStart`, `start`/`end`) | `Slider bind=a bindEnd=b` | 1, 1 |
+| `RangeSlider @a @b` (`low=@a high=@b`) | `Slider @a @b` | 1, 1 |
 
 In Cards' `vocabulary.json`: `Tabs items=[…]` is `tabs=[…]` (2 apps, 5 uses) and `Rating … readonly` is `readOnly` (2, 3).
 After review 7 also `StatusBadge status=` (its `tone`), `StatusDot color=` (its `status`) and `ReorderableList
-items={list}` (`bind=list`: the list it reorders is a variable, so a list worked out, `items={find(…).columns}`,
+items={list}` (`@list`: the list it reorders is a variable, so a list worked out, `items={find(…).columns}`,
 is said, where before it showed no rows). Cards' `Legend` has a second meaning, `Legend#entry "Free" color=…` (a
 key's entry: a square and its label). Looked at and left: `label` on Cards' ProgressBar (it has no text; its
 ProgressLine does) and `status` on ConnectionStatus (its own parameter already).

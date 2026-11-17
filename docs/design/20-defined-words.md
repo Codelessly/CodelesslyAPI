@@ -45,8 +45,8 @@ The signature reads:
 | `key` | a parameter with no default (empty when not given) |
 | `key!` | a parameter a use must give |
 | `key=true`, `key=false` | a flag: a bare `key` on a use is `key=true` |
-| `bind=name` | the variable the word keeps its value in: a use's `bind=x` names it; without one it is the word's own `state name` (section 4) |
-| `bind` | the same, the body calling it `bind`; a body that binds a control to `bind` (`bind={bind}`, `bind=bind`) has it whether or not the signature says so, and `bindEnd={bindEnd}` takes a use's `bindEnd=` |
+| `@value`, `@value=1`, `@value="text"` | the value the word keeps, which a use's bare `@x` (or `value=@x`) binds, both ways; the default is what a use that binds none starts at (it then keeps its own). Any name: `@color` |
+| `open=@` | a further variable the word keeps, which a use binds by name (`open=@shown`); a use that binds none keeps its own, started by the body's `state open=false` |
 | `onEvent` | an event the word gives (`onTap`, `onPick`); an event the body forwards (`onTap={onPick(c)}`) is one too when the signature leaves it out |
 
 The body reads its parameters by name in braces, as a page reads a variable, and the use's values are put in
@@ -56,14 +56,18 @@ where they are read, as written:
   with no value and no default leaves the key out.
 - `"… {p} …"` in a string: the use's string spliced in (`"Buy milk"`), its expression kept (`{item.name}`).
 - `{… p …}` in an expression: the value as an expression (`{level*100}` is `{(p.water)*100}`, a string is
-  `"…"`, a bare word is `"word"`, a variable name given to `bind` is the name).
+  `"…"`, a bare word is `"word"`).
 - `onTap={onPick}` in an event: the use's actions; `onTap={onPick(c)}`: those actions with `result` as `c`. An
   event with nothing left is left out. `onDrop={onDrop(result.data)}` with a use's `got=result.data` is
   `got=(result.data)`: the use read the value as the body passes it, not its `.data` again. An event in a branch of
   a choice (`{on ? onA : onB}`) is that branch: braced when its actions are several, `{}` when the use gave none.
-- `bind={p}`, `bind=p` (and `bindEnd=`): the variable or path the use gave (`email`, `s.weight`), written bare as
-  `bind=` takes it; the bound name of the signature, or `bind`, is the use's variable (else the word's own). A
-  `bind={…}` that is not a name or a path binds nothing and is an issue against the definition.
+- `@value`, `open=@open`, `@row.done`: the variable the use bound (a name or a path: `email`, `s.weight`), else the
+  use's own. In the body `{value}` reads it and an action writes it (`value=value+1`), as for any variable.
+- A plain parameter a use binds (`value=1` in the signature, `Counter @n` or `value=@n` on the use) is that
+  variable both ways: the body's `{value}` reads `n` and `value=value+1` writes it. A plain parameter the body binds
+  (`Slider @level`) is the use's own variable when the use binds none, started at the value the use gave or the
+  default. A bare `@x` on a use of a word that keeps no value, a `key=@x` it does not take, and a second bare mark
+  are issues that say what it binds.
 - `drag=group(x)` (and `drag=group({x})`): what it carries is an expression of the body, so a loop item of the body
   is the use's.
 - `if p`, `each x in p`: the statement's expression, the same.
@@ -100,7 +104,7 @@ reorder`.
 
 ```
 // A card that turns over: its front, and its back when flipped.
-FlipCard bind=flipped h=240 radius=16 onTap
+FlipCard @flipped h=240 radius=16 onTap
   state flipped=false
   Stack w=fill h={h} onTap={flipped=!flipped; onTap}
     Column w=fill h=fill pad=20 center middle radius={radius} fill=surface border=1 visible={!flipped}
@@ -112,7 +116,7 @@ FlipCard bind=flipped h=240 radius=16 onTap
 (Cards' own `FlipCard.txt` gives its slots their padding on the slot lines, so a use's `Front fill=…` fills the face.)
 
 ```
-FlipCard bind=flipped onTap={toast "turned"}
+FlipCard @flipped onTap={toast "turned"}
   Front
     Text.title "{q.word}"
   Back
@@ -142,7 +146,7 @@ exists, and a component compiler would duplicate it for the subset a component c
 
 **A macro (chosen).** A use is replaced by its body's lines, with the use's values put in, before the line is
 read, exactly as a page word (`Section`, `Nav`) is replaced by the plain lines it stands for. Everything the
-notation does then holds for it with nothing added: `each` and `if` inside it, `bind=` to a page variable, a
+notation does then holds for it with nothing added: `each` and `if` inside it, `@name` of a page variable, a
 use's expressions reading the page's state and the row of an `each` around it, reflow on a phone, validation,
 rendering, the stand-in for what is unknown inside a use's lines. The document carries nothing private to it:
 the record says which node a use became (`node`), as it does for a stand-in.
@@ -155,10 +159,11 @@ What it costs, and the answers:
   state into a component is a later optimisation, not a different design.
 - **State inside a word.** `state open=false` in a body is the use's own: its name is made the use's
   (`open_stickyNote1`, from the use's `#id` or a counter), in the body's `state` lines, expressions, actions and
-  `bind=`. Two uses do not share it. Under an `each` the use is written once, so its state is shared by the rows
-  (the notation's variables are the page's; a row's own state belongs in the row's item). `bind=name` in the
-  signature names the variable the word keeps its value in: a use's `bind=x` puts the page's `x` there (and the
-  body's own `state name` line is dropped); without it the word keeps its own.
+  marks (`@open`). Two uses do not share it. Under an `each` the use is written once, so its state is shared by the
+  rows (the notation's variables are the page's; a row's own state belongs in the row's item). `@name` in the
+  signature (and `key=@`) names a variable the word keeps: a use's `@x` (`key=@x`) puts the page's `x` there (the
+  body's own `state name` line is dropped, and `x` is declared on the page like any variable a line binds); without
+  it the word keeps its own (`@value=1` gives its start; else the body's `state` line).
 - **Ids.** A use's root is the use's `#id` (`ColorPicker#tint`), else `<word><n>` (`stickyNote1`); an id written in
   a body (`Dialog#picker`, `scroll top`) is made the use's (`picker_colorPicker1`), and an action of the body that
   names it (`focus picker`, `focus #picker`, `focus "picker"`) names the use's; an action that names the root's own
@@ -175,7 +180,7 @@ What it costs, and the answers:
 ## 5. One name, several meanings
 
 `Timeline` is, in four answers, a clip editor's tracks (`Timeline zoom={zoom} playhead={playhead}`), a vertical
-list of dated events (`Timeline` with `TimelineItem` lines), and a bus route's stops (`Timeline.vertical bind=at
+list of dated events (`Timeline` with `TimelineItem` lines), and a bus route's stops (`Timeline.vertical @at
 position={bus}` with `TimelineStop` lines). A file may hold several definitions of its word, each a signature at the
 margin, each named with `#name`:
 
@@ -184,7 +189,7 @@ Timeline#tracks zoom=1 playhead=0 heads onZoom onScrubTo
   …
 Timeline.vertical#events
   …
-Timeline.vertical#route bind=at position marker="directions_bus"
+Timeline.vertical#route @at position marker="directions_bus"
   …
 ```
 
@@ -194,24 +199,24 @@ not name; then the one that names the fewest things the line does not give (the 
 and a bare `Timeline` the events. Whether a use has lines under it is not used: the parser does not know it when
 the use's line is read (section 3). The record says which meaning was read (`to: Timeline#route`).
 
-An alias whose `requires` a line meets is still read before a definition of the same name: `RangeSlider low=a
-high=b` is our `Slider bind=a bindEnd=b` (the built-in alias), `RangeSlider bind=range` is Cards' definition.
+An alias whose `requires` a line meets is still read before a definition of the same name: `RangeSlider @a
+@b` (`low=@a high=@b`) is our `Slider @a @b` (the built-in alias), `RangeSlider @range` is Cards' definition.
 
 **A component's word with a second meaning.** `Stepper` is, in eight self-defining answers, two things: the number
-control (five answers: `bind=value min= max= step= onChange`), which Cards' `Stepper` component already is, and a
-steps indicator (three: `steps=[] bind=step`, `current=`, `done=[]`, `onPick`/`onSelect`). A component cannot be
+control (five answers: `@value min= max= step= onChange`), which Cards' `Stepper` component already is, and a
+steps indicator (three: `steps=[] @step`, `current=`, `done=[]`, `onPick`/`onSelect`). A component cannot be
 redefined (its word is the design system's, section 6), and the second meaning is not a reason to rename the first.
 So a definition may give a component's word a further meaning when it names that meaning:
 
 ```
-Stepper#steps steps=[] bind=step current done=[] orientation="horizontal" onPick
+Stepper#steps steps=[] @step current done=[] orientation="horizontal" onPick
   …
 ```
 
 The component is the word's first meaning, scored as a definition whose signature is the component's props and
-events (with `bind` when it keeps a value, and `onChange` for its `onChanged`). A use is read as the named meaning
+events (with `@` when it keeps a value, and `onChange` for its `onChanged`). A use is read as the named meaning
 that fits it best only when that meaning fits it better than the component; on a tie it is the component. So
-`Stepper bind=qty min=1 max=8 onChange={…}` is the component, as it was, and `Stepper steps=["Cart","Pay"]
+`Stepper @qty min=1 max=8 onChange={…}` is the component, as it was, and `Stepper steps=["Cart","Pay"]
 current={at}` is `Stepper#steps`. A design system's definition of a component's word that names no meaning is not
 read: the unnamed meaning of a component's word is the component. A page's own is (section 6). The core's words and
 the page words take no second meaning (a `Text#strike` would change what every page means by `Text`).
@@ -300,7 +305,7 @@ only, for the words the first two batches reached for (30 answers, 136 screens):
 `Dot`, `Poster`, `AlbumCover`, `WaterDrop`, `LiveRegion`, `DateDivider`, `TypingIndicator`, `ChatBubble`,
 `Composer`, `CommandItem` (which uses `Kbd`), `Group`, `SelectionBar`, `NowPlayingBar`, `Figure`,
 `ChapterRail`, `ChapterRailItem`, `SwipeRow`, `FlipCard` (`Front`, `Back`), `AvatarStack`, `Legend`, `WordCloud`,
-`Heatmap`, `Countdown` (`#seconds`, `#clock`), `ToggleButton`, `RangeSlider bind=range` (over `Slider bind bindEnd`),
+`Heatmap`, `Countdown` (`#seconds`, `#clock`), `ToggleButton`, `RangeSlider @range` (over `Slider @low @high`),
 `ReorderList` (over `each … reorder`), `Table` (`#lists`, `#records`, `#rows`), `Timeline` (`#tracks`, `#events`,
 `#route`), `TimelineItem`, `TimelineStop`, `Step` (`#story`, `#progress`).
 
@@ -309,7 +314,7 @@ Of the 98 types no word resolved before (with 33.0.0's parser and aliases; `Stic
 
 **Could be definitions, not written yet** (compositions of what the notation has): `PhotoGrid` (a Grid of Images;
 not its drag selection), `Autocomplete`, `CommandList`, `FuzzySearch` (an Input and `fuzzy`), `DateRangePicker`
-(over `Calendar bind bindEnd`), `SortableList` (`each … reorder=group`), `SplitPane` (`Row` and `Splitter`),
+(over `Calendar @start @end`), `SortableList` (`each … reorder=group`), `SplitPane` (`Row` and `Splitter`),
 `ThumbnailStrip`, `SelectionToolbar`, `ListenBar`, `Head`, `Track`, `TypedAnswer`, `Keyboard` (rows of keys),
 `Lyrics` (lines marked by time; not scrolled to), `Dish`, `DishArt`, `Scene` (as a tinted tile with an icon),
 `CompareSlider` (Cards has `BeforeAfter`: an alias, if the shapes match).
@@ -342,11 +347,11 @@ defined word since this review, section 5):
 
 | word | signature now | aliases |
 |---|---|---|
-| `Timeline#events` (first: a bare `Timeline` is it) | `Timeline.vertical#events items=[] bind=at selected onPick`: records with a date or time, a title, a note | `events`, `steps`, `entries` → `items`; `current` → `selected`; `onSelect` → `onPick` |
+| `Timeline#events` (first: a bare `Timeline` is it) | `Timeline.vertical#events items=[] @at selected onPick`: records with a date or time, a title, a note | `events`, `steps`, `entries` → `items`; `current` → `selected`; `onSelect` → `onPick` |
 | `Timeline#tracks`, `#route` | as they were, with `tracks=[]` and `stops=[]` named in the signature | |
-| `Stepper` | the component (the number control: `bind=value min max step label onChanged`, `onChange`) and `Stepper#steps steps=[] bind=step current done=[] orientation="horizontal" onPick` | `items` → `steps`; `onSelect` → `onPick` |
+| `Stepper` | the component (the number control: `@value min max step label onChanged`, `onChange`) and `Stepper#steps steps=[] @step current done=[] orientation="horizontal" onPick` | `items` → `steps`; `onSelect` → `onPick` |
 | `Countdown#timer` (new meaning) | `"label" seconds=0 warnAt=0 format="m:ss" onWarn onEnd` | `warnBelow`, `warn` → `warnAt`; `onDone`, `onFinish`, `onComplete` → `onEnd` |
-| `Rating` (component, repaired) | `"label" bind=value score max=5 half readOnly onChanged`; the label optional | `readonly`; `StarRating` is `Rating` |
+| `Rating` (component, repaired) | `"label" @value score max=5 half readOnly onChanged`; the label optional | `readonly`; `StarRating` is `Rating` |
 | `ChatBubble` | `"text" mine=false role sender time grouped=false` (role="user" is mine) | `from`, `author` → `sender` |
 | `Barcode` (core) | `Barcode "text"`, bars by default, 80 high | `value`, `code` → `data`; `format`, `type` → `symbology`; `QRCode` |
 | `Banner` (component, repaired) | `"title" "message" tone icon action dismissible onDismiss onAction`; `Banner.warning` is `tone=warning` | `actionLabel` → `action`; `text` → `message` |
@@ -359,12 +364,12 @@ is built, the word is already agreed:
 
 | word | signature | what it shows | aliases |
 |---|---|---|---|
-| `MapView` | `center=[0,0] zoom=12 pins=[] bind=picked h=320 onSelect` | centre, zoom, the pins as chips | `markers`, `places`, `locations`, `apps` → `pins`; `onPick`, `onPin` → `onSelect`; `Map` |
+| `MapView` | `center=[0,0] zoom=12 pins=[] @picked h=320 onSelect` | centre, zoom, the pins as chips | `markers`, `places`, `locations`, `apps` → `pins`; `onPick`, `onPin` → `onSelect`; `Map` |
 | `RouteMap` | `stops=[] current progress=0 h=240 onPick` | how far along, the stops numbered | `points`, `route` → `stops`; `onPin`, `onSelect` → `onPick` |
-| `FloorPlan` | `"name" rooms=[] pins=[] bind=picked selected placing=false h=360 onPick onPlace` | rooms as tiles, pins as chips | `items`, `markers` → `pins`; `onSelect` → `onPick` |
-| `SignaturePad` | `"hint" bind=signature h=160 onChange` | a framed area; a tap marks it signed | `onSign` → `onChange`; `Signature` |
+| `FloorPlan` | `"name" rooms=[] pins=[] @picked selected placing=false h=360 onPick onPlace` | rooms as tiles, pins as chips | `items`, `markers` → `pins`; `onSelect` → `onPick` |
+| `SignaturePad` | `"hint" @signature h=160 onChange` | a framed area; a tap marks it signed | `onSign` → `onChange`; `Signature` |
 | `CameraView` | `"hint" source="camera" h=320 onCapture` | a dark frame, its source, a shutter | `onShutter`, `onTake` → `onCapture`; `Camera` |
-| `PhotoPicker` | `"label" bind=photo onPick` | a framed area; "Photo attached" once bound | |
+| `PhotoPicker` | `"label" @photo onPick` | a framed area; "Photo attached" once bound | |
 | `Waveform` | `values=[] position=0 cues=[] h=48 onSeek` | a bar per value, coloured to the position | `peaks`, `samples`, `bars` → `values`; `progress` → `position`; `marks`, `markers` → `cues` |
 
 Review 6's glossary experiment (`corpus-define/d03`) showed the other side: a name given without a signature is
@@ -405,17 +410,18 @@ resolves its word whatever its lines do, so the count could not tell. Two things
 
 **What a definition's lines leave unused** (`definitionReads`, `define_reads.dart`). Read from the lines as the
 expansion reads them: a name is read where the expansion would put the use's value in (in braces, in a string's
-braces, in a list, in a statement's expression, in the `{…}` where the text goes), a variable is bound by `bind=` and
+braces, in a list, in a statement's expression, in the `{…}` where the text goes), a variable is bound by `@` (`@value`, `open=@open`) and named by
 `menu=`, an event is run where an action names it (`onTap={onPick}`, `onPick(x)`, a branch of a choice, inside
 `confirm … then {…}`). `DefinitionReads` gives:
 
-- `unread`: the strings, parameters and `bind` its lines never read (`define GoKey "label" shortcut="" onTap` with
+- `unread`: the strings, parameters and `@value` its lines neither read nor bind (`define GoKey "label" shortcut="" onTap` with
   `Button "{label}" onTap={onTap}` under it: `shortcut`);
 - `unfired`: the events no action runs (tv-streaming-remote's `RemoteFrame … onArrowUp onArrowDown onArrowLeft
   onArrowRight onEnter onEscape` over `Column gap={gap} pad={pad}`);
 - `outside`: the names its lines read, set or bind that are neither its own nor declared in it (periodic-table's
-  `each e in elements`, a variable of the page; `bind=red` where `red` is a parameter, which binds the page's `red`;
-  `selected={item==bind}`, which reads a variable called `bind`). Ids, pages and keys an action names (`open sheet`,
+  `each e in elements`, a variable of the page; `Slider @gain` where `gain` is no parameter, which binds the page's
+  `gain`; `selected={item==bind}`, which reads a variable called `bind`). A parameter a line binds (`Slider @red`) is
+  read: it is the use's variable, or the one the use binds. Ids, pages and keys an action names (`open sheet`,
   `go home`) are not variables.
 
 Each comes with its message (`page:64: PeriodicTable reads elements, which is neither its own nor declared in it: it

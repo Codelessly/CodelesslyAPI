@@ -86,9 +86,9 @@ These go on the line whose lines come from an `each` (a Column, a Card, a Sectio
   `result.from`, `result.to`, `result.item` as the list gives them. An `each` over a formula is reordered when the
   line has `onReorder`: the list is not written, and `result` is the formula's list moved (`move(list, result.from,
   result.to)`; the answer stores it). Under a Grid or across a Row nothing is reordered (the renderer reorders a list
-  down a column only): the word is left out and recorded unknown, and the list is kept. `bind=` on a reordered line
-  names the list (read, and it changes nothing).
-- **`selectable`** with `bind=list` (else the line's own `<id>Selected`) and `onSelect={…}`: a tap on a row selects
+  down a column only): the word is left out and recorded unknown, and the list is kept.
+- **`selectable`** with `selected=@list` (the rows chosen, by their keys; else the line's own `<id>Selected`) and
+  `onSelect={…}`: a tap on a row selects
   it alone, Ctrl or ⌘ adds or removes it, Shift takes the range from the last row chosen; Space and Enter on a
   focused row do the same with the same keys held, and the arrow keys move between rows (one Tab stop). Ctrl or ⌘ A
   selects every row while the page is not being typed in. The range runs from the last row tapped, also when that tap
@@ -106,8 +106,8 @@ These go on the line whose lines come from an `each` (a Column, a Card, a Sectio
   system's block that has a slot and no × of its own (a ListRow's trailing, a SectionHeader's actions) takes it at
   the end of its slot. On anything else (a TabBar's tabs are one list of labels) it is not universal.
 
-A list word on a line with no `each` directly under it is left out and recorded unknown; the variable its `bind=`
-names is still declared, so what reads it validates. `selectable` there is also said, with where it goes (a
+A list word on a line with no `each` directly under it is left out and recorded unknown; the variable its
+`selected=@name` names is still declared, so what reads it validates. `selectable` there is also said, with where it goes (a
 `Card selectable` under the `each`, a `Row selectable` of fixed lines: it chooses among an `each`'s copies only).
 
 Beside these, on a design system's block that does not have the word itself:
@@ -134,7 +134,8 @@ word the definition does not have, as before. The grammar's own words on a core 
 On a type we do not have (a stand-in, D6) the parser records as universal each word of the line it applied, checked
 against what it did rather than listed: a word of the table, or a property of the column the stand-in is, that it did
 not leave out (no issue at its column, not one of the words it drops). What a stand-in does not honour stays unknown:
-`bind` (it declares the page's variable, so that what reads it validates, but nothing keeps a value in it), `size`,
+`@name` (the page's variable, declared like any a line binds, so that what reads it validates, but nothing keeps a
+value in it), `size`,
 `items`, `x` and `y`, its own events (`onChange`, `onSeek`), `duration` without `animate`, a list word with no `each`
 under it, and every other word. Its strings are still counted as texts of a word we do not have.
 
@@ -165,7 +166,7 @@ has the word under another name and in the parser otherwise:
 | `onEnter` | `onSubmit` (the field submitted from the keyboard) |
 | `onKeyDown` | a key pressed while the field has the focus (`result.key`; a bare `key` in its actions is read as `result.key`) |
 | `onSaved` | `onBlur` (it lost focus after editing) |
-| `value=` beside `bind=` | what it shows: a fixed text over the variable's, `value={…}` bound; the variable is still the one a change writes |
+| `value="…"` or `value={…}` beside `@name` | the text it starts with: a fixed text over the variable's, `value={…}` bound; the variable is still the one a change writes |
 | `prefix=`, `suffix=` | the texts before and after the typed text, always shown (`kg`, `$`) |
 | `error=`, `helper=` | as before (they were read already) |
 | `fuzzy` | a recorded no-op with an issue: fuzzy matching belongs to the list that is filtered (`filter(items, x => fuzzy(x.name, q))`), not to the field |
