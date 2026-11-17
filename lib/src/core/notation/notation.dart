@@ -19,6 +19,7 @@ import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
 import '../triggers.dart' show KeyCombo;
+import 'declared.dart';
 import 'define.dart';
 import 'page_words.dart';
 import 'reflow.dart';
@@ -1782,6 +1783,7 @@ class _Parser {
     if (raw.trim().isEmpty || raw.trimLeft().startsWith('//')) return;
     // An answer wrapped in a code fence: the fence is not notation.
     if (raw.trimLeft().startsWith('```')) return;
+    if (_componentLine(raw)) return;
     final indent = raw.length - raw.trimLeft().length;
     var before = nodes.length;
     // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
@@ -2515,6 +2517,195 @@ class _Parser {
 
   Json? _documentPatch;
 
+  /// A design system's component (`component Name "doc"` above its tree,
+  /// docs/design/22 section 4.5): its declaration (the document's `widget`)
+  /// and its previews. The document is then the tree alone: its root is the
+  /// first line, with no canvas around it.
+  Json? _widget;
+  final _previews = <Json>[];
+
+  static final _componentPart = RegExp(r'^(param|event|slot|preview)\s+(.*)$');
+
+  /// Reads [raw] when it is a component's head or a line of it (a
+  /// `param`, `event`, `slot` or `preview` indented under it).
+  bool _componentLine(String raw) {
+    if (_host != null || _root != null) return false;
+    final indent = raw.length - raw.trimLeft().length, text = raw.trim();
+    if (indent == 0 && RegExp(r'^component(\s|$)').hasMatch(text)) {
+      final words = _headWords(text.substring(9));
+      final name = words.isEmpty ? null : words.first;
+      if (name == null || name.value != null || !RegExp(r'^[A-Z][A-Za-z0-9_]*$').hasMatch(name.key)) {
+        _issue(1, 'A component is written: component Name "what it is", its parameters, events, slots and previews indented under it, then its tree.');
+        return true;
+      }
+      _widget = {'type': name.key};
+      for (final w in words.skip(1)) {
+        if (w.key == '"' && _widget!['doc'] == null) {
+          _widget!['doc'] = w.value;
+        } else if (w.key == 'children' && w.value is String) {
+          _widget!['children'] = w.value;
+        } else {
+          _issue(1, 'A component\x27s head takes its name, a string saying what it is, and children=list (or slots): not "${w.key}".');
+        }
+      }
+      return true;
+    }
+    final m = _componentPart.firstMatch(text);
+    if (indent == 0 || _widget == null || m == null) return false;
+    final words = _headWords(m[2]!);
+    final widget = _widget!;
+    void add(String key, Object? value) => ((widget[key] as List<Object?>?) ?? (widget[key] = <Object?>[])).add(value);
+    switch (m[1]) {
+      case 'param':
+        // `param title="Action" required doc="The title."`, `param size:small|medium|large=medium`.
+        final first = words.firstOrNull;
+        final head = first == null ? null : RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?::(\S+))?$').firstMatch(first.key);
+        if (head == null) {
+          _issue(indent + 1, 'A parameter is written: param name=default, its type after a colon where the default does not say it (param count:int=3), then required and doc="…".');
+          return true;
+        }
+        final type = head[2] == null ? notationTypeJson(notationTypeOf(first!.value)) : notationTypeJson(head[2]!);
+        if (type == null) _issue(indent + 1, 'No type "${head[2]}": String, bool, double, int, List<…>, ValueNotifier<…>, or an enum\x27s values joined by | (small|medium|large).');
+        final p = <String, Object?>{'key': head[1], 'type': type ?? notationTypeJson('String'), 'default': first!.value};
+        for (final w in words.skip(1)) {
+          if (w.key == 'required' && w.value == null) {
+            p['required'] = true;
+          } else if (w.key == 'doc' && w.value is String) {
+            p['doc'] = w.value;
+          } else {
+            _issue(indent + 1, 'A parameter takes required and doc="…" after its default: not "${w.key}".');
+          }
+        }
+        add('props', p);
+      case 'event':
+        final first = words.firstOrNull;
+        final head = first == null || first.value != null ? null : RegExp(r'^(on[A-Z][A-Za-z0-9_]*)(?::(\S+))?$').firstMatch(first.key);
+        if (head == null) {
+          _issue(indent + 1, 'An event is written: event onName, with what it passes after a colon (event onChanged:String) and doc="…".');
+          return true;
+        }
+        final e = <String, Object?>{'key': head[1]};
+        if (head[2] case final String t) {
+          if (notationTypeJson(t) case final Json json) {
+            e['payload'] = json;
+          } else {
+            _issue(indent + 1, 'No type "$t": String, bool, double, int, List<…>, or an enum\x27s values joined by |.');
+          }
+        }
+        for (final w in words.skip(1)) {
+          if (w.key == 'doc' && w.value is String) {
+            e['doc'] = w.value;
+          } else {
+            _issue(indent + 1, 'An event takes doc="…" after its name: not "${w.key}".');
+          }
+        }
+        add('events', e);
+      case 'slot':
+        for (final w in words) {
+          if (w.value == null && RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(w.key)) {
+            add('slots', w.key);
+          } else {
+            _issue(indent + 1, 'A slot is written: slot name.');
+          }
+        }
+      case 'preview':
+        // `preview "Default" 340x66 title="Summarize new tickets"`.
+        final pv = <String, Object?>{'name': ''};
+        final props = <String, Object?>{};
+        for (final w in words) {
+          final size = RegExp(r'^(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$').firstMatch(w.key);
+          if (w.key == '"' && pv['name'] == '') {
+            pv['name'] = w.value;
+          } else if (size != null && w.value == null) {
+            pv['size'] = [num.parse(size[1]!), num.parse(size[2]!)];
+          } else if (w.key != '"') {
+            props[w.key] = w.value;
+          }
+        }
+        pv['props'] = props;
+        _previews.add(pv);
+    }
+    return true;
+  }
+
+  /// The words of a component's head line: `key=value` (the value JSON, or
+  /// a bare word as text), a bare `key` (value null) and a string (key `"`).
+  static List<({String key, Object? value})> _headWords(String text) {
+    final out = <({String key, Object? value})>[];
+    var i = 0;
+    int end(int from) {
+      // A value: a string, a bracketed JSON value, or up to a space.
+      if (from >= text.length) return from;
+      if (text[from] == '"') {
+        for (var k = from + 1; k < text.length; k++) {
+          if (text[k] == r'\') {
+            k++;
+          } else if (text[k] == '"') {
+            return k + 1;
+          }
+        }
+        return text.length;
+      }
+      if (text[from] == '[' || text[from] == '{') {
+        var depth = 0, quoted = false;
+        for (var k = from; k < text.length; k++) {
+          final c = text[k];
+          if (quoted) {
+            if (c == r'\') {
+              k++;
+            } else if (c == '"') {
+              quoted = false;
+            }
+            continue;
+          }
+          if (c == '"') quoted = true;
+          if (c == '[' || c == '{') depth++;
+          if ((c == ']' || c == '}') && --depth == 0) return k + 1;
+        }
+        return text.length;
+      }
+      final space = text.indexOf(' ', from);
+      return space < 0 ? text.length : space;
+    }
+
+    Object? decode(String raw) {
+      try {
+        return jsonDecode(raw);
+      } on FormatException {
+        return raw;
+      }
+    }
+
+    while (i < text.length) {
+      if (text[i] == ' ') {
+        i++;
+        continue;
+      }
+      if (text[i] == '"') {
+        final e = end(i);
+        out.add((key: '"', value: decode(text.substring(i, e))));
+        i = e;
+        continue;
+      }
+      // A key runs to `=` or a space (a type after its colon may hold `<…>`
+      // and `|`).
+      var k = i;
+      while (k < text.length && text[k] != ' ' && text[k] != '=') {
+        k++;
+      }
+      final key = text.substring(i, k);
+      if (k < text.length && text[k] == '=') {
+        final e = end(k + 1);
+        out.add((key: key, value: decode(text.substring(k + 1, e))));
+        i = e;
+      } else {
+        out.add((key: key, value: null));
+        i = k;
+      }
+    }
+    return out;
+  }
+
   /// The ids the whole text opens (`open edit`), known before its lines are
   /// read when it is read at once: a design system's Dialog#edit written
   /// inside the page is then what that open shows.
@@ -2538,6 +2729,20 @@ class _Parser {
     finish();
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
+    // A component's document: its declaration, its previews and its tree,
+    // no canvas; its variables are its root's.
+    if (_widget case final Json widget) {
+      final own = variables.values.where((v) => !_projectVariables.contains(v['name'])).toList();
+      return NotationResult(patched({
+        'schema': 3,
+        'id': widget['type'],
+        'roots': [?_root],
+        'widget': widget,
+        if (_previews.isNotEmpty) 'previews': _previews,
+        'nodes': {...nodes},
+        if (own.isNotEmpty) 'variables': {_root ?? options.screen: own},
+      }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
+    }
     return NotationResult(patched({
       'schema': 3,
       'roots': _rootIds,
@@ -6181,6 +6386,29 @@ class _Parser {
     rest = rest.replaceFirst(RegExp(r'\s+(saved|persist|persisted)=true$'), ' saved');
     final saved = rest.endsWith(' saved');
     if (saved) rest = rest.substring(0, rest.length - 6).trimRight();
+    // `state count:decimal=2`: a type the value does not say; `state
+    // note:text` with no value; `state total:decimal={price*qty}` a formula
+    // variable of the document (with no type, a formula is written out where
+    // it is read); `state clamp(v):decimal={min(1, max(0, v))}` a function
+    // (docs/design/22 section 4.5).
+    final typed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\(([^()]*)\))?:([a-z]+)(?:\s*=\s*(.+))?$').firstMatch(rest);
+    if (typed != null) {
+      final name = typed[1]!, type = typed[3]!, value = typed[4]?.trim();
+      final params = [for (final p in (typed[2] ?? '').split(',')) if (p.trim().isNotEmpty) p.trim()];
+      if (!const {'integer', 'text', 'decimal', 'boolean', 'color', 'list', 'map', 'image', 'choice'}.contains(type)) {
+        return _issue(column, 'A variable\x27s type is one of integer, text, decimal, boolean, color, list, map, image, choice: state $name:decimal=0.');
+      }
+      final formula = value != null && _bracedExpression(value);
+      if (typed[2] != null && !formula) return _issue(column, 'A function is a formula in braces: state $name(${typed[2]}):$type={…}.');
+      variables[name] = {
+        'name': name,
+        'type': type,
+        if (formula) 'formula': value.substring(1, value.length - 1).trim() else if (value != null) 'value': _value(value),
+        if (params.isNotEmpty) 'parameters': params,
+        if (saved) 'persist': true,
+      };
+      return;
+    }
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
     if (m[1] == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');

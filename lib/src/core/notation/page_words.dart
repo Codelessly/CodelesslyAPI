@@ -1037,7 +1037,8 @@ final class PageWords {
   /// has them: `sticky=true top=24` as the word `sticky`, an Avatar's `src=`
   /// as its `image=` (with the name it must have).
   static String _plain(String text) {
-    if (text.contains("'")) text = _doubleQuoted(text);
+    // A typed state's formula (`state n:text={…}`) is kept as written: it is the document's.
+    if (text.contains("'") && !RegExp(r'^state\s+[A-Za-z_][A-Za-z0-9_]*(\([^()]*\))?:[a-z]+').hasMatch(text)) text = _doubleQuoted(text);
     if (!text.contains('=')) return text;
     var t = text;
     if (t.contains(' sticky=true')) {
