@@ -215,7 +215,10 @@ final class _Printer {
     }
 
     walk(patch, '');
-    return words.isEmpty ? null : words.join(' ');
+    // Its name, path, size and fill first, the rest as the canvas has them.
+    int rank(String w) => switch (w.split('=').first) { 'path' => 1, 'w' => 2, 'h' => 3, 'fill' => 4, _ when w.startsWith('"') => 0, _ => 5 };
+    final order = [for (var i = 0; i < words.length; i++) i]..sort((a, b) => rank(words[a]) != rank(words[b]) ? rank(words[a]) - rank(words[b]) : a - b);
+    return words.isEmpty ? null : [for (final i in order) words[i]].join(' ');
   }
 
   // --- state -------------------------------------------------------------

@@ -132,6 +132,62 @@ Each family owns its part of the parser and its printer file, measures itself wi
 | Document | typed variables, component heads, canvases | `print.dart` |
 | Paint, motion, charts | words for custom paint ops, animations, chart options | `print_paint.dart` |
 
+### 4.5 The document family: the forms settled
+
+What is not a node's own line (`print.dart`, read back by the parser). Each form is a line of the grammar of
+design 13 section 3; none is a second way to write what had one.
+
+- **Variables.** `state name=value` as before. A type the value does not say is written after a colon, in the
+  variable's own type names: `state count:decimal=2`, `state accent:color="#FF2563EB"`; with no value,
+  `state note:text`. A typed value in braces is a formula variable of the document (`Variable.formula`):
+  `state total:decimal={price*qty}`; with parameters, a function: `state clamp(v):decimal={min(1, max(0, v))}`.
+  (Without a type, `state x={…}` stays a formula written out where it is read.) `saved` is `persist`. A typed
+  formula is kept as written, single quotes too.
+- **The screen's canvas.** `canvas "Trip" path="/trip" h=844 fill=paper` above the tree: its name in quotes,
+  `w`, `h`, `fill` (a plain fill), any other field by its path from the canvas (`props.blockBack=true`,
+  `layout.height.hug=600`; `null` removes). `canvas none`: the document has no canvas, its root is the first line.
+- **Other canvases.** `Canvas#about "About" path="about"` at the margin after the page, its tree indented under
+  it: an overlay block with no frame of its own, the head taking the canvas line's words. One block per canvas.
+- **Lists and conditions.** A list over data the parser makes from `each` (a `listView` whose one child is the
+  column `<id>Item`) is printed `each item in list` (with `reorder`, `follow h=…`); an each with an each in it
+  names its element with a word its lines do not use, so their `parent.item` stays as written. Sibling lines
+  whose bound `visible` is the same `${= expr}` (two or more, or one followed by its negation) are under
+  `if expr`, the negation under `else`. A list written by hand (its item not the parser's column) stays a node
+  line.
+- **Ids.** An id the parser would give the line (`text3`: its type and the count so far) is not written,
+  unless the line reads as something else without it (`Sidebar`, a page word, for a component of that name).
+  Any other id is written; an id's parts may be joined by `-` (`#m-logo`), which the parser now reads (an id
+  from data, `#row-{row.id}`, is still its fixed part).
+- **A component.** A design system's component document is its head, then its tree (no canvas; its variables
+  are its root's):
+
+  ```
+  component StatusPill "A short status, colored by its tone."
+    param label="Active" required doc="What it says."
+    param tone:neutral|success|danger="neutral"
+    param value:ValueNotifier<bool>=false
+    event onChanged:String doc="The new label."
+    slot trailing
+    preview "Default" 120x28 label="Active" tone="success"
+  Row#pill gap=4
+    Text#pillLabel "Active"
+  ```
+
+  A parameter is declared as a variable is (`name[:Type]=default`), its type in Flutter's names (`String`,
+  `bool`, `double`, `int`, `List<…>`, `ValueNotifier<…>` for a variable parameter, an enum's values joined by
+  `|`), written only where the default does not say it; `required` and `doc="…"` after it. An event's payload is
+  its type after a colon. A preview is its name, its size (`340x66`) and the call's values. A `define` (design
+  20) is a macro written out where it is used, not a component of the document, so it cannot say one.
+- **Reading back.** A line's `{…}` tail is merged again once the text is read (less the values it binds), so
+  what later lines add does not undo it, and the printer reads its print back until tails and canvas lines say
+  everything. A print is parsed with `notationOptionsFor(document)`, which turns the reflow off: a printed
+  document's media rules are its own.
+- **The screen's events** (`every`, `key`) are the events family's: the walk calls `printCanvasEvents`.
+
+Not said yet: a node in a slot of a node that is no component (a `listTile`'s title: the parser puts the lines
+under a node in its children); a component call whose type the catalog does not have (the parser reads no such
+line, and a `node {…}` line refuses an unknown type); the document's own `id` and `schema` where they are not
+the parser's.
 ## 5. What does not change
 
 The prompt teaches the grammar and the core (design 19). Parity is what the parser reads and the printer
