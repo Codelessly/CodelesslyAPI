@@ -81,7 +81,8 @@ void main() {
     });
 
     test('a width in px, either bound', () {
-      _word('Row#a gap=24 max899.direction=vertical', [
+      // A flex's direction (a row has none: `Row … direction=` is said).
+      _word('Flex#a gap=24 max899.direction=vertical', [
         {'maxWidth': 899, 'patch': {'props': {'direction': 'vertical'}}},
       ]);
       _word('Column#a min1100.pad=40', [
