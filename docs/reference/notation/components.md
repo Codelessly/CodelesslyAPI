@@ -205,6 +205,20 @@ Row#chip gap=6 pad=[12,0,8,0] w={"hug":120} h=36 fill=#FFE8EAF6 radius=18 onTap=
   Icon#remove "close" w=20 h=20 color=#FF5C6BC0 onTap={emit onRemove props.label}
 ```
 
+<a id="components-example-components-md-nodes"></a>
+### components.md: nodes
+
+From [components.md](../components.md) (the block at line 43 of its template, pages/components.md); its nodes in a column.
+
+```notation components unchecked
+Column#example {"children":["design","tags"]}
+  Chip#design "Design" w={"hug":120} h=36 {"type":"Chip","props":{"selected":"tag"},"slots":{"leading":"dot"},"actions":[{"trigger":{"type":"event","event":"onRemove"},"actions":[{"type":"setVariable","variable":"removed","value":"${result}"}]}]}
+    box#dot w=8 h=8 fill=#FF4CAF50 radius=4
+  ListView#tags w={"fill":360} h=36 scrollDirection=horizontal gap=8 {"bind":{"data":"${tags}"}}
+    Chip#tagChip "{item.name}" w={"hug":120} h={"fill":36} {"type":"Chip"}
+document {"nodes":{"design":{"props":{"selected":"tag"}}}}
+```
+
 <a id="components-example-sections-pages-home-json"></a>
 ### sections/pages/home.json
 
@@ -318,24 +332,6 @@ From [`site/site.json`](../components.md). It is a site's manifest (`site.json`)
       "value": []
     }
   ]
-}
-```
-
-<a id="components-example-components-md-nodes"></a>
-### components.md: nodes
-
-From [components.md](../components.md) (the block at line 43 of its template, pages/components.md). It is a map of values, not a document. It is written as JSON:
-
-```json
-"nodes": {
-  "design": {"type": "Chip", "props": {"label": "Design", "selected": "tag"},
-             "slots": {"leading": "dot"}, "layout": {"width": {"hug": 120}, "height": 36},
-             "actions": [{"trigger": {"type": "event", "event": "onRemove"},
-                          "actions": [{"type": "setVariable", "variable": "removed", "value": "${result}"}]}]},
-  "dot": {"type": "box", "layout": {"width": 8, "height": 8}, "decoration": {"fills": [{"color": "#FF4CAF50"}], "radius": 4}},
-  "tags": {"type": "listView", "children": ["tagChip"], "bind": {"data": "${tags}"},
-           "props": {"scrollDirection": "horizontal", "spacing": 8}, "layout": {"width": {"fill": 360}, "height": 36}},
-  "tagChip": {"type": "Chip", "bind": {"props.label": "${item.name}"}, "layout": {"width": {"hug": 120}, "height": {"fill": 36}}}
 }
 ```
 

@@ -3,24 +3,29 @@
 
 The work list for notation parity (docs/design/22-notation-parity.md). Each example of the JSON reference is printed with `printNotation`; a line that keeps part of its node in a `{…}` tail, a `node {…}` line and a `document {…}` line are listed here, with the paths the JSON holds. The reference is complete when this list is empty.
 
-63 examples; 46 with a tail; 128 lines with one; 67 distinct paths; 2 prints that do not read without an issue; 8 that print again differently.
+64 examples; 47 with a tail; 133 lines with one; 67 distinct paths; 3 prints that do not read without an issue; 8 that print again differently.
 
 ## Paths, most lines first
 
 | Path | Lines |
 |---|---|
 | `props.crossAxisAlignment` | 41 |
-| `bind.data` | 19 |
+| `bind.data` | 20 |
 | `props` | 18 |
+| `type` | 8 |
 | `bind.decoration.fills[0].color` | 7 |
 | `bind.props.text` | 7 |
 | `bind.visible` | 6 |
-| `type` | 6 |
+| `children` | 5 |
 | `layout.width.fill` | 5 |
 | `bind.props.validator` | 4 |
-| `children` | 4 |
 | `layout` | 4 |
 | `props.validator` | 4 |
+| `actions[].actions[].type` | 2 |
+| `actions[].actions[].value` | 2 |
+| `actions[].actions[].variable` | 2 |
+| `actions[].trigger.event` | 2 |
+| `actions[].trigger.type` | 2 |
 | `bind.props.savedCount` | 2 |
 | `bind.props.style.color` | 2 |
 | `id` | 2 |
@@ -28,12 +33,10 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | `nodes.*.actions[].actions[].type` | 2 |
 | `nodes.*.actions[].actions[].variable` | 2 |
 | `nodes.*.actions[].trigger.type` | 2 |
+| `nodes.*.props.selected` | 2 |
 | `nodes.*.props.validator` | 2 |
-| `actions[].actions[].type` | 1 |
-| `actions[].actions[].value` | 1 |
-| `actions[].actions[].variable` | 1 |
-| `actions[].trigger.event` | 1 |
-| `actions[].trigger.type` | 1 |
+| `props.selected` | 2 |
+| `slots.leading` | 2 |
 | `bind.layout.columnSpan` | 1 |
 | `bind.layout.widthFactor` | 1 |
 | `bind.motion.scale` | 1 |
@@ -58,12 +61,9 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | `nodes.*.actions[].actions[].nonBlocking` | 1 |
 | `nodes.*.actions[].actions[].target` | 1 |
 | `nodes.*.actions[].actions[].value` | 1 |
-| `nodes.*.props.selected` | 1 |
-| `props.selected` | 1 |
 | `radioGroup.groupValue` | 1 |
 | `slots.cell` | 1 |
 | `slots.columnHeader` | 1 |
-| `slots.leading` | 1 |
 | `states.hovered.cta.decoration.fills[].color` | 1 |
 | `states.hovered.ctaLabel.props.text` | 1 |
 | `states.pressed.cta.opacity` | 1 |
@@ -381,6 +381,16 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | 10 | `Text#text "{props.label}" size=14 color=…` | `bind.props.style.color` |
 | 11 | `Slot#extra` | `layout` |
 
+### components.md: nodes ([components.md](components.md#components-example-components-md-nodes))
+
+| Line | Starts | Paths |
+|---|---|---|
+| 1 | `Column#example` | `children` |
+| 2 | `Chip#design "Design" w={"hug":120} h=36 …` | `actions[].actions[].type`, `actions[].actions[].value`, `actions[].actions[].variable`, `actions[].trigger.event`, `actions[].trigger.type`, `props.selected`, `slots.leading`, `type` |
+| 4 | `ListView#tags w={"fill":360} h=36 scroll…` | `bind.data` |
+| 5 | `Chip#tagChip "{item.name}" w={"hug":120}…` | `type` |
+| 6 | `document` | `nodes.*.props.selected` |
+
 ### pages/auth.json ([auth.md](auth.md#auth-example-pages-auth-json))
 
 | Line | Starts | Paths |
@@ -442,6 +452,7 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 Printer bugs: the print gives the document back, but the parser says something reading it. Each block is marked `unchecked` on its page.
 
 - **STARTER.md: variables** ([document.md](document.md#document-example-starter-md-variables)): `line 3: A variable's type is one of integer, text, decimal, boolean, color, list, map, image, choice: state price:decimal=0.`
+- **components.md: nodes** ([components.md](components.md#components-example-components-md-nodes)): `line 2: A Chip has no "selected": left out. Its props are written key=value on the line.`; `line 3: A Chip takes no lines under it (it has no children and no slot): write this line after it, at its own indent.`
 - **sections/pages/home.json** ([components.md](components.md#components-example-sections-pages-home-json)): `line 5: A Chip has no "selected": left out. Its props are written key=value on the line.`; `line 6: A Chip takes no lines under it (it has no children and no slot): write this line after it, at its own indent.`
 - **lists.md, the block of line 43** (the print after it): `line 3: The id "pageView1Page" is used twice. Give this line an id of its own.`
 
@@ -477,7 +488,6 @@ These blocks are JSON in both references; they are not part of the work list.
 | theme/site.json | document.md | It is a site's manifest (`site.json`), not a page. |
 | theme.md: schema, pages | theme.md | It is a site's manifest (`site.json`), not a page. |
 | site/site.json | components.md | It is a site's manifest (`site.json`), not a page. |
-| components.md: nodes | components.md | It is a map of values, not a document. |
 | components.md: schema, pages | components.md | It is a site's manifest (`site.json`), not a page. |
 | components.md: schema, pages (2) | components.md | It is a site's manifest (`site.json`), not a page. |
 | design-systems.md: id, name | design-systems.md | It is a design system's manifest, not a page. |

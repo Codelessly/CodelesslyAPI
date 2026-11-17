@@ -834,13 +834,15 @@ final class _NotationReference {
     if (v is! Map) return null;
     final m = v.cast<String, dynamic>();
     if (m['nodes'] is Map && m['roots'] is List) return (doc: m, note: '');
+    // A document's `"nodes": {…}` alone: its node map.
+    if (m.length == 1 && m['nodes'] is Map) return _wrap(m['nodes']);
     if (m.containsKey('ops') || m.containsKey('pages') || m.containsKey('designSystem')) return null;
     if (m['type'] is String && c.action('${m['type']}') != null && c.widget('${m['type']}') == null) {
       return (doc: _document({'run': _node('filledButton', {'props': {'label': 'Run'}, 'actions': [
         {'trigger': {'type': 'click'}, 'actions': [m]},
       ]})}, 'run'), note: 'the action on a button\'s tap');
     }
-    if (m.isNotEmpty && m.values.every((x) => x is Map && x['type'] is String && c.widget('${x['type']}') != null)) {
+    if (m.isNotEmpty && m.values.every((x) => x is Map && x['type'] is String && notationComponentsCatalog(root).widget('${x['type']}') != null)) {
       final nodes = {for (final e in m.entries) e.key: _node('${(e.value as Map)['type']}', (e.value as Map).cast<String, dynamic>())};
       final referenced = <String>{};
       var dropped = false;
@@ -925,7 +927,7 @@ final class _NotationReference {
   /// A node of [type] as a line of its word gives it, with [fields] over it.
   Json _node(String type, Json fields) {
     final word = _words[type] ?? type;
-    final parsed = parseNotation(word.contains('.') || word[0] == word[0].toUpperCase() ? word : 'node {"type":"$type"}', catalog: c);
+    final parsed = parseNotation(word.contains('.') || word[0] == word[0].toUpperCase() ? word : 'node {"type":"$type"}', catalog: notationComponentsCatalog(root));
     final nodes = (parsed.document['nodes'] as Map).values.where((n) => (n as Map)['type'] == type).toList();
     final base = nodes.isEmpty ? <String, dynamic>{'type': type} : jsonDecode(jsonEncode(nodes.first)) as Json;
     base.remove('children');

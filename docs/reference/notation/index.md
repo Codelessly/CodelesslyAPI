@@ -23,7 +23,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | 7486 |
 | [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | 368 |
 | [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 2648 |
-| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | 1592 |
+| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | 1531 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | 391 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | 742 |
 | [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | 13442 |
@@ -33,7 +33,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [media.md](media.md) | The media layer: video, embedded video, audio, web views, reading text aloud, sounds, printing, screenshots, downloads and preloading images. | 1820 |
 | [engage.md](engage.md) | The engagement layer: app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `{usage}` counters they read. | 247 |
 | [levels.md](levels.md) | The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md). | 541 |
-| [_tails.md](_tails.md) | What the notation still prints as JSON: the parity work list. | 2837 |
+| [_tails.md](_tails.md) | What the notation still prints as JSON: the parity work list. | 2930 |
 
 <a id="index-a-z"></a>
 ## A to Z
