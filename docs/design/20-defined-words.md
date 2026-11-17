@@ -1,7 +1,8 @@
 # 20. Words defined in the notation
 
 2026-11-16. Decided in the vocabulary loop's first review (SDK `tool/vocabulary/JOURNAL.md`, Review 1, D2). Built
-in `lib/src/core/notation/define.dart` (read, check, expand) with a few hooks in `notation.dart`; tests in
+in `lib/src/core/notation/define.dart` (read, check, expand) with a few hooks in `notation.dart`, and
+`define_reads.dart` (what a definition leaves unused, section 12); tests in
 `test/notation_define_test.dart`; the first definitions are Cards' `design_systems/cards/vocabulary/*.txt` in the
 SDK. Note 19 is the open vocabulary this extends.
 
@@ -211,9 +212,9 @@ The component is the word's first meaning, scored as a definition whose signatur
 events (with `bind` when it keeps a value, and `onChange` for its `onChanged`). A use is read as the named meaning
 that fits it best only when that meaning fits it better than the component; on a tie it is the component. So
 `Stepper bind=qty min=1 max=8 onChange={…}` is the component, as it was, and `Stepper steps=["Cart","Pay"]
-current={at}` is `Stepper#steps`. A definition of a component's word that names no meaning is not read: the
-unnamed meaning of a component's word is the component. The core's words and the page words take no second
-meaning (a `Text#strike` would change what every page means by `Text`).
+current={at}` is `Stepper#steps`. A design system's definition of a component's word that names no meaning is not
+read: the unnamed meaning of a component's word is the component. A page's own is (section 6). The core's words and
+the page words take no second meaning (a `Text#strike` would change what every page means by `Text`).
 
 The alias table reaches a defined word too: the parameters, events and flags it lists for that word (`"parameters":
 {"Timeline": {"events": "items", "steps": "items", "current": "selected"}}`) are read as the names its definitions
@@ -224,7 +225,17 @@ signature (the journal, Review 5) takes the other names writers gave the same pa
 ## 6. Resolved as a word we have
 
 A defined word is a word we have. It resolves after the core, the catalog, the page words and the design system's
-components (none of which a definition can change: such a definition is not read, and said), and before an alias.
+components (none of which a design system's definition can change: such a definition is not read, and said), and
+before an alias.
+
+A page's own definition (`define Word …` in the text) may replace a design system's word: a word the design system
+defines, as before, and since the loop's Review 7 (D38) a component too, when the definition names no meaning of its
+own (`define Counter "label" max=8`, not `define Counter#steps`). On that page the definition is the word, with every
+meaning the design system gave it, and the use's record says what it replaced (`of: "page, over the Counter
+component"`, or `"page, over Counter.txt"`). Ten of the twenty standalone runs renamed every line of a word they needed
+in another shape (`FloorPlan`, `CanvasShell`, `Track`, `StatusBadge`, `Poster`); now they define it under its name. The
+core's words, the catalog's and the page words are never replaced (a page's `define Button` is not read), and a
+replacing definition cannot use the word it replaces (it would use itself).
 With the vocabulary open or closed it reads the same; its use is recorded always, as an alias is (kind
 `definition`, `to` the definition's name, `node` the use's root id), and the tool counts it as `resolved:
 definition`. A slot's line under a use (`Front`) is recorded the same way, with `to` `FlipCard slot`: it is a word
@@ -371,7 +382,9 @@ The SDK's vocabulary tool lists what is left under "Named words used in a shape 
 - **A definition's own words are not checked against its parameters' kinds**: `fill={color}` with a use's
   `color=quiet` writes `fill=quiet`, which the line then reads as it would.
 - **Declared and unread**: a parameter a signature names and its body never reads is accepted and does nothing.
-  Cards' definitions name only what they read.
+  The SDK's vocabulary tool says so and does not count it as resolved (section 12); the parser does not refuse it.
+  Three of Cards' definitions do it (`PhotoGrid` never runs `onTapPhoto`, `Table#rows` never reads `dense`,
+  `WordCloud` never reads `h`).
 - **The document holds the expansion**, not the use: an editor shows the lines a word stands for (section 4).
 - **Recorded words inside a use's actions** (an unknown verb in a use's `onPick={…}`) are the answer's, recorded as
   any; a word the body itself gets wrong (other than an action verb) is an issue against the definition, open or
@@ -383,3 +396,67 @@ The SDK's vocabulary tool lists what is left under "Named words used in a shape 
 - **`checkDefinitions` leaves strings out** of the use it checks (a string may be a colour or an icon name, which no
   sample text is): a body that reads a string as an icon must give one when it is empty (`Icon "{icon == null ?
   "circle" : icon}"`).
+
+## 12. What a definition leaves unused, and primitives (the loop's Review 7, D32)
+
+Twenty standalone runs reached "100% resolved" with 146 definitions, and about a third of them were hollow: a
+signature that names `shortcut=` or six key events its lines never use, a map that is a tinted box. A definition
+resolves its word whatever its lines do, so the count could not tell. Two things say it now.
+
+**What a definition's lines leave unused** (`definitionReads`, `define_reads.dart`). Read from the lines as the
+expansion reads them: a name is read where the expansion would put the use's value in (in braces, in a string's
+braces, in a list, in a statement's expression, in the `{…}` where the text goes), a variable is bound by `bind=` and
+`menu=`, an event is run where an action names it (`onTap={onPick}`, `onPick(x)`, a branch of a choice, inside
+`confirm … then {…}`). `DefinitionReads` gives:
+
+- `unread`: the strings, parameters and `bind` its lines never read (`define GoKey "label" shortcut="" onTap` with
+  `Button "{label}" onTap={onTap}` under it: `shortcut`);
+- `unfired`: the events no action runs (tv-streaming-remote's `RemoteFrame … onArrowUp onArrowDown onArrowLeft
+  onArrowRight onEnter onEscape` over `Column gap={gap} pad={pad}`);
+- `outside`: the names its lines read, set or bind that are neither its own nor declared in it (periodic-table's
+  `each e in elements`, a variable of the page; `bind=red` where `red` is a parameter, which binds the page's `red`;
+  `selected={item==bind}`, which reads a variable called `bind`). Ids, pages and keys an action names (`open sheet`,
+  `go home`) are not variables.
+
+Each comes with its message (`page:64: PeriodicTable reads elements, which is neither its own nor declared in it: it
+works only on a page that has that variable.`). The parser does not refuse any of them: a definition that does less
+than it says still draws. The SDK's vocabulary tool lists them ("Definitions that do less than they say", and
+`definitionWarnings` in its JSON), and a word given to a use that its definition never reads or runs resolves as
+`unread`, which is not resolved.
+
+**A primitive** is what no line can express, declared as such: `primitive Word "main" key=default onEvent`, the same
+signature as `define`, with a `//` line above it that says what it would do.
+
+```
+// A plan of rooms that placed items are dragged about on: no line draws one.
+primitive FloorPlan "name" rooms=[] pins=[] h=360 onPick onPlace
+
+// A trace of samples on a grid, with a cursor.
+primitive Scope trace=[] onCursor
+  Box w=fill h=120 fill=#FF0B1220 radius=8
+    Text.caption "Scope · {length(trace)} samples" color=#FF34D399
+```
+
+With no lines under it, a use is the standard labelled box (a quiet bordered column with the word and its first
+string, `h={h}` when the signature has an `h`, the lines written under the use in it); with lines, it is those, as a
+definition's are. Its use is read exactly as a definition's (its parameters and events are its own, nothing is
+unknown on it) and recorded as kind `primitive` (`to` the word), never as `definition`; what it leaves unused is
+expected and not warned on. A design system's file may declare one too (`primitive MapView center=[0,0] …`). The
+SDK tool counts a primitive and every word its uses were given as **stand-in**, apart from resolved and unknown,
+and lists the declarations ("Primitives declared"): that list is the work, written by the writers in the shape they
+need. The open prompt teaches it in one sentence of the define paragraph.
+
+Cards' own stand-ins (`MapView`, `RouteMap`, `FloorPlan`, `SignaturePad`, `CameraView`, `PhotoPicker`, `Waveform`:
+section 10) are still `define`d, so their uses still count as resolved; declaring them `primitive` is a change of
+its own.
+
+The twenty standalone runs' final answers (each with all the runs' aliases), counted again:
+
+| | words | resolved | stand-in | never read | unknown | definitions that do less than they say |
+|---|---|---|---|---|---|---|
+| before (resolved: all but unknown) | 1,069 | 1,069 (100%) | | | 0 | |
+| after, as written | 1,069 | 914 (85.5%) | 0 | 155 | 0 | 78 of 146 |
+| after, the 49 definitions whose `//` line says they stand in declared `primitive` | 1,069 | 707 (66.1%) | 309 (49 declared, 61 uses) | 53 | 0 | 38 of 97 |
+
+So two thirds of the "100%" is words that mean what they say; a seventh were named and never read, and the rest stands
+in for a primitive the writers already described.

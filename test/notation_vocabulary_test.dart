@@ -454,6 +454,102 @@ Dialog#ask "Reset?" "Really."
     });
   });
 
+  group('aliases that say more: a variant, fixed parameters, renamed ones, the main string as a parameter (the vocabulary loop, Review 7, D38)', () {
+    /// [alias] and [ours] are the same document with [table] (open and
+    /// closed); the alias is recorded.
+    void same(NotationVocabulary table, String alias, String ours, {Catalog? catalog, NotationOptions base = _page}) {
+      for (final o in [base.open(openVocabulary: false, vocabulary: table), base.open(vocabulary: table)]) {
+        final c = catalog ?? standardCatalog;
+        final a = Catalog.run(c, () => parseNotation(alias, catalog: c, options: o)), b = Catalog.run(c, () => parseNotation(ours, catalog: c, options: o));
+        expect(a.issues.map((i) => '$i'), isEmpty, reason: alias);
+        expect(b.issues.map((i) => '$i'), isEmpty, reason: ours);
+        expect(jsonEncode(a.document), jsonEncode(b.document), reason: '$alias is not $ours');
+        expect(_uses(a, 'alias'), isNotEmpty, reason: alias);
+      }
+    }
+
+    test('a type read as another with a variant and fixed parameters; what the line writes is its own', () {
+      final table = NotationVocabulary.fromJson({
+        'types': {
+          'GoKey': {'to': 'Button.outline', 'add': 'size=large'},
+          'StopKey': 'Button.ghost',
+        },
+      });
+      same(table, 'Column\n  GoKey "Go" onTap={toast "go"}\n', 'Column\n  Button.outline "Go" onTap={toast "go"} size=large\n');
+      // The line's own size and variant win.
+      same(table, 'Column\n  GoKey "Go" size=small\n', 'Column\n  Button.outline "Go" size=small\n');
+      same(table, 'Column\n  GoKey.ghost "Go"\n', 'Column\n  Button.ghost "Go" size=large\n');
+      same(table, 'Column\n  StopKey "Stop"\n', 'Column\n  Button.ghost "Stop"\n');
+      final r = _open('Column\n  GoKey "Go"\n', options: _page.open(vocabulary: table));
+      expect(_uses(r, 'alias').single.to, 'Button.outline');
+      // Written back as it was read.
+      expect(table.types['GoKey']!.toJson(), {'to': 'Button.outline', 'add': 'size=large'});
+      expect(table.types['StopKey']!.toJson(), 'Button.ghost');
+    });
+
+    test('a type alias renames the parameters of the word it is read as (as it always could)', () {
+      final table = NotationVocabulary.fromJson({
+        'types': {
+          'Fader': {'to': 'Slider', 'parameters': {'level': 'bind', 'top': 'max'}},
+        },
+      });
+      same(table, 'state vol=3\nColumn\n  Fader level=vol top=10\n', 'state vol=3\nColumn\n  Slider bind=vol max=10\n');
+    });
+
+    test('the main string read as a named parameter: on a defined word that takes none, and by a type alias of its own', () {
+      const counter = 'Tally2 label="" max=8\n  Text "{label} of {max}"\n';
+      final table = const NotationVocabulary().define({'Tally2.txt': counter}).merge(NotationVocabulary.fromJson({
+        'types': {
+          'Score': {'to': 'Tally2', 'parameters': {r'$text': 'label'}},
+        },
+        'parameters': {
+          'Tally2': {r'$text': 'label'},
+        },
+      }));
+      same(table, 'Column\n  Tally2 "Strokes" max=4\n', 'Column\n  Tally2 label="Strokes" max=4\n');
+      same(table, 'Column\n  Score "Putts"\n', 'Column\n  Tally2 label="Putts"\n');
+      // A label written as well is the line's: the string stays unread.
+      final r = _open('Column\n  Tally2 "x" label="y"\n', options: _page.open(vocabulary: table));
+      expect(jsonEncode(r.document), contains('y of 8'));
+    });
+
+    test('…and on a component that takes no string; never where the word takes one', () async {
+      final files = {
+        'design_system.json': jsonEncode({'id': 'm', 'name': 'M', 'components': ['components/Meter.json']}),
+        'components/Meter.json': jsonEncode({
+          'schema': 3,
+          'id': 'Meter',
+          'roots': ['row'],
+          'widget': {
+            'type': 'Meter',
+            'doc': 'A figure with its unit.',
+            'props': [
+              {'key': 'value', 'type': {'kind': 'number', 'flutter': 'double'}, 'default': 0},
+              {'key': 'unit', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': ''},
+            ],
+          },
+          'nodes': {
+            'row': {'type': 'row', 'children': ['text']},
+            'text': {'type': 'text', 'props': {'text': r'${props.unit}'}},
+          },
+        }),
+      };
+      final ds = await DesignSystem.load((ref) async => files[ref]);
+      final catalog = ds.catalogOver(standardCatalog);
+      final table = NotationVocabulary.fromJson({
+        'parameters': {
+          'Meter': {r'$text': 'unit'},
+          'Text': {r'$text': 'never'},
+        },
+      });
+      final base = NotationOptions.fromDesignSystem(ds, width: 1280);
+      same(table, 'Column\n  Meter "km/h" value=3\n', 'Column\n  Meter unit="km/h" value=3\n', catalog: catalog, base: base);
+      final r = Catalog.run(catalog, () => parseNotation('Column\n  Text "plain"\n', catalog: catalog, options: base.open(vocabulary: table)));
+      expect(r.vocabulary, isEmpty);
+      expect(jsonEncode(r.document), contains('"text":"plain"'));
+    });
+  });
+
   group('what the corpus showed the grammar should read (docs/design/19, section 8)', () {
     test('Progress {done/total}: a share worked out, where its number goes', () {
       for (final options in [_page, _openPage]) {
@@ -592,7 +688,7 @@ Page
 
     test('is smaller than the taught page prompt; the taught prompts are as they were', () {
       expect(plain(1280).length, lessThan(taught(1280).length - 2000));
-      expect(plain(1280).length, lessThan(18500), reason: 'about 4,500 tokens');
+      expect(plain(1280).length, lessThan(19000), reason: 'about 4,700 tokens');
       expect(open(1280).length, plain(1280).length + notationDefinePreface.length);
       expect(taught(390).length, lessThan(9000));
       expect(plain(390).length, lessThan(taught(390).length + notationOpenPreface.length));
@@ -646,6 +742,58 @@ ${blocks.join('\n')}
       expect(prompt, isNot(contains('PUTTING THEM TOGETHER')));
     });
 
+    test('by default the glossary gives each word as a line uses it, in a last section (Review 7, D33)', () async {
+      final files = {
+        'design_system.json': jsonEncode({'id': 'acme', 'name': 'Acme', 'components': ['components/Counter.json']}),
+        'components/Counter.json': jsonEncode({
+          'schema': 3,
+          'id': 'Counter',
+          'roots': ['row'],
+          'widget': {
+            'type': 'Counter',
+            'doc': 'A number raised and lowered with minus and plus (a party size, a count): Counter "Guests" bind=party.',
+            'props': [
+              {'key': 'label', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': '', 'required': true},
+              {'key': 'value', 'type': {'kind': 'variable', 'of': {'kind': 'number', 'flutter': 'double'}}, 'default': ''},
+              {'key': 'max', 'type': {'kind': 'number', 'flutter': 'double'}, 'default': 8},
+              {'key': 'tone', 'type': {'kind': 'enumeration', 'flutter': 'String', 'values': ['quiet', 'loud']}, 'default': 'quiet'},
+              {'key': 'compact', 'type': {'kind': 'boolean', 'flutter': 'bool'}, 'default': false},
+              {'key': 'marks', 'type': {'kind': 'list', 'item': {'kind': 'string', 'flutter': 'String'}, 'flutter': 'List'}, 'default': <Object?>[]},
+              {'key': 'hint', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': ''},
+              {'key': 'ink', 'type': {'kind': 'value', 'flutter': 'Color'}},
+            ],
+            'events': [
+              {'key': 'onChanged', 'payload': {'kind': 'number', 'flutter': 'double'}},
+            ],
+          },
+          'nodes': {
+            'row': {'type': 'row'},
+          },
+        }),
+      };
+      final ds = await DesignSystem.load((ref) async => files[ref]);
+      final catalog = ds.catalogOver(standardCatalog);
+      final options = NotationOptions.fromDesignSystem(ds, width: 1280).define({
+        'Timeline.txt': '// A list of dated entries down a rail: each a date, a title and a note.\nTimeline.vertical#events items=[] bind=at selected onPick\n  Column\n    ...\n'
+            '// A clip editor\'s timeline.\nTimeline#tracks zoom=1 tracks=[] onZoom\n  Column\n    ...Head\n    ...\n',
+      });
+      String prompt({bool define = true, bool signatures = true}) =>
+          Catalog.run(catalog, () => notationPrompt(catalog: catalog, options: options, designSystem: ds, open: true, define: define, signatures: signatures));
+      final page = prompt();
+      expect(page, contains('${notationSignaturesLead('Acme')}\n'
+          '  Counter "label" bind max=8 tone=quiet|loud compact=false marks=[] hint ink=#… onChange : number raised and lowered\n'
+          '  Timeline.vertical bind items=[] selected onPick ... : list of dated entries down a rail\n'
+          '  Timeline zoom=1 tracks=[] onZoom ...Head ... : clip editor\'s timeline\n'));
+      expect(page, endsWith('clip editor\'s timeline\n'));
+      // It replaces the names on one line, which signatures: false gives.
+      expect(page, isNot(contains(notationGlossaryLead())));
+      expect(prompt(signatures: false), contains('${notationGlossaryLead()}\nCounter Timeline\n\n'));
+      // Without definitions asked, it does not say how to replace one.
+      expect(notationSignaturesLead('Acme'), contains('define your own word'));
+      expect(prompt(define: false), contains(notationSignaturesLead('Acme', define: false)));
+      expect(notationSignaturesLead('Acme', define: false), isNot(contains('define')));
+    });
+
     test('with a design system it names the words it has beyond the core, on one line (Review 6, D29)', () async {
       Map<String, Object?> component(String type) => {
             'schema': 3,
@@ -672,8 +820,8 @@ ${blocks.join('\n')}
         'Timeline.txt': 'Timeline items=[]\n  Column\n    ...\n',
         'StickyNote.txt': 'StickyNote "text"\n  Text "{text}"\n',
       });
-      String prompt({bool define = true, bool glossary = true, bool withDs = true}) =>
-          Catalog.run(catalog, () => notationPrompt(catalog: catalog, options: options, designSystem: withDs ? ds : null, open: true, define: define, glossary: glossary));
+      String prompt({bool define = true, bool glossary = true, bool withDs = true}) => Catalog.run(
+          catalog, () => notationPrompt(catalog: catalog, options: options, designSystem: withDs ? ds : null, open: true, define: define, glossary: glossary, signatures: false));
       final page = prompt();
       // Button and StickyNote are taught (StickyNote in the define example).
       expect(page, contains('${notationGlossaryLead()}\nBreadcrumb Stepper Timeline\n\n'));

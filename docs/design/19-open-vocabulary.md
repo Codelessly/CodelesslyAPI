@@ -44,13 +44,34 @@ A design system's components and the behaviour words the taught prompt lists (`k
 
 **Named, not taught: the glossary.** With a design system the open prompt (`notationPrompt(open: true, designSystem: …)`; `notation.sh prompt --open --design-system <folder>`) names the words it has beyond the core, after the paragraph that asks for definitions: its components and the words it defines in the notation ([note 20](20-defined-words.md)), sorted, on one line, with no parameters, under *"These words already exist, beyond the ones taught below. Use one as you would expect it to work (its text, the parameters and events its name suggests) and do not define it; define only a word that is in neither list"* (`notationGlossaryLead`, `notationGlossary`). A name the prompt already writes (a core type, a page word, `Button`, the define examples' `StickyNote`) is left out. So there are three tiers: the core is taught, the glossary is named, everything else the writer defines. A name costs a few characters and promises only what a reader of the name expects, which is what the alias table, the universal words and the shapes taken from the harvest (section 14) honour. Without a design system there is no glossary; `glossary: false` (`--no-glossary`) leaves it out, which reproduces the prompt of the self-defining corpora d01 and d02. Decided in the vocabulary loop's Review 6 (D29), once the named words took the shapes writers used (D25, D30).
 
+**Signatures, not names** (Review 7, D33). Twenty standalone runs, given the names, would not map to a word whose shape they could not see, and every "right word, wrong shape" rename came from that (`MapView`, `FloorPlan`, `CanvasShell`, `Track`, `Timeline`, `StatusBadge`, `Poster`, `SectionHeader`, `Counter`, `NumberInput`, `InlineStat`). So by default the glossary is the open prompt's last section, `WORDS THAT ALREADY EXIST`, one line per word as a line uses it, derived from the components' specs and the definitions (`notationGlossaryLines`, `notationGlossaryComponentLine`, `notationGlossaryDefinitionLine`, under `notationSignaturesLead`):
+
+```
+  Counter "label" "detail" bind min=1 max=8 step=1 icon onChange : number raised and lowered
+  FloorPlan "name" bind rooms=[] pins=[] selected placing=false h=360 onPick onPlace ... : floor plan
+  StatusBadge "label" tone=neutral : run or sync state
+  Timeline.vertical bind items=[] selected onPick ... : list of dated entries down a rail
+```
+
+Its main strings in quotes; `bind` when it keeps a value; each parameter, with `=` and what tells its kind where that disambiguates (a number's or a flag's default, `[]`, `{}`, `#…` for a colour, `a|b|c` for up to four choices; `!` when it must be given; a text's default is left out); its events (`onChange` for a component's `onChanged`); `...` when it takes lines under it (`...Front ...Back` for named slots); after the colon what its description says it is, in at most seven words. A word with several meanings has a line for each. The lead says to use a word as written, and that a word needed in another shape is defined (a page's own definition replaces a component or a defined word there, [note 20](20-defined-words.md) section 6) rather than bent. `signatures: false` (`--glossary=names`) gives the names on one line as before, which reproduces the prompt of d03; `tool/vocabulary/batch.sh prepare` writes the prompt with the glossary (`GLOSSARY=names` for the names).
+
+Sizes with Cards (characters; about four to a token):
+
+| | card (390) | page (1280) |
+|---|---|---|
+| no glossary, before / after this change's process clauses | 11,202 / 11,607 | 20,648 / 21,072 |
+| names (`--glossary=names`) | 15,279 | 24,736 |
+| signatures (the default), 293 lines | 37,875 | 47,214 |
+
+The signatures add about 22,500 characters (some 5,600 tokens) to the names: the page prompt nearly doubles and the card prompt more than doubles, which is why the names stay a switch away.
+
 The grammar is not open. A colon for an equals sign, an arrow, an event without braces, a value shown without a string, a lower-case type: each is still an issue, with the open vocabulary as without it.
 
 ## 3. How a word resolves
 
 For each line, in this order:
 
-1. **A word we have** (a core type, a short name of `notationTypes`, a catalog type, a design system's component, a page word) is read as it always was. Nothing below can change what such a word means.
+1. **A word we have** (a core type, a short name of `notationTypes`, a catalog type, a design system's component, a page word) is read as it always was. Nothing below can change what such a word means, except that a page's own definition may replace a design system's component on that page ([note 20](20-defined-words.md) section 6).
 2. **An alias** (section 5): a name in the alias table for a word we have is rewritten to that word, in the text, before the line is read. This holds with the vocabulary open or closed, and is never an issue.
 3. **A defined word** ([note 20](20-defined-words.md)): a word a definition gives (a design system's
    `vocabulary/*.txt`, `NotationOptions.define`, or `define` in the text) is written out as the lines it stands for,
@@ -99,8 +120,8 @@ Many names, one meaning. The table is `NotationOptions.vocabulary` (a `NotationV
 }
 ```
 
-- **A type** is read as another (`to`), with its own names for that type's parameters, flags and events (`parameters`), words added to the line (`add`), and the keys the line must have for the alias to hold (`requires`).
-- **A parameter**, for one type or for all (`*`), is read as another key (`enabled`), as that key with its value negated (`!enabled`: `disabled={x}` is `enabled={!(x)}`, `disabled=true` is `enabled=false`), or as a further string of the line (`$text`: `ListTile "Ada" subtitle="Engineer"` is `ListTile "Ada" "Engineer"`).
+- **A type** is read as another (`to`), with its own names for that type's parameters, flags and events (`parameters`), words added to the line (`add`), and the keys the line must have for the alias to hold (`requires`). `to` may name a variant (`"GoKey": {"to": "Button.primary", "add": "size=large"}`: `GoKey "Go"` is `Button.primary "Go" size=large`), read unless the line writes a variant of its own; `add` may hold several words and fixed parameters, each added unless the line writes that key or word itself (`GoKey "Go" size=small` keeps its own size). Its own `parameters` may read the line's first string as a named parameter (`"Score": {"to": "Counter", "parameters": {"$text": "label"}}`: `Score "Putts"` is `Counter label="Putts"`).
+- **A parameter**, for one type or for all (`*`), is read as another key (`enabled`), as that key with its value negated (`!enabled`: `disabled={x}` is `enabled={!(x)}`, `disabled=true` is `enabled=false`), or as a further string of the line (`$text`: `ListTile "Ada" subtitle="Engineer"` is `ListTile "Ada" "Engineer"`). The other way round, the key `$text` reads the line's first string as the parameter it names, on a component that takes no string or a defined word none of whose meanings does (`"parameters": {"Legend": {"$text": "title"}}`: `Legend "Key"` is `Legend title="Key"`); on a word that takes a string the string is its own.
 - **A flag** is read as the words given (`disabled` is `enabled=false`). The entries under `state` and `project` are the word after a state's value.
 - **An event** is read as another event; **a verb** as another verb.
 - **A line of another shape** names a rewrite in code (`lineRewrites` in `vocabulary.dart`). There are three: `shortcut` (`Shortcut "ctrl+k" onPress={…}`, `Shortcut key="?" …`, `shortcut key=t …`, with `when cond` or `when={cond}`, is the line `key ctrl+k onPress={…}`; `ctrl` is not rewritten to `mod` because `KeyCombo` already reads `ctrl`, `cmd`, `meta` and `mod` as the same modifier), `computed` (`computed total={a+b}` is `state total=a+b`), and `confirmDialog` (`ConfirmDialog#ask "Title" "Message" onConfirm={…}` is a `Dialog#ask` with a Cancel and a Confirm button after whatever is written under it).
@@ -142,7 +163,7 @@ What was looked at and not made an alias, because the shapes do not match:
 
 | field | |
 |---|---|
-| `kind` | `type`, `parameter`, `flag`, `event`, `verb`, `variant`, `missing`, `children`, `alias`, `definition` (a use of a defined word: `to` the meaning read, `node` its root, `of` "page, over <file>" when the page's own definition was read over the design system's; recorded open or closed), or `overlay` (an `open` of an overlay the text never wrote: `node` the placeholder sheet) |
+| `kind` | `type`, `parameter`, `flag`, `event`, `verb`, `variant`, `missing`, `children`, `alias`, `definition` (a use of a defined word: `to` the meaning read, `node` its root, `of` "page, over <file>" when the page's own definition was read over the design system's, "page, over the <Word> component" over a component; recorded open or closed), `primitive` (a use of a word declared with `primitive`, what no line can express: `to` and `node` as a definition's; [note 20](20-defined-words.md) section 12), or `overlay` (an `open` of an overlay the text never wrote: `node` the placeholder sheet) |
 | `word` | as written (`SeatMap`, `tooltip`, `onSeek`, `haptic`, `Button.danger`) |
 | `on` | the type whose line it is on (not for a type) |
 | `value` | as written (`{row.name}`, `"Archive"`); a verb's argument |
@@ -168,9 +189,9 @@ functions):
 
 | kind | each | resolved as |
 |---|---|---|
-| `type` | a line's first word | core, component, alias, definition, unknown |
+| `type` | a line's first word | core, component, alias, definition, primitive, unknown |
 | `text` | a string written on a type, by position (`Button.text1`) | as its type (unknown on an unknown type) |
-| `parameter`, `flag`, `event` | a key=value, a bare word (layout words too), an `on…` key, per type | unknown when the parser recorded it, alias when it read it as another, universal when it read it as a universal word (note 21; on a stand-in, a word it honoured), else as its type |
+| `parameter`, `flag`, `event` | a key=value, a bare word (layout words too), an `on…` key, per type | unknown when the parser recorded it, alias when it read it as another, universal when it read it as a universal word (note 21; on a stand-in, a word it honoured), unread when its type's definition names it and never reads or runs it (note 20 section 12; a text too), else as its type |
 | `variant` | the word after a type's dot, per type | unknown when recorded, else as its type |
 | `verb` | an action's first word (`name=value` is `set`) | unknown when recorded, alias, else core |
 | `function` | a name a formula calls | core when the engine has it, else unknown |
@@ -181,6 +202,14 @@ and `summary`; `VOCABULARY.md` opens with the table of kinds by resolution and l
 the answers gave it, with what it does not take marked and what a component or a defined word takes that no answer
 wrote. Its other sections (the unknown types, parameters, flags, events, verbs, functions, variants, the grammar
 issues, what does not validate) are as they were. `tool/vocabulary/count.py` counts `words`.
+
+Since the loop's Review 7 (D32) the headline is three numbers and a fourth, the same in the tool's summary line,
+`VOCABULARY.md`, `count` in its JSON and `count.py`: **resolved** (core, component, alias, definition, universal),
+**stand-in** (a word declared `primitive` and every word its uses were given, with how many primitives were declared
+and used), **never read** (a word a definition names and never reads or runs) and **unknown**, given as one number
+with the types apart from the rest: `1069 words: resolved 914 (85.5%), stand-in 0 (0 primitives declared, 0 uses),
+never read 155, unknown 0 (0 types, 0 other words: parameters, texts, flags, events, variants, verbs, functions)`.
+Before, the summary line counted unknown types and `count.py` every unknown word, and both were called unknown.
 
 ## 7. The loop
 

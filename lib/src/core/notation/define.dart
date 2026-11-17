@@ -33,7 +33,14 @@ final class NotationDefinition {
     required this.events,
     required this.bind,
     required this.body,
+    this.primitive = false,
   });
+
+  /// Declared with `primitive` (docs/design/20 section 12): a word for what
+  /// no line can express, standing in for it. A use reads as a definition's
+  /// does (its body, or a labelled box when it has none) and is recorded as a
+  /// `primitive`, never as a word we have.
+  final bool primitive;
 
   /// The word (`StickyNote`), and the name of this meaning when the word has
   /// several (`Timeline#route`: `route`).
@@ -117,7 +124,8 @@ final class NotationDefinition {
 }
 
 /// The words a text (a page, or an answer of several screens) defines with
-/// `define Word …` at the margin, wherever they are written: a definition
+/// `define Word …` (or declares with `primitive Word …`, for what no line
+/// can express) at the margin, wherever they are written: a definition
 /// holds for the whole text, before or after its uses. A `//` line directly
 /// above a `define` is its purpose. A word defined twice is the later
 /// definition, unless both name their meaning (`define Timeline#route`), when
@@ -133,14 +141,14 @@ final class NotationDefinition {
   final lines = text.split(RegExp(r'\r?\n'));
   for (var i = 0; i < lines.length; i++) {
     final raw = lines[i];
-    if (!raw.startsWith('define ')) continue;
+    if (!isDeclaration(raw)) continue;
     // Its purpose: the `//` lines at the margin directly above it.
     final doc = <String>[];
     for (var k = i - 1; k >= 0 && lines[k].startsWith('//'); k--) {
       doc.insert(0, lines[k].substring(2).trim());
     }
     final head = i;
-    signatures.add(raw.trim().substring(7).trim());
+    signatures.add(declared(raw));
     final body = <({int indent, String text, int line})>[];
     while (i + 1 < lines.length) {
       final next = lines[i + 1];
@@ -189,6 +197,18 @@ List<String>? _cycle(String word, Map<String, List<NotationDefinition>> words, L
 }
 
 final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
+
+/// Whether [line], as written, declares a word at the margin: `define Word …`,
+/// or `primitive Word …` for what no line can express.
+bool isDeclaration(String line) => line.startsWith('define ') || line.startsWith('primitive ');
+
+/// A declaration's signature without its keyword (`Word …`).
+String declared(String line) {
+  final t = line.trim();
+  if (t.startsWith('define ')) return t.substring(7).trim();
+  if (t.startsWith('primitive ')) return t.substring(10).trim();
+  return t;
+}
 
 /// A slot line of a body: `...` (the default slot) or `...Front` (the lines
 /// under a `Front` line), then either `each <words>`, added to an `each` over
@@ -244,14 +264,14 @@ List<NotationDefinition> _read(String file, String text, List<String> problems) 
 /// The definition whose signature is [signature] (`define` before it is
 /// read too) with [body] under it, or null with what is wrong in [problems].
 NotationDefinition? definitionOf(String file, int line, String signature, List<({int indent, String text, int line})> body, String doc, List<String> problems) {
-  var sig = signature.trim();
-  if (sig.startsWith('define ')) sig = sig.substring(7).trim();
+  final primitive = signature.trim().startsWith('primitive ');
+  final sig = declared(signature);
   final parts = LineParts.of(sig);
   if (parts == null || !RegExp(r'^[A-Z]').hasMatch(parts.word)) {
     problems.add('$file:$line: a signature starts with the word it defines, capitalised (StickyNote "text" fill=#FFFDE68A).');
     return null;
   }
-  if (body.isEmpty) {
+  if (body.isEmpty && !primitive) {
     problems.add('$file:$line: ${parts.word} stands for no lines: write them indented under its signature.');
     return null;
   }
@@ -323,8 +343,18 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
       if (!events.contains(f) && !parameters.containsKey(f)) events.add(f);
     }
   }
-  final min =body.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
-  var lines = [for (final l in body) (indent: l.indent - min, text: l.text, line: l.line)];
+  // A primitive with no lines of its own stands in as a quiet labelled box
+  // (the look of an unknown word's stand-in with nothing to draw), its first
+  // string after its name, the lines under a use in it.
+  final written = body.isNotEmpty
+      ? body
+      : [
+          (indent: 0, text: 'Column w=fill${parameters.containsKey('h') ? ' h={h}' : ''} pad=12 gap=6 radius=6 border=#FFCBD5E1 center middle', line: line),
+          (indent: 2, text: 'Text.muted "${parts.word}${strings.isEmpty ? '' : ': {${strings.first}}'}"', line: line),
+          (indent: 2, text: '...', line: line),
+        ];
+  final min = written.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
+  var lines = [for (final l in written) (indent: l.indent - min, text: l.text, line: l.line)];
   // `if visible` over the one node it stands for: that node, shown while
   // the condition holds.
   final top = [for (final l in lines) if (l.indent == 0 && !_preamble(l.text)) l];
@@ -393,6 +423,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     events: events,
     bind: bind,
     body: lines,
+    primitive: primitive,
   );
 }
 
@@ -491,16 +522,24 @@ final class DefinedWords {
   final bool Function(String name)? variable;
 
   /// Whether [word] is a defined word here (a definition, or a `define` read
-  /// in the text so far).
-  bool has(String word) => (page.containsKey(word) || definitions.containsKey(word)) && !(ours?.call(word) ?? false);
+  /// in the text so far). A word of the notation's own is not, except a
+  /// design system's component that the page's own definition names with no
+  /// meaning of its own (`define Counter …`): on that page the definition
+  /// replaces the component (docs/design/20 section 6). The core's words,
+  /// the catalog's and the page words are never replaced.
+  bool has(String word) {
+    if (!(ours?.call(word) ?? false)) return page.containsKey(word) || definitions.containsKey(word);
+    if (component?.call(word) == null) return false;
+    return (_of(word) ?? const <NotationDefinition>[]).any((d) => d.file == 'page' && d.name == null);
+  }
 
   /// The meanings of [word] a use may be read with: all of a defined word's,
   /// or the named ones a component's word has (empty: none).
   List<NotationDefinition> meanings(String word) {
     if (has(word)) return _of(word) ?? const [];
     if (component?.call(word) == null) return const [];
-    // A page's own unnamed definition of a component's word is not read, and does
-    // not hide the design system's named meanings of it.
+    // The page's own named meanings of the component's word, else the
+    // design system's (a page's unnamed one replaces the component: [has]).
     final named = [for (final d in page[word] ?? const <NotationDefinition>[]) if (d.name != null) d];
     return named.isNotEmpty ? named : [for (final d in definitions[word] ?? const <NotationDefinition>[]) if (d.name != null) d];
   }
@@ -562,7 +601,7 @@ final class DefinedWords {
       }
       _endDefine();
     }
-    if (indent == 0 && text.startsWith('define ') && context == null) {
+    if (indent == 0 && isDeclaration(text) && context == null) {
       _defining = (line: _line, signature: text, indent: indent);
       return const [];
     }
@@ -622,7 +661,7 @@ final class DefinedWords {
     final d = _defining!;
     _defining = null;
     // Read with the whole text before it was read: its lines are skipped.
-    if (_preread.contains(d.signature.substring(7).trim())) {
+    if (_preread.contains(declared(d.signature))) {
       _definingBody.clear();
       return;
     }
@@ -1479,5 +1518,5 @@ List<String> checkDefinitions(NotationVocabulary vocabulary,
 /// as the taught prompt lists a design system's components.
 List<String> definitionLines(NotationVocabulary vocabulary) => [
       for (final defs in vocabulary.definitions.values)
-        for (final d in defs) '${d.signature.replaceFirst(RegExp(r'^([A-Z][A-Za-z0-9.]*)#[A-Za-z_][A-Za-z0-9_]*'), r'$1')}${d.slots.isEmpty ? '' : ' (children${d.slots.where((s) => s.isNotEmpty).map((s) => ': $s').join()})'}${d.doc.isEmpty ? '' : ' : ${d.doc}'}',
+        for (final d in defs) '${d.signature.replaceFirstMapped(RegExp(r'^([A-Z][A-Za-z0-9.]*)#[A-Za-z_][A-Za-z0-9_]*'), (m) => m[1]!)}${d.slots.isEmpty ? '' : ' (children${d.slots.where((s) => s.isNotEmpty).map((s) => ': $s').join()})'}${d.doc.isEmpty ? '' : ' : ${d.doc}'}',
     ];

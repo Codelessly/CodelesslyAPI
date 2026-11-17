@@ -1373,9 +1373,21 @@ class _Parser {
     variable: (name) => variables.containsKey(name) || _stack.any((o) => o.each == name),
     // A page's own definition of a word the design system defines too is
     // the one read there: the record says so (`of`).
-    used: (d, parts, node, column) => _use('definition', parts.word, column,
-        to: d.label, node: node, parts: parts, of: d.file == 'page' && options.vocabulary.definitions[d.word] != null ? 'page, over ${options.vocabulary.definitions[d.word]!.first.file}' : null),
-    slot: (d, word, column) => _use('definition', word, column, to: '${d.label} slot'),
+    // A primitive's use (`primitive Word …`) is recorded as one: it stands
+    // in, it is not a word we have. A page's own definition of a component's
+    // word replaces the component there (docs/design/20 section 6).
+    used: (d, parts, node, column) => _use(d.primitive ? 'primitive' : 'definition', parts.word, column,
+        to: d.label,
+        node: node,
+        parts: parts,
+        of: d.file != 'page'
+            ? null
+            : options.vocabulary.definitions[d.word] != null
+                ? 'page, over ${options.vocabulary.definitions[d.word]!.first.file}'
+                : _componentNames(d.word) != null && d.name == null
+                    ? 'page, over the ${d.word} component'
+                    : null),
+    slot: (d, word, column) => _use(d.primitive ? 'primitive' : 'definition', word, column, to: '${d.label} slot'),
   );
   String? _from;
 
@@ -1540,11 +1552,17 @@ class _Parser {
       if (alias.to == null || !_knowsType(alias.to!)) return [text];
       if (alias.requires.any((k) => !parts.parts.any((p) => p.kind == 'pair' && (alias.parameters[p.key] ?? p.key) == k))) return [text];
       parts.word = alias.to!;
+      // `"to": "Button.primary"`: its variant, unless the line writes one.
+      if (alias.variant != null && parts.variant.isEmpty) parts.variant = '.${alias.variant}';
       changed = true;
-      _use('alias', written, column, of: 'type', to: alias.to);
+      _use('alias', written, column, of: 'type', to: '${alias.to}${alias.variant == null ? '' : '.${alias.variant}'}');
       if (alias.add != null) {
-        final tail = parts.parts.indexWhere((p) => p.kind == 'tail');
-        parts.parts.insert(tail < 0 ? parts.parts.length : tail, LinePart.word(alias.add!));
+        // Its words and fixed parameters, each unless the line writes it.
+        for (final a in LineParts.of('X ${alias.add}')?.parts ?? const <LinePart>[]) {
+          if (parts.parts.any((p) => p.kind == a.kind && (a.kind == 'pair' ? p.key == a.key : p.raw == a.raw))) continue;
+          final tail = parts.parts.indexWhere((p) => p.kind == 'tail');
+          parts.parts.insert(tail < 0 ? parts.parts.length : tail, a..at = -1);
+        }
       }
     } else if (written[0] != written[0].toUpperCase()) {
       return [text];
@@ -1556,6 +1574,20 @@ class _Parser {
     String? of(Map<String, Map<String, String>> names, String key) {
       final own = names[type], all = names['*'];
       return (own == null ? null : own[key]) ?? (all == null ? null : all[key]);
+    }
+    // The line's first string read as a named parameter (`"$text": "label"`):
+    // a type alias's own, or the table's for a component that takes no string.
+    final firstString = parts.parts.indexWhere((p) => p.kind == 'string');
+    if (firstString >= 0) {
+      final component = _componentNames(type) != null && spec != null && notationStrings(spec).isEmpty;
+      final named = table.parameters[type];
+      final to = own[r'$text'] ?? (component && named != null ? named[r'$text'] : null);
+      if (to != null && !parts.parts.any((p) => p.kind == 'pair' && p.key == to)) {
+        final p = parts.parts[firstString];
+        _use('alias', r'$text', column + (p.at < 0 ? 0 : p.at), of: 'parameter', to: to, on: type, value: p.raw);
+        parts.parts[firstString] = LinePart.pair(to, p.raw);
+        changed = true;
+      }
     }
     for (var i = 0; i < parts.parts.length; i++) {
       final p = parts.parts[i];
@@ -1600,6 +1632,16 @@ class _Parser {
       for (final d in _defined.meanings(word)) ...[...d.parameters.keys, ...d.events, ...d.strings, if (d.bind != null) 'bind'],
     };
     var changed = false;
+    // The line's first string read as a named parameter (`"$text": "title"`),
+    // when no meaning of the word takes a string.
+    final first = parts.parts.indexWhere((p) => p.kind == 'string');
+    final textTo = params?[r'$text'];
+    if (first >= 0 && textTo != null && _defined.meanings(word).every((d) => d.strings.isEmpty) && !parts.parts.any((p) => p.kind == 'pair' && p.key == textTo)) {
+      final p = parts.parts[first];
+      _use('alias', r'$text', column + (p.at < 0 ? 0 : p.at), of: 'parameter', to: textTo, on: word, value: p.raw);
+      parts.parts[first] = LinePart.pair(textTo, p.raw);
+      changed = true;
+    }
     for (var i = 0; i < parts.parts.length; i++) {
       final p = parts.parts[i];
       final col = column + (p.at < 0 ? 0 : p.at);

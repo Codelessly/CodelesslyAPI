@@ -35,8 +35,10 @@ final class VocabularyUse {
 
   /// `type` (a line's first word), `parameter` (a key=value), `flag` (a
   /// bare word), `event` (an on… key), `verb` (an action's first word),
-  /// `variant` (the word after a type's dot) or `alias` (a name read as
-  /// another: [to] says which, [of] what kind of word it is).
+  /// `variant` (the word after a type's dot), `alias` (a name read as
+  /// another: [to] says which, [of] what kind of word it is), `definition`
+  /// (a use of a defined word: [to] the meaning read) or `primitive` (a use
+  /// of a word declared with `primitive`, which stands in: [to] the same).
   final String kind;
 
   /// The word as written (`SeatMap`, `tooltip`, `selectable`, `onSeek`,
@@ -79,9 +81,10 @@ final class VocabularyUse {
 
   /// An alias: the kind of word it is (`type`, `parameter`, `flag`,
   /// `event`, `verb`, `line`). A definition: `page, over <file>` when the
-  /// page's own definition was read over one the design system has.
+  /// page's own definition was read over one the design system has (`page,
+  /// over the Counter component` over a component).
   /// A universal word (docs/design/21): `parameter`, `flag` or `event`.
-  String? get of => kind == 'alias' || kind == 'universal' || kind == 'definition' ? _of : null;
+  String? get of => kind == 'alias' || kind == 'universal' || kind == 'definition' || kind == 'primitive' ? _of : null;
   String? _of;
 
   Json toJson() => {
@@ -142,15 +145,18 @@ VocabularyUse universalUse({
 String universalKindOf(String word) => RegExp(r'^on[A-Z]').hasMatch(word) ? 'event' : 'parameter';
 
 /// A type read as another: `RangeSlider` is a `Slider`, with its own names
-/// for that type's parameters.
+/// for that type's parameters; `GoKey` is a `Button.primary` with `size=lg`.
 final class TypeAlias {
-  const TypeAlias({this.to, this.parameters = const {}, this.add, this.line, this.requires = const []});
+  const TypeAlias({this.to, this.variant, this.parameters = const {}, this.add, this.line, this.requires = const []});
 
+  /// `"to"` may name a variant after the type (`Button.primary`).
   factory TypeAlias.fromJson(Object? json) {
-    if (json is String) return TypeAlias(to: json);
-    final m = readMap(json) ?? const <String, Object?>{};
+    final m = json is String ? {'to': json} : readMap(json) ?? const <String, Object?>{};
+    final to = readString(m['to']);
+    final dot = to?.indexOf('.') ?? -1;
     return TypeAlias(
-      to: readString(m['to']),
+      to: dot < 0 ? to : to!.substring(0, dot),
+      variant: dot < 0 ? null : to!.substring(dot + 1),
       add: readString(m['add']),
       line: readString(m['line']),
       requires: [
@@ -167,9 +173,14 @@ final class TypeAlias {
   /// The type it is read as.
   final String? to;
 
+  /// The variant of [to] it is read as (`primary`: written `"to":
+  /// "Button.primary"`), unless the line writes one of its own.
+  final String? variant;
+
   /// Its own names for that type's parameters, flags and events, each by
-  /// what it is read as (the forms of [NotationVocabulary.parameters]).
-  /// These hold whatever the target type calls its own.
+  /// what it is read as (the forms of [NotationVocabulary.parameters], and
+  /// `"$text": "label"`: the line's first string read as `label=`). These
+  /// hold whatever the target type calls its own.
   final Map<String, String> parameters;
 
   /// The keys the line has to have, once its own names are read, for the
@@ -177,7 +188,9 @@ final class TypeAlias {
   /// end); without them the word is left as it was written.
   final List<String> requires;
 
-  /// Words added to the line (`selected` on a chip that is always on).
+  /// Words added to the line, flags and fixed parameters (`selected` on a
+  /// chip that is always on; `size=lg selected`). A key or a flag the line
+  /// writes itself is the line's.
   final String? add;
 
   /// The line is of another shape altogether: the name of the rewrite in
@@ -185,9 +198,9 @@ final class TypeAlias {
   final String? line;
 
   Object toJson() => to != null && parameters.isEmpty && add == null && line == null && requires.isEmpty
-      ? to!
+      ? '$to${variant == null ? '' : '.$variant'}'
       : {
-          if (to != null) 'to': to,
+          if (to != null) 'to': '$to${variant == null ? '' : '.$variant'}',
           if (line != null) 'line': line,
           if (requires.isNotEmpty) 'requires': requires,
           if (parameters.isNotEmpty) 'parameters': parameters,
@@ -212,7 +225,10 @@ final class TypeAlias {
 ///
 /// A parameter is read as another key (`enabled`), as that key with its
 /// value negated (`!enabled`), or as a further string of the line
-/// (`$text`). A flag is read as the words written (`enabled=false`). `*`
+/// (`$text`). The key `$text` is the line's first string, read as the
+/// parameter it names (`"NumberInput": {"$text": "label"}`: `NumberInput
+/// "Strokes"` is `NumberInput label="Strokes"`), on a word that takes no
+/// string. A flag is read as the words written (`enabled=false`). `*`
 /// holds for every type; a type's own entry comes first.
 final class NotationVocabulary {
   const NotationVocabulary({
@@ -486,8 +502,8 @@ final class LineParts {
 
   /// The line's first word, its `.variant`s and its `#id` (each as written,
   /// with its mark, or empty).
-  String word;
-  final String variant, id;
+  String word, variant;
+  final String id;
   final List<LinePart> parts;
 
   Iterable<LinePart> get strings => parts.where((p) => p.kind == 'string');
