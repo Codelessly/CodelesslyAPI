@@ -4007,7 +4007,7 @@ class _Parser {
         }
         if (key == 'limit' && type == 'radialGauge') key = 'target';
         // What a gauge measures in, under its figure: unit="km/h".
-        if ((key == 'unit' || key == 'label') && type == 'radialGauge') {
+        if ((key == 'unit' || key == 'label') && type == 'radialGauge' && ours) {
           gaugeUnit = _literal(raw).$2?.toString() ?? raw;
           continue;
         }
@@ -4832,7 +4832,9 @@ class _Parser {
     }
     // A gauge: its scale's labels follow its range, a target shows only when
     // one is written (`target:` or `limit:`), and it has a size of its own.
-    if (type == 'radialGauge') {
+    // The document's own radialGauge (the printer's word for one) is the
+    // node as written (design 22, 4.6).
+    if (type == 'radialGauge' && ours) {
       // One clean arc with the figure inside it: no scale numbers, ticks or
       // needle unless written, the value arc in the accent.
       props.putIfAbsent('labels', () => const <Object>[]);
@@ -5468,7 +5470,7 @@ class _Parser {
       out['children'] = ['${id}Text'];
       _parentOf['${id}Text'] = id;
     }
-    if (type == 'radialGauge') {
+    if (type == 'radialGauge' && ours) {
       // A gauge is its arc with the figure it shows inside: a stack under
       // the line's id, so the id still names the whole.
       final value = (out['props'] as Map?)?['value'], bound = (out['bind'] as Map?)?['props.value'];
