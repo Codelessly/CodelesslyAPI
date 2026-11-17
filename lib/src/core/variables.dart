@@ -37,6 +37,18 @@ enum VariableType {
   /// One of [Variable.options], stored as the option's value.
   choice;
 
+  /// The type of a variable declared with [value] and no type: a JSON
+  /// list is a `list`, an object a `map`, `true` a `boolean`, `3` an
+  /// `integer`, `2.5` a `decimal`, anything else `text`.
+  static VariableType of(Object? value) => switch (value) {
+        bool _ => boolean,
+        int _ => integer,
+        num _ => decimal,
+        List _ => list,
+        Map _ => map,
+        _ => text,
+      };
+
   /// [value] as this type holds it, or null when it can't be read as one.
   /// Text types take any scalar as text; numbers take numeric text; colors
   /// take `#RRGGBB` / `#AARRGGBB` (normalized to `#AARRGGBB`).
@@ -203,7 +215,9 @@ final class Variable {
     final m = readMap(json);
     final name = readString(m?['name']);
     if (m == null || name == null || name.isEmpty) return null;
-    final type = readEnum(VariableType.values, m['type'], VariableType.text);
+    // A record that names no type has the type of its value (`[]` is a
+    // list, `3` an integer), as the notation's `state` reads one.
+    final type = m['type'] == null ? VariableType.of(m['value']) : readEnum(VariableType.values, m['type'], VariableType.text);
     return Variable(
       id: readString(m['id']) ?? '',
       name: name,
@@ -221,6 +235,39 @@ final class Variable {
   }
 
   static List<Variable> listFromJson(Object? json) => [...?readList(json)?.map(fromJson).nonNulls];
+
+  /// The keys a variable's record takes.
+  static const Set<String> keys = _keys;
+
+  /// A site manifest's `variables`, in either form it is written:
+  ///
+  /// ```json
+  /// [{"name": "cart", "type": "list", "value": []}, {"name": "plan", "value": "pro"}]
+  /// {"cart": [], "plan": "pro", "draft": {"value": "", "persist": true}}
+  /// ```
+  ///
+  /// A list of records, or a map of name to value (or to a record without
+  /// its name: an object whose keys are all a record's and that has
+  /// `value` or `formula`). A record that names no type has its value's
+  /// ([VariableType.of]). What can't be read is left out
+  /// (`validateSiteVariables` says which and why).
+  static List<Variable> declarationsFromJson(Object? json) {
+    if (json is List) return listFromJson(json);
+    final m = readMap(json);
+    if (m == null) return const [];
+    return [
+      for (final e in m.entries)
+        if (e.key.isNotEmpty) ?fromJson(isRecord(e.value) ? {...readMap(e.value)!, 'name': e.key} : {'name': e.key, 'value': e.value}),
+    ];
+  }
+
+  /// Whether [value] (of a name in the map form of a site's variables) is
+  /// a variable's record rather than a map it holds: every key is a
+  /// record's, and `value` or `formula` is among them.
+  static bool isRecord(Object? value) {
+    final m = readMap(value);
+    return m != null && (m.containsKey('value') || m.containsKey('formula')) && m.keys.every((k) => k != 'name' && _keys.contains(k));
+  }
 
   Json toJson() => {
         if (id.isNotEmpty) 'id': id,

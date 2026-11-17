@@ -216,6 +216,28 @@ Left as they are, for a decision (count of lines, apps):
 - **`open <id>` of an overlay written on another screen** (19, 12): models write an app's dialog once and open it from several screens. An overlay belongs to one page.
 - **An id written from data** (`Row#row-{row.id}`), **`SegmentedButton "Label"`** (a string on a control that has none), **`drag=meal({…})`**, **`SwipeAction`** written with other parameters, and a handful of lines that are simply malformed.
 
+Decided and built since (codelessly_api CHANGELOG, Unreleased; design 13 §3): an action chosen by a condition is
+an `if` action (`cond ? action(s) : action(s)`, a branch braced, in parentheses or empty); `bind=draft.title`, a
+field of an element of a nested list, and of a list worked out whose records have an `id`, are written back, as
+are `bind=colAll[r]` and `bind=find(clips,…).name`, and an action that sets a field where it stands (`d.pos=0`);
+what cannot be written says the line to write; an `open` of no overlay of the page names the ones it has; an id
+from data is its fixed part; an overlay with the page's own id, or an id used twice, says what to write; the
+foot of an app window is `Footer` in `Main` (aliases `StickyBar`, `StickyFooter`, `BottomBar`, `FooterBar`,
+`BottomDock`); `focus id`, `blur` and `copy text` are verbs; `selected={…}` on any line is the node's selected
+state; `size=small|large` on an IconButton; `state … saved=true` is the saved flag.
+
+The corpus counted again with them (`notation.sh vocabulary …/answers --design-system design_systems/cards`):
+
+| | grammar issues | unknown lines | distinct unknown words | alias lines | does not validate |
+|---|---|---|---|---|---|
+| with the seeded table, before | 184 | 187 | 80 | 145 | 70 |
+| after | 117 | 185 | 79 | 147 | 76 |
+| before any alias, before → after | 162 → 108 | 302 → 302 | 86 → 86 | 0 | 90 → 96 |
+
+The six more that do not validate are lines that were dropped before and are read now: four actions whose
+formulas call functions the engine does not have (`grid.copy(range)`, in branches of a choice that was an
+unknown action), and a `focus quick-backlog` to an id the answer wrote from data (`Input#quick-{col.id}`).
+
 ## 9. How usable a page of stand-ins is
 
 Rendered: all 105 screens at 1440x900 and 390x844 (242 pictures with their overlays). No screen failed to render. 4 of 20 apps have no error from the renderer; the others have 79 between them: 42 formulas that do not parse (33 of them an unknown function), 24 names a formula reads that nothing declares (most are the item a stand-in would have given its children: `day` under a `MonthGrid`), 11 layout overflows, 1 link to a screen the answer never wrote, 1 variable declared twice.

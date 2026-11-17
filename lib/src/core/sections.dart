@@ -274,6 +274,10 @@ Node seamCall(Node root, Node call) {
 ///  "breakpoints": [{"id": "mobile", "minWidth": 0}, {"id": "desktop", "minWidth": 1024}]}
 /// ```
 ///
+/// `variables` is also written by name (`{"cart": [], "plan": "pro", "draft":
+/// {"value": "", "persist": true}}`), and a variable that names no type has
+/// its value's ([Variable.declarationsFromJson]).
+///
 /// Flutter: an app's `lib/`: the `pubspec`, `main.dart`'s routes and
 /// globals. Without `components`, a loader takes every component document
 /// it finds beside the pages (a directory's `components/`).
@@ -338,7 +342,7 @@ final class SiteManifest {
     return SiteManifest(
       pages: readStrings(m['pages']),
       components: readStrings(m['components']),
-      variables: Variable.listFromJson(m['variables']),
+      variables: Variable.declarationsFromJson(m['variables']),
       breakpoints: m['breakpoints'],
       theme: ThemeTokens.fromJson(m['theme']),
       fonts: FontFamily.listFromJson(m['fonts']),

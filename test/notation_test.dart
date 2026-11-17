@@ -908,7 +908,11 @@ Column gap=8
     expect((_node(spoken, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= n > 0 && !on}');
     final go = (((_node(spoken, 'filledButton1')['actions'] as List).single as Map)['actions'] as List).cast<Map>();
     expect(go[0]['value'], r'${= append(rows,{"q":2})}');
-    expect(go[1]['value'], r'${= (n > 1) ? (0) : n}');
+    expect(go[1], {
+      'type': 'if',
+      'condition': {'left': r'${= n > 1}', 'op': 'isTrue'},
+      'then': [{'type': 'setVariable', 'variable': 'n', 'value': r'${= 0}'}],
+    });
     expect((_node(spoken, 'text1')['props'] as Map)['text'], r'${= length(rows)} rows, ${= length(filter(rows,r => r.q > 1))} big');
     // A row that scrolls goes sideways.
     final strip = _parse('Column\n  Row scroll gap=8\n    Box w=300 h=40\n    Box w=300 h=40\n');
@@ -1077,7 +1081,7 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
         'id': 'acme',
         'name': 'Acme',
         'theme': {'primary': '#FF2563EB', 'onSurface': '#FF111827'},
-        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/Question.json', 'components/Tabs.json'],
+        'components': ['components/StatusPill.json', 'components/Counter.json', 'components/Frame.json', 'components/Button.json', 'components/Note.json', 'components/Pill.json', 'components/Question.json', 'components/Tabs.json', 'components/ListHead.json'],
       }),
       'components/StatusPill.json': jsonEncode(component('StatusPill', [
         {'key': 'label', 'type': string, 'default': 'Status', 'required': true},
@@ -1120,6 +1124,23 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
     ], events: [
       {'key': 'onChanged', 'payload': string},
     ], width: {'fill': 200}));
+    files['components/ListHead.json'] = jsonEncode({
+      ...component('ListHead', [
+        {'key': 'title', 'type': string, 'default': '', 'required': true},
+      ], width: {'fill': 200}),
+      'widget': {
+        'type': 'ListHead',
+        'doc': 'A title over a list, with actions at its end.',
+        'props': [
+          {'key': 'title', 'type': string, 'default': '', 'required': true},
+        ],
+        'slots': ['actions'],
+      },
+      'nodes': {
+        'r': {'type': 'row', 'layout': {'width': {'fill': 200}, 'height': 28}, 'children': ['a']},
+        'a': {'type': 'slot', 'props': {'name': 'actions'}},
+      },
+    });
     late DesignSystem ds;
     late Catalog catalog;
     setUp(() async {
@@ -1130,6 +1151,65 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
     });
     NotationResult parse(String text) =>
         Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+
+    test('bound to a field: of a record variable, of the repeated element, of an element of a list in the element around it', () {
+      final r = parse('''
+state draft={"seats":1}
+state trips=[{"id":1,"legs":[{"seats":2}]}]
+Column
+  Counter#a bind=draft.seats
+  each t in trips
+    Counter#b bind=t.seats
+    each l in t.legs
+      Counter#c bind=l.seats
+  each n in range(3)
+    Counter#d bind=n.seats
+''');
+      // The component's variable parameter is the field's path: it reads
+      // and writes it as it would a variable.
+      expect((_node(r, 'a')['props'] as Map)['value'], 'draft.seats');
+      expect((_node(r, 'b')['bind'] as Map)['props.value'], r'${= "trips[" + index + "].seats"}');
+      expect((_node(r, 'c')['bind'] as Map)['props.value'], r'${= "trips[" + parent.index + "].legs[" + index + "].seats"}');
+      expect(r.issues.map((i) => i.message), [
+        'bind=n.seats: the each repeats range(3), which is worked out, so a change has no list to be written to. '
+            'Repeat the list variable itself (each n in <list>, with an if for the ones to show), give its records an "id" field, '
+            'or write the change: value={n.seats} onChange={<list>=updateWhere(<list>,x=>x.id==n.id,x=>with(x,"seats",result))}.',
+      ]);
+    });
+
+    test('a list of texts given numbers takes them as texts (numeric choices, a tree\'s depths)', () {
+      final r = parse('Tabs#t tabs=[1,2,3] bind=tab\n');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 't')['props'] as Map)['tabs'], ['1', '2', '3']);
+    });
+
+    test('lines under a block that takes none: in its slot when it has one, else said and drawn after it', () {
+      final r = parse('''
+Column
+  ListHead#h "Members"
+    Button "Invite"
+    Button "Export"
+  StatusPill#p "Paid"
+    Text "Inside"
+''');
+      expect(r.issues.map((i) => '${i.line}: ${i.message}'), [
+        '6: A StatusPill takes no lines under it (it has no children and no slot): write this line after it, at its own indent.',
+      ]);
+      final header = _node(r, 'h');
+      expect(header['slots'], {'actions': 'hActions'});
+      expect(header['children'], isNull);
+      expect(_node(r, 'hActions')['children'], hasLength(2));
+      expect(_node(r, 'p')['children'], isNull);
+      expect(_node(r, 'column1')['children'], ['h', 'p', 'text1']);
+      expect(
+        [
+          for (final d in Catalog.run(catalog, () => validateDocument(r.document, options: ValidateOptions(components: ds.components, theme: ds.tokens))))
+            if (d.severity == Severity.error) '${d.code.name} ${d.path}',
+        ],
+        isEmpty,
+      );
+      expect(Catalog.run(catalog, () => notationPrompt(catalog: catalog, designSystem: ds)), contains('ListHead "title" (lines: actions) : '));
+    });
 
     test('optional boolean state is independent for each component call', () {
       final r = parse('Question "First"\nQuestion "Second"');
@@ -1786,7 +1866,9 @@ Page
       expect(rows[1], contains('"type":"scrollTo","node":"price"'));
       expect(rows[2], contains('"type":"navigate","to":"docs"'));
 
-      // A date field's string is its label; a site's value is bound by a control with no copy on the screen.
+      // A date field's string is its label; a site's value is bound by a
+      // control (expanded alone, the page declares it: no site.json is there
+      // to; beside one, it has no copy on the screen: notation_grammar_test).
       final form = parseNotation('''
 project guests=2
 state when=""
@@ -1798,7 +1880,7 @@ Page
       expect(form.issues, isEmpty);
       expect(((node(form, 'd')['props']! as Map)['decoration']! as Map)['labelText'], 'Arrival');
       expect(jsonEncode(node(form, 'g')['bind']), contains('guests'));
-      expect(jsonEncode(form.document['variables']), isNot(contains('guests')));
+      expect(jsonEncode(form.document['variables']), contains('guests'));
 
       // A Nav that writes its own phone menu keeps it, and gets no second one.
       final own = parseNotation('''
@@ -1991,7 +2073,7 @@ Drawer#cart right w=340 "Your cart"
       expect(plain.document['roots'], ['screen']);
 
       final twice = parseNotation('Column#a\n  Text "One"\nMenu#a\n  Text "Two"\nMenu#m\n  Text "Three"\nMenu#m\n  Text "Four"\n', catalog: standardCatalog);
-      expect(twice.issues.map((i) => i.message), ['The id "a" is used twice.', 'The id "m" is used twice.']);
+      expect(twice.issues.map((i) => i.message), ['The id "a" is used twice: line 1 has it too. Give this line an id of its own.', 'The id "m" is used twice: line 5 has it too. Give this line an id of its own.']);
       expect(twice.document['roots'], ['screen', 'm']);
 
       final card = parseNotation('''
@@ -2093,7 +2175,7 @@ App
       final r = parseNotation(app, catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(problems(r.document), isEmpty);
-      expect(r.document['roots'], ['screen', 'screenMenu']);
+      expect(r.document['roots'], ['screen', 'screen_sidebar']);
       // A menu button first in the bar, on a phone only, opens the drawer.
       final bar = (node(r, 'bar')['children']! as List).cast<String>();
       expect(bar.sublist(1), ['title', 'tools']);
@@ -2102,7 +2184,7 @@ App
       expect(button['media'], [
         {'minWidth': 700, 'patch': {'visible': false, 'bind': {'visible': null}}},
       ]);
-      expect(open(r, bar.first), {'type': 'openModal', 'to': 'screenMenu', 'presentation': 'dialog', 'cover': true});
+      expect(open(r, bar.first), {'type': 'openModal', 'to': 'screen_sidebar', 'presentation': 'dialog', 'cover': true});
       // There the title takes the room beside it, so the two sit together.
       expect((node(r, 'title')['media']! as List).last, {
         'maxWidth': 699,
@@ -2111,7 +2193,7 @@ App
         },
       });
       // The drawer repeats the sidebar's lines, each closing it after its action.
-      final drawer = nodesOf(r).keys.skipWhile((k) => k != 'screenMenu').toList();
+      final drawer = nodesOf(r).keys.skipWhile((k) => k != 'screen_sidebar').toList();
       final items = [
         for (final id in drawer)
           if (jsonEncode(node(r, id)['actions'] ?? '').contains('"variable":"tab"')) kinds(r, id),
@@ -2133,7 +2215,7 @@ App
       // A Main with no top bar gets a slim one for the button, where the sidebar is hidden.
       final bare = parseNotation(app.replaceFirst('    Nav#bar\n      Heading#title "Orders" level=1\n      Row#tools gap=8\n        Button "New order"\n', ''), catalog: standardCatalog, options: page);
       expect(bare.issues, isEmpty);
-      expect(bare.document['roots'], ['screen', 'screenMenu']);
+      expect(bare.document['roots'], ['screen', 'screen_sidebar']);
       final opener = nodesOf(bare).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton').key;
       final holder = nodesOf(bare).values.cast<Map>().firstWhere((n) => (n['children'] as List? ?? const []).contains(opener));
       expect((holder['media']! as List).last, {

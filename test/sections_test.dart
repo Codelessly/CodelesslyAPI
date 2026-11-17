@@ -630,6 +630,21 @@ void main() {
       expect(coded(ds, Codes.unknownName), isEmpty);
     });
 
+    test('a component\'s own variables reserve none of the site\'s names (CommandPalette\'s selected, Combobox\'s query)', () {
+      final manifest = SiteManifest.fromJson({
+        'variables': [
+          {'name': 'selected', 'type': 'list', 'value': []},
+        ],
+      });
+      final card = planCard();
+      card['variables'] = {
+        'card': [
+          {'name': 'selected', 'type': 'integer', 'value': 0},
+        ],
+      };
+      expect(coded(project(docs(card: card), manifest: manifest), Codes.duplicateVariable), isEmpty);
+    });
+
     test('ids are local to a component: the same id in a page and a definition is fine', () {
       final p = page(
         extraNodes: {

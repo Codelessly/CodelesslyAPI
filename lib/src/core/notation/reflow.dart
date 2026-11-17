@@ -5,7 +5,9 @@
 // sidebar beside its content. [PageReflow] reads the expanded nodes and gives
 // each one that would not fit the media rules that make it fit:
 //
-//   Grid cols=3            its rows wrap (cells take a least width)
+//   Grid cols=3            its rows wrap (cells take a least width); a
+//                          grid of 7 columns (a week), of 5 or more small
+//                          cells, or written keep, keeps its columns
 //   Row of blocks          wraps: a card beside a card, content beside a rail
 //   Row of controls        wraps on a phone (a search field, a select, buttons)
 //   a table's row          its columns share the width; a phone keeps the
@@ -34,6 +36,7 @@ final class PageReflow {
     required this.nodes,
     this.roles = const {},
     this.gridRows = const {},
+    this.keepColumns = const {},
     this.cards = const {},
     this.tableRows = const {},
     this.displaySizes = const {},
@@ -51,6 +54,9 @@ final class PageReflow {
 
   /// A `Grid`'s rows: how many columns the grid has and the space between.
   final Map<String, ({int cols, num gap})> gridRows;
+
+  /// The grids (their rows, or their list) written `keep`.
+  final Set<String> keepColumns;
 
   /// The nodes written as `Card`.
   final Set<String> cards;
@@ -285,8 +291,33 @@ final class PageReflow {
   /// The least width of a grid's cell, by how many columns it was written with.
   static num _cellBasis(int cols) => switch (cols) { <= 2 => 300, 3 => 220, 4 => 260, _ => 150 };
 
+  /// Whether a grid's columns mean something and hold at every width: seven
+  /// (the days of a week: a month, a streak, a timetable), written `keep`,
+  /// or five or more cells that are small (a number, a dot, an icon: at
+  /// most three nodes each, no card and no component). Its cells shrink.
+  bool _keeps(String id, int cols, List<String> cells) {
+    if (keepColumns.contains(id) || cols == 7) return true;
+    if (cols < 5 || cells.isEmpty) return false;
+    return cells.every((c) => _small(c, 3) >= 0);
+  }
+
+  /// How many nodes [id] has left of [budget] (-1: too many, or a card or a
+  /// component among them).
+  int _small(String id, int budget) {
+    final n = nodes[id];
+    if (n == null) return budget;
+    if (cards.contains(id) || isComponent(_type(n)) || budget <= 0) return -1;
+    var left = budget - 1;
+    for (final k in _kids(n)) {
+      left = _small(k, left);
+      if (left < 0) return -1;
+    }
+    return left;
+  }
+
   void _gridRow(String id, Json n, ({int cols, num gap}) g) {
     if (g.cols < 2) return;
+    if (_keeps(id, g.cols, _kids(n))) return;
     _add(id, reflowTabletMax, {
       'props': {'wrap': true, 'runSpacing': g.gap},
     });
@@ -302,6 +333,7 @@ final class PageReflow {
     final cols = _props(n)['crossAxisCount'];
     if (cols is! num || cols < 2 || (readMap(n['bind'])?.containsKey('props.crossAxisCount') ?? false)) return;
     if (_props(n)['minCrossAxisExtent'] != null) return;
+    if (_keeps(id, cols.toInt(), _kids(n))) return;
     final tablet = cols >= 6 ? 3 : cols >= 4 ? 2 : cols;
     if (tablet != cols) _add(id, reflowTabletMax, {'props': {'crossAxisCount': tablet}});
     _add(id, reflowPhoneMax, {'props': {'crossAxisCount': cols >= 5 ? 2 : 1}});

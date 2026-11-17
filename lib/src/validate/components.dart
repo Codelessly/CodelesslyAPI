@@ -126,6 +126,11 @@ List<Diagnostic> _projectVariableCollisions(Map<String, Object?> documents, Site
   final names = {for (final v in manifest.variables) v.name};
   final out = <Diagnostic>[];
   for (final e in documents.entries) {
+    // A component's own variables are its instance's (its scope reads the
+    // project's beneath them): a page may use the same name for something
+    // else (`selected`, `query`, `draft`), and a design system's internals
+    // reserve none of the site's names.
+    if (readMap(e.value)?.containsKey(kWidgetKey) ?? false) continue;
     final scopes = readMap(readMap(e.value)?['variables']) ?? const {};
     for (final s in scopes.entries) {
       final list = readList(s.value) ?? const [];

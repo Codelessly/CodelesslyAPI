@@ -52,7 +52,7 @@ App
         Text "Stage"
         if q!=""
           Legend "Chosen"
-      Button "Go" tooltip2="x" wobble onFling={focus plan; q="z"} onTap={copy q; toast "ok"}
+      Button "Go" tooltip2="x" wobble onFling={vibrate plan; q="z"} onTap={share q; toast "ok"}
       Button.danger "Delete"
 ''';
     late NotationResult r;
@@ -90,7 +90,7 @@ App
       final f = _uses(r, 'flag').single;
       expect((f.word, f.on, f.line), ('wobble', 'Button', 9));
       final e = _uses(r, 'event').single;
-      expect((e.word, e.on, e.value), ('onFling', 'Button', '{focus plan; q="z"}'));
+      expect((e.word, e.on, e.value), ('onFling', 'Button', '{vibrate plan; q="z"}'));
       expect(e.path, ['App', 'Main', 'Column']);
       final button = _node(r, 'filledButton1');
       expect(button['props'], {'label': 'Go'});
@@ -107,7 +107,7 @@ App
 
     test('an action verb: recorded with its argument and the type whose event it is in', () {
       final verbs = _uses(r, 'verb');
-      expect([for (final v in verbs) (v.word, v.on, v.value)], [('haptic', 'SeatMap', ''), ('focus', 'Button', 'plan'), ('copy', 'Button', 'q')]);
+      expect([for (final v in verbs) (v.word, v.on, v.value)], [('haptic', 'SeatMap', ''), ('vibrate', 'Button', 'plan'), ('share', 'Button', 'q')]);
     });
 
     test('a variant: recorded, and the plain type is drawn', () {
@@ -123,7 +123,7 @@ App
       expect(said, contains('No node type "SeatMap"'));
       expect(said, contains('Unknown word "wobble" on a Button'));
       expect(said, contains('A Button has no event "onFling"'));
-      expect(said, contains('Unknown action "copy"'));
+      expect(said, contains('Unknown action "share"'));
       expect(said, contains('No Button.danger'));
     });
   });
@@ -338,6 +338,14 @@ Dialog#ask "Reset?" "Really."
       }
     });
 
+    test('StickyBar, StickyFooter, BottomBar, FooterBar and BottomDock are the Footer of an app\'s Main', () {
+      const page = 'App\n  Main\n    Column pad=24\n      Text "Albums"\n    {foot}\n      Text.strong "Night Drive"\n';
+      final ours = page.replaceFirst('{foot}', 'Footer');
+      for (final name in ['StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock']) {
+        _same(page.replaceFirst('{foot}', name), ours, word: name, to: 'Footer');
+      }
+    });
+
     test('disabled is enabled, the other way round', () {
       _same('state n=0\nColumn\n  Button "Send" disabled={n==0} onTap={n=1}\n', 'state n=0\nColumn\n  Button "Send" enabled={!(n==0)} onTap={n=1}\n', word: 'disabled', to: '!enabled');
       _same('Column\n  IconButton "send" disabled=true\n', 'Column\n  IconButton "send" enabled=false\n', word: 'disabled');
@@ -365,6 +373,7 @@ Dialog#ask "Reset?" "Really."
     test('every alias of the built-in table is one of the above', () {
       const tested = {
         'Shortcut', 'shortcut', 'computed', 'ConfirmDialog', 'RangeSlider', 'Highlight', 'HighlightText', 'MiniCalendar', 'CalendarMonth', 'MonthGrid', //
+        'StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock',
       };
       expect(NotationVocabulary.core.types.keys.toSet(), tested);
       expect(NotationVocabulary.core.types['RangeSlider']!.parameters.keys.toSet(), {'low', 'lo', 'bindLow', 'bindStart', 'start', 'high', 'hi', 'bindHigh', 'end'});

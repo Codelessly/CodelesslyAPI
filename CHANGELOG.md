@@ -1,6 +1,33 @@
 ## Unreleased
 
-### Breaking (33.0.0)
+### Added
+
+- **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
+  parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own
+  grammar, one file per word (`StickyNote.txt`) or `define Word …` in a page. A use is written out as those lines
+  before it is read (a macro): the use's values where the body reads them by name in braces, its words of every
+  line (`w`, `grow`, `visible`, `onTap`…) on the body's first line, its lines where the body has `...` (or
+  `...Front` for the lines under a `Front` line; `... each reorder` adds `reorder` to an `each` in the slot), the
+  body's state, loop items and ids made the use's own, its events where the body names them (`onPick(c)`: with
+  `result` as `c`). One word may have several meanings (`Timeline#tracks`, `Timeline.vertical#route`): a use is read
+  with the one that fits what it gives. A word that uses itself is refused. A core type, a catalog type, a page
+  word or a component is never a definition's. Open or closed, a defined word is a word we have; each use is
+  recorded (`VocabularyUse` kind `definition`, `to` the meaning, `node` its root id); what it gives that the
+  definition does not take is recorded with the vocabulary open, an issue without. A definition's own errors are
+  said against its file and line.
+  - `NotationOptions.define(texts)`, `NotationVocabulary.define(texts)` and `.definitions`; `readDefinitions`,
+    `checkDefinitions` (each definition expanded with its defaults, with an optional document validator),
+    `definitionLines` (the signatures, for a taught prompt), `NotationDefinition`, `DefinedWords`.
+- **A stand-in with nothing to draw shows what is missing**: with the open vocabulary, an unknown word with no text,
+  no lines under it and no fill or border of its own is a quiet dashed box with its word (and its first string
+  value), at least 40 high or as big as its `w` and `h` say, in the theme's line and caption colours. A page with a
+  word we lack reads as unfinished, not broken. Nothing else changes; with the vocabulary closed nothing stands in.
+
+## 33.0.0
+
+Released with codelessly_sdk 33.0.0.
+
+### Breaking
 
 - **The compact notation has a new grammar, and reads only it** (docs/design/17-notation-grammar-audit.md).
   Everything after a node's text is `key=value`; a value worked out from the state is in braces, as inside a
@@ -42,27 +69,64 @@
 
 ### Added
 
-- **Words defined in the notation itself** (docs/design/20-defined-words.md): a word's signature (its strings,
-  parameters with defaults, flags, `bind=name`, events) and the lines it stands for, written in the notation's own
-  grammar, one file per word (`StickyNote.txt`) or `define Word …` in a page. A use is written out as those lines
-  before it is read (a macro): the use's values where the body reads them by name in braces, its words of every
-  line (`w`, `grow`, `visible`, `onTap`…) on the body's first line, its lines where the body has `...` (or
-  `...Front` for the lines under a `Front` line; `... each reorder` adds `reorder` to an `each` in the slot), the
-  body's state, loop items and ids made the use's own, its events where the body names them (`onPick(c)`: with
-  `result` as `c`). One word may have several meanings (`Timeline#tracks`, `Timeline.vertical#route`): a use is read
-  with the one that fits what it gives. A word that uses itself is refused. A core type, a catalog type, a page
-  word or a component is never a definition's. Open or closed, a defined word is a word we have; each use is
-  recorded (`VocabularyUse` kind `definition`, `to` the meaning, `node` its root id); what it gives that the
-  definition does not take is recorded with the vocabulary open, an issue without. A definition's own errors are
-  said against its file and line.
-  - `NotationOptions.define(texts)`, `NotationVocabulary.define(texts)` and `.definitions`; `readDefinitions`,
-    `checkDefinitions` (each definition expanded with its defaults, with an optional document validator),
-    `definitionLines` (the signatures, for a taught prompt), `NotationDefinition`, `DefinedWords`.
-- **A stand-in with nothing to draw shows what is missing**: with the open vocabulary, an unknown word with no text,
-  no lines under it and no fill or border of its own is a quiet dashed box with its word (and its first string
-  value), at least 40 high or as big as its `w` and `h` say, in the theme's line and caption colours. A page with a
-  word we lack reads as unfinished, not broken. Nothing else changes; with the vocabulary closed nothing stands in.
-
+- **The notation: a choice between actions.** Inside an event, `cond ? action(s) : action(s)` is an `if` action
+  (`onTap={dirty ? open leave : go members}`, `onChanged={…; pendingRemove=="" ? close : open removeConfirm}`);
+  each branch is one action or a braced list, either may be empty (`done ? close :`), and a branch may choose
+  again. `if (c) { … } else { … }` in actions, read before as assignments guarded one by one (its other actions
+  ran unguarded), is now the same `if` action. A value chosen (`step = valid ? 3 : 2`) is still a formula. The
+  card prompt teaches it in one clause in place of "an action is never a condition".
+- **The notation: binding to a field.** `bind=draft.title` on a control writes the field of the record variable
+  (`draft = with(draft,"title",result)`); under an `each`, `bind=s.done` writes the element back also when its
+  list is a field of the element around it (`each s in e.sets`), and when the list is worked out
+  (`each d in filter(devices, …)`) and its records have an `id`. A design system's block (ToggleRow, NumberInput,
+  TextArea…) takes the same: its variable parameter is given the field's path (`draft.title`,
+  `"rows[" + index + "].done"`), where it said `A NumberInput keeps its value in a variable: write bind=name.`
+  What cannot be written (a list worked out without ids, a record that is not declared) says what to write.
+  The same holds for an action that sets a field where it stands (`d.pos=0` under an each over a list worked
+  out, `draft.title=""`), and a control reads and writes `bind=colAll[r]` (an entry of a list or a map
+  variable) and `bind=find(clips,c=>c.id==sel).name` (a field of the record a find picks).
+- **The notation: lines under a block that takes none.** Under a design system's block with a slot and no
+  children (`ListRow`'s trailing, `SectionHeader`, `PaneToolbar`, `EmptyState`'s actions) the indented lines go in
+  the slot, side by side; the component's prompt line says `(lines: actions)`. Under one with neither, the line
+  is an issue that says so and is drawn after it (the renderer reported `children_not_allowed` and the expander
+  nothing). A line indented two levels past the one before it inside an overlay (a page's Card written after
+  the overlays) says it went into that overlay.
+- **The notation: ids.** The drawer an `App` makes of its sidebar on a tablet or phone is `<screen>_sidebar` (was
+  `<screen>Menu`, which took `Menu#albumMenu` from the author on the album page, `Dialog#deckMenu` on deck…). An id
+  given twice names the line that has it (`The id "save" is used twice: line 8 has it too.`); in the two branches
+  of an `if`/`else` it says why a document cannot hold both and what to write; an overlay with the page's own id
+  says to give it one of its own. An id written from the data (`Row#row-{row.id}`) is its fixed part (`row`): a
+  node has one id however many copies an `each` makes of it.
+- **A component's own variables reserve none of a site's names.** `validateProject` reported a project variable
+  (site.json) named like a variable inside a design system's definition (`selected` in Cards' CommandPalette,
+  `query` in its Combobox) as `duplicate_variable`, in sites that never used the component. A definition's
+  variables are its instance's; only a page's are checked against the project's.
+- **The notation: lines that were accepted and did nothing.** `project cart=[]` on a page expanded alone declares
+  `cart` on the page (it declared nothing, and every read of it failed at render); beside site.json it is the
+  site's as before, and a name the site's variables lack is said. `go result`, `go tab`, `go item.slug` (a name
+  the state has) navigate to the page the value holds, as `go {result}` (`Tabs … onChanged={go result}` went to
+  a page called "result"). With an open vocabulary, an `open` of no overlay of the page names the ones it has.
+  `clip.length` of a record with a `length` field is the field, not the record's size. `state clips=[…]
+  saved=true` (or `persist=true`) is the saved flag, where it was read into the value as text.
+- **The notation infers a variable's kind from the state declared.** A variable an action makes takes the kind of
+  what it reads (`x=c.start` under an each over clips whose `start` is a number is a decimal, `completed=c.done` a
+  list), where it was text and the renderer said `wrong_type`; one that cannot be known takes the kind of a
+  control bound to it later (a `NumberInput`, a `Slider`). A design system's parameter that is a list of texts
+  given numbers (`ChoiceChips options=[1,2,3]`, `Tree depths=[0,1]`) takes them as texts.
+- **A Grid whose columns mean something keeps them on a tablet and a phone.** `Grid cols=7` (a month, a streak,
+  a timetable), a grid of five or more small cells (at most three nodes, no card or component), and a grid
+  written `keep` (`Grid cols=4 keep`) keep their columns and shrink their cells, where a phone made two columns
+  (a month became a 15-row list). Other grids wrap as before.
+- **A bar pinned to the foot of an app window.** `Footer` as `Main`'s last line (or in `App`, or `Row sticky
+  bottom`) is a bar at the bottom of `Main` that stays in view at every width while what is above it scrolls
+  (a now-playing bar, a chat composer, a basket, sheet tabs); before, a Card written last in `Main` scrolled
+  away. The alias table reads `StickyBar`, `StickyFooter`, `BottomBar`, `FooterBar` and `BottomDock` as it. The
+  page prompt teaches it in one line, and that a Grid of 7 columns or written `keep` keeps them.
+- **The notation: `selected`, `size`, `focus` and `copy`.** `selected={…}` on a line whose type has no selected
+  value (a `Row` of a list, an `IconButton`, a `Button`) is the node's selected state (`bind.selected`); a row,
+  column or box is drawn in the theme's selected fill while it holds. `size=small|medium|large` on an `IconButton`
+  is its icon's size (a Button's was read already). Actions `focus search` (the caret in that field), `blur`, and
+  `copy link` / `copy "{link}"` (to the clipboard, with a toast); the page prompt names them.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is
@@ -222,6 +286,9 @@
   the labels itself keeps its own); a date or time field's string is its label, and on a page the field is as
   tall as the fields beside it; `NotationOptions.accentText` (a theme's `accentText` or `accentDeep`) is a
   link's ink in running text.
+- `validateSiteManifest`: a key of `site.json` that nothing reads is a `site_key_ignored` warning; a theme key
+  written beside `"theme"` (`"primary"`, `"colors"`, `"dark"`…) says to write it inside `"theme"` (it was ignored
+  without a word).
 
 ### Changed
 
@@ -254,6 +321,25 @@
   a fixed height makes the box grow instead of overflowing.
 - **Notation**: the braces of a code sample shown as text (`import { Beacon } from …`) are text, not a value
   read.
+- A site manifest's `variables` is read in the forms it is written: the list of records, or an object by name
+  (`{"cart": [], "plan": "pro", "draft": {"value": "", "persist": true}}`: a name and its value, or a record without
+  its name; `Variable.declarationsFromJson`). A variable that names no `type`, in a manifest or a document, has its
+  value's (`VariableType.of`: `[]` a list, `3` an integer, `true` a boolean); it was text, so a list started empty
+  and numbers were joined as text, with no diagnostic. `validateSiteVariables` reports each record that cannot be
+  read (`invalid_variable`, with the shape to write). The notation's page prompt and the reference's "The site
+  manifest" show the shape.
+- The notation: a variable declared with a whole number (`state amount=0`) and bound to a component's number
+  parameter (`NumberInput bind=amount step=0.01`) is declared `decimal`, not `integer`: an integer variable rounds
+  what is set, so typed cents and a 0.01 step were lost (25.50 was saved as 26, the arrows did nothing). A site's
+  variable (site.json) keeps the type it is declared with there.
+- A site's theme over a design system's tokens (`DesignSystem.themeUnder`, the new `ThemeTokens.withSiteTheme`):
+  what the design system makes from its accent follows the site's. A site that gives its own `primary` (or
+  `colors.accent` where the accent is the primary) gets every color that is the design system's primary at some
+  opacity (a selected row's tint, the focus ring, tinted borders) at that opacity of its own, the `info` color and
+  its tints, and each shade named after the accent (`accentDeep`, `accentBright`) in its hue; in dark, with no
+  `dark.primary` of its own, a primary made from its light one (it stayed the design system's blue) and the same for
+  the dark colors. A site's `fontFamily` re-families the design system's text styles of its default family. A color
+  or style the site names itself stays the site's.
 
 ## 32.0.0
 

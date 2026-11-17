@@ -1,5 +1,5 @@
 {
-  "version": "32.0.0",
+  "version": "33.0.0",
   "base": {
     "files": {
       "file": "STARTER.md",
@@ -961,7 +961,7 @@
       "anchor": "page-components",
       "title": "Components and sections",
       "summary": "Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section.",
-      "words": 3768
+      "words": 3862
     },
     {
       "topic": "components-parameter-kinds",
@@ -977,7 +977,7 @@
       "anchor": "components-the-site-manifest",
       "title": "The site manifest",
       "summary": "A directory with a `site.json` is a site: its pages, its components and its project variables, read by bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).",
-      "words": 64
+      "words": 158
     },
     {
       "topic": "components-validation-codes",
@@ -1393,7 +1393,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 3107
+      "words": 3140
     },
     {
       "topic": "render-what-it-does",

@@ -1,6 +1,6 @@
 {
   "package": "codelessly_api",
-  "version": "32.0.0",
+  "version": "33.0.0",
   "schema": 3,
   "document": {
     "keys": [
@@ -26542,6 +26542,11 @@
       "code": "theme_role_in_colors",
       "severity": "warning",
       "meaning": "A color role (primary, onPrimary, surface, onSurface, error, success, warning: Flutter's ColorScheme names) written inside the theme's \"colors\": roles are top-level keys of the theme, so controls never read it. Move it up (\"primary\": \"#FF...\" or \"primary\": \"<a color's name>\")."
+    },
+    {
+      "code": "site_key_ignored",
+      "severity": "warning",
+      "meaning": "A key of the site manifest (site.json) that nothing reads. A theme key written beside \"theme\" (primary, colors, dark...) belongs inside it: \"theme\": {\"primary\": \"#FF...\", \"colors\": {...}}."
     },
     {
       "code": "invalid_fonts",

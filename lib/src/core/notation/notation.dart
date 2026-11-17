@@ -1000,7 +1000,18 @@ class _Src {
 }
 
 class _Open {
-  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false});
+  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written});
+
+  /// A design system's block that takes no children but has slots (a
+  /// ListRow's trailing, a SectionHeader's actions): the lines under it go
+  /// in the first, side by side.
+  final List<String> slots;
+
+  /// The type as the line wrote it (a block's name), for what is said.
+  final String? written;
+
+  /// The row a slot's lines go in, once the first of them is written.
+  String? slotRow;
 
   /// A node that takes no lines under it (a Slider, a component without
   /// children): with an open vocabulary what is written under it goes to
@@ -1083,6 +1094,22 @@ class _Parser {
 
   _Parser get _top => _host ?? this;
 
+  /// Where each id was first given (its line, and the condition of the
+  /// `if` it is under, if any), to say both lines when it is given again.
+  final Map<String, ({int line, String? condition})> _idAt = {};
+
+  /// The id [id] is given again on this line: what to say, naming the line
+  /// that has it.
+  String _twice(String id, String? condition) {
+    final first = _top._idAt[id];
+    if (first == null) return 'The id "$id" is used twice. Give this line an id of its own.';
+    if (first.condition != null && condition != null && first.condition != condition) {
+      return 'The id "$id" is used twice: line ${first.line} has it too, in the other branch of the if. A document holds one node per id, so both branches '
+          'cannot have it: give this one an id of its own (${id}2), or write one line whose values are worked out (label={cond ? "a" : "b"}).';
+    }
+    return 'The id "$id" is used twice: line ${first.line} has it too. Give this line an id of its own.';
+  }
+
   /// The document's canvases: the page, then its overlays.
   List<String> get _rootIds => [_top.options.screen, for (final o in _top._overlays) o.options.screen];
 
@@ -1140,10 +1167,15 @@ class _Parser {
   /// their own, which `open <id>` shows over the page.
   void _openBlock(Overlay o) {
     if (_taken(o.id)) {
-      _issue(1, 'The id "${o.id}" is used twice.');
+      _issue(
+          1,
+          o.id == options.screen
+              ? 'The id "${o.id}" is this page\x27s own (its canvas): an overlay over the page needs an id of its own (${o.id}Overlay, opened with open ${o.id}Overlay). An overlay is opened from the page it is written on; one that other pages open is written on each of them, after the page.'
+              : _twice(o.id, null));
       _blockSkipped = true;
       return;
     }
+    _top._idAt.putIfAbsent(o.id, () => (line: _line, condition: null));
     final first = _overlays.isEmpty;
     // In it everything is laid out as on a card: a narrow canvas of its own.
     final sub = _Parser(catalog, options.sized(width: o.width < 640 ? o.width : 640, screen: o.id), this, o);
@@ -1490,6 +1522,11 @@ class _Parser {
   /// margin): its lines are the ones further in.
   int _blockIndent = 0;
 
+  /// The overlay being read (`Menu#albumMenu`) and the indent of its last
+  /// line, to say where a line indented past it went.
+  String _blockHead = '';
+  int _blockPrev = 0;
+
   /// While lines already read are read again (an overlay's, drawn again in
   /// its foot; a sidebar's, in its drawer): nothing is recorded twice.
   bool _quiet = false;
@@ -1533,6 +1570,18 @@ class _Parser {
       if ((_block != null || _blockSkipped) && (indent > _blockIndent || blank || (_block?._continues ?? false))) {
         _line++;
         if (!blank || (_block?._continues ?? false)) {
+          // A line indented two levels past the one before it, in an
+          // overlay, was most likely meant for the page above (a Card for
+          // Main, written after the overlays): it goes in the overlay, and
+          // where it went is said.
+          if (_block != null && !blank && !(_block?._continues ?? false)) {
+            final rel = indent - _blockIndent;
+            if (rel > _blockPrev + 2 && _blockPrev > 0) {
+              _issue(rel + _blockIndent + 1,
+                  'This line is indented $rel inside $_blockHead, two levels past the line before it ($_blockPrev), so it went into $_blockHead, under that line. A line meant for the page is written before the overlays, at its place in the page.');
+            }
+            _blockPrev = rel;
+          }
           if (_block != null && !blank) _blockLines.add((indent: indent - _blockIndent, text: raw.trim()));
           _feed(indent - _blockIndent, raw.trim());
         }
@@ -1566,6 +1615,8 @@ class _Parser {
           final word = _srcWord;
           _openBlock(o);
           _blockIndent = indent;
+          _blockHead = head.split(RegExp(r'\s')).first;
+          _blockPrev = 0;
           _block?._srcStack.add(_Src(-1000, word)..use = standIn);
           if (_block != null) _blockFoot.addAll(lines.skip(1));
           // The page's own lines go on after it, under what they were under.
@@ -1701,7 +1752,9 @@ class _Parser {
     isFrame: (name) => notationTypes[name] == null && catalog.widget(name)?.children == ChildModel.list,
     roles: true,
     menu: options.reflow && options.width >= 700,
-    sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}Menu' : null,
+    // Named so that no id an author writes (`Menu#albumMenu` on the album
+    // page) is the drawer's.
+    sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}_sidebar' : null,
     surface: options.surface,
     viewer: _host == null && options.width >= 700 ? '${options.screen}Viewer' : null,
     takesViewer: (name) {
@@ -1722,6 +1775,11 @@ class _Parser {
   final _roles = <String, String>{};
   final _gridRows = <String, _Grid>{};
 
+  /// The Grids written `keep`, and the list each `each` under a Grid became
+  /// (its id → the grid's).
+  final _keepColumns = <String>{};
+  final _gridLists = <String, String>{};
+
   /// The anchors (`id=why` on a line) by name → the node, and the scroll
   /// actions written, which name an anchor or an id.
   final _anchors = <String, String>{};
@@ -1732,6 +1790,57 @@ class _Parser {
   final _tableRows = <String>{};
 
   /// On a page, the media rules that lay it out on a tablet and a phone.
+  /// The foot of an app's window (`Footer` in Main or App): Main stops
+  /// scrolling as a whole; what else is in it scrolls in a column that takes
+  /// the room above the foot, which stays in view at the bottom at every
+  /// width. A foot written in App goes to the foot of its Main.
+  void _feet() {
+    for (final foot in [
+      for (final e in _roles.entries)
+        if (e.value == 'foot') e.key,
+    ]) {
+      var main = _parentOf[foot];
+      if (main == null || nodes[foot] == null) continue;
+      if (_roles[main] == 'app') {
+        final app = main;
+        final into = ((nodes[app]!['children'] as List?) ?? const []).whereType<String>().where((k) => _roles[k] == 'main').firstOrNull;
+        if (into == null) continue;
+        (nodes[app]!['children'] as List).remove(foot);
+        ((nodes[into]!['children'] as List<Object?>?) ?? (nodes[into]!['children'] = <Object?>[])).add(foot);
+        _parentOf[foot] = into;
+        main = into;
+      }
+      if (_roles[main] != 'main' && _roles[main] != 'pane') continue;
+      final m = nodes[main]!;
+      final props = (m['props'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
+      if (props['scrollable'] != true) continue;
+      final kids = ((m['children'] as List?) ?? const []).whereType<String>().toList();
+      final rest = [for (final k in kids) if (k != foot) k];
+      final scroll = '${main}Scroll';
+      nodes[scroll] = {
+        'type': 'column',
+        'layout': {'width': {'fill': 0}, 'height': {'fill': 0}, 'flex': 1},
+        'props': {...props},
+        'children': rest,
+      };
+      for (final k in rest) {
+        _parentOf[k] = scroll;
+      }
+      _parentOf[scroll] = main;
+      props.remove('scrollable');
+      props['crossAxisAlignment'] = 'stretch';
+      m['props'] = props;
+      m['children'] = [scroll, foot];
+      if (_canvas) {
+        ops
+          ..add({'op': 'set', 'id': scroll, 'parent': main, 'index': 0, 'node': {...nodes[scroll]!}..remove('children')})
+          ..addAll([for (var i = 0; i < rest.length; i++) {'op': 'move', 'id': rest[i], 'parent': scroll, 'index': i}])
+          ..add({'op': 'move', 'id': foot, 'parent': main, 'index': 1})
+          ..add({'op': 'patch', 'id': main, 'patch': {'props': {'scrollable': null, 'crossAxisAlignment': 'stretch'}}});
+      }
+    }
+  }
+
   void _reflow() {
     if (!options.reflow || options.width < 700) return;
     final rules = PageReflow(
@@ -1739,6 +1848,13 @@ class _Parser {
       roles: _roles,
       gridRows: {
         for (final e in _gridRows.entries) e.key: (cols: e.value.cols, gap: e.value.gap),
+      },
+      // A Grid written `keep`: its rows (lines under it) and its list (an each).
+      keepColumns: {
+        for (final e in _gridRows.entries)
+          if (_keepColumns.contains(e.value.id)) e.key,
+        for (final e in _gridLists.entries)
+          if (_keepColumns.contains(e.value)) e.key,
       },
       cards: _cards,
       tableRows: _tableRows,
@@ -2030,7 +2146,13 @@ class _Parser {
       final rest = line.substring(8).trim();
       final name = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*(=|$)').firstMatch(rest)?.group(1);
       if (name == null) return _issue(column, 'A site\x27s variable is written: project name=value (the same name as in site.json\x27s variables).');
-      _projectVariables.add(name);
+      // Expanded with the site's variables, a name they lack is said; alone,
+      // the page declares it itself, so that what reads it works.
+      if (options.projectVariables.containsKey(name)) {
+        _projectVariables.add(name);
+      } else if (options.projectVariables.isNotEmpty) {
+        _issue(column, 'project $name: site.json\x27s variables have no "$name": add it there ({"name": "$name", "type": …, "value": …}). Until then it is this page\x27s own.');
+      }
       _state(rest.contains('=') ? rest : '$name=""', column + 8);
       // `project cart=[] saved`: kept on the device. The site's manifest is
       // where a site's variable is declared, so it has to say so too.
@@ -2104,6 +2226,32 @@ class _Parser {
       line = _rename(line, d.key, '(${d.value})');
     }
     var parent = _stack.isEmpty ? null : _stack.last;
+    // Lines under a block that takes none but has a slot (a ListRow's
+    // trailing, a SectionHeader's or an EmptyState's actions): they go in
+    // the slot, side by side in a row of their own.
+    if (parent != null && parent.slots.isNotEmpty && nodes[parent.id] != null) {
+      final block = parent;
+      final slot = const ['trailing', 'actions', 'action', 'end'].firstWhere(block.slots.contains, orElse: () => block.slots.first);
+      final row = block.slotRow ??= () {
+        final id = '${block.id}${slot[0].toUpperCase()}${slot.substring(1)}';
+        nodes[id] = {
+          'type': 'row',
+          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
+          'props': {'spacing': 8, 'crossAxisAlignment': 'center'},
+          'children': <Object?>[],
+        };
+        ((nodes[block.id]!['slots'] as Json?) ?? (nodes[block.id]!['slots'] = <String, Object?>{}))[slot] = id;
+        _parentOf[id] = block.id;
+        _slotOf[id] = slot;
+        return id;
+      }();
+      parent = _Open(block.indent, row, 'row', condition: block.condition);
+    } else if (!options.openVocabulary && parent != null && parent.leaf && parent.written != null && catalog.widget(parent.written!) != null && nodes[parent.id] != null) {
+      // A block that takes nothing under it: said, and the line is drawn
+      // after it, where it would otherwise be lost.
+      _issue(column, 'A ${parent.written} takes no lines under it (it has no children and no slot): write this line after it, at its own indent.');
+      parent = _stack.reversed.where((o) => !o.leaf).firstOrNull;
+    }
     if (options.openVocabulary && parent != null && parent.leaf) {
       // Lines under a word that takes none: recorded, and drawn after it.
       _use('children', _srcPath.lastOrNull ?? parent.type, column, value: _srcWord);
@@ -2302,6 +2450,7 @@ class _Parser {
         return _issue(column, 'reorder writes the new order to a list variable: declare it (state $listName=[…]) and repeat it by name (each row in $listName reorder).');
       }
       _acrossLists[itemId] = listId;
+      if (g != null) _gridLists[listId] = g.id;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
         'layout': {'width': across ? {'hug': 0} : {'fill': 0}, 'height': follows ? eachHeight : {'hug': 0}},
@@ -2379,6 +2528,13 @@ class _Parser {
     }
     // `Text.small.muted`: one variant is read, the first.
     line = line.replaceFirstMapped(RegExp(r'^([A-Za-z][A-Za-z0-9]*\.[A-Za-z][A-Za-z0-9]*)(?:\.[A-Za-z][A-Za-z0-9]*)+'), (m) => m[1]!);
+    // An id written from the data (`Row#row-{row.id}`, `Input#quick-{col.id}`):
+    // a node has one id however many copies an each makes of it (each copy
+    // is told apart by its element), so the id is the fixed part.
+    line = line.replaceFirstMapped(RegExp(r'^([A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#([A-Za-z_][A-Za-z0-9_]*)?[-_]*\{[^{}]*\}[A-Za-z0-9_{}.-]*(?=\s|$)'), (m) {
+      final fixed = m[2];
+      return fixed == null || _taken(fixed) ? m[1]! : '${m[1]}#$fixed';
+    });
     final t = _Tokens(line);
     final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*))?').firstMatch(line);
     if (head == null) return _issue(column, 'A line starts with a node type: Column, Text "…", Button "…".');
@@ -2408,6 +2564,7 @@ class _Parser {
     Map<String, int>? timing;
     // `Text "{row.title}" mark={q}`: the text as written, and what to mark in it.
     String? markText, markQuery;
+    var selectedState = false;
     num? sliderStep;
     // `Slider bind=low bindEnd=high`: the variable of its second thumb (and
     // of the last day of a Calendar's range).
@@ -2514,10 +2671,12 @@ class _Parser {
     final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
     if (written == 'Card') _cards.add(id);
     if (grid != null) props['spacing'] = grid.gap;
+    final under = _stack.reversed.where((o) => o.condition != null).firstOrNull?.condition;
     if (_taken(id)) {
-      _issue(column, 'The id "$id" is used twice.');
+      _issue(column, _twice(id, under));
       return;
     }
+    if (head[3] != null) _top._idAt.putIfAbsent(id, () => (line: _line, condition: under));
     _lastNode = id;
     if (standIn) {
       final parts = LineParts.of(_src.startsWith(written) ? _src : line);
@@ -2583,8 +2742,22 @@ class _Parser {
           ? null
           : spec.props.where((p) => p.type.isVariable && p.key == 'value').firstOrNull ?? spec.props.where((p) => p.type.isVariable).firstOrNull;
       if (held != null) {
-        if (!_identifier.hasMatch(expr) || expr.contains('.')) {
-          _issue(col, 'A $written keeps its ${held.key} in a variable: write bind=name.');
+        if (_identifier.hasMatch(expr) && expr.contains('.')) {
+          // A field (`bind=draft.title`, `bind=i.done` under an each): the
+          // component's variable parameter is the field's path, which it
+          // reads and writes as it would a variable.
+          switch (_fieldWrite(expr, 'result')) {
+            case final String say:
+              _issue(col, say);
+            case (_, _, final String path):
+              if (path.startsWith('"') && !path.contains(' + ')) {
+                props[held.key] = jsonDecode(path);
+              } else {
+                bind['props.${held.key}'] = _formula(path);
+              }
+          }
+        } else if (!_identifier.hasMatch(expr)) {
+          _issue(col, 'A $written keeps its ${held.key} in a variable: write bind=name (or bind=record.field, bind=row.field under an each).');
         } else {
           props[held.key] = expr;
           final (kind, start) = switch (held.type.variableOf?.kind) {
@@ -2593,7 +2766,15 @@ class _Parser {
             PropKind.list => ('list', const <Object?>[] as Object),
             _ => ('text', '' as Object),
           };
+          if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': kind, 'value': start});
+          // Declared with a whole number (`state amount=0`), it is a number
+          // here, not an integer: a NumberInput step=0.01 gives it cents,
+          // which an integer variable would round away.
+          if (held.type.variableOf?.kind == PropKind.number && variables[expr]?['type'] == 'integer' && !_projectVariables.contains(expr)) {
+            variables[expr] = {...variables[expr]!, 'type': 'decimal'};
+            _declared.remove(expr); // declared again, as it is now
+          }
         }
       } else if (standIn) {
         // What a stand-in would keep its value in is still a variable of the
@@ -2626,26 +2807,55 @@ class _Parser {
         // is its single choice.
         final list = type == 'segmentedButton';
         bind['props.${value.prop}'] = list ? _formula('[$expr]') : _read(expr);
-        final field = RegExp(r'^item\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(expr);
-        final over = _stack.reversed.where((o) => o.each != null).firstOrNull?.list;
-        if (field != null) {
-          // A control bound to a field of the repeated element
-          // (`Input bind=field.label` under `each field in fields`): it shows
-          // the field, and a change writes the element back into its list.
-          if (over != null && _identifier.hasMatch(over) && !over.contains('.')) {
-            final next = list ? 'result[0]' : 'result';
+        if (_identifier.hasMatch(expr) && expr.contains('.')) {
+          // A control bound to a field: of a record variable
+          // (`Input bind=draft.title`), or of the repeated element
+          // (`Input bind=field.label` under `each field in fields`, also a
+          // list in the element around it): it shows the field, and a change
+          // writes the record, or the element back into its list.
+          switch (_fieldWrite(expr, list ? 'result[0]' : 'result')) {
+            case final String say:
+              _issue(col, say);
+            case (final String variable, final String next, _):
+              reactions.insert(0, {
+                'trigger': {'type': 'changed'},
+                'actions': [
+                  {'type': 'setVariable', 'variable': variable, 'value': _formula(next)},
+                ],
+              });
+          }
+        } else if (expr.contains('.') || expr.contains('[')) {
+          // `bind=colAll[r]` (an entry of a list or a map variable) and
+          // `bind=find(clips,c=>c.id==sel).name` (a field of the record a
+          // find picks): shown as read, and a change writes it back.
+          final next = list ? 'result[0]' : 'result';
+          final entry = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[(.+)\]$').firstMatch(expr);
+          final found = RegExp(r'^find\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*=>\s*(.+)\)\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(expr);
+          final String? write;
+          if (entry != null && variables.containsKey(entry[1]) && _closing(expr, entry[1]!.length) == expr.length - 1) {
+            final v = entry[1]!;
+            write = variables[v]!['value'] is Map ? '$v = with($v,${entry[2]},$next)' : '$v = setAt($v,${entry[2]},$next)';
+          } else if (found != null && variables[found[1]]?['value'] is! Map) {
+            // (A list another page declares is the site's: written the same way.)
+            final (l, x) = (found[1]!, found[2]!);
+            write = '$l = updateWhere($l,$x=>${found[3]},$x=>with($x,"${found[4]}",$next))';
+          } else {
+            write = null;
+          }
+          if (write == null) {
+            _issue(col, 'A control is bound to a variable by its name (bind=name), to a field of a record variable (bind=draft.title), or under an each to a field of its element (bind=row.name): "$expr" is none of these. '
+                'Show it and write the change yourself: value={$expr} onChange={<list>=updateWhere(<list>,x=>x.id==…,x=>with(x,"<field>",result))}.');
+          } else {
+            final eq = write.indexOf(' = ');
             reactions.insert(0, {
               'trigger': {'type': 'changed'},
               'actions': [
-                {'type': 'setVariable', 'variable': over, 'value': _formula('setAt($over,index,with(item,"${field[1]}",$next))')},
+                {'type': 'setVariable', 'variable': write.substring(0, eq), 'value': _formula(write.substring(eq + 3))},
               ],
             });
-          } else {
-            _issue(col, 'A control can be bound to a field of a repeated element only when the each is over a variable (each row in rows).');
           }
-        } else if (expr.contains('.')) {
-          _issue(col, 'A control is bound to a variable by its name (bind=name), or under an each to a field of its element (bind=row.name): "$expr" is neither.');
         } else if (_identifier.hasMatch(expr)) {
+          if (_top._guessed.remove(expr)) variables.remove(expr);
           variables.putIfAbsent(expr, () => {'name': expr, 'type': value.type, 'value': props[value.prop] ?? value.start});
           reactions.insert(0, {
             'trigger': {'type': 'changed'},
@@ -2777,6 +2987,12 @@ class _Parser {
             _issue(col, 'A value is written with =, not a colon: ${word.substring(0, colon)}=${colon + 1 < word.length ? word.substring(colon + 1) : '…'}.');
             if (word.endsWith(':') && t.peek == '"') t.string();
             if (word.endsWith(':') && (t.peek == '[' || t.peek == '{')) t.balanced();
+            continue;
+          }
+          // `Grid cols=7 keep`: its columns hold at every width (a phone
+          // shrinks the cells, it does not stack them).
+          if (grid != null && word == 'keep') {
+            _keepColumns.add(grid.id);
             continue;
           }
           if (written == 'Box' && (word == 'center' || word == 'middle')) {
@@ -3101,6 +3317,16 @@ class _Parser {
           continue;
         }
         if (key == 'password' && type == 'textField') key = 'obscureText';
+        // `selected={…}` where the type has no selected value (a row of a
+        // list, an IconButton, a Button): the node's selected state, which
+        // its look follows as it does a hover (a box: the theme's selected
+        // fill).
+        if (key == 'selected' && !component && !const {'chip', 'checkbox', 'switch'}.contains(type) && !spec.props.any((p) => p.key == 'selected')) {
+          final e = raw.startsWith('=') ? raw.substring(1) : raw;
+          bind['selected'] = _formula(e.startsWith('{') && e.endsWith('}') ? e.substring(1, e.length - 1) : e);
+          selectedState = true;
+          continue;
+        }
         // A fixed tooltip is the node's own; one that reads data is bound as before.
         if (key == 'tooltip' && !spec.props.any((p) => p.key == 'tooltip') && raw.startsWith('"') && !raw.contains('{')) {
           node['tooltip'] = _literal(raw).$2?.toString() ?? raw;
@@ -3120,6 +3346,14 @@ class _Parser {
             bind['props.style.${key == 'color' ? 'iconColor' : 'iconSize'}'] = key == 'color' ? _namedIn(_read(raw.substring(1)), 'text') : _read(raw.substring(1));
             (buttonLook ??= <String, Object?>{});
           } else {
+            // size=small | medium | large: the icon's size by name.
+            if (key == 'size') {
+              final named = switch (_literal(raw).$2?.toString() ?? raw) { 'xs' => 14, 'small' || 'sm' => 16, 'medium' || 'md' => 20, 'large' || 'lg' => 28, _ => null };
+              if (named != null) {
+                (buttonLook ??= <String, Object?>{})['iconSize'] = named;
+                continue;
+              }
+            }
             if (open && key == 'size' && _value(raw) is! num) {
               // size=large: a size that is not a number is not ours.
               _use('parameter', key, col, on: _srcWord ?? written, value: raw);
@@ -3321,6 +3555,10 @@ class _Parser {
           }
           // A text parameter given a number (count=4) takes it as text.
           if (v is num && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.string)) v = '$v';
+          // …and a list of texts given numbers (options=[1,2,3], depths=[0,1]) takes them as texts.
+          if (v is List && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.list && p.type.item?.kind == PropKind.string)) {
+            v = [for (final e in v) e is num || e is bool ? '$e' : e];
+          }
           // With an open vocabulary a value of another kind than the
           // parameter takes (live=polite where it is true or false,
           // size=large where it is a number) is not ours: left out, recorded.
@@ -4016,6 +4254,21 @@ class _Parser {
         if (!standIn) _use('parameter', u.key, u.column, on: _srcWord ?? written, value: u.value);
       }
     }
+    // Selected (`Row … selected={…}`): a box is drawn in the theme's
+    // selected fill while it holds, as a NavItem is.
+    if (selectedState && const {'row', 'column', 'stack'}.contains(type) && !(readMap(out['bind'])?.keys.any((k) => k.startsWith('decoration.fills')) ?? false)) {
+      out['states'] = {
+        'selected': {
+          id: {
+            'decoration': {
+              'fills': [
+                {'color': options.selectedFill},
+              ],
+            },
+          },
+        },
+      };
+    }
     nodes[id] = out;
     // A DataTable's cell and header are texts of the theme (item.value, item.label).
     if (ours && written == 'DataTable') {
@@ -4150,7 +4403,12 @@ class _Parser {
       }
       _stack.add(_Open(indent, pageId, 'column', pages: id));
     } else {
-      _stack.add(_Open(indent, id, type, condition: null, grid: grid, leaf: spec.children == ChildModel.none && parent != null));
+      _stack.add(_Open(indent, id, type,
+          condition: null,
+          grid: grid,
+          leaf: spec.children == ChildModel.none && parent != null,
+          slots: component && spec.children == ChildModel.none ? spec.slots : const [],
+          written: written));
     }
     // Its strings as text nodes: an accordion's header is its first child, a
     // list tile's are its title and subtitle.
@@ -4506,6 +4764,11 @@ class _Parser {
     // no line of it, are left out, and said where they are written.
     if (_host == null && options.openVocabulary) {
       final canvases = {for (final o in _overlays) o.options.screen};
+      // What the author wrote over the page (not the drawer or viewer made for it).
+      final written = [
+        for (final c in canvases)
+          if (c != _pages.sidebarMenu && c != _pages.viewer) c,
+      ];
       final missing = <String, int>{};
       bool orphan(Object? a) {
         if (a is! Map) return false;
@@ -4520,7 +4783,11 @@ class _Parser {
         if (actions is! List) return;
         actions.removeWhere(orphan);
         for (final a in actions) {
-          if (a is Map) prune(a['actions']);
+          if (a is Map) {
+            prune(a['actions']);
+            prune(a['then']);
+            prune(a['else']);
+          }
         }
       }
 
@@ -4536,11 +4803,13 @@ class _Parser {
             e.value,
             1,
             e.key.startsWith('open')
-                ? 'Nothing over this page has the id "$id" for an open to show (a Dialog, Sheet, Drawer, Menu or Popover with that id, written after the page at the margin): the action is left out.'
+                ? 'Nothing over this page has the id "$id" for an open to show (a Dialog, Sheet, Drawer, Menu or Popover with that id, written after the page at the margin): the action is left out. '
+                    '${written.isEmpty ? 'This page has none: write a Dialog with that id after the page, at the margin, with its lines under it.' : 'Over this page: ${written.map((w) => '"$w"').join(', ')}.'}'
                 : 'No line of this page has the id "$id" for a scroll to go to (Section#$id, or id=$id on a line): the action is left out.'));
       }
     }
     _ownLegends();
+    _feet();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {
@@ -4633,6 +4902,8 @@ class _Parser {
   void _state(String rest, int column) {
     // `state draft="" saved`: its value is kept on the device and is there
     // again after a reload (Variable.persist).
+    // (`saved=true` and `persist=true` say the same as a key.)
+    rest = rest.replaceFirst(RegExp(r'\s+(saved|persist|persisted)=true$'), ' saved');
     final saved = rest.endsWith(' saved');
     if (saved) rest = rest.substring(0, rest.length - 6).trimRight();
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
@@ -4728,22 +4999,180 @@ class _Parser {
     return out.toString();
   }
 
-  /// `if (cond) { a = 1; b = 2 }` in a handler, as the assignments it stands
-  /// for: each made only while the condition holds (`a = cond ? 1 : a`).
-  /// Actions that are not assignments are left as they are, unguarded.
-  String _guarded(String text) {
-    final m = RegExp(r'if\s*\((.+?)\)\s*\{([^{}]*)\}').firstMatch(text);
-    if (m == null) return text;
-    final cond = m[1]!.trim();
-    final steps = [
-      for (final step in _split(m[2]!, ';'))
-        if (step.trim().isNotEmpty)
-          switch (RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(_inPlace(step.trim()))) {
-            final RegExpMatch set => '${set[1]} = ($cond) ? (${set[2]}) : ${set[1]}',
-            _ => step.trim(),
-          },
-    ];
-    return _guarded('${text.substring(0, m.start)}${steps.join('; ')}${text.substring(m.end)}');
+  /// A choice between actions, as its condition and its two branches (each
+  /// the text of its actions, a braced list unwrapped, either may be empty):
+  /// `dirty ? open leave : go members`, `done ? close :`,
+  /// `ok ? {saved=true; close} : toast "Fix the form"`, and the same written
+  /// as code, `if (c) { … } else { … }` (an `else if` is the else branch).
+  /// Null when [a] is no choice: an assignment whose value is a formula
+  /// (`step = valid ? 3 : 2`), a verb's argument (`toast a ? "x" : "y"`), a
+  /// `?` inside quotes or brackets.
+  (String, String, String)? _choice(String a) {
+    String unwrap(String s) {
+      s = s.trim();
+      // `{a; b}`, `(a; b)` as code writes it; `null` is no action.
+      if ((s.startsWith('{') && s.endsWith('}') || s.startsWith('(') && s.endsWith(')')) && _closing(s, 0) == s.length - 1) {
+        return s.substring(1, s.length - 1).trim();
+      }
+      return s == 'null' ? '' : s;
+    }
+
+    // if (cond) { … } [else { … } | else if …]
+    final code = RegExp(r'^if\s*\(').firstMatch(a);
+    if (code != null) {
+      final close = _closing(a, code.end - 1);
+      if (close < 0) return null;
+      final cond = a.substring(code.end, close).trim();
+      final rest = a.substring(close + 1).trim();
+      if (!rest.startsWith('{')) return null;
+      final end = _closing(rest, 0);
+      if (end < 0) return null;
+      final yes = rest.substring(1, end).trim();
+      final tail = rest.substring(end + 1).trim();
+      if (tail.isEmpty) return (cond, yes, '');
+      final orElse = RegExp(r'^else\b\s*').firstMatch(tail);
+      if (orElse == null) return null;
+      return (cond, yes, unwrap(tail.substring(orElse.end)));
+    }
+    if (RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])?=(?!=)').hasMatch(a)) return null;
+    if (RegExp(r'^(emit|open|scroll|close|go|toast|announce|link|confirm|focus|copy)\b').hasMatch(a) || a.startsWith('{')) return null;
+    // The first ? at the top level (not ?. or ??), then the : that closes it
+    // (a ? inside the branch opens a choice of its own).
+    var depth = 0, quoted = false, question = -1, nested = 0;
+    for (var i = 0; i < a.length; i++) {
+      final c = a[i];
+      if (c == '"' && (i == 0 || a[i - 1] != r'\')) quoted = !quoted;
+      if (quoted) continue;
+      if (c == '{' || c == '[' || c == '(') depth++;
+      if (c == '}' || c == ']' || c == ')') depth--;
+      if (depth != 0) continue;
+      if (c == '?') {
+        final next = i + 1 < a.length ? a[i + 1] : '', before = i > 0 ? a[i - 1] : '';
+        if (next == '.' || next == '?' || before == '?') continue;
+        if (question < 0) {
+          question = i;
+        } else {
+          nested++;
+        }
+      } else if (c == ':' && question >= 0) {
+        if (nested > 0) {
+          nested--;
+          continue;
+        }
+        final cond = a.substring(0, question).trim();
+        if (cond.isEmpty) return null;
+        return (cond, unwrap(a.substring(question + 1, i)), unwrap(a.substring(i + 1)));
+      }
+    }
+    return null;
+  }
+
+  /// Where the bracket at [open] of [s] closes (text in quotes aside); -1
+  /// when it does not.
+  static int _closing(String s, int open) {
+    var depth = 0, quoted = false;
+    for (var i = open; i < s.length; i++) {
+      final c = s[i];
+      if (c == '"' && (i == 0 || s[i - 1] != r'\')) quoted = !quoted;
+      if (quoted) continue;
+      if (c == '{' || c == '[' || c == '(') depth++;
+      if (c == '}' || c == ']' || c == ')') {
+        depth--;
+        if (depth == 0) return i;
+      }
+    }
+    return -1;
+  }
+
+  /// Where a field a control is bound to lives, so that a change can be
+  /// written there: `draft.title` (a field of a record variable),
+  /// `item.done` (of the repeated element: `bind=i.done` under `each i in
+  /// items`), `parent.item.on` (of the element of the each around it), and
+  /// a field of an element of a list that is itself a field of the element
+  /// around it (`each s in e.sets` under `each e in workouts`). A list worked
+  /// out (`each d in filter(devices, …)`) is written through its variable
+  /// when its records have an `id`. Returns the variable written, the
+  /// formula of its new value with [value] at the field, and the path of
+  /// the field as a formula giving text (`"rows[" + index + "].done"`: what
+  /// a component's `variable` parameter is given). A String instead when
+  /// the field cannot be written: what to say.
+  Object _fieldWrite(String expr, String value) {
+    String withAt(String base, List<String> fields, String v) =>
+        fields.isEmpty ? v : 'with($base,"${fields.first}",${withAt('$base.${fields.first}', fields.sublist(1), v)})';
+    final parts = expr.split('.');
+    // A field of a record variable.
+    if (parts.first != 'item' && parts.first != 'parent') {
+      final root = parts.first;
+      if (!variables.containsKey(root) || _derived.containsKey(root)) {
+        return 'bind=$expr: "$root" is no variable of this page. Declare the record first (state $root={"${parts[1]}":""}), or bind a variable of its own (bind=${parts.last}).';
+      }
+      return (root, withAt(root, parts.sublist(1), value), jsonEncode(expr));
+    }
+    // A field of a repeated element: which each, counted from the innermost.
+    var up = 0, at = 0;
+    while (at < parts.length && parts[at] == 'parent') {
+      up++;
+      at++;
+    }
+    if (at >= parts.length || parts[at] != 'item' || at == parts.length - 1) return 'bind=$expr names no field of an element.';
+    final fields = parts.sublist(at + 1);
+    final eaches = [for (final o in _stack) if (o.each != null) o];
+    final n = eaches.length, target = n - 1 - up;
+    if (target < 0) return 'bind=$expr is written under no each.';
+    String elem(int k) => '${'parent.' * (n - 1 - k)}item';
+    String idx(int k) => '${'parent.' * (n - 1 - k)}index';
+    final written = '${eaches[target].each}.${fields.join('.')}';
+    // Down from the element to the list variable it is in.
+    final lists = <String>[]; // the field of the element around that holds the list, from the target outwards
+    var k = target;
+    String? root, rootIndex;
+    while (k >= 0) {
+      final list = eaches[k].list ?? '';
+      if (list.startsWith('item.') && k > 0 && RegExp(r'^item(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(list)) {
+        lists.add(list.substring(5));
+        k--;
+        continue;
+      }
+      if (_identifier.hasMatch(list) && !list.contains('.') && variables.containsKey(list) && !_derived.containsKey(list)) {
+        root = list;
+        rootIndex = idx(k);
+        break;
+      }
+      // Worked out: written through the variable it reads, by the record's id.
+      final reads = [
+        for (final m in RegExp(r'[A-Za-z_][A-Za-z0-9_]*').allMatches(list.replaceAll(RegExp(r'"[^"]*"'), '')))
+          if (variables[m[0]]?['value'] case final List<Object?> rows when rows.isNotEmpty && rows.every((r) => r is Map && r.containsKey('id'))) m[0]!,
+      ].toSet();
+      if (reads.length == 1) {
+        root = reads.single;
+        rootIndex = 'indexOf(map($root,x=>x.id),${elem(k)}.id)';
+        break;
+      }
+      final shown = eaches[target].list ?? '';
+      final read = [
+        for (final m in RegExp(r'[A-Za-z_][A-Za-z0-9_]*').allMatches(list.replaceAll(RegExp(r'"[^"]*"'), '')))
+          if (variables[m[0]]?['value'] is List) m[0]!,
+      ].toSet();
+      final l = read.length == 1 ? read.single : '<list>', e = eaches[target].each;
+      return 'bind=$written: the each repeats $shown, which is worked out, so a change has no list to be written to. '
+          'Repeat the list variable itself (each $e in $l, with an if for the ones to show), give its records an "id" field, '
+          'or write the change: value={$written} onChange={$l=updateWhere($l,x=>x.id==$e.id,x=>with(x,"${fields.first}",result))}.';
+    }
+    // The new element at each level, from the field outwards.
+    var next = withAt(elem(target), fields, value);
+    for (var j = 0; j < lists.length; j++) {
+      final level = target - j, around = level - 1;
+      final f = lists[j].split('.');
+      next = withAt(elem(around), f, 'setAt(${elem(around)}.${lists[j]},${idx(level)},$next)');
+    }
+    final base = target - lists.length;
+    final path = StringBuffer('"$root[" + $rootIndex + "]');
+    for (var j = lists.length - 1; j >= 0; j--) {
+      path.write('.${lists[j]}[" + ${idx(target - j)} + "]');
+    }
+    path.write('.${fields.join('.')}"');
+    assert(base >= 0);
+    return (root!, 'setAt($root,$rootIndex,$next)', path.toString());
   }
 
   /// A change written where the value stands, as the list rebuilt that the
@@ -4765,6 +5194,13 @@ class _Parser {
         return '$over = setAt($over,index,with(item,"${field[1]}",${field[2]}))';
       }
     }
+    // A field of an element written where it stands (`d.pos = 0` under an
+    // each over a list worked out, a nested list's element, a record
+    // variable's field: `draft.title = ""`): the variable it is in, rebuilt.
+    final path = RegExp(r'^((?:parent\.)*item(?:\.[A-Za-z_][A-Za-z0-9_]*)+|[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+)\s*=(?!=)\s*(.+)$').firstMatch(a);
+    if (path != null && (path[1]!.startsWith('item.') || path[1]!.startsWith('parent.') || variables.containsKey(path[1]!.split('.').first))) {
+      if (_fieldWrite(path[1]!, '(${path[2]})') case (final String variable, final String next, _)) return '$variable = $next';
+    }
     final at = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[([^\]]+)\]\.([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
     if (at != null) return '${at[1]} = setAt(${at[1]},${at[2]},with(${at[1]}[${at[2]}],"${at[3]}",${at[4]}))';
     return a;
@@ -4772,7 +5208,20 @@ class _Parser {
 
   List<Json> _actions(String text, int column) {
     final out = <Json>[];
-    for (final part in _split(_guarded(text), ';')) {
+    for (final part in _split(text, ';')) {
+      // A choice between actions: an `if` action, its branches read as
+      // actions are (`dirty ? open leave : go members`).
+      if (_choice(part.trim()) case (final cond, final yes, final no)) {
+        final then = _actions(yes, column), orElse = _actions(no, column);
+        if (then.isEmpty && orElse.isEmpty) continue;
+        out.add({
+          'type': 'if',
+          'condition': {'left': _formula(cond), 'op': 'isTrue'},
+          'then': then,
+          if (orElse.isNotEmpty) 'else': orElse,
+        });
+        continue;
+      }
       final a = _inPlace(part.trim());
       if (a.isEmpty) continue;
       if (a.startsWith('{')) {
@@ -4812,18 +5261,24 @@ class _Parser {
                   : _formula(v),
         });
         if (!variables.containsKey(set[1])) {
-          final start = literal.$1 ? literal.$2 : null;
+          // Its kind from the value: written (n=1), or read from the state
+          // declared (`start=c.start` under an each over clips whose start
+          // is a number, `completed=c.done` a list).
+          var start = literal.$1 ? literal.$2 : null;
+          final known = start != null || (!word && _variablePath.hasMatch(v) && (start = _sample(v)) != null);
           variables[set[1]!] = {
             'name': set[1],
-            'type': switch (start) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', _ => 'text' },
-            'value': switch (start) { bool _ => false, num _ => 0, _ => '' },
+            'type': switch (start) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' },
+            'value': switch (start) { bool _ => false, num _ => 0, List _ => <Object?>[], Map _ => <String, Object?>{}, _ => '' },
           };
+          // Unknown: a control bound to it later gives it its kind.
+          if (!known) _top._guessed.add(set[1]!);
         }
         continue;
       }
       final space = a.indexOf(' ');
       final verb = space < 0 ? a : a.substring(0, space), arg = space < 0 ? '' : a.substring(space + 1).trim();
-      final s = arg.startsWith('"') ? _interpolate(_Tokens(arg).string()) : arg;
+      var s = arg.startsWith('"') ? _interpolate(_Tokens(arg).string()) : arg;
       switch (verb) {
         case 'emit':
           // The core's "tell the host": outside a component it reaches the
@@ -4865,7 +5320,14 @@ class _Parser {
           // screen id: go replace(lower(result)," ","_")); a bare id is the id.
           // A page's id may have hyphens (go get-started is that page, not a
           // subtraction), and a destination already written ${= …} is whole.
-          final braced = s.startsWith('{') && s.endsWith('}') && s.length > 2;
+          var braced = s.startsWith('{') && s.endsWith('}') && s.length > 2;
+          // `go result` (a Tabs' or a SiteNav's choice), `go tab`, `go item.slug`:
+          // a name the state has is the page it holds, as go {result} says.
+          final root = s.split('.').first;
+          if (!braced && _identifier.hasMatch(s) && (const {'result', 'item', 'parent', 'index'}.contains(root) || variables.containsKey(root))) {
+            s = '{$s}';
+            braced = true;
+          }
           final fixed = arg.startsWith('"') || _identifier.hasMatch(s) || RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(s) || (s.startsWith(r'${') && s.endsWith('}'));
           if (!braced && !fixed) {
             _issue(column, 'A page that is worked out is written in braces: go {$s}. A bare word after go is the id of the page.');
@@ -4883,6 +5345,29 @@ class _Parser {
           }
         case 'link':
           out.add({'type': 'openLink', 'url': s});
+        case 'focus' || 'blur' || 'unfocus':
+          // `focus search` puts the caret in that field (its id), `focus`
+          // or `blur` alone takes it away.
+          final target = s.replaceFirst(RegExp(r'^#'), '').trim();
+          if (verb != 'focus' || target.isEmpty) {
+            out.add({'type': 'focus', 'unfocus': true});
+          } else if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(target)) {
+            _issue(column, 'A focus names the field by its id: focus search (Input#search "Search" …).');
+          } else {
+            out.add({'type': 'focus', 'node': target});
+          }
+        case 'copy':
+          // `copy "{link}"`, `copy link`, `copy {code}`: that text to the clipboard.
+          if (arg.isEmpty) {
+            _issue(column, 'A copy says what to copy: copy "{link}" or copy link.');
+          } else {
+            final braced = arg.startsWith('{') && arg.endsWith('}');
+            out.add({
+              'type': 'copyToClipboard',
+              'text': arg.startsWith('"') ? s : _read(braced ? arg.substring(1, arg.length - 1) : arg),
+            });
+            out.add({'type': 'showToast', 'message': 'Copied'});
+          }
         default:
           // A verb under another name (the alias table), then, with an open
           // vocabulary, a verb the notation does not have: left out, recorded.
@@ -4900,13 +5385,13 @@ class _Parser {
               continue;
             }
           }
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, focus <id>, copy "…", a choice cond ? actions : actions, or JSON.');
       }
     }
     return out;
   }
 
-  static const _verbs = {'emit', 'open', 'scroll', 'close', 'go', 'toast', 'announce', 'link'};
+  static const _verbs = {'emit', 'open', 'scroll', 'close', 'go', 'toast', 'announce', 'link', 'focus', 'copy'};
 
   /// `type=` on an Input, as written → the keyboard the document names.
   static const _keyboards = {
@@ -4923,6 +5408,11 @@ class _Parser {
     'address': 'streetAddress',
     'textarea': 'multiline',
   };
+
+  /// Variables an action made before anything said their kind (`x=c.start`
+  /// with nothing declared to read it from): taken as text, until a control
+  /// bound to them says otherwise.
+  final Set<String> _guessed = {};
 
   /// Tells apart the unknown verbs of one event (they share its column).
   int _verbAt = 0;
@@ -5138,7 +5628,9 @@ class _Parser {
           .replaceAllMapped(RegExp(r'\band\b'), (_) => '&&')
           .replaceAllMapped(RegExp(r'\bor\b'), (_) => '||')
           .replaceAllMapped(RegExp(r'\bnot\s+'), (_) => '!');
-      code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.length\b(?!\()'), (m) => 'length(${m[1]})');
+      // `clip.length` of a record that has a length field is the field.
+      code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.length\b(?!\()'),
+          (m) => switch (_sample(m[1]!)) { final Map<Object?, Object?> r when r.containsKey('length') => m[0]!, _ => 'length(${m[1]})' });
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.toFixed\((\d+)\)'), (m) => 'fixed(${m[1]},${m[2]})');
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.([a-zA-Z]+)\((\)?)'), (m) {
         if (!_methods.contains(m[2])) return m[0]!;
@@ -5148,6 +5640,48 @@ class _Parser {
       out.write(code);
     }
     return out.toString();
+  }
+
+  /// A value like the one [path] reads, from the state declared: a
+  /// variable's start, the first element of the list an `each` repeats
+  /// (`item`, `parent.item`), and fields of those. Null when it is not
+  /// known.
+  Object? _sample(String path) {
+    final parts = path.replaceAll(RegExp(r'\[[^\]]*\]'), '.0').split('.').where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return null;
+    Object? first(Object? v) => v is List ? (v.isEmpty ? null : v.first) : v;
+    Object? element(int up) {
+      final eaches = [for (final o in _stack) if (o.each != null) o];
+      final k = eaches.length - 1 - up;
+      if (k < 0) return null;
+      final list = eaches[k].list ?? '';
+      if (variables[list]?['value'] case final List<Object?> rows) return first(rows);
+      if (list.startsWith('item.')) return first(_sampleIn(element(up + 1), list.substring(5).split('.')));
+      // Worked out from one list (filtered, sorted): its elements.
+      final lists = {
+        for (final m in RegExp(r'[A-Za-z_][A-Za-z0-9_]*').allMatches(list.replaceAll(RegExp(r'"[^"]*"'), '')))
+          if (variables[m[0]]?['value'] is List) m[0]!,
+      };
+      return lists.length == 1 ? first(variables[lists.single]!['value']) : null;
+    }
+
+    var up = 0, at = 0;
+    while (at < parts.length && parts[at] == 'parent') {
+      up++;
+      at++;
+    }
+    if (at < parts.length && parts[at] == 'item') return _sampleIn(element(up), parts.sublist(at + 1));
+    if (up > 0) return null;
+    return _sampleIn(variables[parts.first]?['value'], parts.sublist(1));
+  }
+
+  static Object? _sampleIn(Object? v, List<String> keys) {
+    for (final k in keys) {
+      if (v is List) v = v.isEmpty ? null : v.first;
+      if (int.tryParse(k) != null) continue;
+      v = v is Map ? v[k] : null;
+    }
+    return v;
   }
 
   String _and(String? a, String b) {

@@ -78,6 +78,18 @@ bare name in every page and component (a page or component variable of the same 
 
 Without `components`, the files under `components/` are the site's components.
 
+`variables` is that list, or an object by name. A variable that names no `type` has its value's: `[]` is a list,
+`{}` a map, `3` an integer, `2.5` a decimal, `true` a boolean, anything else text.
+
+```json
+{"schema": 3, "pages": ["pages/home.json"],
+ "variables": {"cart": [], "plan": "pro", "draft": {"value": "", "persist": true}}}
+```
+
+By name, an object with `value` (or `formula`) and only a variable's keys (`type`, `value`, `persist`...) is the
+variable's record; any other object is a map the variable holds. A record that cannot be read is
+`invalid_variable` and is not declared.
+
 ### Validation codes
 
 `unknown_component` (a call to a type no definition declares),

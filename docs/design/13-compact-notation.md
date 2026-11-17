@@ -80,7 +80,13 @@ variable (`qty=qty+1`).
   `Text.caption`, `Badge.success`). For text it is the theme text style.
 - **`#id`**: only when something refers to the node (`open id`, `scroll id`, an edit). Otherwise the expander
   generates one from the type and position (`text3`), stable for a given tree. `id=name` on a line is an anchor
-  a `scroll name` goes to; the node keeps its own id.
+  a `scroll name` goes to; the node keeps its own id. (`project name=value` is a variable of the site: beside
+  site.json it is the site's, with no copy on the page; a page expanded alone declares it itself; a name the
+  site's variables lack is said.) An id is a fixed name: one written from the data
+  (`Row#row-{row.id}`) is its fixed part (`row`), since every copy an `each` makes is the one node. An id given
+  twice names the line that has it; the two branches of an `if`/`else` cannot share one (the document holds
+  one node per id), and that is said with what to write instead. What the expander names itself (an `App`'s
+  sidebar drawer, `<screen>_sidebar`) takes no name an author would write.
 - **`"text"`**: the node's main string: a text's text, a button's or toggle's `label`, a field's label, an
   image's source. `{name}` inside it reads a variable (`"Total: {total}"`).
 - **`key=value`**: any prop, layout or decoration field by its own name, unquoted when it has no space
@@ -104,12 +110,18 @@ variable (`qty=qty+1`).
   (`SiteNav … onNavigate={go {lower(result)}} onCta={go signup}`), and `onTap` on a block is its first one. An
   event a plain node does not have is said. `menu=id` opens that Menu on a right click or a long press.
 - **Actions**, separated by `;`: `name=value` sets a variable, `emit name [value]` tells the host, `open id` /
-  `close` a modal, `go page` navigates, `scroll id`, `toast "text"`, `link url`. A verb's argument is the word
-  written (`go pricing` is that page); one that is worked out is in braces (`go {lower(result)}`). Any other
-  action is written as its JSON.
+  `close` a modal, `go page` navigates, `scroll id`, `toast "text"`, `link url`, `focus id` (the caret in that
+  field; `blur` takes it away), `copy text` (`copy link`, `copy "{link}"`: to the clipboard). A verb's argument is the word
+  written (`go pricing` is that page); one that is worked out is in braces (`go {lower(result)}`); a bare
+  name the state has (`go result`, `go tab`, `go item.slug`) is the page it holds, as in braces. Any other
+  action is written as its JSON. A choice between actions is `cond ? action(s) : action(s)` (`onTap={dirty ?
+  open leave : go members}`): each branch one action or a braced list `{a; b}`, either may be empty (`done ?
+  close :`), a branch may choose again; it is an `if` action. A value chosen is a formula: `step = valid ? 3 : 2`
+  sets `step`.
 - **Lists**: `each item in items` as a line; its children are the template (`Text "{item.name}"`).
 - **Conditions**: `if expr` as a line shows its children when the expression holds (it expands to `visible`
-  bindings; no new node), `else` after it; `visible={expr}` on one line. `hide=phone` and `show=tablet` take a
+  bindings; no new node), `else` after it; `visible={expr}` on one line. `selected={expr}` on a line whose
+  type has no selected value is the node's selected state (a box takes the theme's selected fill). `hide=phone` and `show=tablet` take a
   size, never a condition (section 14).
 - **State**: a line `state name=value` at the top declares a variable with a starting value. A variable that
   is only bound to a control needs no declaration; its type and start come from the control. `state
@@ -119,7 +131,13 @@ variable (`qty=qty+1`).
 - **Time**: `every 1s onTick={seconds=seconds-1}` on its own line runs as time passes (milliseconds, or `1s`);
   `every 1s when running onTick={…}` only while the condition holds. It is a timer on the canvas.
 - **A field of a repeated element**: under `each row in rows`, `Input bind=row.name` shows that field and writes
-  the element back into `rows` on a change. `Column scroll` scrolls.
+  the element back into `rows` on a change. `Column scroll` scrolls. So does a field of a record variable
+  (`Input bind=draft.title` sets `draft`), a field of an element of a list held by the element around it
+  (`Checkbox bind=s.done` under `each s in e.sets` under `each e in workouts`), and a field of an element of a
+  list worked out (`each d in filter(devices, …)`) when its records have an `id` (written into `devices` by it).
+  A design system's control is given the field's path for its variable parameter (`"rows[" + index +
+  "].done"`), which it reads and writes as a variable. A list worked out with no `id` is said, with the line
+  to write instead.
 - **A node written whole**: `node {"type": "…", …}` on its own line is a node exactly as the document holds
   it, for what the notation has no word for (a painted board, a positioned shape, a draggable list). Its JSON may
   run over several lines; `node#id {…}` names it. Nothing is added to it but its place in the tree and the
@@ -135,7 +153,7 @@ enumerated value written as a bare word: each is an error on its line that says 
 written with =, not a colon: gap=12.`). CodelesslySDK's `tool/notation/notation.sh migrate <file>` rewrites a file.
 **Read, though not taught** (what a model writes unprompted that is no second way to write a parameter, a
 binding, a computed value or a handler): `let` / `const` / `var name = …` and a bare `name = value` line for
-state, `for x in list` and `each list`, `else`, `n += 1`, `n++`, `rows.add(x)`, `if (c) { … }` inside actions,
+state, `for x in list` and `each list`, `else`, `n += 1`, `n++`, `rows.add(x)`, `if (c) { … } else { … }` inside actions (the same `if` action as `c ? … : …`),
 `$name`, single quotes in an expression, `"${…}"` in a text, `sticky=true`, a code fence around the answer, a
 guessed prop in a `{…}` tail, `onTap` on a block for its first event.
 
@@ -357,6 +375,11 @@ Column gap=12 pad=16
   its definition's root says.
 - **What it does not take is said on the line**: `A StatusBadge has no "status". It takes: label, tone.`, and a
   required parameter left out: `A ContextMenu needs items= write items=["a","b"].`
+- **Lines under it.** A component with children takes them. One that takes none but has slots (a `ListRow`'s
+  `trailing`, a `SectionHeader`'s or an `EmptyState`'s `actions`) puts the lines indented under it in its slot
+  (`trailing`, else `actions`, else the first), side by side in a row of their own; its prompt line says
+  `(lines: actions)`. Under any other, a line is said (`A StatusBadge takes no lines under it (it has no children
+  and no slot): write this line after it, at its own indent.`) and drawn after it.
 
 In the prompt each component is one line, as it is called, with its purpose:
 `Stepper "label" bind=value min max step enabled onChanged : A number changed one step at a time.` A name ending in
@@ -427,11 +450,12 @@ is the same document as before plus rules that do not apply there.
 
 | Written | Narrower |
 |---|---|
-| `Grid cols=n` | its rows wrap; a cell takes a least width (300, 220, 260, 150 for 2, 3, 4, more columns), so three stay three on a tablet and four become two by two; one a line on a phone. A grid over data takes fewer columns (`crossAxisCount`) |
+| `Grid cols=n` | its rows wrap; a cell takes a least width (300, 220, 260, 150 for 2, 3, 4, more columns), so three stay three on a tablet and four become two by two; one a line on a phone. A grid over data takes fewer columns (`crossAxisCount`). A grid whose columns mean something keeps them at every width and its cells shrink: seven columns (the days of a week: a month, a streak, a timetable), five or more cells that are small (at most three nodes each, no card or component: a number, a dot), or a grid written `keep` (`Grid cols=4 keep`) |
 | a `Row` of two or more blocks (a card, a column of content, a picture, a component that fills, a fixed column 200 or wider) | wraps: a block that grows takes a least width (360 for the one beside fixed rails, else 280, 240 among three), a fixed one keeps its width on a tablet and takes the line on a phone |
 | any other `Row` | wraps before it overflows; what grows in it keeps its share of the line from a least width (a field 180, a component 160, a text 96) |
 | a table's row (three or more cells with widths) | its cells are shares of the row; it keeps the columns it has room for, from the first on (600 px on a tablet, 342 on a phone), and what is not a column (a checkbox, a menu button) |
 | `App` | a phone shows `Main`; a tablet also the panes before it, less the first when two take over 420. The `Sidebar` it hides opens as a drawer (14.2) |
+| `Footer` in `Main` (or in `App`, or `Row sticky bottom`; also read: `StickyBar`, `StickyFooter`, `BottomBar`, `FooterBar`, `BottomDock`) | a bar at the foot of `Main` at every width (a now-playing bar, a composer, a basket): `Main` stops scrolling as a whole, what else is in it scrolls in a column that takes the room above the bar. A `Footer` written in `App` goes to the foot of its `Main` |
 | `Nav` | a phone hides its links (a tablet too, from six on) and shows a menu button the bar adds itself, which opens the links in a column under the bar, each as written and closing the menu as it goes; a `Nav` with a `show=phone` line of its own keeps its own |
 | `Section`, `Footer` | 48 above and below on a tablet; 40, and a 20 gutter, on a phone |
 | a text 32 or larger | 0.86 of its size on a tablet (from 44), 0.72 on a phone (26 at least) |

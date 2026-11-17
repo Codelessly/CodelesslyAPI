@@ -251,4 +251,236 @@ void main() {
       expect(jsonEncode(_node(r, 'b')['actions']), contains('append(rows,{'));
     });
   });
+
+  // Where the notation was narrower than the grammar suggests: lines eighteen
+  // agents wrote building apps, and the open-vocabulary corpus
+  // (CodelesslySDK/tool/vocabulary/corpus/2026-11-16-sonnet), now read.
+  group('the natural line works', () {
+    List<Object?> run(NotationResult r, String id) => ((_actions(r, id).single! as Map)['actions'] as List<Object?>);
+
+    test('a choice between actions: cond ? action(s) : action(s), a branch empty or braced, nested once; if (c) {…} else {…} is the same', () {
+      final r = _parse('state dirty=false\nstate pendingRemove=""\nstate n=0\nColumn\n'
+          '  Button#a "A" onTap={dirty ? open leave : close}\n'
+          '  Button#b "B" onTap={n=n+1; pendingRemove==""?close:open leave}\n'
+          '  Button#c "C" onTap={dirty ? close :}\n'
+          '  Button#d "D" onTap={dirty ? {n=1; toast "x"} : n > 2 ? close : toast "y"}\n'
+          '  Button#e "E" onTap={if (n > 1) { n = 0; toast "reset" } else { n += 1 }}\n'
+          '  Button#f "F" onTap={n > 1 ? {n = 0; toast "reset"} : n += 1}\n'
+          '  Button#g "G" onTap={n = dirty ? 3 : 2}\n'
+          '  Button#h "H" onTap={n > 1 ? (n = 0; toast "reset") : n += 1}\n'
+          '  Button#i "I" onTap={dirty ? close : null}\n'
+          'Dialog#leave "Leave?"\n  Text "Unsaved changes"\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(run(r, 'a'), [
+        {
+          'type': 'if',
+          'condition': {'left': r'${= dirty}', 'op': 'isTrue'},
+          'then': [(run(r, 'b')[1]! as Map)['else'][0]],
+          'else': [{'type': 'closeModal'}],
+        },
+      ]);
+      expect((run(r, 'a').single! as Map)['then'], [containsPair('to', 'leave')]);
+      expect(run(r, 'b').first, containsPair('type', 'setVariable'));
+      expect(run(r, 'b')[1], containsPair('condition', {'left': r'${= pendingRemove==""}', 'op': 'isTrue'}));
+      expect(run(r, 'c').single, {'type': 'if', 'condition': {'left': r'${= dirty}', 'op': 'isTrue'}, 'then': [{'type': 'closeModal'}]});
+      final d = run(r, 'd').single! as Map;
+      expect(d['then'], hasLength(2));
+      expect((d['else'] as List).single, containsPair('type', 'if'));
+      expect(run(r, 'e'), run(r, 'f'), reason: 'if (c) {…} else {…} is the same choice');
+      expect(run(r, 'h'), run(r, 'f'), reason: 'a branch in parentheses, as code writes it');
+      expect(run(r, 'i'), run(r, 'c'), reason: 'null is no action');
+      expect(run(r, 'g').single, {'type': 'setVariable', 'variable': 'n', 'value': r'${= dirty ? 3 : 2}'}, reason: 'a value chosen is a formula');
+      final doc = r.document;
+      expect(LayoutDocument.fromJson(doc, catalog: standardCatalog), isNotNull);
+    });
+
+    test('binding to a field: of a record variable, of an element of a nested list, of a list worked out whose records have an id', () {
+      final r = _parse('state draft={"title":"","on":false}\n'
+          'state items=[{"id":1,"done":false,"sets":[{"w":5,"done":false}]}]\n'
+          'state devices=[{"id":"l1","room":"A","on":true}]\nstate room="A"\nColumn\n'
+          '  Input#t "Title" bind=draft.title\n'
+          '  each i in items\n    Toggle#i bind=i.done\n'
+          '    each s in i.sets\n      Checkbox#s bind=s.done\n'
+          '  each d in filter(devices,x=>x.room==room)\n    Toggle#d bind=d.on\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      String sets(String id) => '${((run(r, id).single! as Map))['variable']} = ${(run(r, id).single! as Map)['value']}';
+      expect(sets('t'), r'draft = ${= with(draft,"title",result)}');
+      expect((_node(r, 't')['bind'] as Map)['props.initialValue'], r'${draft.title}');
+      expect(sets('i'), r'items = ${= setAt(items,index,with(item,"done",result))}');
+      expect(sets('s'), r'items = ${= setAt(items,parent.index,with(parent.item,"sets",setAt(parent.item.sets,index,with(item,"done",result))))}');
+      expect(sets('d'), r'devices = ${= setAt(devices,indexOf(map(devices,x=>x.id),item.id),with(item,"on",result))}');
+      // What cannot be written says what to write.
+      expect(_said('state devices=[{"room":"A","on":true}]\nColumn\n  each d in filter(devices,x=>x.on)\n    Toggle bind=d.on\n'), [
+        'bind=d.on: the each repeats filter(devices,x=>x.on), which is worked out, so a change has no list to be written to. '
+            'Repeat the list variable itself (each d in devices, with an if for the ones to show), give its records an "id" field, '
+            'or write the change: value={d.on} onChange={devices=updateWhere(devices,x=>x.id==d.id,x=>with(x,"on",result))}.',
+      ]);
+      expect(_said('Column\n  Input bind=form.email\n').length, 1);
+      expect(_said('Column\n  Input bind=form.email\n'), [
+        'bind=form.email: "form" is no variable of this page. Declare the record first (state form={"email":""}), or bind a variable of its own (bind=email).',
+      ]);
+    });
+
+    test('ids: the App frame takes no author\'s name, a second use names the first, an id from the data is its fixed part', () {
+      const app = 'state on=false\nstate rows=[{"id":1}]\nApp\n  Sidebar\n    NavItem "Album" icon="album"\n  Main\n    Column\n'
+          '      Button#more "More" onTap={open albumMenu}\n'
+          '      if on\n        Button#closeButton "Close"\n      else\n        Button#closeButton "Close all"\n'
+          '      Button#more "Again"\n'
+          '      each row in rows\n        Row#row-{row.id} gap=8\n          Text "x"\n'
+          'Menu#albumMenu\n  MenuItem "Play" icon="play_arrow" onTap={toast "x"}\n';
+      final r = Catalog.run(standardCatalog, () => parseNotation(app, catalog: standardCatalog, options: const NotationOptions(width: 1280, screen: 'album')));
+      expect([for (final i in r.issues) '${i.line}: ${i.message}'], [
+        '12: The id "closeButton" is used twice: line 10 has it too, in the other branch of the if. A document holds one node per id, so both branches '
+            'cannot have it: give this one an id of its own (closeButton2), or write one line whose values are worked out (label={cond ? "a" : "b"}).',
+        '13: The id "more" is used twice: line 8 has it too. Give this line an id of its own.',
+      ]);
+      // The author's Menu#albumMenu on the album page is the author's; the
+      // drawer the frame makes of the sidebar has a name of its own.
+      expect(r.document['roots'], containsAll(['album', 'albumMenu', 'album_sidebar']));
+      expect(_node(r, 'row')['type'], 'row');
+      // An overlay with the page's own id says what to write.
+      expect(_said('state q=""\nDialog#compose "New message"\n  Text "x"\n'.replaceFirst('compose', 'screen')), [
+        'The id "screen" is this page\'s own (its canvas): an overlay over the page needs an id of its own (screenOverlay, opened with open screenOverlay). '
+            'An overlay is opened from the page it is written on; one that other pages open is written on each of them, after the page.',
+      ]);
+    });
+
+    test('lines that did nothing: project on a page alone, go to a name the state has, open of no overlay, .length of a record with a length', () {
+      final r = _parse('project cart=[]\nstate view="home"\nstate clips=[{"id":1,"length":9,"name":"a"}]\nColumn\n'
+          '  Text#t "{cart.length} items"\n'
+          '  Button#b "B" onTap={go view}\n'
+          '  Select#s bind=view items=["home","result"] onChange={go result}\n'
+          '  each c in clips\n    Text#c "{c.length}s, {c.name.length} letters"\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      // Expanded alone, the page declares the project's variable itself.
+      expect(((r.document['variables']! as Map)['screen']! as List).map((v) => (v as Map)['name']), contains('cart'));
+      expect(run(r, 'b').single, {'type': 'navigate', 'to': r'${= view}'});
+      expect((_actions(r, 's').last! as Map)['actions'], [
+        {'type': 'navigate', 'to': r'${= result}'},
+      ]);
+      expect((_node(r, 'c')['props'] as Map)['text'], r'${item.length}s, ${= length(item.name)} letters');
+      // With the site's variables, a name they lack is said.
+      final site = Catalog.run(standardCatalog, () => parseNotation('project cart=[]\nColumn\n  Text "{length(cart)}"\n', catalog: standardCatalog,
+          options: const NotationOptions(projectVariables: {'user': {'type': 'text', 'value': ''}})));
+      expect(site.issues.single.message, startsWith('project cart: site.json\'s variables have no "cart"'));
+      final declared = Catalog.run(standardCatalog, () => parseNotation('project cart=[]\nColumn\n  Text "{length(cart)}"\n', catalog: standardCatalog,
+          options: const NotationOptions(projectVariables: {'cart': {'type': 'list', 'value': []}})));
+      expect(declared.issues, isEmpty);
+      expect(jsonEncode(declared.document['variables'] ?? {}), isNot(contains('cart')), reason: 'the site\'s, with no copy on the screen');
+      // An open of an overlay this page does not have names the ones it has.
+      final open = Catalog.run(standardCatalog, () => parseNotation('Column\n  Button "Role" onTap={open roleDialog}\nMenu#more\n  MenuItem "Edit"\n',
+          catalog: standardCatalog, options: const NotationOptions().open()));
+      expect(open.issues.single.message, endsWith('the action is left out. Over this page: "more".'));
+    });
+
+    test('a field written where it stands, an entry of a list or a map, a field of the record a find picks', () {
+      final r = _parse('state devices=[{"id":"a","room":"A","pos":0}]\nstate room="A"\nstate clips=[{"id":1,"name":"x"}]\nstate sel=[1]\n'
+          'state colAll={"Owner":true}\nstate draft={"title":"a"}\nColumn\n'
+          '  each d in filter(devices,x=>x.room==room)\n    Button#d "Close" onTap={d.pos=0}\n'
+          '  Input#n "Name" bind=find(clips,c=>c.id==first(sel)).name\n'
+          '  each r in ["Owner"]\n    Checkbox#c bind=colAll[r]\n'
+          '  Button#t "Clear" onTap={draft.title=""}\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      String sets(String id) => '${((run(r, id).single! as Map))['variable']} = ${(run(r, id).single! as Map)['value']}';
+      expect(sets('d'), r'devices = ${= setAt(devices,indexOf(map(devices,x=>x.id),item.id),with(item,"pos",(0)))}');
+      expect(sets('n'), r'clips = ${= updateWhere(clips,c=>c.id==first(sel),c=>with(c,"name",result))}');
+      expect(sets('c'), r'colAll = ${= with(colAll,item,result)}');
+      expect(sets('t'), r'draft = ${= with(draft,"title",(""))}');
+      // `saved=true` after a state is the saved flag, not part of its value.
+      final kept = _parse('state clips=[{"id":1}] saved=true\nColumn\n  Text "{length(clips)}"\n');
+      expect(kept.issues, isEmpty);
+      expect(((kept.document['variables']! as Map)['screen']! as List).single, {'name': 'clips', 'type': 'list', 'value': [{'id': 1}], 'persist': true});
+    });
+
+    test('a variable an action makes takes its kind from the state it reads, or from the control bound to it later', () {
+      final r = _parse('state clips=[{"id":1,"start":2.5,"done":[true],"on":false}]\nColumn\n'
+          '  each c in clips\n    Button "Edit" onTap={x=c.start; completed=c.done; flag=c.on; other=c.missing}\n'
+          '  Slider bind=other\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      final kinds = {for (final v in (r.document['variables']! as Map)['screen']! as List) (v as Map)['name']: v['type']};
+      expect(kinds, {'clips': 'list', 'x': 'decimal', 'completed': 'list', 'flag': 'boolean', 'other': 'decimal'});
+    });
+
+    test('a Grid whose columns mean something keeps them on a phone: seven, five or more small cells, or keep', () {
+      final r = _parse('Page\n  Section\n'
+          '    Grid#week cols=7 gap=4\n      each d in range(35)\n        Card\n          Text "{d+1}"\n'
+          '    Grid#dots cols=5 gap=4\n      each d in range(10)\n        Text "{d}"\n'
+          '    Grid#kept cols=4 keep\n      each d in range(8)\n        Card\n          Text "{d}"\n'
+          '    Grid#tiles cols=3 gap=24\n      each d in range(6)\n        Card\n          Text "{d}"\n'
+          '    Grid#rows cols=7\n      Text "M"\n      Text "T"\n      Text "W"\n      Text "T"\n      Text "F"\n      Text "S"\n      Text "S"\n',
+          width: 1280);
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      List<Object?> mediaOf(String grid) {
+        final nodes = r.document['nodes']! as Map;
+        final list = (nodes[grid] as Map)['children'] as List;
+        return [for (final c in list) ...?((nodes[c] as Map)['media'] as List?)];
+      }
+
+      expect(mediaOf('week'), isEmpty);
+      expect(mediaOf('dots'), isEmpty);
+      expect(mediaOf('kept'), isEmpty);
+      expect(jsonEncode(mediaOf('tiles')), contains('"crossAxisCount":1'));
+      expect(mediaOf('rows'), isEmpty);
+    });
+
+    test('a bar at the foot of an app window: Footer in Main (or App, or Row sticky bottom) stays below what scrolls', () {
+      for (final foot in ['  Main\n    Column pad=24\n      Text "Albums"\n    Footer#bar\n', '  Main\n    Column pad=24\n      Text "Albums"\n  Footer#bar\n',
+        '  Main\n    Column pad=24\n      Text "Albums"\n    Row#bar sticky bottom\n']) {
+        final r = _parse('App\n  Sidebar\n    Text "Tunes"\n$foot      Text.strong "Night Drive"\n', width: 1280);
+        expect(r.issues, isEmpty, reason: '${r.issues}');
+        final nodes = r.document['nodes']! as Map;
+        final main = nodes.entries.firstWhere((e) => ((e.value as Map)['children'] as List?)?.contains('bar') ?? false);
+        final kids = (main.value as Map)['children'] as List;
+        expect(kids.last, 'bar', reason: foot);
+        expect(((main.value as Map)['props'] as Map)['scrollable'], isNull, reason: 'Main no longer scrolls as a whole');
+        final scroll = nodes[kids.first] as Map;
+        expect((scroll['props'] as Map)['scrollable'], true, reason: 'what is above the foot scrolls');
+        expect((scroll['layout'] as Map)['flex'], 1);
+      }
+    });
+
+    test('selected={…} on any line is its selected state; size words on an IconButton; focus and copy', () {
+      final r = _parse('state sel=1\nstate shuffle=false\nstate link="https://x.org"\nColumn\n'
+          '  Row#row gap=8 selected={sel==1}\n    Text "Row"\n'
+          '  IconButton#shuffle "shuffle" selected={shuffle} size=large onTap={shuffle=!shuffle}\n'
+          '  Input#search "Search" bind=q\n'
+          '  Button#f "Find" onTap={focus search}\n'
+          '  Button#c "Copy" onTap={copy link}\n'
+          '  Button#c2 "Copy" onTap={copy "{link}?ref=1"}\n'
+          '  Button#b "Done" onTap={blur}\n');
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect(_node(r, 'row')['bind'], {'selected': r'${= sel==1}'});
+      expect(_node(r, 'row')['states'], {
+        'selected': {
+          'row': {
+            'decoration': {
+              'fills': [
+                {'color': const NotationOptions().selectedFill},
+              ],
+            },
+          },
+        },
+      });
+      expect((_node(r, 'shuffle')['bind'] as Map)['selected'], r'${= shuffle}');
+      expect(jsonEncode(_node(r, 'shuffle')['props']), contains('"iconSize":28'));
+      expect(run(r, 'f'), [
+        {'type': 'focus', 'node': 'search'},
+      ]);
+      expect(run(r, 'c').first, {'type': 'copyToClipboard', 'text': r'${link}'});
+      expect(run(r, 'c2').first, {'type': 'copyToClipboard', 'text': r'${link}?ref=1'});
+      expect(run(r, 'b'), [
+        {'type': 'focus', 'unfocus': true},
+      ]);
+    });
+
+    test('a line meant for the page, written after the overlays, says where it went', () {
+      const text = 'App\n  Main\n    Column\n      Text "Library"\n'
+          'Menu#albumMenu\n  MenuItem "Add" icon="playlist_add" onTap={toast "Added"}\n'
+          '      Card gap=8\n        Text "Now playing"\n';
+      expect([for (final i in _parse(text, width: 1280).issues) '${i.line}: ${i.message}'], [
+        '7: This line is indented 6 inside Menu#albumMenu, two levels past the line before it (2), so it went into Menu#albumMenu, under that line. '
+            'A line meant for the page is written before the overlays, at its place in the page.',
+      ]);
+    });
+  });
 }
