@@ -80,7 +80,11 @@ variable (`qty=qty+1`).
   `Text.caption`, `Badge.success`). For text it is the theme text style.
 - **`#id`**: only when something refers to the node (`open id`, `scroll id`, an edit). Otherwise the expander
   generates one from the type and position (`text3`), stable for a given tree. `id=name` on a line is an anchor
-  a `scroll name` goes to; the node keeps its own id.
+  a `scroll name` goes to; the node keeps its own id. An id is a fixed name: one written from the data
+  (`Row#row-{row.id}`) is its fixed part (`row`), since every copy an `each` makes is the one node. An id given
+  twice names the line that has it; the two branches of an `if`/`else` cannot share one (the document holds
+  one node per id), and that is said with what to write instead. What the expander names itself (an `App`'s
+  sidebar drawer, `<screen>_sidebar`) takes no name an author would write.
 - **`"text"`**: the node's main string: a text's text, a button's or toggle's `label`, a field's label, an
   image's source. `{name}` inside it reads a variable (`"Total: {total}"`).
 - **`key=value`**: any prop, layout or decoration field by its own name, unquoted when it has no space

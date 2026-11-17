@@ -2065,7 +2065,7 @@ Drawer#cart right w=340 "Your cart"
       expect(plain.document['roots'], ['screen']);
 
       final twice = parseNotation('Column#a\n  Text "One"\nMenu#a\n  Text "Two"\nMenu#m\n  Text "Three"\nMenu#m\n  Text "Four"\n', catalog: standardCatalog);
-      expect(twice.issues.map((i) => i.message), ['The id "a" is used twice.', 'The id "m" is used twice.']);
+      expect(twice.issues.map((i) => i.message), ['The id "a" is used twice: line 1 has it too. Give this line an id of its own.', 'The id "m" is used twice: line 5 has it too. Give this line an id of its own.']);
       expect(twice.document['roots'], ['screen', 'm']);
 
       final card = parseNotation('''
@@ -2167,7 +2167,7 @@ App
       final r = parseNotation(app, catalog: standardCatalog, options: page);
       expect(r.issues, isEmpty);
       expect(problems(r.document), isEmpty);
-      expect(r.document['roots'], ['screen', 'screenMenu']);
+      expect(r.document['roots'], ['screen', 'screen_sidebar']);
       // A menu button first in the bar, on a phone only, opens the drawer.
       final bar = (node(r, 'bar')['children']! as List).cast<String>();
       expect(bar.sublist(1), ['title', 'tools']);
@@ -2176,7 +2176,7 @@ App
       expect(button['media'], [
         {'minWidth': 700, 'patch': {'visible': false, 'bind': {'visible': null}}},
       ]);
-      expect(open(r, bar.first), {'type': 'openModal', 'to': 'screenMenu', 'presentation': 'dialog', 'cover': true});
+      expect(open(r, bar.first), {'type': 'openModal', 'to': 'screen_sidebar', 'presentation': 'dialog', 'cover': true});
       // There the title takes the room beside it, so the two sit together.
       expect((node(r, 'title')['media']! as List).last, {
         'maxWidth': 699,
@@ -2185,7 +2185,7 @@ App
         },
       });
       // The drawer repeats the sidebar's lines, each closing it after its action.
-      final drawer = nodesOf(r).keys.skipWhile((k) => k != 'screenMenu').toList();
+      final drawer = nodesOf(r).keys.skipWhile((k) => k != 'screen_sidebar').toList();
       final items = [
         for (final id in drawer)
           if (jsonEncode(node(r, id)['actions'] ?? '').contains('"variable":"tab"')) kinds(r, id),
@@ -2207,7 +2207,7 @@ App
       // A Main with no top bar gets a slim one for the button, where the sidebar is hidden.
       final bare = parseNotation(app.replaceFirst('    Nav#bar\n      Heading#title "Orders" level=1\n      Row#tools gap=8\n        Button "New order"\n', ''), catalog: standardCatalog, options: page);
       expect(bare.issues, isEmpty);
-      expect(bare.document['roots'], ['screen', 'screenMenu']);
+      expect(bare.document['roots'], ['screen', 'screen_sidebar']);
       final opener = nodesOf(bare).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton').key;
       final holder = nodesOf(bare).values.cast<Map>().firstWhere((n) => (n['children'] as List? ?? const []).contains(opener));
       expect((holder['media']! as List).last, {

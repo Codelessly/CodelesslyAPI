@@ -321,6 +321,30 @@ void main() {
       ]);
     });
 
+    test('ids: the App frame takes no author\'s name, a second use names the first, an id from the data is its fixed part', () {
+      const app = 'state on=false\nstate rows=[{"id":1}]\nApp\n  Sidebar\n    NavItem "Album" icon="album"\n  Main\n    Column\n'
+          '      Button#more "More" onTap={open albumMenu}\n'
+          '      if on\n        Button#closeButton "Close"\n      else\n        Button#closeButton "Close all"\n'
+          '      Button#more "Again"\n'
+          '      each row in rows\n        Row#row-{row.id} gap=8\n          Text "x"\n'
+          'Menu#albumMenu\n  MenuItem "Play" icon="play_arrow" onTap={toast "x"}\n';
+      final r = Catalog.run(standardCatalog, () => parseNotation(app, catalog: standardCatalog, options: const NotationOptions(width: 1280, screen: 'album')));
+      expect([for (final i in r.issues) '${i.line}: ${i.message}'], [
+        '12: The id "closeButton" is used twice: line 10 has it too, in the other branch of the if. A document holds one node per id, so both branches '
+            'cannot have it: give this one an id of its own (closeButton2), or write one line whose values are worked out (label={cond ? "a" : "b"}).',
+        '13: The id "more" is used twice: line 8 has it too. Give this line an id of its own.',
+      ]);
+      // The author's Menu#albumMenu on the album page is the author's; the
+      // drawer the frame makes of the sidebar has a name of its own.
+      expect(r.document['roots'], containsAll(['album', 'albumMenu', 'album_sidebar']));
+      expect(_node(r, 'row')['type'], 'row');
+      // An overlay with the page's own id says what to write.
+      expect(_said('state q=""\nDialog#compose "New message"\n  Text "x"\n'.replaceFirst('compose', 'screen')), [
+        'The id "screen" is this page\'s own (its canvas): an overlay over the page needs an id of its own (screenOverlay, opened with open screenOverlay). '
+            'An overlay is opened from the page it is written on; one that other pages open is written on each of them, after the page.',
+      ]);
+    });
+
     test('a line meant for the page, written after the overlays, says where it went', () {
       const text = 'App\n  Main\n    Column\n      Text "Library"\n'
           'Menu#albumMenu\n  MenuItem "Add" icon="playlist_add" onTap={toast "Added"}\n'

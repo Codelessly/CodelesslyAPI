@@ -1088,6 +1088,22 @@ class _Parser {
 
   _Parser get _top => _host ?? this;
 
+  /// Where each id was first given (its line, and the condition of the
+  /// `if` it is under, if any), to say both lines when it is given again.
+  final Map<String, ({int line, String? condition})> _idAt = {};
+
+  /// The id [id] is given again on this line: what to say, naming the line
+  /// that has it.
+  String _twice(String id, String? condition) {
+    final first = _top._idAt[id];
+    if (first == null) return 'The id "$id" is used twice. Give this line an id of its own.';
+    if (first.condition != null && condition != null && first.condition != condition) {
+      return 'The id "$id" is used twice: line ${first.line} has it too, in the other branch of the if. A document holds one node per id, so both branches '
+          'cannot have it: give this one an id of its own (${id}2), or write one line whose values are worked out (label={cond ? "a" : "b"}).';
+    }
+    return 'The id "$id" is used twice: line ${first.line} has it too. Give this line an id of its own.';
+  }
+
   /// The document's canvases: the page, then its overlays.
   List<String> get _rootIds => [_top.options.screen, for (final o in _top._overlays) o.options.screen];
 
@@ -1145,10 +1161,15 @@ class _Parser {
   /// their own, which `open <id>` shows over the page.
   void _openBlock(Overlay o) {
     if (_taken(o.id)) {
-      _issue(1, 'The id "${o.id}" is used twice.');
+      _issue(
+          1,
+          o.id == options.screen
+              ? 'The id "${o.id}" is this page\x27s own (its canvas): an overlay over the page needs an id of its own (${o.id}Overlay, opened with open ${o.id}Overlay). An overlay is opened from the page it is written on; one that other pages open is written on each of them, after the page.'
+              : _twice(o.id, null));
       _blockSkipped = true;
       return;
     }
+    _top._idAt.putIfAbsent(o.id, () => (line: _line, condition: null));
     final first = _overlays.isEmpty;
     // In it everything is laid out as on a card: a narrow canvas of its own.
     final sub = _Parser(catalog, options.sized(width: o.width < 640 ? o.width : 640, screen: o.id), this, o);
@@ -1670,7 +1691,9 @@ class _Parser {
     isFrame: (name) => notationTypes[name] == null && catalog.widget(name)?.children == ChildModel.list,
     roles: true,
     menu: options.reflow && options.width >= 700,
-    sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}Menu' : null,
+    // Named so that no id an author writes (`Menu#albumMenu` on the album
+    // page) is the drawer's.
+    sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen}_sidebar' : null,
     surface: options.surface,
     viewer: _host == null && options.width >= 700 ? '${options.screen}Viewer' : null,
     takesViewer: (name) {
@@ -2374,6 +2397,13 @@ class _Parser {
     }
     // `Text.small.muted`: one variant is read, the first.
     line = line.replaceFirstMapped(RegExp(r'^([A-Za-z][A-Za-z0-9]*\.[A-Za-z][A-Za-z0-9]*)(?:\.[A-Za-z][A-Za-z0-9]*)+'), (m) => m[1]!);
+    // An id written from the data (`Row#row-{row.id}`, `Input#quick-{col.id}`):
+    // a node has one id however many copies an each makes of it (each copy
+    // is told apart by its element), so the id is the fixed part.
+    line = line.replaceFirstMapped(RegExp(r'^([A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#([A-Za-z_][A-Za-z0-9_]*)?[-_]*\{[^{}]*\}[A-Za-z0-9_{}.-]*(?=\s|$)'), (m) {
+      final fixed = m[2];
+      return fixed == null || _taken(fixed) ? m[1]! : '${m[1]}#$fixed';
+    });
     final t = _Tokens(line);
     final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*))?').firstMatch(line);
     if (head == null) return _issue(column, 'A line starts with a node type: Column, Text "…", Button "…".');
@@ -2509,10 +2539,12 @@ class _Parser {
     final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
     if (written == 'Card') _cards.add(id);
     if (grid != null) props['spacing'] = grid.gap;
+    final under = _stack.reversed.where((o) => o.condition != null).firstOrNull?.condition;
     if (_taken(id)) {
-      _issue(column, 'The id "$id" is used twice.');
+      _issue(column, _twice(id, under));
       return;
     }
+    if (head[3] != null) _top._idAt.putIfAbsent(id, () => (line: _line, condition: under));
     _lastNode = id;
     if (standIn) {
       final use = _use('type', written, column, node: id, parts: LineParts.of(_src.startsWith(written) ? _src : line));

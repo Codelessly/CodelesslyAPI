@@ -61,6 +61,12 @@
   is an issue that says so and is drawn after it (the renderer reported `children_not_allowed` and the expander
   nothing). A line indented two levels past the one before it inside an overlay (a page's Card written after
   the overlays) says it went into that overlay.
+- **The notation: ids.** The drawer an `App` makes of its sidebar on a tablet or phone is `<screen>_sidebar` (was
+  `<screen>Menu`, which took `Menu#albumMenu` from the author on the album page, `Dialog#deckMenu` on deck…). An id
+  given twice names the line that has it (`The id "save" is used twice: line 8 has it too.`); in the two branches
+  of an `if`/`else` it says why a document cannot hold both and what to write; an overlay with the page's own id
+  says to give it one of its own. An id written from the data (`Row#row-{row.id}`) is its fixed part (`row`): a
+  node has one id however many copies an `each` makes of it.
 - **An open vocabulary for the notation** (docs/design/19-open-vocabulary.md): the prompt teaches the grammar and
   a small core, the model writes any word it expects, and the parser records the ones we do not have.
   - `NotationOptions.openVocabulary` (false by default: nothing changes without it). With it, an unknown type is
