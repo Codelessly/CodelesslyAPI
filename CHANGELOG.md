@@ -115,6 +115,8 @@
   and `--pinch` steps.
 - **Notation, tabs**: `Tabs bind=tab tabs=[…]` is the design system's own Tabs where it has one; the prompt keeps
   a `SegmentedButton` to two to four short options, never a page's tabs.
+- **Notation**: `Input "Search" icon="search"` puts the icon inside the field, before the text (it was written
+  as a prop the field does not have, and lost).
 - **Notation, a site's variables**: `NotationOptions.projectVariables` (a site manifest's `variables`) and
   `project name=value` on a page: read and set by name, with no copy declared on the screen to hide them.
 - **Notation**: `Section bleed` runs its content from edge to edge; a `Donut` written with `labels` draws them

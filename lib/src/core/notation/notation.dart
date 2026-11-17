@@ -2537,6 +2537,14 @@ class _Parser {
           bind['visible'] = _formula('!(${raw.substring(1)})');
           continue;
         }
+        // Input "Search" icon="search": the icon inside the field, before
+        // the text (its decoration's prefixIcon).
+        if (key == 'icon' && type == 'textField') {
+          final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
+          field['prefixIcon'] = {'icon': raw.startsWith('=') ? 'search' : _value(raw), 'size': 18};
+          if (raw.startsWith('=')) bind['props.decoration.prefixIcon.icon'] = _read(raw.substring(1));
+          continue;
+        }
         if (_typeKeys[type]?[key] case final List<String> paths) {
           for (final path in paths) {
             if (raw.startsWith('=')) {
