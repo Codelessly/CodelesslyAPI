@@ -20,6 +20,7 @@ import '../json.dart';
 import '../props.dart';
 import '../suggest.dart' show didYouMean;
 import '../triggers.dart' show KeyCombo;
+import 'declared.dart';
 import 'define.dart';
 import 'keys.dart';
 import 'media_words.dart';
@@ -1203,7 +1204,7 @@ class _Parser {
   Json get _canvasNode {
     final o = _overlay;
     Json look() {
-      if (o == null) return _surface;
+      if (o == null || o.kind == 'canvas') return _surface;
       if (!o.surface) {
         return {
           'fills': [
@@ -1226,7 +1227,7 @@ class _Parser {
 
     return {
       'type': 'canvas',
-      if (o != null) 'name': o.id,
+      if (o != null && o.kind != 'canvas') 'name': o.id,
       if (_root != null) 'slots': {'body': _root},
       'layout': {'width': o?.width ?? options.width, 'height': o?.action.containsKey('snapHeights') == true ? {'fill': 0} : _canvasHeight},
       if (o?.guard case final String guard)
@@ -1798,6 +1799,7 @@ class _Parser {
         if (_pages.overlay(head) case final Overlay o) {
           final word = _srcWord;
           _openBlock(o);
+          if (o.kind == 'canvas') _block?._canvasPatch = _canvasWords(head.replaceFirst(RegExp(r'^\S+'), ''));
           _blockIndent = indent;
           _blockHead = head.split(RegExp(r'\s')).first;
           _blockPrev = 0;
@@ -1849,6 +1851,7 @@ class _Parser {
     if (raw.trim().isEmpty || raw.trimLeft().startsWith('//')) return;
     // An answer wrapped in a code fence: the fence is not notation.
     if (raw.trimLeft().startsWith('```')) return;
+    if (_componentLine(raw)) return;
     final indent = raw.length - raw.trimLeft().length;
     var before = nodes.length;
     // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
@@ -2390,7 +2393,7 @@ class _Parser {
   /// A line whose list or call is still open, and how many lines it took.
   String? _open;
   int _openLines = 0;
-  static final _wholeJsonLine = RegExp(r'^\s*(?:node(?:#[A-Za-z_][A-Za-z0-9_]*)?|document)\s*\{');
+  static final _wholeJsonLine = RegExp(r'^\s*(?:node(?:#[A-Za-z_][A-Za-z0-9_-]*)?|document)\s*\{');
 
   /// Whether the JSON that starts at the first `{` of [s] is still open.
   static bool _jsonOpen(String s) {
@@ -2584,6 +2587,256 @@ class _Parser {
 
   Json? _documentPatch;
 
+  /// A design system's component (`component Name "doc"` above its tree,
+  /// docs/design/22 section 4.5): its declaration (the document's `widget`)
+  /// and its previews. The document is then the tree alone: its root is the
+  /// first line, with no canvas around it.
+  Json? _widget;
+  final _previews = <Json>[];
+
+  /// What a `canvas` line says of the screen, merged over its canvas; with
+  /// `canvas none`, a document with no canvas (its root the first line).
+  Json? _canvasPatch;
+  bool _noCanvas = false;
+
+  /// Each line's `{…}` tail by its node: merged again once the whole text
+  /// is read ([parse]), so that what later lines add does not undo it.
+  final _lineTails = <String, Json>{};
+
+  /// [tail] without the values worked out (`${…}`), which the line binds
+  /// rather than holds: what is merged again.
+  static Json _settled(Json tail) => {
+        for (final e in tail.entries)
+          if (e.value is! String || !(e.value as String).contains(r'${')) e.key: e.value is Map ? _settled((e.value as Map).cast<String, Object?>()) : e.value,
+      };
+
+  static final _componentPart = RegExp(r'^(param|event|slot|preview)\s+(.*)$');
+
+  /// Reads [raw] when it is a component's head or a line of it (a
+  /// `param`, `event`, `slot` or `preview` indented under it).
+  bool _componentLine(String raw) {
+    if (_host != null || _root != null) return false;
+    final indent = raw.length - raw.trimLeft().length, text = raw.trim();
+    // `canvas "Trip" path="/trip" h=844 fill=paper`: the screen's own fields
+    // (its name, path, size and fill; any other by its path from the canvas,
+    // `props.blockBack=true`), above the tree.
+    if (indent == 0 && RegExp(r'^canvas\s+none$').hasMatch(text)) {
+      // `canvas none`: the document has no canvas; its root is the first line.
+      _noCanvas = true;
+      return true;
+    }
+    if (indent == 0 && RegExp(r'^canvas(\s|$)').hasMatch(text)) {
+      _canvasPatch = mergePatch(_canvasPatch ?? const {}, _canvasWords(text.substring(6)), keepNulls: true);
+      return true;
+    }
+    if (indent == 0 && RegExp(r'^component(\s|$)').hasMatch(text)) {
+      final words = _headWords(text.substring(9));
+      final name = words.isEmpty ? null : words.first;
+      if (name == null || name.value != null || !RegExp(r'^[A-Z][A-Za-z0-9_]*$').hasMatch(name.key)) {
+        _issue(1, 'A component is written: component Name "what it is", its parameters, events, slots and previews indented under it, then its tree.');
+        return true;
+      }
+      _widget = {'type': name.key};
+      for (final w in words.skip(1)) {
+        if (w.key == '"' && _widget!['doc'] == null) {
+          _widget!['doc'] = w.value;
+        } else if (w.key == 'children' && w.value is String) {
+          _widget!['children'] = w.value;
+        } else {
+          _issue(1, 'A component\x27s head takes its name, a string saying what it is, and children=list (or slots): not "${w.key}".');
+        }
+      }
+      return true;
+    }
+    final m = _componentPart.firstMatch(text);
+    if (indent == 0 || _widget == null || m == null) return false;
+    final words = _headWords(m[2]!);
+    final widget = _widget!;
+    void add(String key, Object? value) => ((widget[key] as List<Object?>?) ?? (widget[key] = <Object?>[])).add(value);
+    switch (m[1]) {
+      case 'param':
+        // `param title="Action" required doc="The title."`, `param size:small|medium|large=medium`.
+        final first = words.firstOrNull;
+        final head = first == null ? null : RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?::(\S+))?$').firstMatch(first.key);
+        if (head == null) {
+          _issue(indent + 1, 'A parameter is written: param name=default, its type after a colon where the default does not say it (param count:int=3), then required and doc="…".');
+          return true;
+        }
+        final type = head[2] == null ? notationTypeJson(notationTypeOf(first!.value)) : notationTypeJson(head[2]!);
+        if (type == null) _issue(indent + 1, 'No type "${head[2]}": String, bool, double, int, List<…>, ValueNotifier<…>, or an enum\x27s values joined by | (small|medium|large).');
+        final p = <String, Object?>{'key': head[1], 'type': type ?? notationTypeJson('String'), 'default': first!.value};
+        for (final w in words.skip(1)) {
+          if (w.key == 'required' && w.value == null) {
+            p['required'] = true;
+          } else if (w.key == 'doc' && w.value is String) {
+            p['doc'] = w.value;
+          } else {
+            _issue(indent + 1, 'A parameter takes required and doc="…" after its default: not "${w.key}".');
+          }
+        }
+        add('props', p);
+      case 'event':
+        final first = words.firstOrNull;
+        final head = first == null || first.value != null ? null : RegExp(r'^(on[A-Z][A-Za-z0-9_]*)(?::(\S+))?$').firstMatch(first.key);
+        if (head == null) {
+          _issue(indent + 1, 'An event is written: event onName, with what it passes after a colon (event onChanged:String) and doc="…".');
+          return true;
+        }
+        final e = <String, Object?>{'key': head[1]};
+        if (head[2] case final String t) {
+          if (notationTypeJson(t) case final Json json) {
+            e['payload'] = json;
+          } else {
+            _issue(indent + 1, 'No type "$t": String, bool, double, int, List<…>, or an enum\x27s values joined by |.');
+          }
+        }
+        for (final w in words.skip(1)) {
+          if (w.key == 'doc' && w.value is String) {
+            e['doc'] = w.value;
+          } else {
+            _issue(indent + 1, 'An event takes doc="…" after its name: not "${w.key}".');
+          }
+        }
+        add('events', e);
+      case 'slot':
+        for (final w in words) {
+          if (w.value == null && RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(w.key)) {
+            add('slots', w.key);
+          } else {
+            _issue(indent + 1, 'A slot is written: slot name.');
+          }
+        }
+      case 'preview':
+        // `preview "Default" 340x66 title="Summarize new tickets"`.
+        final pv = <String, Object?>{'name': ''};
+        final props = <String, Object?>{};
+        for (final w in words) {
+          final size = RegExp(r'^(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$').firstMatch(w.key);
+          if (w.key == '"' && pv['name'] == '') {
+            pv['name'] = w.value;
+          } else if (size != null && w.value == null) {
+            pv['size'] = [num.parse(size[1]!), num.parse(size[2]!)];
+          } else if (w.key != '"') {
+            props[w.key] = w.value;
+          }
+        }
+        pv['props'] = props;
+        _previews.add(pv);
+    }
+    return true;
+  }
+
+
+  /// What a canvas line's words (after `canvas`, or a `Canvas#id` block's
+  /// head) say of its canvas, as a merge patch: its name in quotes, `w`,
+  /// `h`, `fill`, any other field by its path from the canvas.
+  Json _canvasWords(String text) {
+    final patch = <String, Object?>{};
+    for (final w in _headWords(text)) {
+      final path = switch (w.key) {
+        '"' => 'name',
+        'w' => 'layout.width',
+        'h' => 'layout.height',
+        'fill' => 'decoration.fills',
+        final k => k,
+      };
+      final value = w.key == 'fill' && w.value is String
+          ? [
+              {'color': w.value},
+            ]
+          : w.value;
+      if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$').hasMatch(path)) {
+        _issue(1, 'A canvas line takes its name in quotes and key=value: canvas "Home" path="/" h=844 fill=surface.');
+        continue;
+      }
+      var at = patch;
+      final keys = path.split('.');
+      for (final k in keys.take(keys.length - 1)) {
+        final next = at[k];
+        at = next is Json ? next : (at[k] = <String, Object?>{});
+      }
+      at[keys.last] = value;
+    }
+    return patch;
+  }
+  /// The words of a component's head line: `key=value` (the value JSON, or
+  /// a bare word as text), a bare `key` (value null) and a string (key `"`).
+  static List<({String key, Object? value})> _headWords(String text) {
+    final out = <({String key, Object? value})>[];
+    var i = 0;
+    int end(int from) {
+      // A value: a string, a bracketed JSON value, or up to a space.
+      if (from >= text.length) return from;
+      if (text[from] == '"') {
+        for (var k = from + 1; k < text.length; k++) {
+          if (text[k] == r'\') {
+            k++;
+          } else if (text[k] == '"') {
+            return k + 1;
+          }
+        }
+        return text.length;
+      }
+      if (text[from] == '[' || text[from] == '{') {
+        var depth = 0, quoted = false;
+        for (var k = from; k < text.length; k++) {
+          final c = text[k];
+          if (quoted) {
+            if (c == r'\') {
+              k++;
+            } else if (c == '"') {
+              quoted = false;
+            }
+            continue;
+          }
+          if (c == '"') quoted = true;
+          if (c == '[' || c == '{') depth++;
+          if ((c == ']' || c == '}') && --depth == 0) return k + 1;
+        }
+        return text.length;
+      }
+      final space = text.indexOf(' ', from);
+      return space < 0 ? text.length : space;
+    }
+
+    Object? decode(String raw) {
+      try {
+        return jsonDecode(raw);
+      } on FormatException {
+        return raw;
+      }
+    }
+
+    while (i < text.length) {
+      if (text[i] == ' ') {
+        i++;
+        continue;
+      }
+      if (text[i] == '"') {
+        final e = end(i);
+        out.add((key: '"', value: decode(text.substring(i, e))));
+        i = e;
+        continue;
+      }
+      // A key runs to `=` or a space (a type after its colon may hold `<…>`
+      // and `|`).
+      var k = i;
+      while (k < text.length && text[k] != ' ' && text[k] != '=') {
+        k++;
+      }
+      final key = text.substring(i, k);
+      if (k < text.length && text[k] == '=') {
+        final e = end(k + 1);
+        out.add((key: key, value: decode(text.substring(k + 1, e))));
+        i = e;
+      } else {
+        out.add((key: key, value: null));
+        i = k;
+      }
+    }
+    return out;
+  }
+
   /// The ids the whole text opens (`open edit`), known before its lines are
   /// read when it is read at once: a design system's Dialog#edit written
   /// inside the page is then what that open shows.
@@ -2605,14 +2858,34 @@ class _Parser {
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     const LineSplitter().convert(text).forEach(line);
     finish();
+    for (final p in [this, ..._overlays]) {
+      for (final e in p._lineTails.entries) {
+        if (p.nodes[e.key] case final Json node) _merge(node, _settled(e.value));
+      }
+    }
     final patch = _documentPatch;
     Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
+    // A component's document (or a tree with `canvas none`): its declaration,
+    // its previews and its tree, no canvas; its variables are its root's.
+    if (_widget != null || _noCanvas) {
+      final widget = _widget;
+      final own = variables.values.where((v) => !_projectVariables.contains(v['name'])).toList();
+      return NotationResult(patched({
+        'schema': 3,
+        'id': ?widget?['type'],
+        'roots': [?_root],
+        'widget': ?widget,
+        if (_previews.isNotEmpty) 'previews': _previews,
+        'nodes': {...nodes},
+        if (own.isNotEmpty) 'variables': {_root ?? options.screen: own},
+      }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
+    }
     return NotationResult(patched({
       'schema': 3,
       'roots': _rootIds,
       'nodes': {
         for (final p in [this, ..._overlays]) ...{
-          p.options.screen: p._canvasNode,
+          p.options.screen: p._canvasPatch == null ? p._canvasNode : mergePatch(p._canvasNode, p._canvasPatch!),
           ...p.nodes,
         },
       },
@@ -3117,7 +3390,7 @@ class _Parser {
     // the notation has no words for (a painted board, a draggable list).
     // Nothing is added to it but its place; the lines under it are its
     // children, in the notation or as nodes again.
-    final whole = RegExp(r'^node(?:#([A-Za-z_][A-Za-z0-9_]*))?\s*(\{[\s\S]*)$').firstMatch(line);
+    final whole = RegExp(r'^node(?:#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*))?\s*(\{[\s\S]*)$').firstMatch(line);
     if (whole != null) {
       final j = _json(whole[2]!);
       if (j == null) return;
@@ -3161,7 +3434,7 @@ class _Parser {
       return fixed == null || _taken(fixed) ? m[1]! : '${m[1]}#$fixed';
     });
     final t = _Tokens(line);
-    final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*))?').firstMatch(line);
+    final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*))?').firstMatch(line);
     if (head == null) return _issue(column, 'A line starts with a node type: Column, Text "…", Button "…".');
     t.at = head.end;
     final written = head[1]!, variant = head[2];
@@ -3673,6 +3946,9 @@ class _Parser {
             tail['props'] = kept;
           }
           _merge(node, tail);
+          // The tail is the last word on the node: merged again once the text
+          // is read, over what later lines add (a parent's sizes, its alignment).
+          (_lineTails[id] ??= <String, Object?>{}).addAll(_copy(tail));
         } else {
           _issue(col, 'The {…} tail is a JSON object merged into the node.');
         }
@@ -5580,7 +5856,7 @@ class _Parser {
       final reads = avatarName.contains(r'${') || avatarName.contains('{');
       final words = avatarName.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
       final initials = reads || words.isEmpty ? avatarName : words.length == 1 ? words.first.substring(0, words.first.length.clamp(0, 2)).toUpperCase() : '${words.first[0]}${words.last[0]}'.toUpperCase();
-      final size = (out['layout'] as Map)['width'] as num;
+      final size = switch ((out['layout'] as Map)['width']) { final num w => w, _ => avatarSize ?? 40 };
       final base = options.textStyles['strong'] ?? options.textStyles['body'];
       nodes['${id}Text'] = {
         'type': 'text',
@@ -6315,6 +6591,29 @@ class _Parser {
     rest = rest.replaceFirst(RegExp(r'\s+(saved|persist|persisted)=true$'), ' saved');
     final saved = rest.endsWith(' saved');
     if (saved) rest = rest.substring(0, rest.length - 6).trimRight();
+    // `state count:decimal=2`: a type the value does not say; `state
+    // note:text` with no value; `state total:decimal={price*qty}` a formula
+    // variable of the document (with no type, a formula is written out where
+    // it is read); `state clamp(v):decimal={min(1, max(0, v))}` a function
+    // (docs/design/22 section 4.5).
+    final typed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\(([^()]*)\))?:([a-z]+)(?:\s*=\s*(.+))?$').firstMatch(rest);
+    if (typed != null) {
+      final name = typed[1]!, type = typed[3]!, value = typed[4]?.trim();
+      final params = [for (final p in (typed[2] ?? '').split(',')) if (p.trim().isNotEmpty) p.trim()];
+      if (!const {'integer', 'text', 'decimal', 'boolean', 'color', 'list', 'map', 'image', 'choice'}.contains(type)) {
+        return _issue(column, 'A variable\x27s type is one of integer, text, decimal, boolean, color, list, map, image, choice: state $name:decimal=0.');
+      }
+      final formula = value != null && _bracedExpression(value);
+      if (typed[2] != null && !formula) return _issue(column, 'A function is a formula in braces: state $name(${typed[2]}):$type={…}.');
+      variables[name] = {
+        'name': name,
+        'type': type,
+        if (formula) 'formula': value.substring(1, value.length - 1).trim() else if (value != null) 'value': _value(value),
+        if (params.isNotEmpty) 'parameters': params,
+        if (saved) 'persist': true,
+      };
+      return;
+    }
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
     if (m[1] == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');

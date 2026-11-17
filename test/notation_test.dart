@@ -378,8 +378,9 @@ Card gap=12
 ''').document;
       roundTrips(doc);
       final text = printNotation(doc, catalog: standardCatalog);
-      expect(text, contains('Text.title#text1 "Approve deletion?"'));
-      expect(text, contains('  Row#row1 gap=8 end'));
+      // A generated id (text1, row1) is the one the parser gives the line anyway: not written.
+      expect(text, contains('  Text.title "Approve deletion?"'));
+      expect(text, contains('  Row gap=8 end'));
     });
 
     test('a document written by hand, with slots, another canvas id and a typed variable, round trips', () {

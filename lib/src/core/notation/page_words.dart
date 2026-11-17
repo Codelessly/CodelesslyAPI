@@ -232,6 +232,13 @@ final class PageWords {
   /// `Lightbox#zoom`), or null: the lines under it are a canvas of their
   /// own, shown over the page by `open <id>`.
   Overlay? overlay(String text) {
+    // `Canvas#about "About" path="about"`: another canvas of the document
+    // (a page, or what an open shows as written), its lines its tree.
+    final canvas = RegExp(r'^Canvas#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)(?=\s|$)').firstMatch(text);
+    if (canvas != null) {
+      final width = double.tryParse(RegExp(r'\sw=(\d+(?:\.\d+)?)(?=\s|$)').firstMatch(text)?[1] ?? '');
+      return Overlay('canvas', canvas[1]!, width ?? 390, const {}, const []);
+    }
     final head = _overlayHead.firstMatch(text);
     if (head == null) return null;
     // A design system's component of the word's name that is no frame (a
@@ -1037,7 +1044,8 @@ final class PageWords {
   /// has them: `sticky=true top=24` as the word `sticky`, an Avatar's `src=`
   /// as its `image=` (with the name it must have).
   static String _plain(String text) {
-    if (text.contains("'")) text = _doubleQuoted(text);
+    // A typed state's formula (`state n:text={…}`) is kept as written: it is the document's.
+    if (text.contains("'") && !RegExp(r'^state\s+[A-Za-z_][A-Za-z0-9_]*(\([^()]*\))?:[a-z]+').hasMatch(text)) text = _doubleQuoted(text);
     if (!text.contains('=')) return text;
     var t = text;
     if (t.contains(' sticky=true')) {
