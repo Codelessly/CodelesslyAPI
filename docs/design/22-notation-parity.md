@@ -89,6 +89,51 @@ An action written as JSON still reads; the printer never writes one where this f
   20) where a definition can say it, and otherwise as a `component Name(params)` head with its tree under it.
 - **Overlays and more canvases.** `Dialog#id`, `Sheet#id`, `Menu#id` blocks, and one block per canvas.
 
+#### Media rules: the form (media family)
+
+A rule is the line's own keys at a width: `condition.key=value`, on the line, one word per field. The key after
+the dot is any key the line reads, with its value as the line writes it (`pad`, `gap`, `w`, `h`, `size`,
+`hidden`, `visible`, `direction`, a prop's name, a bare alignment word, `key={expression}` for a binding), so a rule
+reads "at this width, these keys have these values". The condition is one or more dotted segments:
+
+| Segment | Condition |
+|---|---|
+| `phone`, `tablet` | `maxWidth` 699, 1023: the named sizes `hide=phone`, `hide=tablet` hide at |
+| `desktop` | `minWidth` 1024 (`hide=desktop`) |
+| `max899`, `min1100` | `maxWidth`, `minWidth` in px |
+| `minTablet`, `maxMobile` | `minWidth`, `maxWidth` naming a breakpoint (`"tablet"`), its id with a capital |
+| `portrait`, `landscape` | `orientation` |
+
+Segments combine (`min700.tablet.hidden`: 700 to 1023). The words after one another with the same condition are
+one rule; rules are in the order written, `hide=`/`show=` each one of its own in its place. A rule's patch is
+what its words change on the line: the line (its words, without its rules and its `{…}` tail) is read alone under
+its parent's kind with and without them and the difference kept (a size or a position in another form is written
+whole, as a media patch replaces it; a field the words give the value the line already has is kept too, read on
+the type alone), so a rule knows every key the line knows, and an unknown key in a rule is said as it is on a
+line. The printer chooses a rule's words the same way, the shortest that give exactly its patch. A fixed value for a field the line binds
+drops that binding where the rule holds (`"bind": {"layout.width": null}`), as `hide=` does for `visible`.
+`hide=`/`show=` stay what they are and are printed for exactly their rule; `min<px>`/`max<px>` are printed only
+where a bound is no named size. A rule can hold props, layout, decoration, visible, opacity, motion and
+bindings (`MediaRule.patchKeys`); another key in one is said.
+
+From the corpus (CodelesslySDK `examples/showcase/desktop/native`):
+
+```
+Flex#grpProfile … tablet.direction=vertical tablet.gap=16 tablet.crossAxisAlignment=stretch
+    {"maxWidth":1023,"patch":{"props":{"direction":"vertical","spacing":16,"crossAxisAlignment":"stretch"}}}
+Text#title "…" … max900.size=40 max900.letterSpacing=-0.8          (site_blog)
+    {"maxWidth":900,"patch":{"props":{"style":{"fontSize":40,"letterSpacing":-0.8}}}}
+Column#sidebar … max899.visible={menuOpen}                          (site_docs)
+    {"maxWidth":899,"patch":{"bind":{"visible":"${menuOpen}"}}}
+```
+
+and from the reference's `responsive_web.json`: `Row#nav … hidden minDesktop.visible=true`.
+
+`printNotation` parses its print with reflow off (`notationOptionsFor`): the print says every rule the document
+has, the reflow's included, and the round trip does not depend on what the reflow would add to lines printed as
+plain types (a `Section` prints as a `Column`). Read with reflow on, a rule the reflow makes that the line already
+says is not added twice.
+
 ### 2.5 The printer
 
 `printNotation` stays exact by construction: it writes words, parses them back, and whatever differs goes in
