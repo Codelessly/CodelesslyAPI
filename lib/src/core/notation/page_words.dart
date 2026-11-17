@@ -316,7 +316,17 @@ final class PageWords {
         parts.word('below');
         parts.word('start');
         final placement = parts.take('placement') ?? '${above ? 'above' : 'below'}${end ? 'End' : center ? 'Center' : 'Start'}';
-        final action = <String, Object?>{'presentation': 'popover', 'anchor': 'trigger', 'placement': placement, 'anchorGap': 6};
+        // `arrow`: it points at what opened it. `hover`: it opens as a hover
+        // card however it is opened (what preview=id on a line asks for).
+        final arrow = parts.word('arrow'), hover = parts.word('hover');
+        final action = <String, Object?>{
+          'presentation': 'popover',
+          'anchor': 'trigger',
+          'placement': placement,
+          'anchorGap': arrow ? 10 : 6,
+          if (arrow) 'popoverArrow': true,
+          if (hover) 'hoverCard': true,
+        };
         if (menu && isFrame('MenuPopover')) {
           return Overlay('menu', id, width ?? 228, action, [(indent: 0, text: 'MenuPopover${title == null ? '' : ' $title'}${parts.all}')], surface: false, closes: 'all');
         }

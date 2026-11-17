@@ -2737,4 +2737,35 @@ Page
     expect(_pagePrompt(), contains('IconButton "filter_alt_off" tooltip="Clear filters" (its hint on hover, keyboard focus or a touch hold'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('tooltip=')));
   });
+
+  test('preview and arrow: a Popover as a hover card by the line that names it, and one that points at its opener', () {
+    final r = _parsePage('''
+Page
+  Section
+    Link#author "Mara Ellison" preview=bio
+    Button#plain "Tip" onTap={open tip}
+Popover#bio arrow
+  Text "Senior correspondent"
+  Link "Read Mara's work" onTap={close}
+Popover#tip
+  Text "A hint"
+''');
+    expect(r.issues, isEmpty);
+    expect(_problemsAtAnyLevel(r.document), isEmpty);
+    final reactions = (_node(r, 'author')['actions'] as List).cast<Map>();
+    expect(reactions.map((r) => (r['trigger'] as Map)['type']), ['hover', 'click', 'cursorExit']);
+    final hover = ((reactions[0]['actions'] as List).single as Map).cast<String, Object?>();
+    final click = ((reactions[1]['actions'] as List).single as Map).cast<String, Object?>();
+    expect(hover, allOf(containsPair('to', 'bio'), containsPair('hoverCard', true), containsPair('hoverDelayMs', 350), containsPair('popoverArrow', true)));
+    expect(hover, allOf(containsPair('presentation', 'popover'), containsPair('anchor', 'trigger'), containsPair('anchorGap', 10)));
+    expect(click, allOf(containsPair('hoverCard', true), containsPair('popoverArrow', true), isNot(contains('hoverDelayMs'))));
+    expect(reactions[2]['actions'], isEmpty);
+    // A popover opened by a tap, without the words, is as before.
+    expect(_lastAction(r, 'plain'), allOf(containsPair('anchorGap', 6), isNot(contains('hoverCard')), isNot(contains('popoverArrow'))));
+    // The document model reads and writes the three fields.
+    final model = ActionDef.fromJson(hover, catalog: standardCatalog)! as OpenModalAction;
+    expect((model.popoverArrow, model.hoverCard, model.hoverDelayMs), (true, true, 350));
+    expect(model.toJson(), allOf(containsPair('hoverCard', true), containsPair('popoverArrow', true), containsPair('hoverDelayMs', 350)));
+    expect(_pagePrompt(), allOf(contains('Popover#bio arrow'), contains('Link "About Mara" preview=bio')));
+  });
 }

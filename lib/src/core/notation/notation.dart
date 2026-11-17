@@ -2339,6 +2339,27 @@ class _Parser {
           }
           continue;
         }
+        // `preview=bio`: that Popover as a hover card by this line. It opens
+        // after the pointer rests on the line or the keyboard's focus comes
+        // to it, at once on a press, and stays while the pointer is on it.
+        if (key == 'preview' && _identifier.hasMatch(raw) && !raw.contains('.') && !spec.props.any((p) => p.key == 'preview')) {
+          Json opening(int delay) {
+            final Json action = {
+              'type': 'openModal',
+              'to': raw,
+              ...?switch (_top._overlayActions[raw]) { final Json a => _copy(a), _ => null },
+              'hoverCard': true,
+              if (delay > 0) 'hoverDelayMs': delay,
+            };
+            _top._opens.add(action);
+            return action;
+          }
+
+          reactions.add({'trigger': {'type': 'hover'}, 'actions': [opening(350)]});
+          reactions.add({'trigger': {'type': 'click'}, 'actions': [opening(0)]});
+          reactions.add({'trigger': {'type': 'cursorExit'}, 'actions': <Object?>[]});
+          continue;
+        }
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
         // key={expression}: a value worked out from the state (from here on
