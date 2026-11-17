@@ -3870,6 +3870,7 @@ class _Parser {
     if (saved) rest = rest.substring(0, rest.length - 6).trimRight();
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
+    if (m[1] == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');
     var written = m[2]!.trim();
     // One formula may read another (`state total=subtotal-discount`).
     for (final d in _derived.entries) {

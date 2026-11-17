@@ -1723,6 +1723,34 @@ Page
       expect(jsonEncode(node(r, 'homeName')), contains('item.name'));
     });
 
+    test('a page can offer a touch preview when device cannot hover', () {
+      final r = parseNotation('''
+Page
+  Section
+    if !device.hover
+      Button#preview "Preview" onTap={selected="festival"}
+    Text "Pointer: {device.pointer}"
+''', catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect([
+        for (final d in Catalog.run(standardCatalog, () => validateDocument(r.document, options: const ValidateOptions(level: Level.design))))
+          if (d.severity == Severity.error) '${d.code.name} ${d.path}',
+      ], isEmpty);
+      expect(jsonEncode(r.document), contains('device.hover'));
+      expect(jsonEncode(r.document), contains('device.pointer'));
+      expect(jsonEncode(r.document['variables']), isNot(contains('device')));
+      final bad = parseNotation('state device={"hover":true}\nPage\n  Text "No"', catalog: standardCatalog, options: page);
+      expect(bad.issues.single.toString(), contains('read-only'));
+      final shadowed = {
+        ...r.document,
+        'variables': {'screen': [{'name': 'device', 'type': 'map', 'value': {'hover': true}}]},
+      };
+      expect(Catalog.run(standardCatalog, () => validateDocument(shadowed, options: const ValidateOptions(level: Level.design)))
+          .any((d) => d.code == Codes.invalidVariable && d.path.endsWith('/name')), isTrue);
+      expect(notationPrompt(catalog: standardCatalog, options: page), contains('device.hover'));
+      expect(notationPrompt(catalog: standardCatalog), isNot(contains('device.hover')));
+    });
+
     test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page

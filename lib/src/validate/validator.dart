@@ -355,6 +355,9 @@ final class _Validator {
         if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(name)) {
           r.add(Codes.invalidVariable, pointer(p, 'name'), '"$name" is not a name expressions can read: use letters, digits and _, not starting with a digit.');
         }
+        if (name == 'device') {
+          r.add(Codes.invalidVariable, pointer(p, 'name'), '"device" is read-only input capability (device.hover and device.pointer); choose another variable name.');
+        }
         if (!names.add(name)) r.add(Codes.duplicateVariable, pointer(p, 'name'), 'Variable "$name" is declared twice in "${e.key}".');
         const known = {'id', 'name', 'type', 'value', 'formula', 'parameters', 'options', 'persist'};
         for (final k in v.keys) {
