@@ -24,6 +24,13 @@ import 'page_words.dart';
 import 'reflow.dart';
 import 'universal.dart';
 import 'vocabulary.dart';
+// Paint, motion and charts (design 22, 4.6): paint_words.dart.
+import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields;
+import '../custom_paint.dart' show DrawOp;
+import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields, DrawOpSpecs;
+import '../suggest.dart' show didYouMean;
+
+part 'paint_words.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -1783,6 +1790,7 @@ class _Parser {
     // An answer wrapped in a code fence: the fence is not notation.
     if (raw.trimLeft().startsWith('```')) return;
     final indent = raw.length - raw.trimLeft().length;
+    if (_paintLine(indent, raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
     var before = nodes.length;
     // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
     // the state is the line's variant={…}.
@@ -2559,6 +2567,7 @@ class _Parser {
   }
 
   void _lineAt(int indent, String source, int column) {
+    if (_paintLine(indent, source)) return; // a defined word's custom paint or animation (paint_words.dart)
     var line = source;
     while (_stack.isNotEmpty && _stack.last.indent >= indent) {
       _close(_stack.removeLast());
