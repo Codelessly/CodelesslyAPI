@@ -2368,4 +2368,35 @@ Page
       expect(card, isNot(contains('OVER THE PAGE')));
     });
   });
+
+  test('confirm: a question first, and the actions after then only on a yes', () {
+    final r = _parse('''
+state step=3
+Column
+  Button#remove "Remove ticket" onTap={confirm "Remove this ticket?" then {step=1; toast "Removed"}; emit asked}
+  Button#one "Reset" onTap={confirm "Reset {step} steps?" then step=0}
+''');
+    expect(r.issues, isEmpty);
+    expect(_problems(r.document), isEmpty);
+    expect(((_node(r, 'remove')['actions'] as List).single as Map)['actions'], [
+      {
+        'type': 'confirm',
+        'title': 'Remove this ticket?',
+        'actions': [
+          {'type': 'setVariable', 'variable': 'step', 'value': r'${= 1}'},
+          {'type': 'showToast', 'message': 'Removed'},
+        ],
+      },
+      {'type': 'componentEvent', 'event': 'asked'},
+    ]);
+    final one = (((_node(r, 'one')['actions'] as List).single as Map)['actions'] as List).single as Map;
+    expect(one['title'], r'Reset ${step} steps?');
+    expect(one['actions'], [
+      {'type': 'setVariable', 'variable': 'step', 'value': r'${= 0}'},
+    ]);
+    expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('confirm "Remove it?" then {rows=[]; close}'));
+    for (final bad in ['Button "Remove" onTap={confirm "Remove this ticket?"}', 'Button "Remove" onTap={confirm then step=1}']) {
+      expect(_parse(bad).issues.single.message, contains('confirm "Remove it?" then {'), reason: bad);
+    }
+  });
 }

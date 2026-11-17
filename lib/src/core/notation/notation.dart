@@ -3759,6 +3759,22 @@ class _Parser {
         if (j is Map) out.add(j.cast<String, Object?>());
         continue;
       }
+      // `confirm "Remove it?" then {rows=[]; toast "Removed"}`: the actions
+      // after `then` run only when the question is answered yes.
+      if (a.startsWith('confirm ') || a == 'confirm') {
+        final tokens = _Tokens(a.substring('confirm'.length))..skipSpace();
+        final title = tokens.peek == '"' ? tokens.string() : null;
+        final tail = tokens.rest.trim();
+        if (title == null || !tail.startsWith('then') || tail.substring(4).trim().isEmpty) {
+          _issue(column, 'A confirm is a quoted question and what a yes does: confirm "Remove it?" then {count=0; toast "Removed"}.');
+          continue;
+        }
+        var yes = tail.substring(4).trim();
+        if (yes.startsWith('{') && yes.endsWith('}')) yes = yes.substring(1, yes.length - 1).trim();
+        final nested = _actions(yes, column);
+        if (nested.isNotEmpty) out.add({'type': 'confirm', 'title': _interpolate(title), 'actions': nested});
+        continue;
+      }
       final set = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
       if (set != null) {
         final v = set[2]!.trim();
@@ -3838,7 +3854,7 @@ class _Parser {
         case 'link':
           out.add({'type': 'openLink', 'url': s});
         default:
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, or JSON.');
+          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, confirm "Question" then {actions}, or JSON.');
       }
     }
     return out;
