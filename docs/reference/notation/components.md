@@ -37,10 +37,10 @@ Row#pill gap=4
   Text#pillLabel "Active"
 ```
 
-- `param name[:Type]=default`: a parameter, its type in Flutter's names (`String`, `bool`, `double`, `int`,
-  `List<…>`, `ValueNotifier<…>` for a variable parameter, an enum's values joined by `|`) where the default does
+- `param name[:Type]=default`: a parameter, its type in Flutter's names (`String`, `bool`, `double`, `int`, `Map`
+  or `dynamic` for a record or anything, `List<…>` (`List<Map>`: records), `ValueNotifier<…>` for a variable parameter, an enum's values joined by `|`) where the default does
   not say it; `required` and `doc="…"` after it.
-- `event name:Type`: an event and the type of its payload.
+- `event name:Type`: an event and the type of its payload; `emit name value` sends it (`emit onRemove props.label`, `emit onNavigate "{result}"`: a text with values in it reads them).
 - `slot name`: a place the caller fills with lines.
 - `preview "Name" 340x66 key=value …`: a preview, its size and the call's values.
 

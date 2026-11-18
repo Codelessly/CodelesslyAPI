@@ -37,6 +37,20 @@ line around a group of items (a menu, a toolbar) makes them one Tab stop moved t
 `focus email` in an action puts the caret in `Input#email`, `blur` takes it away. Keys of the screen are `key`
 lines ([events.md](events.md)), a key on a line is `onKeyDown(key=…)`.
 
+What a writer from the web expects that is otherwise here:
+
+- A key reaction is the screen's, wherever it is written: `onKeyDown(key=alt+ArrowRight)` on a card fires on every
+  card of the board at once, whatever has the focus. To act on the focused one, keep which one it is (`picked`, set by
+  its `onTap`, which Enter also runs) and write one `key alt+ArrowRight when picked != '' onPress={…}` for the screen.
+- One `onKeyDown` a line (a key is written once per line): several keys on one line are one `key` line each, or one
+  `onKeyDown` that reads `result.key` (`result.key == 'Arrow Down'`: a key's name as the keyboard gives it, with its
+  space; `result.shift`, `result.alt`, `result.meta`).
+- While a dialog (a canvas opened with `openModal`) is open, its own `key` lines run and the page's under it do not.
+- A letter is its own key with Shift or without: `key j` is not Shift+J; write `key shift+j` for that.
+- `focus search` reaches a field inside a component the page calls when it is the only one of that id on screen;
+  `focus filters/search` names it by the call's id (`FilterBar#filters`) and its own.
+- The Tab order is the order of the lines; nothing reorders it.
+
 ```notation
 Column gap=8
   Column#menu focusGroup.typeAhead=true

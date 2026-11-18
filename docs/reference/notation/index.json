@@ -217,14 +217,14 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 2622
+      "words": 2629
     },
     {
       "topic": "decoration-fills-borders-and-corners",
       "file": "decoration.md",
       "anchor": "decoration-fills-borders-and-corners",
       "title": "Fills, borders and corners",
-      "words": 75
+      "words": 82
     },
     {
       "topic": "decoration-pictures-and-icons",
@@ -367,14 +367,14 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 6083
+      "words": 6143
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 198
+      "words": 258
     },
     {
       "topic": "lists-a-table-you-sort-and-filter",
@@ -481,7 +481,7 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 5492
+      "words": 5661
     },
     {
       "topic": "events-an-event",
@@ -495,7 +495,7 @@
       "file": "events.md",
       "anchor": "events-actions",
       "title": "Actions",
-      "words": 3610
+      "words": 3779
     },
     {
       "topic": "interaction",
@@ -503,7 +503,7 @@
       "anchor": "page-interaction",
       "title": "Interaction",
       "summary": "Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches.",
-      "words": 3290
+      "words": 3500
     },
     {
       "topic": "interaction-drag-and-drop",
@@ -524,7 +524,7 @@
       "file": "interaction.md",
       "anchor": "interaction-focus-and-the-keyboard",
       "title": "Focus and the keyboard",
-      "words": 89
+      "words": 299
     },
     {
       "topic": "interaction-behaviors",
@@ -610,14 +610,14 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 7496
+      "words": 7494
     },
     {
       "topic": "charts-writing-a-chart",
       "file": "charts.md",
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
-      "words": 127
+      "words": 125
     },
     {
       "topic": "charts-words",
@@ -732,7 +732,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1711
+      "words": 1740
     },
     {
       "topic": "components-calling-one",
@@ -746,7 +746,7 @@
       "file": "components.md",
       "anchor": "components-writing-one",
       "title": "Writing one",
-      "words": 142
+      "words": 171
     },
     {
       "topic": "components-words",
