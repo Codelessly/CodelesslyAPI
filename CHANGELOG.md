@@ -41,6 +41,10 @@
 
 ### Fixed
 
+- **A `Grid` (or `gridView`) with `childAspectRatio`** has rows of that shape: it was also given
+  `shrinkWrapRows`, rows as tall as their content, and a cell that fills (`box w=fill h=fill`, a picture) drew
+  0 to 20 px high (round 11b: photo-library's photos on five screens, both arms; music-player, 126 render
+  errors, "Stack requires bounded constraints"). One with `mainAxisExtent` is as it was.
 - **A dotted key with a quoted value** (`style.fontFamily="monospace"` on a paint `paragraph`; round 11b:
   saas-landing 10 lines, seat-booking 5) is one key: it was read as a word and a second text, "A paragraph has
   no style.fontFamily=" and "A paragraph takes one text". The reference (paint.md) teaches dotted paths.

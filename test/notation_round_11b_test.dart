@@ -207,6 +207,28 @@ Column
     expect(op['style'], {'fontSize': 12, 'fontFamily': 'monospace'});
   });
 
+  test('a Grid with a cell shape (childAspectRatio) has rows of that shape, not of their content', () {
+    // photo-library (search.txt:38 and four screens more): photos 0 to 20 high;
+    // music-player (library.txt:35): 126 render errors.
+    final r = _parse('''
+state items=[1,2,3]
+Column
+  Grid#g cols=6 phone.cols=2 gap=4 childAspectRatio=1.36
+    each i in items
+      box w=fill h=fill
+  Grid#h cols=3 gap=4 mainAxisExtent=228
+    each i in items
+      box w=fill h=fill
+''');
+    expect(r.issues, isEmpty);
+    final nodes = r.document['nodes'] as Map;
+    Map props(String grid) => ((nodes[((nodes[grid] as Map)['children'] as List).single] as Map)['props'] as Map);
+    expect(props('g')['childAspectRatio'], 1.36);
+    expect(props('g'), isNot(contains('shrinkWrapRows')));
+    // A height written is as before: the rows are their content's, at least.
+    expect(props('h')['shrinkWrapRows'], true);
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

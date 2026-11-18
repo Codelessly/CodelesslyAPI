@@ -4742,7 +4742,7 @@ class _Parser {
         if (reorderNow || listSelect) 'focusGroup': {'axis': g != null ? 'both' : across ? 'horizontal' : 'vertical', 'wrap': false},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
-            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout}
+            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout}
             : across
                 ? {
                     'scrollable': false,
@@ -7527,7 +7527,9 @@ class _Parser {
       layout.putIfAbsent('height', () => {'hug': 0});
     }
     // A grid's rows are as tall as their content unless a height is given.
-    if (type == 'gridView' && !props.containsKey('mainAxisExtent')) props.putIfAbsent('shrinkWrapRows', () => true);
+    // (A cell's shape or height written: its rows are that, not their content's;
+    // round 11b, `Grid … childAspectRatio=1.36` drew its photos 0 to 20 high.)
+    if (type == 'gridView' && !props.containsKey('mainAxisExtent') && !props.containsKey('childAspectRatio')) props.putIfAbsent('shrinkWrapRows', () => true);
     final cell = parent?.grid != null && !(grid != null && identical(parent!.grid, grid));
     if (cell) {
       layout['flex'] = 1;
@@ -8753,7 +8755,7 @@ class _Parser {
       nodes[list] = {
         'type': 'gridView',
         'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
+        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
         'bind': {
           'data': _formula('range(${cells.length})'),
           if (g.colsFormula case final String cols) 'props.crossAxisCount': cols,
