@@ -1,5 +1,7 @@
 ## Unreleased
 
+- **A Nav whose writer wrote its own phone menu gets no second one**: a line written `show=phone` (or `tablet`) under a `Nav` was not seen (the check read `show:`), so a bar with the writer's own menu button drew two, and its links again under it.
+
 ### Documented
 
 - **An `if` under an `each`** hides what a copy shows, not the copy: the copy keeps its place and its Grid cell

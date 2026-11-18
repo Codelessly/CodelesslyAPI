@@ -857,7 +857,7 @@ final class PageWords {
       }
     }
     final bar = _open.where((l) => l.pageNav).lastOrNull;
-    if (bar != null && RegExp(r'\sshow:(phone|tablet|mobile)(\s|$)').hasMatch(text)) bar.ownMenu = true;
+    if (bar != null && RegExp(r'\sshow[=:](phone|tablet|mobile)(\s|$)').hasMatch(text)) bar.ownMenu = true;
     final parent = _open.lastOrNull;
     // Where this line goes: under the lines its frames added.
     final shift = parent == null ? 0 : parent.before + parent.shift;

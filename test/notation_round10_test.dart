@@ -456,6 +456,31 @@ Column
     });
   });
 
+  group('a Nav whose writer wrote its own phone menu', () {
+    String nav(String phoneRow) {
+      final r = _parse('''
+Page
+  Nav
+    Brand "Harbour"
+    Row gap=18 hide=phone
+      Link "Buy" onTap={go results}
+      Link "Agents" onTap={go agents}
+$phoneRow
+  Section
+    Text "Hello"
+''', const NotationOptions(width: 1280));
+      expect(r.issues, isEmpty);
+      return jsonEncode(r.document);
+    }
+
+    test('gets no second menu button and no menu of its links (round 11b: two menu buttons on a phone)', () {
+      final own = nav('    Row gap=5 show=phone\n      IconButton "menu" onTap={open sitenav}');
+      expect(RegExp('navMenu').hasMatch(own), isFalse);
+      // The same bar with no phone line of the writer's gets the bar's own menu.
+      expect(RegExp('navMenu').hasMatch(nav('')), isTrue);
+    });
+  });
+
   group('a Sidebar the writer makes a rail at a width', () {
     String rail(String sidebar) {
       final r = _parse('''
