@@ -30,15 +30,21 @@ renders each screen with the SDK at each size, writes `shots/<screen>@<w>x<h>.pn
 
 In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is
 scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`,
-`--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or
-screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>`
+`--focus <id>` (any node that takes the keyboard focus: a field, a button, a row or handle with a tap or key
+reaction; the next `--key` goes to it), `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`,
+`--scroll <id or screen>=<px>` (or `=<x>,<y>`; a page that does not scroll is a `scroll_nothing` warning), `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>`
 (a mouse wheel over the node; `=ctrl+<dy>` with Control held), `--pinch <id>=<scale>` (two fingers spread to that
 many times as far apart), `--navigate <screen>`, `--wait <ms>`. A step
 may name a node by its `name` too. In a site, steps name nodes inside components by path (`--tap plans/card1/cta`)
 and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`); with no
-`#<n>` a step reaches the first copy in view. A tab, a segment or a navigation destination is tapped by its
+`#<n>` a step reaches the first copy in view; `#<n>` counts the copies shown, not those an `if` hides. A node
+inside a component is also found by the end of its path (`joinSeason/action`, `action`) when one node on screen
+has it; with several, the error lists their paths. A tab, a segment or a navigation destination is tapped by its
 position (`--tap tabs@2`, the third, from zero) or, where it has one no node shares, by its own id or value
-(`--tap stay` for the tab `{"id": "stay"}`). A component's root may be named after its call (`nav/tabs`). Ids are
+(`--tap stay` for the tab `{"id": "stay"}`). A control's parts have names: `quantity@decrement`,
+`quantity@increment` on a NumberInput, `level@thumb` (`@thumb-end` on a range) on a Slider,
+`region@option:Alaska` on a Select (opened first), `stay@2026-11-23` for a calendar's day; `--dump-layout`
+lists each control's `parts`. A component's root may be named after its call (`nav/tabs`). Ids are
 per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
 an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
 component's). A step on a node hidden at one size (a media rule, a binding, another breakpoint's canvas; a
@@ -47,7 +53,9 @@ params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--na
 act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
 not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
 navigation first unfocuses a focused text field elsewhere, as a click outside it does. `--label <name>` keeps the screenshots and
-`diagnostics-<name>.json` of each state apart. After each step the page settles before the next one and the capture
+diagnostics of each state apart: `diagnostics[-<screens>][@<sizes>][-<label>].json`, with the `--screen` and
+`--sizes` in the name when they are given, so a state driven per screen or per size is not overwritten. A
+capture after a navigation is named after the screen it shows. After each step the page settles before the next one and the capture
 (about a second): an animation shorter than that is over when the screenshot is taken; to see one mid-flight,
 lengthen its duration in a copy. `--key` presses a key for the screen's `keyDown` reactions; it does not submit a
 focused text field (test `submitted` chains through a button). In nested lists `#n` counts the copies across the
