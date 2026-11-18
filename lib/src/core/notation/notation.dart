@@ -7871,7 +7871,9 @@ class _Parser {
         layout.containsKey('flex') &&
         parent?.type == 'column' &&
         !inRow &&
-        const {'column', 'row', 'flex', 'stack', 'listView', 'gridView'}.contains(type);
+        // (A data table too: `TableView#sheetGrid grow` under a toolbar drew
+        // 0 high, round 11b, spreadsheet.)
+        const {'column', 'row', 'flex', 'stack', 'listView', 'gridView', 'tableView'}.contains(type);
     // An empty box that grows in a column is what pushes the lines after it
     // to the end (`box grow h=1` above a sidebar's foot, as `flex: 1` with a
     // height does on the web): it takes the room left, and never less than

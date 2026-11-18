@@ -52,6 +52,9 @@
 
 ### Fixed
 
+- **A `TableView` that grows in a column takes the height left** (`TableView#sheetGrid grow w=fill …` under a
+  toolbar; round 11b, spreadsheet): `grow` gave it a share of the column but its height stayed its content's, and
+  the grid drew 0 high, missing at every size. A list, a grid and a box that grow already did.
 - **A component that fills, called in a row of a width of its own** (a `Table`'s cell of `w:87`), shares that
   width: it was given 240, as in a row only as wide as its content, and overflowed the cell (round 11b,
   support-desk: `StatusMark label={t.status}`, 49 render errors over the three sizes).

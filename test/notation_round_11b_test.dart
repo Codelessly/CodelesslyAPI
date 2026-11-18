@@ -402,6 +402,20 @@ Column
     expect(_layout(r, 'hugging')['width'], 240);
   });
 
+  test('a TableView that grows in a column takes the height left (it drew 0 high)', () {
+    // spreadsheet (sheet.txt:215): the grid was missing at every size.
+    final r = _parse('''
+state rows=[]
+Column h=fill
+  Row h=40
+    Text "toolbar"
+  TableView#grid grow w=fill data={rows} columns=[]
+''');
+    expect(r.issues, isEmpty);
+    expect(_layout(r, 'grid')['height'], {'fill': 0});
+    expect(_layout(r, 'grid')['flex'], 1);
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.
