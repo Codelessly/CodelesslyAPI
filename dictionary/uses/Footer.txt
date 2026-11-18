@@ -1,0 +1,114 @@
+// Uses of Footer: screens of the first corpus and blocks of the notation reference that write it,
+// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.
+### tool/vocabulary/corpus/b05/answers/news-reader.txt ### Article
+project savedIds=[] saved
+project offlineIds=[] saved
+project textSize=18 saved
+project theme="light" saved
+state readPct=0
+state barShown=true
+state lastY=0
+state live=true
+state queued=[]
+state updates=[{"time":"14:02","text":"Mayors confirm the fund will open to smaller harbour towns from 2028."},{"time":"13:40","text":"Opposition delegates walk out of the morning session."}]
+state incoming=[{"time":"14:11","text":"Draft text published: signatories must report spending annually."},{"time":"14:19","text":"Insurers welcome the pact, shares in reinsurers edge up."},{"time":"14:30","text":"Protesters gather outside the harbour authority."}]
+every 10s when live && length(incoming)>0 onTick={queued=append(queued,first(incoming)); incoming=removeAt(incoming,0)}
+App
+  Main
+    Nav sticky
+      IconButton "arrow_back" tooltip="Back" onTap={go front_page}
+      Progress value={readPct} grow
+      Row gap=4
+        IconButton "text_decrease" tooltip="Smaller text" onTap={textSize=max(14,textSize-2)}
+        IconButton "text_increase" tooltip="Larger text" onTap={textSize=min(28,textSize+2)}
+        IconButton "palette" tooltip="Theme" onTap={open themeMenu}
+    Column pad=24 gap=16 scroll maxw=720 onScroll={readPct=clamp(result.fraction,0,1); barShown=result.y<lastY || result.y<80; lastY=result.y}
+      Badge.primary "World"
+      Heading "Coastal cities sign landmark flood-defence pact" level=1
+      Text.bodySecondary "Eleven mayors commit to a shared sea wall fund over twenty years."
+      Row gap=12 middle
+        Avatar "Marta Ilves" size=40
+        Column
+          Text.strong "Marta Ilves"
+          Text.caption "Updated 14:02 · 6 min read"
+      Image "https://images.example.com/seawall.jpg" h=260
+      Text.caption "A section of the Rotterdam barrier at low tide."
+      Card gap=8
+        Row between
+          Row gap=8 middle
+            Badge.error "LIVE"
+            Text.strong "Live updates"
+          Toggle "Auto" @live
+        if length(queued)>0
+          Button.tonal "{length(queued)} new updates" icon="arrow_upward" animate=pop onTap={updates=concat(reverse(queued),updates); queued=[]; scroll top}
+        each u in updates
+          Row gap=12 top animate=slide-up
+            Text.mono "{u.time}" w=56
+            Text "{u.text}" grow
+      Text "Mayors from eleven coastal cities signed an agreement on Tuesday to build a shared flood-defence fund, the largest of its kind in Europe." size={textSize}
+      Text "Under the pact each city will contribute a fixed share of its harbour revenue, with the money pooled and spent where the risk is greatest. Engineers say the first barriers could be standing within six years." size={textSize}
+      Text "Critics argue the deal leaves smaller towns exposed. Supporters say the fund can be widened once the first projects prove their worth." size={textSize}
+      Divider
+      Text.sectionTitle "Related stories"
+      Grid cols=2 gap=16
+        Card gap=4 onTap={go article}
+          Text.heading3 "How Rotterdam learned to live with water"
+          Text.caption "Science · 8 min"
+        Card gap=4 onTap={go article}
+          Text.heading3 "Insurers rethink coastal premiums"
+          Text.caption "Business · 5 min"
+        Card gap=4 onTap={go article}
+          Text.heading3 "The mayor who wants a seawall made of oysters"
+          Text.caption "Culture · 6 min"
+        Card gap=4 onTap={go article}
+          Text.heading3 "Rising tides, rising bills"
+          Text.caption "Politics · 4 min"
+    Footer visible={barShown} animate=slide-up
+      Row between pad=8
+        Row gap=8
+          Button.outline "{contains(savedIds,'s1') ? 'Saved' : 'Save'}" icon="{contains(savedIds,'s1') ? 'bookmark' : 'bookmark_border'}" onTap={savedIds=contains(savedIds,'s1') ? without(savedIds,'s1') : append(savedIds,'s1'); toast contains(savedIds,'s1') ? "Removed from saved" : "Saved for later"}
+          Button.outline "{contains(offlineIds,'s1') ? 'Available offline' : 'Download'}" icon="download_for_offline" onTap={offlineIds=append(offlineIds,'s1'); toast "Downloaded for offline reading"}
+        Button "Share" icon="share" onTap={open share}
+  Menu#themeMenu end
+    MenuItem "Light" icon="light_mode" onTap={theme="light"}
+    MenuItem "Sepia" icon="auto_stories" onTap={theme="sepia"}
+    MenuItem "Dark" icon="dark_mode" onTap={theme="dark"}
+  Sheet#share "Share this story"
+    Row gap=12
+      Button.outline "Copy link" icon="link" onTap={copy "https://broadsheet.example.com/s1"; toast "Link copied"; close}
+      Button.outline "Email" icon="mail" onTap={link mailto:?subject=Coastal%20cities%20sign%20landmark%20flood-defence%20pact; close}
+      Button.outline "Message" icon="chat" onTap={emit shareMessage; close}
+### docs/reference/notation/components.md block 4
+canvas "Home" path="/" h=844 fill=paper
+Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
+  Header#header type=Header w={"fill":390} h=56 savedCount={length(saved)}
+  Column#main gap=16 pad=20 w={"fill":390} h={"hug":300} maxWidth=960
+    Text#title "Trips by rail" w={"fill":350} h={"hug":34} style=title
+    ListView#tripList w={"fill":350} h={"hug":200} scrollable=false gap=12
+      each item in trips
+        Row#tripCard between pad=[16,0,16,0] w={"fill":350} h=64 fill=#FFFFFFFF border=line radius=12 crossAxisAlignment=null onTap={navigate to=trip params={"id":"${item.id}"}}
+          Text#tripName "{item.name}" weight=600 from=body w={"hug":200} h={"hug":22}
+          Text#tripDays "{item.days} days" color=muted from=body w={"hug":60} h={"hug":22}
+  Footer#footer type=Footer w={"fill":390} h=64
+on load={setVariable variable=saved value={coalesce(storage.saved, [])}}
+Canvas#about "About" w=320 h=180 decoration.radius=16
+  Column#aboutBody gap=16 pad=24 w={"fill":320} h={"fill":180}
+    Text#aboutText "Itineraries for travelling slowly by train." w={"fill":272} h={"hug":44} style=body
+    Button#aboutClose "Close" w=120 h=40 onTap={close}
+### docs/reference/notation/components.md block 5
+state trip:map={coalesce(find(trips, 'id', route.id), first(trips))}
+state isSaved:boolean={contains(saved, trip.id)}
+canvas "Trip" path="/trip" h=844 fill=paper
+Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
+  Header#header type=Header w={"fill":390} h=56 savedCount={length(saved)}
+  Column#main gap=16 pad=20 w={"fill":390} h={"hug":400} maxWidth=960
+    Text#back "Back" w={"hug":120} h={"hug":22} style=link onTap={navigate mode=pop}
+    Text#title "{trip.name}" w={"fill":350} h={"hug":34} style=title
+    Button.outline#save "Save trip" w=160 h=40 label={isSaved ? 'Saved' : 'Save trip'} onTap={if condition={"left":"${isSaved}","op":"isTrue"} then={setVariable variable=saved op=remove value={trip.id}} else={setVariable variable=saved op=add value={trip.id}}; setStorage key=saved valueType=list value={saved}; toast "{isSaved ? 'Saved' : 'Removed'}"}
+    Text#packTitle "Packing list" weight=700 from=body w={"hug":120} h={"hug":22}
+    ListView#packList w={"fill":350} h={"hug":120} scrollable=false gap=8
+      each item in trip.packing
+        Row#packRow gap=12 w={"fill":350} h=32 crossAxisAlignment=null onTap={contains(coalesce(get(storage.packed, route.id), []), item) ? setStorage key="packed.{route.id}" valueType=list op=remove value={item} : setStorage key="packed.{route.id}" valueType=list op=add value={item}}
+          box#packBox w=20 h=20 fills=[{"color":"#FFFFFFFF"}] fill={contains(coalesce(get(storage.packed, route.id), []), item) ? '#FF2F6B4F' : '#FFFFFFFF'} border=accent strokeWidth=2 radius=4
+          Text#packName "{item}" w={"hug":200} h={"hug":22} style=body
+  Footer#footer type=Footer w={"fill":390} h=64

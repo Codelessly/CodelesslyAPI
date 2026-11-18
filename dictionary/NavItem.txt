@@ -1,0 +1,22 @@
+// A line of an app's sidebar: an icon, a label, a count; the chosen one in the accent on a tint, the others quiet with a tint under the pointer. In core words, at core looks (no design system). It does not say: the item in a top bar (across, no grow), in a sidebar made a rail (the label hidden at that width), the theme's own selected fill, and a bare `selected` (the code writes the chosen look as fixed values, a definition as a value worked out).
+NavItem "label" icon!
+  Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 hovered.fill=#0F111827
+    Icon "{icon}" size=18 color=#FF6B7280
+    Text "{label}" size=13 weight=500 color=#FF374151 grow
+
+NavItem#count "label" icon! badge!
+  Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 hovered.fill=#0F111827
+    Icon "{icon}" size=18 color=#FF6B7280
+    Text "{label}" size=13 weight=500 color=#FF374151 grow
+    Text.muted "{badge}"
+
+NavItem#chosen "label" icon! selected!
+  Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={selected} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827
+    Icon "{icon}" size=18 color={selected?"#FF2563EB":"#FF6B7280"}
+    Text "{label}" size=13 weight={selected?600:500} color={selected?"#FF2563EB":"#FF374151"} grow
+
+NavItem#chosenCount "label" icon! selected! badge!
+  Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={selected} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827
+    Icon "{icon}" size=18 color={selected?"#FF2563EB":"#FF6B7280"}
+    Text "{label}" size=13 weight={selected?600:500} color={selected?"#FF2563EB":"#FF374151"} grow
+    Text.muted "{badge}"

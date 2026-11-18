@@ -1,0 +1,156 @@
+// Uses of Dots: screens of the first corpus and blocks of the notation reference that write it,
+// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.
+### tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule
+state tab="schedule"
+state day=0
+state credits=6
+state booked=[{"id":"c2","cancelBy":5400}]
+state waitlisted=[{"id":"c4","pos":3}]
+state days=[{"d":"Mon","n":17},{"d":"Tue","n":18},{"d":"Wed","n":19},{"d":"Thu","n":20},{"d":"Fri","n":21},{"d":"Sat","n":22},{"d":"Sun","n":23}]
+state classes=[{"id":"c1","time":"6:30 AM","name":"Sunrise Ride","coach":"Dani Ortiz","kind":"bike","spots":2,"cap":24},{"id":"c2","time":"8:00 AM","name":"Power Mat Pilates","coach":"Lena Park","kind":"mat","spots":6,"cap":20},{"id":"c3","time":"12:15 PM","name":"Lunch Burn HIIT","coach":"Marcus Bell","kind":"mat","spots":9,"cap":20},{"id":"c4","time":"5:30 PM","name":"Rhythm Ride","coach":"Dani Ortiz","kind":"bike","spots":0,"cap":24},{"id":"c5","time":"7:00 PM","name":"Yin and Stretch","coach":"Lena Park","kind":"mat","spots":11,"cap":20}]
+state sel=""
+state cancelLeft=5400
+state studio=""
+state kindFilter=""
+state coachFilter=""
+state onlyOpen=false
+every 1s when length(booked)>0 onTick={cancelLeft=max(0,cancelLeft-1)}
+App
+  Sidebar
+    Brand "Sweatbox" icon="fitness_center"
+    NavItem "Schedule" icon="calendar_month" selected={tab=="schedule"} onTap={tab="schedule"}
+    NavItem "My bookings" icon="confirmation_number" badge="{length(booked)}" selected={tab=="bookings"} onTap={tab="bookings"}
+    NavItem "Membership" icon="badge" onTap={go membership}
+    Spacer grow
+    Card gap=4
+      Text.caption "Credits left"
+      Text "{credits}" size=32 weight=700
+      Text.muted "Renews Dec 1"
+  Main
+    Nav
+      Heading "Schedule" level=1
+      Row gap=8
+        Select "Studio" items=["Downtown","Riverside"] @studio
+        IconButton "tune" tooltip="Filters" onTap={open filters}
+    Column pad=24 gap=16 scroll
+      Row scroll gap=8
+        each d in days
+          ChoiceChip "{d.d} {d.n}" selected={day==index} onTap={day=index}
+      if length(booked)>0
+        Card gap=8 fill=#FFE8F5EE
+          Row between
+            Column gap=2
+              Text.strong "You are booked: Power Mat Pilates, 8:00 AM"
+              Text.muted "Free cancel window closes in"
+            Text.strong "{duration(cancelLeft)}"
+          Row gap=8
+            Button.outline "Cancel booking" onTap={cancelLeft>0 ? {booked=[]; credits=credits+1; toast "Cancelled, credit returned"} : toast "Cancel window has closed"}
+            Button.ghost "View class" onTap={sel="c2"; go class}
+      each c in classes
+        Card gap=8
+          Row between
+            Column gap=2 grow
+              Text.caption "{c.time}"
+              Text.heading "{c.name}"
+              Row gap=8
+                Avatar "{c.coach}" size=24
+                Text.muted "{c.coach}"
+            Column end gap=4
+              Dots count={c.cap} filled={c.cap-c.spots} size=6
+              if c.spots>0
+                Text.small "{c.spots} spots left"
+              if c.spots==0
+                Badge.warning "Waitlist"
+          Row gap=8 middle
+            Button.ghost "Details" onTap={sel=c.id; go class}
+            Spacer grow
+            if any(waitlisted,w=>w.id==c.id)
+              Text.muted "You are #{find(waitlisted,w=>w.id==c.id).pos} on the waitlist"
+              Button.outline "Leave" onTap={waitlisted=removeWhere(waitlisted,w=>w.id==c.id); toast "Left the waitlist"}
+            if !any(waitlisted,w=>w.id==c.id) && c.spots==0
+              Button.secondary "Join waitlist" onTap={waitlisted=append(waitlisted,{"id":c.id,"pos":4}); toast "You are #4 on the waitlist"}
+            if c.spots>0 && !any(booked,b=>b.id==c.id)
+              Button "Book, 1 credit" onTap={credits>0 ? {booked=append(booked,{"id":c.id,"cancelBy":5400}); credits=credits-1; cancelLeft=5400; toast "Booked {c.name}"} : open nocredits}
+            if any(booked,b=>b.id==c.id)
+              Badge.success "Booked"
+  Sheet#filters "Filters"
+    Column gap=12
+      SegmentedButton @kindFilter items=["All","Bike","Mat"]
+      Select "Coach" items=["Anyone","Dani Ortiz","Lena Park","Marcus Bell"] @coachFilter
+      Toggle "Only classes with spots" @onlyOpen
+      Button "Apply" onTap={close}
+  Dialog#nocredits "Out of credits" "Top up to keep booking"
+    Text.muted "You have no credits left this month."
+    Button "Buy a 5 class pack" onTap={credits=credits+5; close; toast "5 credits added"}
+### tool/vocabulary/corpus/b08/answers/watch-face-complications.txt ### Face gallery
+state face=0
+state faces=[{"name":"Tidewatch","style":"Analogue + ring"},{"name":"Minimal","style":"Hands only"},{"name":"Chronograph","style":"Three dials"},{"name":"Night","style":"Dim red"}]
+App
+  Main
+    Nav
+      IconButton "close" tooltip="Close" onTap={go watch-face}
+      Heading "Faces"
+      IconButton "tune" tooltip="Customise" onTap={go customise}
+    Column pad=16 gap=12 center
+      Pages @face h=260 peek=0.8 items=faces
+        Card gap=8 center
+          Clock hour={hour} minute={minute} second={second} style="analogue" w=160 h=160
+          Text.strong "{item.name}"
+          Text.caption "{item.style}"
+      Dots @face count=4
+      Row gap=8
+        Button.outline "Customise" onTap={go customise}
+        Button "Use this face" onTap={emit setFace face; toast "Face set"; go watch-face}
+### tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser
+state shifts=[{"id":"mon-am","day":"Mon","time":"8:00 Setup","needed":4,"filled":4},{"id":"tue-am","day":"Tue","time":"8:00 Setup","needed":4,"filled":2},{"id":"wed-am","day":"Wed","time":"8:00 Setup","needed":4,"filled":1},{"id":"mon-md","day":"Mon","time":"11:00 Serving","needed":6,"filled":6},{"id":"tue-md","day":"Tue","time":"11:00 Serving","needed":6,"filled":3},{"id":"wed-md","day":"Wed","time":"11:00 Serving","needed":6,"filled":5}]
+state fromDay="Mon"
+state toDay="Fri"
+state copies=1
+state template="Reminder"
+state subject=""
+state body=""
+App
+  Sidebar
+    Brand "Slots" icon="event_available"
+    NavItem "Shifts" icon="grid_view" onTap={go shifts}
+    NavItem "My commitments" icon="checklist" onTap={go commitments}
+    NavItem "Organiser" icon="admin_panel_settings" selected={true}
+  Main
+    Nav
+      Heading "Organiser" level=1
+      Button "Message all" onTap={open message}
+    Column pad=24 gap=16
+      Grid cols=3 gap=16
+        Card gap=4
+          Text.muted "Spots still missing"
+          Text "{sum(shifts,s=>s.needed-s.filled)}" size=48 weight=700
+        Card gap=4
+          Text.muted "Shifts with no one yet"
+          Text "{count(shifts,s=>s.filled==0)}" size=48 weight=700
+        Card gap=4
+          Text.muted "Full shifts"
+          Text "{count(shifts,s=>s.filled>=s.needed)}" size=48 weight=700
+      Card gap=12
+        Heading "Add shifts by copying a day" level=3
+        Row gap=12 middle
+          Select "Copy from" items=["Mon","Tue","Wed","Thu"] @fromDay
+          Select "To" items=["Tue","Wed","Thu","Fri","Sat"] @toDay
+          Input "Times" type=number @copies
+          Button "Copy day" onTap={shifts=concat(shifts,map(filter(shifts,s=>s.day==fromDay),s=>with(with(with(s,"day",toDay),"filled",0),"id",toDay+s.time))); toast "Copied {fromDay} to {toDay}"}
+      Card gap=8
+        Heading "Who is missing" level=3
+        each s in sortByDesc(filter(shifts,s=>s.filled<s.needed),s=>s.needed-s.filled)
+          Row between middle
+            Text "{s.day}, {s.time}"
+            Row gap=12 middle
+              Dots needed={s.needed} filled={s.filled}
+              Badge.warning "{s.needed-s.filled} missing"
+              IconButton "remove_circle" tooltip="Remove this shift" onTap={shifts=removeWhere(shifts,x=>x.id==s.id)}
+
+Dialog#message "Message all volunteers" "Start from a template, then edit"
+  SegmentedButton items=["Reminder","Thanks","Urgent need"] @template onChange={template=result; subject=result=="Reminder" ? "Your shift is coming up" : result=="Thanks" ? "Thank you for helping" : "We still need people"; body=result=="Reminder" ? "Hi all, a reminder that your shift is this week. Please arrive ten minutes early." : result=="Thanks" ? "Thank you for giving your time this week. The food bank could not run without you." : "We are short on volunteers. {sum(shifts,s=>s.needed-s.filled)} spots are still open: please sign up if you can."}
+  Input "Subject" @subject
+  Input "Message" @body multiline
+  Row gap=8 end
+    Button.outline "Cancel" onTap={close}
+    Button "Send to all" onTap={emit sendAll body; toast "Message sent"; close}

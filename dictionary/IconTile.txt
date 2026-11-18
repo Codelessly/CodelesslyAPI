@@ -1,0 +1,4 @@
+// An icon on a tinted square: the square's corner a quarter of its side, the icon half of it. It does not say: the corner and the icon's size worked out from the size as the use is read (a body writes {size/4}, a value worked out at run time); a "star" when the use names no icon; the theme's own tile fill.
+IconTile "name" size=40 color=#FF2563EB fill=#FFE5E7EB
+  Box w={size} h={size} radius={size/4} fill={fill} center middle
+    Icon "{name}" size={size/2} color={color}

@@ -1,0 +1,3 @@
+// A keyboard shortcut of the screen: the notation's `key` line. A definition cannot stand for it: a body's first line is a node, and `key` is a statement (the definition is refused: what is said is kept in the closure report).
+Shortcut "keys" onPress
+  key {keys} onPress={onPress}

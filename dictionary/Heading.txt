@@ -1,0 +1,3 @@
+// A title: as most answers write it, a page's title in an app's top bar (level=1). It does not say: the text style chosen by the level and by where it is (a website's headline is heading1, an app's page title title, the title in its top bar heading3, a panel's heading): the code reads the level's value and the lines it is under, a meaning is chosen by what a use gives, not by a value.
+Heading "text" level=1
+  Text.heading3 "{text}"

@@ -1,0 +1,3 @@
+// A website section's title. It does not say: in an app it is a panel's heading (another text style): it reads the lines it is under.
+H2 "text"
+  Text.heading2 "{text}"

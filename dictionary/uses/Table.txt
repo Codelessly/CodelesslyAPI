@@ -1,0 +1,309 @@
+// Uses of Table: screens of the first corpus and blocks of the notation reference that write it,
+// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/admin-console.txt ### Members
+state tab="members"
+state q=""
+state roleFilter="All roles"
+state statusFilter="All statuses"
+state sortKey="name"
+state sortDir="asc"
+state selected=[]
+state anchor=""
+state focusId=""
+state panelId=""
+state panelW=380
+state invites=[]
+state inviteDraft=""
+state inviteRole="Member"
+state target=""
+state bulkRole="Member"
+state bulkTeam="Design"
+state members=[{"id":"m1","name":"Ada Lindqvist","email":"ada@tenant.io","role":"Owner","teams":["Platform","Security"],"last":"2 min ago","status":"Active"},{"id":"m2","name":"Ben Okafor","email":"ben@tenant.io","role":"Admin","teams":["Platform"],"last":"1 h ago","status":"Active"},{"id":"m3","name":"Chloe Martin","email":"chloe@tenant.io","role":"Member","teams":["Design"],"last":"Yesterday","status":"Active"},{"id":"m4","name":"Dmitri Volkov","email":"dmitri@tenant.io","role":"Member","teams":["Data","Platform"],"last":"3 days ago","status":"Invited"},{"id":"m5","name":"Elena Rossi","email":"elena@tenant.io","role":"Billing","teams":["Finance"],"last":"Today","status":"Active"},{"id":"m6","name":"Farid Haddad","email":"farid@tenant.io","role":"Viewer","teams":[],"last":"6 weeks ago","status":"Deactivated"}]
+state sessions=[{"id":"s1","device":"MacBook Pro, Chrome","where":"Oslo, NO","when":"Active now"},{"id":"s2","device":"iPhone 15, App","where":"Oslo, NO","when":"2 h ago"},{"id":"s3","device":"Windows, Edge","where":"Bergen, NO","when":"5 days ago"}]
+state activity=[{"id":"a1","text":"Changed role to Admin","when":"Mon"},{"id":"a2","text":"Added to Platform","when":"Mon"},{"id":"a3","text":"Signed in from a new device","when":"Last week"}]
+state all=["Platform","Security","Design","Data","Finance","Support"]
+state panelRole=""
+Shortcut keys="/" onPress={focus search}
+Shortcut keys="ctrl+a" onPress={selected=map(filter(members,m=>true),m=>m.id)}
+Shortcut keys="escape" onPress={selected=[]; panelId=""}
+Shortcut keys="ctrl+i" onPress={open invite}
+App
+  Sidebar
+    Brand "Tenant" icon="hub"
+    NavItem "Members" icon="group" badge="50" selected={tab=="members"} onTap={go members}
+    NavItem "Roles" icon="admin_panel_settings" onTap={go roles}
+    NavItem "Teams" icon="groups" onTap={go teams}
+    NavItem "Audit log" icon="history" onTap={go audit-log}
+    NavItem "Billing" icon="credit_card" onTap={go billing}
+    NavItem "API keys" icon="key" onTap={go api-keys}
+    NavItem "Settings" icon="settings" onTap={go settings}
+    Spacer grow
+    Row gap=8 middle
+      Avatar "Ada Lindqvist" size=32
+      Text.muted "Ada Lindqvist"
+  Main
+    Nav
+      Heading "Members" level=1
+      Row gap=8
+        Input#search "Search members" "Name or email" @q w=240 icon="search" fuzzy
+        Button "Invite" icon="person_add" onTap={open invite}
+        Text.caption "Ctrl+I" hide=tablet
+    Row grow
+      Column grow gap=12 pad=24 scroll
+        Row gap=8 wrap
+          Select "Role" @roleFilter items=["All roles","Owner","Admin","Member","Billing","Viewer"]
+          Select "Status" @statusFilter items=["All statuses","Active","Invited","Deactivated"]
+          Spacer grow
+          Text.muted "{length(filter(members,m=>(roleFilter=='All roles'||m.role==roleFilter)&&(statusFilter=='All statuses'||m.status==statusFilter)&&fuzzy(m.name+' '+m.email,q)))} of 50 members"
+        if length(selected)>0
+          Box fill=#FFE8F0FE radius=8 pad=12 live=polite
+            Row between middle gap=12
+              Text.strong "{length(selected)} selected"
+              Row gap=8 wrap
+                Select "Change role" @bulkRole items=["Owner","Admin","Member","Billing","Viewer"] onChange={members=updateWhere(members,m=>contains(selected,m.id),m=>with(m,"role",result)); announce "Role changed to {result} for {length(selected)} members"; toast "Role changed for {length(selected)} members"}
+                Button.outline "Add to team" icon="group_add" onTap={open bulkTeam}
+                Button.destructive "Deactivate" onTap={open confirmDeactivate}
+                Button.ghost "Clear" onTap={selected=[]}
+        Table rows={sortDir=="asc"?sortBy(filter(members,m=>(roleFilter=="All roles"||m.role==roleFilter)&&(statusFilter=="All statuses"||m.status==statusFilter)&&fuzzy(m.name+" "+m.email,q)),m=>m[sortKey]):sortByDesc(filter(members,m=>(roleFilter=="All roles"||m.role==roleFilter)&&(statusFilter=="All statuses"||m.status==statusFilter)&&fuzzy(m.name+" "+m.email,q)),m=>m[sortKey])} dense sticky-header selectable multi selected=@selected onRowTap={panelId=result.id} onSelect={selected=result.ids} rowKey=id
+          Column "Name" key=name sortable w=200 onSort={sortKey="name"; sortDir=sortDir=="asc"?"desc":"asc"}
+          Column "Email" key=email sortable w=220 onSort={sortKey="email"; sortDir=sortDir=="asc"?"desc":"asc"}
+          Column "Role" key=role sortable w=100 onSort={sortKey="role"; sortDir=sortDir=="asc"?"desc":"asc"}
+          Column "Teams" w=200
+          Column "Last active" key=last sortable w=120 onSort={sortKey="last"; sortDir=sortDir=="asc"?"desc":"asc"}
+          Column "Status" key=status sortable w=110 onSort={sortKey="status"; sortDir=sortDir=="asc"?"desc":"asc"}
+          Column "" w=48
+      if panelId!=""
+        Splitter @panelW min=300 max=560 side=right label="Resize member panel"
+        Pane w={panelW} pad=16 gap=12 scroll
+          Row between middle
+            Heading "Member" level=3
+            IconButton "close" tooltip="Close panel" onTap={panelId=""}
+          Row gap=12 middle
+            Avatar "{find(members,m=>m.id==panelId).name}" size=48
+            Column gap=2
+              Text.strong "{find(members,m=>m.id==panelId).name}"
+              Text.muted "{find(members,m=>m.id==panelId).email}"
+          Select "Role" @panelRole items=["Owner","Admin","Member","Billing","Viewer"] onChange={members=updateWhere(members,m=>m.id==panelId,m=>with(m,"role",result)); announce "Role saved"; toast "Role saved"}
+          Text.sectionTitle "Teams"
+          each t in all
+            Checkbox "{t}" checked={contains(find(members,m=>m.id==panelId).teams,t)} onChange={members=updateWhere(members,m=>m.id==panelId,m=>with(m,"teams",result?append(m.teams,t):without(m.teams,t)))}
+          Divider
+          Text.sectionTitle "Sessions"
+          each s in sessions
+            Row between middle gap=8
+              Column grow gap=2
+                Text.strong "{s.device}"
+                Text.caption "{s.where} · {s.when}"
+              Button.outline "Revoke" size=small onTap={sessions=removeWhere(sessions,x=>x.id==s.id); announce "Session revoked"; toast "Session revoked"}
+          Divider
+          Text.sectionTitle "Activity"
+          each a in activity
+            Row between
+              Text "{a.text}"
+              Text.caption "{a.when}"
+  Dialog#invite "Invite members" "Separate emails with a comma or Enter"
+    ChipInput "Emails" @invites draft=inviteDraft separators=[",",";"," "] validate="email" hint="name@company.com" onInvalid={announce "Not a valid email"}
+    Select "Role" @inviteRole items=["Admin","Member","Billing","Viewer"]
+    Row end gap=8
+      Button.ghost "Cancel" onTap={invites=[]; close}
+      Button "Send {length(invites)} invites" disabled={length(invites)==0||any(invites,i=>!i.valid)} onTap={emit invite {"emails":invites,"role":inviteRole}; toast "{length(invites)} invitations sent"; announce "Invitations sent"; invites=[]; close}
+  Dialog#confirmDeactivate "Deactivate {length(selected)} members?" "They lose access immediately. Their data is kept."
+    Row end gap=8
+      Button.ghost "Cancel" onTap={close}
+      Button.destructive "Deactivate {length(selected)}" onTap={members=updateWhere(members,m=>contains(selected,m.id),m=>with(m,"status","Deactivated")); announce "{length(selected)} members deactivated"; toast "{length(selected)} members deactivated"; selected=[]; close}
+  Dialog#bulkTeam "Add {length(selected)} members to a team"
+    Select "Team" @bulkTeam items=["Platform","Security","Design","Data","Finance","Support"]
+    Row end gap=8
+      Button.ghost "Cancel" onTap={close}
+      Button "Add" onTap={members=updateWhere(members,m=>contains(selected,m.id),m=>with(m,"teams",unique(append(m.teams,bulkTeam)))); toast "Added to {bulkTeam}"; announce "Added to {bulkTeam}"; close}
+  Menu#rowMenu end
+    MenuItem "Open profile" icon="person" onTap={panelId=target}
+    MenuItem "Change role" icon="badge" onTap={open roleDialog}
+    MenuItem "Resend invite" icon="mail" onTap={toast "Invite resent"}
+    MenuItem "Deactivate" icon="block" danger onTap={selected=[target]; open confirmDeactivate}
+### tool/vocabulary/corpus/b08/answers/glucose-log.txt ### Insights
+state tab="insights"
+state hours=["6 AM","9 AM","12 PM","3 PM","6 PM","9 PM"]
+App
+  Sidebar
+    Brand "Sugarcube" icon="water_drop"
+    NavItem "Today" icon="today" selected={tab=="today"} onTap={go today}
+    NavItem "Insights" icon="insights" selected={tab=="insights"} onTap={go insights}
+    NavItem "Alerts" icon="notifications" badge="2" selected={tab=="alerts"} onTap={go alerts}
+    NavItem "Export" icon="ios_share" selected={tab=="export"} onTap={go export}
+    Spacer grow
+    Text.muted "Maya Reyes"
+  Main
+    Nav
+      Heading "Insights" level=1
+      Button.outline "Export for clinic" icon="ios_share" onTap={go export}
+    Column pad=24 gap=16 scroll
+      Grid cols=3 gap=16
+        Card gap=4
+          Text.caption "AVERAGE"
+          Text "128 mg/dL" size=28 weight=700
+          Text.muted "Down 6 from last week"
+        Card gap=4
+          Text.caption "TIME IN RANGE"
+          Text "74%" size=28 weight=700 color=#FF2E7D32
+          Text.muted "Goal over 70%"
+        Card gap=4
+          Text.caption "LOWS THIS WEEK"
+          Text "3" size=28 weight=700 color=#FFC62828
+          Text.muted "All before dinner"
+      Card gap=12
+        Text.strong "Week by hour"
+        Text.muted "Average reading in mg/dL. Cells are coloured low, in range or high."
+        Row scroll
+          Table#week columns=["Day","6 AM","9 AM","12 PM","3 PM","6 PM","9 PM"] rows=[["Mon",92,148,121,134,110,126],["Tue",98,155,117,129,72,131],["Wed",101,162,124,188,66,119],["Thu",94,139,130,141,118,123],["Fri",96,171,115,126,104,140],["Sat",110,190,138,152,121,133],["Sun",99,144,119,131,108,127]] low=70 high=180 colorCells=true
+      Row gap=16 top
+        Card grow gap=8
+          Text.strong "Time in range"
+          Donut values=[74,18,8] labels=["In range","High","Low"]
+        Card grow gap=8
+          Text.strong "Daily average"
+          LineChart values=[131,126,134,129,124,133,128] labels=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] h=200
+      Card gap=4
+        Text.strong "What stands out"
+        Text.muted "Readings after breakfast run highest, around 160 mg/dL. Three of the week's lows came before dinner, on days with 4 units or more at lunch."
+### tool/vocabulary/corpus/b08/answers/lab-instrument.txt ### Samples
+state tab="samples"
+state selected=[]
+state metric="Absorbance"
+state wells=[{"id":"A1","v":0.12},{"id":"A2","v":0.34},{"id":"A3","v":0.58},{"id":"A4","v":0.81},{"id":"B1","v":0.15},{"id":"B2","v":0.39},{"id":"B3","v":0.62},{"id":"B4","v":0.88},{"id":"C1","v":0.09},{"id":"C2","v":0.31},{"id":"C3","v":0.55},{"id":"C4","v":0.74}]
+state combined=false
+App
+  Sidebar
+    Brand "Spectra Bench" icon="graphic_eq"
+    NavItem "Spectrum" icon="show_chart" selected={tab=="spectrum"} onTap={go spectrum}
+    NavItem "Samples" icon="grid_view" selected={tab=="samples"} onTap={go samples}
+    NavItem "Calibrate" icon="tune" selected={tab=="calibrate"} onTap={go calibrate}
+    Spacer grow
+    Text.muted "Bench 2, Lamp D2"
+  Main
+    Nav
+      Heading "Sample plate" level=1
+      Row gap=8
+        SegmentedButton items=["Absorbance","Fluorescence"] @metric
+        Button "Combine selected" icon="merge" onTap={length(selected)>1 ? combined=true : toast "Select at least two wells"}
+    Column pad=24 gap=16 scroll
+      Row gap=16 top
+        Card grow gap=12
+          Row between
+            Heading "Wells" level=3
+            Text.muted "{length(selected)} selected"
+          Grid cols=4 gap=8
+            each w in wells
+              Box pad=12 radius=8 fill={w.v>0.7 ? "#FFC62828" : w.v>0.45 ? "#FFEF6C00" : w.v>0.2 ? "#FF2E7D32" : "#FF1565C0"} onTap={selected=contains(selected,w.id) ? without(selected,w.id) : append(selected,w.id)} menu=wellMenu
+                Row between
+                  Text.strong "{w.id}" color=#FFFFFFFF
+                  Icon "check_circle" color=#FFFFFFFF visible={contains(selected,w.id)}
+                Text "{fixed(w.v,2)}" color=#FFFFFFFF size=20
+          Row gap=12
+            Badge.info "Low"
+            Badge.success "Mid"
+            Badge.warning "High"
+            Badge.error "Saturated"
+        Card w=360 gap=12
+          Heading "Combined curve" level=3
+          if combined
+            LineChart series={map(selected,id=>{"name":id,"values":[find(wells,x=>x.id==id).v*0.4,find(wells,x=>x.id==id).v*0.8,find(wells,x=>x.id==id).v]})} labels=["400","550","700"] h=220
+            Text.muted "Mean reading {fixed(sum(selected,id=>find(wells,x=>x.id==id).v)/length(selected),2)}"
+            Button.outline "Clear" onTap={combined=false; selected=[]}
+          if !combined
+            Text.muted "Pick wells on the left, then combine them into one curve."
+          Divider
+          Table items={wells} columns=["id","v"] headers=["Well","Reading"] h=200
+  Menu#wellMenu
+    MenuItem "Select row" icon="select_all" onTap={selected=map(filter(wells,x=>startsWith(x.id,"A")),x=>x.id)}
+    MenuItem "Clear selection" icon="deselect" onTap={selected=[]}
+### tool/vocabulary/corpus/b09/answers/census-explorer.txt ### Place profile
+state tab="profile"
+state place="Multnomah County, OR"
+state sortCol="age"
+state sortDir="asc"
+state ages=[{"age":"0-9","m":46210,"f":44080},{"age":"10-19","m":42800,"f":41020},{"age":"20-29","m":62300,"f":61150},{"age":"30-39","m":71400,"f":70220},{"age":"40-49","m":55900,"f":56800},{"age":"50-59","m":48700,"f":51200},{"age":"60-69","m":41300,"f":46700},{"age":"70-79","m":24100,"f":30200},{"age":"80+","m":10200,"f":18400}]
+state year=2020
+state second=""
+App
+  Sidebar
+    Brand "Headcount" icon="groups"
+    NavItem "Map" icon="map" selected={tab=="map"} onTap={go map}
+    NavItem "Place profile" icon="bar_chart" selected={tab=="profile"} onTap={go profile}
+    NavItem "Compare and table" icon="table_chart" selected={tab=="compare"} onTap={go compare}
+    Spacer grow
+    Text.muted "Source: decennial census, 1970 to 2020"
+  Main
+    Nav
+      Heading "{place}" level=1
+      Row gap=8
+        Select "Year" @year items=[1970,1980,1990,2000,2010,2020]
+        Button.outline "Compare with another place" icon="compare_arrows" onTap={open pickSecond}
+        Button.outline "Download table" icon="download" onTap={emit download "profile-table.csv"; toast "Table downloaded"}
+    Column pad=24 gap=16
+      Grid cols=4 gap=16
+        Card gap=4
+          Text.caption "POPULATION"
+          Text "815,428" size=32 weight=700
+          Sparkline values=[660,684,712,735,766,815]
+        Card gap=4
+          Text.caption "MEDIAN AGE"
+          Text "37.4" size=32 weight=700
+          Text.muted "Oregon 40.2"
+        Card gap=4
+          Text.caption "HOUSEHOLD SIZE"
+          Text "2.31" size=32 weight=700
+          Text.muted "Oregon 2.46"
+        Card gap=4
+          Text.caption "SPEAK ANOTHER LANGUAGE"
+          Text "22.6%" size=32 weight=700
+          Text.muted "Oregon 15.4%"
+      Row gap=16 top
+        Card grow gap=12
+          Row between
+            Text.strong "Population pyramid, {year}"
+            Row gap=12
+              Badge.info "Men"
+              Badge.primary "Women"
+          PopulationPyramid data={ages} ageKey="age" leftKey="m" rightKey="f" leftLabel="Men" rightLabel="Women" h=360 onSelect={emit pickAge result}
+        Card grow gap=12
+          Text.strong "Population by decade"
+          AreaChart labels=["1970","1980","1990","2000","2010","2020"] values=[556667,562647,583887,660486,735334,815428] h=360
+      Card gap=8
+        Text.strong "What is notable"
+        Text.body "More than a third of residents are between 20 and 39, and women outnumber men in every band from 50 up."
+      Card gap=8
+        Row between
+          Text.strong "Numbers by age"
+          Button.tertiary "Download table" icon="download" onTap={emit download "age-table.csv"}
+        Table rows={sortDir=="asc" ? sortBy(ages, r=>r[sortCol]) : sortByDesc(ages, r=>r[sortCol])} sort={sortCol} dir={sortDir} onSort={sortCol=result.column; sortDir=result.dir}
+          Column "age" "Age" w=90
+          Column "m" "Men" w=120 align=right
+          Column "f" "Women" w=120 align=right
+          Column "total" "Total" grow align=right
+  Dialog#pickSecond "Compare with" "Choose a second place"
+    Input "Search places" @second
+    each p in filter(["Washington County, OR","Clackamas County, OR","Lane County, OR","King County, WA","Cook County, IL"], x=>contains(lower(x), lower(second)))
+      ListTile "{p}" icon="place" onTap={other=p; close; go compare}
+### docs/reference/notation/lists.md block 4
+state orders=[{"name":"Ada","total":3}]
+Page
+  Section
+    Table o in orders columns=["Name",{"key":"total","label":"Total","align":"end"}]
+### docs/reference/notation/lists.md block 10
+state orders=[{"id":"o1","name":"Ada Byron","status":"Paid","total":30},{"id":"o2","name":"Lin Chen","status":"Due","total":12}]
+state search=""
+state status="All"
+state sortKey="name"
+state chosen=[]
+state shown:list={filter(orders, r => (status == 'All' || r.status == status) && contains(lower(r.name), lower(search)))}
+Page
+  Section
+    Row gap=8
+      Input "" "Search" @search w=280
+      Select @status items=["All","Paid","Due"] w=140
+    Table#orders o in shown columns=[{"key":"name","label":"Customer"},{"key":"status","label":"Status","w":120},{"key":"total","label":"Total","w":100,"align":"end"}] sort=@sortKey select=@chosen empty="No orders match."
+      Row gap=10
+        Avatar "AB" size=28
+        Text.strong "{o.name}"
+      Badge "{o.status}"

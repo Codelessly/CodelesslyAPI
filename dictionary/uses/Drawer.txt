@@ -1,0 +1,42 @@
+// Uses of Drawer: screens of the first corpus and blocks of the notation reference that write it,
+// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.
+### tool/vocabulary/corpus/b09/answers/emergency-call-taker.txt ### Call log
+state query=""
+state selected=""
+state calls=[{"id":"24-118803","time":"14:02","type":"Medical","addr":"2214 Alder Street","priority":1,"length":412},{"id":"24-118797","time":"13:41","type":"Fire","addr":"88 Dock Road","priority":2,"length":233},{"id":"24-118790","time":"13:12","type":"Police","addr":"410 Mercer Avenue","priority":3,"length":150},{"id":"24-118784","time":"12:55","type":"Traffic","addr":"I-95 northbound, mile 14","priority":2,"length":301}]
+App
+  Sidebar
+    Brand "Dispatch One" icon="emergency"
+    NavItem "Active call" icon="call" onTap={go call}
+    NavItem "Units" icon="local_shipping" onTap={go units}
+    NavItem "Call log" icon="history" selected onTap={go call-log}
+    Spacer grow
+    Text.muted "Call taker: J. Okafor"
+  Main
+    Nav
+      Heading "Call log" level=1
+      Input "Search calls" @query w=240
+    Column pad=24 gap=12
+      Card gap=0
+        Row pad=8 gap=8
+          Text.strong "Call" w=110
+          Text.strong "Time" w=70
+          Text.strong "Type" w=90
+          Text.strong "Address" grow
+          Text.strong "Priority" w=80
+          Text.strong "Length" w=80
+        each c in filter(calls,x=>contains(lower(x.addr),lower(query)) || contains(lower(x.type),lower(query)))
+          Row pad=8 gap=8 middle border-top=#FFE0E0E0 onTap={selected=c.id; open callDetail}
+            Text.mono "{c.id}" w=110
+            Text "{c.time}" w=70
+            Text "{c.type}" w=90
+            Text "{c.addr}" grow
+            Badge.error "P{c.priority}" w=80 hidden={c.priority!=1}
+            Badge.warning "P{c.priority}" w=80 hidden={c.priority!=2}
+            Badge.success "P{c.priority}" w=80 hidden={c.priority!=3}
+            Text "{duration(c.length)}" w=80
+Drawer#callDetail "Call {selected}" right
+  Text.muted "{find(calls,c=>c.id==selected).type} at {find(calls,c=>c.id==selected).addr}"
+  Button.outline "Play recording" icon="play_arrow" onTap={toast "Playing recording"}
+  Button.outline "Export report" icon="download" onTap={emit exportCall selected; toast "Report exported"}
+  Button.ghost "Close" onTap={close}

@@ -1,0 +1,10 @@
+// Uses written for a shape no answer of the first corpus has (no answer writes H1 to H4).
+### written: a website's headline
+Page
+  Section
+    H1 "Plan the season"
+    Text "Everything a club needs."
+### written: an app's page title
+App
+  Main
+    H1 "Orders"

@@ -1,0 +1,9 @@
+// Uses of the shapes the first corpus writes (Shortcut: 105 lines in 13 answers).
+### written: a shortcut with its keys as a string
+Column
+  Text "Search"
+Shortcut "ctrl+k" onPress={focus search}
+### written: a shortcut with keys=
+Column
+  Text "Members"
+Shortcut keys="/" onPress={focus search}

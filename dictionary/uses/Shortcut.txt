@@ -1,0 +1,149 @@
+// Uses of Shortcut: screens of the first corpus and blocks of the notation reference that write it,
+// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/kanban-board.txt ### Archive
+state q=""
+Shortcut "v" hint="V" description="Switch view" onPress={go board}
+App
+  Sidebar w=220 fill=#FFF1F3F6
+    Brand "Northwind Board" icon="view_kanban"
+    NavItem "Board" icon="view_column" onTap={go board}
+    NavItem "List" icon="table_rows" onTap={go list}
+    NavItem "Archive" icon="inventory_2" badge="{count(cards,c=>c.archived)}" selected={true} onTap={go archive}
+  Main fill=#FFF1F3F6
+    Nav
+      Heading "Archive" level=1
+      Input "Search archive" @q icon="search" w=220 clearable
+    Column pad=16 gap=8
+      if count(cards,c=>c.archived) == 0
+        Column center middle gap=8 pad=48
+          Icon "inventory_2" size=40 color=#FF9CA3AF
+          Text.strong "Nothing archived"
+          Text.muted "Archived cards appear here and can be restored."
+      each a in filter(cards,c=>c.archived && (q=='' || contains(lower(c.title),lower(q))))
+        Card gap=8 pad=12
+          Row between middle
+            Column gap=2
+              Text.strong "{a.title}"
+              Text.caption "{find(cols,x=>x.id==a.col).name} · {coalesce(a.assignee,'Unassigned')}"
+            Row gap=8
+              Button.outline "Restore" icon="restore" onTap={cards=updateWhere(cards,c=>c.id==a.id,c=>with(c,"archived",false)); toast "Restored to {find(cols,x=>x.id==a.col).name}"}
+              Button.ghost "Delete" onTap={cards=removeWhere(cards,c=>c.id==a.id); toast "Card deleted"}
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/team-chat.txt ### Composer
+state draft=""
+state attachments=[]
+state replyId=""
+state msgs=[]
+App
+  Main
+    Column grow
+      Text.muted "Composer, shown at the foot of a thread."
+    Column gap=8 pad=12 border-top=#FFECE6DE
+      if replyId!=""
+        Row between fill=#FFF3EEFC radius=8 pad=8
+          QuoteBlock "{find(msgs,x=>x.id==replyId).from}" "{find(msgs,x=>x.id==replyId).text}"
+          IconButton "close" onTap={replyId=""}
+      if length(attachments)>0
+        Row gap=8 scroll
+          each a in attachments
+            Chip "{a}" onDelete={attachments=without(attachments,a)}
+      Row gap=8 bottom
+        IconButton "attach_file" onTap={open attachMenu}
+        Input "Message design-crit" @draft multiline autogrow maxLines=5 grow onSubmit={send} submitKey=enter newlineKey=shift+enter
+        IconButton "mood" onTap={open emojiPicker}
+        IconButton "send" disabled={trim(draft)=="" && length(attachments)==0} onTap={msgs=append(msgs,{"id":"m{length(msgs)+9}","from":"You","mine":true,"day":"Today","time":"now","text":draft,"pics":attachments,"reactions":[],"replyTo":replyId}); draft=""; attachments=[]; replyId=""}
+Shortcut "enter" when trim(draft)!="" onPress={msgs=append(msgs,{"id":"m{length(msgs)+9}","from":"You","mine":true,"day":"Today","time":"now","text":draft,"pics":attachments,"reactions":[],"replyTo":replyId}); draft=""; attachments=[]; replyId=""}
+Menu#attachMenu above
+  MenuItem "Photo or video" icon="image" onTap={pickFile image; attachments=append(attachments,result)}
+  MenuItem "File" icon="description" onTap={pickFile any; attachments=append(attachments,result)}
+  MenuItem "Take a photo" icon="photo_camera" onTap={pickFile camera; attachments=append(attachments,result)}
+Popover#emojiPicker
+  Grid cols=6 gap=4
+    each e in ["😀","😂","😍","👍","🎉","🙏","🔥","👀","💜","✅","🚀","🤔"]
+      IconButton "{e}" onTap={draft="{draft}{e}"}
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/flashcards.txt ### Study
+state queue=[{"id":1,"word":"la ventana","meaning":"the window","example":"Abre la ventana, por favor."},{"id":2,"word":"el aeropuerto","meaning":"the airport","example":"Llegamos al aeropuerto temprano."},{"id":3,"word":"cansado","meaning":"tired","example":"Estoy muy cansado hoy."},{"id":4,"word":"la receta","meaning":"the recipe","example":"Me das la receta del pastel?"},{"id":5,"word":"aprender","meaning":"to learn","example":"Quiero aprender mas palabras."}]
+state at=0
+state flipped=false
+state known=[]
+state again=[]
+state history=[]
+state studied=[] persist
+state streak=6 persist
+state drag=0
+App
+  Sidebar fill=#FFFFFFFF border-right=#FFEFE9FB
+    Brand "Lexi" icon="translate"
+    NavItem "Decks" icon="style" onTap={go decks}
+    NavItem "Study" icon="school" selected={true} onTap={go study}
+    NavItem "Quiz" icon="quiz" onTap={go quiz}
+    NavItem "Progress" icon="insights" onTap={go progress}
+    NavItem "Settings" icon="settings" onTap={go settings}
+    Spacer grow
+    Card fill=#FFFFF4C2 radius=24
+      Row gap=8 middle
+        Icon "local_fire_department" color=#FFF59E0B
+        Text.strong "{streak} day streak" color=#FF4C1D95
+  Main
+    Nav
+      Heading "Study: Spanish Basics" level=1 color=#FF4C1D95
+      Button.ghost "Undo" icon="undo" disabled={isEmpty(history)} onTap={at=last(history); history=removeAt(history,length(history)-1); known=without(known,at); again=without(again,at); flipped=false}
+    Shortcut keys="Space" onPress={flipped=!flipped}
+    Shortcut keys="ArrowRight" when={flipped && at<length(queue)} onPress={known=append(known,at); history=append(history,at); at=at+1; flipped=false}
+    Shortcut keys="ArrowLeft" when={flipped && at<length(queue)} onPress={again=append(again,at); history=append(history,at); at=at+1; flipped=false}
+    Shortcut keys="Ctrl+Z" onPress={at=at-1}
+    Column pad=24 gap=20 center maxw=640
+      if at<length(queue)
+        Row gap=12 middle
+          Progress {at/length(queue)} grow color=#FF6D28D9
+          Text.strong "{at+1} of {length(queue)}"
+        Row gap=8 center
+          Badge.success "{length(known)} known"
+          Badge.warning "{length(again)} again"
+        SwipeCard @drag threshold=120 tintRight=#FF86EFAC tintLeft=#FFFCA5A5 follow onSwipeRight={known=append(known,at); history=append(history,at); at=at+1; flipped=false} onSwipeLeft={again=append(again,at); history=append(history,at); at=at+1; flipped=false}
+          FlipCard @flipped duration=450 onTap={flipped=!flipped} h=340 radius=40
+            Front fill=#FF6D28D9
+              Column center middle gap=12 pad=32
+                Text.caption "TAP OR PRESS SPACE TO FLIP" color=#FFFDE68A
+                Text "{queue[at].word}" size=56 weight=800 color=#FFFFFFFF center
+            Back fill=#FFFFF4C2
+              Column center middle gap=12 pad=32
+                Text "{queue[at].meaning}" size=36 weight=700 color=#FF4C1D95 center
+                Text.muted "{queue[at].example}" center
+        Row gap=16 center
+          Button.outline "Again" icon="arrow_back" size=large disabled={!flipped} onTap={again=append(again,at); history=append(history,at); at=at+1; flipped=false}
+          Button "Known" icon="arrow_forward" size=large fill=#FFFACC15 color=#FF4C1D95 disabled={!flipped} onTap={known=append(known,at); history=append(history,at); at=at+1; flipped=false}
+        Text.caption "Swipe right for known, left for again. Arrow keys work too." center
+      if at>=length(queue)
+        Card gap=16 radius=40 center animate=pop pad=32
+          Icon "celebration" size=64 color=#FFF59E0B
+          Heading "Deck done!" level=1 color=#FF4C1D95
+          Row gap=32 center
+            Column center
+              Text "{length(known)}" size=48 weight=800 color=#FF16A34A
+              Text.muted "known"
+            Column center
+              Text "{length(again)}" size=48 weight=800 color=#FFDC2626
+              Text.muted "again"
+          Text.muted "{length(again)} cards come back tomorrow, {length(known)} in four days."
+          Row gap=12 center
+            Button.outline "Study again" onTap={at=0; known=[]; again=[]; history=[]; flipped=false}
+            Button "Back to decks" onTap={studied=append(studied,today()); go decks}
+    every 3s when at>=length(queue) onTick={streak=streak}
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/support-desk.txt ### Shortcuts
+state groups=[{"title":"Navigate","items":[{"label":"Next ticket","key":"j"},{"label":"Previous ticket","key":"k"},{"label":"Show this list","key":"?"}]},{"title":"Act on a ticket","items":[{"label":"Assign to me","key":"a"},{"label":"Reply","key":"r"},{"label":"Internal note","key":"n"},{"label":"Saved replies","key":"/"},{"label":"Close ticket","key":"c"}]}]
+Shortcut key="Escape" onPress={go inbox}
+Page
+  Nav
+    Brand "Beacon" icon="support_agent"
+    Button.ghost "Back to inbox" onTap={go inbox}
+  Section narrow
+    Column gap=16
+      Heading "Keyboard shortcuts" level=1
+      Text.muted "Press ? anywhere to open this list."
+      each g in groups
+        Card gap=8
+          Text.strong "{g.title}"
+          each i in g.items
+            Row between
+              Text "{i.label}"
+              Badge.neutral "{i.key}"

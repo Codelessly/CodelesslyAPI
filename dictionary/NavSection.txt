@@ -1,0 +1,3 @@
+// The label over a group of a sidebar's items: small spaced capitals in a quiet ink. It does not say: the label in capitals (the code upper-cases a written label as it reads it; a body can only do it at run time, upper(…)); hidden where its sidebar is a rail.
+NavSection "label"
+  Text "{label}" size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 w=fill pad=[10,16,10,6]
