@@ -16,6 +16,7 @@ import 'dart:convert';
 import '../behaviors.dart' show diffPatch, mergePatch;
 import '../catalog.dart';
 import '../json.dart';
+import '../migrate/migrate.dart' show kOldestSchemaVersion;
 import 'declared.dart';
 import 'notation.dart';
 import 'print_events.dart' show printCanvasEvents, printNormalized;
@@ -28,6 +29,7 @@ import 'print_paint.dart' show printPaintLines;
 /// data (a single `document {…}` line): the measure's breakdown.
 String printNotation(Json document, {required Catalog catalog, void Function(String why)? whole}) {
   document = printNormalized(document, catalog); // one spelling of what the API reads in two (print_events.dart)
+  document = _componentNormalized(document);
   final options = notationOptionsFor(document);
   final context = PrintContext(document: document, catalog: catalog, options: options);
   String? why;
@@ -61,6 +63,27 @@ NotationOptions notationOptionsFor(Json document) {
   }
   final width = readMap(canvas?['layout'])?['width'];
   return NotationOptions(screen: first, width: width is num ? width.toDouble() : 390, reflow: false);
+}
+
+/// A document in the parser's spelling of what the API reads two ways
+/// (design 22, 4.8): a declaration's empty parameter list (`"widget":
+/// {"props": []}`) is none, as `widgetSpecFromJson` reads it; a preview with
+/// no `props` has empty ones, as `ComponentPreview` reads it; a document with
+/// no `schema` is of the oldest (`schemaOf`), written `document schema=2`.
+/// [document] itself when it has none of them.
+Json _componentNormalized(Json document) {
+  final widget = readMap(document['widget']);
+  final previews = readList(document['previews']);
+  final emptyProps = widget != null && widget['props'] is List && (widget['props']! as List).isEmpty;
+  final bare = previews != null && previews.any((p) => p is Map && !p.containsKey('props'));
+  final schema = !document.containsKey('schema');
+  if (!emptyProps && !bare && !schema) return document;
+  return {
+    ...document,
+    if (schema) 'schema': kOldestSchemaVersion,
+    if (emptyProps) 'widget': {...widget}..remove('props'),
+    if (bare) 'previews': [for (final p in previews) p is Map && !p.containsKey('props') ? {...p, 'props': <String, Object?>{}} : p],
+  };
 }
 
 /// How much the walk says in words, tried in order until the print reads
@@ -120,9 +143,9 @@ final class _Printer {
 
   String? run() {
     for (var attempt = 0; attempt < 24; attempt++) {
-      final before = _noEach.length + _keepId.length + _slotLines.length;
+      final before = _noEach.length + _keepId.length + _slotLines.length + _typedState.length;
       final out = _once();
-      if (out != null || _noEach.length + _keepId.length + _slotLines.length == before) return out;
+      if (out != null || _noEach.length + _keepId.length + _slotLines.length + _typedState.length == before) return out;
     }
     return null;
   }
@@ -281,6 +304,11 @@ final class _Printer {
             _Line(0, _stateLine(v)),
       ];
 
+  /// The state whose type its value says but the print read back gives
+  /// another (a whole number a Pages or a number control widens to a
+  /// decimal): written with its type, which is then kept.
+  final _typedState = <String>{};
+
   String _stateLine(Json v) {
     final b = StringBuffer('state ${v['name']}');
     final type = readString(v['type']);
@@ -293,7 +321,7 @@ final class _Printer {
       final value = v['value'];
       final has = v.containsKey('value') && value != null;
       final inferred = notationVariableTypeOf(value);
-      if (type != null && (type != inferred || !has)) b.write(':$type');
+      if (type != null && (type != inferred || !has || _typedState.contains(v['name']))) b.write(':$type');
       if (has) b.write('=${jsonEncode(value)}');
       if (!has && type == null) b.write(':text');
     }
@@ -643,6 +671,20 @@ final class _Printer {
       // what a line still differs in where it is: print_fields.dart).
       final first = printFieldsRefine(_parse(text(const {}, null)), [for (final l in _lines) if (l.id != null) (id: l.id!, get: () => l.text, set: (String t) => l.text = t)], () => _parse(text(const {}, null)), context);
       final parsed = readMap(first['nodes']) ?? const {};
+      // A variable read back with another type than its value says: its
+      // state line writes the type.
+      final widened = <String>[];
+      for (final e in (readMap(document['variables']) ?? const {}).entries) {
+        final got = {for (final v in readList(readMap(first['variables'])?[e.key]) ?? const []) if (readMap(v) case final Json m) m['name']: m['type']};
+        for (final v in readList(e.value) ?? const []) {
+          if (readMap(v) case final Json m when m['name'] is String && got.containsKey(m['name']) && got[m['name']] != m['type'] && !_typedState.contains(m['name'])) widened.add(m['name']! as String);
+        }
+      }
+      if (widened.isNotEmpty) {
+        _typedState.addAll(widened);
+        why = 'a state read back with another type';
+        return null;
+      }
       final tails = <String, String>{};
       for (final l in _lines) {
         final id = l.id;

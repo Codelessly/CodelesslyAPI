@@ -143,6 +143,77 @@ Column
     });
   });
 
+  group('the document line', () {
+    // One spelling of what the API reads two ways (design 22, 4.8): the print
+    // reads back as the document in the parser's spelling.
+    test('an empty parameter list, a preview with no values, a document with no schema', () {
+      final doc = {
+        'id': 'Rule',
+        'roots': ['rule'],
+        'widget': {'type': 'Rule', 'props': <Object?>[]},
+        'previews': [
+          {
+            'name': 'Default',
+            'size': [300, 2],
+          },
+        ],
+        'nodes': {
+          'rule': {'type': 'divider'},
+        },
+      };
+      final printed = printNotation(doc, catalog: standardCatalog);
+      expect(printed, isNot(contains('document {')), reason: printed);
+      expect(printed, contains('document schema=2'));
+      expect(printed, contains('  preview "Default" 300x2'));
+      final back = parseNotation(printed, catalog: standardCatalog, options: notationOptionsFor(doc)).document;
+      expect(back['schema'], 2);
+      expect((back['widget']! as Map).containsKey('props'), isFalse);
+      expect(back['previews'], [
+        {
+          'name': 'Default',
+          'size': [300, 2],
+          'props': <String, Object?>{},
+        },
+      ]);
+    });
+
+    test('a type written on a state line is kept: a Pages does not widen it', () {
+      final doc = _roundTrip('''
+state page:integer=0
+Column
+  Pages @page h=100
+    Text "a"
+''', same: ['state page:integer=0']);
+      expect(((doc['variables']! as Map)['screen'] as List).single, containsPair('type', 'integer'));
+    });
+  });
+
+  group('a component a word shadows, its fields', () {
+    final badge = standardCatalog +
+        Catalog.fromJson({
+          'id': 'ds',
+          'widgets': [
+            {
+              'type': 'Badge',
+              'props': [
+                {'key': 'label', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': '', 'required': true},
+              ],
+            },
+          ],
+        });
+
+    test('named with type=, a width on it is its own (no cell around it)', () {
+      final doc = _roundTrip('Row\n  Badge#count "3" type=Badge w=24', catalog: badge, same: ['  Badge#count "3" type=Badge w=24']);
+      expect((_nodes(doc)['row1']! as Map)['children'], ['count']);
+    });
+
+    test('a main field with a value and a binding: the value by its path, the binding by its key', () {
+      final doc = _roundTrip('state n="5"\nRow\n  Badge#count type=Badge props.label="0" label={n}',
+          catalog: badge, same: ['  Badge#count type=Badge label={n} props.label="0"']);
+      expect((_nodes(doc)['count']! as Map)['props'], containsPair('label', '0'));
+    });
+  });
+
   group('structure', () {
     test('Pages prints as Pages: its page is no line, each line shown at its position', () {
       final doc = _roundTrip('''

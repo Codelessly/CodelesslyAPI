@@ -4316,7 +4316,7 @@ class _Parser {
           // Declared with a whole number (`state amount=0`), it is a number
           // here, not an integer: a NumberInput step=0.01 gives it cents,
           // which an integer variable would round away.
-          if (held.type.variableOf?.kind == PropKind.number && variables[expr]?['type'] == 'integer' && !_projectVariables.contains(expr)) {
+          if (held.type.variableOf?.kind == PropKind.number && variables[expr]?['type'] == 'integer' && !_projectVariables.contains(expr) && !_top._typedStates.contains(expr)) {
             variables[expr] = {...variables[expr]!, 'type': 'decimal'};
             _declared.remove(expr); // declared again, as it is now
           }
@@ -7604,7 +7604,7 @@ class _Parser {
   /// A null [expression]: a control that writes decimals is bound to it.
   void _widen(String name, String? expression) {
     final v = variables[name];
-    if (v == null || v['type'] != 'integer' || _projectVariables.contains(name)) return;
+    if (v == null || v['type'] != 'integer' || _projectVariables.contains(name) || _top._typedStates.contains(name)) return;
     final code = expression?.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
     final fraction = code == null ||
         RegExp(r'(?<![A-Za-z0-9_.])\d*\.\d+|/').hasMatch(code) ||
@@ -7645,6 +7645,7 @@ class _Parser {
       if (typed[2] != null && !formula) return _issue(column, 'A function is a formula in braces: state $name(${typed[2]}):$type={…}.');
       // Declared: what binds it (`@name`) needs no other line.
       _top._stated.add(name);
+      _top._typedStates.add(name);
       _top._unstated.remove(name);
       // (A name the runtime gives a scope is refused typed as untyped.)
       if (name == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');
@@ -8351,6 +8352,10 @@ class _Parser {
 
   /// The names a `state` (or `project`) line declares.
   final Set<String> _stated = {};
+
+  /// The state declared with a type written (`state page:integer=0`): that
+  /// type is the variable's, never widened to a decimal.
+  final Set<String> _typedStates = {};
 
   /// The names the notation makes itself for a word it writes out (an
   /// overlay's own state, a block's own boolean, a list's own selection):
