@@ -117,4 +117,26 @@ void main() {
       expect(notationUnbraced('{"}"}'), '"}"');
     });
   });
+
+  group('a nested each', () {
+    test('an inner each that reuses the name reads its own element', () {
+      final r = _expand('state groups:list=[{"key":"a","items":["x","y"]}]\nColumn\n  each item in groups\n    Text "{item.key}"\n    each item in item.items\n      Text "{item}"\n');
+      expect(r.issues, isEmpty);
+      final texts = [for (final t in _of(r, 'text')) (t['props']! as Map)['text']];
+      expect(texts, [r'${item.key}', r'${item}']);
+      expect(jsonEncode(r.document), contains(r'"data":"${item.items}"'));
+    });
+
+    test('an inner each with its own name reads the outer as parent.item', () {
+      final r = _expand('state groups:list=[]\nColumn\n  each g in groups\n    each m in g.items\n      Text "{g.key} {m}"\n');
+      expect(r.issues, isEmpty);
+      expect((_of(r, 'text').single['props']! as Map)['text'], r'${parent.item.key} ${item}');
+    });
+
+    test('a loop name inside a string literal is left alone', () {
+      final r = _expand("state ms:list=[]\nColumn\n  each m in ms\n    Text \"{'m-' + m.id}\"\n");
+      expect(r.issues, isEmpty);
+      expect((_of(r, 'text').single['props']! as Map)['text'], r"${= 'm-' + item.id}");
+    });
+  });
 }

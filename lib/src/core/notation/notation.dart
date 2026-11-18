@@ -3565,6 +3565,9 @@ class _Parser {
     for (var k = 0; k < eaches.length; k++) {
       final around = eaches.length - 1 - k;
       final to = around == 0 ? 'item' : '${'parent.' * (around - 1)}parent.item';
+      // An each inside that reuses the name (`each item in item.items`)
+      // hides the outer one, as in any language: the name is the inner's.
+      if (eaches.skip(k + 1).contains(eaches[k])) continue;
       if (eaches[k] != to) line = _rename(line, eaches[k], to);
     }
     // The small model marks a name with `$` (`$total`, `"{money($total)}"`):
@@ -7275,6 +7278,19 @@ class _Parser {
     var quoted = false, inner = false, depth = 0, start = 0;
     void flush(int end, bool code) {
       final part = line.substring(start, end);
+      // A string literal in an expression ('m-' + m.id) is text: the loop's
+      // name is not renamed inside it.
+      if (code && part.contains("'")) {
+        final pieces = part.split("'");
+        if (pieces.length.isOdd) {
+          for (var i = 0; i < pieces.length; i++) {
+            if (i > 0) out.write("'");
+            out.write(i.isOdd ? pieces[i] : _rename(pieces[i], name, to));
+          }
+          start = end;
+          return;
+        }
+      }
       out.write(code
           ? part.replaceAllMapped(word, (m) {
               // In `h=120` the `h` is a prop key. In `live ? h=4` it
