@@ -52,6 +52,9 @@
 
 ### Fixed
 
+- **A `SegmentedButton` bound to a list variable** (`state modes=["Public reply"]`, `SegmentedButton @modes`; round
+  11b, support-desk) takes the list as its selection and a change writes the list: it was wrapped again
+  (`[modes]`, a list in a list) and no segment showed chosen. A text variable is still its single choice.
 - **An `if` and its `else` under a `Table` are one cell** (round 11b, kanban-board: a due date or a dash): each
   line under a table is its next cell, and the `else` was made a cell of its own, then refused: "An else follows an
   if at the same depth", said of one that did.

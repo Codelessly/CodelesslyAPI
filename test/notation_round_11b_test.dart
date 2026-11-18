@@ -352,6 +352,22 @@ Column
     expect(parentOf('none'), isNot(parentOf('title')));
   });
 
+  test('a SegmentedButton bound to a list variable takes the list as its selection (it was wrapped again)', () {
+    // support-desk (ticket.txt:53): no segment showed chosen.
+    final r = _parse('''
+state modes=["Public reply"]
+state one="Public reply"
+Column
+  SegmentedButton#s @modes segments=[{"label":"Public reply","value":"Public reply"},{"label":"Internal note","value":"Internal note"}]
+  SegmentedButton#o @one segments=[{"label":"Public reply","value":"Public reply"}]
+''');
+    expect(r.issues, isEmpty);
+    expect((_node(r, 's')['bind'] as Map)['props.selected'], r'${modes}');
+    expect((((_node(r, 's')['actions'] as List).first as Map)['actions'] as List).single, containsPair('value', r'${result}'));
+    // One name of a text is still its single choice.
+    expect((_node(r, 'o')['bind'] as Map)['props.selected'], r'${= [one]}');
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

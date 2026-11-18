@@ -5328,7 +5328,11 @@ class _Parser {
       } else {
         // A segmented button's selection is a list: one name bound to it
         // is its single choice.
-        final list = type == 'segmentedButton';
+        // A list bound whole (`state modes=["Public reply"]`, `@modes`) is
+        // the selection itself (round 11b, support-desk: wrapped again, no
+        // segment showed chosen).
+        final listVar = type == 'segmentedButton' && _identifier.hasMatch(expr) && !expr.contains('.') && (variables[expr]?['value'] is List || variables[expr]?['type'] == 'list');
+        final list = type == 'segmentedButton' && !listVar;
         bind['props.${value.prop}'] = list ? _formula('[$expr]') : _read(expr);
         if (_identifier.hasMatch(expr) && expr.contains('.')) {
           // A control bound to a field: of a record variable
