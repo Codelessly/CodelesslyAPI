@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 12762
+      "words": 12858
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -345,7 +345,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9655
+      "words": 9751
     },
     {
       "topic": "forms-behaviors",

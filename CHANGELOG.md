@@ -9,6 +9,15 @@
 
 ### Behaviour changes
 
+- **A Select whose line writes a `fill` or a `border` is framed by that box alone** (round 11b, the docs site's
+  version switcher: `Select @version items=[…] w=83 h=36 pad=[8,0,5,0] fill=paper border=rule radius=7`): the
+  Select draws no frame of its own inside it (`underline: false`), its value and chevron are inset by the
+  line's `pad` (or the frame's side padding, 8 or 10), and the box's line takes the accent while it has the
+  focus (unless the line wrote its focused look). It drew two boxes, one inside the other, as an `Input`'s
+  `fill`, `border` and `radius` did before they became its field's.
+- **`fill`, `border` and `radius` on a `DatePicker` and a `TimePicker` are its field's** (its
+  decoration's, as on an `Input`): the fill and border went to the node, under the field's own, and `radius`
+  was left out ("A DatePicker has no radius").
 - **A site's `primary` re-accents a design system's dark accent too** (`ThemeTokens.withSiteTheme`): Desk's dark
   `accent`, a lighter indigo than its dark `primary`, stayed indigo under a site's green (the SideButton, the brand
   tile, the chosen view, the cursor bar), with `dark.primary` given or not, though Desk's README says naming

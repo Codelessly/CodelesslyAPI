@@ -2964,6 +2964,56 @@ class _Parser {
       }
     }
   }
+  /// A Select whose line wrote a fill or a border (`Select @version
+  /// items=[…] fill=paper border=rule radius=7`; round 11b, the docs site's
+  /// version switcher): the line's box is its frame, as an Input's `fill`,
+  /// `border` and `radius` are its field's. The Select draws no frame of its
+  /// own inside it (`underline: false`), its value and chevron are inset from
+  /// the box's sides as in its own frame (unless the line wrote a `pad`), and
+  /// the box's line takes the accent while the Select has the focus (unless
+  /// the line wrote its focused look). It drew two boxes, one in the other.
+  void _framedSelectsBare() {
+    for (final id in _framedSelects) {
+      if (_ownFrameSaid.contains(id)) continue;
+      final n = nodes[id];
+      if (n == null || n['type'] != 'dropdown') continue;
+      final props = readMap(n['props']) ?? const <String, Object?>{};
+      if (props.containsKey('underline')) continue;
+      final d = readMap(n['decoration']) ?? const <String, Object?>{};
+      final strokes = (d['strokes'] as List?) ?? const [];
+      final fills = (d['fills'] as List?) ?? const [];
+      if (strokes.isEmpty && fills.isEmpty) continue;
+      final change = <String, Object?>{
+        'props': {'underline': false},
+      };
+      final layout = readMap(n['layout']) ?? const <String, Object?>{};
+      if (!layout.containsKey('padding')) {
+        // The field's side padding at its step (SSUI's: 8 compact, 10 at 32 and up).
+        final h = layout['height'];
+        final side = h is num && h >= 32 ? 10 : 8;
+        change['layout'] = {
+          'padding': [side, 0, side, 0],
+        };
+      }
+      final states = readMap(n['states']) ?? const <String, Object?>{};
+      if (strokes.isNotEmpty && !states.containsKey('focused')) {
+        change['states'] = {
+          'focused': {
+            id: {
+              'decoration': {
+                'strokes': [
+                  {...?readMap(strokes.first), 'color': options.accent},
+                ],
+              },
+            },
+          },
+        };
+      }
+      nodes[id] = mergePatch(n, change);
+      if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': change});
+    }
+  }
+
 
   /// A text field in a row of buttons (the text input pass of round 11,
   /// codelessly_sdk docs/research/text-input-round-11.md), as a writer
@@ -3574,6 +3624,14 @@ class _Parser {
   /// The text fields whose lines (`minLines` 3) the word `multiline` gave,
   /// not the writer: a composer's starts at one ([_fieldsBesideButtons]).
   final _multilineWord = <String>{};
+
+  /// The Selects whose lines wrote a fill or a border: the line's box is
+  /// their frame ([_framedSelectsBare]).
+  final _framedSelects = <String>{};
+
+  /// The Selects whose lines said `underline=` (true: the frame inside the
+  /// box is kept).
+  final _ownFrameSaid = <String>{};
 
   /// The item of an `each` → its list, for one that may yet share a row's width.
   final _acrossLists = <String, String>{};
@@ -6021,7 +6079,7 @@ class _Parser {
         // its frame).
         // A state's or a media rule's word reads the same (`focused.fill=`
         // on an Input: its box's fill while it has the focus).
-        if (type == 'textField' && !component && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
+        if (const {'textField', 'datePicker', 'timePicker'}.contains(type) && !component && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
           final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
           Json border() => (field['border'] as Json?) ?? (field['border'] = <String, Object?>{'type': 'outline'});
           final v = raw.startsWith('=') ? null : _value(raw);
@@ -6052,6 +6110,14 @@ class _Parser {
           }
           continue;
         }
+        // `Select … fill=paper border=rule radius=7`: the line's box is the
+        // Select's frame, as an Input's are its field's; the Select draws
+        // none of its own inside it ([_framedSelects]).
+        if (type == 'dropdown' && !component && const {'fill', 'border', 'borderColor', 'border-color'}.contains(key)) {
+          final v = raw.startsWith('=') ? null : _value(raw);
+          if (v != 'none' && v != 'transparent' && v != false && v != 0) _framedSelects.add(id);
+        }
+        if (type == 'dropdown' && !component && key == 'underline') _ownFrameSaid.add(id);
         if (key == 'fill') {
           if (raw.startsWith('=')) {
             bind['decoration.fills[0].color'] = _namedIn(_read(raw.substring(1)), 'fill');
@@ -9019,6 +9085,7 @@ class _Parser {
     _feet();
     _endButtons();
     _fieldsBesideButtons();
+    _framedSelectsBare();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {

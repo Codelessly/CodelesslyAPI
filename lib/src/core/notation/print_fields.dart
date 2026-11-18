@@ -939,6 +939,13 @@ final class _NodeLine {
     }
     if (type == 'text') _text();
     if (type == 'textField') _input();
+    // A Select with a box of its own and its own frame inside it (a
+    // document made before round 11b): a `fill` or a `border` on its line
+    // now makes the box its frame, so the frame it keeps is said.
+    if (type == 'dropdown' && !props.containsKey('underline')) {
+      final d = readMap(n['decoration']);
+      if ((d?['fills'] as List?)?.isNotEmpty == true || (d?['strokes'] as List?)?.isNotEmpty == true) words.add('underline=true');
+    }
     if (_buttons.contains(type)) _button();
     if (type == 'iconButton') _iconButton();
   }

@@ -553,7 +553,7 @@ Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around
 - Written `Select`. Level 1 (Widget catalog).
 - `Select "…"` sets `props.hint`; it takes one quoted string (a second is said).
 - Takes no lines under it.
-- Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.
+- Decoration keys (`fill`, `border`, `radius`, `effects`…): yes: a `fill` or a `border` written makes the box of the line its frame (`Select @v items=[…] fill=#FFFFFFFF border=#FFE2E3ED radius=7`): it draws no frame of its own inside it, its value and chevron inset by `pad` (else by the side padding of its frame).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
 
 | Key | Type | Default | Level | Description |
@@ -634,7 +634,7 @@ A date field that opens a calendar drawn in the project theme (a popover under t
 - Written `DatePicker`. Level 1 (Widget catalog).
 - `DatePicker "…"` sets `props.decoration.labelText`; it takes one quoted string (a second is said).
 - Takes no lines under it.
-- Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
+- Decoration keys (`fill`, `border`, `radius`, `effects`…): the field's own box: `fill=#FFF3F4F6` its fill, `border=#FFD1D5DB` its line (`border=none`: none, and no fill unless one is written: a bare field), `radius=20` its corners; else only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
 
 | Key | Type | Default | Level | Description |
@@ -657,7 +657,7 @@ A time field that opens hour and minute columns drawn in the project theme (a po
 - Written `TimePicker`. Level 1 (Widget catalog).
 - `TimePicker "…"` sets `props.decoration.labelText`; it takes one quoted string (a second is said).
 - Takes no lines under it.
-- Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
+- Decoration keys (`fill`, `border`, `radius`, `effects`…): the field's own box: `fill=#FFF3F4F6` its fill, `border=#FFD1D5DB` its line (`border=none`: none, and no fill unless one is written: a bare field), `radius=20` its corners; else only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
 
 | Key | Type | Default | Level | Description |
