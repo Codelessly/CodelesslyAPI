@@ -3383,6 +3383,14 @@
           "doc": "Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control."
         },
         {
+          "key": "semanticLabel",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The name a screen reader says for it, not shown (where no `label` is drawn beside it: a row's own text names it)."
+        },
+        {
           "key": "value",
           "type": "bool",
           "kind": "boolean",
@@ -3507,6 +3515,14 @@
           "default": "",
           "nullable": false,
           "doc": "Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control."
+        },
+        {
+          "key": "semanticLabel",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The name a screen reader says for it, not shown (where no `label` is drawn beside it: a row's own text names it)."
         },
         {
           "key": "enabled",
@@ -3739,6 +3755,14 @@
           "doc": "Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control."
         },
         {
+          "key": "semanticLabel",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The name a screen reader says for it, not shown."
+        },
+        {
           "key": "value",
           "type": "String",
           "kind": "string",
@@ -3903,6 +3927,14 @@
           "default": null,
           "nullable": true,
           "doc": "The value indicator's text; `${value}` is the value."
+        },
+        {
+          "key": "semanticLabel",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The name a screen reader says for it, not shown (a range's or a rating's name too; `label` is its value bubble)."
         },
         {
           "key": "labelFractionDigits",
@@ -16615,7 +16647,7 @@
       ]
     },
     "CustomPaint": {
-      "doc": "Flutter's `CustomPaint` on a node: `painter` drawn behind the node's content (its decoration and children) and `foregroundPainter` over it, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.\n\n`viewBox` is the ops' coordinate space, `[minX, minY, width, height]` (JSON also `[width, height]`), mapped onto the box by `fit` (`fill` stretches, as the `path` node's view box does); null: the box's own pixels. In expressions `size.width` and `size.height` are the view box's size when there is one, else the box's.",
+      "doc": "Flutter's `CustomPaint` on a node: `painter` drawn over the node's own fill and border and under its children (as CSS draws a background, then the content) and `foregroundPainter` over them, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.\n\n`viewBox` is the ops' coordinate space, `[minX, minY, width, height]` (JSON also `[width, height]`), mapped onto the box by `fit` (`fill` stretches, as the `path` node's view box does); null: the box's own pixels. In expressions `size.width` and `size.height` are the view box's size when there is one, else the box's.",
       "fields": [
         {
           "key": "painter",
@@ -16625,7 +16657,7 @@
           "nullable": false,
           "item": "DrawOp",
           "itemKind": "json",
-          "doc": "Drawn behind the node's content (CustomPaint.painter)."
+          "doc": "Drawn over the node's own fill and border, under its children (CustomPaint.painter)."
         },
         {
           "key": "foregroundPainter",

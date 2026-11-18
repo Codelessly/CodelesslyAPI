@@ -9703,6 +9703,9 @@
                   "label": {
                     "type": "string"
                   },
+                  "semanticLabel": {
+                    "type": "string"
+                  },
                   "value": {
                     "anyOf": [
                       {
@@ -9841,6 +9844,9 @@
                 "type": "object",
                 "properties": {
                   "label": {
+                    "type": "string"
+                  },
+                  "semanticLabel": {
                     "type": "string"
                   },
                   "enabled": {
@@ -10070,6 +10076,9 @@
                   "label": {
                     "type": "string"
                   },
+                  "semanticLabel": {
+                    "type": "string"
+                  },
                   "value": {
                     "type": "string"
                   },
@@ -10239,6 +10248,9 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "semanticLabel": {
+                    "type": "string"
                   },
                   "labelFractionDigits": {
                     "type": "integer",

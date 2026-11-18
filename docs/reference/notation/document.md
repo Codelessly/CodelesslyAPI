@@ -23,7 +23,9 @@ every 1s onTick={count=count+1}
 - **`canvas`** sets the screen: its name in quotes, `path`, `w`, `h`, `fill`, and any other field by its path from
   the canvas (`props.blockBack=true`). `canvas none`: the document has no canvas, its root is the first line.
 - **`state`** declares a variable of the screen ([state.md](state.md)); `saved` keeps it on the device.
-- **`project name=value`** reads and sets a variable of the whole site (declared in site.json) by name.
+- **`project name=value`** reads and sets a variable of the whole site (declared in site.json) by name. The whole
+  manifest (pages, variables kept with `persist`, the theme's colors, styles, spacing and radii) is on
+  [site.md](site.md).
 - **`every <interval> [when cond] onTick={…}`** and **`key <keys> [when cond] onPress={…}`**: a timer and a
   shortcut of the screen (`mod` is Ctrl, or ⌘ on a Mac).
 

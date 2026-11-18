@@ -133,13 +133,13 @@ Flutter's `CustomPaint`: draw lists behind and over the content.
 <a id="type-CustomPaint"></a>
 #### CustomPaint
 
-Flutter's `CustomPaint` on a node: `painter` drawn behind the node's content (its decoration and children) and `foregroundPainter` over it, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.
+Flutter's `CustomPaint` on a node: `painter` drawn over the node's own fill and border and under its children (as CSS draws a background, then the content) and `foregroundPainter` over them, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.
 
 `viewBox` is the ops' coordinate space, `[minX, minY, width, height]` (JSON also `[width, height]`), mapped onto the box by `fit` (`fill` stretches, as the `path` node's view box does); null: the box's own pixels. In expressions `size.width` and `size.height` are the view box's size when there is one, else the box's.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `painter` | List<DrawOp> | `[]` |  | Drawn behind the node's content (CustomPaint.painter). |
+| `painter` | List<DrawOp> | `[]` |  | Drawn over the node's own fill and border, under its children (CustomPaint.painter). |
 | `foregroundPainter` | List<DrawOp> | `[]` |  | Drawn over the node's content (CustomPaint.foregroundPainter). |
 | `viewBox` | [Rect](values.md#type-Rect) | unset |  | The ops' coordinates, [width, height] or [minX, minY, width, height], mapped onto the box by fit. Null: box pixels. |
 | `fit` | [BoxFit](values.md#enum-BoxFit) | `"fill"` | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | How the view box maps onto the box. |
@@ -420,8 +420,8 @@ Three ways to draw art without a photo, each scaled to its box:
 ```
 
 - **`customPaint`**: draw lists in a view box, Flutter's `Canvas` calls as data (`rect`, `circle`, `path` with SVG
-  data, `line`, `repeat` over a count with `${index}`), behind (`painter`) or over (`foregroundPainter`) the node's
-  content. Values may be expressions, so a drawing can follow data. It is not
+  data, `line`, `repeat` over a count with `${index}`), over the node's own fill and border and
+  under its children (`painter`), or over them (`foregroundPainter`). Values may be expressions, so a drawing can follow data. It is not
   clipped by the box's `radius`: round a parent with `clip` for that.
 
 ```json

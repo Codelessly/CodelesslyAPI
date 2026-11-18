@@ -30,6 +30,11 @@ Column gap=12
 
 Words a writer reaches for, and what they read as:
 
+- `RangeSlider @low end=@high min=0 max=90` is `Slider @low @high min=0 max=90`, a slider with two thumbs.
+- `semanticLabel="Wi-Fi"` on a Toggle, Checkbox, Radio or Slider is the name a screen reader says, not shown (a
+  `label` is drawn beside it).
+- `Input "Search" prefixIcon="search"` is `icon="search"`: the icon inside the field.
+
 ```notation expands
 state code=""
 state low=20
@@ -351,6 +356,7 @@ Flutter `Checkbox`.
 | Key | Type | Default | Level | Description |
 |---|---|---|---|---|
 | `label` | text | `""` | 1 | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
+| `semanticLabel` | text | `""` | 1 | The name a screen reader says for it, not shown (where no `label` is drawn beside it: a row's own text names it). |
 | `value` | `true`/`false` |  | 1 | Null is the indeterminate state (with `tristate`). |
 | `tristate` | `true`/`false` | `false` | 1 |  |
 | `autofocus` | `true`/`false` | `false` | 1 |  |
@@ -378,6 +384,7 @@ Flutter `Switch`.
 | Key | Type | Default | Level | Description |
 |---|---|---|---|---|
 | `label` | text | `""` | 1 | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
+| `semanticLabel` | text | `""` | 1 | The name a screen reader says for it, not shown (where no `label` is drawn beside it: a row's own text names it). |
 | `enabled` | `true`/`false` | `true` | 1 | Off, it shows its value but can't be toggled (dimmed, as Flutter's). |
 | `controlled` | `true`/`false` | `false` | 1 | It shows only its value: a tap reports the change (`changed`) and the reactions set the value, else it stays (a checkout rule that refuses). |
 | `value` | `true`/`false` | `false` | 1 | Whether the switch is on. Bind it to a variable and store the `changed` value in that variable. |
@@ -417,6 +424,7 @@ Flutter `Radio`.
 | Key | Type | Default | Level | Description |
 |---|---|---|---|---|
 | `label` | text | `""` | 1 | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
+| `semanticLabel` | text | `""` | 1 | The name a screen reader says for it, not shown. |
 | `value` | text | `""` | 1 | The value this radio stands for; it is selected when `groupValue` equals it. |
 | `groupValue` | text |  | 1 | The group's selected value; this radio is on when it equals `value`. |
 | `toggleable` | `true`/`false` | `false` | 1 |  |
@@ -450,6 +458,7 @@ Flutter `Slider`.
 | `max` | number | `1` | 1 | The value at the end of the track. |
 | `divisions` | whole number |  | 1 | Snaps to this many equal steps between `min` and `max`. Null: continuous. |
 | `label` | text |  | 1 | The value indicator's text; `${value}` is the value. |
+| `semanticLabel` | text | `""` | 1 | The name a screen reader says for it, not shown (a range's or a rating's name too; `label` is its value bubble). |
 | `labelFractionDigits` | whole number (≥ 0) | `0` | 1 | Decimals of `${value}` in `label`. |
 | `autofocus` | `true`/`false` | `false` | 1 |  |
 | `readOnly` | `true`/`false` | `false` | 1 | Shows the value without accepting pointer, keyboard or semantics changes. |

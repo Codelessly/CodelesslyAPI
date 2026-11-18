@@ -49,7 +49,9 @@ defaults:
 
 - A band of blocks (cards beside cards, content beside a rail) wraps; a grid takes fewer columns; a headline gets
   smaller; a box wider than a phone fits it; a table's columns share the row, and a phone keeps the ones it has
-  room for; a `Nav` hides its links on a phone.
+  room for; a `Nav` hides its links on a phone. A Row of copies an `each` repeats (`Row gap=5` over `each d in
+  days` / `ChoiceChip …`) wraps them onto further lines on a tablet or a phone, on the page and in a dialog over it
+  (`Row scroll` keeps them on one line that scrolls; `keep` as written).
 - An app's window stays a window. A Row that fills the height (`h=fill`, or `grow` in a column) with one pane that
   grows beside panes of a fixed width (a sidebar, a list, an inspector) is laid out as `App` is: a tablet drops
   the fixed panes after the one that grows, a phone shows that one alone. It is never wrapped or stacked.

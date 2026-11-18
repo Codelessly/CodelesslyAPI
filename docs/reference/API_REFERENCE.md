@@ -788,8 +788,8 @@ section's anchor is its topic.
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4788 |
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10407 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2963 |
-| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4096 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13870 |
+| [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4121 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13984 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 8037 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4754 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6744 |
@@ -805,7 +805,7 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3587 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1387 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1537 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13596 |
 
 <a id="index-a-z"></a>
@@ -2847,13 +2847,13 @@ Flutter's `CustomPaint`: draw lists behind and over the content.
 <a id="type-CustomPaint"></a>
 #### CustomPaint
 
-Flutter's `CustomPaint` on a node: `painter` drawn behind the node's content (its decoration and children) and `foregroundPainter` over it, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.
+Flutter's `CustomPaint` on a node: `painter` drawn over the node's own fill and border and under its children (as CSS draws a background, then the content) and `foregroundPainter` over them, both in the node's box (inside its transform and opacity, outside its clip). The node's layout is `CustomPaint.size`; its content is `child`.
 
 `viewBox` is the ops' coordinate space, `[minX, minY, width, height]` (JSON also `[width, height]`), mapped onto the box by `fit` (`fill` stretches, as the `path` node's view box does); null: the box's own pixels. In expressions `size.width` and `size.height` are the view box's size when there is one, else the box's.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `painter` | List<DrawOp> | `[]` |  | Drawn behind the node's content (CustomPaint.painter). |
+| `painter` | List<DrawOp> | `[]` |  | Drawn over the node's own fill and border, under its children (CustomPaint.painter). |
 | `foregroundPainter` | List<DrawOp> | `[]` |  | Drawn over the node's content (CustomPaint.foregroundPainter). |
 | `viewBox` | [Rect](#type-Rect) | unset |  | The ops' coordinates, [width, height] or [minX, minY, width, height], mapped onto the box by fit. Null: box pixels. |
 | `fit` | [BoxFit](#enum-BoxFit) | `"fill"` | `fill`, `contain`, `cover`, `fitWidth`, `fitHeight`, `none`, `scaleDown` | How the view box maps onto the box. |
@@ -3134,8 +3134,8 @@ Three ways to draw art without a photo, each scaled to its box:
 ```
 
 - **`customPaint`**: draw lists in a view box, Flutter's `Canvas` calls as data (`rect`, `circle`, `path` with SVG
-  data, `line`, `repeat` over a count with `${index}`), behind (`painter`) or over (`foregroundPainter`) the node's
-  content. Values may be expressions, so a drawing can follow data. It is not
+  data, `line`, `repeat` over a count with `${index}`), over the node's own fill and border and
+  under its children (`painter`), or over them (`foregroundPainter`). Values may be expressions, so a drawing can follow data. It is not
   clipped by the box's `radius`: round a parent with `clip` for that.
 
 ```json
@@ -3537,6 +3537,7 @@ Flutter `Checkbox`, scaled to its box (40 px is Flutter's own size, 18 px when `
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `label` | String | `""` |  | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
+| `semanticLabel` | String | `""` |  | The name a screen reader says for it, not shown (where no `label` is drawn beside it: a row's own text names it). |
 | `value` | bool | unset |  | Null is the indeterminate state (with `tristate`). |
 | `tristate` | bool | `false` |  |  |
 | `autofocus` | bool | `false` |  |  |
@@ -3564,6 +3565,7 @@ Flutter `Switch`, scaled to its box (59 px wide is Flutter's own size).
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `label` | String | `""` |  | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
+| `semanticLabel` | String | `""` |  | The name a screen reader says for it, not shown (where no `label` is drawn beside it: a row's own text names it). |
 | `enabled` | bool | `true` |  | Off, it shows its value but can't be toggled (dimmed, as Flutter's). |
 | `controlled` | bool | `false` |  | It shows only its value: a tap reports the change (`changed`) and the reactions set the value, else it stays (a checkout rule that refuses). |
 | `value` | bool | `false` |  | Whether the switch is on. Bind it to a variable and store the `changed` value in that variable. |
@@ -3603,6 +3605,7 @@ Flutter `Radio<String>`, scaled to its box (32 px is its own size; its ring, 18 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `label` | String | `""` |  | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
+| `semanticLabel` | String | `""` |  | The name a screen reader says for it, not shown. |
 | `value` | String | `""` |  | The value this radio stands for; it is selected when `groupValue` equals it. |
 | `groupValue` | String | unset |  | The group's selected value; this radio is on when it equals `value`. |
 | `toggleable` | bool | `false` |  |  |
@@ -3635,6 +3638,7 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `max` | double | `1` |  | The value at the end of the track. |
 | `divisions` | int | unset |  | Snaps to this many equal steps between `min` and `max`. Null: continuous. |
 | `label` | String | unset |  | The value indicator's text; `${value}` is the value. |
+| `semanticLabel` | String | `""` |  | The name a screen reader says for it, not shown (a range's or a rating's name too; `label` is its value bubble). |
 | `labelFractionDigits` | int | `0` | ≥ 0 | Decimals of `${value}` in `label`. |
 | `autofocus` | bool | `false` |  |  |
 | `readOnly` | bool | `false` |  | Shows the value without accepting pointer, keyboard or semantics changes. |
@@ -10893,15 +10897,21 @@ renders each screen with the SDK at each size, writes `shots/<screen>@<w>x<h>.pn
 
 In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is
 scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`,
-`--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or
-screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>`
+`--focus <id>` (any node that takes the keyboard focus: a field, a button, a row or handle with a tap or key
+reaction; the next `--key` goes to it), `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`,
+`--scroll <id or screen>=<px>` (or `=<x>,<y>`; a page that does not scroll is a `scroll_nothing` warning), `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>`
 (a mouse wheel over the node; `=ctrl+<dy>` with Control held), `--pinch <id>=<scale>` (two fingers spread to that
 many times as far apart), `--navigate <screen>`, `--wait <ms>`. A step
 may name a node by its `name` too. In a site, steps name nodes inside components by path (`--tap plans/card1/cta`)
 and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`); with no
-`#<n>` a step reaches the first copy in view. A tab, a segment or a navigation destination is tapped by its
+`#<n>` a step reaches the first copy in view; `#<n>` counts the copies shown, not those an `if` hides. A node
+inside a component is also found by the end of its path (`joinSeason/action`, `action`) when one node on screen
+has it; with several, the error lists their paths. A tab, a segment or a navigation destination is tapped by its
 position (`--tap tabs@2`, the third, from zero) or, where it has one no node shares, by its own id or value
-(`--tap stay` for the tab `{"id": "stay"}`). A component's root may be named after its call (`nav/tabs`). Ids are
+(`--tap stay` for the tab `{"id": "stay"}`). A control's parts have names: `quantity@decrement`,
+`quantity@increment` on a NumberInput, `level@thumb` (`@thumb-end` on a range) on a Slider,
+`region@option:Alaska` on a Select (opened first), `stay@2026-11-23` for a calendar's day; `--dump-layout`
+lists each control's `parts`. A component's root may be named after its call (`nav/tabs`). Ids are
 per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
 an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
 component's). A step on a node hidden at one size (a media rule, a binding, another breakpoint's canvas; a
@@ -10910,7 +10920,9 @@ params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--na
 act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
 not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
 navigation first unfocuses a focused text field elsewhere, as a click outside it does. `--label <name>` keeps the screenshots and
-`diagnostics-<name>.json` of each state apart. After each step the page settles before the next one and the capture
+diagnostics of each state apart: `diagnostics[-<screens>][@<sizes>][-<label>].json`, with the `--screen` and
+`--sizes` in the name when they are given, so a state driven per screen or per size is not overwritten. A
+capture after a navigation is named after the screen it shows. After each step the page settles before the next one and the capture
 (about a second): an animation shorter than that is over when the screenshot is taken; to see one mid-flight,
 lengthen its duration in a copy. `--key` presses a key for the screen's `keyDown` reactions; it does not submit a
 focused text field (test `submitted` chains through a button). In nested lists `#n` counts the copies across the

@@ -257,7 +257,7 @@
       "anchor": "page-decoration",
       "title": "Decoration, images, icons and drawing",
       "summary": "What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing.",
-      "words": 4096
+      "words": 4121
     },
     {
       "topic": "decoration-decoration-fields",
@@ -321,7 +321,7 @@
       "anchor": "decoration-illustration",
       "title": "Illustration",
       "summary": "Three ways to draw art without a photo, each scaled to its box:",
-      "words": 397
+      "words": 402
     },
     {
       "topic": "decoration-icons",
@@ -345,7 +345,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 13870
+      "words": 13984
     },
     {
       "topic": "forms-triggers",
@@ -1393,7 +1393,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 1387
+      "words": 1537
     },
     {
       "topic": "render-what-it-does",
@@ -1408,8 +1408,8 @@
       "file": "render.md",
       "anchor": "render-steps-before-the-capture",
       "title": "Steps before the capture",
-      "summary": "In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`, `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`, `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>` (a mouse wheel over the node; `=ctrl+<dy>` with Control held), `--pinch <id>=<scale>` (two fingers spread to that many times as far apart), `--navigate <screen>`, `--wait <ms>`.",
-      "words": 535
+      "summary": "In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`, `--focus <id>` (any node that takes the keyboard focus: a field, a button, a row or handle with a tap or key reaction; the next `--key` goes to it), `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>` (or `=<x>,<y>`; a page that does not scroll is a `scroll_nothing` warning), `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>` (a mouse wheel over the node; `=ctrl+<dy>` with Control held), `--pinch <id>=<scale>` (two fingers spread to that many times as far apart), `--navigate <screen>`, `--wait <ms>`.",
+      "words": 507
     },
     {
       "topic": "render-render-codes",

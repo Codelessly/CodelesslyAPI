@@ -9,12 +9,14 @@ when a UI needs an illustration, a chart of its own, a dial or any shape the box
 ## The lines
 
 A `customPaint` line under the node that paints carries the painter's own keys; each line under it is one draw op,
-in order; a `foregroundPainter` line under it holds the ops drawn over the content. A rectangle with round
+in order, over the node's own fill and border and under its children; a `foregroundPainter` line (under the
+`customPaint` line, or under the node beside it) holds the ops drawn over the children too. A rectangle with round
 corners is `rrect rect=[left,top,width,height] radius=4` (not `rect x= y= w= h=`); a shape's opacity is its
 colour's alpha (`fill=#80FF0000`). An op line is the op's name, a
 quoted string first where it has one (a `paragraph`'s text, an `image`'s URL), and its fields by their own names.
 Its paint is `fill=<color>` (fills the shape) and `stroke=<color>` with the stroke's keys beside it
-(`strokeWidth`, `strokeCap`, `strokeJoin`, `dashPattern`); `paint={…}` for a paint they cannot say. A `group` or
+(`strokeWidth`, `strokeCap`, `strokeJoin`, `dashPattern`); `paint={…}` for a paint they cannot say. A field of a record
+field is its dotted path, as on a node's line: `paragraph "Q3" style.fontSize=11 style.color=#FF6B7280`. A `group` or
 a `repeat` holds the op lines under it; inside a `repeat`, `index` and `item` are the copy's.
 
 ```notation
@@ -240,7 +242,7 @@ Written `customPaint={…}` on any line ([CustomPaint](#type-CustomPaint)). Leve
 <a id="type-CustomPaint"></a>
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `customPaint.painter` | list of JSON | `[]` | Drawn behind the node's content (CustomPaint.painter). |
+| `customPaint.painter` | list of JSON | `[]` | Drawn over the node's own fill and border, under its children (CustomPaint.painter). |
 | `customPaint.foregroundPainter` | list of JSON | `[]` | Drawn over the node's content (CustomPaint.foregroundPainter). |
 | `customPaint.viewBox` | [Rect](values.md#type-Rect) |  | The ops' coordinates, [width, height] or [minX, minY, width, height], mapped onto the box by fit. Null: box pixels. |
 | `customPaint.fit` | `fill` `contain` `cover` `fitWidth` `fitHeight` `none` `scaleDown` | `fill` | How the view box maps onto the box. |

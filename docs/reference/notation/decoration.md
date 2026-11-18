@@ -28,7 +28,8 @@ Column w=120 h=80 fill=#FFFFFFFF effects=[{"type":"dropShadow","color":"#3300000
 <a id="decoration-pictures-and-icons"></a>
 ## Pictures and icons
 
-`Image "url"` is a picture (an image fill on a box); `Icon "name"` a Material icon.
+`Image "url"` is a picture (an image fill on a box; `Image url="…"` and `url={…}` the same); `Icon "name"` a Material
+icon.
 
 ```notation
 Row gap=8

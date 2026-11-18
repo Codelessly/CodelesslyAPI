@@ -42,9 +42,11 @@ What a writer from the web expects that is otherwise here:
 - A key reaction is the screen's, wherever it is written: `onKeyDown(key=alt+ArrowRight)` on a card fires on every
   card of the board at once, whatever has the focus. To act on the focused one, keep which one it is (`picked`, set by
   its `onTap`, which Enter also runs) and write one `key alt+ArrowRight when picked != '' onPress={…}` for the screen.
-- One `onKeyDown` a line (a key is written once per line): several keys on one line are one `key` line each, or one
-  `onKeyDown` that reads `result.key` (`result.key == 'Arrow Down'`: a key's name as the keyboard gives it, with its
-  space; `result.shift`, `result.alt`, `result.meta`).
+- Several keys on one line are one `onKeyDown(key=…)` each (`onKeyDown(key=ArrowDown)={…}
+  onKeyDown(key=ArrowUp)={…}`), or one `onKeyDown` that reads `result.key` (`result.key == 'Arrow Down'`: a key's name
+  as the keyboard gives it, with its space; `result.shift`, `result.alt`, `result.meta`). The same key twice on one
+  line is said.
+- The plus key is `key +` (or `key plus`), with a modifier `key mod++`.
 - While a dialog (a canvas opened with `openModal`) is open, its own `key` lines run and the page's under it do not.
 - A letter is its own key with Shift or without: `key j` is not Shift+J; write `key shift+j` for that. A sign typed
   with Shift is written as itself: `key ?`, `key !` (not `key shift+/`).

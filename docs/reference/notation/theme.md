@@ -29,6 +29,8 @@ is the same; no `size=null` is needed). The theme itself is in the site's files 
 Button "Dark mode" onTap={setThemeMode mode=dark}
 ```
 
+`setThemeMode dark` and `setThemeMode {isDark ? "light" : "dark"}` (its one value written alone) are the same.
+
 <a id="theme-words"></a>
 ## Words
 

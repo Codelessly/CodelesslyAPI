@@ -298,6 +298,7 @@ Flutter `Checkbox`, scaled to its box (40 px is Flutter's own size, 18 px when `
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `label` | String | `""` |  | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
+| `semanticLabel` | String | `""` |  | The name a screen reader says for it, not shown (where no `label` is drawn beside it: a row's own text names it). |
 | `value` | bool | unset |  | Null is the indeterminate state (with `tristate`). |
 | `tristate` | bool | `false` |  |  |
 | `autofocus` | bool | `false` |  |  |
@@ -325,6 +326,7 @@ Flutter `Switch`, scaled to its box (59 px wide is Flutter's own size).
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `label` | String | `""` |  | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
+| `semanticLabel` | String | `""` |  | The name a screen reader says for it, not shown (where no `label` is drawn beside it: a row's own text names it). |
 | `enabled` | bool | `true` |  | Off, it shows its value but can't be toggled (dimmed, as Flutter's). |
 | `controlled` | bool | `false` |  | It shows only its value: a tap reports the change (`changed`) and the reactions set the value, else it stays (a checkout rule that refuses). |
 | `value` | bool | `false` |  | Whether the switch is on. Bind it to a variable and store the `changed` value in that variable. |
@@ -364,6 +366,7 @@ Flutter `Radio<String>`, scaled to its box (32 px is its own size; its ring, 18 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `label` | String | `""` |  | Text beside it (SSUI's label; Flutter has `CheckboxListTile` for this): tapping it toggles too, and it names the control to a screen reader. Empty: the bare control. |
+| `semanticLabel` | String | `""` |  | The name a screen reader says for it, not shown. |
 | `value` | String | `""` |  | The value this radio stands for; it is selected when `groupValue` equals it. |
 | `groupValue` | String | unset |  | The group's selected value; this radio is on when it equals `value`. |
 | `toggleable` | bool | `false` |  |  |
@@ -396,6 +399,7 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 | `max` | double | `1` |  | The value at the end of the track. |
 | `divisions` | int | unset |  | Snaps to this many equal steps between `min` and `max`. Null: continuous. |
 | `label` | String | unset |  | The value indicator's text; `${value}` is the value. |
+| `semanticLabel` | String | `""` |  | The name a screen reader says for it, not shown (a range's or a rating's name too; `label` is its value bubble). |
 | `labelFractionDigits` | int | `0` | ≥ 0 | Decimals of `${value}` in `label`. |
 | `autofocus` | bool | `false` |  |  |
 | `readOnly` | bool | `false` |  | Shows the value without accepting pointer, keyboard or semantics changes. |
