@@ -255,7 +255,9 @@ What 2.1 and 2.5 leave to this family, settled (tests: `test/notation/fields_tes
   layout (`pad`, `w`, `h`, `grow`, `margin`, `x`, `y`, `align`, `order`, `basis`, `aspectRatio`, `maxWidth` or
   `constraints`), decoration (`fill`/`gradient`/`fills`, `border`/`border-<side>`/`strokes`, `strokeWidth`,
   `radius`, `effects`, `clip`, `shape`), the other props by name, the node's own fields (`hidden`, `opacity`,
-  `tooltip`, `sticky`, `readOnly`, `drag`, `drop`), bindings, `bind=name`; then events, media, paint.
+  `tooltip`, `sticky`, `readOnly`, `drag`, `drop`), bindings, the line's marks (`@name`, design 13 section 3.1);
+  then events, media, paint. A key is written once on a line (design 13 section 3: a key written twice is an issue,
+  since 34.0.0).
 - **A type's word.** Its one short name that says no more than the type's own word, with every prop and a line
   under it and with the line's own words (`Input`, `Toggle`, `Select`, `Button`, `Progress`; not `AreaChart`,
   which fills under a line chart's series); else a button's look that says no more (`Button.outline`,
@@ -275,10 +277,14 @@ What 2.1 and 2.5 leave to this family, settled (tests: `test/notation/fields_tes
   not decorated, 4.1 Keys.)
 - **A binding** is `key={expression}` (`{name}` reads `${name}`, `{formula}` reads `${= formula}`; `selected=`
   always reads a formula), and a prop bound to a text with values in it is `key="…{x}…"`. A value and a binding of
-  the same field are both written, the value first (`fill=#FFE5E7EB fill={…}`, `radius=8 radius={…}`), except a
-  size, which a binding makes 0 unless a number is written beside it (4.7). A control's value kept in a declared
-  variable, with the `changed` reaction that stores it first, is `bind=name`, the events' word since the second
-  wave (4.7); `printedBindReaction` tells the events' words which reaction that is.
+  the same field are both written, the binding by the key and the value by another key that means the field: its
+  path (`decoration.radius=8 radius={…}`, `layout.height=24 h={…}`, `props.crossAxisCount=3 cols={…}`), or the
+  field's whole value (`fills=[{"color":"#FFE5E7EB"}] fill={…}`); a field with no second key keeps its value in
+  the tail. (Before 34.0.0 both were written under one key, `radius=8 radius={…}`; a key written twice is now an
+  issue.) A size is 0 under a binding unless a number is written beside it (`layout.height=24` counts, 4.7). A
+  control's value kept in a declared variable, with the `changed` reaction that stores it first, is `@name`, the
+  events' word since the second wave (4.1, 4.7); `printedBindReaction` tells the events' words which reaction that
+  is.
 - **By name (on since the Keys family landed: 4.7).** A field of a text's style by its name (`letterSpacing=0.4`,
   `from=eyebrow`); a layout field (`squeezable=true`, `columnSpan=2`, `minHeight=40`); a decoration field
   (`strokeSides=topBottom`, `dashPattern=[6,4]`, `strokeAlign=outside`, `blendMode=multiply`,
@@ -339,14 +345,18 @@ Settled 2026-11-17 (tests: `test/notation/events_test.dart`, group "the second p
   (`"left": 3`, `ConditionOperand.fromJson`) is its text, in an action's `when`, an `if`'s `condition` and the
   actions nested in them. Nothing else in a reaction is read two ways: its `actions` are a list only
   (`readList`), an action's type and fields one key each.
-- **`bind=`** is printed for every two-way binding the parser writes: the binding of the control's value and the
-  `changed` reaction that stores it first among its reactions, found by reading `bind=` on the line where the
-  node is (under its `each`), so for every control type: a variable (`Slider bind=vol`), a field of a record
-  variable (`Input bind=draft.title`), a field of the repeated element (`Checkbox bind=item.done` under an `each`).
-  A design system control's variable parameter holding a variable's name or a field's path is `bind=` too
-  (`ToggleRow bind=public`, `ToggleRow bind=item.on` under an each), with no reaction. The node's other reactions
-  are its events. What only shows a value (`Progress`) keeps `value={…}` (the fields' binding); `bind={…}` on it
-  reads the same.
+- **`@name`** (design 13 section 3.1, since 34.0.0; before, `bind=name`) is printed for every two-way binding
+  the parser writes: the binding of the control's value and the `changed` reaction that stores it first among
+  its reactions, found by reading the mark on the line where the node is (under its `each`), so for every control
+  type: a variable (`Slider @vol`), a field of a record variable (`Input @draft.title`), a field of the repeated
+  element (`Checkbox @item.done` under an `each`), and a control with two ends, one change storing both (`Slider
+  @lo @hi`, `Calendar @from @to`). A design system control's variable parameter holding a variable's name or a
+  field's path is a mark too, with no reaction: its value bare (`ToggleRow @public`, `ToggleRow @item.on` under an
+  each), each further variable parameter by name (`SortMenu @col direction=@dir`). The mark is printed only
+  where the variable is declared (by the print's `state` lines, a loop): reading it adds no variable. The node's
+  other reactions are its events. What only shows a value (`Progress`) keeps `value={…}` (the fields' binding).
+  Not printed yet: `selected=@picked` on a `selectable` list (the list words are not printed: the list stays its
+  reactions and bindings).
 - **A design system block's events** are written by their own names (`SessionRow onPressed={emit open_session
   {item.date}}`), checked on the block called alone, which may already say it lacks a parameter; `onTap` on a
   block reads as its first event and prints as that event's name. In a component's own tree, `emit name [value]`
@@ -355,7 +365,7 @@ Settled 2026-11-17 (tests: `test/notation/events_test.dart`, group "the second p
 Not said yet: an event of a design system component whose name is also a word of the notation (`Button`,
 `IconButton`, `Card`, `Chip`, `TopBar`): the line reads as the notation's type, on which `onPressed` is a tap,
 so its reactions stay in the tail with its `type` until a line can name such a component (the fields' and the
-parser's head, not an event's word). A nested `each` (a list in a list's element) prints `bind=` only for a
+parser's head, not an event's word). A nested `each` (a list in a list's element) prints `@name` only for a
 variable or a record's field; a field of the outer element keeps `value={…} onChange={…}`.
 
 ### 4.5 The document family: the forms settled
@@ -382,8 +392,11 @@ design 13 section 3; none is a second way to write what had one.
   line.
 - **Ids.** An id the parser would give the line (`text3`: its type and the count so far) is not written,
   unless the line reads as something else without it (`Sidebar`, a page word, for a component of that name).
-  Any other id is written; an id's parts may be joined by `-` (`#m-logo`), which the parser now reads (an id
-  from data, `#row-{row.id}`, is still its fixed part).
+  Any other id is written when it is one word of letters, digits and `_` (`#m_logo`; an id from data,
+  `#row-{row.id}`, is still its fixed part). Since 34.0.0 a hyphen in an id is an issue, read as `_` (design 13
+  section 3): a document whose node or canvas ids have one (`m-logo`) cannot name them in a line, and prints
+  whole on the `document {…}` line, which the stream sends as its nodes, their places, its roots and its
+  variables.
 - **A component.** A design system's component document is its head, then its tree (no canvas; its variables
   are its root's):
 
@@ -556,9 +569,9 @@ Settled 2026-11-17 (tests: `test/notation/fields_p2_test.dart`, `fields_test.dar
   13, section 12).
 - **What a word adds yields to what the line gives.** A box's theme look for `selected=` and `enabled=` is added
   only where the line gives no `selected` (`disabled`) state of its own; a number written beside a bound size is
-  the size it starts at (`h=24 h={size}`, where a bound size alone is 0); a fill with its design size
+  the size it starts at (`layout.height=24 h={size}`, where a bound size alone is 0); a fill with its design size
   (`w={"fill":140}`) stays in a grid's cell, where any other width is the cell's.
-- **`bind=name` is the events' word** (4.1 Events). A control's value kept in a variable, with the `changed`
+- **`@name` is the events' word** (4.1 Events). A control's value kept in a variable, with the `changed`
   reaction that stores it, is left by the fields to `print_events.dart`: the bound path is not written here, and
   `printedBindReaction` names the reaction.
 - **The types a capital would make another word**: `box` (`Box` is a column), `gridView` (`GridView`, `Grid` the

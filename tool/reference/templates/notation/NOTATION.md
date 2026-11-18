@@ -111,7 +111,7 @@ Types: {{variableTypes}}.
 
 ```notation
 state price=2.5
-state qty=1
+state qty:decimal=1
 state total:decimal={price * qty}
 Column gap=8
   Text "Total: {total}"

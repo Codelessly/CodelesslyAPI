@@ -73,6 +73,13 @@ final _blocks = standardCatalog +
             {'key': 'onChanged', 'payload': {'kind': 'boolean', 'flutter': 'bool'}},
           ],
         },
+        {
+          'type': 'SortMenu',
+          'props': [
+            {'key': 'column', 'type': {'kind': 'variable', 'of': {'kind': 'string', 'flutter': 'String'}}, 'default': ''},
+            {'key': 'direction', 'type': {'kind': 'variable', 'of': {'kind': 'string', 'flutter': 'String'}}, 'default': ''},
+          ],
+        },
       ],
     });
 
@@ -314,6 +321,19 @@ void main() {
       final printed = _roundTripWith(text, _blocks);
       expect(printed, contains('ToggleRow#tr "Public profile" @public onChanged={dirty=true}'));
       expect(printed, contains('ToggleRow "Row" @item.on'));
+    });
+
+    test('a design system control\x27s further variable parameters are key=@name, its first bare', () {
+      const text = 'state col="name"\nstate dir="asc"\nColumn\n  SortMenu#s @col direction=@dir';
+      final r = parseNotation(text, catalog: _blocks);
+      expect(r.issues, isEmpty);
+      expect(_node(r, 's')['props'], allOf(containsPair('column', 'col'), containsPair('direction', 'dir')));
+      expect(_roundTripWith(text, _blocks), contains('SortMenu#s @col direction=@dir'));
+    });
+
+    test('a calendar\x27s two ends are two marks, one change storing both', () {
+      const text = 'state from=""\nstate to=""\nColumn\n  Calendar#c @from @to';
+      expect(_roundTrip(text), contains('Calendar#c @from @to'));
     });
 
     test('a block\x27s events by their own names, on a block called without what it requires too', () {

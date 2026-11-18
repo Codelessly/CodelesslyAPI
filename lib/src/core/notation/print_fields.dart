@@ -25,6 +25,7 @@ import 'print_events.dart';
 import 'print_media.dart';
 import 'print_paint.dart';
 import 'print_states.dart';
+import 'vocabulary.dart' show LinePart, LineParts;
 
 /// What a line is printed with: the whole document (a node's parent, its
 /// variables), the catalog its types come from and the options the print is
@@ -91,15 +92,16 @@ final class PrintContext {
 /// exact to be safe: it has to be right to be counted.
 String printNodeLine(String id, Json n, PrintContext context) {
   final line = context._line(id, n);
-  final b = StringBuffer(line.head)..write('#$id');
-  for (final w in line.words) {
-    b.write(' $w');
-  }
+  final all = [...line.words];
   for (final words in [printStates(id, n, context), printEvents(id, n, context), printMedia(id, n, context), printPaint(id, n, context)]) {
     for (final w in words) {
       // A word the line already says (a chart's list by its name) once.
-      if (!line.words.contains(w)) b.write(' $w');
+      if (!line.words.contains(w)) all.add(w);
     }
+  }
+  final b = StringBuffer(line.head)..write('#$id');
+  for (final w in _onceEach(all, '${n['type']}', context.catalog)) {
+    b.write(' $w');
   }
   return b.toString();
 }
@@ -138,7 +140,7 @@ Json printFieldsRefine(Json parsed, List<({String id, String Function() get, voi
       final more = context._line(l.id, want)._more(now, l.get());
       if (more.isEmpty) continue;
       before[i] = l.get();
-      l.set('${l.get()} ${more.join(' ')}');
+      l.set(_joinOnce(l.get(), more, '${want['type']}', context.catalog));
     }
     if (before.isEmpty) break;
     final next = read();
@@ -157,6 +159,83 @@ Json printFieldsRefine(Json parsed, List<({String id, String Function() get, voi
     parsed = kept == before.length ? next : read();
   }
   return parsed;
+}
+
+final _keyed = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)=(.*)$', dotAll: true);
+
+/// A key is written once on a line (design 13: a key written twice is an
+/// issue, one of the two lost). Of a field's value and a binding of it
+/// (`radius=8 radius={…}`), the value is written by the field's path
+/// (`decoration.radius=8`) where that is another key that reads it, else
+/// left to the line's tail. [words] in that form.
+List<String> _onceEach(List<String> words, String type, Catalog catalog) {
+  final out = [...words];
+  for (var j = out.length - 1; j > 0; j--) {
+    final b = _keyed.firstMatch(out[j]);
+    if (b == null) continue;
+    for (var i = 0; i < j; i++) {
+      final a = _keyed.firstMatch(out[i]);
+      if (a == null || a[1] != b[1]) continue;
+      final aBound = a[2]!.startsWith('{'), bBound = b[2]!.startsWith('{');
+      if (aBound == bBound) break;
+      final (at, value) = aBound ? (j, b) : (i, a);
+      final path = _valuePath(value[1]!, type, catalog);
+      if (path != null) {
+        out[at] = '$path=${value[2]}';
+      } else {
+        out.removeAt(at);
+      }
+      break;
+    }
+  }
+  return out;
+}
+
+/// Another key that means [key]'s field on [type] (its path, `layout.height`
+/// for `h`), or null.
+String? _valuePath(String key, String type, Catalog catalog) {
+  final path = notationKeyPath(key, type, catalog: catalog);
+  return path != null && path != key && notationKeyPath(path, type, catalog: catalog) == path ? path : null;
+}
+
+/// [line] with [more] after it, each key once ([_onceEach]): a word of
+/// [more] whose key the line has already is written by its path, or the
+/// line's own value of it is.
+String _joinOnce(String line, List<String> more, String type, Catalog catalog) {
+  var text = line;
+  final add = <String>[];
+  for (final w in more) {
+    final b = _keyed.firstMatch(w);
+    final parts = b == null ? null : LineParts.of(text.trimLeft());
+    final indent = text.length - text.trimLeft().length;
+    LinePart? had;
+    for (final p in parts?.parts ?? const <LinePart>[]) {
+      final a = p.kind == 'pair' || p.kind == 'word' ? _keyed.firstMatch(p.raw) : null;
+      if (a != null && a[1] == b![1]) had = p;
+    }
+    if (b == null || had == null || had.at < 0) {
+      add.add(w);
+      continue;
+    }
+    final a = _keyed.firstMatch(had.raw)!;
+    final aBound = a[2]!.startsWith('{'), bBound = b[2]!.startsWith('{');
+    if (aBound == bBound) {
+      add.add(w);
+      continue;
+    }
+    final path = _valuePath(b[1]!, type, catalog);
+    if (aBound) {
+      // The word added is the value.
+      if (path != null) add.add('$path=${b[2]}');
+    } else {
+      // The line's own word is the value.
+      final start = indent + had.at;
+      final end = start + had.raw.length;
+      text = path == null ? '${text.substring(0, start).trimRight()}${text.substring(end)}' : '${text.substring(0, start)}$path=${a[2]}${text.substring(end)}';
+      add.add(w);
+    }
+  }
+  return add.isEmpty ? text : '$text ${add.join(' ')}';
 }
 
 /// A size as `w=`/`h=` write it: a number, `fill` or `hug`, or the size's
@@ -566,29 +645,11 @@ final class _NodeLine {
     if (twoWay case final t?) words.add(t.word);
   }
 
-  /// A key is written once on a line (design 13: a key written twice is an
-  /// issue, one of the two lost). A field's value with a binding of it after
-  /// (`radius=8 radius={…}`) has its value written by the field's path
-  /// (`decoration.radius=8`), or left to the line's tail.
   void _oneKeyEach() {
-    final keyOf = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)=(.*)$', dotAll: true);
-    for (var j = words.length - 1; j > 0; j--) {
-      final later = keyOf.firstMatch(words[j]);
-      if (later == null || !later[2]!.startsWith('{')) continue;
-      final key = later[1]!;
-      for (var i = 0; i < j; i++) {
-        final m = keyOf.firstMatch(words[i]);
-        if (m == null || m[1] != key || m[2]!.startsWith('{')) continue;
-        final path = notationKeyPath(key, type, catalog: c.catalog);
-        if (path != null && path != key && notationKeyPath(path, type, catalog: c.catalog) == path) {
-          words[i] = '$path=${m[2]}';
-        } else {
-          words.removeAt(i);
-          j--;
-        }
-        break;
-      }
-    }
+    final once = _onceEach(words, type, c.catalog);
+    words
+      ..clear()
+      ..addAll(once);
   }
 
   // --- the head --------------------------------------------------------------
