@@ -826,9 +826,11 @@ final class _NodeLine {
     final leaf = nested ? key.substring(key.indexOf('.') + 1) : key;
     final fixed = holder?[leaf];
     final reads = type == 'text' || type == 'box';
-    // A value and a binding of the main field: the binding is its key, the
-    // value its path (`props.label="0" label={props.count}`), not the string.
-    if (fixed is String && !nested && bind['props.$key'] != null) return;
+    // A value and a binding of a component's main field: the binding is its
+    // key, the value its path (`props.label="0" label={props.count}`), not
+    // the string, which a component's line reads as that parameter written
+    // twice.
+    if (fixed is String && !nested && bind['props.$key'] != null && type[0] != type[0].toLowerCase()) return;
     if (fixed is String && (reads || !fixed.contains(r'${'))) {
       final q = _quoted(fixed);
       if (q == null) return;
