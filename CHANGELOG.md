@@ -41,6 +41,9 @@
 
 ### Fixed
 
+- **`Grid cols={n} tablet.cols={max(2, n - 2)}`**: a Grid's columns at a width worked out from the state, as
+  `cols={…}` is (round 11b: photo-library). It was refused with "A Grid's columns at a width are a number from
+  1 to 24: tablet.cols=2", which read as if 2 were out of range.
 - **`drop=audioSource dropTarget.slot=none`** and `drag=clips(1) draggable.feedbackRotation=0`: the dotted key
   sets a field of the record `drop=`/`drag=` made. The expand stopped with an exception ("type 'String' is not
   a subtype of type 'List<String>'"; round 11b: clip-editor, both arms).

@@ -5684,8 +5684,33 @@ class _Parser {
           } else if (grid != null && RegExp(r'^(cols|columns)=').hasMatch(ruleWord)) {
             // `tablet.cols=2`: the grid's column count at that width, a rule of
             // the grid its `each` makes.
-            final n = int.tryParse(ruleWord.substring(ruleWord.indexOf('=') + 1));
-            if (n == null || n < 1 || n > 24) {
+            final value = ruleWord.substring(ruleWord.indexOf('=') + 1);
+            final n = int.tryParse(value);
+            // `tablet.cols={max(2, gridColumns - 2)}`: worked out at that
+            // width, as `cols={…}` is (round 11b, photo-library: refused,
+            // with a message that read as if 2 were out of range).
+            final worked = n == null && value.startsWith('{') && value.endsWith('}') && value.length > 2 ? _formula('max(1, round(${value.substring(1, value.length - 1).trim()}))') : null;
+            if (worked != null) {
+              if (!_mediaLine) {
+                if (grid.mediaCols.isEmpty) {
+                  grid
+                    ..mediaLine = _line
+                    ..mediaColumn = col;
+                }
+                grid.mediaCols.add({
+                  ...m.condition,
+                  'patch': {
+                    'bind': {'props.crossAxisCount': worked},
+                  },
+                });
+                num widest(Json r) => (r['maxWidth'] as num?) ?? double.infinity;
+                final order = [for (var i = 0; i < grid.mediaCols.length; i++) (i, grid.mediaCols[i])]
+                  ..sort((a, b) => widest(b.$2).compareTo(widest(a.$2)) != 0 ? widest(b.$2).compareTo(widest(a.$2)) : a.$1.compareTo(b.$1));
+                grid.mediaCols
+                  ..clear()
+                  ..addAll([for (final e in order) e.$2]);
+              }
+            } else if (n == null || n < 1 || n > 24) {
               _issue(col, "A Grid's columns at a width are a number from 1 to 24: ${t.s.substring(from, from + m.length - 1)}.cols=2.");
             } else if (!_mediaLine) {
               if (grid.mediaCols.isEmpty) {

@@ -242,6 +242,24 @@ Column
     expect(_node(r, 's')['draggable'], containsPair('feedbackRotation', 0));
   });
 
+  test('the columns of a Grid at a width worked out from the state (tablet.cols={…})', () {
+    // photo-library (photos.txt:42): refused, the message quoting a valid value.
+    final r = _parse('''
+state gridColumns=6
+state items=[1,2,3]
+Column
+  Grid#g cols={gridColumns} tablet.cols={max(2,gridColumns - 2)} phone.cols={max(1,gridColumns - 4)} gap=4
+    each i in items
+      box w=fill h=40
+''');
+    expect(r.issues, isEmpty);
+    final nodes = r.document['nodes'] as Map;
+    final grid = nodes[((nodes['g'] as Map)['children'] as List).single] as Map;
+    final rules = (grid['media'] as List).cast<Map>();
+    expect(rules.map((r) => r['maxWidth']), [1023, 699]);
+    expect(((rules.last['patch'] as Map)['bind'] as Map)['props.crossAxisCount'], contains('gridColumns - 4'));
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.
