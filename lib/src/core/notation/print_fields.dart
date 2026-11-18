@@ -1023,6 +1023,22 @@ final class _NodeLine {
     if (readMap(d['prefixIcon']) case final Json icon when icon['size'] == 18 && icon.length == 2) {
       if (_value(icon['icon'], _vars) case final String w) words.add('icon=$w');
     }
+    // Its box as a writer writes it: `fill=`, `border=` (`none`: a bare
+    // field), `radius=`.
+    if (d['filled'] == true && d['fillColor'] is String && !(d['fillColor']! as String).contains(r'${')) {
+      if (_value(d['fillColor'], _vars) case final String w) words.add('fill=$w');
+    }
+    if (readMap(d['border']) case final Json b) {
+      if (b['type'] == 'none' && d['filled'] != null) {
+        words.add('border=none');
+      } else if ((b['type'] ?? 'outline') == 'outline') {
+        final side = readMap(b['borderSide']);
+        if (side != null && side.length == 1 && side['color'] is String) {
+          if (_value(side['color'], _vars) case final String w) words.add('border=$w');
+        }
+      }
+      if (b['borderRadius'] case final num r) words.add('radius=${r == r.roundToDouble() ? r.toInt() : r}');
+    }
     if (d['affixesAlwaysVisible'] == true) {
       for (final k in const ['prefix', 'suffix']) {
         if (d['${k}Text'] case final String v) {

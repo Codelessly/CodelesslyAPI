@@ -5850,9 +5850,9 @@ class _Parser {
         // node they drew nothing, and radius was left out). border=none with
         // no fill is a bare field: no border, no fill (the box around it is
         // its frame).
-        // (A state's or a media rule's word, read alone, is as it was:
-        // `focused.fill=` on an Input is the node's state.)
-        if (type == 'textField' && !component && !_mediaLine && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
+        // A state's or a media rule's word reads the same (`focused.fill=`
+        // on an Input: its box's fill while it has the focus).
+        if (type == 'textField' && !component && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
           final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
           Json border() => (field['border'] as Json?) ?? (field['border'] = <String, Object?>{'type': 'outline'});
           final v = raw.startsWith('=') ? null : _value(raw);
@@ -5863,8 +5863,9 @@ class _Parser {
             } else if (v == 'none' || v == 'transparent') {
               field['filled'] = false;
             } else {
-              field['filled'] = true;
+              // (The color first: a state's print reads `fill=` from it.)
               field['fillColor'] = _named(v, 'fill');
+              field['filled'] = true;
             }
           } else if (key == 'radius') {
             if (raw.startsWith('=')) {

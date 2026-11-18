@@ -21,6 +21,8 @@ notation and as a web app and the notation's composers, steppers and toolbar fie
   wrote that shape. A framed row of an icon and a field with no button (a document's search pill) is as it was.
 - **`fill`, `border` and `radius` on an `Input` are its box's** (its decoration's `fillColor`, `border` and
   corners): on the node they drew nothing, and `radius` was left out. `border=none` with no fill is a bare field.
+  A state's word reads the same (`focused.fill=#FFEFF6FF`: the field's fill while it has the focus), and `print`
+  writes them back as these words.
 - **A multi-line field with `onSubmit` sends on Enter** and breaks the line on Shift+Enter (`textInputAction`
   `send` unless one is written): Enter only broke the line, and `onSubmit` never ran from the keyboard.
 

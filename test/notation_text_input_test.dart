@@ -210,4 +210,25 @@ Column
       'borderRadius': 4,
     });
   });
+
+  test('a field\'s box prints back in the words that wrote it, a state\'s too', () {
+    const text = '''
+state q=""
+Column
+  Input#pill "" "Search" @q fill=#FFF3F4F6 border=none radius=20
+  Input#bare "" "Message" @q border=none
+  Input#line "" "Title" @q border=#FF7C3AED radius=4
+  Input#name "Name" @q focused.fill=#FFEFF6FF''';
+    final r = _parse(text);
+    expect(r.issues, isEmpty);
+    expect(((_node(r, 'name')['states'] as Map)['focused'] as Map)['name'], {
+      'props': {
+        'decoration': {'filled': true, 'fillColor': '#FFEFF6FF'},
+      },
+    });
+    final printed = printNotation(r.document, catalog: standardCatalog);
+    for (final line in text.split('\n').skip(2)) {
+      expect(printed, contains(line.trim().replaceFirst(RegExp(r'#\w+ '), ' ').split(' @q').last.trim()), reason: '$line\n$printed');
+    }
+  });
 }
