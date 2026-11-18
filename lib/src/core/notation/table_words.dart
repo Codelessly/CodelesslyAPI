@@ -145,7 +145,7 @@ extension on PageWords {
       // (`"hide":"phone"`).
       (indent: at, text: 'Column$mark w=fill fill=$surface border=$line radius=8 clip=antiAlias keep${height == null ? '' : ' h=$height'}${parts.all}'),
       // The header: labels in the caption's ink on the band's fill.
-      (indent: at + 2, text: 'Row${sub('head')} w=fill h=$headH pad=[16,0,16,0] gap=16 fill=$head border-bottom=$line${stickyOff || height != null ? '' : ' sticky'}'),
+      (indent: at + 2, text: 'Row${sub('head')} w=fill h=$headH pad=[16,0,16,0] gap=16 fill=$head border-bottom=$line${stickyOff || height != null ? '' : ' sticky=0'}'),
       if (select != null) ...[
         (indent: at + 4, text: 'Row w=16'),
         (

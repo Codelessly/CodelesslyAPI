@@ -41,4 +41,9 @@ Row#rowBody gap=12 pad=[16,10,16,10]
     expect(r.issues, isEmpty);
     expect(_node(r, 'rowBody')['media'], isNull);
   });
+
+  test("a table's header pins at the very top while the page scrolls (it pinned 16 px down, a row showing above it)", () {
+    final r = parseNotation('state rows:list=[]\nColumn\n  Table#t r in rows columns=["Name"]\n', catalog: standardCatalog, options: const NotationOptions(width: 1440));
+    expect(_node(r, 't-head')['sticky'], {'offset': 0});
+  });
 }
