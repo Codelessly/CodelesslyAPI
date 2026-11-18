@@ -1160,10 +1160,18 @@ final class _NodeLine {
         h > 0 &&
         props['scrollable'] != true &&
         readStrings(n['children']).any((k) => readMap(c.nodes[k])?['type'] == 'text');
+    // A labelled field's whole height, its label's and its box's (`h=` on it
+    // is its box's: round 11b).
+    final labelledField = type == 'textField' &&
+        h is num &&
+        switch (readMap(props['decoration'])?['labelText']) {
+          final String l => l.isNotEmpty,
+          _ => bind['props.decoration.labelText'] != null,
+        };
     if (spacer && h != null && !_equal(h, height)) {
       if (_sizeWord(h) case final String s) words.add('layout.height=$s');
     } else if (!spacer && free('height') && h != null && !_equal(h, height)) {
-      if (_sizeWord(h) case final String s) words.add(textUnder ? 'layout.height=$s' : 'h=$s');
+      if (_sizeWord(h) case final String s) words.add(textUnder || labelledField ? 'layout.height=$s' : 'h=$s');
     }
     // A fit beside a bound size (a bound size alone is 0): by its full path,
     // that size exactly (design 22, 4.8).

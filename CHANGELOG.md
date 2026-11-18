@@ -9,6 +9,12 @@
 
 ### Behaviour changes
 
+- **A labelled `Input` of a fixed height is that high in its box, its label above** (round 11b: 8 builds;
+  `Input "Street address" "e.g. 11 Canynge Road" @a h=44` beside a `Select h=44`): the reference gives a field's
+  height as a step of the control scale, the same on the inputs beside it; the height held the label and the box
+  together, and the box drew about 22 high, its text tiny. The node now hugs and its box is the height written
+  (`decoration.constraints`). A field with no label above (a composer, a toolbar's, a hint alone) is as it was,
+  and so is a height that adds the label's room to the control height (`h=48` at 28).
 - **A Select whose line writes a `fill` or a `border` is framed by that box alone** (round 11b, the docs site's
   version switcher: `Select @version items=[…] w=83 h=36 pad=[8,0,5,0] fill=paper border=rule radius=7`): the
   Select draws no frame of its own inside it (`underline: false`), its value and chevron are inset by the

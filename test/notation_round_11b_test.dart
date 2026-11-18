@@ -82,6 +82,36 @@ Column
     });
   });
 
+  test('a labelled Input of a fixed height: the height is its box, the label above it (the box drew about 22 of 44)', () {
+    // property-listings (valuation.txt:30), restaurant, saas-landing,
+    // calendar-app, clip-editor, meal-planner, kanban-board.
+    final r = _parse('''
+state a=""
+Column
+  Row gap=12 top
+    Input#i "Street address" "e.g. 11 Canynge Road" @a h=44 w=300 required
+    Select#s @a items=["1","2"] h=44
+  Input#plain "Name" @a h=44 w=300
+  Input#bare "" "Search" @a h=44 w=300
+  Row gap=8 middle
+    Input#bar "New marker" @a grow h=28
+    IconButton "add"
+''');
+    expect(r.issues, isEmpty);
+    for (final id in ['i', 'plain']) {
+      expect(_layout(r, id)['height'], {'hug': 0}, reason: id);
+      expect((_props(r, id)['decoration'] as Map)['constraints'], {'minHeight': 44, 'maxHeight': 44}, reason: id);
+    }
+    // No label above: the height is the box's already.
+    expect(_layout(r, 'bare')['height'], 44);
+    expect(_layout(r, 'bar')['height'], 28);
+    // It prints back as written and reads back the same.
+    final printed = printNotation(r.document, catalog: standardCatalog);
+    final again = _parse(printed);
+    expect(_layout(again, 'i'), _layout(r, 'i'), reason: printed);
+    expect((_props(again, 'i')['decoration'] as Map)['constraints'], {'minHeight': 44, 'maxHeight': 44}, reason: printed);
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

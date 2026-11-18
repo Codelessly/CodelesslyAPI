@@ -2974,6 +2974,43 @@ class _Parser {
   /// the box's sides as in its own frame (unless the line wrote a `pad`), and
   /// the box's line takes the accent while the Select has the focus (unless
   /// the line wrote its focused look). It drew two boxes, one in the other.
+  /// A labelled field whose line wrote a fixed height (`Input "Street
+  /// address" "e.g. 11 Canynge Road" @a h=44`; round 11b, 8 builds): the
+  /// height is its box's, a step of the control scale as the reference
+  /// says, with its label above it (and room for its error below), as a
+  /// Select of `h=44` beside it is 44. It was the height of the label and
+  /// the box together: the box drew about 22 high. A field whose label is
+  /// gone (a composer's, a toolbar's) is as it was; a height that already
+  /// adds the label's room to the control height (`h=48` at 28) is too.
+  void _labelledFieldHeights() {
+    final extra = options.fieldLabel == null ? 20 : 23;
+    for (final MapEntry(key: id, value: h) in _fieldHeights.entries) {
+      final n = nodes[id];
+      if (n == null || n['type'] != 'textField') continue;
+      final layout = readMap(n['layout']) ?? const <String, Object?>{};
+      if (layout['height'] != h) continue;
+      final props = readMap(n['props']) ?? const <String, Object?>{};
+      final d = readMap(props['decoration']) ?? const <String, Object?>{};
+      final label = d['labelText'];
+      final labelled = (label is String && label.isNotEmpty) || readMap(n['bind'])?['props.decoration.labelText'] != null;
+      if (!labelled) continue;
+      if (options.controlHeight case final c? when h == c + extra || h == c + extra + 18) continue;
+      if (readMap(d['constraints']) != null) continue;
+      final change = <String, Object?>{
+        'layout': {
+          'height': {'hug': 0},
+        },
+        'props': {
+          'decoration': {
+            'constraints': {'minHeight': h, 'maxHeight': h},
+          },
+        },
+      };
+      nodes[id] = mergePatch(n, change);
+      if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': change});
+    }
+  }
+
   void _framedSelectsBare() {
     for (final id in _framedSelects) {
       if (_ownFrameSaid.contains(id)) continue;
@@ -3630,6 +3667,9 @@ class _Parser {
   /// The Selects whose lines wrote a fill or a border: the line's box is
   /// their frame ([_framedSelectsBare]).
   final _framedSelects = <String>{};
+
+  /// The text fields whose lines wrote a fixed height ([_labelledFieldHeights]).
+  final _fieldHeights = <String, num>{};
 
   /// The Selects whose lines said `underline=` (true: the frame inside the
   /// box is kept).
@@ -6039,6 +6079,9 @@ class _Parser {
         // Flutter's names for a Grid's words (test 10: Grid crossAxisCount=,
         // crossAxisSpacing=, mainAxisSpacing=, mainAxisExtent=): read as the
         // notation's, recorded as aliases. A Grid has one gap.
+        // A field's fixed height, as the reference gives it: the box's (one
+        // step of the control scale), its label above it ([_labelledFieldHeights]).
+        if (type == 'textField' && !component && key == 'h' && num.tryParse(raw) != null) _fieldHeights[id] = num.parse(raw);
         if ((grid == null ? null : const {'crossAxisCount': 'cols', 'crossAxisSpacing': 'gap', 'mainAxisSpacing': 'gap'}[key]) case final String to) {
           _use('alias', key, col, of: 'parameter', to: to, on: written);
           key = to;
@@ -9088,6 +9131,7 @@ class _Parser {
     _endButtons();
     _fieldsBesideButtons();
     _framedSelectsBare();
+    _labelledFieldHeights();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {
