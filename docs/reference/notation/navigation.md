@@ -236,6 +236,15 @@ With no design system the panel is drawn in the theme's `surface` and its title 
 site's theme and its dark mode; a `Drawer` has no rule at its side unless its line writes a `border`. For example
 `Dialog#compose "New message" guard={draft != ""} guardText="Discard the draft?" onDiscard={draft=""}`.
 
+In a site an overlay is a screen of the whole site. Two pages may each write one id (`Drawer#nav` on the board page
+and on the list page): written alike on both, it is one overlay; drawn differently, `expand` gives each page its own,
+`nav--board` and `nav--list` (`<id>--<page>`: no id a writer writes has `--`; a page file of that name is said, and
+that overlay left one with the others), and every `open nav`, `go nav` and `confirm … dialog=nav` of that page opens
+the page's own. A component's `open nav` opens the calling page's; a page that calls it and writes no `nav` while
+other pages write differing ones is said, with what to write. A render step names the overlay as its page wrote it
+(`--tap nav/close` on the board page), the outline shows `canvas nav--board (#nav as written on page board …)`, and
+`print` gives the page back as written (`nav`).
+
 <a id="navigation-screens"></a>
 ## Screens
 
