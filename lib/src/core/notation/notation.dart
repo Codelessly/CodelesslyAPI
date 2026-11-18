@@ -160,6 +160,7 @@ final class NotationOptions {
     this.components = const {},
     this.componentRules = const {},
     this.componentScreenActions = const {},
+    this.componentPressEvents = const {},
     this.badge = defaultBadge,
     this.cta,
     this.palette = const {},
@@ -245,6 +246,7 @@ final class NotationOptions {
         components: components,
         componentRules: componentRules,
         componentScreenActions: componentScreenActions,
+        componentPressEvents: componentPressEvents,
         badge: badge,
         cta: cta,
         palette: palette,
@@ -358,6 +360,14 @@ final class NotationOptions {
         for (final c in designSystem.list)
           if (c.document.extra['screenActions'] case final List actions when actions.isNotEmpty)
             c.type: [for (final a in actions) if (a is Map) a.cast<String, Object?>()],
+      },
+      componentPressEvents: {
+        for (final c in designSystem.list)
+          if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
+            for (final r in root.actions)
+              if (r.trigger.type == TriggerType.click)
+                for (final a in r.actions)
+                  if (a.toJson() case {'type': 'componentEvent', 'event': final String event}) c.type: event,
       },
     );
   }
@@ -579,6 +589,7 @@ final class NotationOptions {
         components: components,
         componentRules: componentRules,
         componentScreenActions: componentScreenActions,
+        componentPressEvents: componentPressEvents,
         badge: badge,
         cta: cta,
         palette: palette,
@@ -655,6 +666,11 @@ final class NotationOptions {
   /// document's `screenActions`): the screen that shows the component takes
   /// them (once, however many calls), as if written on it.
   final Map<String, List<Json>> componentScreenActions;
+
+  /// The event a component sends when it is pressed (its root's click
+  /// emits it: a MenuItem's onSelected), by type: `onTap` on a call is that
+  /// event, not a press on the call around the component's own.
+  final Map<String, String> componentPressEvents;
 
   /// What a `BarChart` takes unless the line says (`barRadius`, `barGap`,
   /// `maxBarWidth`, its labels' font and colors): a theme's `radii.bar`,
@@ -3933,7 +3949,7 @@ class _Parser {
     // and kept by the row's list (its swipeActions, and a swipeAction
     // reaction whose result has the row: result.item, result.index).
     if (RegExp(r'^SwipeAction(\s|$)').hasMatch(line) && catalog.widget('SwipeAction') == null) {
-      const usage = 'A swipe action is written: SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name} (side=start or end, id=name, icon="…", removes).';
+      const usage = 'A swipe action is written: SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name} (side=start or end, id=name, icon="…", background=…, foreground=…, danger, removes).';
       final each = _stack.reversed.where((o) => o.each != null).firstOrNull;
       final listId = each == null ? null : _parentOf[each.id];
       final list = listId == null ? null : nodes[listId];
@@ -3951,7 +3967,7 @@ class _Parser {
         if (t.done) break;
         final word = t.word();
         final eq = word.indexOf('=');
-        if (word.isEmpty || (eq < 0 && word != 'removes')) return _issue(column + t.at, usage);
+        if (word.isEmpty || (eq < 0 && !const {'removes', 'danger', 'destructive'}.contains(word))) return _issue(column + t.at, usage);
         final key = eq < 0 ? word : word.substring(0, eq);
         var value = eq < 0 ? 'true' : word.substring(eq + 1);
         if (value.isEmpty && t.peek == '"') value = t.string();
@@ -3962,7 +3978,7 @@ class _Parser {
         if (key == 'onTap' || key == 'onSwipe') {
           if (!value.startsWith('{')) return _issue(column, usage);
           body = value.substring(1, value.length - 1);
-        } else if (const {'id', 'side', 'when', 'icon', 'removes'}.contains(key)) {
+        } else if (const {'id', 'side', 'when', 'icon', 'removes', 'background', 'foreground', 'danger', 'destructive'}.contains(key)) {
           words[key] = value;
         } else {
           return _issue(column, usage);
@@ -3974,6 +3990,11 @@ class _Parser {
       final when = words['when'];
       if (when != null && !when.startsWith('{')) return _issue(column, 'A condition is worked out, so it is in braces: when={!row.full}.');
       final removes = words['removes'] == 'true';
+      // A destructive action (written `danger`, or a delete by its icon or
+      // label) is the theme's error color; any other the accent.
+      final danger = words['danger'] == 'true' ||
+          words['destructive'] == 'true' ||
+          RegExp(r'^(delete|remove|trash|discard)', caseSensitive: false).hasMatch(words['icon'] ?? label);
       final props = (list['props'] as Map).cast<String, Object?>();
       final swipes = (props['swipeActions'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
       final key = side == 'start' ? 'startActions' : 'endActions';
@@ -3984,8 +4005,8 @@ class _Parser {
           'label': label,
           if (words['icon'] case final String icon) 'icon': icon,
           'removes': removes,
-          'background': options.accent,
-          'foreground': '#FFFFFFFF',
+          'background': words['background'] ?? (danger ? (options.accent.startsWith('#') ? '#FFDC2626' : 'error') : options.accent),
+          'foreground': words['foreground'] ?? '#FFFFFFFF',
           if (when != null) 'when': _formula(when.substring(1, when.length - 1)),
         },
       ];
@@ -8532,7 +8553,9 @@ class _Parser {
     if (type == 'tableView' && key == 'onSort') return {'type': 'sort'};
     if (type == 'tableView' && (key == 'onRowTap' || key == 'onTap')) return {'type': 'rowTap'};
     if (component != null) {
-      final named = blockEventFor(key, [for (final e in component.events) e.key]);
+      final named = blockEventFor(key, [for (final e in component.events) e.key]) ??
+          // onTap on a block its own press sends an event: that event.
+          (const {'onTap', 'onPress', 'onPressed', 'onClick'}.contains(key) ? options.componentPressEvents[type] : null);
       if (named != null) return {'type': 'event', 'event': named};
     }
     // Every trigger of the catalog, by the notation's name for it

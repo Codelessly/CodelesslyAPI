@@ -3608,6 +3608,7 @@ Column
     SwipeAction "Book" id=book side=end when={!row.full} onTap={picked=result.item.name; toast "Booked"}
     SwipeAction "Join waitlist" side=start when={row.full} icon="schedule" onTap={picked=result.item.name}
     SwipeAction "Remove" removes
+    SwipeAction "Snooze" side=start background=warning foreground=onSurface
     Text "{row.name}"
 ''');
     expect(r.issues, isEmpty);
@@ -3615,10 +3616,12 @@ Column
     final swipes = (list['props'] as Map)['swipeActions'] as Map;
     expect(swipes['endActions'], [
       {'id': 'book', 'label': 'Book', 'removes': false, 'background': '#FF2563EB', 'foreground': '#FFFFFFFF', 'when': r'${= !item.full}'},
-      {'id': 'remove', 'label': 'Remove', 'removes': true, 'background': '#FF2563EB', 'foreground': '#FFFFFFFF'},
+      {'id': 'remove', 'label': 'Remove', 'removes': true, 'background': '#FFDC2626', 'foreground': '#FFFFFFFF'},
     ]);
     expect(swipes['startActions'], [
       {'id': 'join_waitlist', 'label': 'Join waitlist', 'icon': 'schedule', 'removes': false, 'background': '#FF2563EB', 'foreground': '#FFFFFFFF', 'when': r'${= item.full}'},
+      // Its own colors, by the theme's names.
+      {'id': 'snooze', 'label': 'Snooze', 'removes': false, 'background': 'warning', 'foreground': 'onSurface'},
     ]);
     // Only an action that removes its row changes the list's variable.
     expect(swipes['apply'], 'variable');

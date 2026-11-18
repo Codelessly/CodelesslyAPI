@@ -213,7 +213,11 @@ final class ThemeTokens {
     // (`accent`). A color named after one (`accentDeep`, `accentBright`) is
     // a shade of it.
     final roots = {'primary', for (final e in colors.entries) if (e.value.name == null && e.value.value == from.value) e.key};
-    bool shadeName(String name) => roots.any((r) => name.length > r.length && name.startsWith(r));
+    // The roles a design system makes from its accent under names of their
+    // own (Desk's focus ring, a chosen row's tint, a selection, the first
+    // chart color) are shades of it too: a site that names its `primary`
+    // re-accents them all (the focused border of an Input, a SearchField's).
+    bool shadeName(String name) => _accentRoles.contains(name) || roots.any((r) => name.length > r.length && name.startsWith(r));
 
     Map<String, Object?> follow(Map<String, Color> base, Color was, Color now, Set<String> given, {required bool dark}) {
       final info = given.contains('info') || site.colors.containsKey('info') ? null : base['info'];
@@ -248,6 +252,14 @@ final class ThemeTokens {
     }
     return fromJson(mergePatch(merged.toJson(), patch));
   }
+
+  /// The color names that are the accent's by their role, whatever they are
+  /// called next to it ([withSiteTheme]): each follows a site's accent when
+  /// it is of the accent's hue.
+  static const _accentRoles = {
+    'focusBorder', 'focusRing', 'selection', 'selectedRow', 'activeTint', 'primaryTint', 'primaryTintBorder', //
+    'iconTile', 'chart1', 'link', 'linkHover', 'brand',
+  };
 
   static int _rgb(Color c) => c.value & 0xFFFFFF;
 

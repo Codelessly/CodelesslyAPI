@@ -189,7 +189,9 @@ abstract final class ChipProps {
   static const deleteIconSize = PropDef<double?>('deleteIconSize', _optionalDouble, null);
   static const deleteIconColor = PropDef<Color?>('deleteIconColor', _nullableColor, null);
   static const selected = PropDef<bool>('selected', Codecs.bool, false);
-  static const showCheckmark = PropDef<bool>('showCheckmark', Codecs.bool, true);
+  /// A check mark before the label of a chosen chip. Off unless written: a
+  /// chip chosen as a tab or a filter shows it by its fill.
+  static const showCheckmark = PropDef<bool>('showCheckmark', Codecs.bool, false);
   static const checkmarkColor = PropDef<Color?>('checkmarkColor', _nullableColor, null);
   static const backgroundColor = PropDef<Color?>('backgroundColor', _nullableColor, null);
   static const selectedColor = PropDef<Color?>('selectedColor', _nullableColor, null);

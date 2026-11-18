@@ -54,6 +54,25 @@ void main() {
     expect(_c(t, 'ink'), '#FF111827');
   });
 
+  test('the roles made from the accent under names of their own (Desk\'s focus border, a selected row) follow a site\'s primary', () {
+    final desk = ThemeTokens.fromJson({
+      'primary': '#FF4F46E5',
+      'colors': {
+        'accent': '#FF4F46E5',
+        'focusBorder': '#FF818CF8',
+        'selectedRow': '#FFF5F5FF',
+        'selection': '#FFE0E7FF',
+        'success': '#FF16A34A',
+      },
+    });
+    final t = desk.withSiteTheme(ThemeTokens.fromJson({'primary': '#FF0D9488'}));
+    for (final name in ['focusBorder', 'selectedRow', 'selection']) {
+      final c = t.color(name)!;
+      expect(c.green, greaterThan(c.red), reason: '$name is teal now: ${c.toJson()}');
+    }
+    expect(_c(t, 'success'), '#FF16A34A', reason: 'another hue stays');
+  });
+
   test('dark mode: the accent is made from the override, not left the design system\'s blue', () {
     final t = _base.withSiteTheme(ThemeTokens.fromJson({
       'primary': '#FFB45309',

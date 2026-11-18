@@ -374,6 +374,9 @@ void main() {
       ]);
       final printed = printNotation(r.document, catalog: _blocks);
       expect(printed, contains('TaskCard#t "Fix" onTap={n=1} onLongPress={n=2}'));
+      // A block whose own press sends an event (a MenuItem's root click emits onSelected): onTap is that event.
+      final pressed = parseNotation(text, catalog: _blocks, options: const NotationOptions(componentPressEvents: {'TaskCard': 'onSubmitted'}));
+      expect((_reactions(pressed, 't').first as Map)['trigger'], {'type': 'event', 'event': 'onSubmitted'});
     });
 
     test('a component raises its events with emit, in its own tree', () {
