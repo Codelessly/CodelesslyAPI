@@ -504,7 +504,12 @@ abstract final class SliderProps {
 }
 
 
-/// A pane divider. Its value is the leading pane's width in logical pixels.
+/// Which pane a [SplitterProps] value is the width of.
+enum SplitterPane { before, after }
+
+/// A pane divider. Its value is the width (in logical pixels) of the pane
+/// before it, or with `pane: after` of the pane after it (an inspector at
+/// the window's end): the pane binds its width to the same variable.
 abstract final class SplitterProps {
   static const value = PropDef<double>('value', Codecs.double, 240);
   static const min = PropDef<double>('min', Codecs.double, 0);
@@ -513,7 +518,11 @@ abstract final class SplitterProps {
   static const collapseAt = PropDef<double>('collapseAt', Codecs.double, 48);
   static const orientation = PropDef<Axis>('orientation', EnumCodec(Axis.values), Axis.horizontal);
   static const label = PropDef<String>('label', Codecs.string, 'Resize panels');
-  static const spec = WidgetSpec('splitter', hugs: true, props: [value, min, max, step, collapseAt, orientation, label],
+
+  /// The pane its value sizes: the one before it (dragging toward the end
+  /// widens it) or the one after it (dragging toward the end narrows it).
+  static const pane = PropDef<SplitterPane>('pane', EnumCodec(SplitterPane.values), SplitterPane.before);
+  static const spec = WidgetSpec('splitter', hugs: true, props: [value, min, max, step, collapseAt, orientation, label, pane],
       doc: 'Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.');
 }
 

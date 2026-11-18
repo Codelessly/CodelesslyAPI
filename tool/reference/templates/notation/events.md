@@ -44,7 +44,9 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 Actions are separated by `;`. A verb says a common action in a word; any action is its type and its fields by
 name, each value as on a line (a number, a word, `"text"` in which `{x}` reads a value, `{expression}`, JSON).
 A field that holds actions takes them in braces: `confirm "Remove it?" then {close}`, `onError={toast "Failed"}`.
-`cond ? a : b` chooses between actions (a branch may be `{a; b}`, or empty).
+`cond ? a : b` chooses between actions (a branch may be `{a; b}`, or empty). `close` closes the overlay the action
+runs in; a second `close` in the same chain closes the one under it (`close; close` from a dialog over a dialog
+closes both).
 
 An expression is written the same everywhere: braces around it are the expression's (`when {length(sel) > 0}` is
 `when length(sel) > 0`, `n={n + 1}` in an action is `n=n + 1`), and a map is a literal with keys (`m={a: 1}`, `{}`).

@@ -44,6 +44,11 @@ Row#pill gap=4
 - `slot name`: a place the caller fills with one line (several actions in a slot: a Row around them).
 - `preview "Name" 340x66 key=value …`: a preview, its size and the call's values.
 
+A component's `key`, `every` and `on load` lines, after its tree, are the screen's that shows it: each page that
+calls it takes them once, however many calls (a sidebar's `key alt+1 onPress={go members}` written once in the
+sidebar, not on every page). A page's own line for the same key is the page's. They run on that screen, so they
+read and set the page's and the site's variables, not the component's own: the expander says so when one does.
+
 A word defined in the text (`define`, [design-systems.md](design-systems.md)) is written out where it is used: it
 is not a component of the document.
 

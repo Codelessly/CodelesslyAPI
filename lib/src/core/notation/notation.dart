@@ -2565,11 +2565,15 @@ class _Parser {
   final _tableRows = <String>{};
 
   /// On a page, the media rules that lay it out on a tablet and a phone.
-  /// The foot of an app's window (`Footer` in Main or App): Main stops
-  /// scrolling as a whole; what else is in it scrolls in a column that takes
-  /// the room above the foot, which stays in view at the bottom at every
-  /// width. A foot written in App goes to the foot of its Main.
+  /// The foot of an app's window (`Footer` in Main or App) and the head of
+  /// a pane (its first lines written `sticky`: a list's toolbar): Main or
+  /// the Pane stops scrolling as a whole; what else is in it scrolls in a
+  /// column that takes the room between the head and the foot, which stay
+  /// in view at every width. A foot written in App goes to the foot of its
+  /// Main. (A sticky head inside the scrolling pane was pinned 16 px down
+  /// over the first row: test 9, mail.)
   void _feet() {
+    final feet = <String, String>{};
     for (final foot in [
       for (final e in _roles.entries)
         if (e.value == 'foot') e.key,
@@ -2586,11 +2590,43 @@ class _Parser {
         main = into;
       }
       if (_roles[main] != 'main' && _roles[main] != 'pane') continue;
-      final m = nodes[main]!;
+      feet[main] = foot;
+    }
+    for (final main in [
+      for (final e in _roles.entries)
+        if (e.value == 'main' || e.value == 'pane') e.key,
+    ]) {
+      final m = nodes[main];
+      if (m == null) continue;
       final props = (m['props'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
       if (props['scrollable'] != true) continue;
       final kids = ((m['children'] as List?) ?? const []).whereType<String>().toList();
-      final rest = [for (final k in kids) if (k != foot) k];
+      final foot = feet[main];
+      // A line in it that takes the room left (`grow`, `h=fill`: a board's
+      // lanes, a list that scrolls itself) has a height only in a pane that
+      // does not scroll: the pane is then a plain column (it was an
+      // unbounded height and an error: test 9, kanban 7).
+      bool takesRoom(String k) {
+        final l = readMap(nodes[k]?['layout']);
+        return (l?['flex'] is num && (l!['flex'] as num) > 0) || (l?['height'] is Map && (l!['height'] as Map).containsKey('fill'));
+      }
+      if (kids.any((k) => k != foot && takesRoom(k))) {
+        props.remove('scrollable');
+        m['props'] = props;
+        if (_canvas) ops.add({'op': 'patch', 'id': main, 'patch': {'props': {'scrollable': null}}});
+        continue;
+      }
+      // Its head: the lines at its top written sticky (pinned at the top).
+      final heads = <String>[];
+      for (final k in kids) {
+        if (nodes[k]?['sticky'] is! Map) break;
+        heads.add(k);
+      }
+      if (foot == null && heads.isEmpty) continue;
+      for (final h in heads) {
+        nodes[h]!.remove('sticky');
+      }
+      final rest = [for (final k in kids) if (k != foot && !heads.contains(k)) k];
       final scroll = '${main}Scroll';
       nodes[scroll] = {
         'type': 'column',
@@ -2605,12 +2641,13 @@ class _Parser {
       props.remove('scrollable');
       props['crossAxisAlignment'] = 'stretch';
       m['props'] = props;
-      m['children'] = [scroll, foot];
+      m['children'] = [...heads, scroll, ?foot];
       if (_canvas) {
         ops
-          ..add({'op': 'set', 'id': scroll, 'parent': main, 'index': 0, 'node': {...nodes[scroll]!}..remove('children')})
+          ..add({'op': 'set', 'id': scroll, 'parent': main, 'index': heads.length, 'node': {...nodes[scroll]!}..remove('children')})
           ..addAll([for (var i = 0; i < rest.length; i++) {'op': 'move', 'id': rest[i], 'parent': scroll, 'index': i}])
-          ..add({'op': 'move', 'id': foot, 'parent': main, 'index': 1})
+          ..addAll([for (final h in heads) {'op': 'patch', 'id': h, 'patch': {'sticky': null}}])
+          ..addAll([if (foot != null) {'op': 'move', 'id': foot, 'parent': main, 'index': heads.length + 1}])
           ..add({'op': 'patch', 'id': main, 'patch': {'props': {'scrollable': null, 'crossAxisAlignment': 'stretch'}}});
       }
     }
@@ -2713,6 +2750,21 @@ class _Parser {
     }
   }
 
+  /// A component's root row of parts of their own size, or with a part
+  /// that takes the room left (a mail row: a dot, the text that grows, a
+  /// time): it keeps its layout wherever it is called, as written (reflow
+  /// wrapped it on a phone, the dot above the text: test 9, mail 7).
+  String? _componentRootKept() {
+    if (_widget == null || _root == null) return null;
+    final root = nodes[_root];
+    if (root == null || root['type'] != 'row') return null;
+    final kids = [for (final k in (root['children'] as List?) ?? const []) nodes[k]].whereType<Json>().toList();
+    bool fixed(Json n) => readMap(n['layout'])?['width'] is num;
+    bool grows(Json n) => switch (readMap(n['layout'])?['flex']) { final num f => f > 0, _ => false };
+    final kept = kids.isNotEmpty && (kids.any(grows) || kids.every((k) => fixed(k) || k['type'] == 'text' || k['type'] == 'icon' || k['type'] == 'spacer'));
+    return kept ? _root : null;
+  }
+
   void _reflow() {
     if (!options.reflow || options.width < 700) return;
     final reflow = PageReflow(
@@ -2735,7 +2787,7 @@ class _Parser {
       fillsItsPlace: (type) => switch (options.components[type]?.width) { final Map m => m.containsKey('fill'), _ => false },
       listDetailState: _host == null ? _listDetailName : null,
       variableStart: (name) => variables[name]?['value'],
-      kept: _keep,
+      kept: {..._keep, ?_componentRootKept()},
     );
     final rules = reflow.run();
     for (final e in rules.entries) {
@@ -4299,6 +4351,11 @@ class _Parser {
       final fixed = m[2];
       return fixed == null || _taken(fixed) ? m[1]! : '${m[1]}#$fixed';
     });
+    // A quoted text the line ends inside (a line break typed in it): said,
+    // with how a break is written; the line is read up to its end.
+    if (RegExp(r'(?<!\\)"').allMatches(line).length.isOdd) {
+      _issue(column, 'A quoted text is not closed on its line: a text is one line, a line break in it is written \\n ("one\\ntwo", and in an expression \'\\n\').');
+    }
     final t = _Tokens(line);
     final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*))?').firstMatch(line);
     if (head == null) return _issue(column, 'A line starts with a node type: Column, Text "…", Button "…".');
@@ -6730,6 +6787,16 @@ class _Parser {
       layout['width'] = {'fill': 0};
     }
     final inRow = !cell && (parent?.type == 'row' || options.rowFrames.contains(parent?.type));
+    // A Splitter is as long as the panes it divides: as tall as its row (as
+    // wide as its column when it divides one). It hugged, a 44 px stub at
+    // the row's top beside the panes' own full-height borders (test 9, mail
+    // and admin).
+    if (type == 'splitter' && parent != null) {
+      final vertical = props['orientation'] == 'vertical';
+      final along = vertical ? 'width' : 'height';
+      final across = (vertical && parent.type == 'column') || (!vertical && parent.type == 'row');
+      if (across && (layout[along] == null || (layout[along] is Map && (layout[along] as Map).containsKey('hug')))) layout[along] = {'fill': 0};
+    }
     // On a page, cards side by side are one row of panels: equally tall.
     if (inRow && (written == 'Card' && !component) && options.width >= 700) {
       final row = nodes[parent!.id];
@@ -7019,7 +7086,36 @@ class _Parser {
           'layout': {'width': {'hug': null, 'fill': 0}, 'height': {'fill': null, 'hug': 0}},
           'props': {'mainAxisAlignment': null, 'crossAxisAlignment': 'stretch'},
         };
-        nodes[listId!] = mergePatch(list, listPatch);
+        // The row's own rules at other widths: a row that is a column there
+        // (`phone.direction=vertical`) has one copy a line there (it stayed
+        // side by side: test 9, admin 11).
+        final rowId = _parentOf[listId!];
+        final rowMedia = rowId == null ? null : (nodes[rowId]?['media'] as List?);
+        final gridMedia = <Json>[
+          for (final rule in rowMedia ?? const [])
+            if (rule is Map && (rule['patch'] as Map?)?['props'] is Map && ((rule['patch'] as Map)['props'] as Map)['direction'] == 'vertical')
+              {
+                for (final e in rule.entries)
+                  if (e.key != 'patch') '${e.key}': e.value,
+                'patch': {
+                  'props': {'crossAxisCount': 1, 'mainAxisSpacing': (list['props'] as Map?)?['spacing'] ?? 0},
+                  'bind': {'props.crossAxisCount': null},
+                },
+              },
+        ];
+        if (gridMedia.isNotEmpty) listPatch['media'] = gridMedia;
+        // A copy's own width or growth at another width (`tablet.w=272
+        // tablet.grow=false`), or the row scrolling there, a grid's column
+        // cannot follow: said, with what to write (it was dropped).
+        final ownMedia = pre?.parts.where((p) => RegExp(r'^[a-z]+\.(w|width|grow|flex)\b').hasMatch(p.kind == 'pair' ? p.key ?? '' : p.raw)).toList() ?? const [];
+        final rowScrolls = (rowMedia ?? const []).any((r) => r is Map && ((r['patch'] as Map?)?['props'] as Map?)?['scrollable'] == true);
+        if (ownMedia.isNotEmpty || rowScrolls) {
+          _issue(column,
+              'Copies that grow share their row as the columns of a grid, at every width: ${ownMedia.isNotEmpty ? 'a width of their own at another size (${ownMedia.map((p) => p.raw).join(' ')}) is not read' : 'the row does not scroll at another size'}. '
+              'For lanes that are equal on a wide window and of their own width (scrolling sideways) on a narrow one, write the width without grow: '
+              'Column w={max(272, (screen.width - 48) / length(list))} tablet.w=272 in a ListView scrollDirection=horizontal.');
+        }
+        nodes[listId] = mergePatch(list, listPatch);
         nodes[parent.id] = mergePatch(nodes[parent.id]!, itemPatch);
         // A patch cannot change a type: the list is set again, keeping its item.
         _patches
@@ -9645,8 +9741,10 @@ class _Tokens {
       }
       at++;
     }
-    at++;
-    final raw = s.substring(start, at > s.length ? s.length : at);
+    // Past the closing quote; a text the line ends inside (no closing quote)
+    // ends with the line (the cursor past it made the parser throw).
+    at = at + 1 > s.length ? s.length : at + 1;
+    final raw = s.substring(start, at);
     if (braced) {
       return raw.substring(1, raw.endsWith('"') && raw.length > 1 ? raw.length - 1 : raw.length).replaceAll(r'\"', '"').replaceAll(r'\\', r'\');
     }

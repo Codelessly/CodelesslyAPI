@@ -65,10 +65,12 @@ from a Column of Rows: write `Table`.
 
 - `columns=[…]`: each column a label (`"Name"`: its key is `name`) or `{"key":…, "label":…, "w":120,
   "align":"end", "sort":false}`. A column with no `w` grows; `"align":"end"` puts its cells at the end in
-  tabular figures (amounts, counts, dates in figures).
+  tabular figures (amounts, counts, dates in figures). `"hide":"phone"` leaves the column (its header and its
+  cells) out on a phone, `"hide":"tablet"` on a tablet and a phone: one table serves every width. Reflow leaves a
+  table as written; these are its rules at other widths.
 - The lines under the Table are its cells, one per column in order, each reading the record by the Table's name
-  (`{o.total}`): a picture beside a name, a chip, a menu button. Columns left at the end with no line show their
-  key's value.
+  (`{o.total}`, in every key: `color={o.status == 'Paid' ? … : …}`): a picture beside a name, a chip, a menu button.
+  Columns left at the end with no line show their key's value.
 - `sort=@sortKey` (a text variable, the key sorted by; `-key` the other way): a press on a header sorts by its
   column, again the other way; an arrow marks the column sorted, a quiet mark the others.
 - `select=@chosen` (a list variable of the rows' `id`s): a column of checkboxes leads; the header's picks every row
@@ -113,6 +115,24 @@ state products=[{"name":"Lamp"},{"name":"Desk"}]
 ListView h=120 scrollDirection=horizontal
   each item in products
     Text "{item.name}" w=100
+```
+
+## A list chosen from and swiped
+
+`selectable selected=@chosen` on the line an each is under makes its rows chosen as a desktop list's are (a press
+alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all), and `SwipeAction` lines under the each put actions
+behind a swiped row: one list takes both (a mailbox: choose many with the keyboard and the pointer, swipe one on a
+phone). `removes` takes the row out of the list's variable; `result.item` is the row swiped.
+
+```notation expands
+state msgs=[{"id":"m1","subject":"Q4 review"},{"id":"m2","subject":"Lunch?"}]
+state chosen=[]
+Column selectable selected=@chosen
+  each m in msgs
+    Row h=56 pad=[16,0,16,0]
+      Text "{m.subject}"
+    SwipeAction "Archive" side=end icon="archive" onTap={msgs=without(msgs, result.item)}
+    SwipeAction "Delete" side=end icon="delete" removes
 ```
 
 {{reference}}

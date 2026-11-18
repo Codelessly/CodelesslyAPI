@@ -1359,6 +1359,14 @@ Written as the value's name, a JSON string (`"center"`).
 | `grid` | The nearest crossing of a grid `GestureSnap.gridX` by `GestureSnap.gridY` pixels, counted from rest. |
 | `edges` | Flush against one of the parent's edges or corners (a picture in picture window docking to a corner). |
 
+<a id="enum-SplitterPane"></a>
+### SplitterPane
+
+| Value | Meaning |
+|---|---|
+| `before` | Which pane a `SplitterProps` value is the width of. |
+| `after` | Which pane a `SplitterProps` value is the width of. |
+
 <a id="enum-StorageOperation"></a>
 ### StorageOperation
 

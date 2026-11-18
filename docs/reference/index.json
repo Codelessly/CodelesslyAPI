@@ -345,7 +345,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 13725
+      "words": 13789
     },
     {
       "topic": "forms-triggers",
@@ -1457,7 +1457,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13560
+      "words": 13596
     },
     {
       "topic": "values-value-types",
@@ -2364,6 +2364,7 @@
       "SliderTrackShape": "values.md#enum-SliderTrackShape",
       "SliderValueIndicatorShape": "values.md#enum-SliderValueIndicatorShape",
       "SnapKind": "values.md#enum-SnapKind",
+      "SplitterPane": "values.md#enum-SplitterPane",
       "StorageOperation": "values.md#enum-StorageOperation",
       "StrokeAlign": "values.md#enum-StrokeAlign",
       "StrokeCap": "values.md#enum-StrokeCap",

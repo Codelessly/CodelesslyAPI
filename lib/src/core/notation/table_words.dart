@@ -22,7 +22,7 @@ part of 'page_words.dart';
 
 /// One column of a [Table] line.
 final class _TableColumn {
-  _TableColumn(this.key, this.label, {this.width, this.align = '', this.sort = true});
+  _TableColumn(this.key, this.label, {this.width, this.align = '', this.sort = true, this.hide = ''});
 
   final String key, label;
 
@@ -33,10 +33,14 @@ final class _TableColumn {
   final String align;
   final bool sort;
 
+  /// The widths it is left out at (`"hide":"phone"`, `"hide":"tablet"`: a
+  /// tablet and a phone), as `hide=` says on a line; '' at none.
+  final String hide;
+
   bool get numeric => align == 'end';
 
   /// The words a cell of it takes on its Row.
-  String get size => '${width == null ? ' grow' : ' w=${width is int || width == width!.roundToDouble() ? width!.round() : width}'}${align.isEmpty ? '' : ' $align'}';
+  String get size => '${width == null ? ' grow' : ' w=${width is int || width == width!.roundToDouble() ? width!.round() : width}'}${align.isEmpty ? '' : ' $align'}${hide.isEmpty ? '' : ' hide=$hide'}';
 
   static String _keyOf(String label) {
     final words = label.trim().split(RegExp(r'[^A-Za-z0-9]+')).where((w) => w.isNotEmpty).toList();
@@ -57,7 +61,8 @@ final class _TableColumn {
     if (align == 'right') align = 'end';
     if (align == 'left' || align == 'start') align = '';
     if (v['numeric'] == true) align = 'end';
-    return _TableColumn(key, label, width: w is num ? w : null, align: align, sort: v['sort'] != false);
+    final hide = v['hide'] is String && const {'phone', 'tablet'}.contains(v['hide']) ? v['hide'] as String : '';
+    return _TableColumn(key, label, width: w is num ? w : null, align: align, sort: v['sort'] != false, hide: hide);
   }
 }
 
@@ -134,9 +139,13 @@ extension on PageWords {
     String sub(String name) => id == null ? '' : '#$id-$name';
     const keyOf = 'coalesce(x.id, x)';
     final out = <PageLine>[
-      (indent: at, text: 'Column$mark w=fill fill=$surface border=$line radius=8 clip=antiAlias${height == null ? '' : ' h=$height'}${parts.all}'),
+      // `keep`: reflow leaves a table as written (it laid its header and its
+      // rows out apart, the header no longer over its columns at a tablet's
+      // width: test 9, kanban 8); a column says where it is left out
+      // (`"hide":"phone"`).
+      (indent: at, text: 'Column$mark w=fill fill=$surface border=$line radius=8 clip=antiAlias keep${height == null ? '' : ' h=$height'}${parts.all}'),
       // The header: labels in the caption's ink on the band's fill.
-      (indent: at + 2, text: 'Row${sub('head')} w=fill h=$headH pad=[16,0,16,0] gap=16 fill=$head border-bottom=$line${stickyOff || height != null ? '' : ' sticky'}'),
+      (indent: at + 2, text: 'Row${sub('head')} w=fill h=$headH pad=[16,0,16,0] gap=16 fill=$head border-bottom=$line${stickyOff || height != null ? '' : ' sticky=0'}'),
       if (select != null) ...[
         (indent: at + 4, text: 'Row w=16'),
         (

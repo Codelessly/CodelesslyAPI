@@ -4275,7 +4275,7 @@
       "docs": "forms.md#node-slider"
     },
     "splitter": {
-      "doc": "Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.\n\nA pane divider. Its value is the leading pane's width in logical pixels.",
+      "doc": "Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.\n\nA pane divider. Its value is the width (in logical pixels) of the pane before it, or with `pane: after` of the pane after it (an inspector at the window's end): the pane binds its width to the same variable.",
       "children": "none",
       "slots": [],
       "decorated": false,
@@ -4342,6 +4342,19 @@
           "default": "Resize panels",
           "nullable": false,
           "doc": ""
+        },
+        {
+          "key": "pane",
+          "type": "SplitterPane",
+          "kind": "enumeration",
+          "default": "before",
+          "nullable": false,
+          "enum": "SplitterPane",
+          "values": [
+            "before",
+            "after"
+          ],
+          "doc": "The pane its value sizes: the one before it (dragging toward the end widens it) or the one after it (dragging toward the end narrows it)."
         }
       ],
       "docs": "forms.md#node-splitter"
@@ -24277,6 +24290,16 @@
       {
         "value": "edges",
         "doc": "Flush against one of the parent's edges or corners (a picture in picture window docking to a corner)."
+      }
+    ],
+    "SplitterPane": [
+      {
+        "value": "before",
+        "doc": "Which pane a `SplitterProps` value is the width of."
+      },
+      {
+        "value": "after",
+        "doc": "Which pane a `SplitterProps` value is the width of."
       }
     ],
     "StorageOperation": [
