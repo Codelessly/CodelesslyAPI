@@ -2,7 +2,7 @@
 // corpus in the notation (printNotation) and counts what ends up in a line's
 // `{…}` tail or on the last `document {…}` line instead of in words.
 //
-//   dart run tool/notation_coverage.dart <dir or file.json>... [--out <dir>] [--components]
+//   dart run tool/notation_coverage.dart <dir or file.json>... [--out <dir>] [--components] [--dump <dir>]
 //
 // The print round-trips by construction, so a tail is exactly what the words
 // did not say. Each tail key is counted as a path with list indices folded
@@ -44,9 +44,12 @@ void main(List<String> args) {
   // (a design system's component documents, by their `widget`), so a page
   // that calls one is printed with the catalog it was made with.
   final withComponents = args.contains('--components');
+  // --dump <dir>: each print that has a tail or a document line, to read.
+  final dumpAt = args.indexOf('--dump');
+  final dump = dumpAt >= 0 ? args[dumpAt + 1] : null;
   final inputs = [
     for (var i = 0; i < args.length; i++)
-      if (i != outAt && i != outAt + 1 && args[i] != '--components') args[i],
+      if (i != outAt && i != outAt + 1 && i != dumpAt && i != dumpAt + 1 && args[i] != '--components') args[i],
   ];
   if (inputs.isEmpty) {
     stderr.writeln('usage: notation_coverage.dart <dir or file.json>... [--out <dir>]');
@@ -61,48 +64,74 @@ void main(List<String> args) {
     }
   }
   files.sort((a, b) => a.path.compareTo(b.path));
-  // A component declared differently in two design systems (a ChartCard of
-  // each) is, for a document, the declaration nearest to it on disk: the
-  // one of its own design system.
-  final declared = <String, Map<String, String>>{}; // type → declaration's JSON → its file
+  // A document is read with the components of its own design system or site
+  // (its home, [_homeOf]): the folder it is in or the nearest above it that
+  // has a `components/` folder of component documents or a `site.json` naming
+  // a `designSystem`. Over those, every other component the corpus declares
+  // (the first declaration of a name found), so a document with no home, or
+  // one calling a component its home does not declare, still reads it.
+  final declared = <String, Object?>{}; // type → its first declaration
+  final byHome = <String, Map<String, Object?>>{}; // home folder → type → declaration
   if (withComponents) {
     for (final file in files) {
       try {
         final json = jsonDecode(file.readAsStringSync());
         final widget = json is Map ? json['widget'] : null;
         if (widget is Map && widget['type'] is String) {
-          (declared[widget['type'] as String] ??= {}).putIfAbsent(jsonEncode(widget), () => file.path);
+          declared.putIfAbsent(widget['type'] as String, () => widget);
+          final home = _componentsHome(file.path);
+          if (home != null) (byHome[home] ??= {}).putIfAbsent(widget['type'] as String, () => widget);
         }
       } on Object {
         continue;
       }
     }
   }
-  final shared = [
-    for (final e in declared.entries) jsonDecode(e.value.keys.first),
-  ];
-  final base = withComponents ? standardCatalog + Catalog.fromJson({'id': 'corpus', 'widgets': shared}) : standardCatalog;
+  final base = withComponents ? standardCatalog + Catalog.fromJson({'id': 'corpus', 'widgets': declared.values.toList()}) : standardCatalog;
   final catalogs = <String, Catalog>{};
-  Catalog catalogFor(String path) {
-    final own = <Object?>[];
-    final key = StringBuffer();
-    for (final e in declared.entries) {
-      if (e.value.length < 2) continue;
-      int common(String a) {
-        var i = 0;
-        while (i < a.length && i < path.length && a[i] == path[i]) {
-          i++;
-        }
-        return i;
+  final homes = <String, int>{}; // home → documents read with it
+  // A document that names no home (a folder of generated screens) is read
+  // with the one home whose components take every call it makes: the most
+  // nodes of a component type whose props are all that home's parameters of
+  // it, and more than any other home. Else the first declarations.
+  String? byFit(Map<String, Object?> json) {
+    final nodes = json['nodes'];
+    if (nodes is! Map) return null;
+    String? best;
+    var bestScore = 0, second = 0;
+    for (final home in byHome.entries) {
+      var score = 0;
+      for (final node in nodes.values) {
+        if (node is! Map) continue;
+        final widget = home.value[node['type']];
+        if (widget is! Map) continue;
+        final params = {for (final p in (widget['props'] as List? ?? const [])) if (p is Map) p['key']};
+        final props = node['props'];
+        if (props is! Map || props.keys.every(params.contains)) score++;
       }
-
-      final nearest = e.value.entries.reduce((a, b) => common(b.value) > common(a.value) ? b : a);
-      if (nearest.key == e.value.keys.first) continue;
-      own.add(jsonDecode(nearest.key));
-      key.write('${nearest.value};');
+      if (score > bestScore) {
+        second = bestScore;
+        bestScore = score;
+        best = home.key;
+      } else if (score > second) {
+        second = score;
+      }
     }
-    if (own.isEmpty) return base;
-    return catalogs['$key'] ??= base + Catalog.fromJson({'id': 'nearest', 'widgets': own});
+    return bestScore > second ? best : null;
+  }
+
+  Catalog catalogFor(String path, Map<String, Object?> json) {
+    if (!withComponents) return base;
+    var home = _homeOf(path, byHome.keys.toSet());
+    var how = '';
+    if (home == null) {
+      home = byFit(json);
+      how = ' (by fit)';
+    }
+    final said = home == null ? '(none)' : '$home$how';
+    homes[said] = (homes[said] ?? 0) + 1;
+    if (home == null) return base;
+    return catalogs[home] ??= base + Catalog.fromJson({'id': 'home', 'widgets': byHome[home]!.values.toList()});
   }
 
   final paths = <String, _Path>{};
@@ -127,7 +156,7 @@ void main(List<String> args) {
     }
     if (json is! Map<String, Object?> || json['nodes'] is! Map || json['roots'] is! List) continue;
     final String text;
-    final catalog = catalogFor(file.path);
+    final catalog = catalogFor(file.path, json);
     try {
       final doc = json;
       text = Catalog.run(catalog, () => printNotation(doc, catalog: catalog, whole: (said) {
@@ -142,6 +171,12 @@ void main(List<String> args) {
     }
     documents++;
     chars += text.length;
+    if (dump != null && (text.contains(' {"') || text.startsWith('document {') || text.contains('\ndocument {'))) {
+      final name = file.path.replaceAll(RegExp(r'[\\/:]+'), '_');
+      File('$dump/${name.length > 150 ? name.substring(name.length - 150) : name}.txt')
+        ..createSync(recursive: true)
+        ..writeAsStringSync(text);
+    }
     final all = text.split('\n');
     if (all.length == 1 && all.single.startsWith('document ')) whole++;
     // The indent of an open block of record lines (a customPaint, an
@@ -255,6 +290,25 @@ void main(List<String> args) {
     md.writeln('| $what | ${saidAs[k] ?? 0} | ${_pct(saidAs[k] ?? 0, saidTotal)} |');
   }
   md.writeln();
+  if (homes.isNotEmpty) {
+    final list = homes.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    md
+      ..writeln('## Whose components a document is read with')
+      ..writeln()
+      ..writeln('Its home: the folder it is in or the nearest above it with a `components/` folder, or whose `site.json` '
+          'names a `designSystem`; over them, the first declaration of every other component of the corpus.')
+      ..writeln()
+      ..writeln('| Home | Documents |')
+      ..writeln('|---|---:|');
+    for (final e in list) {
+      // The home's last three folders are enough to name it.
+      final how = e.key.endsWith(' (by fit)') ? ' (by fit)' : '';
+      final segments = e.key.substring(0, e.key.length - how.length).split('/').where((s) => s.isNotEmpty).toList();
+      final name = e.key == '(none)' ? '(none)' : '${segments.skip(segments.length < 3 ? 0 : segments.length - 3).join('/')}/$how';
+      md.writeln('| `$name` | ${e.value} |');
+    }
+    md.writeln();
+  }
   if (wholeWhy.isNotEmpty) {
     final list = wholeWhy.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     md
@@ -336,6 +390,51 @@ void main(List<String> args) {
   }));
   stdout.writeln('$documents documents, $nodes node lines, $tailed with a tail (${_pct(tailed, nodes)}), ${paths.length} distinct paths, '
       '$whole printed whole as data, $failed failed. Wrote $out/COVERAGE.md');
+}
+
+/// A folder as a normalized absolute URI ending in `/`, so two spellings of
+/// one folder compare equal.
+String _folder(String path) {
+  final uri = Directory(path).absolute.uri.normalizePath().toString();
+  return (uri.endsWith('/') ? uri : '$uri/').toLowerCase();
+}
+
+/// The home of a component document: the folder holding its `components/`
+/// folder (a design system, a site), else the folder it is in (an example's
+/// own component beside its page).
+String? _componentsHome(String file) {
+  var dir = File(file).absolute.parent;
+  final name = dir.uri.pathSegments.where((s) => s.isNotEmpty).last;
+  if (name == 'components') return _folder(dir.parent.path);
+  // A file elsewhere under a design system (its repairs) is that system's.
+  for (var d = dir; d.parent.path != d.path; d = d.parent) {
+    if (File('${d.path}/design_system.json').existsSync()) return _folder(d.path);
+  }
+  return _folder(dir.path);
+}
+
+/// The home of a document (its design system or site): the folder it is in
+/// or the nearest above it that is a home of components, or whose
+/// `site.json` names a `designSystem` that is one. Null: none.
+String? _homeOf(String file, Set<String> homes) {
+  for (var d = File(file).absolute.parent; d.parent.path != d.path; d = d.parent) {
+    final here = _folder(d.path);
+    if (homes.contains(here)) return here;
+    final site = File('${d.path}/site.json');
+    if (site.existsSync()) {
+      try {
+        final json = jsonDecode(site.readAsStringSync());
+        final ds = json is Map ? json['designSystem'] : null;
+        if (ds is String) {
+          final target = _folder(d.uri.resolve(ds).toFilePath());
+          if (homes.contains(target)) return target;
+        }
+      } on Object {
+        // not a site
+      }
+    }
+  }
+  return null;
 }
 
 /// The first word of a block of record lines (design 22, 4.6).
