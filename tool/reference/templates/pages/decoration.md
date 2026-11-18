@@ -97,8 +97,8 @@ Three ways to draw art without a photo, each scaled to its box:
 {{example:vector_illustration}}
 
 - **`customPaint`**: draw lists in a view box, Flutter's `Canvas` calls as data (`rect`, `circle`, `path` with SVG
-  data, `line`, `repeat` over a count with `${index}`), behind (`painter`) or over (`foregroundPainter`) the node's
-  content. Values may be expressions, so a drawing can follow data. It is not
+  data, `line`, `repeat` over a count with `${index}`), over the node's own fill and border and
+  under its children (`painter`), or over them (`foregroundPainter`). Values may be expressions, so a drawing can follow data. It is not
   clipped by the box's `radius`: round a parent with `clip` for that.
 
 {{example:paint_illustration}}

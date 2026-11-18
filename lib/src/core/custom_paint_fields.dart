@@ -117,7 +117,7 @@ Object? _viewBoxOut(List<double>? v) => v == null ? null : CustomPaint.writeView
 
 /// [CustomPaint]: the `customPaint` behavior.
 abstract final class CustomPaintFields {
-  static const painter = PropDef<List<DrawOp>>('painter', _ops, [], doc: 'Drawn behind the node\'s content (CustomPaint.painter).');
+  static const painter = PropDef<List<DrawOp>>('painter', _ops, [], doc: 'Drawn over the node\'s own fill and border, under its children (CustomPaint.painter).');
   static const foregroundPainter = PropDef<List<DrawOp>>('foregroundPainter', _ops, [],
       doc: 'Drawn over the node\'s content (CustomPaint.foregroundPainter).');
   static const viewBox = PropDef<List<double>?>('viewBox', _viewBox, null,

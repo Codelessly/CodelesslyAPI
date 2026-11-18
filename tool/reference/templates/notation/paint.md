@@ -6,7 +6,8 @@ when a UI needs an illustration, a chart of its own, a dial or any shape the box
 ## The lines
 
 A `customPaint` line under the node that paints carries the painter's own keys; each line under it is one draw op,
-in order; a `foregroundPainter` line under it holds the ops drawn over the content. A rectangle with round
+in order, over the node's own fill and border and under its children; a `foregroundPainter` line (under the
+`customPaint` line, or under the node beside it) holds the ops drawn over the children too. A rectangle with round
 corners is `rrect rect=[left,top,width,height] radius=4` (not `rect x= y= w= h=`); a shape's opacity is its
 colour's alpha (`fill=#80FF0000`). An op line is the op's name, a
 quoted string first where it has one (a `paragraph`'s text, an `image`'s URL), and its fields by their own names.

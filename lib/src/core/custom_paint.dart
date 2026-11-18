@@ -1,5 +1,5 @@
 // Flutter's `CustomPaint` as data: a node behavior holding two draw lists,
-// `painter` (behind the node's content) and `foregroundPainter` (over it),
+// `painter` (over the node's own fill and border, under its children) and `foregroundPainter` (over them),
 // each a list of draw operations that mirror `dart:ui`'s `Canvas` calls
 // (`drawPath`, `drawLine`, `drawRect`, `drawRRect`, `drawCircle`,
 // `drawOval`, `drawArc`, `drawPoints`, `drawParagraph`, `drawImageRect`),
@@ -1262,8 +1262,9 @@ final class UnknownDrawOp extends DrawOp {
 
 // --- the behavior ----------------------------------------------------------------
 
-/// Flutter's `CustomPaint` on a node: [painter] drawn behind the node's
-/// content (its decoration and children) and [foregroundPainter] over it,
+/// Flutter's `CustomPaint` on a node: [painter] drawn over the node's own
+/// fill and border and under its children (as CSS draws a background, then
+/// the content) and [foregroundPainter] over them,
 /// both in the node's box (inside its transform and opacity, outside its
 /// clip). The node's layout is `CustomPaint.size`; its content is `child`.
 ///
