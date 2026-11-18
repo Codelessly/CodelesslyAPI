@@ -747,6 +747,15 @@ final class PageWords {
   /// The lines open above the one being read.
   final _open = <_Line>[];
 
+  /// ` tablet.visible=false` for each width at which the sidebar a line is in
+  /// is a rail; nothing outside one.
+  String _railHide() {
+    for (final l in _open.reversed) {
+      if (l.rail.isNotEmpty) return [for (final w in l.rail) ' $w.visible=false'].join();
+    }
+    return '';
+  }
+
   /// Whether the page's root is an app window (as tall as the window).
   bool app = false;
 
@@ -996,7 +1005,7 @@ final class PageWords {
       final width = parts.take('w') ?? _n(sidebarWidth);
       final pad = parts.take('pad') ?? '[12,16,12,12]';
       final gap = parts.take('gap') ?? '2';
-      open(frame: framed ? 'Sidebar' : null);
+      open(frame: framed ? 'Sidebar' : null).rail = parts.railWidths;
       final side = sideFill ?? paneFill;
       final fill = !framed || parts.has('fill') || side == null ? '' : ' fill=$side';
       if (framed && root == 'App' && indent > 0 && !_mainSeen) {
@@ -1053,6 +1062,9 @@ final class PageWords {
               : '';
       // In a bar the items sit side by side; in a sidebar each takes the width.
       final across = parent?.frame == 'Nav';
+      // In a rail (a sidebar the writer made narrow at a width) an item with an
+      // icon shows the icon alone: its label, count and shortcut had no room.
+      final railed = across || icon == null ? '' : _railHide();
       // Under the pointer an item that is not the chosen one is tinted.
       final hover = parts.has('hovered.fill') || on ? '' : ' hovered.fill=#0F111827';
       final weight = on
@@ -1065,9 +1077,9 @@ final class PageWords {
         ..add((indent: at, text: 'Row$mark ${across ? '' : 'w=fill '}gap=10 middle pad=[10,7,10,7] radius=6$fill$hover${parts.all}'))
         ..addAll([
           if (icon != null) (indent: at + 2, text: 'Icon $icon size=18${on ? ' color=$ink' : selected != null ? ' color={${_expr(selected)}?"$ink":"$quietIcon"}' : ' color=$quietIcon'}'),
-          (indent: at + 2, text: 'Text ${label ?? '""'} size=13 $weight${across ? '' : ' grow'}'),
-          if (badge != null) (indent: at + 2, text: 'Text.${_variant(const ['muted', 'caption', 'small']) ?? 'muted'} $badge'),
-          if (shortcut != null) (indent: at + 2, text: 'Text $shortcut size=11 color=$faint'),
+          (indent: at + 2, text: 'Text ${label ?? '""'} size=13 $weight${across ? '' : ' grow'}$railed'),
+          if (badge != null) (indent: at + 2, text: 'Text.${_variant(const ['muted', 'caption', 'small']) ?? 'muted'} $badge$railed'),
+          if (shortcut != null) (indent: at + 2, text: 'Text $shortcut size=11 color=$faint$railed'),
         ]);
     }
     // A sidebar's parts: the label over a group of its items (in a sidebar,
@@ -1080,7 +1092,7 @@ final class PageWords {
       return out
         ..add((
           indent: at,
-          text: 'Text$mark ${label == null ? '""' : _upper(label)} size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 w=fill pad=[10,16,10,6]${parts.all}'
+          text: 'Text$mark ${label == null ? '""' : _upper(label)} size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 w=fill pad=[10,16,10,6]${_railHide()}${parts.all}'
         ));
     }
     if (parent?.frame == 'Sidebar' && _feet.contains(word) && !isComponent(word)) {
@@ -1117,14 +1129,15 @@ final class PageWords {
       final name = parts.string();
       final under = parts.string();
       final side = parent?.frame == 'Sidebar';
+      final railed = side && icon != null ? _railHide() : '';
       open();
       return out
         ..add((indent: at, text: 'Row$mark gap=10 middle${side ? ' pad=[8,6,8,10]' : ''}${parts.all}'))
         ..addAll([
           if (icon != null) (indent: at + 2, text: 'Box w=28 h=28 radius=8 fill=${accentName ?? accent} center middle'),
           if (icon != null) (indent: at + 4, text: 'Icon $icon size=16 color=#FFFFFFFF'),
-          if (under == null) (indent: at + 2, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700'),
-          if (under != null) (indent: at + 2, text: 'Column gap=0'),
+          if (under == null) (indent: at + 2, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700$railed'),
+          if (under != null) (indent: at + 2, text: 'Column gap=0$railed'),
           if (under != null) (indent: at + 4, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700'),
           if (under != null) (indent: at + 4, text: 'Text $under size=11 color=#FF6B7280'),
         ]);
@@ -1472,6 +1485,10 @@ class _Line {
   /// The table this line is (`Table … in …`), whose cells are the lines under it.
   _Table? table;
 
+  /// A sidebar's widths at which the writer made it a rail (`tablet.w=72`): its
+  /// items show their icons alone there.
+  List<String> rail = const [];
+
   /// A website's Nav: the links written in it (for its phone menu), and
   /// whether it writes a menu of its own.
   bool pageNav = false, ownMenu = false;
@@ -1546,6 +1563,15 @@ class _Parts {
     final i = _tokens.indexWhere((t) => _key.firstMatch(t)?[1] == key);
     return i < 0 ? null : _tokens[i].substring(key.length + 1);
   }
+
+  /// The widths at which the line is narrower than a label has room for
+  /// (`tablet.w=72`, `max900.w=64`): a sidebar is a rail there.
+  List<String> get railWidths => [
+        for (final t in _tokens)
+          if (_railWidth.firstMatch(t) case final m? when (double.tryParse(m[2]!) ?? 999) < 120) m[1]!,
+      ];
+
+  static final _railWidth = RegExp(r'^([A-Za-z][A-Za-z0-9]*)\.w=([0-9.]+)$');
 
   /// Whether a border is written, on every side or on one.
   bool get hasBorder => _tokens.any((t) => _key.firstMatch(t)?[1]?.startsWith('border') ?? false);

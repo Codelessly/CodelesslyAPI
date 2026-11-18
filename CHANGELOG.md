@@ -20,6 +20,8 @@ reference alone. With CodelesslySDK 36.0.0 (the renderer, the tools and Desk, a 
 - **A key the writer wrote wins** over a page word's own; **a bare word on an `Icon` line is the icon's name**
   (a variable is braced: `Icon {glyph}`).
 - **Ids may have hyphens** and are read as written (34.0.0 read a hyphen as `_`).
+- **A Sidebar made narrow at a width is a rail there** (`Sidebar w=232 tablet.w=72`): an item with an icon shows the
+  icon alone, and the section labels and the brand's text are left out (the rows overflowed).
 - **A horizontal Flex lays its children out as a row's**; a text beside a Spacer keeps its own width.
 
 ### Added

@@ -455,4 +455,32 @@ Column
       expect(_node(r, 'toc')['sticky'], {'offset': 16});
     });
   });
+
+  group('a Sidebar the writer makes a rail at a width', () {
+    String rail(String sidebar) {
+      final r = _parse('''
+App
+  $sidebar
+    Brand "Stack" "Board" icon="home"
+    NavSection "Work"
+    NavItem "Board" icon="home" shortcut="V"
+    NavItem "Plain"
+  Main
+    Text "Hello"
+''');
+      expect(r.issues, isEmpty);
+      return jsonEncode(r.document);
+    }
+
+    test('its items show their icons alone there: label, shortcut, section and brand text are hidden', () {
+      final plain = rail('Sidebar'), railed = rail('Sidebar w=232 tablet.w=72');
+      int hidden(String s) => RegExp('"visible":false').allMatches(s).length;
+      // The label and shortcut of the item with an icon, the section, the brand's text; not the item with no icon.
+      expect(hidden(railed) - hidden(plain), 4);
+    });
+
+    test('a width with room for labels is no rail', () {
+      expect(rail('Sidebar w=232 tablet.w=200'), isNot(contains('"visible":false')));
+    });
+  });
 }
