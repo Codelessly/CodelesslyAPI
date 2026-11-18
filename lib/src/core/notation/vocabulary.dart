@@ -35,8 +35,10 @@ final class VocabularyUse {
 
   /// `type` (a line's first word), `parameter` (a key=value), `flag` (a
   /// bare word), `event` (an on… key), `verb` (an action's first word),
-  /// `variant` (the word after a type's dot) or `alias` (a name read as
-  /// another: [to] says which, [of] what kind of word it is).
+  /// `variant` (the word after a type's dot), `alias` (a name read as
+  /// another: [to] says which, [of] what kind of word it is), `definition`
+  /// (a use of a defined word: [to] the meaning read) or `primitive` (a use
+  /// of a word declared with `primitive`, which stands in: [to] the same).
   final String kind;
 
   /// The word as written (`SeatMap`, `tooltip`, `selectable`, `onSeek`,
@@ -79,9 +81,10 @@ final class VocabularyUse {
 
   /// An alias: the kind of word it is (`type`, `parameter`, `flag`,
   /// `event`, `verb`, `line`). A definition: `page, over <file>` when the
-  /// page's own definition was read over one the design system has.
+  /// page's own definition was read over one the design system has (`page,
+  /// over the Counter component` over a component).
   /// A universal word (docs/design/21): `parameter`, `flag` or `event`.
-  String? get of => kind == 'alias' || kind == 'universal' || kind == 'definition' ? _of : null;
+  String? get of => kind == 'alias' || kind == 'universal' || kind == 'definition' || kind == 'primitive' ? _of : null;
   String? _of;
 
   Json toJson() => {
@@ -142,15 +145,18 @@ VocabularyUse universalUse({
 String universalKindOf(String word) => RegExp(r'^on[A-Z]').hasMatch(word) ? 'event' : 'parameter';
 
 /// A type read as another: `RangeSlider` is a `Slider`, with its own names
-/// for that type's parameters.
+/// for that type's parameters; `GoKey` is a `Button.primary` with `size=lg`.
 final class TypeAlias {
-  const TypeAlias({this.to, this.parameters = const {}, this.add, this.line, this.requires = const []});
+  const TypeAlias({this.to, this.variant, this.parameters = const {}, this.add, this.line, this.requires = const []});
 
+  /// `"to"` may name a variant after the type (`Button.primary`).
   factory TypeAlias.fromJson(Object? json) {
-    if (json is String) return TypeAlias(to: json);
-    final m = readMap(json) ?? const <String, Object?>{};
+    final m = json is String ? {'to': json} : readMap(json) ?? const <String, Object?>{};
+    final to = readString(m['to']);
+    final dot = to?.indexOf('.') ?? -1;
     return TypeAlias(
-      to: readString(m['to']),
+      to: dot < 0 ? to : to!.substring(0, dot),
+      variant: dot < 0 ? null : to!.substring(dot + 1),
       add: readString(m['add']),
       line: readString(m['line']),
       requires: [
@@ -167,17 +173,32 @@ final class TypeAlias {
   /// The type it is read as.
   final String? to;
 
+  /// The variant of [to] it is read as (`primary`: written `"to":
+  /// "Button.primary"`), unless the line writes one of its own.
+  final String? variant;
+
   /// Its own names for that type's parameters, flags and events, each by
-  /// what it is read as (the forms of [NotationVocabulary.parameters]).
-  /// These hold whatever the target type calls its own.
+  /// what it is read as (the forms of [NotationVocabulary.parameters], and
+  /// `"$text": "label"`: the line's first string read as `label=`). These
+  /// hold whatever the target type calls its own.
   final Map<String, String> parameters;
 
   /// The keys the line has to have, once its own names are read, for the
   /// alias to hold (a RangeSlider is our Slider only with a variable for each
-  /// end); without them the word is left as it was written.
+  /// end); without them the word is left as it was written. A bare `@name`
+  /// on the line stands for the next key not written (`RangeSlider @lo @hi`
+  /// has its low and its high).
   final List<String> requires;
 
-  /// Words added to the line (`selected` on a chip that is always on).
+  /// Whether [parts] has what [requires] names.
+  bool holdsOn(LineParts parts) {
+    final missing = requires.where((k) => !parts.parts.any((p) => p.kind == 'pair' && (parameters[p.key] ?? p.key) == k)).length;
+    return missing <= parts.parts.where((p) => p.kind == 'word' && p.raw.startsWith('@')).length;
+  }
+
+  /// Words added to the line, flags and fixed parameters (`selected` on a
+  /// chip that is always on; `size=lg selected`). A key or a flag the line
+  /// writes itself is the line's.
   final String? add;
 
   /// The line is of another shape altogether: the name of the rewrite in
@@ -185,9 +206,9 @@ final class TypeAlias {
   final String? line;
 
   Object toJson() => to != null && parameters.isEmpty && add == null && line == null && requires.isEmpty
-      ? to!
+      ? '$to${variant == null ? '' : '.$variant'}'
       : {
-          if (to != null) 'to': to,
+          if (to != null) 'to': '$to${variant == null ? '' : '.$variant'}',
           if (line != null) 'line': line,
           if (requires.isNotEmpty) 'requires': requires,
           if (parameters.isNotEmpty) 'parameters': parameters,
@@ -202,7 +223,7 @@ final class TypeAlias {
 /// the tools):
 ///
 ///     {
-///       "types":      {"RangeSlider": {"to": "Slider", "parameters": {"low": "bind", "high": "bindEnd"}},
+///       "types":      {"RangeSlider": {"to": "Slider", "requires": ["low", "high"], "parameters": {"from": "low", "to": "high"}},
 ///                      "Shortcut": {"line": "shortcut"}},
 ///       "parameters": {"*": {"disabled": "!enabled"}, "ListTile": {"subtitle": "$text"}},
 ///       "flags":      {"*": {"disabled": "enabled=false"}},
@@ -212,7 +233,10 @@ final class TypeAlias {
 ///
 /// A parameter is read as another key (`enabled`), as that key with its
 /// value negated (`!enabled`), or as a further string of the line
-/// (`$text`). A flag is read as the words written (`enabled=false`). `*`
+/// (`$text`). The key `$text` is the line's first string, read as the
+/// parameter it names (`"NumberInput": {"$text": "label"}`: `NumberInput
+/// "Strokes"` is `NumberInput label="Strokes"`), on a word that takes no
+/// string. A flag is read as the words written (`enabled=false`). `*`
 /// holds for every type; a type's own entry comes first.
 final class NotationVocabulary {
   const NotationVocabulary({
@@ -305,13 +329,11 @@ final class NotationVocabulary {
       // A question with a yes and a no, over the page: a Dialog with its two
       // buttons.
       'ConfirmDialog': TypeAlias(line: 'confirmDialog'),
-      // A slider with two thumbs: ours when the line names a variable for
-      // each end. (Most answers bind one list variable, which ours does not
-      // take: those stay unknown.)
-      'RangeSlider': TypeAlias(to: 'Slider', requires: ['bind', 'bindEnd'], parameters: {
-        'low': 'bind', 'lo': 'bind', 'bindLow': 'bind', 'bindStart': 'bind', 'start': 'bind', //
-        'high': 'bindEnd', 'hi': 'bindEnd', 'bindHigh': 'bindEnd', 'end': 'bindEnd',
-      }),
+      // A slider with two thumbs: ours when the line binds a variable for
+      // each end (`RangeSlider @lo @hi`, `low=@lo high=@hi`). (Most answers
+      // bind one list variable, which ours does not take: those stay
+      // unknown.)
+      'RangeSlider': TypeAlias(to: 'Slider', requires: ['low', 'high']),
       // A text with what matched a search marked in it.
       'Highlight': TypeAlias(to: 'Text', parameters: {'match': 'mark', 'query': 'mark'}),
       'HighlightText': TypeAlias(to: 'Text', parameters: {'match': 'mark', 'query': 'mark'}),
@@ -350,8 +372,9 @@ final class NotationVocabulary {
     events: {
       // A universal event under its other name (docs/design/21).
       '*': {'onDelete': 'onRemove'},
-      // An Input submitted from the keyboard, and left after editing.
-      'Input': {'onEnter': 'onSubmit', 'onSaved': 'onBlur'},
+      // An Input submitted from the keyboard (Flutter's onSubmitted), and
+      // left after editing.
+      'Input': {'onEnter': 'onSubmit', 'onSubmitted': 'onSubmit', 'onSaved': 'onBlur'},
       // A day picked in a month.
       'Calendar': {'onSelect': 'onChange'},
     },
@@ -364,6 +387,28 @@ final class NotationVocabulary {
       'project': {'persist': 'saved', 'persisted': 'saved', 'persistent': 'saved'},
     },
   );
+}
+
+/// Names that say one thing, each read as another of its set where a word
+/// takes that one and not the name written: a StatCard's `description` is
+/// its note, a TimelineItem's `note` its detail, a field's `placeholder` its
+/// hint (and `hint` its placeholder). Models reach for any of them.
+const List<Set<String>> parameterSynonyms = [
+  {'description', 'detail', 'note'},
+  {'placeholder', 'hint'},
+];
+
+/// The name of [key]'s set ([parameterSynonyms]) that a word takes
+/// ([takes]), when it takes exactly one of them and not [key] itself; else
+/// null.
+String? parameterKin(String key, bool Function(String) takes) {
+  if (takes(key)) return null;
+  for (final kin in parameterSynonyms) {
+    if (!kin.contains(key)) continue;
+    final taken = [for (final k in kin) if (k != key && takes(k)) k];
+    return taken.length == 1 ? taken.single : null;
+  }
+  return null;
 }
 
 /// One part of a line after its head: a string, a key=value, a bare word
@@ -460,6 +505,9 @@ final class LineParts {
         if (c == '=' && key == null && i > start && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(text.substring(start, i))) {
           key = text.substring(start, i);
           i++;
+          // `x=@0.5`, `x=@"text"`, `x=@[0, 100]`: a signature's bound
+          // parameter with its default, read whole.
+          if (i + 1 < n && text[i] == '@' && (text[i + 1] == '"' || text[i + 1] == '{' || text[i + 1] == '[')) i++;
           if (i < n && text[i] == '"') {
             i = closeOfString(i);
             break;
@@ -469,6 +517,11 @@ final class LineParts {
             break;
           }
           continue;
+        }
+        // `@value=[0, 100]`: a signature's value with its default, read whole.
+        if (c == '=' && key == null && text[start] == '@' && i + 1 < n && (text[i + 1] == '{' || text[i + 1] == '[')) {
+          i = closeOfBalanced(i + 1);
+          break;
         }
         if (c == '"' && key == null) break;
         i++;
@@ -485,8 +538,8 @@ final class LineParts {
 
   /// The line's first word, its `.variant`s and its `#id` (each as written,
   /// with its mark, or empty).
-  String word;
-  final String variant, id;
+  String word, variant;
+  final String id;
   final List<LinePart> parts;
 
   Iterable<LinePart> get strings => parts.where((p) => p.kind == 'string');

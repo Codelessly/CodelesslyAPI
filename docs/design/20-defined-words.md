@@ -1,7 +1,8 @@
 # 20. Words defined in the notation
 
 2026-11-16. Decided in the vocabulary loop's first review (SDK `tool/vocabulary/JOURNAL.md`, Review 1, D2). Built
-in `lib/src/core/notation/define.dart` (read, check, expand) with a few hooks in `notation.dart`; tests in
+in `lib/src/core/notation/define.dart` (read, check, expand) with a few hooks in `notation.dart`, and
+`define_reads.dart` (what a definition leaves unused, section 12); tests in
 `test/notation_define_test.dart`; the first definitions are Cards' `design_systems/cards/vocabulary/*.txt` in the
 SDK. Note 19 is the open vocabulary this extends.
 
@@ -44,8 +45,10 @@ The signature reads:
 | `key` | a parameter with no default (empty when not given) |
 | `key!` | a parameter a use must give |
 | `key=true`, `key=false` | a flag: a bare `key` on a use is `key=true` |
-| `bind=name` | the variable the word keeps its value in: a use's `bind=x` names it; without one it is the word's own `state name` (section 4) |
-| `onEvent` | an event the word gives (`onTap`, `onPick`) |
+| `@value`, `@value=1`, `@value="text"` | the value the word keeps, which a use's bare `@x` (or `value=@x`) binds, both ways; the default is what a use that binds none starts at (it then keeps its own). Any name: `@color` |
+| `open=@` | a further variable the word keeps, which a use binds by name (`open=@shown`); a use that binds none keeps its own, started by the body's `state open=false` |
+| `x=@0.5`, `label=@"text"`, `range=@[0, 100]` | the same, with its default after the `@`: a use that binds none keeps its own, started there; a page variable a use binds and nothing declares is said with that start (`add state cx=0.5`). What follows the `@` is a value as written (a number, `true`, `false`, `null`, a string in quotes, a list, a map), never a name: `x=@other` is an issue. 33's `bindX=0.5` is this (the migrate tool writes `x=@0.5`, and the body's `bindX` as `x`) |
+| `onEvent` | an event the word gives (`onTap`, `onPick`); an event the body forwards (`onTap={onPick(c)}`) is one too when the signature leaves it out |
 
 The body reads its parameters by name in braces, as a page reads a variable, and the use's values are put in
 where they are read, as written:
@@ -54,12 +57,24 @@ where they are read, as written:
   with no value and no default leaves the key out.
 - `"… {p} …"` in a string: the use's string spliced in (`"Buy milk"`), its expression kept (`{item.name}`).
 - `{… p …}` in an expression: the value as an expression (`{level*100}` is `{(p.water)*100}`, a string is
-  `"…"`, a bare word is `"word"`, a variable name given to `bind` is the name).
+  `"…"`, a bare word is `"word"`).
 - `onTap={onPick}` in an event: the use's actions; `onTap={onPick(c)}`: those actions with `result` as `c`. An
-  event with nothing left is left out.
+  event with nothing left is left out. `onDrop={onDrop(result.data)}` with a use's `got=result.data` is
+  `got=(result.data)`: the use read the value as the body passes it, not its `.data` again. An event in a branch of
+  a choice (`{on ? onA : onB}`) is that branch: braced when its actions are several, `{}` when the use gave none.
+- `@value`, `open=@open`, `@row.done`: the variable the use bound (a name or a path: `email`, `s.weight`), else the
+  use's own. In the body `{value}` reads it and an action writes it (`value=value+1`), as for any variable.
+- A plain parameter a use binds (`value=1` in the signature, `Counter @n` or `value=@n` on the use) is that
+  variable both ways: the body's `{value}` reads `n` and `value=value+1` writes it. A plain parameter the body binds
+  (`Slider @level`) is the use's own variable when the use binds none, started at the value the use gave or the
+  default. A bare `@x` on a use of a word that keeps no value, a `key=@x` it does not take, and a second bare mark
+  are issues that say what it binds.
+- `drag=group(x)` (and `drag=group({x})`): what it carries is an expression of the body, so a loop item of the body
+  is the use's.
 - `if p`, `each x in p`: the statement's expression, the same.
 - A body written as `if visible` over its one node is that node with `visible={visible}`: models write a word that
-  can be hidden that way (the journal, Review 4, D21). `state` lines before the root are the word's own state.
+  can be hidden that way (the journal, Review 4, D21). A body whose first line is any other `if` (with its `else`)
+  or an `each` is a `Column` holding its lines. `state` lines before the root are the word's own state.
 - A use's `{expr}` where its first string goes (`Pill {status}`) is that string, `"{status}"`.
 - A use's value that is a path (`end=draft.end`) or a variable of the page or of an `each` around it (`bpm=bpm`) is
   read as `{draft.end}`, `{bpm}`: the value, not the word. Any other bare word is the word (`tone=quiet`).
@@ -90,7 +105,7 @@ reorder`.
 
 ```
 // A card that turns over: its front, and its back when flipped.
-FlipCard bind=flipped h=240 radius=16 onTap
+FlipCard @flipped h=240 radius=16 onTap
   state flipped=false
   Stack w=fill h={h} onTap={flipped=!flipped; onTap}
     Column w=fill h=fill pad=20 center middle radius={radius} fill=surface border=1 visible={!flipped}
@@ -102,7 +117,7 @@ FlipCard bind=flipped h=240 radius=16 onTap
 (Cards' own `FlipCard.txt` gives its slots their padding on the slot lines, so a use's `Front fill=…` fills the face.)
 
 ```
-FlipCard bind=flipped onTap={toast "turned"}
+FlipCard @flipped onTap={toast "turned"}
   Front
     Text.title "{q.word}"
   Back
@@ -132,7 +147,7 @@ exists, and a component compiler would duplicate it for the subset a component c
 
 **A macro (chosen).** A use is replaced by its body's lines, with the use's values put in, before the line is
 read, exactly as a page word (`Section`, `Nav`) is replaced by the plain lines it stands for. Everything the
-notation does then holds for it with nothing added: `each` and `if` inside it, `bind=` to a page variable, a
+notation does then holds for it with nothing added: `each` and `if` inside it, `@name` of a page variable, a
 use's expressions reading the page's state and the row of an `each` around it, reflow on a phone, validation,
 rendering, the stand-in for what is unknown inside a use's lines. The document carries nothing private to it:
 the record says which node a use became (`node`), as it does for a stand-in.
@@ -145,15 +160,19 @@ What it costs, and the answers:
   state into a component is a later optimisation, not a different design.
 - **State inside a word.** `state open=false` in a body is the use's own: its name is made the use's
   (`open_stickyNote1`, from the use's `#id` or a counter), in the body's `state` lines, expressions, actions and
-  `bind=`. Two uses do not share it. Under an `each` the use is written once, so its state is shared by the rows
-  (the notation's variables are the page's; a row's own state belongs in the row's item). `bind=name` in the
-  signature names the variable the word keeps its value in: a use's `bind=x` puts the page's `x` there (and the
-  body's own `state name` line is dropped); without it the word keeps its own.
+  marks (`@open`). Two uses do not share it. Under an `each` the use is written once, so its state is shared by the
+  rows (the notation's variables are the page's; a row's own state belongs in the row's item). `@name` in the
+  signature (and `key=@`) names a variable the word keeps: a use's `@x` (`key=@x`) puts the page's `x` there (the
+  body's own `state name` line is dropped, and `x` is declared on the page like any variable a line binds); without
+  it the word keeps its own (`@value=1` gives its start; else the body's `state` line).
 - **Ids.** A use's root is the use's `#id` (`ColorPicker#tint`), else `<word><n>` (`stickyNote1`); an id written in
-  a body (`Dialog#picker`, `scroll top`) is made the use's (`picker_colorPicker1`). The loop variables of a body's
-  `each` are made the use's too, so a use's `{item.name}` reads the page's row, not the body's.
+  a body (`Dialog#picker`, `scroll top`) is made the use's (`picker_colorPicker1`), and an action of the body that
+  names it (`focus picker`, `focus #picker`, `focus "picker"`) names the use's; an action that names the root's own
+  id names the use's root. The loop variables of a body's `each` are made the use's too, so a use's `{item.name}`
+  reads the page's row, not the body's. A use's own actions are the page's: the ids they name are the page's.
 - **Events out.** A use's event is actions; the body says when they run (`onTap={onPick}`) and what `result` is
-  (`onPick(c)`).
+  (`onPick(c)`). A line of a body reads the alias table as a page's line does (`Input onSubmitted=` is
+  `onSubmit`); an event a line does not have is an issue that lists the events, open or not.
 - **A definition using another.** Its body is expanded with the same definitions, its slots passing through the
   inner word's slot. A word that uses itself, directly or through others, is refused when the definitions are read
   (`StickyNote.txt:2: StickyNote uses itself (StickyNote > Pin > StickyNote): it is not read.`), and an expansion
@@ -162,7 +181,7 @@ What it costs, and the answers:
 ## 5. One name, several meanings
 
 `Timeline` is, in four answers, a clip editor's tracks (`Timeline zoom={zoom} playhead={playhead}`), a vertical
-list of dated events (`Timeline` with `TimelineItem` lines), and a bus route's stops (`Timeline.vertical bind=at
+list of dated events (`Timeline` with `TimelineItem` lines), and a bus route's stops (`Timeline.vertical @at
 position={bus}` with `TimelineStop` lines). A file may hold several definitions of its word, each a signature at the
 margin, each named with `#name`:
 
@@ -171,7 +190,7 @@ Timeline#tracks zoom=1 playhead=0 heads onZoom onScrubTo
   …
 Timeline.vertical#events
   …
-Timeline.vertical#route bind=at position marker="directions_bus"
+Timeline.vertical#route @at position marker="directions_bus"
   …
 ```
 
@@ -181,27 +200,27 @@ not name; then the one that names the fewest things the line does not give (the 
 and a bare `Timeline` the events. Whether a use has lines under it is not used: the parser does not know it when
 the use's line is read (section 3). The record says which meaning was read (`to: Timeline#route`).
 
-An alias whose `requires` a line meets is still read before a definition of the same name: `RangeSlider low=a
-high=b` is our `Slider bind=a bindEnd=b` (the built-in alias), `RangeSlider bind=range` is Cards' definition.
+An alias whose `requires` a line meets is still read before a definition of the same name: `RangeSlider @a
+@b` (`low=@a high=@b`) is our `Slider @a @b` (the built-in alias), `RangeSlider @range` is Cards' definition.
 
 **A component's word with a second meaning.** `Stepper` is, in eight self-defining answers, two things: the number
-control (five answers: `bind=value min= max= step= onChange`), which Cards' `Stepper` component already is, and a
-steps indicator (three: `steps=[] bind=step`, `current=`, `done=[]`, `onPick`/`onSelect`). A component cannot be
+control (five answers: `@value min= max= step= onChange`), which Cards' `Stepper` component already is, and a
+steps indicator (three: `steps=[] @step`, `current=`, `done=[]`, `onPick`/`onSelect`). A component cannot be
 redefined (its word is the design system's, section 6), and the second meaning is not a reason to rename the first.
 So a definition may give a component's word a further meaning when it names that meaning:
 
 ```
-Stepper#steps steps=[] bind=step current done=[] orientation="horizontal" onPick
+Stepper#steps steps=[] @step current done=[] orientation="horizontal" onPick
   …
 ```
 
 The component is the word's first meaning, scored as a definition whose signature is the component's props and
-events (with `bind` when it keeps a value, and `onChange` for its `onChanged`). A use is read as the named meaning
+events (with `@` when it keeps a value, and `onChange` for its `onChanged`). A use is read as the named meaning
 that fits it best only when that meaning fits it better than the component; on a tie it is the component. So
-`Stepper bind=qty min=1 max=8 onChange={…}` is the component, as it was, and `Stepper steps=["Cart","Pay"]
-current={at}` is `Stepper#steps`. A definition of a component's word that names no meaning is not read: the
-unnamed meaning of a component's word is the component. The core's words and the page words take no second
-meaning (a `Text#strike` would change what every page means by `Text`).
+`Stepper @qty min=1 max=8 onChange={…}` is the component, as it was, and `Stepper steps=["Cart","Pay"]
+current={at}` is `Stepper#steps`. A design system's definition of a component's word that names no meaning is not
+read: the unnamed meaning of a component's word is the component. A page's own is (section 6). The core's words and
+the page words take no second meaning (a `Text#strike` would change what every page means by `Text`).
 
 The alias table reaches a defined word too: the parameters, events and flags it lists for that word (`"parameters":
 {"Timeline": {"events": "items", "steps": "items", "current": "selected"}}`) are read as the names its definitions
@@ -212,7 +231,17 @@ signature (the journal, Review 5) takes the other names writers gave the same pa
 ## 6. Resolved as a word we have
 
 A defined word is a word we have. It resolves after the core, the catalog, the page words and the design system's
-components (none of which a definition can change: such a definition is not read, and said), and before an alias.
+components (none of which a design system's definition can change: such a definition is not read, and said), and
+before an alias.
+
+A page's own definition (`define Word …` in the text) may replace a design system's word: a word the design system
+defines, as before, and since the loop's Review 7 (D38) a component too, when the definition names no meaning of its
+own (`define Counter "label" max=8`, not `define Counter#steps`). On that page the definition is the word, with every
+meaning the design system gave it, and the use's record says what it replaced (`of: "page, over the Counter
+component"`, or `"page, over Counter.txt"`). Ten of the twenty standalone runs renamed every line of a word they needed
+in another shape (`FloorPlan`, `CanvasShell`, `Track`, `StatusBadge`, `Poster`); now they define it under its name. The
+core's words, the catalog's and the page words are never replaced (a page's `define Button` is not read), and a
+replacing definition cannot use the word it replaces (it would use itself).
 With the vocabulary open or closed it reads the same; its use is recorded always, as an alias is (kind
 `definition`, `to` the definition's name, `node` the use's root id), and the tool counts it as `resolved:
 definition`. A slot's line under a use (`Front`) is recorded the same way, with `to` `FlipCard slot`: it is a word
@@ -277,7 +306,7 @@ only, for the words the first two batches reached for (30 answers, 136 screens):
 `Dot`, `Poster`, `AlbumCover`, `WaterDrop`, `LiveRegion`, `DateDivider`, `TypingIndicator`, `ChatBubble`,
 `Composer`, `CommandItem` (which uses `Kbd`), `Group`, `SelectionBar`, `NowPlayingBar`, `Figure`,
 `ChapterRail`, `ChapterRailItem`, `SwipeRow`, `FlipCard` (`Front`, `Back`), `AvatarStack`, `Legend`, `WordCloud`,
-`Heatmap`, `Countdown` (`#seconds`, `#clock`), `ToggleButton`, `RangeSlider bind=range` (over `Slider bind bindEnd`),
+`Heatmap`, `Countdown` (`#seconds`, `#clock`), `ToggleButton`, `RangeSlider @range` (over `Slider @low @high`),
 `ReorderList` (over `each … reorder`), `Table` (`#lists`, `#records`, `#rows`), `Timeline` (`#tracks`, `#events`,
 `#route`), `TimelineItem`, `TimelineStop`, `Step` (`#story`, `#progress`).
 
@@ -286,7 +315,7 @@ Of the 98 types no word resolved before (with 33.0.0's parser and aliases; `Stic
 
 **Could be definitions, not written yet** (compositions of what the notation has): `PhotoGrid` (a Grid of Images;
 not its drag selection), `Autocomplete`, `CommandList`, `FuzzySearch` (an Input and `fuzzy`), `DateRangePicker`
-(over `Calendar bind bindEnd`), `SortableList` (`each … reorder=group`), `SplitPane` (`Row` and `Splitter`),
+(over `Calendar @start @end`), `SortableList` (`each … reorder=group`), `SplitPane` (`Row` and `Splitter`),
 `ThumbnailStrip`, `SelectionToolbar`, `ListenBar`, `Head`, `Track`, `TypedAnswer`, `Keyboard` (rows of keys),
 `Lyrics` (lines marked by time; not scrolled to), `Dish`, `DishArt`, `Scene` (as a tinted tile with an icon),
 `CompareSlider` (Cards has `BeforeAfter`: an alias, if the shapes match).
@@ -319,11 +348,11 @@ defined word since this review, section 5):
 
 | word | signature now | aliases |
 |---|---|---|
-| `Timeline#events` (first: a bare `Timeline` is it) | `Timeline.vertical#events items=[] bind=at selected onPick`: records with a date or time, a title, a note | `events`, `steps`, `entries` → `items`; `current` → `selected`; `onSelect` → `onPick` |
+| `Timeline#events` (first: a bare `Timeline` is it) | `Timeline.vertical#events items=[] @at selected onPick`: records with a date or time, a title, a note | `events`, `steps`, `entries` → `items`; `current` → `selected`; `onSelect` → `onPick` |
 | `Timeline#tracks`, `#route` | as they were, with `tracks=[]` and `stops=[]` named in the signature | |
-| `Stepper` | the component (the number control: `bind=value min max step label onChanged`, `onChange`) and `Stepper#steps steps=[] bind=step current done=[] orientation="horizontal" onPick` | `items` → `steps`; `onSelect` → `onPick` |
+| `Stepper` | the component (the number control: `@value min max step label onChanged`, `onChange`) and `Stepper#steps steps=[] @step current done=[] orientation="horizontal" onPick` | `items` → `steps`; `onSelect` → `onPick` |
 | `Countdown#timer` (new meaning) | `"label" seconds=0 warnAt=0 format="m:ss" onWarn onEnd` | `warnBelow`, `warn` → `warnAt`; `onDone`, `onFinish`, `onComplete` → `onEnd` |
-| `Rating` (component, repaired) | `"label" bind=value score max=5 half readOnly onChanged`; the label optional | `readonly`; `StarRating` is `Rating` |
+| `Rating` (component, repaired) | `"label" @value score max=5 half readOnly onChanged`; the label optional | `readonly`; `StarRating` is `Rating` |
 | `ChatBubble` | `"text" mine=false role sender time grouped=false` (role="user" is mine) | `from`, `author` → `sender` |
 | `Barcode` (core) | `Barcode "text"`, bars by default, 80 high | `value`, `code` → `data`; `format`, `type` → `symbology`; `QRCode` |
 | `Banner` (component, repaired) | `"title" "message" tone icon action dismissible onDismiss onAction`; `Banner.warning` is `tone=warning` | `actionLabel` → `action`; `text` → `message` |
@@ -336,12 +365,12 @@ is built, the word is already agreed:
 
 | word | signature | what it shows | aliases |
 |---|---|---|---|
-| `MapView` | `center=[0,0] zoom=12 pins=[] bind=picked h=320 onSelect` | centre, zoom, the pins as chips | `markers`, `places`, `locations`, `apps` → `pins`; `onPick`, `onPin` → `onSelect`; `Map` |
+| `MapView` | `center=[0,0] zoom=12 pins=[] @picked h=320 onSelect` | centre, zoom, the pins as chips | `markers`, `places`, `locations`, `apps` → `pins`; `onPick`, `onPin` → `onSelect`; `Map` |
 | `RouteMap` | `stops=[] current progress=0 h=240 onPick` | how far along, the stops numbered | `points`, `route` → `stops`; `onPin`, `onSelect` → `onPick` |
-| `FloorPlan` | `"name" rooms=[] pins=[] bind=picked selected placing=false h=360 onPick onPlace` | rooms as tiles, pins as chips | `items`, `markers` → `pins`; `onSelect` → `onPick` |
-| `SignaturePad` | `"hint" bind=signature h=160 onChange` | a framed area; a tap marks it signed | `onSign` → `onChange`; `Signature` |
+| `FloorPlan` | `"name" rooms=[] pins=[] @picked selected placing=false h=360 onPick onPlace` | rooms as tiles, pins as chips | `items`, `markers` → `pins`; `onSelect` → `onPick` |
+| `SignaturePad` | `"hint" @signature h=160 onChange` | a framed area; a tap marks it signed | `onSign` → `onChange`; `Signature` |
 | `CameraView` | `"hint" source="camera" h=320 onCapture` | a dark frame, its source, a shutter | `onShutter`, `onTake` → `onCapture`; `Camera` |
-| `PhotoPicker` | `"label" bind=photo onPick` | a framed area; "Photo attached" once bound | |
+| `PhotoPicker` | `"label" @photo onPick` | a framed area; "Photo attached" once bound | |
 | `Waveform` | `values=[] position=0 cues=[] h=48 onSeek` | a bar per value, coloured to the position | `peaks`, `samples`, `bars` → `values`; `progress` → `position`; `marks`, `markers` → `cues` |
 
 Review 6's glossary experiment (`corpus-define/d03`) showed the other side: a name given without a signature is
@@ -359,11 +388,82 @@ The SDK's vocabulary tool lists what is left under "Named words used in a shape 
 - **A definition's own words are not checked against its parameters' kinds**: `fill={color}` with a use's
   `color=quiet` writes `fill=quiet`, which the line then reads as it would.
 - **Declared and unread**: a parameter a signature names and its body never reads is accepted and does nothing.
-  Cards' definitions name only what they read.
+  The SDK's vocabulary tool says so and does not count it as resolved (section 12); the parser does not refuse it.
+  Three of Cards' definitions do it (`PhotoGrid` never runs `onTapPhoto`, `Table#rows` never reads `dense`,
+  `WordCloud` never reads `h`).
 - **The document holds the expansion**, not the use: an editor shows the lines a word stands for (section 4).
 - **Recorded words inside a use's actions** (an unknown verb in a use's `onPick={…}`) are the answer's, recorded as
   any; a word the body itself gets wrong (other than an action verb) is an issue against the definition, open or
   not.
+- **An event a body line does not have** is said only when a use gives that event: a use that does not leaves the
+  key out, and `checkDefinitions` gives none.
+- **`each` directly under `Row between`** is one list, so `between` spaces nothing; this is the parser's for any
+  row, not a definition's.
 - **`checkDefinitions` leaves strings out** of the use it checks (a string may be a colour or an icon name, which no
   sample text is): a body that reads a string as an icon must give one when it is empty (`Icon "{icon == null ?
   "circle" : icon}"`).
+
+## 12. What a definition leaves unused, and primitives (the loop's Review 7, D32)
+
+Twenty standalone runs reached "100% resolved" with 146 definitions, and about a third of them were hollow: a
+signature that names `shortcut=` or six key events its lines never use, a map that is a tinted box. A definition
+resolves its word whatever its lines do, so the count could not tell. Two things say it now.
+
+**What a definition's lines leave unused** (`definitionReads`, `define_reads.dart`). Read from the lines as the
+expansion reads them: a name is read where the expansion would put the use's value in (in braces, in a string's
+braces, in a list, in a statement's expression, in the `{…}` where the text goes), a variable is bound by `@` (`@value`, `open=@open`) and named by
+`menu=`, an event is run where an action names it (`onTap={onPick}`, `onPick(x)`, a branch of a choice, inside
+`confirm … then {…}`). `DefinitionReads` gives:
+
+- `unread`: the strings, parameters and `@value` its lines neither read nor bind (`define GoKey "label" shortcut="" onTap` with
+  `Button "{label}" onTap={onTap}` under it: `shortcut`);
+- `unfired`: the events no action runs (tv-streaming-remote's `RemoteFrame … onArrowUp onArrowDown onArrowLeft
+  onArrowRight onEnter onEscape` over `Column gap={gap} pad={pad}`);
+- `outside`: the names its lines read, set or bind that are neither its own nor declared in it (periodic-table's
+  `each e in elements`, a variable of the page; `Slider @gain` where `gain` is no parameter, which binds the page's
+  `gain`; `selected={item==bind}`, which reads a variable called `bind`). A parameter a line binds (`Slider @red`) is
+  read: it is the use's variable, or the one the use binds. Ids, pages and keys an action names (`open sheet`,
+  `go home`) are not variables.
+
+Each comes with its message (`page:64: PeriodicTable reads elements, which is neither its own nor declared in it: it
+works only on a page that has that variable.`). The parser does not refuse any of them: a definition that does less
+than it says still draws. The SDK's vocabulary tool lists them ("Definitions that do less than they say", and
+`definitionWarnings` in its JSON), and a word given to a use that its definition never reads or runs resolves as
+`unread`, which is not resolved.
+
+**A primitive** is what no line can express, declared as such: `primitive Word "main" key=default onEvent`, the same
+signature as `define`, with a `//` line above it that says what it would do.
+
+```
+// A plan of rooms that placed items are dragged about on: no line draws one.
+primitive FloorPlan "name" rooms=[] pins=[] h=360 onPick onPlace
+
+// A trace of samples on a grid, with a cursor.
+primitive Scope trace=[] onCursor
+  Box w=fill h=120 fill=#FF0B1220 radius=8
+    Text.caption "Scope · {length(trace)} samples" color=#FF34D399
+```
+
+With no lines under it, a use is the standard labelled box (a quiet bordered column with the word and its first
+string, `h={h}` when the signature has an `h`, the lines written under the use in it); with lines, it is those, as a
+definition's are. Its use is read exactly as a definition's (its parameters and events are its own, nothing is
+unknown on it) and recorded as kind `primitive` (`to` the word), never as `definition`; what it leaves unused is
+expected and not warned on. A design system's file may declare one too (`primitive MapView center=[0,0] …`). The
+SDK tool counts a primitive and every word its uses were given as **stand-in**, apart from resolved and unknown,
+and lists the declarations ("Primitives declared"): that list is the work, written by the writers in the shape they
+need. The open prompt teaches it in one sentence of the define paragraph.
+
+Cards' own stand-ins (`MapView`, `RouteMap`, `FloorPlan`, `SignaturePad`, `CameraView`, `PhotoPicker`, `Waveform`:
+section 10) are still `define`d, so their uses still count as resolved; declaring them `primitive` is a change of
+its own.
+
+The twenty standalone runs' final answers (each with all the runs' aliases), counted again:
+
+| | words | resolved | stand-in | never read | unknown | definitions that do less than they say |
+|---|---|---|---|---|---|---|
+| before (resolved: all but unknown) | 1,069 | 1,069 (100%) | | | 0 | |
+| after, as written | 1,069 | 914 (85.5%) | 0 | 155 | 0 | 78 of 146 |
+| after, the 49 definitions whose `//` line says they stand in declared `primitive` | 1,069 | 707 (66.1%) | 309 (49 declared, 61 uses) | 53 | 0 | 38 of 97 |
+
+So two thirds of the "100%" is words that mean what they say; a seventh were named and never read, and the rest stands
+in for a primitive the writers already described.

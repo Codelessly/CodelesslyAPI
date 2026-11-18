@@ -13,6 +13,7 @@
 // lines under a `Name` line). Nothing here knows the document: the expansion
 // is plain lines, read as if the page had written them.
 import '../catalog.dart' show Catalog;
+import 'bind_form.dart';
 import 'notation.dart';
 import 'universal.dart';
 import 'vocabulary.dart';
@@ -32,8 +33,17 @@ final class NotationDefinition {
     required this.required,
     required this.events,
     required this.bind,
+    required this.bindDefault,
+    required this.bindables,
     required this.body,
+    this.primitive = false,
   });
+
+  /// Declared with `primitive` (docs/design/20 section 12): a word for what
+  /// no line can express, standing in for it. A use reads as a definition's
+  /// does (its body, or a labelled box when it has none) and is recorded as a
+  /// `primitive`, never as a word we have.
+  final bool primitive;
 
   /// The word (`StickyNote`), and the name of this meaning when the word has
   /// several (`Timeline#route`: `route`).
@@ -64,8 +74,18 @@ final class NotationDefinition {
   /// The events it gives (`onTap`, `onPick`).
   final List<String> events;
 
-  /// `bind=name`: the name the body calls the variable it keeps its value in.
+  /// `@value` in the signature: the name the body calls the variable it
+  /// keeps its value in, which a use's `@name` binds (both ways).
   final String? bind;
+
+  /// `@value=1`: what [bind] starts at in a use that binds nothing (the use
+  /// then keeps a value of its own); null when the signature gives none.
+  final String? bindDefault;
+
+  /// `open=@` in the signature: further variables a use binds by name
+  /// (`open=@shown`); a use that binds none keeps its own (the body's
+  /// `state open=false`).
+  final Set<String> bindables;
 
   /// The lines it stands for: each with its indent from the first (0), its
   /// text and its line in [file].
@@ -117,7 +137,8 @@ final class NotationDefinition {
 }
 
 /// The words a text (a page, or an answer of several screens) defines with
-/// `define Word …` at the margin, wherever they are written: a definition
+/// `define Word …` (or declares with `primitive Word …`, for what no line
+/// can express) at the margin, wherever they are written: a definition
 /// holds for the whole text, before or after its uses. A `//` line directly
 /// above a `define` is its purpose. A word defined twice is the later
 /// definition, unless both name their meaning (`define Timeline#route`), when
@@ -133,14 +154,14 @@ final class NotationDefinition {
   final lines = text.split(RegExp(r'\r?\n'));
   for (var i = 0; i < lines.length; i++) {
     final raw = lines[i];
-    if (!raw.startsWith('define ')) continue;
+    if (!isDeclaration(raw)) continue;
     // Its purpose: the `//` lines at the margin directly above it.
     final doc = <String>[];
     for (var k = i - 1; k >= 0 && lines[k].startsWith('//'); k--) {
       doc.insert(0, lines[k].substring(2).trim());
     }
     final head = i;
-    signatures.add(raw.trim().substring(7).trim());
+    signatures.add(declared(raw));
     final body = <({int indent, String text, int line})>[];
     while (i + 1 < lines.length) {
       final next = lines[i + 1];
@@ -189,6 +210,18 @@ List<String>? _cycle(String word, Map<String, List<NotationDefinition>> words, L
 }
 
 final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
+
+/// Whether [line], as written, declares a word at the margin: `define Word …`,
+/// or `primitive Word …` for what no line can express.
+bool isDeclaration(String line) => line.startsWith('define ') || line.startsWith('primitive ');
+
+/// A declaration's signature without its keyword (`Word …`).
+String declared(String line) {
+  final t = line.trim();
+  if (t.startsWith('define ')) return t.substring(7).trim();
+  if (t.startsWith('primitive ')) return t.substring(10).trim();
+  return t;
+}
 
 /// A slot line of a body: `...` (the default slot) or `...Front` (the lines
 /// under a `Front` line), then either `each <words>`, added to an `each` over
@@ -244,14 +277,14 @@ List<NotationDefinition> _read(String file, String text, List<String> problems) 
 /// The definition whose signature is [signature] (`define` before it is
 /// read too) with [body] under it, or null with what is wrong in [problems].
 NotationDefinition? definitionOf(String file, int line, String signature, List<({int indent, String text, int line})> body, String doc, List<String> problems) {
-  var sig = signature.trim();
-  if (sig.startsWith('define ')) sig = sig.substring(7).trim();
+  final primitive = signature.trim().startsWith('primitive ');
+  final sig = declared(signature);
   final parts = LineParts.of(sig);
   if (parts == null || !RegExp(r'^[A-Z]').hasMatch(parts.word)) {
     problems.add('$file:$line: a signature starts with the word it defines, capitalised (StickyNote "text" fill=#FFFDE68A).');
     return null;
   }
-  if (body.isEmpty) {
+  if (body.isEmpty && !primitive) {
     problems.add('$file:$line: ${parts.word} stands for no lines: write them indented under its signature.');
     return null;
   }
@@ -259,8 +292,25 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
   final parameters = <String, String?>{};
   final required = <String>{};
   final events = <String>[];
-  String? bind;
-  for (final p in parts.parts) {
+  final bindables = <String>{};
+  String? bind, bindDefault;
+  // `bind` is no word of a signature: said with the signature in the form
+  // the notation reads.
+  if (RegExp(r'(^|\s)bind([A-Z][A-Za-z0-9]*)?(=|\s|$)').hasMatch(sig)) {
+    problems.add('$file:$line: a variable is bound with @: @value in the signature is the value a use binds (@value=0 with a default), name=@ another. Write: ${notationBindForm(signature.trim())}');
+  }
+  // `@value="text"`: a default in quotes is the word's, not a string of
+  // the signature.
+  final signed = <LinePart>[];
+  for (var i = 0; i < parts.parts.length; i++) {
+    final p = parts.parts[i];
+    if (p.kind == 'word' && p.raw.startsWith('@') && p.raw.endsWith('=') && i + 1 < parts.parts.length && parts.parts[i + 1].kind == 'string') {
+      signed.add(LinePart.word('${p.raw}${parts.parts[++i].raw}'));
+    } else {
+      signed.add(p);
+    }
+  }
+  for (final p in signed) {
     switch (p.kind) {
       case 'string':
         final n = p.raw.replaceAll('"', '');
@@ -270,16 +320,34 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
         }
         strings.add(n);
       case 'pair':
-        if (p.key == 'bind') {
-          if (!_identifier.hasMatch(p.value!)) {
-            problems.add('$file:$line: bind= names the variable the body keeps its value in (bind=value).');
-            continue;
-          }
-          bind = p.value;
-        } else if (p.isEvent) {
+        if (RegExp(r'^bind([A-Z][A-Za-z0-9]*)?$').hasMatch(p.key!)) continue;
+        if (p.isEvent) {
           events.add(p.key!);
+        } else if (p.value == '@') {
+          // `open=@`: a variable a use binds by name.
+          bindables.add(p.key!);
+          parameters[p.key!] = null;
+        } else if (p.value!.startsWith('@') && notationIsLiteral(p.value!.substring(1))) {
+          // `x=@0.5`: a variable a use binds by name, and what a use that
+          // binds none starts at.
+          bindables.add(p.key!);
+          parameters[p.key!] = p.value!.substring(1);
+        } else if (p.value!.startsWith('@')) {
+          problems.add('$file:$line: ${p.key}=${p.value}: a signature names what a use binds, not a variable: ${p.key}=@, or ${p.key}=@0 with its start (else its start is the body\'s state ${p.key}=…).');
         } else {
           parameters[p.key!] = p.value;
+        }
+      case 'word' when p.raw.startsWith('@'):
+        // `@value`, `@value=1`: the value a use's `@name` binds, and what it
+        // starts at in a use that binds none.
+        final m = RegExp(r'^@([A-Za-z_][A-Za-z0-9_]*)(?:=(.+))?$').firstMatch(p.raw);
+        if (m == null) {
+          problems.add('$file:$line: "${p.raw}" is not a value a use binds: @value, or @value=0 with its start.');
+        } else if (bind != null) {
+          problems.add('$file:$line: a word binds one value bare (@$bind): name any other, ${m[1]}=@.');
+        } else {
+          bind = m[1];
+          bindDefault = m[2];
         }
       case 'word':
         var w = p.raw;
@@ -291,7 +359,9 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
           problems.add('$file:$line: "$w" is not a name of a parameter.');
           continue;
         }
-        if (_event.hasMatch(w)) {
+        if (w == 'bind') {
+          continue;
+        } else if (_event.hasMatch(w)) {
           events.add(w);
         } else {
           parameters[w] = null;
@@ -300,8 +370,30 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
         problems.add('$file:$line: a signature has no {…} at its end.');
     }
   }
-  final min = body.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
-  var lines = [for (final l in body) (indent: l.indent - min, text: l.text, line: l.line)];
+  for (final l in body) {
+    // `bind=` is no key of a line: said with the line in the form the
+    // notation reads.
+    if (LineParts.of(l.text)?.parts.any((p) => p.kind == 'pair' && RegExp(r'^bind([A-Z][A-Za-z0-9]*)?$').hasMatch(p.key!)) ?? false) {
+      problems.add('$file:${l.line}: a variable is bound with @: @name is the value of the control, key=@name another property. Write: ${notationBindForm(l.text)}');
+    }
+    // An event the body forwards (`onTap={onSelect(c)}`) and the signature
+    // does not name is the word's event too: a use's onSelect= runs there.
+    for (final f in _forwarded(l.text)) {
+      if (!events.contains(f) && !parameters.containsKey(f)) events.add(f);
+    }
+  }
+  // A primitive with no lines of its own stands in as a quiet labelled box
+  // (the look of an unknown word's stand-in with nothing to draw), its first
+  // string after its name, the lines under a use in it.
+  final written = body.isNotEmpty
+      ? body
+      : [
+          (indent: 0, text: 'Column w=fill${parameters.containsKey('h') ? ' h={h}' : ''} pad=12 gap=6 radius=6 border=#FFCBD5E1 center middle', line: line),
+          (indent: 2, text: 'Text.muted "${parts.word}${strings.isEmpty ? '' : ': {${strings.first}}'}"', line: line),
+          (indent: 2, text: '...', line: line),
+        ];
+  final min = written.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
+  var lines = [for (final l in written) (indent: l.indent - min, text: l.text, line: l.line)];
   // `if visible` over the one node it stands for: that node, shown while
   // the condition holds.
   final top = [for (final l in lines) if (l.indent == 0 && !_preamble(l.text)) l];
@@ -323,12 +415,24 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
       ];
     }
   }
+  // A body that starts with a statement (`if done` and its `else`, `each
+  // row in rows`) stands for a Column holding its lines: a use is one node.
+  final firstRoot = lines.where((l) => l.indent == 0 && !_preamble(l.text)).firstOrNull;
+  if (firstRoot != null && const {'if', 'each', 'for'}.contains(LineParts.of(firstRoot.text)?.word)) {
+    final at = lines.indexOf(firstRoot);
+    lines = [
+      ...lines.sublist(0, at),
+      (indent: 0, text: 'Column', line: firstRoot.line),
+      for (final l in lines.sublist(at))
+        if (l.indent == 0 && _preamble(l.text)) l else (indent: l.indent + 2, text: l.text, line: l.line),
+    ];
+  }
   final roots = [
     for (final l in lines)
       if (l.indent == 0 && !_preamble(l.text)) l,
   ];
   if (roots.isEmpty || LineParts.of(roots.first.text) == null || const {'if', 'each', 'else', 'for', 'every', 'key', 'state', 'define'}.contains(LineParts.of(roots.first.text)!.word)) {
-    problems.add('$file:${roots.isEmpty ? line : roots.first.line}: the first line ${parts.word} stands for is a node (Column, Row, Card…), with the others under it.');
+    problems.add('$file:${roots.isEmpty ? line : roots.first.line}: the first line ${parts.word} stands for is a node (Column, Row, Card…), with the others under it: write the lines indented under a Column.');
     return null;
   }
   if (roots.length > 1) {
@@ -357,8 +461,24 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     required: required,
     events: events,
     bind: bind,
+    bindDefault: bindDefault,
+    bindables: bindables,
     body: lines,
+    primitive: primitive,
   );
+}
+
+/// The events the actions on [text] forward: a name `on…` written where an
+/// action starts (`onTap={onPick(c)}`, `{on ? onA : onB}`, `{x=1; onDone}`).
+Iterable<String> _forwarded(String text) sync* {
+  for (final m in RegExp(r'(?<![A-Za-z0-9_])on[A-Z][A-Za-z0-9]*=\{').allMatches(text)) {
+    final open = m.end - 1, close = _braceEnd(text, open);
+    if (close - 1 <= open + 1) continue;
+    final inner = text.substring(open + 1, close - 1);
+    for (final f in RegExp(r'(?:^|[{;?:]|\bthen)\s*(on[A-Z][A-Za-z0-9]*)(?![A-Za-z0-9_=])').allMatches(inner)) {
+      yield f[1]!;
+    }
+  }
 }
 
 /// Whether a use's key=value (or event) [key] goes on its root when the
@@ -403,8 +523,18 @@ final class DefinedWords {
     this.within = const [],
     Map<String, List<NotationDefinition>>? page,
     this.variable,
+    this.internal,
+    this.bindsVariable,
   })  : counts = counts ?? {},
         page = page ?? {};
+
+  /// A variable the expansion makes for a use that binds none of its own
+  /// (`value_stepper1`): the use's own, declared by no state line.
+  final void Function(String name)? internal;
+
+  /// A variable of the page a use binds (`Stepper @servings`), at its
+  /// column, with what a state line for it would start at (as written).
+  final void Function(String name, int column, String? start)? bindsVariable;
 
   /// The definitions by word.
   final Map<String, List<NotationDefinition>> definitions;
@@ -432,7 +562,7 @@ final class DefinedWords {
   final bool Function(String word)? ours;
 
   /// The names a component of the design system takes (its props, its
-  /// events, `bind` when it keeps a value), when [word] is one; null when it
+  /// events, `@` when it keeps a value), when [word] is one; null when it
   /// is not. A component's word may take further meanings from definitions
   /// that name theirs (`Stepper#steps`): a use is read as one of them only
   /// when it fits it better than the component (docs/design/20 section 5).
@@ -443,16 +573,24 @@ final class DefinedWords {
   final bool Function(String name)? variable;
 
   /// Whether [word] is a defined word here (a definition, or a `define` read
-  /// in the text so far).
-  bool has(String word) => (page.containsKey(word) || definitions.containsKey(word)) && !(ours?.call(word) ?? false);
+  /// in the text so far). A word of the notation's own is not, except a
+  /// design system's component that the page's own definition names with no
+  /// meaning of its own (`define Counter …`): on that page the definition
+  /// replaces the component (docs/design/20 section 6). The core's words,
+  /// the catalog's and the page words are never replaced.
+  bool has(String word) {
+    if (!(ours?.call(word) ?? false)) return page.containsKey(word) || definitions.containsKey(word);
+    if (component?.call(word) == null) return false;
+    return (_of(word) ?? const <NotationDefinition>[]).any((d) => d.file == 'page' && d.name == null);
+  }
 
   /// The meanings of [word] a use may be read with: all of a defined word's,
   /// or the named ones a component's word has (empty: none).
   List<NotationDefinition> meanings(String word) {
     if (has(word)) return _of(word) ?? const [];
     if (component?.call(word) == null) return const [];
-    // A page's own unnamed definition of a component's word is not read, and does
-    // not hide the design system's named meanings of it.
+    // The page's own named meanings of the component's word, else the
+    // design system's (a page's unnamed one replaces the component: [has]).
     final named = [for (final d in page[word] ?? const <NotationDefinition>[]) if (d.name != null) d];
     return named.isNotEmpty ? named : [for (final d in definitions[word] ?? const <NotationDefinition>[]) if (d.name != null) d];
   }
@@ -514,7 +652,7 @@ final class DefinedWords {
       }
       _endDefine();
     }
-    if (indent == 0 && text.startsWith('define ') && context == null) {
+    if (indent == 0 && isDeclaration(text) && context == null) {
       _defining = (line: _line, signature: text, indent: indent);
       return const [];
     }
@@ -574,7 +712,7 @@ final class DefinedWords {
     final d = _defining!;
     _defining = null;
     // Read with the whole text before it was read: its lines are skipped.
-    if (_preread.contains(d.signature.substring(7).trim())) {
+    if (_preread.contains(declared(d.signature))) {
       _definingBody.clear();
       return;
     }
@@ -621,7 +759,7 @@ final class DefinedWords {
 
   /// How well the use [p] fits [d] (higher: better).
   static int _score(NotationDefinition d, LineParts p) =>
-      _scoreOf({...d.parameters.keys, ...d.events, ...d.strings, if (d.bind != null) 'bind'}, d.required, d.variants, p);
+      _scoreOf({...d.parameters.keys, ...d.events, ...d.strings, if (d.bind != null) ...['@', d.bind!], if (d.parameters.containsKey('value')) '@'}, d.required, d.variants, p);
 
   /// How well the use [p] fits a meaning that takes [names], needs
   /// [required] and has [variants]: 20 for each word given that it names,
@@ -629,9 +767,10 @@ final class DefinedWords {
   /// each variant written that it has, less 10 for each it has not; less one
   /// for each name not given (of meanings that fit as well, the plainest).
   static int _scoreOf(Set<String> names, Iterable<String> required, Iterable<String> variants, LineParts p) {
+    // A bare `@name` is the value the use binds (`@`).
     final given = <String>{
       for (final x in p.parts)
-        if (x.kind == 'pair') x.key! else if (x.kind == 'word') x.raw,
+        if (x.kind == 'pair') x.key! else if (x.kind == 'word') x.raw.startsWith('@') ? '@' : x.raw,
     };
     var score = required.every(given.contains) ? 0 : -100000;
     for (final g in given) {
@@ -665,10 +804,19 @@ final class DefinedWords {
 
     String takes() => [
           ...d.strings.map((s) => '"$s"'),
-          ...d.parameters.keys,
-          if (d.bind != null) 'bind',
+          if (d.bind != null) '@${d.bind}',
+          for (final k in d.parameters.keys) d.bindables.contains(k) ? '$k=@${d.parameters[k] ?? ''}' : k,
           ...d.events,
         ].join(', ');
+    // What a use may bind: its value (`@name`), and the variables it names.
+    String binds() {
+      final can = [
+        if (d.bind != null) '@name (its ${d.bind})' else if (d.parameters.containsKey('value')) '@name (its value)',
+        for (final k in d.parameters.keys)
+          if (k != 'value' || d.bind != null) '$k=@name',
+      ];
+      return can.isEmpty ? 'binds nothing' : 'binds ${can.join(', ')}';
+    }
     // The use's id, or one of its own: the root's, and what its state and
     // ids are made into.
     final uid = p.id.isNotEmpty ? p.id.substring(1) : '${d.word[0].toLowerCase()}${d.word.substring(1)}${counts[d.word] = (counts[d.word] ?? 0) + 1}';
@@ -705,6 +853,9 @@ final class DefinedWords {
     }
 
     String? bound;
+    // The parameters the use binds a variable to (`open=@shown`, or `@n` for
+    // a plain `value=1`): that variable, both ways.
+    final boundParams = <String, String>{};
     var strings = 0;
     // `Pill {status}`: an expression where the first string goes, before any
     // string, is that string ("{status}"); the line goes on after it.
@@ -725,11 +876,24 @@ final class DefinedWords {
             unknown('parameter', 'string${strings + 1}', x.raw, col(x), 'A ${d.word} takes ${d.strings.length} string${d.strings.length == 1 ? '' : 's'}. It takes: ${takes()}.');
           }
           strings++;
+        case 'pair' when x.value!.startsWith('@'):
+          // `value=@email`, `open=@shown`: a variable, both ways.
+          final k = x.key!, v = x.value!.substring(1);
+          if (v.isEmpty) {
+            _issue(col(x), '@ is followed by the variable\'s name: $k=@name.');
+          } else if (d.bind != null && (k == d.bind || k == 'value')) {
+            if (bound != null) _issue(col(x), 'The ${d.word}\'s value is bound once: it is @$bound already.');
+            bound ??= v;
+          } else if (d.parameters.containsKey(k)) {
+            boundParams[k] = v;
+          } else {
+            unknown('parameter', k, x.value, col(x), 'A ${d.word} has no "$k" to bind: it ${binds()}.');
+          }
+        case 'pair' when RegExp(r'^bind([A-Z][A-Za-z0-9]*)?$').hasMatch(x.key!) && !d.parameters.containsKey(x.key):
+          _issue(col(x), 'A variable is bound with @: @name is the value of the ${d.word}, key=@name another property. Write: ${notationBindForm(text)}');
         case 'pair':
           final k = x.key!, v = x.value!;
-          if (k == 'bind' && d.bind != null) {
-            bound = v;
-          } else if (x.isEvent && d.events.contains(k)) {
+          if (x.isEvent && d.events.contains(k)) {
             actions[k] = v.startsWith('{') && v.endsWith('}') ? v.substring(1, v.length - 1).trim() : v;
           } else if (d.parameters.containsKey(k) || d.strings.contains(k)) {
             // `end=draft.end`, `bpm=bpm`: a path, or a variable of the page,
@@ -741,6 +905,22 @@ final class DefinedWords {
             // On its root.
           } else {
             unknown(x.isEvent ? 'event' : 'parameter', k, v, col(x), 'A ${d.word} has no "$k". It takes: ${takes()}.');
+          }
+        case 'word' when x.raw.startsWith('@'):
+          // `@servings`: the value the word keeps (its `@value`, or a plain
+          // `value=1`), bound to the page's variable both ways.
+          final v = x.raw.substring(1);
+          final key = d.bind ?? (d.parameters.containsKey('value') ? 'value' : null);
+          if (v.isEmpty) {
+            _issue(col(x), '@ is followed by the variable\'s name: @name.');
+          } else if (key == null) {
+            unknown('parameter', '@', x.raw, col(x), 'A ${d.word} keeps no value of its own: it ${binds()}.');
+          } else if ((d.bind != null ? bound : boundParams[key]) != null) {
+            _issue(col(x), 'One @name a line is its value: name any other (key=@name). A ${d.word} ${binds()}.');
+          } else if (d.bind != null) {
+            bound = v;
+          } else {
+            boundParams[key] = v;
           }
         case 'word':
           if (d.parameters.containsKey(x.raw)) {
@@ -779,25 +959,71 @@ final class DefinedWords {
 
     // The names the body keeps of its own (its state, the items of its
     // loops, its ids) are made the use's.
+    // An id written in the body is made the use's (the root's is the use's
+    // own), and the body's actions that name it name the use's.
     final renamed = <String, String>{};
+    final ids = <String>{};
+    final bodyRoot = d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text));
     for (final l in d.body) {
       if (RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
-      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*#([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m? when l != d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text))) {
-        renamed[m[1]!] = '${m[1]}_$uid';
+      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*#([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) {
+        renamed[m[1]!] = identical(l, bodyRoot) ? uid : '${m[1]}_$uid';
+        ids.add(m[1]!);
       }
     }
-    if (d.bind != null) renamed[d.bind!] = bound ?? '${d.bind}_$uid';
-    final sub = _Substitution(d, values, actions, renamed);
+    // The variables of the use: what it binds is the page's (the body's own
+    // state line for it is dropped); what it binds none of is its own, made
+    // here: the value (from its `@value=…`, else the body's state line),
+    // and a plain parameter the body binds (`Slider @level`), from the
+    // value the use gave or its default.
+    final own = <String>[];
+    final stated = {for (final l in d.body) ?RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text)?[1]};
+    final bodyBinds = {for (final l in d.body) for (final m in RegExp(r'(?:^|\s)(?:[A-Za-z_][A-Za-z0-9_]*=)?@([A-Za-z_][A-Za-z0-9_]*)').allMatches(l.text)) m[1]!};
+    if (d.bind case final String b) {
+      renamed[b] = bound ?? '${b}_$uid';
+      if (bound == null && !stated.contains(b)) {
+        if (d.bindDefault case final String start) {
+          own.add('state ${b}_$uid=$start');
+        } else {
+          internal?.call('${b}_$uid');
+        }
+      }
+    }
+    for (final e in boundParams.entries) {
+      renamed[e.key] = e.value;
+    }
+    // What the use binds is the page's: declared there (what a state line
+    // for it would start at: the word's default for it, else its own state).
+    String? startOf(String name) =>
+        (name == d.bind ? d.bindDefault : null) ??
+        d.parameters[name] ??
+        d.body.map((l) => RegExp('^state\\s+${RegExp.escape(name)}\\s*=\\s*(.+)\$').firstMatch(l.text)?[1]).nonNulls.firstOrNull;
+    for (final (name, variable) in [if (d.bind != null && bound != null) (d.bind!, bound), for (final e in boundParams.entries) (e.key, e.value)]) {
+      if (_identifier.hasMatch(variable)) bindsVariable?.call(variable, column, startOf(name));
+    }
+    for (final p in d.parameters.keys) {
+      if (boundParams.containsKey(p) || stated.contains(p) || !(bodyBinds.contains(p) || d.bindables.contains(p))) continue;
+      renamed[p] = '${p}_$uid';
+      final start = values[p] ?? d.parameters[p];
+      if (start != null && start.isNotEmpty) {
+        own.add('state ${p}_$uid=$start');
+      } else {
+        internal?.call('${p}_$uid');
+      }
+    }
+    final sub = _Substitution(d, values, actions, renamed, ids);
 
     // The body, with the use's values put in.
-    final lines = <({int indent, String text, int line})>[];
+    final lines = <({int indent, String text, int line})>[
+      for (final s in own) (indent: 0, text: s, line: d.line),
+    ];
     var rooted = false;
     for (final l in d.body) {
-      // A use's bind=x is the page's x: the body's own state line is dropped,
-      // unless the page has no x (an answer that binds a variable it never
-      // declared), when it declares it, with the word's default.
-      if (bound != null && RegExp('^state\\s+${d.bind}\\s*=').hasMatch(l.text) && (!_identifier.hasMatch(bound) || (variable?.call(bound) ?? true))) continue;
+      // A variable the use binds is the page's: the body's own state line
+      // for it is not read.
+      final state = RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)\s*=').firstMatch(l.text)?[1];
+      if (state != null && ((state == d.bind && bound != null) || boundParams.containsKey(state))) continue;
       var t = sub.line(l.text);
       if (t == null) continue;
       if (!rooted && l.indent == 0 && !_preamble(l.text)) {
@@ -807,7 +1033,8 @@ final class DefinedWords {
       lines.add((indent: l.indent, text: t, line: l.line));
     }
     // Its words expanded in turn, with the same definitions.
-    final inner = DefinedWords(_all, open: open, issue: issue, ours: ours, component: component, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable);
+    final inner =
+        DefinedWords(_all, open: open, issue: issue, ours: ours, component: component, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable, internal: internal, bindsVariable: bindsVariable);
     final expanded = <DefinedLine>[];
     for (final l in lines) {
       expanded.addAll(inner.rewrite(l.indent, l.text, from: d.at(l.line)));
@@ -985,8 +1212,12 @@ final class _Use {
 
 /// A use's values put into its definition's body.
 final class _Substitution {
-  _Substitution(this.d, this.values, this.actions, this.renamed);
+  _Substitution(this.d, this.values, this.actions, this.renamed, this.ids);
   final NotationDefinition d;
+
+  /// The ids written in the body (keys of [renamed]): an action may name one
+  /// as `#name` or `"name"` too.
+  final Set<String> ids;
 
   /// The use's values as written, by parameter (strings by their names).
   final Map<String, String?> values;
@@ -1047,7 +1278,14 @@ final class _Substitution {
       final c = text[i];
       if (c == '"' || c == "'") {
         final end = _stringEnd(text, i);
-        b.write(_string(text.substring(i, end)));
+        final s = text.substring(i, end);
+        // `focus "cellInput"`: an id of the body, named by an action.
+        final quoted = s.length > 2 ? s.substring(1, s.length - 1) : '';
+        if (ids.contains(quoted) && RegExp(r'\b(focus|scroll|open|close|toggle)\s*$').hasMatch(text.substring(0, i))) {
+          b.write('"${renamed[quoted]}"');
+        } else {
+          b.write(_string(s));
+        }
         i = end;
         continue;
       }
@@ -1059,7 +1297,9 @@ final class _Substitution {
       }
       if (c == '#') {
         final m = RegExp(r'#[A-Za-z0-9_]*').matchAsPrefix(text, i)!;
-        b.write(m[0]);
+        // `focus #cellInput`: an id of the body; `#FF2563EB` a colour.
+        final id = m[0]!.substring(1);
+        b.write(ids.contains(id) ? '#${renamed[id]}' : m[0]);
         i = m.end;
         continue;
       }
@@ -1139,7 +1379,19 @@ final class _Substitution {
       var given = actions[m[1]] ?? '';
       if (arg != null && given.isNotEmpty) {
         final value = '(${expression(arg)})';
-        given = given.replaceAllMapped(RegExp(r'(?<![.A-Za-z0-9_])result(?![A-Za-z0-9_])'), (_) => value);
+        // `onDrop(result.data)` with a use's `got=result.data`: the use read
+        // the value the body passes as it reads it, so it is that value, not
+        // its own `.data` again.
+        final path = RegExp(r'^\s*result(\.[A-Za-z_][A-Za-z0-9_]*)+\s*$').hasMatch(arg) ? arg.trim() : null;
+        if (path != null) given = given.replaceAll(RegExp('(?<![.A-Za-z0-9_])${RegExp.escape(path)}(?![A-Za-z0-9_])'), '\u0001');
+        given = given.replaceAllMapped(RegExp(r'(?<![.A-Za-z0-9_])result(?![A-Za-z0-9_])'), (_) => value).replaceAll('\u0001', value);
+      }
+      // An event in a branch of a choice (`on ? onA : onB`) is one branch:
+      // its actions braced when they are several, or none.
+      final before = inner.substring(0, m.start).trimRight();
+      final after = inner.substring(end).trimLeft();
+      if ((before.endsWith('?') || (before.endsWith(':') && !before.endsWith('::')) || after.startsWith(':')) && (given.trim().isEmpty || _actionList(given).length > 1)) {
+        given = '{$given}';
       }
       put.add(given);
       b
@@ -1188,7 +1440,10 @@ final class _Substitution {
         case 'pair':
           final k = x.key!, v = x.value!;
           final whole = v.startsWith('{') && v.endsWith('}') ? v.substring(1, v.length - 1).trim() : null;
-          if (x.isEvent && whole != null) {
+          if (v.startsWith('@')) {
+            // `open=@open`: the variable the use binds, or the use's own.
+            parts.add('$k=${_mark(v)}');
+          } else if (x.isEvent && whole != null) {
             final a = actionsOf(whole);
             if (a.isNotEmpty) parts.add('$k={$a}');
           } else if (whole != null && _identifier.hasMatch(whole) && renamed[whole] == null && _isParameter(whole)) {
@@ -1202,7 +1457,13 @@ final class _Substitution {
             parts.add('$k=${_string(v)}');
           } else if (v.startsWith('[')) {
             parts.add('$k=${expression(v)}');
-          } else if ((k.startsWith('bind') || k == 'menu') && renamed[v] != null) {
+          } else if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*\(').firstMatch(v) case final call? when v.endsWith(')')) {
+            // `drag=dispatch(unit.id)`: what it carries is an expression of
+            // the body (`drag=booking({r.id})` the same, unbraced).
+            var arg = v.substring(call.end, v.length - 1).trim();
+            if (arg.startsWith('{') && !arg.startsWith('{"') && _braceEnd(arg, 0) == arg.length) arg = arg.substring(1, arg.length - 1).trim();
+            parts.add('$k=${call[0]}${expression(arg)})');
+          } else if (k == 'menu' && renamed[v] != null) {
             parts.add('$k=${renamed[v]}');
           } else {
             parts.add(x.raw);
@@ -1220,6 +1481,8 @@ final class _Substitution {
           }
           final rest = x.raw.substring(close).trim();
           if (rest.isNotEmpty) parts.add(line('X $rest')!.substring(2));
+        case 'word' when x.raw.startsWith('@'):
+          parts.add(_mark(x.raw));
         default:
           parts.add(x.raw);
       }
@@ -1228,6 +1491,16 @@ final class _Substitution {
     final to = id.isEmpty ? null : renamed[id.substring(1)];
     if (to != null) id = '#$to';
     return ['${p.word}${p.variant}$id', ...parts].join(' ');
+  }
+
+  /// A body's `@name` (or `@row.done`): the variable the use binds, the
+  /// use's own, the row of a loop or the page's variable, as `@` takes it.
+  String _mark(String written) {
+    final name = written.substring(1);
+    final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(name);
+    if (head == null) return written;
+    if (renamed[head] case final String to) return '@$to${name.substring(head.length)}';
+    return written;
   }
 
   /// A statement's expression (`if p > 0`, `each x in p`), braced or not.
@@ -1363,5 +1636,5 @@ List<String> checkDefinitions(NotationVocabulary vocabulary,
 /// as the taught prompt lists a design system's components.
 List<String> definitionLines(NotationVocabulary vocabulary) => [
       for (final defs in vocabulary.definitions.values)
-        for (final d in defs) '${d.signature.replaceFirst(RegExp(r'^([A-Z][A-Za-z0-9.]*)#[A-Za-z_][A-Za-z0-9_]*'), r'$1')}${d.slots.isEmpty ? '' : ' (children${d.slots.where((s) => s.isNotEmpty).map((s) => ': $s').join()})'}${d.doc.isEmpty ? '' : ' : ${d.doc}'}',
+        for (final d in defs) '${d.signature.replaceFirstMapped(RegExp(r'^([A-Z][A-Za-z0-9.]*)#[A-Za-z_][A-Za-z0-9_]*'), (m) => m[1]!)}${d.slots.isEmpty ? '' : ' (children${d.slots.where((s) => s.isNotEmpty).map((s) => ': $s').join()})'}${d.doc.isEmpty ? '' : ' : ${d.doc}'}',
     ];

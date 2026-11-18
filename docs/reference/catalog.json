@@ -1,6 +1,6 @@
 {
   "package": "codelessly_api",
-  "version": "33.1.1",
+  "version": "35.0.0",
   "schema": 3,
   "document": {
     "keys": [
@@ -4690,7 +4690,7 @@
       "docs": "forms.md#node-datePicker"
     },
     "calendar": {
-      "doc": "An inline month calendar that picks a start and end date. Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}.\n\nA month calendar in the page. A pick chooses the range's start, then its end; disabled dates cannot be crossed. The renderer uses the date picker's month grid, including its locale, keyboard movement and theme.",
+      "doc": "An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}, or with range false the day picked.\n\nA month calendar in the page. A pick chooses the range's start, then its end; disabled dates cannot be crossed. The renderer uses the date picker's month grid, including its locale, keyboard movement and theme.",
       "children": "none",
       "slots": [],
       "decorated": false,
@@ -4711,6 +4711,14 @@
           "default": "",
           "nullable": false,
           "doc": ""
+        },
+        {
+          "key": "range",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Whether it picks a range (a start, then an end) or one day."
         },
         {
           "key": "firstDate",
@@ -4752,7 +4760,7 @@
           "kind": "json",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "A short text under days: a map by yyyy-MM-dd, or a list of days (a dot under each) or of records `{date, label}` (a list worked out from data)."
         },
         {
           "key": "label",

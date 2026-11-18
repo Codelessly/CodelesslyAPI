@@ -10910,6 +10910,9 @@
                   "end": {
                     "type": "string"
                   },
+                  "range": {
+                    "type": "boolean"
+                  },
                   "firstDate": {
                     "anyOf": [
                       {

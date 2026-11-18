@@ -1,6 +1,6 @@
 // The notation's grammar, one rule per role
 // (docs/design/17-notation-grammar-audit.md): a parameter is key=value, a value
-// worked out is in braces, a control's variable is bind=name, what a node
+// worked out is in braces, a control's variable is @name, what a node
 // does is an event with its actions in braces. The grammar it replaced
 // (key:value, =name, key:=expression, -> actions) is not read: each of its
 // spellings is an error that says what to write.
@@ -111,13 +111,13 @@ void main() {
       expect((_node(r, 'text1')['props'] as Map)['maxLines'], 2);
     });
 
-    test('bind=name keeps a control\'s value in a variable, both ways; bind={expression} is what a node only shows', () {
-      final r = _parse('state done=1\nstate rows=[{"name":"Ada","on":true}]\nColumn\n'
-          '  Slider#s bind=volume\n'
-          '  Input#i "Email" bind=email\n'
-          '  Progress#p bind={done/5}\n'
+    test('@name keeps a control\'s value in a variable, both ways; @expression is what a node only shows', () {
+      final r = _parse('state done=1\nstate volume=0\nstate email=""\nstate rows=[{"name":"Ada","on":true}]\nColumn\n'
+          '  Slider#s @volume\n'
+          '  Input#i "Email" @email\n'
+          '  Progress#p value={done/5}\n'
           '  each row in rows\n'
-          '    Toggle#t "On" bind=row.on\n');
+          '    Toggle#t "On" @row.on\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(_node(r, 's')['bind'], {'props.value': r'${volume}'});
       expect(_actions(r, 's').single, {
@@ -203,7 +203,7 @@ void main() {
     });
 
     test('the lines the notation writes itself are in the grammar: a Nav\'s menu, Dots, a NavItem\'s look', () {
-      final r = _parse('state tab="a"\nstate page=0\nPage\n  Nav\n    Brand "Relay"\n    Row gap=4\n      Link "Docs" onTap={go docs}\n      Link "Pricing" href="#pricing"\n  Section#pricing\n    NavItem "A" selected={tab=="a"} onTap={tab="a"}\n    Dots bind=page count=3\n', width: 1280);
+      final r = _parse('state tab="a"\nstate page=0\nPage\n  Nav\n    Brand "Relay"\n    Row gap=4\n      Link "Docs" onTap={go docs}\n      Link "Pricing" href="#pricing"\n  Section#pricing\n    NavItem "A" selected={tab=="a"} onTap={tab="a"}\n    Dots @page count=3\n', width: 1280);
       expect(r.issues, isEmpty, reason: '${r.issues}');
       final doc = jsonEncode(r.document);
       expect(doc, contains('"variable":"navMenu"'));
@@ -217,7 +217,7 @@ void main() {
         expect(prompt, isNot(contains('->')));
         expect(RegExp(r'\s=[A-Za-z]').allMatches(prompt).map((m) => prompt.substring(m.start, m.start + 20)), isEmpty);
         expect(RegExp(r'\s(gap|pad|w|h|fill|radius|items|visible|selected|bind|size|icon):\S').allMatches(prompt).map((m) => prompt.substring(m.start, m.start + 20)), isEmpty);
-        expect(prompt, contains('bind=name'));
+        expect(prompt, contains('@name'));
         expect(prompt, contains('visible={count > 0}'));
         expect(prompt, contains('onTap={'));
       }
@@ -237,7 +237,7 @@ void main() {
 
     test('=name', () {
       final r = _parse('Column\n  Slider#s =volume\n');
-      expect(r.issues.single.message, contains('write bind=name'));
+      expect(r.issues.single.message, contains('write @name'));
       expect(_node(r, 's')['bind'], isNull);
     });
 
@@ -251,9 +251,9 @@ void main() {
     test('a declared variable written bare is said, not guessed; a word that names none is the word', () {
       expect(_said('state pick="a"\nColumn\n  Text "x" color=pick\n').single, 'A value read from the state is written in braces: color={pick}.');
       // A field's type is a word, whatever its variable is called.
-      expect(_said('Column\n  Input "Email" type=email bind=email\n'), isEmpty);
+      expect(_said('state email=""\nColumn\n  Input "Email" type=email @email\n'), isEmpty);
       // A field's icon is the icon inside it, before the text, written or worked out.
-      final icons = _parse('state kind="mail"\nColumn\n  Input "Search" icon="search" bind=q\n  Input "To" icon={kind} bind=to\n');
+      final icons = _parse('state kind="mail"\nstate q=""\nstate to=""\nColumn\n  Input "Search" icon="search" @q\n  Input "To" icon={kind} @to\n');
       expect(icons.issues, isEmpty, reason: '${icons.issues}');
       final search = (_node(icons, 'textField1')['props'] as Map);
       expect((search['decoration'] as Map)['prefixIcon'], {'icon': 'search', 'size': 18});
@@ -354,10 +354,10 @@ void main() {
       final r = _parse('state draft={"title":"","on":false}\n'
           'state items=[{"id":1,"done":false,"sets":[{"w":5,"done":false}]}]\n'
           'state devices=[{"id":"l1","room":"A","on":true}]\nstate room="A"\nColumn\n'
-          '  Input#t "Title" bind=draft.title\n'
-          '  each i in items\n    Toggle#i bind=i.done\n'
-          '    each s in i.sets\n      Checkbox#s bind=s.done\n'
-          '  each d in filter(devices,x=>x.room==room)\n    Toggle#d bind=d.on\n');
+          '  Input#t "Title" @draft.title\n'
+          '  each i in items\n    Toggle#i @i.done\n'
+          '    each s in i.sets\n      Checkbox#s @s.done\n'
+          '  each d in filter(devices,x=>x.room==room)\n    Toggle#d @d.on\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       String sets(String id) => '${((run(r, id).single! as Map))['variable']} = ${(run(r, id).single! as Map)['value']}';
       expect(sets('t'), r'draft = ${= with(draft,"title",result)}');
@@ -366,14 +366,14 @@ void main() {
       expect(sets('s'), r'items = ${= setAt(items,parent.index,with(parent.item,"sets",setAt(parent.item.sets,index,with(item,"done",result))))}');
       expect(sets('d'), r'devices = ${= setAt(devices,indexOf(map(devices,x=>x.id),item.id),with(item,"on",result))}');
       // What cannot be written says what to write.
-      expect(_said('state devices=[{"room":"A","on":true}]\nColumn\n  each d in filter(devices,x=>x.on)\n    Toggle bind=d.on\n'), [
-        'bind=d.on: the each repeats filter(devices,x=>x.on), which is worked out, so a change has no list to be written to. '
+      expect(_said('state devices=[{"room":"A","on":true}]\nColumn\n  each d in filter(devices,x=>x.on)\n    Toggle @d.on\n'), [
+        '@d.on: the each repeats filter(devices,x=>x.on), which is worked out, so a change has no list to be written to. '
             'Repeat the list variable itself (each d in devices, with an if for the ones to show), give its records an "id" field, '
             'or write the change: value={d.on} onChange={devices=updateWhere(devices,x=>x.id==d.id,x=>with(x,"on",result))}.',
       ]);
-      expect(_said('Column\n  Input bind=form.email\n').length, 1);
-      expect(_said('Column\n  Input bind=form.email\n'), [
-        'bind=form.email: "form" is no variable of this page. Declare the record first (state form={"email":""}), or bind a variable of its own (bind=email).',
+      expect(_said('Column\n  Input @form.email\n').length, 1);
+      expect(_said('Column\n  Input @form.email\n'), [
+        '@form.email: "form" is no variable of this page. Declare the record first (state form={"email":""}), or bind a variable of its own (@email).',
       ]);
     });
 
@@ -405,7 +405,7 @@ void main() {
       final r = _parse('project cart=[]\nstate view="home"\nstate clips=[{"id":1,"length":9,"name":"a"}]\nColumn\n'
           '  Text#t "{cart.length} items"\n'
           '  Button#b "B" onTap={go view}\n'
-          '  Select#s bind=view items=["home","result"] onChange={go result}\n'
+          '  Select#s @view items=["home","result"] onChange={go result}\n'
           '  each c in clips\n    Text#c "{c.length}s, {c.name.length} letters"\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       // Expanded alone, the page declares the project's variable itself.
@@ -436,8 +436,8 @@ void main() {
       final r = _parse('state devices=[{"id":"a","room":"A","pos":0}]\nstate room="A"\nstate clips=[{"id":1,"name":"x"}]\nstate sel=[1]\n'
           'state colAll={"Owner":true}\nstate draft={"title":"a"}\nColumn\n'
           '  each d in filter(devices,x=>x.room==room)\n    Button#d "Close" onTap={d.pos=0}\n'
-          '  Input#n "Name" bind=find(clips,c=>c.id==first(sel)).name\n'
-          '  each r in ["Owner"]\n    Checkbox#c bind=colAll[r]\n'
+          '  Input#n "Name" @find(clips,c=>c.id==first(sel)).name\n'
+          '  each r in ["Owner"]\n    Checkbox#c @colAll[r]\n'
           '  Button#t "Clear" onTap={draft.title=""}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       String sets(String id) => '${((run(r, id).single! as Map))['variable']} = ${(run(r, id).single! as Map)['value']}';
@@ -454,8 +454,9 @@ void main() {
     test('a variable an action makes takes its kind from the state it reads, or from the control bound to it later', () {
       final r = _parse('state clips=[{"id":1,"start":2.5,"done":[true],"on":false}]\nColumn\n'
           '  each c in clips\n    Button "Edit" onTap={x=c.start; completed=c.done; flag=c.on; other=c.missing}\n'
-          '  Slider bind=other\n');
-      expect(r.issues, isEmpty, reason: '${r.issues}');
+          '  Slider @other\n');
+      // A variable bound is declared: what an action made is still said.
+      expect(r.issues.single.message, contains('add state other=0'));
       final kinds = {for (final v in (r.document['variables']! as Map)['screen']! as List) (v as Map)['name']: v['type']};
       expect(kinds, {'clips': 'list', 'x': 'decimal', 'completed': 'list', 'flag': 'boolean', 'other': 'decimal'});
     });
@@ -521,10 +522,10 @@ void main() {
     });
 
     test('selected={…} on any line is its selected state; size words on an IconButton; focus and copy', () {
-      final r = _parse('state sel=1\nstate shuffle=false\nstate link="https://x.org"\nColumn\n'
+      final r = _parse('state sel=1\nstate shuffle=false\nstate link="https://x.org"\nstate q=""\nColumn\n'
           '  Row#row gap=8 selected={sel==1}\n    Text "Row"\n'
           '  IconButton#shuffle "shuffle" selected={shuffle} size=large onTap={shuffle=!shuffle}\n'
-          '  Input#search "Search" bind=q\n'
+          '  Input#search "Search" @q\n'
           '  Button#f "Find" onTap={focus search}\n'
           '  Button#c "Copy" onTap={copy link}\n'
           '  Button#c2 "Copy" onTap={copy "{link}?ref=1"}\n'

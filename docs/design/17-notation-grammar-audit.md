@@ -10,6 +10,10 @@ owner then decided (5), what changed and what was removed (6, 7), and what is st
 The design of the notation is [13-compact-notation.md](13-compact-notation.md); the note for those with files in
 the old grammar is [18-notation-grammar-migration.md](18-notation-grammar-migration.md).
 
+Since 34.0.0 a variable is bound with `@name` ([13-compact-notation.md](13-compact-notation.md), section 3.1):
+the `bind=name` this note decided (sections 5 and 6) is written `@name`, and `bind={expression}` on what only
+shows a value is `value={expression}`. The rest of this note is the grammar as decided on 2026-11-16.
+
 ## 1. What was counted
 
 File and line references are to `lib/src/core/notation/` at master `9baab672`, before the change.
