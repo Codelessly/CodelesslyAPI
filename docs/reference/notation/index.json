@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 4907
+      "words": 4990
     },
     {
       "topic": "layout-sizes",
@@ -124,7 +124,7 @@
       "file": "layout.md",
       "anchor": "layout-scrolling",
       "title": "Scrolling",
-      "words": 38
+      "words": 121
     },
     {
       "topic": "layout-keys-every-line-takes",
@@ -274,14 +274,14 @@
       "anchor": "page-paint",
       "title": "Custom paint",
       "summary": "Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines.",
-      "words": 1879
+      "words": 1902
     },
     {
       "topic": "paint-the-lines",
       "file": "paint.md",
       "anchor": "paint-the-lines",
       "title": "The lines",
-      "words": 258
+      "words": 281
     },
     {
       "topic": "paint-the-painter-s-keys",
@@ -431,14 +431,14 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3348
+      "words": 3357
     },
     {
       "topic": "state-variables",
       "file": "state.md",
       "anchor": "state-variables",
       "title": "Variables",
-      "words": 86
+      "words": 95
     },
     {
       "topic": "state-bindings",
@@ -675,7 +675,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 2801
+      "words": 2822
     },
     {
       "topic": "navigation-page-frames",
@@ -689,7 +689,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 120
+      "words": 141
     },
     {
       "topic": "navigation-screens",
@@ -732,7 +732,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1740
+      "words": 1750
     },
     {
       "topic": "components-calling-one",
@@ -746,7 +746,7 @@
       "file": "components.md",
       "anchor": "components-writing-one",
       "title": "Writing one",
-      "words": 171
+      "words": 181
     },
     {
       "topic": "components-words",
@@ -775,7 +775,7 @@
       "anchor": "page-design-systems",
       "title": "Design systems",
       "summary": "A design system's components and words, and words defined in the text (`define`).",
-      "words": 391
+      "words": 420
     },
     {
       "topic": "design-systems-a-design-system",
@@ -789,7 +789,7 @@
       "file": "design-systems.md",
       "anchor": "design-systems-defined-words",
       "title": "Defined words",
-      "words": 104
+      "words": 133
     },
     {
       "topic": "design-systems-examples",
@@ -840,14 +840,14 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 13797
+      "words": 13879
     },
     {
       "topic": "values-writing-a-value",
       "file": "values.md",
       "anchor": "values-writing-a-value",
       "title": "Writing a value",
-      "words": 71
+      "words": 153
     },
     {
       "topic": "values-other-spellings-also-read",

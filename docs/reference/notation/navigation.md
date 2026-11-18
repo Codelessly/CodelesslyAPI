@@ -108,7 +108,8 @@ An overlay is written after the page, at the margin, with an id; its content is 
 shows it, `close` closes it (so does a tap outside it). `Dialog` (centered, a title and a close button), `Sheet`
 (from the bottom; `stops=[0.5,0.9]`), `Drawer` (a side panel; `right`), `Menu` (by the button that opened it;
 `MenuItem` lines), `Popover` (a small panel; `preview=id` on a line opens it on hover), `Lightbox` (a picture or a
-gallery over the page).
+gallery over the page). A `MenuItem` is its label, `icon=`, `onTap={…}` and, to name it in a render step, an id
+(`MenuItem#dup "Duplicate" icon=content_copy onTap={…}`).
 
 ```notation width=1280 expands
 Column gap=12
