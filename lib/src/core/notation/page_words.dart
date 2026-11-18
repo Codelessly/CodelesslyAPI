@@ -246,6 +246,11 @@ final class PageWords {
   bool _mainSeen = false;
   int? _mainAt;
 
+  /// Whether the page makes its own drawer (a `Drawer` line of its own) or
+  /// lays its window out by width itself (`App keep`): then no drawer and
+  /// no button for it are made.
+  bool ownDrawer = false;
+
   /// Where the sidebar's button shows: on a phone, and on a tablet too when
   /// the window drops the first of two panes there.
   String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 ? 'tablet' : 'phone';
@@ -697,6 +702,11 @@ final class PageWords {
     if (own == null) return text;
     final actions = text.substring(own.start, own.end);
     if (RegExp(r'(^|;)\s*close\s*(;|$)').hasMatch(actions)) return text;
+    // What opens another overlay closes this one first: closed after, the
+    // close would shut the overlay just opened (a drawer's "Shortcuts").
+    if (RegExp(r'(^|[;{]|then|:)\s*(open|confirm)\s').hasMatch(actions)) {
+      return '${text.substring(0, own.start)}close; ${text.substring(own.start).trimLeft()}';
+    }
     return '${text.substring(0, own.end).trimRight()}; close${text.substring(own.end)}';
   }
 
@@ -857,6 +867,7 @@ final class PageWords {
     }
     if ((word == 'App' || word == 'AppShell' || word == 'Window') && indent == 0) {
       app = true;
+      if (parts.hasWord('keep')) ownDrawer = true;
       open(frame: 'App');
       return out..add((indent: at, text: 'Row${_role('app')}$mark w=fill h=fill stretch${parts.all}'));
     }
@@ -943,8 +954,10 @@ final class PageWords {
         _panesBefore++;
         _widthBefore += double.tryParse(width) ?? sidebarWidth;
         // The first pane of the window is what a narrow one leaves out.
-        if (sidebarMenu != null && sidebarRest == null && _panesBefore == 1) {
-          sidebarRest = ' pad=$pad gap=$gap${parts.props}';
+        if (sidebarMenu != null && sidebarRest == null && _panesBefore == 1 && !ownDrawer) {
+          // The drawer is the sidebar at a phone's width: what the line says
+          // of other widths (tablet.w=64, hide=phone) is the rail's, not its.
+          sidebarRest = ' pad=$pad gap=$gap${parts.propsAtEveryWidth}';
           _sidebarAt = indent;
         }
       }
@@ -1529,6 +1542,15 @@ class _Parts {
 
   /// What is left, without the `{…}` at the end.
   String get props => _tokens.isEmpty ? '' : ' ${_tokens.join(' ')}';
+
+  /// [props] without what they say of one width (`hide=phone`, `show=`,
+  /// `tablet.w=64`, `phone.visible=…`).
+  String get propsAtEveryWidth {
+    final kept = [for (final t in _tokens) if (!_byWidth.hasMatch(t)) t];
+    return kept.isEmpty ? '' : ' ${kept.join(' ')}';
+  }
+
+  static final _byWidth = RegExp(r'^(?:(?:hide|show)=|(?:phone|tablet|desktop|mobile|wide)\.)');
 
   /// What is left, as it was written.
   String get all => '$props$tail';

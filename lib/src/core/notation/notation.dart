@@ -3626,6 +3626,8 @@ class _Parser {
       issues.add(NotationIssue(p.line, 1, p.message));
     }
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
+    // A page that writes its own drawer gets none made from its sidebar.
+    if (RegExp(r'^Drawer\b', multiLine: true).hasMatch(text)) _pages.ownDrawer = true;
     const LineSplitter().convert(text).forEach(line);
     finish();
     return _end();

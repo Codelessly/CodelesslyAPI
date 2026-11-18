@@ -2406,8 +2406,8 @@ Drawer#cart right w=340 "Your cart"
       expect(node(r, 'sortMenu')['layout'], {'width': 220, 'height': {'hug': 0}});
       expect(kinds(r, 'newest'), ['setVariable', 'closeModal']);
       expect(kinds(r, 'price'), ['setVariable', 'closeModal']);
-      expect(kinds(r, 'ask'), ['openModal', 'closeModal']);
-      expect((((node(r, 'ask')['actions']! as List).first as Map)['actions']! as List).first, containsPair('presentation', 'dialog'));
+      expect(kinds(r, 'ask'), ['closeModal', 'openModal']);
+      expect((((node(r, 'ask')['actions']! as List).first as Map)['actions']! as List).last, containsPair('presentation', 'dialog'));
 
       // A popover is one too, and closes only where it says; an overlay opens another.
       expect(open(r, 'what'), containsPair('placement', 'aboveStart'));
@@ -2623,6 +2623,50 @@ App
         expect(plain.document['roots'], ['screen']);
         expect(nodesOf(plain).values.where((n) => (n! as Map)['type'] == 'iconButton'), isEmpty);
         expect((plain.document['variables']! as Map).keys, ['screen']);
+      }
+    });
+
+    test('the drawer of a sidebar written as a rail and hidden on a phone (tablet.w=64 hide=phone) shows on a phone, at its own width', () {
+      const app = '''
+App
+  Sidebar#side tablet.w=64 hide=phone fill=#FFF4F4F5
+    NavItem#overview "Overview" icon="dashboard" onTap={go overview}
+    NavItem#keysItem "Shortcuts" icon="keyboard" onTap={open keys}
+  Main
+    Nav#bar
+      Heading#title "Orders" level=1
+Dialog#keys "Shortcuts"
+  Text "?"
+''';
+      final r = parseNotation(app, catalog: standardCatalog, options: page);
+      expect(r.issues, isEmpty);
+      expect(r.document['roots'], ['screen', 'keys', 'screen_sidebar']);
+      // An item that opens another overlay closes the drawer first (after, it shut the overlay it opened).
+      final copies = [
+        for (final id in nodesOf(r).keys.skipWhile((k) => k != 'screen_sidebar'))
+          if (jsonEncode(node(r, id)['actions'] ?? '').contains('"to":"keys"')) kinds(r, id),
+      ];
+      expect(copies, [
+        ['closeModal', 'openModal'],
+      ]);
+      // The rail keeps its rules; the drawer's frame has none of them.
+      expect(jsonEncode(node(r, 'side')['media']), allOf(contains('"maxWidth":699'), contains('"width":64')));
+      final drawer = nodesOf(r).keys.skipWhile((k) => k != 'screen_sidebar').toList();
+      for (final id in drawer) {
+        expect(jsonEncode(node(r, id)['media'] ?? const []), isNot(contains('"visible":false')), reason: id);
+        expect(jsonEncode(node(r, id)['media'] ?? const []), isNot(contains('"width":64')), reason: id);
+      }
+      expect(jsonEncode([for (final id in drawer) node(r, id)]), contains('#FFF4F4F5'));
+
+      // A page that writes its own drawer, or App keep, gets none made, and no button for it.
+      for (final source in [
+        '$app\nDrawer#nav w=280\n  Text "Mine"\n',
+        app.replaceFirst('App\n', 'App keep\n'),
+      ]) {
+        final own = parseNotation(source, catalog: standardCatalog, options: page);
+        expect(own.issues, isEmpty);
+        expect(own.document['roots'], isNot(contains('screen_sidebar')), reason: source);
+        expect(jsonEncode(own.document), isNot(contains('screen_sidebar')), reason: source);
       }
     });
 
