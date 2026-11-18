@@ -68,4 +68,53 @@ void main() {
       expect(r.issues, isEmpty);
     });
   });
+
+  group('braces around an expression in a trigger or an action mean the expression', () {
+    String all(NotationResult r) => jsonEncode(r.document);
+
+    test('key … when {cond} holds as key … when cond does', () {
+      final braced = _expand('state sel:list=[]\nstate n=0\nkey escape when {length(sel) > 0} onPress={n=1}\nColumn\n  Text "a"\n');
+      final bare = _expand('state sel:list=[]\nstate n=0\nkey escape when length(sel) > 0 onPress={n=1}\nColumn\n  Text "a"\n');
+      expect(braced.issues, isEmpty);
+      expect(all(braced), all(bare));
+      expect(all(braced), contains(r'"when":"${= length(sel) > 0}"'));
+    });
+
+    test('every … when {cond}, on backPressed(when={cond})', () {
+      final r = _expand('state n=0\nevery 1s when {n < 3} onTick={n=n+1}\non backPressed(when={n > 0})={n=0}\nColumn\n  Text "a"\n');
+      expect(r.issues, isEmpty);
+      expect(all(r), contains(r'"when":"${= n < 3}"'));
+      expect(all(r), contains(r'"when":"${= n > 0}"'));
+      expect(all(r), isNot(contains(r'${= {')));
+    });
+
+    test('x={expr} in an action list, in a choice, after then, in a timer', () {
+      final r = _expand('state n=0\nstate p=false\nevery 1s onTick={p={n < 2}}\nColumn\n'
+          '  Button "a" onTap={n={n + 1}; p={!p}}\n'
+          '  Button "b" onTap={n > 2 ? {n=0} : {n={n * 2}}}\n'
+          '  Button "c" onTap={confirm "Sure?" then {n={n - 1}}}\n');
+      expect(r.issues, isEmpty);
+      for (final f in [r'${= n + 1}', r'${= !p}', r'${= n * 2}', r'${= n - 1}', r'${= n < 2}']) {
+        expect(all(r), contains('"$f"'));
+      }
+      expect(all(r), isNot(contains(r'${= {')));
+    });
+
+    test('a map literal keeps its braces', () {
+      final r = _expand('state m:map={}\nColumn\n  Button "a" onTap={m={a: 1}}\n  Button "b" onTap={m={}}\n  Button "c" onTap={m={"id": 2}}\n');
+      expect(r.issues, isEmpty);
+      expect(all(r), contains(r'"${= {a: 1}}"'));
+      expect(all(r), contains(r'"${= {}}"'));
+    });
+
+    test('notationUnbraced', () {
+      expect(notationUnbraced('{a > 0}'), 'a > 0');
+      expect(notationUnbraced('{{a}}'), 'a');
+      expect(notationUnbraced('{a ? {b: 1} : {}}'), 'a ? {b: 1} : {}');
+      expect(notationUnbraced('{a: 1}'), '{a: 1}');
+      expect(notationUnbraced("{'k': 1}"), "{'k': 1}");
+      expect(notationUnbraced('{a} + {b}'), '{a} + {b}');
+      expect(notationUnbraced('{"}"}'), '"}"');
+    });
+  });
 }

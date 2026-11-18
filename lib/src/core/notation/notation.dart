@@ -53,6 +53,48 @@ const notationId = r'[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*';
 /// expression `a-b` is a subtraction.
 String notationIdWord(String id) => id.replaceAll('-', '_');
 
+/// [expr] without braces around it all, where they are the expression's
+/// (`{length(sel) > 0}` after `when`, `{n + 1}` after `n=` in an action),
+/// as `key={expression}` reads everywhere else: one rule for an expression
+/// wherever it is written. A map literal (`{a: 1}`, `{"id": x}`, `{}`) keeps
+/// its braces.
+String notationUnbraced(String expr) {
+  var e = expr.trim();
+  while (e.length >= 2 && e.startsWith('{') && e.endsWith('}') && _closes(e, 0) == e.length - 1) {
+    final inner = e.substring(1, e.length - 1).trim();
+    if (inner.isEmpty || RegExp(r'''^(?:[A-Za-z_][A-Za-z0-9_]*|"[^"]*"|'[^']*')\s*:''').hasMatch(inner)) break;
+    e = inner;
+  }
+  return e == expr.trim() ? expr : e;
+}
+
+/// Where the brace that opens at [open] in [s] closes (quotes skipped); -1
+/// when it does not.
+int _closes(String s, int open) {
+  var depth = 0;
+  var quote = '';
+  for (var i = open; i < s.length; i++) {
+    final c = s[i];
+    if (quote.isNotEmpty) {
+      if (c == r'\') {
+        i++;
+      } else if (c == quote) {
+        quote = '';
+      }
+      continue;
+    }
+    if (c == '"' || c == "'") {
+      quote = c;
+    } else if (c == '{') {
+      depth++;
+    } else if (c == '}') {
+      depth--;
+      if (depth == 0) return i;
+    }
+  }
+  return -1;
+}
+
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
   const NotationIssue(this.line, this.column, this.message);
@@ -8721,7 +8763,7 @@ class _Parser {
   /// A path with an element of a list by its index in it: `kpis[0].value`.
   static final _indexedPath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*|\[[0-9]+\])*$');
 
-  String _formula(String expr) => '\${= ${_natural(_textsRead(_colors(expr)))}}';
+  String _formula(String expr) => '\${= ${_natural(_textsRead(_colors(notationUnbraced(expr))))}}';
 
   /// A color written in a formula as it is written after a key
   /// (`fill={late ? #FFFECACA : #FFFFFFFF}`): the text it is.
