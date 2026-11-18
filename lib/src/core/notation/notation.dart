@@ -6443,7 +6443,8 @@ class _Parser {
             // is elsewhere, is that expression (a record `{"rid":…}` is kept).
             var data = m[2]?.trim();
             if (data != null && data.startsWith('{') && !data.startsWith('{"') && data.endsWith('}') && _opened(data.substring(0, data.length - 1)) == 1) data = data.substring(1, data.length - 1).trim();
-            node['draggable'] = {'group': m[1], if (data != null) 'data': _read(data)};
+            // (Typed so a dotted key after it sets a field of it: `draggable.feedbackRotation=0`.)
+            node['draggable'] = <String, Object?>{'group': m[1], if (data != null) 'data': _read(data)};
           }
           continue;
         }
@@ -6452,7 +6453,7 @@ class _Parser {
           if (groups.isEmpty || groups.any((g) => !_identifier.hasMatch(g))) {
             _issue(col, 'drop is written drop=group or drop=a,b with the groups it takes: drop=todo,doing onDrop={done=append(done,result.data)}.');
           } else {
-            node['dropTarget'] = {'accepts': groups};
+            node['dropTarget'] = <String, Object?>{'accepts': groups};
           }
           continue;
         }

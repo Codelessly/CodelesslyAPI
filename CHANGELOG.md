@@ -41,6 +41,9 @@
 
 ### Fixed
 
+- **`drop=audioSource dropTarget.slot=none`** and `drag=clips(1) draggable.feedbackRotation=0`: the dotted key
+  sets a field of the record `drop=`/`drag=` made. The expand stopped with an exception ("type 'String' is not
+  a subtype of type 'List<String>'"; round 11b: clip-editor, both arms).
 - **A `Grid` (or `gridView`) with `childAspectRatio`** has rows of that shape: it was also given
   `shrinkWrapRows`, rows as tall as their content, and a cell that fills (`box w=fill h=fill`, a picture) drew
   0 to 20 px high (round 11b: photo-library's photos on five screens, both arms; music-player, 126 render

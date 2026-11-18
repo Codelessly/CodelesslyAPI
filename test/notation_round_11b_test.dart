@@ -229,6 +229,19 @@ Column
     expect(props('h')['shrinkWrapRows'], true);
   });
 
+  test('drag= and drop= with a dotted key after them on the line (the expand stopped with an exception)', () {
+    // clip-editor (timeline.txt:94 and :144, both arms).
+    final r = _parse('''
+Column
+  box#t w=fill h=40 drop=audioSource dropTarget.slot=none onDrop={x=1}
+  Column#s w=230 drag=sourceClips(1) draggable.feedbackRotation=0
+    Text "a"
+''');
+    expect(r.issues, isEmpty);
+    expect(_node(r, 't')['dropTarget'], {'accepts': ['audioSource'], 'slot': 'none'});
+    expect(_node(r, 's')['draggable'], containsPair('feedbackRotation', 0));
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.
