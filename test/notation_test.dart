@@ -321,6 +321,20 @@ Card
     expect((dots['layout'] as Map)['width'], {'hug': 0});
     expect(_node(r, 'gridView1')['type'], 'gridView');
   });
+  test('copies of an each in a row sit where the row says across it (top, bottom), centered by default', () {
+    for (final (word, at) in [('top', 'start'), ('bottom', 'end'), ('', 'center')]) {
+      final r = _parse('''
+state cols=[1,2,3]
+Row#board gap=12 $word
+  each c in cols
+    Column#lane w=200
+      Text "{c}"
+''');
+      expect(r.issues, isEmpty);
+      final item = _node(r, ((_node(r, 'listView1')['children'] as List).single) as String);
+      expect((item['props'] as Map)['mainAxisAlignment'], at, reason: word);
+    }
+  });
   test('a column in a row is as wide as its content and so are its children; an accordion starts closed unless it says open', () {
     final r = _parse('''
 Card

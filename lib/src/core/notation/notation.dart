@@ -4249,6 +4249,7 @@ class _Parser {
                     'scrollable': false,
                     'scrollDirection': 'horizontal',
                     'spacing': rowProps?['spacing'] ?? 0,
+
                     if (wraps) ...{'wrap': true, 'wrapSpacing': rowProps?['spacing'] ?? 0, 'runSpacing': rowProps?['runSpacing'] ?? rowProps?['spacing'] ?? 0},
                   }
                 : {
@@ -4306,7 +4307,13 @@ class _Parser {
       nodes[itemId] = {
         'type': 'column',
         'layout': across ? {'width': {'hug': 0}, 'height': wraps ? {'hug': 0} : {'fill': 0}} : {'width': {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'crossAxisAlignment': 'start', if (across) 'mainAxisAlignment': 'center'},
+        // Across a row each copy is as tall as the row and sits in it where
+        // the row says (`top`: at the top; columns of different heights
+        // were centered whatever the row said).
+        'props': {
+          'crossAxisAlignment': 'start',
+          if (across) 'mainAxisAlignment': const {'start': 'start', 'end': 'end'}[rowProps?['crossAxisAlignment']] ?? 'center',
+        },
       };
       if (selection case final String sel) {
         // A tap selects the row alone, Ctrl or Cmd adds or removes it, Shift
