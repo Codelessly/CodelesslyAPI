@@ -193,6 +193,7 @@ final class NotationOptions {
     this.fieldText,
     this.reflow = true,
     this.displaySizes = const {},
+    this.themeTextStyles = const {},
     this.projectVariables = const {},
     this.accentText,
     this.openVocabulary = false,
@@ -279,6 +280,7 @@ final class NotationOptions {
         fieldText: fieldText,
         reflow: reflow ?? this.reflow,
         displaySizes: displaySizes,
+        themeTextStyles: themeTextStyles,
         projectVariables: projectVariables,
         accentText: accentText,
         openVocabulary: openVocabulary,
@@ -345,6 +347,7 @@ final class NotationOptions {
       fieldText: base.fieldText,
       reflow: base.reflow,
       displaySizes: base.displaySizes,
+      themeTextStyles: base.themeTextStyles,
       projectVariables: projectVariables,
       accentText: base.accentText,
       themeColors: base.themeColors,
@@ -402,9 +405,18 @@ final class NotationOptions {
     for (final e in (readMap(theme['textStyles']) ?? const {}).entries) {
       final s = readMap(e.value);
       if (s == null) continue;
+      // A style named as one of the notation's text variants changes only the
+      // keys it sets: `heading1: {fontFamily, fontWeight}` keeps the
+      // variant's size (round 11: 13 px page titles, a 12 px heading).
+      final variant = (defaultTextVariants[e.key] as Map?)?.cast<String, Object?>() ?? const <String, Object?>{};
+      final kept = {
+        for (final k in [...const ['fontSize', 'fontWeight'], if (e.key == 'mono') 'fontFamily'])
+          if (s[k] == null && variant[k] != null) k: variant[k],
+      };
       styles[e.key] = named
-          ? {'from': e.key, if (s['color'] == null) 'color': ink}
+          ? {'from': e.key, ...kept, if (s['color'] == null) 'color': ink}
           : {
+              ...kept,
               for (final k in const ['fontSize', 'fontWeight', 'fontFamily', 'letterSpacing', 'height'])
                 if (s[k] != null) k: s[k],
               'color': s['color'] is String ? color(s['color'] as String, ink) : ink,
@@ -549,6 +561,10 @@ final class NotationOptions {
       // A link in running text: the accent where it is read as text on a
       // light page (a bright accent is for fills).
       accentText: colors['accentText'] != null ? color('accentText', '#FF1D4ED8') : colors['accentDeep'] != null ? color('accentDeep', '#FF1D4ED8') : null,
+      themeTextStyles: {
+        for (final e in textStyles.entries)
+          if (readMap(e.value) case final Json s) e.key: s,
+      },
       displaySizes: {
         for (final e in textStyles.entries)
           if (readMap(e.value)?['fontSize'] case final num size when size >= 32) e.key: size,
@@ -643,6 +659,7 @@ final class NotationOptions {
         // nothing else of it is laid out again.
         reflow: reflow && width < 700,
         displaySizes: displaySizes,
+        themeTextStyles: themeTextStyles,
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
         ownComponents: ownComponents,
@@ -788,6 +805,10 @@ final class NotationOptions {
   /// The theme's text styles of a headline's size (32 and up), by name →
   /// font size: a text in one of them is smaller on a phone.
   final Map<String, num> displaySizes;
+
+  /// The theme's text styles as it writes them, by name: a line's
+  /// `style=serif` over a variant changes only the keys that style sets.
+  final Map<String, Json> themeTextStyles;
 
   /// The height of a button, a field and a select that write none: a
   /// theme's `sizes.control`. Null: the control's own (its compact step).
@@ -6537,6 +6558,25 @@ class _Parser {
             // A string that reads data (value="{streak} days") is bound:
             // only a text node reads an expression as written.
             bind[path] = v;
+          } else if (type == 'text' && path == 'props.style' && v is String && props['style'] is Map && options.themeTextStyles[v] != null) {
+            // `Text.heading2 "…" style=serif`: the theme's style over the
+            // variant, changing only the keys it sets (it replaced the
+            // variant: a heading lost its size and its ink, round 11).
+            final sets = options.themeTextStyles[v]!;
+            final under = (props['style'] as Map).cast<String, Object?>();
+            final from = under['from'];
+            // What the variant draws: its theme style's keys, under its own.
+            final base = {...?(from is String ? options.themeTextStyles[from] : null), ...under}..remove('from');
+            final own = options.textStyles[v];
+            props['style'] = {
+              for (final e in base.entries)
+                if (!sets.containsKey(e.key)) e.key: e.value,
+              if (own is Map && own['from'] == v)
+                'from': v
+              else
+                for (final k in sets.keys)
+                  if ((own is Map ? own[k] : null) ?? sets[k] case final Object x) k: x,
+            };
           } else {
             put(path, v);
           }

@@ -190,4 +190,32 @@ define Rows
       expect(((decoOf(r, 'S')['fills'] as List).single as Map)['color'], '#FFDDFFDD');
     });
   });
+
+  group('A3: a theme text style changes only the keys it sets', () {
+    const theme = {
+      'primary': '#FF15803D',
+      'colors': {'forest': '#FF234535'},
+      'textStyles': {
+        'serif': {'fontFamily': 'Georgia', 'fontWeight': 700},
+        'heading2': {'fontFamily': 'Georgia', 'fontWeight': 600, 'color': 'forest'},
+        'heading1': {'fontFamily': 'Roboto Slab', 'fontWeight': 800},
+      },
+    };
+    Map<String, Object?> styleOf(NotationResult r, String text) =>
+        (((_nodes(r).values.cast<Map>().firstWhere((n) => n['type'] == 'text' && (n['props'] as Map)['text'] == text))['props'] as Map)['style'] as Map).cast<String, Object?>();
+    const page = 'Column\n  Heading "Head" level=1\n  Text.heading2 "Shop"\n  Text.heading2 "Ingredients" style=serif\n  Text.pageTitle "Cook" style=serif color=#FF283822\n';
+
+    test('named (a site): a style named as a variant keeps the variant\'s size; style= keeps the variant\'s size and ink', () {
+      final r = _parse(page, NotationOptions.fromTheme(theme, named: true, width: 1440));
+      expect(styleOf(r, 'Shop'), {'from': 'heading2', 'fontSize': 24});
+      expect(styleOf(r, 'Ingredients'), {'color': 'forest', 'fontSize': 24, 'from': 'serif'});
+      expect(styleOf(r, 'Cook'), {'fontSize': 20, 'color': '#FF283822', 'from': 'serif'});
+    });
+
+    test('as values: the same', () {
+      final r = _parse(page, NotationOptions.fromTheme(theme, width: 1440));
+      expect(styleOf(r, 'Shop'), allOf(containsPair('fontSize', 24), containsPair('fontWeight', 600), containsPair('color', '#FF234535')));
+      expect(styleOf(r, 'Ingredients'), allOf(containsPair('fontSize', 24), containsPair('fontWeight', 700), containsPair('fontFamily', 'Georgia'), containsPair('color', '#FF234535')));
+    });
+  });
 }

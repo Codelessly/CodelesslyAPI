@@ -21,6 +21,10 @@
   site whatever its primary (round 11: 11 briefs).
 - **`Badge.success`, `.warning`, `.info`, `.primary`, `.error` under a theme with no tints of its own** (a site's
   theme) are a tint of the tone's color (the theme's, else SSUI's): they all drew as the neutral grey badge.
+- **A theme text style changes only the keys it sets.** A style named as a text variant (`heading1: {fontFamily,
+  fontWeight}` in site.json) keeps the variant's size, and a line's `style=serif` over a variant
+  (`Text.heading2 "…" style=serif`) keeps the variant's size and ink where the style sets none: it replaced the
+  variant (round 11: 12 to 13 px headings and page titles).
 
 ## 36.0.0
 
