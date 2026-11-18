@@ -6230,6 +6230,14 @@ class _Parser {
         // step of the control scale), its label above it ([_labelledFieldHeights]).
         if (type == 'textField' && !component && key == 'h' && num.tryParse(raw) != null) _fieldHeights[id] = num.parse(raw);
         if (key == 'w' && raw == 'fill') _writtenFills.add(id);
+        // `Stack … clipBehavior=hardEdge`: what is in it is cut at its edge,
+        // the decoration's clip (a stack's own clipBehavior is its scroll
+        // view's, and `hardEdge`, its default, is not kept: it drew past its
+        // edge; round 11b, clip-editor's timeline).
+        if (type == 'stack' && !component && key == 'clipBehavior' && const {'hardEdge', 'antiAlias', 'antiAliasWithSaveLayer'}.contains(raw)) {
+          decoration['clip'] = raw;
+          continue;
+        }
         if ((grid == null ? null : const {'crossAxisCount': 'cols', 'crossAxisSpacing': 'gap', 'mainAxisSpacing': 'gap'}[key]) case final String to) {
           _use('alias', key, col, of: 'parameter', to: to, on: written);
           key = to;

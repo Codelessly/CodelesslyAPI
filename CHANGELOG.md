@@ -52,6 +52,10 @@
 
 ### Fixed
 
+- **`Stack … clipBehavior=hardEdge`** cuts what is in it at its edge (the decoration's `clip`): a stack's own
+  `clipBehavior` is its scroll view's, and `hardEdge`, its default, was not even kept, so the children drew past
+  the stack (round 11b: clip-editor's timeline, both arms; story-reader's deck). `clip` on a stack is read by the
+  renderer (codelessly_sdk).
 - **A `TableView` that grows in a column takes the height left** (`TableView#sheetGrid grow w=fill …` under a
   toolbar; round 11b, spreadsheet): `grow` gave it a share of the column but its height stayed its content's, and
   the grid drew 0 high, missing at every size. A list, a grid and a box that grow already did.

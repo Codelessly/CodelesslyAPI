@@ -416,6 +416,19 @@ Column h=fill
     expect(_layout(r, 'grid')['flex'], 1);
   });
 
+  test('a Stack that says clipBehavior=hardEdge cuts what is in it at its edge (its decoration\'s clip)', () {
+    // clip-editor (timeline.txt:86, both arms): the timeline ran past its frame.
+    final r = _parse('''
+Column
+  Stack#s w=200 h=100 clipBehavior=hardEdge
+    box x=150 y=50 w=120 h=80
+''');
+    expect(r.issues, isEmpty);
+    expect(_decoration(r, 's')['clip'], 'hardEdge');
+    final printed = printNotation(r.document, catalog: standardCatalog);
+    expect(_decoration(_parse(printed), 's')['clip'], 'hardEdge', reason: printed);
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.
