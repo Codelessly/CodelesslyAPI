@@ -19,7 +19,7 @@ Each word below is written out in Dart by the expander today. `dictionary/<Word>
 | `Heading` | does not close | 0 of 15 | 0 | 877 of 907 | 877 |
 | `IconTile` | does not close | 0 of 9 | 0 | 450 of 471 | 450 |
 | `Lightbox` | does not close | 0 of 6 | 0 | 211 of 403 | 211 |
-| `Link` | does not close | 3 of 12 | 3 | 724 of 736 | 724 |
+| `Link` | does not close | 3 of 12 | 3 | 722 of 736 | 722 |
 | `Main` | does not close | 4 of 15 | 4 | 545 of 883 | 545 |
 | `Menu` | does not close | 0 of 6 | 0 | 321 of 735 | 321 |
 | `Nav` | does not close | 0 of 15 | 0 | 703 of 1140 | 703 |
@@ -434,10 +434,12 @@ A use counts as the same when its two documents are equal and the definition's s
   - `r0.body.1.2.1.0.4.actions: [{"actions":[{"type":"openLink","url":"https://chronicle.example/news/series-a"}],"trig... / (none)`
 - tool/vocabulary/corpus/b09/answers/company-timeline.txt ### Event story @390: 51 of 52 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's
   - `r0.body.1.2.1.0.4.actions: [{"actions":[{"type":"openLink","url":"https://chronicle.example/news/series-a"}],"trig... / (none)`
-- tool/vocabulary/corpus/b07/answers/outliner-notes.txt ### Outline @1440: 134 of 136 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's
+- tool/vocabulary/corpus/b07/answers/outliner-notes.txt ### Outline @1440: 133 of 136 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's
+  - `r0.body.1.0.1.media: [{"maxWidth":699,"patch":{"layout":{"basis":124,"flex":1,"width":{"fill":0}}}}] / [{"maxWidth":699,"patch":{"layout":{"basis":231.25,"flex":1,"width":{"fill":0}}}}]`
   - `r0.body.1.0.1.0.layout.squeezable: (none) / true; r0.body.1.0.1.0.media: [{"maxWidth":699,"patch":{"visible":false}}] / (none); r0.body.1.0.1.0.props.label: "Home" / (none)`
   - `r0.body.1.0.1.2.layout.squeezable: (none) / true; r0.body.1.0.1.2.media: [{"maxWidth":699,"patch":{"bind":{"visible":null},"visible":false}}] / (none); r0.body.1.0.1.2.props.label: "Q4 planning" / (none)`
-- tool/vocabulary/corpus/b07/answers/outliner-notes.txt ### Outline @834: 134 of 136 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's
+- tool/vocabulary/corpus/b07/answers/outliner-notes.txt ### Outline @834: 133 of 136 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's
+  - `r0.body.1.0.1.media: [{"maxWidth":699,"patch":{"layout":{"basis":124,"flex":1,"width":{"fill":0}}}}] / [{"maxWidth":699,"patch":{"layout":{"basis":231.25,"flex":1,"width":{"fill":0}}}}]`
   - `r0.body.1.0.1.0.layout.squeezable: (none) / true; r0.body.1.0.1.0.media: [{"maxWidth":699,"patch":{"visible":false}}] / (none); r0.body.1.0.1.0.props.label: "Home" / (none)`
   - `r0.body.1.0.1.2.layout.squeezable: (none) / true; r0.body.1.0.1.2.media: [{"maxWidth":699,"patch":{"bind":{"visible":null},"visible":false}}] / (none); r0.body.1.0.1.2.props.label: "Q4 planning" / (none)`
 - tool/vocabulary/corpus/b07/answers/outliner-notes.txt ### Outline @390: 100 of 102 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's

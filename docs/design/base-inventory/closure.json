@@ -1715,7 +1715,7 @@
   "equalUpToSpelling": 3,
   "expansions": 12,
   "nodes": 736,
-  "same": 724,
+  "same": 722,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b08/answers/census-form.txt ### Review and Submit",
@@ -1782,8 +1782,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "134 of 136 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "133 of 136 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
+     "r0.body.1.0.1.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":124,\"flex\":1,\"width\":{\"fill\":0}}}}] / [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":231.25,\"flex\":1,\"width\":{\"fill\":0}}}}]",
      "r0.body.1.0.1.0.layout.squeezable: (none) / true; r0.body.1.0.1.0.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none); r0.body.1.0.1.0.props.label: \"Home\" / (none)",
      "r0.body.1.0.1.2.layout.squeezable: (none) / true; r0.body.1.0.1.2.media: [{\"maxWidth\":699,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none); r0.body.1.0.1.2.props.label: \"Q4 planning\" / (none)"
     ],
@@ -1794,8 +1795,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "134 of 136 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "133 of 136 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
+     "r0.body.1.0.1.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":124,\"flex\":1,\"width\":{\"fill\":0}}}}] / [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":231.25,\"flex\":1,\"width\":{\"fill\":0}}}}]",
      "r0.body.1.0.1.0.layout.squeezable: (none) / true; r0.body.1.0.1.0.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none); r0.body.1.0.1.0.props.label: \"Home\" / (none)",
      "r0.body.1.0.1.2.layout.squeezable: (none) / true; r0.body.1.0.1.2.media: [{\"maxWidth\":699,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none); r0.body.1.0.1.2.props.label: \"Q4 planning\" / (none)"
     ],
