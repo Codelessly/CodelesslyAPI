@@ -309,15 +309,54 @@ What 2.1 and 2.5 leave to this family, settled (tests: `test/notation/fields_tes
   `${name}`, anything else `${= …}`); `{"key": …}` and `[…]`, JSON. A field that holds actions (the catalog's
   nested chains: `then`, `else`, `actions`, `onSuccess`, `onError`, `cancelActions`) takes them in braces:
   `runScript script=check onError={toast "Failed"; ok=false}`. Every action type also takes the fields every action
-  has: `enabled`, `nonBlocking`, `when` (JSON). A formula that is only a name (`${= ready}`) has no word of its own
-  (`{ready}` is `${ready}`): an action holding one prints in another form, or as JSON.
+  has: `enabled`, `nonBlocking`, `when` (JSON). A formula that is only a name (`${= ready}`) is written as it is
+  held, in quotes (`when="${= ready}"`, second pass below): `{ready}` is `${ready}`.
 - **A verb that is also an action type** (`focus`, `announce`, `confirm`) is the action type when a field of it
   follows (`focus node=email selectAll=true`), else the verb (`focus email`).
 - **The printer** tries, for each action, the verbs, the choice (for an `if` whose condition is `isTrue` of a
   formula), the type and its fields, then JSON, and writes the first that parses back to the same action; a
   node's events are written all or none. The canvas's timers and shortcuts are its `every` and `key` lines
-  (`printCanvasEvents`); a canvas's other triggers (`load`, `backPressed`) have no line yet (the Document family's
-  canvases).
+  (`printCanvasEvents`); its other triggers are `on` lines (second pass below).
+
+### 4.1 Events and actions, second pass: the forms settled
+
+Settled 2026-11-17 (tests: `test/notation/events_test.dart`, group "the second pass").
+
+- **The screen's other reactions** are lines of their own, as `every` and `key` are: `on`, the trigger's catalog
+  name, its fields in parentheses as after an event, `=` and its actions in braces: `on load={saved=coalesce(storage.saved,
+  [])}`, `on backPressed(when={step > 0})={step=step-1}`, `on keyDown(key=Escape, repeat=true)={close}`. (A bare
+  `onLoad={…}` line stays what it was, a handler written off its node's line, said.) The printer writes `every`
+  and `key` where they say the reaction, else `on`; an unknown trigger is said with the nearest
+  (`The screen has no trigger "lod". Did you mean "load"?`).
+- **A formula that is only a name** in a trigger's or an action's field: a quoted string keeps a `${…}` written
+  in it as written, as a paint op's value does (4.6): `onScroll(when="${= ready}")={…}`, `setVariable variable=x
+  value="${= ready}" op=toggle`. A string with no `${` reads its `{name}` as before.
+- **One spelling of what the API reads in two.** The notation states meaning; where the document API reads two
+  spellings as one thing, the print is right when the document read back is the document in the parser's
+  spelling. `printNormalized` (print_events.dart) gives that form and `printNotation` reads the document in it
+  before it prints, compares and works out a tail: a reaction's trigger written as its type alone (`"trigger":
+  "click"`, `Trigger.fromJson`) is `{"type": "click"}`; an operand of a condition written as a number or a boolean
+  (`"left": 3`, `ConditionOperand.fromJson`) is its text, in an action's `when`, an `if`'s `condition` and the
+  actions nested in them. Nothing else in a reaction is read two ways: its `actions` are a list only
+  (`readList`), an action's type and fields one key each.
+- **`bind=`** is printed for every two-way binding the parser writes: the binding of the control's value and the
+  `changed` reaction that stores it first among its reactions, found by reading `bind=` on the line where the
+  node is (under its `each`), so for every control type: a variable (`Slider bind=vol`), a field of a record
+  variable (`Input bind=draft.title`), a field of the repeated element (`Checkbox bind=item.done` under an `each`).
+  A design system control's variable parameter holding a variable's name or a field's path is `bind=` too
+  (`ToggleRow bind=public`, `ToggleRow bind=item.on` under an each), with no reaction. The node's other reactions
+  are its events. What only shows a value (`Progress`) keeps `value={…}` (the fields' binding); `bind={…}` on it
+  reads the same.
+- **A design system block's events** are written by their own names (`SessionRow onPressed={emit open_session
+  {item.date}}`), checked on the block called alone, which may already say it lacks a parameter; `onTap` on a
+  block reads as its first event and prints as that event's name. In a component's own tree, `emit name [value]`
+  raises one (`Row onTap={emit onPressed}`).
+
+Not said yet: an event of a design system component whose name is also a word of the notation (`Button`,
+`IconButton`, `Card`, `Chip`, `TopBar`): the line reads as the notation's type, on which `onPressed` is a tap,
+so its reactions stay in the tail with its `type` until a line can name such a component (the fields' and the
+parser's head, not an event's word). A nested `each` (a list in a list's element) prints `bind=` only for a
+variable or a record's field; a field of the outer element keeps `value={…} onChange={…}`.
 
 ### 4.5 The document family: the forms settled
 

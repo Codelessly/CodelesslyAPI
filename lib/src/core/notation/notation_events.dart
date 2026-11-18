@@ -83,6 +83,42 @@ extension _Events on _Parser {
     return (s.substring(at, m.end - 1), s.substring(m.end, close), close + 2);
   }
 
+  /// `on load={…}`, `on backPressed(when={editing})={…}`: a reaction of the
+  /// screen itself to a trigger that is no timer (`every`) and no shortcut
+  /// (`key`), on a line of its own as those are: `on`, the trigger's catalog
+  /// name, its fields in parentheses as after an event, and its actions in
+  /// braces. Whether [line] is one (said, when it is one written wrong).
+  bool canvasEventLine(String line, int column) {
+    final head = RegExp(r'^on\s+([A-Za-z]+)').firstMatch(line);
+    if (head == null) return false;
+    final name = head[1]!;
+    const usage = 'A reaction of the screen is a line of its own: on load={…} (the trigger\x27s name, its fields in parentheses: on backPressed(when={editing})={…}).';
+    if (!TriggerType.values.any((t) => t.name == name && t != TriggerType.event)) {
+      final names = [for (final t in TriggerType.values) if (t != TriggerType.event) t.name];
+      _issue(column, 'The screen has no trigger "$name"${_nearest(name, names)} Its triggers: ${names.join(', ')}.');
+      return true;
+    }
+    final trigger = <String, Object?>{'type': name};
+    var at = head.end;
+    if (at < line.length && line[at] == '(') {
+      final close = _Parser._closing(line, at);
+      if (close < 0) {
+        _issue(column, usage);
+        return true;
+      }
+      triggerFields(trigger, line.substring(at + 1, close), column);
+      at = close + 1;
+    }
+    final body = RegExp(r'^=\{(.*)\}\s*$').firstMatch(line.substring(at));
+    if (body == null) {
+      _issue(column, usage);
+      return true;
+    }
+    _timers.add({'trigger': trigger, 'actions': _actions(body[1]!.trim(), column)});
+    if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
+    return true;
+  }
+
   /// The trigger fields written in an event's parentheses, set on
   /// [trigger]; a field the trigger does not have is said.
   void triggerFields(Json trigger, String written, int column) {
@@ -188,7 +224,12 @@ extension _Events on _Parser {
     if (chain && raw.startsWith('{') && !raw.startsWith('{"')) {
       return _actions(raw.substring(1, raw.endsWith('}') ? raw.length - 1 : raw.length), column);
     }
-    if (raw.startsWith('"')) return _interpolate(_Tokens(raw).string());
+    if (raw.startsWith('"')) {
+      // `${…}` written in it stays as written, as in a paint op's value
+      // (design 22, 4.6): `when="${= ready}"`, a formula that is only a name.
+      final s = _Tokens(raw).string();
+      return s.contains(r'${') ? s : _interpolate(s);
+    }
     if (raw.startsWith('{') && _Parser._bracedExpression(raw)) return _read(raw.substring(1, raw.length - 1));
     if (raw.startsWith('{') || raw.startsWith('[')) {
       try {

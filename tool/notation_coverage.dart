@@ -112,7 +112,7 @@ void main(List<String> args) {
       // The walk's own lines (design 22, the document family): counted by
       // their word, not as nodes.
       // (A node of type slot, `slot {…}`, is a node.)
-      final m = RegExp(r'^(state|canvas|each|if|else|component|param|event|slot|preview|every|key)(?=\s+[^\s{]|$)|^(Canvas)#').firstMatch(trimmed);
+      final m = RegExp(r'^(state|canvas|each|if|else|component|param|event|slot|preview|every|key|on)(?=\s+[^\s{]|$)|^(Canvas)#').firstMatch(trimmed);
       final statement = m == null ? null : m[1] ?? m[2];
       if (statement != null) {
         shapes[statement] = (shapes[statement] ?? 0) + 1;
