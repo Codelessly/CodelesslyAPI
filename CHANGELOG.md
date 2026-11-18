@@ -56,8 +56,9 @@
   that sizes by name still takes the nearest name.
 - **The open prompt's glossary** keeps a description that is a whole clause whole: Desk's `Breadcrumb`, `Empty` and
   `SaveBar` read `where a page`, `what a list`, `what a page` (a clause starting with a question word was cut at its
-  comma or its `with` and lost its verb); they read `where a page is`, `what a list with nothing in it says`, `what a
-  page with unsaved changes shows at its foot`. A word left hanging at the end (`over`) is dropped.
+  comma or its `with` and lost its verb); they read `where a page is`, `what a list with nothing in it`, `what a page
+  with unsaved changes shows` (seven words at most, as before). A word left hanging at the end (`over`, `when`) is
+  dropped.
 
 ## 36.0.0
 

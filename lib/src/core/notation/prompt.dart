@@ -498,7 +498,7 @@ String notationGlossaryDefinitionLine(NotationDefinition d) {
 /// clause that ends with its verb: it is cut only where that clause ends
 /// (`: `, `; `, ` (`, ` — `), never inside it at a comma or a `with`, an
 /// enumeration in it is shortened to its first item (`a list, a table or a
-/// pane` is `a list`), it may run to ten words, and its last word is kept
+/// pane` is `a list`), and when it fits in seven words its last word is kept
 /// (`where a page is`, not `where a page`).
 String _gist(String text) {
   var s = text.trim();
@@ -506,7 +506,7 @@ String _gist(String text) {
   if (end != null) s = s.substring(0, end.start);
   s = s.replaceFirst(RegExp(r'^(A|An|The) '), '');
   final clause = RegExp(r'^(What|Where|When|How|Who|Which|Whatever)\b', caseSensitive: false).hasMatch(s);
-  final most = clause ? 10 : 7;
+  const most = 7;
   int words(String t) => t.trim().split(RegExp(r'\s+')).length;
   for (final cut in clause ? const [': ', '; ', ' (', ' — '] : const [': ', '; ', ' (', ' — ', ', ', ' with ']) {
     if (words(s) <= most) break;
@@ -525,7 +525,7 @@ String _gist(String text) {
     final article = w.lastIndexWhere((x) => articles.contains(x.toLowerCase()));
     if (article >= w.length - 2 && article > 1) w = w.take(article).toList();
   }
-  const hanging = {...articles, 'of', 'to', 'for', 'as', 'in', 'on', 'with', 'and', 'or', 'at', 'by', 'from', 'is', 'that', 'which', 'its', 'their', 'one', 'two', 'over', 'under', 'between', 'into', 'than'};
+  const hanging = {...articles, 'of', 'to', 'for', 'as', 'in', 'on', 'with', 'and', 'or', 'at', 'by', 'from', 'is', 'that', 'which', 'its', 'their', 'one', 'two', 'over', 'under', 'between', 'into', 'than', 'when', 'where', 'while', 'if'};
   while (w.length > 2 && hanging.contains(w.last.toLowerCase())) {
     w.removeLast();
   }
