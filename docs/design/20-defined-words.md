@@ -74,7 +74,12 @@ where they are read, as written:
 - `if p`, `each x in p`: the statement's expression, the same.
 - A body written as `if visible` over its one node is that node with `visible={visible}`: models write a word that
   can be hidden that way (the journal, Review 4, D21). A body whose first line is any other `if` (with its `else`)
-  or an `each` is a `Column` holding its lines. `state` lines before the root are the word's own state.
+  or an `each`, or that is several lines side by side, is its lines written where the use is (section 4: a macro):
+  in the node around the use, so that the copies an `each` makes are the cells of a `Grid` around it and take the
+  gap of a `Column` around it, and a sidebar's brand and items written as a word are the sidebar's lines (round
+  11: these were one cell holding every photo, lines with no gap, and a refused word drawn as a placeholder). A use
+  that gives the root words of its own (`#id`, `hide=phone`, `grow`) has a `Column` holding the lines, with those
+  words. `state` lines before the root are the word's own state.
 - A use's `{expr}` where its first string goes (`Pill {status}`) is that string, `"{status}"`.
 - A use's value that is a path (`end=draft.end`) or a variable of the page or of an `each` around it (`bpm=bpm`) is
   read as `{draft.end}`, `{bpm}`: the value, not the word. Any other bare word is the word (`tone=quiet`).

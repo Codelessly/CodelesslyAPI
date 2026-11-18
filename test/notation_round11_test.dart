@@ -108,4 +108,51 @@ Waveform
       expect(jsonEncode(r.document), contains('Waveform'));
     });
   });
+
+  group('A5, A8: a definition of several lines, or of an each, is its lines where the use is', () {
+    const page = '''
+state items=[{"n":"a"},{"n":"b"},{"n":"c"}]
+App
+  Sidebar#side
+    TenantMenu active="x"
+  Main
+    Column#content pad=24 gap=12
+      Rows
+      Grid#cells cols=3 gap=4
+        Rows
+      Rows#kept hide=phone
+
+define TenantMenu active=""
+  Brand "Tenant" icon="apartment"
+  NavItem "Members" icon="people" selected={active=="x"}
+  NavItem "Roles" icon="key"
+
+define Rows
+  each it in items
+    Card
+      Text "{it.n}"
+''';
+
+    test('two lines side by side: read, and the sidebar\'s own lines (it was refused, a placeholder)', () {
+      final r = _parse(page, const NotationOptions(width: 1440));
+      expect(r.issues, isEmpty);
+      expect(_texts(r), containsAll(['Tenant', 'Members', 'Roles']));
+      expect(readStrings(_node(r, 'side')!['children']), hasLength(3), reason: 'the brand and the two items are the sidebar\'s lines');
+    });
+
+    test('an each in a Column takes its gap; in a Grid each copy is a cell', () {
+      final r = _parse(page, const NotationOptions(width: 1440));
+      final first = _node(r, readStrings(_node(r, 'content')!['children']).first)!;
+      expect(first['type'], 'listView');
+      expect((first['props'] as Map)['spacing'], 12);
+      final grid = _nodes(r).values.cast<Map>().where((n) => n['type'] == 'gridView').single;
+      expect((grid['props'] as Map)['crossAxisCount'], 3);
+    });
+
+    test('a use with words of its own for the root keeps a Column holding the lines', () {
+      final r = _parse(page, const NotationOptions(width: 1440));
+      expect(_node(r, 'kept')!['type'], 'column');
+      expect(readStrings(_node(r, 'kept')!['children']).single, startsWith('listView'));
+    });
+  });
 }

@@ -10,6 +10,14 @@
   no text draws nothing and takes no room anywhere, and with lines under its use it is those lines with no
   labelled box. Everything else keeps its labelled box. The record keeps every use.
 
+### Fixed
+
+- **A definition of several lines side by side is read** (it was refused and its uses drew placeholders: round 11's
+  admin console lost its sidebar), and **one that starts with an `if` or an `each` is its lines where the use is**,
+  as design note 20 has a use stand for its body's lines: the copies an `each` makes are the cells of a `Grid`
+  around the use (they were all in one cell) and take the gap of a `Column` around it. A use that gives the root
+  words of its own (`#id`, `hide=phone`, `grow`) has a `Column` holding the lines, as before.
+
 ## 36.0.0
 
 The notation now writes everything a schema-3 document holds (parity: every corpus document prints back in words),

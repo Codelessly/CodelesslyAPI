@@ -1597,7 +1597,11 @@ typedef _Silent = ({String word, bool primitive, bool top, int said, bool sized}
 
 class _Open {
   _Open(this.indent, this.id, this.type,
-      {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written, this.slot});
+      {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written, this.slot, this.splice = false});
+
+  /// The lines of a defined word written where its use is ([notationSplice]):
+  /// they go in the node around it, [id].
+  final bool splice;
 
   /// A `slot name` line under node [id]: the line under it goes in that slot.
   final String? slot;
@@ -2577,7 +2581,7 @@ class _Parser {
           }
         }
         _lastNode = null;
-        _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
+        _lineAt(l.indent, role == null ? l.text : role[2] == 'splice' ? notationSplice : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
         // The lines a defined word stands for: each line's nodes are sent
         // before the next line's, which may patch them.
@@ -3888,6 +3892,17 @@ class _Parser {
     var line = source;
     while (_stack.isNotEmpty && _stack.last.indent >= indent) {
       _close(_stack.removeLast());
+    }
+    // A defined word's lines written where its use is: they go in the node
+    // around it (a Grid's cells, a Column's lines with its gap). At the top
+    // of a page there is none: a Column holds them.
+    if (line == notationSplice) {
+      final around = _stack.reversed.where((o) => !o.leaf).firstOrNull;
+      if (around != null) {
+        _stack.add(_Open(indent, around.id, around.type, condition: around.condition, grid: around.grid, slot: around.slot, splice: true));
+        return;
+      }
+      line = 'Column';
     }
     // Inside an `each x in …`, x is the document's `item`.
     // In an `each` inside an `each` (a board's cards in its columns), the
@@ -8475,7 +8490,7 @@ class _Parser {
   }
 
   void _close(_Open open) {
-    if (_silence(open)) return;
+    if (open.splice || _silence(open)) return;
     _placeholder(open);
     _slotAction(open);
     _removable(open);
