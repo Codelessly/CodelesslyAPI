@@ -6105,7 +6105,11 @@ class _Parser {
           // variable was meant as its value: said, not guessed.
           final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(raw)!;
           final known = variables.containsKey(head) || _derived.containsKey(head) || head == 'item' && _stack.any((o) => o.each != null);
-          final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
+          // (A field's own word at a dotted key too: `transformGesture.wheel=zoom`
+          // beside a `zoom` variable; round 11b, 2 builds.)
+          bool enumHas(PropType? t) => t != null && t.kind == PropKind.enumeration && t.values.contains(raw);
+          final ownValue = spec.props.any((p) => p.key == key && enumHas(p.type)) ||
+              (key.contains('.') && !component && enumHas(notationKey(key, type, catalog: catalog)?.type));
           // A key whose value is always a word (a field's type, an icon's
           // name) keeps it, whatever a variable is called:
           // Input "Email" type=email @email.

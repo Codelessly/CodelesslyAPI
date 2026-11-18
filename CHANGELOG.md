@@ -41,6 +41,9 @@
 
 ### Fixed
 
+- **A field's own word at a dotted key** (`transformGesture.wheel=zoom` on a page with `state zoom`; round 11b:
+  photo-library, team-chat) is that word, as a prop's own word is; it was "A value read from the state is
+  written in braces: transformGesture.wheel={zoom}", the wrong fix.
 - **`DateTimeInput @due`** keeps its value in `due` (its `value`, written back on a pick), as `DatePicker @day`
   does; it was "A DateTimeInput binds nothing" (round 11b: kanban-board, money-tracker, rewritten by hand).
 - **An `each` in a row that turns down the page at a width turns with it** (`Row gap=12 phone.direction=vertical`

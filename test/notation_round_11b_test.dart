@@ -182,6 +182,17 @@ Column
     expect(actions.first['trigger'], {'type': 'changed'});
   });
 
+  test('a word of a field at a dotted key is that word, beside a variable of the same name', () {
+    // photo-library (viewer.txt:24), team-chat: refused as "written in braces".
+    final r = _parse('''
+state zoom=1
+Column
+  box#b w=100 h=100 transformGesture.wheel=zoom transformGesture.scaleVariable=zoom
+''');
+    expect(r.issues, isEmpty);
+    expect(_node(r, 'b')['transformGesture'], containsPair('wheel', 'zoom'));
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.
