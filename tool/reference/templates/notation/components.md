@@ -37,7 +37,7 @@ Row#pill gap=4
   or `dynamic` for a record or anything, `List<…>` (`List<Map>`: records), `ValueNotifier<…>` for a variable parameter, an enum's values joined by `|`) where the default does
   not say it; `required` and `doc="…"` after it.
 - `event name:Type`: an event and the type of its payload; `emit name value` sends it (`emit onRemove props.label`, `emit onNavigate "{result}"`: a text with values in it reads them).
-- `slot name`: a place the caller fills with lines.
+- `slot name`: a place the caller fills with one line (several actions in a slot: a Row around them).
 - `preview "Name" 340x66 key=value …`: a preview, its size and the call's values.
 
 A word defined in the text (`define`, [design-systems.md](design-systems.md)) is written out where it is used: it

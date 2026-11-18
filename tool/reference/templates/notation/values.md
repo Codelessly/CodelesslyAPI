@@ -9,6 +9,12 @@ A key's value is written as on any line: a number; a bare word (an enum's value,
 `#AARRGGBB`, a theme name); a quoted string; JSON for a list or a map; `{expression}` for a value that follows the
 state. A value type below is written in its JSON form, bare where that is a number or one word.
 
+In a quoted text `{x}` reads a value, so `"${annual ? 20 : 25}"` is one expression, not a dollar sign before it:
+write `"{'$' + (annual ? 20 : 25)}"`. A list with expressions in it is one expression:
+`thumbSize={[w, 8]}` (the paint ops' own `rect=[{x},0,10,10]` is the one place an expression sits inside a list).
+A key whose value is a variable's name (`measure.variable`, `pan.xVariable`) takes the name quoted:
+`measure.variable="pos"`. `drag=lib({l.id})` carries a value; `drag=lib(zz)` reads `zz` as a name.
+
 ```notation
 Column pad=[16,8,16,8] fill=#FF2563EB radius=8
   Text "x" color=#FFFFFFFF

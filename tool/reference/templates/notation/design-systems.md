@@ -14,7 +14,9 @@ colors and text styles (`color=primary`). Its manifest is JSON; see the JSON ref
 
 `define` at the margin, and the word as a line would use it, each value its default; under it, indented, the lines
 it stands for. Those lines read the word's strings and keys by name in braces; `...` on a line of its own is where
-the lines written under a use go. A defined word is written out where it is used.
+the lines written under a use go. A defined word is written out where it is used. A word that keeps a value is
+written with `@value=…` in its head (`define Stepper @value=0 min=0`), its lines binding `@value`; a use binds its
+own variable (`Stepper @qty`).
 
 ```notation expands
 define Pill "text" tone="neutral"
