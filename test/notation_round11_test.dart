@@ -344,4 +344,32 @@ define Rows
       expect(propsOf(r, 'lineChart')['yMin'], 800);
     });
   });
+
+  group('C6: a theme\'s ink and ground, and a dark ground\'s tones', () {
+    const darkTheme = {
+      'primary': '#FF92F0D8',
+      'colors': {'ink': '#FFECF3F5', 'paper': '#FF15181C'},
+    };
+    test('a dark ground: cards a step above it, lines and items in its ink, the canvas its ground', () {
+      final r = _parse('App\n  Sidebar\n    NavItem "Library" icon="video_library"\n  Main\n    Card#card\n      Text "a"\n    Divider\n', NotationOptions.fromTheme(darkTheme, width: 1440));
+      final card = _node(r, 'card')!['decoration'] as Map;
+      expect((card['fills'] as List).single, {'color': '#FF23262A'});
+      expect((card['strokes'] as List).single, {'color': '#29ECF3F5'});
+      final library = _nodes(r).values.cast<Map>().firstWhere((n) => n['type'] == 'text' && (n['props'] as Map)['text'] == 'Library');
+      expect(((library['props'] as Map)['style'] as Map)['color'], '#CCECF3F5');
+      expect((((_node(r, 'screen')!['decoration'] as Map)['fills'] as List).single as Map)['color'], '#FF15181C');
+    });
+
+    test('a light theme with the prompt\'s names: its ink is the text\'s, its paper the ground; a design system\'s names win', () {
+      final r = _parse('Column\n  Text#t "a"\n', NotationOptions.fromTheme(const {
+        'colors': {'ink': '#FF1F2A24', 'paper': '#FFFBF8F2'},
+      }, width: 1440));
+      expect(((_node(r, 't')!['props'] as Map)['style'] as Map)['color'], '#FF1F2A24');
+      expect((((_node(r, 'screen')!['decoration'] as Map)['fills'] as List).single as Map)['color'], '#FFFBF8F2');
+      final ds = _parse('Column\n  Text#t "a"\n', NotationOptions.fromTheme(const {
+        'colors': {'ink': '#FF1F2A24', 'primaryText': '#FF000000'},
+      }));
+      expect(((_node(ds, 't')!['props'] as Map)['style'] as Map)['color'], '#FF000000');
+    });
+  });
 }

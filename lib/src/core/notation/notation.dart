@@ -194,6 +194,7 @@ final class NotationOptions {
     this.reflow = true,
     this.displaySizes = const {},
     this.themeTextStyles = const {},
+    this.quietInks,
     this.projectVariables = const {},
     this.accentText,
     this.openVocabulary = false,
@@ -281,6 +282,7 @@ final class NotationOptions {
         reflow: reflow ?? this.reflow,
         displaySizes: displaySizes,
         themeTextStyles: themeTextStyles,
+        quietInks: quietInks,
         projectVariables: projectVariables,
         accentText: accentText,
         openVocabulary: openVocabulary,
@@ -348,6 +350,7 @@ final class NotationOptions {
       reflow: base.reflow,
       displaySizes: base.displaySizes,
       themeTextStyles: base.themeTextStyles,
+      quietInks: base.quietInks,
       projectVariables: projectVariables,
       accentText: base.accentText,
       themeColors: base.themeColors,
@@ -399,7 +402,36 @@ final class NotationOptions {
       return named ? name : c;
     }
 
-    final ink = color('primaryText', color('onSurface', '#FF111827'));
+    // The theme's ground and ink by the names the notation's prompt teaches
+    // (`paper`, `ink`), when it has no design system's names for them; a
+    // dark ground's tones (its lines, fills, cards) derived from its ink and
+    // its ground, not a light theme's (round 11: dark sites kept grey-on-white
+    // dividers and white cards).
+    String? hexOf(String name) {
+      Object? c = colors[name] ?? theme[name];
+      for (var i = 0; i < 8 && c is String && !c.startsWith('#'); i++) {
+        c = colors[c] ?? theme[c];
+      }
+      return c is String && RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(c) ? c : null;
+    }
+
+    final groundName = const ['paper', 'background', 'bg', 'ground'].where((n) => hexOf(n) != null).firstOrNull;
+    final groundHex = hexOf('page') ?? hexOf('surface') ?? hexOf('primaryBackground') ?? (groundName == null ? null : hexOf(groundName));
+    double lum(String hex) {
+      final v = [for (var i = 3; i < 9; i += 2) int.parse(hex.substring(i, i + 2), radix: 16) / 255];
+      return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+    }
+
+    final dark = groundHex != null && lum(groundHex) < 0.35;
+    final inkHex = hexOf('primaryText') ?? hexOf('onSurface') ?? hexOf('ink') ?? (dark ? '#FFF3F4F6' : '#FF111827');
+    String tint(int alpha) => '#${alpha.toRadixString(16).padLeft(2, '0').toUpperCase()}${inkHex.substring(3)}';
+    String lift(String hex, double t) =>
+        '#FF${[for (var i = 3; i < 9; i += 2) (int.parse(hex.substring(i, i + 2), radix: 16) + (255 - int.parse(hex.substring(i, i + 2), radix: 16)) * t).round().toRadixString(16).padLeft(2, '0')].join().toUpperCase()}';
+    final lineTone = dark ? tint(0x29) : '#FFE5E7EB';
+    final fillTone = dark ? tint(0x1A) : '#FFE5E7EB';
+    final cardTone = dark ? lift(groundHex, 0.06) : '#FFFFFFFF';
+    final groundTone = groundName == null ? '#FFFFFFFF' : color(groundName, '#FFFFFFFF');
+    final ink = color('primaryText', color('onSurface', color('ink', dark ? '#FFF3F4F6' : '#FF111827')));
     final muted = color('secondaryText', ink), faint = color('tertiaryText', muted);
     final styles = <String, Object>{};
     for (final e in (readMap(theme['textStyles']) ?? const {}).entries) {
@@ -460,7 +492,7 @@ final class NotationOptions {
 
     (String, String, String) tone(String role, String inkName) {
       if (role == 'neutral' || hex('${role}Tint') != null) {
-        return (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
+        return (color('${role}Tint', dark ? tint(0x1A) : '#FFF3F4F6'), color('${role}TintBorder', lineTone), color(inkName, ink));
       }
       if (hex(inkName) case final String base) {
         return ('#1A${base.substring(3)}', '#47${base.substring(3)}', color(inkName, ink));
@@ -516,10 +548,10 @@ final class NotationOptions {
       card: {
         'decoration': {
           'fills': [
-            {'color': color('card', color('primaryBackground', '#FFFFFFFF'))},
+            {'color': color('card', color('primaryBackground', cardTone))},
           ],
           'strokes': [
-            {'color': color('primaryBorder', '#FFE5E7EB')},
+            {'color': color('primaryBorder', lineTone)},
           ],
           'radius': radii['card'] ?? radii['panel'] ?? theme['radius'] ?? 8,
           if (cardShadow is List && cardShadow.isNotEmpty) 'effects': jsonDecode(jsonEncode(cardShadow)),
@@ -542,8 +574,8 @@ final class NotationOptions {
       cardGap: spacing['cardGap'] is num ? spacing['cardGap'] as num : null,
       ringStroke: sizes['ring'] is num ? sizes['ring'] as num : null,
       contentWidth: readDouble(sizes['content']) ?? 1120,
-      line: color('line', color('primaryBorder', '#FFE5E7EB')),
-      selectedFill: color('activeTint', color('primaryTint', color('subtleFill', '#FFE5E7EB'))),
+      line: color('line', color('primaryBorder', lineTone)),
+      selectedFill: color('activeTint', color('primaryTint', color('subtleFill', fillTone))),
       narrowWidth: readDouble(sizes['narrow']) ?? 720,
       sidebarWidth: readDouble(sizes['sidebar']) ?? 248,
       sectionPad: readDouble(spacing['section']) ?? 64,
@@ -561,6 +593,7 @@ final class NotationOptions {
       // A link in running text: the accent where it is read as text on a
       // light page (a bright accent is for fills).
       accentText: colors['accentText'] != null ? color('accentText', '#FF1D4ED8') : colors['accentDeep'] != null ? color('accentDeep', '#FF1D4ED8') : null,
+      quietInks: dark ? (tint(0xCC), tint(0x99), tint(0x66)) : null,
       themeTextStyles: {
         for (final e in textStyles.entries)
           if (readMap(e.value) case final Json s) e.key: s,
@@ -579,7 +612,7 @@ final class NotationOptions {
               if (theme['fontFamily'] is String) 'labelFontFamily': theme['fontFamily'],
               'labelFontSize': 11,
               'labelColor': color('secondaryText', ink),
-              'gridColor': color('primaryBorder', '#FFE5E7EB'),
+              'gridColor': color('primaryBorder', lineTone),
             },
       sectionRadius: radii['card'] != null && radii['panel'] is num ? radii['panel'] as num : null,
       tile: radii['tile'] == null
@@ -587,10 +620,10 @@ final class NotationOptions {
           : {
               'decoration': {
                 'fills': [
-                  {'color': color('card', color('primaryBackground', '#FFFFFFFF'))},
+                  {'color': color('card', color('primaryBackground', cardTone))},
                 ],
                 'strokes': [
-                  {'color': color('primaryBorder', '#FFE5E7EB')},
+                  {'color': color('primaryBorder', lineTone)},
                 ],
                 'radius': radii['tile'],
               },
@@ -605,10 +638,10 @@ final class NotationOptions {
         'error': error,
         'danger': error,
       },
-      surface: color('page', color('surface', color('primaryBackground', '#FFFFFFFF'))),
+      surface: color('page', color('surface', color('primaryBackground', groundTone))),
       // A theme calls its one strong color primary, accent or brand.
       accent: color('primary', color('accent', color('brand', '#FF2563EB'))),
-      track: color('track', '#FFE5E7EB'),
+      track: color('track', fillTone),
     );
   }
 
@@ -660,6 +693,7 @@ final class NotationOptions {
         reflow: reflow && width < 700,
         displaySizes: displaySizes,
         themeTextStyles: themeTextStyles,
+        quietInks: quietInks,
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
         ownComponents: ownComponents,
@@ -805,6 +839,11 @@ final class NotationOptions {
   /// The theme's text styles of a headline's size (32 and up), by name →
   /// font size: a text in one of them is smaller on a phone.
   final Map<String, num> displaySizes;
+
+  /// The inks of a sidebar's or a bar's items at rest, of their icons and of
+  /// what is fainter still, on a dark ground: its ink at 80, 60 and 40 %.
+  /// Null: a light theme's greys.
+  final (String, String, String)? quietInks;
 
   /// The theme's text styles as it writes them, by name: a line's
   /// `style=serif` over a variant changes only the keys that style sets.
@@ -2696,6 +2735,7 @@ class _Parser {
     // A website's headline at a display size, unless the theme gives its
     // own headline one (a heading1 or pageTitle of 32 and up).
     siteHeadline: options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : 60,
+    quietInks: options.quietInks,
     selectedFill: options.selectedFill,
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),

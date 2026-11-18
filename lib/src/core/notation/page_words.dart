@@ -48,6 +48,7 @@ final class PageWords {
     this.iconTile,
     this.accent = '#FF2563EB',
     this.siteHeadline,
+    this.quietInks,
     this.selectedFill = '#FFE5E7EB',
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
@@ -96,6 +97,10 @@ final class PageWords {
   /// its own. A 30 px headline over a 1440 page read as a section's title
   /// (round 11: the web's were 48 to 150 px).
   final num? siteHeadline;
+
+  /// A dark theme's inks for items at rest, their icons and what is fainter
+  /// ([NotationOptions.quietInks]); null: a light theme's greys.
+  final (String, String, String)? quietInks;
 
   /// The indent of the plain Section just written under a Page (no ground,
   /// no bleed), while nothing else has been written beside it.
@@ -1096,7 +1101,7 @@ final class PageWords {
       final ink = accentName ?? accent;
       // Every item at rest has one ink and its icon a quieter one: only the
       // chosen item stands out (the accent, a heavier weight, the selected fill).
-      const quiet = '#FF374151', quietIcon = '#FF6B7280', faint = '#FF9CA3AF';
+      final (quiet, quietIcon, faint) = quietInks ?? ('#FF374151', '#FF6B7280', '#FF9CA3AF');
       // The chosen item's fill is a state of its row, so that the tint under
       // the pointer (a state too) never replaces it: selected is the later one.
       final fill = selected != null
@@ -1136,7 +1141,7 @@ final class PageWords {
       return out
         ..add((
           indent: at,
-          text: 'Text$mark ${label == null ? '""' : _upper(label)} size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 w=fill pad=[10,16,10,6]${_railHide()}${parts.all}'
+          text: 'Text$mark ${label == null ? '""' : _upper(label)} size=11 weight=600 letterSpacing=0.6 color=${quietInks?.$2 ?? '#FF6B7280'} w=fill pad=[10,16,10,6]${_railHide()}${parts.all}'
         ));
     }
     if (parent?.frame == 'Sidebar' && _feet.contains(word) && !isComponent(word)) {
@@ -1183,7 +1188,7 @@ final class PageWords {
           if (under == null) (indent: at + 2, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700$railed'),
           if (under != null) (indent: at + 2, text: 'Column gap=0$railed'),
           if (under != null) (indent: at + 4, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700'),
-          if (under != null) (indent: at + 4, text: 'Text $under size=11 color=#FF6B7280'),
+          if (under != null) (indent: at + 4, text: 'Text $under size=11 color=${quietInks?.$2 ?? '#FF6B7280'}'),
         ]);
     }
     // A field in a bar has no room for a label above it: its label is its hint.

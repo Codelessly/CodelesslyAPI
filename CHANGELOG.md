@@ -29,6 +29,12 @@
   wide, 8 between) and rounded (4) over a light grid with its figures on the left (written values: a nice top, `0`,
   `10`, `20`…); a `Donut`'s slices and a multi-series line's colors are steps of the theme's primary (they were a
   fixed palette no theme had); a `LineChart`'s axis is fitted to its data (it started at 0 and flattened it).
+- **A theme's `ink` and `paper` (the names the prompt teaches) are its text's ink and its ground** where it has no
+  design system's names for them (`primaryText`, `surface`…, which win): texts were `#FF111827` and the canvas white
+  whatever the site said. **A dark ground** (its luminance under 0.35) derives its tones from its ink and ground: cards
+  6 % lighter than the ground, hairlines and dividers its ink at 16 %, a selected or neutral fill its ink at 10 %, a
+  sidebar's or a bar's items at rest its ink at 80 % (their icons 60 %); they kept a light theme's white cards,
+  grey lines and grey items. (A control's accent colours are left as they were.)
 
 ### Fixed
 
