@@ -279,6 +279,18 @@ extension _PaintWords on _Parser {
             op[p.raw] = true;
           } else if (paints && p.raw == 'scaleStroke') {
             strokeFields[p.raw] = true;
+          } else if (RegExp(r'^([A-Za-z_]\w*)((?:\.[A-Za-z_]\w*)+)=(.+)$').firstMatch(p.raw) case final m? when keys.containsKey(m[1])) {
+            // `style.color=#FF… style.fontSize=10`: a field of a record
+            // field by its dotted path, as on a node line (test 10: 9 runs).
+            final path = '${m[1]}${m[2]}'.split('.');
+            var at = op;
+            for (final k in path.take(path.length - 1)) {
+              at = switch (at[k]) {
+                final Map n => n.cast<String, Object?>(),
+                _ => at[k] = <String, Object?>{},
+              } as Json;
+            }
+            at[path.last] = _paintValue(m[3]!, col);
           } else {
             _paintUnknown(word, p.raw, keys.keys, col, kind: 'flag');
           }
@@ -294,6 +306,18 @@ extension _PaintWords on _Parser {
             strokeFields[key] = value;
           } else if (keys.containsKey(key) || spec == null) {
             op[key] = value;
+          } else if (key.contains('.') && keys.containsKey(key.substring(0, key.indexOf('.')))) {
+            // `style.color=#FF… style.fontSize=10`: a field of a record
+            // field by its dotted path, as on a node line (test 10: 9 runs).
+            final path = key.split('.');
+            var at = op;
+            for (final k in path.take(path.length - 1)) {
+              at = switch (at[k]) {
+                final Map m => m.cast<String, Object?>(),
+                _ => at[k] = <String, Object?>{},
+              } as Json;
+            }
+            at[path.last] = value;
           } else {
             _paintUnknown(word, key, keys.keys, col, value: p.value);
             op[key] = value;

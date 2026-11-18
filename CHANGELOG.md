@@ -104,6 +104,10 @@
   line and its own reactions as `on …` lines under the block, and a design system's `Dialog` called in a canvas with
   its event (`onClose={close}`), where each was on the `document {…}` line or a `{…}` tail. Over the corpus (1,341
   documents) the real gaps are 0 (they were 4 node lines and 1 document line, all Desk's dialogs).
+- **Notation**: `cond ? actions` with no else is a choice that does nothing when it does not hold (it was "Unknown
+  action"); an `each` line takes `handle` (`each c in cats reorder handle`); a paint op's record field takes dotted
+  keys (`paragraph … style.color=… style.fontSize=10`); a sticky line whose word ends in `Head`, `Mast` or `Masthead`
+  (a site's top bar) sticks at 0, as a `Nav` does (it was 16 px below the top).
 - **SiteManifest.pageRefs**: a manifest's `pages` may be records (`{"id": "home", "file": "home.json"}`); a reference
   page for `site.json` (`docs/reference/notation/site.md`).
 

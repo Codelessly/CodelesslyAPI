@@ -4198,7 +4198,7 @@ class _Parser {
     final eachWords = <String, String>{};
     if (line.startsWith('each ')) {
       line = line.trimRight();
-      final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$');
+      final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|handle|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$');
       for (var m = trailing.firstMatch(line); m != null; m = trailing.firstMatch(line)) {
         final word = m[1]!, eq = word.indexOf('=');
         eachWords[eq < 0 ? word : word.substring(0, eq)] = eq < 0 ? '' : word.substring(eq + 1);
@@ -4215,7 +4215,7 @@ class _Parser {
         if (end < list.length) {
           final others = <String>[];
           for (final w in _topLevelWords(list.substring(end))) {
-            final own = RegExp(r'^(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$').firstMatch(w);
+            final own = RegExp(r'^(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|handle|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$').firstMatch(w);
             if (own != null) {
               final eq = w.indexOf('=');
               eachWords[eq < 0 ? w : w.substring(0, eq)] = eq < 0 ? '' : w.substring(eq + 1);
@@ -5366,8 +5366,10 @@ class _Parser {
           } else if (word == 'sticky') {
             // Stays in view while the page scrolls under it (a table of
             // contents beside an article, an order summary).
-            // A bar across the top (SiteNav, a TopBar, a Header) stays at the very top.
-            node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header)$').hasMatch(written) ? 0 : 16};
+            // A bar across the top (SiteNav, a TopBar, a Header, a site's
+            // Masthead or Mast: test 10, a 16 px gap above it) stays at the
+            // very top.
+            node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header|Head|Mast|Masthead)$').hasMatch(written) ? 0 : 16};
           } else if (word == 'disabled' && component && spec.props.any((p) => p.key == 'disabled' && p.type.kind == PropKind.list)) {
             // `ChoiceChips disabled`: off as a whole (its own disabled lists the options that are off).
             bind['disabled'] = _formula('true');
@@ -8848,6 +8850,12 @@ class _Parser {
         if (cond.isEmpty) return null;
         return (cond, unwrap(a.substring(question + 1, i)), unwrap(a.substring(i + 1)));
       }
+    }
+    // `index>0 ? conditions=setAt(…)`: a choice with no else (test 10: 5
+    // runs, refused as an unknown action): nothing when it does not hold.
+    if (question > 0 && nested == 0) {
+      final cond = a.substring(0, question).trim(), yes = unwrap(a.substring(question + 1));
+      if (cond.isNotEmpty && yes.isNotEmpty) return (cond, yes, '');
     }
     return null;
   }

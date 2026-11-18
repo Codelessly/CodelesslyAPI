@@ -12,7 +12,8 @@ corners is `rrect rect=[left,top,width,height] radius=4` (not `rect x= y= w= h=`
 colour's alpha (`fill=#80FF0000`). An op line is the op's name, a
 quoted string first where it has one (a `paragraph`'s text, an `image`'s URL), and its fields by their own names.
 Its paint is `fill=<color>` (fills the shape) and `stroke=<color>` with the stroke's keys beside it
-(`strokeWidth`, `strokeCap`, `strokeJoin`, `dashPattern`); `paint={…}` for a paint they cannot say. A `group` or
+(`strokeWidth`, `strokeCap`, `strokeJoin`, `dashPattern`); `paint={…}` for a paint they cannot say. A field of a record
+field is its dotted path, as on a node's line: `paragraph "Q3" style.fontSize=11 style.color=#FF6B7280`. A `group` or
 a `repeat` holds the op lines under it; inside a `repeat`, `index` and `item` are the copy's.
 
 ```notation

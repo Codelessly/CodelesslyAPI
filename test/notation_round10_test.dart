@@ -416,4 +416,43 @@ Canvas#compose "compose" w=640
       expect(printed, isNot(contains('{"actions"')));
     });
   });
+
+  group('Top 25, 22 and 23: one-armed choices, handle on the each line, dotted paint keys, a sticky masthead', () {
+    test('cond ? actions with no else; each … reorder handle; paragraph style.color=…', () {
+      final r = _parse('''
+state index=1
+state c=[1]
+state cats=["a"]
+Column
+  Button#b "x" onTap={index>0 ? c=[]}
+  Column
+    each k in cats reorder handle
+      Row
+        Handle
+        Text "{k}"
+  Box#p w=100 h=50
+    customPaint
+      paragraph "hi" offset=[0,0] style.color=#FFADB8AD style.fontSize=10
+''');
+      expect(r.issues, isEmpty);
+      final choice = (((_node(r, 'b')['actions'] as List).first as Map)['actions'] as List).single as Map;
+      expect(choice['type'], 'if');
+      expect(choice.containsKey('else'), isFalse);
+      final op = ((_node(r, 'p')['customPaint'] as Map)['painter'] as List).single as Map;
+      expect(op['style'], {'color': '#FFADB8AD', 'fontSize': 10});
+    });
+
+    test('a component call named Masthead or Mast that is sticky stays at the very top', () {
+      final mast = catalogFromJson({
+        'widgets': [
+          {'type': 'Masthead'},
+        ],
+      });
+      final catalog = standardCatalog + mast;
+      final r = Catalog.run(catalog, () => parseNotation('Column scroll\n  Masthead#m sticky\n  Column#toc sticky\n', catalog: catalog));
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'm')['sticky'], {'offset': 0});
+      expect(_node(r, 'toc')['sticky'], {'offset': 16});
+    });
+  });
 }
