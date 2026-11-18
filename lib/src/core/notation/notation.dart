@@ -3596,6 +3596,17 @@ class _Parser {
         if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
         continue;
       }
+      // `blockBack={dirty}` (`guard={…}` the same): while it holds, back,
+      // Escape and a tap outside do not close it; any prop of the canvas
+      // worked out (`semanticLabel={…}`): bound. Before, the braces were
+      // kept as a literal string (test 10, kanban 4).
+      if (w.value case final String v when v.startsWith('{') && v.endsWith('}') && v.length > 2) {
+        final key = w.key == 'guard' ? 'blockBack' : w.key;
+        if (catalog.widget('canvas')?.props.any((p) => p.key == key) ?? false) {
+          ((patch['bind'] as Json?) ?? (patch['bind'] = <String, Object?>{}))['props.$key'] = _formula(v.substring(1, v.length - 1).trim());
+          continue;
+        }
+      }
       final path = switch (w.key) {
         '"' => 'name',
         'w' => 'layout.width',

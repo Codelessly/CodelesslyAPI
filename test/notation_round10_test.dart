@@ -362,4 +362,58 @@ Column
       expect((_node(r, 'lp')['props'] as Map)['reorder'], {'keyboard': true, 'start': 'longPress'});
     });
   });
+
+  group('R46 and parity: a Canvas block\'s blockBack and its own reactions', () {
+    test('blockBack={…} is bound (was a literal string), and both print back under the block', () {
+      const text = '''
+state t=""
+Column
+  Text "x"
+Canvas#card "card" w=780 blockBack={t != "a"}
+  Text "y"
+  on backPressed={confirm "Discard?" ok="Discard" cancel="Keep editing" danger then {close}}
+''';
+      final r = _parse(text);
+      expect(r.issues, isEmpty);
+      final card = _node(r, 'card');
+      expect(card['bind'], {'props.blockBack': r'${= t != "a"}'});
+      expect(card['blockBack'], isNull);
+      expect((card['actions'] as List).single, containsPair('trigger', {'type': 'backPressed'}));
+      final printed = printNotation(r.document, catalog: standardCatalog);
+      expect(printed, isNot(contains('document {')));
+      expect(printed, contains('blockBack={t != "a"}'));
+      final again = _parse(printed);
+      expect(again.issues, isEmpty);
+      expect(_node(again, 'card'), card);
+    });
+
+    test('a design system\'s Dialog called in a canvas prints its event (onClose={close}), not a tail', () {
+      final dialog = catalogFromJson({
+        'widgets': [
+          {
+            'type': 'Dialog',
+            'children': 'list',
+            'props': [
+              {'key': 'title', 'type': {'kind': 'string'}, 'default': ''},
+            ],
+            'events': [
+              {'key': 'onClose'},
+            ],
+          },
+        ],
+      });
+      final catalog = standardCatalog + dialog;
+      final r = Catalog.run(catalog, () => parseNotation('''
+Column
+  Text "x"
+Canvas#compose "compose" w=640
+  Dialog "New message" onClose={close}
+    Text "body"
+''', catalog: catalog));
+      expect(r.issues, isEmpty);
+      final printed = Catalog.run(catalog, () => printNotation(r.document, catalog: catalog));
+      expect(printed, contains('onClose={close}'));
+      expect(printed, isNot(contains('{"actions"')));
+    });
+  });
 }

@@ -58,6 +58,21 @@ List<String> printCanvasEvents(Json document, PrintContext context, {int from = 
   return out;
 }
 
+/// The lines for canvas [id]'s own reactions (a `Canvas#id` block's: its
+/// `on`, `key` and `every` lines, under it), or null when one has no line.
+List<String>? printCanvasBlockEvents(PrintContext context, String id) {
+  final reactions = readList(readMap(context.nodes[id])?['actions']);
+  if (reactions == null) return const [];
+  final p = _Printer.of(context);
+  final out = <String>[];
+  for (final r in reactions) {
+    final line = p.canvasLine(readMap(r));
+    if (line == null) return null;
+    out.add(line);
+  }
+  return out;
+}
+
 /// The lines for a component's screen lines (its document's
 /// `screenActions`: the `key`, `every` and `on` lines the screen that shows
 /// it takes). Empty when it has none or one of them has no line.
@@ -402,7 +417,10 @@ final class _Printer {
     // Checked on a line of the node's type (its events are its own), else on a box.
     // A design system's component a word of the notation shadows is called
     // by its name ([named]): its events are its own.
-    for (final (t, after) in [(type, named), ('Box', '')]) {
+    // A word that is an overlay at the margin (`Dialog#p`, a design system's
+    // Dialog) is probed under a column, where it is the component.
+    final overlayWord = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox|Canvas)$').hasMatch(type);
+    for (final (t, after) in [(overlayWord ? 'Column\n  $type' : type, named), ('Box', '')]) {
       final d = _probeWith('$t#p$after', word);
       if (d == null) continue;
       final got = readList(readMap(readMap(d['nodes'])?['p'])?['actions']);

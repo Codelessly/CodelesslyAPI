@@ -20,7 +20,7 @@ import '../migrate/migrate.dart' show kOldestSchemaVersion;
 import 'declared.dart';
 import 'media_words.dart' show mediaConditionWords;
 import 'notation.dart';
-import 'print_events.dart' show printCanvasEvents, printComponentScreenEvents, printNormalized;
+import 'print_events.dart' show printCanvasBlockEvents, printCanvasEvents, printComponentScreenEvents, printNormalized;
 import 'print_fields.dart';
 import 'print_paint.dart' show printPaintLines;
 
@@ -239,6 +239,10 @@ final class _Printer {
       _canvases[other] = (line: line, head: 'Canvas#$other');
       _lines.add(line);
       if (!_walk(body, 1)) return null;
+      // Its own reactions (`on backPressed={…}`): lines under it.
+      for (final l in printCanvasBlockEvents(context, other) ?? const <String>[]) {
+        _lines.add(_Line(1, l));
+      }
     }
     return _readBack();
   }
@@ -358,7 +362,31 @@ final class _Printer {
       }
     }
 
-    walk(patch, '');
+    // A prop of the canvas worked out (`blockBack={dirty}`): in braces.
+    final rest = {...patch};
+    if (readMap(patch['bind']) case final Json bind) {
+      final left = <String, Object?>{};
+      for (final e in bind.entries) {
+        final v = e.value;
+        final prop = e.key.startsWith('props.') ? e.key.substring(6) : null;
+        final expr = v is! String || v.contains('\n')
+            ? null
+            : v.startsWith(r'${= ') && v.endsWith('}')
+                ? v.substring(4, v.length - 1).trim()
+                : RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_.]*)\}$').firstMatch(v)?[1];
+        if (prop != null && _printable.hasMatch(prop) && expr != null && expr.isNotEmpty) {
+          words.add('$prop={$expr}');
+        } else {
+          left[e.key] = v;
+        }
+      }
+      if (left.isEmpty) {
+        rest.remove('bind');
+      } else {
+        rest['bind'] = left;
+      }
+    }
+    walk(rest, '');
     // Its name, path, size and fill first, the rest as the canvas has them.
     int rank(String w) => switch (w.split('=').first) { 'path' => 1, 'w' => 2, 'h' => 3, 'fill' => 4, _ when w.startsWith('"') => 0, _ => 5 };
     final order = [for (var i = 0; i < words.length; i++) i]..sort((a, b) => rank(words[a]) != rank(words[b]) ? rank(words[a]) - rank(words[b]) : a - b);

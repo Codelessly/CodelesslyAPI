@@ -99,6 +99,11 @@
   silently). Each alias is recorded as one in the vocabulary.
 - **Widgets**: `semanticLabel` on `checkbox`, `switch`, `radio` and `slider`: the name a screen reader says, not
   shown (`textField` had it).
+- **Notation parity**: a `Canvas#id` block's `blockBack={expr}` (and `guard={…}`) is bound, where the braces were
+  kept as a literal string (test 10, kanban 4); `printNotation` writes a canvas's bound props as `key={expr}` on its
+  line and its own reactions as `on …` lines under the block, and a design system's `Dialog` called in a canvas with
+  its event (`onClose={close}`), where each was on the `document {…}` line or a `{…}` tail. Over the corpus (1,341
+  documents) the real gaps are 0 (they were 4 node lines and 1 document line, all Desk's dialogs).
 - **SiteManifest.pageRefs**: a manifest's `pages` may be records (`{"id": "home", "file": "home.json"}`); a reference
   page for `site.json` (`docs/reference/notation/site.md`).
 
