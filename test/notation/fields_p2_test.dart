@@ -73,7 +73,7 @@ void main() {
   group('a field the node has not is key=null', () {
     test('the alignment a row is given, left out', () => _says('Column\n  Row crossAxisAlignment=null', 'row', 'props', null));
     test('a slot with no size at all', () => _says('Column\n  Slot w=null h=null', 'slot', 'layout', null));
-    test('a text style\'s size, left out', () => _says('Column\n  Text "x" size=null', 'text', 'props.style.fontSize', null, absent: true));
+    test('a text style\'s size, left out', () => _says('Column\n  Text "x" size=null from=caption', 'text', 'props.style.fontSize', null, absent: true));
   });
 
   group('an expression is kept as written, its quotes too', () {

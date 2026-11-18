@@ -4241,10 +4241,7 @@ class _Parser {
       // A sentence before the UI ("Here is the card=") is not a node.
       // Nor is one after it ("Two limits remain: …").
       if ((_root == null || indent == 0) && line.contains(' ')) return;
-      _issue(
-          column,
-          'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…)'
-          '${RegExp(r'^[A-Z]').hasMatch(written) ? ', or a component the expansion is given (a site\'s components are known when the file is in the site\'s folder or expand names it with --site)' : ''}.');
+      _issue(column, 'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).');
       return;
     }
     final spec = found;
@@ -4313,9 +4310,6 @@ class _Parser {
     // The paths written `key=null`: the field is not there (design 22, 4.2),
     // whatever the line would give it, taken out once the line is read.
     final nulled = <String>[];
-    // The fields of a Text's style its line writes by their words (`size`,
-    // `color`, `weight`): what a named style keeps under it.
-    final textStyleWritten = <String>{};
     // The sections written `props=null` (none) and `props={}` (empty).
     final noSections = <String>{}, emptySections = <String>{};
     void put(String path, Object? value) {
@@ -5638,10 +5632,8 @@ class _Parser {
               final body = options.textStyles['body'];
               final style = switch (props['style']) {
                 final Map m => m.cast<String, Object?>(),
-                final String name => <String, Object?>{'from': name},
                 _ => body is Map ? _copy(body.cast<String, Object?>()) : body is String ? <String, Object?>{'from': body} : <String, Object?>{},
               };
-              textStyleWritten.add('fontSize');
               props['style'] = style..['fontSize'] = size;
             case 'size' when step != null && type == 'icon':
               props['size'] = const [14, 16, 20, 28, 36][step];
@@ -5716,9 +5708,6 @@ class _Parser {
           }
         }
         if (type == 'text' && _textStyleKeys.containsKey(key)) {
-          // A style named on the line (`style=title`) is the one a field
-          // written beside it changes: the rest of the style is kept.
-          if (props['style'] case final String name) props['style'] = <String, Object?>{'from': name};
           // A style that follows data: `color={due?"#FFDC2626":"#FF111827"}`.
           if (raw.startsWith('=') && key != 'bold') {
             final read = _read(raw.substring(1));
@@ -5735,7 +5724,6 @@ class _Parser {
           };
           final v = key == 'color' ? _named(_value(raw), 'text') : _value(raw);
           style[_textStyleKeys[key]!] = key == 'bold' ? 700 : v;
-          textStyleWritten.add(_textStyleKeys[key]!);
           props['style'] = style;
           if (v == null && key != 'bold') nulled.add('props.style.${_textStyleKeys[key]!}');
           continue;
@@ -5915,24 +5903,8 @@ class _Parser {
                         : null;
             props[style.key] = switch (props[style.key]) {
               final String name => <String, Object?>{'from': name},
-              // `from=title`: the line names the style it starts from, so
-              // nothing of the body's is under it.
-              _ when path == 'props.${style.key}.from' => <String, Object?>{},
               _ => base is Map ? _copy(base.cast<String, Object?>()) : base is String ? <String, Object?>{'from': base} : <String, Object?>{},
             };
-          }
-          // `from=title` after `size=18`: the named style under what the line
-          // wrote, not the body's.
-          if (type == 'text' && path == 'props.style.from' && v is String && props['style'] is Map) {
-            final had = (props['style']! as Map).cast<String, Object?>();
-            props['style'] = <String, Object?>{for (final k in textStyleWritten) k: had[k]};
-          }
-          // `size=18 style=title`: the named style, with what the line wrote
-          // over it (in either order).
-          if (type == 'text' && path == 'props.style' && v is String && !v.contains(r'${') && props['style'] is Map && textStyleWritten.isNotEmpty) {
-            final had = (props['style']! as Map).cast<String, Object?>();
-            props['style'] = <String, Object?>{'from': v, for (final k in textStyleWritten) k: had[k]};
-            continue;
           }
           if (v is String && v.contains(r'${') && !_holdsExpression(type, path)) {
             // A string that reads data (value="{streak} days") is bound:
