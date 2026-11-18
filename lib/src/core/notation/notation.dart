@@ -191,6 +191,7 @@ final class NotationOptions {
     this.vocabulary = NotationVocabulary.core,
     this.screens = const {},
     this.ownComponents = const {},
+    this.themeColors = const {},
   });
 
   /// These options with an open vocabulary (or not), and with [vocabulary]
@@ -215,6 +216,11 @@ final class NotationOptions {
 
   /// The components that are the app's own ([withOwnComponents]).
   final Set<String> ownComponents;
+
+  /// The names of the theme's colors (its `colors`, whatever they are
+  /// called): a bare word of them after a color key is the theme's, even
+  /// where a variable has the name.
+  final Set<String> themeColors;
 
   /// The ids of the app's screens (a site's pages): a bare word after `go`
   /// that names one ([notationScreen]) is that screen, even where a variable
@@ -265,6 +271,7 @@ final class NotationOptions {
         vocabulary: vocabulary,
         screens: screens ?? this.screens,
         ownComponents: ownComponents ?? this.ownComponents,
+        themeColors: themeColors,
       );
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -317,6 +324,7 @@ final class NotationOptions {
       displaySizes: base.displaySizes,
       projectVariables: projectVariables,
       accentText: base.accentText,
+      themeColors: base.themeColors,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -423,6 +431,7 @@ final class NotationOptions {
     return NotationOptions(
       width: width,
       screen: screen,
+      themeColors: colors.keys.toSet(),
       textStyles: styles,
       card: {
         'decoration': {
@@ -558,6 +567,7 @@ final class NotationOptions {
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
         ownComponents: ownComponents,
+        themeColors: themeColors,
       );
 
   /// The canvas's width.
@@ -1053,6 +1063,9 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'splitter': (prop: 'value', type: 'decimal', start: 240),
   'switch': (prop: 'value', type: 'boolean', start: false),
   'checkbox': (prop: 'value', type: 'boolean', start: false),
+  // A filter chip keeps whether it is on (forms.md: a tap toggles it,
+  // written back through its binding).
+  'filterChip': (prop: 'selected', type: 'boolean', start: false),
   'textField': (prop: 'initialValue', type: 'text', start: ''),
   'dropdown': (prop: 'value', type: 'text', start: ''),
   'radio': (prop: 'groupValue', type: 'text', start: ''),
@@ -5221,7 +5234,14 @@ class _Parser {
           // name) keeps it, whatever a variable is called:
           // Input "Email" type=email @email.
           const wordKeys = {'type', 'icon', 'align', 'weight', 'tone', 'variant'};
-          if (known && !ownValue && !wordKeys.contains(key)) {
+          // A key that names a variable (`measure.variable=pos`,
+          // `pan.xVariable=panx`) takes the name, not its value.
+          final namesVariable = key.endsWith('.variable') || key.endsWith('Variable') || key == 'variable';
+          // A theme's color or text style of that name (`fill=panel`,
+          // `style=tick` with a `panel` or `tick` variable too) is the theme's:
+          // a bare word is a word, braces read the variable.
+          final themeWord = options.palette.containsKey(raw) || options.themeColors.contains(raw) || (options.textStyles.containsKey(raw) && (key == 'style' || key == 'from'));
+          if (known && !ownValue && !wordKeys.contains(key) && !namesVariable && !themeWord) {
             _issue(col, 'A value read from the state is written in braces: $key={$raw}.');
             continue;
           }

@@ -209,4 +209,25 @@ void main() {
     expect((c['decoration']! as Map)['strokeSides'], 'bottom');
     expect((c['bind']! as Map)['decoration.strokes[0].color'], isNotNull);
   });
+
+  test('a bare word that is the theme\'s colour or style, or a variable\'s name after a key that names one, is a word', () {
+    final theme = NotationOptions.fromTheme(const {
+      'colors': {'panel': '#FF222222'},
+      'textStyles': {
+        'tick': {'fontSize': 11},
+      },
+    }, reflow: false);
+    final r = _expand('state panel="x"\nstate tick=1\nstate pos:map={}\nColumn fill=panel\n  Text "a" style=tick\n  Column measure.variable=pos\n    Text "b"\n', options: theme);
+    expect(r.issues, isEmpty);
+    final braced = _expand('state panel="x"\nColumn fill=panel\n  Text "a"\n');
+    expect(braced.issues.single.message, contains('fill={panel}'), reason: 'with no theme of that name it is still said');
+  });
+
+  test('FilterChip @name keeps whether it is on', () {
+    final r = _expand('state fUnread=false\nColumn\n  FilterChip "Unread" @fUnread\n');
+    expect(r.issues, isEmpty);
+    final chip = _of(r, 'filterChip').single;
+    expect((chip['bind']! as Map)['props.selected'], r'${fUnread}');
+    expect(jsonEncode(chip['actions']), contains('"variable":"fUnread"'));
+  });
 }
