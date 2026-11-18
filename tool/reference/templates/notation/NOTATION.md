@@ -15,7 +15,8 @@ Type[.variant][#id] ["text"] [key=value ...] [on<Event>={actions} ...]
 - **`#id`** names the node, only where something else names it (an action, an overlay, a scroll target). An id the
   parser would give the line anyway is not written.
 - **`"text"`** is the node's main string: a Text's text, a Button's label, an Input's label, an Icon's name, an
-  Image's URL. A second string is the Input's hint. `{name}` inside a string shows a value: `"Total: {total}"`.
+  Image's URL. A line takes one; a second is an Input's hint or a ListTile's subtitle, and on a Column or Row each
+  string is a text in it. `{name}` inside a string shows a value: `"Total: {total}"`.
 - **`key=value`** sets a field. The key is a short word (`gap`, `pad`, `w`, `h`, `fill`, `radius`) or the field's own
   name in the API (`letterSpacing`, `squeezable`, `crossAxisCount`). A field inside a record is a dotted key
   (`pan.axis=horizontal`, `fills[0].color=#FF2563EB`); the full path from the node always reads too (`layout.x=10`,
@@ -63,6 +64,25 @@ Column gap=8
 - Badge looks: {{badgeVariants}}.
 - `Grid cols=3 gap=8` lays the lines under it in columns; `List` is a column of rows; `Image "url"` a picture;
   `Avatar "Maya Reyes"` a round mark with initials; `Pages` a swiped row of pages.
+- An app window is `App` with a `Sidebar` (the rail), a `Main` (the content) and any `Pane` (an inspector); a
+  website is a `Page` of `Nav`, `Section` and `Footer` bands. Over the page: `Dialog#id`, `Sheet#id`, `Drawer#id`,
+  `Menu#id`, written after the page at the margin with their lines under them; `open id` shows one, `close` closes
+  it:
+
+```notation width=1280 expands
+state tab="home"
+state name=""
+App
+  Sidebar w=72
+    NavItem "Home" icon="home" selected={tab == "home"} onTap={tab="home"}
+  Main
+    Button "New" onTap={open create}
+  Pane w=280 hide=tablet
+    Text.heading "Details"
+Dialog#create "New project"
+  Input "Name" @name
+```
+
 - Page frames and overlays ({{pageWords}}) are on [navigation.md](navigation.md).
 
 ## Words every line takes
@@ -148,13 +168,15 @@ Any other action is its type and its fields by name: `animate node=hero command=
 Column w=40 h=40 onKeyDown(key=Enter)={emit go} onLongPress={toast "Held"}
 ```
 
-A screen's timers and shortcuts are lines of their own, after the tree:
+A screen's timers, shortcuts and other reactions are lines of their own, after the tree (`mod` is Ctrl, or ⌘ on a
+Mac); `on load={…}` runs when the screen opens:
 
 ```notation
 state count=0
 Text "{count}"
 every 1s onTick={count=count+1}
 key mod+k onPress={count=0}
+on load={count=1}
 ```
 
 ## Lists and conditions
@@ -175,7 +197,8 @@ Column gap=8
 ```
 
 A control bound to a field of the element changes that element: `Checkbox @row.done` under `each row in
-rows`. Tables, grids, paging and reordering are on [lists.md](lists.md).
+rows`. Under a `ListView` or `GridView` line of its own, an `each` repeats inside that list, whose keys (height,
+direction) are on its line. Tables (sorted and filtered), grids, paging and reordering are on [lists.md](lists.md).
 
 ## Pages at other widths
 
@@ -192,6 +215,36 @@ Column pad=48 phone.pad=16
 
 Bounds in pixels (`min700`, `max899`), breakpoints (`minTablet`), orientation (`portrait`) and combined conditions
 are on [responsive.md](responsive.md).
+
+## Hover, press, focus
+
+A state's name before a key holds while the line is in that state: `hovered.fill=#FFE5E7EB`, `pressed.opacity=0.8`,
+`focused.border=#FF2563EB`, `selected.fill=…` (with `selected={…}`), `disabled.opacity=0.4` (with `enabled={…}`). A
+line inside follows its state by its id: `card.hovered.color=…`.
+
+```notation
+Column#card pad=12 fill=#FFFFFFFF radius=8 hovered.fill=#FFF3F4F6 pressed.opacity=0.8 onTap={emit open}
+  Text "Open" card.hovered.color=#FF2563EB
+```
+
+More on [responsive.md](responsive.md#responsive-states); focus and the keyboard on [interaction.md](interaction.md).
+
+## Records under a line
+
+What is an ordered list in the document is lines under the node, one record a line, in the grammar of a line: a
+`customPaint` line and its draw ops ([paint.md](paint.md)), `animation#id` lines with their `track` lines, and
+`transition` lines ([animation.md](animation.md)). `animate=fadeIn` says a common entrance in a word.
+
+```notation
+box w=40 h=40
+  customPaint viewBox=[40,40]
+    circle c=[20,20] radius=16 fill=#FF2563EB
+  transition property=opacity duration=200 curve=easeOut
+```
+
+A print uses three more forms a writer rarely needs: `key=null` (no such field, though the line would give one),
+`slot name` (a line under it fills that slot) and `type=Name` (a design system's component a notation word shadows):
+[document.md](document.md).
 
 ## The references
 

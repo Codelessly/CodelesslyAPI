@@ -16,7 +16,18 @@ Column w=40 h=40 onKeyDown(key=Enter)={emit go} onEnterViewport(visibleFraction=
 
 The screen's timers and keys are lines of their own after the tree: `every 1s onTick={…}` (a `timer`),
 `key mod+k onPress={…}` (a `keyDown` of the screen); `when cond` after the interval or key runs it only while
-`cond` holds.
+`cond` holds. Any other reaction of the screen is an `on` line: `on`, the trigger's name, its fields in
+parentheses, `=` and the actions: `on load={…}` when the screen opens, `on backPressed={…}` for the system's back.
+
+```notation
+state step=0
+state saved=[]
+Text "Step {step}"
+every 1s onTick={step=step+1}
+key mod+k onPress={step=0}
+on load={saved=coalesce(storage.saved, [])}
+on backPressed(when={step > 0})={step=step-1}
+```
 
 ### Trigger fields
 

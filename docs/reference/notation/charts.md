@@ -119,7 +119,7 @@ Flutter `CupertinoActivityIndicator`: eight ticks stepping round, twice `radius`
 Flutter `Badge`: over its `child`, a dot or a count at `alignment`. With no child it is the default (SSUI) badge: a tinted label 20 high, as wide as its text, a pill for a `count`.
 
 - Written `badge`. Level 1 (Widget catalog).
-- `badge "…"` sets `props.label`.
+- `badge "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Its children are slots: `child`.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -515,7 +515,7 @@ Plot chart (line/area over an x domain; with series, origin axes and a zero-anch
 Barcode / QR code.
 
 - Written `barcode`. Level 4 (Full vocabulary).
-- `barcode "…"` sets `props.data`.
+- `barcode "…"` sets `props.data`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 

@@ -733,6 +733,44 @@ Not said yet, and why:
 - **Values the catalog does not have** (a box's `path`, a filled button's `size`, a literal `${…}` in a prop that
   is not a text): the parser says them (2.1) and the document line keeps them.
 
+### 4.8 The reference family: what the reference exposed
+
+Settled 2026-11-17 (tests: `test/notation/reference_p3_test.dart`; the reference: `tool/reference/src/notation_reference.dart`,
+`docs/reference/notation/`, whose `_tails.md` is the work list).
+
+- **A line's quoted strings.** A line has one main string (design 13, section 3). A second has a place only where
+  the word gives it one: an `Input`'s second string is its hint, a `ListTile`'s its subtitle, and a container's
+  strings (`Column`, `Row`, `Stack`, `Accordion`, `ExpansionTile`) are each a text in it, as many as written. Any
+  other further string is said and left out, the first kept: `Text "a" "b"` → `A Text takes one quoted string: this
+  one is left out.` (before, the second replaced the first without a word).
+- **A box has no text.** `box "x"` is said (`A box has no text of its own…`); `Image "url"` (a box with that
+  picture) is the one word whose string a box takes. The printer no longer writes a box's `props.text` as its string:
+  it is a value the catalog does not have, kept as JSON (4.7).
+- **One order for a line's words.** The printer writes a line in the order of 4.1 Fields, and within a text's or an
+  Input's style its words in one order whatever the JSON's key order: `size weight color fontFamily lineHeight
+  letterSpacing`, then the flags (`italic`, `underline`/`strike`), then any other style field by name, A to Z
+  (`Text.title "x" weight=700 color=#FFFFFFFF lineHeight=1.3`). A `{…}` tail and the `document {…}` line write
+  their JSON with keys A to Z at every depth. So a print printed again is the same text (the reference checks every
+  example: `_tails.md`, "Prints that print again differently").
+- **The grid of an `each`.** `Grid cols=3` with an `each` under it (a column around a gridView over the data, its
+  item `<id>Item`) prints as that `Grid` line, `cols=` and `gap=` (when not 8) with the column's own words, the
+  `each` under it: not as `Column#grid1` and `gridView … {"bind":{"data":…}}`. Where the grid does not read back
+  from it, both print as nodes, as an each does.
+- **A variable's type.** A declared type that is none of `VariableType`'s (`"number"`) is an `invalid_variable`
+  error of the `vars` op, with the type meant as its suggestion (`number` → `decimal`, `string` → `text`); before,
+  `Variable.fromJson` read it as text and the print's `state price:number` was refused. The JSON reference's
+  STARTER example says `decimal`.
+- **The verbs.** `notationVerbs` (notation.dart) is the parser's verbs and `notationVerbAliases` their other
+  spellings (`unfocus` → `blur`); the reference generator stops when a verb has no documented sample or an action
+  type of the catalog no section. The reference documents each canonical spelling; the open vocabulary's other
+  spellings (`NotationVocabulary.core`, the verb aliases) are a generated table on `values.md`, marked "also read".
+
+Checked and already as written (no change): `project cart=[]` on a page read alone is the same document as
+`state cart=[]`, and prints so; `form=true`, `pan.axis=…`, `motion.scale=…`, `reorderHandle=true`, `letterSpacing=…`
+on a Text print as written, and `style.letterSpacing=…` prints as its shorter word. A chart writes each key once
+(`BarChart values=[…] labels=[…]`, `LineChart values=[…]`, `Donut values=[…]`, `Gauge value=…`), since 34.0.0's
+key-once rule. `draggable=true` is no form: a drag source is `drag=…` or its fields (`draggable.group=…`).
+
 ## 5. What does not change
 
 The prompt teaches the grammar and the core (design 19). Parity is what the parser reads and the printer

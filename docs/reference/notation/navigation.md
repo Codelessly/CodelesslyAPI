@@ -66,6 +66,41 @@ Row stretch h=fill
     Text "Orders"
 ```
 
+A desktop window of three panes: a rail, the content, an inspector. `Sidebar` is the rail (`w=72` for icons only),
+`Main` takes the room left and scrolls, each `Pane` is a further column as tall as the window (`w=` its width, else
+it shares the room). A key with a size before it changes a pane at that width ([responsive.md](responsive.md)):
+here the inspector leaves at a tablet's width and the rail at a phone's.
+
+```notation width=1280 expands
+state tab="inbox"
+App
+  Sidebar w=72 hide=phone
+    NavItem "Inbox" icon="inbox" selected={tab=="inbox"} onTap={tab="inbox"}
+    NavItem "Sent" icon="send" selected={tab=="sent"} onTap={tab="sent"}
+  Main
+    Text.title "Inbox"
+  Pane w=320 hide=tablet
+    Text.heading "Details"
+```
+
+It reads as:
+
+```notation width=1280
+state tab="inbox"
+Row stretch h=fill
+  Column gap=4 pad=[12,20,12,16] w=72 h=fill border-right=#FFE5E7EB hide=phone
+    Row gap=10 pad=[10,8,10,8] fill={(tab=="inbox")?"#FFE5E7EB":"#00000000"} radius=8 onTap={tab=inbox}
+      Icon "inbox" color={(tab=="inbox")?"#FF2563EB":"#FF4B5563"} size=18
+      Text.heading "Inbox" weight=500 grow color={(tab=="inbox")?"#FF2563EB":"#FF4B5563"}
+    Row gap=10 pad=[10,8,10,8] fill={(tab=="sent")?"#FFE5E7EB":"#00000000"} radius=8 onTap={tab=sent}
+      Icon "send" color={(tab=="sent")?"#FF2563EB":"#FF4B5563"} size=18
+      Text.heading "Sent" weight=500 grow color={(tab=="sent")?"#FF2563EB":"#FF4B5563"}
+  Column scroll h=fill grow
+    Text.title "Inbox"
+  Column scroll w=320 h=fill border-right=#FFE5E7EB hide=tablet
+    Text.heading "Details"
+```
+
 <a id="navigation-over-the-page"></a>
 ## Over the page
 
@@ -93,7 +128,7 @@ Canvas#signup "signup" w=480.0 decoration.radius=16 decoration.effects=[{"type":
       Text.heading "Join the waitlist" grow
       IconButton "close" onTap={close}
     Row#column2Actions gap=8 end
-      Button "Close" maxWidth=240 onTap={close} {"media":[{"maxWidth":479.0,"patch":{"layout":{"flex":1,"width":{"fill":0,"hug":null},"constraints":{"maxWidth":null}}}}]}
+      Button "Close" maxWidth=240 onTap={close} {"media":[{"maxWidth":479,"patch":{"layout":{"constraints":{"maxWidth":null},"flex":1,"width":{"fill":0,"hug":null}}}}]}
 ```
 
 <a id="navigation-screens"></a>
@@ -118,7 +153,7 @@ Canvas#about "About" path="about"
 Flutter `AppBar` (its toolbar height is the node height).
 
 - Written `appBar`. Level 1 (Widget catalog).
-- `appBar "…"` sets `props.title`.
+- `appBar "…"` sets `props.title`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -252,7 +287,7 @@ Flutter `TabBar`. It has no fill of its own: for an opaque sticky sub-navigation
 Accordion: a header and collapsible content.
 
 - Written `Accordion`. Level 1 (Widget catalog).
-- `Accordion "…"` sets `a node under it (`text`, `props.text`)`; a second string sets `a node under it (`text`, `props.text`)`.
+- Each quoted string is a node under it (a `Text`, its `props.text`): `Accordion "…" "…"` writes two, in order.
 - The lines under it are its children.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -268,7 +303,7 @@ Accordion: a header and collapsible content.
 Flutter `ExpansionTile`.
 
 - Written `ExpansionTile`. Level 1 (Widget catalog).
-- `ExpansionTile "…"` sets `a node under it (`text`, `props.text`)`; a second string sets `a node under it (`text`, `props.text`)`.
+- Each quoted string is a node under it (a `Text`, its `props.text`): `ExpansionTile "…" "…"` writes two, in order.
 - The lines under it are its children. Slots: `tile`.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 

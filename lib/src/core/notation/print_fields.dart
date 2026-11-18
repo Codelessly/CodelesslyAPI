@@ -537,6 +537,16 @@ int _leaves(Object? v) => switch (v) {
 /// The keys the parser reads into a text's style, by the style's field.
 const _textWords = {'fontSize': 'size', 'fontWeight': 'weight', 'color': 'color', 'fontFamily': 'fontFamily', 'height': 'lineHeight'};
 
+/// The order a text style's words are written in: the short words
+/// (`size weight color fontFamily lineHeight`), then `letterSpacing`, the
+/// flags (`italic`, `underline`), then any other field by name, A to Z.
+const _styleOrder = ['fontSize', 'fontWeight', 'color', 'fontFamily', 'height', 'letterSpacing', 'fontStyle', 'decoration'];
+
+String _styleRank(String key) {
+  final i = _styleOrder.indexOf(key);
+  return i < 0 ? '9$key' : '$i';
+}
+
 /// …and into the style of an Input's typed text.
 const _fieldWords = {
   'fontSize': 'size', 'fontWeight': 'weight', 'color': 'color', 'fontFamily': 'fontFamily', 'height': 'lineHeight', //
@@ -704,7 +714,8 @@ final class _NodeLine {
   List<String>? _stylePlan(Map style, Map base, Map<String, String> wordOf, {bool text = false}) {
     if (base.keys.any((k) => !style.containsKey(k))) return null;
     final out = <String>[];
-    for (final e in style.entries) {
+    // In one order whatever the JSON's key order (design 22, 4.8).
+    for (final e in style.entries.toList()..sort((a, b) => _styleRank('${a.key}').compareTo(_styleRank('${b.key}')))) {
       final k = '${e.key}', v = e.value;
       if (base.containsKey(k) && _equal(base[k], v)) continue;
       if (wordOf[k] case final String w) {
@@ -786,7 +797,8 @@ final class _NodeLine {
     if (type == 'textField') return 'decoration.labelText';
     if (const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type)) return _hasProp('decoration') ? 'decoration.labelText' : null;
     if (const {'accordion', 'expansionTile', 'listTile', 'column', 'row', 'stack'}.contains(type)) return null;
-    if (type == 'box') return 'text';
+    // A box has no text: its string is an Image's url (`_main`), nothing else.
+    if (type == 'box') return null;
     if (type == 'dropdown') return 'hint';
     if (type == 'barcode') return 'data';
     if (type[0].toUpperCase() == type[0]) return notationStrings(spec).firstOrNull;

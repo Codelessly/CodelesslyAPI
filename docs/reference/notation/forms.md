@@ -80,6 +80,22 @@ Column#signup gap=12 form=true
   Button "Send" onTap={validate node=signup}
 ```
 
+A whole form: each field's rule, the messages shown once a field is left (`form.autovalidateMode=onUnfocus`, a
+key of the form's record), a count of what is wrong read from `form.errors` (each error's `label` and `message`),
+and a send that goes on only when every field passes (`result ? … : …`).
+
+```notation
+state name=""
+state email=""
+state sent=false
+Column#signup gap=12 form.autovalidateMode=onUnfocus
+  Input "Name" @name validator={trim(name) == '' ? 'Enter your name.' : ''}
+  Input "Email" @email validator={matches(email, '^[^@ ]+@[^@ ]+$') ? '' : 'Enter an email like name@example.com.'} keyboardType=emailAddress
+  Text "{length(form.errors)} fields need attention" color=#FFDC2626 visible={length(form.errors) > 0}
+  Button "Send" onTap={validate node=signup; result ? sent=true : toast "Check the form"}
+  Text "Thanks, {name}!" visible={sent}
+```
+
 <a id="forms-words"></a>
 ## Words
 
@@ -89,7 +105,7 @@ Column#signup gap=12 form=true
 Flutter `FilledButton`: the primary action, filled with the theme's `primary`. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 - Written `Button`; also `Button.primary`, `Button.secondary`, `Button.tertiary`, `Button.destructive`. Level 1 (Widget catalog).
-- `Button "…"` sets `props.label`.
+- `Button "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -112,7 +128,7 @@ Flutter `FilledButton`: the primary action, filled with the theme's `primary`. W
 Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 - Written `Button.elevated`. Level 1 (Widget catalog).
-- `Button "…"` sets `props.label`.
+- `Button "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -134,7 +150,7 @@ Flutter `ElevatedButton`: a raised surface with a hairline. With nothing styled 
 Flutter `OutlinedButton`: a hairline border. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 - Written `Button.outline`. Level 1 (Widget catalog).
-- `Button "…"` sets `props.label`.
+- `Button "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -156,7 +172,7 @@ Flutter `OutlinedButton`: a hairline border. With nothing styled it is the defau
 Flutter `TextButton`: no fill or border. With nothing styled it is the default (SSUI) button on the control scale: 28 high when it hugs, its padding, font and icon sizes from its height (24, 28, 32, 36, 44). A bound "selected" shows a selected look.
 
 - Written `Button.ghost`. Level 1 (Widget catalog).
-- `Button "…"` sets `props.label`.
+- `Button "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -178,7 +194,7 @@ Flutter `TextButton`: no fill or border. With nothing styled it is the default (
 Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. Give it a "tooltip" (the behavior) to name it.
 
 - Written `IconButton`; also `Handle`. Level 1 (Widget catalog).
-- `IconButton "…"` sets `props.icon`.
+- `IconButton "…"` sets `props.icon`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -196,7 +212,7 @@ Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the 
 Flutter `FloatingActionButton`.
 
 - Written `FloatingActionButton`. Level 1 (Widget catalog).
-- `FloatingActionButton "…"` sets `props.label`.
+- `FloatingActionButton "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -285,7 +301,7 @@ Flutter `TextField`. Leave its height to hug: every input (text field, dropdown,
 Flutter `Checkbox`.
 
 - Written `Checkbox`. Level 1 (Widget catalog).
-- `Checkbox "…"` sets `props.label`.
+- `Checkbox "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -312,7 +328,7 @@ Flutter `Checkbox`.
 Flutter `Switch`.
 
 - Written `Toggle`. Level 1 (Widget catalog).
-- `Toggle "…"` sets `props.label`.
+- `Toggle "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -351,7 +367,7 @@ Flutter `Switch`.
 Flutter `Radio`.
 
 - Written `Radio`. Level 1 (Widget catalog).
-- `Radio "…"` sets `props.label`.
+- `Radio "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -378,7 +394,7 @@ Flutter `Radio`.
 Flutter `Slider`.
 
 - Written `Slider`. Level 1 (Widget catalog).
-- `Slider "…"` sets `props.label`.
+- `Slider "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -437,7 +453,7 @@ Flutter `Slider`.
 Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.
 
 - Written `Splitter`. Level 1 (Widget catalog).
-- `Splitter "…"` sets `props.label`.
+- `Splitter "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -457,7 +473,7 @@ Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.
 An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}, or with range false the day picked.
 
 - Written `Calendar`. Level 1 (Widget catalog).
-- `Calendar "…"` sets `props.label`.
+- `Calendar "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -481,7 +497,7 @@ An inline month calendar that picks a start and end date (range false: one day, 
 Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 - Written `Select`. Level 1 (Widget catalog).
-- `Select "…"` sets `props.hint`.
+- `Select "…"` sets `props.hint`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -562,7 +578,7 @@ Flutter `SegmentedButton`, or a filter track (`variant: track`).
 A date field that opens a calendar drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 - Written `DatePicker`. Level 1 (Widget catalog).
-- `DatePicker "…"` sets `props.decoration.labelText`.
+- `DatePicker "…"` sets `props.decoration.labelText`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -585,7 +601,7 @@ A date field that opens a calendar drawn in the project theme (a popover under t
 A time field that opens hour and minute columns drawn in the project theme (a popover under the field, a bottom sheet on a phone). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 - Written `TimePicker`. Level 1 (Widget catalog).
-- `TimePicker "…"` sets `props.decoration.labelText`.
+- `TimePicker "…"` sets `props.decoration.labelText`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -607,7 +623,7 @@ A time field that opens hour and minute columns drawn in the project theme (a po
 Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.
 
 - Written `DateTimeInput`. Level 1 (Widget catalog).
-- `DateTimeInput "…"` sets `props.decoration.labelText`.
+- `DateTimeInput "…"` sets `props.decoration.labelText`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -694,7 +710,7 @@ A signature pad.
 Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 - Written `Chip`. Level 1 (Widget catalog).
-- `Chip "…"` sets `props.label`.
+- `Chip "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -723,7 +739,7 @@ Flutter `Chip`: a label (its `click` reactions run on a tap). With nothing style
 Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 - Written `ActionChip`. Level 1 (Widget catalog).
-- `ActionChip "…"` sets `props.label`.
+- `ActionChip "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -754,7 +770,7 @@ Flutter `ActionChip`: a tap fires `click`. With nothing styled it is the default
 Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 - Written `ChoiceChip`. Level 1 (Widget catalog).
-- `ChoiceChip "…"` sets `props.label`.
+- `ChoiceChip "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -789,7 +805,7 @@ Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding
 Flutter `FilterChip`: a tap toggles `selected` (written back through its binding, `changed` then `click`). With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 - Written `FilterChip`. Level 1 (Widget catalog).
-- `FilterChip "…"` sets `props.label`.
+- `FilterChip "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -824,7 +840,7 @@ Flutter `FilterChip`: a tap toggles `selected` (written back through its binding
 Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `deleted`. With nothing styled it is the default (SSUI) chip: a pill as wide as its content, the label centered, selected drawn tinted with the primary color.
 
 - Written `InputChip`. Level 1 (Widget catalog).
-- `InputChip "…"` sets `props.label`.
+- `InputChip "…"` sets `props.label`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -1082,20 +1098,20 @@ Column#page scroll pad=24 w={"fill":390} h={"fill":760}
       ListView#summaryList w={"fill":318} h={"hug":40} scrollable=false gap=2
         each item in form.errors
           Text#summaryItem "{item.label}: {item.message}" color=#FF991B1B w={"fill":318} h={"hug":18}
-    Input#name "Name" w={"fill":342} h={"hug":56} initialValue={name} decoration.border={"type":"outline","borderRadius":8} {"props":{"validator":"${= trim(value) == '' ? 'Enter your name.' : ''}"},"bind":{"props.validator":null}}
-    Input#email "Email" w={"fill":342} h={"hug":56} initialValue={email} decoration.border={"type":"outline","borderRadius":8} keyboardType=emailAddress {"props":{"validator":"${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"},"bind":{"props.validator":null}}
+    Input#name "Name" w={"fill":342} h={"hug":56} initialValue={name} decoration.border={"type":"outline","borderRadius":8} {"bind":{"props.validator":null},"props":{"validator":"${= trim(value) == '' ? 'Enter your name.' : ''}"}}
+    Input#email "Email" w={"fill":342} h={"hug":56} initialValue={email} decoration.border={"type":"outline","borderRadius":8} keyboardType=emailAddress {"bind":{"props.validator":null},"props":{"validator":"${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"}}
     Text.heading#budgetLabel "Budget" w={"fill":342} h={"hug":20}
     Row#budget gap=8 w={"fill":342} h={"hug":32} radioGroup.groupValue={budget} crossAxisAlignment=null onChange={budget="{result}"} {"radioGroup":{"groupValue":"small"}}
       Radio#budgetSmall w=24 h=24 value=small
       Text#budgetSmallLabel "Under $10k" size=14 color=#FF374151 w={"hug":90} h={"hug":20}
       Radio#budgetLarge w=24 h=24 value=large
       Text#budgetLargeLabel "$10k or more" size=14 color=#FF374151 w={"hug":90} h={"hug":20}
-    Input#message "Message" w={"fill":342} h={"hug":120} initialValue={message} decoration.alignLabelWithHint=true decoration.border={"type":"outline","borderRadius":8} maxLines=5 minLines=3 {"props":{"validator":"${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"},"bind":{"props.validator":null}}
+    Input#message "Message" w={"fill":342} h={"hug":120} initialValue={message} decoration.alignLabelWithHint=true decoration.border={"type":"outline","borderRadius":8} maxLines=5 minLines=3 {"bind":{"props.validator":null},"props":{"validator":"${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"}}
     Button#send "Send message" w={"fill":342} h=48 onTap={validate node=contactForm; if condition={"left":"${result}","op":"isTrue"} then={sent=true}}
   Column#thanks gap=6 pad=16 w={"fill":342} h={"hug":80} fill=#FFF0FDF4 radius=8 visible={sent}
     Text.heading3#thanksTitle "Thanks, {name}!" weight=700 color=#FF166534 w={"fill":310} h={"hug":24}
     Text#thanksBody "We'll reply to {email} within a day." size=14 color=#FF166534 w={"fill":310} h={"hug":20}
-document {"nodes":{"name":{"props":{"validator":"${= trim(value) == '' ? 'Enter your name.' : ''}"}},"email":{"props":{"validator":"${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"}},"message":{"props":{"validator":"${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"}}}}
+document {"nodes":{"email":{"props":{"validator":"${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"}},"message":{"props":{"validator":"${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"}},"name":{"props":{"validator":"${= trim(value) == '' ? 'Enter your name.' : ''}"}}}}
 ```
 
 <a id="forms-example-form-offline-json"></a>
@@ -1110,7 +1126,7 @@ state failNext=false
 canvas h=420
 Column#col gap=12 pad=24 w={"fill":390} h={"fill":420} crossAxisAlignment=null
   Column#form gap=12 w={"fill":342} h={"hug":120} visible={status == 'idle' || status == 'error'} crossAxisAlignment=null form=true
-    Input#email "Email" w={"fill":342} h={"hug":56} @email keyboardType=emailAddress {"props":{"validator":"${= matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? '' : 'Enter an email like name@example.com.'}"},"bind":{"props.validator":null}}
+    Input#email "Email" w={"fill":342} h={"hug":56} @email keyboardType=emailAddress {"bind":{"props.validator":null},"props":{"validator":"${= matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? '' : 'Enter an email like name@example.com.'}"}}
     Button#send "Subscribe" w={"fill":342} h=48 onTap={validate node=form; if condition={"left":"${result}","op":"isTrue"} then={status=sending; delay ms=900; if condition={"left":"${failNext}","op":"isTrue"} then={status=error} else={setStorage key=submissions op=insert valueType=list value={{'email': email, 'at': now()}}; emitEvent event=signupSubmitted props={"email":"${email}"}; status=sent}}}
   Row#sending gap=10 w={"fill":342} h=32 visible={status == 'sending'} crossAxisAlignment=null
     CircularProgressIndicator#spinner w=24 h=24

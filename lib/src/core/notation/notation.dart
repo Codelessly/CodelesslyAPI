@@ -1039,6 +1039,14 @@ const notationComponentFirst = {'Tabs'};
 /// accent.
 const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
 
+/// The verbs an action is written with (design 13 section 3), beside
+/// `name=value` and `cond ? a : b`; every other action is its type and its
+/// fields by name. The reference documents each (tool/reference).
+const Set<String> notationVerbs = {..._Parser._verbs, 'blur', 'confirm'};
+
+/// A verb's other spelling the parser reads, by the verb it is.
+const Map<String, String> notationVerbAliases = {'unfocus': 'blur'};
+
 /// `animate:<word>`: how a node arrives or keeps moving, as a model writes
 /// it, by the animation preset and params it stands for. An entrance plays
 /// once when the node appears (from a pose to the node's own); a loop keeps
@@ -4620,8 +4628,15 @@ class _Parser {
         componentString(valued ?? t.string(), col);
       } else if (valued != null || t.peek == '"') {
         final text = valued ?? t.string();
-        if (type == 'text') markText ??= text;
-        _main(type, spec, text, props, decoration);
+        if (_stringProblem(type, written, given) case final problem?) {
+          // Design 13 section 3: one main string; a second only where the
+          // word gives it a place (an Input's hint, a container's next text,
+          // a tile's subtitle). Said, and the first is kept.
+          _issue(col, problem);
+        } else {
+          if (type == 'text') markText ??= text;
+          _main(type, spec, text, props, decoration);
+        }
       } else if (t.peek == '{' && _positional(t, type, standIn) != null) {
         // `Progress {done/total}`: a share worked out, written where its
         // number goes (Progress 0.6). On a stand-in it is in its record.
@@ -7567,6 +7582,21 @@ class _Parser {
       (type.endsWith('Button') && type != 'iconButton') ||
       type.endsWith('Chip') ||
       type == 'chip';
+
+  /// What is wrong with the [given]th quoted string (1-based) on a line of
+  /// [type] written [written], or null: design 13 section 3 gives a line one
+  /// main string; a second has a place only on an Input (its hint) and on a
+  /// container, whose strings are texts in it (a tile's subtitle, a
+  /// column's next text). A box (`box`, not `Image`) has no text at all.
+  static String? _stringProblem(String type, String written, int given) {
+    if (type == 'box' && written != 'Image') {
+      return 'A box has no text of its own: write the text on a Text line, or `Image "url"` for a picture.';
+    }
+    if (given < 2 || const {'accordion', 'expansionTile', 'column', 'row', 'stack'}.contains(type)) return null;
+    if (given == 2 && (type == 'textField' || type == 'listTile')) return null;
+    final most = type == 'textField' || type == 'listTile' ? 'two quoted strings' : 'one quoted string';
+    return '${'AEIOU'.contains(written[0]) ? 'An' : 'A'} $written takes $most: this one is left out. Write another value as key="value".';
+  }
 
   String? _mainKey(String type, WidgetSpec spec) {
     if (type == 'box') return 'text';

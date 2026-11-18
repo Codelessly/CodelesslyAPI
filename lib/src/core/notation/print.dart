@@ -40,7 +40,7 @@ String printNotation(Json document, {required Catalog catalog, void Function(Str
   whole?.call(why ?? 'the print does not read back');
   // A document the tree's words cannot carry: the whole of it as data.
   final empty = parseNotation('', catalog: catalog, options: options).document;
-  return 'document ${jsonEncode(diffPatch(empty, document) ?? const {})}';
+  return 'document ${jsonEncode(_sorted(diffPatch(empty, document) ?? const {}))}';
 }
 
 /// The options [printNotation]'s output is parsed with: the document's
@@ -372,6 +372,8 @@ final class _Printer {
       return false;
     }
     var text = printNodeLine(id, n, context);
+    // The column a `Grid` line makes around the grid of its `each`: the Grid.
+    if (_gridOfEach(n) case final grid?) text = _gridLine(text, grid);
     // Under an `if`, the line's own `visible` is the if's.
     if (condition != null) text = text.replaceFirst(' visible={$condition}', '');
     // A list written with an `each` under it: the each says its data.
@@ -400,6 +402,38 @@ final class _Printer {
       return _child(each.template, depth + 2);
     }
     return _under(n, depth + 1, id);
+  }
+
+  /// The grid of an `each` that node [n] is the `Grid` line of, as the parser
+  /// makes it from `Grid cols=3` with an `each` under it: a column whose one
+  /// child is a gridView over data whose one child is its `<id>Item`. Null:
+  /// not one (or it did not read back, [_noEach], and prints as nodes).
+  Json? _gridOfEach(Json n) {
+    if (plan != _Plan.full || n['type'] != 'column') return null;
+    final kids = readStrings(n['children']);
+    if (kids.length != 1 || _noEach.contains(kids.single)) return null;
+    final g = readMap(nodes[kids.single]);
+    if (g == null || g['type'] != 'gridView' || readMap(g['bind'])?['data'] is! String) return null;
+    final gk = readStrings(g['children']);
+    return gk.length == 1 && gk.single == '${kids.single}Item' ? g : null;
+  }
+
+  /// The column's line [text] as the `Grid` line that makes it and [grid]:
+  /// `cols=` the grid's columns, `gap=` its spacing (8 unless written).
+  String _gridLine(String text, Json grid) {
+    final head = RegExp(r'^Column(?=[#\s]|$)');
+    if (!head.hasMatch(text)) return text;
+    final props = readMap(grid['props']) ?? const {};
+    final gap = props['mainAxisSpacing'];
+    final words = [
+      if (props['crossAxisCount'] is num) 'cols=${_number(props['crossAxisCount'] as num)}',
+      if (gap is num && gap != 8) 'gap=${_number(gap)}',
+    ];
+    final rest = text.replaceFirst(head, '').split(' ').where((w) => !w.startsWith('gap=')).join(' ');
+    final at = rest.startsWith('#') ? rest.indexOf(' ') : 0;
+    final id = at < 0 ? rest : rest.substring(0, at);
+    final after = at < 0 ? '' : rest.substring(at).trim();
+    return ['Grid$id', ...words, if (after.isNotEmpty) after].join(' ');
   }
 
   /// The lists printed as their own line with an `each` under it.
@@ -617,7 +651,7 @@ final class _Printer {
           return null;
         }
         final patch = diffPatch(got, readMap(nodes[id])!);
-        if (patch != null) tails[id] = ' ${jsonEncode(patch)}';
+        if (patch != null) tails[id] = ' ${jsonEncode(_sorted(patch))}';
       }
       // A node whose slots do not read back from the lines under it: its
       // slots written as `slot name` lines.
@@ -675,7 +709,7 @@ final class _Printer {
             final d = diffPatch(now, readMap(nodes[id])!);
             if (d == null) continue;
             patches[id] = mergePatch(patches[id] ?? const {}, d, keepNulls: true);
-            tails[id] = ' ${jsonEncode(patches[id])}';
+            tails[id] = ' ${jsonEncode(_sorted(patches[id]))}';
             changed = true;
           }
         }
@@ -712,7 +746,7 @@ final class _Printer {
           if (p.isEmpty) {
             trial.remove(id);
           } else {
-            trial[id] = ' ${jsonEncode(p)}';
+            trial[id] = ' ${jsonEncode(_sorted(p))}';
           }
         }
         final got = readMap(_parse(text(trial, null))['nodes']) ?? const {};
@@ -730,11 +764,11 @@ final class _Printer {
         if (kept.isNotEmpty) second = _parse(text(tails, null));
       }
       final rest = diffPatch(second, document);
-      final out = text(tails, rest == null ? null : 'document ${jsonEncode(rest)}');
+      final out = text(tails, rest == null ? null : 'document ${jsonEncode(_sorted(rest))}');
       if (jsonEncode(_sorted(_parse(out))) == jsonEncode(_sorted(document))) return out;
       if (ruled.isNotEmpty) {
         final rest = diffPatch(unprunedSecond, document);
-        final out = text(unpruned, rest == null ? null : 'document ${jsonEncode(rest)}');
+        final out = text(unpruned, rest == null ? null : 'document ${jsonEncode(_sorted(rest))}');
         if (jsonEncode(_sorted(_parse(out))) == jsonEncode(_sorted(document))) return out;
       }
       why = 'the print does not read back';

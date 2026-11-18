@@ -69,7 +69,7 @@ short words: `fill`, `gradient`, `border`, `radius`.
 Flutter `Icon`.
 
 - Written `Icon`. Level 0 (Core).
-- `Icon "…"` sets `props.icon`.
+- `Icon "…"` sets `props.icon`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -227,8 +227,8 @@ From [`photo_card.json`](../decoration.md).
 ```notation
 canvas h=320
 Column#page pad=24 w={"fill":390} h={"fill":320} crossAxisAlignment=null
-  Column#card gap=6 end pad=20 w={"fill":342} h=240 fills=[{"type":"image","image":{"url":"assets/photo.png","fit":"cover","alignment":[0,-0.3]}},{"type":"linear","begin":[0,-1],"end":[0,1],"stops":[{"color":"#00000000","position":0.35},{"color":"#CC000000","position":1}]}] radius=16 clip=antiAlias {"layout":{"height":240,"constraints":null}}
-    Text.small#kicker "TRAVEL" color=#FFFDE68A weight=700 letterSpacing=2 w={"fill":302} h={"hug":16}
+  Column#card gap=6 end pad=20 w={"fill":342} h=240 fills=[{"type":"image","image":{"url":"assets/photo.png","fit":"cover","alignment":[0,-0.3]}},{"type":"linear","begin":[0,-1],"end":[0,1],"stops":[{"color":"#00000000","position":0.35},{"color":"#CC000000","position":1}]}] radius=16 clip=antiAlias {"layout":{"constraints":null,"height":240}}
+    Text.small#kicker "TRAVEL" weight=700 color=#FFFDE68A letterSpacing=2 w={"fill":302} h={"hug":16}
     Text.title#headline "A week on the salt marsh, by boat and on foot" weight=700 color=#FFFFFFFF lineHeight=1.3 w={"fill":302} h={"hug":56}
 ```
 
@@ -269,7 +269,7 @@ Column#page pad=24 w={"fill":390} h={"fill":260} crossAxisAlignment=null
 From [decoration.md](../decoration.md) (the block at line 42 of its template, pages/decoration.md); its keys on a `box`.
 
 ```notation
-box#example fills=[{"type":"linear","begin":"topCenter","end":"bottomCenter","length":80,"tileMode":"repeated","stops":[{"position":0,"color":"#14FFFFFF"},{"position":0.0125,"color":"#14FFFFFF"},{"position":0.0125,"color":"#00FFFFFF"},{"position":1,"color":"#00FFFFFF"}]},{"type":"linear","begin":"centerLeft","end":"centerRight","length":80,"tileMode":"repeated","stops":[{"position":0,"color":"#14FFFFFF"},{"position":0.0125,"color":"#14FFFFFF"},{"position":0.0125,"color":"#00FFFFFF"},{"position":1,"color":"#00FFFFFF"}]}] w=null h=null
+box#example fills=[{"type":"linear","begin":"topCenter","end":"bottomCenter","length":80,"tileMode":"repeated","stops":[{"position":0,"color":"#14FFFFFF"},{"position":0.0125,"color":"#14FFFFFF"},{"position":0.0125,"color":"#00FFFFFF"},{"position":1,"color":"#00FFFFFF"}]},{"type":"linear","begin":"centerLeft","end":"centerRight","length":80,"tileMode":"repeated","stops":[{"position":0,"color":"#14FFFFFF"},{"position":0.0125,"color":"#14FFFFFF"},{"position":0.0125,"color":"#00FFFFFF"},{"position":1,"color":"#00FFFFFF"}]}]
 ```
 
 <a id="decoration-example-image-json"></a>
