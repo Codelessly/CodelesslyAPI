@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 4674
+      "words": 4907
     },
     {
       "topic": "layout-sizes",
@@ -131,7 +131,7 @@
       "file": "layout.md",
       "anchor": "layout-keys-every-line-takes",
       "title": "Keys every line takes",
-      "words": 576
+      "words": 649
     },
     {
       "topic": "layout-words",
@@ -159,7 +159,7 @@
       "file": "layout.md",
       "anchor": "layout-examples",
       "title": "Examples",
-      "words": 786
+      "words": 946
     },
     {
       "topic": "theme",
@@ -217,7 +217,7 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 2623
+      "words": 2622
     },
     {
       "topic": "decoration-fills-borders-and-corners",
@@ -266,7 +266,7 @@
       "file": "decoration.md",
       "anchor": "decoration-examples",
       "title": "Examples",
-      "words": 283
+      "words": 282
     },
     {
       "topic": "paint",
@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 11992
+      "words": 11930
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -359,7 +359,7 @@
       "file": "forms.md",
       "anchor": "forms-examples",
       "title": "Examples",
-      "words": 573
+      "words": 511
     },
     {
       "topic": "lists",
@@ -367,14 +367,14 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 6102
+      "words": 6083
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 217
+      "words": 198
     },
     {
       "topic": "lists-a-table-you-sort-and-filter",
@@ -395,7 +395,7 @@
       "file": "lists.md",
       "anchor": "lists-words",
       "title": "Words",
-      "words": 3228
+      "words": 3230
     },
     {
       "topic": "lists-behaviors",
@@ -423,7 +423,7 @@
       "file": "lists.md",
       "anchor": "lists-examples",
       "title": "Examples",
-      "words": 640
+      "words": 638
     },
     {
       "topic": "state",
@@ -675,7 +675,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 2819
+      "words": 2821
     },
     {
       "topic": "navigation-page-frames",
@@ -689,7 +689,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 138
+      "words": 140
     },
     {
       "topic": "navigation-screens",
@@ -732,7 +732,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1587
+      "words": 1589
     },
     {
       "topic": "components-calling-one",
@@ -767,7 +767,7 @@
       "file": "components.md",
       "anchor": "components-examples",
       "title": "Examples",
-      "words": 947
+      "words": 949
     },
     {
       "topic": "design-systems",

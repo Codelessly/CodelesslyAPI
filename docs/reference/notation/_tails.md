@@ -3,131 +3,20 @@
 
 The work list for notation parity (docs/design/22-notation-parity.md). Each example of the JSON reference is printed with `printNotation`; a line that keeps part of its node in a `{…}` tail, a `node {…}` line and a `document {…}` line are listed here, with the paths the JSON holds. The reference is complete when this list is empty.
 
-64 examples; 10 with a tail; 16 lines with one; 69 distinct paths; 0 prints that do not read without an issue; 1 that print again differently.
+64 examples; 1 with a tail; 1 lines with one; 6 distinct paths; 0 prints that do not read without an issue; 1 that print again differently.
 
 ## Paths, most lines first
 
 | Path | Lines |
 |---|---|
-| `bind.props.validator` | 4 |
-| `props.validator` | 4 |
-| `actions[].actions[].type` | 2 |
-| `actions[].actions[].value` | 2 |
-| `actions[].actions[].variable` | 2 |
-| `actions[].trigger.event` | 2 |
-| `actions[].trigger.type` | 2 |
-| `bind.props.text` | 2 |
-| `nodes.*.children` | 2 |
-| `nodes.*.decoration.fills[].color` | 2 |
-| `nodes.*.layout.height` | 2 |
-| `nodes.*.layout.height.fill` | 2 |
-| `nodes.*.layout.height.hug` | 2 |
-| `nodes.*.layout.padding` | 2 |
-| `nodes.*.layout.width` | 2 |
-| `nodes.*.layout.width.fill` | 2 |
-| `nodes.*.layout.width.hug` | 2 |
-| `nodes.*.props.crossAxisAlignment` | 2 |
-| `nodes.*.props.mainAxisAlignment` | 2 |
-| `nodes.*.props.spacing` | 2 |
-| `nodes.*.props.style.color` | 2 |
-| `nodes.*.props.style.fontSize` | 2 |
-| `nodes.*.props.style.fontWeight` | 2 |
-| `nodes.*.props.text` | 2 |
-| `nodes.*.props.validator` | 2 |
-| `nodes.*.slots.body` | 2 |
-| `nodes.*.type` | 2 |
-| `bind.layout.widthFactor` | 1 |
 | `conditions.plans[].branches[].set[].node` | 1 |
 | `conditions.plans[].branches[].set[].path` | 1 |
 | `conditions.plans[].branches[].set[].value` | 1 |
 | `conditions.plans[].branches[].when.left` | 1 |
 | `conditions.plans[].branches[].when.op` | 1 |
 | `conditions.plans[].id` | 1 |
-| `layout.constraints` | 1 |
-| `layout.height` | 1 |
-| `nodes.*` | 1 |
-| `nodes.*.bind.data` | 1 |
-| `nodes.*.decoration.radius` | 1 |
-| `nodes.*.layout.basis` | 1 |
-| `nodes.*.layout.constraints.maxWidth` | 1 |
-| `nodes.*.media[].maxWidth` | 1 |
-| `nodes.*.media[].minWidth` | 1 |
-| `nodes.*.media[].patch.layout.order` | 1 |
-| `nodes.*.media[].patch.layout.padding` | 1 |
-| `nodes.*.media[].patch.props.spacing` | 1 |
-| `nodes.*.media[].patch.props.style.fontSize` | 1 |
-| `nodes.*.media[].patch.visible` | 1 |
-| `nodes.*.name` | 1 |
-| `nodes.*.props.breakpoint` | 1 |
-| `nodes.*.props.color` | 1 |
-| `nodes.*.props.crossAxisSpacing` | 1 |
-| `nodes.*.props.icon` | 1 |
-| `nodes.*.props.mainAxisSpacing` | 1 |
-| `nodes.*.props.minCrossAxisExtent` | 1 |
-| `nodes.*.props.physics` | 1 |
-| `nodes.*.props.runSpacing` | 1 |
-| `nodes.*.props.screen` | 1 |
-| `nodes.*.props.scrollable` | 1 |
-| `nodes.*.props.shrinkWrapRows` | 1 |
-| `nodes.*.props.style.height` | 1 |
-| `nodes.*.props.wrap` | 1 |
-| `nodes.*.visible` | 1 |
-| `radioGroup.groupValue` | 1 |
-| `roots` | 1 |
-| `variables.*[].name` | 1 |
-| `variables.*[].type` | 1 |
-| `variables.*[].value[].name` | 1 |
-| `variables.*[].value[].price` | 1 |
 
 ## By example
-
-### responsive_web.json ([layout.md](layout.md#layout-example-responsive-web-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 1 | `document` | `nodes.*.bind.data`, `nodes.*.children`, `nodes.*.decoration.fills[].color`, `nodes.*.decoration.radius`, `nodes.*.layout.basis`, `nodes.*.layout.constraints.maxWidth`, `nodes.*.layout.height`, `nodes.*.layout.height.fill`, `nodes.*.layout.height.hug`, `nodes.*.layout.padding`, `nodes.*.layout.width`, `nodes.*.layout.width.fill`, `nodes.*.layout.width.hug`, `nodes.*.media[].maxWidth`, `nodes.*.media[].minWidth`, `nodes.*.media[].patch.layout.order`, `nodes.*.media[].patch.layout.padding`, `nodes.*.media[].patch.props.spacing`, `nodes.*.media[].patch.props.style.fontSize`, `nodes.*.media[].patch.visible`, `nodes.*.props.color`, `nodes.*.props.crossAxisAlignment`, `nodes.*.props.crossAxisSpacing`, `nodes.*.props.icon`, `nodes.*.props.mainAxisAlignment`, `nodes.*.props.mainAxisSpacing`, `nodes.*.props.minCrossAxisExtent`, `nodes.*.props.physics`, `nodes.*.props.runSpacing`, `nodes.*.props.scrollable`, `nodes.*.props.shrinkWrapRows`, `nodes.*.props.spacing`, `nodes.*.props.style.color`, `nodes.*.props.style.fontSize`, `nodes.*.props.style.fontWeight`, `nodes.*.props.style.height`, `nodes.*.props.text`, `nodes.*.props.wrap`, `nodes.*.slots.body`, `nodes.*.type`, `nodes.*.visible`, `variables.*[].name`, `variables.*[].type`, `variables.*[].value[].name`, `variables.*[].value[].price` |
-
-### responsive.json ([layout.md](layout.md#layout-example-responsive-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 1 | `document` | `nodes.*`, `nodes.*.children`, `nodes.*.decoration.fills[].color`, `nodes.*.layout.height`, `nodes.*.layout.height.fill`, `nodes.*.layout.height.hug`, `nodes.*.layout.padding`, `nodes.*.layout.width`, `nodes.*.layout.width.fill`, `nodes.*.layout.width.hug`, `nodes.*.name`, `nodes.*.props.breakpoint`, `nodes.*.props.crossAxisAlignment`, `nodes.*.props.mainAxisAlignment`, `nodes.*.props.screen`, `nodes.*.props.spacing`, `nodes.*.props.style.color`, `nodes.*.props.style.fontSize`, `nodes.*.props.style.fontWeight`, `nodes.*.props.text`, `nodes.*.slots.body`, `nodes.*.type`, `roots` |
-
-### photo_card.json ([decoration.md](decoration.md#decoration-example-photo-card-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 3 | `Column#card gap=6 end pad=20 w={"fill":3…` | `layout.constraints`, `layout.height` |
-
-### form_validated.json ([forms.md](forms.md#forms-example-form-validated-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 14 | `Input#name "Name" w={"fill":342} h={"hug…` | `bind.props.validator`, `props.validator` |
-| 15 | `Input#email "Email" w={"fill":342} h={"h…` | `bind.props.validator`, `props.validator` |
-| 17 | `Row#budget gap=8 w={"fill":342} h={"hug"…` | `radioGroup.groupValue` |
-| 22 | `Input#message "Message" w={"fill":342} h…` | `bind.props.validator`, `props.validator` |
-| 27 | `document` | `nodes.*.props.validator` |
-
-### form_offline.json ([forms.md](forms.md#forms-example-form-offline-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 7 | `Input#email "Email" w={"fill":342} h={"h…` | `bind.props.validator`, `props.validator` |
-| 14 | `document` | `nodes.*.props.validator` |
-
-### pages/table_filter.json ([lists.md](lists.md#lists-example-pages-table-filter-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 16 | `Text#hCust "Customer" color=#FF6B7280 w=…` | `bind.props.text` |
-| 17 | `Text#hAmt "Amount" color=#FF6B7280 w={"h…` | `bind.props.text` |
-
-### carousel.json ([lists.md](lists.md#lists-example-carousel-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 22 | `box#trackFill w=0 h=4 fill=#FF111827 rad…` | `bind.layout.widthFactor` |
 
 ### conditions.json ([state.md](state.md#state-example-conditions-json))
 
@@ -135,47 +24,12 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 |---|---|---|
 | 8 | `document` | `conditions.plans[].branches[].set[].node`, `conditions.plans[].branches[].set[].path`, `conditions.plans[].branches[].set[].value`, `conditions.plans[].branches[].when.left`, `conditions.plans[].branches[].when.op`, `conditions.plans[].id` |
 
-### components.md: nodes ([components.md](components.md#components-example-components-md-nodes))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 2 | `Chip#design "Design" type=Chip w={"hug":…` | `actions[].actions[].type`, `actions[].actions[].value`, `actions[].actions[].variable`, `actions[].trigger.event`, `actions[].trigger.type` |
-
-### sections/pages/home.json ([components.md](components.md#components-example-sections-pages-home-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 6 | `Chip#design "Design" type=Chip w={"hug":…` | `actions[].actions[].type`, `actions[].actions[].value`, `actions[].actions[].variable`, `actions[].trigger.event`, `actions[].trigger.type` |
-
-## Prints of the pages' own blocks with a tail
-
-A block written as a writer would (`expands`) is followed on its page by its print; these prints keep part of the document as JSON.
-
-### lists.md, the block of line 43
-
-| Line | Starts | Paths |
-|---|---|---|
-| 4 | `Text "One" h=fill visible={index == 0} {…` | `bind.visible` |
-| 5 | `Text "Two" h=fill visible={index == 1} {…` | `bind.visible` |
-
-### navigation.md, the block of line 57
-
-| Line | Starts | Paths |
-|---|---|---|
-| 9 | `Button "Close" maxWidth=240 onTap={close…` | `media[].maxWidth`, `media[].patch.layout.constraints.maxWidth`, `media[].patch.layout.flex`, `media[].patch.layout.width.fill`, `media[].patch.layout.width.hug` |
-
-## Prints that do not read without an issue
-
-Printer bugs: the print gives the document back, but the parser says something reading it. Each block is marked `unchecked` on its page.
-
-- **lists.md, the block of line 43** (the print after it): `line 3: The id "pageView1Page" is used twice. Give this line an id of its own.`
-
 ## Prints that print again differently
 
 Each example is shown as its print printed again (the same document): the printer should give that the first time.
 
-- **responsive.json**
-  - line 1: `document {"nodes":{"d-page":{"children":["d-title","d-size"],"layout":{"height":{"hug":120},"padding":48,"width":{"fi…` then `document {"nodes":{"d-page":{"children":["d-title","d-size"],"layout":{"height":{"hug":120},"padding":48,"width":{"fi…`
+- **navigation.md, the block of line 57**
+  - line 9: `Button "Close" maxWidth=240 onTap={close} max479.grow max479.w={"fill":0,"hug":null} max479.layout.constraints.maxWid…` then `Button "Close" maxWidth=240 onTap={close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWid…`
 
 ## Kept as JSON (not a layout document)
 

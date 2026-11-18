@@ -227,7 +227,7 @@ From [`photo_card.json`](../decoration.md).
 ```notation
 canvas h=320
 Column#page pad=24 w={"fill":390} h={"fill":320} crossAxisAlignment=null
-  Column#card gap=6 end pad=20 w={"fill":342} h=240 fills=[{"type":"image","image":{"url":"assets/photo.png","fit":"cover","alignment":[0,-0.3]}},{"type":"linear","begin":[0,-1],"end":[0,1],"stops":[{"color":"#00000000","position":0.35},{"color":"#CC000000","position":1}]}] radius=16 clip=antiAlias {"layout":{"constraints":null,"height":240}}
+  Column#card gap=6 end pad=20 w={"fill":342} layout.height=240 fills=[{"type":"image","image":{"url":"assets/photo.png","fit":"cover","alignment":[0,-0.3]}},{"type":"linear","begin":[0,-1],"end":[0,1],"stops":[{"color":"#00000000","position":0.35},{"color":"#CC000000","position":1}]}] radius=16 clip=antiAlias
     Text.small#kicker "TRAVEL" weight=700 color=#FFFDE68A letterSpacing=2 w={"fill":302} h={"hug":16}
     Text.title#headline "A week on the salt marsh, by boat and on foot" weight=700 color=#FFFFFFFF lineHeight=1.3 w={"fill":302} h={"hug":56}
 ```
