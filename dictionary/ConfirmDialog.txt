@@ -1,0 +1,6 @@
+// A question with a no and a yes over the page: a Dialog with its two buttons, the first closing it, the second doing what a yes does and closing it. It does not say: that the Dialog it stands for is a block of its own (another canvas, written after the page: a body's lines are a node where the use is written); the yes button destructive when the use says destructive or tone=danger (a variant chosen as the use is read).
+ConfirmDialog "title" "message" confirm="Confirm" cancel="Cancel" onConfirm onCancel
+  Dialog "{title}" "{message}"
+    Row gap=8 end
+      Button.ghost "{cancel}" onTap={onCancel; close}
+      Button "{confirm}" onTap={onConfirm; close}

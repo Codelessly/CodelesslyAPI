@@ -1,0 +1,9 @@
+// Uses written for a shape no answer of the first corpus has (no answer writes H1 to H4).
+### written: a website section's title
+Page
+  Section
+    H2 "Pricing"
+### written: a panel's heading in an app
+App
+  Main
+    H2 "Recent orders"

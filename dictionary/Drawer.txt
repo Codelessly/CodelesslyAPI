@@ -1,0 +1,7 @@
+// A panel as tall as the window at its side, opened by `open <id>`; a tap beside it closes it; its links close it as they go. It does not say: that it is a block of its own (another canvas covering the window, written after the page); right (the panel at the other side); its NavItems and Links closing it after their actions (the code adds `close` to each).
+Drawer "title" w=300 pad=[16,20,16,16] gap=12
+  Row w=fill h=fill
+    Column w={w} h=fill pad={pad} gap={gap} fill=#FFFFFFFF
+      Text.heading3 "{title}"
+      ...
+    Box grow h=fill onTap={close}

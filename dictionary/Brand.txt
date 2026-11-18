@@ -1,0 +1,18 @@
+// The product's mark and name at the head of a sidebar: an icon on an accent tile, the name in bold. It does not say: at the start of a bar it has no padding and a larger name (17), it reads the line it is under; hidden name where its sidebar is a rail.
+Brand "name" icon!
+  Row gap=10 middle pad=[8,6,8,10]
+    Box w=28 h=28 radius=8 fill=#FF2563EB center middle
+      Icon "{icon}" size=16 color=#FFFFFFFF
+    Text "{name}" size=15 weight=700
+
+Brand#under "name" "under" icon!
+  Row gap=10 middle pad=[8,6,8,10]
+    Box w=28 h=28 radius=8 fill=#FF2563EB center middle
+      Icon "{icon}" size=16 color=#FFFFFFFF
+    Column gap=0
+      Text "{name}" size=15 weight=700
+      Text "{under}" size=11 color=#FF6B7280
+
+Brand#plain "name"
+  Row gap=10 middle pad=[8,6,8,10]
+    Text "{name}" size=15 weight=700

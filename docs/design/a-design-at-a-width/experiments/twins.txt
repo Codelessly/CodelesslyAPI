@@ -1,0 +1,14 @@
+state items=["One","Two","Three"]
+state q=""
+Column w=fill gap=16 pad=32
+  Row#barWide gap=16 middle hide=phone
+    Text#title "Projects" size=28 weight=700
+    Input#search "Search" @q w=240
+    Button#add "New project"
+  Column#barNarrow gap=8 show=phone
+    Text#title2 "Projects" size=22 weight=700
+    Input#search2 "Search" @q w=fill
+    Button#add2 "New project" w=fill
+  Grid cols=3 gap=16
+    each item in items
+      Text "{item}"

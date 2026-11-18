@@ -1,0 +1,6 @@
+Row#bar gap=16 middle
+  Text#title "Projects"
+  Button#add "New"
+  at phone
+    Column gap=8
+      ...

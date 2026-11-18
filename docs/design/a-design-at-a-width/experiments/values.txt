@@ -1,0 +1,11 @@
+state steps=["Home","Projects","Atlas"]
+Column w=fill gap=16 pad=32
+  Row#filters gap=8 phone.wrap=true
+    Input "Search" w=280 phone.w=fill
+    Select items=["All","Admin"] w=140
+  Row#crumbs gap=6
+    each s in steps
+      Text "{s}" tablet.visible={index == length(steps) - 1}
+  Row#header between middle phone.direction=vertical phone.gap=12
+    Text "Members" size=28
+    Button "Invite"

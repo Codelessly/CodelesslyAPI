@@ -1,0 +1,16 @@
+// Uses of NavSection: screens of the first corpus and blocks of the notation reference that write it,
+// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.
+### docs/reference/notation/navigation.md block 5
+state tab="members"
+App
+  Sidebar
+    Brand "Tenant" "Admin console" icon="hub"
+    NavSection "People & access"
+    NavItem "Members" icon="group" selected={tab=="members"} onTap={tab="members"} shortcut="Alt 1"
+    NavItem "Teams" icon="groups" badge="4" selected={tab=="teams"} onTap={tab="teams"}
+    NavSection "Workspace"
+    NavItem "Billing" icon="credit_card" selected={tab=="billing"} onTap={tab="billing"}
+    Footer
+      NavItem "Keyboard shortcuts" icon="keyboard" shortcut="?"
+  Main
+    Text "Members"

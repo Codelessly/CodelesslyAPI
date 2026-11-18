@@ -1,0 +1,13 @@
+Page
+  Nav
+    Brand "Acme"
+    Link "Pricing" href="#pricing"
+    Link "Docs" href="#docs"
+    Link "Blog" href="#blog"
+    IconButton "menu" show=phone onTap={open navSheet}
+  Section#pricing
+    Text "Pricing"
+  Section#docs
+    Text "Docs"
+  Section#blog
+    Text "Blog"

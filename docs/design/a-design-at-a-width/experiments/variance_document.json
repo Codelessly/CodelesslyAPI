@@ -1,0 +1,24 @@
+{
+  "schema": 3,
+  "roots": ["page"],
+  "nodes": {
+    "page": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 1440, "height": 900}, "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["bar"], "layout": {"width": {"fill": 1440}, "height": {"hug": 200}, "padding": 32}},
+    "bar": {
+      "type": "variance",
+      "children": ["barNarrow", "barWide"],
+      "layout": {"width": {"fill": 1376}, "height": {"hug": 60}},
+      "props": {
+        "minWidths": {"tablet": 700},
+        "variants": [
+          {"id": "phone", "name": "phone", "breakpoint": "mobile", "children": ["barNarrow"]},
+          {"id": "wide", "name": "wide", "breakpoint": "tablet", "children": ["barWide"]}
+        ]
+      }
+    },
+    "barNarrow": {"type": "column", "children": ["t2"], "layout": {"width": {"fill": 1376}, "height": {"hug": 40}}, "props": {"spacing": 8}},
+    "t2": {"type": "text", "props": {"text": "Projects (phone)"}},
+    "barWide": {"type": "row", "children": ["t1"], "layout": {"width": {"fill": 1376}, "height": {"hug": 40}}, "props": {"spacing": 16}},
+    "t1": {"type": "text", "props": {"text": "Projects (wide)"}}
+  }
+}

@@ -1,0 +1,5 @@
+// The band that closes a website page: a rule, then its content in a centred column. It does not say: the rule is a Divider beside the band (a body is one line and what is under it, so the rule is the band's top border here); in an App it is another word (the window's foot, which the code moves to the end of Main so that Main's middle scrolls between its head and its foot); in a Sidebar it is the sidebar's foot (a Spacer before it).
+Footer gap=24
+  Column w=fill center pad=[24,40,24,40] border-top=#FFE5E7EB
+    Column w=fill maxw=1120 gap={gap}
+      ...

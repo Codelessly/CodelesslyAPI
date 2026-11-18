@@ -1,0 +1,211 @@
+// Uses of Heading: screens of the first corpus and blocks of the notation reference that write it,
+// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.
+### tool/vocabulary/corpus-define/d02/answers/kiosk-museum-touch.txt ### Attract
+state lang="en"
+state started=false
+state works=[{"id":"w1","url":"https://images.museum.example/vermeer-pearl.jpg"},{"id":"w2","url":"https://images.museum.example/nightwatch.jpg"},{"id":"w3","url":"https://images.museum.example/crows.jpg"},{"id":"w4","url":"https://images.museum.example/venus.jpg"}]
+Page
+  Section center bleed
+    Stack center middle h=720
+      DriftingWall items={works} speed=6 columns=4 dim=0.55
+      Column center gap=16
+        Heading "Touch to begin" level=1 animate=pulse duration=1800
+        Text.muted "Explore 600 years of art together. Up to six people can play at once."
+        LanguageSwitch @lang languages=["en","fr","de","nl","ja"]
+        Button "Start exploring" size=large onTap={go gallery-wall}
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/seat-booking.txt ### Sold-out performance
+state perfId="p4"
+state joined=false
+state joinEmail=""
+Page
+  Nav sticky fill=#FF120712
+    Brand "Proscenium" icon="theater_comedy" color=#FFD4A64A
+    Button.ghost "Back" icon="arrow_back" onTap={go production}
+  Section center
+    Column gap=16 center maxw=560
+      Icon "event_busy" size=48 color=#FFD4A64A
+      Heading "Salome, Sat 14 December, 19:30" level=1 font=serif color=#FFF5E9D0
+      Badge.error "Sold out"
+      Text.muted "Every seat has gone. Returned seats are released on Tuesdays at noon and we will tell you first."
+      if !joined
+        Input "Email" type=email @joinEmail
+        Button "Join the waiting list" onTap={joined=true; emit waitlist joinEmail; toast "You are on the list"}
+      if joined
+        Text.success "You are on the list for this performance."
+      Divider
+      Text.strong "Other nights with seats"
+      Row gap=8 wrap
+        ChoiceChip "Thu 21 Dec, 19:30" onTap={go seats}
+        ChoiceChip "Sun 24 Jan, 14:30" onTap={go seats}
+### tool/vocabulary/corpus/b04/answers/exam-quiz.txt ### Result
+state topics=["Mitosis","Cell cycle","Organelles","Replication"]
+state scores=[1,2,2,1]
+state totals=[1,2,3,3]
+App
+  Sidebar
+    Brand "Viva" icon="school"
+    NavItem "Result" icon="grade" selected={true}
+    NavItem "Worked answers" icon="menu_book" onTap={scroll worked}
+    Spacer grow
+    Button.outline "Back to dashboard" onTap={go home}
+  Main
+    Nav
+      Heading "Your result" level=1
+      Button.outline "Download report" onTap={emit download}
+    Column pad=24 gap=16 scroll maxw=900
+      Grid cols=3 gap=16
+        Card gap=8 center
+          Ring 0.67
+          Text.strong "6 of 9 marks"
+        Card gap=8
+          Text.muted "Grade"
+          Text.strong "B" size=48
+          Badge.success "Pass"
+        Card gap=8
+          Text.muted "Time used"
+          Text.strong "{duration(3180)}" size=32
+      Card gap=12
+        Heading "Score by topic" level=3
+        BarChart values={map(range(4),i=>round(scores[i]/totals[i]*100,0))} labels={topics} h=220
+      Heading "Worked answers" level=2 id=worked
+      Accordion "1. Phase aligning chromosomes at the equator"
+        Badge.success "Correct"
+        Text "Chromosomes line up on the metaphase plate so spindle fibres can pull sister chromatids apart evenly. Your answer: Metaphase."
+      Accordion "2. Events of interphase"
+        Badge.warning "Partly correct, 1 of 2"
+        Text "DNA replication, cell growth and organelle duplication happen in interphase. Spindle formation and chromosome condensation belong to mitosis. You missed organelle duplication."
+      Accordion "3. Order of the cell cycle"
+        Badge.success "Correct"
+        Text "Prophase, metaphase, mitosis, cytokinesis is the sequence you gave, matching the notes in week 4."
+      Accordion "4. Matching structures"
+        Badge.danger "Incorrect"
+        Text "Mitochondrion makes ATP, ribosome builds proteins, Golgi packages proteins. You paired the ribosome with packaging."
+      Accordion "5. Enzyme that unwinds DNA"
+        Badge.success "Correct"
+        Text "Helicase breaks the hydrogen bonds between base pairs at the replication fork."
+      Accordion "6. Nucleolus hotspot"
+        Badge.danger "Missed"
+        Text "The nucleolus is the dense, dark region inside the nucleus, where ribosomal RNA is made."
+### tool/vocabulary/corpus/b09/answers/memory-book.txt ### Scrapbook
+state tab="pages"
+state spread=0
+state editingTitle=false
+state title="Juniper's First Year"
+state recording=false
+state seconds=0
+state notes=[{"id":1,"page":1,"label":"Giggle at the dog","length":14}]
+state photos=[{"id":1,"page":1,"url":"https://images.keepsake.app/p/juniper-park.jpg","x":24,"y":20,"tilt":-4,"caption":"First day at the park"},{"id":2,"page":1,"url":"https://images.keepsake.app/p/juniper-bath.jpg","x":260,"y":60,"tilt":3,"caption":"Bath time, April"},{"id":3,"page":1,"url":"https://images.keepsake.app/p/juniper-steps.jpg","x":120,"y":250,"tilt":-2,"caption":"Three steps on her own"}]
+state stickers=[{"id":1,"page":1,"text":"Mar 14","x":300,"y":20}]
+state firsts=[{"id":1,"what":"First smile","date":"2025-02-03","done":true},{"id":2,"what":"Rolled over","date":"2025-04-19","done":true},{"id":3,"what":"First tooth","date":"2025-07-08","done":true},{"id":4,"what":"Walked alone","date":"","done":false},{"id":5,"what":"First word","date":"","done":false}]
+state milestones=[{"month":"Jan","label":"Born"},{"month":"Mar","label":"First smile"},{"month":"May","label":"Sitting up"},{"month":"Jul","label":"First tooth"},{"month":"Sep","label":"Crawling"},{"month":"Nov","label":"First steps"}]
+state stickerDay=""
+state newWhat=""
+state at=0
+every 1s when recording onTick={seconds=seconds+1}
+App
+  Sidebar
+    Brand "Keepsake" icon="auto_stories"
+    NavItem "Pages" icon="collections" selected={tab=="pages"} onTap={tab="pages"}
+    NavItem "First times" icon="child_care" badge="{count(firsts,f=>!f.done)}" selected={tab=="firsts"} onTap={tab="firsts"}
+    NavItem "On this day" icon="history" selected={tab=="today"} onTap={tab="today"}
+    NavItem "Print book" icon="menu_book" onTap={go print-book}
+    Spacer grow
+    Row gap=8 middle
+      Avatar "Maya Reyes" size=32
+      Text.muted "Maya Reyes"
+  Main
+    Nav
+      if editingTitle
+        Input "Book title" @title w=320 onSubmit={editingTitle=false}
+      if !editingTitle
+        Heading "{title}" level=1 onTap={editingTitle=true}
+      Row gap=8
+        IconButton "edit" tooltip="Rename the book" onTap={editingTitle=true}
+        Button.outline "Add photo" icon="add_a_photo" onTap={emit addPhoto}
+        Button "Print" icon="print" onTap={go print-book}
+    Column pad=24 gap=16 scroll
+      if tab=="pages"
+        Row gap=16 top
+          Column grow gap=12
+            Row between
+              Text.strong "Spread {spread+1} of 12"
+              Row gap=8
+                IconButton "chevron_left" tooltip="Previous page" onTap={spread=max(0,spread-1)}
+                IconButton "chevron_right" tooltip="Next page" onTap={spread=min(11,spread+1)}
+            PageCurl @spread count=12 onSwipeLeft={spread=min(11,spread+1)} onSwipeRight={spread=max(0,spread-1)} h=460 drop=sticker onDrop={stickers=append(stickers,{"id":length(stickers)+1,"page":spread+1,"text":result.data,"x":result.x,"y":result.y})}
+              Stack fill=#FFFBF3EA radius=8
+                each p in filter(photos,q=>q.page==spread+1)
+                  Card gap=4 x={p.x} y={p.y} rotate={p.tilt} w=200 pad=8 fill=#FFFFFFFF drag=photo(p.id)
+                    Image "{p.url}" h=140 radius=2 onTap={open zoom}
+                    Input "Write a caption" @p.caption
+                each s in filter(stickers,q=>q.page==spread+1)
+                  Badge.warning "{s.text}" x={s.x} y={s.y} rotate=-6 drag=sticker(s.text)
+            Row gap=8
+              Text.muted "Stickers"
+              Chip "Mar 14" drag=sticker("Mar 14")
+              Chip "First snow" drag=sticker("First snow")
+              Chip "6 months" drag=sticker("6 months")
+              Chip "Grandma visits" drag=sticker("Grandma visits")
+              Button.ghost "Date sticker" icon="event" onTap={open stickerDate}
+          Column w=320 gap=12
+            Card gap=12
+              Heading "Voice note" level=3
+              if !recording
+                Button "Record" icon="mic" onTap={recording=true; seconds=0}
+              if recording
+                Row gap=8 middle
+                  Waveform live=true h=48 grow
+                  Text.mono "{duration(seconds)}"
+                Button.destructive "Stop and attach to page {spread+1}" icon="stop" onTap={recording=false; notes=append(notes,{"id":length(notes)+1,"page":spread+1,"label":"Voice note, " + formatDate(today(),"MMM d"),"length":seconds}); toast "Attached to page {spread+1}"}
+              each n in filter(notes,q=>q.page==spread+1)
+                Row gap=8 middle
+                  IconButton "play_arrow" tooltip="Play" onTap={emit play n.id}
+                  Waveform src="note-{n.id}" h=32 grow
+                  Text.caption "{duration(n.length)}"
+            Card gap=8
+              Heading "On this day" level=3
+              Image "https://images.keepsake.app/p/juniper-2024-park.jpg" h=120 radius=8
+              Text.muted "One year ago: a first splash at the pool."
+              Button.outline "See it" onTap={tab="today"}
+        Card gap=8
+          Heading "Juniper's year" level=3
+          Row scroll gap=0
+            each m in milestones
+              Column gap=4 center w=140
+                Text.caption "{m.month}"
+                Box w=12 h=12 radius=6 fill=#FFE07A5F
+                Text.small "{m.label}" center
+          Divider
+      if tab=="firsts"
+        Card gap=8
+          Heading "First times" level=3
+          each f in firsts
+            ListTile "{f.what}" subtitle="{f.done ? formatDate(f.date,"MMM d, yyyy") : "Not yet"}"
+              Checkbox @f.done onChange={firsts=updateWhere(firsts,x=>x.id==f.id,x=>with(x,"date",result ? formatDate(today(),"yyyy-MM-dd") : ""))}
+              DatePicker @f.date hide=phone
+          Button.outline "Add a first" icon="add" onTap={open newFirst}
+      if tab=="today"
+        Card gap=12
+          Heading "On this day, 2024" level=3
+          Image "https://images.keepsake.app/p/juniper-2024-park.jpg" h=260 radius=8
+          Text.strong "A first splash at the pool"
+          Text.muted "Mar 14, 2024. Juniper was five weeks old and loved the water."
+          Row gap=8
+            Button "Add to a page" onTap={emit pinMemory; toast "Added to page {spread+1}"}
+            Button.outline "Share" icon="share" onTap={emit share}
+  Dialog#stickerDate "Date sticker"
+    DatePicker "Pick a date" @stickerDay
+    Button "Place on page" onTap={stickers=append(stickers,{"id":length(stickers)+1,"page":spread+1,"text":formatDate(stickerDay,"MMM d"),"x":40,"y":40}); close}
+  Dialog#newFirst "A new first"
+    Input "What happened?" @newWhat
+    Button "Add" onTap={firsts=append(firsts,{"id":length(firsts)+1,"what":newWhat,"date":"","done":false}); newWhat=""; close}
+  Lightbox#zoom photos={map(photos,p=>p.url)} @at
+### docs/reference/notation/navigation.md block 1
+Page
+  Nav
+    Brand "Tidewater" icon="waves"
+    Link "Pricing"
+  Section
+    Heading "Fill every room" level=1
+  Footer
+    Text.muted "© 2026"

@@ -1,0 +1,6 @@
+// A picture, or a list of them, large over the page: zoomed by a pinch, the wheel and a double tap, paged by a swipe, the arrows and the keys, with a count and thumbnails. Written here as far as a body can: the picture on a dark ground with a close button. It does not say: that it is a block of its own (another canvas covering the window, fading in, closed by a drag down); the zoom and pan (a transform gesture on the picture, a JSON tail the code writes); the variables it keeps (its zoom, the picture shown) named after its id; a list's pages, count, arrows and thumbnails, chosen by whether photos= is given.
+Lightbox "photo" "caption"
+  Column w=fill h=fill center middle fill=#F2000000
+    Image "{photo}" w=fill h=fill fit=contain
+    Text "{caption}" color=#FFFFFFFF
+    IconButton "close" onTap={close}

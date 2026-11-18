@@ -1,0 +1,4 @@
+// A small panel shown at what opened it (`open <id>`, `preview=<id>` as a hover card). It does not say: that it is a block of its own (another canvas, shown as a popover: placement, arrow, hover card).
+Popover "title" pad=16 gap=12
+  Column w=fill pad={pad} gap={gap}
+    ...

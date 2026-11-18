@@ -1,0 +1,433 @@
+// Uses of Pane: screens of the first corpus and blocks of the notation reference that write it,
+// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/support-desk.txt ### Ticket
+project tickets=[]
+project me="Sam Patel"
+project panelW=340 persist
+state mode="Public reply"
+state draft=""
+state replyQuery=""
+state sidePanelStatus="open"
+state ticket={"id":4821,"requester":"Maya Reyes","email":"maya@brightpath.io","subject":"Invoice shows the wrong seat count","status":"open","priority":"high","assignee":"Sam Patel","tags":["billing","enterprise"],"plan":"Business","seats":42,"messages":[{"id":1,"kind":"customer","author":"Maya Reyes","time":"09:12","text":"Hi, our March invoice says 48 seats but we only have 42 active. Can you correct it before finance closes the month?"},{"id":2,"kind":"reply","author":"Lena Ortiz","time":"09:40","text":"Thanks Maya, I am checking the seat log now and will come back shortly."},{"id":3,"kind":"note","author":"Lena Ortiz","time":"09:44","text":"Six seats were deactivated on the 3rd but the sync job did not run. Needs billing to reissue."},{"id":4,"kind":"customer","author":"Maya Reyes","time":"10:58","text":"Any news? Finance closes at 5pm."}]}
+state notes=[]
+state otherTickets=[{"id":4710,"subject":"Add a billing contact","status":"solved"},{"id":4655,"subject":"Update VAT number","status":"solved"}]
+state fields=[{"label":"Account ID","value":"acc_92ab1"},{"label":"Plan","value":"Business"},{"label":"Seats","value":"42"},{"label":"Region","value":"EU"}]
+state replies=[{"title":"Seat count correction","body":"Thanks for flagging this. We have corrected the seat count and will send a revised invoice today."},{"title":"Asking for logs","body":"Could you send the request ID and a timestamp so we can look at the logs?"},{"title":"Closing the loop","body":"Glad that is sorted. We will close this ticket, reply any time to reopen it."}]
+state newTag=""
+Shortcut key="r" onPress={mode="Public reply"; focus reply}
+Shortcut key="n" onPress={mode="Internal note"; focus reply}
+Shortcut key="a" onPress={ticket=with(ticket,"assignee",me); toast "Assigned to you"}
+Shortcut key="c" onPress={draft==""?close_ticket:open discard}
+Shortcut key="?" onPress={open shortcuts}
+Shortcut key="j" onPress={emit nextTicket}
+Shortcut key="k" onPress={emit previousTicket}
+Shortcut key="/" onPress={open replyMenu}
+App
+  Main
+    Nav
+      Row gap=8 middle
+        IconButton "arrow_back" onTap={go inbox}
+        Heading "#{ticket.id} {ticket.subject}" level=1
+      Row gap=8
+        IconButton "chevron_left" onTap={emit previousTicket}
+        IconButton "chevron_right" onTap={emit nextTicket}
+        IconButton "info" show=phone onTap={open details}
+        Button.outline "Close ticket" icon="check" onTap={draft==""?(ticket=with(ticket,"status","solved"); toast "Ticket #{ticket.id} set to solved"):open discard}
+    Row grow top
+      Column grow
+        Column grow scroll follow=newest pad=16 gap=12
+          each m in ticket.messages
+            Box gap=4 pad=12 radius=8 animate=fade fill={m.kind=="note"?"#FFFFF8E1":(m.kind=="reply"?"#FFE8F5E9":"#FFFFFFFF")}
+              Row between
+                Row gap=8 middle
+                  Avatar "{m.author}" size=24
+                  Text.strong "{m.author}"
+                  Badge.warning "Internal note" hidden={m.kind!='note'}
+                Text.caption "{m.time}"
+              Text "{m.text}"
+        Card gap=8 pad=12
+          SegmentedButton items=["Public reply","Internal note"] @mode
+          Input#reply "Write a message" multiline @draft fill={mode=="Internal note"?"#FFFFF8E1":"#FFFFFFFF"}
+          Row between
+            Row gap=8
+              Button.outline "Saved replies" icon="quickreply" onTap={open replyMenu}
+              Button.ghost "Attach" icon="attach_file" onTap={emit attach}
+            Row gap=8
+              Button "Send" icon="send" disabled={draft==""} onTap={ticket=with(ticket,"messages",append(ticket.messages,{"id":length(ticket.messages)+1,"kind":mode=="Internal note"?"note":"reply","author":me,"time":formatDate(today(),"HH:mm"),"text":draft})); draft=""; toast "Sent"}
+              Button.outline icon="arrow_drop_down" onTap={open sendAs}
+      Pane w={panelW} resizable @panelW min=280 max=520 pad=16 gap=12 hide=phone scroll fill=#FFFFFFFF
+        Heading "Requester" level=3
+        Row gap=8 middle
+          Avatar "{ticket.requester}" size=40
+          Column
+            Text.strong "{ticket.requester}"
+            Text.muted "{ticket.email}"
+        Divider
+        Select "Status" items=["new","open","pending","solved"] value={ticket.status} onChange={ticket=with(ticket,"status",result); toast "Ticket #{ticket.id} set to {result}"}
+        Select "Priority" items=["low","normal","high","urgent"] value={ticket.priority} onChange={ticket=with(ticket,"priority",result)}
+        Select "Assignee" items=["Sam Patel","Lena Ortiz","Unassigned"] value={ticket.assignee} onChange={ticket=with(ticket,"assignee",result); toast "Assigned to {result}"}
+        Text.fieldLabel "Tags"
+        Row gap=4 wrap
+          each tag in ticket.tags
+            Chip "{tag}" onDelete={ticket=with(ticket,"tags",without(ticket.tags,tag))}
+          IconButton "add" onTap={open addTag}
+        Divider
+        Heading "Custom fields" level=3
+        each f in fields
+          Row between
+            Text.muted "{f.label}"
+            Text.strong "{f.value}"
+        Divider
+        Heading "Other tickets" level=3
+        each o in otherTickets
+          ListTile "{o.subject}" "#{o.id}, {o.status}" onTap={emit openTicket o.id}
+Sheet#details "Details"
+  Select "Status" items=["new","open","pending","solved"] value={ticket.status} onChange={ticket=with(ticket,"status",result); toast "Ticket #{ticket.id} set to {result}"}
+  Select "Priority" items=["low","normal","high","urgent"] value={ticket.priority} onChange={ticket=with(ticket,"priority",result)}
+  Select "Assignee" items=["Sam Patel","Lena Ortiz","Unassigned"] value={ticket.assignee} onChange={ticket=with(ticket,"assignee",result)}
+  each f in fields
+    Row between
+      Text.muted "{f.label}"
+      Text.strong "{f.value}"
+Menu#replyMenu
+  Input "Search saved replies" @replyQuery icon="search" autofocus
+  each r in filter(replies,x=>replyQuery=="" || contains(lower(x.title),lower(replyQuery)) || contains(lower(x.body),lower(replyQuery)))
+    MenuItem "{r.title}" icon="quickreply" onTap={draft=draft+r.body; replyQuery=""; close}
+Menu#sendAs end
+  MenuItem "Send and set to open" onTap={ticket=with(ticket,"status","open"); draft=""; toast "Sent, ticket #{ticket.id} set to open"}
+  MenuItem "Send and set to pending" onTap={ticket=with(ticket,"status","pending"); draft=""; toast "Sent, ticket #{ticket.id} set to pending"}
+  MenuItem "Send and set to solved" onTap={ticket=with(ticket,"status","solved"); draft=""; toast "Sent, ticket #{ticket.id} set to solved"}
+Dialog#discard "Close with an unsent draft?" "Your draft will be lost"
+  Row end gap=8
+    Button.ghost "Keep editing" onTap={close}
+    Button.destructive "Discard and close" onTap={draft=""; ticket=with(ticket,"status","solved"); toast "Ticket #{ticket.id} set to solved"; close; go inbox}
+Dialog#addTag "Add a tag"
+  Input "Tag" @newTag
+  Button "Add" onTap={ticket=with(ticket,"tags",append(ticket.tags,newTag)); newTag=""; close}
+Dialog#shortcuts "Keyboard shortcuts"
+  Text "j next, k previous, a assign to me, r reply, n note, c close, / saved replies"
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/mail-client.txt ### Mailbox
+state folder="inbox"
+state folders=[{"id":"inbox","name":"Inbox","icon":"inbox"},{"id":"starred","name":"Starred","icon":"star"},{"id":"drafts","name":"Drafts","icon":"edit_note"},{"id":"sent","name":"Sent","icon":"send"},{"id":"archive","name":"Archive","icon":"archive"},{"id":"trash","name":"Trash","icon":"delete"}]
+state msgs=[{"id":1,"folder":"inbox","from":"Ines Marchetti","email":"ines@harborlabs.io","to":"me@postbox.app","subject":"Q4 roadmap: review before Thursday","preview":"I've attached the draft with the three scenarios we discussed. Can you flag anything that looks off?","body":"Hi,\n\nI've attached the draft with the three scenarios we discussed on Monday. The second one assumes the migration lands in October, which I'm not sure is realistic.\n\nCan you flag anything that looks off before Thursday's review?\n\nThanks,\nInes","quoted":"On Mon, Nov 10, Ray wrote:\n> Let's go through the scenarios once the numbers are in.\n> I'll block an hour on Wednesday.","time":"9:42 AM","date":"Nov 16, 2026, 9:42 AM","unread":true,"starred":true,"attach":[{"name":"roadmap-q4.pdf","size":"1.2 MB","icon":"picture_as_pdf"},{"name":"scenarios.xlsx","size":"84 KB","icon":"table_chart"}]},{"id":2,"folder":"inbox","from":"Tomas Weber","email":"tomas@weber.dev","to":"me@postbox.app","subject":"Re: Build failing on main","preview":"Found it: the lockfile was regenerated with a different resolver. Pinning it back fixes the cache miss.","body":"Found it. The lockfile was regenerated with a different resolver, so every CI run missed the cache. Pinning it back fixes it.\n\nI'll open a PR shortly.\n\nTomas","quoted":"On Fri, Nov 14, Ray wrote:\n> CI went from 4 to 19 minutes overnight. Any idea?","time":"9:10 AM","date":"Nov 16, 2026, 9:10 AM","unread":true,"starred":false,"attach":[]},{"id":3,"folder":"inbox","from":"Northwind Airlines","email":"no-reply@northwind.example","to":"me@postbox.app","subject":"Your boarding pass for NW 218 to Lisbon","preview":"Check-in is open. Your seat is 14A. Gate information will appear 40 minutes before departure.","body":"Check-in is open for NW 218, Tuesday Nov 24.\n\nSeat 14A, Boarding group 3. Gate information appears 40 minutes before departure.","quoted":"","time":"Yesterday","date":"Nov 15, 2026, 6:30 PM","unread":false,"starred":false,"attach":[{"name":"boarding-pass.pdf","size":"212 KB","icon":"picture_as_pdf"}]},{"id":4,"folder":"inbox","from":"Priya Raman","email":"priya@raman.studio","to":"me@postbox.app","subject":"Invoice 0142 and the revised scope","preview":"Attached is the invoice for October. I also added a note on the scope change we agreed on the call.","body":"Hello,\n\nAttached is the invoice for October. I also added a note on the scope change we agreed on the call: the onboarding screens move to the next sprint.\n\nBest,\nPriya","quoted":"On Thu, Nov 12, Ray wrote:\n> Can you send the invoice before the 15th?","time":"Yesterday","date":"Nov 15, 2026, 11:05 AM","unread":false,"starred":false,"attach":[{"name":"invoice-0142.pdf","size":"96 KB","icon":"picture_as_pdf"}]},{"id":5,"folder":"inbox","from":"Fieldnotes Weekly","email":"hello@fieldnotes.example","to":"me@postbox.app","subject":"Issue 87: The quiet return of server rendering","preview":"This week: why teams are moving state back to the server, a field guide to cache headers, and a map of 40 tools.","body":"This week: why teams are moving state back to the server, a field guide to cache headers, and a map of 40 tools worth knowing.","quoted":"","time":"Nov 14","date":"Nov 14, 2026, 7:00 AM","unread":false,"starred":false,"attach":[]},{"id":6,"folder":"inbox","from":"Dana Okafor","email":"dana@okafor.co","to":"me@postbox.app","subject":"Lunch on Friday?","preview":"There's a new place by the canal that does a proper ramen. Noon work for you?","body":"There's a new place by the canal that does a proper ramen. Noon work for you?\n\nDana","quoted":"","time":"Nov 13","date":"Nov 13, 2026, 4:20 PM","unread":true,"starred":false,"attach":[]},{"id":7,"folder":"archive","from":"Harbor Labs HR","email":"hr@harborlabs.io","to":"me@postbox.app","subject":"Benefits enrolment closes Nov 30","preview":"A reminder that open enrolment closes at the end of the month.","body":"A reminder that open enrolment closes at the end of the month.","quoted":"","time":"Nov 6","date":"Nov 6, 2026, 8:00 AM","unread":false,"starred":false,"attach":[]}]
+state contacts=[{"name":"Ines Marchetti","email":"ines@harborlabs.io"},{"name":"Tomas Weber","email":"tomas@weber.dev"},{"name":"Priya Raman","email":"priya@raman.studio"},{"name":"Dana Okafor","email":"dana@okafor.co"},{"name":"Harbor Labs HR","email":"hr@harborlabs.io"}]
+state sel=[]
+state anchor=-1
+state openId=0
+state fUnread=false
+state fStarred=false
+state fAttach=false
+state headersOpen=false
+state quoteOpen=false
+state pane="list"
+state density="compact"
+state signature="Ray\nPostbox user"
+state visible={filter(msgs, m => m.folder==folder && (!fUnread || m.unread) && (!fStarred || m.starred) && (!fAttach || length(m.attach)>0))}
+state current={find(msgs, m => m.id==openId)}
+state unreadIn={count(msgs, m => m.folder==folder && m.unread)}
+state paneA=240
+state allSelected=false
+state paneB=240
+Shortcut "c" onPress={open compose}
+Shortcut "r" when openId!=0 onPress={open compose}
+Shortcut "e" when openId!=0 onPress={msgs=updateWhere(msgs, m=>m.id==openId, m=>with(m,"folder","archive")); openId=0; toast "Archived"}
+Shortcut "j" onPress={openId=coalesce(first(slice(visible, min(length(visible)-1, indexOf(map(visible, m=>m.id), openId)+1), length(visible))).id, openId)}
+Shortcut "k" onPress={openId=coalesce(visible[max(0, indexOf(map(visible, m=>m.id), openId)-1)].id, openId)}
+Shortcut "ctrl+a" onPress={sel=map(visible, m=>m.id)}
+Shortcut "ctrl+k" onPress={open search}
+Shortcut "escape" onPress={sel=[]}
+App
+  SplitPane persist="postbox.panes" h=fill
+    Pane#folders w=220 min=160 max=320 collapse=tablet hide=phone
+      Column pad=12 gap=8
+        Brand "Postbox" icon="mail"
+        Button "Compose" icon="edit" onTap={open compose}
+        each f in folders
+          NavItem "{f.name}" icon="{f.icon}" badge="{count(msgs, m => m.folder==f.id && m.unread)}" selected={folder==f.id} onTap={folder=f.id; sel=[]; openId=0; pane="list"}
+        Spacer grow
+        NavItem "Search" icon="search" onTap={open search}
+        NavItem "Settings" icon="settings" onTap={go settings}
+    Splitter @paneA step=16 label="Resize folders and message list" hide=phone
+    Pane#list w=380 min=280 max=560 show={pane=="list"} grow-phone
+      Nav
+        Row gap=8 middle
+          IconButton "menu" show=phone onTap={open folderSheet}
+          Heading "{upper(first(folder))}{slice(folder,1,99)}" level=3
+          Badge.primary "{unreadIn} unread" visible={unreadIn>0}
+        Row gap=4
+          IconButton "search" onTap={open search}
+          IconButton "edit" show=phone onTap={open compose}
+      if length(sel) > 0
+        Row between middle pad=[12,6,12,6] fill=#FFE6F4F2 animate=slide-up duration=150
+          Row gap=8 middle
+            Checkbox @allSelected onChange={sel=result ? map(visible, m=>m.id) : []} checked={length(sel)==length(visible)}
+            Text.strong "{length(sel)} selected"
+          Row gap=4
+            IconButton "archive" tooltip="Archive" onTap={msgs=map(msgs, m=>contains(sel,m.id) ? with(m,"folder","archive") : m); sel=[]; toast "Archived"}
+            IconButton "mark_email_read" tooltip="Mark read" onTap={msgs=map(msgs, m=>contains(sel,m.id) ? with(m,"unread",false) : m); sel=[]}
+            IconButton "drive_file_move" tooltip="Move" onTap={open bulkMove}
+            IconButton "delete" tooltip="Delete" onTap={open confirmBulkDelete}
+            IconButton "close" tooltip="Clear selection" onTap={sel=[]}
+      Row gap=6 pad=[12,8,12,8] scroll border-bottom=#FFE2E8F0
+        FilterChip "Unread" @fUnread
+        FilterChip "Starred" @fStarred
+        FilterChip "Attachments" icon="attach_file" @fAttach
+      if length(visible) == 0
+        EmptyState icon="{(fUnread||fStarred||fAttach) ? 'filter_list_off' : 'inbox'}" title="{(fUnread||fStarred||fAttach) ? 'No messages match' : 'Nothing in ' + folder}" text="{(fUnread||fStarred||fAttach) ? 'Try turning off a filter.' : 'Messages you move here will show up.'}"
+          Button.outline "Clear filters" visible={fUnread||fStarred||fAttach} onTap={fUnread=false; fStarred=false; fAttach=false}
+      if length(visible) > 0
+        ListView density={density} selectable
+          each m in visible
+            SwipeRow onSwipeRight={msgs=updateWhere(msgs, x=>x.id==m.id, x=>with(x,"folder","archive")); toast "Archived"} onSwipeLeft={sel=[m.id]; open confirmBulkDelete} leftIcon="archive" leftColor=#FF0F766E rightIcon="delete" rightColor=#FFB42318 menu=rowMenu
+              Row gap=10 pad=[12,8,12,8] top selected={contains(sel,m.id) || openId==m.id} fill={contains(sel,m.id) ? '#FFE6F4F2' : (openId==m.id ? '#FFF1F5F9' : '#FFFFFFFF')} border-bottom=#FFEEF2F6 border-left={m.unread ? '#FF0F766E' : '#00000000'} onTap={openId=m.id; sel=[]; anchor=index; pane="read"; msgs=updateWhere(msgs, x=>x.id==m.id, x=>with(x,"unread",false))} onCtrlTap={sel=contains(sel,m.id) ? without(sel,m.id) : append(sel,m.id); anchor=index} onShiftTap={sel=map(slice(visible, min(max(anchor,0),index), max(max(anchor,0),index)+1), x=>x.id)}
+                Checkbox checked={contains(sel,m.id)} hide=phone onChange={sel=result ? append(sel,m.id) : without(sel,m.id); anchor=index}
+                Column grow gap=2
+                  Row between
+                    Text "{m.from}" weight={m.unread ? 700 : 400} color=#FF1E293B
+                    Row gap=4 middle
+                      Icon "attach_file" size=14 visible={length(m.attach)>0} color=#FF64748B
+                      Text.caption "{m.time}" color=#FF64748B
+                  Text "{m.subject}" weight={m.unread ? 700 : 500} color=#FF1E293B maxLines=1
+                  Row gap=6
+                    Text.caption "{m.preview}" color=#FF64748B maxLines=1 grow
+                    Icon "star" size=14 visible={m.starred} color=#FFD97706
+      Row between pad=[12,6,12,6] border-top=#FFE2E8F0
+        Text.caption "{length(visible)} messages"
+        Text.caption "Shift for a range, Ctrl to add" hide=phone color=#FF64748B
+    Splitter @paneB step=16 label="Resize message list and reading pane" hide=phone
+    Pane#read grow show={pane=="read"} show-tablet
+      if openId == 0
+        EmptyState icon="drafts" title="Select a message" text="Pick one from the list to read it here."
+      if openId != 0
+        Nav
+          Row gap=4 middle
+            IconButton "arrow_back" show=phone onTap={pane="list"}
+            IconButton "reply" tooltip="Reply (r)" onTap={open compose}
+            IconButton "forward" tooltip="Forward" onTap={open compose}
+            IconButton "{current.starred ? 'star' : 'star_border'}" tooltip="Star" onTap={msgs=updateWhere(msgs, x=>x.id==openId, x=>with(x,"starred",!x.starred))}
+          Row gap=4
+            IconButton "archive" tooltip="Archive (e)" onTap={msgs=updateWhere(msgs, x=>x.id==openId, x=>with(x,"folder","archive")); openId=0; pane="list"; toast "Archived"}
+            IconButton "drive_file_move" tooltip="Move to folder" onTap={open moveMenu}
+            IconButton "delete" tooltip="Delete" onTap={open confirmDelete}
+        Column scroll pad=24 gap=16 maxw=720
+          Heading "{current.subject}" level=2
+          Row gap=12 middle
+            Avatar "{current.from}" size=40
+            Column grow gap=2
+              Text.strong "{current.from}"
+              Text.caption "to me" color=#FF64748B
+            Text.caption "{current.time}" color=#FF64748B
+            IconButton "{headersOpen ? 'expand_less' : 'expand_more'}" tooltip="Details" onTap={headersOpen=!headersOpen}
+          if headersOpen
+            Card gap=4 animate=fade duration=150
+              Row gap=12
+                Text.caption "From" w=48 color=#FF64748B
+                Text.mono "{current.from} <{current.email}>"
+              Row gap=12
+                Text.caption "To" w=48 color=#FF64748B
+                Text.mono "{current.to}"
+              Row gap=12
+                Text.caption "Date" w=48 color=#FF64748B
+                Text.mono "{current.date}"
+          Text "{current.body}" lineHeight=1.65 selectable
+          if length(current.attach) > 0
+            Row gap=12 scroll
+              each a in current.attach
+                AttachmentTile "{a.name}" subtitle="{a.size}" icon="{a.icon}" onTap={emit openAttachment a.name} onDownload={toast "Saved {a.name}"}
+          if current.quoted != ""
+            Button.ghost "{quoteOpen ? 'Hide quoted text' : 'Show quoted text'}" icon="more_horiz" onTap={quoteOpen=!quoteOpen}
+            if quoteOpen
+              Box pad=12 border-left=#FFCBD5E1 animate=fade duration=150
+                Text.muted "{current.quoted}"
+          Row gap=8
+            Button "Reply" icon="reply" onTap={open compose}
+            Button.outline "Forward" icon="forward" onTap={open compose}
+  Menu#moveMenu
+    each f in folders
+      MenuItem "{f.name}" icon="{f.icon}" onTap={msgs=updateWhere(msgs, x=>x.id==openId, x=>with(x,"folder",f.id)); openId=0; pane="list"; toast "Moved to {f.name}"}
+  Menu#rowMenu
+    MenuItem "Archive" icon="archive" onTap={msgs=map(msgs, m=>contains(sel,m.id) ? with(m,"folder","archive") : m); sel=[]; toast "Archived"}
+    MenuItem "Delete" icon="delete" onTap={open confirmBulkDelete}
+    MenuItem "Mark as read" icon="mark_email_read" onTap={msgs=map(msgs, m=>contains(sel,m.id) ? with(m,"unread",false) : m)}
+  Menu#bulkMove
+    each f in folders
+      MenuItem "{f.name}" icon="{f.icon}" onTap={msgs=map(msgs, m=>contains(sel,m.id) ? with(m,"folder",f.id) : m); sel=[]; toast "Moved to {f.name}"}
+  Sheet#folderSheet "Folders"
+    each f in folders
+      NavItem "{f.name}" icon="{f.icon}" badge="{count(msgs, m => m.folder==f.id && m.unread)}" selected={folder==f.id} onTap={folder=f.id; sel=[]; openId=0; pane="list"; close}
+  Dialog#confirmDelete "Delete this message?" "It moves to Trash and is removed after 30 days."
+    Row end gap=8
+      Button.ghost "Cancel" onTap={close}
+      Button.destructive "Delete" onTap={msgs=updateWhere(msgs, x=>x.id==openId, x=>with(x,"folder","trash")); openId=0; pane="list"; close; toast "Moved to Trash"}
+  Dialog#confirmBulkDelete "Delete {length(sel)} messages?" "They move to Trash and are removed after 30 days."
+    Row end gap=8
+      Button.ghost "Cancel" onTap={close}
+      Button.destructive "Delete" onTap={msgs=map(msgs, m=>contains(sel,m.id) ? with(m,"folder","trash") : m); sel=[]; close; toast "Moved to Trash"}
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/team-chat.txt ### Thread
+state msgs=[{"id":"m1","from":"Priya Nair","mine":false,"day":"Yesterday","time":"4:10 PM","text":"Shared the onboarding flow, three screens.","pics":[],"reactions":[{"e":"👍","n":2,"me":false}],"replyTo":""},{"id":"m2","from":"You","mine":true,"day":"Yesterday","time":"4:14 PM","text":"Looks clean. The empty state needs work.","pics":[],"reactions":[],"replyTo":""},{"id":"m3","from":"Priya Nair","mine":false,"day":"Today","time":"9:40 AM","text":"Updated mockups, take a look.","pics":["https://img.murmur.app/a.jpg","https://img.murmur.app/b.jpg","https://img.murmur.app/c.jpg"],"reactions":[{"e":"🔥","n":1,"me":true}],"replyTo":""},{"id":"m4","from":"You","mine":true,"day":"Today","time":"9:42 AM","text":"Love the second one.","pics":[],"reactions":[],"replyTo":"m3"}]
+state sel=""
+state at=0
+state photos=[]
+state typing="Priya is typing"
+state showDetails=false
+state replyId=""
+state following=""
+Shortcut "alt+down" onPress={emit nextConversation}
+Shortcut "alt+up" onPress={emit prevConversation}
+App
+  Sidebar w=320 fill=#FFFBF8F3 hide=tablet
+    Brand "Murmur" icon="forum"
+    NavItem "design-crit" icon="tag" badge="3" selected={true}
+    NavItem "Maya Reyes" icon="person"
+    NavItem "eng-standup" icon="tag" badge="12"
+  Main
+    Nav
+      Row gap=12
+        IconButton "arrow_back" show=phone onTap={go conversations}
+        Column
+          Heading "design-crit" level=3
+          Text.caption "6 members"
+      Row gap=8
+        IconButton "search"
+        IconButton "info" onTap={showDetails=!showDetails; open detailsSheet}
+    Stack grow
+      FollowScroll#thread @following onFollowChange={showNew=!result} newestOnAppend=true
+        Column gap=4 pad=16
+          each m in msgs
+            if index==0 || msgs[index-1].day!=m.day
+              DateDivider "{m.day}"
+            ChatBubble mine={m.mine} sender={m.from} time="{m.time}" grouped={index>0 && msgs[index-1].from==m.from && msgs[index-1].day==m.day} menu=msgMenu onLongPress={sel=m.id; open msgMenu}
+              if m.replyTo!=""
+                QuoteBlock "{find(msgs,x=>x.id==m.replyTo).from}" "{find(msgs,x=>x.id==m.replyTo).text}"
+              Text "{m.text}"
+              if length(m.pics)>0
+                PhotoGrid photos={m.pics} cols=2 onTapPhoto={photos=m.pics; at=result; open shots}
+              Row gap=4 wrap
+                each r in m.reactions
+                  FilterChip "{r.e} {r.n}" selected={r.me} onTap={msgs=updateWhere(msgs,x=>x.id==m.id,x=>with(x,"reactions",updateWhere(x.reactions,y=>y.e==r.e,y=>with(with(y,"n",y.me?y.n-1:y.n+1),"me",!y.me))))}
+          if typing!=""
+            TypingIndicator "{typing}"
+      if showNew
+        Pill "New messages" icon="arrow_downward" bottom=12 animate=pop onTap={scroll thread end; following=true; showNew=false}
+    Composer
+  Pane w=320 pad=16 gap=12 hide=tablet visible={showDetails}
+    Heading "Details" level=3
+    Text.muted "Open the info button for members and media."
+Menu#msgMenu
+  MenuItem "React" icon="add_reaction" onTap={open emoji}
+  MenuItem "Reply" icon="reply" onTap={replyId=sel}
+  MenuItem "Copy" icon="content_copy" onTap={copy find(msgs,x=>x.id==sel).text; toast "Copied"}
+  Divider
+  MenuItem.danger "Delete" icon="delete" onTap={open confirmDelete}
+Dialog#confirmDelete "Delete this message?" "This can not be undone."
+  Row end gap=8
+    Button.ghost "Cancel" onTap={close}
+    Button.destructive "Delete" onTap={msgs=removeWhere(msgs,x=>x.id==sel); toast "Message deleted"; close}
+Popover#emoji
+  Grid cols=6 gap=4
+    each e in ["👍","❤️","😂","🎉","🔥","👀"]
+      IconButton "{e}" onTap={msgs=updateWhere(msgs,x=>x.id==sel,x=>with(x,"reactions",any(x.reactions,y=>y.e==e)?updateWhere(x.reactions,y=>y.e==e,y=>with(with(y,"n",y.n+1),"me",true)):append(x.reactions,{"e":e,"n":1,"me":true}))); close}
+Lightbox#shots photos={photos} @at
+### tool/vocabulary/corpus/b06/answers/document-diff.txt ### Compare
+state ignoreSpace=false
+state ignoreCase=false
+state showMerged=true
+state current="c1"
+state changes=[{"id":"c1","kind":"changed","para":"2.1","title":"Payment term shortened","status":"pending","left":"Payment is due within 45 days of the invoice date.","right":"Payment is due within 30 days of the invoice date."},{"id":"c2","kind":"added","para":"3.4","title":"Late fee clause added","status":"pending","left":"","right":"A late fee of 1.5% per month applies to overdue balances."},{"id":"c3","kind":"removed","para":"4.2","title":"Exclusivity clause removed","status":"pending","left":"The Supplier shall not provide the Services to competitors in the region.","right":""},{"id":"c4","kind":"moved","para":"5.1","title":"Confidentiality moved from 7 to 5","status":"pending","left":"Each party shall keep the other's confidential information secret.","right":"Each party shall keep the other's confidential information secret."},{"id":"c5","kind":"changed","para":"6.3","title":"Governing law changed","status":"accepted","left":"This agreement is governed by the laws of New York.","right":"This agreement is governed by the laws of Delaware."},{"id":"c6","kind":"changed","para":"8.1","title":"Notice period extended","status":"rejected","left":"Either party may terminate with 30 days notice.","right":"Either party may terminate with 60 days notice."}]
+App
+  Sidebar
+    Brand "Twin Pages" icon="difference"
+    NavItem "Compare" icon="compare" selected={true}
+    NavItem "Summary" icon="summarize" badge="{length(changes)}" onTap={go summary}
+    NavItem "History" icon="history" onTap={go history}
+    Spacer grow
+    Text.muted "Master Services Agreement"
+    Text.caption "v3 draft vs v2 signed"
+  Main
+    Nav
+      Heading "Master Services Agreement" level=1
+      Row gap=8
+        Toggle "Ignore spacing" @ignoreSpace
+        Toggle "Ignore case" @ignoreCase
+        Toggle "Merged column" @showMerged
+        Button.outline "Summary" icon="summarize" onTap={open summary}
+        Button "Export merged" icon="download" onTap={emit exportMerged; toast "Merged document exported"}
+    Row grow gap=0
+      Column grow gap=8 pad=16
+        Row gap=16
+          Column grow
+            Text.strong "v2 signed (Jan 12)"
+          Column grow
+            Text.strong "v3 draft (Mar 4)"
+          if showMerged
+            Column grow
+              Text.strong "Merged result"
+        DiffView left="v2 signed" right="v3 draft" changes={changes} ignoreSpace={ignoreSpace} ignoreCase={ignoreCase} syncScroll gutter=lines merged={showMerged} selected={current} addedColor=#FF2E7D32 removedColor=#FFC62828 movedColor=#FF6A1B9A movedMark="arrow_right_alt" onSelect={current=result}
+      Pane w=320 border-left=#FFE0E0E0
+        Text.panelTitle "Changes"
+        Row gap=8
+          Badge.neutral "{length(changes)} total"
+          Badge.success "{count(changes,x=>x.kind=='added')} added"
+          Badge.error "{count(changes,x=>x.kind=='removed')} removed"
+          Badge.info "{count(changes,x=>x.kind=='moved')} moved"
+        Row gap=8
+          Text.muted "{count(changes,x=>x.status=='pending')} pending"
+          Spacer grow
+          Button.ghost "Accept all" onTap={changes=map(changes,x=>x.status=='pending' ? with(x,"status","accepted") : x); toast "All pending changes accepted"}
+        Divider
+        Column scroll gap=8
+          each c in changes
+            Card gap=8 border-left={c.id==current ? "#FF1565C0" : "#FFE0E0E0"} onTap={current=c.id; scroll "p{c.para}"}
+              Row between
+                Row gap=8
+                  Icon "{c.kind=='added' ? 'add_circle' : c.kind=='removed' ? 'remove_circle' : c.kind=='moved' ? 'arrow_right_alt' : 'edit'}"
+                  Text.strong "{c.para}"
+                Badge.neutral "{c.status}"
+              Text "{c.title}"
+              if c.status=="pending"
+                Row gap=8
+                  Button.outline "Accept" icon="check" onTap={changes=updateWhere(changes,x=>x.id==c.id,x=>with(x,"status","accepted"))}
+                  Button.ghost "Reject" icon="close" onTap={changes=updateWhere(changes,x=>x.id==c.id,x=>with(x,"status","rejected"))}
+              if c.status!="pending"
+                Button.ghost "Undo" icon="undo" onTap={changes=updateWhere(changes,x=>x.id==c.id,x=>with(x,"status","pending"))}
+  Dialog#summary "Summary of changes" "v2 signed compared with v3 draft"
+    Grid cols=4 gap=12
+      Card
+        Text.muted "Changed"
+        Text "{count(changes,x=>x.kind=='changed')}" size=32 weight=700
+      Card
+        Text.muted "Added"
+        Text "{count(changes,x=>x.kind=='added')}" size=32 weight=700 color=#FF2E7D32
+      Card
+        Text.muted "Removed"
+        Text "{count(changes,x=>x.kind=='removed')}" size=32 weight=700 color=#FFC62828
+      Card
+        Text.muted "Moved"
+        Text "{count(changes,x=>x.kind=='moved')}" size=32 weight=700 color=#FF6A1B9A
+    Progress {count(changes,x=>x.status!='pending')/length(changes)}
+    Text.muted "{count(changes,x=>x.status!='pending')} of {length(changes)} changes reviewed"
+    Row gap=8 end
+      Button.outline "Close" onTap={close}
+      Button "Review pending" onTap={current=first(filter(changes,x=>x.status=='pending')).id; close}
+### docs/reference/notation/NOTATION.md block 4
+state tab="home"
+state name=""
+App
+  Sidebar w=72
+    NavItem "Home" icon="home" selected={tab == "home"} onTap={tab="home"}
+  Main
+    Button "New" onTap={open create}
+  Pane w=280 hide=tablet
+    Text.heading "Details"
+Dialog#create "New project"
+  Input "Name" @name
+### docs/reference/notation/navigation.md block 7
+state tab="inbox"
+App
+  Sidebar w=72 hide=phone
+    NavItem "Inbox" icon="inbox" selected={tab=="inbox"} onTap={tab="inbox"}
+    NavItem "Sent" icon="send" selected={tab=="sent"} onTap={tab="sent"}
+  Main
+    Text.title "Inbox"
+  Pane w=320 hide=tablet
+    Text.heading "Details"

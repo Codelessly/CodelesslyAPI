@@ -1,0 +1,6 @@
+Column w=fill gap=16 pad=32
+  Variance#bar w=fill minWidths={"tablet":700} variants=[{"id":"phone","breakpoint":"mobile","children":["barNarrow"]},{"id":"wide","breakpoint":"tablet","children":["barWide"]}]
+    Column#barNarrow gap=8
+      Text "Projects (phone)"
+    Row#barWide gap=16
+      Text "Projects (wide)"

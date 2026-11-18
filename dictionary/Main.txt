@@ -1,0 +1,4 @@
+// The pane of an app's window that takes the room left, as tall as the window, and scrolls. It does not say: outside an App it is a column that grows (it reads the line it is under); a slim bar with the drawer's button when it has no top bar of its own; the window's foot (a Footer in it) kept in view while its middle scrolls; the role mark the reflow reads.
+Main
+  Column grow h=fill scroll
+    ...

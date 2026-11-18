@@ -1,0 +1,51 @@
+// Uses of Brand: screens of the first corpus and blocks of the notation reference that write it,
+// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.
+### tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Favourites
+App fill=#FFFBF3
+  Sidebar fill=#FFF3E2
+    Brand "Mise" icon="skillet" font=serif color=#FF4F7A3A
+    NavItem "Recipes" icon="menu_book" onTap={go recipes}
+    NavItem "Week" icon="calendar_month" onTap={go week}
+    NavItem "Shopping list" icon="shopping_basket" onTap={go shopping}
+    NavItem "Favourites" icon="favorite" selected={true} badge="{length(favs)}" onTap={go favourites}
+  Main
+    Nav
+      Heading "Favourites" level=1 font=serif color=#FF4F7A3A
+    Column pad=24 gap=16 scroll
+      if length(favs)==0
+        Column center gap=8 pad=48
+          Dish "empty-heart" h=120
+          Heading "No favourites yet" level=3 font=serif
+          Text.muted "Tap the heart on any recipe to keep it here."
+          Button "Browse recipes" onTap={go recipes}
+      Grid cols=4 gap=16
+        each r in filter(recipes,x=>contains(favs,x.id))
+          Card gap=8 radius=16 onTap={cur=r; serv=r.serv; have=[]; go recipe}
+            Dish "{r.kind}" h=120
+            Heading "{r.name}" level=3 font=serif
+            Row between middle
+              Text.small "{r.mins} min - {r.lvl}"
+              IconButton "favorite" color=#FFD9482B onTap={favs=without(favs,r.id); toast "Removed"}
+### docs/reference/notation/navigation.md block 1
+Page
+  Nav
+    Brand "Tidewater" icon="waves"
+    Link "Pricing"
+  Section
+    Heading "Fill every room" level=1
+  Footer
+    Text.muted "© 2026"
+### docs/reference/notation/navigation.md block 5
+state tab="members"
+App
+  Sidebar
+    Brand "Tenant" "Admin console" icon="hub"
+    NavSection "People & access"
+    NavItem "Members" icon="group" selected={tab=="members"} onTap={tab="members"} shortcut="Alt 1"
+    NavItem "Teams" icon="groups" badge="4" selected={tab=="teams"} onTap={tab="teams"}
+    NavSection "Workspace"
+    NavItem "Billing" icon="credit_card" selected={tab=="billing"} onTap={tab="billing"}
+    Footer
+      NavItem "Keyboard shortcuts" icon="keyboard" shortcut="?"
+  Main
+    Text "Members"

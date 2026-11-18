@@ -1,0 +1,9 @@
+// Uses written for a shape no answer of the first corpus has (no answer writes SidebarFooter).
+### written: a sidebar's foot
+App
+  Sidebar
+    NavItem "Inbox" icon="inbox"
+    SidebarFooter
+      NavItem "Settings" icon="settings"
+  Main
+    Text "Mail"

@@ -1,0 +1,12 @@
+Page
+  Nav
+    Brand "Acme"
+    Link "Pricing" href="#pricing"
+    Link "Docs" href="#docs"
+    Link "Blog" href="#blog"
+  Section#pricing
+    Text "Pricing"
+  Section#docs
+    Text "Docs"
+  Section#blog
+    Text "Blog"

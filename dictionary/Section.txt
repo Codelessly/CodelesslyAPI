@@ -1,0 +1,10 @@
+// A full-width band of a website page, its content in a centred column 1120 wide (720 when narrow). It does not say: the alignment words a use writes go to the inner column (a use's universal words go to the root); compact (half the padding), bleed (no width) and tint (the theme's band, ruled above and below) choose lines and values as the use is read; outside a Page it is a plain column (it reads the line it is under); the role mark the reflow reads.
+Section gap=32 tint=false
+  Column w=fill center pad=[24,64,24,64]
+    Column w=fill maxw=1120 gap={gap}
+      ...
+
+Section#narrow narrow! gap=32 tint=false
+  Column w=fill center pad=[24,64,24,64]
+    Column w=fill maxw=720 gap={gap}
+      ...
