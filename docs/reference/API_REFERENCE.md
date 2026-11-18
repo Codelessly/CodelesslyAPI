@@ -805,7 +805,7 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3587 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1365 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1387 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13596 |
 
 <a id="index-a-z"></a>
@@ -10931,7 +10931,8 @@ The render step reports what rendering shows: `render_exception` (naming the nod
 `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
-`component_missing`, `set_overwritten`, `page_not_written`. Links to a screen that is missing are one
+`component_missing`, `set_overwritten`, `page_not_written`, `placeholder_word` (a word that stood in when the site's
+notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it). Links to a screen that is missing are one
 `unknown_screen` per screen, with how many links name it; a page `site.json` lists whose file is not written yet is
 one `page_not_written` warning per file instead (its links are checked once it is written). Formulas are
 parsed by the SDK's own parser there, so formula syntax errors and unknown names in formulas are reported only by

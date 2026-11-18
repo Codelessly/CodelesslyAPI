@@ -22,7 +22,14 @@ notation in its `components/*.txt` and every expanded one `site.json` lists, rea
 (a component that writes one does not make its own) and takes the site's theme. `tool/notation/notation.sh expand
 <site folder>` expands the whole site, each component after the ones it calls, then every page. A component named
 like a word of the notation (`Footer`, `Sidebar`, `Card`) is not called where that word is read: the expander says
-so; write `Footer type=Footer`, or give the component a name of its own (`SiteFooter`).
+so; write `Footer type=Footer`, or give the component a name of its own (`SiteFooter`). A `components/<Name>.txt`
+whose first line is `define Name …` (or `primitive`) is the site's definitions instead: every page and component
+reads them, as a page reads a `define` after its last line; a file that is neither fails the expand, `--open` too,
+saying what to write. A word the notation already has is the notation's, whoever defines it: a page's or a site's
+`define`, `primitive` or component named like a core word, a page word or a name the notation reads as one of its
+own (`Card`, `Rail`, `Shortcut`) is not used, and the expand says so at the definition. Every
+expand saves the site's vocabulary record (`vocabulary.json` and `VOCABULARY.md` in the site's folder) and says
+each word that stood in as a placeholder.
 
 <a id="components-writing-one"></a>
 ## Writing one

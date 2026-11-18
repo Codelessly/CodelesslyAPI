@@ -21,6 +21,7 @@ import '../props.dart';
 import '../suggest.dart' show didYouMean;
 import '../triggers.dart' show KeyCombo;
 import 'bind_form.dart';
+import 'brackets.dart';
 import 'declared.dart';
 import 'define.dart';
 import 'formula_names.dart';
@@ -1349,6 +1350,45 @@ const _borderSides = {
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
 const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'bottom': 'end', 'right': 'end', 'stretch': 'stretch'};
 
+/// What the notation already has under [word], in one line with its
+/// signature, or null when it has nothing a writer's definition would hide:
+/// a type of the notation or of the catalog (`Card`, `Text`), a page word
+/// (`App`, `Rail`, `Footer`), a heading (`H2`), or a name [vocabulary]'s
+/// alias table reads as one of those (`Shortcut`, a `key` line). A design
+/// system's component (a page's definition may replace it, docs/design/20
+/// section 6) and a word the design system defines are not.
+///
+/// The owner's decision (2026-11-18): a built-in word wins. A page's or a
+/// site's `define`, `primitive` or component of such a name is not used,
+/// and is said at the definition (before, `primitive Shortcut` turned every
+/// shortcut of test 10's kanban board into a labelled box, and `define Card`
+/// was not used, with no word).
+String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
+  if (word.isEmpty) return null;
+  final c = catalog ?? Catalog.current;
+  if (PageWords.words.contains(word)) return '$word, a word of the page (its frames and their lines: App, Sidebar, Rail, Main, Nav, Section, Footer, Dialog…): $word …';
+  if (RegExp(r'^H[1-4]$').hasMatch(word)) return '$word, a heading: $word "text"';
+  final lower = '${word[0].toLowerCase()}${word.substring(1)}';
+  final type = notationTypes[word]?.type ?? (c.widget(lower) != null ? lower : null);
+  if (type != null) return '$word, a word of the notation (a $type): $word "text" key=value …';
+  if (vocabulary.types[word] case final a? when !vocabulary.definitions.containsKey(word)) {
+    return switch (a.line) {
+      'shortcut' => '$word, read as the notation\'s shortcut line: key mod+k onPress={…}',
+      'computed' => '$word, read as a state line: state total={…}',
+      'confirmDialog' => '$word, read as a Dialog with a Cancel and a Confirm button: $word#id "Title" "Message" onConfirm={…}',
+      final String l => '$word, read as the notation\'s $l line',
+      null => '$word, read as the notation\'s ${a.to}${a.variant == null ? '' : '.${a.variant}'}',
+    };
+  }
+  return null;
+}
+
+/// What is said at a writer's definition of [word], which [builtIn]
+/// ([notationBuiltInWord]) says the notation has: it is not used.
+String notationBuiltInDefinition(String word, String builtIn, {String kind = 'definition'}) =>
+    'The notation already has $builtIn. So this $kind of $word is not used: $word is the notation\'s. '
+    'If it is meant to be something else, give it a name of its own (My$word).';
+
 /// [text] in the compact notation as a layout document. Never throws: what
 /// cannot be read is reported and skipped.
 ///
@@ -1393,14 +1433,14 @@ final class NotationStream {
     _buffer
       ..clear()
       ..write(text.substring(end + 1));
-    text.substring(0, end).split('\n').forEach(_parser.line);
+    text.substring(0, end).split('\n').forEach(_parser._readLine);
     return _take();
   }
 
   List<Json> close() {
     final rest = _buffer.toString();
     _buffer.clear();
-    if (rest.isNotEmpty) _parser.line(rest);
+    if (rest.isNotEmpty) _parser._readLine(rest);
     _parser.finish();
     // A text with no line of a node (a print that says its document on the
     // `document {…}` line): the screen is sent now, as its first line would.
@@ -1914,6 +1954,7 @@ class _Parser {
     page: identical(_top, this) ? null : _top._defined.page,
     variable: (name) => variables.containsKey(name) || _stack.any((o) => o.each == name),
     internal: (name) => _top._internal.add(name),
+    builtIn: (word) => switch (_builtIn(word)) { final what? => notationBuiltInDefinition(word, what), _ => null },
     bindsVariable: (name, column, start) => _bindsVariable(name, column, () {
       if (start == null) return '';
       final v = _value(start.trim());
@@ -2043,6 +2084,12 @@ class _Parser {
 
   /// Whether [word] is a type of the notation itself, the catalog or the
   /// page words: no definition changes what such a word means.
+  /// What the notation has under [word] that a writer's definition does not
+  /// replace ([notationBuiltInWord]); null for a design system's component,
+  /// which a page's own definition may replace.
+  String? _builtIn(String word) =>
+      _componentNames(word) != null ? null : notationBuiltInWord(word, catalog: catalog, vocabulary: options.vocabulary);
+
   bool _ownType(String word) =>
       notationTypes.containsKey(word) ||
       catalog.widget('${word[0].toLowerCase()}${word.substring(1)}') != null ||
@@ -3655,9 +3702,21 @@ class _Parser {
     final others = options.vocabulary.definitions;
     if (definitions != null) {
       final more = readPageDefinitions(definitions, others: others);
+      // A word the notation has is the notation's (said where the more text
+      // is read: a site's definition file).
+      more.words.removeWhere((w, _) => _builtIn(w) != null);
       _defined.preread(more.words);
     }
     final own = readPageDefinitions(text, others: others);
+    // A word the notation has is the notation's: the text's definition of it
+    // is not used, and said where it is written.
+    for (final w in own.words.keys.toList()) {
+      if (_builtIn(w) case final what?) {
+        for (final d in own.words.remove(w)!) {
+          issues.add(NotationIssue(d.line, 1, notationBuiltInDefinition(w, what, kind: d.primitive ? 'primitive' : 'definition')));
+        }
+      }
+    }
     _defined.preread(own.words, signatures: own.signatures);
     for (final p in own.problems) {
       issues.add(NotationIssue(p.line, 1, p.message));
@@ -3665,9 +3724,21 @@ class _Parser {
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     // A page that writes its own drawer gets none made from its sidebar.
     if (RegExp(r'^Drawer\b', multiLine: true).hasMatch(text)) _pages.ownDrawer = true;
-    const LineSplitter().convert(text).forEach(line);
+    const LineSplitter().convert(text).forEach(_readLine);
     finish();
     return _end();
+  }
+
+  /// The text read so far, for what its brackets say at [finish].
+  final _rawText = StringBuffer();
+
+  /// Reads [raw], a line of the text, kept for [finish] to say what its
+  /// brackets leave unread (brackets.dart): a formula with a `)` that closes
+  /// nothing was kept as written and read as nothing, with no word (test 10,
+  /// kanban).
+  void _readLine(String raw) {
+    _rawText.writeln(raw);
+    line(raw);
   }
 
   /// The end of the text, read whole or as it arrived ([NotationStream]):
@@ -8179,6 +8250,13 @@ class _Parser {
 
   /// The end of the text: what is still open closes.
   void finish() {
+    // What the text's brackets leave unread (brackets.dart), once it is all
+    // here: a line a list or a JSON escape carries over the next is read
+    // joined, as [line] reads it.
+    if (!_mediaLine && _rawText.isNotEmpty) {
+      issues.addAll(notationBracketIssues(_rawText.toString()));
+      _rawText.clear();
+    }
     if (_host == null) {
       _closeBlock();
       // The viewer a gallery of the page opens its photos in, over the window.
