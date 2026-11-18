@@ -53,6 +53,7 @@ final class PageWords {
     this.menu = false,
     this.sidebarMenu,
     this.surface = '#FFFFFFFF',
+    this.overlaySurface,
     this.viewer,
     this.takesViewer = _none,
   });
@@ -114,6 +115,12 @@ final class PageWords {
 
   /// What a drawer's panel is drawn on when the theme names no pane fill.
   final String surface;
+
+  /// With no theme of its own (no design system): the theme's role an
+  /// overlay's panel is drawn in (`surface`), and its title and close button
+  /// in `onSurface`, so a dialog or a drawer follows the site's theme and
+  /// its dark mode. Null: the design system's looks, as written.
+  final String? overlaySurface;
 
   /// The id of the lightbox a design system's gallery opens its photos in
   /// on a page (a component [takesViewer] names: it has `photos` and
@@ -230,6 +237,9 @@ final class PageWords {
   /// the window drops the first of two panes there.
   String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 ? 'tablet' : 'phone';
 
+  /// The ink of what an overlay draws by itself, with no theme of its own.
+  String get _overlayInk => overlaySurface == null ? '' : ' color=onSurface';
+
   static final _overlayHead = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)(?=\s|$)');
 
   /// The overlay a top-level line opens (`Dialog#signup "Join"`,
@@ -255,10 +265,18 @@ final class PageWords {
     // `guard={expression}`: while it holds, a tap outside, Escape and back do
     // not close it (a form with something typed); `stops=[0.5,0.9]`: the
     // heights a sheet rests at, as shares of the window.
-    final guard = switch (parts.take('guard')) {
-      final String g when g.startsWith('{') && g.endsWith('}') && g.length > 2 => g.substring(1, g.length - 1).trim(),
-      final g => g,
+    // `blockBack={…}` (the canvas's key, as events.md names it) is the same.
+    String? braced(String? g) => switch (g) {
+          final String g when g.startsWith('{') && g.endsWith('}') && g.length > 2 => g.substring(1, g.length - 1).trim(),
+          final g => g,
+        };
+    // `onBackPressed={…}`: what Escape, a tap outside and back do instead of
+    // closing it (while the guard holds; with no guard, always).
+    final onBack = switch (parts.take('onBackPressed')) {
+      final String d when d.startsWith('{') && d.endsWith('}') => d.substring(1, d.length - 1).trim(),
+      _ => null,
     };
+    final guard = braced(parts.take('guard')) ?? braced(parts.take('blockBack')) ?? (onBack == null ? null : 'true');
     // `guardText="Discard changes?"`: what Escape, a tap outside and back do
     // while the guard holds: ask that, and on a yes run `onDiscard={…}` and
     // close.
@@ -280,8 +298,8 @@ final class PageWords {
     // What heads a dialog or a sheet: its title, a close button, a line under it.
     List<PageLine> titled() => [
           if (title != null) (indent: 2, text: 'Row w=fill between middle gap=12'),
-          if (title != null) (indent: 4, text: 'Text${heading == null ? '' : '.$heading'} $title grow'),
-          if (title != null) (indent: 4, text: 'IconButton "close" onTap={close}'),
+          if (title != null) (indent: 4, text: 'Text${heading == null ? '' : '.$heading'} $title grow$_overlayInk'),
+          if (title != null) (indent: 4, text: 'IconButton "close"$_overlayInk onTap={close}'),
           if (note != null) (indent: 2, text: 'Text${textVariants.contains('muted') ? '.muted' : ''} $note'),
         ];
     switch (head[1]!) {
@@ -294,10 +312,10 @@ final class PageWords {
         if (isFrame('Dialog')) {
           return Overlay('dialog', id, width ?? 480, action, [
             (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.hasEvent ? parts.props : '${parts.props} onTap={close}'}${parts.tail}'),
-          ], surface: false, guard: guard, guardText: guardText, onDiscard: discard);
+          ], surface: false, guard: guard, guardText: guardText, onDiscard: discard, onBack: onBack);
         }
         final pad = parts.take('pad') ?? '24', gap = parts.take('gap') ?? '16';
-        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16, guard: guard, guardText: guardText, onDiscard: discard);
+        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16, guard: guard, guardText: guardText, onDiscard: discard, onBack: onBack);
       case 'Sheet' || 'BottomSheet':
         final pad = parts.take('pad') ?? '[20,8,20,24]', gap = parts.take('gap') ?? '16';
         final w = width ?? 560;
@@ -311,6 +329,7 @@ final class PageWords {
           guard: guard,
           guardText: guardText,
           onDiscard: discard,
+          onBack: onBack,
         );
       case 'Drawer':
         // A panel as tall as the window at its side; a tap beside it closes it.
@@ -327,8 +346,10 @@ final class PageWords {
           [
             (indent: 0, text: 'App'),
             if (right) beside,
-            (indent: 2, text: 'Sidebar w=${_n(w)} pad=$pad gap=$gap${parts.has('fill') || paneFill != null ? '' : ' fill=$surface'}${parts.all}'),
-            if (title != null) (indent: 4, text: 'Text${heading == null ? '' : '.$heading'} $title'),
+            // A drawer's edge is the scrim's: no rule at its side (a light
+            // line round a dark panel), unless the line writes a border.
+            (indent: 2, text: 'Sidebar w=${_n(w)} pad=$pad gap=$gap${parts.has('fill') || paneFill != null ? '' : ' fill=${overlaySurface ?? surface}'}${parts.hasBorder ? '' : ' border-right=#00000000'}${parts.all}'),
+            if (title != null) (indent: 4, text: 'Text${heading == null ? '' : '.$heading'} $title$_overlayInk'),
           ],
           shift: 2,
           foot: [if (!right) beside],
@@ -1028,6 +1049,12 @@ final class PageWords {
       open();
       return out..add((indent: at, text: 'Text${variant == null ? '' : '.$variant'}${mark.startsWith('#') ? mark : ''}${parts.all}'));
     }
+    // `Row … phone.direction=vertical`: a row that is a column at some width
+    // is a Flex, which has a direction to change.
+    if ((word == 'Row' || word == 'Column') && !isComponent(word) && _turns.hasMatch(rest)) {
+      open(frame: null);
+      return out..add((indent: at, text: 'Flex$mark direction=${word == 'Row' ? 'horizontal' : 'vertical'}${parts.all}'));
+    }
     open(frame: null);
     return out..add((indent: at, text: text));
   }
@@ -1047,11 +1074,29 @@ final class PageWords {
     final filled = look.any((l) => l.startsWith('fill='));
     final pad = parts.take('pad') ?? (!filled && look.any((l) => l.startsWith('border-left')) ? '[12,2,0,2]' : '[8,3,8,3]');
     final grow = parts.word('grow') ? ' grow' : '';
+    // Where it shows, and the box's keys at other widths, are the box's: a
+    // text hidden on a tablet leaves no empty box behind (hide=tablet,
+    // phone.hidden, visible={…}, tablet.pad=4).
+    final shown = [
+      for (final k in const ['hide', 'show', 'visible', 'hidden'])
+        if (parts.take(k) case final String v) '$k=$v',
+      if (parts.word('hidden')) 'hidden',
+      ...parts.takeMatching(_boxRule),
+    ];
     return [
-      (indent: at, text: 'Box${filled && !look.any((l) => l.startsWith('w=')) ? ' w=hug' : ''} ${look.join(' ')} pad=$pad$grow'),
+      (indent: at, text: 'Box${filled && !look.any((l) => l.startsWith('w=')) ? ' w=hug' : ''} ${look.join(' ')} pad=$pad$grow${shown.map((w) => ' $w').join()}'),
       (indent: at + 2, text: 'Text$mark${text.isEmpty ? '' : ' $text'}${parts.props}${action ?? parts.tail}'),
     ];
   }
+
+  /// A rule at another width of a key the box around a text takes (its
+  /// look, its size, its padding, whether it shows): `tablet.hidden`,
+  /// `phone.pad=4`, `max899.fill=…`.
+  /// A rule at another width that turns a line's direction (`phone.direction=vertical`).
+  static final _turns = RegExp(r'(?:^|\s)(?:(?:phone|mobile|tablet|desktop|portrait|landscape|(?:min|max)(?:\d+|[A-Z][A-Za-z0-9]*))\.)+direction=');
+
+  static final _boxRule = RegExp(
+      r'^(?:(?:phone|mobile|tablet|desktop|portrait|landscape|(?:min|max)(?:\d+|[A-Z][A-Za-z0-9]*))\.)+(?:fill|radius|border(?:-[a-z]+)?|w|maxw|pad|hidden|visible)(?:=|$)');
 
   bool isComponentCall(String word, _Parts parts) => isComponent(word) && (parts.has('items') || parts.has('title') || parts.has('brand'));
 
@@ -1201,7 +1246,8 @@ final class Overlay {
       this.variables = const {},
       this.guard,
       this.guardText,
-      this.onDiscard});
+      this.onDiscard,
+      this.onBack});
 
   /// The condition, as written, while which a tap outside, Escape and back
   /// do not close it (`guard={name != ""}`); null: they always do.
@@ -1214,6 +1260,10 @@ final class Overlay {
 
   /// The actions a yes to [guardText] runs before it closes (`draft=""`).
   final String? onDiscard;
+
+  /// What Escape, a tap outside and back run while [guard] holds, in place
+  /// of closing it (`onBackPressed={open keepDraft}`); before [guardText].
+  final String? onBack;
 
   /// In [foot], a line that stands for the lines written under the block
   /// (else [empty]), read again there: a gallery's picture in its thumbnails.
@@ -1361,6 +1411,13 @@ class _Parts {
 
   /// Whether the bare [word] was written; it is removed.
   bool word(String word) => _tokens.remove(word);
+
+  /// The words that match [pattern], removed, in order.
+  List<String> takeMatching(RegExp pattern) {
+    final found = [for (final t in _tokens) if (pattern.hasMatch(t)) t];
+    _tokens.removeWhere(pattern.hasMatch);
+    return found;
+  }
 
   List<String> takeWords(Set<String> words) {
     final found = [for (final t in _tokens) if (words.contains(t)) t];

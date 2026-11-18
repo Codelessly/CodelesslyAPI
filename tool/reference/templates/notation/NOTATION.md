@@ -213,8 +213,11 @@ Column pad=48 phone.pad=16
   Text "Wide" phone.size=14 hide=tablet
 ```
 
-Bounds in pixels (`min700`, `max899`), breakpoints (`minTablet`), orientation (`portrait`) and combined conditions
-are on [responsive.md](responsive.md).
+A page expanded at a desktop's width gets rules for a tablet and a phone of its own (reflow: bands wrap, an app's
+window drops its side panes); a line with its own rules, a Row of a list or of a toolbar, and a line written `keep`
+are left as written. A component's own rules (its root's `tablet.w=64`) hold where it is called, unless the call
+writes its width. Bounds in pixels (`min700`, `max899`), breakpoints (`minTablet`), orientation (`portrait`),
+combined conditions and what reflow does are on [responsive.md](responsive.md).
 
 ## Hover, press, focus
 

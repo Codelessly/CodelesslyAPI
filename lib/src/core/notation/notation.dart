@@ -115,6 +115,7 @@ final class NotationOptions {
     this.accent = '#FF2563EB',
     this.track = '#FFE5E7EB',
     this.components = const {},
+    this.componentRules = const {},
     this.badge = defaultBadge,
     this.cta,
     this.palette = const {},
@@ -178,6 +179,7 @@ final class NotationOptions {
         accent: accent,
         track: track,
         components: components,
+        componentRules: componentRules,
         badge: badge,
         cta: cta,
         palette: palette,
@@ -267,6 +269,10 @@ final class NotationOptions {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
             c.type: (width: size(root.layout.width.fit, root.layout.width.value), height: size(root.layout.height.fit, root.layout.height.value)),
+      },
+      componentRules: {
+        for (final c in designSystem.list)
+          if (c.document.nodes[c.document.roots.firstOrNull] case final root? when root.media.isNotEmpty) c.type: [for (final r in root.media) r.toJson()],
       },
     );
   }
@@ -470,6 +476,7 @@ final class NotationOptions {
         accent: accent,
         track: track,
         components: components,
+        componentRules: componentRules,
         badge: badge,
         cta: cta,
         palette: palette,
@@ -530,6 +537,12 @@ final class NotationOptions {
   /// A design system's components by type, each with the width and height
   /// a call takes when it writes none (a number, `{fill: 0}` or `{hug: 0}`).
   final Map<String, ({Object width, Object height})> components;
+
+  /// A design system's components' own rules at other widths (their root's
+  /// media rules), by type: what a call takes of them, its size and whether
+  /// it shows (`w=232 tablet.w=64` on the root of a sidebar), unless the
+  /// call says that itself.
+  final Map<String, List<Json>> componentRules;
 
   /// What a `BarChart` takes unless the line says (`barRadius`, `barGap`,
   /// `maxBarWidth`, its labels' font and colors): a theme's `radii.bar`,
@@ -1510,6 +1523,11 @@ class _Parser {
     return [top, ...top._overlays].any((p) => p.nodes.containsKey(id) || p.options.screen == id);
   }
 
+  /// Whether the notation reads with no theme of its own (no design
+  /// system): what it draws by itself in an overlay (its panel, its title)
+  /// then takes the site's theme's roles, `surface` and `onSurface`.
+  bool get _themeless => identical(options.card, defaultCard) && options.surface == '#FFFFFFFF';
+
   /// Whether a line is still open over the next ones.
   bool get _continues => _pending != null || _open != null;
 
@@ -1526,7 +1544,13 @@ class _Parser {
         };
       }
       return {
-        'fills': _copyValue(readMap(options.card['decoration'])?['fills']) ?? _surface['fills'],
+        // With no theme of its own the notation draws an overlay in the
+        // site's theme's surface (a role: dark in dark mode), not in white.
+        'fills': _themeless
+            ? [
+                {'color': 'surface'},
+              ]
+            : _copyValue(readMap(options.card['decoration'])?['fills']) ?? _surface['fills'],
         if (o.radius > 0) 'radius': o.radius,
         if (o.outlined)
           'strokes': [
@@ -1571,7 +1595,12 @@ class _Parser {
     final sub = _Parser(catalog, options.sized(width: o.width < 640 ? o.width : 640, screen: o.id), this, o);
     // A guarded overlay with a question: what would close it (blocked while
     // the guard holds, it runs the canvas's back reactions) asks it first.
-    if (o.guard != null && o.guardText != null) {
+    if (o.guard != null && o.onBack != null) {
+      sub._timers.add({
+        'trigger': {'type': 'backPressed'},
+        'actions': sub._actions(o.onBack!, 1),
+      });
+    } else if (o.guard != null && o.guardText != null) {
       final discard = o.onDiscard == null || o.onDiscard!.isEmpty ? '' : '${o.onDiscard}; ';
       sub._timers.add({
         'trigger': {'type': 'backPressed'},
@@ -2344,6 +2373,7 @@ class _Parser {
     // page) is the drawer's.
     sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen.replaceAll('-', '_')}_sidebar' : null,
     surface: options.surface,
+    overlaySurface: identical(options.card, defaultCard) && options.surface == '#FFFFFFFF' ? 'surface' : null,
     viewer: _host == null && options.width >= 700 ? '${options.screen.replaceAll('-', '_')}Viewer' : null,
     takesViewer: (name) {
       if (notationTypes[name] != null) return false;
@@ -2367,6 +2397,10 @@ class _Parser {
   /// (its id → the grid's).
   final _keepColumns = <String>{};
   final _gridLists = <String, String>{};
+
+  /// The lines written `keep` that are not a Grid's: the reflow leaves each,
+  /// and what is in it, as written.
+  final _keep = <String>{};
 
   /// The anchors (`id=why` on a line) by name → the node, and the scroll
   /// actions written, which name an anchor or an id.
@@ -2548,6 +2582,7 @@ class _Parser {
       fillsItsPlace: (type) => switch (options.components[type]?.width) { final Map m => m.containsKey('fill'), _ => false },
       listDetailState: _host == null ? _listDetailName : null,
       variableStart: (name) => variables[name]?['value'],
+      kept: _keep,
     );
     final rules = reflow.run();
     for (final e in rules.entries) {
@@ -4122,6 +4157,15 @@ class _Parser {
     // Its states' words (`hovered.fill=…`, `btn.selected.color=…`) and its name.
     final stateWords = <_StateWord>[];
     var wroteColor = false;
+    // A Flex written `scroll`: it scrolls along its direction.
+    var flexScroll = false;
+    // On a component's call, the sizes the line writes (its own win over the
+    // component's rules at other widths).
+    Set<String>? callSizes;
+    // The keys of a Text's style that came from the body's look, not from
+    // the line: a named style (from=title) the line names later replaces them.
+    var seededStyle = const <String>{};
+    final wroteStyle = <String>{};
     String? chipColor, fieldInk, fieldSize, listIcon, inputValue, removeActions;
     var disabledBy = '', required = false, clearable = false;
     ({String combo, int column})? lineShortcut;
@@ -4791,6 +4835,12 @@ class _Parser {
             _keepColumns.add(grid.id);
             continue;
           }
+          // `Row#window keep`: the reflow leaves it, and what is in it, as
+          // written at every width (the writer lays it out by width).
+          if (word == 'keep' && !component && const {'row', 'column', 'flex', 'stack', 'listView', 'gridView', 'wrap'}.contains(type)) {
+            _keep.add(id);
+            continue;
+          }
           if (written == 'Box' && (word == 'center' || word == 'middle')) {
             // A box centers what is in it: across with `center`, down with
             // `middle` (or with `center` alone).
@@ -4836,9 +4886,9 @@ class _Parser {
               _ => body is Map ? _copy(body.cast<String, Object?>()) : body is String ? <String, Object?>{'from': body} : <String, Object?>{},
             };
             props['style'] = style..['fontStyle'] = 'italic';
-          } else if (_mainWords[word] case final String m when type == 'row' || type == 'column') {
+          } else if (_mainWords[word] case final String m when type == 'row' || type == 'column' || type == 'flex') {
             props['mainAxisAlignment'] = m;
-          } else if (_crossWords[word] case final String c when type == 'row' || type == 'column') {
+          } else if (_crossWords[word] case final String c when type == 'row' || type == 'column' || type == 'flex') {
             props['crossAxisAlignment'] = c;
           } else if (num.tryParse(word) != null && (_valueProps[type]?.type == 'decimal' || _shownValue[type] == 'value')) {
             // A bare number on a slider or a progress bar is its value.
@@ -4857,8 +4907,9 @@ class _Parser {
             }
           } else if (word == 'grow') {
             layout['flex'] = 1;
-          } else if (word == 'scroll' && (type == 'column' || type == 'row')) {
+          } else if (word == 'scroll' && (type == 'column' || type == 'row' || type == 'flex')) {
             props['scrollable'] = true;
+            flexScroll = type == 'flex';
             // A row scrolls along itself: sideways.
             if (type == 'row') props['scrollDirection'] = 'horizontal';
           } else if (word == 'fill') {
@@ -5678,12 +5729,25 @@ class _Parser {
           // so it keeps the ink and font (with none it would have no color
           // and show nothing).
           final body = options.textStyles['body'];
+          // A named style written first (style=title, from=title) is the
+          // style the key changes: `style=title size=13` is the title at 13.
+          final named = props['style'] is String || key == 'from';
           final style = switch (props['style']) {
             final Map m => m.cast<String, Object?>(),
+            final String name => <String, Object?>{'from': name},
+            _ when key == 'from' => <String, Object?>{},
             _ => body is Map ? _copy(body.cast<String, Object?>()) : body is String ? <String, Object?>{'from': body} : <String, Object?>{},
           };
+          if (props['style'] is! Map && !named && body is Map) seededStyle = {for (final k in body.keys) '$k'};
           final v = key == 'color' ? _named(_value(raw), 'text') : _value(raw);
-          style[_textStyleKeys[key]!] = key == 'bold' ? 700 : v;
+          final field = _textStyleKeys[key]!;
+          wroteStyle.add(field);
+          // `size=34 from=title`: the body's look the size started from gives way to the title's.
+          if (key == 'from') {
+            style.removeWhere((k, _) => seededStyle.contains(k) && !wroteStyle.contains(k));
+            seededStyle = const {};
+          }
+          style[field] = key == 'bold' ? 700 : v;
           props['style'] = style;
           if (v == null && key != 'bold') nulled.add('props.style.${_textStyleKeys[key]!}');
           continue;
@@ -5725,6 +5789,12 @@ class _Parser {
         }
         if (key == 'hidden' && raw.startsWith('=')) {
           bind['visible'] = _formula('!(${raw.substring(1)})');
+          continue;
+        }
+        // `hidden=true` is the bare `hidden` (and `tablet.hidden=true` its
+        // rule at a width); `hidden=false` is shown.
+        if (key == 'hidden' && (raw == 'true' || raw == 'false')) {
+          node['visible'] = raw == 'false';
           continue;
         }
         // Input "Search" icon="search": the icon inside the field, before
@@ -5853,6 +5923,16 @@ class _Parser {
           }
           // A field of the style of the text it shows starts from the style
           // its words start from (the body's, an Input's own).
+          // `from=title` on a Text: the title's style, with only what the line
+          // writes over it (not the body's look a size started from).
+          if (type == 'text' && path == 'props.style.from') {
+            if (props['style'] case final Map m) {
+              props['style'] = {...m.cast<String, Object?>()}..removeWhere((k, _) => seededStyle.contains(k) && !wroteStyle.contains(k));
+            } else {
+              props['style'] = <String, Object?>{};
+            }
+            seededStyle = const {};
+          }
           if (notationTextStyleProp(spec) case final style? when path.startsWith('props.${style.key}.') && props[style.key] is! Map) {
             final base = style.key != 'style'
                 ? null
@@ -5966,6 +6046,10 @@ class _Parser {
       // fill or a border written on it is left out.
       decoration.clear();
       bind.removeWhere((k, _) => k.startsWith('decoration.'));
+      callSizes = {
+        if (layout.containsKey('width') || layout.containsKey('flex')) 'width',
+        if (layout.containsKey('height')) 'height',
+      };
       layout.putIfAbsent('width', () => own?.width ?? {'hug': 0});
       layout.putIfAbsent('height', () => own?.height ?? {'hug': 0});
     }
@@ -6334,6 +6418,14 @@ class _Parser {
         });
       }
     }
+    // A bare Spacer pushes what follows it to the end, as Flutter's does
+    // (an Expanded): it takes the room left in its row or column.
+    if (type == 'spacer' && !layout.containsKey('flex') && !layout.containsKey('width') && !layout.containsKey('height') && !bind.containsKey('layout.width') && !bind.containsKey('layout.height')) {
+      layout['flex'] = 1;
+    }
+    // A Flex that scrolls scrolls along its direction (at every width: a rule
+    // that turns it changes where it scrolls too).
+    if (flexScroll && props['scrollable'] == true) props['scrollDirection'] = props['direction'] == 'vertical' ? 'vertical' : 'horizontal';
     if (type == 'progressBar' && options.progress['height'] != null) layout.putIfAbsent('height', () => options.progress['height']);
     // A card that writes no gap takes the theme's.
     if ((written == 'Card' && !component) && options.cardGap != null) props.putIfAbsent('spacing', () => options.cardGap);
@@ -6573,8 +6665,19 @@ class _Parser {
     } else {
       layout['width'] = _size(layout['width']);
     }
+    // A box that grows in a column takes the height left there (Flutter's
+    // Expanded): a list or a column that scrolls under a bar is bounded by
+    // it, with no h=fill to add (`Column#body scroll grow`).
+    final growsDown = !layout.containsKey('height') &&
+        !bind.containsKey('layout.height') &&
+        layout.containsKey('flex') &&
+        parent?.type == 'column' &&
+        !inRow &&
+        const {'column', 'row', 'flex', 'stack', 'listView', 'gridView'}.contains(type);
     // A page is as tall as its page view.
-    layout['height'] = layout.containsKey('height') ? _size(layout['height']) : parent?.pages != null ? {'fill': 0} : {'hug': 0};
+    layout['height'] = growsDown
+        ? {'fill': 0}
+        : layout.containsKey('height') ? _size(layout['height']) : parent?.pages != null ? {'fill': 0} : {'hug': 0};
     // A height written by its full path (`layout.height=108`,
     // `layout.height=hug`) is that height exactly: no rule of the line or of
     // a line under it changes it (design 22, 4.8).
@@ -6831,6 +6934,7 @@ class _Parser {
       final rules = _mediaRules(mediaWords, t.s.substring(0, t.at).trimRight(), parent?.type, type, readMap(out['bind'])?.keys ?? const []);
       if (rules.isNotEmpty) out['media'] = rules;
     }
+    if (callSizes != null) _componentRules(type, callSizes, out);
     nodes[id] = out;
     // A list tile's leading icon (icon= on a ListTile).
     if (listIcon case final String icon when type == 'listTile') {
@@ -7071,6 +7175,40 @@ class _Parser {
       }
     }
     _donuts.clear();
+  }
+
+  /// A component's call takes the rules its definition's root has at other
+  /// widths for what the call's box is (its width, its height, whether it
+  /// shows: `Column#nav w=232 tablet.w=64 hide=phone` in AppNav), before the
+  /// line's own rules; a size the call writes ([written]: `w=`, `grow`, `h=`)
+  /// or a rule the line gives that key is the call's, and wins.
+  void _componentRules(String type, Set<String> written, Json out) {
+    final rules = options.componentRules[type];
+    if (rules == null || rules.isEmpty) return;
+    final own = [for (final r in (out['media'] as List? ?? const [])) ?readMap(r)];
+    bool ownSays(bool Function(Json patch) says) => own.any((r) => says(readMap(r['patch']) ?? const {}));
+    final boundVisible = readMap(out['bind'])?.containsKey('visible') ?? false;
+    final taken = <Json>[];
+    for (final r in rules) {
+      final patch = readMap(r['patch']) ?? const {};
+      final layout = readMap(patch['layout']) ?? const {};
+      final keep = <String, Object?>{};
+      final sizes = <String, Object?>{};
+      for (final k in const ['width', 'height']) {
+        if (!layout.containsKey(k) || written.contains(k)) continue;
+        if (ownSays((p) => readMap(p['layout'])?.containsKey(k) ?? false)) continue;
+        sizes[k] = _copyValue(layout[k]);
+      }
+      if (sizes.isNotEmpty) keep['layout'] = sizes;
+      final rootBinds = readMap(patch['bind'])?.containsKey('visible') ?? false;
+      if ((patch.containsKey('visible') || rootBinds) && !boundVisible && out['visible'] == null && !ownSays((p) => p.containsKey('visible'))) {
+        if (patch.containsKey('visible')) keep['visible'] = patch['visible'];
+        if (rootBinds) keep['bind'] = {'visible': readMap(patch['bind'])!['visible']};
+      }
+      if (keep.isEmpty) continue;
+      taken.add({for (final e in r.entries) if (e.key != 'patch') e.key: e.value, 'patch': keep});
+    }
+    if (taken.isNotEmpty) out['media'] = [...taken, ...own];
   }
 
   bool _under(String id, String ancestor) {

@@ -192,6 +192,8 @@ List<String> _candidates(List<String> path, Object? value, String type) {
   }
   return [
     if (path.join('.') == 'layout.flex' && value == 1) 'grow',
+    // A box that grows in a column fills the height left there: grow gives both.
+    if (path.join('.') == 'layout.height' && value is Map && value.length == 1 && value['fill'] == 0) 'grow',
     // One color: fill=.
     if (path.join('.') == 'decoration.fills' && value is List && value.length == 1 && value.single is Map && (value.single as Map).keys.join() == 'color')
       for (final v in _value((value.single as Map)['color'])) 'fill=$v',

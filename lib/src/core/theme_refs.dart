@@ -34,7 +34,16 @@ TextStyle resolveStyleColors(TextStyle style, Color? Function(String) color) {
 /// [ThemeTokens] (already for the screen's size and mode:
 /// [ThemeTokens.atScreen], [ThemeTokens.forBrightness]).
 final class ThemeRefs {
-  ThemeRefs(ThemeTokens theme) : this._(theme.color, theme.textStyle);
+  ThemeRefs(ThemeTokens theme) : this._((name) => theme.color(name) ?? _roleDefault(name), theme.textStyle);
+
+  /// The surface roles a theme that names none of its own is drawn with:
+  /// paper and ink (the renderer's own, without a theme), so a panel written
+  /// in `surface` (a notation dialog's) is never left transparent.
+  static Color? _roleDefault(String name) => switch (name) {
+        'surface' => const Color(0xFFFFFFFF),
+        'onSurface' => const Color(0xFF111111),
+        _ => null,
+      };
   ThemeRefs._(this._color, this._style);
 
   final Color? Function(String) _color;

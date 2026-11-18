@@ -773,7 +773,15 @@ final class _NodeLine {
     final styles = c.options.textStyles;
     final body = styles['body'];
     var best = (variant: '', cost: 1 << 30, words: <String>[]);
-    for (final (name, base) in [('', body), for (final e in styles.entries) if (e.key != 'body') (e.key, e.value)]) {
+    // A style from a named one (`from=title size=34`) is that style and the
+    // fields the line writes: no body look under it.
+    final from = style['from'] is String;
+    for (final (name, base) in [
+      ('', from ? const <String, Object?>{} : body),
+      if (!from)
+        for (final e in styles.entries)
+          if (e.key != 'body') (e.key, e.value),
+    ]) {
       if (base is! Map) continue;
       final plan = _stylePlan(style, base, _textWords, text: true);
       if (plan == null) continue;

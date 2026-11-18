@@ -73,7 +73,12 @@ void main() {
   group('a field the node has not is key=null', () {
     test('the alignment a row is given, left out', () => _says('Column\n  Row crossAxisAlignment=null', 'row', 'props', null));
     test('a slot with no size at all', () => _says('Column\n  Slot w=null h=null', 'slot', 'layout', null));
-    test('a text style\'s size, left out', () => _says('Column\n  Text "x" size=null from=caption', 'text', 'props.style.fontSize', null, absent: true));
+    // A named style takes no body size under it, so size=null is not needed
+    // to leave the size out: the line written with it reads as the one without.
+    test('a text style\'s size, left out', () {
+      _says('Column\n  Text "x" from=caption', 'text', 'props.style.fontSize', null, absent: true);
+      expect(jsonEncode(_expand('Column\n  Text "x" size=null from=caption')), jsonEncode(_expand('Column\n  Text "x" from=caption')));
+    });
   });
 
   group('an expression is kept as written, its quotes too', () {

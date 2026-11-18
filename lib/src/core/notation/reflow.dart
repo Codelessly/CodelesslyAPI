@@ -26,6 +26,16 @@
 //
 // Every rule holds below a width (`maxWidth` 1023: a tablet and narrower;
 // 699: a phone), so the page at the width it was written for is untouched.
+//
+// What the writer laid out by width is left as written ([_leftAsWritten]):
+// a line with rules of its own (tablet.w=64, hide=phone) gets none of
+// these over them, and a row is not wrapped when its line or a line right
+// under it says what it does at another width, when it is an app's frame
+// (it fills the height, or grows in a column), when it has a height of its
+// own (a toolbar, a table's row), when it is a row of a list, when it sits
+// in something of a fixed width a phone holds (a sidebar, a track's head)
+// or in a row that scrolls sideways, or when it (or what holds it) is
+// written `keep`.
 import 'dart:math' as math;
 
 import '../behaviors.dart' show mergePatch;
@@ -71,7 +81,86 @@ final class PageReflow {
     this.fillsItsPlace = _no,
     this.listDetailState,
     this.variableStart = _none,
+    this.kept = const {},
   });
+
+  /// The nodes written `keep` (on a Grid: its columns hold): the reflow
+  /// leaves each, and what is in it, as written.
+  final Set<String> kept;
+
+  /// The nodes whose lines say what they do at other widths (their own
+  /// media rules, read before any is added): never reflowed over.
+  late final Set<String> _own = {
+    for (final e in nodes.entries)
+      if ((e.value['media'] as List? ?? const []).isNotEmpty) e.key,
+  };
+
+  /// Whether [id] or what holds it is written `keep`.
+  bool _underKept(String id) {
+    for (String? k = id; k != null; k = _parents[k]) {
+      if (kept.contains(k)) return true;
+    }
+    return false;
+  }
+
+  /// The widest a box that holds a row may be for the row to be as wide at
+  /// every width: a phone holds it.
+  static const num _phoneHolds = 400;
+
+  /// Whether a row is an app's window of panes: it fills the height (or
+  /// grows in a column), and beside the one pane that fills the room are
+  /// panes of a fixed width (a sidebar, a list, an inspector).
+  bool _frame(String id, Json n) {
+    final h = _layout(n)['height'];
+    final parent = _parents[id];
+    final flex = _layout(n)['flex'];
+    final tall = (h is Map && h.containsKey('fill')) || (parent != null && flex is num && flex > 0 && _type(nodes[parent]!) == 'column');
+    if (!tall) return false;
+    // The window itself: not a picture of one in a box of a set height, nor
+    // a part of a page that scrolls.
+    for (var p = parent; p != null; p = _parents[p]) {
+      final holder = nodes[p]!;
+      if (_layout(holder)['height'] is num || _props(holder)['scrollable'] == true) return false;
+    }
+    final kids = _kids(n);
+    var fixed = 0, fills = 0;
+    for (final k in kids) {
+      final kid = nodes[k]!;
+      final type = _type(kid);
+      if (const {'splitter', 'divider', 'verticalDivider'}.contains(type)) continue;
+      final w = _fixedWidth(kid);
+      final pane = _containers.contains(type) || isComponent(type);
+      if (w != null || (readMap(kid['bind'])?.containsKey('layout.width') ?? false)) {
+        if (pane && (w == null || w >= 120)) fixed++;
+      } else if (_fills(kid)) {
+        fills++;
+      }
+    }
+    return fixed >= 1 && fills == 1;
+  }
+
+  /// Whether a row is the writer's to lay out at other widths, so that it
+  /// is not wrapped nor its parts given shares ([list]: a row of a list is
+  /// too). See the head of this file.
+  bool _leftAsWritten(String id, {bool list = false}) {
+    if (_underKept(id) || _own.contains(id)) return true;
+    final n = nodes[id]!;
+    if (_kids(n).any(_own.contains)) return true;
+    // An app's frame or a bar: a height of its own, the room left in a column.
+    final h = _layout(n)['height'];
+    if (h is num || (h is Map && h.containsKey('fill')) || (readMap(n['bind'])?.containsKey('layout.height') ?? false)) return true;
+    final parent = _parents[id];
+    final flex = _layout(n)['flex'];
+    if (parent != null && flex is num && flex > 0 && _type(nodes[parent]!) == 'column') return true;
+    for (var p = parent; p != null; p = _parents[p]) {
+      final holder = nodes[p]!;
+      final w = _fixedWidth(holder);
+      if (w != null && w <= _phoneHolds) return true;
+      if (_type(holder) == 'row' && _props(holder)['scrollable'] == true) return true;
+      if (list && (_type(holder) == 'listView' || readMap(holder['bind'])?['data'] != null)) return true;
+    }
+    return false;
+  }
 
   static bool _no(String _) => false;
   static Object? _none(String _) => null;
@@ -114,7 +203,8 @@ final class PageReflow {
   final _rules = <String, Map<int, Json>>{};
   final _handled = <String>{};
 
-  void _add(String id, int max, Json patch) {
+  void _add(String id, int max, Json patch, {bool force = false}) {
+    if (!force && (_own.contains(id) || _underKept(id))) return;
     final at = _rules.putIfAbsent(id, () => {});
     at[max] = at[max] == null ? patch : mergePatch(at[max]!, patch, keepNulls: true);
   }
@@ -220,7 +310,10 @@ final class PageReflow {
     for (final e in nodes.entries) {
       final id = e.key, n = e.value;
       final type = _type(n);
-      if (type == 'row' && !_handled.contains(id)) {
+      if (type == 'row' && !_handled.contains(id) && roles[id] != 'app' && _frame(id, n)) {
+        // A window of panes written as a Row, with no width rules in it: as an `App`.
+        if (!_underKept(id) && !_own.contains(id) && !_kids(n).any(_own.contains)) _app(id, n);
+      } else if (type == 'row' && !_handled.contains(id) && !_leftAsWritten(id)) {
         if (gridRows[id] case final g?) {
           _gridRow(id, n, g);
         } else if (_props(n)['scrollable'] != true && _props(n)['wrap'] != true) {
@@ -534,7 +627,7 @@ final class PageReflow {
       final boundWidth = readMap(n['bind'])?.containsKey('layout.width') ?? false;
       // A pane's rule at its side has nothing beside it to rule off there.
       final ruled = readMap(n['decoration'])?['strokeSides'] == 'right';
-      _add(id, ld.below, {
+      _add(force: true, id, ld.below, {
         if (!last) 'layout': {'width': {'fill': 0}, 'flex': 1},
         if (!last && ruled) 'decoration': {'strokes': <Object?>[]},
         'bind': {
@@ -791,7 +884,7 @@ final class PageReflow {
   /// controls wraps on a phone.
   void _row(String id, Json n) {
     final kids = _kids(n);
-    if (kids.length < 2) return;
+    if (kids.length < 2 || _leftAsWritten(id, list: true)) return;
     // A row with a reorder Handle is a list's row: its grip stays beside
     // what it moves (what grows in it narrows), never alone on a line.
     if (kids.any((k) => nodes[k]?['reorderHandle'] == true)) return;
@@ -828,6 +921,13 @@ final class PageReflow {
     // least width (and its share of what its line leaves), so a label
     // beside a button is as before while both fit.
     if (_layout(n)['height'] is num) return;
+    // In an app's window a pane narrows, it is not a page whose lines wrap:
+    // a list's row, a label beside its value keep their line (what is wider
+    // than a phone holds beside anything, a form beside its preview, wraps).
+    final wide = kids.any((k) => (_fixedWidth(nodes[k]!) ?? 0) > 300);
+    for (var p = _parents[id]; p != null && !wide; p = _parents[p]) {
+      if (roles[p] == 'app' || (_type(nodes[p]!) == 'row' && _frame(p, nodes[p]!))) return;
+    }
     _add(id, reflowTabletMax, {
       'props': {'wrap': true, 'runSpacing': spacing > 0 ? math.min(spacing, 12) : 8},
     });

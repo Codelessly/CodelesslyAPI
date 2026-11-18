@@ -27,8 +27,29 @@ Column gap=24 pad=48 phone.pad=16
 ```
 
 `hide=phone` leaves a line out on a phone, `hide=tablet` on a tablet and a phone; `show=phone` shows it on a
-phone only. A page written for a desktop lays itself out narrower on its own when it is read with reflow (rows
-stack, grids take fewer columns): write a rule only where you want something else.
+phone only. `tablet.hidden=true` (or `tablet.hidden`) is `hide=tablet`. A Row that is a column at some width is
+written `Row … phone.direction=vertical` (it is read as a `Flex`, which takes `scroll` and the alignment words too).
+
+## What reflow does
+
+A page written for a desktop (expanded at 700 wide or more) is given rules of its own for a tablet (up to 1023)
+and a phone (up to 699): reflow is on unless the expander is run with `--no-reflow`. It works like a website's
+defaults:
+
+- A band of blocks (cards beside cards, content beside a rail) wraps; a grid takes fewer columns; a headline gets
+  smaller; a box wider than a phone fits it; a table's columns share the row, and a phone keeps the ones it has
+  room for; a `Nav` hides its links on a phone.
+- An app's window stays a window. A Row that fills the height (`h=fill`, or `grow` in a column) with one pane that
+  grows beside panes of a fixed width (a sidebar, a list, an inspector) is laid out as `App` is: a tablet drops
+  the fixed panes after the one that grows, a phone shows that one alone. It is never wrapped or stacked.
+- A Row keeps its line when it has a height of its own (a toolbar, `h=56`), is a row of a list (under an `each`,
+  in a `ListView`), sits in something of a fixed width a phone holds (a 232 sidebar, a 96 track head) or in a Row
+  that scrolls sideways, or holds only labels and buttons inside an app's window.
+- What you lay out by width is yours: a line with its own rules (`tablet.w=64`, `hide=phone`, `phone.pad=8`) gets
+  none of reflow's over them, and a Row whose own line or a line right under it has such rules is not wrapped.
+- `keep` on a line (`Row#window keep`) leaves it and everything in it as written at every width.
+
+Write the rules you want where reflow's default is not the one: they win, and they turn reflow off for that line.
 
 A desktop page that changes at a tablet's width and again at a phone's: the side-by-side `Flex` turns into a
 column and closes up, the side panel leaves, the title and the margins get smaller on a phone.

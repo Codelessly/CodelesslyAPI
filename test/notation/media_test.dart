@@ -183,7 +183,17 @@ void main() {
       _word('Column#a phone.maxw=460', [
         {'maxWidth': 699, 'patch': {'layout': {'constraints': {'maxWidth': 460}}}},
       ]);
+      // A column that grows in a column takes the height left there.
       _word('Column#a phone.grow', [
+        {
+          'maxWidth': 699,
+          'patch': {
+            'layout': {'flex': 1, 'height': {'fill': 0}},
+          },
+        },
+      ]);
+      // A text that grows is as tall as its lines.
+      _word('Text#t "a" phone.grow', [
         {'maxWidth': 699, 'patch': {'layout': {'flex': 1}}},
       ]);
     });
