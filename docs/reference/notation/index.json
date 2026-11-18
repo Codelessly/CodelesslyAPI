@@ -1,8 +1,8 @@
 {
-  "version": "33.1.1",
+  "version": "35.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 3548
+    "words": 3577
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 3548
+      "words": 3577
     },
     {
       "topic": "notation-a-line",
@@ -46,7 +46,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-state",
       "title": "State",
-      "words": 120
+      "words": 148
     },
     {
       "topic": "notation-formulas",
@@ -81,7 +81,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-the-references",
       "title": "The references",
-      "words": 930
+      "words": 931
     },
     {
       "topic": "layout",
@@ -89,7 +89,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 4814
+      "words": 4677
     },
     {
       "topic": "layout-sizes",
@@ -145,7 +145,7 @@
       "file": "layout.md",
       "anchor": "layout-examples",
       "title": "Examples",
-      "words": 926
+      "words": 789
     },
     {
       "topic": "theme",
@@ -153,7 +153,7 @@
       "anchor": "page-theme",
       "title": "Text and theme",
       "summary": "Text, its looks and its style keys, the theme's names for colors and styles, and text direction.",
-      "words": 1281
+      "words": 1282
     },
     {
       "topic": "theme-text",
@@ -195,7 +195,7 @@
       "file": "theme.md",
       "anchor": "theme-examples",
       "title": "Examples",
-      "words": 223
+      "words": 224
     },
     {
       "topic": "decoration",
@@ -203,7 +203,7 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 2612
+      "words": 2616
     },
     {
       "topic": "decoration-fills-borders-and-corners",
@@ -252,7 +252,7 @@
       "file": "decoration.md",
       "anchor": "decoration-examples",
       "title": "Examples",
-      "words": 281
+      "words": 285
     },
     {
       "topic": "paint",
@@ -296,14 +296,14 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 11617
+      "words": 11688
     },
     {
       "topic": "forms-a-control-and-its-value",
       "file": "forms.md",
       "anchor": "forms-a-control-and-its-value",
       "title": "A control and its value",
-      "words": 145
+      "words": 143
     },
     {
       "topic": "forms-validation",
@@ -317,7 +317,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 8993
+      "words": 9058
     },
     {
       "topic": "forms-behaviors",
@@ -345,7 +345,7 @@
       "file": "forms.md",
       "anchor": "forms-examples",
       "title": "Examples",
-      "words": 566
+      "words": 573
     },
     {
       "topic": "lists",
@@ -353,14 +353,14 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 5673
+      "words": 5706
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 216
+      "words": 223
     },
     {
       "topic": "lists-words",
@@ -395,7 +395,7 @@
       "file": "lists.md",
       "anchor": "lists-examples",
       "title": "Examples",
-      "words": 614
+      "words": 640
     },
     {
       "topic": "state",
@@ -403,7 +403,7 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3350
+      "words": 3348
     },
     {
       "topic": "state-variables",
@@ -445,7 +445,7 @@
       "file": "state.md",
       "anchor": "state-examples",
       "title": "Examples",
-      "words": 312
+      "words": 310
     },
     {
       "topic": "events",
@@ -475,7 +475,7 @@
       "anchor": "page-interaction",
       "title": "Interaction",
       "summary": "Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches.",
-      "words": 3171
+      "words": 3175
     },
     {
       "topic": "interaction-drag-and-drop",
@@ -510,7 +510,7 @@
       "file": "interaction.md",
       "anchor": "interaction-examples",
       "title": "Examples",
-      "words": 118
+      "words": 122
     },
     {
       "topic": "animation",
@@ -518,7 +518,7 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3548
+      "words": 3562
     },
     {
       "topic": "animation-the-animate-words",
@@ -567,7 +567,7 @@
       "file": "animation.md",
       "anchor": "animation-examples",
       "title": "Examples",
-      "words": 159
+      "words": 173
     },
     {
       "topic": "charts",
@@ -575,14 +575,14 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 7486
+      "words": 7478
     },
     {
       "topic": "charts-writing-a-chart",
       "file": "charts.md",
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
-      "words": 133
+      "words": 127
     },
     {
       "topic": "charts-words",
@@ -603,7 +603,7 @@
       "file": "charts.md",
       "anchor": "charts-examples",
       "title": "Examples",
-      "words": 70
+      "words": 68
     },
     {
       "topic": "responsive",
@@ -611,7 +611,7 @@
       "anchor": "page-responsive",
       "title": "Responsive",
       "summary": "A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states.",
-      "words": 368
+      "words": 405
     },
     {
       "topic": "responsive-keys-at-other-widths",
@@ -632,7 +632,7 @@
       "file": "responsive.md",
       "anchor": "responsive-states",
       "title": "States",
-      "words": 36
+      "words": 73
     },
     {
       "topic": "navigation",
@@ -640,7 +640,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 2648
+      "words": 2646
     },
     {
       "topic": "navigation-page-frames",
@@ -654,7 +654,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 140
+      "words": 138
     },
     {
       "topic": "navigation-screens",
@@ -697,14 +697,14 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1531
+      "words": 1578
     },
     {
       "topic": "components-calling-one",
       "file": "components.md",
       "anchor": "components-calling-one",
       "title": "Calling one",
-      "words": 36
+      "words": 51
     },
     {
       "topic": "components-writing-one",
@@ -732,7 +732,7 @@
       "file": "components.md",
       "anchor": "components-examples",
       "title": "Examples",
-      "words": 915
+      "words": 947
     },
     {
       "topic": "design-systems",
@@ -769,7 +769,7 @@
       "anchor": "page-document",
       "title": "The document",
       "summary": "What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples.",
-      "words": 742
+      "words": 745
     },
     {
       "topic": "document-the-order-of-a-document",
@@ -790,7 +790,7 @@
       "file": "document.md",
       "anchor": "document-examples",
       "title": "Examples",
-      "words": 389
+      "words": 392
     },
     {
       "topic": "values",
@@ -863,7 +863,7 @@
       "anchor": "page-auth",
       "title": "Accounts (feature layer)",
       "summary": "The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in.",
-      "words": 283
+      "words": 282
     },
     {
       "topic": "auth-actions",
@@ -877,7 +877,7 @@
       "file": "auth.md",
       "anchor": "auth-examples",
       "title": "Examples",
-      "words": 86
+      "words": 85
     },
     {
       "topic": "commerce",
