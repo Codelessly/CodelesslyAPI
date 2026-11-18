@@ -9504,6 +9504,9 @@
                     "type": "number",
                     "minimum": 0.000001
                   },
+                  "steppers": {
+                    "type": "boolean"
+                  },
                   "semanticLabel": {
                     "type": "string"
                   },

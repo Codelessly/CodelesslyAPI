@@ -22,7 +22,10 @@
 // Each is written out as the plain lines it stands for (a Column, a Row, a
 // Text), before the notation reads them: the sizes, the content width and
 // the scrolling are the frame's, and nothing else of the notation changes.
+import 'dart:convert' show jsonDecode;
 import 'dart:math' as math;
+
+part 'table_words.dart';
 
 /// A line to read in place of the one written: its indent and its text.
 typedef PageLine = ({int indent, String text});
@@ -700,6 +703,7 @@ final class PageWords {
     // From six links on, a tablet has no room for them either.
     final size = links.length >= 6 ? 'tablet' : 'phone';
     return [
+      if (closed.table case final _Table t) ..._tableClose(t),
       if (menu && closed.pageNav && links.isNotEmpty && !closed.ownMenu) ...[
         // As big as the bar's buttons: a target a thumb finds.
         (indent: at + 4, text: 'IconButton "menu" w=40 h=40 show=$size onTap={navMenu=!navMenu}'),
@@ -767,6 +771,16 @@ final class PageWords {
       final l = _Line(indent, frame, before: at - indent, shift: shift, after: after);
       _open.add(l);
       return l;
+    }
+
+    // A line under a Table is its next cell (table_words.dart).
+    if (parent?.table case final _Table t) out.add(_cellLine(t));
+    if (word == 'Table' && !isComponent('Table') && !declares('Table')) {
+      if (_tableLines(at, mark, rest) case (final lines, final table)) {
+        // Its cells go under a row's: eight further in than its own lines.
+        open(frame: 'Table', shift: 8).table = table;
+        return out..addAll(lines);
+      }
     }
 
     // A Main with no top bar of its own gets a slim one where the sidebar is
@@ -1320,6 +1334,9 @@ class _Line {
 
   /// A line written after its children, at its own level.
   final String? after;
+
+  /// The table this line is (`Table … in …`), whose cells are the lines under it.
+  _Table? table;
 
   /// A website's Nav: the links written in it (for its phone menu), and
   /// whether it writes a menu of its own.

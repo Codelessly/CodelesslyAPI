@@ -103,6 +103,12 @@ abstract final class TextFieldProps {
   static const min = PropDef<double?>('min', Codecs.optionalDouble, null);
   static const max = PropDef<double?>('max', Codecs.optionalDouble, null);
   static const step = PropDef<double>('step', DoubleCodec(min: 0.000001), 1);
+
+  /// A number field with a minus button before its value and a plus button
+  /// after it, inside its one border with a rule between each: a press steps
+  /// the value by [step] within [min] and [max] (a button at its bound is
+  /// drawn disabled and takes no press), as Up and Down do.
+  static const steppers = PropDef<bool>('steppers', Codecs.bool, false);
   /// An accessible name when the visible label is drawn by a parent block.
   static const semanticLabel = PropDef<String>('semanticLabel', Codecs.string, '');
   static const textInputAction =
@@ -178,7 +184,7 @@ abstract final class TextFieldProps {
   static const runs = PropDef<List<TextRun>>('runs', Codecs.textRuns, []);
 
   static const spec = WidgetSpec('textField', hugs: true, props: [
-    initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, min, max, step, semanticLabel, //
+    initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, min, max, step, steppers, semanticLabel, //
     textInputAction, textCapitalization, autocorrect, autofocus, enableInteractiveSelection, enabled, obscureText,
     obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength, otpLength, otpDigitsOnly,
     maxLines, minLines, expands, selectionHeightStyle, selectionWidthStyle, autofillHints, autovalidateMode,

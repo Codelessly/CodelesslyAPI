@@ -948,6 +948,8 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'Handle': (type: 'iconButton', node: {}),
   // A one-time code: one field drawn as boxes (CodeInput @code length=6 digits).
   'CodeInput': (type: 'textField', node: {}),
+  // A number between a minus and a plus button, in one border (NumberInput @seats min=1 max=500).
+  'NumberInput': (type: 'textField', node: {}),
   'Toggle': (type: 'switch', node: {}),
   'Select': (type: 'dropdown', node: {}),
   'Button': (type: 'filledButton', node: {}),
@@ -1027,7 +1029,7 @@ const _typeKeys = notationTypeKeys;
 const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
 
 /// The short names a design system's component of the same name replaces.
-const _softNames = {'CodeInput', 'DataTable', 'Handle', 'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
+const _softNames = {'CodeInput', 'DataTable', 'Handle', 'NumberInput', 'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
 
 /// What a line starting with [written] is, as its bindings read it: the
 /// node type, and the design system's component when it is one.
@@ -5957,13 +5959,31 @@ class _Parser {
       }
     }
 
-    // A Handle is a 44 px grip, named for a screen reader, that its list is
-    // reordered by.
+    // A Handle is a grip, named for a screen reader, that its list is
+    // reordered by: as big as the line says, else a 44 px target on a phone
+    // and a 24 px grip on a desktop (a touch still lands on it in 44 × 44).
     if (ours && written == 'Handle') {
       props['icon'] = 'drag_indicator';
-      layout.addAll({'width': 44, 'height': 44});
+      final grip = options.width >= 700 ? 24 : 44;
+      if (!layout.containsKey('flex')) layout.putIfAbsent('width', () => grip);
+      layout.putIfAbsent('height', () => grip);
+      // A small grip keeps a glyph that reads (the scale's would be 12).
+      final h = layout['height'];
+      if (h is num && h < 32) {
+        final style = props['style'] is Map ? (props['style'] as Map).cast<String, Object?>() : <String, Object?>{};
+        style.putIfAbsent('iconSize', () => 16);
+        props['style'] = style;
+      }
       node['tooltip'] = 'Reorder';
       node['reorderHandle'] = true;
+    }
+    // A NumberInput is a number field with its minus and plus buttons inside its
+    // border: the number in the middle, as wide as three buttons.
+    if (ours && written == 'NumberInput') {
+      props['keyboardType'] = 'number';
+      props['steppers'] = true;
+      props.putIfAbsent('textAlign', () => 'center');
+      if (!layout.containsKey('flex')) layout.putIfAbsent('width', () => 112);
     }
     // Sizes not written: in a column a child fills the width and hugs its
     // height; in a row it hugs both; a control hugs.

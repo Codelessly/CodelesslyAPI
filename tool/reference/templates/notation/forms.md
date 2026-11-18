@@ -40,6 +40,26 @@ Column gap=12
   SegmentedButton @plan items=["month","year"]
 ```
 
+## A number with its buttons
+
+`NumberInput @seats min=1 max=500` is a number field with a minus button before the number and a plus button after
+it, all inside the field's one border, a rule between each part: a press steps the number by `step=` (1) within
+`min=` and `max=`, and a button at its bound is drawn disabled and takes no press. Focused, Up and Down step it too,
+Page Up and Page Down ten steps, Home and End go to the bounds. It is as high as the other inputs (a fixed `h=`
+picks another step of the control scale) and 112 wide unless it says. `Input … keyboardType=number steppers=true`
+is the same field; a design system's own `NumberInput` comes first.
+
+```notation expands
+state seats=48
+Row gap=12
+  NumberInput @seats min=45 max=500 semanticLabel="Seats"
+  Text "{seats} seats"
+```
+
+A field of your own between two buttons looks whole when the border is the Row's: `Row border=… radius=6
+clip=antiAlias` around `IconButton "remove" border-right=…`, `Input … decoration.border.type=none` and
+`IconButton "add" border-left=…`. A box's border is drawn over what it holds, so the field's fill never covers it.
+
 ## Validation
 
 A column with `form` holds fields that check themselves: an Input's `validator={…}` gives the message (empty when

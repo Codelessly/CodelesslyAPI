@@ -80,6 +80,10 @@ Column gap=8
 - Text looks: `Text.pageTitle` (20 600), `Text.heading1` (30 700), `Text.heading2` (24 700), `Text.heading3` (18 600), `Text.sectionTitle` (14 600), `Text.panelTitle` (12 600), `Text.body` (13), `Text.bodySecondary` (12 #FF4B5563), `Text.fieldLabel` (11.5 600 #FF4B5563), `Text.caption` (11 #FF9CA3AF), `Text.mono` (12 monospace), `Text.title` (20 600), `Text.heading` (14 600), `Text.strong` (13 600), `Text.small` (12 #FF4B5563), `Text.muted` (13 #FF4B5563), `Text.danger` (13 600 #FFDC2626), `Text.success` (13 600 #FF16A34A)
 - Button looks: `Button.primary` (`filledButton`), `Button.secondary` (`filledButton`, {"tonal":true}), `Button.tertiary` (`filledButton`, {"tonal":true}), `Button.outline` (`outlinedButton`), `Button.ghost` (`textButton`), `Button.elevated` (`elevatedButton`), `Button.destructive` (`filledButton`, {"style":{"backgroundColor":"#FFDC2626","foregroundColor":"#FFFFFFFF"}}). Plain `Button` is primary.
 - Badge looks: `Badge.neutral`, `Badge.primary`, `Badge.info`, `Badge.success`, `Badge.warning`, `Badge.error`, `Badge.danger`.
+- `Table r in rows columns=["Name","Email"]` is a finished table of records (a bordered frame, a header that sorts
+  with `sort=@key`, a checkbox column with `select=@chosen`): write it for any rows of records, never a Column of
+  Rows ([lists.md](lists.md#lists-a-table-of-records)). `NumberInput @qty min=1` is a number between a minus and a plus
+  button in one border ([forms.md](forms.md#forms-a-number-with-its-buttons)).
 - `Grid cols=3 gap=8` lays the lines under it in columns; `List` is a column of rows; `Image "url"` a picture;
   `Avatar "Maya Reyes"` a round mark with initials; `Pages` a swiped row of pages.
 - An app window is `App` with a `Sidebar` (the rail), a `Main` (the content) and any `Pane` (an inspector); a
@@ -334,7 +338,8 @@ Column gap=8
 
 A control bound to a field of the element changes that element: `Checkbox @row.done` under `each row in
 rows`. Under a `ListView` or `GridView` line of its own, an `each` repeats inside that list, whose keys (height,
-direction) are on its line. Tables (sorted and filtered), grids, paging and reordering are on [lists.md](lists.md).
+direction) are on its line. A table of records is a `Table`; tables, grids, paging and reordering are on
+[lists.md](lists.md).
 
 <a id="notation-pages-at-other-widths"></a>
 ## Pages at other widths
@@ -403,8 +408,8 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1330 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`. | 2622 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 1879 |
-| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 11930 |
-| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 6083 |
+| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 12202 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 6738 |
 | [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 3348 |
 | [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | a UI reacts to more than a tap and a change, or an action needs a field the verbs do not say. | 5492 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | a line reacts to the pointer beyond a tap, or is dragged, dropped or swiped. | 3290 |
