@@ -288,7 +288,7 @@ extension _PaintWords on _Parser {
               at = switch (at[k]) {
                 final Map n => n.cast<String, Object?>(),
                 _ => at[k] = <String, Object?>{},
-              } as Json;
+              };
             }
             at[path.last] = _paintValue(m[3]!, col);
           } else {
@@ -315,7 +315,7 @@ extension _PaintWords on _Parser {
               at = switch (at[k]) {
                 final Map m => m.cast<String, Object?>(),
                 _ => at[k] = <String, Object?>{},
-              } as Json;
+              };
             }
             at[path.last] = value;
           } else {

@@ -221,9 +221,6 @@ extension on PageWords {
       ];
 }
 
-/// [color] (`#AARRGGBB`) without its alpha, for a quieter copy of it.
-String _rgbOf(String color) => color.length == 9 && color.startsWith('#') ? color.substring(3) : '9CA3AF';
-
 /// [over] at [t] over [base] (both `#AARRGGBB`), opaque: a tint that hides
 /// what is under it (a selectable list's own selected fill).
 String _mix(String base, String over, double t) {
