@@ -26,7 +26,11 @@ Type[.variant][#id] ["text"] [key=value ...] [on<Event>={actions} ...]
   follows the state (`visible={count > 0}`). Colors are `#AARRGGBB`. The docs of the keys quote the JSON's
   expressions: `${name}` there is `{name}` here, and `${= formula}` is `{formula}`.
 - **`on<Event>={actions}`** runs actions on an event, `;` between them.
-- **A bare word** after the text is a flag: `grow`, `hidden`, `scroll`, `center`.
+- **A bare word** after the text is a flag: `grow`, `hidden`, `scroll`, `center`. An icon's name is a word too:
+  `Icon download`, and `icon=download` on a Button, NavItem or MenuItem, whatever a variable is called; an icon
+  chosen by data is braced (`Icon {glyph}`, `icon={done ? "check" : "add"}`).
+- **Your key wins over a word's own**: `Sidebar w=240 h=fill` and `Table … radius=0 border=rule` keep what you
+  wrote over what the word would give; a key written twice on one line is still said.
 
 ```notation
 state count=0

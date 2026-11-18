@@ -781,7 +781,46 @@ final class PageWords {
 
   /// The lines [text] at [indent] stands for: itself, moved under the frame
   /// it is in, or the plain lines of a page word.
+  ///
+  /// A key the writer wrote is theirs: where the word's lines give the same
+  /// key a value of their own (`Sidebar w=240 h=fill`, whose column is
+  /// already as tall as the window; `Table … radius=0 border=rule`), the
+  /// word's is left out and the writer's kept, without a word. A key the
+  /// writer wrote twice is still said.
   List<PageLine> rewrite(int indent, String text) {
+    _Parts.handedOut.clear();
+    final out = _rewrite(indent, text);
+    if (_Parts.handedOut.isEmpty) return out;
+    final own = [for (final s in _Parts.handedOut) if (s.trim().isNotEmpty) s];
+    _Parts.handedOut.clear();
+    if (own.isEmpty) return out;
+    return [
+      for (final l in out)
+        switch (own.where(l.text.endsWith).firstOrNull) {
+          final String s => (indent: l.indent, text: _writerWins(l.text.substring(0, l.text.length - s.length), s)),
+          null => l,
+        },
+    ];
+  }
+
+  /// [head] (a word's line before what the writer wrote) and [written],
+  /// without the keys of [head] that [written] gives again.
+  static String _writerWins(String head, String written) {
+    final keys = {
+      for (final t in _Parts(written)._tokens)
+        if (_Parts._key.firstMatch(t)?[1] case final String k) k,
+    };
+    if (keys.isEmpty) return '$head$written';
+    final firstSpace = head.indexOf(' ');
+    if (firstSpace < 0) return '$head$written';
+    final kept = [
+      for (final t in _Parts(head.substring(firstSpace))._tokens)
+        if (!keys.contains(_Parts._key.firstMatch(t)?[1])) t,
+    ];
+    return '${head.substring(0, firstSpace)}${kept.isEmpty ? '' : ' ${kept.join(' ')}'}$written';
+  }
+
+  List<PageLine> _rewrite(int indent, String text) {
     text = _gallery(_plain(text));
     final out = <PageLine>[];
     while (_open.isNotEmpty && _open.last.indent >= indent) {
@@ -1553,5 +1592,13 @@ class _Parts {
   static final _byWidth = RegExp(r'^(?:(?:hide|show)=|(?:phone|tablet|desktop|mobile|wide)\.)');
 
   /// What is left, as it was written.
-  String get all => '$props$tail';
+  String get all {
+    final s = '$props$tail';
+    handedOut.add(s);
+    return s;
+  }
+
+  /// What [all] gave the lines of the word being read (PageWords.rewrite:
+  /// the writer's keys there win over the word's own).
+  static final handedOut = <String>[];
 }

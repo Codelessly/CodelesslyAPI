@@ -5327,6 +5327,13 @@ class _Parser {
             props[word] = true;
           } else if (!component && universalFlag(word, col)) {
             // A universal word (docs/design/21), or an Input's own (section 7).
+          } else if (type == 'icon' && !component && !standIn && given == 0 && textPosition && RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(word)) {
+            // `Icon download` (and `icon=download` on a NavItem, which writes
+            // that line): a bare word where the name goes is the icon's name,
+            // as icon=download is on a Button, whatever a variable is called.
+            // One chosen by data is braced: Icon {glyph}.
+            given++;
+            _main(type, spec, word, props, decoration);
           } else if (word == 'removable' && slotted) {
             // A block with a slot and no x of its own (a ListRow): one at the
             // end of its slot.

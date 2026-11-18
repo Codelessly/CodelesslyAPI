@@ -69,6 +69,13 @@
   (`m-nav.selected.color=…`). A variable named after a node (`<id>Selected`, `<id>_<param>`, a Lightbox's
   `<id>At`) takes the id's hyphens as `_`. `printNotation` writes such ids, so a document with them prints in
   lines, not whole on the `document {…}` line. (34.0.0 said a hyphen in an id and read it as `_`.)
+- **Notation**: a bare word where an icon's name goes is that name: `Icon download`, and `icon=inbox` on a NavItem,
+  MenuItem or Brand (whose Icon line was refused with `Unknown word "inbox" on a Icon`), whatever a variable is
+  called, as `icon=` already was on a Button; an icon chosen by data is braced (test 10: 49 runs, the largest
+  source of first-expand issues).
+- **Notation**: a key the writer wrote wins over a page word's own (`Sidebar … h=fill`, `Table … radius=0
+  border=rule w=1030`): the word's is left out, with no issue. Before, each was "written twice" though written once
+  (test 10: 36 runs). A key written twice by the writer is still said.
 
 ## 35.0.0
 
