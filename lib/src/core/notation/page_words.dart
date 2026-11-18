@@ -959,7 +959,7 @@ final class PageWords {
         _widthBefore += double.tryParse(width) ?? 0;
       }
       open(frame: framed ? 'Pane' : null);
-      return out..add((indent: at, text: 'Column${framed ? _role('pane') : ''}$mark ${width == null ? 'grow' : 'w=$width'}${framed ? ' h=fill scroll' : ''}${parts.hasBorder || !framed ? '' : ' border-right=$line'}${parts.all}'));
+      return out..add((indent: at, text: 'Column${framed ? _role('pane') : ''}$mark ${width == null ? 'grow' : 'w=$width'}${framed ? ' h=fill scroll' : ''}${parts.hasBorder || !framed ? '' : _mainSeen ? ' border-left=$line' : ' border-right=$line'}${parts.all}'));
     }
     if (_items.contains(word) && !isComponent(word)) {
       final icon = parts.take('icon');

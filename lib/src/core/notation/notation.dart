@@ -185,6 +185,7 @@ final class NotationOptions {
     this.iconTile,
     this.sideFill,
     this.iconStyle,
+    this.rowFrames = const {},
     this.controlHeight,
     this.fieldLabel,
     this.fieldText,
@@ -269,6 +270,7 @@ final class NotationOptions {
         iconTile: iconTile,
         sideFill: sideFill,
         iconStyle: iconStyle,
+        rowFrames: rowFrames,
         controlHeight: controlHeight,
         fieldLabel: fieldLabel,
         fieldText: fieldText,
@@ -328,6 +330,13 @@ final class NotationOptions {
       iconTile: base.iconTile,
       sideFill: base.sideFill,
       iconStyle: base.iconStyle,
+      // A frame whose lines go into a row (a toolbar's, a dialog's footer)
+      // lays them out as a row's: a text as wide as its words, not the row.
+      rowFrames: {
+        for (final c in designSystem.list)
+          for (final n in c.document.nodes.values)
+            if (n.type == 'row' && n.children.any((k) => c.document.nodes[k]?.type == 'slot')) c.type,
+      },
       controlHeight: base.controlHeight,
       fieldLabel: base.fieldLabel,
       fieldText: base.fieldText,
@@ -595,6 +604,7 @@ final class NotationOptions {
         iconTile: iconTile,
         sideFill: sideFill,
         iconStyle: iconStyle,
+        rowFrames: rowFrames,
         controlHeight: controlHeight,
         fieldLabel: fieldLabel,
         fieldText: fieldText,
@@ -700,6 +710,11 @@ final class NotationOptions {
   /// `inbox_outlined`). A name with a style of its own keeps it. Null: as
   /// written (filled).
   final String? iconStyle;
+
+  /// A design system's components whose children (the lines written under a
+  /// call) go into a row (their `Slot` is a row's child: a toolbar, a
+  /// dialog's footer): those lines are sized as a row's children are.
+  final Set<String> rowFrames;
 
   /// The styles of a field's label and of its text on a page: a theme's
   /// `fieldLabelWide` and `inputTextWide`. Null: the control's own.
@@ -6714,7 +6729,7 @@ class _Parser {
       layout['flex'] = 1;
       layout['width'] = {'fill': 0};
     }
-    final inRow = !cell && parent?.type == 'row';
+    final inRow = !cell && (parent?.type == 'row' || options.rowFrames.contains(parent?.type));
     // On a page, cards side by side are one row of panels: equally tall.
     if (inRow && (written == 'Card' && !component) && options.width >= 700) {
       final row = nodes[parent!.id];
@@ -7198,10 +7213,10 @@ class _Parser {
         },
       };
     }
-    _readStates(stateWords, t.s.substring(0, t.at).trimRight(), id, parent?.id, parent?.type, type, out, node);
+    _readStates(stateWords, t.s.substring(0, math.min(t.at, t.s.length)).trimRight(), id, parent?.id, parent?.type, type, out, node);
     // Its media rules, unless its {…} tail gave them (t.at: where the words end).
     if (mediaWords.isNotEmpty && !node.containsKey('media') && !t.rest.contains('"media"')) {
-      final rules = _mediaRules(mediaWords, t.s.substring(0, t.at).trimRight(), parent?.type, type, readMap(out['bind'])?.keys ?? const []);
+      final rules = _mediaRules(mediaWords, t.s.substring(0, math.min(t.at, t.s.length)).trimRight(), parent?.type, type, readMap(out['bind'])?.keys ?? const []);
       if (rules.isNotEmpty) out['media'] = rules;
     }
     if (callSizes != null) _componentRules(type, callSizes, out);
