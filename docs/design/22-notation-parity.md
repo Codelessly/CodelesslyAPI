@@ -480,6 +480,75 @@ says; `animation` lines add to the node's `animations` after the one `animate=` 
 its `transitions`.
 `printPaintSays` (print_paint.dart) names the fields these words say, for the line's other words to leave out.
 
+### 4.7 The document family, second pass: the forms settled
+
+Settled 2026-11-17 (tests: `test/notation/document_p2_test.dart`, `test/notation/stream_test.dart`).
+
+- **The document line.** `document id="checkout" schema=2 scope=page_variables` at the top: the document's own `id`
+  (where the parser gives another: a page has none, a component's is its name) and `schema` (a schema-2 file), and
+  `scope`, the scope the `state` lines are kept in (the edit operations' name for it: a canvas id, or
+  `page_variables` for every canvas), written where the parser would keep them elsewhere (it keeps them on the
+  page's canvas, or in `page_variables` once the page has other canvases or overlays). Another key on it is said.
+  `document {…}` at the end stays what it was, the document's merge patch.
+- **State said one by one.** A component call's optional variable parameter that its line's tail gives (a value, a
+  binding) declares no `<id>_<param>` variable: the document's variables are the state lines, so a list of
+  variables is never replaced whole on the document line.
+- **What the screen does.** A canvas reaction that is neither a timer nor a shortcut is a word of its `canvas`
+  line, by its event's name (2.2): `canvas onLoad={go home}`, `onBackPressed={…}`, before its `every` and `key`
+  lines.
+- **Slots.** `slot name` under a node, the node in that slot indented under it, as a component's head names its
+  slots with `slot name`: `ListTile` / `  slot title` / `    Text "Hello"`. It reads for any node whose catalog
+  type has that slot (a ListTile's title, a badge's child, a table's cell, a component's actions); a slot the type
+  does not have, and a second line under one slot, are said. The printer writes slot lines only for a node whose
+  slots do not read back from the lines under it (a ListTile's icon still goes to its leading by itself).
+- **A list of its own line.** A `ListView` or `GridView` line with an `each` as the only line under it repeats over
+  that data, the line under the `each` its template (its one child), as a page view's page is under `Pages`:
+  `ListView#rail h=300 scrollDirection=horizontal` / `  each item in products` / `    Column#card …`. What `each`
+  makes under any other line is unchanged (a list and its item column, `<id>Item`). What differed before was
+  exactly that: the parser's list is `listViewN` with its own props and the column `<id>Item` around the lines; a
+  list written by hand has its own id and fields and its template as its child. The list's own line carries its
+  id and fields, so no flag on the `each` is needed.
+- **`stagger=`** is printed on the `each` line, for a first line under it whose `animations[0].delay` is bound to
+  `index*<n>` (plus the line's own `delay=`).
+- **A parameter's type** no Flutter name says (`int` held as a number, a `dynamic` item, a record's fields) is its
+  JSON after the colon: `param count:{"kind":"number","flutter":"int"}=0`.
+- **The catalog's type name is the node as written.** A line written with the type as the catalog spells it gets
+  none of the defaults the notation's capitalised word adds: `barChart` and `lineChart` no height of 140 and no
+  accent color (and `barChart` none of the design system's bar options), `barcode` no size of its own, as
+  `radialGauge` (4.6) no composed gauge. `BarChart`, `LineChart`, `Barcode`, `Gauge`, `Dial` add them. The other
+  types whose capitalised word reads as something else (`box`/`Box`, `gridView`/`GridView`, `badge`/`Badge`,
+  `appBar`/`AppBar`) were already the node as written. A `lineChart`'s `values=[…]` is still its points: that is
+  the word's meaning, not a default.
+- **Reading back.** A record block (`customPaint`, `animation`, `transition`) under a node replaces what the line's
+  tail gave for that field, also when the tails are merged again. A tail that gives a node another `type` gives
+  that type's props; a `null` in a tail takes away what the words gave; a node the words made under a line (a
+  Badge's text) that the line's tail takes out of `children` or `slots` is not in the document.
+- **As it arrives.** `NotationStream` reads every line `parseNotation` reads. What the end of the text does (the
+  tails merged again, the nodes a tail took away, the canvas lines' words, the `document {…}` line's nodes) is
+  sent as patches and removals by `close()`; a tree with no canvas (a component's, `canvas none`) is sent with its
+  root as the document's root. What no operation carries (the document's `id` and `schema`, a component's
+  declaration and previews) is `NotationStream.result` after `close()`. `stream_test.dart` streams every printed
+  document of `tool/reference/examples` and a sample of each form line by line and compares with `parseNotation`.
+- **The measure** (`tool/notation_coverage.dart`) reads each document with its own design system's declaration of
+  a component two design systems declare differently (the nearest on disk), does not count record lines as node
+  lines, and counts how each field of a node line is said: a word of the notation, the field's own name, a dotted
+  path, JSON as a value, an event, a media rule.
+
+Not said yet, and why:
+
+- **A design system's component whose name the notation reads as its own word** (`Button`, `IconButton`, `Badge`,
+  `TopBar`, `Card`, `Chip`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `ProgressBar`, `Sidebar`, `Header`,
+  `Footer`: 235 node lines carry `"type"` in their tail, and their 64 `"children": null`). The owner decided that
+  such a name stays the notation's (prompt.dart: "A name the notation already reads as a core type … stays
+  that"), and the grammar has no other spelling for a component: the catalog spells it with the capital the
+  notation takes. A form needs a decision: a component-first rule like `_softNames` (a writer's `Button` in such a
+  design system would then be its Button), or a new head (`node {…}` is the one there is).
+- **A component's empty parameter list** (`"widget": {"props": []}`, 3 documents): the parser gives a component no
+  `props` when it has no `param` line.
+- **A document's `conditions`** (1 document) and a missing `schema` (1).
+- **Values the catalog does not have** (a box's `path`, a filled button's `size`, a literal `${…}` in a prop that
+  is not a text): the parser says them (2.1) and the document line keeps them.
+
 ## 5. What does not change
 
 The prompt teaches the grammar and the core (design 19). Parity is what the parser reads and the printer
