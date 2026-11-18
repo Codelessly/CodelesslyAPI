@@ -151,6 +151,7 @@ The printer is split by family so the work does not collide:
 | `print_events.dart` | Events and actions. |
 | `print_media.dart` | Media rules. |
 | `print_paint.dart` | Custom paint, animations, charts. |
+| `print_states.dart` | States, a node's name, its behaviors (4.7). |
 
 ## 3. Done
 
@@ -176,6 +177,7 @@ Each family owns its part of the parser and its printer file, measures itself wi
 | Media | 2.4 media rules | `print_media.dart` |
 | Document | typed variables, component heads, canvases | `print.dart` |
 | Paint, motion, charts | words for custom paint ops, animations, chart options | `print_paint.dart` |
+| States | state words, `name=`, behaviors by name (4.7) | `print_states.dart` |
 
 ### 4.1 Keys (settled 2026-11-17)
 
@@ -532,6 +534,83 @@ as a formula); the disabled state of a control that has an `isEnabled` (`enabled
 parser adds that the node has not (a page's `index == n` under `Pages`); an empty `props: {}`; a text's
 `decoration` (a text is not decorated, 4.1 Keys); and props or layout fields the catalog does not declare (a
 box's `path`, `layout.rotation`, a component parameter its declaration lacks).
+
+### 4.7 States and behaviors: the forms
+
+Settled 2026-11-17 by the states family (`state_words.dart`, `print_states.dart`; tests:
+`test/notation/states_test.dart`).
+
+**The shape.** A node's `states` (`StateStyles`) maps a state, one of `WidgetState`'s names (`hovered`, `focused`,
+`pressed`, `selected`, `disabled`, `dragged`, read at run time), to node ids, each to a patch of that node's JSON
+(a merge patch). The ids are the node itself or nodes inside it: a state of a row restyles the row and the label
+in it. They are ids, not the node's `name` (a node's `name` is its name in the editor, nothing reads it here).
+`selected` and `disabled` follow the node's bindings (`bind.selected`, `bind.disabled`); the others the pointer
+and the focus. Where states overlap, the later in `WidgetState`'s order wins. While a state holds, its patch
+shows over the node's bindings of the fields it sets (the renderer drops them, as a media rule's
+`"bind": {…: null}` does), and a patch may hold bindings of its own (`"bind": {…}`, merged into the node's).
+
+**The form.** A state is a media rule with the state's name as the condition (2.4): `state.key=value`, one word
+per field, the key any key the line reads, with its value as the line writes it.
+
+- On a node's own line, the words are its own state: `hovered.fill=accentDeep pressed.opacity=0.82
+  focused.strokes=[{"color":"focusBorder"}] disabled.opacity=0.4`. A flag reads as on a line (`hovered.hidden`), a
+  binding as `key={expression}` (`hovered.color={dark ? "white" : "ink"}`: the patch's `bind`).
+- On the line of a node inside it, a state of the line around it is written after that line's id:
+  `btn.selected.color=primaryText`. The word goes on the line of the node it restyles, so each line stays one
+  node; the id names whose state it follows, and must be the id of a line around it (else it is said). An id
+  the parser gave (`row3`) is written as it is given.
+- The words of one state of one node on a line are one patch, wherever they are on the line. Its patch is what
+  the words change on the line: the line read alone with and without them (`MediaLineReader`, the media rules'
+  reader, given the keys a state's patch may hold: any field of the node, not `type`, `children`, `slots`,
+  `actions`, `media`, `states`, `name`, `key`, `component`). Unlike a media rule's, it drops no binding (the
+  renderer does).
+- **A state written replaces the look the parser gives.** `selected={…}` on a box draws it in the theme's
+  selected fill and `enabled={…}` on a box draws it at half strength: a `selected.…` or `disabled.…` word for that
+  node, on its line or under it, is its look instead (`Row#btn selected={on}` with `btn.selected.color=…` on
+  a line under it has no selected fill).
+- **Not confusable with a media rule.** The state names are none of a media condition's segments (`phone`,
+  `mobile`, `tablet`, `desktop`, `portrait`, `landscape`, `min…`, `max…`). A key the line's type reads as a
+  path wins over a state word (`states.hovered.btn.opacity`, the full path, still reads), and a media condition
+  wins over an id: a node with the id `phone` or `max900` has no state words under it (its states print in the
+  tail). A media rule holds no state and a state no media rule: `phone.hovered.fill=…` and
+  `hovered.phone.pad=…` are said.
+- **The printer** writes, for each node whose states it can say, every patch with the words a media rule's are
+  chosen with (`printPatchWords`), the shortest that give exactly that patch: on the node's line for its own,
+  on the target's line after the owner's id for a node inside it. A state the line's words give already
+  (`selected={…}` on a box with exactly the theme's selected fill) is not written. A node's states are written
+  all or none: one patch with no words (a target that is no node inside it, an empty patch) leaves them all to
+  its `{…}` tail. `print_fields.dart` writes `selected={…}` on a box whose selected state the words say.
+
+From the corpus (CodelesslySDK `design_systems/cards/components/ActionButton.json`, `Chip.json`;
+`examples/showcase/desktop/native/app_board/round2/doc.json`):
+
+```
+Row#btn gap=8 center pad=[16,0,16,0] h=46 fill=accent radius=14 … pressed.opacity=0.82 onTap={…}
+
+Row#chip gap=0 pad=[8,0,8,0] … fill=subtleFill radius=9 selected.fill=activeTint
+    selected.strokes=[{"color":"primaryTintBorder"}] hovered.foregroundFills=[{"color":"hoverOverlay"}] …
+  Row#chipContent gap=4
+    Icon#icon "sell" color=secondaryText size=12 chip.selected.color=primary
+    Text#label "{props.label}" … chip.selected.color=primary
+
+Column#card gap=8 pad=12 … selected={selectedId == item.id} drag=card(item.id) draggable.start=auto
+    draggable.childWhenDragging=ghost hovered.strokes=[{"color":"#FFCBD5E1"}] selected.strokes=[{"color":"#FF2563EB"}] …
+```
+
+**A node's name and its behaviors.** `name=Board` (a quoted text where it is not a word) is the node's `name`;
+on a type with a prop `name` (a component's parameter), `node.name=`. Every behavior no other word says
+(`inkWell`, `focusable`, `motion`, `focusGroup`, `form`, `radioGroup`, `reorderHandle`, `floating`, a drag
+source's or a drop target's other fields) is written by the keys' names (2.1, `keys.dart`): one word per field
+(`inkWell.hoverColor=hoverOverlay`, `motion.rotate=90`, `focusable=false`, `form.autovalidateMode=onUnfocus`), a
+record whole as its JSON only where no word of each field reads back (else the fields that have words, the rest
+in the tail). A drag source whose `data` is worked out is
+`drag=card(item.id)` with its other fields after it (`draggable.start=auto`): a key's value with `{…}` in it binds
+the field. `print_states.dart` writes these (`printStatesKeys`); the fields' own loop leaves them to it.
+
+Not said yet: a value inside a record that is an expression to work out later (`dropTarget.key: "${item.name}"`):
+a key's value with `{…}` binds the field (`bind.dropTarget.key`), which is another document (the Keys family's
+reading of values). A state patch of a node that does not exist (`states.hovered.self`) and a node key the catalog
+does not have (`margin` beside `layout`) have no line to be written on or no key to be written with.
 
 ## 5. What does not change
 

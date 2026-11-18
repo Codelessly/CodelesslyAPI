@@ -1213,7 +1213,7 @@ final class _NodeLine {
     }
     for (final f in [...NodeFields.all, ...BehaviorFields.all]) {
       final k = f.key;
-      if (_others.contains(k) || said.contains(k)) continue;
+      if (_others.contains(k) || said.contains(k) || printStatesKeys.contains(k)) continue;
       final forms = _forms(k, got[k], n[k]);
       if (forms.isNotEmpty) out.add((target: k, forms: forms));
     }
@@ -1293,7 +1293,21 @@ final class _NodeLine {
       case 'data':
         return path;
       case 'selected':
-        return _hasProp('selected') || const {'chip', 'checkbox', 'switch'}.contains(type) ? null : 'selected';
+        if (_hasProp('selected') || const {'chip', 'checkbox', 'switch'}.contains(type)) return null;
+        // On a box, `selected=` also draws it in the theme's selected fill.
+        final box = const {'row', 'column', 'stack'}.contains(type);
+        final fillsBound = bind.keys.any((k) => k.startsWith('decoration.fills'));
+        final look = {
+          id: {
+            'decoration': {
+              'fills': [
+                {'color': c.options.selectedFill},
+              ],
+            },
+          },
+        };
+        // …in place of every state look the node has.
+        return !box || fillsBound || _equal(n['states'], {'selected': look}) || printStatesSelected(n) ? 'selected' : null;
     }
     if (path.startsWith('props.style.') && !path.substring(12).contains('.')) {
       final f = path.substring(12);

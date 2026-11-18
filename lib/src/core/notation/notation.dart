@@ -12,7 +12,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
-import '../behaviors.dart' show mergePatch;
+import '../behaviors.dart' show WidgetState, mergePatch;
 import '../catalog.dart';
 import '../design_system.dart';
 import '../layout.dart' show SizeFit;
@@ -39,6 +39,7 @@ import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields,
 
 part 'notation_events.dart';
 part 'paint_words.dart';
+part 'state_words.dart';
 
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
@@ -3517,6 +3518,8 @@ class _Parser {
     // The line's media rules in the order written: `phone.pad=16` (a
     // condition and a word), `hide=phone` (a rule as it is, no word).
     final mediaWords = <({Json condition, String? word, int column})>[];
+    // Its states' words (`hovered.fill=…`, `btn.selected.color=…`) and its name.
+    final stateWords = <_StateWord>[];
     var wroteColor = false;
     String? chipColor, fieldInk, fieldSize, listIcon, inputValue, removeActions;
     var disabledBy = '', required = false, clearable = false;
@@ -4011,6 +4014,7 @@ class _Parser {
           _issue(col, 'There is no arrow. What a node does is an event with its actions in braces: onTap={count=count+1} (onChange={…} on a control).');
           break;
         }
+        if (_stateWord(t, word, from, type, col, stateWords) || _nameWord(t, word, from, spec, node, col)) continue;
         final eq = word.indexOf('=');
         // `phone.pad=16`, `max899.hidden`: the line's value at other widths
         // (docs/design/22 section 2.4), unless the type has a prop of that name.
@@ -5852,6 +5856,7 @@ class _Parser {
         },
       };
     }
+    _readStates(stateWords, t.s.substring(0, t.at).trimRight(), id, parent?.id, parent?.type, type, out, node);
     // Its media rules, unless its {…} tail gave them (t.at: where the words end).
     if (mediaWords.isNotEmpty && !node.containsKey('media') && !t.rest.contains('"media"')) {
       final rules = _mediaRules(mediaWords, t.s.substring(0, t.at).trimRight(), parent?.type, type, readMap(out['bind'])?.keys ?? const []);
