@@ -42,7 +42,7 @@ state count:decimal=2
 state note:text
 state price=2
 state total:decimal={price*count}
-state clamp(v):decimal={min(1, max(0, v))}
+state clamp01(v):decimal={min(1, max(0, v))}
 state draft="" saved
 state accent:color="#FF2563EB"
 Column
@@ -52,7 +52,7 @@ Column
         'state note:text',
         'state price=2',
         'state total:decimal={price*count}',
-        'state clamp(v):decimal={min(1, max(0, v))}',
+        'state clamp01(v):decimal={min(1, max(0, v))}',
         'state draft="" saved',
         'state accent:color="#FF2563EB"',
       ]);
@@ -61,7 +61,7 @@ Column
         {'name': 'note', 'type': 'text'},
         {'name': 'price', 'type': 'integer', 'value': 2},
         {'name': 'total', 'type': 'decimal', 'formula': 'price*count'},
-        {'name': 'clamp', 'type': 'decimal', 'formula': 'min(1, max(0, v))', 'parameters': ['v']},
+        {'name': 'clamp01', 'type': 'decimal', 'formula': 'min(1, max(0, v))', 'parameters': ['v']},
         {'name': 'draft', 'type': 'text', 'value': '', 'persist': true},
         {'name': 'accent', 'type': 'color', 'value': '#FF2563EB'},
       ]);

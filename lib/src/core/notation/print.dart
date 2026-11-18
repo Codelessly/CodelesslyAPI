@@ -384,7 +384,7 @@ final class _Printer {
   /// `state name=value` for each variable of the screen, its type written
   /// where the value does not say it (`state count:decimal=2`), a formula
   /// variable as `state total:decimal={price*qty}`, a function as
-  /// `state clamp(v):decimal={min(1, max(0, v))}`, one kept on the device
+  /// `state clamp01(v):decimal={min(1, max(0, v))}`, one kept on the device
   /// with `saved`. A variable named as the runtime names a scope (`storage`,
   /// `theme`: notationRefusedState) has no state line (34: one is an issue):
   /// it stays on the `document {…}` line.

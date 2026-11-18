@@ -406,7 +406,7 @@ design 13 section 3; none is a second way to write what had one.
 - **Variables.** `state name=value` with the type read from the value. A type the value does not say is written
   after a colon, in the variable's own type names: `state count:decimal=2`, `state accent:color="#FF2563EB"`; with
   no value, `state note:text`. A typed value in braces is a formula variable of the document (`Variable.formula`):
-  `state total:decimal={price*qty}`; with parameters, a function: `state clamp(v):decimal={min(1, max(0, v))}`.
+  `state total:decimal={price*qty}`; with parameters, a function: `state clamp01(v):decimal={min(1, max(0, v))}`.
   (Without a type, `state x={…}` stays a formula written out where it is read.) `saved` is `persist`. A typed
   formula is kept as written, single quotes too. A type written on a state line is kept (`state page:integer=0`):
   no control or `Pages` widens it to a decimal, and the printer writes the type where the read-back would

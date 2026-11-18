@@ -3909,6 +3909,33 @@ class _Parser {
         eachWords[eq < 0 ? word : word.substring(0, eq)] = eq < 0 ? '' : word.substring(eq + 1);
         line = line.substring(0, m.start).trimRight();
       }
+      // Words after the list that are none of its own (`each k in list
+      // reorder gap=2 onReorder={…}`) were read as part of the list's
+      // formula, with no word said (test 9, kanban 4): the list ends where
+      // its expression does, its own words after it are read, the others said.
+      final eachHead = RegExp(r'^each\s+[A-Za-z_][A-Za-z0-9_]*\s+in\s+').firstMatch(line);
+      if (eachHead != null) {
+        final list = line.substring(eachHead.end);
+        final end = _expressionEnd(list);
+        if (end < list.length) {
+          final others = <String>[];
+          for (final w in _topLevelWords(list.substring(end))) {
+            final own = RegExp(r'^(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$').firstMatch(w);
+            if (own != null) {
+              final eq = w.indexOf('=');
+              eachWords[eq < 0 ? w : w.substring(0, eq)] = eq < 0 ? '' : w.substring(eq + 1);
+            } else {
+              others.add(w);
+            }
+          }
+          line = line.substring(0, eachHead.end + end).trimRight();
+          if (others.isNotEmpty) {
+            final shown = others.map((w) => w.length > 40 ? '${w.substring(0, 37)}…' : w).join(' ');
+            _issue(column + eachHead.end + end,
+                'An each line takes its list and its own words (reorder, reorder=group, stagger=80, follow, h=180, grow): $shown ${others.length == 1 ? 'is' : 'are'} not read there. Write ${others.length == 1 ? 'it' : 'them'} on the line the each is under (Column gap=2 reorder onReorder={…} over each k in list), or on the line under the each.');
+          }
+        }
+      }
       if (eachWords['stagger'] case final String s) _eachStagger = _milliseconds(s);
     }
     // `reorder`: the rows are dragged by their Handle (or moved by keys from
@@ -6755,7 +6782,9 @@ class _Parser {
         layout['height'] = options.controlHeight! + (label ? (options.fieldLabel == null ? 20 : 23) : 0) + (type == 'textField' && props['maxLength'] is int ? 18 : 0);
       }
     }
-    if (inRow && type == 'text' && !layout.containsKey('width')) layout['squeezable'] = true;
+    // (`squeezable=false` on the line keeps the text whole: it was set true
+    // again here, so the word was dropped: test 9, kanban 3.)
+    if (inRow && type == 'text' && !layout.containsKey('width') && !layout.containsKey('squeezable')) layout['squeezable'] = true;
     // On a page a column beside an icon or a picture gives way too (a name
     // and a note in a narrow tile), where it would push past the row's end.
     if (inRow && type == 'column' && !layout.containsKey('width') && !layout.containsKey('flex') && options.width >= 700 && written != 'Card') {
@@ -7499,6 +7528,66 @@ class _Parser {
     }
   }
 
+  /// Where the expression [s] begins ends: the first place, outside quotes
+  /// and brackets, where a word follows the end of a value with only spaces
+  /// between (`list reorder gap=2`: before `reorder`); [s]'s length when
+  /// it is one expression.
+  static int _expressionEnd(String s) {
+    var depth = 0;
+    String? quote;
+    for (var i = 0; i < s.length; i++) {
+      final c = s[i];
+      if (quote != null) {
+        if (c == quote && s[i - 1] != r'\') quote = null;
+        continue;
+      }
+      if (c == '"' || c == "'") {
+        quote = c;
+      } else if (c == '(' || c == '[' || c == '{') {
+        depth++;
+      } else if ((c == ')' || c == ']' || c == '}') && depth > 0) {
+        depth--;
+      } else if (depth == 0 && c == ' ' && i > 0) {
+        final before = s.substring(0, i).trimRight();
+        final after = s.substring(i).trimLeft();
+        if (before.isEmpty || after.isEmpty) continue;
+        final last = before[before.length - 1];
+        final ended = RegExp(r'''[A-Za-z0-9_)\]}"']''').hasMatch(last);
+        final word = RegExp(r'^[A-Za-z_]').hasMatch(after) && !RegExp(r'^(and|or|not|in|is)\b').hasMatch(after);
+        if (ended && word) return s.length - after.length;
+      }
+    }
+    return s.length;
+  }
+
+  /// The words of [s] split at spaces outside quotes and brackets
+  /// (`gap=2 onReorder={a; b}`: two words).
+  static List<String> _topLevelWords(String s) {
+    final out = <String>[];
+    final b = StringBuffer();
+    var depth = 0;
+    String? quote;
+    for (var i = 0; i < s.length; i++) {
+      final c = s[i];
+      if (quote != null) {
+        if (c == quote && s[i - 1] != r'\') quote = null;
+      } else if (c == '"' || c == "'") {
+        quote = c;
+      } else if (c == '(' || c == '[' || c == '{') {
+        depth++;
+      } else if ((c == ')' || c == ']' || c == '}') && depth > 0) {
+        depth--;
+      } else if (c == ' ' && depth == 0) {
+        if (b.isNotEmpty) out.add(b.toString());
+        b.clear();
+        continue;
+      }
+      b.write(c);
+    }
+    if (b.isNotEmpty) out.add(b.toString());
+    return out;
+  }
+
   /// [line] with the word [name] read as `item`, outside quoted text and
   /// inside `{…}` within it.
   String _rename(String line, String name, [String to = 'item']) {
@@ -8110,7 +8199,7 @@ class _Parser {
     // `state count:decimal=2`: a type the value does not say; `state
     // note:text` with no value; `state total:decimal={price*qty}` a formula
     // variable of the document (with no type, a formula is written out where
-    // it is read); `state clamp(v):decimal={min(1, max(0, v))}` a function
+    // it is read); `state clamp01(v):decimal={min(1, max(0, v))}` a function
     // (docs/design/22 section 4.5).
     final typed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\(([^()]*)\))?:([a-z]+)(?:\s*=\s*(.+))?$').firstMatch(rest);
     if (typed != null) {
