@@ -17,6 +17,41 @@ Column pad=[16,8,16,8] fill=#FF2563EB radius=8
   Text "x" color=#FFFFFFFF
 ```
 
+<a id="values-other-spellings-also-read"></a>
+## Other spellings (also read)
+
+This reference writes each thing one way, and that is the way to write it. A model often reaches for another
+name; the open vocabulary reads these as the word in the third column (a host that reads with the closed vocabulary
+says them instead). They are listed so you know them when you read them, not as forms to write.
+
+| Also read | As a | Is | On |
+|---|---|---|---|
+| `Shortcut`, `shortcut` | word | a `key` line of the screen (`key mod+k onPress={…}`) |  |
+| `computed` | word | a formula variable (`state total:decimal={price*qty}`) |  |
+| `ConfirmDialog` | word | a `Dialog` block with its two buttons |  |
+| `RangeSlider` | word | `Slider` (with `low=`, `high=`) |  |
+| `Highlight`, `HighlightText` | word | `Text`, `match=` as `mark=`, `query=` as `mark=` |  |
+| `MiniCalendar`, `CalendarMonth`, `MonthGrid` | word | `Calendar` |  |
+| `StickyBar`, `StickyFooter`, `BottomBar`, `FooterBar`, `BottomDock` | word | `Footer` |  |
+| `QRCode`, `QrCode` | word | `Barcode symbology=qrCode` |  |
+| `disabled=` | key | `enabled=` negated | any line |
+| `readonly=` | key | `readOnly=` | any line |
+| `maxlength=`, `maxChars=` | key | `maxLength=` | `Input` |
+| `rows=` | key | `lines=` | `Input` |
+| `subtitle=`, `title=` | key | its next quoted string | `ListTile` |
+| `value=`, `code=` | key | `data=` | `Barcode` |
+| `format=`, `type=` | key | `symbology=` | `Barcode` |
+| `disabled` | flag | `enabled=false` | any line |
+| `readonly` | flag | `readOnly` | any line |
+| `sortable`, `reorderable` | flag | `reorder` | any line |
+| `uppercase`, `allcaps` | flag | `caps` | `Input` |
+| `persist`, `persisted`, `persistent` | flag | `saved` | `state`, `project` |
+| `onDelete={…}` | event | `onRemove={…}` | any line |
+| `onEnter={…}`, `onSubmitted={…}` | event | `onSubmit={…}` | `Input` |
+| `onSaved={…}` | event | `onBlur={…}` | `Input` |
+| `onSelect={…}` | event | `onChange={…}` | `Calendar` |
+| `unfocus` | verb | `blur` | an action |
+
 <a id="values-value-types"></a>
 ## Value types
 

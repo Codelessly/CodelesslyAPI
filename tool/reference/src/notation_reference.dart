@@ -26,7 +26,18 @@ import 'package:codelessly_api/src/core/levels.dart';
 import 'package:codelessly_api/src/core/notation/keys.dart' show notationKeyFor, notationKeyPath, notationTextStyleProp;
 import 'package:codelessly_api/src/core/notation/media_words.dart' show mediaHideWords, mediaSizes;
 import 'package:codelessly_api/src/core/notation/notation.dart'
-    show NotationOptions, badgeVariants, buttonVariants, defaultTextVariants, notationAnimations, notationEventName, notationTypes, parseNotation;
+    show
+        NotationOptions,
+        badgeVariants,
+        buttonVariants,
+        defaultTextVariants,
+        notationAnimations,
+        notationEventName,
+        notationTypes,
+        notationVerbAliases,
+        notationVerbs,
+        parseNotation;
+import 'package:codelessly_api/src/core/notation/vocabulary.dart' show NotationVocabulary;
 import 'package:codelessly_api/src/core/notation/page_words.dart' show PageWords;
 import 'package:codelessly_api/src/core/notation/print.dart' show notationOptionsFor, printNotation;
 import 'package:codelessly_api/src/core/notation/universal.dart' show UniversalKind, notationUniversal;
@@ -250,6 +261,7 @@ final class _NotationReference {
     for (final e in pages.entries) {
       _collect(e.key, e.value);
     }
+    _checkVerbsAndActions();
     final resolved = {for (final e in pages.entries) e.key: _resolve(e.value, e.key)};
     resolved['_tails.md'] = _tailsReport(examples);
     resolved['index.md'] = _index(resolved);
@@ -464,11 +476,16 @@ final class _NotationReference {
     String? at(String text, String marker) {
       final r = parseNotation(text, catalog: c);
       if (r.issues.isNotEmpty) return null;
-      for (final e in (r.document['nodes'] as Map).entries) {
+      final nodes = r.document['nodes'] as Map;
+      final top = nodes.values.cast<Map>().where((v) => v['type'] != 'canvas').firstOrNull ?? const {};
+      for (final e in nodes.entries) {
         final n = e.value as Map;
         if (n['type'] == 'canvas') continue;
         final p = find(n, marker, '');
-        if (p != null) return n == (r.document['nodes'] as Map).values.firstWhere((v) => (v as Map)['type'] != 'canvas') ? p : 'a node under it (`${n['type']}`, `$p`)';
+        if (p == null) continue;
+        if (n == top) return p;
+        final slot = (top['slots'] as Map?)?.entries.where((s) => s.value == e.key).firstOrNull?.key;
+        return 'a node under it (a `${_words[n['type']] ?? n['type']}`${slot == null ? '' : ' in its `$slot` slot'}, its `$p`)';
       }
       return null;
     }
@@ -514,9 +531,14 @@ final class _NotationReference {
     final bareWord = word.split('.').first;
     final (first, second) = spec == null ? (null, null) : _strings(word);
     b.writeln('- Written `$word`${words.isEmpty ? '' : '; also ${words.map((w) => '`$w`').join(', ')}'}. Level ${level.index} (${level.title}).');
+    String where(String at) => at.startsWith('a node under it') ? at : '`$at`';
     b.writeln(first == null
         ? '- Takes no quoted string.'
-        : '- `$bareWord "…"` sets `$first`${second == null ? '' : '; a second string sets `$second`'}.');
+        : second == null
+            ? '- `$bareWord "…"` sets ${where(first)}; it takes one quoted string (a second is said).'
+            : second == first
+                ? '- Each quoted string is ${where(first)}: `$bareWord "…" "…"` writes two, in order.'
+                : '- `$bareWord "…"` sets ${where(first)}; a second string sets ${where(second)}.');
     b.writeln('- ${switch (t['children']) {
       'list' => 'The lines under it are its children.',
       'slots' => 'Its children are slots: ${[for (final s in t['slots'] as List) '`$s`'].join(', ')}.',
@@ -851,7 +873,12 @@ final class _NotationReference {
         if (kids != null) {
           final kept = [for (final k in kids) if (nodes.containsKey(k)) k];
           if (kept.length != kids.length) dropped = true;
-          n['children'] = kept;
+          // None shown: the node as a line with nothing under it gives it.
+          if (kept.isEmpty) {
+            n.remove('children');
+          } else {
+            n['children'] = kept;
+          }
           referenced.addAll(kept);
         }
         final slots = (n['slots'] as Map?)?.cast<String, dynamic>();
@@ -899,9 +926,43 @@ final class _NotationReference {
       for (final k in catalog['decoration']['fields'] as List) '${k['key']}',
     };
     if (!m.keys.every(nodeKeys.contains)) return null;
+    // A state's patch of one node names it: the node is that one
+    // (`"states": {"selected": {"linen": …}}` is linen's own look).
+    final targets = {
+      for (final s in (readMapOf(m['states']) ?? const {}).values) ...?readMapOf(s)?.keys,
+    };
+    final id = targets.length == 1 && RegExp(r'^[A-Za-z_]\w*$').hasMatch(targets.single) ? targets.single : 'example';
+    final best = _onBestNode(m, id);
+    // Bindings no one type takes (a text's and a fill's): each on the type
+    // that takes it, the nodes in a column.
+    final bind = readMapOf(m['bind']);
+    if (best.tail > 0 && m.length == 1 && bind != null && bind.length > 1) {
+      final groups = <String, Json>{};
+      for (final e in bind.entries) {
+        final one = _onBestNode({'bind': {e.key: e.value}}, 'x');
+        if (one.tail > 0) return best.found;
+        (groups[one.type] ??= {})[e.key] = e.value;
+      }
+      if (groups.length > 1) {
+        final nodes = {for (final g in groups.entries) '${_words[g.key]!.toLowerCase().split('.').first}Example': _node(g.key, {'bind': g.value})};
+        return (
+          doc: _document({...nodes, 'example': _node('column', {'children': [...nodes.keys]})}, 'example'),
+          note: 'each binding on a node that takes it (${groups.keys.map((t) => '`${_words[t]}`').join(', ')}), in a column',
+        );
+      }
+    }
+    return best.found;
+  }
+
+  static Json? readMapOf(Object? v) => v is Map ? v.cast<String, dynamic>() : null;
+
+  /// [m] (a node's keys) on whichever node type prints them with the
+  /// fewest characters of JSON (tail 0: none), as node [id].
+  ({({Json doc, String note})? found, int tail, String type}) _onBestNode(Json m, String id) {
     ({Json doc, String note})? best;
     var bestTail = 1 << 30;
-    for (final type in const ['box', 'text', 'filledButton', 'column', 'textField']) {
+    var bestType = '';
+    for (final type in const ['box', 'text', 'filledButton', 'outlinedButton', 'column', 'textField']) {
       final fields = <String, dynamic>{};
       for (final e in m.entries) {
         if (api.DecorationFields.all.any((f) => f.key == e.key)) {
@@ -912,22 +973,26 @@ final class _NotationReference {
           fields[e.key] = e.value;
         }
       }
-      final doc = _document({'example': _node(type, fields)}, 'example');
+      final doc = _document({id: _node(type, fields)}, id);
       final printed = printNotation(doc, catalog: c);
       final tail = printed.split('\n').fold<int>(0, (s, l) => s + (_tailStart(l.trimLeft()) >= 0 ? l.length : 0)) +
           (printed.contains('document {') ? 10000 : 0);
       if (tail < bestTail) {
         bestTail = tail;
+        bestType = type;
         best = (doc: doc, note: 'its keys on a `${_words[type]}`');
       }
     }
-    return best;
+    return (found: best, tail: bestTail, type: bestType);
   }
 
   /// A node of [type] as a line of its word gives it, with [fields] over it.
   Json _node(String type, Json fields) {
     final word = _words[type] ?? type;
-    final parsed = parseNotation(word.contains('.') || word[0] == word[0].toUpperCase() ? word : 'node {"type":"$type"}', catalog: notationComponentsCatalog(root));
+    // The word the printer writes reads as the type (a lowercase one as
+    // exactly it, design 22 4.7); else the bare node.
+    var parsed = parseNotation(word, catalog: notationComponentsCatalog(root));
+    if (parsed.issues.isNotEmpty) parsed = parseNotation('node {"type":"$type"}', catalog: notationComponentsCatalog(root));
     final nodes = (parsed.document['nodes'] as Map).values.where((n) => (n as Map)['type'] == type).toList();
     final base = nodes.isEmpty ? <String, dynamic>{'type': type} : jsonDecode(jsonEncode(nodes.first)) as Json;
     base.remove('children');
@@ -1106,6 +1171,7 @@ final class _NotationReference {
     'typeWords': _typeWordsByLevel,
     'pageWords': () => (PageWords.words.toList()..sort()).map((w) => '`$w`').join(', '),
     'verbs': _verbs,
+    'aliases': _aliases,
     'coreEvents': _coreEvents,
     'triggers': _triggers,
     'triggerFields': () => _fieldTable([
@@ -1188,6 +1254,76 @@ final class _NotationReference {
         return (s, [for (final a in actions) '${(a as Map)['type']}']);
       }(),
   ];
+
+  /// Every verb the parser reads ([notationVerbs]) has a sample in
+  /// [notationVerbSamples] (an alias, [notationVerbAliases], is in the
+  /// aliases' table), and every action type of the catalog a section of its
+  /// own: else the reference is incomplete and the generator stops.
+  void _checkVerbsAndActions() {
+    final sampled = {for (final s in notationVerbSamples) RegExp(r'^[a-z]+').stringMatch(s)};
+    final missing = [for (final v in notationVerbs) if (!sampled.contains(v)) v];
+    if (missing.isNotEmpty) throw StateError('notation reference: no sample in notationVerbSamples for the verb(s) ${missing.join(', ')}');
+    final odd = [for (final e in notationVerbAliases.entries) if (!notationVerbs.contains(e.value)) e.key];
+    if (odd.isNotEmpty) throw StateError('notation reference: alias(es) of no verb: ${odd.join(', ')}');
+    final undocumented = [
+      for (final type in (catalog['actions']['types'] as Map).keys)
+        if (!anchors.containsKey(ItemKind.action.anchor('$type'))) type,
+    ];
+    if (undocumented.isNotEmpty) throw StateError('notation reference: action type(s) with no section: ${undocumented.join(', ')}');
+  }
+
+  /// The other spellings the open vocabulary reads ([NotationVocabulary.core],
+  /// [notationVerbAliases]): written in the canonical spelling, they are
+  /// listed so a reader knows them.
+  String _aliases() {
+    const v = NotationVocabulary.core;
+    String on(String type) => type == '*' ? 'any line' : '`$type`';
+    final rows = <List<String>>[
+      for (final e in v.types.entries)
+        [
+          '`${e.key}`',
+          'word',
+          e.value.line != null
+              ? _aliasLines[e.value.line] ?? (throw StateError('notation reference: say what the alias line ${e.value.line} is in _aliasLines'))
+              : '`${e.value.to}${e.value.variant == null ? '' : '.${e.value.variant}'}${e.value.add == null ? '' : ' ${e.value.add}'}`'
+                  '${e.value.parameters.isEmpty ? '' : ', ${e.value.parameters.entries.map((p) => '`${p.key}=` as `${p.value}=`').join(', ')}'}'
+                  '${e.value.requires.isEmpty ? '' : ' (with ${e.value.requires.map((r) => '`$r=`').join(', ')})'}',
+          '',
+        ],
+      for (final t in v.parameters.entries)
+        for (final e in t.value.entries)
+          ['`${e.key}=`', 'key', e.value == r'$text' ? 'its next quoted string' : e.value.startsWith('!') ? '`${e.value.substring(1)}=` negated' : '`${e.value}=`', on(t.key)],
+      for (final t in v.flags.entries)
+        for (final e in t.value.entries) ['`${e.key}`', 'flag', '`${e.value}`', on(t.key)],
+      for (final t in v.events.entries)
+        for (final e in t.value.entries) ['`${e.key}={…}`', 'event', '`${e.value}={…}`', on(t.key)],
+      for (final e in {...v.verbs, ...notationVerbAliases}.entries) ['`${e.key}`', 'verb', '`${e.value}`', 'an action'],
+    ];
+    // The spellings of one thing in one row.
+    Map<String, List<String>> join(Iterable<List<String>> rows, int col) {
+      final out = <String, List<String>>{};
+      for (final r in rows) {
+        final key = [for (var i = 0; i < r.length; i++) if (i != col) r[i]].join('\u0000');
+        final had = out[key];
+        if (had == null) {
+          out[key] = [...r];
+        } else {
+          had[col] = '${had[col]}, ${r[col]}';
+        }
+      }
+      return out;
+    }
+
+    final ons = join(join(rows, 0).values, 3);
+    return Renderer.table(['Also read', 'As a', 'Is', 'On'], [...ons.values]);
+  }
+
+  /// What the core vocabulary's line aliases are, in the notation's own form.
+  static const _aliasLines = {
+    'shortcut': 'a `key` line of the screen (`key mod+k onPress={…}`)',
+    'computed': 'a formula variable (`state total:decimal={price*qty}`)',
+    'confirmDialog': 'a `Dialog` block with its two buttons',
+  };
 
   String _verbs() => Renderer.table(['Write', 'Action'], [
         for (final (s, types) in _verbTypes) ['`$s`', types.map((t) => _link(ItemKind.action, t)).join(' then ')],

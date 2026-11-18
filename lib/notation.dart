@@ -14,6 +14,8 @@ export 'src/core/notation/notation.dart'
         notationRefusedState,
         notationScreen,
         notationTypes,
+        notationVerbAliases,
+        notationVerbs,
         parseNotation;
 export 'src/core/notation/bind_form.dart' show NotationBindRewrite, NotationBound, notationBindForm, notationBindRewrite, notationIsLiteral;
 export 'src/core/notation/define.dart' show DefinedLine, DefinedWords, NotationDefinition, checkDefinitions, definitionLines, readDefinitions, readPageDefinitions;

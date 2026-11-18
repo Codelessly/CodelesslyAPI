@@ -427,6 +427,9 @@ class _Batch {
     }
   }
 
+  /// JSON Schema's and Dart's names for a variable's type, by its own.
+  static const _jsonTypeNames = {'number': 'decimal', 'double': 'decimal', 'int': 'integer', 'string': 'text', 'bool': 'boolean', 'object': 'map', 'array': 'list'};
+
   void _error(EditCode code, String message, {String path = '', String? nodeId, List<String>? expected, String? suggestion}) =>
       _diags.add(EditDiagnostic.of(code, _op, message, path: path, nodeId: nodeId, expected: expected, suggestion: suggestion));
 
@@ -949,6 +952,14 @@ class _Batch {
           (v.containsKey('type') || v.containsKey('formula') || (!holdsMap && v.containsKey('value')));
       if (declares) {
         final decl = <String, Object?>{...readMap(v)!, 'name': e.key};
+        // A type that is none of VariableType's would be read as text: said.
+        final named = decl['type'];
+        if (named != null && !VariableType.values.any((t) => t.name == named)) {
+          final names = [for (final t in VariableType.values) t.name];
+          _error(EditCodes.invalidVariable, 'Variable "${e.key}": a variable\'s type is one of ${names.join(', ')}, not "$named".',
+              path: editPointer(p, 'type'), expected: names, suggestion: named is String ? _jsonTypeNames[named] ?? nearestName(named, names) : null);
+          continue;
+        }
         final parsed = Variable.fromJson(decl);
         if (parsed == null) {
           _error(EditCodes.invalidVariable, 'Variable "${e.key}" could not be read.', path: p);

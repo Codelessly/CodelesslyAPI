@@ -407,7 +407,7 @@ Row#row gap=12 pad=24 w={"fill":390} h={"fill":120} crossAxisAlignment=null
 From [animation.md](../animation.md) (the block at line 51 of its template, pages/animation.md); its keys on a `box`.
 
 ```notation
-box#example w=null h=null
+box#example
   animation#enter duration=600 curve=easeOut visibleFraction=0.3
     track path=opacity from=0 to=1
     track path=motion.translateY from=24 to=0

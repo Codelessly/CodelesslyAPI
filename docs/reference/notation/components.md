@@ -76,7 +76,7 @@ A widget built by the app.
 An empty slot (`SizedBox`).
 
 - Written `Placeholder`. Level 0 (Core).
-- `Placeholder "…"` sets `props.text`.
+- `Placeholder "…"` sets `props.text`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -216,7 +216,7 @@ From [components.md](../components.md) (the block at line 43 of its template, pa
 
 ```notation components
 Column#example
-  Chip#design "Design" type=Chip w={"hug":120} h=36 props.selected=tag {"actions":[{"trigger":{"type":"event","event":"onRemove"},"actions":[{"type":"setVariable","variable":"removed","value":"${result}"}]}]}
+  Chip#design "Design" type=Chip w={"hug":120} h=36 props.selected=tag {"actions":[{"actions":[{"type":"setVariable","value":"${result}","variable":"removed"}],"trigger":{"event":"onRemove","type":"event"}}]}
     slot leading
       box#dot w=8 h=8 fill=#FF4CAF50 radius=4
   ListView#tags w={"fill":360} h=36 scrollDirection=horizontal gap=8
@@ -235,7 +235,7 @@ state tag=true
 state removed="none"
 canvas "Home" h=844
 Column#col gap=12 pad=16 w={"fill":390} h={"fill":844}
-  Chip#design "Design" type=Chip w={"hug":120} h=36 selected="tag" {"actions":[{"trigger":{"type":"event","event":"onRemove"},"actions":[{"type":"setVariable","variable":"removed","value":"${result}"}]}]}
+  Chip#design "Design" type=Chip w={"hug":120} h=36 selected="tag" {"actions":[{"actions":[{"type":"setVariable","value":"${result}","variable":"removed"}],"trigger":{"event":"onRemove","type":"event"}}]}
     slot leading
       box#dot w=8 h=8 fill=#FF4CAF50 radius=4
   Text#status "Removed: {removed}" size=14 color=#FF333333 w={"hug":120} h={"hug":20}

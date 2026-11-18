@@ -33,11 +33,9 @@ It reads as:
 
 ```notation
 state photos=["a","b","c"]
-Column#grid1 gap=8
-  gridView cols=3 mainAxisSpacing=8 crossAxisSpacing=8 physics=never
-    each item in photos
-      Column#gridView1Item
-        Text "{item}"
+Grid cols=3
+  each item in photos
+    Text "{item}"
 ```
 
 ```notation expands
@@ -258,7 +256,7 @@ Flutter `TableView`; its slots are the cell templates.
 Flutter `ListTile`.
 
 - Written `ListTile`. Level 1 (Widget catalog).
-- `ListTile "…"` sets `a node under it (`text`, `props.text`)`; a second string sets `a node under it (`text`, `props.text`)`.
+- `ListTile "…"` sets a node under it (a `Text` in its `title` slot, its `props.text`); a second string sets a node under it (a `Text` in its `subtitle` slot, its `props.text`).
 - Its children are slots: `leading`, `title`, `subtitle`, `trailing`.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -516,7 +514,7 @@ TableView#table w={"fill":390} h={"fill":260} data={years} rowHeight=40 headerHe
   slot cell
     Text#cell "{item.value}" size=14 color=#FF0F172A pad=[12,10,12,10] w={"fill":100} h={"fill":40}
   slot columnHeader
-    Text#head "{item.label}" color=#FF334155 weight=700 pad=[12,10,12,10] w={"fill":100} h={"fill":40}
+    Text#head "{item.label}" weight=700 color=#FF334155 pad=[12,10,12,10] w={"fill":100} h={"fill":40}
 ```
 
 <a id="lists-example-pages-table-filter-json"></a>

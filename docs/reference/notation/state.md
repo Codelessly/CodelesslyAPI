@@ -320,7 +320,7 @@ Column#col gap=12 pad=24 w={"fill":390} h={"fill":300}
     Text#toggleLabel "Monthly" size=14 color=#FF2563EB w={"hug":80} h={"hug":20} text={annual ? 'Annual billing' : 'Monthly billing'}
   Text.heading2#price "$12 / month" size=32 w={"hug":80} h={"hug":40}
   Text#note "Save 20% with annual billing" size=14 color=#FF16A34A w={"hug":80} h={"hug":20}
-document {"conditions":{"plans":[{"id":"billing","branches":[{"when":{"left":"${annual}","op":"isTrue"},"set":[{"node":"price","path":"props.text","value":"$120 / year"},{"node":"note","path":"visible","value":false}]},{"set":[{"node":"price","path":"props.text","value":"$12 / month"}]}]}]}}
+document {"conditions":{"plans":[{"branches":[{"set":[{"node":"price","path":"props.text","value":"$120 / year"},{"node":"note","path":"visible","value":false}],"when":{"left":"${annual}","op":"isTrue"}},{"set":[{"node":"price","path":"props.text","value":"$12 / month"}]}],"id":"billing"}]}}
 ```
 
 <a id="state-example-state-md-variables"></a>

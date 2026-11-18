@@ -303,8 +303,8 @@ void main() {
       ('Column\n  Input "" hint=Search icon=search', 'textField', 'props.decoration.prefixIcon.icon', 'search'),
       ('Column\n  Input "Price" prefix=USD', 'textField', 'props.decoration.prefixText', 'USD'),
       ('Column\n  Input "Password" password', 'textField', 'props.obscureText', true),
-      ('Column\n  Input "Code" weight=600 color=#FF111827 size=15', 'textField', 'props.style.fontWeight', 600),
-      ('Column\n  Input "Code" fontFamily=monospace letterSpacing=0.5 lineHeight=1.5', 'textField', 'props.style.letterSpacing', 0.5),
+      ('Column\n  Input "Code" size=15 weight=600 color=#FF111827', 'textField', 'props.style.fontWeight', 600),
+      ('Column\n  Input "Code" fontFamily=monospace lineHeight=1.5 letterSpacing=0.5', 'textField', 'props.style.letterSpacing', 0.5),
       // A field of its decoration no word says is written by its path from the props.
       ('Column\n  Input hint=Search decoration.isDense=true', 'textField', 'props.decoration.isDense', true),
     ]);

@@ -305,10 +305,10 @@ Column#col middle w={"fill":390} h={"fill":200} crossAxisAlignment=null
 <a id="interaction-example-interaction-md-bind-states"></a>
 ### interaction.md: bind, states
 
-From [interaction.md](../interaction.md) (the block at line 58 of its template, pages/interaction.md); its keys on a `Text`.
+From [interaction.md](../interaction.md) (the block at line 58 of its template, pages/interaction.md); its keys on a `Button`.
 
 ```notation
-Text#example selected={category == 'linen'} {"states":{"selected":{"linen":{"props":{"style":{"backgroundColor":"ink","foregroundColor":"paper"}}}}}}
+Button#linen selected={category == 'linen'} selected.style.backgroundColor=ink selected.style.foregroundColor=paper
 ```
 
 <a id="interaction-example-interaction-md-menu"></a>
@@ -317,5 +317,5 @@ Text#example selected={category == 'linen'} {"states":{"selected":{"linen":{"pro
 From [interaction.md](../interaction.md) (the block at line 129 of its template, pages/interaction.md); children the fragment does not show left out.
 
 ```notation
-Column#menu focusGroup.typeAhead=true {"children":[]}
+Column#menu focusGroup.typeAhead=true
 ```

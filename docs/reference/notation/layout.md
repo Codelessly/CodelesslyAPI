@@ -116,7 +116,7 @@ Flutter `Scaffold`.
 Flutter `Row`.
 
 - Written `Row`; also `Badge`. Level 0 (Core).
-- `Row "…"` sets `a node under it (`text`, `props.text`)`; a second string sets `a node under it (`text`, `props.text`)`.
+- Each quoted string is a node under it (a `Text`, its `props.text`): `Row "…" "…"` writes two, in order.
 - The lines under it are its children.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.
 
@@ -145,7 +145,7 @@ Flutter `Row`.
 Flutter `Column`.
 
 - Written `Column`; also `Avatar`, `List`, `Grid`, `GridView`, `Box`, `Card`, `Wanted`. Level 0 (Core).
-- `Column "…"` sets `a node under it (`text`, `props.text`)`; a second string sets `a node under it (`text`, `props.text`)`.
+- Each quoted string is a node under it (a `Text`, its `props.text`): `Column "…" "…"` writes two, in order.
 - The lines under it are its children.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.
 
@@ -204,7 +204,7 @@ Flutter `Flex`.
 Flutter `Stack`.
 
 - Written `Stack`. Level 0 (Core).
-- `Stack "…"` sets `a node under it (`text`, `props.text`)`; a second string sets `a node under it (`text`, `props.text`)`.
+- Each quoted string is a node under it (a `Text`, its `props.text`): `Stack "…" "…"` writes two, in order.
 - The lines under it are its children.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.
 
@@ -228,7 +228,7 @@ Flutter `Stack`.
 Flutter `Container`.
 
 - Written `box`; also `Image`. Level 0 (Core).
-- `box "…"` sets `props.text`.
+- Takes no quoted string.
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.
 
@@ -369,7 +369,7 @@ Column#col gap=8 pad=10 w={"fill":400} h={"fill":400}
 From [`responsive_web.json`](../layout.md).
 
 ```notation width=1440
-document {"nodes":{"home":{"slots":{"body":"page"},"layout":{"height":900}},"page":{"type":"column","children":["header","content"],"layout":{"width":{"fill":1440},"height":{"fill":900}},"props":{"scrollable":true}},"header":{"type":"row","children":["logo","nav","menu"],"layout":{"width":{"fill":1440},"height":64,"padding":[16,0,16,0]},"props":{"mainAxisAlignment":"spaceBetween"},"decoration":{"fills":[{"color":"#FF111827"}]},"media":[{"minWidth":"desktop","patch":{"layout":{"padding":[32,0,32,0]}}}]},"logo":{"type":"text","layout":{"width":{"hug":80},"height":{"hug":24}},"props":{"text":"Relay","style":{"fontSize":20,"fontWeight":700,"color":"#FFFFFFFF"}}},"nav":{"type":"row","children":["nav-1","nav-2","nav-3"],"visible":false,"layout":{"width":{"hug":300},"height":{"hug":20}},"props":{"spacing":32},"media":[{"minWidth":"desktop","patch":{"visible":true}}]},"nav-1":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":20}},"props":{"text":"Product","style":{"fontSize":15,"color":"#FFD1D5DB"}}},"nav-2":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":20}},"props":{"text":"Pricing","style":{"fontSize":15,"color":"#FFFFFFFF"}}},"nav-3":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":20}},"props":{"text":"Docs","style":{"fontSize":15,"color":"#FFD1D5DB"}}},"menu":{"type":"icon","layout":{"width":28,"height":28},"props":{"icon":"menu","color":"#FFFFFFFF"},"media":[{"minWidth":"desktop","patch":{"visible":false}}]},"content":{"type":"column","children":["title","plans","split"],"layout":{"width":{"fill":1440},"height":{"hug":800},"padding":[16,24,16,24],"constraints":{"maxWidth":1200}},"props":{"crossAxisAlignment":"stretch","spacing":24},"media":[{"minWidth":"tablet","patch":{"layout":{"padding":[32,48,32,48]},"props":{"spacing":32}}}]},"title":{"type":"text","layout":{"width":{"fill":1136},"height":{"hug":64}},"props":{"text":"Plans that scale with your team","style":{"fontSize":32,"fontWeight":700,"height":1.1,"color":"#FF111827"}},"media":[{"minWidth":"tablet","patch":{"props":{"style":{"fontSize":40}}}},{"minWidth":"desktop","patch":{"props":{"style":{"fontSize":56}}}}]},"plans":{"type":"gridView","children":["plan"],"layout":{"width":{"fill":1136},"height":{"hug":200}},"props":{"physics":"never","minCrossAxisExtent":280,"shrinkWrapRows":true,"crossAxisSpacing":24,"mainAxisSpacing":24},"bind":{"data":"${plans}"}},"plan":{"type":"column","children":["plan-name","plan-price"],"layout":{"width":{"fill":360},"height":{"fill":160},"padding":24},"props":{"crossAxisAlignment":"start","spacing":8},"decoration":{"fills":[{"color":"#FFF3F4F6"}],"radius":12}},"plan-name":{"type":"text","layout":{"width":{"fill":312},"height":{"hug":24}},"props":{"text":"${item.name}","style":{"fontSize":18,"fontWeight":600,"color":"#FF111827"}}},"plan-price":{"type":"text","layout":{"width":{"fill":312},"height":{"hug":40}},"props":{"text":"${item.price}","style":{"fontSize":32,"fontWeight":700,"color":"#FF2563EB"}}},"split":{"type":"row","children":["split-text","split-photo"],"layout":{"width":{"fill":1136},"height":{"hug":240}},"props":{"wrap":true,"spacing":48,"runSpacing":16,"crossAxisAlignment":"center"}},"split-text":{"type":"text","layout":{"width":{"fill":544},"height":{"hug":60},"basis":320},"props":{"text":"Every plan includes on-call schedules, escalation policies and status pages.","style":{"fontSize":18,"height":1.5,"color":"#FF374151"}}},"split-photo":{"type":"box","layout":{"width":{"fill":544},"height":240,"basis":320},"decoration":{"fills":[{"color":"#FF93C5FD"}],"radius":12},"media":[{"maxWidth":"mobile","patch":{"layout":{"order":-1}}}]}},"variables":{"home":[{"name":"plans","type":"list","value":[{"name":"Starter","price":"$0"},{"name":"Team","price":"$29"},{"name":"Enterprise","price":"Talk to us"}]}]}}
+document {"nodes":{"content":{"children":["title","plans","split"],"layout":{"constraints":{"maxWidth":1200},"height":{"hug":800},"padding":[16,24,16,24],"width":{"fill":1440}},"media":[{"minWidth":"tablet","patch":{"layout":{"padding":[32,48,32,48]},"props":{"spacing":32}}}],"props":{"crossAxisAlignment":"stretch","spacing":24},"type":"column"},"header":{"children":["logo","nav","menu"],"decoration":{"fills":[{"color":"#FF111827"}]},"layout":{"height":64,"padding":[16,0,16,0],"width":{"fill":1440}},"media":[{"minWidth":"desktop","patch":{"layout":{"padding":[32,0,32,0]}}}],"props":{"mainAxisAlignment":"spaceBetween"},"type":"row"},"home":{"layout":{"height":900},"slots":{"body":"page"}},"logo":{"layout":{"height":{"hug":24},"width":{"hug":80}},"props":{"style":{"color":"#FFFFFFFF","fontSize":20,"fontWeight":700},"text":"Relay"},"type":"text"},"menu":{"layout":{"height":28,"width":28},"media":[{"minWidth":"desktop","patch":{"visible":false}}],"props":{"color":"#FFFFFFFF","icon":"menu"},"type":"icon"},"nav":{"children":["nav-1","nav-2","nav-3"],"layout":{"height":{"hug":20},"width":{"hug":300}},"media":[{"minWidth":"desktop","patch":{"visible":true}}],"props":{"spacing":32},"type":"row","visible":false},"nav-1":{"layout":{"height":{"hug":20},"width":{"hug":60}},"props":{"style":{"color":"#FFD1D5DB","fontSize":15},"text":"Product"},"type":"text"},"nav-2":{"layout":{"height":{"hug":20},"width":{"hug":60}},"props":{"style":{"color":"#FFFFFFFF","fontSize":15},"text":"Pricing"},"type":"text"},"nav-3":{"layout":{"height":{"hug":20},"width":{"hug":60}},"props":{"style":{"color":"#FFD1D5DB","fontSize":15},"text":"Docs"},"type":"text"},"page":{"children":["header","content"],"layout":{"height":{"fill":900},"width":{"fill":1440}},"props":{"scrollable":true},"type":"column"},"plan":{"children":["plan-name","plan-price"],"decoration":{"fills":[{"color":"#FFF3F4F6"}],"radius":12},"layout":{"height":{"fill":160},"padding":24,"width":{"fill":360}},"props":{"crossAxisAlignment":"start","spacing":8},"type":"column"},"plan-name":{"layout":{"height":{"hug":24},"width":{"fill":312}},"props":{"style":{"color":"#FF111827","fontSize":18,"fontWeight":600},"text":"${item.name}"},"type":"text"},"plan-price":{"layout":{"height":{"hug":40},"width":{"fill":312}},"props":{"style":{"color":"#FF2563EB","fontSize":32,"fontWeight":700},"text":"${item.price}"},"type":"text"},"plans":{"bind":{"data":"${plans}"},"children":["plan"],"layout":{"height":{"hug":200},"width":{"fill":1136}},"props":{"crossAxisSpacing":24,"mainAxisSpacing":24,"minCrossAxisExtent":280,"physics":"never","shrinkWrapRows":true},"type":"gridView"},"split":{"children":["split-text","split-photo"],"layout":{"height":{"hug":240},"width":{"fill":1136}},"props":{"crossAxisAlignment":"center","runSpacing":16,"spacing":48,"wrap":true},"type":"row"},"split-photo":{"decoration":{"fills":[{"color":"#FF93C5FD"}],"radius":12},"layout":{"basis":320,"height":240,"width":{"fill":544}},"media":[{"maxWidth":"mobile","patch":{"layout":{"order":-1}}}],"type":"box"},"split-text":{"layout":{"basis":320,"height":{"hug":60},"width":{"fill":544}},"props":{"style":{"color":"#FF374151","fontSize":18,"height":1.5},"text":"Every plan includes on-call schedules, escalation policies and status pages."},"type":"text"},"title":{"layout":{"height":{"hug":64},"width":{"fill":1136}},"media":[{"minWidth":"tablet","patch":{"props":{"style":{"fontSize":40}}}},{"minWidth":"desktop","patch":{"props":{"style":{"fontSize":56}}}}],"props":{"style":{"color":"#FF111827","fontSize":32,"fontWeight":700,"height":1.1},"text":"Plans that scale with your team"},"type":"text"}},"variables":{"home":[{"name":"plans","type":"list","value":[{"name":"Starter","price":"$0"},{"name":"Team","price":"$29"},{"name":"Enterprise","price":"Talk to us"}]}]}}
 ```
 
 <a id="layout-example-band-json"></a>
@@ -429,7 +429,7 @@ Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
         each item in stories
           Column#story gap=8 h={"hug":300} columnSpan={index == 0 ? 2 : 1} w={"fill":350}
             box#storyArt w={"fill":350} layout.height=200 gradient=["#FF94A3B8","#FF1F2A44"] radius=4 h={index == 0 ? 340 : 200}
-            Text.small#storyKicker "{item.section}" color=#FFB45309 weight=700 letterSpacing=1.2 w={"fill":350} h={"hug":16}
+            Text.small#storyKicker "{item.section}" weight=700 color=#FFB45309 letterSpacing=1.2 w={"fill":350} h={"hug":16}
             Text.title#storyTitle "{item.title}" weight=700 lineHeight=1.2 w={"fill":350} h={"hug":30} size={index == 0 ? 30 : 20}
             Text.muted#storyDek "{item.dek}" size=15 lineHeight=1.45 w={"fill":350} h={"hug":40}
       Column#rail gap=14 pad=20 w={"fill":350} h={"hug":320} fill=#FFFFFFFF border=#FFE5E7EB radius=6 sticky=24 min834.w=280
@@ -450,9 +450,9 @@ canvas h=844
 Column#page gap=12 scroll pad=20 w={"fill":390} h={"fill":844}
   Text.heading2#heading "Saturday, 9:00 to 12:00" size=22 w={"fill":350} h={"hug":30}
   Row#tracks gap=12 w={"fill":350} h={"hug":20} hidden crossAxisAlignment=null min600.visible=true
-    Text#track1 "Main hall" color=#FF6B7280 weight=700 w={"fill":100} h={"hug":20}
-    Text#track2 "Studio" color=#FF6B7280 weight=700 w={"fill":100} h={"hug":20}
-    Text#track3 "Workshop room" color=#FF6B7280 weight=700 w={"fill":100} h={"hug":20}
+    Text#track1 "Main hall" weight=700 color=#FF6B7280 w={"fill":100} h={"hug":20}
+    Text#track2 "Studio" weight=700 color=#FF6B7280 w={"fill":100} h={"hug":20}
+    Text#track3 "Workshop room" weight=700 color=#FF6B7280 w={"fill":100} h={"hug":20}
   gridView#grid w={"fill":350} h={"hug":400} shrinkWrapRows=null cols=1 mainAxisExtent=64 mainAxisSpacing=8 crossAxisSpacing=12 physics=never min600.crossAxisCount=3
     each item in sessions
       Column#session gap=2 pad=10 h={"fill":64} fill=#FFEEF2FF radius=6 w={"fill":350} min600.columnStart={item.track} min600.rowStart={item.slot} min600.rowSpan={item.slots} min600.columnSpan={item.tracks}
@@ -480,7 +480,7 @@ Column#scroller gap=16 scroll pad=24 w={"fill":390} h={"fill":844}
 From [`responsive.json`](../layout.md).
 
 ```notation
-document {"roots":["home-mobile","home-desktop"],"nodes":{"screen":{"type":"canvas","layout":{"width":390.0,"height":{"hug":0}},"decoration":{"fills":[{"color":"#FFFFFFFF"}]}},"home-mobile":{"name":"Home","props":{"screen":"home","breakpoint":"mobile"},"slots":{"body":"m-page"},"layout":{"height":844}},"m-page":{"type":"column","children":["m-title","m-size"],"layout":{"width":{"fill":390},"height":{"fill":844},"padding":24},"props":{"crossAxisAlignment":"start","spacing":8}},"m-title":{"type":"text","layout":{"width":{"fill":342},"height":{"hug":32}},"props":{"text":"Stacked for phones","style":{"fontSize":24,"fontWeight":700,"color":"#FF111827"}}},"m-size":{"type":"text","layout":{"width":{"fill":342},"height":{"hug":20}},"props":{"text":"${screen.breakpoint}: ${screen.width} px wide","style":{"fontSize":14,"color":"#FF6B7280"}}},"home-desktop":{"type":"canvas","name":"Home","props":{"screen":"home","breakpoint":"desktop"},"slots":{"body":"d-page"},"layout":{"width":1440,"height":900},"decoration":{"fills":[{"color":"#FFF3F4F6"}]}},"d-page":{"type":"row","children":["d-title","d-size"],"layout":{"width":{"fill":1440},"height":{"hug":120},"padding":48},"props":{"mainAxisAlignment":"spaceBetween"}},"d-title":{"type":"text","layout":{"width":{"hug":400},"height":{"hug":48}},"props":{"text":"Side by side on desktops","style":{"fontSize":40,"fontWeight":700,"color":"#FF111827"}}},"d-size":{"type":"text","layout":{"width":{"hug":200},"height":{"hug":20}},"props":{"text":"${screen.breakpoint}: ${screen.width} px wide","style":{"fontSize":14,"color":"#FF6B7280"}}},"screen2":null}}
+document {"nodes":{"d-page":{"children":["d-title","d-size"],"layout":{"height":{"hug":120},"padding":48,"width":{"fill":1440}},"props":{"mainAxisAlignment":"spaceBetween"},"type":"row"},"d-size":{"layout":{"height":{"hug":20},"width":{"hug":200}},"props":{"style":{"color":"#FF6B7280","fontSize":14},"text":"${screen.breakpoint}: ${screen.width} px wide"},"type":"text"},"d-title":{"layout":{"height":{"hug":48},"width":{"hug":400}},"props":{"style":{"color":"#FF111827","fontSize":40,"fontWeight":700},"text":"Side by side on desktops"},"type":"text"},"home-desktop":{"decoration":{"fills":[{"color":"#FFF3F4F6"}]},"layout":{"height":900,"width":1440},"name":"Home","props":{"breakpoint":"desktop","screen":"home"},"slots":{"body":"d-page"},"type":"canvas"},"home-mobile":{"layout":{"height":844},"name":"Home","props":{"breakpoint":"mobile","screen":"home"},"slots":{"body":"m-page"}},"m-page":{"children":["m-title","m-size"],"layout":{"height":{"fill":844},"padding":24,"width":{"fill":390}},"props":{"crossAxisAlignment":"start","spacing":8},"type":"column"},"m-size":{"layout":{"height":{"hug":20},"width":{"fill":342}},"props":{"style":{"color":"#FF6B7280","fontSize":14},"text":"${screen.breakpoint}: ${screen.width} px wide"},"type":"text"},"m-title":{"layout":{"height":{"hug":32},"width":{"fill":342}},"props":{"style":{"color":"#FF111827","fontSize":24,"fontWeight":700},"text":"Stacked for phones"},"type":"text"},"screen":{"decoration":{"fills":[{"color":"#FFFFFFFF"}]},"layout":{"height":{"hug":0},"width":390},"type":"canvas"},"screen2":null},"roots":["home-mobile","home-desktop"]}
 ```
 
 <a id="layout-example-variance-json"></a>
@@ -506,7 +506,7 @@ Column#col pad=24 w={"fill":390} h={"fill":844} crossAxisAlignment=null
 From [layout.md](../layout.md) (the block at line 188 of its template, pages/layout.md); children the fragment does not show left out.
 
 ```notation
-Flex#split w={"fill":1200} h={"hug":400} direction=horizontal gap=32 max599.direction=vertical {"children":[]}
+Flex#split w={"fill":1200} h={"hug":400} direction=horizontal gap=32 max599.direction=vertical
 ```
 
 <a id="layout-example-layout-md-actions"></a>
@@ -515,5 +515,5 @@ Flex#split w={"fill":1200} h={"hug":400} direction=horizontal gap=32 max599.dire
 From [layout.md](../layout.md) (the block at line 241 of its template, pages/layout.md); its keys on a `box`.
 
 ```notation
-box#example w=null h=null onScroll={setVariable variable=readFraction value={result.fraction}}
+box#example onScroll={setVariable variable=readFraction value={result.fraction}}
 ```

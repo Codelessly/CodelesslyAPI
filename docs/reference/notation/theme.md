@@ -36,7 +36,7 @@ Button "Dark mode" onTap={setThemeMode mode=dark}
 Flutter `Text.rich`.
 
 - Written `Text`; also `Text.pageTitle`, `Text.heading1`, `Text.heading2`, `Text.heading3`, `Text.sectionTitle`, `Text.panelTitle`, `Text.body`, `Text.bodySecondary`, `Text.fieldLabel`, `Text.caption`, `Text.mono`, `Text.title`, `Text.heading`, `Text.strong`, `Text.small`, `Text.muted`, `Text.danger`, `Text.success`. Level 0 (Core).
-- `Text "…"` sets `props.text`.
+- `Text "…"` sets `props.text`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.

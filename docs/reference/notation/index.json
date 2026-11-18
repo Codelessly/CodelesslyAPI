@@ -89,7 +89,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 4677
+      "words": 4674
     },
     {
       "topic": "layout-sizes",
@@ -145,7 +145,7 @@
       "file": "layout.md",
       "anchor": "layout-examples",
       "title": "Examples",
-      "words": 789
+      "words": 786
     },
     {
       "topic": "theme",
@@ -153,7 +153,7 @@
       "anchor": "page-theme",
       "title": "Text and theme",
       "summary": "Text, its looks and its style keys, the theme's names for colors and styles, and text direction.",
-      "words": 1282
+      "words": 1291
     },
     {
       "topic": "theme-text",
@@ -167,7 +167,7 @@
       "file": "theme.md",
       "anchor": "theme-words",
       "title": "Words",
-      "words": 350
+      "words": 359
     },
     {
       "topic": "theme-behaviors",
@@ -203,7 +203,7 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 2616
+      "words": 2623
     },
     {
       "topic": "decoration-fills-borders-and-corners",
@@ -231,7 +231,7 @@
       "file": "decoration.md",
       "anchor": "decoration-words",
       "title": "Words",
-      "words": 399
+      "words": 408
     },
     {
       "topic": "decoration-events-and-actions",
@@ -252,7 +252,7 @@
       "file": "decoration.md",
       "anchor": "decoration-examples",
       "title": "Examples",
-      "words": 285
+      "words": 283
     },
     {
       "topic": "paint",
@@ -296,7 +296,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 11688
+      "words": 11877
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -317,7 +317,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9058
+      "words": 9247
     },
     {
       "topic": "forms-behaviors",
@@ -353,21 +353,21 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 5706
+      "words": 5712
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 223
+      "words": 217
     },
     {
       "topic": "lists-words",
       "file": "lists.md",
       "anchor": "lists-words",
       "title": "Words",
-      "words": 3216
+      "words": 3228
     },
     {
       "topic": "lists-behaviors",
@@ -518,7 +518,7 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3562
+      "words": 3560
     },
     {
       "topic": "animation-the-animate-words",
@@ -567,7 +567,7 @@
       "file": "animation.md",
       "anchor": "animation-examples",
       "title": "Examples",
-      "words": 173
+      "words": 171
     },
     {
       "topic": "charts",
@@ -575,7 +575,7 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 7478
+      "words": 7496
     },
     {
       "topic": "charts-writing-a-chart",
@@ -589,7 +589,7 @@
       "file": "charts.md",
       "anchor": "charts-words",
       "title": "Words",
-      "words": 6142
+      "words": 6160
     },
     {
       "topic": "charts-records",
@@ -640,7 +640,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 2646
+      "words": 2655
     },
     {
       "topic": "navigation-page-frames",
@@ -668,7 +668,7 @@
       "file": "navigation.md",
       "anchor": "navigation-words",
       "title": "Words",
-      "words": 1525
+      "words": 1534
     },
     {
       "topic": "navigation-events-and-actions",
@@ -697,7 +697,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1578
+      "words": 1587
     },
     {
       "topic": "components-calling-one",
@@ -718,7 +718,7 @@
       "file": "components.md",
       "anchor": "components-words",
       "title": "Words",
-      "words": 343
+      "words": 352
     },
     {
       "topic": "components-events-and-actions",
@@ -769,7 +769,7 @@
       "anchor": "page-document",
       "title": "The document",
       "summary": "What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples.",
-      "words": 745
+      "words": 741
     },
     {
       "topic": "document-the-order-of-a-document",
@@ -790,7 +790,7 @@
       "file": "document.md",
       "anchor": "document-examples",
       "title": "Examples",
-      "words": 392
+      "words": 388
     },
     {
       "topic": "values",
@@ -798,7 +798,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 13442
+      "words": 13797
     },
     {
       "topic": "values-writing-a-value",
@@ -806,6 +806,13 @@
       "anchor": "values-writing-a-value",
       "title": "Writing a value",
       "words": 71
+    },
+    {
+      "topic": "values-other-spellings-also-read",
+      "file": "values.md",
+      "anchor": "values-other-spellings-also-read",
+      "title": "Other spellings (also read)",
+      "words": 348
     },
     {
       "topic": "values-value-types",

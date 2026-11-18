@@ -103,22 +103,23 @@ Row#row gap=24 center pad=24 w={"fill":520} h={"fill":200} crossAxisAlignment=nu
 
 From [STARTER.md](../STARTER.md) (the block at line 317 of its template, base.md); its document keys around an empty column.
 
-```notation unchecked
+```notation
 state annual=false
 state plans=[{"name":"Team","monthly":39}]
-state price:number={annual ? plans[0].monthly * 0.8 : plans[0].monthly}
+state price:decimal={annual ? plans[0].monthly * 0.8 : plans[0].monthly}
 state usd(n):text={'$' + round(n)}
 Column#body
-document {"variables":{"screen":[{"name":"annual","type":"boolean","value":false},{"name":"plans","type":"list","value":[{"name":"Team","monthly":39}]},{"name":"price","type":"number","formula":"annual ? plans[0].monthly * 0.8 : plans[0].monthly"},{"name":"usd","type":"text","parameters":["n"],"formula":"'$' + round(n)"}]}}
 ```
 
 <a id="document-example-starter-md-bind"></a>
 ### STARTER.md: bind
 
-From [STARTER.md](../STARTER.md) (the block at line 337 of its template, base.md); its keys on a `Column`.
+From [STARTER.md](../STARTER.md) (the block at line 337 of its template, base.md); each binding on a node that takes it (`Text`, `box`), in a column.
 
 ```notation
-Column#example fill={selected ? '#FFDBEAFE' : '#FFFFFFFF'} visible={count > 0} fills=null {"bind":{"props.text":"${= 'Total: ' + money(count * price, '$')}"}}
+Column#example
+  Text#textExample text={'Total: ' + money(count * price, '$')}
+  box#boxExample fill={selected ? '#FFDBEAFE' : '#FFFFFFFF'} visible={count > 0} fills=null
 ```
 
 <a id="document-example-starter-md-actions"></a>
@@ -127,7 +128,7 @@ Column#example fill={selected ? '#FFDBEAFE' : '#FFFFFFFF'} visible={count > 0} f
 From [STARTER.md](../STARTER.md) (the block at line 350 of its template, base.md); its keys on a `box`.
 
 ```notation
-box#example w=null h=null onTap={setVariable variable=count op=add value="1"; go thanks}
+box#example onTap={setVariable variable=count op=add value="1"; go thanks}
 ```
 
 <a id="document-example-pages-publish-json"></a>

@@ -93,7 +93,7 @@ Canvas#signup "signup" w=480.0 decoration.radius=16 decoration.effects=[{"type":
       Text.heading "Join the waitlist" grow
       IconButton "close" onTap={close}
     Row#column2Actions gap=8 end
-      Button "Close" maxWidth=240 onTap={close} {"media":[{"maxWidth":479.0,"patch":{"layout":{"flex":1,"width":{"fill":0,"hug":null},"constraints":{"maxWidth":null}}}}]}
+      Button "Close" maxWidth=240 onTap={close} {"media":[{"maxWidth":479,"patch":{"layout":{"constraints":{"maxWidth":null},"flex":1,"width":{"fill":0,"hug":null}}}}]}
 ```
 
 <a id="navigation-screens"></a>
@@ -118,7 +118,7 @@ Canvas#about "About" path="about"
 Flutter `AppBar` (its toolbar height is the node height).
 
 - Written `appBar`. Level 1 (Widget catalog).
-- `appBar "…"` sets `props.title`.
+- `appBar "…"` sets `props.title`; it takes one quoted string (a second is said).
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
@@ -252,7 +252,7 @@ Flutter `TabBar`. It has no fill of its own: for an opaque sticky sub-navigation
 Accordion: a header and collapsible content.
 
 - Written `Accordion`. Level 1 (Widget catalog).
-- `Accordion "…"` sets `a node under it (`text`, `props.text`)`; a second string sets `a node under it (`text`, `props.text`)`.
+- Each quoted string is a node under it (a `Text`, its `props.text`): `Accordion "…" "…"` writes two, in order.
 - The lines under it are its children.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 
@@ -268,7 +268,7 @@ Accordion: a header and collapsible content.
 Flutter `ExpansionTile`.
 
 - Written `ExpansionTile`. Level 1 (Widget catalog).
-- `ExpansionTile "…"` sets `a node under it (`text`, `props.text`)`; a second string sets `a node under it (`text`, `props.text`)`.
+- Each quoted string is a node under it (a `Text`, its `props.text`): `ExpansionTile "…" "…"` writes two, in order.
 - The lines under it are its children. Slots: `tile`.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
 

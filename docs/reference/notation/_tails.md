@@ -3,7 +3,7 @@
 
 The work list for notation parity (docs/design/22-notation-parity.md). Each example of the JSON reference is printed with `printNotation`; a line that keeps part of its node in a `{…}` tail, a `node {…}` line and a `document {…}` line are listed here, with the paths the JSON holds. The reference is complete when this list is empty.
 
-64 examples; 15 with a tail; 21 lines with one; 76 distinct paths; 1 prints that do not read without an issue; 5 that print again differently.
+64 examples; 10 with a tail; 16 lines with one; 69 distinct paths; 0 prints that do not read without an issue; 1 that print again differently.
 
 ## Paths, most lines first
 
@@ -11,13 +11,12 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 |---|---|
 | `bind.props.validator` | 4 |
 | `props.validator` | 4 |
-| `bind.props.text` | 3 |
 | `actions[].actions[].type` | 2 |
 | `actions[].actions[].value` | 2 |
 | `actions[].actions[].variable` | 2 |
 | `actions[].trigger.event` | 2 |
 | `actions[].trigger.type` | 2 |
-| `children` | 2 |
+| `bind.props.text` | 2 |
 | `nodes.*.children` | 2 |
 | `nodes.*.decoration.fills[].color` | 2 |
 | `nodes.*.layout.height` | 2 |
@@ -37,9 +36,6 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | `nodes.*.props.validator` | 2 |
 | `nodes.*.slots.body` | 2 |
 | `nodes.*.type` | 2 |
-| `variables.*[].name` | 2 |
-| `variables.*[].type` | 2 |
-| `variables.*[].value[].name` | 2 |
 | `bind.layout.widthFactor` | 1 |
 | `conditions.plans[].branches[].set[].node` | 1 |
 | `conditions.plans[].branches[].set[].path` | 1 |
@@ -78,27 +74,12 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | `nodes.*.visible` | 1 |
 | `radioGroup.groupValue` | 1 |
 | `roots` | 1 |
-| `states.selected.linen.props.style.backgroundColor` | 1 |
-| `states.selected.linen.props.style.foregroundColor` | 1 |
-| `variables.*[].formula` | 1 |
-| `variables.*[].parameters` | 1 |
-| `variables.*[].value` | 1 |
-| `variables.*[].value[].monthly` | 1 |
+| `variables.*[].name` | 1 |
+| `variables.*[].type` | 1 |
+| `variables.*[].value[].name` | 1 |
 | `variables.*[].value[].price` | 1 |
 
 ## By example
-
-### STARTER.md: variables ([document.md](document.md#document-example-starter-md-variables))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 6 | `document` | `variables.*[].formula`, `variables.*[].name`, `variables.*[].parameters`, `variables.*[].type`, `variables.*[].value`, `variables.*[].value[].monthly`, `variables.*[].value[].name` |
-
-### STARTER.md: bind ([document.md](document.md#document-example-starter-md-bind))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 1 | `Column#example fill={selected ? '#FFDBEA…` | `bind.props.text` |
 
 ### responsive_web.json ([layout.md](layout.md#layout-example-responsive-web-json))
 
@@ -111,12 +92,6 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | Line | Starts | Paths |
 |---|---|---|
 | 1 | `document` | `nodes.*`, `nodes.*.children`, `nodes.*.decoration.fills[].color`, `nodes.*.layout.height`, `nodes.*.layout.height.fill`, `nodes.*.layout.height.hug`, `nodes.*.layout.padding`, `nodes.*.layout.width`, `nodes.*.layout.width.fill`, `nodes.*.layout.width.hug`, `nodes.*.name`, `nodes.*.props.breakpoint`, `nodes.*.props.crossAxisAlignment`, `nodes.*.props.mainAxisAlignment`, `nodes.*.props.screen`, `nodes.*.props.spacing`, `nodes.*.props.style.color`, `nodes.*.props.style.fontSize`, `nodes.*.props.style.fontWeight`, `nodes.*.props.text`, `nodes.*.slots.body`, `nodes.*.type`, `roots` |
-
-### layout.md: split ([layout.md](layout.md#layout-example-layout-md-split))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 1 | `Flex#split w={"fill":1200} h={"hug":400}…` | `children` |
 
 ### photo_card.json ([decoration.md](decoration.md#decoration-example-photo-card-json))
 
@@ -160,18 +135,6 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 |---|---|---|
 | 8 | `document` | `conditions.plans[].branches[].set[].node`, `conditions.plans[].branches[].set[].path`, `conditions.plans[].branches[].set[].value`, `conditions.plans[].branches[].when.left`, `conditions.plans[].branches[].when.op`, `conditions.plans[].id` |
 
-### interaction.md: bind, states ([interaction.md](interaction.md#interaction-example-interaction-md-bind-states))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 1 | `Text#example selected={category == 'line…` | `states.selected.linen.props.style.backgroundColor`, `states.selected.linen.props.style.foregroundColor` |
-
-### interaction.md: menu ([interaction.md](interaction.md#interaction-example-interaction-md-menu))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 1 | `Column#menu focusGroup.typeAhead=true` | `children` |
-
 ### components.md: nodes ([components.md](components.md#components-example-components-md-nodes))
 
 | Line | Starts | Paths |
@@ -188,27 +151,14 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 
 Printer bugs: the print gives the document back, but the parser says something reading it. Each block is marked `unchecked` on its page.
 
-- **STARTER.md: variables** ([document.md](document.md#document-example-starter-md-variables)): `line 3: A variable's type is one of integer, text, decimal, boolean, color, list, map, image, choice: state price:decimal=0.`
 - **lists.md, the block of line 43** (the print after it): `line 3: The id "pageView1Page" is used twice. Give this line an id of its own.`
 
 ## Prints that print again differently
 
 Each example is shown as its print printed again (the same document): the printer should give that the first time.
 
-- **editorial.json**
-  - line 15: `Text.small#storyKicker "{item.section}" weight=700 letterSpacing=1.2 color=#FFB45309 w={"fill":350} h={"hug":16}` then `Text.small#storyKicker "{item.section}" color=#FFB45309 weight=700 letterSpacing=1.2 w={"fill":350} h={"hug":16}`
-  - line 22: `Text#railItem "{(index + 1) + '. ' + item}" size=14 lineHeight=1.4 color=#FF374151 w={"fill":240} h={"hug":40}` then `Text#railItem "{(index + 1) + '. ' + item}" size=14 color=#FF374151 lineHeight=1.4 w={"fill":240} h={"hug":40}`
-- **timetable.json**
-  - line 6: `Text#track1 "Main hall" weight=700 color=#FF6B7280 w={"fill":100} h={"hug":20}` then `Text#track1 "Main hall" color=#FF6B7280 weight=700 w={"fill":100} h={"hug":20}`
-  - line 7: `Text#track2 "Studio" weight=700 color=#FF6B7280 w={"fill":100} h={"hug":20}` then `Text#track2 "Studio" color=#FF6B7280 weight=700 w={"fill":100} h={"hug":20}`
-  - line 8: `Text#track3 "Workshop room" weight=700 color=#FF6B7280 w={"fill":100} h={"hug":20}` then `Text#track3 "Workshop room" color=#FF6B7280 weight=700 w={"fill":100} h={"hug":20}`
 - **responsive.json**
-  - line 1: `document {"roots":["home-mobile","home-desktop"],"nodes":{"home-mobile":{"name":"Home","props":{"screen":"home","brea…` then `document {"roots":["home-mobile","home-desktop"],"nodes":{"screen":{"type":"canvas","layout":{"width":390.0,"height":…`
-- **photo_card.json**
-  - line 4: `Text.small#kicker "TRAVEL" weight=700 letterSpacing=2 color=#FFFDE68A w={"fill":302} h={"hug":16}` then `Text.small#kicker "TRAVEL" color=#FFFDE68A weight=700 letterSpacing=2 w={"fill":302} h={"hug":16}`
-  - line 5: `Text.title#headline "A week on the salt marsh, by boat and on foot" weight=700 lineHeight=1.3 color=#FFFFFFFF w={"fil…` then `Text.title#headline "A week on the salt marsh, by boat and on foot" weight=700 color=#FFFFFFFF lineHeight=1.3 w={"fil…`
-- **table_view.json**
-  - line 7: `Text#head "{item.label}" weight=700 color=#FF334155 pad=[12,10,12,10] w={"fill":100} h={"fill":40}` then `Text#head "{item.label}" color=#FF334155 weight=700 pad=[12,10,12,10] w={"fill":100} h={"fill":40}`
+  - line 1: `document {"nodes":{"d-page":{"children":["d-title","d-size"],"layout":{"height":{"hug":120},"padding":48,"width":{"fi…` then `document {"nodes":{"d-page":{"children":["d-title","d-size"],"layout":{"height":{"hug":120},"padding":48,"width":{"fi…`
 
 ## Kept as JSON (not a layout document)
 

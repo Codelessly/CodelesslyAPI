@@ -14,6 +14,14 @@ Column pad=[16,8,16,8] fill=#FF2563EB radius=8
   Text "x" color=#FFFFFFFF
 ```
 
+## Other spellings (also read)
+
+This reference writes each thing one way, and that is the way to write it. A model often reaches for another
+name; the open vocabulary reads these as the word in the third column (a host that reads with the closed vocabulary
+says them instead). They are listed so you know them when you read them, not as forms to write.
+
+{{aliases}}
+
 ## Value types
 
 {{valueTypes}}
