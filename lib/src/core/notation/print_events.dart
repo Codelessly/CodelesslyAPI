@@ -144,27 +144,46 @@ Json printNormalized(Json document, Catalog catalog) {
 /// What prints a document's events: its state, and the parses that check
 /// each candidate word, kept for the whole print.
 final class _Printer {
-  _Printer(this.context) {
+  _Printer(this.context, this._heads) {
+    // The state the print's `state` lines declare: the screen's, or where a
+    // document with other canvases or overlays keeps it (`page_variables`),
+    // or its one scope (print.dart's walk reads them from the same place).
     final screen = context.options.screen;
+    final vars = readMap(context.document['variables']) ?? const {};
+    final scope = vars.length == 1
+        ? vars.keys.single
+        : vars[screen] == null && vars['page_variables'] != null
+            ? 'page_variables'
+            : screen;
     _state = [
-      for (final v in readList(readMap(context.document['variables'])?[screen]) ?? const [])
+      for (final v in readList(vars[scope]) ?? const [])
         // (A name the runtime gives a scope has no state line: notationRefusedState.)
         if (v is Map && v['name'] is String && !notationRefusedState(v['name'] as String)) 'state ${v['name']}=${jsonEncode(v['value'])}',
     ].join('\n');
     _variables = jsonEncode(_parse('')?['variables']);
   }
 
-  static final Expando<_Printer> _printers = Expando();
-  static _Printer of(PrintContext context) => _printers[context.document] ??= _Printer(context);
+  // One for each set of overlay heads the walk prints (they change what an
+  // `open` reads as).
+  static final Expando<Map<String, _Printer>> _printers = Expando();
+  static _Printer of(PrintContext context) {
+    final heads = context.overlayHeads.values.join('\n');
+    return (_printers[context.document] ??= {})[heads] ??= _Printer(context, heads);
+  }
 
   final PrintContext context;
   late final String _state;
   late final String _variables;
   final _parsed = <String, Json?>{};
 
+  /// The overlay heads the walk prints (`Dialog#confirm`), read after every
+  /// probe: `open confirm` gives the action the dialog's head gives it.
+  final String _heads;
+
   /// [lines] after the state, parsed: the document and what the parse says.
   ({Json document, List<String> said}) _read(String lines) => _reads.putIfAbsent(lines, () {
-        final r = parseNotation(_state.isEmpty ? lines : '$_state\n$lines', catalog: context.catalog, options: context.options);
+        final text = [if (_state.isNotEmpty) _state, lines, if (_heads.isNotEmpty) _heads].join('\n');
+        final r = parseNotation(text, catalog: context.catalog, options: context.options);
         return (document: r.document, said: [for (final i in r.issues) i.message]);
       });
   final _reads = <String, ({Json document, List<String> said})>{};
@@ -495,7 +514,9 @@ final class _Printer {
           if (v is String && RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(v)) 'emit $e $v',
           'emit $e ${jsonEncode(v)}',
         ];
-      case 'openModal' when only({'to'}) && word(a['to']) != null:
+      // An overlay printed as its head (`Dialog#confirm`) gives its `open`
+      // the fields of its kind (a dialog's presentation): checked as read.
+      case 'openModal' when (only({'to'}) || _heads.isNotEmpty) && word(a['to']) != null:
         return ['open ${a['to']}'];
       case 'closeModal' when keys.isEmpty:
         return ['close'];

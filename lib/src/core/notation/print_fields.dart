@@ -39,6 +39,11 @@ final class PrintContext {
 
   Json get nodes => readMap(document['nodes']) ?? const {};
 
+  /// The overlays the walk prints as an overlay's head (`Dialog#confirm`),
+  /// by canvas id: an `open` of one is checked with that head after it, as
+  /// it reads in the print (print_events.dart).
+  final overlayHeads = <String, String>{};
+
   /// Each node's parent (by children or a slot).
   late final Map<String, String> _parents = () {
     final out = <String, String>{};
@@ -141,16 +146,23 @@ int? printedBindReaction(String id, Json n, PrintContext context) => switch (con
 /// written by their keys again against what it gives there, and kept where
 /// its node is closer to the document's. Returns the print read last.
 Json printFieldsRefine(Json parsed, List<({String id, String Function() get, void Function(String) set})> lines, Json Function() read, PrintContext context) {
+  // The words each line was given here, to take out again those it reads
+  // as well without (`grow=null` beside the full path that made it moot).
+  final added = <int, List<String>>{};
   for (var round = 0; round < 3; round++) {
+    final roundMore = <int, List<String>>{};
     final got = readMap(parsed['nodes']) ?? const {};
     final before = <int, String>{};
     for (var i = 0; i < lines.length; i++) {
       final l = lines[i], want = readMap(context.nodes[l.id]), now = readMap(got[l.id]);
       if (want == null || now == null) continue;
-      final more = context._line(l.id, want)._more(now, l.get());
+      final node = context._line(l.id, want);
+      final more = node._more(now, l.get());
       if (more.isEmpty) continue;
       before[i] = l.get();
-      l.set(_joinOnce(l.get(), more, '${want['type']}', context.catalog));
+      l.set(node._withoutShort(_joinOnce(l.get(), more, '${want['type']}', context.catalog), more));
+      (added[i] ??= []).addAll(more);
+      roundMore[i] = more;
     }
     if (before.isEmpty) break;
     final next = read();
@@ -163,10 +175,29 @@ Json printFieldsRefine(Json parsed, List<({String id, String Function() get, voi
         kept++;
       } else {
         l.set(e.value);
+        added[e.key]?.removeWhere(roundMore[e.key]!.contains);
       }
     }
     if (kept == 0) break;
     parsed = kept == before.length ? next : read();
+  }
+  // Each word added that the line reads as well without, taken out (a few).
+  var trials = 0;
+  for (final e in added.entries) {
+    final l = lines[e.key];
+    for (final w in e.value) {
+      if (++trials > 24) return parsed;
+      final text = l.get();
+      if (!text.contains(' $w')) continue;
+      l.set(text.replaceFirst(' $w', ''));
+      final next = read();
+      // Kept out only where the print reads as it did: nothing else moves.
+      if (jsonEquality.equals(next['nodes'], parsed['nodes'])) {
+        parsed = next;
+      } else {
+        l.set(text);
+      }
+    }
   }
   return parsed;
 }
@@ -1329,11 +1360,40 @@ final class _NodeLine {
       for (final s in _candidates(got, said, binds: false))
         if (!binds.any((b) => b.target == 'bind.${s.target}')) s,
     ];
+    // For each field the first form the line does not say yet: where its
+    // key is written already and the field still reads otherwise there (a
+    // width a row of a table's columns makes a share), its full path, which
+    // is that value exactly (design 22, 4.8).
+    List<String> fresh(List<List<String>> forms) {
+      for (final f in forms) {
+        final add = [
+          for (final w in f)
+            if (!text.contains(' $w')) w,
+        ];
+        if (add.isNotEmpty) return add;
+      }
+      return const [];
+    }
+
     return [
-      for (final s in [...binds, ...fields])
-        for (final w in s.forms.first)
-          if (!text.contains(' $w')) w,
+      for (final s in [...binds, ...fields]) ...fresh(s.forms),
     ];
+  }
+
+  /// [text] without a short word (`w=170`) that a full path among [more]
+  /// (`layout.width=170`) says with the same value: one key a field.
+  String _withoutShort(String text, List<String> more) {
+    var out = text;
+    for (final w in more) {
+      final eq = w.indexOf('=');
+      if (eq < 0) continue;
+      final path = w.substring(0, eq);
+      if (!RegExp(r'^(props|layout|decoration)\.').hasMatch(path)) continue;
+      final key = _keyFor(path);
+      if (key == null || key == path) continue;
+      out = out.replaceFirst(' $key=${w.substring(eq + 1)}', '');
+    }
+    return out;
   }
 
   /// The parent's line as its words write it (`Row#bar gap=8 middle`), what

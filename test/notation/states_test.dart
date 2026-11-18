@@ -97,7 +97,7 @@ void main() {
     });
 
     test('a patch is what the words change, any key the line reads', () {
-      _word('Row#btn gap=8 fill=accent radius=14 hovered.fill=accentDeep pressed.opacity=0.82 focused.strokes=[{"color":"focusBorder"}]', 'btn', {
+      _word('Row#btn gap=8 fill=accent radius=14 hovered.fill=accentDeep pressed.opacity=0.82 focused.border=focusBorder', 'btn', {
         'hovered': {
           'btn': {
             'decoration': {
@@ -420,7 +420,7 @@ void main() {
         },
       }, ['chip']);
       expect(_lineOf(text, 'chip'), contains('selected={selected}'));
-      expect(_stateWords(_lineOf(text, 'chip')), ['selected.fill=activeTint', 'selected.strokes=[{"color":"primaryTintBorder"}]', 'hovered.foregroundFills=[{"color":"hoverOverlay"}]']);
+      expect(_stateWords(_lineOf(text, 'chip')), ['selected.fill=activeTint', 'selected.border=primaryTintBorder', 'hovered.foregroundFills=[{"color":"hoverOverlay"}]']);
       expect(_stateWords(_lineOf(text, 'label')), ['chip.selected.color=primary']);
       expect(_stateWords(_lineOf(text, 'icon')), ['chip.selected.color=primary']);
     });
@@ -476,7 +476,7 @@ void main() {
         },
       }, ['row']);
       expect(_stateWords(_lineOf(text, 'row')), ['disabled.opacity=0.5', 'hovered.fill=secondaryBackground']);
-      expect(_stateWords(_lineOf(text, 'box')), ['row.focused.strokes=[{"color":"focusBorder"}]']);
+      expect(_stateWords(_lineOf(text, 'box')), ['row.focused.border=focusBorder']);
     });
 
     test('a card of a board: dragged by its id, ringed while selected', () {
@@ -537,8 +537,8 @@ void main() {
       final line = _lineOf(text, 'card');
       expect(line, contains('drag=card(item.id) draggable.start=auto draggable.childWhenDragging=ghost'));
       expect(_stateWords(line), [
-        'hovered.strokes=[{"color":"#FFCBD5E1"}]',
-        'selected.strokes=[{"color":"#FF2563EB"}]',
+        'hovered.border=#FFCBD5E1',
+        'selected.border=#FF2563EB',
         'selected.effects=[{"type":"dropShadow","color":"#262563EB","offset":[0,0],"blurRadius":0,"spreadRadius":3}]',
       ]);
     });

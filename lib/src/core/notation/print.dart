@@ -18,6 +18,7 @@ import '../catalog.dart';
 import '../json.dart';
 import '../migrate/migrate.dart' show kOldestSchemaVersion;
 import 'declared.dart';
+import 'media_words.dart' show mediaConditionWords;
 import 'notation.dart';
 import 'print_events.dart' show printCanvasEvents, printNormalized;
 import 'print_fields.dart';
@@ -143,9 +144,9 @@ final class _Printer {
 
   String? run() {
     for (var attempt = 0; attempt < 24; attempt++) {
-      final before = _noEach.length + _keepId.length + _slotLines.length + _typedState.length;
+      final before = _noEach.length + _keepId.length + _slotLines.length + _typedState.length + _noOverlay.length;
       final out = _once();
-      if (out != null || _noEach.length + _keepId.length + _slotLines.length + _typedState.length == before) return out;
+      if (out != null || _noEach.length + _keepId.length + _slotLines.length + _typedState.length + _noOverlay.length == before) return out;
     }
     return null;
   }
@@ -157,6 +158,7 @@ final class _Printer {
     _structure.clear();
     _dropped.clear();
     _handEach.clear();
+    _dialogParts.clear();
     why = null;
     final roots = readStrings(document['roots']);
     final screen = roots.isEmpty ? 'screen' : roots.first;
@@ -194,6 +196,14 @@ final class _Printer {
     if (head != null) _lines.add(_Line(0, head));
     _lines.addAll(_stateLines(scope));
     _canvases.clear();
+    // The overlays printed as a `Dialog#id` head, known before the page is
+    // printed: an `open` of one reads as the dialog's (print_events.dart).
+    context.overlayHeads
+      ..clear()
+      ..addAll({
+        for (final other in roots.skip(1))
+          if (_dialogOf(other) != null) other: 'Dialog#$other',
+      });
     // What the screen does that is neither a timer nor a shortcut (`onLoad`,
     // `onBackPressed`): words of its canvas line, before its `every` and
     // `key` lines.
@@ -215,12 +225,89 @@ final class _Printer {
       final n = readMap(nodes[other]);
       final body = readString(readMap(n?['slots'])?['body']);
       if (n?['type'] != 'canvas' || body == null || !_idForm.hasMatch(other) || _seen.contains(body)) continue;
+      if (context.overlayHeads.containsKey(other)) {
+        if (!_dialog(other)) return null;
+        continue;
+      }
       final line = _Line(0, 'Canvas#$other');
       _canvases[other] = (line: line, head: 'Canvas#$other');
       _lines.add(line);
       if (!_walk(body, 1)) return null;
     }
     return _readBack();
+  }
+
+  // --- overlays ----------------------------------------------------------
+
+  /// The overlays not to print as a `Dialog` head (they did not read back as
+  /// one), and for each printed so the nodes it makes with no line of their
+  /// own (the canvas, its column, the title's row, text and close button, the
+  /// actions' row), which must read back as they are.
+  final _noOverlay = <String>{};
+  final _dialogParts = <String, List<String>>{};
+
+  /// Canvas [id] as `Dialog#id "Title"` makes it (page_words.dart): a canvas
+  /// whose body is a column, its first child the title's row (a text and a
+  /// close button) where it has a title, its last the row of its buttons
+  /// (`<column>Actions`) where it has them. Null: not one, or it did not
+  /// read back as one.
+  ({String body, String? row, String? text, String? close, String? title, String? actions})? _dialogOf(String id) {
+    if (plan != _Plan.full || _noOverlay.contains(id) || !_idForm.hasMatch(id)) return null;
+    final n = readMap(nodes[id]);
+    if (n == null || n['type'] != 'canvas') return null;
+    final body = readString(readMap(n['slots'])?['body']);
+    final b = body == null ? null : readMap(nodes[body]);
+    if (body == null || b == null || b['type'] != 'column' || b['slots'] != null) return null;
+    final kids = readStrings(b['children']);
+    String? row, text, close, title, actions;
+    if (kids.isNotEmpty) {
+      final r = readMap(nodes[kids.first]);
+      final rk = readStrings(r?['children']);
+      if (r?['type'] == 'row' && r?['slots'] == null && rk.length == 2 && readMap(nodes[rk[0]])?['type'] == 'text' && readMap(nodes[rk[1]])?['type'] == 'iconButton') {
+        final t = readMap(readMap(nodes[rk[0]])!['props'])?['text'];
+        if (t is String && !t.contains('{') && !t.contains('}')) {
+          row = kids.first;
+          text = rk[0];
+          close = rk[1];
+          title = t;
+        }
+      }
+    }
+    final last = kids.isEmpty ? null : readMap(nodes[kids.last]);
+    if (kids.length > (row == null ? 0 : 1) && kids.last == '${body}Actions' && last?['type'] == 'row' && last?['slots'] == null) actions = kids.last;
+    return (body: body, row: row, text: text, close: close, title: title, actions: actions);
+  }
+
+  /// `Dialog#id "Title"` and its lines under it: the column's lines after
+  /// the title's row, then its buttons. False when the walk cannot go on
+  /// (a part of it has an id the parser would not give it: printed as a
+  /// `Canvas#id` block instead).
+  bool _dialog(String id) {
+    final d = _dialogOf(id)!;
+    // The parts the head makes, in the order the parser makes them, take the
+    // ids it gives.
+    for (final (part, type) in [(d.body, 'column'), if (d.row != null) (d.row!, 'row'), if (d.text != null) (d.text!, 'text'), if (d.close != null) (d.close!, 'iconButton')]) {
+      if (part != '$type${(_counts[type] ?? 0) + 1}' || _seen.contains(part)) {
+        _noOverlay.add(id);
+        why = 'a dialog whose parts have ids of their own';
+        return false;
+      }
+      _counts[type] = (_counts[type] ?? 0) + 1;
+    }
+    final n = readMap(nodes[id])!, b = readMap(nodes[d.body])!;
+    // The column's words, less what the head gives (`pad=24 gap=16`).
+    final words = printNodeLine(d.body, b, context).replaceFirst(RegExp('^Column(#$notationId)?'), '').split(' ').where((w) => w.isNotEmpty && w != 'pad=24' && w != 'gap=16').join(' ');
+    final w = readMap(n['layout'])?['width'];
+    _lines.add(_Line(0, ['Dialog#$id', if (d.title != null) jsonEncode(d.title), if (w is num && w != 480) 'w=${_number(w)}', if (words.isNotEmpty) words].join(' ')));
+    final parts = [id, d.body, ?d.row, ?d.text, ?d.close, ?d.actions];
+    _seen.addAll(parts);
+    _dialogParts[id] = parts;
+    final kids = [
+      for (final k in readStrings(b['children']))
+        if (k != d.row && k != d.actions) k,
+      if (d.actions != null) ...readStrings(readMap(nodes[d.actions])!['children']),
+    ];
+    return _under({'children': kids}, 1);
   }
 
   // --- the canvas --------------------------------------------------------
@@ -249,7 +336,7 @@ final class _Printer {
         words.add('fill=${(value.single as Map)['color']}');
         return;
       }
-      words.add('$key=${jsonEncode(value)}');
+      words.add('$key=${value is num ? _number(value) : jsonEncode(value)}');
     }
 
     void walk(Json m, String at) {
@@ -276,8 +363,9 @@ final class _Printer {
 
   /// `document id="checkout" schema=2 scope=page_variables`: the document's
   /// id where the parser gives another (a page has none, a component's is
-  /// its name), a schema other than 3, and the scope of its state lines
-  /// where the parser would keep them elsewhere ([scope]).
+  /// its name), a schema other than 3, the scope of its state lines where
+  /// the parser would keep them elsewhere ([scope]), and its `conditions`
+  /// as their JSON (`conditions={"plans":[…]}`).
   String? _documentWords({String? scope}) {
     final words = <String>[];
     final id = document['id'];
@@ -286,6 +374,8 @@ final class _Printer {
     final schema = document['schema'];
     if (schema is int && schema != 3) words.add('schema=$schema');
     if (scope != null && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(scope)) words.add('scope=$scope');
+    final conditions = document['conditions'];
+    if (conditions is Map || conditions is List) words.add('conditions=${jsonEncode(_sorted(conditions))}');
     return words.isEmpty ? null : 'document ${words.join(' ')}';
   }
 
@@ -416,6 +506,11 @@ final class _Printer {
     if (page != null) {
       text = text.replaceFirst(RegExp(r'^(pageView|PageView)(?=[#\s]|$)'), 'Pages');
       if (page.list != null) text = _withoutData(text);
+      // `Pages` turns its pages across, which the catalog's word does not
+      // say: a page view that has no direction of its own says so.
+      if (!(readMap(n['props'])?.containsKey('scrollDirection') ?? false) && !text.contains(' scrollDirection=')) {
+        text = _withWord(text, n['props'] == null ? 'props=null' : 'scrollDirection=null');
+      }
       // (Its count is the lines under it.)
       final count = readStrings(readMap(nodes[page.id])?['children']).length;
       if (page.list == null) text = text.replaceFirst(' itemCount=$count', '');
@@ -468,7 +563,9 @@ final class _Printer {
   }
 
   /// The column's line [text] as the `Grid` line that makes it and [grid]:
-  /// `cols=` the grid's columns, `gap=` its spacing (8 unless written).
+  /// `cols=` the grid's columns, `gap=` its spacing (8 unless written), and
+  /// `tablet.cols=2` for each of the grid's rules that changes its columns
+  /// alone (another rule leaves the grid printed as nodes).
   String _gridLine(String text, Json grid) {
     final head = RegExp(r'^Column(?=[#\s]|$)');
     if (!head.hasMatch(text)) return text;
@@ -477,12 +574,23 @@ final class _Printer {
     final words = [
       if (props['crossAxisCount'] is num) 'cols=${_number(props['crossAxisCount'] as num)}',
       if (gap is num && gap != 8) 'gap=${_number(gap)}',
+      for (final r in readList(grid['media']) ?? const [])
+        if (readMap(r) case final Json rule)
+          if ((mediaConditionWords(rule), readMap(readMap(rule['patch'])?['props'])) case (final String at, final Json p)
+              when readMap(rule['patch'])!.length == 1 && p.length == 1 && p['crossAxisCount'] is int)
+            '$at.cols=${p['crossAxisCount']}',
     ];
     final rest = text.replaceFirst(head, '').split(' ').where((w) => !w.startsWith('gap=')).join(' ');
     final at = rest.startsWith('#') ? rest.indexOf(' ') : 0;
     final id = at < 0 ? rest : rest.substring(0, at);
     final after = at < 0 ? '' : rest.substring(at).trim();
     return ['Grid$id', ...words, if (after.isNotEmpty) after].join(' ');
+  }
+
+  /// [text] with [word] after its fields, before its marks and events.
+  static String _withWord(String text, String word) {
+    final at = RegExp(r' (@|on[A-Z][A-Za-z]*[=(])').firstMatch(text)?.start;
+    return at == null ? '$text $word' : '${text.substring(0, at)} $word${text.substring(at)}';
   }
 
   /// [text] without its ` data={…}`: an `each` under the line says it.
@@ -743,6 +851,17 @@ final class _Printer {
         }
         final patch = diffPatch(got, readMap(nodes[id])!);
         if (patch != null) tails[id] = ' ${jsonEncode(_sorted(patch))}';
+      }
+      // A dialog printed as its head whose parts do not read back as they
+      // are: printed as a `Canvas#id` block.
+      final unreadDialogs = [
+        for (final e in _dialogParts.entries)
+          if (e.value.any((p) => readMap(parsed[p]) == null || diffPatch(readMap(parsed[p])!, readMap(nodes[p])!) != null)) e.key,
+      ];
+      if (unreadDialogs.isNotEmpty) {
+        _noOverlay.addAll(unreadDialogs);
+        why = 'a dialog that does not read back';
+        return null;
       }
       // A node whose slots do not read back from the lines under it: its
       // slots written as `slot name` lines.

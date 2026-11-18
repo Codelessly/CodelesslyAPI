@@ -38,6 +38,48 @@ class _Path {
   final files = <String>[];
 }
 
+/// What stays in a tail, and why (docs/design/22, "What stays in a tail, and
+/// why"): each kind of field the corpus holds that the notation does not say,
+/// on purpose, with the reason. A tail path none of them names is a real gap.
+const _stays = <String, String>{
+  'schema 2': "A schema-2 document's old spelling, which the migration rewrites (a box's `props.path` is a path node's "
+      '`props.data`, `layout.rotation` is `motion.rotate`, a state patch of `self` is the node\'s id, `transitions` as a '
+      'map is a list): the notation says the current schema.',
+  'no such field': 'A prop or key the type does not have, or a value its field does not take (a button\'s `size`, an '
+      'empty prop name, a text\'s `props.decoration`, `keyboardType: "email"`, a top-level `margin`): no renderer reads '
+      'it, and applyOps refuses it.',
+  'not drawn': 'A decoration on a type that draws none (a text\'s fills, a page view\'s or a component call\'s radius, a '
+      'button\'s bound radius): the renderer does not draw it; applyOps accepts it today.',
+  'under a binding': 'A value beside a binding of the same field: the binding replaces it, and applyOps moves it into `bind`.',
+  'children not taken': "Children a component's declaration does not take: the renderer shows only its slots.",
+  'scope name': 'A variable named as a runtime scope (`theme`, `storage`): valid, and it shadows the scope on its page, '
+      'but a state line refuses the name (34.0.0), so the document line keeps the variables.',
+};
+
+/// The kind of [_stays] that tail path [path] (`props.size`, on a line of
+/// type [type]; a document line's path with `nodes.*.` before a node's) is,
+/// in a document of schema 2 or not ([old]); null: a real gap.
+String? _staysAs(String path, String? type, bool old) {
+  final p = path.replaceFirst(RegExp(r'^nodes\.\*\.'), '');
+  bool on(Set<String> types) => type == null || types.contains(type);
+  const buttons = {'FilledButton', 'OutlinedButton', 'TextButton', 'Button', 'Button.outline', 'Button.ghost'};
+  if (old && RegExp(r'^(props\.path|bind\.layout\.rotation|states\.[A-Za-z]+\.self\..+|transitions\.[A-Za-z]+\..+)$').hasMatch(p)) {
+    return 'schema 2';
+  }
+  if ((p == 'props.size' || p == 'props.style') && on(buttons)) return 'no such field';
+  if (p == 'props.' && on({...buttons, 'Icon'})) return 'no such field';
+  if ((p == 'props.decoration' || p == 'props.style.decoration') && on({'Text', 'Text.mono'})) return 'no such field';
+  if (p == 'props.keyboardType' && on({'Input'})) return 'no such field';
+  if (p == 'margin[]' && type != null) return 'no such field';
+  if (p == 'decoration.fills[].color' && on({'Text', 'Text.mono'})) return 'not drawn';
+  if (p == 'decoration.radius' && on({'Media', 'Pages'})) return 'not drawn';
+  if (p == 'bind.decoration.radius' && on(buttons)) return 'not drawn';
+  if (p == 'props.icon' && on({'Icon'})) return 'under a binding';
+  if ((p == 'children[]' || p == 'slots') && on({'Sidebar'})) return 'children not taken';
+  if (type == null && path.startsWith('variables.')) return 'scope name';
+  return null;
+}
+
 void main(List<String> args) {
   final outAt = args.indexOf('--out');
   final out = outAt >= 0 ? args[outAt + 1] : '.';
@@ -48,9 +90,15 @@ void main(List<String> args) {
   // --dump <dir>: each print that has a tail or a document line, to read.
   final dumpAt = args.indexOf('--dump');
   final dump = dumpAt >= 0 ? args[dumpAt + 1] : null;
+  // The arguments that are a flag or a flag's value; an absent flag (-1) names
+  // none (`outAt + 1` would be 0, the first folder).
+  final flags = {
+    if (outAt >= 0) ...[outAt, outAt + 1],
+    if (dumpAt >= 0) ...[dumpAt, dumpAt + 1],
+  };
   final inputs = [
     for (var i = 0; i < args.length; i++)
-      if (i != outAt && i != outAt + 1 && i != dumpAt && i != dumpAt + 1 && args[i] != '--components') args[i],
+      if (!flags.contains(i) && args[i] != '--components') args[i],
   ];
   if (inputs.isEmpty) {
     stderr.writeln('usage: notation_coverage.dart <dir or file.json>... [--out <dir>]');
@@ -150,6 +198,14 @@ void main(List<String> args) {
   final jsonShapes = <String, int>{};
   final jsonShapeExample = <String, String>{};
   final keyCache = <String, String>{};
+  // What stays in a tail ([_stays]), by kind ('' a real gap): the node lines
+  // and the documents (their `document {…}` line) with one, the paths and
+  // the files; and each real gap's path, by the line's word.
+  final staysLines = <String, int>{};
+  final staysDocuments = <String, Set<String>>{};
+  final staysPaths = <String, Set<String>>{};
+  final staysFiles = <String, Set<String>>{};
+  final gapPaths = <String>{};
 
   for (final file in files) {
     final Object? json;
@@ -159,6 +215,8 @@ void main(List<String> args) {
       continue;
     }
     if (json is! Map<String, Object?> || json['nodes'] is! Map || json['roots'] is! List) continue;
+    // A document with no schema is of the oldest (schemaOf).
+    final old = json['schema'] is! int || (json['schema']! as int) < 3;
     final String text;
     final catalog = catalogFor(file.path, json);
     try {
@@ -219,6 +277,16 @@ void main(List<String> args) {
           for (final p in seen) {
             (documentPaths[p] ??= _Path()).nodes++;
           }
+          final kinds = {for (final p in seen) _staysAs(p, null, old) ?? ''};
+          for (final k in kinds) {
+            (staysDocuments[k] ??= <String>{}).add(file.path);
+          }
+          for (final p in seen) {
+            final kind = _staysAs(p, null, old) ?? '';
+            (staysPaths[kind] ??= <String>{}).add('document $p');
+            (staysFiles[kind] ??= <String>{}).add(file.path);
+            if (kind.isEmpty) gapPaths.add('document: $p');
+          }
         }
         continue;
       }
@@ -249,6 +317,13 @@ void main(List<String> args) {
         entry.types[word] = (entry.types[word] ?? 0) + 1;
         entry.example ??= examples[p];
         if (entry.files.length < 8 && !entry.files.contains(file.path)) entry.files.add(file.path);
+        final kind = _staysAs(p, word, old) ?? '';
+        (staysPaths[kind] ??= <String>{}).add(p);
+        (staysFiles[kind] ??= <String>{}).add(file.path);
+        if (kind.isEmpty) gapPaths.add('$word: $p');
+      }
+      for (final k in {for (final p in seen) _staysAs(p, word, old) ?? ''}) {
+        staysLines[k] = (staysLines[k] ?? 0) + 1;
       }
     }
   }
@@ -310,6 +385,21 @@ void main(List<String> args) {
     }
     md.writeln();
   }
+  // What stays in a tail, and why: every tail path is of a kind of
+  // [_stays], or a real gap.
+  md
+    ..writeln('## What stays in a tail, and why')
+    ..writeln()
+    ..writeln('| Kind | Node lines | Document lines | Paths | Why |')
+    ..writeln('|---|---:|---:|---|---|');
+  for (final k in _stays.keys) {
+    final lines = staysLines[k] ?? 0, docs = staysDocuments[k]?.length ?? 0;
+    if (lines == 0 && docs == 0) continue;
+    md.writeln('| $k | $lines | $docs | ${(staysPaths[k] ?? const <String>{}).map((p) => '`$p`').join(', ')} | ${_stays[k]} |');
+  }
+  md
+    ..writeln('| **real gaps** | ${staysLines[''] ?? 0} | ${staysDocuments['']?.length ?? 0} | ${gapPaths.map((p) => '`$p`').join(', ')} | What the notation should say and does not. |')
+    ..writeln();
   if (homes.isNotEmpty) {
     final list = homes.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     md
@@ -408,9 +498,21 @@ void main(List<String> args) {
         },
     },
     'document': {for (final e in documentPaths.entries) e.key: e.value.nodes},
+    'stays': {
+      for (final k in {..._stays.keys, ''})
+        if ((staysLines[k] ?? 0) > 0 || (staysDocuments[k]?.isNotEmpty ?? false))
+          k.isEmpty ? 'real gaps' : k: {
+            'nodeLines': staysLines[k] ?? 0,
+            'documents': [...?staysDocuments[k]],
+            'paths': [...?staysPaths[k]],
+            'files': [...?staysFiles[k]],
+          },
+    },
+    'realGaps': [...gapPaths],
   }));
   stdout.writeln('$documents documents, $nodes node lines, $tailed with a tail (${_pct(tailed, nodes)}), ${paths.length} distinct paths, '
-      '$whole printed whole as data, $failed failed. Wrote $out/COVERAGE.md');
+      '$whole printed whole as data, $failed failed; real gaps: ${staysLines[''] ?? 0} node lines, '
+      '${staysDocuments['']?.length ?? 0} document lines. Wrote $out/COVERAGE.md');
 }
 
 /// A folder as a normalized absolute URI ending in `/`, so two spellings of

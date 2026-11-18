@@ -1346,6 +1346,13 @@ class _Grid {
   String? row;
   int inRow = 0;
   int rows = 0;
+
+  /// `tablet.cols=2`: the column count at other widths, the rules of the
+  /// grid of an `each` (docs/design/22, 2.4), with the line and column they
+  /// were written at (cells written one by one stay in their rows: said).
+  final mediaCols = <Json>[];
+  int mediaLine = 0, mediaColumn = 0;
+  bool mediaSaid = false;
 }
 
 /// A line as written: its indentation, its first word (null for an `if` or
@@ -2881,7 +2888,7 @@ class _Parser {
     ];
     final fixed = [
       for (final (id, n) in children)
-        if ((n['layout'] as Map?)?['width'] case final num w when w > 0 && n['type'] == 'text') (id, n, w),
+        if ((n['layout'] as Map?)?['width'] case final num w when w > 0 && n['type'] == 'text' && !_exactWidths.contains(id)) (id, n, w),
     ];
     if (fixed.length < 2) return;
     final gap = (row['props'] as Map?)?['spacing'];
@@ -2900,7 +2907,7 @@ class _Parser {
     if (options.width >= 700) {
       for (final (id, n) in children) {
         final w = (n['layout'] as Map?)?['width'];
-        if (w is num && w >= 80 && (n['type'] == 'row' || n['type'] == 'column')) fixed.add((id, n, w));
+        if (w is num && w >= 80 && (n['type'] == 'row' || n['type'] == 'column') && !_exactWidths.contains(id)) fixed.add((id, n, w));
       }
     }
     // A cell that already grows (the name's column, written `grow`) is the
@@ -2909,7 +2916,7 @@ class _Parser {
     final widest = fixed.fold<num>(0, (m, f) => f.$3 > m ? f.$3 : m);
     for (final (id, n) in children) {
       final flex = (n['layout'] as Map?)?['flex'];
-      if (flex is num && flex > 0 && flex < 20 && n['type'] != 'spacer' && !fixed.any((f) => f.$1 == id)) {
+      if (flex is num && flex > 0 && flex < 20 && n['type'] != 'spacer' && !fixed.any((f) => f.$1 == id) && !_exactFlex.contains(id)) {
         final share = flex * widest * 1.5;
         n['layout'] = (n['layout']! as Map).cast<String, Object?>()..['flex'] = share;
         _patches.add({
@@ -2983,6 +2990,11 @@ class _Parser {
   /// (`layout.height=108`): that height exactly, which a text under a column
   /// does not make a least height (design 22, 4.8).
   final _exactHeights = <String>{};
+
+  /// The nodes whose line wrote their width or their flex by its full path
+  /// (`layout.width=170`, `layout.flex=1`): a row of a table's columns does
+  /// not make them shares of its width ([_fitRow], design 22, 4.8).
+  final _exactWidths = <String>{}, _exactFlex = <String>{};
 
   /// Changes a line makes to a node already sent (a grid's row height).
   final _patches = <Json>[];
@@ -3205,22 +3217,24 @@ class _Parser {
   }
 
   /// The words of a `document` line (after `document`): `id="…"`,
-  /// `schema=<n>`, `scope=<canvas id or page_variables>`. False when the
-  /// line is not one (its first word is no key of it).
+  /// `schema=<n>`, `scope=<canvas id or page_variables>`, `conditions={…}`
+  /// (the document's own conditions, as their JSON: design 22, 2.1). False
+  /// when the line is not one (its first word is no key of it).
   bool _documentLine(String text, int column) {
     final words = _headWords(text);
-    if (words.isEmpty || !const {'id', 'schema', 'scope'}.contains(words.first.key)) return false;
+    if (words.isEmpty || !const {'id', 'schema', 'scope', 'conditions'}.contains(words.first.key)) return false;
     for (final w in words) {
       final ok = switch (w.key) {
         'id' => w.value is String,
         'schema' => w.value is int,
         'scope' => w.value is String && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(w.value! as String),
+        'conditions' => w.value is Map || w.value is List,
         _ => false,
       };
       if (ok) {
         _top._documentWords[w.key] = w.value;
       } else {
-        _issue(column, 'A document line takes the document\x27s id="…", schema=3 and scope= (where its state is kept: a canvas id, or page_variables): not "${w.key}${w.value == null ? '' : '=${w.value}'}".');
+        _issue(column, 'A document line takes the document\x27s id="…", schema=3, scope= (where its state is kept: a canvas id, or page_variables) and conditions={…} (their JSON): not "${w.key}${w.value == null ? '' : '=${w.value}'}".');
       }
     }
     return true;
@@ -3397,7 +3411,7 @@ class _Parser {
     }
     final patch = _documentPatch;
     final words = {
-      for (final k in const ['id', 'schema'])
+      for (final k in const ['id', 'schema', 'conditions'])
         if (_documentWords.containsKey(k)) k: _documentWords[k],
     };
     Json patched(Json d) {
@@ -3920,8 +3934,11 @@ class _Parser {
           if (parent.condition != null) 'visible': parent.condition,
           if (g?.colsFormula case final String cols) 'props.crossAxisCount': cols,
         },
+        // `tablet.cols=2` on the Grid: its column count at that width.
+        if (g != null && g.mediaCols.isNotEmpty) 'media': [for (final r in g.mediaCols) _copy(r)],
         'children': <Object?>[itemId],
       };
+      if (g != null) g.mediaSaid = true;
       final listActions = <Json>[];
       // onReorder={…}: after a move, `result` the list in its new order (the
       // variable, already written; else the formula's list moved), and
@@ -4734,10 +4751,25 @@ class _Parser {
         if (mediaCondition(eq < 0 ? word : word.substring(0, eq)) case final m? when !spec.props.any((p) => p.key == word.substring(0, m.length - 1).split('.').first)) {
           if (eq == word.length - 1 && t.peek == '"') t.string();
           if (eq == word.length - 1 && (t.peek == '{' || t.peek == '[')) t.balanced();
+          final ruleWord = t.s.substring(from + m.length, t.at);
           if (m.problem != null) {
             _issue(col, m.problem!);
+          } else if (grid != null && RegExp(r'^(cols|columns)=').hasMatch(ruleWord)) {
+            // `tablet.cols=2`: the grid's column count at that width, a rule of
+            // the grid its `each` makes.
+            final n = int.tryParse(ruleWord.substring(ruleWord.indexOf('=') + 1));
+            if (n == null || n < 1 || n > 24) {
+              _issue(col, "A Grid's columns at a width are a number from 1 to 24: ${t.s.substring(from, from + m.length - 1)}.cols=2.");
+            } else if (!_mediaLine) {
+              if (grid.mediaCols.isEmpty) {
+                grid
+                  ..mediaLine = _line
+                  ..mediaColumn = col;
+              }
+              grid.mediaCols.add({...m.condition, 'patch': {'props': {'crossAxisCount': n}}});
+            }
           } else if (!_mediaLine) {
-            mediaWords.add((condition: m.condition, word: t.s.substring(from + m.length, t.at), column: col));
+            mediaWords.add((condition: m.condition, word: ruleWord, column: col));
           }
           continue;
         }
@@ -6548,6 +6580,9 @@ class _Parser {
     // a line under it changes it (design 22, 4.8).
     final exactHeight = pre?.parts.any((p) => p.kind == 'pair' ? p.key == 'layout.height' : p.kind == 'word' && p.raw.startsWith('layout.height=')) ?? false;
     if (exactHeight) _exactHeights.add(id);
+    bool exactly(String path) => pre?.parts.any((p) => p.kind == 'pair' ? p.key == path : p.kind == 'word' && p.raw.startsWith('$path=')) ?? false;
+    if (exactly('layout.width')) _exactWidths.add(id);
+    if (exactly('layout.flex')) _exactFlex.add(id);
     // A spacer that grows in a column takes the height left (what is under
     // it sits at the column's foot).
     if (type == 'spacer' && layout.containsKey('flex') && parent?.type == 'column' && !inRow && !exactHeight) layout['height'] = {'fill': 0};
@@ -7199,6 +7234,13 @@ class _Parser {
   /// Moves [id], just added under a grid, into the grid's current row (a
   /// new row every `cols` cells).
   void _intoRow(_Grid g, String id) {
+    if (g.mediaCols.isNotEmpty && !g.mediaSaid) {
+      g.mediaSaid = true;
+      if (!_top._quiet) {
+        issues.add(NotationIssue(g.mediaLine, g.mediaColumn,
+            "A Grid's columns at another width (tablet.cols=…) are those of the cells an each repeats: cells written one by one stay in their rows. Repeat them with an each, or write the rows."));
+      }
+    }
     final gridNode = nodes[g.id]!;
     (gridNode['children'] as List<Object?>).remove(id);
     if (g.row == null || g.inRow >= g.cols) {
