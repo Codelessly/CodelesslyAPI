@@ -64,8 +64,8 @@ Column gap=8
 - Badge looks: {{badgeVariants}}.
 - `Table r in rows columns=["Name","Email"]` is a finished table of records (a bordered frame, a header that sorts
   with `sort=@key`, a checkbox column with `select=@chosen`): write it for any rows of records, never a Column of
-  Rows ([lists.md](lists.md#a-table-of-records)). `NumberInput @qty min=1` is a number between a minus and a plus
-  button in one border ([forms.md](forms.md#a-number-with-its-buttons)).
+  Rows ([lists.md](lists.md#lists-a-table-of-records)). `NumberInput @qty min=1` is a number between a minus and a plus
+  button in one border ([forms.md](forms.md#forms-a-number-with-its-buttons)).
 - `Grid cols=3 gap=8` lays the lines under it in columns; `List` is a column of rows; `Image "url"` a picture;
   `Avatar "Maya Reyes"` a round mark with initials; `Pages` a swiped row of pages.
 - An app window is `App` with a `Sidebar` (the rail), a `Main` (the content) and any `Pane` (an inspector); a

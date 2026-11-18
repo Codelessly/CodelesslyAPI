@@ -72,7 +72,7 @@ from a Column of Rows: write `Table`.
   or none; a row is chosen by a press, Shift takes a range, Ctrl or Cmd adds, and is tinted with the accent.
 - `compact` makes the rows denser (36 instead of 44), `comfortable` roomier (52); `h=400` gives the table a height
   its rows scroll in under the header; `empty="No orders match."` is said when there are no rows; `maxw=`, `w=`
-  and the other keys of a Column are the frame's.
+  and the other keys of a Column are the frame's. A design system's own `Table` comes first.
 
 ```notation width=1280 expands
 state orders=[{"id":"o1","name":"Ada Byron","status":"Paid","total":30},{"id":"o2","name":"Lin Chen","status":"Due","total":12}]
