@@ -52,6 +52,9 @@
 
 ### Fixed
 
+- **An `if` and its `else` under a `Table` are one cell** (round 11b, kanban-board: a due date or a dash): each
+  line under a table is its next cell, and the `else` was made a cell of its own, then refused: "An else follows an
+  if at the same depth", said of one that did.
 - **A `Lightbox` with a size on its line** (`Lightbox#gallery "Property gallery" w=960 h=665`, as a Dialog is
   written; round 11b, property-listings): no "h= is written twice on this line", said of a line that wrote it once.
   A lightbox is the whole window, its picture contained in it: the size has nothing to size and is not read.

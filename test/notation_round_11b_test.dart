@@ -333,6 +333,25 @@ Lightbox#gallery "Property gallery" w=960 h=665
     expect(r.issues, isEmpty);
   });
 
+  test('an if and its else under a Table are one cell (the else was refused)', () {
+    // kanban-board (list.txt:39).
+    final r = _parse('''
+state rows=[{"due":"","t":"x"}]
+Column
+  Table c in rows
+    Text#title "{c.t}"
+    if c.due == ''
+      Text#none "-"
+    else
+      Text#due "{c.due}"
+''');
+    expect(r.issues, isEmpty);
+    final nodes = r.document['nodes'] as Map;
+    String parentOf(String id) => nodes.entries.firstWhere((e) => ((e.value as Map)['children'] as List?)?.contains(id) ?? false).key as String;
+    expect(parentOf('none'), parentOf('due'));
+    expect(parentOf('none'), isNot(parentOf('title')));
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

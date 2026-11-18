@@ -892,8 +892,10 @@ final class PageWords {
       return l;
     }
 
-    // A line under a Table is its next cell (table_words.dart).
-    if (parent?.table case final _Table t) out.add(_cellLine(t));
+    // A line under a Table is its next cell (table_words.dart); an `else`
+    // goes on the cell of the `if` before it (round 11b, kanban-board: "An
+    // else follows an if at the same depth" was said of one that did).
+    if (parent?.table case final _Table t when !RegExp(r'^else\b').hasMatch(text)) out.add(_cellLine(t));
     if (word == 'Table' && !isComponent('Table') && !declares('Table')) {
       if (_tableLines(at, mark, rest) case (final lines, final table)) {
         // Its cells go under a row's: eight further in than its own lines.
