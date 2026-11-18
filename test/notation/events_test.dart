@@ -74,6 +74,16 @@ final _blocks = standardCatalog +
           ],
         },
         {
+          'type': 'TaskCard',
+          'props': [
+            {'key': 'title', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': 'Card'},
+          ],
+          'events': [
+            {'key': 'onMenu'},
+            {'key': 'onSubmitted', 'payload': {'kind': 'string', 'flutter': 'String'}},
+          ],
+        },
+        {
           'type': 'SortMenu',
           'props': [
             {'key': 'column', 'type': {'kind': 'variable', 'of': {'kind': 'string', 'flutter': 'String'}}, 'default': ''},
@@ -347,6 +357,23 @@ void main() {
       // onTap on a block is its first event: printed by that event's own name.
       expect(printed, contains('SessionRow#b onPressed={go home}'));
       expect(printed, isNot(contains(' {"')));
+    });
+
+    test('an on… key a block has no event of (nor of its family) is the trigger it names on the block: onTap is no menu', () {
+      const text = 'state n=0\nColumn\n  TaskCard#t "Fix" onTap={n=1} onLongPress={n=2}\n  TaskCard#u "Ship" onSubmit={n=3} onMenu={n=4}';
+      final r = parseNotation(text, catalog: _blocks);
+      expect(r.issues, isEmpty);
+      expect([for (final x in _reactions(r, 't')) (x as Map)['trigger']], [
+        {'type': 'click'},
+        {'type': 'longPress'},
+      ]);
+      // onSubmit is the block's onSubmitted (its family); onMenu its own.
+      expect([for (final x in _reactions(r, 'u')) (x as Map)['trigger']], [
+        {'type': 'event', 'event': 'onSubmitted'},
+        {'type': 'event', 'event': 'onMenu'},
+      ]);
+      final printed = printNotation(r.document, catalog: _blocks);
+      expect(printed, contains('TaskCard#t "Fix" onTap={n=1} onLongPress={n=2}'));
     });
 
     test('a component raises its events with emit, in its own tree', () {

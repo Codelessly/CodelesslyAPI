@@ -53,6 +53,7 @@ final class PageWords {
     this.isComponent = _none,
     this.declares = _none,
     this.isFrame = _none,
+    this.frameEvents = _noEvents,
     this.roles = false,
     this.menu = false,
     this.sidebarMenu,
@@ -63,6 +64,7 @@ final class PageWords {
   });
 
   static bool _none(String _) => false;
+  static List<String> _noEvents(String _) => const [];
 
   /// The widest a section's content gets, and a `narrow` section's.
   final double contentWidth, narrowWidth;
@@ -101,6 +103,10 @@ final class PageWords {
   /// Whether a design system's component of this name takes children (its
   /// `Dialog` frames a dialog's content).
   final bool Function(String name) isFrame;
+
+  /// The events of a design system's frame of this name, in order (its
+  /// `Dialog`'s onClose: what its close button and Escape send).
+  final List<String> Function(String name) frameEvents;
 
   /// Whether a frame's line says which frame it is, after its type
   /// (`Row~nav`, `Column~section`, `Row~app`, `Column~sidebar`, `Column~main`,
@@ -317,8 +323,12 @@ final class PageWords {
         };
         // A design system's own dialog frame (its title, its close button) is the dialog.
         if (isFrame('Dialog')) {
+          // Its close event (its close button, Escape) closes it; a frame with
+          // no event closes as the page's other overlays do.
+          final events = frameEvents('Dialog');
+          final closes = events.contains('onClose') ? 'onClose' : events.firstOrNull;
           return Overlay('dialog', id, width ?? 480, action, [
-            (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.hasEvent ? parts.props : '${parts.props} onTap={close}'}${parts.tail}'),
+            (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.hasEvent || closes == null ? parts.props : '${parts.props} $closes={close}'}${parts.tail}'),
           ], surface: false, guard: guard, guardText: guardText, onDiscard: discard, onBack: onBack);
         }
         final pad = parts.take('pad') ?? '24', gap = parts.take('gap') ?? '16';

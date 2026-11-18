@@ -30,14 +30,27 @@ const Map<String, String> _eventAliases = {
   'onContextMenu': 'secondaryClick',
 };
 
-/// The names a node line read before the catalog's (design 13 section 3): on
-/// a design system's block each of these is what the block does (its first
-/// event) when it has no event of that name.
-const Set<String> _blockEventNames = {
-  'onTap', 'onPress', 'onPressed', 'onClick', 'onChange', 'onChanged', 'onLongPress', 'onDoubleTap', 'onRightClick', //
-  'onSecondaryClick', 'onContextMenu', 'onSwipeLeft', 'onSwipeRight', 'onSwipeUp', 'onSwipeDown', 'onHover', 'onFocus',
-  'onBlur', 'onSubmit', 'onDrop',
-};
+/// The names of one event a block may have under another name (design 13
+/// section 3): `onTap` on a block whose event is `onPressed` is that event,
+/// `onSubmit` one whose event is `onSubmitted`. A name a block has no event
+/// of in its family is the catalog's trigger on the line's node (`onTap` on
+/// a card whose one event is `onMenu` is a press on the whole card, not its
+/// menu).
+const List<Set<String>> _blockEventFamilies = [
+  {'onTap', 'onPress', 'onPressed', 'onClick'},
+  {'onChange', 'onChanged'},
+  {'onSubmit', 'onSubmitted'},
+  {'onRightClick', 'onSecondaryClick', 'onContextMenu'},
+];
+
+/// The event of [events] (a block's, in order) that [key] names: its own
+/// name, else the first of its family ([_blockEventFamilies]); null when
+/// none.
+String? blockEventFor(String key, Iterable<String> events) {
+  if (events.contains(key)) return key;
+  final family = _blockEventFamilies.where((f) => f.contains(key)).firstOrNull;
+  return family == null ? null : events.where(family.contains).firstOrNull;
+}
 
 String _capital(String s) => s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
 

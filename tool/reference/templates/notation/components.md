@@ -8,7 +8,10 @@ tree. Open it when a UI reuses a part, or you write a component for a site or a 
 A component is written like any word: `Name "text" @name key=value onEvent={…}`. Its strings fill its text
 parameters in order; `@name` is the variable it keeps its value in (its `value`, else its first variable
 parameter), `key=@name` each further variable parameter (`direction=@dir`); its events are `on…` keys by their own
-names.
+names. `onTap` on a component whose press event has another name (`onPressed`, `onClick`) is that event, as
+`onChange` is its `onChanged` and `onSubmit` its `onSubmitted`; any other `on…` it has no event of is what that
+name does on any line: `TaskCard … onTap={open card}` on a card whose only event is `onMenu` opens the card on a
+press anywhere on it (its menu button keeps its own press).
 
 A site's own components are known to the expander with nothing more said: a file in a site's folder (a
 `site.json` beside it or above it, as `site.json` or `site/site.json`) calls every component written in the

@@ -2520,6 +2520,7 @@ class _Parser {
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
     declares: (name) => catalog.widget(name) != null,
     isFrame: (name) => notationTypes[name] == null && catalog.widget(name)?.children == ChildModel.list,
+    frameEvents: (name) => [for (final e in catalog.widget(name)?.events ?? const <EventSpec>[]) e.key],
     roles: true,
     menu: options.reflow && options.width >= 700,
     // Named so that no id an author writes (`Menu#albumMenu` on the album
@@ -8497,9 +8498,10 @@ class _Parser {
   static final _handlerKey = RegExp(r'^on[A-Z][A-Za-z]*$');
 
   /// What fires a handler named [key] on a node of [type]: a component's
-  /// event of that name (else its first: onTap on a block is what it does
-  /// when it is used); on a plain node, the event the name says. Null when
-  /// a plain node has no such event.
+  /// event of that name or of its family (onTap a block's onPressed,
+  /// [blockEventFor]); else, as on a plain node, the trigger the name says
+  /// (onTap on a card whose only event is onMenu is a press on the card).
+  /// Null when there is no such event.
   Json? _handlerTrigger(String key, String type, WidgetSpec? component, Json node) {
     if (key == 'onDrop') return {'type': 'drop'};
     // A table: a header pressed (result.column, result.ascending) and a row
@@ -8507,12 +8509,8 @@ class _Parser {
     if (type == 'tableView' && key == 'onSort') return {'type': 'sort'};
     if (type == 'tableView' && (key == 'onRowTap' || key == 'onTap')) return {'type': 'rowTap'};
     if (component != null) {
-      final named = component.events.where((e) => e.key == key).firstOrNull ??
-          (key == 'onChange' ? component.events.where((e) => e.key == 'onChanged').firstOrNull : null) ??
-          // A trigger of the catalog under its own name (onEnterViewport) is
-          // that trigger; the names a line read before are the block's first event.
-          (_blockEventNames.contains(key) || notationEventTrigger(key) == null ? component.events.firstOrNull : null);
-      if (named != null) return {'type': 'event', 'event': named.key};
+      final named = blockEventFor(key, [for (final e in component.events) e.key]);
+      if (named != null) return {'type': 'event', 'event': named};
     }
     // Every trigger of the catalog, by the notation's name for it
     // (notationEventNames) or its own with a capital (design 22 section 2.2).
