@@ -217,7 +217,11 @@ final class ThemeTokens {
     // own (Desk's focus ring, a chosen row's tint, a selection, the first
     // chart color) are shades of it too: a site that names its `primary`
     // re-accents them all (the focused border of an Input, a SearchField's).
-    bool shadeName(String name) => _accentRoles.contains(name) || roots.any((r) => name.length > r.length && name.startsWith(r));
+    // A root itself is one where the design system's dark accent is not its
+    // dark primary (Desk's dark `accent` is a lighter indigo than its dark
+    // `primary`: it stayed indigo under a site's green, on the SideButton,
+    // the brand tile, the chosen view; support desk, test 11).
+    bool shadeName(String name) => roots.contains(name) || _accentRoles.contains(name) || roots.any((r) => name.length > r.length && name.startsWith(r));
 
     Map<String, Object?> follow(Map<String, Color> base, Color was, Color now, Set<String> given, {required bool dark}) {
       final info = given.contains('info') || site.colors.containsKey('info') ? null : base['info'];

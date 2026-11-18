@@ -381,14 +381,14 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 7286
+      "words": 7330
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 523
+      "words": 567
     },
     {
       "topic": "lists-a-table-of-records",
@@ -760,7 +760,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 2014
+      "words": 2123
     },
     {
       "topic": "components-calling-one",
@@ -774,7 +774,7 @@
       "file": "components.md",
       "anchor": "components-writing-one",
       "title": "Writing one",
-      "words": 262
+      "words": 371
     },
     {
       "topic": "components-words",

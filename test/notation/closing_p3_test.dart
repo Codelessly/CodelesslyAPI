@@ -53,8 +53,10 @@ void main() {
       ]));
     });
 
-    test('over cells written one by one, or not a number, it is said', () {
-      final rows = parseNotation('Grid cols=3 tablet.cols=2\n  Text "a"\n  Text "b"');
+    test('over cells written one by one inside an each, or not a number, it is said', () {
+      // Cells written one by one are a grid's of their own (fixes-36-1, R11:
+      // test/notation_fixes_36_1_test.dart); inside an each they stay in rows.
+      final rows = parseNotation('state xs=[1]\nColumn\n  each x in xs\n    Grid cols=3 tablet.cols=2\n      Text "a"\n      Text "b"');
       expect(rows.issues.map((i) => i.message), [contains('cells an each repeats')]);
       final word = parseNotation('state items=[1]\nGrid cols=3 tablet.cols=two\n  each item in items\n    Text "{item}"');
       expect(word.issues.map((i) => i.message), [contains('a number from 1 to 24: tablet.cols=2')]);

@@ -526,6 +526,21 @@ final class _Printer {
     // A page view not printed as `Pages` is printed as written.
     if (n['type'] == 'pageView' && _pagesOf(id, n) == null) context.printPagesAsWritten(id);
     var text = printNodeLine(id, n, context);
+    // The grid a `Grid` line of cells written one by one makes, with its
+    // columns at other widths: the Grid line and its cells.
+    if (_literalGridOf(n) case final lit? when condition == null) {
+      _lines.add(_Line(depth, _withoutId(_gridLine(text, lit.grid), id, '${n['type']}'), id));
+      _seen
+        ..add(lit.list)
+        ..add(lit.item);
+      _structure
+        ..add(lit.list)
+        ..add(lit.item);
+      for (var k = 0; k < lit.cells.length; k++) {
+        if (!_walk(lit.cells[k], depth + 1, condition: lit.hidden.contains(k) ? null : 'item == $k')) return false;
+      }
+      return true;
+    }
     // The column a `Grid` line makes around the grid of its `each`: the Grid.
     if (_gridOfEach(n) case final grid?) text = _gridLine(text, grid);
     // Under an `if`, the line's own `visible` is the if's.
@@ -594,6 +609,38 @@ final class _Printer {
     if (g == null || g['type'] != 'gridView' || readMap(g['bind'])?['data'] is! String) return null;
     final gk = readStrings(g['children']);
     return gk.length == 1 && gk.single == '${kids.single}Item' ? g : null;
+  }
+
+  /// The grid the parser makes of a `Grid` line over cells written one by one
+  /// with columns at other widths (`Grid cols=4 phone.cols=2`): a column
+  /// whose one child is `<id>Cells`, a gridView over `range(n)` whose one
+  /// copy holds the n cells, cell k shown in copy k (`visible={item == k}`,
+  /// or hidden as written). Null: not one, or it did not read back.
+  ({Json grid, String list, String item, List<String> cells, Set<int> hidden})? _literalGridOf(Json n) {
+    if (plan != _Plan.full || n['type'] != 'column') return null;
+    final kids = readStrings(n['children']);
+    if (kids.length != 1 || !kids.single.endsWith('Cells') || _noEach.contains(kids.single) || _seen.contains(kids.single)) return null;
+    final g = readMap(nodes[kids.single]);
+    final bind = readMap(g?['bind']);
+    final count = RegExp(r'^\$\{= range\((\d+)\)\}$').firstMatch('${bind?['data']}');
+    if (g == null || g['type'] != 'gridView' || bind!.length != 1 || count == null || readList(g['media'])?.isNotEmpty != true) return null;
+    final item = '${kids.single}Item';
+    final itemNode = readMap(nodes[item]);
+    if (!jsonEquality.equals(g['children'], [item]) || itemNode == null || itemNode['type'] != 'column') return null;
+    final cells = readStrings(itemNode['children']);
+    if (cells.length != int.parse(count[1]!)) return null;
+    final hidden = <int>{};
+    for (var k = 0; k < cells.length; k++) {
+      final c = readMap(nodes[cells[k]]);
+      final shown = readMap(c?['bind'])?['visible'];
+      if (shown == '\${= item == $k}') continue;
+      if (shown == null && c?['visible'] == false) {
+        hidden.add(k);
+        continue;
+      }
+      return null;
+    }
+    return (grid: g, list: kids.single, item: item, cells: cells, hidden: hidden);
   }
 
   /// The column's line [text] as the `Grid` line that makes it and [grid]:

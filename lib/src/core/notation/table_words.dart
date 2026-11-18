@@ -167,7 +167,7 @@ extension on PageWords {
         if (sort != null && c.sort) ...[
           (
             indent: at + 6,
-            text: "Icon \"{$sort == '-${c.key}' ? 'arrow_downward' : 'arrow_upward'}\" size=14 color=$accent "
+            text: "Icon \"{$sort == '-${c.key}' ? 'arrow_downward' : 'arrow_upward'}\" size=14 color=${accentName ?? accent} "
                 "visible={replace($sort, '-', '') == '${c.key}'}",
           ),
           (indent: at + 6, text: "Icon \"unfold_more\" size=14 opacity=0.4 visible={replace($sort, '-', '') != '${c.key}'}"),

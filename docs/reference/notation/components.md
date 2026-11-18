@@ -48,9 +48,11 @@ Row#pill gap=4
 ```
 
 - `param name[:Type]=default`: a parameter, its type in Flutter's names (`String`, `bool`, `double`, `int`, `Map`
-  or `dynamic` for a record or anything, `List<…>` (`List<Map>`: records), `ValueNotifier<…>` for a variable parameter, an enum's values joined by `|`) where the default does
-  not say it; `required` and `doc="…"` after it.
-- `event name:Type`: an event and the type of its payload; `emit name value` sends it (`emit onRemove props.label`, `emit onNavigate "{result}"`: a text with values in it reads them).
+  or `dynamic` for a record or anything, `List<…>` (`List<Map>`: records; `List` alone: anything), `ValueNotifier<…>` for a variable parameter, an enum's values joined by `|`) where the default does
+  not say it; `required` and `doc="…"` after it. `param @selected=""` is a variable parameter of its default's type:
+  the tree reads it as `props.selected` and sets it with `props.selected=…`, and the call keeps it in its own
+  variable (`Picker @choice`). A parameter the call only gives cannot be set from inside.
+- `event name:Type`: an event and the type of its payload (`event onPick:void`, or no type: it passes nothing); `emit name value` sends it (`emit onRemove props.label`, `emit onNavigate "{result}"`: a text with values in it reads them).
 - `slot name`: a place the caller fills with one line (several actions in a slot: a Row around them).
 - `preview "Name" 340x66 key=value …`: a preview, its size and the call's values.
 
@@ -58,6 +60,9 @@ A component's `key`, `every` and `on load` lines, after its tree, are the screen
 calls it takes them once, however many calls (a sidebar's `key alt+1 onPress={go members}` written once in the
 sidebar, not on every page). A page's own line for the same key is the page's. They run on that screen, so they
 read and set the page's and the site's variables, not the component's own: the expander says so when one does.
+So are the overlays it writes after its tree (`Drawer#basket "Your bag" right w=440`, `Sheet#info stops=[0.5,0.9]`):
+each page that calls it has them, shown as written wherever `open basket` runs (a page's own overlay of that id is
+the one it shows). Their lines read the page's and the site's variables, not the component's parameters.
 
 A word defined in the text (`define`, [design-systems.md](design-systems.md)) is written out where it is used: it
 is not a component of the document.

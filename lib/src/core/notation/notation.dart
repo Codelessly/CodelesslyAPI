@@ -161,6 +161,7 @@ final class NotationOptions {
     this.components = const {},
     this.componentRules = const {},
     this.componentScreenActions = const {},
+    this.componentScreenOverlays = const {},
     this.componentPressEvents = const {},
     this.badge = defaultBadge,
     this.cta,
@@ -247,6 +248,7 @@ final class NotationOptions {
         components: components,
         componentRules: componentRules,
         componentScreenActions: componentScreenActions,
+        componentScreenOverlays: componentScreenOverlays,
         componentPressEvents: componentPressEvents,
         badge: badge,
         cta: cta,
@@ -361,6 +363,11 @@ final class NotationOptions {
         for (final c in designSystem.list)
           if (c.document.extra['screenActions'] case final List actions when actions.isNotEmpty)
             c.type: [for (final a in actions) if (a is Map) a.cast<String, Object?>()],
+      },
+      componentScreenOverlays: {
+        for (final c in designSystem.list)
+          if (c.document.extra['screenOverlays'] case final List overlays when overlays.isNotEmpty)
+            c.type: [for (final o in overlays) if (o is Map) o.cast<String, Object?>()],
       },
       componentPressEvents: {
         for (final c in designSystem.list)
@@ -590,6 +597,7 @@ final class NotationOptions {
         components: components,
         componentRules: componentRules,
         componentScreenActions: componentScreenActions,
+        componentScreenOverlays: componentScreenOverlays,
         componentPressEvents: componentPressEvents,
         badge: badge,
         cta: cta,
@@ -669,6 +677,15 @@ final class NotationOptions {
   /// document's `screenActions`): the screen that shows the component takes
   /// them (once, however many calls), as if written on it.
   final Map<String, List<Json>> componentScreenActions;
+
+  /// The overlays a component writes after its tree (`Drawer#basket`,
+  /// `Sheet#details stops=[0.5,1]`), by type (its document's
+  /// `screenOverlays`: each `{"id", "nodes"}`, its canvas and its lines):
+  /// the screen that shows the component takes them (once, unless it writes
+  /// an overlay of that id itself), so what the component opens is there,
+  /// shown as it was written (round 10, R28: they were left out, and the
+  /// open showed nothing or a centred dialog).
+  final Map<String, List<Json>> componentScreenOverlays;
 
   /// The event a component sends when it is pressed (its root's click
   /// emits it: a MenuItem's onSelected), by type: `onTap` on a call is that
@@ -1212,6 +1229,11 @@ bool notationShowsValue(String type) => _shownValue.containsKey(type);
 /// notation does not teach).
 const notationComponentFirst = {'Tabs'};
 
+/// What `resizable` on a pane is said with: the base has a Splitter, which
+/// keeps the pane's width in a variable the pane reads (round 10, R50).
+const _resizable = 'A pane is resized by a Splitter beside it, which keeps its width in a variable the pane reads: '
+    'state listW=300, Pane w={listW}, then Splitter @listW min=240 max=480 after it (pane=after when the pane comes after the Splitter).';
+
 /// The colors of a chart's series or slices that write none, after the
 /// accent.
 const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
@@ -1706,7 +1728,7 @@ class _Parser {
   }
 
   /// The document's canvases: the page, then its overlays.
-  List<String> get _rootIds => [_top.options.screen, for (final o in _top._overlays) o.options.screen];
+  List<String> get _rootIds => [_top.options.screen, for (final o in _top._overlays) o.options.screen, ..._top._takenOverlays.keys];
 
   /// Where the variables are declared: on the page's canvas, or, once the
   /// page has overlays, for every canvas of the document (an overlay reads
@@ -1716,7 +1738,7 @@ class _Parser {
 
   bool _taken(String id) {
     final top = _top;
-    return [top, ...top._overlays].any((p) => p.nodes.containsKey(id) || p.options.screen == id);
+    return [top, ...top._overlays].any((p) => p.nodes.containsKey(id) || p.options.screen == id) || top._takenOverlays.values.any((o) => o.containsKey(id));
   }
 
   /// Whether the notation reads with no theme of its own (no design
@@ -1776,6 +1798,14 @@ class _Parser {
   /// `Popover#id` or `Lightbox#id` line: the lines under it are a canvas of
   /// their own, which `open <id>` shows over the page.
   void _openBlock(Overlay o) {
+    // One a component this page calls wrote: the page's own is the one shown.
+    if (_top._takenOverlays.remove(o.id) case final Json taken) {
+      if (_top._canvas) {
+        _top.ops
+          ..add({'op': 'remove', 'ids': [...taken.keys]})
+          ..add({'op': 'roots', 'roots': _rootIds});
+      }
+    }
     if (_taken(o.id)) {
       _issue(
           1,
@@ -3428,12 +3458,19 @@ class _Parser {
       case 'param':
         // `param title="Action" required doc="The title."`, `param size:small|medium|large=medium`.
         final first = words.firstOrNull;
-        final head = first == null ? null : RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?::(.+))?$').firstMatch(first.key);
+        // `param @selected=""`: a variable parameter, as `@name` on a call
+        // keeps a variable (round 10, R20); its type is its default's.
+        final kept = first != null && first.key.startsWith('@') && !first.key.contains(':');
+        final head = first == null ? null : RegExp(r'^@?([A-Za-z_][A-Za-z0-9_]*)(?::(.+))?$').firstMatch(first.key);
         if (head == null) {
           _issue(indent + 1, 'A parameter is written: param name=default, its type after a colon where the default does not say it (param count:int=3), then required and doc="…".');
           return true;
         }
-        final type = head[2] == null ? notationTypeJson(notationTypeOf(first!.value)) : notationTypeJson(head[2]!);
+        final type = kept
+            ? notationTypeJson('ValueNotifier<${notationTypeOf(first.value)}>')
+            : head[2] == null
+                ? notationTypeJson(notationTypeOf(first!.value))
+                : notationTypeJson(head[2]!);
         if (type == null) _issue(indent + 1, 'No type "${head[2]}": String, bool, double, int, Map or dynamic (a record, anything), List<…>, ValueNotifier<…>, or an enum\x27s values joined by | (small|medium|large).');
         final p = <String, Object?>{'key': head[1], 'type': type ?? notationTypeJson('String'), 'default': first!.value};
         for (final w in words.skip(1)) {
@@ -3454,7 +3491,8 @@ class _Parser {
           return true;
         }
         final e = <String, Object?>{'key': head[1]};
-        if (head[2] case final String t) {
+        // `event onPick:void` (round 10, R20): an event that passes nothing.
+        if (head[2] case final String t when t != 'void') {
           if (notationTypeJson(t) case final Json json) {
             e['payload'] = json;
           } else {
@@ -3807,6 +3845,20 @@ class _Parser {
         'nodes': {...nodes},
         // Its key, every and on load lines: the screen that shows it takes them.
         if (widget != null && _timers.isNotEmpty) 'screenActions': [..._timers],
+        // Its overlays (a drawer it opens): the screen that shows it takes them.
+        // (and those of the components it calls, which it took).
+        if (widget != null && (_overlays.isNotEmpty || _takenOverlays.isNotEmpty))
+          'screenOverlays': [
+            for (final p in _overlays)
+              {
+                'id': p.options.screen,
+                'nodes': {
+                  p.options.screen: p._canvasPatch == null ? p._canvasNode : mergePatch(p._canvasNode, p._canvasPatch!),
+                  ...p.nodes,
+                },
+              },
+            for (final e in _takenOverlays.entries) {'id': e.key, 'nodes': e.value},
+          ],
         if (own.isNotEmpty) 'variables': {_documentWords['scope'] as String? ?? _root ?? options.screen: own},
       }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
     }
@@ -3818,6 +3870,7 @@ class _Parser {
           p.options.screen: p._canvasPatch == null ? p._canvasNode : mergePatch(p._canvasNode, p._canvasPatch!),
           ...p.nodes,
         },
+        for (final o in _takenOverlays.values) ...o,
       },
       if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
         'variables': {_scope: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
@@ -3950,9 +4003,11 @@ class _Parser {
       if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
       return;
     }
-    final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s)?(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
+    // `every 1m` and `every 1h` too (round 10, R22: `every 1m` was refused).
+    final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s|m|min|h)?(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
     if (every != null) {
-      final ms = (double.parse(every[1]!) * (every[2] == 's' ? 1000 : 1)).round();
+      final unit = switch (every[2]) { 's' => 1000, 'm' || 'min' => 60000, 'h' => 3600000, _ => 1 };
+      final ms = (double.parse(every[1]!) * unit).round();
       if (ms < 16) return _issue(column, 'An "every" runs at most once a frame: every 16 or more (milliseconds), or every 1s.');
       _timers.add({
         'trigger': {'type': 'timer', 'intervalMs': ms, if (every[3] != null) 'when': _formula(every[3]!.trim())},
@@ -3982,7 +4037,7 @@ class _Parser {
       return _issue(column, 'A shortcut is a line of its own: key mod+k onPress={open search} (mod, alt, shift and a key, joined by +).');
     }
     if (line.startsWith('every ')) {
-      return _issue(column, 'An "every" line is: every 1000 onTick={name=value} (milliseconds, or 1s), optionally "every 1s when running onTick={…}".');
+      return _issue(column, 'An "every" line is: every 1000 onTick={name=value} (milliseconds, or 1s, 1m, 1h), optionally "every 1s when running onTick={…}".');
     }
     // `document {…}`: a merge patch over the whole document, for what is
     // not a node of the tree (the printer's last line).
@@ -5041,17 +5096,32 @@ class _Parser {
     var given = 0;
     var afterKey = false;
     final keysWritten = <String>{};
+    // The keys the line names (`label="Installation"`), with what it gives
+    // each: a string on it is not one of those (test 10, R41: `GuideSection
+    // "01" label="…"` put "01" in the label, then said label was written
+    // twice), unless the line gives that key the string itself.
+    late final namedValues = component
+        ? <String, String>{
+            for (final p in LineParts.of(line)?.parts ?? const <LinePart>[])
+              if (p.kind == 'pair' && p.key != null)
+                p.key!.startsWith('props.') ? p.key!.substring(6) : p.key!: RegExp(r'^"(.*)"$').firstMatch(p.value ?? '')?[1] ?? p.value ?? '',
+          }
+        : const <String, String>{};
+    late final namedOnLine = namedValues.keys.toSet();
     // A component's strings fill its text parameters in order.
     void componentString(String raw, int col) {
       final text = _interpolate(raw);
+      bool given(String k) => props.containsKey(k) || bind.containsKey('props.$k');
+      bool free(String k) => !given(k) && (!namedValues.containsKey(k) || namedValues[k] == raw);
       // Past the strings it is known by, a further string goes to its next
       // text parameter not yet given, in the order they are declared
-      // (CartLine "Bananas" "1 kg" "$2.49": the price).
-      final key = strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull ??
-          spec.props
-              .where((p) => p.type.kind == PropKind.string && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}'))
-              .firstOrNull
-              ?.key;
+      // (CartLine "Bananas" "1 kg" "$2.49": the price). One every text
+      // parameter of which the line names goes to the first (and the key
+      // is then said written twice).
+      final key = strings.where(free).firstOrNull ??
+          spec.props.where((p) => p.type.kind == PropKind.string && free(p.key)).firstOrNull?.key ??
+          strings.where((k) => !given(k)).firstOrNull ??
+          spec.props.where((p) => p.type.kind == PropKind.string && !given(p.key)).firstOrNull?.key;
       if (key == null) {
         _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key="value".');
       } else if (text.contains(r'${')) {
@@ -5250,6 +5320,14 @@ class _Parser {
                   ..mediaColumn = col;
               }
               grid.mediaCols.add({...m.condition, 'patch': {'props': {'crossAxisCount': n}}});
+              // The narrower width's rule after the wider's, so it wins where
+              // both hold (`phone.cols=2 tablet.cols=3` gave a phone 3).
+              num widest(Json r) => (r['maxWidth'] as num?) ?? double.infinity;
+              final order = [for (var i = 0; i < grid.mediaCols.length; i++) (i, grid.mediaCols[i])]
+                ..sort((a, b) => widest(b.$2).compareTo(widest(a.$2)) != 0 ? widest(b.$2).compareTo(widest(a.$2)) : a.$1.compareTo(b.$1));
+              grid.mediaCols
+                ..clear()
+                ..addAll([for (final e in order) e.$2]);
             }
           } else if (!_mediaLine) {
             mediaWords.add((condition: m.condition, word: ruleWord, column: col));
@@ -5394,6 +5472,13 @@ class _Parser {
           } else if (word == 'clearable' && component && spec.events.any((e) => e.key == 'onClear')) {
             // A block with a clear of its own (a SearchBar's x) is clearable.
             universal.add((word: word, column: col, of: 'flag'));
+          } else if (word == 'clip' && component && spec.prop('clip') == null) {
+            _issue(col, 'A $written has no "clip". ${_callLookWhy(written)}');
+          } else if (word == 'resizable' && !component && !standIn) {
+            // Round 10, R50 (6 runs): accepted and ignored, or refused as an
+            // unknown word. A Splitter says it (once: a pane's line is read
+            // again as the lines it writes).
+            if (!_quiet && _top._said.add('resizable')) _issue(col, _resizable);
           } else if (word == 'live' && !standIn) {
             // Read out as it changes: a Text's (and a block's that takes live).
             _issue(col, 'live is a Text\x27s: the Text whose words change is read out when they do. Put it on that Text (Text "{status}" live), or say the change with announce "…" in the action that makes it.');
@@ -5427,6 +5512,12 @@ class _Parser {
         final written2 = withFields == null ? key : '$key(${withFields.$2.replaceAll(' ', '')})';
         if (!keysWritten.add(written2) && !_mediaLine) _issue(col, '$written2= is written twice on this line: one of them is lost. Write it once.');
         if (written == 'CodeInput' && (key == 'length' || key == 'digits')) key = key == 'length' ? 'otpLength' : 'otpDigitsOnly';
+        // `Sidebar w={railWidth} resizable=@railWidth` (round 10, R50): a Splitter says it.
+        if (key == 'resizable' && !component && !standIn && spec.prop('resizable') == null) {
+          if (!_quiet && _top._said.add('resizable')) _issue(col, _resizable);
+          if (word.length == eq + 1 && (t.peek == '{' || t.peek == '[')) t.balanced();
+          continue;
+        }
         // key={expression}, onTap={…}: the colon is not the grammar's.
         if (key.contains(':')) {
           final name = key.substring(0, key.indexOf(':'));
@@ -5753,8 +5844,14 @@ class _Parser {
           continue;
         }
         if (key == 'color' && type == 'lineChart') key = 'lineColor';
-        // A design system's Avatar sizes by name: a number is the nearest.
-        if (key == 'size' && component && written == 'Avatar' && num.tryParse(raw) != null) {
+        // A design system's Avatar that sizes by name: a number is the
+        // nearest. One whose size is a number (Desk's diameter) takes the
+        // number (a fresh build's `Avatar "…" size=32` drew no disc).
+        if (key == 'size' &&
+            component &&
+            written == 'Avatar' &&
+            num.tryParse(raw) != null &&
+            !const {PropKind.number, PropKind.integer}.contains(spec.prop('size')?.type.kind)) {
           final n = num.parse(raw);
           props['size'] = n <= 24 ? 'xs' : n <= 32 ? 'small' : n <= 44 ? 'medium' : 'large';
           continue;
@@ -6578,7 +6675,12 @@ class _Parser {
         }
       }
       // A call has no look of its own (its definition has): a radius, a
-      // fill or a border written on it is left out.
+      // fill or a border written on it is left out, and said (round 10,
+      // R31: it was left out with no word).
+      // (A radius or a shadow is said as a key the call does not have.)
+      const looks = {'fill', 'fills', 'border', 'border-top', 'border-bottom', 'border-left', 'border-right', 'strokes', 'strokeWidth', 'gradient'};
+      final look = namedOnLine.where((k) => looks.contains(k) && spec.prop(k) == null).toList();
+      if (look.isNotEmpty && !_quiet && !_mediaLine) _issue(column, _callLook(written, look));
       decoration.clear();
       bind.removeWhere((k, _) => k.startsWith('decoration.'));
       callSizes = {
@@ -7811,8 +7913,13 @@ class _Parser {
   /// itself for the same key is the screen's.
   void _componentScreen(String type) {
     final actions = options.componentScreenActions[type];
-    if (actions == null || !_top._screensOf.add(type)) return;
+    final overlays = options.componentScreenOverlays[type];
+    if ((actions == null && overlays == null) || !_top._screensOf.add(type)) return;
     final top = _top;
+    for (final o in overlays ?? const <Json>[]) {
+      _takeOverlay(top, o);
+    }
+    if (actions == null) return;
     for (final a in actions) {
       final trigger = readMap(a['trigger']);
       if (trigger?['type'] == 'keyDown' &&
@@ -7828,6 +7935,60 @@ class _Parser {
 
   /// The components whose screen lines this screen has taken.
   final _screensOf = <String>{};
+
+  /// The overlays this screen took from the components it calls, by id:
+  /// each its canvas and its nodes ([_takeOverlay]).
+  final _takenOverlays = <String, Json>{};
+
+  /// Takes overlay [o] of a component this screen calls (its `{"id",
+  /// "nodes"}`): its canvas a root of the screen's document, its nodes
+  /// with ids of their own there (`basket-text1`: the component's ids are
+  /// its document's), unless the screen has a node or an overlay of that id
+  /// (the screen's own is the one shown).
+  void _takeOverlay(_Parser top, Json o) {
+    final id = o['id'];
+    final nodes = readMap(o['nodes']);
+    if (id is! String || nodes == null || nodes[id] == null || top._takenOverlays.containsKey(id) || top._taken(id) || top._overlayActions.containsKey(id)) return;
+    final rename = <String, String>{
+      for (final k in nodes.keys)
+        if (k != id) k: top._taken('$id-$k') ? top._id('node') : '$id-$k',
+    };
+    Object? renamed(Object? v) => v is String ? (rename[v] ?? v) : v;
+    final out = <String, Object?>{};
+    for (final e in nodes.entries) {
+      final n = _copy(readMap(e.value) ?? const {});
+      if (n['children'] case final List kids) n['children'] = [for (final k in kids) renamed(k)];
+      if (readMap(n['slots']) case final Json slots) n['slots'] = {for (final s in slots.entries) s.key: renamed(s.value)};
+      out[rename[e.key] ?? e.key] = n;
+    }
+    top._takenOverlays[id] = out;
+    if (!top._canvas) return;
+    // As it would be sent: the roots, the canvas, then each node under its parent.
+    top.ops
+      ..add({'op': 'roots', 'roots': top._rootIds})
+      ..add({'op': 'set', 'id': id, 'node': {...readMap(out[id])!}..remove('slots')..remove('children')});
+    void send(String parent) {
+      final p = readMap(out[parent])!;
+      final slots = readMap(p['slots']) ?? const {};
+      for (final s in slots.entries) {
+        if (s.value case final String child when out[child] != null) {
+          top.ops.add({'op': 'set', 'id': child, 'parent': parent, 'slot': s.key, 'node': {...readMap(out[child])!}..remove('slots')..remove('children')});
+          send(child);
+        }
+      }
+      for (final child in readStrings(p['children'])) {
+        if (out[child] == null) continue;
+        top.ops.add({'op': 'set', 'id': child, 'parent': parent, 'node': {...readMap(out[child])!}..remove('slots')..remove('children')});
+        send(child);
+      }
+    }
+
+    send(id);
+  }
+
+  /// What was said once (by its kind and line), where a line is read again
+  /// as the lines a page word writes.
+  final _said = <String>{};
 
   /// The reactions taken from components (a key the screen writes itself
   /// replaces the component's).
@@ -8100,6 +8261,14 @@ class _Parser {
   /// Moves [id], just added under a grid, into the grid's current row (a
   /// new row every `cols` cells).
   void _intoRow(_Grid g, String id) {
+    // Cells written one by one with columns at other widths (`Grid cols=4
+    // phone.cols=2`, round 10, R11: 22 runs) are laid out by the grid an
+    // each makes ([_literalGrids]); not inside an each, whose copy that
+    // grid's would hide.
+    if (g.mediaCols.isNotEmpty && !g.mediaSaid && !_stack.any((o) => o.each != null)) {
+      _literalCells.add(g);
+      g.mediaSaid = true;
+    }
     if (g.mediaCols.isNotEmpty && !g.mediaSaid) {
       g.mediaSaid = true;
       if (!_top._quiet) {
@@ -8131,6 +8300,82 @@ class _Parser {
     (nodes[g.row]!['children'] as List<Object?>).add(id);
     _parentOf[id] = g.row!;
     g.inRow++;
+  }
+
+  /// The Grids of cells written one by one whose columns change at other
+  /// widths ([_intoRow]).
+  final _literalCells = <_Grid>[];
+
+  /// Each Grid of [_literalCells], once its cells are all read, is the grid an
+  /// `each k in range(n)` makes: one copy a cell, each copy showing its own
+  /// (`visible={item == k}`), so `tablet.cols` and `phone.cols` are the
+  /// grid's columns at those widths as they are over an each. What a
+  /// writer could say with an each and an if, said for them.
+  void _literalGrids() {
+    for (final g in _literalCells) {
+      final grid = nodes[g.id];
+      if (grid == null) continue;
+      final rows = [for (final k in (grid['children'] as List?) ?? const []) if (_gridRows[k] == g) k as String];
+      final cells = [
+        for (final r in rows) ...[for (final c in (nodes[r]?['children'] as List?) ?? const []) c as String],
+      ];
+      if (cells.isEmpty) continue;
+      final list = _taken('${g.id}Cells') ? _id('gridView') : '${g.id}Cells';
+      final item = '${list}Item';
+      nodes[list] = {
+        'type': 'gridView',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
+        'bind': {
+          'data': _formula('range(${cells.length})'),
+          if (g.colsFormula case final String cols) 'props.crossAxisCount': cols,
+        },
+        'media': [for (final r in g.mediaCols) _copy(r)],
+        'children': <Object?>[item],
+      };
+      nodes[item] = {
+        'type': 'column',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'crossAxisAlignment': 'start'},
+        'children': <Object?>[...cells],
+      };
+      _parentOf[list] = g.id;
+      _parentOf[item] = list;
+      _gridLists[list] = g.id;
+      for (final r in rows) {
+        nodes.remove(r);
+        _gridRows.remove(r);
+        _parentOf.remove(r);
+      }
+      grid['children'] = [for (final k in (grid['children'] as List?) ?? const []) if (!rows.contains(k)) k, list];
+      for (var k = 0; k < cells.length; k++) {
+        final cell = nodes[cells[k]]!;
+        _parentOf[cells[k]] = item;
+        // A cell takes its copy's width (a row's cell grew to share it).
+        final layout = readMap(cell['layout']);
+        if (layout != null) layout.remove('flex');
+        // One written hidden stays hidden.
+        if (cell['visible'] == false) continue;
+        final bind = readMap(cell['bind']) ?? <String, Object?>{};
+        final own = bind['visible'];
+        final mine = _formula('item == $k');
+        bind['visible'] = own is String ? _and(mine, own) : mine;
+        cell['bind'] = bind;
+      }
+      if (_canvas) {
+        ops
+          ..add({'op': 'set', 'id': list, 'parent': g.id, 'index': (grid['children'] as List).length - 1, 'node': {...nodes[list]!}..remove('children')})
+          ..add({'op': 'set', 'id': item, 'parent': list, 'index': 0, 'node': {...nodes[item]!}..remove('children')})
+          ..addAll([
+            for (var k = 0; k < cells.length; k++) ...[
+              {'op': 'move', 'id': cells[k], 'parent': item, 'index': k},
+              {'op': 'patch', 'id': cells[k], 'patch': {'bind': {'visible': readMap(nodes[cells[k]]!['bind'])?['visible']}, 'layout': {'flex': null}}},
+            ],
+          ])
+          ..add({'op': 'remove', 'ids': rows});
+      }
+    }
+    _literalCells.clear();
   }
 
   /// The stand-ins written so far that may have nothing to draw, by node id,
@@ -8337,7 +8582,8 @@ class _Parser {
     _fitRow(open);
     final g = open.grid;
     if (g == null || open.id != g.id || open.condition != null || g.row == null) return;
-    while (g.inRow < g.cols) {
+    // A grid of cells that becomes a list's ([_literalGrids]) is filled by it.
+    while (g.inRow < g.cols && !_literalCells.contains(g)) {
       final sid = _id('spacer');
       nodes[sid] = {'type': 'spacer', 'layout': {'flex': 1, 'width': {'fill': 0}, 'height': {'hug': 0}}};
       (nodes[g.row]!['children'] as List<Object?>).add(sid);
@@ -8501,6 +8747,7 @@ class _Parser {
       }
       _unstated.clear();
     }
+    _literalGrids();
     _ownLegends();
     _feet();
     _endButtons();
@@ -9219,6 +9466,24 @@ class _Parser {
         if (_confirm(a, column) case final Json c) out.add(c);
         continue;
       }
+      // `props.selected=m.id` in a component (round 10, R20: refused as an
+      // unknown action): its variable parameter set, which the caller's
+      // `@name` then holds (`setVariable variable=props.selected`).
+      if (RegExp(r'^props\.([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a) case final m? when _top._widget != null) {
+        final param = [
+          for (final p in (_top._widget!['props'] as List?) ?? const [])
+            if (readMap(p) case final Json j when j['key'] == m[1]) j,
+        ].firstOrNull;
+        if (param == null || readMap(param['type'])?['kind'] != 'variable') {
+          _issue(column,
+              '${param == null ? 'The component has no parameter "${m[1]}"' : 'The parameter "${m[1]}" is given by the call, not kept'}: a parameter the component sets is a variable one, param @${m[1]}=… (or param ${m[1]}:ValueNotifier<String>=…), and the call binds it (@name).');
+          continue;
+        }
+        final v = m[2]!.trim();
+        final literal = _literal(v);
+        out.add({'type': 'setVariable', 'variable': 'props.${m[1]}', 'value': literal.$1 && literal.$2 is String ? _interpolate(literal.$2! as String) : _formula(v)});
+        continue;
+      }
       final set = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
       if (set != null) {
         final v = set[2]!.trim();
@@ -9431,11 +9696,23 @@ class _Parser {
   /// Tells apart the unknown verbs of one event (they share its column).
   int _verbAt = 0;
 
+  /// What a component call's [keys] of look (a fill, a border) are said with:
+  /// a call has no look of its own, its definition has (round 10, R31).
+  static String _callLook(String written, List<String> keys) =>
+      '${keys.map((k) => '$k=').join(', ')} on a call of $written is left out. ${_callLookWhy(written)}';
+
+  static String _callLookWhy(String written) =>
+      'A component call has no look of its own: its size, place, margin and the widths it changes at are the call\'s (w=, maxw=, phone.w=), '
+      'its look is its definition\'s. Give $written a parameter for it (param tone=…, read in its tree), or write the look on a line around the call.';
+
   /// A key a line of [written] (document type [type]) has no name for, said
   /// with the nearest name the catalog has there; a design system's
   /// component with what it takes.
   String _noKey(String written, String key, String type, {bool component = false, WidgetSpec? takes}) {
-    if (component && takes != null) return 'A $written has no "$key". It takes: ${takes.props.map((p) => p.key).join(', ')}.';
+    if (component && takes != null) {
+      final look = const {'radius', 'shadow', 'effects', 'clip', 'clipBehavior', 'opacity'}.contains(key) && key != 'opacity';
+      return 'A $written has no "$key". It takes: ${takes.props.map((p) => p.key).join(', ')}.${look ? ' ${_callLookWhy(written)}' : ''}';
+    }
     final near = notationKeyNearest(key, type, catalog: catalog);
     return 'A $written has no "$key"${near == null ? '' : ' (did you mean $near?)'}: left out.';
   }

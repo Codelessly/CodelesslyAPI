@@ -1,3 +1,65 @@
+## Unreleased
+
+### Documented
+
+- **An `if` under an `each`** hides what a copy shows, not the copy: the copy keeps its place and its Grid cell
+  (round 10, R65, 4 runs). lists.md says so, and how to leave elements out: `each d in filter(days, x => x.open)`.
+
+### Behaviour changes
+
+- **A site's `primary` re-accents a design system's dark accent too** (`ThemeTokens.withSiteTheme`): Desk's dark
+  `accent`, a lighter indigo than its dark `primary`, stayed indigo under a site's green (the SideButton, the brand
+  tile, the chosen view, the cursor bar), with `dark.primary` given or not, though Desk's README says naming
+  `primary` re-accents it (support desk, test 11). Now it is the site's hue at the lightness Desk gives it. Only a
+  re-accented site in dark mode draws differently; a dark accent the site names itself is its own.
+- **A look written on a component call is said** (`Disc "MR" fill=#… border=#…`, `clip`; round 10, R31, 10 runs): a
+  call has no look of its own, its definition has, and the call's size, place, margin, `maxw` and widths at other
+  sizes (`phone.w=fill`) are what it takes. A fill or a border was left out with no word; `radius`, `shadow` and
+  `clip` were refused without saying why. A text that wrote one now has an issue there (a closed expand fails).
+  The document is the same.
+- **A Grid's columns at a narrower width win over a wider one's**, in whatever order they are written: `Grid
+  cols=4 phone.cols=2 tablet.cols=3` gives a phone 2 columns (the rules were kept in the order written and the
+  later, the tablet's, held on a phone too: the phone showed 3). Only a Grid that wrote its phone's columns before
+  its tablet's draws differently, and it now draws what it says.
+
+### Fixed
+
+- **A Table's sort arrow** is in the theme's accent by its name (a design system's, a site's `primary`), as a
+  NavItem's chosen ink is; it was the default blue under any theme (support desk, test 11; round 10, R17).
+- **`every 1m`** (and `every 1h`, `every 2min`) is a timer of that many minutes or hours; it was refused (round 10,
+  R22).
+- **An overlay a component writes** after its tree (`Drawer#basket "Your bag" right w=440`, `Sheet#info
+  stops=[0.5,0.9]`; round 10, R28, 11 runs, and R23's stops lost from a component) is kept in its document
+  (`screenOverlays`), and every page that calls it has it (once, its nodes with ids of their own, `basket-text1`):
+  `open basket` from inside the component shows the drawer at its side and width, the sheet at its stops. It was
+  left out with no word, and the open found nothing (or a page's dialog of that id). A page's own overlay of that
+  id is the one it shows. `NotationOptions.componentScreenOverlays` carries them, as `componentScreenActions`
+  carries a component's key lines.
+- **A Grid of cells written one by one takes its columns at other widths** (`Grid cols=4 phone.cols=2` over four
+  `Stat` lines; round 10, R11, 22 runs, and the support desk): it is the grid an `each` makes, over `range(n)`, each
+  copy showing its own cell (`visible={item == k}`), which a writer could have said with an `each` and an `if`. It
+  was refused ("cells written one by one stay in their rows"). It prints back as written. Inside an `each` it is
+  still said.
+- **`resizable` on a pane** (`Pane w=300 resizable`, `Sidebar … resizable=@w`; round 10, R50, 6 runs) is said with
+  the way the base resizes a pane: a `Splitter @listW` beside it, the pane `w={listW}`. It was "Unknown word", or
+  with the open vocabulary recorded and ignored. Nothing new is drawn.
+- **A component's parameters** (round 10, R20, 15 runs): `param @selected=""` is a variable parameter of its
+  default's type; `props.selected=m.id` in its tree sets it (it was "Unknown action"; one on a parameter the call only
+  gives is said, with how to keep it); `param items:List=[]` is a list of anything and `event onPick:void` passes
+  nothing (both were "No type"). Each was already said by `setVariable variable=props.selected`,
+  `List<dynamic>` and an event with no type.
+- **A string on a component call** fills a text parameter the line does not name: `GuideSection "01"
+  label="Installation"` is the label and `01` the next text parameter (it took the label, then said `label` was
+  written twice; round 10, R41, 9 runs).
+- **A component's own `size`** is its parameter: `Avatar "Maya Chen" size=32` on an Avatar whose size is a number
+  (Desk's) keeps 32; it was read as the step `small` and the disc was not drawn (support desk, test 11). An Avatar
+  that sizes by name still takes the nearest name.
+- **The open prompt's glossary** keeps a description that is a whole clause whole: Desk's `Breadcrumb`, `Empty` and
+  `SaveBar` read `where a page`, `what a list`, `what a page` (a clause starting with a question word was cut at its
+  comma or its `with` and lost its verb); they read `where a page is`, `what a list with nothing in it`, `what a page
+  with unsaved changes shows` (seven words at most, as before). A word left hanging at the end (`over`, `when`) is
+  dropped.
+
 ## 36.0.0
 
 The notation now writes everything a schema-3 document holds (parity: every corpus document prints back in words),

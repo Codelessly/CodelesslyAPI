@@ -22,6 +22,8 @@ Json? notationTypeJson(String word) {
       return null;
     }
   }
+  // A bare `List` (round 10, R20: `param items:List=[]`) is a list of anything.
+  if (word == 'List' || word == 'List<Object?>') return notationTypeJson('List<dynamic>');
   final list = RegExp(r'^List<(.+)>$').firstMatch(word);
   if (list != null) {
     final item = notationTypeJson(list[1]!);

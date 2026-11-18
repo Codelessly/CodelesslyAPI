@@ -775,6 +775,27 @@ ${blocks.join('\n')}
       expect(notationSignaturesLead('Acme', define: false), isNot(contains('define')));
     });
 
+    test('a glossary line keeps a description that is a whole clause whole (Desk\'s Breadcrumb, Empty, SaveBar were cut to "where a page")', () {
+      String gist(String doc) {
+        final d = const NotationVocabulary().define({'W.txt': '// $doc\nWord items=[]\n  Column\n'}).definitions['Word']!.single;
+        return notationGlossaryDefinitionLine(d).split(' : ').last;
+      }
+
+      // The clause ends with its verb: cut where it ends, never at its comma or its `with`, and the verb kept.
+      expect(gist('Where a page is: its ancestors in the secondary ink (each a link), chevrons between.'), 'where a page is');
+      expect(gist('What a page with unsaved changes shows at its foot (a settings form, a permission matrix): a warning dot.'),
+          'what a page with unsaved changes shows');
+      // An enumeration in it is shortened to its first item.
+      expect(gist('What a list, a table, a pane or a search with nothing in it says: an outline icon at 24 on a soft tile.'),
+          'what a list with nothing in it');
+      expect(gist('What acts on the rows chosen in a table or a list: the count in the accent ink.'), 'what acts on the rows chosen');
+      // Seven words at most, as every glossary line (Cards' EmptyState).
+      expect(gist('What a list or page shows when there is nothing: an icon.'), 'what a list or page shows');
+      // A word left hanging is dropped (`over`), and a noun phrase is cut as before.
+      expect(gist('A figure on a dashboard or over a table: its label in the caption ink.'), 'figure on a dashboard');
+      expect(gist('A number raised and lowered with minus and plus (a party size, a count): Counter'), 'number raised and lowered');
+    });
+
     test('with a design system it names the words it has beyond the core, on one line (Review 6, D29)', () async {
       Map<String, Object?> component(String type) => {
             'schema': 3,
