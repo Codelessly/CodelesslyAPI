@@ -7028,7 +7028,36 @@ class _Parser {
           'layout': {'width': {'hug': null, 'fill': 0}, 'height': {'fill': null, 'hug': 0}},
           'props': {'mainAxisAlignment': null, 'crossAxisAlignment': 'stretch'},
         };
-        nodes[listId!] = mergePatch(list, listPatch);
+        // The row's own rules at other widths: a row that is a column there
+        // (`phone.direction=vertical`) has one copy a line there (it stayed
+        // side by side: test 9, admin 11).
+        final rowId = _parentOf[listId!];
+        final rowMedia = rowId == null ? null : (nodes[rowId]?['media'] as List?);
+        final gridMedia = <Json>[
+          for (final rule in rowMedia ?? const [])
+            if (rule is Map && (rule['patch'] as Map?)?['props'] is Map && ((rule['patch'] as Map)['props'] as Map)['direction'] == 'vertical')
+              {
+                for (final e in rule.entries)
+                  if (e.key != 'patch') '${e.key}': e.value,
+                'patch': {
+                  'props': {'crossAxisCount': 1, 'mainAxisSpacing': (list['props'] as Map?)?['spacing'] ?? 0},
+                  'bind': {'props.crossAxisCount': null},
+                },
+              },
+        ];
+        if (gridMedia.isNotEmpty) listPatch['media'] = gridMedia;
+        // A copy's own width or growth at another width (`tablet.w=272
+        // tablet.grow=false`), or the row scrolling there, a grid's column
+        // cannot follow: said, with what to write (it was dropped).
+        final ownMedia = pre?.parts.where((p) => RegExp(r'^[a-z]+\.(w|width|grow|flex)\b').hasMatch(p.kind == 'pair' ? p.key ?? '' : p.raw)).toList() ?? const [];
+        final rowScrolls = (rowMedia ?? const []).any((r) => r is Map && ((r['patch'] as Map?)?['props'] as Map?)?['scrollable'] == true);
+        if (ownMedia.isNotEmpty || rowScrolls) {
+          _issue(column,
+              'Copies that grow share their row as the columns of a grid, at every width: ${ownMedia.isNotEmpty ? 'a width of their own at another size (${ownMedia.map((p) => p.raw).join(' ')}) is not read' : 'the row does not scroll at another size'}. '
+              'For lanes that are equal on a wide window and of their own width (scrolling sideways) on a narrow one, write the width without grow: '
+              'Column w={max(272, (screen.width - 48) / length(list))} tablet.w=272 in a ListView scrollDirection=horizontal.');
+        }
+        nodes[listId] = mergePatch(list, listPatch);
         nodes[parent.id] = mergePatch(nodes[parent.id]!, itemPatch);
         // A patch cannot change a type: the list is set again, keeping its item.
         _patches

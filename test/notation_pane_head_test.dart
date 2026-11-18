@@ -41,4 +41,32 @@ App
     expect(r.issues, isEmpty);
     expect((_node(r, 'main')['props'] as Map)['scrollable'], isNull);
   });
+
+  test('copies that grow across a row: one a line where the row is a column; a width of their own at another size is said', () {
+    final r = parseNotation('''
+state teams:list=[{"id":"a"},{"id":"b"}]
+Row#board gap=16 phone.direction=vertical
+  each t in teams
+    Column grow
+      Text "{t.id}"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1440));
+    expect(r.issues, isEmpty);
+    expect(_node(r, 'listView1')['media'], [
+      {
+        'maxWidth': 699,
+        'patch': {
+          'props': {'crossAxisCount': 1, 'mainAxisSpacing': 16},
+          'bind': {'props.crossAxisCount': null},
+        },
+      },
+    ]);
+    final lanes = parseNotation('''
+state cols:list=[{"id":"a"}]
+Row gap=12
+  each c in cols
+    Column w=fill grow tablet.w=272 tablet.grow=false
+      Text "{c.id}"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1440));
+    expect(lanes.issues.single.message, contains('tablet.w=272 tablet.grow=false) is not read'));
+  });
 }
