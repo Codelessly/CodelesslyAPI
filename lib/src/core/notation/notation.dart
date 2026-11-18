@@ -7961,7 +7961,19 @@ class _Parser {
         // A copy's own width or growth at another width (`tablet.w=272
         // tablet.grow=false`), or the row scrolling there, a grid's column
         // cannot follow: said, with what to write (it was dropped).
-        final ownMedia = pre?.parts.where((p) => RegExp(r'^[a-z]+\.(w|width|grow|flex)\b').hasMatch(p.kind == 'pair' ? p.key ?? '' : p.raw)).toList() ?? const [];
+        // (Where the row turns down the page the grid has one column, each copy
+        // its whole width: a copy's `phone.grow=0` or `phone.w=fill` there says
+        // what it does, and is read; round 11b: restaurant, nonprofit.)
+        bool saysOneColumn(LinePart p) {
+          final word = p.kind == 'pair' ? '${p.key}=${p.value}' : p.raw;
+          final m = mediaCondition(word.split('=').first);
+          if (m == null || m.problem != null) return false;
+          final rest = word.substring(m.length);
+          if (!RegExp(r'^(grow=(0|false)|flex=0|w=fill|width=fill)$').hasMatch(rest)) return false;
+          return gridMedia.any((g) => jsonEquality.equals({for (final e in g.entries) if (e.key != 'patch') e.key: e.value}, m.condition));
+        }
+
+        final ownMedia = pre?.parts.where((p) => RegExp(r'^[a-z]+\.(w|width|grow|flex)\b').hasMatch(p.kind == 'pair' ? p.key ?? '' : p.raw) && !saysOneColumn(p)).toList() ?? const [];
         final rowScrolls = (rowMedia ?? const []).any((r) => r is Map && ((r['patch'] as Map?)?['props'] as Map?)?['scrollable'] == true);
         if (ownMedia.isNotEmpty || rowScrolls) {
           _issue(column,

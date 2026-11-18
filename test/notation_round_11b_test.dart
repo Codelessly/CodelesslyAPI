@@ -303,6 +303,24 @@ Column
     expect(_layout(r, 'field'), isNot(contains('basis')));
   });
 
+  test('copies that grow, in a row that turns down the page on a phone, may say phone.grow=0 or phone.w=fill there', () {
+    // restaurant (menu.txt:28, private-dining.txt:20), nonprofit (about.txt:17): refused, and rewritten by hand.
+    final r = _parse('''
+state sections=[1,2]
+Column
+  Row w=fill gap=24 phone.direction=vertical
+    each section in sections
+      Column w=fill grow phone.grow=0 phone.w=fill gap=12
+        Text "{section}"
+  Row w=fill gap=24
+    each section in sections
+      Column grow tablet.w=272
+        Text "{section}"
+''');
+    // The first is read (the grid has one column there); the second is still said.
+    expect(r.issues.map((i) => i.line), [9]);
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

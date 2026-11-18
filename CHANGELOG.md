@@ -52,6 +52,11 @@
 
 ### Fixed
 
+- **Copies that grow, in a row that turns down the page at a width, may say `phone.grow=0` or `phone.w=fill`
+  there** (round 11b: restaurant, nonprofit): where the row is a column the grid of the copies has one column and
+  each copy is its whole width, which is what those words say. They were refused ("a width of their own at another
+  size is not read"), and the writers rewrote the lines; the reference says a key after a condition is any key the
+  line reads. A width of their own at a size where the row stays a row is still said.
 - **`Grid cols={n} tablet.cols={max(2, n - 2)}`**: a Grid's columns at a width worked out from the state, as
   `cols={…}` is (round 11b: photo-library). It was refused with "A Grid's columns at a width are a number from
   1 to 24: tablet.cols=2", which read as if 2 were out of range.
