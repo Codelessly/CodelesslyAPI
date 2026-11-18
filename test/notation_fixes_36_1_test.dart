@@ -64,6 +64,60 @@ Column
     });
   });
 
+  group('R28: an overlay a component writes is there wherever it is called, as written', () {
+    const mast = '''
+component Mast "A top bar with a basket drawer."
+  param title="Shop"
+Row#mast pad=12 gap=8
+  Text "{props.title}"
+  Button#bag "Bag" onTap={open basket}
+  Button#about "Info" onTap={open info}
+Drawer#basket "Your bag" right w=440
+  Text "Items"
+Sheet#info "About" stops=[0.5,0.9]
+  Text "Info"
+''';
+
+    test('the component keeps its overlays (screenOverlays), its opens say how each is shown', () {
+      final r = parseNotation(mast, catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      final overlays = r.document['screenOverlays'] as List;
+      expect([for (final o in overlays) (o as Map)['id']], ['basket', 'info']);
+      expect(((overlays.first as Map)['nodes'] as Map)['basket'], containsPair('type', 'canvas'));
+      final open = (((_node(r, 'about')['actions'] as List).single as Map)['actions'] as List).single as Map;
+      expect(open, containsPair('presentation', 'bottomSheet'));
+      expect(open['snapHeights'], [0.5, 0.9]);
+    });
+
+    test('a page that calls it takes them once, with ids of their own; its own overlay of that id is its own', () {
+      final component = parseNotation(mast, catalog: standardCatalog).document;
+      final widget = catalogFromJson({
+        'widgets': [
+          {
+            'type': 'Mast',
+            'props': [_string('title', 'Shop')],
+          },
+        ],
+      });
+      final options = NotationOptions(width: 1280, componentScreenOverlays: {
+        'Mast': [for (final o in component['screenOverlays'] as List) (o as Map).cast<String, Object?>()],
+      });
+      final r = _with(widget, 'Column\n  Mast "Store"\n  Mast "Again"\n  Text#text1 "Body"\n', options);
+      expect(r.issues, isEmpty);
+      expect(r.document['roots'], ['screen', 'basket', 'info']);
+      final nodes = r.document['nodes'] as Map;
+      expect(nodes['basket'], containsPair('type', 'canvas'));
+      // The component's ids are its document's: in the page they are the overlay's.
+      expect(nodes.keys.where((k) => '$k'.startsWith('basket-')), isNotEmpty);
+      expect(_node(r, 'text1')['props'], containsPair('text', 'Body'));
+
+      final own = _with(widget, 'Column\n  Mast "Store"\nSheet#info "Mine"\n  Text "Page"\n', options);
+      expect(own.issues, isEmpty);
+      expect(own.document['roots'], ['screen', 'info', 'basket']);
+      expect((own.document['nodes'] as Map).keys.where((k) => '$k'.startsWith('info-')), isEmpty);
+    });
+  });
+
   group('R41: a string on a component call fills a text parameter the line does not name', () {
     final heading = catalogFromJson({
       'widgets': [

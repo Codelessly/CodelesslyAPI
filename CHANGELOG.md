@@ -14,6 +14,13 @@
 
 ### Fixed
 
+- **An overlay a component writes** after its tree (`Drawer#basket "Your bag" right w=440`, `Sheet#info
+  stops=[0.5,0.9]`; round 10, R28, 11 runs, and R23's stops lost from a component) is kept in its document
+  (`screenOverlays`), and every page that calls it has it (once, its nodes with ids of their own, `basket-text1`):
+  `open basket` from inside the component shows the drawer at its side and width, the sheet at its stops. It was
+  left out with no word, and the open found nothing (or a page's dialog of that id). A page's own overlay of that
+  id is the one it shows. `NotationOptions.componentScreenOverlays` carries them, as `componentScreenActions`
+  carries a component's key lines.
 - **A Grid of cells written one by one takes its columns at other widths** (`Grid cols=4 phone.cols=2` over four
   `Stat` lines; round 10, R11, 22 runs, and the support desk): it is the grid an `each` makes, over `range(n)`, each
   copy showing its own cell (`visible={item == k}`), which a writer could have said with an `each` and an `if`. It

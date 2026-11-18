@@ -161,6 +161,7 @@ final class NotationOptions {
     this.components = const {},
     this.componentRules = const {},
     this.componentScreenActions = const {},
+    this.componentScreenOverlays = const {},
     this.componentPressEvents = const {},
     this.badge = defaultBadge,
     this.cta,
@@ -247,6 +248,7 @@ final class NotationOptions {
         components: components,
         componentRules: componentRules,
         componentScreenActions: componentScreenActions,
+        componentScreenOverlays: componentScreenOverlays,
         componentPressEvents: componentPressEvents,
         badge: badge,
         cta: cta,
@@ -361,6 +363,11 @@ final class NotationOptions {
         for (final c in designSystem.list)
           if (c.document.extra['screenActions'] case final List actions when actions.isNotEmpty)
             c.type: [for (final a in actions) if (a is Map) a.cast<String, Object?>()],
+      },
+      componentScreenOverlays: {
+        for (final c in designSystem.list)
+          if (c.document.extra['screenOverlays'] case final List overlays when overlays.isNotEmpty)
+            c.type: [for (final o in overlays) if (o is Map) o.cast<String, Object?>()],
       },
       componentPressEvents: {
         for (final c in designSystem.list)
@@ -590,6 +597,7 @@ final class NotationOptions {
         components: components,
         componentRules: componentRules,
         componentScreenActions: componentScreenActions,
+        componentScreenOverlays: componentScreenOverlays,
         componentPressEvents: componentPressEvents,
         badge: badge,
         cta: cta,
@@ -669,6 +677,15 @@ final class NotationOptions {
   /// document's `screenActions`): the screen that shows the component takes
   /// them (once, however many calls), as if written on it.
   final Map<String, List<Json>> componentScreenActions;
+
+  /// The overlays a component writes after its tree (`Drawer#basket`,
+  /// `Sheet#details stops=[0.5,1]`), by type (its document's
+  /// `screenOverlays`: each `{"id", "nodes"}`, its canvas and its lines):
+  /// the screen that shows the component takes them (once, unless it writes
+  /// an overlay of that id itself), so what the component opens is there,
+  /// shown as it was written (round 10, R28: they were left out, and the
+  /// open showed nothing or a centred dialog).
+  final Map<String, List<Json>> componentScreenOverlays;
 
   /// The event a component sends when it is pressed (its root's click
   /// emits it: a MenuItem's onSelected), by type: `onTap` on a call is that
@@ -1711,7 +1728,7 @@ class _Parser {
   }
 
   /// The document's canvases: the page, then its overlays.
-  List<String> get _rootIds => [_top.options.screen, for (final o in _top._overlays) o.options.screen];
+  List<String> get _rootIds => [_top.options.screen, for (final o in _top._overlays) o.options.screen, ..._top._takenOverlays.keys];
 
   /// Where the variables are declared: on the page's canvas, or, once the
   /// page has overlays, for every canvas of the document (an overlay reads
@@ -1721,7 +1738,7 @@ class _Parser {
 
   bool _taken(String id) {
     final top = _top;
-    return [top, ...top._overlays].any((p) => p.nodes.containsKey(id) || p.options.screen == id);
+    return [top, ...top._overlays].any((p) => p.nodes.containsKey(id) || p.options.screen == id) || top._takenOverlays.values.any((o) => o.containsKey(id));
   }
 
   /// Whether the notation reads with no theme of its own (no design
@@ -1781,6 +1798,14 @@ class _Parser {
   /// `Popover#id` or `Lightbox#id` line: the lines under it are a canvas of
   /// their own, which `open <id>` shows over the page.
   void _openBlock(Overlay o) {
+    // One a component this page calls wrote: the page's own is the one shown.
+    if (_top._takenOverlays.remove(o.id) case final Json taken) {
+      if (_top._canvas) {
+        _top.ops
+          ..add({'op': 'remove', 'ids': [...taken.keys]})
+          ..add({'op': 'roots', 'roots': _rootIds});
+      }
+    }
     if (_taken(o.id)) {
       _issue(
           1,
@@ -3820,6 +3845,20 @@ class _Parser {
         'nodes': {...nodes},
         // Its key, every and on load lines: the screen that shows it takes them.
         if (widget != null && _timers.isNotEmpty) 'screenActions': [..._timers],
+        // Its overlays (a drawer it opens): the screen that shows it takes them.
+        // (and those of the components it calls, which it took).
+        if (widget != null && (_overlays.isNotEmpty || _takenOverlays.isNotEmpty))
+          'screenOverlays': [
+            for (final p in _overlays)
+              {
+                'id': p.options.screen,
+                'nodes': {
+                  p.options.screen: p._canvasPatch == null ? p._canvasNode : mergePatch(p._canvasNode, p._canvasPatch!),
+                  ...p.nodes,
+                },
+              },
+            for (final e in _takenOverlays.entries) {'id': e.key, 'nodes': e.value},
+          ],
         if (own.isNotEmpty) 'variables': {_documentWords['scope'] as String? ?? _root ?? options.screen: own},
       }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
     }
@@ -3831,6 +3870,7 @@ class _Parser {
           p.options.screen: p._canvasPatch == null ? p._canvasNode : mergePatch(p._canvasNode, p._canvasPatch!),
           ...p.nodes,
         },
+        for (final o in _takenOverlays.values) ...o,
       },
       if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
         'variables': {_scope: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
@@ -7868,8 +7908,13 @@ class _Parser {
   /// itself for the same key is the screen's.
   void _componentScreen(String type) {
     final actions = options.componentScreenActions[type];
-    if (actions == null || !_top._screensOf.add(type)) return;
+    final overlays = options.componentScreenOverlays[type];
+    if ((actions == null && overlays == null) || !_top._screensOf.add(type)) return;
     final top = _top;
+    for (final o in overlays ?? const <Json>[]) {
+      _takeOverlay(top, o);
+    }
+    if (actions == null) return;
     for (final a in actions) {
       final trigger = readMap(a['trigger']);
       if (trigger?['type'] == 'keyDown' &&
@@ -7885,6 +7930,56 @@ class _Parser {
 
   /// The components whose screen lines this screen has taken.
   final _screensOf = <String>{};
+
+  /// The overlays this screen took from the components it calls, by id:
+  /// each its canvas and its nodes ([_takeOverlay]).
+  final _takenOverlays = <String, Json>{};
+
+  /// Takes overlay [o] of a component this screen calls (its `{"id",
+  /// "nodes"}`): its canvas a root of the screen's document, its nodes
+  /// with ids of their own there (`basket-text1`: the component's ids are
+  /// its document's), unless the screen has a node or an overlay of that id
+  /// (the screen's own is the one shown).
+  void _takeOverlay(_Parser top, Json o) {
+    final id = o['id'];
+    final nodes = readMap(o['nodes']);
+    if (id is! String || nodes == null || nodes[id] == null || top._takenOverlays.containsKey(id) || top._taken(id) || top._overlayActions.containsKey(id)) return;
+    final rename = <String, String>{
+      for (final k in nodes.keys)
+        if (k != id) k: top._taken('$id-$k') ? top._id('node') : '$id-$k',
+    };
+    Object? renamed(Object? v) => v is String ? (rename[v] ?? v) : v;
+    final out = <String, Object?>{};
+    for (final e in nodes.entries) {
+      final n = _copy(readMap(e.value) ?? const {});
+      if (n['children'] case final List kids) n['children'] = [for (final k in kids) renamed(k)];
+      if (readMap(n['slots']) case final Json slots) n['slots'] = {for (final s in slots.entries) s.key: renamed(s.value)};
+      out[rename[e.key] ?? e.key] = n;
+    }
+    top._takenOverlays[id] = out;
+    if (!top._canvas) return;
+    // As it would be sent: the roots, the canvas, then each node under its parent.
+    top.ops
+      ..add({'op': 'roots', 'roots': top._rootIds})
+      ..add({'op': 'set', 'id': id, 'node': {...readMap(out[id])!}..remove('slots')..remove('children')});
+    void send(String parent) {
+      final p = readMap(out[parent])!;
+      final slots = readMap(p['slots']) ?? const {};
+      for (final s in slots.entries) {
+        if (s.value case final String child when out[child] != null) {
+          top.ops.add({'op': 'set', 'id': child, 'parent': parent, 'slot': s.key, 'node': {...readMap(out[child])!}..remove('slots')..remove('children')});
+          send(child);
+        }
+      }
+      for (final child in readStrings(p['children'])) {
+        if (out[child] == null) continue;
+        top.ops.add({'op': 'set', 'id': child, 'parent': parent, 'node': {...readMap(out[child])!}..remove('slots')..remove('children')});
+        send(child);
+      }
+    }
+
+    send(id);
+  }
 
   /// What was said once (by its kind and line), where a line is read again
   /// as the lines a page word writes.

@@ -56,6 +56,9 @@ A component's `key`, `every` and `on load` lines, after its tree, are the screen
 calls it takes them once, however many calls (a sidebar's `key alt+1 onPress={go members}` written once in the
 sidebar, not on every page). A page's own line for the same key is the page's. They run on that screen, so they
 read and set the page's and the site's variables, not the component's own: the expander says so when one does.
+So are the overlays it writes after its tree (`Drawer#basket "Your bag" right w=440`, `Sheet#info stops=[0.5,0.9]`):
+each page that calls it has them, shown as written wherever `open basket` runs (a page's own overlay of that id is
+the one it shows). Their lines read the page's and the site's variables, not the component's parameters.
 
 A word defined in the text (`define`, [design-systems.md](design-systems.md)) is written out where it is used: it
 is not a component of the document.
