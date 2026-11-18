@@ -5413,6 +5413,17 @@ class _Parser {
           continue;
         }
         if (key == 'decoration' && type == 'text') {
+          // `decoration={done ? 'lineThrough' : 'none'}`: the line follows the
+          // data (it was kept as the text "=done ? …", which draws no line).
+          if (raw.startsWith('=')) {
+            props['style'] ??= switch (options.textStyles['body']) {
+              final Map m => _copy(m.cast<String, Object?>()),
+              final String name => <String, Object?>{'from': name},
+              _ => <String, Object?>{},
+            };
+            bind['props.style.decoration'] = _read(raw.substring(1));
+            continue;
+          }
           textLine = _literal(raw).$2?.toString() ?? raw;
           continue;
         }
@@ -7495,32 +7506,36 @@ class _Parser {
     final word = RegExp('(?<![A-Za-z0-9_.#])${RegExp.escape(name)}(?![A-Za-z0-9_])');
     final out = StringBuffer();
     var quoted = false, inner = false, depth = 0, start = 0;
-    void flush(int end, bool code) {
+    // The words of code (no quoted text in it) with the name read as [to].
+    String code(String part) => part.replaceAllMapped(word, (m) {
+          // In `h=120` the `h` is a prop key. In `live ? h=4` it
+          // is still the loop value, despite the following colon.
+          final before = part.substring(0, m.start).trimRight();
+          final key = m.end < part.length && part[m.end] == '=' && !(m.end + 1 < part.length && part[m.end + 1] == '=') &&
+              (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
+              !before.endsWith('?');
+          return key ? m[0]! : to;
+        });
+    void flush(int end, bool isCode) {
       final part = line.substring(start, end);
       // A string literal in an expression ('m-' + m.id) is text: the loop's
-      // name is not renamed inside it.
-      if (code && part.contains("'")) {
+      // name is not renamed inside it. The pieces between the literals are
+      // code as they stand: the part may begin with the quote that closed a
+      // text before it (`"{x.id}" color={x.on ? 'a' : 'b'}`), which is not
+      // a text opening (read again as one, every key after a quoted text
+      // that holds a literal kept the loop's name: test 9, admin 1, kanban 2).
+      if (isCode && part.contains("'")) {
         final pieces = part.split("'");
         if (pieces.length.isOdd) {
           for (var i = 0; i < pieces.length; i++) {
             if (i > 0) out.write("'");
-            out.write(i.isOdd ? pieces[i] : _rename(pieces[i], name, to));
+            out.write(i.isOdd ? pieces[i] : code(pieces[i]));
           }
           start = end;
           return;
         }
       }
-      out.write(code
-          ? part.replaceAllMapped(word, (m) {
-              // In `h=120` the `h` is a prop key. In `live ? h=4` it
-              // is still the loop value, despite the following colon.
-              final before = part.substring(0, m.start).trimRight();
-              final key = m.end < part.length && part[m.end] == '=' && !(m.end + 1 < part.length && part[m.end + 1] == '=') &&
-                  (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
-                  !before.endsWith('?');
-              return key ? m[0]! : to;
-            })
-          : part);
+      out.write(isCode ? code(part) : part);
       start = end;
     }
 
