@@ -139,6 +139,36 @@ App
     expect((flex['patch'] as Map)['props'], containsPair('crossAxisAlignment', 'stretch'));
   });
 
+  test('an each in a row that turns down the page at a width turns with it (its copies stayed in a line across)', () {
+    // travel-guide (journal.txt:12), conference (venue.txt:42), restaurant (private-dining.txt:18).
+    final r = _parse('''
+state cards=[1,2,3]
+Column
+  Row#row gap=12 phone.direction=vertical
+    each c in cards
+      Card#card w=365 tablet.w=248 phone.w=fill pad=18
+        Text "{c}"
+''');
+    expect(r.issues, isEmpty);
+    final nodes = r.document['nodes'] as Map;
+    final listId = ((nodes['row'] as Map)['children'] as List).single as String;
+    final list = (nodes[listId] as Map).cast<String, Object?>();
+    expect((list['props'] as Map)['scrollDirection'], 'horizontal');
+    expect(list['media'], [
+      {
+        'maxWidth': 699,
+        'patch': {
+          'props': {'scrollDirection': 'vertical'},
+          'layout': {
+            'width': {'fill': 0},
+          },
+        },
+      },
+    ]);
+    final item = (nodes['${listId}Item'] as Map).cast<String, Object?>();
+    expect(((item['media'] as List).single as Map)['patch'], containsPair('layout', {'width': {'fill': 0}, 'height': {'hug': 0}}));
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

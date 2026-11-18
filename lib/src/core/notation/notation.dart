@@ -4811,6 +4811,33 @@ class _Parser {
           if (across) 'mainAxisAlignment': const {'start': 'start', 'end': 'end'}[rowProps?['crossAxisAlignment']] ?? 'center',
         },
       };
+      // `Row gap=12 phone.direction=vertical` over an each of copies of a
+      // width (`Card w=365 phone.w=fill`; round 11b, conference, restaurant,
+      // travel-guide): where the row turns down the page its copies do too,
+      // one under another across the row's width; the list stayed a line
+      // across, wider than a phone (24 of travel-guide's 28 errors).
+      if (across && !wraps && g == null) {
+        for (final rule in (nodes[parent.id]?['media'] as List?) ?? const []) {
+          if (rule is! Map || ((rule['patch'] as Map?)?['props'] as Map?)?['direction'] != 'vertical') continue;
+          final when = {for (final e in rule.entries) if (e.key != 'patch') e.key as String: e.value};
+          (nodes[listId]!['media'] ??= <Object?>[]) as List
+            ..add({
+              ...when,
+              'patch': {
+                'props': {'scrollDirection': 'vertical'},
+                'layout': {'width': {'fill': 0}},
+              },
+            });
+          (nodes[itemId]!['media'] ??= <Object?>[]) as List
+            ..add({
+              ...when,
+              'patch': {
+                'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+                'props': {'mainAxisAlignment': 'start'},
+              },
+            });
+        }
+      }
       if (selection case final String sel) {
         // A tap selects the row alone, Ctrl or Cmd adds or removes it, Shift
         // takes the range from the last row chosen (Space and Enter on a

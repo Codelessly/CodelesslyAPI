@@ -41,6 +41,10 @@
 
 ### Fixed
 
+- **An `each` in a row that turns down the page at a width turns with it** (`Row gap=12 phone.direction=vertical`
+  over `each`, copies `Card w=365 phone.w=fill`; round 11b: travel-guide, conference, restaurant): its copies are
+  one under another across the row's width there; the list made for them stayed a line across, wider than a phone
+  (24 of travel-guide's 28 errors at 390). Copies that grow were already a grid that turns.
 - **A flag written as a key** (round 11b, 6 builds): `Main scroll=false` (a main that does not scroll: food-ordering,
   mail-client, photo-library), `Row tablet.scroll phone.scroll=false` (kanban-board), `Row phone.stretch=true`
   (admin-console, money-tracker), and `=true` on `scroll` and the alignment words (`top`, `middle`, `center`,
