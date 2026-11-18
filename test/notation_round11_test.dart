@@ -319,4 +319,29 @@ define Rows
       expect(((_node(r, 'main')!['decoration'] as Map)['fills'] as List).single, {'color': '#FFF1F5F9'});
     });
   });
+
+  group('C4: charts a designer would accept', () {
+    const theme = {'primary': '#FF7C3AED'};
+    Map<String, Object?> propsOf(NotationResult r, String type) => ((_nodes(r).values.cast<Map>().firstWhere((n) => n['type'] == type))['props'] as Map).cast<String, Object?>();
+
+    test('bars apart and rounded over a light axis with its figures', () {
+      final r = _parse('Column\n  BarChart values=[12,19,7,15,22,9] labels=["M","T","W","T","F","S"]\n', NotationOptions.fromTheme(theme, width: 1440));
+      final p = propsOf(r, 'barChart');
+      expect([p['barRadius'], p['maxBarWidth'], p['max']], [4, 40, 30]);
+      expect(p['gridLabels'], ['0', '10', '20', '']);
+    });
+
+    test('a donut\'s slices in steps of the theme\'s primary', () {
+      final r = _parse('Column\n  Donut values=[45,25,20,10] labels=["a","b","c","d"]\n', NotationOptions.fromTheme(theme, width: 1440));
+      final colors = [for (final d in (propsOf(r, 'chart')['data'] as List).cast<Map>()) d['color']];
+      expect(colors, ['#FF7C3AED', '#FFAA7FF3', '#FFCBB0F8', '#FFE2D4FB']);
+      expect(colors.first, '#FF7C3AED');
+    });
+
+    test('a line\'s axis fitted to its data', () {
+      final r = _parse('Column\n  LineChart values=[812,820,815,830,842,838,851] labels=["M","T","W","T","F","S","S"]\n  LineChart values=[812,820,851]\n', NotationOptions.fromTheme(theme, width: 1440));
+      expect(propsOf(r, 'chart')['fitMinY'], isTrue);
+      expect(propsOf(r, 'lineChart')['yMin'], 800);
+    });
+  });
 }

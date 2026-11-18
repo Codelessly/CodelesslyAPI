@@ -1256,6 +1256,38 @@ const notationComponentFirst = {'Tabs'};
 /// accent.
 const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
 
+/// The colors of a chart's slices or series from the theme's [accent]: the
+/// accent, then lighter steps of it toward white, then darker ones (round 11:
+/// a donut drew in colors no theme had). A name that is no color value
+/// gives the fixed palette after it.
+List<String> notationChartShades(String accent) {
+  final m = RegExp(r'^#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})$').firstMatch(accent);
+  if (m == null) return [accent, ..._chartColors];
+  final rgb = [for (var i = 2; i <= 4; i++) int.parse(m[i]!, radix: 16)];
+  String mix(double t, int to) => '#FF${[for (final c in rgb) (c + (to - c) * t).round().clamp(0, 255).toRadixString(16).padLeft(2, '0')].join().toUpperCase()}';
+  return [accent, mix(0.35, 255), mix(0.6, 255), mix(0.78, 255), mix(0.3, 0), mix(0.5, 0), mix(0.88, 255)];
+}
+
+/// A step of a chart's axis for values up to [max] in [lines] steps: 1, 2,
+/// 2.5 or 5 times a power of ten, the smallest that reaches [max].
+num _axisStep(num max, int lines) {
+  if (max <= 0) return 1;
+  final raw = max / lines;
+  var p = 1.0;
+  while (p * 10 <= raw) {
+    p *= 10;
+  }
+  while (p > raw) {
+    p /= 10;
+  }
+  for (final f in const [1, 2, 2.5, 5, 10]) {
+    if (p * f * lines >= max) return p * f;
+  }
+  return p * 10;
+}
+
+String _axisLabel(num v) => v == v.roundToDouble() ? '${v.round()}' : v.toStringAsFixed(1);
+
 /// The verbs an action is written with (design 13 section 3), beside
 /// `name=value` and `cond ? a : b`; every other action is its type and its
 /// fields by name. The reference documents each (tool/reference).
@@ -6742,7 +6774,7 @@ class _Parser {
     // is a thick one).
     if (ours && const {'Donut', 'DonutChart', 'PieChart', 'Pie'}.contains(written)) {
       final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
-      final palette = [_accentValue, ..._chartColors];
+      final palette = notationChartShades(_accentValue);
       props['chartType'] = 'donut';
       if (values is List) {
         props['data'] = [
@@ -6785,8 +6817,10 @@ class _Parser {
         if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove('lineColor')),
       ];
       if (all.isNotEmpty) {
-        final palette = [_accentValue, ..._chartColors];
+        final palette = notationChartShades(_accentValue);
         final rows = all.map((s) => s.values.length).reduce((a, b) => a > b ? a : b);
+        // Its axis fitted to the data (from 0, a line of 812 to 851 was flat).
+        props.putIfAbsent('fitMinY', () => true);
         type = 'chart';
         props
           ..remove('lineColor')
@@ -6828,9 +6862,39 @@ class _Parser {
         for (final e in options.barChart.entries) {
           props.putIfAbsent(e.key, () => e.value);
         }
+        // With no look of the theme's: bars apart, rounded, over a light
+        // axis with its figures (round 11: bars touched, with no axis).
+        if (options.barChart.isEmpty) {
+          props
+            ..putIfAbsent('barRadius', () => 4)
+            ..putIfAbsent('maxBarWidth', () => 40)
+            ..putIfAbsent('barGap', () => 8)
+            ..putIfAbsent('gridColor', () => options.line)
+            ..putIfAbsent('baselineColor', () => options.line);
+          if (props['values'] case final List values when values.isNotEmpty && values.every((v) => v is num) && !props.containsKey('max') && !props.containsKey('gridLabels')) {
+            final top = values.cast<num>().reduce((a, b) => a > b ? a : b);
+            final lines = props['gridLines'] is int ? props['gridLines'] as int : 3;
+            if (top > 0 && lines > 0) {
+              final step = _axisStep(top, lines);
+              props
+                ..['max'] = step * lines
+                ..['gridLabels'] = [for (var i = 0; i <= lines; i++) i == lines ? '' : _axisLabel(step * i)]
+                ..putIfAbsent('gridLabelsLeft', () => true);
+            }
+          }
+        }
       }
       if (type == 'lineChart' && props['values'] is List) {
         final values = props.remove('values')! as List;
+        // Its axis fitted to the data, not from 0.
+        if (values.isNotEmpty && values.every((v) => v is num) && !props.containsKey('yMin')) {
+          final nums = values.cast<num>();
+          final lo = nums.reduce((a, b) => a < b ? a : b), hi = nums.reduce((a, b) => a > b ? a : b);
+          if (lo > 0 && hi > lo) {
+            final step = _axisStep(hi - lo, 4);
+            props['yMin'] = ((lo - (hi - lo) * 0.1) / step).floor() * step;
+          }
+        }
         props.remove('labels');
         props['data'] = [for (var i = 0; i < values.length; i++) {'x': i, 'y': values[i]}];
         props['xField'] = 'x';

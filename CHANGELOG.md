@@ -25,6 +25,10 @@
   plain Sections one after the other have one section's space between them (96 px, was 128). An app's `Main` with no
   ground of its own takes its content column's (`Column pad=24 fill=canvas scroll`), so the ground reaches the
   pane's foot.
+- **Charts with no look of the theme's are drawn as a designer would**: a `BarChart`'s bars are apart (at most 40
+  wide, 8 between) and rounded (4) over a light grid with its figures on the left (written values: a nice top, `0`,
+  `10`, `20`…); a `Donut`'s slices and a multi-series line's colors are steps of the theme's primary (they were a
+  fixed palette no theme had); a `LineChart`'s axis is fitted to its data (it started at 0 and flattened it).
 
 ### Fixed
 
