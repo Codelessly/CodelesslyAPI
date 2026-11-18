@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
+import 'package:codelessly_api/src/core/notation/prompt.dart' show notationPrompt;
 import 'package:test/test.dart';
 
 NotationResult _parse(String text, [NotationOptions options = const NotationOptions(openVocabulary: true)]) =>
@@ -370,6 +371,27 @@ define Rows
         'colors': {'ink': '#FF1F2A24', 'primaryText': '#FF000000'},
       }));
       expect(((_node(ds, 't')!['props'] as Map)['style'] as Map)['color'], '#FF000000');
+    });
+  });
+
+  group('D: the open prompt says what the notation has for what writers invented words for', () {
+    final prompt = notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1440), open: true);
+
+    test('a shortcut of the screen, the time, announcing, a search field; no search written as a Link', () {
+      expect(prompt, contains('- key mod+k onPress={focus search} on its own line (top level) is a shortcut of the whole screen'));
+      expect(prompt, contains(', now() (the time), '));
+      expect(prompt, contains('announce "{n} results" tells a screen reader'));
+      expect(prompt, contains('Input#search "Search" icon="search" @q is a search field'));
+      expect(prompt, isNot(contains('Link "Search"')));
+    });
+
+    test('what it says reads: the shortcut, the search field, now(), an announcement', () {
+      final r = _parse(
+          'state q=""\nstate n=0\nApp\n  Main\n    Nav\n      Heading "Orders"\n      Input#search "Search" icon="search" @q\n    Column\n      Text "{formatDate(now(), \\"h:mm a\\")}"\n      Text "{n} results" live\n      Button "Go" onTap={n=n+1; announce "{n} results"}\nkey mod+k onPress={focus search}\n',
+          const NotationOptions(width: 1440));
+      expect(r.issues, isEmpty);
+      final json = jsonEncode(r.document);
+      expect(json, allOf(contains('"keyDown"'), contains('"prefixIcon"'), contains('"announce"'), contains('now()')));
     });
   });
 }

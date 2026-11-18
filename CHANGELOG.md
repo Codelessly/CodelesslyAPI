@@ -35,6 +35,10 @@
   6 % lighter than the ground, hairlines and dividers its ink at 16 %, a selected or neutral fill its ink at 10 %, a
   sidebar's or a bar's items at rest its ink at 80 % (their icons 60 %); they kept a light theme's white cards,
   grey lines and grey items. (A control's accent colours are left as they were.)
+- **The open prompt says what the notation has for what round 11's writers invented words for**, in a line or a
+  phrase each: `key mod+k onPress={…}` (a shortcut of the whole screen), `announce "…"` and `Text … live` (a screen
+  reader), `now()` (the time), `Input#search "Search" icon="search" @q` (a search field; its example of a link that
+  stays in the bar is no longer a search). Nothing new is taught: each was there, left out of the open prompt.
 
 ### Fixed
 
