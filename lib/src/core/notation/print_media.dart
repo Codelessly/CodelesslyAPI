@@ -197,6 +197,8 @@ List<String> _candidates(List<String> path, Object? value, String type) {
     // One color: fill=.
     if (path.join('.') == 'decoration.fills' && value is List && value.length == 1 && value.single is Map && (value.single as Map).keys.join() == 'color')
       for (final v in _value((value.single as Map)['color'])) 'fill=$v',
+    // An Input's box's fill: fill= (it fills it too).
+    if (type == 'textField' && path.join('.') == 'props.decoration.fillColor') for (final v in _value(value)) 'fill=$v',
     // One stroke of a color: border=.
     if (path.join('.') == 'decoration.strokes' && value is List && value.length == 1 && value.single is Map && (value.single as Map).keys.join() == 'color')
       for (final v in _value((value.single as Map)['color'])) 'border=$v',

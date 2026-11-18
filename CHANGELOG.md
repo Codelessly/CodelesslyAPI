@@ -84,6 +84,36 @@ changes at a desktop's width.
   far end).
 - **A width rule on a line whose width is bound** (`w={listW} tablet.w=275 phone.w=fill`) holds where it says;
   the phone's `fill` was lost beside the binding and the pane kept the tablet's 275.
+Text input as writers write it: the text input pass of round 11, where the same 30 briefs were written in the
+notation and as a web app and the notation's composers, steppers and toolbar fields drew worse than the web's
+(codelessly_sdk `docs/research/text-input-round-11.md`). With the CodelesslySDK of the same pass.
+
+### Behaviour changes (read before upgrading)
+
+- **A multi-line `Input` in a row beside a button is a composer**: it starts at one line and grows to its
+  `maxLines` (`multiline` alone drew three empty lines), and it draws no label above it: its string is its
+  placeholder, or, beside a hint, its spoken name (`semanticLabel`). Lines the writer gave (`minLines=3`) are kept.
+  Round 11: the team chat's composer drew a label over a tall empty box (2 of the 3 notation builds).
+- **A field among icon buttons** (a stepper's `IconButton "remove"`, `Input "Reps"`, `IconButton "add"`; a
+  toolbar's) draws no label above it: its label is its hint, or its spoken name beside a hint, and its height
+  loses the label's room. A field in a row of other fields, or beside text buttons only, is as it was.
+  Round 11: 10 builds; the money tracker's amount drew "Amount" twice.
+- **A field in its own framed row is bare**: in a `Row` with a radius and a border or a fill (or a box holding that
+  row alone), beside a button and with nothing else beside it but icons and texts, the field draws no border and no
+  fill: the frame is its box (a bordered field drawn inside a bordered box), and the frame's line takes the accent
+  while the field has the focus (`focused.border`, unless the line writes its own focused look). No round 11 build
+  wrote that shape. A framed row of an icon and a field with no button (a document's search pill) is as it was.
+- **`fill`, `border` and `radius` on an `Input` are its box's** (its decoration's `fillColor`, `border` and
+  corners): on the node they drew nothing, and `radius` was left out. `border=none` with no fill is a bare field.
+  A state's word reads the same (`focused.fill=#FFEFF6FF`: the field's fill while it has the focus), and `print`
+  writes them back as these words.
+- **A multi-line field with `onSubmit` sends on Enter** and breaks the line on Shift+Enter (`textInputAction`
+  `send` unless one is written): Enter only broke the line, and `onSubmit` never ran from the keyboard.
+
+### Changed
+
+- The grammar prompt teaches the composer in one sentence, after the text area.
+- The reference's `Input` section says what `fill`, `border` and `radius` do on it, and the composer.
 
 ## 36.0.0
 

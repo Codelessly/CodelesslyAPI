@@ -2965,6 +2965,149 @@ class _Parser {
     }
   }
 
+  /// A text field in a row of buttons (the text input pass of round 11,
+  /// codelessly_sdk docs/research/text-input-round-11.md), as a writer
+  /// means it and as a web page draws it:
+  /// - beside a button, a multi-line field is a composer: it starts at one
+  ///   line and grows to its most (`multiline` alone: three lines tall,
+  ///   empty);
+  /// - a composer, a field among icon buttons (a toolbar's, a stepper's)
+  ///   and a field in a framed row have no room for a label above: the
+  ///   label is the hint, or, beside a hint, the field's spoken name;
+  /// - in a row with its own frame (a radius and a border or a fill) that
+  ///   holds the field and its buttons (and icons, texts) alone, the field is bare:
+  ///   the frame is its box (a bordered field drawn inside a bordered box);
+  /// - a multi-line field with onSubmit sends on Enter (Shift+Enter: a new
+  ///   line), where Enter only broke the line and onSubmit never ran.
+  void _fieldsBesideButtons() {
+    const buttons = {'iconButton', 'filledButton', 'outlinedButton', 'textButton', 'elevatedButton', 'floatingActionButton'};
+    const fields = {'textField', 'dropdown', 'datePicker', 'timePicker', 'dateTimeInput', 'checkbox', 'switch', 'slider', 'radio', 'segmentedButton'};
+    const quiet = {'icon', 'text', 'spacer', 'row', 'column', 'stack', 'image', ...buttons};
+    List<String> kids(String id) => [...?(nodes[id]?['children'] as List?)?.whereType<String>().where(nodes.containsKey)];
+    Iterable<String> types(String id) sync* {
+      yield '${nodes[id]?['type']}';
+      for (final k in kids(id)) {
+        yield* types(k);
+      }
+    }
+
+    bool framed(String id) {
+      final d = readMap(nodes[id]?['decoration']);
+      final r = d?['radius'];
+      final round = r is num ? r > 0 : r != null;
+      return round && ((d!['strokes'] as List?)?.isNotEmpty == true || (d['fills'] as List?)?.isNotEmpty == true);
+    }
+
+    void patch(String id, Json change) {
+      nodes[id] = mergePatch(nodes[id]!, change);
+      if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': change});
+    }
+
+    for (final id in [...nodes.keys]) {
+      final n = nodes[id]!;
+      if (n['type'] != 'textField') continue;
+      final props = readMap(n['props']) ?? const <String, Object?>{};
+      if (props['otpLength'] case final num o when o > 0) continue;
+      final maxLines = props['maxLines'];
+      final multiline = (maxLines is num && maxLines != 1) || (props['minLines'] is num && (props['minLines']! as num) > 1);
+      final change = <String, Object?>{};
+      final propsChange = <String, Object?>{};
+      final bindChange = <String, Object?>{};
+      // Enter sends, Shift+Enter breaks the line.
+      final submits = ((n['actions'] as List?) ?? const []).any((a) => a is Map && (a['trigger'] as Map?)?['type'] == 'submitted');
+      if (multiline && submits && !props.containsKey('textInputAction')) propsChange['textInputAction'] = 'send';
+      // Its place: up through the wrappers holding it alone, to a row.
+      var at = id;
+      for (var p = _parentOf[at]; p != null && const {'column', 'stack', 'row'}.contains(nodes[p]?['type']) && kids(p).length == 1; p = _parentOf[p]) {
+        at = p;
+      }
+      final row = _parentOf[at];
+      final inRow = row != null && nodes[row]?['type'] == 'row';
+      final beside = inRow ? [for (final k in kids(row)) if (k != at) ...types(k)] : const <String>[];
+      final alone = inRow && !beside.any(fields.contains);
+      final byButton = alone && beside.any(buttons.contains);
+      final composer = byButton && multiline;
+      final toolbar = byButton && beside.contains('iconButton');
+      // The frame: the row's own, or a box's holding the row alone.
+      String? frame;
+      // (Beside a button: a composer's frame. A framed row of an icon and a
+      // field alone, a document's search pill, is as it was written.)
+      if (byButton && beside.every(quiet.contains)) {
+        for (String? f = row; f != null; f = _parentOf[f]) {
+          if (framed(f)) {
+            frame = f;
+            break;
+          }
+          final up = _parentOf[f];
+          if (up == null || kids(up).length != 1 || !const {'column', 'stack', 'row'}.contains(nodes[up]?['type'])) break;
+        }
+      }
+      if (composer && _multilineWord.contains(id)) propsChange['minLines'] = 1;
+      if (composer || toolbar || frame != null) {
+        final d = readMap(props['decoration']) ?? const <String, Object?>{};
+        final binds = readMap(n['bind']) ?? const <String, Object?>{};
+        final label = d['labelText'];
+        final boundLabel = binds['props.decoration.labelText'];
+        final hasHint = (d['hintText'] is String && (d['hintText']! as String).isNotEmpty) || binds['props.decoration.hintText'] != null;
+        final labelled = (label is String && label.isNotEmpty) || boundLabel != null;
+        if (labelled) {
+          final decorationChange = <String, Object?>{'labelText': null, 'labelStyle': null};
+          if (hasHint) {
+            // Its name, spoken.
+            if (label is String && label.isNotEmpty && !props.containsKey('semanticLabel')) propsChange['semanticLabel'] = label;
+            if (boundLabel != null) {
+              bindChange['props.decoration.labelText'] = null;
+              if (!binds.containsKey('props.semanticLabel')) bindChange['props.semanticLabel'] = boundLabel;
+            }
+          } else if (boundLabel != null) {
+            bindChange['props.decoration.labelText'] = null;
+            bindChange['props.decoration.hintText'] = boundLabel;
+          } else {
+            decorationChange['hintText'] = label;
+          }
+          propsChange['decoration'] = decorationChange;
+          // The height it was given for its label above.
+          final layout = readMap(n['layout']);
+          final h = layout?['height'];
+          final extra = options.fieldLabel == null ? 20 : 23;
+          if (h is num && options.controlHeight != null && !multiline && (h == options.controlHeight! + extra || h == options.controlHeight! + extra + 18)) {
+            change['layout'] = {'height': h - extra};
+          }
+        }
+        if (frame != null && !d.containsKey('border') && !d.containsKey('filled')) {
+          final decorationChange = (propsChange['decoration'] as Map<String, Object?>?) ?? <String, Object?>{};
+          decorationChange['border'] = {'type': 'none'};
+          decorationChange['filled'] = false;
+          propsChange['decoration'] = decorationChange;
+          // The frame takes the focus ring the field no longer draws: its
+          // line in the accent while the field has the focus (CSS's
+          // :focus-within), unless the writer said its focused look.
+          final frameNode = nodes[frame]!;
+          final strokes = (readMap(frameNode['decoration'])?['strokes'] as List?) ?? const [];
+          final states = readMap(frameNode['states']) ?? const <String, Object?>{};
+          if (strokes.isNotEmpty && !states.containsKey('focused')) {
+            patch(frame, {
+              'states': {
+                'focused': {
+                  frame: {
+                    'decoration': {
+                      'strokes': [
+                        {...?readMap(strokes.first), 'color': options.accent},
+                      ],
+                    },
+                  },
+                },
+              },
+            });
+          }
+        }
+      }
+      if (propsChange.isNotEmpty) change['props'] = propsChange;
+      if (bindChange.isNotEmpty) change['bind'] = bindChange;
+      if (change.isNotEmpty) patch(id, change);
+    }
+  }
+
   void _reflow() {
     _rejoinWraps();
     // A page laid out for a phone is as written; a narrow overlay of a page
@@ -3427,6 +3570,10 @@ class _Parser {
   final _timers = <Json>[];
   final _parentOf = <String, String>{};
   final _slotOf = <String, String>{};
+
+  /// The text fields whose lines (`minLines` 3) the word `multiline` gave,
+  /// not the writer: a composer's starts at one ([_fieldsBesideButtons]).
+  final _multilineWord = <String>{};
 
   /// The item of an `each` → its list, for one that may yet share a row's width.
   final _acrossLists = <String, String>{};
@@ -5333,7 +5480,10 @@ class _Parser {
                 // Read below, with the line's own values and labels.
                 props[k] = v;
               } else if (k == 'multiline' && type == 'textField') {
-                if (v == true) kept.addAll({'minLines': 3, 'maxLines': 6});
+                if (v == true) {
+                  kept.addAll({'minLines': 3, 'maxLines': 6});
+                  _multilineWord.add(id);
+                }
               } else if (k == 'decoration' && type == 'text' && v is String) {
                 textLine = v;
               } else if ((k == 'color' || k == 'size') && type.endsWith('Button')) {
@@ -5464,6 +5614,7 @@ class _Parser {
           } else if (type == 'textField' && word == 'password') {
             props['obscureText'] = true;
           } else if (type == 'textField' && word == 'multiline') {
+            if (!props.containsKey('minLines')) _multilineWord.add(id);
             props.putIfAbsent('minLines', () => 3);
             props.putIfAbsent('maxLines', () => 6);
           } else if (type == 'row' && word == 'center' && const {'spaceBetween', 'spaceAround', 'spaceEvenly'}.contains(props['mainAxisAlignment'])) {
@@ -5861,6 +6012,44 @@ class _Parser {
         if (grid != null && (key == 'gap' || key == 'spacing')) {
           grid.gap = num.tryParse(raw) ?? 8;
           props['spacing'] = grid.gap;
+          continue;
+        }
+        // `Input "" "Message" fill=#FFF3F4F6 border=none radius=20`: the
+        // field's own box, its decoration's fill, border and corners (on the
+        // node they drew nothing, and radius was left out). border=none with
+        // no fill is a bare field: no border, no fill (the box around it is
+        // its frame).
+        // A state's or a media rule's word reads the same (`focused.fill=`
+        // on an Input: its box's fill while it has the focus).
+        if (type == 'textField' && !component && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
+          final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
+          Json border() => (field['border'] as Json?) ?? (field['border'] = <String, Object?>{'type': 'outline'});
+          final v = raw.startsWith('=') ? null : _value(raw);
+          if (key == 'fill') {
+            if (raw.startsWith('=')) {
+              field['filled'] = true;
+              bind['props.decoration.fillColor'] = _namedIn(_read(raw.substring(1)), 'fill');
+            } else if (v == 'none' || v == 'transparent') {
+              field['filled'] = false;
+            } else {
+              // (The color first: a state's print reads `fill=` from it.)
+              field['fillColor'] = _named(v, 'fill');
+              field['filled'] = true;
+            }
+          } else if (key == 'radius') {
+            if (raw.startsWith('=')) {
+              bind['props.decoration.border.borderRadius'] = _read(raw.substring(1));
+            } else if (v is num) {
+              border()['borderRadius'] = v;
+            }
+          } else if (v == 'none' || v == false || v == 0) {
+            border()['type'] = 'none';
+            if (!field.containsKey('fillColor') && !bind.containsKey('props.decoration.fillColor')) field['filled'] = false;
+          } else if (v is num) {
+            ((border()['borderSide'] as Json?) ?? (border()['borderSide'] = <String, Object?>{}))['width'] = v;
+          } else if (v != null) {
+            ((border()['borderSide'] as Json?) ?? (border()['borderSide'] = <String, Object?>{}))['color'] = _named(v, 'stroke');
+          }
           continue;
         }
         if (key == 'fill') {
@@ -8829,6 +9018,7 @@ class _Parser {
     _ownLegends();
     _feet();
     _endButtons();
+    _fieldsBesideButtons();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {
