@@ -3803,11 +3803,15 @@ class _Parser {
     }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
   }
 
+  /// The slot of [block] the lines under it go in.
+  static String _slotOfLines(_Open block) =>
+      const ['trailing', 'actions', 'action', 'end'].firstWhere(block.slots.contains, orElse: () => block.slots.first);
+
   /// The row in [block]'s slot (a ListRow's trailing, a SectionHeader's
   /// actions) that the lines under it go in, side by side: made the first
   /// time.
   String _slotRow(_Open block) {
-    final slot = const ['trailing', 'actions', 'action', 'end'].firstWhere(block.slots.contains, orElse: () => block.slots.first);
+    final slot = _slotOfLines(block);
     return block.slotRow ??= () {
       final id = '${block.id}${slot[0].toUpperCase()}${slot.substring(1)}';
       nodes[id] = {
@@ -4010,16 +4014,23 @@ class _Parser {
     // Lines under a block that takes none but has a slot (a ListRow's
     // trailing, a SectionHeader's or an EmptyState's actions): they go in
     // the slot, side by side in a row of their own.
-    if (parent != null && parent.slots.isNotEmpty && nodes[parent.id] != null) {
+    // A block whose slot is `children` (`slot children`, a `Slot` with no
+    // name in its body) takes them as its own children: that slot shows
+    // the call's children. (In a row of a slot named children they showed
+    // nothing, with no word: test 10, calendar 3 and storefront 3.)
+    final ownChildren = parent != null && parent.slots.isNotEmpty && _slotOfLines(parent) == 'children';
+    if (parent != null && parent.slots.isNotEmpty && nodes[parent.id] != null && !ownChildren) {
       final block = parent;
       parent = _Open(block.indent, _slotRow(block), 'row', condition: block.condition);
+    } else if (ownChildren && nodes[parent.id] != null) {
+      // Appended below, as any line under a node is.
     } else if (!options.openVocabulary && parent != null && parent.leaf && parent.written != null && catalog.widget(parent.written!) != null && nodes[parent.id] != null) {
       // A block that takes nothing under it: said, and the line is drawn
       // after it, where it would otherwise be lost.
       _issue(column, 'A ${parent.written} takes no lines under it (it has no children and no slot): write this line after it, at its own indent.');
       parent = _stack.reversed.where((o) => !o.leaf).firstOrNull;
     }
-    if (options.openVocabulary && parent != null && parent.leaf) {
+    if (options.openVocabulary && parent != null && parent.leaf && !ownChildren) {
       // Lines under a word that takes none: recorded, and drawn after it.
       _use('children', _srcPath.lastOrNull ?? parent.type, column, value: _srcWord);
       parent = _stack.reversed.where((o) => !o.leaf).firstOrNull;

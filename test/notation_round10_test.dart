@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
+import 'package:codelessly_api/src/core/catalog_json.dart' show catalogFromJson;
 import 'package:test/test.dart';
 
 NotationResult _parse(String text, [NotationOptions options = const NotationOptions()]) => parseNotation(text, catalog: standardCatalog, options: options);
@@ -195,6 +196,25 @@ Column
 ''');
       expect(r.issues, isEmpty);
       expect(jsonEncode(r.document), contains('MAILBOX'));
+    });
+  });
+
+  group('R66: a call of a component whose slot is children', () {
+    test('its lines are the call\'s children (what the slot shows), not a row in slots.children', () {
+      final band = catalogFromJson({
+        'widgets': [
+          {'type': 'Band', 'slots': ['children']},
+        ],
+      });
+      final catalog = standardCatalog + band;
+      final r = Catalog.run(catalog, () => parseNotation('''
+Column
+  Band#b
+    Text#t "Body"
+''', catalog: catalog));
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'b')['children'], ['t']);
+      expect(_node(r, 'b')['slots'], isNull);
     });
   });
 }
