@@ -9358,7 +9358,7 @@ class _Parser {
     for (final (start, end) in _spans(s)) {
       out
         ..write(s.substring(at, start))
-        ..write(_read(s.substring(start + 1, end - 1)));
+        ..write(_read(_quotedBreaks(s.substring(start + 1, end - 1))));
       at = end;
     }
     out.write(s.substring(at));
@@ -9405,13 +9405,47 @@ class _Parser {
         // A brace of a code sample shown as text (`import { Beacon } from …`,
         // `track('x', {\n  plan: 'pro',\n})`) reads nothing: it runs over
         // lines, or is a record written key: value.
-        final inner = s.substring(i + 1, end - 1);
-        final code = inner.contains('\n') || inner.contains(r'\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
+        // A line break inside a string of the expression (`'\n'` in a quoted
+        // text, which the text's own escapes made a break) is the
+        // expression's: it was printed raw with no word (test 9, mail).
+        final inner = _quotedBreaks(s.substring(i + 1, end - 1));
+        final around = _quotedBreaks(inner, outside: true);
+        final code = around.contains('\n') || around.contains(r'\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
         if (!code) out.add((i, end));
         i = end - 1;
       }
     }
     return out;
+  }
+
+  /// [expr] with each line break and tab inside a string literal of it
+  /// written as its escape (`'\n'`); [outside]: [expr] with the insides of
+  /// its string literals taken out (the code around them).
+  static String _quotedBreaks(String expr, {bool outside = false}) {
+    if (!outside && !expr.contains('\n') && !expr.contains('\t')) return expr;
+    final out = StringBuffer();
+    String? quote;
+    for (var i = 0; i < expr.length; i++) {
+      final c = expr[i];
+      if (quote != null) {
+        if (c == quote && expr[i - 1] != r'\') {
+          quote = null;
+          out.write(c);
+        } else if (outside) {
+          continue;
+        } else if (c == '\n') {
+          out.write(r'\n');
+        } else if (c == '\t') {
+          out.write(r'\t');
+        } else {
+          out.write(c);
+        }
+        continue;
+      }
+      if (c == "'" || c == '"') quote = c;
+      out.write(c);
+    }
+    return out.toString();
   }
 
   (bool, Object?) _literal(String raw) {

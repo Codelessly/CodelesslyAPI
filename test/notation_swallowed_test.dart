@@ -61,4 +61,21 @@ Row
     expect((_node(r, 't')['layout'] as Map)['squeezable'], false, reason: jsonEncode(_node(r, 't')));
     expect((_node(r, 'u')['layout'] as Map)['squeezable'], true);
   });
+
+  test(r"'\n' in an expression inside a quoted text is the expression's (it was printed raw)", () {
+    final r = _parse(r'''
+state body="a"
+Column
+  Text#t "{replace(body, '\n', ' ')}"
+  Text#u "Body: {replace(body, '\n', ' ')}."
+  Text#v "line1\nline2"
+''');
+    expect(r.issues, isEmpty);
+    expect((_node(r, 't')['props'] as Map)['text'], r"${= replace(body, '\n', ' ')}");
+    expect((_node(r, 'u')['props'] as Map)['text'], r"Body: ${= replace(body, '\n', ' ')}.");
+    expect((_node(r, 'v')['props'] as Map)['text'], 'line1\nline2');
+    // And it prints to lines that read back as the same document.
+    final again = _parse(printNotation(r.document, catalog: standardCatalog));
+    expect(jsonEncode(again.document), jsonEncode(r.document));
+  });
 }
