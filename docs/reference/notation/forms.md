@@ -293,7 +293,8 @@ Flutter `TextField`. Leave its height to hug: every input (text field, dropdown,
 - Written `Input`; also `CodeInput`, `NumberInput`. Level 1 (Widget catalog).
 - `Input "…"` sets `props.decoration.labelText`; a second string sets `props.decoration.hintText`.
 - Takes no lines under it.
-- Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
+- Decoration keys (`fill`, `border`, `radius`, `effects`…): the field's own box: `fill=#FFF3F4F6` its fill, `border=#FFD1D5DB` its line (`border=none`: none, and no fill unless one is written: a bare field), `radius=20` its corners; else only `effects` (blurs).
+- In a row beside buttons a multi-line `Input` is a composer: it starts at one line and grows (to `maxLines`), and its string is its placeholder (beside a hint, its spoken name); a field among icon buttons has no label above it either, and one beside a button in a framed row (`Box radius=12 border` around a `Row` of it and its buttons) is drawn bare. A multi-line field with `onSubmit` sends on Enter and breaks the line on Shift+Enter (`textInputAction=send`).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
 
 | Key | Type | Default | Level | Description |
@@ -1151,15 +1152,15 @@ Column#page scroll pad=24 w={"fill":390} h={"fill":760}
       ListView#summaryList w={"fill":318} h={"hug":40} scrollable=false gap=2
         each item in form.errors
           Text#summaryItem "{item.label}: {item.message}" color=#FF991B1B w={"fill":318} h={"hug":18}
-    Input#name "Name" w={"fill":342} h={"hug":56} initialValue={name} decoration.border={"type":"outline","borderRadius":8} validator="${= trim(value) == '' ? 'Enter your name.' : ''}"
-    Input#email "Email" w={"fill":342} h={"hug":56} initialValue={email} decoration.border={"type":"outline","borderRadius":8} keyboardType=emailAddress validator="${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"
+    Input#name "Name" radius=8 w={"fill":342} h={"hug":56} initialValue={name} validator="${= trim(value) == '' ? 'Enter your name.' : ''}"
+    Input#email "Email" radius=8 w={"fill":342} h={"hug":56} initialValue={email} keyboardType=emailAddress validator="${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"
     Text.heading#budgetLabel "Budget" w={"fill":342} h={"hug":20}
     Row#budget gap=8 w={"fill":342} h={"hug":32} radioGroup.groupValue={budget} crossAxisAlignment=null node.radioGroup.groupValue=small onChange={budget="{result}"}
       Radio#budgetSmall w=24 h=24 value=small
       Text#budgetSmallLabel "Under $10k" size=14 color=#FF374151 w={"hug":90} h={"hug":20}
       Radio#budgetLarge w=24 h=24 value=large
       Text#budgetLargeLabel "$10k or more" size=14 color=#FF374151 w={"hug":90} h={"hug":20}
-    Input#message "Message" w={"fill":342} h={"hug":120} initialValue={message} decoration.alignLabelWithHint=true decoration.border={"type":"outline","borderRadius":8} maxLines=5 minLines=3 validator="${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"
+    Input#message "Message" radius=8 w={"fill":342} h={"hug":120} initialValue={message} decoration.alignLabelWithHint=true maxLines=5 minLines=3 validator="${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"
     Button#send "Send message" w={"fill":342} h=48 onTap={validate node=contactForm; if condition={"left":"${result}","op":"isTrue"} then={sent=true}}
   Column#thanks gap=6 pad=16 w={"fill":342} h={"hug":80} fill=#FFF0FDF4 radius=8 visible={sent}
     Text.heading3#thanksTitle "Thanks, {name}!" weight=700 color=#FF166534 w={"fill":310} h={"hug":24}
