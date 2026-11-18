@@ -251,6 +251,7 @@ Flutter `TextField` (a `TextFormField` when it validates).
 | `min` | double | unset |  | Bounds and increment for a number field. Up/Down step by `step`, Page Up/Down by ten steps, and Home/End reach the bounds when supplied. |
 | `max` | double | unset |  |  |
 | `step` | double | `1` | ≥ 0.000001 |  |
+| `steppers` | bool | `false` |  | A number field with a minus button before its value and a plus button after it, inside its one border with a rule between each: a press steps the value by `step` within `min` and `max` (a button at its bound is drawn disabled and takes no press), as Up and Down do. |
 | `semanticLabel` | String | `""` |  | An accessible name when the visible label is drawn by a parent block. |
 | `textInputAction` | [TextInputAction](values.md#enum-TextInputAction) | unset |  |  |
 | `textCapitalization` | [TextCapitalization](values.md#enum-TextCapitalization) | `"none"` | `none`, `words`, `sentences`, `characters` |  |

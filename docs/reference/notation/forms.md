@@ -58,6 +58,36 @@ Column gap=12
   SegmentedButton @plan segments=[{"value":"month","label":"month"},{"value":"year","label":"year"}]
 ```
 
+<a id="forms-a-number-with-its-buttons"></a>
+## A number with its buttons
+
+`NumberInput @seats min=1 max=500` is a number field with a minus button before the number and a plus button after
+it, all inside the field's one border, a rule between each part: a press steps the number by `step=` (1) within
+`min=` and `max=`, and a button at its bound is drawn disabled and takes no press. Focused, Up and Down step it too,
+Page Up and Page Down ten steps, Home and End go to the bounds. It is as high as the other inputs (a fixed `h=`
+picks another step of the control scale) and 112 wide unless it says. `Input … keyboardType=number steppers=true`
+is the same field; a design system's own `NumberInput` comes first.
+
+```notation expands
+state seats=48
+Row gap=12
+  NumberInput @seats min=45 max=500 semanticLabel="Seats"
+  Text "{seats} seats"
+```
+
+It reads as:
+
+```notation
+state seats=48
+Row gap=12
+  Input w=112 @seats min=45 max=500 semanticLabel=Seats keyboardType=number steppers=true textAlign=center
+  Text "{seats} seats"
+```
+
+A field of your own between two buttons looks whole when the border is the Row's: `Row border=… radius=6
+clip=antiAlias` around `IconButton "remove" border-right=…`, `Input … decoration.border.type=none` and
+`IconButton "add" border-left=…`. A box's border is drawn over what it holds, so the field's fill never covers it.
+
 <a id="forms-validation"></a>
 ## Validation
 
@@ -243,7 +273,7 @@ Flutter `FloatingActionButton`.
 
 Flutter `TextField`. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
-- Written `Input`; also `CodeInput`. Level 1 (Widget catalog).
+- Written `Input`; also `CodeInput`, `NumberInput`. Level 1 (Widget catalog).
 - `Input "…"` sets `props.decoration.labelText`; a second string sets `props.decoration.hintText`.
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
@@ -262,6 +292,7 @@ Flutter `TextField`. Leave its height to hug: every input (text field, dropdown,
 | `min` | number |  | 1 | Bounds and increment for a number field. Up/Down step by `step`, Page Up/Down by ten steps, and Home/End reach the bounds when supplied. |
 | `max` | number |  | 1 |  |
 | `step` | number (≥ 0.000001) | `1` | 1 |  |
+| `steppers` | `true`/`false` | `false` | 1 | A number field with a minus button before its value and a plus button after it, inside its one border with a rule between each: a press steps the value by `step` within `min` and `max` (a button at its bound is drawn disabled and takes no press), as Up and Down do. |
 | `semanticLabel` | text | `""` | 1 | An accessible name when the visible label is drawn by a parent block. |
 | `textInputAction` | [TextInputAction](values.md#enum-TextInputAction) |  | 1 |  |
 | `textCapitalization` | `none` `words` `sentences` `characters` | `none` | 1 |  |

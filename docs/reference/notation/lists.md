@@ -38,20 +38,33 @@ Grid cols=3
     Text "{item}"
 ```
 
-```notation expands
+```notation width=1280 expands
 state orders=[{"name":"Ada","total":3}]
-DataTable rows={orders} columns=[{"key":"name","label":"Customer"},{"key":"total","label":"Total"}]
+Page
+  Section
+    Table o in orders columns=["Name",{"key":"total","label":"Total","align":"end"}]
 ```
 
 It reads as:
 
-```notation
+```notation width=1280
 state orders=[{"name":"Ada","total":3}]
-TableView h=320 data={orders} columns=[{"key":"name","label":"Customer"},{"key":"total","label":"Total"}] rowHeight=48 headerHeight=48 fillWidth=true sortable=true gridLineColor=#FFE5E7EB
-  slot cell
-    Text#tableView1Cell "{item.value}" pad=[12,0,12,0]
-  slot columnHeader
-    Text.strong#tableView1Header "{item.label}" pad=[12,0,12,0]
+Column stretch scroll
+  Column center pad=[24,64,24,64]
+    Column gap=32 w=fill maxWidth=1120
+      Column fill=#FFFFFFFF border=#FFE5E7EB radius=8 clip=antiAlias
+        Row gap=16 pad=[16,0,16,0] h=40 fill=#FFF8FAFC border-bottom=#FFE5E7EB sticky
+          Row gap=4 grow
+            Text.panelTitle "Name" color=#FF9CA3AF maxLines=1
+          Row gap=4 end grow
+            Text.panelTitle "Total" color=#FF9CA3AF maxLines=1
+        Column
+          each item in orders
+            Row gap=16 pad=[16,6,16,6] minHeight=44 border-bottom=#FFE5E7EB hovered.fill=#FFF8FAFC
+              Row grow
+                Text "{item.name}" maxLines=1 overflow=ellipsis
+              Row end grow
+                Text "{item.total}" tabularFigures=true maxLines=1 overflow=ellipsis
 ```
 
 ```notation expands
@@ -74,6 +87,9 @@ Column
       Text "{item.name}"
 ```
 
+A `Handle` is as big as its line says and where it is written: the list adds no room around it. Unwritten it is a
+44 px target on a phone and a 24 px grip on a page 700 wide or wider (a touch still lands on it in 44 × 44).
+
 ```notation expands
 state page=0
 Pages @page h=160
@@ -90,61 +106,106 @@ Pages h=160 @page
   Text "Two" h=fill
 ```
 
-<a id="lists-a-table-you-sort-and-filter"></a>
-## A table you sort and filter
+<a id="lists-a-table-of-records"></a>
+## A table of records
 
-The rows shown are a formula variable over the data: `filter` keeps the rows the search and the status let through,
-`sortBy` puts them in the order of the column picked. The controls only set variables (`@search`, `@status`); a
-header's tap picks its column, or turns the order round when it is picked already. `hovered.fill=` marks the row
-under the pointer ([responsive.md](responsive.md#responsive-states)), and `if` says when nothing matches.
+Rows of records with the same fields are a `Table`: `Table o in orders columns=[…]` writes a finished table, the
+way a careful hand would: a frame on the theme's surface with a hairline on every side and rounded corners that
+clip its rows, a header band (the labels in the caption's ink, a rule under it, kept in view while the page
+scrolls), and a row per record with a rule under it and the band's fill under the pointer. Do not build a table
+from a Column of Rows: write `Table`.
 
-```notation expands
-state orders=[{"name":"Ada","total":30,"status":"Paid"},{"name":"Lin","total":12,"status":"Due"}]
+- `columns=[…]`: each column a label (`"Name"`: its key is `name`) or `{"key":…, "label":…, "w":120,
+  "align":"end", "sort":false}`. A column with no `w` grows; `"align":"end"` puts its cells at the end in
+  tabular figures (amounts, counts, dates in figures).
+- The lines under the Table are its cells, one per column in order, each reading the record by the Table's name
+  (`{o.total}`): a picture beside a name, a chip, a menu button. Columns left at the end with no line show their
+  key's value.
+- `sort=@sortKey` (a text variable, the key sorted by; `-key` the other way): a press on a header sorts by its
+  column, again the other way; an arrow marks the column sorted, a quiet mark the others.
+- `select=@chosen` (a list variable of the rows' `id`s): a column of checkboxes leads; the header's picks every row
+  or none; a row is chosen by a press, Shift takes a range, Ctrl or Cmd adds, and is tinted with the accent.
+- `compact` makes the rows denser (36 instead of 44), `comfortable` roomier (52); `h=400` gives the table a height
+  its rows scroll in under the header; `empty="No orders match."` is said when there are no rows; `maxw=`, `w=`
+  and the other keys of a Column are the frame's.
+
+```notation width=1280 expands
+state orders=[{"id":"o1","name":"Ada Byron","status":"Paid","total":30},{"id":"o2","name":"Lin Chen","status":"Due","total":12}]
 state search=""
 state status="All"
 state sortKey="name"
-state desc=false
-state shown:list={sortBy(filter(orders, r => (status == 'All' || r.status == status) && contains(lower(r.name), lower(search))), sortKey, desc ? 'desc' : 'asc')}
-Column gap=12
-  Row gap=8
-    Input "Search" @search grow
-    Select @status items=["All","Paid","Due"] w=140
-  Row pad=[12,8,12,8]
-    Text.strong "{sortKey == 'name' ? (desc ? 'Customer ↓' : 'Customer ↑') : 'Customer'}" grow onTap={desc={sortKey == 'name' && !desc}; sortKey="name"}
-    Text.strong "{sortKey == 'total' ? (desc ? 'Total ↓' : 'Total ↑') : 'Total'}" w=80 onTap={desc={sortKey == 'total' && !desc}; sortKey="total"}
-  each item in shown
-    Row pad=[12,8,12,8] hovered.fill=#FFF3F4F6
-      Text "{item.name}" grow
-      Text "{item.total}" w=80
-  if length(shown) == 0
-    Text.muted "No orders match."
+state chosen=[]
+state shown:list={filter(orders, r => (status == 'All' || r.status == status) && contains(lower(r.name), lower(search)))}
+Page
+  Section
+    Row gap=8
+      Input "" "Search" @search w=280
+      Select @status items=["All","Paid","Due"] w=140
+    Table#orders o in shown columns=[{"key":"name","label":"Customer"},{"key":"status","label":"Status","w":120},{"key":"total","label":"Total","w":100,"align":"end"}] sort=@sortKey select=@chosen empty="No orders match."
+      Row gap=10
+        Avatar "AB" size=28
+        Text.strong "{o.name}"
+      Badge "{o.status}"
 ```
 
 It reads as:
 
-```notation
-state orders=[{"name":"Ada","total":30,"status":"Paid"},{"name":"Lin","total":12,"status":"Due"}]
+```notation width=1280
+state orders=[{"id":"o1","name":"Ada Byron","status":"Paid","total":30},{"id":"o2","name":"Lin Chen","status":"Due","total":12}]
 state search=""
 state status="All"
 state sortKey="name"
-state desc=false
-state shown:list={sortBy(filter(orders, r => (status == 'All' || r.status == status) && contains(lower(r.name), lower(search))), sortKey, desc ? 'desc' : 'asc')}
-Column gap=12
-  Row gap=8
-    Input "" hint=Search grow @search
-    Select w=140 @status items=["All","Paid","Due"]
-  Row pad=[12,8,12,8]
-    Text.strong "{sortKey == 'name' ? (desc ? 'Customer ↓' : 'Customer ↑') : 'Customer'}" grow onTap={desc={sortKey == "name" && !desc}; sortKey=name}
-    Text.strong "{sortKey == 'total' ? (desc ? 'Total ↓' : 'Total ↑') : 'Total'}" w=80 onTap={desc={sortKey == "total" && !desc}; sortKey=total}
-  each item in shown
-    Row pad=[12,8,12,8] hovered.fill=#FFF3F4F6
-      Text "{item.name}" grow
-      Text "{item.total}" w=80
-  Text.muted "No orders match." visible={length(shown) == 0}
+state chosen=[]
+state shown:list={filter(orders, r => (status == 'All' || r.status == status) && contains(lower(r.name), lower(search)))}
+state chosenAnchor:decimal=-1
+Column stretch scroll
+  Column center pad=[24,64,24,64]
+    Column gap=32 w=fill maxWidth=1120
+      Row gap=8
+        Input "" hint=Search w=280 @search
+        Select w=140 @status items=["All","Paid","Due"]
+      Column#orders fill=#FFFFFFFF border=#FFE5E7EB radius=8 clip=antiAlias
+        Row#orders-head gap=16 pad=[16,0,16,0] h=40 fill=#FFF8FAFC border-bottom=#FFE5E7EB sticky
+          Row w=16
+            Checkbox w=16 h=16 tooltip="Select all" value={length(chosen) > 0 && length(chosen) == length(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')) ? true : (length(chosen) == 0 ? false : null)} compact=true tristate=true onChange={chosen="{(length(chosen) == length(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')) ? [] : map(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc'), x => coalesce(x.id, x)))}"}
+          Row gap=4 grow onTap={sortKey=(sortKey == "name" ? "-name" : "name")}
+            Text.panelTitle "Customer" color=#FF9CA3AF maxLines=1
+            Icon "{sortKey == '-name' ? 'arrow_downward' : 'arrow_upward'}" visible={replace(sortKey, '-', '') == 'name'} size=14 color=#FF2563EB
+            Icon "unfold_more" opacity=0.4 visible={replace(sortKey, '-', '') != 'name'} size=14
+          Row gap=4 w=120 onTap={sortKey=(sortKey == "status" ? "-status" : "status")}
+            Text.panelTitle "Status" color=#FF9CA3AF maxLines=1
+            Icon "{sortKey == '-status' ? 'arrow_downward' : 'arrow_upward'}" visible={replace(sortKey, '-', '') == 'status'} size=14 color=#FF2563EB
+            Icon "unfold_more" opacity=0.4 visible={replace(sortKey, '-', '') != 'status'} size=14
+          Row gap=4 end w=100 onTap={sortKey=(sortKey == "total" ? "-total" : "total")}
+            Text.panelTitle "Total" color=#FF9CA3AF maxLines=1
+            Icon "{sortKey == '-total' ? 'arrow_downward' : 'arrow_upward'}" visible={replace(sortKey, '-', '') == 'total'} size=14 color=#FF2563EB
+            Icon "unfold_more" opacity=0.4 visible={replace(sortKey, '-', '') != 'total'} size=14
+        Column#orders-body
+          ListView data={sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')} scrollable=false gap=0 focusGroup.axis=vertical focusGroup.wrap=false onKeyDown(key=mod+a)={chosen="{map(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc'), x => coalesce(x.id, x))}"; announce "{length(chosen)} selected"}
+            Column#listView1Item selected={contains(chosen, coalesce(item.id, item))} onTap={chosen="{(result.shift && chosenAnchor >= 0 ? map(slice(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc'), min(chosenAnchor, index), max(chosenAnchor, index) + 1), x => coalesce(x.id, x)) : (result.meta ? (contains(chosen, coalesce(item.id, item)) ? without(chosen, coalesce(item.id, item)) : append(chosen, coalesce(item.id, item))) : [coalesce(item.id, item)]))}"; chosenAnchor=(result.shift && chosenAnchor >= 0 ? chosenAnchor : index); announce "{length(chosen)} selected"}
+              Row#orders-row gap=16 pad=[16,6,16,6] minHeight=44 border-bottom=#FFE5E7EB selected={contains(chosen, coalesce(item.id, item))} hovered.fill=#FFF8FAFC selected.fill=#FFE9EFFD
+                Row w=16
+                  Checkbox w=16 h=16 readOnly value={contains(chosen, coalesce(item.id, item))} compact=true focusable=false
+                Row gap=8 grow
+                  Row gap=10
+                    Column middle center w=28 layout.height=28 fill=#FFE5E7EB radius=14.0
+                      Text.strong#column4Text "AB" size=11.0
+                    Text.strong "{item.name}"
+                Row gap=8 w=120
+                  Row center pad=[8,0,8,0] h=20 fill=#FFF3F4F6 border=#FFE5E7EB radius=5
+                    Text.muted "{item.status}" size=11 weight=500 w=hug
+                Row end w=100
+                  Text "{item.total}" tabularFigures=true maxLines=1 overflow=ellipsis
+        Column center pad=32 visible={length(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')) == 0}
+          Text.caption "No orders match."
 ```
 
-`TableView` (also written `DataTable`) draws a table from `data={rows}` and `columns=[…]` itself, with
-`sortable=true` for headers that sort; the hand-made one above is for a table whose rows and headers are your own.
+A table that scrolls on both axes and builds only the cells in view (a timetable, a sheet of thousands of cells) is
+`DataTable rows={orders} columns=[…]` (`TableView`): every cell is a text of its key's value.
+
+A table of your own (a Column of Rows) gets the same frame from the keys: `border=… radius=8 clip=antiAlias` on
+the Column, `border-bottom=…` on each Row. A box's border is drawn over what it holds, so the rows' own fills
+never cover its sides, and `clip` keeps them inside its rounded corners.
 
 <a id="lists-a-list-of-its-own-line"></a>
 ## A list of its own line

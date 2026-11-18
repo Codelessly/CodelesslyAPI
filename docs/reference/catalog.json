@@ -3059,6 +3059,14 @@
           "doc": ""
         },
         {
+          "key": "steppers",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "A number field with a minus button before its value and a plus button after it, inside its one border with a rule between each: a press steps the value by `step` within `min` and `max` (a button at its bound is drawn disabled and takes no press), as Up and Down do."
+        },
+        {
           "key": "semanticLabel",
           "type": "String",
           "kind": "string",

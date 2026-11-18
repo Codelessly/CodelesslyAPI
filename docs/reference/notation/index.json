@@ -2,7 +2,7 @@
   "version": "35.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 3961
+    "words": 4022
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 3961
+      "words": 4022
     },
     {
       "topic": "notation-a-line",
@@ -25,7 +25,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-words",
       "title": "Words",
-      "words": 502
+      "words": 559
     },
     {
       "topic": "notation-words-every-line-takes",
@@ -67,7 +67,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-lists-and-conditions",
       "title": "Lists and conditions",
-      "words": 112
+      "words": 116
     },
     {
       "topic": "notation-pages-at-other-widths",
@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 11930
+      "words": 12202
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -318,6 +318,13 @@
       "anchor": "forms-a-control-and-its-value",
       "title": "A control and its value",
       "words": 143
+    },
+    {
+      "topic": "forms-a-number-with-its-buttons",
+      "file": "forms.md",
+      "anchor": "forms-a-number-with-its-buttons",
+      "title": "A number with its buttons",
+      "words": 200
     },
     {
       "topic": "forms-validation",
@@ -331,7 +338,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9247
+      "words": 9311
     },
     {
       "topic": "forms-behaviors",
@@ -367,21 +374,21 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 6083
+      "words": 6731
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 198
+      "words": 300
     },
     {
-      "topic": "lists-a-table-you-sort-and-filter",
+      "topic": "lists-a-table-of-records",
       "file": "lists.md",
-      "anchor": "lists-a-table-you-sort-and-filter",
-      "title": "A table you sort and filter",
-      "words": 323
+      "anchor": "lists-a-table-of-records",
+      "title": "A table of records",
+      "words": 871
     },
     {
       "topic": "lists-a-list-of-its-own-line",
@@ -675,14 +682,14 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 2801
+      "words": 2802
     },
     {
       "topic": "navigation-page-frames",
       "file": "navigation.md",
       "anchor": "navigation-page-frames",
       "title": "Page frames",
-      "words": 375
+      "words": 376
     },
     {
       "topic": "navigation-over-the-page",
