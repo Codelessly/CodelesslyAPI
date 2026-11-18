@@ -46,7 +46,8 @@ What a writer from the web expects that is otherwise here:
   `onKeyDown` that reads `result.key` (`result.key == 'Arrow Down'`: a key's name as the keyboard gives it, with its
   space; `result.shift`, `result.alt`, `result.meta`).
 - While a dialog (a canvas opened with `openModal`) is open, its own `key` lines run and the page's under it do not.
-- A letter is its own key with Shift or without: `key j` is not Shift+J; write `key shift+j` for that.
+- A letter is its own key with Shift or without: `key j` is not Shift+J; write `key shift+j` for that. A sign typed
+  with Shift is written as itself: `key ?`, `key !` (not `key shift+/`).
 - `focus search` reaches a field inside a component the page calls when it is the only one of that id on screen;
   `focus filters/search` names it by the call's id (`FilterBar#filters`) and its own.
 - The Tab order is the order of the lines; nothing reorders it.

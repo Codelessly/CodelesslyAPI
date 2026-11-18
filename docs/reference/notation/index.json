@@ -524,7 +524,7 @@
       "anchor": "page-interaction",
       "title": "Interaction",
       "summary": "Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches.",
-      "words": 3500
+      "words": 3516
     },
     {
       "topic": "interaction-drag-and-drop",
@@ -545,7 +545,7 @@
       "file": "interaction.md",
       "anchor": "interaction-focus-and-the-keyboard",
       "title": "Focus and the keyboard",
-      "words": 299
+      "words": 315
     },
     {
       "topic": "interaction-behaviors",
@@ -703,7 +703,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 3682
+      "words": 3704
     },
     {
       "topic": "navigation-page-frames",
@@ -717,7 +717,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 400
+      "words": 422
     },
     {
       "topic": "navigation-screens",
