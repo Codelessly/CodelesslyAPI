@@ -2317,6 +2317,9 @@ class _Parser {
   /// ([_mediaRules]): its own rules are not read again.
   bool _mediaLine = false;
 
+  /// Whether a state named item read inside an each was said.
+  bool _itemSaid = false;
+
   /// Line [base]'s media rules (docs/design/22 section 2.4): `hide=`/`show=`
   /// as they are, and each run of words with one condition (`phone.pad=16
   /// phone.gap=8`) a rule whose patch is what those words change on the line,
@@ -3839,6 +3842,12 @@ class _Parser {
       for (final open in _stack)
         if (open.each != null) open.each!,
     ];
+    // A state named `item` read inside an each is that each's copy (the
+    // document's name for it): the state cannot be read there. Said once.
+    if (eaches.isNotEmpty && !eaches.contains('item') && variables.containsKey('item') && !_itemSaid && _rename(line, 'item', 'item_') != line) {
+      _itemSaid = true;
+      _issue(indent + 1, 'item inside an each is the copy it repeats (each ${eaches.last} in … is item in the document), so the state item cannot be read here: name the state otherwise (state itemRecord=…).');
+    }
     for (var k = 0; k < eaches.length; k++) {
       final around = eaches.length - 1 - k;
       final to = around == 0 ? 'item' : '${'parent.' * (around - 1)}parent.item';
@@ -4532,6 +4541,8 @@ class _Parser {
     int sliderEndColumn = 0;
     String? textLine;
     num? avatarSize;
+    // `Avatar "{p.name}" initials="MR"`: the letters it shows, as written.
+    String? avatarInitials;
     String? imageFit;
     Json? buttonLook;
     String? gaugeUnit;
@@ -5370,7 +5381,10 @@ class _Parser {
         // two is lost, whichever it is.
         // (A line read again with a rule's or a state's words after its own
         // has them over its own: `hovered.fill=…` is no second fill=.)
-        if (!keysWritten.add(key) && !_mediaLine) _issue(col,'$key= is written twice on this line: one of them is lost. Write it once.');
+        // An event with its trigger's fields is one by those fields too:
+        // `onKeyDown(key=ArrowDown)={…} onKeyDown(key=ArrowUp)={…}` are two.
+        final written2 = withFields == null ? key : '$key(${withFields.$2.replaceAll(' ', '')})';
+        if (!keysWritten.add(written2) && !_mediaLine) _issue(col, '$written2= is written twice on this line: one of them is lost. Write it once.');
         if (written == 'CodeInput' && (key == 'length' || key == 'digits')) key = key == 'length' ? 'otpLength' : 'otpDigitsOnly';
         // key={expression}, onTap={…}: the colon is not the grammar's.
         if (key.contains(':')) {
@@ -5803,6 +5817,10 @@ class _Parser {
         }
         if (key == 'size' && ours && written == 'Avatar' && num.tryParse(raw) != null) {
           avatarSize = num.parse(raw);
+          continue;
+        }
+        if (key == 'initials' && ours && written == 'Avatar') {
+          avatarInitials = _interpolate(raw.startsWith('=') ? '{${raw.substring(1)}}' : _unquoted(raw));
           continue;
         }
         // A slider's step is how many equal steps its range has.
@@ -7527,8 +7545,12 @@ class _Parser {
       final reads = avatarName.contains(r'${') || avatarName.contains('{');
       final words = avatarName.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
       final whole = RegExp(r'^\$?\{(?:=\s*)?([^{}]+)\}$').firstMatch(avatarName.trim());
-      final initials = whole != null
-          ? _formula("upper(join(map(take(split(trim(text(${whole[1]!.trim()})), ' '), 2), w => left(w, 1)), ''))")
+      // One word read from the state ("MR", a name's initials worked out
+      // before) keeps two letters, as a written one does.
+      final initials = avatarInitials != null
+          ? avatarInitials
+          : whole != null
+          ? _formula("upper(length(split(trim(text(${whole[1]!.trim()})), ' ')) == 1 ? left(trim(text(${whole[1]!.trim()})), 2) : join(map(take(split(trim(text(${whole[1]!.trim()})), ' '), 2), w => left(w, 1)), ''))")
           : reads || words.isEmpty
               ? avatarName
               : words.length == 1

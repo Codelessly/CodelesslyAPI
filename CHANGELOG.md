@@ -76,6 +76,14 @@
 - **Notation**: a key the writer wrote wins over a page word's own (`Sidebar … h=fill`, `Table … radius=0
   border=rule w=1030`): the word's is left out, with no issue. Before, each was "written twice" though written once
   (test 10: 36 runs). A key written twice by the writer is still said.
+- **Custom paint**: a node's `painter` is drawn over the node's own fill and border and under its children (the
+  renderer, CodelesslySDK). Before, a filled node hid its painter whole, silently (test 10: 38 runs; 19 showcase
+  documents drew only their fills). A `foregroundPainter` line may stand under the node beside `customPaint`.
+- **Notation**: several `onKeyDown(key=…)` on one line are several reactions, with no issue (only the same key
+  twice is said); `Avatar … initials="MR"` (or `initials={p.ini}`) shows those letters, and a one-word name read from
+  the state keeps two letters; a state named `item` read inside an `each` (where `item` is the copy) is said; `App`
+  below a page's header (or in a component) is a region of panes (`Row` of Sidebar, Main that scrolls, Pane) where
+  it was "No node type"; `NavSection` is a section label outside a Sidebar too.
 
 ## 35.0.0
 

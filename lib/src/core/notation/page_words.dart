@@ -910,6 +910,16 @@ final class PageWords {
       open(frame: 'App');
       return out..add((indent: at, text: 'Row${_role('app')}$mark w=fill h=fill stretch${parts.all}'));
     }
+    // `App grow` under a page's header (or in a component): a region of
+    // panes side by side, taking the room its column leaves; its Sidebar,
+    // Main and Pane are as in a window (Main scrolls), with no window's
+    // drawer or phone bar of its own.
+    if ((word == 'App' || word == 'AppShell' || word == 'Window') && indent > 0 && !isComponent(word)) {
+      if (parts.hasWord('keep')) ownDrawer = true;
+      open(frame: 'App');
+      final sized = parts.has('h') || parts.hasWord('grow');
+      return out..add((indent: at, text: 'Row$mark w=fill stretch${sized ? '' : ' grow'}${parts.all}'));
+    }
     final inApp = root == 'App' || (parent?.frame == 'Sidebar' || parent?.frame == 'Main' || parent?.frame == 'Pane');
     // The foot of an app's window: a bar that stays in view at the bottom of
     // Main while what is above it scrolls (a now-playing bar, a composer, a
@@ -1060,8 +1070,9 @@ final class PageWords {
           if (shortcut != null) (indent: at + 2, text: 'Text $shortcut size=11 color=$faint'),
         ]);
     }
-    // A sidebar's parts: the label over a group of its items, and its foot.
-    if (parent?.frame == 'Sidebar' && _sections.contains(word) && !isComponent(word)) {
+    // A sidebar's parts: the label over a group of its items (in a sidebar,
+    // or a column of navigation a component draws as one), and its foot.
+    if (_sections.contains(word) && !isComponent(word) && !declares(word)) {
       final label = parts.string();
       open();
       // Small, spaced capitals in a quiet ink, with room over it that parts

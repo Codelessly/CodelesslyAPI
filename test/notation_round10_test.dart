@@ -106,4 +106,95 @@ Column
       expect(_node(again, 'd')['customPaint'], d);
     });
   });
+
+  group('R64: several onKeyDown(key=…) on one line are several reactions', () {
+    test('both run, no issue; the same key twice is still said', () {
+      final r = _parse('''
+state q=""
+Column
+  Input#query "Find" @q onKeyDown(key=ArrowDown)={q="d"} onKeyDown(key=ArrowUp)={q="u"}
+''');
+      expect(r.issues, isEmpty);
+      final keys = [
+        for (final a in _node(r, 'query')['actions'] as List)
+          if (((a as Map)['trigger'] as Map)['type'] == 'keyDown') (a['trigger'] as Map)['key'],
+      ];
+      expect(keys, ['ArrowDown', 'ArrowUp']);
+      final twice = _parse('''
+state q=""
+Column
+  Input#query "Find" @q onKeyDown(key=Enter)={q="a"} onKeyDown(key=Enter)={q="b"}
+''');
+      expect(twice.issues.map((i) => i.message), [contains('written twice')]);
+    });
+  });
+
+  group('Avatar: initials= as written; one word read from the state keeps two letters', () {
+    test('initials="XY", initials={p.ini}, and "{p.ini}" alone', () {
+      final r = _parse('''
+state p={"name":"Maya Reyes","ini":"MR"}
+Column
+  Avatar#a "Maya Reyes" initials="XY"
+  Avatar#b "{p.ini}"
+  Avatar#c "{p.name}" initials={p.ini}
+''');
+      expect(r.issues, isEmpty);
+      String text(String id) => ((_node(r, '${id}Text')['props'] as Map)['text']) as String;
+      expect(text('a'), 'XY');
+      expect(text('b'), contains('left(trim(text(p.ini)), 2)'));
+      expect(text('c'), r'${p.ini}');
+    });
+  });
+
+  group('R68: a state named item read inside an each is said', () {
+    test('the each\'s copy is item in the document', () {
+      final r = _parse('''
+state item={"mood":""}
+state feelings=["ok","sad"]
+Column
+  each feeling in feelings
+    Button "{feeling}" onTap={item=with(item,"mood",feeling)}
+''');
+      expect(r.issues.map((i) => i.message), [contains('state item cannot be read here')]);
+      // Outside an each, or not read, nothing is said.
+      expect(_parse('''
+state item={"mood":""}
+state feelings=["ok","sad"]
+Column
+  Text "{item.mood}"
+  each feeling in feelings
+    Text "{feeling}"
+''').issues, isEmpty);
+    });
+  });
+
+  group('R16: App under a page header is a region of panes; NavSection outside a Sidebar', () {
+    test('App grow under a header row: a row of panes, Main scrolls', () {
+      final r = _parse('''
+Column
+  Row
+    Icon menu_book
+    Text "Docs" grow
+  App#region grow
+    Sidebar w=200
+      NavSection "Guide"
+      NavItem "Intro"
+    Main#main
+      Text "Body"
+''');
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'region')['type'], 'row');
+      expect((_node(r, 'main')['props'] as Map)['scrollable'], true);
+    });
+
+    test('NavSection in a column of navigation', () {
+      final r = _parse('''
+Column
+  NavSection "Mailbox"
+  NavItem "Inbox" icon=inbox
+''');
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(r.document), contains('MAILBOX'));
+    });
+  });
 }
