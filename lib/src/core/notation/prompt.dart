@@ -492,32 +492,47 @@ String notationGlossaryDefinitionLine(NotationDefinition d) {
 /// What a word is for, in about five words: the head of [text]'s first
 /// sentence, up to its first clause that says enough, at most seven words,
 /// without its article and without a word left hanging (`of`, `a`).
+///
+/// A text that starts with a question word (`Where a page is: …`, `What a
+/// page with unsaved changes shows at its foot …`) names its word by a whole
+/// clause that ends with its verb: it is cut only where that clause ends
+/// (`: `, `; `, ` (`, ` — `), never inside it at a comma or a `with`, an
+/// enumeration in it is shortened to its first item (`a list, a table or a
+/// pane` is `a list`), it may run to ten words, and its last word is kept
+/// (`where a page is`, not `where a page`).
 String _gist(String text) {
   var s = text.trim();
   final end = RegExp(r'[.!?](\s|$)').firstMatch(s);
   if (end != null) s = s.substring(0, end.start);
   s = s.replaceFirst(RegExp(r'^(A|An|The) '), '');
+  final clause = RegExp(r'^(What|Where|When|How|Who|Which|Whatever)\b', caseSensitive: false).hasMatch(s);
+  final most = clause ? 10 : 7;
   int words(String t) => t.trim().split(RegExp(r'\s+')).length;
-  for (final cut in const [': ', '; ', ' (', ' — ', ', ', ' with ']) {
-    if (words(s) <= 7) break;
+  for (final cut in clause ? const [': ', '; ', ' (', ' — '] : const [': ', '; ', ' (', ' — ', ', ', ' with ']) {
+    if (words(s) <= most) break;
     final i = s.indexOf(cut);
     if (i > 0 && words(s.substring(0, i)) >= (cut == ': ' ? 2 : 3)) s = s.substring(0, i);
   }
+  if (clause && words(s) > most) {
+    s = s.replaceFirst(RegExp(r'(, (?:an?|the|its) [\w-]+)+,? (?:or|and) (?:an?|the|its) [\w-]+'), '');
+  }
   var w = s.trim().split(RegExp(r'\s+'));
   const articles = {'a', 'an', 'the'};
-  if (w.length > 7) {
-    w = w.take(7).toList();
+  if (clause && w.length <= most) return _lowerFirst(w.join(' ').replaceAll(RegExp(r'[,:;(]+$'), ''));
+  if (w.length > most) {
+    w = w.take(most).toList();
     // Cut mid-phrase (`as a small`): to before its article.
     final article = w.lastIndexWhere((x) => articles.contains(x.toLowerCase()));
     if (article >= w.length - 2 && article > 1) w = w.take(article).toList();
   }
-  const hanging = {...articles, 'of', 'to', 'for', 'as', 'in', 'on', 'with', 'and', 'or', 'at', 'by', 'from', 'is', 'that', 'which', 'its', 'their', 'one', 'two'};
+  const hanging = {...articles, 'of', 'to', 'for', 'as', 'in', 'on', 'with', 'and', 'or', 'at', 'by', 'from', 'is', 'that', 'which', 'its', 'their', 'one', 'two', 'over', 'under', 'between', 'into', 'than'};
   while (w.length > 2 && hanging.contains(w.last.toLowerCase())) {
     w.removeLast();
   }
-  s = w.join(' ').replaceAll(RegExp(r'[,:;(]+$'), '');
-  return s.isEmpty ? s : '${s[0].toLowerCase()}${s.substring(1)}';
+  return _lowerFirst(w.join(' ').replaceAll(RegExp(r'[,:;(]+$'), ''));
 }
+
+String _lowerFirst(String s) => s.isEmpty ? s : '${s[0].toLowerCase()}${s.substring(1)}';
 
 /// The taught prompt without what is vocabulary: the `{…}` escape and the
 /// reference pages (an unknown word is written, not escaped to JSON), and
