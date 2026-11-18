@@ -87,6 +87,22 @@ Lightbox#photo-view photos={["a.png","b.png"]}
       expect(names, containsAll(['photo_viewZoom', 'photo_viewAt', 'photo_viewPhotos']));
     });
 
+    test('in a definition, an action naming a body id with hyphens names the use\'s', () {
+      final r = parseNotation('''
+Column
+  Cell#cell
+define Cell
+  Column#box gap=4
+    Input#cell-input "x" onSubmit={focus #cell-input; scroll box}
+    Button "Edit" onTap={focus cell-input}
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      final nodes = _nodes(r.document);
+      expect(nodes.keys, contains('cell-input_cell'));
+      expect(jsonEncode(nodes['cell-input_cell']), contains('"node":"cell-input_cell"'));
+      expect(jsonEncode(nodes['filledButton1']), contains('"node":"cell-input_cell"'));
+    });
+
     test('another canvas with hyphens in its id is its block', () {
       final doc = _roundTrip('''
 Column#m-root
