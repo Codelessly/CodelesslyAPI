@@ -19,6 +19,12 @@
   are 40 px (28 before), their type to match (the renderer's step for 40), a chip 32 (24), the buttons of the
   Section that holds the page's headline (its hero) `size=large` (44), and an `IconButton` in a Section a 40 px square
   in a hairline (a bare glyph before). A theme's `sizes.control` wins; an `App` (Desk's 28 px density) is as it was.
+- **A website's ground reaches the foot**: a `Page` is as tall as the window it is shown in (as tall as its content
+  in a host that scrolls it: its canvas still hugs), its canvas is its ground (`Page fill=…`), and its `Footer` sits at
+  the window's foot on a short page (a `Spacer` before it takes what is left); white showed under short pages. Two
+  plain Sections one after the other have one section's space between them (96 px, was 128). An app's `Main` with no
+  ground of its own takes its content column's (`Column pad=24 fill=canvas scroll`), so the ground reaches the
+  pane's foot.
 
 ### Fixed
 

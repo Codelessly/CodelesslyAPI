@@ -26,7 +26,8 @@ Page
 It reads as:
 
 ```notation width=1280
-Column stretch scroll
+canvas layout.height.hug=0 layout.height.fill=null
+Column stretch scroll h=fill
   Column center pad=[24,14,24,14]
     Row gap=24 between maxWidth=1120
       Row gap=10
@@ -38,6 +39,7 @@ Column stretch scroll
   Column center pad=[24,64,24,64]
     Column gap=32 w=fill maxWidth=1120
       Text.heading2 "Fill every room" size=60
+  Spacer grow
   Divider
   Column center pad=[24,40,24,40]
     Column gap=24 w=fill maxWidth=1120

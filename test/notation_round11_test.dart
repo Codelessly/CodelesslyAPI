@@ -297,4 +297,26 @@ define Rows
       expect(layoutOf(r, 'iconButton')['width'], {'hug': 0});
     });
   });
+
+  group('C3: the ground to the foot', () {
+    test('a Page with a ground: the canvas is that ground, the page as tall as the window, its Footer after a spacer', () {
+      final r = _parse('Page#page fill=#FFF5EFE3\n  Section\n    Text "a"\n  Footer\n    Text "f"\n', const NotationOptions(width: 1440));
+      expect(((_node(r, 'screen')!['decoration'] as Map)['fills'] as List).single, {'color': '#FFF5EFE3'});
+      expect((_node(r, 'page')!['layout'] as Map)['height'], {'fill': 0});
+      final kids = [for (final id in readStrings(_node(r, 'page')!['children'])) _node(r, id)!['type']];
+      expect(kids.indexOf('spacer'), kids.length - 3, reason: 'a spacer, the divider, the footer');
+    });
+
+    test('two plain Sections one after the other: one section\'s space between them (96, not 128)', () {
+      final r = _parse('Page\n  Section#a\n    Text "a"\n  Section#b\n    Text "b"\n  Section#c fill=#FF112233\n    Text "c"\n', const NotationOptions(width: 1440));
+      expect((_node(r, 'a')!['layout'] as Map)['padding'], [24, 64, 24, 64]);
+      expect((_node(r, 'b')!['layout'] as Map)['padding'], [24, 32, 24, 64]);
+      expect((_node(r, 'c')!['layout'] as Map)['padding'], [24, 64, 24, 64]);
+    });
+
+    test('an app\'s Main takes its content column\'s ground', () {
+      final r = _parse('App\n  Main#main\n    Column pad=24 fill=#FFF1F5F9 scroll\n      Text "a"\n', const NotationOptions(width: 1440));
+      expect(((_node(r, 'main')!['decoration'] as Map)['fills'] as List).single, {'color': '#FFF1F5F9'});
+    });
+  });
 }

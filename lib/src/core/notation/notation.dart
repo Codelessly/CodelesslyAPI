@@ -1780,6 +1780,11 @@ class _Parser {
   Json get _canvasNode {
     final o = _overlay;
     Json look() {
+      // A website's canvas is its Page's ground, to the window's foot (white
+      // showed under a short page, round 11).
+      if (o == null && _root != null && _roles[_root] == 'page') {
+        if (readList(readMap(nodes[_root]?['decoration'])?['fills']) case final List fills when fills.isNotEmpty) return {'fills': _copyValue(fills)};
+      }
       if (o == null || o.kind == 'canvas') return _surface;
       if (!o.surface) {
         return {
@@ -3208,7 +3213,10 @@ class _Parser {
     // The root as tall as what holds it: the window (an app's panes).
     if (id != null && _parentOf[id] == null && !_windowed && id != 'pageRoot') {
       final height = (nodes[id]?['layout'] as Map?)?['height'];
-      if (_pages.app || (height is Map && height.containsKey('fill'))) {
+      // A website's page is as tall as the window it is shown in where it has
+      // one, and as tall as its content in a host that scrolls it: its canvas
+      // hugs (C3).
+      if (_pages.app || (height is Map && height.containsKey('fill') && _roles[id] != 'page')) {
         _windowed = true;
         // The canvas may be there already (a `state` line came first).
         if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'layout': {'height': _canvasHeight}}});
@@ -8411,6 +8419,24 @@ class _Parser {
     return false;
   }
 
+  /// An app's Main with no ground of its own whose content is a column with
+  /// one (`Column pad=24 fill=canvas scroll`) takes it, so the ground reaches
+  /// the pane's foot: it stopped where the content did (round 11).
+  void _paneGround(_Open open) {
+    if (open.condition != null || _roles[open.id] != 'main') return;
+    final main = nodes[open.id];
+    if (main == null || readMap(main['decoration'])?['fills'] != null) return;
+    final kids = readStrings(main['children']);
+    final content = kids.isEmpty ? null : nodes[kids.last];
+    final fills = readList(readMap(content?['decoration'])?['fills']);
+    if (content == null || content['type'] != 'column' || fills == null || fills.isEmpty) return;
+    final patch = {
+      'decoration': {'fills': _copyValue(fills)},
+    };
+    nodes[open.id] = mergePatch(main, patch);
+    _patches.add({'op': 'patch', 'id': open.id, 'patch': patch});
+  }
+
   /// The ink a container's `color=` gives the texts and icons written in it
   /// that set none (docs/design/21), by node id, as written.
   final _ink = <String, String>{};
@@ -8585,6 +8611,7 @@ class _Parser {
 
   void _close(_Open open) {
     if (open.splice || _silence(open)) return;
+    _paneGround(open);
     _placeholder(open);
     _slotAction(open);
     _removable(open);

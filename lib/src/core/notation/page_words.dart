@@ -97,6 +97,10 @@ final class PageWords {
   /// (round 11: the web's were 48 to 150 px).
   final num? siteHeadline;
 
+  /// The indent of the plain Section just written under a Page (no ground,
+  /// no bleed), while nothing else has been written beside it.
+  int? _plainSectionAt;
+
   /// Whether the text is a website's (its top is a `Page`): its controls are
   /// a page's size ([NotationOptions.controlHeight] else 40).
   bool site = false;
@@ -920,6 +924,7 @@ final class PageWords {
       return out..add((indent: at, text: text));
     }
     final parts = _Parts(rest);
+    if (parent?.frame == 'Page' && word != 'Section') _plainSectionAt = null;
     // `TopBar "…" type=TopBar`: the design system's component, by its own
     // name (design 22, 4.2), no page word.
     if ((isComponent(word) || declares(word)) && parts.value('type') == word) {
@@ -936,7 +941,10 @@ final class PageWords {
       site = true;
       open(frame: 'Page');
       final fill = parts.has('fill') || siteFill == null ? '' : ' fill=$siteFill';
-      return out..add((indent: at, text: 'Column$mark w=fill scroll stretch$fill${parts.all}'));
+      // As tall as the window it is shown in (where it has one), so that its
+      // ground reaches the foot and its Footer sits there on a short page
+      // (round 11: white under the footer).
+      return out..add((indent: at, text: 'Column${_role('page')}$mark w=fill h=fill scroll stretch$fill${parts.all}'));
     }
     if ((word == 'App' || word == 'AppShell' || word == 'Window') && indent == 0) {
       app = true;
@@ -992,11 +1000,19 @@ final class PageWords {
       // A tinted band: the page's alternate ground, ruled off above and below.
       final tint = parts.word('tint') | parts.word('alt') | parts.word('band') | parts.word('muted');
       final grounded = tint || parts.has('fill');
-      final pad = parts.take('pad') ?? (bleed ? (grounded ? '[0,$v,0,$v]' : '0') : footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
+      // A plain Section after a plain Section starts half its space down:
+      // two sections' padding made 128 px of white between them.
+      final plain = !grounded && !bleed && !footer && parent?.frame == 'Page';
+      final top = plain && _plainSectionAt == indent ? _n((sectionPad / 2).roundToDouble()) : v;
+      _plainSectionAt = plain && !parts.has('pad') ? indent : null;
+      final pad = parts.take('pad') ?? (bleed ? (grounded ? '[0,$v,0,$v]' : '0') : footer ? '[$g,40,$g,40]' : '[$g,$top,$g,$v]');
       final banded = tint && band != null && !parts.has('fill') ? ' fill=$band border-top=$line border-bottom=$line' : '';
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});
       open(frame: 'Section', shift: 2);
+      // A page's Footer sits at the window's foot when the page is short: what
+      // is left goes above it (nothing, on a page longer than the window).
+      if (footer && parent?.frame == 'Page') out.add((indent: at, text: 'Spacer'));
       if (footer) out.add((indent: at, text: 'Divider'));
       return out
         ..add((indent: at, text: 'Column${_role('section')}$mark w=fill center pad=$pad$banded${parts.all}'))
