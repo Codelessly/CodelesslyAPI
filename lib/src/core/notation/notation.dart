@@ -1548,6 +1548,10 @@ class _Grid {
   /// `cols={…}`: the column count worked out from the state (a formula).
   String? colsFormula;
   num gap = 8;
+
+  /// `mainAxisExtent=30`, `childAspectRatio=2` (Flutter's names): a cell's
+  /// height, or its width over its height.
+  final cellLayout = <String, num>{};
   String? row;
   int inRow = 0;
   int rows = 0;
@@ -3882,6 +3886,12 @@ class _Parser {
     if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
+    // `RangeSlider @low end=@high min=0 max=90` (test 10: 6 runs) is the
+    // Slider with two variables: `Slider @low @high min=0 max=90`.
+    if (RegExp(r'^RangeSlider(?=[\s#.]|$)').hasMatch(line) && catalog.widget('RangeSlider') == null && !options.components.containsKey('RangeSlider')) {
+      _use('alias', 'RangeSlider', indent + 1, of: 'type', to: 'Slider');
+      line = 'Slider${line.substring('RangeSlider'.length)}'.replaceAllMapped(RegExp(r'(?<=\s)(?:end|rangeEnd|high|upper)=@(?=[A-Za-z_])'), (_) => '@');
+    }
     // `project cart=[]` (or `project cart`): a variable of the whole site
     // (site.json's `variables`), read and set here as any other, with no
     // copy of its own on this screen to hide it.
@@ -4340,7 +4350,7 @@ class _Parser {
         if (reorderNow || listSelect) 'focusGroup': {'axis': g != null ? 'both' : across ? 'horizontal' : 'vertical', 'wrap': false},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
-            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never'}
+            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout}
             : across
                 ? {
                     'scrollable': false,
@@ -5351,6 +5361,13 @@ class _Parser {
             // `ChoiceChips disabled`: off as a whole (its own disabled lists the options that are off).
             bind['disabled'] = _formula('true');
             disabledBy = 'true';
+          } else if ((word == 'reorder' || word == 'handle') && !component && (type == 'listView' || type == 'gridView')) {
+            // `ListView reorder handle onReorder={…}`: its rows are dragged
+            // into a new order, by a Handle with `handle` (else a long press
+            // anywhere on the row). A bare `reorder` was `true`, which is no
+            // reorder record: the list did not reorder, with no word.
+            final before = readMap(props['reorder']) ?? const {};
+            props['reorder'] = {...before, 'keyboard': true, 'start': word == 'handle' ? 'handle' : before['start'] ?? 'longPress'};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
           } else if (!component && universalFlag(word, col)) {
@@ -5632,6 +5649,21 @@ class _Parser {
             continue;
           }
         }
+        // Flutter's names for a Grid's words (test 10: Grid crossAxisCount=,
+        // crossAxisSpacing=, mainAxisSpacing=, mainAxisExtent=): read as the
+        // notation's, recorded as aliases. A Grid has one gap.
+        if ((grid == null ? null : const {'crossAxisCount': 'cols', 'crossAxisSpacing': 'gap', 'mainAxisSpacing': 'gap'}[key]) case final String to) {
+          _use('alias', key, col, of: 'parameter', to: to, on: written);
+          key = to;
+        }
+        if (grid != null && (key == 'mainAxisExtent' || key == 'childAspectRatio') && num.tryParse(raw) != null) {
+          // A cell's height (or its width over its height): the gridView's
+          // own, for the cells an each repeats; a row's height for cells
+          // written one by one.
+          _use('alias', key, col, of: 'parameter', to: key == 'mainAxisExtent' ? 'h' : 'aspectRatio', on: written);
+          grid.cellLayout[key] = num.parse(raw);
+          continue;
+        }
         if (grid != null && (key == 'cols' || key == 'columns')) {
           // `cols={gridSize}`: worked out, for the cells an each repeats (cells
           // written one by one are laid in rows here, at the default).
@@ -5640,6 +5672,14 @@ class _Parser {
           } else {
             grid.cols = (int.tryParse(raw) ?? 2).clamp(1, 24);
           }
+          continue;
+        }
+        // `Image url="…"` (test 10: 6 runs), `Image src={…}`: the picture,
+        // as the string after the word is.
+        if ((key == 'url' || key == 'src') && written == 'Image' && !component && !spec.props.any((p) => p.key == key)) {
+          if (key == 'url') _use('alias', key, col, of: 'parameter', to: 'src', on: written);
+          given++;
+          _main(type, spec, raw.startsWith('=') ? '{${raw.substring(1)}}' : _unquoted(raw), props, decoration);
           continue;
         }
         if (grid != null && (key == 'gap' || key == 'spacing')) {
@@ -6264,6 +6304,11 @@ class _Parser {
         }
         // Input "Search" icon="search": the icon inside the field, before
         // the text (its decoration's prefixIcon).
+        // `prefixIcon="search"` (Flutter's name, test 10) is the same.
+        if (key == 'prefixIcon' && type == 'textField' && !raw.startsWith('{')) {
+          _use('alias', key, col, of: 'parameter', to: 'icon', on: written);
+          key = 'icon';
+        }
         if (key == 'icon' && type == 'textField') {
           final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
           field['prefixIcon'] = {'icon': raw.startsWith('=') ? 'search' : _value(raw), 'size': 18};
@@ -8067,6 +8112,7 @@ class _Parser {
         'props': {'spacing': g.gap, 'crossAxisAlignment': 'stretch'},
         'children': <Object?>[],
       };
+      if (g.cellLayout['mainAxisExtent'] case final num h) nodes[rowId]!['layout'] = {'width': {'fill': 0}, 'height': h};
       nodes[id] = cellNode;
       (gridNode['children'] as List<Object?>).add(rowId);
       _parentOf[rowId] = g.id;
@@ -8986,7 +9032,10 @@ class _Parser {
   /// the canvas's keyDown reaction; null when the line is not one.
   Json? _shortcut(String line, int column) {
     final head = RegExp(r'^key\s+"?([^"\s]+)"?\s+').firstMatch(line);
-    final combo = head?[1];
+    var combo = head?[1];
+    // `key +` and `key mod++` (test 10: the sign as itself): the key plus.
+    if (combo == '+') combo = 'plus';
+    if (combo != null && combo.length > 2 && combo.endsWith('++')) combo = '${combo.substring(0, combo.length - 1)}plus';
     if (head == null || KeyCombo.tryParse(combo) == null || combo!.endsWith('+')) return null;
     final tokens = _Tokens(line.substring(head.end));
     String? when, press;
@@ -9138,6 +9187,14 @@ class _Parser {
       if (a.startsWith('{')) {
         final j = _json(a);
         if (j is Map) out.add(j.cast<String, Object?>());
+        continue;
+      }
+      // `setThemeMode dark`, `setThemeMode {dark ? "dark" : "light"}`: its one
+      // field written alone, as models write it (test 10: 4 runs).
+      if (RegExp(r'^setThemeMode\s+(\{.*\}|"[^"]*"|[A-Za-z_][A-Za-z0-9_.]*)$').firstMatch(a) case final m?) {
+        final v = m[1]!.trim();
+        final braced = v.startsWith('{') && v.endsWith('}');
+        out.add({'type': 'setThemeMode', 'mode': braced ? _formula(v.substring(1, v.length - 1).trim()) : _unquoted(v)});
         continue;
       }
       // An action of the catalog by its type and fields (design 22 section 2.3).

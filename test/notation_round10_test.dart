@@ -265,4 +265,101 @@ Column
       expect(jsonEncode(r.document), isNot(contains('wrapSpacing')));
     });
   });
+
+  group('B: words writers expected, read as the notation\'s (recorded as aliases)', () {
+    List<String> aliases(NotationResult r) => [for (final v in r.vocabulary) if (v.kind == 'alias') v.word];
+
+    test('Image url=, Input prefixIcon=, RangeSlider, Grid\'s Flutter names', () {
+      final r = _parse('''
+state images=["a.png"]
+state frame=0
+state lo=1
+state hi=9
+state items=[1,2]
+Column
+  Image#i url="https://x/y.png" w=100 h=100
+  Image#j url={images[frame]} h=300
+  Input#q "Search" prefixIcon="search"
+  RangeSlider#rs @lo end=@hi min=0 max=10
+  Grid#g crossAxisCount=3 crossAxisSpacing=12 mainAxisExtent=30
+    each i in items
+      Text "{i}"
+''');
+      expect(r.issues, isEmpty);
+      String url(String id) => ((((_node(r, id)['decoration'] as Map)['fills'] as List).first as Map)['image'] as Map)['url'] as String;
+      expect(url('i'), 'https://x/y.png');
+      expect(url('j'), r'${= images[frame]}');
+      expect((((_node(r, 'q')['props'] as Map)['decoration'] as Map)['prefixIcon'] as Map)['icon'], 'search');
+      expect(_node(r, 'rs')['type'], 'slider');
+      expect((_node(r, 'rs')['bind'] as Map)['props.rangeEnd'], r'${hi}');
+      final grid = _nodes(r).firstWhere((n) => n['type'] == 'gridView');
+      expect(grid['props'], containsPair('crossAxisCount', 3));
+      expect(grid['props'], containsPair('crossAxisSpacing', 12));
+      expect(grid['props'], containsPair('mainAxisExtent', 30));
+      expect(aliases(r), containsAll(['url', 'prefixIcon', 'RangeSlider', 'crossAxisCount', 'crossAxisSpacing', 'mainAxisExtent']));
+    });
+
+    test('semanticLabel on a Toggle, a Slider, a Checkbox: the name a screen reader says', () {
+      final r = _parse('''
+state on=false
+state level=5
+state milk=false
+Column
+  Toggle#t @on semanticLabel="Wi-Fi"
+  Slider#s @level semanticLabel="Light"
+  Checkbox#c @milk semanticLabel="Milk"
+''');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 't')['props'] as Map)['semanticLabel'], 'Wi-Fi');
+      expect((_node(r, 's')['props'] as Map)['semanticLabel'], 'Light');
+      expect((_node(r, 'c')['props'] as Map)['semanticLabel'], 'Milk');
+    });
+
+    test('setThemeMode with its one value written alone', () {
+      final r = _parse('''
+state dark=false
+Column
+  Button#a "Theme" onTap={setThemeMode {dark ? "dark" : "light"}}
+  Button#b "Dark" onTap={setThemeMode dark}
+''');
+      expect(r.issues, isEmpty);
+      Map first(String id) => ((_node(r, id)['actions'] as List).first as Map)['actions'].first as Map;
+      expect(first('a'), {'type': 'setThemeMode', 'mode': r'${= dark ? "dark" : "light"}'});
+      expect(first('b'), {'type': 'setThemeMode', 'mode': 'dark'});
+    });
+
+    test('key + and key mod++: the plus key', () {
+      final r = _parse('''
+state z=1
+Column
+  Text "x"
+key + onPress={z=z+1}
+key mod++ onPress={z=1}
+''');
+      expect(r.issues, isEmpty);
+      final keys = [
+        for (final a in (_node(r, 'screen')['actions'] as List?) ?? const [])
+          if (((a as Map)['trigger'] as Map)['type'] == 'keyDown') (a['trigger'] as Map)['key'],
+      ];
+      expect(keys, ['+', 'mod++']);
+    });
+
+    test('ListView reorder handle: a reorder record, by its handles (a bare reorder was true, no reorder)', () {
+      final r = _parse('''
+state cats=["a","b"]
+Column
+  ListView#lv reorder handle onReorder={cats=result}
+    each c in cats
+      Row
+        Handle
+        Text "{c}"
+  ListView#lp reorder onReorder={cats=result}
+    each d in cats
+      Text "{d}"
+''');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 'lv')['props'] as Map)['reorder'], {'keyboard': true, 'start': 'handle'});
+      expect((_node(r, 'lp')['props'] as Map)['reorder'], {'keyboard': true, 'start': 'longPress'});
+    });
+  });
 }

@@ -22,6 +22,11 @@ Column gap=8
 
 Writers' words for a grid, a table, a list put in order by hand and swiped pages, and what each reads as:
 
+- Flutter's names on a Grid: `crossAxisCount` is `cols`, `crossAxisSpacing` and `mainAxisSpacing` are `gap` (a Grid
+  has one), `mainAxisExtent=30` is each cell's height and `childAspectRatio=2` its width over its height.
+- `ListView reorder handle onReorder={…}` is a list whose rows a `Handle` drags into a new order (`reorder` alone: a
+  long press anywhere on the row).
+
 ```notation expands
 state photos=["a","b","c"]
 Grid cols=3 gap=8

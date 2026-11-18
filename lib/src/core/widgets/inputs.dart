@@ -229,8 +229,12 @@ abstract final class CheckboxProps {
   /// reader. Empty: the bare control.
   static const label = PropDef<String>('label', Codecs.string, '');
 
+  /// The name a screen reader says for it, not shown (where no [label] is
+  /// drawn beside it: a row's own text names it).
+  static const semanticLabel = PropDef<String>('semanticLabel', Codecs.string, '');
+
   static const spec = WidgetSpec('checkbox', hugs: true, props: [
-    label, value, tristate, autofocus, checkColor, activeColor, hoverColor, focusColor, splashRadius, borderRadius, side, //
+    label, semanticLabel, value, tristate, autofocus, checkColor, activeColor, hoverColor, focusColor, splashRadius, borderRadius, side, //
     activeSide, fillColor, compact,
   ], doc: 'Flutter `Checkbox`.');
 }
@@ -310,8 +314,12 @@ abstract final class SwitchProps {
   /// reader. Empty: the bare control.
   static const label = PropDef<String>('label', Codecs.string, '');
 
+  /// The name a screen reader says for it, not shown (where no [label] is
+  /// drawn beside it: a row's own text names it).
+  static const semanticLabel = PropDef<String>('semanticLabel', Codecs.string, '');
+
   static const spec = WidgetSpec('switch', hugs: true, props: [
-    label, enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
+    label, semanticLabel, enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
     fillTrack, thumbShadows, thumbInset, activeThumbBorderColor, inactiveThumbBorderColor, thumbBorderWidth,
     toggleDurationMs, toggleCurve, trackRadius, thumbRadius,
@@ -349,8 +357,11 @@ abstract final class RadioProps {
   /// reader. Empty: the bare control.
   static const label = PropDef<String>('label', Codecs.string, '');
 
+  /// The name a screen reader says for it, not shown.
+  static const semanticLabel = PropDef<String>('semanticLabel', Codecs.string, '');
+
   static const spec = WidgetSpec('radio', hugs: true, props: [
-    label, value, groupValue, toggleable, autofocus, activeColor, inactiveColor, hoverColor, focusColor, splashRadius, side, //
+    label, semanticLabel, value, groupValue, toggleable, autofocus, activeColor, inactiveColor, hoverColor, focusColor, splashRadius, side, //
     innerRadius, backgroundColor, compact,
   ], doc: 'Flutter `Radio`.');
 }
@@ -492,8 +503,12 @@ abstract final class SliderProps {
   static const selectableMin = PropDef<double?>('selectableMin', Codecs.double, null);
   static const selectableMax = PropDef<double?>('selectableMax', Codecs.double, null);
 
+  /// The name a screen reader says for it, not shown (a range's or a rating's
+  /// name too; [label] is its value bubble).
+  static const semanticLabel = PropDef<String>('semanticLabel', Codecs.string, '');
+
   static const spec = WidgetSpec('slider', hugs: true, props: [
-    value, rangeEnd, min, max, divisions, label, labelFractionDigits, autofocus, readOnly, secondaryTrackValue, padding, trackHeight, //
+    value, rangeEnd, min, max, divisions, label, semanticLabel, labelFractionDigits, autofocus, readOnly, secondaryTrackValue, padding, trackHeight, //
     activeTrackColor, inactiveTrackColor, secondaryActiveTrackColor, thumbColor, overlayColor, activeTickMarkColor,
     inactiveTickMarkColor, valueIndicatorColor, valueIndicatorTextStyle, showValueIndicator, valueIndicatorShape,
     overlayRadius, trackShape, thumbShape, thumbRadius, thumbSize, thumbCornerRadius, thumbStrokeColor,

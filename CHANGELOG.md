@@ -91,6 +91,16 @@
   and its item), on a page and in a narrow overlay over it (a dialog); before, the copies were one child to the
   reflow and overflowed (test 10: 29 runs). A page written for a phone is as written; `Row scroll` and `keep` are
   left as they are.
+- **Notation, words writers expected** (test 10's vocabulary): `Image url="…"` (and `url={…}`, `src=`) is the
+  picture; `Input prefixIcon="search"` is `icon=`; `RangeSlider @low end=@high` is `Slider @low @high`; a Grid's
+  `crossAxisCount`, `crossAxisSpacing`, `mainAxisSpacing`, `mainAxisExtent` and `childAspectRatio` are its `cols`,
+  `gap`, a cell's height and its aspect; `setThemeMode dark` and `setThemeMode {expr}`; `key +` and `key mod++`;
+  `ListView reorder handle` (a bare `reorder` on a ListView was `true`, no reorder record: the list did not reorder,
+  silently). Each alias is recorded as one in the vocabulary.
+- **Widgets**: `semanticLabel` on `checkbox`, `switch`, `radio` and `slider`: the name a screen reader says, not
+  shown (`textField` had it).
+- **SiteManifest.pageRefs**: a manifest's `pages` may be records (`{"id": "home", "file": "home.json"}`); a reference
+  page for `site.json` (`docs/reference/notation/site.md`).
 
 ## 35.0.0
 

@@ -27,6 +27,11 @@ Column gap=12
 
 Words a writer reaches for, and what they read as:
 
+- `RangeSlider @low end=@high min=0 max=90` is `Slider @low @high min=0 max=90`, a slider with two thumbs.
+- `semanticLabel="Wi-Fi"` on a Toggle, Checkbox, Radio or Slider is the name a screen reader says, not shown (a
+  `label` is drawn beside it).
+- `Input "Search" prefixIcon="search"` is `icon="search"`: the icon inside the field.
+
 ```notation expands
 state code=""
 state low=20
