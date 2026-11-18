@@ -5096,20 +5096,23 @@ class _Parser {
     var given = 0;
     var afterKey = false;
     final keysWritten = <String>{};
-    // The keys the line names (`label="Installation"`): a string on it is
-    // not one of those (test 10, R41: `GuideSection "01" label="…"` put
-    // "01" in the label, then said label was written twice).
-    late final namedOnLine = component
-        ? {
+    // The keys the line names (`label="Installation"`), with what it gives
+    // each: a string on it is not one of those (test 10, R41: `GuideSection
+    // "01" label="…"` put "01" in the label, then said label was written
+    // twice), unless the line gives that key the string itself.
+    late final namedValues = component
+        ? <String, String>{
             for (final p in LineParts.of(line)?.parts ?? const <LinePart>[])
-              if (p.kind == 'pair' && p.key != null) p.key!.startsWith('props.') ? p.key!.substring(6) : p.key!,
+              if (p.kind == 'pair' && p.key != null)
+                p.key!.startsWith('props.') ? p.key!.substring(6) : p.key!: RegExp(r'^"(.*)"$').firstMatch(p.value ?? '')?[1] ?? p.value ?? '',
           }
-        : const <String>{};
+        : const <String, String>{};
+    late final namedOnLine = namedValues.keys.toSet();
     // A component's strings fill its text parameters in order.
     void componentString(String raw, int col) {
       final text = _interpolate(raw);
       bool given(String k) => props.containsKey(k) || bind.containsKey('props.$k');
-      bool free(String k) => !given(k) && !namedOnLine.contains(k);
+      bool free(String k) => !given(k) && (!namedValues.containsKey(k) || namedValues[k] == raw);
       // Past the strings it is known by, a further string goes to its next
       // text parameter not yet given, in the order they are declared
       // (CartLine "Bananas" "1 kg" "$2.49": the price). One every text

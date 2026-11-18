@@ -134,6 +134,11 @@ Sheet#info "About" stops=[0.5,0.9]
       expect(_node(r, 'g')['props'], {'label': 'Installation', 'note': '01'});
     });
 
+    test('a key the line gives the string itself keeps it (a printed line that says both reads back)', () {
+      final r = _with(heading, 'Column\n  GuideSection#g "{t}" label={t}\n');
+      expect(_node(r, 'g')['bind'], {'props.label': r'${t}'});
+    });
+
     test('strings alone fill the text parameters in their order, as before', () {
       final r = _with(heading, 'Column\n  GuideSection#g "Installation" "01"\n');
       expect(r.issues, isEmpty);
