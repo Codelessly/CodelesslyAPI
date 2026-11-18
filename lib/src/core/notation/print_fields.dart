@@ -317,7 +317,7 @@ bool _codeBraces(String s) {
     final end = _close(s, i) + 1;
     if (end > i + 2) {
       final inner = s.substring(i + 1, end - 1);
-      final code = inner.contains('\n') || inner.contains(r'\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
+      final code = inner.contains('\n') || inner.contains(r'\n') || RegExp(r'^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$').hasMatch(inner);
       if (!code) return false;
       i = end - 1;
     }

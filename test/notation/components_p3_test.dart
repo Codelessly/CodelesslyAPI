@@ -216,7 +216,7 @@ Column
 
   group('components two design systems declare differently', () {
     test('a code sample\'s braces in a string are text, and print as written', () {
-      final code = "import { Beacon } from '@beacon/sdk';\n\nconst beacon = new Beacon({\n  writeKey: 'KEY',\n});";
+      const code = "import { Beacon } from '@beacon/sdk';\n\nconst beacon = new Beacon({\n  writeKey: 'KEY',\n});";
       final doc = _roundTrip('Column\n  Text#t ${jsonEncode(code)}', same: ['  Text#t ${jsonEncode(code)}']);
       expect(((_nodes(doc)['t']! as Map)['props'] as Map)['text'], code);
     });
