@@ -103,7 +103,8 @@ shows it, `close` closes it (so does a tap outside it). `Dialog` (centered, a ti
 (from the bottom; `stops=[0.5,0.9]`), `Drawer` (a side panel; `right`), `Menu` (by the button that opened it;
 `MenuItem` lines), `Popover` (a small panel; `preview=id` on a line opens it on hover), `Lightbox` (a picture or a
 gallery over the page). A `MenuItem` is its label, `icon=`, `onTap={…}` and, to name it in a render step, an id
-(`MenuItem#dup "Duplicate" icon=content_copy onTap={…}`).
+(`MenuItem#dup "Duplicate" icon=content_copy onTap={…}`). A MenuItem closes its menu after its actions (one that
+opens a dialog closes the menu first); write no `close` in it.
 
 ```notation width=1280 expands
 Column gap=12
