@@ -2237,6 +2237,15 @@ class _Parser {
   String _blockHead = '';
   int _blockPrev = 0;
 
+  /// In a design system's dialog frame with an `actions` slot (Desk's): the
+  /// indent of its first lines, and of an `Actions` line among them moved
+  /// into that slot (its band pinned under the body that scrolls), while
+  /// the lines under it are read.
+  int? _blockTop, _actionsAt;
+
+  bool get _dialogTakesActions =>
+      _blockHead.startsWith('Dialog') && _pages.isFrame('Dialog') && (catalog.widget('Dialog')?.slots.contains('actions') ?? false);
+
   /// While lines already read are read again (an overlay's, drawn again in
   /// its foot; a sidebar's, in its drawer): nothing is recorded twice.
   bool _quiet = false;
@@ -2333,7 +2342,18 @@ class _Parser {
             _blockPrev = rel;
           }
           if (_block != null && !blank) _blockLines.add((indent: indent - _blockIndent, text: raw.trim()));
-          _feed(indent - _blockIndent, raw.trim());
+          var rel = indent - _blockIndent;
+          if (!blank) {
+            _blockTop ??= rel;
+            if (_actionsAt != null && rel <= _actionsAt!) _actionsAt = null;
+            // `Actions` among a dialog's own lines: into the frame's actions slot.
+            if (_actionsAt == null && rel == _blockTop && RegExp(r'^Actions\b').hasMatch(raw.trim()) && _dialogTakesActions) {
+              _feed(rel, 'slot actions');
+              _actionsAt = rel;
+            }
+            if (_actionsAt != null) rel += 2;
+          }
+          _feed(rel, raw.trim());
         }
         return;
       }
@@ -2368,6 +2388,7 @@ class _Parser {
           _blockIndent = indent;
           _blockHead = head.split(RegExp(r'\s')).first;
           _blockPrev = 0;
+          _blockTop = _actionsAt = null;
           _block?._srcStack.add(_Src(-1000, word)..use = standIn);
           if (_block != null) _blockFoot.addAll(lines.skip(1));
           // The page's own lines go on after it, under what they were under.

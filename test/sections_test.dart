@@ -284,6 +284,22 @@ void main() {
       expect(seamCall(root, call.copyWith(visible: false)).visible, isFalse);
     });
 
+    test('a size or a bound the root binds and the call does not is the root\'s (a dialog\'s maxHeight={screen.height - 32})', () {
+      final root = Node.fromJson({
+        'type': 'column',
+        'layout': {'width': {'fill': 0}, 'height': 600, 'constraints': {'maxHeight': 868}},
+        'bind': {'layout.height': r'${= screen.height - 300}', 'layout.constraints.maxHeight': r'${= screen.height - 32}'},
+      })!;
+      final call = Node.fromJson({'type': 'Dialog', 'layout': {'width': 480, 'height': 0}})!;
+      final s = seamCall(root, call);
+      expect(s.layout.width, call.layout.width);
+      expect(s.layout.height, root.layout.height);
+      expect(s.layout.constraints.maxHeight, 868);
+      // A call that binds it too wins.
+      final bound = Node.fromJson({'type': 'Dialog', 'layout': {'width': 480, 'height': 120}, 'bind': {'layout.height': r'${= n}'}})!;
+      expect(seamCall(root, bound).layout.height, bound.layout.height);
+    });
+
     test('the site manifest round-trips, keeping what it does not model', () {
       final json = {
         'schema': 3,

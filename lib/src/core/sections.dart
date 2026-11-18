@@ -246,7 +246,19 @@ const Set<String> callForbiddenKeys = {'decoration'};
 /// product, the call's pointer reactions after the root's and the call's
 /// behaviors over the root's, key by key.
 Node seamCall(Node root, Node call) {
-  final layout = call.layout.copyWith(padding: root.layout.padding);
+  // A size or a bound the root binds (`h={screen.height - 236}`, a dialog's
+  // `maxHeight={screen.height - 32}`) and the call does not is the root's:
+  // the call's is what the expansion copied from the root's JSON (a 0
+  // standing for the bound value, or nothing), and the root's binding was
+  // lost under it (a height of 0, a dialog taller than the window).
+  bool binds(Node n, String key) => n.bind.keys.any((k) => k == 'layout.$key' || k.startsWith('layout.$key.'));
+  bool own(String key) => binds(root, key) && !binds(call, key);
+  final layout = call.layout.copyWith(
+    padding: root.layout.padding,
+    width: own('width') ? root.layout.width : null,
+    height: own('height') ? root.layout.height : null,
+    constraints: own('constraints') ? root.layout.constraints : null,
+  );
   final reactions = [...root.actions, ...call.actions.where((r) => r.trigger.type.name != 'event')];
   var out = root.copyWith(
     layout: layout,

@@ -2548,6 +2548,52 @@ Menu#more
       expect(node(r, (node(r, 'more')['slots']! as Map)['body']! as String)['type'], 'MenuPopover');
     });
 
+    test('a design system Dialog frame with an actions slot takes the Actions line among its lines into it (pinned under its body)', () async {
+      Map<String, Object?> component(String type, {List<String> slots = const []}) => {
+            'schema': 3,
+            'id': type,
+            'roots': ['r'],
+            'widget': {
+              'type': type,
+              'doc': 'What a $type is for. More.',
+              'props': [
+                {'key': 'title', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': ''},
+              ],
+              'events': [
+                {'key': 'onClose'},
+              ],
+              'slots': slots,
+              'children': 'list',
+            },
+            'nodes': {
+              'r': {'type': 'column', 'layout': {'width': {'fill': 200}, 'height': {'hug': 28}}, 'children': ['c', if (slots.isNotEmpty) 'a']},
+              'c': {'type': 'slot'},
+              if (slots.isNotEmpty) 'a': {'type': 'slot', 'props': {'name': 'actions'}},
+            },
+          };
+      final files = {
+        'design_system.json': jsonEncode({'id': 'acme', 'name': 'Acme', 'components': ['components/Dialog.json', 'components/Actions.json']}),
+        'components/Dialog.json': jsonEncode(component('Dialog', slots: ['actions'])),
+        'components/Actions.json': jsonEncode(component('Actions')),
+      };
+      final ds = await DesignSystem.load((ref) async => files[ref]);
+      final catalog = ds.catalogOver(standardCatalog);
+      final r = Catalog.run(catalog, () => parseNotation('''
+Column
+  Button#b "Delete" onTap={open sure}
+Dialog#sure "Delete it?"
+  Text#q "It cannot be undone."
+  Actions#acts
+    Button#ok "Delete" onTap={close}
+  Text#after "Still the body"
+''', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+      expect(r.issues, isEmpty);
+      final frame = node(r, (node(r, 'sure')['slots']! as Map)['body']! as String);
+      expect(frame['slots'], {'actions': 'acts'});
+      expect(frame['children'], ['q', 'after']);
+      expect(node(r, 'acts')['children'], ['ok']);
+    });
+
     test('an App\'s sidebar opens as a drawer from its top bar where the window hides it', () {
       const app = '''
 state tab="orders"
