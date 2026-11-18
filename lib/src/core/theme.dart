@@ -228,7 +228,7 @@ final class ThemeTokens {
         if (_rgb(c) == _rgb(was) || (info != null && info.name == null && _rgb(c) == _rgb(info))) {
           out[e.key] = Color((c.alpha << 24) | _rgb(now)).toJson();
         } else if ((shadeName(e.key) || (dark && site.colors.containsKey(e.key))) && _sameFamily(c, was)) {
-          out[e.key] = _rehued(c, now).toJson();
+          out[e.key] = _rehued(c, now, was).toJson();
         }
       }
       return out;
@@ -288,10 +288,18 @@ final class ThemeTokens {
     return (d > 180 ? 360 - d : d) <= 20;
   }
 
-  /// [c] in [accent]'s hue and saturation, at its own lightness and opacity.
-  static Color _rehued(Color c, Color accent) {
-    final (_, _, l) = _hsl(c);
-    final (h, s, _) = _hsl(accent);
+  /// [c] (a shade of [was]) in [accent]'s hue and saturation, as much
+  /// lighter or darker than [accent] as it was than [was], and at its own
+  /// opacity: a design system's text shade of its indigo (a little darker)
+  /// is a little darker than a site's dark teal, not a bright cyan at the
+  /// indigo's lightness; its tint (near white) stays near white.
+  static Color _rehued(Color c, Color accent, Color was) {
+    final (_, _, own) = _hsl(c);
+    final (_, _, from) = _hsl(was);
+    final (h, s, to) = _hsl(accent);
+    final l = own >= from
+        ? (from >= 1 ? to : to + (own - from) * (1 - to) / (1 - from))
+        : (from <= 0 ? to : to * own / from);
     final k = (1 - (2 * l - 1).abs()) * s, x = k * (1 - ((h / 60) % 2 - 1).abs()), m = l - k / 2;
     final (r, g, b) = switch (h ~/ 60) { 0 => (k, x, 0.0), 1 => (x, k, 0.0), 2 => (0.0, k, x), 3 => (0.0, x, k), 4 => (x, 0.0, k), _ => (k, 0.0, x) };
     int ch(double v) => ((v + m) * 255).round().clamp(0, 255);

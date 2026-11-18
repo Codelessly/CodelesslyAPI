@@ -62,10 +62,16 @@ void main() {
         'focusBorder': '#FF818CF8',
         'selectedRow': '#FFF5F5FF',
         'selection': '#FFE0E7FF',
+        'accentText': '#FF4338CA',
         'success': '#FF16A34A',
       },
     });
     final t = desk.withSiteTheme(ThemeTokens.fromJson({'primary': '#FF0D9488'}));
+    // The text shade, a little darker than the indigo, is a little darker than the teal (it was a bright cyan at
+    // the indigo's lightness); the selection, near white, stays near white.
+    int sum(Color c) => c.red + c.green + c.blue;
+    expect(sum(t.color('accentText')!), lessThan(sum(t.color('primary')!)), reason: t.color('accentText')!.toJson());
+    expect(sum(t.color('selection')!), greaterThan(600), reason: t.color('selection')!.toJson());
     for (final name in ['focusBorder', 'selectedRow', 'selection']) {
       final c = t.color(name)!;
       expect(c.green, greaterThan(c.red), reason: '$name is teal now: ${c.toJson()}');
