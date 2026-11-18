@@ -53,6 +53,11 @@
 
 ### Changed
 
+- **Notation**: a built-in word wins. A text's `define` or `primitive` of a word the notation already has (a type of
+  the notation or the catalog, a page word, a name the alias table reads as one of those: `Card`, `Rail`,
+  `Shortcut`) is not used, and is an issue at its line saying what the notation has (`notationBuiltInWord`). Before,
+  one of a core word was ignored with no word, and one of an alias won over the alias (`primitive Shortcut` made every
+  shortcut a labelled box). A design system's component may still be replaced by a page's own definition.
 - **Notation**: a formula whose brackets do not match is an issue of its line, open vocabulary or not, wherever it
   is written (an `each` list, an `if` condition, a `state` value, a `{…}` value or action, a text's `{…}`): a `)` or
   `]` that closes nothing (saying where the formula ends and what is not read), one that closes the other kind, and
