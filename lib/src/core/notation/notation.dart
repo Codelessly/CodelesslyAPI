@@ -8533,7 +8533,9 @@ class _Parser {
     final kids = readStrings(main['children']);
     final content = kids.isEmpty ? null : nodes[kids.last];
     final fills = readList(readMap(content?['decoration'])?['fills']);
-    if (content == null || content['type'] != 'column' || fills == null || fills.isEmpty) return;
+    // The content that scrolls or takes the pane's room, not a bar at its foot.
+    final takesPane = readMap(content?['props'])?['scrollable'] == true || readMap(content?['layout'])?['flex'] != null;
+    if (content == null || content['type'] != 'column' || !takesPane || fills == null || fills.isEmpty) return;
     final patch = {
       'decoration': {'fills': _copyValue(fills)},
     };
