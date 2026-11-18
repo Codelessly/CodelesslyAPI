@@ -9,6 +9,13 @@
 
 ### Behaviour changes
 
+- **A child written to fill, in a row that wraps, takes the whole line where the row wraps** (CSS `width: 100%`
+  in a wrapping row): `Row gap=24 top phone.wrap=true` over `Card w=392 phone.w=fill` and `Column grow
+  phone.w=fill` (round 11b, 4 builds: seat-booking's artwork card 32 px wide and its About column 0, the page
+  12,900 px tall; smart-home's rules list squeezed and its editor gone; food-ordering's panels). A run gives no
+  room to fill, so the renderer held it to its design number, 0. It is written as a basis longer than any line
+  (`layout.basis`, cut to the line) at the widths the fill and the wrap both hold. A fill the line did not write (a
+  field's, a component's) is as it was.
 - **The strings of an `ExpansionTile` are its header** (`ExpansionTile "{entry.q}"`): the title (and subtitle) of
   the list tile in its `tile` slot, as `ListTile "…"` makes them; the lines under it are what it shows open. They
   were its first children, under a header drawn from the slot alone, blank (round 11b: conference's FAQ, six

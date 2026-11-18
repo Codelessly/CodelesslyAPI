@@ -3018,6 +3018,71 @@ class _Parser {
     }
   }
 
+  /// A child that fills, written so, in a row that wraps (`Row gap=24 top
+  /// phone.wrap=true` over `Card w=392 phone.w=fill` and `Column grow
+  /// phone.w=fill`; round 11b, 4 builds): where the row wraps it takes the
+  /// whole line, as CSS's `width: 100%` in a wrapping row does; a run gives
+  /// no room to fill, so it was held to its design number (0: a column 0
+  /// wide, a card as narrow as its content). It is said as a basis longer
+  /// than any line (a line's basis is cut to the line), at the widths the
+  /// fill and the wrap both hold. A fill the line did not write (a field's,
+  /// a component's) is as it was.
+  void _wrapFills() {
+    const line = 100000;
+    bool horizontal(Json n) => n['type'] == 'row' || (n['type'] == 'flex' && readMap(n['props'])?['direction'] != 'vertical');
+    bool isFill(Object? w) => w is Map && w.containsKey('fill') && (w['fill'] is num) && (w['fill'] as num) <= 0;
+    for (final id in [...nodes.keys]) {
+      final row = nodes[id]!;
+      if (!horizontal(row)) continue;
+      final always = readMap(row['props'])?['wrap'] == true;
+      final wraps = [
+        for (final r in (row['media'] as List?) ?? const [])
+          if (r is Map && readMap(readMap(r['patch'])?['props'])?['wrap'] == true) r,
+      ];
+      if (!always && wraps.isEmpty) continue;
+      bool wrapsWhere(Map rule) {
+        if (always) return true;
+        if (rule.containsKey('minWidth')) return wraps.any((w) => w['minWidth'] == rule['minWidth'] && w['maxWidth'] == rule['maxWidth']);
+        final at = rule['maxWidth'];
+        return at is num && wraps.any((w) => !w.containsKey('minWidth') && w['maxWidth'] is num && (w['maxWidth'] as num) >= at);
+      }
+
+      for (final cid in readStrings(row['children'])) {
+        final c = nodes[cid];
+        if (c == null) continue;
+        final layout = readMap(c['layout']) ?? const <String, Object?>{};
+        if (layout.containsKey('basis')) continue;
+        Json? change;
+        if (always && _writtenFills.contains(cid) && isFill(layout['width'])) {
+          change = {
+            'layout': {'basis': line},
+          };
+        }
+        final rules = [for (final r in (c['media'] as List?) ?? const []) r is Map ? {...r.cast<String, Object?>()} : r];
+        var ruled = false;
+        for (var i = 0; i < rules.length; i++) {
+          final r = rules[i];
+          if (r is! Map<String, Object?>) continue;
+          final patch = readMap(r['patch']);
+          final l = readMap(patch?['layout']);
+          if (l == null || !isFill(l['width']) || l.containsKey('basis') || !wrapsWhere(r)) continue;
+          rules[i] = {
+            ...r,
+            'patch': {
+              ...patch!,
+              'layout': {...l, 'basis': line},
+            },
+          };
+          ruled = true;
+        }
+        if (ruled) (change ??= <String, Object?>{})['media'] = rules;
+        if (change == null) continue;
+        nodes[cid] = {...mergePatch(c, {...change}..remove('media')), if (ruled) 'media': rules};
+        if (_canvas) ops.add({'op': 'patch', 'id': cid, 'patch': change});
+      }
+    }
+  }
+
   void _framedSelectsBare() {
     for (final id in _framedSelects) {
       if (_ownFrameSaid.contains(id)) continue;
@@ -3677,6 +3742,9 @@ class _Parser {
 
   /// The text fields whose lines wrote a fixed height ([_labelledFieldHeights]).
   final _fieldHeights = <String, num>{};
+
+  /// The nodes whose lines wrote `w=fill` ([_wrapFills]).
+  final _writtenFills = <String>{};
 
   /// The Selects whose lines said `underline=` (true: the frame inside the
   /// box is kept).
@@ -6157,6 +6225,7 @@ class _Parser {
         // A field's fixed height, as the reference gives it: the box's (one
         // step of the control scale), its label above it ([_labelledFieldHeights]).
         if (type == 'textField' && !component && key == 'h' && num.tryParse(raw) != null) _fieldHeights[id] = num.parse(raw);
+        if (key == 'w' && raw == 'fill') _writtenFills.add(id);
         if ((grid == null ? null : const {'crossAxisCount': 'cols', 'crossAxisSpacing': 'gap', 'mainAxisSpacing': 'gap'}[key]) case final String to) {
           _use('alias', key, col, of: 'parameter', to: to, on: written);
           key = to;
@@ -9227,6 +9296,7 @@ class _Parser {
     _fieldsBesideButtons();
     _framedSelectsBare();
     _labelledFieldHeights();
+    _wrapFills();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {

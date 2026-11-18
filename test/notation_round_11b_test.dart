@@ -278,6 +278,31 @@ Column
     expect(_node(r, 't')['children'], ['body']);
   });
 
+  test('a child written to fill, in a row that wraps, takes the whole line there (a basis longer than any line)', () {
+    // seat-booking (production.txt:10), smart-home, food-ordering: a column 0 wide, a card as narrow as its content.
+    final r = _parse('''
+Column
+  Row#row gap=24 top phone.wrap=true
+    Card#card w=392 tablet.w=290 phone.w=fill
+      Text "Artwork"
+    Column#col grow gap=20 phone.w=fill maxw=820
+      Text "About"
+  Row gap=8 wrap
+    Column#always w=fill
+      Text "a"
+    Input#field "Email"
+''');
+    expect(r.issues, isEmpty);
+    Map last(String id) => ((_node(r, id)['media'] as List).last as Map)['patch'] as Map;
+    expect(last('card')['layout'], {'width': {'fill': 0}, 'basis': 100000});
+    expect(last('col')['layout'], {'width': {'fill': 0}, 'basis': 100000});
+    // Where the row is narrower than a phone only, the tablet's width is its own.
+    expect(((_node(r, 'card')['media'] as List).first as Map)['patch'], {'layout': {'width': 290}});
+    expect(_layout(r, 'always')['basis'], 100000);
+    // A fill the line did not write is as it was.
+    expect(_layout(r, 'field'), isNot(contains('basis')));
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.
