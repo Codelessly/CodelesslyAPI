@@ -93,6 +93,14 @@ Column
 A `Handle` is as big as its line says and where it is written: the list adds no room around it. Unwritten it is a
 44 px target on a phone and a 24 px grip on a page 700 wide or wider (a touch still lands on it in 44 × 44).
 
+`reorder` on an `each` (or on the line it is under) lets its copies be dragged into a new order, and moved with Alt
+and the arrows from the keyboard. The new order is written to the list the `each` runs over, so that list is a
+variable declared with `state`; over a formula (`each c in colCards(col.id)`) write `reorder onReorder={…}` on the
+line the `each` is under and store the
+move yourself (`result.item`, `result.from`, `result.to`, `result.toList`). Moving between lists (a board's
+columns) is a `ListView`'s: `ListView#lane reorder.group=board reorder.listKey={col.id} onReorder={…}` with the
+`each` under it; the `reorder.*` keys (`group`, `listKey`, `start=press`) are a ListView's, not a Column's.
+
 ```notation expands
 state page=0
 Pages @page h=160
@@ -192,7 +200,7 @@ Column stretch scroll
                 Row w=16
                   Checkbox w=16 h=16 readOnly value={contains(chosen, coalesce(item.id, item))} compact=true focusable=false
                 Row gap=8 grow
-                  Row gap=10
+                  Row gap=10 squeezable=true
                     Column middle center w=28 layout.height=28 fill=#FFE5E7EB radius=14.0
                       Text.strong#column4Text "AB" size=11.0
                     Text.strong "{item.name}"
@@ -231,7 +239,11 @@ ListView h=120 scrollDirection=horizontal
 `selectable selected=@chosen` on the line an each is under makes its rows chosen as a desktop list's are (a press
 alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all), and `SwipeAction` lines under the each put actions
 behind a swiped row: one list takes both (a mailbox: choose many with the keyboard and the pointer, swipe one on a
-phone). `removes` takes the row out of the list's variable; `result.item` is the row swiped.
+phone). `removes` takes the row out of the list's variable; `result.item` is the row swiped. An action is drawn in
+the accent, a destructive one (`danger`, or a delete, remove or trash by its icon or label) in the theme's error
+color; `background=` and `foreground=` give it colors of its own (`background=warning`). A row's own menu
+(`menu=rowMenu onRightClick={menuId=m.id}` on the row) opens on a right-click or a long press, and a press still
+chooses the row; `menu=` on the list's line instead acts on the rows chosen.
 
 ```notation expands
 state msgs=[{"id":"m1","subject":"Q4 review"},{"id":"m2","subject":"Lunch?"}]
@@ -251,7 +263,7 @@ state msgs=[{"id":"m1","subject":"Q4 review"},{"id":"m2","subject":"Lunch?"}]
 state chosen=[]
 state chosenAnchor:decimal=-1
 Column
-  ListView data={msgs} scrollable=false gap=0 swipeActions={"endActions":[{"id":"archive","label":"Archive","icon":"archive","removes":false,"background":"#FF2563EB","foreground":"#FFFFFFFF"},{"id":"delete","label":"Delete","icon":"delete","removes":true,"background":"#FF2563EB","foreground":"#FFFFFFFF"}],"apply":"variable"} focusGroup.axis=vertical focusGroup.wrap=false onKeyDown(key=mod+a)={chosen=map(msgs, x => coalesce(x.id, x)); announce "{length(chosen)} selected"} onSwipeAction(when={result.action=="archive"})={msgs=without(msgs, result.item)}
+  ListView data={msgs} scrollable=false gap=0 swipeActions={"endActions":[{"id":"archive","label":"Archive","icon":"archive","removes":false,"background":"#FF2563EB","foreground":"#FFFFFFFF"},{"id":"delete","label":"Delete","icon":"delete","removes":true,"background":"#FFDC2626","foreground":"#FFFFFFFF"}],"apply":"variable"} focusGroup.axis=vertical focusGroup.wrap=false onKeyDown(key=mod+a)={chosen=map(msgs, x => coalesce(x.id, x)); announce "{length(chosen)} selected"} onSwipeAction(when={result.action=="archive"})={msgs=without(msgs, result.item)}
     Column#listView1Item selected={contains(chosen, coalesce(item.id, item))} onTap={chosen=(result.shift && chosenAnchor >= 0 ? map(slice(msgs, min(chosenAnchor, index), max(chosenAnchor, index) + 1), x => coalesce(x.id, x)) : (result.meta ? (contains(chosen, coalesce(item.id, item)) ? without(chosen, coalesce(item.id, item)) : append(chosen, coalesce(item.id, item))) : [coalesce(item.id, item)])); chosenAnchor=(result.shift && chosenAnchor >= 0 ? chosenAnchor : index); announce "{length(chosen)} selected"}
       Row pad=[16,0,16,0] h=56
         Text "{item.subject}"

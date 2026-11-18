@@ -58,6 +58,18 @@ Column gap=12
   SegmentedButton @plan segments=[{"value":"month","label":"month"},{"value":"year","label":"year"}]
 ```
 
+<a id="forms-tabs-segments-and-chips-chosen-from"></a>
+## Tabs, segments and chips chosen from
+
+What is chosen among a few takes the theme's accent with nothing styled, on a white page as on a cream one, in dark
+as in light: a `TabBar`'s or `Tabs`' chosen label and its line are the accent (the ink where the accent does not
+read on the page); a `SegmentedButton`'s chosen segment and a chosen `ChoiceChip` or `FilterChip` are filled with
+the accent, their label in its ink (`onPrimary`). What is not chosen is a tint of the theme's ink over what it sits
+on, never a fixed grey. Chips and segments are rounded rectangles (the theme's control radius, at every width), not
+pills, and a chosen chip shows no check mark unless the line writes `showCheckmark=true`. A row of chips is the word
+for filters and for tabs across a page: write `ChoiceChip "All stories" selected={section=="All"} onTap={…}` and do
+not style it. The line's own colors (`selectedColor=`, `backgroundColor=`, `labelColor=`) and `shape=` win.
+
 <a id="forms-a-number-with-its-buttons"></a>
 ## A number with its buttons
 
@@ -825,7 +837,7 @@ Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding
 | `variant` | `material` `plain` | `material` | 1 |  |
 | `gap` (or `spacing`) | number | `4` | 1 | `ChipVariant.plain`: the gap between the check (or avatar) and the label. |
 | `selected` | `true`/`false` | `false` | 1 |  |
-| `showCheckmark` | `true`/`false` | `true` | 1 |  |
+| `showCheckmark` | `true`/`false` | `false` | 1 | A check mark before the label of a chosen chip. Off unless written: a chip chosen as a tab or a filter shows it by its fill. |
 | `checkmarkColor` | [Color](values.md#type-Color) |  | 1 |  |
 | `selectedColor` | [Color](values.md#type-Color) |  | 1 |  |
 | `tooltip` | text |  | 1 |  |
@@ -860,7 +872,7 @@ Flutter `FilterChip`: a tap toggles `selected` (written back through its binding
 | `variant` | `material` `plain` | `material` | 1 |  |
 | `gap` (or `spacing`) | number | `4` | 1 | `ChipVariant.plain`: the gap between the check (or avatar) and the label. |
 | `selected` | `true`/`false` | `false` | 1 |  |
-| `showCheckmark` | `true`/`false` | `true` | 1 |  |
+| `showCheckmark` | `true`/`false` | `false` | 1 | A check mark before the label of a chosen chip. Off unless written: a chip chosen as a tab or a filter shows it by its fill. |
 | `checkmarkColor` | [Color](values.md#type-Color) |  | 1 |  |
 | `selectedColor` | [Color](values.md#type-Color) |  | 1 |  |
 | `tooltip` | text |  | 1 |  |
@@ -895,7 +907,7 @@ Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `
 | `variant` | `material` `plain` | `material` | 1 |  |
 | `gap` (or `spacing`) | number | `4` | 1 | `ChipVariant.plain`: the gap between the check (or avatar) and the label. |
 | `selected` | `true`/`false` | `false` | 1 |  |
-| `showCheckmark` | `true`/`false` | `true` | 1 |  |
+| `showCheckmark` | `true`/`false` | `false` | 1 | A check mark before the label of a chosen chip. Off unless written: a chip chosen as a tab or a filter shows it by its fill. |
 | `checkmarkColor` | [Color](values.md#type-Color) |  | 1 |  |
 | `selectedColor` | [Color](values.md#type-Color) |  | 1 |  |
 | `tooltip` | text |  | 1 |  |

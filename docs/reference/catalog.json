@@ -6727,9 +6727,9 @@
           "key": "showCheckmark",
           "type": "bool",
           "kind": "boolean",
-          "default": true,
+          "default": false,
           "nullable": false,
-          "doc": ""
+          "doc": "A check mark before the label of a chosen chip. Off unless written: a chip chosen as a tab or a filter shows it by its fill."
         },
         {
           "key": "checkmarkColor",
@@ -6914,9 +6914,9 @@
           "key": "showCheckmark",
           "type": "bool",
           "kind": "boolean",
-          "default": true,
+          "default": false,
           "nullable": false,
-          "doc": ""
+          "doc": "A check mark before the label of a chosen chip. Off unless written: a chip chosen as a tab or a filter shows it by its fill."
         },
         {
           "key": "checkmarkColor",
@@ -7101,9 +7101,9 @@
           "key": "showCheckmark",
           "type": "bool",
           "kind": "boolean",
-          "default": true,
+          "default": false,
           "nullable": false,
-          "doc": ""
+          "doc": "A check mark before the label of a chosen chip. Off unless written: a chip chosen as a tab or a filter shows it by its fill."
         },
         {
           "key": "checkmarkColor",

@@ -775,7 +775,7 @@ Flutter `ChoiceChip`: a tap toggles `selected` (written back through its binding
 | `variant` | [ChipVariant](values.md#enum-ChipVariant) | `"material"` | `material`, `plain` |  |
 | `spacing` | double | `4` |  | `ChipVariant.plain`: the gap between the check (or avatar) and the label. |
 | `selected` | bool | `false` |  |  |
-| `showCheckmark` | bool | `true` |  |  |
+| `showCheckmark` | bool | `false` |  | A check mark before the label of a chosen chip. Off unless written: a chip chosen as a tab or a filter shows it by its fill. |
 | `checkmarkColor` | [Color](values.md#type-Color) | unset |  |  |
 | `selectedColor` | [Color](values.md#type-Color) | unset |  |  |
 | `tooltip` | String | unset |  |  |
@@ -809,7 +809,7 @@ Flutter `FilterChip`: a tap toggles `selected` (written back through its binding
 | `variant` | [ChipVariant](values.md#enum-ChipVariant) | `"material"` | `material`, `plain` |  |
 | `spacing` | double | `4` |  | `ChipVariant.plain`: the gap between the check (or avatar) and the label. |
 | `selected` | bool | `false` |  |  |
-| `showCheckmark` | bool | `true` |  |  |
+| `showCheckmark` | bool | `false` |  | A check mark before the label of a chosen chip. Off unless written: a chip chosen as a tab or a filter shows it by its fill. |
 | `checkmarkColor` | [Color](values.md#type-Color) | unset |  |  |
 | `selectedColor` | [Color](values.md#type-Color) | unset |  |  |
 | `tooltip` | String | unset |  |  |
@@ -843,7 +843,7 @@ Flutter `InputChip`: a tap fires `click`; its delete icon (default an x) fires `
 | `variant` | [ChipVariant](values.md#enum-ChipVariant) | `"material"` | `material`, `plain` |  |
 | `spacing` | double | `4` |  | `ChipVariant.plain`: the gap between the check (or avatar) and the label. |
 | `selected` | bool | `false` |  |  |
-| `showCheckmark` | bool | `true` |  |  |
+| `showCheckmark` | bool | `false` |  | A check mark before the label of a chosen chip. Off unless written: a chip chosen as a tab or a filter shows it by its fill. |
 | `checkmarkColor` | [Color](values.md#type-Color) | unset |  |  |
 | `selectedColor` | [Color](values.md#type-Color) | unset |  |  |
 | `tooltip` | String | unset |  |  |
