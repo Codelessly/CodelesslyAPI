@@ -440,3 +440,48 @@ section "Named words used in a shape we do not take" lists them.
 
 The prompt with Cards' glossary: 24,206 characters for a page at 1280 (20,542 without), 14,874 for a card at 390
 (11,202 without); the glossary line names 284 words in 3,664 characters.
+
+## 15. The default record and the harvest (2026-11-18)
+
+Five standalone runs of test 10 (a writer building a whole site folder with only the grammar and the core) left
+their record to the writer's own report: nothing was saved unless `--vocabulary` was passed, and three things were
+silent. A call that resolved to nothing stood in with no word in a site's expand (`MiniMonth`, a shared
+`Masthead`); a `components/*.txt` written as a `define` (or as plain lines) was skipped with no word; and so every
+page that called it drew a placeholder. The owner's decision: the default workflow records the unknown words and
+saves them, so they can be given back and supported.
+
+**The record** (SDK `tool/notation/vocabulary_record.dart`). Every `notation.sh expand`, open or closed, saves every
+word the files used, read as section 6.1 reads them, with: its kind (type, text, parameter, flag, event, variant,
+verb, key chord, function, statement), how it resolved (core, a design system's component, `site` (the site's own
+component), alias and to what, definition and whose (`page`, `site`: a define in `components/*.txt`, `design
+system`), primitive, unread, `refused` with the issue that named it, unknown: a placeholder or left out), the shapes
+it was written in (`MiniMonth "text" days= onPick ...`), its files and lines, a writer's definition's text, and when
+each resolution was first and last seen. A site's record is `<site folder>/vocabulary.json` with `VOCABULARY.md`
+(the folder holding `pages/` and `components/`; one page expanded alone adds to it); a file of no site's is
+`<file>.vocabulary.json` beside it; `--vocabulary <file.json>` names the file, `--no-record` saves none. It is
+cumulative: a whole-site expand makes every file's words what they are now, and a word no file uses any more stays,
+`no longer used`, with its history, because writers fix an unknown word before anyone looks. The record does not
+change a document, and costs nothing measurable (a site of 13 files: 5.6 to 6.2 s with it, 5.2 to 6.2 s without).
+
+**Nothing silent.** Each word that stands in as a placeholder (a type, a primitive, an overlay opened and never
+written) is said by `expand`, one line per word with where and how many uses and a total that points to the record,
+in every mode; with `--open` it stays a warning. `tool/codelessly render` reads the record beside the site and gives a
+`placeholder_word` warning on each node, which the outline marks `[placeholder: Word]` and the summary counts.
+`notation.sh validate` (`tool/codelessly validate`, the MCP tool `codelessly_validate`) is an expand that writes
+nothing and gives the same as JSON. A `components/<Name>.txt` whose first line is `define` (or `primitive`) is the
+site's definitions, read by every page and component as a define after a page's last line (note 20, section 7);
+one that is neither that nor `component Name`, a second file of one component and a component JSON `site.json` lists
+that nothing writes are said. A page file whose first line is one `### Name` is read without it.
+
+**The harvest.** `notation.sh vocabulary` given site folders (their `drafts/` too), records, or a folder of them,
+expands each run as `expand --open` does and writes one report: every word beyond the core, how many runs and apps
+reached for it, its shapes grouped where they agree (two agree when they share half their parts), how it resolved
+in each run, each writer's definition, the issues the files have now, and the candidates to support, ranked by runs,
+then by how many shapes agree, then apps and uses. A corpus of answers is read as before.
+
+On test 10's twenty runs (five apps, four modalities each, drafts included): 217 words beyond the core; 49 types the
+writers defined, 46 of them as site components or site definitions; 9 words unknown; none refused in the open
+expansion. The candidates that more than one run made up are all site structure, not missing vocabulary: `Masthead`
+(7 runs, 2 apps; most of them called with nothing, so its shape is the writer's page header), `Transport`, `Frame`,
+`Rail` and `Workspace` (one app each, or two with shapes that do not agree). The words left unknown are a few
+parameters (`Image url=`, 3 runs, all in drafts: the core takes the URL as the line's string) and a verb (`setThemeMode`).
