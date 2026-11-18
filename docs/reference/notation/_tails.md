@@ -3,33 +3,7 @@
 
 The work list for notation parity (docs/design/22-notation-parity.md). Each example of the JSON reference is printed with `printNotation`; a line that keeps part of its node in a `{…}` tail, a `node {…}` line and a `document {…}` line are listed here, with the paths the JSON holds. The reference is complete when this list is empty.
 
-64 examples; 1 with a tail; 1 lines with one; 6 distinct paths; 0 prints that do not read without an issue; 1 that print again differently.
-
-## Paths, most lines first
-
-| Path | Lines |
-|---|---|
-| `conditions.plans[].branches[].set[].node` | 1 |
-| `conditions.plans[].branches[].set[].path` | 1 |
-| `conditions.plans[].branches[].set[].value` | 1 |
-| `conditions.plans[].branches[].when.left` | 1 |
-| `conditions.plans[].branches[].when.op` | 1 |
-| `conditions.plans[].id` | 1 |
-
-## By example
-
-### conditions.json ([state.md](state.md#state-example-conditions-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 8 | `document` | `conditions.plans[].branches[].set[].node`, `conditions.plans[].branches[].set[].path`, `conditions.plans[].branches[].set[].value`, `conditions.plans[].branches[].when.left`, `conditions.plans[].branches[].when.op`, `conditions.plans[].id` |
-
-## Prints that print again differently
-
-Each example is shown as its print printed again (the same document): the printer should give that the first time.
-
-- **navigation.md, the block of line 57**
-  - line 9: `Button "Close" maxWidth=240 onTap={close} max479.grow max479.w={"fill":0,"hug":null} max479.layout.constraints.maxWid…` then `Button "Close" maxWidth=240 onTap={close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWid…`
+64 examples; 0 with a tail; 0 lines with one; 0 distinct paths; 0 prints that do not read without an issue; 0 that print again differently.
 
 ## Kept as JSON (not a layout document)
 

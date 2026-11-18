@@ -100,7 +100,7 @@ It reads as:
 ```notation
 state on=false
 Column gap=12
-  Row#btn gap=8 pad=[16,10,16,10] fill=#FFF3F4F6 radius=8 selected={on} hovered.fill=#FFE5E7EB pressed.opacity=0.8 focused.strokes=[{"color":"#FF2563EB"}] selected.fill=#FF2563EB onTap={on=!on}
+  Row#btn gap=8 pad=[16,10,16,10] fill=#FFF3F4F6 radius=8 selected={on} hovered.fill=#FFE5E7EB pressed.opacity=0.8 focused.border=#FF2563EB selected.fill=#FF2563EB onTap={on=!on}
     Icon "star" size=18 btn.selected.color=#FFFFFFFF
     Text "Favourite" btn.selected.color=#FFFFFFFF
   Input "Name" focused.fill=#FFEFF6FF

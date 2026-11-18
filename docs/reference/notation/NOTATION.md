@@ -108,19 +108,15 @@ state tab="home"
 state name=""
 Row stretch h=fill
   Column gap=4 pad=[12,20,12,16] w=72 h=fill border-right=#FFE5E7EB
-    Row gap=10 pad=[10,8,10,8] fill={(tab=="home")?"#FFE5E7EB":"#00000000"} radius=8 onTap={setVariable variable=tab value=home}
+    Row gap=10 pad=[10,8,10,8] fill={(tab=="home")?"#FFE5E7EB":"#00000000"} radius=8 onTap={tab=home}
       Icon "home" color={(tab=="home")?"#FF2563EB":"#FF4B5563"} size=18
       Text.heading "Home" weight=500 grow color={(tab=="home")?"#FF2563EB":"#FF4B5563"}
   Column scroll h=fill grow
-    Button "New" onTap={openModal to=create presentation=dialog insets=[16,24,16,24]}
+    Button "New" onTap={open create}
   Column scroll w=280 h=fill border-right=#FFE5E7EB hide=tablet
     Text.heading "Details"
-Canvas#create "create" w=480.0 decoration.radius=16 decoration.effects=[{"type":"dropShadow","color":"#24000000","offset":[0,12],"blurRadius":32,"spreadRadius":-6}]
-  Column gap=16 pad=24
-    Row gap=12 between
-      Text.heading "New project" grow
-      IconButton "close" onTap={close}
-    Input "Name" @name
+Dialog#create "New project"
+  Input "Name" @name
 ```
 
 - Page frames and overlays (`App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Brand`, `Content`, `Dialog`, `Dots`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Heading`, `Hero`, `IconTile`, `Lightbox`, `Link`, `Logo`, `Main`, `Menu`, `MenuItem`, `Modal`, `Nav`, `NavBar`, `NavItem`, `NavLink`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `SidebarItem`, `Sidenav`, `SwipeAction`, `Title`, `TopBar`, `Topbar`, `Wanted`, `Window`) are on [navigation.md](navigation.md).
@@ -412,7 +408,7 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | a line moves, fades, springs or follows a value over time. | 3560 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | a UI shows numbers as a picture. | 7496 |
 | [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | a page must work on a phone, a tablet and a desktop, or a line looks different while hovered or pressed. | 682 |
-| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 2821 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 2801 |
 | [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 1589 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 391 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 889 |

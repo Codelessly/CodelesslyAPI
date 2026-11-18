@@ -121,14 +121,9 @@ It reads as:
 
 ```notation width=1280
 Column gap=12
-  Button "Join" onTap={openModal to=signup presentation=dialog insets=[16,24,16,24]}
-Canvas#signup "signup" w=480.0 decoration.radius=16 decoration.effects=[{"type":"dropShadow","color":"#24000000","offset":[0,12],"blurRadius":32,"spreadRadius":-6}]
-  Column gap=16 pad=24
-    Row gap=12 between
-      Text.heading "Join the waitlist" grow
-      IconButton "close" onTap={close}
-    Row#column2Actions gap=8 end
-      Button "Close" maxWidth=240 onTap={close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWidth=null
+  Button "Join" onTap={open signup}
+Dialog#signup "Join the waitlist"
+  Button "Close" maxWidth=240 onTap={close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWidth=null
 ```
 
 <a id="navigation-screens"></a>
