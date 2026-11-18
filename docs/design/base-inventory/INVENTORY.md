@@ -69,13 +69,10 @@ Each type word of kinds b, c and e, and each node type, written `Word#probe "Lab
 
 - App (b), AppShell (b), Window (b)
 - AppBar (a), Nav (b), Navbar (b), NavBar (b), TopBar (b), Topbar (b), Header (b), AppBar (b)
-- Badge (a), Badge (e)
 - Box (a), Column (a), List (e), Box (e)
 - Brand (b), Logo (b)
 - Calendar (a), MiniCalendar (c), CalendarMonth (c), MonthGrid (c)
-- Canvas (a), Canvas (b)
 - Donut (e), DonutChart (e)
-- Dropdown (a), Dropdown (b)
 - FilledButton (a), Button (e)
 - Footer (b), StickyBar (c), StickyFooter (c), BottomBar (c), FooterBar (c), BottomDock (c)
 - Gauge (e), Dial (e)
@@ -84,7 +81,6 @@ Each type word of kinds b, c and e, and each node type, written `Word#probe "Lab
 - Heading (b), Title (b), H2 (b)
 - LineChart (a), AreaChart (e)
 - Main (b), Content (b)
-- Modal (a), Modal (b)
 - NavItem (b), NavLink (b), SidebarItem (b), MenuItem (b)
 - NavSection (b), NavGroup (b), NavLabel (b), SidebarSection (b), SidebarLabel (b), SidebarGroup (b)
 - PieChart (e), Pie (e)
@@ -98,7 +94,6 @@ Each type word of kinds b, c and e, and each node type, written `Word#probe "Lab
 - Switch (a), Toggle (e)
 - Text (a), Highlight (c), HighlightText (c)
 - TextField (a), Input (e)
-- Wanted (b), Wanted (e)
 
 ## Kind a: base: implemented by the renderer and the parser
 

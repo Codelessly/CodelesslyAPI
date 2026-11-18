@@ -605,7 +605,9 @@ final class _Inventory {
       byProbe.putIfAbsent(w.probe!, () => []).add(w);
     }
     for (final g in byProbe.values) {
-      if (g.length < 2) continue;
+      // One word declared in two places (Badge, a node type and a short
+      // name) is probed with the same text: not a synonym of itself.
+      if ({for (final w in g) w.word}.length < 2) continue;
       synonyms.add([for (final w in g) '${w.word} (${w.kind})']);
     }
     synonyms.sort((a, b) => a.first.compareTo(b.first));

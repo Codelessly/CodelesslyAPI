@@ -38,10 +38,6 @@
    "AppBar (b)"
   ],
   [
-   "Badge (a)",
-   "Badge (e)"
-  ],
-  [
    "Box (a)",
    "Column (a)",
    "List (e)",
@@ -58,16 +54,8 @@
    "MonthGrid (c)"
   ],
   [
-   "Canvas (a)",
-   "Canvas (b)"
-  ],
-  [
    "Donut (e)",
    "DonutChart (e)"
-  ],
-  [
-   "Dropdown (a)",
-   "Dropdown (b)"
   ],
   [
    "FilledButton (a)",
@@ -106,10 +94,6 @@
   [
    "Main (b)",
    "Content (b)"
-  ],
-  [
-   "Modal (a)",
-   "Modal (b)"
   ],
   [
    "NavItem (b)",
@@ -172,10 +156,6 @@
   [
    "TextField (a)",
    "Input (e)"
-  ],
-  [
-   "Wanted (b)",
-   "Wanted (e)"
   ]
  ],
  "problems": [],
