@@ -117,6 +117,24 @@ ListView h=120 scrollDirection=horizontal
     Text "{item.name}" w=100
 ```
 
+## A list chosen from and swiped
+
+`selectable selected=@chosen` on the line an each is under makes its rows chosen as a desktop list's are (a press
+alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all), and `SwipeAction` lines under the each put actions
+behind a swiped row: one list takes both (a mailbox: choose many with the keyboard and the pointer, swipe one on a
+phone). `removes` takes the row out of the list's variable; `result.item` is the row swiped.
+
+```notation expands
+state msgs=[{"id":"m1","subject":"Q4 review"},{"id":"m2","subject":"Lunch?"}]
+state chosen=[]
+Column selectable selected=@chosen
+  each m in msgs
+    Row h=56 pad=[16,0,16,0]
+      Text "{m.subject}"
+    SwipeAction "Archive" side=end icon="archive" onTap={msgs=without(msgs, result.item)}
+    SwipeAction "Delete" side=end icon="delete" removes
+```
+
 {{reference}}
 
 {{examples}}
