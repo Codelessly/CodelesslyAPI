@@ -51,6 +51,10 @@ defaults:
 - What you lay out by width is yours: a line with its own rules (`tablet.w=64`, `hide=phone`, `phone.pad=8`) gets
   none of reflow's over them, and a Row whose own line or a line right under it has such rules is not wrapped.
 - `keep` on a line (`Row#window keep`) leaves it and everything in it as written at every width.
+- An `App` whose first pane is a `Sidebar` and that has a `Main` gets a menu button at the start of Main's top bar
+  (a slim bar of its own when it has none), shown where the sidebar is not, and a drawer that repeats the
+  Sidebar's lines (its look, none of its rules for one width: `tablet.w=64 hide=phone` stay the rail's). A page
+  that writes its own `Drawer` line, or `App keep`, gets neither.
 
 Write the rules you want where reflow's default is not the one: they win, and they turn reflow off for that line.
 
