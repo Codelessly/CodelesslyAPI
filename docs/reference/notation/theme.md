@@ -20,8 +20,10 @@ Column gap=4
   Text.title "In the theme's primary" color=primary
 ```
 
-A theme color or text style is written by its name (`color=primary`, `color=onSurface`): the document's theme
-gives it. The theme itself is in the site's files ([design-systems.md](design-systems.md)).
+A theme color or text style is written by its name (`color=primary`, `color=onSurface`, `style=title`): the
+document's theme gives it. A key written after a named style changes only that key, at every width:
+`style=title size=13` and `style=title phone.size=13` are the title at 13, its colour and weight kept (`from=title`
+is the same; no `size=null` is needed). The theme itself is in the site's files ([design-systems.md](design-systems.md)).
 
 ```notation
 Button "Dark mode" onTap={setThemeMode mode=dark}
@@ -134,7 +136,7 @@ From [theme.md](../theme.md) (the block at line 16 of its template, pages/theme.
 Column#example
   Text#eyebrow "OUR MENU" w={"fill":342} h={"hug":18} style=eyebrow
   Text#title "Fire, smoke and season" w={"fill":342} h={"hug":40} style=title
-  Text#note "Cooked over oak." color=ember from=body w={"fill":342} h={"hug":24}
+  Text#note "Cooked over oak." size=13 color=ember from=body w={"fill":342} h={"hug":24}
   box#rule w=120 h=4 fill=ember
 ```
 

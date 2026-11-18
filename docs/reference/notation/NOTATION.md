@@ -354,8 +354,11 @@ Column pad=48 phone.pad=16
   Text "Wide" phone.size=14 hide=tablet
 ```
 
-Bounds in pixels (`min700`, `max899`), breakpoints (`minTablet`), orientation (`portrait`) and combined conditions
-are on [responsive.md](responsive.md).
+A page expanded at a desktop's width gets rules for a tablet and a phone of its own (reflow: bands wrap, an app's
+window drops its side panes); a line with its own rules, a Row of a list or of a toolbar, and a line written `keep`
+are left as written. A component's own rules (its root's `tablet.w=64`) hold where it is called, unless the call
+writes its width. Bounds in pixels (`min700`, `max899`), breakpoints (`minTablet`), orientation (`portrait`),
+combined conditions and what reflow does are on [responsive.md](responsive.md).
 
 <a id="notation-hover-press-focus"></a>
 ## Hover, press, focus
@@ -396,8 +399,8 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 
 | Page | What is in it | Open it when | Words |
 |---|---|---|---|
-| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 4907 |
-| [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1291 |
+| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 4945 |
+| [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1330 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`. | 2622 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 1879 |
 | [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 11930 |
@@ -407,9 +410,9 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | a line reacts to the pointer beyond a tap, or is dragged, dropped or swiped. | 3290 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | a line moves, fades, springs or follows a value over time. | 3560 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | a UI shows numbers as a picture. | 7496 |
-| [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | a page must work on a phone, a tablet and a desktop, or a line looks different while hovered or pressed. | 682 |
-| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 2801 |
-| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 1589 |
+| [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | a page must work on a phone, a tablet and a desktop, or a line looks different while hovered or pressed. | 997 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 2904 |
+| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 1580 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 391 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 889 |
 | [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 13797 |

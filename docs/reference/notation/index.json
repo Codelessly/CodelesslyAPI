@@ -2,7 +2,7 @@
   "version": "35.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 3961
+    "words": 4034
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 3961
+      "words": 4034
     },
     {
       "topic": "notation-a-line",
@@ -74,7 +74,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-pages-at-other-widths",
       "title": "Pages at other widths",
-      "words": 97
+      "words": 170
     },
     {
       "topic": "notation-hover-press-focus",
@@ -103,14 +103,14 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 4907
+      "words": 4945
     },
     {
       "topic": "layout-sizes",
       "file": "layout.md",
       "anchor": "layout-sizes",
       "title": "Sizes",
-      "words": 97
+      "words": 135
     },
     {
       "topic": "layout-place",
@@ -167,14 +167,14 @@
       "anchor": "page-theme",
       "title": "Text and theme",
       "summary": "Text, its looks and its style keys, the theme's names for colors and styles, and text direction.",
-      "words": 1291
+      "words": 1330
     },
     {
       "topic": "theme-text",
       "file": "theme.md",
       "anchor": "theme-text",
       "title": "Text",
-      "words": 107
+      "words": 145
     },
     {
       "topic": "theme-words",
@@ -209,7 +209,7 @@
       "file": "theme.md",
       "anchor": "theme-examples",
       "title": "Examples",
-      "words": 224
+      "words": 225
     },
     {
       "topic": "decoration",
@@ -646,14 +646,21 @@
       "anchor": "page-responsive",
       "title": "Responsive",
       "summary": "A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states.",
-      "words": 682
+      "words": 997
     },
     {
       "topic": "responsive-keys-at-other-widths",
       "file": "responsive.md",
       "anchor": "responsive-keys-at-other-widths",
       "title": "Keys at other widths",
-      "words": 315
+      "words": 208
+    },
+    {
+      "topic": "responsive-what-reflow-does",
+      "file": "responsive.md",
+      "anchor": "responsive-what-reflow-does",
+      "title": "What reflow does",
+      "words": 416
     },
     {
       "topic": "responsive-breakpoints",
@@ -675,7 +682,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 2801
+      "words": 2904
     },
     {
       "topic": "navigation-page-frames",
@@ -689,7 +696,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 120
+      "words": 223
     },
     {
       "topic": "navigation-screens",
@@ -732,7 +739,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1589
+      "words": 1580
     },
     {
       "topic": "components-calling-one",
@@ -767,7 +774,7 @@
       "file": "components.md",
       "anchor": "components-examples",
       "title": "Examples",
-      "words": 949
+      "words": 940
     },
     {
       "topic": "design-systems",

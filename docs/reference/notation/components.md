@@ -124,8 +124,8 @@ From [`site/components/Header.json`](../components.md).
 component Header "The site's top bar: the name (home) and an About link (a modal)."
   param savedCount:int=0
 Row#bar gap=16 pad=[20,0,20,0] w={"fill":390} h=56 fill=paper border-bottom=line crossAxisAlignment=null
-  Text#brand "Waymark" w={"hug":120} h={"hug":22} size=null color=null from=body weight=700 onTap={go home}
-  Text#count "{props.savedCount} saved" right w={"fill":120} h={"hug":22} size=null color=muted from=body
+  Text#brand "Waymark" weight=700 from=body w={"hug":120} h={"hug":22} onTap={go home}
+  Text#count "{props.savedCount} saved" color=muted from=body right w={"fill":120} h={"hug":22}
   Text#about "About" w={"hug":120} h={"hug":22} style=link onTap={openModal to=about presentation=dialog}
 ```
 
@@ -137,7 +137,7 @@ From [`site/components/Footer.json`](../components.md).
 ```notation
 component Footer "The site's footer, on every page."
 Row#foot between pad=[20,0,20,0] w={"fill":390} h=64 fill=line crossAxisAlignment=null
-  Text#copy "Waymark, slow travel by rail" w={"hug":120} h={"hug":22} size=null color=muted from=body
+  Text#copy "Waymark, slow travel by rail" color=muted from=body w={"hug":120} h={"hug":22}
   Text#all "All trips" w={"hug":120} h={"hug":22} style=link onTap={go home}
 ```
 
@@ -155,8 +155,8 @@ Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
     ListView#tripList w={"fill":350} h={"hug":200} scrollable=false gap=12
       each item in trips
         Row#tripCard between pad=[16,0,16,0] w={"fill":350} h=64 fill=#FFFFFFFF border=line radius=12 crossAxisAlignment=null onTap={navigate to=trip params={"id":"${item.id}"}}
-          Text#tripName "{item.name}" w={"hug":200} h={"hug":22} size=null color=null from=body weight=600
-          Text#tripDays "{item.days} days" w={"hug":60} h={"hug":22} size=null color=muted from=body
+          Text#tripName "{item.name}" weight=600 from=body w={"hug":200} h={"hug":22}
+          Text#tripDays "{item.days} days" color=muted from=body w={"hug":60} h={"hug":22}
   Footer#footer type=Footer w={"fill":390} h=64
 on load={setVariable variable=saved value={coalesce(storage.saved, [])}}
 Canvas#about "About" w=320 h=180 decoration.radius=16
@@ -180,7 +180,7 @@ Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
     Text#back "Back" w={"hug":120} h={"hug":22} style=link onTap={navigate mode=pop}
     Text#title "{trip.name}" w={"fill":350} h={"hug":34} style=title
     Button.outline#save "Save trip" w=160 h=40 label={isSaved ? 'Saved' : 'Save trip'} onTap={if condition={"left":"${isSaved}","op":"isTrue"} then={setVariable variable=saved op=remove value={trip.id}} else={setVariable variable=saved op=add value={trip.id}}; setStorage key=saved valueType=list value={saved}; toast "{isSaved ? 'Saved' : 'Removed'}"}
-    Text#packTitle "Packing list" w={"hug":120} h={"hug":22} size=null color=null from=body weight=700
+    Text#packTitle "Packing list" weight=700 from=body w={"hug":120} h={"hug":22}
     ListView#packList w={"fill":350} h={"hug":120} scrollable=false gap=8
       each item in trip.packing
         Row#packRow gap=12 w={"fill":350} h=32 crossAxisAlignment=null onTap={contains(coalesce(get(storage.packed, route.id), []), item) ? setStorage key="packed.{route.id}" valueType=list op=remove value={item} : setStorage key="packed.{route.id}" valueType=list op=add value={item}}

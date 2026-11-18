@@ -9,8 +9,10 @@ place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment 
 ## Sizes
 
 `w` and `h` take a number (fixed), `fill` or `hug`. A size that keeps its design size is its JSON
-(`w={"fill":390}`): a printed document writes it so. `grow` shares the room left in a Row or Column; `basis=320` on
-a child of a wrapping Row is the width it starts from.
+(`w={"fill":390}`): a printed document writes it so. `grow` shares the room left in a Row or Column (a box that
+grows in a column is as tall as the room left, so `Column scroll grow` under a bar scrolls in it); a bare
+`Spacer` takes the room left and pushes what follows to the end; `basis=320` on a child of a wrapping Row is the
+width it starts from.
 
 ```notation
 Column gap=8
