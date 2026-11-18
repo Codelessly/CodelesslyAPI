@@ -69,6 +69,16 @@ final class PrintContext {
   late final _Probes _probes = _Probes.of(catalog, options);
   final Map<String, _NodeLine> _lines = {};
 
+  /// The page views the walk prints as written (`PageView`, their page a
+  /// line under them), not as `Pages`: their page did not read back as the
+  /// one `Pages` makes.
+  final Set<String> _pagesAsWritten = {};
+
+  /// Page view [id] is printed as written from now on ([_pagesAsWritten]).
+  void printPagesAsWritten(String id) {
+    if (_pagesAsWritten.add(id)) _lines.remove(id);
+  }
+
   /// The key that means [path] on [type] (keys.dart's shortest), or null
   /// when none reads back as it.
   String? _keyFor(String path, String type) {
@@ -606,7 +616,10 @@ final class _NodeLine {
   String get _asked => _typed ? '$head type=$type' : head;
 
   void write() {
-    var first = _head();
+    // A page view whose one child is the page `Pages` makes is `Pages`: the
+    // walk writes the page's lines under it (print.dart).
+    final pages = type == 'pageView' && !c._pagesAsWritten.contains(id) && readStrings(n['children']).length == 1 && readStrings(n['children']).single == '${id}Page';
+    var first = pages ? 'Pages' : _head();
     if (type[0] != type[0].toLowerCase() && _probes.node(first)['type'] != type && _probes.node('$type type=$type')['type'] == type) {
       _typed = true;
       first = type;
@@ -617,7 +630,7 @@ final class _NodeLine {
     // line chart's series): then the own word.
     final own = _probes.own(type);
     // (The marks are left out: under an each or of a record's field they read only where the line is.)
-    if (!_typed && head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.where((w) => w != twoWay?.word).join(' '))) {
+    if (!_typed && !pages && head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.where((w) => w != twoWay?.word).join(' '))) {
       words.clear();
       doneProps.clear();
       doneBind.clear();
@@ -813,6 +826,9 @@ final class _NodeLine {
     final leaf = nested ? key.substring(key.indexOf('.') + 1) : key;
     final fixed = holder?[leaf];
     final reads = type == 'text' || type == 'box';
+    // A value and a binding of the main field: the binding is its key, the
+    // value its path (`props.label="0" label={props.count}`), not the string.
+    if (fixed is String && !nested && bind['props.$key'] != null) return;
     if (fixed is String && (reads || !fixed.contains(r'${'))) {
       final q = _quoted(fixed);
       if (q == null) return;

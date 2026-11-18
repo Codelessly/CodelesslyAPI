@@ -143,6 +143,50 @@ Column
     });
   });
 
+  group('structure', () {
+    test('Pages prints as Pages: its page is no line, each line shown at its position', () {
+      final doc = _roundTrip('''
+state page=0
+Column
+  Pages @page h=160
+    Text "a"
+    Text "b"
+''', same: ['    Text "a" h=fill', '    Text "b" h=fill']);
+      expect(_nodes(doc).keys, contains('pageView1Page'));
+      final printed = printNotation(doc, catalog: standardCatalog);
+      expect(printed, contains('  Pages h=160 @page'));
+      expect(printed, isNot(contains('pageView1Page')));
+      expect(printed, isNot(contains('index ==')));
+    });
+
+    test('Pages over data prints its each', () {
+      _roundTrip('''
+state items=["a","b"]
+Column
+  Pages#pages h=100
+    each item in items
+      Column#page
+        Text "{item}"
+''', same: ['    each item in items', '      Column#page h=fill']);
+    });
+
+    test('PageView (pageView), the catalog name, is the node as written: its lines are its children', () {
+      final doc = _roundTrip('''
+state items=["a","b"]
+Column
+  pageView#raw h=50
+    each item in items
+      Text#t "{item}"
+''', same: ['  PageView#raw h=50', '    each item in items', '      Text#t "{item}"']);
+      expect((_nodes(doc)['raw']! as Map)['children'], ['t']);
+      expect(((_nodes(doc)['raw']! as Map)['bind'] as Map)['data'], r'${items}');
+      expect((_nodes(doc)['raw']! as Map)['props'], isNot(contains('itemCount')));
+      final two = parseNotation('Column\n  pageView#v h=50\n    Text#a "a"\n    Text#b "b"', catalog: standardCatalog).document;
+      expect((_nodes(two)['v']! as Map)['children'], ['a', 'b']);
+      expect(jsonEncode(_nodes(two)['a']), isNot(contains('visible')));
+    });
+  });
+
   // Grammar change (the owner, 2026-11-17: "Support hyphens, that's very
   // common!"): an id is letters, digits and `_`, its parts joined by hyphens.
   group('an id with hyphens', () {

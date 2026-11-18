@@ -2321,6 +2321,7 @@ class _Parser {
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
+    declares: (name) => catalog.widget(name) != null,
     isFrame: (name) => notationTypes[name] == null && catalog.widget(name)?.children == ChildModel.list,
     roles: true,
     menu: options.reflow && options.width >= 700,
@@ -3788,7 +3789,7 @@ class _Parser {
           parent.condition == null &&
           parent.each == null &&
           parent.slot == null &&
-          (parent.type == 'listView' || parent.type == 'gridView') &&
+          (parent.type == 'listView' || parent.type == 'gridView' || parent.type == 'pageView') &&
           listNode != null &&
           readStrings(listNode['children']).isEmpty &&
           readMap(listNode['bind'])?['data'] == null &&
@@ -6863,7 +6864,10 @@ class _Parser {
       _parentOf[id] = parent.id;
       if (cell) _intoRow(parent.grid!, id);
     }
-    if (type == 'pageView') {
+    // `Pages`: a page view of one page, the lines under it. `PageView`
+    // (`pageView`), the catalog's name, is the node as written (design 22,
+    // 4.7): the lines under it are its children, as under any other line.
+    if (type == 'pageView' && written == 'Pages') {
       // Its page: what the page view draws at each position.
       final pageId = '${id}Page';
       nodes[pageId] = {

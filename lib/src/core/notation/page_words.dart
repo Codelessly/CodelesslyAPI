@@ -47,6 +47,7 @@ final class PageWords {
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
     this.isComponent = _none,
+    this.declares = _none,
     this.isFrame = _none,
     this.roles = false,
     this.menu = false,
@@ -84,6 +85,10 @@ final class PageWords {
   /// Whether a design system has a component of this name (its `Sidebar`
   /// with `items:` is that component, not a pane).
   final bool Function(String name) isComponent;
+
+  /// Whether the catalog declares a node type of this name, also one a word
+  /// of the notation shadows (`Badge "3" type=Badge` is the component).
+  final bool Function(String name) declares;
 
   /// Whether a design system's component of this name takes children (its
   /// `Dialog` frames a dialog's content).
@@ -769,7 +774,7 @@ final class PageWords {
     final parts = _Parts(rest);
     // `TopBar "…" type=TopBar`: the design system's component, by its own
     // name (design 22, 4.7), no page word.
-    if (isComponent(word) && parts.value('type') == word) {
+    if ((isComponent(word) || declares(word)) && parts.value('type') == word) {
       open();
       return out..add((indent: at, text: text));
     }
