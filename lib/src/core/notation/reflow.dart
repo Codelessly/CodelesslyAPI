@@ -142,10 +142,10 @@ final class PageReflow {
   /// Whether a row is the writer's to lay out at other widths, so that it
   /// is not wrapped nor its parts given shares ([list]: a row of a list is
   /// too). See the head of this file.
-  bool _leftAsWritten(String id, {bool list = false}) {
+  bool _leftAsWritten(String id, {bool list = false, bool ownKids = true}) {
     if (_underKept(id) || _own.contains(id)) return true;
     final n = nodes[id]!;
-    if (_kids(n).any(_own.contains)) return true;
+    if (ownKids && _kids(n).any(_own.contains)) return true;
     // An app's frame or a bar: a height of its own, the room left in a column.
     final h = _layout(n)['height'];
     if (h is num || (h is Map && h.containsKey('fill')) || (readMap(n['bind'])?.containsKey('layout.height') ?? false)) return true;
@@ -319,6 +319,11 @@ final class PageReflow {
         } else if (_props(n)['scrollable'] != true && _props(n)['wrap'] != true) {
           if (!_tableRow(id, n) && roles[id] != 'app') _row(id, n);
         }
+      } else if (type == 'row' && !_handled.contains(id) && !_leftAsWritten(id, list: true, ownKids: false) && roles[id] != 'app') {
+        // A row the writer laid out by width in part (a field narrower on
+        // a tablet, a menu button shown on a phone) that still has no room
+        // on a phone.
+        _crowded(id, n);
       }
       if (type == 'gridView') _gridView(id, n);
       if (type == 'text') _headline(id, n);
@@ -357,6 +362,14 @@ final class PageReflow {
     // A list beside its detail shows on a phone by turns ([ListDetail]).
     for (final k in before) {
       if (!_levels.contains(k)) _hide(k, reflowPhoneMax);
+    }
+    // A Main of a fixed width (a list) before the pane that takes the room
+    // left, with no taps that select what it shows: a phone shows the list
+    // alone, as wide as the window.
+    final detail = _detailAfter(kids, main);
+    if (detail != null && !_levels.contains(kids[main])) {
+      _add(kids[main], reflowPhoneMax, {'layout': {'width': {'fill': 0}, 'flex': 1}});
+      _hide(detail, reflowPhoneMax);
     }
   }
 
@@ -517,6 +530,20 @@ final class PageReflow {
       final kids = _kids(nodes[app]!);
       final main = kids.indexWhere((k) => roles[k] == 'main');
       if (main < 0 || _placesItself(kids[main])) continue;
+      // A list written as `Main w=380` beside the `Pane` that shows what it
+      // selects (Desk's mail): at a phone's width Main kept its 380 and the
+      // reading pane was 10 wide (track C).
+      final detail = _detailAfter(kids, main);
+      if (detail != null) {
+        final s = _selects(kids[main], detail);
+        if (s.isNotEmpty) {
+          num need = _detailLeast + _fixedWidth(nodes[kids[main]]!)!;
+          for (final k in kids.take(main)) {
+            if (_fixedWidth(nodes[k]!) != null && !_hiddenAtTablet(k, app)) need += _tabletWidth(k);
+          }
+          return _listDetail([kids[main], detail], [s], need, app: true);
+        }
+      }
       final levels = [kids[main]];
       final taps = <List<({String node, int reaction})>>[];
       for (var i = main - 1; i >= 0; i--) {
@@ -573,6 +600,28 @@ final class PageReflow {
       return _listDetail(sides, [s], need, app: false);
     }
     return null;
+  }
+
+  /// The pane after an app's `Main` of a fixed width (a list) that takes
+  /// the room left (what the list shows), when nothing between them and
+  /// neither says where it shows.
+  String? _detailAfter(List<String> kids, int main) {
+    if (_fixedWidth(nodes[kids[main]]!) == null || main + 1 >= kids.length) return null;
+    final next = kids[main + 1];
+    final n = nodes[next]!;
+    if (roles[next] != 'pane' || _fixedWidth(n) != null || !_fills(n) || _placesItself(next)) return null;
+    return next;
+  }
+
+  /// A pane's width at a tablet's: its own rule there (a rail's
+  /// `tablet.w=64`), else as written.
+  num _tabletWidth(String k) {
+    for (final r in (nodes[k]!['media'] as List? ?? const [])) {
+      final rule = readMap(r);
+      final w = readMap(readMap(rule?['patch'])?['layout'])?['width'];
+      if (rule?['maxWidth'] case final num max when max >= reflowTabletMax && w is num) return w;
+    }
+    return _fixedWidth(nodes[k]!) ?? 0;
   }
 
   /// The row a list and its detail share, when they are not an app's panes.
@@ -692,11 +741,13 @@ final class PageReflow {
   /// The button that opens an app's sidebar where the window hides it: what
   /// follows it in the bar (the page's title) takes the room beside it there,
   /// so the two sit together at the bar's start and the actions at its end.
+  /// A bar of the title alone too: its title went to the bar's far end,
+  /// away from the button (track C).
   void _appMenu(String id, Json n) {
     final bar = _parents[id];
     if (bar == null) return;
     final kids = _kids(nodes[bar]!);
-    if (kids.length < 3 || kids.first != id) return;
+    if (kids.length < 2 || kids.first != id) return;
     final next = nodes[kids[1]]!;
     if (_fixedWidth(next) != null || _fills(next)) return;
     final from = (n['media'] as List? ?? const []).map((r) => r is Map ? r['minWidth'] : null).whereType<num>().firstOrNull;
@@ -969,7 +1020,8 @@ final class PageReflow {
     // than a phone holds beside anything, a form beside its preview, wraps).
     final wide = kids.any((k) => (_fixedWidth(nodes[k]!) ?? 0) > 300);
     for (var p = _parents[id]; p != null && !wide; p = _parents[p]) {
-      if (roles[p] == 'app' || (_type(nodes[p]!) == 'row' && _frame(p, nodes[p]!))) return;
+      // …unless it has no room on a phone (a filter bar of fields).
+      if (roles[p] == 'app' || (_type(nodes[p]!) == 'row' && _frame(p, nodes[p]!))) return _crowded(id, n);
     }
     _add(id, reflowTabletMax, {
       'props': {'wrap': true, 'runSpacing': spacing > 0 ? math.min(spacing, 12) : 8},
@@ -985,6 +1037,77 @@ final class PageReflow {
         // A block alone among labels and buttons still keeps a column's width.
         final basis = _choiceBasis(kid, type == 'spacer' ? 0 : blocks[k] != null && !blocks[k]!.light ? 280 : _fields.contains(type) ? 180 : isComponent(type) ? 160 : 96);
         _add(k, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'basis': basis, 'flex': switch (_layout(kid)['flex']) { final num f when f > 0 => f, _ => 1 }}});
+      }
+    }
+  }
+
+  /// The room a phone gives a row: its width less a page's padding.
+  static const num _phoneRoom = 342;
+
+  /// About how wide [id] is laid out as written (what a row needs on a
+  /// phone): a fixed width as written, a text by its letters, a control or
+  /// a design system's part at a button's width; 0 when a phone hides it.
+  num _need(String id) {
+    final n = nodes[id]!;
+    if (n['visible'] == false || _rules[id]?[reflowPhoneMax]?['visible'] == false) return 0;
+    for (final r in (n['media'] as List? ?? const [])) {
+      final rule = readMap(r);
+      if (rule?['maxWidth'] case final num max when max >= reflowPhoneMax && readMap(rule!['patch'])?['visible'] == false) return 0;
+    }
+    if (_fixedWidth(n) case final num w) return w;
+    final type = _type(n);
+    final p = _props(n);
+    num text(Object? t, num size) => t is String && !t.contains(r'${') ? t.length * size * 0.55 : 60;
+    num pad() => _sidesPadding(n);
+    switch (type) {
+      case 'spacer':
+        return 0;
+      case 'text':
+        return text(p['text'], switch (readMap(p['style'])?['fontSize']) { final num s => s, _ => 14 });
+      case 'icon':
+        return switch (p['size']) { final num s => s, _ => 24 };
+      case 'iconButton':
+        return 32;
+      case 'textField' || 'dropdown':
+        return 160;
+      case 'row':
+        final kids = _kids(n);
+        return pad() + _spacing(n) * math.max(0, kids.length - 1) + kids.fold<num>(0, (s, k) => s + _need(k));
+      case 'column':
+        return pad() + _kids(n).fold<num>(0, (m, k) => math.max(m, _need(k)));
+    }
+    if (type.endsWith('Button') || type.endsWith('Chip')) return text(p['label'], 13) + (p['icon'] == null ? 32 : 52);
+    return isComponent(type) ? 100 : 60;
+  }
+
+  /// A row of an app's pane, or one laid out by width in part, that has no
+  /// room on a phone (a filter bar: a search field, two selects and a
+  /// count; a top bar's title beside a search and a button): its parts
+  /// wrap onto further lines there, a field of a fixed width taking a
+  /// line's share, a spacer gone (track C: a row of controls kept its line
+  /// in an app and overflowed a phone by up to 370 px).
+  void _crowded(String id, Json n) {
+    final kids = _kids(n);
+    if (kids.length < 2 || _layout(n)['height'] is num || _props(n)['wrap'] == true || _props(n)['scrollable'] == true) return;
+    // What grows in it (a list row's subject) narrows first: the row is
+    // crowded when what keeps its width has no room.
+    final shown = [for (final k in kids) if (_need(k) > 0 || (_fills(nodes[k]!) && _type(nodes[k]!) != 'spacer')) k];
+    final need = _sidesPadding(n) + _spacing(n) * math.max(0, shown.length - 1) + shown.fold<num>(0, (s, k) => s + (_fills(nodes[k]!) && _fixedWidth(nodes[k]!) == null ? 32 : _need(k)));
+    if (need <= _phoneRoom) return;
+    final spacing = _spacing(n);
+    _add(id, reflowPhoneMax, {
+      'props': {'wrap': true, 'runSpacing': spacing > 0 ? math.min(spacing, 12) : 8},
+    });
+    for (final k in kids) {
+      final kid = nodes[k]!;
+      final type = _type(kid);
+      if (type == 'spacer') {
+        _hide(k, reflowPhoneMax);
+      } else if (_fixedWidth(kid) case final num w when w >= 120) {
+        _add(k, reflowPhoneMax, {'layout': {'width': {'fill': 0}, 'basis': math.min(w, 240), 'flex': 1}});
+      } else if (_fills(kid) || ((type == 'row' || type == 'column') && _need(k) > 120)) {
+        final basis = math.min(_phoneRoom, math.max(96, _need(k)));
+        _add(k, reflowPhoneMax, {'layout': {'width': {'fill': 0}, 'basis': basis, 'flex': switch (_layout(kid)['flex']) { final num f when f > 0 => f, _ => 1 }}});
       }
     }
   }

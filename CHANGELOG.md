@@ -59,6 +59,31 @@
   comma or its `with` and lost its verb); they read `where a page is`, `what a list with nothing in it`, `what a page
   with unsaved changes shows` (seven words at most, as before). A word left hanging at the end (`over`, `when`) is
   dropped.
+A desktop page written in one pass works on a tablet and a phone by itself (track C: the one-pass builds of tests
+10 and 11 and Desk's reference screens with their narrow rules taken out, at 834x1112 and 390x844). Nothing
+changes at a desktop's width.
+
+- **A `Table`** leaves out, at a tablet's and a phone's width, the columns its row has no room for, from the last
+  back; the first column, the checkbox and a narrow unlabelled column (a row's menu) stay. A width the writer
+  leaves a column out at (`"hide":"phone"`) is theirs. At 390 the first column had no width left and its names
+  were cut to nothing.
+- **A row of an app's pane that has no room on a phone wraps there** (a filter bar of a search, selects and a
+  count; a top bar's title beside a search and a button): a field of a fixed width takes a line's share, a
+  spacer goes. Such rows kept their line in an app and overflowed a phone by up to 370 px. A row whose parts the
+  writer sized by width in part (`tablet.w=200` on its search) still wraps on a phone when it has no room there.
+- **A list written as `Main w=380` beside the `Pane` that shows what it selects** is a list beside its detail:
+  one at a time on a phone with a back button, or the list alone when no tap selects (Main kept 380 and the
+  reading pane was 10 wide).
+- **A design system's rail**: `sizes.rail` in its theme (Desk's 64) makes an app's `Sidebar` written with no rule
+  for other widths a rail that wide on a tablet and the drawer on a phone (`NotationOptions.sidebarRail`). It was
+  as wide as on a desktop with Desk's words folded to their icons.
+- **A Row written `wrap` with an `each` and other lines** wraps them all narrower than a desktop, each list a
+  group of its copies: the first list took the row's wrapping, and on a tablet its chips stood in a column 96
+  wide while the second list's ran over them.
+- **A top bar of an app's title alone** sets the title beside the menu button on a phone (it went to the bar's
+  far end).
+- **A width rule on a line whose width is bound** (`w={listW} tablet.w=275 phone.w=fill`) holds where it says;
+  the phone's `fill` was lost beside the binding and the pane kept the tablet's 275.
 
 ## 36.0.0
 

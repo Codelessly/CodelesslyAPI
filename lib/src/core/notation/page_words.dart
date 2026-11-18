@@ -37,6 +37,7 @@ final class PageWords {
     this.contentWidth = 1120,
     this.narrowWidth = 720,
     this.sidebarWidth = 248,
+    this.sidebarRail,
     this.sectionPad = 64,
     this.gutter = 24,
     this.band,
@@ -69,6 +70,11 @@ final class PageWords {
   /// The widest a section's content gets, and a `narrow` section's.
   final double contentWidth, narrowWidth;
   final double sidebarWidth;
+
+  /// A design system's rail width (`sizes.rail`): an app's sidebar written
+  /// with no rule for other widths is a rail that wide at a tablet's, where
+  /// the system's words fold to their icons. Null: as wide as written.
+  final double? sidebarRail;
 
   /// A section's padding above and below, and a page's side gutter.
   final double sectionPad, gutter;
@@ -243,6 +249,11 @@ final class PageWords {
   int? _sidebarAt;
   int _panesBefore = 0;
   double _widthBefore = 0;
+
+  /// How wide an app's sidebar is at a tablet's width: a rail's 64, none
+  /// where it is hidden there, else as written (what a table beside it has
+  /// no room for).
+  double _sideAtTablet = 0;
   bool _mainSeen = false;
   int? _mainAt;
 
@@ -250,6 +261,9 @@ final class PageWords {
   /// lays its window out by width itself (`App keep`): then no drawer and
   /// no button for it are made.
   bool ownDrawer = false;
+
+  /// A token of a line that says what it does at another width.
+  static final _byWidth = RegExp(r'^(?:(?:phone|tablet|desktop|portrait|landscape|min\w+|max\w+)\.|hide=|show=)');
 
   /// Where the sidebar's button shows: on a phone, and on a tablet too when
   /// the window drops the first of two panes there.
@@ -1005,12 +1019,31 @@ final class PageWords {
       final width = parts.take('w') ?? _n(sidebarWidth);
       final pad = parts.take('pad') ?? '[12,16,12,12]';
       final gap = parts.take('gap') ?? '2';
-      open(frame: framed ? 'Sidebar' : null).rail = parts.railWidths;
+      final tokens = parts._tokens;
+      final window = framed && root == 'App' && indent > 0 && !_mainSeen;
+      // A design system whose sidebar words fold to their icons at a
+      // tablet's width (Desk) has a rail there: a sidebar written with no
+      // rule for other widths was as wide as on a desktop with its items
+      // folded, icons alone in 240 (track C).
+      final railed = window &&
+          sidebarRail != null &&
+          (double.tryParse(width) ?? sidebarWidth) >= 120 &&
+          !tokens.any((t) => _byWidth.hasMatch(t));
+      // (On a phone it is the drawer, as a writer's rail is: `hide=phone`.)
+      final rail = railed ? ' tablet.w=${_n(sidebarRail!)} hide=phone' : '';
+      open(frame: framed ? 'Sidebar' : null).rail = railed ? const ['tablet'] : parts.railWidths;
       final side = sideFill ?? paneFill;
       final fill = !framed || parts.has('fill') || side == null ? '' : ' fill=$side';
-      if (framed && root == 'App' && indent > 0 && !_mainSeen) {
+      if (window) {
         _panesBefore++;
         _widthBefore += double.tryParse(width) ?? sidebarWidth;
+        _sideAtTablet = railed
+            ? sidebarRail!
+            : parts.railWidths.any((w) => w != 'phone')
+            ? 64
+            : tokens.contains('hide=tablet') || tokens.contains('tablet.hidden') || tokens.contains('tablet.visible=false')
+                ? 0
+                : double.tryParse(width) ?? sidebarWidth;
         // The first pane of the window is what a narrow one leaves out.
         if (sidebarMenu != null && sidebarRest == null && _panesBefore == 1 && !ownDrawer) {
           // The drawer is the sidebar at a phone's width: what the line says
@@ -1019,7 +1052,7 @@ final class PageWords {
           _sidebarAt = indent;
         }
       }
-      return out..add((indent: at, text: 'Column${framed ? _role('sidebar') : ''}$mark w=$width${framed ? ' h=fill' : ''} pad=$pad gap=$gap$fill${parts.hasBorder ? '' : ' border-right=$line'}${parts.all}'));
+      return out..add((indent: at, text: 'Column${framed ? _role('sidebar') : ''}$mark w=$width${framed ? ' h=fill' : ''} pad=$pad gap=$gap$fill${parts.hasBorder ? '' : ' border-right=$line'}${parts.all}$rail'));
     }
     if (word == 'Main' || word == 'Content') {
       if (framed && root == 'App' && !_mainSeen) {

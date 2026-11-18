@@ -43,15 +43,27 @@ defaults:
   smaller; a box wider than a phone fits it; a table's columns share the row, and a phone keeps the ones it has
   room for; a `Nav` hides its links on a phone. A Row of copies an `each` repeats (`Row gap=5` over `each d in
   days` / `ChoiceChip …`) wraps them onto further lines on a tablet or a phone, on the page and in a dialog over it
-  (`Row scroll` keeps them on one line that scrolls; `keep` as written).
+  (`Row scroll` keeps them on one line that scrolls; `keep` as written). A Row written `wrap` with an `each` and
+  other lines (chips of labels, chips of people, a count) wraps them all there, each list a group of its copies.
+- A `Table` leaves out, at a tablet's and at a phone's width, the columns its row has no room for, from the last
+  back (beside the app's sidebar as wide as it is there); its first column, the row's checkbox and a narrow column
+  with no label (a row's menu) stay. A width at which you leave a column out yourself (`"hide":"phone"`) is yours.
 - An app's window stays a window. A Row that fills the height (`h=fill`, or `grow` in a column) with one pane that
   grows beside panes of a fixed width (a sidebar, a list, an inspector) is laid out as `App` is: a tablet drops
-  the fixed panes after the one that grows, a phone shows that one alone. It is never wrapped or stacked.
+  the fixed panes after the one that grows, a phone shows that one alone. It is never wrapped or stacked. A list
+  written as `Main w=380` beside the `Pane` that shows what its rows select is a list beside its detail: both
+  where there is room, one at a time on a phone with a back button (with no tap that selects, the list alone).
 - A Row keeps its line when it has a height of its own (a toolbar, `h=56`), is a row of a list (under an `each`,
   in a `ListView`), sits in something of a fixed width a phone holds (a 232 sidebar, a 96 track head) or in a Row
-  that scrolls sideways, or holds only labels and buttons inside an app's window.
+  that scrolls sideways, or holds only labels and buttons inside an app's window. A row of an app's pane whose
+  parts keep more width than a phone has (a filter bar of a search, selects and a count; a top bar's title
+  beside a search and a button) wraps there: a field of a fixed width takes a line's share, a spacer goes.
 - What you lay out by width is yours: a line with its own rules (`tablet.w=64`, `hide=phone`, `phone.pad=8`) gets
-  none of reflow's over them, and a Row whose own line or a line right under it has such rules is not wrapped.
+  none of reflow's over them, and a Row whose own line or a line right under it has such rules is not wrapped
+  (but for the phone's wrap above, when its parts still have no room there). A width rule on a line whose width
+  is bound (`w={listW} phone.w=fill`) holds where it says: the binding is the desktop's.
+- A design system with a rail (`sizes.rail` in its theme, Desk's 64) makes an app's `Sidebar` written with no
+  rule for other widths a rail that wide on a tablet, its words folded to their icons, and the drawer on a phone.
 - `keep` on a line (`Row#window keep`) leaves it and everything in it as written at every width.
 - An `App` whose first pane is a `Sidebar` and that has a `Main` gets a menu button at the start of Main's top bar
   (a slim bar of its own when it has none), shown where the sidebar is not, and a drawer that repeats the
