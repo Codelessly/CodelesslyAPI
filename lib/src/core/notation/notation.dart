@@ -620,7 +620,9 @@ final class NotationOptions {
         controlHeight: controlHeight,
         fieldLabel: fieldLabel,
         fieldText: fieldText,
-        reflow: false,
+        // A narrow overlay wraps its rows of copies (PageReflow.runNarrow);
+        // nothing else of it is laid out again.
+        reflow: reflow && width < 700,
         displaySizes: displaySizes,
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
@@ -2854,7 +2856,9 @@ class _Parser {
   }
 
   void _reflow() {
-    if (!options.reflow || options.width < 700) return;
+    // A page laid out for a phone is as written; a narrow overlay of a page
+    // (its _host) wraps its rows of copies only (PageReflow.runNarrow).
+    if (!options.reflow || (options.width < 700 && _host == null)) return;
     final reflow = PageReflow(
       nodes: nodes,
       roles: _roles,
@@ -2877,7 +2881,9 @@ class _Parser {
       variableStart: (name) => variables[name]?['value'],
       kept: {..._keep, ?_componentRootKept()},
     );
-    final rules = reflow.run();
+    // A narrow canvas (a dialog, a sheet, a component) keeps its layout; only
+    // its rows of copies wrap where the window is narrower still.
+    final rules = options.width < 700 ? reflow.runNarrow() : reflow.run();
     for (final e in rules.entries) {
       final node = nodes[e.key]!;
       // The line's own rules (hide=phone) come after, so they win; one it

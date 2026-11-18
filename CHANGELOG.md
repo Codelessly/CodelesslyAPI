@@ -84,6 +84,13 @@
   the state keeps two letters; a state named `item` read inside an `each` (where `item` is the copy) is said; `App`
   below a page's header (or in a component) is a region of panes (`Row` of Sidebar, Main that scrolls, Pane) where
   it was "No node type"; `NavSection` is a section label outside a Sidebar too.
+- **Notation**: a call of a component whose slot is `children` takes the lines under it as its children (what the
+  slot shows); before, they went in a row in `slots.children` and showed nothing (test 10: two single-write sites
+  lost their page bodies).
+- **Notation reflow**: a Row of copies an `each` repeats wraps them on a tablet and a phone (media rules on its list
+  and its item), on a page and in a narrow overlay over it (a dialog); before, the copies were one child to the
+  reflow and overflowed (test 10: 29 runs). A page written for a phone is as written; `Row scroll` and `keep` are
+  left as they are.
 
 ## 35.0.0
 

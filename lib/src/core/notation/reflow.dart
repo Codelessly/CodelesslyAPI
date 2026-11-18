@@ -880,10 +880,53 @@ final class PageReflow {
     return true;
   }
 
+  /// A row whose one child is the list an `each` makes: its copies wrap.
+  void _rowOfCopies(String id, Json n) {
+    final kids = _kids(n);
+    if (kids.length != 1 || _leftAsWritten(id, list: true)) return;
+    final list = nodes[kids.single]!;
+    final p = _props(list);
+    if (_type(list) != 'listView' || p['scrollDirection'] != 'horizontal' || p['scrollable'] == true || p['wrap'] == true || p['reorder'] != null) return;
+    final spacing = switch (_props(n)['spacing']) { final num s => s, _ => switch (p['spacing']) { final num s => s, _ => 0 } };
+    _add(kids.single, reflowTabletMax, {
+      'layout': {'width': {'hug': null, 'fill': 0}},
+      'props': {'wrap': true, 'wrapSpacing': spacing, 'runSpacing': spacing > 0 ? math.min(spacing, 12) : 8},
+    });
+    // A copy is as tall as its row on one line; on lines of their own, as
+    // tall as it is.
+    for (final item in _kids(list)) {
+      if (_layout(nodes[item]!)['height'] case final Map h when h.containsKey('fill')) {
+        _add(item, reflowTabletMax, {'layout': {'height': {'fill': null, 'hug': 0}}});
+      }
+    }
+  }
+
+  /// The rules of a canvas laid out for a narrow width (a dialog, a
+  /// sheet, a component): only its rows of copies wrap, where the window
+  /// is narrower than a desktop's (a dialog on a phone is narrower than
+  /// written).
+  Map<String, List<Json>> runNarrow() {
+    for (final e in nodes.entries) {
+      if (_type(e.value) == 'row' && _props(e.value)['scrollable'] != true && _props(e.value)['wrap'] != true) _rowOfCopies(e.key, e.value);
+    }
+    return {
+      for (final e in _rules.entries)
+        e.key: [
+          for (final max in e.value.keys.toList()..sort((a, b) => b.compareTo(a))) {'maxWidth': max, 'patch': e.value[max]},
+        ],
+    };
+  }
+
   /// A row of blocks wraps where they no longer fit side by side; a row of
   /// controls wraps on a phone.
   void _row(String id, Json n) {
     final kids = _kids(n);
+    // A row of copies an `each` repeats (`Row gap=5` over `each day in week`
+    // / `ChoiceChip …`): one list to the row, so it wrapped nothing and
+    // overflowed a phone (test 10: 29 runs). The copies wrap onto further
+    // lines where they no longer fit, as a row of choices does; `Row scroll`
+    // or `keep` keeps them on one line.
+    if (kids.length == 1) return _rowOfCopies(id, n);
     if (kids.length < 2 || _leftAsWritten(id, list: true)) return;
     // A row with a reorder Handle is a list's row: its grip stays beside
     // what it moves (what grows in it narrows), never alone on a line.

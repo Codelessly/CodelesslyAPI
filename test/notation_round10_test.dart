@@ -217,4 +217,52 @@ Column
       expect(_node(r, 'b')['slots'], isNull);
     });
   });
+
+  group('R6: a Row of copies an each repeats wraps where the window is narrow', () {
+    Map<String, Object?> media(NotationResult r, String id) => {
+          for (final m in (_node(r, id)['media'] as List?) ?? const []) '${(m as Map)['maxWidth']}': m['patch'],
+        };
+    test('on a page, and in a dialog over it; not with scroll', () {
+      final r = _parse('''
+state days=[]
+state week=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+Page
+  Section
+    Row#r gap=5
+      each day in week
+        ChoiceChip#day "{day}" selected={contains(days,day)}
+    Row#s gap=5 scroll
+      each d in week
+        ChoiceChip#day2 "{d}"
+    Button "Add" onTap={open add}
+Dialog#add "Add"
+  Row#q gap=5
+    each e in week
+      ChoiceChip#day3 "{e}"
+''', const NotationOptions(width: 1440));
+      expect(r.issues, isEmpty);
+      final list = (_node(r, 'r')['children'] as List).single as String;
+      expect(media(r, list)['1023'], {
+        'layout': {'width': {'hug': null, 'fill': 0}},
+        'props': {'wrap': true, 'wrapSpacing': 5, 'runSpacing': 5},
+      });
+      expect(media(r, '${list}Item')['1023'], {
+        'layout': {'height': {'fill': null, 'hug': 0}},
+      });
+      expect(_node(r, (_node(r, 's')['children'] as List).single as String)['media'], isNull);
+      final inDialog = jsonEncode(r.document);
+      expect(RegExp('"wrapSpacing":5').allMatches(inDialog).length, 2, reason: 'the page row and the dialog row');
+    });
+
+    test('a page written for a phone is as written', () {
+      final r = _parse('''
+state week=["Monday","Tuesday"]
+Column
+  Row#r gap=5
+    each day in week
+      ChoiceChip "{day}"
+''');
+      expect(jsonEncode(r.document), isNot(contains('wrapSpacing')));
+    });
+  });
 }
