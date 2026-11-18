@@ -58,7 +58,10 @@ App
 
 A desktop window of three panes: a rail, the content, an inspector. `Sidebar` is the rail (`w=72` for icons only),
 `Main` takes the room left and scrolls, each `Pane` is a further column as tall as the window (`w=` its width, else
-it shares the room). A key with a size before it changes a pane at that width ([responsive.md](responsive.md)):
+it shares the room). Lines at the top of a `Main` or a `Pane` written `sticky` (its toolbar) are its head: they
+stay above while the rest scrolls under them, never over it. A line in it that takes the room left (`grow`,
+`h=fill`: a board's lanes, a list that scrolls itself) makes the pane a plain column that does not scroll. A key
+with a size before it changes a pane at that width ([responsive.md](responsive.md)):
 here the inspector leaves at a tablet's width and the rail at a phone's.
 
 ```notation width=1280 expands

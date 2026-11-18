@@ -2527,11 +2527,15 @@ class _Parser {
   final _tableRows = <String>{};
 
   /// On a page, the media rules that lay it out on a tablet and a phone.
-  /// The foot of an app's window (`Footer` in Main or App): Main stops
-  /// scrolling as a whole; what else is in it scrolls in a column that takes
-  /// the room above the foot, which stays in view at the bottom at every
-  /// width. A foot written in App goes to the foot of its Main.
+  /// The foot of an app's window (`Footer` in Main or App) and the head of
+  /// a pane (its first lines written `sticky`: a list's toolbar): Main or
+  /// the Pane stops scrolling as a whole; what else is in it scrolls in a
+  /// column that takes the room between the head and the foot, which stay
+  /// in view at every width. A foot written in App goes to the foot of its
+  /// Main. (A sticky head inside the scrolling pane was pinned 16 px down
+  /// over the first row: test 9, mail.)
   void _feet() {
+    final feet = <String, String>{};
     for (final foot in [
       for (final e in _roles.entries)
         if (e.value == 'foot') e.key,
@@ -2548,11 +2552,43 @@ class _Parser {
         main = into;
       }
       if (_roles[main] != 'main' && _roles[main] != 'pane') continue;
-      final m = nodes[main]!;
+      feet[main] = foot;
+    }
+    for (final main in [
+      for (final e in _roles.entries)
+        if (e.value == 'main' || e.value == 'pane') e.key,
+    ]) {
+      final m = nodes[main];
+      if (m == null) continue;
       final props = (m['props'] as Map?)?.cast<String, Object?>() ?? <String, Object?>{};
       if (props['scrollable'] != true) continue;
       final kids = ((m['children'] as List?) ?? const []).whereType<String>().toList();
-      final rest = [for (final k in kids) if (k != foot) k];
+      final foot = feet[main];
+      // A line in it that takes the room left (`grow`, `h=fill`: a board's
+      // lanes, a list that scrolls itself) has a height only in a pane that
+      // does not scroll: the pane is then a plain column (it was an
+      // unbounded height and an error: test 9, kanban 7).
+      bool takesRoom(String k) {
+        final l = readMap(nodes[k]?['layout']);
+        return (l?['flex'] is num && (l!['flex'] as num) > 0) || (l?['height'] is Map && (l!['height'] as Map).containsKey('fill'));
+      }
+      if (kids.any((k) => k != foot && takesRoom(k))) {
+        props.remove('scrollable');
+        m['props'] = props;
+        if (_canvas) ops.add({'op': 'patch', 'id': main, 'patch': {'props': {'scrollable': null}}});
+        continue;
+      }
+      // Its head: the lines at its top written sticky (pinned at the top).
+      final heads = <String>[];
+      for (final k in kids) {
+        if (nodes[k]?['sticky'] is! Map) break;
+        heads.add(k);
+      }
+      if (foot == null && heads.isEmpty) continue;
+      for (final h in heads) {
+        nodes[h]!.remove('sticky');
+      }
+      final rest = [for (final k in kids) if (k != foot && !heads.contains(k)) k];
       final scroll = '${main}Scroll';
       nodes[scroll] = {
         'type': 'column',
@@ -2567,12 +2603,13 @@ class _Parser {
       props.remove('scrollable');
       props['crossAxisAlignment'] = 'stretch';
       m['props'] = props;
-      m['children'] = [scroll, foot];
+      m['children'] = [...heads, scroll, ?foot];
       if (_canvas) {
         ops
-          ..add({'op': 'set', 'id': scroll, 'parent': main, 'index': 0, 'node': {...nodes[scroll]!}..remove('children')})
+          ..add({'op': 'set', 'id': scroll, 'parent': main, 'index': heads.length, 'node': {...nodes[scroll]!}..remove('children')})
           ..addAll([for (var i = 0; i < rest.length; i++) {'op': 'move', 'id': rest[i], 'parent': scroll, 'index': i}])
-          ..add({'op': 'move', 'id': foot, 'parent': main, 'index': 1})
+          ..addAll([for (final h in heads) {'op': 'patch', 'id': h, 'patch': {'sticky': null}}])
+          ..addAll([if (foot != null) {'op': 'move', 'id': foot, 'parent': main, 'index': heads.length + 1}])
           ..add({'op': 'patch', 'id': main, 'patch': {'props': {'scrollable': null, 'crossAxisAlignment': 'stretch'}}});
       }
     }
