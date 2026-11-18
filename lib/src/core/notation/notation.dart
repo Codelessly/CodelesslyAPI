@@ -7195,7 +7195,10 @@ class _Parser {
         final row = nodes[parent!.id];
         final rowWidth = (row?['layout'] as Map?)?['width'];
         // A row that is itself only as wide as its content gives it a width.
-        if (rowWidth is Map && rowWidth.containsKey('fill') || (row?['layout'] as Map?)?.containsKey('flex') == true) {
+        // (A row of a width of its own, a table's cell of `w:87`, has that
+        // width to share: round 11b, support-desk's StatusMark was 240 wide
+        // in an 87 column, 49 overflow errors.)
+        if (rowWidth is Map && rowWidth.containsKey('fill') || rowWidth is num || (row?['layout'] as Map?)?.containsKey('flex') == true) {
           layout['flex'] = 1;
         } else {
           layout['width'] = 240;

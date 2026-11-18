@@ -3,6 +3,8 @@
 // a size) and reached lines the grammar-only writers never wrote. Each test is
 // one of those lines, as a build wrote it, and what it now expands to
 // (codelessly_sdk docs/research/round-11b-reference-arm.md).
+import 'dart:convert';
+
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
@@ -366,6 +368,38 @@ Column
     expect((((_node(r, 's')['actions'] as List).first as Map)['actions'] as List).single, containsPair('value', r'${result}'));
     // One name of a text is still its single choice.
     expect((_node(r, 'o')['bind'] as Map)['props.selected'], r'${= [one]}');
+  });
+
+  test('a component that fills, in a row of a width of its own (a table cell of w:87), shares that width (it was 240)', () async {
+    // support-desk (inbox.txt:67, customer.txt:40): 49 overflow errors.
+    const mark = '''
+component StatusMark "A status written out"
+  param label="Open"
+Row gap=5 middle
+  box w=7 h=7 radius=4 fill=#FF39815E
+  Text "{props.label}" maxLines=1
+''';
+    final doc = parseNotation(mark, catalog: standardCatalog);
+    expect(doc.issues, isEmpty);
+    final files = {
+      'design_system.json': jsonEncode({'id': 'site', 'name': 'Site', 'components': ['components/StatusMark.json']}),
+      'components/StatusMark.json': jsonEncode(doc.document),
+    };
+    final ds = await DesignSystem.load((ref) async => files[ref]);
+    final options = NotationOptions.fromDesignSystem(ds, width: 1440, reflow: false);
+    final catalog = ds.catalogOver(standardCatalog);
+    final r = Catalog.run(catalog, () => parseNotation('''
+Column
+  Row w=87
+    StatusMark#cell label="Pending"
+  Row w=hug
+    StatusMark#hugging label="Open"
+''', catalog: catalog, options: options));
+    expect(r.issues, isEmpty);
+    expect(_layout(r, 'cell'), containsPair('flex', 1));
+    expect(_layout(r, 'cell')['width'], {'fill': 0});
+    // A row only as wide as its content still gives it a width.
+    expect(_layout(r, 'hugging')['width'], 240);
   });
 
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {

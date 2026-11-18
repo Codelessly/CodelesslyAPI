@@ -52,6 +52,9 @@
 
 ### Fixed
 
+- **A component that fills, called in a row of a width of its own** (a `Table`'s cell of `w:87`), shares that
+  width: it was given 240, as in a row only as wide as its content, and overflowed the cell (round 11b,
+  support-desk: `StatusMark label={t.status}`, 49 render errors over the three sizes).
 - **A `SegmentedButton` bound to a list variable** (`state modes=["Public reply"]`, `SegmentedButton @modes`; round
   11b, support-desk) takes the list as its selection and a change writes the list: it was wrapped again
   (`[modes]`, a list in a list) and no segment showed chosen. A text variable is still its single choice.
