@@ -144,21 +144,43 @@ Column
 state draft=""
 state q=""
 Column
-  Box radius=12 border=#FFDDD6E3 pad=7
+  Box#frame radius=12 border=#FFDDD6E3 pad=7
     Row gap=6 bottom
       IconButton "add" tooltip="Attach"
       Input#composer "Message #design-studio" @draft multiline grow
       IconButton "send" tooltip="Send"
   Row#search gap=8 middle radius=8 fill=#FFF3F4F6 pad=[10,0,10,0]
     Icon "search"
-    Input#q "Search" @q grow
+    Input#q "" "Search" @q grow
+    IconButton "close" tooltip="Clear"
+  Row#pill gap=8 middle radius=8 fill=#FFFFFFFF
+    Icon "mail"
+    Input#mail "" "you@example.com" @q grow
   Card pad=16 gap=8
     Text "Newsletter"
     Input#email "Email" "you@example.com" @q
 ''');
     expect(_decoration(r, 'composer'), {'hintText': 'Message #design-studio', 'border': {'type': 'none'}, 'filled': false});
+    // The frame takes the focus ring: its line in the accent while the field has the focus.
+    expect(_node(r, 'frame')['states'], {
+      'focused': {
+        'frame': {
+          'decoration': {
+            'strokes': [
+              {'color': '#FF2563EB'},
+            ],
+          },
+        },
+      },
+    });
+    // A frame of a fill alone has no line to color.
+    expect(_node(r, 'search')['states'], isNull);
     expect(_decoration(r, 'q'), containsPair('border', {'type': 'none'}));
     expect(_decoration(r, 'q'), containsPair('filled', false));
+    // A framed row of an icon and a field alone (no button) is as written:
+    // a document's pill (examples/showcase/desktop/native/site_landing.json)
+    // prints back as it was.
+    expect(_decoration(r, 'mail'), {'labelText': '', 'hintText': 'you@example.com'});
     // A card's form field keeps its box.
     expect(_decoration(r, 'email'), {'labelText': 'Email', 'hintText': 'you@example.com'});
   });

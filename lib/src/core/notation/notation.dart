@@ -2869,7 +2869,7 @@ class _Parser {
   ///   and a field in a framed row have no room for a label above: the
   ///   label is the hint, or, beside a hint, the field's spoken name;
   /// - in a row with its own frame (a radius and a border or a fill) that
-  ///   holds the field and its buttons or icons alone, the field is bare:
+  ///   holds the field and its buttons (and icons, texts) alone, the field is bare:
   ///   the frame is its box (a bordered field drawn inside a bordered box);
   /// - a multi-line field with onSubmit sends on Enter (Shift+Enter: a new
   ///   line), where Enter only broke the line and onSubmit never ran.
@@ -2924,7 +2924,9 @@ class _Parser {
       final toolbar = byButton && beside.contains('iconButton');
       // The frame: the row's own, or a box's holding the row alone.
       String? frame;
-      if (alone && beside.every(quiet.contains)) {
+      // (Beside a button: a composer's frame. A framed row of an icon and a
+      // field alone, a document's search pill, is as it was written.)
+      if (byButton && beside.every(quiet.contains)) {
         for (String? f = row; f != null; f = _parentOf[f]) {
           if (framed(f)) {
             frame = f;
@@ -2971,6 +2973,27 @@ class _Parser {
           decorationChange['border'] = {'type': 'none'};
           decorationChange['filled'] = false;
           propsChange['decoration'] = decorationChange;
+          // The frame takes the focus ring the field no longer draws: its
+          // line in the accent while the field has the focus (CSS's
+          // :focus-within), unless the writer said its focused look.
+          final frameNode = nodes[frame]!;
+          final strokes = (readMap(frameNode['decoration'])?['strokes'] as List?) ?? const [];
+          final states = readMap(frameNode['states']) ?? const <String, Object?>{};
+          if (strokes.isNotEmpty && !states.containsKey('focused')) {
+            patch(frame, {
+              'states': {
+                'focused': {
+                  frame: {
+                    'decoration': {
+                      'strokes': [
+                        {...?readMap(strokes.first), 'color': options.accent},
+                      ],
+                    },
+                  },
+                },
+              },
+            });
+          }
         }
       }
       if (propsChange.isNotEmpty) change['props'] = propsChange;
@@ -5827,7 +5850,9 @@ class _Parser {
         // node they drew nothing, and radius was left out). border=none with
         // no fill is a bare field: no border, no fill (the box around it is
         // its frame).
-        if (type == 'textField' && !component && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
+        // (A state's or a media rule's word, read alone, is as it was:
+        // `focused.fill=` on an Input is the node's state.)
+        if (type == 'textField' && !component && !_mediaLine && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
           final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
           Json border() => (field['border'] as Json?) ?? (field['border'] = <String, Object?>{'type': 'outline'});
           final v = raw.startsWith('=') ? null : _value(raw);

@@ -15,8 +15,10 @@ notation and as a web app and the notation's composers, steppers and toolbar fie
   loses the label's room. A field in a row of other fields, or beside text buttons only, is as it was.
   Round 11: 10 builds; the money tracker's amount drew "Amount" twice.
 - **A field in its own framed row is bare**: in a `Row` with a radius and a border or a fill (or a box holding that
-  row alone), with nothing beside it but buttons, icons and texts, the field draws no border and no fill: the
-  frame is its box (a bordered field drawn inside a bordered box). No round 11 build wrote that shape.
+  row alone), beside a button and with nothing else beside it but icons and texts, the field draws no border and no
+  fill: the frame is its box (a bordered field drawn inside a bordered box), and the frame's line takes the accent
+  while the field has the focus (`focused.border`, unless the line writes its own focused look). No round 11 build
+  wrote that shape. A framed row of an icon and a field with no button (a document's search pill) is as it was.
 - **`fill`, `border` and `radius` on an `Input` are its box's** (its decoration's `fillColor`, `border` and
   corners): on the node they drew nothing, and `radius` was left out. `border=none` with no fill is a bare field.
 - **A multi-line field with `onSubmit` sends on Enter** and breaks the line on Shift+Enter (`textInputAction`
