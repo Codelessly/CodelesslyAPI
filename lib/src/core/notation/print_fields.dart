@@ -1097,7 +1097,12 @@ final class _NodeLine {
       width = const {'fill': 0};
     } else if (fit(probeW, 'fill') || fit(probeW, 'hug')) {
       final spread = type == 'row' && !inRow && !inTile && const {'spaceBetween', 'spaceAround', 'spaceEvenly'}.contains(props['mainAxisAlignment']);
-      width = flex || spread || (!inRow && !inTile && !inHug && fit(probeW, 'fill')) ? const {'fill': 0} : const {'hug': 0};
+      // A text or a row placed in a stack by its x or y hugs (as the parser
+      // gives it).
+      final placed = ptype == 'stack' &&
+          const {'text', 'row', 'column'}.contains(type) &&
+          (layout.containsKey('x') || layout.containsKey('y') || bind.containsKey('layout.x') || bind.containsKey('layout.y'));
+      width = !placed && (flex || spread || (!inRow && !inTile && !inHug && fit(probeW, 'fill'))) ? const {'fill': 0} : const {'hug': 0};
     } else {
       width = probeW;
     }
