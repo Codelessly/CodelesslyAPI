@@ -225,7 +225,7 @@ final class PageWords {
   /// the window drops the first of two panes there.
   String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 ? 'tablet' : 'phone';
 
-  static final _overlayHead = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#([A-Za-z_][A-Za-z0-9_]*)(?=\s|$)');
+  static final _overlayHead = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)(?=\s|$)');
 
   /// The overlay a top-level line opens (`Dialog#signup "Join"`,
   /// `Sheet#filters`, `Drawer#menu`, `Menu#more`, `Popover#tip`,
@@ -386,7 +386,9 @@ final class PageWords {
     final written = parts.take('photos') ?? parts.take('images') ?? parts.take('items');
     final thumbs = (parts.take('thumbs') ?? 'true') != 'false';
     final max = num.tryParse(parts.take('max') ?? '') ?? 4;
-    final zoom = '${id}Zoom';
+    // Its variables are named after it, an id's hyphens as `_` (a name).
+    final word = id.replaceAll('-', '_');
+    final zoom = '${word}Zoom';
     final variables = <String, Object?>{zoom: 1.0};
     final still = '$zoom<=1.01';
     const white = '#FFFFFFFF', pill = '#8C000000', pillOver = '#BF000000';
@@ -408,7 +410,7 @@ final class PageWords {
         ? '$given'
         : 'coalesce(item.ratio, ${scenes ? 'coalesce(item.kind, "") != "" ? 1.5 : $given' : '$given'})';
     // The picture shown (a list's), from 0: the line's variable, or its own.
-    final current = written == null ? null : (parts.binding() ?? '${id}At');
+    final current = written == null ? null : (parts.binding() ?? '${word}At');
     final below = written == null ? (note == null ? 64 : 80) : (thumbs ? 144 : 80);
     List<PageLine> photo(int indent) => [
           (
@@ -546,8 +548,8 @@ final class PageWords {
     var list = written;
     if (list.startsWith('{') && list.endsWith('}')) list = list.substring(1, list.length - 1);
     if (list.startsWith('[')) {
-      variables['${id}Photos'] = list;
-      list = '${id}Photos';
+      variables['${word}Photos'] = list;
+      list = '${word}Photos';
     }
     final index = current!;
     variables.putIfAbsent(index, () => 0);
@@ -704,7 +706,7 @@ final class PageWords {
   static const _bars = {'Nav', 'Navbar', 'NavBar', 'TopBar', 'Topbar', 'Header', 'AppBar'};
   static const _sides = {'Sidebar', 'Aside', 'SideNav', 'Sidenav', 'Rail'};
   static const _items = {'NavItem', 'NavLink', 'SidebarItem', 'MenuItem'};
-  static final _head = RegExp(r'^([A-Z][A-Za-z0-9]*)((?:\.[A-Za-z][A-Za-z0-9]*)?(?:#[A-Za-z_][A-Za-z0-9_]*)?)(?=\s|$)');
+  static final _head = RegExp(r'^([A-Z][A-Za-z0-9]*)((?:\.[A-Za-z][A-Za-z0-9]*)?(?:#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)?)(?=\s|$)');
 
   /// The lines [text] at [indent] stands for: itself, moved under the frame
   /// it is in, or the plain lines of a page word.

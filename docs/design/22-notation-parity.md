@@ -392,11 +392,11 @@ design 13 section 3; none is a second way to write what had one.
   line.
 - **Ids.** An id the parser would give the line (`text3`: its type and the count so far) is not written,
   unless the line reads as something else without it (`Sidebar`, a page word, for a component of that name).
-  Any other id is written when it is one word of letters, digits and `_` (`#m_logo`; an id from data,
-  `#row-{row.id}`, is still its fixed part). Since 34.0.0 a hyphen in an id is an issue, read as `_` (design 13
-  section 3): a document whose node or canvas ids have one (`m-logo`) cannot name them in a line, and prints
-  whole on the `document {…}` line, which the stream sends as its nodes, their places, its roots and its
-  variables.
+  Any other id is written: letters, digits and `_`, its parts joined by single hyphens (`#m_logo`, `#m-logo`,
+  `Canvas#about-us`; an id from data, `#row-{row.id}`, is still its fixed part). (From 34.0.0 a hyphen in an id
+  was an issue, read as `_`, and a document with one printed whole on the `document {…}` line; the owner
+  decided on 2026-11-17 that an id has hyphens as JSON and HTML ids do: design 13 section 3. The nine documents
+  of the corpus that printed whole for it print in lines.)
 - **A component.** A design system's component document is its head, then its tree (no canvas; its variables
   are its root's):
 

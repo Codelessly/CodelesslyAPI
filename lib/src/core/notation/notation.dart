@@ -42,6 +42,17 @@ part 'notation_events.dart';
 part 'paint_words.dart';
 part 'state_words.dart';
 
+/// An id as a line writes it after `#` (design 13, section 3): letters,
+/// digits and `_`, its parts joined by single hyphens, as a JSON or HTML id
+/// is written (`m-title`, `hero-cta-2`). It starts with a letter or `_` and
+/// does not end in a hyphen. A regular expression's source, no anchors.
+const notationId = r'[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*';
+
+/// [id] as a word of an expression, for a variable named after a node (a
+/// list's selection, a block's own state): its hyphens as `_`, since in an
+/// expression `a-b` is a subtraction.
+String notationIdWord(String id) => id.replaceAll('-', '_');
+
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
   const NotationIssue(this.line, this.column, this.message);
@@ -1594,7 +1605,7 @@ class _Parser {
         final v => v,
       };
       // Its own (`shotsAt`, `shotsZoom`); a name the line gave is the page's.
-      if (e.key.startsWith(o.id)) _top._internal.add(e.key);
+      if (e.key.startsWith(notationIdWord(o.id))) _top._internal.add(e.key);
       variables.putIfAbsent(e.key, () => {'name': e.key, 'type': value is List ? 'list' : value is num ? 'decimal' : 'text', 'value': value});
     }
     _block = sub;
@@ -2082,7 +2093,7 @@ class _Parser {
     // A design system's own Dialog called in a line is its component,
     // unless an `open` already names its id: then it is what that shows.
     if (overlays.contains(word)) {
-      final id = RegExp(r'#([A-Za-z_][A-Za-z0-9_]*)').firstMatch(text)?[1];
+      final id = RegExp('#($notationId)').firstMatch(text)?[1];
       final ours = catalog.widget(word) == null && catalog.widget('${word[0].toLowerCase()}${word.substring(1)}') == null;
       return ours || _opens.any((a) => a['to'] == id) || _openedIds.contains(id);
     }
@@ -2105,20 +2116,6 @@ class _Parser {
 
   /// Reads one line (without its newline).
   void line(String raw) {
-    // `Dialog#live-image`: an id is one word, as a variable's name is (a
-    // list's selection, a drawer's state are named after it). Said once,
-    // here; the id is read with _ for each hyphen, as `open live-image` is,
-    // so the rest of the line and what opens it still read.
-    if (_host == null) {
-      raw = raw.replaceFirstMapped(RegExp(r'^(\s*[A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)+)(?=\s|$)'), (m) {
-        final one = m[2]!.replaceAll('-', '_');
-        if (!_quiet) {
-          issues.add(NotationIssue(_line + 1, m[1]!.length + 1,
-              'An id is one word of letters, digits and _: #$one, not #${m[2]} (a hyphen is not part of a name). Open, scroll to or focus it by that name.'));
-        }
-        return '${m[1]}#$one';
-      });
-    }
     // The lines under an overlay's head are its canvas's; the next line at
     // the margin ends it.
     if (_host == null && !_continues) {
@@ -2249,7 +2246,7 @@ class _Parser {
       _lineAt(-1, 'Column gap=12', 0);
     }
     final dots = _dotsOf(raw.trim());
-    if (dots == null && RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?\s.*\bbind=').hasMatch(raw.trim())) {
+    if (dots == null && RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)?\s.*\bbind=').hasMatch(raw.trim())) {
       _issue(indent + 1, 'A variable is bound with @: @name is the control\'s value, key=@name another property. Write: ${notationBindForm(raw.trim(), catalog: catalog)}');
     } else if (dots != null) {
       String look(String c) => c.startsWith('#')
@@ -3924,7 +3921,7 @@ class _Parser {
       // (its id, else the element itself).
       String? selection;
       if (listSelect) {
-        final sel = selection = lw!.value('selected') ?? '${parent.id}Selected';
+        final sel = selection = lw!.value('selected') ?? '${notationIdWord(parent.id)}Selected';
         if (lw.value('selected') == null) _top._internal.add(sel);
         variables.putIfAbsent(sel, () => {'name': sel, 'type': 'list', 'value': const <Object?>[]});
         final onSelect = lw.value('onSelect');
@@ -5820,7 +5817,7 @@ class _Parser {
       // author binds no variable to it. Give each call its own page variable.
       for (final p in spec.props) {
         if (p.required || has(p.key) || !p.type.isVariable || p.type.variableOf?.kind != PropKind.boolean) continue;
-        final local = '${id}_${p.key}';
+        final local = '${notationIdWord(id)}_${p.key}';
         props[p.key] = local;
         _top._internal.add(local);
         variables.putIfAbsent(local, () => {'name': local, 'type': 'boolean', 'value': p.defaultValue is bool ? p.defaultValue : false});
@@ -5849,7 +5846,7 @@ class _Parser {
             _ => '',
           };
           if (p.type.isVariable) {
-            final local = '${id}_${p.key}';
+            final local = '${notationIdWord(id)}_${p.key}';
             props[p.key] = local;
             _top._internal.add(local);
             variables.putIfAbsent(local, () => {
@@ -7243,7 +7240,7 @@ class _Parser {
 
   /// A grid ends: its last row is filled out with empty cells, so its cells
   /// are as wide as the rows above.
-  static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*');
+  static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*');
 
   /// The actions a tap on a selectable list's row runs (it chooses the row),
   /// by the id of the row's copy.
@@ -7411,9 +7408,6 @@ class _Parser {
     for (final scroll in _scrolls) {
       if (_anchors[scroll['node']] case final String id) {
         scroll['node'] = id;
-      } else if (scroll['node'] case final String n when n.contains('-') && nodes.containsKey(n.replaceAll('-', '_'))) {
-        // `scroll pricing-plans` to `Section#pricing-plans`, read as pricing_plans.
-        scroll['node'] = n.replaceAll('-', '_');
       }
     }
     // With an open vocabulary the page renders whatever it names: an
@@ -8223,9 +8217,6 @@ class _Parser {
         case 'open':
           // An overlay written in this text (Dialog#id, Menu#id…) opens as
           // its kind says; one written further down completes this then.
-          // `open live-image`: the id `Dialog#live-image` was read as (an id
-          // has no hyphen: said once, where it is written).
-          if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(-[A-Za-z0-9_]+)+$').hasMatch(s)) s = s.replaceAll('-', '_');
           final Json action = {'type': 'openModal', 'to': s, ...?switch (_top._overlayActions[s]) { final Json a => _copy(a), _ => null }};
           _top._opens.add(action);
           _top._actionLines[action] = _line;
@@ -8286,8 +8277,7 @@ class _Parser {
         case 'focus' || 'blur' || 'unfocus':
           // `focus search` puts the caret in that field (its id), `focus`
           // or `blur` alone takes it away.
-          // (`focus note-title`: the id `Input#note-title` was read as.)
-          final target = s.replaceFirst(RegExp(r'^#'), '').trim().replaceAll('-', '_');
+          final target = s.replaceFirst(RegExp(r'^#'), '').trim();
           if (verb != 'focus' || target.isEmpty) {
             out.add({'type': 'focus', 'unfocus': true});
           } else if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(target)) {
@@ -8510,7 +8500,7 @@ class _Parser {
   /// `Dots @page count=n` (in any order, `value=@page` the same): its id,
   /// its page's variable, its count and the rest of the line, or null.
   static ({String id, String page, String count, String rest})? _dotsOf(String line) {
-    final head = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*)?(?=\s|$)').firstMatch(line);
+    final head = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)?(?=\s|$)').firstMatch(line);
     if (head == null) return null;
     var rest = line.substring(head.end);
     final page = RegExp(r'\s(?:value=)?@([A-Za-z_][A-Za-z0-9_]*)(?=\s|$)').firstMatch(rest);

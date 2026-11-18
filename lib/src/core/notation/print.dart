@@ -113,9 +113,9 @@ final class _Printer {
   /// under them read back into other slots, or into their children).
   final _slotLines = <String>{};
 
-  // An id the parser reads after `#`: one word of letters, digits and `_`
-  // (design 13, section 3: `m-logo` is read as `m_logo`, and said).
-  static final _idForm = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
+  // An id the parser reads after `#` (design 13, section 3): letters, digits
+  // and `_`, its parts joined by hyphens (`m-logo`).
+  static final _idForm = RegExp('^$notationId\$');
   static final _printable = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
   String? run() {

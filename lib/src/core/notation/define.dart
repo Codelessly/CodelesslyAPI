@@ -967,7 +967,7 @@ final class DefinedWords {
     for (final l in d.body) {
       if (RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
-      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*#([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) {
+      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)').firstMatch(l.text) case final m?) {
         renamed[m[1]!] = identical(l, bodyRoot) ? uid : '${m[1]}_$uid';
         ids.add(m[1]!);
       }
@@ -1636,5 +1636,5 @@ List<String> checkDefinitions(NotationVocabulary vocabulary,
 /// as the taught prompt lists a design system's components.
 List<String> definitionLines(NotationVocabulary vocabulary) => [
       for (final defs in vocabulary.definitions.values)
-        for (final d in defs) '${d.signature.replaceFirstMapped(RegExp(r'^([A-Z][A-Za-z0-9.]*)#[A-Za-z_][A-Za-z0-9_]*'), (m) => m[1]!)}${d.slots.isEmpty ? '' : ' (children${d.slots.where((s) => s.isNotEmpty).map((s) => ': $s').join()})'}${d.doc.isEmpty ? '' : ' : ${d.doc}'}',
+        for (final d in defs) '${d.signature.replaceFirstMapped(RegExp(r'^([A-Z][A-Za-z0-9.]*)#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*'), (m) => m[1]!)}${d.slots.isEmpty ? '' : ' (children${d.slots.where((s) => s.isNotEmpty).map((s) => ': $s').join()})'}${d.doc.isEmpty ? '' : ' : ${d.doc}'}',
     ];
