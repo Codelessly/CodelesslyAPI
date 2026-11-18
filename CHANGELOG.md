@@ -24,6 +24,8 @@
 
 ### Fixed
 
+- **A Table's sort arrow** is in the theme's accent by its name (a design system's, a site's `primary`), as a
+  NavItem's chosen ink is; it was the default blue under any theme (support desk, test 11; round 10, R17).
 - **`every 1m`** (and `every 1h`, `every 2min`) is a timer of that many minutes or hours; it was refused (round 10,
   R22).
 - **An overlay a component writes** after its tree (`Drawer#basket "Your bag" right w=440`, `Sheet#info

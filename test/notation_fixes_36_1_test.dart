@@ -264,6 +264,18 @@ App
     });
   });
 
+  group('R17: a Table\'s sort arrow is in the theme\'s accent', () {
+    test('by its name where the theme names it (a design system, a site\'s primary); the default blue without one', () {
+      const text = 'state rows=[{"n":"a"}]\nstate sk="n"\nTable r in rows columns=["N"] sort=@sk\n  Text "{r.n}"\n';
+      String arrow(NotationResult r) => [
+            for (final n in (r.document['nodes'] as Map).values)
+              if ((n as Map)['type'] == 'icon' && '${(n['bind'] as Map?)?['props.icon']}'.contains('arrow_upward')) (n['props'] as Map)['color'],
+          ].single as String;
+      expect(arrow(parseNotation(text, catalog: standardCatalog, options: const NotationOptions(accent: 'primary'))), 'primary');
+      expect(arrow(parseNotation(text, catalog: standardCatalog)), '#FF2563EB');
+    });
+  });
+
   group('R22: an every line in minutes or hours', () {
     test('every 1m and every 2h are timers of that many milliseconds', () {
       final r = parseNotation('state n=0\nText "{n}"\nevery 1m onTick={n=n+1}\nevery 2h onTick={n=0}\n', catalog: standardCatalog);
