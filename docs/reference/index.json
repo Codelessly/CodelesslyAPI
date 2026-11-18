@@ -1393,7 +1393,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 1365
+      "words": 1387
     },
     {
       "topic": "render-what-it-does",
@@ -1416,8 +1416,8 @@
       "file": "render.md",
       "anchor": "render-render-codes",
       "title": "Render codes",
-      "summary": "The render step reports what rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `page_not_written`.",
-      "words": 102
+      "summary": "The render step reports what rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `page_not_written`, `placeholder_word` (a word that stood in when the site's notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it).",
+      "words": 124
     },
     {
       "topic": "render-a-loop-that-converges",

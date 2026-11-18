@@ -753,14 +753,14 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1822
+      "words": 1887
     },
     {
       "topic": "components-calling-one",
       "file": "components.md",
       "anchor": "components-calling-one",
       "title": "Calling one",
-      "words": 173
+      "words": 238
     },
     {
       "topic": "components-writing-one",
