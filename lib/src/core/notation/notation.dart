@@ -2712,6 +2712,21 @@ class _Parser {
     }
   }
 
+  /// A component's root row of parts of their own size, or with a part
+  /// that takes the room left (a mail row: a dot, the text that grows, a
+  /// time): it keeps its layout wherever it is called, as written (reflow
+  /// wrapped it on a phone, the dot above the text: test 9, mail 7).
+  String? _componentRootKept() {
+    if (_widget == null || _root == null) return null;
+    final root = nodes[_root];
+    if (root == null || root['type'] != 'row') return null;
+    final kids = [for (final k in (root['children'] as List?) ?? const []) nodes[k]].whereType<Json>().toList();
+    bool fixed(Json n) => readMap(n['layout'])?['width'] is num;
+    bool grows(Json n) => switch (readMap(n['layout'])?['flex']) { final num f => f > 0, _ => false };
+    final kept = kids.isNotEmpty && (kids.any(grows) || kids.every((k) => fixed(k) || k['type'] == 'text' || k['type'] == 'icon' || k['type'] == 'spacer'));
+    return kept ? _root : null;
+  }
+
   void _reflow() {
     if (!options.reflow || options.width < 700) return;
     final reflow = PageReflow(
@@ -2734,7 +2749,7 @@ class _Parser {
       fillsItsPlace: (type) => switch (options.components[type]?.width) { final Map m => m.containsKey('fill'), _ => false },
       listDetailState: _host == null ? _listDetailName : null,
       variableStart: (name) => variables[name]?['value'],
-      kept: _keep,
+      kept: {..._keep, ?_componentRootKept()},
     );
     final rules = reflow.run();
     for (final e in rules.entries) {
