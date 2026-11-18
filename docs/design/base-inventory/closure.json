@@ -257,8 +257,8 @@
   "equal": 3,
   "equalUpToSpelling": 3,
   "expansions": 9,
-  "nodes": 372,
-  "same": 351,
+  "nodes": 375,
+  "same": 354,
   "results": [
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Favourites",
@@ -292,7 +292,7 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "15 of 17 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "16 of 18 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.0.0.layout.padding: (none) / [8,6,8,10]",
      "r0.body.0.0.0.1.props.style.fontSize: 17 / 15"
@@ -304,7 +304,7 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "15 of 17 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "16 of 18 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.0.0.layout.padding: (none) / [8,6,8,10]",
      "r0.body.0.0.0.1.props.style.fontSize: 17 / 15"
@@ -316,7 +316,7 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "15 of 17 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "16 of 18 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.0.0.layout.padding: (none) / [8,6,8,10]",
      "r0.body.0.0.0.1.props.style.fontSize: 17 / 15"
@@ -1117,37 +1117,43 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 3,
-  "equalUpToSpelling": 3,
+  "equal": 0,
+  "equalUpToSpelling": 0,
   "expansions": 6,
   "nodes": 27,
-  "same": 24,
+  "same": 21,
   "results": [
    {
     "from": "written: a website section's title",
     "width": 1440.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (5 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "4 of 5 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.0.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"style\":{\"fontSize\":26}}}}] / (none); r0.body.0.0.0.props.style.fontSize: 36 / 24"
+    ],
     "issues": []
    },
    {
     "from": "written: a website section's title",
     "width": 834.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (5 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "4 of 5 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.0.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"style\":{\"fontSize\":26}}}}] / (none); r0.body.0.0.0.props.style.fontSize: 36 / 24"
+    ],
     "issues": []
    },
    {
     "from": "written: a website section's title",
     "width": 390.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (5 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "4 of 5 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.0.0.0.props.style.fontSize: 36 / 24"
+    ],
     "issues": []
    },
    {
@@ -1192,37 +1198,43 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 3,
-  "equalUpToSpelling": 3,
+  "equal": 0,
+  "equalUpToSpelling": 0,
   "expansions": 6,
   "nodes": 27,
-  "same": 24,
+  "same": 21,
   "results": [
    {
     "from": "written: a small title on a website",
     "width": 1440.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (5 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "4 of 5 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.0.0.0.props.style.fontSize: 22 / 18"
+    ],
     "issues": []
    },
    {
     "from": "written: a small title on a website",
     "width": 834.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (5 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "4 of 5 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.0.0.0.props.style.fontSize: 22 / 18"
+    ],
     "issues": []
    },
    {
     "from": "written: a small title on a website",
     "width": 390.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (5 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "4 of 5 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.0.0.0.props.style.fontSize: 22 / 18"
+    ],
     "issues": []
    },
    {
@@ -1270,7 +1282,7 @@
   "equal": 0,
   "equalUpToSpelling": 0,
   "expansions": 15,
-  "nodes": 907,
+  "nodes": 910,
   "same": 877,
   "results": [
    {
@@ -1280,7 +1292,7 @@
     "equalUpToSpelling": false,
     "summary": "12 of 13 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.0.0.1.0.props.style.fontSize: 30 / 18; r0.body.0.0.0.1.0.props.style.fontWeight: 700 / 600"
+     "r0.body.0.0.0.1.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.0.0.0.1.0.props.style.fontSize: 60 / 18; r0.body.0.0.0.1.0.props.style.fontWeight: 700 / 600"
     ],
     "issues": []
    },
@@ -1291,7 +1303,7 @@
     "equalUpToSpelling": false,
     "summary": "12 of 13 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.0.0.1.0.props.style.fontSize: 30 / 18; r0.body.0.0.0.1.0.props.style.fontWeight: 700 / 600"
+     "r0.body.0.0.0.1.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.0.0.0.1.0.props.style.fontSize: 60 / 18; r0.body.0.0.0.1.0.props.style.fontWeight: 700 / 600"
     ],
     "issues": []
    },
@@ -1302,7 +1314,7 @@
     "equalUpToSpelling": false,
     "summary": "12 of 13 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.0.0.1.0.props.style.fontSize: 30 / 18; r0.body.0.0.0.1.0.props.style.fontWeight: 700 / 600"
+     "r0.body.0.0.0.1.0.props.style.fontSize: 60 / 18; r0.body.0.0.0.1.0.props.style.fontWeight: 700 / 600"
     ],
     "issues": []
    },
@@ -1311,9 +1323,10 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "25 of 26 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "24 of 26 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.0.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.2.0.0.1.props.style.fontSize: 30 / 18; r0.body.2.0.0.1.props.style.fontWeight: 700 / 600"
+     "r0.body.2.0.0.1.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.2.0.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.2.0.0.1.props.style.fontSize: 60 / 18",
+     "r0.body.2.0.0.5.layout.height: 44.0 / 40.0"
     ],
     "issues": []
    },
@@ -1322,9 +1335,10 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "25 of 26 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "24 of 26 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.0.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.2.0.0.1.props.style.fontSize: 30 / 18; r0.body.2.0.0.1.props.style.fontWeight: 700 / 600"
+     "r0.body.2.0.0.1.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.2.0.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.2.0.0.1.props.style.fontSize: 60 / 18",
+     "r0.body.2.0.0.5.layout.height: 44.0 / 40.0"
     ],
     "issues": []
    },
@@ -1333,9 +1347,10 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "25 of 26 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "24 of 26 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.0.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.2.0.0.1.props.style.fontSize: 30 / 18; r0.body.2.0.0.1.props.style.fontWeight: 700 / 600"
+     "r0.body.2.0.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.2.0.0.1.props.style.fontSize: 60 / 18; r0.body.2.0.0.1.props.style.fontWeight: 700 / 600",
+     "r0.body.2.0.0.5.layout.height: 44.0 / 40.0"
     ],
     "issues": []
    },
@@ -1425,9 +1440,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "16 of 17 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.0.0.props.style.fontSize: 30 / 18; r0.body.2.0.0.props.style.fontWeight: 700 / 600"
+     "r0.body.2.0.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.2.0.0.props.style.fontSize: 60 / 18; r0.body.2.0.0.props.style.fontWeight: 700 / 600"
     ],
     "issues": []
    },
@@ -1436,9 +1451,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "16 of 17 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.0.0.props.style.fontSize: 30 / 18; r0.body.2.0.0.props.style.fontWeight: 700 / 600"
+     "r0.body.2.0.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.2.0.0.props.style.fontSize: 60 / 18; r0.body.2.0.0.props.style.fontWeight: 700 / 600"
     ],
     "issues": []
    },
@@ -1447,9 +1462,9 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "16 of 17 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.0.0.props.style.fontSize: 30 / 18; r0.body.2.0.0.props.style.fontWeight: 700 / 600"
+     "r0.body.2.0.0.props.style.fontSize: 60 / 18; r0.body.2.0.0.props.style.fontWeight: 700 / 600"
     ],
     "issues": []
    }
@@ -1714,8 +1729,8 @@
   "equal": 3,
   "equalUpToSpelling": 3,
   "expansions": 12,
-  "nodes": 736,
-  "same": 722,
+  "nodes": 739,
+  "same": 725,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b08/answers/census-form.txt ### Review and Submit",
@@ -1820,9 +1835,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "16 of 17 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none); r0.body.0.0.1.props.label: \"Pricing\" / (none)"
+     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)"
     ],
     "issues": []
    },
@@ -1831,9 +1846,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "16 of 17 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none); r0.body.0.0.1.props.label: \"Pricing\" / (none)"
+     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)"
     ],
     "issues": []
    },
@@ -1842,9 +1857,9 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "16 of 17 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.props.label: \"Pricing\" / (none); r0.body.0.0.1.props.style: (none) / {\"color\":\"#FF2563EB\",\"fontSize\":13}"
+     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.props.label: \"Pricing\" / (none)"
     ],
     "issues": []
    }
@@ -2189,7 +2204,7 @@
   "equal": 0,
   "equalUpToSpelling": 0,
   "expansions": 15,
-  "nodes": 1140,
+  "nodes": 1143,
   "same": 703,
   "results": [
    {
@@ -2204,7 +2219,7 @@
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)"
+     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true"
     ],
     "issues": []
    },
@@ -2220,7 +2235,7 @@
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)"
+     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true"
     ],
     "issues": []
    },
@@ -2236,7 +2251,7 @@
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.props.icon: \"arrow_back\" / (none)"
+     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true"
     ],
     "issues": []
    },
@@ -2387,14 +2402,14 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "1 of 17 nodes the same; 9 differ, 7 only in the code's, 5 only in the definition's",
+    "summary": "1 of 18 nodes the same; 10 differ, 7 only in the code's, 5 only in the definition's",
     "samples": [
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\"] / [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\"]",
+     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\",\"r0.body.5\"] / [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\"]",
      "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none); r0.body.0.0.1.props.label: \"Pricing\" / (none)"
+     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)"
     ],
     "issues": []
    },
@@ -2403,14 +2418,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "1 of 17 nodes the same; 9 differ, 7 only in the code's, 5 only in the definition's",
+    "summary": "1 of 18 nodes the same; 10 differ, 7 only in the code's, 5 only in the definition's",
     "samples": [
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\"] / [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\"]",
+     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\",\"r0.body.5\"] / [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\"]",
      "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none); r0.body.0.0.1.props.label: \"Pricing\" / (none)"
+     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)"
     ],
     "issues": []
    },
@@ -2419,14 +2434,14 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "1 of 17 nodes the same; 9 differ, 7 only in the code's, 5 only in the definition's",
+    "summary": "1 of 18 nodes the same; 10 differ, 7 only in the code's, 5 only in the definition's",
     "samples": [
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\"] / [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\"]",
+     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\",\"r0.body.5\"] / [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\"]",
      "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"; r0.body.0.props.spacing: (none) / 24",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.props.label: \"Pricing\" / (none); r0.body.0.0.1.props.style: (none) / {\"color\":\"#FF111827\",\"fontSize\":17,\"fontWeight\":700}"
+     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.props.label: \"Pricing\" / (none)"
     ],
     "issues": []
    }
@@ -2442,8 +2457,8 @@
   "equal": 0,
   "equalUpToSpelling": 9,
   "expansions": 18,
-  "nodes": 1787,
-  "same": 1687,
+  "nodes": 1712,
+  "same": 1612,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b03/answers/typing-chat-bot.txt ### Chat",
@@ -2565,12 +2580,12 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "218 of 234 nodes the same; 8 differ, 8 only in the code's, 0 only in the definition's",
+    "summary": "193 of 209 nodes the same; 8 differ, 8 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.12.0.1.children: [\"r0.body.12.0.1.0\",\"r0.body.12.0.1.1\",\"r0.body.12.0.1.2\",\"r0.body.12.0.1.3\"] / [\"r0.body.12.0.1.0\",\"r0.body.12.0.1.1\",\"r0.body.12.0.1.2\"]",
-     "r0.body.12.0.2.children: [\"r0.body.12.0.2.0\",\"r0.body.12.0.2.1\",\"r0.body.12.0.2.2\"] / [\"r0.body.12.0.2.0\",\"r0.body.12.0.2.1\"]",
-     "r0.body.12.0.3.children: [\"r0.body.12.0.3.0\",\"r0.body.12.0.3.1\",\"r0.body.12.0.3.2\"] / [\"r0.body.12.0.3.0\",\"r0.body.12.0.3.1\"]",
-     "r0.body.12.0.4.children: [\"r0.body.12.0.4.0\",\"r0.body.12.0.4.1\",\"r0.body.12.0.4.2\"] / [\"r0.body.12.0.4.0\",\"r0.body.12.0.4.1\"]",
+     "r0.body.0.1.children: [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"] / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\"]",
+     "r0.body.0.2.children: [\"r0.body.0.2.0\",\"r0.body.0.2.1\",\"r0.body.0.2.2\"] / [\"r0.body.0.2.0\",\"r0.body.0.2.1\"]",
+     "r0.body.0.3.children: [\"r0.body.0.3.0\",\"r0.body.0.3.1\",\"r0.body.0.3.2\"] / [\"r0.body.0.3.0\",\"r0.body.0.3.1\"]",
+     "r0.body.0.4.children: [\"r0.body.0.4.0\",\"r0.body.0.4.1\",\"r0.body.0.4.2\"] / [\"r0.body.0.4.0\",\"r0.body.0.4.1\"]",
      "r5.body.0.1.children: [\"r5.body.0.1.0\",\"r5.body.0.1.1\",\"r5.body.0.1.2\",\"r5.body.0.1.3\"] / [\"r5.body.0.1.0\",\"r5.body.0.1.1\",\"r5.body.0.1.2\"]",
      "r5.body.0.2.children: [\"r5.body.0.2.0\",\"r5.body.0.2.1\",\"r5.body.0.2.2\"] / [\"r5.body.0.2.0\",\"r5.body.0.2.1\"]"
     ],
@@ -2581,12 +2596,12 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "218 of 234 nodes the same; 8 differ, 8 only in the code's, 0 only in the definition's",
+    "summary": "193 of 209 nodes the same; 8 differ, 8 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.12.0.1.children: [\"r0.body.12.0.1.0\",\"r0.body.12.0.1.1\",\"r0.body.12.0.1.2\",\"r0.body.12.0.1.3\"] / [\"r0.body.12.0.1.0\",\"r0.body.12.0.1.1\",\"r0.body.12.0.1.2\"]",
-     "r0.body.12.0.2.children: [\"r0.body.12.0.2.0\",\"r0.body.12.0.2.1\",\"r0.body.12.0.2.2\"] / [\"r0.body.12.0.2.0\",\"r0.body.12.0.2.1\"]",
-     "r0.body.12.0.3.children: [\"r0.body.12.0.3.0\",\"r0.body.12.0.3.1\",\"r0.body.12.0.3.2\"] / [\"r0.body.12.0.3.0\",\"r0.body.12.0.3.1\"]",
-     "r0.body.12.0.4.children: [\"r0.body.12.0.4.0\",\"r0.body.12.0.4.1\",\"r0.body.12.0.4.2\"] / [\"r0.body.12.0.4.0\",\"r0.body.12.0.4.1\"]",
+     "r0.body.0.1.children: [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"] / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\"]",
+     "r0.body.0.2.children: [\"r0.body.0.2.0\",\"r0.body.0.2.1\",\"r0.body.0.2.2\"] / [\"r0.body.0.2.0\",\"r0.body.0.2.1\"]",
+     "r0.body.0.3.children: [\"r0.body.0.3.0\",\"r0.body.0.3.1\",\"r0.body.0.3.2\"] / [\"r0.body.0.3.0\",\"r0.body.0.3.1\"]",
+     "r0.body.0.4.children: [\"r0.body.0.4.0\",\"r0.body.0.4.1\",\"r0.body.0.4.2\"] / [\"r0.body.0.4.0\",\"r0.body.0.4.1\"]",
      "r5.body.0.1.children: [\"r5.body.0.1.0\",\"r5.body.0.1.1\",\"r5.body.0.1.2\",\"r5.body.0.1.3\"] / [\"r5.body.0.1.0\",\"r5.body.0.1.1\",\"r5.body.0.1.2\"]",
      "r5.body.0.2.children: [\"r5.body.0.2.0\",\"r5.body.0.2.1\",\"r5.body.0.2.2\"] / [\"r5.body.0.2.0\",\"r5.body.0.2.1\"]"
     ],
@@ -2597,13 +2612,13 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "192 of 200 nodes the same; 4 differ, 4 only in the code's, 0 only in the definition's",
+    "summary": "167 of 175 nodes the same; 4 differ, 4 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.12.0.1.children: [\"r0.body.12.0.1.0\",\"r0.body.12.0.1.1\",\"r0.body.12.0.1.2\",\"r0.body.12.0.1.3\"] / [\"r0.body.12.0.1.0\",\"r0.body.12.0.1.1\",\"r0.body.12.0.1.2\"]",
-     "r0.body.12.0.2.children: [\"r0.body.12.0.2.0\",\"r0.body.12.0.2.1\",\"r0.body.12.0.2.2\"] / [\"r0.body.12.0.2.0\",\"r0.body.12.0.2.1\"]",
-     "r0.body.12.0.3.children: [\"r0.body.12.0.3.0\",\"r0.body.12.0.3.1\",\"r0.body.12.0.3.2\"] / [\"r0.body.12.0.3.0\",\"r0.body.12.0.3.1\"]",
-     "r0.body.12.0.4.children: [\"r0.body.12.0.4.0\",\"r0.body.12.0.4.1\",\"r0.body.12.0.4.2\"] / [\"r0.body.12.0.4.0\",\"r0.body.12.0.4.1\"]",
-     "only in the code's: r0.body.12.0.1.3 text, r0.body.12.0.2.2 text, r0.body.12.0.3.2 text, r0.body.12.0.4.2 text"
+     "r0.body.0.1.children: [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"] / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\"]",
+     "r0.body.0.2.children: [\"r0.body.0.2.0\",\"r0.body.0.2.1\",\"r0.body.0.2.2\"] / [\"r0.body.0.2.0\",\"r0.body.0.2.1\"]",
+     "r0.body.0.3.children: [\"r0.body.0.3.0\",\"r0.body.0.3.1\",\"r0.body.0.3.2\"] / [\"r0.body.0.3.0\",\"r0.body.0.3.1\"]",
+     "r0.body.0.4.children: [\"r0.body.0.4.0\",\"r0.body.0.4.1\",\"r0.body.0.4.2\"] / [\"r0.body.0.4.0\",\"r0.body.0.4.1\"]",
+     "only in the code's: r0.body.0.1.3 text, r0.body.0.2.2 text, r0.body.0.3.2 text, r0.body.0.4.2 text"
     ],
     "issues": []
    },
@@ -2791,7 +2806,7 @@
   "equalUpToSpelling": 0,
   "expansions": 9,
   "nodes": 608,
-  "same": 365,
+  "same": 359,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b08/answers/typesetter-pages.txt ### Spread",
@@ -2846,14 +2861,14 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "2 of 18 nodes the same; 7 differ, 9 only in the code's, 8 only in the definition's",
+    "summary": "1 of 18 nodes the same; 8 differ, 9 only in the code's, 8 only in the definition's",
     "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
      "r0.body.0.layout.padding: [24,64,24,64] / (none); r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none); r0.body.0.props.crossAxisAlignment: \"center\" / \"start\"",
      "r0.body.0.0.children: [\"r0.body.0.0.0\"] / [\"r0.body.0.0.0\",\"r0.body.0.0.1\"]; r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.props.spacing: 32 / (none)",
      "r0.body.0.0.0.decoration.clip: \"antiAlias\" / (none); r0.body.0.0.0.decoration.fills: [{\"color\":\"#FFFFFFFF\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.0.0.0.decoration.radius: 8 / (none)",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]; r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FFF8FAFC\"}],\"strokeSides\":\"bottom\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.0.0.0.0.layout.height: 40 / {\"hug\":0}",
-     "r0.body.0.0.0.0.0.children: [\"r0.body.0.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.width.fill: 0 / (none)",
-     "r0.body.0.0.0.1.layout.flex: (none) / 1; r0.body.0.0.0.1.props.crossAxisAlignment: \"start\" / \"center\"; r0.body.0.0.0.1.props.mainAxisAlignment: (none) / \"end\""
+     "r0.body.0.0.0.0.0.children: [\"r0.body.0.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.width.fill: 0 / (none)"
     ],
     "issues": []
    },
@@ -2862,14 +2877,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "2 of 18 nodes the same; 7 differ, 9 only in the code's, 8 only in the definition's",
+    "summary": "1 of 18 nodes the same; 8 differ, 9 only in the code's, 8 only in the definition's",
     "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
      "r0.body.0.layout.padding: [24,64,24,64] / (none); r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none); r0.body.0.props.crossAxisAlignment: \"center\" / \"start\"",
      "r0.body.0.0.children: [\"r0.body.0.0.0\"] / [\"r0.body.0.0.0\",\"r0.body.0.0.1\"]; r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.props.spacing: 32 / (none)",
      "r0.body.0.0.0.decoration.clip: \"antiAlias\" / (none); r0.body.0.0.0.decoration.fills: [{\"color\":\"#FFFFFFFF\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.0.0.0.decoration.radius: 8 / (none)",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]; r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FFF8FAFC\"}],\"strokeSides\":\"bottom\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.0.0.0.0.layout.height: 40 / {\"hug\":0}",
-     "r0.body.0.0.0.0.0.children: [\"r0.body.0.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.width.fill: 0 / (none)",
-     "r0.body.0.0.0.1.layout.flex: (none) / 1; r0.body.0.0.0.1.props.crossAxisAlignment: \"start\" / \"center\"; r0.body.0.0.0.1.props.mainAxisAlignment: (none) / \"end\""
+     "r0.body.0.0.0.0.0.children: [\"r0.body.0.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.width.fill: 0 / (none)"
     ],
     "issues": []
    },
@@ -2878,14 +2893,14 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "2 of 18 nodes the same; 7 differ, 9 only in the code's, 8 only in the definition's",
+    "summary": "1 of 18 nodes the same; 8 differ, 9 only in the code's, 8 only in the definition's",
     "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
      "r0.body.0.layout.padding: [24,64,24,64] / (none); r0.body.0.props.crossAxisAlignment: \"center\" / \"start\"; r0.body.0.props.spacing: (none) / 16",
      "r0.body.0.0.children: [\"r0.body.0.0.0\"] / [\"r0.body.0.0.0\",\"r0.body.0.0.1\"]; r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.props.spacing: 32 / (none)",
      "r0.body.0.0.0.decoration.clip: \"antiAlias\" / (none); r0.body.0.0.0.decoration.fills: [{\"color\":\"#FFFFFFFF\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.0.0.0.decoration.radius: 8 / (none)",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]; r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FFF8FAFC\"}],\"strokeSides\":\"bottom\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.0.0.0.0.layout.height: 40 / {\"hug\":0}",
-     "r0.body.0.0.0.0.0.children: [\"r0.body.0.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.width.fill: 0 / (none)",
-     "r0.body.0.0.0.1.layout.flex: (none) / 1; r0.body.0.0.0.1.props.crossAxisAlignment: \"start\" / \"center\"; r0.body.0.0.0.1.props.mainAxisAlignment: (none) / \"end\""
+     "r0.body.0.0.0.0.0.children: [\"r0.body.0.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.width.fill: 0 / (none)"
     ],
     "issues": []
    },
@@ -2894,14 +2909,14 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "2 of 41 nodes the same; 4 differ, 35 only in the code's, 34 only in the definition's; document keys variables",
+    "summary": "1 of 41 nodes the same; 5 differ, 35 only in the code's, 34 only in the definition's; document keys variables",
     "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
      "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.padding: [24,64,24,64] / (none); r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.props.crossAxisAlignment: \"start\" / \"center\"; r0.body.0.0.props.spacing: 32 / 8",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / (none); r0.body.0.0.0.layout.width: {\"fill\":0} / 280; r0.body.0.0.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":8,\"wrap\":true}}}] / (none)",
      "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / (none); r0.body.0.0.1.decoration: {\"clip\":\"antiAlias\",\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"radius\":8,\"strokes\":[{\"color\":\"#FF... / (none); r0.body.0.0.1.layout.width: {\"fill\":0} / 140",
-     "variables.r0: [{\"name\":\"r0.body.0.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":... / [{\"name\":\"r0.body.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":\"P...",
-     "only in the code's: r0.body.0.0.0.0 textField, r0.body.0.0.0.1 dropdown, r0.body.0.0.1.0 row, r0.body.0.0.1.0.0 row"
+     "variables.r0: [{\"name\":\"r0.body.0.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":... / [{\"name\":\"r0.body.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":\"P..."
     ],
     "issues": []
    },
@@ -2910,14 +2925,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "2 of 41 nodes the same; 4 differ, 35 only in the code's, 34 only in the definition's; document keys variables",
+    "summary": "1 of 41 nodes the same; 5 differ, 35 only in the code's, 34 only in the definition's; document keys variables",
     "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
      "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.padding: [24,64,24,64] / (none); r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.props.crossAxisAlignment: \"start\" / \"center\"; r0.body.0.0.props.spacing: 32 / 8",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / (none); r0.body.0.0.0.layout.width: {\"fill\":0} / 280; r0.body.0.0.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":8,\"wrap\":true}}}] / (none)",
      "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / (none); r0.body.0.0.1.decoration: {\"clip\":\"antiAlias\",\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"radius\":8,\"strokes\":[{\"color\":\"#FF... / (none); r0.body.0.0.1.layout.width: {\"fill\":0} / 140",
-     "variables.r0: [{\"name\":\"r0.body.0.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":... / [{\"name\":\"r0.body.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":\"P...",
-     "only in the code's: r0.body.0.0.0.0 textField, r0.body.0.0.0.1 dropdown, r0.body.0.0.1.0 row, r0.body.0.0.1.0.0 row"
+     "variables.r0: [{\"name\":\"r0.body.0.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":... / [{\"name\":\"r0.body.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":\"P..."
     ],
     "issues": []
    },
@@ -2926,14 +2941,14 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "2 of 41 nodes the same; 4 differ, 35 only in the code's, 34 only in the definition's; document keys variables",
+    "summary": "1 of 41 nodes the same; 5 differ, 35 only in the code's, 34 only in the definition's; document keys variables",
     "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
      "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.padding: [24,64,24,64] / (none); r0.body.0.props.crossAxisAlignment: \"center\" / \"start\"",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.props.crossAxisAlignment: \"start\" / \"center\"; r0.body.0.0.props.spacing: 32 / 8",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / (none); r0.body.0.0.0.layout.width: {\"fill\":0} / 280; r0.body.0.0.0.props.crossAxisAlignment: \"center\" / (none)",
      "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / (none); r0.body.0.0.1.decoration: {\"clip\":\"antiAlias\",\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"radius\":8,\"strokes\":[{\"color\":\"#FF... / (none); r0.body.0.0.1.layout.width: {\"fill\":0} / 140",
-     "variables.r0: [{\"name\":\"r0.body.0.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":... / [{\"name\":\"r0.body.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":\"P...",
-     "only in the code's: r0.body.0.0.0.0 textField, r0.body.0.0.0.1 dropdown, r0.body.0.0.1.0 row, r0.body.0.0.1.0.0 row"
+     "variables.r0: [{\"name\":\"r0.body.0.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":... / [{\"name\":\"r0.body.0.1\",\"type\":\"list\",\"value\":[{\"id\":\"o1\",\"name\":\"Ada Byron\",\"status\":\"P..."
     ],
     "issues": []
    }
@@ -3294,20 +3309,21 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 3,
-  "equalUpToSpelling": 3,
+  "equal": 2,
+  "equalUpToSpelling": 2,
   "expansions": 15,
-  "nodes": 717,
-  "same": 697,
+  "nodes": 720,
+  "same": 670,
   "results": [
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/weighbridge-ticket.txt ### Ticket",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "65 of 67 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "65 of 68 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
+     "r0.body.2.0.0.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"style\":{\"fontSize\":26}}}}] / (none); r0.body.2.0.0.0.0.props.style.fontSize: 36 / 24",
      "r0.body.3.layout.padding: [24,32,24,32] / [24,64,24,64]; r0.body.3.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[20,24,20,24]}}}] / (none)"
     ],
     "issues": []
@@ -3317,9 +3333,10 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "65 of 67 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "65 of 68 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
+     "r0.body.2.0.0.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"style\":{\"fontSize\":26}}}}] / (none); r0.body.2.0.0.0.0.props.style.fontSize: 36 / 24",
      "r0.body.3.layout.padding: [24,32,24,32] / [24,64,24,64]; r0.body.3.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[20,24,20,24]}}}] / (none)"
     ],
     "issues": []
@@ -3329,8 +3346,9 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "60 of 61 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "60 of 62 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
+     "r0.body.2.0.0.0.0.props.style.fontSize: 36 / 24",
      "r0.body.3.layout.padding: [24,32,24,32] / [24,64,24,64]"
     ],
     "issues": []
@@ -3340,11 +3358,12 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "10 of 13 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "9 of 13 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.layout.padding: [0,64,0,64] / [24,64,24,64]; r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[0,48,0,48]}}},{\"maxWidth\":699,\"patch\":{... / (none)",
+     "r0.body.0.layout.padding: 0 / [24,64,24,64]",
      "r0.body.0.0.layout.constraints: (none) / {\"maxWidth\":1120}; r0.body.0.0.props.crossAxisAlignment: \"center\" / \"start\"",
-     "r0.body.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.layout.width.fill: (none) / 0"
+     "r0.body.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.0.0.0.1.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.0.0.0.1.0.props.style.fontSize: 60 / 30"
     ],
     "issues": []
    },
@@ -3353,11 +3372,12 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "10 of 13 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "9 of 13 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.layout.padding: [0,64,0,64] / [24,64,24,64]; r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[0,48,0,48]}}},{\"maxWidth\":699,\"patch\":{... / (none)",
+     "r0.body.0.layout.padding: 0 / [24,64,24,64]",
      "r0.body.0.0.layout.constraints: (none) / {\"maxWidth\":1120}; r0.body.0.0.props.crossAxisAlignment: \"center\" / \"start\"",
-     "r0.body.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.layout.width.fill: (none) / 0"
+     "r0.body.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.0.0.0.1.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.0.0.0.1.0.props.style.fontSize: 60 / 30"
     ],
     "issues": []
    },
@@ -3366,11 +3386,12 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "10 of 13 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "9 of 13 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.layout.padding: [0,64,0,64] / [24,64,24,64]",
+     "r0.body.0.layout.padding: 0 / [24,64,24,64]",
      "r0.body.0.0.layout.constraints: (none) / {\"maxWidth\":1120}; r0.body.0.0.props.crossAxisAlignment: \"center\" / \"start\"",
-     "r0.body.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.layout.width.fill: (none) / 0"
+     "r0.body.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.0.0.0.1.0.props.style.fontSize: 60 / 30"
     ],
     "issues": []
    },
@@ -3379,9 +3400,14 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "101 of 102 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "93 of 102 nodes the same; 9 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
+     "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
+     "r0.body.2.0.0.0.0.1.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.2.0.0.0.0.1.props.style.fontSize: 60 / 30",
+     "r0.body.2.0.0.0.0.5.0.layout.height: 44.0 / 40.0",
+     "r0.body.2.0.0.0.0.5.1.layout.height: 44.0 / 40.0",
+     "r0.body.2.0.0.0.0.5.2.layout.height: 44.0 / 40.0",
+     "r0.body.2.0.0.0.1.0.props.style.fontSize: 22 / 18"
     ],
     "issues": []
    },
@@ -3390,19 +3416,31 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "101 of 102 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "93 of 102 nodes the same; 9 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
+     "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
+     "r0.body.2.0.0.0.0.1.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.2.0.0.0.0.1.props.style.fontSize: 60 / 30",
+     "r0.body.2.0.0.0.0.5.0.layout.height: 44.0 / 40.0",
+     "r0.body.2.0.0.0.0.5.1.layout.height: 44.0 / 40.0",
+     "r0.body.2.0.0.0.0.5.2.layout.height: 44.0 / 40.0",
+     "r0.body.2.0.0.0.1.0.props.style.fontSize: 22 / 18"
     ],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b08/answers/neighbour-noticeboard.txt ### Post detail",
     "width": 390.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (102 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "94 of 102 nodes the same; 8 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.2.0.0.0.0.1.props.style.fontSize: 60 / 30",
+     "r0.body.2.0.0.0.0.5.0.layout.height: 44.0 / 40.0",
+     "r0.body.2.0.0.0.0.5.1.layout.height: 44.0 / 40.0",
+     "r0.body.2.0.0.0.0.5.2.layout.height: 44.0 / 40.0",
+     "r0.body.2.0.0.0.1.0.props.style.fontSize: 22 / 18",
+     "r0.body.2.0.0.0.1.3.1.layout.height: 44.0 / 40.0"
+    ],
     "issues": []
    },
    {
@@ -3702,21 +3740,16 @@
   "equalUpToSpelling": 0,
   "expansions": 18,
   "nodes": 618,
-  "same": 235,
+  "same": 588,
   "results": [
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/kanban-board.txt ### Archive",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "18 of 56 nodes the same; 10 differ, 28 only in the code's, 31 only in the definition's",
+    "summary": "55 of 56 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"board\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"v\",\"type\":\"keyDown\"}}] / (none); r0.layout.height.fill: 800.0 / (none); r0.layout.height.hug: (none) / 0",
-     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0; r0.body.type: \"row\" / \"column\"",
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\",\"r0.body.0.3\"] / [\"r0.body.0.0\"]; r0.body.0.decoration: {\"fills\":[{\"color\":\"#FFF1F3F6\"}],\"strokeSides\":\"right\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.0.layout.height.fill: 0 / (none)",
-     "r0.body.0.0.children: [\"r0.body.0.0.0\",\"r0.body.0.0.1\"] / (none); r0.body.0.0.layout.padding: [8,6,8,10] / (none); r0.body.0.0.props.crossAxisAlignment: \"center\" / (none)",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]; r0.body.1.decoration: {\"fills\":[{\"color\":\"#FFF1F3F6\"}]} / (none); r0.body.1.layout.flex: 1 / (none)",
-     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"]; r0.body.1.0.layout.height.hug: 0 / (none); r0.body.1.0.layout.height.fill: (none) / 0"
+     "r0.actions: [{\"actions\":[{\"to\":\"board\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"v\",\"type\":\"keyDown\"}}] / (none)"
     ],
     "issues": []
    },
@@ -3725,14 +3758,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "18 of 56 nodes the same; 10 differ, 28 only in the code's, 31 only in the definition's",
+    "summary": "55 of 56 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"board\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"v\",\"type\":\"keyDown\"}}] / (none); r0.layout.height.fill: 800.0 / (none); r0.layout.height.hug: (none) / 0",
-     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0; r0.body.type: \"row\" / \"column\"",
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\",\"r0.body.0.3\"] / [\"r0.body.0.0\"]; r0.body.0.decoration: {\"fills\":[{\"color\":\"#FFF1F3F6\"}],\"strokeSides\":\"right\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.0.layout.height.fill: 0 / (none)",
-     "r0.body.0.0.children: [\"r0.body.0.0.0\",\"r0.body.0.0.1\"] / (none); r0.body.0.0.layout.padding: [8,6,8,10] / (none); r0.body.0.0.props.crossAxisAlignment: \"center\" / (none)",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]; r0.body.1.decoration: {\"fills\":[{\"color\":\"#FFF1F3F6\"}]} / (none); r0.body.1.layout.flex: 1 / (none)",
-     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"]; r0.body.1.0.layout.height.hug: 0 / (none); r0.body.1.0.layout.height.fill: (none) / 0"
+     "r0.actions: [{\"actions\":[{\"to\":\"board\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"v\",\"type\":\"keyDown\"}}] / (none)"
     ],
     "issues": []
    },
@@ -3741,14 +3769,9 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "0 of 37 nodes the same; 9 differ, 28 only in the code's, 31 only in the definition's",
+    "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"board\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"v\",\"type\":\"keyDown\"}}] / (none); r0.layout.height.fill: 800.0 / (none); r0.layout.height.hug: (none) / 0",
-     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0; r0.body.type: \"row\" / \"column\"",
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\",\"r0.body.0.3\"] / [\"r0.body.0.0\"]; r0.body.0.decoration: {\"fills\":[{\"color\":\"#FFF1F3F6\"}],\"strokeSides\":\"right\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.0.layout.height.fill: 0 / (none)",
-     "r0.body.0.0.children: [\"r0.body.0.0.0\",\"r0.body.0.0.1\"] / (none); r0.body.0.0.layout.padding: [8,6,8,10] / (none); r0.body.0.0.props.crossAxisAlignment: \"center\" / (none)",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]; r0.body.1.decoration: {\"fills\":[{\"color\":\"#FFF1F3F6\"}]} / (none); r0.body.1.layout.flex: 1 / (none)",
-     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"]; r0.body.1.0.layout.height.hug: 0 / (none); r0.body.1.0.layout.height.fill: (none) / 0"
+     "r0.actions: [{\"actions\":[{\"to\":\"board\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"v\",\"type\":\"keyDown\"}}] / (none)"
     ],
     "issues": []
    },
@@ -3757,14 +3780,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "17 of 37 nodes the same; 5 differ, 15 only in the code's, 18 only in the definition's",
+    "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / (none)",
-     "r0.body.children: [\"r0.body.0\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\"] / [\"r0.body.0.0\"]; r0.body.0.layout.flex: 1 / (none); r0.body.0.props.crossAxisAlignment: \"start\" / \"stretch\"",
-     "r0.body.0.0.children: [\"r0.body.0.0.0\"] / [\"r0.body.0.0.0\",\"r0.body.0.0.1\"]",
-     "r0.body.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.layout.flex: (none) / 1",
-     "only in the code's: r0.body.0.1 column, r0.body.0.1.0 row, r0.body.0.1.0.0 column, r0.body.0.1.0.0.0 text"
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / (none)"
     ],
     "issues": []
    },
@@ -3773,14 +3791,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "17 of 37 nodes the same; 5 differ, 15 only in the code's, 18 only in the definition's",
+    "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / (none)",
-     "r0.body.children: [\"r0.body.0\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\"] / [\"r0.body.0.0\"]; r0.body.0.layout.flex: 1 / (none); r0.body.0.props.crossAxisAlignment: \"start\" / \"stretch\"",
-     "r0.body.0.0.children: [\"r0.body.0.0.0\"] / [\"r0.body.0.0.0\",\"r0.body.0.0.1\"]",
-     "r0.body.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.layout.flex: (none) / 1",
-     "only in the code's: r0.body.0.1 column, r0.body.0.1.0 row, r0.body.0.1.0.0 column, r0.body.0.1.0.0.0 text"
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / (none)"
     ],
     "issues": []
    },
@@ -3789,14 +3802,9 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "17 of 37 nodes the same; 5 differ, 15 only in the code's, 18 only in the definition's",
+    "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / (none)",
-     "r0.body.children: [\"r0.body.0\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\"] / [\"r0.body.0.0\"]; r0.body.0.layout.flex: 1 / (none); r0.body.0.props.crossAxisAlignment: \"start\" / \"stretch\"",
-     "r0.body.0.0.children: [\"r0.body.0.0.0\"] / [\"r0.body.0.0.0\",\"r0.body.0.0.1\"]",
-     "r0.body.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.layout.flex: (none) / 1",
-     "only in the code's: r0.body.0.1 column, r0.body.0.1.0 row, r0.body.0.1.0.0 column, r0.body.0.1.0.0.0 text"
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / (none)"
     ],
     "issues": []
    },
@@ -3805,14 +3813,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "59 of 98 nodes the same; 4 differ, 35 only in the code's, 43 only in the definition's",
+    "summary": "97 of 98 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= streak}\",\"variable\":\"streak\"}],\"trigger...",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\",\"r...",
-     "r0.body.1.2.children: [\"r0.body.1.2.0\",\"r0.body.1.2.1\",\"r0.body.1.2.2\",\"r0.body.1.2.3\",\"r0.body.1.2.4\",\"r0.bo... / [\"r0.body.1.2.0\"]; r0.body.1.2.layout.constraints.maxWidth: 640 / (none); r0.body.1.2.layout.constraints.minHeight: (none) / 40",
-     "r0.body.1.2.0.bind: {\"visible\":\"${= at<length(queue)}\"} / (none); r0.body.1.2.0.children: [\"r0.body.1.2.0.0\",\"r0.body.1.2.0.1\"] / (none); r0.body.1.2.0.props.crossAxisAlignment: \"center\" / (none)",
-     "only in the code's: r0.body.1.2.0.0 progressBar, r0.body.1.2.0.1 text, r0.body.1.2.1 row, r0.body.1.2.1.0 row",
-     "only in the definition's: r0.body.1.3 column, r0.body.1.3.0 text, r0.body.1.4 column, r0.body.1.4.0 text"
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= streak}\",\"variable\":\"streak\"}],\"trigger..."
     ],
     "issues": []
    },
@@ -3821,14 +3824,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "59 of 98 nodes the same; 4 differ, 35 only in the code's, 43 only in the definition's",
+    "summary": "97 of 98 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= streak}\",\"variable\":\"streak\"}],\"trigger...",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\",\"r...",
-     "r0.body.1.2.children: [\"r0.body.1.2.0\",\"r0.body.1.2.1\",\"r0.body.1.2.2\",\"r0.body.1.2.3\",\"r0.body.1.2.4\",\"r0.bo... / [\"r0.body.1.2.0\"]; r0.body.1.2.layout.constraints.maxWidth: 640 / (none); r0.body.1.2.layout.constraints.minHeight: (none) / 40",
-     "r0.body.1.2.0.bind: {\"visible\":\"${= at<length(queue)}\"} / (none); r0.body.1.2.0.children: [\"r0.body.1.2.0.0\",\"r0.body.1.2.0.1\"] / (none); r0.body.1.2.0.props.crossAxisAlignment: \"center\" / (none)",
-     "only in the code's: r0.body.1.2.0.0 progressBar, r0.body.1.2.0.1 text, r0.body.1.2.1 row, r0.body.1.2.1.0 row",
-     "only in the definition's: r0.body.1.3 column, r0.body.1.3.0 text, r0.body.1.4 column, r0.body.1.4.0 text"
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= streak}\",\"variable\":\"streak\"}],\"trigger..."
     ],
     "issues": []
    },
@@ -3837,14 +3835,9 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "30 of 69 nodes the same; 4 differ, 35 only in the code's, 43 only in the definition's",
+    "summary": "68 of 69 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= streak}\",\"variable\":\"streak\"}],\"trigger...",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\",\"r...",
-     "r0.body.1.2.children: [\"r0.body.1.2.0\",\"r0.body.1.2.1\",\"r0.body.1.2.2\",\"r0.body.1.2.3\",\"r0.body.1.2.4\",\"r0.bo... / [\"r0.body.1.2.0\"]; r0.body.1.2.layout.constraints.maxWidth: 640 / (none); r0.body.1.2.layout.constraints.minHeight: (none) / 40",
-     "r0.body.1.2.0.bind: {\"visible\":\"${= at<length(queue)}\"} / (none); r0.body.1.2.0.children: [\"r0.body.1.2.0.0\",\"r0.body.1.2.0.1\"] / (none); r0.body.1.2.0.props.crossAxisAlignment: \"center\" / (none)",
-     "only in the code's: r0.body.1.2.0.0 progressBar, r0.body.1.2.0.1 text, r0.body.1.2.1 row, r0.body.1.2.1.0 row",
-     "only in the definition's: r0.body.1.3 column, r0.body.1.3.0 text, r0.body.1.4 column, r0.body.1.4.0 text"
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= streak}\",\"variable\":\"streak\"}],\"trigger..."
     ],
     "issues": []
    },
@@ -3853,14 +3846,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "0 of 25 nodes the same; 5 differ, 20 only in the code's, 23 only in the definition's",
+    "summary": "24 of 25 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)",
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.props.scrollable: true / (none)",
-     "r0.body.0.layout.padding: [24,14,24,14] / 8; r0.body.0.layout.constraints: (none) / {\"minHeight\":40}; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / (none)",
-     "r0.body.0.0.children: [\"r0.body.0.0.0\",\"r0.body.0.0.1\"] / (none); r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none)",
-     "r0.body.1.type: \"divider\" / \"column\"; r0.body.1.children: (none) / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"]; r0.body.1.props: (none) / {\"crossAxisAlignment\":\"stretch\",\"scrollable\":true}",
-     "only in the code's: r0.body.0.0.0 row, r0.body.0.0.0.0 column, r0.body.0.0.0.0.0 icon, r0.body.0.0.0.1 text"
+     "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)"
     ],
     "issues": []
    },
@@ -3869,14 +3857,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "0 of 25 nodes the same; 5 differ, 20 only in the code's, 23 only in the definition's",
+    "summary": "24 of 25 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)",
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.props.scrollable: true / (none)",
-     "r0.body.0.layout.padding: [24,14,24,14] / 8; r0.body.0.layout.constraints: (none) / {\"minHeight\":40}; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / (none)",
-     "r0.body.0.0.children: [\"r0.body.0.0.0\",\"r0.body.0.0.1\"] / (none); r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none)",
-     "r0.body.1.type: \"divider\" / \"column\"; r0.body.1.children: (none) / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"]; r0.body.1.props: (none) / {\"crossAxisAlignment\":\"stretch\",\"scrollable\":true}",
-     "only in the code's: r0.body.0.0.0 row, r0.body.0.0.0.0 column, r0.body.0.0.0.0.0 icon, r0.body.0.0.0.1 text"
+     "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)"
     ],
     "issues": []
    },
@@ -3885,14 +3868,9 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "0 of 25 nodes the same; 5 differ, 20 only in the code's, 23 only in the definition's",
+    "summary": "24 of 25 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)",
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.props.scrollable: true / (none)",
-     "r0.body.0.layout.padding: [24,14,24,14] / 8; r0.body.0.layout.constraints: (none) / {\"minHeight\":40}; r0.body.0.props.mainAxisAlignment: (none) / \"center\"",
-     "r0.body.0.0.children: [\"r0.body.0.0.0\",\"r0.body.0.0.1\"] / (none); r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none)",
-     "r0.body.1.type: \"divider\" / \"column\"; r0.body.1.children: (none) / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"]; r0.body.1.props: (none) / {\"crossAxisAlignment\":\"stretch\",\"scrollable\":true}",
-     "only in the code's: r0.body.0.0.0 row, r0.body.0.0.0.0 column, r0.body.0.0.0.0.0 icon, r0.body.0.0.0.1 text"
+     "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)"
     ],
     "issues": []
    },
@@ -3943,12 +3921,12 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 3 only in the definition's",
+    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 1 only in the definition's",
     "samples": [
      "r0.actions: [{\"actions\":[{\"node\":\"search\",\"type\":\"focus\"}],\"trigger\":{\"key\":\"/\",\"type\":\"keyDown\"}}] / (none)",
-     "r0.body.children: [\"r0.body.0\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
+     "r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
      "r0.body.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none); r0.body.0.props.text: \"Members\" / (none); r0.body.0.props.crossAxisAlignment: (none) / \"start\"",
-     "only in the definition's: r0.body.0.0 text, r0.body.1 column, r0.body.1.0 text"
+     "only in the definition's: r0.body.0.0 text"
     ],
     "issues": []
    },
@@ -3957,12 +3935,12 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 3 only in the definition's",
+    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 1 only in the definition's",
     "samples": [
      "r0.actions: [{\"actions\":[{\"node\":\"search\",\"type\":\"focus\"}],\"trigger\":{\"key\":\"/\",\"type\":\"keyDown\"}}] / (none)",
-     "r0.body.children: [\"r0.body.0\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
+     "r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
      "r0.body.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none); r0.body.0.props.text: \"Members\" / (none); r0.body.0.props.crossAxisAlignment: (none) / \"start\"",
-     "only in the definition's: r0.body.0.0 text, r0.body.1 column, r0.body.1.0 text"
+     "only in the definition's: r0.body.0.0 text"
     ],
     "issues": []
    },
@@ -3971,12 +3949,12 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 3 only in the definition's",
+    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 1 only in the definition's",
     "samples": [
      "r0.actions: [{\"actions\":[{\"node\":\"search\",\"type\":\"focus\"}],\"trigger\":{\"key\":\"/\",\"type\":\"keyDown\"}}] / (none)",
-     "r0.body.children: [\"r0.body.0\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
+     "r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
      "r0.body.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none); r0.body.0.props.text: \"Members\" / (none); r0.body.0.props.crossAxisAlignment: (none) / \"start\"",
-     "only in the definition's: r0.body.0.0 text, r0.body.1 column, r0.body.1.0 text"
+     "only in the definition's: r0.body.0.0 text"
     ],
     "issues": []
    }
@@ -4788,11 +4766,11 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 2,
-  "equalUpToSpelling": 2,
+  "equal": 0,
+  "equalUpToSpelling": 0,
   "expansions": 9,
   "nodes": 608,
-  "same": 311,
+  "same": 299,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b08/answers/typesetter-pages.txt ### Spread",
@@ -4847,8 +4825,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "16 of 18 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
      "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
     ],
     "issues": []
@@ -4858,8 +4837,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "16 of 18 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
      "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
     ],
     "issues": []
@@ -4867,10 +4847,12 @@
    {
     "from": "docs/reference/notation/lists.md block 4",
     "width": 390.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (18 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0"
+    ],
     "issues": []
    },
    {
@@ -4878,9 +4860,12 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "40 of 41 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "37 of 41 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
+     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
+     "r0.body.0.0.0.0.layout.height: 40.0 / {\"hug\":0}",
+     "r0.body.0.0.0.1.layout.height: 40.0 / {\"hug\":0}"
     ],
     "issues": []
    },
@@ -4889,19 +4874,26 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "40 of 41 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "37 of 41 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
+     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
+     "r0.body.0.0.0.0.layout.height: 40.0 / {\"hug\":0}",
+     "r0.body.0.0.0.1.layout.height: 40.0 / {\"hug\":0}"
     ],
     "issues": []
    },
    {
     "from": "docs/reference/notation/lists.md block 10",
     "width": 390.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (41 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "38 of 41 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
+     "r0.body.0.0.0.0.layout.height: 40.0 / {\"hug\":0}",
+     "r0.body.0.0.0.1.layout.height: 40.0 / {\"hug\":0}"
+    ],
     "issues": []
    }
   ]
