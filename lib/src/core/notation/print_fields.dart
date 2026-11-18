@@ -1045,6 +1045,13 @@ final class _NodeLine {
     } else if (!spacer && free('height') && h != null && !_equal(h, height)) {
       if (_sizeWord(h) case final String s) words.add(textUnder ? 'layout.height=$s' : 'h=$s');
     }
+    // A fit beside a bound size (a bound size alone is 0): by its full path,
+    // that size exactly (design 22, 4.8).
+    for (final k in const ['width', 'height']) {
+      if (bind.containsKey('layout.$k') && layout[k] is Map && !(inGrid && k == 'width')) {
+        if (_sizeWord(layout[k]) case final String s) words.add('layout.$k=$s');
+      }
+    }
     // `squeezable` otherwise is written by name.
   }
 
@@ -1360,7 +1367,7 @@ final class _NodeLine {
         out.add((target: section, forms: [
           ['$section=null'],
         ]));
-      } else if (w is Map && w.isEmpty && (g is! Map || unkeyed)) {
+      } else if (w is Map && w.isEmpty && !(g is Map && g.isEmpty)) {
         out.add((target: section, forms: [
           ['$section={}'],
         ]));
