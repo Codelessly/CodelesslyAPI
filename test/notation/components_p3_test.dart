@@ -214,6 +214,14 @@ Column
     });
   });
 
+  group('components two design systems declare differently', () {
+    test('a code sample\'s braces in a string are text, and print as written', () {
+      final code = "import { Beacon } from '@beacon/sdk';\n\nconst beacon = new Beacon({\n  writeKey: 'KEY',\n});";
+      final doc = _roundTrip('Column\n  Text#t ${jsonEncode(code)}', same: ['  Text#t ${jsonEncode(code)}']);
+      expect(((_nodes(doc)['t']! as Map)['props'] as Map)['text'], code);
+    });
+  });
+
   group('structure', () {
     test('Pages prints as Pages: its page is no line, each line shown at its position', () {
       final doc = _roundTrip('''

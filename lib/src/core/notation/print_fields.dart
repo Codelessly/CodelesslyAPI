@@ -283,7 +283,7 @@ String? _value(Object? v, Set<String> names) {
       return jsonEncode(v);
     case final String s:
       if (_bare.hasMatch(s) && !const {'true', 'false', 'null', 'item', 'index'}.contains(s) && !names.contains(s)) return s;
-      if (s.contains('{') || s.contains(r'\$')) return null;
+      if ((s.contains('{') && !_codeBraces(s)) || s.contains(r'\$')) return null;
       return jsonEncode(s);
     case List() || Map():
       return _json(v);
@@ -303,6 +303,26 @@ int _close(String s, int open) {
     if (c == '}' && --depth == 0) return i;
   }
   return -1;
+}
+
+/// Whether every `{` of [s] is text as the parser reads a string (its
+/// `_spans`): none reads a value. A brace that is empty or never closes, or
+/// whose inside runs over lines or is a record written `key: value` or a
+/// spaced word (`{ Beacon }`), is a code sample's. False when [s] holds a
+/// read (`${…}`).
+bool _codeBraces(String s) {
+  if (s.contains(r'${')) return false;
+  for (var i = 0; i < s.length; i++) {
+    if (s[i] != '{') continue;
+    final end = _close(s, i) + 1;
+    if (end > i + 2) {
+      final inner = s.substring(i + 1, end - 1);
+      final code = inner.contains('\n') || inner.contains(r'\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
+      if (!code) return false;
+      i = end - 1;
+    }
+  }
+  return true;
 }
 
 /// What goes in the braces for the read `${inner}`: the name, or the
@@ -343,6 +363,9 @@ String? _formulaOf(Object? v) {
 /// [s], a text that may read values (`Total: ${total}`), as the quoted
 /// string that reads back as it (`"Total: {total}"`); null when none does.
 String? _quoted(String s) {
+  // A text whose braces are a code sample's (`import { Beacon } from …`):
+  // the parser reads them as text.
+  if (s.contains('{') && _codeBraces(s) && !s.contains(r'\$')) return jsonEncode(s);
   final parts = <(String, bool)>[]; // (text, is an expression)
   final literal = StringBuffer();
   for (var i = 0; i < s.length; i++) {
