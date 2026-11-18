@@ -43,7 +43,106 @@ Map<String, Object?> _roundTrip(String text, {Catalog? catalog, List<String> sam
 
 Map<String, Object?> _nodes(Map<String, Object?> doc) => (doc['nodes']! as Map).cast<String, Object?>();
 
+/// A design system whose components a word of the notation shadows.
+final _shadowed = standardCatalog +
+    Catalog.fromJson({
+      'id': 'ds',
+      'widgets': [
+        {
+          'type': 'Button',
+          'props': [
+            {'key': 'label', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': 'Button', 'required': true},
+            {'key': 'variant', 'type': {'kind': 'enumeration', 'flutter': 'String', 'values': ['primary', 'ghost']}, 'default': 'primary'},
+          ],
+          'events': [
+            {'key': 'onPressed'},
+          ],
+        },
+        {
+          'type': 'Chip',
+          'props': [
+            {'key': 'label', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': 'Chip', 'required': true},
+            {'key': 'selected', 'type': {'kind': 'variable', 'flutter': 'ValueNotifier<bool>', 'of': {'kind': 'boolean', 'flutter': 'bool'}}, 'default': ''},
+          ],
+          'events': [
+            {'key': 'onRemove', 'type': {'kind': 'string', 'flutter': 'String'}},
+          ],
+          'slots': ['leading'],
+        },
+      ],
+    });
+
 void main() {
+  group('a design system component a word of the notation shadows', () {
+    test('its events are its own, by their names, on a line that names it', () {
+      final doc = _roundTrip('''
+state removed="none"
+Column
+  Button#apply "Apply" type=Button variant=ghost onPressed={toast "Applied"}
+  Chip#tag "Design" type=Chip onRemove={removed=result}
+''', catalog: _shadowed, same: ['  Button#apply "Apply" type=Button variant=ghost onPressed={toast "Applied"}']);
+      final apply = _nodes(doc)['apply']! as Map;
+      expect(apply['type'], 'Button');
+      expect(apply['actions'], [
+        {
+          'trigger': {'type': 'event', 'event': 'onPressed'},
+          'actions': [
+            {'type': 'showToast', 'message': 'Applied'},
+          ],
+        },
+      ]);
+      expect(((_nodes(doc)['tag']! as Map)['actions'] as List).single, containsPair('trigger', {'type': 'event', 'event': 'onRemove'}));
+    });
+
+    test('its variable parameter is a mark, its slot a slot line', () {
+      final doc = _roundTrip('''
+state on=true
+Column
+  Chip#tag "Design" type=Chip @on
+    slot leading
+      box#dot w=8 h=8
+''', catalog: _shadowed, same: ['  Chip#tag "Design" type=Chip @on', '    slot leading']);
+      final tag = _nodes(doc)['tag']! as Map;
+      expect(tag['props'], containsPair('selected', 'on'));
+      expect(tag['slots'], {'leading': 'dot'});
+    });
+
+    test('in its own tree, a component raises an event of its own with emit', () {
+      _prints({
+        'schema': 3,
+        'id': 'Banner',
+        'roots': ['banner'],
+        'widget': {
+          'type': 'Banner',
+          'props': [
+            {'key': 'action', 'type': {'kind': 'string', 'flutter': 'String'}, 'default': 'Undo'},
+          ],
+          'events': [
+            {'key': 'onAction'},
+          ],
+        },
+        'nodes': {
+          'banner': {
+            'type': 'row',
+            'children': ['act'],
+          },
+          'act': {
+            'type': 'Button',
+            'props': {'label': 'Undo'},
+            'actions': [
+              {
+                'trigger': {'type': 'event', 'event': 'onPressed'},
+                'actions': [
+                  {'type': 'componentEvent', 'event': 'onAction'},
+                ],
+              },
+            ],
+          },
+        },
+      }, catalog: _shadowed);
+    });
+  });
+
   // Grammar change (the owner, 2026-11-17: "Support hyphens, that's very
   // common!"): an id is letters, digits and `_`, its parts joined by hyphens.
   group('an id with hyphens', () {
