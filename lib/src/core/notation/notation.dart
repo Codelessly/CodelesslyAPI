@@ -4313,6 +4313,11 @@ class _Parser {
       final fixed = m[2];
       return fixed == null || _taken(fixed) ? m[1]! : '${m[1]}#$fixed';
     });
+    // A quoted text the line ends inside (a line break typed in it): said,
+    // with how a break is written; the line is read up to its end.
+    if (RegExp(r'(?<!\\)"').allMatches(line).length.isOdd) {
+      _issue(column, 'A quoted text is not closed on its line: a text is one line, a line break in it is written \\n ("one\\ntwo", and in an expression \'\\n\').');
+    }
     final t = _Tokens(line);
     final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*))?').firstMatch(line);
     if (head == null) return _issue(column, 'A line starts with a node type: Column, Text "…", Button "…".');
@@ -9697,8 +9702,10 @@ class _Tokens {
       }
       at++;
     }
-    at++;
-    final raw = s.substring(start, at > s.length ? s.length : at);
+    // Past the closing quote; a text the line ends inside (no closing quote)
+    // ends with the line (the cursor past it made the parser throw).
+    at = at + 1 > s.length ? s.length : at + 1;
+    final raw = s.substring(start, at);
     if (braced) {
       return raw.substring(1, raw.endsWith('"') && raw.length > 1 ? raw.length - 1 : raw.length).replaceAll(r'\"', '"').replaceAll(r'\\', r'\');
     }

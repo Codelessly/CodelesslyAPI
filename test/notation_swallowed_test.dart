@@ -78,4 +78,10 @@ Column
     final again = _parse(printNotation(r.document, catalog: standardCatalog));
     expect(jsonEncode(again.document), jsonEncode(r.document));
   });
+
+  test('a quoted text the line ends inside is said, and the parser goes on (it threw)', () {
+    final r = _parse('Column\n  Text#a "one\n  Text#b "two"\n');
+    expect(r.issues.first.message, contains('not closed on its line'));
+    expect(r.issues.first.line, 2);
+  });
 }
