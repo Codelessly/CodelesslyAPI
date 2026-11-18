@@ -23,27 +23,6 @@ Column gap=4
 A theme color or text style is written by its name (`color=primary`, `color=onSurface`): the document's theme
 gives it. The theme itself is in the site's files ([design-systems.md](design-systems.md)).
 
-A line that names a theme text style and sets a field of it keeps the rest of the style, in any order and at any
-width: `Text "SEV1" style=label size=10.5` is the `label` style at 10.5, `Text "Ep. 42" style=title phone.size=13`
-keeps the title's weight and colour on a phone. `from=label` is the same as `style=label` with fields over it; no
-`=null` is needed beside it.
-
-```notation expands
-Column gap=4
-  Text "SEV1" style=label size=10.5
-  Text "Ep. 42" style=title phone.size=13
-  Text "In the accent" from=label color=primary
-```
-
-It reads as:
-
-```notation
-Column gap=4
-  Text "SEV1" size=10.5 from=label
-  Text "Ep. 42" style=title phone.from=title phone.size=13
-  Text "In the accent" color=primary from=label
-```
-
 ```notation
 Button "Dark mode" onTap={setThemeMode mode=dark}
 ```
@@ -155,7 +134,7 @@ From [theme.md](../theme.md) (the block at line 16 of its template, pages/theme.
 Column#example
   Text#eyebrow "OUR MENU" w={"fill":342} h={"hug":18} style=eyebrow
   Text#title "Fire, smoke and season" w={"fill":342} h={"hug":40} style=title
-  Text#note "Cooked over oak." color=ember from=body w={"fill":342} h={"hug":24} size=13
+  Text#note "Cooked over oak." color=ember from=body w={"fill":342} h={"hug":24}
   box#rule w=120 h=4 fill=ember
 ```
 

@@ -134,8 +134,8 @@ Column gap=12
     Input "" hint=Search grow @search
     Select w=140 @status items=["All","Paid","Due"]
   Row pad=[12,8,12,8]
-    Text.strong "{sortKey == 'name' ? (desc ? 'Customer ↓' : 'Customer ↑') : 'Customer'}" grow onTap={desc={sortKey == "name" && !desc}; sortKey=name}
-    Text.strong "{sortKey == 'total' ? (desc ? 'Total ↓' : 'Total ↑') : 'Total'}" w=80 onTap={desc={sortKey == "total" && !desc}; sortKey=total}
+    Text.strong "{sortKey == 'name' ? (desc ? 'Customer ↓' : 'Customer ↑') : 'Customer'}" grow onTap={desc=sortKey == "name" && !desc; sortKey=name}
+    Text.strong "{sortKey == 'total' ? (desc ? 'Total ↓' : 'Total ↑') : 'Total'}" w=80 onTap={desc=sortKey == "total" && !desc; sortKey=total}
   each item in shown
     Row pad=[12,8,12,8] hovered.fill=#FFF3F4F6
       Text "{item.name}" grow
