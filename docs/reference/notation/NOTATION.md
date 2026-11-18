@@ -119,7 +119,7 @@ Row stretch h=fill
       Text "Home" grow weight={(tab=="home")?600:500} color={(tab=="home")?"#FF2563EB":"#FF374151"}
   Column scroll h=fill grow
     Button "New" onTap={open create}
-  Column scroll w=280 h=fill border-right=#FFE5E7EB hide=tablet
+  Column scroll w=280 h=fill border-left=#FFE5E7EB hide=tablet
     Text.heading "Details"
 Dialog#create "New project"
   Input "Name" @name

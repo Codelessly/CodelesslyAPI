@@ -163,7 +163,7 @@ Row stretch h=fill
       Text "Sent" grow weight={(tab=="sent")?600:500} color={(tab=="sent")?"#FF2563EB":"#FF374151"}
   Column scroll h=fill grow
     Text.title "Inbox"
-  Column scroll w=320 h=fill border-right=#FFE5E7EB hide=tablet
+  Column scroll w=320 h=fill border-left=#FFE5E7EB hide=tablet
     Text.heading "Details"
 ```
 
