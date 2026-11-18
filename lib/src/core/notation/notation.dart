@@ -1194,6 +1194,9 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'segmentedButton': (prop: 'selected', type: 'text', start: ''),
   'datePicker': (prop: 'value', type: 'text', start: ''),
   'timePicker': (prop: 'value', type: 'text', start: ''),
+  // A date (time) field of the form words: `DateTimeInput @due mode=date`
+  // (round 11b: "binds nothing" in 2 builds).
+  'dateTimeInput': (prop: 'value', type: 'text', start: ''),
   // The page shown, from 0: a swipe writes it, and setting it turns the page.
   'pageView': (prop: 'initialPage', type: 'decimal', start: 0),
 };

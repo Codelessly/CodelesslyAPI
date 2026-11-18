@@ -41,6 +41,8 @@
 
 ### Fixed
 
+- **`DateTimeInput @due`** keeps its value in `due` (its `value`, written back on a pick), as `DatePicker @day`
+  does; it was "A DateTimeInput binds nothing" (round 11b: kanban-board, money-tracker, rewritten by hand).
 - **An `each` in a row that turns down the page at a width turns with it** (`Row gap=12 phone.direction=vertical`
   over `each`, copies `Card w=365 phone.w=fill`; round 11b: travel-guide, conference, restaurant): its copies are
   one under another across the row's width there; the list made for them stayed a line across, wider than a phone

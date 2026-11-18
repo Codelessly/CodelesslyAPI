@@ -169,6 +169,19 @@ Column
     expect(((item['media'] as List).single as Map)['patch'], containsPair('layout', {'width': {'fill': 0}, 'height': {'hug': 0}}));
   });
 
+  test('a DateTimeInput keeps its value in the variable it is bound to (it "binds nothing")', () {
+    // kanban-board (StackCardEditor.txt:20), money-tracker (EntryForm.txt:17).
+    final r = _parse('''
+state due=""
+Column
+  DateTimeInput#d @due mode=date format="MMM d, y"
+''');
+    expect(r.issues, isEmpty);
+    expect((_node(r, 'd')['bind'] as Map)['props.value'], r'${due}');
+    final actions = (_node(r, 'd')['actions'] as List).cast<Map>();
+    expect(actions.first['trigger'], {'type': 'changed'});
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.
