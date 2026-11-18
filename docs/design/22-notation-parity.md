@@ -502,8 +502,7 @@ Settled 2026-11-17 (tests: `test/notation/fields_p2_test.dart`, `fields_test.dar
 - **An expression is kept as written, its quotes too.** `key={…}` for a key that is no event, an `if` line's
   condition and an `each` line's list are read as written: `visible={tone == 'quiet'}` is
   `${= tone == 'quiet'}`, as a design system writes it. Single quotes are still read as double in actions (after
-  `on…=`) and in a value that is no expression (`text='Hi'`, `items=['a','b']`). A `
-` written in an expression
+  `on…=`) and in a value that is no expression (`text='Hi'`, `items=['a','b']`). A `\n` written in an expression
   is read as written.
 - **`data={list}`**: what a list shows, bound by the binding's own path where the type has no prop `data`; a
   list the walk does not make an `each` of is written so.
