@@ -732,9 +732,9 @@ Settled 2026-11-17 by the components family (tests: `test/notation/components_p3
   their own names (`Button#apply "Apply" type=Button variant=ghost onPressed={toast "Applied"}`; in a component's
   tree `onPressed={emit onAction}`), its variable parameter as a mark (`Chip#design "Design" type=Chip @tag`), its
   slots as `slot` lines, and no page word reads it (`Badge#count "3" type=Badge w=24` is the component 24 wide, not a
-  cell around a badge). From CodelesslySDK `design_systems/cards/components/ActionBanner.json`:
-  `Button#action "" type=Button label={props.action} visible={props.action != ''} variant=outline size=xs
-  onPressed={emit onAction}`. A component's main field given both a value and a binding is written by its path and
+  cell around a badge). From CodelesslySDK `design_systems/cards/components/Banner.json`:
+  `Button#action type=Button label={props.action} visible={props.action != ''} props.label="" variant=outline
+  size=xs onPressed={emit onAction}`. A component's main field given both a value and a binding is written by its path and
   its key (`Badge#count type=Badge label={props.count} props.label="0"`): the string and the key would be the
   parameter written twice.
 - **Whose components a document is read with** (the measure): its home, the folder it is in or the nearest above it
@@ -747,8 +747,7 @@ Settled 2026-11-17 by the components family (tests: `test/notation/components_p3
   `itemCount`), or under `each item in list` for one page per element. `PageView` (`pageView`), the catalog's name,
   is the node as written (as `box`, `gridView` are, 4.7): the lines under it are its children, and an `each` under
   it repeats its one child over the data, as under a `ListView` of its own line. From the cards design system's
-  `Carousel`: `PageView#pages … data={props.items}` / `  Column#page …` (written with `each` where the data is a
-  name). A page view whose page does not read back as `Pages`' is printed as written.
+  `Carousel`: `PageView#pages … h={props.height + 94} …` / `  each item in props.items` / `    Column#page …`. A page view whose page does not read back as `Pages`' is printed as written.
 - **A string whose braces are a code sample's** (`"import { Beacon } from '@beacon/sdk';"`, a brace over lines, a
   record written `key: value`) is written as it is: the parser reads those braces as text.
 - **One spelling of what the API reads two ways** (as 4.1's second pass): a declaration's empty parameter list
