@@ -167,14 +167,14 @@
       "anchor": "page-theme",
       "title": "Text and theme",
       "summary": "Text, its looks and its style keys, the theme's names for colors and styles, and text direction.",
-      "words": 1291
+      "words": 1402
     },
     {
       "topic": "theme-text",
       "file": "theme.md",
       "anchor": "theme-text",
       "title": "Text",
-      "words": 107
+      "words": 217
     },
     {
       "topic": "theme-words",
@@ -209,7 +209,7 @@
       "file": "theme.md",
       "anchor": "theme-examples",
       "title": "Examples",
-      "words": 224
+      "words": 225
     },
     {
       "topic": "decoration",
@@ -732,14 +732,14 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1589
+      "words": 1702
     },
     {
       "topic": "components-calling-one",
       "file": "components.md",
       "anchor": "components-calling-one",
       "title": "Calling one",
-      "words": 51
+      "words": 173
     },
     {
       "topic": "components-writing-one",
@@ -767,7 +767,7 @@
       "file": "components.md",
       "anchor": "components-examples",
       "title": "Examples",
-      "words": 949
+      "words": 940
     },
     {
       "topic": "design-systems",
