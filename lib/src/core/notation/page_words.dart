@@ -744,10 +744,12 @@ final class PageWords {
   /// The fill of the chosen item of a sidebar or a bar: the design system's
   /// selected fill, or with none a tint of the accent (the web's habit: the
   /// chosen item is the accent's, not a grey).
-  String get _navFill {
-    final hex = RegExp(r'^#FF([0-9A-Fa-f]{6})$').firstMatch(accent);
-    return selectedFill == '#FFE5E7EB' && hex != null ? '#1F${hex[1]}' : selectedFill;
-  }
+  ///
+  /// The word that says it (`fill=…`, or `fills=[…]` for the tint): the
+  /// tint is the accent as the theme names it at an eighth of its strength,
+  /// so it follows the site's own accent and its dark mode.
+  String _navFill(String ink) =>
+      selectedFill == '#FFE5E7EB' ? 'fills=[{"color":"$ink","opacity":0.12}]' : 'fill=$selectedFill';
 
   /// A quoted label in capitals (`"People & access"` is `"PEOPLE & ACCESS"`); one with a value in it as written.
   static String _upper(String quoted) => quoted.contains('{') ? quoted : quoted.toUpperCase();
@@ -967,11 +969,10 @@ final class PageWords {
       const quiet = '#FF374151', quietIcon = '#FF6B7280', faint = '#FF9CA3AF';
       // The chosen item's fill is a state of its row, so that the tint under
       // the pointer (a state too) never replaces it: selected is the later one.
-      final chosen = _navFill;
       final fill = selected != null
-          ? ' selected={${_expr(selected)}} selected.fill=$chosen'
+          ? ' selected={${_expr(selected)}} selected.${_navFill(ink)}'
           : on
-              ? ' fill=$chosen'
+              ? ' ${_navFill(ink)}'
               : '';
       // In a bar the items sit side by side; in a sidebar each takes the width.
       final across = parent?.frame == 'Nav';
@@ -1042,7 +1043,7 @@ final class PageWords {
       return out
         ..add((indent: at, text: 'Row$mark gap=10 middle${side ? ' pad=[8,6,8,10]' : ''}${parts.all}'))
         ..addAll([
-          if (icon != null) (indent: at + 2, text: 'Box w=28 h=28 radius=8 fill=$accent center middle'),
+          if (icon != null) (indent: at + 2, text: 'Box w=28 h=28 radius=8 fill=${accentName ?? accent} center middle'),
           if (icon != null) (indent: at + 4, text: 'Icon $icon size=16 color=#FFFFFFFF'),
           if (under == null) (indent: at + 2, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700'),
           if (under != null) (indent: at + 2, text: 'Column gap=0'),

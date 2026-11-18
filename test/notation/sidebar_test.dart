@@ -47,7 +47,7 @@ App
     expect((chosen['bind']! as Map)['selected'], contains('tab=="members"'));
     expect((((chosen['states']! as Map)['selected']! as Map)['members']! as Map)['decoration'], {
       'fills': [
-        {'color': '#1F2563EB'},
+        {'color': '#FF2563EB', 'opacity': 0.12},
       ],
     });
     // Its shortcut is a faint text at its end.
@@ -91,5 +91,19 @@ App
     // Beside others in a row it is a width, as written.
     final row = parse('Row\n  Text "a"\n  box#gap grow h=1\n  Text "b"');
     expect(layout(row, 'gap')['height'], 1);
+  });
+
+  test('the chosen item and the mark of the brand are the accent of the site, whatever its theme calls it', () {
+    final options = NotationOptions.fromTheme({
+      'colors': {'accent': '#FF0D9488'},
+    }, width: 1440, named: true);
+    final r = parseNotation(page, catalog: standardCatalog, options: options);
+    expect(r.issues, isEmpty);
+    final chosen = ((r.document['nodes']! as Map)['members']! as Map).cast<String, Object?>();
+    expect((((chosen['states']! as Map)['selected']! as Map)['members']! as Map)['decoration'], {
+      'fills': [
+        {'color': 'accent', 'opacity': 0.12},
+      ],
+    });
   });
 }

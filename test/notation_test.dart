@@ -1542,7 +1542,7 @@ App
       expect((item['bind']! as Map)['selected'], contains('tab=="orders"'));
       expect((((item['states']! as Map)['selected']! as Map)['orders']! as Map)['decoration'], {
         'fills': [
-          {'color': '#1F2563EB'},
+          {'color': '#FF2563EB', 'opacity': 0.12},
         ],
       });
       expect((((item['states']! as Map)['hovered']! as Map)['orders']! as Map)['decoration'], isNotNull);

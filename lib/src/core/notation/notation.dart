@@ -526,7 +526,8 @@ final class NotationOptions {
         'danger': error,
       },
       surface: color('page', color('surface', color('primaryBackground', '#FFFFFFFF'))),
-      accent: color('primary', '#FF2563EB'),
+      // A theme calls its one strong color primary, accent or brand.
+      accent: color('primary', color('accent', color('brand', '#FF2563EB'))),
       track: color('track', '#FFE5E7EB'),
     );
   }
