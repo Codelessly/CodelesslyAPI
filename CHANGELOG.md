@@ -2,6 +2,11 @@
 
 ### Behaviour changes
 
+- **A look written on a component call is said** (`Disc "MR" fill=#… border=#…`, `clip`; round 10, R31, 10 runs): a
+  call has no look of its own, its definition has, and the call's size, place, margin, `maxw` and widths at other
+  sizes (`phone.w=fill`) are what it takes. A fill or a border was left out with no word; `radius`, `shadow` and
+  `clip` were refused without saying why. A text that wrote one now has an issue there (a closed expand fails).
+  The document is the same.
 - **A Grid's columns at a narrower width win over a wider one's**, in whatever order they are written: `Grid
   cols=4 phone.cols=2 tablet.cols=3` gives a phone 2 columns (the rules were kept in the order written and the
   later, the tablet's, held on a phone too: the phone showed 3). Only a Grid that wrote its phone's columns before

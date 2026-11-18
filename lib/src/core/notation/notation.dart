@@ -5427,6 +5427,8 @@ class _Parser {
           } else if (word == 'clearable' && component && spec.events.any((e) => e.key == 'onClear')) {
             // A block with a clear of its own (a SearchBar's x) is clearable.
             universal.add((word: word, column: col, of: 'flag'));
+          } else if (word == 'clip' && component && spec.prop('clip') == null) {
+            _issue(col, 'A $written has no "clip". ${_callLookWhy(written)}');
           } else if (word == 'resizable' && !component && !standIn) {
             // Round 10, R50 (6 runs): accepted and ignored, or refused as an
             // unknown word. A Splitter says it (once: a pane's line is read
@@ -6628,7 +6630,12 @@ class _Parser {
         }
       }
       // A call has no look of its own (its definition has): a radius, a
-      // fill or a border written on it is left out.
+      // fill or a border written on it is left out, and said (round 10,
+      // R31: it was left out with no word).
+      // (A radius or a shadow is said as a key the call does not have.)
+      const looks = {'fill', 'fills', 'border', 'border-top', 'border-bottom', 'border-left', 'border-right', 'strokes', 'strokeWidth', 'gradient'};
+      final look = namedOnLine.where((k) => looks.contains(k) && spec.prop(k) == null).toList();
+      if (look.isNotEmpty && !_quiet && !_mediaLine) _issue(column, _callLook(written, look));
       decoration.clear();
       bind.removeWhere((k, _) => k.startsWith('decoration.'));
       callSizes = {
@@ -9589,11 +9596,23 @@ class _Parser {
   /// Tells apart the unknown verbs of one event (they share its column).
   int _verbAt = 0;
 
+  /// What a component call's [keys] of look (a fill, a border) are said with:
+  /// a call has no look of its own, its definition has (round 10, R31).
+  static String _callLook(String written, List<String> keys) =>
+      '${keys.map((k) => '$k=').join(', ')} on a call of $written is left out. ${_callLookWhy(written)}';
+
+  static String _callLookWhy(String written) =>
+      'A component call has no look of its own: its size, place, margin and the widths it changes at are the call\'s (w=, maxw=, phone.w=), '
+      'its look is its definition\'s. Give $written a parameter for it (param tone=…, read in its tree), or write the look on a line around the call.';
+
   /// A key a line of [written] (document type [type]) has no name for, said
   /// with the nearest name the catalog has there; a design system's
   /// component with what it takes.
   String _noKey(String written, String key, String type, {bool component = false, WidgetSpec? takes}) {
-    if (component && takes != null) return 'A $written has no "$key". It takes: ${takes.props.map((p) => p.key).join(', ')}.';
+    if (component && takes != null) {
+      final look = const {'radius', 'shadow', 'effects', 'clip', 'clipBehavior', 'opacity'}.contains(key) && key != 'opacity';
+      return 'A $written has no "$key". It takes: ${takes.props.map((p) => p.key).join(', ')}.${look ? ' ${_callLookWhy(written)}' : ''}';
+    }
     final near = notationKeyNearest(key, type, catalog: catalog);
     return 'A $written has no "$key"${near == null ? '' : ' (did you mean $near?)'}: left out.';
   }
