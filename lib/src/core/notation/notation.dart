@@ -179,6 +179,7 @@ final class NotationOptions {
     this.line = '#FFE5E7EB',
     this.narrowWidth = 720,
     this.sidebarWidth = 248,
+    this.sidebarRail,
     this.sectionPad = 64,
     this.gutter = 24,
     this.band,
@@ -265,6 +266,7 @@ final class NotationOptions {
         line: line,
         narrowWidth: narrowWidth,
         sidebarWidth: sidebarWidth,
+        sidebarRail: sidebarRail,
         sectionPad: sectionPad,
         gutter: gutter,
         band: band,
@@ -325,6 +327,7 @@ final class NotationOptions {
       selectedFill: base.selectedFill,
       narrowWidth: base.narrowWidth,
       sidebarWidth: base.sidebarWidth,
+      sidebarRail: base.sidebarRail,
       sectionPad: base.sectionPad,
       gutter: base.gutter,
       band: base.band,
@@ -515,6 +518,7 @@ final class NotationOptions {
       selectedFill: color('activeTint', color('primaryTint', color('subtleFill', '#FFE5E7EB'))),
       narrowWidth: readDouble(sizes['narrow']) ?? 720,
       sidebarWidth: readDouble(sizes['sidebar']) ?? 248,
+      sidebarRail: readDouble(sizes['rail']),
       sectionPad: readDouble(spacing['section']) ?? 64,
       gutter: readDouble(spacing['gutter']) ?? 24,
       band: colors['band'] != null ? color('band', '#FFF8FAFC') : null,
@@ -608,6 +612,7 @@ final class NotationOptions {
         line: line,
         narrowWidth: narrowWidth,
         sidebarWidth: sidebarWidth,
+        sidebarRail: sidebarRail,
         sectionPad: sectionPad,
         gutter: gutter,
         band: band,
@@ -712,6 +717,11 @@ final class NotationOptions {
   /// theme's `sizes.narrow`, `sizes.sidebar`, `spacing.section` and
   /// `spacing.gutter`.
   final double narrowWidth, sidebarWidth, sectionPad, gutter;
+
+  /// A design system's rail: how wide an app's sidebar written with no rule
+  /// for other widths is at a tablet's (its words fold to their icons
+  /// there): a theme's `sizes.rail`. Null: as wide as written.
+  final double? sidebarRail;
 
   /// A tinted section's fill (`Section tint`), what a website page is drawn
   /// on, an app's sidebar and top bar, and the tile behind an icon: a
@@ -2597,6 +2607,7 @@ class _Parser {
     contentWidth: options.contentWidth,
     narrowWidth: options.narrowWidth,
     sidebarWidth: options.sidebarWidth,
+    sidebarRail: options.reflow && options.width >= 700 ? options.sidebarRail : null,
     sectionPad: options.sectionPad,
     gutter: options.gutter,
     band: options.band,
@@ -2859,7 +2870,73 @@ class _Parser {
     return kept ? _root : null;
   }
 
+  /// The rows written `wrap` whose wrapping went to the list of their
+  /// `each` (its copies wrap, the list as wide as the row), with the row's
+  /// own run spacing.
+  final _wrapsMoved = <String, Object?>{};
+
+  /// A row written `wrap` with more than its `each` in it (chips of labels,
+  /// a divider, chips of people, a count): the row wraps again, and each of
+  /// its lists of copies is a group as wide as its copies that wraps them
+  /// within a line. The first list took the row's wrapping and its width,
+  /// and the second had none: on a tablet the first list's chips stood in
+  /// a column 96 wide and the second's ran over them (track C, kanban). On
+  /// a page written for a desktop this holds narrower than a desktop only
+  /// (the desktop's picture is as it was); on one written for a phone, at
+  /// every width.
+  void _rejoinWraps() {
+    final narrow = options.reflow && options.width >= 700;
+    void change(String id, Json patch) {
+      final Json p = narrow
+          ? {
+              'media': [
+                ...?(nodes[id]!['media'] as List?),
+                {'maxWidth': reflowTabletMax, 'patch': patch},
+              ],
+            }
+          : patch;
+      nodes[id] = mergePatch(nodes[id]!, p);
+      _patches.add({'op': 'patch', 'id': id, 'patch': p});
+    }
+
+    for (final e in _wrapsMoved.entries) {
+      final row = nodes[e.key];
+      final kids = [for (final k in (row?['children'] as List?) ?? const []) if (nodes[k] case final Json n) (k as String, n)];
+      if (row == null || kids.length < 2) continue;
+      final spacing = (row['props'] as Map?)?['spacing'] ?? 0;
+      change(e.key, {
+        'props': {'wrap': true, 'runSpacing': e.value ?? spacing},
+      });
+      for (final (id, n) in kids) {
+        final p = n['props'] as Map?;
+        // A spacer takes what its line leaves (CSS flex-grow from 0), as
+        // it did beside the row's children on one line.
+        if (n['type'] == 'spacer') {
+          change(id, {
+            'layout': {'basis': 0},
+          });
+          continue;
+        }
+        if (n['type'] != 'listView' || p?['scrollDirection'] != 'horizontal' || p?['scrollable'] == true) continue;
+        change(id, {
+          'layout': {'width': {'fill': null, 'hug': 0}},
+          'props': {'wrap': true, 'wrapSpacing': spacing, 'runSpacing': e.value ?? spacing},
+        });
+        // A copy as tall as the row's line is as tall as itself on lines of
+        // its own.
+        for (final item in (n['children'] as List?) ?? const []) {
+          if ((nodes[item]?['layout'] as Map?)?['height'] case final Map h when h.containsKey('fill')) {
+            change(item as String, {
+              'layout': {'height': {'fill': null, 'hug': 0}},
+            });
+          }
+        }
+      }
+    }
+  }
+
   void _reflow() {
+    _rejoinWraps();
     // A page laid out for a phone is as written; a narrow overlay of a page
     // (its _host) wraps its rows of copies only (PageReflow.runNarrow).
     if (!options.reflow || (options.width < 700 && _host == null)) return;
@@ -4337,6 +4414,7 @@ class _Parser {
       // keeps each child at its own size along a line, which leaves a list
       // that is to fill it no width at all.
       if (wraps) {
+        _wrapsMoved[parent.id] = rowProps?['runSpacing'];
         const Json patch = {
           'props': {'wrap': null, 'runSpacing': null},
         };

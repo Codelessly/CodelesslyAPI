@@ -126,6 +126,9 @@ extension on PageWords {
     final comfortable = parts.word('comfortable');
     String? variable(String? v) => v == null ? null : (v.startsWith('@') ? v.substring(1) : v);
     final select = variable(parts.take('select') ?? parts.take('selected'));
+    // A page written for a desktop: the columns a tablet's or a phone's row
+    // has no room for are left out there (reflow leaves a table as written).
+    if (menu && !parts.has('w')) _fitColumns(columns, select: select != null);
     final sort = variable(parts.take('sort') ?? parts.take('sortBy'));
     final empty = parts.take('empty');
     final height = parts.take('h');
@@ -193,6 +196,55 @@ extension on PageWords {
       ..empty = empty ?? ''
       ..emptyVariant = _muted;
     return (out, table);
+  }
+
+  /// Leaves out, at a tablet's and at a phone's width, the columns the row
+  /// has no room for there, from the last back: what a desktop's table
+  /// keeps beside its first column (its name, which grows) when the window
+  /// narrows. At 390 the first column had no width left and its names were
+  /// cut to nothing while the columns after it kept theirs (track C: three
+  /// of ten builds). The first column, the row's checkbox and a narrow
+  /// column with no label (a row's menu button) stay. A width at which the
+  /// writer leaves a column out (`"hide":"phone"`) is theirs: nothing more
+  /// is left out there.
+  void _fitColumns(List<_TableColumn> columns, {required bool select}) {
+    if (columns.length < 2) return;
+    // The room a row has: a tablet's window (834) less the app's sidebar
+    // there (a rail, or as wide as written) and a page's padding, a phone's
+    // less its padding (390 − 32).
+    for (final (width, room, growLeast) in [('tablet', 834 - 64 - _sideAtTablet, 160), ('phone', 358.0, 110)]) {
+      if (columns.any((c) => c.hide == width)) continue;
+      bool out(_TableColumn c) => c.hide == 'tablet' || (width == 'phone' && c.hide == 'phone');
+      const gap = 16, pad = 32;
+      final shown = [for (final c in columns) if (!out(c)) c];
+      num used = pad + (select ? 16 + gap : 0) + gap * (shown.length - 1);
+      final data = <int>[];
+      final grower = columns.indexWhere((c) => c.width == null && !out(c));
+      for (var i = 0; i < columns.length; i++) {
+        final c = columns[i];
+        if (out(c)) continue;
+        final action = c.label.trim().isEmpty && (c.width ?? 99) <= 48;
+        if (i == 0 || i == grower) {
+          used += c.width ?? growLeast;
+        } else if (action) {
+          used += c.width!;
+        } else {
+          data.add(i);
+        }
+      }
+      var full = false;
+      for (final i in data) {
+        final need = columns[i].width ?? 90;
+        if (!full && used + need <= room) {
+          used += need;
+        } else {
+          full = true;
+          used -= gap;
+          final c = columns[i];
+          columns[i] = _TableColumn(c.key, c.label, width: c.width, align: c.align, sort: c.sort, hide: width);
+        }
+      }
+    }
   }
 
   /// The wrapper of the next cell written under [t] (the line itself goes

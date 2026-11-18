@@ -315,7 +315,12 @@ final class MediaLineReader {
     final exact = [for (final w in words) if (_fullPath.firstMatch(w) != null) w];
     if (exact.isNotEmpty) return _exactly(words, exact);
     final issues = <String>[];
-    final withWords = parse(mediaLineText(parentType, line, words));
+    // A key the rule writes that the line binds (`w={listW}` and
+    // `phone.w=fill`) is the rule's value there, not read beside the
+    // binding: the binding kept the pane at the tablet's width on a phone
+    // (track C: notes, every screen).
+    final written = {for (final w in words) if (w.indexOf('=') case final i when i > 0) w.substring(0, i)};
+    final withWords = parse(mediaLineText(parentType, dropBindings ? _withoutBindings(line, written) : line, words));
     final a = mediaLineNode(_without.document), b = mediaLineNode(withWords.document);
     if (a == null || b == null) {
       return (
@@ -349,6 +354,42 @@ final class MediaLineReader {
     }
     if (patch.isEmpty) return (patch: null, issues: issues);
     return (patch: dropBindings ? mediaDropBindings(patch, bound) : patch, issues: issues);
+  }
+
+  /// [line] without its words that bind one of [keys] (`w={listW}`): the
+  /// words of the line, split where it is not inside quotes or brackets.
+  static String _withoutBindings(String line, Set<String> keys) {
+    if (keys.isEmpty) return line;
+    final out = <String>[];
+    var depth = 0, start = 0;
+    String? quote;
+    void word(int end) {
+      final w = line.substring(start, end);
+      final eq = w.indexOf('={');
+      if (w.isNotEmpty && !(eq > 0 && w.endsWith('}') && keys.contains(w.substring(0, eq)))) out.add(w);
+    }
+
+    for (var i = 0; i < line.length; i++) {
+      final c = line[i];
+      if (quote != null) {
+        if (c == r'\') {
+          i++;
+        } else if (c == quote) {
+          quote = null;
+        }
+      } else if (c == '"' || c == "'") {
+        quote = c;
+      } else if (c == '{' || c == '[' || c == '(') {
+        depth++;
+      } else if (c == '}' || c == ']' || c == ')') {
+        depth--;
+      } else if (c == ' ' && depth == 0) {
+        word(i);
+        start = i + 1;
+      }
+    }
+    word(line.length);
+    return out.join(' ');
   }
 
   /// A key that is a full path into a section, no list index in it.
