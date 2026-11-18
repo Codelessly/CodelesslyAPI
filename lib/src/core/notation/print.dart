@@ -413,6 +413,9 @@ final class _Printer {
     if (page != null) {
       text = text.replaceFirst(RegExp(r'^(pageView|PageView)(?=[#\s]|$)'), 'Pages');
       if (page.list != null) text = _withoutData(text);
+      // (Its count is the lines under it.)
+      final count = readStrings(readMap(nodes[page.id])?['children']).length;
+      if (page.list == null) text = text.replaceFirst(' itemCount=$count', '');
     }
     _lines.add(_Line(depth, _withoutId(text, id, '${n['type']}'), id));
     // Its ordered records (paint ops, animations, transitions): lines of
