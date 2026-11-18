@@ -394,4 +394,9 @@ define Rows
       expect(json, allOf(contains('"keyDown"'), contains('"prefixIcon"'), contains('"announce"'), contains('now()')));
     });
   });
+
+  test("Dots in a Section: the line after it is beside it, not one of its dots' row (a carousel's next button 16 px high)", () {
+    final r = _parse('state p=0\nPage\n  Section\n    Row#bar between middle\n      IconButton "chevron_left" onTap={p=0}\n      Dots @p count=3\n      IconButton#next "chevron_right" onTap={p=1}\n', const NotationOptions(width: 1440));
+    expect(readStrings(_node(r, 'bar')!['children']), contains('next'));
+  });
 }

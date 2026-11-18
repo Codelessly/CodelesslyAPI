@@ -2671,9 +2671,13 @@ class _Parser {
       final page = dots.page, count = dots.count.startsWith('{') ? dots.count.substring(1, dots.count.length - 1).trim() : dots.count;
       _bindsVariable(page, indent + 1 + raw.trim().indexOf('@'), () => 0);
       variables.putIfAbsent(page, () => {'name': page, 'type': 'decimal', 'value': 0});
-      _lineAt(indent, 'Row${dots.id} gap=6 center middle h=16${dots.rest}', indent + 1);
-      _lineAt(indent + 2, 'each dot in range($count)', indent + 3);
-      _lineAt(indent + 4, 'Box w={index==$page?16:6} h=6 radius=3 fill={index==$page?${look(options.accent)}:${look(options.track)}} onTap={$page=index}', indent + 5);
+      // Where the page's frames put the line (a Section moves its lines in):
+      // read at the line's own place, the line after it was taken for one of
+      // its dots' row (round 11: a carousel's next button 16 px high).
+      final at = _pages.rewrite(indent, 'Row').first.indent;
+      _lineAt(at, 'Row${dots.id} gap=6 center middle h=16${dots.rest}', indent + 1);
+      _lineAt(at + 2, 'each dot in range($count)', indent + 3);
+      _lineAt(at + 4, 'Box w={index==$page?16:6} h=6 radius=3 fill={index==$page?${look(options.accent)}:${look(options.track)}} onTap={$page=index}', indent + 5);
     } else {
       _from = null;
       for (var (l, from) in _definedLines(indent, raw.trim())) {

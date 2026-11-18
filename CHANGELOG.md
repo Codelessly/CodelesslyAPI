@@ -62,6 +62,8 @@
   timeline's ruler): they were made shares of a row with all the width it asks for, and ran together. This is the
   condition behind round 11's "`w=126` on a Text in a Row becomes a flex weight" (a row of 2 or more such texts
   wider than half the window, under a scrolling row); a row not in a scroll is a table's, its columns shares as before.
+- **`Dots` in a page's Section**: the line after it is beside it, not one of its dots' row (a carousel's next button
+  sat in the 16 px row of dots). Found while checking round 11's builds.
 
 ## 36.0.0
 
