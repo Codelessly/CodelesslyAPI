@@ -4190,7 +4190,7 @@ class _Parser {
       if (reorders && (g != null || across)) return _issue(column, 'A list that is reordered runs down a Column, a Card or a Section, not across a Row or in a Grid.');
       final isVariable = _identifier.hasMatch(listName) && !listName.contains('.') && variables.containsKey(listName);
       if (reorders && !isVariable) {
-        return _issue(column, 'reorder writes the new order to a list variable: declare it (state $listName=[…]) and repeat it by name (each row in $listName reorder).');
+        return _issue(column, 'reorder writes the new order to a list variable: declare it (state $listName=[…]) and repeat it by name (each row in $listName reorder), or write reorder onReorder={…} on the line the each is under and store the move yourself (result.item, result.to). Rows moved between lists (a board) are a ListView\x27s: ListView reorder.group=board reorder.listKey={…} onReorder={…}.');
       }
       // The universal words of the line the list is under (docs/design/21
       // section 4.1): reorder, selectable, their events, a handle.
@@ -6838,7 +6838,11 @@ class _Parser {
       layout['flex'] = 1;
       layout['width'] = {'fill': 0};
     }
-    final inRow = !cell && (parent?.type == 'row' || options.rowFrames.contains(parent?.type));
+    // A Flex laid out across (`direction=horizontal`) is a row: what is in
+    // it is as wide as it is, and a Spacer or a `grow` takes the rest (each
+    // took an equal share: a row of buttons half the bar, test 9 kanban).
+    final acrossFlex = parent?.type == 'flex' && (nodes[parent!.id]?['props'] as Map?)?['direction'] == 'horizontal';
+    final inRow = !cell && (parent?.type == 'row' || acrossFlex || options.rowFrames.contains(parent?.type));
     // A Splitter is as long as the panes it divides: as tall as its row (as
     // wide as its column when it divides one). It hugged, a 44 px stub at
     // the row's top beside the panes' own full-height borders (test 9, mail
@@ -6993,6 +6997,12 @@ class _Parser {
     // On a page a column beside an icon or a picture gives way too (a name
     // and a note in a narrow tile), where it would push past the row's end.
     if (inRow && type == 'column' && !layout.containsKey('width') && !layout.containsKey('flex') && options.width >= 700 && written != 'Card') {
+      layout['squeezable'] = true;
+    }
+    // A table's cell holds what is written for it inside the column's width:
+    // a row of its own (a picture beside a name and an email) gives way too
+    // (it ran past a narrow column: 202 wide, needing 206, an exception).
+    if (inRow && type == 'row' && parent != null && _roles[parent.id] == 'cell' && !layout.containsKey('width') && !layout.containsKey('flex')) {
       layout['squeezable'] = true;
     }
     // A text in a box of a fixed height (an event's block, a tile): the

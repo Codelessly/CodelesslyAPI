@@ -107,7 +107,7 @@ const Map<String, UniversalWord> notationUniversal = {
   'required': UniversalWord(UniversalKind.flag, 'its label marked, and an input checks it is not empty', on: {'control'}),
   'autofocus': UniversalWord(UniversalKind.flag, 'has the keyboard\'s focus when the page opens', on: {'control'}),
   // On a list: the line whose lines come from an each.
-  'reorder': UniversalWord(UniversalKind.flag, 'its rows are dragged (or moved by Alt and the arrows) into a new order', on: {'container'}),
+  'reorder': UniversalWord(UniversalKind.flag, 'its rows are dragged (or moved by Alt and the arrows) into a new order, written to the list variable the each runs over (over a formula: onReorder); between lists: a ListView with reorder.group and reorder.listKey', on: {'container'}),
   'sortable': UniversalWord(UniversalKind.flag, 'reorder', on: {'container'}, of: 'reorder'),
   'reorderable': UniversalWord(UniversalKind.flag, 'reorder', on: {'container'}, of: 'reorder'),
   'handle': UniversalWord(UniversalKind.flag, 'with reorder: its rows are dragged by their Handle', on: {'container'}),

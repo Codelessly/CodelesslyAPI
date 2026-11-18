@@ -48,6 +48,14 @@ Column
 A `Handle` is as big as its line says and where it is written: the list adds no room around it. Unwritten it is a
 44 px target on a phone and a 24 px grip on a page 700 wide or wider (a touch still lands on it in 44 × 44).
 
+`reorder` on an `each` (or on the line it is under) lets its copies be dragged into a new order, and moved with Alt
+and the arrows from the keyboard. The new order is written to the list the `each` runs over, so that list is a
+variable declared with `state`; over a formula (`each c in colCards(col.id)`) write `reorder onReorder={…}` on the
+line the `each` is under and store the
+move yourself (`result.item`, `result.from`, `result.to`, `result.toList`). Moving between lists (a board's
+columns) is a `ListView`'s: `ListView#lane reorder.group=board reorder.listKey={col.id} onReorder={…}` with the
+`each` under it; the `reorder.*` keys (`group`, `listKey`, `start=press`) are a ListView's, not a Column's.
+
 ```notation expands
 state page=0
 Pages @page h=160

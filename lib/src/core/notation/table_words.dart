@@ -200,7 +200,7 @@ extension on PageWords {
   PageLine _cellLine(_Table t) {
     final c = t.cells < t.columns.length ? t.columns[t.cells] : null;
     t.cells++;
-    return (indent: t.rowsAt, text: 'Row${c?.size ?? ' grow'} gap=8');
+    return (indent: t.rowsAt, text: 'Row${_role('cell')}${c?.size ?? ' grow'} gap=8');
   }
 
   /// What closes a table: the cells no line was written for (their key's

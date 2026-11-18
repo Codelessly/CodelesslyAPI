@@ -335,6 +335,37 @@ Row#board gap=12 $word
       expect((item['props'] as Map)['mainAxisAlignment'], at, reason: word);
     }
   });
+  test('in a Flex laid out across, a row of buttons and a text are as wide as they are and a Spacer takes the rest', () {
+    final r = _parse('''
+Flex#bar direction=horizontal gap=8 middle w=fill
+  Input "" "Search" w=280
+  Row#btns gap=8
+    Button "Labels"
+    Button "Due"
+  Spacer#gap
+  Text#count "18 cards"
+''');
+    expect(r.issues, isEmpty);
+    expect((_node(r, 'btns')['layout'] as Map)['width'], {'hug': 0});
+    expect((_node(r, 'count')['layout'] as Map)['width'], {'hug': 0});
+    expect((_node(r, 'gap')['layout'] as Map)['flex'], 1);
+  });
+  test('a row written in a table cell gives way to the column\'s width (it ran past a narrow name column)', () {
+    final r = parseNotation('''
+state people=[{"id":"a","name":"Ada Byron","email":"ada.byron@example.com","role":"Owner"}]
+Page
+  Section
+    Table p in people columns=[{"key":"name","label":"Name"},{"key":"role","label":"Role","w":120}]
+      Row#who gap=10
+        Avatar "{p.name}" size=28
+        Column#names
+          Text "{p.name}"
+          Text "{p.email}"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+    expect(r.issues, isEmpty);
+    expect((_node(r, 'who')['layout'] as Map)['squeezable'], isTrue);
+    expect((_node(r, 'names')['layout'] as Map)['squeezable'], isTrue);
+  });
   test('a column in a row is as wide as its content and so are its children; an accordion starts closed unless it says open', () {
     final r = _parse('''
 Card
