@@ -41,6 +41,12 @@
 
 ### Fixed
 
+- **A flag written as a key** (round 11b, 6 builds): `Main scroll=false` (a main that does not scroll: food-ordering,
+  mail-client, photo-library), `Row tablet.scroll phone.scroll=false` (kanban-board), `Row phone.stretch=true`
+  (admin-console, money-tracker), and `=true` on `scroll` and the alignment words (`top`, `middle`, `center`,
+  `stretch`, `between`…) are the flag; `scroll=false` is `scrollable=false`. They were "A Column has no
+  "scroll" (did you mean scrollable?)" and "A Flex has no "stretch"", though the reference gives flags values
+  (`hidden={…}`) and says the key after a size's condition is any key the line reads.
 - **A `customPaint` (or `animation`) line under a node in a `Nav`, a `Section`, a `Footer` or another page word is
   that node's** (round 11b: 6 builds): it was read at the depth written, two shallower than the page word moves the
   node lines to, so it went to the node above: a logo's mark under `box w=32 h=32` was painted across the row of

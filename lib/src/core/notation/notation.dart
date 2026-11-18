@@ -1382,6 +1382,10 @@ const _borderSides = {
   'borderBottom': 'bottom', 'borderTop': 'top', 'borderLeft': 'left', 'borderRight': 'right', 'border-b': 'bottom', 'border-t': 'top', 'border-l': 'left', 'border-r': 'right',
 };
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
+/// A flag word written with `=true` or `=false` (after a size's condition or
+/// not): the condition, the word, the value.
+final _flagKey = RegExp(r'^((?:[a-z][A-Za-z0-9]*\.)+)?(scroll|stretch|top|bottom|middle|center|left|right|start|end|between|around|evenly)=(true|false)$');
+
 const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'bottom': 'end', 'right': 'end', 'stretch': 'stretch'};
 
 /// What the notation already has under [word], in one line with its
@@ -5606,8 +5610,20 @@ class _Parser {
         final from = t.at;
         // `onKeyDown(key=Enter)={…}`: an event with its trigger's fields.
         final withFields = _Events.withFields(t.s, t.at);
-        final word = withFields == null ? t.word() : '${withFields.$1}=';
+        var word = withFields == null ? t.word() : '${withFields.$1}=';
         if (withFields != null) t.at = withFields.$3;
+        // A flag written as a key (`Main scroll=false`, `Row phone.stretch=true`,
+        // `tablet.scroll=true`; round 11b, 6 builds): `=true` is the flag,
+        // `scroll=false` the box that does not scroll (`scrollable=false`).
+        // The reference shows flags given values (`hidden={…}`) and a key
+        // after a condition as "any key the line reads".
+        if ((withFields == null ? _flagKey.firstMatch(word) : null) case final f? when !spec.props.any((p) => p.key == f[2])) {
+          if (f[3] == 'true') {
+            word = '${f[1] ?? ''}${f[2]}';
+          } else if (f[2] == 'scroll') {
+            word = '${f[1] ?? ''}scrollable=false';
+          }
+        }
         // Where the strings go: before any key=value or bare word.
         final textPosition = !afterKey;
         afterKey = true;

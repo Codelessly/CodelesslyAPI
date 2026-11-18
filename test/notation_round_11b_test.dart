@@ -112,6 +112,33 @@ Column
     expect((_props(again, 'i')['decoration'] as Map)['constraints'], {'minHeight': 44, 'maxHeight': 44}, reason: printed);
   });
 
+  test('a flag written as a key: scroll=false, phone.scroll=false, phone.stretch=true (they were refused)', () {
+    // food-ordering (Main scroll=false), mail-client (Pane scroll=false),
+    // kanban-board (tablet.scroll phone.scroll=false), admin-console and
+    // money-tracker (phone.stretch=true).
+    final r = _parse('''
+App
+  Main#main scroll=false
+    Column#col scroll=true
+      Row#row gap=12 top tablet.scroll phone.scroll=false
+        Text "a"
+      Row#flex gap=8 phone.direction=vertical phone.stretch=true
+        Text "b"
+''', options: const NotationOptions(width: 1280));
+    expect(r.issues, isEmpty);
+    expect(_props(r, 'main')['scrollable'], false);
+    expect(_props(r, 'col')['scrollable'], true);
+    final rules = _node(r, 'row')['media'] as List;
+    expect(rules.last, {
+      'maxWidth': 699,
+      'patch': {
+        'props': {'scrollable': false},
+      },
+    });
+    final flex = (_node(r, 'flex')['media'] as List).single as Map;
+    expect((flex['patch'] as Map)['props'], containsPair('crossAxisAlignment', 'stretch'));
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.
