@@ -58,6 +58,12 @@ Row gap=8 wrap=true runSpacing=8
 `scroll` on a Column scrolls what is under it; on a Row, sideways. `scrollTo node=faq` and the `scroll` verb move
 a scroll view to a line; `onScroll={…}` reads `result.fraction` (see [events.md](events.md)).
 
+`measure.variable="pos"` on a line keeps its box in that variable (`pos.x`, `pos.y`, `pos.width`, `pos.height`,
+`pos.centerX`, `pos.centerY`; relative to `measure.relativeTo`, else the screen): one variable per measured line,
+on a box (a Column or Row around a Text). A Row that scrolls sideways takes a sideways drag itself: a child
+dragged sideways inside it (a clip on a timeline) moves the row; such a child sits in a Stack moved by a value
+(`x={0 - offset}`), with the row's scroll written as that value.
+
 ```notation
 Column scroll h=300
   Text "Tall"

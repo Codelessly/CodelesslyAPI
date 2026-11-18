@@ -7,7 +7,7 @@ Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. Open 
 
 `fill` is one color; `gradient=["#FF2563EB","#FF7C3AED"]` a linear gradient with even stops; `fills=[…]` any list
 of paints ([Paint](@type-Paint): colors, gradients, images, noise). `border` is a hairline, `strokeWidth` its
-width, `border-bottom` one side; `radius` one number or `[topLeft,topRight,bottomRight,bottomLeft]`.
+width, `border-bottom` one side (bound too: `border-bottom={active ? accent : transparent}`); `radius` one number or `[topLeft,topRight,bottomRight,bottomLeft]`.
 
 ```notation
 Column gap=8

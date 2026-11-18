@@ -13,6 +13,7 @@ export 'src/core/notation/notation.dart'
         defaultTextVariants,
         notationRefusedState,
         notationScreen,
+        notationUnbraced,
         notationTypes,
         notationVerbAliases,
         notationVerbs,

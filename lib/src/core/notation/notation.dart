@@ -53,6 +53,48 @@ const notationId = r'[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*';
 /// expression `a-b` is a subtraction.
 String notationIdWord(String id) => id.replaceAll('-', '_');
 
+/// [expr] without braces around it all, where they are the expression's
+/// (`{length(sel) > 0}` after `when`, `{n + 1}` after `n=` in an action),
+/// as `key={expression}` reads everywhere else: one rule for an expression
+/// wherever it is written. A map literal (`{a: 1}`, `{"id": x}`, `{}`) keeps
+/// its braces.
+String notationUnbraced(String expr) {
+  var e = expr.trim();
+  while (e.length >= 2 && e.startsWith('{') && e.endsWith('}') && _closes(e, 0) == e.length - 1) {
+    final inner = e.substring(1, e.length - 1).trim();
+    if (inner.isEmpty || RegExp(r'''^(?:[A-Za-z_][A-Za-z0-9_]*|"[^"]*"|'[^']*')\s*:''').hasMatch(inner)) break;
+    e = inner;
+  }
+  return e == expr.trim() ? expr : e;
+}
+
+/// Where the brace that opens at [open] in [s] closes (quotes skipped); -1
+/// when it does not.
+int _closes(String s, int open) {
+  var depth = 0;
+  var quote = '';
+  for (var i = open; i < s.length; i++) {
+    final c = s[i];
+    if (quote.isNotEmpty) {
+      if (c == r'\') {
+        i++;
+      } else if (c == quote) {
+        quote = '';
+      }
+      continue;
+    }
+    if (c == '"' || c == "'") {
+      quote = c;
+    } else if (c == '{') {
+      depth++;
+    } else if (c == '}') {
+      depth--;
+      if (depth == 0) return i;
+    }
+  }
+  return -1;
+}
+
 /// A problem in the notation's text: where and what.
 final class NotationIssue {
   const NotationIssue(this.line, this.column, this.message);
@@ -149,6 +191,8 @@ final class NotationOptions {
     this.openVocabulary = false,
     this.vocabulary = NotationVocabulary.core,
     this.screens = const {},
+    this.ownComponents = const {},
+    this.themeColors = const {},
   });
 
   /// These options with an open vocabulary (or not), and with [vocabulary]
@@ -164,12 +208,27 @@ final class NotationOptions {
   /// These options with [screens] as the ids of the app's screens.
   NotationOptions withScreens(Iterable<String> screens) => _copy(openVocabulary: openVocabulary, vocabulary: vocabulary, screens: {...screens});
 
+  /// These options with [names] as the components that are the app's own
+  /// (a site's, not a design system's): a line that writes one of them
+  /// where a word of the notation of the same name is read instead
+  /// (`Footer`, `Sidebar`, `Card`) is an issue, not a silent frame.
+  NotationOptions withOwnComponents(Iterable<String> names) =>
+      _copy(openVocabulary: openVocabulary, vocabulary: vocabulary, ownComponents: {...names});
+
+  /// The components that are the app's own ([withOwnComponents]).
+  final Set<String> ownComponents;
+
+  /// The names of the theme's colors (its `colors`, whatever they are
+  /// called): a bare word of them after a color key is the theme's, even
+  /// where a variable has the name.
+  final Set<String> themeColors;
+
   /// The ids of the app's screens (a site's pages): a bare word after `go`
   /// that names one ([notationScreen]) is that screen, even where a variable
   /// has the same name. Empty when the page is expanded alone.
   final Set<String> screens;
 
-  NotationOptions _copy({double? width, String? screen, bool? reflow, required bool openVocabulary, required NotationVocabulary vocabulary, Set<String>? screens}) => NotationOptions(
+  NotationOptions _copy({double? width, String? screen, bool? reflow, required bool openVocabulary, required NotationVocabulary vocabulary, Set<String>? screens, Set<String>? ownComponents}) => NotationOptions(
         width: width ?? this.width,
         screen: screen ?? this.screen,
         textStyles: textStyles,
@@ -213,6 +272,8 @@ final class NotationOptions {
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
         screens: screens ?? this.screens,
+        ownComponents: ownComponents ?? this.ownComponents,
+        themeColors: themeColors,
       );
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -265,6 +326,7 @@ final class NotationOptions {
       displaySizes: base.displaySizes,
       projectVariables: projectVariables,
       accentText: base.accentText,
+      themeColors: base.themeColors,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -325,7 +387,10 @@ final class NotationOptions {
       ..putIfAbsent('caption', () => {'fontSize': 11, 'color': faint})
       ..putIfAbsent('body', () => body()..['color'] = ink)
       ..putIfAbsent('danger', () => body()..addAll({'fontWeight': 600, 'color': color('error', '#FFDC2626')}))
-      ..putIfAbsent('success', () => body()..addAll({'fontWeight': 600, 'color': color('success', '#FF16A34A')}));
+      ..putIfAbsent('success', () => body()..addAll({'fontWeight': 600, 'color': color('success', '#FF16A34A')}))
+      // NOTATION.md lists Text.mono with the others: a theme without its own
+      // `mono` has the body's size and ink in a monospace face.
+      ..putIfAbsent('mono', () => body()..addAll({'fontFamily': 'monospace', 'color': ink}));
     (String, String, String) tone(String role, String inkName) =>
         (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
     final error = tone('error', 'error');
@@ -372,6 +437,7 @@ final class NotationOptions {
     return NotationOptions(
       width: width,
       screen: screen,
+      themeColors: colors.keys.toSet(),
       textStyles: styles,
       card: {
         'decoration': {
@@ -507,6 +573,8 @@ final class NotationOptions {
         displaySizes: displaySizes,
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
+        ownComponents: ownComponents,
+        themeColors: themeColors,
       );
 
   /// The canvas's width.
@@ -1010,6 +1078,9 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'splitter': (prop: 'value', type: 'decimal', start: 240),
   'switch': (prop: 'value', type: 'boolean', start: false),
   'checkbox': (prop: 'value', type: 'boolean', start: false),
+  // A filter chip keeps whether it is on (forms.md: a tap toggles it,
+  // written back through its binding).
+  'filterChip': (prop: 'selected', type: 'boolean', start: false),
   'textField': (prop: 'initialValue', type: 'text', start: ''),
   'dropdown': (prop: 'value', type: 'text', start: ''),
   'radio': (prop: 'groupValue', type: 'text', start: ''),
@@ -1795,10 +1866,28 @@ class _Parser {
   /// written out, each with where it is written.
   Iterable<(PageLine, String?)> _definedLines(int indent, String text) sync* {
     for (final d in _defined.rewrite(indent, text, line: _line)) {
-      for (final l in _pages.rewrite(d.indent, d.text)) {
+      final lines = _pages.rewrite(d.indent, d.text);
+      _shadowed(d.text, lines);
+      for (final l in lines) {
         yield (l, d.from);
       }
     }
+  }
+
+  /// Says so when [text] calls a component by a name that is also a page
+  /// word (`Footer`, `Sidebar`, `Header`) and the page words read it as
+  /// theirs ([lines] is not the line as written): the component is not
+  /// called.
+  void _shadowed(String text, List<PageLine> lines) {
+    final word = RegExp(r'^([A-Z][A-Za-z0-9]*)').firstMatch(text.trimLeft())?[1];
+    if (word == null || !options.ownComponents.contains(word) || !PageWords.words.contains(word) || catalog.widget(word) == null) return;
+    if (RegExp('(^|\\s)type=$word(\\s|\$)').hasMatch(text)) return;
+    final head = RegExp(r'^([A-Z][A-Za-z0-9]*)').firstMatch(lines.firstOrNull?.text.trimLeft() ?? '')?[1];
+    if (lines.length == 1 && head == word) return;
+    _issue(
+        1 + (text.length - text.trimLeft().length),
+        '$word is a word of the notation here (a frame of the page), so the component $word is not called: '
+        'call it as $word type=$word, or give the component a name of its own (Site$word).');
   }
 
   /// Records a use of a word outside the notation (once for a place).
@@ -3133,7 +3222,7 @@ class _Parser {
           return true;
         }
         final type = head[2] == null ? notationTypeJson(notationTypeOf(first!.value)) : notationTypeJson(head[2]!);
-        if (type == null) _issue(indent + 1, 'No type "${head[2]}": String, bool, double, int, List<…>, ValueNotifier<…>, or an enum\x27s values joined by | (small|medium|large).');
+        if (type == null) _issue(indent + 1, 'No type "${head[2]}": String, bool, double, int, Map or dynamic (a record, anything), List<…>, ValueNotifier<…>, or an enum\x27s values joined by | (small|medium|large).');
         final p = <String, Object?>{'key': head[1], 'type': type ?? notationTypeJson('String'), 'default': first!.value};
         for (final w in words.skip(1)) {
           if (w.key == 'required' && w.value == null) {
@@ -3157,7 +3246,7 @@ class _Parser {
           if (notationTypeJson(t) case final Json json) {
             e['payload'] = json;
           } else {
-            _issue(indent + 1, 'No type "$t": String, bool, double, int, List<…>, or an enum\x27s values joined by |.');
+            _issue(indent + 1, 'No type "$t": String, bool, double, int, Map or dynamic, List<…>, or an enum\x27s values joined by |.');
           }
         }
         for (final w in words.skip(1)) {
@@ -3526,6 +3615,9 @@ class _Parser {
     for (var k = 0; k < eaches.length; k++) {
       final around = eaches.length - 1 - k;
       final to = around == 0 ? 'item' : '${'parent.' * (around - 1)}parent.item';
+      // An each inside that reuses the name (`each item in item.items`)
+      // hides the outer one, as in any language: the name is the inner's.
+      if (eaches.skip(k + 1).contains(eaches[k])) continue;
       if (eaches[k] != to) line = _rename(line, eaches[k], to);
     }
     // The small model marks a name with `$` (`$total`, `"{money($total)}"`):
@@ -3885,7 +3977,8 @@ class _Parser {
         return;
       }
       // In a row the copies go across, each at its own width.
-      final across = g == null && parent.type == 'row';
+      // (A horizontal Flex is a row too.)
+      final across = g == null && (parent.type == 'row' || (parent.type == 'flex' && (nodes[parent.id]?['props'] as Map?)?['direction'] == 'horizontal'));
       if (follows && (g != null || across)) return _issue(column, 'A list that follows its end runs down a Column, a Card or a Section, not across a Row or in a Grid.');
       final listName = each[2]!.trim();
       if (reorders && (g != null || across)) return _issue(column, 'A list that is reordered runs down a Column, a Card or a Section, not across a Row or in a Grid.');
@@ -4119,6 +4212,12 @@ class _Parser {
     // Whether the notation's own Gauge, Ring, Avatar… is what this line is
     // (not a design system's component of that name).
     final ours = short != null;
+    // The app's own component of a name the notation has a word for: the
+    // word is read, so the call is not made. Said, with the way to call it.
+    if (!component && options.ownComponents.contains(written) && catalog.widget(written) != null) {
+      _issue(column,
+          '$written is a word of the notation, so the component $written is not called here: call it as $written type=$written, or give the component a name of its own (My$written).');
+    }
     if (component) type = written;
     // The text parameters a component's strings fill, and the ones filled so.
     var strings = const <String>[];
@@ -5188,7 +5287,14 @@ class _Parser {
           // name) keeps it, whatever a variable is called:
           // Input "Email" type=email @email.
           const wordKeys = {'type', 'icon', 'align', 'weight', 'tone', 'variant'};
-          if (known && !ownValue && !wordKeys.contains(key)) {
+          // A key that names a variable (`measure.variable=pos`,
+          // `pan.xVariable=panx`) takes the name, not its value.
+          final namesVariable = key.endsWith('.variable') || key.endsWith('Variable') || key == 'variable';
+          // A theme's color or text style of that name (`fill=panel`,
+          // `style=tick` with a `panel` or `tick` variable too) is the theme's:
+          // a bare word is a word, braces read the variable.
+          final themeWord = options.palette.containsKey(raw) || options.themeColors.contains(raw) || (options.textStyles.containsKey(raw) && (key == 'style' || key == 'from'));
+          if (known && !ownValue && !wordKeys.contains(key) && !namesVariable && !themeWord) {
             _issue(col, 'A value read from the state is written in braces: $key={$raw}.');
             continue;
           }
@@ -5437,6 +5543,15 @@ class _Parser {
             {'color': _named(_value(raw), 'stroke')},
           ];
           decoration['strokeSides'] = side;
+          continue;
+        }
+        // …one that follows data: border-bottom={active ? accent : transparent}.
+        if (_borderSides[key] case final String side when raw.startsWith('=')) {
+          decoration['strokes'] = [
+            {'color': '#00000000'},
+          ];
+          decoration['strokeSides'] = side;
+          bind['decoration.strokes[0].color'] = _namedIn(_read(raw.substring(1)), 'stroke');
           continue;
         }
         // A border's width and colour, together or apart: `border=2` (the
@@ -6677,10 +6792,17 @@ class _Parser {
       // A row that spreads its children (between, around, evenly) has to be
       // as wide as its place to spread them over: in a centered column too.
       final spread = type == 'row' && !inRow && !inTile && const {'spaceBetween', 'spaceAround', 'spaceEvenly'}.contains(props['mainAxisAlignment']);
+      // A text or a row placed in a stack by its x or y (a label at a point,
+      // a marker on a ruler) is as wide as its content, as a positioned box
+      // is on the web: filling, it would run from its x across the stack (and
+      // a text drew at 0,0 under the others).
+      final placed = parent?.type == 'stack' &&
+          const {'text', 'row', 'column'}.contains(type) &&
+          (layout.containsKey('x') || layout.containsKey('y') || bind.containsKey('layout.x') || bind.containsKey('layout.y'));
       // An icon is as big as it is: it does not stretch across a column.
-      final fills = layout.containsKey('flex') ||
+      final fills = !placed && layout.containsKey('flex') ||
           spread ||
-          !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
+          !placed && !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
       layout['width'] = _size(layout['width']);
@@ -7033,10 +7155,19 @@ class _Parser {
     }
     if (donutKeys != null) _donutLegend(id, out, donutKeys, inRow: parent?.type == 'row');
     if (avatarName != null) {
-      // "Maya Reyes" is MR; a value read from state is shown as it is.
+      // "Maya Reyes" is MR; a name read from state (`Avatar "{item.name}"`)
+      // is its initials too, worked out as it shows (its first two words'
+      // first letters); a text with more in it is shown as it is.
       final reads = avatarName.contains(r'${') || avatarName.contains('{');
       final words = avatarName.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
-      final initials = reads || words.isEmpty ? avatarName : words.length == 1 ? words.first.substring(0, words.first.length.clamp(0, 2)).toUpperCase() : '${words.first[0]}${words.last[0]}'.toUpperCase();
+      final whole = RegExp(r'^\$?\{(?:=\s*)?([^{}]+)\}$').firstMatch(avatarName.trim());
+      final initials = whole != null
+          ? _formula("upper(join(map(take(split(trim(text(${whole[1]!.trim()})), ' '), 2), w => left(w, 1)), ''))")
+          : reads || words.isEmpty
+              ? avatarName
+              : words.length == 1
+                  ? words.first.substring(0, words.first.length.clamp(0, 2)).toUpperCase()
+                  : '${words.first[0]}${words.last[0]}'.toUpperCase();
       final size = switch ((out['layout'] as Map)['width']) { final num w => w, _ => avatarSize ?? 40 };
       final base = options.textStyles['strong'] ?? options.textStyles['body'];
       nodes['${id}Text'] = {
@@ -7365,6 +7496,19 @@ class _Parser {
     var quoted = false, inner = false, depth = 0, start = 0;
     void flush(int end, bool code) {
       final part = line.substring(start, end);
+      // A string literal in an expression ('m-' + m.id) is text: the loop's
+      // name is not renamed inside it.
+      if (code && part.contains("'")) {
+        final pieces = part.split("'");
+        if (pieces.length.isOdd) {
+          for (var i = 0; i < pieces.length; i++) {
+            if (i > 0) out.write("'");
+            out.write(i.isOdd ? pieces[i] : _rename(pieces[i], name, to));
+          }
+          start = end;
+          return;
+        }
+      }
       out.write(code
           ? part.replaceAllMapped(word, (m) {
               // In `h=120` the `h` is a prop key. In `live ? h=4` it
@@ -8380,11 +8524,9 @@ class _Parser {
     const usage = 'A confirm is a quoted question and what a yes does: confirm "Remove it?" then {count=0; toast "Removed"} '
         '(confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" cancel="Keep" danger then {clips=[]} else {toast "Kept"}).';
     final tokens = _Tokens(a.substring('confirm'.length))..skipSpace();
-    final title = tokens.peek == '"' ? tokens.string() : null;
-    if (title == null) {
-      _issue(column, usage);
-      return null;
-    }
+    // The question, quoted first (or as title="…", the confirm action's own
+    // field names: title, message, confirmLabel, cancelLabel, destructive).
+    var title = tokens.peek == '"' ? tokens.string() : null;
     String? message, ok, cancel;
     var danger = false;
     while (true) {
@@ -8411,14 +8553,24 @@ class _Parser {
       switch (key) {
         case 'danger' || 'destructive' when eq < 0:
           danger = true;
-        case 'ok' || 'yes' when eq > 0:
+        case 'danger' || 'destructive' when eq > 0:
+          danger = value() == 'true';
+        case 'ok' || 'yes' || 'confirmLabel' || 'confirm' when eq > 0:
           ok = value();
-        case 'cancel' || 'no' when eq > 0:
+        case 'cancel' || 'no' || 'cancelLabel' when eq > 0:
           cancel = value();
+        case 'message' || 'detail' when eq > 0 && message == null:
+          message = value();
+        case 'title' || 'question' when eq > 0 && title == null:
+          title = value();
         default:
-          _issue(column, 'A confirm takes a detail line, ok="…", cancel="…" and danger before then; "$word" is not one of them. $usage');
+          _issue(column, 'A confirm takes a detail line (or message="…"), ok="…" (confirmLabel), cancel="…" (cancelLabel) and danger (destructive=true) before then; "$word" is not one of them. $usage');
           return null;
       }
+    }
+    if (title == null) {
+      _issue(column, usage);
+      return null;
     }
     var tail = tokens.rest.trim();
     if (!tail.startsWith('then') || tail.substring(4).trim().isEmpty) {
@@ -8534,7 +8686,7 @@ class _Parser {
             // Plain words after the event are its value as text
             // (`emit choose plan A`); anything else is read as a value.
             if (value != null && value.isNotEmpty)
-              'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
+              'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _emitted(value),
           });
         case 'open':
           // An overlay written in this text (Dialog#id, Menu#id…) opens as
@@ -8602,8 +8754,8 @@ class _Parser {
           final target = s.replaceFirst(RegExp(r'^#'), '').trim();
           if (verb != 'focus' || target.isEmpty) {
             out.add({'type': 'focus', 'unfocus': true});
-          } else if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(target)) {
-            _issue(column, 'A focus names the field by its id: focus search (Input#search "Search" …).');
+          } else if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*(?:/[A-Za-z_][A-Za-z0-9_-]*)*$').hasMatch(target)) {
+            _issue(column, 'A focus names the field by its id: focus search (Input#search "Search" …), or a component\'s field by the call\'s id and its own: focus filters/search.');
           } else {
             out.add({'type': 'focus', 'node': target});
           }
@@ -8738,6 +8890,14 @@ class _Parser {
     return _bracedValue.hasMatch(braced) || _bracedExpression(braced) ? braced : null;
   }
 
+  /// An emitted value: a quoted text with values in it (`"{result}"`,
+  /// `"page-{id}"`) reads them, as a text does; else [_valueOrRead].
+  Object? _emitted(String raw) {
+    final l = _literal(raw);
+    if (l.$1 && l.$2 is String && raw.trimLeft().startsWith('"') && (l.$2! as String).contains('{')) return _interpolate(l.$2! as String);
+    return _valueOrRead(raw);
+  }
+
   Object? _valueOrRead(String raw) {
     final l = _literal(raw);
     return l.$1 ? l.$2 : _read(raw);
@@ -8853,7 +9013,7 @@ class _Parser {
   /// A path with an element of a list by its index in it: `kpis[0].value`.
   static final _indexedPath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*|\[[0-9]+\])*$');
 
-  String _formula(String expr) => '\${= ${_natural(_textsRead(_colors(expr)))}}';
+  String _formula(String expr) => '\${= ${_natural(_textsRead(_colors(notationUnbraced(expr))))}}';
 
   /// A color written in a formula as it is written after a key
   /// (`fill={late ? #FFFECACA : #FFFFFFFF}`): the text it is.

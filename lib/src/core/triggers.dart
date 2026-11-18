@@ -510,13 +510,15 @@ final class KeyCombo {
       };
 
   /// Whether key [label] pressed with these modifiers is this combination.
-  /// Modifiers match exactly, except Shift on a one-character key the
-  /// combination doesn't shift (typing `?` takes Shift).
+  /// Modifiers match exactly, except Shift on a one-character key that is
+  /// not a letter, which the combination doesn't shift (typing `?` takes
+  /// Shift). A letter is its own key with Shift or without: `j` is not
+  /// Shift+J, so `key j` and `key shift+j` are two shortcuts.
   bool matches(String label, {bool meta = false, bool shift = false, bool alt = false}) {
     if (normalizeKey(label) != key) return false;
     if (meta != this.meta || alt != this.alt) return false;
     if (this.shift) return shift;
-    return !shift || key.length == 1;
+    return !shift || (key.length == 1 && !RegExp('[a-z]').hasMatch(key));
   }
 
   @override

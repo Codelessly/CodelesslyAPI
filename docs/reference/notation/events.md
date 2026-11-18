@@ -118,6 +118,20 @@ name, each value as on a line (a number, a word, `"text"` in which `{x}` reads a
 A field that holds actions takes them in braces: `confirm "Remove it?" then {close}`, `onError={toast "Failed"}`.
 `cond ? a : b` chooses between actions (a branch may be `{a; b}`, or empty).
 
+An expression is written the same everywhere: braces around it are the expression's (`when {length(sel) > 0}` is
+`when length(sel) > 0`, `n={n + 1}` in an action is `n=n + 1`), and a map is a literal with keys (`m={a: 1}`, `{}`).
+Inside a JSON value (`params={"id":"${msg.id}"}`) a value is written `${…}`: the `{x}` of a text does not reach
+into JSON.
+
+`confirm` takes the question, then a detail line, the buttons' words and `danger` before `then`: `confirm "Delete
+it?" "It cannot be restored." ok="Delete" cancel="Keep" danger then {…} else {…}`; the action's own field names
+read there too (`title="…"`, `message="…"`, `confirmLabel="…"`, `cancelLabel="…"`, `destructive=true`).
+
+A click's `result` holds `x`, `y`, `globalX`, `globalY` and the keys held: `shift`, `alt`, `meta` (Control or
+Command, the platform's "add to" key), `ctrl` (Control). A drag's (every move) holds `dx`, `dy` (the move since the
+last event), `x`, `y`, `globalX`, `globalY`, `startX`, `startY`, `pointerCount`; a drag's end holds `vx`, `vy` (the
+speed). A text field's change is the text itself (`result`, not `result.text`).
+
 | Write | Action |
 |---|---|
 | `count=count+1` | [`setVariable`](#action-setVariable) |

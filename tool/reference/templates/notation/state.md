@@ -6,8 +6,8 @@ worked out, kept, or shared, or you need a function's signature.
 ## Variables
 
 `state name=value` declares a variable of the screen, its type from its value; `state name:type=value` names the
-type (`state price:decimal=0`; with no value, `state note:text`). Types: {{variableTypes}}. `saved` keeps the
-value on the device.
+type (`state price:decimal=0`; with no value, `state note:text`). Types: {{variableTypes}}. `saved` after the
+value keeps it on the device: `state tab="inbox" saved` (not `state tab saved="inbox"`).
 
 A formula variable is worked out and kept up to date: `state total:decimal={price * qty}`. With parameters it is a
 function the formulas call: `state usd(n):text={'$' + round(n)}`.
