@@ -2755,6 +2755,12 @@
         "edges"
       ]
     },
+    "enum.SplitterPane": {
+      "enum": [
+        "before",
+        "after"
+      ]
+    },
     "enum.StorageOperation": {
       "enum": [
         "write",
@@ -10568,6 +10574,9 @@
                   },
                   "label": {
                     "type": "string"
+                  },
+                  "pane": {
+                    "$ref": "#/$defs/enum.SplitterPane"
                   }
                 },
                 "additionalProperties": false

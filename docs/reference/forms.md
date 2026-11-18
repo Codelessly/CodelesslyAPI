@@ -441,7 +441,7 @@ Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 
 Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.
 
-A pane divider. Its value is the leading pane's width in logical pixels.
+A pane divider. Its value is the width (in logical pixels) of the pane before it, or with `pane: after` of the pane after it (an inspector at the window's end): the pane binds its width to the same variable.
 
 - Children: none.
 - Decoration: none: only blur effects in `decoration.effects` apply.
@@ -455,6 +455,7 @@ A pane divider. Its value is the leading pane's width in logical pixels.
 | `collapseAt` | double | `48` |  |  |
 | `orientation` | [Axis](values.md#enum-Axis) | `"horizontal"` | `horizontal`, `vertical` |  |
 | `label` | String | `"Resize panels"` |  |  |
+| `pane` | [SplitterPane](values.md#enum-SplitterPane) | `"before"` | `before`, `after` | The pane its value sizes: the one before it (dragging toward the end widens it) or the one after it (dragging toward the end narrows it). |
 
 <a id="node-calendar"></a>
 ### `calendar`

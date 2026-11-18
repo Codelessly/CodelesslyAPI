@@ -131,7 +131,10 @@ Row stretch h=fill
 
 A desktop window of three panes: a rail, the content, an inspector. `Sidebar` is the rail (`w=72` for icons only),
 `Main` takes the room left and scrolls, each `Pane` is a further column as tall as the window (`w=` its width, else
-it shares the room). A key with a size before it changes a pane at that width ([responsive.md](responsive.md)):
+it shares the room). Lines at the top of a `Main` or a `Pane` written `sticky` (its toolbar) are its head: they
+stay above while the rest scrolls under them, never over it. A line in it that takes the room left (`grow`,
+`h=fill`: a board's lanes, a list that scrolls itself) makes the pane a plain column that does not scroll. A key
+with a size before it changes a pane at that width ([responsive.md](responsive.md)):
 here the inspector leaves at a tablet's width and the rail at a phone's.
 
 ```notation width=1280 expands
@@ -161,6 +164,42 @@ Row stretch h=fill
   Column scroll h=fill grow
     Text.title "Inbox"
   Column scroll w=320 h=fill border-right=#FFE5E7EB hide=tablet
+    Text.heading "Details"
+```
+
+A `Splitter` between two panes lets the reader resize one. It keeps that pane's width in a variable (`@listW`) and
+the pane reads it (`w={listW}`); with `pane=after` the variable is the width of the pane after it (an inspector at
+the window's end), so dragging toward the end narrows that pane. It is as tall as the row it is in, a hairline in a
+desktop window (8 px to grab, a grip under the pointer or the keyboard's focus); where the pane beside it draws its
+own border on that side, that border is the line and the splitter draws none. Arrows, Home and End move it.
+
+```notation width=1280 expands
+state listW=360
+state inspectorW=320
+App
+  Pane w={listW} border-right=line
+    Text.heading "Messages"
+  Splitter @listW min=280 max=520 label="Resize the list"
+  Main
+    Text.title "Reading"
+  Splitter @inspectorW min=240 max=480 pane=after label="Resize the details"
+  Pane w={inspectorW} border-left=line
+    Text.heading "Details"
+```
+
+It reads as:
+
+```notation width=1280
+state listW=360
+state inspectorW=320
+Row stretch h=fill
+  Column scroll h=fill border-right=line w={listW}
+    Text.heading "Messages"
+  Splitter "Resize the list" h=fill @listW min=280 max=520
+  Column scroll h=fill grow
+    Text.title "Reading"
+  Splitter "Resize the details" h=fill @inspectorW min=240 max=480 pane=after
+  Column scroll h=fill border-left=line w={inspectorW}
     Text.heading "Details"
 ```
 

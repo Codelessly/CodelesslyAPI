@@ -497,6 +497,7 @@ Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.
 | `collapseAt` | number | `48` | 1 |  |
 | `orientation` | `horizontal` `vertical` | `horizontal` | 1 |  |
 | `label` | text | `"Resize panels"` | 1 |  |
+| `pane` | `before` `after` | `before` | 1 | The pane its value sizes: the one before it (dragging toward the end widens it) or the one after it (dragging toward the end narrows it). |
 
 <a id="node-calendar"></a>
 ### `Calendar` (`calendar`)

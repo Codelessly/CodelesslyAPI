@@ -36,6 +36,9 @@ Column gap=24 pad=48 phone.pad=16
 `hide=phone` leaves a line out on a phone, `hide=tablet` on a tablet and a phone; `show=phone` shows it on a
 phone only. `tablet.hidden=true` (or `tablet.hidden`) is `hide=tablet`. A Row that is a column at some width is
 written `Row … phone.direction=vertical` (it is read as a `Flex`, which takes `scroll` and the alignment words too).
+A line shown only on a phone under a bar (`Row#phoneSearch show=phone` for the field the bar hides there) is a band of
+its own: give it the bar's `fill=` and move the bar's `border-bottom` onto it, or write it inside the bar's column,
+so the field sits in the bar and not on the page's background.
 
 <a id="responsive-what-reflow-does"></a>
 ## What reflow does
